@@ -1,160 +1,147 @@
-Message-ID: <41F148B8.5090504@redhat.com>
-Date: Fri, 21 Jan 2005 13:23:52 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0LIgGIi014236
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 13:42:16 -0500 (EST)
+Received: from glaurung.internal.golden-gryphon.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0LIeCeS000899
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 18:40:12 GMT
+Received: from glaurung.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by glaurung.internal.golden-gryphon.com (8.13.2/8.13.2/Debian-1) with ESMTP id j0LIdHBr010891
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 12:39:17 -0600
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: run_init and interactive scripts
+References: <87acr4u57h.fsf@glaurung.internal.golden-gryphon.com>
+	<1106246926.26753.196.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 21 Jan 2005 12:39:15 -0600
+In-Reply-To: <1106246926.26753.196.camel@moss-spartans.epoch.ncsc.mil>
+	(Stephen Smalley's message of "Thu, 20 Jan 2005 13:48:46 -0500")
+Message-ID: <87fz0ufwz0.fsf@glaurung.internal.golden-gryphon.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Change of restorecon and setfiles to not modify context if only_user_section
- changed
-Content-Type: multipart/mixed;
- boundary="------------050503080506060408030006"
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050503080506060408030006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--=-=-=
 
-Specifying force (-F) will override.
+Hi,
 
-Dan
+ [Sent to Stephen  directly in error; Stephen, I apologize for the
+  duplicate]
 
---------------050503080506060408030006
-Content-Type: text/x-patch;
- name="policycoreutils-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-rhat.patch"
+On Thu, 20 Jan 2005 13:48:46 -0500, Stephen Smalley <sds@epoch.ncsc.mil> said: 
 
-Binary files nsapolicycoreutils/load_policy/load_policy and policycoreutils-1.21.1/load_policy/load_policy differ
-Binary files nsapolicycoreutils/newrole/newrole and policycoreutils-1.21.1/newrole/newrole differ
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/restorecon/restorecon.c policycoreutils-1.21.1/restorecon/restorecon.c
---- nsapolicycoreutils/restorecon/restorecon.c	2005-01-20 15:59:21.000000000 -0500
-+++ policycoreutils-1.21.1/restorecon/restorecon.c	2005-01-21 13:21:44.916873000 -0500
-@@ -50,15 +50,12 @@
- static int only_changed_user(const char *a, const char *b)
- {
- 	char *rest_a, *rest_b; /* Rest of the context after the user */
--	if (!a || !b)
--		return 0;
-+	if (force) return 0;
-+	if (!a || !b) return 0;
- 	rest_a = strchr(a, ':');
- 	rest_b = strchr(b, ':');
--	if (!rest_a || !rest_b)
--		return 0;
--	if (strcmp(rest_a, rest_b) == 0)
--		return 1;
--	return 0;
-+	if (!rest_a || !rest_b) return 0;
-+	return  (strcmp(rest_a, rest_b) == 0);
+> It seems like this functionality (or something similar) could be
+> useful in other situations, e.g. for su(1) and sudo(8).
+
+
+        Hmm. I had been mostly testing open_init_pty  with full screen
+ curses based applications like aptitude and dselect, and not things
+ like restarting sshd. Looking at sshd restarts, I noticed ladder
+ artifacts like:
+======================================================================
+Shutting down mimedefang: [  OK  ]
+                                  Shutting down mimedefang-multiplexor:[  OK  ]
+ ....
+======================================================================
+
+        This is because I was putting the users terminal into raw
+ mode, and that also turns off output processing.  So, in the
+ following patch I introduce a function called tty_semi_raw, which is
+ just like raw mode, except we retain output processing. This is still
+ fine for things like aptitude and dselect, and makes the non-curses
+ applicationss look OK (like so)
+======================================================================
+Shutting down mimedefang: [  OK  ]
+Shutting down mimedefang-multiplexor: [  OK  ]
+ ....
+======================================================================
+
+        This is an incremental patch in addition to the one I sent 12
+ hours or so ago, which had the fflush stderr fixes. Please apply.
+
+        manoj
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=changes.patch
+Content-Description: only set terminal to semi_raw state
+
+--- orig/run_init/open_init_pty.c
++++ mod/run_init/open_init_pty.c
+@@ -113,6 +113,48 @@
+   return 0;
  }
  
- void usage(const char * const name)
-@@ -75,6 +72,7 @@
-   int len=strlen(filename);
-   struct stat st;
-   char path[PATH_MAX+1];
-+  int user_only_changed=0;
-   /* 
-      Eliminate trailing /
-   */
-@@ -139,7 +137,8 @@
-       if (outfile) {
- 	fprintf(outfile, "%s\n", filename);
-       }
--      if (change) {
-+      user_only_changed = only_changed_user(scontext, prev_context);
-+      if (change && !user_only_changed) {
- 	retval=lsetfilecon(filename,scontext);
-       }
-       if (retval<0) {
-@@ -151,7 +150,7 @@
- 	  return 1;
-       } else 	
- 	      if (verbose && 
--		  (verbose > 1 || !only_changed_user(scontext, prev_context)))
-+		  (verbose > 1 || !user_only_changed))
- 		      fprintf(stderr,"%s reset context %s:%s->%s\n",
- 			      progname, filename, (retcontext >= 0 ? prev_context : ""), scontext);
-     }
-Binary files nsapolicycoreutils/run_init/run_init and policycoreutils-1.21.1/run_init/run_init differ
-Binary files nsapolicycoreutils/setfiles/setfiles and policycoreutils-1.21.1/setfiles/setfiles differ
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/setfiles/setfiles.c policycoreutils-1.21.1/setfiles/setfiles.c
---- nsapolicycoreutils/setfiles/setfiles.c	2005-01-20 15:59:22.000000000 -0500
-+++ policycoreutils-1.21.1/setfiles/setfiles.c	2005-01-21 13:21:14.438382000 -0500
-@@ -583,13 +583,12 @@
- static int only_changed_user(const char *a, const char *b)
- {
- 	char *rest_a, *rest_b; /* Rest of the context after the user */
-+	if (force) return 0;
-+	if (!a || !b) return 0;
- 	rest_a = strchr(a, ':');
- 	rest_b = strchr(b, ':');
--	if (!rest_a || !rest_b)
--		return 0;
--	if (strcmp(rest_a, rest_b) == 0)
--		return 1;
--	return 0;
-+	if (!rest_a || !rest_b) return 0;
-+	return  (strcmp(rest_a, rest_b) == 0);
- }
- 
- /*
-@@ -605,6 +604,7 @@
- 	struct stat my_sb;
- 	int i, ret;
- 	char *context; 
-+	int user_only_changed=0;
- 
- 	/* Skip the extra slash at the beginning, if present. */
- 	if (file[0] == '/' && file[1] == '/')
-@@ -666,6 +666,8 @@
- 		}
- 	}
- 
-+	user_only_changed=only_changed_user(context, spec_arr[i].context);
++static int
++tty_semi_raw(int fd)
++{
++  struct termios buf;
 +
- 	/*
- 	 * Do not relabel the file if the matching specification is 
- 	 * <<none>> or the file is already labeled according to the 
-@@ -690,21 +692,18 @@
- 		/* If we're just doing "-v", trim out any relabels where
- 		 * the user has changed but the role and type are the
- 		 * same.  For "-vv", emit everything. */
--		if (verbose > 1 || 
--		    !only_changed_user(context, spec_arr[i].context)) {
-+		if (verbose > 1 || !user_only_changed) {
- 			printf("%s:  relabeling %s from %s to %s\n", progname,
- 			       my_file, context, spec_arr[i].context);
- 		}
- 	}
- 
--	if (log &&
--	    !only_changed_user(context, spec_arr[i].context)) {
-+	if ( log && !user_only_changed ) {
- 		syslog(LOG_INFO, "relabeling %s from %s to %s\n", 
- 		       my_file, context, spec_arr[i].context);
- 	}
- 
--	if (outfile &&
--	    !only_changed_user(context, spec_arr[i].context)) 
-+	if (outfile && !user_only_changed)
- 		fprintf(outfile, "%s\n", my_file);
- 
- 	freecon(context);
-@@ -712,7 +711,7 @@
- 	/*
- 	 * Do not relabel the file if -n was used.
- 	 */
--	if (!change)
-+	if (!change || user_only_changed) 
- 		return 0;
- 
- 	/*
-Binary files nsapolicycoreutils/setfiles/setfiles.o and policycoreutils-1.21.1/setfiles/setfiles.o differ
++  if(tty_state == RESET)
++   {
++     if(tcgetattr(fd, &saved_termios) < 0)
++      {
++        return -1;
++      }
++   }
++
++  buf             = saved_termios;
++  /*
++   * echo off, canonical mode off, extended input processing off,
++   * signal chars off
++   */
++  buf.c_lflag    &= ~(ECHO | ICANON | IEXTEN | ISIG);
++  /*
++   * no SIGINT on break, CR-to-NL off, input parity check off, do not
++   * strip 8th bit on input,output flow control off
++   */
++  buf.c_iflag    &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
++  /* Clear size bits, parity checking off */
++  buf.c_cflag    &= ~(CSIZE | PARENB);
++  /* set 8 bits/char */
++  buf.c_cflag    |= CS8;
++  /* Output processing off 
++  buf.c_oflag    &= ~(OPOST); */
++
++  buf.c_cc[VMIN]  = 1;             /* one byte at a time, no timer */
++  buf.c_cc[VTIME] = 0;
++  if(tcsetattr(fd, TCSANOW, &buf) < 0)
++   {
++     return -1;
++   } /* end of if(tcsetattr(fileno(stdin), TCSANOW, &buf) < 0) */
++  tty_state = RAW;
++  saved_fd = fd;
++  return 0;
++}
++
+ void
+ tty_atexit(void)
+ {
+@@ -254,7 +296,7 @@
+   FD_SET(fileno(stdin), &readfds);
+   if(isatty(fileno(stdin)))
+    {
+-     if(tty_raw(fileno(stdin)) < 0)
++     if(tty_semi_raw(fileno(stdin)) < 0)
+       {
+         perror("Error: settingraw mode:");
+         fflush(stdout);
 
---------------050503080506060408030006--
+
+
+
+--=-=-=
+
+
+-- 
+Paradise is exactly like where you are right now ... only much, much
+better. Laurie Anderson
+Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+
+--=-=-=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
