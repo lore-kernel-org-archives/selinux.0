@@ -1,39 +1,116 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA18750
-	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 18:11:02 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA25480
-	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 22:09:14 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id WAA25458 for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 22:08:48 GMT
-Date: Thu, 3 Oct 2002 08:10:01 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: Tracy R Reed <treed@ultraviolet.org>, selinux@tycho.nsa.gov
-Subject: Re: SE Linux on Debian
-Message-ID: <20021002221001.GB30400@snoopy.apana.org.au>
-References: <20021001153638.J5416@ultraviolet.org> <200210021054.16283.russell@coker.com.au> <20021002213137.GC30007@snoopy.apana.org.au> <200210022342.11159.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200210022342.11159.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA06565
+	for <selinux@tycho.nsa.gov>; Fri, 4 Oct 2002 10:53:00 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA00859
+	for <selinux@tycho.nsa.gov>; Fri, 4 Oct 2002 14:51:25 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id OAA00855
+	for <selinux@tycho.nsa.gov>; Fri, 4 Oct 2002 14:51:24 GMT
+Received: from localhost (sds@localhost)
+	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id g94EqbQ05329
+	for <selinux@tycho.nsa.gov>; Fri, 4 Oct 2002 10:52:37 -0400 (EDT)
+Date: Fri, 4 Oct 2002 10:52:37 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [patch] Fix omissions in SELinux-patched fileutils
+Message-ID: <Pine.GSO.4.33.0210041048400.26355-200000@raven>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-824023566-1033743157=:26355"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Oct 02, 2002 at 11:42:11PM +0200, Russell Coker wrote:
-> The package selinux-policy-default_2002082308-3_all.deb that I released didn't 
-> have it, neither did selinux-policy-default_2002082308-1_all.deb , and it's 
-> not in the CVS.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Isn't 2002082308-5 the latest version?
+---559023410-824023566-1033743157=:26355
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> Maybe there's another bug in the Debian diff generation?
 
-Hang on, I was getting confused betweend devfsd_t and devfs_t.
+The attached patch, also committed to the sourceforge CVS tree, fixes some
+omissions in the SELinux-patched fileutils.  To apply, cd selinux && patch
+-p1 < ~/fileutils.patch.  Then rebuild your fileutils.  'make check'
+should then pass all tests.
 
-My package was correct, it was this custom.te file that was
-the problem...
--- 
-Brian May <bam@snoopy.apana.org.au>
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+---559023410-824023566-1033743157=:26355
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="fileutils.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0210041052370.26355@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="fileutils.patch"
+
+SW5kZXg6IHNlbGludXgvdXRpbHMvZmlsZXV0aWxzLTQuMS9zcmMvY29weS5j
+DQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qv
+c2VsaW51eC9uc2Evc2VsaW51eC91dGlscy9maWxldXRpbHMtNC4xL3NyYy9j
+b3B5LmMsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4xDQpkaWZmIC11
+IC1yMS4xLjEuMSBjb3B5LmMNCi0tLSBzZWxpbnV4L3V0aWxzL2ZpbGV1dGls
+cy00LjEvc3JjL2NvcHkuYwkyMCBEZWMgMjAwMSAyMzoyNTowOCAtMDAwMAkx
+LjEuMS4xDQorKysgc2VsaW51eC91dGlscy9maWxldXRpbHMtNC4xL3NyYy9j
+b3B5LmMJNCBPY3QgMjAwMiAxNDo0NToxNSAtMDAwMA0KQEAgLTE0NSw3ICsx
+NDUsMTEgQEANCiAgIC8qIEZvciBjcCdzIC1IIG9wdGlvbiwgZGVyZWZlcmVu
+Y2UgY29tbWFuZCBsaW5lIGFyZ3VtZW50cywgYnV0IGRvIG5vdA0KICAgICAg
+ZGVyZWZlcmVuY2Ugc3ltbGlua3MgdGhhdCBhcmUgZm91bmQgdmlhIHJlY3Vy
+c2l2ZSB0cmF2ZXJzYWwuICAqLw0KICAgaWYgKHgtPmRlcmVmZXJlbmNlID09
+IERFUkVGX0NPTU1BTkRfTElORV9BUkdVTUVOVFMpDQorI2lmZGVmIEZMQVNL
+X0xJTlVYDQorICAgIG5vbl9jb21tYW5kX2xpbmVfb3B0aW9ucy54c3RhdCA9
+IGxzdGF0X3NlY3VyZTsNCisjZWxzZQ0KICAgICBub25fY29tbWFuZF9saW5l
+X29wdGlvbnMueHN0YXQgPSBsc3RhdDsNCisjZW5kaWYNCiANCiAgIG5hbWVw
+ID0gbmFtZV9zcGFjZTsNCiAgIHdoaWxlICgqbmFtZXAgIT0gJ1wwJykNCkBA
+IC00MjQsNyArNDI4LDExIEBADQogICAgICAgcmV0dXJuIDE7DQogICAgIH0N
+CiANCisjaWZkZWYgRkxBU0tfTElOVVgNCisgIGlmICh4LT54c3RhdCA9PSBs
+c3RhdF9zZWN1cmUpDQorI2Vsc2UNCiAgIGlmICh4LT54c3RhdCA9PSBsc3Rh
+dCkNCisjZW5kaWYNCiAgICAgew0KICAgICAgIHNhbWVfbGluayA9IHNhbWU7
+DQogDQpAQCAtNTIzLDcgKzUzMSwxMSBAQA0KICAgICAgICYmIFNfSVNMTksg
+KGRzdF9zYl9saW5rLT5zdF9tb2RlKSkNCiAgICAgcmV0dXJuIGRzdF9zYl9s
+aW5rLT5zdF9kZXYgPT0gc3JjX3NiX2xpbmstPnN0X2RldjsNCiANCisjaWZk
+ZWYgRkxBU0tfTElOVVgNCisgIGlmICh4LT54c3RhdCA9PSBsc3RhdF9zZWN1
+cmUpDQorI2Vsc2UNCiAgIGlmICh4LT54c3RhdCA9PSBsc3RhdCkNCisjZW5k
+aWYNCiAgICAgew0KICAgICAgIGlmICggISBTX0lTTE5LIChzcmNfc2JfbGlu
+ay0+c3RfbW9kZSkpDQogCXRtcF9zcmNfc2IgPSAqc3JjX3NiX2xpbms7DQpA
+QCAtNzYxLDcgKzc3MywxMSBAQA0KIAkgICAgfQ0KIAkgIGVsc2UgaWYgKCEg
+U19JU0RJUiAoZHN0X3NiLnN0X21vZGUpDQogCQkgICAmJiAoeC0+dW5saW5r
+X2Rlc3RfYmVmb3JlX29wZW5pbmcNCisjaWZkZWYgRkxBU0tfTElOVVgNCisJ
+CSAgICAgICB8fCAoeC0+eHN0YXQgPT0gbHN0YXRfc2VjdXJlDQorI2Vsc2UN
+CiAJCSAgICAgICB8fCAoeC0+eHN0YXQgPT0gbHN0YXQNCisjZW5kaWYNCiAJ
+CQkgICAmJiAhIFNfSVNSRUcgKHNyY19zYi5zdF9tb2RlKSkpKQ0KIAkgICAg
+ew0KIAkgICAgICBpZiAodW5saW5rIChkc3RfcGF0aCkgJiYgZXJybm8gIT0g
+RU5PRU5UKQ0KQEAgLTEzMDIsNyArMTMxOCwxMSBAQA0KIA0KICAgLyogRklY
+TUU6IGZvciBzb21lIHJlYXNvbiB0aGlzIGFzc2VydGlvbiBhbHdheXMgZmFp
+bHMsDQogICAgICBhdCBsZWFzdCBvbiBTb2xhcmlzMi41LjEuICBKdXN0IGRp
+c2FibGUgaXQgZm9yIG5vdy4gICovDQorI2lmZGVmIEZMQVNLX0xJTlVYDQor
+ICAvKiBhc3NlcnQgKGNvLT54c3RhdCA9PSBsc3RhdF9zZWN1cmUgfHwgY28t
+PnhzdGF0ID09IHN0YXRfc2VjdXJlKTsgKi8NCisjZWxzZQ0KICAgLyogYXNz
+ZXJ0IChjby0+eHN0YXQgPT0gbHN0YXQgfHwgY28tPnhzdGF0ID09IHN0YXQp
+OyAqLw0KKyNlbmRpZg0KIA0KICAgLyogTWFrZSBzdXJlIHhzdGF0IGFuZCBk
+ZXJlZmVyZW5jZSBhcmUgY29uc2lzdGVudC4gICovDQogICAvKiBGSVhNRSAq
+Lw0KSW5kZXg6IHNlbGludXgvdXRpbHMvZmlsZXV0aWxzLTQuMS9zcmMvbXYu
+Yw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290
+L3NlbGludXgvbnNhL3NlbGludXgvdXRpbHMvZmlsZXV0aWxzLTQuMS9zcmMv
+bXYuYyx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4xLjENCmRpZmYgLXUg
+LXIxLjEuMS4xIG12LmMNCi0tLSBzZWxpbnV4L3V0aWxzL2ZpbGV1dGlscy00
+LjEvc3JjL212LmMJMjAgRGVjIDIwMDEgMjM6MjU6MTAgLTAwMDAJMS4xLjEu
+MQ0KKysrIHNlbGludXgvdXRpbHMvZmlsZXV0aWxzLTQuMS9zcmMvbXYuYwk0
+IE9jdCAyMDAyIDE0OjQ1OjE2IC0wMDAwDQpAQCAtMjcsNiArMjcsMTAgQEAN
+CiAjaW5jbHVkZSA8c3lzL3R5cGVzLmg+DQogI2luY2x1ZGUgPGFzc2VydC5o
+Pg0KIA0KKyNpZmRlZiBGTEFTS19MSU5VWA0KKyNpbmNsdWRlIDxmc19zZWN1
+cmUuaD4NCisjZW5kaWYNCisNCiAjaW5jbHVkZSAic3lzdGVtLmgiDQogI2lu
+Y2x1ZGUgImJhY2t1cGZpbGUuaCINCiAjaW5jbHVkZSAiY29weS5oIg0KQEAg
+LTEzMSw3ICsxMzUsMTIgQEANCiANCiAgIHgtPnVwZGF0ZSA9IDA7DQogICB4
+LT52ZXJib3NlID0gMDsNCisjaWZkZWYgRkxBU0tfTElOVVgNCisgIHgtPnhz
+dGF0ID0gbHN0YXRfc2VjdXJlOw0KKyAgeC0+cHJlc2VydmVfc2VjdXJpdHlf
+Y29udGV4dCA9IDA7DQorI2Vsc2UNCiAgIHgtPnhzdGF0ID0gbHN0YXQ7DQor
+I2VuZGlmDQogfQ0KIA0KIC8qIElmIFBBVEggaXMgYW4gZXhpc3RpbmcgZGly
+ZWN0b3J5LCByZXR1cm4gbm9uemVybywgZWxzZSAwLiAgKi8NCg==
+---559023410-824023566-1033743157=:26355--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
