@@ -1,60 +1,70 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KGHHRb020256
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:17:18 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4KGEpB2007633
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:14:51 GMT
-Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
-	by jazzswing.ncsc.mil  with SMTP id i4KGEowi007624
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:14:50 GMT
-Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 20 May 2004 16:17:01 -0000
-Date: Thu, 20 May 2004 16:14:23 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <rcoker@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: is this pretty much it (to patch kdm 3.2.2)?
-Message-ID: <20040520161423.GJ8810@lkcl.net>
-References: <20040519074242.GK7348@lkcl.net> <1085057380.521.70.camel@moss-spartans.epoch.ncsc.mil> <20040520145258.GF8810@lkcl.net> <200405210139.49261.rcoker@redhat.com>
+Subject: RE: Policy compiler issues.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Bush, Daniel" <Daniel.Bush@boeing.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>, selinux-dev@tresys.com
+In-Reply-To: <E7E29FA7C732D146887C784B34AEF6A0044E412B@xch-ne-01.ne.nos.boeing.com>
+References: 
+	 <E7E29FA7C732D146887C784B34AEF6A0044E412B@xch-ne-01.ne.nos.boeing.com>
+Content-Type: text/plain
+Message-Id: <1085070079.521.194.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200405210139.49261.rcoker@redhat.com>
+Date: Thu, 20 May 2004 12:21:19 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, May 21, 2004 at 01:39:49AM +1000, Russell Coker wrote:
-> On Fri, 21 May 2004 00:52, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> >  i _do_ notice in permissive / audit mode that kdeinit attempts to
-> >  do an su:
-> 
-> Which program was it?  Almost every KDE program runs as kdeinit as an attempt 
-> at optimising load performance.
- 
- sadly i cannot tell.  i have been meaning to ask:
+On Thu, 2004-05-20 at 11:54, Bush, Daniel wrote:
+> >How do you plan on distributing updates to the users list and user-role authorizations?
+>    As it stands the whole system needs to weigh in at less than about
+> 64M with smaller being MUCH better (32M would be ideal.) So you can
+> see, there's not much room for a full compiler/linker suite.
 
- is it possible to run things to present more debug info at the TIME
- that an avc message is placed in the logs?
+Just to clarify, we aren't talking about a full compiler/linker suite. 
+The policy compiler is just a specialized compiler for the policy
+language.  And you can always recompile the policy on a "policy build
+machine" and push the new binary policy to all of your embedded systems
+via some mechanism, so you really only need load_policy on the embedded
+systems.  load_policy is a trivial program; just opens and mmap's the
+binary policy file and writes it to /selinux/load to feed it to the
+kernel.
 
- for example, when the above kdeinit occurs, to do, oh, i dunno,
- a ps -ax --forest.
+$ size /usr/sbin/load_policy
+   text    data     bss     dec     hex filename
+   2739     316       0    3055     bef /usr/sbin/load_policy
 
- i don't really care how long it takes, what i care about is identifying
- the parent process(es).
+>     "user_u" isn't really the problem. The other, higher orders are.
+> The specification calls for a couple of new user classes (I'm pretty
+> sure I can institute those.) and those  classes have a forseeable need
+> to have their membership lists changed in the field. If we need to
+> re-compile the policy when that happens, this presents a problem.
 
- ... alternatively, do you know how could i tell?
+If you set up an infrastructure that lets you rebuild policy on a
+"policy build machine" and then push out the binary policy to all of
+your embedded systems upon user database updates, I'm not sure that this
+is a real issue.  
 
- l.
+The alternative is to implement support for generic user identity
+mapping in libselinux's get_ordered_context_list function beyond the
+simple user_u support that exists today, define a set of generic user
+identities one per role (staff_u, sysadm_u, etc) that are authorized for
+that role, and have libselinux map all real users to one of these
+generic user identities based on some other criteria (e.g. is the real
+user in a particular group in the NIS map?).  That pushes responsibility
+for enforcing user-role restrictions up into libselinux and ultimately
+to your user database server, so you obviously need to provide
+appropriate protection there.
+
+> This sounds promising... Could you please direct me to the date range of the messages you're referring to?
+
+http://marc.theaimsgroup.com/?l=selinux&m=106453351114046&w=2
+http://marc.theaimsgroup.com/?l=selinux&m=105459714906101&w=2
+
+The binary policy patch tools are out-of-date, and should be obsoleted
+by newer work going on at Tresys to support direct manipulation of
+binary policies.
 
 -- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
