@@ -1,51 +1,65 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i96AnlrT003281
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 06:49:47 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i96AsgrT003318
+	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 06:54:42 -0400 (EDT)
 Received: from sunspire.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i96AnjKB003830
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 10:49:46 GMT
-Message-ID: <4163CDD3.3@gentoo.org>
-Date: Wed, 06 Oct 2004 13:49:55 +0300
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i96AseKB003978
+	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 10:54:41 GMT
+Message-ID: <4163CF0D.4070201@gentoo.org>
+Date: Wed, 06 Oct 2004 13:55:09 +0300
 From: petre rodan <kaiowas@gentoo.org>
 MIME-Version: 1.0
-To: Joshua Brindle <method@gentoo.org>
+To: Erich Schubert <erich@debian.org>
 CC: selinux@tycho.nsa.gov
-Subject: Re: gentoo diff for ntpd
-References: <41625A62.7080609@gentoo.org> <41629E45.8050107@gentoo.org>
-In-Reply-To: <41629E45.8050107@gentoo.org>
+Subject: Re: gentoo diff for mysqld
+References: <41625B74.2090503@gentoo.org> <1097001016.15549.4.camel@wintermute.xmldesign.de>
+In-Reply-To: <1097001016.15549.4.camel@wintermute.xmldesign.de>
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig229124EC7B27DFD8580BB085"
+ boundary="------------enigCEF598F086BCDC02E4BBDA3C"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig229124EC7B27DFD8580BB085
+--------------enigCEF598F086BCDC02E4BBDA3C
 Content-Type: multipart/mixed;
- boundary="------------010308010100050909030601"
+ boundary="------------030907060205090507040407"
 
 This is a multi-part message in MIME format.
---------------010308010100050909030601
+--------------030907060205090507040407
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
-Hi!
+Hi,
 
-Joshua Brindle wrote:
-> Since peter forgot to introduce himself :) he just started with gentoo 
-> to give us some badly needed policy help which will hopefully allow us 
-> to start sending more policy upstream. Thanks peter
+Erich Schubert wrote:
+> Hi,
 > 
-> Also, this diff is to make openntpd work with the current ntp policy, so 
->  a tunable other than distro_gentoo might be appropriate, or none at all.
 > 
-> Joshua Brindle
+>>+# if controled by daemontools
+>>+ifdef(`daemontools.te', `
+>>+domain_auto_trans( svc_run_t, mysqld_exec_t, mysqld_t)
+>>+allow svc_start_t mysqld_t:process signal;
+>>+svc_ipc_domain(mysqld_t)
+>>+')dnl end ifdef daemontools
+> 
+> 
+> I think the "deamontools.te" ifdef is enough, why put this into the
+> "gentoo" ifdef, too?
+> Please don't use distro-ifdefs unneccessarily. Basically anything being
+> in {FHS,upstream,best-practice} should be outside of such ifdefs.
+> Only things dependant on non-generic domains or non-standard behaviour -
+> for example the gentoo init - should be wrapped IMHO.
 
-this is a new diff with distro_gentoo ifdefs dropped.
-also, logrotate is not part of the gentoo base-policy and it shouldn't be a dependency for ntpd, so I'm also ifdef-ing that.
+I'm glad you think this way.
+Here is a new patch with no distro_gentoo ifdefs.
+Also can someone please tell me when is that 'allow mysqld_t sysadm_home_t:file { read getattr };' needed?
+I have never felt the need for that rule and I'd be happy to see it go.
 
-bye,
+> Greetings,
+> Erich Schubert
+
+thanks,
 peter
 
 -- 
@@ -54,60 +68,53 @@ petre rodan
 Developer,
 Hardened Gentoo Linux
 
---------------010308010100050909030601
+--------------030907060205090507040407
 Content-Type: text/plain;
- name="ntpd.diff"
+ name="mysql.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ntpd.diff"
+ filename="mysql.diff"
 
---- /root/public_html/policy/nsa/domains/program/unused/ntpd.te	2004-10-02 01:38:20.000000000 +0300
-+++ /etc/security/selinux/src/policy/domains/program/ntpd.te	2004-10-06 04:37:19.999115040 +0300
-@@ -22,7 +22,7 @@
- # for SSP
- allow ntpd_t urandom_device_t:chr_file read;
+--- /root/public_html/policy/nsa/domains/program/unused/mysqld.te	2004-08-30 23:35:32.000000000 +0300
++++ /etc/security/selinux/src/policy/domains/program/mysqld.te	2004-10-06 04:36:23.704673096 +0300
+@@ -23,7 +23,8 @@
  
--allow ntpd_t self:capability { setgid setuid sys_time net_bind_service ipc_lock };
-+allow ntpd_t self:capability { setgid setuid sys_time net_bind_service ipc_lock sys_chroot kill };
- allow ntpd_t self:process { setcap setsched };
- # ntpdate wants sys_nice
- dontaudit ntpd_t self:capability { fsetid sys_nice };
-@@ -50,7 +50,7 @@
- can_exec(ntpd_t, initrc_exec_t)
- allow ntpd_t self:fifo_file { read write getattr };
- allow ntpd_t etc_runtime_t:file r_file_perms;
--can_exec(ntpd_t, { bin_t shell_exec_t sbin_t ls_exec_t logrotate_exec_t ntpd_exec_t })
-+can_exec(ntpd_t, { bin_t shell_exec_t sbin_t ls_exec_t ntpd_exec_t })
- allow ntpd_t { sbin_t bin_t }:dir search;
- allow ntpd_t bin_t:lnk_file read;
- allow ntpd_t sysctl_kernel_t:dir search;
-@@ -59,6 +59,7 @@
- allow ntpd_t sysadm_home_dir_t:dir r_dir_perms;
- allow ntpd_t self:file { getattr read };
- dontaudit ntpd_t domain:dir search;
-+ifdef(`logrotate.te', `can_exec(ntpd_t,logrotate_exec_t)')
+ log_domain(mysqld)
+ 
+-allow mysqld_t tmp_t:dir { getattr read };
++# for temporary tables
++tmp_domain(mysqld)
+ 
+ allow mysqld_t usr_t:file { getattr read };
+ 
+@@ -57,10 +58,6 @@
+ 
+ can_unix_connect(sysadm_t, mysqld_t)
+ 
+-# for /root/.my.cnf - should not be needed
+-allow mysqld_t sysadm_home_dir_t:dir search;
+-allow mysqld_t sysadm_home_t:file { read getattr };
+-
+ ifdef(`logrotate.te', `
+ r_dir_file(logrotate_t, mysqld_etc_t)
+ allow logrotate_t mysqld_db_t:dir search;
+@@ -74,6 +71,12 @@
+ allow userdomain mysqld_var_run_t:sock_file write;
  ')
  
- allow ntpd_t devtty_t:chr_file rw_file_perms;
---- /root/public_html/policy/nsa/file_contexts/program/ntpd.fc	2004-06-25 23:02:43.000000000 +0300
-+++ /etc/security/selinux/src/policy/file_contexts/program/ntpd.fc	2004-10-06 04:39:01.740647976 +0300
-@@ -1,9 +1,9 @@
- /var/lib/ntp(/.*)?			system_u:object_r:ntp_drift_t
- /etc/ntp/data(/.*)?			system_u:object_r:ntp_drift_t
--/etc/ntp\.conf			--	system_u:object_r:net_conf_t
-+/etc/ntp(d)?\.conf		--	system_u:object_r:net_conf_t
- /etc/ntp/step-tickers		--	system_u:object_r:net_conf_t
--/usr/sbin/ntpd			--	system_u:object_r:ntpd_exec_t
--/usr/sbin/ntpdate		--	system_u:object_r:ntpd_exec_t
-+/usr/(s)?bin/ntpd		--	system_u:object_r:ntpd_exec_t
-+/usr/(s)?bin/ntpdate		--	system_u:object_r:ntpd_exec_t
- /var/log/ntpstats(/.*)?			system_u:object_r:ntpd_log_t
- /var/log/ntpd.*			--	system_u:object_r:ntpd_log_t
- /var/log/xntpd.*		--	system_u:object_r:ntpd_log_t
++ifdef(`daemontools.te', `
++domain_auto_trans( svc_run_t, mysqld_exec_t, mysqld_t)
++allow svc_start_t mysqld_t:process signal;
++svc_ipc_domain(mysqld_t)
++')dnl end ifdef daemontools
++
+ ifdef(`distro_redhat', `
+ allow initrc_t mysqld_db_t:dir create_dir_perms;
+ 
 
---------------010308010100050909030601--
+--------------030907060205090507040407--
 
---------------enig229124EC7B27DFD8580BB085
+--------------enigCEF598F086BCDC02E4BBDA3C
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -116,12 +123,12 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.4 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFBY83dGSBEIeh4AEYRAr2oAJ0SjBbk4VdrWHP5NuNcrUaGDngpZgCfeVkT
-yk+sELwKPA5xUA6gQUFHOUk=
-=pMZi
+iD8DBQFBY88NGSBEIeh4AEYRAmcSAJ48Pzux5cENTvUJp9OVp1sGgKRGxACfT8Jp
+RNHfkXbcNxFDhuquN/kA9jM=
+=knVc
 -----END PGP SIGNATURE-----
 
---------------enig229124EC7B27DFD8580BB085--
+--------------enigCEF598F086BCDC02E4BBDA3C--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
