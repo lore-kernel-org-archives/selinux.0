@@ -1,60 +1,51 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA22714
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 11:05:27 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA27695
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:04:24 GMT
-Received: from sendmail (savages.net [208.170.193.18])
-        by jazzband.ncsc.mil  with ESMTP id QAA27691 for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:04:20 GMT
-Message-ID: <3C98B2BF.9090706@pcez.com>
-Date: Wed, 20 Mar 2002 08:03:11 -0800
-From: Shaun Savage <savages@pcez.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA23077
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 11:41:45 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA08294
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:40:24 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id QAA08290
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:40:23 GMT
+Date: Wed, 20 Mar 2002 11:41:14 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: file_contexts
+In-Reply-To: <20020319174854.18E9E2387@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0203201134310.11981-100000@raven>
 MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Re: package configuration (for dpkg - rpm will have the same issues)
-References: <Pine.GSO.4.33.0203150854350.15480-100000@raven> <20020320133514.46E8075B8@lyta.coker.com.au> <3C989C1D.30500@pcez.com> <20020320153129.C4B3EC61D@lyta.coker.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+
+On Tue, 19 Mar 2002, Russell Coker wrote:
+
+> I think that the solution is to remove the need for ordering dependencies!
+>
+> If you change the definition of the format to not have the regex's
+> automatically be right-anchored (which requires inserting '$' at appropriate
+> places in the current fc file) then you can check for the regular expression
+> which gives the largest rm_eo value!
+
+I haven't looked into this closely, but it isn't clear to me how that
+would solve the problem.  I would expect the /.* entry to then take
+precedence over all other entries.  Even without that entry, you would
+have the same problem with other entries that provide a default for a
+given directory tree, e.g. /var(|/.*), that are overridden by more
+specific entries that occur later.  I'm also not sure how that would
+address the multiple hard link problem.
+
+In any event, it appears that we only need to set up ordering properly in
+the types.fc file and within each individual domain .fc file, and that the
+ordering among the domain .fc files is irrelevant.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-
-|>
-|>I would like to see SELinux in the schools, hospitals, police/fire
-|>stations, in ~ dept. of fish and wildlife offices.
-|
-|
-| What is needed for that is a set of "teacher machine" policy files for SE
-| Linux, a set of "student workstation" policy files, a set of "student
-| time-share machine" policy files and a set of Police policy files.  All these
-| would have to be quite different (although teacher machines and Police
-| machines would have similar requirements).
-|
-|
-
-Yes, each one would have a setup but there are common policies.
-
-|
-|
-| That requires huge amounts of work writing policy files.  Some of my policy
-| files have taken me more than a day's work.  I am getting better at it now,
-| but I've still got to do Postfix which will be really painful.
-|
-
-I am trying to secure courier mail system, What a pain.
-
-Shaun
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE8mLK9n6I06Opz+XURAmq8AJ9qe7Q+bbxl7y1O5CuzrVgTg8zr2gCglQzc
-Jh7pib672OpJV5RlUjpCjug=
-=WD2a
------END PGP SIGNATURE-----
 
 
 --
