@@ -1,57 +1,55 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA08707
-	for <selinux@tycho.nsa.gov>; Sat, 6 Jan 2001 23:46:48 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id EAA27905
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jan 2001 04:45:24 GMT
-Received: from ausmac.net (ausmac.net [203.12.68.15])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id EAA27900
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jan 2001 04:45:22 GMT
-Date: Sun, 7 Jan 2001 15:46:24 +1100 (EST)
-From: Grant Bayley <gbayley@ausmac.net>
-To: Sara Spencer <dirty_dazy@yahoo.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Embedded SE Linux
-In-Reply-To: <20010107031708.29621.qmail@web4204.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.30.0101071510010.5312-100000@ausmac.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA10572
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jan 2001 18:28:20 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id XAA15272
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jan 2001 23:27:45 GMT
+Received: from mail.cybernet.com (mail.cybernet.com [192.245.33.47])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id XAA15268
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jan 2001 23:27:45 GMT
+Received: from cybernet.com (rufus.cybernet.com [192.245.33.67])
+	by mail.cybernet.com (8.11.0/8.11.0) with ESMTP id f07NSJS31215
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jan 2001 18:28:19 -0500
+Message-ID: <3A58FD4F.94B0065C@cybernet.com>
+Date: Sun, 07 Jan 2001 18:35:43 -0500
+From: chuck <chuck@cybernet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: selinux@tycho.nsa.gov
+Subject: Participation
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-> Are there any plans to create an embedded se linux
-> kernel ?
->
-> With Web TV 2 comming out worldwide soon and wireless
-> boxes and home firewalls/router boxes a secure
-> embedded kernel would be interesting. For many
-> aplications such as embedded server and others the
-> kernel could be embedded emcrypted with light elyptic
-> curve crypto and be possibly more safe if the gear is
-> compromised .
+We publish an enhanced Linux distribution product line
+called NetMAX (www.netmax.com and .org).  Originally
+we were best known for putting web administration
+interfaces over everything in a high integrated manner.
 
-I wasn't aware that Security Enhanced Linux added any cryptographic
-features to the Linux kernel - as far as I was aware it makes an attempt
-to remove the need for a single, omnipotent "root" user by assigning
-administration capabilities to other users.
+Our best selling product area is in using Linux for security.
+Firewalls and VPN servers/clients.  Your efforts in
+securing Linux is interesting enough that I would like to
+explore colaboration.  Can you e-mail contact information
+for anyone out there interested in this collboration.  We operate
+as close to the current Linux (and other open source) releases
+as we can, so we are currently upgrading products to 2.4x
+kernels.  Since this part is basically always redundant with
+everyone else, we'd like collaboration.  If we can help with
+next releases of selinux, this could be a good thing.
 
-Why would one need a server in an otherwise download-only device?
+I'm old fashioned, I'd like names and phone numbers in
+additon to e-mail addresses. You know, personal
+bonding thing!  thx.  Appreciate your timely response.
 
-I applaud the desire for security in such devices but question whether
-this need isn't better provided for by other "overall" security-enhanced
-operating systems and kernels (read: OpenBSD perhaps?).
+Chuck Jacobus
+CEO, Cybernet Systems (NetMAX publisher)
 
-(A question for the SE Linux team while I'm here, if that's okay...
-Although it's been somewhat irrationally debated on Slashdot (nuff said),
-was there any particular technical reason for selecting Linux over
-OpenBSD or contributing to TrustedBSD (which is a set of patches for
-FreeBSD)?  Even putting the issue of security and crypto enhancements
-in OpenBSD aside, I'd have thought the "whole system" approach would make
-it easier to supply a kernel and userland patch that users could apply to
-/usr/src (as opposed to the "packager" model that alot of Linux distros
-tend to follow).)
+P.S. For my team copied on this message -- see
+http://www.nsa.gov/selinux/
 
-Grant
+-Chuck
+
+
+
 
 
 --
