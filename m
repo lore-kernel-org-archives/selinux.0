@@ -1,35 +1,27 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11CLD53014706
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 07:21:13 -0500 (EST)
-Subject: Re: Policy format: apostrophe in comments
+Subject: Re: Any problems with adding the following.
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1107210569.1928.8.camel@cobra.ivg2.net>
-References: <1107210569.1928.8.camel@cobra.ivg2.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41FEAD91.4060205@redhat.com>
+References: <41FEAD91.4060205@redhat.com>
 Content-Type: text/plain
-Message-Id: <1107260084.26936.32.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107262551.26936.41.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 01 Feb 2005 07:14:44 -0500
+Date: Tue, 01 Feb 2005 07:55:51 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-31 at 17:29, Ivan Gyurdiev wrote:
-> What about this bug? It complains about not being able to use
-> apostrophe in the policy config. Any chance this will be fixed,
-> or should I leave it alone? I ask because I was confused
-> what was wrong with my policy when adding apostr. comments. 
+On Mon, 2005-01-31 at 17:13, Daniel J Walsh wrote:
+>  /opt/.*\.so(\.[^/]*)* --      system_u:object_r:shlib_t
+>  /usr/local/.*\.so(\.[^/]*)* --      system_u:object_r:shlib_t
 > 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146553
+> Third party vendors do not always put sharelibaries under a "lib/" 
+> directory.
 
-Yes, that has bothered me as well; it is a curious property of m4 that
-it interprets quotes even within comments.  An option would be to use
-the m4 changequote builtin to change the start-quote and end-quote
-delimiters, but that would require rewriting all actual uses of the
-existing quote characters in the existing policy to use the new
-delimiters.  Obviously not my highest priority, but I'd be willing to
-consider patches that make such a change.
-  
+Only question is whether these shared libraries should have a separate
+type, so that we can limit execution of them to the third party
+applications and not for any privileged applications in the base OS.
+
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
