@@ -1,40 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14FkO53008138
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 10:46:24 -0500 (EST)
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14Fxk53008224
+	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 10:59:46 -0500 (EST)
 Subject: Re: How to install CVS wine
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1107531236.8078.70.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: ivg2@cornell.edu
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+   Jim Carter <jwcart2@epoch.ncsc.mil>
+In-Reply-To: <1107531978.31488.9.camel@cobra.ivg2.net>
 References: <1107499460.29033.7.camel@cobra.ivg2.net>
 	 <1107520773.8078.28.camel@moss-spartans.epoch.ncsc.mil>
 	 <1107521277.8078.32.camel@moss-spartans.epoch.ncsc.mil>
 	 <1107531407.31488.4.camel@cobra.ivg2.net>
 	 <1107531236.8078.70.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107531978.31488.9.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Fri, 04 Feb 2005 10:46:18 -0500
-Message-Id: <1107531978.31488.9.camel@cobra.ivg2.net>
+Message-Id: <1107532387.8078.76.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 04 Feb 2005 10:53:08 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-02-04 at 10:33 -0500, Stephen Smalley wrote:
-> On Fri, 2005-02-04 at 10:36, Ivan Gyurdiev wrote:
-> > I haven't done anything with roles so far, but I will investigate :)
-> > Speaking of roles, is the jadmin user in local.users supposed to be 
-> > uncommented? It's been that way for a while.
+On Fri, 2005-02-04 at 10:46, Ivan Gyurdiev wrote:
+> .. and why is it that when I change it nothing happens?
+> Is this the wrong file?
 > 
-> Looks like an oversight to me.  Dan?  Jim?
+> I'm editing /etc/selinux/strict/src/policy/local.users
 
-.. and why is it that when I change it nothing happens?
-Is this the wrong file?
-
-I'm editing /etc/selinux/strict/src/policy/local.users
+I think Dan introduced it in preparation for creating infrastructure for
+updating users on the end system without the policy sources via
+genpolusers.  Looks like it is getting installed via make install, but
+not incorporated into a policy build from source.  See the earlier
+discussions on the list.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
