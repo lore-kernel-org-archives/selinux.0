@@ -1,48 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA06277
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 01:35:57 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id FAA08505
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 05:34:32 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA06412
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 02:14:47 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id GAA23652
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 06:14:26 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id FAA08493 for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 05:34:31 GMT
+	by jazzswing.ncsc.mil  with ESMTP id GAA23648
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 06:14:25 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 2BB4292461
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 16:14:44 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id B75DC3F4
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 08:14:36 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: oops
-Date: Wed, 19 Jun 2002 07:35:44 +0200
-References: <Pine.GSO.4.33.0206171425590.12900-100000@raven> <20020617185223.CCE8B1621@lyta.coker.com.au> <E17KXrd-0001En-00@avocet.mail.pas.earthlink.net>
-In-Reply-To: <E17KXrd-0001En-00@avocet.mail.pas.earthlink.net>
-Cc: SERVER-LINUX@lists.netspace.org
+Subject: irc.openprojects.net
+Date: Wed, 19 Jun 2002 08:14:36 +0200
 MIME-Version: 1.0
-Message-Id: <20020619053544.91BA22CE9@lyta.coker.com.au>
+Message-Id: <20020619061436.B75DC3F4@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 19 Jun 2002 07:19, you wrote:
-> On Monday 17 June 2002 01:52 pm, Russell Coker wrote:
-> > On Mon, 17 Jun 2002 20:27, you wrote:
-> > Anyway the machine is available now.  Ssh to port 222 on
-> > adsl.coker.com.au, root password is "1".
->
-> Have you disconnected it?
+= JOIN #selinux
+*** Now talking in #selinux
+332 #selinux The Russell Coker's Box Appreciation Society
+*** #selinux topic set by zx64 on Wed Jun 19 02:08:54 2002
 
-No, that's a bug in the way password changing is setup.  I've got a temporary 
-fix in place.
-
-> Just curious. I would like to try it.
-> I'd be ammused to see rm -rf / fail as root, though I wouldn't actually try
-> it for fear it might screw up a bunch of things (even if it didn't get very
-> far).
-
-Try it, everyone else does.  ;)
-
-> BTW, do how often do you update the SE-linux packages in the debian tree
-> (i.e. the ones users get with apt)?
-
-Whenever I have a new version that seems worth using.
+;)
 
 -- 
 I do not get viruses because I do not use MS software.
