@@ -1,45 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA18477
-	for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 15:25:37 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA00384
-	for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 20:24:35 GMT
-Received: from mail.outstep.com (a904j637.tower.wayne.edu [141.217.140.65])
-        by jazzband.ncsc.mil  with ESMTP id UAA00380 for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 20:24:34 GMT
-Message-ID: <1822.192.168.1.12.1015791488.squirrel@192.168.1.2>
-Date: Sun, 10 Mar 2002 15:18:08 -0500 (EST)
-Subject: sed command found
-From: "Lonnie Cumberland" <lonnie@outstep.com>
-To: <sds@tislabs.com>
-Cc: <selinux@tycho.nsa.gov>
+Return-Path: <owner-selinux@tycho.ncsc.mil>
+Date: 10 Mar 2002 09:39:40 -0000
+Message-ID: <20020310093940.30150.qmail@mailFA9.rediffmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+From: "Samarth  Sharma" <samarth7880@rediffmail.com>
+Reply-To: "Samarth  Sharma" <samarth7880@rediffmail.com>
+To: SELinux@tycho.nsa.gov
+Content-type: text/plain;
+	format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry for the last email.
+ok i need answers to these questions :
 
-I found the solution,
-Thanks again,
-Lonnie
+1.On login i get the following message :
+  [ avc: denied {write} for pid=647 exe=/bin/login
+  path=/var/log/wtmp dev=03:07 ino=182350
+  scontext=system_u:system_r:local_login_t
+  tcontext=system_u:object_r:cron_log_t tclass=file ]
+what does this mean and how can i get around it.
+  i get similar messages while loading 'atd'.
 
--- 
- Lonnie Cumberland
- OutStep Technologies Incorporated
- EMAIL: Lonnie@OutStep.com
-      : Lonnie_Cumberland@yahoo.com
+2.Can u give me a specific example where SElinux is able to solve 
+a security flaw in normal Linux
 
- The Basis Express Virtual Office
-               &
- Data Backup and Recovery Services
+3.i tried loading the selinux kernel on an amd machine.
+however the machine keeps rebooting immediately after the lilo 
+screen. Linux 7.1 (redhat) runs fine on this machine.
 
- URL: http://www.basis-express.com
+4.how do u add a user to the system. i added a new user in the 
+../policy/users file with appropriate context and compiled the 
+policy but security context for that user was not initialized.
 
-"The Virtual Office without boundries!!!"
-
-
-
-
+thanks,
+Samarth Sharma
 
 --
 You have received this message because you are subscribed to the selinux list.
