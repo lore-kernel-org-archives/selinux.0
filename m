@@ -1,56 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4D6HEI4006388
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 02:17:14 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4D6GujN021824
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 06:16:56 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h4D6GsTU021821
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 06:16:55 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id B6D2ABF4F
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 16:17:10 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 30009-03
- for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 16:17:09 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 7D667BF4E
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 16:17:09 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 1A43B924A3
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 16:17:09 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 5656E3733
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 16:15:46 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: /etc/magic
-Date: Tue, 13 May 2003 16:15:45 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200305131615.45687.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4D8lDI4006694
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 04:47:18 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h4D8lD7R010963
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 08:47:13 GMT
+Received: from ultraviolet.org (wsip-68-15-17-90.sd.sd.cox.net [68.15.17.90])
+        by jazzband.ncsc.mil  with SMTP id h4D8kvKP010954 for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 08:47:10 GMT
+Date: Tue, 13 May 2003 01:17:50 -0700
+From: Tracy R Reed <treed@ultraviolet.org>
+To: Chris Babcock <cbabcock@luthresearch.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SE Linux talk for LUV on 3rd of June
+Message-ID: <20030513011750.A18535@ultraviolet.org>
+References: <200305122216.40918.russell@coker.com.au> <54804.63.108.92.34.1052758991.squirrel@mxlx1.surveysavvy.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+In-Reply-To: <54804.63.108.92.34.1052758991.squirrel@mxlx1.surveysavvy.com>; from cbabcock@luthresearch.com on Mon, May 12, 2003 at 10:03:11AM -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The new version of the "file" package in Debian has a database entry for the 
-SE Linux policy format.
 
-I haven't tried it out yet, but I expect it'll be almost exactly the same as 
-the patch I submitted, which gave the following result:
-# file -z /etc/security/selinux/policy.12
-/etc/security/selinux/policy.12: SE Linux policy v12 5 symbols 6 ocons (gzip 
-compressed data, from Unix, max compression)
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think that this is also going into the upstream source.
+On Mon, May 12, 2003 at 10:03:11AM -0700, Chris Babcock spake thusly:
+> Has anybody considered making a uml image of a working selinux system for
+> distribution?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I am working on doing just that. But first I have to get the selinux patch
+ported to the um architecture. It currently only applies to x86. I might
+get around to it in a couple days.
 
+--=20
+Tracy Reed      http://www.ultraviolet.org
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAj7Aqi4ACgkQ9PIYKZYVAq1MIwCfTUXfSmWplr3jWkj8niVlTDx7
+6dMAoJ11UZAMmAYne5/LX08GQVMClz1A
+=T/bT
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
