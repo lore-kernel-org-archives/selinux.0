@@ -1,22 +1,22 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2CNuIDo015280
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2CNuJDo015281
 	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 18:56:19 -0500 (EST)
 Received: from static-70-19-113-34.ny325.east.verizon.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2CNmM7c000966
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2CNmM7c000967
 	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 23:48:22 GMT
-Subject: New policy for tripwire
+Subject: New policy for yam
 From: David Hampton <hampton-rh@rainbolthampton.net>
 To: selinux@tycho.nsa.gov
 Cc: fedora-selinux-list@redhat.com, hampton-rh@rainbolthampton.net
-Content-Type: multipart/mixed; boundary="=-vU9QfEwVhQcMijE4Qv6E"
-Date: Sat, 12 Mar 2005 18:50:45 -0500
-Message-Id: <1110671445.7641.16.camel@hampton-pc.rainbolthampton.net>
+Content-Type: multipart/mixed; boundary="=-EBob+N//3t8jgSDulznf"
+Date: Sat, 12 Mar 2005 18:50:42 -0500
+Message-Id: <1110671442.7641.15.camel@hampton-pc.rainbolthampton.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-vU9QfEwVhQcMijE4Qv6E
+--=-EBob+N//3t8jgSDulznf
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
@@ -28,84 +28,96 @@ policies.
 David
 
 
---=-vU9QfEwVhQcMijE4Qv6E
-Content-Disposition: attachment; filename=tripwire.fc
-Content-Type: text/plain; name=tripwire.fc; charset=ISO-8859-1
+--=-EBob+N//3t8jgSDulznf
+Content-Disposition: attachment; filename=yam.fc
+Content-Type: text/plain; name=yam.fc; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-# tripwire
-/etc/tripwire(/.*)?			system_u:object_r:tripwire_etc_t
-/usr/sbin/siggen			system_u:object_r:siggen_exec_t
-/usr/sbin/tripwire			system_u:object_r:tripwire_exec_t
-/usr/sbin/tripwire-setup-keyfiles	system_u:object_r:bin_t
-/usr/sbin/twadmin			system_u:object_r:twadmin_exec_t
-/usr/sbin/twprint			system_u:object_r:twprint_exec_t
-/var/lib/tripwire(/.*)?			system_u:object_r:tripwire_var_lib_t
-/var/lib/tripwire/report(/.*)?		system_u:object_r:tripwire_report_t
+# yam
+/etc/yam.conf		--	system_u:object_r:yam_etc_t
+/usr/bin/yam			system_u:object_r:yam_exec_t
+/var/yam(/.*)?			system_u:object_r:yam_content_t
+/var/www/yam(/.*)?		system_u:object_r:yam_content_t
 
---=-vU9QfEwVhQcMijE4Qv6E
-Content-Disposition: attachment; filename=tripwire.te
-Content-Type: text/plain; name=tripwire.te; charset=ISO-8859-1
+--=-EBob+N//3t8jgSDulznf
+Content-Disposition: attachment; filename=yam.te
+Content-Type: text/plain; name=yam.te; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-# DESC tripwire
+# DESC yam - Yum/Apt Mirroring
 #
 # Author: David Hampton <hampton@employees.org>
 #
 
-# NOTE: Tripwire creates temp file in its current working directory.
-# This policy does not allow write access to home directories, so
-# users will need to either cd to a directory where they have write
-# permission, or set the TEMPDIRECTORY variable in the tripwire config
-# file.  The latter is preferable, as then the file_type_auto_trans
-# rules will kick in and label the files as private to tripwire.
+
+#
+# Yam downloads lots of files, indexes them, and makes them available
+# for upload.  Define a type for these file.
+#
+type yam_content_t, file_type, sysadmfile, httpdcontent;
 
 
-# Common definitions
-type tripwire_report_t, file_type, sysadmfile;
-etcdir_domain(tripwire)
-var_lib_domain(tripwire)
-tmp_domain(tripwire)
+#
+# Common definitions used by both the command line and the cron
+# invocation of yam.
+#
+define(`yam_common',`
 
+# Update the content being managed by yam.
+create_dir_file($1_t, yam_content_t)
 
-# Macro for defining tripwire domains
-define(`tripwire_domain',`
-application_domain($1, `, auth')
-role system_r types $1_t;
+# Content can also be on ISO image files.
+r_dir_file($1_t, iso9660_t)
 
-# Allow access to common tripwire files
-allow $1_t tripwire_etc_t:file r_file_perms;
-allow $1_t tripwire_etc_t:dir r_dir_perms;
-allow $1_t tripwire_etc_t:lnk_file { getattr read };
-file_type_auto_trans($1_t, var_lib_t, tripwire_var_lib_t, file)
-allow $1_t tripwire_var_lib_t:dir rw_dir_perms;
-file_type_auto_trans($1_t, tmp_t, tripwire_tmp_t, `{ file dir }')
+# Need to go through /var to get to /var/yam
+# Go through /var/www to get to /var/www/yam
+allow $1_t var_t:dir { getattr search };
+allow $1_t httpd_sys_content_t:dir { getattr search };
 
-allow $1_t self:process { fork sigchld };
-allow $1_t self:capability { setgid setuid dac_override };
+# Allow access to locale database,  nsswitch, and mtab
+read_locale($1_t)
+allow $1_t etc_t:file { getattr read };
+allow $1_t etc_runtime_t:file { getattr read };
 
-# Tripwire needs to read all files on the system
-general_proc_read_access($1_t)
-allow $1_t file_type:dir { search getattr read};
-allow $1_t file_type:{file chr_file lnk_file sock_file} {getattr read};
-allow $1_t file_type:fifo_file { getattr };
-allow $1_t device_type:file { getattr read };
-allow $1_t sysctl_t:dir { getattr read };
-allow $1_t {memory_device_t tty_device_t urandom_device_t zero_device_t}:chr_file getattr;
+# Python seems to need things from various places
+allow $1_t { bin_t sbin_t }:dir { search getattr };
+allow $1_t { bin_t sbin_t lib_t usr_t }:file { getattr read };
+allow $1_t bin_t:lnk_file read;
 
-# Tripwire report files
-create_dir_file($1_t, tripwire_report_t)
+# Python works fine without reading /proc/meminfo
+dontaudit $1_t proc_t:dir search;
+dontaudit $1_t proc_t:file { getattr read };
 
-# gethostid()?
-allow $1_t self:unix_stream_socket { connect create };
-
-# Running editor program (tripwire forks then runs bash which rins editor)
+# Yam wants to run rsync, lftp, mount, and a shell.  Allow the latter
+# two here.  Run rsync and lftp in the yam_t context so that we dont
+# have to give any other programs write access to the yam_t files.
+general_domain_access($1_t)
 can_exec($1_t, shell_exec_t)
+can_exec($1_t, rsync_exec_t)
 can_exec($1_t, bin_t)
-uses_shlib($1_t)
+can_exec($1_t, usr_t) #/usr/share/createrepo/genpkgmetadata.py
+ifdef(`mount.te', `
+domain_auto_trans($1_t, mount_exec_t, mount_t)
+')
 
-allow $1_t self:dir search;
-allow $1_t self:file { getattr read };
+# Rsync and lftp need to network.  They also set files attributes to
+# match whats on the remote server.
+can_network_client($1_t)
+allow $1_t self:capability { chown fowner fsetid dac_override };
+
+# access to sysctl_kernel_t ( proc/sys/kernel/* )
+read_sysctl($1_t)
+
+# Programs invoked to build package lists need various permissions.
+# genpkglist creates tmp files in /var/cache/apt/genpkglist
+allow $1_t var_t:file { getattr read write };
+allow $1_t var_t:dir read;
+# mktemp
+allow $1_t urandom_device_t:chr_file read;
+# mv
+allow $1_t proc_t:lnk_file read;
+allow $1_t selinux_config_t:dir search;
+allow $1_t selinux_config_t:file { getattr read };
 ')
 
 
@@ -113,82 +125,71 @@ allow $1_t self:file { getattr read };
 ##########
 
 #
-# When run by a user
+# Runnig yam from the command line
 #
-tripwire_domain(`tripwire')
+application_domain(yam, `, nscd_client_domain')
+role system_r types yam_t;
+yam_common(yam)
+etc_domain(yam)
+tmp_domain(yam)
 
-# Running from the command line
-allow tripwire_t devpts_t:dir search;
-allow tripwire_t devtty_t:chr_file { read write };
-allow tripwire_t {sysadm_devpts_t user_devpts_t}:chr_file rw_file_perms;
-allow tripwire_t sshd_t:fd use;
+# Terminal access
+allow yam_t devpts_t:dir search;
+allow yam_t devtty_t:chr_file { read write };
+allow yam_t sshd_t:fd use;
+allow yam_t sysadm_devpts_t:chr_file { getattr ioctl read write };
+
+# Reading dotfiles...
+dontaudit yam_t staff_home_dir_t:dir search;		# /root
+allow yam_t home_root_t:dir search;			# /home
+allow yam_t user_home_dir_t:dir { getattr search };	# /home/user
 
 
 ##########
 ##########
 
 #
-# When run from cron
+# Running yam from cron
 #
-tripwire_domain(`tripwire_crond')
-system_crond_entry(tripwire_exec_t, tripwire_crond_t)
-domain_auto_trans(crond_t, tripwire_exec_t, tripwire_t)
+application_domain(yam_crond, `, nscd_client_domain')
+role system_r types yam_crond_t;
+ifdef(`crond.te', `
+system_crond_entry(yam_exec_t, yam_crond_t)
+')
 
-# Tripwire uses a temp file in the root home directory
-#create_dir_file(tripwire_crond_t, root_t)
+yam_common(yam_crond)
+allow yam_crond_t yam_etc_t:file r_file_perms;
+file_type_auto_trans(yam_crond_t, tmp_t, yam_tmp_t, `{ file dir }')
 
+allow yam_crond_t devtty_t:chr_file { read write };
 
-##########
-# Twadmin
-##########
-application_domain(twadmin)
-read_locale(twadmin_t)
-create_dir_file(twadmin_t, tripwire_etc_t)
+# Reading dotfiles...
+# LFTP uses a directory for its dotfiles
+allow yam_crond_t default_t:dir search;
 
-allow twadmin_t sysadm_tmp_t:file { getattr read write };
-
-# Running from the command line
-allow twadmin_t sshd_t:fd use;
-allow twadmin_t sysadm_devpts_t:chr_file rw_file_perms;
-
-dontaudit twadmin_t { bin_t sbin_t }:dir search;
-dontaudit twadmin_t home_root_t:dir search;
-dontaudit twprint_t user_home_dir_t:dir search;
+# Don't know why init tries to read this.
+allow initrc_t yam_etc_t:file read;
 
 
 ##########
-# Twprint
 ##########
-application_domain(twprint)
-read_locale(twprint_t)
-r_dir_file(twprint_t, tripwire_etc_t)
-allow twprint_t { var_t var_lib_t }:dir search;
-r_dir_file(twprint_t, tripwire_var_lib_t)
-r_dir_file(twprint_t, tripwire_report_t)
 
-# Running from the command line
-allow twprint_t sshd_t:fd use;
-allow twprint_t sysadm_devpts_t:chr_file rw_file_perms;
+# The whole point of this program is to make updates available on a
+# local web server.  Allow apache access to these files.
+ifdef(`apache.te', `
+allow httpd_t yam_content_t:dir { getattr search };
+allow httpd_t yam_content_t:file { getattr read };
+allow httpd_t yam_content_t:lnk_file { getattr read };
+')
 
-dontaudit twprint_t { bin_t sbin_t }:dir search;
-dontaudit twprint_t home_root_t:dir search;
+# Mount needs access to the yam directories in order to mount the ISO
+# files on a loobpack file system.
+ifdef(`mount.te', `
+allow mount_t yam_content_t:dir mounton;
+allow mount_t yam_content_t:file { read write };
+')
 
-
-##########
-# Siggen
-##########
-application_domain(siggen, `, auth')
-read_locale(siggen_t)
-
-# Need permission to read files
-allow siggen_t file_type:dir { search getattr read};
-allow siggen_t file_type:file {getattr read};
-
-# Running from the command line
-allow siggen_t sshd_t:fd use;
-allow siggen_t sysadm_devpts_t:chr_file rw_file_perms;
-
---=-vU9QfEwVhQcMijE4Qv6E--
+--=-EBob+N//3t8jgSDulznf--
 
 
 --
