@@ -1,39 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9DJBjWt014996
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:11:45 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9DJBd0p020490
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 19:11:39 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-	by jazzswing.ncsc.mil  with ESMTP id h9DJBbr7020487
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 19:11:38 GMT
-Message-ID: <3F8AEBBE.7070602@ipen.br>
-Date: Mon, 13 Oct 2003 16:15:26 -0200
-From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9DJR4Wt015037
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:04 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9DJR3ZK006773
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 19:27:03 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+        by jazzband.ncsc.mil  with ESMTP id h9DJR3FF006770 for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 19:27:03 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id h9DJR3M13467
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:03 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id h9DJR2r11699
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:02 -0400
+Received: from redhat.com (celtics.boston.redhat.com [172.16.65.39])
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id h9DJR1nv013284
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:02 -0400
+Message-ID: <3F8AFC86.5030100@redhat.com>
+Date: Mon, 13 Oct 2003 15:27:02 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov,
-   =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?=
- <monteiro@ipen.br>
-Subject: avc: denied messages
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Updated packages available on people.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Helo.
+I have finished updating my files on ftp://people.redhat.com/dwalsh/SELinux.
 
-When system boot process is running up a lot of messages "avc: denied" 
-are displayed, in permissive mode e enforcing mode. In permissive mode, 
-for all the messages "avc: denied" the boot process is completed and the 
-login prompt is showed. However, in enforcing mode, it displayed the 
-messages "avc: denied", but also displayed others messages: "INIT: Id 
-"runlevel number" respawning too fast: disable for 5 minutes", "INIT: no 
-more processes left in this runlevel"; and stop the boot process.
-Please, how I resolve this ?
+Packages are available for both Fedora and RHEL3.  You can use the 
+selUpgrade script to
+upgrade a previously installed system.   I have also added some example 
+kickstart files to allow you
+to install and upgrade a system automatically.  This is very 
+experimental, but seems to be working
+fairly well.
 
-PS. I appended the line "/.journal <<none>>" in the file_context file, 
-because one error message is displayed when compiling the rules.
+Dan
 
-thanks.
+
 
 
 --
