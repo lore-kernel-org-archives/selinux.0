@@ -1,59 +1,55 @@
-Date: Tue, 9 Jul 2002 09:41:30 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200207091441.JAA10062@tomcat.admin.navo.hpc.mil>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: comparison between SELinux and chroot
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA28690
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 10:33:12 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA01515
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 14:31:43 GMT
+Received: from mail.ispko.com ([210.16.10.89])
+        by jazzband.ncsc.mil  with ESMTP id OAA01505 for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 14:31:42 GMT
+Message-ID: <3D2AF420.50708@evoworks.evoserve.com>
+Date: Tue, 09 Jul 2002 22:33:04 +0800
+From: Debian User <rogelio@evoworks.evoserve.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tislabs.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: automatic type transitions for pts in devfs
+References: <Pine.GSO.4.33.0207091011390.27193-100000@raven>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dale Amon <amon@vnl.com>
-> On Tue, Jul 09, 2002 at 12:00:44PM +0200, Carsten Grohmann wrote:
-> > I am looking for a paper with an comparison between SELinux and chroot.
-> > Why should I install and use SELinux, if I could use a chroot call, who is 
-> > possible simplier.
-> > 
-> 
-> That's sort of like comparing apples and rabbits. A chroot
-> is a way of setting up an environment for testing or for
-> a chroot jail... which can probably be broken out of, although
-> you can improve this greatly with the grsec patches.
-> 
-> Selinux is security from the base up, built into the very
-> operation of the system. It is MAC in the soul of the machine.
-> 
-> There simply *isn't* any real comparison.
+Stephen Smalley wrote:
 
-Yes and no... :-)
+>On Tue, 9 Jul 2002, Debian User wrote:
+>
+>  
+>
+>>So I focus on hooks.c. This is basically getting the inodes labelled
+>>correctly.
+>>Either we add some new fields(?) in the inode structure or we insert a
+>>condition that would make the inode get the proper label. Is that correct?
+>>    
+>>
+>
+>You could add a test within the sbsec->uses_genfs case to see whether the
+>filesystem type is devfs and whether the inode corresponds to a /pts node.
+>If so, then you want to use a transition SID as with the sbsec->uses_trans
+>case.  Otherwise, you would use genfs_contexts as usual.
+>  
+>
+That would mean checking if the inode's super block magic number is DEVPTS.
+Is that going to be enough?
 
-A chroot jail, if properly implemented (hypotheticly) is like a fully
-standalone workstation, without a network, without external storage, without...
+>--
+>Stephen D. Smalley, NAI Labs
+>ssmalley@nai.com
+>
+>
+>  
+>
 
-The SELinux system is more like a timesharing system where authorized
-users can access authorized data. There are multiple users that may communicate
-if the security policy permits such communication. Any user that is not
-authorized access to the data will be unable to access that data, even if
-the owner of that data wants to give away access. This is part of the
-mandatory access control that provides that separation. The other part is
-referencing the security policy to determine what is being separated.
 
-In good implementations, even if a breakin occured - that rogue process/user
-would already be isolated from sensitive data. Chroot environments do
-not even have the capability of such isolation except for some special purpose
-processes such as DNS, where users are strictly indirect. Even in DNS, a
-breakin to DNS allows full access to all data that belongs to the server.
-Actual ownership could be separated, but nothing prevents a complete
-substitution of the data.
 
-Chroot environments do not handle data sharing very well. Yes, you can direct
-multiple users into the same chroot jail, but you then can't isolate some of
-the data from some of those same users. And you can't enforce the separation
-at a management level.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
 
 --
 You have received this message because you are subscribed to the selinux list.
