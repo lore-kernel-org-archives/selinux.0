@@ -1,60 +1,63 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4BF23Rb022358
-	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 11:02:03 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4BF1xYW022600
-	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 15:01:59 GMT
-Received: from turing-police.cirt.vt.edu (turing-police.cirt.vt.edu [128.173.54.129])
-        by jazzband.ncsc.mil  with ESMTP id i4BF1xBf022597 for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 15:01:59 GMT
-Message-Id: <200405111501.i4BF1jfv017860@turing-police.cc.vt.edu>
-To: Wade Mr Robert C <WadeRC@hoa.centcom.mil>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Japanese Documentation(Re: presentation results) 
-In-Reply-To: Your message of "Tue, 11 May 2004 12:27:58 +0300."
-             <DA7A114F43B3504CAF05FF66FB5649F06D4997@hoan04ex.hoa.centcom.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <DA7A114F43B3504CAF05FF66FB5649F06D4997@hoan04ex.hoa.centcom.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-346970112P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 11 May 2004 11:01:45 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4BNMWRb025655
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 19:22:34 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4BNKB5b005331
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 23:20:11 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+	by jazzswing.ncsc.mil  with ESMTP id i4BNKAql005320
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 23:20:10 GMT
+From: "Ed Street" <edstreet@street-tek.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
+Cc: "'Selinux'" <selinux@tycho.nsa.gov>
+Subject: RE: presentation results
+Date: Tue, 11 May 2004 19:22:13 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <1084281435.7460.64.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <20040511232213.71C383A404E@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-346970112P
-Content-Type: text/plain; charset=us-ascii
+Hello,
 
-On Tue, 11 May 2004 12:27:58 +0300, Wade Mr Robert C <WadeRC@hoa.centcom.mil>  said:
-> anyone have policy info for installing selinux on secure systems (rated
-> catII/III), 
-> for example, on a firewall nic server?
+When I covered file/socket/process labels and how the domains worked one
+person ask if this is like how the ntfs forest works.  I wasn't sure how to
+respond so I said yes and no, there are similarities but there's a vast
+amount of differences.
 
-This *should* be trivial, if you already have a standard for what should/shouldn't
-be on a firewall...
+Ed
 
-1) Do your normal (very minimal for a firewall) install.
-2) Install the policy-sources stuff.
-3) cd /etc/security/selinux/src/policy, and go through the
-subdirectories and remove the .te and .fc files that correspond
-to software you don't have on the box.
-4) 'make reload; make relabel' and you *should* be done..
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@epoch.ncsc.mil] 
+Sent: Tuesday, May 11, 2004 9:17 AM
+To: Ed Street
+Subject: Re: presentation results
 
-(Note, I'm writing this pre-caffeine this morning, somebody please yell if
-I've severely mis-stated something....)
+On Mon, 2004-05-10 at 20:26, Ed Street wrote:
+> Another question that was raised, someone ask if the file system is setup
+> like NTFS.  Anyone care to comment on this one?
 
---==_Exmh_-346970112P
-Content-Type: application/pgp-signature
+I don't understand the question.  What were they asking?  SELinux has
+nothing to do with NTFS.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-iD8DBQFAoOrYcC3lWbTT17ARAqQHAKDuBnNaIwgzXnCLisuxBg9UlZIe2QCfUwFv
-eKihRIxzj5corf0jroDs4BE=
-=dA6P
------END PGP SIGNATURE-----
+---
 
---==_Exmh_-346970112P--
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
+ 
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
