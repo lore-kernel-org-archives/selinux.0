@@ -1,53 +1,60 @@
-Subject: Re: Policy compiler issues.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Bush, Daniel" <Daniel.Bush@boeing.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <E7E29FA7C732D146887C784B34AEF6A0044E3FD7@xch-ne-01.ne.nos.boeing.com>
-References: 
-	 <E7E29FA7C732D146887C784B34AEF6A0044E3FD7@xch-ne-01.ne.nos.boeing.com>
-Content-Type: text/plain
-Message-Id: <1085055603.521.49.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KCPMRb018050
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 08:25:22 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4KCPBAR017522
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:25:11 GMT
+Received: from smtp803.mail.ukl.yahoo.com (smtp803.mail.ukl.yahoo.com [217.12.12.140])
+        by jazzband.ncsc.mil  with SMTP id i4KCOuHn017469 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:24:56 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
+  by smtp803.mail.ukl.yahoo.com with SMTP; 20 May 2004 12:18:16 -0000
+Received: from highfield ([192.168.0.223]:33179 helo=lkcl.net)
+	by lkcl.net with esmtp (Exim 4.24 #1)
+	id 1BQmXy-00019D-Se
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:21:14 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BQmSY-0002QH-UI
+	for selinux@tycho.nsa.gov; Thu, 20 May 2004 12:15:38 +0000
+Date: Thu, 20 May 2004 12:15:38 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: FAM uses seteuid and setegid
+Message-ID: <20040520121538.GA8810@lkcl.net>
 Mime-Version: 1.0
-Date: Thu, 20 May 2004 08:20:03 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-05-19 at 18:10, Bush, Daniel wrote:
->   I'm trying to deploy SELInux in an embedded environment. Footprint
-> space is tight, every kilobyte counts. The environment is also fairly
-> dynamic, the users list and assigned roles can change fairly rapidly.
+hi,
 
-That seems like an odd combination - embedded but highly dynamic users
-and roles?  How do you plan on distributing updates to the users list
-and user-role authorizations?
+just taking a look at famd, which uses seteuid and setegid before
+going and 'avin a look at files (Cred::Implementation::become_user())
 
->   It's my understanding that whenever the users' list changes (aside
-> from default users)in a SELinux system, that the policy files and
-> security labels need to be re-compiled. Is there any way around that?
-> Can a user be assigned a set of (non-default user) roles without
-> re-compiling the security system?
+so, famd is designed to "effectively" set its user and group ids,
+such that any file access is done as these, whilst still remaining
+actually running as root.
 
-If you want the user to be recognized by SELinux as an individual user,
-then you need to modify the policy (either directly patching the binary
-policy or modifying the source and recompiling) and reload it.  There is
-already a user_u user that is a fallback for ordinary users who do not
-have a specific entry in the SELinux policy, so if you don't add the
-user to the SELinux policy, he will be mapped to user_u and limited to
-the roles authorized for user_u.  Direct manipulation of the binary
-policy is possible, and I expect that libraries and tools for doing so
-will become available; note the earlier work by Tresys on binary policy
-patching that was posted to this list, plus the posting re future work
-on loadable binary policy modules. 
+... so... what tricks can be done that are equivalent to this?
 
->   Another question: Can SELinux be compiled under uClibc? I'm not
-> having much luck at that, and I was wondering if something special
-> needed to be done, or if anybody had any tips.
+setfscreatecon doesn't apply because that's presumably for file
+creation, and famd does file access not file creation.
 
-I haven't tried.  What kind of problem are you encountering?
+setexeccon doesn't apply because there _are_ no relevant exec
+calls that occur in famd, and the only forks() and execs()
+are to run programs (e.g. "insmod imon").
+
+hum.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
