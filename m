@@ -1,41 +1,39 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Bill Laut <wlsel@verizon.net>
-To: <SELinux@tycho.nsa.gov>
-Subject: Re: Verify the integrity of downloaded archives
-Date: Thu, 6 Nov 2003 01:11:16 -0500
-References: <000001c3a3db$2dad18f0$02000a0a@lady>
-In-Reply-To: <000001c3a3db$2dad18f0$02000a0a@lady>
-MIME-Version: 1.0
-Message-Id: <200311060111.16197.wlsel@verizon.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA66twSf016002
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 01:55:58 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hA66tvKl016491
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 06:55:57 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+        by jazzband.ncsc.mil  with ESMTP id hA66tt5m016488 for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 06:55:56 GMT
+Date: Thu, 6 Nov 2003 17:55:49 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: selinux@tycho.nsa.gov
+Subject: XWindows, trust, EROS
+Message-ID: <20031106065548.GA6956@snoopy.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
 
-While I'd love to meet a hacker who could successfully break into the NSA's 
-website to install a Trojan (;-), Oliver does bring up a good point.  As 
-SELinux gains a wider audience it would be reasonable to anticipate the 
-distro eventually getting mirrored at other sites.  Since the use of digital 
-signatures as an integrity-check is now commonplace within the Linux 
-community, would it be reasonable to start posting signatures on the NSA 
-website?
+For some reason I thought EROS was dead, but the mailing lists
+seem to be strong...
 
-Bill
+Anyway, here is a discussion on X-Windows, trusted windows,
+untrusted windows, etc, which may/may not have implications here for
+people interested in using SE-Linux to limit access to "dangerous"
+X-Windows operations.
 
+http://www.eros-os.org/pipermail/eros-arch/2003-November/003849.html
 
-On Wednesday 05 November 2003 03:26 pm, sMoTo wrote:
-> Hello,
->
-> how can I verify the integrity of the archives offered on the project
-> page? Is there any possibility? How can I be sure not to work with
-> corrupted data?
->
-> Best regards.
->
-> ### Oliver Fritz
-> ### Singerstrasse 80
-> ### 10243 Berlin
+(Note: I haven't read this thread in detail myself yet).
 
+(Note2: I apologize if this is already common knowledge or totally
+irrelevant...)
+-- 
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
