@@ -1,72 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBI9xKIi007329
-	for <selinux@tycho.nsa.gov>; Sat, 18 Dec 2004 04:59:20 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBI9vaPa023409
-	for <selinux@tycho.nsa.gov>; Sat, 18 Dec 2004 09:57:37 GMT
-Message-ID: <41C3FF6A.8000405@redhat.com>
-Date: Sat, 18 Dec 2004 04:59:06 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBIBVhIi007527
+	for <selinux@tycho.nsa.gov>; Sat, 18 Dec 2004 06:31:43 -0500 (EST)
+Received: from gw.linuon.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBIBViY6014514
+	for <selinux@tycho.nsa.gov>; Sat, 18 Dec 2004 11:31:45 GMT
+Received: from pc-1.linuon.co.jp (pc-1.linuon.co.jp [192.168.0.101])
+	by gw.linuon.co.jp (8.13.1/8.12.11) with ESMTP id iBIBY43t006788
+	for <selinux@tycho.nsa.gov>; Sat, 18 Dec 2004 20:34:04 +0900
+From: Linux <linux@linuon.com>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: User Space Auditing
+Date: Sat, 18 Dec 2004 20:31:43 +0900
 MIME-Version: 1.0
-To: Nick Gray <nick-lists@austin.rr.com>
-CC: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: Question regarding port usage in respect to the tomcat policy
-References: <1103324915.32688.97.camel@hawaii.grays-systems.com>
-In-Reply-To: <1103324915.32688.97.camel@hawaii.grays-systems.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200412182031.43836.linux@linuon.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Nick Gray wrote:
+Dear SELinux gurus,
 
->In net_contexts I found this
->
->ifdef(`use_http_cache', `
->portcon tcp 3128  system_u:object_r:http_cache_port_t
->portcon tcp 8080  system_u:object_r:http_cache_port_t
->portcon udp 3130  system_u:object_r:http_cache_port_t
->')
->
->I needed 8080 for my tomcat tests so I stole it
->by taking it out and creating my own
->
->
->ifdef(`tomcat.te', `
->portcon tcp 8080  system_u:object_r:tomcat_port_t
->')
->
->And I added this to the tomcat.te
->
->allow tomcat_t tomcat_port_t:tcp_socket name_bind;
->
->The question is why can I access port 8443 as well?
->
->**
->
->I think I figured it out. While doing the start/fix/restart, I found
->that I needed this line as well (probably when I tried to access 8443)
->
->allow tomcat_t port_t:tcp_socket name_bind;
->  
->
-No this says that you can bind to any port.
-A better solution would be
+I have a quick question regarding auditing facility in SELinux.
+It might not be really relating to SELinux, could be stupid 
+question though.
+What I want to do is capture SELinux audit logs directly from user space
+daemon, just like netfilter's ulogd. Is there any daemon like ulogd already?
+If not, are there any programs that use the audit facility that 
+I can refer to?
+It seems not right thing to do that porting SELinux to use ulog facility.
+I looked for info about audit but there's almost no useful info available on
+the internet.  I found there's Hert.org who seems to be original developer of 
+linux audit facility but all related info had been removed from their server
+now. Even Faith's, who is author of auditd, audit page on RedHat's site has
+been removed.
+If anyone out there know how to use linux audit facility then 
+please enlighten me. 
 
-ifdef(`tomcat.te', `
-portcon tcp 8080  system_u:object_r:tomcat_port_t
-portcon tcp 8083  system_u:object_r:tomcat_port_t
-')
+Thank you,
 
-
->So I am guessing that anything not labeled specifically must belong to
->this type.
->
->Nix
->
->
->  
->
-
+-- Junji Kanemaru
+Linuon Inc.
+Tokyo Japan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
