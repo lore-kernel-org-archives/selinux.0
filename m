@@ -1,54 +1,65 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA27042
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 09:22:46 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA29425
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 13:21:33 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id NAA29421 for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 13:21:32 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: "use"
-Date: Mon, 29 Apr 2002 15:22:49 +0200
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0204290854320.19520-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0204290854320.19520-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA27210
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 09:27:45 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA00012
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 13:25:55 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA00008
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 13:25:55 GMT
+Date: Mon, 29 Apr 2002 09:26:50 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: f980215 <f980215@mailandnews.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: how to hide one file or one directory 
+In-Reply-To: <002401c1ef4f$907499a0$780aa8c0@r213>
+Message-ID: <Pine.GSO.4.33.0204290911150.19520-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020429132249.8FFC53BFB@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 29 Apr 2002 14:57, Stephen Smalley wrote:
-> > #
-> > # Permissions to use file descriptions created by another domain.
-> > #
-> > define(`use_fd_perms', `use')
-> > define(`inherit_fd_perms', `use')
-> > define(`receive_fd_perms', `use')
+
+On Mon, 29 Apr 2002, f980215 wrote:
+
+> I install selinux-2.4.18 rpm packages on rh7.2
 >
-> The original (pre-LSM) SELinux provided a distinction among these three
-> cases that was eliminated from the LSM-based SELinux.  The macros were
-> retained for compatibility, but there is no intent to revive the
-> distinction.  This change is documented more completely along with a
-> summary of all the changes between the original SELinux and the LSM-based
-> SELinux in a technical report that is pending release approval from the
-> NSA.
+> How to hide one file or one directory from everyone , even root ?
+>
+> BTW: using LIDS, I can hide file or directory.
 
-Thanks for the information.  I have removed those macros from my source tree, 
-and used sed to change every reference to them to be a reference to "use".
+SELinux doesn't try to hide individual filenames within a directory.
+You can prevent all accesses to a file, including stat'ing it, but the
+ability to see a filename is based on the directory's protections, since
+the filename is part of the directory's state.  If a process has read
+permission to a directory, it can see all names in that directory.  Hiding
+filenames would be possible by filtering directory reads, as is done in
+some other systems like LIDS, but it isn't clear that this functionality
+is worth the cost.  Even if you hide names, you still need to control all
+attempted accesses to the file, and a process can still probe for the
+existence of a file by trying to create a file with the same name.
 
-I can understand why you want to keep those macros for the moment in your 
-tree, but I think it would be a good idea if you changed all the program .te 
-files to use "use" instead of "inherit_fd_perms".
+At present, LSM does not provide a hook for filtering directory reads,
+since this functionality is not within the scope of LSM.  Hence, I don't
+think that the LSM-based LIDS provides this feature either.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+Multi-Level Secure (MLS) systems frequently provide a partitioned
+directory mechanism known as multi-level directories for things like
+/tmp, where a process is transparently redirected to a dynamically
+created subdirectory of /tmp based on its security level.  The SELinux
+architecture includes support for a generalization of this idea, but we
+haven't implemented the corresponding mechanism in the filesystem.  See
+the discussion of polyinstantiation and security union directories in the
+Flask paper.  This hasn't been a high priority for us yet.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
