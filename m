@@ -1,37 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBRE72Ii017581
-	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 09:07:02 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBRE5ETv029754
-	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 14:05:14 GMT
-Subject: Re: [PATCH] Updated & fixed patch for Linux-PAM 0.78
+Subject: Re: About security field in struct sk_buff
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1103824445.27286.31.camel@localhost.localdomain>
-References: <1103824445.27286.31.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1104156067.15615.56.camel@moss-spartans.epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20041224183055.44205.qmail@web51507.mail.yahoo.com>
+References: <20041224183055.44205.qmail@web51507.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1104156347.15615.64.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 27 Dec 2004 09:01:07 -0500
+Date: Mon, 27 Dec 2004 09:05:47 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-23 at 12:54, Lorenzo Hernández García-Hierro wrote:
+On Fri, 2004-12-24 at 13:30, Park Lee wrote:
 > Hi,
-> 
-> I've fixed the old patch for Linux-PAM to make it applying to the latest
-> code version (0.78) from kernel.org.
-> 
-> A few fixes on pam_unix module were applied because of code lacks and
-> source changes during the development by upstreams.
-> 
-> I haven't tested it further but it should work out the box.
+>  In /usr/src/linux/security/selinux/include/objsec.h,
+> there seems no SELinux security data structure for
+> struct sk_buff.
+>   Does this means that SELinux doesn't use the
+> security field (i.e. the unsigned short security) in
+> struct sk_buff at all?
 
-As with the coreutils patch, please compare with what is in the Fedora
-CVS tree, as it is already updated for pam 0.78 (but again, it is
-relative to other patches in the Fedora package, and thus may not apply
-cleanly to the base tarball).
+As with your other question, please do not post the same question to all
+three lists (selinux, fedora-selinux-list, linux-security-module).  Just
+pick the most appropriate one (in this case, I'd say just selinux) and
+wait for an answer.
+
+I've explained previously that we had to drop the sk_buff security field
+and hooks because it wasn't accepted into the mainline Linux 2.6
+kernel.  The unsigned short security field isn't related to LSM, and
+isn't useable for it.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
