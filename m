@@ -1,60 +1,206 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA27599
-	for <selinux@tycho.nsa.gov>; Thu, 5 Sep 2002 07:03:26 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA15282
-	for <selinux@tycho.nsa.gov>; Thu, 5 Sep 2002 11:01:43 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id LAA15278 for <selinux@tycho.nsa.gov>; Thu, 5 Sep 2002 11:01:41 GMT
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: bug in SE Linux / LSM
-Date: Thu, 5 Sep 2002 13:03:29 +0200
-Cc: linux-security-module@wirex.com
+Message-ID: <001a01c254ce$b3ca7020$0200a8c0@kevsta>
+Reply-To: "jj012a1662" <jj012a1662@blueyonder.co.uk>
+From: "jj012a1662" <jj012a1662@blueyonder.co.uk>
+To: <SELinux@tycho.nsa.gov>
+Subject: Re: Cant get linksys network card to work!
+Date: Thu, 5 Sep 2002 12:23:46 +0100
 MIME-Version: 1.0
-Message-Id: <200209051047.55917.russell@coker.com.au>
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0017_01C254D7.1503D630"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In my tutorial yesterday a Robert Dorn <selinux@rddorn.net>
-discovered a bug in the way SE Linux/LSM operates.
+This is a multi-part message in MIME format.
 
-If you login to a virtual console as an unpriviledged user you can use 
-"loadkeys" to change the keyboard mapping for everything apart from the SAK 
-sequence.
+------=_NextPart_000_0017_01C254D7.1503D630
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-This can allow you to arbitarily re-program the keyboard which can make it 
-impossible to login (define it such that there is no ENTER key) or so that a 
-common key performs a bad function such as "; mkfs /dev/hda".
+Thankyou guys for the quick responce + help, but i am still unable to =
+get my card to work. I have tried using the tulip driver/winbond(as far =
+as i know xp uses the winbond driver(so device manager says so))
 
-You can do this whenever you are logged in at the console, but if there are a 
-number of virtual consoles open then you could change to a console that's not 
-commonly used and then run a program that takes input from the network to 
-determine keyboard mappings (and then wait for someone to login at the 
-console and control what they can do).
+I also enabled DHCP support from make menuconfig as the selinux machine =
+is going to be getting an IP off my DHCP server (which shares the =
+Internet). After compiling everything seems to load OK. I run netconfig =
+to try and set it to get an IP from my DHCP server...etc, but i am still =
+unable to get the network to work.
 
-One partial solution to this is to have a getty wrapper which runs "loadkeys 
--d", which solves the problem of a hostile user remapping the keyboard and 
-logging out.  But it doesn't solve the problem of a hostile user remapping 
-the keyboard from a program that's still in a login session on another 
-virtual console.
+I know that the network card is fully functional and their are not any =
+faulty wiring as i am able to get it to work on all linux distro's that =
+i have (suse,redhat 7.1/2/3,slackware)
 
-One potential solution to this would be to have the SAK sequence trigger a 
-relabel of all the devices that have getty's to their default type before 
-running "loadkeys -d".  Then you just have to get into the habit of "SAK 
-before login" (which you should have anyway).
 
-But it would be better if we could just catch such remappings in SE policy, in 
-99% of all machines there is no cause for the user to remap the keyboard.
+Is there anything else which could be cuasing the problem?=20
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Thankyou very much for your time.
+Regards,
+Kevin.j
+  ----- Original Message -----=20
+  From: david caplan=20
+  To: jj012a1662=20
+  Sent: Wednesday, September 04, 2002 11:49 AM
+  Subject: RE: Cant get linksys network card to work!
+
+
+  You need to build the kernel (this applies to any linux kernel, not =
+just an selinux kernel) with the tulip driver built in or as a module.  =
+You do this when you are configuring the kernel build through the =
+configuration menus.  When you are in the kernel directory (e.g., for =
+selinux when you are in the lsm-2.4 directory) and you do a "make =
+xconfig", goto the "Network device support" section, then the "Ethernet =
+(10 or 100Mbit)" subsection, and look about 2/3 of the way down the list =
+for "DECchip Tulip (dc21x4x) PCI support".  Check either the 'y' or the =
+'m', exit and rebuild the kernel.  That should work.  If it doesn't =
+check the Linksys site to see if they provide more information for your =
+card.  I've used Linksys cards before and that driver has always worked =
+(of course, YMMV).
+
+  good luck,
+  david
+    -----Original Message-----
+    From: owner-selinux@tycho.nsa.gov =
+[mailto:owner-selinux@tycho.nsa.gov]On Behalf Of jj012a1662
+    Sent: Tuesday, September 03, 2002 2:52 PM
+    To: SELinux@tycho.nsa.gov
+    Subject: Cant get linksys network card to work!
+
+
+    Hi all,
+
+    I know this sounds like a stupid question, and feel like an idiot to =
+ask about it...but i am unable to get my network card to work once i =
+have SELinux kernel compiled. My Network card is a 10baseT linksys =
+etherPCI lan card II, A friend of mine said that my card uses the =
+tuplip.c driver, is there any way to get this card to work?
+
+
+    Thankyou for your time.
+
+    Regards,
+    Kevin.j
+
+------=_NextPart_000_0017_01C254D7.1503D630
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2600.0" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>
+<DIV><FONT face=3DArial size=3D2><STRONG><U>Thankyou</U></STRONG> guys =
+for the quick=20
+responce + help, but i am still unable to get my card to work. I have =
+tried=20
+using the tulip driver/winbond(as far as i know xp uses the winbond =
+driver(so=20
+device manager says so))<BR><BR>I also enabled <STRONG>DHCP</STRONG> =
+support=20
+from make menuconfig as the selinux machine is going to be getting an IP =
+off my=20
+DHCP server (which shares the Internet). After compiling everything =
+seems to=20
+load OK. I run netconfig to try and set it to get an <STRONG>IP</STRONG> =
+from my=20
+<STRONG>DHCP</STRONG> server...etc, but i am still unable to get the =
+network to=20
+work.<BR></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>I know that the network card is fully =
+functional=20
+and their are not any faulty wiring as i am able to get it to work on =
+all linux=20
+distro's that i have (<STRONG>suse,redhat=20
+7.1/2/3,slackware</STRONG>)</FONT></DIV>
+<DIV><FONT size=3D2></FONT><FONT face=3DArial>&nbsp;</DIV>
+<DIV><BR><FONT size=3D2>Is there anything else which could be cuasing =
+the problem?=20
+</FONT></DIV>
+<DIV><FONT size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT size=3D2>Thankyou very much for your=20
+time.<BR>Regards,<BR>Kevin.j</FONT></FONT></DIV>
+<BLOCKQUOTE dir=3Dltr=20
+style=3D"PADDING-RIGHT: 0px; PADDING-LEFT: 5px; MARGIN-LEFT: 5px; =
+BORDER-LEFT: #000000 2px solid; MARGIN-RIGHT: 0px">
+  <DIV style=3D"FONT: 10pt arial">----- Original Message ----- </DIV>
+  <DIV=20
+  style=3D"BACKGROUND: #e4e4e4; FONT: 10pt arial; font-color: =
+black"><B>From:</B>=20
+  <A title=3Ddac@tresys.com href=3D"mailto:dac@tresys.com">david =
+caplan</A> </DIV>
+  <DIV style=3D"FONT: 10pt arial"><B>To:</B> <A =
+title=3Djj012a1662@blueyonder.co.uk=20
+  href=3D"mailto:jj012a1662@blueyonder.co.uk">jj012a1662</A> </DIV>
+  <DIV style=3D"FONT: 10pt arial"><B>Sent:</B> Wednesday, September 04, =
+2002 11:49=20
+  AM</DIV>
+  <DIV style=3D"FONT: 10pt arial"><B>Subject:</B> RE: Cant get linksys =
+network=20
+  card to work!</DIV>
+  <DIV><BR></DIV>
+  <DIV><FONT face=3DArial color=3D#0000ff size=3D2><SPAN =
+class=3D974123310-04092002>You=20
+  need to build the kernel (this applies to any linux kernel, not just =
+an=20
+  selinux kernel) with the tulip driver built in or as a module.&nbsp; =
+You do=20
+  this when you are configuring the kernel build through the =
+configuration=20
+  menus.&nbsp; When you are in the kernel directory (e.g., for selinux =
+when you=20
+  are in the lsm-2.4 directory) and you do a "make xconfig", goto the =
+"Network=20
+  device support" section, then the "Ethernet (10 or 100Mbit)" =
+subsection, and=20
+  look about 2/3 of the way down the list for "DECchip Tulip (dc21x4x) =
+PCI=20
+  support".&nbsp; Check either the 'y' or the 'm', exit and rebuild the=20
+  kernel.&nbsp; That should work.&nbsp; If it doesn't check the Linksys =
+site to=20
+  see if they provide more information for your card.&nbsp; I've used =
+Linksys=20
+  cards before and that driver has always worked (of course,=20
+  YMMV).</SPAN></FONT></DIV>
+  <DIV><FONT face=3DArial color=3D#0000ff size=3D2><SPAN=20
+  class=3D974123310-04092002></SPAN></FONT>&nbsp;</DIV>
+  <DIV><FONT face=3DArial color=3D#0000ff size=3D2><SPAN =
+class=3D974123310-04092002>good=20
+  luck,</SPAN></FONT></DIV>
+  <DIV><FONT face=3DArial color=3D#0000ff size=3D2><SPAN=20
+  class=3D974123310-04092002>david</SPAN></FONT></DIV>
+  <BLOCKQUOTE dir=3Dltr=20
+  style=3D"PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #0000ff 2px =
+solid; MARGIN-RIGHT: 0px">
+    <DIV class=3DOutlookMessageHeader dir=3Dltr align=3Dleft><FONT =
+face=3DTahoma=20
+    size=3D2>-----Original Message-----<BR><B>From:</B>=20
+    owner-selinux@tycho.nsa.gov =
+[mailto:owner-selinux@tycho.nsa.gov]<B>On Behalf=20
+    Of </B>jj012a1662<BR><B>Sent:</B> Tuesday, September 03, 2002 2:52=20
+    PM<BR><B>To:</B> SELinux@tycho.nsa.gov<BR><B>Subject:</B> Cant get =
+linksys=20
+    network card to work!<BR><BR></FONT></DIV>
+    <DIV><FONT face=3DArial size=3D2>Hi all,<BR><BR>I know this sounds =
+like a stupid=20
+    question, and feel like an idiot to ask about it...but i am unable =
+to get my=20
+    network card to work once i have SELinux kernel compiled. My Network =
+card is=20
+    a 10baseT linksys etherPCI lan card II, A friend of mine said that =
+my card=20
+    uses the tuplip.c driver, is there any way to get this card to=20
+    work?<BR><BR><BR>Thankyou for your=20
+    =
+time.<BR><BR>Regards,<BR>Kevin.j</FONT></DIV></BLOCKQUOTE></BLOCKQUOTE></=
+FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0017_01C254D7.1503D630--
 
 
 --
