@@ -1,32 +1,38 @@
-Date: Thu, 26 Aug 2004 10:07:45 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-cc: Justin Friel <capn_shoe@yahoo.com>, <SELinux@tycho.nsa.gov>
-Subject: Re: Trouble building Policy-1.16
-In-Reply-To: <1093524996.9280.77.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.44.0408261004500.2542-100000@thoron.boston.redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7QEnIrT013323
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 10:49:18 -0400 (EDT)
+Received: from betta.xs4all.nl (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7QEnH0g015462
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 14:49:17 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by betta.xs4all.nl (Postfix) with ESMTP id F181E4880
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 16:49:12 +0200 (CEST)
+Message-ID: <1580.10.1.1.4.1093531747.squirrel@10.1.1.4>
+Date: Thu, 26 Aug 2004 16:49:07 +0200 (CEST)
+Subject: Req: patches against vanilla source
+From: "Laurens Blankers" <lblankers@xs4all.nl>
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;charset=iso-8859-1
+References: 
+In-Reply-To: 
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 26 Aug 2004, Stephen Smalley wrote:
+Hello all,
 
-> Rather than treating an entire ipv6 address as a single token, we could
-> just scan the hexval components and separating colons as individual
-> tokens and define ipv6 address in the grammar, as we do with
-> ipv4_addr_def.  That would seem safer.
+Applying the patches, provided on the website, to the source of the
+various utilities results in rejects. Especially util-linux, which already
+includes several selinux files which don't work well with the patch and
+sysvinit causes a lot of problems.
 
-Well, you need to interpret embedded ipv4 addresses at the end, implied 
-runs of zeroes etc.  Parsing as one token and feeding into inet_pton() is 
-much simpler, and uses an existing, well tested library function for 
-validation.
+Would it be possible to provide patches against the vanilla source?
+
+TIA,
+
+Laurens Blankers
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
 
 
 
