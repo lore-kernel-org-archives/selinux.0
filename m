@@ -1,48 +1,54 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5RDbjrT008170
-	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 09:37:45 -0400 (EDT)
-Received: from mbox-o00.iijmio.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5RDbU5h010435
-	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 13:37:31 GMT
-Message-Id: <200406271337.i5RDb5cN011052@mms-r01.iijmio.jp>
-Date: Sun, 27 Jun 2004 22:37:03 +0900
-From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-MIME-Version: 1.0
-To: russell@coker.com.au
-Cc: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov,
-   himainu-ynakam@miomio.jp
-Subject: Re: Policy for webalizer
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <200406272218.31524.russell@coker.com.au>
-References: <200406272218.31524.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5RIq5rT008902
+	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 14:52:05 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5RIpp5h017008
+	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 18:51:51 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp802.mail.ukl.yahoo.com with SMTP; 27 Jun 2004 18:50:48 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1Bee9g-0004Cx-Lz
+	for selinux@tycho.nsa.gov; Sun, 27 Jun 2004 18:13:28 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1Beegg-0004hk-Ip
+	for selinux@tycho.nsa.gov; Sun, 27 Jun 2004 18:47:34 +0000
+Date: Sun, 27 Jun 2004 18:47:34 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: whoops!  apt-get dist-upgrade fun and games
+Message-ID: <20040627184734.GJ13575@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+hey, anyone come across _this_ before? it's really cool [uhn..] - 
+mount can't recognise the type of the root partition!
 
-I checked your changes and webalizer worked, thank you.
+	/dev/hda2 on / type unknown (rw,errors=remount-ro)
+	proc on /proc type proc (rw)
+	sysfs on /sys type sysfs (rw)
+	devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+	usbfs on /proc/bus/usb type usbfs (rw)
+	/dev/hda1 on /boot type ext2 (rw)
+	/dev/hda5 on /usr type ext3 (rw)
+	/dev/hda6 on /var type ext3 (rw)
+	/dev/hda7 on /home type ext3 (rw)
 
-Russell Coker <russell@coker.com.au> wrote:
-> As a general rule we don't want to allow any daemons access to the 
-> administrator console if we can avoid it.  I'm not sure what the best thing 
-> to do for webalizer is in this regard.
-I am not sure.
-What can attacker do , when he obtains write access right to console file?
+consequently, make relabel doesn't bother to do the root partition...
 
-> We could have /var/www/usage labelled as httpd_sys_content_t.  That gives less 
-> types (less pain) for no significant decrease in security.  I should probably 
-> make a similar change to calamaris_t.
-I think we should pay attention when we give write access to homepage,
-because many users think homepage is important.
-In this configuration, if attacker has webalizer_t domain by some way, 
-he can compromise whole homepages. 
-And if administrator misconfigured /etc/webalizer.conf, homepages may be broken.
-I think we should give new type to /var/www/usage .
+whoopsie...
 
-
----
-Yuichi Nakamura
-Japan SELinux Users Group(JPSEG)
-http://www.selinux.gr.jp/
+-- 
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
