@@ -1,61 +1,58 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KFPvrT004771
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 11:25:58 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KFPG4v015416
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 15:25:16 GMT
-Subject: Re: conflict between libselinux and libsepol
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1093013527.9495.0.camel@nexus.verbum.private>
-References: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
-	 <1092972342.29540.35.camel@nexus.verbum.private>
-	 <1093002523.16585.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <1093013527.9495.0.camel@nexus.verbum.private>
-Content-Type: text/plain
-Message-Id: <1093015484.16585.199.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KGMKrT005143
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 12:22:21 -0400 (EDT)
+Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KGMEQ4001969
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 16:22:19 GMT
+Received: from [212.227.126.161] (helo=mrelayng.kundenserver.de)
+	by moutng.kundenserver.de with esmtp (Exim 3.35 #1)
+	id 1ByC9e-0002Lr-00
+	for selinux@tycho.nsa.gov; Fri, 20 Aug 2004 18:22:14 +0200
+Received: from pd9e419a7.dip.t-dialin.net ([217.228.25.167] helo=localhost)
+	by mrelayng.kundenserver.de with asmtp (TLSv1:DES-CBC3-SHA:168)
+	(Exim 3.35 #1)
+	id 1ByC9e-0008S6-00
+	for selinux@tycho.nsa.gov; Fri, 20 Aug 2004 18:22:14 +0200
+Date: Fri, 20 Aug 2004 18:22:15 +0200
+From: Stefan SF <stefan@sf-net.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: policy for scponly - need help
+Message-ID: <20040820162215.GA15914@crux.sternplastic>
+References: <20040819173620.GA8543@crux.localdomain> <1092967183.29540.30.camel@nexus.verbum.private> <20040820080156.GA8602@crux.sternplastic> <1093009277.4336.11.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Date: Fri, 20 Aug 2004 11:24:44 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+In-Reply-To: <1093009277.4336.11.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-08-20 at 10:52, Colin Walters wrote:
-> Well, one problem we ran into yesterday is that the content of
-> file_contexts is not easily verified to ensure there are no undefined
-> types.  During an installation, setfiles would abort after 10 errors by
-> default.  What we want to do is verify the content during a policy
-> package build, to ensure this doesn't happen again.
-> 
-> I'm attaching my (obviously untested) patch to setfiles, I think it will
-> work once sepol is fixed.
 
-The shared libsepol only exports interfaces listed in libsepol.map (and
-declared by convention in sepol/sepol.h), presently just the genbools
-functions.  The static libsepol library exports all global symbols.  I
-envision two very different classes of consumers of libsepol:
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-- Programs like checkpolicy that are tightly coupled to the binary
-policy internals.  Such programs will need to change for any nontrivial
-changes to the binary policy internals.  A stable library ABI for such
-programs would be rather difficult to provide and maintain, so they must
-link with the static libsepol.
+Hi!
 
-- Programs like load_policy (and setfiles, in your example) that only
-need simple interfaces for abstract binary policy queries or transforms,
-like the genbools transforms or a context validation query.  We can
-provide a stable ABI for such programs, so they can use the shared
-libsepol.
+Yeah that was it ;-)
+Your documentation about the rssh had helped me a lot! I've now a scponly-chrootet user. I will do some policy-cleanups and post it to the list. Maybe someone can read through it and say if I had done some security risks!
 
-Hence, I would recommend that we add a function to libsepol to provide a
-higher level interface for context validation against a given binary
-policy, add it to libsepol.map, and declare the prototype in sepol.h for
-use by setfiles.
+Thank you very much indeed!
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+ciao, Stefan
 
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBJiU3UEn3BeoPvtwRAo21AJ0ad0H7iG4oRHl5CESipQT/VXvjBgCfXoA6
+CCPP7vnIjjn9SqofmVe/m7M=
+=mZtd
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
