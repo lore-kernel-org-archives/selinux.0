@@ -1,24 +1,42 @@
-Message-ID: <46ce702f05011112012f88060a@mail.gmail.com>
-Date: Tue, 11 Jan 2005 14:01:08 -0600
-From: Serge Hallyn <serge.hallyn@gmail.com>
-Reply-To: Serge Hallyn <serge.hallyn@gmail.com>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: TE Policy Modules for SELinux policies
-In-Reply-To: <46ce702f0501102035329f22c9@mail.gmail.com>
+Subject: Re: Added is_context_configurable function
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
+In-Reply-To: <41E3FAF4.2060109@redhat.com>
+References: <41E2FEF4.5070604@redhat.com>
+	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E3FAF4.2060109@redhat.com>
+Content-Type: text/plain
+Message-Id: <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-References: <46ce702f0501102035329f22c9@mail.gmail.com>
+Date: Tue, 11 Jan 2005 15:00:11 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-As (and if) I make changes, the latest version will be linked at the top of
-http://www.cs.wm.edu/~hallyn/dte  (specifically,
-http://www.cs.wm.edu/~hallyn/dte/selinux_policy_modules.latest.tar.bz2).
+On Tue, 2005-01-11 at 11:12, Daniel J Walsh wrote:
+> I think this is more flexible, in that it allows users to specify the 
+> location of these files versus policy.
+> IE I create a new top level directory /rsync which I want to label 
+> ftp_anon_t, I don't want to have to specify
+> ftp_anon_t is an alternative to default_t.
 
-The latest version has a bit more documentation and policy than the one sent out
-last night.
+You could certainly specify a /rsync/(/.*)? entry in file_contexts that
+had both contexts listed.  Ordinary user shouldn't be able to
+create/populate /rsync anyway without administrative setup.
 
--serge
+Failing to associate the context with a location in any manner means
+that setfiles/restorecon will fail to fix the label on e.g. /etc/shadow
+if it happens to get one of these configurable types at some point. 
+Admittedly, getting to that point requires some kind of serious error in
+the first place, but running fixfiles relabel will no longer correct
+such errors for you.
+
+BTW, customizable or alternatives seems better than configurable.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
