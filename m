@@ -1,49 +1,80 @@
-Message-ID: <187711B80DB3334B97BBC3AD87859D3D02210FE7@nor-msg7.stortek.com>
-From: "Dowd, Alan S" <DowdAS@NORTHAMERICA.Stortek.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
-   "'SELinux'"
-	 <SELinux@tycho.nsa.gov>
-Subject: RE: Logo Artwork for SELinux?
-Date: Tue, 13 Apr 2004 10:57:44 -0400
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3DH9KRb022210
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 13:09:20 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i3DH7FUZ021759
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 17:07:16 GMT
+Received: from gorn.pebenito.dhs.org (c-24-15-25-98.client.comcast.net [24.15.25.98])
+	by jazzswing.ncsc.mil  with ESMTP id i3DH7FmT021752
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 17:07:15 GMT
+Subject: Re: Now that SELinux supports booleans should we replace tunables
+	with booleans?
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <407BF24E.90901@redhat.com>
+References: <407BF24E.90901@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZaZcmCYrOgmyEz3Z/URu"
+Message-Id: <1081876156.7060.28.camel@gorn.pebenito.net>
+Mime-Version: 1.0
+Date: Tue, 13 Apr 2004 12:09:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Three cheers for M. Smalley!
 
-This whole thread reminds me of a scene near the end of the TV broadcast
-version of "The Hitchhikers Guide to the Galaxy." Our protagonists are
-stranded on Neolithic Earth with a spaceship (Galgafringian Arkship B) full
-of "middlemen," among them marketing executives. The marketing executives
-have formed a committee to reinvent the wheel. Their major concern is "What
-color should it be?" We're all demonstrating our outstanding qualifications
-for Arkship B here.
+--=-ZaZcmCYrOgmyEz3Z/URu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Perhaps we should settle for a penguin in a bathtub, playing with a rubber
-duck, and get back to security-enhanced Linux.
+On Tue, 2004-04-13 at 08:59, Daniel J Walsh wrote:
+> Ideas?
+>=20
+> Dan
 
-	Al D.
+I've been thinking about this for a while.  It seems like a good idea
+eventually, but the problem is with the policy v15 kernels floating
+around still.  The bools get dropped, so you lose the tuning.  If
+checkpolicy is modified to include the bool if the condition is met,
+based on the initial setting, for v15 policy, then it could be ok.  For
+example:
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Stephen Smalley
-Sent: Monday, April 12, 2004 10:35 AM
-To: Dale Amon
-Cc: Elvedin Trnjanin; Dean Anderson; Matthew J. Fanto; Russell Coker;
-SELinux Mailing List
-Subject: Re: Logo Artwork for SELinux?
-[...snip...]
+bool foo true;
+bool bar false;
+if( foo ) {
+allow a_t b_t:file getattr;
+}
+if( bar ) {
+allow c_t b_t:file getattr;
+}
 
-Thanks for the thought, but I have absolutely no interest in helping to
-design a logo for SELinux, nor do I particularly care whether SELinux
-ever has a logo.  Let's leave the marketing to the marketers, and focus
-on improving the code...
+So, the first allow would be included, but not the second in a v15
+policy.  I think I remember Russell talking about this, or something
+similar.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
+--=-ZaZcmCYrOgmyEz3Z/URu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAfB66vI7kLeavkkMRAtOUAKCh+qnguRuw0gcGnt364xa+uriLmwCdEdTJ
+/sVqpW9Xrz8diVCNSIqKY/Q=
+=tOjT
+-----END PGP SIGNATURE-----
+
+--=-ZaZcmCYrOgmyEz3Z/URu--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
