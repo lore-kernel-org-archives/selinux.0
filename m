@@ -1,65 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA04924
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 13:42:41 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA01293
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 17:41:10 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA04988
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 13:47:37 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA18844
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 17:47:12 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id RAA01289 for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 17:41:10 GMT
-Date: Mon, 24 Jun 2002 13:42:19 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id RAA18838
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 17:47:12 GMT
+Date: Mon, 24 Jun 2002 13:46:36 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
 cc: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: ichsid
-In-Reply-To: <20020613230056.71DDA1F38@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0206241322320.10386-301000@raven>
+In-Reply-To: <Pine.GSO.4.33.0206241322320.10386-301000@raven>
+Message-ID: <Pine.GSO.4.33.0206241343570.10386-100000@raven>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-838545539-1024940043=:10386"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-838545539-1024940043=:10386
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.GSO.4.33.0206241336091.10386@raven>
+On Mon, 24 Jun 2002, Stephen Smalley wrote:
 
+> Afterward, 'setfiles -i pathname ino context' can be used to set the
+> context of an inode, where pathname is the path of any file within the
+> desired filesystem and ino is the inode number.  If run on a SELinux
+> kernel, it will use the new ichsid call; otherwise, it will directly
+> mutate the persistent label mapping.
 
-On Fri, 14 Jun 2002, Russell Coker wrote:
-
-> Providing this functionality as part of the setfiles ability to change the
-> context database directly when running on a non-SE kernel should not be
-> difficult, and would provide the minimum functionality for getting SE Linux
-> on a machine with a few reboots (boot into SE Linux, see messages such as the
-> following, boot into non-SE Linux to run setfiles, then boot SE again) or
-> with some debugfs work.
->
-> Providing it as part of the kernel interface would be even more useful.
-
-I've attached an experimental set of patches and new files for
-ichsid-style functionality.  To apply _for experimentation purposes only_,
-save the patches and archive to your home directory and do the following:
-	cd lsm-2.4
-	patch -p0 < ~/lsm-2.4-ichsid.patch
-	cd ../selinux
-	patch -p0 < ~/selinux-ichsid.patch
-	tar xvzf ~/selinux-ichsid.tgz
-
-You will then need to build and install the modified kernel, install the
-updated header files (make install in selinux/module), build and install
-the updated libsecure, and build and install the updated setfiles program.
-
-Afterward, 'setfiles -i pathname ino context' can be used to set the
-context of an inode, where pathname is the path of any file within the
-desired filesystem and ino is the inode number.  If run on a SELinux
-kernel, it will use the new ichsid call; otherwise, it will directly
-mutate the persistent label mapping.
-
-The ichsid call will only work if the filesystem type supports finding
-inodes by inode number.  It appears to work with ext[23], but should
-fail on reiserfs.
+Sorry, I mis-spoke.  pathname should be the path of the root of the
+desired filesystem, as with the typical setfiles usage.  Otherwise, when
+run on a non-SELinux kernel, setfiles won't find the persistent label
+mapping properly.  When run on a SELinux kernel, pathname can actually be
+any path within the filesystem, since the ichsid call merely extracts the
+superblock from the looked up inode.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -67,193 +41,6 @@ ssmalley@nai.com
 
 
 
-
-
-
-
----559023410-838545539-1024940043=:10386
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="lsm-2.4-ichsid.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0206241334030.10386@raven>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="lsm-2.4-ichsid.patch"
-
-SW5kZXg6IHNlY3VyaXR5L3NlbGludXgvc3lzY2FsbHMuYw0KPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnMvbHNtL2xzbS0yLjQvc2Vj
-dXJpdHkvc2VsaW51eC9zeXNjYWxscy5jLHYNCnJldHJpZXZpbmcgcmV2aXNp
-b24gMS45DQpkaWZmIC11IC1yMS45IHN5c2NhbGxzLmMNCi0tLSBzZWN1cml0
-eS9zZWxpbnV4L3N5c2NhbGxzLmMJMjAwMi8wNS8xMyAxNjo0MjoxMQkxLjkN
-CisrKyBzZWN1cml0eS9zZWxpbnV4L3N5c2NhbGxzLmMJMjAwMi8wNi8yNCAx
-NzoxOTo0OQ0KQEAgLTExNywxNiArMTE3LDIzIEBADQogCXJldHVybiAwOw0K
-IH0NCiANCi0NCi1zdGF0aWMgaW50IGNoc2lkX2NvbW1vbihzdHJ1Y3QgZGVu
-dHJ5ICogZGVudHJ5LCBzZWN1cml0eV9pZF90IG5ld3NpZCkNCisvKiBPbmx5
-IG9uZSBvZiB0aGUgZGVudHJ5IGFuZCBpbm9kZSBhcmd1bWVudHMgbmVlZHMg
-dG8gDQorICAgYmUgc3BlY2lmaWVkLiBUaGUgb3RoZXIgcGFyYW1ldGVyIHNo
-b3VsZCBiZSBOVUxMLg0KKyAgIFVzZSBkZW50cnkgaWYgb25lIGlzIGF2YWls
-YWJsZSB0byB0aGUgY2FsbGVyLiAgT3RoZXJ3aXNlLCANCisgICB1c2UgaW5v
-ZGUuICAqLw0KK3N0YXRpYyBpbnQgY2hzaWRfY29tbW9uKHN0cnVjdCBkZW50
-cnkgKmRlbnRyeSwgDQorCQkJc3RydWN0IGlub2RlICogaW5vZGUsICANCisJ
-CQlzZWN1cml0eV9pZF90IG5ld3NpZCkNCiB7DQotCXN0cnVjdCBpbm9kZSAq
-aW5vZGUgPSBkZW50cnktPmRfaW5vZGU7DQogCXN0cnVjdCB0YXNrX3NlY3Vy
-aXR5X3N0cnVjdCAqdHNlYzsNCiAJc3RydWN0IGlub2RlX3NlY3VyaXR5X3N0
-cnVjdCAqaXNlYzsNCiAJc3RydWN0IHN1cGVyYmxvY2tfc2VjdXJpdHlfc3Ry
-dWN0ICpzYnNlYzsNCiAJYXZjX2F1ZGl0X2RhdGFfdCBhZDsNCiAJaW50IHJj
-ID0gMDsNCiANCisJaWYgKGRlbnRyeSkNCisJCWlub2RlID0gZGVudHJ5LT5k
-X2lub2RlOw0KKw0KIAlpZiAoIWlub2RlKSB7DQogCQlwcmludGsoImNoc2lk
-X2NvbW1vbjogTlVMTCBpbm9kZVxuIik7DQogCQlyZXR1cm4gLUVOT0VOVDsN
-CkBAIC0xNDQsNyArMTUxLDEwIEBADQogCWlzZWMgPSBpbm9kZS0+aV9zZWN1
-cml0eTsNCiANCiAJQVZDX0FVRElUX0RBVEFfSU5JVCgmYWQsRlMpOw0KLQlh
-ZC51LmZzLmRlbnRyeSA9IGRlbnRyeTsNCisJaWYgKGRlbnRyeSkNCisJCWFk
-LnUuZnMuZGVudHJ5ID0gZGVudHJ5Ow0KKwllbHNlDQorCQlhZC51LmZzLmlu
-b2RlID0gaW5vZGU7DQogDQogCWRvd24oJmlzZWMtPnNlbSk7DQogDQpAQCAt
-MTk1LDcgKzIwNSw3IEBADQogCWVsc2UNCiAJCWVycm9yID0gdXNlcl9wYXRo
-X3dhbGtfbGluayhmaWxlbmFtZSwgJm5kKTsNCiAJaWYgKCFlcnJvcikgew0K
-LQkJZXJyb3IgPSBjaHNpZF9jb21tb24obmQuZGVudHJ5LCBzaWQpOw0KKwkJ
-ZXJyb3IgPSBjaHNpZF9jb21tb24obmQuZGVudHJ5LCBOVUxMLCBzaWQpOw0K
-IAkJcGF0aF9yZWxlYXNlKCZuZCk7DQogCX0NCiAJcmV0dXJuIGVycm9yOw0K
-QEAgLTIwOCw4ICsyMTgsMzggQEANCiANCiAJZmlsZSA9IGZnZXQoZmQpOw0K
-IAlpZiAoZmlsZSkgew0KLQkJZXJyb3IgPSBjaHNpZF9jb21tb24oZmlsZS0+
-Zl9kZW50cnksIHNpZCk7DQorCQllcnJvciA9IGNoc2lkX2NvbW1vbihmaWxl
-LT5mX2RlbnRyeSwgTlVMTCwgc2lkKTsNCiAJCWZwdXQoZmlsZSk7DQorCX0N
-CisJcmV0dXJuIGVycm9yOw0KK30NCisNCitsb25nIHN5c19pY2hzaWQoY29u
-c3QgY2hhciAqZmlsZW5hbWUsIA0KKwkJdW5zaWduZWQgbG9uZyBpbm8sDQor
-CQlzZWN1cml0eV9pZF90IHNpZCkNCit7DQorCXN0cnVjdCBuYW1laWRhdGEg
-bmQ7DQorCXN0cnVjdCBzdXBlcl9ibG9jayAqc2I7DQorCXN0cnVjdCBpbm9k
-ZSAqaW5vZGU7DQorCWludCBlcnJvcjsNCisNCisJaWYgKCFpbm8pDQorCQly
-ZXR1cm4gLUVJTlZBTDsNCisNCisJZXJyb3IgPSB1c2VyX3BhdGhfd2Fsayhm
-aWxlbmFtZSwgJm5kKTsNCisJaWYgKCFlcnJvcikgew0KKwkJZXJyb3IgPSAt
-RU5PREVWOw0KKwkJc2IgPSBuZC5kZW50cnktPmRfaW5vZGUtPmlfc2I7DQor
-CQlpZiAoc2IpIHsNCisJCQllcnJvciA9IC1FTk9FTlQ7DQorCQkJaW5vZGUg
-PSBpZ2V0KHNiLCBpbm8pOw0KKwkJCWlmIChpbm9kZSkgew0KKwkJCQlpZiAo
-IWlzX2JhZF9pbm9kZShpbm9kZSkpIA0KKwkJCQkJZXJyb3IgPSBjaHNpZF9j
-b21tb24oTlVMTCwgaW5vZGUsIHNpZCk7DQorCQkJCWlwdXQoaW5vZGUpOw0K
-KwkJCX0NCisJCX0NCisJCXBhdGhfcmVsZWFzZSgmbmQpOw0KIAl9DQogCXJl
-dHVybiBlcnJvcjsNCiB9DQpJbmRleDogc2VjdXJpdHkvc2VsaW51eC9pbmNs
-dWRlL2FzbS1pMzg2L2ZsYXNrL3N5c2NhbGxzLmMNCj09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT0NClJDUyBmaWxlOiAvY3ZzL2xzbS9sc20tMi40L3NlY3VyaXR5
-L3NlbGludXgvaW5jbHVkZS9hc20taTM4Ni9mbGFzay9zeXNjYWxscy5jLHYN
-CnJldHJpZXZpbmcgcmV2aXNpb24gMS40DQpkaWZmIC11IC1yMS40IHN5c2Nh
-bGxzLmMNCi0tLSBzZWN1cml0eS9zZWxpbnV4L2luY2x1ZGUvYXNtLWkzODYv
-Zmxhc2svc3lzY2FsbHMuYwkyMDAyLzA1LzI5IDIwOjAwOjE1CTEuNA0KKysr
-IHNlY3VyaXR5L3NlbGludXgvaW5jbHVkZS9hc20taTM4Ni9mbGFzay9zeXNj
-YWxscy5jCTIwMDIvMDYvMjQgMTc6MTk6NDkNCkBAIC0xNjYsOCArMTY2LDkg
-QEANCiAJQUwoOCksIC8qIHJlY3Zmcm9tICovDQogCUFMKDUpLCAvKiByZWN2
-bXNnICovDQogCUFMKDUpLCAvKiBzZW5kbXNnICovDQotCUFMKDgpICAvKiBz
-ZW5kdG8gKi8sDQotCUFMKDApICAvKiBtbHMgKi8sDQorCUFMKDgpLCAvKiBz
-ZW5kdG8gKi8NCisJQUwoMCksIC8qIG1scyAqLw0KKwlBTCgzKSAgLyogaWNo
-c2lkICovDQogfTsNCiAjdW5kZWYgQUwNCiANCkBAIC0zODAsNiArMzgxLDkg
-QEANCiAJCWJyZWFrOw0KIAljYXNlIFNFTElOVVhDQUxMX01MUzoNCiAJCWVy
-ciA9IHN5c19zZWN1cml0eV9tbHMoKTsNCisJCWJyZWFrOw0KKwljYXNlIFNF
-TElOVVhDQUxMX0lDSFNJRDoNCisJCWVyciA9IHN5c19pY2hzaWQoKGNvbnN0
-IGNoYXIqKWEwLCBhMSwgYVsyXSk7DQogCQlicmVhazsNCiAJZGVmYXVsdDoN
-CiAJCWVyciA9IC1FSU5WQUw7DQpJbmRleDogc2VjdXJpdHkvc2VsaW51eC9p
-bmNsdWRlL2xpbnV4L2ZsYXNrL3N5c2NhbGxzLmgNCj09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT0NClJDUyBmaWxlOiAvY3ZzL2xzbS9sc20tMi40L3NlY3VyaXR5
-L3NlbGludXgvaW5jbHVkZS9saW51eC9mbGFzay9zeXNjYWxscy5oLHYNCnJl
-dHJpZXZpbmcgcmV2aXNpb24gMS41DQpkaWZmIC11IC1yMS41IHN5c2NhbGxz
-LmgNCi0tLSBzZWN1cml0eS9zZWxpbnV4L2luY2x1ZGUvbGludXgvZmxhc2sv
-c3lzY2FsbHMuaAkyMDAyLzA1LzI5IDIwOjAwOjE1CTEuNQ0KKysrIHNlY3Vy
-aXR5L3NlbGludXgvaW5jbHVkZS9saW51eC9mbGFzay9zeXNjYWxscy5oCTIw
-MDIvMDYvMjQgMTc6MTk6NDkNCkBAIC03MCw3ICs3MCw5IEBADQogDQogI2Rl
-ZmluZSBTRUxJTlVYQ0FMTF9NTFMgICAgICAgICAgIDUxDQogDQotI2RlZmlu
-ZSBTRUxJTlVYQ0FMTF9OVU0gICAgICAgICAgIDUxDQorI2RlZmluZSBTRUxJ
-TlVYQ0FMTF9JQ0hTSUQgICAgICAgIDUyDQorDQorI2RlZmluZSBTRUxJTlVY
-Q0FMTF9OVU0gICAgICAgICAgIDUyDQogDQogLyogU3RydWN0dXJlIGRlZmlu
-aXRpb25zIGZvciBjb21wdXRlX2F2IGNhbGwgKi8NCiBzdHJ1Y3Qgc2VjdXJp
-dHlfcXVlcnkgew0K
----559023410-838545539-1024940043=:10386
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="selinux-ichsid.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0206241334031.10386@raven>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="selinux-ichsid.patch"
-
-SW5kZXg6IGxpYnNlY3VyZS9pbmNsdWRlL2ZzX3NlY3VyZS5oDQo9PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2cy9sc20vc2VsaW51eC9s
-aWJzZWN1cmUvaW5jbHVkZS9mc19zZWN1cmUuaCx2DQpyZXRyaWV2aW5nIHJl
-dmlzaW9uIDEuNA0KZGlmZiAtdSAtcjEuNCBmc19zZWN1cmUuaA0KLS0tIGxp
-YnNlY3VyZS9pbmNsdWRlL2ZzX3NlY3VyZS5oCTIwMDIvMDMvMjAgMTU6MjU6
-MDMJMS40DQorKysgbGlic2VjdXJlL2luY2x1ZGUvZnNfc2VjdXJlLmgJMjAw
-Mi8wNi8yNCAxNjo1NzoyMg0KQEAgLTI5LDYgKzI5LDEwIEBADQogZXh0ZXJu
-IGludCBjaHNpZChjb25zdCBjaGFyICpwYXRobmFtZSwgDQogCQkgc2VjdXJp
-dHlfaWRfdCBzaWQpOw0KIA0KK2V4dGVybiBpbnQgaWNoc2lkKGNvbnN0IGNo
-YXIgKnBhdGhuYW1lLCANCisJCSAgdW5zaWduZWQgbG9uZyBpbm8sIA0KKwkJ
-ICBzZWN1cml0eV9pZF90IHNpZCk7DQorDQogZXh0ZXJuIGludCBsY2hzaWQo
-Y29uc3QgY2hhciAqcGF0aG5hbWUsIA0KIAkJICBzZWN1cml0eV9pZF90IHNp
-ZCk7DQogDQpJbmRleDogc2V0ZmlsZXMvc2V0ZmlsZXMuYw0KPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnMvbHNtL3NlbGludXgvc2V0
-ZmlsZXMvc2V0ZmlsZXMuYyx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMTEN
-CmRpZmYgLXUgLXIxLjExIHNldGZpbGVzLmMNCi0tLSBzZXRmaWxlcy9zZXRm
-aWxlcy5jCTIwMDIvMDUvMTQgMTc6Mzk6NDAJMS4xMQ0KKysrIHNldGZpbGVz
-L3NldGZpbGVzLmMJMjAwMi8wNi8yNCAxNjo1NzoyMw0KQEAgLTg2LDYgKzg2
-LDcgQEANCiBzdGF0aWMgaW50IHZlcmJvc2UgPSAwOw0KIHN0YXRpYyBpbnQg
-cmVzZXQgPSAwOw0KIHN0YXRpYyBpbnQgdXNlX3N0ZGluID0gMDsNCitzdGF0
-aWMgaW50IHVzZV9pbnVtID0gMDsNCiANCiBzdGF0aWMgaW50IHF1aWV0ID0g
-MDsNCiAjZGVmaW5lIFFQUklOVEYoYXJncy4uLikgZG8geyBpZiAoIXF1aWV0
-KSBwcmludGYoYXJncyk7IH0gd2hpbGUgKDApDQpAQCAtNDY3LDcgKzQ2OCw3
-IEBADQogCXN0cnVjdCBzdGF0IHNiOw0KIA0KIAkvKiBQcm9jZXNzIGFueSBv
-cHRpb25zLiAqLw0KLQl3aGlsZSAoKG9wdCA9IGdldG9wdChhcmdjLCBhcmd2
-LCAiZG5xc3ZSVyIpKSA+IDApIHsNCisJd2hpbGUgKChvcHQgPSBnZXRvcHQo
-YXJnYywgYXJndiwgImRpbnFzdlJXIikpID4gMCkgew0KIAkJc3dpdGNoIChv
-cHQpIHsNCiAJCWNhc2UgJ2QnOg0KIAkJCWRlYnVnID0gMTsNCkBAIC00OTEs
-MTAgKzQ5Miw2MyBAQA0KIAkJY2FzZSAncSc6DQogCQkJcXVpZXQgPSAxOw0K
-IAkJCWJyZWFrOw0KKwkJY2FzZSAnaSc6DQorCQkJdXNlX2ludW0gPSAxOw0K
-KwkJCWJyZWFrOw0KIAkJfQ0KIAl9DQogDQogCWZsYXNrX2VuYWJsZWQgPSBp
-c19mbGFza19lbmFibGVkKCk7DQorDQorCWlmICh1c2VfaW51bSkgew0KKwkJ
-Y2hhciAqZmlsZXN5czsNCisJCXVuc2lnbmVkIGxvbmcgaW5vOw0KKwkJaW50
-IHJjOw0KKw0KKwkJaWYgKG9wdGluZCAhPSAoYXJnYyAtIDMpKSB7DQorCQkJ
-ZnByaW50ZihzdGRlcnIsICJ1c2FnZTogICVzIC1pIHBhdGhuYW1lIGlubyBj
-b250ZXh0XG4iLCBhcmd2WzBdKTsNCisJCQlleGl0KDEpOw0KKwkJfQ0KKwkJ
-DQorCQlmaWxlc3lzID0gYXJndltvcHRpbmRdOw0KKwkJaW5vID0gYXRvbChh
-cmd2W29wdGluZCsxXSk7DQorCQljb250ZXh0ID0gYXJndltvcHRpbmQrMl07
-DQorDQorCQlpZiAoIWZsYXNrX2VuYWJsZWQpIHsNCisJCQlwc2lkcyA9IHBz
-aWR0YWJfaW5pdChmaWxlc3lzLCBGSUxFX0NPTlRFWFQsIEZTX0NPTlRFWFQs
-IDApOw0KKwkJCWlmICghcHNpZHMpIHsNCisJCQkJZnByaW50ZihzdGRlcnIs
-DQorCQkJCQkiJXM6ICB1bmFibGUgdG8gaW5pdGlhbGl6ZSBQU0lEIG1hcHBp
-bmcgZm9yICVzXG4iLA0KKwkJCQkJYXJndlswXSwgZmlsZXN5cyk7DQorCQkJ
-CWV4aXQoMSk7DQorCQkJfQ0KKwkJDQorCQkJcmMgPSBjb250ZXh0X3RvX3Bz
-aWQocHNpZHMsIGlubywgY29udGV4dCk7DQorCQkJaWYgKHJjKSB7DQorCQkJ
-CWZwcmludGYoc3RkZXJyLCANCisJCQkJCSIlczogIHVuYWJsZSB0byBzZXQg
-UFNJRCBmb3IgaW5vZGUgJWxkLCByYz0lZFxuIiwgYXJndlswXSwgaW5vLCBy
-Yyk7DQorCQkJCWV4aXQoMSk7DQorCQkJfQ0KKwkJCQ0KKwkJCXBzaWR0YWJf
-ZGVzdHJveShwc2lkcyk7DQorCQl9IGVsc2Ugew0KKwkJCWxlbiA9IHN0cmxl
-bihjb250ZXh0KTsNCisJCQlpZiAoc2VjdXJpdHlfY29udGV4dF90b19zaWQo
-Y29udGV4dCwgbGVuICsgMSwgJnNpZCkpIHsNCisJCQkJZnByaW50ZihzdGRl
-cnIsDQorCQkJCQkiJXM6ICBpbnZhbGlkIGNvbnRleHQgJXNcbiIsDQorCQkJ
-CQlhcmd2WzBdLCBjb250ZXh0KTsNCisJCQkJZXhpdCgxKTsNCisJCQl9DQor
-CQkJcmMgPSBpY2hzaWQoZmlsZXN5cywgaW5vLCBzaWQpOw0KKwkJCWlmIChy
-Yykgew0KKwkJCQlwZXJyb3IoImljaHNpZCIpOw0KKwkJCQlleGl0KDEpOw0K
-KwkJCX0NCisJCX0NCisJCVFQUklOVEYoIiVzOiAgUmVsYWJlbGVkIGlub2Rl
-ICVsZCBpbiBmaWxlc3lzdGVtICVzIHRvICVzLlxuIiwNCisJCQlhcmd2WzBd
-LCBpbm8sIGZpbGVzeXMsIGNvbnRleHQpOw0KKwkJZXhpdCgwKTsNCisJfQ0K
-IA0KIAlpZiAodXNlX3N0ZGluKSB7DQogCQlpZiAob3B0aW5kICE9IChhcmdj
-IC0gMSkgfHwgcmVzZXQpIHsNCg==
----559023410-838545539-1024940043=:10386
-Content-Type: APPLICATION/OCTET-STREAM; NAME="selinux-ichsid.tgz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0206241334032.10386@raven>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="selinux-ichsid.tgz"
-
-H4sIAElNFz0AA+2Ub2vbMBDG89b+FNeODaczjRznDyztoGRlC2R7UwaDrRjP
-VhKBIwdJLh2l330nxcmSNCxvso2V+72xJZ3uTrKfpxDfNc8qxVtaZS2RzbTI
-z7PGUWERY71ep8GQ/s7T0umxBut3WbcX2wfGx52o3wB23Db2U2mTKoCGzvVv
-4w6t/6e8EDIrqpzDxUQnyz/hfPbW/zVd6Lmd8IU0sPw9gqyU2kA2w3s7W6Rm
-JtM5D8H3AKCSWkwlz6Eo5RSELEM37RIL8yMReWIAczT9B9/bDk7VVH+Nbwe+
-5/ueG7BbuIRgK6q5qjeoY6I9MVh2tdzes4zlcVlxUykJeLzg5no8+vT5S/Lx
-6v1oGEI9HF6Nx8lo+OFm9C50zTUH/qP/r7/XsSnW+jdcmz9jAAf0H7G4u9J/
-1Iljq/8e65L+/wYH9a/1ztjk+M88mRPl2iXmqZCBfUHRZGHtE2c4uHOqf+IF
-KEYbrTBWDHZdwWkZAyYQ2HRwcgmdJmAab7JQuG0SYHGuVAinlU6n/A3AS22z
-ttClDL83sHIMmyrn3+SpU/MdugsK2vP4vTBBZF8fsQ5uRMNITSkCFxS5IFv9
-xLqWK6wyDFmfoi6TmDKx3ljvCkEbVXC5zgKvIUIvtIDllU1n69vcKltm9hZ4
-klJtlt5sEDt0TeJBtpqM103WBu1m29iENWBnt3ABbFljs0R74wraqytwI/Ys
-zY4gCIIgCIIgCIIgCIIgCIIgCIIgCIIgnik/AZBnVg4AKAAA
----559023410-838545539-1024940043=:10386--
 
 --
 You have received this message because you are subscribed to the selinux list.
