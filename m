@@ -1,57 +1,38 @@
-Subject: non-Linux behavior
+Subject: threads
 From: Albert Cahalan <albert@users.sourceforge.net>
 To: SELinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1072453276.953.89.camel@cube>
+Message-Id: <1072454081.827.103.camel@cube>
 Mime-Version: 1.0
-Date: 26 Dec 2003 10:41:16 -0500
+Date: 26 Dec 2003 10:54:41 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've been adding SE Linux support to procps.
-The 3.1.15 release supports "--context" when
-run on a 2.6.0 kernel. (http://procps.sf.net/)
+Normal Linux security data (uid, capability bits)
+is per-thread. There are at least two reasons for
+this:
 
-I need some help. One of my goals is to be
-mostly compatible with both UNIX and BSD.
-I'm looking for people willing to try out
-security-related ps options on high-security
-systems. Better yet would be a trial account.
+1. Multi-threaded server daemons can rely on
+   kernel-enforced security.
 
-I'm interested in whatever systems commonly
-in use or are likely to be of importance.
-I guess that means: Trusted IRIX, Cray's OS,
-Trusted Solaris, FreeBSD with LOMAC, and
-probably stuff from IBM or HP. Anything else?
-If you'd like Linux compatible with whatever
-it is you've been using, speak now.
+2. Race conditions are eliminated without locking.
+   This deals with the problem of two threads
+   simultaneously updating the security data, or
+   one thread updating while another thread uses.
 
-For those who can help only by typing commands
-themselves, feel free to change command names
-to "[x]", "x", or "x x" as appropriate. (I need
-to know if args are shown or if brakets are used)
-The same goes for user names, etc.
+I'm told that SE Linux enforces shared security
+data. I suppose this is mostly required when
+implementing a mandatory system. Is this race-free?
+Is there a capability that would allow a suitably
+privileged process to have per-thread contexts?
 
-I'd like to have output from at least:
+Also, I'm told that a security context can only
+change during exec. WHAT???? Besides the case of
+a suitably privileged process, what about the
+need to move some sort of watermark? AFAIK, your
+security context needs to be tainted when you
+read low-integrity data and so on.
 
-ps -Z
-ps -flZ
-ps -Zlf
-ps -ZelfLyPcj  (all the options you can do)
-ps Z
-
-Then again, replacing the 'Z' with 'z'.
-Then again, this time with 'M'.
-Then again, this time with 'x'.
-Then again, this time with 'C'.
-And so on, for every security-related option...
-
-Plus this one:
-
-ps -zMZ  (all available security options at once)
-
-The goal here is to determine column width,
-column order, interactions between options, etc.
 
 
 
