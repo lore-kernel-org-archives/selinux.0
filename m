@@ -1,103 +1,48 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBEGM4Ii012485
-	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 11:22:04 -0500 (EST)
-Received: from web50205.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id iBEGM6fN008615
-	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 16:22:06 GMT
-Message-ID: <20041214162207.5089.qmail@web50205.mail.yahoo.com>
-Date: Tue, 14 Dec 2004 08:22:07 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [patch] selinux_capget()
-To: James Morris <jmorris@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <Xine.LNX.4.44.0412140104020.30724-100000@thoron.boston.redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBEKS1Ii014356
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 15:28:01 -0500 (EST)
+Received: from lakermmtao02.cox.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBEKS3fN019293
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 20:28:04 GMT
+Received: from [192.168.101.104] (really [68.98.190.92])
+          by lakermmtao02.cox.net
+          (InterMail vM.6.01.04.00 201-2131-117-20041022) with ESMTP
+          id <20041214202804.LDLV2202.lakermmtao02.cox.net@[192.168.101.104]>
+          for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 15:28:04 -0500
+Message-ID: <41BF4CD4.1000809@theptrgroup.com>
+Date: Tue, 14 Dec 2004 15:28:04 -0500
+From: Mike Anderson <mike@theptrgroup.com>
+Reply-To: mike@theptrgroup.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: selinux@tycho.nsa.gov
+Subject: Tripwire policy?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Greetings!
 
---- James Morris <jmorris@redhat.com> wrote:
+  According to the mail archives, back in May/June there was some 
+discussion about the development of a set of TEs etc. for tripwire.  Did 
+these ever get put together?  If so, who can I contact to obtain them?
 
-> On Mon, 13 Dec 2004, Casey Schaufler wrote:
-> 
-> > Briefly, the intent of the POSIX specification
-> > is that you should not "correct" the effective set
-> > due to the impact of additional policies or
-> > conditions.
-> 
-> How does the application determine the real
-> effective set?
+TIA,
 
-The short answer is that it doesn't. How do you
-determine if you can really open a file for write
-access? The real world behavior is to check what
-you know about (e.g. UID, mode bits) and hope that
-you'll pass any additinoal constraints (e.g. ACLS,
-capabilities, mount options) that might apply. Then
-try it and check the error return.
+Mike
 
-> (confusing enough terms ? :-)
+-- 
 
-If you think this is a confusing set of terms you
-should have been in Denver when we found out that
-the term "privilege" had an ISO definition, and so
-we had to change the draft to use something else.
-Leave it that capabilities with all it's terminology
-issues was the best choice.
+---------------------------------------------------------------
+Mike Anderson                    703.585.9384
+CTO/Chief Scientist              mike@ThePTRGroup.com
+www.ThePTRGroup.com              Embedded, Real-Time Solutions
+---------------------------------------------------------------
+"Software development is like making a baby. 
+ You can't make a baby in one month by impregnating nine women.
+ Some things just take time."
+             
+      -Paraphrased from The Mythical Man Month
 
-> Surely it is a reasonable thing to expect to be able
-> to do.
-
-Indeed it is. Unfortunatly, the best suggested
-interface I've seen is on the lines of:
-
-     canido("open(\"/somewhere/file\", O_WRITE)");
-
-which is a generalized version of access(2), that
-notoriously unuseful syscall. Needless to say, such
-an inferface is impracticle and would still yield
-false positives.
-
-> I'm not sure
-> that your example is valid here as euid==0 doesn't
-> mean anything in
-> SELinux (if it did, the application could check that
-> first and infer that
-> it has all capabilities).
-
-Many applications do check to see if they're running
-as root and (attempt to) behave differently if they
-are. And, you will gain no ground whatever if you
-try to get the developers of such applications to
-mend their evil ways. Applications that use privilege
-must be aware of the privilege mechanisms that
-constrain them.
-
-My example come from the capability implementation
-in IRIX, where privilege is granted if you have
-the effective capability or if you are root. In
-Trusted Irix (Trix to it's friends) the uid is not
-used in privilege checks, you must have the 
-capability. The POSIX draft specification permits
-either implementation. The application that cares
-about the security environment it resides in and
-does anything more sophisticated than trying
-the operation and reacting to errors will have a
-tough row to hoe.
-
-
-=====
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Easier than ever with enhanced search. Learn more.
-http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
