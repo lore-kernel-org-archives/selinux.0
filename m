@@ -1,87 +1,60 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFDTpIi022628
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 08:29:51 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFDSPvq016129
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 13:28:25 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFDXpIi022671
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 08:33:51 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFDXsuA002514
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 13:33:54 GMT
 Subject: Re: dynamic context transitions
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20041114202332.GO5031@lkcl.net>
-References: <20041114202332.GO5031@lkcl.net>
+In-Reply-To: <20041115015749.GS5031@lkcl.net>
+References: <20041115015749.GS5031@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1100525144.31773.30.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1100525392.31773.35.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 15 Nov 2004 08:25:45 -0500
+Date: Mon, 15 Nov 2004 08:29:52 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2004-11-14 at 15:23, Luke Kenneth Casson Leighton wrote:
-> i hope people don't mind me pointing out what may appear to be obvious:
+On Sun, 2004-11-14 at 20:57, Luke Kenneth Casson Leighton wrote:
+> i have what i believe to be an important question about how dynamic
+> context transitions should partition resources:
 > 
-> q: how do you stop an attacker circumventing a program with this
-> seteuid-like dynamic context transition capability, such that the
-> attacker can make the program transition anywhere anytime to an
-> arbitrarily chosen domain?
+> is it the case that:
 > 
-> answer: by restricting the domains to which the transition may occur.
+> - when a single process transitions (dynamically) to a new context,
+>   any resources it presently has opened (file handles etc.) will
+>   still be available and accessible in the new context.
 > 
-> q: how would you do that?
+> or is it the case that:
 > 
-> answer: by providing something similar to domain_auto_trans() which is
-> instead adding a level of indirection.  so, instead of the newly
-> proposed function (let's call it selinux_change_domain) specifying the
-> new domain as its argument, you instead specify an intermediate handle.
+> - when a single process transitions (dynamically) to a new context,
+>   any resources it presently has opened (file handles etc.) will
+>   NOT be accessible in the new context, but that, should the process
+>   (dynamically) transition BACK to the new context, those resources
+>   become accessible again.
 > 
-> so you'd have in the policy:
+> the former is a trivial implementation, i presume [by comparison to...]
 > 
-> dynamic_handle "samba_as_root" samba_root_t
-> dynamic_handle "samba_as_user" samba_user_t
+> the latter requires that every resource accessible by a process
+> has a context handle associated with it (eek!)
 > 
-> dynamic_auto_trans(samba_t, "samba_as_root")
-> dynamic_auto_trans(samba_root_t, "samba_as_user")
+> the distinction is critical because the latter is more like the exec()
+> model and the former is more seteuid-like.
 > 
-> then, inside smbd, you call, at the appropriate point:
-> 
-> 	selinux_change_domain("samba_as_user")
-> 
-> then, the job of the selinux_change_domain() function is to not only
-> check that you have permission to make dynamic transitions, but
-> also that you are in the samba_root_t domain - and to do a lookup
-> onto the dynamic_handle to find out what domain to transition to.
-> 
-> 
-> otherwise, you run the risk of a circumvented program being able to
-> transition to unconfined_t - or anything that they damn well choose.
-> 
-> i trust that this has been considered in the design of the new dynamic
-> transition function?
+> i wouldn't want to be explaining and advocating something that was
+> misunderstood!
 
-Luke,
-
-As proposed, there are two permission checks applied upon a dynamic
-domain transition operation from A to B:
-1) In order to write to /proc/pid/attr/current at all, A must have
-setcurrent permission to itself, i.e. allow A self:process setcurrent;
-This parallels the setexec and setfscreate checks performed for setting
-other attributes under /proc/pid/attr.
-2) In order to dynamically transition from A to B, A must have
-dyntransition permission to B, i.e. allow A B:process dyntransition;
-This parallels the transition permission check applied upon exec-based
-transitions, but is distinct so that we can control them separately.
-
-domain_auto_trans() is merely a macro that expands to a set of allow
-rules typically needed for an exec-based transition and a
-type_transition rule to define the default type transition for a given
-(calling domain, executable) pair.  In the case of dynamic transitions,
-there is no such thing as a default transition; the application is
-always explicitly requesting a transition, and can specify the desired
-new context, just as some security-aware applications presently do for
-exec-based transitions using setexeccon().  But there is no need for any
-new policy construct to control this operation; you just need the new
-permissions to be defined, and then you can control the reachability of
-domains via dynamic transitions using allow rules.
+As proposed, all state is inherited across a setcon().  However, since
+SELinux revalidates permission upon access to files, attempts to
+read/write already opened descriptors may fail after the setcon() if the
+new context is not allowed the necessary permissions.  It becomes a
+policy issue whether or not you choose to allow the new context to
+access any descriptors opened under the old context.  Regardless of what
+you do, it is always true that the entire application has to be trusted
+to maintain any desired separation between the two security contexts
+upon a setcon() operation, unlike exec-based transitions.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
