@@ -1,41 +1,23 @@
-Message-ID: <032101c1d679$e6135ca0$ae5b9dac@oemcomputer>
-From: "Tony Stanco" <Tony@freedevelopers.net>
-To: <SeLinux@tycho.nsa.gov>
-Subject: SELinux speakers circuit
-Date: Thu, 28 Mar 2002 11:59:12 -0500
+Message-ID: <20020328192000.79981.qmail@web14603.mail.yahoo.com>
+Date: Thu, 28 Mar 2002 11:20:00 -0800 (PST)
+From: John Doe <r2q2@rocketmail.com>
+Subject: kernel compilation on mandrake
+To: SeLinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have received some invitations to do other panels on SELinux. If you would
-like to be on a panel, please let me know off-line. Some are east coast,
-some west coast, some international. Unfortunately, you should assume that
-you have to pay your own expenses, except for registration to the
-conferences. [On rare occasions expenses are covered].
+I was able to compile the kernel on Mandrake 2.4.3. I think I didn't
+follow the directions though. 
 
-Also, if you haven't seen it, the SELinux panel (Pete Loscocco, Mark
-Westerman, and Martin Dean) at FOSE was covered by Grant Gross of NewsForge.
+=====
+Fly like a bee sting like a butterfly.
 
-http://newsforge.com/article.pl?sid=02/03/22/1716241&tid=23
-
-There were other reporters from PostNewsweek who said they may do articles,
-too. If they do, I will forward them.
-
-Best regards,
-
-Tony Stanco, Esq.
-Senior Policy Analyst
-Open Source and e-Gov
-Cyberspace Policy Institute
-George Washington University
-2033 K Street N.W., Suite 340
-Washington, DC 20006
-202-994-5513  Fax:202-994-5505
-Tony@FreeDevelopers.net
-http://www.cpi.seas.gwu.edu
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Movies - coverage of the 74th Academy Awards®
+http://movies.yahoo.com/
 
 --
 You have received this message because you are subscribed to the selinux list.
