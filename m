@@ -1,115 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA08709
-	for <selinux@tycho.nsa.gov>; Thu, 22 Nov 2001 05:36:57 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id KAA05852
-	for <selinux@tycho.nsa.gov>; Thu, 22 Nov 2001 10:36:38 GMT
-Received: from thebsh.namesys.com (thebsh.namesys.com [212.16.0.238])
-	by jazzswing.ncsc.mil  with SMTP id KAA05848
-	for <selinux@tycho.nsa.gov>; Thu, 22 Nov 2001 10:36:37 GMT
-Message-ID: <3BFCD537.8080100@namesys.com>
-Date: Thu, 22 Nov 2001 13:36:39 +0300
-From: Hans Reiser <reiser@namesys.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA10500
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 05:11:38 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id KAA07613
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 10:10:59 GMT
+Received: from unirel.unirel.it (unirel.unirel.it [194.91.224.65])
+	by jazzband.ncsc.mil  with ESMTP id KAA07609
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 10:10:56 GMT
+Received: from there ([10.1.1.2])
+	by unirel.unirel.it (8.11.2/linuxconf) with SMTP id fANAAHL25950
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 11:10:17 +0100
+Message-Id: <200111231010.fANAAHL25950@unirel.unirel.it>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Giovanni Mugnai <giovanni@unirel.it>
+To: selinux@tycho.nsa.gov
+Subject: Security policies change prevention!
+Date: Fri, 23 Nov 2001 11:13:15 +0100
 MIME-Version: 1.0
-To: Harald von Fellenberg - Sun Switzerland Zurich - Technology Strategy Office <Harald.Von-Fellenberg@sun.com>
-CC: sds@tislabs.com, selinux@tycho.nsa.gov,
-        Reiserfs developers mail-list <reiserfs-dev@namesys.com>
-Subject: Re: SELinux and non-ext[23] file systems
-References: <200111191615.fAJGFHE02817@zurich-mail1.Swiss.Sun.COM>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Harald von Fellenberg - Sun Switzerland Zurich - Technology Strategy 
-Office wrote:
+I have begun reading about selinux lately, i have read the security policy 
+configuration could be changed at runtime by the security_load_policy call.
+I would like to know if it's possible to prevent from security policy 
+configuration runtime changes, e.g. by a suitable kernel configuration, and 
+where i could read something about.
 
->IT WORKS ON REISERFS!!!
->
->Why did you not tell me before ... :-)
->I will now invest my brain cycles on making the utils compile under Suse 7.x
->
->Thanks and regards
->
->Harald
->PS here my patch :-)
->
->--- setfiles/Makefile.orig      Wed Jul 18 22:38:11 2001
->+++ setfiles/Makefile   Mon Nov 19 16:19:18 2001
->@@ -9,6 +9,7 @@
-> 
-> relabel:  $(FILECONTEXTS) setfiles
->        ./setfiles $(FILECONTEXTS) `mount | awk '/ext2/{print $$3}'`
->+       ./setfiles $(FILECONTEXTS) `mount | awk '/reiserfs/{print $$3}'`
->        touch relabel
-> 
-> install:  relabel
->
->>On Mon, 19 Nov 2001, Harald von Fellenberg - Sun Switzerland Zurich - 
->>
->Technology Strategy Office wrote:
->
->>>This said, I would like to re-raise the importance of non-ext2 file system
->>>support, notably ReiserFS. It has been pointed out before, by Stephen 
->>>
->Smalley,
->
->>>that this should in principle be easy to integrate (the per-node sec context
->>>needs to be stored in a file rather than in an unused field of the on-disk 
->>>
->inode
->
->>>structure). However, I am not aware of anyone tackling this implementation.
->>>
->>Only the original SELinux prototype was limited to the ext2 filesystem,
->>due to the use of a spare field in the on-disk ext2 inode to store the
->>persistent security identifier (PSID).  When we transitioned to LSM, we
->>extended the persistent label mapping to maintain the inode-to-PSID
->>mapping as a regular file because LSM does not provide filesystem-specific
->>hooks.  Hence, the LSM-based SELinux prototype should be able to use
->>ReiserFS, although we haven't tried it.
->>
->>--
->>Stephen D. Smalley, NAI Labs
->>ssmalley@nai.com
->>
->>
->>
->>
->>
->>--
->>You have received this message because you are subscribed to the selinux list.
->>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->>the words "unsubscribe selinux" without quotes as the message.
->>
->
->**********************************************************
-> Dr. Harald von Fellenberg  
-> Chief Technologist        Global Sales Organisation
-> Tel:    +41 1 908 9230    Sun Microsystems (Schweiz) AG
-> Fax:    +41 1 908 9001    Javastr. 2 
-> Mobile: +41 79 349 0393   CH-8604 Volketswil
-> mailto:harald.von-fellenberg@sun.com
->**********************************************************
->
->
->--
->You have received this message because you are subscribed to the selinux list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->the words "unsubscribe selinux" without quotes as the message.
->
->
-Please let me know if you need anything from the reiserfs team to assist 
-you in integrating SE Linux and reiserfs.  Also, if you are interested 
-in producing anything that might go into our faq, or as a patch on our 
-download page, let me know.
+thanks
 
-If anyone involved in SE Linux is interested in working with us, let me 
-encourage you to view www.namesys.com/v4/v4.html, and feel free to ask 
-us to add new features that make your work easier.
-
-Hans
-
-
+Giovanni Mugnai, UniRel 
 
 --
 You have received this message because you are subscribed to the selinux list.
