@@ -1,41 +1,54 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85AVBrT017033
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 06:31:11 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85AjqrT017092
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 06:45:52 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85AV8t0027798
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 10:31:09 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85Ajnt0027949
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 10:45:50 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: Erich Schubert <erich@debian.org>
-Subject: Re: Additional rule files
-Date: Sun, 5 Sep 2004 20:31:05 +1000
-Cc: selinux@tycho.nsa.gov
+Subject: Re: log file names (was Additional rule files)
+Date: Sun, 5 Sep 2004 20:45:46 +1000
+Cc: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com,
+   Debian Devel <debian-devel@lists.debian.org>
 References: <1094260356.29689.44.camel@wintermute.xmldesign.de>
 In-Reply-To: <1094260356.29689.44.camel@wintermute.xmldesign.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409052031.05813.russell@coker.com.au>
+Message-Id: <200409052045.46899.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Sat, 4 Sep 2004 11:12, Erich Schubert <erich@debian.org> wrote:
-> Fourth rule set if for using the "fnord" web server with "tcpsvd"
-> (of the ipsvd package. very lightweight.)
+> The next two rule sets are for the statistic tools "bindgraph" and
+> "mailgraph". The first parses bind query logs and does nice graphs out
+> of them, the second does the same for postfix+amavis logs.
 
-Why does fnord need a different policy?  Are the actions of different web 
-servers that different?  (this is a serious question not a rhetorical 
-question)
+Do we need to have two different domains for programs that do the same thing?
 
-My initial thought was that perhaps a little change to apache.fc is all that's 
-needed.  But if there are serious enough differences in the security 
-requirements of Apache and fnord then we need to come up with a good design 
-for this.  Having special case rules in every .te file that has policy for a 
-cgi-bin script for each web server isn't going to work!
+Both bindgraph and mailgraph can read the same file types as input and their 
+output can be accessed by cgi-bin scripts.  It seems that there is little (if 
+any) benefit in isolating them.
 
-We can create some attributes to have multiple web servers work well with the 
-rest of the policy as I have already done with mail servers.  But first we 
-need a reason to do so.
+If we were to assign different types to different log files (may require code 
+changes in syslogd) then we could deny the mailgraph program the ability to 
+read log files other than mail.log and deny the bindgraph program the ability 
+to read mail.log.
+
+Also note that in your policy both those programs can read /var/log/auth.log 
+(Debian) and /var/log/secure (Fedora).  This is not desirable, we probably 
+should make changes to the syslog setup.
+
+One possible change is greater use of sub-directories in /var/log.  We could 
+have /var/log/security/ for auth.log, secure, and any other security critical 
+log files and /var/log/mail/ for mail server log files (including POP server, 
+and maybe webmail), etc.  Doing this would allow different types for the log 
+files with no code changes to syslogd, and this would make it more beneficial 
+to have separate domains for mailgraph and bindgraph.
+
+I've CC'd this to fedora-selinux and debian-devel because if we make such 
+changes then we want to get some cross-distribution agreement on file names.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
