@@ -1,35 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA26195
-	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2001 14:03:01 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA17636
-	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2001 18:02:12 GMT
-Received: from locutus.adm.rl.af.mil (LOCUTUS.adm.rl.af.mil [128.132.129.27])
-	by jazzswing.ncsc.mil  with ESMTP id SAA17632
-	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2001 18:02:12 GMT
-Received: from fsjrez04.irr.rl.af.mil (FSJREZ04.irr.rl.af.mil [128.132.192.211])
-	by locutus.adm.rl.af.mil (8.9.3/NoneYaBizness) with ESMTP id OAA05371
-	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2001 14:02:59 -0400 (EDT)
-Message-ID: <D98BF3C61B66D311BA820000D11B4BDF01438540@FSJREZ03.adm.rl.af.mil>
-From: Ramsey Wally Contr AFRL/IFEB <Wally.Ramsey@rl.af.mil>
-To: "'NSA SELinux Mailing List'" <selinux@tycho.nsa.gov>
-Subject: Linux and Posix compliance
-Date: Mon, 16 Jul 2001 14:02:29 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA26703
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2001 14:49:27 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA24600
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2001 18:49:13 GMT
+Received: from prserv.net (out4.prserv.net [32.97.166.34])
+	by jazzband.ncsc.mil  with ESMTP id SAA24596
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2001 18:49:12 GMT
+Message-ID: <3B533733.BE3E2167@cpcug.org>
+Date: Mon, 16 Jul 2001 14:49:23 -0400
+From: James A Griffin <agriffin@cpcug.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Ramsey Wally Contr AFRL/IFEB <Wally.Ramsey@rl.af.mil>
+CC: "'NSA SELinux Mailing List'" <selinux@tycho.nsa.gov>
+Subject: Re: Linux and Posix compliance
+References: <D98BF3C61B66D311BA820000D11B4BDF01438540@FSJREZ03.adm.rl.af.mil>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-To all:
+Ramsey Wally Contr AFRL/IFEB wrote:
+> 
+> To all:
+> 
+> This may not be the appropriate list for this, but can anyone point me to
+> references on POSIX compliance and Linux? I am just getting started on this.
+> 
+[snip]
 
-This may not be the appropriate list for this, but can anyone point me to
-references on POSIX compliance and Linux? I am just getting started on this.
+One thing that I have noticed for years is the boot time message "POSIX
+conformance testing by UNIFIX".  The message appears just after the CPU
+testing and before the PCI: Probe.  UNIFIX is a UK company, IIRC.  What
+the results of the "conformance testing" are, I do not know.
 
-thanks,
+Does anyone on the list know?
 
-Wally Ramsey
-ramseyw@rl.af.mil
+Regards,
+Jim
 
 --
 You have received this message because you are subscribed to the selinux list.
