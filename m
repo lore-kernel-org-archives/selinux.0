@@ -1,32 +1,36 @@
-Subject: Re: fc3 - password change problem - syslog and portmapper
+Subject: Re: Java Legacy problem
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: jayendren@mweb.co.za
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200502220809.40631.jayendren@hivsa.com>
-References: <200502220809.40631.jayendren@hivsa.com>
+To: ivg2@cornell.edu
+Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1108910713.3610.18.camel@cobra.ivg2.net>
+References: <1108910713.3610.18.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Tue, 22 Feb 2005 08:04:09 -0500
-Message-Id: <1109077449.2256.9.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 22 Feb 2005 08:36:50 -0500
+Message-Id: <1109079410.2256.41.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-22 at 08:09 +0200, Jayendren Anand Maduray wrote:
-> Got FC3 running SELINUX in enforcing mode.
+On Sun, 2005-02-20 at 09:45 -0500, Ivan Gyurdiev wrote:
+> So, what is the recommended strategy for dealing with Java, so
+> that those denials will go away?
 > 
-> 1. however when i try to change my password, i get the ffg error:
-> SystemError: couldn't get security context of `/etc/passwd': No data available
-> 
-> 2. also, when i boot up, syslogd, and portmap cannot start, so i disabled it 
-> in SELinux. i would like to get this to work, though.
-> 
-> i am running kernel Linux shiva 2.6.10-1.741_FC3smp
+> user_t (java):
+> denied { execute } ld_so_cache_t:file (/etc/ld.so.cache) 
+> denied { execute } locale_t:file      (/usr/lib/locale/locale-archive)
+> denied { execmod } shlib_t:file       (/lib/libc-2.3.4.so)
+> denied { execmod } ld_so_t:file       (/lib/ld-2.3.4.so)
 
-The most likely scenario is that you never labeled your filesystems, or
-that you ran with SELinux disabled for some period of time and thus
-ended up with some files without security labels.  Touch /.autorelabel
-and reboot, or run /sbin/fixfiles relabel and reboot.  BTW, this kind of
-question belongs on fedora-selinux-list, not here, IMHO.
+It has been suggested that SELinux should not be checking execute-
+related permissions when the kernel automatically adds execute via the
+read-implies-execute logic for legacy binaries.  To achieve that, we
+would need to modify the core kernel to pass the original requested
+protection to the security hooks in mmap and mprotect and have SELinux
+perform its checking based on that requested protection (as specified by
+the application) rather than the actual protection applied by the kernel
+_if_ some setting were enabled, e.g. echo 1 > /selinux/legacycompat.
+What do people think about that?  
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
