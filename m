@@ -1,162 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBK3o0Ii012584
-	for <selinux@tycho.nsa.gov>; Sun, 19 Dec 2004 22:50:00 -0500 (EST)
-Received: from sccrmhc12.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBK3o3Kh007093
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 03:50:03 GMT
-Subject: [patch] disable policycoreutils locale option
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Zui9QB78UVi9ijYGDdl0"
-Date: Sun, 19 Dec 2004 22:49:51 -0500
-Message-Id: <1103514592.3871.13.camel@chris.pebenito.net>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBK4pqIi012782
+	for <selinux@tycho.nsa.gov>; Sun, 19 Dec 2004 23:51:52 -0500 (EST)
+Received: from web50209.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id iBK4o8kB025159
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 04:50:08 GMT
+Message-ID: <20041220045151.46055.qmail@web50209.mail.yahoo.com>
+Date: Sun, 19 Dec 2004 20:51:51 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [patch] selinux_capget()
+To: russell@coker.com.au, Casey Schaufler <casey@schaufler-ca.com>
+Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <200412201216.23660.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Zui9QB78UVi9ijYGDdl0
-Content-Type: multipart/mixed; boundary="=-2JhL591CK3eP/hKFF3V3"
+--- Russell Coker <russell@coker.com.au> wrote:
+
+ 
+> Doesn't access(2) deal with ACLs and mount options?
+
+No. 
 
 
---=-2JhL591CK3eP/hKFF3V3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-This patch make the the locale code in policycoreutils able to be
-disabled.  I was trying to compile policycoreutils against uclibc for an
-embedded system, but uclibc doesn't have locale support.  The patch
-leaves locale support on by default.  The patch is against sourceforge
-CVS.
-
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+=====
+Casey Schaufler
+casey@schaufler-ca.com
 
 
---=-2JhL591CK3eP/hKFF3V3
-Content-Disposition: attachment; filename=policycoreutils-nonls.diff
-Content-Type: text/x-patch; name=policycoreutils-nonls.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGxvYWRfcG9saWN5L01ha2VmaWxlDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jv
-b3Qvc2VsaW51eC9uc2Evc2VsaW51eC11c3IvcG9saWN5Y29yZXV0aWxzL2xvYWRfcG9saWN5L01h
-a2VmaWxlLHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS42DQpkaWZmIC11IC1yMS42IE1ha2VmaWxl
-DQotLS0gbG9hZF9wb2xpY3kvTWFrZWZpbGUJMTMgQXVnIDIwMDQgMTc6MTk6MDkgLTAwMDAJMS42
-DQorKysgbG9hZF9wb2xpY3kvTWFrZWZpbGUJMjAgRGVjIDIwMDQgMDM6MTk6NTEgLTAwMDANCkBA
-IC01LDcgKzUsNyBAQA0KIExPQ0FMRURJUiA/PSAvdXNyL3NoYXJlL2xvY2FsZQ0KIA0KIENGTEFH
-UyA9IC1XYWxsDQotb3ZlcnJpZGUgQ0ZMQUdTICs9IC1ETE9DQUxFRElSPSJcIiQoTE9DQUxFRElS
-KVwiIiAtRFBBQ0tBR0U9IlwicG9saWN5Y29yZXV0aWxzXCIiDQorb3ZlcnJpZGUgQ0ZMQUdTICs9
-IC1EVVNFX05MUyAtRExPQ0FMRURJUj0iXCIkKExPQ0FMRURJUilcIiIgLURQQUNLQUdFPSJcInBv
-bGljeWNvcmV1dGlsc1wiIg0KIExETElCUyArPSAtbHNlcG9sIC1sc2VsaW51eA0KIA0KIFRBUkdF
-VFM9JChwYXRzdWJzdCAlLmMsJSwkKHdpbGRjYXJkICouYykpDQpJbmRleDogbG9hZF9wb2xpY3kv
-bG9hZF9wb2xpY3kuYw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNh
-L3NlbGludXgtdXNyL3BvbGljeWNvcmV1dGlscy9sb2FkX3BvbGljeS9sb2FkX3BvbGljeS5jLHYN
-CnJldHJpZXZpbmcgcmV2aXNpb24gMS44DQpkaWZmIC11IC1yMS44IGxvYWRfcG9saWN5LmMNCi0t
-LSBsb2FkX3BvbGljeS9sb2FkX3BvbGljeS5jCTI2IEF1ZyAyMDA0IDE3OjE1OjM5IC0wMDAwCTEu
-OA0KKysrIGxvYWRfcG9saWN5L2xvYWRfcG9saWN5LmMJMjAgRGVjIDIwMDQgMDM6MTk6NTIgLTAw
-MDANCkBAIC0xMCw5ICsxMCwxMyBAQA0KICNpbmNsdWRlIDxnZXRvcHQuaD4NCiAjaW5jbHVkZSA8
-c2VsaW51eC9zZWxpbnV4Lmg+DQogI2luY2x1ZGUgPHNlcG9sL3NlcG9sLmg+DQorI2lmZGVmIFVT
-RV9OTFMNCiAjaW5jbHVkZSA8bG9jYWxlLmg+CQkJICAgIC8qIGZvciBzZXRsb2NhbGUoKSAqLw0K
-ICNpbmNsdWRlIDxsaWJpbnRsLmg+CQkJICAgIC8qIGZvciBnZXR0ZXh0KCkgKi8NCiAjZGVmaW5l
-IF8obXNnaWQpIGdldHRleHQgKG1zZ2lkKQ0KKyNlbHNlDQorI2RlZmluZSBfKG1zZ2lkKSAobXNn
-aWQpDQorI2VuZGlmDQogI2lmbmRlZiBQQUNLQUdFDQogI2RlZmluZSBQQUNLQUdFICJwb2xpY3lj
-b3JldXRpbHMiICAgLyogdGhlIG5hbWUgb2YgdGhpcyBwYWNrYWdlIGxhbmcgdHJhbnNsYXRpb24g
-Ki8NCiAjZW5kaWYNCkBAIC0zMCw5ICszNCwxMSBAQA0KIAl2b2lkICptYXA7DQogCWNoYXIgKnBv
-bHBhdGgsICpib29scGF0aCA9IE5VTEwsICoqbmFtZXM7DQogDQorI2lmZGVmIFVTRV9OTFMNCiAJ
-c2V0bG9jYWxlIChMQ19BTEwsICIiKTsNCiAJYmluZHRleHRkb21haW4gKFBBQ0tBR0UsIExPQ0FM
-RURJUik7DQogCXRleHRkb21haW4gKFBBQ0tBR0UpOw0KKyNlbmRpZg0KIA0KIAl3aGlsZSAoKG9w
-dCA9IGdldG9wdChhcmdjLCBhcmd2LCAicWIiKSkgPiAwKSB7DQogCQlzd2l0Y2ggKG9wdCkgew0K
-SW5kZXg6IG5ld3JvbGUvTWFrZWZpbGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9z
-ZWxpbnV4L25zYS9zZWxpbnV4LXVzci9wb2xpY3ljb3JldXRpbHMvbmV3cm9sZS9NYWtlZmlsZSx2
-DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuNA0KZGlmZiAtdSAtcjEuNCBNYWtlZmlsZQ0KLS0tIG5l
-d3JvbGUvTWFrZWZpbGUJMjYgTm92IDIwMDMgMTg6MDE6MjQgLTAwMDAJMS40DQorKysgbmV3cm9s
-ZS9NYWtlZmlsZQkyMCBEZWMgMjAwNCAwMzoxOTo1MiAtMDAwMA0KQEAgLTYsNyArNiw3IEBADQog
-TE9DQUxFRElSID0gL3Vzci9zaGFyZS9sb2NhbGUNCiANCiBDRkxBR1MgPSAtV2FsbA0KLW92ZXJy
-aWRlIENGTEFHUyArPSAtRFVTRV9QQU0gLURMT0NBTEVESVI9IlwiJChMT0NBTEVESVIpXCIiIC1E
-UEFDS0FHRT0iXCJwb2xpY3ljb3JldXRpbHNcIiINCitvdmVycmlkZSBDRkxBR1MgKz0gLURVU0Vf
-TkxTIC1EVVNFX1BBTSAtRExPQ0FMRURJUj0iXCIkKExPQ0FMRURJUilcIiIgLURQQUNLQUdFPSJc
-InBvbGljeWNvcmV1dGlsc1wiIg0KIExETElCUyArPSAtbHNlbGludXggLWxkbCAtbHBhbSAtbHBh
-bV9taXNjDQogDQogVEFSR0VUUz0kKHBhdHN1YnN0ICUuYywlLCQod2lsZGNhcmQgKi5jKSkNCklu
-ZGV4OiBuZXdyb2xlL25ld3JvbGUuYw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3Nl
-bGludXgvbnNhL3NlbGludXgtdXNyL3BvbGljeWNvcmV1dGlscy9uZXdyb2xlL25ld3JvbGUuYyx2
-DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuNA0KZGlmZiAtdSAtcjEuNCBuZXdyb2xlLmMNCi0tLSBu
-ZXdyb2xlL25ld3JvbGUuYwkxMiBBdWcgMjAwNCAxMzo1ODoxMCAtMDAwMAkxLjQNCisrKyBuZXdy
-b2xlL25ld3JvbGUuYwkyMCBEZWMgMjAwNCAwMzoxOTo1MiAtMDAwMA0KQEAgLTY0LDkgKzY0LDEz
-IEBADQogI2luY2x1ZGUgPHNlbGludXgvZ2V0X2RlZmF1bHRfdHlwZS5oPg0KICNpbmNsdWRlIDxz
-ZWxpbnV4L2dldF9jb250ZXh0X2xpc3QuaD4gLyogZm9yIFNFTElOVVhfREVGQVVMVFVTRVIgKi8N
-CiAjaW5jbHVkZSA8c2lnbmFsLmg+DQorI2lmZGVmIFVTRV9OTFMNCiAjaW5jbHVkZSA8bG9jYWxl
-Lmg+CQkJICAgIC8qIGZvciBzZXRsb2NhbGUoKSAqLw0KICNpbmNsdWRlIDxsaWJpbnRsLmg+CQkJ
-ICAgIC8qIGZvciBnZXR0ZXh0KCkgKi8NCiAjZGVmaW5lIF8obXNnaWQpIGdldHRleHQgKG1zZ2lk
-KQ0KKyNlbHNlDQorI2RlZmluZSBfKG1zZ2lkKSAobXNnaWQpDQorI2VuZGlmDQogI2lmbmRlZiBQ
-QUNLQUdFDQogI2RlZmluZSBQQUNLQUdFICJwb2xpY3ljb3JldXRpbHMiICAgLyogdGhlIG5hbWUg
-b2YgdGhpcyBwYWNrYWdlIGxhbmcgdHJhbnNsYXRpb24gKi8NCiAjZW5kaWYNCkBAIC0yNjUsOSAr
-MjY5LDExIEBADQogICAvKiBUZXJtaW5hdGUgb24gU0lHSFVQLiAqLw0KICAgc2lnbmFsKFNJR0hV
-UCwgU0lHX0RGTCk7DQogDQorI2lmZGVmIFVTRV9OTFMNCiAgIHNldGxvY2FsZSAoTENfQUxMLCAi
-Iik7DQogICBiaW5kdGV4dGRvbWFpbiAoUEFDS0FHRSwgTE9DQUxFRElSKTsNCiAgIHRleHRkb21h
-aW4gKFBBQ0tBR0UpOw0KKyNlbmRpZg0KIA0KICAgLyoNCiAgICAqDQpJbmRleDogcnVuX2luaXQv
-TWFrZWZpbGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxp
-bnV4LXVzci9wb2xpY3ljb3JldXRpbHMvcnVuX2luaXQvTWFrZWZpbGUsdg0KcmV0cmlldmluZyBy
-ZXZpc2lvbiAxLjQNCmRpZmYgLXUgLXIxLjQgTWFrZWZpbGUNCi0tLSBydW5faW5pdC9NYWtlZmls
-ZQkyNiBOb3YgMjAwMyAxODowMToyNSAtMDAwMAkxLjQNCisrKyBydW5faW5pdC9NYWtlZmlsZQky
-MCBEZWMgMjAwNCAwMzoxOTo1MiAtMDAwMA0KQEAgLTcsNyArNyw3IEBADQogTE9DQUxFRElSID89
-IC91c3Ivc2hhcmUvbG9jYWxlDQogDQogQ0ZMQUdTID0gLVdhbGwNCi1vdmVycmlkZSBDRkxBR1Mg
-Kz0gLURVU0VfUEFNIC1ETE9DQUxFRElSPSJcIiQoTE9DQUxFRElSKVwiIiAtRFBBQ0tBR0U9Ilwi
-cG9saWN5Y29yZXV0aWxzXCIiDQorb3ZlcnJpZGUgQ0ZMQUdTICs9IC1EVVNFX05MUyAtRFVTRV9Q
-QU0gLURMT0NBTEVESVI9IlwiJChMT0NBTEVESVIpXCIiIC1EUEFDS0FHRT0iXCJwb2xpY3ljb3Jl
-dXRpbHNcIiINCiBMRExJQlMgKz0gLWxzZWxpbnV4IC1sZGwgLWxwYW0gLWxwYW1fbWlzYw0KIA0K
-IFRBUkdFVFM9JChwYXRzdWJzdCAlLmMsJSwkKHdpbGRjYXJkICouYykpDQpJbmRleDogcnVuX2lu
-aXQvcnVuX2luaXQuYw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNh
-L3NlbGludXgtdXNyL3BvbGljeWNvcmV1dGlscy9ydW5faW5pdC9ydW5faW5pdC5jLHYNCnJldHJp
-ZXZpbmcgcmV2aXNpb24gMS40DQpkaWZmIC11IC1yMS40IHJ1bl9pbml0LmMNCi0tLSBydW5faW5p
-dC9ydW5faW5pdC5jCTE3IEp1biAyMDA0IDE2OjQzOjQyIC0wMDAwCTEuNA0KKysrIHJ1bl9pbml0
-L3J1bl9pbml0LmMJMjAgRGVjIDIwMDQgMDM6MTk6NTMgLTAwMDANCkBAIC00OSwxMCArNDksMTQg
-QEANCiAjaW5jbHVkZSA8c2VsaW51eC9jb250ZXh0Lmg+ICAgICAgICAgICAgICAvKiBmb3IgY29u
-dGV4dC1tYW5nbGluZyBmdW5jdGlvbnMgKi8NCiAjaW5jbHVkZSA8ZmNudGwuaD4NCiAjaW5jbHVk
-ZSA8Y3R5cGUuaD4NCisjaW5jbHVkZSA8bGltaXRzLmg+DQorI2lmZGVmIFVTRV9OTFMNCiAjaW5j
-bHVkZSA8bGliaW50bC5oPg0KICNpbmNsdWRlIDxsb2NhbGUuaD4NCi0jaW5jbHVkZSA8bGltaXRz
-Lmg+DQogI2RlZmluZSBfKG1zZ2lkKSBnZXR0ZXh0IChtc2dpZCkNCisjZWxzZQ0KKyNkZWZpbmUg
-Xyhtc2dpZCkgKG1zZ2lkKQ0KKyNlbmRpZg0KICNpZm5kZWYgUEFDS0FHRQ0KICNkZWZpbmUgUEFD
-S0FHRSAicG9saWN5Y29yZXV0aWxzIiAgIC8qIHRoZSBuYW1lIG9mIHRoaXMgcGFja2FnZSBsYW5n
-IHRyYW5zbGF0aW9uICovDQogI2VuZGlmDQpAQCAtMzE0LDkgKzMxOCwxMiBAQA0KICAgZXh0ZXJu
-IGNoYXIgKm9wdGFyZzsgICAgICAgICAgICAgICAvKiB1c2VkIGJ5IGdldG9wdCgpIGZvciBhcmcg
-c3RyaW5ncyAqLw0KICAgZXh0ZXJuIGludCBvcHRlcnI7ICAgICAgICAgICAgICAgICAvKiBjb250
-cm9scyBnZXRvcHQoKSBlcnJvciBtZXNzYWdlcyAqLw0KICAgc2VjdXJpdHlfY29udGV4dF90IG5l
-d19jb250ZXh0OwkgICAgIC8qIGNvbnRleHQgZm9yIHRoZSBpbml0IHNjcmlwdCBjb250ZXh0ICAq
-Lw0KKyAgDQorI2lmZGVmIFVTRV9OTFMNCiAgIHNldGxvY2FsZShMQ19BTEwsICIiKTsNCiAgIGJp
-bmR0ZXh0ZG9tYWluKFBBQ0tBR0UsIExPQ0FMRURJUik7DQogICB0ZXh0ZG9tYWluKFBBQ0tBR0Up
-Ow0KKyNlbmRpZg0KIA0KICAgLyogVmVyaWZ5IHRoYXQgd2UgYXJlIHJ1bm5pbmcgb24gYSBmbGFz
-ay1lbmFibGVkIGtlcm5lbC4gKi8NCiAgIGlmKCAhaXNfc2VsaW51eF9lbmFibGVkKCkgKSB7DQo=
-
-
---=-2JhL591CK3eP/hKFF3V3--
-
---=-Zui9QB78UVi9ijYGDdl0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBxkvfvI7kLeavkkMRAspyAKCgzjuCm1bmggV7magDQCLNURgm3wCgmcE9
-lXiqedNiTly0c+lVzfd2Lj4=
-=yDJR
------END PGP SIGNATURE-----
-
---=-Zui9QB78UVi9ijYGDdl0--
+		
+__________________________________ 
+Do you Yahoo!? 
+All your favorites on one personal page – Try My Yahoo!
+http://my.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
