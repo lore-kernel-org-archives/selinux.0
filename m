@@ -1,53 +1,66 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA23137
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 06:36:01 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23580
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 08:24:32 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1PBa0I02911
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 11:36:00 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id h1PBa0f02907 for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 11:36:00 GMT
-Date: Tue, 25 Feb 2003 06:35:55 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: Frank Mayer <mayerf@tresys.com>
-cc: "'Russell Coker'" <russell@coker.com.au>,
-        "'Clem Skorupka'" <ragnor@mitre.org>,
-        "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: Core policy
-In-Reply-To: <004101c2dc4b$e93fddd0$6600a8c0@columbia.tresys.com>
-Message-ID: <Pine.LNX.4.33.0302250628140.1479-100000@vox.gw.tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id h1PDOUI07601
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 13:24:30 GMT
+Received: from RelaySNC.nai.com (relaysnc.nai.com [161.69.3.67])
+        by jazzband.ncsc.mil  with ESMTP id h1PDOTf07592 for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 13:24:30 GMT
+Received: from scwsout1.nai.com (scwsout1.nai.com [161.69.3.73])
+	by RelaySNC.nai.com (Switch-2.2.4/Switch-2.2.4) with SMTP id h1PDDE008109
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 07:13:14 -0600 (CST)
+Message-ID: <8894CA1F87A5D411BD24009027EE783801C14C8E@md-exchange1.na.nai.com>
+From: Kelly_Djahandari@nai.com
+To: mayerf@tresys.com, selinux@tycho.nsa.gov
+Subject: RE: policy Makefile patch
+Date: Tue, 25 Feb 2003 05:27:12 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 24 Feb 2003, Frank Mayer wrote:
+I've updated sourceforge with Frank Mayer's policy Makefile patch. Thanks
+Frank for the patch.
 
-> Category names are a good idea (e.g., #CATEGORY <category name> ).  I
-> can see all sorts of ways to use that in configuration tools.
->
-> I'd like to suggest that the third list be #DEPENDS <list of .te file
-> upon which this module depends> so we can also manage dependencies with
-> configuration tools.
->
-
-  I was thinking of something similar: a set of tags that can be used by
-tools. Here's some I came up with:
-#TITLE - The title, 30 characters or less (replaces the #DESC tag)
-#DESCRIPTION (or #DESC) - Description, not limited in length
-
-I also thought of a #DEPENDS tag, but I'm not sure how well it would be
-maintained by the policy writers. What would be nice is to have some way
-of annotating policy file relationships in a modular way; possibly an
-#IMPORTS tag that means something to the compiler. If a policy file uses a
-type defined in another file, unless that file is imported, it's an error.
-The goal is to have more control over the relationships between policy
-components.
+Kelly Djahandari
+Network Associates Laboratories
 
 
- --
-Wayne Salamon
-wsalamon@tislabs.com
-
+> -----Original Message-----
+> From: Frank Mayer [mailto:mayerf@tresys.com]
+> Sent: Monday, February 24, 2003 12:20 PM
+> To: 'Frank Mayer'; selinux@tycho.nsa.gov
+> Subject: RE: policy Makefile patch
+> 
+> 
+> Sorry there was a problem with the last patch file...here is a
+> correction.  Frank
+> 
+> > -----Original Message-----
+> > From: owner-selinux@tycho.nsa.gov 
+> [mailto:owner-selinux@tycho.nsa.gov]
+> On
+> > Behalf Of Frank Mayer
+> > Sent: Friday, February 21, 2003 5:14 PM
+> > To: selinux@tycho.nsa.gov
+> > Subject: policy Makefile patch
+> > 
+> > Attached is a patch that changes the policy make file.  The problem
+> was
+> > that the users file was being run through m4, but user names must
+> > support any name that might be used for a Linux user.  Any name that
+> is
+> > also used as a macro name, or something as simple as "dnl" 
+> would cause
+> > an error if defined as a user in the policy.  This patch excludes
+> users
+> > (as well as the flask definitions and the security context
+> > specifications) from the m4 processing, but still has all the te and
+> > rbac files, as well as the constraints file, pass through m4.
+> > 
+> > Frank
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
