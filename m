@@ -1,50 +1,87 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA26501
-	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 01:43:58 -0500 (EST)
-From: ian.willis@sge.net
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id GAA27726
-	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 06:41:20 GMT
-Received: from cheetah.sge.net (cheetah.sge.net [152.91.9.62])
-	by jazzswing.ncsc.mil  with ESMTP id GAA27714
-	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 06:40:48 GMT
-Received: from virusscan03.sge.net (crown.sge.net [152.91.9.100])
-	by cheetah.sge.net (Postfix) with SMTP id E8ED2186CC
-	for <selinux@tycho.nsa.gov>; Sat,  4 Jan 2003 17:43:05 +1100 (EST)
-Received: from Trona.staff.sge.net (trona.staff.sge.net [10.2.1.5])
-	by coal.sge.net (Postfix) with ESMTP id E79F718A43
-	for <selinux@tycho.nsa.gov>; Sat,  4 Jan 2003 17:43:04 +1100 (EST)
-To: selinux@tycho.nsa.gov
-Subject: kerberos and selinux
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27351
+	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 11:04:42 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h04EIoI06851
+	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 14:18:50 GMT
+Received: from server.westcam.com (rrcs-sw-24-242-155-198.biz.rr.com [24.242.155.198])
+        by jazzband.ncsc.mil  with ESMTP id h04EImf06847 for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 14:18:48 GMT
+Subject: 
 MIME-Version: 1.0
-Message-ID: <OF8F87E26B.11359912-ONCA256CA4.0024C47B-CA256CA4.0066D49B@staff.sge.net>
-Date: Sat, 4 Jan 2003 17:43:04 +1100
-Content-Type: multipart/alternative; boundary="=_alternative 0066D495CA256CA4_="
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Date: Sat, 4 Jan 2003 08:21:01 -0600
+Message-ID: <862636C39A8D56448223B94D197571335587@server.westcam.com>
+From: "Mark Westerman" <mark.westerman@westcam.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multipart message in MIME format.
---=_alternative 0066D495CA256CA4_=
-Content-Type: text/plain; charset="us-ascii"
+In working toward a policy management system I have run across a few
+ambiguities in the language.
 
-Hi All
+1. class rule
 
-Just wondering if anyone has done any work with selinux and kerberos or 
-selinux and bind polices.
+av_perms_def     : CLASS identifier '{' identifier_list '}'
+                   {if (define_av_perms(FALSE)) return -1;}
+                 | CLASS identifier INHERITS identifier
+                   {if (define_av_perms(TRUE)) return -1;}
+                 | CLASS identifier INHERITS identifier '{'identifier_list '}'
+and 
+
+class_def        : CLASS identifier
+                     {if (define_class()) return -1;}
+                 ;
+
+could the class_def be defined as
+
+class_def        : CLASSDEF identifier
+                     {if (define_class()) return -1;}
+                 ;
+2. sid
+
+initial_sid_def  : SID identifier
+                    {if (define_initial_sid()) return -1;}
+                 ;
+and 
+
+initial_sid_context_def  : SID identifier security_context_def
+                         {if (define_initial_sid_context()) return -1;}
+                         ;
+
+Could the initial_sid_context_def be defined as
+
+initial_sid_context_def  : SIDCONTEXT identifier security_context_def
+                         {if (define_initial_sid_context()) return -1;}
+                         ;
+
+3. allow
+
+allow_def        : ALLOW names names ':' names names  ';'
+                    {if (define_te_avtab(AVTAB_ALLOWED)) return -1; }
+                 ; 
+and
+
+role_allow_def   : ALLOW names names ';'
+                    {if (define_role_allow()) return -1; }
+                 ;
+could the role_allow_def be defined as 
+
+role_allow_def   : ROLEALLOW names names ';'
+                    {if (define_role_allow()) return -1; }
+                 ;
+
+The changes would make development of a policy management system
+a lot easer. The rules would still be order dependent in the
+policy.conf, but it would remove the ambiguities of the rules and 
+not make it order dependent in a general parse.y file. Such that 
+above rule would not need special cases in order to build a policy.conf
+file.
 
 
-Thanks Ian
---=_alternative 0066D495CA256CA4_=
-Content-Type: text/html; charset="us-ascii"
+Mark
 
 
-<br><font size=2 face="sans-serif">Hi All</font>
-<br>
-<br><font size=2 face="sans-serif">Just wondering if anyone has done any work with selinux and kerberos or selinux and bind polices.</font>
-<br>
-<br>
-<br><font size=2 face="sans-serif">Thanks Ian</font>
---=_alternative 0066D495CA256CA4_=--
 
 
 --
