@@ -1,51 +1,57 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FGSBL9008559
-	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:28:11 -0500 (EST)
-Received: from web50201.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j1FGR3EP005815
-	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 16:27:04 GMT
-Message-ID: <20050215162704.15893.qmail@web50201.mail.yahoo.com>
-Date: Tue, 15 Feb 2005 08:27:04 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Setting loginuid
-To: Steve G <linux_4ever@yahoo.com>, selinux@tycho.nsa.gov
-In-Reply-To: <20050215155312.45937.qmail@web50601.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FGStL9008589
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:28:55 -0500 (EST)
+Subject: Re: Adding libseuser functionality to libselinux?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Frank Mayer <mayerf@tresys.com>
+In-Reply-To: <421221C0.20907@redhat.com>
+References: <20050215155323.GC23765@lkcl.net>  <421221C0.20907@redhat.com>
+Content-Type: text/plain
+Message-Id: <1108484448.17854.97.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 15 Feb 2005 11:20:48 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2005-02-15 at 11:22, Daniel J Walsh wrote:
+> Thoughts on moving some of the functions available in setools into 
+> libselinux.
+> 
+> Basically I want to add the ability to addroles via the adduser command  
+> (shadow-utils) and thus
+> make dealing with roles easier in OS.  The problem is that I don't want 
+> to require setools  in
+> order to get this functionality (libseuser).   
+> 
+> I need the ability to get the roles that are available via the currently 
+> running policy and to manipulate
+> the users defined in the local.users file.  I then need to have 
+> genpolusers type functions to allow me
+> to change the running policy.  We don't need the functionality that 
+> deals with policy-sources.
+> 
+> What do you think of moving these functions into libselinux?
 
---- Steve G <linux_4ever@yahoo.com> wrote:
+I think you want them in libsepol, not libselinux.  The former is for
+binary policy manipulation (which can still deal with the "active"
+policy file that happesn to be presently loaded, as long as said file
+still exists on the filesystem and you can reliably find it) and can be
+used even on non-SELinux systems (an important property for building and
+analyzing policies).  The latter is only for security-aware applications
+running on a SELinux kernel.
 
-> 2) patch all entry point programs to explicitly set
-> the loginuid after the fork.
-> This keep the parent process clean, but creates a
-> lot of patches (20 - 30
-> programs).
+I do plan to look into migrating genpolusers functionality into
+libsepol, as I formerly did for genpolbools, to allow load_policy and
+init to generate the users database based on local customizations at
+load time, just as they currently set the booleans based on local
+customizations at load time.  I'm not sure what you want from libseuser;
+you can certainly implement functions in libsepol that extract the set
+of roles for a user and manipulate it.
 
-Some programs that use PAM, including su, are
-not login sessions and hence must not set the
-loginuid. Because the definition of a login
-session is less clear than it might be I
-suggest that the individual programs will have
-to be responsible for determining if the
-loginuid should be set. There are also programs,
-cron comes to mind, that do not use pam (does it?)
-that do create login sessions.
-
-
-=====
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-The all-new My Yahoo! - Get yours free! 
-http://my.yahoo.com 
- 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
