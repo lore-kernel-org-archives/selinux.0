@@ -1,46 +1,70 @@
-Subject: Re: preserving user-set contexts
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@redhat.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1082752649.12608.111.camel@nexus.verbum.private>
-References: <1082752649.12608.111.camel@nexus.verbum.private>
-Content-Type: text/plain
-Message-Id: <1082989812.22940.43.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 26 Apr 2004 10:30:12 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3QMjMRb024670
+	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2004 18:45:22 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i3QMhBW3011185
+	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2004 22:43:11 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+	by jazzswing.ncsc.mil  with ESMTP id i3QMh7Ix011168
+	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2004 22:43:11 GMT
+From: "Ed Street" <edstreet@street-tek.com>
+To: <russell@coker.com.au>
+Cc: "Selinux" <selinux@tycho.nsa.gov>
+Subject: RE: /etc/passwd labeling issues
+Date: Mon, 26 Apr 2004 18:44:58 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <200404261303.34755.russell@coker.com.au>
+Message-Id: <20040426224500.7F3B83A4053@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-04-23 at 16:37, Colin Walters wrote:
-> What I think would be nice is if we had chcon set another extended
-> attribute that marked the file as having its context manually set.  Then
-> we modify setfiles to ignore files which have this extended attribute by
-> default.  That way I could use 'make relabel' to fix system contexts,
-> and leave my customizations intact.
+Hello,
 
-It wouldn't be safe to allow untrusted users to mark files in this
-manner, as it could prevent proper relabeling of the filesystem upon a
-policy update.  So you would have to limit it to administrators anyway. 
-And if they are administrators, they can already mark the files with
-<<none>> in the file contexts configuration.  You could also introduce a
-separate type in the policy that setfiles doesn't have permission to
-relabelfrom, and use that type for this purpose.
+So we have 2 choices for our debian users.  A) Change the password, change
+to permissive mode, relabel /etc/passwd and switch back to enforcement mode.
+B) disallow all system users from changing passwords, adding users or
+modifying existing users Or C) the policy change that I pasted and run the
+risk of /etc/shadow being read by almost every domain.  In either case a
+rogue daemon may compromise the system.  Ideally the bug needs to be fixed
+but for the time being it's the less of the 3 evils.  
 
-> Is this desirable?  Does it seem like the right approahc?  One question
-> is - which namespace to put it in?  user.?  system.?  If we allow
-> regular users to relabel (as we already do for files like
-> httpd_user_script_exec_t) then we can only put it in the user.
-> namespace.
+Perhaps there's a line we could add to stop the /etc/shadow issue and not
+use the file_type_auto_trans macro.
 
-I don't think it is the right approach.  But note that the security
-namespace is easily extensible, so you can create additional security
-attributes in it for other purposes without requiring changes to the
-kernel.  Use of the security namespace requires CAP_SYS_ADMIN except for
-the SELinux attribute, which has its own finer-grained permissions.
+Ed
+
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au] 
+Sent: Sunday, April 25, 2004 11:04 PM
+To: Ed Street
+Cc: selinux@tycho.nsa.gov
+Subject: Re: /etc/passwd labeling issues
+
+On Mon, 26 Apr 2004 02:39, "Ed Street" <edstreet@street-tek.com> wrote:
+> As for the labeling issue for /etc/passwd I noticed in passwd.te this line
+>
+>
+>
+> file_type_auto_trans($1_t, etc_t, shadow_t, file)
+
+If you don't have that then the new /etc/shadow file (with a complete copy
+of 
+all /etc/shadow data) will briefly have the type etc_t and be readable by 
+almost every domain.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.667 / Virus Database: 429 - Release Date: 4/23/2004
+ 
 
 
 --
