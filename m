@@ -1,236 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDL7fIi007494
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 16:07:41 -0500 (EST)
-Message-ID: <41BE04D1.1090903@trustedcs.com>
-Date: Mon, 13 Dec 2004 15:08:33 -0600
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDLV5Ii007637
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 16:31:06 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBDLTOUx024392
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 21:29:24 GMT
 Subject: Re: [patch] typeattribute statements
-References: <41BDBAF1.2060502@trustedcs.com>	 <41BDF612.7090707@trustedcs.com> <1102969792.27895.66.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1102969792.27895.66.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------010909060009040803090308"
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <41BE04D1.1090903@trustedcs.com>
+References: <41BDBAF1.2060502@trustedcs.com>
+	 <41BDF612.7090707@trustedcs.com>
+	 <1102969792.27895.66.camel@moss-spartans.epoch.ncsc.mil>
+	 <41BE04D1.1090903@trustedcs.com>
+Content-Type: text/plain
+Message-Id: <1102973172.27895.72.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 13 Dec 2004 16:26:12 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010909060009040803090308
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 2004-12-13 at 16:08, Darrel Goeddel wrote:
+> Yes, that code should be going away - which is probably why I took no real 
+> effort to mess with it now.  I have consolidated it for the time being with this 
+> new version of the patch.  How's this one look?
 
-Stephen Smalley wrote:
-> Thanks, looks good.  Only concern is the duplication of the MLS
-> attribute handling code; we should use a common helper (although that
-> code should be obsoleted in the future anyway).
-> 
-
-Yes, that code should be going away - which is probably why I took no real 
-effort to mess with it now.  I have consolidated it for the time being with this 
-new version of the patch.  How's this one look?
+Looks good, thanks.
 
 -- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Darrel
-
---------------010909060009040803090308
-Content-Type: text/plain;
- name="typeattr-3.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="typeattr-3.patch"
-
-Index: policy_parse.y
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux-usr/checkpolicy/policy_parse.y,v
-retrieving revision 1.25
-diff -u -r1.25 policy_parse.y
---- policy_parse.y	5 Nov 2004 19:14:42 -0000	1.25
-+++ policy_parse.y	13 Dec 2004 20:58:06 -0000
-@@ -68,6 +68,7 @@
- static int define_av_base(void);
- static int define_attrib(void);
- static int define_typealias(void);
-+static int define_typeattribute(void);
- static int define_type(int alias);
- static int define_compute_type(int which);
- static int define_te_avtab(int which);
-@@ -121,6 +122,7 @@
- %token ROLE
- %token ROLES
- %token TYPEALIAS
-+%token TYPEATTRIBUTE
- %token TYPE
- %token TYPES
- %token ALIAS
-@@ -287,6 +289,7 @@
- te_decl			: attribute_def
-                         | type_def
-                         | typealias_def
-+                        | typeattribute_def
-                         | bool_def
-                         | transition_def
-                         | te_avtab_def
-@@ -303,6 +306,9 @@
- typealias_def           : TYPEALIAS identifier alias_def ';'
- 			{if (define_typealias()) return -1;}
- 			;
-+typeattribute_def	: TYPEATTRIBUTE identifier id_comma_list ';'
-+			{if (define_typeattribute()) return -1;}
-+			;
- opt_attr_list           : ',' id_comma_list
- 			| 
- 			;
-@@ -1633,10 +1639,9 @@
- static int define_typealias(void)
- {
- 	char *id;
--	type_datum_t *t, *aliasdatum;;
-+	type_datum_t *t, *aliasdatum;
- 	int ret;
- 
--
- 	if (pass == 2) {
- 		while ((id = queue_remove(id_queue))) 
- 			free(id);
-@@ -1686,6 +1691,86 @@
- 	return 0;
- }
- 
-+#ifdef CONFIG_SECURITY_SELINUX_MLS
-+static int handle_mls_attributes(char *id, unsigned int value)
-+{
-+	if (!strcmp(id, "mlstrustedreader")) {
-+		if (ebitmap_set_bit(&policydbp->trustedreaders, value, TRUE)) {
-+			return -1;
-+		}
-+	} else if (!strcmp(id, "mlstrustedwriter")) {
-+		if (ebitmap_set_bit(&policydbp->trustedwriters, value, TRUE)) {
-+			return -1;
-+		}
-+	} else if (!strcmp(id, "mlstrustedobject")) {
-+		if (ebitmap_set_bit(&policydbp->trustedobjects, value, TRUE)) {
-+			return -1;
-+		}
-+	}
-+	return 0;
-+}
-+#else /* CONFIG_SECURITY_SELINUX_MLS */
-+#define handle_mls_attributes(id, value) 0
-+#endif /* CONFIG_SECURITY_SELINUX_MLS */
-+
-+static int define_typeattribute(void)
-+{
-+	char *id;
-+	type_datum_t *t, *attr;
-+
-+	if (pass == 2) {
-+		while ((id = queue_remove(id_queue)))
-+			free(id);
-+		return 0;
-+	}
-+
-+	id = (char *)queue_remove(id_queue);
-+	if (!id) {
-+		yyerror("no type name for typeattribute definition?");
-+		return -1;
-+	}
-+
-+	t = hashtab_search(policydbp->p_types.table, id);
-+	if (!t || t->isattr) {
-+		sprintf(errormsg, "unknown type %s", id);
-+		yyerror(errormsg);
-+		free(id);
-+		return -1;
-+	}
-+
-+	while ((id = queue_remove(id_queue))) {
-+		if (handle_mls_attributes(id, (t->value - 1))) {
-+			yyerror("out of memory");
-+			free(id);
-+			return -1;
-+		}
-+		attr = hashtab_search(policydbp->p_types.table, id);
-+		if (!attr) {
-+			sprintf(errormsg, "attribute %s is not declared", id);
-+			/* treat it as a fatal error */
-+			yyerror(errormsg);
-+			free(id);
-+			return -1;
-+		}
-+
-+		if (!attr->isattr) {
-+			sprintf(errormsg, "%s is a type, not an attribute", id);
-+			yyerror(errormsg);
-+			free(id);
-+			return -1;
-+		}
-+
-+		free(id);
-+
-+		if (ebitmap_set_bit(&attr->types, (t->value - 1), TRUE)) {
-+			yyerror("out of memory");
-+			return -1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static int define_type(int alias)
- {
- 	char *id;
-@@ -1767,27 +1852,11 @@
- 	}
- 
- 	while ((id = queue_remove(id_queue))) {
--#ifdef CONFIG_SECURITY_SELINUX_MLS
--		if (!strcmp(id, "mlstrustedreader")) {
--			if (ebitmap_set_bit(&policydbp->trustedreaders, datum->value - 1, TRUE)) {
--				yyerror("out of memory");
--				free(id);
--				return -1;
--			}
--		} else if (!strcmp(id, "mlstrustedwriter")) {
--			if (ebitmap_set_bit(&policydbp->trustedwriters, datum->value - 1, TRUE)) {
--				yyerror("out of memory");
--				free(id);
--				return -1;
--			}
--		} else if (!strcmp(id, "mlstrustedobject")) {
--			if (ebitmap_set_bit(&policydbp->trustedobjects, datum->value - 1, TRUE)) {
--				yyerror("out of memory");
--				free(id);
--				return -1;
--			}
-+		if (handle_mls_attributes(id, (datum->value - 1))) {
-+			yyerror("out of memory");
-+			free(id);
-+			return -1;
- 		}
--#endif
- 		attr = hashtab_search(policydbp->p_types.table, id);
- 		if (!attr) {
- 			sprintf(errormsg, "attribute %s is not declared", id);
-Index: policy_scan.l
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux-usr/checkpolicy/policy_scan.l,v
-retrieving revision 1.6
-diff -u -r1.6 policy_scan.l
---- policy_scan.l	9 Aug 2004 18:12:29 -0000	1.6
-+++ policy_scan.l	13 Dec 2004 20:58:06 -0000
-@@ -64,6 +64,8 @@
- types				{ return(TYPES); }
- TYPEALIAS |
- typealias			{ return(TYPEALIAS); }
-+TYPEATTRIBUTE |
-+typeattribute			{ return(TYPEATTRIBUTE); }
- TYPE |
- type				{ return(TYPE); }
- BOOL |
-
---------------010909060009040803090308--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
