@@ -1,54 +1,132 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA13986
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 09:18:55 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA17701
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 13:17:14 GMT
-Received: from tomcat.admin.navo.hpc.mil (tomcat.admin.navo.hpc.mil [204.222.179.33])
-        by jazzband.ncsc.mil  with ESMTP id NAA17696 for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 13:17:13 GMT
-Date: Wed, 28 Aug 2002 08:18:53 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200208281318.IAA07615@tomcat.admin.navo.hpc.mil>
-To: russell@coker.com.au, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ipsec access to { sysadm_tty_device_t sysadm_devpts_t }
-In-Reply-To: <20020828125757.B48098F6E@lyta.coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14027
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 09:19:57 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA23770
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 13:18:47 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id NAA23755
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 13:18:40 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id A48B492466
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 23:19:46 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 44F698FDA
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 15:19:39 +0200 (CEST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: freeswan IP sec patch
+Date: Wed, 28 Aug 2002 15:19:38 +0200
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_QC2KRQ3LFTVWFVF4N96Y"
+Message-Id: <20020828131939.44F698FDA@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----------  Received message begins Here  ---------
 
-> 
-> On Wed, 28 Aug 2002 14:28, Jesse Pollard wrote:
-> > Russell Coker <russell@coker.com.au>:
-> > > Now I'm working on ipsec which seems to require { read write ioctl
-> > > getattr } access to those device types for correct functioning.  As I am
-> >
-> > Slightly OT/side question:
-> >
-> > Which IPSec implementation are you starting with - NIST reference,
-> > Free/swan or a completely new one?
-> 
-> I'm using Free/swan, I wasn't aware that I had a choice.  Could you please 
-> give us a brief analysis of the difference between the different versions?
+--------------Boundary-00=_QC2KRQ3LFTVWFVF4N96Y
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-I don't know that there really is one. The NIST web page shows updates as
-of 2000. I also had looked at Freeswan a year ago, and saw several reports
-that it wouldn't get included in the kernel due to "unapproved" coding
-practices (quotes mine - they also may have cleaned up since then too).
+The attached patch makes ipsec with freeswan work for me.  I had to change it 
+to only have a single var_run_t because both programs want to use each 
+other's files under /var/run.  It doesn't work unless it can search for 
+kernel modules.  The installation process for Debian requires accessing 
+/root/.rnd, I'm not sure what other distributions do in this regard (maybe it 
+should have "ifdef(`dpkg.te'," around it.
 
-Since both NIST and the NSA were working on related things (and how the
-freeswan project wasn't interested in US involment) I was curious about
-any merging of interest between the two groups.
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
-I'm interested in data labeling being passed with network packets (including
-user identity...) but don't get much time to do anything on it.
+--------------Boundary-00=_QC2KRQ3LFTVWFVF4N96Y
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ipsec.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ipsec.diff"
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+ZGlmZiAtcnV3IC90bXAvcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9pcHNlYy50ZSAuL2RvbWFpbnMv
+cHJvZ3JhbS9pcHNlYy50ZQotLS0gL3RtcC9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL2lwc2VjLnRl
+CTIwMDItMDgtMjggMTQ6MzQ6MTcuMDAwMDAwMDAwICswMjAwCisrKyAuL2RvbWFpbnMvcHJvZ3Jh
+bS9pcHNlYy50ZQkyMDAyLTA4LTI3IDIzOjUyOjIxLjAwMDAwMDAwMCArMDIwMApAQCAtMjUsOSAr
+MjUsMTEgQEAKIAogdHlwZSBpcHNlY19tZ210X3QsIGRvbWFpbiwgcHJpdmxvZywgYWRtaW47CiB0
+eXBlIGlwc2VjX21nbXRfZXhlY190LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGUsIGV4ZWNfdHlwZTsK
+LXR5cGUgaXBzZWNfbWdtdF92YXJfcnVuX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZSwgcGlkZmls
+ZTsKIGRvbWFpbl9hdXRvX3RyYW5zKGlwc2VjX21nbXRfdCwgaXBzZWNfZXhlY190LCBpcHNlY190
+KQotZmlsZV90eXBlX2F1dG9fdHJhbnMoaXBzZWNfbWdtdF90LCB2YXJfcnVuX3QsIGlwc2VjX21n
+bXRfdmFyX3J1bl90KQorZmlsZV90eXBlX2F1dG9fdHJhbnMoaXBzZWNfbWdtdF90LCB2YXJfcnVu
+X3QsIGlwc2VjX3Zhcl9ydW5fdCkKKworYWxsb3cgaXBzZWNfbWdtdF90IG1vZHVsZXNfb2JqZWN0
+X3Q6ZGlyIHNlYXJjaDsKK2FsbG93IGlwc2VjX21nbXRfdCBtb2R1bGVzX29iamVjdF90OmZpbGUg
+Z2V0YXR0cjsKIAogYWxsb3cgaXBzZWNfdCBzZWxmOmNhcGFiaWxpdHkgeyBuZXRfYWRtaW4gbmV0
+X2JpbmRfc2VydmljZSB9OwogYWxsb3cgaXBzZWNfdCBzZWxmOnByb2Nlc3Mgc2lnbmFsOwpAQCAt
+NDAsMTMgKzQyLDggQEAKIAogIyBJbmhlcml0IGFuZCB1c2UgZGVzY3JpcHRvcnMgZnJvbSBpbml0
+LgogIyBhbGxvdyBhY2Nlc3MgKGZvciwgZS5nLiwga2xpcHNkZWJ1ZykgdG8gY29uc29sZQotYWxs
+b3cgaXBzZWNfbWdtdF90IGNvbnNvbGVfZGV2aWNlX3Q6Y2hyX2ZpbGUgcndfZmlsZV9wZXJtczsK
+LWFsbG93IGlwc2VjX3QgY29uc29sZV9kZXZpY2VfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOwot
+YWxsb3cgaXBzZWNfdCBpbml0X3Q6ZmQgdXNlOwotYWxsb3cgaXBzZWNfbWdtdF90IHsgaW5pdF90
+IHByaXZmZCB9OmZkIHVzZTsKLSMgZG8gd2UgcmVhbGx5IG5lZWQgdGhpcz8KLWFsbG93IGlwc2Vj
+X3QgaW5pdHJjX3Q6ZmQgdXNlOwotYWxsb3cgaXBzZWNfbWdtdF90IGluaXRyY190OmZkIHVzZTsK
+K2FsbG93IHsgaXBzZWNfdCBpcHNlY19tZ210X3QgfSBjb25zb2xlX2RldmljZV90OmNocl9maWxl
+IHJ3X2ZpbGVfcGVybXM7CithbGxvdyB7IGlwc2VjX3QgaXBzZWNfbWdtdF90IH0geyBpbml0X3Qg
+aW5pdHJjX3QgcHJpdmZkIH06ZmQgdXNlOwogCiAjIGkgZG9uJ3Qga25vdyB3aGVyZSB0aGlzIHBl
+c2t5IHBpcGUgaXMuLi4KIGFsbG93IGlwc2VjX3QgaW5pdHJjX3Q6Zmlmb19maWxlIHsgd3JpdGUg
+fTsKQEAgLTY5LDYgKzY2LDcgQEAKICMgYWxzbyBuZWVkIHRvIHJ1biB0aGluZ3MgbGlrZSB3aGFj
+ayBhbmQgc2hlbGwgc2NyaXB0cwogY2FuX2V4ZWMoaXBzZWNfbWdtdF90LCBpcHNlY19leGVjX3Qp
+CiBjYW5fZXhlYyhpcHNlY19tZ210X3QsIGlwc2VjX21nbXRfZXhlY190KQorYWxsb3cgaXBzZWNf
+bWdtdF90IGlwc2VjX21nbXRfZXhlY190Omxua19maWxlIHJlYWQ7CiBjYW5fZXhlYyhpcHNlY19t
+Z210X3QsIHNoZWxsX2V4ZWNfdCkKIGNhbl9leGVjKGlwc2VjX3QsIHNoZWxsX2V4ZWNfdCkKIGNh
+bl9leGVjKGlwc2VjX21nbXRfdCwgaWZjb25maWdfZXhlY190KQpAQCAtMTExLDcgKzEwOSw2IEBA
+CiAKICMgZGVuaWFscyB3aGVuIHBzIHRyaWVzIHRvIHNlYXJjaCAvcHJvYy4gRG8gbm90IGF1ZGl0
+IHRoZXNlIGRlbmlhbHMuCiBkb250YXVkaXQgaXBzZWNfbWdtdF90IGRvbWFpbjpkaXIgcl9kaXJf
+cGVybXM7Ci1kb250YXVkaXQgaXBzZWNfbWdtdF90IGRvbWFpbjpub3RkZXZmaWxlX2NsYXNzX3Nl
+dCByX2ZpbGVfcGVybXM7CiAKICMgc3VwcHJlc3MgYXVkaXQgbWVzc2FnZXMgYWJvdXQgdW5uZWNl
+c3Nhcnkgc29ja2V0IGFjY2VzcwogZG9udGF1ZGl0IGlwc2VjX21nbXRfdCBkb21haW46a2V5X3Nv
+Y2tldCB7IHJlYWQgd3JpdGUgfTsKQEAgLTE3Myw3ICsxNzAsNyBAQAogIyBmb3JrCiBhbGxvdyBp
+cHNlY19tZ210X3Qgc2VsZjpwcm9jZXNzIGZvcms7CiAjIHN0YXJ0dXAgc2NyaXB0IHJ1bnMgL2Jp
+bi9nYXdrIHdpdGggYSBwaXBlCi1hbGxvdyBpcHNlY19tZ210X3Qgc2VsZjpmaWZvX2ZpbGUgd3Jp
+dGU7CithbGxvdyBpcHNlY19tZ210X3Qgc2VsZjpmaWZvX2ZpbGUgcndfZmlsZV9wZXJtczsKICMg
+cmVhZCAvZXRjL210YWIgV2h5PwogYWxsb3cgaXBzZWNfbWdtdF90IGV0Y19ydW50aW1lX3Q6Zmls
+ZSB7IHJlYWQgZ2V0YXR0ciB9OwogIyByZWFkIGxpbmsgZm9yIC9iaW4vc2ggCkBAIC0xOTAsNiAr
+MTg3LDE0IEBACiBjYW5fbmV0d29yayhpcHNlY190KQogYWxsb3cgaXBzZWNfdCBpcHNlY190OnVu
+aXhfZGdyYW1fc29ja2V0IHsgY3JlYXRlIGNvbm5lY3Qgd3JpdGUgfTsKIAorIyBmb3Igc2xlZXAK
+K2FsbG93IGlwc2VjX21nbXRfdCBmc190OmZpbGVzeXN0ZW0gZ2V0YXR0cjsKKyMgZm9yIGlkCith
+bGxvdyBpcHNlY19tZ210X3Qgc2VjdXJpdHlfdDpzZWN1cml0eSB7IHNpZF90b19jb250ZXh0IH07
+CisKKyMgZm9yIHRoZSBzdGFydCBzY3JpcHQKK2Nhbl9leGVjKGlwc2VjX21nbXRfdCwgZXRjX3Qp
+CisKICMgYWxsb3cgYWNjZXNzIHRvIC9ldGMvbG9jYWx0aW1lCiBhbGxvdyBpcHNlY19tZ210X3Qg
+ZXRjX3Q6ZmlsZSB7IHJlYWQgZ2V0YXR0ciB9OwogYWxsb3cgaXBzZWNfdCBldGNfdDpmaWxlIHsg
+cmVhZCBnZXRhdHRyIH07CkBAIC0yMDksMTIgKzIxNCw4IEBACiBhbGxvdyBpcHNlY190IHNlbGY6
+cHJvY2VzcyBmb3JrOwogYWxsb3cgaXBzZWNfdCBzZWxmOmZpZm9fZmlsZSB7IHJlYWQgZ2V0YXR0
+ciB9OwogCisjIGlkZWFsbHkgaXQgd291bGQgbm90IG5lZWQgdGhpcy4gIEl0IHdhbnRzIHRvIHdy
+aXRlIHRvIC9yb290Ly5ybmQKK2ZpbGVfdHlwZV9hdXRvX3RyYW5zKGlwc2VjX21nbXRfdCwgc3lz
+YWRtX2hvbWVfZGlyX3QsIHN5c2FkbV9ob21lX3QsIGZpbGUpCiAKLXJ3X2Rpcl9maWxlKGlwc2Vj
+X21nbXRfdCwgc3lzYWRtX2hvbWVfdCkKLQotZG9udGF1ZGl0IGlwc2VjX21nbXRfdCBkZXZwdHNf
+dDpkaXIgeyBnZXRhdHRyIHJlYWQgfTsKLWRvbnRhdWRpdCBpcHNlY19tZ210X3QgdHR5X2Rldmlj
+ZV90OmNocl9maWxlIGdldGF0dHI7Ci1kb250YXVkaXQgaXBzZWNfbWdtdF90IGRldmljZV90OmRp
+ciB7IGdldGF0dHIgcmVhZCB9OwotCi1hbGxvdyBpcHNlY19tZ210X3QgeyBzeXNhZG1fdHR5X2Rl
+dmljZV90IHN5c2FkbV9kZXZwdHNfdCB9OmNocl9maWxlIHsgcmVhZCB3cml0ZSBpb2N0bCB9Owot
+YWxsb3cgaXBzZWNfdCB7IHN5c2FkbV90dHlfZGV2aWNlX3Qgc3lzYWRtX2RldnB0c190IH06Y2hy
+X2ZpbGUgeyByZWFkIHdyaXRlIH07CithbGxvdyBpcHNlY19tZ210X3QgeyBzeXNhZG1fdHR5X2Rl
+dmljZV90IHN5c2FkbV9kZXZwdHNfdCB9OmNocl9maWxlIHsgZ2V0YXR0ciByZWFkIHdyaXRlIGlv
+Y3RsIH07CithbGxvdyBpcHNlY190IHsgc3lzYWRtX3R0eV9kZXZpY2VfdCBzeXNhZG1fZGV2cHRz
+X3QgfTpjaHJfZmlsZSB7IGdldGF0dHIgcmVhZCB3cml0ZSB9OwpkaWZmIC1ydXcgL3RtcC9wb2xp
+Y3kvZmlsZV9jb250ZXh0cy9wcm9ncmFtL2lwc2VjLmZjIC4vZmlsZV9jb250ZXh0cy9wcm9ncmFt
+L2lwc2VjLmZjCi0tLSAvdG1wL3BvbGljeS9maWxlX2NvbnRleHRzL3Byb2dyYW0vaXBzZWMuZmMJ
+MjAwMi0wOC0yMiAxNDo1NTo1My4wMDAwMDAwMDAgKzAyMDAKKysrIC4vZmlsZV9jb250ZXh0cy9w
+cm9ncmFtL2lwc2VjLmZjCTIwMDItMDgtMjcgMjM6MTc6MzIuMDAwMDAwMDAwICswMjAwCkBAIC0x
+NSw0ICsxNSw0IEBACiAvdXNyL2xvY2FsL2xpYi9pcHNlYy9zcGkJc3lzdGVtX3U6b2JqZWN0X3I6
+aXBzZWNfZXhlY190CiAvdXNyL3NiaW4vaXBzZWMJCQlzeXN0ZW1fdTpvYmplY3RfcjppcHNlY19t
+Z210X2V4ZWNfdAogL3Vzci9sb2NhbC9zYmluL2lwc2VjCQlzeXN0ZW1fdTpvYmplY3RfcjppcHNl
+Y19tZ210X2V4ZWNfdAotL3Zhci9ydW4vaXBzZWMuaW5mbyAgICAgICAgICAgIHN5c3RlbV91Om9i
+amVjdF9yOmlwc2VjX21nbXRfdmFyX3J1bl90CisvdmFyL3J1bi9pcHNlYy5pbmZvCQlzeXN0ZW1f
+dTpvYmplY3RfcjppcHNlY192YXJfcnVuX3QK
 
-Any opinions expressed are solely my own.
+--------------Boundary-00=_QC2KRQ3LFTVWFVF4N96Y--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
