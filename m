@@ -1,54 +1,117 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NN4SrT013832
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 19:04:28 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NN4RUk007171
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 23:04:27 GMT
-Date: Fri, 24 Sep 2004 00:15:36 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-   "James R. Marcus" <jmarcus@mvalent.net>, selinux@tycho.nsa.gov
-Subject: Re: bash_profile: Permission denied
-Message-ID: <20040923231535.GB8569@lkcl.net>
-References: <E6E16A6D4277CD459BBDE6713766033CB71F9E@exchange.mvalent.local> <4153143C.2090405@redhat.com> <200409240622.07118.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8O12brT014331
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 21:02:37 -0400 (EDT)
+Received: from rwcrmhc12.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8O11bv8024746
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 01:01:37 GMT
+Subject: [patch] types.fc
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YVpp1s29YZtahFmBSb7u"
+Date: Thu, 23 Sep 2004 21:02:29 -0400
+Message-Id: <1095987749.7142.6.camel@gorn.pebenito.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200409240622.07118.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Sep 24, 2004 at 06:22:07AM +1000, Russell Coker wrote:
 
-> On Fri, 24 Sep 2004 04:21, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > James R. Marcus wrote:
-> > >What is the right way to deal with this issue?  When root logs in should
-> > >they automatically be in the sysadm_r role or should these files be
-> > >labeled with staff_r?
-> >
-> > It is working the way it was designed.  In Fedora Core, we changed to
-> > use staff_* for the home directory, because
-> > we thought it was too confusing for the users.  There is a security risk
-> 
-> We should revert that change.  It causes too many other issues and does no 
-> good.
-> 
-> Now that the targeted policy is the default most people who don't want to know 
-> much about SE Linux will stick with targeted and never encounter this.
-> 
-> With the strict policy a user who logs in as root:staff_r:staff_t will 
-> discover that they can't do most things that they want to do as root and will 
-> have to run newrole before doing anything else, so there will be no extra 
-> confusion about lack of write access to /root.
- 
- ah, but running newrole is not enough: not having write access to
- /root/.bash_profile results in bash not _reading_ the file either.
+--=-YVpp1s29YZtahFmBSb7u
+Content-Type: multipart/mixed; boundary="=-JjQfUR9x+6CFtPsL8oTe"
 
- result of that is that you lose all your PATH settings and everything
- else you'd expect to be done from bash_profile.
 
- l.
+--=-JjQfUR9x+6CFtPsL8oTe
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Here's an update of types.fc with a some Gentoo-specific entries,
+against CVS.  Also enclose a few entries with other distro tunables.
+
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+
+--=-JjQfUR9x+6CFtPsL8oTe
+Content-Disposition: attachment; filename=types.fc.diff
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=types.fc.diff; charset=ISO-8859-1
+
+SW5kZXg6IGZpbGVfY29udGV4dHMvdHlwZXMuZmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zz
+cm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4LXVzci9wb2xpY3kvZmlsZV9jb250ZXh0cy90eXBlcy5m
+Yyx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuNDANCmRpZmYgLXUgLXIxLjQwIHR5cGVzLmZjDQot
+LS0gZmlsZV9jb250ZXh0cy90eXBlcy5mYwkyMyBTZXAgMjAwNCAxOTowODo1OSAtMDAwMAkxLjQw
+DQorKysgZmlsZV9jb250ZXh0cy90eXBlcy5mYwkyNCBTZXAgMjAwNCAwMTowMDo1OSAtMDAwMA0K
+QEAgLTI3NSw2ICsyNzUsMTEgQEANCiAvZXRjL3N5c2NvbmZpZy9maXJzdGJvb3QgLS0Jc3lzdGVt
+X3U6b2JqZWN0X3I6ZXRjX3J1bnRpbWVfdA0KIC9ldGMvYXNvdW5kXC5zdGF0ZQktLQlzeXN0ZW1f
+dTpvYmplY3RfcjpldGNfcnVudGltZV90DQogL2V0Yy9wdGFsL3B0YWwtcHJpbnRkLWxpa2UgLS0g
+CXN5c3RlbV91Om9iamVjdF9yOmV0Y19ydW50aW1lX3QNCitpZmRlZihgZGlzdHJvX2dlbnRvbycs
+IGANCisvZXRjL3Byb2ZpbGVcLmVudgktLQlzeXN0ZW1fdTpvYmplY3RfcjpldGNfcnVudGltZV90
+DQorL2V0Yy9jc2hcLmVudgkJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6ZXRjX3J1bnRpbWVfdA0KKy9l
+dGMvZW52XC5kLy4qCQktLQlzeXN0ZW1fdTpvYmplY3RfcjpldGNfcnVudGltZV90DQorJykNCiAv
+ZXRjL2xkXC5zb1wuY2FjaGUJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6bGRfc29fY2FjaGVfdA0KIC9l
+dGMvbGRcLnNvXC5wcmVsb2FkCS0tCXN5c3RlbV91Om9iamVjdF9yOmxkX3NvX2NhY2hlX3QNCiAv
+ZXRjL3lwXC5jb25mLioJCS0tCXN5c3RlbV91Om9iamVjdF9yOm5ldF9jb25mX3QNCkBAIC0zMDMs
+NiArMzA4LDkgQEANCiAvbGliKDY0KT8vc2VjdXJpdHkvW14vXSpcLnNvKFwuW14vXSopKgktLQlz
+eXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQogL2xpYig2NCk/L3Rscy9pNjg2L2Ntb3YvW14vXSpc
+LnNvKFwuW14vXSopKiAtLQlzeXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQogL2xpYig2NCk/L3Rs
+cy9pLjg2L1teL10qXC5zbyhcLlteL10qKSogLS0Jc3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0K
+K2lmZGVmKGBkaXN0cm9fZ2VudG9vJywgYA0KKy9saWIoNjQpPy9yY3NjcmlwdHMvLipcLnNvLioJ
+CS0tCXN5c3RlbV91Om9iamVjdF9yOnNobGliX3QNCisnKQ0KIA0KICMNCiAjIC9zYmluDQpAQCAt
+MzI3LDcgKzMzNSw5IEBADQogL3Vzci9zaGFyZS9tYW4oLy4qKT8JCXN5c3RlbV91Om9iamVjdF9y
+Om1hbl90DQogL3Vzci9zaGFyZS9tYy9leHRmcy8uKgktLQlzeXN0ZW1fdTpvYmplY3RfcjpiaW5f
+dA0KIC91c3Ivc2hhcmUvdGV4bWYvdGVUZVgvYmluKC8uKik/CXN5c3RlbV91Om9iamVjdF9yOmJp
+bl90DQoraWZkZWYoYGRpc3Ryb19kZWJpYW4nLCBgDQogL3Vzci9zaGFyZS9zZWxpbnV4KC8uKik/
+CXN5c3RlbV91Om9iamVjdF9yOnBvbGljeV9zcmNfdA0KKycpDQogDQogIw0KICMgL3Vzci9iaW4N
+CkBAIC0zNTIsMTEgKzM2MiwxNCBAQA0KIC91c3IvLipnbGliYy4qLWxpbnV4L2xpYig2NCk/L2xk
+W14vXSpcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1fdTpvYmplY3RfcjpsZF9zb190DQogL3Vzci8u
+KmdsaWJjLiotbGludXgvbGliKDY0KT8vbGliW14vXSpcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1f
+dTpvYmplY3RfcjpzaGxpYl90DQogDQorIw0KICMgL3Vzci8uKnJlZGhhdC1saW51eC9saWIoNjQp
+Pw0KICMNCitpZmRlZihgZGlzdHJvX3JlZGhhdCcsIGANCiAvdXNyLy4qcmVkaGF0LWxpbnV4L2xp
+Yig2NCk/KC8uKik/CXN5c3RlbV91Om9iamVjdF9yOmxpYl90DQogL3Vzci8uKnJlZGhhdC1saW51
+eC9saWIoNjQpPy9sZFteL10qXC5zbyhcLlteL10qKSoJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6bGRf
+c29fdA0KIC91c3IvLipyZWRoYXQtbGludXgvbGliKDY0KT8vbGliW14vXSpcLnNvKFwuW14vXSop
+KgktLQlzeXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQorJykNCiANCiAjDQogIyAvdXNyLy4qbGlu
+dXgtbGliYy4qL2xpYig2NCk/DQpAQCAtMzY2LDYgKzM3OSwxNCBAQA0KIC91c3IvLipsaW51eC1s
+aWJjLiovbGliKDY0KT8vbGliW14vXSpcLnNvKFwuW14vXSopKgktLSBzeXN0ZW1fdTpvYmplY3Rf
+cjpzaGxpYl90DQogDQogIw0KKyMgL3Vzci8uKi0uKi1saW51eC1nbnUNCisjDQoraWZkZWYoYGRp
+c3Ryb19nZW50b28nLCBgDQorL3Vzci8uKi0uKi1saW51eC1nbnUvYmluKC8uKik/CQlzeXN0ZW1f
+dTpvYmplY3RfcjpiaW5fdA0KKy91c3IvLiotLiotbGludXgtZ251L2djYy1iaW4vLiooLy4qKT8J
+c3lzdGVtX3U6b2JqZWN0X3I6YmluX3QNCisnKQ0KKw0KKyMNCiAjIC91c3IvbG9jYWwNCiAjDQog
+L3Vzci9sb2NhbC9ldGMoLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmV0Y190DQpAQCAtNDkzLDEw
+ICs1MTQsMTIgQEANCiAjDQogIyBUaGUgU3VuIEphdmEgZGV2ZWxvcG1lbnQga2l0LCBSUE0gaW5z
+dGFsbA0KICMNCitpZmRlZihgZGlzdHJvX3JlZGhhdCcsIGANCiAvdXNyL2phdmEvajIuKi9iaW4o
+Ly4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmJpbl90DQogL3Vzci9qYXZhL2oyLiovanJlL2xpYig2
+NCk/L2kzODYoLy4qKT8Jc3lzdGVtX3U6b2JqZWN0X3I6bGliX3QNCiAvdXNyL2phdmEvajIuKi9q
+cmUvbGliKDY0KT8vaTM4NigvLiopP1teL10qXC5zbyhcLlteL10qKSogLS0gc3lzdGVtX3U6b2Jq
+ZWN0X3I6c2hsaWJfdA0KIC91c3IvamF2YS9qMi4qL3BsdWdpbi9pMzg2KC8uKik/L2xpYlteL10q
+XC5zbyhcLlteL10qKSogLS0gc3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0KKycpDQogDQogIw0K
+ICMgIFRoZSBrcmI1LmNvbmYgZmlsZSBpcyBhbHdheXMgYmVpbmcgdGVzdGVkIGZvciB3cml0YWJp
+bGl0eSwgc28NCg==
+
+
+--=-JjQfUR9x+6CFtPsL8oTe--
+
+--=-YVpp1s29YZtahFmBSb7u
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBU3IlvI7kLeavkkMRAlg0AJ4pYcwpBkR8Z5aSKPzjbxmsx5B0nACfbJoA
+uQ107zrItKxMbccMwO4OZ4s=
+=f0h+
+-----END PGP SIGNATURE-----
+
+--=-YVpp1s29YZtahFmBSb7u--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
