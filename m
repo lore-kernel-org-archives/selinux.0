@@ -1,36 +1,55 @@
-Subject: Re: Proposed patch for libselinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
-In-Reply-To: <41791827.6050709@redhat.com>
-References: <41782BBA.9090101@redhat.com>
-	 <1098451420.7614.43.camel@moss-spartans.epoch.ncsc.mil>
-	 <41790F02.8070207@redhat.com>
-	 <1098454526.7614.97.camel@moss-spartans.epoch.ncsc.mil>
-	 <41791827.6050709@redhat.com>
-Content-Type: text/plain
-Message-Id: <1098455400.7614.112.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 22 Oct 2004 10:30:00 -0400
+Message-ID: <20041022144919.50063.qmail@web51510.mail.yahoo.com>
+Date: Fri, 22 Oct 2004 07:49:19 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: What's the relationship between existing mls files?
+To: sds@epoch.ncsc.mil
+Cc: SELinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1932650434-1098456559=:47763"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-10-22 at 10:24, Daniel J Walsh wrote:
-> That seems like a good idea.  But are are these different flags going to 
-> require different Access Controls?
+--0-1932650434-1098456559=:47763
+Content-Type: text/plain; charset=us-ascii
 
-We won't know until someone comes up with a second flag ;)
-I suppose we would start with a single permission for setting the flags
-at all, and then split it if necessary later.  Of course, this takes us
-back to the endianness issue; you'll want to convert to a standard
-endianness for storage of the flags and convert back upon reading; see
-the libsepol code for reading and writing binary policies and note the
-use of cpu_to_le32 and le32_to_cpu (defined in src/private.h).
+Dear sir,
+       In  2.6.8.1 kernel with SELinux patch applied (http://www.nsa.gov/selinux/archives/linux-2.6-2004081908.tgz), I see there have three files: mls.c, mls.h and mls_types.h. while in SELinux Full Userland Archive (http://www.nsa.gov/selinux/archives/selinux-usr-2004081908.tgz), there also have three files: mls.c, mls.h and mls_type.h. 
+        I've look through these files, and found that there are only a few differences among them, then what is the relationship between the two similar groups of files ?
+ 
+Thank you!
+      
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
+
+
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-1932650434-1098456559=:47763
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Dear sir,</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In&nbsp; 2.6.8.1 kernel with SELinux patch applied (<A href="http://www.nsa.gov/selinux/archives/linux-2.6-2004081908.tgz">http://www.nsa.gov/selinux/archives/linux-2.6-2004081908.tgz</A>),&nbsp;I see there have three files: mls.c, mls.h and mls_types.h. while in SELinux Full Userland Archive (<A href="http://www.nsa.gov/selinux/archives/selinux-usr-2004081908.tgz">http://www.nsa.gov/selinux/archives/selinux-usr-2004081908.tgz</A>), there also have three files: mls.c, mls.h and mls_type.h. </DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I've look through these files, and found that there are only a few differences among them, then what is the relationship between&nbsp;the two similar groups of files ?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thank you!</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </DIV><BR><BR><DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
+<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
+--0-1932650434-1098456559=:47763--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
