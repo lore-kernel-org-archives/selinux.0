@@ -1,16 +1,17 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11056
-	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 12:29:44 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA29979
-	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:28:41 GMT
-Received: from c001.snv.cp.net (c001-h000.c001.snv.cp.net [209.228.32.114])
-        by jazzband.ncsc.mil  with SMTP id RAA29975 for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:28:40 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11091
+	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 12:45:29 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA11234
+	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:44:06 GMT
+Received: from c001.snv.cp.net (c001-h001.c001.snv.cp.net [209.228.32.115])
+	by jazzswing.ncsc.mil  with SMTP id RAA11230
+	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:44:06 GMT
 From: "Leslie J. French" <ljf@semandex.net>
 To: <selinux@tycho.nsa.gov>
-Subject: RE: SMP mode?
-Date: Sat, 23 Mar 2002 12:30:06 -0500
-Message-ID: <BFEMIIHKHLALNELLMPOMMEMOCAAA.ljf@semandex.net>
+Subject: Location of policy rules
+Date: Sat, 23 Mar 2002 12:46:21 -0500
+Message-ID: <BFEMIIHKHLALNELLMPOMEEMPCAAA.ljf@semandex.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -18,35 +19,34 @@ In-Reply-To: <Pine.GSO.4.33.0203201538540.11981-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 20 Mar 2002, Leslie J. French wrote:
+I have a meta-policy question, if I may:
 
-> I have =y on the following options (via modules/lsm-patch)
->
->  _PACKET _NETLINK _RTNETLINK _NETFILTER _UNIX _INET
->  security: _CAPABILITIES _IP _SELINUX _SELINUX_DEVELOP
->
-> the errors are occuring on a UDP socket, at random positions in a
-dataflow.
+I want to enable the "halt" userid for console login and ssh access to shut
+down a machine remotely, *without* allowing root access over ssh.
+Naturally, I want to limit the exposure this gives. So, I created a "halt_t"
+domain similar to the other
+daemon-type domains, and I lock the "halt" user id into that domain, giving
+it exec access to /sbin/halt, which is now of type halt_exec_t etc...
 
-To follow up on my own message -- the same code works perfectly on a
-single-processor board built with the "enterprise" kernel with the above
-security settings.
+This has the side-effect of locking out /sbin/halt from root, since it
+doesn't have any access to halt_exec_t.
 
-Also, I can get the programs to run on the SMP if I slow them down, for
-example
-by adding print statements.  There is a point at which the operation is
-"marginal,"
-i.e. sometimes works sometimes doesn't, which is at around
-1-character-output-per-packet.
-More, and it runs, less and it fails.
+Here is my question:
+Assuming this is the right approach [if not, do tell what is], where should
+I put the additional rules to allow sysadm to halt the machine.  Is it:
+(a) in sysadm.te so that all the sysadm rules are in the same place; or
+(b) in halt.te so that this "feature" becomes a stand-alone domain
+definition in the system?
 
-I read somewhere that SeLinux will return EPERM if it thinks I'm trying a
-buffer overflow exploitation.  Is it possible that running the network at a
-very high rate on a dual-processor could confuse the kernel into thinking
-it's being attacked?  Is there any way I can check why the EPERM is being
-generated?
+I know they all end up in the same place, but I'm torn between wanting to
+build a modular configuration vs not introducing potentially dangerous
+sysadm_t permissions in an unexpected place.
 
-Thx,  Leslie
+All guidance for the novice gratefully received.
+
+Leslie
+
+PS - I'm a SeLinux convert.  If there's anything I can do to help....
 
 
 --
