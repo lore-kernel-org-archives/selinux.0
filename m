@@ -1,38 +1,46 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA18412
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 09:00:16 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA12378
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 14:00:11 GMT
-Received: from grov.dyndns.org (adsl-209-158-236-20.cptl.adsl.bellatlantic.net [209.158.236.20])
-	by jazzswing.ncsc.mil  with ESMTP id OAA12374
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 14:00:05 GMT
-Received: (from jpelna@localhost)
-	by grov.dyndns.org (8.9.3/8.9.3) id IAA27719
-	for selinux@tycho.nsa.gov; Thu, 15 Mar 2001 08:41:07 -0500
-Date: Thu, 15 Mar 2001 08:41:07 -0500
-From: jpelna <jpelna@bellatlantic.net>
-To: selinux@tycho.nsa.gov
-Subject: filtering (was Re: Thoughts on the list...)
-Message-ID: <20010315084107.A27348@bellatlantic.net>
-References: <Pine.SOL.3.95.1010306105403.22613B-100000@clipper.gw.tislabs.com> <OE39NY1SWoBDyseVwrb00001d32@hotmail.com> <3A9ABC5E00001800@mx1.opnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3A9ABC5E00001800@mx1.opnet.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA20210
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 12:33:56 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA28725
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 17:33:54 GMT
+Received: from gopostal.digi.com (gopostal.digi.com [204.221.110.15])
+	by jazzband.ncsc.mil  with ESMTP id RAA28715
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 17:33:52 GMT
+Message-ID: <415A9F6DCFA0D211B78D0008C7A42FB305937418@gopostal.digi.com>
+From: Ben Breuninger <Ben_Breuninger@digi.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: RE: Secure?
+Date: Thu, 15 Mar 2001 11:33:49 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-On Tue, Mar 13, 2001 at 01:36:55PM -0500, Nicholas Bastin wrote:
-> No offense, but can't you just filter on the To: address?  It's reliably
-> selinux@tycho.nsa.gov
+I believe linux to be great challenge when it comes to making a secure distribution. However, i think the reason the NSA is chosing to make a secure linux model is due to compatibility with pretty much every hardware and software package (ie, wine for non-linux software even). Keep in mind tho, it is the compatibility and speed at which the army of linux coders code is what keeps linux from achieving security. Should they chose to forgo compatibility for security, linux could make a turning point. But, it would be a toss up.
+Now, i must note that i administrate both Linux (GNU/Debian) servers and OpenBSD servers. I use the linux for compatibility issues, and openbsd for security issues. This is why I question why the NSA chose linux over openbsd, but i believe the overlying feature is compatibility.
 
-Actually, if you are going to filter on headers, you want to filter on
- Sender: owner-selinux@tycho.nsa.gov
+am i wrong on the compatibility + non_secure vs. non_compatible + secure issue?
 
-I have seen messages with selinux@tycho.nsa.gov in the To: Cc: fields,
-(as well as messages Bcc'd).  The sender field is consistent in all of them.
+(forgive me if this sounds like random babble, i havent had my coffee yet)
 
--John
+Ben Breuninger
+DIGI International
+
+-----Original Message-----
+From: Kurth Bemis [mailto:kurth@usaexpress.net] 
+Sent: Thursday, March 15, 2001 7:52 AM
+To: selinux@tycho.nsa.gov
+Subject: Secure?
+
+
+isn't the point of NSA ESL to be secure?  If so why are you using something 
+that is buggier than netscape code??  I referring to wu-FTP.  why not put 
+efforts toward something that is already secure (like OpenBSD)?  Is there 
+some reason that i'm missing as to why you choosing this route?
+
+~kurth
 
 --
 You have received this message because you are subscribed to the selinux list.
