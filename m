@@ -1,62 +1,79 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PEqrLa024587
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:52:53 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7PEqqfF000394
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:52:52 GMT
-Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
-        by jazzband.ncsc.mil  with ESMTP id h7PEqqHd000389 for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:52:52 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PEqpdu020159
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:52:51 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h7PEqpFE020157
-	for selinux@tycho.nsa.gov; Mon, 25 Aug 2003 10:52:51 -0400
-Subject: Re: initrd vs initramfs
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Brian May <bam@snoopy.apana.org.au>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20030824235114.GA2962@snoopy.apana.org.au>
-References: <20030824235114.GA2962@snoopy.apana.org.au>
-Content-Type: text/plain
-Message-Id: <1061822074.28086.434.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 25 Aug 2003 10:34:34 -0400
+Reply-To: <awilson@tresys.com>
+From: "Art Wilson" <awilson@tresys.com>
+To: "SELinux" <SELinux@tycho.nsa.gov>
+Subject: RE: questions
+Date: Mon, 25 Aug 2003 10:54:29 -0400
+Message-ID: <AFECILBIKCHPGNOEDGNCGEOHDOAA.awilson@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ISO-8859-2"
+In-Reply-To: <1061676714.1648.281.camel@kusturica>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-08-24 at 19:51, Brian May wrote:
-> According to README from selinux-doc:
-> 
-> 4) The initial policy load has been moved into userspace, and is
-> performed from an initrd (see the BUILDING AND INSTALLING
-> instructions below).  We will likely migrate to using initramfs in the
-> future for the initial policy.
-> 
-> Can anybody tell me the difference between the initrd system
-> and the initramfs system?
-> 
-> So far the only answer I have got is that they are the same. The
-> above text would imply that they are not the same though.
-> 
-> Sorry if this appears to be off-topic for this mailing list.
+Magosányi, Tresys has developed (and is continuing to develop) a number
+of tools for analyzing SELinux policy. These tools are included in the
+SELinux distribution, and are also available from www.tresys.com: apol is
+the primary policy analysis tool; sepcut allows
+you to look at the various policy files and directories; seuser assists in
+managing users on an SELinux system.
 
-See Documentation/early-userspace/README in the linux-2.6.0-test4 tree.
-The points of interest for us were:
-1) The root filesystem image is linked into the kernel image, so a
-tighter coupling of a kernel and its initial policy is possible,
-2) The image is unpacked very early in the initialization process, so
-the initial policy load could potentially be moved earlier, although
-this would require further changes to the base kernel.
+Art
 
-We aren't pursuing a migration to initramfs at the moment, although it
-remains an area of interest in the future.  The existing initrd support
-is sufficient for the initial policy load currently, and works for both
-the 2.4-based and 2.6-based SELinux.
+awilson@tresys.com
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+Behalf Of Magosányi Árpád
+Sent: Saturday, August 23, 2003 5:12 PM
+To: SELinux
+Subject: questions
+
+
+Hi!
+
+I am experimenting with selinux. My previous experiments included
+RSBAC with its RC model. It was (is) a system where there are
+multiple chrooted environments, and there is an RC emulation
+of Bell&LaPadula within them. Compared to that, the default
+selinux configuration is _way_ complicated. Now I am thinking
+about implementing either the above setup or a setup which is
+a combination of the above and the default policy. I just have to
+get in sync, and figure out how one can handle this complexity
+in a secure manner. (I guess that constraints will help, but the
+whole picture is far from clear.) This is why I have several
+questions.
+
+-What tools and techniques exist for analysing the policy?
+ For example how can I list domains besides using grep and friends
+ on the policy file?
+ I am also interested in techniques of analysing and designing MAC
+ policies in general, and using TE and RBAC in particular. I presume
+ that there is something newer than the Red and Aqua books on the
+ issue, but where?
+
+- Is polyinstantiation is put back to selinux yet? Having moldy
+ directories based on subject domain would be nice. If not, what
+ workarounds exist?
+
+- What about networking? I see that there is nodecon and portcom,
+ and someone has written that some networking functionality is
+ out because of rejection of the corresponding LSM hooks. Do
+ they work? Do we have an iptables context match module?
+ Will we?
+
+Thanx.
+
+--
+GNU GPL: csak tiszta forrásból
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
