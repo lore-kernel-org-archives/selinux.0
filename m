@@ -1,48 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j02AYtIi012508
-	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 05:34:55 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j02AYweb008019
-	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 10:34:58 GMT
-Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
-	by open.hands.com (Postfix) with ESMTP id DD826BF8A
-	for <selinux@tycho.nsa.gov>; Sun,  2 Jan 2005 10:34:47 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Cl3Eo-0002mc-FU
-	for selinux@tycho.nsa.gov; Sun, 02 Jan 2005 10:45:30 +0000
-Date: Sun, 2 Jan 2005 10:45:30 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: modules needed to be compiled in for selinux to work
-Message-ID: <20050102104530.GG6142@lkcl.net>
+Subject: Re: Newrole in targeted mode
+From: Karsten Wade <kwade@redhat.com>
+Reply-To: kwade@redhat.com
+To: SELinux@tycho.nsa.gov
+In-Reply-To: <1104388628.3140.4.camel@jsingh>
+References: <1104259373.22401.0.camel@hawaii.grays-systems.com>
+	 <1104259847.21391.107.camel@moss-spartans.epoch.ncsc.mil>
+	 <1104388628.3140.4.camel@jsingh>
+Content-Type: text/plain
+Date: Sun, 02 Jan 2005 03:30:26 -0800
+Message-Id: <1104665427.9831.13.camel@erato.phig.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+On Thu, 2004-12-30 at 12:07 +0530, Jaspreet Singh wrote:
+> Hi,
+> 
+> I tried to search and couldn't find any threads on this question ..
+> 
+> What are the basic differences between targeted and strict policies ..
+> 
+> All I know is .. there are lesser targeted domains/roles in target
+> policy compared to strict and as a result most domains run in an
+> unconfined_t domain.
 
-debian's 2.6.9 kernel has selinux - and capabilities - as modules.
+Everything runs in unconfined_t unless there is a transition specified
+to go to the new domain.  This transition is specified for only a small
+number of daemons.
 
-i was wondering: which gets run first, /sbin/init or modprobe
-capability from /etc/modules?
+Other things are simplified.  In the targeted policy, there are fewer
+rules overall, fewer file contexts, and so forth.
 
-i think the question is fairly obviously /sbin/init but i want to be
-absolutely sure.
+> On Tue, 2004-12-28 at 13:50 -0500, Stephen Smalley wrote:
+> > newrole serves no purpose under targeted policy; users are unconfined.
+> > setenforce 0 should work for you as root (from unconfined_t, of course,
+> > which is what you should already be in for a user session).
+> 
+> You can add new users and roles in target policy also ... 
+> In that case newrole should work as per the modified policies .. I am wrong ??
 
-in other words, is CONFIG_CAPABILITY=m stopping selinux from
-working in debian's 2.6.9 kernel?
+Because processes at all levels, whether spawned by init or a user, run
+in the unconfined_t domain, the role has no meaning.  AIUI, a user does
+not need an elevated role for what they do.
 
-or am i on the wrong track altogether?
-
-ta,
-
-l.
-
+- Karsten
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Karsten Wade, RHCE, Sr. Tech Writer
+a lemon is just a melon in disguise
+http://people.redhat.com/kwade/
+gpg fingerprint: 2680 DBFD D968 3141 0115  5F1B D992 0E06 AD0E 0C41
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
