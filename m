@@ -1,34 +1,59 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA17358
-	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 20:34:27 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id BAA17394
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:32:25 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA17311
+	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 20:28:08 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id BAA20234
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:26:01 GMT
 Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id BAA17390 for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:32:23 GMT
-Date: Wed, 20 Nov 2002 12:37:11 +1100
+	by jazzswing.ncsc.mil  with ESMTP id BAA20222
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:25:59 GMT
+Date: Wed, 20 Nov 2002 12:30:48 +1100
 From: Brian May <bam@snoopy.apana.org.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>, Joshua Brindle <JBrindle@snu.edu>,
-        Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-Subject: Re: SELinux distro building
-Message-ID: <20021120013711.GA32740@snoopy.apana.org.au>
-References: <sdd11fd2.035@atlas.snu.edu> <20021113005009.53937.qmail@web40018.mail.yahoo.com> <20021113013123.GA21921@snoopy.apana.org.au> <20021113082902.GA26850@snoopy.apana.org.au>
+To: selinux@tycho.nsa.gov
+Subject: conflicting header files
+Message-ID: <20021120013048.GA31968@snoopy.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20021113082902.GA26850@snoopy.apana.org.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 13, 2002 at 07:29:03PM +1100, Brian May wrote:
+Hello,
 
-I have updated this file:
+In lsm-2.4/security/selinux/include/linux/flask/security.h, it has:
 
-> <URL:http://www.microcomaustralia.com.au/debian/selinux-small-2002102211.tar.gz>
+int security_compute_av(
+        security_id_t ssid,                     /* IN */
+        security_id_t tsid,                     /* IN */
+        security_class_t tclass,                /* IN */
+        access_vector_t requested,              /* IN */
+        access_vector_t *allowed,               /* OUT */
+        access_vector_t *decided,               /* OUT */
+        access_vector_t *auditallow,            /* OUT */
+        access_vector_t *auditdeny,             /* OUT */
+        __u32 *seqno);                  /* OUT */
 
-It should now be able to include the LSM include files correctly.
+int security_sid_to_context(
+        security_id_t  sid,                     /* IN */
+        security_context_t *scontext,           /* OUT */
+        __u32   *scontext_len);                 /* OUT */
 
-Also, the configure script will now do a simple check to ensure that the
-LSM directory given is correct.
+In selinux-small-2002102211/libsecure/include/ss.h, it has:
+
+extern int security_compute_av(struct security_query *query,
+                                struct security_response *response);
+
+extern int security_sid_to_context(security_id_t sid, 
+                                    security_context_t scontext, 
+                                    __u32 *scontext_len);
+
+In one my attempts to compile SE-Linux using autoconf, the compiler
+included both definitions and complained that they were different.
+
+Is it intended, and if so why?
+
+I am guessing for now that one function is a internal function in the
+kernel, and the other function is one defined in libsecure.a for
+external use. Am I correct?
 --
 Brian May <bam@snoopy.apana.org.au>
 
