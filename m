@@ -1,104 +1,70 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFG6mIi024002
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 11:06:48 -0500 (EST)
-Received: from passage.avira.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFG5Lvq029287
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 16:05:21 GMT
-Message-ID: <4198D830.6050002@gentoo.org>
-Date: Mon, 15 Nov 2004 18:24:16 +0200
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: gentoo diff for snort
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig0B18CB82654EBE0ACFADBBAE"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFGCaIi024070
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 11:12:36 -0500 (EST)
+Received: from rproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFGB9vq029739
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 16:11:09 GMT
+Received: by rproxy.gmail.com with SMTP id i8so709334rne
+        for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 08:12:38 -0800 (PST)
+Message-ID: <46ce702f041115081242f9f8e7@mail.gmail.com>
+Date: Mon, 15 Nov 2004 10:12:38 -0600
+From: Serge Hallyn <serge.hallyn@gmail.com>
+Reply-To: Serge Hallyn <serge.hallyn@gmail.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: learning about policies/transitions
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1099657575.6373.5.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+References: <46ce702f041103084530fe8539@mail.gmail.com>
+	 <1099510181.1213.198.camel@moss-spartans.epoch.ncsc.mil>
+	 <46ce702f041104082042e4c02a@mail.gmail.com>
+	 <1099588265.3174.158.camel@moss-spartans.epoch.ncsc.mil>
+	 <46ce702f041104182352cbcd1@mail.gmail.com>
+	 <1099657575.6373.5.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig0B18CB82654EBE0ACFADBBAE
-Content-Type: multipart/mixed;
- boundary="------------020709090601060802050509"
+Thanks for your help, Stephen.  I've *briefly* looked around at the
+inird and /bin/init sources, and can't find an initiial policy that
+would be loaded before the root filesystem pivot_root.  I expect to
+have more time at the end of this week to figure it out, though.
 
-This is a multi-part message in MIME format.
---------------020709090601060802050509
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+thanks,
+-serge
 
-Hi,
-
-diff needed by snort 2.2.0
-
-bye,
-peter
-
--- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-
---------------020709090601060802050509
-Content-Type: text/plain;
- name="selinux-snort.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="selinux-snort.diff"
-
---- /root/public_html/policy/nsa/file_contexts/program/snort.fc	2003-11-28 16:57:12.000000000 +0200
-+++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/snort/snort.fc	2004-10-28 17:00:48.000000000 +0300
-@@ -1,4 +1,4 @@
- # SNORT
--/usr/sbin/snort	--	system_u:object_r:snort_exec_t
-+/usr/(s)?bin/snort --	system_u:object_r:snort_exec_t
- /etc/snort(/.*)?	system_u:object_r:snort_etc_t
- /var/log/snort(/.*)?	system_u:object_r:snort_log_t
---- /root/public_html/policy/nsa/domains/program/unused/snort.te	2004-06-25 23:02:24.000000000 +0300
-+++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/snort/snort.te	2004-10-28 16:58:33.000000000 +0300
-@@ -7,7 +7,8 @@
- 
- daemon_domain(snort)
- 
--log_domain(snort)
-+logdir_domain(snort)
-+allow snort_t snort_log_t:dir create;
- can_network(snort_t)
- type snort_etc_t, file_type, sysadmfile;
- 
-@@ -17,7 +18,7 @@
- # use iptable netlink
- allow snort_t self:netlink_route_socket { bind create getattr nlmsg_read read write };
- allow snort_t self:packet_socket create_socket_perms;
--allow snort_t self:capability { setgid setuid net_admin net_raw };
-+allow snort_t self:capability { setgid setuid net_admin net_raw dac_override };
- 
- r_dir_file(snort_t, snort_etc_t)
- allow snort_t etc_t:file { getattr read };
-@@ -28,3 +29,5 @@
- 
- # for start script
- allow initrc_t snort_etc_t:file read;
-+
-+dontaudit snort_t { etc_runtime_t proc_t }:file read;
-
---------------020709090601060802050509--
-
---------------enig0B18CB82654EBE0ACFADBBAE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBmNgwGSBEIeh4AEYRAgpFAJ9olhTxu/NcIor1RvWudRsvHVOxQgCeItkI
-umqbRcDd8VKsMSp44L8pzIQ=
-=Sa0v
------END PGP SIGNATURE-----
-
---------------enig0B18CB82654EBE0ACFADBBAE--
+On Fri, 05 Nov 2004 07:26:15 -0500, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> On Thu, 2004-11-04 at 21:23, Serge Hallyn wrote:
+> > Addendum:  running setfilecon works once.  After each reboot, I must again run
+> > setfilecon.before /bin/login will cause the transition to login_d.
+> > Again, running
+> > /bin/ls -Z /bin/login shows no difference before and after the
+> > setifilecon - it is always
+> > of type login_et.
+> 
+> Two scenarios:
+> 1) At boot time (e.g. usual policy load by /sbin/init), you are loading
+> a policy that does not define login_et, /bin/login inode is brought
+> incore and mapped to the unlabeled SID, and you then load a policy that
+> does define login_et, but this doesn't automatically fix the incore
+> inode SID.
+> 2) At boot time, you are loading a policy that does define login_et,
+> /bin/login inode is brought incore and mapped to the correct SID, you
+> then load a policy that does not define login_et (e.g. Fedora policy),
+> invalidating that SID, and you later reload a policy that does define
+> login_et, but this doesn't automatically fix the incore inode SID.
+> 
+> While it would be possible to walk the inode lists upon a policy reload
+> and retry mapping of the on-disk xattr for any inode with the unlabeled
+> SID, I'm not sure it is worthwhile to do so.
+> 
+> --
+> 
+> 
+> Stephen Smalley <sds@epoch.ncsc.mil>
+> National Security Agency
+> 
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
