@@ -1,78 +1,51 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA26364
-	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 12:03:52 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA04904
-	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 17:03:10 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id RAA04897
-	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 17:03:08 GMT
-Date: Mon, 10 Dec 2001 12:03:26 -0500 (EST)
+Date: Mon, 10 Dec 2001 12:26:20 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: <lonnie@outstep.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: User Level Security Policies
-In-Reply-To: <1007874114.3c12f042364c3@mail.outstep.com>
-Message-ID: <Pine.GSO.4.33.0112101132310.13300-100000@raven>
+To: Shaun Savage <savages@pcez.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: New security policy
+In-Reply-To: <3C14E66E.10405@pcez.com>
+Message-ID: <Pine.GSO.4.33.0112101211460.13300-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sun, 9 Dec 2001 lonnie@outstep.com wrote:
+On Mon, 10 Dec 2001, Shaun Savage wrote:
 
-> First the easy one.
-> 1.) Is there some estimation as to when RH 7.2 might be supported?
+> The sysadm_r is see as the every day admin.  checking logs, add/del
+> users,accounts using system-tools.
+> But the secoff_r locks down system. if the secoff_r unlocks the system
+> then sysadm_r can then a administrator the whole system.  The reason I
+> like this is that an unknow root exploit can't comprimise the whole system.
 
-We have the current snapshot of SELinux (which should be available soon as
-a new public release) running on both RH7.1 and RH7.2.  The example policy
-configuration still needs more testing and refinement for RH7.2, but it is
-a reasonable starting point.  Some of the utility packages haven't been
-updated to RH7.2 yet (findutils, psmisc, stat, tar), but the old versions
-of these packages still seem to build and work fine on RH7.2.  Also, a
-SELinux user just posted updated patches for several of these remaining
-utility packages, but we haven't reviewed them yet for correctness.
+I'm not sure what you mean.  A root exploit isn't significant, because
+the SELinux nondiscretionary access controls aren't based on the Linux
+identity attributes.  If someone exploits a flaw in a daemon that runs as
+root, they are still limited to the permissions granted to the domain
+assigned to that daemon.  If an unprivileged user (e.g. user_t) exploits a
+flaw in a setuid program to become root, they are still limited to the
+permissions granted to the user_t domain.  You don't need a separate
+secoff_r role to protect against such exploits.
 
-> Now the harder one.
-> 2.) We have been looking at various security methods such as "restricted
-> shells", "chroot", etc... to find a method of locking a user into their HOME
-> directory. While this may sound a little restrictive, the current special
-> project that we are working on required that we allow the user to login via kdm
-> after which a simple window manager (fvwm95) would be started and then the user
-> could select an application to run.
+But feel free to add such a role if you like.  Just be sure that you are
+really enforcing the kind of separation that you want.
 
-If you need to use kdm, you'll need a modified kdm that sets the security
-context for the user session.  Mark Westerman, a user of SELinux, has a
-modified gdm that performs the necessary processing, so you should refer
-to his patch for reference.  This isn't in the base SELinux release.
+> Where can I get the work that has been done already?
 
-> The catch is that the user would really never have a shell available to them
-> and only be able to run one of the applications that we have pre-configured for
-> them.
-
-SELinux can certainly control what the user can execute.  But you may find
-that the system isn't useable if you don't grant the user's domain execute
-access to a shell, since the programs that are legitimately run by the
-user may assume that they can invoke shell commands.  Of course, you could
-transition those programs into domains with the necessary execute
-permission, but it isn't clear that this adds anything to the security of
-the system.
-
-> Also, we would like to prevent the user from navigating out of their HOME
-> directory at all times.
-
-Similar to the above, SELinux can control what directories the user can
-search.  But many applications will expect to be able to search
-directories other than the user's home directory.  As above, you can
-transition those applications into their own domains with the necessary
-permissions, but you need to consider whether you are really providing any
-improvement in security by not just directly granting the permission to
-the user's domain.
+There should be a new release very soon.  We'll look over your patches and
+try to incorporate them into future releases (but it is too late to put
+them into the next one) if they are correct.  It looks like we only
+duplicated each others' work for the fileutils patch.  We are currently
+up-to-date with respect to the fileutils, logrotate, openssh, procps,
+sh-utils, util-linux, and vixie-cron patches.  We'll see how your
+updated fileutils patch differs from ours, and also look at your updated
+patches for findutils, stat, and tar.   That just leaves the psmisc patch.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
+
 
 
 
