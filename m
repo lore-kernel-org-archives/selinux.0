@@ -1,39 +1,28 @@
-Subject: RE: [patch] policydb - MLS
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: Chad Hanson <chanson@tcs-sec.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+Subject: Re: [Announce][Patch] Enhanced MLS support
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: James Morris <jmorris@redhat.com>
+Cc: Chad Hanson <chanson@tcs-sec.com>,
    "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA309E3DB@chaos.tcs.tcs-sec.com>
-References: <791924EBDA572C4FA970D4A94AA95DA309E3DB@chaos.tcs.tcs-sec.com>
+In-Reply-To: <Xine.LNX.4.44.0403030835120.1101-100000@thoron.boston.redhat.com>
+References: 
+	 <Xine.LNX.4.44.0403030835120.1101-100000@thoron.boston.redhat.com>
 Content-Type: text/plain
-Message-Id: <1078321457.9541.23.camel@colossus.columbia.tresys.com>
+Message-Id: <1078321482.13948.4.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 03 Mar 2004 08:44:18 -0500
+Date: Wed, 03 Mar 2004 08:44:42 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-03-02 at 17:19, Chad Hanson wrote:
-> Please disregard the earlier patch. 
-> 
-> These new patches will fix the problem and provide compatibility to
-> policy15-mls files.
-> 
-> -Chad
-> 
+On Wed, 2004-03-03 at 08:35, James Morris wrote:
+> This patch does not apply to 2.6.3.
 
-This looks correct to me and looks like it will work for both version 15
-and 16 mls files.
-
-Thanks,
-
-Karl
+His patch is relative to 2.6.3-selinux1 (from nsa.gov), which includes
+the conditional policy extension changes.  Waiting on 2.6.4 to send
+those upstream.
 
 -- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
-(410) 290-1411 x134
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
