@@ -1,65 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2SFf3Do027323
-	for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 10:41:03 -0500 (EST)
-Received: from mail.lemuria.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2SFeD1g007013
-	for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 15:40:14 GMT
-Date: Mon, 28 Mar 2005 17:41:00 +0200
+Date: Mon, 28 Mar 2005 17:47:54 +0200
 From: Tom <tom@lemuria.org>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: "Fedora SELinux support list for users &amp;  developers." <fedora-selinux-list@redhat.com>,
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>,
+   "Fedora SELinux support list for users &amp;  developers." <fedora-selinux-list@redhat.com>,
    selinux@tycho.nsa.gov
 Subject: Re: Desktop apps interoperability
-Message-ID: <20050328174059.C29441@lemuria.org>
-References: <1111985855.1514.70.camel@cobra.ivg2.net> <1111986213.1514.77.camel@cobra.ivg2.net> <1111987652.1514.97.camel@cobra.ivg2.net> <20050328132653.F27857@lemuria.org> <1112012129.1514.187.camel@cobra.ivg2.net> <20050328151126.B28232@lemuria.org> <1112017584.1514.239.camel@cobra.ivg2.net> <20050328160935.B28563@lemuria.org> <1112022358.5811.47.camel@cobra.ivg2.net>
+Message-ID: <20050328174753.D29441@lemuria.org>
+References: <1111985855.1514.70.camel@cobra.ivg2.net> <1111986213.1514.77.camel@cobra.ivg2.net> <1111987652.1514.97.camel@cobra.ivg2.net> <20050328132653.F27857@lemuria.org> <1112012129.1514.187.camel@cobra.ivg2.net> <20050328151126.B28232@lemuria.org> <1112017584.1514.239.camel@cobra.ivg2.net> <20050328160935.B28563@lemuria.org> <1112022358.5811.47.camel@cobra.ivg2.net> <1112022750.2914.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1112022358.5811.47.camel@cobra.ivg2.net>; from ivg2@cornell.edu on Mon, Mar 28, 2005 at 10:05:58AM -0500
+In-Reply-To: <1112022750.2914.65.camel@moss-spartans.epoch.ncsc.mil>; from sds@tycho.nsa.gov on Mon, Mar 28, 2005 at 10:12:30AM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 28, 2005 at 10:05:58AM -0500, Ivan Gyurdiev wrote:
-> > ah! What you want is /home/tom/.etc/ ?
-> 
-> Something like that - yes.
+On Mon, Mar 28, 2005 at 10:12:30AM -0500, Stephen Smalley wrote:
+> Seems fairly pointless to perform such a relabeling if the context
+> determination is based entirely on untrusted input from the same source
+> as the data itself and the user isn't involved to any greater degree
+> than selecting the file in the first place.
 
-Ok, that's a good idea.
+Not so sure about the pointlessness here. The point is that it makes it
+more difficult to leverage exploits. Maybe I can break into Firefox,
+but with that in place I can't jump from there to mplayer by forcing it
+to play something I know will break it.
 
-
-
-> > Behind the scenes, the file is relabeled or moved into another
-> > directory where mplayer can access it.
-> 
-> How does this relate to the SElinux work to secure the X server?
-
-Not at all. X doesn't come in here. There's no reason why I can't do
-something similar in non-X environments.
+Lots and lots of system compromises I know about took more than one
+exploit and more than one program needed to be broken.
 
 
-> Should the desktop environment be trusted?
-
-Everything is trusted - to a degree. Can I trust my desktop environment
-to relabel one filetype to one other filetype? For a military system
-the answer would be no, but for a desktop system I think that's a risk
-we can take.
-
-
-> .. so what you're saying is that nautilus (running as user_t, which has
-> read access to the file in question, as well as appropriate relabel
-> access), should determine its mime type, or use the DND target app, and
-> associate a context with that, which the mime handler can play, then
-> relabel file to that context (can't copy - what if it's huge?).... and
-> do this for every mime handler I attempt to open it with?
-
-You could do priviledge seperation and have a relabeling demon running
-in the background.
-
-There's a dozen ways to do it. I really don't care much about which
-exactly is used. The point I'm adamant about is two-fold: a) no generic
-directories accesable by anyone and their dog - b) explicit transfers
-through user interaction are a good idea. Not everything should be
-transparent. Firefox's "hey, you downloaded this .exe from the 'net,
-you sure you really wanna run it?" is a _good_ idea.
+Nevertheless, an explicit "good file" filter is certainly added value.
+It doesn't have to be a full-blown virus scanner - on a proper SELinux
+system I would expect any unexpected behaviour in mplayer to be
+contained. Nevertheless, the filter should at least check whether the
+data in question is what it claims to be. No need to port the nightmare
+of .doc files that really are .exe or whatever to Linux.
 
 
 
