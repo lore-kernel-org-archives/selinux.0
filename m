@@ -1,48 +1,52 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i93KR0rT013818
-	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 16:27:02 -0400 (EDT)
-Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i93KQxqH023879
-	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 20:26:59 GMT
-Subject: Re: purpose of the staff_r role?
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: Tom Anderson <granite217@yahoo.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040930013829.10463.qmail@web14925.mail.yahoo.com>
-References: <20040930013829.10463.qmail@web14925.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1096835213.2534.151.camel@debby>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i941mfrT014876
+	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 21:48:41 -0400 (EDT)
+Received: from ms-smtp-03.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i941lXFo023334
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 01:47:34 GMT
+Date: Sun, 3 Oct 2004 20:48:21 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: need advice for ld_so_cache_t errors
+Message-ID: <20041004014820.GA25896@yggdrasil.localdomain>
+References: <20041001233554.GA26550@yggdrasil.localdomain> <20041002043740.GA28765@yggdrasil.localdomain> <20041002165041.GB30426@yggdrasil.localdomain> <200410040108.35839.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Sun, 03 Oct 2004 22:26:53 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+In-Reply-To: <200410040108.35839.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-09-30 at 03:38, Tom Anderson wrote: 
-> Can anyone explain the purpose/benefit of having an account under the
-> staff_r role?  I thought it was to allow limited administrative
-> functions, but I've discovered that it doesn't even allow reading the
-> logfiles under /var/log/.  What purpose does it serve, other than to
-> limit who can transition to sysadm_r?
-> 
-> SE Linux appears to be quite powerful, but dear $deity it's confusing. 
-> I'd sell my soul for a nice, readable O'Reilly Press title covering
-> this stuff!
 
-Some weeks ago when googling about for some docs (that is: Beginner
-docs) I stumbled over this site:
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://www.lurking-grue.org/
+On Mon, Oct 04, 2004 at 01:08:35AM +1000, Russell Coker wrote:
+> I've just run apol from setools and it tells me that no execute access is=
+=20
+> being granted.
 
-For me, a beginner with selinux, the most usable I found so far.
+Hmmm... unfortunately, I'm stumped at this point.  If I have some time=20
+tomorrow I'll try out the 1.16 policy from the NSA website, and see if=20
+it makes any difference.
 
-[ Thanks, Faye Coker ]
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-HTH
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-Wolfgang
--- 
-Wolfgang Pfeiffer                           gpg ID: 0AA7E825 
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+iD8DBQFBYKvkgrEMyr8Cx2YRAmTlAKCuUTEBSkGuAzfbmu/7mF7tvNvnYACeJkou
+3JXo5SoTN2R4gJBwVwXFwE4=
+=i6YM
+-----END PGP SIGNATURE-----
 
+--qMm9M+Fa2AknHoGS--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
