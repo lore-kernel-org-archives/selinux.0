@@ -1,32 +1,27 @@
-To: SELinux@tycho.nsa.gov
-Subject: make check failure on glibc using rh9
-Message-ID: <1062625489.3f5660d19f704@cc.utulsa.edu>
-Date: Wed, 03 Sep 2003 16:44:49 -0500 (CDT)
-From: tyronne-nash@utulsa.edu
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 04 Sep 2003 12:59:48 +1200
+From: max barwell <maxb@paradise.net.nz>
+Subject: libselinux.so: cannot open shared object file
+To: SELinux <SELinux@tycho.nsa.gov>
+Message-id: <1062637188.565.7.camel@orac.lite.net.nz>
+MIME-version: 1.0
+Content-type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Greetings,
+I am using debian sid, I compiled a 2.6.0-test4 kernel ready for use,
+and downloaded Colin Walters SElinux packages, during their install, and
+I'm not sure when as I wasn't watching, the install borked, and now when
+I try to do anything ie type ls, I get the error message
 
-I am attempting to complete a SELinux install using the using Red Hat 9 using the 2.6.0.test3 kernel. I have rebuilt the kernel and most of the utilities in the Userland archive.
+error while loading shared libraries: libselinux.so: cannot open shared
+object file: No such file or directory 
 
-Note. This is a separate problem (installation) than the one being done by Nick Davis of the same institution
+what happened? can I fix this? anyone encountered this before?
 
-I am encountering problems with glibc. I was able to do the "configure" and the "make" without any problems but when I run the "make check" I receive the following errors:
+would love to get this sorted.
 
-make[2]: *** [/home/tgn/wa/glib-build/intl/tst-gettext.out] Error 1
-make[2]: Leaving directory `/home/tgn/wa/glibc-source/intl'
-make[1]: *** [intl/tests] Error 2
-make[1]: Leaving directory `/home/tgn/wa/glibc-source'
-make: *** [check] Error 2
+regards Max
 
-Reagards,
-
-Tyronne Nash
-Center for Information Security
-University of Tulsa
 
 --
 This message was distributed to subscribers of the selinux mailing list.
