@@ -1,41 +1,101 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TJrwrT021930
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 15:53:58 -0400 (EDT)
-Received: from smtp812.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TJruCb019710
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 19:53:57 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TK2LrT022058
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 16:02:21 -0400 (EDT)
+Received: from smtp814.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TK2JCb019963
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 20:02:19 GMT
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp812.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 19:53:57 -0000
-Date: Thu, 29 Jul 2004 21:05:02 +0100
+  by smtp814.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 20:02:19 -0000
+Date: Thu, 29 Jul 2004 21:13:25 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: James Morris <jmorris@redhat.com>, Joshua Brindle <method@gentoo.org>,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: temporary hack to use udev in selinux
-Message-ID: <20040729200502.GF9950@lkcl.net>
-References: <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com> <1091121776.21971.132.camel@moss-spartans.epoch.ncsc.mil>
+To: Erich Schubert <erich@debian.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: udev and .dev...
+Message-ID: <20040729201325.GG9950@lkcl.net>
+References: <20040729091423.GC6443@lkcl.net> <20040729150921.GA17881@legolas.drinsama.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1091121776.21971.132.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <20040729150921.GA17881@legolas.drinsama.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jul 29, 2004 at 01:22:56PM -0400, Stephen Smalley wrote:
-> On Thu, 2004-07-29 at 13:06, James Morris wrote:
-> > This could be done by simply allowing context= to override any other 
-> > behavior, right?
+On Thu, Jul 29, 2004 at 05:09:21PM +0200, Erich Schubert wrote:
+> > soooo... to fix that [rather than a patch, a sed command]:
+> > 	:%s/u?dev/.?u?dev/g
 > 
-> context= only lets you map all inodes in the filesystem to a single
-> security context and prohibits getxattr/setxattr/setfscreatecon.  
-
-> For
-> tmpfs, we want to allow individual inode labeling and
-> getxattr/setxattr/setfscreatecon, 
-
- patch done that.  for dirs, files, symlinks and "special" inodes, whatever
- _they_ are.
+> Note that . has a special meaning in regular expressions.
+> You should quote it, but you're approaching quoting hell right now with
+> your sed expression... ;-)
  
+ *sigh*.
+
+ okay how about %s/u?dev/[.u]dev/g - is that right?
+
+ [\.u] means one character either dot (a real dot) or a u neh?
+
+ *struggling*.
+
+> Also at least for some time udev used /etc/udev/.dev
+> but i think this has been made deprecated by now.
+> 
+> > this will allow setfiles to set up the security contexts on
+> > the /.dev which is the _real_ filesystem /dev stuff which will
+> > allow things like, oh, init (!!) to access the hard drive.
+> 
+> Are you sure? 
+
+ yes, because with it, init works, without it, it don't!
+
+
+> i'd guess that using /dev is hardwired into init.
+
+ don't know... oh, yes, i know: no it isn't [hardwired]: the
+ job of the scripts [in debian initrd, written by herbert]
+ is to detect it, or to pass the root=/something/something
+ option from the kernel boot.
+
+
+> FYI: i see
+> /dev on /.dev type none (rw,bind)
+> 
+> but /proc/mounts shows
+> 
+> /dev/root /.dev ext3 rw,noatime 0 0
+> none /dev tmpfs rw 0 0
+> 
+> So i think that /dev is moved via a bind mount to /.dev (kind of
+> emergency device nodes) and /dev is then replaced by a ramdisk which is
+> maintained by udev.
+
+ yes: quoting this section of /etc/init.d/udev....
+
+	# /.dev is used by /sbin/MAKEDEV to access the real /dev directory.
+	# if you don't like it just remove it.
+	[ -d /.dev ] && mount --bind /dev /.dev
+
+	echo -n "Mounting a tmpfs over /dev..."
+	mount -n -o size=$tmpfs_size,mode=0755 -t tmpfs none /dev
+	echo "done."
+	}
+
+
+> This sounds like relabling hell :-) "make relabel" might even skip /.dev
+> because it doesn't know the file system.
+> You can't use "make relabel" to persistently fix labels on /dev.
+
+ no, but if the /.dev ISN'T there, then you will find that the first
+ time you run make relabel, subsequently you cannot boot.
+
+
+> I don't know enough about automatic labelling by selinux. Maybe you'll
+> need a udev which reads the file_contexts file. :-(
+> (or a similar specification file)
+>
+ 
+ that would be very nice.
+
  l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
