@@ -1,86 +1,46 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9NDJfWt008890
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 09:19:41 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9NDJPIS008000
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 13:19:26 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-	by jazzswing.ncsc.mil  with ESMTP id h9NDJNDc007990
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 13:19:24 GMT
-Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
-	by sjtu.edu.cn (WorldPost) with ESMTP id D6EFE34A9A4
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 21:19:32 +0800 (BEIST)
-Message-ID: <006c01c398a0$5f436ef0$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: problem about boot
-Date: Wed, 22 Oct 2003 21:28:21 +0800
+From: Richard Herbert Wanner <richard.wanner@cgi.com>
+To: "lky" <lky77@sjtu.edu.cn>
+Cc: "SELINUX" <SELinux@tycho.nsa.gov>
+Message-ID: <376013375d87.375d87376013@wshs>
+Date: Thu, 23 Oct 2003 12:26:06 -0400
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0069_01C398E3.6AC1A6A0"
+Subject: Re: problem about boot
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Just a guess... but did you remember to change the root=LABEL=/ entry 
+in your bootloader file to root=/dev/hda2 (or whatever the root is on 
+your system).
 
-------=_NextPart_000_0069_01C398E3.6AC1A6A0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+Rick
 
-SGksSSBpbnN0YWxsZWQgMi42LWJhc2VkIFNFTGludXggKGxpbnV4LTIuNi0yMDAzMTAwMTEwLnRn
-eikgb24gUmVkaGF0OS4wLkJ1dCB3aGVuIEkgcmVib290IHdpdGggdGhlIGluaXRyZCBJIGdvdCB0
-aGUga2VybmVsIHBhbmljLGFzIGJlbG93Og0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tDQpNb3VudGluZyAvcHJvYyBmaWxlc3lzdGVtDQpDcmVhdGluZyBibG9jayBkZXZpY2VzDQpD
-cmVhdGluZyByb290IGRldmljZQ0KTW91bnRpbmcgcm9vdCBmaWxlc3lzdGVtDQptb3VudDogZXJy
-b3IgMTkgbW91bnRpbmcgZXh0Mw0KcGl2b3Ryb290OiBwaXZvdF9yb290ICgvc3lzcm9vdCwgL3N5
-c3Jvb3QvaW5pdHJkKSBmYWlsZWQgOiAyDQp1bW91bnQgL2luaXRyZC9wcm9jIGZhaWxlZCA6IDIN
-CkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnkgOiAyMzJrIGZyZWVkDQprZXJuZWwgcGFuaWMg
-OiBObyBpbml0IGZvdW5kIC4gVHJ5IHBhc3NpbmcgaW5pdCA9IG9wdGlvbiB0byBrZXJuZWwNCi0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLQ0KVGhlIHBvbGljeSBoYXMgYmVlbiBsb2FkZWQgYmVmb3JlIHRo
-aXMuIEFuZCBJIGdvdCB0aGUgc2FtZSByZXN1bHQgaWYgSSByZWJvb3QgdGhlIGtlcm5lbCB3aXRo
-IGl0J3Mgb3duIGluaXRyZC4gU28gSSB0aGluayB0aGUgaW5pdHJkIGlzbid0IHRoZSByZWFzb24u
-IEhhdmUgSSB3cm9uZ2x5IGNvbmZpZ3VyZWQgdGhlIGtlcm5lbD8NClRoYW5rcyENCg==
+----- Original Message -----
+From: "lky" <lky77@sjtu.edu.cn>
+Date: Wednesday, October 22, 2003 9:28 am
+Subject: problem about boot
 
-------=_NextPart_000_0069_01C398E3.6AC1A6A0
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+SGksSSBpbnN0YWxsZWQg
-Mi42LWJhc2VkIFNFTGludXggDQoobGludXgtMi42LTIwMDMxMDAxMTAudGd6KSBvbiBSZWRoYXQ5
-LjAuQnV0IHdoZW4gSSByZWJvb3Qgd2l0aCB0aGUgaW5pdHJkIEkgZ290IA0KdGhlIGtlcm5lbCBw
-YW5pYyxhcyBiZWxvdzo8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgDQpzaXpl
-PTI+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tPC9GT05UPjwvRElWPg0KPERJVj4N
-CjxESVY+PEZPTlQgZmFjZT1BcmlhbD5Nb3VudGluZyAvcHJvYyBmaWxlc3lzdGVtPC9GT05UPjwv
-RElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPkNyZWF0aW5nIGJsb2NrIGRldmljZXM8L0ZPTlQ+
-PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+Q3JlYXRpbmcgcm9vdCBkZXZpY2U8L0ZPTlQ+
-PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+TW91bnRpbmcgcm9vdCBmaWxlc3lzdGVtPC9G
-T05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPm1vdW50OiBlcnJvciAxOSBtb3VudGlu
-ZyBleHQzPC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPnBpdm90cm9vdDogcGl2
-b3Rfcm9vdCAoL3N5c3Jvb3QsIC9zeXNyb290L2luaXRyZCkgZmFpbGVkIDogDQoyPC9GT05UPjwv
-RElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPnVtb3VudCAvaW5pdHJkL3Byb2MgZmFpbGVkIDog
-MjwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5GcmVlaW5nIHVudXNlZCBrZXJu
-ZWwgbWVtb3J5IDogMjMyayBmcmVlZDwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1Bcmlh
-bD5rZXJuZWwgcGFuaWMgOiBObyBpbml0IGZvdW5kIC4gVHJ5IHBhc3NpbmcgaW5pdCA9IG9wdGlv
-biANCnRvIGtlcm5lbDwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgDQpmYWNlPUFyaWFsPi0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5UaGUg
-cG9saWN5IGhhcyBiZWVuIGxvYWRlZCBiZWZvcmUgdGhpcy4gQW5kIEkgZ290IHRoZSBzYW1lIA0K
-cmVzdWx0Jm5ic3A7aWYgSSByZWJvb3QgdGhlIGtlcm5lbCB3aXRoJm5ic3A7aXQncyBvd24gaW5p
-dHJkLiBTbyBJIHRoaW5rIHRoZSANCmluaXRyZCBpc24ndCB0aGUgcmVhc29uLiBIYXZlIEkgd3Jv
-bmdseSBjb25maWd1cmVkIHRoZSBrZXJuZWw/PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNl
-PUFyaWFsPlRoYW5rcyE8L0ZPTlQ+PC9ESVY+PC9ESVY+PC9CT0RZPjwvSFRNTD4NCg==
-
-------=_NextPart_000_0069_01C398E3.6AC1A6A0--
-
+> Hi,I installed 2.6-based SELinux (linux-2.6-2003100110.tgz) on 
+> Redhat9.0.But when I reboot with the initrd I got the kernel 
+> panic,as below:
+> -------------------------------------------------------------------
+> -----------------------
+> Mounting /proc filesystem
+> Creating block devices
+> Creating root device
+> Mounting root filesystem
+> mount: error 19 mounting ext3
+> pivotroot: pivot_root (/sysroot, /sysroot/initrd) failed : 2
+> umount /initrd/proc failed : 2
+> Freeing unused kernel memory : 232k freed
+> kernel panic : No init found . Try passing init = option to kernel
+> -------------------------------------------------------------------
+> -----------
+> The policy has been loaded before this. And I got the same result 
+> if I reboot the kernel with it's own initrd. So I think the initrd 
+> isn't the reason. Have I wrongly configured the kernel?
+> Thanks!
+> 
 
 
 --
