@@ -1,33 +1,37 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8OF5nrT017991
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 11:05:50 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8OF5krq025600
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 15:05:47 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8OFOorT018139
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 11:24:50 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8OFNmxO021118
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 15:23:49 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Remove unrestricted_admin
-Date: Sat, 25 Sep 2004 01:05:40 +1000
-Cc: jwcart2@epoch.ncsc.mil, SE Linux <selinux@tycho.nsa.gov>
-References: <200409211526.37810.russell@coker.com.au> <1095884528.11254.6.camel@moss-lions.epoch.ncsc.mil> <4152D07C.9060507@redhat.com>
-In-Reply-To: <4152D07C.9060507@redhat.com>
+To: Dax Kelson <dax@gurulabs.com>
+Subject: Re: SELinux policy discussion.
+Date: Sat, 25 Sep 2004 01:24:30 +1000
+Cc: Valdis.Kletnieks@vt.edu, ivg2@cornell.edu,
+   Colin Walters <walters@redhat.com>, selinux@tycho.nsa.gov
+References: <4148A003.6080309@redhat.com> <200409171719.i8HHJ1tP020778@turing-police.cc.vt.edu> <1095551424.4016.9.camel@mentorng.gurulabs.com>
+In-Reply-To: <1095551424.4016.9.camel@mentorng.gurulabs.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409250105.40796.russell@coker.com.au>
+Message-Id: <200409250124.30759.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 23 Sep 2004 23:32, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Remove unrestricted_admin tunable.  This was a bad idea :^(
+On Sun, 19 Sep 2004 09:50, Dax Kelson <dax@gurulabs.com> wrote:
+> > You'll sing a different tune if some hostile Javascript saves a .rhosts
+> > in your home directory (or any other file that will produce surprising
+> > results).
+>
+> Your point is valid, but the example is a bit dated.
+>
+> On any Linux distro made in the past 2-3 years, and certainly all the
+> 2.6 kernel based distros, creating a .rhosts or /etc/hosts.equiv file
+> will have zero effect.
 
--allow sysadm_t fixed_disk_device_t:devfile_class_set rw_file_perms;
-
-I think that perhaps we should add that line back.
-
-Of the times that I temporarily enable permissive mode to execute a command, 
-in 99% of them it's because of access to a fixed disk.
+So you do the same with ~/.ssh/authorized_keys .
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
