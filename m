@@ -1,57 +1,56 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9UFMFWt013357
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 10:22:15 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9UFMDKl027915
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 15:22:14 GMT
-Received: from lyta.coker.com.au (nat-pool-bos.redhat.com [66.187.230.200])
-        by jazzband.ncsc.mil  with ESMTP id h9UFMD5m027909 for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 15:22:13 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Diyab <diyab@diyab.net>, Stephen Smalley <sds@epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9UG3AWt013651
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 11:03:10 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9UG2pC7014873
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 16:02:52 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h9UG2puw014870
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 16:02:51 GMT
 Subject: Re: Diamond Rio 500 and other device nodes
-Date: Fri, 31 Oct 2003 01:33:36 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200310300227.27364.russell@coker.com.au> <3FA08C65.2020309@diyab.net>
-In-Reply-To: <3FA08C65.2020309@diyab.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310310133.36055.russell@coker.com.au>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: Diyab <diyab@diyab.net>, SE Linux <selinux@tycho.nsa.gov>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <200310310133.36055.russell@coker.com.au>
+References: <200310300227.27364.russell@coker.com.au>
+	 <3FA08C65.2020309@diyab.net>  <200310310133.36055.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1067529776.30233.54.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 30 Oct 2003 11:02:56 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 30 Oct 2003 14:58, Diyab wrote:
-> Russell Coker wrote:
-> > What do you think is the correct type for the device node for the
-> > "Diamond Rio 500" (/dev/usb/rio500)?
-> >
-> > It's a portable MP3 player and storage device with a USB interface, so I
-> > think that removable_device_t is appropriate, in concept it's similar to
-> > a floppy disk drive.
->
-> Just curious, but how will the files on the device be labeled once the
-> device is mounted?  For example if I plug in my digital camera and mount
-> it so that I can copy the pictures from it am I going to have access to
-> read the files?  Will I even be able to mount it as a normal user?  Is
-> this going to be a problem since we can't label the device filesystem?
+On Thu, 2003-10-30 at 09:33, Russell Coker wrote:
+> However there is a more important issue, we can't allow anyone other than an 
+> administrator to mount a ext3 file system from a floppy disk or other 
+> removable media.  If we do then it would be trivial to create a file system 
+> with a file of type newrole_exec_t and take over the system.
+> 
+> Steve, any ideas on how to solve this?
 
-I don't anticipate any need for things to operate differently to floppy disks.
+Just to clarify, subverting newrole isn't fatal to security, as newrole
+can only change to roles for which you are authorized in the policy, and
+that is enforced by the kernel.  newrole is _not_ like su.
 
-Device nodes for floppy disks don't change type when they are mounted.
+To answer your question, at the suggestion of James Morris, we
+overloaded the nosuid mount option back in July to also prohibit domain
+transitions on programs in the filesystem.  Hence, if you mount with
+nosuid, it won't matter whether any programs on the filesystem are
+labeled with an entrypoint type.
 
-However there is a more important issue, we can't allow anyone other than an 
-administrator to mount a ext3 file system from a floppy disk or other 
-removable media.  If we do then it would be trivial to create a file system 
-with a file of type newrole_exec_t and take over the system.
-
-Steve, any ideas on how to solve this?
+However, that isn't a full solution to the general problem, as you
+really want to be able to constrain the set of security contexts that
+can exist on files in a given filesystem.  Likely requires changes to
+mount(8) as well as the kernel and new mount options to support such
+functionality.  Simplest implementation is to just allow a single
+context to be applied to an entire filesystem via a mount option,
+similar to the existing uid= and gid= options.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
