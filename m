@@ -1,34 +1,42 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAMMAJIi008320
-	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 17:10:19 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAN6WZIi010070
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 01:32:36 -0500 (EST)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAMM8mlx012374
-	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 22:08:49 GMT
-Subject: Re: Ok, I know this has been asked before, but why is there an
-	ls_exec_t?
-From: Russell Coker <rcoker@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux list <selinux@tycho.nsa.gov>,
-   Stephen Smalley <sds@epoch.ncsc.mil>
-In-Reply-To: <41A24D29.1010000@redhat.com>
-References: <41A24D29.1010000@redhat.com>
-Content-Type: text/plain
-Date: Tue, 23 Nov 2004 09:10:12 +1100
-Message-Id: <1101161412.30097.85.camel@aeon>
-Mime-Version: 1.0
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAN6V25q024639
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 06:31:05 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Serge Hallyn <serge.hallyn@gmail.com>
+Subject: Re: learning about policies/transitions
+Date: Tue, 23 Nov 2004 15:21:39 +1100
+Cc: selinux@tycho.nsa.gov
+References: <46ce702f041103084530fe8539@mail.gmail.com> <1099657575.6373.5.camel@moss-spartans.epoch.ncsc.mil> <46ce702f041115081242f9f8e7@mail.gmail.com>
+In-Reply-To: <46ce702f041115081242f9f8e7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200411231521.42560.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ls_exec_t is for ftpd.  But as ftp servers seem to either be moving in
-the direction of minimal functionality and ls being built in or of
-maximum functionality which includes automatically running tar and gzip
-it seems that this isn't providing much benefit.
+On Tuesday 16 November 2004 03:12, Serge Hallyn <serge.hallyn@gmail.com> 
+wrote:
+> Thanks for your help, Stephen.  I've *briefly* looked around at the
+> inird and /bin/init sources, and can't find an initiial policy that
+> would be loaded before the root filesystem pivot_root.  I expect to
 
-On Mon, 2004-11-22 at 15:33 -0500, Daniel J Walsh wrote:
-> Is there really a good reason for hostname_exec_t?
+Only the initrd is running before pivot_root and the initrd does not load 
+policy any more.  So there is no policy loaded until after the root file 
+system is mounted as "/" and /sbin/init is executed.
 
-Yes, it means that we can reduce the access granted to initrc_t.  But if
-you have unlimitedRC then it provides no benefit.
+/sbin/init loads the policy and then re-exec's itself to transition from 
+kernel_t to init_t.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
