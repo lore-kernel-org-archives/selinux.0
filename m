@@ -1,43 +1,62 @@
-Subject: Re: Newrole in targeted mode
-From: Jaspreet Singh <jsingh@ensim.com>
-Reply-To: jsingh@ensim.com
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Nick Gray <nick-lists@austin.rr.com>, nsa <SELinux@tycho.nsa.gov>
-In-Reply-To: <1104259847.21391.107.camel@moss-spartans.epoch.ncsc.mil>
-References: <1104259373.22401.0.camel@hawaii.grays-systems.com>
-	 <1104259847.21391.107.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 30 Dec 2004 12:07:08 +0530
-Message-Id: <1104388628.3140.4.camel@jsingh>
+Date: Thu, 30 Dec 2004 18:04:23 +0000
+From: Dale Amon <amon@vnl.com>
+To: Jaspreet Singh <jsingh@ensim.com>
+Cc: Dale Amon <amon@vnl.com>, Erich Schubert <erich@debian.org>,
+   nsa <SELinux@tycho.nsa.gov>
+Subject: Re: Overlay Filesystem and SELinux
+Message-ID: <20041230180423.GB2981@vnl.com>
+References: <1098274225.12118.20.camel@jsingh.india.ensim.com> <20041020151031.GB21185@lkcl.net> <20041020174938.GL21185@lkcl.net> <1098887565.1620.15.camel@jsingh.india.ensim.com> <1104022405.29054.7.camel@wintermute.xmldesign.de> <1104050461.14672.6.camel@jsingh> <20041226125404.GA2459@vnl.com> <1104086350.19031.13.camel@jsingh>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DBIVS5p969aUjpLe"
+In-Reply-To: <1104086350.19031.13.camel@jsingh>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-I tried to search and couldn't find any threads on this question ..
+--DBIVS5p969aUjpLe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What are the basic differences between targeted and strict policies ..
+On Mon, Dec 27, 2004 at 12:09:10AM +0530, Jaspreet Singh wrote:
+> Thanx :) , Yes the official maintainers can answer that question better.
+> For all i know unionfs is been publicized at lkml and there are talks
+> for the same.
+>=20
+> Till recently, it just seemed to be an academic project. But now it has
+> gained momentum. I have used and extended 3 overlay file-systems .. and
+> this one seemed to be most promising and stable.
+>=20
+> It has some very good features like - adding/removing branches (i.e
+> directories ) from a union.
 
-All I know is .. there are lesser targeted domains/roles in target
-policy compared to strict and as a result most domains run in an
-unconfined_t domain.
+If anyone hasn't seen it already, there is an article
+on unionfs in this month's Linux Journal.
 
-Am I missing something ...
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
-On Tue, 2004-12-28 at 13:50 -0500, Stephen Smalley wrote:
-> newrole serves no purpose under targeted policy; users are unconfined.
-> setenforce 0 should work for you as root (from unconfined_t, of course,
-> which is what you should already be in for a user session).
+--DBIVS5p969aUjpLe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-You can add new users and roles in target policy also ... 
-In that case newrole should work as per the modified policies .. I am wrong ??
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Regards,
-Jaspreet
+iD8DBQFB1EMnZHES7UL0zXERAoNlAJ9qwAS0n3zecVvyX3E8YzlMRzhUmACcD7vc
+XTgRrWbt8esQA5GZOsTawrY=
+=/gCo
+-----END PGP SIGNATURE-----
 
--- 
-
+--DBIVS5p969aUjpLe--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
