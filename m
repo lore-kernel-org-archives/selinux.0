@@ -1,48 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1P9O7Rb028809
-	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 04:24:07 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1P9MWlK004870
-	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 09:22:32 GMT
-Received: from internode.on.net (bep1.adl2.internode.on.net [203.16.214.212])
-	by jazzswing.ncsc.mil  with ESMTP id i1P9MUOX004867
-	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 09:22:31 GMT
-Received: from internode.on.net (unverified [203.16.214.212])
-	by internode.on.net (SurgeMail 1.6e10) with ESMTP id 20060325
-	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 19:53:16 +1030 (CDT)
-From: "keen@internode.on.net" <keen@internode.on.net>
-Reply-to: keen@internode.on.net
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: I/O Redirect?
-Date: Wed, 25 Feb 2004 20:23:16 +1100
-Message-id: <403c6984.108.36cc.1234700170@internode.on.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1PBCCRb029090
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 06:12:12 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1PBCBQQ004013
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 11:12:11 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i1PBBxP0003986 for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 11:12:10 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: keen@internode.on.net, "keen@internode.on.net" <keen@internode.on.net>,
+   SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: I/O Redirect?
+Date: Wed, 25 Feb 2004 22:10:34 +1100
+References: <403c6984.108.36cc.1234700170@internode.on.net>
+In-Reply-To: <403c6984.108.36cc.1234700170@internode.on.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402252210.34582.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Wed, 25 Feb 2004 20:23, "keen@internode.on.net" <keen@internode.on.net> 
+wrote:
+> however, files which were created in /tmp using commands
+> such as:
+> ping 127.0.0.5 -c 4 > pingfile
+>
+> do not result in a user_ping_t context file being saved,
 
-I am experimenting with SELinux, while doing so, I have
-edited the ping.te to include
+When you do "command > file" the shell will create the file.  The context of 
+the file is determined at file creation time, therefore it is determined by 
+the context of the shell.
 
-domain_auto_trans(user_t, ping_exec_t, ping_t)
-type user_ping_t, file_type, sysadmfile;
-file_type_auto_trans(ping_t, tmp_t, user_ping_t)
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-however, files which were created in /tmp using commands
-such as:
-ping 127.0.0.5 -c 4 > pingfile
-
-do not result in a user_ping_t context file being saved,
-instead the result was a user_tmp_t . Is using redirection
-the cause of it? or is there anyway to produce the file with
-the desired context with I/O redirection?
-
-Any input is appreciated.
-
-Regards,
-Keen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
