@@ -1,56 +1,37 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA01809
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 08:41:16 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA12842
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 12:39:50 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA02249
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 09:46:38 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA03464
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 13:46:13 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA12838 for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 12:39:50 GMT
-Date: Mon, 24 Jun 2002 08:40:38 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id NAA03460
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 13:46:13 GMT
+Date: Mon, 24 Jun 2002 09:45:58 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ichsid
-In-Reply-To: <20020613230056.71DDA1F38@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0206240833080.10386-100000@raven>
+To: Oren Abe-P27525 <Abe.Oren@gd-decisionsystems.com>
+cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SE Linux loading procedure.
+In-Reply-To: <685C998FC4F39E48ABC93EABA534DEBD5690CA@AZ25EXM01N2.gddsi.com>
+Message-ID: <Pine.GSO.4.33.0206240944170.10386-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 14 Jun 2002, Russell Coker wrote:
+On Fri, 21 Jun 2002, Oren Abe-P27525 wrote:
 
-> I believe that we need a program "ichsid" to change the SID of a file by
-> Inode instead of by name.
+> Do you (or anybody) have a flow chart(s)
+> describe the SE Linux loading sequence.
 >
-> The reason for this is for the mount points of /dev, /proc, /usr, and other
-> file systems that are not easily/conveniantly umountable.
->
-> Providing this functionality as part of the setfiles ability to change the
-> context database directly when running on a non-SE kernel should not be
-> difficult, and would provide the minimum functionality for getting SE Linux
-> on a machine with a few reboots (boot into SE Linux, see messages such as the
-> following, boot into non-SE Linux to run setfiles, then boot SE again) or
-> with some debugfs work.
->
-> Providing it as part of the kernel interface would be even more useful.
+> Something like step-by-step of the main
+> modules and procedures that loads into the
+> memory during the boot process ?
 
-As you mention, providing the functionality in setfiles to directly update
-the persistent label mapping based on inode number should be
-straightforward, although I'm not sure about the right interface (e.g.
-just a command-line invocation or a new form of specification in
-file_contexts).  You would need to specify the particular filesystem as
-well as the inode number, so you might specify the path of any file
-within the filesystem, like statfs, and the particular inode number.
-
-A kernel interface to update the persistent label mapping for an
-inode number would likewise be straightforward, although it would bypass
-the typical search permission checks on the directories in the path that
-are performed by the existing chsid call.  However, finding the in-core
-inode (if one exists) so that we can update it with the new SID might pose
-a problem for filesystems where the inode number is not sufficient for
-finding files, like reiserfs.
+I'm not aware of any such flow chart for SELinux.  But keep in mind that
+the SELinux kernel is merely a modified form of the Linux kernel
+(Linux+the LSM kernel patch+the SELinux kernel module).
 
 --
 Stephen D. Smalley, NAI Labs
