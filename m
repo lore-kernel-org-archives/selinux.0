@@ -1,36 +1,34 @@
-Message-ID: <416172B8.1030200@redhat.com>
-Date: Mon, 04 Oct 2004 11:56:40 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Patch to restorecon to add -R switch
-References: <41584DCA.7030006@redhat.com> <1096904808.32008.53.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1096904808.32008.53.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94GAcrT018936
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 12:10:39 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94GAcs6017001
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 16:10:38 GMT
+Subject: Re: where is the modified login program's source code
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20040930141837.5407.qmail@web51503.mail.yahoo.com>
+References: <20040930141837.5407.qmail@web51503.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1096906078.32008.84.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 04 Oct 2004 12:07:58 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Thu, 2004-09-30 at 10:18, Park Lee wrote:
+>   I know that login is a modified daemon program. Now, I want to do
+> some work with the login program in SELinux. But, Where could I found
+> the modified login program's source code? It seems that it isn't
+> contained in Fedora Core 2.
+>   If you know the matter, please tell me about it.
 
->On Mon, 2004-09-27 at 13:28, Daniel J Walsh wrote:
->  
->
->>This will allow us to
->>
->>restorecon -R /dev in the initscripts.
->>
->>Also patch adds some fixed for fixfiles.
->>    
->>
->
->So, how does this differ from just running setfiles on /dev instead?
->
->  
->
-Setfiles allows for the specification of random file_context files so we 
-do not allow init to run setfiles.
-restorecon only reads the system file_context file.
+login now uses pam_selinux rather than a direct patch.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
