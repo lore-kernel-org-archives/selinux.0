@@ -1,81 +1,51 @@
-From: gawain.lynch@felicity-consulting.com.au
-To: SELinux@tycho.nsa.gov
-Subject: Re: Problem in installation...
-MIME-Version: 1.0
-Message-ID: <OF47CED767.27D7E95D-ONCA256A1D.007D6A98@felicity.net.au>
-Date: Thu, 29 Mar 2001 08:57:41 +1000
-Content-Type: text/plain; charset="us-ascii"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA03896
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 08:12:37 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA06573
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 13:12:31 GMT
+Received: from mailgw3a.lmco.com (mailgw3a.lmco.com [192.35.35.24])
+	by jazzband.ncsc.mil  with ESMTP id NAA06567
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 13:12:30 GMT
+Received: from emss04g01.ems.lmco.com ([166.17.13.122])
+	by mailgw3a.lmco.com (8.8.8/8.8.8) with ESMTP id IAA17082
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 08:12:35 -0500 (EST)
+Received: from CONVERSION-DAEMON by lmco.com (PMDF V5.2-32 #38890) id <0GAY00601NBJTQ@lmco.com> for selinux@tycho.nsa.gov;
+ Thu, 29 Mar 2001 08:11:44 -0500 (EST)
+Received: from emss04i00.ems.lmco.com ([166.17.13.135]) by lmco.com (PMDF V5.2-32 #38890)
+ with ESMTP id <0GAY001FHNBHDG@lmco.com> for selinux@tycho.nsa.gov; Thu, 29 Mar 2001 08:11:41 -0500 (EST)
+Date: Thu, 29 Mar 2001 08:13:42 -0500
+From: "Kutz, William R" <william.r.kutz@lmco.com>
+Subject: A New Virus
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Message-id: <079B626B05A0D3118B1000508B0EA5E90717EBE0@emss04m05.ems.lmco.com>
+MIME-version: 1.0
+Content-type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I tracked one of the problems down.  A lot of people, myself included seem 
-to be trying to compile with Red Hat 7. 
+There are reports of a new virus that infects both Windows and Linux
+platforms: 
+http://dailynews.yahoo.com/h/nm/20010327/wr/virus_winux_dc_1.html
 
-The RH7 install is missing egcs (provides 
-/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/), which I installed off 
-my RH6.2 CD, _reinstalled_ the updated gcc and no more stddef.h error!
+As the popularity of Linux grows, this will become more of the norm, and it
+would be interesting to know if a standard configuration of selinux is more
+capable of withstanding & controlling the infection and subsequent
+propagation of the virus. Real world examples like this can go a long way
+toward demonstrating the value of the security features prominent in systems
+like selinux.
 
-I still can't give anymore reasons as to the tools/build-kernel script 
-fails, but it will work if you have run make dep and commented that action 
-out of the script.
+Keep up the good work; I think this is a call that we clearly need more
+contributions like that provided by the team at NSA.
 
-Cheers,
-
-Gawain
-
-
-
-
-
-Stephen Smalley <sds@tislabs.com>
-Sent by: owner-selinux@tycho.nsa.gov
-03/29/01 06:59 AM
-
+Bill
  
-        To:     Rajan Ravindran <rajancr@us.ibm.com>
-        cc:     SELinux@tycho.nsa.gov
-        Subject:        Re: Problem in installation...
 
+Bill Kutz
 
-
-Several people have reported problems using the build-kernel script,
-but they haven't identified the exact nature of the problem, and
-it doesn't seem to occur on our RedHat 6.1 systems.  Try expanding
-a clean copy of the release and building the kernel by hand, e.g.
-
-tar xzf slinux-200103151617-release.tgz
-cd slinux
-ln -sf kernel-2.4 kernel
-cd kernel
-make xconfig
-                 (Configure the kernel appropriately for your hardware.)
-make dep
-make 
-make modules
-
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
-
-
-On Wed, 28 Mar 2001, Rajan Ravindran wrote:
-
-> 
-> Hi,
-> I started installing the security-enchanced linux as per the
-> procedure mentioned in
-> 
-> http://www.nsa.gov/selinux/doc/install.html
-> 
-> While building the kernel by running
-> 
-> ./tools/build-kernel
-> 
-> i'm getting an error "stddef.h not found", this
-> happening while running make xconfig itself (stddef.h is present
-> in kernel/linux/include directory). If anyone
-> knows the solution for this problem, please let me know.
-
+M&DS Lockheed Martin
+william.r.kutz@lmco.com
+610-354-7149
 
 
 
