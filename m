@@ -1,28 +1,39 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA26073
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 14:12:21 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA29068
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 18:10:30 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id SAA29063 for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 18:10:26 GMT
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: trivial logging bug
-Date: Mon, 30 Sep 2002 20:04:38 +0200
+To: Bennett Todd <bet@rahul.net>, selinux@tycho.nsa.gov
+Subject: Re: limiting types on a file system
+Date: Mon, 30 Sep 2002 20:11:53 +0200
+References: <200209251622.02323.russell@coker.com.au> <20020925215924.GI26806@snoopy.apana.org.au> <20020926125103.GA1592@rahul.net>
+In-Reply-To: <20020926125103.GA1592@rahul.net>
 MIME-Version: 1.0
-Message-Id: <200209302004.38709.russell@coker.com.au>
+Message-Id: <200209302011.53443.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-avc:  denied  { rmdir } for  pid=9631 exe=/bin/rm path=/rjc/.ssh/old (deleted) 
-dev=03:07 ino=3406 scontext=rjc:user_r:user_t 
-tcontext=system_u:object_r:user_home_ssh_t tclass=dir
+On Thu, 26 Sep 2002 14:51, Bennett Todd wrote:
+> Re the original problem of allowing end-users to use removable
+> media, notably a floppy, many years ago I was faced with that one,
+> and addressed it by making the raw floppy device read/write
+> accessible to the user, then providing a build of mtools, cmdline
+> utilities for copying files to and from MS-DOS formatted
+> filesystems. This worked well enough for them.
 
-The above is from an rmdir operation.  It seems that the dentry gets updated 
-with the new name BEFORE the operation is permitted so we get (deleted) in 
-the log message which is confusing.
+That will work as long as the disks are in DOS or TAR formats.
 
-I think that perhaps the logging code should be changed to remove the last 10 
-characters of the file name.
-
-However maybe it would be more correct in terms of code operation to have the 
-check earlier?  (I don't know I haven't looked at the code in question).
+Also to do that you would want to have a PAM module to relabel the floppy 
+device node to a type that the user can access (maybe the home directory type 
+for the user).  Don't want to have someone insert a floppy disk only to have 
+someone login over the network and copy all the data off...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
