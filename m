@@ -1,67 +1,178 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i470BaRb029338
-	for <selinux@tycho.nsa.gov>; Thu, 6 May 2004 20:11:36 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4709J5b015586
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 00:09:19 GMT
-Received: from c007.snv.cp.net (h011.c007.snv.cp.net [209.228.33.239])
-	by jazzswing.ncsc.mil  with SMTP id i4709Iql015583
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 00:09:19 GMT
-Date: Thu, 06 May 2004 20:11:07 -0400
-Subject: Re: Russell Coker Presentation
-From: Michael Pender <michael.pender@nanochron.com>
-To: Michael Pender <michael.pender@nanochron.com>, <yhslug@tux.org>,
-   "Novalug@Tux" <novalug@tux.org>, SE Linux <selinux@tycho.nsa.gov>,
-   <dclug@tux.org>
-CC: Jonathan Stanton <jstanton@gwu.edu>
-Message-ID: <BCC04C5B.A563%michael.pender@nanochron.com>
-In-Reply-To: <BCB1F5D8.A29B%michael.pender@nanochron.com>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i47F6ERb002722
+	for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 11:06:14 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i47F6CYW010159
+	for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 15:06:12 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+        by jazzband.ncsc.mil  with ESMTP id i47F6BBf010156 for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 15:06:12 GMT
+Date: Fri, 7 May 2004 11:06:04 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>, Chris Wright <chrisw@osdl.org>,
+   <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
+   <selinux@tycho.nsa.gov>
+Subject: [PATCH][SELINUX] 2/2 sock_create_lite()
+In-Reply-To: <Xine.LNX.4.44.0405071043540.21372@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0405071056300.21372-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/25/04 11:10 PM, "Michael Pender" <michael.pender@nanochron.com> wrote:
+This patch adds a function sock_create_lite(), deprecating kernel-wide use
+of sock_alloc(), which has been made static to net/socket.c.
 
-> On behalf of the Capital Area SE-Linux (CASEL) user group I would like to
-> invite you to a presentation by Russell Coker, one of the leading
-> contributors to the development of Security Enhanced (SE) Linux on his
-> recent work.  Russell will discuss his recent work in SE-Linux followed by
-> Questions & Answers.
-> 
-> The presentation will run from 6:00-7:30 on Friday, May 7, 2004.  Doors open
-> at 5:00 and seating is limited.
-> 
-> Russell:
->   Security Enhanced Linux from the NSA (http://www.nsa.gov/selinux/)
->   is a system for Mandatory Access Control that is used in addition
->   to Unix permission checks.  It provides fine grained access control
->   for all operations and is based on the domain-type model.
-> 
->   I have been working on SE Linux since mid 2001 and have been employed
->   by Red Hat to do SE Linux work for almost a year.
-> 
-> 
-> CASEL meetings are held in Suite 600 (ECE conference room) of the Academic
-> Center at George Washington University  (801 22nd St).
-> 
-> Campus map: http://www.gwu.edu/~map/pmap/GW_CampusMap.pdf
-> 
-> GWU is on the Orange and Blue Metro lines.  The Academic Center is between
-> the Foggy Bottom and Farragut West Metro stops.  Street parking is limited;
-> garage parking is available at the Marvin Center and University Garage as
-> indicated on the campus map.
-> 
-> RSVP appreciated.
-> 
-> - Michael Pender (michael.pender@nanochron.com)
+The purpose of this is to allow sockets created by the kernel in this way
+to be passed through the LSM socket creation hooks and be labeled and
+mediated in the same manner as other sockets.
 
-The presentation has been moved to the CS department conference room 736.
+This patches addresses a class of potential issues with LSMs, where such
+sockets will not be labeled correctly (if at all), or mediated during
+creation.  Under SELinux, it fixes a specific bug where RPC sockets
+created by the kernel during TCP NFS serving are unlabeled.
 
-Its at the same address, same building, and basically the same location in
-the building, just one floor up.
+Again, an equivalent to this patch has been tested in Fedora for several 
+weeks without any issues.
 
-- Mike
+Please apply.
+
+ include/linux/net.h         |    4 +++-
+ net/bluetooth/rfcomm/core.c |    6 ++----
+ net/netlink/af_netlink.c    |    4 +---
+ net/socket.c                |   25 +++++++++++++++++++++++--
+ net/sunrpc/svcsock.c        |   10 ++++++----
+ 5 files changed, 35 insertions(+), 14 deletions(-)
+
+diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/include/linux/net.h linux-2.6.6-rc3-mm2.w/include/linux/net.h
+--- linux-2.6.6-rc3-mm2.p/include/linux/net.h	2004-05-06 16:59:28.297706040 -0400
++++ linux-2.6.6-rc3-mm2.w/include/linux/net.h	2004-05-06 17:00:31.953028960 -0400
+@@ -146,11 +146,13 @@
+ extern int	     sock_wake_async(struct socket *sk, int how, int band);
+ extern int	     sock_register(struct net_proto_family *fam);
+ extern int	     sock_unregister(int family);
+-extern struct socket *sock_alloc(void);
++
+ extern int	     sock_create(int family, int type, int proto,
+ 				 struct socket **res);
+ extern int	     sock_create_kern(int family, int type, int proto,
+ 				      struct socket **res);
++extern int	     sock_create_lite(int family, int type, int proto,
++				      struct socket **res); 
+ extern void	     sock_release(struct socket *sock);
+ extern int   	     sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 				  size_t len);
+diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/bluetooth/rfcomm/core.c linux-2.6.6-rc3-mm2.w/net/bluetooth/rfcomm/core.c
+--- linux-2.6.6-rc3-mm2.p/net/bluetooth/rfcomm/core.c	2004-05-06 16:59:28.308704368 -0400
++++ linux-2.6.6-rc3-mm2.w/net/bluetooth/rfcomm/core.c	2004-05-06 17:01:47.483546576 -0400
+@@ -1642,11 +1642,9 @@
+ 
+ 	BT_DBG("session %p", s);
+ 
+-	nsock = sock_alloc();
+-	if (!nsock)
++	if (sock_create_lite(PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP, &nsock))
+ 		return;
+-
+-	nsock->type = sock->type;
++	
+ 	nsock->ops  = sock->ops;
+ 
+ 	__module_get(nsock->ops->owner);
+diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/netlink/af_netlink.c linux-2.6.6-rc3-mm2.w/net/netlink/af_netlink.c
+--- linux-2.6.6-rc3-mm2.p/net/netlink/af_netlink.c	2004-05-05 11:16:20.000000000 -0400
++++ linux-2.6.6-rc3-mm2.w/net/netlink/af_netlink.c	2004-05-06 17:02:10.679020328 -0400
+@@ -833,11 +833,9 @@
+ 	if (unit<0 || unit>=MAX_LINKS)
+ 		return NULL;
+ 
+-	if (!(sock = sock_alloc())) 
++	if (sock_create_lite(PF_NETLINK, SOCK_DGRAM, unit, &sock))
+ 		return NULL;
+ 
+-	sock->type = SOCK_RAW;
+-
+ 	if (netlink_create(sock, unit) < 0) {
+ 		sock_release(sock);
+ 		return NULL;
+diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/socket.c linux-2.6.6-rc3-mm2.w/net/socket.c
+--- linux-2.6.6-rc3-mm2.p/net/socket.c	2004-05-06 16:59:28.380693424 -0400
++++ linux-2.6.6-rc3-mm2.w/net/socket.c	2004-05-06 17:03:28.224231664 -0400
+@@ -457,7 +457,7 @@
+  *	NULL is returned.
+  */
+ 
+-struct socket *sock_alloc(void)
++static struct socket *sock_alloc(void)
+ {
+ 	struct inode * inode;
+ 	struct socket * sock;
+@@ -840,6 +840,27 @@
+ 	return err;
+ }
+ 
++int sock_create_lite(int family, int type, int protocol, struct socket **res)
++{
++	int err;
++	struct socket *sock = NULL;
++	
++	err = security_socket_create(family, type, protocol, 1);
++	if (err)
++		goto out;
++
++	sock = sock_alloc();
++	if (!sock) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	security_socket_post_create(sock, family, type, protocol, 1);
++	sock->type = type;
++out:
++	*res = sock;
++	return err;
++}
+ 
+ /* No kernel lock held - perfect */
+ static unsigned int sock_poll(struct file *file, poll_table * wait)
+@@ -1997,10 +2018,10 @@
+ /* ABI emulation layers need these two */
+ EXPORT_SYMBOL(move_addr_to_kernel);
+ EXPORT_SYMBOL(move_addr_to_user);
+-EXPORT_SYMBOL(sock_alloc);
+ EXPORT_SYMBOL(sock_alloc_inode);
+ EXPORT_SYMBOL(sock_create);
+ EXPORT_SYMBOL(sock_create_kern);
++EXPORT_SYMBOL(sock_create_lite);
+ EXPORT_SYMBOL(sock_map_fd);
+ EXPORT_SYMBOL(sock_recvmsg);
+ EXPORT_SYMBOL(sock_register);
+diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/sunrpc/svcsock.c linux-2.6.6-rc3-mm2.w/net/sunrpc/svcsock.c
+--- linux-2.6.6-rc3-mm2.p/net/sunrpc/svcsock.c	2004-05-06 16:59:28.386692512 -0400
++++ linux-2.6.6-rc3-mm2.w/net/sunrpc/svcsock.c	2004-05-06 17:13:31.919456040 -0400
+@@ -781,13 +781,15 @@
+ 	if (!sock)
+ 		return;
+ 
+-	if (!(newsock = sock_alloc())) {
+-		printk(KERN_WARNING "%s: no more sockets!\n", serv->sv_name);
++	err = sock_create_lite(PF_INET, SOCK_STREAM, IPPROTO_TCP, &newsock);
++	if (err) {
++		if (err == -ENOMEM)
++			printk(KERN_WARNING "%s: no more sockets!\n",
++			       serv->sv_name);
+ 		return;
+ 	}
+-	dprintk("svc: tcp_accept %p allocated\n", newsock);
+ 
+-	newsock->type = sock->type;
++	dprintk("svc: tcp_accept %p allocated\n", newsock);
+ 	newsock->ops = ops = sock->ops;
+ 
+ 	clear_bit(SK_CONN, &svsk->sk_flags);
+
+
+
 
 
 --
