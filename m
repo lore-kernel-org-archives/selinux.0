@@ -1,55 +1,37 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA26920
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 14:04:23 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA29836
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 19:02:26 GMT
-Received: from kenshin.yingternet.org (c-24-126-235-193.we.client2.attbi.com [24.126.235.193])
-        by jazzband.ncsc.mil  with ESMTP id TAA29832 for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 19:02:25 GMT
-Message-ID: <3DCAB933.1070608@yingternet.com>
-Date: Thu, 07 Nov 2002 11:04:19 -0800
-From: Ying-Hung Chen <ying@yingternet.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA27701
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 14:57:57 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA29680
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 19:55:58 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id TAA29674
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 19:55:57 GMT
+Message-Id: <200211072005.PAA07338@moss-shockers.ncsc.mil>
+Date: Thu, 7 Nov 2002 15:05:13 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: can_network()
+To: selinux@tycho.nsa.gov, tom@lemuria.org
 MIME-Version: 1.0
-To: Subba Rao <sailorn@attglobal.net>
-Cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux source
-References: <200211071724.RAA23033@jazzband.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
->
-> After extracting the compressed file, there are 2 directories.  One is 
-> LSM-2.4 and the other is SELINUX.  The LSM-2.4 tree looks
-> similar to what I usually download from the kernel.org site.
->  
->
-The files in LSM-2.4 is lsm patched kernel source , so it is not the 
-same as vanilla kernel source you download from http://www.kernel.org
+> speaking of that, shouldn't there be an every_domain_except_network
+> domain? I'd love to use every_domain instead of all the lower macros,
+> but it includes can_network(), which I don't want.
 
-> If it is similar, can I use "make xconfig" to configure SELinux?  (I 
-> am assuming X will work normally in SELinux).
->
-yes, you can run make xconfig to configure SELinux (remember, when you 
-are configuring SELinux, you are NOT running SELinux). You should not 
-run X on SELinux unless you really want to
+The goal is to largely eliminate the use of coarse-grained macros like
+every_domain() [and even its immediate "children"], replacing them with
+much finer-grained macros and/or individual rules to provide true least
+privilege.  Naturally, this will have a cost in terms of maintaining the
+policy.
 
-please refer to http://www.nsa.gov/selinux/doc/readme.html for details
-
->
-> Is the compilation process different for the source in SELINUX 
-> directory? Will "make bzImage" take care of the source in SELINUX 
-> directory?                                                                                                                
->
->  
->
-The above link also explain the compilation details,
-
--Ying
-
-
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
