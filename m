@@ -1,53 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA21288
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 06:00:05 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA21372
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 06:14:13 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id JAA04789
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 09:59:21 GMT
+	by jazzswing.ncsc.mil  with ESMTP id KAA05338
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 10:13:28 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id JAA04785
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 09:59:19 GMT
+	by jazzswing.ncsc.mil  with ESMTP id KAA05334
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 10:13:27 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>, Frank Mayer <mayerf@tresys.com>
-Subject: Re: policy_src_t
-Date: Tue, 23 Jul 2002 11:59:54 +0200
-Cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0207220745520.4503-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0207220745520.4503-100000@raven>
+To: Stephen Smalley <sds@tislabs.com>,
+        Ryan Bergauer <privateryan@mindspring.com>
+Subject: Re: user mount permissions
+Date: Tue, 23 Jul 2002 12:14:02 +0200
+Cc: <selinux@tycho.nsa.gov>, Brian May <bam@debian.org>
+References: <Pine.GSO.4.33.0207170742190.18645-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0207170742190.18645-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020723095954.920417CC4@lyta.coker.com.au>
+Message-Id: <20020723101402.BBAE56D13@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 22 Jul 2002 13:50, Stephen Smalley wrote:
-> On Fri, 19 Jul 2002, Frank Mayer wrote:
-> > Is the type policy_src_t being used?  It doesn't appear so.  We're trying
-> > to update our tools to work with the recent policy syntax changes, as
-> > well as create a policy for our tools themselves.  We need to read,
-> > modify, and re-install a policy in an operational system.  As previously
-> > indicated, that requires an installed policy.conf (we'll submit a
-> > proposed patch to the makefile to do this next week).
-> >
-> > In addition, for now we also need a known location for the policy source
-> > make directory.  It seems logical that this directory would also have
-> > policy_src_t.  If there are no specific plans to use this type, then
-> > we'll be glad to submit a proposed use.  If there are plans, we'd like to
-> > hear what they are so we can make our tools work within those plans.
-> > Thanks
+On Wed, 17 Jul 2002 13:45, Stephen Smalley wrote:
+> On Tue, 16 Jul 2002, Ryan Bergauer wrote:
+> > I'm want to allow users to be able to mount an encrypted directory in
+> > their home directory. Unfortunately, this requires allowing normal users
+> > to transition into mount_t via a mount executable, which I think would
+> > be wise to avoid. Is there a good way to allow users to mount only a
+> > certain type, say user_home_t (or in my case, crypt_home_t)? Thanks!
 >
-> The policy/file_contexts/types.fc file specifies the policy_src_t type for
-> /etc/selinux, /usr/lib/selinux, and /usr/share/selinux.  I think that
-> these entries are based on Russell Coker's SE-Debian package, which
-> installs the policy sources, unlike the existing upstream SELinux.
+> You could create a user_mount_t domain (copied from mount_t, defining a
+> domain transition to it from user_t, and then reducing the permissions).
+> You may be able to use the directory 'mounton' and the filesystem 'mount'
+> permissions to limit the user to particular types, but I'm not sure about
+> the specific permission requirements for what you describe.
 
-Yes, my package uses the type, but doesn't do anything exciting with it.
-
-If you want to change the policy to allow a certain domain write access to 
-the policy then that's an option you have.  I have not felt the need to make 
-such things into the default policy.
+Brian, how's your work on this going?  Got anything ready to post here?
 
 -- 
 I do not get viruses because I do not use MS software.
