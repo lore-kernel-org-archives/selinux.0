@@ -1,31 +1,48 @@
-Date: Fri, 13 Sep 2002 08:25:29 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: apache configuration etc
-Message-ID: <20020912222529.GA4111@snoopy.apana.org.au>
-References: <200209122135.40681.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200209122135.40681.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA03380
+	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 18:49:44 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA19393
+	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 22:48:00 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id WAA19389 for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 22:47:58 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Brian May <bam@snoopy.apana.org.au>
+Subject: Re: Problems compiling selinux on SuSe 7.2
+Date: Fri, 13 Sep 2002 00:49:30 +0200
+Cc: selinux@tycho.nsa.gov
+References: <1031756508.3d7f5adca337f@qmc.ufsc.br> <200209120843.20157.russell@coker.com.au> <20020912220926.GD3486@snoopy.apana.org.au>
+In-Reply-To: <20020912220926.GD3486@snoopy.apana.org.au>
+MIME-Version: 1.0
+Message-Id: <200209130049.30574.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 12, 2002 at 09:35:40PM +0200, Russell Coker wrote:
-> I think that the Apache policy should be macroised.
+On Fri, 13 Sep 2002 00:09, Brian May wrote:
+> > Are you sure you want to take over the woody port of SE Linux?
+>
+> I have already done most of the packages, there are only two
+> more left...
 
-For a good example of why it should be macroised, have a look at
-the openca stuff.
+Great!  Please put a notice here and on debian-devel with the settings for APT 
+when it's complete, and I'll remove my repository of woody packages.
 
-I seem to recall copying large parts of the apache config, but
-it should really be shared instead.
+Also some people here like to know how many downloads there are.  Posting 
+regularly summaries or publishing a URL for webstats would be appreciated.
 
-I think the same thing would apply to other CGI scripts.
+Finally, it would be best if you put them on sws as your server doesn't have 
+enough bandwidth (you could do what I do and prepare them locally and use 
+rsync).
 
-Especially, for instance, CGI scripts that require passwords
-to access SQL based databases, etc.
 -- 
-Brian May <bam@snoopy.apana.org.au>
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
