@@ -1,62 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA14392
-	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 08:30:44 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA26939
-	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 12:29:07 GMT
-Received: from smails.columbia.tresys.com ([66.200.42.2])
-        by jazzband.ncsc.mil  with ESMTP id MAA26935 for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 12:29:06 GMT
-From: "david caplan" <dac@tresys.com>
-To: "Samarth  Sharma" <samarth7880@rediffmail.com>, <selinux@tycho.nsa.gov>
-Subject: RE:
-Date: Fri, 9 Aug 2002 08:32:34 -0400
-Message-ID: <GBEAJBKHFOBIBBJBCGAGIEGFCEAA.dac@tresys.com>
+Message-Id: <200208091352.NAA00864@jazzband.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: security context for temporalily mounted filesystems
+Date: Fri, 9 Aug 2002 15:51:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <20020809120131.14012.qmail@webmail10.rediffmail.com>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_Y5XKO8D8BJSQQ5XXCYHJ"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The security checks performed by the SELinux mechanism are orthogonal to the
-normal/standard Linux permission checks.  I.e., both most be satisfied for
-access to be granted.  For example, read access to a file is granted only if
-the user is allowed read access via the protection bits *and* the SELinux
-policy allows the domain, which the user is currently in, access to the
-object type the file is labeled with.
 
-So, if the protection bits preclude the user from reading the file *or*
-SELinux does not specifically allow access to the object from the current
-domain then access is denied.
+--------------Boundary-00=_Y5XKO8D8BJSQQ5XXCYHJ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-David
+Hi!
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
-Behalf Of Samarth Sharma
-Sent: Friday, August 09, 2002 8:02 AM
-To: selinux@tycho.nsa.gov
-Subject:
+last days I labelling the mount point (/floppy, /cdrom, ..) and the=20
+correspond links as root_t.
+I think, it is good to add this to the standard distribution.
 
+Carsten
+--------------Boundary-00=_Y5XKO8D8BJSQQ5XXCYHJ
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="types.fc"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="types.fc"
 
-hi,
-  is it possible to override the Linux uid permission checks using
-the SELinux policy??
-thanks
-samarth
-__________________________________________________________
-Give your Company an email address like
-ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
-Know more. http://www.rediffmailpro.com/signup/
+CiMKIyBUZW1wb3JhcmlseSBtb3VudGVkIGZpbGVzeXN0ZW1zIAojCi9tZWRpYSh8Ly4qKT8JCQlz
+eXN0ZW1fdTpvYmplY3Rfcjpyb290X3QKL21udCh8Ly4qKT8JCQlzeXN0ZW1fdTpvYmplY3Rfcjpy
+b290X3QKL2Nkcm9tCQkJCXN5c3RlbV91Om9iamVjdF9yOnJvb3RfdAovY2RydwkJCQlzeXN0ZW1f
+dTpvYmplY3Rfcjpyb290X3QKL2Zsb3BweQkJCQlzeXN0ZW1fdTpvYmplY3Rfcjpyb290X3QK
 
+--------------Boundary-00=_Y5XKO8D8BJSQQ5XXCYHJ
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="types.fc.asc"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="types.fc.asc"
 
---
-You have received this message because you are subscribed to the selinux
-list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0KVmVyc2lvbjogR251UEcgdjEuMC42IChHTlUv
+TGludXgpCkNvbW1lbnQ6IFdlaXRlcmUgSW5mb3M6IHNpZWhlIGh0dHA6Ly93d3cuZ251cGcub3Jn
+CgppRVlFQUJFQ0FBWUZBajFUeUFnQUNna1E0b2FOUVAwdFdYQWQ3Z0NnZ0JUZ29qN0VBdWd3Vnk5
+VmZMQ0JLK3lyCldMd0FvSVpJcURlSlM4MHFPODlxMlBxNFdlenQzQUFNCj1jUUhoCi0tLS0tRU5E
+IFBHUCBTSUdOQVRVUkUtLS0tLQo=
 
+--------------Boundary-00=_Y5XKO8D8BJSQQ5XXCYHJ--
 
 --
 You have received this message because you are subscribed to the selinux list.
