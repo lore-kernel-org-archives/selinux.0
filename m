@@ -1,67 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA00671
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 10:00:45 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA17883
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 13:59:06 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA00967
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 10:32:50 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA03146
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 14:30:59 GMT
 Received: from nox.lemuria.org ([213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id NAA17879
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 13:59:03 GMT
-Date: Tue, 8 Oct 2002 16:00:33 +0200
+        by jazzband.ncsc.mil  with ESMTP id OAA03142 for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 14:30:57 GMT
+Date: Tue, 8 Oct 2002 16:32:46 +0200
 From: Tom <tom@lemuria.org>
 To: selinux@tycho.nsa.gov
-Subject: Apache 2 file contexts
-Message-ID: <20021008160033.A5253@lemuria.org>
+Subject: /proc woes
+Message-ID: <20021008163245.A5508@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Having just installed Apache 2 (from the sid Debian packages) on my
-SELinux test system, I found that it works flawless once some additions
-to the apache.fc file have been made. Here's a preliminary patch, I
-haven't yet experimented with CGIs, vhosts and SSL:
+Forget my last posting. I noticed a few seconds after pressing send
+that of course all that is no good because /proc is not a supported
+filesystem.
+
+So instead of having a patch, I have a question: My /proc is file_t:
+
+dr-xr-xr-x  root     root     system_u:object_r:file_t         proc
+
+Doing a chcon manually fails:
+
+# chcon system_u:object_r:proc_t /proc
+chcon: /proc: Permission denied
 
 
-*** /usr/share/selinux/policy/default/file_contexts/program/apache.fc   Wed Oct  2 02:12:59 2002
---- apache.fc   Tue Oct  8 17:54:13 2002
-***************
-*** 9,22 ****
-  /etc/httpd/conf(/.*)?         system_u:object_r:httpd_config_t
-  /etc/httpd/logs                       system_u:object_r:httpd_log_files_t
-  /etc/httpd/modules            system_u:object_r:httpd_modules_t
-  /usr/lib/apache(/.*)?         system_u:object_r:httpd_modules_t
-  /usr/sbin/httpd                       system_u:object_r:httpd_exec_t
-  /usr/sbin/apache              system_u:object_r:httpd_exec_t
-  /usr/sbin/suexec              system_u:object_r:httpd_suexec_exec_t
-  /usr/lib/cgi-bin/(nph-)?cgiwrap(d)? system_u:object_r:httpd_suexec_exec_t
-  /usr/lib/apache/suexec                system_u:object_r:httpd_suexec_exec_t
-  /var/log/httpd(/.*)?          system_u:object_r:httpd_log_files_t
-! /var/log/apache(/.*)?         system_u:object_r:httpd_log_files_t
-  /var/log/cgiwrap.log.*                system_u:object_r:httpd_log_files_t
-  /var/cache/ssl.*\.sem         system_u:object_r:httpd_cache_t
-! /var/run/apache.pid.*         system_u:object_r:httpd_var_run_t
---- 9,28 ----
-  /etc/httpd/conf(/.*)?         system_u:object_r:httpd_config_t
-  /etc/httpd/logs                       system_u:object_r:httpd_log_files_t
-  /etc/httpd/modules            system_u:object_r:httpd_modules_t
-+ /etc/apache(2)?(/.*)?         system_u:object_r:httpd_config_t
-+ /etc/vhosts                   system_u:object_r:httpd_config_t
-+ /usr/lib/cgi-bin(/.*)?                system_u:object_r:httpd_sys_script_t
-  /usr/lib/apache(/.*)?         system_u:object_r:httpd_modules_t
-+ /usr/lib/apache2/modules(/.*)?        system_u:object_r:httpd_modules_t
-  /usr/sbin/httpd                       system_u:object_r:httpd_exec_t
-  /usr/sbin/apache              system_u:object_r:httpd_exec_t
-+ /usr/sbin/apache2             system_u:object_r:httpd_exec_t
-  /usr/sbin/suexec              system_u:object_r:httpd_suexec_exec_t
-+ /usr/lib/apache2/suexec2      system_u:object_r:httpd_suexec_exec_t
-  /usr/lib/cgi-bin/(nph-)?cgiwrap(d)? system_u:object_r:httpd_suexec_exec_t
-  /usr/lib/apache/suexec                system_u:object_r:httpd_suexec_exec_t
-  /var/log/httpd(/.*)?          system_u:object_r:httpd_log_files_t
-! /var/log/apache(2)?(/.*)?     system_u:object_r:httpd_log_files_t
-  /var/log/cgiwrap.log.*                system_u:object_r:httpd_log_files_t
-  /var/cache/ssl.*\.sem         system_u:object_r:httpd_cache_t
-! /var/run/apache(2)?.pid.*     system_u:object_r:httpd_var_run_t
+So, what went wrong and what can I do to fix it?
 
 
 -- 
