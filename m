@@ -1,73 +1,737 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95DEjrT025758
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 09:14:45 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95DDbPe017138
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 13:13:38 GMT
-Message-ID: <41629E45.8050107@gentoo.org>
-Date: Tue, 05 Oct 2004 09:14:45 -0400
-From: Joshua Brindle <method@gentoo.org>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95FgQrT027025
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 11:42:26 -0400 (EDT)
+Message-ID: <4162C0C6.9090704@redhat.com>
+Date: Tue, 05 Oct 2004 11:41:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: petre rodan <kaiowas@gentoo.org>
-CC: selinux@tycho.nsa.gov
-Subject: Re: gentoo diff for ntpd
-References: <41625A62.7080609@gentoo.org>
-In-Reply-To: <41625A62.7080609@gentoo.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: jwcart2@epoch.ncsc.mil
+CC: Russell Coker <russell@coker.com.au>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: policy patches
+References: <200409292354.15227.russell@coker.com.au>	 <200409300620.41527.russell@coker.com.au>	 <1096648965.13366.35.camel@moss-lions.epoch.ncsc.mil>	 <200410020344.04225.russell@coker.com.au> <1096920735.3235.17.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1096920735.3235.17.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------070207020301040303050302"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Since peter forgot to introduce himself :) he just started with gentoo 
-to give us some badly needed policy help which will hopefully allow us 
-to start sending more policy upstream. Thanks peter
+This is a multi-part message in MIME format.
+--------------070207020301040303050302
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Also, this diff is to make openntpd work with the current ntp policy, so 
-  a tunable other than distro_gentoo might be appropriate, or none at all.
+Submitting patches against latest policy again.
 
-Joshua Brindle
+Dan
 
+--------------070207020301040303050302
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
-petre rodan wrote:
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/passwd.te policy-1.17.27/domains/program/passwd.te
+--- nsapolicy/domains/program/passwd.te	2004-09-23 15:08:59.000000000 -0400
++++ policy-1.17.27/domains/program/passwd.te	2004-10-05 11:36:08.000000000 -0400
+@@ -42,7 +42,7 @@
+ allow $1_t etc_t:lnk_file read;
+ 
+ # Use capabilities.
+-allow $1_t self:capability { chown dac_override fsetid setuid sys_resource };
++allow $1_t self:capability { chown dac_override fsetid setuid setgid sys_resource };
+ 
+ # Access terminals.
+ allow $1_t { ttyfile ptyfile }:chr_file rw_file_perms;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/amanda.te policy-1.17.27/domains/program/unused/amanda.te
+--- nsapolicy/domains/program/unused/amanda.te	2004-08-27 09:30:29.000000000 -0400
++++ policy-1.17.27/domains/program/unused/amanda.te	2004-10-05 11:36:08.000000000 -0400
+@@ -33,7 +33,6 @@
+ 
+ type amanda_t, domain, privlog;
+ role system_r types amanda_t;
+-type amandaidx_port_t, port_type;
+ 
+ # type for the amanda executables
+ type amanda_exec_t, file_type, sysadmfile, exec_type;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/comsat.te policy-1.17.27/domains/program/unused/comsat.te
+--- nsapolicy/domains/program/unused/comsat.te	2004-09-30 20:48:48.000000000 -0400
++++ policy-1.17.27/domains/program/unused/comsat.te	2004-10-05 11:36:08.000000000 -0400
+@@ -11,7 +11,10 @@
+ # comsat_exec_t is the type of the comsat executable.
+ #
+ 
+-type comsat_port_t, port_type;
+-inetd_child_domain(comsat, udp)
+-allow comsat_t initrc_var_run_t:file { read lock };
++inetd_child_domain(comsat,udp)
++allow comsat_t initrc_var_run_t:file r_file_perms;
+ dontaudit comsat_t initrc_var_run_t:file write;
++allow comsat_t mail_spool_t:dir r_dir_perms;
++allow comsat_t mail_spool_t:lnk_file { read };
++allow comsat_t var_spool_t:dir { search };
++dontaudit comsat_t sysadm_tty_device_t:chr_file { getattr };
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/cups.te policy-1.17.27/domains/program/unused/cups.te
+--- nsapolicy/domains/program/unused/cups.te	2004-09-27 20:48:35.000000000 -0400
++++ policy-1.17.27/domains/program/unused/cups.te	2004-10-05 11:36:08.000000000 -0400
+@@ -45,6 +45,7 @@
+ ')
+ 
+ ifdef(`inetd.te', `
++allow inetd_t printer_port_t:tcp_socket { name_bind };
+ domain_auto_trans(inetd_t, cupsd_exec_t, cupsd_t)
+ ')
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dbskkd.te policy-1.17.27/domains/program/unused/dbskkd.te
+--- nsapolicy/domains/program/unused/dbskkd.te	2004-09-27 15:04:34.000000000 -0400
++++ policy-1.17.27/domains/program/unused/dbskkd.te	2004-10-05 11:36:08.000000000 -0400
+@@ -10,5 +10,4 @@
+ # dbskkd_exec_t is the type of the dbskkd executable.
+ #
+ 
+-type dbskkd_port_t, port_type;
+ inetd_child_domain(dbskkd)
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hald.te policy-1.17.27/domains/program/unused/hald.te
+--- nsapolicy/domains/program/unused/hald.te	2004-09-27 20:48:35.000000000 -0400
++++ policy-1.17.27/domains/program/unused/hald.te	2004-10-05 11:36:08.000000000 -0400
+@@ -61,4 +61,3 @@
+ allow hald_t usbfs_t:file { getattr read };
+ allow hald_t bin_t:lnk_file read;
+ dontaudit hald_t selinux_config_t:dir { search };
+-dontaudit hald_t userdomain:fd { use };
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/inetd.te policy-1.17.27/domains/program/unused/inetd.te
+--- nsapolicy/domains/program/unused/inetd.te	2004-09-27 20:48:35.000000000 -0400
++++ policy-1.17.27/domains/program/unused/inetd.te	2004-10-05 11:36:08.000000000 -0400
+@@ -12,13 +12,11 @@
+ #
+ type telnet_port_t, port_type;
+ type biff_port_t, port_type;
+-type amidxtape_port_t, port_type;
+ 
+ #################################
+ #
+ # Rules for the inetd_t domain.
+ #
+-type inetd_port_t, port_type;
+ 
+ daemon_domain(inetd, `, nscd_client_domain ifdef(`unlimitedInetd', `,admin, etc_writer, fs_domain, auth_write, privmem')' )
+ 
+@@ -50,21 +48,11 @@
+ ifdef(`ftpd.te', `allow inetd_t ftp_port_t:tcp_socket name_bind;')
+ ifdef(`rlogind.te', `allow inetd_t rlogin_port_t:tcp_socket name_bind;')
+ ifdef(`rshd.te', `allow inetd_t rsh_port_t:tcp_socket name_bind;')
+-ifdef(`amanda.te', `allow inetd_t amanda_port_t:tcp_socket name_bind;')
+-ifdef(`swat.te', `allow inetd_t swat_port_t:tcp_socket name_bind;')
+-ifdef(`amanda.te', `
+-allow inetd_t biff_port_t:tcp_socket name_bind;
+-allow inetd_t biff_port_t:udp_socket name_bind;
+-allow inetd_t amidxtape_port_t:tcp_socket name_bind;
+-')
+ ifdef(`talk.te', `
+ allow inetd_t talk_port_t:tcp_socket name_bind;
+ allow inetd_t ntalk_port_t:tcp_socket name_bind;
+ ')
+ 
+-# allow to bind to chargen, echo, etc
+-allow inetd_t inetd_port_t:{ tcp_socket udp_socket } name_bind;
+-
+ # Communicate with the portmapper.
+ ifdef(`portmap.te', `can_udp_send(inetd_t, portmap_t)')
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ktalkd.te policy-1.17.27/domains/program/unused/ktalkd.te
+--- nsapolicy/domains/program/unused/ktalkd.te	2004-09-30 20:48:48.000000000 -0400
++++ policy-1.17.27/domains/program/unused/ktalkd.te	2004-10-05 11:36:08.000000000 -0400
+@@ -10,6 +10,4 @@
+ # ktalkd_exec_t is the type of the ktalkd executable.
+ #
+ 
+-type ktalkd_port_t, port_type;
+-inetd_child_domain(ktalkd, udp)
+-allow inetd_t ktalkd_port_t:udp_socket name_bind;
++inetd_child_domain(ktalkd,udp)
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rhgb.te policy-1.17.27/domains/program/unused/rhgb.te
+--- nsapolicy/domains/program/unused/rhgb.te	2004-09-27 20:48:35.000000000 -0400
++++ policy-1.17.27/domains/program/unused/rhgb.te	2004-10-05 11:36:08.000000000 -0400
+@@ -29,7 +29,7 @@
+ # for ramfs file systems
+ allow rhgb_t ramfs_t:dir { setattr rw_dir_perms };
+ allow rhgb_t ramfs_t:sock_file create_file_perms;
+-allow rhgb_t ramfs_t:file unlink;
++allow rhgb_t ramfs_t:{ file fifo_file } create_file_perms;
+ allow insmod_t ramfs_t:file write;
+ allow insmod_t rhgb_t:fd use;
+ 
+@@ -84,4 +84,9 @@
+ ifdef(`firstboot.te', `
+ allow rhgb_t firstboot_rw_t:file r_file_perms;
+ ')
+-
++dontaudit rhgb_t tmp_t:dir { search };
++allow rhgb_t xdm_xserver_t:process { sigkill };
++allow domain rhgb_devpts_t:chr_file { read write };
++ifdef(`fsadm.te', `
++dontaudit fsadm_t ramfs_t:fifo_file { write };
++')
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rpm.te policy-1.17.27/domains/program/unused/rpm.te
+--- nsapolicy/domains/program/unused/rpm.te	2004-10-01 15:05:31.000000000 -0400
++++ policy-1.17.27/domains/program/unused/rpm.te	2004-10-05 11:36:08.000000000 -0400
+@@ -152,7 +152,7 @@
+ can_exec_any(rpm_script_t)
+ 
+ # Capabilties needed by rpm scripts utils
+-allow rpm_script_t self:capability { chown dac_override dac_read_search fowner fsetid setgid setuid ipc_lock sys_chroot mknod };
++allow rpm_script_t self:capability { chown dac_override dac_read_search fowner fsetid setgid setuid ipc_lock sys_chroot sys_nice mknod };
+ 
+ # ideally we would not need this
+ allow rpm_script_t { file_type - shadow_t }:dir create_dir_perms;
+@@ -172,7 +172,7 @@
+ allow crond_t rpm_t:fifo_file r_file_perms;
+ ')
+ 
+-allow rpm_script_t proc_t:dir { search getattr };
++allow rpm_script_t proc_t:dir { search getattr read };
+ allow rpm_script_t proc_t:{ file lnk_file } r_file_perms;
+ 
+ allow rpm_script_t devtty_t:chr_file rw_file_perms;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rsync.te policy-1.17.27/domains/program/unused/rsync.te
+--- nsapolicy/domains/program/unused/rsync.te	2004-09-27 15:04:35.000000000 -0400
++++ policy-1.17.27/domains/program/unused/rsync.te	2004-10-05 11:36:08.000000000 -0400
+@@ -10,5 +10,4 @@
+ # rsync_exec_t is the type of the rsync executable.
+ #
+ 
+-type rsync_port_t, port_type;
+ inetd_child_domain(rsync)
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/sendmail.te policy-1.17.27/domains/program/unused/sendmail.te
+--- nsapolicy/domains/program/unused/sendmail.te	2004-09-10 11:01:02.000000000 -0400
++++ policy-1.17.27/domains/program/unused/sendmail.te	2004-10-05 11:36:08.000000000 -0400
+@@ -65,11 +65,6 @@
+ # Read /usr/lib/sasl2/.*
+ allow sendmail_t lib_t:file { getattr read };
+ 
+-# /usr/sbin/sendmail asks for w access to utmp, but it will operate
+-# correctly without it.  Do not audit write and lock denials to utmp.
+-allow sendmail_t initrc_var_run_t:file { getattr read };
+-dontaudit sendmail_t initrc_var_run_t:file { lock write };
+-
+ # When sendmail runs as user_mail_domain, it needs some extra permissions
+ # to update /etc/mail/statistics.
+ allow user_mail_domain etc_mail_t:file rw_file_perms;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/slrnpull.te policy-1.17.27/domains/program/unused/slrnpull.te
+--- nsapolicy/domains/program/unused/slrnpull.te	2004-03-31 12:59:08.000000000 -0500
++++ policy-1.17.27/domains/program/unused/slrnpull.te	2004-10-05 11:36:08.000000000 -0400
+@@ -19,3 +19,5 @@
+ ')
+ system_crond_entry(slrnpull_exec_t, slrnpull_t)
+ allow userdomain slrnpull_spool_t:dir { search };
++rw_dir_create_file(slrnpull_t, slrnpull_spool_t)
++allow slrnpull_t var_spool_t:dir { search };
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/snmpd.te policy-1.17.27/domains/program/unused/snmpd.te
+--- nsapolicy/domains/program/unused/snmpd.te	2004-09-09 16:22:12.000000000 -0400
++++ policy-1.17.27/domains/program/unused/snmpd.te	2004-10-05 11:36:08.000000000 -0400
+@@ -24,6 +24,7 @@
+ 
+ # for the .index file
+ var_lib_domain(snmpd)
++file_type_auto_trans(snmpd_t, { var_t }, snmpd_var_lib_t, dir)
+ file_type_auto_trans(snmpd_t, { usr_t var_t }, snmpd_var_lib_t, file)
+ typealias snmpd_var_lib_t alias snmpd_var_rw_t;
+ 
+@@ -70,3 +71,5 @@
+ allow snmpd_t var_lib_nfs_t:dir search;
+ 
+ dontaudit snmpd_t domain:dir { getattr search };
++
++dontaudit snmpd_t selinux_config_t:dir { search };
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/swat.te policy-1.17.27/domains/program/unused/swat.te
+--- nsapolicy/domains/program/unused/swat.te	2004-09-27 15:04:35.000000000 -0400
++++ policy-1.17.27/domains/program/unused/swat.te	2004-10-05 11:36:08.000000000 -0400
+@@ -10,5 +10,4 @@
+ # swat_exec_t is the type of the swat executable.
+ #
+ 
+-type swat_port_t, port_type;
+ inetd_child_domain(swat)
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/tvtime.te policy-1.17.27/domains/program/unused/tvtime.te
+--- nsapolicy/domains/program/unused/tvtime.te	1969-12-31 19:00:00.000000000 -0500
++++ policy-1.17.27/domains/program/unused/tvtime.te	2004-10-05 11:36:08.000000000 -0400
+@@ -0,0 +1,12 @@
++#DESC tvtime - a high quality television application
++#
++# Domains for the tvtime program.
++# Author     :  Dan Walsh <dwalsh@redhat.com>
++#
++# tvtime_exec_t is the type of the tvtime executable.
++#
++type tvtime_exec_t, file_type, sysadmfile, exec_type;
++type tvtime_dir_t, file_type, sysadmfile, pidfile;
++
++# Everything else is in the tvtime_domain macro in
++# macros/program/tvtime_macros.te.
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/udev.te policy-1.17.27/domains/program/unused/udev.te
+--- nsapolicy/domains/program/unused/udev.te	2004-10-01 15:05:31.000000000 -0400
++++ policy-1.17.27/domains/program/unused/udev.te	2004-10-05 11:36:08.000000000 -0400
+@@ -107,3 +107,4 @@
+ allow udev_t device_t:dir { relabelfrom relabelto create_dir_perms };
+ allow udev_t sysctl_modprobe_t:file { getattr read };
+ allow udev_t udev_t:rawip_socket create_socket_perms;
++dontaudit  udev_t domain:dir r_dir_perms;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/vpnc.te policy-1.17.27/domains/program/unused/vpnc.te
+--- nsapolicy/domains/program/unused/vpnc.te	1969-12-31 19:00:00.000000000 -0500
++++ policy-1.17.27/domains/program/unused/vpnc.te	2004-10-05 11:36:08.000000000 -0400
+@@ -0,0 +1,30 @@
++#DESC vpnc
++#
++# Author:  Dan Walsh <dwalsh@redhat.com>
++#
++
++#################################
++#
++# Rules for the vpnc_t domain, et al.
++#
++# vpnc_t is the domain for the vpnc program.
++# vpnc_exec_t is the type of the vpnc executable.
++#
++daemon_domain(vpnc)
++
++allow vpnc_t { random_device_t urandom_device_t }:chr_file read;
++
++# Use the network.
++can_network(vpnc_t)
++can_ypbind(vpnc_t)
++
++# Use capabilities.
++allow vpnc_t self:capability { net_admin ipc_lock net_bind_service net_raw };
++
++allow vpnc_t devpts_t:dir search;
++allow vpnc_t etc_t:file { getattr read };
++allow vpnc_t tun_tap_device_t:chr_file { ioctl read write };
++allow vpnc_t vpnc_t:rawip_socket create_socket_perms;
++allow vpnc_t vpnc_t:unix_dgram_socket create_socket_perms;
++allow vpnc_t vpnc_t:unix_stream_socket create_socket_perms;
++allow vpnc_t admin_tty_type:chr_file rw_file_perms;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xdm.te policy-1.17.27/domains/program/unused/xdm.te
+--- nsapolicy/domains/program/unused/xdm.te	2004-09-10 11:01:02.000000000 -0400
++++ policy-1.17.27/domains/program/unused/xdm.te	2004-10-05 11:36:08.000000000 -0400
+@@ -215,6 +215,7 @@
+ dontaudit xdm_t misc_device_t:file_class_set rw_file_perms;
+ dontaudit xdm_t removable_device_t:file_class_set rw_file_perms;
+ dontaudit xdm_t scsi_generic_device_t:file_class_set rw_file_perms;
++dontaudit xdm_t devpts_t:dir { search };
+ 
+ # Do not audit denied probes of /proc.
+ dontaudit xdm_t domain:dir r_dir_perms;
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/mozilla.fc policy-1.17.27/file_contexts/program/mozilla.fc
+--- nsapolicy/file_contexts/program/mozilla.fc	2004-09-30 20:48:49.000000000 -0400
++++ policy-1.17.27/file_contexts/program/mozilla.fc	2004-10-05 11:37:05.225353688 -0400
+@@ -5,6 +5,7 @@
+ HOME_DIR/\.gconfd(/.*)?		system_u:object_r:ROLE_mozilla_rw_t
+ HOME_DIR/\.gconf(/.*)?		system_u:object_r:ROLE_mozilla_rw_t
+ HOME_DIR/\.gnome2/epiphany(/.*)? system_u:object_r:ROLE_mozilla_rw_t
++HOME_DIR/My Downloads(/.*)?	system_u:object_r:ROLE_mozilla_rw_t
+ /usr/bin/netscape	--	system_u:object_r:mozilla_exec_t
+ /usr/bin/mozilla	--	system_u:object_r:mozilla_exec_t
+ /usr/bin/mozilla-snapshot --	system_u:object_r:mozilla_exec_t
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/passwd.fc policy-1.17.27/file_contexts/program/passwd.fc
+--- nsapolicy/file_contexts/program/passwd.fc	2004-03-03 15:53:52.000000000 -0500
++++ policy-1.17.27/file_contexts/program/passwd.fc	2004-10-05 11:36:08.000000000 -0400
+@@ -1,5 +1,6 @@
+ # spasswd
+ /usr/bin/passwd		--	system_u:object_r:passwd_exec_t
++/usr/bin/chage		--	system_u:object_r:passwd_exec_t
+ /usr/bin/chsh		--	system_u:object_r:chfn_exec_t
+ /usr/bin/chfn		--	system_u:object_r:chfn_exec_t
+ /usr/sbin/vipw		--	system_u:object_r:admin_passwd_exec_t
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/sendmail.fc policy-1.17.27/file_contexts/program/sendmail.fc
+--- nsapolicy/file_contexts/program/sendmail.fc	2004-02-05 15:17:07.000000000 -0500
++++ policy-1.17.27/file_contexts/program/sendmail.fc	2004-10-05 11:36:08.000000000 -0400
+@@ -3,3 +3,5 @@
+ /var/spool/(client)?mqueue(/.*)?	system_u:object_r:mqueue_spool_t
+ /var/log/sendmail\.st		--	system_u:object_r:sendmail_log_t
+ /var/log/mail(/.*)?			system_u:object_r:sendmail_log_t
++/var/run/sendmail.pid		--	system_u:object_r:sendmail_var_run_t
++/var/run/sm-client.pid		--	system_u:object_r:sendmail_var_run_t
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/tvtime.fc policy-1.17.27/file_contexts/program/tvtime.fc
+--- nsapolicy/file_contexts/program/tvtime.fc	1969-12-31 19:00:00.000000000 -0500
++++ policy-1.17.27/file_contexts/program/tvtime.fc	2004-10-05 11:36:08.000000000 -0400
+@@ -0,0 +1,3 @@
++# tvtime
++/usr/bin/tvtime		--	system_u:object_r:tvtime_exec_t
++
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/vpnc.fc policy-1.17.27/file_contexts/program/vpnc.fc
+--- nsapolicy/file_contexts/program/vpnc.fc	1969-12-31 19:00:00.000000000 -0500
++++ policy-1.17.27/file_contexts/program/vpnc.fc	2004-10-05 11:36:08.000000000 -0400
+@@ -0,0 +1,2 @@
++# vpnc
++/usr/sbin/vpnc		--	system_u:object_r:vpnc_exec_t
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/base_user_macros.te policy-1.17.27/macros/base_user_macros.te
+--- nsapolicy/macros/base_user_macros.te	2004-09-27 20:48:36.000000000 -0400
++++ policy-1.17.27/macros/base_user_macros.te	2004-10-05 11:36:08.000000000 -0400
+@@ -152,6 +152,7 @@
+ ifdef(`crontab.te', `crontab_domain($1)')
+ 
+ ifdef(`screen.te', `screen_domain($1)')
++ifdef(`tvtime.te', `tvtime_domain($1)')
+ ifdef(`mozilla.te', `mozilla_domain($1)')
+ ifdef(`use_games', `ifdef(`games.te', `games_domain($1)')')
+ ifdef(`gpg.te', `gpg_domain($1)')
+@@ -287,6 +288,7 @@
+ #
+ allow $1_t rpc_pipefs_t:dir { getattr };
+ allow $1_t nfsd_fs_t:dir { getattr };
++allow $1_t binfmt_misc_fs_t:dir { getattr };
+ 
+ # /initrd is left mounted, various programs try to look at it
+ dontaudit $1_t ramfs_t:dir { getattr };
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/global_macros.te policy-1.17.27/macros/global_macros.te
+--- nsapolicy/macros/global_macros.te	2004-09-22 16:19:13.000000000 -0400
++++ policy-1.17.27/macros/global_macros.te	2004-10-05 11:36:08.000000000 -0400
+@@ -287,6 +287,7 @@
+ allow $1_t device_t:dir { getattr search };
+ allow $1_t null_device_t:chr_file rw_file_perms;
+ dontaudit $1_t console_device_t:chr_file rw_file_perms;
++dontaudit $1_t unpriv_userdomain:fd use;
+ 
+ r_dir_file($1_t, sysfs_t) 
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/inetd_macros.te policy-1.17.27/macros/program/inetd_macros.te
+--- nsapolicy/macros/program/inetd_macros.te	2004-09-30 20:48:49.000000000 -0400
++++ policy-1.17.27/macros/program/inetd_macros.te	2004-10-05 11:36:08.000000000 -0400
+@@ -37,12 +37,6 @@
+ allow $1_t var_t:dir search;
+ var_run_domain($1)
+ 
+-# Use sockets inherited from inetd.
+-ifelse($2, udp, `
+-allow $1_t inetd_t:udp_socket rw_socket_perms;
+-', `
+-allow $1_t inetd_t:tcp_socket rw_stream_socket_perms;
+-')
+ # for identd
+ allow $1_t self:netlink_tcpdiag_socket r_netlink_socket_perms;
+ allow $1_t self:capability { setuid setgid };
+@@ -52,4 +46,20 @@
+ allow $1_t krb5_conf_t:file r_file_perms;
+ dontaudit $1_t krb5_conf_t:file write;
+ allow $1_t urandom_device_t:chr_file { getattr read };
++type $1_port_t, port_type;
++# Use sockets inherited from inetd.
++ifelse($2, `', `
++allow inetd_t $1_port_t:udp_socket { name_bind };
++allow $1_t inetd_t:udp_socket rw_socket_perms;
++allow inetd_t $1_port_t:tcp_socket { name_bind };
++allow $1_t inetd_t:tcp_socket rw_stream_socket_perms;
++')
++ifelse($2, tcp, `
++allow inetd_t $1_port_t:tcp_socket { name_bind };
++allow $1_t inetd_t:tcp_socket rw_stream_socket_perms;
++')
++ifelse($2, udp, `
++allow inetd_t $1_port_t:udp_socket { name_bind };
++allow $1_t inetd_t:udp_socket rw_socket_perms;
++')
+ ')
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mozilla_macros.te policy-1.17.27/macros/program/mozilla_macros.te
+--- nsapolicy/macros/program/mozilla_macros.te	2004-10-01 15:05:32.000000000 -0400
++++ policy-1.17.27/macros/program/mozilla_macros.te	2004-10-05 11:36:08.000000000 -0400
+@@ -69,8 +69,12 @@
+ domain_auto_trans($1_mozilla_t, lpr_exec_t, $1_lpr_t)
+ # $1_lpr_t should only need read access to the tmp files
+ allow $1_lpr_t $1_mozilla_rw_t:file rw_file_perms;
++dontaudit $1_lpr_t $1_mozilla_t:tcp_socket { read write };
++dontaudit $1_lpr_t $1_mozilla_t:unix_stream_socket { read write };
+ ')
+ 
++dontaudit $1_mozilla_t tmp_t:lnk_file read;
++
+ #
+ # This is another place where I sould like to allow system customization.
+ # We need to allow the admin to select whether then want to allow mozilla
+@@ -107,6 +111,7 @@
+ dontaudit $1_mozilla_t dri_device_t:chr_file rw_file_perms;
+ # Mozilla tries to delete .fonts.cache-1
+ dontaudit $1_mozilla_t $1_home_t:file { unlink };
++dontaudit $1_mozilla_t tmpfile:file getattr;
+ 
+ ifdef(`xdm.te', `
+ allow $1_mozilla_t xdm_t:fifo_file { write read };
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/sendmail_macros.te policy-1.17.27/macros/program/sendmail_macros.te
+--- nsapolicy/macros/program/sendmail_macros.te	2004-09-30 20:48:49.000000000 -0400
++++ policy-1.17.27/macros/program/sendmail_macros.te	2004-10-05 11:36:08.000000000 -0400
+@@ -44,7 +44,7 @@
+ 
+ ifelse(`$1', `sysadm', `
+ allow $1_mail_t proc_t:dir { getattr search };
+-allow $1_mail_t proc_t:file { getattr read };
++allow $1_mail_t proc_t:{ lnk_file file } { getattr read };
+ allow $1_mail_t sysctl_kernel_t:file { getattr read };
+ allow $1_mail_t etc_runtime_t:file { getattr read };
+ ', `
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/tvtime_macros.te policy-1.17.27/macros/program/tvtime_macros.te
+--- nsapolicy/macros/program/tvtime_macros.te	1969-12-31 19:00:00.000000000 -0500
++++ policy-1.17.27/macros/program/tvtime_macros.te	2004-10-05 11:36:08.000000000 -0400
+@@ -0,0 +1,45 @@
++#
++# Macros for tvtime domains.
++#
++
++#
++# Author: Dan Walsh <dwalsh@redhat.com>
++#
++
++#
++# tvtime_domain(domain_prefix)
++#
++# Define a derived domain for the tvtime program when executed
++# by a user domain.
++#
++# The type declaration for the executable type for this program is
++# provided separately in domains/program/tvtime.te. 
++#
++undefine(`tvtime_domain')
++ifdef(`tvtime.te', `
++define(`tvtime_domain',`
++# Derived domain based on the calling user domain and the program.
++type $1_home_tvtime_t, file_type, homedirfile, sysadmfile;
++
++x_client_domain($1, tvtime)
++
++allow $1_tvtime_t urandom_device_t:chr_file read;
++allow $1_tvtime_t clock_device_t:chr_file { ioctl read };
++allow $1_tvtime_t kernel_t:system { ipc_info };
++allow $1_tvtime_t sound_device_t:chr_file { read };
++allow $1_tvtime_t $1_home_t:dir { getattr read search };
++allow $1_tvtime_t $1_home_t:file { getattr read };
++tmp_domain($1_tvtime)
++allow $1_tvtime_t self:capability { setuid sys_nice sys_resource };
++allow $1_tvtime_t self:process { setsched };
++allow $1_tvtime_t usr_t:file { getattr read };
++allow $1_tvtime_t xdm_tmp_t:dir { search };
++
++')dnl end tvtime_domain
++
++', `
++
++define(`tvtime_domain',`')
++
++')
++
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/xserver_macros.te policy-1.17.27/macros/program/xserver_macros.te
+--- nsapolicy/macros/program/xserver_macros.te	2004-10-01 15:05:32.000000000 -0400
++++ policy-1.17.27/macros/program/xserver_macros.te	2004-10-05 11:36:08.000000000 -0400
+@@ -198,7 +198,10 @@
+ 
+ # Create and access /dev/dri devices.
+ allow $1_xserver_t device_t:dir create;
++allow $1_xserver_t device_t:dir { setattr };
+ file_type_auto_trans($1_xserver_t, device_t, dri_device_t, chr_file)
++# brought on by rhgb
++allow $1_xserver_t mnt_t:dir { search };
+ 
+ allow $1_xserver_t tty_device_t:chr_file { setattr rw_file_perms };
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.17.27/Makefile
+--- nsapolicy/Makefile	2004-09-13 15:58:17.000000000 -0400
++++ policy-1.17.27/Makefile	2004-10-05 11:36:08.000000000 -0400
+@@ -52,7 +52,7 @@
+ FCFILES=file_contexts/types.fc $(patsubst domains/program/%.te,file_contexts/program/%.fc, $(wildcard domains/program/*.te)) $(wildcard file_contexts/misc/*.fc)
+ 
+ APPDIR=$(CONTEXTPATH)
+-APPFILES = $(addprefix $(APPDIR)/,default_contexts default_type initrc_context failsafe_context userhelper_context) $(CONTEXTPATH)/files/media
++APPFILES = $(addprefix $(APPDIR)/,default_contexts default_type initrc_context failsafe_context userhelper_context removable_context) $(CONTEXTPATH)/files/media
+ 
+ ROOTFILES = $(addprefix $(APPDIR)/users/,root)
+ 
+@@ -68,6 +68,10 @@
+ 	mkdir -p $(APPDIR)
+ 	install -m 644 $< $@
+ 
++$(APPDIR)/removable_context: appconfig/removable_context
++	mkdir -p $(APPDIR)
++	install -m 644 $< $@
++
+ $(APPDIR)/default_type: appconfig/default_type
+ 	mkdir -p $(APPDIR)
+ 	install -m 644 $< $@
+diff --exclude-from=exclude -N -u -r nsapolicy/net_contexts policy-1.17.27/net_contexts
+--- nsapolicy/net_contexts	2004-09-30 20:48:48.000000000 -0400
++++ policy-1.17.27/net_contexts	2004-10-05 11:36:08.000000000 -0400
+@@ -18,22 +18,25 @@
+ # protocol low-high context
+ #
+ ifdef(`inetd.te', `
+-portcon tcp 7 system_u:object_r:inetd_port_t
+-portcon udp 7 system_u:object_r:inetd_port_t
+-portcon tcp 9 system_u:object_r:inetd_port_t
+-portcon udp 9 system_u:object_r:inetd_port_t
+-portcon tcp 13 system_u:object_r:inetd_port_t
+-portcon udp 13 system_u:object_r:inetd_port_t
+-portcon tcp 19 system_u:object_r:inetd_port_t
+-portcon udp 19 system_u:object_r:inetd_port_t
+-portcon tcp 37 system_u:object_r:inetd_port_t
+-portcon udp 37 system_u:object_r:inetd_port_t
+-portcon tcp 113 system_u:object_r:inetd_port_t
+-portcon udp 512 system_u:object_r:biff_port_t
+-portcon tcp 891 system_u:object_r:inetd_port_t
+-portcon udp 891 system_u:object_r:inetd_port_t
+-portcon tcp 892 system_u:object_r:inetd_port_t
+-portcon udp 892 system_u:object_r:inetd_port_t
++portcon tcp 7 system_u:object_r:inetd_child_port_t
++portcon udp 7 system_u:object_r:inetd_child_port_t
++portcon tcp 9 system_u:object_r:inetd_child_port_t
++portcon udp 9 system_u:object_r:inetd_child_port_t
++portcon tcp 13 system_u:object_r:inetd_child_port_t
++portcon udp 13 system_u:object_r:inetd_child_port_t
++portcon tcp 19 system_u:object_r:inetd_child_port_t
++portcon udp 19 system_u:object_r:inetd_child_port_t
++portcon tcp 37 system_u:object_r:inetd_child_port_t
++portcon udp 37 system_u:object_r:inetd_child_port_t
++portcon tcp 113 system_u:object_r:inetd_child_port_t
++portcon tcp 512 system_u:object_r:inetd_child_port_t
++portcon tcp 543 system_u:object_r:inetd_child_port_t
++portcon tcp 544 system_u:object_r:inetd_child_port_t
++portcon tcp 891 system_u:object_r:inetd_child_port_t
++portcon udp 891 system_u:object_r:inetd_child_port_t
++portcon tcp 892 system_u:object_r:inetd_child_port_t
++portcon udp 892 system_u:object_r:inetd_child_port_t
++portcon tcp 2105 system_u:object_r:inetd_child_port_t
+ ')
+ ifdef(`ftpd.te', `
+ portcon tcp 20 system_u:object_r:ftp_data_port_t
+@@ -87,6 +90,9 @@
+ portcon udp 162 system_u:object_r:snmp_port_t
+ portcon tcp 199 system_u:object_r:snmp_port_t
+ ')
++ifdef(`comsat.te', `
++portcon udp 512 system_u:object_r:comsat_port_t
++')
+ ifdef(`slapd.te', `portcon tcp 389 system_u:object_r:ldap_port_t')
+ ifdef(`rlogind.te', `portcon tcp 513 system_u:object_r:rlogin_port_t')
+ ifdef(`rshd.te', `portcon tcp 514 system_u:object_r:rsh_port_t')
+@@ -102,7 +108,17 @@
+ portcon tcp 631 system_u:object_r:ipp_port_t
+ portcon udp 631 system_u:object_r:ipp_port_t
+ ')
++ifdef(`kerberos.te', `
++portcon tcp 88 system_u:object_r:kerberos_port_t
++portcon tcp 749 system_u:object_r:kerberos_admin_port_t
++portcon tcp 750 system_u:object_r:kerberos_port_t
++portcon tcp 4444 system_u:object_r:kerberos_master_port_t
++')
+ ifdef(`spamd.te', `portcon tcp 783 system_u:object_r:spamd_port_t')
++ifdef(`rsync.te', `
++portcon tcp 873 system_u:object_r:rsync_port_t
++portcon udp 873 system_u:object_r:rsync_port_t
++')
+ ifdef(`swat.te', `portcon tcp 901 system_u:object_r:swat_port_t')
+ ifdef(`named.te', `portcon tcp 953 system_u:object_r:rndc_port_t')
+ ifdef(`use_pop', `
+@@ -112,10 +128,13 @@
+ ')
+ ifdef(`nessusd.te', `portcon tcp 1241 system_u:object_r:nessus_port_t')
+ ifdef(`monopd.te', `portcon tcp 1234 system_u:object_r:monopd_port_t')
+-ifdef(`radius.te', `portcon udp 1645 system_u:object_r:radius_port_t
++ifdef(`radius.te', `
++portcon udp 1645 system_u:object_r:radius_port_t
+ portcon udp 1646 system_u:object_r:radacct_port_t
+ portcon udp 1812 system_u:object_r:radius_port_t
+-portcon udp 1813 system_u:object_r:radacct_port_t')
++portcon udp 1813 system_u:object_r:radacct_port_t
++')
++ifdef(`dbskkd.te', `portcon tcp 1178 system_u:object_r:dbskkd_port_t')
+ ifdef(`gatekeeper.te', `
+ portcon udp 1718 system_u:object_r:gatekeeper_port_t
+ portcon udp 1719 system_u:object_r:gatekeeper_port_t
+@@ -146,7 +165,7 @@
+ portcon tcp 5269 system_u:object_r:jabber_interserver_port_t
+ ')
+ ifdef(`postgresql.te', `portcon tcp 5432 system_u:object_r:postgresql_port_t')
+-ifdef(`nrpe.te', `portcon tcp 5666 system_u:object_r:inetd_port_t')
++ifdef(`nrpe.te', `portcon tcp 5666 system_u:object_r:inetd_child_port_t')
+ ifdef(`xdm.te', `
+ portcon tcp 5900  system_u:object_r:vnc_port_t 
+ ')
+@@ -190,8 +209,8 @@
+ portcon tcp 10080 system_u:object_r:amanda_port_t
+ portcon udp 10081 system_u:object_r:amanda_port_t
+ portcon tcp 10081 system_u:object_r:amanda_port_t
+-portcon tcp 10082 system_u:object_r:amandaidx_port_t
+-portcon tcp 10083 system_u:object_r:amidxtape_port_t
++portcon tcp 10082 system_u:object_r:amanda_port_t
++portcon tcp 10083 system_u:object_r:amanda_port_t
+ ')
+ ifdef(`postgrey.te', `portcon tcp 60000 system_u:object_r:postgrey_port_t')
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.17.27/tunables/distro.tun
+--- nsapolicy/tunables/distro.tun	2004-08-20 13:57:29.000000000 -0400
++++ policy-1.17.27/tunables/distro.tun	2004-10-05 11:36:08.000000000 -0400
+@@ -5,7 +5,7 @@
+ # appropriate ifdefs.
+ 
+ 
+-dnl define(`distro_redhat')
++define(`distro_redhat')
+ 
+ dnl define(`distro_suse')
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.17.27/tunables/tunable.tun
+--- nsapolicy/tunables/tunable.tun	2004-09-27 20:48:36.000000000 -0400
++++ policy-1.17.27/tunables/tunable.tun	2004-10-05 11:36:08.000000000 -0400
+@@ -1,42 +1,42 @@
+ # Allow all domains to connect to nscd
+-dnl define(`nscd_all_connect')
++define(`nscd_all_connect')
+ 
+ # Allow users to control network interfaces (also needs USERCTL=true)
+ dnl define(`user_net_control')
+ 
+ # Allow users to execute the mount command
+-dnl define(`user_can_mount')
++define(`user_can_mount')
+ 
+ # Allow rpm to run unconfined.
+-dnl define(`unlimitedRPM')
++define(`unlimitedRPM')
+ 
+ # Allow privileged utilities like hotplug and insmod to run unconfined.
+-dnl define(`unlimitedUtils')
++define(`unlimitedUtils')
+ 
+ # Support NFS home directories
+-dnl define(`nfs_home_dirs')
++define(`nfs_home_dirs')
+ 
+ # Allow users to run games
+-dnl define(`use_games')
++define(`use_games')
+ 
+ # Allow ypbind to run with NIS
+-dnl define(`allow_ypbind')
++define(`allow_ypbind')
+ 
+ # Allow rc scripts to run unconfined, including any daemon
+ # started by an rc script that does not have a domain transition
+ # explicitly defined.
+-dnl define(`unlimitedRC')
++define(`unlimitedRC')
+ 
+ # Allow sysadm_t to directly start daemons
+ define(`direct_sysadm_daemon')
+ 
+ # Do not audit things that we know to be broken but which
+ # are not security risks
+-dnl define(`hide_broken_symptoms')
++define(`hide_broken_symptoms')
+ 
+ # Allow user_r to reach sysadm_r via su, sudo, or userhelper.
+ # Otherwise, only staff_r can do so.
+-dnl define(`user_canbe_sysadm')
++define(`user_canbe_sysadm')
+ 
+ # Allow xinetd to run unconfined, including any services it starts
+ # that do not have a domain transition explicitly defined.
 
-> Hi!
-> 
-> This is a very small diff that would make the gentoo community happy :)
-> 
-> reference:
-> http://bugs.gentoo.org/show_bug.cgi?id=59633
-> 
-> many thanks,
-> peter
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- /root/public_html/policy/nsa/file_contexts/program/ntpd.fc	2004-06-25 23:02:43.000000000 +0300
-> +++ /etc/security/selinux/src/policy/file_contexts/program/ntpd.fc	2004-10-05 10:20:01.034334096 +0300
-> @@ -10,3 +10,11 @@
->  /var/run/ntpd.pid		--	system_u:object_r:ntpd_var_run_t
->  /etc/cron\.(daily|weekly)/ntp-simple -- system_u:object_r:ntpd_exec_t
->  /etc/cron\.(daily|weekly)/ntp-server -- system_u:object_r:ntpd_exec_t
-> +
-> +ifdef(`distro_gentoo', `
-> +/usr/bin/ntpd			--	system_u:object_r:ntpd_exec_t
-> +/usr/bin/ntpdate		--	system_u:object_r:ntpd_exec_t
-> +
-> +# for net-misc/openntpd
-> +/etc/ntpd\.conf			--	system_u:object_r:net_conf_t
-> +')
-> --- /root/public_html/policy/nsa/domains/program/unused/ntpd.te	2004-10-02 01:38:20.000000000 +0300
-> +++ /etc/security/selinux/src/policy/domains/program/ntpd.te	2004-10-05 04:23:53.935260872 +0300
-> @@ -69,3 +69,8 @@
->  ifdef(`firstboot.te', `
->  dontaudit ntpd_t firstboot_t:fd { use };
->  ')
-> +
-> +ifdef(`distro_gentoo', `
-> +allow ntpd_t self:capability { sys_chroot kill };
-> +')
-> +
-
+--------------070207020301040303050302--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
