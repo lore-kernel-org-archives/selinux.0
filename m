@@ -1,54 +1,140 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53DFFrT011492
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 09:15:15 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i54DEwTV003833
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 09:14:59 -0400 (EDT)
-Subject: Re: issue with SE/Linux - sshd not giving access to /dev/pts/[n]
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1086266468.17657.19.camel@moss-spartans.epoch.ncsc.mil>
-References: <20040601090345.GM8312@lkcl.net>
-	 <200406021631.50230.russell@coker.com.au>
-	 <1086196986.15871.106.camel@moss-spartans.epoch.ncsc.mil>
-	 <200406031404.35028.russell@coker.com.au>
-	 <1086266468.17657.19.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1086268467.17657.53.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 03 Jun 2004 09:14:27 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53E1GrT011805
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 10:01:16 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i53Lti4D007970
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 17:55:45 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id BFB6261BD6
+	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:01:12 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 26457-07 for <selinux@tycho.nsa.gov>;
+	Fri, 4 Jun 2004 00:01:12 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 60FF461BB0
+	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:01:12 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id AC2FEB586F
+	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:01:11 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: mysqld
+Date: Fri, 4 Jun 2004 00:01:11 +1000
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_n8yvAPyVobTmxGy"
+Message-Id: <200406040001.11136.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-06-03 at 08:41, Stephen Smalley wrote:
-> Fedora is still using openssh 3.6.  Are you sure it occurs on Fedora?
-> 
-> In any event, looking briefly at 3.6 vs. 3.8, I see that:
-> 1) in 3.6, session.c:do_exec_pty() calls do_pam_session() with the
-> username and tty.  auth-pam.c:do_pam_session() then sets PAM_TTY prior
-> to calling pam_open_sesson(), so the tty is available to pam_selinux for
-> relabeling.
-> 2) in 3.8, session.c:do_setusercontext() calls do_pam_session() with no
-> arguments, and auth-pam.c:do_pam_session() calls pam_open_session()
-> without setting PAM_TTY (as no information is available at this point),
-> so pam_selinux lacks the tty information.  
-> The implication is that pam_selinux cannot perform tty relabeling for
-> openssh 3.8.  Thus, we must revert to using a direct patch.  Someone
-> want to port the old 3.6 patch?
 
-BTW, note that the patch is very simple; you just want to extend the
-existing code that sets the user identity to also set the exec context,
-and you want to extend the existing code that changes the ownership of
-the pty to also set the context on the pty.  The advantage of a direct
-patch is that we can precisely parallel the existing code, whereas
-pam_selinux isn't necessarily called at the same point.
+--Boundary-00=_n8yvAPyVobTmxGy
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+--Boundary-00=_n8yvAPyVobTmxGy
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="mysqld.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="mysqld.te"
+
+#DESC Mysqld - Database server
+#
+# Author:  Russell Coker <russell@coker.com.au>
+# X-Debian-Packages: mysql-server
+#
+
+#################################
+#
+# Rules for the mysqld_t domain.
+#
+# mysqld_exec_t is the type of the mysqld executable.
+#
+daemon_domain(mysqld)
+
+type mysqld_port_t, port_type;
+allow mysqld_t mysqld_port_t:tcp_socket name_bind;
+
+allow mysqld_t mysqld_var_run_t:sock_file create_file_perms;
+
+etcdir_domain(mysqld)
+typealias mysqld_etc_t alias etc_mysqld_t;
+type mysqld_db_t, file_type, sysadmfile;
+
+log_domain(mysqld)
+
+allow mysqld_t tmp_t:dir { getattr read };
+
+allow mysqld_t usr_t:file { getattr read };
+
+allow mysqld_t self:fifo_file { read write };
+allow mysqld_t self:unix_stream_socket create_stream_socket_perms;
+allow initrc_t mysqld_t:unix_stream_socket { connectto };
+allow initrc_t mysqld_var_run_t:sock_file write;
+
+allow initrc_t mysqld_log_t:file { write append setattr ioctl };
+
+allow mysqld_t self:capability { setgid setuid };
+allow mysqld_t self:process getsched;
+
+allow mysqld_t proc_t:file { getattr read };
+
+# Allow access to the mysqld databases
+create_dir_file(mysqld_t, mysqld_db_t)
+allow mysqld_t var_lib_t:dir search;
+
+can_network(mysqld_t)
+
+# read config files
+r_dir_file(initrc_t, mysqld_etc_t)
+allow mysqld_t { etc_t etc_runtime_t }:{ file lnk_file } { read getattr };
+
+allow mysqld_t etc_t:dir search;
+
+allow mysqld_t sysctl_kernel_t:dir search;
+allow mysqld_t sysctl_kernel_t:file read;
+
+can_unix_connect(sysadm_t, mysqld_t)
+
+# for /root/.my.cnf - should not be needed
+allow mysqld_t sysadm_home_dir_t:dir search;
+allow mysqld_t sysadm_home_t:file { read getattr };
+
+ifdef(`logrotate.te', `
+r_dir_file(logrotate_t, mysqld_etc_t)
+allow logrotate_t mysqld_db_t:dir search;
+allow logrotate_t mysqld_var_run_t:dir search;
+allow logrotate_t mysqld_var_run_t:sock_file write;
+can_unix_connect(logrotate_t, mysqld_t)
+')
+
+ifdef(`user_db_connect', `
+allow userdomain mysqld_var_run_t:dir search;
+allow userdomain mysqld_var_run_t:sock_file write;
+')
+
+ifdef(`rpm.te', `
+allow initrc_t mysqld_db_t:dir create_dir_perms;
+
+# because Fedora has the sock_file in the database directory
+file_type_auto_trans(mysqld_t, mysqld_db_t, mysqld_var_run_t, sock_file)
+')
+
+--Boundary-00=_n8yvAPyVobTmxGy--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
