@@ -1,35 +1,69 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9BEMrWt009101
-	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2003 10:22:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9BEMm0p000657
-	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2003 14:22:49 GMT
-Received: from ms-smtp-03.southeast.rr.com (ms-smtp-03.southeast.rr.com [24.93.67.84])
-	by jazzswing.ncsc.mil  with ESMTP id h9BEMmr7000654
-	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2003 14:22:48 GMT
-Received: from nc.rr.com (rdu26-59-021.nc.rr.com [66.26.59.21])
-	by ms-smtp-03.southeast.rr.com (8.12.10/8.12.2) with ESMTP id h9BEKSVx016319
-	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2003 10:20:30 -0400 (EDT)
-Message-ID: <3F881236.8030703@nc.rr.com>
-Date: Sat, 11 Oct 2003 10:22:46 -0400
-From: Jeff Johnson <n3npq@nc.rr.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Time to package file types with rpm, suggestions please
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <sf880644.030@atlas.snu.edu>
+Date: Sat, 11 Oct 2003 13:29:07 -0500
+From: "Joshua Brindle" <JBrindle@snu.edu>
+To: <SELinux@tycho.nsa.gov>
+Subject: selinux from user POV
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi --
 
-I'm the resident Red Hat rpm therapist.
+This is going to be contraversial, I know, but this is something that
+is fairly important to me and others I know of on this list.
 
-I'm just starting to think about what changes are going to be needed to rpm
-for SE Linux.
+Being a user on an SELinux machine is currently not good.. Ideally
+it should be totally transparent but there are some issues. Mainly, 
+right now, a user can't even add a .ssh directory and put their
+ssh key in authorized_keys2 and then log in with it without the 
+admin having to relabel (or at least label those objects) . 
 
-Pointers to previous discussions, please. I'm late to this party.
+Also, user webpages can't be read by apache until they are
+labeled correctly, which makes them fairly useless. Users
+can label  httpd_user_*_t but that clearly isn't something that 
+most users are going to be aware of or desire to be hassled with.
 
-73 de Jeff
+There are a few solutions, many I don't like, the others I know
+the nsa guys probably won't like but this is, like I said, fairly important.
+
+1.An admin could cron relabeling to the /home partition, this is hackish
+and doesn't seem like a good solution to me..
+
+2. Could give users access to a limited setfiles script with a limited 
+read-only file_contexts file that they can use on their own directories,
+they'd also have to be given permission to label ssh types.. (ick)
+it would also require additional user knowledge.. users aren't prone
+to learn _anything_
+
+--- nsa guys really won't like these---
+
+3. Trap file creation in glibc and use a limited file_contexts that
+glibc can read and setfscreatecon just before opening it for 
+creation. This suffers from being in the context of whatever 
+called for the file creation so many domains would possibly have
+to be given relabel permissions. 
+
+4. (This one may be over complicated but seems like the most
+transparent solution). Load the file_contexts file into the kernel, 
+NOT for enforcement of labels for files that already exist but
+only for creation of new files. hook around open file, if it's being
+created assign it's label, the file_contexts loaded into the kernel
+could be limited to avoid any possible security hazards, this would
+eliminate the need to assign relabeling permissions to user contexts
+and application contexts that may need to create files in the user
+home dirs.. (mail daemons, etc). 
+
+#4 is my favorite but I don't know how complicated it could be
+to implement, and I'm almost certain that the nsa guys will smite
+me for this :( . It is the most transparent for the users, requires
+the least work for the admin, and would really make selinux more
+enterprise friendly.. 
+
+Please give comments, flames, opinions, etc
+
+Joshua Brindle
+
+
 
 
 --
