@@ -1,60 +1,45 @@
-Mime-Version: 1.0
-Message-Id: <p06020414bc6d633ab53a@[128.115.96.64]>
-Date: Thu, 4 Mar 2004 15:10:04 -0800
-To: SELinux@tycho.nsa.gov
-From: Mark Shakespeare <mshakes@llnl.gov>
-Subject: Running SeLinux on RHEL3 with kernel 2.6.3-2.1.229
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Message-ID: <20040305124916.31249.qmail@web41309.mail.yahoo.com>
+Date: Fri, 5 Mar 2004 04:49:16 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: A problem with the copy of the SELinux/Flask vs. DTE comparison
+To: sds@epoch.ncsc.mil
+Cc: SELinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1770994922-1078490956=:31056"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Would appreciate some advice please.....
+--0-1770994922-1078490956=:31056
+Content-Type: text/plain; charset=us-ascii
 
-After successfully getting Fedora and SeLinux to work with my applications,
-my boss asked me to make Oracle work under SeLinux.....
-
-Is this possible?????
-
-Here is what I've done....in a nut shell...
-
-Loaded a fresh copy of RHEL3 Enterprise Linux AS....
-
-Found that only Oracle 10g would install on RHEL3....
-installation went ok....
-
-Went to Dan Walsh's site and downloaded his Selupgrade script.
-Had to make many modifications to script to make it work...
-I had the script download kernel 2.6.3-2.1.229 from arjanv's site.
-
-The only way i could get it to build was using
-
-1. checkpolicy-1.6.1 instead of version 1.4-5
-2. policycoreutils-1.4.7 instead of version 1.4-3
-3. setools-1.2-1 instead of version 1.1.1-1
-4. setools-gui-1.2-1 instead of version 1.1.1-1
-
-it mostly works now....
-
-except when I try to do a make relabel
-
-now I get a setfiles invalid context errors....a bunch of them....
-
-Any suggestions are welcome...
-
-Thanks.
+Dear sir,
+   I have download the copy of the SELinux/Flask vs. DTE comparison. 
+  Thank you very much.
+  But when I try to unpack it , an error comes out. The file seems not to be a valid file.and cann't be opened. I have tried to download it twice.but it still can't be unpacked and opened.
+(I use the tar command like this: tar -zxvf dte.tgz.  But it doesn't work).
+I wonder what is wrong? 
+Thank you.
+Yours, 
+Park Lee
+2004-03-05
 
 
 
-							Mark
--- 
-******************************************
-* Mark Shakespeare			 *
-* Engineering Computer Operations Team   *
-* Lawrence Livermore National Laboratory *
-* 7000 East Ave		L-130            *
-* Livermore,Ca 94550			 *
-* 925-423-9922	      mshakes@llnl.gov   *
-******************************************
+---------------------------------
+Do you Yahoo!?
+Yahoo! Search - Find what you’re looking for faster.
+--0-1770994922-1078490956=:31056
+Content-Type: text/html; charset=us-ascii
+
+<DIV>
+<DIV>Dear sir,<BR>&nbsp;&nbsp; I have download the copy of the SELinux/Flask vs. DTE comparison. <BR>&nbsp; Thank you very much.<BR>&nbsp; But when I try to unpack it , an error comes out. The file seems not to be a valid file.and cann't be opened. I have tried to download it twice.but it still can't be unpacked and opened.</DIV>
+<DIV>(I use the tar command like this: tar -zxvf dte.tgz.&nbsp; But it doesn't work).</DIV>
+<DIV>I wonder what is wrong? </DIV>
+<DIV>Thank you.</DIV>
+<DIV>Yours, <BR>Park Lee<BR>2004-03-05</DIV></DIV><p><hr SIZE=1>
+Do you Yahoo!?<br>
+Yahoo! Search - <a href="http://search.yahoo.com/?fr=ad-mailsig-home">Find what you’re looking for faster.</a>
+--0-1770994922-1078490956=:31056--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
