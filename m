@@ -1,87 +1,273 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Russell Coker <russell@coker.com.au>
-Subject: Re: Domain transition -- enabling user_r in eklogin
-Date: Fri, 20 Dec 2002 14:07:42 -0600
-Cc: SELinux@tycho.nsa.gov
-References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <200212201025.34107.pollard@admin.navo.hpc.mil> <200212201940.32007.russell@coker.com.au>
-In-Reply-To: <200212201940.32007.russell@coker.com.au>
+Message-Id: <200212202042.PAA03791@moss-shockers.ncsc.mil>
+Date: Fri, 20 Dec 2002 15:42:15 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: nfsd kernel NULL pointer dereference
+To: SELinux@tycho.nsa.gov, MartinRobb@ieee.org
 MIME-Version: 1.0
-Message-Id: <200212201407.42467.pollard@admin.navo.hpc.mil>
+Content-Type: MULTIPART/mixed; BOUNDARY=Flight_of_Pigeons_549_000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 20 December 2002 12:40 pm, Russell Coker wrote:
-> On Fri, 20 Dec 2002 17:25, Jesse Pollard wrote:>
-> > > The problem is that if you can run GPG currently you can encrypt the
-> > > secret key to yourself with a password (IE not encrypting to a public
-> > > key) and then decrypt the result to get the key.  A future version of
-> > > GPG will address this.  I don't know how PGP performs in this regard.
-> >
-> > Yup. That is one of the things the application must be able to evaluate.
-> > The output media/medium is the determining factor here. To do this
-> > requires reading data with a high level label by a trusted process which
-> > must NOT write that data to a media/medum with a low level label. That
-> > trusted process SHOULD be able to read low labeled data, munch it using
-> > high labled data, and write it to a low labeled media/medum since this is
-> > WHY it is a trusted process.
->
-> Are you sure that it's a good idea to make gpg a trusted program that can
-> over-ride MLS boundaries rather than have it merely be trusted to perform
-> the actions that the user requests of it?
+--Flight_of_Pigeons_549_000
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: W8NLYuRVJQ8lDpgjoZIpPw==
 
-Not all boundaries - only the one protecting the gpg secret key. You have to 
-trust some program somewhere, and this one would seem to be the minimum.
 
-> Currently we only have to trust that gpg will do what we tell it to.  The
-> GPG developers plan to make some small changes to make it easier for me to
-> ensure that gpg isn't executed in the wrong way by the wrong program.
->
-> If gpg has to become a trusted part of system security (as it is on default
-> Linux systems due to being SUID root) then the requirements on gpg are much
-> greater.  The counter arguement of course is that this level of trust in
-> gpg apparently works OK on default Linux setups...
+> I am running the selinux-2002102211 package against the 2.4.19 kernel 
+> patched with lsm-2.4-2002102211.  The system seems basically functional 
+> in non-enforcing mode, but my nfs service is hanging, and in fact the 
+> system is hanging on a shutdown.  In the system log I get:
+> 
+> Unable to handle kernel NULL pointer dereference in ...
+> 
+> I'm attaching the relevant lines from the system log.  I don't claim to 
+> totally follow the dump, but it appears to me that 
+> selinux_file_permission() is getting called with a null struct file 
+> pointer -- ultimately by nfsd and apparently through vfs_readdir().
+> 
+> FWIW, the system in question is built from scratch using kickstart and 
+> the selinux kernel and utilities become part of a larger rpm.  I did 
+> have to go through some contortions to get the ~600 files that selinux 
+> installs under / to install elsewhere, but things appear to be working 
+> other than this nfsd issue so I don't think that is the source of the 
+> problem.  The production version of this system has been using an 
+> LSM-patched 2.4.14 kernel without selinux, and has been quite stable 
+> with no NFS problems.
+> 
+> Any thoughts on the source of this problem?
 
-And the one I suggested provides less trust than setuid.
+Yes.  You need to apply the two attached patches.  The first patch
+changes init_private_file to call file_alloc_securiy for private file
+structures and adds a release_private_file function.  The second patch
+modifies nfsd_open to use init_private_file, a back port by Chris Wright
+of hch's cleanup in 2.5.
 
-The only modifications I can think of are that it would NOT allow the key to
-be extracted IF it is providing output for a lower security level. I think it
-would be desirable to allow it to USE the key (for encryption, decrypton, and
-signing), but not allow the key itself to get out of the application, nor
-allow the key to be replaced.
+As a side note, you are not using the latest version of SELinux, but
+even it requires applying the second of the two attached patches to
+fully fix the problem in the 2.4 kernel.
 
-> > Personally, I dislike the idea of privileged applications. For a secure
-> > environment, I would prever all secret keys to be maintained by a
-> > security server process, and all queries/updates for access to this data
-> > to be carried out by that security server. This would turn at least half
-> > of GPG/Kerberos functions over to the security server (which should pass
-> > the actions on the keys to sub processes. That includes
-> > encryption/decryption services, though the security server may just pass
-> > a socket connection back to the requesting application to allow that
-> > application to push data into the encryption engine and either recieve
-> > the results, or the output could already be connected to another socket
-> > for outgoing data.
-> >
-> > Complicated perhaps, but no trusted application need exist other than the
-> > security server. And the users would have no need to access the secret
-> > keys directly.
->
-> Interesting idea.  Sounds like kerberos on steroids.  ;)
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
-yes - My original idea was to allow IPSec to handle the encryption, and the 
-security server handle the keys, identfication, authentication, and initial
-security labels. It makes most of the Kerberos utilities devolve into user 
-interface, file/shell interface, and security server interaction. A much
-simpler security environment when compaired to the amount of code
-currently used in Kerberos.
+--Flight_of_Pigeons_549_000
+Content-Type: TEXT/plain; name="initprivate.patch"; charset=us-ascii; x-unix-mode=0644
+Content-Description: initprivate.patch
+Content-MD5: f2D92xhHJsN8wleHe/kINA==
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux Security Module
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.365   -> 1.366  
+#	      kernel/ksyms.c	1.24    -> 1.25   
+#	security/selinux/psid.c	1.5     -> 1.6    
+#	     fs/file_table.c	1.11    -> 1.12   
+#	     fs/nfsd/nfsfh.c	1.10    -> 1.11   
+#	  include/linux/fs.h	1.37    -> 1.38   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/11/15	sds@lorax.epoch.ncsc.mil	1.366
+# Added a file_alloc_security call to init_private_file, and created a 
+# release_private_file function to encapsulate the f_op->release call and
+# the file_free_security call.
+# Initial patch by James Carter, with modifications by me, and further
+# modifications by Chris Wright.
+# --------------------------------------------
+#
+diff -Nru a/fs/file_table.c b/fs/file_table.c
+--- a/fs/file_table.c	Fri Dec 20 15:21:50 2002
++++ b/fs/file_table.c	Fri Dec 20 15:21:50 2002
+@@ -91,6 +91,7 @@
+  */
+ int init_private_file(struct file *filp, struct dentry *dentry, int mode)
+ {
++	int error;
+ 	memset(filp, 0, sizeof(*filp));
+ 	filp->f_mode   = mode;
+ 	atomic_set(&filp->f_count, 1);
+@@ -98,10 +99,23 @@
+ 	filp->f_uid    = current->fsuid;
+ 	filp->f_gid    = current->fsgid;
+ 	filp->f_op     = dentry->d_inode->i_fop;
+-	if (filp->f_op->open)
+-		return filp->f_op->open(dentry->d_inode, filp);
+-	else
+-		return 0;
++	error = security_ops->file_alloc_security(filp);
++	if (!error)
++		if (filp->f_op->open) {
++			error = filp->f_op->open(dentry->d_inode, filp);
++			if (error)
++				security_ops->file_free_security(filp);
++		}
++	return error;
++}
++
++void release_private_file(struct file *file)
++{
++	struct inode * inode = file->f_dentry->d_inode;
++
++	if (file->f_op && file->f_op->release)
++		file->f_op->release(inode, file);
++	security_ops->file_free_security(file);
+ }
+ 
+ void fput(struct file * file)
+diff -Nru a/fs/nfsd/nfsfh.c b/fs/nfsd/nfsfh.c
+--- a/fs/nfsd/nfsfh.c	Fri Dec 20 15:21:50 2002
++++ b/fs/nfsd/nfsfh.c	Fri Dec 20 15:21:50 2002
+@@ -113,8 +113,7 @@
+ 	}
+ 
+ out_close:
+-	if (file.f_op->release)
+-		file.f_op->release(dir, &file);
++	release_private_file(&file);
+ out:
+ 	return error;
+ }
+diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Fri Dec 20 15:21:50 2002
++++ b/include/linux/fs.h	Fri Dec 20 15:21:50 2002
+@@ -554,6 +554,7 @@
+ #define file_count(x)	atomic_read(&(x)->f_count)
+ 
+ extern int init_private_file(struct file *, struct dentry *, int);
++extern void release_private_file(struct file *file);
+ 
+ #define	MAX_NON_LFS	((1UL<<31) - 1)
+ 
+diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
+--- a/kernel/ksyms.c	Fri Dec 20 15:21:50 2002
++++ b/kernel/ksyms.c	Fri Dec 20 15:21:50 2002
+@@ -168,6 +168,7 @@
+ EXPORT_SYMBOL(fd_install);
+ EXPORT_SYMBOL(get_empty_filp);
+ EXPORT_SYMBOL(init_private_file);
++EXPORT_SYMBOL(release_private_file);
+ EXPORT_SYMBOL(filp_open);
+ EXPORT_SYMBOL(filp_close);
+ EXPORT_SYMBOL(put_filp);
+diff -Nru a/security/selinux/psid.c b/security/selinux/psid.c
+--- a/security/selinux/psid.c	Fri Dec 20 15:21:50 2002
++++ b/security/selinux/psid.c	Fri Dec 20 15:21:50 2002
+@@ -178,6 +178,7 @@
+ 	for (i = 0; i < PSEC_NFILES; i++) {
+ 		if (t->files[i].f_dentry) {
+ 			dput(t->files[i].f_dentry);
++			release_private_file(&t->files[i]);
+ 		}
+ 	}
+ 
 
-Any opinions expressed are solely my own.
+--Flight_of_Pigeons_549_000
+Content-Type: TEXT/plain; name="nfsd.patch"; charset=us-ascii; x-unix-mode=0644
+Content-Description: nfsd.patch
+Content-MD5: dQww4M5AqChVi8GB0ddFww==
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux Security Module
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.377   -> 1.378  
+#	       fs/nfsd/vfs.c	1.12    -> 1.13   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/12/19	chris@wirex.com	1.378
+# back port 2.5 nfsd_open cleanup by hch.  this ensures that privately
+# allocated filp's have security_file_alloc() called.
+# --------------------------------------------
+#
+diff -Nru a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+--- a/fs/nfsd/vfs.c	Fri Dec 20 15:25:41 2002
++++ b/fs/nfsd/vfs.c	Fri Dec 20 15:25:41 2002
+@@ -427,11 +427,13 @@
+ {
+ 	struct dentry	*dentry;
+ 	struct inode	*inode;
+-	int		err;
++	int		flags = O_RDONLY|O_LARGEFILE, mode = FMODE_READ, err;
+ 
+-	/* If we get here, then the client has already done an "open", and (hopefully)
+-	 * checked permission - so allow OWNER_OVERRIDE in case a chmod has now revoked
+-	 * permission */
++	/*
++	 * If we get here, then the client has already done an "open",
++	 * and (hopefully) checked permission - so allow OWNER_OVERRIDE
++	 * in case a chmod has now revoked permission.
++	 */
+ 	err = fh_verify(rqstp, fhp, type, access | MAY_OWNER_OVERRIDE);
+ 	if (err)
+ 		goto out;
+@@ -456,37 +458,24 @@
+ 	if (err)
+ 		goto out_nfserr;
+ 
+-	if ((access & MAY_WRITE) && (err = get_write_access(inode)) != 0)
+-		goto out_nfserr;
+-
+-	memset(filp, 0, sizeof(*filp));
+-	filp->f_op    = fops_get(inode->i_fop);
+-	atomic_set(&filp->f_count, 1);
+-	filp->f_dentry = dentry;
+-	filp->f_vfsmnt = fhp->fh_export->ex_mnt;
+ 	if (access & MAY_WRITE) {
+-		filp->f_flags = O_WRONLY|O_LARGEFILE;
+-		filp->f_mode  = FMODE_WRITE;
++		err = get_write_access(inode);
++		if (err)
++			goto out_nfserr;
++
++		flags = O_WRONLY|O_LARGEFILE;
++		mode  = FMODE_WRITE;
++
+ 		DQUOT_INIT(inode);
+-	} else {
+-		filp->f_flags = O_RDONLY|O_LARGEFILE;
+-		filp->f_mode  = FMODE_READ;
+ 	}
+ 
+-	err = 0;
+-	if (filp->f_op && filp->f_op->open) {
+-		err = filp->f_op->open(inode, filp);
+-		if (err) {
+-			fops_put(filp->f_op);
+-			if (access & MAY_WRITE)
+-				put_write_access(inode);
+-
+-			/* I nearly added put_filp() call here, but this filp
+-			 * is really on callers stack frame. -DaveM
+-			 */
+-			atomic_dec(&filp->f_count);
+-		}
+-	}
++	err = init_private_file(filp, dentry, mode);
++	if (!err) {
++		filp->f_flags = flags;
++		filp->f_vfsmnt = fhp->fh_export->ex_mnt;
++	} else if (access & MAY_WRITE)
++		put_write_access(inode);
++
+ out_nfserr:
+ 	if (err)
+ 		err = nfserrno(err);
+@@ -503,9 +492,7 @@
+ 	struct dentry	*dentry = filp->f_dentry;
+ 	struct inode	*inode = dentry->d_inode;
+ 
+-	if (filp->f_op && filp->f_op->release)
+-		filp->f_op->release(inode, filp);
+-	fops_put(filp->f_op);
++	release_private_file(filp);
+ 	if (filp->f_mode & FMODE_WRITE)
+ 		put_write_access(inode);
+ }
+
+--Flight_of_Pigeons_549_000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
