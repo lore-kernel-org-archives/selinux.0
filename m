@@ -1,31 +1,52 @@
-Subject: Re: Modifications to the local.users file
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <420BD28E.6090006@redhat.com>
-References: <420BD28E.6090006@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1ALdOL9014785
+	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 16:39:24 -0500 (EST)
+Subject: Re: TTY question
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1108070175.22172.262.camel@moss-spartans.epoch.ncsc.mil>
+References: <1107915334.6602.1.camel@cobra.ivg2.net>
+	 <1107954368.17568.25.camel@moss-spartans.epoch.ncsc.mil>
+	 <1108000939.5241.10.camel@cobra.ivg2.net>
+	 <1108039573.22172.37.camel@moss-spartans.epoch.ncsc.mil>
+	 <1108043320.326.1.camel@cobra.ivg2.net>
+	 <1108058666.3808.2.camel@cobra.ivg2.net>
+	 <1108062931.4443.3.camel@cobra.ivg2.net>
+	 <1108063884.22172.231.camel@moss-spartans.epoch.ncsc.mil>
+	 <1108067400.5249.10.camel@cobra.ivg2.net>
+	 <1108067486.22172.251.camel@moss-spartans.epoch.ncsc.mil>
+	 <1108069944.3689.9.camel@cobra.ivg2.net>
+	 <1108070175.22172.262.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Message-Id: <1108070964.22172.265.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 10 Feb 2005 16:39:56 -0500
+Message-Id: <1108071596.3689.15.camel@cobra.ivg2.net>
 Mime-Version: 1.0
-Date: Thu, 10 Feb 2005 16:29:25 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-02-10 at 16:30, Daniel J Walsh wrote:
-> You made changes to the local.users file to no longer run m4 on it. 
-> We were doing that to get the ifdef(direct_sysadm_daemon) comment right
-> I think you need these comments for the user to have an idea of how to 
-> configure this
-> file.
+On Thu, 2005-02-10 at 16:16 -0500, Stephen Smalley wrote:
+>On Thu, 2005-02-10 at 16:12, Ivan Gyurdiev wrote:
+>> It's restored fine.
+>> /dev/pts/x goes to sysadm_devpts_t after su
+>>   and back to user_devpts_t after exit.
+>>   
+>>  There are no denials.
+>
+>Ok, good.
 
-Applying m4 to it (with the tunables and program used flags) made it
-unreadable.  If you like, we can just directly put in a comment that
-gives examples, but I don't think we want to run this file through m4 if
-we expect users to edit it.
+Actually here's probably why:
+it's duplicated in su_mini_domain:
+
+# Close and re-open ttys and ptys to get the fd into the correct domain.
+allow $1_su_t { ttyfile ptyfile }:chr_file { read write };
+
+So it's all good.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
