@@ -1,37 +1,31 @@
 Subject: Re: Proposed policy feature: $1_domain attribute
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov
-In-Reply-To: <20050301151205.GC5243@thorium.jmh.mhn.de>
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>, selinux@tycho.nsa.gov
+In-Reply-To: <1109690087.10589.38.camel@moss-spartans.epoch.ncsc.mil>
 References: <1109685518.764.9.camel@cobra.ivg2.net>
 	 <20050301151205.GC5243@thorium.jmh.mhn.de>
+	 <1109690087.10589.38.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 01 Mar 2005 10:14:47 -0500
-Message-Id: <1109690087.10589.38.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 01 Mar 2005 12:16:44 -0500
+Message-Id: <1109697404.3682.6.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-03-01 at 16:12 +0100, Thomas Bleher wrote:
-> I'd be more OK with
->  can_ps($1_t, $1_domain)
->  allow $1_t $1_domain:process signal;
-> because the signal permission is very inconsistently used right now and
-> is sometimes needed to kill misbehaving programs.
+> And allowing the caller to kill the program at any
+>arbitrary point is potentially dangerous, e.g. leading to file
+>corruption or holding of a lock indefinitely. 
 
-Even can_ps() is risky, as it exposes much of the /proc/pid state to
-reading; to do that safely, we'd need to introduce finer-grained typing
-of /proc/pid files (e.g. a derived type for different files
-within /proc/pid).  And allowing the caller to kill the program at any
-arbitrary point is potentially dangerous, e.g. leading to file
-corruption or holding of a lock indefinitely.  Admittedly, signal
-permission does not convey the ability to send SIGKILL or SIGSTOP, but
-other signals may be sufficient to do harm (if the program isn't
-explicitly handling them).
- 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+As opposed to not being able to kill misbehaving programs?
+Shouldn't that be the user's decision? I've been wondering
+why under strict SElinux I always have so much trouble killing
+my broken scripts...
+
+-
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
