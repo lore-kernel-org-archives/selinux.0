@@ -1,167 +1,234 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA20527
-	for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2001 08:48:31 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA06149
-	for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2001 12:46:32 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id MAA06145
-	for <selinux@tycho.nsa.gov>; Thu, 18 Oct 2001 12:46:31 GMT
-Date: Thu, 18 Oct 2001 08:48:13 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: J <jack@i2net.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: [PATCH] Bug fixes for non-PAM newrole and run_init (Was: Re: Updated
- release)
-In-Reply-To: <1003396275.3729.34.camel@BufferOverflow>
-Message-ID: <Pine.GSO.4.33.0110180835470.9994-200000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA06931
+	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2001 12:22:49 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA16652
+	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2001 16:22:16 GMT
+Received: from mrelay.jrc.it (mrelay.jrc.it [139.191.1.65])
+	by jazzband.ncsc.mil  with ESMTP id QAA16648
+	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2001 16:22:14 GMT
+Received: from mrelay.jrc.it (localhost [127.0.0.1])
+	by mrelay.jrc.it (LMC5614B) with ESMTP id f9MGMZs27559
+	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2001 18:22:35 +0200 (MEST)
+Received: from isis-ms.sti.jrc.it (isis-gs.sti.jrc.it [139.191.8.244])
+	by mrelay.jrc.it (LMC5614A) with ESMTP id f9MGMXs27550
+	for <selinux@tycho.nsa.gov>; Mon, 22 Oct 2001 18:22:34 +0200 (MEST)
+Received: from jrc.it ([139.191.63.149]) by isis-ms.sti.jrc.it
+          (Netscape Messaging Server 4.15) with ESMTP id GLM85H00.3BS for
+          <selinux@tycho.nsa.gov>; Mon, 22 Oct 2001 18:22:29 +0200
+Message-ID: <3BD447C4.1050107@jrc.it>
+Date: Mon, 22 Oct 2001 18:22:28 +0200
+From: "James Bishop" <james.bishop@jrc.it>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-758783491-1003409293=:9994"
+To: selinux@tycho.nsa.gov
+Subject: Patched SuSE 7.2 openssh-2.9p1 / Policy for SuSE 7.2?
+Content-Type: multipart/mixed;
+ boundary="------------040002040005050806010407"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This is a multi-part message in MIME format.
+--------------040002040005050806010407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
----559023410-758783491-1003409293=:9994
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Good afternoon,
 
+I compiled and installed the SELinux 2.4.12 distribution on my SuSE 7.2 
+laptop. I got sshd compiled and running from the SuSE openssh-2.9p1 
+sources (diffs for the session.c and shpty.c are attached - these were 
+generated from my modified sources against the openssh-2.9p1 sources 
+with the SuSE patches).
 
-On 18 Oct 2001, J wrote:
+Now I'm trying to sort out an appropriate security policy for the "SuSE 
+way". The first avc error message which I 'm trying to resolve concerns 
+an executable named "blogger". When booting (or switching run-levels), 
+SuSE produces a boot log (/var/log/boot.msg) using a daemon called blogd 
+and messages written to it by blogger. When the /etc/init.d/rc script 
+terminates, blogd is killed.
 
-> If you are not using PAM it didn't compile so I just moved
-<snip>
-> Also newrole.c line 412 almost certanly has an error
-<snip>
+As far as I can see from the flask.pdf and policy-200109261436.pdf 
+documents, I should define a domain for blogd. Domain definitions (e.g. 
+for syslogd & klogd, which appear to be related to blogd - my 
+assumption) reside in the policy/domains/system/*te files, but in 
+general, how should I determine what privileges / capabilities should be 
+assigned to a new  executable?
 
-Yes, sorry about that.  The fixes for using run_init and newrole when not
-using PAM didn't make it in prior to cutting this release.  The attached
-patch fixes these errors and makes a few other minor changes.  To apply,
-save it to ~/shadow.patch, change to your selinux directory, and run
-'patch -p1 < ~/shadow.patch'.  This patch is relative to the sources in
-the release.
+Alternatively, has anyone sorted this out already?
 
-> Also, I have integrated this with a Slackware 8.0 filewall
-> that is re-exporting nfs filesystems to samba for windows clients.
-> It is also running dhcp. I have created iptables, dhcpd, and samba
-> domains. I also had to change a huge amount of file_contexts. It is
-> working fine as a production server. I am very pleased with selinux.
-
-Glad to hear that SELinux is working well for you.  If you are willing to
-share your policy customizations, we would be interested in seeing them.
-If they aren't too specific to your particular setup, we might roll them
-into the example policy in the distribution.  Even if they are very
-specific to your setup, it might still be good to make them available for
-reference by others, perhaps on the sourceforge selinux project site.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+James
 
 
 
----559023410-758783491-1003409293=:9994
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="shadow.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0110180848130.9994@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="shadow.patch"
+--------------040002040005050806010407
+Content-Type: text/plain;
+ name="session.c.diffs"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="session.c.diffs"
 
-SW5kZXg6IHNlbGludXgvdXRpbHMvbmV3cm9sZS9NYWtlZmlsZQ0KZGlmZiAt
-dSBzZWxpbnV4L3V0aWxzL25ld3JvbGUvTWFrZWZpbGU6MS4xLjEuMSBzZWxp
-bnV4L3V0aWxzL25ld3JvbGUvTWFrZWZpbGU6MS4yDQotLS0gc2VsaW51eC91
-dGlscy9uZXdyb2xlL01ha2VmaWxlOjEuMS4xLjEJV2VkIEp1bCAxOCAxNjow
-MzozMCAyMDAxDQorKysgc2VsaW51eC91dGlscy9uZXdyb2xlL01ha2VmaWxl
-CVRodSBPY3QgMTggMTg6MjA6MDggMjAwMQ0KQEAgLTE3LDggKzE3LDggQEAN
-CiAjIEVuZCBQQU0gRmxhZ3MNCiANCiAjIEJlZ2luIFNIQURPVyBmbGFncw0K
-LSMgQ0ZMQUdTICs9IC1XYWxsIC1JL3Vzci9sb2NhbC9zZWxpbnV4L2luY2x1
-ZGUNCi0jIExJQkZMQUdTICs9IC1sY3J5cHQgLWxzZWN1cmUNCisjQ0ZMQUdT
-ICs9IC1XYWxsIC1JL3Vzci9sb2NhbC9zZWxpbnV4L2luY2x1ZGUgLURfR05V
-X1NPVVJDRQ0KKyNMSUJGTEFHUyArPSAtbGNyeXB0IC1sc2VjdXJlDQogIyBF
-bmQgU0hBRE9XIGZsYWdzDQogDQogIyBCZWdpbiBEZWJ1Z2dpbmcgZmxhZ3MN
-CkluZGV4OiBzZWxpbnV4L3V0aWxzL25ld3JvbGUvbmV3cm9sZS5jDQpkaWZm
-IC11IHNlbGludXgvdXRpbHMvbmV3cm9sZS9uZXdyb2xlLmM6MS4xLjEuMSBz
-ZWxpbnV4L3V0aWxzL25ld3JvbGUvbmV3cm9sZS5jOjEuMg0KLS0tIHNlbGlu
-dXgvdXRpbHMvbmV3cm9sZS9uZXdyb2xlLmM6MS4xLjEuMQlXZWQgSnVsIDE4
-IDE2OjAzOjMwIDIwMDENCisrKyBzZWxpbnV4L3V0aWxzL25ld3JvbGUvbmV3
-cm9sZS5jCVRodSBPY3QgMTggMTg6MjA6MDggMjAwMQ0KQEAgLTU2LDcgKzU2
-LDYgQEANCiAjaW5jbHVkZSA8c3lzL3R5cGVzLmg+ICAgICAgICAgICAgLyog
-dG8gbWFrZSBnZXR1aWQoKSBhbmQgZ2V0cHd1aWQoKSBoYXBweSAqLw0KICNp
-bmNsdWRlIDxzeXMvd2FpdC5oPgkJICAvKiBmb3Igd2FpdCgpICovDQogI2lu
-Y2x1ZGUgPHN5cy9zdGF0Lmg+CQkgIC8qIGZvciBzdHJ1Y3Qgc3RhdCBhbmQg
-ZnJpZW5kcyAqLw0KLSNkZWZpbmUgX0dOVV9TT1VSQ0UNCiAjaW5jbHVkZSA8
-Z2V0b3B0Lmg+ICAgICAgICAgICAgICAgLyogZm9yIGdldG9wdF9sb25nKCkg
-Zm9ybSBvZiBnZXRvcHQoKSAqLw0KICNpbmNsdWRlIDxmbGFza191dGlsLmg+
-ICAgICAgICAgICAvKiBmb3IgaXNfZmxhc2tfZW5hYmxlZCgpICovDQogI2lu
-Y2x1ZGUgPHByb2Nfc2VjdXJlLmg+ICAgICAgICAgIC8qIGZvciBnZXRzZWNz
-aWQoKSAqLw0KQEAgLTE4NCw4ICsxODMsNiBAQA0KICAqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKiovDQogDQogDQotI2RlZmluZSBfWE9QRU5fU09VUkNF
-ICAgICAgICAgICAgICAgICAgICAgICAvKiBmb3IgY3J5cHQoKSBpbiB1bmlz
-dGQuaCAqLw0KLQ0KICNpbmNsdWRlIDx1bmlzdGQuaD4gICAgICAgICAgICAg
-ICAgICAgICAgICAgLyogZm9yIGdldHVpZCgpLCBleGl0KCksIGNyeXB0KCkg
-Ki8NCiAjaW5jbHVkZSA8c2hhZG93Lmg+ICAgICAgICAgICAgICAgICAgICAg
-ICAgIC8qIGZvciBzaGFkb3cgcGFzc3dkIGZ1bmN0aW9ucyAqLw0KICNpbmNs
-dWRlIDxzdHJpbmcuaD4gICAgICAgICAgICAgICAgICAgICAgICAgLyogZm9y
-IHN0cmxlbigpLCBtZW1zZXQoKSAqLw0KQEAgLTQwOSw3ICs0MDYsNyBAQA0K
-ICNpZmRlZiBVU0VfUEFNDQogICBpZiggIWF1dGhlbnRpY2F0ZV92aWFfcGFt
-KHBfcGFzc3dkX2xpbmUpICkgew0KICNlbHNlIC8qICFVU0VfUEFNICovDQot
-ICBpZiggIWF1dGhlbnRpY2F0ZV92aWFfc2hhZG93X3Bhc3N3ZChkIHBfcGFz
-c3dkX2xpbmUpICkgew0KKyAgaWYoICFhdXRoZW50aWNhdGVfdmlhX3NoYWRv
-d19wYXNzd2QocF9wYXNzd2RfbGluZSkgKSB7DQogI2VuZGlmIC8qIGlmL2Vs
-c2UgVVNFX1BBTSAqLw0KICAgICBmcHJpbnRmKHN0ZGVyciwibmV3cm9sZTog
-aW5jb3JyZWN0IHBhc3N3b3JkXG4iKTsNCiAgICAgcmV0dXJuKC0xKTsNCklu
-ZGV4OiBzZWxpbnV4L3V0aWxzL3J1bl9pbml0L01ha2VmaWxlDQpkaWZmIC11
-IHNlbGludXgvdXRpbHMvcnVuX2luaXQvTWFrZWZpbGU6MS4xIHNlbGludXgv
-dXRpbHMvcnVuX2luaXQvTWFrZWZpbGU6MS4yDQotLS0gc2VsaW51eC91dGls
-cy9ydW5faW5pdC9NYWtlZmlsZToxLjEJRnJpIE9jdCAxMiAyMDowODo0NCAy
-MDAxDQorKysgc2VsaW51eC91dGlscy9ydW5faW5pdC9NYWtlZmlsZQlUaHUg
-T2N0IDE4IDE4OjIwOjA4IDIwMDENCkBAIC0xNyw3ICsxNyw3IEBADQogIyBF
-bmQgUEFNIEZsYWdzDQogDQogIyBCZWdpbiBTSEFET1cgZmxhZ3MNCi0jQ0ZM
-QUdTICs9IC1XYWxsIC1JL3Vzci9sb2NhbC9zZWxpbnV4L2luY2x1ZGUNCisj
-Q0ZMQUdTICs9IC1XYWxsIC1JL3Vzci9sb2NhbC9zZWxpbnV4L2luY2x1ZGUg
-LURfR05VX1NPVVJDRQ0KICNMSUJGTEFHUyArPSAtbGNyeXB0IC1sc2VjdXJl
-DQogIyBFbmQgU0hBRE9XIGZsYWdzDQogDQpJbmRleDogc2VsaW51eC91dGls
-cy9ydW5faW5pdC9ydW5faW5pdC5jDQpkaWZmIC11IHNlbGludXgvdXRpbHMv
-cnVuX2luaXQvcnVuX2luaXQuYzoxLjEgc2VsaW51eC91dGlscy9ydW5faW5p
-dC9ydW5faW5pdC5jOjEuMg0KLS0tIHNlbGludXgvdXRpbHMvcnVuX2luaXQv
-cnVuX2luaXQuYzoxLjEJRnJpIE9jdCAxMiAyMDowODo0NCAyMDAxDQorKysg
-c2VsaW51eC91dGlscy9ydW5faW5pdC9ydW5faW5pdC5jCVRodSBPY3QgMTgg
-MTg6MjA6MDggMjAwMQ0KQEAgLTQ1LDcgKzQ1LDYgQEANCiAjaW5jbHVkZSA8
-c3lzL3R5cGVzLmg+ICAgICAgICAgICAgLyogdG8gbWFrZSBnZXR1aWQoKSBh
-bmQgZ2V0cHd1aWQoKSBoYXBweSAqLw0KICNpbmNsdWRlIDxzeXMvd2FpdC5o
-PgkJICAvKiBmb3Igd2FpdCgpICovDQogI2luY2x1ZGUgPHN5cy9zdGF0Lmg+
-CQkgIC8qIGZvciBzdHJ1Y3Qgc3RhdCBhbmQgZnJpZW5kcyAqLw0KLSNkZWZp
-bmUgX0dOVV9TT1VSQ0UNCiAjaW5jbHVkZSA8Z2V0b3B0Lmg+ICAgICAgICAg
-ICAgICAgLyogZm9yIGdldG9wdF9sb25nKCkgZm9ybSBvZiBnZXRvcHQoKSAq
-Lw0KICNpbmNsdWRlIDxmbGFza191dGlsLmg+ICAgICAgICAgICAvKiBmb3Ig
-aXNfZmxhc2tfZW5hYmxlZCgpICovDQogI2luY2x1ZGUgPHByb2Nfc2VjdXJl
-Lmg+ICAgICAgICAgIC8qIGZvciBnZXRzZWNzaWQoKSAqLw0KQEAgLTYxLDYg
-KzYwLDcgQEANCiAiICB3aGVyZTogPGluaXQ+IGlzIHRoZSBuYW1lIG9mIHRo
-ZSBpbml0IHNjcmlwdCB0byBydW4sXG4iXA0KICIgICAgICAgICA8YXJncyAu
-Li4+IGFyZSB0aGUgYXJndW1lbnRzIHRvIHRoYXQgc2NyaXB0LiINCiANCisj
-ZGVmaW5lIENPTlRFWFRfRklMRSAiL2V0Yy9zZWN1cml0eS9pbml0cmNfY29u
-dGV4dCINCiAjaWZkZWYgVVNFX1BBTQ0KIA0KIC8qKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioNCkBAIC03NSw3ICs3NSw2IEBADQogI2luY2x1ZGUgPHNl
-Y3VyaXR5L3BhbV9taXNjLmg+ICAgIC8qIGZvciBtaXNjX2NvbnYgUEFNIHV0
-aWxpdHkgZnVuY3Rpb24gKi8NCiANCiAjZGVmaW5lIFNFUlZJQ0VfTkFNRSAi
-cnVuX2luaXQiICAgLyogdGhlIG5hbWUgb2YgdGhpcyBwcm9ncmFtIGZvciBQ
-QU0gKi8NCi0jZGVmaW5lIENPTlRFWFRfRklMRSAiL2V0Yy9zZWN1cml0eS9p
-bml0cmNfY29udGV4dCINCiAJCQkJICAvKiBUaGUgZmlsZSBjb250YWluaW5n
-IHRoZSBjb250ZXh0IHRvIHJ1biANCiAJCQkJICAgKiB0aGUgc2NyaXB0cyB1
-bmRlci4gICAgICAgICAgICAgICAgICAgICAqLw0KIA0KQEAgLTE0MCw5ICsx
-MzksNiBAQA0KICAqIEFsbCBzaGFkb3cgcGFzc3dkIGNvZGUgZ29lcyBpbiB0
-aGlzIHNlY3Rpb24uDQogICoNCiAgKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqLw0KLQ0KLQ0KLSNkZWZpbmUgX1hPUEVOX1NPVVJDRSAgICAgICAgICAg
-ICAgICAgICAgICAgLyogZm9yIGNyeXB0KCkgaW4gdW5pc3RkLmggKi8NCiAN
-CiAjaW5jbHVkZSA8dW5pc3RkLmg+ICAgICAgICAgICAgICAgICAgICAgICAg
-IC8qIGZvciBnZXR1aWQoKSwgZXhpdCgpLCBjcnlwdCgpICovDQogI2luY2x1
-ZGUgPHNoYWRvdy5oPiAgICAgICAgICAgICAgICAgICAgICAgICAvKiBmb3Ig
-c2hhZG93IHBhc3N3ZCBmdW5jdGlvbnMgKi8NCg==
----559023410-758783491-1003409293=:9994--
+--- openssh-2.9p1/session.c	Thu Oct 18 10:58:38 2001
++++ openssh-2.9p1-selinux/session.c	Thu Oct 18 10:58:52 2001
+@@ -68,6 +68,12 @@
+ #include <sat.h>
+ #endif /* WITH_IRIX_AUDIT */
+ 
++#ifdef WITH_SELINUX
++#include <flask_util.h>
++#include <get_user_sid.h>
++#include <proc_secure.h>
++#endif
++
+ #if defined(HAVE_USERSEC_H)
+ #include <usersec.h>
+ #endif
+@@ -1060,6 +1066,25 @@
+ #endif /* WITH_IRIX_ARRAY */
+ #endif /* WITH_IRIX_JOBS */
+ 
++#ifdef WITH_SELINUX
++       int flask_enabled;
++       security_context_t scontext = NULL;
++       security_id_t sid;
++
++       flask_enabled = is_flask_enabled();
++       if (flask_enabled) {
++               if (!get_default_user_sid(pw->pw_name, 
++                                         strlen(pw->pw_name),
++                                         &scontext,
++                                         &sid)) {
++                       fprintf(stderr, "Could not obtain SID for user %s\n",
++                               pw->pw_name);
++                       exit(1);
++               }
++       } 
++#endif
++
++
+ 	/* remove hostkey from the child's memory */
+ 	destroy_sensitive_data();
+ 
+@@ -1497,6 +1522,7 @@
+ 						printf("You have new mail.\n");
+ 				}
+ 			}
++
+ 			/* Start the shell.  Set initial character to '-'. */
+ 			buf[0] = '-';
+ 			strncpy(buf + 1, cp, sizeof(buf) - 1);
+@@ -1505,6 +1531,11 @@
+ 			/* Execute the shell. */
+ 			argv[0] = buf;
+ 			argv[1] = NULL;
++#ifdef WITH_SELINUX
++                        if (flask_enabled) 
++                                execve_secure(shell, argv, env, sid);
++                        else 
++#endif
+ 			execve(shell, argv, env);
+ 
+ 			/* Executing the shell failed. */
+@@ -1531,6 +1562,11 @@
+ 	argv[1] = "-c";
+ 	argv[2] = (char *) command;
+ 	argv[3] = NULL;
++#ifdef WITH_SELINUX
++        if (flask_enabled) 
++                execve_secure(shell, argv, env, sid);
++        else 
++#endif
+ 	execve(shell, argv, env);
+ 	perror(shell);
+ 	exit(1);
+
+--------------040002040005050806010407
+Content-Type: text/plain;
+ name="shpty.c.diffs"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="shpty.c.diffs"
+
+--- openssh-2.9p1/sshpty.c	Thu Oct 18 10:58:38 2001
++++ openssh-2.9p1-selinux/sshpty.c	Thu Oct 18 10:58:52 2001
+@@ -21,6 +21,13 @@
+ #include "sshpty.h"
+ #include "log.h"
+ 
++#ifdef WITH_SELINUX
++#include <flask_util.h>
++#include <get_user_sid.h>
++#include <fs_secure.h>
++#include <ss.h>
++#endif
++
+ /* Pty allocated with _getpty gets broken if we do I_PUSH:es to it. */
+ #if defined(HAVE__GETPTY) || defined(HAVE_OPENPTY)
+ #undef HAVE_DEV_PTMX
+@@ -297,6 +304,23 @@
+ 	mode_t mode;
+ 	struct stat st;
+ 
++#ifdef WITH_SELINUX
++        int flask_enabled;
++        security_context_t scontext = NULL;
++        security_id_t user_sid, old_tty_sid, new_tty_sid;
++ 
++        flask_enabled = is_flask_enabled();
++        if (flask_enabled) {
++                if (!get_default_user_sid(pw->pw_name, 
++                                          strlen(pw->pw_name),
++                                          &scontext,
++                                          &user_sid)) {
++                        fatal("Could not obtain SID for user %s\n",
++                              pw->pw_name);
++                }
++        } 
++#endif
++
+ 	/* Determine the group to make the owner of the tty. */
+ 	grp = getgrnam("tty");
+ 	if (grp) {
+@@ -311,9 +335,22 @@
+ 	 * Change owner and mode of the tty as required.
+ 	 * Warn but continue if filesystem is read-only and the uids match.
+ 	 */
++#ifdef WITH_SELINUX
++        if (flask_enabled) {
++                if (stat_secure(ttyname, &st, &old_tty_sid)) 
++                        fatal("stat_secure(%.100s) failed: %.100s", ttyname,
++                              strerror(errno));
++                if (security_change_sid (user_sid, old_tty_sid, SECCLASS_CHR_FILE, &new_tty_sid) != 0)
++			fatal("security_change_sid(%.100s) failed: %.100s", ttyname, strerror(errno));
++        } else {
++                if (stat(ttyname, &st))
++                        fatal("stat(%.100s) failed: %.100s", ttyname,
++                              strerror(errno));
++        }
++#else
+ 	if (stat(ttyname, &st))
+-		fatal("stat(%.100s) failed: %.100s", ttyname,
+-		    strerror(errno));
++		fatal("stat(%.100s) failed: %.100s", ttyname, strerror(errno));
++#endif
+ 
+ 	if (st.st_uid != pw->pw_uid || st.st_gid != gid) {
+ 		if (chown(ttyname, pw->pw_uid, gid) < 0) {
+@@ -339,4 +376,12 @@
+ 				      ttyname, mode, strerror(errno));
+ 		}
+ 	}
++
++#ifdef WITH_SELINUX
++        if (flask_enabled) {
++                if (chsid (ttyname, new_tty_sid) != 0) 
++                        fatal("chsid(%.100s, %d) failed: %.100s",
++                                      ttyname, new_tty_sid, strerror(errno));
++        }
++#endif
+ }
+
+--------------040002040005050806010407--
+
 
 --
 You have received this message because you are subscribed to the selinux list.
