@@ -1,38 +1,57 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA04441
-	for <selinux@tycho.nsa.gov>; Fri, 13 Dec 2002 10:38:38 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA07388
+	for <selinux@tycho.nsa.gov>; Fri, 13 Dec 2002 16:48:31 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gBDFcbI11097
-	for <selinux@tycho.nsa.gov>; Fri, 13 Dec 2002 15:38:37 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id gBDFcbf11093 for <selinux@tycho.nsa.gov>; Fri, 13 Dec 2002 15:38:37 GMT
-Received: from moss-sooners.epoch.ncsc.mil (moss-sooners [144.51.25.14])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA29114
-	for <selinux@tycho.nsa.gov>; Fri, 13 Dec 2002 10:38:36 -0500 (EST)
-Subject: Updated Release
-From: Howard Holm <hdholm@epoch.ncsc.mil>
+	by jazzband.ncsc.mil  with ESMTP id gBDLmUI02741
+	for <selinux@tycho.nsa.gov>; Fri, 13 Dec 2002 21:48:30 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id gBDLmSf02737 for <selinux@tycho.nsa.gov>; Fri, 13 Dec 2002 21:48:29 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 1A953924C8
+	for <selinux@tycho.nsa.gov>; Sat, 14 Dec 2002 08:48:16 +1100 (EST)
+Date: Fri, 13 Dec 2002 22:48:04 +0100
 To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: 13 Dec 2002 10:41:07 -0500
-Message-Id: <1039794069.29254.2494.camel@moss-sooners.epoch.ncsc.mil>
+Subject: new kernel patch
+Message-ID: <20021213214804.GA1781@lyta.coker.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: russell@coker.com.au (Russell Coker)
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-list archive has been updated. The site includes a new release of the
-LSM-based SELinux prototype. The base kernel versions have been updated
-to 2.4.20 and 2.5.51.  Initial SID and context for SCMP packets has been
-added.  Additional policy enhancement and patch contributions have been
-merged. The logrotate patch has been updated to 3.6.5-2. The private
-file oversight in LSM, inode_doinit bug in SELinux, and selopt compile
-problems have all been fixed.
+The new version seems to have a bug related to file labelling that affects
+devfs.
 
--- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+If I type "ls -l /dev/floppy/0" on a devfs system and the floppy.o module is
+not loaded then the kernel will signal the devfsd daemon (through
+/dev/.devfsd) that this has been attempted.  In a default configuration the
+devfsd will then run "modprobe /dev/floppy/0" and as the modutils config has
+an alias for /dev/floppy/0 to "floppy" the floppy.o device driver is loaded.
 
+With this new kernel it appears that the labelling takes place at a different
+stage such that the devfsd gets to access a device that is not fully
+labelled.
+
+You can see the log entry below, it does not log the action, and it claims
+that there is a file named /dev/floppy which is bogus.  There can be
+no file under /dev on a devfs system so any reference to tclass=file and
+dev=00:06 means a kernel bug.  Without reading the kernel code in question
+I guess that file is the default tclass (defined to 0?).
+
+But interestingly after logging >20 of the following messages the kernel
+then proceeds to assign the right type to the device nodes that have been
+created and then everything goes fine.  Of course I expect this to fail
+catastrophically in the case of device nodes that need my devfs shared
+object to label them, but I haven't got around to testing this yet.
+
+avc:  denied  { } for  pid=65 exe=/sbin/devfsd path=/floppy dev=00:06 ino=527 scontext=system_u:system_r:devfsd_t tcontext=system_u:object_r:unlabeled_t tclass=file
+
+
+
+PS  The reason my system is unable to run my usual email program is due
+to a conflict between unofficial Debian KDE packages that I've been using
+and the new official Debian package og QT.  Just in case you were
+wondering. ;)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
