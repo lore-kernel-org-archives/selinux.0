@@ -1,45 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00937
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 14:51:57 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00961
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 14:53:36 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA17216
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:51:07 GMT
+	by jazzband.ncsc.mil  with ESMTP id TAA17274
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:52:46 GMT
 Received: from orngca-mls03.socal.rr.com (orngca-mls03.socal.rr.com [66.75.160.18])
-	by jazzband.ncsc.mil  with ESMTP id TAA17212
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:51:06 GMT
-Message-ID: <003e01c19ec7$ba2768f0$5357a518@hproject>
+	by jazzband.ncsc.mil  with ESMTP id TAA17270
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:52:45 GMT
+Message-ID: <004601c19ec7$f5640d60$5357a518@hproject>
 From: "Donald Kasper" <kasper@1stconnect.com>
 To: "Tony Stanco" <Tony@freedevelopers.net>, <selinux@tycho.nsa.gov>
 References: <007301c19e99$b2d9fd20$03bca9ac@oemcomputer>
 Subject: Re: GW's CPI and SELinux
-Date: Wed, 16 Jan 2002 11:55:04 -0800
+Date: Wed, 16 Jan 2002 11:56:59 -0800
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0035_01C19E84.A298D040"
+	boundary="----=_NextPart_000_0043_01C19E84.E7209B30"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0035_01C19E84.A298D040
+------=_NextPart_000_0043_01C19E84.E7209B30
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 Last November the DOD announced several military contracts coming up for =
-re-bid including DISA Common Operating Environment.  I just wrote and =
-requested that the COE Kernel development should be a small business =
-set-aside since the development team in under a half-dozen people.  They =
-wrote back that they would consider it.  The rest of their work is =
-maintenance, technical support, testing, and documentation, so is ideal =
-for small business set-aside as well.  Since the COE is a major security =
-project in the 1/4 billion dollar class for DOD in terms of annual =
-expense, I would consider pursuing it. =20
+re-bid including DISA Common Operating Environment. The COE is an =
+enormous common platform and security project funded by DOD.   I just =
+wrote and requested that the COE Kernel development should be a small =
+business set-aside since the development team in under a half-dozen =
+people.  They wrote back that they would consider it.  The rest of their =
+work is maintenance, technical support, testing, and documentation, so =
+is ideal for small business set-aside as well.  Since the COE is a major =
+security project in the 1/4 billion dollar class for DOD in terms of =
+annual expense, I would consider pursuing it. =20
 
 Should you suddenly find it logical to investigating combining the =
 capabilities of SELinux into the COE (a sort of best of breed), and want =
 to bid that, write me. =20
-
+=20
 Since COE is cross-platform and used by at least 100 DOD agencies and =
 all 13 or so Defense organizations (Navy, Army, NATO, Strategic Missle =
 Command, etc), it would make sense to move SELinux into COE, not the =
@@ -108,7 +109,7 @@ just want to chat).=20
   http://www.cpi.seas.gwu.edu
 
 
-------=_NextPart_000_0035_01C19E84.A298D040
+------=_NextPart_000_0043_01C19E84.E7209B30
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -124,7 +125,9 @@ http-equiv=3DContent-Type>
 <DIV><FONT face=3DArial size=3D2>Last November the DOD announced several =
 military=20
 contracts coming up for re-bid including DISA Common Operating=20
-Environment.&nbsp; I just wrote and requested that the COE Kernel =
+Environment.&nbsp;The COE is an enormous common platform and security =
+project=20
+funded by DOD.&nbsp;  I just wrote and requested that the COE Kernel =
 development=20
 should be a small business set-aside since the development team in under =
 a=20
@@ -254,7 +257,7 @@ href=3D"http://www.cpi.seas.gwu.edu">http://www.cpi.seas.gwu.edu</A></FON=
 T></DIV>
   <DIV>&nbsp;</DIV></BLOCKQUOTE></BODY></HTML>
 
-------=_NextPart_000_0035_01C19E84.A298D040--
+------=_NextPart_000_0043_01C19E84.E7209B30--
 
 
 --
