@@ -1,38 +1,33 @@
-Subject: Re: Proposed change to install
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBSIuAIi023778
+	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 13:56:10 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBSIuDLa029582
+	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 18:56:13 GMT
+Subject: Re: Newrole in targeted mode
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41D1A19D.8000704@redhat.com>
-References: <41D00FE7.2070203@redhat.com>
-	 <1104158005.15615.84.camel@moss-spartans.epoch.ncsc.mil>
-	 <41D1A19D.8000704@redhat.com>
+To: Nick Gray <nick-lists@austin.rr.com>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <1104259373.22401.0.camel@hawaii.grays-systems.com>
+References: <1104259373.22401.0.camel@hawaii.grays-systems.com>
 Content-Type: text/plain
-Message-Id: <1104259387.21391.103.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1104259847.21391.107.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 28 Dec 2004 13:43:07 -0500
+Date: Tue, 28 Dec 2004 13:50:47 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-12-28 at 13:10, Daniel J Walsh wrote:
-> Could add check to see if matchpathcon is failing for something other 
-> than EPERM, which maybe should be reported???
+On Tue, 2004-12-28 at 13:42, Nick Gray wrote:
+> I am trying this as root.
+> 
+> newrole -r sysadm_r -t sysadm_t
+> 
+> It seems to work, but my context doesn't change and I can't change the
+> enforce to 0. Isn't this still how it is done with the targeted policy?
 
-EACCES would be the common case, for processes that cannot read
-file_contexts.  ENOENT is another possible frequent case, for files that
-match no entry or match <<none>> (if we change matchpathcon to return -1
-with errno ENOENT for that case).  The only other error (and the only
-one worth reporting) might be ENOMEM for memory allocation failures.
-
-> Sounds good, that way we don't need to check.
-
-Or check for ENOENT and ignore the error in that case.  That is likely
-what we will want for restorecon once matchpathcon handles <<none>>
-internally.
-
-> +static int setdefaultfilecon(const char *path) {
-
-Might as well make this void and not return any error code as the caller
-doesn't use it anyway.
+newrole serves no purpose under targeted policy; users are unconfined.
+setenforce 0 should work for you as root (from unconfined_t, of course,
+which is what you should already be in for a user session).
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
