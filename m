@@ -1,32 +1,30 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i67KmRrT008848
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 16:48:27 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i67KoJrT008879
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 16:50:20 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i67Km8Cu003976
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 20:48:09 GMT
-Subject: Re: latest LVM policy
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i67Ko0Cu004051
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 20:50:01 GMT
+Subject: Re: dnsmasq policy advice
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200407050030.57905.russell@coker.com.au>
-References: <200407050030.57905.russell@coker.com.au>
+Cc: Greg Norris <haphazard@kc.rr.com>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200407061006.02673.russell@coker.com.au>
+References: <20040703032852.GA23857@yggdrasil.localdomain>
+	 <20040704124436.GA3976@yggdrasil.localdomain>
+	 <20040705161325.GA7712@yggdrasil.localdomain>
+	 <200407061006.02673.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1089233290.1774.266.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1089233317.1774.268.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 07 Jul 2004 16:48:11 -0400
+Date: Wed, 07 Jul 2004 16:48:37 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2004-07-04 at 10:30, Russell Coker wrote:
-> I have attached my latest policy for LVM.  It works for cryptsetup as well as 
-> other LVM stuff.
-> 
-> With this policy I have a machine mounting a LVM file system and using 
-> encrypted swap.
-> 
-> Steve, please commit this to SF.
+On Mon, 2004-07-05 at 20:06, Russell Coker wrote:
+> Steve, I think that this is ready for upstream inclusion along with the 
+> net_contexts changes previously discussed.
 
-Merged.
+Thanks, merged.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
