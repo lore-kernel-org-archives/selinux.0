@@ -1,41 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAKA4PRb022736
-	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 05:04:25 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAKA3rp5011254
-	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 10:03:53 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hAKA3qt0011251
-	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 10:03:53 GMT
-Date: Thu, 20 Nov 2003 10:04:09 +0000
-From: Dale Amon <amon@vnl.com>
-To: Bill Laut <wlsel@verizon.net>
-Cc: russell@coker.com.au, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: calling Bill Laut
-Message-ID: <20031120100409.GD32764@vnl.com>
-References: <200311200308.38077.russell@coker.com.au> <200311192217.34777.wlsel@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200311192217.34777.wlsel@verizon.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAKAkYRb022824
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 05:46:34 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hAKAkXqY017392
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 10:46:33 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+        by jazzband.ncsc.mil  with ESMTP id hAKAkW0o017389 for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 10:46:32 GMT
+Message-ID: <3FBC9B4A.30504@ipen.br>
+Date: Thu, 20 Nov 2003 08:45:30 -0200
+From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
+MIME-Version: 1.0
+To: Russell Coker <russell@coker.com.au>, selinux <selinux@tycho.nsa.gov>
+Subject: initrd image
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 19, 2003 at 10:17:34PM -0500, Bill Laut wrote:
-> Unfortunately, my involvement in SE-X was frustratingly, temporarily 
-> side-lined for a number of weeks because of other obligations.  I *will* be 
-> back at it with a vengeance after our Thanksgiving holiday, with the goal of 
-> having an experimental prototype available sometime in December.
+Hi.
 
-Hmmm... S-EX for Christmas then? ;-)
+You sent a email to selinux list saying that ceased the use of the initrd.
+Please, I'd like to know, how you are loading first policy to running 
+before the init process. Because, if I load policy after the init 
+process one inconsistency is verified and, in my case, I not succeeded 
+in login to the system, due selinux not acknowledge the context default 
+for the users.
+
+Thanks.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Carlos Anisio Monteiro  <monteiro@ipen.br>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
