@@ -1,44 +1,55 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA27883
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 06:51:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA28295
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 08:35:16 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id KAA23562
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 10:50:54 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id KAA23552
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 10:50:52 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: giovanni <giovanni@unirel.it>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Apache on SELinux
-Date: Mon, 29 Jul 2002 12:51:25 +0200
-References: <200207291212.26166.giovanni@unirel.it>
-In-Reply-To: <200207291212.26166.giovanni@unirel.it>
+	by jazzswing.ncsc.mil  with ESMTP id MAA27437
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 12:34:27 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id MAA27433
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 12:34:26 GMT
+Date: Mon, 29 Jul 2002 08:34:16 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Brian May <bam@snoopy.apana.org.au>
+cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fwd: Bug#153238: newrole: should be able to run any command,
+ not just shell
+In-Reply-To: <20020724234927.GC1127@snoopy.apana.org.au>
+Message-ID: <Pine.GSO.4.33.0207290828350.10600-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020729105126.1138E69C@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 29 Jul 2002 12:12, giovanni wrote:
-> We are going to experiment apache web server on selinux. If someone has
-> already done it, could give us some information or a configuration example?
 
-A default configuration of SE Linux and a default configuration of Apache 
-should work together without any problems.
+On Thu, 25 Jul 2002, Brian May wrote:
 
-However Apache is a very complex program with lots of options for 
-configuration, and it's likely that you will choose configuration options 
-that require modifications to the policy.  But it's difficult to predict what 
-these are likely to be, run it in permissive mode at first and you'll soon 
-see what needs to be changed.
+> However, forcing you to run commands via the shell, means that arguments
+> are parsed twice, which could potentially introduce/allow security holes.
+<snip>
+> I suggest another solution, which should fix this problem and
+> the domain problem.
+>
+> Create a small program that simply calls execv on its
+> parameters. Use this small program instead of the shell.
+<snip>
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+I'm still not convinced that this is the desired general behavior for
+newrole.  Additionally, notice that you would then need to either label
+this small program with shell_exec_t or add entrypoint permission to
+whatever type you use for this small program.
+
+If you really want this feature, I'd suggest creating a patch to newrole
+for a '-s' or '--shell' option, like the corresponding su options.  You
+could then run newrole with your small program specified as the shell (if
+permitted by the policy).
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
