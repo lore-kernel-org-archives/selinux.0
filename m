@@ -1,47 +1,34 @@
-Date: Sun, 18 Jan 2004 17:30:57 +0000
-Message-ID: <3FCAE98A0003E0EF@hawk.dcu.ie>
-From: "Gavin O' Gorman" <gavin.ogorman2@mail.dcu.ie>
-Subject: ipsec network labeling/network management
-To: SELinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0J3EARb018895
+	for <selinux@tycho.nsa.gov>; Sun, 18 Jan 2004 22:14:11 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0J3D0xr008456
+	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2004 03:13:00 GMT
+Received: from mutemail.com ([24.244.170.124])
+	by jazzswing.ncsc.mil  with SMTP id i0J3D0Yc008453
+	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2004 03:13:00 GMT
+Date: Sun, 18 Jan 2004 19:12:01 -0800
+From: Bill McCarty <bmccarty@pt-net.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: RHEL 3 policy and policy-sources RPMs
+Message-ID: <85630379.1074453121@[192.168.0.100]>
+In-Reply-To: <400B49EE.2080502@redhat.com>
+References: <222304176.1074345262@[192.168.0.100]>
+ <400B49EE.2080502@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-15"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello, 
+Hi Daniel,
 
-My apologies if this mail is OT. I'm interested in a possible project concerning
-SELinux. Specifically, implementing a policy management tool/daemon for
-a network of machines running SELinux. The daemon would set the policies
-to be used on the LAN. For example, policies concerning network traffic
-could be issued to client machines. Denying traffic from certain ips/ports
-to other machines and so forth.
-It could possibly be plugged into a IDS of some shape or form and dynamicly
-update the policies upon detection of worms/incidents.. Possibly. It would
-allow for easy management of client machine policies, editing and updating.
+Thanks for your timely and helpful response! RHEL with SELinux rocks!
 
->From a quick search through the archives, I see that a few people are working
-on the ipsec/network labelling. I'm not certain if this was for 2.4 or 2.6
-however ? Obviously, for the policy daemon to be effective with regards
-setting policies on network traffic, this labelling would be required. If
-nothing substantial has been done on this so far, I would be interested
-in doing it, from the pov of laying the ground work for the policy daemon.
+Cheers,
 
-This project would be undertaken as a postgraduate practicum for around
-2.5-3 months. I'd really appreciate peoples opinions on the idea as I have
-only read through the SELinux documentation, and not examined any source
-code as yet. Would the project be of any use ? Are there people out there
-working on the same thing ?
-
-Thanks very much, and again, apologies if this if off topic.
-
-Gavin O' Gorman
-MSc. Student 
-Security & Forensic Computing, DCU, Ireland.
-http://www.computing.dcu.ie
-
-
-
+---------------------------------------------------
+Bill McCarty
 
 --
 This message was distributed to subscribers of the selinux mailing list.
