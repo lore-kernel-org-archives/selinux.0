@@ -1,46 +1,59 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA17569
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 14:23:40 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA07978
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 18:22:00 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id SAA07970 for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 18:21:58 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "M. H." <metalhead00@hotmail.com>, selinux@tycho.nsa.gov
-Subject: Re: building libsecure.a advice
-Date: Wed, 28 Aug 2002 20:23:26 +0200
-References: <F517f8CATwsi6PJyLHI0000cfaa@hotmail.com>
-In-Reply-To: <F517f8CATwsi6PJyLHI0000cfaa@hotmail.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA18300
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 15:33:52 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA15965
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 19:32:41 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id TAA15961
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 19:32:41 GMT
+Date: Wed, 28 Aug 2002 15:32:52 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: =?iso-8859-1?Q?Mark=20M=FCller?= <trusted@web.de>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: Direct logins (via local and ssh) as httpd_admin_r?
+In-Reply-To: <200208281253.g7SCrQX31618@mailgate5.cinetic.de>
+Message-ID: <Pine.GSO.4.33.0208281518590.25057-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020828182327.3A6C4357C@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 28 Aug 2002 19:59, M. H. wrote:
-> Has anyone tried to build JUST libsecure.a. Since SELinux applications need
-> to be linked against it, I want to separate all necessary headers and
-> libraries (seems like libsecure.a is the only one) so I can integrate them
-> in my build environment (rather than relying on the default include or lib
-> directories of the system.)
-> A problem I've run into is finding a simple way of rebuilding the library
-> without installing the whole kernel. I tried to run 'make' in the
-> selinux/libsecure directory but that fails since selinux/libsecure/include
-> misses some necessary files (some of those are in
-> lsm-2.4/security/selinux/include.) Has anyone had any luck building ONLY
-> libsecure.a?
 
-Good suggestion, I think it would be handy to have the library code separated 
-from the rest of the selinux-small code.
+On Wed, 28 Aug 2002, [iso-8859-1] Mark Müller wrote:
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+> I can't login directly as httpd_admin_r. The default_context is set properly, but the following error occurs:
+>
+> Local login:
+>
+> avc:  denied  { transition } for  pid=2178 exe=/bin/login path=/bin/bash dev=08:07 ino=46120 scontext=system_u:system_r:local_login_t tcontext=webadmin:httpd_admin_r:httpd_admin_t tclass=process
+>
+> SSH login:
+> avc:  denied  { transition } for  pid=2183 exe=/usr/sbin/sshd path=/bin/bash dev=08:07 ino=46120 scontext=system_u:system_r:sshd_t tcontext=webadmin:httpd_admin_r:httpd_admin_t tclass=process
+>
+> I cannot solve this neither with:
+> allow sshd_t httpd_admin_t:process { transition };
+>
+> nor with
+> domain_trans(sshd_t, shell_exec_t, httpd_admin_t)
+>
+> (Login as user_t and newrole -r httpd_admin_r works)
+
+I think that the httpd_admin_r role and httpd_admin_t domain need some
+work to be truly useable.  In addition to allowing the role transition
+in policy/rbac and the domain transitions in {ssh.te,login.te}, you need
+to work out how to deal with home directory types, terminal types, etc.
+If your web administrator uses a separate account for all web
+administration tasks, then you could set up a full user role via the
+full_user_role() macro, with its own home directory type, terminal type,
+etc.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
