@@ -1,77 +1,66 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59JbxrT022332
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 15:37:59 -0400 (EDT)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i59JbtP2019919
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 15:37:55 -0400 (EDT)
-Message-Id: <200406091937.i59Jbpmq025810@turing-police.cc.vt.edu>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: too many sysadmfile? 
-In-Reply-To: Your message of "Wed, 09 Jun 2004 11:58:03 CDT."
-             <1086800282.19414.26.camel@gorn.pebenito.net>
-From: Valdis.Kletnieks@vt.edu
-References: <1086800282.19414.26.camel@gorn.pebenito.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59LiBrT023064
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 17:44:12 -0400 (EDT)
+Received: from smtp800.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i59Li9Qd016961
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 17:44:09 -0400 (EDT)
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp800.mail.ukl.yahoo.com with SMTP; 9 Jun 2004 21:44:06 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BYAEC-0001dB-25
+	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 21:03:20 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BYAp4-0004up-5r
+	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 21:41:26 +0000
+Date: Wed, 9 Jun 2004 21:41:26 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Message-ID: <20040609214126.GF5727@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_840008494P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Wed, 09 Jun 2004 15:37:51 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_840008494P
-Content-Type: text/plain; charset=us-ascii
+hi,
 
-On Wed, 09 Jun 2004 11:58:03 CDT, Chris PeBenito <pebenito@gentoo.org>  said:
-> Its true that since sysadm_t can already relabel almost everything, it
-> makes this change moot from a security perspective, since it can relabel
-> a file to something it can modify.  However, by limiting normal access,
-> it affords some protection against accidental overwrites and deletions,
-> and from malicious programs a sysadmin might accidentally run.  In my
-> opinion, the packagers (rpm_t, etc) should be the only ones with access
-> all file_types.
+debian's postfix init.d script does a whole stackload of
+things like copy over /etc/localtime, /etc/services.
 
-Well... yes... True in theory, but... ;)
+it's rather scary.
 
-The other side of the coin is system manageability - let's say that rpm_t is
-able to write all file types, but the admin can't.
+... and it doesn't work.
 
-Now, assume you do this:   "rpm -Fvh prog1.rpm prog2.rpm". and that the two
-RPMs have pre-req chains  so you have to do both, and that create .rpmold (or
-worse, .rpmnew) files when they install with diferent foo_t labels.
+by disabling the chroot (setting SYNC_CHROOT="") i managed
+to get postfix to start (and it works)
 
-How many times do you need to 'newrole' to deal with all the .rpmnew files?
+i don't know if i was supposed to have these enabled, but
+i have added them to the end of the postfix.te file (which
+came up during an "enforcing=no" boot)
 
-In the real world, the additional security it buys is limited, because the
-admin *can* manage to newrole to each foo_t (unless you run with very strict
-compartmentalization and can afford enough admins so you can give each one only
-a few foo_t).  Those sites are probably the sort of military/spook systems
-where newrole has been modified(*) to require a counter-password from the SSO or
-similar on each newrole.. ;)
-
-In any other environment, all it does is annoy the sysadmin and potentially
-make them not bother installing a patch because the resulting afternoon of
-newrole hell convinces them not to do it...
-
-(*) IBM's AIX documents how to create a two-password logon sequence, where for
-user A to get on, they have to enter A's password, and then B has to enter B's
-password - amybody willing to admit to a pam module or similar hook for login/
-su/newrole?
+	allow postfix_cleanup_t postfix_cleanup_t:capability { sys_chroot };
+	allow postfix_local_t mail_spool_t:dir { remove_name };
+	allow postfix_local_t mail_spool_t:file { create unlink };
+	allow postfix_master_t postfix_master_t:capability { sys_chroot };
+	allow postfix_pickup_t postfix_pickup_t:capability { sys_chroot };
+	allow postfix_qmgr_t postfix_qmgr_t:capability { sys_chroot };
 
 
---==_Exmh_840008494P
-Content-Type: application/pgp-signature
+p.s. yes i tried an exim4 setup with those execve child renaming
+tricks and it's all got horribly pear-shaped...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+-- 
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
-iD8DBQFAx2cOcC3lWbTT17ARArg2AKCFAgWjyTFocJ8E7A6rV2UmxvvTZgCgqAeG
-rL82IMZLfwHWrUrOywBP4vU=
-=qIlg
------END PGP SIGNATURE-----
-
---==_Exmh_840008494P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
