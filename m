@@ -1,52 +1,35 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA00168
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 19:09:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA01611
+	for <selinux@tycho.nsa.gov>; Sat, 17 Aug 2002 08:58:28 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA02501
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 23:08:42 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id XAA02497
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 23:08:40 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id A1E2F92466
-	for <selinux@tycho.nsa.gov>; Sat, 17 Aug 2002 09:09:39 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id DFD12A19
-	for <selinux@tycho.nsa.gov>; Sat, 17 Aug 2002 01:09:31 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: shadow_t
-Date: Sat, 17 Aug 2002 01:09:31 +0200
+	by jazzswing.ncsc.mil  with ESMTP id MAA24243
+	for <selinux@tycho.nsa.gov>; Sat, 17 Aug 2002 12:57:26 GMT
+Received: from web40017.mail.yahoo.com (web40017.mail.yahoo.com [66.218.78.57])
+	by jazzswing.ncsc.mil  with SMTP id MAA24239
+	for <selinux@tycho.nsa.gov>; Sat, 17 Aug 2002 12:57:26 GMT
+Message-ID: <20020817125827.67159.qmail@web40017.mail.yahoo.com>
+Date: Sat, 17 Aug 2002 05:58:27 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: entrypoint permission
+To: SELinux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <20020816230931.DFD12A19@lyta.coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've got shadow_t working correctly with my policy.
+Everyone,
 
-I have changed the spasswd.c program to relabel the /etc/passwd and 
-/etc/shadow files after running /usr/bin/passwd, and I made a 
-file_type_auto_trans() rule to have them default to shadow_t (which 
-unfortunately gives a momentary situation where /etc/passwd will be 
-unreadable).  It would also be unfortunate if there was a power outage at 
-that moment...
+      What does the 'entrypoint' permission do? It seems to be related to
+domains transfer and program execution, but not in an intuitive way.
 
-So I'm thinking of having a program run from a boot script to fix the type of 
-/etc/passwd.
+Thanks,
 
-Also I've got vipw and adduser also working with shadow_t...
+Brad
 
-This isn't ideal, but the code for the chsh/chfn/vipw/etc programs is really 
-ugly and I'm afraid of causing more problems than I fix if I change them.
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
