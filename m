@@ -1,49 +1,81 @@
-Message-ID: <3B7D69CD.2EC446B1@earthlink.net>
-Date: Fri, 17 Aug 2001 12:00:29 -0700
+Message-ID: <3B7D75C0.23A2B9C9@earthlink.net>
+Date: Fri, 17 Aug 2001 12:51:28 -0700
 From: John Scroggins <dataefx@earthlink.net>
 MIME-Version: 1.0
-To: "Benjamin D. Thomas" <ben@linuxsecurity.com>
-CC: Christopher Mahmood <ckm@suse.com>,
-        "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
-Subject: Re: [Fwd: Partial TOC for Comment]
-References: <20010817172038.46E2811D317@juggernaut.guardiandigital.com>
+To: Conan Callen <ccallen@windowpane.com>
+CC: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>,
+        Christopher Mahmood <ckm@suse.com>
+Subject: Re: Partial TOC for Comment]
+References: <3B7C7C69.E7B84C68@earthlink.net> <003f01c12746$e02faf60$3a8314d1@nwlink.com>
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-"Benjamin D. Thomas" wrote:
+> Conan Callen wrote:
 > 
-> > In summary, I think you need to tell not only how to set it up
-> > and configure it and what the theory is behind it, but also
-> > how to use it.
+> More on supported scenarios -
 > 
-> Yes, agreed.  I like the format of the document and what you have is
-> great.  I just think it is missing sections on installation,
-> configuration, and common issues.  I realize that documents of this sort
-> have been written, but they should be compiled into this single document.
+> As an example of the "Supported Scenario" idea is this:
+
+hmm.. sounds interesting.. good idea, I'll add that as a heading
+9hopefully we will be able to fill it out ..;) 
 > 
-> Thanks,
+> The Redhat 7.1 Linux installer gives you the following choices:
+> Workstation
+> Server
+> Laptop
+> Custom System
+
+I can leave a placeholder for laptops, but the primary focus will start
+like this: servers --> workstations --> custom deployments 
+
+> It also allows you to choose your firewall settings.
+> Of coursed, depending upon what you select, the installer will place
+> different components onto your system. A list of supported scenarios
+> would also helps to limit the scope of customer support. When
+> contacting redhat for support, I would imagine that the first thing
+> they ask you is which sku you selected.
+
+This sounds close to a distro specific guide, e.g. SELinux for RedHat
+7.x Administrator Guide.. since the NSA has provided a source package, I
+tend toward staying with a generic application. I would not want to box
+some one into a distro descision.  
+
+
+> These represent what most people will be interested in over the next
+> year or so. Supporting just this set would help to limit the scope of
+> SELinux,
+
+agreed ..  
+
+> and the amount of work that the dev's need to do. I dont know
+> if there is an installer for SELinux (just finished the redhat install
+> at last night) but if would be convienent if there was an install had
+> a selection menu like the above list.
+
+This is something I would like to do, but I am not skilled in this area
+.. this is your chance to volunteer....  :)
+
+ Has anyone considered wraping
+> selinux into an rpm package?
+
+Due to the fact SELinux is supposed to be secure, I will not support
+.rpm installation documeentation in the guide. :( 
+I am suggesting the package be built with installer which runs from a
+shell (i.e., installSEL.sh)..I find no confidence in deploying a binary
+type kernel package in a secure environ. Building from source is not an
+option, at least in my mind.. I could be wrong .... let me know 
+
+-- Cheers 
+
+--JS  
+
 > 
-> Ben
-
-Thanks, all this input is great.. 
-
-I was thinking along these lines -- due to the fact that SELinux already
-has an INSTALL document, I was talking with a few people about scripting
-a major portion of the commands, then possibly have some one work one a
-UI similar to the kernel menuconfig dialog screen for editing the policy
-files. I also believe this is the place to add the following items:
-
-1) Getting the Kernel Source 
-2) Editing the Policy Files (integrate the UI feature here) 
-3) Building the Kernel (scripted to a single command like Debian
-"makekpkg") and Related Tools
-4) Relabeling the Filesystem (have a script which parses the contents of
-the default file vs. current filesystem and edits or deletes the
-appropriate entries) 
-
-If we can get these to fly, then the amount of redundancy would be
-limited.
+> Transactions on Software Engineering (Dec 1998, V24, N12) This is a
+> special issue on the topic of using scenarios to determine
+> requirements.
+> 
+> Conan
 
 --
 You have received this message because you are subscribed to the selinux list.
