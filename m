@@ -1,55 +1,88 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBG4djRb023711
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 23:39:46 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBGItqRb027086
+	for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 13:55:52 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hBG4ctk1027339
-	for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 04:38:56 GMT
-Date: Tue, 16 Dec 2003 13:39:40 +0900
-From: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: ynakam@ori.hitachi-sk.co.jp, selinux@tycho.nsa.gov, russell@coker.com.au,
-   hdholm@epoch.ncsc.mil
-Subject: Re: log_domain macro
-Message-Id: <20031216133940.568e9795.ynakam@ori.hitachi-sk.co.jp>
-In-Reply-To: <1071503117.28044.76.camel@moss-spartans.epoch.ncsc.mil>
-References: <20031215190237.4f459090.ynakam@ori.hitachi-sk.co.jp>
-	<1071503117.28044.76.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	by jazzswing.ncsc.mil  with ESMTP id hBGIt2jx013641
+	for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 18:55:02 GMT
+Received: from mail.gmx.net (pop.gmx.net [213.165.64.20])
+	by jazzswing.ncsc.mil  with SMTP id hBGIt0SR013548
+	for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 18:55:01 GMT
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: ramsdell@mitre.org (John D. Ramsdell)
+Subject: slat makefiles
+Date: Tue, 16 Dec 2003 19:52:29 +0100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_tR13/RjyrmJbqBn"
+Message-Id: <200312161952.29595.carstengrohmann@gmx.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> > define(`append_log_domain', `
-> > type $1_log_t, file_type, sysadmfile, logfile;
-> > allow $1_t var_log_t:dir rw_dir_perms;
-> > allow $1_t $1_log_t:file  { create ra_file_perms };
-> > type_transition $1_t var_log_t:file $1_log_t;
-> BTW, you might want to reduce the directory permissions in the above
-> macro to ra_dir_perms, since there is no reason to allow the domain to
-> remove files from the directory in that case.
 
-As you say, "remove_name" granted by rw_dir_perms is not necessary.
-So the following is better.
+--Boundary-00=_tR13/RjyrmJbqBn
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-define(`append_log_domain', `
-type $1_log_t, file_type, sysadmfile, logfile;
-allow $1_t var_log_t:dir ra_dir_perms;
-allow $1_t $1_log_t:file  { create ra_file_perms };
-type_transition $1_t var_log_t:file $1_log_t;
-')
+Hi John,
 
-> Note that there is a create_append_log_file() macro in core_macros.te 
-> that is used by syslogd_t and bootloader_t, 
+today I've problems to build a slat rpm with your spec file. The 
+attached patch adds $DESTDIR to some makefiles to install all files 
+to the right destination like /var/tmp/slat.../ .
 
-In apache.te logdir_domain macro is used, 
-but create_append_log_file will be prefered.
-Because in FedoraCore1, apache create log files on its own directory(/var/log/httpd/).
+Greetings
 
-append_log_domain macro will be useful when a daemon creates its own log file on  /var/log/.
+Carsten
 
-----
-Yuichi Nakamura
+--Boundary-00=_tR13/RjyrmJbqBn
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="slat-1.0.1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="slat-1.0.1.patch"
+
+diff -ur slat-1.0.1.orig/doc/Makefile.in slat-1.0.1/doc/Makefile.in
+--- slat-1.0.1.orig/doc/Makefile.in	2003-11-05 14:07:21.000000000 +0100
++++ slat-1.0.1/doc/Makefile.in	2003-12-16 19:40:38.000000000 +0100
+@@ -52,10 +52,10 @@
+ 	done
+ 
+ install:	all
+-	$(INSTALL_DATA) $(BASE_NAME).pdf $(pkgdatadir)/$(BASE_NAME).pdf
++	$(INSTALL_DATA) $(BASE_NAME).pdf $(DESTDIR)/$(pkgdatadir)/$(BASE_NAME).pdf
+ 
+ uninstall:
+-	rm -f $(pkgdatadir)/$(BASE_NAME).pdf
++	rm -f $(DESTDIR)/$(pkgdatadir)/$(BASE_NAME).pdf
+ 
+ distclean:	clean
+ 	-rm Makefile
+diff -ur slat-1.0.1.orig/ml/Makefile.in slat-1.0.1/ml/Makefile.in
+--- slat-1.0.1.orig/ml/Makefile.in	2003-11-05 14:07:21.000000000 +0100
++++ slat-1.0.1/ml/Makefile.in	2003-12-16 19:42:11.000000000 +0100
+@@ -136,14 +136,14 @@
+ 
+ install:	all
+ 	@list='$(PROGRAMS)'; for p in $$list; do \
+-	  echo " $(INSTALL_PROGRAM) $$p $(bindir)/$$p"; \
+-	  $(INSTALL_PROGRAM) $$p $(bindir)/$$p; \
++	  echo " $(INSTALL_PROGRAM) $$p $(DESTDIR)/$(bindir)/$$p"; \
++	  $(INSTALL_PROGRAM) $$p $(DESTDIR)/$(bindir)/$$p; \
+ 	done
+ 
+ uninstall:
+ 	@list='$(PROGRAMS)'; for p in $$list; do \
+-	  echo " rm -f $(bindir)/$$p"; \
+-	  rm -f $(bindir)/$$p; \
++	  echo " rm -f $(DESTDIR)/$(bindir)/$$p"; \
++	  rm -f $(DESTDIR)/$(bindir)/$$p; \
+ 	done
+ 
+ # Dependency checking
+
+--Boundary-00=_tR13/RjyrmJbqBn--
 
 
 --
