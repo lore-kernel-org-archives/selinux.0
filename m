@@ -1,72 +1,72 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4GMkJI4026422
-	for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 18:46:19 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4HH61I4028200
+	for <selinux@tycho.nsa.gov>; Sat, 17 May 2003 13:06:02 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4GMjwQj029944
-	for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 22:45:58 GMT
-Received: from mail.slb.com (nammta01.sugar-land.nam.slb.com [163.188.150.130])
-	by jazzswing.ncsc.mil  with ESMTP id h4GMjvxS029939
-	for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 22:45:58 GMT
-Received: from conversion-daemon.nammta01.sugar-land.nam.slb.com by
- nammta01.sugar-land.nam.slb.com
- (iPlanet Messaging Server 5.2 HotFix 1.14 (built Mar 18 2003))
- id <0HF00080149URR@nammta01.sugar-land.nam.slb.com> for selinux@tycho.nsa.gov;
- Fri, 16 May 2003 22:46:07 +0000 (GMT)
-Received: from namems01.sugar-land.oilfield.slb.com
- (namems01.sugar-land.oilfield.slb.com [163.188.150.131])
- by nammta01.sugar-land.nam.slb.com
- (iPlanet Messaging Server 5.2 HotFix 1.14 (built Mar 18 2003))
- with ESMTP id <0HF000L0E4KDFJ@nammta01.sugar-land.nam.slb.com> for
- selinux@tycho.nsa.gov; Fri, 16 May 2003 22:45:49 +0000 (GMT)
-Received: from conversion-daemon.namems01.sugar-land.oilfield.slb.com by
- namems01.sugar-land.oilfield.slb.com
- (iPlanet Messaging Server 5.2 HotFix 1.14 (built Mar 18 2003))
- id <0HF000G014JN8Z@namems01.sugar-land.oilfield.slb.com> for
- selinux@tycho.nsa.gov; Fri, 16 May 2003 22:45:48 +0000 (GMT)
-Date: Fri, 16 May 2003 17:45:46 -0500
-From: Francois Leclerc <leclerc@houston.sema.slb.com>
-Subject: Re: [work] Re: Has anyone had or seen a SELinux system approved for
- classifieduse?
-To: Jon Holstrom <WEBMASTER@web-tricks.net>
-Cc: selinux@tycho.nsa.gov
-Message-id: <3EC56A1A.8C010B85@houston.sema.slb.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-References: <3EC2AE1D.9040509@oem.doe.gov>
- <003101c31beb$d6514260$fbc8a8c0@DRAGON>
+	by jazzswing.ncsc.mil  with ESMTP id h4HH5PQj028619
+	for <selinux@tycho.nsa.gov>; Sat, 17 May 2003 17:05:25 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+	by jazzswing.ncsc.mil  with ESMTP id h4HH5OxS028616
+	for <selinux@tycho.nsa.gov>; Sat, 17 May 2003 17:05:24 GMT
+Subject: Re: slow application of contexts in devfs?
+From: "Christopher J. PeBenito" <pebenito@ieee.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1053085242.4729.786.camel@moss-huskers.epoch.ncsc.mil>
+References: <3EC2792D.1020209@yahoo.it>
+	 <1053016311.20932.17.camel@chris.pebenito.net>
+	 <1053025378.4729.770.camel@moss-huskers.epoch.ncsc.mil>
+	 <200305160945.45658.russell@coker.com.au>
+	 <1053054721.21382.32.camel@chris.pebenito.net>
+	 <1053085242.4729.786.camel@moss-huskers.epoch.ncsc.mil>
+Content-Type: text/plain
+Message-Id: <1053191138.4322.33.camel@chris.pebenito.net>
+Mime-Version: 1.0
+Date: 17 May 2003 12:05:38 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jon,
-"Be careful of what the author tries to sell you"
-This lesson I learnt from Spaf ... 
-
-1-HP & Immunix work together: is the author independant?
-HP/Trend Micro Immunix Secured Solutions
-http://h18000.www1.hp.com/products/servers/solutions/iis/
-
-
-2-In the US government, TCSEC is supposed to be replaced by Common 
-Criteria Profiles issued by IATF: 
-His definition of Trust is more than 10 years old.
-
-http://niap.nist.gov/niap/library/transition.pdf
-http://csrc.nist.gov/sec-cert/milestone-schedule-update-032403.pdf
-http://www.iatf.net/protection_profiles/operating_systems.cfm
-
-Regards,
---FL, CISSP
-
-Jon Holstrom wrote:
+On Fri, 2003-05-16 at 06:40, Stephen Smalley wrote:
+> /dev/log shouldn't exist in devfs prior to syslogd (or metalog)
+> starting.  But perhaps your devfsd is automatically restoring /dev
+> entries from a backup when it initializes, thereby creating an orphaned
+> /dev/log that is subsequently removed and re-created by syslogd.
 > 
-> Just saw this yesterday, vary good reading ,
-> http://www.infosecuritymag.com/2003/apr/linuxguru.shtml
-> 
+> You may need to grant syslogd permission to unlink device_t:sock_file so
+> that it can remove the orphaned /dev/log left by devfsd.
 
+I agree with your assessment, Stephen.  There is an entry for /dev/log
+in devfsd's "dev-state" directory.  Devfsd is restoring this on its
+startup.  So, I added:
+
+REGISTER ^log CFUNCTION devfsd-se.so set_sid $devname
+system_u:object_r:devlog_t
+
+to my devfsd conflet.  That took care of metalog's unlink denial for
+/dev/log.  However, devfsd still gets the denial writing to to /dev/log
+because its still system_u:object_r:device_t.  Its somewhat confusing; I
+would have thought that the write to /dev/log would be after devfsd's
+initialization, so /dev/log would have the correct context.
+
+Another option would be to try to stop devfsd from saving /dev/log into
+dev-state in the first place.  Then /dev/log shouldn't be restored at
+all.  This is seeming like the cleaner/saner option.
+
+The binary for metalog is metalog.  If you'd like to look at it:
+http://metalog.sourceforge.net/.  I like it because of it's built-in
+rotation of logs based on age or size, and simple configuration.  The
+problem is that metalog is klogd+syslogd, so it doesnt fit in syslogd_t
+nicely (I didn't try running it in klogd_t, that might work better).  I
+just added policy to syslogd.te.
 
 -- 
-"When entrusted to process, you are obligated to safeguard" 
-  from Bob Johnston, CISSP
+Chris PeBenito
+<pebenito@ieee.org>
+AIM: PeBenito78
+ICQ#: 10434387
+
+"Engineering does not require science. Science helps
+a lot, but people built perfectly good brick walls 
+long before they knew why cement works."-Alan Cox
 
 --
 This message was distributed to subscribers of the selinux mailing list.
