@@ -1,340 +1,120 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA16889
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 09:01:38 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA19643
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 14:56:50 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA02581
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 13:01:16 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id NAA02577
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 13:01:16 GMT
-Received: from localhost by clipper.gw.tislabs.com (8.9.3/8.9.1) with SMTP id JAA09572
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 09:01:14 -0400 (EDT)
-Date: Mon, 27 Aug 2001 09:01:14 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: selinux@tycho.nsa.gov
-Subject: RE: Selinux lsm and Free Swan
-Message-ID: <Pine.SOL.3.95.1010827084311.8693C-200000@clipper.gw.tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id SAA19944
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 18:56:28 GMT
+Received: from csoc-fire05.csoconline.com (csoc-mail-msfc.csoconline.com [140.169.36.3])
+	by jazzband.ncsc.mil  with SMTP id SAA19938
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 18:56:24 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A1015241D1@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: FreeSwan Intergration.
+Date: Mon, 27 Aug 2001 13:56:22 -0500
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1254324197-998686850=:13687"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Here is the changes for the ipsec domian for intergration of FreeSwan
+You must have applied the patch (key.patch) that Mr Smalley has posted to
+the list.
 
----559023410-1254324197-998686850=:13687
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.SOL.3.95.1010827084311.8693E@clipper.gw.tislabs.com>
+The key.patch was posted 8-27-01
 
 
-I've had some off-list email exchanges with a few people about SELinux and
-FreeSWAN, and wanted to summarize the discussion and share a patch to
-allow the policy to specifically control access to PF_KEY sockets by
-processes.
-
-One person expressed concern about skipping the access control checks in
-selinux_sock_rcv_skb for PF_KEY communications.  I explained that the
-standard process-to-socket access controls are implemented using the LSM
-hooks in the socket layer, so they would still be enforced on PF_KEY
-communications. The selinux_sock_rcv_skb hook is just to perform mediation
-on packet receipt at a point where we know the destination socket and the
-receiving network device information has not yet been cleared.  This
-particular check isn't applicable to PF_KEY communications, which are
-local.
-
-However, the release doesn't provide a distinct security class
-for PF_KEY sockets, so the policy would currently view them
-as just having the general socket class.  I've created a patch
-to SELinux to define a new key_socket security class so that the policy
-can distinguish such sockets and easily limit what processes
-can use them.  The patch is attached and will be incorporated
-into future releases.  To apply it, save the attached patch
-to key.patch, cd to selinux, run 'patch -p2 < key.patch',
-and do a clean build and install of the LSM kernel and the policy.
-
-You'll still need to define a domain in the policy configuration
-for the IKE daemon and grant it permissions to key_socket objects.
-One person on the list previously defined a domain for the daemon
-with the old SELinux prototype and plans to update it for the new 
-prototype plus this patch.  Hopefully, he'll share it when he is
-done, but that's up to him.  If not, we'll eventually create one
-ourselves when we get to integrating SELinux with FreeSWAN.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Mark Westerman
+Thank to Mr. Smalley for all the sujestions!
 
 
 
----559023410-1254324197-998686850=:13687
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="key.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.3.95.1010824170050.13687L@clipper.gw.tislabs.com>
-Content-Description: 
+###########################################
+file: rbac
+all ipsec_t to role system_r types
 
-ZGlmZiAtWCAvaG9tZS9zZHMvZG9udGRpZmYgLXVyIG5zYS9zZWxpbnV4L21v
-ZHVsZS9zZWxpbnV4X3BsdWcvZmxhc2svYWNjZXNzX3ZlY3RvcnMgbmFpL3Nl
-bGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9mbGFzay9hY2Nlc3NfdmVjdG9y
-cw0KLS0tIG5zYS9zZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxhc2sv
-YWNjZXNzX3ZlY3RvcnMJVHVlIEF1ZyAyMSAwODoyOTo0NyAyMDAxDQorKysg
-bmFpL3NlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9mbGFzay9hY2Nlc3Nf
-dmVjdG9ycwlGcmkgQXVnIDI0IDE2OjQ5OjA5IDIwMDENCkBAIC0xOTksNiAr
-MTk5LDkgQEANCiBjbGFzcyBwYWNrZXRfc29ja2V0DQogaW5oZXJpdHMgc29j
-a2V0DQogDQorY2xhc3Mga2V5X3NvY2tldA0KK2luaGVyaXRzIHNvY2tldA0K
-Kw0KIGNsYXNzIHVuaXhfc3RyZWFtX3NvY2tldA0KIGluaGVyaXRzIHNvY2tl
-dA0KIHsNCmRpZmYgLVggL2hvbWUvc2RzL2RvbnRkaWZmIC11ciBuc2Evc2Vs
-aW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL2F2X2luaGVyaXQuaCBu
-YWkvc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL2F2X2luaGVy
-aXQuaA0KLS0tIG5zYS9zZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxh
-c2svYXZfaW5oZXJpdC5oCVR1ZSBBdWcgMjEgMDg6MzI6MzMgMjAwMQ0KKysr
-IG5haS9zZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxhc2svYXZfaW5o
-ZXJpdC5oCUZyaSBBdWcgMjQgMTY6NDk6MDkgMjAwMQ0KQEAgLTIzLDYgKzIz
-LDcgQEANCiAgICB7IFNFQ0NMQVNTX1JBV0lQX1NPQ0tFVCwgY29tbW9uX3Nv
-Y2tldF9wZXJtX3RvX3N0cmluZywgMHgwMTAwMDAwMFVMIH0sDQogICAgeyBT
-RUNDTEFTU19ORVRMSU5LX1NPQ0tFVCwgY29tbW9uX3NvY2tldF9wZXJtX3Rv
-X3N0cmluZywgMHgwMTAwMDAwMFVMIH0sDQogICAgeyBTRUNDTEFTU19QQUNL
-RVRfU09DS0VULCBjb21tb25fc29ja2V0X3Blcm1fdG9fc3RyaW5nLCAweDAx
-MDAwMDAwVUwgfSwNCisgICB7IFNFQ0NMQVNTX0tFWV9TT0NLRVQsIGNvbW1v
-bl9zb2NrZXRfcGVybV90b19zdHJpbmcsIDB4MDEwMDAwMDBVTCB9LA0KICAg
-IHsgU0VDQ0xBU1NfVU5JWF9TVFJFQU1fU09DS0VULCBjb21tb25fc29ja2V0
-X3Blcm1fdG9fc3RyaW5nLCAweDAxMDAwMDAwVUwgfSwNCiAgICB7IFNFQ0NM
-QVNTX1VOSVhfREdSQU1fU09DS0VULCBjb21tb25fc29ja2V0X3Blcm1fdG9f
-c3RyaW5nLCAweDAxMDAwMDAwVUwgfSwNCiAgICB7IFNFQ0NMQVNTX0lQQywg
-Y29tbW9uX2lwY19wZXJtX3RvX3N0cmluZywgMHgwMDAwMDIwMFVMIH0sDQpk
-aWZmIC1YIC9ob21lL3Nkcy9kb250ZGlmZiAtdXIgbnNhL3NlbGludXgvbW9k
-dWxlL3NlbGludXhfcGx1Zy9mbGFzay9hdl9wZXJtaXNzaW9ucy5oIG5haS9z
-ZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxhc2svYXZfcGVybWlzc2lv
-bnMuaA0KLS0tIG5zYS9zZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxh
-c2svYXZfcGVybWlzc2lvbnMuaAlUdWUgQXVnIDIxIDA4OjMyOjMzIDIwMDEN
-CisrKyBuYWkvc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL2F2
-X3Blcm1pc3Npb25zLmgJRnJpIEF1ZyAyNCAxNjo0OTowOSAyMDAxDQpAQCAt
-NDAxLDYgKzQwMSwzMSBAQA0KICNkZWZpbmUgUEFDS0VUX1NPQ0tFVF9fUkVD
-VkZST00gICAgICAgICAgICAgICAgICAgMHgwMDA4MDAwMFVMDQogI2RlZmlu
-ZSBQQUNLRVRfU09DS0VUX19HRVRBVFRSICAgICAgICAgICAgICAgICAgICAw
-eDAwMDAwMDIwVUwNCiANCisjZGVmaW5lIEtFWV9TT0NLRVRfX1JFTEFCRUxU
-TyAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAyMDBVTA0KKyNkZWZpbmUg
-S0VZX1NPQ0tFVF9fUkVDVl9NU0cgICAgICAgICAgICAgICAgICAgICAgMHgw
-MDIwMDAwMFVMDQorI2RlZmluZSBLRVlfU09DS0VUX19SRUxBQkVMRlJPTSAg
-ICAgICAgICAgICAgICAgICAweDAwMDAwMTAwVUwNCisjZGVmaW5lIEtFWV9T
-T0NLRVRfX1NFVE9QVCAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMjAw
-MDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fQVBQRU5EICAgICAgICAgICAg
-ICAgICAgICAgICAgMHgwMDAwMDgwMFVMDQorI2RlZmluZSBLRVlfU09DS0VU
-X19TRVRBVFRSICAgICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDQwVUwN
-CisjZGVmaW5lIEtFWV9TT0NLRVRfX1NFTkRUTyAgICAgICAgICAgICAgICAg
-ICAgICAgIDB4MDAxMDAwMDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fR0VU
-T1BUICAgICAgICAgICAgICAgICAgICAgICAgMHgwMDAxMDAwMFVMDQorI2Rl
-ZmluZSBLRVlfU09DS0VUX19UUkFOU0lUSU9OICAgICAgICAgICAgICAgICAg
-ICAweDAwMDAwNDAwVUwNCisjZGVmaW5lIEtFWV9TT0NLRVRfX1JFQUQgICAg
-ICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMDRVTA0KKyNkZWZpbmUg
-S0VZX1NPQ0tFVF9fUE9MTCAgICAgICAgICAgICAgICAgICAgICAgICAgMHgw
-MDAwMDAwMVVMDQorI2RlZmluZSBLRVlfU09DS0VUX19TSFVURE9XTiAgICAg
-ICAgICAgICAgICAgICAgICAweDAwMDQwMDAwVUwNCisjZGVmaW5lIEtFWV9T
-T0NLRVRfX0xJU1RFTiAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDQw
-MDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fQklORCAgICAgICAgICAgICAg
-ICAgICAgICAgICAgMHgwMDAwMTAwMFVMDQorI2RlZmluZSBLRVlfU09DS0VU
-X19XUklURSAgICAgICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDA4VUwN
-CisjZGVmaW5lIEtFWV9TT0NLRVRfX0FDQ0VQVCAgICAgICAgICAgICAgICAg
-ICAgICAgIDB4MDAwMDgwMDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fQ09O
-TkVDVCAgICAgICAgICAgICAgICAgICAgICAgMHgwMDAwMjAwMFVMDQorI2Rl
-ZmluZSBLRVlfU09DS0VUX19MT0NLICAgICAgICAgICAgICAgICAgICAgICAg
-ICAweDAwMDAwMDgwVUwNCisjZGVmaW5lIEtFWV9TT0NLRVRfX0lPQ1RMICAg
-ICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMDJVTA0KKyNkZWZpbmUg
-S0VZX1NPQ0tFVF9fQ1JFQVRFICAgICAgICAgICAgICAgICAgICAgICAgMHgw
-MDAwMDAxMFVMDQorI2RlZmluZSBLRVlfU09DS0VUX19OQU1FX0JJTkQgICAg
-ICAgICAgICAgICAgICAgICAweDAwODAwMDAwVUwNCisjZGVmaW5lIEtFWV9T
-T0NLRVRfX1NFTkRfTVNHICAgICAgICAgICAgICAgICAgICAgIDB4MDA0MDAw
-MDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fUkVDVkZST00gICAgICAgICAg
-ICAgICAgICAgICAgMHgwMDA4MDAwMFVMDQorI2RlZmluZSBLRVlfU09DS0VU
-X19HRVRBVFRSICAgICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDIwVUwN
-CisNCiAjZGVmaW5lIFVOSVhfU1RSRUFNX1NPQ0tFVF9fUkVMQUJFTFRPICAg
-ICAgICAgICAgIDB4MDAwMDAyMDBVTA0KICNkZWZpbmUgVU5JWF9TVFJFQU1f
-U09DS0VUX19SRUNWX01TRyAgICAgICAgICAgICAgMHgwMDIwMDAwMFVMDQog
-I2RlZmluZSBVTklYX1NUUkVBTV9TT0NLRVRfX1JFTEFCRUxGUk9NICAgICAg
-ICAgICAweDAwMDAwMTAwVUwNCmRpZmYgLVggL2hvbWUvc2RzL2RvbnRkaWZm
-IC11ciBuc2Evc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL2Ns
-YXNzX3RvX3N0cmluZy5oIG5haS9zZWxpbnV4L21vZHVsZS9zZWxpbnV4X3Bs
-dWcvZmxhc2svY2xhc3NfdG9fc3RyaW5nLmgNCi0tLSBuc2Evc2VsaW51eC9t
-b2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL2NsYXNzX3RvX3N0cmluZy5oCUZy
-aSBKdWwgMjAgMjE6NDU6NTEgMjAwMQ0KKysrIG5haS9zZWxpbnV4L21vZHVs
-ZS9zZWxpbnV4X3BsdWcvZmxhc2svY2xhc3NfdG9fc3RyaW5nLmgJRnJpIEF1
-ZyAyNCAxNjo0OTowOSAyMDAxDQpAQCAtMjcsNiArMjcsNyBAQA0KICAgICAi
-bmV0aWYiLA0KICAgICAibmV0bGlua19zb2NrZXQiLA0KICAgICAicGFja2V0
-X3NvY2tldCIsDQorICAgICJrZXlfc29ja2V0IiwNCiAgICAgInVuaXhfc3Ry
-ZWFtX3NvY2tldCIsDQogICAgICJ1bml4X2RncmFtX3NvY2tldCIsDQogICAg
-ICJzZW0iLA0KZGlmZiAtWCAvaG9tZS9zZHMvZG9udGRpZmYgLXVyIG5zYS9z
-ZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxhc2svZmxhc2suaCBuYWkv
-c2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL2ZsYXNrLmgNCi0t
-LSBuc2Evc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL2ZsYXNr
-LmgJV2VkIEF1ZyAgMSAwOToyMjo0NSAyMDAxDQorKysgbmFpL3NlbGludXgv
-bW9kdWxlL3NlbGludXhfcGx1Zy9mbGFzay9mbGFzay5oCUZyaSBBdWcgMjQg
-MTY6NDk6MDkgMjAwMQ0KQEAgLTI5LDEzICsyOSwxNCBAQA0KICNkZWZpbmUg
-U0VDQ0xBU1NfTkVUSUYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIDIwDQogI2RlZmluZSBTRUNDTEFTU19ORVRMSU5LX1NPQ0tFVCAgICAg
-ICAgICAgICAgICAgICAgICAgICAgMjENCiAjZGVmaW5lIFNFQ0NMQVNTX1BB
-Q0tFVF9TT0NLRVQgICAgICAgICAgICAgICAgICAgICAgICAgICAyMg0KLSNk
-ZWZpbmUgU0VDQ0xBU1NfVU5JWF9TVFJFQU1fU09DS0VUICAgICAgICAgICAg
-ICAgICAgICAgIDIzDQotI2RlZmluZSBTRUNDTEFTU19VTklYX0RHUkFNX1NP
-Q0tFVCAgICAgICAgICAgICAgICAgICAgICAgMjQNCi0jZGVmaW5lIFNFQ0NM
-QVNTX1NFTSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAy
-NQ0KLSNkZWZpbmUgU0VDQ0xBU1NfTVNHICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIDI2DQotI2RlZmluZSBTRUNDTEFTU19NU0dRICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjcNCi0jZGVmaW5l
-IFNFQ0NMQVNTX1NITSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAyOA0KLSNkZWZpbmUgU0VDQ0xBU1NfSVBDICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIDI5DQorI2RlZmluZSBTRUNDTEFTU19L
-RVlfU09DS0VUICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjMNCisj
-ZGVmaW5lIFNFQ0NMQVNTX1VOSVhfU1RSRUFNX1NPQ0tFVCAgICAgICAgICAg
-ICAgICAgICAgICAyNA0KKyNkZWZpbmUgU0VDQ0xBU1NfVU5JWF9ER1JBTV9T
-T0NLRVQgICAgICAgICAgICAgICAgICAgICAgIDI1DQorI2RlZmluZSBTRUND
-TEFTU19TRU0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-MjYNCisjZGVmaW5lIFNFQ0NMQVNTX01TRyAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAyNw0KKyNkZWZpbmUgU0VDQ0xBU1NfTVNHUSAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDI4DQorI2RlZmlu
-ZSBTRUNDTEFTU19TSE0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgMjkNCisjZGVmaW5lIFNFQ0NMQVNTX0lQQyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAzMA0KIA0KIC8qDQogICogU2VjdXJp
-dHkgaWRlbnRpZmllciBpbmRpY2VzIGZvciBpbml0aWFsIGVudGl0aWVzDQpk
-aWZmIC1YIC9ob21lL3Nkcy9kb250ZGlmZiAtdXIgbnNhL3NlbGludXgvbW9k
-dWxlL3NlbGludXhfcGx1Zy9mbGFzay9zZWN1cml0eV9jbGFzc2VzIG5haS9z
-ZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxhc2svc2VjdXJpdHlfY2xh
-c3Nlcw0KLS0tIG5zYS9zZWxpbnV4L21vZHVsZS9zZWxpbnV4X3BsdWcvZmxh
-c2svc2VjdXJpdHlfY2xhc3NlcwlGcmkgSnVsIDIwIDIxOjQ1OjUxIDIwMDEN
-CisrKyBuYWkvc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2ZsYXNrL3Nl
-Y3VyaXR5X2NsYXNzZXMJRnJpIEF1ZyAyNCAxNjo0OTowOSAyMDAxDQpAQCAt
-MzAsNiArMzAsNyBAQA0KIGNsYXNzIG5ldGlmDQogY2xhc3MgbmV0bGlua19z
-b2NrZXQNCiBjbGFzcyBwYWNrZXRfc29ja2V0DQorY2xhc3Mga2V5X3NvY2tl
-dA0KIGNsYXNzIHVuaXhfc3RyZWFtX3NvY2tldA0KIGNsYXNzIHVuaXhfZGdy
-YW1fc29ja2V0DQogDQpkaWZmIC1YIC9ob21lL3Nkcy9kb250ZGlmZiAtdXIg
-bnNhL3NlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9pbmNsdWRlL2xpbnV4
-L2ZsYXNrL2F2X2luaGVyaXQuaCBuYWkvc2VsaW51eC9tb2R1bGUvc2VsaW51
-eF9wbHVnL2luY2x1ZGUvbGludXgvZmxhc2svYXZfaW5oZXJpdC5oDQotLS0g
-bnNhL3NlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9pbmNsdWRlL2xpbnV4
-L2ZsYXNrL2F2X2luaGVyaXQuaAlUdWUgQXVnIDIxIDA4OjMyOjMzIDIwMDEN
-CisrKyBuYWkvc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2luY2x1ZGUv
-bGludXgvZmxhc2svYXZfaW5oZXJpdC5oCUZyaSBBdWcgMjQgMTY6NDk6MTAg
-MjAwMQ0KQEAgLTIzLDYgKzIzLDcgQEANCiAgICB7IFNFQ0NMQVNTX1JBV0lQ
-X1NPQ0tFVCwgY29tbW9uX3NvY2tldF9wZXJtX3RvX3N0cmluZywgMHgwMTAw
-MDAwMFVMIH0sDQogICAgeyBTRUNDTEFTU19ORVRMSU5LX1NPQ0tFVCwgY29t
-bW9uX3NvY2tldF9wZXJtX3RvX3N0cmluZywgMHgwMTAwMDAwMFVMIH0sDQog
-ICAgeyBTRUNDTEFTU19QQUNLRVRfU09DS0VULCBjb21tb25fc29ja2V0X3Bl
-cm1fdG9fc3RyaW5nLCAweDAxMDAwMDAwVUwgfSwNCisgICB7IFNFQ0NMQVNT
-X0tFWV9TT0NLRVQsIGNvbW1vbl9zb2NrZXRfcGVybV90b19zdHJpbmcsIDB4
-MDEwMDAwMDBVTCB9LA0KICAgIHsgU0VDQ0xBU1NfVU5JWF9TVFJFQU1fU09D
-S0VULCBjb21tb25fc29ja2V0X3Blcm1fdG9fc3RyaW5nLCAweDAxMDAwMDAw
-VUwgfSwNCiAgICB7IFNFQ0NMQVNTX1VOSVhfREdSQU1fU09DS0VULCBjb21t
-b25fc29ja2V0X3Blcm1fdG9fc3RyaW5nLCAweDAxMDAwMDAwVUwgfSwNCiAg
-ICB7IFNFQ0NMQVNTX0lQQywgY29tbW9uX2lwY19wZXJtX3RvX3N0cmluZywg
-MHgwMDAwMDIwMFVMIH0sDQpkaWZmIC1YIC9ob21lL3Nkcy9kb250ZGlmZiAt
-dXIgbnNhL3NlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9pbmNsdWRlL2xp
-bnV4L2ZsYXNrL2F2X3Blcm1pc3Npb25zLmggbmFpL3NlbGludXgvbW9kdWxl
-L3NlbGludXhfcGx1Zy9pbmNsdWRlL2xpbnV4L2ZsYXNrL2F2X3Blcm1pc3Np
-b25zLmgNCi0tLSBuc2Evc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2lu
-Y2x1ZGUvbGludXgvZmxhc2svYXZfcGVybWlzc2lvbnMuaAlUdWUgQXVnIDIx
-IDA4OjMyOjMzIDIwMDENCisrKyBuYWkvc2VsaW51eC9tb2R1bGUvc2VsaW51
-eF9wbHVnL2luY2x1ZGUvbGludXgvZmxhc2svYXZfcGVybWlzc2lvbnMuaAlG
-cmkgQXVnIDI0IDE2OjQ5OjEwIDIwMDENCkBAIC00MDEsNiArNDAxLDMxIEBA
-DQogI2RlZmluZSBQQUNLRVRfU09DS0VUX19SRUNWRlJPTSAgICAgICAgICAg
-ICAgICAgICAweDAwMDgwMDAwVUwNCiAjZGVmaW5lIFBBQ0tFVF9TT0NLRVRf
-X0dFVEFUVFIgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMjBVTA0KIA0K
-KyNkZWZpbmUgS0VZX1NPQ0tFVF9fUkVMQUJFTFRPICAgICAgICAgICAgICAg
-ICAgICAgMHgwMDAwMDIwMFVMDQorI2RlZmluZSBLRVlfU09DS0VUX19SRUNW
-X01TRyAgICAgICAgICAgICAgICAgICAgICAweDAwMjAwMDAwVUwNCisjZGVm
-aW5lIEtFWV9TT0NLRVRfX1JFTEFCRUxGUk9NICAgICAgICAgICAgICAgICAg
-IDB4MDAwMDAxMDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fU0VUT1BUICAg
-ICAgICAgICAgICAgICAgICAgICAgMHgwMDAyMDAwMFVMDQorI2RlZmluZSBL
-RVlfU09DS0VUX19BUFBFTkQgICAgICAgICAgICAgICAgICAgICAgICAweDAw
-MDAwODAwVUwNCisjZGVmaW5lIEtFWV9TT0NLRVRfX1NFVEFUVFIgICAgICAg
-ICAgICAgICAgICAgICAgIDB4MDAwMDAwNDBVTA0KKyNkZWZpbmUgS0VZX1NP
-Q0tFVF9fU0VORFRPICAgICAgICAgICAgICAgICAgICAgICAgMHgwMDEwMDAw
-MFVMDQorI2RlZmluZSBLRVlfU09DS0VUX19HRVRPUFQgICAgICAgICAgICAg
-ICAgICAgICAgICAweDAwMDEwMDAwVUwNCisjZGVmaW5lIEtFWV9TT0NLRVRf
-X1RSQU5TSVRJT04gICAgICAgICAgICAgICAgICAgIDB4MDAwMDA0MDBVTA0K
-KyNkZWZpbmUgS0VZX1NPQ0tFVF9fUkVBRCAgICAgICAgICAgICAgICAgICAg
-ICAgICAgMHgwMDAwMDAwNFVMDQorI2RlZmluZSBLRVlfU09DS0VUX19QT0xM
-ICAgICAgICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDAxVUwNCisjZGVm
-aW5lIEtFWV9TT0NLRVRfX1NIVVRET1dOICAgICAgICAgICAgICAgICAgICAg
-IDB4MDAwNDAwMDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fTElTVEVOICAg
-ICAgICAgICAgICAgICAgICAgICAgMHgwMDAwNDAwMFVMDQorI2RlZmluZSBL
-RVlfU09DS0VUX19CSU5EICAgICAgICAgICAgICAgICAgICAgICAgICAweDAw
-MDAxMDAwVUwNCisjZGVmaW5lIEtFWV9TT0NLRVRfX1dSSVRFICAgICAgICAg
-ICAgICAgICAgICAgICAgIDB4MDAwMDAwMDhVTA0KKyNkZWZpbmUgS0VZX1NP
-Q0tFVF9fQUNDRVBUICAgICAgICAgICAgICAgICAgICAgICAgMHgwMDAwODAw
-MFVMDQorI2RlZmluZSBLRVlfU09DS0VUX19DT05ORUNUICAgICAgICAgICAg
-ICAgICAgICAgICAweDAwMDAyMDAwVUwNCisjZGVmaW5lIEtFWV9TT0NLRVRf
-X0xPQ0sgICAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwODBVTA0K
-KyNkZWZpbmUgS0VZX1NPQ0tFVF9fSU9DVEwgICAgICAgICAgICAgICAgICAg
-ICAgICAgMHgwMDAwMDAwMlVMDQorI2RlZmluZSBLRVlfU09DS0VUX19DUkVB
-VEUgICAgICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDEwVUwNCisjZGVm
-aW5lIEtFWV9TT0NLRVRfX05BTUVfQklORCAgICAgICAgICAgICAgICAgICAg
-IDB4MDA4MDAwMDBVTA0KKyNkZWZpbmUgS0VZX1NPQ0tFVF9fU0VORF9NU0cg
-ICAgICAgICAgICAgICAgICAgICAgMHgwMDQwMDAwMFVMDQorI2RlZmluZSBL
-RVlfU09DS0VUX19SRUNWRlJPTSAgICAgICAgICAgICAgICAgICAgICAweDAw
-MDgwMDAwVUwNCisjZGVmaW5lIEtFWV9TT0NLRVRfX0dFVEFUVFIgICAgICAg
-ICAgICAgICAgICAgICAgIDB4MDAwMDAwMjBVTA0KKw0KICNkZWZpbmUgVU5J
-WF9TVFJFQU1fU09DS0VUX19SRUxBQkVMVE8gICAgICAgICAgICAgMHgwMDAw
-MDIwMFVMDQogI2RlZmluZSBVTklYX1NUUkVBTV9TT0NLRVRfX1JFQ1ZfTVNH
-ICAgICAgICAgICAgICAweDAwMjAwMDAwVUwNCiAjZGVmaW5lIFVOSVhfU1RS
-RUFNX1NPQ0tFVF9fUkVMQUJFTEZST00gICAgICAgICAgIDB4MDAwMDAxMDBV
-TA0KZGlmZiAtWCAvaG9tZS9zZHMvZG9udGRpZmYgLXVyIG5zYS9zZWxpbnV4
-L21vZHVsZS9zZWxpbnV4X3BsdWcvaW5jbHVkZS9saW51eC9mbGFzay9jbGFz
-c190b19zdHJpbmcuaCBuYWkvc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVn
-L2luY2x1ZGUvbGludXgvZmxhc2svY2xhc3NfdG9fc3RyaW5nLmgNCi0tLSBu
-c2Evc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2luY2x1ZGUvbGludXgv
-Zmxhc2svY2xhc3NfdG9fc3RyaW5nLmgJRnJpIEp1bCAyMCAyMTo0NTo1MiAy
-MDAxDQorKysgbmFpL3NlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9pbmNs
-dWRlL2xpbnV4L2ZsYXNrL2NsYXNzX3RvX3N0cmluZy5oCUZyaSBBdWcgMjQg
-MTY6NDk6MTAgMjAwMQ0KQEAgLTI3LDYgKzI3LDcgQEANCiAgICAgIm5ldGlm
-IiwNCiAgICAgIm5ldGxpbmtfc29ja2V0IiwNCiAgICAgInBhY2tldF9zb2Nr
-ZXQiLA0KKyAgICAia2V5X3NvY2tldCIsDQogICAgICJ1bml4X3N0cmVhbV9z
-b2NrZXQiLA0KICAgICAidW5peF9kZ3JhbV9zb2NrZXQiLA0KICAgICAic2Vt
-IiwNCmRpZmYgLVggL2hvbWUvc2RzL2RvbnRkaWZmIC11ciBuc2Evc2VsaW51
-eC9tb2R1bGUvc2VsaW51eF9wbHVnL2luY2x1ZGUvbGludXgvZmxhc2svZmxh
-c2suaCBuYWkvc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2luY2x1ZGUv
-bGludXgvZmxhc2svZmxhc2suaA0KLS0tIG5zYS9zZWxpbnV4L21vZHVsZS9z
-ZWxpbnV4X3BsdWcvaW5jbHVkZS9saW51eC9mbGFzay9mbGFzay5oCVdlZCBB
-dWcgIDEgMDk6MjI6NDUgMjAwMQ0KKysrIG5haS9zZWxpbnV4L21vZHVsZS9z
-ZWxpbnV4X3BsdWcvaW5jbHVkZS9saW51eC9mbGFzay9mbGFzay5oCUZyaSBB
-dWcgMjQgMTY6NDk6MTAgMjAwMQ0KQEAgLTI5LDEzICsyOSwxNCBAQA0KICNk
-ZWZpbmUgU0VDQ0xBU1NfTkVUSUYgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIDIwDQogI2RlZmluZSBTRUNDTEFTU19ORVRMSU5LX1NPQ0tF
-VCAgICAgICAgICAgICAgICAgICAgICAgICAgMjENCiAjZGVmaW5lIFNFQ0NM
-QVNTX1BBQ0tFVF9TT0NLRVQgICAgICAgICAgICAgICAgICAgICAgICAgICAy
-Mg0KLSNkZWZpbmUgU0VDQ0xBU1NfVU5JWF9TVFJFQU1fU09DS0VUICAgICAg
-ICAgICAgICAgICAgICAgIDIzDQotI2RlZmluZSBTRUNDTEFTU19VTklYX0RH
-UkFNX1NPQ0tFVCAgICAgICAgICAgICAgICAgICAgICAgMjQNCi0jZGVmaW5l
-IFNFQ0NMQVNTX1NFTSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAyNQ0KLSNkZWZpbmUgU0VDQ0xBU1NfTVNHICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIDI2DQotI2RlZmluZSBTRUNDTEFTU19N
-U0dRICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMjcNCi0j
-ZGVmaW5lIFNFQ0NMQVNTX1NITSAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAyOA0KLSNkZWZpbmUgU0VDQ0xBU1NfSVBDICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDI5DQorI2RlZmluZSBTRUND
-TEFTU19LRVlfU09DS0VUICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-MjMNCisjZGVmaW5lIFNFQ0NMQVNTX1VOSVhfU1RSRUFNX1NPQ0tFVCAgICAg
-ICAgICAgICAgICAgICAgICAyNA0KKyNkZWZpbmUgU0VDQ0xBU1NfVU5JWF9E
-R1JBTV9TT0NLRVQgICAgICAgICAgICAgICAgICAgICAgIDI1DQorI2RlZmlu
-ZSBTRUNDTEFTU19TRU0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgMjYNCisjZGVmaW5lIFNFQ0NMQVNTX01TRyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAyNw0KKyNkZWZpbmUgU0VDQ0xBU1Nf
-TVNHUSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDI4DQor
-I2RlZmluZSBTRUNDTEFTU19TSE0gICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgMjkNCisjZGVmaW5lIFNFQ0NMQVNTX0lQQyAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAzMA0KIA0KIC8qDQogICog
-U2VjdXJpdHkgaWRlbnRpZmllciBpbmRpY2VzIGZvciBpbml0aWFsIGVudGl0
-aWVzDQpkaWZmIC1YIC9ob21lL3Nkcy9kb250ZGlmZiAtdXIgbnNhL3NlbGlu
-dXgvbW9kdWxlL3NlbGludXhfcGx1Zy9zZWxpbnV4X3BsdWcuaCBuYWkvc2Vs
-aW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL3NlbGludXhfcGx1Zy5oDQotLS0g
-bnNhL3NlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9zZWxpbnV4X3BsdWcu
-aAlXZWQgQXVnICAxIDEyOjA2OjUwIDIwMDENCisrKyBuYWkvc2VsaW51eC9t
-b2R1bGUvc2VsaW51eF9wbHVnL3NlbGludXhfcGx1Zy5oCUZyaSBBdWcgMjQg
-MTY6NDk6MDkgMjAwMQ0KQEAgLTE1Miw2ICsxNTIsOCBAQA0KIAkJcmV0dXJu
-IFNFQ0NMQVNTX05FVExJTktfU09DS0VUOw0KIAljYXNlIFBGX1BBQ0tFVDoN
-CiAJCXJldHVybiBTRUNDTEFTU19QQUNLRVRfU09DS0VUOw0KKwljYXNlIFBG
-X0tFWToNCisJCXJldHVybiBTRUNDTEFTU19LRVlfU09DS0VUOw0KIAl9DQog
-DQogCXJldHVybiBTRUNDTEFTU19TT0NLRVQ7DQo=
----559023410-1254324197-998686850=:13687--
+
+###########################################
+file: domains/program/modutil.te
+Add the following lines
+
+# Rules for ipsec Domain 
+allow insmod_t ipsec_t:process signal;
+
+##########################################
+file: domains/system/initrc.te
+Add the following lines
+
+# ipsec Domain
+domain_auto_trans(initrc_t, ipsec_exec_t, ipsec_t)
+allow initrc_t ipsec_file_t:file { read ioctl };
+allow initrc_t ipsec_var_run_t:sock_file { read write };
+
+############################################
+file: domains/system/ipsec.te
+Create the file and add the following lines
+
+#
+# Authors: Mark Westerman mark.westerman@westcam.com
+#
+########################################
+#
+# Rules for the ipsec_t domain.
+#
+type ipsec_t, domain, privlog;
+type ipsec_exec_t, file_type, sysadmfile, exec_type;
+type ipsec_file_t, file_type, syadmfile;
+type ipsec_var_run_t, file_type, sysadmfile, pidfile;
+
+allow ipsec_t self:capability { net_admin net_bind_service };
+
+domain_auto_trans(ipsec_t, insmod_exec_t, insmod_t)
+
+domain_auto_trans(ipsec_t, ifconfig_exec_t, ifconfig_t)
+file_type_auto_trans(ipsec_t, var_run_t, ipsec_var_run_t)
+
+allow ipsec_t var_lock_t:dir rw_dir_perms;
+allow ipsec_t var_lock_t:file create_file_perms;
+
+# Inherit and use descriptors from init.
+allow ipsec_t init_t:fd inherit_fd_perms;
+
+allow ipsec_t ipsec_file_t:file { getattr read ioctl };
+
+allow ipsec_t self:key_socket { create write read };
+
+
+#####################################################
+file: domains/admin/sysadm.te
+Add the following before the ') line
+
+#
+# This will allow the sysadm user to read and 
+# modify the /etc/ipsec.secrets file.
+# I will create a ipsecadm_r role for this file
+# Mark Westerman mark.westerman@westcam.com
+
+allow $1_t ipsec_file_t:file rw_file_perms;
+
+
+####################################################
+file: ../setfiles/file_contexts
+I would add the following line right before the 
+persistent label mapping. Order does mater for this file
+
+
+#
+# IPSEC Defination
+#
+/etc/ipsec.secrets              system_u:object_r:ipsec_file_t
+/usr/local/lib/ipsec(|/.*)      system_u:object_r:sbin_t
+/usr/local/lib/ipsec/eroute     system_u:object_r:ipsec_exec_t
+/usr/local/lib/ipsec/klipsdebug system_u:object_r:ipsec_exec_t
+/usr/local/lib/ipsec/pluto      system_u:object_r:ipsec_exec_t
+/usr/local/lib/ipsec/spi        system_u:object_r:ipsec_exec_t
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
