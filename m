@@ -1,44 +1,60 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA25805
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 01:32:08 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id FAA11122
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 05:30:39 GMT
-Received: from mail.servicemail123.com ([12.96.162.84])
-        by jazzband.ncsc.mil  with ESMTP id FAA11116 for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 05:30:39 GMT
-Received: from jw (unknown [65.166.138.2])
-	by mail.servicemail123.com (Postfix on SuSE Linux 7.1 (i386)) with ESMTP id 8951A499D3
-	for <selinux@tycho.nsa.gov>; Tue,  9 Jul 2002 00:32:05 -0500 (CDT)
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: JW <jw@centraltexasit.com>(by way of JW <jw@centraltexasit.com>)
-Reply-To: jw@centraltexasit.com
-Subject: SOLVED Re: Problems with some of the SuSE-specific settings: Re: contrib branch
-Date: Tue, 9 Jul 2002 00:31:41 -0500
-To: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA25819
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 01:33:53 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id FAA25089
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 05:33:18 GMT
+Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
+	by jazzswing.ncsc.mil  with ESMTP id FAA25085
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 05:33:17 GMT
+Received: from ed (ed1 [192.168.1.10])
+	by mail.simplyaquatics.com (Postfix) with ESMTP id 3BD3C844054
+	for <selinux@tycho.nsa.gov>; Tue,  9 Jul 2002 01:33:51 -0400 (EDT)
+Reply-To: <blacknet@simplyaquatics.com>
+From: "Ed Street" <blacknet@simplyaquatics.com>
+To: <selinux@tycho.nsa.gov>
+Subject: lsm3 notes
+Date: Tue, 9 Jul 2002 01:33:51 -0400
+Message-ID: <005301c2270a$350a2a10$0a01a8c0@ed>
 MIME-Version: 1.0
-Message-Id: <200207090031.41836.jw@centraltexasit.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <200207082016.36223.jw@centraltexasit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello,
+
+Couple of things I noted about the new lsm3 
+
+I keep seeing /dev/xconsole avc's. 
+
+This is from startup
+allow initrc_t device_t:fifo_file { setattr };
+        #EXE=/bin/chmod  PATH=/dev/xconsole   :  setattr
+
+startup as well
+allow initrc_t resolv_conf_t:file { setattr };
+        #EXE=/bin/chmod  PATH=/etc/resolv.conf   :  setattr
 
 
-JW >I'm getting a few errors from make load after appending your additions to the default files in domain/program and file_types/program
-JW >
+when I ssh into the box
+allow sshd_t sysadm_home_t:dir { search };
+        #EXE=/usr/sbin/sshd  PATH=/root   :  search
 
-I am able to use make reload properly now, at any rate.
+when sysklogd starts at boot
+allow syslogd_t device_t:fifo_file { read write };
+        #EXE=/sbin/syslogd  PATH=/dev/xconsole   :  read write
 
+when I tried to tail syslog as user_r
+allow user_t var_log_t:file { getattr read };
+        #EXE=/bin/bash  PATH=/var/log/syslog   :  getattr
+        #EXE=/usr/bin/tail  PATH=/var/log/syslog   :  read
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Most notably problems with sysklogd, and it's not writing events to
+/var/log/syslog
 
-iD8DBQE9KnU9Q5u80xXOLBcRAlLzAJ4rhD2gXkww0jiBPBfs/Omb67EScACaA/H4
-RUaSPIe9Hxs98syjKG5c30E=
-=pAya
------END PGP SIGNATURE-----
+Ed
 
 
 --
