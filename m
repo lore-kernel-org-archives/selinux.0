@@ -1,48 +1,40 @@
-Subject: Re: Default Policy question?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
 To: Tom <tom@lemuria.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <20030602230314.C3637@lemuria.org>
-References: <3EDB7585.8050308@redhat.com>
-	 <1054574512.1053.178.camel@moss-huskers.epoch.ncsc.mil>
-	 <20030602230314.C3637@lemuria.org>
-Content-Type: text/plain
-Message-Id: <1054642843.1053.276.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 03 Jun 2003 08:20:44 -0400
+Subject: Re: Default Policy question?
+Date: Tue, 3 Jun 2003 23:31:13 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <3EDB7585.8050308@redhat.com> <200306030951.59964.russell@coker.com.au> <20030603083059.A4056@lemuria.org>
+In-Reply-To: <20030603083059.A4056@lemuria.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200306032331.13700.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-06-02 at 17:03, Tom wrote:
-> But if the secadm_r controls the policy, he should have enough power at
-> his hands to prevent subversion. Things he would have to protect:
-> 
-> * his home directory (environment)
-> * policy and policy tools
-> * kernel and kernel modules
+On Tue, 3 Jun 2003 16:30, Tom wrote:
+> On Tue, Jun 03, 2003 at 09:51:59AM +1000, Russell Coker wrote:
+> > > * his home directory (environment)
+> > > * policy and policy tools
+> > > * kernel and kernel modules
+> >
+> > So who runs debugfs/fdisk/mkfs?
+>
+> Note that I'm not trying to protect against DESTRUCTION of the system,
+> but against subversion.
 
-secadm_r has far more dependencies than that short list.  What happens
-if you let sysadm_r set other user's passwords?  What happens if
-sysadm_r has any form of raw access to the disk or memory?  What happens
-if sysadm_r can upgrade any of the authentication programs (e.g.
-/bin/login, /usr/bin/sshd) or any of their dependencies (pam modules,
-libc)?  What happens if sysadm_r can upgrade secadm_r's shell?  His
-editor?  You get the idea.
+mkfs and debugfs can be used for subversion of the system by replacing files.
 
-> Other than that, all other tools are limited by the policy, aren't
-> they? The sysadm_r can replace ls with a trojaned binary, but he can't
-> make it do anything that the normal ls isn't allowed to do.
-
-I think you have this backwards. Make secadm_r's initial domain
-(secadm_t) unprivileged except for the ability to run authorized policy
-management tools in a domain that can modify the policy, and make sure
-that all such tools re-authenticate like newrole does in order to ensure
-that they are invoked at the request of the user.  Then, it doesn't
-matter whether ls runs in secadm_t.
+If you can manage block devices then you can manage almost everything else if 
+you try hard enough.  Palladium and TCPA are attempts to change this, but 
+AFAIK no-one is working on integrating such technology with SE Linux.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
