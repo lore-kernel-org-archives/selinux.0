@@ -1,57 +1,53 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4AE3FRb014926
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 10:03:15 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4AE44Rb014948
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 10:04:04 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4AE3CYW008196
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 14:03:13 GMT
-Received: from mtiwmhc11.worldnet.att.net (mtiwmhc11.worldnet.att.net [204.127.131.115])
-        by jazzband.ncsc.mil  with ESMTP id i4AE3CBf008193 for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 14:03:12 GMT
-Message-ID: <00ab01c43697$6462e1a0$010aff0a@gw>
-From: "todd glassey" <todd.glassey@worldnet.att.net>
-To: "Tom" <tom@lemuria.org>, "Ed Street" <edstreet@street-tek.com>
-Cc: "'Selinux'" <selinux@tycho.nsa.gov>
-References: <20040510032712.919833A404E@abyss.simplyaquatics.com> <20040510075114.B7373@lemuria.org>
-Subject: Re: presentation results
-Date: Mon, 10 May 2004 06:49:21 -0700
+	by jazzband.ncsc.mil  with ESMTP id i4AE42YW008255
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 14:04:02 GMT
+Received: from ensi-bourges.fr (ldap.ensi-bourges.fr [194.206.83.68])
+        by jazzband.ncsc.mil  with ESMTP id i4AE41Bf008246 for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 14:04:01 GMT
+Received: from unknown (HELO virus.ensi-bourges.fr) ([172.20.128.204])
+          (envelope-sender <amine.baina@ensi-bourges.fr>)
+          by ldap.ensi-bourges.fr (qmail-ldap-1.03) with SMTP
+          for <selinux@tycho.nsa.gov>; 10 May 2004 14:56:48 -0000
+Message-ID: <35767.172.20.128.112.1084201008.squirrel@ldap.ensi-bourges.fr>
+In-Reply-To: <1084191012.23757.19.camel@moss-spartans.epoch.ncsc.mil>
+References: <20040510092141.GB2092@jmh.mhn.de>
+     <1084191012.23757.19.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 10 May 2004 14:56:48 -0000 (UTC)
+Subject: patches
+From: amine.baina@ensi-bourges.fr
+To: "Stephen Smalley" <sds@epoch.ncsc.mil>
+Cc: "Thomas Bleher" <bleher@informatik.uni-muenchen.de>,
+   "SELinux ML " <selinux@tycho.nsa.gov>, "James Morris " <jmorris@redhat.com>,
+   "Rik Faith" <faith@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I would propose that one of the things that SELinus needs is something akin
-to what the OpenGroup does with the UNIX certification suite...
+hello,
 
-Todd
+I want to include a coreutils-selinux.patch into the file coreutils.spec,
+but I don't know how to do. however I've tried to do it, but I think it
+had created errors.
 
------ Original Message ----- 
-From: "Tom" <tom@lemuria.org>
-To: "Ed Street" <edstreet@street-tek.com>
-Cc: "'Selinux'" <selinux@tycho.nsa.gov>
-Sent: Sunday, May 09, 2004 10:51 PM
-Subject: Re: presentation results
+Next, Is it normal to have an empty coreutils-selinux.patch file ?
+
+In addition, when doing :
+rpm -ivh  coreutils.rpm, I have a conflict  with file-utils, sh-utils, and
+text-utils.
+
+Is it necessary to upgrade text-utils, sh-utils and file-utils to cope
+with this confilcts or to delete the installed ones?
+
+I think I'm near the solution but I've a lack of details
+
+may day may day ...
+A.B
 
 
-> On Sun, May 09, 2004 at 11:27:12PM -0400, Ed Street wrote:
-> >    Is/will selinux be certified under Common Criteria and if so what
-level?
->
-> You can't really certify "SELinux". You would certify an entire system,
-> one that happens to have SE enabled.
->
-> It will probably happen, the way SuSE and Redhat are both moving
-> forward with CC certifications for Linux.
->
-> -- 
-> http://web.lemuria.org/pubkey.html
-> pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
->      Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-> the words "unsubscribe selinux" without quotes as the message.
+
 
 
 --
