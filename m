@@ -1,67 +1,68 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7G9X1rT005767
-	for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2004 05:33:02 -0400 (EDT)
-Received: from tyo201.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7G9WLqL016407
-	for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2004 09:32:22 GMT
-Message-ID: <019201c48374$09efc510$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
-Cc: "James Morris" <jmorris@redhat.com>
-Subject: RCU issue with SELinux (Re: SELINUX performance issues)
-Date: Mon, 16 Aug 2004 18:33:07 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7GEAfrT006986
+	for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2004 10:10:41 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7GEA2qL029883
+	for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2004 14:10:02 GMT
+Subject: Re: [patch] setting default role from ssh
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov, nalin@redhat.com,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1092513257.4515.28.camel@nexus.verbum.private>
+References: <1092513257.4515.28.camel@nexus.verbum.private>
+Content-Type: text/plain
+Message-Id: <1092665369.16631.53.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 16 Aug 2004 10:09:29 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello, everyone.
-
-Sat, 7 Aug 2004 22:57:08 -0400 (EDT)
-James Morris <jmorris@redhat.com> wrote:
-
-> > The biggest problem is the global lock:
-> > 
-> > avc_has_perm_noaudit:
-> >         spin_lock_irqsave(&avc_lock, flags);
-> > 
-> > Any chance we can get rid of it? Maybe with RCU?
+On Sat, 2004-08-14 at 15:54, Colin Walters wrote:
+> A while back in a conversation with Dan we agreed that being able to do
+> something like:
 > 
-> Yes, known problem.  I plan on trying RCU soon, Rik was looking at a 
-> seqlock approach.
+> ssh root:sysadm_r@machine
+> 
+> would be nice.  Now I've finally gotten around to implementing it.  I
+> discovered when reading the openssh source that it already accepts a ':'
+> in the username, and extracts it into a variable called "style" in the
+> authentication context.  After digging a bit more, apparently it's used
+> only on BSD, for "BSD auth", which I guess is sort of like PAM.  Why you
+> would want/need users to be able to specify styles, I don't know.
+> 
+> Anyways, this "style" variable, unused on Linux, was easy enough to turn
+> into a SELinux "role" argument.  I just had to modify a few functions to
+> pass it down into the SELinux setexeccon and tty relabeling.
 
-I'm interested in the scalability of SELinux, and tried with
-rwlock and RCU approaches.
+This is certainly a useful enhancement.  Using the "style" in this
+manner should likely be discussed with the openssh developers in order
+to determine whether we might be able to do this in a way that is
+acceptable upstream and avoids any conflict with other uses of the
+"style", e.g. possibly using some prefix of the style to indicate that
+it is being used for SELinux, a domain of interpretation (DOI)
+indicator.  Otherwise, you'll likely have to carry it as a separate
+patch forever, SE-BSD won't be able to use it, and there is the
+potential for future conflict in Linux if someone else wants to use the
+style for another purpose.
 
-I simply replaced spinlock_irq_save() by (read|write)_lock_irqsave() first,
-but performance improvement was observed in the hackbench only,not in OSDL-REAIM.
+> Now, looking at the duplicative code in those two sections, I'm thinking
+> that it would make sense to have a libselinux function for this.
+> Probably something like:
+> 
+> int
+> get_default_context_with_role (const char *user, security_context_t fromcon, 
+>                                const char *role, security_context_t *newcon);
 
-Next, I tried with RCU approach. I came across the following problem.
+One question I have is whether the code should do a reachability check
+for the specified role and fail immediately if it is not reachable;
+get_default_context normally only returns contexts that are reachable
+from the 'fromcon' (i.e. process transition permission is granted
+between the 'fromcon' and the returned contexts).
 
-Some AVC-Entries are referred directly by avc_entry_ref structure
-in various resource objects (such as task_struct, inode and so on...). 
-Thus, referring to invalidated AVC-Entries may happen after detaching
-an entry from the AVC hash list.
-Since only list scanning of forward direction is expected in RCU-model,
-direct reference to AVC-Entry is not appropriate.
-
-In my opinion, direct reference to AVC-Entry should be removed
-to avoid the problem for scalability of SELinux.
-The purpose of this direct reference is performance improvement
-in consecutive access control check about each related object.
-Performance degradation may happen by this.
-But I think it is not so significant, because the number of the hash
-slot is 512 in spite of that the number of AVC-Entry is 410 fixed.
-We can reach the target AVC-Entry by one or two steps in average.
-
-Is removing direct reference to AVC-Entry approach acceptable?
-
-I'll try to consider this issue further.
---------
-Kai Gai, Linux Promotion Center, NEC
-E-mail: kaigai@ak.jp.nec.com
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
