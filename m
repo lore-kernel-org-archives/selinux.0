@@ -1,59 +1,173 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7VGQBrT013612
-	for <selinux@tycho.nsa.gov>; Tue, 31 Aug 2004 12:26:11 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7VGP9QF002209
-	for <selinux@tycho.nsa.gov>; Tue, 31 Aug 2004 16:25:22 GMT
-Message-ID: <4134A695.9060008@tresys.com>
-Date: Tue, 31 Aug 2004 12:25:57 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: banning copying of binaries (e.g. mozilla etc).
-References: <20040830222355.GI31497@lkcl.net>	 <1093951787.8517.11.camel@moss-spartans.epoch.ncsc.mil>	 <20040831122506.GE11456@lkcl.net>	 <1093955694.8517.51.camel@moss-spartans.epoch.ncsc.mil>	 <20040831132756.GH11456@lkcl.net> <1093958949.8517.81.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1093958949.8517.81.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Tue, 31 Aug 2004 18:46:35 +0200
+From: Nigel Kukard <nkukard@lbsd.net>
+To: linux-hotplug-devel@lists.sourceforge.net, SELinux <SELinux@tycho.nsa.gov>,
+   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   harald@redhat.com, Bill Nottingham <notting@redhat.com>
+Subject: Re: [idea] udev + selinux
+Message-ID: <20040831164635.GK10151@lbsd.net>
+References: <20040830173744.GD10151@lbsd.net> <20040831160750.GM11456@lkcl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4BlIp4fARb6QCoOq"
+In-Reply-To: <20040831160750.GM11456@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
 
-> On Tue, 2004-08-31 at 09:27, Luke Kenneth Casson Leighton wrote:
-> 
->> ... so port type equates to port number.
-> 
-> 
-> The net_contexts configuration maps port numbers to port types, so you
-> can group them into equivalence classes.  Note that there has been a
-> recent change to checkpolicy (in the sourceforge CVS tree) in this area
-> to preserve the specified ordering for matching so that you can have
-> overlapping port ranges, and a general entry for ports 1-1023 has been
-> added to net_contexts to map them all to reserved_port_t if not
-> otherwise specified.
-> 
-> 
->> ... but it would be easy to, say, deny users the ability to execute
->> user_u:object_r:user_t binaries, or default_t binaries etc. yes?
-> 
-> 
-> user_home_t?  Yes.  If you look at macros/base_user_macros.te, you'll
-> see the specific can_exec() rules that allow the user domains to execute
-> files in their home directories and their own temporary files in the
-> current policy.  You would want to go through and remove all such rules
-> for any type that the user can create/write.  apol is your friend for
-> such analysis, as it can quickly find all cases including those covered
-> by rules that use type attributes.
-> 
-It's worth noting that this will not stop execution of said binaries 
-entirely. One only needs to know enough to use /lib/ld.so to run any 
-dynamically linked binary which he doesn't have execute access on. 
-Unfortunatly disabling user domains access to ld.so would make him 
-unable to run any dynamically linked apps whatsoever, sounds like we 
-need a userland enforcer in glibc ;)
+--4BlIp4fARb6QCoOq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Joshua Brindle
+>  you have patched the program udev (0.030-10?)
+>=20
+>  [and yes, i would highly recommend sending it to the list(s)
+>  to make it clear what you mean].
+>=20
+>  this patch will run, when it starts up, a call to setfilecon()
+>  on /dev (or /udev, or whatever the mount point of the devfs is).
+>=20
+>  and _just_ on "/dev".
+>=20
+>  yes?
+
+correct
+
+>=20
+>  and it's done BEFORE any inodes are EVER created in the new
+>  /dev, yes?
+>=20
+
+correct
+
+>=20
+>  assuming yes, then it kinda-solves the need for doing that hacked-up
+>  relaxed-constraints-patch-to-hooks.c fscontext=3D option.
+>=20
+
+aha, u correct!!!!
+
+>  why? because you can mount -t tmpfs /dev blah blah and you don't=20
+>  care what the context is because udev will set the correct one
+>  when it runs.
+>=20
+>=20
+
+perfect!!!!, so that solves the need for the hooks patch, which is in
+actual fact wrong.
+
+>  that is - of course - assuming that file_contexts/file_contexts
+>  _contains_ the correct file context for /dev.
+>=20
+>=20
+
+*nod*
+
+>  it might make (i dunno) for a simpler policy.
+>=20
+
+yep
+
+>  what i mean is, have you had to add in the modifications to the
+>  selinux policy that i sent to the lists last week?
+>=20
+>  e.g. these:
+>=20
+> 	 allow udev_tbl_t device_t:filesystem { associate };
+> 	 allow initctl_t device_t:filesystem { associate };
+>=20
+>  and these:
+>=20
+> 	 +# needed for udev-mounted (/dev) tmpfs
+> 	 +allow $1_tty_device_t device_t:filesystem { associate };
+> 	 +
+> 	 +# to allow users to run df on udev-mounted (/dev) tmpfs
+> 	 +allow $1_t device_t:filesystem { getattr };
+> 	 +   #EXE=3D/bin/df  NAME=3D/   :  getattr
+> 	 +
+>=20
+
+had to add quite a couple more, but i'm still working on that to make it
+"correct"
+
+>  these are all there for reasons i cannot entirely fathom but
+>  it starts, in types/file.te, with this:
+>=20
+>  	allow { device_type } device_t:filesystem associate;
+>=20
+
+i need this aswell.... which is very interesting, so my "way of doing
+it" doesn't solve this problem. i'll keep looking for the solution
+
+>  which is all because of this:
+> =20
+>  	mount tmpfs -o fscontext=3Dsystem_u:object_r:device_t /dev
+>=20
+
+this doesn't cause the problem, its something else
+
+> =20
+>  anyway what i am saying is that if you HAVE NOT got all these patches
+>  in your selinux policy files, then your approach has distinct
+>  advantages: less mods to the policy files and less differences between
+>  a persistent and non-persistent udev filesystem.
+>=20
+
+correct, i'm still working on it though and it HAS TO BE COMPLETED
+SOON!!!!
+
+>=20
+>  other than that, my intuition is saying "i don't like it" and what that
+>  means is that in about two or three weeks i will be able to articulate
+>  clearly and precisely why i don't think it's a good idea.
+>
+
+*shrug*, just a different outlook, patching userspace instead of kernel
+space
+=20
+>  it'll likely be something to do with your solution being a two-step
+>  operation whereas the hacked-up-relaxed-fscontext-hooks.c things is
+>  a one-step (atomic?)  operation.
+>=20
+
+kernel developers will very much not like to get patches unless for a
+very good reason... *shrug*... guess i have the totally oposite outlook
+than you, i've had quite a number of my patches go mainstream though
+
+>  l.
+
+-Nigel
+
+
+--=20
+Nigel Kukard, PhD CompSc
+(Chief Executive Officer)
+Linux Based Systems Design (Non-Profit)
+Web: www.lbsd.net          Email: nkukard@lbsd.net
+Tel: (+27) 023 349 8000     Cell: (+27) 082 333 3723
+Fax: (+27) 023 349 1395  Support: 086 747 7600
+Address: LIGT House, 2 Klipdrift Rd, Rawsonville
+Linux Systems Design & Technology Solutions
+
+
+   The best language to use is the language that was designed for
+                  what you want to use it for.
+
+
+
+--4BlIp4fARb6QCoOq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBNKtrKoUGSidwLE4RAl+iAJ4mOfmBlVjOd4fiMMiZJj0VDkYRMQCglr1l
+nKnVKu451yw4r7NHXeycng4=
+=ni31
+-----END PGP SIGNATURE-----
+
+--4BlIp4fARb6QCoOq--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
