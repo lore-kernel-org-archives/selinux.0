@@ -1,63 +1,48 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UNsBrT027990
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:54:11 -0400 (EDT)
-Received: from iron1-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UNsAog014577
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 23:54:10 GMT
-From: Kodungallur Varma <ram25@gwu.edu>
-To: russell@coker.com.au
-Cc: Tom Anderson <granite217@yahoo.com>, selinux@tycho.nsa.gov
-Message-ID: <3017057301b40f.301b40f3017057@gwu.edu>
-Date: Thu, 30 Sep 2004 18:54:10 -0500
-MIME-Version: 1.0
-Subject: Re: purpose of the staff_r role?
-Content-Type: text/plain; charset=us-ascii
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i910jrrT028279
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 20:45:53 -0400 (EDT)
+Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i910ilng020354
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 00:44:47 GMT
+Subject: Re: Access to xdm_t
+From: Colin Walters <walters@verbum.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20040930192935.GA6063@lkcl.net>
+References: <20040929163222.GA4125@rom.cip.ifi.lmu.de>
+	 <1096561927.4957.15.camel@nexus.verbum.private>
+	 <20040930192935.GA6063@lkcl.net>
+Content-Type: text/plain
+Date: Thu, 30 Sep 2004 20:47:28 -0400
+Message-Id: <1096591648.5736.3.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
-
-     I am pretty new to selinux. I was setting up a selinux machine. I installed the OS and I installed the latest packages policy packages with the 'yum' command. I later rebooted with the enforcing=0 option during the boot. I later 'make relabel' ed it. I rebooted the machine again with the enforcing=0 mode and checked the /var/log/messages for avc:access denied messages. there are too many of them and I just dont know how to fix them. any help on this would be excellent. 
-
-thanx in advance..
-
------ Original Message -----
-From: Russell Coker <russell@coker.com.au>
-Date: Thursday, September 30, 2004 3:43 pm
-Subject: Re: purpose of the staff_r role?
-
-> On Fri, 1 Oct 2004 05:31, Tom Anderson <granite217@yahoo.com> wrote:
-> > > It's the role that a person who can become sysadm_r should do 
-> their> > daily work in like reading mail, working on source code, 
-> etc.  The
-> > > reason is because it basically isn't allowed to interact with 
-> user_t> > at all; for example, staff_t can't read user_tmp_t.  
-> This prevents
-> > > /tmp races from working.
-> >
-> > Ah, that makes sense.  But I'd like my staff_t user able to read
-> > logfiles, without needing to become sysadm_r first ('cuz I can 
-> do some
-> > real damage inadvertently).  Is there a "correct" way to do 
-> this?  I've
-> > tried granting read access to var_log_t, but several daemons 
-> have their
-> > own logfile types.
+On Thu, 2004-09-30 at 20:29 +0100, Luke Kenneth Casson Leighton wrote:
+> On Thu, Sep 30, 2004 at 12:32:07PM -0400, Colin Walters wrote:
+> > On Wed, 2004-09-29 at 18:32 +0200, Thomas Bleher wrote:
+> > 
+> > > If yes, should xdm_t get the attribute privfd?
+> > 
+> > Actually even moving the log to /tmp you'll still get programs wanting
+> > access to the xdm_t fd.  Ideally we would have a little program run in
+> > its own domain (xdm_launcher_t say) that would simply close all of its
+> > file descriptors, open up the tmp file itself for logging and exec the
+> > user session.  
 > 
-> r_dir_file(staff_t, logfile)
-> 
-> -- 
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux 
-> packageshttp://www.coker.com.au/bonnie++/  Bonnie++ hard drive 
-> benchmarkhttp://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing 
-> list.If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+>  /usr/bin/startkde for example?
+
+I think the idea with doing it inside ?dm was to keep common
+functionality inside the display manager; also it ensures you get an
+error log even if your session script fails early on (and gdm will offer
+to display the error log for example if your session lasts less than 10
+seconds, which it can really only do if it knows the name of the error
+log).
+
+So putting it inside each session script is generally wrong I think.
+
 
 
 --
