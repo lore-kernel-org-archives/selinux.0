@@ -1,59 +1,55 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2LNw9x6025630
-	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 18:58:10 -0500 (EST)
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2MKjWx6027628
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 15:45:33 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2LNselY015535
-	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 23:54:40 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id h2LNsOKX015532
-	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 23:54:32 GMT
-Date: Sat, 22 Mar 2003 10:57:35 +1100
-From: Brian May <bam@snoopy.apana.org.au>
-To: Dale Amon <amon@vnl.com>, "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SE-Linux and 2.4.20
-Message-ID: <20030321235735.GA8789@snoopy.apana.org.au>
-References: <200303211604.LAA20617@moss-shockers.ncsc.mil> <20030320002246.GC13288@snoopy.apana.org.au> <20030320111227.GJ24908@vnl.com>
+	by jazzswing.ncsc.mil  with ESMTP id h2MKg2lY017562
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 20:42:02 GMT
+Received: from eos.telenet-ops.be (eos.telenet-ops.be [195.130.132.40])
+	by jazzswing.ncsc.mil  with ESMTP id h2MKg2KX017559
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 20:42:02 GMT
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by eos.telenet-ops.be (Postfix) with SMTP id 2074620237
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 21:45:31 +0100 (CET)
+Received: from kabel.telenet.be (D5775F15.kabel.telenet.be [213.119.95.21])
+	by eos.telenet-ops.be (Postfix) with ESMTP id 15EFA20139
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 21:45:31 +0100 (CET)
+Date: Sat, 22 Mar 2003 21:45:30 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: selinux@tycho.nsa.gov
+Subject: ping problems.
+Message-ID: <20030322204530.GA20526@ping.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200303211604.LAA20617@moss-shockers.ncsc.mil> <20030320111227.GJ24908@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Mar 20, 2003 at 11:12:27AM +0000, Dale Amon wrote:
-> Just as another data point: I had to back a 2.4.20
-> kernel off a firewall because it was oopsing in random
-> processes after a couple hours. Might not be related...
-> the kernel had crypto, freeswan and grsec, the oops
-> was during kernel paging. Are you seeing an OOPS when
-> you get the lockup?
+ping6 doesn't seem to work to work when pinging localhost (::1).
+It does work in case I ping a remote host however.
 
-No kernel OOPS.
+I get this error:
+avc:  denied  { recvfrom } for  pid=1631 exe=/bin/ping6 netif=lo
+scontext=kurt:sysadm_r:ping_t tcontext=system_u:system_r:kernel_t
+tclass=rawip_socket
 
-My kernel also has freeswan support, too. It is a module though and not
-loaded. Coincidence?
+I think the tclass should be icmp_socket_t instead, for which is
+has permission to use recvfrom.
 
-On Fri, Mar 21, 2003 at 11:04:32AM -0500, Stephen D. Smalley wrote:
-> I haven't seen this behavior myself.  Was there anything useful in
-> /var/log/messages or the dmesg output, e.g. a kernel Oops message?  As
-> a reminder, we don't incorporate other bug fix patches in the
-> LSM/SELinux patches, so you do need to apply any other bug fix patches
-> that you want for the base kernel, e.g. the ext3 fixes for 2.4.20.
+Then there is a problem for both ping and ping6 if you try to use
+the -I parameter.  You get:
 
-No useful messages.
+avc:  denied  { ioctl } for  pid=1641 exe=/bin/ping6
+path=socket:[8429] dev=00:00 ino=8429
+scontext=kurt:sysadm_r:ping_t tcontext=kurt:sysadm_r:ping_t
+tclass=rawip_socket
 
-No unexpected messages.
+avc:  denied  { ioctl } for  pid=1647 exe=/bin/ping
+path=socket:[8439] dev=00:00 ino=8439
+scontext=kurt:sysadm_r:ping_t tcontext=kurt:sysadm_r:ping_t
+tclass=rawip_socket
 
-My debug.log file is badly currupted at the point of the crash, but
-apart from that nothing unusual.
 
-I use the Debian kernel source, which I believe is already patched
-with the ext3 bug fix (at least according to the changelog it is).
+Kurt
 
-I have also applied the ptrace security fixes, although the problem
-happened before then.
--- 
-Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
