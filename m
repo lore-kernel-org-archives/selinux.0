@@ -1,15 +1,15 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA19823
-	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 11:54:24 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA22043
+	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 17:02:03 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA05963
-	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 16:52:22 GMT
+	by jazzswing.ncsc.mil  with ESMTP id WAA21719
+	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 22:00:02 GMT
 Received: from pandora.snu.edu ([204.126.2.1])
-	by jazzswing.ncsc.mil  with SMTP id QAA05959
-	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 16:52:22 GMT
-Message-Id: <sdcf8c41.028@atlas.snu.edu>
-Date: Mon, 11 Nov 2002 10:53:11 -0600
-From: "Joshua Brindle" <JBrindle@mail.snu.edu>
+	by jazzswing.ncsc.mil  with SMTP id WAA21715
+	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 22:00:01 GMT
+Message-Id: <sdcfd474.085@atlas.snu.edu>
+Date: Mon, 11 Nov 2002 16:01:24 -0600
+From: "Joshua Brindle" <JBrindle@snu.edu>
 To: <selinux@tycho.nsa.gov>
 Subject: SELinux distro building
 Mime-Version: 1.0
