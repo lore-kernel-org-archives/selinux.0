@@ -1,18 +1,47 @@
-Subject: new LSM ver
-From: Timothy Wood <timothy@hallcomp.com>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: 05 Jul 2002 19:21:13 -0400
-Message-Id: <1025911273.8785.1.camel@phobos>
-Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+From: JW <jw@centraltexasit.com>
+Reply-To: jw@centraltexasit.com
+To: <SELinux@tycho.nsa.gov>
+Subject: "Additional Documentation for..." -- where are these?
+Date: Fri, 5 Jul 2002 18:27:03 -0500
+MIME-Version: 1.0
+Message-Id: <200207051827.03955.jw@centraltexasit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Anyone notice that the default context for root in the new lsm package
-is a user_r and not sysadm_r?  Any specific reason for this change or is
-it a mistake?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Timothy,
+Hello,
+
+On the doc page at the bottom is a link to a second documentation page. At the top is:
+
+Guidance Documents
+
+    * Installation Guide (README)
+    * User Guide (TBD)
+    * Administration Guide (TBD)
+    * Application Developer's Guide (TBD)
+
+
+Only the Installation Guide has a link. Where are the other documents?
+I'd like to see them, even it they are works in progress.
+
+- -- 
+
+- ----------------------------------------------------
+Jonathan Wilson
+System Administrator
+Cedar Creek Software     http://www.cedarcreeksoftware.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9JitHQ5u80xXOLBcRAoduAJsEjnwSQhNM7cGvPsqnzSoe45LhSgCgsEPl
+OFKaJd1mSCeyAlyCsJ0v+lQ=
+=SGXR
+-----END PGP SIGNATURE-----
 
 
 --
