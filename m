@@ -1,50 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA10385
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 04:47:04 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id JAA20563
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 09:44:23 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12216
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 10:16:04 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h07FG3I09944
+	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 15:16:03 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id JAA20559
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 09:44:21 GMT
+        by jazzband.ncsc.mil  with ESMTP id h07FG1f09940 for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 15:16:02 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 4809C9246B
-	for <selinux@tycho.nsa.gov>; Tue,  7 Jan 2003 20:46:43 +1100 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 62A219246B
+	for <selinux@tycho.nsa.gov>; Wed,  8 Jan 2003 02:15:48 +1100 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id D8D5526D
-	for <selinux@tycho.nsa.gov>; Tue,  7 Jan 2003 10:46:36 +0100 (CET)
+	by lyta.coker.com.au (Postfix) with ESMTP id 8C763244C
+	for <selinux@tycho.nsa.gov>; Tue,  7 Jan 2003 16:15:41 +0100 (CET)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Subject: auditallow and { sbin_t bin_t }
-Date: Tue, 7 Jan 2003 10:46:32 +0100
+Subject: SE Linux talk in Cambridge on Jan 17
+Date: Tue, 7 Jan 2003 16:15:41 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
-Message-Id: <200301071046.32774.russell@coker.com.au>
+Message-Id: <200301071615.41012.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A problem that I regularly have is that some program does something I don't 
-like/understand but I don't know why the program in question is being run.  A 
-modern Unix system is so complex that finding out what exactly happens by 
-using a debugger or reading source code is excessively difficult.
+http://www.cl.cam.ac.uk/Research/Security/seminars/2003/2003-01-17.html
 
-In the past I've done things such as give the file a type test_exec_t and 
-putting in an auditallow rule allowing everyone to execute it so I can see 
-what happens.
+I am giving a talk on SE Linux on the 17th of January at Cambridge University 
+in England.  It's an open invitation.
 
-I think that this is useful enough that I am considering adding it to my 
-policy tree.
+I will be aiming the talk at an audience who already know all the basic 
+concepts and have experience in computer security.
 
-I was thinking of having audit_sbin_t and audit_bin_t file types and then 
-changing all policy such that everything that allows an action for sbin_t 
-will also allow it for audit_sbin_t.  Then if you want to discover what is 
-running that strange process you can just use a simple chsid and wait for it 
-to be run again.
 
-This is fairly ugly, but I can't think of a better solution to the problem at 
-the moment.  Any suggestions will be appreciated.
+The next day I hope to give a talk at another venue that will be aimed at an 
+audience with less background knowledge.  I will let you know once it's 
+confirmed.
+
+I live in the Netherlands, I can also give talks in nearby areas (Belgium, 
+North-East France, West Germany) at short notice.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
