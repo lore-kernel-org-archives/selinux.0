@@ -1,69 +1,49 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i535hLrT009818
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 01:43:21 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i545h30x020065
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 01:43:04 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id E8A6D61BD6
-	for <selinux@tycho.nsa.gov>; Thu,  3 Jun 2004 15:43:17 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 03026-06 for <selinux@tycho.nsa.gov>;
-	Thu, 3 Jun 2004 15:43:17 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 8AFB761BB0
-	for <selinux@tycho.nsa.gov>; Thu,  3 Jun 2004 15:43:17 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 1D8AEB586F
-	for <selinux@tycho.nsa.gov>; Thu,  3 Jun 2004 15:43:16 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: samba
-Date: Thu, 3 Jun 2004 15:43:15 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200406031543.15551.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53CgRrT011263
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 08:42:28 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i54CgBTV002528
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 08:42:11 -0400 (EDT)
+Subject: Re: issue with SE/Linux - sshd not giving access to /dev/pts/[n]
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200406031404.35028.russell@coker.com.au>
+References: <20040601090345.GM8312@lkcl.net>
+	 <200406021631.50230.russell@coker.com.au>
+	 <1086196986.15871.106.camel@moss-spartans.epoch.ncsc.mil>
+	 <200406031404.35028.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1086266468.17657.19.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 03 Jun 2004 08:41:08 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When discussing SE Linux and Samba with Andrew Tridgell last night we came up 
-with an idea that should work reasonably well without hurting performance 
-much.
+On Thu, 2004-06-03 at 00:04, Russell Coker wrote:
+> I don't think it occurred on 3.6.x.  It occurs on both Fedora and Debian, but 
+> does not always happen.  I'm not sure of the exact cause.
 
-Firstly we consider Samba to be a trusted object manager, so there is no plan 
-to prevent any Samba process from exceeding it's access (IE we are not 
-protecting against a buffer overflow or other attack to make the Samba daemon 
-perform inappropriate actions).
+Fedora is still using openssh 3.6.  Are you sure it occurs on Fedora?
 
-For operations which require access to a directory tree (IE every operation 
-that does not involve an open file handle - open, creat, unlink, rename, 
-stat, chmod, chown, truncate, etc) we can have a separate samba process 
-that's run in a different context (eg smbd_user_t, smbd_staff_t, etc).  The 
-operations that result in an open file handle (open() and creat()) can then 
-pass back a file handle to the parent process over a Unix domain socket.  For 
-read/write/ioctl/fstat/ftruncate operations the main Samba process can query 
-the SE Linux kernel (or maybe use user space AVC code) as to whether the 
-operations are permitted.
-
-This was one of many possible ways of doing this that we discussed.  I don't 
-think it was Andrew's favourite, but I think it works best with what we are 
-trying to do.
-
-
-Another possibility is to just not permit multiple SMB identities over the 
-same TCP socket, there's apparently a registry setting that can be used on 
-each SMB client machine to make it use a separate TCP socket per connection.  
-In which case we just need to change the Samba code from fork/setuid to 
-fork/setuid/exec (which will not be fun).
+In any event, looking briefly at 3.6 vs. 3.8, I see that:
+1) in 3.6, session.c:do_exec_pty() calls do_pam_session() with the
+username and tty.  auth-pam.c:do_pam_session() then sets PAM_TTY prior
+to calling pam_open_sesson(), so the tty is available to pam_selinux for
+relabeling.
+2) in 3.8, session.c:do_setusercontext() calls do_pam_session() with no
+arguments, and auth-pam.c:do_pam_session() calls pam_open_session()
+without setting PAM_TTY (as no information is available at this point),
+so pam_selinux lacks the tty information.  
+The implication is that pam_selinux cannot perform tty relabeling for
+openssh 3.8.  Thus, we must revert to using a direct patch.  Someone
+want to port the old 3.6 patch?
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
