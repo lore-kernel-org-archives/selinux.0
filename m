@@ -1,80 +1,99 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9ICXIi014538
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 13:12:33 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9ICYEj003138
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 18:12:35 GMT
-Subject: Re: Single home directory type for all roles.
-From: Russell Coker <rcoker@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux list <selinux@tycho.nsa.gov>,
-   Joshua Brindle <jbrindle@snu.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Colin Walters <walters@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <1102614805.32175.176.camel@moss-spartans.epoch.ncsc.mil>
-References: <20041207000805.GH3678@jmh.mhn.de>
-	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
-	 <41B8826D.30105@redhat.com>
-	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
-	 <1102614445.4509.25.camel@aeon>
-	 <1102614805.32175.176.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 10 Dec 2004 05:12:31 +1100
-Message-Id: <1102615951.4509.50.camel@aeon>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9ILaIi014616
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 13:21:36 -0500 (EST)
+Received: from mailrelay1.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9ILdEj003426
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 18:21:39 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 9 Dec 2004 19:21:39 +0100
+Date: Thu, 9 Dec 2004 19:21:39 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: patch: tags Makefile target
+Message-Id: <20041209182139.GC8179@jmh.mhn.de>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ChQOR20MqfxkMJg9"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-09 at 12:53 -0500, Stephen Smalley wrote:
-> On Thu, 2004-12-09 at 12:47, Russell Coker wrote:
-> > However there still are issues because sysadm_t can read symlinks of
-> > type user_tmp_t, so a user can attempt a symlink race condition attack
-> > on the administrator.
-> 
-> Yes, that should be removed IMHO.  Currently only occurs due to allow
-> rule on sysadmfile:lnk_file.   
 
-The problem with such a change is that it interferes with the operation
-of "ls -l /tmp" (which is IMHO a fairly important operation for a system
-administrator).  I can imagine a situation where one user is trying a
-race condition against another user but the administrator doesn't notice
-because "ls -l /tmp" doesn't display full information.
+--ChQOR20MqfxkMJg9
+Content-Type: multipart/mixed; boundary="ep0oHQY+/Gbo/zt0"
+Content-Disposition: inline
 
-Last time I mentioned this I was informed that it is impractically
-difficult for the kernel code to differentiate between an application
-such as ls calling readlink(2) and the kernel code calling it as part of
-a file open operation.
 
-The solution then would be to have a separate domain for the
-administrator to run ls which can read all sym-links while other
-programs the administrator may run (rm, cp, mv, etc) will be denied
-access to read many types of sym-link.  Is this a good idea?
+--ep0oHQY+/Gbo/zt0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Having a tunable to allow user roles to read each other's temporary
-> > files would be much better than any other "solution" to this problem.
-> 
-> No, having an explicit type for the purpose of sharing is preferable, so
-> that the user has to explicitly indicate what he wants to share, either
-> by relabeling or by copying into a shared directory that has that type.
+This patch adds a Makefile target which creates a tags file. I find this
+extremely handy when working on SELinux policy as I can directly jump to
+the definition of a macro or type in the editor.
 
-Relabeling probably isn't an option for the scenario under discussion.
-A shared directory will work.
+Thomas
 
-I have been considering such issues for a while and come to the
-conclusion that having ALL files that a user creates under /home/$USER
-is a limitation on what we can do in this regard.  If we
-had /home/share/$USER for sharing files then we could deny
-relabelto/from user_share_t and of course deny all users the ability to
-write to /home/share so the users would then be unable to mess this up.
-If we have shared files in /home/$USER/Public as Colin suggests then
-users will do "mv Public Public.old ; mkdir Public" and then whinge when
-things stop working (this is the big problem with all labeling under the
-home directory but it becomes worse when sharing files with other
-users).
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
-Can we break the tradition of having only /home/$USER in this regard?
-There are several other categories of files that are relevant to
-security that could benefit from similar treatment if we go down that
-path.
+--ep0oHQY+/Gbo/zt0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tags.patch"
+Content-Transfer-Encoding: quoted-printable
+
+diff -urN orig/Makefile mod/Makefile
+--- orig/Makefile	2004-10-26 00:19:49.000000000 +0200
++++ mod/Makefile	2004-12-09 19:08:07.000000000 +0100
+@@ -162,8 +162,26 @@
+ 	@grep "^/root" $@.tmp >> $@
+ 	@-rm $@.tmp $@.root
+=20
++# Create a tags-file for the policy:
++# we need exuberant ctags; unfortunately it is named differently on differ=
+ent distros, sigh...
++pathsearch =3D $(firstword $(wildcard $(addsuffix /$(1),$(subst :, ,$(PATH=
+))))) # taken from make-docs
++CTAGS :=3D $(call pathsearch,ctags-exuberant) # debian naming scheme
++ifeq ($(strip $(CTAGS)),)
++CTAGS :=3D $(call pathsearch,ctags) # suse naming scheme
++endif
++
++tags: $(wildcard *.te types/*.te domains/*.te domains/misc/*.te domains/pr=
+ogram/*.te domains/program/unused/*.te macros/*.te macros/program/*.te)
++	@($(CTAGS) --version | grep -q Exuberant) || (echo ERROR: Need exuberant-=
+ctags to function!; exit 1)
++	@LC_ALL=3DC $(CTAGS) --langdef=3Dte --langmap=3Dte:..te \
++	  --regex-te=3D'/^[ \t]*type[ \t]+(\w+)(,|;)/\1/t,type/' \
++	  --regex-te=3D'/^[ \t]*typealias[ \t]+\w+[ \t+]+alias[ \t]+(\w+);/\1/t,t=
+ype/' \
++	  --regex-te=3D'/^[ \t]*attribute[ \t]+(\w+);/\1/a,attribute/' \
++	  --regex-te=3D'/^[ \t]*define\(`(\w+)/\1/d,define/' \
++	  --regex-te=3D'/^[ \t]*bool[ \t]+(\w+)/\1/b,bool/' $^
++=20
+ clean:
+ 	rm -f policy.conf $(POLICYVER)
++	rm -f tags
+ 	rm -f tmp/*
+ 	rm -f $(FC)
+ 	rm -f flask/*.h
+
+--ep0oHQY+/Gbo/zt0--
+
+--ChQOR20MqfxkMJg9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBuJezxWIrrrL0q+cRAjCGAJ4scA8VKbpYnrqNLUh9X9vefhxvEQCfbe3k
+SatRsLbiDSsmWLb7kcFrcZQ=
+=F48B
+-----END PGP SIGNATURE-----
+
+--ChQOR20MqfxkMJg9--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
