@@ -1,26 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ECK7Rb010580
-	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 08:20:07 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4ECK5Mi006135
-	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:20:05 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i4ECK4pI006132 for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:20:04 GMT
-Subject: Re: Suse
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Ed Street <edstreet@street-tek.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ECNuRb010616
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 08:23:56 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4ECLXRA008880
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:21:33 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+	by jazzswing.ncsc.mil  with ESMTP id i4ECLXjN008875
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:21:33 GMT
+From: "Ed Street" <edstreet@street-tek.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
 Cc: "'Selinux'" <selinux@tycho.nsa.gov>
-In-Reply-To: <20040513225342.DC3833A404F@abyss.simplyaquatics.com>
-References: <20040513225342.DC3833A404F@abyss.simplyaquatics.com>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1084537198.17741.30.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 14 May 2004 08:19:58 -0400
+Subject: RE: Suse
+Date: Fri, 14 May 2004 08:23:50 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <1084537198.17741.30.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <20040514122351.2D9FE3A404F@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
+
+Suse 9.1 uses kernel 2.6 and I'm thinking the 9.0 stuff would be very dated.
+The better option may be going with the upstream or the fedora srpm.
+
+Ed
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@epoch.ncsc.mil] 
+Sent: Friday, May 14, 2004 8:20 AM
+To: Ed Street
+Cc: 'Selinux'
+Subject: Re: Suse
+
 On Thu, 2004-05-13 at 18:53, Ed Street wrote:
-> I received my suse 9.1 cdâ€™s in the mail today and was wondering if we
+> I received my suse 9.1 cd’s in the mail today and was wondering if we
 > have anyone working on this distro.
 
 Thomas Bleher has SELinux packages for SuSE 9.0, so they are likely a
@@ -41,6 +56,19 @@ of, i.e. Debian, Fedora Core, Gentoo, and SuSE.
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
+ 
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
+ 
+
 
 
 --
