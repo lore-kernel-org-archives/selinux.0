@@ -1,38 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h989H5Wt017762
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 05:17:08 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h989H30p010112
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 09:17:03 GMT
-Received: from sznajder.eu.org (sznajder.eu.org [81.26.0.18])
-	by jazzswing.ncsc.mil  with ESMTP id h989H2r7010108
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 09:17:02 GMT
-Received: from pipen by sznajder.eu.org with local (Exim 4.24-acl12 #2 (MDK))
-	id 1A7AR8-0008Ur-PM by authid <pipen>
-	for <selinux@tycho.nsa.gov>; Wed, 08 Oct 2003 11:16:50 +0200
-Date: Wed, 8 Oct 2003 11:16:50 +0200
-From: "Artur M. Piwko" <pipen@pu.kielce.pl>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: SElinux and chroot
-Message-ID: <20031008091650.GA19270@sabat.tu.kielce.pl>
-Reply-To: "Artur M. Piwko" <pipen@pu.kielce.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h989i7Wt017839
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 05:44:07 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h989i67d013346
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 09:44:06 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h989hSRn013325 for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 09:43:29 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
+Subject: Re: 2.6.0-test6 boot process failures
+Date: Wed, 8 Oct 2003 19:43:20 +1000
+References: <20031007230348.E11325@lemuria.org> <200310081341.12645.russell@coker.com.au> <20031008100006.F11916@lemuria.org>
+In-Reply-To: <20031008100006.F11916@lemuria.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310081943.20925.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Do I have to install selinux base into chrooted environment in addition
-to the system part out of it?
+On Wed, 8 Oct 2003 18:00, Tom wrote:
+> > Where's Colin's script?
+>
+> It's in his selinux-policy-default package. Here's the script:
 
-Artur
+OK, I've just released a new version of my selinux-policy-default package with 
+this.  I have made a few changes, the noteworthy change is that I check for 
+the policy version, so the same script will work for the old SE Linux (apart 
+from trying to mount /selinux which I forgot), the new SE Linux, and future 
+releases.
 
 -- 
- As  water  spins  in  circles  twice  | size |  Artur Piwko aka Pipen@ircnet
- Spiders,  snakes and the little mice  | 393B |  mailto: pipen@rpg.pl iCQ: na
- Get twisted  around  and tumble down -+-IAMA-+- phoneto: +48604280306 TVBSAE
- When Nature calls we all shall drown  |"Gaia"|  finger //me for geekcode/pgp
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-             If you cut me down, I will only become more powerful.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
