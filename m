@@ -1,134 +1,55 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i96AsgrT003318
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 06:54:42 -0400 (EDT)
-Received: from sunspire.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i96AseKB003978
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 10:54:41 GMT
-Message-ID: <4163CF0D.4070201@gentoo.org>
-Date: Wed, 06 Oct 2004 13:55:09 +0300
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: Erich Schubert <erich@debian.org>
-CC: selinux@tycho.nsa.gov
-Subject: Re: gentoo diff for mysqld
-References: <41625B74.2090503@gentoo.org> <1097001016.15549.4.camel@wintermute.xmldesign.de>
-In-Reply-To: <1097001016.15549.4.camel@wintermute.xmldesign.de>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCEF598F086BCDC02E4BBDA3C"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i96BeorT003506
+	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 07:40:50 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i96BemKB005311
+	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 11:40:49 GMT
+Subject: Re: policy patches
+From: Erich Schubert <erich@debian.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: James Carter <jwcart2@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>,
+   Russell Coker <russell@coker.com.au>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20041006101046.GA5790@lkcl.net>
+References: <200409292354.15227.russell@coker.com.au>
+	 <200409300620.41527.russell@coker.com.au>
+	 <1096648965.13366.35.camel@moss-lions.epoch.ncsc.mil>
+	 <200410020344.04225.russell@coker.com.au>
+	 <1096920735.3235.17.camel@moss-lions.epoch.ncsc.mil>
+	 <4162C0C6.9090704@redhat.com>
+	 <1097003202.30738.35.camel@moss-lions.epoch.ncsc.mil>
+	 <20041006101046.GA5790@lkcl.net>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Wed, 06 Oct 2004 13:40:02 +0200
+Message-Id: <1097062802.4167.9.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCEF598F086BCDC02E4BBDA3C
-Content-Type: multipart/mixed;
- boundary="------------030907060205090507040407"
-
-This is a multi-part message in MIME format.
---------------030907060205090507040407
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
 Hi,
 
-Erich Schubert wrote:
-> Hi,
-> 
-> 
->>+# if controled by daemontools
->>+ifdef(`daemontools.te', `
->>+domain_auto_trans( svc_run_t, mysqld_exec_t, mysqld_t)
->>+allow svc_start_t mysqld_t:process signal;
->>+svc_ipc_domain(mysqld_t)
->>+')dnl end ifdef daemontools
-> 
-> 
-> I think the "deamontools.te" ifdef is enough, why put this into the
-> "gentoo" ifdef, too?
-> Please don't use distro-ifdefs unneccessarily. Basically anything being
-> in {FHS,upstream,best-practice} should be outside of such ifdefs.
-> Only things dependant on non-generic domains or non-standard behaviour -
-> for example the gentoo init - should be wrapped IMHO.
+> james, i didn't see a reply to your question about whether
+> it was mozilla that defined the "~/My Downloads" directory:
+> did i miss something?
 
-I'm glad you think this way.
-Here is a new patch with no distro_gentoo ifdefs.
-Also can someone please tell me when is that 'allow mysqld_t sysadm_home_t:file { read getattr };' needed?
-I have never felt the need for that rule and I'd be happy to see it go.
+> ... but does it _have_ to be in ~/My windows style downloads???
 
-> Greetings,
-> Erich Schubert
+In the default configuration Epiphany saves to ~/Desktop/Downloads i
+think. IMHO Distributions should configure Mozilla to use this
+directory, too, by default.
+When i first saw this i was a bit annoyed, that it didn't ask me where
+to save the downloads. But when i had my file managers open, i found it
+even easier to just move the downloaded files to their destinations than
+having the file selector pop up.
 
-thanks,
-peter
-
+Greetings,
+Erich Schubert
 -- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+       The best things in life are free: Friendship and Love.       //\
+               Für jedes Problem gibt es eine Lösung,               V_/_
+                 die einfach, klar und falsch ist.
 
---------------030907060205090507040407
-Content-Type: text/plain;
- name="mysql.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mysql.diff"
 
---- /root/public_html/policy/nsa/domains/program/unused/mysqld.te	2004-08-30 23:35:32.000000000 +0300
-+++ /etc/security/selinux/src/policy/domains/program/mysqld.te	2004-10-06 04:36:23.704673096 +0300
-@@ -23,7 +23,8 @@
- 
- log_domain(mysqld)
- 
--allow mysqld_t tmp_t:dir { getattr read };
-+# for temporary tables
-+tmp_domain(mysqld)
- 
- allow mysqld_t usr_t:file { getattr read };
- 
-@@ -57,10 +58,6 @@
- 
- can_unix_connect(sysadm_t, mysqld_t)
- 
--# for /root/.my.cnf - should not be needed
--allow mysqld_t sysadm_home_dir_t:dir search;
--allow mysqld_t sysadm_home_t:file { read getattr };
--
- ifdef(`logrotate.te', `
- r_dir_file(logrotate_t, mysqld_etc_t)
- allow logrotate_t mysqld_db_t:dir search;
-@@ -74,6 +71,12 @@
- allow userdomain mysqld_var_run_t:sock_file write;
- ')
- 
-+ifdef(`daemontools.te', `
-+domain_auto_trans( svc_run_t, mysqld_exec_t, mysqld_t)
-+allow svc_start_t mysqld_t:process signal;
-+svc_ipc_domain(mysqld_t)
-+')dnl end ifdef daemontools
-+
- ifdef(`distro_redhat', `
- allow initrc_t mysqld_db_t:dir create_dir_perms;
- 
-
---------------030907060205090507040407--
-
---------------enigCEF598F086BCDC02E4BBDA3C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBY88NGSBEIeh4AEYRAmcSAJ48Pzux5cENTvUJp9OVp1sGgKRGxACfT8Jp
-RNHfkXbcNxFDhuquN/kA9jM=
-=knVc
------END PGP SIGNATURE-----
-
---------------enigCEF598F086BCDC02E4BBDA3C--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
