@@ -1,66 +1,95 @@
-Message-Id: <200411261858.iAQIwrrK013231@turing-police.cc.vt.edu>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Russell Coker <russell@coker.com.au>,
-   Karl MacMillan <kmacmillan@tresys.com>,
+Message-Id: <200411261923.iAQJNVPF010564@turing-police.cc.vt.edu>
+To: russell@coker.com.au
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
    SELinux List <SELinux@tycho.nsa.gov>
 Subject: Re: dynamic context transitions 
-In-Reply-To: Your message of "Thu, 25 Nov 2004 21:35:19 GMT."
-             <20041125213519.GD26737@lkcl.net>
+In-Reply-To: Your message of "Fri, 26 Nov 2004 14:28:28 +1100."
+             <200411261428.31379.russell@coker.com.au>
 From: Valdis.Kletnieks@vt.edu
-References: <4182959B.4080503@trustedcs.com> <1099402984.31739.17.camel@moss-spartans.epoch.ncsc.mil> <1099404989.23756.79.camel@pham.columbia.tresys.com> <200411260649.01922.russell@coker.com.au>
-            <20041125213519.GD26737@lkcl.net>
+References: <4182959B.4080503@trustedcs.com> <200411260649.01922.russell@coker.com.au> <20041125213519.GD26737@lkcl.net>
+            <200411261428.31379.russell@coker.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1445723607P";
+Content-Type: multipart/signed; boundary="==_Exmh_-1425849447P";
 	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Fri, 26 Nov 2004 13:58:52 -0500
+Date: Fri, 26 Nov 2004 14:23:31 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-1445723607P
+--==_Exmh_-1425849447P
 Content-Type: text/plain; charset=us-ascii
 
-On Thu, 25 Nov 2004 21:35:19 GMT, Luke Kenneth Casson Leighton said:
-> On Fri, Nov 26, 2004 at 06:48:57AM +1100, Russell Coker wrote:
-> 
-> > If a running process has been cracked and does not have the same PID as the
-> > original copy then the stop script will not stop it.
+On Fri, 26 Nov 2004 14:28:28 +1100, Russell Coker said:
 
-Of course, if the PID has changed, that means that the exploit did a fork/exec
-as fork() is the only way I've ever seen an exploit acquire a new PID (sure,
-you *could* write one that used clone(), but I've never actually seen one.. )
+> A current problem we have is that init.d scripts often don't check that they 
+> are killing the process that they think they are killing.  We can make them 
+> check for the executable in some cases, but that isn't always possible and 
+> has some complications (EG if the executable gets replaced while the daemon 
+> is running).
 
-And when it hits the exec() call, the usual selinux checking will happen..
+Been there, done that (though not an init script).  Once had a sporadic problem
+where I'd log in and my window manager would evaporate.  Finally traced it down
+to launching 'fetchmail' - which would launch itself into the background if
+one wasn't running, and tell the running one to start a new pass if it was.
 
-(Also, if the exploit did a fork/exec, then either the parent process is still
-around and can be killed by the script, or the exploit trashed its stack and it
-died a horrid death and isn't around to be killed anymore..)
+It basically did a 'if !(kill -HUP `cat ~/.fetchmail.pid`) fork_into_bg();'
+which would get ugly if *this* login's window manager had the same pid as
+the *previous* boot's fetchmail (and since 'fetchmail' was started about the
+same time each time, the two processes usually got PID's within 10 or 20 of
+each other....)
 
->  i don't know if it's worthwhile but has anyone given serious
->  consideration to adding the pid into the selinux mix as a
->  permission to check operations against? (requiring that a pid
->  somehow be stored at runtime in the selinux policy of course).
+> One possibility is to have a daemon killing process that 
+> checks /proc/`cat /var/run/daemon.pid`/attr/current and then queries the 
+> kernel as to whether the domain specified can create a file of the type of 
+> the file /var/run/daemon.pid.  However this has a race condition in that the 
+> daemon could potentially die and be replaced by another process in a 
+> different domain.
 
-I don't think your own PID is of any use here.  There *might* be reasons
-to look at the parent PID or the process group leader PID, if you're trying
-to restrict who can send signals etc..  But that would require some thinking,
-because it's simple to restrict signals/pipes/whatever to other processes in
-the same domain, while a "this process tree/group only" restriction implies there
-are processes in the domain we don't want to talk to.  At that point, one must
-wonder why they're in the same domain....
+I take it you're worried that we could start the check, the process exit, and
+then the next fork() wins the russian roulette by re-using that PID?
 
---==_Exmh_-1445723607P
+Probably this would be best addressed by a general overhaul of the entire
+PID-allocation scheme (in particular, there's some bogosity in the /proc code
+that restricts us to some 64K PIDs on 32-bit machines). If the effective space
+was 24 or 32 bits rather than 16, there'd be a lot less worry about a race
+condition there.  However, we can probably cheat and as the first step of our
+check, peek at the current value of last_pid in kernel/pid.c, and see if it's
+"close" to our target.
+
+Of course, if you're on a fork()-bound system where last_pid can increment by
+more than 10 or 20 during our check, or if you have a kernel patch that randomizes
+the next_pid, that cheat won't work... 
+
+> Another thing I was considering regarding such issues is to have booleans 
+> around the fork permission for every domain that's a likely candidate for a 
+> DOS attack (eg user_t).  Then if a user tries to DOS the machine we can flip 
+> the boolean before killing the processes and disabling the account.  Sure it 
+> would be a bummer for the innocent users who were also in user_r, but that's 
+> DOS attacks for you...
+
+It *does* have its appeal, for stopping those fork bombs that cripple the box
+while remaining under the 'ulimit -u' value.  Fortunately, the collateral
+damage for other user_r processes is probably fairly low, because we can
+flip the boolean, kill the offending list while they're not able to fork() and
+generate new PIDs, and unset the boolean again.  So the only victims are those
+user_r that tried to fork() during the several seconds the boolean was set - so
+unless they were doing a 'make' or other fork-happy program, they probably won't
+even HIT that window.  And if they *did*, their fork() would probably have
+died *anyhow* due to the fork bomb chewing up resources.
+
+
+--==_Exmh_-1425849447P
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBp3zrcC3lWbTT17ARAsAaAJ9YxnGerAos6PduVRdz/Wm6anwOLQCg7F/D
-vVQyd0XfRQO4RzLO2hn4+Xs=
-=eSnw
+iD8DBQFBp4KzcC3lWbTT17ARAqzKAJ9cCzEfJCzcFdnO2uV217nSFP9MKQCgp0IT
+ha+s5j/EmsQ60z551ysdbNw=
+=iL5Q
 -----END PGP SIGNATURE-----
 
---==_Exmh_-1445723607P--
+--==_Exmh_-1425849447P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
