@@ -1,69 +1,74 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0D380Ii021320
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 22:08:00 -0500 (EST)
-Date: Wed, 12 Jan 2005 21:07:55 -0600
-From: Greg Norris <haphazard@kc.rr.com>
+Subject: Re: Added is_context_configurable function
+From: Colin Walters <walters@redhat.com>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SELinux <selinux@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: lots of execmem failures with 2.6.10
-Message-ID: <20050113030755.GA24828@yggdrasil.localdomain>
-References: <20050112112630.GA12730@yggdrasil.localdomain> <1105541256.22495.57.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1105567743.23136.59.camel@moss-spartans.epoch.ncsc.mil>
+References: <41E2FEF4.5070604@redhat.com>
+	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E3FAF4.2060109@redhat.com>
+	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <1105481440.24748.22.camel@nexus.verbum.private>
+	 <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <1105544883.10150.17.camel@nexus.verbum.private>
+	 <1105567743.23136.59.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 12 Jan 2005 22:52:32 -0500
+Message-Id: <1105588352.4649.37.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-In-Reply-To: <1105541256.22495.57.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-01-12 at 17:09 -0500, Stephen Smalley wrote:
+> On Wed, 2005-01-12 at 10:48, Colin Walters wrote:
+> > Actually, thinking about this a bit: probably not.  On my system I have
+> > several times changed the SELinux user identity component of file
+> > contexts from the default system_u to e.g. foo_u.  The reason is that
+> > the constraints prevent a user from relabeling a file unless the SELinux
+> > user matches.  So a list of alternate types would not be sufficient in
+> > this case.
+> <snip>
+> > It seems the SELinux uid, for one.  Also perhaps whether or not the
+> > pathname is part of the standard filesystem.  There seems to me to be a
+> > difference between a very well known file such as /etc/shadow being
+> > mislabeled according to file_contexts versus an unknown path such
+> > as /apps/web/blah.
+> 
+> Ok, so I take this to mean that I should await a new patchset from Dan
+> that supports this more general way of specifying customizable contexts
+> based on a combination of type, user identity, and file location.  Yes?
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a complex issue, given we've been going back and forth on this
+for months now, with several proposed patches.  The last time this came
+up in October, you posted a good message:
 
-On Wed, Jan 12, 2005 at 09:47:36AM -0500, Stephen Smalley wrote:
-> The question is why is your userland attempting to create executable
-> anonymous mappings or executable writable private file mappings.  May
-> be related to the legacy binary issue that came up earlier, where the
-> mainline kernel enables read-implies-exec behavior if the binary is a
-> "legacy" binary, i.e. lacks PT_GNU_STACK.  What does execstack -q
-> `which uname` report?
+http://marc.theaimsgroup.com/?l=selinux&m=109872521815476&w=2
 
-I think you've pointed me in the right direction.  On my SELinux box it=20
-yields the following:
+You say:
 
-   adric@sasami:~$ execstack -q `which uname`
-   ? /bin/uname
+> The file_contexts configuration and setfiles were only intended to
+> initialize the system, as previously noted.  After installation, one
+> should only do a make relabel upon a major policy upgrade, and even in
+> that case, it would be better to selectively relabel based on the
+> differences between the policies.
 
-On my non-SELinux box (also Debian sid), however, it looks like this:
+And I couldn't agree more.  If we can get to the point where we never
+(and I really mean never!) tell users to run "fixfiles relabel", I think
+a lot of these problems would essentially just go away.   I brainstormed
+a bit in another message in this thread about how we can avoid it for
+policy upgrades, which I believe is the major cause.  I'll follow up to
+that in a bit.
 
-   adric@yggdrasil[~]$ execstack -q `which uname`
-   - /bin/uname
-
-The difference is caused by the former box getting the "coreutils"
-package (and a handful of others) from Russell's SELinux archive, which=20
-I guess has gotten somewhat out of date.  I'll try rebuilding the=20
-relevant packages over the next few days, and see if that resolves my=20
-problem... if so, I'll post the updated packages under=20
-"http://people.debian.org/~adric/".
-
-Thanx for your assistance!
+Let's assume for now that we've successfully gotten rid of fixfiles (at
+least from the user's perspective; it may exist as an implementation
+detail).  At that point, what problems remain?  The problem of user-
+customizable types like httpd_sys_script_ro_t in well-known areas such
+as /var/www being reset to httpd_sys_content_t goes away, because there
+is nothing to reset them.  The problem of user-defined locations such
+as /web/mysite1 with type httpd_sys_content_t being reset to default_t
+goes away as well.  Are there any other problems?
 
 
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB5eYLgrEMyr8Cx2YRAsvzAKDHHmWStz2g0CdL7LpFwC1Jct4vMgCdF8xL
-8kdpXFi+LVriM0p3wVU23F8=
-=s0+S
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
