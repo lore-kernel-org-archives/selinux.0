@@ -1,58 +1,151 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA8EgKIi015986
-	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 09:42:20 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA8EgLDE027782
-	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 14:42:22 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: dynamic context transitions
-Date: Tue, 9 Nov 2004 01:42:16 +1100
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   Chad Hanson <chanson@TrustedCS.com>, samba-technical@samba.org,
-   tng-technical@samba-tng.org
-References: <418662EE.5090001@trustedcs.com> <20041101203524.GJ9643@lkcl.net> <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <20041107183310.45274.qmail@web51506.mail.yahoo.com>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: jmorris@intercode.com.au, owner-selinux@tycho.nsa.gov,
+   SELinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200411090142.16657.russell@coker.com.au>
+Subject: Re: SELinux with IPSec - something going on ?
+From: Trent Jaeger <jaegert@us.ibm.com>
+Message-ID: <OFA91FE368.5627357C-ON85256F46.0051BCA5-85256F46.0051FA78@us.ibm.com>
+Date: Mon, 8 Nov 2004 09:55:25 -0500
+Content-Type: multipart/alternative; boundary="=_alternative 0051F7C385256F46_="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 02 November 2004 07:25, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> >  the helper application opens files as-and-when they are needed,
-> >  [and also does mkdirs? and rmdirs?] and then passes the file
-> >  descriptor over a unix-domain-socket to the smbd process,
-> >  which NEVER itself does file opens under a user context.
-> >
-> >  i believe it then no longer becomes necessary for smbd to
-> >  call become_user().
->
-> Except that SELinux mediates access to file descriptors upon transfer
-> via local socket IPC as well as attempted use for read/write, so SELinux
-> is still going to apply a permission check to the parent smbd process in
-> that situation.  Not to mention that this no doubt has a significant
-> cost.
+This is a multipart message in MIME format.
+--=_alternative 0051F7C385256F46_=
+Content-Type: text/plain; charset="US-ASCII"
 
-The cost is only for open, creat, link, symlink, unlink, mkdir, and rmdir 
-operations, which usually aren't that performance critical.  The few 
-applications for which such operations are performance critical (Maildir 
-format mail spool and old style INN news spool) are unlikely to be used over 
-SMB.
+Hi,
 
-As for allowing operations, the parent must be permitted to receive file 
-handles from the child and to have read/write access to all files that the 
-child processes may open.
+The xfrm code is based on the USAGI work: http://www.linux-ipv6.org/
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Here is a paper on the work: 
+http://hiroshi1.hongo.wide.ad.jp/hiroshi/papers/SAINT2004_kanda-ipsec.pdf
+
+Regards,
+Trent.
+------------------------------------------------------------
+Trent Jaeger
+IBM T.J. Watson Research Center
+19 Skyline Drive, Hawthorne, NY 10532
+(914) 784-7225, FAX (914) 784-7225
+
+
+
+
+Park Lee <parklee_sel@yahoo.com>
+Sent by: owner-selinux@tycho.nsa.gov
+11/07/2004 01:33 PM
+ 
+        To:     Trent Jaeger/Watson/IBM@IBMUS
+        cc:     jmorris@intercode.com.au, SELinux@tycho.nsa.gov
+        Subject:        Re: SELinux with IPSec - something going on ?
+
+
+
+On Tue, 26 Oct 2004 at 11:23, Trent Jaeger wrote:
+>Linux 2.6 implements IPSec via a xfrm (pronounced 'transform') 
+>subsystem (part of mainline kernel). 
+>Basically, you can define 'protocols' that may transform packets upon 
+>receipt or prior to send.  IPSec protocols for transform packets using 
+>ah and esp are included in the kernel.   
+>We hook into the xfrm subsystem and/or use the xfrm data structures 
+>to leverage IPSec security associations.
+ 
+I've search 'xfrm' through google, but I wouldn't find much usefull stuff 
+about xfrm. would you please give me some hints on where can I find more 
+information about xfrm ( such as the descriptions of  structures or 
+functions of xfrm, its principles, etc.)
+ 
+Thank you very much.
+ 
+
+
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
+
+
+Do you Yahoo!?
+Check out the new Yahoo! Front Page. www.yahoo.com 
+
+--=_alternative 0051F7C385256F46_=
+Content-Type: text/html; charset="US-ASCII"
+
+
+<br><font size=2 face="sans-serif">Hi,</font>
+<br>
+<br><font size=2 face="sans-serif">The xfrm code is based on the USAGI
+work:</font><a href="http://www.linux-ipv6.org/"><font size=2 color=blue face="sans-serif">
+http://www.linux-ipv6.org/</font></a>
+<br>
+<br><font size=2 face="sans-serif">Here is a paper on the work: </font><a href="http://hiroshi1.hongo.wide.ad.jp/hiroshi/papers/SAINT2004_kanda-ipsec.pdf"><font size=2 color=blue face="sans-serif">http://hiroshi1.hongo.wide.ad.jp/hiroshi/papers/SAINT2004_kanda-ipsec.pdf</font></a>
+<br>
+<br><font size=2 face="sans-serif">Regards,</font>
+<br><font size=2 face="sans-serif">Trent.</font>
+<br><font size=2 face="sans-serif">------------------------------------------------------------<br>
+Trent Jaeger<br>
+IBM T.J. Watson Research Center<br>
+19 Skyline Drive, Hawthorne, NY 10532<br>
+(914) 784-7225, FAX (914) 784-7225</font>
+<br>
+<br>
+<br>
+<table width=100%>
+<tr valign=top>
+<td>
+<td><font size=1 face="sans-serif"><b>Park Lee &lt;parklee_sel@yahoo.com&gt;</b></font>
+<br><font size=1 face="sans-serif">Sent by: owner-selinux@tycho.nsa.gov</font>
+<p><font size=1 face="sans-serif">11/07/2004 01:33 PM</font>
+<td><font size=1 face="Arial">&nbsp; &nbsp; &nbsp; &nbsp; </font>
+<br><font size=1 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; To:
+&nbsp; &nbsp; &nbsp; &nbsp;Trent Jaeger/Watson/IBM@IBMUS</font>
+<br><font size=1 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; cc:
+&nbsp; &nbsp; &nbsp; &nbsp;jmorris@intercode.com.au, SELinux@tycho.nsa.gov</font>
+<br><font size=1 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; Subject:
+&nbsp; &nbsp; &nbsp; &nbsp;Re: SELinux with IPSec - something going
+on ?</font></table>
+<br>
+<br>
+<br>
+<br><font size=3>On Tue, 26 Oct 2004 at 11:23, Trent Jaeger wrote:</font>
+<br><font size=3>&gt;Linux 2.6 implements IPSec via a xfrm (pronounced
+'transform') </font>
+<br><font size=3>&gt;subsystem (part of mainline kernel). </font>
+<br><font size=3>&gt;Basically, you can define 'protocols' that may transform
+packets upon </font>
+<br><font size=3>&gt;receipt or prior to send.&nbsp; IPSec protocols for
+transform packets using </font>
+<br><font size=3>&gt;ah and esp are included in the kernel.&nbsp;&nbsp;
+</font>
+<br><font size=3>&gt;We hook into the xfrm subsystem and/or use the xfrm
+data structures </font>
+<br><font size=3>&gt;to leverage IPSec security associations.</font>
+<br><font size=3>&nbsp;</font>
+<br><font size=3>I've search 'xfrm' through google, but I wouldn't find
+much usefull stuff about xfrm. would you please give me&nbsp;some hints
+on where can I find more information about xfrm (&nbsp;such as&nbsp;the
+descriptions of&nbsp; structures or functions of xfrm, its&nbsp;principles,
+etc.)</font>
+<br><font size=3>&nbsp;</font>
+<br><font size=3>Thank you very much.</font>
+<br><font size=3>&nbsp;</font>
+<br>
+<br>
+<br><font size=3>--</font>
+<br><font size=3>Best Regards,</font>
+<br><font size=3>Park Lee &lt;</font><a href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;amp;YY=1156&amp;amp;order=down&amp;amp;sort=date&amp;amp;pos=0"><font size=3 color=blue><u>parklee_sel@yahoo.com</u></font></a><font size=3>&gt;
+</font>
+<br><font size=3>&nbsp;</font>
+<br>
+<hr>
+<br>
+<br><font size=3>Do you Yahoo!?</font>
+<br><font size=3>Check out the new Yahoo! Front Page. </font><a href=http://www.yahoo.com><font size=3 color=blue><u>www.yahoo.com</u></font></a><font size=3>
+</font>
+<br>
+--=_alternative 0051F7C385256F46_=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
