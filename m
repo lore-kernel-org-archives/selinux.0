@@ -1,139 +1,85 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA23892
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 09:23:28 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA05557
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 13:22:04 GMT
-Received: from exchng-fairfax.pec.com (exchng-fairfax.pec.com [204.254.216.13])
-        by jazzband.ncsc.mil  with ESMTP id NAA05549 for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 13:22:03 GMT
-Message-ID: <3EF5A4B95135C549B761B73B290142944ACEBD@ffx-exchng1>
-From: "Betz, John" <john.betz@pec.com>
-To: selinux@tycho.nsa.gov
-Subject: General Linux Help Needed
-Date: Mon, 17 Jun 2002 09:23:16 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA25532
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 12:27:13 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA00465
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 16:26:53 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id QAA00461
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 16:26:51 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Shaun Savage <savages@savages.net>, selinux@tycho.nsa.gov
+Subject: Re: Patent
+Date: Mon, 17 Jun 2002 18:26:59 +0200
+References: <3D0E668E.5080707@savages.net>
+In-Reply-To: <3D0E668E.5080707@savages.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C21602.23EE7150"
+Message-Id: <20020617162700.5FD7114C9@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+On Tue, 18 Jun 2002 00:45, Shaun Savage wrote:
+> There is one way to test SCC take on this patent is to have another
+> company release a product that has SELinux at it kernel.   Then that
+> would force SCC to file legal action or give up its rights for SELinux.
 
-------_=_NextPart_001_01C21602.23EE7150
-Content-Type: text/plain;
-	charset="iso-8859-1"
+That would not give us any advantage.  SCC could win a legal case against 
+such a company while having no bearing on the case of SE Linux.  If their 
+patent was voided then it would change things, but this would be difficult 
+for everyone and not an ideal solution.
 
- I was hoping I could get some help on the following general topics related
-to Linux. I believe the questions are not version specific, but if so,
-please indicate. In my case this applies to Red Hat Advanced Server (Linux
-version 7+).
+I hope that the NSA lawyers arranged a suitable deal allowing everything that 
+we want when they contracted Secure Computing.  An ideal soltion to this 
+would result in us continuing SE Linux development under the GPL, SCC 
+enforcing their patent rights against companies like Microsoft, and everyone 
+being happy.
 
-If this is inappropriate, I apologize -- a pointer to the appropriate source
-of info would be appreciated.
+> The patent is still valid for outside of SELinux.  This means that an
+> other company can't  create a OS that is secure using the patent.  The
+> issue here is NOT the patent but the GPL code that contains the patent.
+> ~  Because the SCC and the NSA released the code that contains the patent
+> using the GPL license ONLY that code can  be used in other products,
+> under the GPL license.   Th e patent is still valid and enforcable in
+> all products that don't contain the SELinux code, but all products that
+> contain the SELinux code must follow the GPL license.
 
+Yes.  So we could port SE Linux to the Hurd without any issues!
 
-Support For ISVs:
-1) What are major ISVs doing in terms of providing support for their
-products on Red Hat?
-2) Specific products: HP OpenView, Oracle, Sybase, CA Unicenter?
+> This means if a product is made that adds other "value" besides the
+> SELinux any company can sell that product. But have to supply source to
+> all of the SELinux GPLed code.
 
-Platform Support:
-3) Support for specific protocols on Red Hat: ATM, Gigabit, PCI-based T1
-support in multi-channel generation 
-4) Support for specific components on Red Hat: disk arrays, dual controllers
+Yes.  Any of us can write proprietary programs to manage policy.conf files, 
+to use smart-cards to determine roles at login, etc.
 
-Tuning:
-5) Ability to tune/configure the Red Hat kernel to support peripherals,
-number of processes, etc. compared to Solaris or HP-UX
-6) Ability or suitability to run in a multi-box headless (no monitor)
-configuration
+> The problem comes in with code that minipulates the patent configuration
+> files.  Is the TE configuration files format covered under the patent or
+> can external programs  generate the configuration files but not be
+> released GPL?
 
-Troubleshooting Tools:
-7) Tools for analyzing problems with the O/S, particularly in a headless
-environment
+I was under the impression that the file format wasn't the subject of the 
+patent.  But then no-one has given us the details of the patent...
 
-High Availability/Data Loss Protection:
-8) Ability to support redundant NIC cards, or operate with automatic
-failover software
-9) Ability to support disk mirroring
-10) How often does the O/S need to be recycled/rebooted
-11) Any data loss protections?
+> NOTE***
+> If SCC and NSA restrict he use of GPLed code that many people have
+> contributed to then that code would have to be discarded, and a new
+> clean room implimentation of the code would need to be created without
+> the use of ANY GPL code.   Many people have helped development the
+> existiong code and the determination of ownership would be impossible.
 
+I already mentioned this, and the fact that if work is similar and it's 
+written by people who know the original work then it's presumed to be a copy. 
+If that happened then Stephen Smalley would be quite limited in what program 
+.te files he can write after seeing all of mine.  ;)
 
-Any info on these topics is appreciated. Thank you.
-
-------_=_NextPart_001_01C21602.23EE7150
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Diso-8859-1">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
-5.5.2653.12">
-<TITLE>General Linux Help Needed</TITLE>
-</HEAD>
-<BODY>
-
-<P><FONT SIZE=3D2>&nbsp;I was hoping I could get some help on the =
-following general topics related to Linux. I believe the questions are =
-not version specific, but if so, please indicate. In my case this =
-applies to Red Hat Advanced Server (Linux version 7+).</FONT></P>
-
-<P><FONT SIZE=3D2>If this is inappropriate, I apologize -- a pointer to =
-the appropriate source of info would be appreciated.</FONT>
-</P>
-<BR>
-
-<P><FONT SIZE=3D2>Support For ISVs:</FONT>
-<BR><FONT SIZE=3D2>1) What are major ISVs doing in terms of providing =
-support for their products on Red Hat?</FONT>
-<BR><FONT SIZE=3D2>2) Specific products: HP OpenView, Oracle, Sybase, =
-CA Unicenter?</FONT>
-</P>
-
-<P><FONT SIZE=3D2>Platform Support:</FONT>
-<BR><FONT SIZE=3D2>3) Support for specific protocols on Red Hat: ATM, =
-Gigabit, PCI-based T1 support in multi-channel generation </FONT>
-<BR><FONT SIZE=3D2>4) Support for specific components on Red Hat: disk =
-arrays, dual controllers</FONT>
-</P>
-
-<P><FONT SIZE=3D2>Tuning:</FONT>
-<BR><FONT SIZE=3D2>5) Ability to tune/configure the Red Hat kernel to =
-support peripherals, number of processes, etc. compared to Solaris or =
-HP-UX</FONT></P>
-
-<P><FONT SIZE=3D2>6) Ability or suitability to run in a multi-box =
-headless (no monitor) configuration</FONT>
-</P>
-
-<P><FONT SIZE=3D2>Troubleshooting Tools:</FONT>
-<BR><FONT SIZE=3D2>7) Tools for analyzing problems with the O/S, =
-particularly in a headless environment</FONT>
-</P>
-
-<P><FONT SIZE=3D2>High Availability/Data Loss Protection:</FONT>
-<BR><FONT SIZE=3D2>8) Ability to support redundant NIC cards, or =
-operate with automatic failover software</FONT>
-<BR><FONT SIZE=3D2>9) Ability to support disk mirroring</FONT>
-<BR><FONT SIZE=3D2>10) How often does the O/S need to be =
-recycled/rebooted</FONT>
-<BR><FONT SIZE=3D2>11) Any data loss protections?</FONT>
-</P>
-<BR>
-
-<P><FONT SIZE=3D2>Any info on these topics is appreciated. Thank =
-you.</FONT>
-</P>
-
-</BODY>
-</HTML>
-------_=_NextPart_001_01C21602.23EE7150--
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
