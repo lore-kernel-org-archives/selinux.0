@@ -1,179 +1,39 @@
-From: "Ed Street" <edstreet@street-tek.com>
-To: "SELinux" <SELinux@tycho.nsa.gov>, "Russell Coker" <russell@coker.com.au>
-Subject: apache under debian
-Date: Mon, 31 May 2004 13:43:30 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i51NKKrT029614
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 19:20:21 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i527Eobn006251
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 03:14:51 -0400 (EDT)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: corruption of ext2 filesystem (extended attributes get deleted)
+Date: Mon, 31 May 2004 23:21:42 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040531131307.GD5251@lkcl.net>
+In-Reply-To: <20040531131307.GD5251@lkcl.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_00A1_01C44715.430CBC90"
-Message-Id: <20040531174331.874163A404E@abyss.simplyaquatics.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200405312321.42670.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Mon, 31 May 2004 23:13, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> hi, okay, i'm back on the cycle of corruption and restoration.
+> this is a fairly consistent thing and thoroughly reproducible.
+>
+> this time, /dev/log and /etc/motd weren't corrupted but the
+> extended attributes on / were, resulting in this:
 
-------=_NextPart_000_00A1_01C44715.430CBC90
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+What version of the kernel?  kernel.org source or Debian kernel source tree?  
+My kernel-patch package or NSA patches?  Debian EA patch or acl.bestbits?
 
-Hello,
-
- 
-
-To be able to read the /var/www/ directory I had to add the following line.
-
- 
-
-#http stuff
-
-allow httpd_t var_t:file { getattr read };
-
- 
-
-Yet /var/www is this.
-
- 
-
-drwxrwxrwx  www-data www-data system_u:object_r:httpd_sys_content_t www
-
- 
-
-does this mean we need some additional rules for apache?
-
- 
-
-Ed
-
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.692 / Virus Database: 453 - Release Date: 5/28/2004
- 
-
-------=_NextPart_000_00A1_01C44715.430CBC90
-Content-Type: text/html;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3DWindows-1252">
-
-
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-
-</head>
-
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
-
-<div class=3DSection1>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Hello,<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>To be able to read the /var/www/ directory I had to =
-add the
-following line.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>#http stuff<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>allow httpd_t var_t:file { getattr read =
-};<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Yet /var/www is this.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>drwxrwxrwx&nbsp; www-data www-data
-system_u:object_r:httpd_sys_content_t www<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>does this mean we need some additional rules for =
-apache?<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Ed<o:p></o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-<BR>
-
-<P><FONT SIZE=3D2>---<BR>
-<BR>
-Checked by AVG anti-virus system (http://www.grisoft.com).<BR>
-Version: 6.0.692 / Virus Database: 453 - Release Date: 5/28/2004<BR>
-</FONT> </P>
-
-------=_NextPart_000_00A1_01C44715.430CBC90--
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
