@@ -1,60 +1,63 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA25819
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 01:33:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA25959
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 02:04:46 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id FAA25089
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 05:33:18 GMT
-Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
-	by jazzswing.ncsc.mil  with ESMTP id FAA25085
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 05:33:17 GMT
-Received: from ed (ed1 [192.168.1.10])
-	by mail.simplyaquatics.com (Postfix) with ESMTP id 3BD3C844054
-	for <selinux@tycho.nsa.gov>; Tue,  9 Jul 2002 01:33:51 -0400 (EDT)
-Reply-To: <blacknet@simplyaquatics.com>
-From: "Ed Street" <blacknet@simplyaquatics.com>
-To: <selinux@tycho.nsa.gov>
-Subject: lsm3 notes
-Date: Tue, 9 Jul 2002 01:33:51 -0400
-Message-ID: <005301c2270a$350a2a10$0a01a8c0@ed>
-MIME-Version: 1.0
+	by jazzswing.ncsc.mil  with ESMTP id GAA25908
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 06:04:11 GMT
+Received: from mail.servicemail123.com ([12.96.162.84])
+	by jazzswing.ncsc.mil  with ESMTP id GAA25900
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 06:04:11 GMT
+Received: from jw (unknown [65.166.138.2])
+	by mail.servicemail123.com (Postfix on SuSE Linux 7.1 (i386)) with ESMTP id 446AD499D3
+	for <selinux@tycho.nsa.gov>; Tue,  9 Jul 2002 01:04:43 -0500 (CDT)
 Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <200207082016.36223.jw@centraltexasit.com>
+  charset="us-ascii"
+From: JW <jw@centraltexasit.com>
+Reply-To: jw@centraltexasit.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Make relabel problems with rsync and localtime
+Date: Tue, 9 Jul 2002 01:04:19 -0500
+MIME-Version: 1.0
+Message-Id: <200207090104.19564.jw@centraltexasit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Couple of things I noted about the new lsm3 
+Well, byt fixing the plocy files I managed to get rid of most of the previsouly mentioned problems with make relabel, but where are 2 warnings that I have no idea how to fix:
 
-I keep seeing /dev/xconsole avc's. 
+/usr/local/selinux/bin/setfiles:  Running on a SELinux kernel, using new system calls
+/usr/local/selinux/bin/setfiles:  read 700 specifications
+/usr/local/selinux/bin/setfiles:  labeling files under /
+/usr/local/selinux/bin/setfiles:  conflicting specifications for /usr/sbin/rsyncd and /usr/bin/rsync, using system_u:object_r:sbin_t.
+/usr/local/selinux/bin/setfiles:  conflicting specifications for /usr/share/zoneinfo/US/Central and /etc/localtime, using system_u:object_r:usr_t.
+/usr/local/selinux/bin/setfiles:  hash table stats: 202220 elements, 65536/65536 buckets used, longest chain length 4
+/usr/local/selinux/bin/setfiles:  labeling files under /boot
+/usr/local/selinux/bin/setfiles:  hash table stats: 30 elements, 30/65536 buckets used, longest chain length 1
+/usr/local/selinux/bin/setfiles:  labeling files under /home
+/usr/local/selinux/bin/setfiles:  hash table stats: 33 elements, 33/65536 buckets used, longest chain length 1
+/usr/local/selinux/bin/setfiles:  Done.
+ccs001:/usr/src/selinux/policy #
 
-This is from startup
-allow initrc_t device_t:fifo_file { setattr };
-        #EXE=/bin/chmod  PATH=/dev/xconsole   :  setattr
+I cna't find _anything_ about rsyncd with grep, and the things I find about localtime and Central are just in the src, not in any policy files (at least I cna't see if they are).
 
-startup as well
-allow initrc_t resolv_conf_t:file { setattr };
-        #EXE=/bin/chmod  PATH=/etc/resolv.conf   :  setattr
+Does anyone know how to solve these 2 problems?
 
+- -- 
 
-when I ssh into the box
-allow sshd_t sysadm_home_t:dir { search };
-        #EXE=/usr/sbin/sshd  PATH=/root   :  search
+- ----------------------------------------------------
+Jonathan Wilson
+System Administrator
+Cedar Creek Software     http://www.cedarcreeksoftware.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-when sysklogd starts at boot
-allow syslogd_t device_t:fifo_file { read write };
-        #EXE=/sbin/syslogd  PATH=/dev/xconsole   :  read write
-
-when I tried to tail syslog as user_r
-allow user_t var_log_t:file { getattr read };
-        #EXE=/bin/bash  PATH=/var/log/syslog   :  getattr
-        #EXE=/usr/bin/tail  PATH=/var/log/syslog   :  read
-
-Most notably problems with sysklogd, and it's not writing events to
-/var/log/syslog
-
-Ed
+iD8DBQE9KnzjQ5u80xXOLBcRAskkAKCAABX5G7V+Sf0pXy8mTxZfONA/lACcDXLi
+m9r26dUyX0MEJacXt7N7gUk=
+=A4wQ
+-----END PGP SIGNATURE-----
 
 
 --
