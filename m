@@ -1,47 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJJ3dRb019956
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 14:03:39 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAJJ3cqY018950
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 19:03:38 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJJEWRb020097
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 14:14:32 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAJJE1p5026577
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 19:14:01 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hAJJ3b0o018945 for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 19:03:37 GMT
-Subject: RE: where to download LSM-patched 2.4
+	by jazzswing.ncsc.mil  with ESMTP id hAJJE1t0026574
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 19:14:01 GMT
+Subject: Re: newrole and serial console
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: samwun <samwun@hgcbroadband.com>, Russell Coker <russell@coker.com.au>
-Cc: "'SELinux ML'" <selinux@tycho.nsa.gov>
-In-Reply-To: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
-References: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200311191405.24719.russell@coker.com.au>
+References: <200311191405.24719.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1069268601.25899.51.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1069269268.25899.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 19 Nov 2003 14:03:22 -0500
+Date: Wed, 19 Nov 2003 14:14:28 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-11-19 at 07:23, samwun wrote:
-> Where can I download LSM-patched 2.4 for lsm-2.4-selinux-2003040709.tgz
-> kernel source?
+On Tue, 2003-11-18 at 22:05, Russell Coker wrote:
+> I find that a serial console does not work with newrole.  Newrole will re-open 
+> the terminal device to relabel it, and the re-open will block because it is 
+> already open.
+> 
+> Why is it that the file handles 0..2 are closed and re-opened for the child?  
+> Why not just keep the existing handles after changing the context of the 
+> device node?
 
-That was from the April 2003 release of the old LSM-based SELinux.  If
-you want the last released code of the old LSM-based SELinux, you can
-obtain it from http://www.nsa.gov/selinux/download1.html.  Aside from
-certain historical versions, older releases are not provided on the NSA
-site.
-
-> The problem is the SELinux kernel is able to loaded up after a reboot,
-> but
-> whenever issuing a command
-> "ls --context" or whatever other SELinx related command options, it
-> always
-> said that the command ooptions needs SELinux kernel to support,  but I
-> have
-> verified the /var/log/messages file and uname command telling the
-> SELinux
-> kernel is loaded successfully. What could be missing from my
-> installation?
-
-Failure to load an initial policy?
+That requires allowing the new domain to use descriptors created by the
+old domain.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
