@@ -1,20 +1,21 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA16222
-	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 15:00:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA03224
-	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 18:59:03 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id SAA03220 for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 18:59:03 GMT
-Date: Tue, 14 May 2002 14:59:37 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA16240
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 15:01:22 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA28386
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 18:59:20 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id SAA28382
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 18:59:19 GMT
+Date: Tue, 14 May 2002 15:01:09 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
 cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: run_init and chdir()
-In-Reply-To: <20020507121156.390C36C13@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0205141459050.25712-200000@raven>
+Subject: Re: setfiles -q option?
+In-Reply-To: <20020509054935.0704B6E05@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0205141500130.25712-200000@raven>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-630072926-1021402777=:25712"
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1594243340-1021402869=:25712"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -22,19 +23,24 @@ List-Id: selinux@tycho.nsa.gov
   while the remaining parts are likely unreadable without MIME-aware tools.
   Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-630072926-1021402777=:25712
+---559023410-1594243340-1021402869=:25712
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-On Tue, 7 May 2002, Russell Coker wrote:
+On Thu, 9 May 2002, Russell Coker wrote:
 
-> Would it make sense to have run_init do "chdir /" before executing it's
-> program?
+> Could we have a "-q" option to setfiles to make it not write out messages
+> such as the following?
 >
-> It's annoying when you accidentally execute a daemon with a current directory
-> that it can't read...
+> /usr/sbin/setfiles:  Running on a SELinux kernel, using new system calls
+> /usr/sbin/setfiles:  read 450 specifications
+> /usr/sbin/setfiles:  Done.
+>
+> Having it write out messages if it's not running on a SE Linux kernel would
+> still be useful.  But when you install 100 new packages having the above
+> three lines displayed 100 times is rather annoying...
 
-Patch attached, and committed to the sourceforge CVS tree.
+Patch attached, and committed to the sourceforge CVS.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -42,29 +48,135 @@ ssmalley@nai.com
 
 
 
----559023410-630072926-1021402777=:25712
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="run_init.patch"
+---559023410-1594243340-1021402869=:25712
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="setfiles.patch"
 Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0205141459370.25712@raven>
+Content-ID: <Pine.GSO.4.33.0205141501090.25712@raven>
 Content-Description: 
-Content-Disposition: attachment; filename="run_init.patch"
+Content-Disposition: attachment; filename="setfiles.patch"
 
-SW5kZXg6IHV0aWxzL3J1bl9pbml0L3J1bl9pbml0LmMNCj09PT09PT09PT09
+SW5kZXg6IHNldGZpbGVzL3NldGZpbGVzLjgNCj09PT09PT09PT09PT09PT09
 PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9z
-ZWxpbnV4L3V0aWxzL3J1bl9pbml0L3J1bl9pbml0LmMsdg0KcmV0cmlldmlu
-ZyByZXZpc2lvbiAxLjEuMS4yDQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMw0K
-ZGlmZiAtdSAtcjEuMS4xLjIgLXIxLjMNCi0tLSB1dGlscy9ydW5faW5pdC9y
-dW5faW5pdC5jCTMgTWF5IDIwMDIgMTI6Mjg6MTIgLTAwMDAJMS4xLjEuMg0K
-KysrIHV0aWxzL3J1bl9pbml0L3J1bl9pbml0LmMJMTQgTWF5IDIwMDIgMTg6
-NTQ6MjUgLTAwMDAJMS4zDQpAQCAtMzgxLDYgKzM4MSwxMSBAQA0KICAgICog
-U3RlcCA0OiBSdW4gdGhlIGNvbW1hbmQgaW4gdGhlIGNvcnJlY3QgY29udGV4
-dC4NCiAgICAqLw0KIA0KKyAgaWYgKGNoZGlyKCIvIikpIHsNCisJICBwZXJy
-b3IoImNoZGlyIik7DQorCSAgZXhpdCgtMSk7DQorICB9DQorDQogICBpZiAo
-IGV4ZWN2cF9zZWN1cmUoYXJndlsxXSwgc2lkLCBhcmd2ICsgMSkgKSB7DQog
-ICAgIHBlcnJvcigiZXhlY3ZwX3NlY3VyZSIpOw0KICAgICBleGl0KC0xKTsN
-Cg==
----559023410-630072926-1021402777=:25712--
+PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4
+L3NldGZpbGVzL3NldGZpbGVzLjgsdg0KcmV0cmlldmluZyByZXZpc2lvbiAx
+LjEuMS4xDQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMg0KZGlmZiAtdSAtcjEu
+MS4xLjEgLXIxLjINCi0tLSBzZXRmaWxlcy9zZXRmaWxlcy44CTMgTWF5IDIw
+MDIgMTI6MjY6NDMgLTAwMDAJMS4xLjEuMQ0KKysrIHNldGZpbGVzL3NldGZp
+bGVzLjgJMTQgTWF5IDIwMDIgMTg6NTU6NTAgLTAwMDAJMS4yDQpAQCAtNCw3
+ICs0LDcgQEANCiANCiAuU0ggIlNZTk9QU0lTIg0KIC5CIHNldGZpbGVzDQot
+LkkgW1wtZF0gW1wtbl0gW1wtc10gW1wtdl0gW1wtUl0gW1wtV10gc3BlY19m
+aWxlIHBhdGhuYW1lLi4uDQorLkkgW1wtZF0gW1wtbl0gW1wtcV0gW1wtc10g
+W1wtdl0gW1wtUl0gW1wtV10gc3BlY19maWxlIHBhdGhuYW1lLi4uDQogDQog
+LlNIICJERVNDUklQVElPTiINCiBUaGlzIG1hbnVhbCBwYWdlIGRlc2NyaWJl
+cyB0aGUNCkBAIC0yNiw2ICsyNiw5IEBADQogLlRQIA0KIC5CIFwtbg0KIGRv
+bid0IGNoYW5nZSBhbnkgZmlsZSBsYWJlbHMuDQorLlRQIA0KKy5CIFwtcQ0K
+K3N1cHByZXNzIG5vbi1lcnJvciBvdXRwdXQuDQogLlRQIA0KIC5CIFwtcw0K
+IHRha2UgYSBsaXN0IG9mIGZpbGVzIGZyb20gc3RhbmRhcmQgaW5wdXQgaW5z
+dGVhZCBvZiB1c2luZyBhIHBhdGhuYW1lIG9uIHRoZQ0KSW5kZXg6IHNldGZp
+bGVzL3NldGZpbGVzLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBm
+aWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4L3NldGZpbGVzL3Nl
+dGZpbGVzLmMsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4zDQpyZXRy
+aWV2aW5nIHJldmlzaW9uIDEuMg0KZGlmZiAtdSAtcjEuMS4xLjMgLXIxLjIN
+Ci0tLSBzZXRmaWxlcy9zZXRmaWxlcy5jCTMgTWF5IDIwMDIgMTI6MjY6NDMg
+LTAwMDAJMS4xLjEuMw0KKysrIHNldGZpbGVzL3NldGZpbGVzLmMJMTQgTWF5
+IDIwMDIgMTg6NTU6NTAgLTAwMDAJMS4yDQpAQCAtMTIsNyArMTIsNyBAQA0K
+ICAqIHRoZSB1c2VyLiAgVGhlIHByb2dyYW0gZG9lcyBub3QgY3Jvc3MgZmls
+ZSBzeXN0ZW0gYm91bmRhcmllcy4NCiAgKg0KICAqIFVTQUdFOg0KLSAqIHNl
+dGZpbGVzIFstZG5zdlJXXSBzcGVjX2ZpbGUgcGF0aG5hbWUuLi4NCisgKiBz
+ZXRmaWxlcyBbLWRucXN2UlddIHNwZWNfZmlsZSBwYXRobmFtZS4uLg0KICAq
+IA0KICAqIC1kICAgU2hvdyB3aGF0IHNwZWNpZmljYXRpb24gbWF0Y2hlZCBl
+YWNoIGZpbGUuDQogICogLW4JRG8gbm90IGNoYW5nZSBhbnkgZmlsZSBsYWJl
+bHMuDQpAQCAtMjEsNiArMjEsNyBAQA0KICAqIC1SICAgUmVjcmVhdGUgdGhl
+IHBlcnNpc3RlbnQgbGFiZWwgbWFwcGluZ3MgZnJvbSBzY3JhdGNoLg0KICAq
+ICAgICAgTXVzdCByZWJvb3QgdG8gdGFrZSBhZmZlY3QuDQogICogLVcgICBX
+YXJuIGFib3V0IGVudHJpZXMgdGhhdCBoYXZlIG5vIG1hdGNoaW5nIGZpbGUu
+DQorICogLXEgICBCZSBxdWlldCAoc3VwcHJlc3Mgbm9uLWVycm9yIG91dHB1
+dCkuDQogICogc3BlY19maWxlCVRoZSBzcGVjaWZpY2F0aW9uIGZpbGUuDQog
+ICogcGF0aG5hbWUuLi4JVGhlIGZpbGUgc3lzdGVtcyB0byBsYWJlbC4JDQog
+ICoNCkBAIC04Niw2ICs4Nyw5IEBADQogc3RhdGljIGludCByZXNldCA9IDA7
+DQogc3RhdGljIGludCB1c2Vfc3RkaW4gPSAwOw0KIA0KK3N0YXRpYyBpbnQg
+cXVpZXQgPSAwOw0KKyNkZWZpbmUgUVBSSU5URihhcmdzLi4uKSBkbyB7IGlm
+ICghcXVpZXQpIHByaW50ZihhcmdzKTsgfSB3aGlsZSAoMCkNCisNCiAvKg0K
+ICAqIFByb2dyYW0gbmFtZSBhbmQgZXJyb3IgbWVzc2FnZSBidWZmZXIuDQog
+ICovDQpAQCAtMjI2LDcgKzIzMCw3IEBADQogCQluZWwgKz0gbGVuOw0KIAl9
+DQogDQotCXByaW50Zg0KKwlRUFJJTlRGDQogCSAgICAoIiVzOiAgaGFzaCB0
+YWJsZSBzdGF0czogJWQgZWxlbWVudHMsICVkLyVkIGJ1Y2tldHMgdXNlZCwg
+bG9uZ2VzdCBjaGFpbiBsZW5ndGggJWRcbiIsDQogCSAgICAgcHJvZ25hbWUs
+IG5lbCwgdXNlZCwgSEFTSF9CVUNLRVRTLCBsb25nZXN0KTsNCiB9DQpAQCAt
+NDYzLDE1ICs0NjcsMTEgQEANCiAJc3RydWN0IHN0YXQgc2I7DQogDQogCS8q
+IFByb2Nlc3MgYW55IG9wdGlvbnMuICovDQotCXdoaWxlICgob3B0ID0gZ2V0
+b3B0KGFyZ2MsIGFyZ3YsICJkbW5zdlJXIikpID4gMCkgew0KKwl3aGlsZSAo
+KG9wdCA9IGdldG9wdChhcmdjLCBhcmd2LCAiZG5xc3ZSVyIpKSA+IDApIHsN
+CiAJCXN3aXRjaCAob3B0KSB7DQogCQljYXNlICdkJzoNCiAJCQlkZWJ1ZyA9
+IDE7DQogCQkJYnJlYWs7DQotCQljYXNlICdtJzoNCi0JCQkvKiBUaGlzIGlz
+IG5vdyB0aGUgZGVmYXVsdC4gDQotCQkJICAgQWNjZXB0IGl0IGZvciBjb21w
+YXRpYmlsaXR5LiAqLw0KLQkJCWJyZWFrOw0KIAkJY2FzZSAnVyc6DQogCQkJ
+d2Fybl9ub19tYXRjaCA9IDE7DQogCQkJYnJlYWs7DQpAQCAtNDg4LDYgKzQ4
+OCw5IEBADQogCQkJdXNlX3N0ZGluID0gMTsNCiAJCQlhZGRfYXNzb2MgPSAw
+Ow0KIAkJCWJyZWFrOw0KKwkJY2FzZSAncSc6DQorCQkJcXVpZXQgPSAxOw0K
+KwkJCWJyZWFrOw0KIAkJfQ0KIAl9DQogDQpAQCAtNDk3LDcgKzUwMCw3IEBA
+DQogCQlpZiAob3B0aW5kICE9IChhcmdjIC0gMSkgfHwgcmVzZXQpIHsNCiAJ
+CQkvKiBDYW5ub3QgbWl4IHdpdGggcGF0aG5hbWUgYXJndW1lbnRzIG9yIC1S
+IG9wdGlvbi4gKi8NCiAJCQlmcHJpbnRmKHN0ZGVyciwNCi0JCQkJInVzYWdl
+OiAgJXMgWy1kbnN2V10gc3BlY19maWxlXG4iLCBhcmd2WzBdKTsNCisJCQkJ
+InVzYWdlOiAgJXMgWy1kbnFzdlddIHNwZWNfZmlsZVxuIiwgYXJndlswXSk7
+DQogCQkJZXhpdCgxKTsNCiAJCX0NCiAJCWlmICghZmxhc2tfZW5hYmxlZCkg
+ew0KQEAgLTUwOSwyMiArNTEyLDIyIEBADQogCX0gZWxzZSB7DQogCQlpZiAo
+b3B0aW5kID4gKGFyZ2MgLSAyKSkgew0KIAkJCWZwcmludGYoc3RkZXJyLA0K
+LQkJCQkidXNhZ2U6ICAlcyBbLWRudlJXXSBzcGVjX2ZpbGUgcGF0aG5hbWUu
+Li5cbiIsDQorCQkJCSJ1c2FnZTogICVzIFstZG5xdlJXXSBzcGVjX2ZpbGUg
+cGF0aG5hbWUuLi5cbiIsDQogCQkJCWFyZ3ZbMF0pOw0KIAkJCWV4aXQoMSk7
+DQogCQl9DQogCX0NCiANCiAJaWYgKHJlc2V0KSB7DQotCQlwcmludGYoIiVz
+OiAgUmVjcmVhdGluZyBwZXJzaXN0ZW50IGxhYmVsIG1hcHBpbmdzIGZyb20g
+c2NyYXRjaC5cbiIsIGFyZ3ZbMF0pOw0KKwkJUVBSSU5URigiJXM6ICBSZWNy
+ZWF0aW5nIHBlcnNpc3RlbnQgbGFiZWwgbWFwcGluZ3MgZnJvbSBzY3JhdGNo
+LlxuIiwgYXJndlswXSk7DQogICAgICAgICAgICAgICAgIC8qIERvIG5vdCB1
+c2UgdGhlIG5ldyBzeXNjYWxscywgZXZlbiBpZiBydW5uaW5nIG9uIFNFTGlu
+dXgsDQogCQkgICBzaW5jZSB0aGV5IHdpbGwgYWNjZXNzIHRoZSBvbGQgcGVy
+c2lzdGVudCBsYWJlbCBtYXBwaW5ncy4gKi8NCiAJCWZsYXNrX2VuYWJsZWQg
+PSAwOyANCiAJfSBlbHNlIHsNCiAJCWlmIChmbGFza19lbmFibGVkKSANCi0J
+CQlwcmludGYoIiVzOiAgUnVubmluZyBvbiBhIFNFTGludXgga2VybmVsLCB1
+c2luZyBuZXcgc3lzdGVtIGNhbGxzXG4iLCBhcmd2WzBdKTsNCisJCQlRUFJJ
+TlRGKCIlczogIFJ1bm5pbmcgb24gYSBTRUxpbnV4IGtlcm5lbCwgdXNpbmcg
+bmV3IHN5c3RlbSBjYWxsc1xuIiwgYXJndlswXSk7DQogCQllbHNlIA0KLQkJ
+CXByaW50ZigiJXM6ICBSdW5uaW5nIG9uIGEgbm9uLVNFTGludXgga2VybmVs
+LCBkaXJlY3RseSBhY2Nlc3NpbmcgcGVyc2lzdGVudCBsYWJlbCBtYXBwaW5n
+XG4iLCBhcmd2WzBdKTsNCisJCQlRUFJJTlRGKCIlczogIFJ1bm5pbmcgb24g
+YSBub24tU0VMaW51eCBrZXJuZWwsIGRpcmVjdGx5IGFjY2Vzc2luZyBwZXJz
+aXN0ZW50IGxhYmVsIG1hcHBpbmdcbiIsIGFyZ3ZbMF0pOw0KIAl9DQogDQog
+CS8qIE9wZW4gdGhlIHNwZWNpZmljYXRpb24gZmlsZS4gKi8NCkBAIC02ODks
+NyArNjkyLDcgQEANCiAJCQlleGl0KDEpOw0KIA0KIAkJaWYgKHBhc3MgPT0g
+MCkgew0KLQkJCXByaW50ZigiJXM6ICByZWFkICVkIHNwZWNpZmljYXRpb25z
+XG4iLCBhcmd2WzBdLA0KKwkJCVFQUklOVEYoIiVzOiAgcmVhZCAlZCBzcGVj
+aWZpY2F0aW9uc1xuIiwgYXJndlswXSwNCiAJCQkgICAgICAgbnNwZWMpOw0K
+IAkJCWlmIChuc3BlYyA9PSAwKQ0KIAkJCQlleGl0KDApOw0KQEAgLTc0NCw3
+ICs3NDcsNyBAQA0KIAl7DQogDQogCQlpZiAoZmxhc2tfZW5hYmxlZCkgew0K
+LQkJCXByaW50ZigiJXM6ICBsYWJlbGluZyBmaWxlcyB1bmRlciAlc1xuIiwg
+YXJndlswXSwNCisJCQlRUFJJTlRGKCIlczogIGxhYmVsaW5nIGZpbGVzIHVu
+ZGVyICVzXG4iLCBhcmd2WzBdLA0KIAkJCSAgICAgICBhcmd2W29wdGluZF0p
+Ow0KIAkJfSBlbHNlIHsNCiAJCQlzcHJpbnRmKHBhdGhuYW1lLCAiJXMvJXMi
+LCBhcmd2W29wdGluZF0sICIuIik7DQpAQCAtNzU0LDcgKzc1Nyw3IEBADQog
+CQkJZWxzZQ0KIAkJCQljb250ZXh0ID0gc3BlY1tpXS5jb250ZXh0Ow0KIA0K
+LQkJCXByaW50ZigiJXM6ICBsYWJlbGluZyBmaWxlcyB1bmRlciAlcyAoZGVm
+YXVsdCBmaWxlIGNvbnRleHQgJXMpXG4iLCBhcmd2WzBdLA0KKwkJCVFQUklO
+VEYoIiVzOiAgbGFiZWxpbmcgZmlsZXMgdW5kZXIgJXMgKGRlZmF1bHQgZmls
+ZSBjb250ZXh0ICVzKVxuIiwgYXJndlswXSwNCiAJCQkgICAgICAgYXJndltv
+cHRpbmRdLCBjb250ZXh0KTsNCiANCiAJCQlwc2lkcyA9IHBzaWR0YWJfaW5p
+dChhcmd2W29wdGluZF0sIGNvbnRleHQsIEZTX0NPTlRFWFQsIHJlc2V0KTsN
+CkBAIC04MDgsOSArODExLDkgQEANCiAJfQ0KIA0KIAlpZiAoIWZsYXNrX2Vu
+YWJsZWQpIHsNCi0JCXByaW50ZigiJXM6ICBEb25lLiAgUGxlYXNlICVzYm9v
+dCB5b3VyIFNFTGludXgga2VybmVsIGFuZCB0aGVuIHJ1biAnbWFrZSByZWxh
+YmVsJyB0byByZWxhYmVsIGFueSBmaWxlcyB0aGF0IHdlcmUgY3JlYXRlZCBk
+dXJpbmcgdGhlIHNodXRkb3duLlxuIiwgYXJndlswXSwgcmVzZXQgPyAicmUi
+IDogIiIpOw0KKwkJUVBSSU5URigiJXM6ICBEb25lLiAgUGxlYXNlICVzYm9v
+dCB5b3VyIFNFTGludXgga2VybmVsIGFuZCB0aGVuIHJ1biAnbWFrZSByZWxh
+YmVsJyB0byByZWxhYmVsIGFueSBmaWxlcyB0aGF0IHdlcmUgY3JlYXRlZCBk
+dXJpbmcgdGhlIHNodXRkb3duLlxuIiwgYXJndlswXSwgcmVzZXQgPyAicmUi
+IDogIiIpOw0KIAl9IGVsc2Ugew0KLQkJcHJpbnRmKCIlczogIERvbmUuXG4i
+LCBhcmd2WzBdKTsNCisJCVFQUklOVEYoIiVzOiAgRG9uZS5cbiIsIGFyZ3Zb
+MF0pOw0KIAl9DQogDQogCWV4aXQoMCk7DQo=
+---559023410-1594243340-1021402869=:25712--
 
 --
 You have received this message because you are subscribed to the selinux list.
