@@ -1,50 +1,65 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HBxrrT012951
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 07:59:53 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HBxqKV012092
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 11:59:52 GMT
-Subject: Re: how does this port binding happen?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: James Morris <jmorris@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200408171610.16785.russell@coker.com.au>
-References: 
-	 <Xine.LNX.4.44.0408170115060.7480-100000@dhcp83-76.boston.redhat.com>
-	 <200408171610.16785.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1092743906.25650.31.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 17 Aug 2004 07:58:26 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HDEcrT013589
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 09:14:38 -0400 (EDT)
+Received: from web51509.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i7HDEbKV014473
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 13:14:37 GMT
+Message-ID: <20040817131438.69375.qmail@web51509.mail.yahoo.com>
+Date: Tue, 17 Aug 2004 06:14:38 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Policy flexibility & multiple Policy issue
+To: sds@epoch.ncsc.mil
+Cc: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1034200710-1092748478=:66904"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-08-17 at 02:10, Russell Coker wrote:
-> On Tue, 17 Aug 2004 15:23, James Morris <jmorris@redhat.com> wrote:
-> > On Tue, 17 Aug 2004, Russell Coker wrote:
-> > > avc:  denied  { name_bind } for  pid=14909 exe=/usr/bin/kview src=669
-> > > scontext=rjc:staff_r:staff_t tcontext=system_u:object_r:port_t
-> > > tclass=tcp_socket
-> > >
-> > > kview is a viewer for JPEG etc images.  It is never run as root.  How
-> > > does it get to the stage of an SE Linux access check?
-> >
-> > This check is done before the kernel DAC check.
-> 
-> Is it practical to get that changed?
+--0-1034200710-1092748478=:66904
+Content-Type: text/plain; charset=us-ascii
 
-I doubt it.  SELinux is using one of the general socket layer hooks to
-implement the name_bind check; the kernel performs its check in the
-ipv4/af_inet.c code.  Getting a hook accepted in the ipv4 code is
-unlikely, and moving the kernel check to the general socket layer is
-likewise unlikely.  Simplest solution for us would be to reproduce the
-kernel check in the SELinux hook prior to performing the SELinux check. 
-That wouldn't be difficult, just duplicative.
+Dear sir,
+ 
+On  Mon, 12 Jul 2004 08:50, Stephen Smalley wrote:
+>You can develop a system that supports several different policies
+>without providing genuine flexibility.  Policy flexibility goes beyond 
+>merely supporting some list of known policies.  Hence, a policy >flexible system will support multiple policies, but not every system 
+>that supports multiple policies is policy flexible.
+ 
+Now, I know that flexibility requires controlling the propagation
+of access rights, enforcing fine-grained access rights
+and supporting the revocation of previously granted access
+rights.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+But, What about supporting dynamic policy vs. supporting policy flexibility?
+Is there some differences between the two?
+ 
+Thanks,
+ 
+Best regards,
+Park Lee
 
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-1034200710-1092748478=:66904
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Dear sir,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>On&nbsp; Mon, 12 Jul 2004 08:50, Stephen Smalley wrote:</DIV>
+<DIV>&gt;You can develop a system that supports several different policies<BR>&gt;without providing genuine flexibility.&nbsp; Policy flexibility goes beyond <BR>&gt;merely supporting some list of known policies.&nbsp; Hence, a policy &gt;flexible system will support multiple policies, but not every system </DIV>
+<DIV>&gt;that supports multiple policies is policy flexible.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Now, I know that flexibility requires controlling the propagation<BR>of access rights, enforcing fine-grained access rights<BR>and supporting the revocation of previously granted access<BR>rights.<BR></DIV>
+<DIV>But, What about supporting dynamic policy vs. supporting policy flexibility?<BR>Is there some differences between the two?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Best regards,<BR>Park Lee<BR></DIV><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
+--0-1034200710-1092748478=:66904--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
