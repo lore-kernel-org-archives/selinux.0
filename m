@@ -1,36 +1,58 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72F0nrT013140
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 11:00:49 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72F0lKV014160
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 15:00:48 GMT
-Subject: Re: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1091458325.23449.102.camel@moss-spartans.epoch.ncsc.mil>
-References: <20040801172751.GD20103@lkcl.net>
-	 <1091455223.23449.66.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040802145724.GG4194@lkcl.net>
-	 <1091458325.23449.102.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72FA4rT013230
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 11:10:05 -0400 (EDT)
+Received: from mta02-svc.ntlworld.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72FA3KV014555
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 15:10:03 GMT
+Subject: Re: selinux-policy-default 1.14 is missing _stacks_ of stuff
+From: Ian Campbell <ijc@hellion.org.uk>
+To: russell@coker.com.au
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200408022323.48941.russell@coker.com.au>
+References: <20040801103252.GC7384@lkcl.net>
+	 <200408012254.15553.russell@coker.com.au>
+	 <1091452092.23449.33.camel@moss-spartans.epoch.ncsc.mil>
+	 <200408022323.48941.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1091458801.23449.110.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1091459400.23582.83.camel@icampbell-debian>
 Mime-Version: 1.0
-Date: Mon, 02 Aug 2004 11:00:02 -0400
+Date: Mon, 02 Aug 2004 16:10:00 +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-08-02 at 10:52, Stephen Smalley wrote:
-> What's the objection to patching udev to directly invoke matchpathcon(3)
-> and setfscreatecon(3) prior to creating each device node?
+On Mon, 2004-08-02 at 14:23, Russell Coker wrote:
+> On Mon, 2 Aug 2004 23:08, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> > On Sun, 2004-08-01 at 08:54, Russell Coker wrote:
+> > > There is no support for targeted in Debian, only strict and it has the
+> > > directory name "." .
+> > >
+> > > > so, i can't use run_init because targeted/contexts/initrc_context
+> > > > doesn't exist.
+> > >
+> > > Your /etc/selinux/config file should have the following line:
+> > > SELINUXTYPE=.
+> >
+> > What does this mean for supporting multiple policies in Debian?
+> 
+> This means that you do it in the Debian way.  You install a package that 
+> supplies what you want to do.
+> 
+> Having two conflicting packages installed at once is not the Debian way.
 
-BTW, if anyone does so, please pass the actual file mode to
-matchpathcon(3), so that proper file type matching can be done against
-the file_contexts configuration.
+I appreciate that this is true for some packages, MTAs being the prime
+example. But what about packages that use the alternatives system --
+they do not conflict with each other even though they supply "the same
+thing".
 
+However I don't claim to know enough about SE Linux and/or Debian's
+policies (although I am long-time Debian user) to say which of the two
+situations is the most suitable model for SE Linux policies.
+
+Ian.
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Ian Campbell
+Current Noise: Kreator - Awakening of the Gods
+
 
 
 --
