@@ -1,52 +1,31 @@
-Message-ID: <4162ED4F.6000208@redhat.com>
-Date: Tue, 05 Oct 2004 14:51:59 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: A couple of patches to setfiles.
-References: <415E9107.4030900@redhat.com>	 <1097000679.3878.132.camel@moss-spartans.epoch.ncsc.mil> <1097001163.3878.134.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1097001163.3878.134.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95J8KrT028997
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 15:08:20 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95J7CPe014716
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 19:07:12 GMT
+Subject: Re: ssh_macros diff
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1096771573.7227.5.camel@chris.pebenito.net>
+References: <1096771573.7227.5.camel@chris.pebenito.net>
+Content-Type: text/plain
+Message-Id: <1097003237.30738.37.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 05 Oct 2004 15:07:17 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+Merged.
 
->On Tue, 2004-10-05 at 14:24, Stephen Smalley wrote:
->  
->
->>You want to log always?  Should be based on an option, like the existing
->>verbose option, and you likely only want to log if !only_changed_user as
->>with the verbose case.
->>    
->>
->
->Actually, there is already a -o option to log to a specified file.  Why
->add syslog calls as well?
->
->  
->
-Steve Grub has pointed out that the way we are doing setfiles is all 
-wrong, and that we should be logging
-to syslog.  That way a management infrastructure could monitor and 
-manage the environment.  Writing
-temporary or log files in arbitrary places is wrong.  Tools like 
-logrotate are going to clean them up.  ETC.
-So the -o flag should go and we should use syslog.
-
-So I think we need to relook at setfiles/fixfiles and plug them better 
-into standard architecture. 
-
-I think we need a mechanism to tell us when a file actually has the 
-wrong context versus one that just does not
-match the context in the file_context file.  Russell pointed out that 
-the contents of the homedirectory should
-not have an automatic tool looking at their context because it might 
-open up a security hole if you were to
-arbitrarily clean up the false positives.
-
-Dan
+On Sat, 2004-10-02 at 22:46, Chris PeBenito wrote:
+> Heres a patch that moves the ifdef ssh-agent block out of the ifdef
+> xdm.te block, since ssh-agent doesn't require X.
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
