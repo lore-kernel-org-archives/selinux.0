@@ -1,55 +1,58 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA05361
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2001 14:51:23 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA01600
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2001 19:50:46 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id TAA01596
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2001 19:50:46 GMT
-Date: Wed, 14 Nov 2001 14:50:45 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Justin Smith <jsmith@mcs.drexel.edu>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Are enhancements back-ported
-In-Reply-To: <1005764617.19444.0.camel@vorpal>
-Message-ID: <Pine.GSO.4.33.0111141425190.22794-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA15664
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2001 21:01:11 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id CAA18610
+	for <selinux@tycho.nsa.gov>; Sat, 17 Nov 2001 02:00:56 GMT
+Received: from ultraviolet.org ([192.215.175.10])
+	by jazzswing.ncsc.mil  with SMTP id CAA18598
+	for <selinux@tycho.nsa.gov>; Sat, 17 Nov 2001 02:00:47 GMT
+Date: Fri, 16 Nov 2001 19:00:59 -0800
+From: Tracy R Reed <treed@ultraviolet.org>
+To: selinux@tycho.nsa.gov
+Subject: SELinux policy configuration tutorial?
+Message-ID: <20011116190059.L24702@ultraviolet.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="mGCtrYeZ202LI9ZG"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On 14 Nov 2001, Justin Smith wrote:
+--mGCtrYeZ202LI9ZG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I've noticed that enhancements and fixes to the SELinux system appear to
-> be implemented for the latest versions of the kernel. For various
-> reasons, I can't use the latest versions of the Linux kernel (they have
-> bugs that will probably EVENTUALLY be fixed but which are significant
-> for the hardware I'm using). So my question is: do the versions of
-> SELinux for kernel 2.4.9 (the latest one I can use) reflect the
-> enhancements and fixes?
+After months of thinking about it I have finally gotten around to
+installing SELinux. Very impressive. I am comparing and contrasting it to
+LIDS and it seems that SELinux is far more flexible although LIDS was far
+easier to figure out.
 
-The NSA SELinux web site only provides a single release of SELinux at any
-given time, and each release of SELinux is based on a particular snapshot
-of the LSM kernel patch, which is relative to a particular kernel version.
-The only SELinux release based on 2.4.9 was the August release (the first
-LSM-based release), and there have been plenty of bug fixes and changes to
-both LSM and SELinux since that time.
+I am having problems understanding how to define policies and how the
+roles, domains, types, etc. work to do this. I am slowly making my way
+through the documentation on the web site but I find most of it to be
+quite inscrutable. Has anyone written up a general tutorial on how all of
+this stuff works in practice?
 
-What exactly are the problems you are encountering with post-2.4.9
-kernels?  Does they still occur with 2.4.15-pre4?  Do they occur with the
--ac series (looks like 2.4.13-ac8 is the most recent)?
+--=20
+Tracy Reed      http://www.ultraviolet.org
+My karma ran over your dogma.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+--mGCtrYeZ202LI9ZG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iEYEARECAAYFAjv10usACgkQ9PIYKZYVAq2saQCggZJX0FUoh/kVxlCUQ3UMmU5o
+4W8An29VYLzRDx3f9SMjHoSoUrIoILmA
+=KTp8
+-----END PGP SIGNATURE-----
 
-
-
-
+--mGCtrYeZ202LI9ZG--
 
 --
 You have received this message because you are subscribed to the selinux list.
