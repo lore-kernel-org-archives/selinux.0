@@ -1,43 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA24553
-	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 11:24:36 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA24861
+	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 16:00:33 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA20802
-	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 15:23:22 GMT
-Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
-        by jazzband.ncsc.mil  with SMTP id PAA20798 for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 15:23:22 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A101524371@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Russell Coker '" <russell@coker.com.au>,
-        "Westerman, Mark"
-	 <Mark.Westerman@csoconline.com>,
-        "''Carsten Grohmann' '"
-	 <carsten.grohmann@dr-baldeweg.de>,
-        "'NSA Selinux Mailinglist '"
-	 <selinux@tycho.nsa.gov>
-Subject: RE: enforcing mode
-Date: Sun, 28 Apr 2002 10:24:43 -0500
-MIME-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id TAA28272
+	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 19:59:21 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id TAA28268 for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 19:59:19 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 6296092460
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 06:01:30 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 717963850
+	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 22:00:27 +0200 (CEST)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: "use"
+Date: Sun, 28 Apr 2002 22:00:27 +0200
+MIME-Version: 1.0
+Message-Id: <20020428200027.717963850@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
-On 4/27/02 2:48 PM Russell Coker Wrote
+What's the deal with the following section of the global macros file?  Why 
+are there three things aliased to use?  Is the plan to actually enforce a 
+distinction in a future version?  Or did a past version support a distinction 
+and is this a compatability thing?
 
-> I needed something very similar: What I did was the modify
-> the lsm-2.4/security/selinux/avc.c
-> Change the line
->
-> int avc_debug_always_allow = 1;
->
-> To
-> int avc_debug_always_allow = 0;
+#
+# Permissions to use file descriptions created by another domain.
+#
+define(`use_fd_perms', `use')
+define(`inherit_fd_perms', `use')
+define(`receive_fd_perms', `use')
 
-Maybe there should be a kernel command-line option for this...
-
-I agree
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
