@@ -1,66 +1,42 @@
-Subject: [patch] allow users of tmp_domain to read /usr/tmp
-From: Colin Walters <walters@verbum.org>
-To: SELinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-U1fRGsAqUtKFHUpBnjHe"
-Date: Wed, 12 Jan 2005 16:27:25 -0500
-Message-Id: <1105565245.4415.29.camel@nexus.verbum.private>
+Subject: Re: Add a new class
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20050112194047.55536.qmail@web51509.mail.yahoo.com>
+References: <20050112194047.55536.qmail@web51509.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1105565690.23136.22.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Wed, 12 Jan 2005 16:34:50 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-01-12 at 14:40, Park Lee wrote:
+> Now, I'm using FC2. I try to add a new class ( also
+> just for learing ).
+> I've added a new class to security_classes and the
+> permissions to access_vectors (In
+> /etc/security/selinux/src/policy/flask), after that,
+> rebuilt the headers with the Makefile in the flask
+> directory and put them in
+> /usr/src/linux-2.6.5-1.358/security/selinux/include as
+> Joshua Brindle have mentioned. and then rebooted on
+> the new kernel.
+> After I rebooted on the new kernel, I went into
+> /etc/security/selinux/src/policy, and ran 'make load'.
+> But this time, the security_load_policy failed!
+> The following is what appeared on my screen:
 
---=-U1fRGsAqUtKFHUpBnjHe
-Content-Type: multipart/mixed; boundary="=-LeDWl+nJLxwYihFlzai4"
+What messages did you get in /var/log/messages or dmesg output upon the
+load?
 
+Did you add the new class to the end of the current set of classes? 
+Otherwise, it will perturb the values of the existing classes and the
+kernel will refuse to load it after the initial policy load.
 
---=-LeDWl+nJLxwYihFlzai4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-On Fedora at least, /usr/tmp is a symlink to /var/tmp.  Users of
-tmp_domain get write access to tmp_t:dir, so I think it makes sense to
-automatically grant access to tmp_t:lnk_file as well, so that programs
-which refer to /usr/tmp work.  This should be safe since as discussed
-earlier no non-unconfined domain can create tmp_t:lnk_file.
-
-This came up on the #fedora-selinux channel where a user was trying to
-get their CGI script to work.
-
-
-
-
-
---=-LeDWl+nJLxwYihFlzai4
-Content-Disposition: attachment; filename=tmp-domain-usr-tmp.patch
-Content-Type: text/x-patch; name=tmp-domain-usr-tmp.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-LS0tIHBvbGljeS0xLjIxLjEvbWFjcm9zL2dsb2JhbF9tYWNyb3MudGV+CTIwMDUtMDEtMTIgMTY6
-MTk6MTYuMDAwMDAwMDAwIC0wNTAwDQorKysgcG9saWN5LTEuMjEuMS9tYWNyb3MvZ2xvYmFsX21h
-Y3Jvcy50ZQkyMDA1LTAxLTEyIDE2OjIwOjU0LjAwMDAwMDAwMCAtMDUwMA0KQEAgLTQwOSw2ICs0
-MDksNyBAQA0KIGlmZWxzZSgkMywgYCcsDQogYGZpbGVfdHlwZV9hdXRvX3RyYW5zKCQxX3QsIHRt
-cF90LCAkMV90bXBfdCwgYHsgZmlsZSBkaXIgfScpJywNCiBgZmlsZV90eXBlX2F1dG9fdHJhbnMo
-JDFfdCwgdG1wX3QsICQxX3RtcF90LCBgJDMnKScpDQorYWxsb3cgJDFfdCB0bXBfdDpsbmtfZmls
-ZSB7IGdldGF0dHIgcmVhZCB9Ow0KICcpDQogDQogZGVmaW5lKGB0bXBmc19kb21haW4nLCBgDQo=
-
-
---=-LeDWl+nJLxwYihFlzai4--
-
---=-U1fRGsAqUtKFHUpBnjHe
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBB5ZY9OIkJWWp2WGURAtbJAKCElcr0N0EDkhcsjBaM4Cc0uhgeLgCfaL06
-I0Kc0TomGoMsNTJUN886COE=
-=4OIv
------END PGP SIGNATURE-----
-
---=-U1fRGsAqUtKFHUpBnjHe--
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
