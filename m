@@ -1,46 +1,43 @@
-Subject: Re: dynamic context transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Frank Mayer <mayerf@tresys.com>, "'Colin Walters'" <walters@verbum.org>,
-   "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
-   "'Chad Hanson'" <chanson@TrustedCS.com>,
-   "'Karl MacMillan'" <kmacmillan@tresys.com>,
-   "'SELinux List'" <SELinux@tycho.nsa.gov>
-In-Reply-To: <418B968F.3070700@trustedcs.com>
-References: <01df01c4c336$4facc6f0$1e0c010a@columbia.tresys.com>
-	 <418B968F.3070700@trustedcs.com>
-Content-Type: text/plain
-Message-Id: <1099668037.6373.126.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 05 Nov 2004 10:20:37 -0500
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5FMrGh000665
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 10:23:26 -0500 (EST)
+Received: from smtp.puc.cl (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5EwsF9023639
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 14:59:07 GMT
+Received: from tayataf.puc.cl (HELO mx1.puc.cl) ([146.155.99.171])
+          (envelope-sender <amery@geeks.cl>)
+          by coihuin-smtp.puc.cl (qmail-ldap-1.03) with SMTP
+          for <selinux@tycho.nsa.gov>; 5 Nov 2004 14:58:54 -0000
+Message-ID: <418B9531.7090303@geeks.cl>
+Date: Fri, 05 Nov 2004 11:58:57 -0300
+From: Alejandro Mery <amery@geeks.cl>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: selinux@tycho.nsa.gov
+Subject: Re: selinux without sysvinit
+References: <4188E956.7020808@geeks.cl>	 <1099508399.1213.188.camel@moss-spa
+	r tans.epoch.ncsc.mil>	 <41897DD3.5060407@geeks.cl> <1099579644.3174.73.cam
+	el@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1099579644.3174.73.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-11-05 at 10:04, Darrel Goeddel wrote:
-> The process first needs the ability to perform a dynamic transition ("allow 
-> foo_t self:process dyntransition").
 
-You mean "setcurrent", right?  dyntransition is the pairwise check, as
-you correctly described later in the same message.
+> Yes, that should work as well, and I think some people have actually
+> used that approach in the past.  But if you decide to move aside
+> /sbin/init and replace it with a small program that loads policy and
+> then runs the real init program, be careful that telinit is then
+> redirected to the real init program.
 
-> Since the policy allows for such control, I do not see the need to wait for 
-> policy language extensions, or to make dyntransitions a compile-time option to 
-> the kernel.  Sorry if I got a little long-winded there :)
+i was thinking in a /sbin/seinit with proper init= on loader, hardcoded 
+to execve /sbin/init and /bin/sh after that.
 
-The only reason I can see for making it a compile-time option is greater
-assurance that it will never be used, much as some people may want to
-disable the selinux= boot parameter, runtime disable, or development
-support options via the existing kernel config options.  But I am
-hesitant to do this for an API (ability to write to
-/proc/pid/attr/current), although I suppose one could argue that those
-existing options also affect the API (ability to write to
-/selinux/enforce and /selinux/disable as well as the boot parameters
-themselves).  No strong preference either way for me.
+may this affect telinit?
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Alejandro
 
 --
 This message was distributed to subscribers of the selinux mailing list.
