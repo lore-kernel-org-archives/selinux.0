@@ -1,62 +1,75 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA19372
-	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 12:42:55 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA12510
-	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 17:39:52 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA19511
+	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 12:54:24 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1AHsCI27264
+	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 17:54:12 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id RAA12506
-	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 17:39:51 GMT
-Message-Id: <200302101750.MAA08335@moss-shockers.ncsc.mil>
-Date: Mon, 10 Feb 2003 12:50:09 -0500 (EST)
+        by jazzband.ncsc.mil  with ESMTP id h1AHsCf27260 for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 17:54:12 GMT
+Message-Id: <200302101801.NAA08346@moss-shockers.ncsc.mil>
+Date: Mon, 10 Feb 2003 13:01:13 -0500 (EST)
 From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: File labeling issue
-To: selinux@tycho.nsa.gov, Kelly_Djahandari@nai.com
+Subject: Re: FOSDEM report
+To: selinux@tycho.nsa.gov, russell@coker.com.au
+Cc: colin@colino.net
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> While testing xinetd, I ran into a problem with the build of the
-> file_contexts file. Because file_contexts is a concatenation of files in
-> alphabetical order, inetd.fc can override labeling of /usr/sbin/in.*d files
-> if the fc file is alphabetically before inetd.fc.
+> Colin Leroy was the first (and AFAIK only) person to solve this.  Firstly he 
+> put in a cron job for user "easy" to do "ls" on the easy home directory (mode 
+> 0700 which prevented root from inspecting it directly even though both "root" 
+> and "easy" were in user_r) and discovered the file /home/easy/FLAG but 
+> couldn't read it because it was owned by root and more 0600.
 
-The general issue has come up before on the list; it was originally
-mentioned as a concern when the file contexts configuration was
-partitioned into multiple files.  The setfiles logic needs to be
-revised to use the best matching specification.
+So you are trying to use SELinux to separate two users who are both in
+the same role/domain?  That's a job for DAC, not MAC.  Put them into
+different roles/domains if you want to separate them via the MAC
+policy.
 
-> The default type for files in /usr/sbin is system_u:object_r:sbin_t. If
-> services started by xinetd are labeled sbin_t, they are run in the inetd_t
-> domain--not good. 
+>Then he discovered that he could use the command:
+>EDITOR=vi /home/easy/FLAG crontab -e -u easy
 
-Yes, which is why there is a default labeling rule to put them into
-inetd_child_t.  Of course, if inetd_t doesn't need execute access to
-sbin_t at all, then you could simply remove the execute permission to
-it and possibly to any type that doesn't cause a domain transition.
+>To get at the file.
 
-> Talkd is an example of a service which does not have a fc
-> file and would be labeled with the default inetd.fc labeling
-> (inetd_child_exec_t).
+>I did some experiments later and discovered that I could do "crontab -e -u 
+>easy" and then use the ":r" and ":w" commands in vi.
 
-Yes, the inetd_child_exec_t labeling is intended to put such daemons
-into a default domain.
+At least part of the problem here is the hardcoded check in crontab for
+the root uid.  SELinux can prevent interactions between different
+roles/domains, but you would need a wrapper or patched crontab similar
+to spasswd to deal with the hardcoded logic in the application that
+enables root to operate on other users (as long as they have the same
+role/domain).
 
-> Is it reasonable to request that all services started by inetd have a .fc
-> file and a corresponding .te file and remove the default inetd labeling in
-> inetd.fc? 
+> Also I noticed that user_crontab_t had capability net_bind_service and could 
+> think of no possible reason for that so I removed it from my tree.
 
-IMHO, no.
+Likely an artifact if you are running something like NIS, and crontab
+performs any kind of uid/username lookup that translates to a network
+request in the library (unless using some kind of proxy).
+ 
+> The next thing that occurred to me is that vi should not run in the 
+> user_crontab_t anyway, so I put in a domain_auto_trans rule to transition to 
+> user_t when running { bin_t sbin_t exec_type } so that the editor can run in 
+> user_t and not have any special access.
 
-> Or should we keep the default inetd labeling and figure out some
-> other way to not overwrite specific labeling? Since this could be a problem
-> not just of inetd.fc, but with any wildcard usage, we may need to think of a
-> more general solution. 
+Shouldn't matter, as user_crontab_t is a derived domain anyway that can't
+touch the crontabs of other roles/domains. 
 
-Yes, we should investigate revisions to the setfiles logic.
+> Another thing that Colin noticed is that as there was no crontab entry for my 
+> account "rjc" he could create one to run cron jobs as rjc:user_r:user_crond_t 
+> which gets him access to my identity.  However as I had not allowed 
+> transitions from user_r to staff_r or sysadm_r that did not gain much.
+
+crond checks the context that will be used for the cron job process against
+the context of the crontab file, so he can't plant a crontab that is run
+in a different role/domain.  That is the point of the crond entrypoint 
+permission check.  And he can't switch roles without re-authenticating via 
+newrole.
 
 --
 Stephen Smalley, NSA
