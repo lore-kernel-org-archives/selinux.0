@@ -1,49 +1,52 @@
-From: "Vanuxem" <gvanuxem@club-internet.fr>
-To: "SELinux Mailing" <SELinux@tycho.nsa.gov>
-Subject: TR: Trans_domain and MLS (small error)
-Date: Mon, 17 Dec 2001 14:32:07 +0100
-Message-ID: <ADEEIKPBIEHIINPOFGAOAEFCCAAA.gvanuxem@club-internet.fr>
+Date: Mon, 17 Dec 2001 08:40:25 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Vanuxem <gvanuxem@club-internet.fr>
+cc: SELinux Mailing <SELinux@tycho.nsa.gov>
+Subject: Re: TR: Trans_domain and MLS (small error)
+In-Reply-To: <ADEEIKPBIEHIINPOFGAOAEFCCAAA.gvanuxem@club-internet.fr>
+Message-ID: <Pine.GSO.4.33.0112170832200.10438-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Hi
+On Mon, 17 Dec 2001, Vanuxem wrote:
 
-I have two questions :
+> I have the pppd domain that work under the user or sysadm role for example :
+>
+> 'greg:user_r:user_pppd_t'
+>
+> I want allow to trans to the system role and system user:
+> system_u:system_r:portsentry_t
+> If  use the macro domain_auto_trans : domain_auto_trans ($1_pppd,
+> portsentry_exec_t,portsentry_t)
+> The resulting context is greg:user_r:portsentry_t
+>
+> Is it possible without using newrole??
 
--	How can I 'Trans' to system role if the original is user
+See the run_init utility program and its domain.  It transitions to the
+system_u:system_r:initrc_t domain and then runs the user-specified init
+script, which ensures that any daemons are started with the appropriate
+user identity, role, and domain (because domain transitions are already
+defined from initrc_t for the daemon processes).  The run_init program,
+like newrole, reauthenticates the user to ensure that the user wants to
+perform the transition (to help protect against invocation by malicious
+code).
 
-I explain :
-I have the pppd domain that work under the user or sysadm role for example :
+> -	I want to know if you continue your work about MLS
 
-'greg:user_r:user_pppd_t'
+We aren't actively developing the MLS code or policy at present.  To date,
+we have focused on the RBAC and TE policy components, since these are
+viewed as being of greater interest to the Linux community.  See the
+README.MLS file for a description of what needs to be done to make the MLS
+policy useable.
 
-I want allow to trans to the system role and system user:
-system_u:system_r:portsentry_t
-If  use the macro domain_auto_trans : domain_auto_trans ($1_pppd,
-portsentry_exec_t,portsentry_t)
-The resulting context is greg:user_r:portsentry_t
-
-Is it possible without using newrole??
-
-
--	I want to know if you continue your work about MLS
-
-Since if I want that a user login with a high level, he must write on a tty
-device that has a lower level.
-I know that the MLS is just for experimentation but I have no see some
-change in the code and may be you
-stop this developement actually...
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-
-
-Sorry for my poor english...
-
-	Greg
 
 
 --
