@@ -1,67 +1,66 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA09181
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 02:33:05 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA09743
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 07:12:29 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id GAA06204
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 06:31:23 GMT
-Received: from mail.lemuria.org ([213.191.74.130])
-	by jazzswing.ncsc.mil  with ESMTP id GAA06200
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 06:31:22 GMT
-Received: from unicorn.lemuria.org (b067114.adsl.hansenet.de [62.109.67.114])
-	by mail.lemuria.org (Postfix) with ESMTP id 6FF38BB8B
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 08:26:41 +0200 (CEST)
-Date: Fri, 19 Apr 2002 08:30:28 +0200
-From: Tom <tom@lemuria.org>
-To: SE Linux <selinux@tycho.nsa.gov>
+	by jazzswing.ncsc.mil  with ESMTP id LAA14260
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 11:10:47 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id LAA14256
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 11:10:44 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: policy question
-Message-ID: <20020419083028.D11674@lemuria.org>
-References: <20020418171532.B6551@lemuria.org> <20020418182807.E89D630028@lyta.coker.com.au> <20020418223959.B11358@lemuria.org> <20020418214702.BC6CE44E3E@lyta.coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020418214702.BC6CE44E3E@lyta.coker.com.au>; from russell@coker.com.au on Thu, Apr 18, 2002 at 11:47:02PM +0200
+Date: Fri, 19 Apr 2002 11:10:03 +0200
+References: <20020418112238.A1788@lemuria.org> <20020418214440.887A644E3E@lyta.coker.com.au> <20020419081435.C11674@lemuria.org>
+In-Reply-To: <20020419081435.C11674@lemuria.org>
+MIME-Version: 1.0
+Message-Id: <20020419091003.585DD285DE@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Apr 18, 2002 at 11:47:02PM +0200, Russell Coker wrote:
-> > The point is that the reuse of children makes the "fork and change UID"
-> > approach impractical. It works for SSH, but not for apache.
-> 
-> Sure it'll work for Apache!
-> 
-> On an active web server you don't have equal access to all domains, and each 
-> domain will have it's own load spikes.  So if you have co-processes staying 
-> around for 30 seconds after being used then you won't have too many running 
-> at once.
+On Fri, 19 Apr 2002 08:14, Tom wrote:
+> > If we have 10 users with 10 different domains and allow Apache to change
+> > between them (forward and backward) at will, then anything which
+> > compromises Apache or any of it's scripts can get any of the domains.  In
+> > which case why not just save yourself the trouble and use a single
+> > domain.
+>
+> I see two scenarios:
+>
+> 1) Apache itself is compromised. In that case, you are where you are
+> right now, namely that the attacker has all the rights that apache has.
+> Nothing gained, but nothing lost, either.
 
-Sorry, but this is very much impractical in any real-life situation. 
-First of all, it would require that apache keep track of which process has 
-dropped to what UID and hands off incoming requests according to that table, 
-which needs to get updated at each fork and each SIGCHLD.
-Two, it also requires that apache handles load independently for each
-UID, instead of globally for the whole server, including spare servers
-to start or kill, request-handling and forking of new processes. In
-short, a total rewrite of a critical component.
-Three, on any mass-hosting server, it will drive memory requirements
-through the roof within minutes. My company has webservers with
-thousands of users. If just 10% of them get accessed at any given time, 
-something a few search engine crawls can easily accomplish, we'll have 
-several hundred apache instances hanging around, and that is without 
-taking into account spare servers.
-Four, you would have to fork() much more often than right now. The sole
-reason for apache's spare server concept is that forking is so
-expensive, so apache tries to avoid it at all costs. Anything that
-introduces a considerable increase in forks can not be a good thing.
+With the suexec model someone who gains access to the Apache domain will not 
+gain direct access to the user domains, they will only be able to transition 
+to them through suexec and through the cgi-bin script.  Therefore even if the 
+Apache domain is controlled by a hostile user they still will be limited as 
+to what they can do to the user domain.
 
+> 2) A single script gets compromised. In that case, the attacker is in a
+> tiny domain that allows access to only one user's files. That's a huge
+> gain, and this danger is many times higher than the other one.
+>
+> There would be no transition between user domains. The transitions
+> allowed would be from apache to a user and from a user to apache.
 
-Which is why I'm trying to do what I need to do without any forks and
-without digging deep into apache's heart. Our discussion gave me an
-idea or two that I'll be testing. Thanks for the input.
+Which also allows user -> apache -> other-user...
 
+> The
+> later would happen on exit. As long as your script is still doing
+> stuff, you are in the user domain.
+
+What do you mean by "exit"?  File close of script file?  That doesn't 
+necessarily stop code running...
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
