@@ -1,42 +1,37 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94FDwrT018412
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 11:13:59 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94FLVrT018477
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 11:21:31 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94FDws6014689
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 15:13:58 GMT
-Subject: Re: Role questions
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94FLUs6014985
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 15:21:31 GMT
+Subject: Re: SELinux  Doesn't Complete Initialization
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Artur M. Piwko" <pipen@pu.kielce.pl>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <41517FA8.7050207@pu.kielce.pl>
-References: <41517FA8.7050207@pu.kielce.pl>
+To: Alex Ackerman <alex@darkhonor.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <A52BEA1D8EE8634B9196A136333637B1DADF@maat.darkhonor.net>
+References: <A52BEA1D8EE8634B9196A136333637B1DADF@maat.darkhonor.net>
 Content-Type: text/plain
-Message-Id: <1096902648.32008.15.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1096903127.32008.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 04 Oct 2004 11:10:48 -0400
+Date: Mon, 04 Oct 2004 11:18:47 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-09-22 at 09:35, Artur M. Piwko wrote:
-> 1. When I su - from myuser:staff_r:staff_t to root I'm still myuser,
->     instead of root:staff_r:staff_t. What I did wrong?
-> 2. How can one set up initial sysadm_r password? All i see is:
-> 
-> # newrole -r sysadm_r
-> Authenticating myuser.
-> newrole: incorrect password for myser
+On Wed, 2004-09-22 at 14:27, Alex Ackerman wrote:
+> I'm working on a master's thesis on SELinux and I'm trying to get it
+> up and running on my home server.  I am able to compile, install, and
+> load the policy via "make load" in the policy source directory,
+> however I'm unable to get it to come all the way up on a boot.  On my
+> last go, I set the contexts for the filesystems using the "make
+> relabel" function call.  There is never an "SELinux: Initialization
+> Complete" message and the system defaults to SELinux disabled.  Any
+> help would be greatly appreciated.  Here are the details.
 
-What distribution are you using as your base?  In Fedora, su uses
-pam_selinux and thus changes the SELinux user identity as well.  In
-other distros, su typically only changes the Linux user identity and
-leaves the SELinux user identity unchanged.
-
-newrole just re-authenticates the current user, and the policy governs
-whether or not the current user is authorized for the new role via
-policy/users.  The password authentication is not to authorize entrance
-into the role; it just acts as a primitive form of user confirmation to
-reduce the risk of malicious code changing roles without the user's
-consent/awareness.
+This implies that /sbin/init is never loading policy.  From your
+message, you seem to be running a blend of FC2 with selective rawhide
+updates related to SELinux - note that you also need an updated SysVinit
+(and related components, e.g. libsepol).  Might be easier to just
+install FC3T2.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
