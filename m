@@ -1,45 +1,41 @@
-Date: Tue, 23 Mar 2004 10:32:45 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Jaroslav Kucera <xkucera4@informatics.muni.cz>
-cc: SELinux@tycho.nsa.gov
-Subject: Re: IP connection restrictions
-In-Reply-To: <Pine.SGI.4.58.0403230015100.1566883@aisa.fi.muni.cz>
-Message-ID: <Xine.LNX.4.44.0403230720250.23975-100000@thoron.boston.redhat.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2O7CKRb005549
+	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 02:12:21 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i2O7CJFV007791
+	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 07:12:20 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i2O7C836007142 for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 07:12:19 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: patch for libselinux1
+Date: Wed, 24 Mar 2004 18:10:45 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200403232125.21252.russell@coker.com.au> <1080050046.30176.75.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1080050046.30176.75.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200403241810.45211.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 23 Mar 2004, Jaroslav Kucera wrote:
+On Wed, 24 Mar 2004 00:54, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> > It's not a significant issue for Fedora at the moment as no-one will be
+> > mounting /selinux by hand (I hope).  But it's already become an issue for
+> > Debian (I've uploaded a fixed package to Debian already).
+>
+> Your patch has a few bugs in it.  How about this one instead?
 
-> Hi!
-> 
-> Is there a possibility to restrict any program from connecting to
-> specified IPv4 or IPv6 adresses (or allow to connect only to allowed IP
-> adresses) using SELinux features only?
-> I know that this can be used for TCP or UDP ports, but that's not the
-> right thing I need...
+Yes, your patch is much better.  I've done a new upload to Debian with your 
+patch.
 
-You can control the ability of domains to send and receive TCP, UDP and 
-'rawip' messages to and from an IPv4 node (IPv6 support is almost ready).
-
-This is done with tcp/udp/rawip_send/recv permissions in the node 
-class.  e.g.
-
-allow staff_ssh_t node_internal_t:node { tcp_send udp_send rawip_send };
-allow staff_ssh_t node_internal_t:node { tcp_recv udp_recv rawip_recv };
-
-A 'rawip' message in SELinux policy includes anything that is not TCP or 
-UDP, including ICMP.
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
