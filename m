@@ -1,26 +1,31 @@
-Subject: RE: [PATCH] checkpolicy - nodecon ordering
+Subject: Re: dynamic context transitions
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>,
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SELinux List <SELinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>,
    James Morris <jmorris@redhat.com>
-In-Reply-To: <36282A1733C57546BE392885C06185924D91E3@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C06185924D91E3@chaos.tcs.tcs-sec.com>
+In-Reply-To: <1099344460.23756.49.camel@pham.columbia.tresys.com>
+References: <4182959B.4080503@trustedcs.com>
+	 <20041029211809.GJ8897@lkcl.net> <20041030090603.GK8897@lkcl.net>
+	 <1099315214.21386.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041101141025.GZ8897@lkcl.net>  <418662EE.5090001@trustedcs.com>
+	 <1099344460.23756.49.camel@pham.columbia.tresys.com>
 Content-Type: text/plain
-Message-Id: <1099402235.31739.11.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099402984.31739.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 02 Nov 2004 08:30:35 -0500
+Date: Tue, 02 Nov 2004 08:43:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-11-01 at 16:58, Chad Hanson wrote:
-> I could be missing something here, but I can't think of a valid case where
-> your statement above is true. A mask with more bits always has a greater
-> integer value than a mask with less bits.
+On Mon, 2004-11-01 at 16:27, Karl MacMillan wrote:
+> Dropping privileges after startup can already be accomplished with
+> conditional policies, though it requires that only one process be
+> running in a given domain.
 
-Hi,
-
-My mistake.  I was thinking that classless addressing might pose a
-problem here, but was incorrect.  Comment retracted.
+Not sure that this works well in practice, e.g. daemon restart is an
+issue here, and as you note, it cannot distinguish among multiple
+instances of the domain.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
