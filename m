@@ -1,41 +1,59 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14CQi53006661
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 07:26:45 -0500 (EST)
-Subject: Re: Best way to label a filesystem for another system
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14CUG53006692
+	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 07:30:16 -0500 (EST)
+Subject: Re: Latest diffs
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Villalovos, John L" <john.l.villalovos@intel.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <60C14C611F1DDD4198D53F2F43D8CA3B03625283@orsmsx410>
-References: <60C14C611F1DDD4198D53F2F43D8CA3B03625283@orsmsx410>
+To: ivg2@cornell.edu
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1107478728.4065.3.camel@cobra.ivg2.net>
+References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA9717.2000609@redhat.com>
+	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
+	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
+	 <4200D68A.6030309@redhat.com>  <1107478728.4065.3.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Message-Id: <1107519609.8078.7.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107519821.8078.12.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 04 Feb 2005 07:20:09 -0500
+Date: Fri, 04 Feb 2005 07:23:41 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-02-03 at 17:08, Villalovos, John L wrote:
-> I'm trying to figure out what is the best way for me to label (set file
-> contexts) on a file system which will be used for an embedded system.
+On Thu, 2005-02-03 at 19:58, Ivan Gyurdiev wrote:
+> On Wed, 2005-02-02 at 08:32 -0500, Daniel J Walsh wrote:
+> > -if (allow_execmod) {
+> > -allow $1 texrel_shlib_t:file execmod;
+> > -}
 > 
-> At the moment it is an EXT2 file system created by genext2fs.  I can
-> mount the file system using the loop back device.
+> ... X needs execmod, and this change breaks it:
 > 
-> So I was hoping that the current utilities supported a --root option or
-> something but they don't seem too.
-> 
-> Any good ideas on the best way to do this.
-> 
-> Also is there an easy way to parse the list of file contexts from the
-> policy?  Could I write a script to parse the file and then do a chcon on
-> each file/directory in my filesystem.
+> audit(1107469036.956:0): avc:  denied  { execmod } for  pid=3383 comm=X
+> path=/usr/lib/nvidia/tls/libnvidia-tls.so.1.0.6629 dev=dm-0 ino=519237
+> scontext=system_u:system_r:xdm_xserver_t
+> tcontext=system_u:object_r:texrel_shlib_t tclass=file
 
-setfiles -r allows you to specify an alternate root path.  Don't
-reinvent the logic for processing file_contexts; we have been moving in
-the opposite direction, centralizing it all in the matchpathcon()
-function in libselinux and rewriting all programs to use it.  In the
-sourceforge CVS tree (and thus the next release on nsa.gov), setfiles
-has also been rewritten in this manner.
+To be precise, X needs execmod when using nvidia, right?  Not everyone
+using X needs it (I don't).  In any event, we want the execmod rules to
+be added to the individual domain .te files, not put in a global macro
+used by everything, and only allowed as needed.  Further, I'd ultimately
+like to have separate booleans for different sets of execmem/execmod
+permissions so that we can allow certain programs to have them while
+preventing others.
+
+> Also, mozilla needs execmem. What's going on with this - I've
+> seen it sent twice and rejected twice... 
+> 
+> audit(1107476807.924:0): avc:  denied  { execmem } for  pid=3828
+> comm=firefox-bin scontext=user_u:user_r:user_mozilla_t
+> tcontext=user_u:user_r:user_mozilla_t tclass=process
+
+Think hard about whether you want to expose your browser in this
+manner.  Not sure why you are getting execmem in firefox itself; I would
+have expected it only in plugins like java (which should be moved into
+their own domain).  Even if this is _truly_ needed, it should definitely
+be under a separate boolean of its own, as this is clearly a
+network-exposed app that is highly at risk to malicious input.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
