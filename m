@@ -1,50 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQ3sRRb017736
-	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 22:54:27 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAQ3sQqY021880
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 03:54:26 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hAQ3sO0o021876 for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 03:54:25 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: Still no authentication from new debian packages
-Date: Wed, 26 Nov 2003 14:54:14 +1100
-References: <20031125140255.GI2718@vnl.com> <20031125205010.GA2174@rom.cip.informatik.uni-muenchen.de> <20031125231100.GQ2718@vnl.com>
-In-Reply-To: <20031125231100.GQ2718@vnl.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311261454.14965.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQ4qQRb017949
+	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 23:52:26 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAQ4ppp5023146
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 04:51:51 GMT
+Received: from efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
+	by jazzswing.ncsc.mil  with ESMTP id hAQ4pot0023143
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 04:51:51 GMT
+Received: from efficax.net (hawaii [127.0.0.1])
+	by efficax.net (8.12.8/8.12.8) with ESMTP id hAQ4qH8L028261
+	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 22:52:17 -0600
+Received: (from nick@localhost)
+	by efficax.net (8.12.8/8.12.8/Submit) id hAQ4qHR1028259
+	for selinux@tycho.nsa.gov; Tue, 25 Nov 2003 22:52:17 -0600
+Subject: 
+From: Nick <nagray@austin.rr.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1069822336.3447.1234.camel@hawaii>
+Mime-Version: 1.0
+Date: Tue, 25 Nov 2003 22:52:17 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 26 Nov 2003 10:11, Dale Amon <amon@vnl.com> wrote:
-> > I also appended the line
-> >         session required pam_selinux.so
-> > to /etc/pam.d/{login,ssh}
->
-> That is worth a look also. But I think Russell might
+Steve et Al.
 
-That is the right answer.  An updated login or ssh package is no longer 
-needed.
+Once the initial load has been done and the policy is in place, I should
+be able to remove the development dirs (selinux-usr and linux-2.4) and
+the policy source (/etc/security/selinux/src) from from my pseudo
+production box and build new policies on my development server from the
+/etc/security/selinux/src directory which I will then propagate over to
+the system production system.
 
-I have to automate this somehow, unfortunately Debian policy prohibits 
-interfering with the configuration files of another package.  Maybe I'll have 
-to do a diversion.
+What about the file contexts, I didn't see these in the policy
+directory?
 
-> I suspect I'll be annoying Russ with trivia for
-> quite some time.
+I am working on several things and moving pretty fast so I may have
+missed it.
 
-No probs.  Tell me the problems and I'll fix them as fast as possible.
+I am going to have to create a /tcb directory and root all trusted code
+there (policy, file contexts, binaries). I have been directed to move in
+the direction of CMW. What are your thoughts on this.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Nick Gray
 
 --
 This message was distributed to subscribers of the selinux mailing list.
