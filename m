@@ -1,52 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h99HQJWt027418
-	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 13:26:19 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h99HQIUb027477
-	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 17:26:18 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h99HQIhX027474 for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 17:26:18 GMT
-Subject: Re: autoconf/libtool for libselinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Thorsten Kukuk <kukuk@suse.de>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20031006201735.GA28880@suse.de>
-References: <20031006201735.GA28880@suse.de>
-Content-Type: text/plain
-Message-Id: <1065720375.8181.311.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 09 Oct 2003 13:26:15 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h99IT5Wt028029
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 14:29:05 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h99IT20p018974
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 18:29:02 GMT
+Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
+	by jazzswing.ncsc.mil  with ESMTP id h99ISxr7018962
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 18:29:01 GMT
+Message-ID: <001c01c38e94$4d20e010$5d38a8c0@lky>
+From: "lky" <lky77@sjtu.edu.cn>
+To: "Tom" <tom@lemuria.org>
+Cc: "SELINUX" <SELinux@tycho.nsa.gov>
+References: <000e01c38dbb$d9841a60$5d38a8c0@lky> <20031008211705.F14104@lemuria.org>
+Subject: Re: policy configuration problems
+Date: Fri, 10 Oct 2003 02:32:36 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-10-06 at 16:17, Thorsten Kukuk wrote:
-> Hi,
+> Check if the binaries are labelled correctly, i.e. do something like:
 > 
-> With current 2.3 glibc, setxattr and other functions from libattr
-> are already included in libc.so.6. So linking against libattr is
-> useless, the symbols from libc.so.6 are always prefered.
+> ls --context /usr/sbin/xinetd 
+> (or wherever it is installed in redhat)
 > 
-> I don't know what the policy about automake/autoconf/libtool are,
-> but this was the easiest solution to build libselinux against plain
-> libc or add libattr.
+> it should be system_u:system_r:inetd_exec_t if I remember correctly. If
+> it's the generic :sbin_t then no transition happens.
 > 
-> I have attached my patch for using autoconf/libtool and patches
-> building libselinux only against libc, not libattr.
-> 
-> Comments?
+> same for the other programs.
 
-Thanks for writing this patch, but I'm not presently inclined to take
-it, except possibly to change the includes to use <sys/xattr.h> rather
-than <attr/xattr.h>.  autoconf/libtool seems a bit overkill for
-libselinux.  It seems reasonable to require people to use a modern glibc
-(>= 2.3) and to have built it against kernel headers >= 2.4.20 (where
-xattr API was merged into mainline), so I'll likely just make the
-transition and people who need to build with an older glibc or older
-kernel headers will just need to patch it to use libattr. 
-  
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Absolutely right! The file contexts aren't labelled correctly. After make relabel and append some allow rules the most programes run within their own domains and denied messages have been eliminated. Thanks!
+------------------------------------------------------------------------
+Another problem:
+ I want to use webmin to configure the system remotely,but now the webmin daemon still run within the initrc_t domain. I didn't find the .te and .fc files under the policy/domain/program and /policy/file_context/ directories. Should I have to create a new domain and a new .fc file for the program?  I think it's fairly hard for me because webmin is a complicated program and I'm not very family with it. Is there any easier way I can take or can I add the webmin program to an existing domain? 
+-------------------------------------------------------------------------
+Another question:
+I'm not sure about my policy configuration steps.After changing the policy I take the following steps:
+1.make reload
+2.create the initrd-xx.img file
+3.reboot
+4.make relabel
+5.reboot
+Is this the only way if I want to reboot with the new policy? Can I omit the 4 and 5 steps if I just move up the .te file from the unused directory and add some allow permissions? I don't know clearly when I must use "make relabel".
+Thanks a lot!
 
 
 --
