@@ -1,67 +1,59 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA25095
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 21:17:00 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id BAA02384
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 01:15:32 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA25215
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 21:49:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id BAA17620
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 01:48:32 GMT
 Received: from mail.servicemail123.com ([12.96.162.84])
-        by jazzband.ncsc.mil  with ESMTP id BAA02376 for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 01:15:31 GMT
-Received: from jw (unknown [65.166.138.2])
-	by mail.servicemail123.com (Postfix on SuSE Linux 7.1 (i386)) with ESMTP id E83C1499AA
-	for <selinux@tycho.nsa.gov>; Mon,  8 Jul 2002 20:16:57 -0500 (CDT)
+	by jazzswing.ncsc.mil  with ESMTP id BAA17616
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 01:48:31 GMT
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 From: JW <jw@centraltexasit.com>
 Reply-To: jw@centraltexasit.com
-To: <selinux@tycho.nsa.gov>
-Subject: Is make relabel suposed to be run from policy or or setfiles?
-Date: Mon, 8 Jul 2002 20:16:35 -0500
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+Subject: Problems with some of the SuSE-specific settings: Re: contrib branch
+Date: Mon, 8 Jul 2002 20:48:42 -0500
+References: <Pine.GSO.4.33.0207050926330.29942-100000@raven> <200207080123.12647.jw@centraltexasit.com> <20020708092445.CBC3347734@mail.servicemail123.com>
+In-Reply-To: <20020708092445.CBC3347734@mail.servicemail123.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <200207082016.36223.jw@centraltexasit.com>
+Message-Id: <200207082048.42832.jw@centraltexasit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-As per the instructions on http://www.nsa.gov/selinux/doc/readme.html section 16,  I rebooted into the selinux kernel, loged in as jw (who is the sysadmin, sysadm_r:sysadm_t) su'd to root (who,a ccording to the default selinux setup [which I did not change] is a 'common user', cd'd to /usr/src/selinux/policy and ran 'make relabel' with the following results:
+I'm getting a few errors from make load after appending your additions to the default files in domain/program and file_types/program
 
-ccs001:/usr/src/selinux/policy # make relabel
-/usr/local/selinux/bin/setfiles file_contexts/file_contexts `mount | awk '/(ext[23]|reiserfs)/{print $3}'`
-/usr/local/selinux/bin/setfiles:  Running on a SELinux kernel, using new system calls
-/usr/local/selinux/bin/setfiles:  read 665 specifications
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:inetd_var_log_t on line number 625
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:inetd_var_log_t on line number 626
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:inetd_var_log_t on line number 637
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:inetd_var_log_t on line number 638
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:initrc_runlevel_t on line number 654
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:initrc_runlevel_t on line number 655
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:initrc_runlevel_t on line number 668
-/usr/local/selinux/bin/setfiles:  invalid context system_u:object_r:initrc_runlevel_t on line number 669
-make: *** [relabel] Error 1
-ccs001:/usr/src/selinux/policy #
+inetd:
 
-I did notice the following in /var/log/warn:
+jw@ccs001:/usr/src/selinux/policy> make load
+<snip>
+ERROR 'name conflict for type inetd_var_log_t' at token ';' on line 70930:
+type inetd_var_log_t, file_type, sysadmfile;
+# log file type
+/usr/local/selinux/bin/checkpolicy:  error(s) encountered while parsing configuration
+make: *** [policy.11] Error 1
+jw@ccs001:/usr/src/selinux/policy>
 
-Jul  8 19:48:18 ccs001 kernel:
-Jul  8 19:48:18 ccs001 kernel: avc:  denied  { write } for  pid=759 exe=/bin/su path=/dev/log dev=08:03 ino=26755 scontext=jw:sysadm_r:sysadm_su_t tcontext=system_u:object_r:device_t tclass=sock_file
-Jul  8 19:48:18 ccs001 kernel:
-Jul  8 19:48:18 ccs001 kernel: avc:  denied  { sendto } for  pid=759 exe=/bin/su path=/dev/log scontext=jw:sysadm_r:sysadm_su_t tcontext=system_u:system_r:initrc_t tclass=unix_dgram_socket
+Initrc:
+
+/usr/local/selinux/bin/checkpolicy:  loading policy configuration from policy.conf
+ERROR 'name conflict for type initrc_runlevel_t' at token ';' on line 73582:
+type initrc_runlevel_t, file_type, sysadmfile;
+#line 6494
+/usr/local/selinux/bin/checkpolicy:  error(s) encountered while parsing configuration
+make: *** [policy.11] Error 1
 
 
-I noticed a post from Russel suggested that make relabel should be run from selinux/setfiles/ not selinux/policy, but I'm not sure if that's correct or not.
+Commenting out the appropriate lines in the .te files gets rid of the errors, no telling what that actually causes though.
 
-ccs001:/usr/src/selinux/setfiles # make relabel
-chcon system_u:object_r:setfiles_exec_t /usr/local/selinux/bin/setfiles
-ccs001:/usr/src/selinux/setfiles #
-
-Is that correct? Based on some discussion I had on IRC, I think it is NOT correct.
-Perhaps someone could update the web page if it is correct.
-I'll also point out that step 17 (PATH changes) have to occur before you can run make relabel, because use is made of /usr/local/selinux/chcon
-
-Just out of curiosity, why do you have to be root to do that? I have no doubt that I've much to lera here :-) but considering that 'jw' is sysadm_* and 'root' is just user_*, I would think that jw would be the proper account to run make relabel under.
+I do not currently understand what they are confilting with. A little explination would be greatly apprecaited.
 
 
+Also, once again I do not understand why make load must be run as root. Proof of my ignorance :-/
 - -- 
 
 - ----------------------------------------------------
@@ -72,9 +64,9 @@ Cedar Creek Software     http://www.cedarcreeksoftware.com
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE9Kjl0Q5u80xXOLBcRAv2EAJ431gypUeAcKK8KZJS9JGutL+wFRACcCrgo
-slqOJh1GOr5CDofyUUQJb84=
-=4n1v
+iD8DBQE9KkD6Q5u80xXOLBcRAhc8AJ9iNYm9YGJSH+6DZmjA7WtFJSp6qQCfR5g5
+zDQMunDH48aPIBKU2I7d9fo=
+=mlBX
 -----END PGP SIGNATURE-----
 
 
