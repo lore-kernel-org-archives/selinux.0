@@ -1,106 +1,119 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA22709
-	for <selinux@tycho.nsa.gov>; Mon, 22 Apr 2002 15:59:05 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA19363
-	for <selinux@tycho.nsa.gov>; Mon, 22 Apr 2002 19:57:20 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id TAA19359
-	for <selinux@tycho.nsa.gov>; Mon, 22 Apr 2002 19:57:19 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA23006
+	for <selinux@tycho.nsa.gov>; Mon, 22 Apr 2002 16:39:28 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA16574
+	for <selinux@tycho.nsa.gov>; Mon, 22 Apr 2002 20:38:16 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id UAA16570 for <selinux@tycho.nsa.gov>; Mon, 22 Apr 2002 20:38:16 GMT
+Date: Mon, 22 Apr 2002 16:39:09 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: boot loader
-Date: Mon, 22 Apr 2002 21:58:46 +0200
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0204220745090.24621-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0204220745090.24621-100000@raven>
+In-Reply-To: <20020422195846.432904545D@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0204221636350.28618-300000@raven>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_YHJZP781RPWKA8N64B0R"
-Message-Id: <20020422195846.432904545D@lyta.coker.com.au>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-1019507949=:28618"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---------------Boundary-00=_YHJZP781RPWKA8N64B0R
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+---559023410-1804928587-1019507949=:28618
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-On Mon, 22 Apr 2002 13:48, Stephen Smalley wrote:
-> On Sat, 20 Apr 2002, Russell Coker wrote:
-> > I am creating a policy for lilo.
-> >
-> > I have defined it's type as follows:
-> > type lilo_t, domain, privlog, privmem, boot_loader;
-> >
-> > privmem is because lilo needs to read from /dev/mem to get BIOS data
-> > about boot devices.  I have defined "boot_loader" as a type attribute for
-> > anything that needs to write to raw hard drive devices to install a boot
-> > loader (grub etc would need that too).  Then I added boot_loader in
-> > assert.te as being allowed to write to fixed_disk_device_t.
-> >
-> > What do you think?
->
-> This sounds fine.  Once lilo has been moved into its own domain, you might
-> try removing direct access to fixed_disk_device_t from sysadm_t
-> (the admin_domain macro).
 
-Removing the direct access sounds like a good idea.
+On Mon, 22 Apr 2002, Russell Coker wrote:
 
-Also I like Mark's suggestion, which means there's no need for boot_loader.
+> I've attached my new te file, and following is the lilo file_contexts entries:
+> /etc/lilo.conf                  system_u:object_r:etc_bootloader_t
+> /sbin/lilo.*                    system_u:object_r:bootloader_exec_t
 
-I've attached my new te file, and following is the lilo file_contexts entries:
-/etc/lilo.conf                  system_u:object_r:etc_bootloader_t
-/sbin/lilo.*                    system_u:object_r:bootloader_exec_t
+Thanks.  I had to add a few permissions (search access to /dev, use
+descriptors created by newrole, write to the administrator's terminal) to
+bootloader.te.  The first attached patch shows the changes.  The second
+attached patch shows the changes to assert.te and admin_macros.te.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
---------------Boundary-00=_YHJZP781RPWKA8N64B0R
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="bootloader.te"
-Content-Transfer-Encoding: base64
-Content-Description: bootloader.te
-Content-Disposition: attachment; filename="bootloader.te"
 
-IwojIEF1dGhvcjogIFJ1c3NlbGwgQ29rZXIgPHJ1c3NlbGxAY29rZXIuY29tLmF1PgojCgojIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKIwojIFJ1bGVzIGZvciB0aGUgYm9vdGxvYWRl
-cl90IGRvbWFpbi4KIwojIGJvb3Rsb2FkZXJfZXhlY190IGlzIHRoZSB0eXBlIG9mIHRoZSBib290
-bG9hZGVyIGV4ZWN1dGFibGUuCiMKdHlwZSBib290bG9hZGVyX3QsIGRvbWFpbiwgcHJpdmxvZywg
-cHJpdm1lbTsKdHlwZSBib290bG9hZGVyX2V4ZWNfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlLCBl
-eGVjX3R5cGU7CnR5cGUgYm9vdGxvYWRlcl90bXBfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlLCB0
-bXBmaWxlOwp0eXBlIGV0Y19ib290bG9hZGVyX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsKCnJv
-bGUgc3lzYWRtX3IgdHlwZXMgYm9vdGxvYWRlcl90Owpyb2xlIHN5c3RlbV9yIHR5cGVzIGJvb3Rs
-b2FkZXJfdDsKCmRvbWFpbl9hdXRvX3RyYW5zKHN5c2FkbV90LCBib290bG9hZGVyX2V4ZWNfdCwg
-Ym9vdGxvYWRlcl90KQoKZmlsZV90eXBlX2F1dG9fdHJhbnMoYm9vdGxvYWRlcl90LCB0bXBfdCwg
-Ym9vdGxvYWRlcl90bXBfdCkKCmFsbG93IGJvb3Rsb2FkZXJfdCB7IGV0Y190IH06ZGlyIHJfZGly
-X3Blcm1zOwp1c2VzX3NobGliKGJvb3Rsb2FkZXJfdCkKCmFsbG93IGJvb3Rsb2FkZXJfdCB7IGZp
-eGVkX2Rpc2tfZGV2aWNlX3QgcmVtb3ZhYmxlX2RldmljZV90IH06YmxrX2ZpbGUgcndfZmlsZV9w
-ZXJtczsKYWxsb3cgYm9vdGxvYWRlcl90IGV0Y19ib290bG9hZGVyX3Q6ZmlsZSByX2ZpbGVfcGVy
-bXM7CgpjYW5fZXhlYyhib290bG9hZGVyX3QsIHsgYm9vdGxvYWRlcl9leGVjX3QgYmluX3QgfSkK
-YWxsb3cgYm9vdGxvYWRlcl90IHsgYmluX3Qgc2Jpbl90IH06ZGlyIHJfZGlyX3Blcm1zOwphdWRp
-dGRlbnkgYm9vdGxvYWRlcl90IHN5c2FkbV9ob21lX3Q6ZGlyIH5yX2Rpcl9wZXJtczsKCmFsbG93
-IGJvb3Rsb2FkZXJfdCBib290X3Q6ZGlyIHJ3X2Rpcl9wZXJtczsKYWxsb3cgYm9vdGxvYWRlcl90
-IGJvb3RfdDp7IGZpbGUgbG5rX2ZpbGUgfSBjcmVhdGVfZmlsZV9wZXJtczsKCmFsbG93IGJvb3Rs
-b2FkZXJfdCBzZWxmOmNhcGFiaWxpdHkgeyBzeXNfcmF3aW8gc3lzX2FkbWluIH07CiMgYWxsb3cg
-Ym9vdGxvYWRlciB0byBnZXQgYXR0cmlidXRlcyBvZiBhbnkgZGV2aWNlIG5vZGUKYWxsb3cgYm9v
-dGxvYWRlcl90IHsgZGV2ZnNfdCBmaWxlX3R5cGUgfTpkaXJfZmlsZV9jbGFzc19zZXQgZ2V0YXR0
-cjsKYXVkaXRkZW55IGJvb3Rsb2FkZXJfdCBkZXZwdHNfdDpkaXIgfmNyZWF0ZV9kaXJfcGVybXM7
-CgphbGxvdyBib290bG9hZGVyX3Qgc2VsZjpwcm9jZXNzIHsgZm9yayBzaWdjaGxkIH07CgphbGxv
-dyBib290bG9hZGVyX3QgZnNfdDpmaWxlc3lzdGVtIGdldGF0dHI7CgphbGxvdyBib290bG9hZGVy
-X3QgcHJvY190OmRpciByX2Rpcl9wZXJtczsKYWxsb3cgYm9vdGxvYWRlcl90IHByb2NfdDpmaWxl
-IHJfZmlsZV9wZXJtczsKYWxsb3cgYm9vdGxvYWRlcl90IGV0Y19ydW50aW1lX3Q6ZmlsZSByX2Zp
-bGVfcGVybXM7CgphbGxvdyBib290bG9hZGVyX3QgZGV2dHR5X3Q6Y2hyX2ZpbGUgcndfZmlsZV9w
-ZXJtczsKCiMgZm9yIHJlYWRpbmcgQklPUyBkYXRhCmFsbG93IGJvb3Rsb2FkZXJfdCBtZW1vcnlf
-ZGV2aWNlX3Q6Y2hyX2ZpbGUgcl9maWxlX3Blcm1zOwo=
 
---------------Boundary-00=_YHJZP781RPWKA8N64B0R--
+---559023410-1804928587-1019507949=:28618
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="bootloader.te.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0204221639090.28618@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="bootloader.te.patch"
+
+LS0tIGJvb3Rsb2FkZXIudGUub2xkCU1vbiBBcHIgMjIgMTY6MzI6MzcgMjAw
+Mg0KKysrIGJvb3Rsb2FkZXIudGUJTW9uIEFwciAyMiAxNjoyNTo1OSAyMDAy
+DQpAQCAtMTcsMTAgKzE3LDExIEBADQogcm9sZSBzeXN0ZW1fciB0eXBlcyBi
+b290bG9hZGVyX3Q7DQogDQogZG9tYWluX2F1dG9fdHJhbnMoc3lzYWRtX3Qs
+IGJvb3Rsb2FkZXJfZXhlY190LCBib290bG9hZGVyX3QpDQorYWxsb3cgYm9v
+dGxvYWRlcl90IG5ld3JvbGVfdDpmZCB1c2U7DQogDQogZmlsZV90eXBlX2F1
+dG9fdHJhbnMoYm9vdGxvYWRlcl90LCB0bXBfdCwgYm9vdGxvYWRlcl90bXBf
+dCkNCiANCi1hbGxvdyBib290bG9hZGVyX3QgeyBldGNfdCB9OmRpciByX2Rp
+cl9wZXJtczsNCithbGxvdyBib290bG9hZGVyX3QgeyBldGNfdCBkZXZpY2Vf
+dCB9OmRpciByX2Rpcl9wZXJtczsNCiB1c2VzX3NobGliKGJvb3Rsb2FkZXJf
+dCkNCiANCiBhbGxvdyBib290bG9hZGVyX3QgeyBmaXhlZF9kaXNrX2Rldmlj
+ZV90IHJlbW92YWJsZV9kZXZpY2VfdCB9OmJsa19maWxlIHJ3X2ZpbGVfcGVy
+bXM7DQpAQCAtNDcsNiArNDgsOCBAQA0KIGFsbG93IGJvb3Rsb2FkZXJfdCBl
+dGNfcnVudGltZV90OmZpbGUgcl9maWxlX3Blcm1zOw0KIA0KIGFsbG93IGJv
+b3Rsb2FkZXJfdCBkZXZ0dHlfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOw0K
+K2FsbG93IGJvb3Rsb2FkZXJfdCBzeXNhZG1fdHR5X2RldmljZV90OmNocl9m
+aWxlIHJ3X2ZpbGVfcGVybXM7DQorYWxsb3cgYm9vdGxvYWRlcl90IHN5c2Fk
+bV9kZXZwdHNfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOw0KIA0KICMgZm9y
+IHJlYWRpbmcgQklPUyBkYXRhDQogYWxsb3cgYm9vdGxvYWRlcl90IG1lbW9y
+eV9kZXZpY2VfdDpjaHJfZmlsZSByX2ZpbGVfcGVybXM7DQo=
+---559023410-1804928587-1019507949=:28618
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="assert-admin.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0204221639091.28618@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="assert-admin.patch"
+
+SW5kZXg6IHBvbGljeS9hc3NlcnQudGUNCj09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT0NClJDUyBmaWxlOiAvY3ZzL2xzbS9zZWxpbnV4L3BvbGljeS9hc3NlcnQu
+dGUsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEzDQpkaWZmIC11IC1yMS4x
+MyBhc3NlcnQudGUNCi0tLSBwb2xpY3kvYXNzZXJ0LnRlCTIwMDIvMDMvMjYg
+MTc6NDU6MzYJMS4xMw0KKysrIHBvbGljeS9hc3NlcnQudGUJMjAwMi8wNC8y
+MiAyMDozMTo1Nw0KQEAgLTQ1LDEwICs0NSw5IEBADQogbmV2ZXJhbGxvdyB+
+YWRtaW4geyBsaWJfdCBiaW5fdCBzYmluX3QgfTpmaWxlIHsgd3JpdGUgYXBw
+ZW5kIHVubGluayByZW5hbWUgfTsNCiANCiAjDQotIyBWZXJpZnkgdGhhdCBv
+bmx5IHRoZSBhZG1pbmlzdHJhdG9yIGRvbWFpbiBhbmQgdGhlDQotIyBmaWxl
+IHN5c3RlbSBhZG1pbmlzdHJhdGlvbiBkb21haW4gaGF2ZSBhY2Nlc3MgdG8g
+dGhlIHJhdyBkaXNrIGRldmljZXMuDQorIyBWZXJpZnkgdGhhdCBvbmx5IGNl
+cnRhaW4gZG9tYWlucyBoYXZlIGFjY2VzcyB0byB0aGUgcmF3IGRpc2sgZGV2
+aWNlcy4NCiAjDQotbmV2ZXJhbGxvdyB+eyBhZG1pbiBmc2FkbV90IG1vdW50
+X3QgfSBmaXhlZF9kaXNrX2RldmljZV90OmRldmZpbGVfY2xhc3Nfc2V0IHsg
+cmVhZCB3cml0ZSBhcHBlbmQgfTsNCituZXZlcmFsbG93IH57IGJvb3Rsb2Fk
+ZXJfdCBmc2FkbV90IG1vdW50X3QgfSBmaXhlZF9kaXNrX2RldmljZV90OmRl
+dmZpbGVfY2xhc3Nfc2V0IHsgcmVhZCB3cml0ZSBhcHBlbmQgfTsNCiANCiAj
+DQogIyBWZXJpZnkgdGhhdCBvbmx5IHRoZSBYIHNlcnZlciBhbmQga2xvZ2Qg
+aGF2ZSBhY2Nlc3MgdG8gbWVtb3J5IGRldmljZXMuDQpJbmRleDogcG9saWN5
+L21hY3Jvcy9hZG1pbl9tYWNyb3MudGUNCj09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT0NClJDUyBmaWxlOiAvY3ZzL2xzbS9zZWxpbnV4L3BvbGljeS9tYWNyb3Mv
+YWRtaW5fbWFjcm9zLnRlLHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS41DQpk
+aWZmIC11IC1yMS41IGFkbWluX21hY3Jvcy50ZQ0KLS0tIHBvbGljeS9tYWNy
+b3MvYWRtaW5fbWFjcm9zLnRlCTIwMDIvMDMvMjYgMTk6MzI6MTIJMS41DQor
+KysgcG9saWN5L21hY3Jvcy9hZG1pbl9tYWNyb3MudGUJMjAwMi8wNC8yMiAy
+MDozMTo1Nw0KQEAgLTMyLDEwICszMiw2IEBADQogYWxsb3cgJDFfdCBzeXNh
+ZG1maWxlOm5vdGRldmZpbGVfY2xhc3Nfc2V0IGNyZWF0ZV9maWxlX3Blcm1z
+Ow0KIGFsbG93ICQxX3Qgc3lzYWRtZmlsZTpkaXIgY3JlYXRlX2Rpcl9wZXJt
+czsNCiANCi0jIFVzZSAvc2Jpbi9saWxvIHRvIHVwZGF0ZSB0aGUgYm9vdCBs
+b2FkZXIuDQotIyBYWFggRklYTUUhICBNb3ZlIGxpbG8gaW50byBzZXBhcmF0
+ZSBkb21haW4uDQotYWxsb3cgJDFfdCBmaXhlZF9kaXNrX2RldmljZV90OmRl
+dmZpbGVfY2xhc3Nfc2V0IHJ3X2ZpbGVfcGVybXM7DQotDQogIyBBY2Nlc3Mg
+cmVtb3ZhYmxlIGRldmljZXMuDQogYWxsb3cgJDFfdCByZW1vdmFibGVfZGV2
+aWNlX3Q6ZGV2ZmlsZV9jbGFzc19zZXQgcndfZmlsZV9wZXJtczsNCiANCg==
+---559023410-1804928587-1019507949=:28618--
 
 --
 You have received this message because you are subscribed to the selinux list.
