@@ -1,56 +1,165 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4OISORb012733
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 14:28:24 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4P2n7Rb015063
+	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 22:49:07 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4OISLAR005452
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 18:28:21 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i4OISLHn005449 for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 18:28:21 GMT
-Subject: Re: [PATCH][RFC] Allow administrator control over per-user
-	default_contexts
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Valdis.Kletnieks@vt.edu
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200405241725.i4OHPmRs008204@turing-police.cc.vt.edu>
-References: <1085155374.2789.131.camel@moss-spartans.epoch.ncsc.mil>
-	 <200405212213.i4LMDLZM005446@turing-police.cc.vt.edu>
-	 <200405240612.15645.russell@coker.com.au>
-	 <1085402633.26446.45.camel@moss-spartans.epoch.ncsc.mil>
-	 <200405241725.i4OHPmRs008204@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Message-Id: <1085423295.26446.185.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 24 May 2004 14:28:16 -0400
+	by jazzband.ncsc.mil  with ESMTP id i4P2n3AR001219
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 02:49:03 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4P2n1Hn001160 for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 02:49:02 GMT
+From: Russell Coker <rcoker@redhat.com>
+Reply-To: rcoker@redhat.com
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Subject: Re: [patch] policy for nrpe
+Date: Tue, 25 May 2004 12:41:22 +1000
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+References: <20040523214406.GB6147@jmh.mhn.de> <200405241056.58596.rcoker@redhat.com> <20040524090907.GA15439@thebe.cip.ifi.lmu.de>
+In-Reply-To: <20040524090907.GA15439@thebe.cip.ifi.lmu.de>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_SJrsAJW6r09l4qo"
+Message-Id: <200405251241.22708.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-05-24 at 13:25, Valdis.Kletnieks@vt.edu wrote:
-> No, I was clear on that distinction (and was counting "domains" as being more
-> akin to group membership).  On the other hand, I've had the joy of running
-> larger systems back in the "old days" when NGROUPS_MAX was still 8 or 16 or
-> whatever it was for NFS back in SunOS 3.5/4.0 days, and I had literally a dozen
-> users pegged at the group limit (doesn't take long, when you have a 'cs_dept'
-> group, then a "these 3 CS profs and 1 EE prof", a "same EE prof and 2 guys from
-> Physics", and... you get the idea..).   One of our production machines (which
-> has end-user userids on it) currently has 314 users and 273 groups defined....
-> 
-> I've gotten burnt too many times when a user who's in multiple groups has
-> managed to screw things up with a 'chgrp' command (between the -R flag and file
-> globbing, chgrp and chmod are dangerous for users ;) - so there's a real
-> temptation to use roles to build a much higher wall between the contexts. And
-> using the one production machine as an example, it's not at all clear that
-> there is any really sensible halfway point between 300 people in 1 user_t
-> domain and 250 domains with single-digit numbers of users...
 
-Ok, but adding a $1_default_context_t type isn't going to make much of
-an impact here, as there are already a number of $1_foo_t domains and
-types derived from the base user domains.  Looks like we have around 25
-domains and 44 file types defined for each of the user roles at present.
+--Boundary-00=_SJrsAJW6r09l4qo
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Mon, 24 May 2004 19:09, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+wrote:
+> > We currently have a netsaint.te in the policy, should we change that to
+> > nagios.te?
+>
+> Yes, I think it would be best to change the name.
+
+OK, I've attached nagios.te and nagios.fc to replace netsaint.te and 
+netsaint.fc.  I have not made any changes other than the renaming.  I have 
+not put in typealias rules because I don't believe that my netsaint policy 
+got enough use to make compatibility an issue.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://apac.redhat.com/disclaimer
+See above URL for disclaimer.
 
+--Boundary-00=_SJrsAJW6r09l4qo
+Content-Type: text/plain;
+  charset="iso-8859-15";
+  name="nagios.fc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="nagios.fc"
+
+# netsaint - network monitoring server
+/usr/sbin/netsaint		--	system_u:object_r:nagios_exec_t
+#/var/run/netsaint(/.*)?		system_u:object_r:nagios_var_run_t
+/etc/netsaint(/.*)?			system_u:object_r:nagios_etc_t
+/var/log/netsaint(/.*)?			system_u:object_r:nagios_log_t
+/usr/lib(64)?/netsaint/plugins(/.*)?		system_u:object_r:bin_t
+/usr/lib(64)?/cgi-bin/netsaint/.+	--	system_u:object_r:nagios_cgi_exec_t
+
+--Boundary-00=_SJrsAJW6r09l4qo
+Content-Type: text/plain;
+  charset="iso-8859-15";
+  name="nagios.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="nagios.te"
+
+#DESC Net Saint / NAGIOS - network monitoring server
+#
+# Author:  Russell Coker <russell@coker.com.au>
+# X-Debian-Packages: netsaint, nagios
+# Depends: mta.te
+#
+
+#################################
+#
+# Rules for the nagios_t domain.
+#
+# nagios_exec_t is the type of the netsaint/nagios executable.
+#
+daemon_domain(nagios, `, privmail')
+
+etcdir_domain(nagios)
+typealias nagios_etc_t alias etc_nagios_t;
+
+logdir_domain(nagios)
+allow nagios_t nagios_log_t:fifo_file create_file_perms;
+allow initrc_t nagios_log_t:dir rw_dir_perms;
+
+tmp_domain(nagios)
+allow system_mail_t nagios_tmp_t:file { getattr read };
+# for open file handles
+dontaudit system_mail_t nagios_etc_t:file read;
+dontaudit system_mail_t nagios_log_t:fifo_file read;
+
+# Use the network.
+allow nagios_t self:fifo_file rw_file_perms;
+allow nagios_t self:unix_stream_socket create_socket_perms;
+allow nagios_t self:unix_dgram_socket create_socket_perms;
+
+# Use capabilities
+allow nagios_t self:capability { dac_override setgid setuid };
+allow nagios_t self:process setpgid;
+
+allow nagios_t { bin_t sbin_t }:dir search;
+allow nagios_t bin_t:lnk_file read;
+can_exec(nagios_t, { shell_exec_t bin_t })
+
+allow nagios_t proc_t:file { getattr read };
+
+can_network(nagios_t)
+
+# read config files
+allow nagios_t { etc_t etc_runtime_t }:file { getattr read };
+allow nagios_t etc_t:lnk_file read;
+
+allow nagios_t etc_t:dir r_dir_perms;
+
+# for ps
+r_dir_file(nagios_t, domain)
+allow nagios_t boot_t:dir search;
+allow nagios_t system_map_t:file { getattr read };
+
+# for who
+allow nagios_t initrc_var_run_t:file { getattr read lock };
+
+system_domain(nagios_cgi)
+allow nagios_cgi_t device_t:dir search;
+r_dir_file(nagios_cgi_t, nagios_etc_t)
+allow nagios_cgi_t var_log_t:dir search;
+r_dir_file(nagios_cgi_t, nagios_log_t)
+allow nagios_cgi_t self:process { fork signal_perms };
+allow nagios_cgi_t self:fifo_file rw_file_perms;
+allow nagios_cgi_t bin_t:dir search;
+can_exec(nagios_cgi_t, bin_t)
+read_locale(nagios_cgi_t)
+
+# for ps
+allow nagios_cgi_t { etc_runtime_t etc_t }:file { getattr read };
+r_dir_file(nagios_cgi_t, { proc_t self nagios_t })
+allow nagios_cgi_t boot_t:dir search;
+allow nagios_cgi_t system_map_t:file { getattr read };
+dontaudit nagios_cgi_t domain:dir getattr;
+allow nagios_cgi_t self:unix_stream_socket create_socket_perms;
+
+ifdef(`apache.te', `
+r_dir_file(httpd_t, nagios_etc_t)
+domain_auto_trans({ httpd_t httpd_suexec_t }, nagios_cgi_exec_t, nagios_cgi_t)
+allow nagios_cgi_t httpd_log_t:file append;
+')
+
+ifdef(`ping.te', `
+domain_auto_trans(nagios_t, ping_exec_t, ping_t)
+allow nagios_t ping_t:process { sigkill signal };
+dontaudit ping_t nagios_etc_t:file read;
+dontaudit ping_t nagios_log_t:fifo_file read;
+')
+
+--Boundary-00=_SJrsAJW6r09l4qo--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
