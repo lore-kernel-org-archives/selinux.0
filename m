@@ -1,43 +1,58 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA05545
-	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 05:19:38 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA05780
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 06:22:36 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id JAA17020
-	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 09:18:10 GMT
-Received: from mail.gmx.net (mail.gmx.net [213.165.64.20])
-	by jazzswing.ncsc.mil  with SMTP id JAA17016
-	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 09:18:09 GMT
-Message-Id: <200209230918.JAA17016@jazzswing.ncsc.mil>
+	by jazzswing.ncsc.mil  with ESMTP id KAA19093
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 10:21:08 GMT
+Received: from mail.vegaa.de (mail.vegaa.de [62.67.195.121])
+	by jazzswing.ncsc.mil  with ESMTP id KAA19087
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 10:21:07 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: Russell Coker <russell@coker.com.au>, Michael Zimmermann <zim@vegaa.de>,
-        selinux@tycho.nsa.gov
-Subject: Re: SElinux newbie seeks starter paper(s)
-Date: Mon, 23 Sep 2002 11:14:05 +0200
-References: <200209222212.18437.zim@vegaa.de> <200209222149.VAA27444@jazzswing.ncsc.mil> <200209230133.13854.russell@coker.com.au>
-In-Reply-To: <200209230133.13854.russell@coker.com.au>
+From: Michael Zimmermann <zim@vegaa.de>
+To: Carsten Grohmann <carstengrohmann@gmx.de>,
+        Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+Subject: Deutsche Liste
+Date: Mon, 23 Sep 2002 12:22:14 +0200
+References: <200209222212.18437.zim@vegaa.de> <200209230133.13854.russell@coker.com.au> <20020923091936.37F28174004@mail.vegaa.de>
+In-Reply-To: <20020923091936.37F28174004@mail.vegaa.de>
 MIME-Version: 1.0
+Message-Id: <200209231222.30849.zim@vegaa.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Am Montag, 23. September 2002 01:33 schrieb Russell Coker:
-> On Sun, 22 Sep 2002 23:50, Carsten Grohmann wrote:
-> > You can
-> > found they on my homepage http://www.carstengrohmann.de (only german).
->
-> Perhaps it might be worth-while to establish a mailing list for
-> German-language SE Linux discussions?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It's a good idea. Let's start.
+Hi Carsten,
 
-> Carsten, you have a good grasp of SE Linux, you would be able to advise
-> new German users on a German-language list, and then if you don't know
-> the answer to a question they would not feel foolish about asking here.
+ich setze gerade die Liste auf. Wundere Dich also nicht über
+die Mail, die Du bekommen hast, weil ich Dich als Listenowner
+eingetragen habe. .o)
+Wenn ich fertig bin, sage ich Bescheid.
 
-I am happy about this ;-)
+Listenadresse: selinux-de@vegaa.de
 
-Carsten
+
+Da wir ja mehr miteinander zu tun haben werden, möchte
+ich mich kurz vorstellen. Ein Bild von mir findest Du
+in meinem beruflichen Profil auf:
+http://vegaa.de/kurzprofil.doc
+
+
+Gruss
+Michael
+- -- 
+Michael Zimmermann  (http://vegaa.de)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9jutl72vu22ltWBERAmgfAJ9cZUDHWCIB0bM/5gXw3Xc9JdjuwACfa4AO
+uQBFfDkOub/QIqLMJuO57iI=
+=ZzVg
+-----END PGP SIGNATURE-----
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
