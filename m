@@ -1,40 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA13833
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 16:02:49 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA16934
+	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2001 10:52:23 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA23641
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 20:02:17 GMT
-Received: from jsmith.org (pool-141-158-44-125.phil.east.verizon.net [141.158.44.125])
-	by jazzband.ncsc.mil  with ESMTP id UAA23637
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 20:02:17 GMT
-Subject: Additions to file_contexts
+	by jazzband.ncsc.mil  with ESMTP id OAA04288
+	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2001 14:51:52 GMT
+Received: from vorpal.mcs.drexel.edu (vorpal.mcs.drexel.edu [129.25.6.250])
+	by jazzband.ncsc.mil  with ESMTP id OAA04282
+	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2001 14:51:47 GMT
+Subject: ssh, ad nauseum
 From: "Justin R. Smith" <jsmith@mcs.drexel.edu>
 To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: 08 Oct 2001 16:02:13 -0400
-Message-Id: <1002571333.3666.57.camel@jsmith.org>
+Date: 09 Oct 2001 10:51:22 -0400
+Message-Id: <1002639082.14315.3.camel@vorpal>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I run Java servlets (using the Jakarta Tomcat engine) from my web site,
-so I added the following lines to the setfiles/file_context file, since
-servlets are LIKE scripts (sort of):
+I'm sure people are tired of hearing this, but...
 
-/var/www/tomcat(|/.*)           system_u:object_r:httpd_user_script_rw_t
-/var/www/classes(|/.*)          system_u:object_r:httpd_user_script_rw_t
+I rebooted my normal (i.e., non-selinux) kernel and ssh'ed to my office
+machine from home and was asked for a password (so it didn't use my
+'authorized_users' file). Then I remembered that I didn't restore the
+vanilla version of the sshd --- I was still using the selinux version. 
 
-Note: /var/www/classes is a directory containing classes used by all
-servlets and is in the Java CLASSPATH. /var/www/tomcat contains tomcat
-and all deployed web applications.
-
-I also had to make my html content writable because my cgi scripts and
-servlets frequently write to it. 
-
-In addition, Tomcat likes to compile jsp into servlets and, therefore,
-must be able to write to its work directory.
-
+I then replaced the selinux sshd with the original one and rebooted.
+After this ssh worked normally. So, perhaps something in the selinux
+sshd is responsible for my little problem (always having to type a
+password to use ssh).
 -- 
+
 
 
 
