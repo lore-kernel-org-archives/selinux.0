@@ -1,716 +1,363 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4OARQI4000859
-	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 06:27:26 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4OAR0uO023421
-	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 10:27:00 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h4OAQjlV023411
-	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 10:26:56 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id EF524BF5A
-	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 20:26:53 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 21048-06
- for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 20:26:52 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 38F42BF59
-	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 20:26:52 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 6C2FA92705
-	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 20:26:50 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 09044932C
-	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 20:24:57 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4OGA8I4001392
+	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 12:10:08 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h4OGA7tV018273
+	for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 16:10:07 GMT
+Received: from unicorn.lemuria.org (c145229.adsl.hansenet.de [213.39.145.229])
+        by jazzband.ncsc.mil  with ESMTP id h4OGA5al018270 for <selinux@tycho.nsa.gov>; Sat, 24 May 2003 16:10:06 GMT
+Date: Sat, 24 May 2003 18:07:38 +0200
+From: Tom <tom@lemuria.org>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: latest busybox patch
-Date: Sat, 24 May 2003 20:24:56 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_4h0z+N4ePD6vJe2"
-Message-Id: <200305242024.56239.russell@coker.com.au>
+Subject: some policy patches
+Message-ID: <20030524180730.C8251@lemuria.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="OXfL5xGRrasGEqWY"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_4h0z+N4ePD6vJe2
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-This patch is against the latest CVS version.  It has SE Linux support for id, 
-ls, ps, and login.  It enables a new config option CONFIG_SELINUX which will 
-soon be used for extra busybox applets such as avc_toggle.
+I have attached three diff files for policy changes. These are against
+Russell's default policy, though from the file comments at least one
+(xdm) is unchanged from the upstream tree.
 
-This has been tested on an iPaQ 3950 running familiar, with this patched 
-busybox the iPaQ can boot in enforcing mode and assign the correct domain and 
-file type for the terminal when logging in through the patched login program.
+xdm.diff contains updates to the xdm, xserver and xfs domains. Together
+with my patched wdm I can boot into a graphical login and work in X,
+all in enforcing mode. Accomplishing this made me very happy. :)
 
-To get this fully working for booting an iPaQ requires the busybox wrapper 
-that I haven't yet released.  But the current code on it's own will work for 
-a recovery shell when you break shared libraries, or for other purposes of 
-busybox.
+apm.diff contains minor updates so that acpid works (they are very
+similiar in requirements, and you don't usually have both running
+anyway, so a shared domain for apmd and acpid should be ok).
 
-Enjoy.
+games.diff enables what I believe to be better games support. I have a
+notebook with SELinux now and during long train trips I might want to
+get some entertainment. The major change is that I have added support
+for the data games want to store in the user's home directory and
+updated the file context definitions (I don't want Quake3, which has
+known remote holes, to be able to write to the users home dir any more
+than absolutely necessary).
+Using this policy, I can play Majesty in enforcing mode. I've also
+tried Uplink, but it's ugly, ugly (patches itself while running. No,
+I'm not joking).
+
+Anyway - here they are. Comments welcome. If you merge them, please
+drop me a short note so I can update my webpage.
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
---Boundary-00=_4h0z+N4ePD6vJe2
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="busybox.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="busybox.diff"
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="xdm.diff"
 
-diff -ru busybox.orig/Makefile busybox/Makefile
---- busybox.orig/Makefile	2003-03-19 20:11:07.000000000 +1100
-+++ busybox/Makefile	2003-05-23 16:50:48.000000000 +1000
-@@ -31,6 +31,11 @@
- 	networking/libiproute networking/udhcp procps loginutils shell \
- 	sysklogd util-linux libbb libpwdgrp coreutils/libcoreutils
+diff -ru default/domains/program/xdm.te current/domains/program/xdm.te
+--- default/domains/program/xdm.te	2003-05-15 05:22:15.000000000 +0200
++++ current/domains/program/xdm.te	2003-05-24 13:08:34.000000000 +0200
+@@ -3,7 +3,7 @@
+ # Authors:  Mark Westerman mark.westerman@westcam.com
+ # 
+ # Some alterations and documentation by Stephen Smalley <sds@epoch.ncsc.mil>
+-#
++# Some wdm-specific changes by Tom Vogt <tom@lemuria.org>
  
-+ifeq ($(strip $(CONFIG_SELINUX)),y)
-+CFLAGS += -I/usr/include/selinux
-+LIBRARIES += -lsecure
-+endif
+ #################################
+ # 
+@@ -11,19 +11,29 @@
+ #
+ # xdm_t is the domain of a X Display Manager process 
+ # spawned by getty.
+-# xdm_exec_t is the type of the [xgk]dm program
++# xdm_exec_t is the type of the [xgkw]dm program
+ #
+ daemon_domain(xdm, `, privuser, privrole, auth, privowner, privmem')
+ 
+ # for running xdm from init
+ domain_auto_trans(init_t, xdm_exec_t, xdm_t)
+ 
++# for xdmctl
++allow xdm_t xdm_var_run_t:fifo_file create_file_perms;
 +
- ifeq ($(strip $(HAVE_DOT_CONFIG)),y)
- 
- all: busybox busybox.links #doc
-diff -ru busybox.orig/coreutils/id.c busybox/coreutils/id.c
---- busybox.orig/coreutils/id.c	2003-03-19 20:11:33.000000000 +1100
-+++ busybox/coreutils/id.c	2003-05-23 16:42:01.000000000 +1000
-@@ -28,9 +28,13 @@
- #include <getopt.h>
- #include <string.h>
- #include <sys/types.h>
-+#ifdef CONFIG_SELINUX
-+#include <proc_secure.h>
-+#include <flask_util.h>
-+#endif
- 
--#define NO_GROUP          1
--#define NO_USER           2
-+#define JUST_USER         1
-+#define JUST_GROUP        2
- #define PRINT_REAL        4
- #define NAME_NOT_NUMBER   8
- 
-@@ -40,10 +44,13 @@
- 	long pwnam, grnam;
- 	int uid, gid;
- 	int flags;
-+#ifdef CONFIG_SELINUX
-+	int is_flask_enabled_flag = is_flask_enabled();
-+#endif
- 	
- 	flags = bb_getopt_ulflags(argc, argv, "ugrn");
- 
--	if (((flags & (NO_USER | NO_GROUP)) == (NO_USER | NO_GROUP))
-+	if (((flags & (JUST_USER | JUST_GROUP)) == (JUST_USER | JUST_GROUP))
- 		|| (argc > optind + 1)
- 	) {
- 		bb_show_usage();
-@@ -67,9 +74,9 @@
- 	pwnam=my_getpwnam(user);
- 	grnam=my_getgrnam(group);
- 
--	if (flags & (NO_GROUP | NO_USER)) {
-+	if (flags & (JUST_GROUP | JUST_USER)) {
- 		char *s = group;
--		if (flags & NO_GROUP) {
-+		if (flags & JUST_USER) {
- 			s = user;
- 			grnam = pwnam;
- 		}
-@@ -79,7 +86,24 @@
- 			printf("%ld\n", grnam);
- 		}
- 	} else {
-+#ifdef CONFIG_SELINUX
-+		printf("uid=%ld(%s) gid=%ld(%s)", pwnam, user, grnam, group);
-+		if(is_flask_enabled_flag)
-+		{
-+			security_id_t mysid = getsecsid();
-+			char context[80];
-+			int len = sizeof(context);
-+			context[0] = '\0';
-+			if(security_sid_to_context(mysid, context, &len))
-+				strcpy(context, "unknown");
-+			printf(" context=%s\n", context);
-+		}
-+		else
-+			printf("\n");
-+#else
- 		printf("uid=%ld(%s) gid=%ld(%s)\n", pwnam, user, grnam, group);
-+#endif
+ tmp_domain(xdm)
+ var_lib_domain(xdm)
+-# NB we do NOT allow xdm_xserver_t xdm_var_lib_t:dir!!!
+-allow xdm_xserver_t xdm_var_lib_t:file { getattr read };
++# NB we do NOT allow xdm_xserver_t xdm_var_lib_t:dir, only access to an open
++# handle of a file inside the dir!!!
++# Added write access, not sure if it is required (Tom)
++allow xdm_xserver_t xdm_var_lib_t:file { getattr read write };
+ dontaudit xdm_xserver_t xdm_var_lib_t:dir search;
+ type xsession_exec_t, file_type, sysadmfile, exec_type;
++type etc_xdm_t, file_type, sysadmfile;
 +
- 	}
++# xdm_xserver_t needs to inherit the init file descriptors
++allow xdm_xserver_t initrc_t:fd { use };
++allow xdm_xserver_t initrc_t:fifo_file { read write };
  
- 	bb_fflush_stdout_and_exit(0);
-diff -ru busybox.orig/coreutils/ls.c busybox/coreutils/ls.c
---- busybox.orig/coreutils/ls.c	2003-03-19 20:11:33.000000000 +1100
-+++ busybox/coreutils/ls.c	2003-05-24 19:58:53.000000000 +1000
-@@ -62,6 +62,11 @@
- #include <termios.h>
- #include <sys/ioctl.h>
- #include "busybox.h"
-+#ifdef CONFIG_SELINUX
-+#include <fs_secure.h>
-+#include <flask_util.h>
-+#include <ss.h>
-+#endif
+ allow xdm_t default_context_t:file { read getattr };
  
- #ifdef CONFIG_FEATURE_LS_TIMESTAMPS
- #include <time.h>
-@@ -89,14 +94,15 @@
- #define LIST_NLINKS		(1U<<3)
- #define LIST_ID_NAME	(1U<<4)
- #define LIST_ID_NUMERIC	(1U<<5)
--#define LIST_SIZE		(1U<<6)
--#define LIST_DEV		(1U<<7)
--#define LIST_DATE_TIME	(1U<<8)
--#define LIST_FULLTIME	(1U<<9)
--#define LIST_FILENAME	(1U<<10)
--#define LIST_SYMLINK	(1U<<11)
--#define LIST_FILETYPE	(1U<<12)
--#define LIST_EXEC		(1U<<13)
-+#define LIST_CONTEXT	(1U<<6)
-+#define LIST_SIZE		(1U<<7)
-+#define LIST_DEV		(1U<<8)
-+#define LIST_DATE_TIME	(1U<<9)
-+#define LIST_FULLTIME	(1U<<10)
-+#define LIST_FILENAME	(1U<<11)
-+#define LIST_SYMLINK	(1U<<12)
-+#define LIST_FILETYPE	(1U<<13)
-+#define LIST_EXEC	(1U<<14)
+@@ -35,13 +45,23 @@
+ # for reboot
+ allow xdm_t initctl_t:fifo_file write;
  
- #define LIST_MASK       ((LIST_EXEC << 1) - 1)
- 
-@@ -179,6 +185,9 @@
- 	char *name;			/* the dir entry name */
- 	char *fullname;		/* the dir entry name */
- 	struct stat dstat;	/* the file stat info */
-+#ifdef CONFIG_SELINUX
-+	security_id_t sid;
-+#endif
- 	struct dnode *next;	/* point at the next node */
- };
- typedef struct dnode dnode_t;
-@@ -189,6 +198,10 @@
- 
- static unsigned int all_fmt;
- 
-+#ifdef CONFIG_SELINUX
-+static int is_flask_enabled_flag;
-+#endif
++# init script wants to check if it needs to update windowmanagerlist
++allow initrc_t etc_xdm_t:file { read };
 +
- #ifdef CONFIG_FEATURE_AUTOWIDTH
- static unsigned short terminal_width = TERMINAL_WIDTH;
- static unsigned short tabstops = COLUMN_GAP;
-@@ -203,26 +216,49 @@
- {
- 	struct stat dstat;
- 	struct dnode *cur;
-+#ifdef CONFIG_SELINUX
-+	security_id_t sid;
-+#endif
-+	int rc;
- 
- #ifdef CONFIG_FEATURE_LS_FOLLOWLINKS
- 	if (all_fmt & FOLLOW_LINKS) {
--		if (stat(fullname, &dstat)) {
-+#ifdef CONFIG_SELINUX
-+		if(is_flask_enabled_flag)
-+			rc = stat_secure(fullname, &dstat, &sid);
-+		else
-+#endif
-+			rc = stat(fullname, &dstat);
-+		if(rc)
-+		{
- 			bb_perror_msg("%s", fullname);
- 			status = EXIT_FAILURE;
- 			return 0;
- 		}
- 	} else
- #endif
--	if (lstat(fullname, &dstat)) {
--		bb_perror_msg("%s", fullname);
--		status = EXIT_FAILURE;
--	return 0;
-+	{
-+#ifdef CONFIG_SELINUX
-+		if(is_flask_enabled_flag)
-+			rc = lstat_secure(fullname, &dstat, &sid);
-+		else
-+#endif
-+			rc = lstat(fullname, &dstat);
-+		if(rc)
-+		{
-+			bb_perror_msg("%s", fullname);
-+			status = EXIT_FAILURE;
-+			return 0;
-+		}
- 	}
- 
- 	cur = (struct dnode *) xmalloc(sizeof(struct dnode));
- 	cur->fullname = fullname;
- 	cur->name = name;
- 	cur->dstat = dstat;
-+#ifdef CONFIG_SELINUX
-+	cur->sid = sid;
-+#endif
- 	return cur;
- }
- 
-@@ -451,6 +487,9 @@
- 		/* find the longest file name-  use that as the column width */
- 		for (i = 0; i < nfiles; i++) {
- 			int len = strlen(dn[i]->name) +
-+#ifdef CONFIG_SELINUX
-+			((all_fmt & LIST_CONTEXT) ? 33 : 0) +
-+#endif
- 			((all_fmt & LIST_INO) ? 8 : 0) +
- 			((all_fmt & LIST_BLOCKS) ? 5 : 0);
- 			if (column_width < len)
-@@ -695,6 +734,21 @@
- 			column += 13;
- 			break;
- #endif
-+#ifdef CONFIG_SELINUX
-+		case LIST_CONTEXT:
-+			{
-+				char context[64];
-+				int len = sizeof(context);
-+				if(security_sid_to_context(dn->sid, context, &len))
-+				{
-+					strcpy(context, "unknown");
-+					len = 7;
-+				}
-+				printf("%-32s ", context);
-+				column += MAX(33, len);
-+			}
-+			break;
-+#endif
- 		case LIST_FILENAME:
- #ifdef CONFIG_FEATURE_LS_COLOR
- 			errno = 0;
-@@ -774,6 +828,9 @@
- 						 "h"
- #endif
- 						 "k"
-+#ifdef CONFIG_SELINUX
-+						"K"
-+#endif
- #ifdef CONFIG_FEATURE_AUTOWIDTH
- 						 "T:w:"
- #endif
-@@ -834,7 +891,12 @@
- #ifdef CONFIG_FEATURE_HUMAN_READABLE
- LS_DISP_HR,						/* h */
- #endif
-+#ifndef CONFIG_SELINUX
- 	0,							/* k - ingored */
-+#else
-+	LIST_CONTEXT,				/* k */
-+	LIST_MODEBITS|LIST_NLINKS|LIST_CONTEXT|LIST_SIZE|LIST_DATE_TIME, /* K */
-+#endif
- };
- 
- 
-@@ -849,6 +911,9 @@
- 	int opt;
- 	int oi, ac;
- 	char **av;
-+#ifdef CONFIG_SELINUX
-+	is_flask_enabled_flag = is_flask_enabled();
-+#endif
- 
- #ifdef CONFIG_FEATURE_AUTOWIDTH
- 	struct winsize win = { 0, 0, 0, 0 };
-@@ -911,6 +976,9 @@
- 			if (flags & TIME_MASK_TRIGGER) {
- 				all_fmt &= ~TIME_MASK;
- 			}
-+			if (flags & LIST_CONTEXT) {
-+				all_fmt |= STYLE_SINGLE;
-+			}
- #ifdef CONFIG_FEATURE_HUMAN_READABLE
- 			if (opt == 'l') {
- 				all_fmt &= ~LS_DISP_HR;
-diff -ru busybox.orig/include/libbb.h busybox/include/libbb.h
---- busybox.orig/include/libbb.h	2003-03-19 20:11:53.000000000 +1100
-+++ busybox/include/libbb.h	2003-05-24 02:08:47.000000000 +1000
-@@ -39,6 +39,9 @@
- #include <features.h>
- 
- #include "config.h"
-+#ifdef CONFIG_SELINUX
-+#include <proc_secure.h>
-+#endif
- 
- #include "pwd_.h"
- #include "grp_.h"
-@@ -376,7 +379,11 @@
- 
- #define FAIL_DELAY    3
- extern void change_identity ( const struct passwd *pw );
--extern void run_shell ( const char *shell, int loginshell, const char *command, const char **additional_args );
-+extern void run_shell ( const char *shell, int loginshell, const char *command, const char **additional_args
-+#ifdef CONFIG_SELINUX
-+	, security_id_t sid
-+#endif
-+);
- extern int run_parts(char **args, const unsigned char test_mode);
- extern int restricted_shell ( const char *shell );
- extern void setup_environment ( const char *shell, int loginshell, int changeenv, const struct passwd *pw );
-@@ -407,7 +414,11 @@
- 	char short_cmd[16];
- } procps_status_t;
- 
--extern procps_status_t * procps_scan(int save_user_arg0);
-+extern procps_status_t * procps_scan(int save_user_arg0
-+#ifdef CONFIG_SELINUX
-+	, int use_selinux, security_id_t *sid
-+#endif
-+);
- extern unsigned short compare_string_array(const char *string_array[], const char *key);
- 
- extern int my_query_module(const char *name, int which, void **buf, size_t *bufsize, size_t *ret);
-diff -ru busybox.orig/include/usage.h busybox/include/usage.h
---- busybox.orig/include/usage.h	2003-05-14 00:59:07.000000000 +1000
-+++ busybox/include/usage.h	2003-05-24 20:05:06.000000000 +1000
-@@ -878,6 +878,12 @@
- 	"\t-u\tthe hardware clock is kept in coordinated universal time\n" \
- 	"\t-l\tthe hardware clock is kept in local time"
- 
-+#ifdef CONFIG_SELINUX
-+#define USAGE_SELINUX(a, b) a
-+#else
-+#define USAGE_SELINUX(a, b) b
-+#endif
+ #
+ # Use capabilities.
+-allow xdm_t self:capability { setgid setuid sys_resource kill };
++allow xdm_t self:capability { setgid setuid sys_resource kill sys_rawio };
 +
- #define id_trivial_usage \
- 	"[OPTIONS]... [USERNAME]"
- #define id_full_usage \
-@@ -885,6 +891,7 @@
- 	"Options:\n" \
- 	"\t-g\tprints only the group ID\n" \
- 	"\t-u\tprints only the user ID\n" \
-+	USAGE_SELINUX("\t-c\tprints only the security context\n", "") \
- 	"\t-n\tprint a name instead of a number (with for -ug)\n" \
- 	"\t-r\tprints the real user ID instead of the effective ID (with -ug)"
- #define id_example_usage \
-@@ -1343,7 +1350,7 @@
-   #define USAGE_AUTOWIDTH(a)
- #endif
- #define ls_trivial_usage \
--	"[-1Aa" USAGE_LS_TIMESTAMPS("c") "Cd" USAGE_LS_TIMESTAMPS("e") USAGE_LS_FILETYPES("F") "iln" USAGE_LS_FILETYPES("p") USAGE_LS_FOLLOWLINKS("L") USAGE_LS_RECURSIVE("R") USAGE_LS_SORTFILES("rS") "s" USAGE_AUTOWIDTH("T") USAGE_LS_TIMESTAMPS("tu") USAGE_LS_SORTFILES("v") USAGE_AUTOWIDTH("w") "x" USAGE_LS_SORTFILES("X") USAGE_HUMAN_READABLE("h") USAGE_NOT_HUMAN_READABLE("") "k] [filenames...]"
-+	"[-1Aa" USAGE_LS_TIMESTAMPS("c") "Cd" USAGE_LS_TIMESTAMPS("e") USAGE_LS_FILETYPES("F") "iln" USAGE_LS_FILETYPES("p") USAGE_LS_FOLLOWLINKS("L") USAGE_LS_RECURSIVE("R") USAGE_LS_SORTFILES("rS") "s" USAGE_AUTOWIDTH("T") USAGE_LS_TIMESTAMPS("tu") USAGE_LS_SORTFILES("v") USAGE_AUTOWIDTH("w") "x" USAGE_LS_SORTFILES("X") USAGE_HUMAN_READABLE("h") USAGE_NOT_HUMAN_READABLE("") "k" USAGE_SELINUX("K", "") "] [filenames...]"
- #define ls_full_usage \
- 	"List directory contents\n\n" \
- 	"Options:\n" \
-@@ -1373,8 +1380,7 @@
- 	USAGE_LS_SORTFILES("\t-X\tsort the listing by extension\n") \
- 	USAGE_HUMAN_READABLE( \
- 	"\t-h\tprint sizes in human readable format (e.g., 1K 243M 2G )\n" \
--	"\t-k\tprint sizes in kilobytes(default)") USAGE_NOT_HUMAN_READABLE( \
--	"\t-k\tprint sizes in kilobytes(compatibility)") 
-+	USAGE_SELINUX("\t-k\tprint security context\n\t-K\tprint security context in long format\n", "")
++# Use shared memory (with itself)
++allow xdm_t xdm_t:shm { create destroy read unix_read unix_write write };
  
- #define lsmod_trivial_usage \
- 	""
-@@ -1775,7 +1781,8 @@
- 	""
- #define ps_full_usage \
- 	"Report process status\n" \
--	"\nThis version of ps accepts no options."
-+	USAGE_SELINUX("\nOptions:\n\t-c\tshow SE Linux context", "\nThis version of ps accepts no options.")
-+ 
- #define ps_example_usage \
- 	"$ ps\n" \
- 	"  PID  Uid      Gid State Command\n" \
-diff -ru busybox.orig/libbb/find_pid_by_name.c busybox/libbb/find_pid_by_name.c
---- busybox.orig/libbb/find_pid_by_name.c	2002-12-05 18:24:07.000000000 +1100
-+++ busybox/libbb/find_pid_by_name.c	2003-05-23 16:42:44.000000000 +1000
-@@ -43,7 +43,11 @@
- 	procps_status_t * p;
+ # Use /dev/mem.
+ # Commented out by default.
+ #allow xdm_t memory_device_t:chr_file { execute read write };
++# wdm just asks for read access
++allow xdm_t memory_device_t:chr_file { read };
++# but xdm_xserver wants to write, too
++allow xdm_xserver_t memory_device_t:chr_file { read write };
  
- 	pidList = xmalloc(sizeof(long));
-+#ifdef CONFIG_SELINUX
-+	while ((p = procps_scan(0, 0, NULL)) != 0) {
-+#else
- 	while ((p = procps_scan(0)) != 0) {
-+#endif
- 		if (strcmp(p->short_cmd, pidName) == 0) {
- 			pidList=xrealloc( pidList, sizeof(long) * (i+2));
- 			pidList[i++]=p->pid;
-diff -ru busybox.orig/libbb/procps.c busybox/libbb/procps.c
---- busybox.orig/libbb/procps.c	2003-03-19 20:12:08.000000000 +1100
-+++ busybox/libbb/procps.c	2003-05-23 16:42:50.000000000 +1000
-@@ -16,7 +16,11 @@
+ allow xdm_t random_device_t:chr_file { getattr read };
  
- #include "libbb.h"
+@@ -67,7 +87,6 @@
  
--extern procps_status_t * procps_scan(int save_user_arg0)
-+extern procps_status_t * procps_scan(int save_user_arg0
-+#ifdef CONFIG_SELINUX
-+	, int use_selinux , security_id_t *sid
-+#endif
-+	)
- {
- 	static DIR *dir;
- 	struct dirent *entry;
-@@ -53,6 +57,14 @@
- 		sprintf(status, "/proc/%d/stat", pid);
- 		if((fp = fopen(status, "r")) == NULL)
- 			continue;
-+#ifdef CONFIG_SELINUX
-+		if(use_selinux)
-+		{
-+			if(fstat_secure(fileno(fp), &sb, sid))
-+				continue;
-+		}
-+		else
-+#endif
- 		if(fstat(fileno(fp), &sb))
- 			continue;
- 		my_getpwuid(curstatus.user, sb.st_uid);
-diff -ru busybox.orig/libbb/run_shell.c busybox/libbb/run_shell.c
---- busybox.orig/libbb/run_shell.c	2003-03-19 20:12:08.000000000 +1100
-+++ busybox/libbb/run_shell.c	2003-05-24 01:05:08.000000000 +1000
-@@ -36,14 +36,20 @@
- #include <syslog.h>
- #include <ctype.h>
- #include "libbb.h"
+ # Access xdm log files.
+ file_type_auto_trans(xdm_t, var_log_t, xserver_var_log_t)
 -
-+#ifdef CONFIG_SELINUX
-+#include <proc_secure.h>
-+#endif
+ allow xdm_t xserver_var_log_t:file create_file_perms;
  
- /* Run SHELL, or DEFAULT_SHELL if SHELL is empty.
-    If COMMAND is nonzero, pass it to the shell with the -c option.
-    If ADDITIONAL_ARGS is nonzero, pass it to the shell as more
-    arguments.  */
+ allow userdomain xdm_xserver_t:unix_stream_socket connectto;
+@@ -88,7 +107,7 @@
+ allow xdm_t lastlog_t:file rw_file_perms;
  
--void run_shell ( const char *shell, int loginshell, const char *command, const char **additional_args )
-+void run_shell ( const char *shell, int loginshell, const char *command, const char **additional_args
-+#ifdef CONFIG_SELINUX
-+	, security_id_t sid
-+#endif
-+)
- {
- 	const char **args;
- 	int argno = 1;
-@@ -74,6 +80,11 @@
- 			args [argno++] = *additional_args;
- 	}
- 	args [argno] = 0;
-+#ifdef CONFIG_SELINUX
-+	if(sid)
-+		execve_secure(shell, (char **) args, environ, sid);
-+	else
-+#endif
- 	execv ( shell, (char **) args );
- 	bb_perror_msg_and_die ( "cannot run %s", shell );
- }
-diff -ru busybox.orig/loginutils/login.c busybox/loginutils/login.c
---- busybox.orig/loginutils/login.c	2003-03-19 20:12:20.000000000 +1100
-+++ busybox/loginutils/login.c	2003-05-24 15:41:09.000000000 +1000
-@@ -16,7 +16,12 @@
- #include <time.h>
+ # Ask the security server for SIDs for user sessions.
+-allow xdm_t security_t:security { get_user_sids context_to_sid };
++allow xdm_t security_t:security { get_user_sids context_to_sid sid_to_context };
  
- #include "busybox.h"
--
-+#ifdef CONFIG_SELINUX
-+#include <flask_util.h>
-+#include <get_sid_list.h>
-+#include <proc_secure.h>
-+#include <fs_secure.h>
-+#endif
+ # Access the shared memory pseudo file system.
+ # Should really define a derived type for this.
+@@ -111,6 +130,11 @@
+ allow xdm_t etc_t:lnk_file read;
+ allow xdm_t etc_runtime_t:file { getattr read };
  
- #ifdef CONFIG_FEATURE_U_W_TMP
- // import from utmp.c
-@@ -73,6 +78,10 @@
- 	int opt_fflag = 0;
- 	char *opt_host = 0;
- 	int alarmstarted = 0;	
-+#ifdef CONFIG_SELINUX
-+	int flask_enabled = is_flask_enabled();
-+	security_id_t sid = 0, old_tty_sid, new_tty_sid;
-+#endif
- 
- 	username[0]=0;
- 	amroot = ( getuid ( ) == 0 );
-@@ -217,6 +226,36 @@
- #ifdef CONFIG_FEATURE_U_W_TMP
- 	setutmp ( username, tty );
- #endif
-+#ifdef CONFIG_SELINUX
-+	if (flask_enabled)
-+	{
-+		struct stat st;
++# wdm has its own config dir /etc/X11/wdm
++file_type_auto_trans(xdm_t, etc_t, etc_xdm_t);
++allow xdm_t etc_xdm_t:file create_file_perms;
++allow xdm_t etc_xdm_t:dir rw_file_perms;
 +
-+		if (get_default_sid(username, 0, &sid))
-+		{
-+			fprintf(stderr, "Unable to get SID for %s\n", username);
-+			exit(1);
-+		}
-+		if (stat_secure(tty, &st, &old_tty_sid))
-+		{
-+			fprintf(stderr, "stat_secure(%.100s) failed: %.100s\n", tty, strerror(errno));
-+			return EXIT_FAILURE;
-+		}
-+		if (security_change_sid (sid, old_tty_sid, SECCLASS_CHR_FILE, &new_tty_sid) != 0)
-+		{
-+			fprintf(stderr, "security_change_sid(%.100s) failed: %.100s\n", tty, strerror(errno));
-+			return EXIT_FAILURE;
-+		}
-+		if(chsid(tty, new_tty_sid) != 0)
-+		{
-+			fprintf(stderr, "chsid(%.100s, %d) failed: %.100s\n", tty, new_tty_sid, strerror(errno));
-+			return EXIT_FAILURE;
-+		}
-+	}
-+	else
-+		sid = 0;
-+#endif
-+
- 	if ( *tty != '/' ) 
- 		snprintf ( full_tty, sizeof( full_tty ) - 1, "/dev/%s", tty);
- 	else
-@@ -239,7 +278,11 @@
- 	if ( pw-> pw_uid == 0 ) 
- 		syslog ( LOG_INFO, "root login %s\n", fromhost );
- 	
--	run_shell ( pw-> pw_shell, 1, 0, 0 );	/* exec the shell finally. */
-+	run_shell ( pw-> pw_shell, 1, 0, 0
-+#ifdef CONFIG_SELINUX
-+	, sid
-+#endif
-+	 );	/* exec the shell finally. */
- 	
- 	return EXIT_FAILURE;
- }
-diff -ru busybox.orig/loginutils/su.c busybox/loginutils/su.c
---- busybox.orig/loginutils/su.c	2003-03-19 20:12:20.000000000 +1100
-+++ busybox/loginutils/su.c	2003-05-24 15:36:17.000000000 +1000
-@@ -156,7 +156,11 @@
+ # Signal any user domain.
+ allow xdm_t userdomain:process signal_perms;
  
- 	change_identity ( pw );	
- 	setup_environment ( opt_shell, opt_loginshell, !opt_preserve, pw );
--	run_shell ( opt_shell, opt_loginshell, opt_command, (const char**)opt_args );
-+	run_shell ( opt_shell, opt_loginshell, opt_command, (const char**)opt_args
-+#ifdef CONFIG_SELINUX
-+	, 0
-+#endif
-+	);
- 	
- 	return EXIT_FAILURE;
- }
-diff -ru busybox.orig/procps/ps.c busybox/procps/ps.c
---- busybox.orig/procps/ps.c	2002-12-05 18:24:06.000000000 +1100
-+++ busybox/procps/ps.c	2003-05-23 16:58:30.000000000 +1000
-@@ -31,6 +31,11 @@
- #include <termios.h>
- #include <sys/ioctl.h>
- #include "busybox.h"
-+#ifdef CONFIG_SELINUX
-+#include <fs_secure.h>
-+#include <ss.h>
-+#include <flask_util.h>          /* for is_flask_enabled() */
-+#endif
+@@ -143,10 +167,23 @@
+ dontaudit xdm_t sysadm_home_dir_t:dir { getattr search };
  
- static const int TERMINAL_WIDTH = 79;      /* not 80 in case terminal has linefold bug */
- 
-@@ -47,6 +52,13 @@
- #define terminal_width  TERMINAL_WIDTH
- #endif
- 
-+#ifdef CONFIG_SELINUX
-+	int use_selinux = 0;
-+	security_id_t sid;
-+	if(is_flask_enabled() && argv[1] && !strcmp(argv[1], "-c") )
-+		use_selinux = 1;
-+#endif
+ # Do not audit user access to the X log files due to file handle inheritance
+-dontaudit unpriv_userdomain xserver_var_log_t:file append;
++dontaudit unpriv_userdomain xserver_var_log_t:file { write append };
 +
  
- #ifdef CONFIG_FEATURE_AUTOWIDTH
- 		ioctl(fileno(stdout), TIOCGWINSZ, &win);
-@@ -54,10 +66,31 @@
- 			terminal_width = win.ws_col - 1;
- #endif
+ # Access sound device.
+ allow xdm_t sound_device_t:chr_file { setattr getattr };
  
-+#ifdef CONFIG_SELINUX
-+	if(use_selinux)
-+		printf("  PID Context                          Stat Command\n");
-+	else
-+#endif
- 	printf("  PID  Uid     VmSize Stat Command\n");
-+#ifdef CONFIG_SELINUX
-+	while ((p = procps_scan(1, use_selinux, &sid)) != 0) {
-+#else
- 	while ((p = procps_scan(1)) != 0) {
-+#endif
- 		char *namecmd = p->cmd;
- 
-+#ifdef CONFIG_SELINUX
-+		if(use_selinux)
-+		{
-+			char sbuf[128];
-+			len = sizeof(sbuf);
-+			if(security_sid_to_context(sid, (security_context_t)&sbuf, &len))
-+				strcpy(sbuf, "unknown");
+ # Run the X server in a derived domain.
+ xserver_domain(xdm)
 +
-+			len = printf("%5d %-32s %s ", p->pid, sbuf, p->state);
-+		}
-+		else
-+#endif
- 		if(p->rss == 0)
- 			len = printf("%5d %-8s        %s ", p->pid, p->user, p->state);
- 		else
-diff -ru busybox.orig/procps/top.c busybox/procps/top.c
---- busybox.orig/procps/top.c	2003-03-19 20:12:49.000000000 +1100
-+++ busybox/procps/top.c	2003-05-23 16:43:01.000000000 +1000
-@@ -501,7 +501,11 @@
- 		/* read process IDs & status for all the processes */
- 		procps_status_t * p;
- 
-+#ifdef CONFIG_SELINUX
-+		while ((p = procps_scan(0, 0, NULL) ) != 0) {
-+#else
- 		while ((p = procps_scan(0)) != 0) {
-+#endif
- 			int n = ntop;
- 
- 			top = xrealloc(top, (++ntop)*sizeof(procps_status_t));
-diff -ru busybox.orig/sysdeps/linux/Config.in busybox/sysdeps/linux/Config.in
---- busybox.orig/sysdeps/linux/Config.in	2003-02-15 21:53:08.000000000 +1100
-+++ busybox/sysdeps/linux/Config.in	2003-05-23 16:47:07.000000000 +1000
-@@ -106,6 +106,13 @@
- 	help
- 	  Please submit a patch to add help text for this item.
- 
-+config CONFIG_SELINUX
-+	bool "Support NSA Security Enhanced Linux"
-+	default n
-+	help
-+	  Enable support for SE Linux in applets ls, ps, and id.  Also provide
-+	  the option of compiling in SE Linux applets.
 +
- endmenu
++#
++# When the user session comes up, it checks the wdm config dir
++# and the authfiles in /var/lib/wdm/authdir/authfiles/
++allow user_t etc_xdm_t:dir { search };
++allow user_t xdm_exec_t:file { entrypoint };
++allow user_t xdm_var_lib_t:file { read write };
++
++# Also, it inherits an fd
++allow xdm_xserver_t user_t:fd { use };
++
+diff -ru default/domains/program/xfs.te current/domains/program/xfs.te
+--- default/domains/program/xfs.te	2003-05-15 05:22:15.000000000 +0200
++++ current/domains/program/xfs.te	2003-05-24 10:46:46.000000000 +0200
+@@ -13,7 +13,15 @@
+ #
+ daemon_domain(xfs)
  
- menu 'Build Options'
+-tmp_domain(xfs)
++# tmp_domain(xfs)
++# for /tmp/.font-unix/fs7100
++type xfs_tmp_t, file_type, sysadmfile, tmpfile;
++file_type_auto_trans(xfs_t, initrc_tmp_t, xfs_tmp_t, sock_file)
++
++allow xfs_t { etc_t etc_runtime_t }:file { getattr read };
++allow xfs_t proc_t:file { getattr read };
++
++allow xfs_t self:process setpgid;
+ 
+ # Use capabilities.
+ allow xfs_t xfs_t:capability { setgid setuid };
+@@ -21,3 +29,5 @@
+ # Bind to /tmp/.font-unix/fs-1.
+ allow xfs_t xfs_tmp_t:unix_stream_socket name_bind;
+ 
++allow xfs_t tmp_t:dir { search };
++
+diff -ru default/domains/program/xserver.te current/domains/program/xserver.te
+--- default/domains/program/xserver.te	2003-05-15 05:22:15.000000000 +0200
++++ current/domains/program/xserver.te	2003-05-24 11:04:36.000000000 +0200
+@@ -34,3 +34,7 @@
+ # Everything else is in the xserver_domain macro in
+ # macros/program/xserver_macros.te.
+ 
++# XFree86-4 wants to check if kernel is tainted
++allow xdm_xserver_t sysctl_kernel_t:dir { search };
++allow xdm_xserver_t sysctl_kernel_t:file { getattr read };
++allow xdm_xserver_t sysctl_t:dir { search };
+diff -ru default/file_contexts/program/xdm.fc current/file_contexts/program/xdm.fc
+--- default/file_contexts/program/xdm.fc	2003-05-15 05:22:15.000000000 +0200
++++ current/file_contexts/program/xdm.fc	2003-05-24 11:32:37.000000000 +0200
+@@ -1,11 +1,19 @@
+ # X Display Manager
+-/usr/bin/[xgk]dm                system_u:object_r:xdm_exec_t
++/usr/bin/[xgkw]dm               system_u:object_r:xdm_exec_t
++/usr/X11R6/bin/[xgkw]dm         system_u:object_r:xdm_exec_t
++/usr/X11R6/bin/wdmLogin         system_u:object_r:xdm_exec_t
+ /usr/bin/gpe-dm                 system_u:object_r:xdm_exec_t
+-/var/[xgk]dm(/.*)?              system_u:object_r:xserver_var_log_t
+-/usr/var/[xgk]dm(/.*)?          system_u:object_r:xserver_var_log_t
+-/var/log/kdm\.log		system_u:object_r:xserver_var_log_t
++/usr/sbin/update_wdm_wmlist     system_u:object_r:xdm_exec_t
++/var/[xgkw]dm(/.*)?             system_u:object_r:xserver_var_log_t
++/usr/var/[xgkw]dm(/.*)?         system_u:object_r:xserver_var_log_t
++/var/log/[xgkw]dm\.log		system_u:object_r:xserver_var_log_t
+ /tmp/\.X11-unix(/.*)?		system_u:object_r:initrc_xserver_tmp_t
+ /tmp/\.X0-lock			system_u:object_r:xdm_tmp_t
+ /etc/X11/Xsession[^/]*	--	system_u:object_r:xsession_exec_t
++/etc/X11/wdm(/.*)?		system_u:object_r:etc_xdm_t
++/etc/X11/wdm/Xsetup(_0)?	system_u:object_r:xdm_exec_t
++/etc/X11/wdm/Xstartup(_0)?	system_u:object_r:xdm_exec_t
++/etc/X11/wdm/Xreset(_0)?	system_u:object_r:xdm_exec_t
++/etc/X11/wdm/Xsession		system_u:object_r:xdm_exec_t
+ /var/run/xdmctl			system_u:object_r:xdm_var_run_t
+ /var/lib/kdm(/.*)?		system_u:object_r:xdm_var_lib_t
 
---Boundary-00=_4h0z+N4ePD6vJe2--
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="apm.diff"
 
+diff -ru default/domains/program/apmd.te current/domains/program/apmd.te
+--- default/domains/program/apmd.te	2003-05-15 05:22:15.000000000 +0200
++++ current/domains/program/apmd.te	2003-05-24 11:44:40.000000000 +0200
+@@ -34,6 +34,12 @@
+ allow apmd_t { etc_runtime_t modules_conf_t }:file { getattr read };
+ allow apmd_t etc_t:lnk_file read;
+ 
++# acpid wants a socket
++allow apmd_t var_run_t:sock_file create_file_perms;
++
++# acpid also has a logfile
++log_domain(apmd)
++
+ # for id
+ allow apmd_t security_t:security sid_to_context;
+ 
+diff -ru default/file_contexts/program/apmd.fc current/file_contexts/program/apmd.fc
+--- default/file_contexts/program/apmd.fc	2003-05-15 05:22:15.000000000 +0200
++++ current/file_contexts/program/apmd.fc	2003-05-24 11:38:46.000000000 +0200
+@@ -1,4 +1,7 @@
+ # apmd
+ /usr/sbin/apmd			system_u:object_r:apmd_exec_t
++/usr/sbin/acpid			system_u:object_r:apmd_exec_t
+ /usr/bin/apm			system_u:object_r:apm_exec_t
+ /var/run/apmd\.pid		system_u:object_r:apmd_var_run_t
++/var/run/.acpid.socket		system_u:object_r:apmd_var_run_t
++
+
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="games.diff"
+
+diff -ru default/domains/program/games.te current/domains/program/games.te
+--- default/domains/program/games.te	2003-05-15 05:22:15.000000000 +0200
++++ current/domains/program/games.te	2003-05-24 13:32:04.000000000 +0200
+@@ -2,6 +2,8 @@
+ #
+ # Author:  Russell Coker <russell@coker.com.au>
+ #
++#          Changes by Tom Vogt <tom@lemuria.org>
++#
+ 
+ # type for shared data from games
+ type games_data_t, file_type, sysadmfile;
+@@ -14,3 +16,28 @@
+ 
+ # Everything else is in the x_client_domain macro in
+ # macros/program/x_client_macros.te.
++
++# games_t also used for games installed on the system, run by the user,
++# so holes in them won't compromise the user session
++allow user_t games_data_t:file r_file_perms;
++allow user_t games_data_t:dir r_dir_perms;
++
++# Game data stored in user home dirs
++type games_usrdata_t, file_type, sysadmfile;
++allow user_games_t user_home_t:dir { search };
++file_type_auto_trans(user_games_t, user_home_t, games_usrdata_t);
++#
++# Allow users to read and write these files
++# If we want to prevent cheating, we could take away the write
++# permissions. :)
++allow user_t games_usrdata_t:file create_file_perms;
++allow user_t games_usrdata_t:dir create_dir_perms;
++
++# Various access attempts to devices. Many games work just fine without,
++# but if yours doesn't, try to comment these out and look for which ones
++# it needs:
++dontaudit user_games_t device_t:chr_file { getattr };
++dontaudit user_games_t fixed_disk_device_t:blk_file { getattr };
++dontaudit user_games_t removable_device_t:blk_file { getattr };
++dontaudit user_games_t removable_device_t:lnk_file { read };
++
+diff -ru default/file_contexts/program/games.fc current/file_contexts/program/games.fc
+--- default/file_contexts/program/games.fc	2003-05-15 05:22:15.000000000 +0200
++++ current/file_contexts/program/games.fc	2003-05-24 13:32:12.000000000 +0200
+@@ -1,5 +1,15 @@
+-#  netscape/mozilla
+-/usr/games/.*		system_u:object_r:games_exec_t
++#  games installed on the system
++# Most games installed in /usr/local/games don't follow FHS conventions and
++# drop the binaries in with the data - therefore, you must relabel the
++# binaries to system_u:object_r:games_exec_t manually!
++/usr/games(/.*)?	system_u:object_r:games_data_t
++/usr/local/games(/.*)?	system_u:object_r:games_data_t
+ /usr/lib/games/.* --	system_u:object_r:games_exec_t
+ /var/games(/.*)?	system_u:object_r:games_data_t
+ /usr/bin/micq		system_u:object_r:games_exec_t
++#
++# Some examples
++# Majesty (Fantasy RTS)
++/usr/local/games/majesty/majesty		system_u:object_r:games_exec_t
++/usr/local/games/majesty/majx			system_u:object_r:games_exec_t
++/usr/local/games/majesty/netmodules/libtcp_ip.so	system_u:object_r:games_exec_t
+diff -ru default/file_contexts/types.fc current/file_contexts/types.fc
+--- default/file_contexts/types.fc	2003-05-15 05:22:15.000000000 +0200
++++ current/file_contexts/types.fc	2003-05-24 12:46:13.000000000 +0200
+@@ -229,7 +229,7 @@
+ /usr/lib/gconv/.*\.so		system_u:object_r:shlib_t
+ /usr/share/guile/g-wrapped/.*\.so system_u:object_r:shlib_t
+ /usr/share/selinux(/.*)?	system_u:object_r:policy_src_t
+-/usr/games(/.*)?		system_u:object_r:bin_t
++#/usr/games(/.*)?		system_u:object_r:bin_t
+ 
+ #
+ # /usr/.*glibc.*-linux/lib
+
+--OXfL5xGRrasGEqWY--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
