@@ -1,48 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG7h8Ii028643
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 02:43:08 -0500 (EST)
-Received: from glaurung.internal.golden-gryphon.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG7feAa010433
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 07:41:41 GMT
-Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
-	by glaurung.internal.golden-gryphon.com (8.13.1/8.13.1/Debian-17) with ESMTP id iAG7eu5m016350
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 01:41:11 -0600
-To: selinux@tycho.nsa.gov
-Subject: libselinux fails to build on mips and mipsel machines, patch included
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
-Date: Tue, 16 Nov 2004 01:40:41 -0600
-Message-ID: <87k6smjl6u.fsf@glaurung.internal.golden-gryphon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG8GIIi028760
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 03:16:18 -0500 (EST)
+Received: from mailrelay1.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG8GKFO003576
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:16:21 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 16 Nov 2004 09:16:19 +0100
+Date: Tue, 16 Nov 2004 09:16:11 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: petre rodan <kaiowas@gentoo.org>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: gentoo diff for snmpd
+Message-Id: <20041116081610.GA2546@jmh.mhn.de>
+References: <4198D752.2020405@gentoo.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+In-Reply-To: <4198D752.2020405@gentoo.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-        The asm syntax on mips and mipsel machines is similar to that
- of the alphas, so the following patch is required to have libselinux
- build on mips machines.
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-======================================================================
---- orig/src/dso.h
-+++ mod/src/dso.h
-@@ -7,7 +7,7 @@
- # define __hidden_proto(fct, internal)	\
-      extern __typeof (fct) internal;	\
-      extern __typeof (fct) fct __asm (#internal) hidden;
--# ifdef __alpha__
-+# if defined(__alpha__) || defined(__mips__)
- #  define hidden_def(fct) \
-      asm (".globl " #fct "\n" #fct " = " #fct "_internal");
- # else
-======================================================================
+* petre rodan <kaiowas@gentoo.org> [2004-11-15 18:04]:
+> gentoo as a special context for /proc/net:
+> genfscon proc /net  system_u:object_r:proc_net_t
 
-	manoj
--- 
-Do, or do not; there is no try.
-Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+This seems generally useful.
+Care to provide a patch which adds this genfscon line plus the necessary
+policy?
+
+Thomas
+
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBmbdKxWIrrrL0q+cRAv1BAJ41y36vLxmwvq/uVJoS+JZEu/rlgwCfWjx5
+xSYWfc/mZg8EhMf7skmNxXw=
+=CkoN
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
