@@ -1,40 +1,44 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N2JodW027380
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 21:19:50 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N46tdW027776
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 23:06:55 -0500 (EST)
 Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N2HRZE000034
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 02:17:28 GMT
-Subject: Mplayer: PT_GNU_STACK RWE
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N44Wat003328
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 04:04:32 GMT
+Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j1N44VJL016302
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 23:04:31 -0500 (EST)
+Subject: Strange staff role problems...
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: mplayer-dev-eng@mplayerhq.hu
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Tue, 22 Feb 2005 21:20:12 -0500
-Message-Id: <1109125212.26770.16.camel@cobra.ivg2.net>
+Date: Tue, 22 Feb 2005 23:07:24 -0500
+Message-Id: <1109131644.5285.10.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(re-sending to correct mplayer list..)
+What does this mean, exactly, and what can cause it?
 
-Hi, I've subscribed to this list just to post this one question.
+Feb 22 22:19:15 cobra kernel: inode_doinit_with_dentry:
+context_to_sid([username]:object_r:staff_home_dir_t) returned 22 for
+dev=dm-2 ino=324481
 
-The mplayer/mencoder executables are marked with PT_GNU_STACK RWE.
-This is true for the RPMS which I use from Livna.org (vs FC3), and also
-for mplayer CVS, compiled with gcc 3.4.3 (default FC rawhide compiler). 
+Feb 22 22:20:44 cobra kernel: inode_doinit_with_dentry:
+context_to_sid([username]:object_r:staff_home_t) returned 22 for
+dev=dm-2 ino=324482
 
-This creates problems for the SELinux strict policy, and requires that
-special privileges be granted for mplayer as a "legacy domain".
+Something's broken on my machine. I had to reboot,
+and then gdm said my home directory is missing (which it isn't - 
+apparently it sees unlabeled context, which doesn't make any sense 
+either, because ls -Z shows staff_home_dir_t).
 
-The question is, does mplayer really require an executable stack?
+Then I enable permissive mode, start X, and it creates unlabeled_t 
+Xauthority file. Restorecon properly restores that to staff_home_t.
 
-I'm not a gcc expert of any kind, but from what I've read I understand
-that asm code causes gcc to mark the binary as requiring executable
-stack. I think it can be overriden with ld -z noexecstack.
-
-It would be a lot easier to write the mplayer security policy
-if it didn't require executable stack.
+What could be the problem?
+I have all the right users and roles, I think
+in /etc/selinux/strict/users/local.users
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
