@@ -1,41 +1,70 @@
-Date: Fri, 4 Feb 2005 10:27:39 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-   James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-   selinux@tycho.nsa.gov
-Subject: Re: [PATCH][SELINUX] Fix selinux_inode_setattr hook
-Message-ID: <20050204102739.P24171@build.pdx.osdl.net>
-References: <1107539956.8078.109.camel@moss-spartans.epoch.ncsc.mil> <20050204101440.N24171@build.pdx.osdl.net> <1107540806.8078.114.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1107540806.8078.114.camel@moss-spartans.epoch.ncsc.mil>; from sds@tycho.nsa.gov on Fri, Feb 04, 2005 at 01:13:26PM -0500
+Message-ID: <4203C18F.8030609@redhat.com>
+Date: Fri, 04 Feb 2005 13:40:15 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Java Policy
+References: <4203B048.5070607@redhat.com> <1107538571.8078.98.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1107538571.8078.98.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Stephen Smalley (sds@tycho.nsa.gov) wrote:
-> On Fri, 2005-02-04 at 13:14, Chris Wright wrote:
-> > * Stephen Smalley (sds@tycho.nsa.gov) wrote:
-> > > This patch against 2.6.11-rc3 fixes the selinux_inode_setattr hook
-> > > function to honor the ATTR_FORCE flag, skipping any permission checking
-> > > in that case.  Otherwise, it is possible though unlikely for a denial
-> > > from the hook to prevent proper updating, e.g. for remove_suid upon
-> > > writing to a file.  This would only occur if the process had write
-> > > permission to a suid file but lacked setattr permission to it.  Please
-> > > apply.
-> > 
-> > Is there any reason not to promote this to the framework?
-> 
-> I wasn't sure if a security module might still want to be notified of
-> forced changes (e.g. to adjust some state in its own security
-> structure), even if it skips permission checking on such changes.
+Stephen Smalley wrote:
 
-OK, let's go with your patch for now.
+>On Fri, 2005-02-04 at 12:26, Daniel J Walsh wrote:
+>  
+>
+>>This is policy for the java plugin.
+>>Do not know if we want user apps that run java to transition.
+>>
+>>Will be sending in a big diff later today, but wanted input sooner.
+>>    
+>>
+>
+>- Neither I nor Tim Fraser wrote this java policy ;)  Looks like there
+>is also cruft leftover from the netscape/mozilla policy in there.
+>  
+>
+Ok, cleaned up comments. 
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+>- Might want to make it a general legacy_binary_t domain for use not
+>only by java but by other legacy binaries.
+>
+>  
+>
+Well I don't think of this policy as a legacy binary  (Not that I would 
+know what that means, I don't think
+of Java as being legacy).  My goal was to create something for the java 
+plugin not the java runtime.  Java
+Runtime needs to have full access to the users environment since it is 
+really the same as a scripting language
+or any other executable.  We may want to write some policy but I feel 
+you would need to duplicate the
+base_users_domain to get it done.  Maybe this domain should be renamed 
+javavm or  javaplugin.
+
+>- I think there should also be a transition from the user domains on
+>these legacy programs, so that they can be separately confined.
+>
+>  
+>
+Again not for this domain.
+
+>- Not clear that you need to use a boolean in this domain, as the entire
+>purpose of it is to deal with binaries that need this access.  Unless we
+>can turn it off for other architectures.  But if you are going to use a
+>boolean, we definitely want a separate one so that we can allow it to
+>these legacy binaries without allowing it to the base user domains.
+>  
+>
+I don't know if I agree with that.  I know people who say they refuse to 
+run any code that allows
+execmem/execmod.  If you don't have the global boolean you could 
+accidently run them.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
