@@ -1,44 +1,81 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA22897
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 07:40:30 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA26634
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 16:11:17 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id LAA11666
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 11:39:11 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id LAA11662
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 11:39:10 GMT
-Date: Tue, 28 Aug 2001 07:40:18 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: james@spunkysoftware.com
-cc: selinux@tycho.nsa.gov
-Subject: Re: No RAM swapout to disk for "sandbox" run programs
-In-Reply-To: <005201c12f50$c8891240$b9fe3c3f@spunky>
-Message-ID: <Pine.SOL.3.95.1010828073947.14347B-100000@clipper.gw.tislabs.com>
+	by jazzswing.ncsc.mil  with ESMTP id UAA07459
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 20:09:57 GMT
+Received: from csoc-fire05.csoconline.com (csoc-mail-msfc.csoconline.com [140.169.36.3])
+	by jazzswing.ncsc.mil  with SMTP id UAA07451
+	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 20:09:56 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A1015241D5@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: policy configurations files
+Date: Tue, 28 Aug 2001 15:11:02 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+To list:
 
-On Tue, 28 Aug 2001 james@spunkysoftware.com wrote:
+I have making many modification to my policy configurations files. 
+In the process I tried to make a common set of modifications
+for the domains/admin/sysadm.te and domains/user/user.te
 
-> PGP uses, or did use, a (sloppy?) memory driver which prevented process
-> address space active in RAM from being swapped out to disk.
-> 
-> I have written Linus Torvalds talking about a range of PIDs, or a new field
-> in the task_struct, which would indicate to the mm in the kernel that
-> swapping this process' address space out to disk was forbidden.
+In the parts that begin with 
 
-This seems a bit off-topic for this mailing list.  Anyway, why can't you
-use the mlock system call?
+define(`user_domain',`
+....
+allow $1_t $1_home_t:dir create_dir_perms;
+....
+')
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+of course the sysadm domain is different for the domain.
 
-
+What I would like to do is
 
 
+file: domains/user/user.te
+
+define(`user_domain',`
+....
+sinclude(includes/user-common.inc)
+....
+')
+
+
+
+file: domains/admin/sysadm.te
+
+define(`admin_domain',`
+....
+sinclude(includes/user-common.inc)
+....
+')
+
+
+file: include/user-common.inc
+
+allow $1_t $1_home_t:dir create_dir_perms;
+
+
+because the line 
+
+allow $1_t $1_home_t:dir create_dir_perms;
+
+is the same in both files.
+
+When I tried this I got an error on the 
+allow $1_t $1_home_t:dir create_dir_perms;
+line
+
+I guess the real question is the sinclude() processed before or after the
+macro substitution 
+
+Thanks,
+Mark Westerman
 
 --
 You have received this message because you are subscribed to the selinux list.
