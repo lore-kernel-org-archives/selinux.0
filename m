@@ -1,51 +1,42 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0BIZmRb009225
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 13:35:49 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0BK63Rb009443
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 15:06:03 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0BIYgxr001186
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 18:34:42 GMT
-Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
-	by jazzswing.ncsc.mil  with ESMTP id i0BIYfYc001183
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 18:34:41 GMT
-Message-ID: <40019781.80802@diyab.net>
-Date: Sun, 11 Jan 2004 13:35:45 -0500
-From: Timothy Wood <timothy@diyab.net>
-MIME-Version: 1.0
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-CC: selinux@tycho.nsa.gov, Park Lee <parklee_2004@yahoo.com.cn>
-Subject: Re: Questions about install SELinux in Fedora Core
-References: <20040111024703.62855.qmail@web15208.mail.bjs.yahoo.com> <200401112231.54137.russell@coker.com.au> <200401111426.08881.arekm@pld-linux.org>
-In-Reply-To: <200401111426.08881.arekm@pld-linux.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	by jazzswing.ncsc.mil  with ESMTP id i0BK4uxr004114
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 20:04:57 GMT
+Received: from zaphod.crypt.gen.nz (218-101-15-197.paradise.net.nz [218.101.15.197])
+	by jazzswing.ncsc.mil  with ESMTP id i0BK4tYc004102
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 20:04:56 GMT
+Subject: Re: rshd
+From: Kerry Thompson <kerry@crypt.gen.nz>
+To: russell@coker.com.au
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200401081814.40877.russell@coker.com.au>
+References: <200401081814.40877.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1073851542.1547.2.camel@edmond.crypt.gen.nz>
+Mime-Version: 1.0
+Date: Mon, 12 Jan 2004 09:05:43 +1300
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've actually been working on this recently. I spent some time tracking 
-the problem down and it looks like a attribute namespace difference so 
-I'm talking to some people on the XFS mailing list. It should be working 
-before long, i hope.
+On Thu, 2004-01-08 at 20:14, Russell Coker wrote:
+> ifdef(`rshd.te',
+> `# Connect second port to rshd.
+> can_tcp_connect(rshd_t, $1_t)')
+> ')dnl end tcp server
+> 
+> What is the above section of user_macros.te about?  Why does an rsh server 
+> connect back to the client?
 
-Timothy,
+It might be the stderr stream connection. stdin and stdout are carried
+via the normal socket connection, but stderr is a separate socket.
 
-Arkadiusz Miskiewicz wrote:
-
-> On Sunday 11 of January 2004 12:31, Russell Coker wrote:
-> 
->>>>quotas? For xfsprogs, last I heard XFS support for SE Linux wasn't
->>>>
->>>>>quite ready.
-> 
-> [...]
-> 
->>XFS isn't something I've had a need to learn about, and quota-tools isn't
->>something I've used recently.  I don't know what the issues of upgrading
->>them may be.
-> 
-> 
-> Labeling works with xfs on 2.6.1 patched using for example these patches
-> http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-2.6-xfs-cvs-20040102.patch?rev=1.2.2.1
-> http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-2.6-xfs-secure-attr.patch?rev=1.1
-> 
+-- 
+Kerry Thompson, CISSP
+IT Security Consultant
+Auckland, New Zealand
+http://www.crypt.gen.nz
 
 
 --
