@@ -1,104 +1,109 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FFtQI4019018
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 11:55:26 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4FFtPVG026405
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 15:55:25 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h4FFtML9026396 for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 15:55:23 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 5A96ABF54
-	for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 01:55:20 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 24737-01
- for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 01:55:19 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 07413BF53
-	for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 01:55:18 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id B5859924A3
-	for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 01:55:18 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 5B80D70FE
-	for <selinux@tycho.nsa.gov>; Fri, 16 May 2003 01:53:57 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: memory used by SE Linux
-Date: Fri, 16 May 2003 01:53:56 +1000
-References: <200305152237.44225.russell@coker.com.au>
-In-Reply-To: <200305152237.44225.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FGJ9I4019180
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:19:09 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4FGInl5014493
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 16:18:49 GMT
+Received: from MOZART.PatioEnclosuresInc.com (mail.patioenclosuresinc.com [206.183.7.174])
+	by jazzswing.ncsc.mil  with ESMTP id h4FGIjNc014490
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 16:18:47 GMT
+Message-ID: <B4E788FBFCD6844F96A017F337797AE13B40A5@mozart.patioenclosuresinc.com>
+From: "Rottura, Steven" <SRottura@patioenclosuresinc.com>
+To: "'Dean Anderson'" <dean@av8.com>,
+   Douglas Phillipson
+	 <phillipd@oem.doe.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: RE: Has anyone had or seen a SELinux system approved for classifi
+	ed use?
+Date: Thu, 15 May 2003 12:14:37 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200305160153.56786.russell@coker.com.au>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 15 May 2003 22:37, Russell Coker wrote:
-> Here is some raw data about SE Linux memory use on ARM.  I haven't
-> previously done any checks on i386 because my i386 machines are so big that
-> it doesn't matter.  Eventually I'll probably look into i386 memory usage to
-> compare.
+Check out dod orange book re; 
 
-I've just dome some new tests with kernel 2.4.19-rmk6-pxa1-hh13.
+http://www.radium.ncsc.mil/tpep/library/rainbow/5200.28-STD.html
 
-Here is a table of the size of the bzImage file and the amount of memory free 
-(according to the "free" command) when logging in at the serial console 30 
-seconds after boot.  For the free memory I have two columns, one for a kernel 
-with no security policy loaded, and one for a kernel with.  SE-enforce is a 
-kernel compiled without development mode (so it can't boot without policy).  
-vanilla is a non-SE kernel so it can't load policy.
+&al
 
-kernel     size(b)  mem-free(no policy) mem-free(policy)
-vanilla    658648       45152
-SE-enforce 704708                       43776
-SE-devel   705560       45000           43776
+http://www.radium.ncsc.mil/tpep/library/rainbow/
 
-This seems more reasonable.  152K apparently used by the SE kernel code when 
-it is doing nothing, and a further 1224K used when loading a 583771 byte 
-uncompressed policy, giving a total of 1374K used by SE Linux.
+-----Original Message-----
+From: Dean Anderson [mailto:dean@av8.com]
+Sent: Thursday, May 15, 2003 9:51 AM
+To: Douglas Phillipson
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Has anyone had or seen a SELinux system approved for
+classified use?
 
-This test isn't as accurate as I would like.  There are lots of things that 
-the kernel does which use memory which I have no ability to monitor or 
-prevent.  But I think this is a reasonable approximation.
 
-Below is the raw data.  One interesting thing to note is that when booting a 
-kernel compiled without "development mode" 8K less kernel memory is used, but 
-an extra 8K is apparently used somewhere else to give the same amount of 
-memory reported as free.  I expect that this is just due to a race condition, 
-and that I can probably repeat all the tests to see a ~8K difference.
+Its been awhile, but when I was at OSF back in the late 80s, OSF/1 was
+developed to be B1 certified. C2 only requires that physical access to the
+"console" still require a password to boot, and that the case be lockable
+to exclude undetected disassembly. On a PC, this is handled by the BIOS,
+and most BIOS's handle this now.  Sun and most workstation vendors also
+can protect the boot rom with a password.  Most PC and workstation
+enclosures also have locks.  You can get a copy of the DOD orange book to
+look up other requirements, but I think that was pretty much it.
 
-vanilla
-              total         used         free       shared      buffers
-  Mem:        63412        18260        45152            0            0
- Swap:            0            0            0
-Total:        63412        18260        45152
+Prior to working at OSF, I worked at Draper Labs, which handled classified
+computing. This was still in the mainframe era, but at the early part of
+the PC era. Prior to a classified computing run, the Mainframe was
+isolated from the rest of the lab via scheduled downtime. I think the
+isolation was physical disconnection of terminal controllers and network
+controllers, but I'm not sure. I didn't work in that part of the computer
+center.  Classified PC computing was done in secured labs, where the PC
+had no outside connection, and personnel in the labs were cleared.  C2
+security essentially just attempts to detect and deter some kinds of
+inappropriate behavior by cleared personnel.
 
-enforcing policy:
-              total         used         free       shared      buffers
-  Mem:        63308        19532        43776            0            0
- Swap:            0            0            0
-Total:        63308        19532        43776
+Linux is not a terribly secure operating system.  I don't present myself
+as an expert, but I think it would be inadvisable to rely on linux to keep
+any data secure in a multiuser classified/non-classified environment.
+Perhaps the result of the SELinux project might be a B1 or B2
+certification**, but its clearly not there yet.
 
-devel policy:
-              total         used         free       shared      buffers
-  Mem:        63300        19524        43776            0            0
- Swap:            0            0            0
-Total:        63300        19524        43776
+**If I recall, B1 requires that OS privileges be split into different
+roles, so that no one person can compromise the system undetected, and B2
+requires mandatory access control. There are other requirements and
+differences that I don't rememeber. Also as I recall, the pentagon kept
+multics around for so long because it was the only certified B2 secure
+system.  I'm not sure the multics system was replaced with another B2
+system, or if they just set up completely separate classified and
+unclassified networks, and partitioned classified networks accordingly.
 
-devel no-pol:
-              total         used         free       shared      buffers
-  Mem:        63300        18300        45000            0            0
- Swap:            0            0            0
-Total:        63300        18300        45000
+		--Dean
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+On Wed, 14 May 2003, Douglas Phillipson wrote:
 
+> This may be the wrong forum for this question and I apologize if thats
+> the case.  I was wondering if anyone has or knows of any Linux
+> systems/networks/OS versions that have been approved for processing
+> classified data?  I work for the Dept Of Energy and am looking for a
+> test case to model a security plan on, possibly using SELinux.
+>
+> I am also looking for "C2" software for Linux if anyone has seen it?
+>
+> Regards
+>
+> Doug Phillipson
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
