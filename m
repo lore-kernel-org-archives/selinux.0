@@ -1,45 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA04045
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 05:11:18 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id JAA12103
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 09:09:24 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id JAA12099
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 09:09:19 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Debian User <rogelio@evoworks.evoserve.com>, selinux@tycho.nsa.gov
-Subject: Re: preferred way to configure devfs contexts
-Date: Mon, 6 May 2002 19:09:38 +1000
-References: <20020505144746.A353E8145A@coffeesaur2.evoserve.com>
-In-Reply-To: <20020505144746.A353E8145A@coffeesaur2.evoserve.com>
+Date: Mon, 6 May 2002 07:56:11 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: "McFadden, Ken" <ken.mcfadden@lmco.com>
+cc: "SE Linux Distro (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: Re: Would like to load SELinux.....
+In-Reply-To: <31A81CDD9175D411815100508BE32AA60142F362@emss02m13.ems.lmco.com>
+Message-ID: <Pine.GSO.4.33.0205060753080.28613-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020506090938.50C673C86@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 6 May 2002 00:47, Debian User wrote:
-> devfs_context is fast becoming my preferred way to configure
-> /dev contexts. Can we do away with the hacked devfsd?
 
-/etc/devfs/conf.d/selinux is a conffile, you can just comment out all the 
-lines in it...
+On Fri, 3 May 2002, McFadden, Ken wrote:
 
-devfs_context doesn't apply to device nodes that were created before the 
-policy was loaded, so if you've added new hardware or drivers you can't use 
-it to apply permissions to them without a reboot.
+> RH7.2 kernel version out of the box is 2.4.9-xx....And the current version
+> from RH is 2.4.9-31.....
+> Would I load RH7.2 and then load the latest patch from RH and then load
+> SELinux????  How
+> about updates or using RH up2date to get the latest patches and updates from
+> RH?????
+> Any ideas on the procedures to update RH after loading SELinux???
 
-Also devfsd can do lots of other things such as running scripts on device 
-open etc...
+SELinux tracks the latest mainstream kernel, not the RedHat-patched
+kernel.  The current 2.4-based SELinux release is based on kernel 2.4.18.
+We have successfully run this kernel with both RH7.1 and RH7.2.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
