@@ -1,66 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34DAsDo029449
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 09:10:54 -0400 (EDT)
-Received: from hermes.domdv.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j34D8rW6013167
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 13:08:54 GMT
-Message-ID: <42513C67.7020604@domdv.de>
-Date: Mon, 04 Apr 2005 15:08:55 +0200
-From: Andreas Steinmetz <ast@domdv.de>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34FFQDo000515
+	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 11:15:27 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j34FAhis019617
+	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 15:10:43 GMT
+Message-ID: <42515894.8030203@redhat.com>
+Date: Mon, 04 Apr 2005 11:09:08 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: fix setfiles segfault caused by libselinux-1.22
-Content-Type: multipart/mixed;
- boundary="------------040408000402040702060809"
+To: ivg2@cornell.edu
+CC: selinux@tycho.nsa.gov
+Subject: Re: /dev/pts/x use denials
+References: <1112569241.21383.37.camel@cobra.ivg2.net> <1112570031.23944.1.camel@cobra.ivg2.net>
+In-Reply-To: <1112570031.23944.1.camel@cobra.ivg2.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040408000402040702060809
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Ivan Gyurdiev wrote:
 
-setfiles does reset user defined functions by calling the related setup
-function with NULL as argument. Instead of resetting to the default
-these setup functions did set up NULL as the function pointer. Fix attached.
+>On Sun, 2005-04-03 at 19:00 -0400, Ivan Gyurdiev wrote: 
+>  
+>
+>>Strange denials:
+>>
+>>/dev/pts/2 has context: sysadm_tmp_t.
+>>Those happen intermittently, but I can't figure out when exactly.
+>>I am logged in as a regular user, but su-ed to root. Usually accompanied
+>>by a dac_override.
+>>    
+>>
+>
+>It's sometimes followed by a dac_override - not all the time.
+>Here's something reproducible:
+>
+>If I su to root, launch tvtime/mplayer/whatever, then make load
+>the selinux policy, I get use denial on /dev/pts. Then if I launch
+>the same program - no use denial. Then I make load the policy again,
+>launch program, and I get a use denial.
+>
+>  
+>
+If you are running in permissive mode, you only get the denial once.  
+When you
+reload the policy it clears the flag.
+
+Dan
+
 -- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
---------------040408000402040702060809
-Content-Type: text/plain;
- name="libselinux-1.22.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux-1.22.diff"
 
---- libselinux-1.22.orig/src/matchpathcon.c	2005-04-04 15:01:14.000000000 +0200
-+++ libselinux-1.22/src/matchpathcon.c	2005-04-04 15:01:23.000000000 +0200
-@@ -29,7 +29,10 @@
- 
- void set_matchpathcon_printf(void (*f)(const char *fmt, ...))
- {
--	myprintf = f;
-+	if (f)
-+		myprintf = f;
-+	else
-+		myprintf = &default_printf;
- }
- 
- static int default_invalidcon(const char *path, unsigned lineno, char *context)
-@@ -45,7 +48,10 @@
- 
- void set_matchpathcon_invalidcon(int (*f)(const char *p, unsigned l, char *c))
- {
--	myinvalidcon = f;
-+	if (f)
-+		myinvalidcon = f;
-+	else
-+		myinvalidcon = &default_invalidcon;
- }
- 
- /*
-
---------------040408000402040702060809--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
