@@ -1,41 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA21676
-	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 10:43:34 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA17573
-	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 14:42:37 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA21945
+	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 12:27:33 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA26716
+	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 16:25:58 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id OAA17569
-	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 14:42:34 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id DBD5792469
-	for <selinux@tycho.nsa.gov>; Sun, 11 Aug 2002 00:43:28 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id F421F272
-	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 16:43:19 +0200 (CEST)
+        by jazzband.ncsc.mil  with ESMTP id QAA26712 for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 16:25:56 GMT
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: conditional compilation
-Date: Sat, 10 Aug 2002 16:43:19 +0200
+Subject: fingerd policy
+Date: Sat, 10 Aug 2002 18:27:20 +0200
 MIME-Version: 1.0
-Message-Id: <20020810144320.F421F272@lyta.coker.com.au>
+Message-Id: <20020810162721.5BD8850B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In my latest experimental policy on 
-http://www.coker.com.au/selinux/policy.tgz I have added a change to the 
-mount_macros.te file contributed by Brian May.  I made it define a macro 
-$2_mount_def which can be checked by any code calling the mount_domain() 
-macro so that if some other policy code has called the macro with the same 
-parameter then it can avoid calling it again (which would result in defining 
-a type more than once and giving an error).
+I've updated my fingerd policy and put it on my web site in 
+http://www.coker.com.au/selinux/policy.tgz .
 
-I've got my new chroot() macro calling mount_domain() in such a fashion, and 
-I've also got it doing it's own checking for types it defines (for when one 
-user has multiple chroot's defined).
+It now works properly (unlike the previous policy).  Also I added a new type 
+declaration for fingerd logs.  So if the fingerd wants to write to a log file 
+in the user's home directory it can do so under a different type (and not 
+have write access to the user's other files).
+
+For ideal functionality we would have a different type for .plan etc to 
+prevent fingerd from accessing other files.  However having such a type would 
+be a real PITA for the user to manage, and I expect that most important files 
+would be in subdirectories under the home directory (and therefore denied to 
+fingerd_t because it can't search user_home_t:dir only user_home_dir_t:dir).
+
+I still need to create a new type for ~/Maildir to allow fingerd to check for 
+new mail, but that requires too many other changes, I'll do it later.  So 
+I've put in an auditdeny rule to stop my logs filling up with messages about 
+fingerd trying to check my mail.
+
+That reminds me, I think that my cfingerd code for checking Maildir and 
+.qmail files (as distributed in the standard Debian package) is buggy, 
+someone should probably work on that...
 
 -- 
 I do not get viruses because I do not use MS software.
