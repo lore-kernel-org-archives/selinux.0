@@ -1,17 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71DhHrT006990
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 09:43:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71DkwrT007008
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 09:46:58 -0400 (EDT)
 Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i71DhF0x021139
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 13:43:15 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i71Dku0x021155
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 13:46:57 GMT
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 13:43:16 -0000
-Date: Sun, 1 Aug 2004 14:54:21 +0100
+  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 13:46:57 -0000
+Date: Sun, 1 Aug 2004 14:58:03 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: selinux-policy-default 1.14 is missing _stacks_ of stuff
-Message-ID: <20040801135421.GE15205@lkcl.net>
+Message-ID: <20040801135803.GG15205@lkcl.net>
 References: <20040801103252.GC7384@lkcl.net> <200408012254.15553.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -37,9 +37,14 @@ On Sun, Aug 01, 2004 at 10:54:15PM +1000, Russell Coker wrote:
 > Your /etc/selinux/config file should have the following line:
 > SELINUXTYPE=.
  
- ah... there isn't an /etc/selinux/config file...
+ there's no mention of SELINUXTYPE in the [sf.net cvs] Makefiles:
+ remember i am in a bit of a rush so have replaced
+ selinux-policy-default package with sf.net cvs.
 
- perhaps that is the cause of the problem?
+ ... but checking the debian/* i find no mention of SELINUXTYPE.
+
+ presumably, therefore /etc/selinux/config is something created
+ by the rpm spec files?
 
  l.
 
