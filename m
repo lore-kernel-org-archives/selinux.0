@@ -1,32 +1,49 @@
-Date: Wed, 30 Oct 2002 17:49:51 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: Brian May <bam@snoopy.apana.org.au>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: kernel warning
-In-Reply-To: <200210302322.01805.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0210301748320.25777-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA02917
+	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 17:57:32 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA23277
+	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:55:38 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id WAA23273 for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:55:36 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: the new default_contexts file
+Date: Wed, 30 Oct 2002 23:57:20 +0100
+Cc: <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0210301745000.25777-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0210301745000.25777-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200210302357.20168.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 30 Oct 2002 23:45, Stephen Smalley wrote:
+> On Wed, 30 Oct 2002, Russell Coker wrote:
+> > The idea of having key-value pairs where the key is the partial context
+> > of the daemon is good.
+> >
+> > However only being able to specify an order is not good.
+> >
+> > I would like to be able to have two users, user "a" gets user_r:user_t by
+> > default while user "b" gets second_r:second_t by default even though both
+> > users are authorised for both roles.
+>
+> This can be customized on a per-user basis by the user via a
+> $HOME/.default_contexts file.  Same syntax as the main configuration file,
+> and it takes precedence.
 
-On Wed, 30 Oct 2002, Russell Coker wrote:
+OK.  Should we define a new type for the default_contexts file then and allow 
+the various login programs read access?
 
-> I'm not sure.  It was my understanding of the conversation between you and
-> Steve that some parts of SE Linux will be unconditionally enabled if you
-> apply the second patch.  So in my latest kernel patch package I put a bunch
-> of extra #ifdef's in...
-
-Yes, this works.  An alternative to #ifdef'ing the inode_init hook is to
-simply add trivial stub foo_inode_init hook functions to the DTE and LIDS
-modules, like the other hooks that are not truly used by those modules.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
