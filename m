@@ -1,97 +1,107 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iASJbFIi007776
-	for <selinux@tycho.nsa.gov>; Sun, 28 Nov 2004 14:37:15 -0500 (EST)
-Received: from mailrelay1.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iASJZg5A025651
-	for <selinux@tycho.nsa.gov>; Sun, 28 Nov 2004 19:35:43 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 28 Nov 2004 20:37:16 +0100
-Date: Sun, 28 Nov 2004 20:37:13 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: James Carter <jwcart2@epoch.ncsc.mil>
-Cc: Colin Walters <walters@verbum.org>, SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: patch: misc policy additions
-Message-Id: <20041128193712.GA2509@jmh.mhn.de>
-References: <20041109210447.GC2543@jmh.mhn.de> <1100046550.26388.8.camel@nexus.verbum.private> <20041110102439.GA2541@jmh.mhn.de> <1100893088.31793.14.camel@moss-lions.epoch.ncsc.mil> <20041127225844.GA2509@jmh.mhn.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
-In-Reply-To: <20041127225844.GA2509@jmh.mhn.de>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAT85YIi009564
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 03:05:34 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAT85Vkk023326
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 08:05:34 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: fedora-selinux-list@redhat.com, Tom London <selinux@gmail.com>
+Subject: Re: cups-config-daemon ?
+Date: Mon, 29 Nov 2004 19:04:52 +1100
+References: <4c4ba153041128115177c696b8@mail.gmail.com>
+In-Reply-To: <4c4ba153041128115177c696b8@mail.gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ogtqBicpgVOxpi8"
+Message-Id: <200411291904.56706.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-* Thomas Bleher <bleher@informatik.uni-muenchen.de> [2004-11-28 01:26]:
-> * James Carter <jwcart2@epoch.ncsc.mil> [2004-11-19 20:35]:
-> > Merged.  Except for the following chunk:
-> >=20
-> > diff -urN orig/domains/program/restorecon.te mod/domains/program/restor=
-econ.te
-> > --- orig/domains/program/restorecon.te  2004-11-09 08:45:50.000000000 +=
-0100
-> > +++ mod/domains/program/restorecon.te   2004-11-09 21:50:48.000000000 +=
-0100
-> > @@ -41,7 +41,7 @@
-> >  allow restorecon_t unlabeled_t:dir_file_class_set { getattr relabelfro=
-m };
-> >  allow restorecon_t unlabeled_t:dir read;
-> >  allow restorecon_t device_type:{ chr_file blk_file } { getattr relabel=
-=66rom relabelto };
-> > -allow restorecon_t { device_t device_type }:{ chr_file blk_file } { ge=
-tattr relabelfrom relabelto };
-> > +allow restorecon_t { device_t device_type ttyfile }:{ chr_file blk_fil=
-e } { getattr relabelfrom relabelto };
-> >  ifdef(`distro_redhat', `
-> >  allow restorecon_t tmpfs_t:{ chr_file blk_file } { rw_file_perms relab=
-elfrom relabelto };
-> >  ')
-> >=20
-> > Why do you want to restorecon_t to relabel a ttyfile? =20
-> > The only contexts with the ttyfile attribute are user_tty_device_t,
-> > staff_tty_device_t, and sysadm_tty_device_t.  The tty is relabeled to
-> > these from an initial tty_device_t context, so the only thing that I see
-> > this permission doing is to allow a current session to be relabeled from
-> > one of these three contexts to tty_device_t.  Why would we want to do
-> > that?
->=20
-> I do not remember the exact circumstances when I needed it. However, I
-> don't think it's just relabeling between the $1_tty_device_t types. What
-> if a device file loses its context? restorecon can relabel all other
-> files so it just seemed logical to allow it.
-
-I just looked over it again and realized that tty_file_t doesn't have
-attribute ttyfile. So I agree that it's not very useful. We may want to
-allow relabelfrom (it's already in initrc-policy) so you can say
-        restorecon /dev/tty*
-in an init-script and have it work even if the files hadn't been
-relabeled back (eg because of a crash)
-But I'll leave that for you to decide.
-
-Thanks,
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--Boundary-00=_ogtqBicpgVOxpi8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+On Monday 29 November 2004 06:51, Tom London <selinux@gmail.com> wrote:
+> Running strict/enforcing, latest Rawhide.
+>
+> I think the following is coming from cups-config-daemon
+>
+> I'm always a bit suspicious of fd denials....
+> these are to /dev/null...
+> Is this an open file leaking across an exec?
 
-iD8DBQFBqijoxWIrrrL0q+cRApyCAKCGHfpS1jDn8W6sLLIf8u79dfwyZgCgp50k
-HfpRA64FiZB5bPnKJlf5B/g=
-=j3ns
------END PGP SIGNATURE-----
+I don't think that this is a problem.  Granting access to /dev/null is not an 
+issue.  For cron jobs this sort of thing is common.
 
---r5Pyd7+fXNt84Ff3--
+The attached patch should do the job.
+
+> Help welcomed.....
+>    tom
+>
+>
+> Nov 28 10:12:25 fedora cups: cupsd shutdown succeeded
+> Nov 28 10:12:25 fedora kernel: audit(1101665545.088:0): avc:  denied
+> { use } for  pid=4223 exe=/usr/bin/python path=/dev/null dev=tmpfs
+> ino=3516 scontext=system_u:system_r:cupsd_config_t
+> tcontext=system_u:system_r:system_crond_t tclass=fd
+> Nov 28 10:12:25 fedora kernel: audit(1101665545.088:0): avc:  denied
+> { use } for  pid=4223 exe=/usr/bin/python path=/dev/null dev=tmpfs
+> ino=3516 scontext=system_u:system_r:cupsd_config_t
+> tcontext=system_u:system_r:logrotate_t tclass=fd
+> Nov 28 10:12:25 fedora kernel: audit(1101665545.088:0): avc:  denied
+> { use } for  pid=4223 exe=/usr/bin/python path=/dev/null dev=tmpfs
+> ino=3516 scontext=system_u:system_r:cupsd_config_t
+> tcontext=system_u:system_r:logrotate_t tclass=fd
+> Nov 28 10:12:25 fedora kernel: audit(1101665545.232:0): avc:  denied
+> { use } for  pid=4226 exe=/usr/sbin/cupsd path=/dev/null dev=tmpfs
+> ino=3516 scontext=system_u:system_r:cupsd_t
+> tcontext=system_u:system_r:system_crond_t tclass=fd
+> Nov 28 10:12:25 fedora cups: cupsd startup succeeded
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_ogtqBicpgVOxpi8
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+--- domains/program/cups.te	2004-11-12 14:11:26.000000000 +1100
++++ /tmp/cups.te	2004-11-29 19:02:25.548101438 +1100
+@@ -211,7 +211,7 @@
+ allow cupsd_t userdomain:dbus send_msg;
+ allow cupsd_t hald_t:dbus send_msg;
+ allow hald_t cupsd_t:dbus send_msg;
+-')
++')dnl end if dbusd.te
+ 
+ can_exec(cupsd_config_t, { bin_t sbin_t shell_exec_t })
+ allow cupsd_config_t { bin_t sbin_t }:dir { search getattr };
+@@ -225,7 +225,11 @@
+ allow cupsd_config_t urandom_device_t:chr_file { getattr read };
+ 
+ domain_auto_trans(hald_t, cupsd_config_exec_t, cupsd_config_t)
++ifdef(`logrotate.te', `
++allow cupsd_config_t logrotate_t:fd use;
++')dnl end if logrotate.te
++allow cupsd_config_t system_crond_t:fd use;
++')dnl end if hald.te
+ 
+-')
+ # Alternatives asks for this
+ allow cupsd_config_t initrc_exec_t:file getattr;
+
+--Boundary-00=_ogtqBicpgVOxpi8--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
