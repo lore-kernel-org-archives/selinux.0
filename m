@@ -1,50 +1,45 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i149pGRb010867
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 04:51:16 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i149pF1I003538
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 09:51:15 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i149pEbs003499 for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 09:51:14 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-Subject: Re: Problems finding working kernel/user land combination
-Date: Wed, 4 Feb 2004 20:49:32 +1100
-Cc: selinux@tycho.nsa.gov, bam@snoopy.apana.org.au
-References: <401FF280.8070301@treblig.org> <200402041216.54927.russell@coker.com.au> <4020BD63.3050004@treblig.org>
-In-Reply-To: <4020BD63.3050004@treblig.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402042049.32842.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i14BspRb011222
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 06:54:51 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i14BrSVK022670
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 11:53:28 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id i14BrSlx022663
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 11:53:28 GMT
+Date: Wed, 4 Feb 2004 11:53:53 +0000
+From: Dale Amon <amon@vnl.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>, Andreas Gruenbacher <agruen@suse.de>,
+   Magos?nyi ?rp?d <mag@bunuel.tii.matav.hu>, SE Linux <selinux@tycho.nsa.gov>,
+   ACL devel list <acl-devel@bestbits.at>,
+   "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+Subject: Re: FS crash
+Message-ID: <20040204115353.GA969@vnl.com>
+References: <1074008995.7158.18.camel@kusturica> <200401142317.18958.russell@coker.com.au> <1075866064.19815.57.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1075866064.19815.57.camel@sisko.scot.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 4 Feb 2004 20:37, "Dave Gilbert (Home)" <gilbertd@treblig.org> wrote:
-> So am I OK applying the kernel-patch-2.4-oldlsm_2003.08.13-8 - should
-> that work with Brians tools ?
+On Wed, Feb 04, 2004 at 03:41:04AM +0000, Stephen C. Tweedie wrote:
+> The fix is really simple: just test for (old_bh != new_bh) before
+> incrementing the refcounts.  The patch below is for ext3, but ext2 needs
+> the same fix.
 
-That will work with the tools you have installed.  But it's probably better to 
-just upgrade to the new SE Linux.  So install the new tools from the 
-"unstable" part of Brian's repository.
-
-> > But using 2.6.1 is probably easier.
->
-> Indeed; while my own experiences with 2.6.1 on my home machine are
-> mostly positive, I'm not really ready to trust its stability on an
-> important machine.
-
-Well you can use 2.4.x kernels with the new SE Linux.  But there are delays in 
-getting things working when a new 2.4.x kernel comes out.  Also LSM conflicts 
-with most other significant kernel patches, which limits what you can do.
+When I added the handler for selinux rfs I saw the
+same sort of thing. Would I presume that the xattr 
+patches from Suse would require a similar mod?
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
