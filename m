@@ -1,88 +1,51 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>
-Subject: Re: Domain transition -- enabling user_r in eklogin
-Date: Thu, 19 Dec 2002 23:33:12 +0100
-Cc: SELinux@tycho.nsa.gov
-References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <200212191051.19213.russell@coker.com.au> <200212190802.33560.pollard@admin.navo.hpc.mil>
-In-Reply-To: <200212190802.33560.pollard@admin.navo.hpc.mil>
-MIME-Version: 1.0
-Message-Id: <200212192333.12008.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA03661
+	for <selinux@tycho.nsa.gov>; Thu, 19 Dec 2002 19:12:59 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id AAA00925
+	for <selinux@tycho.nsa.gov>; Fri, 20 Dec 2002 00:10:32 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id AAA00921
+	for <selinux@tycho.nsa.gov>; Fri, 20 Dec 2002 00:10:28 GMT
+Date: Fri, 20 Dec 2002 11:16:46 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [ISN] Music file flaws could threaten traders
+Message-ID: <20021220001646.GD15409@snoopy.apana.org.au>
+References: <Pine.LNX.4.44.0212190257480.19905-100000@idle.curiosity.org> <200212192307.20386.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200212192307.20386.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 19 Dec 2002 15:02, Jesse Pollard wrote:
-> > It's the same thing.  If I can trick you into running some arbitary
-> > commands with your main role then I can get your ssh identity key and
-> > your gpg secret key.  These crypto keys are often worth more than the
-> > hardware that they are stored on...
->
-> Only if access is permitted to be over an unsecured channel.
->
-> The differentation between a local user and a remote user has to be
-> provided.
+On Thu, Dec 19, 2002 at 11:07:20PM +0100, Russell Coker wrote:
+> On Thu, 19 Dec 2002 09:58, InfoSec News wrote:
+> > http://news.com.com/2100-1001-978403.html?tag=fd_top
+> >
+> > By Robert Lemos
+> > Staff Writer, CNET News.com
+> > December 18, 2002, 5:12 PM PT
+> >
+> > A security firm on Wednesday warned that people using Windows XP or
+> > popular music player WinAmp could fall prey to a vulnerability,
+> > enabling a modified music file to take control of a person's PC.
 
-The "if I can trick you" part means that the distinction between local and 
-remote logins is probably not relevant.  Consider that you meet someone in 
-Starbucks and say "there's this really cool program at www.foo.com" which 
-they then download and run...
+I think it should be possible to write a program that checks to source
+file, makes sure it is valid and doesn't contain any errors or other
+potentially dangerous stuff (eg. a multimedia tag with too much data, as
+per article), and then relabels it with a file label that allows the
+user to freely use that file.
 
-Of course we could deny execute access to user_home_t but variations on the 
-same theme can always be used while there are users who can be tricked and 
-net access for easy back-channels.
+Even better, this program could be generalized to automatically
+detect the format, and take appropriate action (eg. virus scanner
+for executables, MP3 valididator for MP3 files, etc).
 
-> Access to the secret key(s) probably should not be permitted from an
-> unsecured location/connection. This does require network labels to work.
-
-I guess you could have different roles, and have sshd only allow transitioning 
-to a low security role which is prohibited from running ssh or gpg.  I wonder 
-whether a domain that only has full access to user_home_dir_t and user_home_t 
-can misdirect the actions of ssh or gpg...
-
-I don't think that network labels allow us to do anything productive in this 
-regard as network operations are so abstracted.  When a KDE ioslave can talk 
-to a http proxy to get access to the outside network then making real use of 
-network labels without seriously reducing functionality is almost impossible.
-
-For my aims a significant reduction in functionality is unacceptable.
-
-> It does mean that the plugin for checking PGP signatures (at a minimum the
-> one for generating signatures) would have to be sufficiently separate from
-> the netscape process to be labeled separately. It could not use loadable
-> modules, for  instance. It also means any scripts started should not have
-> access either.
-
-The problem is that if you can run GPG currently you can encrypt the secret 
-key to yourself with a password (IE not encrypting to a public key) and then 
-decrypt the result to get the key.  A future version of GPG will address 
-this.  I don't know how PGP performs in this regard.
-
-> This is not a 100% solution - If netscape is used to download an
-> application, then the user proceeds to configure/compile/run then all bets
-> are off since the users actions are overriding the labels. It should/could
-> prevent a trojan from passing the files out though - it would not be
-> authorized access to the secret key(s) or the Kerberos ticket cache. Only
-> trusted utilities would have that capability.
-
-However if the ticket can't be used on other machines then the concern is not 
-that it will be passed out, but that a process holding the ticked will be 
-controlled by a program that is a proxy running on behalf of a program 
-outside.
-
-One of my friends wrote a nifty set of CGI scripts to run a terminal session 
-through a web page using standard web forms functionality.  It wouldn't be 
-THAT much more difficult to do it the other way around and have machine 
-running bash be the HTTP client and the HTTP server have the client side of 
-the shell session.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+(then again, I am not entirely familiar with MP3 or PNG formats, they
+weren't around when I did my University course).
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
