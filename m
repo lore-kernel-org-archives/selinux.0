@@ -1,32 +1,46 @@
-Message-ID: <3EA021A5.4020603@redhat.com>
-Date: Fri, 18 Apr 2003 12:02:45 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3KF6VI4017323
+	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 11:06:34 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h3KF6QVf007689
+	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 15:06:26 GMT
+Received: from newton.ispgaya.pt (firewall.ispgaya.pt [193.126.229.34] (may be forged))
+	by jazzswing.ncsc.mil  with ESMTP id h3KF6P4D007686
+	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 15:06:26 GMT
+Received: from ispgaya.pt (unknown [192.168.2.80])
+	by newton.ispgaya.pt (Postfix on SuSE Linux 7.3 (i386)) with SMTP id E97765904BF
+	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 16:06:20 +0100 (WEST)
+Message-ID: <3478.81.84.84.159.1050851180.squirrel@webmail.ispgaya.pt>
+Date: Sun, 20 Apr 2003 16:06:20 +0100 (WEST)
+Subject: SELinux ISO...
+From: "=?iso-8859-1?Q?Lu=EDs_Miguel_Silva?=" <lms@ispgaya.pt>
+To: <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: SUDO package
-References: <00d801c303f1$9fef2f00$398314d1@windowpane.com> <200304181408.55003.russell@coker.com.au>
-In-Reply-To: <200304181408.55003.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have placed the latest sudo code in
+Hello everybody,
 
-ftp://people.redhat.com/dwalsh/SELinux/sudo
+Why isnt there a ISO of the SELinux available?
 
-This code seems to work with the provided policy.  I have provided a src 
-rpm,
-and binary i386.rpm (for 8.0) and the two policy files.  
+Is the "groups" policy not to make an ISO available?
 
-The binary i386 will install the policy files and reload the updated 
-policy.  It
-also does a chsid on the /usr/bin/sudo.  
+I just subscribed this list a couple a days ago, so, im sorry if my
+question is kind of stupid.
 
-This is my first try at writing Policy so please send me comments.
+Best regards,
++-----------------------------------------
+| Luís Miguel Silva
+| Network Administrator@ ISPGaya.pt
+| Rua António Rodrigues da Rocha, 291/341
+| Sto. Ovídio • 4400-025 V. N. de Gaia
+| Portugal
+| T: +351 22 3745730/3/5  F: +351 22 3745738
+| G: +351 93 6371253      E: lms@ispgaya.pt
+| H: http://lms.ispgaya.pt/
++-----------------------------------------
 
-
-Thanks,
-Dan
 
 
 --
