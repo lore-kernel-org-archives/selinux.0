@@ -1,37 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA12712
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 14:50:45 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA13252
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 16:20:12 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA03697
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 19:50:44 GMT
-Received: from staffnet.com (staffnet.com [207.226.80.14])
-	by jazzband.ncsc.mil  with ESMTP id TAA03693
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 19:50:44 GMT
-Message-ID: <3AA93409.77597AF8@staffnet.com>
-Date: Fri, 09 Mar 2001 14:50:33 -0500
-From: Wade Hampton <whampton@staffnet.com>
-MIME-Version: 1.0
-To: Michael Tiemann <tiemann@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: RedHat 7.0?
-References: <72222DC86846D411ABD300A0C9EB08A1015240BD@csoc-mail-box.csoconline.com> <3AA8F3EF.83B711A@redhat.com>
+	by jazzband.ncsc.mil  with ESMTP id VAA08191
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 21:20:11 GMT
+Received: from femail21.sdc1.sfba.home.com (femail21.sdc1.sfba.home.com [24.0.95.146])
+	by jazzband.ncsc.mil  with ESMTP id VAA08187
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 21:20:11 GMT
+Received: from c783838-b.croltn1.tx.home.com ([24.15.240.109])
+          by femail21.sdc1.sfba.home.com
+          (InterMail vM.4.01.03.00 201-229-121) with SMTP
+          id <20010309212010.WPOS653.femail21.sdc1.sfba.home.com@c783838-b.croltn1.tx.home.com>
+          for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 13:20:10 -0800
+Date: Fri, 9 Mar 2001 15:20:09 -0600
+From: Dustin Reyes <crusader@linuxgames.com>
+To: selinux@tycho.nsa.gov
+Subject: FYI: IBM Article
+Message-ID: <20010309152009.A28950@linuxgames.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Michael Tiemann wrote:
-> 
-> Another solution is to update your compiler to the latest errata version.
-> With this compiler, you can get all the optimizations we put into the
-> user-level compiler, plus it works on the kernel (certainly for Wolverine,
-> our second public beta).
+IBM's developerWorks has an overview of SE Linux up in the event
+anyone is interested:
 
-I checked and realized I did not have the latest compiler loaded,
-but had gcc-2.96-54.  I now have gcc-2.96-69 and will retest.
-I'll also check with wolverine....
+http://www-106.ibm.com/developerworks/library/s-selinux/?n-s-381
 
-Thanks,
---
-Wade
+-- 
+---------------------------------------------------------------
+Dustin Reyes - crusader@linuxgames.com "Freedom is the right of
+LinuxGames - http://www.linuxgames.com   all sentient beings"
+---------------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
