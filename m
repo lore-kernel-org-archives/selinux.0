@@ -1,36 +1,40 @@
-Subject: Re: Adding alternate root patch to restorecon (setfiles?)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9JIatrT001642
+	for <selinux@tycho.nsa.gov>; Tue, 19 Oct 2004 14:36:56 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9JIasS7001572
+	for <selinux@tycho.nsa.gov>; Tue, 19 Oct 2004 18:36:54 GMT
+Date: Tue, 19 Oct 2004 14:36:30 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Chris Wright <chrisw@osdl.org>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>,
    Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20041019183646.GC19398@lkcl.net>
-References: <41741A2C.8040408@redhat.com> <20041018205136.GA2536@jmh.mhn.de>
-	 <41751792.4060207@redhat.com>  <20041019183646.GC19398@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1098210403.29525.111.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 19 Oct 2004 14:26:44 -0400
+   lsm <linux-security-module@wirex.com>, SELinux ML <selinux@tycho.nsa.gov>,
+   Crispin Cowan <crispin@immunix.com>
+Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
+In-Reply-To: <20041019112740.A2357@build.pdx.osdl.net>
+Message-ID: <Xine.LNX.4.44.0410191435350.29385-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-10-19 at 14:36, Luke Kenneth Casson Leighton wrote:
-> um... what happens if a user runs restorecon in a chroot environment
-> that they create?
-> 
-> as an ordinary user, can they cp /lib/* and have the context preserved
-> on their copy of libc.so.6?  just trying that now... no, it says setting
-> attribute "security.selinux" for /home/sez/libc6.so.6': permission
-> denied.
-> 
-> is there any concievable way round that?  [i hope not!]
+On Tue, 19 Oct 2004, Chris Wright wrote:
 
-Unprivileged user domains aren't allowed to transition to restorecon_t
-in the policy.  There is a reason for that...
- 
+> > Hmmm...may have spoken too soon; looks like audit_log_end_irq can
+> > deadlock too when the runqueue lock is held.  Only option is to disable
+> > auditing of CAP_SYS_NICE and setscheduler?  Very unpleasant.
+> 
+> I assume this is due to wakeup code putting smth. on the runqueue?
+
+This shouldn't happen from interrupt.
+
+
+- James
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
