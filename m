@@ -1,27 +1,32 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA25783
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 08:15:31 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA00863
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:14:30 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA00859
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:14:29 GMT
-Date: Fri, 16 Aug 2002 08:14:27 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA25964
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 08:35:19 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA13919
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:33:42 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id MAA13913 for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:33:40 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
 Subject: Re: /bin/login
+Date: Fri, 16 Aug 2002 14:35:06 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0208160728480.29385-100000@raven>
 In-Reply-To: <Pine.GSO.4.33.0208160728480.29385-100000@raven>
-Message-ID: <Pine.GSO.4.33.0208160809480.29385-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020816123506.D4DEB3EDC@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Fri, 16 Aug 2002, Stephen Smalley wrote:
-
+On Fri, 16 Aug 2002 13:39, Stephen Smalley wrote:
+> On Fri, 16 Aug 2002, Russell Coker wrote:
+> > During the login process we see the following prompts for a non-default
+> > security context.  Shouldn't the last prompt be "Enter domain" not
+> > "Enter type"?
+>
 > Yes and no.  As explained in the Security Model section of the Configuring
 > the SELinux Policy report (as well as in the older policy report and in
 > the Ottawa paper), the SELinux TE model does not internally distinguish
@@ -32,24 +37,18 @@ On Fri, 16 Aug 2002, Stephen Smalley wrote:
 > this "Enter domain" and /etc/security/default_domain.  No big deal either
 > way.
 
-While we're on the topic of nomenclature, I should note that if you want
-to get away from TE altogether, just replace "TE" with "Lampson Access
-Matrix (LAM)", "domain" with "subject" and "type" with "object".  An
-interview with Earl Boebert where he mentions that TE is simply the
-"Lampson Access Matrix organized into equivalence classes for efficiency"
-is available at http://www.linuxjournal.com/article.php?sid=4963.  He
-cites the following reference for the Lampson Access Matrix:
+It's not just the issue of the language of the traditional TE model in this 
+case.  All through the documentation we refer to "domain", so then having the 
+login program refer to it as a type is confusing for users.
 
-Lampson, Butler W. "Protection." Mar. Proc. 5th Princeton Symp. on
-Information Sciences and Systems, 1971, pp.437-443.  Reprinted January
-1974 in ACM SIGOPS OSR 8(1), pp.18-24.
+I am writing documentation for my SE Linux tutorial and this is something 
+that will require extra explanation for the users...
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
