@@ -1,43 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j137E653028374
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 02:14:06 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j137E1f1022633
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 07:14:03 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j137LH53028414
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 02:21:17 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j137J6o7011847
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 07:19:07 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Villalovos, John L" <john.l.villalovos@intel.com>
 Subject: Re: Advice on bringing up SE Linux
-Date: Thu, 3 Feb 2005 18:13:30 +1100
-Cc: "Villalovos, John L" <john.l.villalovos@intel.com>, selinux@tycho.nsa.gov
-References: <60C14C611F1DDD4198D53F2F43D8CA3B035B5359@orsmsx410> <1107284400.26936.212.camel@moss-spartans.epoch.ncsc.mil> <1107285883.26936.216.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1107285883.26936.216.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 3 Feb 2005 18:20:50 +1100
+Cc: "Stephen Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+References: <60C14C611F1DDD4198D53F2F43D8CA3B035B559E@orsmsx410>
+In-Reply-To: <60C14C611F1DDD4198D53F2F43D8CA3B035B559E@orsmsx410>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200502031813.33454.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200502031820.54692.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 02 February 2005 06:24, Stephen Smalley <sds@epoch.ncsc.mil> 
-wrote:
-> On Tue, 2005-02-01 at 14:00, Stephen Smalley wrote:
-> > Any output in /var/log/messages from the attempt to write the policy to
-> > /selinux/load?  Any difference if you run load_policy on the binary
-> > policy instead of directly cat'ing it?
+On Wednesday 02 February 2005 07:51, "Villalovos, John L" 
+<john.l.villalovos@intel.com> wrote:
+> > /sbin/init is what normally loads the policy during startup.  Are you
+> > using the modified /sbin/init (included in Fedora)?  What is in your
+> > /etc/selinux/config?
 >
-> Actually, cat is quite likely to fail, as it likely tries to read and
-> write the file in chunks, whereas the kernel wants the entire policy
-> pushed in a single transaction.  load_policy is what you want.
+> Okay.  We are using Busybox for the init.  So it does not have the SE
+> Linux stuff in it.
 
-In fact cat is almost guaranteed to fail.  cat from coreutils will stat the 
-read and write files to check the IO block size.  On 2.6.10 /selinux/load 
-reports a 4096 byte IO block size which should cause cat to fail.  Maybe if 
-the kernel code was modified to return an insanely large value (larger than 
-we expect a policy to be) then cat would work.  I am not sure that this is 
-desirable though.
+The upstream developer of busybox was accepting of SE Linux patches, I had 
+some SE Linux patches in the busybox CVS at one time (not sure if they are 
+still there).  If I get a bit of spare time I'll do some more work on Busybox 
+SE Linux support, it's good to have for recovery purposes and I think I've 
+still got some patches hanging around that I never got sorted out properly 
+for release.
 
-Using dd with a block size larger than the policy size should work.
+Also you may want to check out the paper I presented at OLS on getting SE 
+Linux running on iPaQ's, the stuff about wrapping busybox etc will probably 
+be of interest to you.
+
+If you get the JFFS2 support written I'll be very interested, I have a couple 
+of iPaQ's I want to get running SE Linux again.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
