@@ -1,49 +1,39 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8M0i5rT028960
-	for <selinux@tycho.nsa.gov>; Tue, 21 Sep 2004 20:44:05 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8M0i4pT026492
-	for <selinux@tycho.nsa.gov>; Wed, 22 Sep 2004 00:44:05 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 02A84C0C5
-	for <selinux@tycho.nsa.gov>; Wed, 22 Sep 2004 01:43:57 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1C9vPZ-0005N9-PB
-	for selinux@tycho.nsa.gov; Wed, 22 Sep 2004 01:55:09 +0100
-Date: Wed, 22 Sep 2004 01:55:09 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: fuse
-Message-ID: <20040922005509.GD14303@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8MDXSrT001853
+	for <selinux@tycho.nsa.gov>; Wed, 22 Sep 2004 09:33:28 -0400 (EDT)
+Received: from www.pu.kielce.pl (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8MDXOWF010438
+	for <selinux@tycho.nsa.gov>; Wed, 22 Sep 2004 13:33:28 GMT
+Received: from [81.26.8.20] (port=44452 helo=[81.26.8.20] ident=pipen)
+	by www.pu.kielce.pl with asmtp (TLS-1.0:DHE_RSA_RIJNDAEL_128_CBC_SHA:16)
+	(Exim 4.30)
+	id 1CA7Bk-0004cE-7W
+	for selinux@tycho.nsa.gov; Wed, 22 Sep 2004 15:29:40 +0200
+Message-ID: <41517FA8.7050207@pu.kielce.pl>
+Date: Wed, 22 Sep 2004 15:35:36 +0200
+From: "Artur M. Piwko" <pipen@pu.kielce.pl>
+MIME-Version: 1.0
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Role questions
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-has anyone thought about how fuse (file system in userspace) would fit
-in with selinux?
+1. When I su - from myuser:staff_r:staff_t to root I'm still myuser,
+    instead of root:staff_r:staff_t. What I did wrong?
+2. How can one set up initial sysadm_r password? All i see is:
 
-i am going to be using fuse's fusexmp example program [in a
-production environment] to solve the problem of users removing
-usb media without warning.
+# newrole -r sysadm_r
+Authenticating myuser.
+newrole: incorrect password for myser
 
-fusexmp provides stateless proxy access to a linux filesystem,
-so if HAL chops off /media/usbdisk1 without warning, then the
-fusexmp mountpoint (say /home/user/proxyroot/media/usbdisk1)
-just... doesn't _care_.
-
-l.
-
+Artur
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+Artur M. Piwko : AMP29-RIPE : ISPC:+48413496205 : jab:pipen@jabberpl.org
+Akademia Swietokrzyska  ::  Uczelniane Centrum Informatyczne  ::  Kielce
+PGP id:B969478F finger:35E6 E3A3 8120 F000 1375 5A1C 23A8 1A71 B969 478F
+"Death is just life's way of telling you you've been fired"  --  unknown
 
 --
 This message was distributed to subscribers of the selinux mailing list.
