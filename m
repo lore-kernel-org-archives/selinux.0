@@ -1,57 +1,126 @@
-Message-Id: <200302241842.NAA14593@moss-shockers.ncsc.mil>
-Date: Mon, 24 Feb 2003 13:42:41 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: Errors While Installing On Redhat 8.0
-To: spatel@elp.rr.com, SELinux@tycho.nsa.gov, russell@coker.com.au
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA17481
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 13:55:50 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1OItnI02994
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 18:55:49 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id h1OItlf02984 for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 18:55:48 GMT
+Received: from localhost (wsalamon@localhost)
+	by vox.gw.tislabs.com (8.11.2/8.11.2) with ESMTP id h1OItBc01896
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 13:55:11 -0500
+Date: Mon, 24 Feb 2003 13:55:11 -0500 (EST)
+From: Wayne Salamon <wsalamon@tislabs.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Core policy
+Message-ID: <Pine.LNX.4.33.0302241349350.1479-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/mixed; BOUNDARY=Troop_of_Antelope_335_000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Troop_of_Antelope_335_000
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: 2TuK5x/HGupu7JcBwh5jaw==
+  I would like some feedback from the list in order to begin paring back
+the SELinux example policy for a smaller 'core'. The idea is that other
+portions of the policy considered non-core will be in a directory whose
+files are not built into the core by default.
+
+Here is a list of policy files that may considered the core policy.
+However, this policy needs some work in order to build, but I'm trying to
+get a feel for what users typically run on their systems.
+
+The inclusion of a file should be determined by the needs of the system
+and what programs are expected to be run, and other needs of the system
+software (network interfaces, for example). The base platform is assumed
+to be a capable Linux workstation with few optional services.
+
+The X Windows related domains have been listed separately.
+
+domains/program (with corresponding file_contexts/program)
+==========================================================
+apache.te	Apache Web server; may need to be simplified to allow only
+		serving Web pages without CGI, etc.
+apmd.te		Automatic Power Management daemon
+atd.te 		Atd server
+automount.te	Automount daemon
+bootloader.te	Lilo boot loader/manager
+cardmgr.te	PCMCIA control programs
+checkpolicy.te	SELinux policy compliler
+chkpwd.te	PAM password checking programs
+crond.te	Crond daemon
+crontab.te	Crontab manipulation programs
+cups.te		Common Unix Printing System
+devfsd.te	Control daemon for devfs device file system
+dhcpc.te	DHCP client
+fsadm		Disk and file system administration
+getty.te	Manage ttys
+gpm.te		General Purpose Mouse driver
+hotplug.te	Hardware event manager
+hwclock.te	Hardware clock manager
+ifconfig.te	Configure network interfaces
+inetd.te	Internet services daemon
+init.te		Process initialization
+initrc.te	System initialization scripts
+ipchains.te	IP packet filter administration
+klogd.te	Kernel log daemon
+ldconfig.te	Configure dynamic linker bindings
+load_policy.te	Policy loading utilities
+login.te	Local/remote login utilities
+logrotate.te	Rotate log files
+lpr.te		Print client
+modutil.te	Dynamic module utilities
+mount.te	Filesystem mount utilities
+netscape.te	Web browser (most of the policy is in a macros file)
+netutils.te	Network utilities (could be removed)
+newrole.te	SELinux utility to run a shell with a new role
+pamconsole.te	PAM console
+passwd.te	Password utilities
+ping.te		Send ICMP messages to network hosts
+portmap.te	Maintain RPC program number map
+portslave.te	Terminal server software (not sure about this one)
+pppd.te		PPP daemon
+procmail.te	Mail delivery agent for mail servers (may be removed)
+pump.te		DHCP client
+rlogind.te	Remote login daemon (can remove; shouldn't run rlogin anyway)
+rpcd.te		RPC daemon (not sure; how often do client workstations export
+		RPC services)
+rpm.te		Red Hat package management
+rshd.te		RSH daemon (can remove; shouldn't run rsh anyway)
+selopt.te	SELinux ip labeling utilities (can be removed; should only
+		be installed when experimenting with labeled packets)
+setfiles.te	SELinux filesystem labeling utilities
+sound.te	Sound utilities
+ssh.te		SSH daemon and ssh command
+su.te		Run shells with substitute user and group (most of the policy
+		is contained in su_macros.te
+sxid.te		SUID/SGID program monitoring
+syslogd.te	System log daemon
+tmpreaper.te	Monitor and maintain temporary files
+usbmodules.te	List kernel modules for USB devices
+useradd.te	Manage system user accounts
+utempter.te	Privileged helper for utmp/wtmp updates
 
 
-Russell Coker wrote:
-> That looks like a bug in policy/Makefile in selinux-small.  The mv line in 
-> question should probably be prefixed with '-' to tell make to ignore such 
-> errors.
-> 
-> BTW In such situations it's usually best to just send the relevant messages 
-> and some context, the previous pages of successful operations is not needed.
+X Windows potential core domains
+==================================================
+xauth.te	X authority file utility
+xdm.te		X Display Manager
+xfs.te		X font server
+xserver.te	X Server
 
-Yes, someone previously mentioned this on the list.  Patch attached.
+Macros
+======
+The use of macros has grown to be a large problem. The current policy makes use
+of macros that call other macros which call macros. Some macros should be
+eliminated; every_domain, every_test_domain for example. Others should be
+pared down to least privilege; the xx_file_perms and xx_dir_perms for example.
+The use of parameterized macros makes it very difficult to analyze the policy
+source files. Also, there are several instances of rules being duplicated
+in the generated policy due to macro usage.
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+-- 
+Wayne Salamon
+wsalamon@tislabs.com
 
---Troop_of_Antelope_335_000
-Content-Type: TEXT/x-sun-Makefile; name="Makefile.patch"; charset=us-ascii; x-unix-mode=0644
-Content-Description: Makefile.patch
-Content-MD5: B0FSTtPGJhxfu8m1MRo0rg==
-
-Index: selinux/policy/Makefile
-===================================================================
-RCS file: /home/pal/CVS/selinux/policy/Makefile,v
-retrieving revision 1.24
-retrieving revision 1.25
-diff -u -r1.24 -r1.25
---- selinux/policy/Makefile	10 Jan 2003 19:32:11 -0000	1.24
-+++ selinux/policy/Makefile	24 Feb 2003 18:30:31 -0000	1.25
-@@ -67,7 +67,7 @@
- 
- install-src: 
- 	rm -rf $(SRCINSTALLDIR)/policy.old
--	mv $(SRCINSTALLDIR)/policy $(SRCINSTALLDIR)/policy.old
-+	-mv $(SRCINSTALLDIR)/policy $(SRCINSTALLDIR)/policy.old
- 	mkdir -p $(SRCINSTALLDIR)/policy
- 	cp -R . $(SRCINSTALLDIR)/policy
- 
-
---Troop_of_Antelope_335_000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
