@@ -1,43 +1,55 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9REXGXZ021193
-	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 10:33:16 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9REX5Fj018426
-	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 14:33:11 GMT
-Date: Wed, 27 Oct 2004 10:33:05 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: [PATCH] devpts xattr support
-In-Reply-To: <1098886534.30470.112.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.44.0410271028050.9447-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Overlay Filesystem and SELinux
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Colin Walters <walters@verbum.org>, sds@epoch.ncsc.mil
+Cc: nsa <SELinux@tycho.nsa.gov>, Philip Leo <phlpleo@yahoo.com>
+In-Reply-To: <20041020174938.GL21185@lkcl.net>
+References: <1098274225.12118.20.camel@jsingh.india.ensim.com>
+	 <20041020151031.GB21185@lkcl.net>  <20041020174938.GL21185@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1098887565.1620.15.camel@jsingh.india.ensim.com>
+Mime-Version: 1.0
+Date: Wed, 27 Oct 2004 20:02:45 +0530
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 27 Oct 2004, Stephen Smalley wrote:
+Hi , 
 
-> On the other hand, adding a fake xattr handler to every filesystem that
-> doesn't natively support them also seems difficult to accept; we've only
-> done this to date on a demand basis; devpts needed the support for pty
-> relabeling, tmpfs needed support for udev.
+Thanx for the help .. so far so good I am on track with my
+"Virtualization and SELinux" ;-)
 
-What other filesystems are likely to need xattr handlers?  It is (now 
-especially) very simple to add them as needed.
+I am trying to implement a overlay-fs with selinux and got struck in a
+problem.
 
-I think we should stick with the xattr API, it is "the" way to manage
-extra-inode data under Linux.  Perhaps what we should do instead is fix
-the core xattr code so that it can do what we need it do to.
+Overlay-fs (for those who are unaware) virtually lets to write to a
+read-only fs. like if you say ...
 
+mount -t overlay -o dir1=/base,dir2=/storage /base /target
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+so all the efforts to write base are directed towards the storage. So if
+i try and write to a writable-file in base say 
 
+/target/etc/httpd/conf then the new file would be created in the storage
+with complete path till that file ... so the initially empty storage
+will have /storage/etc/httpd/conf.
+
+But the problem is the newly created directory /storage/etc inherits
+security context from /storage :-)
+
+I know this was expected .. but is there any way to override it so that
+.... a new directories and files (etc var etc) inside the storage gets
+tagged with specific context like etc_t and var_t.
+
+type_transition can only help putting same tag on all etc/ and var/ as
+there is same kernel_t process creating them.
+
+second thing possible is .. if i create skeleton directories inside
+storage and tag them properly.
+
+What do you say...
+Thanx
+Jaspreet
 
 
 --
