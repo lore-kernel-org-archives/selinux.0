@@ -1,31 +1,84 @@
-Subject: Re: [PATCH] setfiles support for altroot
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <JBrindle@snu.edu>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <seba8444.037@atlas.snu.edu>
-References: <seba8444.037@atlas.snu.edu>
-Content-Type: text/plain
-Message-Id: <1052494186.1044.392.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <sebbd79d.022@atlas.snu.edu>
+Date: Fri, 09 May 2003 16:30:11 -0500
+From: "Joshua Brindle" <JBrindle@snu.edu>
+To: <SELinux@tycho.nsa.gov>
+Subject: [BETTER PATCH] support for altroot in setfiles
 Mime-Version: 1.0
-Date: 09 May 2003 11:29:47 -0400
+Content-Type: multipart/mixed; boundary="=_0A5585FD.650465BD"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-05-08 at 17:22, Joshua Brindle wrote:
-> This allows setfiles to label files in somewhere other than / as if they were in /, 
-> very useful for labeling off the live filesystem before installing.
-> This is necessary for Gentoo to support SELinux, is it reasonable for it
-> to be imported into CVS and included in the next nsa release? If there are any
-> problems with it let me know (I really suck at C so there probably are problems)
+--=_0A5585FD.650465BD
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This sounds useful, but we may not get to reviewing it and merging it
-for a little bit; we're presently preoccupied with the reworking of
-SELinux for mainline 2.5.
+Ok, i apoligize to everyone for posting that horribly insecure=20
+patch on this list :) I was going for functionality so that i could
+get it working then hope that someone else would fix it up,=20
+and someone did, a fellow gentoo developer zach welch
+(zwelch@gentoo.org) corrected all the buffer and memory problems
+ we could find so hopefully this will be much easier to audit and=20
+incorporate into cvs. Thanks russel and steve for your replies,=20
+hope you guys like this one better.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 
+
+Joshua Brindle
+UNIX Administrator
+Southern Nazarene University
+
+
+--=_0A5585FD.650465BD
+Content-Type: application/octet-stream; name="setfiles.c[1].patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="setfiles.c[1].patch"
+
+LS0tIHNldGZpbGVzLW9yaWcuYwkyMDAzLTA1LTA4IDE4OjE3OjQ4LjAwMDAwMDAwMCAtMDcwMAor
+Kysgc2V0ZmlsZXMuYwkyMDAzLTA1LTA5IDE0OjE5OjQwLjAwMDAwMDAwMCAtMDcwMApAQCAtODks
+NiArODksMTAgQEAKIHN0YXRpYyBpbnQgdXNlX2ludW0gPSAwOwogCiBzdGF0aWMgaW50IHF1aWV0
+ID0gMDsKKworc3RhdGljIGNoYXIgKnJvb3RwYXRoID0gTlVMTDsKK3N0YXRpYyBpbnQgcm9vdHBh
+dGhsZW4gPSAwOworCiAjZGVmaW5lIFFQUklOVEYoYXJncy4uLikgZG8geyBpZiAoIXF1aWV0KSBw
+cmludGYoYXJncyk7IH0gd2hpbGUgKDApCiAKIC8qCkBAIC0yODMsMTUgKzI4NywyNyBAQAogaW50
+IG1hdGNoKGNvbnN0IGNoYXIgKm5hbWUsIHN0cnVjdCBzdGF0ICpzYiwgc2VjdXJpdHlfaWRfdCAq
+b3V0X3NpZCkgCiB7CiAJaW50IGksIHJldDsKKwljb25zdCBjaGFyICpmdWxsbmFtZSA9IG5hbWU7
+CisKKwkvKiBmdWxsbmFtZSB3aWxsIGJlIHRoZSByZWFsIGZpbGUgdGhhdCBnZXRzIGxhYmVsZWQK
+KwkgKiBuYW1lIHdpbGwgYmUgd2hhdCBpcyBtYXRjaGVkIGluIHRoZSBwb2xpY3kgKi8KKwlpZiAo
+TlVMTCAhPSByb290cGF0aCkgeworCQlpZiAoMCAhPSBzdHJuY21wKHJvb3RwYXRoLCBuYW1lLCBy
+b290cGF0aGxlbikpIHsKKwkJCWZwcmludGYoc3RkZXJyLCAiJXM6ICAlcyBpcyBub3QgbG9jYXRl
+ZCBpbiAlc1xuIiwgCisJCQkJcHJvZ25hbWUsIG5hbWUsIHJvb3RwYXRoKTsKKwkJCXJldHVybiAt
+MTsKKwkJfQorCQluYW1lICs9IHJvb3RwYXRobGVuOworCX0KIAogCWlmIChmbGFza19lbmFibGVk
+KSB7Ci0JCXJldCA9IGxzdGF0X3NlY3VyZShuYW1lLCBzYiwgb3V0X3NpZCk7CisJCXJldCA9IGxz
+dGF0X3NlY3VyZShmdWxsbmFtZSwgc2IsIG91dF9zaWQpOwogCX0gZWxzZSB7Ci0JCXJldCA9IGxz
+dGF0KG5hbWUsIHNiKTsKKwkJcmV0ID0gbHN0YXQoZnVsbG5hbWUsIHNiKTsKIAl9IAogCWlmIChy
+ZXQpIHsKIAkJZnByaW50ZihzdGRlcnIsICIlczogIHVuYWJsZSB0byBzdGF0IGZpbGUgJXNcbiIs
+IHByb2duYW1lLAotCQkJbmFtZSk7CisJCQlmdWxsbmFtZSk7CiAJCXJldHVybiAtMTsKIAl9CiAK
+QEAgLTU2NCw2ICs1ODAsMjMgQEAKIAlyZXR1cm4gMDsKIH0KIAordm9pZCBzZXRfcm9vdHBhdGgo
+Y29uc3QgY2hhciAqYXJnKQoreworCWludCBsZW47CisKKwlyb290cGF0aCA9IHN0cmR1cChhcmcp
+OworCWlmIChOVUxMID09IHJvb3RwYXRoKSB7CisJCWZwcmludGYoc3RkZXJyLCAiJXM6ICBpbnN1
+ZmZpY2llbnQgbWVtb3J5IGZvciByb290cGF0aFxuIiwgCisJCQlwcm9nbmFtZSk7CisJCWV4aXQo
+MSk7CisJfQorCisJLyogdHJpbSB0cmFpbGluZyAvLCBpZiBwcmVzZW50ICovCisJbGVuID0gc3Ry
+bGVuKHJvb3RwYXRoKTsKKwl3aGlsZSAoJy8nID09IHJvb3RwYXRoW2xlbiAtIDFdKQorCQlyb290
+cGF0aFstLWxlbl0gPSAwOworCXJvb3RwYXRobGVuID0gbGVuOworfQogCiBpbnQgbWFpbihpbnQg
+YXJnYywgY2hhciAqKmFyZ3YpCiB7CkBAIC01NzcsNyArNjEwLDcgQEAKIAlzdHJ1Y3Qgc3RhdCBz
+YjsKIAogCS8qIFByb2Nlc3MgYW55IG9wdGlvbnMuICovCi0Jd2hpbGUgKChvcHQgPSBnZXRvcHQo
+YXJnYywgYXJndiwgImRpbnFzdlJXIikpID4gMCkgeworCXdoaWxlICgob3B0ID0gZ2V0b3B0KGFy
+Z2MsIGFyZ3YsICJkaW5xc3ZyUlciKSkgPiAwKSB7CiAJCXN3aXRjaCAob3B0KSB7CiAJCWNhc2Ug
+J2QnOgogCQkJZGVidWcgPSAxOwpAQCAtNjA0LDYgKzYzNywyMCBAQAogCQljYXNlICdpJzoKIAkJ
+CXVzZV9pbnVtID0gMTsKIAkJCWJyZWFrOworCQljYXNlICdyJzoKKwkJCWlmIChvcHRpbmQgKyAx
+ID49IGFyZ2MpIHsKKwkJCQlmcHJpbnRmKHN0ZGVyciwgInVzYWdlOiAgJXMgLXIgcm9vdHBhdGhc
+biIsIAorCQkJCQlhcmd2WzBdKTsKKwkJCQlleGl0KDEpOworCQkJfQorCQkJaWYgKE5VTEwgIT0g
+cm9vdHBhdGgpIHsKKwkJCQlmcHJpbnRmKHN0ZGVyciwgCisJCQkJCSIlczogb25seSBvbmUgLXIg
+Y2FuIGJlIHNwZWNpZmllZFxuIiwgCisJCQkJCWFyZ3ZbMF0pOworCQkJCWV4aXQoMSk7CisJCQl9
+CisJCQlzZXRfcm9vdHBhdGgoYXJndltvcHRpbmQrK10pOworCQkJYnJlYWs7CiAJCX0KIAl9CiAK
+QEAgLTkxOSw3ICs5NjYsMTEgQEAKIAl9CiAJZWxzZSBmb3IgKDsgb3B0aW5kIDwgYXJnYzsgb3B0
+aW5kKyspCiAJewotCisJCWlmIChOVUxMICE9IHJvb3RwYXRoKSB7CisJCQlRUFJJTlRGKCIlczog
+IGxhYmVsaW5nIGZpbGVzLCBwcmV0ZW5kaW5nICVzIGlzIC9cbiIsCisJCQkJYXJndlswXSwgcm9v
+dHBhdGgpOworCQl9CisJCQogCQlpZiAoZmxhc2tfZW5hYmxlZCkgewogCQkJUVBSSU5URigiJXM6
+ICBsYWJlbGluZyBmaWxlcyB1bmRlciAlc1xuIiwgYXJndlswXSwKIAkJCSAgICAgICBhcmd2W29w
+dGluZF0pOwo=
+
+--=_0A5585FD.650465BD--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
