@@ -1,50 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j315TsDo009468
-	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2005 00:29:54 -0500 (EST)
-Received: from wproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j315PmhV017958
-	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2005 05:25:49 GMT
-Received: by wproxy.gmail.com with SMTP id 69so772691wra
-        for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 21:28:29 -0800 (PST)
-Message-ID: <a9951d2a050331212851af92d4@mail.gmail.com>
-Date: Fri, 1 Apr 2005 13:28:29 +0800
-From: Rogelio Serrano <rogelio.serrano@gmail.com>
-Reply-To: Rogelio Serrano <rogelio.serrano@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Desktop apps interoperability
-In-Reply-To: <1112303152.11216.199.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <20050331160546.36303.qmail@web31615.mail.mud.yahoo.com>
-	 <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050331231259.B2607@lemuria.org>
-	 <1112303152.11216.199.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <424CEE3E.40302@gentoo.org>
+Date: Fri, 01 Apr 2005 09:46:22 +0300
+From: petre rodan <kaiowas@gentoo.org>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Question about customizing apache policy.
+References: <424C1B73.6020508@redhat.com>
+In-Reply-To: <424C1B73.6020508@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB504B79058A083FF8A03A7D2"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Apr 1, 2005 5:05 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2005-03-31 at 23:13 +0200, Tom wrote:
-> > He does have a point, though - sometimes the application can not be
-> > changed. It may be a legacy application and for all I care, those are
-> > the ones most in need of a protective cage.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB504B79058A083FF8A03A7D2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Daniel J Walsh wrote:
+> There was a question yesterday in one of the fedora list, from a person
+> who would like to run a special httpd script that would manage his
+> passwd file, now whether or not this is a good idea, it caused me to try
+> an experiment.
+> Currently we have a  macro apache_domain.  I thought it would be cool if
+> I could start writing policy for this passwd app by adding a file to
+> domains/misc/apachepasswd.te.  Then having one line
+> apache_domain(passwd)
 > 
-
-Unchangeable legacy apps should die.
- 
-> Sure, and at that point, you just confine it as best as you can while
-> still allowing whatever functionality you require.  SELinux supports
-> that need just fine.  But you don't want to just accept that status quo
-> for all applications for all time, which seemed to be Casey's attitude.
+> Which in theory would create httpd_passwd_script_exec_t,
+> httpd_passwd_script_t, httpd_passwd_script_rw_t.  I could then go ahead
+> and label my cgi httpd_passwd_script_exec_t and start adding the
+> additional allow rules to allow this to happen.  Needless to say, we
+> have added a lot of cruft to the apache_domain() macro.  So I did some
+> cleanup of apache.te and apache_macro.te, see attach.
+> Could people review these to make sure there is no mistakes.
+> But this exercise also brought up the idea that this would be an
+> excellent example of how we would want to use loadable modules. I think
+> that this might be a fairly common problem.  People want to run a
+> specialized apache cgi script that slightly extends httpd_sys_script_t.
 > 
-[snipped...]
+> It would be cool if they could do this without having to have policy
+> installed, but a simple boiler plate for adding a new type of httpd
+> script type.
+> 
+> Ideas?
+> 
+> Dan
 
-I think everybody agrees that aggressive refactorization of source
-code is a good thing. Therefore in an open source environment legacy
-apps dont exist.
+This is a great idea that I've been using for some time now :)
+I needed it for all kind of cgi-type applications and the policy can be as clean as apache_domain(awstats) and a few webapp-related rules.
 
--- 
-Blood is thicker than water... and much tastier
-                                           John Davidorff Pell
+bye,
+peter
+
+
+--------------enigB504B79058A083FF8A03A7D2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD4DBQFCTO5PGSBEIeh4AEYRAlJCAJdQoxdE9MByQNLclE2GW9brYiPFAKCNx1ve
+JECYhnV1i1F7MDY9FPfdRg==
+=tOT6
+-----END PGP SIGNATURE-----
+
+--------------enigB504B79058A083FF8A03A7D2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
