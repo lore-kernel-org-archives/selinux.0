@@ -1,42 +1,37 @@
-Subject: Re: RFC Kernel interface to conditional policy
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
-In-Reply-To: <1070484482.3774.54.camel@colossus.columbia.tresys.com>
-References: <1070484482.3774.54.camel@colossus.columbia.tresys.com>
-Content-Type: text/plain
-Message-Id: <1070565996.17837.64.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 04 Dec 2003 14:26:37 -0500
+Message-ID: <3FCF968B.3050504@diyab.net>
+Date: Thu, 04 Dec 2003 15:18:19 -0500
+From: Diyab <diyab@diyab.net>
+MIME-Version: 1.0
+To: mayerf@tresys.com
+CC: "'Dhruv Gami'" <dgami@uncc.edu>, "'SELINUX'" <SELinux@tycho.nsa.gov>
+Subject: Re: Basic question on policy design
+References: <000401c3ba6a$ad593430$8100a8c0@columbia.tresys.com>
+In-Reply-To: <000401c3ba6a$ad593430$8100a8c0@columbia.tresys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-12-03 at 15:48, Karl MacMillan wrote:
-> Problem
-> 1) Manipulate proc files directly. This allows fine-grained labeling of
-> the boolean files, but kernel developers seem to be frowning on new uses
-> of proc.
-> 
-> 2) Extend the selinux filesystem. This wouldn't allow fine-grained
-> labeling and would pollute the policy-neutral security server interface
-> with type enforcement policy specific functionality.
-> 
-> 3) Create a new filesystem. This would be the most work, but otherwise
-> meet our needs.
+Frank Mayer wrote:
 
-I think that the problem with any of these solutions is the need to
-revoke access to any boolean files held open at the time of the policy
-reload.  proc_kill_inodes appears to have an implementation of
-revoke-like functionality; something similar might be feasible for
-selinuxfs.  I don't see any strong reason to make an entirely new
-filesystem; creating a subdirectory in selinuxfs and populating it with
-the booleans seems reasonable to me.  In the past, James has suggested
-allowing extension of selinuxfs to export other security server state,
-and this seems in line with that idea.
+>>3. Are type_1 and type_2 interchangable in the above rule ?
+> 
+> 
+> No.
+> 
+
+This is not entirely true.  I've run into instances where running 
+something like apache and postgresql on the same SELinux machine will 
+require the ability to speak to one another.  So for process to process 
+you might end up with something like:
+
+allow httpd_t postgresql_t:tcp_socket { recffrom acceptfrom };
+allow postgresql_t httpd_t:tcp socket { recvfrom acceptfrom };
+
+Timothy,
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
 
 
 --
