@@ -1,42 +1,45 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA06715
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:38:13 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA25877
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 19:38:07 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id TAA25873
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 19:38:07 GMT
-Date: Thu, 29 Mar 2001 14:37:13 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: "McFarland, David M." <DMMcFa2@missi.ncsc.mil>
-cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: Context switches
-In-Reply-To: <200103291918.OAA25148@stingray.missi.ncsc.mil>
-Message-ID: <Pine.SOL.3.95.1010329142752.17401X-100000@clipper.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA06732
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:39:40 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA04520
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 19:39:26 GMT
+Received: from smtpproxy1.mitre.org (mb-20-100.mitre.org [129.83.20.100])
+	by jazzswing.ncsc.mil  with ESMTP id TAA04516
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 19:39:24 GMT
+Received: from avsrv1.mitre.org (avsrv1.mitre.org [129.83.20.58])
+	by smtpproxy1.mitre.org (8.9.3/8.9.3) with ESMTP id OAA11298
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:39:36 -0500 (EST)
+Received: from mailsrv1.mitre.org (mailsrv1.mitre.org [129.83.20.6])
+	by smtpsrv1.mitre.org (8.9.3/8.9.3) with ESMTP id OAA21045
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:39:35 -0500 (EST)
+Message-ID: <3AC38FB1.FA2E8109@mitre.org>
+Date: Thu, 29 Mar 2001 14:40:33 -0500
+From: Jon Crowley <jonathan@mitre.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "McFarland David M." <DMMcFa2@missi.ncsc.mil>
+CC: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: Context switches
+References: <200103291918.OAA25148@stingray.missi.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Have you changed your path to have /usr/flask/bin before /usr/bin?  If
+not, you may not be using the new versions of the utilities.
 
-Are you running the modified utilities or the ordinary Linux
-utilities?  Does '/usr/flask/bin/ps --context' and '/usr/flask/bin/ls
---context' work for you?  If so, you just failed to update your
-path.  If not, then does 'uname -r' show a -FLASK suffix?  If so,
-then what error are you getting?  If not, then you aren't running the 
-SELinux kernel, so you probably booted the ordinary Linux kernel instead.
-
-Also, if you are really using the 2.2.12 kernel, you should download
-the new release and use it instead.  On March 16th, a new release
-was put on the web site with a 2.4.2-based kernel.
-
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
+Jon
 
 
-
+> "McFarland, David M." wrote:
+> 
+> Hello,
+> 
+>         I was able to install the 2.2.12 kernel fine but when I try to
+> use the --context switches it gives me an error. Any idea what might
+> be wrong? I'm following the install instructions from the website.
+> 
+> Dave
 
 --
 You have received this message because you are subscribed to the selinux list.
