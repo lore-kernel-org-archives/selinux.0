@@ -1,73 +1,81 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j181CK53024343
-	for <selinux@tycho.nsa.gov>; Mon, 7 Feb 2005 20:12:21 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j181AAv3025254
-	for <selinux@tycho.nsa.gov>; Tue, 8 Feb 2005 01:10:10 GMT
-Date: Mon, 7 Feb 2005 20:11:50 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: selinux@tycho.nsa.gov
-cc: Russell Coker <russell@coker.com.au>
-Subject: [Linux-aus] Security Miniconf at LCA2005 (fwd)
-Message-ID: <Xine.LNX.4.44.0502072010030.30068-100000@thoron.boston.redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1868B53025095
+	for <selinux@tycho.nsa.gov>; Tue, 8 Feb 2005 01:08:12 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1868BZa007589
+	for <selinux@tycho.nsa.gov>; Tue, 8 Feb 2005 06:08:13 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 205F261B00
+	for <selinux@tycho.nsa.gov>; Tue,  8 Feb 2005 17:08:03 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 15518-10 for <selinux@tycho.nsa.gov>;
+	Tue, 8 Feb 2005 17:08:02 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id ACB4161AFF
+	for <selinux@tycho.nsa.gov>; Tue,  8 Feb 2005 17:08:02 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: Policy makefile
+Date: Tue, 8 Feb 2005 17:07:27 +1100
+Cc: Karsten Wade <kwade@redhat.com>, dwalsh@redhat.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_icFCC2X1dDdc80H"
+Message-Id: <200502081707.30822.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FYI.
+--Boundary-00=_icFCC2X1dDdc80H
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
----------- Forwarded message ----------
-Date: Sun, 6 Feb 2005 00:17:07 +1100
-From: Michael Cohen <michael.cohen@netspeed.com.au>
-To: linux-aus@lists.linux.org.au
-Subject: [Linux-aus] Security Miniconf at LCA2005
+The attached patch will cause policy.conf to be rebuilt when a .te file is 
+removed from domains/misc or domains/program, or if a file is added to those 
+directories that is not newer than policy.conf (EG moving a file from the 
+unused directory).
 
-[Moderators: Please accept this CFP for LCA2005 security miniconf]
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Hi List,
-   This is a quick email pimping the security miniconf planned to be
-   part of the up and coming LCA2005. This is the call for papers. We
-   encourage all sorts of security related papers, even if you yourself
-   are not the primary developer for a specific project. If you feel you
-   have something to share, please consider presenting at the miniconf.
-   
-   This is the official cfp from:
-   http://lca2005.linux.org.au/security_miniconf/
+--Boundary-00=_icFCC2X1dDdc80H
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
-Call for Participation
+--- Makefile.orig	2005-02-08 17:03:39.000000000 +1100
++++ Makefile	2005-02-08 17:05:10.000000000 +1100
+@@ -46,6 +46,7 @@
+ POLICYFILES += $(ALL_TUNABLES) $(TE_RBAC_FILES)
+ POLICYFILES += $(USER_FILES)
+ POLICYFILES += constraints initial_sid_contexts fs_use genfs_contexts net_contexts
++POLICY_DIRS = domains/program domains/misc
+ 
+ UNUSED_TE_FILES := $(wildcard domains/program/unused/*.te)
+ 
+@@ -146,9 +147,9 @@
+ 	grep -v dontaudit policy.conf > policy.audit
+ 	mv policy.audit policy.conf
+ 
+-policy.conf: $(POLICYFILES) 
++policy.conf: $(POLICYFILES) $(POLICY_DIRS)
+ 	mkdir -p tmp
+-	m4 $(M4PARAM) -Imacros -s $^ > $@.tmp
++	m4 $(M4PARAM) -Imacros -s $(POLICYFILES) > $@.tmp
+ 	mv $@.tmp $@
+ 
+ install-src: 
 
-Suggested topics include
-
-    * Security features within Linux. This may cover PaX/Non executable
-      stacks, GRSecurity, IPTables developments, security enhancements
-      within applications such as apache, php, python etc.
-    * Reverse Engineering technologies: This may cover both advances in
-      reverse engineering of potentially malicious code, and advances in
-      anti-reverse engineering technology for the Linux platform
-    * Forensics and Incident response: This may cover tools and
-      techniques for incident response of and using Linux systems. Talks
-      may be presented on an introductory level (What every system
-      administrator should know how to do) to an advanced level
-      (tracking kernel space root kits).
-
-Talks must be of technical nature aimed at developers/system
-administrators. All speakers must have registered for Linux.conf.au.
-Talks may either be 30,45 or 60 minutes in duration (including questions).
-
-Abstracts should be sent to michael.cohen@lca2005.linux.org.au. Please
-include the prefered duration and Audio Visual requirements.
-
-
-Thanks,
-
- Michael.
-
-_______________________________________________
-linux-aus mailing list
-linux-aus@lists.linux.org.au
-http://lists.linux.org.au/listinfo/linux-aus
-
+--Boundary-00=_icFCC2X1dDdc80H--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
