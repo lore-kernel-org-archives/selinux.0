@@ -1,41 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA16716
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 17:47:00 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA14269
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 21:46:26 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id VAA14265
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 21:46:24 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: <blacknet@simplyaquatics.com>
-Subject: Re: fingerd (was  new packages)
-Date: Sun, 7 Jul 2002 17:46:11 -0400
-References: <006401c225fc$95ccabc0$0a01a8c0@ed>
-In-Reply-To: <006401c225fc$95ccabc0$0a01a8c0@ed>
-Cc: SE Linux <selinux@tycho.nsa.gov>
+From: "Leslie J. French" <ljf@semandex.net>
+To: "Russell Coker" <russell@coker.com.au>
+Cc: "SELinux" <SELinux@tycho.nsa.gov>
+Subject: RE: poweroff problem?
+Date: Sun, 7 Jul 2002 20:00:13 -0400
+Message-ID: <BFEMIIHKHLALNELLMPOMOEKECBAA.ljf@semandex.net>
 MIME-Version: 1.0
-Message-Id: <20020707214611.782C13E96@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <20020707133402.8E1613062@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 7 Jul 2002 17:23, you wrote:
-> If I make a
-> /usr/share/selinux/policy/current/file_contexts/program/fingerd.fc file
-> shouldn't the contents be this?
+>On Sat, 6 Jul 2002 11:35, Leslie J. French wrote:
+>> And there are a lot of avc violations associated with killall from apmd_t
+>> to various other types (e.g. kernet_t).  This is as "out of the box" as I
+>> can make my system, none of my users or domains are in the system, and
+I'm
+>> using the .te and .fc files directly from the distribution.
 >
-> /usr/sbin/in.fingerd               system_u:object_r:fingerd_exec_t
+>Reporting that there are "a lot of errors" doesn't really help us.  You
+need
+>to provide samples of these errors (and making sure that you spell them
+>correctly is important too - there has never been a kernet_t).
 
-Yes, that should be OK.
+-- Noted, though I was just polling to see if there was an obvious answer
+before filling the list with a dmesg trace etc.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Anyway, with some random changes to the LSM config file it now works -- I
+don't know which set of options stopped it, and which restored it.  I did
+remove the "use APM bios for poweroff" option though!
+
+Leslie
+
 
 --
 You have received this message because you are subscribed to the selinux list.
