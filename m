@@ -1,32 +1,27 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA25315
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 09:07:29 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA01618
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 13:07:02 GMT
-Received: from web40202.mail.yahoo.com (web40202.mail.yahoo.com [66.218.78.63])
-	by jazzswing.ncsc.mil  with SMTP id NAA01614
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 13:07:01 GMT
-Message-ID: <20020627130726.32770.qmail@web40202.mail.yahoo.com>
-Date: Thu, 27 Jun 2002 06:07:26 -0700 (PDT)
-From: Michael Nyika <nyix@yahoo.com>
-Subject: Re: Object Security Classes
-To: selinux@tycho.nsa.gov, nyix@yahoo.com
-MIME-Version: 1.0
+Date: Thu, 27 Jun 2002 14:17:11 +0100
+From: Dale Amon <amon@vnl.com>
+To: Selinux@tycho.nsa.gov
+Subject: Re: Configuration issues on a new installation
+Message-ID: <20020627131711.GA30479@vnl.com>
+References: <20020626211034.13432.qmail@web40007.mail.yahoo.com> <20020626224924.43C026E2@lyta.coker.com.au> <20020627115628.A7747@lemuria.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020627115628.A7747@lemuria.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Good day: I have a question and it is about Object
-Security Classes. How does one know before hand what
-identifiers they can take? For example, i have come
-across "file", "capability", "process". In what file
-have they been predefined (if at all)? 
+On Thu, Jun 27, 2002 at 11:56:28AM +0200, Tom wrote:
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+> I guess the worst problem is that it takes so much time to dive into
+> selinux. most of us interested in it professionally (i.e. with the
+> necessary drive to go through it no matter the hassle) are probably
+> swamped with other projects and lack the time required.
+
+This is precisely my problem: finding enough time in one block to
+do some serious work on it rather than the few days here and there
+I've been able to spare over the last year or so. Life as a consultant 
+for hire puts your priorities in a certain order :-)
+
 
 --
 You have received this message because you are subscribed to the selinux list.
