@@ -1,69 +1,57 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1IYsXZ028739
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 13:34:54 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1IXWCC023758
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 18:33:33 GMT
-Date: Mon, 1 Nov 2004 18:45:38 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   Chad Hanson <chanson@TrustedCS.com>, James Morris <jmorris@redhat.com>,
-   samba-technical@samba.org, tng-technical@lists.samba-tng.org
-Subject: Re: dynamic context transitions
-Message-ID: <20041101184538.GD9643@lkcl.net>
-References: <4182959B.4080503@trustedcs.com> <20041029211809.GJ8897@lkcl.net> <20041030090603.GK8897@lkcl.net> <1099315214.21386.13.camel@moss-spartans.epoch.ncsc.mil> <20041101141025.GZ8897@lkcl.net> <418662EE.5090001@trustedcs.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1J3iXZ029229
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 14:03:45 -0500 (EST)
+Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1J3fGG003429
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 19:03:44 GMT
+Message-Id: <200411011903.iA1J3djT009295@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: patch: add assert statement for syslog 
+In-Reply-To: Your message of "Mon, 01 Nov 2004 13:14:05 EST."
+             <1099332844.21386.170.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <20041101102345.GA3377@jmh.mhn.de> <200411011745.iA1HjGZ0004102@turing-police.cc.vt.edu>
+            <1099332844.21386.170.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <418662EE.5090001@trustedcs.com>
+Content-Type: multipart/signed; boundary="==_Exmh_1048839258P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Mon, 01 Nov 2004 14:03:35 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Nov 01, 2004 at 10:23:10AM -0600, Darrel Goeddel wrote:
-> James,
->     I am hoping that this response will also address your question of 
-> applicability outside of the MLS policy.
-> 
-> Luke Kenneth Casson Leighton wrote:
-> > this proposal is a little bit like seteuid-for-selinux, only not
-> > really, because seteuid has the ability to switch to any uid and then
-> > to any uid after that, ad infinitum.
-> >
-> 
-> That is correct.  
+--==_Exmh_1048839258P
+Content-Type: text/plain; charset=us-ascii
 
- great!
+On Mon, 01 Nov 2004 13:14:05 EST, Stephen Smalley said:
 
-> We are looking at a well-defined (via the policy) set of 
-> available type transitions.  Note that you can also specify a one-way 
-> dynamic transition as well (type1_t can dynamically transition to type2_t, 
-> but type2_t has no dynamic transitions available).  This will allow a 
-> daemon process to initialize itself with one set of access rights (bind 
-> ports, read conf files, etc.), and then lock itself into a domain with less 
-> access rights for the duration of its execution.  
+> The patch merely adds an assertion to verify what should already be true
+> in the policy, i.e. that every domain authorized to write to the
+> /dev/log socket has the privlog attribute.
 
- i understand.
+Pass me the caffeine, will ya? ;)
 
- in smbd's case, however, that would be detrimental: the flexibility of
- being able to transition back again [to type2_t] is actually a
- necessity.
+For some reason, I was convinced that macros/user-macros.te had a
+ifdef that lopped out the privlog stuff - in fact, it sticks a
+'dontaudit' on it.
 
- it might even be convenient to go through a "third" type:
 
- type1_t: access to samba configuration files [only!] seteuid: 0
- type2_t: access to user files [only!] seteuid: NNNN
- type3_t: access to pretty much nothing (except that needed for cleanup
-          operations)
 
- the loop is type1_t, call become_user() -> goes to type2_t
- then call unbecome_user() -> transitions to type3_t and does cleanup
- (e.g. frees any alloc'd memory associated with user - if necessary)
- and then transitions to type1_t, ready for the next incoming SMB
- packet.
 
- l.
+--==_Exmh_1048839258P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBhoiGcC3lWbTT17ARAjrjAKDK07P6LhoDLVpO1pMWnGy7Hzch7wCfcR/j
+lDz4v2n1GAb1t8nduE5PpaQ=
+=GzW7
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1048839258P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
