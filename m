@@ -1,41 +1,71 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8P8UtsJ022810
-	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 04:30:55 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8P8UsCG003806
-	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 08:30:54 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8PAU1sJ023102
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 06:30:02 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8PASHZt008135
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 10:28:17 GMT
 Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id h8P8UsqJ003803 for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 08:30:54 GMT
-Date: Thu, 25 Sep 2003 09:30:52 +0100
+	by jazzswing.ncsc.mil  with ESMTP id h8PASHM3008132
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 10:28:17 GMT
+Date: Thu, 25 Sep 2003 11:29:55 +0100
 From: Dale Amon <amon@vnl.com>
-To: Diyab <diyab@diyab.net>
-Cc: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
+To: Tom <tom@lemuria.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: ssh policy hassles
-Message-ID: <20030925083052.GA10234@vnl.com>
-References: <F5441DDE18FFD9418974338018C522B718BDB0@na1fcm61.dearborn.ford.com> <20030924221157.GS21997@vnl.com> <20030924222702.GT21997@vnl.com> <3F725AA4.1090300@diyab.net>
+Message-ID: <20030925102955.GC10234@vnl.com>
+References: <F5441DDE18FFD9418974338018C522B718BDB0@na1fcm61.dearborn.ford.com> <20030924221157.GS21997@vnl.com> <20030925084613.H11866@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3F725AA4.1090300@diyab.net>
+In-Reply-To: <20030925084613.H11866@lemuria.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 24, 2003 at 11:01:56PM -0400, Diyab wrote:
-> Dale Amon wrote:
-> I don't get that /var/lib avc error.  Does the login work without that 
-> allow rule you added?  If so then maybe it doesn't really need it.
+On Thu, Sep 25, 2003 at 08:46:17AM +0200, Tom wrote:
+> Because it is not hard-coded. It's whatever home-directory you set in
+> /etc/passwd for the privsep account.
+> That's also why others don't see that access. On Debian, for example,
+> it defaults to /var/empty
 
-Nope. I cannot connect in enforcing mode. I've worked my way through
-two ssh fatal avc's and this is the last one. None of them make
-particular sense to me. To the point that I even did a 
-forced reinstall of ssh...
- 
-> Maybe that "bad" link has something to do with it.  unmount /var and run 
-> an fsck on it then remount it and see if you still get the error.
+Some ssh documentation recommends this as the default setup, 
 
-It's not a partition, just a plain directory. The whole disk is a
-/ partition so all I could do is reboot. That will happen later
-this morning anyway, since I shut the test bed down at night. It's
-old and noisy. :-)
+ mkdir /var/empty
+ chown root:sys /var/empty
+ chmod 755 /var/empty
+ groupadd sshd
+ useradd -g sshd -c 'sshd privsep' -d /var/empty -s /bin/false sshd
+
+But debian has this setup:
+
+/etc/passwd
+	sshd:x:102:65534::/var/run/sshd:/dev/null
+
+/etc/group
+	ssh:x:105:
+
+/var
+	drwxr-xr-x    2 root     root         1024 Aug 27  2002 empty
+
+/var/run
+	drwxr-xr-x    2 root     root         1024 Aug 22 22:26 /var/run/sshd
+
+Which looks like it should be using /var/run/sshd insteady of /var/empty,
+and yet the search priv on /var fixed one problem. 
+
+> You might want to define a special type for the empty dir, so you can
+> move it around and don't have to give sshd access to all of /var
+
+That might be necessary. As far as I can tell, I've got
+a straight out of the dpkg openssh install on this box. I'd think
+anyone else on debian should be seeing the same problem if this
+is the case, so I'm very interested in seeing where the real
+problem lies, ie specific to my test machine, or a general
+package problem for debian, or a generic problem for ssh policy.
+
+I've now also got to follow up on Russ's suggestions. His note
+that the missing inode is a /proc item might be very helpful on
+that one.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
