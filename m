@@ -1,50 +1,60 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA35pgXZ012693
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 00:51:42 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA35oJ4w025929
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 05:50:20 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3D29XZ014301
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 08:02:09 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3D25JZ016117
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 13:02:08 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 Subject: Re: Patch to make can_network stronger and remove nscd tunable.
-Date: Wed, 3 Nov 2004 16:23:36 +1100
-Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>
-References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <200411030248.49998.russell@coker.com.au> <4187ADEF.5030803@redhat.com>
-In-Reply-To: <4187ADEF.5030803@redhat.com>
+Date: Wed, 3 Nov 2004 17:16:45 +1100
+Cc: Daniel J Walsh <dwalsh@redhat.com>, jwcart2@epoch.ncsc.mil,
+   SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@epoch.ncsc.mil>
+References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <4187AE44.40204@redhat.com> <20041103000707.GD2547@jmh.mhn.de>
+In-Reply-To: <20041103000707.GD2547@jmh.mhn.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200411031623.36309.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200411031716.45644.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 03 November 2004 02:55, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >Then we should have two macros, one that allows outbound connections and
-> > one that doesn't.  Increasing the line count in most domains that have
-> > network access does no good.
+On Wednesday 03 November 2004 11:07, Thomas Bleher 
+<bleher@informatik.uni-muenchen.de> wrote:
+> allow logrotate_t acct_data_t:dir search;
+> allow logrotate_t acct_data_t:file create_file_perms;
+
+I don't think that is correct either.  If you only have search access to a 
+directory then you can not create a file inside it...
+
+> >  allow ftpd_t ftp_data_port_t:tcp_socket name_bind;
+> > +allow ftpd_t port_t:tcp_socket { name_bind };
 >
-> I wanted to treat connect the same way we treat name_bind.  Basically
-> you need to explicitly state whether a network daemon is inbout,
-> outbound or both.  If we want to add all the macros fine, but having
-> can_network default to allowing connect is too loose, think of spammers.
+> I confess I am not too familiar with ftp, but does it really need to
+> bind to arbitrary ports, seems excessive and unneeded (and is not
+> granted in current policy as far as I can see)
 
-We have to have more macros.  There is no reason for not having all network 
-access for a process in a single line in a .te file.  Having multiple lines 
-for this makes it more difficult to read and gives more errors.
+I guess that would be for active FTP.  It's ugly but I don't think that we 
+have a choice.
 
-The question is, do we have can_network() do what it has always done, or do we 
-have the new macro give the current functionality of can_network() and have 
-can_network() not permit connections.
+> > +/usr/lib/mailman/bin/qrunner    --
+> > system_u:object_r:mailman_queue_exec_t +/etc/mailman(/.*)?    
+> > system_u:object_r:mailman_data_t
+> > +/var/spool/mailman(/.*)?    system_u:object_r:mailman_data_t
+>
+> Sorry, I do not know mailman at all, so please excuse my ignorance.
+> But does mailman really have to write to /etc/mailman, which is
+> presumably it's configuration data? This is not nice at all.
 
-We don't want to apply a change to all the .te files related to can_network() 
-until we resolve this issue.
+It shouldn't be necessary, and isn't unless mailman has changed recently.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
