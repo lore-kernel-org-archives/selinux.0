@@ -1,59 +1,40 @@
-Subject: Re: latest diff
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-   "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   Jim Carter <jwcart2@epoch.ncsc.mil>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <20050323110957.GI12610@rom.cip.ifi.lmu.de>
-References: <423BCC68.3090003@redhat.com>
-	 <1111248890.5582.20.camel@chris.pebenito.net> <423C54F5.5060205@redhat.com>
-	 <20050323110957.GI12610@rom.cip.ifi.lmu.de>
-Content-Type: text/plain
-Date: Wed, 23 Mar 2005 08:51:29 -0500
-Message-Id: <1111585889.21107.49.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <424175DA.9040804@redhat.com>
+Date: Wed, 23 Mar 2005 08:57:46 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   James Morris <jmorris@redhat.com>, Chad Hanson <chanson@TrustedCS.com>
+Subject: Re: You mentioned somewhere there is a step by step guide to	getting
+ the MLS policy installed on a machine?
+References: <41EC4682.8050807@trustedcs.com>	 <41F6D30D.9070904@trustedcs.com>	 <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil>	 <42408CAB.4030007@redhat.com> <1111583468.21107.15.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1111583468.21107.15.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-03-23 at 12:10 +0100, Thomas Bleher wrote:
-> Would it be possible to decompose sys_admin into a set of selinux
-> permissions? I think this would be the best solution. 
-> Probably difficult with the current design, but maybe capable() could
-> get a second parameter specifying what type of access is to be granted,
-> or the code could call an lsm function in addition to the capable()
-> call.
-> Is this doable?
+Stephen Smalley wrote:
 
-Yes, feel free to suggest/submit patches (to the lsm mailing list and
-lkml) to add new LSM hooks to code where the existing capable call
-provides insufficient granularity, and then move the capable call into
-the hook function implementation for the dummy and capability modules.
-The goal should be to replace capable() calls with more flexible LSM
-hooks wherever it makes sense to do so, but doing that completely in the
-first round of LSM was viewed as impractical (e.g. >500 calls to capable
-in the kernel tree).  Then for SELinux, you can define new permissions
-in the system class or create new classes as appropriate to provide
-finer-grained controls.
+>On Tue, 2005-03-22 at 16:22 -0500, Daniel J Walsh wrote:
+>  
+>
+>>Where can I get that?
+>>    
+>>
+>
+>selinux-doc/README.MLS (look for the section titled INSTALLATION)
+>
+>  
+>
+If I follow those instructions with the Current Rawhide kernel and the 
+soon to be released selinux-policy-mls, can I get a SELinux/MLS machine
+up and running or do I need addtional packages from TCS?
 
-Another item that ultimately needs to be addressed is the mapping of
-device and filesystem ioctls to more general permission check calls to
-the security module, so that interpretation can remain in the device and
-filesystem code but reasonable controls can be applied by security
-policies.  This would be similar to what James Morris did for the
-netlink message types, although that presently relies on maintaining a
-separate netlink message type table for SELinux (which may be a
-maintenance problem in the long term, and certainly won't scale for
-ioctls).
-
-Another fun task would be to provide _real_ labeling and control of
-devices, not just device nodes in the filesystem, so that the ability to
-create device nodes doesn't allow one to sidestep access controls based
-on the device type.
+Dan
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+
 
 
 --
