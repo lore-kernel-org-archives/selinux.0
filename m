@@ -1,80 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3Q8sFI4017791
-	for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2003 04:54:15 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3Q8s8Vf026450
-	for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2003 08:54:08 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3QGEHI4018475
+	for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2003 12:14:18 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h3QGEH7R018495
+	for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2003 16:14:17 GMT
 Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h3Q8s54D026446
-	for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2003 08:54:06 GMT
+        by jazzband.ncsc.mil  with ESMTP id h3QGEEKP018492 for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2003 16:14:15 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 9CFC1BF37
+	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 02:14:13 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 09353-02
+ for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 02:14:12 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 5B654BF11
+	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 02:14:12 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 1ACC0924A3
+	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 02:14:12 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 0AED63998
+	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 02:13:58 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Howard Holm <hdholm@epoch.ncsc.mil>
-Subject: file_contexts tiny patch
-Date: Sat, 26 Apr 2003 18:53:55 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: busybox ls
+Date: Sun, 27 Apr 2003 02:13:57 +1000
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_jkkq+cbDv3f1kaH"
-Message-Id: <200304261853.55786.russell@coker.com.au>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200304270213.57411.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I'm writing SE Linux support for busybox ls.  I can't use long options and 
+most of the letters are taken.
 
---Boundary-00=_jkkq+cbDv3f1kaH
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-I've attached a tiny patch to add support for policy/file_contexts/misc .
-
-This directory is to be used for .fc files that don't have a matching .te 
-file.  One thing I have used this for is a .tar.gz archive of GCC for 
-cross-compiling for ARM, so I have policy/file_contexts/misc/arm-gcc.fc which 
-has the appropriate labelling for /opt/arm.
-
-I think that this is generally useful.
-
-I haven't moves types.fc yet because the misc directory is processed in 
-alphabetical order and types.fc needs to be first.
+Any suggestions on which option switches I should use for equivalent of --sid 
+and --context functionality?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_jkkq+cbDv3f1kaH
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="fc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="fc.diff"
-
-diff -ruw /usr/share/selinux/policy/default/Makefile /usr/share/selinux/policy/current/Makefile
---- /usr/share/selinux/policy/default/Makefile	2003-04-25 16:46:07.000000000 +1000
-+++ /usr/share/selinux/policy/current/Makefile	2003-04-26 18:47:43.000000000 +1000
-@@ -35,7 +35,7 @@
- POLICYFILES += tmp/constraints-contexts.m4
- 
- FC = file_contexts/file_contexts
--FCFILES=file_contexts/types.fc $(patsubst domains/program/%.te,file_contexts/program/%.fc, $(wildcard domains/program/*.te))
-+FCFILES=file_contexts/types.fc $(wildcard file_contexts/misc/*.fc) $(patsubst domains/program/%.te,file_contexts/program/%.fc, $(wildcard domains/program/*.te))
- 
- 
- install: $(LOADPATH)
-@@ -109,7 +109,7 @@
- reset:  $(FC) $(SETFILES)
- 	$(SETFILES) -R $(FC) `mount | awk '/(ext[23]|reiserfs|jfs|jffs2)/{print $$3}'`
- 
--$(FC): $(FCFILES) file_contexts/program 
-+$(FC): $(FCFILES) file_contexts/program file_contexts/misc
- 	cat $(FCFILES) > $@
- 
- clean:
-
---Boundary-00=_jkkq+cbDv3f1kaH--
 
 
 --
