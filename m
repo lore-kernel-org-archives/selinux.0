@@ -1,42 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB9AtCRb021594
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 05:55:12 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB9AsRlU001581
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 10:54:27 GMT
-Received: from nox.lemuria.org ([213.191.86.35])
-	by jazzswing.ncsc.mil  with ESMTP id hB9AsRSX001578
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 10:54:27 GMT
-Date: Tue, 9 Dec 2003 11:54:49 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: Policy in arch/tla
-Message-ID: <20031209115448.B1732@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB9CEDRb021881
+	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 07:14:13 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB9CECRV021129
+	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 12:14:12 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+        by jazzband.ncsc.mil  with ESMTP id hB9CEBta021122 for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 12:14:11 GMT
+Message-ID: <3FD5BC93.2040805@diyab.net>
+Date: Tue, 09 Dec 2003 07:14:11 -0500
+From: Timothy Wood <timothy@diyab.net>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Basic question on policy design
+References: <000401c3ba6a$ad593430$8100a8c0@columbia.tresys.com> <3FCF968B.3050504@diyab.net> <200312051104.34261.russell@coker.com.au>
+In-Reply-To: <200312051104.34261.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've finally managed to get it set up. It doesn't like its destination
-directory already existing, apparently. That plus a few limit
-directives that Brian supplied worked out.
+Russell Coker wrote:
 
-Please try if it works. The repository is:
+> On Fri, 5 Dec 2003 07:18, Diyab <diyab@diyab.net> wrote:
+> 
+>>require the ability to speak to one another.  So for process to process
+>>you might end up with something like:
+> 
+> 
+> can_tcp_connect(httpd_t, postgresql_t)
+> 
 
-tom@lemuria.org--selinux-public
-    http://guest:guest@nox.lemuria.org/arch/public/
+I was not aware that existed.  It does seem to exactly what is needed. 
+Thanks for pointing that out Russell.
 
-And there is one item there named "policy--default--0.1"
-
-guest should have both read and write access. I think that's ok. If any
-jerk trashes everything, we can easily revert, and if someone wants to
-fill my harddisk with MP3s, feel free to. :)
+Timothy,
 
 
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
