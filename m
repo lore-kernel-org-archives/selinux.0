@@ -1,52 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i14JQlRb014061
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 14:26:47 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i14KWLRb014500
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 15:32:21 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i14JPOVK026272
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 19:25:24 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-	by jazzswing.ncsc.mil  with ESMTP id i14JPOlx026269
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 19:25:24 GMT
-Subject: Re: FS crash
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: "Theodore Y. Ts'o" <tytso@mit.edu>, Russell Coker <russell@coker.com.au>,
-   Andreas Gruenbacher <agruen@suse.de>, SE Linux <selinux@tycho.nsa.gov>,
-   ACL devel list <acl-devel@bestbits.at>,
-   "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-   Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20040204191142.GA11886@bunuel.tii.matav.hu>
-References: <1074008995.7158.18.camel@kusturica>
-	 <200401142317.18958.russell@coker.com.au>
-	 <1075866064.19815.57.camel@sisko.scot.redhat.com>
-	 <20040204191142.GA11886@bunuel.tii.matav.hu>
-Content-Type: text/plain; charset=ISO-8859-15
-Message-Id: <1075922729.1998.429.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-Date: 04 Feb 2004 19:25:29 +0000
+	by jazzswing.ncsc.mil  with ESMTP id i14KUqVK003595
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 20:30:52 GMT
+Received: from s3cin.xetron.com (fw.xetron.com [216.68.89.2])
+	by jazzswing.ncsc.mil  with ESMTP id i14KUolx003591
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 20:30:50 GMT
+Message-ID: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A96@s3cin>
+From: "Kratzer, James R." <JamesK@xetron.com>
+To: "'sds@epoch.ncsc.mil'" <sds@epoch.ncsc.mil>
+Cc: "SE Linux Mail List (E-mail)" <selinux@tycho.nsa.gov>
+Subject: glibc  AT_SECURE auxv
+Date: Wed, 4 Feb 2004 15:32:09 -0500 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+>From what I've read, this glbc change is important for a production system
+and has been upstreamed into Fedora.
+So what is a Red Hat 9 2.4 kernel user to do if he wants the AT_SECURE auxv
+glibc change for a production system?  Must I upgrade from Red Hat 9 to the
+Fedora core to get this change, which is really out of the question at this
+point?  Please clarify.
+>From: Stephen Smalley <sds_at_epoch.ncsc.mil> 
+>Date: Wed 1 Oct 2003 - 10:16:24 EDT
+>The support for the AT_SECURE auxv entry was upstreamed into the mainline
+glibc CVS tree back in June after the corresponding kernel change was
+accepted by Linus into the mainline 2.5 (now 2.6) kernel. 
+>-- 
+>Stephen Smalley <sds@epoch.ncsc.mil>
+>National Security Agency
 
-On Wed, 2004-02-04 at 19:11, Magosányi Árpád wrote:
-
-> Related to this same fs crash Theodore Y. Ts'o have found
-> some endiannes problems in e2fslibs code. But I cannot
-> get silo to use any symlinks, despite that I have recompiled
-> it with the patched e2fslibs.
-> 
-> Can it be due to this xattr bug?
-
-Any code that is aware of fast vs. slow symlinks will not work if the
-i_blocks gets out of sync, so it's possible that that's a problem.  But
-fsck (with Ted's endian fixes) should correct the i_blocks counter.  If
-you still have silo problems reading after that, then there must be
-something else going on.
-
-Cheers,
- Stephen
-
+On Tue, 2003-09-30 at 21:04, Diyab wrote: 
+> So is this new glibc version available as the mainstream glibc package 
+> or will non redhat users still have to apply the patch. And if is or 
+> will be soon available as mainstream glibc do you know what version?
 
 
 --
