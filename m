@@ -1,52 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA03896
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 08:12:37 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA06573
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 13:12:31 GMT
-Received: from mailgw3a.lmco.com (mailgw3a.lmco.com [192.35.35.24])
-	by jazzband.ncsc.mil  with ESMTP id NAA06567
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 13:12:30 GMT
-Received: from emss04g01.ems.lmco.com ([166.17.13.122])
-	by mailgw3a.lmco.com (8.8.8/8.8.8) with ESMTP id IAA17082
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 08:12:35 -0500 (EST)
-Received: from CONVERSION-DAEMON by lmco.com (PMDF V5.2-32 #38890) id <0GAY00601NBJTQ@lmco.com> for selinux@tycho.nsa.gov;
- Thu, 29 Mar 2001 08:11:44 -0500 (EST)
-Received: from emss04i00.ems.lmco.com ([166.17.13.135]) by lmco.com (PMDF V5.2-32 #38890)
- with ESMTP id <0GAY001FHNBHDG@lmco.com> for selinux@tycho.nsa.gov; Thu, 29 Mar 2001 08:11:41 -0500 (EST)
-Date: Thu, 29 Mar 2001 08:13:42 -0500
-From: "Kutz, William R" <william.r.kutz@lmco.com>
-Subject: A New Virus
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Message-id: <079B626B05A0D3118B1000508B0EA5E90717EBE0@emss04m05.ems.lmco.com>
-MIME-version: 1.0
-Content-type: text/plain
+Date: Thu, 29 Mar 2001 08:43:02 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: gawain.lynch@felicity-consulting.com.au
+cc: SELinux@tycho.nsa.gov
+Subject: Re: Problem in installation...
+In-Reply-To: <OF47CED767.27D7E95D-ONCA256A1D.007D6A98@felicity.net.au>
+Message-ID: <Pine.SOL.3.95.1010329082932.17401C-100000@clipper.gw.tislabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There are reports of a new virus that infects both Windows and Linux
-platforms: 
-http://dailynews.yahoo.com/h/nm/20010327/wr/virus_winux_dc_1.html
 
-As the popularity of Linux grows, this will become more of the norm, and it
-would be interesting to know if a standard configuration of selinux is more
-capable of withstanding & controlling the infection and subsequent
-propagation of the virus. Real world examples like this can go a long way
-toward demonstrating the value of the security features prominent in systems
-like selinux.
+People also had compiler problems with the older 2.2-based 
+SELinux release on RedHat 7, but were able to address them
+by using kgcc or by upgrading their gcc to the latest version.  
+See the thread starting at 
+http://www.nsa.gov/selinux/list-archive/0232.html.
+However, it seemed like at least some of the problems
+were due to using 2.2-based kernel sources rather than
+2.4-based sources, so I'm not sure why there would
+still be problems with the new release.
 
-Keep up the good work; I think this is a call that we clearly need more
-contributions like that provided by the team at NSA.
+--
+Stephen D. Smalley, NAI Labs
+sds@tislabs.com
 
-Bill
- 
 
-Bill Kutz
+On Thu, 29 Mar 2001 gawain.lynch@felicity-consulting.com.au wrote:
 
-M&DS Lockheed Martin
-william.r.kutz@lmco.com
-610-354-7149
-
+> I tracked one of the problems down.  A lot of people, myself included seem 
+> to be trying to compile with Red Hat 7. 
+> 
+> The RH7 install is missing egcs (provides 
+> /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/), which I installed off 
+> my RH6.2 CD, _reinstalled_ the updated gcc and no more stddef.h error!
+> 
+> I still can't give anymore reasons as to the tools/build-kernel script 
+> fails, but it will work if you have run make dep and commented that action 
+> out of the script.
+> 
+> Cheers,
+> 
+> Gawain
 
 
 --
