@@ -1,49 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1954FRb002022
-	for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 00:04:16 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1954EOi025356
-	for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 05:04:15 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i1954DWW025329 for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 05:04:14 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
-Subject: Re: Problem with defaulting answers to selinux-policy-default
-Date: Mon, 9 Feb 2004 16:02:48 +1100
-References: <20040208163236.GF10500@vnl.com>
-In-Reply-To: <20040208163236.GF10500@vnl.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402091602.48538.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i19EqCRb004022
+	for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 09:52:12 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i19EojQk012741
+	for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 14:50:45 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i19EoiYo012738
+	for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 14:50:44 GMT
+Subject: Re: Issues relabeling filesystems
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Ignacio Tripodi <ignaciot@unt.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1076101806.402402aece754@eaglemail.unt.edu>
+References: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu>
+	 <1076080186.16170.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <1076101806.402402aece754@eaglemail.unt.edu>
+Content-Type: text/plain
+Message-Id: <1076338326.3523.5.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 09 Feb 2004 09:52:07 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 9 Feb 2004 03:32, Dale Amon <amon@vnl.com> wrote:
-> I think Russell is again buried in email and work, so
+On Fri, 2004-02-06 at 16:10, Ignacio Tripodi wrote:
+> Thanks! I downloaded the latest policy source and utilities from the cvs and now
+> seems to be fine. Now I have a policy question:
+> 
+> After I edit the policy files and succesfully compile it, I can't seem to be
+> able to load the new policy binary:
+> 
+> # load_policy policy.16
+> security:  policydb version 16 does not match my version 15
+> load_policy:  security_load_policy failed
+> 
+> I looked into the policy source files to see where it defines the version but
+> couldn't find anything. How could I tell policydb which is the current version?
 
-Sorry for the delay.
-
-> Using policy installation method "Semi-Automatic"
-> Copying the sample /usr/share/selinux/policy/current directory from
-> /usr/share/selinux/policy/default
-> Removal of unwanted policy files
-> Removing "current/domains/program/gnome-pty-helper.te"
-> Include "Checkpolicy - SELinux policy compliler"
-> (current/domains/program/checkpolicy.te) in policy? (References known
-> installed packages: checkpolicy)
->  Yes/No/Display/Background [Y/n/d/b]?
-
-What I probably need to do is to have a debconf setting allowing you to say 
-"c" to all questions about policy changes, and then get Colin's code working 
-for installing new .te files IFF they are needed.
+You either need to uncomment the POLICYCOMPAT definition in the policy
+Makefile, or update to a kernel that includes the conditional policy
+extension patch from Tresys.  I've now pushed the updated kernel to the
+sourceforge CVS tree, although it will take a little bit to reach the
+read-only mirrors.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
