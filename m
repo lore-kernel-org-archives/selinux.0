@@ -1,54 +1,36 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA13124
-	for <selinux@tycho.nsa.gov>; Thu, 25 Jul 2002 23:45:25 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA13944
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 06:22:32 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id DAA00791
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 03:44:38 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id DAA00787
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 03:44:36 GMT
-Date: Fri, 26 Jul 2002 13:45:14 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Attributes vs Macro
-Message-ID: <20020726034514.GE27354@snoopy.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id KAA11786
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 10:21:45 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id KAA11782
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 10:21:43 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Brian May <bam@snoopy.apana.org.au>,
+        NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: Re: IDENTIFIER
+Date: Fri, 26 Jul 2002 12:22:25 +0200
+References: <20020726032129.GD27354@snoopy.apana.org.au>
+In-Reply-To: <20020726032129.GD27354@snoopy.apana.org.au>
+MIME-Version: 1.0
+Message-Id: <20020726102225.C748D155E@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Fri, 26 Jul 2002 05:21, Brian May wrote:
+> Is it possible to relax the definition of IDENTIFIER:
+>
+> {letter}({letter}|{digit}|_)*   { return(IDENTIFIER); }
+>
+> Any one symbol would be OK, but suggested ones include ~!@%&-=/
 
-Out of these, why would you choose one over the other?
+~ is already taken to mean a logical not.
 
-
-1. macro
-
-type mydomain1_t domain;
-type mydomain2_t domain;
-
-define(`xyz_domain',`
-allow $1_t ...
-...
-')
-
-xyz_domain(mydomain1_t)
-xyz_domain(mydomain2_t)
-
-
-2. attribute
-
-type mydomain1_t domain, xyz;
-type mydomain2_t domain, xyz;
-
-allow xyz ...
-...
-
-
-Are there any perfomance considerations when
-choosing one other the other?
--- 
-Brian May <bam@snoopy.apana.org.au>
 
 --
 You have received this message because you are subscribed to the selinux list.
