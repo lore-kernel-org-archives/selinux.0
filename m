@@ -1,40 +1,29 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hARMkERb025370
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 17:46:14 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hARMjcp5014893
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 22:45:38 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hARMjct0014890
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 22:45:38 GMT
-Date: Thu, 27 Nov 2003 22:46:06 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Policy error of the day
-Message-ID: <20031127224606.GB12418@vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAS5a8Rb026121
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 00:36:09 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hAS5a7qY024929
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 05:36:08 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+        by jazzband.ncsc.mil  with ESMTP id hAS5a70o024926 for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 05:36:07 GMT
+Message-ID: <3FC6DEC6.7020501@diyab.net>
+Date: Fri, 28 Nov 2003 00:36:06 -0500
+From: Diyab <diyab@diyab.net>
+MIME-Version: 1.0
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: glibc
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The policy build error for today is:
+Is there any specific way to check for AT_SECURE functionality in glibc?
 
-make: *** No rule to make target `file_contexts/program/redhat-config-users.fc', needed by `file_contexts/file_contexts'.  Stop.
-dpkg: error processing selinux-policy-default (--configure):
- subprocess post-installation script returned error exit status 2
-Errors were encountered while processing:
- selinux-policy-default
-E: Sub-process /usr/bin/dpkg returned an error code (1)
+Timothy,
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
