@@ -1,45 +1,32 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7N3NCLa015003
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 23:23:12 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7N3NBfF006738
-	for <selinux@tycho.nsa.gov>; Sat, 23 Aug 2003 03:23:11 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h7N3N9Hd006733 for <selinux@tycho.nsa.gov>; Sat, 23 Aug 2003 03:23:10 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 3ACA5C1C4
-	for <selinux@tycho.nsa.gov>; Sat, 23 Aug 2003 13:23:08 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
- id 23910-06 for <selinux@tycho.nsa.gov>;
- Sat, 23 Aug 2003 13:22:36 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id B0BB7C1BD
-	for <selinux@tycho.nsa.gov>; Sat, 23 Aug 2003 13:22:36 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id AE290926F8
-	for <selinux@tycho.nsa.gov>; Sat, 23 Aug 2003 13:22:35 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 63BED7F085
-	for <selinux@tycho.nsa.gov>; Sat, 23 Aug 2003 13:22:13 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: David Gathright
-Date: Sat, 23 Aug 2003 13:22:13 +1000
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: general security lib (was: 2.6.0-test3)
+Date: Sat, 23 Aug 2003 15:06:01 +1000
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <1061468940.1665.16.camel@kusturica> <1061562771.28086.157.camel@moss-spartans.epoch.ncsc.mil> <3F465113.3010207@redhat.com>
+In-Reply-To: <3F465113.3010207@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200308231322.13020.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200308231506.01495.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David, if you want any response to any future messages about SE Linux then you 
-will have to post to the list.
+On Sat, 23 Aug 2003 03:21, Daniel J Walsh wrote:
+> Also how would you allow the user to select the context they will login
+> as if there are more then one?  Unless we remove this capability and
+> always force users to use newrole.
 
-I really hate going to the effort of writing technical messages only to 
-discover that the email address that was used to send the messages does not 
-work so my replies go to /dev/null.
+Firstly, this decision is not currently available in a regular ssh 
+configuration or for cron.  So such a PAM module would easily allow the use 
+of unmodified sshd and cron programs once support for the new PAM had been 
+added.
+
+As for login, I am under the impression that there is a possibility for a 
+dialog between application and PAM module, so the PAM module could specify 
+text to display and the application could return an answer to it.  But I 
+haven't done any PAM coding yet so I'm not sure of this.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
