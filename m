@@ -1,57 +1,54 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i79JW0rT027926
-	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 15:32:00 -0400 (EDT)
-Received: from smtp814.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i79JVwIn006558
-	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 19:31:58 GMT
-Date: Mon, 9 Aug 2004 20:43:21 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i79JjxrT028076
+	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 15:45:59 -0400 (EDT)
+Received: from smtp814.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i79JjNnn018717
+	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 19:45:23 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp814.mail.ukl.yahoo.com with SMTP; 9 Aug 2004 19:45:58 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BuFdi-0000LG-91
+	for selinux@tycho.nsa.gov; Mon, 09 Aug 2004 19:16:58 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BuGGn-00040u-5a
+	for selinux@tycho.nsa.gov; Mon, 09 Aug 2004 20:57:21 +0100
+Date: Mon, 9 Aug 2004 20:57:21 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, g@lkcl.net
-Cc: SE-Linux <selinux@tycho.nsa.gov>,
-   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
-Subject: Re: lots of allow xxx_device_t device_t:filesystem { associate }
-Message-ID: <20040809194321.GO3868@lkcl.net>
-References: <20040809175246.GK3868@lkcl.net> <1092077016.29199.166.camel@moss-spartans.epoch.ncsc.mil> <20040809190901.GM3868@lkcl.net> <1092078176.29199.179.camel@moss-spartans.epoch.ncsc.mil>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: different selinux file-context root
+Message-ID: <20040809195721.GP3868@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1092078176.29199.179.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 09, 2004 at 03:02:57PM -0400, Stephen Smalley wrote:
-> On Mon, 2004-08-09 at 15:09, Luke Kenneth Casson Leighton wrote:
-> >  thank you: i found this: i was more concerned that i should
-> >  be setting mount -o fscontext=....fs_t instead?
-> 
-> No, I think device_t is appropriate here.
-> 
-> >  allow initrc_t device_t:lnk_file { create };
-> >  for a symlink to be created between /proc/self/fd and /dev/fd
-> > 
-> >  i realise it would be better to move stuff in /etc/init.d/udev
-> >  to a separate program, e.g. /sbin/udev-init, and to have that
-> >  program be given a separate domain instead of having to add
-> >  this to initrc_t.
-> 
-> I already see an 'allow initrc_t device_t:lnk_file { unlink };' rule in
-> initrc.te related to udev operation, so this isn't too surprising.
-> 
-> >  allow udev_t device_t:file { getattr unlink };
-> >  for /sbin/udev to stat and remove /dev/null...
-> 
-> /dev/null should show up as chr_file, and should be created with
-> null_device_t anyway.  Is this actually an attempt to unlink udev.tbl?
+i'm thinking of doing installs of selinux systems and online
+backups/restores from an initial ramdisk.
 
-no, it's definitely an attempt to unlink /dev/null (!).
+e.g. modifying rsync to cope with selinux file contexts.
 
-and it's definitely saying device_t:file.
+e.g. there are several backup programs that create bootable CDs, that
+then redo the entire system.
 
-_after_ init level 1 has completed, ls -Z /dev/null shows
-null_device_t on /dev/null.
+what would make sense is for rsync, star etc. to have a context-"chroot"
+under which the selinux file contexts get recreated relative to that
+directory as the root filesystem.
 
-fuuunnn...
+then i don't have to mess about ensuring that the entire filesystem
+is correctly there and then doing something like this:
+
+	chroot /mnt-point make -C /etc/selinux/src relabel
 
 l.
+
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
