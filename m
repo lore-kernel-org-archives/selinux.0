@@ -1,71 +1,103 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9LG0jWt027645
-	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 12:00:45 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9LG0iIE002943
-	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 16:00:44 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h9LG0h1J002920 for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 16:00:43 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: init patch for loading policy
-Date: Wed, 22 Oct 2003 02:00:35 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200310200148.15852.russell@coker.com.au> <200310220043.09925.russell@coker.com.au> <1066748352.27065.100.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1066748352.27065.100.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9LHp2Wt028388
+	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 13:51:02 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9LHokIU014642
+	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 17:50:48 GMT
+Message-ID: <3F957200.9040201@redhat.com>
+Date: Tue, 21 Oct 2003 13:50:56 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310220200.35514.russell@coker.com.au>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: init patch for loading policy
+References: <200310200148.15852.russell@coker.com.au>	 <200310211052.28494.russell@coker.com.au>	 <1066739366.27065.39.camel@moss-spartans.epoch.ncsc.mil>	 <200310220043.09925.russell@coker.com.au> <1066748352.27065.100.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1066748352.27065.100.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/alternative;
+ boundary="------------000408060407030401030503"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 22 Oct 2003 00:59, Stephen Smalley wrote:
-> On Tue, 2003-10-21 at 10:43, Russell Coker wrote:
-> > The results I have so far indicate that this approach has significant
-> > problems.
-> >
-> > Diverting /sbin/init with a shell script works better than this.
+This is a multi-part message in MIME format.
+--------------000408060407030401030503
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Stephen Smalley wrote:
+
+>On Tue, 2003-10-21 at 10:43, Russell Coker wrote: 
+>  
 >
-> Ok, thanks for looking into it.  So what exactly is the problem with
-> diverting /sbin/init again?
+>>The results I have so far indicate that this approach has significant 
+>>problems.
+>>
+>>Diverting /sbin/init with a shell script works better than this.
+>>    
+>>
+>
+>Ok, thanks for looking into it.  So what exactly is the problem with
+>diverting /sbin/init again?  
+>
+>  
+>
+I still believe that the patch to /sbin/init is simple enough that all 
+the rest of this stuff is complicating matters.  It allows too many ways 
+for someone to make a modification that breaks security.  I have updated 
+the files on people.redhat.com/dwalsh to use the modified init.  I have 
+passed this by Bill Nottingham (Red Hat maintainer) and he is ok with it.
 
-No insurmountable problem.  I have the following script as /sbin/init, I have 
-the real init as /sbin/init.real, and I modified the telinit sym-link 
-accordingly.  It seems that init gets re-exec'd for some reason I'm still not 
-sure about.  That means that bash gets run in init_t and wants some extra 
-access.  But that's not significant.
+Of course if someone comes up with a simpler solution we would look at it.
 
-Diverting /sbin/init may be our best option.
-
-allow init_t devtty_t:chr_file { read write };
-allow init_t proc_t:file { read };
-
-
-#!/bin/sh
-
-if [ ! -d /proc/1 ]; then
-  mount -n /proc
-fi
-grep -q selinuxfs /proc/filesystems || exec /sbin/init.real "$@"
-if [ ! -f /selinux/enforce ]; then
-  mount -n /selinux
-  /usr/sbin/load_policy /etc/security/selinux/policy.15
-  if [ -f /selinux/enforce ]; then
-    echo 1 > /selinux/enforce
-  else
-    echo "Can't set enforcing mode"
-  fi
-fi
-exec /sbin/init.real "$@"
+Dan
 
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+--------------000408060407030401030503
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+  <title></title>
+</head>
+<body text="#000000" bgcolor="#ffffff">
+Stephen Smalley wrote:<br>
+<blockquote type="cite"
+ cite="mid1066748352.27065.100.camel@moss-spartans.epoch.ncsc.mil">
+  <pre wrap="">On Tue, 2003-10-21 at 10:43, Russell Coker wrote: 
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">The results I have so far indicate that this approach has significant 
+problems.
+
+Diverting /sbin/init with a shell script works better than this.
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Ok, thanks for looking into it.  So what exactly is the problem with
+diverting /sbin/init again?  
+
+  </pre>
+</blockquote>
+I still believe that the patch to /sbin/init is simple enough that all
+the rest of this stuff is complicating matters.&nbsp; It allows too many
+ways for someone to make a modification that breaks security.&nbsp; I have
+updated the files on people.redhat.com/dwalsh to use the modified
+init.&nbsp; I have passed this by Bill Nottingham (Red Hat maintainer) and
+he is ok with it.<br>
+<br>
+Of course if someone comes up with a simpler solution we would look at
+it.<br>
+<br>
+Dan<br>
+<br>
+<br>
+</body>
+</html>
+
+--------------000408060407030401030503--
 
 
 --
