@@ -1,35 +1,40 @@
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <JBrindle@snu.edu>,
+   SELinux@tycho.nsa.gov
 Subject: Re: is_selinux_enabled in fileutils
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <JBrindle@snu.edu>, Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <sf7751ab.035@atlas.snu.edu>
-References: <sf7751ab.035@atlas.snu.edu>
-Content-Type: text/plain
-Message-Id: <1064838528.10464.13.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 29 Sep 2003 08:28:48 -0400
+Date: Mon, 29 Sep 2003 23:47:04 +1000
+References: <sf7751ab.035@atlas.snu.edu> <3F7823FA.2070702@redhat.com>
+In-Reply-To: <3F7823FA.2070702@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309292347.04845.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-09-28 at 22:24, Joshua Brindle wrote:
-> second, why aren't the selinux patches to file/coreutils generalized
-> for all extended attributes? If we (or someone) made patches that
-> would copy/move/view all extended attributes or just specified ones
-> it could be used by many more people than just selinux users and
-> would be more friendly upstream. the core/fileutils patches don't
-> really even need to rely on libselinux since xattr is now standard
-> in the kernel and the library for accessing xattr's is completely 
-> separate from selinux..
+On Mon, 29 Sep 2003 22:22, Daniel J Walsh wrote:
+> if selinux
+> setfscreatecon
+> output file
+> setxattr
+> else
+> output file
 
-As a side note, there already is a general xattr patch for coreutils
-from acl.bestbits.at, but it has the limitation that I mentioned with
-respect to not being able to create files immediately with a specified
-security attribute.  This is a limitation of the xattr API, not just the
-implementation.
+Of course there are some potential issues if the machine crashes at this 
+point.  However if you are running a SE Linux machine in non-SE mode then you 
+probably have bigger problems than this.  Also the old SE Linux with 
+the ...security directory had problems like this on unexpected crashes, and 
+I'm not sure that the use of XATTR's will solve this problem.
+
+> setxattr
+> end
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
