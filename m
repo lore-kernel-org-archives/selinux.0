@@ -1,43 +1,41 @@
 Subject: Re: Multiple contexts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ivg2@cornell.edu
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1105571319.11828.19.camel@cobra.ivg2.net>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: ivg2@cornell.edu, SELinux@tycho.nsa.gov
+In-Reply-To: <20050112233241.GF11846@lkcl.net>
 References: <1105390249.8093.21.camel@cobra.ivg2.net>
 	 <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
 	 <1105560687.11135.26.camel@cobra.ivg2.net>
 	 <1105566461.23136.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <1105571319.11828.19.camel@cobra.ivg2.net>
+	 <20050112233241.GF11846@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1105632619.24406.27.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105632966.24406.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 13 Jan 2005 11:10:19 -0500
+Date: Thu, 13 Jan 2005 11:16:06 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 18:08, Ivan Gyurdiev wrote:
-> What about a tool that creates a hybrid type on demand, and stores that
-> information in the policy?
-> 
-> createcon samba_httpd_content_t --inherit 
-> 	samba_share_t httpd_sys_content_t
-> chcon -R samba_httpd_content_t ~/webserver
+On Wed, 2005-01-12 at 18:32, Luke Kenneth Casson Leighton wrote:
+>  would you accept that that could be done at policy compile time,
+>  and that it would be unnecessary to do that at runtime?
 
-That would certainly be feasible.  libsepol provides an interface for
-direct manipulation of binary policies, so you can build tools on it
-that directly perform any kind of transformation, and it is already used
-for boolean customization (init, load_policy) and regenerating the user
-database (genpolusers) without requiring full policy sources.  The
-experimental binary policy modules work by Tresys is another step in
-this direction, you might want to experiment with it (which would also
-help it to mature and get it mainstreamed sooner).
+No, it cannot be done at policy compile time, because the information
+(the combinations of types on files) is not captured in the policy. 
+file_contexts is not authoritative and is not part of the policy, and
+the only authoritative source of information about the file attributes
+is the on-disk version.  Full filesystem traversal required to do the
+analysis you propose.  No examination of file_contexts or filesystem
+state required to do current analysis of potential information flow
+throughout the system.
 
-However, something to note is that if tools begin to directly manage the
-TE portion of the binary policy (vs. easily separable elements like
-booleans and users where we can maintain local config files that
-override the base settings in the shipped binary policy), then we have
-to have some way to deal with merging/conflicts when policy updates
-occur from a source rebuild.
+>  would you also agree that if someone wants to mess things up
+>  with chcon then all bets are off for _any_ kind of analysis?
+
+Relabeling is controlled by policy already, and finer-grained control of
+it is coming as part of the MLS work, so policy can bound such
+relabeling to avoid illegal information flow, or at least limit the
+ability to relabel in ways that violate information flow goals to
+specific trusted subjects.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
