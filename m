@@ -1,53 +1,57 @@
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Reino Wallin <reino@oribium.com>
 Subject: Re: Firewall Policy
-From: Reino Wallin <reino@oribium.com>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: Russell Coker <russell@coker.com.au>, Rik van Riel <riel@conectiva.com.br>,
-        SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <Pine.GSO.4.33.0203120933540.10942-100000@raven>
-References: <Pine.GSO.4.33.0203120933540.10942-100000@raven>
-Content-Type: text/plain
-Date: 13 Mar 2002 02:48:27 +0100
-Message-Id: <1015984108.1595.45.camel@matilda.oribium.com>
-Mime-Version: 1.0
+Date: Wed, 13 Mar 2002 08:06:16 +0100
+Cc: Rik van Riel <riel@conectiva.com.br>, SELinux <SELinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0203120933540.10942-100000@raven> <1015984108.1595.45.camel@matilda.oribium.com>
+In-Reply-To: <1015984108.1595.45.camel@matilda.oribium.com>
+MIME-Version: 1.0
+Message-Id: <20020313083719.B034970A5@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-tis 2002-03-12 klockan 16.05 skrev Stephen Smalley:
-> 
-> > To make the nameserver to work as a slave server, we may consider to
-> > grant write permissions to named_conf_t:dir and named_conf:file:
-> 
-> I'd agree with Russell Coker's suggestion of defining a new type for
-> this purpose.
-> 
-I agree this is more secure. Should I use named_conf_t just for
-/etc/named.conf and then use a new type like dns_masterzone_t for
-/var/named/master and dns_slavezone_t for /var/named/slave ?
+On Wed, 13 Mar 2002 02:48, Reino Wallin wrote:
+> > > To make the nameserver to work as a slave server, we may consider to
+> > > grant write permissions to named_conf_t:dir and named_conf:file:
+> >
+> > I'd agree with Russell Coker's suggestion of defining a new type for
+> > this purpose.
+>
+> I agree this is more secure. Should I use named_conf_t just for
+> /etc/named.conf and then use a new type like dns_masterzone_t for
+> /var/named/master and dns_slavezone_t for /var/named/slave ?
 
-> > I think most policy developers will use the example policy as a starting
-> > point for their work. I suggest that all new policy scripts for domains
-> > should contain all the required networking capabilities, so we don't
-> > have to grant full networking rights to all domains anymore.
-> 
-> This is more difficult than it might seem.  Many applications end up
-> accessing the network transparently for various services, e.g. NIS lookups
-> to map uids to usernames, DNS lookups to lookup hosts and IP addresses,
-> NFS accesses, etc.  Hence, removing can_network for a given domain might
-> work in one environment that isn't using certain services but prevent the
-> application from functioning in other environments.
-> 
-> Nonetheless, the example policy is undergoing some changes to make it
-> easier to selectively apply the every.te rules to particular domains, and
-> to partition those rules into finer-grained subsets.
-> 
-Thanks. Since there are just a few applications, and a few user accounts
-on a firewall, Russel Coker's suggestion to use nscd might be a good
-solution in this particular case. I will continue to define fine grained
-networking capabilities to the type enforcement files I am writing, and
-hopefully get more experiences.
+Sounds like a reasonable idea.
+
+Also make the default policy:
+allow named_t dns_masterzone_t:file r_file_perms;
+allow named_t dns_masterzone_t:dir r_dir_perms;
+With a comment suggesting rw_file_perms and rw_dir_perms for if you want 
+dynamic updates (most people don't want it).
+
+Then for the slave zones, a different domain for the named-xfer program to 
+allow only that program to write the slave files would be good.  Then someone 
+who cracks named can't change the zone files on disk.
+
+> Thanks. Since there are just a few applications, and a few user accounts
+> on a firewall, Russel Coker's suggestion to use nscd might be a good
+> solution in this particular case. I will continue to define fine grained
+> networking capabilities to the type enforcement files I am writing, and
+> hopefully get more experiences.
+
+Also some of the network access shouldn't be allowed.  I've already 
+discovered one bug in a Debian library where a network socket was incorrectly 
+set to allow it to remain open across exec through my tests of SE security 
+policies.
+
 -- 
-Reino Wallin, Oribium Labs
-reino@oribium.com
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 
 --
