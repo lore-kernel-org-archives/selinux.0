@@ -1,52 +1,51 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523r5rT000998
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:53:05 -0400 (EDT)
-Received: from smtp804.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52Blabn010253
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:47:36 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 09:06:20 -0000
-Date: Tue, 1 Jun 2004 09:03:45 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: openssh-unix-dev@mindrot.org, pam-list@redhat.com,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: issue with SE/Linux - sshd not giving access to /dev/pts/[n]
-Message-ID: <20040601090345.GM8312@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523vmrT001070
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:57:48 -0400 (EDT)
+Received: from web51507.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52BqJbn010340
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:52:19 -0400 (EDT)
+Message-ID: <20040602035747.56571.qmail@web51507.mail.yahoo.com>
+Date: Tue, 1 Jun 2004 20:57:47 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: issue on binary & source compatibility
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-163731438-1086148667=:44305"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi there,
+--0-163731438-1086148667=:44305
+Content-Type: text/plain; charset=us-ascii
 
-i have an issue on my newly created Debian/SELinux/unstable system.
+Today,I saw an article named 'An Overview of Security Enhanced Linux' at http://www.kuro5hin.org/story/2001/6/17/0104/24701.
 
-i have pam 0.77 se1 installed
-ssh            3.8.1p1-4      (OpenSSH)
-and libselinux1 1.12-1.
+It says: At present SE Linux provides binary compatibility with existing applications, and source compatibility with kernel modules.
+ 
+Then, I want to ask what the meaning and differences of 'binary compatibility' and 'source compatibility' are? and why it said so?
+ 
+Thank you,
+yours,
+Park Lee
+2004-06-02
 
-i can log in as root, fine.
 
-but i cannot log in as an ordinary user, and i had to grant
-special permission to the _user_ process (NOT sshd or pam
-before a setuid and exec is carried out) to access
-/dev/pts/0.
+		
+---------------------------------
+Do you Yahoo!?
+Friends.  Fun. Try the all-new Yahoo! Messenger
+--0-163731438-1086148667=:44305
+Content-Type: text/html; charset=us-ascii
 
-in other words, if i understand this correctly, there is a
-bug somewhere in either sshd or pam where control of the
-tty is given at the wrong point, or is not given at all.
-
-(russell talks of relabelling the tty, i'm not sure what that
-would involve.)
-
-... except if the user is root :) :) whereupon magically
-it works fiine :)
-
-okay, so does anyone on the openssh or pam lists understand
-what this might about?  does it ring any bells?
-
-l.
-
+<DIV>
+<DIV>Today,I saw an article named 'An Overview of Security Enhanced Linux' at <A href="http://www.kuro5hin.org/story/2001/6/17/0104/24701" target=_blank><FONT color=#0000ff>http://www.kuro5hin.org/story/2001/6/17/0104/24701</FONT></A>.<BR></DIV>
+<DIV>It says: At present SE Linux provides binary compatibility with existing applications, and source compatibility with kernel modules.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Then, I want to ask what the meaning and differences of 'binary compatibility' and 'source compatibility' are? and why it said so?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thank you,</DIV>
+<DIV>yours,<BR>Park Lee<BR>2004-06-02</DIV></DIV><p>
+		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>Friends.  Fun. <a href="http://messenger.yahoo.com/">Try the all-new Yahoo! Messenger</a>
+--0-163731438-1086148667=:44305--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
