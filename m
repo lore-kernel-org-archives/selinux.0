@@ -1,62 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA23904
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 12:14:39 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA23058
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 16:13:54 GMT
-Received: from coffeesaur2.evoserve.com (evoworks.evoserve.com [210.16.10.5])
-	by jazzswing.ncsc.mil  with ESMTP id QAA23052
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2002 16:13:52 GMT
-Date: Wed, 24 Jul 2002 00:14:01 +0800 (PHT)
-From: "Rogelio M. Serrano Jr." <rogelio@evoworks.evoserve.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: busybox policy and multicall binaries
-In-Reply-To: <20020723105019.A90AC7176@lyta.coker.com.au>
-Message-ID: <Pine.LNX.4.44.0207240011550.277-100000@coffeesaur>
+Subject: SELinux Configuration Question
+To: SELinux@tycho.nsa.gov
+Message-ID: <OF166CCF9D.C3ACFF49-ON85256BFF.005A0CF7@hq.caci.com>
+From: "Richard Mayo" <rmayo@caci.com>
+Date: Tue, 23 Jul 2002 12:38:41 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I'm finalizing my configuration of SELinux at my location and there's one
+more change I'd like to make but haven't found a way:
+
+I want to put all of my SELinux policy changes into new files, while
+changing the default SELinux configuration as little as possible.  BTW, I'm
+locked into the 31 May 2002 version for the near term -- Hopefully, that
+won't make helping me difficult.
+
+Anyway,  here's what I've got:
+
+1)    Created /selinux/policy/types/jdw.te to define my custom file
+contexts.
+            This works.
+
+2)    Created /selinux/policy/macros/program/jdw_macros.te to assign the
+necessary permissions to my users.
+            This works.
+
+3)    Created /selinux/policy/file_contexts/program/jdw.fc to assign file
+contexts to the appropriate files.
+            This doesn't work -- the make relabel command ignores this
+file, my software files are not re-typed.
+
+4)    My work around has been to append the necessary lines from jdw.fc to
+the SELinux file /selinux/policy/file_contexts/types.fc.
+            This works, but strikes me as uncool.
+
+Can anyone tell me how to configure either my SELinux data or the
+compilation to use all three of my desired new file?
+
+BTW, I've also added two lines to /selinux/policy/macros/user_macros.te to
+include and then execute my macros -- no problems there.
 
 
-
-
-
-On Tue, 23 Jul 2002, Russell Coker wrote:
-
-> On Tue, 23 Jul 2002 11:55, Rogelio M. Serrano Jr. wrote:
-> > Whats the best way to handle multicall binaries like busybox? The basic
-> > problem is that the context used in permission checking is the context of
->
-> Why do you want anything special for busybox?  Why not just have it in bin_t
-> and let it run in the same domain as the calling process?
->
-
-I see. And then I use special scripts that transition into the proper
-domains like getty_t for my getty substsututes.
-
-> --
-> I do not get viruses because I do not use MS software.
-> If you use Outlook then please do not put my email address in your
-> address-book so that WHEN you get a virus it won't use my address in the
-> >From field.
->
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9PYDb6r8UsQIvzXwRApV3AJ9rsAl7Hd5L5+QwAbvdB3X4HwH4UgCdHL5p
-ZCTPbxSpQU1M1vEGWG5eTFs=
-=PpBz
------END PGP SIGNATURE-----
+Thanks for helping,
+Rich Mayo
 
 
 
