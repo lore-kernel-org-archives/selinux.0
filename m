@@ -1,43 +1,43 @@
 Subject: Re: Multiple contexts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Stephen Bennett <spb@gentoo.org>, ivg2@cornell.edu, SELinux@tycho.nsa.gov
-In-Reply-To: <20050112230724.GD11846@lkcl.net>
+To: ivg2@cornell.edu
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1105571319.11828.19.camel@cobra.ivg2.net>
 References: <1105390249.8093.21.camel@cobra.ivg2.net>
 	 <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
 	 <1105560687.11135.26.camel@cobra.ivg2.net>
-	 <1105566046.3933.5.camel@localhost>  <20050112230724.GD11846@lkcl.net>
+	 <1105566461.23136.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <1105571319.11828.19.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Message-Id: <1105632387.24406.22.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105632619.24406.27.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 13 Jan 2005 11:06:27 -0500
+Date: Thu, 13 Jan 2005 11:10:19 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 18:07, Luke Kenneth Casson Leighton wrote:
->  and you'd need to take all of the files matched by a regexp for one
->  filetype, and all of the files of the other, work out if there are any
->  common ones, and those would be your "multiple contexted" files.
+On Wed, 2005-01-12 at 18:08, Ivan Gyurdiev wrote:
+> What about a tool that creates a hybrid type on demand, and stores that
+> information in the policy?
 > 
->  this you could do at policy compilation time.
+> createcon samba_httpd_content_t --inherit 
+> 	samba_share_t httpd_sys_content_t
+> chcon -R samba_httpd_content_t ~/webserver
 
-No.  As I said, file_contexts is not part of the kernel policy.  It is
-only used by userspace tools like setfiles and restorecon to set the
-extended attributes upon installation to an initial labeling state (or
-to recheck or to restore against that initial labeling state).  If the
-policy is self-contained (as it is currently), then you don't need to
-look at file_contexts or the on-disk attributes in order to determine
-potential information flow, although you may choose to look at them
-after an analysis of the policy in order to see how "real" certain flows
-might be with the current system state.
+That would certainly be feasible.  libsepol provides an interface for
+direct manipulation of binary policies, so you can build tools on it
+that directly perform any kind of transformation, and it is already used
+for boolean customization (init, load_policy) and regenerating the user
+database (genpolusers) without requiring full policy sources.  The
+experimental binary policy modules work by Tresys is another step in
+this direction, you might want to experiment with it (which would also
+help it to mature and get it mainstreamed sooner).
 
->  the thing is - which is easier: to expect people to do that
->  analysis themselves [by modifying the default policies]
->  or to do it in an automated at-pol-compile-time?
-
-The question doesn't make sense, because the automated
-at-pol-compile-time analysis cannot be done if the policy is encoded in
-the filesystem.
+However, something to note is that if tools begin to directly manage the
+TE portion of the binary policy (vs. easily separable elements like
+booleans and users where we can maintain local config files that
+override the base settings in the shipped binary policy), then we have
+to have some way to deal with merging/conflicts when policy updates
+occur from a source rebuild.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
