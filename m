@@ -1,115 +1,390 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA00244
+	for <selinux@tycho.nsa.gov>; Sat, 29 Sep 2001 02:53:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id GAA29284
+	for <selinux@tycho.nsa.gov>; Sat, 29 Sep 2001 06:53:17 GMT
+Received: from glaurung.green-gryphon.com (cmc3107833-a.mbl1.al.home.com [24.37.208.47])
+	by jazzband.ncsc.mil  with ESMTP id GAA29280
+	for <selinux@tycho.nsa.gov>; Sat, 29 Sep 2001 06:53:15 GMT
+Received: from glaurung.green-gryphon.com (localhost [127.0.0.1])
+	by glaurung.green-gryphon.com (8.12.0/8.12.0/Debian -5) with ESMTP id f8T6qHvX010834
+	for <selinux@tycho.nsa.gov>; Sat, 29 Sep 2001 01:52:38 -0500
+To: selinux@tycho.nsa.gov
 Subject: Re: distribution of kernel patches
-Date: Sat, 29 Sep 2001 00:19:26 +0200
-Cc: SELinux@tycho.nsa.gov
-References: <Pine.SOL.3.95.1010928142221.624Q-100000@clipper.gw.tislabs.com>
-In-Reply-To: <Pine.SOL.3.95.1010928142221.624Q-100000@clipper.gw.tislabs.com>
+References: <200109281941.OAA50738@tomcat.admin.navo.hpc.mil>
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+Date: Sat, 29 Sep 2001 01:52:11 -0500
+In-Reply-To: <200109281941.OAA50738@tomcat.admin.navo.hpc.mil> (Jesse
+ Pollard's message of "Fri, 28 Sep 2001 14:41:17 -0500 (CDT)")
+Message-ID: <8766a2wktg.fsf@glaurung.green-gryphon.com>
 MIME-Version: 1.0
-Message-Id: <20010928221926.56C2236A0E7@lyta.coker.com.au>
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 28 Sep 2001 20:50, Stephen Smalley wrote:
-> On Fri, 28 Sep 2001, Russell Coker wrote:
-> > I believe that the current method of distributing the kernel code could
-> > be improved by supplying it as either a single patch, or a tar file with
-> > a tiny patch.
->
-> One of the current download options (Option 3, Everything but Kernel
-> Source) allows you to download the LSM kernel patch against 2.4.10 and the
-> SELinux archive.  The SELinux archive includes a small patch to the LSM
-> security/Makefile and security/Config.in files to add an option for
-> building the SELinux kernel module into the kernel, but it doesn't include
-> any patches to the kernel source code.  The SELinux code is a kernel
-> module.  I suppose we could "merge" our small Makefile/Config.in patch and
-> our kernel module directly into the version of the LSM kernel patch
-> distributed from the NSA site, but I would prefer to keep the LSM kernel
-> patch "pure" relative to some snapshot of the LSM kernel patch from
-> lsm.immunix.org.  And, of course, if the LSM kernel patch is adopted into
-> 2.5, we will no longer need to distribute it at all, so we would naturally
-> still need the small patch and kernel module in our separate archive.
+--=-=-=
 
-I agree that keeping the LSM kernel patch separate is a good idea.  I have 
-just discovered that the LSM patch on the site is not the upstream 2001_09_26 
-version, but the previous version plus some CVS patches.  I think that it 
-would be beneficial to have an original upstream release of LSM with an 
-additional patch.  Currently there is an LSM patch on the NSA site with a 
-version number implying (to me at least) that it is the same as the current 
-LSM upstream release.
+>>"Jesse" == Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> writes:
 
-Now for the kernel patch for selinux I was not requesting that it be merged 
-into a single patch with the LSM code (that's the last thing I want).  What I 
-would like is a single unified diff containing all the selinux kernel code 
-without any LSM code.  So the proceedure should be:
-Extract upstream kernel source.
-Apply upstream LSM patch.
-Apply SE Linux LSM add-on patch for CVS LSM code.
-Apply SE Linux kernel patch.
-Compile.
+ Jesse> Actually, I would prefer the "EXTRAVERSION" be left alone
+ Jesse> and/or add a new form of EXTRAVERSION (I'll call it
+ Jesse> "LOCALVERSION") be made generally available.
 
-> > The current situation of having a Makefile which applies a patch, creates
-> > sym-links, etc makes it virtually impossible to automatically do anything
-> > with the code.  This means I can't use pure upstream source in my
-> > kernel-patch package which adds a risk of error, and makes it more
-> > difficult for anyone who wants to audit my work.
->
-> As mentioned above, the selinux module Makefile only patches the
-> security/Makefile and security/Config.in files.  It also sets up some
-> symbolic links used internally by the kernel module.  It isn't clear
-> as to how this is an obstacle to using the pure kernel sources.
+	The Debian kernel-package provides for such a device; we call
+ it FLAVOURS. I am attaching the FLAVOURS file from the kernel-package
+ package in the hope that people can use the patches in the file.  Of
+ course, if you are using kernel-package, the --append_to_version
+ argument to make-kpkg provides a better and more flexible solution.
 
-Yes, I can write a script that runs that script on a directory containing the 
-security sub-directory from the LSM patch and then generates a unified diff 
-containing the minor patch to the LSM security sub-directory and the 
-security_plugin sub-dir.  But it's painful, nasty, more error prone than 
-other methods of achieving the same result, and it makes things more 
-difficult for anyone who wants to audit my work (much easier if they can just 
-see me using files from the NSA site and move on to the next item in the 
-check list).
+	manoj
+ps. The FLAVOURS mechanism predates the EXTRAVERSIONS variable by a
+couple of years
 
-Another issue is that the kernel module doesn't get generated in the same way 
-as other modules.  I've got 246 regular kernel modules in my kernel build and 
-an SE Linux module that has to be compiled differently.  I think it would 
-really make sense to have the same y/n/m question as for other modules.
 
-The current proceedure for compiling the SE Linux module requires me to do 
-one of two things to create a Debian kernel package:
-1)  Create a separate package containing only the module for SE Linux (which 
-seems hardly worth-while).
-2)  Hack the kernel package creation scripts to run the SE Linux module build 
-command, or alternatively hack the SE Linux patch to work in the regular 
-fashion.
+--=-=-=
+Content-Disposition: attachment; filename=Flavours
+Content-Description: Multiple Flavours of a kernel
 
-Neither of these options is ideal IMHO.
+	     Multiple flavours of the same kernel version
+             ======== ======== == === ==== ====== =======
 
-> > Also could the kernel patch please change the EXTRAVERSION variable in
-> > the top-level makefile?  Currently the kernel-patch package I am playing
-> > with changes it from "-lsm" to "-selinux", but it would be equally valid
-> > to change it to "-lsm-selinux" instead.  I believe that a change to the
-> > EXTRAVERSION is necessary for anyone who is attempting to manage kernel
-> > builds for dis-similar machines.  The results of installing a non-SE
-> > kernel when you want a SE kernel or of installing a SE kernel when you
-> > want a non-SE kernel are both unpleasant!
->
-> I suppose we could change the EXTRAVERSION, but I'm not sure why.
-> The kernel itself is just the LSM kernel.  The SELinux code is a kernel
-> module.  You don't typically change the EXTRAVERSION for kernel modules.
+	NOTE: THIS IS NOW OBSOLETE. Use the append_to_version flag instead
 
-However there is the option to compile the module into the kernel, in which 
-case it is not a regular kernel and will not successfully boot a system 
-without the rest of the SE code installed.
 
-That is a good point though.
+	There is an expressed need from people to have several
+ alternative flavors of a single kernel version around. It is
+ certainly useful to have a backup flavour of a kernel version around
+ when one is experimenting with device driver variations (it may not
+ be possible to run a different version of a kernel and hence have
+ that as a backup). 
+
+	Unfortunately, this is more complicated than it initially
+ appears, since the presence of possibly incompatible modules has to
+ be addressed.
+
+	Firstly, the modules from different flavours have to be
+ installed in separate directories, the modutils have to be made aware
+ of this alternative directory, and also, the kernel (and klogd)
+ should be able to load the right set of symbols from a System.map
+ file (which are different enough in different flavours that klogd
+ refuses to load the wrong one).
+	
+	The proper way to address this may well be to modify the
+ kernel version in some fashion (Note: this would involve modifying
+ the kernel source's top level Makefile). Unfortunately, SUBLEVEL
+ needs to stay numeric (and under 255, as far as I can tell), so it is
+ a wee bit more complex than just modifying the SUBLEVEL variable.
+
+	The solution seems to be to add a FLAVOUR field to the end of
+ UTS_RELEASE, which uname then reads properly. As of 2.1.47, this
+ variable is used purely for output purposes (nothing seems to parse
+ it). Oh, please note that the FLAVOUR field needs be all lowercase to
+ meet Debian policy; and the packaging tools may reject the kernel
+ image package unless the resulting package name is all lower case
+ (and the kernel image name is going to be kernel-image-VERSION-FLAVOUR).
+
+	This way, the user has to modify the kernel Makefile (an sample
+ patch is provided below) to read, say, "FLAVOUR := speed_hack", and
+ the kernel would be installed as /boot/vmlinuz-2.0.30-speed_hack, the
+ modules would be installed under /lib/modules/2.0.30-speed_hack,
+ uname -r would report the version as 2.0.30-speed_hack. Note: Debian
+ users should keep the Flavour lower case, in order to comply with
+ Debian package naming conventions.
+
+	There is a patch appended to the bottom of this message that
+ would allow klogd to discover the new System.map file, and to not
+ choke on the non-numeric kernel version.
+
+	This effort has been based on the ideas and work of Bill
+ Mitchell <mitchell@mozcom.com> and Noel Maddy <ncm@biostat.hfh.edu>. 
+
+	The following patch works for newer 2.2 kernels (please note
+ that the patch may not apply cleanly, but the intent should surely be
+ clear). This should be used as a guideline; we are adding a new
+ variable, and adding it to the tail end of KERNELRELEASE. (Make sure
+ that the MODLIB accomodates the Flavour, or else the installed kernel
+ shall not be able to see its modules).
+
+======================================================================
+--- Makefile.~1~	Wed Apr 28 14:38:52 1999
++++ Makefile	Fri May 14 14:18:50 1999
+@@ -5,2 +5,13 @@
+ 
++# FLAVOUR is like EXTRAVERSION, but it's meant for local use, and the
++# dash between it and the rest of the version is supplied here.  It's used
++# by make-kpkg's --flavour switch, see /usr/share/doc/kernel-package/Flavours.
++#FLAVOUR =
++
++ifneq ($(strip $(FLAVOUR)),)
++INT_FLAV := -$(FLAVOUR)
++else
++INT_FLAV :=
++endif
++
+ ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
+@@ -61,3 +72,3 @@
+ 
+-KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
++KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(INT_FLAV)
+======================================================================
+
+	The patch provided below is from the sources for 2.4.2
+ kernel, and may not apply cleanly on other versions of the kernel. It is 
+ recommended that you use it purely as a guideline.
+
+======================================================================
+diff -Naur linux-2.4.2.orig/Documentation/kbuild/makefiles.txt linux-2.4.2/Documentation/kbuild/makefiles.txt
+--- linux-2.4.2.orig/Documentation/kbuild/makefiles.txt	Wed Feb 14 00:13:42 2001
++++ linux-2.4.2/Documentation/kbuild/makefiles.txt	Wed Feb 28 09:59:30 2001
+@@ -127,7 +127,7 @@
+ 
+ The top Makefile exports the following variables:
+ 
+-    VERSION, PATCHLEVEL, SUBLEVEL, EXTRAVERSION
++    VERSION, PATCHLEVEL, SUBLEVEL, EXTRAVERSION, FLAVOR
+ 
+ 	These variables define the current kernel version.  A few arch
+ 	Makefiles actually use these values directly; they should use
+@@ -140,6 +140,9 @@
+ 	$(EXTRAVERSION) defines an even tinier sublevel for pre-patches
+ 	or additional patches.	It is usually some non-numeric string
+ 	such as "-pre4", and is often blank.
++
++	$(FLAVOR) can be locally set to enable multiple installation
++	of a kernel with the same version number, without modules clashing.
+ 
+     KERNELRELEASE
+ 
+diff -Naur linux-2.4.2.orig/Makefile linux-2.4.2/Makefile
+--- linux-2.4.2.orig/Makefile	Thu Feb 22 02:54:15 2001
++++ linux-2.4.2/Makefile	Wed Feb 28 09:59:51 2001
+@@ -3,7 +3,10 @@
+ SUBLEVEL = 2
+ EXTRAVERSION =
+ 
+-KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
++ifdef FLAVOR
++  FLAVOR:=+$(FLAVOR)
++endif
++KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(FLAVOR)
+ 
+ ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
+ 
+diff -Naur linux-2.4.2.orig/arch/arm/boot/Makefile linux-2.4.2/arch/arm/boot/Makefile
+--- linux-2.4.2.orig/arch/arm/boot/Makefile	Fri Feb  9 02:32:44 2001
++++ linux-2.4.2/arch/arm/boot/Makefile	Wed Feb 28 09:45:36 2001
+@@ -129,10 +129,10 @@
+ 	@test "$(INITRD)" != "" || (echo You must specify INITRD; exit -1)
+ 
+ install: $(CONFIGURE) Image
+-	sh ./install.sh $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) Image $(TOPDIR)/System.map "$(INSTALL_PATH)"
++	sh ./install.sh $(KERNELRELEASE) Image $(TOPDIR)/System.map "$(INSTALL_PATH)"
+ 
+ zinstall: $(CONFIGURE) zImage
+-	sh ./install.sh $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) zImage $(TOPDIR)/System.map "$(INSTALL_PATH)"
++	sh ./install.sh $(KERNELRELEASE) zImage $(TOPDIR)/System.map "$(INSTALL_PATH)"
+ 
+ clean:
+ 	$(RM) Image zImage bootpImage
+diff -Naur linux-2.4.2.orig/scripts/Menuconfig linux-2.4.2/scripts/Menuconfig
+--- linux-2.4.2.orig/scripts/Menuconfig	Sun Oct  8 19:30:40 2000
++++ linux-2.4.2/scripts/Menuconfig	Wed Feb 28 09:46:05 2001
+@@ -1372,7 +1372,7 @@
+ 
+ DIALOG="./scripts/lxdialog/lxdialog"
+ 
+-kernel_version="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}${EXTRAVERSION}"
++kernel_version="${KERNELRELEASE}"
+ 
+ backtitle="Linux Kernel v$kernel_version Configuration"
+ 
+
+======================================================================
+
+
+	The patch provided below is from the Makefile for 2.1.47
+ kernel, and may not apply cleanly on other Makefiles. It is
+ recommended that you use it purely as a guideline, and modify the
+ Makefile manually. 
+
+
+======================================================================
+--- Makefile.dist	Mon Aug  4 12:18:57 1997
++++ Makefile	Mon Aug  4 12:24:55 1997
+@@ -2,6 +2,22 @@
+ PATCHLEVEL = 1
+ SUBLEVEL = 47
+ 
++# This is an example only: Uncomment the FLAVOUR line below and name
++# this flavour.
++#
++# If you want to have more than one kernel configuration per kernel
++# version, set FLAVOUR -- it will be appended to UTS_RELEASE in
++# version.h (separated by a hyphen)
++#
++#FLAVOUR = speed_hack
++
++ifneq ($(strip $(FLAVOUR)),)
++INT_FLAV := -$(FLAVOUR)
++else
++INT_FLAV :=
++endif
++
++
+ ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/)
+ 
+ #
+@@ -244,7 +260,7 @@
+ 	@mv -f .ver $@
+ 
+ include/linux/version.h: ./Makefile
+-	@echo \#define UTS_RELEASE \"$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)\" > .ver
++	@echo \#define UTS_RELEASE \"$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(INT_FLAV)\" > .ver
+ 	@echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 + $(PATCHLEVEL) \\* 256 + $(SUBLEVEL)` >> .ver
+ 	@mv -f .ver $@
+ 
+@@ -289,7 +305,7 @@
+ 
+ modules_install:
+ 	@( \
+-	MODLIB=/lib/modules/$(VERSION).$(PATCHLEVEL).$(SUBLEVEL); \
++	MODLIB=/lib/modules/$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(INT_FLAV); \
+ 	cd modules; \
+ 	MODULES=""; \
+ 	inst_mod() { These="`cat $$1`"; MODULES="$$MODULES $$These"; \
+______________________________________________________________________
+
+
+______________________________________________________________________
+
+From: Yann Dirson <ydirson@a2points.com>
+
+Ah, there still were some minor corrections to do.  Here's my final
+version (compiled fine with glibc 2.0.6, but had to replace
+<sys/module.h> with <linux/module.h> in ksym_mod.c).
+
+kern.log now says:
+
+====
+Mar 24 11:18:52 bylbo kernel: klogd 1.3-3, log source = /proc/kmsg started.
+Mar 24 11:18:53 bylbo kernel: Loaded 2589 symbols from /boot/System.map-2.0.33-std.
+Mar 24 11:18:53 bylbo kernel: Symbols match kernel version 2.0.33-std.
+====
+
+====
+--- ksym.c.orig	Mon Mar 23 23:23:03 1998
++++ ksym.c	Tue Mar 24 11:18:09 1998
+@@ -105,7 +105,7 @@
+ 
+ static int num_syms = 0;
+ static int i_am_paranoid = 0;
+-static char vstring[12];
++static char vstring[65];			  /* see /usr/include/linux/utsname.h */
+ static struct sym_table *sym_array = (struct sym_table *) 0;
+ 
+ static char *system_maps[] =
+@@ -438,7 +438,7 @@
+ 	
+ 
+ {
+-	auto int	vnum,
++	auto int	vnum, kvnum,
+ 			major,
+ 			minor,
+ 			patch;
+@@ -458,42 +458,41 @@
+ 
+ 
+ 	/*
+-	 * Since the symbol looks like a kernel version we can start
+-	 * things out by decoding the version string into its component
+-	 * parts.
++	 * Get the numeric code from the system map.
+ 	 */
+ 	vnum = atoi(version + strlen(prefix));
+-	major = vnum / 65536;
+-	vnum -= (major * 65536);
+-	minor = vnum / 256;
+-	patch = vnum - (minor * 256);
+-	if ( debugging )
+-		fprintf(stderr, "Version string = %s, Major = %d, " \
+-		       "Minor = %d, Patch = %d.\n", version +
+-		       strlen(prefix), major, minor, \
+-		       patch);
+-	sprintf(vstring, "%d.%d.%d", major, minor, patch);
+ 
+ 	/*
+-	 * We should now have the version string in the vstring variable in
+-	 * the same format that it is stored in by the kernel.  We now
+-	 * ask the kernel for its version information and compare the two
+-	 * values to determine if our system map matches the kernel
+-	 * version level.
++	 * We now ask the kernel for its version information and
++	 * compare the two values to determine if our system map
++	 * matches the kernel version level.
+ 	 */
+ 	if ( uname(&utsname) < 0 )
+ 	{
+ 		Syslog(LOG_ERR, "Cannot get kernel version information.");
+ 		return(0);
+ 	}
++
++	if ( sscanf (utsname.release, "%d.%d.%d", &major, &minor, &patch) < 3 )
++	{
++		Syslog(LOG_ERR, "Kernel send bogus release string `%s'.",
++		       utsname.release);
++		return(0);
++	}
++
++	/* Compute the version code from data sent by the kernel */
++	kvnum = (major << 16) | (minor << 8) | patch;
++	
+ 	if ( debugging )
+-		fprintf(stderr, "Comparing kernel %s with symbol table %s.\n",\
+-		       utsname.release, vstring);
++		fprintf(stderr, "Comparing kernel %s with symbol table 0x%6x.\n",\
++		       utsname.release, vnum);
+ 
+ 	/* Failure. */
+-	if ( strcmp(vstring, utsname.release) != 0 )
++	if ( vnum != kvnum )
+ 		return(-1);
+ 
++	strcpy (vstring, utsname.release);
++	
+ 	/* Success. */
+ 	return(1);
+ }
+====
+
+______________________________________________________________________
+
+
+
+Old solution; that does not work cleanly:
+
+	One can edit /etc/init.d/syslogd (or however you start klogd)
+ like so (this is from the Debian init.d directory)
+----------------------------------------------------------------------
+#  Use KLOGD="-k /boot/System.map-$(uname -r)" to specify System.map
+#
+KLOGD="-k /boot/System.map-$(uname -r)"
+ ....
+   .... /sbin/klogd $KLOGD
+----------------------------------------------------------------------
+
+--=-=-=
+
 
 -- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+ Tex SEX!  The HOME of WHEELS!  The dripping of COFFEE!!  Take me to
+ Minnesota but don't EMBARRASS me!!
+Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
+1024R/C7261095 print CB D9 F4 12 68 07 E4 05  CC 2D 27 12 1D F5 E8 6E
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+
+--=-=-=--
 
 --
 You have received this message because you are subscribed to the selinux list.
