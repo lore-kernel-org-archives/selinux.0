@@ -1,42 +1,44 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4EpeXZ023394
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 09:51:42 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4Epe8i025431
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 14:51:40 GMT
-Subject: Re: selinux without sysvinit
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Alejandro Mery <amery@geeks.cl>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <41897DD3.5060407@geeks.cl>
-References: <4188E956.7020808@geeks.cl>
-	 <1099508399.1213.188.camel@moss-spar tans.epoch.ncsc.mil>
-	 <41897DD3.5060407@geeks.cl>
-Content-Type: text/plain
-Message-Id: <1099579644.3174.73.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 04 Nov 2004 09:47:25 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4FcwXZ023746
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 10:39:00 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4Fcw8i029087
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 15:38:58 GMT
+Date: Thu, 4 Nov 2004 10:38:57 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Manoj Srivastava <manoj.srivastava@stdc.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: Updated SELinux Release
+In-Reply-To: <87k6t2qepg.fsf@glaurung.internal.golden-gryphon.com>
+Message-ID: <Xine.LNX.4.44.0411041028180.18826-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 19:54, Alejandro Mery wrote:
-> > You either need to load a policy prior to running your runit program
-> > (e.g. via an initrd, which is what we originally did), or modify your
-> > runit program to load a policy and re-exec itself into the correct
-> > security domain (as is done by the sysvinit patch).
-> 
-> what do you think about an selinux init to load policy and replace 
-> itself with /sbin/init (any) after that?
+On Thu, 4 Nov 2004, Manoj Srivastava wrote:
 
-Yes, that should work as well, and I think some people have actually
-used that approach in the past.  But if you decide to move aside
-/sbin/init and replace it with a small program that loads policy and
-then runs the real init program, be careful that telinit is then
-redirected to the real init program.
+> 	Moving waaay forward. I asked the Debian kernel team to
+>  consider  compiling in SELinux (perhaps disabled by default, for
+>  starters), and was told that that is not going to fly because of
+>  "significant performance hit" one takes by compiling SELinux in.  I
+>  did not have any data to refute the claim, so  that is where we sit.
 
+There is a performance hit and a scalability hit.  Some work by NEC on 
+AVC scalability should be going into the upstream kernel soon.
+
+The baseline performance hit seems to be around 7% (although it needs to
+be evaluated again after the code is tuned), although on some networking
+benchmarks it is as high as 20% for gigabit networking (no significant
+performance hit is seen at 100Mbps).  Work is being done on both the
+baseline and networking performance for intensive workloads.
+
+
+- James
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
