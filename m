@@ -1,48 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16F9mRb023072
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 10:09:49 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16FBuRb023129
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 10:11:56 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i16F9lOi000255
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:09:48 GMT
+	by jazzband.ncsc.mil  with ESMTP id i16FBsOi000535
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:11:54 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i16F9lWW000252 for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:09:47 GMT
-Subject: Re: Issues relabeling filesystems
+        by jazzband.ncsc.mil  with ESMTP id i16FBrWW000532 for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:11:54 GMT
+Subject: Re: fork and security context transitions
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Ignacio Tripodi <ignaciot@unt.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu>
-References: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu>
-Content-Type: text/plain
-Message-Id: <1076080186.16170.13.camel@moss-spartans.epoch.ncsc.mil>
+To: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
+Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+In-Reply-To: <1076048950.2108.113.camel@volcano.rd.nttdata.co.jp>
+References: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp>
+	 <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil>
+	 <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
+	 <200402040019.11770.russell@coker.com.au>
+	 <1076048950.2108.113.camel@volcano.rd.nttdata.co.jp>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1076080294.16170.16.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 06 Feb 2004 10:09:46 -0500
+Date: Fri, 06 Feb 2004 10:11:35 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-02-06 at 00:46, Ignacio Tripodi wrote:
-> I'm running SELinux on User Mode Linux, on a Fedora Core 1 root 
-> filesystem I built. When trying to label the filesystem, I encountered 
-> this problem:
+On Fri, 2004-02-06 at 01:29, Fernando Luis Vázquez Cao wrote:
+> I have read two previous messages somehow related to the problem I'm
+> trying to address:
+> http://marc.theaimsgroup.com/?l=selinux&m=107397046201084&w=2
+> http://marc.theaimsgroup.com/?l=selinux&m=107400517101821&w=2
 > 
-> [root@umlSELinux policy]# make relabel
-> /usr/sbin/setfiles file_contexts/file_contexts `mount | awk 
-> '/ext[23].*rw/{print $3}'`
-> /usr/sbin/setfiles:  read 419 specifications
-> /usr/sbin/setfiles:  labeling files under /
-> /usr/sbin/setfiles: relocation error: /usr/sbin/setfiles: symbol 
-> nftw64, version GLIBC_2.3.3 not defined in file libc.so.6 with link 
-> time reference
-> make: *** [relabel] Error 127
-> 
-> I actually included glibc-2.3.2 when I built the root-filesystem, as 
-> well as glibc-common-2.3.2, glibc-debug-2.3.2, glibc-devel-2.3.2, 
-> glibc-headers-2.3.2, etc. Any clues of what this error means will be 
-> highly appreciated.
-> Thanks!
+> They deal with the nonexistence of setfsuid/setuid peers in SELinux in
+> applications such as NFS or Samba, and I would like to know whether
+> there's any ongoing work on that matter or, otherwise, it has been
+> completely dismissed as harmful. In the former case I would be
+> interested in its use/development.
 
-If you want to use the setfiles from Fedora Core development, then you
-need to upgrade your glibc.  You could just build our setfiles,
-preferably from the sourceforge CVS tree.
+There is work in progress on NFS support, but that doesn't require
+exporting the interface to a "fs SID" to userspace, as Jim Carter noted
+earlier.  But I expect that this will ultimately be exported to
+userspace for things like Samba, even though I don't think it offers
+much security benefit.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
