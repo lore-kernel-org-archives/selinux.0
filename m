@@ -1,47 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TK9qrT022170
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 16:09:52 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TK9LbB016955
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 20:09:21 GMT
-Subject: Re: temporary hack to use udev in selinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: James Morris <jmorris@redhat.com>, Joshua Brindle <method@gentoo.org>,
-   SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040729200502.GF9950@lkcl.net>
-References: 
-	 <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com>
-	 <1091121776.21971.132.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040729200502.GF9950@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1091131752.21971.191.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TKQUrT022293
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 16:26:30 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TKQSCb020845
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 20:26:29 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp802.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 20:26:19 -0000
+Date: Thu, 29 Jul 2004 21:37:24 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Erich Schubert <erich@debian.org>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: udev and .dev...
+Message-ID: <20040729203724.GL9950@lkcl.net>
+References: <20040729091423.GC6443@lkcl.net> <20040729150921.GA17881@legolas.drinsama.de> <1091120582.21971.119.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 29 Jul 2004 16:09:12 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1091120582.21971.119.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-07-29 at 16:05, Luke Kenneth Casson Leighton wrote:
-> On Thu, Jul 29, 2004 at 01:22:56PM -0400, Stephen Smalley wrote:
-> > For
-> > tmpfs, we want to allow individual inode labeling and
-> > getxattr/setxattr/setfscreatecon, 
+On Thu, Jul 29, 2004 at 01:03:02PM -0400, Stephen Smalley wrote:
+> On Thu, 2004-07-29 at 11:09, Erich Schubert wrote:
+> > This sounds like relabling hell :-) "make relabel" might even skip /.dev
+> > because it doesn't know the file system.
+> > You can't use "make relabel" to persistently fix labels on /dev.
+> > I don't know enough about automatic labelling by selinux. Maybe you'll
+> > need a udev which reads the file_contexts file. :-(
+> > (or a similar specification file)
 > 
->  patch done that.  for dirs, files, symlinks and "special" inodes, whatever
->  _they_ are.
+> I think in Fedora, udev is presently set up to invoke restorecon, which
+> uses the matchpathcon() function to obtain the proper context from the
+> file_contexts configuration and then relabels the device node to that
+> context.  There was a patch to udev to directly call matchpathcon() and
+> use setfscreatecon() to directly create the device node in the proper
+> context, but that seems to have been dropped.
+ 
+ the little program - udev_selinux - uses setfilecon not setfscreatecon.
 
-The patch allows for getxattr/setxattr, but still doesn't address the
-issue of SELinux treating different instances of tmpfs in different
-ways.  That why we need mount option support.  It may be sufficient to
-just extend fscontext= semantics (set superblock security context)
-beyond xattr-supporting filesystems, so that we can assign a different
-superblock security context to each instance and then set up type
-transition rules appropriately, using fs_use_trans in all cases for the
-initial labeling.
+ it's a separate program, similar to restorecon in fact it is
+ likely to be the same.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+ it's run post-thingy.  post-create.
+
+ also, symlinks aren't covered / managed / created.
+
+ looks like a proper job's needed.
+
+ l.
 
 
 --
