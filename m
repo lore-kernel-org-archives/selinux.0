@@ -1,41 +1,36 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Michael Reilly <michaelr@cisco.com>
-Subject: Re: Yet another question - newrole and xterm's
-Date: Sat, 18 Oct 2003 14:48:58 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <20031015191716.5478c74b.michaelr@cisco.com> <200310171339.33673.russell@coker.com.au> <20031017210210.0c4e7894.michaelr@cisco.com>
-In-Reply-To: <20031017210210.0c4e7894.michaelr@cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310181448.58230.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9I95dWt013348
+	for <selinux@tycho.nsa.gov>; Sat, 18 Oct 2003 05:05:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9I95cmR019085
+	for <selinux@tycho.nsa.gov>; Sat, 18 Oct 2003 09:05:38 GMT
+Received: from extern.mail.waldi.eu.org (nat.moeglingen.waldi.eu.org [82.139.201.30] (may be forged))
+        by jazzband.ncsc.mil  with ESMTP id h9I95bjp019082 for <selinux@tycho.nsa.gov>; Sat, 18 Oct 2003 09:05:38 GMT
+Date: Sat, 18 Oct 2003 11:05:24 +0200
+From: Bastian Blank <bastian+selinux=tycho.nsa.gov@waldi.eu.org>
+To: selinux@tycho.nsa.gov
+Subject: checkpolicy patch
+Message-ID: <20031018090524.GA17313@wavehammer.waldi.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 18 Oct 2003 14:02, Michael Reilly wrote:
-> Thank you Russell - once again your help was invaluable.
->
-> su on my system requires pam_wheel.so so when newrole was installed newrole
-> also required pam_wheel.  No problem on a normal terminal.
->
-> Instead I commented out pam_wheel.so so any user may run newrole.  Sounds
-> like the way to go anyway.
+hi folks
 
-I agree.  SE Linux determines who gets to change role/domain and how they can 
-do it.  pam_wheel is a clumsy attempt to do similar things and provides no 
-benefit.
+this patch fixes the following issues in checkpolicy (files: symtab.c,
+policydb.{c,h}:
+- size_t vs. int, unsigned int, __u32
+- use struct policy_file instead of opaque void pointer
+- mark some attributes as unused
 
-However a module similar to pam_wheel which checks the SE Linux context and 
-does not permit changing UID unless the role is right could be a handy thing 
-to make password guessing more difficult.
+it applies and builds cleanly with current sf cvs version
+
+bastian
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+The heart is not a logical organ.
+		-- Dr. Janet Wallace, "The Deadly Years", stardate 3479.4
 
 --
 This message was distributed to subscribers of the selinux mailing list.
