@@ -1,47 +1,57 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA04077
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 08:33:59 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA04014
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 08:24:34 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA08289
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 12:32:49 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA08285 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 12:32:48 GMT
-Date: Thu, 18 Apr 2002 08:33:13 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: setfiles patch
-In-Reply-To: <20020418030227.90487239FA@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0204180831400.26541-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil  with ESMTP id MAA07891
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 12:23:24 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+        by jazzband.ncsc.mil  with ESMTP id MAA07887 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 12:23:24 GMT
+Date: Thu, 18 Apr 2002 14:25:18 +0200
+From: Tom <tom@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy question
+Message-ID: <20020418142518.A5613@lemuria.org>
+References: <20020418112238.A1788@lemuria.org> <20020418104424.B714A44C1C@lyta.coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020418104424.B714A44C1C@lyta.coker.com.au>; from russell@coker.com.au on Thu, Apr 18, 2002 at 12:44:24PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, Apr 18, 2002 at 12:44:24PM +0200, Russell Coker wrote:
+> > Scenario: Webhosting with PHP, multiple users (possibly many)
+> > Danger: PHP runs as a module, i.e. with apache's user and permissions.
+> 
+> Here's the problem, not just for SE Linux but also for regular Unix 
+> permissions models and every other security system I know of.
 
-On Thu, 18 Apr 2002, Russell Coker wrote:
-
-> I have attached a patch for setfiles which gives support for files larger
-> than 2G on i386, and which changes the support for file names on stdin to use
-> a "-s" option flag instead of specifying "-" as the partition name.
->
-> The large file support is a bit of a quick hack, I need to have something
-> like #ifdef i386 around the definition of _LARGEFILE64_SOURCE, or maybe some
-> autoconf stuff.
->
-> But it's quite functional as a sample, and if you have a i386 machine with
-> some >2G files you'll probably be very happy with this patch.
-
-setfiles should already work for large files.  The -D_FILE_OFFSET_BITS=64
-flag in the Makefile CFLAGS definition causes stat structures and calls to
-be transparently remapped to stat64.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Absolutely. The problem is that you have a unified frontend with
+diversification at the backend. This is the same issue you have for
+ssh, except that ssh (and other remote login tools) have a method for
+changing to a specific user, based on user/password data.
 
 
+> Trying to give access to only code from a certain shared object inside a 
+> program is never going to work.  Anything Apache can do to get access, some 
+> malicious code can also potentially do.
 
+That is not what I want to do. I want to regulate access to certain
+FILES. I don't care about apache itself at this point. The scenario I
+want to avoid is this:
+
+/var/www/user1/script.php
+/var/www/user2/script.php
+
+where user2's script contains something like:
+<? $f=fopen("../user1/script.php"); read($f); ?>
+
+
+
+
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
 
 --
 You have received this message because you are subscribed to the selinux list.
