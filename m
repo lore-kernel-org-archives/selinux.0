@@ -1,46 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i35LBDRb027455
-	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 17:11:13 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i35MvhRb028000
+	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 18:57:43 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i35LBCmw028774
-	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 21:11:12 GMT
-Received: from zaphod.crypt.gen.nz (port-203-99-25-246.jet.net.nz [203.99.25.246])
-        by jazzband.ncsc.mil  with ESMTP id i35LBB4w028760 for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 21:11:12 GMT
-Received: from www.crypt.gen.nz (zaphod.crypt.gen.nz [192.168.1.5])
-	by zaphod.crypt.gen.nz (Postfix) with SMTP id 08C89FE9D
-	for <selinux@tycho.nsa.gov>; Tue,  6 Apr 2004 09:11:04 +1200 (NZST)
-Message-ID: <3734.202.27.185.71.1081199464.squirrel@www.crypt.gen.nz>
-In-Reply-To: <200404051424.i35EO7iR006379@turing-police.cc.vt.edu>
-References: <200404041856.17745.wlsel@verizon.net>
-    <200404051424.i35EO7iR006379@turing-police.cc.vt.edu>
-Date: Tue, 6 Apr 2004 09:11:04 +1200 (NZST)
+	by jazzband.ncsc.mil  with ESMTP id i35Mvgmw004314
+	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 22:57:42 GMT
+Received: from mutemail.com (mutemail.com [24.244.170.124])
+        by jazzband.ncsc.mil  with SMTP id i35Mve4w004266 for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 22:57:41 GMT
+Date: Mon, 05 Apr 2004 15:57:17 -0700
+From: Bill McCarty <bmccarty@pt-net.net>
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
 Subject: Re: Logo Artwork for SELinux?
-From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: "SELinux Mailing List" <selinux@tycho.nsa.gov>
+Message-ID: <320847774.1081180637@[192.168.0.3]>
+In-Reply-To: <200404051607.49113.wlsel@verizon.net>
+References: <200404041856.17745.wlsel@verizon.net>
+ <4070882D.1070201@cr-secure.net> <200404051607.49113.wlsel@verizon.net>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Valdis.Kletnieks@vt.edu said:
->
-> On the other hand, a button that says "Webserver secured by an admin clued
-> enough to install and manage SELinux properly".. Now *THAT* is a
-> statement. :)
->
+Hi all,
 
-Maybe it should be "Security Enhanced by SELinux" ? Although the term
-"enhanced" is a bit weak and could mean almost anything.
+Hmm, not that I lack confidence in the security enhancements provided by 
+SELinux. But, I think I'd more likely use an SELinux logo on systems that 
+**aren't** protected by SELinux <g>. For systems that really do run 
+SELinux, I'd prefer that would-be attackers be unaware of what they're up 
+against. A dash of security through obscurity is sometimes useful, in my 
+view, so long as it's not the primary defensive measure. Anyone who thinks 
+otherwise is welcome to send me his or her ATM PIN code <g>.
 
-My 2c worth.
+But, I run honeypots adjacent to my production servers. So, I may be a bit 
+more paranoid about my production servers than most folks <g>.
 
-Kerry
+Cheers,
+
+---------------------------------------------------
+Bill McCarty, Ph.D.
+Professor of Information Technology
+Azusa Pacific University
 
 
--- 
-Kerry Thompson, CCNA CISSP
-Information Systems Security Consultant
-http://www.crypt.gen.nz  kerry@crypt.gen.nz
 
 --
 This message was distributed to subscribers of the selinux mailing list.
