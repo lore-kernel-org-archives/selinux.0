@@ -1,42 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91DuLsJ025149
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 09:56:21 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h91DsXZt001176
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:54:33 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91DwgsJ025170
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 09:58:42 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h91Dwe7d005455
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:58:40 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h91DsXM3001173
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:54:33 GMT
-Subject: Re: file_labels_t
+        by jazzband.ncsc.mil  with ESMTP id h91DwdRn005449 for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:58:40 GMT
+Subject: Re: assertions in kernel
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1064984367.1511.30.camel@chris.pebenito.net>
-References: <1064984367.1511.30.camel@chris.pebenito.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200310012233.24193.russell@coker.com.au>
+References: <200310012233.24193.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1065016578.350.51.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1065016709.350.54.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 01 Oct 2003 09:56:18 -0400
+Date: 01 Oct 2003 09:58:29 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-10-01 at 00:59, Chris PeBenito wrote:
-> I was doing some cleaning (goodbye devfsd.{te.fc}), and I was thinking
-> that file_labels_t could be removed in new api policy, since psid is
-> gone.  However, when I was going through looking for the rules that had
-> it, I realized that it is still an initial sid.  Why is the initial sid
-> still around if psid is gone?  Because it requires a bit of a kernel
-> modification?
+On Wed, 2003-10-01 at 08:33, Russell Coker wrote:
+> I think that this approach does not work.  I think that to maintain sane state 
+> of the file system labeling we need to have some rules in the kernel, if 
+> those rules are violated (either on first access after boot or when a new 
+> policy load changes the rules) then the filesystem object gets relabeled to 
+> unlabeled_t.  Then setfiles only needs relabelfrom access to unlabeled_t to 
+> be able to fix all manner of file system stuff-ups.
+> 
+> I am aware that what I am suggesting involves a moderate amount of kernel 
+> coding (which I am not capable of doing).  However there has been some recent 
+> discussion for a number of new features in regard to kernel management of 
+> policy, so I presume that the feature list is up for discussion.
 
-You can remove the type, and just map the initial SID to unlabeled_t
-until we get around to cleaning up the initial SIDs.  Cleaning up the
-initial SIDs does presently require rebuilding the kernel module with
-updated headers so that it reflects the current values of the subsequent
-initial SIDs, which will be perturbed by the removal of earlier initial
-SIDs, so we would likely increment the policy version number at that
-point.  The initial SID support needs to be reworked to support more
-dynamic removal and extension; we originally expected the initial SIDs
-to be very static, but that doesn't really seem to be the case.
+The existing assertion checking support is likely to migrate into the
+kernel in the future to allow a base set of assertions to be applied to
+subsequent attempts to load policy modules.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
