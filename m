@@ -1,111 +1,76 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA14656
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 18:47:00 -0400 (EDT)
-From: gawain.lynch@felicity-consulting.com.au
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA17804
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2001 11:13:34 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA26216
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 22:46:51 GMT
-Received: from mel-relay-dmz-01.felicity.net.au ([203.33.108.4])
-	by jazzband.ncsc.mil  with ESMTP id WAA26204
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 22:46:48 GMT
-Received: from oneone00.felicity.net.au (IDENT:notes@oneone00.felicity.net.au [203.33.109.69])
-	by mel-relay-dmz-01.felicity.net.au (8.11.0/8.11.0) with ESMTP id f3HBkuo03634
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 21:46:56 +1000
-To: <selinux@tycho.nsa.gov>
-Subject: Re: Policy configuration errors
-MIME-Version: 1.0
-Message-ID: <OFC332F147.0EA286CA-ONCA256A31.002D6757@felicity.net.au>
-Date: Wed, 18 Apr 2001 07:39:48 +1000
-Content-Type: text/plain; charset="us-ascii"
+	by jazzband.ncsc.mil  with ESMTP id PAA00387
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2001 15:13:25 GMT
+Received: from johnny-cash.uhmc.sunysb.edu (johnny-cash.uhmc.sunysb.edu [129.49.145.145])
+	by jazzband.ncsc.mil  with ESMTP id PAA00383
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2001 15:13:25 GMT
+Received: from uhmc-chalfont.epo.som.sunysb.edu (laptop.anesthes.sunysb.edu [129.49.151.192])
+	by johnny-cash.uhmc.sunysb.edu (8.10.2/8.10.2) with ESMTP id f3IFDWS18515
+	for <selinux@tycho.nsa.gov>; Wed, 18 Apr 2001 11:13:32 -0400 (EDT)
+Message-Id: <5.0.2.1.0.20010418111107.00a8fec0@informatics.informatics.sunysb.edu>
+Date: Wed, 18 Apr 2001 11:13:37 -0400
+To: selinux@tycho.nsa.gov
+From: "John S. Gage" <jgage@epo.som.sunysb.edu>
+Subject: Re: security enhancements outside of flask model
+In-Reply-To: <Pine.SOL.3.95.1010417131729.15065d-100000@clipper.gw.tisla
+ bs.com>
+References: <LMEJJDOADCLJPCBCJHFKMEIMCAAA.bernstein.46@osu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yes I read Rajan's post, but did not see a follow up and I was not sure if 
-there was a known problem.
 
-The machine in question had previously compiled everything fine and is 
-running kgcc 1.1.2-40 and gcc 2.96-79, neither work.  However I am almost 
-100% certain the problem results from actions undertaken here.
+>
+>The document available at http://www.nsa.gov/selinux/slinux-abs.html
+>describes the current set of controls provided by SELinux.
 
-I have tried tracing back through the policy files but m4 is not a strong 
-point for me and have also shifted fresh tar balls to a _fresh_ RH install 
-and still the same result.
+Here is a response to the above from an anonymous source (not me):
 
-So if anyone has some pointers for me I am happy to listen/look, but I am 
-at an end here.
+"What surprises me sometimes is that this is all old news, stuff I heard
+years ago from Farber and Crocker and the other Arpanet buzzards, as they
+call themselves. But somehow our OSes never seem to end up with this nice
+stuff inside, and the buzzards got sick of tilting at windmills, and they
+all know the Orange book is a joke anyway. So they gave up. So, here we
+are in the year 2001, and we have more and more programs on our OSes that
+use the setuid bit, and many NT users have admin priveleges cause it's
+such a headache to work with NT otherwise. ACK!
 
-Thanks kindly,
+Anyway, I can't say I saw anything new or that people haven't known for at
+least 25 years. I guess the main point is that we're much more vulnerable
+than ever, because a lot of naive code out there thinks you can get
+security without a secure OS (e.g. Java). But for whatever reason, we
+don't build things this way, even though we know about it. The mandatory
+security they speak of is nice, but if you talk to anyone who's had to run
+these things you'll find it's an amazing lot of work to administer even
+one machine. Maybe the problem is not that people don't care, but the
+"fine grained access" and "type enforcement" is so hard to set up, so hard
+to keep set up, and so easy to screw up, that people just don't want to
+deal with it.
 
-Gawain
+For the record, the first secure Unix (at least I know of) was done by IBM
+Federal about 20 years ago -- I think it was "secure Xenix". A friend
+worked on it. They once decided to turn on all the logging to see what
+would happen on an idle system. They went to lunch. They got back and
+found a 2 MB syslog, one hour later. How do you figure out what happened?
+How do you tell, somewhere in 2 MB of log, if there's something going
+wrong?
 
+They're certainly right about Java though. That security is not in the
+right place, and will always be insecure.
 
+Anyway, just my two cents on this paper, they have a good point, but
+they're pushing the Same Old Stuff, and I think we need some Different New
+Stuff instead. It's not like the Same Old Stuff wasn't tried; it was. It
+proved to be very, very hard to admin correctly."
 
+This last point about extreme administration difficulty should probably be 
+addressed by NSA people on this list.
 
-
-Stephen Smalley <sds@tislabs.com>
-04/16/01 11:57 PM
-
- 
-        To:     gawain.lynch@felicity-consulting.com.au
-        cc:     selinux@tycho.nsa.gov
-        Subject:        Re: Policy configuration errors
-
-
-
-The same error was reported by Rajan Ravindran in a message to
-the mailing list on March 29th.  He sent me a copy of his policy
-configuration, and I was unable to reproduce the error on our
-systems (running RedHat 6.1 and 6.2).  I suggested that he
-make sure that he had installed the gcc and glibc updates
-from RedHat for RedHat 7, and then do a clean rebuild of the
-checkpolicy program.  I don't know if that solved his problem
-or not.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
-On Mon, 16 Apr 2001 gawain.lynch@felicity-consulting.com.au wrote:
-
-> I am building an SRPM which is now fully functional, bar the following 
-> error received during ``make initpolicy'' 
-> 
->         error in the statement ending on line 1054 (token ';'): unknown 
-> class filesystem used in rule
-> 
->         ../kernel/security/checkpolicy:  error(s) encountered while 
-> parsing configuration
->         make: *** [initpolicy] Error 1
-> 
->         ...
-> 
->         $ rgrep filesystem policy/
-> 
->         %{errlog}:error in the statement ending on line 1054 (token 
-';'): 
-> unknown class filesystem used in rule
->         access_vectors:class filesystem
->         domains/every.te:allow domain fs_type:filesystem getattr;
->         init.te:allow initial_boot_t fs_type:filesystem *;
->         macros.te:allow $1_devpts_t devpts_t:filesystem associate;
->         mls:class filesystem
->         security_classes:class filesystem
->         types/file.te:allow file_type fs_t:filesystem associate;
->         types/nfs.te:allow nfs_t nfs_t:filesystem associate;
->         types/nfs.te:allow nfs_clipper_t nfs_clipper_t:filesystem 
-> associate;
-> 
-> Can someone please point me in some sort of direction as I am very close 
-
-> to finishing and this is just plain annoying.
-> 
-> Thanks,
-> 
-> Gawain
-
-
+John
 
 
 
