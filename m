@@ -1,54 +1,55 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA00901
-	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 09:59:57 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA01303
+	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 11:58:49 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA22481
-	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 14:57:43 GMT
+	by jazzswing.ncsc.mil  with ESMTP id QAA25701
+	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 16:56:35 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id OAA22477
-	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 14:57:41 GMT
+	by jazzswing.ncsc.mil  with ESMTP id QAA25697
+	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 16:56:34 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: "Subba Rao" <sailorn@attglobal.net>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux compile errors
-Date: Sat, 30 Nov 2002 15:53:57 +0100
-References: <200211292123.VAA00594@jazzband.ncsc.mil>
-In-Reply-To: <200211292123.VAA00594@jazzband.ncsc.mil>
+Subject: Re: Re: SELinux compile errors
+Date: Sat, 30 Nov 2002 17:58:36 +0100
+References: <20021130164856.6E368BF78@sat.sws.net.au>
+In-Reply-To: <20021130164856.6E368BF78@sat.sws.net.au>
 MIME-Version: 1.0
-Message-Id: <200211301553.57790.russell@coker.com.au>
+Message-Id: <200211301758.36486.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 29 Nov 2002 22:21, Subba Rao wrote:
-> This is where I have stopped since I get the following error message:
->
-> --------------------------------------
-> make -C newrole
-> make[1]: Entering directory `/usr/src/selinux/utils/newrole'
-> cc -L/usr/local/selinux/lib -Wall -I/usr/local/selinux/include -DUSE_PAM
-> -O3 -o newrole newrole.c -ldl -lpam -lpam_misc -lsecure newrole.c:132:
-> security/pam_appl.h: No such file or directory
-> newrole.c:133: security/pam_misc.h: No such file or directory
-> make[1]: *** [newrole] Error 1
-> make[1]: Leaving directory `/usr/src/selinux/utils/newrole'
-> make: *** [xnewrole] Error 2
-> --------------------------------------
->
-> It looks like it is looking for PAM library.
->
-> Can someone please let me know how to get over this error.  Yesterday after
-> I installed PAM, this message went away, but then I was prompted for
+On Sat, 30 Nov 2002 17:45, Subba Rao wrote:
+> /usr/include/bits/string2.h:446: warning: pointer of type `void *' used in
+> arithmetic /usr/include/bits/string2.h:448: warning: pointer of type `void
+> *' used in arithmetic /usr/include/bits/string2.h:453: warning: pointer of
+> type `void *' used in arithmetic
 
-You need PAM support and therefore you need the PAM header files and libraries 
-installed.
+That looks like a bug in the string2.h file, but it might be a bug in 
+something else that it depends on.
 
-> Kerberos and later for BSD library.  Russell did mention that there is no
-> need for Kerberos, so this time I am stopping before having to install PAM.
->  I am using Slackware 8.1 distro.
+Does Slackware have a bug tracking system?  If so file a bug report about 
+this.
 
-Install PAM, then show us the error messages.
+> gcc -g -O2 -Wall -Wpointer-arith
+> -Wno-uninitialized -DWITH_SELINUX -I/usr/local/selinux/include -I. -I. 
+> -I/usr/kerberos/include -DSSHDIR=\"/etc/ssh\"
+> -D_PATH_SSH_PROGRAM=\"/usr/bin/ssh\"
+> -D_PATH_SSH_ASKPASS_DEFAULT=\"/usr/libexec/openssh/ssh-askpass\"
+> -D_PATH_SFTP_SERVER=\"/usr/libexec/openssh/sftp-server\"
+> -D_PATH_SSH_KEY_SIGN=\"/usr/libexec/openssh/ssh-keysign\"
+> -D_PATH_SSH_PIDDIR=\"/var/run\" -D_PATH_PRIVSEP_CHROOT_DIR=\"/var/empty\"
+> -DSSH_RAND_HELPER=\"/usr/libexec/openssh/ssh-rand-helper\" -DHAVE_CONFIG_H
+> -c monitor_wrap.c In file included from monitor_wrap.c:36:
+> auth.h:42: krb5.h: No such file or directory
+> make[1]: *** [monitor_wrap.o] Error 1
+> make[1]: Leaving directory `/usr/src/selinux/utils/openssh-3.4p1'
+> make: *** [xopenssh] Error 2
+>  --------------------------------------
+
+Have you tried adding --without-kerberos5 to the ./configure for ssh?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
