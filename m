@@ -1,69 +1,63 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i89IR6rT013853
-	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 14:27:06 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i89IR5VJ006988
-	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 18:27:05 GMT
-Date: Thu, 9 Sep 2004 19:38:23 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: at last: info regarding boot problems on multiple partitions
-Message-ID: <20040909183823.GJ10046@lkcl.net>
-References: <20040908224949.GK7717@lkcl.net> <200409100233.47416.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200409100233.47416.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i89IrdrT014033
+	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 14:53:39 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i89IrbVJ008138
+	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 18:53:38 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: cryptsetup
+Date: Fri, 10 Sep 2004 04:53:34 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_uaKQBo3qU9MQH+J"
+Message-Id: <200409100453.34904.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Sep 10, 2004 at 02:33:47AM +1000, Russell Coker wrote:
-> On Thu, 9 Sep 2004 08:49, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > FINALLY i got a useable system when i encountered a boot problem
-> > [well, i got a console login].
-> >
-> > the issue is that partitions fail to be mounted.
-> >
-> > i had noticed over a period of time that programs like pump and dhclient
-> > and some others would stop partitions from being unmounted during
-> > shutdown.
-> >
-> > [remember i have /boot, /, /usr, /var and /home]
-> >
-> > for some reason, this also caused the partitions to fail to MOUNT on
-> > startup.
-> 
-> I've seen a very similar problem, but it was intermittent and didn't occur 
-> enough to let me debug it.  I'm not certain that I saw the same problem but 
-> the result of file systems not being mounted was similar.
-> 
-> I would be very interested in any further information you may find on this.
 
- *urk*!
+--Boundary-00=_uaKQBo3qU9MQH+J
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
- i'm sitting here in bewilderment.
+The location of cryptsetup in Fedora has changed, it seems that everyone is 
+now putting it in /sbin.  The attached patch needs to be applied to lvm.fc.
 
- Mounting local filesystems...
- SeLinix: initialized (dev hda1, type ext2) uses xattr
- same for hda6
- same for hda7
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
- /dev/hda1 on /boot type ext2 (rw)
- /dev/hda6 on /var type ext2 (rw)
- /dev/hda7 on /home type ext2 (rw)
+--Boundary-00=_uaKQBo3qU9MQH+J
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="lvm.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="lvm.diff"
 
+--- /usr/src/se/policy/file_contexts/program/lvm.fc	2004-08-21 13:19:08.000000000 +1000
++++ file_contexts/program/lvm.fc	2004-09-10 04:52:28.000000000 +1000
+@@ -54,12 +54,7 @@
+ /sbin/vgscan.static	--	system_u:object_r:lvm_exec_t
+ /sbin/vgsplit		--	system_u:object_r:lvm_exec_t
+ /sbin/vgwrapper		--	system_u:object_r:lvm_exec_t
+-ifdef(`distro_redhat', `
+-/usr/bin/cryptsetup	--	system_u:object_r:lvm_exec_t
+-')
+-ifdef(`distro_debian', `
+ /sbin/cryptsetup	--	system_u:object_r:lvm_exec_t
+-')
+ /sbin/dmsetup      --      system_u:object_r:lvm_exec_t
+ /sbin/dmsetup.static --    system_u:object_r:lvm_exec_t
+ /sbin/lvm          --      system_u:object_r:lvm_exec_t
 
- .... not a sausage about /dev/hda5!!!
-
- so the /usr partition isn't even mounted!!
-
- i'm going to re-run later in permissive mode.
-
- l.
-
- p.s. i might need to know how to get all "dontaudit" rules listed in
- the log files - anyone know how i can do this?
-
+--Boundary-00=_uaKQBo3qU9MQH+J--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
