@@ -1,33 +1,36 @@
-Date: Mon, 12 Aug 2002 14:16:15 +1000
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA26577
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 02:51:02 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id GAA26316
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 06:49:26 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+        by jazzband.ncsc.mil  with ESMTP id GAA26312 for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 06:49:24 GMT
+Date: Mon, 12 Aug 2002 16:50:57 +1000
 From: Brian May <bam@snoopy.apana.org.au>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: security context for temporalily mounted filesystems
-Message-ID: <20020812041615.GA2149@snoopy.apana.org.au>
-References: <200208091352.NAA00864@jazzband.ncsc.mil> <20020810235352.GC13384@snoopy.apana.org.au> <200208110935.JAA23009@jazzband.ncsc.mil> <20020811145503.0E4C68654@lyta.coker.com.au>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Swollen su_macros.te file
+Message-ID: <20020812065057.GP2149@snoopy.apana.org.au>
+References: <20020811185607.42370.qmail@web40006.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020811145503.0E4C68654@lyta.coker.com.au>
+In-Reply-To: <20020811185607.42370.qmail@web40006.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Aug 11, 2002 at 04:55:02PM +0200, Russell Coker wrote:
-> I am not recommending root_t for everything, and I am not certain that it's 
-> the best thing to do.  However as I haven't had a better idea and it's a lot 
-> better than file_t I can't suggest anything else.
+On Sun, Aug 11, 2002 at 11:56:07AM -0700, Brad Chapman wrote:
+>       Lately I have noticed that my su_macros.te file is becoming unmanageable
+> due to the enormous amount of stuff that I use su for. Could you (and the list)
+> please review my su_macros.te file and tell me how to make it smaller?
 
-You don't normally want mount to be able to mount over / do you?
+Assuming Russell does not help you with his line of questioning (which I
+won't duplicate here), how do you use su to get root access?
 
-However, if you give both the same type you will not be able to
-distinguish the two cases.
+What is the output of "id"[1] before and after the su command?
 
-I would suggest:
-
-If /usr is mounted:
-Give /usr on the root filesystem a type that allows mount to mount a
-filesystem on it, and / on that file system should be root_t.
-
-If /usr is not mounted:
-/usr should be root_t.
+Note:
+[1] I am assuming your version of su has been modified to display
+the SE-Linux label here.
 -- 
 Brian May <bam@snoopy.apana.org.au>
 
