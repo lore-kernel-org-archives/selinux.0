@@ -1,41 +1,43 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h82IhsLa018846
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 14:43:54 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h82Ihqet027276
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 18:43:52 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h82JEHLa019119
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 15:14:17 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h82JCjpQ029520
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 19:12:45 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h82Ihqlq027273 for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 18:43:52 GMT
-Subject: RE: Type background of SELinux
+	by jazzswing.ncsc.mil  with ESMTP id h82JCiQX029517
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 19:12:44 GMT
+Subject: Re: Q on Internals & Data Structures
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Jenkins, Steven" <JENKINSS@mail.etsu.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <C5FA5FEED6F0884E9EB90BB3C010F1EF8D3566@etsuex1.etsu.edu>
-References: <C5FA5FEED6F0884E9EB90BB3C010F1EF8D3566@etsuex1.etsu.edu>
+To: Bill Laut <wlsel@verizon.net>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200308301545.03201.wlsel@verizon.net>
+References: <200308291222.23424.wlsel@verizon.net>
+	 <1062177075.5432.143.camel@moss-spartans.epoch.ncsc.mil>
+	 <200308301545.03201.wlsel@verizon.net>
 Content-Type: text/plain
-Message-Id: <1062528167.18568.167.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1062530054.18568.198.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 02 Sep 2003 14:42:47 -0400
+Date: 02 Sep 2003 15:14:14 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-08-29 at 17:22, Jenkins, Steven wrote:
->  Thanks, that's helpful.  Let me see if I understand this correctly:
->  
-> * is there a notion of dynamic types?  
-> * is there a common type hierarchy (or type tree, as in how C will automatically coerce int's into float's, for example)
-> * how are interpreters (such as perl, python, etc) handled that have direct access to the C library?
+On Sat, 2003-08-30 at 15:45, Bill Laut wrote:
+> Speaking of "driving the requirements," there is something I've been curious 
+> about:  Would it be possible to add permissions to the security services 
+> themselves?  EG, if I have a program that is security-ignorant but which 
+> passes through the firewall to talk on the Internet, should a malicious 
+> server compromise it via an unforeseen buffer-overflow I want to insure that 
+> a security-aware payload inside the BO cannot somehow interrogate my policy 
+> or in any way alter it.
+> 
+> In short, if an application/client is assumed to be security-ignorant, I want 
+> its domain to -enforce- that ignorance and to audit any unexpected behavior 
+> to the contrary, especially if the app is a network client talking to a peer 
+> over an untrusted network.
 
-They really are not types in that sense.  TE "types" have no implicit
-relationships; all relationships (permissions) are established
-explicitly through the definition of an access matrix.  It would
-certainly be possible to support certain notions of inheritance and
-hierarchy through extension of the policy configuration language, but
-this would still just be compiled down to an explicit access matrix for
-use by the kernel.  The TE "types" are OS-maintained security tags on
-processes and objects, not something that can be directly manipulated
-from applications; the language in which the application is written is
-irrelevant, aside from secure transition issues.
+The ability to invoke the security policy API is already controlled by a
+set of permissions, so you can already do this.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
