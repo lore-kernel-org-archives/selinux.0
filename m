@@ -1,46 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAIE1tRb011591
-	for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2003 09:01:55 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAIE1nqY011772
-	for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2003 14:01:49 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hAIE1m0o011769 for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2003 14:01:48 GMT
-Subject: Re: capabilities and 2.4 vs 2.6
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAIFVURb012374
+	for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2003 10:31:30 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAIFUtBb006562
+	for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2003 15:30:55 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id hAIFUs4o006555
+	for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2003 15:30:54 GMT
+Date: Tue, 18 Nov 2003 15:31:01 +0000
+From: Dale Amon <amon@vnl.com>
 To: Russell Coker <russell@coker.com.au>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200311181400.38347.russell@coker.com.au>
-References: <200311181400.38347.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1069164102.6194.32.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: new PAM and policy to match
+Message-ID: <20031118153101.GA16814@vnl.com>
+References: <200311100849.52026.russell@coker.com.au> <200311121338.13459.russell@coker.com.au> <20031117211924.GA4838@vnl.com>
 Mime-Version: 1.0
-Date: Tue, 18 Nov 2003 09:01:42 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20031117211924.GA4838@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-11-17 at 22:00, Russell Coker wrote:
-> It seems that the meaning of sys_tty_config has changed between 2.4 and 2.6.  
-> When comparing a 2.4 kernel running the back-port of the new SE Linux code to 
-> 2.6.0-test9 I find that many applications request sys_tty_config in 2.6 that 
-> did not in 2.4.  Examples include FreeRADIUS, a bash script from the startup 
-> of CIPE, and courier-authdaemon.
-> 
-> Another issue is that on 2.6 the "atsadc" program from the atsar package now 
-> seems to want sys_admin capability, while on 2.4 it did not.  But it seems to 
-> work OK without such access (the base functionality works - not sure if I'm 
-> missing something).  In any case it may be best to lose a bit of 
-> functionality to avoid granting sys_admin...
-
-A number of legacy superuser (suser) checks were finally replaced
-with capability (capable) checks in 2.6.  So 2.4 would have just
-required euid 0 in those cases, whereas 2.6 is now checking a particular
-capability.
+Russ: Any suggestions on which versions of which
+packages I need to override?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
