@@ -1,47 +1,67 @@
-Message-ID: <4089131D.5040905@interActive-Systems.de>
-Date: Fri, 23 Apr 2004 14:59:09 +0200
-From: Edin Dizdarevic <edin.dizdarevic@interactive-systems.de>
-MIME-Version: 1.0
-To: Ed Street <edstreet@street-tek.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: Local LUG Presentation
-References: <20040423124723.B6FA23A404F@abyss.simplyaquatics.com>
-In-Reply-To: <20040423124723.B6FA23A404F@abyss.simplyaquatics.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: chfn/passwd
+From: Colin Walters <walters@redhat.com>
+To: SELinux@tycho.nsa.gov
+In-Reply-To: <4088d1b8.2a5.1877.956371590@internode.on.net>
+References: <4088d1b8.2a5.1877.956371590@internode.on.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-avpCi44IABcVfKEBCzO1"
+Message-Id: <1082727010.6575.3.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Date: Fri, 23 Apr 2004 09:30:10 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-I don't even want to think of beginning thinking in terms of "us" and 
-"them" ;) . If we stick to facts why there should be a problem in 
-formulating some kind of technically based discussion, which has almost 
-always been constitutional in similar cases before. So everybody can 
-build his/her opinion. Sitting things out leaves some kind of vacuum. At 
-least for me. Fact is: More and more distribution will come up with LSM 
-more or less activated. So these questions have to be answered, if we or 
-them want it or not.
-
-Just my 2c.
-
-Regards,
-Edin
+--=-avpCi44IABcVfKEBCzO1
+Content-Type: multipart/mixed; boundary="=-E1A3LE7aUTpbHipiUvc9"
 
 
+--=-E1A3LE7aUTpbHipiUvc9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2004-04-23 at 04:20, keen@internode.on.net wrote:
+> Hi, I am running the December release on a 2.6.2 kernel on a
+> FC1. I have realised normal users could not change their
+> finger name as well as changing password under enforcement
+> mode.
+
+I remember fixing a bug like this in the FC2 policy a few weeks ago,
+maybe it was also in the upstream policy.  After mining my email a bit,
+here's the patch I came up with at the time.  Not sure if you're running
+into the same problem, you'd need to post the exact AVC messages.
 
 
-Ed Street schrieb:
 
-> Hello,
-> 
-> Yes these text boxes are available.  As for the comments on those 2 site I
-> guess the official response is no comment :)  We are not forcing them to use
-> lsm.
-> 
-> Ed
+--=-E1A3LE7aUTpbHipiUvc9
+Content-Disposition: attachment; filename=chfn-policy.patch
+Content-Type: text/x-patch; name=chfn-policy.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
 
--- 
-Edin Dizdarevic
+LS0tIHBvbGljeS0xLjkuMi9kb21haW5zL3Byb2dyYW0vcGFzc3dkLnRlfgkyMDA0LTAzLTMxIDE1
+OjUyOjI3LjAwMDAwMDAwMCAtMDUwMA0KKysrIHBvbGljeS0xLjkuMi9kb21haW5zL3Byb2dyYW0v
+cGFzc3dkLnRlCTIwMDQtMDQtMDIgMTE6MTk6NDAuOTAyNTI1NjU2IC0wNTAwDQpAQCAtNzIsNyAr
+NzIsNyBAQA0KIA0KIHBhc3N3ZF9kb21haW4ocGFzc3dkKQ0KIHBhc3N3ZF9kb21haW4oc3lzYWRt
+X3Bhc3N3ZCkNCi1iYXNlX3Bhc3N3ZF9kb21haW4oY2hmbiwgYGF1dGhfY2hrcHdkLCBldGNfd3Jp
+dGVyJykNCitiYXNlX3Bhc3N3ZF9kb21haW4oY2hmbiwgYGF1dGhfY2hrcHdkLCBldGNfd3JpdGVy
+LCBwcml2b3duZXInKQ0KIGNhbl9zZXRmc2NyZWF0ZShjaGZuX3QpDQogYWxsb3cgY2hmbl90IHNl
+bGY6cHJvY2VzcyB7IHNldHJsaW1pdCB9Ow0KIA0K
+
+--=-E1A3LE7aUTpbHipiUvc9--
+
+--=-avpCi44IABcVfKEBCzO1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAiRphOIkJWWp2WGURAldXAJ497U6WAtmvDxnd0S4pLiYitfYh8QCcDluM
+mOP77IzUhUVuMujylWUhllg=
+=tJjp
+-----END PGP SIGNATURE-----
+
+--=-avpCi44IABcVfKEBCzO1--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
