@@ -1,46 +1,67 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71CsLrT006829
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 08:54:21 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i71Crl52021416
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 12:53:48 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: selinux-policy-default 1.14 is missing _stacks_ of stuff
-Date: Sun, 1 Aug 2004 22:54:15 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040801103252.GC7384@lkcl.net>
-In-Reply-To: <20040801103252.GC7384@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408012254.15553.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71Df7rT006969
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 09:41:07 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71DeZ52021962
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 13:40:35 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 13:41:06 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BrG6d-0002EE-MA
+	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 13:10:27 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BrGkz-00045e-VQ
+	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 14:52:09 +0100
+Date: Sun, 1 Aug 2004 14:52:09 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: udev, tmp_t (on tmpfs on /dev), and matchpathcon failing
+Message-ID: <20040801135209.GC15205@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 1 Aug 2004 20:32, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> there appears to be quite a lot of things missing from the
-> debian selinux-policy-default package.
->
-> - the appconfig directory
-> - the targeted directory
-> - the strict directory.
+hello hello, this is with 1.14 utils and libselinux1: matchpathcon appears to be
+failing ... on everything.
 
-There is no support for targeted in Debian, only strict and it has the 
-directory name "." .
+it says "matchpathcon(/) failed No such file or directory"
 
-> so, i can't use run_init because targeted/contexts/initrc_context
-> doesn't exist.
+*clueless*...
 
-Your /etc/selinux/config file should have the following line:
-SELINUXTYPE=.
+okay, strace shows /etc/selinux/targeted/contexts/file_contexts
+doesn't exist.
+
+okkaay...
+
+okay.  right.  i symlink
+/etc/selinux/targeted/contexts/file_contexts/file_contexts to
+/etc/selinux/src/contexts/file_contexts/file_contexts
+
+and off it goes.
+
+gawd, wish i'd found this earlier, i've been creating audit rules
+like stonk, not knowing what was wrong.
+
+*sigh*  okay.
+
+russell (someone?), the debian 1.14 (or greater) selinux-policy-default
+package could uhm, do with um, updating to match what the rpm spec
+does :)
+
+l.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
