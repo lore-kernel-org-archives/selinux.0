@@ -1,93 +1,106 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3N6GJI4000153
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 02:16:20 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3N6GJ7R001015
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 06:16:19 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h3N6G8KP001000 for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 06:16:13 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 1FD5CBF3D
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 16:15:57 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 30195-09
- for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 16:15:55 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id AEBE3BF11
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 16:15:55 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 3B95E924A3
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 16:15:55 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 0197079AD
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 16:15:55 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: <selinux@tycho.nsa.gov>
-Subject: Re: A different view of the Theo de Raadt funding question
-Date: Wed, 23 Apr 2003 16:15:55 +1000
-References: <sea5bbd3.074@atlas.snu.edu>
-In-Reply-To: <sea5bbd3.074@atlas.snu.edu>
+To: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: SUDO package
+Date: Wed, 23 Apr 2003 17:10:34 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <00d801c303f1$9fef2f00$398314d1@windowpane.com> <3EA021A5.4020603@redhat.com> <1051021175.14761.61.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1051021175.14761.61.camel@moss-huskers.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200304231615.55047.russell@coker.com.au>
+Message-Id: <200304231710.34773.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 23 Apr 2003 03:43, Matthew S. Hamrick wrote:
-> Mi amigo Larry Cohen has posted a story at cryptonomicon.net with
-> speculation that the real reason OpenBSD's funding got cut was because
-> of competition from TrustedBSD and SELinux. While it's not a technical
-> issue, I thought it might be interesting to readers of this list.
+On Wed, 23 Apr 2003 00:19, Stephen Smalley wrote:
+> >allow sudo_t user_home_dir_type:dir search;
+>
+> Does sudo need to search the user's home directory in order to function,
+> or is this just an unnecessary probe during initialization?  It might be
+> sufficient to use dontaudit to suppress the audit message without
+> granting the permission.
 
-That could be part of it.  However I think that there are good reasons for 
-funding all three projects.
+/bin/login, /bin/su, and sshd all require search access to the user home 
+directory.  I recall that last time I tried removing such access it would 
+result in $HOME environment variable being set incorrectly and other things 
+not working as expected.
 
-Note that OpenSSH is widely used on SE Linux and FreeBSD and there is no 
-viable alternative to it.  Other software that is developed on or for OpenBSD 
-is also widely used on Linux and FreeBSD systems.
+> ># Allow sudo_t to transition to user domains.
+> ># domain_trans(sudo_t, shell_exec_t, userdomain)
+> >domain_trans(sudo_t,{ bin_t sbin_t exec_type }, userdomain)
+> >domain_trans(sudo_t, ls_exec_t, userdomain)
+>
+> The exec_type attribute includes shell_exec_t and ls_exec_t, so you
+> don't need separate rules for them.  Ultimately, we should define a
+> separate attribute specifically for programs that should be executable
+> via sudo, and only apply it to those programs, rather than using the
+> more pervasive exec_type.
 
-I have not reviewed the details of the research that DARPA was funding on 
-OpenBSD, but I would be very surprised if it could not either be ported to SE 
-Linux and TrustedBSD systems or used as a point of comparison with those 
-systems.
+This is difficult as we often want to allow existing programs that have their 
+own type (such as ls) to be run (requiring lots of policy for su) and also we 
+require relabelling bin_t and sbin_t programs for this (which requires a new 
+attribute for these types so that all the other domains can continue 
+executing them).
 
-It is well known that various agencies of the US government have all currently 
-available OSs in use in production environments.  I am sure that it can be 
-demonstrated that improving the security of any OS benefits some parts of the 
-US government.
+> I should probably drop '*' support out of the language except for
+> permission sets.
 
-On Wed, 23 Apr 2003 13:01, Joshua Brindle wrote:
-> especially since there wasn't even that much left. IMO Theo is an idiot for
-> talking about the government and DoD while recieving a grant from them,
-> talk about biting the hand that feeds you. I appreciate the government for
-> acting the way they did toward someone who obviously wasn't grateful.
+Good idea.  If I knew about it when I first started writing policy I'm sure I 
+would have misused it horribly.  ;)
 
-One thing that people should keep in mind is that he wasn't really hurting the 
-US government (more important people criticise it in more public ways and get 
-more press).  He was hurting the people inside DARPA who advocated him.
+> ># Allow sysadm_t to reap a user_t process
+> ># created via sudo.
+> >#
+> >allow userdomain userdomain:process { sigchld };
+>
+> This doesn't truly belong in sudo.te (or in newrole.te), and should be
+> reduced down to only grant this permission for pairs of domains that can
+> be legitimately transitioned via sudo or newrole.
 
-Someone inside DARPA is probably regretting that they stood up at a committee 
-meeting and said that OpenBSD was worthy of receiving a grant.  This may 
-affect their actions when there are funding discussions related to other open 
-source projects, and this can't be good for any of us.  Hopefully they will 
-realise that most Linux and FreeBSD people are not like Theo and learn to 
-recognise the small minority who are.
+However if sudo is to relabel the tty device back to it's original type then 
+it has to keep running for the duration of the child process it spawns.  
+Therefire the child domain should only be sending sigchld to sudo not to the 
+shell which launched sudo.
 
-If Theo had a serious issue with receiving money from the US government then 
-he could have abstained from requesting it.  From what I know of such things 
-DARPA doesn't surprise people with gifts of money, they have to go to some 
-effort to request it.  Theo could have avoided such effort and requested that 
-other contributers to OpenBSD do the same.
+> ># Additional type_change rules to deal with ttys that
+> ># were left in an old type due to an expected termination of sudo.
+> >type_change sysadm_t user_tty_device_t:chr_file sysadm_tty_device_t;
+> >type_change user_t sysadm_tty_device_t:chr_file user_tty_device_t;
+> >type_change sysadm_t user_devpts_t:chr_file sysadm_devpts_t;
+> >type_change user_t sysadm_devpts_t:chr_file user_devpts_t;
+>
+> These rules (and the corresponding ones in newrole.te) should be moved
+> somewhere common to avoid duplication.
 
-In case someone was thinking of the "freedom of speech issue", when someone 
-offers you money you are free to say "no thanks".
+The role_tty_type_change() macro that is defined and used in domains/user.te 
+already does this.  The above is a result of copying from the old newrole.te 
+policy.
 
+> ># create run file
+> >allow sudo_t var_run_t:file create_file_perms;
+> >allow sudo_t var_run_t:dir create_dir_perms;
+>
+> I would recommend defining a separate type for sudo's /var/run files,
+> e.g.:
+> type sudo_var_run_t, file_type, sysadmfile;
+> file_type_auto_trans(sudo_t, var_run_t, sudo_var_run_t)
 
-PS  Please note that I made no mention of my own political opinions in this 
-message as this list is entirely the wrong place to discuss such things.  
-Anyone who is interested in discussing such things can contact me privately.
+In the daemon_domain() macro defined in macros/global_macros.te the naming 
+scheme var_run_$1_t is used.  It might make things easier in future to use 
+that.
+
+We probably should have a macro var_run_domain() which is used by 
+daemon_domain() and by other policy such as the sudo policy.
+
+How about something like the following:
+define(`var_run_domain', `
+type var_run_$1_t, file_type, sysadmfile, lockfile;
+file_type_auto_trans($1_t, var_run_t, var_run_$1_t)
+')
+
+Or we could change the naming scheme to something else.  Log files etc have 
+the _log_t part appended to the base name of the program domain.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
