@@ -1,49 +1,151 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5J0fJI4000212
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2003 20:41:19 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h5J0fI5e018903
-	for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2003 00:41:19 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h5J0fB92018881 for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2003 00:41:17 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Andreas Schuldei <andreas@schuldei.org>, selinux@tycho.nsa.gov
-Subject: Re: how usable is selinux in lsm-2.5?
-Date: Thu, 19 Jun 2003 10:40:49 +1000
-References: <20030618212607.GB5278@schuldei.org>
-In-Reply-To: <20030618212607.GB5278@schuldei.org>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: rules uptimed
+Date: Thu, 19 Jun 2003 10:56:29 +1000
+References: <200306182130.11056.carstengrohmann@gmx.de>
+In-Reply-To: <200306182130.11056.carstengrohmann@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306191040.50001.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_9oQ8+A8wtysiw6C"
+Message-Id: <200306191056.29941.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 19 Jun 2003 07:27, Andreas Schuldei wrote:
-> I notice with satisfaction that lsm-2.5 with selinux configured
-> in compiles fine here.
->
-> what is missing from it to be usable? Or which parts are there
-> and what can one do with them?
->
-> will the 2.4 userspace which russel and brian ship in debian
-> packages work on this kernel? I understand that the proc
-> interface changed. are there patches for userspace allready?
 
-The packages that Brian and I provide will not work with the new xattr based 
-interface in 2.5.x.  To get it working you need to compile your own versions 
-of login, cron, and other patched programs with support for this.
+--Boundary-00=_9oQ8+A8wtysiw6C
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-At some future time Brian and I will work on this, but if you would like to 
-start maintaining some packages for 2.5.x support then that would be would 
-help us.
+On Thu, 19 Jun 2003 05:34, Carsten Grohmann wrote:
+> I use the uptimed from unixcode.org/uptimed/ since a few months. I
+> wrote the rules last days. Feel free to use it....
+
+I've attached a version with a few minor changes.
+
+I use create_socket_perms because there's no reason for denying socket access 
+to itself, it makes the policy clearer, and avoids the chance of the program 
+having a branch that hasn't been used in your tests that needs some extra 
+access.
+
+For the "fd use" rule it's important to use "privfd" so that it can run from 
+ssh logins etc, and also to use "ttyfile ptyfile" for the terminal types.
+
+However the uprecords_t domain may be a bad idea.  If you want to grant users 
+read access to uptimed_spool_t then the following would do:
+allow userdomain uptimed_spool_t:dir search;
+allow userdomain uptimed_spool_t:file { getattr read };
+
+This gives simpler policy and it avoids having a program that can be run by 
+the user which can write to the administrator tty (which means that a bug in 
+that program could permit further attacks on system security).
+
+Another option would be to have a user_uprecords_t domain etc, but that is 
+probably unnecessary and blows out the policy size.
+
+The file u.te uses "allow userdomain" rules and is what I've put in my policy 
+tree.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_9oQ8+A8wtysiw6C
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="uptimed.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="uptimed.te"
+
+#DESC uptimed - a uptime daemon
+#
+# Author:  Carsten Grohmann <carsten@securityenhancedlinux.de>
+#
+# Date:  11. June 2003 
+#
+
+#################################
+#
+# General Types
+#
+
+type etc_uptimed_t, file_type, sysadmfile;
+type uptimed_spool_t, file_type, sysadmfile;
+
+#################################
+#
+# Rules for the uptimed_t domain.
+#
+daemon_domain(uptimed, `,privmail')
+file_type_auto_trans(uptimed_t, var_spool_t, uptimed_spool_t)
+allow uptimed_t { etc_uptimed_t proc_t readable_t }:file { getattr read };
+allow uptimed_t uptimed_spool_t:file create_file_perms;
+allow uptimed_t self:unix_dgram_socket create_socket_perms;
+
+# to send mail
+can_exec(uptimed_t, shell_exec_t)
+allow uptimed_t { bin_t sbin_t }:dir search;
+allow uptimed_t bin_t:lnk_file read;
+allow uptimed_t etc_runtime_t:file { getattr read };
+allow uptimed_t self:fifo_file { getattr write };
+
+#################################
+#
+# Rules for the uprecords_t domain.
+#
+user_application_domain(uprecords)
+allow uprecords_t { etc_uptimed_t readable_t uptimed_spool_t }:file { getattr read };
+allow uprecords_t { var_t var_spool_t uptimed_spool_t } :dir { search };
+allow uprecords_t privfd:fd use;
+allow uprecords_t { ttyfile ptyfile }:chr_file { getattr ioctl read write };
+
+--Boundary-00=_9oQ8+A8wtysiw6C
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="u.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="u.te"
+
+#DESC uptimed - a uptime daemon
+#
+# Author:  Carsten Grohmann <carsten@securityenhancedlinux.de>
+#
+# Date:  11. June 2003 
+#
+
+#################################
+#
+# General Types
+#
+
+type etc_uptimed_t, file_type, sysadmfile;
+type uptimed_spool_t, file_type, sysadmfile;
+
+#################################
+#
+# Rules for the uptimed_t domain.
+#
+daemon_domain(uptimed, `,privmail')
+file_type_auto_trans(uptimed_t, var_spool_t, uptimed_spool_t)
+allow uptimed_t { etc_uptimed_t proc_t readable_t }:file { getattr read };
+allow uptimed_t uptimed_spool_t:file create_file_perms;
+allow uptimed_t self:unix_dgram_socket create_socket_perms;
+
+# to send mail
+can_exec(uptimed_t, shell_exec_t)
+allow uptimed_t { bin_t sbin_t }:dir search;
+allow uptimed_t bin_t:lnk_file read;
+allow uptimed_t etc_runtime_t:file { getattr read };
+allow uptimed_t self:fifo_file { getattr write };
+
+allow userdomain uptimed_spool_t:dir search;
+allow userdomain uptimed_spool_t:file { getattr read };
+
+--Boundary-00=_9oQ8+A8wtysiw6C--
 
 
 --
