@@ -1,47 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA27464
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 17:17:38 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA17522
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 21:17:01 GMT
-Received: from crisium.vnl.com ([194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id VAA17518
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 21:17:00 GMT
-Date: Fri, 12 Jul 2002 22:21:19 +0100
-From: Dale Amon <amon@vnl.com>
-To: selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA27847
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 19:23:33 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id XAA09882
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 23:22:03 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id XAA09878 for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 23:22:01 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Natr Brazell <brazell@bmh.com>
 Subject: Re: revising the su decision
-Message-ID: <20020712212119.GB5982@vnl.com>
-References: <20020712111941.30466.qmail@web40009.mail.yahoo.com> <63597.137.246.8.231.1026493819.squirrel@austin.bmh.com> <20020712200607.C26001@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020712200607.C26001@lemuria.org>
+Date: Sat, 13 Jul 2002 01:23:14 +0200
+Cc: selinux@tycho.nsa.gov
+References: <20020712111941.30466.qmail@web40009.mail.yahoo.com> <63597.137.246.8.231.1026493819.squirrel@austin.bmh.com>
+In-Reply-To: <63597.137.246.8.231.1026493819.squirrel@austin.bmh.com>
+MIME-Version: 1.0
+Message-Id: <20020712232314.6F011329@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jul 12, 2002 at 08:06:08PM +0200, Tom wrote:
+On Fri, 12 Jul 2002 19:10, Natr Brazell wrote:
+> Just joined this mailing list so perhaps my question is already answered
+> however...
+>
+> ...  I work in an R&D environment with machines that are usually up and
+> configured for the duration of the experiment and then scrapped and
+> reloaded  for the next experiment.  Usually a time span of two months at
+> the most.  While in the experiment there are several tasks that must be
+> done consistently across all of my machines such as verifying time sync
+> with ntp etc.  In the past we used rsh (no really) with .rhosts files and
 
-> b) so, what you need is a trusted process ON the machines. ideally,
-> with a policy crafted specifically for it. I'll call this process
-> instwa, the "install watcher". it could be as simple as a cronjob
-> called every 5 minutes that essentially does:
-> 
-> if ( any file in /var/install ) then ( rpm/dpkg/whatever -i $file )
-> 
-> c) give your remote/install user write priviledges for /var/install
-> 
-> d) voila. you can push software unto the machines and the instwa will
-> take care of the installation.
+It seems that your demands for security aren't as high as many of the people 
+on this list, and your demands for usability are very high.  So I suggest 
+just configuring the policy to allow sshd to transition to sysadm_r:sysadm_t 
+and then make the default context of the root account be sysadm_r:sysadm_t, 
+so you can ssh in as root to do whatever you need to do.
 
-Try cfengine2. That's what I use. (Not on selinux systems yet, but
-I don't see why not)
+I'm sure that many people will disagree, and it's not how I'd setup a serious 
+production server.  But for the type of environment you describe it should 
+work fine.
 
 -- 
-------------------------------------------------------
-    Nuke bin Laden:           Dale Amon, CEO/MD
-  improve the global          Islandone Society
-     gene pool.               www.islandone.org
-------------------------------------------------------
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
