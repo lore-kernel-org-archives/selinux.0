@@ -1,40 +1,33 @@
-Date: Thu, 31 Mar 2005 23:13:00 +0200
-From: Tom <tom@lemuria.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Desktop apps interoperability
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tom <tom@lemuria.org>
 Cc: Casey Schaufler <casey@schaufler-ca.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
    selinux@tycho.nsa.gov
-Subject: Re: Desktop apps interoperability
-Message-ID: <20050331231259.B2607@lemuria.org>
-References: <20050331160546.36303.qmail@web31615.mail.mud.yahoo.com> <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <20050331231259.B2607@lemuria.org>
+References: <20050331160546.36303.qmail@web31615.mail.mud.yahoo.com>
+	 <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050331231259.B2607@lemuria.org>
+Content-Type: text/plain
+Date: Thu, 31 Mar 2005 16:05:52 -0500
+Message-Id: <1112303152.11216.199.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>; from sds@tycho.nsa.gov on Thu, Mar 31, 2005 at 11:08:07AM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Mar 31, 2005 at 11:08:07AM -0500, Stephen Smalley wrote:
-> > Look here, sonny, I've been doing MLS systems
-> > since 1986 and the One Truth You Must Learn
-> > is that applications can not be changed. No.
-> > Don't even consider thinking in this direction.
-> > This is wrong. Sometimes all that's available
-> > is the binary. Sometimes they like the way it
-> > works.
-> 
-> Ah, yes.  That's certainly the example we should be following...the
-> example set by past trusted/MLS OSes.  No thanks, we're trying to solve
-> real problems here...
+On Thu, 2005-03-31 at 23:13 +0200, Tom wrote:
+> He does have a point, though - sometimes the application can not be
+> changed. It may be a legacy application and for all I care, those are
+> the ones most in need of a protective cage.
 
-He does have a point, though - sometimes the application can not be
-changed. It may be a legacy application and for all I care, those are
-the ones most in need of a protective cage.
-
-
-
+Sure, and at that point, you just confine it as best as you can while
+still allowing whatever functionality you require.  SELinux supports
+that need just fine.  But you don't want to just accept that status quo
+for all applications for all time, which seemed to be Casey's attitude.
+ 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
