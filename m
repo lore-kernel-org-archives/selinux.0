@@ -1,51 +1,64 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9DLtkWt015622
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 17:55:46 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9DLte0p029183
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 21:55:40 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h9DLtcr7029180
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 21:55:39 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9E184Wt016166
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 21:08:04 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9E183ZK017033
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 01:08:03 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h9E182FF017026 for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 01:08:03 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 673C992472
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 11:07:56 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 892CB7F075
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 11:07:54 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Carlos =?iso-8859-1?q?An=EDsio=20Monteiro?= <monteiro@ipen.br>,
-   selinux@tycho.nsa.gov
-Subject: Re: avc: denied messages
-Date: Tue, 14 Oct 2003 07:55:36 +1000
-References: <3F8AEBBE.7070602@ipen.br>
-In-Reply-To: <3F8AEBBE.7070602@ipen.br>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: trusted vs untrusted packages
+Date: Tue, 14 Oct 2003 11:07:53 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310140755.36112.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200310141107.53852.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 14 Oct 2003 04:15, Carlos Anísio Monteiro wrote:
-> When system boot process is running up a lot of messages "avc: denied"
-> are displayed, in permissive mode e enforcing mode. In permissive mode,
-> for all the messages "avc: denied" the boot process is completed and the
-> login prompt is showed. However, in enforcing mode, it displayed the
-> messages "avc: denied", but also displayed others messages: "INIT: Id
-> "runlevel number" respawning too fast: disable for 5 minutes", "INIT: no
-> more processes left in this runlevel"; and stop the boot process.
-> Please, how I resolve this ?
+We have been having some IRC discussions about trusted RPMs.  But please note 
+that I am not an expert on RPM, so I'll probably get terminology wrong (at 
+least).  Please correct any errors and CC the list for the benefit of all 
+readers.
 
-To answer this question we need to know the exact messages in question, both 
-the AVC messages and which ID init says is respawning too fast.
+RPMs can be signed or unsigned.  If an RPM is signed by a trusted organization 
+then there should be some differences in an SE Linux install than if it is 
+not signed or if we don't trust the signer.
 
-> PS. I appended the line "/.journal <<none>>" in the file_context file,
-> because one error message is displayed when compiling the rules.
+One idea is to have signed packages be installed by rpm running as rpm_t and 
+unsigned packages be installed by rpm running as rpm_unsigned_t [1].  So for 
+example we could allow rpm_unsigned_t to install files in /sbin as 
+sbin_unsigned_t and in /bin as bin_unsigned_t [2].  Then a program installed 
+from an untrusted package can't be run from sysadm_t, and if it's run from 
+other trusted domains (EG part of the mail server) then it could trigger an 
+automatic domain transition to an appropriate domain.
 
-What error?
+Now this raises some interesting issues.  If a signed package has a program 
+which relies on some other program (and has a dependency), what happens if 
+the dependency is satisfied by an unsigned package?  Installing the unsigned 
+package may not result in the system being fully functional (execution of the 
+file in question may be denied).
+
+
+
+[1] Names aren't certain yet, just used as an example.  May have 3-4 levels of 
+trust too with 3-4 different names.
+
+[2] A relabel of a file system will break this...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 
 --
