@@ -1,87 +1,58 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SN32rT011806
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 19:03:03 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SN20uK015034
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 23:02:00 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 8B481BF89
-	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 00:02:47 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CCRAY-0001ol-84
-	for selinux@tycho.nsa.gov; Wed, 29 Sep 2004 00:14:02 +0100
-Date: Wed, 29 Sep 2004 00:14:02 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: fuse and selinux
-Message-ID: <20040928231402.GD6287@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8T2bcrT012712
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 22:37:38 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8T2aOuK020913
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 02:36:32 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: rpcd.te patch
+Date: Wed, 29 Sep 2004 12:37:13 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Z/hWBlly07rMA+4"
+Message-Id: <200409291237.13327.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ah... i hit a snag.
 
-fuse always always always returns error code 512 which is
-"-ERESTARTSYS".
+--Boundary-00=_Z/hWBlly07rMA+4
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-i.e. "please try later".
-
-i.e. the design of fuse is to be accessed via userspace.
-
-uh-oh.
-
-and on setup of the fuse fs [as a fs_t] security/selinux/hooks.c
-goes "oh, an error message i can't cope with".
-
-in fact it's worse than that because on _every_ getxattr()
-call not just the one that tests whether xattr is supported
-it gets a "please try later" response.
-
-so:
-
-option 1)
-
-	turn selinux/hooks.c into a state machine, decoupled around the
-	getxattr() calls, dealing correctly with the -ERESTARTSYS calls.
-
-	somehow... i don't _quite_ think i'm ready to tackle this one!
-
-option 2)
-
-	copy the fuse module, trash all of the code that calls out to
-	userspace... and merge the functionality of the fusexmp userspace
-	example code into a new fsproxy module.
-
-	this i _can_ cope with.
-
-	wheee.
-
-all because of some stupid bug in 2.6 ioctl blkrrdpart *grumble*
-mount -l *grumble*.
-
-
-the reason why i am mentioning all this is because:
-
-has anyone come across any circumstances - e.g. an NFS or SMBFS
-filesystem [with xattrs of course] - where -ERESTARTSYS would
-become or might become an issue?
-
-i understand that NFS has been modified to support selinux:
-where there are delays in the mounting of the filesystem,
-might such an error occur?
-
-l.
+The latest version of rpc.statd uses netlink to query the network state.  The 
+attach patch permits this.
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+--Boundary-00=_Z/hWBlly07rMA+4
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="rpc.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="rpc.diff"
+
+--- rpcd.te	2004-09-29 00:49:59.000000000 +1000
++++ rpcd.te.new	2004-09-29 12:36:01.000000000 +1000
+@@ -38,6 +38,7 @@
+ allow rpcd_t self:unix_dgram_socket create_socket_perms;
+ allow rpcd_t self:unix_stream_socket create_socket_perms;
+ allow rpcd_t self:fifo_file rw_file_perms;
++allow rpcd_t self:netlink_route_socket r_netlink_socket_perms;
+ 
+ # rpcd_t needs to talk to the portmap_t domain
+ can_udp_send(rpcd_t, portmap_t)
+
+--Boundary-00=_Z/hWBlly07rMA+4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
