@@ -1,89 +1,84 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2UIB7Do017269
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 13:11:07 -0500 (EST)
-Received: from wproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2UI7Hph029709
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 18:07:17 GMT
-Received: by wproxy.gmail.com with SMTP id 40so238300wri
-        for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 10:09:57 -0800 (PST)
-Message-ID: <ae023b60050330100976b46528@mail.gmail.com>
-Date: Wed, 30 Mar 2005 13:09:57 -0500
-From: Jim McCullough <jim.mccullough@gmail.com>
-Reply-To: Jim McCullough <jim.mccullough@gmail.com>
-To: ivg2@cornell.edu
-Subject: Re: Desktop apps interoperability
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1112204662.8592.42.camel@cobra.ivg2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <20050330170426.86197.qmail@web31606.mail.mud.yahoo.com>
-	 <20050330172630.GA10139@lkcl.net>
-	 <1112204662.8592.42.camel@cobra.ivg2.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2UJsPDo018161
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 14:54:25 -0500 (EST)
+Received: from web51504.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j2UJrDo4022579
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 19:53:13 GMT
+Message-ID: <20050330195313.44516.qmail@web51504.mail.yahoo.com>
+Date: Wed, 30 Mar 2005 11:53:13 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Getting the real task name in avc messages
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-779289395-1112212393=:43288"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There as been multiple instances on other lists where an "admin" or
-"developer" has been totally ignorant of any type of security
-practices.  Cases of do as I will and roll with the punches.  This
-occurs on all platforms of development.   Freedom of implementation
-should also require some common sense.  I like the content folders
-Ivan suggested.   That would save people like me who are attention
-defficiet a more structured schema for their fresh systems ( and prob.
-save me a couple of hours on my own each build i have to do for myself
-).
-  
--- 
-Jim McCullough
+--0-779289395-1112212393=:43288
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-On Wed, 30 Mar 2005 12:44:22 -0500, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
-> On Wed, 2005-03-30 at 18:26 +0100, Luke Kenneth Casson Leighton wrote:
-> > On Wed, Mar 30, 2005 at 09:04:26AM -0800, Casey Schaufler wrote:
-> >
-> > > Yes, and I'm sure that you can do a configuration
-> > > of most application defaults that will be good
-> > > enough to demo. Application developers tend to
-> > > have their own ideas regarding data storage and
-> > > it is a bad idea for a system developer to
-> > > interfere with said application developer's
-> > > freedom to inovate.
-> >
-> >  ... application developer's freedom to impose insecurity,
-> >  through ignorance on the part of the app-developer, upon
-> >  the users?
-> >
-> >  no offense intended: freedom in an abstract concept [e.g. "the american
-> >  way"] _always_ has limits - laws / rules / policy is defined to confine
-> >  that freedom, for good or worse.
-> 
-> I don't understand what this has to do with the application developer.
-> This is a discussion of desktop applications that manipulate content
-> relevant to the user - not internal settings. The settings that go
-> under /home are another issue - that would require changing the app,
-> but they don't have to be changed all at the same time.
-> 
-> All those apps *ask* you where to store the content. You create a
-> document of some sort, and you have a choice of where to put it.
-> This has nothing to do with the app developer. It's just another
-> restriction imposed on the user. Hopefully there's a way to get
-> away with it, while staying user-friendly. That's why I'm suggesting
-> content folders be introduced and integrated w/ GNOME's Places
-> menu, for example. That seems like a small first step to improving
-> things... no?
-> 
-> Ok, some apps like gift don't ask where to save the content,
-> but that's the exception and not the rule.
-> 
-> --
-> Ivan Gyurdiev <ivg2@cornell.edu>
-> Cornell University
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+Hello,
+
+Attached is a patch to the kernel that puts the program's name into the avc
+message. This lets you know the script that caused the problem instead of
+/bin/bash. Feedback would be appreciated.
+
+-Steve Grubb
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-779289395-1112212393=:43288
+Content-Type: application/octet-stream; name="linux-2.6.11-selinux-procname.patch"
+Content-Transfer-Encoding: base64
+Content-Description: linux-2.6.11-selinux-procname.patch
+Content-Disposition: attachment; filename="linux-2.6.11-selinux-procname.patch"
+
+ZGlmZiAtdXIgbGludXgtMi42LjExLm9yaWcvaW5jbHVkZS9saW51eC9hdWRp
+dC5oIGxpbnV4LTIuNi4xMS9pbmNsdWRlL2xpbnV4L2F1ZGl0LmgKLS0tIGxp
+bnV4LTIuNi4xMS5vcmlnL2luY2x1ZGUvbGludXgvYXVkaXQuaAkyMDA1LTAz
+LTA3IDEzOjQ1OjMzLjAwMDAwMDAwMCAtMDUwMAorKysgbGludXgtMi42LjEx
+L2luY2x1ZGUvbGludXgvYXVkaXQuaAkyMDA1LTAzLTA4IDE3OjI2OjQ3LjAw
+MDAwMDAwMCAtMDUwMApAQCAtMTg0LDYgKzE4NCw3IEBACiAJCQkJCSAgICAg
+Y29uc3QgY2hhciAqcHJlZml4LAogCQkJCQkgICAgIHN0cnVjdCBkZW50cnkg
+KmRlbnRyeSwKIAkJCQkJICAgICBzdHJ1Y3QgdmZzbW91bnQgKnZmc21udCk7
+CitleHRlcm4gdm9pZAkJICAgIGF1ZGl0X2xvZ190YXNrX2luZm8oc3RydWN0
+IGF1ZGl0X2J1ZmZlciAqYWIpOwogZXh0ZXJuIGludAkJICAgIGF1ZGl0X3Nl
+dF9yYXRlX2xpbWl0KGludCBsaW1pdCwgdWlkX3QgbG9naW51aWQpOwogZXh0
+ZXJuIGludAkJICAgIGF1ZGl0X3NldF9iYWNrbG9nX2xpbWl0KGludCBsaW1p
+dCwgdWlkX3QgbG9naW51aWQpOwogZXh0ZXJuIGludAkJICAgIGF1ZGl0X3Nl
+dF9lbmFibGVkKGludCBzdGF0ZSwgdWlkX3QgbG9naW51aWQpOwpkaWZmIC11
+ciBsaW51eC0yLjYuMTEub3JpZy9rZXJuZWwvYXVkaXRzYy5jIGxpbnV4LTIu
+Ni4xMS9rZXJuZWwvYXVkaXRzYy5jCi0tLSBsaW51eC0yLjYuMTEub3JpZy9r
+ZXJuZWwvYXVkaXRzYy5jCTIwMDUtMDMtMDcgMTM6NDU6MzkuMDAwMDAwMDAw
+IC0wNTAwCisrKyBsaW51eC0yLjYuMTEva2VybmVsL2F1ZGl0c2MuYwkyMDA1
+LTAzLTA4IDE3OjMwOjA2LjA2NTIzNzQyNCAtMDUwMApAQCAtNTg0LDYgKzU4
+NCwxNyBAQAogCQlwcmludGsoS0VSTl9FUlIgImF1ZGl0OiBmcmVlZCAlZCBj
+b250ZXh0c1xuIiwgY291bnQpOwogfQogCit2b2lkIGF1ZGl0X2xvZ190YXNr
+X2luZm8oc3RydWN0IGF1ZGl0X2J1ZmZlciAqYWIpCit7CisgICAgICAgIGNo
+YXIgbmFtZVtzaXplb2YoY3VycmVudC0+Y29tbSldOworCisgICAgICAgIGdl
+dF90YXNrX2NvbW0obmFtZSwgY3VycmVudCk7CisgICAgICAgIGF1ZGl0X2xv
+Z19mb3JtYXQoYWIsICIgcHJvY25hbWU9JXMiLCBuYW1lKTsKKyAgICAgICAg
+YXVkaXRfbG9nX2Zvcm1hdChhYiwgIiBzeXNjYWxsPSVkIHBlcj0lbHgiLCAK
+KwkJY3VycmVudC0+YXVkaXRfY29udGV4dC0+bWFqb3IsCisJCWN1cnJlbnQt
+PmF1ZGl0X2NvbnRleHQtPnBlcnNvbmFsaXR5KTsKK30KKwogc3RhdGljIHZv
+aWQgYXVkaXRfbG9nX2V4aXQoc3RydWN0IGF1ZGl0X2NvbnRleHQgKmNvbnRl
+eHQpCiB7CiAJaW50IGk7CmRpZmYgLXVyIGxpbnV4LTIuNi4xMS5vcmlnL3Nl
+Y3VyaXR5L3NlbGludXgvYXZjLmMgbGludXgtMi42LjExL3NlY3VyaXR5L3Nl
+bGludXgvYXZjLmMKLS0tIGxpbnV4LTIuNi4xMS5vcmlnL3NlY3VyaXR5L3Nl
+bGludXgvYXZjLmMJMjAwNS0wMy0wNyAxMzo0NTo0Ni4wMDAwMDAwMDAgLTA1
+MDAKKysrIGxpbnV4LTIuNi4xMS9zZWN1cml0eS9zZWxpbnV4L2F2Yy5jCTIw
+MDUtMDMtMDggMTc6MjY6NDcuMDAwMDAwMDAwIC0wNTAwCkBAIC01NzUsNiAr
+NTc1LDcgQEAKIAkJCQkJCWF1ZGl0X2xvZ19kX3BhdGgoYWIsICJleGU9IiwK
+IAkJCQkJCQl2bWEtPnZtX2ZpbGUtPmZfZGVudHJ5LAogCQkJCQkJCXZtYS0+
+dm1fZmlsZS0+Zl92ZnNtbnQpOworCQkJCQkJYXVkaXRfbG9nX3Rhc2tfaW5m
+byhhYik7CiAJCQkJCQlicmVhazsKIAkJCQkJfQogCQkJCQl2bWEgPSB2bWEt
+PnZtX25leHQ7Cg==
+
+--0-779289395-1112212393=:43288--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
