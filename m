@@ -1,62 +1,67 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71EiIrT007277
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 10:44:18 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i71Ehi52022749
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 14:43:45 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: udev, tmp_t (on tmpfs on /dev), and matchpathcon failing
-Date: Mon, 2 Aug 2004 00:44:08 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040801135209.GC15205@lkcl.net>
-In-Reply-To: <20040801135209.GC15205@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408020044.08954.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71FnFrT007502
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 11:49:15 -0400 (EDT)
+Received: from smtp803.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i71FnE0x022517
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 15:49:14 GMT
+Date: Sun, 1 Aug 2004 17:00:19 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-hotplug-devel@lists.sourceforge.net,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: hotplug 0.030 not setting selinux permissions on /dev/tty*
+Message-ID: <20040801160019.GC15949@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 1 Aug 2004 23:52, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> russell (someone?), the debian 1.14 (or greater) selinux-policy-default
-> package could uhm, do with um, updating to match what the rpm spec
-> does :)
+hi there,
 
-No, it does not.
+i've got udev up-and-running, with an selinux kernel 2.6.7.
 
-The needs of Debian are different from the needs of Red Hat.  I don't think 
-that Debian has any need for the targeted policy, but if someone does wish to 
-produce such a policy then they can make a selinux-policy-targeted package to 
-provide it which would conflict with selinux-policy-default.  I planned it 
-this way YEARS ago.
+i've added se-linux temporary attributes to tmpfs in order for
+the tmpfs /dev to "remember" the selinux settings that udev would
+make (without the patch, it's guaranteed to fail).
 
-The design of Debian has some significant differences from the Red Hat design.  
-One such difference is that packages which provide conflicting ways of 
-performing the same task can not be installed at the same time in Debian.  In 
-Debian it is impossible to install Sendmail and Postfix at the same time.  If 
-there is a selinux-policy-targeted package for Debian then it will conflict 
-with selinux-policy-default for the same reason.
+[see http://hands.com/~lkcl/selinux/2.6.6]
 
-The upgrade path from the older version of the SE Linux packages 
-(before /etc/selinux/config) is extremely painful.  But once you get there it 
-will all work fine.
+the issue is that i am not seeing any execution of
+/etc/dev.d/default/selinux.dev on /dev/tty[absolutelyanything].
 
-If you start rm'ing trees of files that my packages install and then replacing 
-them with trees taken from other places then you can expect difficulty.  In 
-fact you will probably end up repeating some of the work I did in 2001 when I 
-first started working on SE Linux.
+so as a temporary hack i am going to have to do a manual restorecon
+or a setfiles /etc/selinux/src/file_contexts/file_contexts /dev.
 
-Also when you have problems please report the first error that occurs.  Not 
-the error that occurs after you have tried ten different methods of working 
-around the first error.
+which defeats the object of having the /etc/dev.d/default/selinux.dev
+stuff in the first place.
+
+i really don't know enough about the operation of udev to say where
+the creation of /dev/tty1, /dev/tty2 etc etc etc are coming from,
+or why /etc/dev.d/default/selinux.dev would not be called.
+
+does anyone know why?
+
+what is going on: /dev/tty1...N are all in /dev/.udev.tdb, and
+they are all created in /dev, so... why wouldn't they have the
+permissions set?
+
+could it be because.... they are copied from somewhere else?
+
+e.g. the initrd scripts?
+
+i am at a loss.
+
+l.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
