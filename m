@@ -1,50 +1,49 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9K932Wt018536
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 05:03:02 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9KD27Wt019491
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 09:02:08 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9K92o0p012282
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 09:02:51 GMT
-Received: from kaos (c210-49-228-68.sunsh1.vic.optusnet.com.au [210.49.228.68])
-	by jazzswing.ncsc.mil  with ESMTP id h9K92gr7012268
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 09:02:50 GMT
-Received: from kaos (kaos [127.0.0.1])
-	by kaos (Postfix) with ESMTP id 5E2F247298
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 19:00:28 +1000 (EST)
-From: Faye Coker <faye@lurking-grue.org>
-Reply-To: faye@lurking-grue.org
-To: selinux@tycho.nsa.gov
-Subject: Number of roles reported by checkpolicy
-Date: Mon, 20 Oct 2003 19:00:27 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200310201900.27621.faye@lurking-grue.org>
+	by jazzswing.ncsc.mil  with ESMTP id h9KD1o0p024199
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 13:01:50 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h9KD1or7024196
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 13:01:50 GMT
+Subject: Re: libselinux.so.1 and some utils shouldn't be in /usr
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: Bastian Blank <bastian+selinux=tycho.nsa.gov@waldi.eu.org>,
+   selinux@tycho.nsa.gov
+In-Reply-To: <200310192301.20068.russell@coker.com.au>
+References: <20031018113455.GA22140@wavehammer.waldi.eu.org>
+	 <200310190035.06420.russell@coker.com.au>
+	 <20031019121044.GA29052@wavehammer.waldi.eu.org>
+	 <200310192301.20068.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1066654911.22196.7.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 20 Oct 2003 09:01:51 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Running checkpolicy shows I have 4 users and 5 roles:
+On Sun, 2003-10-19 at 09:01, Russell Coker wrote:
+> On Sun, 19 Oct 2003 22:10, Bastian Blank wrote:
+> > On Sun, Oct 19, 2003 at 12:35:06AM +1000, Russell Coker wrote:
+> > > This has already been discussed and a patch has already been posted to
+> > > the list.  I expect that the next release will have this fixed.
+> >
+> > do you have any pointer to the patch?
+> 
+> Here is the message with the patch:
+> http://marc.theaimsgroup.com/?l=selinux&m=106557438826674&w=2
 
-faye@kaos:/etc/selinux$ checkpolicy
-checkpolicy:  loading policy configuration from policy.conf
-security:  4 users, 5 roles, 683 types
-security:  29 classes, 71806 rules
+That patch wasn't merged, as it causes the static library to also be
+installed to /lib.  Instead, a patch by Dan Walsh (available from his
+SRPM, under ftp://people.redhat.com/dwalsh/SELinux/srpms) was merged to
+only install libselinux.so to /lib, and his spec file was
+correspondingly adjusted.
 
-however, I can only see four roles:
-
-faye@kaos:/etc/selinux$ grep ^role policy.conf|cut -f2 "-d "|sort -u
-staff_r
-sysadm_r
-system_r
-user_r
-
-Any ideas as to why checkpolicy is reporting five roles, when I can only see 
-four?
-
-faye
---
-Faye Coker
-faye@lurking-grue.org
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
