@@ -1,53 +1,36 @@
-Subject: Re: Where is the SID stored in file system and process
-	respectively?
+Subject: Re: [PATCH] Fixed & updated SELinux support patch for coreutils
+	5.2.1
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20041223055909.94522.qmail@web51507.mail.yahoo.com>
-References: <20041223055909.94522.qmail@web51507.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1104154766.15615.31.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1103804036.27286.11.camel@localhost.localdomain>
+References: <1103804036.27286.11.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1104155614.15615.47.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 27 Dec 2004 08:39:26 -0500
+Date: Mon, 27 Dec 2004 08:53:34 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-23 at 00:59, Park Lee wrote:
->   As we know, In SELinux, when we first access a file,
-> the file system should first send the security context
-> of the file from its extended attribute to security
-> server. the security server will give a SID back to
-> the file for later use. Since then, every time when we
-> access the file, there is no need for the file system
-> to send the security context of the file again.
-> instead, it will send the SID of the file to security
-> server. 
+On Thu, 2004-12-23 at 07:13, Lorenzo Hernández García-Hierro wrote:
+> Hi,
+> 
+> After trying to apply the SELinux support coreutils patch, it didn't
+> applied at all against GNU's coreutils-5.2.1.
+> 
+> I have fixed and updated the patch which applies without any problem
+> against 5.2.1 from gnu.org, also adds a little PACKAGE_STRING change
+> which explicitly says it has SELinux support to avoid any confusion.
+> 
+> The rest of things remain untouched and clean.
 
-This kind of question seems most appropriate to the
-selinux@tycho.nsa.gov list, not the fedora-selinux-list or the
-linux-security-module list.  In any event, please just post the question
-to one list (not all of them) and wait patiently for an answer.
-
->   But, Where is the SID (which is assigned by security
-> server for the file) stored in the file system? and
-> How is the SID calculated?
->  
->   
->   As for process in selinux, Where is the SID (which
-> also is assigned by security server ) stored with the
-> process? 
->   Is the security context of the process only exist in
-> the selinux security server and the process only need
-> to deal with the SID that is related to the security
-> context? 
->   Will the process itself handle its own security
-> context?
-
-The SID is stored in the in-core security data structure associated with
-the kernel's data structure for the object (whether an inode or a
-process).  It is not stored persistently.  SIDs are just dynamically
-allocated on demand as integers; they are non-persistent and local, as
-explained in the Flask paper.
+I'd recommend pulling the latest SELinux userspace patches from the
+Fedora Core CVS tree, see http://cvs.fedora.redhat.com/core.shtml.  The
+SELinux patch there is against coreutils 5.2.1, but with other patches
+also applied, which might explain why you had rejects.  Red Hat took
+over maintaining the SELinux userspace patches back in early 2003 when
+Dan Walsh ported them to the 2.6 SELinux API and started expanding them
+to more programs.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
