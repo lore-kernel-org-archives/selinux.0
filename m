@@ -1,43 +1,75 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA14453
+	for <selinux@tycho.nsa.gov>; Sat, 21 Dec 2002 18:29:26 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id XAA23989
+	for <selinux@tycho.nsa.gov>; Sat, 21 Dec 2002 23:26:57 GMT
+Received: from prserv.net (asmtp1.prserv.net [32.97.166.51])
+	by jazzswing.ncsc.mil  with ESMTP id XAA23985
+	for <selinux@tycho.nsa.gov>; Sat, 21 Dec 2002 23:26:57 GMT
+Message-Id: <200212212326.XAA23985@jazzswing.ncsc.mil>
+Date: Sat, 21 Dec 2002 18:29:1 -0500
+From: "Subba Rao" <sailorn@attglobal.net>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Error message - BSD lib required
+Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>
-Subject: Re: Domain transition -- enabling user_r in eklogin
-Date: Sat, 21 Dec 2002 23:34:19 +0100
-Cc: SELinux@tycho.nsa.gov
-References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <200212201940.32007.russell@coker.com.au> <200212201407.42467.pollard@admin.navo.hpc.mil>
-In-Reply-To: <200212201407.42467.pollard@admin.navo.hpc.mil>
-MIME-Version: 1.0
-Message-Id: <200212212334.19069.russell@coker.com.au>
+      charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 20 Dec 2002 21:07, Jesse Pollard wrote:
-> > Are you sure that it's a good idea to make gpg a trusted program that can
-> > over-ride MLS boundaries rather than have it merely be trusted to perform
-> > the actions that the user requests of it?
->
-> Not all boundaries - only the one protecting the gpg secret key. You have
-> to trust some program somewhere, and this one would seem to be the minimum.
+I am making lot of progress on compiling the UTILS on Debian.  I am being stumped with a new error while compiling
+the UTILS.  The error message is as follows:
 
-I probably should try out MLS.
+====================================
 
-> The only modifications I can think of are that it would NOT allow the key
-> to be extracted IF it is providing output for a lower security level. I
-> think it would be desirable to allow it to USE the key (for encryption,
-> decrypton, and signing), but not allow the key itself to get out of the
-> application, nor allow the key to be replaced.
+Making all in src
+make[3]: Entering directory `/usr/src/selinux/utils/tar-1.13.25/src'
+gcc  -g -O2   -o tar  buffer.o compare.o create.o delete.o extract.o incremen.o
+list.o mangle.o misc.o names.o rtapelib.o tar.o update.o ../lib/libtar.a  ../lib/libtar.a /usr/local/selinux/lib/libsecure.a -lrt -lbsd
+/usr/bin/ld: cannot find -lbsd
+collect2: ld returned 1 exit status
+make[3]: *** [tar] Error 1
+make[3]: Leaving directory `/usr/src/selinux/utils/tar-1.13.25/src'
+make[2]: *** [all-recursive] Error 1
+make[2]: Leaving directory `/usr/src/selinux/utils/tar-1.13.25'
+make[1]: *** [all] Error 2
+make[1]: Leaving directory `/usr/src/selinux/utils/tar-1.13.25'
+make: *** [xtar] Error 2
+ 
+====================================
 
-OK.  This all sounds reasonable.  Are you planning to do some coding on it?
+The following are the BSD files found in /usr/lib
 
-I have no plans to ever do any gpg coding...
+/usr/lib/menu/bsdgames
+/usr/lib/libbsd-compat.a
+/usr/lib/python2.1/lib-dynload/bsddb.so
+/usr/lib/python2.2/lib-dynload/bsddb.so
+/usr/lib/nessus/plugins/finger_freebsd.nasl
+/usr/lib/bcc/i86/libbsd.a
+/usr/lib/bcc/include/bsd
+/usr/lib/bcc/include/bsd/bsd.h
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+The following is my /etc/ld.so.conf
+
+/lib
+/usr/lib
+/usr/X11R6/lib
+/usr/local/lib
+/usr/lib/bcc/i86/
+
+
+What am I missing that is causing this error message? ( I have executed "ldconfig" command and error message continues. )
+
+Thank you in advance for any help.
+
+PS - Thanks Russell for the tips on Debian packages.
+
+Subba Rao
+sailorn@attglobal.net
+2002-12-21
+
 
 
 --
