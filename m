@@ -1,100 +1,94 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA07246
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 16:33:02 -0500 (EST)
-From: j.logsdon@lancaster.ac.uk
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA07464
+	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 16:47:43 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1CLX1I14588
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 21:33:01 GMT
-Received: from parmenides.zen.co.uk (parmenides.zen.co.uk [212.23.8.69])
-        by jazzband.ncsc.mil  with SMTP id h1CLWxf14571 for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 21:33:00 GMT
-Received: from localhost (j.logsdon@localhost)
-	by quantex-research.com (8.8.7/8.8.7) with ESMTP id VAA03823
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 21:40:29 GMT
-Date: Wed, 12 Feb 2003 21:40:29 +0000 (GMT)
-To: selinux@tycho.nsa.gov
+	by jazzband.ncsc.mil  with ESMTP id h1CLlgI15461
+	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 21:47:42 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h1CLlgf15457 for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 21:47:42 GMT
 Subject: Re: Simple question
-In-Reply-To: <200302121253.26502.pollard@admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.4.10.10302122051230.25327-100000@mercury.quantex>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Howard Holm <hdholm@epoch.ncsc.mil>
+To: j.logsdon@lancaster.ac.uk
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <Pine.LNX.4.10.10302121830350.25327-100000@mercury.quantex>
+References: <Pine.LNX.4.10.10302121830350.25327-100000@mercury.quantex>
+Content-Type: text/plain
+Date: 12 Feb 2003 16:47:37 -0500
+Message-Id: <1045086458.16529.177.camel@moss-sooners.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks Jesse and Russell
+In general terms it's difficult to respond in general terms.  One
+problem is that "Access Control Lists" means different things to
+different people.  Access control lists are a mechanism that could be
+used for many of the same controls as SELinux, but typically ACLs are
+different from SELinux in many ways.
 
-You have explained a clear difference but presumably if the ACL for
-setfacl etc are themselves restricted to root (or better another
-privileged user) and/or they are moved from /usr/bin to /usr/sbin, there
-is a another level of protection.  This doesn't protect you from a root
-hacker of course, which is the key Unix weakness that SEL is trying to
-eradicate.
+Some differences between SELinux and what most people think of as ACLs:
 
-So far I had the machine hanging from time to time which is probably
-because of some inconsistency in the kernel options that I didn't
-appreciate.  It's my fault I know but I can't afford that to happen on a
-production system so if I can't fix it, at least I have a simple
-alternative that does part of the job.  The issue of bind and dhcp as
-examples won't come up - they are not needed fortunately but sendmail,
-which is another candidate for hacking, and no doubt others will so there
-will always be weaknesses.
+1. ACLs are usually "discretionary" meaning that some user is allowed to
+change them. SELinux controls are "mandatory" which means that the
+policy is set administratively and the controls can't be changed by most
+processes on the system.  In real-life terms that means that even if
+relatively important processes are compromised the compromise can be
+confined.
 
-As with all the moves in security, the ideal would be for them to be
-incorporated into the official releases of the kernel but 2.5.x is already
-getting pretty big and 2.6 when it is out (Q2/2k3?) will have so much more
-in it that it's almost starting a new OS!
+2. ACLs as most people use the term generally applies to filesystem
+objects although it could apply to other system resources as well. 
+SELinux controls are intended for all system resources, so for example,
+signals generally wouldn't have separate ACLs (and that probably
+wouldn't make sense either) but SELinux can control the delivery of
+signals.
 
-Obviously SEL is a much more sophisticated product and I may well go with
-it but I am a little nervous at getting into deeper water than I am used
-to!
+3. But what kind of control would you want on a file descriptor?  That
+brings us to the point that SELinux has finer grained controls.  So
+where ACLs are usually just read, write, execute, and delete, with
+perhaps a few more options depending on the system you're discussing,
+SELinux controls operations on resources specific to that resource. 
+(Poor wording on my part, but hopefully understandable.) Additionally,
+those controls are always in effect.
 
-Thanks again.
+4. Another important factor is that SELinux can control access to system
+resources (like files) based not just on user identity or credentials,
+but on the security identifier of the process which was derived from a
+combination of the user and the code the user ran.  Type enforcement
+enables access control decisions to be based on such things as the
+trustworthiness of the code that's running, and program function, as
+well as the user identity.
 
-John
+In summary a good mandatory access control implementation will: 1) Have
+an administratively set security policy. 2) Always be in control over
+all subjects and objects on the system. 3) Base policy decisions on all
+security relevant information.  Even a comprehensive access control list
+implementation with administratively set ACLs is not going to be able to
+meet the third.
 
-On Wed, 12 Feb 2003, Jesse Pollard wrote:
-
-> On Wednesday 12 February 2003 12:32 pm, j.logsdon@lancaster.ac.uk wrote:
-> > Hi
-> >
-> > In general terms, what does SEL do that I can't do (even if more
-> > complicated) by Access Control Lists?  If I can control the users and
-> > groups that can access files (and these are all properly set) what
-> > advantage do I have in running SEL?
+On Wed, 2003-02-12 at 13:32, j.logsdon@lancaster.ac.uk wrote:
+> Hi
 > 
-> ACLs are under the control of the user. The user choses the other users that
-> may access the files that the user owns.
+> In general terms, what does SEL do that I can't do (even if more
+> complicated) by Access Control Lists?  If I can control the users and
+> groups that can access files (and these are all properly set) what
+> advantage do I have in running SEL?
 > 
-> SELinux is under the control of the security administrator. This includes the
-> files that the user owns. Even if the user wants a specific other user to have
-> access to a file, if that user is not in a domain containing the other user 
-> (ie, both are in the same domain) then the other user still cannot access the 
-> file.
+> I'm not being rude - just trying to understand the difference and to see
+> whether it is really necessary to run a bespoke kernel.
 > 
-> > I'm not being rude - just trying to understand the difference and to see
-> > whether it is really necessary to run a bespoke kernel.
+> TIA
 > 
-> The difference is in mandatory access vs descretionary access.
+> John
 > 
-> As far as the system files go, if all are carefully given approprate ACLs, 
-> then they can be protected. However, if the root accout is hacked, the files
-> are still vulnerable.
 > 
-> If a SELinux system is hacked, unless the hack itself contains an all powerful
-> label/domain, the hack still doesn't have access to all of the files.. Only 
-> those belonging to the domain of the hacked daemon.
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 > 
-> Others may have more detailed/correct answers, but this should be the
-> lowest common denominator.
-> 
-> -- 
-> -------------------------------------------------------------------------
-> Jesse I Pollard, II
-> Email: pollard@navo.hpc.mil
-> 
-> Any opinions expressed are solely my own.
-> 
-
-
+-- 
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 
 --
