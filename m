@@ -1,37 +1,72 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B1DqrT003383
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 21:13:52 -0400 (EDT)
-Received: from TYO202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B1DlaH001193
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 21:13:48 -0400 (EDT)
-Message-ID: <004d01c44f51$543a2ae0$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: <linux-ia64@vger.kernel.org>, <selinux@tycho.nsa.gov>
-Cc: "James Morris" <jmorris@redhat.com>
-References: <Xine.LNX.4.44.0406101657420.8385-100000@thoron.boston.redhat.com>
-Subject: Re: [PATCH] Kernel panic on IA-64 Linux with SELinux
-Date: Fri, 11 Jun 2004 10:13:38 +0900
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B3uHrT004089
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 23:56:17 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B3uCaH004279
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 23:56:13 -0400 (EDT)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: se-samba - a possible way to get round no seteuid
+Date: Fri, 11 Jun 2004 13:56:08 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>, samba-technical@samba.org,
+   tng-technical@lists.samba-tng.org
+References: <20040609100345.GA5727@lkcl.net> <200406101731.39235.russell@coker.com.au> <20040610201327.GA2861@lkcl.net>
+In-Reply-To: <20040610201327.GA2861@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+  charset="iso-8859-1"
+Message-Id: <200406111356.08287.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> Were you using a standard kernel, or was this a vendor or otherwise 
-> patched kernel?  I know people have booted IA64 with SELinux enabled in 
-> recent times with no problems.
+On Fri, 11 Jun 2004 06:13, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > instead of doing a seteuid back to root, you do an execve to
+> > > an executable named samba-root.
+> >
+> > That doesn't work.  There are more possible UIDs than the root file
+> > system may have Inodes...
+>
+>  ? i am confused.  by execve'ing back to a context, shall we call it
+>  smbd_as_root_t, what connection does that have to UIDs?
 
-Yes, I booted up both of the standard kernel (2.6.6) with both of the previous patches.
-SELinux was configured to the Permissive-mode.
-(I have not tried to boot up with the Enforcing-mode.)
+The idea for Exim is that you have a set of wrapper binaries already there on 
+disk.  If a particular installation of Exim doesn't use one of the ~6 
+wrappers that are installed then it's only a waste of 4K of disk space.
 
-I'm interested in the case you mentioned.
-In my experience, kernel panic always occurs while booting up.
-What is written in /etc/sysconfig/selinux?
---------
-Kaigai Kohei, Linux Promotion Center, NEC
-E-mail: kaigai@ak.jp.nec.com
+If we do the same mechanism for each UID then we have many more executables, 
+or we have to allow the daemon to create new executables which also adds more 
+coding.
+
+>  ah, remember that you can have several UIDs over the same TCP
+>  connection (and multiple SMBsessionsetupX's to represent each
+>  and you get these SMB-MIDs - multiplexing ids - to represent
+>  each SMB session over the same TCP session),
+
+[...]
+
+>  i thought that instead of having the seteuid and back to root,
+>  you could execve back to the "smbd_as_root_t context".
+
+True, but re-execing requires serialising all the data to a file, shared 
+memory region, or something else that will survive past an exec.  That's pain 
+that we don't want to go through any more often than is necessary.
+
+>  - smbd_the_daemon (waiting for connections)
+>
+>  ... which transitions on a fork to...
+>
+>  - smbd_as_root_t (dealing with "connections")
+>
+>  ... which can transition to ...
+
+How about just smbd_the_daemon which can transition to smbd_as_a_user?
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
