@@ -1,37 +1,55 @@
+Message-ID: <20050107150031.86228.qmail@web51506.mail.yahoo.com>
+Date: Fri, 7 Jan 2005 07:00:31 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
 Subject: Re: BUG in security_context_to_sid() ?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: James Morris <jmorris@redhat.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <20050107144100.53289.qmail@web51507.mail.yahoo.com>
-References: <20050107144100.53289.qmail@web51507.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1105109274.28680.78.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 07 Jan 2005 09:47:55 -0500
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: jmorris@redhat.com, SELinux@tycho.nsa.gov
+In-Reply-To: <1105108684.28680.75.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-01-07 at 09:41, Park Lee wrote:
-> Because there are also other hook functions (such as
-> selinux_inode_setxattr(),
-> selinux_inode_post_setxattr(),
-> selinux_inode_setsecurity(), selinux_setprocattr(),
-> etc.) who will call security_context_to_sid(). If I
-> now change security_context_to_sid(), let it call
-> kmalloc with GFP_ATOMIC rather than its original
-> GFP_KERNEL, will this change cause problem when other
-> hook functions call the modified
-> security_context_to_sid() function? 
+Fri, 07 Jan 2005 at 09:38, Stephen Smalley wrote:
+> On Fri, 2005-01-07 at 09:39, Park Lee wrote:
+> > Because there are also other hook functions (such 
+> > as selinux_inode_setxattr(),
+> > selinux_inode_post_setxattr(),
+> > selinux_inode_setsecurity(),selinux_setprocattr(),
+> > etc.) who will call security_context_to_sid(). If 
+> > I now change security_context_to_sid(), let it 
+> > call kmalloc with GFP_ATOMIC rather than its 
+> > original GFP_KERNEL, will this change cause 
+> > problem when other hook functions call the 
+> > modified security_context_to_sid() function? 
+>
+> It could cause them to fail under memory pressure 
+> rather than blocking and waiting for more memory to 
+> become available.  
+> As I said, it would be better if you would change 
+> your code instead to convert the context to a SID 
+> while in process context, then just use the SID 
+> when in irq.
 
-It could cause them to fail under memory pressure rather than blocking
-and waiting for memory to become available.  It would be preferable to
-change your code to convert the context to a SID while in process
-context, then use the saved SID when in non-blocking context.
+Thanks.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Would you please tell me what the "process context"
+refers to? Where is the "process context"? Does the
+"convert the context to a SID while in process
+context" means calling security_context_to_sid()
+function in process context?
+( As I am a newbie in Linux kernel area, forgive my
+ignorance please.)
 
+
+=====
+Best Regards,
+Park Lee
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
