@@ -1,88 +1,79 @@
 Content-Type: text/plain;
-  charset="us-ascii"
-From: Brian Fegler <fegler@bigfoot.com>
-Reply-To: fegler@bigfoot.com
-To: SELinux@tycho.nsa.gov
-Subject: kde rules
-Date: Fri, 18 Oct 2002 16:42:34 -0600
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: fegler@bigfoot.com, SELinux@tycho.nsa.gov
+Subject: Re: kde rules
+Date: Sat, 19 Oct 2002 01:14:47 +0200
+References: <200210181642.34552.fegler@bigfoot.com>
+In-Reply-To: <200210181642.34552.fegler@bigfoot.com>
 MIME-Version: 1.0
-Message-Id: <200210181642.34552.fegler@bigfoot.com>
+Message-Id: <200210190114.47251.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am working on locking down kde. I would like to have a rule set that would 
-not allow any user initiated kde related processes to write or read from the 
-user's directory. 
+On Sat, 19 Oct 2002 00:42, Brian Fegler wrote:
+> I am working on locking down kde. I would like to have a rule set that
+> would not allow any user initiated kde related processes to write or read
+> from the user's directory.
 
-Some exceptions would be:
-kde_kmail_t => full permissions on user_mailbox_t 
-any kde domain => full permissions on user_kmailconfig_t ( ~/.kde(|.*) )
+If you want to try such things then look at my games domain and the netscape 
+domain in the current CVS policy tree.  They have most of what you need.
 
+Now one thing you haven't explained is why you want to do this.
 
-Where things get a bit tricky is with dcop and iceauth - kde interprocess 
-communication protocols. 
+We have a separate domain for Netscape because of it's significant network 
+actions (which are a risk) and because it has had a history of security 
+problems.  I have recently created a separate domain for games because games 
+don't need any access to important files, and are generally written by people 
+who aren't too bothered by security issues.
 
-xauth, dcop*, iceauth and kdeinit all write, read, create and delete from the 
-home directory extensively. 
+Why make separate domains for KDE?  KDE by it's nature is dealing with your 
+files and processes.  If you want to have full KDE functionality then it 
+probably all needs to be in the main domain.
 
-I had wanted to have different types for .qt*, .DCOP*, .Xauthority, ..., .... 
+I've been thinking of making a separate domain for kmail because kmail has 
+sharply defined tasks and is easy to limit (it will require some hacking of 
+KDE code and then some negotiation to try and get the changes into the KDE 
+source tree).  But for the rest I've given up.
 
-The problem with this is depending on what order programs are called (kmail, 
-then konqueror, or konsole, konqueror then kmail for example) effects what 
-programs attempt to create the different kde and x related files. 
+Konqueror is one program that you would like to have running in a different 
+domain, but there are two problems.  One problem is that it's used as a local 
+file browser (which requires full read and write access to all your files) as 
+well as a web browser (when you would like to restrict the access).  Now it's 
+quite common to have Konq being used to browse files, to read a local .html 
+file, and then to click on a link on a web page.  So you have it going from a 
+local file manager to the web browser use.
 
-I had wanted a user_(iceauth|dcop|mcop|xauth|qt)_t type, but managing what 
-domains (iceauth_t, dcop_t, kdeinit_t, xauth_t, kde_t, ...) could access what 
-types became a little crazy. It wasn't real clean. 
+When you want to have a terminal process KDE will run a konsole for you which 
+runs bash.  So if you have a domain for the main KDE programs then it would 
+have to have an auto-trans rule to transition to user_t when running either 
+the konsole program or the shell_exec_t.  In either case it would be possible 
+for /bin/bash to be executed in such a way that it performs some action on 
+files that you are trying to deny from kde.
 
-So, I was wondering if anyone had worked on this. 
+Due to the way it works I think that KDE has to be "trusted".  I've read the 
+source and having KDE be trusted doesn't exactly thrill me, so if you can 
+solve these problems then I'll be happy to help you implement the solution.
 
-It seems to me that it might be a good idea to create a user_kde_ipc_t type. 
-This would include the files .DCOP*, .ICEAuthority* .mcop* and .qt/* among 
-others. While .qt/* wouldn't truly be ipc files, the name kind or sort of 
-fits...
+> Some exceptions would be:
+> kde_kmail_t => full permissions on user_mailbox_t
 
-How gnome would fit in I'm not sure. I'm not familiar enough with gnome 
-protocols to know how or if these new types would effect it. (gnome rule 
-writers, input would be great). 
+We don't have a user_mailbox_t yet, it has to be done though.
 
-I'd like these rules to work "out of the box", if you will. When root adds a 
-new user, with out any sub directories created, I'd like new users to fire up 
-kde and have it all work, without having to create directories and then 
-running chcon on them.
+> xauth, dcop*, iceauth and kdeinit all write, read, create and delete from
+> the home directory extensively.
+>
+> I had wanted to have different types for .qt*, .DCOP*, .Xauthority, ...,
 
+I've already created a type for .Xauthority and it's in the CVS.
 
-In summary, my domains include
-kde_t
-kde_kmail_t
-kdeinit_t
-iceauth_t
-dcop_t
-xauth_t
-(working on kde_konqueror_t)
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-
-I think the types should include
-user_kdeconfig_t
-	user_kmailconfig_t
-user_kde_ipc_t
-user_mailbox_t
-kde_socket_t (in /tmp/)
-kde_tmp_t (in /tmp/ )
-
-
-Another nifty type for users might be a "user_fullaccess_t". If users had 
-files (documents for example), that they didn't really care what domain did 
-what with, they could just label them with that domain. Maybe have a 
-user_fullaccess_t directory, with type_transitions for labeling items going 
-into it as need be. 
-
-
-Any suggestions or requests would be great. I think the estimated time to 
-completion will be about another week or so. I'll be throwing some files up 
-onto the list for further input at that time, hopefully.
-
-Brian Fegler
 
 --
 This message was distributed to subscribers of the selinux mailing list.
