@@ -1,328 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOKObIi022687
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:24:40 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOKOcCA008895
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 20:24:40 GMT
-Message-ID: <41A4EDFA.3060407@redhat.com>
-Date: Wed, 24 Nov 2004 15:24:26 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: jwcart2@epoch.ncsc.mil
-CC: Russell Coker <russell@coker.com.au>,
-   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Re: can_network patch.
-References: <41741A2C.8040408@redhat.com>	 <200410260138.19426.russell@coker.com.au>	 <20041025213122.GA2535@jmh.mhn.de>	 <200410270036.14935.russell@coker.com.au>	 <1099690788.16488.52.camel@moss-lions.epoch.ncsc.mil>	 <4192A029.5050909@redhat.com>	 <1100722524.22035.18.camel@moss-lions.epoch.ncsc.mil>	 <419CB2A8.7020504@redhat.com>	 <1101235934.7273.24.camel@moss-lions.epoch.ncsc.mil>	 <41A4B54F.3070709@redhat.com> <1101325733.12859.37.camel@moss-lions.epoch.ncsc.mil>
-In-Reply-To: <1101325733.12859.37.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAP1GDIi023766
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 20:16:13 -0500 (EST)
+Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAP1Eggi017151
+	for <selinux@tycho.nsa.gov>; Thu, 25 Nov 2004 01:14:42 GMT
+Subject: Re: xen 2.0 - adding selinux permissions
+From: Colin Walters <walters@verbum.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20041124201950.GA15740@lkcl.net>
+References: <20041123220352.GF5146@lkcl.net>
+	 <1101303556.22014.56.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041124150927.GP5146@lkcl.net>
+	 <1101308769.22014.136.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041124154936.GB14100@lkcl.net>
+	 <1101319995.30763.11.camel@nexus.verbum.private>
+	 <20041124201950.GA15740@lkcl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iiuC9+M7as1iIBsjdi61"
+Date: Wed, 24 Nov 2004 20:15:46 -0500
+Message-Id: <1101345346.1543.7.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Carter wrote:
 
->Merged with some changes.
->
->After talking with Steve, I removed can_network_server_udp and
->can_network_client_udp, and just used can_network_udp.  There is no
->security gained for udp in not allowing the connect if they already can
->send and receive.
->  
->
-Ok,  this might be a candidate for a boolean
+--=-iiuC9+M7as1iIBsjdi61
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->Also removed, for now, the mozilla_macros.te chunk that allowed mozilla
->to execute userhelper and the rules giving mozilla more execute
->permissions.  
->
->I missed the userhelper stuff yesterday.  Letting mozilla run userhelper
->has some serious security implications.
->
->Isn't it possible to give the JRE the execute permisisons without giving
->it to $1_mozilla_t?
->
->  
->
-Yes, although it will probably need alot of the same privs as mozilla, 
-and be quite complicated.
+On Wed, 2004-11-24 at 20:19 +0000, Luke Kenneth Casson Leighton wrote:
+> On Wed, Nov 24, 2004 at 01:13:15PM -0500, Colin Walters wrote:
+> > On Wed, 2004-11-24 at 15:49 +0000, Luke Kenneth Casson Leighton wrote:
+> >=20
+> > >  okay, regarding the second argument to avc_has_perm(),
+> > >  i asked the nice xen developers if it'd be possible to
+> > >  associate a sid with each virtual machine.
+> >=20
+> > When would you want a process to be able to control one Xen machine but
+> > not another?
+> =20
+>  i described such a scenario in an earlier message today to stephen:
+>  giving an operator-admin the right to reboot a VM running a SQL server
+>  but NOT giving that same operator the right to reboot the master OS
+>  which, if you rebooted that, would take down every single VM with it.
 
->On Wed, 2004-11-24 at 11:22, Daniel J Walsh wrote:
->  
->
->>    *   This patch includes the ugliness to get sun's jre plugin to work
->>      in Mozilla.  (otherwize mozilla crashes).
->>    * Removed distro_gentoo checks around proc_net since we want these also.
->>    * Futzed around with userhelper so that mozilla can run it.
->>    * Cleaned up stunnel.te so it should be usable for gentoo and other
->>      distributions.
->>    * Some cleanup of apache to allow starting of apache with ssl keys
->>    * Includes modification to global_macros to extract out
->>      network_macros.te
->>
->>
->>network_macros.te includes
->>
->>can_network - with all the current functionaility
->>
->>I added
->>
->>can_network_server (Has listen and accept, both udp and tcp)
->>can_network_server_udp
->>can_network_server_tcp
->>
->>can_network_client (Has connect, both udp and tcp)
->>can_network_client_tcp
->>can_network_client_udp
->>
->>can_network_udp  - Same as can_network but only for udp
->>can_network_tcp - Same as can_network but only for tcp
->>
->>
->>______________________________________________________________________
->>    
->>
-><snip>
->  
->
->>diff --exclude-from=exclude -N -u -r nsapolicy/macros/network_macros.te policy-1.19.5/macros/network_macros.te
->>--- nsapolicy/macros/network_macros.te	1969-12-31 19:00:00.000000000 -0500
->>+++ policy-1.19.5/macros/network_macros.te	2004-11-24 10:57:51.328334858 -0500
->>@@ -0,0 +1,189 @@
->>+#################################
->>+#
->>+# can_network(domain)
->>+#
->>+# Permissions for accessing the network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`base_can_network',`
->>+#
->>+# Allow the domain to create and use $2 sockets.
->>+# Other kinds of sockets must be separately authorized for use.
->>+allow $1 self:$2_socket connected_socket_perms;
->>+
->>+#
->>+# Allow the domain to send or receive using any network interface.
->>+# netif_type is a type attribute for all network interface types.
->>+#
->>+allow $1 netif_type:netif { $2_send rawip_send };
->>+allow $1 netif_type:netif { $2_recv rawip_recv };
->>+
->>+#
->>+# Allow the domain to send to or receive from any node.
->>+# node_type is a type attribute for all node types.
->>+#
->>+allow $1 node_type:node { $2_send rawip_send };
->>+allow $1 node_type:node { $2_recv rawip_recv };
->>+
->>+#
->>+# Allow the domain to send to or receive from any port.
->>+# port_type is a type attribute for all port types.
->>+#
->>+ifelse($3, `', `
->>+allow $1 port_type:$2_socket { send_msg recv_msg };
->>+', `
->>+allow $1 $3:$2_socket { send_msg recv_msg };
->>+')
->>+
->>+# XXX Allow binding to any node type.  Remove once
->>+# individual rules have been added to all domains that 
->>+# bind sockets. 
->>+allow $1 node_type:$2_socket node_bind;
->>+#
->>+# Allow access to network files including /etc/resolv.conf
->>+#
->>+allow $1 net_conf_t:file r_file_perms;
->>+')dnl end can_network definition
->>+
->>+#################################
->>+#
->>+# can_network_server_tcp(domain)
->>+#
->>+# Permissions for accessing a tcp network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_server_tcp',`
->>+base_can_network($1, tcp, `$2')
->>+allow $1 self:tcp_socket { listen accept };
->>+')
->>+
->>+#################################
->>+#
->>+# can_network_server_udp(domain)
->>+#
->>+# Permissions for accessing a udp network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_server_udp',`
->>+base_can_network($1, udp, `$2')
->>+')
->>+
->>+#################################
->>+#
->>+# can_network_client_tcp(domain)
->>+#
->>+# Permissions for accessing a tcp network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_client_tcp',`
->>+base_can_network($1, tcp, `$2')
->>+allow $1 self:tcp_socket { connect };
->>+')
->>+
->>+#################################
->>+#
->>+# can_network_client_udp(domain)
->>+#
->>+# Permissions for accessing a udp network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_client_udp',`
->>+base_can_network($1, udp, `$2')
->>+allow $1 self:udp_socket { connect };
->>+')
->>+
->>+#################################
->>+#
->>+# can_network_tcp(domain)
->>+#
->>+# Permissions for accessing the network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_tcp',`
->>+
->>+can_network_server_tcp($1, `$2')
->>+can_network_client_tcp($1, `$2')
->>+
->>+')
->>+
->>+#################################
->>+#
->>+# can_network_udp(domain)
->>+#
->>+# Permissions for accessing the network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_udp',`
->>+
->>+can_network_client_udp($1, `$2')
->>+can_network_server_udp($1, `$2')
->>+
->>+')
->>+
->>+#################################
->>+#
->>+# can_network_server(domain)
->>+#
->>+# Permissions for accessing the network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_server',`
->>+
->>+can_network_server_tcp($1, `$2')
->>+can_network_server_udp($1, `$2')
->>+
->>+')dnl end can_network_server definition
->>+
->>+
->>+#################################
->>+#
->>+# can_network_client(domain)
->>+#
->>+# Permissions for accessing the network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network_client',`
->>+
->>+can_network_client_tcp($1, `$2')
->>+can_network_client_udp($1, `$2')
->>+
->>+')dnl end can_network_client definition
->>+
->>+#################################
->>+#
->>+# can_network(domain)
->>+#
->>+# Permissions for accessing the network.
->>+# See types/network.te for the network types.
->>+# See net_contexts for security contexts for network entities.
->>+#
->>+define(`can_network',`
->>+
->>+can_network_tcp($1, `$2')
->>+can_network_udp($1, `$2')
->>+
->>+#
->>+# Allow the domain to send NFS client requests via the socket
->>+# created by mount.
->>+#
->>+allow $1 mount_t:udp_socket rw_socket_perms;
->>+
->>+')dnl end can_network definition
->>+
->>+define(`can_resolve',`
->>+can_network_client_udp($1, `dns_port_t')
->>+')
->>+
->>+define(`can_ldap',`
->>+can_network_client_tcp($1, `ldap_port_t')
->>+')
->>+
->>    
->>
->
-><snip>
->
->  
->
->>diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mozilla_macros.te policy-1.19.5/macros/program/mozilla_macros.te
->>--- nsapolicy/macros/program/mozilla_macros.te	2004-11-24 07:00:51.000000000 -0500
->>+++ policy-1.19.5/macros/program/mozilla_macros.te	2004-11-24 10:57:51.332334406 -0500
->>@@ -29,7 +29,8 @@
->> 
->> allow $1_mozilla_t usr_t:{ lnk_file file } { getattr read };
->> allow $1_mozilla_t var_lib_t:file { getattr read };
->>-allow $1_mozilla_t urandom_device_t:chr_file { getattr ioctl read };
->>+allow $1_mozilla_t { random_device_t urandom_device_t }:chr_file { getattr ioctl read append };
->>+
->> allow $1_mozilla_t self:socket create_socket_perms;
->> allow $1_mozilla_t self:file { getattr read };
->> 
->>@@ -117,8 +118,20 @@
->> dontaudit $1_mozilla_t file_type:dir getattr;
->> allow $1_mozilla_t self:sem create_sem_perms;
->> 
->>+ifdef(`userhelper.te', `
->>+domain_auto_trans($1_mozilla_t, userhelper_exec_t, $1_userhelper_t)
->>+')
->> dontaudit $1_mozilla_t selinux_config_t:dir search;
->> 
->>+#
->>+# Rules needed to run java apps
->>+#
->>+allow $1_mozilla_t ld_so_cache_t:file execute;
->>+allow $1_mozilla_t locale_t:file execute;
->>+dontaudit $1_mozilla_t *:{ chr_file file } execute;
->>+dontaudit $1_t ld_so_cache_t:file execute;
->>+dontaudit $1_t locale_t:file execute;
->>+
->> ifdef(`xdm.te', `
->> allow $1_mozilla_t xdm_t:fifo_file { write read };
->> allow $1_mozilla_t xdm_tmp_t:dir search;
->>    
->>
->
->  
->
+The most flexible approach would be to make the management daemon a
+userspace object manager, like dbus and nscd.  Give it a config file
+(like the dbus <associate>) which maps VMs to security contexts.  Then
+label the /proc/xen interface specifically, and ensure that only the
+daemon can interact with it.
+
+
+--=-iiuC9+M7as1iIBsjdi61
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBpTJCOIkJWWp2WGURApQSAJ9dTrZvqCzxmErdVGRPoPz9BDo8dgCeO/sB
+3VNOHNJbiP0H03x5Lvg/M4E=
+=dfK3
+-----END PGP SIGNATURE-----
+
+--=-iiuC9+M7as1iIBsjdi61--
 
 
 --
