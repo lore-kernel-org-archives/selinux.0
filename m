@@ -1,64 +1,87 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA11313
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 13:30:44 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA11744
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 18:29:54 GMT
-Received: from khaipur.xiat.org ([66.125.68.98])
-        by jazzband.ncsc.mil  with ESMTP id SAA11735 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 18:29:53 GMT
-Date: Fri, 18 Jan 2002 10:25:12 -0800
-From: Paul Krumviede <pwk@acm.org>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
-        selinux <selinux@tycho.nsa.gov>
-Subject: RE: 2.4.16 release, ipsec, roles and ECHILD errors
-Message-ID: <485645491.1011349512@localhost>
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015242A0@csoc-mail-box.csoconline.com>
-References: <72222DC86846D411ABD300A0C9EB08A1015242A0@csoc-mail-box.csoconli
- ne.com>
+Message-ID: <49AD045540D7D311A816009027DE7D9D04F2E064@scpetrel.atlantic.spawar.navy.mil>
+From: "Sherwood, John E. (Jack)" <sherwooj@spawar.navy.mil>
+To: "'Pete Loshin'" <pete@loshin.com>, SELinux@tycho.nsa.gov
+Subject: RE: questions for upcoming article in Information Security Magazi
+	ne
+Date: Fri, 18 Jan 2002 15:19:13 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---On Friday, 18 January, 2002 07:39 -0600 "Westerman, Mark" 
-<Mark.Westerman@csoconline.com> wrote:
+If I may, I'd like to toss in one more question:
 
-> The 1.94 version  has bugs that make non-usable
+-- Any present or future plans for NIAP evaluation such that it can satisfy
+the NSTISSP #11 policy?  If evaluation is planned, would it be to CAPP,
+LSPP, some other protection profile, or some new protection profile?  
 
-that is a bit of an overstatement. i've patched the 1.94
-version to fix the most egregious bug (the one that
-could leave a connection in %hold). and it does work
-with kernels that don't have selinux compiled in and
-earlier versions of selinux: i can see the IKE exchanges
-take place and instantiate the desired tunnel and eroute.
-traffic between machines does get routed through the
-tunnel (as determined with a sniffer).
+> Jack Sherwood
+> Code 723JES
+> SPAWAR Systems Center Charleston
+> Building 3113	
+> PO Box 190022
+> North Charleston, SC 29419-9022
+> 
+> New Phone 843-218-4502, DSN 588-4502
+> 
 
-> From: freeswan web page
-> "While freeswan-1.94 has shipped, there are serious known bugs
-> in it that make it unsuitable for use. You have two choices,
-> use the latest snapshot (snap2001dec25b seems ok) where the
-> show stopper bugs seem fixed or use an older 'stable' release
-> like 1.91 or maybe 1.92 from this "
->
-> Try a different version and see if you have the same problem
 
-i already tried it with 1.91: same symptoms.
+-----Original Message-----
+From: Pete Loshin [mailto:pete@loshin.com]
+Sent: Friday, January 18, 2002 12:24 PM
+To: SELinux@tycho.nsa.gov
+Subject: questions for upcoming article in Information Security Magazine
 
-and the failure mode i'm seeing when i login with the
-user_r role, use newrole to change to the sysadm_r role,
-su to root, and start the ipsec processes is a failure mode
-independent of recent frees/wan versions: they all attempt
-to invoke the _updown script using popen() and use pclose()
-to get the status. the serious bug with 1.94 is in klips, the
-kernel stuff, the pclose failure is with pluto.
 
-and the fact that it (pclose) doesn't fail if i login with the
-sysadm_r role, then su to root and proceed, implies a
-problem somewhere other than in the frees/wan stuff.
+Hi--I'm technical editor at Information Security Magazine, and working
+on an article about SE Linux, and the impact it's had over the past
+year. The material online explains very nicely how the technologies
+work, but we're looking for some input from people directly involved in
+the project or using it.
 
--paul
+In particular, we're looking for answers to these questions, and others:
 
+- It's been over a year since the initial release of Security Enhanced
+Linux. How much affect, if any, has SE Linux had on the mainstream Linux
+community?
+
+- Where can SE Linux best be applied? How is it being used now? Does
+anyone have any success stories to relate about using it?
+
+- What progress is being made in the stated future directions published
+on the www.nsa.gov/selinux/todo.html page?
+
+- At what point will SE Linux be considered "complete"?
+
+I appreciate any and all feedback; I will be contacting appropriate
+press contacts as well, but any comments from project participants or
+users is most welcome.
+
+I've joined the list, so responses to the list are fine with me (as is
+direct email or even a phone call).
+
+Thanks very much in advance!
+
+regards,
+-pl
+
+
+-- 
++-------------------------------------------------------+
+| Pete Loshin                           pete@loshin.com |
+| +1 781/646-6318             www.Internet-Standard.com |
+|                                                       |
+|      writing about Internet protocols since 1988      |
++-------------------------------------------------------+
+
+
+--
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 You have received this message because you are subscribed to the selinux list.
