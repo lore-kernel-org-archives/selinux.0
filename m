@@ -1,51 +1,47 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA10862
-	for <selinux@tycho.nsa.gov>; Thu, 19 Sep 2002 04:50:17 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id IAA02465
-	for <selinux@tycho.nsa.gov>; Thu, 19 Sep 2002 08:48:52 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id IAA02461
-	for <selinux@tycho.nsa.gov>; Thu, 19 Sep 2002 08:48:50 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id F229B92472
-	for <selinux@tycho.nsa.gov>; Thu, 19 Sep 2002 18:50:12 +1000 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 2A33D6AE
-	for <selinux@tycho.nsa.gov>; Thu, 19 Sep 2002 10:50:05 +0200 (CEST)
+Message-Id: <200209191024.KAA05161@jazzswing.ncsc.mil>
 Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: logging error
-Date: Thu, 19 Sep 2002 10:50:04 +0200
+  charset="iso-8859-1"
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: privfd attribute
+Date: Thu, 19 Sep 2002 12:24:07 +0200
+References: <200209171901.TAA20518@jazzband.ncsc.mil> <200209181950.01338.russell@coker.com.au>
+In-Reply-To: <200209181950.01338.russell@coker.com.au>
 MIME-Version: 1.0
-Message-Id: <200209191050.04728.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm seeing messages such as the following, I believe that this must be wrong.  
-192.5.41.40 is an address not in my range.  203.15.120.110 is a ppp modem 
-user.  klogd is not involved in the communication...
+Am Mittwoch, 18. September 2002 19:50 schrieb Russell Coker:
+> privlog is an attribute specifying that a process gets certain access (IE
+> to /dev/log - but later it might be to some other form of logging).
+>
+> privfd is an attribute used to grant access to a process.  Any domain
+> that opens a file handle that lots of other domains need to access
+> (example crond_t, login_t, sshd_t, newrole_t) gets it.
+>
+> privlog and privfd are totally different types of attribute used for
+> totally different things (at a conceptual level at least).
 
-Sep 19 18:45:57 caesar kernel: avc:  denied  { udp_send } for  pid=341 
-exe=/sbin/klogd saddr=192.5.41.40 source=17680 daddr=203.15.120.110 dest=76 
-netif=ppp0 scontext=system_u:object_r:netmsg_eth1_t 
-tcontext=system_u:object_r:netif_t tclass=netif
-Sep 19 18:45:57 caesar kernel:
-Sep 19 18:45:57 caesar kernel: avc:  denied  { udp_send } for  pid=341 
-exe=/sbin/klogd saddr=192.5.41.40 source=17680 daddr=203.15.120.110 dest=76 
-netif=ppp0 scontext=system_u:object_r:netmsg_eth1_t 
-tcontext=system_u:object_r:node_t tclass=node
+I am not sure, if I understand the usage of the attributes right. 
+After I declared an attribute, I can use it in a type declaration. 
+And then I can use it in two ways:
+1. I can write a allow rule like this
+    allow myattribute exampledomain_conf_t:file r_file_perms;
+   and all other domains which have this attribute in the domain
+   declaration have grant access to this file without an specific
+   rule.
+   An Example of this this the privlog attribute.
+2. I could it uses as an set of type and through this I can write simple
+   rules
+    allow mydomain_t myattribute:fd use;
+   instead of
+     allow mydomain_t { login_t sshd_t, newrole_t }:fd use;
+   and it will by easier to add or remove new types.
+   The privfd attribute is an Example of this.
 
+Have I understand this correct?
 
--- 
-There is no point PGP/GPG signing an email unless the signature can be
-verified.  If you post to a list then don't sign the message unless your
-key is available on public key servers and has been signed by someone
-who is in the web of trust, otherwise you just waste bandwidth and CPU.
-
+Carsten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
