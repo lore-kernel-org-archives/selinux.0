@@ -1,60 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2HJdkDo017523
-	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2005 14:39:46 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2HJXWte025108
-	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2005 19:33:32 GMT
-Message-ID: <4239DAD7.8030803@redhat.com>
-Date: Thu, 17 Mar 2005 14:30:31 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: David Hampton <hampton-rh@rainbolthampton.net>
-CC: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: New policy for yam
-References: <1110671442.7641.15.camel@hampton-pc.rainbolthampton.net>	 <4236EF2E.8090104@redhat.com> <1110912692.14212.29.camel@hampton-pc.rainbolthampton.net>
-In-Reply-To: <1110912692.14212.29.camel@hampton-pc.rainbolthampton.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: RE: [RFC & PATCH] inherited type definition.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Kaigai Kohei'" <kaigai@ak.jp.nec.com>,
+   "'KaiGai Kohei'" <kaigai@kaigai.gr.jp>,
+   "'SELinux Mail List'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+In-Reply-To: <200503171915.j2HJFn8R000646@gotham.columbia.tresys.com>
+References: <200503171915.j2HJFn8R000646@gotham.columbia.tresys.com>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 17 Mar 2005 15:07:43 -0500
+Message-Id: <1111090063.8664.132.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David Hampton wrote:
+On Thu, 2005-03-17 at 14:15 -0500, Karl MacMillan wrote:
+> I do, however, have a concrete alternative to this patch. After
+> thinking about this for a while, I think that the best alternative to this patch
+> right now is macros and simple copying of policy.
 
->On Tue, 2005-03-15 at 09:20 -0500, Daniel J Walsh wrote:
->
->  
->
->>Why did you create a yam_crond_t?  Why not just transition to yam_t from 
->>crond?
->>    
->>
->
->When I first started working on the policy I was trying to be as
->restrictive as possible and differentiate between what peripheral files
->could be opened when running yam from the command line vs. when running
->from cron.  For example, the cron version requires less access to the
->terminal and no access to a ssh file descriptor.  The two instances also
->try reading their dot files from different directories.
->
->I wrote this policy just after writing an exim policy that distinguished
->between user, sysadm, and system invocations of the program.  Perhaps I
->went overboard here.
->
->David
->
->P.S. I'm still tweaking the exim policy.  I'll probably post it in a
->week or so.
->
->
->  
->
-I was just question almost doubling of rules and increase in complexity 
-for little gain in security.
+Hmm...I wouldn't quite expect such a statement from the creators of
+conditional policy support and binary policy modules ;)  
 
-Dan
+> One of the stated uses for this patch is to allow naïve users to create a policy
+> based on an existing correct policy. Leaving aside whether it is a good idea for
+> naïve users to write straight SELinux policy, the problem with the extends
+> syntax is that it only allows for the creation of a superset of one or more
+> existing types (I guess that it can also create a copy, but then there would be
+> no reason for a new type).
 
+It would allow easy expression of union types, per the earlier
+discussion in the thread on multiple contexts (but in a way that is
+analyzable based on policy rather than filesystem state).
+
+> With the extends syntax the entire policy must be examined to
+> understand what a type declaration actually allows if it includes an extend
+> statement.
+
+This isn't fundamentally different from type attributes, particularly as
+the patch is implemented as a minor refinement on attributes.  In
+effect, every type becomes an implicitly defined attribute that expands
+to itself and any descendants.  And if KaiGai does change the patch to
+require use of the @ prefix to explicitly cause expansion of the type,
+with no expansion by default, it seems fairly straightforward to
+identify all relevant rules that might be affected by an extends
+declaration.  Other important point is that it has no impact on the
+binary policy representation, so analysis based on binary policy remains
+unchanged.
+
+>  Macros are not perfect, but there is some hope that a single macro
+> (or a handful if it chains) is all that will have to be examined to have a
+> reasonable understanding of the allowed access resulting from a macro call.
+> Discipline in macro writing can make this situation even better.
+
+Attributes, set difference, and set complement make this problematic
+already, right?
+
+> I think that it is better to only add policy syntax when it solves a problem
+> that cannot be currently solved.
+
+There is presently no way to easily express a union of multiple types.
 
 -- 
-
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
