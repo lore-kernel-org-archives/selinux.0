@@ -1,82 +1,50 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i18GWgRb000542
-	for <selinux@tycho.nsa.gov>; Sun, 8 Feb 2004 11:32:42 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1954FRb002022
+	for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 00:04:16 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i18GWeOi000879
-	for <selinux@tycho.nsa.gov>; Sun, 8 Feb 2004 16:32:40 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id i18GWdWW000870 for <selinux@tycho.nsa.gov>; Sun, 8 Feb 2004 16:32:39 GMT
-Date: Sun, 8 Feb 2004 16:32:36 +0000
-From: Dale Amon <amon@vnl.com>
-To: selinux@tycho.nsa.gov
-Subject: Problem with defaulting answers to selinux-policy-default
-Message-ID: <20040208163236.GF10500@vnl.com>
-Mime-Version: 1.0
-Content-Type: message/rfc822
+	by jazzband.ncsc.mil  with ESMTP id i1954EOi025356
+	for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 05:04:15 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i1954DWW025329 for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2004 05:04:14 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
+Subject: Re: Problem with defaulting answers to selinux-policy-default
+Date: Mon, 9 Feb 2004 16:02:48 +1100
+References: <20040208163236.GF10500@vnl.com>
+In-Reply-To: <20040208163236.GF10500@vnl.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402091602.48538.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Date: Fri, 6 Feb 2004 21:51:14 +0000
-From: Dale Amon <amon@vnl.com>
-To: selinux@tycho.nsa.gov
-Subject: Problem with defaulting answers to selinux-policy-default
-Message-ID: <20040206215114.GJ21675@vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux, the choice of a GNU generation
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+On Mon, 9 Feb 2004 03:32, Dale Amon <amon@vnl.com> wrote:
+> I think Russell is again buried in email and work, so
 
-I think Russell is again buried in email and work, so
-perhaps someone else can make a suggestion. It is probably
-something simple I would have known about if I had not
-been off on the road. I've a few hours here and there
-over the next week or so (maybe) so I wanted to try to
-get this working again:
+Sorry for the delay.
 
+> Using policy installation method "Semi-Automatic"
+> Copying the sample /usr/share/selinux/policy/current directory from
+> /usr/share/selinux/policy/default
+> Removal of unwanted policy files
+> Removing "current/domains/program/gnome-pty-helper.te"
+> Include "Checkpolicy - SELinux policy compliler"
+> (current/domains/program/checkpolicy.te) in policy? (References known
+> installed packages: checkpolicy)
+>  Yes/No/Display/Background [Y/n/d/b]?
 
-As you probably remember, I use a set of build scripts
-to do this all completely hands off. It looks like 
-something broke them again while I was off doing other
-jobs. I see the following:
-
--------
-Using policy installation method "Semi-Automatic"
-Copying the sample /usr/share/selinux/policy/current directory from
-/usr/share/selinux/policy/default
-Removal of unwanted policy files
-Removing "current/domains/program/gnome-pty-helper.te"
-Include "Checkpolicy - SELinux policy compliler" (current/domains/program/checkpolicy.te) in policy?
- (References known installed packages: checkpolicy)
- Yes/No/Display/Background [Y/n/d/b]? 
-
--------
-
-but I shouldn't be seeing it at all because the install
-is being done with this line:
-
-"${CHROOT_BIN}"/yes "" | PRIORITY=low DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -qqqqq -y install "$name" > /dev/null
-
-where in this case $name is selinux-policy-default.
-
-Any idea what I now have to do to make this line
-just unconditionally *do it* and not ask silly
-questions? Keep in mind that the install is to a
-de novo system, a freshly created loopback file.
-
-Either something of mine has died of bitrot in the
-last 2 months while I was doing other things, or
-something has changed in the way this package
-installs.
+What I probably need to do is to have a debconf setting allowing you to say 
+"c" to all questions about policy changes, and then get Colin's code working 
+for installing new .te files IFF they are needed.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
