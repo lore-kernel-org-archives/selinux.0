@@ -1,61 +1,67 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4OEt0Rb011069
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 10:55:00 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4OHPrRb012392
+	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 13:25:54 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4OEqUB2029207
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 14:52:30 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i4OEqTwi029204
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 14:52:29 GMT
-Subject: Re: Bootup problems
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux ML <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
-In-Reply-To: <20040523181318.GA2104@jmh.mhn.de>
-References: <20040523181318.GA2104@jmh.mhn.de>
-Content-Type: text/plain
-Message-Id: <1085410477.26446.122.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzswing.ncsc.mil  with ESMTP id i4OHNOB2012871
+	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 17:23:24 GMT
+Received: from turing-police.cirt.vt.edu (turing-police.cirt.vt.edu [128.173.54.129])
+	by jazzswing.ncsc.mil  with ESMTP id i4OHNMwk012858
+	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 17:23:23 GMT
+Message-Id: <200405241725.i4OHPmRs008204@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, selinux-dev@tresys.com
+Subject: Re: [PATCH][RFC] Allow administrator control over per-user default_contexts 
+In-Reply-To: Your message of "Mon, 24 May 2004 08:43:53 EDT."
+             <1085402633.26446.45.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <1085155374.2789.131.camel@moss-spartans.epoch.ncsc.mil> <200405212213.i4LMDLZM005446@turing-police.cc.vt.edu> <200405240612.15645.russell@coker.com.au>
+            <1085402633.26446.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 24 May 2004 10:54:38 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_383906900P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Mon, 24 May 2004 13:25:48 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2004-05-23 at 14:13, Thomas Bleher wrote:
-> The attached dmesg (non-relevant lines before and after snipped) is the
-> bootlog of a 2.6.6er-kernel on a SuSE 9.0 system. No initrd, no special
-> modules (only sound as module, everything else compiled in).
-> The system works fine afterwards, the filesystem is properly labeled.
-> It just seems like it is the file labels are initialized to late.
-> Anyone knows why this is happening or where I should look?
+--==_Exmh_383906900P
+Content-Type: text/plain; charset=us-ascii
 
-The sequence appears to be:
-1) policy load is started (from /sbin/init, right?),
-2) usb device is detected,
-3) policy load completes,
-4) security initialization of already created superblocks and inodes is
-started (this was deferred until the policy was loaded),
-5) kernel invokes hotplug due to device detection,
-6) security state for hotplug inode has not yet been initialized, thus
-it is still marked with unlabeled_t,
-7) no domain transition occurs on hotplug execution due to lack of
-proper file type, so hotplug runs in kernel_t, yielding a series of
-denials,
-8) some other inodes are also not yet initialized, so they also have
-unlabeled_t,
-9) security initialization of hda3 inodes completes, so hotplug and
-other inodes now have the right security context (but the running
-hotplug process is still in kernel_t),
-10) various denials due to the fact that the filesystems have not yet
-been mounted, so you are just accessing the empty mount point
-directories that are left in file_t.
+On Mon, 24 May 2004 08:43:53 EDT, Stephen Smalley said:
 
-The interleaving of the device detection / hotplug execution and policy
-load / inode initialization is not good; requires further investigation.
+> Sounds like Valdis may have misunderstood - the $1 corresponds to the
+> user role/domain, not the user identity.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+No, I was clear on that distinction (and was counting "domains" as being more
+akin to group membership).  On the other hand, I've had the joy of running
+larger systems back in the "old days" when NGROUPS_MAX was still 8 or 16 or
+whatever it was for NFS back in SunOS 3.5/4.0 days, and I had literally a dozen
+users pegged at the group limit (doesn't take long, when you have a 'cs_dept'
+group, then a "these 3 CS profs and 1 EE prof", a "same EE prof and 2 guys from
+Physics", and... you get the idea..).   One of our production machines (which
+has end-user userids on it) currently has 314 users and 273 groups defined....
 
+I've gotten burnt too many times when a user who's in multiple groups has
+managed to screw things up with a 'chgrp' command (between the -R flag and file
+globbing, chgrp and chmod are dangerous for users ;) - so there's a real
+temptation to use roles to build a much higher wall between the contexts. And
+using the one production machine as an example, it's not at all clear that
+there is any really sensible halfway point between 300 people in 1 user_t
+domain and 250 domains with single-digit numbers of users...
+
+
+--==_Exmh_383906900P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAsjAccC3lWbTT17ARAiV5AKC+N5RGxjqmEffQA3M8UVkB96ljAgCgmuiZ
+7MXOlBHt/ZtpGlXA7USTHMc=
+=hyMC
+-----END PGP SIGNATURE-----
+
+--==_Exmh_383906900P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
