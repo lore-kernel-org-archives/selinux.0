@@ -1,304 +1,229 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA9IhtIi024790
-	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 13:43:55 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA9IgWxp001923
-	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 18:42:32 GMT
-Subject: [RFC][PATCH] Control ability to have a writable executable mapping
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-   "Christopher J. PeBenito" <cpebenito@tresys.com>
-Content-Type: multipart/mixed; boundary="=-sf5ritlI66rNO8VEowku"
-Message-Id: <1100025603.408.203.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA9KloIi025516
+	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 15:47:50 -0500 (EST)
+Received: from mailrelay1.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA9Klpsi023471
+	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 20:47:52 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 9 Nov 2004 21:47:51 +0100
+Date: Tue, 9 Nov 2004 21:47:40 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: patch: file_contexts fixes
+Message-Id: <20041109204739.GB2543@jmh.mhn.de>
 Mime-Version: 1.0
-Date: Tue, 09 Nov 2004 13:40:03 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GZVR6ND4mMseVXL/"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-sf5ritlI66rNO8VEowku
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--GZVR6ND4mMseVXL/
+Content-Type: multipart/mixed; boundary="uZ3hkaAS1mZxFaxD"
+Content-Disposition: inline
 
-At present, SELinux only applies permission checks to mmap/mprotect for
-file mappings, and it only checks write permission to the file if the
-mapping is shared, as the caller does not truly require write permission
-to the file for a private copy-on-write mapping nor would we want to
-grant write permission to all processes that perform such mappings. 
-Consequently, SELinux does not currently provide policy control over the
-ability of a process to have a writable executable anonymous mapping or
-a writable executable private file mapping.  
 
-The attached kernel patch adds a new task->self wxpage permission check
-for wx private file mappings and for wx anonymous mappings to address
-this gap.  The task->file execute permission check is still applied to
-private file mappings even when the wxpage check is performed for
-consistency (ensure that policy always allows rx mapping whenever it
-allows rwx mapping).  There is also a small change to avc_audit() to
-help in policy debugging for these checks, as the exe= information is
-suppressed due to the mmap_sem being held by the caller.  Note that
-writable executable shared file mappings are still controlled based on
-the file write and execute permission checks, not this new check.
+--uZ3hkaAS1mZxFaxD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The attached policy patch excludes wxpage permission from the
-general_domain_access() macro so that it will not be allowed by default
-to most domains and adds the wxpage permission selectively to a few
-domains based on very preliminary experimentation with this new check. 
-You may also find it necessary to uncomment the rule added to
-base_user_macros.te by the patch to allow user domains this permission,
-as they will otherwise be unable to load DSOs that require an executable
-stack (e.g. preliminary experimentation with this check prevented many
-gnome applications from running at all due to the inability to load a
-particular DSO).
+Attached patch fixes some file contexts and adds new ones. It should be
+pretty self-explanatory.
+The only place where I was not sure was vmware.fc. I just saw that the
+old contexts were wrong.
 
-I know that the PAX/selinux integration patch approaches this
-differently, applying a check based on the executable file type rather
-than the process domain, but I would favor a domain-based check for its
-greater generality (ability to handle multiple instances of the same
-program in different ways) and more direct representation of the actual
-operation (can this process perform this action?).  Admittedly, the
-domain-based check does impose a cost on policy writers - you have to
-define separate domains vs. just separate file types in order to
-selectively allow this permission.  But I believe that this cost is
-justified.
+Thomas
 
-Please note that this patch does NOT provide the functionality of PAX,
-exec-shield, NX support, etc.  It merely provides SELinux policy control
-over the ability to create an executable mapping that can contain data
-not covered by file permission checks.
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
-Constructive comments welcome.
+--uZ3hkaAS1mZxFaxD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="context_fixes.patch"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
---=-sf5ritlI66rNO8VEowku
-Content-Disposition: attachment; filename=sel-wxpage.patch
-Content-Type: text/x-patch; name=sel-wxpage.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: linux-2.6/security/selinux/avc.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/avc.c,v
-retrieving revision 1.47
-diff -u -p -r1.47 avc.c
---- linux-2.6/security/selinux/avc.c	27 Oct 2004 20:09:53 -0000	1.47
-+++ linux-2.6/security/selinux/avc.c	8 Nov 2004 21:20:29 -0000
-@@ -576,6 +576,8 @@ void avc_audit(u32 ssid, u32 tsid,
- 					vma = vma->vm_next;
- 				}
- 				up_read(&mm->mmap_sem);
-+			} else {
-+				audit_log_format(ab, " comm=%s", tsk->comm);
- 			}
- 			if (tsk != current)
- 				mmput(mm);
-Index: linux-2.6/security/selinux/hooks.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
-retrieving revision 1.132
-diff -u -p -r1.132 hooks.c
---- linux-2.6/security/selinux/hooks.c	25 Oct 2004 12:51:44 -0000	1.132
-+++ linux-2.6/security/selinux/hooks.c	8 Nov 2004 20:22:41 -0000
-@@ -2441,6 +2441,8 @@ static int selinux_file_ioctl(struct fil
- 
- static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
- {
-+	int rc;
-+
- 	if (file) {
- 		/* read access is always possible with a mapping */
- 		u32 av = FILE__READ;
-@@ -2448,12 +2450,29 @@ static int file_map_prot_check(struct fi
- 		/* write access only matters if the mapping is shared */
- 		if (shared && (prot & PROT_WRITE))
- 			av |= FILE__WRITE;
--
--		if (prot & PROT_EXEC)
-+	
-+		if (prot & PROT_EXEC) {
- 			av |= FILE__EXECUTE;
-+			/*
-+			 * Check ability to have a writable executable 
-+			 * mapping.  In the shared mapping case, this 
-+			 * is covered by the file-based checks. 
-+			 */
-+			if (!shared && (prot & PROT_WRITE)) {
-+				rc = task_has_perm(current, current, PROCESS__WXPAGE);
-+				if (rc)
-+					return rc;
-+				/* fall through to file-based checks */
-+			}
-+		}
- 
- 		return file_has_perm(current, file, av);
-+	} else {
-+		/* Check ability to have a writable executable mapping. */ 
-+		if ((prot & PROT_EXEC) && (prot & PROT_WRITE))
-+			return task_has_perm(current, current, PROCESS__WXPAGE);
- 	}
-+
- 	return 0;
- }
- 
-Index: linux-2.6/security/selinux/include/av_perm_to_string.h
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/include/av_perm_to_string.h,v
-retrieving revision 1.15
-diff -u -p -r1.15 av_perm_to_string.h
---- linux-2.6/security/selinux/include/av_perm_to_string.h	5 Oct 2004 17:35:29 -0000	1.15
-+++ linux-2.6/security/selinux/include/av_perm_to_string.h	8 Nov 2004 20:22:41 -0000
-@@ -62,6 +62,7 @@
-    S_(SECCLASS_PROCESS, PROCESS__SIGINH, "siginh")
-    S_(SECCLASS_PROCESS, PROCESS__SETRLIMIT, "setrlimit")
-    S_(SECCLASS_PROCESS, PROCESS__RLIMITINH, "rlimitinh")
-+   S_(SECCLASS_PROCESS, PROCESS__WXPAGE, "wxpage")
-    S_(SECCLASS_MSGQ, MSGQ__ENQUEUE, "enqueue")
-    S_(SECCLASS_MSG, MSG__SEND, "send")
-    S_(SECCLASS_MSG, MSG__RECEIVE, "receive")
-Index: linux-2.6/security/selinux/include/av_permissions.h
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/include/av_permissions.h,v
-retrieving revision 1.14
-diff -u -p -r1.14 av_permissions.h
---- linux-2.6/security/selinux/include/av_permissions.h	5 Oct 2004 17:35:29 -0000	1.14
-+++ linux-2.6/security/selinux/include/av_permissions.h	8 Nov 2004 20:22:41 -0000
-@@ -456,6 +456,7 @@
- #define PROCESS__SIGINH                           0x00100000UL
- #define PROCESS__SETRLIMIT                        0x00200000UL
- #define PROCESS__RLIMITINH                        0x00400000UL
-+#define PROCESS__WXPAGE                           0x00800000UL
- 
- #define IPC__CREATE                               0x00000001UL
- #define IPC__DESTROY                              0x00000002UL
-
---=-sf5ritlI66rNO8VEowku
-Content-Disposition: attachment; filename=policy-wxpage.patch
-Content-Type: text/x-patch; name=policy-wxpage.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: policy/domains/program/modutil.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/modutil.te,v
-retrieving revision 1.25
-diff -u -r1.25 modutil.te
---- policy/domains/program/modutil.te	8 Nov 2004 20:58:16 -0000	1.25
-+++ policy/domains/program/modutil.te	9 Nov 2004 17:26:28 -0000
-@@ -123,7 +123,7 @@
- allow insmod_t self:rawip_socket create_socket_perms;
- allow insmod_t self:capability { dac_override kill net_raw sys_module sys_tty_config };
- allow insmod_t domain:process signal;
--allow insmod_t self:process { fork signal_perms };
-+allow insmod_t self:process { fork signal_perms wxpage };
- allow insmod_t device_t:dir search;
- allow insmod_t etc_runtime_t:file { getattr read };
- 
-Index: policy/domains/program/unused/prelink.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/prelink.te,v
-retrieving revision 1.14
-diff -u -r1.14 prelink.te
---- policy/domains/program/unused/prelink.te	8 Nov 2004 20:58:18 -0000	1.14
-+++ policy/domains/program/unused/prelink.te	9 Nov 2004 17:26:29 -0000
-@@ -11,6 +11,8 @@
+diff -urN orig/file_contexts/distros.fc mod/file_contexts/distros.fc
+--- orig/file_contexts/distros.fc	2004-10-06 22:21:13.000000000 +0200
++++ mod/file_contexts/distros.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -32,3 +32,11 @@
+ /usr/share/cvs/contrib/rcs2log	--	system_u:object_r:bin_t
+ ')
+=20
++ifdef(`distro_suse', `
++/var/lib/samba/bin(/.*)?				system_u:object_r:bin_t
++/var/lib/samba/bin/.*\.so(\.[^/]*)*		-l	system_u:object_r:lib_t
++/usr/lib/samba/classic/.*			--	system_u:object_r:bin_t
++/usr/lib/samba/classic/[^/]*\.so(\.[^/]*)*	--	system_u:object_r:shlib_t
++/success					--	system_u:object_r:etc_runtime_t
++/etc/defkeymap\.map				--	system_u:object_r:etc_runtime_t
++')
+diff -urN orig/file_contexts/program/crond.fc mod/file_contexts/program/cro=
+nd.fc
+--- orig/file_contexts/program/crond.fc	2004-06-19 10:31:43.000000000 +0200
++++ mod/file_contexts/program/crond.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -11,7 +11,7 @@
+ /var/spool/cron/[^/]*	--	<<none>>
+ /var/log/cron.*		--	system_u:object_r:crond_log_t
+ /var/run/crond\.reboot	--	system_u:object_r:crond_var_run_t
+-/var/run/crond\.pid	--	system_u:object_r:crond_var_run_t
++/var/run/crond?\.pid	--	system_u:object_r:crond_var_run_t
+ # fcron
+ /usr/sbin/fcron		--	system_u:object_r:crond_exec_t
+ /var/spool/fcron	-d	system_u:object_r:cron_spool_t
+diff -urN orig/file_contexts/program/cups.fc mod/file_contexts/program/cups=
+=2Efc
+--- orig/file_contexts/program/cups.fc	2004-10-17 13:07:14.000000000 +0200
++++ mod/file_contexts/program/cups.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -18,9 +18,12 @@
+ /usr/lib(64)?/cups/backend/.* --	system_u:object_r:cupsd_exec_t
+ /usr/lib(64)?/cups/daemon/.*	 --	system_u:object_r:cupsd_exec_t
+ /usr/sbin/cupsd		--	system_u:object_r:cupsd_exec_t
++ifdef(`hald.te', `
++# cupsd_config depends on hald
+ /usr/bin/cups-config-daemon --	system_u:object_r:cupsd_config_exec_t
+ /usr/sbin/hal_lpadmin --	system_u:object_r:cupsd_config_exec_t
+ /usr/sbin/printconf-backend --	system_u:object_r:cupsd_config_exec_t
++')
+ /var/log/cups(/.*)?		system_u:object_r:cupsd_log_t
+ /var/spool/cups(/.*)?		system_u:object_r:print_spool_t
+ /var/run/cups/printcap	--	system_u:object_r:cupsd_var_run_t
+diff -urN orig/file_contexts/program/hotplug.fc mod/file_contexts/program/h=
+otplug.fc
+--- orig/file_contexts/program/hotplug.fc	2004-10-19 21:15:26.000000000 +02=
+00
++++ mod/file_contexts/program/hotplug.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -1,6 +1,7 @@
+ # hotplug
+ /etc/hotplug(/.*)?		system_u:object_r:hotplug_etc_t
+ /sbin/hotplug		--	system_u:object_r:hotplug_exec_t
++/etc/hotplug\.d/.*	--	system_u:object_r:hotplug_exec_t
+ /sbin/netplugd		--	system_u:object_r:hotplug_exec_t
+ /etc/hotplug.d/default/default.* system_u:object_r:sbin_t
+ /etc/netplug.d(/.*)? 	 	system_u:object_r:sbin_t
+@@ -8,3 +9,4 @@
+ /etc/hotplug/.*rc	-- 	system_u:object_r:sbin_t
+ /etc/hotplug/hotplug.functions --	system_u:object_r:sbin_t
+ /var/run/usb(/.*)?		system_u:object_r:hotplug_var_run_t
++/var/run/hotplug(/.*)?		system_u:object_r:hotplug_var_run_t
+diff -urN orig/file_contexts/program/ifconfig.fc mod/file_contexts/program/=
+ifconfig.fc
+--- orig/file_contexts/program/ifconfig.fc	2004-02-02 16:17:23.000000000 +0=
+100
++++ mod/file_contexts/program/ifconfig.fc	2004-11-09 21:41:33.000000000 +01=
+00
+@@ -3,6 +3,7 @@
+ /sbin/iwconfig		--	system_u:object_r:ifconfig_exec_t
+ /sbin/ip		--	system_u:object_r:ifconfig_exec_t
+ /sbin/tc		--	system_u:object_r:ifconfig_exec_t
++/usr/sbin/tc		--	system_u:object_r:ifconfig_exec_t
+ /bin/ip			--	system_u:object_r:ifconfig_exec_t
+ /sbin/ethtool		--	system_u:object_r:ifconfig_exec_t
+ /sbin/mii-tool		--	system_u:object_r:ifconfig_exec_t
+diff -urN orig/file_contexts/program/inetd.fc mod/file_contexts/program/ine=
+td.fc
+--- orig/file_contexts/program/inetd.fc	2004-09-11 14:31:47.000000000 +0200
++++ mod/file_contexts/program/inetd.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -6,3 +6,4 @@
+ /usr/sbin/in\..*d	--	system_u:object_r:inetd_child_exec_t
+ /usr/sbin/stunnel	--	system_u:object_r:inetd_child_exec_t
+ /var/log/(x)?inetd\.log	--	system_u:object_r:inetd_log_t
++/var/run/inetd\.pid	--	system_u:object_r:inetd_var_run_t
+diff -urN orig/file_contexts/program/ssh.fc mod/file_contexts/program/ssh.fc
+--- orig/file_contexts/program/ssh.fc	2004-10-17 13:07:14.000000000 +0200
++++ mod/file_contexts/program/ssh.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -8,6 +8,7 @@
+ /etc/ssh/ssh_host_rsa_key --	system_u:object_r:sshd_key_t
+ /usr/sbin/sshd	        --	system_u:object_r:sshd_exec_t
+ HOME_DIR/\.ssh(/.*)?		system_u:object_r:ROLE_home_ssh_t
++/var/run/sshd\.init\.pid	--	system_u:object_r:sshd_var_run_t
+ # subsystems
+ /usr/lib(64)?/misc/sftp-server --	system_u:object_r:bin_t
+ /usr/libexec/openssh/sftp-server -- system_u:object_r:bin_t
+diff -urN orig/file_contexts/program/syslogd.fc mod/file_contexts/program/s=
+yslogd.fc
+--- orig/file_contexts/program/syslogd.fc	2003-11-26 19:01:08.000000000 +01=
+00
++++ mod/file_contexts/program/syslogd.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -5,4 +5,7 @@
+ /sbin/syslog-ng		--	system_u:object_r:syslogd_exec_t
+ /dev/log		-s	system_u:object_r:devlog_t
+ /var/run/log		-s	system_u:object_r:devlog_t
++ifdef(`distro_suse', `
++/var/lib/stunnel/dev/log	-s	system_u:object_r:devlog_t
++')
+ /var/run/syslogd\.pid	--	system_u:object_r:syslogd_var_run_t
+diff -urN orig/file_contexts/program/vmware.fc mod/file_contexts/program/vm=
+ware.fc
+--- orig/file_contexts/program/vmware.fc	2004-09-25 19:52:50.000000000 +0200
++++ mod/file_contexts/program/vmware.fc	2004-11-09 21:42:51.000000000 +0100
+@@ -38,5 +38,5 @@
+ # ~/vmware, and the preferences and license files are in ~/.vmware.
  #
- daemon_base_domain(prelink, `, admin')
- 
-+allow prelink_t self:process wxpage;
-+
- allow prelink_t fs_t:filesystem getattr;
- 
- ifdef(`crond.te', `
-Index: policy/domains/program/unused/udev.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/udev.te,v
-retrieving revision 1.32
-diff -u -r1.32 udev.te
---- policy/domains/program/unused/udev.te	8 Nov 2004 20:58:19 -0000	1.32
-+++ policy/domains/program/unused/udev.te	9 Nov 2004 17:26:29 -0000
-@@ -13,6 +13,9 @@
- 
- general_domain_access(udev_t)
- 
-+# Why?
-+allow udev_t self:process wxpage;
-+
- etc_domain(udev)
- typealias udev_etc_t alias etc_udev_t;
- type udev_helper_exec_t, file_type, sysadmfile, exec_type;
-Index: policy/flask/access_vectors
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/flask/access_vectors,v
-retrieving revision 1.13
-diff -u -r1.13 access_vectors
---- policy/flask/access_vectors	9 Sep 2004 12:01:52 -0000	1.13
-+++ policy/flask/access_vectors	8 Nov 2004 16:27:39 -0000
-@@ -240,6 +240,7 @@
- 	siginh
- 	setrlimit
- 	rlimitinh
-+	wxpage
- }
- 
- 
-Index: policy/macros/base_user_macros.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/base_user_macros.te,v
-retrieving revision 1.34
-diff -u -r1.34 base_user_macros.te
---- policy/macros/base_user_macros.te	8 Nov 2004 20:58:20 -0000	1.34
-+++ policy/macros/base_user_macros.te	9 Nov 2004 17:45:54 -0000
-@@ -33,6 +33,9 @@
- # Grant permissions within the domain.
- general_domain_access($1_t);
- 
-+# Uncomment to allow loading DSOs that require executable stack.
-+#allow $1_t self:process wxpage;
-+
+ HOME_DIR/\.vmware(/.*)?	system_u:object_r:ROLE_vmware_file_t
+-HOME_DIR/\vmware(/.*)?	system_u:object_r:ROLE_vmware_file_t
+-HOME_DIR/\vmware[^/]*/.*\.cfg	--	system_u:object_r:ROLE_vmware_conf_t
++HOME_DIR/vmware(/.*)?	system_u:object_r:ROLE_vmware_file_t
++HOME_DIR/\.vmware[^/]*/.*\.cfg	--	system_u:object_r:ROLE_vmware_conf_t
+diff -urN orig/file_contexts/program/xdm.fc mod/file_contexts/program/xdm.fc
+--- orig/file_contexts/program/xdm.fc	2004-09-15 19:01:07.000000000 +0200
++++ mod/file_contexts/program/xdm.fc	2004-11-09 21:42:27.000000000 +0100
+@@ -16,7 +16,11 @@
+ /etc/X11/[wx]dm/Xsession	--	system_u:object_r:xsession_exec_t
+ /etc/kde/kdm/Xsession	--	system_u:object_r:xsession_exec_t
+ /var/run/xdmctl(/.*)?		system_u:object_r:xdm_var_run_t
++/var/run/xdm\.pid	--	system_u:object_r:xdm_var_run_t
+ /var/lib/[xkw]dm(/.*)?		system_u:object_r:xdm_var_lib_t
++ifdef(`distro_suse', `
++/var/lib/pam_devperm/:0	--	system_u:object_r:xdm_var_lib_t
++')
+ /usr/lib/qt-3.3/etc/settings/qtrc(/.*)? system_u:object_r:xdm_var_lib_t
+=20
  #
- # kdeinit wants this access
+diff -urN orig/file_contexts/types.fc mod/file_contexts/types.fc
+--- orig/file_contexts/types.fc	2004-11-09 08:45:55.000000000 +0100
++++ mod/file_contexts/types.fc	2004-11-09 21:41:33.000000000 +0100
+@@ -260,6 +260,7 @@
+ /opt/.*/lib(64)?/.*\.so(\.[^/]*)*	--	system_u:object_r:shlib_t
+ /opt/.*/libexec(/.*)?	system_u:object_r:bin_t
+ /opt/.*/bin(/.*)?		system_u:object_r:bin_t
++/opt/.*/sbin(/.*)?		system_u:object_r:sbin_t
+ /opt/.*/man(/.*)?		system_u:object_r:man_t
+ /opt/.*/var/lib(64)?(/.*)?		system_u:object_r:var_lib_t
+=20
+@@ -380,6 +381,7 @@
+ /var/lib/msttcorefonts(/.*)?		system_u:object_r:fonts_t
+ ')
+ /usr/share/fonts(/.*)?			system_u:object_r:fonts_t
++/usr/share/ghostscript/fonts(/.*)?	system_u:object_r:fonts_t
+ /usr/local/share/fonts(/.*)?		system_u:object_r:fonts_t
+=20
  #
-Index: policy/macros/core_macros.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/core_macros.te,v
-retrieving revision 1.24
-diff -u -r1.24 core_macros.te
---- policy/macros/core_macros.te	8 Nov 2004 20:58:20 -0000	1.24
-+++ policy/macros/core_macros.te	9 Nov 2004 17:26:31 -0000
-@@ -617,9 +617,9 @@
+@@ -451,6 +453,6 @@
+=20
  #
- define(`general_domain_access',`
- # Access other processes in the same domain.
--# Omits ptrace, setexec, and setfscreate.  These must be granted 
--# separately if desired.
--allow $1 self:process ~{ptrace setexec setfscreate setrlimit};
-+# Omits ptrace, setexec, setfscreate, setrlimit, and wxpage.  
-+# These must be granted separately if desired.
-+allow $1 self:process ~{ptrace setexec setfscreate setrlimit wxpage};
- 
- # Access /proc/PID files for processes in the same domain.
- allow $1 self:dir r_dir_perms;
-Index: policy/macros/program/xserver_macros.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/program/xserver_macros.te,v
-retrieving revision 1.37
-diff -u -r1.37 xserver_macros.te
---- policy/macros/program/xserver_macros.te	8 Nov 2004 20:58:21 -0000	1.37
-+++ policy/macros/program/xserver_macros.te	9 Nov 2004 17:26:31 -0000
-@@ -56,6 +56,8 @@
- # for access within the domain
- general_domain_access($1_xserver_t)
- 
-+allow $1_xserver_t self:process wxpage;
-+
- allow $1_xserver_t etc_runtime_t:file { getattr read };
- 
- ifelse($1, xdm, `
+ #  The krb5.conf file is always being tested for writability, so
+-#  we defined a type to dontautit
++#  we defined a type to dontaudit
+ #
+ /etc/krb5\.conf		--	system_u:object_r:krb5_conf_t
 
---=-sf5ritlI66rNO8VEowku--
+--uZ3hkaAS1mZxFaxD--
 
+--GZVR6ND4mMseVXL/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBkSzrxWIrrrL0q+cRArZMAKCjL0nBbbrwdRcm52fNgktixjUmzQCfVO/6
+QYp0eY86ZCd7ANvSjqMZfQg=
+=Zy5w
+-----END PGP SIGNATURE-----
+
+--GZVR6ND4mMseVXL/--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
