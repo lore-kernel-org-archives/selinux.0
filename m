@@ -1,27 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j29GOLDo024694
-	for <selinux@tycho.nsa.gov>; Wed, 9 Mar 2005 11:24:21 -0500 (EST)
-Received: from oe-im2.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j29GJNVV018016
-	for <selinux@tycho.nsa.gov>; Wed, 9 Mar 2005 16:19:27 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>,
-   "'Fedora SELinux support  list for users &amp; developers.'" <fedora-selinux-list@redhat.com>
-Subject: Selinux symposium presentations
-Date: Wed, 9 Mar 2005 11:19:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Message-Id: <20050309161916.NKTI7908.mm-ismta4.bizmailsrvcs.net@FLM800>
+Subject: Updated SELinux Release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 16:02:20 -0500
+Message-Id: <1110402140.6299.22.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FYI, soft copies of all the presentations from last week's SELinux Symposium
-are now posted on the symposium's web site (www.selinux-symposium.org). In
-general, I think the symposium was a great success, and the participation
-was much greater than we originally expected. Hopefully signs of good things
-to come with this technology.  Stay tuned for the dates and call for next
-year's event! Frank
+An updated SELinux release is available from the NSA SELinux web site;
+see http://www.nsa.gov/selinux/news.cfm#R050309. 
+
+This release is based on Linux 2.6.11.  The SELinux kernel patch for
+2.6.11 includes enhanced MLS support, changes to the execute-related
+permission checking for legacy binaries, and an extension to the
+/proc/pid/attr API to allow use by scripts.  Enhanced MLS support has
+been merged into the userspace libraries and tools.  The libraries and
+tools have been modified to allow local customization of file contexts
+and users without requiring policy sources, and to preserve certain
+types that are marked as being customizable upon relabels.  A helper
+for running init scripts under a pty from run_init was merged.
+setfiles was rewritten to use the matchpathcon library function.  The
+technical reports in the selinux-doc package were updated to reflect
+the current SELinux code.  The contributors page was updated.
+Numerous patches for the userspace libraries, tools, and policy were
+merged.  Updated versions of setools, slat, and polgen were added.
+
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
