@@ -1,18 +1,32 @@
-Message-ID: <20050310102738.85071.qmail@web51503.mail.yahoo.com>
-Date: Thu, 10 Mar 2005 02:27:38 -0800 (PST)
+Message-ID: <20050310103322.86495.qmail@web51503.mail.yahoo.com>
+Date: Thu, 10 Mar 2005 02:33:22 -0800 (PST)
 From: Park Lee <parklee_sel@yahoo.com>
-Subject: Question about packet_socket class?
-To: SELinux@tycho.nsa.gov
+Subject: Re: Issue on getting security context of socket and message
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-  In security_classes file, we can see a security
-class named packet_socket. 
-then, What is this security class used for? What's the
-meaning of it?
+On Tue, 09 Nov 2004 at 10:39, Stephen Smalley wrote:
+> Since sys_security was rejected by the mainline 
+> kernel, the extended socket API of SELinux is not 
+> presently supported; 
+
+Does this mean that LSM doesn't provide any system 
+call for security-aware applications now? (While, in
+the past, it provided a security system call for such
+applications)
+
+and,
+
+Except for not supporting the extended socket API,
+Does SELinux now support other extended API (e.g.
+extended file API and extended process API)? 
+Does security server still provide system calls for
+security_aware applications?
+
 
 Thank you.
 
