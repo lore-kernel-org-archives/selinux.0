@@ -1,57 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBT32HIi025970
-	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 22:02:18 -0500 (EST)
-Received: from mxsf11.cluster1.charter.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBT32KLa009819
-	for <selinux@tycho.nsa.gov>; Wed, 29 Dec 2004 03:02:21 GMT
-Received: from mxip15.cluster1.charter.net (mxip15a.cluster1.charter.net [209.225.28.145])
-	by mxsf11.cluster1.charter.net (8.12.11/8.12.11) with ESMTP id iBT32KYk009826
-	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 22:02:21 -0500
-From: "Robert Potter" <robertp72@charter.net>
-To: "'SELinux ML'" <selinux@tycho.nsa.gov>
-Cc: "'Nick Gray'" <nick-lists@austin.rr.com>
-Subject: RE: system auditing or event logging facilities
-Date: Tue, 28 Dec 2004 19:02:13 -0800
-Message-ID: <000101c4ed52$cfed67c0$f2167144@Eng21>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1104285346.22401.75.camel@hawaii.grays-systems.com>
+Subject: Re: pam_selinux when selinux is disabled
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, nsa <SELinux@tycho.nsa.gov>
+In-Reply-To: <1104265628.21391.152.camel@moss-spartans.epoch.ncsc.mil>
+References: <20041228202032.GA5296@lkcl.net>
+	 <1104264941.21391.140.camel@moss-spartans.epoch.ncsc.mil>
+	 <1104265628.21391.152.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 29 Dec 2004 17:14:14 +0530
+Message-Id: <1104320654.3805.10.camel@jsingh>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For auditing and potential certification (like C2), visit InterSect Alliance
-for their SNARE product, or look into Secure Auditing for Linux (SAL).
+Hi,
 
-SAL is a DARPA project on SourceForge to develop a kernel level auditing
-package for Red Hat Linux that is compliant with the Common Criteria
-specifications (C2 level equivalency). It uses encryption to protect logged
-data. While it is not ready to meet a C2 cert, you can see details of
-progress and a comparison between common criteria and the current software
-version at: http://secureaudit.sourceforge.net
+On Tue, 2004-12-28 at 15:27 -0500, Stephen Smalley wrote:
+> BTW, sshd is no longer using pam_selinux; we had to go back to a direct
+> patch due to changes in the upstream sshd.
 
-You might also ask Trent Jaeger at IBM research for the latest info, as he
-reads this list.
+I am not storing my username/password in standard /etc/passwd  but in
+different files/DB.. so i have personalized getpwnam by
+editing /etc/nsswitch.conf
 
-Regards,
-Rob Potter
+thats works fine.
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Nick Gray
-Sent: Tuesday, December 28, 2004 5:56 PM
-To: SELinux ML
-Subject: system auditing or event logging facilities
+when you define users in a policy .. it calls python getpwnam and adds
+user to selinux user db. So I guess even that is fine.
 
-I am looking into C2/Capp auditing/event logging. Has there been any
-work on this in regards to SELinux ?
+now .. the question is when login sets selinux context for a user which
+system call it makes to get user identification and which system call it
+uses to set the context.
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+If sshd is not relying on pam_selinux than .. is all this hard-coded in
+sshd ???
 
+Please clarify it.
+Jaspreet.
+
+-- 
 
 
 --
