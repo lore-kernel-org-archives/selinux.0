@@ -1,46 +1,25 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA27899
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 08:37:12 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA11620
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 12:35:31 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA11616 for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 12:35:30 GMT
-Date: Mon, 26 Aug 2002 08:36:21 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Howard Holm <hdholm@epoch.ncsc.mil>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Updated Release
-In-Reply-To: <200208241745.NAA22298@coalpipe.epoch.ncsc.mil>
-Message-ID: <Pine.GSO.4.33.0208260831230.10972-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: openssh
+From: Timothy Wood <timothy@hallcomp.com>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: 26 Aug 2002 09:17:10 -0400
+Message-Id: <1030367830.29149.25.camel@phobos>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+After installing the version of ssh that comes with SELinux I am unable
+to connect to the machine.  I've followed the instructions in the
+README.privsep to make sure everything is setup and still nothing.  I
+tried a make install to reinstall it and I noticed that the install
+reports that the sshd user is not setup despite the fact that it does
+output the user id information for the sshd user when it calls id sshd
+from the script.  There are no avc or log messages generated (other than
+the normal ssh connect failed message) in enforcing or permissive mode. 
+I'd assume that this is a problem installing ssh since it doesn't even
+work in permissive mode.  Any ideas as to what I've done wrong?
 
-The updated release (2002082308) has been imported and merged into the
-sourceforge selinux CVS tree, under the 'nsa' module.  As usual, you can
-access it via:
-
-cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux \
--z3 co nsa
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-On Sat, 24 Aug 2002, Howard Holm wrote:
-
-> The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-> list archive has been updated. The site includes a new release of the
-> LSM-based SELinux prototype.  The base kernel versions were updated to
-> 2.4.19 and 2.5.31.  The SELinux peer SID functionality was
-> re-implemented with new sock hooks; the accept_secure call should now
-> be reliable.  The sysctl hook and /proc/sys labeling were made
-> configurable.  Other minor enhancements were made including checkpolicy
-> and the example policy.  Bugs were fixed in auditing logic, PSID
-> mapping code, and ipc permission hook.
+Timothy,
 
 
 --
