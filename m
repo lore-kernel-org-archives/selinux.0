@@ -1,44 +1,37 @@
-Subject: Re: Questions about extended attributes
+Subject: Re: Something seems to be self-contradictory
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Park Lee <parklee_2004@yahoo.com.cn>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20040214161254.87474.qmail@web15212.mail.bjs.yahoo.com>
-References: <20040214161254.87474.qmail@web15212.mail.bjs.yahoo.com>
+In-Reply-To: <20040216140245.87457.qmail@web15201.mail.bjs.yahoo.com>
+References: <20040216140245.87457.qmail@web15201.mail.bjs.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1077031564.16139.65.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1077031819.16139.70.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 17 Feb 2004 10:26:05 -0500
+Date: Tue, 17 Feb 2004 10:30:19 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-02-14 at 11:12, Park Lee wrote:
-> Dear sir,
->  What's the difference between extended attributes for file system and
-> the old method of using persistent labeling mapping for persistent
-> files and directories? 
->  Is it still using persistent security identifiers (PSIDs) in  
-> extended attributes?
->  Where can I get more information about extended attributes for file
-> system?
-
-SELinux has gone through three phases in its approach to labeling files:
-1) original SELinux kernel patch - SELinux stored an integer PSID in a
-spare field of the on-disk ext2 inode and maintained a mapping from
-PSIDs to contexts in regular files stored under a /...security directory
-on each filesystem.
-2) initial LSM-based SELinux -  Since LSM did not provide any
-filesystem-specific hooks, the SELinux persistent label mapping was
-changed to maintain the inode-to-PSID mapping as a regular file under
-the /...security directory rather than using a spare field in the
-on-disk inode.  This allowed SELinux to support most filesystem types
-but at a cost in performance and consistency.
-3) Current SELinux - As part of preparing SELinux for mainline
-integration, SELinux was reworked to use the native Linux extended
-attribute mechanism for storing file security contexts.  PSIDs are no
-longer used at all, nor are there any /...security mapping files.  See
-http://acl.bestbits.at for information about Linux extended attributes. 
-Extended attribute support is included in 2.6, and patches exist for the
-2.4 series.
+On Mon, 2004-02-16 at 09:02, Park Lee wrote:
+> Hi,
+> Today,I was reading some SELinux technical documents.I saw the
+> following words, They seems to be self-contradictory:
+>  
+> 1.  ... ... A program,like any other object, is assigned a
+> type,....      ( Page 4, subsection 3.1.TE Model,  Configuring the
+> SELinux Policy).
+> 2. ... ...These transitions ensure that system processes and certain
+> programs are placed into their own separate domains automatically.
+> ......    ( Page 2, section 2 Overview,  A Security Policy
+> Configuration for the Security-Enhanced Linux ).
+>  
+> Then I was confused by such a problem:
+> Whether a program is assigned a type or a domain ?
+>  
+A program (i.e. an executable file) is assigned a type.  A process is
+assigned a domain (although in SELinux, a domain is just a type
+associated with a process).  So the latter statement isn't quite
+accurate; it should be "...system processes and processes that execute
+certain programs are placed...".
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
