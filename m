@@ -1,36 +1,52 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2AH7XZ004303
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 05:17:08 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2AH6Aw007077
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 10:17:06 GMT
-Date: Tue, 2 Nov 2004 10:28:00 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Jaspreet Singh <jsingh@ensim.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: set/getxattrs - I am badly struck ..
-Message-ID: <20041102102800.GW9643@lkcl.net>
-References: <1099347144.9776.3.camel@jsingh> <1099347590.9784.3.camel@jsingh> <20041102003903.GR9643@lkcl.net> <1099378305.11007.13.camel@jsingh> <20041102091711.GU9643@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20041102091711.GU9643@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2CnHXZ004849
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 07:49:17 -0500 (EST)
+Received: from oe-im2.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2CnCAw013918
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 12:49:16 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Chad Hanson'" <chanson@TrustedCS.com>,
+   "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
+   "'SE-Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: dynamic context transitions - a seteuid parallel
+Date: Tue, 2 Nov 2004 07:49:12 -0500
+Message-ID: <00aa01c4c0da$5acdd960$1e0c010a@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <36282A1733C57546BE392885C06185924D91F1@chaos.tcs.tcs-sec.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Nov 02, 2004 at 09:17:11AM +0000, Luke Kenneth Casson Leighton wrote:
-> what _i_ did was restrict the system to only having one user: therefore
-> i can get away with using fusexmp to proxy mount /home/sez to
-> /Documents.
-> 
-> therefore, in the file contexts, i can get away without having to hack
-> genhomedircon, i can just add a hacked-up entry like this
-> files/misc/hack.sez.fc:
-> 
-> 			/Documents 		sez:object_r:user_t.
- 
- correction: user_home_t.  or thereabouts.  can't remember now.
+> The DoD and associated communities have long requested and utilized
+> the privilege bracketing technique for information sharing solutions.
+> Thus the majority of existing applications are built to this
+> framework. TCS and other ISVs have a large existing code base of
+> fielded accredited solutions based on this framework.
 
- l.
+To be fair, privilege bracketing came about primarily as a compromise of how to
+meet the B2 requirements.  The ideal was something like ring brackets from the
+Multics hardware, or even the simplified execution privilege levels from x86
+architecture.  I'm sure that on of the first places privilege bracketing
+argument was used was the B2 Trusted XENIX project, where we stretched greatly
+the B2 requirements of least privilege and separation of security relevant code,
+and successfully used the concept of privilege bracketing as en evaluation
+strategy.
+
+So I'll admit my culpability in weakening the B2 requirements, but that does not
+mean privilege bracketing is a good idea just because we used it in the pass as
+a means to expedite evaluations.  Rings and x86 privilege levels are truly
+separate, distinct security domains.  Privilege bracketing is not (all software
+in the process will typically have complete control over what privileges it
+desires to use).  Unfortunately, like Trusted XENIX (and any Unix), the only
+really distinct execution domains we have are processes, which has much greater
+overhead cost for switching than rings.  
+
+So if we were honest, the real reason we want to change security content is for
+performance reasons, not security assurance reason.
+
+Frank
+
 
 
 --
