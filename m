@@ -1,102 +1,57 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA3DrvWt029723
-	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 08:53:57 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hA3DraC7008660
-	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 13:53:36 GMT
-Received: from carbine.dsl.net (carbine.dsl.net [65.84.81.3])
-	by jazzswing.ncsc.mil  with ESMTP id hA3Drauw008654
-	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 13:53:36 GMT
-Message-ID: <3FA65E3B.6080008@tresys.com>
-Date: Mon, 03 Nov 2003 08:55:07 -0500
-From: David Caplan <dac@tresys.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA3F5tWt000299
+	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 10:05:55 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hA3F5sKl000911
+	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 15:05:54 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+        by jazzband.ncsc.mil  with ESMTP id hA3F5s5m000908 for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 15:05:54 GMT
+Message-ID: <3FA66ED1.9020405@diyab.net>
+Date: Mon, 03 Nov 2003 10:05:53 -0500
+From: Diyab <diyab@diyab.net>
 MIME-Version: 1.0
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: specifying groups of types
-References: <200310111435.46684.russell@coker.com.au>	 <1066134168.5054.11.camel@moss-spartans.epoch.ncsc.mil>	 <3F8C46E4.1030403@tresys.com> <1067794997.5374.42.camel@chris.pebenito.net>
-In-Reply-To: <1067794997.5374.42.camel@chris.pebenito.net>
+To: russell@coker.com.au
+CC: Dale Amon <amon@vnl.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: default policy package
+References: <20031103114353.GC13273@vnl.com> <3FA65A60.3010802@diyab.net> <200311040140.04077.russell@coker.com.au>
+In-Reply-To: <200311040140.04077.russell@coker.com.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I didn't receive any comments on it.  I'd emphasize again that my 
-solution was not a "proper" fix (it leaves open too many 
-inconsistencies) and was not intended to be accepted as an official 
-patch until it was cleaned up.  If no one comes up with a clean solution 
-I'll fix mine when I have the chance.  Right now I'm trying to finish up 
-the parsing code for our conditional policy modification among other things.
+Russell Coker wrote:
 
-David
-
-Chris PeBenito wrote:
-> Was there any resolution to this?  I think this would be useful for
-> checkpolicy to have, but it hasn't been merged (at least on the
-> sourceforge cvs).  I don't remember seeing any official response from
-> the NSA team about it nor any criticism/improvements of it.
+> On Tue, 4 Nov 2003 00:38, Diyab wrote:
 > 
-> On Tue, 2003-10-14 at 13:56, David Caplan wrote:
+>>I ran into a similar problem with postgresql.te which contains a
+>>can_exec statement with dpkg_exec_t that does not have an ifdef around
+>>it.  So unless you include dpkg.te you get an error attempting to
+>>compile the policy.  Easiest thing to do from what I've found is to grep
+>>the everything in domains/program for the context that is giving the error.
 > 
->>Russell,
->>
->>Here's a quick hack that appears to work.  It turns off the type (or 
->>list of types if used on an attribute) when building the bitmap of types 
->>for a rule.  The syntax is to use a '-' in front of a type or attribute 
->>name.
->>
->>allow some_domain { file_type -shadow_t -null_device_t -exec_type}:...
->>
->>The proper way to do this is in the yacc parsing section.  All I did was 
->>allow '-' as the first character of an identifier (policy_scan.l) and 
->>handle the subtraction of the type/attribute in 
->>policy_parse.y:set_types().  The danger is that types (and anything 
->>using the identifier definition) can be declared with '-' as the first 
->>character and cause problems.  The advantage, in theory, is that 
->>wherever a list of types/attributes is processed, the '-' notation can 
->>be used to turn off types.  So, you should also be able to do something 
->>like:
->>
->>allow { auth -crond_t } file_type:...
->>
->>Types/attributes are processed in order, and subsequent allow rules can 
->>also override the subtraction.
->>
->>I'd recommend trying this out and if you find it useful change the parse 
->>rules.  I tested it on some real basic policy, so it may cause other 
->>unintended problems.  I'm throwing it out more as a starting point 
->>rather than something intended to be integrated into checkpolicy.
->>
->>David
->>
->>Stephen Smalley wrote:
->>
->>>On Sat, 2003-10-11 at 00:35, Russell Coker wrote:
->>>
->>>
->>>>Following a discussion on IRC, it occurs to me that it would be handy to have 
->>>>the following in the policy language:
->>>>allow some_domain { file_type !shadow_t }:...
->>>>
->>>>So we can specify everything in file_type except for shadow_t.
->>>
->>>
->>>Yes, although I'm not sure about the notation; might be better to
->>>provide a set difference operator, e.g.
->>>	file_type - shadow_t
->>>
->>>Are you offering to implement this enhancement to checkpolicy?
->>>
+> 
+> I fixed that error some time ago.
+> 
+> One thing I have been considering is writing some scripts to check for such 
+> errors.
+> 
+> My initial thought was to try compiling all combinations of packages.  But 
+> that would involve hundreds of thousands of compilations.  So my current idea 
+> is to m4 process each .te file with only the macro files and then search for 
+> type declarations.  Then make a list of all .te files which reference those 
+> types or attributes that they posess.  Then once the list of inter-dependence 
+> between policy files is prepared it should be only a few hundred compilations 
+> needed to prove that the policy will compile in all valid configurations.
+> 
 
+This is true.  I did not mean to imply that it had not been fixed but I 
+did not specifically state that it had or had not, my apologies.
+
+Timothy,
 
 -- 
-__________________________________
-
-David Caplan     410 290 1411 x105
-dac@tresys.com
-Tresys Technology, LLC
-8840 Stanford Blvd., Suite 2100
-Columbia, MD 21045
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
 
 
 --
