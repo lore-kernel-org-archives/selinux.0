@@ -1,56 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h646piHa005576
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 02:51:45 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h646opnJ017678
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 06:50:51 GMT
-Received: from mylaptop (ppp-177-195.27-151.libero.it [151.27.195.177])
-	by jazzswing.ncsc.mil  with ESMTP id h646onhr017675
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 06:50:50 GMT
-Date: Fri, 4 Jul 2003 08:51:35 +0200
-From: Mauro Chiarugi <vlaovic@libero.it>
-Cc: selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h647fkHa005718
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 03:41:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h647fjH5007262
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 07:41:45 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h647fiRX007259 for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 07:41:45 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Mauro Chiarugi <vlaovic@libero.it>
 Subject: Re: Policies.. but where there are?
-Message-Id: <20030704085135.0ffdf7a7.vlaovic@libero.it>
-In-Reply-To: <200307040852.51081.russell@coker.com.au>
-References: <20030703234800.330f8026.vlaovic@libero.it>
-	<200307040852.51081.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.5j_anVGL++5Ogr"
+Date: Fri, 4 Jul 2003 17:41:36 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20030703234800.330f8026.vlaovic@libero.it> <200307040852.51081.russell@coker.com.au> <20030704085135.0ffdf7a7.vlaovic@libero.it>
+In-Reply-To: <20030704085135.0ffdf7a7.vlaovic@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200307041741.36842.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---=.5j_anVGL++5Ogr
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Fri, 4 Jul 2003 16:51, Mauro Chiarugi wrote:
+> Il Fri, 4 Jul 2003 08:52:51 +1000
+>
+> Russell Coker borbottando disse:
+> > They are stored in a "policy database" named
+> > /etc/security/selinux/policy.XX (where XX is the version number) in
+> > recent versions.
+>
+> I believe that policy.XX is protected against attacks, such as malicious
+> editing.. is it right???
 
-Il Fri, 4 Jul 2003 08:52:51 +1000
-Russell Coker borbottando disse:
-
-> They are stored in a "policy database" named
-> /etc/security/selinux/policy.XX (where XX is the version number) in
-> recent versions.
-
-I believe that policy.XX is protected against attacks, such as malicious
-editing.. is it right???
+Yes.  There is a special type for it and it is protected against editing.
 
 -- 
-Porgere l'altra guancia non significa
-iptables -t filter -P INPUT ACCEPT
-iptables -t filter -P OUTPUT DROP
---=.5j_anVGL++5Ogr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE/BSP7nHfOyhtK3rgRAooTAJ9V6uN0gOLcgSEd3g7Xp7Xk6D7UPACfQD/K
-dyBiSk2ytTo2zIEkCxzOqco=
-=I6pG
------END PGP SIGNATURE-----
-
---=.5j_anVGL++5Ogr--
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
