@@ -1,54 +1,45 @@
-Message-ID: <3BC3E52E.1EEF701E@atc.tcs.co.in>
-Date: Wed, 10 Oct 2001 11:35:34 +0530
-From: "Ravi Prakash B.V." <ravi@atc.tcs.co.in>
+Date: Wed, 10 Oct 2001 08:26:09 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Frank Mayer <mayerf@tresys.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: Security policy analysis
+In-Reply-To: <ACEHIKGIGFEDAIKEMMMIAEMOJPAA.mayerf@tresys.com>
+Message-ID: <Pine.GSO.4.33.0110100814260.25153-100000@raven>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Interested in Reserach work
-References: <ACEHIKGIGFEDAIKEMMMIAEMOJPAA.mayerf@tresys.com>
-Content-Type: multipart/mixed;
- boundary="------------39763DC5D9B79AD8669B65B0"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------39763DC5D9B79AD8669B65B0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Dear all,
+On Tue, 9 Oct 2001, Frank Mayer wrote:
 
-I joined into this group today.
-I am interested to do the research work in  security area. I want to
-contribute my research work to this group.
-I would like to know the current active work in the group so that i can
-join and start work in  one of it.
+> We also find ourselves incrementally building tools to analyze policy.conf
+> files (e.g., show all types with a given attribute, show all rules that
+> involve a given type/attribute).  Essentially to help reverse engineer and
+> analyze the intent of a given policy.  We have some capabilities built, and
+> are writing additional ones as time and need allow (essentially by borrowing
+> the lex/yacc source from checkpolicy, and building our own policy database
+> and analysis logic).  Is anyone else building similar tools?  We'd be happy
+> to share our source incrementally with members of the list as we build new
+> capabilities if anyone is interested.
 
-Thanks & Regards,
-Ravi Prakash B.V.
---------------39763DC5D9B79AD8669B65B0
-Content-Type: text/x-vcard; charset=us-ascii;
- name="ravi.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Ravi Prakash B.V.
-Content-Disposition: attachment;
- filename="ravi.vcf"
+Some people at MITRE have been working on similar policy analysis tools.
+Originally, they were creating these tools separately from checkpolicy
+but drawing from the checkpolicy sources. However, I recommended that they
+instead look into merging the support for new kinds of queries directly
+into the existing checkpolicy debugging facility (the -d option) and
+possibly replacing the checkpolicy debugging interface with an
+interactive query interface.  I'm not sure how far along they are,
+but you should certainly coordinate.
 
-begin:vcard 
-n:Venkata Ravi Prakash;Burlagadda
-tel;cell:98490 30284
-tel;home:08644 26681
-tel;work:040 6328079(direct) 040 7814515/17/19 extn:387
-x-mozilla-html:FALSE
-org:Tata Consultancy Services;Advanced Technology Centre
-version:2.1
-email;internet:ravi@atc.tcs.co.in
-title:ASE
-adr;quoted-printable:;;1-2-10, Coramandel House,=0D=0ASardar Patel Road;Secunderabad;AP;500003;India
-x-mozilla-cpt:;28992
-fn:Burlagadda Venkata Ravi Prakash
-end:vcard
+We're interested in the capabilities that you've developed.  Can we
+acquire a copy?
 
---------------39763DC5D9B79AD8669B65B0--
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
 
 
 --
