@@ -1,36 +1,31 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6CCwHrT001609
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 08:58:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6CCxZrT001632
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 08:59:35 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6CCwGPJ008212
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 12:58:16 GMT
-Subject: Re: policy to allow upgrade of nfs-utils
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6CCxYPJ008254
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 12:59:34 GMT
+Subject: Re: device_type vs file_type
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Russell Coker <russell@coker.com.au>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200407111904.24856.russell@coker.com.au>
-References: <200407081319.05138.russell@coker.com.au>
-	 <200407092252.08749.russell@coker.com.au>
-	 <1089392030.11726.66.camel@moss-spartans.epoch.ncsc.mil>
-	 <200407111904.24856.russell@coker.com.au>
+In-Reply-To: <200407111900.33374.russell@coker.com.au>
+References: <200407111900.33374.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1089637087.22449.47.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1089637167.22449.49.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 12 Jul 2004 08:58:07 -0400
+Date: Mon, 12 Jul 2004 08:59:27 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2004-07-11 at 05:04, Russell Coker wrote:
-> A patched version of vi should solve that.  In any case if the file gets etc_t 
-> then it is just readable to everyone which isn't so bad.  The only potential 
-> problem is if you edit the file with an unpatched editor and delete all 
-> content so that initrc_t will want to append "#" to it.
+On Sun, 2004-07-11 at 05:00, Russell Coker wrote:
+> The attached patch removes the file_type attribute from the types for device 
+> nodes.
 > 
-> What do you think of the attached patch?
+> In most cases rules using file_type are not intended to catch the types for 
+> device nodes as well so this should make things simpler.
 
-Looks ok, but is it sufficient, i.e. does it only require permission to
-write to the existing /etc/exports, or does it need to be able to unlink
-and re-create the file?
+Likely requires an audit of all uses of file_type in the policy, e.g.
+setfiles assumes file_type includes device node types as well.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
