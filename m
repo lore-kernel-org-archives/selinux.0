@@ -1,24 +1,24 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iATFgkIi011607
-	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 10:42:46 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iATFeBYf025632
-	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 15:41:13 GMT
-Date: Mon, 29 Nov 2004 10:41:47 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-cc: sds@epoch.ncsc.mil, <linux-kernel@vger.kernel.org>,
-   <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iATGGJIi011791
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 11:16:19 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iATGEkYd028281
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 16:14:46 GMT
 Subject: Re: [2.6 patch] selinux: possible cleanups
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+   selinux@tycho.nsa.gov
 In-Reply-To: <20041128190139.GD4390@stusta.de>
-Message-ID: <Xine.LNX.4.44.0411291040320.6506-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20041128190139.GD4390@stusta.de>
+Content-Type: text/plain
+Message-Id: <1101744496.13948.141.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 29 Nov 2004 11:08:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 28 Nov 2004, Adrian Bunk wrote:
-
+On Sun, 2004-11-28 at 14:01, Adrian Bunk wrote:
 > The patch below contains the following possible cleanups:
 > - make needlessly global code static
 > - remove the following unused global functions:
@@ -27,28 +27,26 @@ On Sun, 28 Nov 2004, Adrian Bunk wrote:
 >   - avc.c: avc_ss_revoke
 >   - avc.c: avc_ss_set_auditallow
 >   - avc.c: avc_ss_set_auditdeny
->   - ss/avtab.c: avtab_map
->   - ss/ebitmap.c: ebitmap_or
->   - ss/hashtab.c: hashtab_remove
->   - ss/hashtab.c: hashtab_replace
->   - ss/hashtab.c: hashtab_map_remove_on_error
+
+These functions are part of an overall interface between the AVC and the
+security server designed to support dynamic security policy
+requirements, based on prior studies including some formal analysis. 
+While the example security server does not presently use anything other
+than avc_ss_reset, I'd be hesitant to completely remove the rest of the
+interface, as that will leave a far less functional interface for future
+security servers and may lead to further "optimization" of the AVC that
+will preclude support for dynamic policy requirements (or at least make
+it much harder to restore such support).
+
 >   - ss/services.c: security_member_sid
->   - ss/sidtab.c: sidtab_remove
-> - remove the following unused static functions:
->   - avc.c: avc_update_cache
->   - avc.c: avc_control
-> 
 
-I think these functions were going to be left in for possible future use, 
-but it's probably better to remove them and add them back only if 
-necessary.
+There are patches under development for SELinux that make use of this
+function, including exporting the interface to userspace via selinuxfs
+and using it in-kernel for polyinstantiation.
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
