@@ -1,87 +1,70 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA21247
-	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 10:56:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA24027
+	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 14:56:18 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA19192
-	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 14:54:50 GMT
+	by jazzswing.ncsc.mil  with ESMTP id SAA02228
+	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 18:54:52 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id OAA19188
-	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 14:54:49 GMT
+	by jazzswing.ncsc.mil  with ESMTP id SAA02224
+	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 18:54:52 GMT
 Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA09571
-	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 10:56:12 -0400 (EDT)
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA10592
+	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 14:56:15 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA18925
-	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 07:44:19 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA22025
+	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 11:48:21 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id FAA29381
-	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 05:44:04 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id FAA29377
-	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 05:44:02 GMT
-Date: Fri, 20 Sep 2002 12:21:48 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: SE-Linux packages
-Message-ID: <20020920022148.GA12250@snoopy.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id PAA22157
+	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 15:46:55 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id PAA22153
+	for <selinux@tycho.nsa.gov>; Fri, 20 Sep 2002 15:46:53 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Brian May <bam@snoopy.apana.org.au>
+Subject: Re: SE-Linux packages
+Date: Fri, 20 Sep 2002 17:47:53 +0200
+References: <20020920022148.GA12250@snoopy.apana.org.au>
+In-Reply-To: <20020920022148.GA12250@snoopy.apana.org.au>
+Cc: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Message-Id: <200209201747.53722.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Fri, 20 Sep 2002 04:21, Brian May wrote:
+> [1] fileutils is not available; I cannot apply the patch cleanly
+> to the stable version, and the unstable version requires a version
+> of texinfo to build not available in stable (I might end up
+> disabling building the documentation, same as Russell did).
 
-I have compiled SE-Linux versions of all required packages (except
-fileutils[1]) for Debian stable. For this, I have back ported Russell's
-changes to the stable version of the package, and compiled it under
-a stable chroot pbuilder. This differs from Russell's approach; Russell
-preferred to recompile the unstable version for stable.
+I have just updated my patch for unstable to the latest "coreutils" based 
+replacement for fileutils and shellutils.  You may want to base your work on 
+that and maintain one package instead of two.
 
-While most packages are the stable version, I have used the unstable
-version of logrotate, as I have been told that the stable version
-of logrotate is buggy (note that the stable version is available,
-just not referenced by the Packages.gz index).
+My coreutils stuff is in http://www.coker.com.au/selinux/coreutils/
 
-There is also a kernel-source 2.4.19, with patches for SE-Linux,
-ISDN DOV, and Freeswan. Also available are prebuilt kernel images
-(based on the kernel-image-2.4.19-386 source package in Debian).
+> [3] If installing packages after the SE-Linux version of dpkg has
+> been installed, but a SE-Linux kernel is not yet booted,
+> /etc/dpkg/postinst.d/selinux broke badly, and I had to disable it.
 
-Also available, but not indexed in any way are udebs of the
-kernel, which might be useful in creating a SE-Linux boot
-disk for SE-Linux, using Debian-installer, in the future.
+Yes, you could have just removed the "-e" in that script though...
 
-There are exactly three known bugs:
+Probably should make the script check for a running SE kernel and only try to 
+do anything if it's running.
 
-[1] fileutils is not available; I cannot apply the patch cleanly
-to the stable version, and the unstable version requires a version
-of texinfo to build not available in stable (I might end up
-disabling building the documentation, same as Russell did).
+> Comments?
 
-[2] The kernel-image source package is missing a build depends
-on libssl-dev.
+Good work.  I'll remove my woody repository in the near future in favour of 
+your work.
 
-[3] If installing packages after the SE-Linux version of dpkg has
-been installed, but a SE-Linux kernel is not yet booted,
-/etc/dpkg/postinst.d/selinux broke badly, and I had to disable it.
-
-These packages have not yet experienced major testing, but
-I would be surprised if there are any other significant problems.
-Please let me know if you observe otherwise.
-
-The apt-get entries to use are:
-
-deb http://www.microcomaustralia.com.au/debian/ stable selinux
-deb-src http://www.microcomaustralia.com.au/debian/ stable selinux
-
-Or, if you want to access my other packages for stable (eg. amavis,
-kerberos4kth, Heimdal, etc) too:
-
-deb http://www.microcomaustralia.com.au/debian/ stable main selinux
-deb-src http://www.microcomaustralia.com.au/debian/ stable main selinux
-
-Comments?
 -- 
-Brian May <bam@snoopy.apana.org.au>
+There is no point PGP/GPG signing an email unless the signature can be
+verified.  If you post to a list then don't sign the message unless your
+key is available on public key servers and has been signed by someone
+who is in the web of trust, otherwise you just waste bandwidth and CPU.
 
 
 --
