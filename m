@@ -1,71 +1,59 @@
-Message-ID: <002c01c151b4$51fe54b0$0500a8c0@winpro2000>
-From: "EZ" <papaz@md.prestige.net>
-To: "ipv6" <ipv6@311c.com>, "Stephen Smalley" <sds@tislabs.com>,
-        "Frank Mayer" <mayerf@tresys.com>
-Cc: <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0110100814260.25153-100000@raven> <000b01c15197$1b5ee540$ce164318@servers23.com>
-Subject: Re: Security policy analysis
-Date: Wed, 10 Oct 2001 13:52:24 -0400
+Reply-To: <mayerf@tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: RE: Security policy analysis
+Date: Wed, 10 Oct 2001 14:09:14 -0400
+Message-ID: <ACEHIKGIGFEDAIKEMMMIGENIJPAA.mayerf@tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
+In-Reply-To: <3BC47F1C.B24952C4@mitre.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Same here...a copy would be great!
+> From: root@smtpsrv1.mitre.org [mailto:root@smtpsrv1.mitre.org]On Behalf
+> Of Jon Crowley
+> Sent: Wednesday, October 10, 2001 1:02 PM
+>
+> We intend on developing functions to do the following first:
+>
+> <list deleted>
 
-Edmund Zynda II
+We have very similar thoughts, though our goal is to define a building block
+policy configuration for SE Linux and then methods for building upon that
+building block for a variety of applications.  The analysis tool is a
+by-product.
 
------ Original Message -----
-From: "ipv6" <ipv6@311c.com>
-To: "Stephen Smalley" <sds@tislabs.com>; "Frank Mayer" <mayerf@tresys.com>
-Cc: <SELinux@tycho.nsa.gov>
-Sent: Wednesday, October 10, 2001 10:23 AM
-Subject: Re: Security policy analysis
+> However, our take on checkpolicy is that it is intended
+> to compile policies and to assist in debugging specific to security
+> identifiers.  We are thinking it might be cleaner to keep policy
+> analysis tools separate from a policy compiling/debugging tool.  Though
+> perhaps we have the wrong take on checkpolicy.  More thoughts on this?
 
+We looked quickly at checkpolicy and came to the same conclusion, i.e., that
+it
+compiles policies for a different reason and has a policy DB not suited for
+our purpose.  That's not a strong opinion.  We're also just incrementally
+building quick tools and creating our own database format was simpler.  The
+only code we're currently using from checkpolicy is the lex code, the yacc
+framework and parser (though all the semantic logic is new), and the
+associated queue.c. However, it is conceptually simple to integrate our
+logic into checkpolicy
+if we wanted to.  Essentially we would just add our logic to the functions
+already in policy_parse.y, with changes to the main() function in
+checkpolicy.c
+for our menu items plus a few other housekeeping items.
 
->
->
->
-> >
-> > On Tue, 9 Oct 2001, Frank Mayer wrote:
-> >
-> > > We also find ourselves incrementally building tools to analyze
-> policy.conf
-> > > files (e.g., show all types with a given attribute, show all rules
-that
-> > > involve a given type/attribute).  Essentially to help reverse engineer
-> and
-> > > analyze the intent of a given policy.  We have some capabilities
-built,
-> and
-> > > are writing additional ones as time and need allow (essentially by
-> borrowing
-> > > the lex/yacc source from checkpolicy, and building our own policy
-> database
-> > > and analysis logic).  Is anyone else building similar tools?  We'd be
-> happy
-> > > to share our source incrementally with members of the list as we build
-> new
-> > > capabilities if anyone is interested.
->
-> > We're interested in the capabilities that you've developed.  Can we
-> > acquire a copy?
->
-> We would also like to get a copy if that is possible?
->
-> Joop Cousteau
-> CTO
-> ImageSave Corp
->
->
->
-> --
-> You have received this message because you are subscribed to the selinux
-list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-> the words "unsubscribe selinux" without quotes as the message.
+I will also say that our analysis policy structure is quick and dirty
+without
+much effort spent on performance issues like sorted insertions and searches.
+It
+hasn't been any issue since once we digest the policy and build the policy
+DB,
+everything else is fast enough (we don't have the burden of building a
+kernel
+database like checkpolicy does!)
+
 
 
 --
