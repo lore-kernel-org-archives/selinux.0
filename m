@@ -1,58 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA04699
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2003 03:57:32 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0A8vTI22595
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2003 08:57:29 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h0A8vRf22591 for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2003 08:57:28 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>, selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA04933
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2003 04:24:45 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id JAA01541
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2003 09:22:02 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id JAA01536
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2003 09:21:54 GMT
+Date: Fri, 10 Jan 2003 20:24:25 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
 Subject: Re: 2.4.20 stability issues
-Date: Fri, 10 Jan 2003 09:57:07 +0100
-References: <20030110002718.GA922@snoopy.apana.org.au>
-In-Reply-To: <20030110002718.GA922@snoopy.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200301100957.07668.russell@coker.com.au>
+Message-ID: <20030110092425.GD9359@snoopy.apana.org.au>
+References: <20030110002718.GA922@snoopy.apana.org.au> <200301100957.07668.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200301100957.07668.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 10 Jan 2003 01:27, Brian May wrote:
-> It only happens after an uptime of several hours (if not days; it
-> also depends if you count time in suspend mode or not), on my laptop
-> computer.
+On Fri, Jan 10, 2003 at 09:57:07AM +0100, Russell Coker wrote:
+> rjc@lyta:/tmp$ uname -a
+> Linux lyta 2.4.20-se-r #1 Mon Dec 16 19:48:46 CET 2002 i686 unknown unknown 
+> GNU/Linux
+> rjc@lyta:/tmp$ uptime
+>  09:52:14 up 4 days,  9:11,  1 user,  load average: 0.88, 1.33, 0.90
+> rjc@lyta:/tmp$
 
-rjc@lyta:/tmp$ uname -a
-Linux lyta 2.4.20-se-r #1 Mon Dec 16 19:48:46 CET 2002 i686 unknown unknown 
-GNU/Linux
-rjc@lyta:/tmp$ uptime
- 09:52:14 up 4 days,  9:11,  1 user,  load average: 0.88, 1.33, 0.90
-rjc@lyta:/tmp$
+Interesting; maybe it is one of my patches.
 
-I have included a ReiserFS patch for performance that probably does not impact 
-this.
+(it has happened before, a bug for instance in the ACL patch would crash
+the computer even when just fscking the filesystem).
 
-Let me know if you'd like a copy of the kernel deb that I use for testing and 
-I'll scp it to snoopy.  I don't use FreeSWAN and I have it compiled to 
-auto-mount devfs, but apart from that it should work for you (it's the same 
-configuration we use for ns).
+Although 4 days may not be long enough to reproduce the bug, not
+sure on this.
 
-> I had no problems with 2.4.19, but as of 2.4.20 I seem to have
-> encountered some weird stability issues that I cannot put my finger on.
-[]
-> So far this has only ever happened with 2.4.19, not 2.4.20. Weird.
-
-???
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+It was also sometime last year that my Thinkpad totally died (after
+random crashes), and needed a new motherboard, I am keeping my fingers
+crossed that it isn't the same problem.
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
