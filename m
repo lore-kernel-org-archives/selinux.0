@@ -1,89 +1,72 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9506BrT022595
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 20:06:12 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95052YE022463
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 00:05:03 GMT
-Date: Tue, 5 Oct 2004 01:17:16 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Trent Jaeger <jaegert@us.ibm.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Add a new class
-Message-ID: <20041005001716.GA25251@lkcl.net>
-References: <OF459C4AF8.918C9B11-ON85256F23.00798D88-85256F23.0079ECBE@us.ibm.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i950UJrT022714
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 20:30:19 -0400 (EDT)
+Received: from ms-smtp-02.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i950UIs6004768
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 00:30:18 GMT
+Received: from sasami.localdomain (CPE-24-163-154-106.kc.rr.com [24.163.154.106])
+	by ms-smtp-02.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id i950UG9W002514
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 19:30:16 -0500 (CDT)
+Received: from localhost (localhost [127.0.0.1])
+	by sasami.localdomain (Postfix) with ESMTP id 6223D4A658
+	for <selinux@tycho.nsa.gov>; Mon,  4 Oct 2004 19:30:17 -0500 (CDT)
+Received: from sasami.localdomain ([127.0.0.1])
+	by localhost (sasami [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 02143-03 for <selinux@tycho.nsa.gov>;
+	Mon, 4 Oct 2004 19:30:17 -0500 (CDT)
+Received: from yggdrasil.localdomain (yggdrasil.localdomain [192.168.0.2])
+	by sasami.localdomain (Postfix) with ESMTP id 305614A650
+	for <selinux@tycho.nsa.gov>; Mon,  4 Oct 2004 19:30:17 -0500 (CDT)
+Date: Mon, 4 Oct 2004 19:30:15 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: need advice for ld_so_cache_t errors
+Message-ID: <20041005003015.GA31681@yggdrasil.localdomain>
+References: <20041001233554.GA26550@yggdrasil.localdomain> <20041002043740.GA28765@yggdrasil.localdomain> <20041002165041.GB30426@yggdrasil.localdomain> <200410040108.35839.russell@coker.com.au> <20041004014820.GA25896@yggdrasil.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <OF459C4AF8.918C9B11-ON85256F23.00798D88-85256F23.0079ECBE@us.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+In-Reply-To: <20041004014820.GA25896@yggdrasil.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi trent,
 
-as i understand it, it depends on what kind of operation you intend to
-add.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-for example if it's a new filesystem type, you don't _need_ to add a new
-class: selinux is smart enough to pick up the name from the vfs
-(superblock?) name, e.g. "fuse" or "proc" and you can add an association
-from there.
+Another (probably related) oddity... I'm seeing a number of the=20
+following messages logged.  This one isn't near as frequent as the=20
+ld_so_cache_t error, but it seems to be a fairly regular occurrence. =20
 
-... but if you're _genuinely_ adding something new such as, oh
-i dunno, optimised kernel-level support for Wine win32 calls
-where you need to support oh i dunno mmmm the concept of a
-NT named pipe because you've written a special authenticated
-pipe which can support NT security descriptors, then yes you
-would need to add a class...
+   Oct  4 19:14:48 sasami kernel: audit(1096935288.401:0): avc:
+     denied  { execute } for  pid=3D2786=20
+     path=3D/usr/lib/locale/locale-archive dev=3Dhdb5=20
+     ino=3D16191 scontext=3Dgnorris:staff_r:staff_t=20
+     tcontext=3Dsystem_u:object_r:locale_t tclass=3Dfile
 
-... along with the corresponding support in the kernel _for_
-that type, inside the selinux kernel.
+What I'm finding really confusing is why anything would be trying to
+execute either ld.so.cache or locale-archive... neither have execute
+permissions set normally anyway.
 
-basically it boils down to this:
+Ponderous!
 
-do you _really_ need to extend the types of operations which selinux can
-"vet"
 
-such as oh i dunno:
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-	"allow openssl_exec_t port_t { add_rsa_key_to_connection }
-								   ^^^^^^^^^^^^^^^^^^^^^^^^^
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-because if so, then the vetting can only be done in the linux kernel,
-therefore you have no alternative but to add new stuff (like with the
-recent x.org classes) into the selinux security module.
+iD8DBQFBYesXgrEMyr8Cx2YRAvXJAJ4mNCdL0QX8T5Xavx4feSyuG4uARACgwbup
+j2jGajw7aNsl2FFwGU0J3DI=
+=FrSG
+-----END PGP SIGNATURE-----
 
-l.
-
-On Mon, Oct 04, 2004 at 06:11:43PM -0400, Trent Jaeger wrote:
-> Hi,
-> 
-> I think this is something I could find in the docs or code, but I don't 
-> see it. 
-> 
-> How do I add a new class?  There are a variety of files in 
-> security/selinux/include, such as av_permissions.h, that are 
-> "automatically generated", but they are already in the distribution, so it 
-> is not clear how they are generated.  If I add a class, operations, etc., 
-> these files have to be modified and I would rather do it the proper way.
-> 
-> BTW -- this is for adding IPSec security associations for classes, so we 
-> can label network connections.  Prototype code should be available soon.
-> 
-> Regards,
-> Trent.
-> ------------------------------------------------------------
-> Trent Jaeger
-> IBM T.J. Watson Research Center
-> 19 Skyline Drive, Hawthorne, NY 10532
-> (914) 784-7225, FAX (914) 784-7225
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+--r5Pyd7+fXNt84Ff3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
