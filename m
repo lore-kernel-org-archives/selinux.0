@@ -1,36 +1,39 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA21612
-	for <selinux@tycho.nsa.gov>; Sun, 8 Dec 2002 19:57:13 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA21667
+	for <selinux@tycho.nsa.gov>; Sun, 8 Dec 2002 20:02:58 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gB90vCI06354
-	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 00:57:12 GMT
+	by jazzband.ncsc.mil  with ESMTP id gB912vI06475
+	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 01:02:57 GMT
 Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id gB90vAf06350 for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 00:57:10 GMT
-Date: Mon, 9 Dec 2002 12:00:50 +1100
+        by jazzband.ncsc.mil  with ESMTP id gB912sf06471 for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 01:02:55 GMT
+Date: Mon, 9 Dec 2002 12:06:47 +1100
 From: Brian May <bam@snoopy.apana.org.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: other architectures
-Message-ID: <20021209010050.GB23588@snoopy.apana.org.au>
-References: <200212090040.55521.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: debian-installer
+Message-ID: <20021209010647.GC23588@snoopy.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200212090040.55521.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 09, 2002 at 12:40:55AM +0100, Russell Coker wrote:
-> This means that we are a step closer to getting full Debian support for SE 
-> Linux (now I may be able to get the main psmisc and procps packages to be 
-> built with SE Linux support)!
+In case anyone on this mailing list is interested, I created a
+debian-installer book disk with a SE-Linux kernel, last week.
 
-GREAT!
+You can find it at
+<URL:http://www.microcomaustralia.com.au/debian/net-1440.img>
 
-This means that the only thing that won't be available in Debian
-is a patched kernel...
+It is unlikely that you will be able to install Debian with it just yet,
+thats because debian-installer is an entirely new modular approach that
+isn't complete yet.
 
-For that you can you my kernel ;-).
--- 
+Also it keeps changing faster then I can keep up ;-).
+
+Debian-installer has the advantage in that it is modular, so it should
+be possible (in theory) just to create an SE-Linux kernel udeb, make a
+floppy disk with it (like I have), and then have a selinux udeb package
+that will install the appropriate policy and file labels when the
+installation proceeds.
+--
 Brian May <bam@snoopy.apana.org.au>
 
 --
