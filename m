@@ -1,56 +1,61 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i383hcRb014939
-	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 23:43:39 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38DMIRb017420
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 09:22:18 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i383fcUZ017431
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 03:41:38 GMT
-Received: from c007.snv.cp.net (h000.c007.snv.cp.net [209.228.33.228])
-	by jazzswing.ncsc.mil  with SMTP id i383fbmT017425
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 03:41:38 GMT
-Date: Wed, 07 Apr 2004 23:43:34 -0400
-Subject: Re: Logo Artwork for SELinux?
-From: Michael Pender <michael.pender@nanochron.com>
-To: Bill Laut <wlsel@verizon.net>, Untitled <selinux@tycho.nsa.gov>
-Message-ID: <BC9A42A6.9C89%michael.pender@nanochron.com>
-In-Reply-To: <200404070122.41978.wlsel@verizon.net>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
+	by jazzswing.ncsc.mil  with ESMTP id i38DJxUZ012614
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:20:00 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i38DJxmT012611
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:19:59 GMT
+Subject: Policy backward compatibility
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+   Russell Coker <russell@coker.com.au>, selinux-dev@tresys.com
+Content-Type: text/plain
+Message-Id: <1081430495.6379.89.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 08 Apr 2004 09:21:35 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/7/04 1:22 AM, "Bill Laut" <wlsel@verizon.net> wrote:
+Hi,
 
-> Perhaps I'm revealing more of my psyche than is appropriate (:-), but my
-> thinking was that the initial artwork should practically scream "Hideous
-> Wicked Evil Death" to all who dare step outside of the Policy's boundaries;
-> and which is why I suggested the motif of an Eagle (or even a fire-breathing
-> dragon) with an attitude guarding the sole entrance, glowering supremely at
-> the approaching viewer with a look that says, "Make my day.  Fool."
+I wanted to raise the issue of policy backward compatibility for general
+discussion, as this has been coming up in private discussions recently
+as new enhancements have been made to SELinux.  When Tresys implemented
+the conditional policy extensions (policy version 16), they included
+compatibility code in the kernel and checkpolicy so that the kernel
+would continue to accept the older policy version and so that
+checkpolicy could continue to generate the older policy version.  James
+Morris generalized this compatibility support and extended it when he
+implemented support for ipv6 node labeling (policy version 17), so that
+the kernel and checkpolicy could handle versions 17-15.  
 
-Tux with sunglasses doesn't say "enhanced security" to me.  But perhaps I'm
-revealing more of my psyche than is appropriate by noting that the *visible*
-(and thus avoidable) elements of a security system are more effective at
-deterring overt direct action against the protected individual.  Rather, it
-is the *less* visible elements of a security system that offer protection
-against the more subtle threats.
+There are at least three other possible enhancements that I know of that
+will require further changes to the binary policy format (split netlink
+classes, automatic user identity transitions, conditional support for
+RBAC rules), plus we need to purge the initial SID and access vector
+definitions at some point of obsolete symbols so that they are
+consistent with the current implementation, which will likely require
+another policy version change as existing initial SID and permission
+values will be affected.
 
-To follow the agent-in-black analogy, the crazed attacker can identify the
-agents and avoid them.  The most effective countermeasure to the attacker is
-an alert agent who blends into the crowd and looks like everybody else,
-until the agent acts.  The hypothetical attacker cannot avoid defenses that
-he cannot identify.
+The concern is that the backward compatibility code is becoming
+increasingly cumbersome, and providing safe behavior for compatibility
+isn't always straightforward.  This kind of compatibility code also
+seems inconsistent with typical kernel practice.  James has proposed
+dropping the backward compatibility support, and requiring that every
+installed kernel have a suitable binary policy installed, possibly
+encoding the associated kernel release (e.g. output of uname -r) in the
+binary policy pathname (and possibly doing likewise for the checkpolicy
+program?).  
 
-Perhaps a more universal example is that a speeder can watch for marked
-police cars and avoid speed traps; but vigilance is no defense against an
-unmarked police car.
+Thoughts?
 
-IMO the graphic selected should emphasize a *defensive* posture.  For
-example, Tux with an armored helmet, shield and lance.  Or Tux with a big
-Doberman on a leash.  Or possibly Tux in camouflage with a helmet.
-
-Or maybe Tux with a fire-breathing dragon on a leash... :)
-
-- Mike
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
