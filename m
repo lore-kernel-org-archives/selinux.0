@@ -1,41 +1,27 @@
-Subject: Re: writing zero bytes in bash
+Subject: Re: security files - why not sysadmfile
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au,
-   Development discussions related to Fedora Core <fedora-devel-list@redhat.com>
-Cc: Miloslav Trmac <mitr@volny.cz>, SELinux@tycho.nsa.gov
-In-Reply-To: <200502262147.55747.russell@coker.com.au>
-References: <200502261832.16337.russell@coker.com.au>
-	 <20050226103915.GB28440@chrys.ms.mff.cuni.cz>
-	 <200502262147.55747.russell@coker.com.au>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1109440349.11452.7.camel@cobra.ivg2.net>
+References: <1109440349.11452.7.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Mon, 28 Feb 2005 14:00:30 -0500
-Message-Id: <1109617230.28470.33.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 28 Feb 2005 14:13:06 -0500
+Message-Id: <1109617986.28470.41.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-02-26 at 21:47 +1100, Russell Coker wrote:
-> Interesting comment.  I'm replying with the SE Linux list CC'd so everyone 
-> who's involved can comment.
-> 
-> Maybe a change to make "\n" equivalent to "" in the SE Linux kernel interfaces 
-> in question would be appropriate then?  For the SE Linux interfaces in 
-> question a '\n' character is not valid in any part of the input and the input 
-> must contain three fields separated by colons, so a special case of "\n" 
-> being equivalent to "" can not cause any confusion.
-> 
-> Also as a side note, in the normal use only libselinux.so has any code which 
-> does such zero byte writes.  Doing it from bash is only needed for testing, 
-> debugging, and educational purposes.
+On Sat, 2005-02-26 at 12:52 -0500, Ivan Gyurdiev wrote:
+> Why are those types not marked sysadmfile?
+> This is particularly annoying when vi spits out
+> error messages every time I edit a selinux source file.
 
-Pity no one pointed out this deviation from POSIX when we originally
-redesigned the SELinux API to address the kernel developers' comments on
-the original syscall-based API.  In any event, write(fd, NULL, 0); does
-work on /proc/pid/attr/<name> nodes despite what the write(2) man page
-says, and the SELinux kernel API is obviously specific to Linux anyway
-(although libselinux could be ported to SEBSD), and this API is never
-suitable for use by scripts regardless of whether or not this particular
-aspect is changed.   
+The goal is to ultimately remove direct access to many file types by
+sysadm_t, and only allow permissions to specific programs when run by
+sysadm_t.  That reduces your risk of accidental corruption by the admin
+and of intentional corruption or leakage by malicious code unwittingly
+run by the admin.  In particular, protecting the policy in this manner
+is important.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
