@@ -1,75 +1,55 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA07109
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 11:24:01 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA09591
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 15:22:32 GMT
-Received: from athena-new.evoserve.com (athena-new.evoserve.com [210.16.10.134])
-        by jazzband.ncsc.mil  with ESMTP id PAA09587 for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 15:22:26 GMT
-Received: from evoworks.evoserve.com ([210.16.10.5])
-	by athena-new.evoserve.com (8.11.0/8.11.0) with ESMTP id g6AFUk428404
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 23:30:58 +0800
-Message-ID: <3D2C4F46.1040408@evoworks.evoserve.com>
-Date: Wed, 10 Jul 2002 23:14:14 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA07902
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 12:38:42 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA27049
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 16:38:07 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id QAA27039
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 16:38:06 GMT
+Date: Wed, 10 Jul 2002 12:38:23 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Debian User <rogelio@evoworks.evoserve.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] atuomatic type transitions for pts in devfs
+In-Reply-To: <3D2C4F46.1040408@evoworks.evoserve.com>
+Message-ID: <Pine.GSO.4.33.0207101224280.26546-100000@raven>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] atuomatic type transitions for pts in devfs
-Content-Type: multipart/mixed;
- boundary="------------090305080803050202000806"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090305080803050202000806
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This patch only works properly with a devfsd less system. Devfsd needs 
-to be patched for this to work on systems using it.
+On Wed, 10 Jul 2002, Debian User wrote:
 
---------------090305080803050202000806
-Content-Type: text/plain;
- name="automatic_transition_in_devfs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="automatic_transition_in_devfs.diff"
+> This patch only works properly with a devfsd less system. Devfsd needs
+> to be patched for this to work on systems using it.
 
---- /root/tmp/lsm-2.4/security/selinux/hooks.c	Wed Jul 10 01:11:11 2002
-+++ security/selinux/hooks.c	Wed Jul 10 03:45:14 2002
-@@ -689,7 +689,7 @@
- {
- 	struct superblock_security_struct *sbsec = NULL; 
- 	struct inode_security_struct *isec = inode->i_security;
--	security_id_t sid;
-+	security_id_t sid, devfs_pts_sid;
- 	char *buffer, *path;
- 	struct dentry *dentry;
- 	int rc;
-@@ -779,10 +779,21 @@
- 				path = avc_d_path(dentry, buffer,
- 						  PAGE_SIZE);
- 				if (path) {
-+
-+                            if ( (!memcmp(inode->i_sb->s_type->name, "devfs", 5)) && (!memcmp(path, "/pts/", 5)) ) {
-+                                security_genfs_sid("devfs", "/pts", SECCLASS_DIR, &devfs_pts_sid);
-+		                /* Try to obtain a transition SID. */
-+		                rc = security_transition_sid(isec->task_sid, 
-+                                                             devfs_pts_sid, 
-+					                     isec->sclass,
-+					                     &sid);
-+
-+                            } else {
- 					rc = security_genfs_sid(inode->i_sb->s_type->name,
- 								path, 
- 								isec->sclass,
- 								&sid);
-+			    }
- 					if (!rc)
- 						isec->sid = sid;
- 				}
+Just to further clarify, when devfsd is used, the allocating task SID is
+the SID of devfsd rather than the SID of the requesting process, so the
+kernel cannot automatically determine an appropriate type transition
+for the requesting process.  To support such functionality while using
+devfsd, you would need to patch devfsd to permit passing the SID of the
+requesting process to an action (much like the current support for passing
+the uid).  A devfsd module for nodes within pts could then call
+security_transition_sid based on the requesting process SID and the base
+devpts SID to obtain a transition SID for the pty.
 
---------------090305080803050202000806--
+As a separate issue (previously mentioned on the list), fully supporting
+labeling by devfsd would also require patches to the kernel devfs code to
+preserve and restore SIDs on devfs entries labeled by devfsd, as the
+entries may be evicted from the dcache.
+
+Hence, at present, devfs labeling support is only reliable without devfsd
+through the use of genfs_contexts and this patch.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
 
 
 --
