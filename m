@@ -1,71 +1,111 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h47J5PI4011946
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 15:05:25 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h47KwnI4012706
+	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 16:58:49 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h47J5D7R020499
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:05:14 GMT
-Received: from babbler.bmc.com (fw-us-sjc-1.bmc.com [198.175.229.250])
-        by jazzband.ncsc.mil  with ESMTP id h47J5BKP020495 for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:05:12 GMT
-Date: Wed, 7 May 2003 14:03:41 -0500 (CDT)
-From: Richard Troth <rtroth@bmc.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Nick Gray <nagray@austin.rr.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id h47Kwm7R027581
+	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 20:58:48 GMT
+Received: from windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
+        by jazzband.ncsc.mil  with ESMTP id h47KwlKP027557 for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 20:58:47 GMT
+Message-ID: <01d401c314db$d175af90$398314d1@windowpane.com>
+From: "ccallen" <ccallen@windowpane.com>
+To: <selinux@tycho.nsa.gov>
+Cc: <nagray@austin.rr.com>
+References: <1052323369.1487.46.camel@celestial>
 Subject: Re: SELinux and LFS
-In-Reply-To: <200305080343.11969.russell@coker.com.au>
-Message-ID: <Pine.LNX.4.44.0305071357530.30962-100000@trothnec.bmc.com>
+Date: Wed, 7 May 2003 14:01:23 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Considered Debian?
+I have been working on the same kind of thing and wanted to ask the same
+question. My goal has been to create a minimal dist (like the linux router
+project) that has just whats needed (http & smtp for now), and boots from a
+cd (like a rescue / boot disk). If my system does get hacked or out of wack,
+It can just be rebooted. Selinux would be used to protect the system in
+memory (on a ram disk), and protect any working files on disk (logs,
+databases, etc).
 
-Good point.
-For my own "Linux from scratch",
-Debian has proved to be a vital source depot and reference.
+For a gui I want to use motif. The gui is not for a production dist but for
+configuring and building the dist. However it could be on the production
+machine (ran from the hard drive, not on a ram disk). I built some motif
+configuration management tools that would work for this project. Although I
+have them on an HP DAT tape and dont have a tape drive, so I cant read the
+data :( Is there anyone in the Bellevue / Redmond area who has one of these
+drives I could use to read the source code off with?
 
- ...
-> > my efforts to remove the software responsible. I actually found circular
-> > dependencies in the packages.
->
-> Debian has no such "features", and is in a fairly good state with regard to
-> circular dependencies.
->
-> For building a Debian system from source there are some dependency issues.
-> For example you can't build packages in a regular fashion without Perl, and
-> Perl needs a huge number of other things to be built before it can be built.
+I started with the boot disk howto and Linux Router Project, and eventually
+stumbled across the LFS project. The LFS looks to have a bunch of LFS
+specific unix utilities, I wasnt sure if they would be compatible with
+selinux. All I wanted was a list of esential files and steps to build and
+configure a minimal linux system. Then I could pull these files from redhat
+so it would be compatible with selinux.
 
-Right.   For the "tool chain",  you need GCC, GLIBC, and a
-smattering few other development tools.   But one or two of those
-(in my experience,  not exhaustively scientific)  required Perl
-for their auto config.   [sigh]   So the basic tool chain
-racked up to 28 packages.   That was enough to give me a
-usable 'chroot' where I could re-build the same 28 and then
-build anything else.
+The author of the boot-disk how created a tool, Yard, that looks like it
+does what I have in mind. http://www.croftj.net/~fawcett/yard/index.html
+I decided to start with yard and build on that.
 
-> Doing a cross-compile bootstrap of Debian will be painful because of this.
-> But recompiling every package in a Debian system should be quite easy (on
-> i486 and newer CPUs at least).
+There are many other boot disk tools like yard,  but Yard looks like it's as
+good as any. If your interested I can track down some of the links I came
+across.
 
-[Mine is not related to SE.]
-I still haven't figured out Debian's build process.
-I'm trying to stick to the usual
+Conan
 
-	./configure
-	make
-	make install
 
-though a good number of packages need an explicit  "--prefix=/usr".
+----- Original Message -----
+From: "Nick Gray" <nagray@austin.rr.com>
+To: <selinux@tycho.nsa.gov>
+Sent: Wednesday, May 07, 2003 9:02 AM
+Subject: SELinux and LFS
 
-> Some people on this list have been talking about getting SE Linux going
-> with Gentoo which is based on compiling everything.  I wonder how their
-> progress is going.
 
-Yes.   Gentoo is recommended by many hard-core bootstrappers.
+All,
 
--- RMT
+I introduced myself several months back. I work on a MLS project for the
+ONI. We have been evaluating SELinux for awhile. A couple of months ago
+I raise a question, within our group, about the viability of using
+RedHat as a base for a secure system. I believe that certification of a
+system based on a (almost any) distribution would be rather difficult to
+achieve. This coupled with the fact that a Redhat server that was under
+scrutiny here at the lab, continued to contact Redhat via HTTPS despite
+my efforts to remove the software responsible. I actually found circular
+dependencies in the packages.
 
+This led me to the question, Does anyone remember when we used to build
+this things from scratch. In answer to that question, I found a web site
+which I have been playing with for the last couple of weeks called
+appropriately enough "Linux from Scratch" so far I have been able to use
+LFS as the starting point for a CDROM based Linux gateway/firewall.I
+started a build of SELinux on a LFS system, but had several problems
+including discovering what I believe are a couple bugs in the code.I
+have put it aside for the moment to work on a couple of other things,
+but I will return to this when I get the chance.
+
+I am interested in whether anyone on the list has used this as the
+starting point for SELinux and what the results where.
+
+In the next day or so I will post the problem I found in the makefile.
+Perhaps it is either a known issue or doesn't come up on Redhat based
+systems. In a separate post I will address a problem I found in string.h
+(as soon as I get a chance to figure out what the problem is)
+
+Don't get me wrong, I have nothing against Redhat. I'm just not sure
+that I could keep a straight face when placing this in front of the
+accreditors.
+
+Any comments/discussion would be appreciated
+
+Nick Gray
+Senior Network Engineer
+Bruzenak Inc.
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 
 --
