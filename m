@@ -1,63 +1,57 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Ed Street" <edstreet@street-tek.com>
-Subject: Re: apache-ssl mods for Debian
-Date: Tue, 13 Apr 2004 21:28:15 +1000
-Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
-References: <20040412201442.A6A473A4058@abyss.simplyaquatics.com>
-In-Reply-To: <20040412201442.A6A473A4058@abyss.simplyaquatics.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <200404132128.15421.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3DD9xRb015748
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 09:10:00 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3DD9wmw005589
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 13:09:59 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i3DD9w4w005583 for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 13:09:58 GMT
+Subject: Re: Problems with 2.4.24
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: =?iso-8859-2?Q?Jaros=B3aw?= Nozderko <jaroslaw.nozderko@polkomtel.com.pl>
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <2A857CE92C11FE40858689CAEC7BED490A43910D@E2K2.corp.plusnet>
+References: <2A857CE92C11FE40858689CAEC7BED490A43910D@E2K2.corp.plusnet>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1081861786.21530.44.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 13 Apr 2004 09:09:46 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 13 Apr 2004 06:14, "Ed Street" <edstreet@street-tek.com> wrote:
-> When I start apache-ssl, run_init /etc/init.d/apache-ssl I get the
-> following.
->
-> avc:  denied  { read } for  pid=12580 exe=/usr/sbin/run_init
-> path=pipe:[4995] dev= ino=4995 scontext=blacknet:sysadm_r:run_init_t
-> tcontext=blacknet:sysadm_r:sysadm_su_t tclass=fifo_file
+On Tue, 2004-04-13 at 05:53, Jarosław Nozderko wrote:
+> I've downloaded prepatched 2.4.24 kernel and
+> userland tools from NSA.
 
-I plan to change run_init to not use expect.  That file handle is from a bug 
-in expect.
+2.4.25 is the latest.
 
-> avc:  denied  { getattr } for  pid=12580 exe=/usr/sbin/run_init
-> path=/proc/12580/mounts dev= ino=824442896
-> scontext=blacknet:sysadm_r:run_init_t tcontext=blacknet:sysadm_r:run_init_t
-> tclass=file
+> I've created /selinux directory. README (BUILDING AND 
+> INSTALLING, p. 4) says selinuxfs should be mounted by init.
+> It doesn't seem to do it - I had to do it manually or to 
+> add fstab entry:
 
-This and all the other getattr messages are from the change to libselinux 
-which has it using fopen() instead of open() for /proc/mounts.  The next 
-policy package I upload will have a macro change to fix this.
+Did you build and installed the SELinux-patched /sbin/init program?
+>From the SysVinit package?
+ 
+> After reboot, the situation is as follows:
+> 
+> # ps --context
+>   PID    SID CONTEXT                                  COMMAND
+>  1414      - -                                        su
+>  1415      - -                                        bash
+>  1787      - -                                        ps --context
 
-> avc:  denied  { read } for  pid=12583 exe=/bin/bash name=selinux dev=hda3
-> ino=1785904 scontext=system_u:system_r:initrc_t
-> tcontext=system_u:object_r:policy_src_t tclass=lnk_file
+This implies that you never loaded a policy into the kernel.  Normally,
+this is handled by the patched /sbin/init program, just like the
+mounting of selinuxfs.
 
-Your current directory is /etc/selinux...
-
-> avc:  denied  { search } for  pid=12587 exe=/usr/sbin/apache-ssl
-> name=apache-ssl dev=hda3 ino=2457683 scontext=system_u:system_r:httpd_t
-> tcontext=system_u:object_r:httpd_exec_t tclass=dir
-
-The apache.fc I attached to my previous message would not label a directory 
-with httpd_exec_t, if you relabel /usr/lib/apache-ssl then it should be OK.
-
-> avc:  denied  { write } for  pid=12592 exe=/usr/sbin/apache-ssl
-> name=gcache_port dev=hda3 ino=2539552 scontext=system_u:system_r:httpd_t
-> tcontext=system_u:object_r:var_run_t tclass=sock_file
-
-If you relabel /var/run/gcache_port or restart apache in permissive mode (thus 
-recreating /var/run/gcache_port) then it will be fine.
+Unfortunately, I don't know of any up-to-date SELinux-patched packages
+for SuSE.  You might want to ask Thorsten Kukuk.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
