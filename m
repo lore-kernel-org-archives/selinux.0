@@ -1,121 +1,213 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0LMTHFX016102
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 17:29:18 -0500 (EST)
-Received: from ms-smtp-04.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0LMTJ5L009224
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 22:29:19 GMT
-Received: from sasami.localdomain (CPE-67-48-98-59.kc.rr.com [67.48.98.59])
-	by ms-smtp-04.rdc-kc.rr.com (8.12.8p1/8.12.7) with ESMTP id j0LMIxxF027661
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 16:19:02 -0600 (CST)
-Received: from localhost (localhost [127.0.0.1])
-	by sasami.localdomain (Postfix) with ESMTP id A5C8F4A626
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 16:29:15 -0600 (CST)
-Received: from sasami.localdomain ([127.0.0.1])
-	by localhost (sasami [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 14806-08 for <selinux@tycho.nsa.gov>;
-	Fri, 21 Jan 2005 16:29:15 -0600 (CST)
-Received: from yggdrasil.localdomain (yggdrasil.localdomain [192.168.0.2])
-	by sasami.localdomain (Postfix) with ESMTP id 5422D4A624
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 16:29:15 -0600 (CST)
-Date: Fri, 21 Jan 2005 16:29:15 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: [patch] ddclient
-Message-ID: <20050121222914.GA2208@yggdrasil.localdomain>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0MMGEFX020527
+	for <selinux@tycho.nsa.gov>; Sat, 22 Jan 2005 17:16:16 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0MMG7sF028556
+	for <selinux@tycho.nsa.gov>; Sat, 22 Jan 2005 22:16:11 GMT
+Subject: Fedora Rawhide mplayer policy
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com
+Content-Type: multipart/mixed; boundary="=-GsxN0yzqNqhqT7ieEnhy"
+Date: Sat, 22 Jan 2005 15:16:10 -0700
+Message-Id: <1106432170.18789.7.camel@cobra.ivg2.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---bCsyhTFzCvuiizWE
-Content-Type: multipart/mixed; boundary="liOOAslEiF7prFVr"
-Content-Disposition: inline
+--=-GsxN0yzqNqhqT7ieEnhy
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+I filed a bug on mplayer not being able to read /dev/rtc, and dwalsh 
+advised that I should try to write a mplayer policy.
+
+So, this is what I came up with... 
+It's tailored to Fedora Rawhide 1.21.2-7 strict + the livna mplayer
+packages. It also assumes Daniel Walsh has added nscd_client_domain to
+x_client_macros.te.
+
+Comments? I've never written a policy before, so I borrowed as much as I
+could from others. 
+
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
+
+--=-GsxN0yzqNqhqT7ieEnhy
+Content-Disposition: attachment; filename=base_user_macros.patch
+Content-Type: text/x-patch; name=base_user_macros.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- base_user_macros.te	2005-01-20 11:04:24.000000000 -0700
++++ base_user_macros.new	2005-01-20 15:21:56.000000000 -0700
+@@ -188,6 +188,8 @@
+ ifdef(`using_spamassassin', `spamassassin_domain($1)')
+ ifdef(`uml.te', `uml_domain($1)')
+ ifdef(`cdrecord.te', `cdrecord_domain($1)')
++ifdef(`mplayer.te', `mplayer_domain($1)')
++ifdef(`mplayer.te', `mencoder_domain($1)')
+ 
+ # Instantiate a derived domain for user cron jobs.
+ ifdef(`crond.te', `crond_domain($1)')
+
+--=-GsxN0yzqNqhqT7ieEnhy
+Content-Disposition: attachment; filename=mplayer.fc
+Content-Type: text/plain; name=mplayer.fc; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+# mplayer
+/usr/bin/mplayer	--	system_u:object_r:mplayer_exec_t
+/usr/bin/mencoder	--	system_u:object_r:mencoder_exec_t
+/etc/mplayer(/.*)?		system_u:object_r:mplayer_etc_t
+HOME_DIR/\.mplayer(/.*)?        system_u:object_r:ROLE_mplayer_rw_t
+
+--=-GsxN0yzqNqhqT7ieEnhy
+Content-Disposition: attachment; filename=mplayer_macros.te
+Content-Type: text/plain; name=mplayer_macros.te; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+#
+# Macros for mplayer
+#
+# Author: Ivan Gyurdiev <ivg2@cornell.edu>
+#
+#
+# mplayer_domain(domain_prefix)
+# mencoder_domain(domain_prefix)
+
+#######################
 
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+# These are common acess permissions for mplayer and mencoder
+# mplayer_common($1,$2)
 
-The attached patches fix a few ddclient problems.  Please apply.
+define(`mplayer_common',`
 
-ddclient.fc
-  * Make `ddclient_var_t' match the `/var/cache/ddclient' directory,=20
-    rather than just the files therein.
+# Home directory stuff
+if (use_nfs_home_dirs) {
+create_dir_file($1_$2_t, nfs_t)
+}
+if (use_samba_home_dirs) {
+create_dir_file($1_$2_t, cifs_t)
+}
+ifdef(`automount.te', `
+allow $1_$2_t autofs_t:dir { search getattr };
+') dnl end if automount
 
-ddclient.te
-  * Allow execution of bin_t programs.
-  * Allow client-level access to TCP networking, instead of UDP only.
-  * Allow ddclient to create it's cache file if necessary.
+# Read local config
+r_dir_file($1_$2_t, $1_mplayer_rw_t)
 
-Thanx!
+# Read global config
+r_dir_file($1_$2_t, mplayer_etc_t)
 
+# Read data in /usr/share (fonts, icons..)
+r_dir_file($1_$2_t, usr_t)
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ddclient.fc.diff"
+# Read /proc files and directories
+# Necessary for /proc/meminfo, /proc/cpuinfo, etc..
+allow $1_$2_t proc_t:dir search;
+allow $1_$2_t proc_t:file { getattr read };
 
---- ddclient.fc.orig	2005-01-21 16:10:12.000000000 -0600
-+++ ddclient.fc	2005-01-21 16:10:47.000000000 -0600
-@@ -1,7 +1,7 @@
- # ddclient
- /etc/ddclient\.conf		--	system_u:object_r:ddclient_etc_t
- /usr/sbin/ddclient		--	system_u:object_r:ddclient_exec_t
--/var/cache/ddclient(/.*)?	--	system_u:object_r:ddclient_var_t
-+/var/cache/ddclient(/.*)?		system_u:object_r:ddclient_var_t
- /var/run/ddclient\.pid		--	system_u:object_r:ddclient_var_run_t
- # ddt - Dynamic DNS client
- /usr/sbin/ddtcd		--	system_u:object_r:ddclient_exec_t
+# Sysctl on kernel version 
+allow $1_$2_t sysctl_kernel_t:dir search;
+allow $1_$2_t sysctl_kernel_t:file { getattr read };
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ddclient.te.diff"
-Content-Transfer-Encoding: quoted-printable
+# allow ps
+can_ps($1_t, $1_$2_t)
 
---- ddclient.te.orig	2005-01-21 16:09:59.000000000 -0600
-+++ ddclient.te	2005-01-21 16:12:50.000000000 -0600
-@@ -15,7 +15,7 @@
- var_lib_domain(ddclient)
-=20
- base_file_read_access(ddclient_t)
--can_exec(ddclient_t, shell_exec_t)
-+can_exec(ddclient_t, { shell_exec_t bin_t })
-=20
- # ddclient can be launched by pppd
- ifdef(`pppd.te',`domain_auto_trans(pppd_t, ddclient_exec_t, ddclient_t)')
-@@ -31,11 +31,11 @@
- allow ddclient_t sysctl_net_t:dir { search };
-=20
- # network-related goodies
--can_network_udp(ddclient_t)
-+can_network_client(ddclient_t)
- allow ddclient_t self:unix_dgram_socket create_socket_perms;
- allow ddclient_t self:unix_stream_socket create_socket_perms;
-=20
- # allow access to ddclient.conf and ddclient.cache
- allow ddclient_t ddclient_etc_t:file r_file_perms;
- allow ddclient_t ddclient_var_t:dir rw_dir_perms;
--allow ddclient_t ddclient_var_t:file rw_file_perms;
-+allow ddclient_t ddclient_var_t:file create_file_perms;
+# uses shared libraries
+uses_shlib($1_$2_t)
 
---liOOAslEiF7prFVr--
+# localization
+read_locale($1_$2_t)
 
---bCsyhTFzCvuiizWE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+# Access the terminal.
+allow $1_$2_t devpts_t:dir { search };
+allow $1_$2_t $1_tty_device_t:chr_file rw_file_perms;
+allow $1_$2_t $1_devpts_t:chr_file rw_file_perms;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+# Required for win32 binary loader 
+# FIXME: more is needed here - it wants execute on /dev/zero and /usr/lib/win32/*
 
-iD8DBQFB8YI6grEMyr8Cx2YRAhIzAJ9xQh6fXVvwJbIgfNn4nT2+vtzwqwCgyPTw
-KQ2yu7gvjL688gS39sNvY+Q=
-=YX/D
------END PGP SIGNATURE-----
+allow $1_mencoder_t zero_device_t:chr_file { read write };
+allow $1_mencoder_t self:process { execmem };
 
---bCsyhTFzCvuiizWE--
+')
+
+define(`mplayer_domain',`
+
+# Derive from X client domain
+x_client_domain($1, `mplayer', `')
+
+# Mplayer common stuff
+mplayer_common($1, mplayer)
+
+# Additional rules for search /tmp/.X11-unix
+ifdef(`xdm.te', `
+allow $1_mplayer_t xdm_tmp_t:dir search;
+')dnl end if xdm.te
+
+# Prevent getattr denials on restricted types when browsing with gmplayer
+dontaudit $1_mplayer_t *:dir_file_class_set { getattr };
+
+# Audio
+allow $1_mplayer_t sound_device_t:chr_file rw_file_perms;
+
+# RTC clock 
+allow $1_mplayer_t clock_device_t:chr_file { ioctl read };
+
+# Read home directory content
+r_dir_file($1_mplayer_t, $1_home_t);
+
+# Allow execmod to make libSDL work
+allow $1_mplayer_t shlib_t:file { execmod };
+
+# Play DVD/VCD 
+allow $1_mplayer_t device_t:lnk_file { getattr read };
+allow $1_mplayer_t removable_device_t:blk_file { getattr read };
+
+') dnl end mplayer_domain
+
+############################
+
+define(`mencoder_domain',`
+
+# Privhome type transitions to $1_home_t in home dir.
+type $1_mencoder_t, domain, privhome;
+
+# Transition
+domain_auto_trans($1_t, mencoder_exec_t, $1_mencoder_t)
+can_exec($1_mencoder_t, mencoder_exec_t)
+role $1_r types $1_mencoder_t;
+
+# Mplayer common stuff
+mplayer_common($1, mencoder)
+
+') dnl end mencoder_domain
+
+--=-GsxN0yzqNqhqT7ieEnhy
+Content-Disposition: attachment; filename=mplayer.te
+Content-Type: text/plain; name=mplayer.te; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+#DESC mplayer - media player 
+#
+# Author: Ivan Gyurdiev <ivg2@cornell.edu>
+#
+
+# Type for the mplayer executable.
+type mplayer_exec_t, file_type, exec_type, sysadmfile;
+type mencoder_exec_t, file_type, exec_type, sysadmfile;
+type mplayer_etc_t, file_type, sysadmfile;
+
+# Everything else is in the mplayer_domain macro in
+# macros/program/mplayer_macros.te.
+
+--=-GsxN0yzqNqhqT7ieEnhy--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
