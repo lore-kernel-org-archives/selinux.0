@@ -1,43 +1,64 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9J4tiWt015388
-	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 00:55:44 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9J4xlWt015416
+	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 00:59:47 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9J4thmR005250
-	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 04:55:43 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h9J4tgjp005247 for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 04:55:43 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 6519C924F3
-	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 14:55:41 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 92E1B7F03A
-	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 14:55:35 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: new SE Linux debian repository
-Date: Sun, 19 Oct 2003 14:55:35 +1000
+	by jazzband.ncsc.mil  with ESMTP id h9J4xkmR005274
+	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 04:59:46 GMT
+Received: from mxsf15.cluster1.charter.net (mxsf15.cluster1.charter.net [209.225.28.215])
+        by jazzband.ncsc.mil  with ESMTP id h9J4xjjp005271 for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 04:59:45 GMT
+From: "Robert Potter" <robertp72@charter.net>
+To: "'Bill Laut'" <wlsel@verizon.net>, <russell@coker.com.au>,
+   "'M. Pender'" <michael.pender@nanochron.com>, <selinux@tycho.nsa.gov>
+Subject: RE: (Capital Area) SE Linux user group
+Date: Sat, 18 Oct 2003 22:00:03 -0700
+Message-ID: <000001c395fd$de9fb960$d9017444@eng21>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200310191455.35040.russell@coker.com.au>
+	charset="us-ascii"
+In-Reply-To: <200310182015.25037.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-deb http://www.coker.com.au/newselinux/ ./
+Every once in a while when reading technical groups you run across some
+great humor. Thanks guys!
 
-The above sources.list line can be used for support of the new (2.6 and 
-back-port to 2.4) SE Linux in Debian/u n s t a b l e.
+Rob
+In the "other" Washington
 
-It currently has packages for procps and coreutils.  The packages for the 
-kernel-patches and the policy are the same so they are just symlinks.  The 
-rest will follow soon.
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+Behalf Of Bill Laut
+Sent: Saturday, October 18, 2003 5:15 PM
+To: russell@coker.com.au; M. Pender; selinux@tycho.nsa.gov
+Subject: Re: (Capital Area) SE Linux user group
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+On Saturday 18 October 2003 10:23 am, Russell Coker wrote:
+> On Sun, 19 Oct 2003 00:00, M. Pender wrote:
+>
+> > As an alternative, I'd like to suggest "Capital Area Security 
+> > Enhanced Linux" user group--pronounced "castle" user group--which 
+> > suggests a fortress or stronghold designed to keep out intruders.
+>
+> If you make a mention of Security Enhanced X in the group title then 
+> I'm sure you would get more interest.
+>
+
+Somehow I suspect the name "SEX/CASTLE" might be mistaken for a bordello (or
+
+worse).  But it would certainly attract attention, no doubt about it.
+
+And "SEX/SLUG," well, there's no telling what that would attract.  :-)
+
+Bill
+    
+
+--
+This message was distributed to subscribers of the selinux mailing list. If
+you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
+
+
 
 
 --
