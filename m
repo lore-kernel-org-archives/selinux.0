@@ -1,47 +1,47 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9OMJhXZ029307
-	for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2004 18:19:44 -0400 (EDT)
-Received: from hero.office.dclabs.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9OMJeZJ019038
-	for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2004 22:19:43 GMT
-Date: Mon, 25 Oct 2004 08:19:30 +1000
-From: Rene Cunningham <rene@dclabs.com.au>
-To: ryan.graham+cr@gmail.com
-Cc: selinux@tycho.nsa.gov
-Subject: Re: login as sysadm_r remotely
-Message-ID: <20041024221930.GY8603@eden.office.dclabs.com.au>
-References: <20041023112327.GW8603@eden.office.dclabs.com.au> <42efd06904102412571e81d4e1@mail.gmail.com>
+Date: Sun, 24 Oct 2004 16:40:09 -0700
+From: Nifty Hat Mitch <mitch48@sbcglobal.net>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: mv and cp behavior.
+Message-ID: <20041024234009.GB714@xtl1.xtl.tenegg.com>
+References: <41712EEF.9090402@redhat.com> <1098105487.27895.40.camel@moss-spartans.epoch.ncsc.mil> <1098115678.6101.30.camel@decepticon.boston.redhat.com> <1098119648.27895.150.camel@moss-spartans.epoch.ncsc.mil> <1098121436.6101.56.camel@decepticon.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <42efd06904102412571e81d4e1@mail.gmail.com>
+In-Reply-To: <1098121436.6101.56.camel@decepticon.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Oct 24, 2004 at 12:57:58PM -0700, Ryan Graham wrote:
-> I think they built a toggle for this into tunable.te. At least it is
-> there in whatever version I am running on fedora.
 
-Yes, i did see that option. tunables/tunable.te has the following
+On Mon, Oct 18, 2004 at 01:43:56PM -0400, Colin Walters wrote:
+> On Mon, 2004-10-18 at 13:14 -0400, Stephen Smalley wrote:
+> 
+> > Ok, but if you were able to use chcon to set the type in the first
+> > place, then you presumably are able to use it after moving files there
+> > in Dan's example scenario.
+> 
+> Right; this was just a related issue, not quite the same thing as Dan's
+....
+> Yeah.  I'm kind of curious why Dan wrote the dhcp.conf in /tmp and later
+> moved it to /etc; I'd imagine most admins would just
+> $EDITOR /etc/dhcp.conf.
 
-define(`ssh_sysadm_login')
+I am not sure why Dan would but, in a large site administration context
+I might expect that that "$EDITOR /etc/dhcp.conf" is not permitted.
+Some places want to have testing, approval and change log policy.
 
-Enabling that still doesnt allow me to login as sysadm_r via ssh. I also
-tried setting the boolean option ssh_sysadm_login
+Something like these untested lines.
+  scp approved-new-dhcp.conf  user@keyhost:~/approved-new-dhcp.conf
+  ssh user@keyhost sudo mv /etc/dhcp.conf /etc/dhcp.conf.save`date +%s`
+  ssh user@keyhost sudo mv ~/approved-new-dhcp.conf /etc/dhcp.conf
+  ssh user@keyhost sudo service dhcpd reload
 
-# setsebool ssh_sysadm_login true
-error setting boolean ssh_sysadm_login to value 1
+Anyhow some staged approval process with an audit trail....
 
-# getsebool ssh_sysadm_login
-Error getting active value for ssh_sysadm_login
+
 
 -- 
-
-Rene Cunningham
-DCLabs Pty Ltd
-http://www.dclabs.com.au
-----------------------------------------
-"Don't fear the pen. When in doubt, draw a pretty picture." 
-   --Baker's Third Law of Design.
+	T o m  M i t c h e l l 
+	May your cup runneth over with goodness and mercy
+	and may your buffers never overflow.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
