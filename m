@@ -1,67 +1,33 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i51HXkrT026863
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 13:33:46 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i521SF2Z020252
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 21:28:16 -0400 (EDT)
-Subject: [PATCH][SELINUX] Check processed security context length
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i51HgIrT027261
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 13:42:18 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i52Hg3XL024285
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 13:42:03 -0400 (EDT)
+Subject: Re: latest cvs: policy appears to have different specs for apt-get
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-   lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040529132024.GA12259@lkcl.net>
+References: <20040529132024.GA12259@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1086095432.13325.39.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1086111685.13325.113.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 01 Jun 2004 09:10:32 -0400
+Date: Tue, 01 Jun 2004 13:41:25 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch against 2.6.7-rc2 changes security_context_to_sid to check the length of the
-processed security context against the full length of the provided
-context, rejecting any further data.  Please apply.
+On Sat, 2004-05-29 at 09:20, Luke Kenneth Casson Leighton wrote:
+> i'm getting this error on make relabel:
+> 
+> 	ERROR: Multiple different specifications for /usr/bin/apt-get
+> 	(system_u:object_r:rpm_exec_t and system_u:object_r:apt_exec_t).
+> 	/usr/sbin/setfiles:  labeling files under /
+> 
+> i won't pretend to know how it occurs...
 
- security/selinux/ss/mls.c      |    2 +-
- security/selinux/ss/services.c |    5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
-
-Index: linux-2.6/security/selinux/ss/services.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/services.c,v
-retrieving revision 1.42
-diff -u -p -r1.42 services.c
---- linux-2.6/security/selinux/ss/services.c	10 May 2004 13:01:09 -0000	1.42
-+++ linux-2.6/security/selinux/ss/services.c	28 May 2004 12:10:33 -0000
-@@ -532,6 +532,11 @@ int security_context_to_sid(char *sconte
- 	if (rc)
- 		goto out_unlock;
- 
-+	if ((p - scontext2) < scontext_len) {
-+		rc = -EINVAL;
-+		goto out_unlock;
-+	}
-+
- 	/* Check the validity of the new context. */
- 	if (!policydb_context_isvalid(&policydb, &context)) {
- 		rc = -EINVAL;
-
-Index: linux-2.6/security/selinux/ss/mls.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/mls.c,v
-retrieving revision 1.18
-diff -u -p -r1.18 mls.c
---- linux-2.6/security/selinux/ss/mls.c	28 Oct 2003 14:08:27 -0000	1.18
-+++ linux-2.6/security/selinux/ss/mls.c	28 May 2004 18:36:51 -0000
-@@ -290,7 +290,7 @@ int mls_context_to_sid(char oldc,
- 		if (rc)
- 			goto out;
- 	}
--	*scontext = p;
-+	*scontext = ++p;
- 	rc = 0;
- out:
- 	return rc;
-
+You shouldn't enable both rpm.te and dpkg.te in the same policy; they
+conflict.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
