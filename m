@@ -1,52 +1,38 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2ChxRb013676
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 07:43:59 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2DtcRb014251
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 08:55:39 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB2ChwqY021706
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 12:43:58 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id hB2Chw0o021703 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 12:43:58 GMT
-Date: Tue, 2 Dec 2003 12:43:39 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: nagray@bruzenak.com, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: What causes this??
-Message-ID: <20031202124339.GT11972@vnl.com>
-References: <1070340338.12612.2.camel@hawaii> <200312021549.34383.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id hB2DtbqY024507
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 13:55:37 GMT
+Received: from nox.lemuria.org ([213.191.86.35])
+        by jazzband.ncsc.mil  with ESMTP id hB2Dta0o024498 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 13:55:37 GMT
+Date: Tue, 2 Dec 2003 14:55:31 +0100
+From: Tom <tom@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: wdm now has SELinux support out-of-the-box
+Message-ID: <20031202145531.B1867@lemuria.org>
+References: <20031202094639.C29282@lemuria.org> <200312022248.40562.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200312021549.34383.russell@coker.com.au>
+In-Reply-To: <200312022248.40562.russell@coker.com.au>; from russell@coker.com.au on Tue, Dec 02, 2003 at 10:48:40PM +1100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> On Tue, 2 Dec 2003 15:45, Nick <nagray@bruzenak.com> wrote:
-> I just rebuilt a system and when I try to change roles I get this
->
->
-> [root@hawaii SELinux]# newrole -r sysadm_r
-> cannot find your entry in the passwd file.
-> [root@hawaii SELinux]#
+On Tue, Dec 02, 2003 at 10:48:40PM +1100, Russell Coker wrote:
+> While you're on a roll perhaps you could look into trying to get some of the 
+> other application patches accepted upstream.  At the moment I'm busy enough 
+> just keeping things working...
 
-If this is a new install, then either you have to
-add a line to pam.d/login for pam_selinux.so or
-else you have to get Colin Walters login package.
+Tell me which ones are most important.
 
-The pam.d solution seems to be the preferred one
-by other debian users here (although I'm currently
-using the other way).
+I have a tight deadline next monday for my next paper. After that I'll
+have a bit of time. Until then, I'm struggling for free minutes.
 
-It's a problem because debian standards don't
-seem to allow any way to handle this step other
-than by manual incantations.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
