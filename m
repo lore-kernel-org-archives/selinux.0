@@ -1,140 +1,186 @@
-Date: Tue, 22 Mar 2005 00:14:39 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Kaigai Kohei'" <kaigai@ak.jp.nec.com>,
-   "'KaiGai Kohei'" <kaigai@kaigai.gr.jp>,
-   "'SELinux Mail List'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
-Subject: Re: [RFC & PATCH] inherited type definition.
-Message-ID: <20050322001439.GB8444@lkcl.net>
-References: <20050321001725.GE14130@lkcl.net> <200503211339.j2LDdm8R000720@gotham.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2M1MuDo011221
+	for <selinux@tycho.nsa.gov>; Mon, 21 Mar 2005 20:22:56 -0500 (EST)
+Received: from static-70-19-113-34.ny325.east.verizon.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2M1Kdo2011543
+	for <selinux@tycho.nsa.gov>; Tue, 22 Mar 2005 01:20:39 GMT
+Subject: New policy for pyzor
+From: David Hampton <hampton-rh@rainbolthampton.net>
+To: selinux@tycho.nsa.gov
+Cc: fedora-selinux-list@redhat.com
+Content-Type: multipart/mixed; boundary="=-GEPh34QG21ZL4E2D+7kk"
+Date: Mon, 21 Mar 2005 20:23:14 -0500
+Message-Id: <1111454594.18940.54.camel@hampton-pc.rainbolthampton.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200503211339.j2LDdm8R000720@gotham.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 21, 2005 at 08:39:48AM -0500, Karl MacMillan wrote:
-> > -----Original Message-----
-> > From: Luke Kenneth Casson Leighton [mailto:lkcl@lkcl.net] 
-> > Sent: Sunday, March 20, 2005 7:17 PM
-> > To: Karl MacMillan
-> > Cc: 'Stephen Smalley'; 'Kaigai Kohei'; 'KaiGai Kohei'; 
-> > 'SELinux Mail List'; selinux-dev@tresys.com
-> > Subject: Re: [RFC & PATCH] inherited type definition.
-> > 
-> > On Sun, Mar 20, 2005 at 06:20:09PM -0500, Karl MacMillan wrote:
-> > 
-> > > > On Fri, Mar 18, 2005 at 05:28:57PM -0500, Karl MacMillan wrote:
-> > > > > Also, the more I think about it the more convinced I am 
-> > that the 
-> > > > > show-stopper limitation of the extends syntax is that it
-> > > > allows only one subset of access.
-> > > > 
-> > > >  there is nothing to stop you using an extends inside a macro:
-> > > > 
-> > > > 	 $1_t EXTENDS $1_ftp_t
-> > > > 
-> > > >  l.
-> > > > 
-> > > 
-> > > How does this address the problem - only one subset of access from 
-> > > $1_ftp_t can be marked with the @ syntax.
-> >  
-> >  not that my opinion particularly matters or is authoritative 
-> >  in any way, but i don't like the @ syntax - so i don't see 
-> > it  as a problem, because i would never implement the @ 
-> > syntax,  not in a million years.
-> > 
-> >  the @ syntax goes against the "mandatory" grain in "MAC".
-> > 
-> >  putting a wrapper (curly braces, brackets syntax, whatever 
-> > is  most appropriate) around those sections which _are_ 
-> > allowed  to be inherited is more along the MAC conceptual lines.
-> > 
-> >  you could then potentially have an additional qualifier in 
-> > your curly  braces wrapper which specifies _which_ children 
-> > may "extend" a class  (remembering also to allow $1s etc to 
-> > be substituted into that)
-> > 
-> >  e.g.
-> >  
-> >  some_macro (`
-> > 	 inheritable($1_ftp_t, parent_class2_t) {
-> > 
-> > 		allow ....;
-> > 
-> > 	 }
-> > 	 allow ...;
-> >  ')
-> >  
-> > 
-> >  then do this:
-> > 
-> > 	 some_macro(user)
-> > 	 user_ftp_t EXTENDS user_t;
-> >  
-> >  despite there being several things declared by the  
-> > some_macro(user), only SOME of those - those that are  
-> > EXPLICITLY ALLOWED TO BE INHERITED - permissions are 
-> > duplicated  into the child, user_ftp_t.
-> >
-> 
-> First, you missed the switch to the @ being required in order to inherit
-> permissions through extends - making that syntax, as far as I can tell, the same
-> as what you are suggesting. 
 
- i understood it to be the other way round - that the @ is required to
- _not_ allow a permission to be inherited through extends.
+--=-GEPh34QG21ZL4E2D+7kk
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+This is a new strict policy for the pyzor spam filter.  It is based on
+the selinux-policy-strict-sources-1.23.2-1 fedora RPM.  This policy
+requires the definition of a pyzor reserved port that was in the
+net_contexts diff I sent last Wednesday.  Please let me know if there
+are any problems with or changes needed to this policy.
+
+David
 
 
+--=-GEPh34QG21ZL4E2D+7kk
+Content-Disposition: attachment; filename=pyzor.fc
+Content-Type: text/plain; name=pyzor.fc; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> Next, my objection is that there is only one subset
-> of permissions - there is no way to have user_ftp_t inherit one set of
-> permissions from user_t and user_httpd_t inherit another set of permissions from
-> user_t. 
+/etc/pyzor(/.*)?			system_u:object_r:pyzor_etc_t
+/usr/bin/pyzor			--	system_u:object_r:pyzor_exec_t
+/usr/bin/pyzord			--	system_u:object_r:pyzord_exec_t
+/var/lib/pyzord(/.*)?			system_u:object_r:pyzor_var_lib_t
+/var/log/pyzord.log		--	system_u:object_r:pyzord_log_t
+HOME_DIR/\.pyzor(/.*)?			system_u:object_r:ROLE_pyzor_home_t
 
- note syntax in example [copied from above]:
+--=-GEPh34QG21ZL4E2D+7kk
+Content-Disposition: attachment; filename=pyzor_macros.te
+Content-Type: text/plain; name=pyzor_macros.te; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> >  some_macro (`
-> > 	 inheritable($1_ftp_t, parent_class2_t) {
-                     ^^^^^^^^  ^^^^^^^^^^^^^^^
-> > 
-> > 		allow ....;
-> > 
-> > 	 }
+#
+# Pyzor - Pyzor is a collaborative, networked system to detect and
+#         block spam using identifying digests of messages.
+#
+# Author:  David Hampton <hampton@employees.org>
+#
 
- so, to link this with your examples above, let's express this in
- "inheritable() { ... }" syntax:
+##########
+# common definitions for pyzord and all flavors of pyzor
+##########
+define(`pyzor_base_domain',`
 
-	some_macro (`
-		inheritable($1_ftp_t, $1_httpd_t) {
-			allow ....;
-		}
-		inheritable($1_ftp_t) {
-			allow ....;
-		}
-		inheritable($1_httpd_t) {
-			allow ....;
-		}
-		allow ....;
-	}
+# Networking
+can_network_client_tcp($1_t, http_port_t);
+can_network_udp($1_t, pyzor_port_t);
+can_resolve($1_t);
 
-	')
+general_proc_read_access($1_t)
 
- make sense?
+tmp_domain($1)
 
- i believe that this covers the objection that you raise:
- clarification from you that it does, greatly appreciated.
+allow $1_t bin_t:dir { getattr search };
+allow $1_t bin_t:file getattr;
+allow $1_t lib_t:file { getattr read };
+allow $1_t { var_t var_lib_t var_run_t }:dir search;
+uses_shlib($1_t)
 
- if you _really_ wanted to use the @ syntax (and @ means
- "inherit is okay" rather than "inherit isn't possible"), how
- about extending the @ syntax to also make it possible to do
- @{$1_ftp_t, $1_httpd_t} similar to above?
+# Python does a getattr on this file
+allow $1_t pyzor_exec_t:file getattr;
 
- l.
+# mktemp and other randoms
+allow $1_t { random_device_t urandom_device_t }:chr_file r_file_perms;
+
+# Allow access to various files in the /etc/directory including mtab
+# and nsswitch
+allow $1_t { etc_t etc_runtime_t }:file { getattr read };
+read_locale($1_t)
+')
 
 
+#
+# Define a user domain for a pyzor
+#
+# Note: expects to be called with an argument of user, sysadm
+
+define(`pyzor_domain',`
+type $1_pyzor_t, domain, privlog, nscd_client_domain;
+role $1_r types $1_pyzor_t;
+domain_auto_trans($1_t, pyzor_exec_t, $1_pyzor_t)
+
+pyzor_base_domain($1_pyzor)
+
+# Per-user config/data files
+home_domain($1, pyzor)
+
+# System config files
+r_dir_file($1_pyzor_t, pyzor_etc_t)
+
+# System data files
+r_dir_file($1_pyzor_t, pyzor_var_lib_t);
+
+allow $1_pyzor_t self:unix_stream_socket create_stream_socket_perms;
+
+# Allow pyzor to be run by hand.  Needed by any action other than
+# invocation from a spam filter.
+allow $1_pyzor_t $1_devpts_t:chr_file rw_file_perms;
+allow $1_pyzor_t sshd_t:fd use;
+')
+
+--=-GEPh34QG21ZL4E2D+7kk
+Content-Disposition: attachment; filename=pyzor.te
+Content-Type: text/plain; name=pyzor.te; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+#
+# Pyzor - Pyzor is a collaborative, networked system to detect and
+#         block spam using identifying digests of messages.
+#
+# Author:  David Hampton <hampton@employees.org>
+#
+
+# NOTE: This policy is based upon the FC3 pyzor rpm from ATrpms.
+# Pyzor normally dumps everything into $HOME/.pyzor.  By putting the
+# following line to the spamassassin config file:
+#
+#	pyzor_options --homedir /etc/pyzor
+#
+# the various files will be put into appropriate directories.
+# (I.E. The log file into /var/log, etc.)  This policy will work
+# either way.
+
+type pyzor_port_t, port_type, reserved_port_type;
+
+##########
+# pyzor daemon
+##########
+daemon_domain(pyzord, `, privlog, nscd_client_domain')
+pyzor_base_domain(pyzord)
+allow pyzord_t pyzor_port_t:udp_socket name_bind;
+home_domain_access(pyzord_t, sysadm, pyzor)
+log_domain(pyzord)
+
+# Read shared daemon/client config file
+r_dir_file(pyzord_t, pyzor_etc_t)
+
+# Write shared daemon/client data dir
+allow pyzord_t var_lib_t:dir search;
+create_dir_file(pyzord_t, pyzor_var_lib_t)
+
+##########
+# Pyzor query application - from system_r applictions
+##########
+type pyzor_t, domain, privlog, daemon;
+type pyzor_exec_t, file_type, sysadmfile, exec_type;
+role system_r types pyzor_t;
+
+pyzor_base_domain(pyzor)
+
+# System config/data files
+etcdir_domain(pyzor)
+var_lib_domain(pyzor)
+
+##########
+##########
+
+#
+# Some spam filters executes the pyzor code directly.  Allow them access here.
+#
+ifdef(`spamd.te',`
+domain_auto_trans(spamd_t, pyzor_exec_t, pyzor_t);
+# pyzor needs access to the email spamassassin is checking
+allow pyzor_t spamd_tmp_t:file r_file_perms;
+')
+
+--=-GEPh34QG21ZL4E2D+7kk--
 
 
 --
