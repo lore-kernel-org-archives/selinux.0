@@ -1,41 +1,65 @@
-Message-ID: <40FADE92.7060307@gentoo.org>
-Date: Sun, 18 Jul 2004 16:33:22 -0400
-From: Joshua Brindle <method@gentoo.org>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6INxtrT008934
+	for <selinux@tycho.nsa.gov>; Sun, 18 Jul 2004 19:59:56 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6INxRNF021954
+	for <selinux@tycho.nsa.gov>; Sun, 18 Jul 2004 23:59:29 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Subject: Re: file_contexts patch
+Date: Mon, 19 Jul 2004 09:59:48 +1000
+Cc: SELinux ML <selinux@tycho.nsa.gov>, krahmer@suse.de
+References: <20040716201531.GB4940@obadja.jmh.mhn.de> <200407181258.37018.russell@coker.com.au> <20040718150357.GA322@rom.cip.ifi.lmu.de>
+In-Reply-To: <20040718150357.GA322@rom.cip.ifi.lmu.de>
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: running interpreted scripts in different domains
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Message-Id: <200407190959.48713.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok, so I had this seemingly good idea to let apache run interpreted apps 
-(php, perl, whathaveyou) in different domains. To do this I started 
-playing with fastcgi to do the type transition from apache to the 
-interpreters domain (which works well) but that leaves all php scripts 
-in the same domain (php_t) which then can't be isolated from one 
-another. The idea is to have a php domain for each user (method_php_t) 
-and so on. The only way I could think to do this was to use fastcgi's 
-wrapper function to setexec() before calling the interpreter (it will do 
-this per user). So the idea is that there is a php script of a user 
-labeled with something like method_php_script_t and the fastcgi wrapper 
-would read that target context and paired with it's source context ask 
-selinux what the auto type trans would be so that it can explicitly do 
-it with setexec().
+On Mon, 19 Jul 2004 01:03, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+wrote:
+> > unix_chkpwd has been around for years, I can't believe that it's
+> > something that they haven't got to it yet.
+>
+> unix_chkpwd is included in the PAM package, it's just that suse has
+> developed their own pam module (pam_unix2.so) which doesn't use
+> unix_chkpwd AFAIK.
 
-The problem is that the userspace avc doesn't currently provide this 
-information, all you can get is an access decision or a labeling or 
-relabeling decision. It seems a little extreme to add a 
-security_compute_trans() to the userspace avc (and selinuxfs filesystem, 
-etc) just to make scripts a little more isolated and provide more fine 
-grained access but I can't think of another (good) way to do this. The 
-alternative would be to use default types but that isn't very scalable 
-for X number of interpreters times N number of users.
+Why can't you just use pam_unix.so instead?
 
-Can anyone else think of a way to accomplish this or shall I try adding 
-a calculate auto type trans to the userspace avc's?
+Also it shouldn't be that difficult to fix the SUSE code.
 
-Joshua Brindle
-Hardened Gentoo
+> > Are you running kcheckpass as root (maybe SETUID)?
+>
+> It's sgid shadow.
+
+That's entirely the wrong approach.  Any bug in kcheckpass on a SUSE system 
+will give full access to /etc/shadow.
+
+> > If so then SUSE would be
+> > using PAM without my patch to pam_unix.so which allows unix_chkpwd to be
+> > called if /etc/shadow can't be opened as root (without that patch it just
+> > aborts).  Also does SUSE have unix_verify (again part of my patch)
+> > installed? If not then the default policy will not work in all
+> > situations...
+>
+> Yeah, I had to give login, ssh, kdm, ... the auth attribute.
+> I do not know which part of the patch is missing, it's been a while
+> since I looked at the PAM code.
+> At the time I made the packages I simply gave up on PAM after a while
+> because it was too complicated and I didn't want to find out how suse's
+> module differed from the rest of the world...
+> I guess it's time I dig again into this mess, sigh.
+> I really wish there was someone actively maintaining this code.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
