@@ -1,31 +1,50 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TEBVrT019067
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 10:11:32 -0400 (EDT)
-Received: from smtp814.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TEB0bB021436
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 14:11:00 GMT
-Date: Thu, 29 Jul 2004 15:22:36 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-Subject: Re: temporary hack to use udev in selinux
-Message-ID: <20040729142236.GH8858@lkcl.net>
-References: <20040728232043.GF18711@lkcl.net> <410844F9.3010203@gentoo.org> <20040729013510.GC4335@lkcl.net> <20040729020431.GA10044@lkcl.net> <1091105268.21971.22.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TEEJrT019122
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 10:14:19 -0400 (EDT)
+Received: from mta03-svc.ntlworld.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TEDgbB021617
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 14:13:48 GMT
+Subject: Re: udev and .dev...
+From: Ian Campbell <ijc@hellion.org.uk>
+To: Joshua Brindle <method@gentoo.org>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4108EE75.6040109@gentoo.org>
+References: <20040729091423.GC6443@lkcl.net>  <4108EE75.6040109@gentoo.org>
+Content-Type: text/plain
+Message-Id: <1091110451.7878.87.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1091105268.21971.22.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 29 Jul 2004 15:14:11 +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jul 29, 2004 at 08:47:48AM -0400, Stephen Smalley wrote:
+On Thu, 2004-07-29 at 13:32, Joshua Brindle wrote:
+> Why not have a minimal /dev for init and friends and mount the ramfs for 
+> udev on top of it? it's much easier to deal with 1 /dev and this is 
+> pretty standard anyway.
 
-> On Wed, 2004-07-28 at 22:04, Luke Kenneth Casson Leighton wrote:
-> > okay, i've added in some stuff for tmpfs, just like chris did,
-> > joshua.
+I believe what happens is that the on disk dev does live at /dev and the
+udev initscript bind mounts it to /.dev before mounting the rams over
+the top so that you can still get at the on disk version.
 
- ... by the way is anyone at all worried that shmfs doesn't have
- an exit_tmpfs function?
+An excerpt from the Debian udev initscript:
+  # /.dev is used by /sbin/MAKEDEV to access the real /dev directory.
+  # if you don't like it just remove it.
+  [ -d /.dev ] && mount --bind /dev /.dev
+
+  echo -n "Mounting a tmpfs over /dev..."
+  mount -n -o size=$tmpfs_size,mode=0755 -t tmpfs none /dev
+  echo "done."
+
+Ian.
+
+
+-- 
+Ian Campbell
+Current Noise: Faith No More - Woodpecker From Mars
+
+I must get out of these wet clothes and into a dry Martini.
+		-- Alexander Woolcott
 
 
 --
