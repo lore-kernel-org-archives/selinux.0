@@ -1,81 +1,69 @@
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>,
-   guttman@mitre.org (Joshua D. Guttman),
-   "Stephen D. Smalley" <sds@epoch.ncsc.mil>,
-   aherzog@mitre.org (Amy L. Herzog), ramsdell@mitre.org (John D. Ramsdell),
-   gwilliam@mitre.org (Galen B. Williamson),
-   "Grant M. Wagner" <gmw@tycho.ncsc.mil>
 Subject: Re: Announce: SELinux conditional policy extensions
-Reply-To: guttman@mitre.org (Joshua D. Guttman disp: current)
+From: Colin Walters <walters@verbum.org>
+To: "Joshua D. Guttman" <guttman@mitre.org>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   SELinux List <SELinux@tycho.nsa.gov>,
+   "Stephen D. Smalley" <sds@epoch.ncsc.mil>,
+   "Amy L. Herzog" <aherzog@mitre.org>,
+   "John D. Ramsdell" <ramsdell@mitre.org>,
+   "Galen B. Williamson" <gwilliam@mitre.org>,
+   "Grant M. Wagner" <gmw@tycho.ncsc.mil>
+In-Reply-To: <nhawu6r93im.fsf@malabar.mitre.org>
 References: <1072133247.3032.22.camel@colossus.columbia.tresys.com>
-From: guttman@mitre.org (Joshua D. Guttman)
-Date: 12 Feb 2004 20:22:57 -0500
-In-Reply-To: <1072133247.3032.22.camel@colossus.columbia.tresys.com>
-Message-ID: <nhawu6r93im.fsf@malabar.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <nhawu6r93im.fsf@malabar.mitre.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OZgfEyencGNE0ahJrWpG"
+Message-Id: <1076649558.17927.14.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Date: Fri, 13 Feb 2004 00:19:19 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl --
 
-I've just gotten round to reading through README-COND describing the
-conditional policy mechanism.
+--=-OZgfEyencGNE0ahJrWpG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The idea of dynamic changes to the policy makes me nervous.  It seems
-to make the job of understanding the meaning and consequences of  a
-policy -- already hard -- even more daunting.  And I don't really see
-important security goals that cannot be achieved the old way.  
+On Thu, 2004-02-12 at 20:22, Joshua D. Guttman wrote:
 
-Doesn't it seem to create a "policy reachability" problem similar to
-the old (undecidable) Harrison-Rizzo-Ullman problem?  Do you know
-whether it's decidable in general whether there's a sequence of steps
-by a particular set of users (let's say) that leads to a particular
-user being able to access a particular file?  
+> The idea of dynamic changes to the policy makes me nervous.  It seems
+> to make the job of understanding the meaning and consequences of  a
+> policy -- already hard -- even more daunting.  And I don't really see
+> important security goals that cannot be achieved the old way. =20
 
-Giving conditional access to a few specific services could
-alternatively be arranged by having some (trusted, non-kernel) gateway
-demons that either respond to requests when desired or don't, when the
-flag is set the other way.
+I am interested in doing some policy analysis work too, and I share your
+sentiment here.
 
-Is there a clearly defined minimum policy and maximum policy for every
-conditional policy?  Is there a clearly defined set (e.g. a lattice)
-of policies corresponding to the different possible dynamic
-configurations?  Is this lattice constructible in some straightforward
-way?  
+> Giving conditional access to a few specific services could
+> alternatively be arranged by having some (trusted, non-kernel) gateway
+> demons that either respond to requests when desired or don't, when the
+> flag is set the other way.
 
-And why should we incorporate a mechanism like this, if we haven't yet
-understood the answers to a bunch of questions like these?  
+A different approach that comes to mind is binary policy "patches".  So
+say you have a base policy which includes the unmodified ping.te.  But
+as described in README-COND, you also want to sometimes allow users to
+execute ping.  So you create a separate file ping-user.te, which
+contains the necessary added permissions.  This would be compiled
+specially by checkpolicy to a binary policy "patch" relative to the base
+policy, which could be loaded and also unloaded at runtime by the
+kernel.
 
-May I ask you please to try to explain more precisely and in more
-detail than README-COND does, how this mechanism works and why it's
-really a good idea?  
-
-Thanks --
-
-        Joshua         
-
-Karl MacMillan <kmacmillan@tresys.com> writes:
-
->   A new release of the conditional policy extensions to SELinux is
->   available from our website:
->   
->   http://www.tresys.com/selinux/index.html
->   
->   The conditional policy extensions to SELinux allow runtime modification
->   of the security policy without having to load a new policy. Using
->   boolean variables and expressions, it is possible to define sections of
->   policy that are conditionally applied. Please see the website for more
->   information.
+Implementing unloading would require implementing negation, but that
+seems useful enough on its own too that it would be worthwhile.
 
 
--- 
-	Joshua D. Guttman		<guttman@mitre.org>
-	MITRE, Mail Stop S119		Office:	+1 781 271 2654
-	202 Burlington Rd.		Fax:	+1 781 271 8953
-	Bedford, MA 01730-1420 USA	Cell:	+1 781 526 5713
+--=-OZgfEyencGNE0ahJrWpG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQBALF5WOIkJWWp2WGURAksMAJ97zx0uiLf3mZL4F+eO/ecFl2WZAQCfUGGc
+4vgIxR2njZNL0aNFYfeIjO4=
+=ofum
+-----END PGP SIGNATURE-----
+
+--=-OZgfEyencGNE0ahJrWpG--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
