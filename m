@@ -1,70 +1,39 @@
-Date: Wed, 15 Aug 2001 08:35:16 -0400 (EDT)
+Date: Wed, 15 Aug 2001 08:55:40 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: Eric Peters <eric@peters.org>
+To: Ryan Senior <slax@ksni.net>
 cc: SELinux@tycho.nsa.gov
-Subject: Re: SE Linux II?
-In-Reply-To: <001c01c12527$610738a0$020144c0@windows>
-Message-ID: <Pine.SOL.3.95.1010815080617.24997B-100000@clipper.gw.tislabs.com>
+Subject: Re: patch
+In-Reply-To: <3B794470.56B00DCE@ksni.net>
+Message-ID: <Pine.SOL.3.95.1010815084756.24997D-200000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-758783491-997880140=:24997"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Tue, 14 Aug 2001, Eric Peters wrote:
+---559023410-758783491-997880140=:24997
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> Is there an anonymous CVS server available for download?
 
-Umm, no.  If we could put it out via anonymous CVS, then
-why wouldn't we be able to put it out on the web site?  Same
-obstacle.  But I wouldn't worry - it should be available soon.
+On Tue, 14 Aug 2001, Ryan Senior wrote:
 
-> This question is a little out of blue I suppose, but i'm looking to
-> hopefully setup a system of directory permission access so I can have:
-> 
-> /home/user1
-> /home/user1/subuser1
-> /home/user1/subuser1/subuser1subuser1
-> /home/user1/subuser1/subuser1subuser2
-> /home/user1/subuser2
-> 
-> Type of heirachy where the user1 can access everything under his
-> /home/user1, subuser1 can access everything under his subuser1 home
-> directoyr, and subuser2 acccess to his directory and etc.
-> 
-> Would something like this be implemented out of the box with SELinux, or
-> could I potentially modify SELinux with relative ease to accomplish this
-> type of access.  basically I want the "controlling" account "user1" to be
-> able and access any "subuser1", "subuser2" files, where "subuser1" also has
-> access to his child accounts "subuser1subuser1", and "subuser1subuser2"
-> (user1 could also access these/his "children's"-"child" accounts)
+> patching file initpolicy.conf
 
-You could certainly modify or replace the example SELinux security server
-to implement such a policy model.  That is relatively straightforward, and
-does not require any changes to the rest of the kernel to support new
-policy models.  The policy models that we chose to provide in the example
-security server are Type Enforcement and Role-Based Access Control (and,
-optionally, Multi-Level Security).  These policy models group users and
-processes into equivalence classes known as roles and domains, and define
-permissions based on these equivalence classes.  That tends to be much
-easier to manage than a policy based on individual users, although you can
-certainly define a unique role/domain for a particular user if you want.
+The patch is for the kernel-2.4/security/policy_parse.y file, so
+it shouldn't be modifying initpolicy.conf at all.  I've attached
+a version of the patch that should be easier to apply.  Assuming that you
+save it to ~/parser.patch, apply it as follows:
 
-With regard to the hierarchical relationship among users that you
-describe, the example policy models don't really provide implicit support
-for it, although you can explicitly represent such relationships through
-the assignment of permissions.  A more complete Role-Based Access Control
-implementation would directly support such relationships.  
+cd slinux
+patch -p1 < ~/parser.patch
 
-For more information, I would recommend reading our papers published in
-the Proceedings of the Freenix track of the 2001 Usenix Annual Technical
-Conference and in the Proceedings of the 2001 Ottawa Linux Symposium.
-Hopefully, they will also be up on the web site soon.  Until then,
-you can find the Usenix paper at the Usenix web site 
-(www.usenix.org/publications/library/proceedings/usenix01) if
-you are a member and the Ottawa paper at the LWN web site 
-(lwn.net/2001/features/OLS/pdf).  
+It should say: patching file kernel-2.4/security/policy_parse.y.
+
+Then do 'cd kernel-2.4; make' to rebuild the checkpolicy program.
+You should then be able to compile the policy configuration.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -72,6 +41,35 @@ ssmalley@nai.com
 
 
 
+
+---559023410-758783491-997880140=:24997
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="parser.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SOL.3.95.1010815085539.24997E@clipper.gw.tislabs.com>
+Content-Description: 
+
+SW5kZXg6IHNsaW51eC9rZXJuZWwtMi40L3NlY3VyaXR5L3BvbGljeV9wYXJz
+ZS55DQpkaWZmIC11IHNsaW51eC9rZXJuZWwtMi40L3NlY3VyaXR5L3BvbGlj
+eV9wYXJzZS55OjEuMSBzbGludXgva2VybmVsLTIuNC9zZWN1cml0eS9wb2xp
+Y3lfcGFyc2UueToxLjINCi0tLSBzbGludXgva2VybmVsLTIuNC9zZWN1cml0
+eS9wb2xpY3lfcGFyc2UueToxLjEJRnJpIEphbiAgNSAxNDoxODowMiAyMDAx
+DQorKysgc2xpbnV4L2tlcm5lbC0yLjQvc2VjdXJpdHkvcG9saWN5X3BhcnNl
+LnkJTW9uIE1heSAgNyAxNDowMToyMyAyMDAxDQpAQCAtMTc3NSw3ICsxNzc1
+LDYgQEANCiB7DQogCWNoYXIgKmlkOw0KIAljbGFzc19kYXR1bV90ICpjbGFk
+YXR1bTsNCi0JdHlwZV9kYXR1bV90ICpkYXR1bTsNCiAJcGVybV9kYXR1bV90
+ICpwZXJkYXR1bTsNCiAJZWJpdG1hcF90IHN0eXBlcywgdHR5cGVzLCB0Y2xh
+c3NlczsNCiAJYWNjZXNzX3ZlY3Rvcl90ICphdnA7DQpAQCAtMTgxNCw3ICsx
+ODEzLDcgQEANCiAJaGljbGFzcyA9IDA7DQogCXdoaWxlICgoaWQgPSBxdWV1
+ZV9yZW1vdmUoaWRfcXVldWUpKSkgew0KIAkJY2xhZGF0dW0gPSBoYXNodGFi
+X3NlYXJjaChwb2xpY3lkYnAtPnBfY2xhc3Nlcy50YWJsZSwgaWQpOw0KLQkJ
+aWYgKCFkYXR1bSkgew0KKwkJaWYgKCFjbGFkYXR1bSkgew0KIAkJCXNwcmlu
+dGYoZXJyb3Jtc2csICJ1bmtub3duIGNsYXNzICVzIHVzZWQgaW4gcnVsZSIs
+IGlkKTsNCiAJCQl5eWVycm9yKGVycm9ybXNnKTsNCiAJCQlnb3RvIGJhZDsN
+CkBAIC0yMDkxLDcgKzIwOTAsNiBAQA0KIAkJaWYgKHJldCkgew0KIAkJCXl5
+ZXJyb3IoImhhc2ggdGFibGUgb3ZlcmZsb3ciKTsNCiAJCQlmcmVlKHJvbGUp
+Ow0KLQkJCWZyZWUoaWQpOw0KIAkJCWZyZWUocm9sZV9pZCk7DQogCQkJcmV0
+dXJuIC0xOw0KIAkJfQ0K
+---559023410-758783491-997880140=:24997--
 
 --
 You have received this message because you are subscribed to the selinux list.
