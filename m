@@ -1,62 +1,76 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA03015
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 11:21:24 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA05861
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 18:42:13 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA21445
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 15:20:31 GMT
-Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
-	by jazzswing.ncsc.mil  with ESMTP id PAA21441
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 15:20:29 GMT
-Date: Wed, 25 Jul 2001 01:21:08 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id WAA14008
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 22:41:20 GMT
+Received: from smtp2.abac.com (smtp2.abac.com [216.55.128.11])
+	by jazzswing.ncsc.mil  with ESMTP id WAA14004
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 22:41:19 GMT
+Message-Id: <4.3.2.7.2.20010724155824.00ad4bb0@mail1.abac.com>
+Date: Tue, 24 Jul 2001 16:42:10 -0600
 To: Stephen Smalley <sds@tislabs.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] Apache configuration
-In-Reply-To: <Pine.SOL.3.95.1010723104715.3466L-100000@clipper.gw.tislabs.com>
-Message-ID: <Pine.LNX.4.31.0107250046470.26706-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Steve Eckmann <eckmann@computer.org>
+Subject: Re: running programs
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <Pine.SOL.3.95.1010723091125.3466E-100000@clipper.gw.tislab
+ s.com>
+References: <4.3.2.7.2.20010721085700.00ad08a0@mail1.abac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 23 Jul 2001, Stephen Smalley wrote:
 
+>> When I enable MAC with avc_toggle I can no longer run "ping"
+>> either as root or as a regular user. Can anyone explain how
+>> to fix this? There's no avc "denied" message, but there is
+>> a message about not being able to open a socket (don't have
+>> an se-linux system at hand and can't remember the exact msg).
 >
-> On Sun, 22 Jul 2001, James Morris wrote:
+>You need to put ping into a domain that has permissions to
+>rawip_socket.  There should be avc denied messages - check
+>dmesg and /var/log/messages to be sure.
+
+Yes, I hadn't looked for the avc denied message (I'm used to
+seeing them when I run at the console but did the "ping" test
+in an xterm), but it's there: create denied for rawip_socket.
+
+>> Also, the tara (aka tiger) security scanner won't run with MAC
+>> enabled. I'm guessing that I just have to change the SID on the
+>> tiger executable, but I'm not sure what it should be so sysadm
+>> users can run it but regular users cannot. Suggestions?
 >
-> > I've been working on a simple policy configuration for the Apache server,
-> > a patch for which is attached below.
->
-> A more complex policy configuration for apache has been developed
-> by some folks at MITRE, but your simple policy configuration may
-> be more appropriate if you only want to serve static content.  I've
-> adjusted the MITRE apache policy for our new LSM-based SELinux
-> prototype, and it will be included in releases of that prototype.
-> MITRE could probably provide a copy of the original apache policy
-> for the original SELinux prototype.
+>What avc denied messages are you seeing when you try to run
+>the security scanner?  Why do you want to prevent ordinary
+>users from executing it - can't they just download their own
+>copy and run it if they want to do so?  If you really want to
+>prevent them from running it, you can either define a new
+>type for that purpose or you can use sbin_t, remove
+>sbin_t from can_exec_any in macros.te, and add sbin_t
+>explicitly to the domains that require execute access
+>to sbin programs.  If you just want it to run unprivileged
+>when executed by ordinary users, then you don't have to
+>do anything - when it is run by ordinary users, it will
+>run in the unprivileged user_t domain by default, whereas
+>when it is run by administrators, it will run in the
+>sysadm_t domain by default.
 
-Hi Stephen,
+It's not that I need to prevent ordinary users from executing
+this particular program; I just thought that doing so would
+increase my understanding of selinux configuration. After I turn
+on security I can't execute tiger (a shell script) as root or as
+an ordinary user. I think the interesting parts of the avc denied
+message are:
 
-Thanks for looking at this, it was my first attempt at configuring Flask
-policy, so I'm quite relieved that you didn't seem to find any serious
-issues!
+  { execute }
+  exe=/bin/bash
+  path=/usr/local/src/tara-2.0.0/tiger
+  tclass=file
 
-I initially considered a more detailed configuration including the ability
-to execute scripts, although it quickly became apparent that this could
-indeed become complex for a useful non-static implementation (e.g. one
-that would be able to run mod_perl, php scripts or java servlets, and
-other types of complex apache modules).
+Thanks.
 
-I'm now looking at thttpd as a possibly better choice of server for static
-files -- perhaps it may be useful to offer both a more fully featured
-Apache and a simpler thttpd.
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+Steve
 
 
 --
