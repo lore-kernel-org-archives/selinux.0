@@ -1,46 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA16487
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jan 2003 14:15:46 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0GJFjI12204
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jan 2003 19:15:45 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h0GJFjf12200 for <selinux@tycho.nsa.gov>; Thu, 16 Jan 2003 19:15:45 GMT
-Message-Id: <200301161923.OAA18426@moss-shockers.ncsc.mil>
-Date: Thu, 16 Jan 2003 14:23:06 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: RH 7.3 compile problem
-To: selinux@tycho.nsa.gov, j.logsdon@lancaster.ac.uk
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA18176
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jan 2003 17:16:39 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id WAA12995
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jan 2003 22:13:36 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id WAA12990
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jan 2003 22:13:34 GMT
+Date: Fri, 17 Jan 2003 09:16:05 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Tom <tom@lemuria.org>, Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: version mismatch in Debian packages
+Message-ID: <20030116221605.GA13472@snoopy.apana.org.au>
+References: <20030116160010.A2883@lemuria.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20030116160010.A2883@lemuria.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, Jan 16, 2003 at 04:00:10PM +0100, Tom wrote:
+> I'm doing a clean install today and noticed a version mismatch in the
+> Debian packages at Brian's site.
+> 
+> The tools seem to be compiled to version 12, but the lsm patch for
+> kernel 2.4.18 is version 11. The patches for 2.4.19 and 2.4.20 are
+> version 12, it's only the 2.4.18 that is affected.
 
-> gcc -D__KERNEL__ -I/usr/local/rpm-tgzs/selinux/lsm-2.4/include -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
-> -nostdinc -iwithprefix include -DKBUILD_BASENAME=tty_io  -DEXPORT_SYMTAB
-> -c tty_io.c
-> tty_io.c: In function `release_mem':
-> tty_io.c:1040: Internal error: Segmentation fault.
-> Please submit a full bug report.
-> See <URL:http://bugzilla.redhat.com/bugzilla/> for instructions.
+I think 2.4.18 is no longer supported anymore. The patch should probably
+get deleted from the package. Russell?
 
-> I  haven't reported it to bugzilla since it is not the latest RH anyway
-> but has anyone a clue as to why the compilation should cough pm tty_io?  I
-> can furnish other information if needed.
+> This is ugly because woody doesn't contain source packages for 19 or
+> 20, only for 2.4.18
 
-A simple search for 'gcc segmentation' in the RH bugzilla turns up a number
-of similar reports.  I don't think that this is specific to building the
-SELinux-patched kernel; you can likely reproduce it when building a vanilla
-Linux kernel or other package.
+You could use the prepatched kernels (source and image) already
+on my website...
 
+Both 2.4.19 and 2.4.20 are available, although I haven't yet been able
+to test 2.4.20 properly, one of my computers is very unstable with
+2.4.20, and I am not yet certain why. It could be hardware related, but
+it sure is weird that is only crashes with 2.4.20, and never crashed
+yet with 2.4.19.
 --
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
