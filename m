@@ -1,39 +1,49 @@
-Date: Fri, 25 Jan 2002 09:56:13 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
+Date: Fri, 25 Jan 2002 07:03:05 -0800
+From: Paul Krumviede <pwk@acm.org>
+To: Timothy Wood <timothy@hallcomp.com>, Stephen Smalley <sds@tislabs.com>
 cc: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: network and module problems
+Message-ID: <78301711.1011942185@localhost>
 In-Reply-To: <1011969383.1945.1.camel@phobos>
-Message-ID: <Pine.GSO.4.33.0201250950190.7127-100000@raven>
+References: <1011969383.1945.1.camel@phobos>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--On Friday, 25 January, 2002 09:36 -0500 Timothy Wood 
+<timothy@hallcomp.com> wrote:
 
-On 25 Jan 2002, Timothy Wood wrote:
-
-> > Did you enable Netlink support when you configured the kernel?
-> > What release of SELinux are you using?
+> On Thu, 2002-01-24 at 13:58, Stephen Smalley wrote:
+>>
+>> > module and by building it straight into the kernel.  Which brings me to
+>> > the module problem.  Dmesg shows that it finds the nic but I never see
+>> > the module as being loaded when I run lsmod and when I try to insmod it
+>> > I get an error saying that it can't locate the card on the console and
+>> > avc errors in the system log.
+>>
+>> If you build the module into the kernel, it won't show up in lsmod.
+>> What AVC errors are being logged?  Did you run insmod after logging
+>> into the sysadm_r role?  Also, is your kernel in permissive mode or
+>> enforcing mode?
 >
-> Yes. 2001121010 (according to the tarball)
+> I realise that.  I merely brought it up in regards to the time when the
+> network was built as a module.
+>
+> kernel: avc: denied { read } for pid=268 exe=/sbin/insmod
+> path=/etc/modules.conf.vm dev=08:01 ino=213709
+> scontext=system-U:system_r:kmod_t
+> tcontext=system_u:object_r:etc_runtime_t tclass=lnk_file
 
-Make sure that you enabled both Netlink and its associated Routing
-messages options.  These options are needed by the RH7.2 utilities, but
-were not needed on RH7.1.
+are you running this inside a VMware virtual machine? i had to create
+a policy file for that environment (which is yet to be tested with the
+latest release; i'll send it to the list once that happens). the VMware
+dualconf script instantiates /etc/modules.conf (and some other
+files for X11) as a symlink to the appropriate "real" file depending
+on whether one boots the guest OS as a virtual machine or on the
+real hardware.
 
-Also, be aware that you are using an older release - the current release
-is 2002011718.  I would recommend upgrading to the current release.
-
-> The system boots into permissive mode and I usually leave it there.
-
-Ok, so this means that SELinux isn't preventing anything from happening.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-paul
 
 
 --
