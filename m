@@ -1,37 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i790mvrT022044
-	for <selinux@tycho.nsa.gov>; Sun, 8 Aug 2004 20:48:57 -0400 (EDT)
-Received: from smtp-09.primus.ca (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i790mMDs003925
-	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 00:48:22 GMT
-Received: from dsl-207-112-20-65.tor.primus.ca ([207.112.20.65] helo=fugusec.net)
-	by smtp-09.primus.ca with esmtp (Exim 3.36 #1)
-	id 1BtyVq-0003Lp-0A
-	for selinux@tycho.nsa.gov; Mon, 09 Aug 2004 00:59:42 +0000
-Message-ID: <4116C9FA.3030203@fugusec.net>
-Date: Sun, 08 Aug 2004 20:48:58 -0400
-From: Alexis Wagner <venon@fugusec.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7989grT023180
+	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 04:09:42 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7989dIn016019
+	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 08:09:40 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Alexis Wagner <venon@fugusec.net>
+Subject: Re: net_contexts
+Date: Mon, 9 Aug 2004 18:09:34 +1000
+Cc: selinux@tycho.nsa.gov
+References: <4116C9FA.3030203@fugusec.net>
+In-Reply-To: <4116C9FA.3030203@fugusec.net>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: net_contexts
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408091809.34772.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Mon, 9 Aug 2004 10:48, Alexis Wagner <venon@fugusec.net> wrote:
+>  From what I have understood, every configuration files are concatenated
+> when we compiled the policy.
 
- From what I have understood, every configuration files are concatenated 
-when we compiled the policy.
+Yes.
 
-So, if for some reasons, i want to define net_contexts related elements 
-in another file, will it be ok ?
+> So, if for some reasons, i want to define net_contexts related elements
+> in another file, will it be ok ?
 
-Thank you,
+No.  Some parts of the file are order sensitive, net_contexts is one of them.
 
-Alexis Wagner
-
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
