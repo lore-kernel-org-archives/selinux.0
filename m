@@ -1,47 +1,60 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4KI4PI4011295
-	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 14:04:26 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4KI4PtV007135
-	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 18:04:25 GMT
-Received: from datas-world.dyndns.org (dsl-213-023-224-072.arcor-ip.net [213.23.224.72])
-        by jazzband.ncsc.mil  with ESMTP id h4KI4Mal007130 for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 18:04:23 GMT
-From: Torsten Knodt <tk-selinux@datas-world.de>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4KJZSI4012000
+	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 15:35:28 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4KJZ5Qj028900
+	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 19:35:05 GMT
+Received: from a.mx.rapturesecurity.com ([66.113.84.53])
+	by jazzswing.ncsc.mil  with ESMTP id h4KJZ4xS028880
+	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 19:35:04 GMT
+Subject: Re: matrix
+From: Jack <jack@rapturesecurity.com>
+Reply-To: jack@rapturesecurity.com
 To: selinux@tycho.nsa.gov
-Subject: Re: xdm (not kdm) policy ?
-Date: Tue, 20 May 2003 20:04:13 +0200
-References: <20030520145143.C400@lemuria.org> <200305210015.37136.russell@coker.com.au>
-In-Reply-To: <200305210015.37136.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <200305202004.16004.tk-selinux@datas-world.de>
+In-Reply-To: <200305210013.14976.russell@coker.com.au>
+References: <C540EABA36FDD41189FD00508BAF8E850149266A@atsgroup.saic.com>
+	 <200305201437.24228.russell@coker.com.au>
+	 <200305201505.25398.tk-selinux@datas-world.de>
+	 <200305210013.14976.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1053459308.21482.23.camel@bubbles.eatflamingdeath.org>
+Mime-Version: 1.0
+Date: 20 May 2003 12:35:09 -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2003-05-20 at 07:13, Russell Coker wrote:
 
-> I've attached the latest patch I was playing with for kdm 3.1.x.  I never
-> tested this one because I never could get kdm to compile.
-Perhaps this gets solved soon. KDE 3.1.2 is out. For updating, the maintainer 
-has to compile it.
+...
+> >
+> > I think this can be reduced. Stack smash protection and pax are already
+> > there, they only have to be used by the distributions. Then there is
+> 
+> Has anyone got PaX working with LSM?
+> 
+> Propolice would be good to have.
 
-Regards
-	Torsten
+I have an selinux server up with ProPolice daemons and PaX. There is
+only 1 reject if you patch last time I checked, but then again I haven't
+looked to see how safe the code is (with both aplied).
 
-- -- 
-Domain in provider transition, hope for smoothness. Planed date is 24.7.2003
-pub 1024D/4CD29A2C 2001-01-12 Torsten Knodt <torstenknodt@datas-world.de>
- Schl.-Fingerabdruck = A2B1 C626 F819 7C58 B2F9 4F4C BF16 64B6 4CD2 9A2C
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+...
+> Good point about inetd.  If sshd is started by inetd and denied ptrace access 
+> to itself then a cracked sshd can't interfere with another ssh session.  I 
+> will have to look into changing my servers to do this.  Of course this raises 
+> another problem, the unreliability of inetd's.  But if inetd is cracked it 
+> doesn't allow much of an attack on the ssh protocol as long as the clients 
+> already have a copy of the server public key.
 
-iD8DBQE+ym4fvxZktkzSmiwRArLOAJ4kEjCdLelqTLTsd5VPE54m0PNIVACgg6LO
-4ANTRAq5zNxs8xuSC+9zFmQ=
-=5nyk
------END PGP SIGNATURE-----
+I was accually using something similar, but with djb tcpserver and the
+daemonutils package, but my idea was just to allow ssh connections
+though ipsec? with roaming users, and firewall eth?, that seems to
+control exposure very well with crls and X.509 FreeS/WAN patches.
+IPSEC also seems to fix almost all tcp/ip problems as well ;)
 
+-- 
+Jack <jack@rapturesecurity.com>
+RaptureSecurity
 
 
 --
