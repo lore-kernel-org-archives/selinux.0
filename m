@@ -1,43 +1,41 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LDGGrT000887
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 09:16:16 -0400 (EDT)
-Received: from mail.idtweb.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5LDG4Ng013583
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 13:16:04 GMT
-Reply-To: <mayerf@tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
-   "'Joshua D. Guttman disp: slinux'" <guttman@mitre.org>
-Cc: "'John D. Ramsdell'" <ramsdell@mitre.org>,
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LDhjrT001235
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 09:43:45 -0400 (EDT)
+To: <mayerf@tresys.com>
+Cc: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+   "'John D. Ramsdell'" <ramsdell@mitre.org>,
    "'Karl MacMillan'" <kmacmillan@tresys.com>, <selinux@tycho.nsa.gov>,
-   "'Amy L Herzog'" <aherzog@mitre.org>
-Subject: RE: Fedora Core 2 setools RPM
-Date: Mon, 21 Jun 2004 09:16:13 -0400
-Message-ID: <004101c45791$ed8d2060$4d0c010a@columbia.tresys.com>
+   "'Amy L Herzog'" <aherzog@mitre.org>, guttman@mitre.org (Joshua D. Guttman)
+Subject: Re: Fedora Core 2 setools RPM
+Reply-To: guttman@mitre.org (Joshua D. Guttman disp: current)
+References: <004001c45791$d03b5400$4d0c010a@columbia.tresys.com>
+From: guttman@mitre.org (Joshua D. Guttman)
+Date: 21 Jun 2004 09:43:33 -0400
+In-Reply-To: <004001c45791$d03b5400$4d0c010a@columbia.tresys.com>
+Message-ID: <nhafz8pjabe.fsf@malabar.mitre.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1087589345.27697.195.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> A different point is that the main value added of slat is much more
->> expressive security goals (even when restricted to the types info).
->> You're not just talking about accessibility of a type to information
->> flow from another, but also whether all the possible flows go through
->> a desired gate type.  And the key fact you mentioned at the end of
->> your last message
-> 
-> I may be wrong, but I think that you can determine this information
-> via libapol as well.
+"Frank Mayer" <mayerf@tresys.com> writes:
 
-Yes a transitive information flow analysis is what makes this difficult, both to
-do and for a human to understand.  Libapol has supported a form of transitive
-information flow analysis from the beginning of its information flow support.
-It has evolved somewhat, and now has significant filtering capabilities as
-discussed in the tool help.
+>   Filters on that analysis make the analysis practical, and the most
+>   important filters we have learned are interim types (i.e.,
+>   "trusted" types), object classes, and permissions and permissions
+>   weights.
 
-Frank
+Could I ask you please to explain what you mean by these terms?
+
+Thanks --
+
+        Joshua 
+
+-- 
+	Joshua D. Guttman		<guttman@mitre.org>
+	MITRE, Mail Stop S119		Office:	+1 781 271 2654
+	202 Burlington Rd.		Fax:	+1 781 271 8953
+	Bedford, MA 01730-1420 USA	Cell:	+1 781 526 5713
 
 
 
