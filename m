@@ -1,42 +1,40 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j03KkFIi019842
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 15:46:15 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j03KiMFS022898
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 20:44:22 GMT
-Date: Mon, 3 Jan 2005 20:56:23 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j03L21Ii020020
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 16:02:01 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j03L0AFS023886
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 21:00:10 GMT
+Subject: Re: howl and modutil
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: modules needed to be compiled in for selinux to work
-Message-ID: <20050103205623.GE6631@lkcl.net>
-References: <20050102104530.GG6142@lkcl.net> <1104760954.16598.53.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <200412250432.55521.russell@coker.com.au>
+References: <200412250432.55521.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1104786252.14157.6.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1104760954.16598.53.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 03 Jan 2005 16:04:12 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jan 03, 2005 at 09:02:34AM -0500, Stephen Smalley wrote:
-> On Sun, 2005-01-02 at 05:45, Luke Kenneth Casson Leighton wrote:
-> > hi,
-> > 
-> > debian's 2.6.9 kernel has selinux - and capabilities - as modules.
+Merged both.
+
+On Fri, 2004-12-24 at 12:32, Russell Coker wrote:
+> Attached are patches for howl and modutil.
 > 
-> SELinux cannot be built as a module.  
-
- mwwh?  i hadn't noticed.  four months and i hadn't noticed.  duh.
-
-> > in other words, is CONFIG_CAPABILITY=m stopping selinux from
-> > working in debian's 2.6.9 kernel?
+> The howl patch allows the latest version of howl in rawhide to work correctly.
 > 
-> No, it shouldn't be an issue.
- 
- ah, then it's a non-selinux issue because udev (0.040 >)doesn't
- work properly without capability loaded.
-
- l.
-
+> The modutil patch allows insmod_t to do everything it wants to do on my system 
+> including access to memory_device_t.  insmod_t has ultimate access anyway so 
+> this doesn't seem to be a problem.
+> 
+> One thing I have been idly considering regarding modprobe is to re-write it to 
+> not use system(3) so it doesn't need access to shell_exec_t and thus can have 
+> assert_execute().
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
