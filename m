@@ -1,47 +1,62 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA22467
-	for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 13:30:48 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA19202
-	for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 18:28:05 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id SAA19197
-	for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 18:28:05 GMT
-Message-Id: <200301081838.NAA13755@moss-shockers.ncsc.mil>
-Date: Wed, 8 Jan 2003 13:38:01 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: RE: Policy Language
-To: sguttman@mitre.org, selinux@tycho.nsa.gov, Mark.Westerman@csoconline.com
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA22947
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 14:11:18 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h08JBHI06503
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 19:11:17 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id h08JBFf06499 for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 19:11:16 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id EDD4E92666
+	for <selinux@tycho.nsa.gov>; Thu,  9 Jan 2003 06:11:00 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 913A33FFE
+	for <selinux@tycho.nsa.gov>; Wed,  8 Jan 2003 20:10:53 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: <selinux@tycho.nsa.gov>
+Subject: Re: Policy Language
+Date: Wed, 8 Jan 2003 20:10:53 +0100
+References: <000a01c2b740$0f11f420$6600a8c0@columbia.tresys.com>
+In-Reply-To: <000a01c2b740$0f11f420$6600a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200301082010.53087.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 8 Jan 2003 19:02, Frank Mayer wrote:
+> I would ask that we only change the policy syntax reluctantly and as
+> limited as possible, and only for strong need.  Every time the language
+> changes, it can be a lot or little work for us to sync up our parser for
+> setools.  Since we have a requirement to maintain backwards
+> compatibility with older policy syntax, each change can be a lot of
+> work.
 
-> I am asking to remove context sensitive meaning from tokens in the language.
-> 
-> Taken from "info bison".
-> 
-> "The Bison paradigm is to parse tokens first, then group them into
-> larger syntactic units.  In many languages, the meaning of a token is
-> affected by its context.  Although this violates the Bison paradigm,
-> certain techniques (known as "kludges") may enable you to write Bison
-> parsers for such languages."
+While we're on the topic, I think it would be good if the following files 
+change as little as possible, and wherever possible the only changes should 
+be in adding new entries.
+access_vectors
+initial_sids
+security_classes
+initial_sid_contexts
 
-The meaning of the tokens is not context sensitive.  The fact that the keyword 
-'class' can occur in two different statements does not present a problem in 
-scanning and parsing the configuration.  The policy language grammar does not 
-rely on any of the "kludges" described in the referenced section of the bison 
-manual.  Token parsing does not depend on semantic or syntactic context.
+Whenever we have a major change to the kernel code it seems to result in a 
+situation where the policy and the checkpolicy program need to be updated at 
+the same time.  Installing the checkpolicy program first has no drastic 
+consequences, but installing the new policy first can screw up an existing 
+kernel.
 
-You can use the provided grammar (or a subset of it) as a basis for developing 
-your own policy tools, as has already been done by others such as Tresys and 
-MITRE.  
+This is something I still haven't adequately addressed in my Debian packages, 
+and is probably something that will cause problems for other people who are 
+preparing SE Linux packages.
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
