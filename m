@@ -1,49 +1,48 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFI3MIi025083
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 13:03:22 -0500 (EST)
-Received: from rproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFI1uvq008243
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 18:01:56 GMT
-Received: by rproxy.gmail.com with SMTP id i8so723514rne
-        for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 10:03:25 -0800 (PST)
-Message-ID: <46ce702f041115100310968902@mail.gmail.com>
-Date: Mon, 15 Nov 2004 12:03:25 -0600
-From: Serge Hallyn <serge.hallyn@gmail.com>
-Reply-To: Serge Hallyn <serge.hallyn@gmail.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: learning about policies/transitions
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1100539708.31773.178.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-References: <46ce702f041103084530fe8539@mail.gmail.com>
-	 <1099510181.1213.198.camel@moss-spartans.epoch.ncsc.mil>
-	 <46ce702f041104082042e4c02a@mail.gmail.com>
-	 <1099588265.3174.158.camel@moss-spartans.epoch.ncsc.mil>
-	 <46ce702f041104182352cbcd1@mail.gmail.com>
-	 <1099657575.6373.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <46ce702f041115081242f9f8e7@mail.gmail.com>
-	 <1100536712.31773.134.camel@moss-spartans.epoch.ncsc.mil>
-	 <46ce702f0411150907a569ef0@mail.gmail.com>
-	 <1100539708.31773.178.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG7h8Ii028643
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 02:43:08 -0500 (EST)
+Received: from glaurung.internal.golden-gryphon.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG7feAa010433
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 07:41:41 GMT
+Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
+	by glaurung.internal.golden-gryphon.com (8.13.1/8.13.1/Debian-17) with ESMTP id iAG7eu5m016350
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 01:41:11 -0600
+To: selinux@tycho.nsa.gov
+Subject: libselinux fails to build on mips and mipsel machines, patch included
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+Date: Tue, 16 Nov 2004 01:40:41 -0600
+Message-ID: <87k6smjl6u.fsf@glaurung.internal.golden-gryphon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 15 Nov 2004 12:28:28 -0500, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+Hi,
 
-> Not sure if I understand your meaning (FC2 throwaway partition?), but
+        The asm syntax on mips and mipsel machines is similar to that
+ of the alphas, so the following patch is required to have libselinux
+ build on mips machines.
 
-Just that it's purely a test partition, which is why I haven't yet
-upgraded it.  But of course that also means there's no reason not to
-upgrade it.
+======================================================================
+--- orig/src/dso.h
++++ mod/src/dso.h
+@@ -7,7 +7,7 @@
+ # define __hidden_proto(fct, internal)	\
+      extern __typeof (fct) internal;	\
+      extern __typeof (fct) fct __asm (#internal) hidden;
+-# ifdef __alpha__
++# if defined(__alpha__) || defined(__mips__)
+ #  define hidden_def(fct) \
+      asm (".globl " #fct "\n" #fct " = " #fct "_internal");
+ # else
+======================================================================
 
-> In any event, migrating to FC3 is a good idea for continued use of
-> SELinux, as the FC2 SELinux support was never well maintained.
-
-I'll try FC3.
-
-thanks,
--serge
+	manoj
+-- 
+Do, or do not; there is no try.
+Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
