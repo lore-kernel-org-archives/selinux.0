@@ -1,514 +1,568 @@
-Date: Mon, 25 Oct 2004 23:31:23 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Adding alternate root patch to restorecon (setfiles?)
-Message-Id: <20041025213122.GA2535@jmh.mhn.de>
-References: <41741A2C.8040408@redhat.com> <20041018205136.GA2536@jmh.mhn.de> <200410260138.19426.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
-In-Reply-To: <200410260138.19426.russell@coker.com.au>
+Message-ID: <417D72B8.5040008@redhat.com>
+Date: Mon, 25 Oct 2004 17:40:08 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: latest diffs.
+Content-Type: multipart/mixed;
+ boundary="------------080807000800060907040909"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------080807000800060907040909
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---JYK4vJDZwFMowpUq
-Content-Type: multipart/mixed; boundary="T4sUOijqQbZv57TR"
-Content-Disposition: inline
+Removed more tunables
+use_games not needed, if you do not want games, don't include games.te
+Added boolean disable_games to disable games transition.
 
+Change nfs_home_dirs to a boolean.
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Change user_net_control to a boolean.
 
-* Russell Coker <russell@coker.com.au> [2004-10-25 19:09]:
-> On Tue, 19 Oct 2004 06:51, Thomas Bleher <bleher@informatik.uni-muenchen.=
-de>=20
-> wrote:
-> > One thing to note here is that restorecon becomes more dangerous with
-> > your changes. Right now restorecon is relatively safe in that you can
-> > only change file labels to their system default. It would probably be
-> > acceptable in most environments to give users access to restorecon so
-> > they could properly set labels for files in their home dir.
-> >
-> > With your changes and this scenario, users could do something like
-> >         restorecon -p /home/foo /home/foo/sbin/unix_chkpwd
->=20
-> If the user is to run restorecon then they must run it in their own domai=
-n. =20
-> There is no harm in allowing a user to run restorecon as user_t.  They ca=
-n=20
-> only relabel files that have their own identity and a certain set of type=
-s.
->=20
-> Maybe we should even have a script to run restorecon -R on the user's hom=
-e=20
-> directory that they can run at any time if SE Linux stops them doing what=
-=20
-> they want?
+Turn off nscd_all_connect (Hopefully eliminate).
 
-OK, what do you guys think about the following patch:
-It adds an attribute $1_domain_file_type, so all file types from derived
-user domains can be grouped together. It also adds a restorecon_domain()
-macro, so users can call restorecon to reset the labels on their files.
+Cleanup nscd.
 
-It is very lightly tested and probably missing a few permissions but
-should give a good overview of the general idea.
+Dan
 
-Is such a thing safe?
+--------------080807000800060907040909
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
-Thomas
-
-PS: It may be good to add a password check before restorecon (like
-newrole does) so we are sure that it's the user who wants to relabel
-his files.
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="restorecon.patch"
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN orig/macros/admin_macros.te mod/macros/admin_macros.te
---- orig/macros/admin_macros.te	2004-10-11 10:03:26.000000000 +0200
-+++ mod/macros/admin_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -14,9 +14,12 @@
- #
- undefine(`admin_domain')
- define(`admin_domain',`
-+# define an attribute for all files created by this role
-+attribute $1_domain_file_type;
+diff --exclude-from=exclude -N -u -r nsapolicy/attrib.te policy-1.17.34/attrib.te
+--- nsapolicy/attrib.te	2004-10-09 21:06:13.000000000 -0400
++++ policy-1.17.34/attrib.te	2004-10-25 16:45:50.000000000 -0400
+@@ -400,4 +400,6 @@
+ # For clients of nscd that can use shmem interface.
+ attribute nscd_shmem_domain;
+ 
++# For labeling of content for httpd
++attribute httpdcontent;
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/ssh.te policy-1.17.34/domains/program/ssh.te
+--- nsapolicy/domains/program/ssh.te	2004-10-19 16:03:05.000000000 -0400
++++ policy-1.17.34/domains/program/ssh.te	2004-10-25 17:03:53.000000000 -0400
+@@ -73,13 +73,13 @@
+ allow $1_t self:capability { sys_chroot sys_resource chown dac_override fowner fsetid setgid setuid sys_tty_config };
+ allow $1_t { home_root_t home_dir_type }:dir { search getattr };
+ can_ypbind($1_t)
+-ifdef(`nfs_home_dirs', `
++if (nfs_home_dirs) {
+ ifdef(`automount.te', `
+ allow $1_t autofs_t:dir { search getattr };
+ ')
+ allow $1_t nfs_t:dir { search getattr };
+ allow $1_t nfs_t:file { getattr read };
+-')dnl end if nfs_home_dirs
++} dnl end if nfs_home_dirs
+ 
+ ifdef(`single_userdomain', `
+ if (ssh_sysadm_login) {
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/syslogd.te policy-1.17.34/domains/program/syslogd.te
+--- nsapolicy/domains/program/syslogd.te	2004-10-19 16:03:05.000000000 -0400
++++ policy-1.17.34/domains/program/syslogd.te	2004-10-25 16:45:50.000000000 -0400
+@@ -96,3 +96,4 @@
+ dontaudit syslogd_t file_t:dir search;
+ allow syslogd_t { tmpfs_t devpts_t }:dir { search };
+ dontaudit syslogd_t unlabeled_t:file read;
++dontaudit syslogd_t devpts_t:chr_file getattr;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te policy-1.17.34/domains/program/unused/apache.te
+--- nsapolicy/domains/program/unused/apache.te	2004-10-14 23:25:17.000000000 -0400
++++ policy-1.17.34/domains/program/unused/apache.te	2004-10-25 17:04:37.000000000 -0400
+@@ -21,6 +21,8 @@
+ ###############################################################################
+ type http_port_t, port_type, reserved_port_type;
+ 
++bool httpd_unified false;
 +
- # Type for home directory.
--type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type;
--type $1_home_t, file_type, sysadmfile, home_type;
-+type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, $1_do=
-main_file_type;
-+type $1_home_t, file_type, sysadmfile, home_type, $1_domain_file_type;
-=20
- # Type and access for pty devices.
- can_create_pty($1)
-diff -urN orig/macros/program/apache_macros.te mod/macros/program/apache_ma=
-cros.te
---- orig/macros/program/apache_macros.te	2004-10-17 13:07:14.000000000 +0200
-+++ mod/macros/program/apache_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -18,18 +18,23 @@
- file_type_auto_trans(httpd_$1_script_t, tmp_t, $1_tmp_t)
+ # Allow httpd cgi support
+ bool httpd_enable_cgi false;
+ 
+@@ -130,7 +132,7 @@
+ 
+ # execute perl
+ allow httpd_t { bin_t sbin_t }:dir r_dir_perms;
+-can_exec(httpd_t, bin_t)
++can_exec(httpd_t, { bin_t sbin_t })
+ 
+ can_network(httpd_t)
+ can_ypbind(httpd_t)
+@@ -247,13 +249,12 @@
+ allow httpd_t autofs_t:dir { search getattr };
+ allow httpd_suexec_t autofs_t:dir { search getattr };
+ ')
+-ifdef(`nfs_home_dirs', `
+-if (httpd_enable_homedirs) {
++if (nfs_home_dirs && httpd_enable_homedirs) {
+ r_dir_file(httpd_t, nfs_t)
+ r_dir_file(httpd_suexec_t, nfs_t)
+ can_exec(httpd_suexec_t, nfs_t)
+ }
+-')dnl end if nfs_home_dirs
++
+ 
+ #
+ # Allow users to mount additional directories as http_source
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ftpd.te policy-1.17.34/domains/program/unused/ftpd.te
+--- nsapolicy/domains/program/unused/ftpd.te	2004-10-19 16:03:06.000000000 -0400
++++ policy-1.17.34/domains/program/unused/ftpd.te	2004-10-25 17:05:40.000000000 -0400
+@@ -96,13 +96,12 @@
+ 
+ # Allow ftp to read/write files in the user home directories.
+ bool ftp_home_dir false;
+-if (ftp_home_dir) {
+-ifdef(`nfs_home_dirs', `
++
++if (ftp_home_dir && nfs_home_dirs) {
+ allow ftpd_t nfs_t:dir r_dir_perms;
+ allow ftpd_t nfs_t:file r_file_perms;
+ # dont allow access to /home
+ dontaudit ftpd_t home_root_t:dir { getattr search };
+-')dnl end if nfs_home_dirs
+ } 
+ else 
+ {
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/nscd.te policy-1.17.34/domains/program/unused/nscd.te
+--- nsapolicy/domains/program/unused/nscd.te	2004-10-19 16:03:06.000000000 -0400
++++ policy-1.17.34/domains/program/unused/nscd.te	2004-10-25 16:45:50.000000000 -0400
+@@ -3,7 +3,16 @@
+ # Author:  Russell Coker <russell@coker.com.au>
+ # X-Debian-Packages: nscd
+ #
+-
++define(`nscd_socket_domain', `
++can_unix_connect($1, nscd_t)
++allow nscd_client_domain nscd_var_run_t:sock_file rw_file_perms;
++allow $1 { var_run_t var_t }:dir search;
++allow $1 nscd_t:nscd { getpwd getgrp gethost };
++dontaudit $1 nscd_t:fd { use };
++dontaudit $1 nscd_var_run_t:dir { search getattr };
++dontaudit $1 nscd_var_run_t:file { getattr read };
++dontaudit $1 nscd_t:nscd { shmempwd shmemgrp shmemhost };
++')
+ #################################
+ #
+ # Rules for the nscd_t domain.
+@@ -22,31 +31,17 @@
+ 
+ # Clients that can get information via the socket interface.
+ ifdef(`nscd_all_connect', `
+-can_unix_connect(domain, nscd_t)
+-allow domain nscd_var_run_t:sock_file rw_file_perms;
+-allow domain { var_run_t var_t }:dir search;
+-allow domain nscd_t:nscd { getpwd getgrp gethost };
+-dontaudit domain nscd_t:fd { use };
+-dontaudit domain nscd_var_run_t:file { getattr read };
+-dontaudit domain nscd_t:nscd { shmempwd shmemgrp shmemhost };
++nscd_socket_domain(domain)
  ', `
-=20
-+ifelse($1, sys, `
+-can_unix_connect(nscd_client_domain, nscd_t)
+-allow nscd_client_domain nscd_var_run_t:sock_file rw_file_perms;
+-allow nscd_client_domain { var_run_t var_t }:dir search;
+-allow nscd_client_domain nscd_t:nscd { getpwd getgrp gethost };
+-dontaudit nscd_client_domain nscd_t:fd { use };
+-dontaudit nscd_client_domain nscd_var_run_t:file { getattr read };
+-dontaudit nscd_client_domain nscd_t:nscd { shmempwd  shmemgrp shmemhost };
++nscd_socket_domain(nscd_client_domain)
+ ')dnl nscd_all_connect
+ 
+ # Clients that are allowed to map the database via a fd obtained from nscd.
+-can_unix_connect(nscd_shmem_domain, nscd_t)
+-allow nscd_shmem_domain nscd_var_run_t:sock_file rw_file_perms;
+-allow nscd_shmem_domain { var_run_t var_t }:dir search;
++nscd_socket_domain(nscd_shmem_domain)
++allow nscd_shmem_domain nscd_var_run_t:dir r_dir_perms;
+ allow nscd_shmem_domain nscd_t:nscd { shmempwd shmemgrp shmemhost };
+ # Receive fd from nscd and map the backing file with read access.
+ allow nscd_shmem_domain nscd_t:fd use;
+-allow nscd_shmem_domain nscd_var_run_t:file r_file_perms;
+ 
+ # For client program operation, invoked from sysadm_t.
+ # Transition occurs to nscd_t due to direct_sysadm_daemon. 
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/spamd.te policy-1.17.34/domains/program/unused/spamd.te
+--- nsapolicy/domains/program/unused/spamd.te	2004-10-09 21:06:15.000000000 -0400
++++ policy-1.17.34/domains/program/unused/spamd.te	2004-10-25 17:06:54.000000000 -0400
+@@ -58,10 +58,11 @@
+ ifdef(`automount.te', `
+ allow spamd_t autofs_t:dir { search getattr };
+ ')
+-ifdef(`nfs_home_dirs', `
++
++if (nfs_home_dirs) {
+ allow spamd_t nfs_t:dir rw_dir_perms;
+ allow spamd_t nfs_t:file create_file_perms;
+-')dnl end if nfs_home_dirs
++}
+ 
+ allow spamd_t home_root_t:dir { getattr };
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/squid.te policy-1.17.34/domains/program/unused/squid.te
+--- nsapolicy/domains/program/unused/squid.te	2004-10-14 23:25:18.000000000 -0400
++++ policy-1.17.34/domains/program/unused/squid.te	2004-10-25 16:45:50.000000000 -0400
+@@ -18,6 +18,7 @@
+ 
+ allow { squid_t initrc_t } squid_conf_t:file r_file_perms;
+ allow squid_t squid_conf_t:dir r_dir_perms;
++allow squid_t squid_conf_t:lnk_file read;
+ 
+ logdir_domain(squid)
+ typealias squid_log_t alias var_log_squid_t;
+@@ -27,7 +28,7 @@
+ # type for /var/cache/squid
+ type squid_cache_t, file_type, sysadmfile;
+ 
+-allow squid_t self:capability { setgid setuid };
++allow squid_t self:capability { setgid setuid net_bind_service };
+ allow squid_t { etc_t etc_runtime_t }:file r_file_perms;
+ allow squid_t etc_t:lnk_file read;
+ allow squid_t self:unix_stream_socket create_socket_perms;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/usernetctl.te policy-1.17.34/domains/program/unused/usernetctl.te
+--- nsapolicy/domains/program/unused/usernetctl.te	2004-05-27 14:52:35.000000000 -0400
++++ policy-1.17.34/domains/program/unused/usernetctl.te	2004-10-25 16:52:33.000000000 -0400
+@@ -4,10 +4,13 @@
+ 
+ type usernetctl_exec_t, file_type, sysadmfile, exec_type;
+ 
+-ifdef(`user_net_control',`
+ type usernetctl_t, domain, privfd;
+ 
++if (user_net_control) {
+ domain_auto_trans(userdomain, usernetctl_exec_t, usernetctl_t)
++} else {
++can_exec(userdomain, usernetctl_exec_t)
++}
+ in_user_role(usernetctl_t)
+ role sysadm_r types usernetctl_t;
+ 
+@@ -58,7 +61,4 @@
+ allow usernetctl_t { var_t var_run_t }:dir { getattr read search };
+ allow usernetctl_t etc_runtime_t:file r_file_perms;
+ allow usernetctl_t net_conf_t:file r_file_perms;
+-',`
+-can_exec(userdomain, usernetctl_exec_t)
+-')
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xdm.te policy-1.17.34/domains/program/unused/xdm.te
+--- nsapolicy/domains/program/unused/xdm.te	2004-10-19 16:03:06.000000000 -0400
++++ policy-1.17.34/domains/program/unused/xdm.te	2004-10-25 17:07:13.000000000 -0400
+@@ -276,14 +276,14 @@
+ allow xdm_xserver_t user_home_type:dir search;
+ allow xdm_xserver_t user_home_type:file { getattr read };
+ 
+-ifdef(`nfs_home_dirs', `
++if (nfs_home_dirs) {
+ ifdef(`automount.te', `
+ allow { xdm_t xdm_xserver_t } autofs_t:dir { search getattr };
+ ')
+ allow { xdm_t xdm_xserver_t } nfs_t:dir create_dir_perms;
+ allow { xdm_t xdm_xserver_t } nfs_t:{file lnk_file} create_file_perms;
+ can_exec(xdm_t, nfs_t)
+-')dnl end if nfs_home_dirs
++}
+ 
+ # for .dmrc
+ allow xdm_t user_home_dir_type:dir search;
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/user.te policy-1.17.34/domains/user.te
+--- nsapolicy/domains/user.te	2004-10-14 23:25:17.000000000 -0400
++++ policy-1.17.34/domains/user.te	2004-10-25 17:27:38.000000000 -0400
+@@ -7,6 +7,9 @@
+ # Allow users to read system messages.
+ bool user_dmesg false;
+ 
++# Support NFS home directories
++bool nfs_home_dirs false;
++
+ # Allow users to run TCP servers (bind to ports and accept connection from
+ # the same domain and outside users)  disabling this forces FTP passive mode
+ # and may change other protocols 
+@@ -15,6 +18,12 @@
+ # Allow users to rw usb devices
+ bool user_rw_usb false;
+ 
++# Allow users to control network interfaces (also needs USERCTL=true)
++bool user_net_control false;
++
++# Disable games transitions
++bool disable_games false;
++
+ # Allow regular users direct mouse access 
+ bool user_direct_mouse false;
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/named.fc policy-1.17.34/file_contexts/program/named.fc
+--- nsapolicy/file_contexts/program/named.fc	2004-09-09 16:22:13.000000000 -0400
++++ policy-1.17.34/file_contexts/program/named.fc	2004-10-25 16:45:50.000000000 -0400
+@@ -18,7 +18,7 @@
+ /usr/sbin/r?ndc		--	system_u:object_r:ndc_exec_t
+ /var/run/ndc		-s	system_u:object_r:named_var_run_t
+ /var/run/bind(/.*)?		system_u:object_r:named_var_run_t
+-/var/run/named.*		system_u:object_r:named_var_run_t
++/var/run/named(/.*)?		system_u:object_r:named_var_run_t
+ /usr/sbin/lwresd	--	system_u:object_r:named_exec_t
+ ifdef(`distro_redhat', `
+ /var/named/named\.ca	--	system_u:object_r:named_conf_t
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/nscd.fc policy-1.17.34/file_contexts/program/nscd.fc
+--- nsapolicy/file_contexts/program/nscd.fc	2003-11-26 13:01:07.000000000 -0500
++++ policy-1.17.34/file_contexts/program/nscd.fc	2004-10-25 16:45:50.000000000 -0400
+@@ -2,3 +2,5 @@
+ /usr/sbin/nscd		--	system_u:object_r:nscd_exec_t
+ /var/run/\.nscd_socket	-s	system_u:object_r:nscd_var_run_t
+ /var/run/nscd\.pid	--	system_u:object_r:nscd_var_run_t
++/var/db/nscd(/.*)?		system_u:object_r:nscd_var_run_t
++/var/run/nscd(/.*)?		system_u:object_r:nscd_var_run_t
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/pppd.fc policy-1.17.34/file_contexts/program/pppd.fc
+--- nsapolicy/file_contexts/program/pppd.fc	2004-07-12 12:15:22.000000000 -0400
++++ policy-1.17.34/file_contexts/program/pppd.fc	2004-10-25 16:45:50.000000000 -0400
+@@ -5,6 +5,7 @@
+ /dev/pppox.*		-c	system_u:object_r:ppp_device_t
+ /dev/ippp.*		-c	system_u:object_r:ppp_device_t
+ /var/run/pppd\.tdb	--	system_u:object_r:pppd_var_run_t
++/var/run/ppp(/.*)?		system_u:object_r:pppd_var_run_t
+ /etc/ppp		-d	system_u:object_r:pppd_etc_t
+ /etc/ppp/.*		--	system_u:object_r:pppd_etc_rw_t
+ /etc/ppp/.*secrets	--	system_u:object_r:pppd_secret_t
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc policy-1.17.34/file_contexts/types.fc
+--- nsapolicy/file_contexts/types.fc	2004-10-14 23:25:19.000000000 -0400
++++ policy-1.17.34/file_contexts/types.fc	2004-10-25 16:45:50.000000000 -0400
+@@ -266,11 +266,13 @@
+ # /etc
+ #
+ /etc(/.*)?			system_u:object_r:etc_t
++/var/db/.*\.db		--	system_u:object_r:etc_t
+ /etc/\.pwd\.lock	--	system_u:object_r:shadow_t
+ /etc/passwd\.lock	--	system_u:object_r:shadow_t
+ /etc/group\.lock	--	system_u:object_r:shadow_t
+ /etc/shadow.*		--	system_u:object_r:shadow_t
+ /etc/gshadow.*		--	system_u:object_r:shadow_t
++/var/db/shadow.*	--	system_u:object_r:shadow_t
+ /etc/blkid\.tab		--	system_u:object_r:etc_runtime_t
+ /etc/fstab\.REVOKE	--	system_u:object_r:etc_runtime_t
+ /etc/HOSTNAME		--	system_u:object_r:etc_runtime_t
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/base_user_macros.te policy-1.17.34/macros/base_user_macros.te
+--- nsapolicy/macros/base_user_macros.te	2004-10-19 16:03:08.000000000 -0400
++++ policy-1.17.34/macros/base_user_macros.te	2004-10-25 17:00:17.000000000 -0400
+@@ -58,10 +58,10 @@
+ allow $1_t $1_home_t:notdevfile_class_set { relabelfrom relabelto };
+ can_setfscreate($1_t)
+ 
+-ifdef(`nfs_home_dirs', `
+ ifdef(`automount.te', `
+ allow $1_t autofs_t:dir { search getattr };
+ ')dnl end if automount.te
++ifdef(`nfs_home_dirs', `
+ create_dir_file($1_t, nfs_t)
+ can_exec($1_t, nfs_t)
+ allow $1_t nfs_t:{ sock_file fifo_file } create_file_perms;
+@@ -158,7 +158,7 @@
+ ifdef(`screen.te', `screen_domain($1)')
+ ifdef(`tvtime.te', `tvtime_domain($1)')
+ ifdef(`mozilla.te', `mozilla_domain($1)')
+-ifdef(`use_games', `ifdef(`games.te', `games_domain($1)')')
++ifdef(`games.te', `games_domain($1)')
+ ifdef(`gpg.te', `gpg_domain($1)')
+ ifdef(`xauth.te', `xauth_domain($1)')
+ ifdef(`startx.te', `xserver_domain($1)')
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/apache_macros.te policy-1.17.34/macros/program/apache_macros.te
+--- nsapolicy/macros/program/apache_macros.te	2004-10-14 23:25:20.000000000 -0400
++++ policy-1.17.34/macros/program/apache_macros.te	2004-10-25 16:45:50.000000000 -0400
+@@ -1,26 +1,9 @@
+ 
+ define(`apache_domain', `
+ 
+-undefine(`apache_single_user')
+-ifdef(`single_userdomain', `
+-ifelse($1, sys, `', `
+-define(`apache_single_user')
+-')dnl end if
+-')dnl end ifdef single_userdomain
+-
+-ifdef(`apache_single_user', `
+-typealias $1_home_t alias httpd_$1_content_t;
+-typealias $1_home_t alias httpd_$1_htaccess_t;
+-typealias $1_home_t alias httpd_$1_script_exec_t;
+-typealias $1_home_t alias httpd_$1_script_ro_t;
+-typealias $1_home_t alias httpd_$1_script_rw_t;
+-typealias $1_home_t alias httpd_$1_script_ra_t;
+-file_type_auto_trans(httpd_$1_script_t, tmp_t, $1_tmp_t)
+-', `
+-
  #This type is for webpages
  #
- type httpd_$1_content_t, file_type, homedirfile, sysadmfile;
--ifelse($1, sys, `
+-type httpd_$1_content_t, file_type, homedirfile, sysadmfile;
++type httpd_$1_content_t, file_type, homedirfile, httpdcontent, sysadmfile;
+ ifelse($1, sys, `
  typealias httpd_sys_content_t alias httpd_sysadm_content_t;
--')
-=20
- # This type is used for .htaccess files
+ ')
+@@ -29,6 +12,8 @@
  #
  type httpd_$1_htaccess_t, file_type, sysadmfile;
-=20
+ 
++# This type is used for executable scripts files
++#
  type httpd_$1_script_exec_t, file_type, sysadmfile;
-+', `
-+# same as above, add $1_domain_file_type attribute
-+type httpd_$1_content_t, file_type, homedirfile, sysadmfile, $1_domain_fil=
-e_type;
-+type httpd_$1_htaccess_t, file_type, sysadmfile, $1_domain_file_type;
-+type httpd_$1_script_exec_t, file_type, sysadmfile, $1_domain_file_type;
-+')
-=20
+ 
  # Type that CGI scripts run as
- type httpd_$1_script_t, domain, privmail;
-@@ -69,13 +74,20 @@
- uncond_can_ypbind(httpd_$1_script_t)
- }
- ')
-+
-+ifelse($1, `sys', `
- # The following are the only areas that=20
+@@ -72,10 +57,10 @@
+ # The following are the only areas that 
  # scripts can read, read/write, or append to
  #
- type httpd_$1_script_ro_t, file_type, sysadmfile;
- type httpd_$1_script_rw_t, file_type, sysadmfile;
--file_type_auto_trans(httpd_$1_script_t, tmp_t, httpd_$1_script_rw_t)
- type httpd_$1_script_ra_t, file_type, sysadmfile;
-+', `
-+type httpd_$1_script_ro_t, file_type, sysadmfile, $1_domain_file_type;
-+type httpd_$1_script_rw_t, file_type, sysadmfile, $1_domain_file_type;
-+type httpd_$1_script_ra_t, file_type, sysadmfile, $1_domain_file_type;
-+')
-+file_type_auto_trans(httpd_$1_script_t, tmp_t, httpd_$1_script_rw_t)
-=20
+-type httpd_$1_script_ro_t, file_type, sysadmfile;
+-type httpd_$1_script_rw_t, file_type, sysadmfile;
++type httpd_$1_script_ro_t, file_type, httpdcontent, sysadmfile;
++type httpd_$1_script_rw_t, file_type, httpdcontent, sysadmfile;
++type httpd_$1_script_ra_t, file_type, httpdcontent, sysadmfile;
+ file_type_auto_trans(httpd_$1_script_t, tmp_t, httpd_$1_script_rw_t)
+-type httpd_$1_script_ra_t, file_type, sysadmfile;
+ 
  ifdef(`slocate.te', `
  ifelse($1, `sys', `', `
-diff -urN orig/macros/program/crond_macros.te mod/macros/program/crond_macr=
-os.te
---- orig/macros/program/crond_macros.te	2004-09-11 14:31:47.000000000 +0200
-+++ mod/macros/program/crond_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -36,7 +36,7 @@
- r_dir_file($1_crond_t, selinux_config_t)
-=20
- # Type of user crontabs once moved to cron spool.
--type $1_cron_spool_t, file_type, sysadmfile;
-+type $1_cron_spool_t, file_type, sysadmfile ifelse($1, `system', `', `, $1=
-_domain_file_type');
-=20
- ifdef(`fcron.te', `
- allow crond_t $1_cron_spool_t:file create_file_perms;
-diff -urN orig/macros/program/fingerd_macros.te mod/macros/program/fingerd_=
-macros.te
---- orig/macros/program/fingerd_macros.te	2003-08-14 14:37:36.000000000 +02=
-00
-+++ mod/macros/program/fingerd_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -10,6 +10,6 @@
- # allow fingerd to create a fingerlog file in the user home dir
- #
- define(`fingerd_macro', `
--type $1_home_fingerlog_t, file_type, sysadmfile;
-+type $1_home_fingerlog_t, file_type, sysadmfile, $1_domain_file_type;
- file_type_auto_trans(fingerd_t, $1_home_dir_t, $1_home_fingerlog_t)
- ')
-diff -urN orig/macros/program/gpg_agent_macros.te mod/macros/program/gpg_ag=
-ent_macros.te
---- orig/macros/program/gpg_agent_macros.te	2004-09-21 22:24:44.000000000 +=
-0200
-+++ mod/macros/program/gpg_agent_macros.te	2004-10-25 23:26:44.000000000 +0=
-200
-@@ -58,7 +58,7 @@
- allow $1_gpg_agent_t self:fifo_file { getattr read write };
-=20
- # create /tmp files
--tmp_domain($1_gpg_agent)
-+tmp_domain($1_gpg_agent, `, $1_domain_file_type')
-=20
- # gpg connect
- allow $1_gpg_t $1_gpg_agent_tmp_t:dir { search };
-diff -urN orig/macros/program/gpg_macros.te mod/macros/program/gpg_macros.te
---- orig/macros/program/gpg_macros.te	2004-09-11 14:31:47.000000000 +0200
-+++ mod/macros/program/gpg_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -25,7 +25,7 @@
- allow $1_t self:capability { setuid };
- ', `
- type $1_gpg_t, domain, privlog;
--type $1_gpg_secret_t, file_type, homedirfile, sysadmfile;
-+type $1_gpg_secret_t, file_type, homedirfile, sysadmfile, $1_domain_file_t=
-ype;
- ')dnl end ifdef single_userdomain
-=20
- # Transition from the user domain to the derived domain.
-diff -urN orig/macros/program/irc_macros.te mod/macros/program/irc_macros.te
---- orig/macros/program/irc_macros.te	2004-03-23 21:58:10.000000000 +0100
-+++ mod/macros/program/irc_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -24,8 +24,8 @@
- ', `
- # Derived domain based on the calling user domain and the program.
- type $1_irc_t, domain;
--type $1_home_irc_t, file_type, homedirfile, sysadmfile;
--type $1_irc_exec_t, file_type, sysadmfile;
-+type $1_home_irc_t, file_type, homedirfile, sysadmfile, $1_domain_file_typ=
-e;
-+type $1_irc_exec_t, file_type, sysadmfile, $1_domain_file_type;
-=20
- ifdef(`slocate.te', `
- allow $1_locate_t { $1_home_irc_t $1_irc_exec_t }:dir { getattr search };
-diff -urN orig/macros/program/lpr_macros.te mod/macros/program/lpr_macros.te
---- orig/macros/program/lpr_macros.te	2004-09-11 14:31:47.000000000 +0200
-+++ mod/macros/program/lpr_macros.te	2004-10-25 23:28:02.000000000 +0200
-@@ -54,11 +54,11 @@
- r_dir_file($1_lpr_t, printconf_t)
- ')
-=20
--tmp_domain($1_lpr)
-+tmp_domain($1_lpr, `, $1_domain_file_type')
- r_dir_file($1_lpr_t, $1_tmp_t)
-=20
- # Type for spool files.
--type $1_print_spool_t, file_type, sysadmfile;
-+type $1_print_spool_t, file_type, sysadmfile, $1_domain_file_type;
- # Use this type when creating files in /var/spool/lpd and /var/spool/cups.
- file_type_auto_trans($1_lpr_t, print_spool_t, $1_print_spool_t, file)
- allow $1_lpr_t var_spool_t:dir { search };
-diff -urN orig/macros/program/restorecon_macros.te mod/macros/program/resto=
-recon_macros.te
---- orig/macros/program/restorecon_macros.te	1970-01-01 01:00:00.000000000 =
-+0100
-+++ mod/macros/program/restorecon_macros.te	2004-10-25 23:26:44.000000000 +=
-0200
-@@ -0,0 +1,34 @@
-+# Macro for the user restorecon domain
-+#
-+# Allow the user to call restorecon and to relabel all his files
-+#
-+# Author: Thomas Bleher <ThomasBleher@gmx.de>
-+#
-+
-+define(`restorecon_domain', `
-+
-+type $1_restorecon_t, domain;
-+role $1_r types $1_restorecon_t;
-+
-+domain_auto_trans($1_t, restorecon_exec_t, $1_restorecon_t)
-+
-+base_file_read_access($1_restorecon_t)
-+uses_shlib($1_restorecon_t)
-+
-+allow $1_restorecon_t $1_devpts_t:chr_file { read write };
-+
-+allow $1_restorecon_t privfd:fd use;
-+
-+r_dir_file($1_restorecon_t, selinux_config_t)
-+r_dir_file($1_restorecon_t, default_context_t)
-+r_dir_file($1_restorecon_t, file_context_t)
-+r_dir_file($1_restorecon_t, policy_config_t)
-+
-+allow $1_restorecon_t proc_t:dir search;
-+allow $1_restorecon_t proc_t:file { getattr read };
-+dontaudit $1_restorecon_t proc_t:lnk_file { getattr read };
-+
-+allow $1_restorecon_t { tmp_t $1_domain_file_type }:dir { getattr search };
-+allow $1_restorecon_t $1_domain_file_type:{ notdevfile_class_set dir } { g=
-etattr relabelfrom relabelto };
-+=20
+@@ -113,6 +98,7 @@
+ # Allow the script process to search the cgi directory, and users directory
+ ##############################################################################
+ allow httpd_$1_script_t httpd_$1_script_exec_t:dir { search getattr };
++can_exec(httpd_$1_script_t, httpd_$1_script_exec_t)
+ allow httpd_$1_script_t home_root_t:dir { getattr search };
+ allow httpd_$1_script_t httpd_$1_content_t:dir { getattr search };
+ 
+@@ -124,6 +110,18 @@
+ create_dir_file(httpd_$1_script_t, httpd_$1_script_rw_t)
+ ra_dir_file(httpd_$1_script_t, httpd_$1_script_ra_t)
+ 
++if (httpd_enable_cgi) && (httpd_unified) {
++ifelse($1, sys, `
++domain_auto_trans(httpd_t, httpdcontent, httpd_sys_script_t)
++domain_auto_trans(httpd_suexec_t, httpdcontent, httpd_sys_script_t)
++domain_auto_trans(sysadm_t, httpdcontent, httpd_sys_script_t)
++', `
++create_dir_file(httpd_$1_script_t, httpdcontent)
++can_exec(httpd_$1_script_t, httpdcontent )
++domain_auto_trans($1_t, httpdcontent, httpd_$1_script_t)
 +')
-diff -urN orig/macros/program/rssh_macros.te mod/macros/program/rssh_macros=
-=2Ete
---- orig/macros/program/rssh_macros.te	2004-09-23 11:38:30.000000000 +0200
-+++ mod/macros/program/rssh_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -19,8 +19,8 @@
- role rssh_$1_r types rssh_$1_t;
- allow system_r rssh_$1_r;
-=20
--type rssh_$1_rw_t, file_type, sysadmfile;
--type rssh_$1_ro_t, file_type, sysadmfile;
-+type rssh_$1_rw_t, file_type, sysadmfile, $1_domain_file_type;
-+type rssh_$1_ro_t, file_type, sysadmfile, $1_domain_file_type;
-=20
- general_domain_access(rssh_$1_t);
- uses_shlib(rssh_$1_t);
-diff -urN orig/macros/program/screen_macros.te mod/macros/program/screen_ma=
-cros.te
---- orig/macros/program/screen_macros.te	2004-10-11 10:03:26.000000000 +0200
-+++ mod/macros/program/screen_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -26,12 +26,12 @@
- typealias $1_home_t alias $1_home_screen_t;
- ', `
- type $1_screen_t, domain, privlog, privfd;
--type $1_home_screen_t, file_type, homedirfile, sysadmfile;
-+type $1_home_screen_t, file_type, homedirfile, sysadmfile, $1_domain_file_=
-type;
-=20
- # Transition from the user domain to this domain.
- domain_auto_trans($1_t, screen_exec_t, $1_screen_t)
-=20
--tmp_domain($1_screen)
-+tmp_domain($1_screen, `, $1_domain_file_type')
- base_file_read_access($1_screen_t)
- # The user role is authorized for this domain.
- role $1_r types $1_screen_t;
-@@ -72,7 +72,7 @@
- # Create fifo
- allow $1_screen_t var_t:dir search;
- file_type_auto_trans($1_screen_t, var_run_t, screen_dir_t, dir)
--type $1_screen_var_run_t, file_type, sysadmfile, pidfile;
-+type $1_screen_var_run_t, file_type, sysadmfile, pidfile, $1_domain_file_t=
-ype;
- file_type_auto_trans($1_screen_t, screen_dir_t, $1_screen_var_run_t, fifo_=
-file)
-=20
- allow $1_screen_t self:process { fork signal_perms };
-diff -urN orig/macros/program/spamassassin_macros.te mod/macros/program/spa=
-massassin_macros.te
---- orig/macros/program/spamassassin_macros.te	2004-10-14 13:09:56.00000000=
-0 +0200
-+++ mod/macros/program/spamassassin_macros.te	2004-10-25 23:26:44.000000000=
- +0200
-@@ -80,7 +80,7 @@
- dontaudit $1_spamassassin_t { sysctl_t sysctl_kernel_t }:dir search;
-=20
- # The type of ~/.spamassassin
--type $1_home_spamassassin_t, file_type, homedirfile, sysadmfile;
-+type $1_home_spamassassin_t, file_type, homedirfile, sysadmfile, $1_domain=
-_file_type;
- create_dir_file($1_t, $1_home_spamassassin_t)
- allow $1_t $1_home_spamassassin_t:notdevfile_class_set { relabelfrom relab=
-elto };
- allow $1_t $1_home_spamassassin_t:dir { relabelfrom relabelto };
-diff -urN orig/macros/program/ssh_macros.te mod/macros/program/ssh_macros.te
---- orig/macros/program/ssh_macros.te	2004-10-17 13:07:15.000000000 +0200
-+++ mod/macros/program/ssh_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -26,7 +26,7 @@
- ', `
- # Derived domain based on the calling user domain and the program.
- type $1_ssh_t, domain, privlog;
--type $1_home_ssh_t, file_type, homedirfile, sysadmfile;
-+type $1_home_ssh_t, file_type, homedirfile, sysadmfile, $1_domain_file_typ=
-e;
-=20
- ifdef(`automount.te', `
- allow $1_ssh_t autofs_t:dir { search getattr };
-diff -urN orig/macros/program/tvtime_macros.te mod/macros/program/tvtime_ma=
-cros.te
---- orig/macros/program/tvtime_macros.te	2004-10-05 20:52:36.000000000 +0200
-+++ mod/macros/program/tvtime_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -19,7 +19,7 @@
- ifdef(`tvtime.te', `
- define(`tvtime_domain',`
- # Derived domain based on the calling user domain and the program.
--type $1_home_tvtime_t, file_type, homedirfile, sysadmfile;
-+type $1_home_tvtime_t, file_type, homedirfile, sysadmfile, $1_domain_file_=
-type;
-=20
- x_client_domain($1, tvtime)
-=20
-diff -urN orig/macros/program/uml_macros.te mod/macros/program/uml_macros.te
---- orig/macros/program/uml_macros.te	2004-07-12 23:41:25.000000000 +0200
-+++ mod/macros/program/uml_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -25,9 +25,9 @@
- ', `
- # Derived domain based on the calling user domain and the program.
- type $1_uml_t, domain;
--type $1_uml_exec_t, file_type, sysadmfile;
--type $1_uml_ro_t, file_type, sysadmfile;
--type $1_uml_rw_t, file_type, sysadmfile;
-+type $1_uml_exec_t, file_type, sysadmfile, $1_domain_file_type;
-+type $1_uml_ro_t, file_type, sysadmfile, $1_domain_file_type;
-+type $1_uml_rw_t, file_type, sysadmfile, $1_domain_file_type;
-=20
- ifdef(`slocate.te', `
- allow $1_locate_t { $1_uml_exec_t $1_uml_ro_t $1_uml_rw_t }:dir { getattr =
-search };
-diff -urN orig/macros/program/vmware_macros.te mod/macros/program/vmware_ma=
-cros.te
---- orig/macros/program/vmware_macros.te	2004-09-24 17:42:14.000000000 +0200
-+++ mod/macros/program/vmware_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -23,10 +23,10 @@
- role $1_r types $1_vmware_t;
-=20
- # The user file type is for files created when the user is running VMWare
--type $1_vmware_file_t, homedirfile, file_type, sysadmfile;
-+type $1_vmware_file_t, homedirfile, file_type, sysadmfile, $1_domain_file_=
-type;
-=20
- # The user file type for the VMWare configuration files
--type $1_vmware_conf_t, homedirfile, file_type, sysadmfile;
-+type $1_vmware_conf_t, homedirfile, file_type, sysadmfile, $1_domain_file_=
-type;
-=20
- # for compatibility with older policy versions
- typealias $1_vmware_t alias vmware_$1_t;
-diff -urN orig/macros/program/xauth_macros.te mod/macros/program/xauth_macr=
-os.te
---- orig/macros/program/xauth_macros.te	2004-06-19 10:31:44.000000000 +0200
-+++ mod/macros/program/xauth_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -24,7 +24,7 @@
- ', `
- # Derived domain based on the calling user domain and the program.
- type $1_xauth_t, domain;
--type $1_home_xauth_t, file_type, homedirfile, sysadmfile;
-+type $1_home_xauth_t, file_type, homedirfile, sysadmfile, $1_domain_file_t=
-ype;
-=20
- ifdef(`slocate.te', `
- allow $1_locate_t $1_home_xauth_t:file { getattr read };
-@@ -84,7 +84,7 @@
- allow $1_xauth_t home_root_t:dir search;
- file_type_auto_trans($1_xauth_t, $1_home_dir_t, $1_home_xauth_t, file)
-=20
--tmp_domain($1_xauth)
-+tmp_domain($1_xauth, `, $1_domain_file_type')
- allow $1_xauth_t $1_tmp_t:file { getattr ioctl read };
-=20
- ifdef(`nfs_home_dirs', `
-diff -urN orig/macros/program/x_client_macros.te mod/macros/program/x_clien=
-t_macros.te
---- orig/macros/program/x_client_macros.te	2004-09-11 14:31:47.000000000 +0=
-200
-+++ mod/macros/program/x_client_macros.te	2004-10-25 23:26:44.000000000 +02=
-00
-@@ -30,9 +30,9 @@
- ', `
- type $1_$2_t, domain $3;
- # Type for files that are writeable by this domain.
--type $1_$2_rw_t, file_type, homedirfile, sysadmfile, tmpfile;
-+type $1_$2_rw_t, file_type, homedirfile, sysadmfile, tmpfile, $1_domain_fi=
-le_type;
- # Type for files that are read-only for this domain
--type $1_$2_ro_t, file_type, homedirfile, sysadmfile;
-+type $1_$2_ro_t, file_type, homedirfile, sysadmfile, $1_domain_file_type;
- ')
-=20
- # Transition from the user domain to the derived domain.
-diff -urN orig/macros/user_macros.te mod/macros/user_macros.te
---- orig/macros/user_macros.te	2004-10-19 21:15:26.000000000 +0200
-+++ mod/macros/user_macros.te	2004-10-25 23:26:44.000000000 +0200
-@@ -23,16 +23,16 @@
- ')dnl end single_userdomain
-=20
- # Type for home directory.
--type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_=
-home_dir_type;
--type $1_home_t, file_type, sysadmfile, home_type, user_home_type;
-+type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_=
-home_dir_type, $1_domain_file_type;
-+type $1_home_t, file_type, sysadmfile, home_type, user_home_type, $1_domai=
-n_file_type;
-=20
--tmp_domain($1, `, user_tmpfile')
-+tmp_domain($1, `, user_tmpfile, $1_domain_file_type')
-=20
- # Type and access for pty devices.
--can_create_pty($1, `, userpty_type, user_tty_type')
-+can_create_pty($1, `, userpty_type, user_tty_type, $1_domain_file_type')
-=20
- #Type for tty devices.
--type $1_tty_device_t, file_type, sysadmfile, ttyfile, user_tty_type, dev_f=
-s;
-+type $1_tty_device_t, file_type, sysadmfile, ttyfile, user_tty_type, dev_f=
-s, $1_domain_file_type;
- =20
- base_user_domain($1)
-=20
-@@ -61,6 +61,7 @@
- # user domains.
- ifdef(`apache.te', `apache_domain($1)')
- ifdef(`slocate.te', `locate_domain($1)')
-+ifdef(`restorecon.te', `restorecon_domain($1)')
-=20
- allow $1_t krb5_conf_t:file { getattr read };
- # allow port_t name binding for UDP because it is not very usable otherwise
-@@ -135,6 +136,9 @@
- # user_t/$1_t is an unprivileged users domain.
- type $1_t, domain, userdomain, unpriv_userdomain, web_client_domain, nscd_=
-client_domain, privfd;
-=20
-+# define an attribute for all files created by this role
-+attribute $1_domain_file_type;
++}
 +
- # Grant read/search permissions to some of /proc.
- allow $1_t proc_t:dir r_dir_perms;
- allow $1_t proc_t:{ file lnk_file } r_file_perms;
+ ifelse($1, sys, `
+ #
+ # If a user starts a script by hand it gets the proper context
+@@ -132,7 +130,6 @@
+ role sysadm_r types httpd_$1_script_t;
+ ', `
+ 
+-ifdef(`single_userdomain', `', `
+ # If a user starts a script by hand it gets the proper context
+ domain_auto_trans($1_t, httpd_$1_script_exec_t, httpd_$1_script_t)
+ role $1_r types httpd_$1_script_t;
+@@ -161,7 +158,6 @@
+ 
+ create_dir_file($1_t, { httpd_$1_script_ro_t httpd_$1_script_rw_t httpd_$1_script_ra_t })
+ allow $1_t { httpd_$1_script_ro_t httpd_$1_script_rw_t httpd_$1_script_ra_t }:{ file dir lnk_file } { relabelto relabelfrom };
+-')dnl end ifdef single_userdomain
+ 
+ # allow accessing files/dirs below the users home dir
+ if (httpd_enable_homedirs) {
+@@ -184,5 +180,4 @@
+ #########################################
+ allow httpd_$1_script_t httpd_log_t:file append;
+ 
+-')dnl end apache_single_user
+ ')
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/x_client_macros.te policy-1.17.34/macros/program/x_client_macros.te
+--- nsapolicy/macros/program/x_client_macros.te	2004-09-10 10:45:57.000000000 -0400
++++ policy-1.17.34/macros/program/x_client_macros.te	2004-10-25 16:45:50.080029701 -0400
+@@ -36,8 +36,15 @@
+ ')
+ 
+ # Transition from the user domain to the derived domain.
++ifelse($2, games, `
++if (! disable_games) {
+ domain_auto_trans($1_t, $2_exec_t, $1_$2_t)
+ can_exec($1_$2_t, $2_exec_t)
++}
++', `
++domain_auto_trans($1_t, $2_exec_t, $1_$2_t)
++can_exec($1_$2_t, $2_exec_t)
++')
+ 
+ # The user role is authorized for this domain.
+ role $1_r types $1_$2_t;
+diff --exclude-from=exclude -N -u -r nsapolicy/targeted/domains/unconfined.te policy-1.17.34/targeted/domains/unconfined.te
+--- nsapolicy/targeted/domains/unconfined.te	2004-10-14 23:25:21.000000000 -0400
++++ policy-1.17.34/targeted/domains/unconfined.te	2004-10-25 17:27:45.000000000 -0400
+@@ -38,3 +38,7 @@
+ 
+ allow unconfined_t unlabeled_t:filesystem *;
+ allow unlabeled_t self:filesystem { associate };
++
++# Support NFS home directories
++bool nfs_home_dirs false;
++
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.17.34/tunables/distro.tun
+--- nsapolicy/tunables/distro.tun	2004-08-20 13:57:29.000000000 -0400
++++ policy-1.17.34/tunables/distro.tun	2004-10-25 16:45:50.080029701 -0400
+@@ -5,7 +5,7 @@
+ # appropriate ifdefs.
+ 
+ 
+-dnl define(`distro_redhat')
++define(`distro_redhat')
+ 
+ dnl define(`distro_suse')
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.17.34/tunables/tunable.tun
+--- nsapolicy/tunables/tunable.tun	2004-10-14 23:25:21.000000000 -0400
++++ policy-1.17.34/tunables/tunable.tun	2004-10-25 17:11:52.768849890 -0400
+@@ -1,39 +1,30 @@
+ # Allow all domains to connect to nscd
+ dnl define(`nscd_all_connect')
+ 
+-# Allow users to control network interfaces (also needs USERCTL=true)
+-dnl define(`user_net_control')
+-
+ # Allow users to execute the mount command
+-dnl define(`user_can_mount')
++define(`user_can_mount')
+ 
+ # Allow rpm to run unconfined.
+-dnl define(`unlimitedRPM')
++define(`unlimitedRPM')
+ 
+ # Allow privileged utilities like hotplug and insmod to run unconfined.
+-dnl define(`unlimitedUtils')
+-
+-# Support NFS home directories
+-dnl define(`nfs_home_dirs')
+-
+-# Allow users to run games
+-dnl define(`use_games')
++define(`unlimitedUtils')
+ 
+ # Allow rc scripts to run unconfined, including any daemon
+ # started by an rc script that does not have a domain transition
+ # explicitly defined.
+-dnl define(`unlimitedRC')
++define(`unlimitedRC')
+ 
+ # Allow sysadm_t to directly start daemons
+ define(`direct_sysadm_daemon')
+ 
+ # Do not audit things that we know to be broken but which
+ # are not security risks
+-dnl define(`hide_broken_symptoms')
++define(`hide_broken_symptoms')
+ 
+ # Allow user_r to reach sysadm_r via su, sudo, or userhelper.
+ # Otherwise, only staff_r can do so.
+-dnl define(`user_canbe_sysadm')
++define(`user_canbe_sysadm')
+ 
+ # Allow xinetd to run unconfined, including any services it starts
+ # that do not have a domain transition explicitly defined.
 
---T4sUOijqQbZv57TR--
-
---JYK4vJDZwFMowpUq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBfXCqxWIrrrL0q+cRAhjpAJ9hJYZVabCzKvjbIX/WdJ62y++SvwCfblEQ
-IQRV3r6lRgIINU3SwhYpoF8=
-=2fIm
------END PGP SIGNATURE-----
-
---JYK4vJDZwFMowpUq--
+--------------080807000800060907040909--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
