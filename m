@@ -1,74 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ECNuRb010616
-	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 08:23:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ECYXRb010681
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 08:34:34 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4ECLXRA008880
-	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:21:33 GMT
-Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
-	by jazzswing.ncsc.mil  with ESMTP id i4ECLXjN008875
-	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:21:33 GMT
-From: "Ed Street" <edstreet@street-tek.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
-Cc: "'Selinux'" <selinux@tycho.nsa.gov>
+	by jazzswing.ncsc.mil  with ESMTP id i4ECWARA009598
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:32:10 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i4ECWAjN009595
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 12:32:10 GMT
 Subject: RE: Suse
-Date: Fri, 14 May 2004 08:23:50 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <1084537198.17741.30.camel@moss-spartans.epoch.ncsc.mil>
-Message-Id: <20040514122351.2D9FE3A404F@abyss.simplyaquatics.com>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Ed Street <edstreet@street-tek.com>
+Cc: "'Selinux'" <selinux@tycho.nsa.gov>
+In-Reply-To: <20040514122351.2D9FE3A404F@abyss.simplyaquatics.com>
+References: <20040514122351.2D9FE3A404F@abyss.simplyaquatics.com>
+Content-Type: text/plain
+Message-Id: <1084538065.17741.44.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 14 May 2004 08:34:25 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Fri, 2004-05-14 at 08:23, Ed Street wrote:
+> Suse 9.1 uses kernel 2.6 and I'm thinking the 9.0 stuff would be very dated.
+> The better option may be going with the upstream or the fedora srpm.
 
-Suse 9.1 uses kernel 2.6 and I'm thinking the 9.0 stuff would be very dated.
-The better option may be going with the upstream or the fedora srpm.
-
-Ed
-
------Original Message-----
-From: Stephen Smalley [mailto:sds@epoch.ncsc.mil] 
-Sent: Friday, May 14, 2004 8:20 AM
-To: Ed Street
-Cc: 'Selinux'
-Subject: Re: Suse
-
-On Thu, 2004-05-13 at 18:53, Ed Street wrote:
-> I received my suse 9.1 cd’s in the mail today and was wondering if we
-> have anyone working on this distro.
-
-Thomas Bleher has SELinux packages for SuSE 9.0, so they are likely a
-good starting point: http://www.cip.ifi.lmu.de/~bleher/selinux/suse/
-You may want to just use our upstream .tgz files or the Fedora SRPMs for
-the main SELinux packages (checkpolicy, libselinux, policycoreutils,
-policy) to get our latest code, and just use his packages for the
-patched userland.
-
-Note that I've changed the URL for SuSE SELinux packages in the
-selinux-doc README to this location, as his packages seem to be more
-up-to-date than the ones provided earlier by Paul Dwerryhouse
-(http://leapster.org/linux/selinux/suse/) and Carsten Grohmann is no
-longer maintaining SELinux packages for SuSE.  The selinux-doc README
-includes URLs for SELinux packages for the various distros that I know
-of, i.e. Debian, Fedora Core, Gentoo, and SuSE.
+I think Thomas Bleher was using a 2.6 SELinux kernel, but am not
+certain.  But even if he were using the current 2.4 SELinux kernel, it
+has the same API (recall that Jim Carter back ported the API changes and
+xattr support from 2.6. to 2.4), so the patched userland should work
+fine.  It is true that the Fedora SRPMS will have the latest selinux
+patches, and that the patches have undergone changes, so it would be
+good for Thomas or you to at least check your selinux patches against
+the latest ones and see whether it is worthwhile to pull in updated
+versions.  We try to keep a core set of patches available for reference
+from http://www.nsa.gov/selinux/patches and in the sourceforge CVS tree,
+but that is only a subset of the full set of SELinux patches in Fedora
+Core 2 devel.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
- 
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
- 
-
 
 
 --
