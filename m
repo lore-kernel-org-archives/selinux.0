@@ -1,35 +1,54 @@
-Message-ID: <00bb01c11497$e75180a0$020144c0@windows>
+Message-ID: <00f301c1149a$e3a31740$020144c0@windows>
 From: "Eric Peters" <eric@peters.org>
 To: <SELinux@tycho.nsa.gov>
-Subject: Can't do a make relabel...
-Date: Tue, 24 Jul 2001 16:25:11 -0700
+Subject: verbose make relabel/RedHat 7.1 install
+Date: Tue, 24 Jul 2001 16:46:33 -0700
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_00B8_01C1145D.36016660"
+	boundary="----=_NextPart_000_00F0_01C11460.3263ECF0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_00B8_01C1145D.36016660
+------=_NextPart_000_00F0_01C11460.3263ECF0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-I've got a fresh RedHat 7.1 install, and trying to make relabel but it =
-seems the 'setfiles' program doesn't have permission to transition the =
-e2fsck files from the sbin_t to fsadm_exec_t
+So I'm using RedHat 7.1 - fresh system install and after I =
+tools/build-kernel tools/build-apps, install-kernel and install-apps, =
+get lilo setup n crap I login and I get the option to get in via =
+sysadm_r and sysadm_t so I do that then cd =
+/usr/local/build/slinux/policy, and wallah:
 
-Anyone know what I'm talking about?
+# make relabel
+[ .... ]
+./setfiles:    labeling files under /
+./setfiles:    conflicting specifications for /sbin/e2fsck and =
+/sbin/fsck.ext3, using system_u:object_r:fsadm_exec_t
+avc: denied { transition } for pid =3D 728 =
+exe=3D/usr/local/build/slinux/policy/setfiles path=3D/sbin/e2fsck =
+dev=3D03:01 ino=3D109997
+    scontext=3Dsystem_u:object_r:sbin_t
+    tcontext=3Dsystem_u:object_r:fsadm_exec_t
+    tclass=3Dfile
+./setfiles:    unable to relable /sbin/e2fsck to =
+system_u:object_r:fsadm_exec_t
+make: *** [relabel] Error 1
+#
 
-The box isn't online but if it would help to get a more verbose error I =
-surely can.
 
-Thanks,
+I havn't touched the file_context file or pretty much anything other =
+than the three files in /www/security/ and the one users file
+
+Any suggestions?
+
+Thanks
 
 Eric
 
-------=_NextPart_000_00B8_01C1145D.36016660
+------=_NextPart_000_00F0_01C11460.3263ECF0
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -42,24 +61,57 @@ charset=3Diso-8859-1">
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>I've got a fresh RedHat 7.1 install, =
-and trying to=20
-make relabel but it seems the 'setfiles' program doesn't have permission =
-to=20
-transition the e2fsck files from the sbin_t to fsadm_exec_t</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>So I'm using RedHat 7.1 - fresh system =
+install and=20
+after I tools/build-kernel tools/build-apps, install-kernel and =
+install-apps,=20
+get lilo setup n crap I login and I get the option to get in via =
+sysadm_r and=20
+sysadm_t so I do that then cd /usr/local/build/slinux/policy, and=20
+wallah:</FONT></DIV>
 <DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Anyone know what I'm talking =
-about?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2># make relabel</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>[ .... ]</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>./setfiles:&nbsp;&nbsp;&nbsp; labeling =
+files under=20
+/</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>./setfiles:&nbsp;&nbsp;&nbsp; =
+conflicting=20
+specifications for /sbin/e2fsck and /sbin/fsck.ext3, using=20
+system_u:object_r:fsadm_exec_t</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>avc: denied { transition } for pid =3D =
+728=20
+exe=3D/usr/local/build/slinux/policy/setfiles path=3D/sbin/e2fsck =
+dev=3D03:01=20
+ino=3D109997</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp;=20
+scontext=3Dsystem_u:object_r:sbin_t</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp;=20
+tcontext=3Dsystem_u:object_r:fsadm_exec_t</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp; =
+tclass=3Dfile</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>./setfiles:&nbsp;&nbsp;&nbsp; unable to =
+relable=20
+/sbin<FONT color=3D#000000 size=3D2>/e2fsck to=20
+system_u:object_r:fsadm_exec_t</FONT></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>make: *** [relabel] Error =
+1</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>#</FONT></DIV>
 <DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>The box isn't online but if it would =
-help to get a=20
-more verbose error I surely can.</FONT></DIV>
 <DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Thanks,</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>I havn't touched the file_context file =
+or pretty=20
+much anything other than the three files in /www/security/ and the one =
+users=20
+file</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Any suggestions?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Thanks</FONT></DIV>
 <DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
 <DIV><FONT face=3DArial size=3D2>Eric</FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_00B8_01C1145D.36016660--
+------=_NextPart_000_00F0_01C11460.3263ECF0--
 
 
 --
