@@ -1,39 +1,55 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98HxqrT023984
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 13:59:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98I0TrT024011
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 14:00:29 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98HxqZ2014235
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 17:59:52 GMT
-Subject: Re: gentoo diff for mysqld
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98I0SZ2014251
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 18:00:28 GMT
+Subject: Re: gentoo diff for ntpd
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Russell Coker <russell@coker.com.au>
-Cc: petre rodan <kaiowas@gentoo.org>, Erich Schubert <erich@debian.org>,
+Cc: petre rodan <kaiowas@gentoo.org>, Joshua Brindle <method@gentoo.org>,
    SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200410071648.47636.russell@coker.com.au>
-References: <41625B74.2090503@gentoo.org>
-	 <1097001016.15549.4.camel@wintermute.xmldesign.de>
-	 <4163CF0D.4070201@gentoo.org>  <200410071648.47636.russell@coker.com.au>
+In-Reply-To: <200410071702.33618.russell@coker.com.au>
+References: <41625A62.7080609@gentoo.org> <41629E45.8050107@gentoo.org>
+	 <4163CDD3.3@gentoo.org>  <200410071702.33618.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1097258322.13326.5.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1097258354.13326.7.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 08 Oct 2004 13:58:42 -0400
+Date: Fri, 08 Oct 2004 13:59:14 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have merged the tmp_domain and daemontools chunks into CVS.
+Merged.
 
-On Thu, 2004-10-07 at 02:48, Russell Coker wrote:
-> On Wed, 6 Oct 2004 20:55, petre rodan <kaiowas@gentoo.org> wrote:
-> > Here is a new patch with no distro_gentoo ifdefs.
-> > Also can someone please tell me when is that 'allow mysqld_t
-> > sysadm_home_t:file { read getattr };' needed? I have never felt the need
-> > for that rule and I'd be happy to see it go.
+On Thu, 2004-10-07 at 03:02, Russell Coker wrote:
+> On Wed, 6 Oct 2004 20:49, petre rodan <kaiowas@gentoo.org> wrote:
+> > this is a new diff with distro_gentoo ifdefs dropped.
+> > also, logrotate is not part of the gentoo base-policy and it shouldn't be a
+> > dependency for ntpd, so I'm also ifdef-ing that.
 > 
-> The start command for mysqld reads the file /root/.my.cnf , or used to at 
-> least.  Has it changed?
+> Having daemon binaries in /usr/bin instead of /usr/sbin is a bug.
 > 
-> I've merged the tmp_domain and daemontools bits into my tree.
+> ntpd and ntpdate can not be used by regular users, they can only be used by 
+> the administrator.  Therefore any distribution that follows the LSB (or the 
+> FHS which the LSB is based on) will put them in /usr/sbin.  Here is the 
+> relevant section of the FHS:
+> 
+> 4.6 /usr/sbin : Non-essential standard system binaries
+> 
+> This directory contains any non-essential binaries used exclusively by the
+> system administrator. System administration programs that are required for
+> system repair, system recovery, mounting /usr, or other essential functions
+> should be placed in /sbin instead.
+> 
+> 
+> Those .fc entries for /usr/bin can go in under ifdef(`distro_gentoo' if Gentoo 
+> does not follow the FHS.  Otherwise it's best to file a bug in the Gentoo bug 
+> system requesting that the files be moved.
+> 
+> I've attached a patch which has the changes I think belong in the CVS at this 
+> time.  Note that I changed the order of the capabilities so that they match 
+> the order of capability.h .
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
