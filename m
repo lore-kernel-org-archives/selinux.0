@@ -1,63 +1,39 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA07155
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 04:04:09 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id IAA09112
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 08:02:30 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id IAA09104
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 08:02:29 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
-Subject: Re: Apache 2 file contexts
-Date: Tue, 8 Oct 2002 19:06:13 +0200
-References: <20021008160033.A5253@lemuria.org>
-In-Reply-To: <20021008160033.A5253@lemuria.org>
-MIME-Version: 1.0
-Message-Id: <200210081906.13285.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA07633
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 06:30:58 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id KAA27567
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 10:29:07 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+        by jazzband.ncsc.mil  with ESMTP id KAA27563 for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 10:29:07 GMT
+Date: Wed, 9 Oct 2002 12:30:56 +0200
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: /proc woes
+Message-ID: <20021009123056.C18828@lemuria.org>
+References: <20021008163245.A5508@lemuria.org> <Pine.GSO.4.33.0210081037410.25356-100000@raven> <20021008171123.A6113@lemuria.org> <200210081913.17017.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200210081913.17017.russell@coker.com.au>; from russell@coker.com.au on Tue, Oct 08, 2002 at 07:13:17PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 8 Oct 2002 16:00, Tom wrote:
-> Having just installed Apache 2 (from the sid Debian packages) on my
-> SELinux test system, I found that it works flawless once some additions
-> to the apache.fc file have been made. Here's a preliminary patch, I
-> haven't yet experimented with CGIs, vhosts and SSL:
+On Tue, Oct 08, 2002 at 07:13:17PM +0200, Russell Coker wrote:
+> If you do the following:
+> echo /proc | setfiles -s -v /etc/selinux/file_contexts/file_contexts
+> Then it will be relabelled to file_t.
+> 
+> The Debian package base-files "owns" /proc and therefore it will be relabelled 
+> in the fashion shown above if you upgrade your base-files package.
 
-Good work!  You not only got it working with apache2 but fixed a couple of 
-things I missed in getting it to work properly with Debian!
+That sounds like it's what happened, since I did indeed do a major
+update that most likely included base-files.
 
-If you'd like to make Apache your thing then you could start working on the 
-policy for Apache, there's quite a few things that could be improved.  For 
-starters a set of macros for different features commonly used with Apache 
-would be good.  Something like define(`apache_php') for using PHP, etc would 
-be really handy to have.  Also we'll probably need support for multiple user 
-domains for cgi-bin scripts.
-
-Apache policy would be a starter project for someone who wants to get 
-seriously involved in SE Linux (I think that you do).  The Apache policy was 
-written in the early days and hasn't benefited from the re-writes that have 
-covered most of the other policy.  I haven't done anything serious with it as 
-it's functional enough that I was not forced to, but ugly enough that I 
-didn't want to...
-
-Anyway I've updated my tree with the equivalent code to your patch (I've 
-changed the order a bit but it's essentially what you wrote).  I'll send in a 
-patch to Steve tomorrow.
-
-> + /etc/vhosts                   system_u:object_r:httpd_config_t
-
-What is /etc/vhosts?  I've never used Apache2...
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
