@@ -1,63 +1,36 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA07933
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:57:14 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA10499
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 21:55:25 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA04731
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 16:55:45 GMT
-Received: from centauri.ee.ucla.edu (centauri.ee.ucla.edu [128.97.92.179])
-        by jazzband.ncsc.mil  with ESMTP id QAA04721 for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 16:55:44 GMT
-Date: Mon, 15 Jul 2002 09:56:53 -0700 (PDT)
-From: Simon Han <simonhan@ee.ucla.edu>
-To: Stephen Smalley <sds@tislabs.com>
-cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Fwd: locales
-In-Reply-To: <Pine.GSO.4.33.0207150804500.29432-100000@raven>
-Message-ID: <Pine.GSO.4.10.10207150946250.8335-100000@centauri.ee.ucla.edu>
+	by jazzband.ncsc.mil  with ESMTP id BAA29361
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 01:53:54 GMT
+Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
+        by jazzband.ncsc.mil  with ESMTP id BAA29357 for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 01:53:53 GMT
+Received: from ed (ed1 [192.168.1.10])
+	by mail.simplyaquatics.com (Postfix) with ESMTP id 49CAB84404A
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 21:55:22 -0400 (EDT)
+Reply-To: <blacknet@simplyaquatics.com>
+From: "Ed Street" <blacknet@simplyaquatics.com>
+To: "Selinux" <selinux@tycho.nsa.gov>
+Subject: netfilter
+Date: Mon, 15 Jul 2002 21:55:22 -0400
+Message-ID: <017901c22c6b$d8655e80$0a01a8c0@ed>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
 
+Started working with netfilter under Selinux and I noted that it was
+grouped with ipchains and labeled as 
+/sbin/iptables                  system_u:object_r:ipchains_exec_t
 
-On Mon, 15 Jul 2002, Stephen Smalley wrote:
+Should this have a separate label and it's own te file?
 
-> 
-> On Mon, 15 Jul 2002, Russell Coker wrote:
-> 
-> > I suggest making the following change seeing as so many programs
-> > require read access to the locale files:
-> >
-> > (still to resolve: execute permission for /usr/lib/gconv/*.so)
-> 
-> Access to writeable_t is granted by the general_file_write_access()
-> macro.  'allow domain' rules should be minimized or completely avoided, as
-> they prevent people from writing domains that are truly limited to least
-> privilege.
-> 
+Ed
 
-Just happen to check 'allow domain' rules.  In 'global_macros.te' file,
-there is a 'general_file_read_access' macro, in which there is a line like
-this
-
-base_file_read_access(domain)
-
-This looks strange to me.  
-It seems that every te files that uses 'general_file_read_access' will
-call 'base_file_read_access(domain)'
-and end up having lots identical rules in policy.conf.
-I have tried the following
-
-% grep "allow domain root_t:dir" policy.conf | wc -l
-
-and gives me 96 instance.
-
-Just wonder if 'base_file_read_access(domain)' is supposed to be 
-
-base_file_read_access($1)
-
-Thanks for helping,
-Simon
 
 
 --
