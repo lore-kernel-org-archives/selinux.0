@@ -1,67 +1,61 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA01094
-	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 15:22:16 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA02313
-	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 20:21:14 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA01956
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 18:19:41 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id XAA19316
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 23:18:24 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id UAA02306 for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 20:21:12 GMT
+	by jazzswing.ncsc.mil  with ESMTP id XAA19312
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 23:18:22 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: stat now supports SE Linux in the upstream
-Date: Fri, 15 Mar 2002 21:21:55 +0100
+Subject: Re: package configuration (for dpkg - rpm will have the same issues)
+Date: Sat, 16 Mar 2002 00:19:22 +0100
 Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0203150900430.15480-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0203150900430.15480-100000@raven>
+References: <Pine.GSO.4.33.0203150854350.15480-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0203150854350.15480-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020315202156.23F471ECB1@lyta.coker.com.au>
+Message-Id: <20020315231922.EE0931ECB7@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 15 Mar 2002 15:10, Stephen Smalley wrote:
-> > The latest version of stat has SE Linux support, so there's probably no
-> > need for the patch on the NSA site, just a reference that version 3.1 is
-> > needed.
+On Fri, 15 Mar 2002 15:00, Stephen Smalley wrote:
+> > To solve this I was thinking of having an automatic transition from
+> > sysadm_t to dpkg_t when dpkg_exec_t programs are run.  Then there would
+> > be an automatic transition from dpkg_t when running initrc_exec_t
+> > binaries (all the start scripts) which stops run_init from needing a
+> > password.
+> >
+> > What do you think of this idea?
 >
-> This is good to hear - I take it that you submitted the SELinux changes to
-> the stat maintainer?  If so, then thanks.  One caveat:  the utility
+> I'm not sure I understand.  run_init (or something similar) still needs to
+> be used when running the init scripts so that they are executed from the
+> proper security context.  run_init re-authenticates for the same reason as
+> newrole - to ensure that the user really wants to perform the transition,
+> as opposed to some malicious code run by the user.  If you eliminate the
+> user interaction for dpkg, how do you provide the same guarantee?  Or, if
+> you are willing to give up that guarantee, then why not just drop the
+> authentication out of your copy of run_init entirely.
 
-Not sure whether this was directly related to me.  The code is mostly the 
-same and it seems unlikely that they got it from somewhere else (and the bug 
-in the current iteration suggests that the upstream maintainer is not running 
-SE Linux).  But it could have been due to someone else.
+OK.  What if I make it the proceedure to use run_init to run dpkg or dselect 
+for package installation or replacement?
 
-I just sent my patches to the Debian maintainer and let them send it to the 
-upstream.
+The idea of dropping the authentication out of run_init or doing any major 
+change to decrease the security of my setup is not something that I am 
+prepared to consider.
 
-> modifications aren't necessarily in the form that I would like to see
-> mainstreamed (many of them were done as quick learning exercises by
-> others, and we haven't cleaned them up).  For example, some of the modified
-> utilities use a fixed size buffer for the security context and fail if the
-> buffer size is too small rather than resizing and trying again.  See the
-> sid_to_context test program for how to correctly handle this.
+My problem is that in the usual Debian package installation process the 
+program dselect will run dpkg multiple times, each invocation may install 
+multiple packages.  Each package installation may run multiple scripts that 
+may end up starting daemons, in many cases the daemon start scripts will be 
+run with standard input directed to be from /dev/null.  So if there is to be 
+any authentication in the package installation process then it has to be 
+before dselect is started.
 
-I'll have to look into that.
-
-> We're likely to continue distributing our modified stat until the new
-> version is picked up by RedHat as a convenience to our users.
-
-It might be quite some time before RH do that.  IMHO just telling users where 
-to get a suitable version is enough, but it's your call.
-
-> > There is a bug in displaying the context though, the following patch
-> > fixes it.
->
-> I assume that you've submitted this patch to the stat maintainer.
-
-Yes.  The reason why my message was corrupted is that kmail has a bug related 
-to copying from one message to another.  I did a cut/paste from the 
-confirmation message of my Debian bug report.
-
-It should be fixed in Debian RSN, and in upstream not long after.
+Am I on the right track now?
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
