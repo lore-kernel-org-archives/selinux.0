@@ -1,63 +1,45 @@
-Message-ID: <20040216140245.87457.qmail@web15201.mail.bjs.yahoo.com>
-Date: Mon, 16 Feb 2004 22:02:45 +0800 (CST)
-From: =?gb2312?q?Park=20Lee?= <parklee_2004@yahoo.com.cn>
-Subject: Something seems to be self-contradictory
-To: SELinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-820003070-1076940165=:86726"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1GEBXRb010039
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 09:11:34 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i1GEA4lK029266
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 14:10:04 GMT
+Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
+	by jazzswing.ncsc.mil  with ESMTP id i1GEA3OX029263
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 14:10:03 GMT
+Received: from hawaii.efficax.net (localhost.localdomain [127.0.0.1])
+	by hawaii.efficax.net (8.12.10/8.12.10) with ESMTP id i1GEBT4j032107
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 08:11:29 -0600
+Received: (from nick@localhost)
+	by hawaii.efficax.net (8.12.10/8.12.10/Submit) id i1GEBTwi032105
+	for selinux@tycho.nsa.gov; Mon, 16 Feb 2004 08:11:29 -0600
+Subject: SELinux support for Fedora Core 2
+From: Nick <nagray@austin.rr.com>
+Reply-To: nagray@austin.rr.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1076940688.14950.2.camel@hawaii.efficax.net>
+Mime-Version: 1.0
+Date: Mon, 16 Feb 2004 08:11:29 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-820003070-1076940165=:86726
-Content-Type: text/plain; charset=gb2312
-Content-Transfer-Encoding: 8bit
+All,
 
-Hi,
-Today,I was reading some SELinux technical documents.I saw the following words, They seems to be self-contradictory:
- 
-1.  ... ... A program,like any other object, is assigned a type,....      ( Page 4, subsection 3.1.TE Model,  Configuring the SELinux Policy).
-2. ... ...These transitions ensure that system processes and certain programs are placed into their own separate domains automatically. ......    ( Page 2, section 2 Overview,  A Security Policy Configuration for the Security-Enhanced Linux ).
- 
-Then I was confused by such a problem:
-Whether a program is assigned a type or a domain ?
- 
-Thanks,
- 
-Yours,
-Park Lee
-2004-02-16
- 
- 
- 
+I figure the person or persons involved in integrating SELinux into
+Fedora Core 2 must be subscribed to the list.
 
+Can you contact me offlist? I spent the weekend integrating SELinux into
+the Core 1 install, because I need it for the project I am working on
+and want to compare notes/ask questions.
 
+Nix
 
----------------------------------
-Do You Yahoo!?
-完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间
---0-820003070-1076940165=:86726
-Content-Type: text/html; charset=gb2312
-Content-Transfer-Encoding: 8bit
-
-<DIV>Hi,</DIV>
-<DIV>Today,I was reading some SELinux technical documents.I saw the following words, They seems to be self-contradictory:</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>1.&nbsp; ... ... A program,like any other object, is assigned a type,....&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;( Page 4, subsection 3.1.TE Model,&nbsp; Configuring the SELinux Policy).</DIV>
-<DIV>2. ... ...These transitions ensure that system processes and certain programs are placed into their own separate domains automatically. ......&nbsp;&nbsp;&nbsp; (&nbsp;Page 2,&nbsp;section 2 Overview,&nbsp; A Security Policy Configuration for the Security-Enhanced Linux ).</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Then I was confused by such a problem:</DIV>
-<DIV>Whether a program is assigned a type or a domain ?</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thanks,</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Yours,</DIV>
-<DIV>Park Lee</DIV>
-<DIV>2004-02-16</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;</DIV><p><br><hr size=1><b>Do You Yahoo!?</b><br>
-<a href="http://cn.rd.yahoo.com/mail_cn/tag/?http://cn.mail.yahoo.com" target=blank>完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间</a>
---0-820003070-1076940165=:86726--
+-- 
+Nick (Nix) Gray
+Senior Systems Engineer
+Bruzenak Inc.
+(512) 331-7998
 
 --
 This message was distributed to subscribers of the selinux mailing list.
