@@ -1,65 +1,94 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h542YYI4020283
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 22:34:35 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h548n0I4021168
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 04:49:00 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h542Wess025099
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 02:32:40 GMT
-Received: from smtp-out.comcast.net (smtp-out.comcast.net [24.153.64.115])
-	by jazzswing.ncsc.mil  with ESMTP id h542WehY025096
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 02:32:40 GMT
-Received: from comcast.net (pcp830001pcs.nrockv01.md.comcast.net [68.50.129.6])
- by mtaout02.icomcast.net
- (iPlanet Messaging Server 5.2 HotFix 1.16 (built May 14 2003))
- with ESMTP id <0HFX000BIR1YQH@mtaout02.icomcast.net> for
- selinux@tycho.nsa.gov; Tue, 03 Jun 2003 22:32:23 -0400 (EDT)
-Date: Tue, 03 Jun 2003 22:34:46 -0400
-From: John Wolff <jrwolff@comcast.net>
-Subject: Re: Compaq DL-360
-In-reply-to: <200306041135.09286.russell@coker.com.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: Brian May <bam@snoopy.apana.org.au>, selinux@tycho.nsa.gov
-Message-id: <3EDD5AC6.5030401@comcast.net>
-MIME-version: 1.0
-Content-type: text/html; charset=us-ascii
-References: <3ED7C88A.7060209@comcast.net>
- <20030601223130.GA29681@snoopy.apana.org.au> <3EDD2991.5050609@comcast.net>
- <200306041135.09286.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h548mRss006755
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 08:48:27 GMT
+Received: from mail.vegaa.de (mail.vegaa.de [213.203.196.181])
+	by jazzswing.ncsc.mil  with ESMTP id h548mQhY006747
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 08:48:26 GMT
+Received: from localhost (unknown [127.0.0.1])
+	by mail.vegaa.de (Postfix) with ESMTP id AF1A217409F
+	for <selinux@tycho.nsa.gov>; Wed,  4 Jun 2003 10:48:32 +0200 (CEST)
+Received: from mail.dr-baldeweg.de (pD9E8779B.dip.t-dialin.net [217.232.119.155])
+	by mail.vegaa.de (Postfix) with ESMTP id EC217174010
+	for <selinux@tycho.nsa.gov>; Wed,  4 Jun 2003 10:48:30 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by mail.dr-baldeweg.de (Postfix) with ESMTP id 325A715424
+	for <selinux@tycho.nsa.gov>; Wed,  4 Jun 2003 10:48:25 +0200 (CEST)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: file labels during init process
+Date: Wed, 4 Jun 2003 10:48:19 +0200
+MIME-Version: 1.0
+Message-Id: <200306041048.19435.carsten.grohmann@raumbildsysteme.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
-  <title></title>
-</head>
-<body>
-Russell Coker wrote:<br>
-<blockquote type="cite"
- cite="mid200306041135.09286.russell@coker.com.au">
-  <pre wrap="">On Wed, 4 Jun 2003 09:04, John Wolff wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">Kmod:  failed to exec /sbin/modprobe -s -k block-major-72, errno=2
- VFS:   Cannot open root device "4802<a class="moz-txt-link-rfc2396E" href="or48:02Pleaseappendacorrect">" or 48:02
- Please append a correct "</a>root=" boot option
- Kernel panic:  VFS:  Unable tomount root fs on 48:02
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-It seems that you are using a Compaq Intelligent Drive Array and you failed to 
-either compile the driver into the kernel or put it on the initrd.
+This days I install the january release of SELinux on my SuSE 8.1.
 
-It's probably easiest for you to just compile the driver into the kernel.
+Today I found this log message:
+avc:  denied  { search } for  pid=1 exe=/sbin/init path=/var/log 
+dev=03:09 ino=6 scontext=system_u:system_r:init_t 
+tcontext=system_u:object_r:file_t tclass=dir
 
-  </pre>
-</blockquote>
-I think that it is on the list.&nbsp; That is, the Smart2 driver is selected
-with a "*" in the configurator.&nbsp; What else should I be doing?<br>
-<br>
-jc<br>
-</body>
-</html>
+I have a problem with this entry. The complete filesystem is labeled 
+correct. The partition hda7 mounted as /var/log is also labled with 
+the correct type. Could it be that the init process access the 
+filesystem before the labels "grasp"?
+
+part of the boot messages:
+<6>Security Scaffold v1.0.0 initialized
+<6>SELinux:  Initializing.
+<6>SELinux:  Starting in permissive mode
+<6>SELinux:  Registered NetFilter hooks
+<6>There is already a security framework initialized, 
+register_security failed.
+<6>Failure registering capabilities with the kernel
+<6>selinux_register_security:  Registering secondary module 
+capability
+<6>Capability LSM initialized
+<6>SELinux:  Completing initialization.
+<4>security:  loading policy configuration from 
+/etc/security/selinux/policy.12
+<4>security:  3 users, 5 roles, 904 types
+<4>security:  29 classes, 159756 rules
+<6>SELinux: initialized (dev 03:09, type reiserfs), uses PSIDs
+<6>SELinux: initialized (dev 00:06, type devpts), uses transition 
+SIDs
+<6>SELinux: initialized (dev 00:05, type pipefs), uses task SIDs
+<6>SELinux: initialized (dev 00:04, type tmpfs), uses transition 
+SIDs
+<6>SELinux: initialized (dev 00:03, type sockfs), uses task SIDs
+<6>SELinux: initialized (dev 00:02, type proc), uses genfs_contexts
+<6>SELinux: initialized (dev 00:01, type bdev), not configured for 
+labeling
+<6>SELinux: initialized (dev 00:00, type rootfs), not configured for 
+labeling
+<6>Freeing unused kernel memory: 244k freed
+<4>avc:  denied  { search } for  pid=1 exe=/sbin/init path=/var/log 
+dev=03:09 ino=6 scontext=system_u:system_r:init_t 
+tcontext=system_u:object_r:file_t tclass=dir
+<6>Adding Swap: 264088k swap-space (priority 42)
+<6>SELinux: initialized (dev 03:01, type ext2), uses PSIDs
+<4>reiserfs: checking transaction log (device 03:05) ...
+<4>Using r5 hash to sort names
+<4>ReiserFS version 3.6.25
+<6>SELinux: initialized (dev 03:05, type reiserfs), uses PSIDs
+<4>reiserfs: checking transaction log (device 03:07) ...
+<4>Using r5 hash to sort names
+<4>ReiserFS version 3.6.25
+<6>SELinux: initialized (dev 03:07, type reiserfs), uses PSIDs
+<4>reiserfs: checking transaction log (device 03:08) ...
+<4>Using r5 hash to sort names
+<4>ReiserFS version 3.6.25
+<6>SELinux: initialized (dev 03:08, type reiserfs), uses PSIDs
+<4>reiserfs: checking transaction log (device 03:06) ...
+<4>Using r5 hash to sort names
+<4>ReiserFS version 3.6.25
+<6>SELinux: initialized (dev 03:06, type reiserfs), uses PSIDs
 
 
 
