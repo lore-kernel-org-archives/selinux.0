@@ -1,72 +1,121 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6PGR7rT020473
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 12:27:07 -0400 (EDT)
-Received: from home.nightdaughter.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6PGQxYd005151
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 16:27:06 GMT
-Received: from hydra.joerghoh.de (hydra.joerghoh.de [192.168.0.14])
-	by home.nightdaughter.de (Postfix) with SMTP id 5702217003A
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 18:26:53 +0200 (CEST)
-From: "Joerg Hoh" <joerg@devone.org>
-Date: Sun, 25 Jul 2004 18:26:53 +0200
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Selinux possible on Debian-Linux/ppc?
-Message-ID: <20040725162653.GC8638@hydra.joerghoh.de>
-References: <1090769556.7265.32.camel@debby>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6PNohrT021577
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 19:50:43 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6PNogYd010637
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 23:50:42 GMT
+Received: from [10.76.0.1] (nexus.verbum.private [10.76.0.1])
+	(using TLSv1 with cipher RC4-MD5 (128/128 bits))
+	(No client certificate requested)
+	by monk.area614.net (Postfix) with ESMTP id 6AF9541081C
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 19:50:44 -0400 (EDT)
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary="=-QeXnpuowo8+fi1O65d2D"
+Message-Id: <1090799087.13627.14.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
-In-Reply-To: <1090769556.7265.32.camel@debby>
+Subject: [patch] openvpn policy
+Date: Sun, 25 Jul 2004 19:50:42 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---qcHopEYAB45HaUaB
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--=-QeXnpuowo8+fi1O65d2D
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Sun, Jul 25, 2004 at 05:32:36PM +0200, Wolfgang Pfeiffer wrote:
->=20
-> I'm planning to get a SE Kernel 2.6 compiled here.
->=20
-> But I'm not quite sure whether SElinux will run on that machine, and on
-> Debian-ppc ...
+Hi,
 
-I think SELinux runs well on your machine, most little/big-endian flaws
-should have been found ...
+Attached is a policy for OpenVPN (http://openvpn.sf.net).  The last two
+parts of openvpn.te seem just slightly unclean; if anyone sees a better
+way, let me know.
 
-> On=20
-> <http://www.nsa.gov/selinux/>:
-> I read:
-> "Currently, we can only support the x86 architecture .."
+I've only tested a simple configuration with pre-shared static keys.
 
-This is a historic statement :-) SELinux ran fine on my alpha 6 months
-ago.
+(OT, but: OpenVPN is really cool.)
 
-Joerg
+--=-QeXnpuowo8+fi1O65d2D
+Content-Disposition: attachment; filename=openvpn.te
+Content-Type: text/plain; name=openvpn.te; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
---=20
-Fachbegriffe der Informatik (Nr 289): Chef
-- Jemand, der ohne Plan von der Sache unsinnige Anweisungen gibt, die Erfol=
-ge
-f=FCr sich reklamiert und die Katastrophen an =BBdie Techniker=AB weitergib=
-t.=20
-	Alexander Schreiber
+#DESC OpenVPN - Firewall-friendly SSL-based VPN
+#
+# Author: Colin Walters <walters@verbum.org>
+#
+########################################
+#
 
---qcHopEYAB45HaUaB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+daemon_domain(openvpn)
+etcdir_domain(openvpn)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+type openvpn_port_t, port_type;
 
-iD8DBQFBA99N6xdMID018FIRAsjvAJ4ltLxkrn+CM8cfcpfTrv+KEUEVwQCfco9Z
-pbPoafO4W/EjnqtgK1WE5TU=
-=J557
------END PGP SIGNATURE-----
+allow openvpn_t { etc_t etc_runtime_t }:{ file lnk_file } r_file_perms;
 
---qcHopEYAB45HaUaB--
+allow openvpn_t { random_device_t urandom_device_t }:chr_file { read getattr };
+allow openvpn_t devpts_t:dir { search getattr };
+allow openvpn_t tun_tap_device_t:chr_file rw_file_perms;
+allow openvpn_t proc_t:file { getattr read };
+
+allow openvpn_t self:unix_dgram_socket create_socket_perms;
+allow openvpn_t self:unix_stream_socket create_stream_socket_perms;
+allow openvpn_t self:unix_dgram_socket sendto;
+allow openvpn_t self:unix_stream_socket connectto;
+allow openvpn_t self:capability { net_admin };
+r_dir_file(openvpn_t, sysctl_net_t)
+
+can_network(openvpn_t)
+allow openvpn_t openvpn_port_t:udp_socket { name_bind };
+
+# OpenVPN executes a lot of helper programs and scripts
+allow openvpn_t { bin_t sbin_t }:dir { search getattr };
+allow openvpn_t bin_t:lnk_file { getattr read };
+can_exec(openvpn_t, { bin_t sbin_t shell_exec_t })
+# Do not transition to ifconfig_t, since then it needs
+# permission to access openvpn_t:udp_socket, which seems
+# worse.
+can_exec(openvpn_t, ifconfig_exec_t)
+
+# The Fedora init script iterates over /etc/openvpn/*.conf, and
+# starts a daemon for each file.
+r_dir_file(initrc_t, openvpn_etc_t)
+
+--=-QeXnpuowo8+fi1O65d2D
+Content-Disposition: attachment; filename=openvpn.fc
+Content-Type: text/plain; name=openvpn.fc; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+# OpenVPN
+
+/etc/openvpn(/*)?	--	system_u:object_r:openvpn_etc_t
+/usr/sbin/openvpn	--	system_u:object_r:openvpn_exec_t
+
+--=-QeXnpuowo8+fi1O65d2D
+Content-Disposition: attachment; filename=openvpn-net-contexts.patch
+Content-Type: text/x-patch; name=openvpn-net-contexts.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+* modified files
+
+--- orig/net_contexts
++++ mod/net_contexts
+@@ -190,6 +190,9 @@
+ portcon tcp 8080  system_u:object_r:http_cache_port_t
+ portcon udp 3130  system_u:object_r:http_cache_port_t
+ ')
++ifdef(`openvpn.te', `
++portcon udp 5000 system_u:object_r:openvpn_port_t
++')
+ ifdef(`transproxy.te', `portcon tcp 8081 system_u:object_r:transproxy_port_t')
+ ifdef(`amanda.te', `
+ portcon udp 10080 system_u:object_r:amanda_port_t
+
+
+
+
+--=-QeXnpuowo8+fi1O65d2D--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
