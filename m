@@ -1,72 +1,48 @@
-Message-ID: <20050102071707.53956.qmail@web51504.mail.yahoo.com>
-Date: Sat, 1 Jan 2005 23:17:07 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: Add a new class
-To: sds@epoch.ncsc.mil
-Cc: jbrindle@tresys.com, jaegert@us.ibm.com, lkcl@lkcl.net,
-   SELinux@tycho.nsa.gov
-MIME-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j02AYtIi012508
+	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 05:34:55 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j02AYweb008019
+	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 10:34:58 GMT
+Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
+	by open.hands.com (Postfix) with ESMTP id DD826BF8A
+	for <selinux@tycho.nsa.gov>; Sun,  2 Jan 2005 10:34:47 +0000 (GMT)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1Cl3Eo-0002mc-FU
+	for selinux@tycho.nsa.gov; Sun, 02 Jan 2005 10:45:30 +0000
+Date: Sun, 2 Jan 2005 10:45:30 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: modules needed to be compiled in for selinux to work
+Message-ID: <20050102104530.GG6142@lkcl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 2004-10-05 at 12:32, Stephen Smalley wrote:
-> On Mon, 2004-10-04 at 20:40, Joshua Brindle wrote:
-> >
-> > Check the files in policy/flask
-> >
-> > specifically you must add the class to 
-> > security_classes and the permissions to 
-> > access_vectors and then rebuild the headers with 
-> > the Makefile in the flask directory and put them 
-> > in linux/security/selinux/include/
-> >
-> > then reboot on the new kernel and build a policy 
-> > with the new classes and access vectors, it 
-> > should be fairly straightforward and no problems 
-> > should occur.
->
-> Note that if you are acting on a policy directory 
-> in a selinux-usr tree and have a linux-2.6 tree at 
-> the same level as your selinux-usr tree, then you 
-> can also do 'make all tokern tolib' in policy/flask 
-> to build and push the regenerated headers to the 
-> linux-2.6 tree and libselinux tree.  You can also 
-> override LIBSEL and LINUXDIR definitions if they
-> have different locations.
+hi,
 
-Now, I'm using FC2. 
-I've added a new class to security_classes and the
-permissions to access_vectors (In
-/etc/security/selinux/src/policy/flask), after that,
-rebuilt the headers with the Makefile in the flask
-directory and put them in
-/usr/src/linux-2.6.5-1.358/security/selinux/include as
-Joshua Brindle have mentioned. 
+debian's 2.6.9 kernel has selinux - and capabilities - as modules.
 
-What confused me here is that: MUST we also copy the
-headers to libselinux/include/selinux directory, and
-regenerate a new libselinux.so for the new class and
-its permissions? can we ignore this step?
+i was wondering: which gets run first, /sbin/init or modprobe
+capability from /etc/modules?
 
-And, Is there still any other matter that we should
-pay attention to, when we add a new class?
+i think the question is fairly obviously /sbin/init but i want to be
+absolutely sure.
 
+in other words, is CONFIG_CAPABILITY=m stopping selinux from
+working in debian's 2.6.9 kernel?
 
-Thank you very much.
+or am i on the wrong track altogether?
 
+ta,
 
+l.
 
-=====
-Best Regards,
-Park Lee
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Send a seasonal email greeting and help others. Do good. 
-http://celebrity.mail.yahoo.com
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
