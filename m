@@ -1,55 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2HFWURb026924
-	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 10:32:30 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i2HFUh6Q015022
-	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 15:30:43 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i2HFUf5t014898
-	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 15:30:42 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: newrole failed in enforcing mode
-Date: Thu, 18 Mar 2004 02:31:02 +1100
-Cc: Carsten Grohmann <carstengrohmann@gmx.de>,
-   SELinux Mail List <selinux@tycho.nsa.gov>,
-   Daniel J Walsh <dwalsh@redhat.com>
-References: <200403101650.07042.carstengrohmann@gmx.de> <200403180020.57582.russell@coker.com.au> <1079531397.10795.69.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1079531397.10795.69.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2I1O2Rb001495
+	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 20:24:03 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i2I1O10F014031
+	for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2004 01:24:02 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+        by jazzband.ncsc.mil  with ESMTP id i2I1O1gZ014028 for <selinux@tycho.nsa.gov>; Thu, 18 Mar 2004 01:24:01 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by abyss.simplyaquatics.com (Postfix) with ESMTP id 442603A404E
+	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 19:24:01 -0600 (CST)
+Received: from TECRAS1 (unknown [209.192.59.11])
+	by abyss.simplyaquatics.com (Postfix) with ESMTP id BBE843A404E
+	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 19:23:59 -0600 (CST)
+From: "Ed Street" <edstreet@street-tek.com>
+To: <selinux@tycho.nsa.gov>
+Subject: hipaa
+Date: Wed, 17 Mar 2004 20:23:57 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200403180231.02562.russell@coker.com.au>
+	charset="Windows-1252"
+In-Reply-To: <200403161822.25214.russell@coker.com.au>
+Message-Id: <20040318012359.BBE843A404E@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 18 Mar 2004 00:49, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> On Wed, 2004-03-17 at 08:20, Russell Coker wrote:
-> > Of course that might not be the problem.  Even when things are working
-> > perfectly with the correct PAM modules it will still try to
-> > access /etc/shadow and run unix_chkpwd when direct access fails.
-> >
-> > I have found a problem where I can't change role from sysadm_r to
-> > staff_r, I still haven't got time to debug this.
->
-> I just tried that, and it failed for me as well.  After looking into it
-> briefly, it appears that the 'role sysadm_r types system_chkpwd_t;' rule
-> was dropped at some point, and that prevents correct operation of
-> newrole from sysadm_r.  If I add that back (e.g. to
-> domains/programs/chkpwd.te), then newrole -r staff_r works again for me
-> from root:sysadm_r:sysadm_t.
+Hello,
 
-role sysadm_r types system_chkpwd_t;
-in_user_role(system_chkpwd_t)
+I was just curious if there's any stance with selinux in regards to hipaa.
 
-I've put the above in newrole.te in my tree to solve this.
+Ed
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.631 / Virus Database: 404 - Release Date: 3/17/2004
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
