@@ -1,50 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA20092
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 17:36:36 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA07364
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 22:33:24 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA07360
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 22:33:22 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Frank Mayer" <mayerf@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: Re: some random policy observations
-Date: Mon, 24 Feb 2003 23:36:24 +0100
-References: <004901c2dc50$c208b480$6600a8c0@columbia.tresys.com>
-In-Reply-To: <004901c2dc50$c208b480$6600a8c0@columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200302242336.24663.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA20292
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 17:57:32 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1OMvVI15585
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 22:57:31 GMT
+Received: from unicorn.lemuria.org (c145118.adsl.hansenet.de [213.39.145.118])
+        by jazzband.ncsc.mil  with ESMTP id h1OMvTf15577 for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 22:57:30 GMT
+Date: Mon, 24 Feb 2003 23:51:17 +0100
+From: Tom <tom@lemuria.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: Wayne Salamon <wsalamon@tislabs.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Core policy
+Message-ID: <20030224235117.B11665@lemuria.org>
+References: <Pine.LNX.4.33.0302241349350.1479-100000@vox.gw.tislabs.com> <200302242059.51557.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200302242059.51557.russell@coker.com.au>; from russell@coker.com.au on Mon, Feb 24, 2003 at 08:59:51PM +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 24 Feb 2003 23:04, Frank Mayer wrote:
-> 1. dpkg_t has load_policy access to security_t security object.
-> Probably a legacy problem; seems like it should use the load_policy
-> program, which is the only one that needs this access.
+On Mon, Feb 24, 2003 at 08:59:51PM +0100, Russell Coker wrote:
+> > gpm.te		General Purpose Mouse driver
+> 
+> GPM is not suitable for core IMHO.  I've never used it or seen anyone use it.
 
-Good point, I'll change that.
+Isn't gpm required by vim in Debian? If it's installed per default,
+even if not used, the policy should be there.
 
-> 3. Related, we might want to change the compile option for some program
-> (e.g., load_policy and checkpolicy) so they're statically linked.  This
-> not only removes the potential threat of intercepting their linking
-> process, but also allows us to remove the shared libraries as another
-> type of file that can be read.
 
-Also if you make a mistake in labelling or policy such that you can't load 
-shared objects it would be good to be able to run setfiles, load_policy, 
-checkpolicy, etc.  (yes I know such things should never happen - but I've 
-seen it too many times).
+> xfs is not required IMHO.  I think that the only need for XFS is for TrueType 
+> fonts, and I get the impression that anti-aliasing benefits from this too.  
+> But the core functionality is fine without it.
+
+I use xfs-tt on my workstations, and you're correct, the main reason is
+anti-aliasing. Both machines work just fine without xfs.
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
