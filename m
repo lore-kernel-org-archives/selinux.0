@@ -1,45 +1,45 @@
-Date: Mon, 3 Dec 2001 10:07:13 -0500 (EST)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA24281
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 10:14:17 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA23511
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 15:13:36 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
+	by jazzband.ncsc.mil  with ESMTP id PAA23507
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 15:13:35 GMT
+Date: Mon, 3 Dec 2001 10:13:29 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Grant Bayley <gbayley@ausmac.net>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: have you seen spfx2.c?
-In-Reply-To: <Pine.BSO.4.33.0112021406500.3173-100000@ausmac.net>
-Message-ID: <Pine.GSO.4.33.0112030953040.4293-100000@raven>
+To: Justin Smith <jsmith@mcs.drexel.edu>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: X windows with i810 chip
+In-Reply-To: <1007308295.1903.0.camel@jsmith.org>
+Message-ID: <Pine.GSO.4.33.0112031009550.4293-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sun, 2 Dec 2001, Grant Bayley wrote:
+On 2 Dec 2001, Justin Smith wrote:
 
-> What I don't understand with Linux users is the endless desire to
-> prevent broken things by patching around them in the kernel.
->
-> Why not concentrate on cleaning up the userland apps in Linux in such a
-> way that they're not overflowable in the first place?
->
-> No broken [suid | sgid | priviliged uid daemon ] userland apps means you
-> have a substantially better chance of keeping a system secure without all
-> the sleight of hand that lkms typically pull to prevent something bad from
-> happening.
+> X windows presents special problems with this (unfortunately common)
+> graphics chip. Even with all of the standard allows declarations for X
+> windows (and a few extras), I get the following:
 
-It sounds like you are also arguing against the approach of SELinux, which
-adds mandatory access controls to the kernel that can confine user
-programs and system servers to the minimum amount of privilege they
-require to do their jobs.  While it is certainly good to work on
-eliminating flaws from privileged applications, you're unlikely to
-eliminate all of the flaws in all of the privileged applications for all
-time.  Without mandatory access controls in the kernel, flawed
-applications will still be able to easily cause failures in system
-security.  Additionally, eliminating flaws from privileged applications
-doesn't help with other problems solved by mandatory access controls,
-e.g. confining malicious code, providing strong separation of processes
-and data based on confidentiality and integrity requirements, protecting
-applications against bypass or tampering.
+I don't think that this has anything to do with the graphics chip.
 
-The need for MAC is discussed further in the published papers about
-SELinux and the background papers, all available on the web site.
+> avc:  denied  { read } for  pid=1215 exe=/usr/X11R6/bin/XFree86
+> path=/dev/mem dev=03:01 ino=25224
+>    scontext=jsmith:user_r:user_t
+>    tcontext=system_u:object_r:memory_device_t
+>    tclass=chr_file
+
+The X server should be running in the user_xserver_t domain, which has the
+necessary permissions to /dev/mem.  On my systems, the X server is run
+indirectly through /usr/X11R6/bin/Xwrapper, which is labeled with the
+xserver_exec_t type.  This type causes a domain transition from user_t
+to user_xserver_t.  So I don't know why your X server is running in the
+wrong domain.
 
 --
 Stephen D. Smalley, NAI Labs
