@@ -1,39 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h56BwEI4002854
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2003 07:58:14 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h56Bvdss017719
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2003 11:57:39 GMT
-Received: from sentry.rv.nailabs.com (sentry.rv.nailabs.com [204.254.155.100])
-	by jazzswing.ncsc.mil  with ESMTP id h56BvchY017704
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2003 11:57:39 GMT
-Received: from localhost (wsalamon@localhost)
-	by vox.rv.nailabs.com (8.11.2/8.11.2) with ESMTP id h56Bwbh10734
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2003 07:58:37 -0400
-Date: Fri, 6 Jun 2003 07:58:37 -0400 (EDT)
-From: Wayne Salamon <wsalamon@nailabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Re: A vulnerability in SELinux (fwd)
-In-Reply-To: <Pine.LNX.4.33.0306060554430.10200-300000@vox.rv.nailabs.com>
-Message-ID: <Pine.LNX.4.33.0306060756200.10200-100000@vox.rv.nailabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h56D6PI4003376
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2003 09:06:25 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h56D6OtV008471
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2003 13:06:24 GMT
+Received: from mail.vegaa.de (mail.vegaa.de [213.203.196.181])
+        by jazzband.ncsc.mil  with ESMTP id h56D6Nal008458 for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2003 13:06:24 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
+To: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: postfix rules
+Date: Fri, 6 Jun 2003 15:05:51 +0200
+References: <200306041119.15601.carsten.grohmann@raumbildsysteme.de> <200306042033.20756.russell@coker.com.au>
+In-Reply-To: <200306042033.20756.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200306061505.51960.carsten.grohmann@raumbildsysteme.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Am Mittwoch, 4. Juni 2003 12:33 schrieb Russell Coker:
+> On Wed, 4 Jun 2003 19:19, Carsten Grohmann wrote:
+> > I would add domain_auto_trans(postfix_master_t,
+> > postfix_postqueue_exec_t, postfix_postqueue_t)
+> > ,but I'm not sure.
+> >  What do you thing?
+>
+> Adding that policy will solve the apparent problem, I've added it
+> to my tree.
 
-
-  'Sorry about the previously terse note, the version below was meant to
-be sent to an internal list first.
-
- I received the email from Rafal Wojtczuk and I thought others on this
-list would be interested. I haven't had time yet to verify his claim.
-
-  Comments?
-
--- 
-Wayne Salamon
-wsalamon@nailabs.com
+I'm sorry, but we need domain_auto_trans_read and not 
+domain_auto_trans
 
 
 
