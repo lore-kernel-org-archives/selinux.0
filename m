@@ -1,75 +1,60 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i979NPrT012606
-	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 05:23:25 -0400 (EDT)
-Received: from passage.avira.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i979NJov019745
-	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 09:23:24 GMT
-Message-ID: <41650B5B.5000903@gentoo.org>
-Date: Thu, 07 Oct 2004 12:24:43 +0300
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: postfix policy question
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5218F5C872F9BB2956DD0DB4"
+Message-Id: <200410070542.i975gkHV031259@turing-police.cc.vt.edu>
+To: linux-kernel@vger.kernel.org, SELinux@tycho.nsa.gov,
+   Ingo Molnar <mingo@redhat.com>
+Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org
+Subject: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1477279884P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 07 Oct 2004 01:42:46 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5218F5C872F9BB2956DD0DB4
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+--==_Exmh_1477279884P
+Content-Type: text/plain; charset=us-ascii
+
+(linux-net and netdev please cc: on replies - am only on lkml and selinux lists)
+
+Found this in the kernel msgs during system startup.
+
+Behavior has been there at least since rc2-mm3-VP-S6.  Am running with
+SELinx enabled in permissive mode.  I haven't built a rc3-mm2 kernel that I can
+test on - rc3-mm2-VP-T1 dies for me with the already-known USB issues, and I haven't
+backed that patch out yet (maybe will try that later tonight).
+
+audit(1097111349.727:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:netif_lo_t tclass=netif
+audit(1097111349.754:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:node_lo_t tclass=node
+audit(1097111349.782:0): avc:  denied  { recv_msg } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:smtp_port_t tclass=tcp_socket
+
+At least for the recv_msg error, I *think* the message is generated because
+when we get into net/socket.c, we call security_socket_recvmsg() in
+__recv_msg() - and (possibly only when we have the VP patch applied?) at that
+point we're in a softirqd context rather than the context of the process that
+will finally receive the packet, so the SELinux code ends up checking the wrong
+credentials.  I've not waded through the code enough to figure out exactly
+where the two tcp_recv messages are generated, but I suspect the root cause is
+the same for all three messages.
+
+The messages are happening when smartd is generating an e-mail alert (the
+source of the fsdaemon_t).  I'm not sure yet whether it's because sendmail
+hasn't started yet, and we're seeing ksoftirqd trying to drive the TCP stack
+sending an RST back to the SYN, or if there's something else strange going on.
 
 
-Hi!
-
-from postconf(1):
-The  postconf command prints the actual value of parameter (all known parameters by
-default) one parameter per line, changes its value,  or  prints  other  information
-about the Postfix mail system.
-
-so sysadm_t should be able to exec this binary, regardless of the 'direct_sysadm_daemon' status
-
-postconf is currently labeled postfix_master_exec_t, so would it be ok to add the following to the policy?:
-
-  ifdef(`direct_sysadm_daemon', `
-  domain_auto_trans(sysadm_t, postfix_master_exec_t, postfix_master_t)
-  allow sysadm_t postfix_master_t:process { noatsecure siginh rlimitinh };
-  role_transition sysadm_r postfix_master_exec_t system_r;
-  domain_auto_trans(sysadm_mail_t, postfix_master_exec_t, system_mail_t)
-  allow system_mail_t sysadm_t:process sigchld;
-  allow system_mail_t privfd:fd use;
-  ' ,`
-+allow sysadm_t postfix_master_exec_t:file { execute execute_no_trans getattr read };
-  ')dnl end direct_sysadm_daemon
-
-I'm not at all sure about this one, please don't shoot the messenger.
-
-bye,
-peter
-
--- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-
---------------enig5218F5C872F9BB2956DD0DB4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+--==_Exmh_1477279884P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBZQtfGSBEIeh4AEYRAj5hAJ9uaSX77WvPwI/9sQT0VCFLai9vYgCZAfrE
-lYBZYg+3alOkeEEiBPp4qHs=
-=MIGm
+iD8DBQFBZNdWcC3lWbTT17ARAsn/AJ0Waq3x671FYyFgLjQIt6Rqq3wh+ACeMNHE
+tKOke6la/wQKZu+x3dFwViI=
+=Egwh
 -----END PGP SIGNATURE-----
 
---------------enig5218F5C872F9BB2956DD0DB4--
+--==_Exmh_1477279884P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
