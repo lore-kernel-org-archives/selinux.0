@@ -1,78 +1,89 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94MBkrT022184
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 18:11:47 -0400 (EDT)
-Received: from e6.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94MBjs6000643
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 22:11:46 GMT
-Received: from northrelay04.pok.ibm.com (northrelay04.pok.ibm.com [9.56.224.206])
-	by e6.ny.us.ibm.com (8.12.10/8.12.9) with ESMTP id i94MBkSD056420
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 18:11:46 -0400
-Received: from d01ml605.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by northrelay04.pok.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id i94MD0Kt099696
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 18:13:00 -0400
-To: <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Subject: Add a new class
-From: Trent Jaeger <jaegert@us.ibm.com>
-Message-ID: <OF459C4AF8.918C9B11-ON85256F23.00798D88-85256F23.0079ECBE@us.ibm.com>
-Date: Mon, 4 Oct 2004 18:11:43 -0400
-Content-Type: multipart/alternative; boundary="=_alternative 0079EB6585256F23_="
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9506BrT022595
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 20:06:12 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95052YE022463
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 00:05:03 GMT
+Date: Tue, 5 Oct 2004 01:17:16 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Trent Jaeger <jaegert@us.ibm.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Add a new class
+Message-ID: <20041005001716.GA25251@lkcl.net>
+References: <OF459C4AF8.918C9B11-ON85256F23.00798D88-85256F23.0079ECBE@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <OF459C4AF8.918C9B11-ON85256F23.00798D88-85256F23.0079ECBE@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multipart message in MIME format.
---=_alternative 0079EB6585256F23_=
-Content-Type: text/plain; charset="US-ASCII"
+hi trent,
 
-Hi,
+as i understand it, it depends on what kind of operation you intend to
+add.
 
-I think this is something I could find in the docs or code, but I don't 
-see it. 
+for example if it's a new filesystem type, you don't _need_ to add a new
+class: selinux is smart enough to pick up the name from the vfs
+(superblock?) name, e.g. "fuse" or "proc" and you can add an association
+from there.
 
-How do I add a new class?  There are a variety of files in 
-security/selinux/include, such as av_permissions.h, that are 
-"automatically generated", but they are already in the distribution, so it 
-is not clear how they are generated.  If I add a class, operations, etc., 
-these files have to be modified and I would rather do it the proper way.
+... but if you're _genuinely_ adding something new such as, oh
+i dunno, optimised kernel-level support for Wine win32 calls
+where you need to support oh i dunno mmmm the concept of a
+NT named pipe because you've written a special authenticated
+pipe which can support NT security descriptors, then yes you
+would need to add a class...
 
-BTW -- this is for adding IPSec security associations for classes, so we 
-can label network connections.  Prototype code should be available soon.
+... along with the corresponding support in the kernel _for_
+that type, inside the selinux kernel.
 
-Regards,
-Trent.
-------------------------------------------------------------
-Trent Jaeger
-IBM T.J. Watson Research Center
-19 Skyline Drive, Hawthorne, NY 10532
-(914) 784-7225, FAX (914) 784-7225
---=_alternative 0079EB6585256F23_=
-Content-Type: text/html; charset="US-ASCII"
+basically it boils down to this:
 
+do you _really_ need to extend the types of operations which selinux can
+"vet"
 
-<br><font size=2 face="sans-serif">Hi,</font>
-<br>
-<br><font size=2 face="sans-serif">I think this is something I could find
-in the docs or code, but I don't see it. &nbsp;</font>
-<br>
-<br><font size=2 face="sans-serif">How do I add a new class? &nbsp;There
-are a variety of files in security/selinux/include, such as av_permissions.h,
-that are &quot;automatically generated&quot;, but they are already in the
-distribution, so it is not clear how they are generated. &nbsp;If I add
-a class, operations, etc., these files have to be modified and I would
-rather do it the proper way.</font>
-<br>
-<br><font size=2 face="sans-serif">BTW -- this is for adding IPSec security
-associations for classes, so we can label network connections. &nbsp;Prototype
-code should be available soon.</font>
-<br>
-<br><font size=2 face="sans-serif">Regards,</font>
-<br><font size=2 face="sans-serif">Trent.</font>
-<br><font size=2 face="sans-serif">------------------------------------------------------------<br>
-Trent Jaeger<br>
-IBM T.J. Watson Research Center<br>
-19 Skyline Drive, Hawthorne, NY 10532<br>
-(914) 784-7225, FAX (914) 784-7225</font>
---=_alternative 0079EB6585256F23_=--
+such as oh i dunno:
+
+	"allow openssl_exec_t port_t { add_rsa_key_to_connection }
+								   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+because if so, then the vetting can only be done in the linux kernel,
+therefore you have no alternative but to add new stuff (like with the
+recent x.org classes) into the selinux security module.
+
+l.
+
+On Mon, Oct 04, 2004 at 06:11:43PM -0400, Trent Jaeger wrote:
+> Hi,
+> 
+> I think this is something I could find in the docs or code, but I don't 
+> see it. 
+> 
+> How do I add a new class?  There are a variety of files in 
+> security/selinux/include, such as av_permissions.h, that are 
+> "automatically generated", but they are already in the distribution, so it 
+> is not clear how they are generated.  If I add a class, operations, etc., 
+> these files have to be modified and I would rather do it the proper way.
+> 
+> BTW -- this is for adding IPSec security associations for classes, so we 
+> can label network connections.  Prototype code should be available soon.
+> 
+> Regards,
+> Trent.
+> ------------------------------------------------------------
+> Trent Jaeger
+> IBM T.J. Watson Research Center
+> 19 Skyline Drive, Hawthorne, NY 10532
+> (914) 784-7225, FAX (914) 784-7225
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
