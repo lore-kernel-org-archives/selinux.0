@@ -1,43 +1,84 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA13860
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 18:27:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA11562
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 22:26:21 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id WAA11557 for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 22:26:20 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy "bloat" ?
-Date: Sat, 20 Apr 2002 00:27:18 +0200
-References: <20020419185507.B11916@lemuria.org> <20020419201154.4F75844F1A@lyta.coker.com.au> <20020419221455.B12025@lemuria.org>
-In-Reply-To: <20020419221455.B12025@lemuria.org>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>, SELinux@tycho.nsa.gov
+Subject: Re: SELinux RPM Version
+Date: Sat, 20 Apr 2002 00:36:51 +0200
+References: <72222DC86846D411ABD300A0C9EB08A101524351@csoc-mail-box.csoconline.com>
+In-Reply-To: <72222DC86846D411ABD300A0C9EB08A101524351@csoc-mail-box.csoconline.com>
 MIME-Version: 1.0
-Message-Id: <20020419222719.3FEBE44F46@lyta.coker.com.au>
+Message-Id: <20020419223651.9377344F46@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 19 Apr 2002 22:14, Tom wrote:
-> > > If so, would it make sense to include a 2nd, "minimal" example policy?
-> >
-> > It does not make sense to have another policy which is the same thing but
-> > with a few files removed.
+On Fri, 19 Apr 2002 22:26, Westerman, Mark wrote:
+> Current Configuration.
 >
-> Removing is some work, so I thought for people who'd rather build their
-> policy from the ground up, a minimal config may be a better starting
-> place. Just an idea.
-
-Removing is much easier than adding, unless you add wildly permissive domains.
-
-> > PS  Today I released a new version of my Debian packages.
+> /etc/selinux/policy	The main policy directory
+> If the directory does not exist then the rpm
+> packages will create it and install example policy files.
 >
-> You are evil. That means I have to update again on monday. :)
+> /etc/selinux/setfiles	Same for the policy directory
 
-I've just released a new version, and I'll probably have another before 
-Monday.
+The setfiles policy will be under the same directory in the next upstream and 
+that's what I'm doing in my Debian package, you may want to do the same.
+
+> The example policy is installed
+> /usr/share/doc/selinux/examples/policy
+
+I'm now using /usr/share/selinux/policy/default for the default.
+
+> Flask files
+> /usr/lib/flask
+
+What files?
+
+> Libsecure
+> /usr/lib/libsecure.a
+
+Same here.
+
+> All the added programs for selinux such as newrole
+> will be install into /usr/bin
+
+Here's my current locations:
+/usr/bin/chsid
+/usr/bin/schfn
+/usr/bin/schsh
+/usr/bin/load_policy
+/usr/bin/spasswd
+/usr/bin/checkpolicy
+/usr/bin/newrole
+/usr/bin/avc_toggle
+/usr/bin/lchsid
+/usr/bin/list_sids
+/usr/bin/chsidfs
+/usr/bin/avc_enforcing
+/usr/sbin/se_dpkg
+/usr/sbin/run_init
+/usr/sbin/setfiles
+/usr/sbin/se_apt-get
+/usr/sbin/se_dselect
+
+I'll move some of the other programs from /usr/bin to /usr/sbin.
+
+> The include directory
+> /usr/include/selinux
+
+Same here.
+
+> All packages such as
+> fileutils-4.1-4
+>
+> have been renamed to
+>
+> fileutils-selinux-4.1-4
+>
+> This packages provides: fileutils
+
+Currently I'm just using an incrementally higher version number for my 
+packages while determining whether the changes can go into the main packages.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
