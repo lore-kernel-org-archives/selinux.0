@@ -1,84 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9ABkEWt002397
-	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 07:46:14 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9ABkDUb000893
-	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 11:46:13 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9ADeYWt003124
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 09:40:35 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9ADeV0p019488
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 13:40:31 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9ABkChX000890 for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 11:46:12 GMT
-Subject: Re: [selinux] Re: autoconf/libtool for libselinux
+	by jazzswing.ncsc.mil  with ESMTP id h9ADeUr7019485
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 13:40:30 GMT
+Subject: Re: newrules.pl -o option
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: Thorsten Kukuk <kukuk@suse.de>, selinux@tycho.nsa.gov
-In-Reply-To: <20031010063200.GB29213@bunuel.tii.matav.hu>
-References: <20031006201735.GA28880@suse.de>
-	 <1065720375.8181.311.camel@moss-spartans.epoch.ncsc.mil>
-	 <20031010063200.GB29213@bunuel.tii.matav.hu>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1065786359.8181.411.camel@moss-spartans.epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
+In-Reply-To: <200310102116.16958.russell@coker.com.au>
+References: <200310090124.AA01358@ilios104.ori.hitachi-sk.co.jp>
+	 <20031010090846.5bdaf336.ynakam@ori.hitachi-sk.co.jp>
+	 <20031010082834.GA31227@vnl.com>  <200310102116.16958.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1065793227.8181.426.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 10 Oct 2003 07:45:59 -0400
+Date: 10 Oct 2003 09:40:27 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-10-10 at 02:32, Magosányi Árpád wrote:
-> I don't think so. Adhering to standards should not be overkill for any
-> project. It is doubly so for open source software; you can attract more
-> developers if the build process looks like the usual.
-> 
-> I wanted to reply to the mail with the patch to tell you
-> that I consider it as a seemingly marginal, but very important thing,
-> but I thought it would be like telling you that the grass is green.
+On Fri, 2003-10-10 at 07:16, Russell Coker wrote:
+> Also "newrules" is not a good choice of name.  There are potentially hundreds 
+> of things on a Unix system that have rules and which may have new rules 
+> generated.  On Debian systems it is currently /usr/bin/newrules-selinux, I 
+> think that's an ideal name for it.
 
-diffstat -p1 of the libselinux autoconf/libtool patch is:
+Not clear you need a '-selinux' suffix for SELinux-related programs; we
+certainly haven't done that for other SELinux utilities (e.g.
+checkpolicy, load_policy).  Other possible names might be:
+	genpol (generate policy)
+	audit2allow (convert audit messages to allow rules)
 
- INSTALL             |  229 
- Makefile            |   15 
- Makefile.am         |   13 
- Makefile.in         |  561 +
- aclocal.m4          | 6700 +++++++++++++++++
- config.guess        | 1417 +++
- config.h.in         |   67 
- config.sub          | 1501 +++
- configure           |20011 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- configure.in        |   28 
- depcomp             |  472 +
- include/Makefile    |    7 
- include/Makefile.am |   12 
- include/Makefile.in |  365 
- install-sh          |  294 
- ltmain.sh           | 6291 ++++++++++++++++
- missing             |  336 
- mkinstalldirs       |  111 
- src/Makefile        |   36 
- src/Makefile.am     |   18 
- src/Makefile.in     |  504 +
- src/fgetfilecon.c   |    9 
- src/fsetfilecon.c   |    9 
- src/getfilecon.c    |    9 
- src/lgetfilecon.c   |    9 
- src/lsetfilecon.c   |    9 
- src/setfilecon.c    |    9 
- utils/Makefile      |   21 
- utils/Makefile.am   |   20 
- utils/Makefile.in   |  566 +
- 30 files changed, 39570 insertions(+), 79 deletions(-)
-
-diffstat -p1 of a patch to simply remove -lattr and change <attr/xattr.h> 
-to <sys/xattr.h> in order to always use glibc for the xattr functions is:
-
- src/Makefile      |    2 +-
- src/fgetfilecon.c |    2 +-
- src/fsetfilecon.c |    2 +-
- src/getfilecon.c  |    2 +-
- src/lgetfilecon.c |    2 +-
- src/lsetfilecon.c |    2 +-
- src/setfilecon.c  |    2 +-
- utils/Makefile    |    2 +-
- 8 files changed, 8 insertions(+), 8 deletions(-)
-
-Get the picture?  autoconf/libtool is unnecessary bloat, and I don't want to 
-maintain it.
+If you feel the need to include some kind of SELinux distinguisher,
+perhaps you can just use a 'sel' prefix, e.g.
+	selnewrules
+	selgenpol
+	selaudit2allow
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
