@@ -1,57 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8I3uPxF004133
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 23:56:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8I3uJmw028548
-	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 03:56:24 GMT
-Received: from tama5.ecl.ntt.co.jp (tama5.ecl.ntt.co.jp [129.60.39.102])
-        by jazzband.ncsc.mil  with ESMTP id h8I3uB9d028533 for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 03:56:18 GMT
-Received: from vcs3.rdh.ecl.ntt.co.jp (vcs3.rdh.ecl.ntt.co.jp [129.60.39.110])
-	by tama5.ecl.ntt.co.jp (8.12.8p1/8.12.8) with ESMTP id h8I3txUC021817
-	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 12:55:59 +0900 (JST)
-Received: from nttmail3.ecl.ntt.co.jp (localhost [127.0.0.1])
-	by vcs3.rdh.ecl.ntt.co.jp (8.12.8p1/8.12.8) with ESMTP id h8I3twpo022905
-	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 12:55:58 +0900 (JST)
-Received: from eclscan3.m.ecl.ntt.co.jp (eclscan3.m.ecl.ntt.co.jp [129.60.5.69])
-	by nttmail3.ecl.ntt.co.jp (8.12.8p1/8.12.8) with ESMTP id h8I3tv8H027657
-	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 12:55:58 +0900 (JST)
-Received: from ima.m.ecl.ntt.co.jp (localhost [127.0.0.1])
-	by eclscan3.m.ecl.ntt.co.jp (8.9.3p2/3.7W) with ESMTP id MAA29334
-	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 12:55:57 +0900 (JST)
-Received: from [129.60.17.83]
-	by ima.m.ecl.ntt.co.jp (8.9.3p2/3.7W) with ESMTP id MAA22909
-	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 12:55:56 +0900 (JST)
-Date: Thu, 18 Sep 2003 12:55:53 +0900
-From: WATASE Jumpei <watase.jumpei@lab.ntt.co.jp>
-To: selinux@tycho.nsa.gov
-Subject: how to update openssh
-Message-Id: <20030918093542.9C48.WATASE.JUMPEI@lab.ntt.co.jp>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "lky" <lky77@sjtu.edu.cn>, "SELINUX" <SELinux@tycho.nsa.gov>
+Subject: Re: Installation Problem
+Date: Thu, 18 Sep 2003 14:37:08 +1000
+References: <000a01c37d46$29ed8300$5d38a8c0@lky>
+In-Reply-To: <000a01c37d46$29ed8300$5d38a8c0@lky>
+Cc: James Morris <jmorris@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="gb2312"
+Message-Id: <200309181437.08434.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi
+On Thu, 18 Sep 2003 04:04, lky wrote:
+> Hi, I am attempting to install the new 2.4-based SELinux at Redhat9.0. But
+> when I finished the installation I found I couldn't reboot the Redhat9.0
+> any longer while I can boot with the SELinux kernel. When I boot with the
+> Redhat9.0 kernel I got the following error message:
 
-I've tried updating openssh RPM for selinux-2003081307
-on Red Hat 9.
+I am under the impression that this kernel bug (as described by James Carter) 
+has not yet been correctly tracked down and fixed.
 
-I got openssh-3.5p1-11.src.rpm, and copied
-openssh-selinux.patch and openssh-3.5p1-socklen.patch
-from selinux-usr-2003081307.tgz into source tree of
-openssh-3.5p1-11, then modify %patch entry in
-openssh.spec.
+Discussing this matter with James Morris and Stephen Tweedie off-list may be 
+beneficial, it would be good if this bug could be fixed before 2.4.23...
 
-I put the updated SRPM on
-https://sourceforge.jp/projects/selinux/files/
-
-If I left any neccesary item for updating selinux patched program,
-I will appreciate you to tell me what and how to do in addition.
-
-Regards,
+I suggest discussing it off-list as Stephen may require more information about 
+your system than you are willing to provide in a public forum.
 
 -- 
-WATASE Jumpei <watase.jumpei@lab.ntt.co.jp>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
