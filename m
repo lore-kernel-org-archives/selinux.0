@@ -1,66 +1,55 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9440rsJ014335
-	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 00:00:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h944KdsJ014413
+	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 00:20:39 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h943x4Zt007042
-	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 03:59:04 GMT
-Received: from sj-iport-3.cisco.com (sj-iport-3-in.cisco.com [171.71.176.72])
-	by jazzswing.ncsc.mil  with ESMTP id h943x3M3007039
-	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 03:59:03 GMT
-Received: from franklin.cisco.com (franklin.cisco.com [171.70.156.17])
-	by sj-core-5.cisco.com (8.12.9/8.12.6) with ESMTP id h9440oXg004226
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 21:00:50 -0700 (PDT)
-Received: from Cowboys.cisco.com (200@stealth-10-32-244-139.cisco.com [10.32.244.139]) by franklin.cisco.com (8.8.6 (PHNE_17190)/CISCO.SERVER.1.2) with SMTP id VAA29600 for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 21:00:49 -0700 (PDT)
-Date: Fri, 3 Oct 2003 21:00:14 -0700
-From: Michael Reilly <michaelr@cisco.com>
+	by jazzswing.ncsc.mil  with ESMTP id h944InZt007609
+	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 04:18:49 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+	by jazzswing.ncsc.mil  with ESMTP id h944ImM3007605
+	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 04:18:48 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id B2C7592472
+	for <selinux@tycho.nsa.gov>; Sat,  4 Oct 2003 14:20:30 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 6EEAE7F004
+	for <selinux@tycho.nsa.gov>; Sat,  4 Oct 2003 14:20:22 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Question about policy files and users
-Message-Id: <20031003210014.7c76f52f.michaelr@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: serial devices
+Date: Sat, 4 Oct 2003 14:20:21 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200310041420.21903.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Currently we have serial ports labeled at tty_device_t by default.
 
-I downloaded the policy files from http://www.coker.com.au/selinux/policy/
-and installed them on my Slackware system along with the selinux patches,
-utills, etc. from the NSA site (the August release for a 2.4.21 kernel and
-the old version of the API patches).
+The problem is that serial ports are used for modems, printers, and many other 
+things than terminals.  Currently the sample policy does not permit such 
+access.  So cups and lpd are not granted access, and if you want to run 
+minicom you have to change the context of the device (and add new policy) or 
+run minicom as sysadm_t.
 
-Everything went pretty well - I am now working on cleaning up the policy to
-get rid of the remaining avc denied messages.
+I have been thinking of creating a new type for non-login serial devices and 
+granting pppd, cups and lpd full access to it, then the administrator would 
+have the option of granting users access to it for running minicom without 
+allowing them to spoof logins.
 
-While working on this I noticed in the policy files I downloaded (and the
-original policy files  included in the downloaded files from the NSA site)
-in file_contexts/types.fc this entry -
+Another possibility is to have different types for the device as used by cups, 
+pppd, and minicom.  Then change the contexts of serial devices to indicate 
+which service they are for, but this could be painful to administer.
 
-/home/jadmin/(/.*)?                     system_u:object_r:staff_home_t
+What do you think?
 
-(I, of course, replaced jadmin with my login name).  My question is why is
-the entry not -
-
-/home/jadmin/(/.*)?                     jadmin_u:object_r:staff_home_t
-
-When I created new files in my login directory while the selinux kernel is
-running they are labeled jadmin_u:object_r:staff_home_t
-
-Being new to selinux I think I am missing something - why does the home
-directory and the files in that directory not set to the id of the owner
-(jadmin_u) instead of system_u?  And is my system doing something wrong by
-labeling newly created files in my login directory
-jadmin_u:object_r:staff_home_t?
-
-BTW - I installed gentoo selinux on a different machine.  Their installation
-guide indicates that the later (jadmin_u:object_r:staff_home_t) is correct
-and the policy files should be edited to use the jadmin_u).
-
-Thanks for any help you can provide.
-
-michael
 -- 
----- ---- ----
-Michael Reilly    michaelr@cisco.com
-    Cisco Systems, Santa Cruz, CA
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
