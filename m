@@ -1,49 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA08262
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:45:27 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id HAA00131
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 07:45:19 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id HAA00127
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 07:45:16 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 76AE292460
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 17:45:13 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 42F59746
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 09:45:04 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: deficiency in logging in enforcing mode
-Date: Wed, 29 May 2002 08:08:20 +0200
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA09031
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 08:33:19 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA23159
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 12:31:59 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id MAA23155 for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 12:31:59 GMT
+Date: Wed, 29 May 2002 08:32:13 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: deficiency in logging in enforcing mode
+In-Reply-To: <20020529074504.42F59746@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0205290828170.4237-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020529074504.42F59746@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It seems that messages such as the following are not logged in enforcing 
-mode, only in permissive mode.  So if I can't execute a program because it's 
-got a domain_auto_trans rule specifying that it should transition to a domain 
-that is not permitted for the role I'm in then it just doesn't get executed 
-with no reason being logged!
 
-This makes it difficult to determine why something is not working if you make 
-a mistake in the role definitions, and limits the use of roles.  Can this be 
-fixed in the next version?
+On Wed, 29 May 2002, Russell Coker wrote:
 
-security_compute_sid:  invalid context rjc:sysadm_r:apmd_t for 
-scontext=rjc:sysadm_r:sysadm_t tcontext=system_u:object_r:apmd_exec_t 
-tclass=process
+> It seems that messages such as the following are not logged in enforcing
+> mode, only in permissive mode.  So if I can't execute a program because it's
+> got a domain_auto_trans rule specifying that it should transition to a domain
+> that is not permitted for the role I'm in then it just doesn't get executed
+> with no reason being logged!
+>
+> This makes it difficult to determine why something is not working if you make
+> a mistake in the role definitions, and limits the use of roles.  Can this be
+> fixed in the next version?
+>
+> security_compute_sid:  invalid context rjc:sysadm_r:apmd_t for
+> scontext=rjc:sysadm_r:sysadm_t tcontext=system_u:object_r:apmd_exec_t
+> tclass=process
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+The only reason to log such a message is to help people in debugging
+policies, and permissive mode is suitable for that purpose.  In contrast,
+the AVC auditing is useful both in debugging policies and in providing an
+audit log.  The disabling of the security_compute_sid logging when in
+enforcing mode is intentional.
+
+If we were to enable security_compute_sid logging in enforcing mode, we
+would also need to apply a rate limit mechanism, as with the AVC auditing,
+in order to guard against flooding.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
