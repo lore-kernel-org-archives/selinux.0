@@ -1,56 +1,55 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA12076
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 09:51:11 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA12874
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 12:16:02 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA08122
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 13:50:41 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzband.ncsc.mil  with ESMTP id NAA08118
-	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 13:50:40 GMT
-Date: Mon, 8 Oct 2001 09:50:37 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: James Bishop <james.bishop@jrc.it>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Compiling for SuSE 7.2
-In-Reply-To: <3BC17C93.9080601@jrc.it>
-Message-ID: <Pine.GSO.4.33.0110080939300.9507-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil  with ESMTP id QAA14174
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 16:15:31 GMT
+Received: from mozart.fwsystems.com (mozart.fwsystems.com [63.101.67.2])
+	by jazzband.ncsc.mil  with ESMTP id QAA14170
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 16:15:31 GMT
+Received: from w2 (IDENT:fw@w2.fwsystems.com [63.101.67.15])
+	by mozart.fwsystems.com (8.11.6/8.11.6) with SMTP id f98GG0S30828
+	for <selinux@tycho.nsa.gov>; Mon, 8 Oct 2001 12:16:00 -0400
+Date: Mon, 8 Oct 2001 12:16:00 -0400
+From: forrest whitcher <fw@fwsystems.com>
+To: selinux@tycho.nsa.gov
+Subject: SE-Linux versions, features, stability?
+Message-Id: <20011008121600.071caa6e.fw@fwsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 8 Oct 2001, James Bishop wrote:
+Several questions directed to the SE Linux principles
 
-> I can live without X for this project, where we have to implement a root
-> certification authority for a system using public key cryptography. I'm
-> interested in using Linux for the registration service of the root CA,
-> and SELinux appears to be ideal for this task. So, X is neither
-> required, nor desirable if it bypasses the login choke-point.
+Stephen, in your talk this spring at Usenix you noted that 
+you had a server running SE Linux in production for a period
+of months.
 
-Ok.  However, you can run X after logging into the system via startx if
-you uncomment the necessary permissions in your xserver.te file, so  this
-is a possibility if you need it.  Also, Mark Westerman has created a
-modified gdm and a gdm policy, so you could use that if needed.  But be
-aware that either of these choices has risks.
+Can you advise what SE Linux version(s) are so used and what is 
+the operational environment (Internet-exposed? services running
+in secured contexts?)
 
-> 1) My modified login does not work on my original SuSE (7.2 running a
-> 2.4.4 kernel); I go through the motions of logging in, but just get
-> returned to the login screen, as in SELinux.
-> 2) The SuSE login uses PAM.
+I expect that since the stable 2.2.19 kernel-patched version, 
+through the 2.4 kernel-patched and into the currently recommended
+LSM-based version that you have added features and killed bugs.
 
-See if you can successfully build and run a pure SuSE 7.2 login using the
-original sources from which you started.  Make sure that you are
-configuring and building the login program in the same way as rpm would,
-in accordance with the RPM spec file.  Verify that your problems aren't
-due to the non-FLASK MCONFIG changes.
+The NSA download site recommends that people use the most recent 
+(LSM) code, which makes sense in development, as I doubt that
+the new versions maintain backward-compatibilty.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Is this also the best (general) recommendation for trying to deliver 
+an operational, secured system.
 
+Within the caveat that I don't think NSA can (or should) take 
+repsponsibility recommend SE Linux as a production system, are
+there any differences between the 3 major extant versions
+(2.2.19, 2.4, LSM) as regards deploying operational servers?
 
+Thanks,
 
+forrest
 
 --
 You have received this message because you are subscribed to the selinux list.
