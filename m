@@ -1,71 +1,47 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7KERuHa021829
-	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 10:27:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7KGmqLa023143
+	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 12:48:52 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7KEN5eJ012656
-	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 14:27:55 GMT
-Received: from hotmail.com (bay8-f34.bay8.hotmail.com [64.4.27.34])
-        by jazzband.ncsc.mil  with ESMTP id h7JHwvNN029187 for <selinux@tycho.nsa.gov>; Tue, 19 Aug 2003 17:59:07 GMT
-From: "Ripin Natani" <ripinfs@hotmail.com>
-To: selinux@tycho.nsa.gov
+	by jazzband.ncsc.mil  with ESMTP id h7KGmkfF012295
+	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 16:48:46 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h7KGmiHd012242 for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 16:48:45 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Ripin Natani" <ripinfs@hotmail.com>, "selinux" <selinux@tycho.nsa.gov>
 Subject: Re: "Unable to mount root fs on unknown-block(0,0)"
-Date: Tue, 19 Aug 2003 13:58:56 -0400
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_7b2c_156c_3aea"
-Message-ID: <BAY8-F34AeUxUsU7DRz00022296@hotmail.com>
+Date: Thu, 21 Aug 2003 02:48:28 +1000
+References: <BAY8-DAV65gIXre2awF00029870@hotmail.com>
+In-Reply-To: <BAY8-DAV65gIXre2awF00029870@hotmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200308210248.28168.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Thu, 21 Aug 2003 00:09, Ripin Natani wrote:
+> I also updated the mkinitrd (now i have the 3.4.42 version). Does that have
+> the patch ? Btw I did not find any documentation in linux2.6/README about
+> the patch for the mkinitrd script. ( I hope i looked at the right README
+> !!! ).
+> The system is still giving the same error !
+> Also I am resending the .config file.
 
-------=_NextPart_000_7b2c_156c_3aea
-Content-Type: text/plain; format=flowed
+The .config file you attached still has the CONFIG_SECURITY options turned off 
+which means that either you attached the wrong .config file or you did not 
+compile a SE Linux kernel.
 
-(sorry if this is a duplicate)
-Yes I am booting with an initrd. Basically I do a 'make install' after make  
-'make modules_install'. The steps that I perform:
-make mrproper
-make menuconfig
-make clean
-make bzImage
-make modules
-make modules_install
-make install
-I also updated the mkinitrd (now i have the 3.4.42 version). Does that have 
-the patch ? Btw I did not find any documentation in linux2.6/README about 
-the patch for the mkinitrd script. ( I hope i looked at the right README !!! 
-).
-The system is still giving the same error !
-Also I am resending the .config file.
-Thanks,
--Ripin
+If the .config file is the correct file then it indicates that the problem is 
+a general 2.6 kernel issue not a SE Linux issue, in which case this list 
+probably isn't going to be the best source of advice on the matter.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
->Are you boot it with an initrd?  Did you patch your mkinitrd script per
->the README so that the initial policy load will occur from the initrd?
->
->The root=LABEL=/ should work fine as long as you are using an initrd
->(which you should be using, to perform the initial policy load, unless
->using the old 2.4-based SELinux).  If you weren't using an initrd, you
->would need to specify the actual root device, e.g. root=/dev/hda2 or
->whatever is appropriate for your system.
->
->--
->Stephen Smalley <sds@epoch.ncsc.mil>
->National Security Agency
->
-
-_________________________________________________________________
-<b>Get MSN 8</b> and enjoy automatic e-mail virus protection.    
-http://join.msn.com/?page=features/virus
-
-------=_NextPart_000_7b2c_156c_3aea
-Content-Type: application/octet-stream; name=".config"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=".config"
-
-
-------=_NextPart_000_7b2c_156c_3aea--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
