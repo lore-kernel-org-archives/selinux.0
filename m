@@ -1,58 +1,89 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FCVxI4017402
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 08:31:59 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4FCVoVG014893
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:31:50 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h4FCVnL9014890 for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:31:49 GMT
-Subject: Re: Process Transition
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@netgps.net
-Cc: selinux@tycho.nsa.gov, Frank Mayer <mayerf@tresys.com>
-In-Reply-To: <Pine.LNX.4.33.0305141431210.16852-100000@GPS1.NETPGS.NET>
-References: <Pine.LNX.4.33.0305141431210.16852-100000@GPS1.NETPGS.NET>
-Content-Type: text/plain
-Message-Id: <1053001902.4729.657.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 15 May 2003 08:31:44 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FCdjI4017436
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 08:39:45 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4FCdPl5003525
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:39:25 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h4FCd7Nc003510
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:39:23 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 4EC22BF54
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:09 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 20980-07
+ for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:08 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 21906BF53
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:08 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E5251924A3
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:06 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id C28031B8F
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:37:44 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: memory used by SE Linux
+Date: Thu, 15 May 2003 22:37:44 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200305152237.44225.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-05-14 at 16:06, selinux@netgps.net wrote:
-> Upon booting the LSM kernel in permissive mode, I get many access denied 
-> messages as the init process runs (as well as some other processes that 
-> run at boot).
+Here is some raw data about SE Linux memory use on ARM.  I haven't previously 
+done any checks on i386 because my i386 machines are so big that it doesn't 
+matter.  Eventually I'll probably look into i386 memory usage to compare.
 
-Which LSM kernel are you using?  The one from the NSA SELinux web site? 
-Or the sourceforge CVS tree?  Or Russell Coker or Brian May's packages
-for Debian?  Or from the public LSM BitKeeper trees?
+All tests were done on a machine with kernel module loading disabled and 
+minimal functionality.  The proceedure was to login on a serial terminal and 
+run free as soon as the machine was functional.
 
-Does your "LSM kernel" also include the separate SELinux-specific
-patch?  Does lsm-2.4/init/main.c include the call to selinux_init()?
+Non-SE kernel 2.4.19-rmk6-pxa1-hh11 (just for a quick test - the differences 
+between hh11 and hh12 aren't great, but I'll have to compile them both with 
+the same compiler etc for a proper test).
 
-> avc:  denied  { transition } for  pid=1 comm=swapper path=/sbin/init /
-> dev=08 :01 ino=229436 scontext=system_u:system_r:kernel_t /
-> tcontext=system_u:system_r:init_t tclass=process
-> 
-> I have the following line in the policy.conf (post make install-src 
-> install, of course):
-> 
-> allow kernel_t init_t:process transition;
+              total         used         free       shared      buffers
+  Mem:        63404        18408        44996            0            0
+ Swap:            0            0            0
+Total:        63404        18408        44996
 
-I don't see why this permission would fail, given that the above rule is
-included.  There is no change in user identity or role on this
-transition, so neither the constraints nor the role allow rules are
-relevant, just the TE rule.
+Memory with SE Linux kernel 2.4.19-rmk6-pxa1-hh12-se2 but no policy:
 
-Make sure that your binary policy corresponds to your policy.conf, i.e.
-recompile it with checkpolicy.  You can also run checkpolicy -d -b on
-the binary policy file and query it to see whether a given permission is
-included in it.
+              total         used         free       shared      buffers
+  Mem:        63284        20784        42500            0            0
+ Swap:            0            0            0
+Total:        63284        20784        42500
+
+So apart from the issue of different memory use by the minor kernel revision 
+and the potential for different compiler having different memory use (which I 
+will test tomorrow) it appears that 2376K of data may be used for SE Linux.  
+This can't be right, I'll have to recompile both kernels with exactly the 
+same options to re-test this.
+
+Memory with same SE Linux kernel and 85837byte compressed (583771 byte 
+uncompressed) policy:
+              total         used         free       shared      buffers
+  Mem:        63284        22084        41200            0            0
+ Swap:            0            0            0
+Total:        63284        22084        41200
+
+It seems that 1300K is used by the active policy.  Would I be correct in 
+assuming that the AVC cache would also consume more memory once the machine 
+is in full operation and more domain-type combinations are in the cache?
+
+Apart from making the policy smaller (which I am working on), is there any 
+easy way of reducing the kernel memory use of SE Linux?  5% of RAM seems like 
+a lot when there's no swap.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
