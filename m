@@ -1,53 +1,43 @@
-Date: Wed, 27 Mar 2002 13:33:34 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Justin Smith <jsmith@mcs.drexel.edu>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Forwarding X connections using ssh
-In-Reply-To: <1017251782.2102.12.camel@jsmith.org>
-Message-ID: <Pine.GSO.4.33.0203271324060.8022-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA00084
+	for <selinux@tycho.nsa.gov>; Wed, 27 Mar 2002 17:47:27 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA25410
+	for <selinux@tycho.nsa.gov>; Wed, 27 Mar 2002 22:46:22 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id WAA25406 for <selinux@tycho.nsa.gov>; Wed, 27 Mar 2002 22:46:19 GMT
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SE support in tar 1.3.25?
+Date: Wed, 27 Mar 2002 23:47:01 +0100
+Cc: bdale@gag.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020327224702.1317F420EE@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I've just made a quick attempt at getting tar 1.3.25 working with SE support. 
+The code has changed enough since the 1.3.19 version that the SE patch is 
+against that not only do patches not apply in a working fashion, but I can't 
+figure out what the code is actually doing.
 
-On 27 Mar 2002, Justin Smith wrote:
+If the NSA person who originally wrote the tar support could port it to the 
+latest version of tar then that would be great.
 
-> I am using the latest release (2.4.18) of SELinux with no patches
-> (beyond the bare release) and
->
-> OpenSSH_3.1p1, SSH protocols 1.5/2.0, OpenSSL 0x0090602f
-> (with the sshd on the remote machine provided by SELinux)
->
->  and have a problem forwarding X connections.
->
-> Whenever I log in to a remote machine that is in enforcing mode
-> I get the message
->
-> Last login: Wed Mar 27 12:36:49 2002 from
-> pool-141-158-41-46.phil.east.verizon.net
-> /usr/X11R6/bin/xauth:  timeout in locking authority file
-> /home/jsmith/.Xauthority
->
->
-> and X connections are not authorized. When the remote machine is in
-> permissive mode, there's no problem.
->
-> The STRANGE thing is that there are no error messages from the kernel
-> (so I can't modify the security policy to allow this).
+Otherwise if someone else feels like giving it a go then that would be good 
+too.
 
-I don't seem to have any problems forwarding X connections via ssh between
-two SELinux systems here that are both running in enforcing mode.  Restart
-klogd and trying it again, and verify that no messages are logged by the
-AVC (avc:) or the security server (security_compute_sid:).  What are your
-security option settings in your .config file?
+I've cc'd this message to Bdale, the Debian package maintainer for tar, I 
+expect he could knock this up in 10 minutes if he's interested...
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
