@@ -1,45 +1,26 @@
-Date: Fri, 18 Mar 2005 23:00:15 +0000
+Date: Fri, 18 Mar 2005 23:03:51 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: concerns about object-inheritance wrt files/directories
-Message-ID: <20050318230015.GK8040@lkcl.net>
-References: <20050316135008.GA24000@lkcl.net> <1110980748.4802.61.camel@moss-spartans.epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'Kaigai Kohei'" <kaigai@ak.jp.nec.com>,
+   "'KaiGai Kohei'" <kaigai@kaigai.gr.jp>,
+   "'SELinux Mail List'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+Subject: Re: [RFC & PATCH] inherited type definition.
+Message-ID: <20050318230350.GM8040@lkcl.net>
+References: <1111151632.17131.36.camel@moss-spartans.epoch.ncsc.mil> <200503182228.j2IMSv8R009703@gotham.columbia.tresys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1110980748.4802.61.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <200503182228.j2IMSv8R009703@gotham.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Mar 16, 2005 at 08:45:48AM -0500, Stephen Smalley wrote:
-> On Wed, 2005-03-16 at 13:50 +0000, Luke Kenneth Casson Leighton wrote:
-> >  for file types, i have a major concern.
-> > 
-> >  if not careful, we are going to be getting into the "multiple file
-> >  types" thing again, which it has already been discussed that, whilst
-> >  doable, has some hair-raising implications that make it too complex to
-> >  a) understand for implementation purposes b) understand the resultant
-> >  policy.
-> 
-> No, I think you misunderstood.  The objection to multiple contexts on
-> files is that you can't analyze the resulting policy without pulling in
-> the entire filesystem state, and a modification to the filesystem state
-> at any time can change the policy.  
+On Fri, Mar 18, 2005 at 05:28:57PM -0500, Karl MacMillan wrote:
+> Also, the more I think about it the more convinced I am that the show-stopper
+> limitation of the extends syntax is that it allows only one subset of access.
 
- sorry, yes: i remember the objection but not the details.
+ there is nothing to stop you using an extends inside a macro:
 
- i remember that we disagreed over the conclusion because i
- could see that what you were proposing and what i was proposing
- were topologically equivalent (as best i could make out),
- such that one of us _had_ to be wrong :)
-
- hence my warnings that kaigai's scheme could also be another
- [topologically equivalent] scheme where filetypes could also
- get into trouble - or not - depending on whose conclusion is
- correct.
-
- i be watching the discussions with beady-eyed interest -
- without comment unless invited - to see what happens.
+	 $1_t EXTENDS $1_ftp_t
 
  l.
 
