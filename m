@@ -1,47 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA23637
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 18:22:46 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA14378
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 22:21:09 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id WAA14374 for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 22:21:07 GMT
-Date: Fri, 16 Aug 2002 08:22:37 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy file management
-Message-ID: <20020815222237.GA26062@snoopy.apana.org.au>
-References: <20020815180940.3719C854@lyta.coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020815180940.3719C854@lyta.coker.com.au>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+Subject: Re: mysqld rules
+Date: Fri, 16 Aug 2002 01:12:54 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <200208152054.UAA27695@jazzswing.ncsc.mil>
+In-Reply-To: <200208152054.UAA27695@jazzswing.ncsc.mil>
+MIME-Version: 1.0
+Message-Id: <20020815231254.D1605400@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Aug 15, 2002 at 08:09:39PM +0200, Russell Coker wrote:
-> So postfix.te depends on mta.te (it won't be offered if you don't have 
-> mta.te), it conflicts with other mail-server policy (IE qmail.te and 
-> sendmail.te).
-> 
-> What do you think?
+On Thu, 15 Aug 2002 22:55, Carsten Grohmann wrote:
+> On SuSE mysqld starts with safe_mysqld. This time I write a rule set for
+> it. And in this context I change your mysqld_t rules a little bit.
+> I am interested in your opinion about this. ( I remaind of discussion about
+> the config files.)
 
-What tool do you propose would parse these headers?
+The type etc_mysqld_t is to be used for system configuration files, I have 
+changed my mysqld.fc file appropriately.
 
-Would you have a tool for installing policies according to these rules,
-or would you simply check the installed policy before compiling it?
+I think that adding a mysql_userconf_t is not the way to go, there should be 
+a macros file with a $1_home_mysql_t if necessary.  But do we really need 
+that?
 
-Anyway, for my conference submission for LCA (not yet accepted), I
-have designed a new XML file format which defines a formal unit called
-a "package". This might be another solution, as each package defines
-domains in its own name space. It would also allow installing several
-different MTAs for instance, with different port numbers or something
-(although don't ask me why you would want to do that...).
+Apart from the issue of mysql startup scripts wanting to access sysadm_home_t 
+files is there any need for a different type?
 
-Of course, there is still some work to do, for instance, which label
-from which package to use to label what files with. I need to think
-about this one.
+> I often need the dac_override capability in my suse rules (also in this
+> case) and don't found it on other rules. Do you know why?
+
+That is because some of the files that mysqld is accessing are under a 
+different UID/GID than that used by the daemon.
+
+To lock down mysqld most tightly you want to use a program like 
+start-stop-daemon to start mysqld under the correct UID so that you can deny 
+it the setuid and setgid capabilities.  Then of course you have to make sure 
+that all the files are also under the correct UID.
+
 -- 
-Brian May <bam@snoopy.apana.org.au>
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
