@@ -1,30 +1,46 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA16437
-	for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 13:02:43 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA12192
-	for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 17:59:44 GMT
-Received: from mx.nas-smoothtransition.com (nas-vm-156.nas-smoothtransition.com [66.95.157.156] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id RAA12188
-	for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 17:59:44 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Daniel J Walsh'" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
-Subject: RE: SELinux question?
-Date: Tue, 4 Feb 2003 11:51:57 -0500
-Message-ID: <000401c2cc6d$be4aa620$6600a8c0@columbia.tresys.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA16824
+	for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 13:29:38 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h14ITbI06090
+	for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 18:29:37 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h14ITaf06086 for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 18:29:36 GMT
+Message-Id: <200302041836.NAA05338@moss-shockers.ncsc.mil>
+Date: Tue, 4 Feb 2003 13:36:59 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: tmpfs_t
+To: selinux@tycho.nsa.gov, russell@coker.com.au
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <3E3F72AE.1070503@redhat.com>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Why are certain applications (ls, cp, cd) ported to use SELinux 
-> with the standard names, while others
-> (spasswd, schfn) have a prefix added?
 
-Look in selinux/utils/spasswd/README in the source distribution for an
-explanation
+> For UML and busy Apache servers using tmpfs as /tmp is common practise.  The 
+> current SE Linux setup will force many of the people who run big servers to 
+> change their operation in a way that will hurt performance to support running 
+> SE Linux.
+
+You can use tmpfs as /tmp, as long as you are ok with the same labeling
+behavior and policy for /tmp and for System V shared memory and shared
+anonymous mappings.  That may be reasonable.
+
+> I've experimented with using chcon to set the type after mounting which seems 
+> to work OK.
+> 
+> I believe that the best option is to label the root inode of tmpfs as 
+> system_u:object_r:tmp_t via initial_sid_contexts.  I've been looking at the 
+> kernel code, is superblock_doinit() the right place to do a change?
+
+Doesn't help.  We already provide labeling for tmpfs (see the tmpfs entry
+in policy/fs_use).  There is only an issue if you want to distinguish
+different instances of tmpfs mounts.
+
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
