@@ -1,38 +1,84 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA05830
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 12:20:51 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA28413
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 16:19:09 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA05941
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 12:32:12 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA22158
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 16:31:01 GMT
 Received: from nox.lemuria.org ([213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id QAA28409
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 16:19:08 GMT
-Date: Thu, 18 Apr 2002 18:21:38 +0200
+        by jazzband.ncsc.mil  with ESMTP id QAA22150 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 16:31:00 GMT
+Date: Thu, 18 Apr 2002 18:32:58 +0200
 From: Tom <tom@lemuria.org>
 To: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: policy question
-Message-ID: <20020418182137.A7029@lemuria.org>
-References: <20020418171532.B6551@lemuria.org> <Pine.GSO.4.33.0204181124100.5560-100000@raven>
+Message-ID: <20020418183258.B7029@lemuria.org>
+References: <20020418112238.A1788@lemuria.org> <20020418145101.D31F444CB8@lyta.coker.com.au> <20020418171532.B6551@lemuria.org> <20020418160829.1AF9F44D90@lyta.coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.GSO.4.33.0204181124100.5560-100000@raven>; from sds@tislabs.com on Thu, Apr 18, 2002 at 11:32:07AM -0400
+In-Reply-To: <20020418160829.1AF9F44D90@lyta.coker.com.au>; from russell@coker.com.au on Thu, Apr 18, 2002 at 06:08:28PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Apr 18, 2002 at 11:32:07AM -0400, Stephen Smalley wrote:
-> Immunix's SubDomain provides a mechanism for confining "subprocesses" for
-> web servers.  Read their paper for the details.
+On Thu, Apr 18, 2002 at 06:08:28PM +0200, Russell Coker wrote:
+> > In essence, it boils down to: "a script (php, cgi, whatever) that
+> > belongs to user X can only access files of user X"
 > 
-> IMHO, if you truly want to confine these "scripts" differently than the
-> main apache process, they should run in separate processes.
+> Doing it for cgi is easy enough.  I could easily hack something up if the NSA 
+> people don't release the MITRE code.
 
-Of course. The real-life problem is that I would prefer to reach this
-goal without major changes to apache or the environment. The regular
-workings of apache don't allow for anything like this, if for no other
-reason then the fact that the children "hang around" after they have
-one request done to handle the next ones. Anything else and you drown
-in fork() overhead.
+I guess so. The cgi gets executed in a new process, at which time a
+domain transition is trivial to set up. I guess I can do that myself as
+a learning excercise.
 
+
+> > The sole problem being that the scripts aren't executed in the
+> > unix-sense of execution, but by being loaded and interpreted by the
+> > apache process.
+> 
+> Which means that they can't be given a different UID and therefore they can't 
+> be given a different domain because domain transition can only occur at exec 
+> time (just like for SUID programs).
+
+If that is so, then my question is answered. Is execution really the
+only point for a domain transition? That would make sense, but I also
+see reasons for doing transitions during other file access operations
+(e.g. maybe you want to get a higher protection level while certain
+files are open).
+
+
+> The concept you have is wrong, nothing will make domain transitions on module 
+> load work.
+
+Not on module load. The PHP module is loaded when apache starts. I want
+to make a domain transition when it accesses a file. Here's a simple
+flowchart:
+
+
+* HTTP request incoming
+* Apache main process hands request to a child or forks a new one
+* Child parses request, finds URL, does URL to filename translation
+* Child opens file
+==> domain transition
+* File is found to be a php file and is handled by the PHP module
+* PHP module opens files, reads, writes, whatever
+* Output sent to client
+* Socket close
+==> transition back to original domain
+
+
+I see that this may not be possible with the current SELinux code. I'm
+trying to point out that it may be useful. PHP is not the only thing
+coming to mind.
+
+
+Maybe apache can initiate the domain transition itself? A singular
+patch in the URL parsing instance ("read target file's domain and make a
+transition to it") should be feasable. As you pointed out, this would
+be similiar to what suexec does.
+
+
+Again, it may still be that I have a gross misunderstanding of what is
+possible and what not and how things work. If so, please point my
+errors out.
 
 
 -- 
