@@ -1,187 +1,51 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA14007
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 13:47:05 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA15536
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 17:47:02 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id RAA15532
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 17:46:58 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 95F6D92452
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 03:46:51 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id BA62D1D5B
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 19:46:43 +0200 (CEST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: strange capability problem
-Date: Thu, 23 May 2002 19:46:43 +0200
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA16363
+	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 20:39:42 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id AAA14802
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 00:38:22 GMT
+Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
+        by jazzband.ncsc.mil  with ESMTP id AAA14798 for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 00:38:19 GMT
+Date: Fri, 24 May 2002 10:39:21 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Is this a module bug?
+In-Reply-To: <20020522072017.AF7376E90@lyta.coker.com.au>
+Message-ID: <Mutt.LNX.4.44.0205241026400.25187-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_V1SKF0320ZOT106QR941"
-Message-Id: <20020523174643.BA62D1D5B@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 22 May 2002, Russell Coker wrote:
 
---------------Boundary-00=_V1SKF0320ZOT106QR941
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+> May 22 08:42:57 lyta kernel: IPv6 v0.8 for NET4.0
+> May 22 08:42:57 lyta kernel:
+> May 22 08:42:57 lyta kernel: avc:  denied  { net_raw } for  pid=71 
+> exe=/sbin/insmod capability=13 scontext=system_u:system_r:insmod_t 
+> tcontext=system_u:system_r:insmod_t tclass=capability
+> May 22 08:42:57 lyta kernel: IPv6 over IPv4 tunneling driver
+> 
+> The above is a cut from my syslog while booting.  It appears to me that the 
+> kernel code for the IPv6 module is still being registered as insmod_t domain.
 
-I have attached the strace output from the radvd program.
+You're seeing this message because the IPv6 module needs to register some 
+kernel control sockets when it is loaded.  As these control sockets are 
+raw, they require CAP_NET_RAW during creation, which happens in this case 
+in the context of insmod.
 
-When it is run the following error is logged:
-avc:  denied  { sys_module } for  pid=879 exe=/usr/sbin/radvd capability=16 
-scontext=system_u:system_r:radvd_t tcontext=system_u:system_r:radvd_t 
-tclass=capability
+> Is this a bug in the IPv6 module?
 
-However I can't work out what it does to cause that!  The strace.out file 
-contains no query_module() or create_module() call.
-
-The machine which has this problem is not nearly ready for avc_toggle so I 
-can't just put the machine in enforcing mode and see what stops!
-
-Any suggestions?
+No.
 
 
-For reference radvd is a route advisory daemon for IPv6, it's needs in terms 
-of security are very similar to dhcpd.
-
+- James
 -- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+James Morris
+<jmorris@intercode.com.au>
 
---------------Boundary-00=_V1SKF0320ZOT106QR941
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="strace.out"
-Content-Transfer-Encoding: base64
-Content-Description: strace.out
-Content-Disposition: attachment; filename="strace.out"
 
-Z2V0cGlkKCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID0gMTQxMQpjbG9zZSgyNTUp
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAwCnJ0X3NpZ3Byb2NtYXNrKFNJR19TRVRN
-QVNLLCBbXSwgTlVMTCwgOCkgPSAwCnJ0X3NpZ2FjdGlvbihTSUdUU1RQLCB7U0lHX0RGTH0sIHtT
-SUdfREZMfSwgOCkgPSAwCnJ0X3NpZ2FjdGlvbihTSUdUVElOLCB7U0lHX0RGTH0sIHtTSUdfREZM
-fSwgOCkgPSAwCnJ0X3NpZ2FjdGlvbihTSUdUVE9VLCB7U0lHX0RGTH0sIHtTSUdfREZMfSwgOCkg
-PSAwCnJ0X3NpZ2FjdGlvbihTSUdJTlQsIHtTSUdfREZMfSwge1NJR19ERkx9LCA4KSA9IDAKcnRf
-c2lnYWN0aW9uKFNJR1FVSVQsIHtTSUdfREZMfSwge1NJR19JR059LCA4KSA9IDAKcnRfc2lnYWN0
-aW9uKFNJR0NITEQsIHtTSUdfREZMfSwgezB4ODA2ZjA3MCwgW10sIDB4NDAwMDAwMH0sIDgpID0g
-MApleGVjdmUoIi9zYmluL3N0YXJ0LXN0b3AtZGFlbW9uIiwgWyJzdGFydC1zdG9wLWRhZW1vbiIs
-ICItLW9rbm9kbyIsICItLXN0YXJ0IiwgIi0tcGlkZmlsZSIsICIvdmFyL3J1bi9yYWR2ZC5waWQi
-LCAiLS1leGVjIiwgIi91c3Ivc2Jpbi9yYWR2ZCJdLCBbLyogMjAgdmFycyAqL10pID0gMAp1bmFt
-ZSh7c3lzPSJMaW51eCIsIG5vZGU9Imx5dGEiLCAuLi59KSAgPSAwCmJyaygwKSAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICA9IDB4ODA0Yzg0MApvcGVuKCIvZXRjL2xkLnNvLnByZWxv
-YWQiLCBPX1JET05MWSkgICAgPSAzCmZzdGF0NjQoMywge3N0X21vZGU9U19JRlJFR3wwNjQ0LCBz
-dF9zaXplPTMxLCAuLi59KSA9IDAKb2xkX21tYXAoTlVMTCwgMzEsIFBST1RfUkVBRHxQUk9UX1dS
-SVRFLCBNQVBfUFJJVkFURSwgMywgMCkgPSAweDQwMDE0MDAwCmNsb3NlKDMpICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICA9IDAKbXVubWFwKDB4NDAwMTQwMDAsIDMxKSAgICAgICAgICAg
-ICAgICAgID0gMApvcGVuKCIvZXRjL2xkLnNvLmNhY2hlIiwgT19SRE9OTFkpICAgICAgPSAzCmZz
-dGF0NjQoMywge3N0X21vZGU9U19JRlJFR3wwNjQ0LCBzdF9zaXplPTY4MDA1LCAuLi59KSA9IDAK
-b2xkX21tYXAoTlVMTCwgNjgwMDUsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDApID0gMHg0
-MDAxNDAwMApjbG9zZSgzKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAwCm9wZW4o
-Ii9saWIvbGliYy5zby42IiwgT19SRE9OTFkpICAgICAgICA9IDMKcmVhZCgzLCAiXDE3N0VMRlwx
-XDFcMVwwXDBcMFwwXDBcMFwwXDBcMFwzXDBcM1wwXDFcMFwwXDBcMzBcMjIyIi4uLiwgMTAyNCkg
-PSAxMDI0CmZzdGF0NjQoMywge3N0X21vZGU9U19JRlJFR3wwNzU1LCBzdF9zaXplPTExNTM3ODQs
-IC4uLn0pID0gMApvbGRfbW1hcChOVUxMLCAxMTY2NTYwLCBQUk9UX1JFQUR8UFJPVF9FWEVDLCBN
-QVBfUFJJVkFURSwgMywgMCkgPSAweDQwMDI1MDAwCm1wcm90ZWN0KDB4NDAxMzgwMDAsIDQwMTYw
-LCBQUk9UX05PTkUpICA9IDAKb2xkX21tYXAoMHg0MDEzODAwMCwgMjQ1NzYsIFBST1RfUkVBRHxQ
-Uk9UX1dSSVRFLCBNQVBfUFJJVkFURXxNQVBfRklYRUQsIDMsIDB4MTEzMDAwKSA9IDB4NDAxMzgw
-MDAKb2xkX21tYXAoMHg0MDEzZTAwMCwgMTU1ODQsIFBST1RfUkVBRHxQUk9UX1dSSVRFLCBNQVBf
-UFJJVkFURXxNQVBfRklYRUR8TUFQX0FOT05ZTU9VUywgLTEsIDApID0gMHg0MDEzZTAwMApjbG9z
-ZSgzKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAwCm11bm1hcCgweDQwMDE0MDAw
-LCA2ODAwNSkgICAgICAgICAgICAgICA9IDAKc3RhdDY0KCIvdXNyL3NiaW4vcmFkdmQiLCB7c3Rf
-bW9kZT1TX0lGUkVHfDA3NTUsIHN0X3NpemU9NDIwMzYsIC4uLn0pID0gMApicmsoMCkgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAweDgwNGM4NDAKYnJrKDB4ODA0YzljMCkgICAg
-ICAgICAgICAgICAgICAgICAgICAgID0gMHg4MDRjOWMwCmJyaygweDgwNGQwMDApICAgICAgICAg
-ICAgICAgICAgICAgICAgICA9IDB4ODA0ZDAwMApvcGVuKCIvdmFyL3J1bi9yYWR2ZC5waWQiLCBP
-X1JET05MWSkgICAgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkpCmV4ZWN2
-ZSgiL3Vzci9zYmluL3JhZHZkIiwgWyIvdXNyL3NiaW4vcmFkdmQiXSwgWy8qIDIwIHZhcnMgKi9d
-KSA9IDAKdW5hbWUoe3N5cz0iTGludXgiLCBub2RlPSJseXRhIiwgLi4ufSkgID0gMApicmsoMCkg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAweDgwNTMwNzQKb3BlbigiL2V0Yy9s
-ZC5zby5wcmVsb2FkIiwgT19SRE9OTFkpICAgID0gMwpmc3RhdDY0KDMsIHtzdF9tb2RlPVNfSUZS
-RUd8MDY0NCwgc3Rfc2l6ZT0zMSwgLi4ufSkgPSAwCm9sZF9tbWFwKE5VTEwsIDMxLCBQUk9UX1JF
-QUR8UFJPVF9XUklURSwgTUFQX1BSSVZBVEUsIDMsIDApID0gMHg0MDAxNDAwMApjbG9zZSgzKSAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAwCm11bm1hcCgweDQwMDE0MDAwLCAzMSkg
-ICAgICAgICAgICAgICAgICA9IDAKb3BlbigiL2V0Yy9sZC5zby5jYWNoZSIsIE9fUkRPTkxZKSAg
-ICAgID0gMwpmc3RhdDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT02ODAwNSwg
-Li4ufSkgPSAwCm9sZF9tbWFwKE5VTEwsIDY4MDA1LCBQUk9UX1JFQUQsIE1BUF9QUklWQVRFLCAz
-LCAwKSA9IDB4NDAwMTQwMDAKY2xvc2UoMykgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ID0gMApvcGVuKCIvbGliL2xpYmMuc28uNiIsIE9fUkRPTkxZKSAgICAgICAgPSAzCnJlYWQoMywg
-IlwxNzdFTEZcMVwxXDFcMFwwXDBcMFwwXDBcMFwwXDBcM1wwXDNcMFwxXDBcMFwwXDMwXDIyMiIu
-Li4sIDEwMjQpID0gMTAyNApmc3RhdDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDc1NSwgc3Rfc2l6
-ZT0xMTUzNzg0LCAuLi59KSA9IDAKb2xkX21tYXAoTlVMTCwgMTE2NjU2MCwgUFJPVF9SRUFEfFBS
-T1RfRVhFQywgTUFQX1BSSVZBVEUsIDMsIDApID0gMHg0MDAyNTAwMAptcHJvdGVjdCgweDQwMTM4
-MDAwLCA0MDE2MCwgUFJPVF9OT05FKSAgPSAwCm9sZF9tbWFwKDB4NDAxMzgwMDAsIDI0NTc2LCBQ
-Uk9UX1JFQUR8UFJPVF9XUklURSwgTUFQX1BSSVZBVEV8TUFQX0ZJWEVELCAzLCAweDExMzAwMCkg
-PSAweDQwMTM4MDAwCm9sZF9tbWFwKDB4NDAxM2UwMDAsIDE1NTg0LCBQUk9UX1JFQUR8UFJPVF9X
-UklURSwgTUFQX1BSSVZBVEV8TUFQX0ZJWEVEfE1BUF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4NDAx
-M2UwMDAKY2xvc2UoMykgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID0gMAptdW5tYXAo
-MHg0MDAxNDAwMCwgNjgwMDUpICAgICAgICAgICAgICAgPSAwCnRpbWUoTlVMTCkgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICA9IDEwMjIxNzQ4NzQKYnJrKDApICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgID0gMHg4MDUzMDc0CmJyaygweDgwNTMyMDQpICAgICAgICAgICAgICAg
-ICAgICAgICAgICA9IDB4ODA1MzIwNApicmsoMHg4MDU0MDAwKSAgICAgICAgICAgICAgICAgICAg
-ICAgICAgPSAweDgwNTQwMDAKYnJrKDB4ODA1NzAwMCkgICAgICAgICAgICAgICAgICAgICAgICAg
-ID0gMHg4MDU3MDAwCnRpbWUoWzEwMjIxNzQ4NzRdKSAgICAgICAgICAgICAgICAgICAgICA9IDEw
-MjIxNzQ4NzQKb3BlbigiL2V0Yy9sb2NhbHRpbWUiLCBPX1JET05MWSkgICAgICAgID0gMwpmc3Rh
-dDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0xMDc0LCAuLi59KSA9IDAKb2xk
-X21tYXAoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9B
-Tk9OWU1PVVMsIC0xLCAwKSA9IDB4NDAwMTQwMDAKcmVhZCgzLCAiVFppZlwwXDBcMFwwXDBcMFww
-XDBcMFwwXDBcMFwwXDBcMFwwXDBcMFwwXHJcMFwwXDBcclwwIi4uLiwgNDA5NikgPSAxMDc0CmNs
-b3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAKbXVubWFwKDB4NDAwMTQw
-MDAsIDQwOTYpICAgICAgICAgICAgICAgID0gMApnZXRwaWQoKSAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgPSAxNDExCnJ0X3NpZ2FjdGlvbihTSUdQSVBFLCB7MHg0MDBmMWYyOCwgW10s
-IDB4NDAwMDAwMH0sIHtTSUdfREZMfSwgOCkgPSAwCnNvY2tldChQRl9VTklYLCBTT0NLX0RHUkFN
-LCAwKSAgICAgICAgICA9IDMKZmNudGw2NCgzLCBGX1NFVEZELCBGRF9DTE9FWEVDKSAgICAgICAg
-ID0gMApjb25uZWN0KDMsIHtzaW5fZmFtaWx5PUFGX1VOSVgsIHBhdGg9Ii9kZXYvbG9nIn0sIDE2
-KSA9IDAKc2VuZCgzLCAiPDMwPk1heSAyMyAxOToyNzo1NCByYWR2ZFsxNDExXToiLi4uLCA1NCwg
-MCkgPSA1NApydF9zaWdhY3Rpb24oU0lHUElQRSwge1NJR19ERkx9LCBOVUxMLCA4KSA9IDAKc29j
-a2V0KFBGX0lORVQ2LCBTT0NLX1JBVywgNTgpICAgICAgICAgID0gNApzZXRzb2Nrb3B0KDQsIFNP
-TF9JUFY2LCAyLCBbMV0sIDQpICAgICAgPSAwCnNldHNvY2tvcHQoNCwgU09MX1JBVywgMHg3IC8q
-IFJBV18/Pz8gKi8sIFsyXSwgNCkgPSAwCnNldHNvY2tvcHQoNCwgU09MX0lQVjYsIDE2LCBbMjU1
-XSwgNCkgICA9IDAKc2V0c29ja29wdCg0LCBTT0xfSVBWNiwgMTgsIFsyNTVdLCA0KSAgID0gMApz
-ZXRzb2Nrb3B0KDQsIFNPTF9JUFY2LCA4LCBbMV0sIDQpICAgICAgPSAwCnNldHNvY2tvcHQoNCwg
-U09MX0lDTVBWNiwgMSwgWy0xXSwgMzIpICA9IDAKb3BlbigiL2V0Yy9yYWR2ZC5jb25mIiwgT19S
-RE9OTFkpICAgICAgID0gNQpjbG9zZSg1KSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-PSAwCnNvY2tldChQRl9VTklYLCBTT0NLX1NUUkVBTSwgMCkgICAgICAgICA9IDUKY29ubmVjdCg1
-LCB7c2luX2ZhbWlseT1BRl9VTklYLCBwYXRoPSIvdmFyL3J1bi8ubnNjZF9zb2NrZXQifSwgMTEw
-KSA9IDAKd3JpdGUoNSwgIlwyXDBcMFwwXDBcMFwwXDBcNVwwXDBcMCIsIDEyKSA9IDEyCndyaXRl
-KDUsICJyb290XDAiLCA1KSAgICAgICAgICAgICAgICAgICA9IDUKcmVhZCg1LCAiaDdcMjZAXDFc
-MFwwXDBcNVwwXDBcMFwyXDBcMFwwXDBcMFwwXDBcMFwwXDBcMFw1XDBcMFwwIi4uLiwgMzYpID0g
-MzYKcmVhZCg1LCAicm9vdFwweFwwcm9vdFwwL3Jvb3RcMC9iaW4vYmFzaFwwIiwgMjgpID0gMjgK
-Y2xvc2UoNSkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgID0gMApzdGF0NjQoIi9ldGMv
-cmFkdmQuY29uZiIsIHtzdF9tb2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT03NSwgLi4ufSkgPSAw
-Cl9zeXNjdGwoe3tDVExfTkVULCBORVRfSVBWNiwgTkVUX0lQVjZfQ09ORiwgMTAsIGZmZmZmZmZl
-LCAxfSwgNSwgMHhiZmZmZWE5MCwgNCwgKG5pbCksIDB9KSA9IDAKb3BlbigiL2V0Yy9yYWR2ZC5j
-b25mIiwgT19SRE9OTFkpICAgICAgID0gNQpicmsoMHg4MDVjMDAwKSAgICAgICAgICAgICAgICAg
-ICAgICAgICAgPSAweDgwNWMwMDAKaW9jdGwoNSwgU05EQ1RMX1RNUl9USU1FQkFTRSwgMHhiZmZm
-ZTEzOCkgPSAtMSBFTk9UVFkgKEluYXBwcm9wcmlhdGUgaW9jdGwgZm9yIGRldmljZSkKZnN0YXQ2
-NCg1LCB7c3RfbW9kZT1TX0lGUkVHfDA2NDQsIHN0X3NpemU9NzUsIC4uLn0pID0gMApvbGRfbW1h
-cChOVUxMLCA0MDk2LCBQUk9UX1JFQUR8UFJPVF9XUklURSwgTUFQX1BSSVZBVEV8TUFQX0FOT05Z
-TU9VUywgLTEsIDApID0gMHg0MDAxNDAwMApyZWFkKDUsICJpbnRlcmZhY2UgZXRoMFxue1xuICAg
-QWR2U2VuZEFkdmVyIi4uLiwgODE5MikgPSA3NQpyZWFkKDUsICIiLCA0MDk2KSAgICAgICAgICAg
-ICAgICAgICAgICAgPSAwCmlvY3RsKDQsIDB4ODkxMywgMHhiZmZmZTIyYykgICAgICAgICAgICA9
-IC0xIEVOT1NZUyAoRnVuY3Rpb24gbm90IGltcGxlbWVudGVkKQppb2N0bCg0LCAweDg5MTMsIDB4
-YmZmZmUyMmMpICAgICAgICAgICAgICAgICA9IC0xIEVOT1NZUyAoRnVuY3Rpb24gbm90IGltcGxl
-bWVudGVkKQppb2N0bCg0LCAweDg5MTMsIDB4YmZmZmUyMmMpICAgICAgICAgICAgPSAtMSBFTk9E
-RVYgKE5vIHN1Y2ggZGV2aWNlKQp0aW1lKFsxMDIyMTc0ODc0XSkgICAgICAgICAgICAgICAgICAg
-ICAgPSAxMDIyMTc0ODc0CmdldHBpZCgpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9
-IDE0MTEKcnRfc2lnYWN0aW9uKFNJR1BJUEUsIHsweDQwMGYxZjI4LCBbXSwgMHg0MDAwMDAwfSwg
-e1NJR19ERkx9LCA4KSA9IDAKc2VuZCgzLCAiPDI3Pk1heSAyMyAxOToyNzo1NCByYWR2ZFsxNDEx
-XToiLi4uLCA4NCwgMCkgPSA4NApydF9zaWdhY3Rpb24oU0lHUElQRSwge1NJR19ERkx9LCBOVUxM
-LCA4KSA9IDAKdGltZShbMTAyMjE3NDg3NF0pICAgICAgICAgICAgICAgICAgICAgID0gMTAyMjE3
-NDg3NApnZXRwaWQoKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAxNDExCnJ0X3Np
-Z2FjdGlvbihTSUdQSVBFLCB7MHg0MDBmMWYyOCwgW10sIDB4NDAwMDAwMH0sIHtTSUdfREZMfSwg
-OCkgPSAwCnNlbmQoMywgIjwyNz5NYXkgMjMgMTk6Mjc6NTQgcmFkdmRbMTQxMV06Ii4uLiwgNzcs
-IDApID0gNzcKcnRfc2lnYWN0aW9uKFNJR1BJUEUsIHtTSUdfREZMfSwgTlVMTCwgOCkgPSAwCl9l
-eGl0KDEpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9ID8K
-
---------------Boundary-00=_V1SKF0320ZOT106QR941--
 
 --
 You have received this message because you are subscribed to the selinux list.
