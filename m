@@ -1,43 +1,46 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7IJNwrT022568
-	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 15:23:58 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7IJNGho011899
-	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 19:23:17 GMT
-Date: Wed, 18 Aug 2004 16:38:50 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7IJO1rT022574
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 15:24:01 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7IJNxRq004987
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 19:24:00 GMT
+Date: Wed, 18 Aug 2004 16:24:06 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>
-Cc: Erich Schubert <erich@debian.org>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: mozilla 0.9.3-2 crashing with tunables read and write homedir OFF
-Message-ID: <20040818153850.GG19646@lkcl.net>
-References: <20040817193823.GU18321@lkcl.net> <1092780620.6531.3.camel@wintermute.xmldesign.de> <200408182023.02799.russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: removed lpd.te, kept cups.te
+Message-ID: <20040818152406.GE19646@lkcl.net>
+References: <20040817113807.GO18321@lkcl.net> <200408182057.50798.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200408182023.02799.russell@coker.com.au>
+In-Reply-To: <200408182057.50798.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Aug 18, 2004 at 08:23:02PM +1000, Russell Coker wrote:
-> On Wed, 18 Aug 2004 08:10, Erich Schubert <erich@debian.org> wrote:
-> > > just in case anyone's curious about using mozilla with no read or write
-> > > access to user-home: at present (policy 1.12-3 or 4 and mozilla 0.9.2-3)
-> > > it don't work.
-> > >
-> > > debian bugreport raised.
+On Wed, Aug 18, 2004 at 08:57:50PM +1000, Russell Coker wrote:
+> On Tue, 17 Aug 2004 21:38, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > i removed lpd.te, i kept cups.te (which reflects what i have
+> > set up: lpd is not enabled, lpd emulation in cups is not enabled).
 > >
-> > Waste of time. I guess that any mozilla developer will tell you they do
-> > need write access to their profile directory.
+> > ... but instead i get error at line 29: unknown type printer_device_t.
+> >
+> > am i missing something?
 > 
-> Turning off read/write access to the main home directory does not stop access 
-> to the mozilla profile directory.
+> Line 5 of cups.te.
  
- it would appear that mozilla 0.9.2-3 is using fuser to test whether it
- can write to the user's home directory.
+ ooo.  ah, yes: the one that says "Depends: lpd.te" :)
 
- the policy having been set to ban that access, fuser either crashes or
- returns an answer that causes mozilla to crash.
+ okay.  so lpd.te allows binding to the lpr port.
 
- l.
+ and the only cupsys package that does binding to the lpr port is
+ cupsys-bsd (which provides a lpr compatibility layer).
+
+ so if i haven't installed cupsys-bsd, i have an extra unprotected
+ port which a compromised cupsys daemon could bind to.
+
+ hmm :)
+
+ 
 
 
 --
