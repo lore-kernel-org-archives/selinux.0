@@ -1,50 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAJJlMIi023360
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 14:47:22 -0500 (EST)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAJJlOlF016741
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 19:47:24 GMT
-Subject: Re: gentoo diff for snmpd
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAJJnEIi023391
+	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 14:49:14 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAJJlk3F027775
+	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 19:47:47 GMT
+Subject: Re: gentoo policy for dante
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: petre rodan <kaiowas@gentoo.org>
-Cc: SELinux <selinux@tycho.nsa.gov>, Chris PeBenito <pebenito@gentoo.org>
-In-Reply-To: <419DF805.80002@gentoo.org>
-References: <4198D752.2020405@gentoo.org>
-	 <1100808061.26930.18.camel@moss-lions.epoch.ncsc.mil>
-	 <419DF805.80002@gentoo.org>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <419D1ABD.4020901@gentoo.org>
+References: <4198E94B.8070008@gentoo.org>
+	 <1100808438.26930.28.camel@moss-lions.epoch.ncsc.mil>
+	 <419D1ABD.4020901@gentoo.org>
 Content-Type: text/plain
-Message-Id: <1100893806.31793.29.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1100893919.31793.32.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 19 Nov 2004 14:50:06 -0500
+Date: Fri, 19 Nov 2004 14:51:59 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I put an "ifdef(`distro_gentoo'" around all of these rules and merged
-them.
+Merged the dante.te and dante.fc files after removing the
+initrc_var_run_t rule.
 
 
-On Fri, 2004-11-19 at 08:41, petre rodan wrote:
+On Thu, 2004-11-18 at 16:57, petre rodan wrote:
 > Hi James,
 > 
 > James Carter wrote:
-> > Merged.
+> > allow dante_t initrc_var_run_t:file { getattr write };
 > > 
-> > Oops, there is no proc_net_t defined.
-> > Petre, could you send me the proc_net_t stuff as well.
+> > Why does dante need this?
 > 
-> please see the attachment.
+> The current gentoo init scripts create the pid file for the daemon. This will be fixed soon.
+> Please drop that particular rule from the policy.
 > 
-> > On Mon, 2004-11-15 at 11:20, petre rodan wrote:
-> > 
-> >>Hi,
-> >>
-> >>gentoo as a special context for /proc/net:
-> >>genfscon proc /net  system_u:object_r:proc_net_t
-> >>
-> >>so a small diff is needed for the snmpd policy. attached.
-> 
-> bye,
+> thanks,
 > peter
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
