@@ -1,35 +1,34 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA01005
-	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 08:25:58 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA25050
-	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 12:24:10 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA00417
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 08:12:39 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA23014
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 12:09:27 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA25046 for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 12:24:10 GMT
-Date: Mon, 23 Sep 2002 08:25:53 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id MAA23010
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 12:09:26 GMT
+Date: Mon, 23 Sep 2002 08:10:39 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
 cc: <selinux@tycho.nsa.gov>
-Subject: Re: setuid/setgid capability
-In-Reply-To: <200209230145.45134.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0209230822370.9579-100000@raven>
+Subject: Re: mta patch
+In-Reply-To: <200209210634.46864.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0209230809190.9579-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 23 Sep 2002, Russell Coker wrote:
+On Sat, 21 Sep 2002, Russell Coker wrote:
 
-> Why does user_t need setuid and setgid capabilities?
+> The attached policy patch improves the support for qmail and postfix, the
+> general support for mail servers other than Sendmail, and allows initrc_t
+> programs to run mailx (IE to send mail from an initrc script).
 
-I think that this is mostly historical, to support execution of certain
-setuid/setgid programs from user_t without performing a domain transition.
-I agree that we can likely remove many of the user_t capabilities and then
-set up new domains as necessary for particular programs.  We should also
-review all program domains that can be reached from user_t to see if we
-can also eliminate unnecessary capabilities from programs over which the
-user has control.
+I've been omitting 'privmail' from initrc_t, as it creates a type
+transition conflict when using sendmail and it seems odd to me to have an
+rc script send mail.  Is sending email from an rc script common?
 
 --
 Stephen D. Smalley, NAI Labs
