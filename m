@@ -1,37 +1,41 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA02375
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 18:30:12 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA02499
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 19:02:25 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA00986
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 22:29:13 GMT
+	by jazzswing.ncsc.mil  with ESMTP id XAA02198
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:01:26 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA00982
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 22:29:11 GMT
+	by jazzswing.ncsc.mil  with ESMTP id XAA02194
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:01:25 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 15C559246C
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 09:02:22 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 7CAF68734
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 01:02:09 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>, Brian May <bam@snoopy.apana.org.au>
-Subject: Re: Swollen su_macros.te file
-Date: Tue, 13 Aug 2002 00:28:38 +0200
-Cc: selinux@tycho.nsa.gov
-References: <20020812132144.97044.qmail@web40008.mail.yahoo.com>
-In-Reply-To: <20020812132144.97044.qmail@web40008.mail.yahoo.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: sendmail policy
+Date: Tue, 13 Aug 2002 01:02:09 +0200
 MIME-Version: 1.0
-Message-Id: <20020812222957.674718732@lyta.coker.com.au>
+Message-Id: <20020812230209.7CAF68734@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 12 Aug 2002 15:21, Brad Chapman wrote:
->         The context REMAINS THE SAME! Even when I use 'su -l' !!!
->
->         What does this mean?
+>From sendmail.te:
+# When sendmail runs as user_mail_domain, it needs some extra permissions.
+allow user_mail_domain etc_mail_t:file rw_file_perms;
 
-This means that su is operating correctly on your system.
+>From sendmail.fc:
+/etc/mail(|/.*)                 system_u:object_r:etc_mail_t
 
+Does sendmail REALLY need to write files in /etc/mail on behalf of the user?
 
-So how do you cause the situation where your programs are running in the su 
-domain and causing the errors to be logged?
+Maybe we should make our sendmail policy be "install postfix or qmail 
+instead"? :-#
 
 -- 
 I do not get viruses because I do not use MS software.
