@@ -1,34 +1,71 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9OL7JWt017237
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 17:07:19 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9OL9bWt017261
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 17:09:37 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9OL75IS006168
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 21:07:06 GMT
-Received: from extern.mail.waldi.eu.org (wavehammer.waldi.eu.org [82.139.196.55])
-	by jazzswing.ncsc.mil  with ESMTP id h9OL75Dc006165
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 21:07:05 GMT
-Date: Fri, 24 Oct 2003 23:07:09 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-To: selinux@tycho.nsa.gov
-Subject: successfull loaded policy on s390, 64bit
-Message-ID: <20031024210709.GA17189@wavehammer.waldi.eu.org>
+	by jazzswing.ncsc.mil  with ESMTP id h9OL9OIS006351
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 21:09:24 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h9OL9ODc006348
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 21:09:24 GMT
+Subject: Re: [PATCH] libselinux-3
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20031024190812.GA10572@wavehammer.waldi.eu.org>
+References: <20031023215434.GA24235@wavehammer.waldi.eu.org>
+	 <20031024190812.GA10572@wavehammer.waldi.eu.org>
+Content-Type: text/plain
+Message-Id: <1067029773.6209.60.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: 24 Oct 2003 17:09:33 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi folks
+On Fri, 2003-10-24 at 15:08, Bastian Blank wrote:
+> updated patch.
 
-i'm pleased to announce the successfull load of a policy on a 64bit
-zSeries with 31bit userland.
+@@ -366,13 +366,13 @@
+ 	if (!ptr)
+ 		return -1;
+ 	plen = strlen(ptr);
+-	if (buf[plen-1] == '\n') 
++	if (plen > 1 && buf[plen-1] == '\n') 
+ 		buf[plen-1] = 0;
 
-i get many denies as the system is not properly set up, but it seems to
-work.
+I believe that the original code is correct, and that the patch
+introduces a minor bug.  If the file is empty, ptr will be NULL and the
+!ptr test will catch it. Hence, plen should always be at least 1. 
+Further, your test for plen > 0 means that you won't clear the newline
+in the case where the file contains only a newline and nothing else,
+i.e. plen == 1 and buf[0] == '\n'.  
 
-bastian
+@@ -23,11 +23,11 @@
+ 	if (ret < 0 && errno == ERANGE) {
+ 		char *newbuf;
+ 
+-		size = fgetxattr(fd, XATTR_NAME_SELINUX, NULL, 0);
+-		if (size < 0)
++		ret = fgetxattr(fd, XATTR_NAME_SELINUX, NULL, 0);
++		if (ret < 0)
+ 			goto out;
+ 
+-		size++;
++		size = ret + 1;
+ 		newbuf = realloc(buf, size);
+ 		if (!newbuf)
+ 			goto out;
+
+As with the earlier patch for the *getfilecon functions, this
+one introduces a bug.  Look at the result of this patch when
+the realloc fails; since ret is reset by your change, the
+out path will not treat it as an error, and the caller will
+be returned garbage without any indication that the call
+actually failed.
 
 -- 
-We'll pivot at warp 2 and bring all tubes to bear, Mr. Sulu!
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
