@@ -1,52 +1,66 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3U0ZXI4002315
-	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2003 20:35:33 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3UBi9I4003777
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 07:44:09 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3U0ZW7R011528
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 00:35:32 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h3U0ZNKP011512 for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 00:35:24 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id ABB52BF3E
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:11 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 09057-10
- for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:10 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 53FDCBF3D
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:10 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id E5140924AD
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:09 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id A9F3B3908
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:34:38 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: truncate(2) and setattr
-Date: Wed, 30 Apr 2003 10:34:38 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200304301034.38073.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id h3UBhv7R002063
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 11:43:58 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h3UBhvKP002060 for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 11:43:57 GMT
+Subject: Re: truncate(2) and setattr
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200304301034.38073.russell@coker.com.au>
+References: <200304301034.38073.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1051703014.1118.116.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 30 Apr 2003 07:43:36 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why does truncate(2) require setattr access to the file?
+On Tue, 2003-04-29 at 20:34, Russell Coker wrote:
+> Why does truncate(2) require setattr access to the file?
+> 
+> Using truncate(file, len + 1) to increase the size of the file by 1 byte has 
+> exactly the same affect on the file attributes as seeking to the end and 
+> writing one byte.
+> 
+> Using truncate to make a file smaller has no greater affect on the file 
+> attributes.
 
-Using truncate(file, len + 1) to increase the size of the file by 1 byte has 
-exactly the same affect on the file attributes as seeking to the end and 
-writing one byte.
+The size of a file is one of its attributes.  If you look at the
+internal implementation in fs/open.c:do_truncate, you'll see that it
+calls fs/attr.c:notify_change with flags indicating that the size and
+ctime attributes are changing.  notify_change is also used for other
+attribute changes, e.g. chown, chmod, utimes.  If you look at
+fs/attr.c:notify_change, you'll see that it calls the
+security_inode_setattr hook to perform a permission check prior to
+calling the inode->i_op->setattr operation or the inode_setattr
+function.  In SELinux, the corresponding hook function
+(security/selinux/hooks.c:selinux_inode_setattr) always checks setattr
+permission to the file.
 
-Using truncate to make a file smaller has no greater affect on the file 
-attributes.
+Now, it is also true that fs/open.c:do_sys_truncate checks write
+permission to the inode by calling fs/namei.c:permission, which calls
+the security_inode_permission hook == selinux_inode_permission for
+SELinux, and fs/open.c:do_sys_ftruncate requires that the file mode
+includes write access.  Hence, at present, both write permission and
+setattr permission are required for truncate.  This reflects the fact
+that truncate affects both the file data and its size attribute.
+
+A case could be made for splitting up the SELinux setattr file
+permission into distinct permissions for the different attributes, and
+checking the appropriate permission in selinux_inode_setattr based on
+the iattr->ia_valid flags, similar to how fs/attr.c:inode_change_ok
+performs different checks depending on those flags.  This is a fine line
+in terms of balancing between providing least privilege and making the
+policy unnecessarily complicated, as SELinux itself does not depend on
+the values of these attributes for its own access controls.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
