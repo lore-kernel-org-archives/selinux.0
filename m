@@ -1,41 +1,46 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7UEVurT005206
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 10:31:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7UFbBrT005698
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 11:37:11 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7UEV7AE027244
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 14:31:08 GMT
-Subject: Re: Fwd: OpenSSH 3.9 released
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7UFaMAE000975
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 15:36:23 GMT
+Subject: Re: [PATCH]SELinux performance improvement by RCU (Re: RCU issue
+	with SELinux)
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200408201413.05986.russell@coker.com.au>
-References: <200408201413.05986.russell@coker.com.au>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+   James Morris <jmorris@redhat.com>, "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp>
+References: 
+	 <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil>
+	 <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp>
 Content-Type: text/plain
-Message-Id: <1093876206.5447.42.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093880119.5447.87.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 30 Aug 2004 10:30:06 -0400
+Date: Mon, 30 Aug 2004 11:35:19 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-08-20 at 00:13, Russell Coker wrote:
-> "* Make sshd(8) re-execute itself on accepting a new connection. This security 
-> measure ensures that all execute-time randomisations are reapplied for each 
-> connection rather than once, for the master process' lifetime. This includes 
-> mmap and malloc mappings, shared library addressing, shared library mapping 
-> order, ProPolice and StackGhost cookies on systems that support such things"
+On Mon, 2004-08-30 at 07:17, Kaigai Kohei wrote:
+> I fixed the take-3 patch according to your and Paul's suggestions.
 > 
-> This has some interesting potential.  Maybe we should change the policy to 
-> have a sshd_listener_t domain that binds to port 22 and then 
-> domain_auto_trans(sshd_listener_t, sshd_exec_t, sshd_t) for the real work?
+> The attached take-4 patches replace the avc_lock in security/selinux/avc.c
+> by the lock-less read access with RCU.
 
-sshd also re-executes itself upon SIGHUP, so I don't think the kernel
-policy can distinguish the two different cases (would require changes to
-sshd to setexeccon prior to the re-exec).  
+Thanks.  Was there a reason you didn't move the rcu_read_lock call after
+the avc_insert call per the suggestion of Paul McKenney, or was that
+just an oversight?  No need to send a new patch, just ack whether or not
+you meant to switch the order there.
 
-It appears that the policy is missing can_exec(sshd_t, sshd_exec_t) at
-present, which prevents SIGHUP restart as well as the re-exec upon
-accepting a new connection.
-  
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
