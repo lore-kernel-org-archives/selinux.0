@@ -1,176 +1,156 @@
-Subject: Re: Multiple contexts
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20050113231748.GA4999@jmh.mhn.de>
-References: <1105390249.8093.21.camel@cobra.ivg2.net>
-	 <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
-	 <1105560687.11135.26.camel@cobra.ivg2.net>
-	 <1105566461.23136.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <1105571319.11828.19.camel@cobra.ivg2.net>
-	 <20050113231748.GA4999@jmh.mhn.de>
-Content-Type: multipart/mixed; boundary="=-gkSk3VWaH4c3OG/KbM4V"
-Date: Fri, 14 Jan 2005 00:07:56 -0700
-Message-Id: <1105686476.6472.5.camel@cobra.ivg2.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0EFptIi002718
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jan 2005 10:51:56 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0EFnsiL013266
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jan 2005 15:49:59 GMT
+Subject: [PATCH][SELINUX] Fix setting of loaded policy version
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+   Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+   selinux@tycho.nsa.gov
+Content-Type: text/plain
+Message-Id: <1105717544.26366.80.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 14 Jan 2005 10:45:44 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This patch against 2.6.11-rc1-mm1 fixes a different bug in the code for
+SELinux policy loading.  It ensures that the loaded policy version
+number is not updated until the new policy is successfully committed. 
+It also fixes the type on the loaded policy version.  Please apply.
 
---=-gkSk3VWaH4c3OG/KbM4V
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
+ security/selinux/hooks.c       |    2 +-
+ security/selinux/ss/policydb.c |   17 +++++++----------
+ security/selinux/ss/policydb.h |    2 ++
+ security/selinux/ss/services.c |    5 +++--
+ 4 files changed, 13 insertions(+), 13 deletions(-)
 
-> This seems very useful. I have experimented a bit with this idea this
-> evening; the resulting script is attached. It takes a policy.conf and
-> outputs a new type (plus corresponding rules).
-> The script is not perfect because it parses the policy.conf itself, but
-> it should work for almost all file_types.
-
-Modified to work for N>=2 parent types, and fixes a bug in regexp to
-match exact type, not any string containing it.
-
-Disclaimer: I don't know a thing about perl.
-
-... However, yes, I think it would be useful to have some sort of script
-to do this kind of thing as part of the selinux tools. I shouldn't have
-to tell it where to read from and write to.
-
-
+diff -X /home/sds/dontdiff -rup linux-2.6.11-rc1-mm1/security/selinux/hooks.c linux-2.6.11-rc1-mm1-sel/security/selinux/hooks.c
+--- linux-2.6.11-rc1-mm1/security/selinux/hooks.c	2005-01-14 10:29:40.110036280 -0500
++++ linux-2.6.11-rc1-mm1-sel/security/selinux/hooks.c	2005-01-14 10:32:44.203049888 -0500
+@@ -73,7 +73,7 @@
+ #define XATTR_SELINUX_SUFFIX "selinux"
+ #define XATTR_NAME_SELINUX XATTR_SECURITY_PREFIX XATTR_SELINUX_SUFFIX
+ 
+-extern int policydb_loaded_version;
++extern unsigned int policydb_loaded_version;
+ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+diff -X /home/sds/dontdiff -rup linux-2.6.11-rc1-mm1/security/selinux/ss/policydb.c linux-2.6.11-rc1-mm1-sel/security/selinux/ss/policydb.c
+--- linux-2.6.11-rc1-mm1/security/selinux/ss/policydb.c	2005-01-14 10:29:40.113035824 -0500
++++ linux-2.6.11-rc1-mm1-sel/security/selinux/ss/policydb.c	2005-01-14 10:32:44.206049432 -0500
+@@ -38,8 +38,6 @@ static char *symtab_name[SYM_NUM] = {
+ };
+ #endif
+ 
+-int policydb_loaded_version;
+-
+ static unsigned int symtab_sizes[SYM_NUM] = {
+ 	2,
+ 	32,
+@@ -1100,7 +1098,7 @@ int policydb_read(struct policydb *p, vo
+ 	struct role_trans *tr, *ltr;
+ 	struct ocontext *l, *c, *newc;
+ 	struct genfs *genfs_p, *genfs, *newgenfs;
+-	int i, j, rc, r_policyvers = 0;
++	int i, j, rc;
+ 	u32 buf[8], len, len2, config, nprim, nel, nel2;
+ 	char *policydb_str;
+ 	struct policydb_compat_info *info;
+@@ -1165,9 +1163,9 @@ int policydb_read(struct policydb *p, vo
+ 	for (i = 0; i < 4; i++)
+ 		buf[i] = le32_to_cpu(buf[i]);
+ 
+-	r_policyvers = buf[0];
+-	if (r_policyvers < POLICYDB_VERSION_MIN ||
+-	    r_policyvers > POLICYDB_VERSION_MAX) {
++	p->policyvers = buf[0];
++	if (p->policyvers < POLICYDB_VERSION_MIN ||
++	    p->policyvers > POLICYDB_VERSION_MAX) {
+ 	    	printk(KERN_ERR "security:  policydb version %d does not match "
+ 	    	       "my version range %d-%d\n",
+ 	    	       buf[0], POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+@@ -1183,10 +1181,10 @@ int policydb_read(struct policydb *p, vo
+ 	}
+ 
+ 
+-	info = policydb_lookup_compat(r_policyvers);
++	info = policydb_lookup_compat(p->policyvers);
+ 	if (!info) {
+ 		printk(KERN_ERR "security:  unable to find policy compat info "
+-		       "for version %d\n", r_policyvers);
++		       "for version %d\n", p->policyvers);
+ 		goto bad;
+ 	}
+ 
+@@ -1220,7 +1218,7 @@ int policydb_read(struct policydb *p, vo
+ 	if (rc)
+ 		goto bad;
+ 
+-	if (r_policyvers >= POLICYDB_VERSION_BOOL) {
++	if (p->policyvers >= POLICYDB_VERSION_BOOL) {
+ 		rc = cond_read_list(p, fp);
+ 		if (rc)
+ 			goto bad;
+@@ -1507,7 +1505,6 @@ int policydb_read(struct policydb *p, vo
+ 	
+ 	rc = 0;
+ out:
+-	policydb_loaded_version = r_policyvers;
+ 	return rc;
+ bad_newc:
+ 	ocontext_destroy(newc,OCON_FSUSE);
+diff -X /home/sds/dontdiff -rup linux-2.6.11-rc1-mm1/security/selinux/ss/policydb.h linux-2.6.11-rc1-mm1-sel/security/selinux/ss/policydb.h
+--- linux-2.6.11-rc1-mm1/security/selinux/ss/policydb.h	2005-01-14 10:29:40.114035672 -0500
++++ linux-2.6.11-rc1-mm1-sel/security/selinux/ss/policydb.h	2005-01-14 10:32:44.207049280 -0500
+@@ -246,6 +246,8 @@ struct policydb {
+ 	struct ebitmap trustedwriters;
+ 	struct ebitmap trustedobjects;
+ #endif
++
++	unsigned int policyvers;
+ };
+ 
+ extern int policydb_init(struct policydb *p);
+diff -X /home/sds/dontdiff -rup linux-2.6.11-rc1-mm1/security/selinux/ss/services.c linux-2.6.11-rc1-mm1-sel/security/selinux/ss/services.c
+--- linux-2.6.11-rc1-mm1/security/selinux/ss/services.c	2005-01-14 10:29:40.118035064 -0500
++++ linux-2.6.11-rc1-mm1-sel/security/selinux/ss/services.c	2005-01-14 10:32:44.211048672 -0500
+@@ -40,7 +40,7 @@
+ #include "mls.h"
+ 
+ extern void selnl_notify_policyload(u32 seqno);
+-extern int policydb_loaded_version;
++unsigned int policydb_loaded_version;
+ 
+ static DEFINE_RWLOCK(policy_rwlock);
+ #define POLICY_RDLOCK read_lock(&policy_rwlock)
+@@ -1047,6 +1047,7 @@ int security_load_policy(void *data, siz
+ 			avtab_cache_destroy();
+ 			return -EINVAL;
+ 		}
++		policydb_loaded_version = policydb.policyvers;
+ 		ss_initialized = 1;
+ 
+ 		LOAD_UNLOCK;
+@@ -1095,7 +1096,7 @@ int security_load_policy(void *data, siz
+ 	memcpy(&policydb, &newpolicydb, sizeof policydb);
+ 	sidtab_set(&sidtab, &newsidtab);
+ 	seqno = ++latest_granting;
+-
++	policydb_loaded_version = policydb.policyvers;
+ 	POLICY_WRUNLOCK;
+ 	LOAD_UNLOCK;
+ 
 
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
---=-gkSk3VWaH4c3OG/KbM4V
-Content-Disposition: attachment; filename=createcon
-Content-Type: application/x-perl; name=createcon
-Content-Transfer-Encoding: 7bit
-
-#!/usr/bin/perl -w
-#
-# this script creates a new SELinux type which is the union of several old types
-# (C) 2005 by Thomas Bleher under the GNU GPL
-#
-# Please note that this is just proof of concept code; it has some limitations:
-# * assumes every statement is one line
-# * does not really handle "{ domain - foo_t }"
-# * does not always handle ~ correctly; this shouldn't be a problem with current policy
-# * does not handle type_change and type_transition (not sure if there even is a correct way)
-# * only works on file_type (domains would need role type statements and are more difficult 
-#   because of domain_auto_trans())
-# * neverallow and constraints are not properly handled
-# * might generate duplicate permissions (these are not harmful)
-#
-# despite this, it should work most of the time
-
-if (@ARGV < 3) {
-	print STDERR "Usage: createcon [NewType] [Type1] [Type2] [Type3] ...\n";
-	print STDERR "policy info (policy.conf) is read from standard in\n";
-	print STDERR "Example: createcon samba_httpd_content_t samba_share_t httpd_sys_content_t < policy.conf\n";
-	exit(1);
-}
-
-# get command line arguments
-
-
-my ($new_type) = shift(@ARGV);
-my (@parent_types) = splice(@ARGV, 0, $#ARGV+1);
-
-# parse the policy
-
-$pat = '(\w+|~?{[^}]+}|\*)\s*'; # $pat matches on foo_t or { foo_t bar_t } or *
-
-while (<>) {
-	# remove everything we do not need
-	s/#.*?$//mg; # comments
-	s/^\s*$//mg; # empty lines
-	next if /^[\s\n]*$/;
-
-	# remove duplicate braces (we have to loop until all are gone)
-	# this is for things like "{ read{getattr {write setattr }}}"
-	for ( ;s/{([^}]*){([^}]*)}/{$1 $2/g; ) {}
-
-	if (/if \s* \( ([^\)]+) \)/x) { # save all active bools in a stack
-		push @bools, $1;
-
-	} elsif (/(allow|dontaudit|auditallow|auditdeny) \s+ $pat \s+ $pat : \s* $pat \s+ $pat;/x) { # normal rules
-		my $bool = join ') && (', @bools;
-		push @{$rules{$1}}, [$2,$3,$4,$5,$bool];
-
-	} elsif (/type\s+([^;]+);/) {
-		my @tmp = split /,\s+/, $1; # get attributes
-		my $type = shift @tmp;
-		$types{$type} = [@tmp];
-
-	} elsif (/typeattribute\s+(\w+)\s+(\w+)/) {
-		push @{$types{$1}}, $2;
-
-	} elsif (/\}/) { # this rule has to be the last so we don't grab braces from an allow rule
-		pop @bools;
-	}
-}
-
-# create a new type which is the union of the old types
-my (%tmp);
-for (@parent_types) {
-	for (@{$types{$_}}) {
-		$tmp{$_}++;
-	}
-}
-print "type $new_type, ", join(", ", keys %tmp), ";\n";
-
-
-# now create the rules
-
-for $ruletype (keys %rules) {
-	for (@{$rules{$ruletype}}) { # traverse all the rules
-		my ($types_expr) = join("|", @parent_types);
-
-		if ($_->[0] =~ /^($types_expr)$/) { 
-			# not sure if this is correct; what happens if a type is twice in a rule?
-			$_->[0] = $new_type; # replace source
-
-		} elsif ($_->[1] =~ /^($types_expr)$/) {
-			$_->[1] = $new_type; # replace target
-
-		} else { # ignore all other rules
-			next;
-		}
-
-		# now print it
-		if ($_->[4] ne '') { # any bools active?
-			print "if ($_->[4]) {\n";
-			print "$ruletype $_->[0] $_->[1]:$_->[2] $_->[3];\n";
-			print "}\n";
-		} else {
-			print "$ruletype $_->[0] $_->[1]:$_->[2] $_->[3];\n";
-		}
-	}
-}
-
-__END__
-
-# not used currently, but nice for debugging:
-
-# print all the stuff we have extracted
-for (keys %types) {
-	print "type $_, ", join(", ", @{$types{$_}}), ";\n";
-}
-for $ruletype (keys %rules) {
-	for (@{$rules{$ruletype}}) {
-		if ($_->[4] ne '') {
-			print "if ($_->[4]) {\n$ruletype $_->[0] $_->[1]:$_->[2] $_->[3];\n}\n";
-		} else {
-			print "$ruletype $_->[0] $_->[1]:$_->[2] $_->[3];\n";
-		}
-	}
-}
-
---=-gkSk3VWaH4c3OG/KbM4V--
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
