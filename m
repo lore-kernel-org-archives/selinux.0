@@ -1,68 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11588
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 12:55:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA05521
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 16:53:58 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA11774
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 13:08:35 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA21783
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 17:08:10 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id QAA05517 for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 16:53:58 GMT
-Received: from localhost (sds@localhost)
-	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id g5PGtEu18460
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 12:55:14 -0400 (EDT)
-Date: Tue, 25 Jun 2002 12:55:14 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id RAA21779
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 17:08:09 GMT
+Date: Tue, 25 Jun 2002 13:07:33 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Re: libsecure fails to compile (fwd)
-Message-ID: <Pine.GSO.4.33.0206251254250.7048-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: macros like dir_file_class_set
+In-Reply-To: <20020625165846.137142492@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206251305340.7048-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-I forgot to include the list on my original reply below.
+On Tue, 25 Jun 2002, Russell Coker wrote:
+
+> Steve, could macros like dir_file_class_set be changed to expand to a single
+> line?
+>
+> The reason is that I find it very conveniant to have all lines in the policy
+> file be independant.  Sure it's good to have the policy file be free-form to
+> enable the user to write such policy files, but for generated code I think
+> that every line should be atomic, so that for example I can do "grep -v
+> dontaudit" if I want to test something.
+
+Yes, we can certainly make this change for the *_class_set macros.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
----------- Forwarded message ----------
-Date: Tue, 25 Jun 2002 12:24:35 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: gdsmarshall@hushmail.com
-Subject: Re: libsecure fails to compile
-
-
-On Tue, 25 Jun 2002 gdsmarshall@hushmail.com wrote:
-
-> make -C src
-> make[1]: Entering directory `/root/selinux/selinux/libsecure/src'
-> cc -o arch/i386/fstat64_secure.o -c -I../include -I/usr/local/selinux/include arch/i386/fstat64_secure.c
-> In file included from arch/i386/fstat64_secure.c:6:
-> arch/i386/xstat64_conv.h: In function `xstat64_conv':
-> arch/i386/xstat64_conv.h:38: structure has no member named `__st_ino'
-> make[1]: *** [arch/i386/fstat64_secure.o] Error 1
-> make[1]: Leaving directory `/root/selinux/selinux/libsecure/src'
-> make: *** [all] Error 2
-> gatekeeper:~/selinux/selinux/libsecure#
->
-> I understand xstat64_conv.h is missing __st_ino, what should this be please?
->
-> I had no problems compiling the kernel which is now running quite happily,
-> Linux gatekeeper 2.4.18-selinux #4 Mon Jun 24 18:18:25 BST 2002 i486 unknown
->
-> I am using debian (stable)  I know Russell Coker has done lots of work with SELinux on debian, but I can not get to the stage of compiling the utilities yet.
-
-Are you using the Debian selinux packages created by Russell, or the
-upstream SELinux distribution?
-
-Try removing the '#define _HAVE_STAT64___ST_INO' in
-libsecure/src/arch/i386/kernel_stat64.h.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
 
 
 
