@@ -1,40 +1,77 @@
-Subject: Re: Logrotate, ssh_agent - read selinux_config_t
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1112295975.12948.72.camel@cobra.ivg2.net>
-References: <1112295975.12948.72.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 13:59:09 -0500
-Message-Id: <1112295549.11216.162.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200503311915.j2VJFV8R022740@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'SELinux'" <SELinux@tycho.nsa.gov>
+Cc: <selinux-dev@tresys.com>
+Subject: RE: Question about customizing apache policy.
+Date: Thu, 31 Mar 2005 14:15:31 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <424C1B73.6020508@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-31 at 14:06 -0500, Ivan Gyurdiev wrote:
-> logrotate and ssh_agent try to read /etc/selinux/config and fail.
-> I thought it would be reasonable to allow that, but I see this:
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Daniel J Walsh
+> Sent: Thursday, March 31, 2005 10:47 AM
+> To: SELinux
+> Subject: Question about customizing apache policy.
 > 
-> apache_macros.te:dontaudit httpd_$1_script_t selinux_config_t:dir
-> search;
-> crontab_macros.te:dontaudit $1_crontab_t selinux_config_t:dir search;
-> inetd_macros.te:dontaudit $1_t selinux_config_t:dir search;
-> ssh_agent_macros.te:dontaudit $1_ssh_agent_t selinux_config_t:dir
-> search;
-> ssh_macros.te:dontaudit $1_ssh_keysign_t selinux_config_t:dir search;
-> xserver_macros.te:dontaudit $1_xserver_t selinux_config_t:dir search;
+> There was a question yesterday in one of the fedora list, from a person
+> who would like to run a special httpd script that would manage his
+> passwd file, now whether or not this is a good idea, it caused me to try
+> an experiment.
+> Currently we have a  macro apache_domain.  I thought it would be cool if
+> I could start writing policy for this passwd app by adding a file to
+> domains/misc/apachepasswd.te.  Then having one line
+> apache_domain(passwd)
 > 
-> Why?
+> Which in theory would create httpd_passwd_script_exec_t,
+> httpd_passwd_script_t, httpd_passwd_script_rw_t.  I could then go ahead
+> and label my cgi httpd_passwd_script_exec_t and start adding the
+> additional allow rules to allow this to happen.  Needless to say, we
+> have added a lot of cruft to the apache_domain() macro.  So I did some
+> cleanup of apache.te and apache_macro.te, see attach.
+> Could people review these to make sure there is no mistakes.
+> But this exercise also brought up the idea that this would be an
+> excellent example of how we would want to use loadable modules. I think
+> that this might be a fairly common problem.  People want to run a
+> specialized apache cgi script that slightly extends httpd_sys_script_t.
+> 
+> It would be cool if they could do this without having to have policy
+> installed, but a simple boiler plate for adding a new type of httpd
+> script type.
+> 
+> Ideas?
+> 
 
-libselinux reads /etc/selinux/config from a constructor to set up the
-paths to the policy files for later use internally or by the
-application.  This ends up triggering a lot of unnecessary attempts to
-read it by programs that happen to link with libselinux but don't ever
-need to access a policy path.  
+No ideas - just a confirmation of the need, which I was talking about a while
+ago during the EXTENDS discussion. We are really talking about moving some
+specialized form of macros into the language for those cases when runtime
+expansion during module loading is necessary. You provide one example and the
+other example that I always use is the types generated for roles/user domains,
+e.g., staff_ssh_t.
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Just one note, is that this means that this would make it harder for a module
+author to understand the actual access that his policy allowed. This problem
+already exists in the loadable modules because of attribute expansion (which
+happens at module load time), but this could make it worse.
+
+Karl
+
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
+> Dan
+> 
+> --
+> 
+
 
 
 --
