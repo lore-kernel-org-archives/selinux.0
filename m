@@ -1,38 +1,39 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3E930Rb027548
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 05:03:00 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3E95dRb027567
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 05:05:40 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3E92xmw018994
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:02:59 GMT
+	by jazzband.ncsc.mil  with ESMTP id i3E95dmw019073
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:05:39 GMT
 Received: from nox.lemuria.org ([213.191.86.35])
-        by jazzband.ncsc.mil  with ESMTP id i3E92w4w018991 for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:02:58 GMT
-Date: Wed, 14 Apr 2004 11:02:42 +0200
+        by jazzband.ncsc.mil  with ESMTP id i3E95c4w019070 for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:05:38 GMT
+Date: Wed, 14 Apr 2004 11:05:38 +0200
 From: Tom <tom@lemuria.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Fedora Core 2 Test 2
-Message-ID: <20040414110242.C26635@lemuria.org>
-References: <1081459652.24857.33.camel@hawaii.efficax.net> <32926.192.168.1.3.1081469476.squirrel@www> <200404121728.59270.russell@coker.com.au>
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Re: Logo Artwork for SELinux?
+Message-ID: <20040414110538.D26635@lemuria.org>
+References: <20040410212453.GA19726@vnl.com> <Pine.LNX.4.44.0404120322400.21241-100000@cirrus.av8.net> <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200404121728.59270.russell@coker.com.au>; from russell@coker.com.au on Mon, Apr 12, 2004 at 05:28:59PM +1000
+In-Reply-To: <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org>; from elvedin@ods.org on Mon, Apr 12, 2004 at 09:57:36AM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Apr 12, 2004 at 05:28:59PM +1000, Russell Coker wrote:
-> On Fri, 9 Apr 2004 10:11, "Kerry Thompson" <kerry@crypt.gen.nz> wrote:
-> > I'm advising people that if they're not interested in SELinux or are
-> > installing a desktop for their granny then disable with selinux=0.
-> 
-> I think that a granny's desktop system is an ideal machine for SE Linux.  Such 
-> machines often don't get upgraded as often as you might like and you want as 
-> many security options as possible!
+On Mon, Apr 12, 2004 at 09:57:36AM -0500, Elvedin Trnjanin wrote:
+> I suggest we avoid any preference to a country or orginization (US or UN)
+> and just perhaps go with some cryptography related thing, random numbers
+> (1s, 0s) in the background or something of that sort.
 
-Plus granny is unlikely to fool around and thus can comfortably live in
-a restricted environment.
+How about using the proposed light-blue UN colour for the random number
+strings (why random? let's give the geeks something to do and have it
+actually mean something).
 
-I know that for me, my own machines are the ones with the most relaxed
-security settings, because I constantly install, tweak, tune, and
-generally mess with stuff.
+Add Tux with chainmail shirt.
+
+Plus a simple "SELinux" as text.
+
+
+I'll see what I can whip up. I'm by far no graphics dude, but I know a
+little about gimp.
 
 
 -- 
