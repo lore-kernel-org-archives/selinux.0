@@ -1,128 +1,58 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6CLNmrT005857
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 17:23:48 -0400 (EDT)
-Received: from mxlx1.surveysavvy.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6CLNQDC008676
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 21:23:27 GMT
-Message-ID: <2500.68.6.187.64.1089667018.squirrel@mxlx1.surveysavvy.com>
-In-Reply-To: <20040711205047.GQ4677@lkcl.net>
-References: <20040709201413.GB3168@lkcl.net>
-    <200407112050.08313.russell@coker.com.au>
-    <20040711112237.GI3390@lkcl.net> <40F16D8B.4010601@bellsouth.net>
-    <20040711205047.GQ4677@lkcl.net>
-Date: Mon, 12 Jul 2004 14:16:58 -0700 (PDT)
-Subject: Re: [SE/Linux] warning about debian hotplug package 20040329-9!
-From: "Chris Babcock" <cbabcock@luthresearch.com>
-To: "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>
-Cc: "SE-Linux" <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6D1nVrT006745
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 21:49:32 -0400 (EDT)
+Received: from mail.mvalent.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6D1nADC015508
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jul 2004 01:49:11 GMT
+Subject: vsftpd with SELinux
+Date: Mon, 12 Jul 2004 21:49:26 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+Message-ID: <E6E16A6D4277CD459BBDE6713766033C92A4FA@exchange.mvalent.local>
+From: "James R. Marcus" <jmarcus@mvalent.net>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So then what if (horror of horrors) somebody puts "/var" on a usb disk
-device. (or some other type of device initialized by hotplug?)
+I just emerged vsftpd on my new Hardened Gentoo system running the
+SELinux kernel.  I think I have configured it correctly but keep running
+into this issue:
 
-> dear selinux and linux kernel,
->
-> i am after some assistance in clarifying how hotplug works, with
-> a view to solving an issue with SE/Linux where the default
-> SE/Linux policy is to deny write permission to /etc/hotplug
-> (with good reason) but the hotplug package is presently demanding
-> write permission.
->
-> a simple request for a change to writing to /var/state/hotplug
-> instead has thrown up a number of issues with kernel (2.6.6)
-> hotplugging and i would greatly appreciate some confirmation
-> and some assistance.
->
->
-> i raised a bug with the debian maintainer for hotplug [he
-> is known to be, how to describe in a few polite words, a
-> control freak.  coming from me, that's saying a lot].
->
-> i suggested that the location for files to be written to be moved
-> to /var/state/hotplug and he CLOSED the bug with a message saying
-> "you can't do that, /var might not be mounted at the time".
->
-> i reopened the bug, and then pointed out that the boottime order
-> was "Mounting local filesystems" (/etc/init.d/mountall.sh) followed
-> by "Starting Hotplug" (/etc/init.d/hotplug) and he responded with
-> "well the kernel can run hotplug at any time".
->
-> which seems to me to be a bit daft: if you haven't initialised
-> the hotplug system with /etc/init.d/hotplug, what's the point of
-> responding to kernel-triggered hotplug events?
->
-> sounds like an issue with the kernel, there, to me.
->
-> can anyone on the linux kernel mailing list who has knowledge of
-> the hotplug kernel stuff (and also who knows or is capable of knowing
-> how the debian hotplug system works) confirm whether hotplug
-> events will or will not be triggered by the kernel if you have NOT
-> run the /etc/init.d/hotplug script?
->
->
-> for example, i'm staring at line 176 of /etc/hotplug/usb.rc (v 1.22)
-> in version hotplug-20040329-8 and i note that usbdevfs is mounted
-> on /proc/bus/usb.
->
-> a comment at line 148 and 164 makes it clear (ish) that a distro
-> could mount usbdevfs, which could cause a "partial" initialisation
-> of the usb hotplugging subsystem, and hotplug events could have
-> been dropped as a result, or not properly started.
->
-> so, distros shouldn't _be_ doing a partial initialisation of the
-> usb subsystem, basically!
->
-> anyway.
->
-> from this cursory examination, i would conclude that the
-> argument used [to justify not moving state information to a
-> new directory /var/state/hotplug] by the debian maintainer of
-> hotplug that "the hotplug system may generate events at any
-> time" is bogus.
->
-> e.g. under such circumstances where a distribution has
-> initialised the usb hotplug system BEFORE /etc/init.d/hotplug start
-> gets a chance to run "/etc/hotplug/usb.rc start", hotplug
-> events are likely to get missed - not least because the
-> filesystem might not have been initialised / mounted (except
-> the root filesystem maybe) and consequently it's hazardous and
-> problematic, and the usb.rc script has to reinvent some of
-> the events it might have missed!!
->
-> l.
->
-> On Sun, Jul 11, 2004 at 12:40:43PM -0400, Jim McCullough wrote:
->> Luke Kenneth Casson Leighton wrote:
->>
->> >On Sun, Jul 11, 2004 at 08:50:08PM +1000, Russell Coker wrote:
->> >
->> >
->> >>On Sat, 10 Jul 2004 06:14, Luke Kenneth Casson Leighton
->> <lkcl@lkcl.net>
->> >>wrote:
->> >>
->> >>
->> >>>warning warning warning, do not install hotplug version 20040329-9
->> >>>from debian unstable because /etc/hotplug/net.rc attempts to write
->> >>>to /etc/hotplug/net.enable.
->> >>>
->> >>>hotplug writing to /etc/ even /etc/hotplug is banned by the [present]
->> >>>selinux policy.
->> >>>
->> >>>i'm raising a bugreport about this one if there isn't one already.
->> >>>
->> >>>
->> >>That package is broken in other ways.
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
->
+ftp> ope 10.1.5.12
+Connected to 10.1.5.12.
+220 (vsFTPd 1.2.2)
+User (10.1.5.12:(none)): jmarcus
+331 Please specify the password.
+Password:
+230 Login successful.
+ftp> ls
+500 OOPS: capset
+200 PORT command successful. Consider using PASV.
+500 OOPS: vsf_sysutil_recv_peek
+Connection closed by remote host.
+ftp> quit
+
+Here is my vsftpd config:
+ftp init.d # cat /etc/vsftpd/vsftpd.conf | grep -v '#'
+
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+dirmessage_enable=YES
+connect_from_port_20=YES
+xferlog_enable=YES
+xferlog_file=/var/log/vsftpd/vsftpd.log
+nopriv_user=nobody
+background=YES
+listen=YES
+
+Any help or pointers would be greatly appreciated.
+
+
+Thanks,
+James
+
 
 
 --
