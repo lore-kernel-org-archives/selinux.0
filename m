@@ -1,40 +1,58 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h64F9tHa006445
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 11:09:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h64K2OHa006942
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 16:02:24 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h64F92nJ001639
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 15:09:02 GMT
-Received: from unicorn.lemuria.org (c152035.adsl.hansenet.de [213.39.152.35])
-	by jazzswing.ncsc.mil  with ESMTP id h64F91hr001636
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 15:09:02 GMT
-Date: Fri, 4 Jul 2003 17:06:58 +0200
-From: Tom <tom@lemuria.org>
-To: Mauro Chiarugi <vlaovic@libero.it>
-Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-Subject: Re: Policies.. but where there are?
-Message-ID: <20030704170656.A2508@lemuria.org>
-References: <20030703234800.330f8026.vlaovic@libero.it> <200307040852.51081.russell@coker.com.au> <20030704085135.0ffdf7a7.vlaovic@libero.it> <200307041741.36842.russell@coker.com.au> <20030704133113.2befd387.vlaovic@libero.it>
+	by jazzswing.ncsc.mil  with ESMTP id h64K1UnJ010513
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 20:01:31 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+	by jazzswing.ncsc.mil  with ESMTP id h64K1Uhr010510
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 20:01:30 GMT
+Received: from columbia (h-66-134-23-16.SFLDMIDN.covad.net [66.134.23.16])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id CD12141402D
+	for <selinux@tycho.nsa.gov>; Fri,  4 Jul 2003 16:02:38 -0400 (EDT)
+Subject: Re: build patches for checkpolicy, libselinux, policycoreutils
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1057271791.24843.13.camel@columbia>
+References: <1057271791.24843.13.camel@columbia>
+Content-Type: multipart/mixed; boundary="=-rBNECZCsuUs8rFxmzh0L"
+Message-Id: <1057299613.31326.9.camel@columbia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20030704133113.2befd387.vlaovic@libero.it>; from vlaovic@libero.it on Fri, Jul 04, 2003 at 01:31:13PM +0200
+Date: 04 Jul 2003 02:20:13 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jul 04, 2003 at 01:31:13PM +0200, Mauro Chiarugi wrote:
-> > Yes.  There is a special type for it and it is protected against
-> > editing.
-> 
-> And what append if i boot with a normal kernel??
 
-There is no special protection in SELinux against malicious users with
-full access to the physical machine. Encrypted filesystems and
-physically secure server rooms are your tools in that area.
+--=-rBNECZCsuUs8rFxmzh0L
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Oops, sorry, the first patch (for checkpolicy) was not the correct fix. 
+An updated patch is attached.
 
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+--=-rBNECZCsuUs8rFxmzh0L
+Content-Disposition: attachment; filename=makefile-cflags.patch
+Content-Type: text/x-makefile; name=makefile-cflags.patch; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+--- Makefile~	2003-07-03 17:52:32.000000000 -0400
++++ Makefile	2003-07-04 02:17:24.000000000 -0400
+@@ -4,7 +4,8 @@
+ PREFIX ?=3D ${DESTDIR}/usr
+ BINDIR ?=3D $(PREFIX)/bin
+=20
+-CFLAGS =3D -g -Wall -O2 -pipe -include global.h -I. -Iinclude
++CFLAGS =3D -g -Wall -O2 -pipe
++override CFLAGS +=3D -include global.h -I. -Iinclude
+=20
+ OBJS =3D ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services=
+.o y.tab.o lex.yy.o queue.o write.o checkpolicy.o
+=20
+
+--=-rBNECZCsuUs8rFxmzh0L--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
