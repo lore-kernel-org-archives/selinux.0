@@ -1,100 +1,64 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA14104
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 08:53:32 -0500 (EST)
-From: egoodwin@unimatrix.com
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA08080
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 13:51:16 GMT
-Received: from ui-rc-01.unimatrix.net ([63.118.88.222])
-	by jazzswing.ncsc.mil  with ESMTP id NAA08076
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 13:51:15 GMT
-In-Reply-To: <sdea5f50.000@atlas.snu.edu>
-To: selinux@tycho.nsa.gov
-Subject: SGI Challenge XL
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14347
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 09:11:01 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA03990
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:08:58 GMT
+Received: from hellcat.admin.navo.hpc.mil (hellcat.admin.navo.hpc.mil [204.222.179.34])
+        by jazzband.ncsc.mil  with ESMTP id OAA03986 for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:08:58 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Russell Coker <russell@coker.com.au>,
+        "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+Subject: Re: expect
+Date: Mon, 2 Dec 2002 08:09:20 -0600
+References: <200211292002.PAA23890@moss-shockers.ncsc.mil> <200212011308.58878.russell@coker.com.au>
+In-Reply-To: <200212011308.58878.russell@coker.com.au>
 MIME-Version: 1.0
-Message-ID: <OF4CFC5AAA.4DF982B3-ON85256C83.004AE823-85256C83.004B53A4@unimatrix.net>
-Date: Mon, 2 Dec 2002 08:50:42 -0500
-Content-Type: multipart/alternative; boundary="=_alternative 004B426085256C83_="
+Message-Id: <200212020809.20563.pollard@admin.navo.hpc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multipart message in MIME format.
---=_alternative 004B426085256C83_=
-Content-Type: text/plain; charset="US-ASCII"
+On Sunday 01 December 2002 06:08 am, Russell Coker wrote:
+> On Fri, 29 Nov 2002 21:02, Stephen D. Smalley wrote:
+> > > Due to what I believe to be bugs in expect, the new open_init_pty
+> > > program will not work correctly with old versions of expect.  Version
+> > > 5.38.0 works fine, version 5.32.2 is broken.  I don't know when the bug
+> > > was fixed exactly.
+> >
+> > I've backed out the open_init_pty changes to our internal copy of
+> > run_init.   I'd rather not have the base run_init functionality dependent
+> > on a particular version of expect, and I'm not even sure that it is
+> > wise to depend on having expect installed at all.
+>
+> I will not do the same for my Debian packages.
+>
+> I can see the benefit in having two options available for users in this
+> case, as some smaller devices such as PDAs may not have space for expect. 
+> But Debian is a heavy distribution primarily designed for workstations and
+> servers.  Debian works well on laptops too but is not designed to scale
+> down any further than that.  So I think that there is no reason not to
+> depend on expect.
+>
+> I have made my Debian packages depend on the appropriate version of expect
+> so you can just install the packages and be sure that the right things are
+> automatically installed.
 
-Greetings all,
+IMHO not the best solution, since the existance of "expect" depends entirely
+on local policy. At our site, it is not to be installed without a LOT of
+justification first, and only with policy wavers on an individual basis.
 
-Has anyone worked with an SGI Challenge XL server and SE Linux as yet?  We 
-would like to bring this server back from retirement and consider this 
-project an excellent reason to do so.  While we still have IRIX 6.5.2 
-loaded to the machine, we would rather have it running Linux.  Is it 
-possible to patch IRIX's kernel, or should we go with Linux?  There is a 
-version of Linux compiled for the Challenge XL, although its not exactly 
-one that is in "active development".
+Making it mandatory for the system to function would mean that the Debian
+distribution will not be permitted. This isn't a major problem for us, at
+least, since we have standardized on RH.
 
-Thank you in advance for any heads up we may receive on this.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-Yours in Reason,
-Eriks
-
-
-
-
-R. Eriks Goodwin, CEO
-UniMatrix International Corporation   http://www.unimatrix.com
-2101 East Main Street, Richmond VA 23223, USA
-421 West Main Street, Waynesboro VA  22980, USA
-13455 Sunrise Valley Drive, Herndon VA  20171, USA
-
-Tel: 804-780-0590 ext 2400   *   Fax: 804-780-0591
-
-Unified Solutions for the Information Age
-             http://www.unimatrix.com
-
-"Productive work is the central purpose of a rational man's life, the 
-central value that integrates and determines the hierarchy of all his 
-other values. Reason is the source, the precondition of his productive 
-work pride is the result."  --Ayn Rand
---=_alternative 004B426085256C83_=
-Content-Type: text/html; charset="US-ASCII"
-
-
-<br><font size=2 face="sans-serif">Greetings all,</font>
-<br>
-<br><font size=2 face="sans-serif">Has anyone worked with an SGI Challenge
-XL server and SE Linux as yet? &nbsp;We would like to bring this server
-back from retirement and consider this project an excellent reason to do
-so. &nbsp;While we still have IRIX 6.5.2 loaded to the machine, we would
-rather have it running Linux. &nbsp;Is it possible to patch IRIX's kernel,
-or should we go with Linux? &nbsp;There is a version of Linux compiled
-for the Challenge XL, although its not exactly one that is in &quot;active
-development&quot;.</font>
-<br>
-<br><font size=2 face="sans-serif">Thank you in advance for any heads up
-we may receive on this.</font>
-<br>
-<br><font size=2 face="sans-serif">Yours in Reason,</font>
-<br><font size=2 face="sans-serif">Eriks</font>
-<br>
-<br>
-<br>
-<br>
-<br><font size=2 face="sans-serif">R. Eriks Goodwin, CEO<br>
-UniMatrix International Corporation &nbsp; http://www.unimatrix.com<br>
-2101 East Main Street, Richmond VA 23223, USA<br>
-421 West Main Street, Waynesboro VA &nbsp;22980, USA<br>
-13455 Sunrise Valley Drive, Herndon VA &nbsp;20171, USA<br>
-<br>
-Tel: 804-780-0590 ext 2400 &nbsp; * &nbsp; Fax: 804-780-0591<br>
-<br>
-Unified Solutions for the Information Age<br>
- &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; http://www.unimatrix.com<br>
-<br>
-&quot;Productive work is the central purpose of a rational man's life,
-the central value that integrates and determines the hierarchy of all his
-other values. Reason is the source, the precondition of his productive
-work pride is the result.&quot; &nbsp;--Ayn Rand</font>
---=_alternative 004B426085256C83_=--
+Any opinions expressed are solely my own.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
