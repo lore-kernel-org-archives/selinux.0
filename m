@@ -1,51 +1,52 @@
-Date: Sat, 29 May 2004 11:18:42 +0000
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4TDNFrT014497
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 09:23:15 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4TDKjTg027498
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 13:20:45 GMT
+Received: from smtp800.mail.ukl.yahoo.com (smtp800.mail.ukl.yahoo.com [217.12.12.142])
+	by jazzswing.ncsc.mil  with SMTP id i4TDKiPE027495
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 13:20:44 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp800.mail.ukl.yahoo.com with SMTP; 29 May 2004 13:23:12 -0000
+Received: from highfield ([192.168.0.223]:32833 helo=lkcl.net)
+	by lkcl.net with esmtp (Exim 4.34 #1)
+	id 1BU39W-0000ik-Fy
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 12:41:30 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BU3lC-0003iu-5V
+	for selinux@tycho.nsa.gov; Sat, 29 May 2004 13:20:26 +0000
+Date: Sat, 29 May 2004 13:20:25 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SELinux <SELinux@tycho.nsa.gov>, tng-technical@lists.samba-tng.org,
-   samba-technical@samba.org
-Subject: Re: se-samba
-Message-ID: <20040529111842.GA18370@lkcl.net>
-References: <40ACFC0C.9020101@snu.edu> <20040529095153.GB16927@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: latest cvs: policy appears to have different specs for apt-get
+Message-ID: <20040529132024.GA12259@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040529095153.GB16927@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, May 29, 2004 at 09:51:53AM +0000, Luke Kenneth Casson Leighton wrote:
+i'm getting this error on make relabel:
 
-> > Basically the idea is that samba runs in it's own domain (ofcourse), but 
-> > this domain has to be able to access/read/write files in other domains, 
-> > particularly user domains. However we want the same enforcements over 
-> > samba that a user would get on the local system, so the idea is to make 
+	ERROR: Multiple different specifications for /usr/bin/apt-get
+	(system_u:object_r:rpm_exec_t and system_u:object_r:apt_exec_t).
+	/usr/sbin/setfiles:  labeling files under /
 
-> > [...]
-
-> 1) doing user-space avc library calls is fine IF you can guarantee
-> that the file system to which you are providing access is NOT
-> accessible by any means other than through se-samba [or that
-> any such access guarantees no race conditions].
-> 
-> i.e. you must, in effect, write your own userspace file system.
-
-... just to be clear: isolating a filesystem from backdoor access
-(i.e. the underlying filesystem, if it's a unix filesysyem, is NOT
-accessible via any other means e.g. an NFS export) is not as bad
-as it first seems.
-
-you can always use the smbfs (or its newer more unix-centric
-cifsfs cousins) linux kernel smb client filesystems to access
-such an isolated userspace filesystem, and then re-export that
-filesystem via other file servers (e.g. NFS).
-
-i don't expect it to be very fast, it's not very friendly,
-but it's minimal coding, minimal administrative setup and
-it'll work.  fingers crossed.  :)
+i won't pretend to know how it occurs...
 
 l.
 
-p.s. as is done at the moment, you could always just keep on
-giving samba unlimited policy access to the directories it
-exports, but that's not the point, is it?
+
+-- 
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
