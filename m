@@ -1,55 +1,79 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA18612
-	for <selinux@tycho.nsa.gov>; Mon, 25 Mar 2002 18:24:43 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA06246
-	for <selinux@tycho.nsa.gov>; Mon, 25 Mar 2002 23:23:18 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA18950
+	for <selinux@tycho.nsa.gov>; Mon, 25 Mar 2002 20:17:13 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id BAA00308
+	for <selinux@tycho.nsa.gov>; Tue, 26 Mar 2002 01:16:08 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id XAA06242
-	for <selinux@tycho.nsa.gov>; Mon, 25 Mar 2002 23:23:17 GMT
+        by jazzband.ncsc.mil  with ESMTP id BAA00285 for <selinux@tycho.nsa.gov>; Tue, 26 Mar 2002 01:16:06 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 4CC7092452
-	for <selinux@tycho.nsa.gov>; Tue, 26 Mar 2002 10:24:37 +1100 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 77C7592452
+	for <selinux@tycho.nsa.gov>; Tue, 26 Mar 2002 12:17:07 +1100 (EST)
 Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id C7B9E22AE8
-	for <selinux@tycho.nsa.gov>; Tue, 26 Mar 2002 00:24:28 +0100 (CET)
+	by lyta.coker.com.au (Postfix) with SMTP id E9F5D22ADE
+	for <selinux@tycho.nsa.gov>; Tue, 26 Mar 2002 02:16:59 +0100 (CET)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: multiple programs with the same file (sendmail)
-Date: Tue, 26 Mar 2002 00:24:28 +0100
+Subject: talks about SE Linux
+Date: Tue, 26 Mar 2002 02:16:59 +0100
 MIME-Version: 1.0
-Message-Id: <20020325232428.C7B9E22AE8@lyta.coker.com.au>
+Message-Id: <20020326011659.E9F5D22ADE@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What should we do when several programs may provide the same file?
+Peter suggested that I should inform everyone about the talks on SE Linux I'm 
+giving in the near future.  So here's my current plans:
 
-The best example of this is /usr/sbin/sendmail which is provided by most 
-(all?) mail servers (including of course sendmail).
+On Sunday the 7th of April I am giving a presentation on SE Linux for OxLug 
+(the Oxford LUG).  It's an open invite, contact me off-list if you are 
+interested in attending and I'll get you the details.
 
-For sendmail it needs to be in a domain that can do virtually everything.  
-For postfix it just talks to other postfix processes and needs little 
-permissions, for other mail servers the needs may vary.
+Then I'm doing a presentation at OLS http://www.linuxsymposium.org/ , and 
+after that I'll probably offer a talk for the Debian Conference 2 in Toronto 
+(early July).  I imagine that the DebConf people won't reject a talk from me 
+on this topic.  Also I have nothing planned between OLS and Debconf, so I 
+could probably do a local LUG in the mean time.
 
-We could have a sendmail_exec_t and then have different .te files define 
-different permissions related to it which makes things good for 
-file_contexts, but will give undesired results if you have the configuration 
-for multiple mail servers in the domains/program directory.
+Also at OLS I would like to arrange a BOF on advanced security (where we can 
+discuss SE Linux, GR Security, OpenWall, LIDS, and anything else that seems 
+appropriate).  This will be entirely separate from the LSM BOF.
+Another thing I was thinking of was an install-fest for these things.
 
-Having different configlets for file_contexts (in the way it will be done in 
-the next version) makes it feasible to change the type of the file and leave 
-the policy files for multiple mail servers in place.
+The topics of my talks will be SE Linux in general and on Debianizing it in 
+particular (with discussion on general packaging issues that also apply to 
+RPM or other packaging systems).  Also I will discuss other related issues 
+such as finding bugs in programs through SE Linux (which is actually a very 
+trivial thing but gets people's attention).
+The balance of the various items I talk about will depend on what I expect 
+the audience wants, and can change during the talk in response to questions 
+(I prefer a very interactive format for my presentations).
 
-Which is the "right" way to do this?
+I've agreed in concept to give a talk for the Nederlandse Linux Gebruikers 
+Groep http://www.nllgg.nl/ , but have not been able to arrange a date yet 
+because of my schedule and their schedule not matching well.  I'll also offer 
+talks to any other groups that meet in the center of the Netherlands (where I 
+live), and I'll consider other European countries.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+
+I'll be in Australia in May to get married, due to this and the talks I have 
+got planned already I can't arrange anything else before the August. The only 
+possible exception is something in Canada the week after OLS which doesn't 
+involve incurring any expenses for me.
+
+At the moment I can't arrange anything in August or later because it's too 
+far ahead and I'm organizing too many other things at the moment and can't 
+deal with that too.
+
+
+Please contact me off-list if you want to discuss any of these issues other 
+than BOFs.
+
+
+
+Russell Coker
 
 --
 You have received this message because you are subscribed to the selinux list.
