@@ -1,58 +1,50 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA594NXZ001204
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 04:04:25 -0500 (EST)
-Received: from web51504.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id iA594NKf011155
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 09:04:23 GMT
-Message-ID: <20041105090423.51837.qmail@web51504.mail.yahoo.com>
-Date: Fri, 5 Nov 2004 01:04:23 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: SELinux with IPSec - something going on ?
-To: selinux@tycho.nsa.gov, jaegert@us.ibm.com
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1539650032-1099645463=:48635"
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5AIAXZ001566
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 05:18:12 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5AGmUH013657
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 10:16:48 GMT
+Date: Fri, 5 Nov 2004 10:28:53 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Colin Walters <walters@verbum.org>
+Cc: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov,
+   debian-devel@lists.debian.org
+Subject: Re: Updated SELinux Release
+Message-ID: <20041105102853.GA5565@lkcl.net>
+References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil> <Pine.LNX.4.58.0411031908500.12297@d10systems.homelinux.com> <1099534538.3875.6.camel@nexus.verbum.private> <87k6t2qepg.fsf@glaurung.internal.golden-gryphon.com> <20041104131544.GC5461@lkcl.net> <1099627566.25416.6.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1099627566.25416.6.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1539650032-1099645463=:48635
-Content-Type: text/plain; charset=us-ascii
+On Thu, Nov 04, 2004 at 11:06:06PM -0500, Colin Walters wrote:
+> On Thu, 2004-11-04 at 13:15 +0000, Luke Kenneth Casson Leighton wrote:
+> 
+> >  default: no.
+> 
+> Why not on by default, 
 
-Hi,
- 
-I also intend to do some work on Integrating IPSEC with network mandatory controls. I'd like to know how many parts this work may include? what these parts respectively are? and what about the workload for doing it?
- 
-Thanks.
+ i would agree with stephen that it should be compiled in,
+ default options "selinux=no".
 
+ that gives people the choice, without affecting performance.
 
---
-Best Regards,
-Park Lee <parklee_sel@yahoo.com> 
- 
+> with a targeted policy, for everyone?  
 
+ debianites have yet to be convinced of the benefits of
+ _anything_ to do with selinux [irrespective of whether they
+ are actually _aware_ of its benefits]
 
+ i specifically recall seeing a message from 2002 "the more i learn
+ about selinux, i like it less and less".
 
+ that having been said, i believe, like i think you do, that a
+ targetted policy for debian _would_ make selinux much easier
+ to accept.
 
+ l.
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-1539650032-1099645463=:48635
-Content-Type: text/html; charset=us-ascii
-
-<DIV>Hi,</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>I&nbsp;also intend to do some work on&nbsp;Integrating IPSEC with network mandatory controls. I'd like&nbsp;to know&nbsp;how many&nbsp;parts&nbsp;this work may include?&nbsp;what these parts&nbsp;respectively&nbsp;are? and what about the workload for doing it?</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thanks.</DIV><BR><BR><DIV>
-<DIV>
-<DIV>
-<DIV>
-<DIV>
-<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
-<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
---0-1539650032-1099645463=:48635--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
