@@ -1,48 +1,29 @@
-From: "A Almeida" <skubey@hotmail.com>
-To: SELinux@tycho.nsa.gov
-Subject: postmaster/postgres policy files
-Date: Fri, 02 Aug 2002 11:50:51 -0400
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F88TF4ia5wAz8AWiZAt0001366f@hotmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: file_t or root_t
+Date: Fri, 2 Aug 2002 19:54:54 +0200
+References: <20020802151300.497ACFA93@ivanova.coker.com.au>
+In-Reply-To: <20020802151300.497ACFA93@ivanova.coker.com.au>
+MIME-Version: 1.0
+Message-Id: <20020802175454.BF5ED164@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Since the message quoted below was posted in February, has anyone written 
-policy files for postgres/postmaster that you'd be willing to share?
+On Fri, 2 Aug 2002 17:12, Carsten Grohmann wrote:
+> If it not recommend to use file_t, why labelling we all unknown entries
+> with it.
 
-If not, the thing to do seems to make a new label for the executable
-postmaster (which is a symlink to postgres).  It should be labelled
-something like system_u:object_r:postgres_t instead of 
-system_u:object_r:bin_t.  Then, a TE file defining policy and transitioning 
-initrc_t to postgres_t would be needed.
+Because file_t is the default for unknown entries we don't want to use it for 
+anything.
 
-This seems to be the safe approach from studying the mail list.  However, 
-I'd not want to reinvent the wheel if someone has already written policy for 
-postgres/postmaster.
-
-If you have comments, thoughts, suggests, or would be willing to share an 
-already written postmaster.te or postgres.te file, would be appreciated.
-
--Morgan
-
--- original message from Beth Meighan bmeighan@bbn.com --
-
-The only dialogue I saw on this mail list about Postgres had ended with the 
-Postgres system processes in initrc_t domain and the recommendation to move 
-them into their own domain. Has anyone made domains and types for Postgres? 
-If so, would you be willing to share your .te file and any other policy 
-files you edited?
-
-Thank you in advance,
-Beth Meighan
-
-
-
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
