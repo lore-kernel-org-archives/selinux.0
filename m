@@ -1,39 +1,66 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7BM9NrT013338
-	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 18:09:23 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7BM8kep020195
-	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 22:08:46 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by open.hands.com (Postfix) with ESMTP id 3717ABF7B
-	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 23:09:18 +0100 (BST)
-Received: from open.hands.com ([127.0.0.1])
-	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
-	id 01198-07-2 for <selinux@tycho.nsa.gov>;
-	Wed, 11 Aug 2004 23:09:14 +0100 (BST)
-Received: from lkcl.net (th-pm04-49.ndirect.co.uk [195.7.227.177])
-	by open.hands.com (Postfix) with ESMTP id 285F0BF79
-	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 23:09:13 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Bv1ST-0000RW-S9
-	for selinux@tycho.nsa.gov; Wed, 11 Aug 2004 23:20:33 +0100
-Date: Wed, 11 Aug 2004 23:20:33 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: tmpfs xattrs and stuff
-Message-ID: <20040811222033.GI30160@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CDpMrT016694
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 09:51:22 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7CDoiQo012833
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 13:50:44 GMT
+Subject: Re: network object
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Alexis Wagner <venon@fugusec.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <411986C1.3030601@fugusec.net>
+References: <411986C1.3030601@fugusec.net>
+Content-Type: text/plain
+Message-Id: <1092318623.16219.42.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Aug 2004 09:50:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-... anyone had a chance to play with the tmpfs xattrs, mess with
-udev, that sort of random and hairy stuff?
+On Tue, 2004-08-10 at 22:38, Alexis Wagner wrote:
+> First of all, I have read on the web that network labelling is not 
+> supported in kernel 2.6 an higher.  I have also read that it will be 
+> possible to reimplement the necessary features using the packet filter.
+> Is that true ?
 
-i seem to be out on a tree playing with a large power tool, and am
-not entirely sure which side to cut.
+The goal is to provide implicit packet labeling based on IPSEC SA,
+rather than explicit labeling ala CIPSO.  The old SELinux included a
+CIPSO/FIPS188 explicit packet labeling implementation contributed by
+James Morris.  Whether or not implicit packet labeling will be
+sufficient has been debated; some believe that explicit labels will
+still be desired, so that you can use a single IPSEC SA for a range of
+labels and so that packet filters can directly interpret the packet
+labels.
 
-l.
+> Imagine I want to allow the domain one_t to set up and use  a tcp 
+> connection with the domain two_t on node two_t.  
+> Is it the correct way to set up the policy ?
+
+We won't truly know until we have the packet labeling mechanism and
+permission checks implemented.
+
+>         allow one_t node_two_t:node {node_bind tcp_send tcp_recv};
+
+one_t wouldn't be binding to node_two_t's address.
+
+>        #Wich domain I put here ? 
+>         allow one_t ???:tcp_socket {acceptfrom recvfrom } ;
+
+With labeled packets, acceptfrom and connectto could be revived as
+socket-to-peersocket permission checks, so if one_t were the client
+process domain and two_t were the server process domain, then you would
+want:
+# Let one_t connect to two_t (client-side check).
+allow one_t two_t:tcp_socket connectto;
+# Let two_t accept a connection from one_t (server-side check).
+allow two_t one_t:tcp_socket acceptfrom;
+
+Note the can_tcp_connect() macro in policy/macros/core_macros.te, a
+legacy from the days of labeled packets.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
