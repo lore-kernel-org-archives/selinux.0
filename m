@@ -1,26 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA24007
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2001 17:40:07 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA02244
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2001 21:39:58 GMT
-Received: from mailhost.auckland.ac.nz (mailhost.auckland.ac.nz [130.216.1.4])
-	by jazzband.ncsc.mil  with ESMTP id VAA02236
-	for <selinux@tycho.nsa.gov>; Tue, 29 May 2001 21:39:56 GMT
-Received: from gromit.ele.auckland.ac.nz (IDENT:postfix@gromit.ele.auckland.ac.nz [130.216.216.23])
-	by mailhost.auckland.ac.nz (8.9.2/8.9.2/8.9.2-ua) with ESMTP id JAA16719
-	for <selinux@tycho.nsa.gov>; Wed, 30 May 2001 09:39:59 +1200 (NZST)
-Date: Wed, 30 May 2001 09:39:59 +1200
-From: Colin Coghill <C.Coghill@auckland.ac.nz>
-To: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: Re: SELinux on a Workstation Reprise
-Message-ID: <20010530093959.A16433@gromit.ele.auckland.ac.nz>
-References: <Pine.LNX.4.30.0105291349590.18681-100000@linux42.zdv.uni-tuebingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.LNX.4.30.0105291349590.18681-100000@linux42.zdv.uni-tuebingen.de>; from jan.petranek@student.uni-tuebingen.de on Tue, May 29, 2001 at 01:53:28PM +0200
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA29190
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2001 14:41:08 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA04022
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2001 18:40:53 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+	by jazzswing.ncsc.mil  with SMTP id SAA04018
+	for <selinux@tycho.nsa.gov>; Wed, 30 May 2001 18:40:48 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A10152413F@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Colin Coghill'" <C.Coghill@auckland.ac.nz>,
+        NSA Selinux Mailinglist
+	 <selinux@tycho.nsa.gov>
+Subject: RE: SELinux on a Workstation Reprise
+Date: Wed, 30 May 2001 13:41:02 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+I am using it now on my desktop.
+I will clean up my policy files and send them to you.
+Also I use gdm as my session manager. I have made the required
+changes to the GDM source for selinux. It is part of the 
+cvs tree for selinux at www.sourceforge.net/project/selinux
+
+Mark
+
+-----Original Message-----
+From: Colin Coghill [mailto:C.Coghill@auckland.ac.nz]
+Sent: Tuesday, May 29, 2001 4:40 PM
+To: NSA Selinux Mailinglist
+Subject: Re: SELinux on a Workstation Reprise
+
 
 On Tue, May 29, 2001 at 01:53:28PM +0200, Jan Petranek wrote:
 > Hello out there,
@@ -65,6 +78,13 @@ Senior Tutor,
 Dept. of Electrical and Electronic Engineering,
 The University of Auckland,
 New Zealand.
+
+--
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 You have received this message because you are subscribed to the selinux list.
