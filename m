@@ -1,63 +1,59 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ICfTRb000859
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 08:41:29 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ICxHRb000964
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 08:59:17 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4ICfQAR016162
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 12:41:26 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i4ICfQHn016159 for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 12:41:26 GMT
+	by jazzband.ncsc.mil  with ESMTP id i4ICxFAR017030
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 12:59:15 GMT
+Received: from gadolinium.btinternet.com (gadolinium.btinternet.com [194.73.73.111])
+        by jazzband.ncsc.mil  with ESMTP id i4ICxEHn017027 for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 12:59:14 GMT
+Received: from [81.130.181.235] (helo=lkcl.net)
+	by gadolinium.btinternet.com with esmtp (Exim 3.22 #25)
+	id 1BQ4Be-00035d-00
+	for selinux@tycho.nsa.gov; Tue, 18 May 2004 13:59:14 +0100
+Received: from highfield ([192.168.0.223]:34147 helo=lkcl.net)
+	by lkcl.net with esmtp (Exim 4.24 #1)
+	id 1BQ4EQ-0007g0-OC
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 13:02:06 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BQ494-0001JQ-Cj
+	for selinux@tycho.nsa.gov; Tue, 18 May 2004 12:56:34 +0000
+Date: Tue, 18 May 2004 12:56:33 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: list of permissions created by allow2audit: what do i do now?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040518104026.GC24333@lkcl.net>
+Message-ID: <20040518125633.GA24917@lkcl.net>
 References: <20040518104026.GC24333@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1084884047.28966.59.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 18 May 2004 08:40:47 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040518104026.GC24333@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-05-18 at 06:40, Luke Kenneth Casson Leighton wrote:
-> from the list, below, i've removed me editing syslog as root without
-> doing newrole -r system_r :)
+On Tue, May 18, 2004 at 10:40:28AM +0000, Luke Kenneth Casson Leighton wrote:
 
-sysadm_r, not system_r.
-
-> 	allow initrc_t xdm_rw_etc_t:dir { add_name remove_name write };
-> 	allow initrc_t xdm_rw_etc_t:file { create ioctl rename unlink write };
+> help, help, i discovered the existence of allow2audit, and _finally_
+> i now have a tool that i can use to understand avc messages in terms
+> of audit permissions: hooray!
 > 
-> i mean, i see in domains/programs/xdm.te that there _are_
-> allow initrc_t xdm_rw_etc_t permissions for create (create_file_perms)
-> and also a comment that init scripts want to check for update
-> windowmanagerlist so they get getattr and read allowed.
-> 
-> ... so what's going on?? why am i getting these messages?
+> would someone mind advising me which of these is reasonable/safe
+> to allow, or should i just bung them all in and see what happens?
 
-In the upstream policy, I see:
-$ grep 'allow initrc_t xdm_rw_etc_t' policy.conf
-allow initrc_t xdm_rw_etc_t:file { getattr read };
+well i tried the bung-it-in-and-see approach, and i got a build error
+due to some global policy violations at make policy time because
+of this (and one other):
 
-So initrc_t is presently only allowed to stat and read those files. 
-Now, there are other rules for xdm_t:
-$ grep 'allow xdm_t xdm_rw_etc_t' policy.conf
-allow xdm_t xdm_rw_etc_t:dir { read getattr lock search ioctl add_name remove_name write };
-allow xdm_t xdm_rw_etc_t:file { create ioctl read getattr lock write setattr append link unlink rename };
+> allow hotplug_t etc_runtime_t:file { relabelfrom relabelto };
 
-And the xdm.te source file does have a comment prior to the
-corresponding source statements that says that this is for wdm.
-But perhaps someone erred and submitted the wrong rules for wdm (we
-don't use it ourselves).
+... but what is even stranger is that even though i add in these
+things into a new package (i called it domains/programs/localstuff.te)
+the avc messages _still don't go away_.
 
-> if i am using wdm (the patched version) is there anything i need to
-> do to get it to work / be accepted?
+i watched the make policy, it read the newly created file
+(localstuff.te) and the stuff is in policy.conf.
 
-Don't know, as I've never used it.
+what am i doing wrong?
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+l.
 
 
 --
