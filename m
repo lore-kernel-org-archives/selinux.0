@@ -1,73 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98F2xrT022190
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 11:02:59 -0400 (EDT)
-Received: from passage.avira.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98F1lBk004656
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 15:01:50 GMT
-Message-ID: <4166AC69.1010306@gentoo.org>
-Date: Fri, 08 Oct 2004 18:04:09 +0300
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: selinux@tycho.nsa.gov
-Subject: Re: gentoo diff for ntpd
-References: <41625A62.7080609@gentoo.org> <41629E45.8050107@gentoo.org> <4163CDD3.3@gentoo.org> <200410071702.33618.russell@coker.com.au>
-In-Reply-To: <200410071702.33618.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE2BF0B9AA44C6C85C9A9176A"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98FKhrT022374
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 11:20:43 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98FKgZ2008624
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 15:20:42 GMT
+Subject: [PATCH][SELINUX] Retain ptracer SID across fork
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+   lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Message-Id: <1097248647.16641.123.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 08 Oct 2004 11:17:27 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE2BF0B9AA44C6C85C9A9176A
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This patch against 2.6.9-rc3-mm3 fixes a bug in SELinux to retain the
+ptracer SID (if any) across fork.  Otherwise, SELinux will always deny
+attempts by traced children to exec domain-changing programs even if the
+policy would have allowed the tracer to trace the new domains as well. 
+Please apply.
 
+Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
+Signed-off-by: James Morris <jmorris@redhat.com>
 
-Hi Russell,
+ security/selinux/hooks.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
-Russell Coker wrote:
-> On Wed, 6 Oct 2004 20:49, petre rodan <kaiowas@gentoo.org> wrote:
-> 
->>this is a new diff with distro_gentoo ifdefs dropped.
->>also, logrotate is not part of the gentoo base-policy and it shouldn't be a
->>dependency for ntpd, so I'm also ifdef-ing that.
-> 
-> 
-> Having daemon binaries in /usr/bin instead of /usr/sbin is a bug.
-> 
-> ntpd and ntpdate can not be used by regular users, they can only be used by 
-> the administrator.  Therefore any distribution that follows the LSB (or the 
-> FHS which the LSB is based on) will put them in /usr/sbin.
-
-You are correct. I have sent patches to gentoo bugzilla and upstream.
-Let's hope at least one of those will like the idea.
-
-bye,
-peter
+diff -X /home/sds/dontdiff -rup linux-2.6.9-rc3-mm3/security/selinux/hooks.c linux-2.6.9-rc3-mm3-ptrace/security/selinux/hooks.c
+--- linux-2.6.9-rc3-mm3/security/selinux/hooks.c	2004-10-08 09:16:48.000000000 -0400
++++ linux-2.6.9-rc3-mm3-ptrace/security/selinux/hooks.c	2004-10-08 09:44:51.705623352 -0400
+@@ -2622,6 +2622,11 @@ static int selinux_task_alloc_security(s
+ 	tsec2->exec_sid = tsec1->exec_sid;
+ 	tsec2->create_sid = tsec1->create_sid;
+ 
++	/* Retain ptracer SID across fork, if any.
++	   This will be reset by the ptrace hook upon any 
++	   subsequent ptrace_attach operations. */
++	tsec2->ptrace_sid = tsec1->ptrace_sid;
++
+ 	return 0;
+ }
+ 
 
 -- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---------------enigE2BF0B9AA44C6C85C9A9176A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBZqxwGSBEIeh4AEYRAkOEAJ9YKxwYa9JN27Uo1ItoSTrBs8LemwCgi+fh
-4qNxzrsE/qsWQlgk9zEHH1Y=
-=BNLi
------END PGP SIGNATURE-----
-
---------------enigE2BF0B9AA44C6C85C9A9176A--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
