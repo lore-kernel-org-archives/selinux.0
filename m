@@ -1,23 +1,35 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h47KwnI4012706
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 16:58:49 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h47Kwm7R027581
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 20:58:48 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h483uoI4014793
+	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 23:56:50 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h483uZVf017473
+	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 03:56:35 GMT
 Received: from windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
-        by jazzband.ncsc.mil  with ESMTP id h47KwlKP027557 for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 20:58:47 GMT
-Message-ID: <01d401c314db$d175af90$398314d1@windowpane.com>
+	by jazzswing.ncsc.mil  with ESMTP id h483uU4D017464
+	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 03:56:31 GMT
+Message-ID: <021f01c31516$43cf0390$398314d1@windowpane.com>
 From: "ccallen" <ccallen@windowpane.com>
 To: <selinux@tycho.nsa.gov>
-Cc: <nagray@austin.rr.com>
-References: <1052323369.1487.46.camel@celestial>
-Subject: Re: SELinux and LFS
-Date: Wed, 7 May 2003 14:01:23 -0700
+Subject: Fw: SELinux and LFS
+Date: Wed, 7 May 2003 20:59:46 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Scratch the request for the use of the dat drive, cant find the tape. I have
+some windows based utilities that can incorporate some of yard's features.
+
+Conan
+
+----- Original Message -----
+From: "ccallen" <ccallen@windowpane.com>
+To: <selinux@tycho.nsa.gov>
+Cc: <nagray@austin.rr.com>
+Sent: Wednesday, May 07, 2003 2:01 PM
+Subject: Re: SELinux and LFS
+
 
 I have been working on the same kind of thing and wanted to ask the same
 question. My goal has been to create a minimal dist (like the linux router
@@ -99,6 +111,13 @@ Any comments/discussion would be appreciated
 Nick Gray
 Senior Network Engineer
 Bruzenak Inc.
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 
 --
