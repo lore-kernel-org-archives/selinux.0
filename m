@@ -1,34 +1,59 @@
-Message-ID: <40A464EB.5030008@snu.edu>
-Date: Fri, 14 May 2004 01:19:23 -0500
-From: Joshua Brindle <jbrindle@snu.edu>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4E6t7Rb009440
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 02:55:08 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4E6qjRA027985
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 06:52:45 GMT
+Received: from plusmx1.polkomtel.com.pl (plusmx1.polkomtel.com.pl [212.2.96.51])
+	by jazzswing.ncsc.mil  with ESMTP id i4E6qijN027982
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 06:52:44 GMT
+Received: from mswwaw2.corp.plusnet (plus-96-119.polkomtel.com.pl [212.2.96.119])
+	by plusmx1.polkomtel.com.pl (Postfix) with ESMTP id F182038041
+	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 08:55:03 +0200 (CEST)
+Received: from E2K2.corp.plusnet (mcs1baln2.corp.plusnet) by mswwaw2.corp.plusnet
+ (Content Technologies SMTPRS 4.3.12) with ESMTP id <T698f217ff0c0a8011f7cc@mswwaw2.corp.plusnet> for <selinux@tycho.nsa.gov>;
+ Fri, 14 May 2004 08:55:03 +0200
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: X policy classes
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="Windows-1252"
+Subject: RE: Suse
+Date: Fri, 14 May 2004 08:54:56 +0200
+Message-ID: <2A857CE92C11FE40858689CAEC7BED490AD67581@E2K2.corp.plusnet>
+From: "Jaroslaw Nozderko" <jaroslaw.nozderko@polkomtel.com.pl>
+To: "Selinux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We noticed today that the SE-X policy classes have been merged into the 
-sf.net cvs policy. Is there an ETA on when those will be merged into the 
-kernel headers?
+Not yet, I'm just going to purchase 9.1...
+Waiting for your opinions and observations :)
 
-The reason I ask is because we added the pax class in Gentoo policy and 
-kernels, now the ordering becomes an issue because with our current 
-kernels (with pax support included) the policy flask/access_vectors 
-ordering would have to have pax and then X classes but that would 
-prevent a user from using a vanilla kernel which has the X classes in 
-the headers.
+Regards,
+Jarek
 
-We'll probably go ahead and add the X classes to our kernel headers and 
-pax below them so that both vanilla and gentoo kernels would be able to 
-load the same policy but we'll need to make changes to our policy and 
-would like to know when we can expect the headers to be changed.
+Jaroslaw Nozderko
+GSM +48 601131870 / Kapsch (22) 6075013
+jaroslaw.nozderko@polkomtel.com.pl
+IT/CCBS/RS - Analyst Programmer
+  
+-----Original Message-----
+From: Ed Street [mailto:edstreet@street-tek.com]
+Sent: Friday, May 14, 2004 12:54 AM
+To: 'Selinux'
+Subject: Suse
 
-Another idea might be to add the pax class to the standard access_vector 
-  file but I'm not sure how receptive that would be since afaik we are 
-the only ones using it.
 
-Joshua Brindle
+Hello,
+ 
+I received my suse 9.1 cd’s in the mail today and was wondering if we have anyone working on this distro.
+ 
+Ed
+ 
+
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
 
 
 --
