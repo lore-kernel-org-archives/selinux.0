@@ -1,92 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i13JCeRb007693
-	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 14:12:40 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i13JCd1I004435
-	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 19:12:39 GMT
-Received: from butternut.transitive.com (dsl-217-207-128-218.uk.easynet.net [217.207.128.218] (may be forged))
-        by jazzband.ncsc.mil  with ESMTP id i13JCdbs004432 for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 19:12:39 GMT
-Message-ID: <401FF280.8070301@treblig.org>
-Date: Tue, 03 Feb 2004 19:12:00 +0000
-From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i140qjRb009190
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 19:52:46 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i140pNVK026099
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 00:51:23 GMT
+Received: from nsa.hitachi-sk.co.jp (nsa.hitachi-sk.co.jp [202.232.217.2])
+	by jazzswing.ncsc.mil  with ESMTP id i140pLlx026096
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 00:51:22 GMT
+Message-ID: <40204214.7050802@kam.hitachi-sk.co.jp>
+Date: Wed, 04 Feb 2004 09:51:32 +0900
+From: UENO Shuichi <ueno@kam.hitachi-sk.co.jp>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: Problems finding working kernel/user land combination
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Announcement: new tool 'SELinux/Aid' by Hitachi Soft
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-   I've been following the document 'Getting Started With SE Linux 
-HOWTO' by Faye Coker (12 March 2003) and am having problems. Any help 
-much appreciated.
+New tool 'SELinux/Aid' has been released.
 
-I'm using Debian Woody and the 'stable' set of tools from Brian May 
-(www.microcomaustralia.com.au)
-
-If I build the latest NSA kernel source the user land tools don't 
-recognise that SELinux is in the kernel:
-
-id -c :
-
-Sorry, --context (-c) can be used only on a flask-enabled kernel.
-
-yet the boot messages contain:
-
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-There is already a security framework initialized, register_security failed.
-Failure registering capabilities with the kernel
-selinux_register_security:  Registering secondary module capability
-Capability LSM initialized
+http://www.selinux.hitachi-sk.co.jp/en/
 
 
-which I've read is normal behaviour (is it?)
+SELinux/Aid packs some tools that support to constructing and managing
+an SELinux system. SELinux/Aid contains the following tools.
 
-An strace of 'id' shows:
+ - A tool that supports to edit SELinux security policies.
+ - A tool that supports to analyze the log messages from SELinux.
+ - A tool that supports to inspect SELinux security policies.
 
-SYS_223(0xf97cff8c, 0xc, 0, 0x400135cc) = -1 ENOSYS (Function not 
-implemented)
+But no English manuals, only readme file for installation.
 
-There is an selinuxfs that I can mount and I can see files
-'access  context  create  enforce  load  policyvers  relabel  user'
-but they give invalid argument if I try and cat them.
+-- 
+UENO, Shuichi <ueno@kam.hitachi-sk.co.jp>
+Hitachi Software Engineering Co., Ltd.
+http://www.selinux.hitachi-sk.co.jp/
 
-I have:
-
-CONFIG_SECURITY=y
-CONFIG_SECURITY_NETWORK=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_SECURITY_SELINUX=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM=y
-CONFIG_SECURITY_SELINUX_DEVELOP=y
-
------------------------
-
-OK - so that doesn't work; and I'm thinking I need to try a different 
-kernel patch set.
-So I download the patches from www.coker.com.au/newselinux/kern
-
-and after battling through adding the ea, acl and nfsacl patches
-I then patch the coker lsm patches on.
-
-This has two problems:
-   1) A minor reject in tcp_ipv4.c that appears easy to fix
-   2) Line 666 (gulp!) of ip_output.c has:
-
-   security_ip_fragment(skb2, skb);
-
-   but there doesn't appear to be an skb2 in that context.
-
-------------------------
-
-So in short; does anyone have a known good set of kernel patches that 
-actually work, or a set of userland tools for Debian/stable that work 
-with the NSA kernel?
-
-Thanks in advance,
-
-Dave
 
 
 --
