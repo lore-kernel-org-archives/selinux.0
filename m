@@ -1,54 +1,66 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i86LAlrT022731
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 17:10:47 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i86L9tvL001484
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 21:09:56 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id A5479BFCB
-	for <selinux@tycho.nsa.gov>; Mon,  6 Sep 2004 22:10:36 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1C4Qvu-0006qo-V9
-	for selinux@tycho.nsa.gov; Mon, 06 Sep 2004 22:21:50 +0100
-Date: Mon, 6 Sep 2004 22:21:50 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: KDE_FORK_SLAVES
-Message-ID: <20040906212150.GO8770@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i872PRrT023651
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 22:25:28 -0400 (EDT)
+Received: from wisconsin.yamato.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i872OZvL006521
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 02:24:36 GMT
+Received: from e19f2n15.jp.ibm.com (d19relay01.sagamino.japan.ibm.com [9.189.5.43])
+	by wisconsin.yamato.ibm.com (8.11.6p2-20030922/8.11.1) with ESMTP id i872PFx588318
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 11:25:15 +0900
+Received: from D19ML102.sagamino.japan.ibm.com (d19av02.sagamino.japan.ibm.com [9.189.5.91])
+	by e19f2n15.jp.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id i872PEo5160538
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 11:25:14 +0900
+In-Reply-To: <200409061526.i86FQA6I003847@mms-r00.iijmio.jp>
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Subject: Re: PAM in suse9.1 (Re: SuSE 9.1 SELinux)
+From: Takuya Mishina <TMISHINA@jp.ibm.com>
+Message-ID: <OF296DC5F7.062BA6BF-ON49256F08.000B7FC4-49256F08.000D462A@jp.ibm.com>
+Date: Tue, 7 Sep 2004 11:25:10 +0900
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+Hi all,
 
-in kde 3.3 you can define (in /usr/bin/startkde) KDE_FORK_SLAVES.
+Nakamura-san's patch for pam_unix module is useful to make newrole running 
+without setuid bit.
 
-this results in kioslaves being the binary controlling outgoing
-connections instead of kdeinit.
+I've changed my SuSE 9.1 to use Nakamura-san's patched pam_unix.so.
+(modify /etc/pam.d/newrole and install patched pam_unix.so to 
+/lib/security)
+After that newrole runs correctly without setuid bit.
 
-i've made a request on the kde devel list for advice on what compiler
-voodoo magic to do to produce individual binaries for each of the
-things that kioslaves currently does "under one roof".
 
-e.g. /usr/bin/kioslave_imap4, /usr/bin/kioslave_http ...
+Yuichi Nakamura <himainu-ynakam@miomio.jp> wrote on 2004/09/07 00:25:59:
+> *In modules/pam_unix/support.c of FedoraCore3-test1
+> <snip>
+>                 if (geteuid() || SELINUX_ENABLED) {
+>                         /* we are not root perhaps this is the reason? 
+Run helpe
+> r */
+>                         D(("running helper binary"));
+>                         retval = _unix_run_helper_binary(pamh, p, ctrl, 
+name);
+> <snip>
+> 
+> *in modules/pam_unix/support.c of SUSE9.1
+> <snip>
+>                 if (geteuid()) {
+>                         /* we are not root perhaps this is the reason? 
+Run helpe
+> r */
+>                         D(("running helper binary"));
+>                         retval = _unix_run_helper_binary(pamh, p, ctrl, 
+name);
+> <snip>
 
-then both selinux and fireflier (and other firewall programs with
-user-defined rules) can get a chance at restricting access of each
-of those programs.
 
-but for now, getting rid of kdeinit is Good.
+---
+Takuya MISHINA
+IBM Research, Tokyo Research Laboratory
 
-l.
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
