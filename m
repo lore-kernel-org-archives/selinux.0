@@ -1,53 +1,48 @@
-Message-ID: <3F7A2810.1060907@diyab.net>
-Date: Tue, 30 Sep 2003 21:04:16 -0400
-From: Diyab <diyab@diyab.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h911dAsJ022237
+	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2003 21:39:10 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h911bMZt024028
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 01:37:22 GMT
+Received: from out006.verizon.net (out006pub.verizon.net [206.46.170.106])
+	by jazzswing.ncsc.mil  with ESMTP id h911bLM3024025
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 01:37:21 GMT
+Received: from scanner.gici.com ([4.64.156.165]) by out006.verizon.net
+          (InterMail vM.5.01.05.33 201-253-122-126-133-20030313) with ESMTP
+          id <20031001013908.HRCA5302.out006.verizon.net@scanner.gici.com>
+          for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2003 20:39:08 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bill Laut <wlsel@verizon.net>
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: SE-X and Crypto Discussions
+Date: Tue, 30 Sep 2003 21:41:31 -0400
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: "Kratzer, James R." <JamesK@xetron.com>,
-   "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
-Subject: Re: glibc check errors
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A41@s3cin> <1064945244.6364.39.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1064945244.6364.39.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <200309302141.31559.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2003-09-30 at 13:30, Kratzer, James R. wrote:
-> 
->>I am running the new 2.4 based SELinux kernel and userland archive on Red
->>Hat 9.  If I understand you correctly, since the glibc changes have been
->>upstreamed and were not SELinux specific, you will be releasing soon a new
->>userland archive which will require an updated version of the glibc package.  
->>If this is correct, how soon do you anticipate the release of the new
->>userland archive and the release of the new glibc package ( glibc-2.3.3
->>maybe? )?  Can I use the current userland archive utilities without the
->>patched glibc?
-> 
-> 
-> You don't need the modified glibc to use the userland archive
-> utilities.  The glibc patch was to make glibc recognize security
-> transitions other than just setuid/setgid, so that it will enable its
-> secure mode for programs that cause a change in other security
-> attributes (e.g. role/domain) as well as for setuid/setgid programs. 
-> That is important for security, but not a functional requirement for
-> using the system.  The modification to glibc has made its way upstream
-> and I believe that it is available in the RedHat beta (severn / fedora
-> core).
-> 
-> We'll be making an updated release of the kernel and userland archives
-> soon, likely later this week.
-> 
 
-So is this new glibc version available as the mainstream glibc package 
-or will non redhat users still have to apply the patch.  And if is or 
-will be soon available as mainstream glibc do you know what version?
+I think this question is likely best directed to either Stephen or Howard.
 
-Timothy,
+I'm breaking this specific question out of the "X Windows Discussion" thread 
+so that it can be addressed separately by the appropriate authority.  Namely, 
+it is my understanding that NSA employees are forbidden from discussing 
+cryptology in forums such as this one.  Unfortunately, the X Windows thread 
+will eventually have to address such topics if we are to have meaningful 
+dialog on how best to transmit policy data over potentially untrustworthy 
+networks.
 
--- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
+It's not my desire to inject subject matter Eamon cannot participate in.  
+Therefore, if my understanding of the prohibition is correct, could I then 
+implore either of you two gentlemen to discuss this with the appropriate 
+authority over there in the hopes that we can obtain a waiver on the crypto 
+prohibition, with the proviso that any such discussions are strictly limited 
+to the problems of transmitting label data over an untrusted network?
+
+Thank you in advance.
+
+Bill
 
 
 --
