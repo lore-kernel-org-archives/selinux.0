@@ -1,52 +1,77 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h42Bs7I4015519
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 07:54:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h42G2HI4017314
+	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 12:02:18 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h42BrsVf003593
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 11:53:54 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h42Brs4D003590
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 11:53:54 GMT
-Subject: Re: kernel crashes
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Brian May <bam@snoopy.apana.org.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20030502011436.GD17896@snoopy.apana.org.au>
-References: <20030501022414.GA13019@snoopy.apana.org.au>
-	 <20030502011436.GD17896@snoopy.apana.org.au>
-Content-Type: text/plain
-Message-Id: <1051876434.1377.424.camel@moss-huskers.epoch.ncsc.mil>
+	by jazzswing.ncsc.mil  with ESMTP id h42G26Vf015573
+	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 16:02:06 GMT
+Received: from mozart.fwsystems.com (mozart.fwsystems.com [63.101.67.2])
+	by jazzswing.ncsc.mil  with ESMTP id h42G254D015570
+	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 16:02:05 GMT
+Date: Fri, 2 May 2003 12:02:09 -0400
+From: forrest whitcher <fw@fwsystems.com>
+To: "Petty, Clint E" <clint.e.petty@lmco.com>
+Cc: <selinux@tycho.nsa.gov>
+Subject: Re: Trusted Operating System?
+Message-Id: <20030502120209.688e3b7a.fw@fwsystems.com>
+In-Reply-To: <AED99F3E5CF6C749B320E3B51B0D14B217B52F@EMSS01M10.us.lmco.com>
+References: <AED99F3E5CF6C749B320E3B51B0D14B217B52F@EMSS01M10.us.lmco.com>
 Mime-Version: 1.0
-Date: 02 May 2003 07:53:55 -0400
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-05-01 at 21:14, Brian May wrote:
-> If I boot 2.4.20 and load the SE-Linux policy *after* it boots, there
-> are no problems. This is after several days (if not weeks actually)
-> after building lots of packages, daily cron jobs, etc.
 
-I'm not sure why you are seeing this behavior; I haven't seen it myself.
-However, as a caveat, you have to load the policy early in order for
-processes (including init) to transition properly to their desired
-domains.  If you are loading the policy late, I'd expect that a ps -e
---context would show many processes in the wrong domain (i.e. just being
-left in the domain of the caller).
-  
-FYI, in the mainline 2.5-based SELinux, we've moved the initial policy
-load into userspace based on kernel developer feedback, and are
-currently performing it via an initrd (ultimately, we'd like to migrate
-to using initramfs).  A copy of the binary policy file and load_policy
-program are placed on the initrd, and the /linuxrc script is modified to
-perform the initial policy load.  The kernel no longer reads the binary
-policy directly from the file; the load_policy program opens+mmaps the
-policy file and then writes the data to a /selinux/load pseudo node to
-perform the load operation, similar to the new module interface in 2.5.
+Clint,
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+As I've read NSA's intent and statements, SELinux (and the Flask 
+implementation that's been ported to TrustedBSD) is an R&D project
+intended to demonstrate how to build assurance that is wired into
+a low-level of the operating system, with an efficient implementation
+and with policy implementation which is reasonably understandable 
+and flexible.
 
+For instance (Please don't rely on this statement) as near as I 
+have been able to determine, the lsm/SEL kernel prevents the recent
+ptrace local-root exploit from gaining privilege. 
+
+If one objective of a 'Trusted' OS is that the user gains some 
+breathing space in terms of choosing when to apply security patches
+then SEL and other linux/BSD security implementations are making
+significant strides. E.g. the Ptrace patch has some functionality 
+issues and has been reported to cause stability problems (which I 
+can vouch for).
+
+All other linux implementations I've seen can potentially be subverted
+by an attacker who might be able to run code below the level of the
+policy implementation.
+
+As others have indicated, It's not an evaluated system. Thus it may
+never be something you can use in classified work at Lockheed/Martin.
+
+On the other hand, most of the 'Trusted' systems I've been exposed 
+to (including systems evaluated at the "B" MLS level) are indeed
+providing excellent protection of data, however might be fully
+compromised by a stack-smash of a priveleged process.
+
+While it's true that at least some of the unixes on which evaluated
+systems are based are known to always report segfaults, so at least
+you'd know that something had happened, from the respect of the
+integrity of the operating system itself to my knowlege SEL is 
+the best game in town at this time for the objective of attaining
+a level of trust in the OS and userspace policy enforcement.
+
+
+Forrest
+
+
+On Thu, 01 May 2003 11:30:56 -0700 
+"Petty, Clint E" <clint.e.petty@lmco.com> did inscribe thusly:
+
+> When do you anticipate you will have made SELinux a Trusted Operating
+> System?  Any forcasts?
+> Thanks,
+> Clint
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
