@@ -1,59 +1,78 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4LD5SI4015220
-	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 09:05:28 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4LD5RtV002672
-	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 13:05:28 GMT
-Received: from datas-world.dyndns.org (dsl-213-023-212-232.arcor-ip.net [213.23.212.232])
-        by jazzband.ncsc.mil  with ESMTP id h4LD5Qal002655 for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 13:05:27 GMT
-From: Torsten Knodt <tk-selinux@datas-world.de>
-To: selinux@tycho.nsa.gov
-Subject: Re: matrix
-Date: Wed, 21 May 2003 15:05:03 +0200
-References: <C540EABA36FDD41189FD00508BAF8E850149266A@atsgroup.saic.com> <200305210013.14976.russell@coker.com.au> <1053459308.21482.23.camel@bubbles.eatflamingdeath.org>
-In-Reply-To: <1053459308.21482.23.camel@bubbles.eatflamingdeath.org>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4LDZRI4015503
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 09:35:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4LDZ2Qj008322
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 13:35:03 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h4LDYJxS008267
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 13:35:00 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: grin@tolna.net
+Subject: Re: Policy for exim and/ or tiger?
+Date: Wed, 21 May 2003 23:32:30 +1000
+Cc: selinux@tycho.nsa.gov
+References: <200305152349.28038.tk-selinux@datas-world.de> <200305202049.40285.russell@coker.com.au> <20030521101944.GG32563@narya.grin.hu>
+In-Reply-To: <20030521101944.GG32563@narya.grin.hu>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
+Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200305211505.10089.tk-selinux@datas-world.de>
+Message-Id: <200305212332.30805.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 21 May 2003 20:19, Peter Gervai wrote:
+> > > allow exim_t exim_var_run_t:dir rw_dir_perms;
+> > > allow exim_t exim_var_run_t:file rw_file_perms;
+> >
+> > The above should be taken care of by daemon_domain().
+>
+> Weird. I started inserting policy lines at the end when getting deny
+> entries in the syslog. I'll check this, but I can't tell why were they
+> required (I don't recall inserting the daemon_domain later...)
 
-> > Good point about inetd.  If sshd is started by inetd and denied ptrace
-> > access to itself then a cracked sshd can't interfere with another ssh
-> > session.  I will have to look into changing my servers to do this.  Of
-> > course this raises another problem, the unreliability of inetd's.  But if
-> > inetd is cracked it doesn't allow much of an attack on the ssh protocol
-> > as long as the clients already have a copy of the server public key.
-> I was accually using something similar, but with djb tcpserver and the
-> daemonutils package, but my idea was just to allow ssh connections
-> though ipsec? with roaming users, and firewall eth?, that seems to
-> control exposure very well with crls and X.509 FreeS/WAN patches.
-With ipsec, you move the encryption bugs and friends problem of the daemons 
-into the kernel. Without comparing openssh and freeswan code quality, I think 
-this is more insecure. You have to crack one service (freeswan) and get 
-access to the whole system (via kernel). When I'm not wrong, SE Linux doesn't 
-protect the kernel. Or am I wrong with the last?
+I've made some changes to the policy regarding /var/run recently.  Probably 
+you created the exim policy with an older version.
 
-> IPSEC also seems to fix almost all tcp/ip problems as well ;)
-This part sounds very get. Only bad, than I can't reach my providers proxy 
-with ipsec. ;(
+> > What is the aim of the pine policy anyway?  To grant pine some access
+> > that user_t is not given?  Or to lock down pine because it's got a bad
+> > history?
+>
+> One reason is its bad history, other is the amount of weird permissions it
 
-- -- 
-Domain in provider transition, hope for smoothness. Planed date is 24.7.2003
-pub 1024D/4CD29A2C 2001-01-12 Torsten Knodt <torstenknodt@datas-world.de>
- Schl.-Fingerabdruck = A2B1 C626 F819 7C58 B2F9 4F4C BF16 64B6 4CD2 9A2C
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+The problem with pine is that you almost certainly want it to run gpg for 
+signing and decrypting mail.  If you give a program access to your mail spool 
+and your gpg secret key then you have little possibility of preventing it 
+from doing damage.
 
-iD8DBQE+y3mFvxZktkzSmiwRAh3tAJ9aUrY7yYjfunol/L5N6GiNfHc35wCfcL+p
-DVsiofP7rQLFy4GZKuA6qr4=
-=JB/1
------END PGP SIGNATURE-----
+However the gpg thing could probably be solved by having an external program 
+prompt for the passphrase and call gpg so that pine never gets the 
+pass-phrase.
 
+> requires, I do not know any other way to make it work. Is there any other
+> way to make it fully functioning? It wants to rw ~mail, send mail by smtp
+> and connect to local mail daemons, and some stuff I can't even tell the
+> reason of.
+
+I think that the best thing to do is store mail under the home directory and 
+then just have pine run in user_t at the moment.
+
+For sending mail by smtp, postfix allows any domain, the Qmail policy is setup 
+for running the smtpd from inetd (which allows userdomain), and the sendmail 
+policy does not appear to allow anyone to connect.
+
+I will change the postfix policy to allow only userdomain.
+
+> Could it work without any special policy, is this what you mean?
+
+It should.  I always use user_t for reading mail.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
