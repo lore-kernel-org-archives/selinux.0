@@ -1,102 +1,74 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA17296
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 08:07:30 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA01243
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 12:07:09 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA17378
+	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 08:26:26 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA00489
+	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 12:26:18 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA01239
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 12:07:08 GMT
-Date: Fri, 6 Apr 2001 08:06:48 -0400 (EDT)
+	by jazzband.ncsc.mil  with ESMTP id MAA00485
+	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 12:26:18 GMT
+Date: Fri, 6 Apr 2001 08:25:29 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: "Paul D. Robertson" <proberts@clark.net>
-cc: RSBAC List <rsbac@rsbac.org>, selinux@tycho.nsa.gov
+To: Amon Ott <ao@rsbac.org>
+cc: selinux@tycho.nsa.gov, rsbac@compuniverse.de
 Subject: Re: Rule Set Based Access Control (RSBAC)
-In-Reply-To: <Pine.LNX.4.10.10104040817380.8824-100000@gargoyle.clark.net>
-Message-ID: <Pine.SOL.3.95.1010406073047.14880A-100000@clipper.gw.tislabs.com>
+In-Reply-To: <01040510000003.00859@marvin>
+Message-ID: <Pine.SOL.3.95.1010406081042.14880B-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> If policy changes aren't rare, both administrative overhead and the
-> oppertunity an administrator has to do bad things (maliciously or
-> accidently) are higher.   
+> No, you can always add or remove policies by kernel configuration, the
+> unneeded attributes are then simply unused.
 
-Most policies require some degree of dynamic behavior, e.g. as
-user authorizations change, and some policies must revoke
-permissions dynamically based on the history of operations 
-performed or in response to some event.  So the idea is to provide the
-necessary infrastructure to support policy changes at runtime rather than
-requiring that the system be restarted in order to ensure that accesses
-are revoked properly.
+You can add policies that are in the set of fixed policies you provide.
+But if you want to add a new policy module to this fixed set, then
+you have to change a data structure that is visible across the
+kernel ADF interface, new system call interfaces, and on-disk
+file labels.  And why should users pay the cost for attributes
+of policies they never intend to use?
 
-> > > The example configuration provided with SELinux defines 70 domains,
-> > > 188 file types, and 38 other types (e.g. network-related types).
+> One advantage of keeping e.g. all user attributes in one struct is that for a
+> run through all decision modules, only one full entry lookup is needed. For the
+> second and following attribute readings or settings for this user, there is a
+> shortcut pointer.
+
+We also keep all of the attributes in a single struct, and only require
+a single lookup of the security identifier (SID).  But the struct
+definition is completely private to the security server.  Security
+labels are only exported outside of the security server using the
+policy-independent data types.
+
+> An attribute value of 'inherit from parent' means that the lookup recurses to
+> the next higher object level, e.g. the directory a file is in. If there is no
+> higher level, but also no struct object for the current object, real default
+> values are returned.
 > 
-> How do the SELinux people expect auditing to take place in such an
-> example?  Users switching jobs and system upgrades seem to be difficult to
-> audit effectively with that many default permutations, or am I missing
-> something?
+> With this inheritance and default scheme, a complicated setup for a server with
+> a lot of services (like our Communication Server mentioned before) only needs a
+> few hundred attribute structs. Most of these are necessary, because /lib and
+> /usr/lib contain a mixture of libraries and non-libraries.
 
-As I mentioned in my reply to Amon, most of the domains deal with
-system processes and programs that require special access rights.
-For users, related domains are grouped into roles, and only a small
-number of distinct roles are defined.  If a system upgrade involves
-adding new system processes, privileged programs, or sensitive files,
-then you would naturally want to update your configuration to address
-those entities.  Also, note that this is simply an example policy
-configuration.  Administrators are free to find their preferred
-balancing point between fine-grained protection (with the cost
-of complexity) and ease of management (with the cost of quality
-of protection).  But my preference would be to encourage the
-development of tools to ease the management without sacrificing
-the granularity of protection.
+What happens if a file has multiple hard links in different
+directories with different attributes?  What happens if a file is
+renamed to a directory with different attributes?  What happens
+if a file system is mounted at multiple locations?  What happens
+if you provide per-process namespaces?  
 
-> I assume that the policy compiler is the equivalent of a special set of
-> utilities, is that a correct assumption?  Syscall auditing is pretty cut
-> and dried, how do you audit policy changes in SELinux between binary
-> representations?  How do you deal with an administrator compiling three
-> different policies then trying to figure out which one to install a week
-> later? 
-
-I'm not sure what you mean by auditing in this context.  
-The policy compiler can also be used to load a binary representation
-and issue queries against it.  You can use it to test and debug
-the policy before installing it (and also to test and debug a
-copy of the security server in user space).  I suppose we could
-have it "disassemble" a binary representation back into the
-human-readable form, or do automatic comparisons with human-readable
-forms.
-
-> I'm also still intensely interested in "two man missile key" stuff.  How
-> does SELinux handle a model where either multiple adminitstrators should
-> be necessary to grant access to something, or granting a subset of grant
-> privs. to a subject is possible to stop the subject from granting all
-> grant privs. to another subject or itself (which makes it easy to get to
-> the first part by requiring both privs. to do something)?  Is it possible to 
-> set up a system where an administrator doesn't have access to certain
-> targets, and whilst they could grant permissions to other targets on the
-> same sytem, and even grant access to grant access to other targets, were
-> still blocked from seeing the data they're not supposed to have access to
-> (obviously along with their grantees)?  [IOW: is granting rights to grant
-> rights restrictable in a way other than a binary yes/no fashion?]
-
-You could model n-person control by defining a n-stage pipeline,
-something that TE is naturally suited for.  But I'm curious about
-the real intended use for your policy.  Do you really want n-person
-control over some operating system service (e.g. a file access), or do
-you really need n-person control over some application service?  If
-you need it for some application service, then you are likely to need
-enforcement support in the application itself, using the OS mechanisms
-to protect the application from tampering or bypass and to confine the
-damage that might occur if the application mechanism fails.
+The explicit label bindings of SELinux only need to maintain
+a single additional integer (the SID in memory, and the
+persistent SID on disk) for each file.  Only a single copy
+of each distinct security context (your attribute struct)
+is needed.  Administrators can specify file labels recursively,
+and even using pathname regular expressions, but the low-level
+binding is explicit and avoids the problems associated with
+implicit labeling schemes like yours (and also like DTE).
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
