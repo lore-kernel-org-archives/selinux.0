@@ -1,104 +1,106 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ALmnrT001933
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:48:49 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ALmiP2029597
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:48:44 -0400 (EDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ALv0rT002008
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:57:00 -0400 (EDT)
+Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ALuvaH026010
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:56:57 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 21:48:47 -0000
+  by smtp801.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 21:56:58 -0000
 Received: from highfield ([192.168.0.223] helo=lkcl.net)
 	by hyd with esmtp (Exim 4.34)
-	id 1BYWmS-0001mr-C6
-	for selinux@tycho.nsa.gov; Thu, 10 Jun 2004 21:08:12 +0000
+	id 1BYWuO-0001mu-0Q
+	for selinux@tycho.nsa.gov; Thu, 10 Jun 2004 21:16:24 +0000
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BYXN9-0000yv-9D
-	for selinux@tycho.nsa.gov; Thu, 10 Jun 2004 21:46:07 +0000
-Date: Thu, 10 Jun 2004 21:46:07 +0000
+	id 1BYXV4-0000zp-SJ
+	for selinux@tycho.nsa.gov; Thu, 10 Jun 2004 21:54:18 +0000
+Date: Thu, 10 Jun 2004 21:54:18 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: selinux@tycho.nsa.gov
 Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040610214607.GQ2861@lkcl.net>
-References: <20040609144404.GJ5477@philips.com> <20040609175001.GC5727@lkcl.net> <20040610120908.GN5477@philips.com>
+Message-ID: <20040610215418.GR2861@lkcl.net>
+References: <20040609144404.GJ5477@philips.com> <200406101817.28861.russell@coker.com.au> <20040610120344.GM5477@philips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040610120908.GN5477@philips.com>
+In-Reply-To: <20040610120344.GM5477@philips.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jun 10, 2004 at 02:09:08PM +0200, Magnus Therning wrote:
+On Thu, Jun 10, 2004 at 02:03:44PM +0200, Magnus Therning wrote:
 
-> On Wed, Jun 09, 2004 at 05:50:01PM +0000, Luke Kenneth Casson Leighton wrote:
-> >ha ha, another debian victiiim .
+> I forgot to mention the contents of my /etc/apt/sources.list:
+> 
+>  deb http://ftp.uk.debian.org/debian/ testing main non-free contrib
+>  deb http://ftp.uk.debian.org/debian-non-US testing/non-US main contrib non-free
+> 
+>  deb http://ftp.uk.debian.org/debian/ unstable main non-free contrib
+>  deb http://ftp.uk.debian.org/debian-non-US sid/non-US main contrib non-free
+> 
+>  deb http://www.coker.com.au/newselinux/ ./
+> 
+> This together with the following line in /etc/apt/apt.conf should give
+> me a Sid system:
+> 
+>  APT::Default-Release "unstable";
+> 
+> I did a 'apt-get update' and a 'apt-get dist-upgrade' after this.
+> 
+> On Thu, Jun 10, 2004 at 06:17:28PM +1000, Russell Coker wrote:
+> >On Thu, 10 Jun 2004 00:44, Magnus Therning <magnus-work@therning.org> wrote:
+> >> Installing selinux-default-policy failed, make complains about
+> >> 'chsid' not being present. These are the problems I run into when
+> >> trying to complete the installation of the policies:
 > >
-> >0) make sure you're really a debian/unstable (apt-get dist-upgrade?)
+> >Sounds like you have old SE Linux, that is ancient and no longer being
+> >supported.  It is only supported to kernel 2.4.21 upstream and 2.4.22
+> >on my web site (in the section that is no longer maintained).  I
+> >strongly recommend the new SE Linux.
 > 
-> Done!
+> The selinux-default-policy came from the apt-repository mentioned above.
  
- :)
+ ah, there _isn't_ one in newselinux, you mean the one from
+ ftp.uk.debian.org.
 
-> >1) install, at your own risk of course, the 2.6.6-selinux1 kernel
-> >from http://hands.com/~lkcl/selinux.
-> 
-> I compiled one myself. Didn't manage to google my way to any pre-built
-> (also checked apt-get.org, why isn't it mentioned there?).
+ check that you have 1.12-1
+
+ tell y'what, here's a list of packages i have installed:
+
+ sez:/boot# dpkg -l | grep selinux
+ ii  bsdutils       2.11z-4.selinu Basic utilities from 4.4BSD-Lite
+ ii  fileutils      5.0-4.selinux. The GNU file management utilities (transitio
+ ii  kernel-image-2 selinux.1.0    Linux kernel binary image for version 2.6.6-
+ ii  libpam-doc     0.76-13.selinu Documentation of PAM
+ ii  libselinux1    1.12-1         SELinux shared libraries
+ ii  libselinux1-de 1.12-1         SELinux development headers
+ ii  mount          2.11z-4.selinu Tools for mounting and manipulating filesyst
+ ii  psmisc         21.3-1.selinux Utilities that use the proc filesystem
+ ii  selinux-policy 1.12-1         Policy config files and management for NSA S
+ ii  selinux-utils  1.12-1         SELinux utility programs
+ ii  shellutils     5.0-4.selinux. The GNU shell programming utilities (transit
+ ii  textutils      5.0-4.selinux. The GNU text file processing utilities (tran
+ ii  util-linux     2.11z-4.selinu Miscellaneous system utilities
+ ii  util-linux-loc 2.11z-4.selinu Locales files for util-linux
+
+ sez:/boot# dpkg -l | grep se1    
+ ii  cron           3.0pl1-83.se1  management of regular background processing
+ ii  dpkg           1.10.21-se1    Package maintenance system for Debian
+ ii  initscripts    2.85-15.se1    Standard scripts needed for booting and shut
+ ii  logrotate      3.7-1.se1      Log rotation utility
+ ii  sysv-rc        2.85-15.se1    Standard boot mechanism using symlinks in /e
+ ii  sysvinit       2.85-15.se1    System-V like init
+
+sez:/boot# dpkg -l | grep se5
+ii  libpam-modules 0.77-0.se5     Pluggable Authentication Modules for PAM
+ii  libpam-runtime 0.77-0.se5     Runtime support for the PAM library
+ii  libpam0g       0.77-0.se5     Pluggable Authentication Modules library
+ii  libpam0g-dev   0.77-0.se5     Development files for PAM
+
  
- *shrug* - never'eard'of'it is probably why!
+ and that happy lot seems to do it for me.  some of those are from
+ selinux.lemuria.org/walters but as russell says these are older
+ packages so may cause conflicts with an unstable system (unless you
+ put them on "hold"?)
 
-> I seem to have succeeded in compiling the kernel properly, but I'll give
-> this one a shot anyway.
-
- it has CONFIG_NETWORK_SECURITY and all that stuff switch on in it.
- i've uploaded the config-2.6.6-selinux1 to open.hands.com/~lkcl/selinux
- in case you want to double-check (let me know if you find any
- discrepancies - either way!)
-
-
-> >2) DO NOT add selinux.lemuria.org/newselinux to your /etc/apt/sources.list
-> >
-> >3) DO add selinux.lemuria.org/walters to your /etc/apt/sources.list
-> 
-> I followed the instructions in the HOWTO I found on the SF project. It
-> mentions Russel Coker's repository.
- 
- you got russell's message describing the status of the /newselinux
- and /walters packages, yes?
-
-> >i ALSO recommend that you DO NOT install SE/Linux on an ext2 filesystem.
-> 
-> Ah, this I did do... Not too much of a problem to fix though.
-
- yes, you can always run tune2fs -j afterwards - that's what i did.
-
-
-> >make sure you use ext3 for all partitions (well, i get away with /boot
-> >as an ext2) how do i put this this is REALLY IMPORTANT there is a bug
-> >somewhere in the extended attributes stuff and i got a repeatable and
-> >quite seriously corrupted filesystem.
-> >
-> >if you really really can't get it to work let me know and i can upload
-> >a set of pre-installed tar.gz'd partitions which only come to 124
-> >mbytes total, there are only about 160 packages preinstalled.
-> 
-> Thanks!
-> 
-> I'll be in touch with updates :-)
- 
- ack.
-
- btw _do_ ask because i had an incredibly frustrating couple of
- weeks before finally managing to get a working system.
- 
- l.
-
--- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility for acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+ .
 
 
 --
