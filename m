@@ -1,61 +1,106 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA04540
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 16:30:40 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA04642
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 16:34:30 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA00851
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 21:29:13 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA00847
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 21:29:13 GMT
-Received: from coalstove.epoch.ncsc.mil (coalstove [144.51.25.13])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA07863
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 16:30:36 -0500 (EST)
-Date: Wed, 10 Jan 2001 16:30:35 -0500 (EST)
-From: hdholm@epoch.ncsc.mil (Howard D. Holm)
-Message-Id: <200101102130.QAA13060@coalstove.epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Subject: Responses to administrative issues
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA01134
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 21:33:04 GMT
+Received: from mail4.registeredsite.com (mail4.registeredsite.com [64.224.9.13])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA01130
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 21:33:03 GMT
+From: "Phillip H. Zakas" <pzakas@toucancapital.com>
+To: "Belmonte, Christopher" <cbelmonte@dit.state.va.us>,
+        <selinux@tycho.nsa.gov>
+Subject: RE: SELinux and covert channels
+Date: Wed, 10 Jan 2001 16:34:01 -0500
+Message-ID: <PHEOLKHKKADCALFJMBNIIEFECAAA.pzakas@toucancapital.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <A0669F3E0A6B3448A962DC6141E6C7A6144162@mis1>
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-A number of comments on administrative issues have been made recently.
-We are listening and hopefully this note will address most of the issues
-that have been raised.
+Thanks for clarification and sorry for my obtuse reply to original message.
+I was confusing a thread here with a thread on cypherpunks which delved into
+a slightly different area.
+Phillip
 
-We have reconfigured the mailing-list manager so that no changes are
-made to the "reply-to:" header line.  If you set your own reply-to it
-will pass unaltered; if you don't, none will be added.  This means that
-in general when replying to a message on the list, the default will be
-to reply directly back to the author.  We strongly encourage the use of
-"reply-to-all" type replies that include the list address so that all
-subscribers can benefit from the discussions.
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+Behalf Of Belmonte, Christopher
+Sent: Wednesday, January 10, 2001 1:16 PM
+To: selinux@tycho.nsa.gov
+Subject: RE: SELinux and covert channels
 
-We also slightly reconfigured the footer on each message so that it's
-less likely to be mixed in with the message or signature.
 
-For the time being, we think the list is better served by having more
-of a useful subject line visible in most mailers rather than adding the
-list name to each message.  For those who wish to have the subject line
-altered or sort the list messages into separate folders, some methods
-for accomplishing this were sent to the list on 31 December and 4
-January.
+Phillip,
+	In regards to covert channels, this is what I am referring to (the
+following is from "A GUIDE TO
+UNDERSTANDING COVERT CHANNEL ANALYSIS OF TRUSTED SYSTEMS"):
 
-We have made archives of the mailing list available from Majordomo.  These
-archives are collected by day in files labeled selinux.YYMMDD.  A list of
-the available files may be obtained by sending the command "index selinux"
-without the quotes, as the body of a message to < majordomo@tycho.nsa.gov >.
-Files may be obtained by mail with the command "get selinux selinux.yymmdd"
-without the quotes, as the body of a message to < majordomo@tycho.nsa.gov >.
-More than one command may be sent to Majordomo in a message.  Each command
-should be on a separate line.  We hope to make a web-based version of the
-list archive available on the web site soon.
+Definition 1 - A communication channel is covert if it is neither designed
+nor intended to transfer information at all. [Lampson73] (Note: Lampson's
+definition of covert channels is also presented in [Huskamp78].)
 
-An announcement of security-enhanced linux has been made on Freshmeat.net.
+Definition 2 - A communication channel is covert (e.g., indirect) if it is
+based on "transmission by storage into variables that describe resource
+states." [Schaefer77]
+
+Definition 3 - Covert channels "will be defined as those channels that are a
+result of resource allocation policies and resource management
+implementation." [Huskamp78] (Note: The computing environment usually
+carries out resource allocation policies and implementation.)
+
+Definition 4 - Covert channels are those that "use entities not normally
+viewed as data objects to transfer information from one subject to another."
+[Kemmerer83]
+
+Definition 5 - Given a nondiscretionary (e.g., mandatory) security policy
+model M and its interpretation I(M) in an operating system, any potential
+communication between two subjects I(Sh) and I(Si) of I(M) is covert if and
+only if any communication between the corresponding subjects Sh and Si of
+the model M is illegal in M. [Tsai90]
+
+- Chris Belmonte
+
+-----Original Message-----
+From: Phillip H. Zakas [mailto:pzakas@toucancapital.com]
+Sent: Wednesday, January 10, 2001 1:11 PM
+To: Belmonte, Christopher; 'Johnathon Day'; selinux@tycho.nsa.gov
+Subject: RE: SELinux and covert channels
+
+
+It's open source, not sure how covert that could be?  unless one programs in
+very obfuscated code I guess, but the code looks pretty good to me :)
+pz
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+Behalf Of Belmonte, Christopher
+Sent: Wednesday, January 10, 2001 11:45 AM
+To: 'Johnathon Day'; selinux@tycho.nsa.gov
+Subject: SELinux and covert channels
+
+
+Has anyone considered analyzing SELinux for covert channels?
+
+
+- Chris Belmonte
 
 --
-Howard Holm <hdholm@epoch.ncsc.mil>
-Information Assurance Research Office
-National Security Agency
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
+--
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 You have received this message because you are subscribed to the selinux list.
