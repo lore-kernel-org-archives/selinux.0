@@ -1,66 +1,59 @@
-Subject: Re: Trouble building Policy-1.16
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7QDPrrT012707
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 09:25:53 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7QDP7fU025796
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 13:25:07 GMT
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Justin Friel <capn_shoe@yahoo.com>
-Cc: SELinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <20040825222322.32725.qmail@web60002.mail.yahoo.com>
-References: <20040825222322.32725.qmail@web60002.mail.yahoo.com>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
+References: 
+	 <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
 Content-Type: text/plain
-Message-Id: <1093524996.9280.77.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 26 Aug 2004 08:56:36 -0400
+Date: Thu, 26 Aug 2004 09:24:12 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-08-25 at 18:23, Justin Friel wrote:
-> --- Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> 
-> > On Tue, 2004-08-24 at 15:25, Justin Friel wrote:
-> > > I am having a hard time getting policy-1.16 to
-> > compile
-> > > on a "Linux from scratch" system.  When I try to
-> > > compile the strict policy, I get the following
-> > output:
-> > > 
-> > > ...
-> > > /usr/bin/checkpolicy -o policy.18 policy.conf
-> > > /usr/bin/checkpolicy:  loading policy
-> > configuration
-> > > from policy.conf
-> > > types/file.te:92:ERROR 'syntax error' at token
-> > ':f' on
-> > > line 3066:
-> > > allow auth shadow_t:file { getattr read };
-> > > type shadow_t, file_type;
-> > > /usr/bin/checkpolicy:  error(s) encountered while
-> > > parsing configuration
-> > > make: *** [policy.18] Error 1
-> > 
-> > That looks very odd.  Can you send your entire
-> > policy.conf file to me?
-> 
-> Sorry if this is a repost, I sent this in earlier this
-> morning and haven't seen it hit the list yet. 
-> 
-> I bzipped and attached the policy.conf.  As for the
-> warnings while bulding checkpoliy, they seem harmless
-> to me, but here they are.
+On Thu, 2004-08-26 at 03:53, Kaigai Kohei wrote:
+> In my understanding, your worry about robustness is the execution path
+> when kmalloc() returns NULL.
 
-In general, don't repost - send a note to selinux-team@tycho.nsa.gov or
-owner-selinux@tycho.nsa.gov if you think you have posted and it hasn't
-shown up after a while (but be patient, please).
+Correct.
 
-Interesting.  Your attached policy.conf compiles fine with a checkpolicy
-built on Fedora, but this looks like a scanner bug.  What version of lex
-are you using (we are using flex-2.5.4a-33 on Fedora)?  Your scanner is
-handling the ":f" as a single token rather than splitting it up as ":"
-and "file".  Looking at policy_scan.l, I noticed that the IPV6_ADDR
-entry seems dangerously close to treating this as a token, but not quite
-(it would match :f:).
+> (But avc_insert() always returns 0, because avc_insert() reclaim a avc_node
+>  under the spinlock when free_list is empty.)
 
-Rather than treating an entire ipv6 address as a single token, we could
-just scan the hexval components and separating colons as individual
-tokens and define ipv6 address in the grammar, as we do with
-ipv4_addr_def.  That would seem safer.
+Yes, this is the point.  avc_has_perm could not fail previously from an
+out of memory condition, as the cache nodes were preallocated,
+maintained on their own freelist, and reclaimed as needed.
+
+> By this method, the decision-making is available irrespective of
+> the result of kmalloc(). Is it robustless?
+> The original implementation has too many lock contensitons in Big-SMP
+> environment. It is more positive to consider the method using RCU.
+
+Yes, that would address my concern.  However, I'm still unclear as to
+why using RCU mandates that we migrate from preallocated nodes to
+dynamic allocation.  I certainly agree that the existing global spinlock
+doesn't scale.  
+
+> Please wait for a patch, thanks.
+
+Thanks for working on this.  Could you also supply updated performance
+data when you have a newer patch?  Thanks.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
