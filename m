@@ -1,38 +1,36 @@
-Subject: Re: Cron /null fd:use use denials
+Subject: Re: Logrotate, ssh_agent - read selinux_config_t
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1112295607.12948.69.camel@cobra.ivg2.net>
-References: <1112295607.12948.69.camel@cobra.ivg2.net>
+In-Reply-To: <1112295975.12948.72.camel@cobra.ivg2.net>
+References: <1112295975.12948.72.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Thu, 31 Mar 2005 13:58:03 -0500
-Message-Id: <1112295483.11216.159.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 31 Mar 2005 13:59:09 -0500
+Message-Id: <1112295549.11216.162.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-31 at 14:00 -0500, Ivan Gyurdiev wrote:
-> What's causing those?
+On Thu, 2005-03-31 at 14:06 -0500, Ivan Gyurdiev wrote:
+> logrotate and ssh_agent try to read /etc/selinux/config and fail.
+> I thought it would be reasonable to allow that, but I see this:
 > 
-> audit(1112259892.387:9374931): avc:  denied  { use } for  pid=10993
-> exe=/usr/sbin/sendmail.sendmail path=/null dev=selinuxfs ino=245
-> scontext=system_u:system_r:system_mail_t
-> tcontext=system_u:system_r:init_t tclass=fd
+> apache_macros.te:dontaudit httpd_$1_script_t selinux_config_t:dir
+> search;
+> crontab_macros.te:dontaudit $1_crontab_t selinux_config_t:dir search;
+> inetd_macros.te:dontaudit $1_t selinux_config_t:dir search;
+> ssh_agent_macros.te:dontaudit $1_ssh_agent_t selinux_config_t:dir
+> search;
+> ssh_macros.te:dontaudit $1_ssh_keysign_t selinux_config_t:dir search;
+> xserver_macros.te:dontaudit $1_xserver_t selinux_config_t:dir search;
 > 
-> audit(1112259892.551:9376543): avc:  denied  { use } for  pid=10996
-> exe=/usr/sbin/tmpwatch path=/null dev=selinuxfs ino=245
-> scontext=system_u:system_r:tmpreaper_t tcontext=system_u:system_r:init_t
-> tclass=fd
-> 
-> audit(1112259892.620:9377236): avc:  denied  { use } for  pid=10999
-> exe=/usr/sbin/logrotate path=/null dev=selinuxfs ino=245
-> scontext=system_u:system_r:logrotate_t tcontext=system_u:system_r:init_t
-> tclass=fd
+> Why?
 
-Looks like /sbin/init is leaking a descriptor to something, and then
-SELinux is closing it and re-opening it to the null device node in
-selinuxfs upon the domain transition to crond (which is then passed on
-to its children).
+libselinux reads /etc/selinux/config from a constructor to set up the
+paths to the policy files for later use internally or by the
+application.  This ends up triggering a lot of unnecessary attempts to
+read it by programs that happen to link with libselinux but don't ever
+need to access a policy path.  
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
