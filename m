@@ -1,147 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA18972
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 12:07:10 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA12839
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 16:06:48 GMT
-Received: from cassini.dc.kau.se (cassini.dc.kau.se [193.10.220.37])
-	by jazzswing.ncsc.mil  with ESMTP id QAA12835
-	for <selinux@tycho.nsa.gov>; Fri, 6 Apr 2001 16:06:47 GMT
-Message-Id: <4.3.2.7.2.20010406163530.00d6dd90@mail.cs.kau.se>
-Date: Fri, 06 Apr 2001 17:21:46 +0200
-To: Stephen Smalley <sds@tislabs.com>
-From: Simone =?iso-8859-1?Q?Fischer-Hübner?= <Simone.Fischer-Huebner@kau.se>
-Subject: Re: Rule Set Based Access Control (RSBAC)
-Cc: cc:
-In-Reply-To: <Pine.SOL.3.95.1010406103520.19297A-100000@clipper.gw.tisla
- bs.com>
-References: <4.3.2.7.2.20010406102905.00d6cc80@mail.cs.kau.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA23087
+	for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2001 01:49:34 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id FAA12969
+	for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2001 05:49:17 GMT
+Received: from saturn.cs.uml.edu (saturn.cs.uml.edu [129.63.8.2])
+	by jazzband.ncsc.mil  with ESMTP id FAA12965
+	for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2001 05:49:16 GMT
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104070549.f375n8E359254@saturn.cs.uml.edu>
+Subject: Re: Secure?
+To: bet@rahul.net (Bennett Todd)
+Date: Sat, 7 Apr 2001 01:49:08 -0400 (EDT)
+Cc: Pedro.Rosa@ksu.ru (Pedro Rosa), kurth@usaexpress.net (Kurth Bemis),
+        selinux@tycho.nsa.gov
+In-Reply-To: <20010316165108.A12384@rahul.net> from "Bennett Todd" at Mar 16, 2001 04:51:08 PM
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-here is a quick reply before I leave for the weekend:
+Bennett Todd writes:
+> 2001-03-16-06:25:27 Pedro Rosa:
 
-At 11:03 2001-04-06 -0400, you wrote:
-
->On Fri, 6 Apr 2001, Simone [iso-8859-1] Fischer-Hübner wrote:
+>> [...] the presence of WuFTP is probably the most questionable
+>> program in selinux. Not only in technical terms but also it arises
+>> questions in the concept itself.
 >
-> > I have followed some of the discussions over the lists. As one of the main
-> > authors of the Privacy Model (PM), which is implemented in RSBAC, it was
-> > interesting to read that you think that PM can be easily expressed with 
-> TE.
-> > However, I doubt that you can really express all necessary details and
-> > security properties.
->In my recent response to Amon, I discussed n-person control and time
->limits, and I raised the question of the right place for enforcing some
->of the privacy model restrictions (application vs. OS).  Naturally,
->I'll be interested in your views on that as well.
+> I don't see that at all.
 
-It may be appropriate to enforce the privacy policy at database level as 
-well. However, for a secure system implementation, the PM security policy 
-should also be enforced/supported at a lower system level and the 
-application should rely on the operating system to enforce the PM policy. 
-We decided that it is helpful to have a complete model implementation in 
-the operating system.
-
-
->I'll try to
->answer your additional questions below...
->
-> > In particular, you have not discussed how the information flow property 
-> can
-> > be expressed to prevent illegal information flow(see also example in our
-> > NISS´98 paper: in a hospital, medical data accessible for medical 
-> treatment
-> > purposes could be illegally copied to admission data accessible for
-> > administration purposes, or another example: personal data could be copied
-> > to data classified as non-personal) :
-> > In order to prevent illegal information flow , subject (processes) have 
-> two
-> > further security attributes: Input-purposes and output-purposes.
-><some text deleted>
-> > I do not see how this information flow control can be easily expressed 
-> with
-> > RBAC/TE ?
->
->You've chosen a particular approach for preventing illegal information
->flow in your model.  But that isn't the only way to achieve the same
->high-level security requirement.  Rather than dynamically adjusting
->the purpose attributes of the process as it performs reads and writes,
->you can simply set the purpose attributes when the process is created
->based on your intended task, and conservatively prohibit reads or writes
->that would violate your information flow restrictions.  The same
->is true for Multi-Level Security restrictions.
-
-
-Well, this approach will be more restrictive. According to our approach, 
-the allowed read and write accesses for a process performing a certain task 
-can vary depending on what data the process has read and what data it has 
-currently write-access to. A simple example: the process is allowed to 
-write to non-personal data (for which most of the security properties do 
-not apply) unless it had already read access to personal data (because then 
-it could illegally write personal data to unprotected non-personal data).
-Thus, if you decide on read and write accesses before process execution, 
-you will be more restrictive than necessary.
-
-
-> > Well, this seems to be possible, but then you wont have any easy and
-> > transparent administration of access rights any longer (which should be 
-> one
-> > of the advantage of Role Based Access Control -RBAC).
-> > Just imagine that you model in your system 10 different purposes. This
-> > means that you have to model with TE 1024 different types (for all 
-> possible
-> > subsets of purposes).
->
->It seems unlikely that all combinations of purposes are needed or
->that a large number of purposes must be associated with any object
->at any given point in time.
-
-Well, if you want to include relabeling in case that data subjects have 
-given their consents for a usage of their data for potentially any possible 
-purpose sets, you have to define types for all possible subsets of 
-purposes, because all of them could be potentially needed  (Example: Assume 
-there is a personal data object with only one purpose. The data subject of 
-this object could potentially give his/her consent that this object could 
-be used for any possible subset of the set of the remaining purposes).
-
-
-> > Besides, by relabeling the personal data to include another purpose to
-> > which the data subjects have agreed, you change the real semantic of the
-> > O-purposes attribute of data, which should only stand for the purposes for
-> > which data for initially collected. Relabeling data in case of a consent
-> > would in this case also require that you have to change the type (encoding
-> > purposes) in the list of necessary accesses as well.
->
->I suppose you could encode two purpose sets in each type to
->represent both the original purposes and the current purposes.
->But I'm not sure how critical these characteristics are to meeting
->the high-level security requirements, as opposed to just being
->aspects of your approach.
-
-Still, a change of the type in the list of necessary accesses would be 
-necessary.
-
-
-Best regards,
-Simone Fischer-Huebner.
-
-
------------------------------------------------------------------------
-Prof. Dr. Simone Fischer-Huebner
-Karlstad University
-Department of Computer Science
-Universitetsgatan 1
-S 651 88 Karlstad / Sweden
-Tel: +46  54 700 1723
-Fax: +46  54 700 1828
-http://www.cs.kau.se/~simone/
-simone.fischer-huebner@kau.se
-
-
+Just the opposite is true in fact. The real test of selinux is
+running buggy servers. When a major new WuFTP hole is found,
+will you be able to ignore it? Will you be safe, in spite of the
+hole, because selinux prevents the attackers from doing anything?
 
 
 --
