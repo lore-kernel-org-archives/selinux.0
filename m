@@ -1,51 +1,62 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i15FXIRb016999
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 10:33:19 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i15J1BRb018522
+	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 14:01:11 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i15FVtfi008268
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 15:31:55 GMT
-Received: from butternut.transitive.com (dsl-217-207-128-218.uk.easynet.net [217.207.128.218] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id i15FVbD3008231
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 15:31:54 GMT
-Message-ID: <402261FE.5060708@treblig.org>
-Date: Thu, 05 Feb 2004 15:32:14 +0000
-From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
+	by jazzswing.ncsc.mil  with ESMTP id i15IZLl5009606
+	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 18:59:41 GMT
+Received: from internode.on.net (bep1.adl2.internode.on.net [203.16.214.212])
+	by jazzswing.ncsc.mil  with ESMTP id i158Cmlx022220
+	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 08:12:49 GMT
+From: "keen" <keen@internode.on.net>
+Reply-to: keen@internode.on.net
+To: selinux@tycho.nsa.gov
+Subject: make relabel error
+Date: Thu, 05 Feb 2004 18:40:30 +1050
+Message-id: <4021fa76.336.47d3.1608314121@internode.on.net>
 MIME-Version: 1.0
-To: Brian May <bam@snoopy.apana.org.au>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Problems finding working kernel/user land combination
-References: <401FF280.8070301@treblig.org> <84d68vlr6a.fsf@snoopy.apana.org.au>
-In-Reply-To: <84d68vlr6a.fsf@snoopy.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Brian May wrote:
+Hi, while I am still using the README in
+selinux-usr/selinux-doc of the december release as a guide
+to setup selinux with a Fedora Core 1 box and a 2.6.2 kernel
+from kernel.org, I have experienced some problem.
 
-Hi Brian,
+At step 5) of the readme which said to do a make relabel, I
+encountered the following:
 
-> Currently the "stable" set of tools are all for the old selinux,
-> I suspect you have a kernel with the new selinux.
+/usr/sbin/setfiles file_contexts/file_contexts `mount | awk
+'/ext[23]/{print $3}'`
+/usr/sbin/setfiles:  read 600 specifications
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_exec_t on line number 587
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_exec_t on line number 588
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_child_exec_t on line number 589
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_child_exec_t on line number 590
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_log_t on line number 591
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_child_exec_t on line number 722
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_child_exec_t on line number 723
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_child_exec_t on line number 724
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_child_exec_t on line number 725
+/usr/sbin/setfiles:  invalid context
+system_u:object_r:inetd_child_exec_t on line number 726
+Exiting after 10 errors.
+make: *** [relabel] Error 1
 
-This indeed seems to be the case;  after yesterdays discussions I 
-successfully built myself an old selinux kernel and got it to work with 
-the packages I had installed. Thanks to both yourself and Russell for 
-explaining this.
+What have I missed? Could anyone help me on this? Your
+attention is greatly appreciated. Thank you.
 
-> These packages, for woody, are still in the "unstable" section of my
-> archive.
-> 
-> Unless anybody has any serious objections, I plan to delete the old
-> selinux files in my "stable" archive and replace them with the new
-> selinux files in my "unstable" archive.
-
-Hmm - I'm confused - if I look in 
-/debian/dists/unstable/selinux/binary-i386/Packages
-on your site I just see dpkg, dpkg-dev and dpkg-doc
-can you give me an exact sources.list line?
-
-Dave
-
+Regards,
+Keen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
