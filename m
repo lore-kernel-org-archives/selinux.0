@@ -1,64 +1,87 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1RJ96Do021099
-	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 14:09:06 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1RJ5tjS010030
-	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 19:05:55 GMT
-Subject: Re: [ PATCH ] home_domain macro / x_client cleanup patch
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1109437744.4873.28.camel@cobra.ivg2.net>
-References: <1109437744.4873.28.camel@cobra.ivg2.net>
-Content-Type: multipart/mixed; boundary="=-WNRaKqv8Q7taEeZ18A1N"
-Date: Sun, 27 Feb 2005 14:09:29 -0500
-Message-Id: <1109531369.21556.28.camel@cobra.ivg2.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1RKkgDo021341
+	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 15:46:42 -0500 (EST)
+Received: from vds-320151.amen-pro.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1RKhQjS013515
+	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 20:43:30 GMT
+Subject: Re: missing features in user-land tools
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200502261846.55490.russell@coker.com.au>
+References: <200502261846.55490.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wH+x8swOxnPx+82FRfdS"
+Date: Sun, 27 Feb 2005 21:42:55 +0100
+Message-Id: <1109536975.18747.55.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-WNRaKqv8Q7taEeZ18A1N
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--=-wH+x8swOxnPx+82FRfdS
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+El s=E1b, 26-02-2005 a las 18:46 +1100, Russell Coker escribi=F3:
+> I believe that for ideal functionality we want a program that will create=
+ a=20
+> file with a specified context.  It seems to me that modifying chcon would=
+ be=20
+> a good way of doing this as chcon already supports specifying the context=
+ and=20
+> the desired sym-link functionality.  Something like "chcon -n $CONTEXT $F=
+ILE"=20
+> with "-n" meaning that the file should be created if it doesn't exist (no=
+t=20
+> sure whether we would want chcon to abort if the file doesn't already exi=
+st -=20
+> maybe another option for that).
+>=20
+> The precedent for that is touch(1) which will change the time-stamp or cr=
+eate=20
+> the file if it doesn't exist.
+>=20
+>=20
+> I think it would also be good if mktemp(1) was modified to allow specifyi=
+ng=20
+> the context of the file being created.  Often a script creates a temp fil=
+e=20
+> which will be written to by a program running in a different context.  Su=
+re=20
+> it could call chcon(1) after creating the temp file, but I think that hav=
+ing=20
+> mktemp do it all would be better.
 
->- All mozilla changes are reorganizing things. The only
->significant change is that /tmp files are now created in
->$1_mozilla_tmp_t, lpr can only print those, and only
->those ones are executable. 
+I could work out something on mktemp, it seems not difficult, but I will
+be able to do it after I finish the exams *sigh*.
 
-This broke some things. I also stopped using macros
-for interaction w/ $1_tmp_t to reduce privileges. 
-Here's a followup patch that addresses some denials. 
+Just lemme know how you want it (exactly) and what it needs to do among
+setting a proper context to the temporal file being created.
 
-Applies on top of the latest policy + the home_domain patch I sent.
+Also, maybe a helper within libselinux could be interesting.I would like
+to know what Stephen thinks at this point, if per-tool basis
+modification with the whole code for context setting or a common helper
+for those who share the same pattern.
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
---=-WNRaKqv8Q7taEeZ18A1N
-Content-Disposition: attachment; filename=mozilla_fix.diff
-Content-Type: text/x-patch; name=mozilla_fix.diff; charset=utf-8
-Content-Transfer-Encoding: 7bit
+--=-wH+x8swOxnPx+82FRfdS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
---- mozilla_macros.te	2005-02-27 14:02:43.000000000 -0500
-+++ mozilla_macros.new	2005-02-27 14:04:04.000000000 -0500
-@@ -74,8 +74,8 @@
- file_type_auto_trans($1_mozilla_t, $1_tmp_t, $1_mozilla_tmp_t)
- can_unix_connect($1_t, $1_mozilla_t)
- allow $1_t $1_mozilla_tmp_t:sock_file write;
--allow $1_mozilla_t $1_tmp_t:file { read write };
--allow $1_mozilla_t $1_tmp_t:sock_file write;
-+allow $1_mozilla_t $1_tmp_t:file { read write lock };
-+allow $1_mozilla_t $1_tmp_t:sock_file { read write };
- dontaudit $1_mozilla_t $1_tmp_t:dir setattr;
- 
- # Allow mozilla to read user home content
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
---=-WNRaKqv8Q7taEeZ18A1N--
+iD8DBQBCIjDPDcEopW8rLewRAmqwAJ0WztReQ/FQ3WdMFECuvqGmwwc7NwCgjJYD
+/KJ31QXhKb9I79Iu+bvaHcc=
+=X+/n
+-----END PGP SIGNATURE-----
+
+--=-wH+x8swOxnPx+82FRfdS--
 
 
 --
