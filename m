@@ -1,98 +1,57 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KDErrT003616
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 09:14:54 -0400 (EDT)
-Received: from wgimx01.wgint.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KDEpQ4025357
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 13:14:52 GMT
-From: "Richard Simpson" <richard.simpson@wgint.com>
-To: "Stefan SF" <stefan@sf-net.com>
-Cc: <selinux@tycho.nsa.gov>
-Subject: RE: policy for scponly - need help
-Date: Fri, 20 Aug 2004 07:16:48 -0600
-Message-ID: <BJENLMGHDPAAAGKKPOFOGEMHCEAA.richard.simpson@wgint.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <20040820080156.GA8602@crux.sternplastic>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KDXYrT003732
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 09:33:34 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KDWq4v007497
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 13:32:52 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by open.hands.com (Postfix) with ESMTP id 2C19CBFD9
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 14:33:32 +0100 (BST)
+Received: from open.hands.com ([127.0.0.1])
+	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
+	id 14987-03-2 for <selinux@tycho.nsa.gov>;
+	Fri, 20 Aug 2004 14:33:28 +0100 (BST)
+Received: from lkcl.net (unknown [212.44.25.89])
+	by open.hands.com (Postfix) with ESMTP id A7883BFD6
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 14:33:27 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1By9hG-0002Ol-GW
+	for selinux@tycho.nsa.gov; Fri, 20 Aug 2004 14:44:46 +0100
+Date: Fri, 20 Aug 2004 14:44:46 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: mozilla with macromedia flash plugin 6
+Message-ID: <20040820134446.GD8429@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello-
+... just a word to the wise that raised the hackles on the back of my
+fangs.
 
-I'm just a newbie at this, but it looks like a term is missing from your
-last 'allow' statement. Perhaps it should be:
+i just visited a web site that had a flash plugin, very pretty, stole
+99% cpu time so i couldn't access any other parts of the site.
 
-allow user_t self:capability { dac_override dac_read_search };
+right-mouse button, settings, it said "allow <this site> access to your
+microphone and camera" at which point i began to freak out a bit.
 
-Richard
+fortunately the default is set to "no".
 
-> Hi!
->
-> > scponly seems similar to rssh.  You may want to try my rssh policy:
-> > http://verbum.org/files/rssh_macros.te
-> > http://verbum.org/files/rssh.te
-> > http://verbum.org/files/rssh.fc
->
-> Hmm I can't make head or tail of this. I think the
-> scponly-problem is another one. Because you don't have to transit
-> or anything else in the rssh-policy (user -> role).
->
-> > It would likely be sufficient to just add a regexp for scponly to
-> > rssh.fc.
->
-> For what? I think this is not a problem of correct labeling.
->
-> > Hmmm, odd.  Are you logging in as root?
->
-> No, the program is only to /usr/sbin installed because it uses
-> some functions which are only to priviliged peoples related, I think.
->
->
-> I've created policies all the time ;-) but nothing right was
-> coming out! I've still the same problem, that I can't allow the
-> user_t capabilities, without edeting the uesr.te files! It would
-> be great, if I only have to edit the scponly-policy-files. I
-> think all permissions for the program should go there.
->
-> Here is on of my tries:
->
-> # domains/program/scponly.te
-> type scponly_t, domain, privowner;
-> type scponly_exec_t, file_type, exec_type, sysadmfile;
->
-> domain_auto_trans(user_t, scponly_exec_t, scponly_t)
-> domain_auto_trans(sysadm_t, scponly_exec_t, scponly_t)
->
-> role user_r types scponly_t;
-> role sysadm_r types scponly_t;
->
-> ifdef(`ssh.te',`
-> allow sshd_t scponly_exec_t:file { getattr execute read };
-> allow user_t scponly_exec_t:file { entrypoint };
-> ')
->
-> ifdef(`user.te',`
-> allow user_t:capability { dac_override dac_read_search };
-> domain_auto_trans(user_t, scponly_exec_t, scponly_$1_t);
-> ')
->
->
-> I thought with a domain_auto_trans the problem should get fixed,
-> but the output from avc is still the same.
->
-> audit(1092988519.353:0): avc:  denied  { dac_override } for
-> pid=7088 exe=/usr/sbin/scponlyc capability=1
-> scontext=test:user_r:user_t tcontext=trade:user_r:user_t tclass=capability
-> audit(1092988519.353:0): avc:  denied  { dac_read_search } for
-> pid=7088 exe=/usr/sbin/scponlyc capability=2
-> scontext=test:user_r:user_t tcontext=trade:user_r:user_t tclass=capability
->
->
-> Any hints, tipps or related policy-files would be great! ;-)
->
->
-> ciao, Stefan
->
+*sweetly* could someone who is familiar with the mozilla selinux policy
+please double-check that the policy somehow bans access to video
+and microphone unless explicity granted?
+
+l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
