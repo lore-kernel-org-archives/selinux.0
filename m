@@ -1,47 +1,85 @@
-Date: Thu, 24 Jan 2002 13:58:23 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: network and module problems
-In-Reply-To: <1011892644.1401.0.camel@phobos>
-Message-ID: <Pine.GSO.4.33.0201241340360.28970-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA19631
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2002 22:06:27 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id DAA27440
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2002 03:05:45 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id DAA27430
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2002 03:05:43 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: ppp security settings
+Date: Fri, 25 Jan 2002 14:06:15 +1100
+Cc: <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0201220851420.9412-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0201220851420.9412-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020125030616.0C2D33A2113@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 23 Jan 2002 01:00, Stephen Smalley wrote:
+> On Sat, 19 Jan 2002, Russell Coker wrote:
+> > I have attached a patch against the latest selinux-small for pppd
+> > settings (granting access to /dev/ppp by the program /usr/sbin/pppd).
+> >
+> > Also I have added settings for /dev/vc/* (devfs equivalent of
+> > /dev/tty[0-9]+) and /dev/pts/*.
+> >
+> > Also I have added dhclient to the domain dhcpc_exec_t and made
+> > appropriate changes for it's config files.
+> >
+> > Let me know if I'm doing anything stupid here.
+>
+> A few questions and comments:
+>
+> 1) I would only add pppd_t to system_r.  If started by an administrator,
+> it should be done via run_init, so you don't need it in sysadm_r.
 
-On 24 Jan 2002, Timothy Wood wrote:
+Your other message regarding run_init convinced me about this.
 
-> Cannot send dump request: Connection refused
+>  Do you
+> really want it started by ordinary users?  If not, then drop it from
+> user_r in rbac and drop the user_t transition from pppd.te.
 
-Did you enable Netlink support when you configured the kernel?
-What release of SELinux are you using?
+In some situations yes.  If someone is running a laptop to connect to the net 
+then they will generally want to start and stop pppd as non-root and 
+non-sysadm_r.
 
-> module and by building it straight into the kernel.  Which brings me to
-> the module problem.  Dmesg shows that it finds the nic but I never see
-> the module as being loaded when I run lsmod and when I try to insmod it
-> I get an error saying that it can't locate the card on the console and
-> avc errors in the system log.
+I think I will put in the user_t transition in a comment.
 
-If you build the module into the kernel, it won't show up in lsmod.
-What AVC errors are being logged?  Did you run insmod after logging
-into the sysadm_r role?  Also, is your kernel in permissive mode or
-enforcing mode?
+> 2) I doubt that you really need all of the "priv*" attributes on the
+> pppd_t domain - you probably just cut-and-pasted from an existing domain
 
-> I'm also running this on ext3 if that might have something to do with it
-> since I know ext3 isn't properly supported yet.  Anyhow, any ideas are
-> welcome and I can reload this machine if the need arises.  Thanks.
+Yes.
 
-ext3 works fine.  It was only an issue when ext3 support wasn't in the
-mainstream kernel.
+> that did need those attributes.  In particular, pppd_t should have no
+> reason to be associated with the "privuser", "privrole", or "privowner"
+> attributes.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+OK.
 
+> 3) Your diff doesn't show the type declaration for net_device_t anywhere -
+> probably in types/files.te.
 
+In types/device.te:
+type net_device_t, file_type;
 
+> 4) I'm not familiar with dhclient, so I'm not sure whether it belongs in
+> the same domain as dhcpcd.
+
+dhclient is a dhcp client program.  It does exactly the same thing as dhcpcd 
+and (IMHO) deserves to be in the same domain.
+
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 --
 You have received this message because you are subscribed to the selinux list.
