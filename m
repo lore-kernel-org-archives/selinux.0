@@ -1,79 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FNthL9012593
-	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 18:55:43 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1FNsVEP022135
-	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 23:54:31 GMT
-Date: Wed, 16 Feb 2005 00:04:37 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>,
-   g@lkcl.net
-Subject: Re: sshd transition points
-Message-ID: <20050216000437.GD30341@lkcl.net>
-References: <20050215155323.GC23765@lkcl.net> <1108491293.17854.153.camel@moss-spartans.epoch.ncsc.mil> <20050215191640.GA26294@lkcl.net> <1108495342.17854.200.camel@moss-spartans.epoch.ncsc.mil> <20050215200355.GB26294@lkcl.net> <20050215225329.GH26294@lkcl.net> <20050215231707.GC29523@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050215231707.GC29523@lkcl.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1G3bjL9013349
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 22:37:46 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1G3Y9w0022693
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 03:34:10 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Best way to label a filesystem for another system
+Date: Wed, 16 Feb 2005 14:36:02 +1100
+Cc: "Villalovos, John L" <john.l.villalovos@intel.com>,
+   SE-Linux <selinux@tycho.nsa.gov>
+References: <60C14C611F1DDD4198D53F2F43D8CA3B036A31B3@orsmsx410> <1107816234.11907.115.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1107816234.11907.115.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200502161436.06019.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Feb 15, 2005 at 11:17:07PM +0000, Luke Kenneth Casson Leighton wrote:
-> okay.
-> 
-> i should explain what this patch actually does, shouldn't i? :)
-> 
-> on a setcon, if you are in context A, and you are endeavouring to
-> setcon to context B, then you "automatically" get thrown instead
-> into context C.
+On Tuesday 08 February 2005 09:43, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> 2) Retain SELinux on the host development system, but change its policy
+> such that all of the desired file contexts for the embedded system are
+> legal in its policy.  The simplest way to do this is to use the same
+> policy.  An alternative is to just to add stub type definitions for all
 
-example:
+Using the same policy for a workstation and a PDA is not practical.  A policy 
+that works well for a workstation will be too large for the RAM of a PDA.
 
-	to track the privilege-separated process that handles
-	a user's networking communications for you, and thereby
-	to be able to "ban" a specific user from being able to
-	ssh into your server except from a specific ip address.
+A targeted policy might work on a workstation and a PDA, but there's not much 
+point.  PDAs have almost no daemons so a policy that only affects daemons 
+will do little good.
 
-in domain/program/ssh.te:
+Probably the easiest thing to do would be to write a little Perl program to 
+read through two policy.conf files and list all user identities and type 
+declarations with the file_type attribute that are in one policy but not 
+another.  The result could be put in domains/misc/custom.te on the 
+workstation to allow labelling for the PDA image.
 
-	# to cover the setcon
-	dynamic_auto_trans(sshd_privsep_t, restricteduser_t,
-	                   sshd_privsep_restricteduser_t)
-
-	# to cover the execve of the execution of the sftp-server
-	domain_auto_trans(sshd_privsep_user_t, sshd_sftp_exec_t,
-	                  sftp_restricteduser_t)
-
-then i can create a network context:
-
-	nodecon 192.168.0.220 255.255.255.255 system_u:object_r:restricted_ip_t
-	        ^^^^^^^^^^^^^
-
-then, instead of using can_network(), i would do this:
-
-	allow sshd_privset_restricteduser_t netif_type:netif      { tcp_send };
-	allow sshd_privset_restricteduser_t restricted_ip_t:netif { tcp_recv };
-	                                    ^^^^^^^^^^^^^^^
-
-and, in openssh, to finish it off (somewhere around the privsep
-child auth function), i do this:
-
-	/* we are in sshd_privsep_t context when this is done,
-	 * but how we got there is TBD... */
-
-	get_default_context(.... &scontext);
-	setcon(scontext); /* this triggers the dynamic_auto_trans */
-
-if it wasn't for openssh deploying privilege separation [an intermediate
-highly restricted process handling networking] then all this lovely
-stuff would be completely unnecessary.
-
-
-... isn't this a _lot_ simpler than pissing about creating hard-coded
-security contexts, or fiddling around adding kludges into libselinux
-to be able to create security contexts or read some pseudo-default?
-
-l.
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
