@@ -1,34 +1,43 @@
-Subject: Re: Desktop apps interoperability
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20050331165116.92416.qmail@web31601.mail.mud.yahoo.com>
-References: <20050331165116.92416.qmail@web31601.mail.mud.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2VItHDo027903
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 13:55:17 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2VIpGTg010205
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 18:51:16 GMT
+Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j2VIruB9017521
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 13:53:56 -0500 (EST)
+Subject: Cron /null fd:use use denials
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 31 Mar 2005 13:16:50 -0500
-Message-Id: <1112293010.11216.144.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 31 Mar 2005 14:00:07 -0500
+Message-Id: <1112295607.12948.69.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-31 at 08:51 -0800, Casey Schaufler wrote:
-> Existing MLS systems allow unprivileged
-> applications to run unmodified. In at least
-> one case that included an unmodified X server.
-> You have to do at least as well as the unix MLS
-> systems to be credible. You think that's a
-> low bar, so you shouldn't have any trouble,
-> right?
+What's causing those?
 
-You can certainly allow applications to run unmodified on SELinux today.
-But there can be benefit from modifying applications to provide stronger
-isolation and true least privilege in the future.  And users do care
-about these "unprivileged" applications corrupting or leaking their
-data.
+audit(1112259892.387:9374931): avc:  denied  { use } for  pid=10993
+exe=/usr/sbin/sendmail.sendmail path=/null dev=selinuxfs ino=245
+scontext=system_u:system_r:system_mail_t
+tcontext=system_u:system_r:init_t tclass=fd
+
+audit(1112259892.551:9376543): avc:  denied  { use } for  pid=10996
+exe=/usr/sbin/tmpwatch path=/null dev=selinuxfs ino=245
+scontext=system_u:system_r:tmpreaper_t tcontext=system_u:system_r:init_t
+tclass=fd
+
+audit(1112259892.620:9377236): avc:  denied  { use } for  pid=10999
+exe=/usr/sbin/logrotate path=/null dev=selinuxfs ino=245
+scontext=system_u:system_r:logrotate_t tcontext=system_u:system_r:init_t
+tclass=fd
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
