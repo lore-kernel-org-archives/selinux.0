@@ -1,51 +1,49 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BHnNrT025328
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 13:49:23 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8BHnM6V006335
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 17:49:22 GMT
-Date: Sat, 11 Sep 2004 19:00:28 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: initscripts sysv se2
-Message-ID: <20040911180028.GE12835@lkcl.net>
-References: <20040910181322.GS14060@lkcl.net> <200409120253.02597.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200409120253.02597.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BITmrT025454
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 14:29:48 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8BISq9R025885
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 18:28:53 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+Subject: Re: PAM in suse9.1 (Re: SuSE 9.1 SELinux)
+Date: Sun, 12 Sep 2004 04:29:36 +1000
+Cc: selinux@tycho.nsa.gov
+References: <OF296DC5F7.062BA6BF-ON49256F08.000B7FC4-49256F08.000D462A@jp.ibm.com> <200409071747.i87HkxJ6012464@mms-r00.iijmio.jp>
+In-Reply-To: <200409071747.i87HkxJ6012464@mms-r00.iijmio.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-2022-jp"
+Message-Id: <200409120429.36022.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 12, 2004 at 02:53:02AM +1000, Russell Coker wrote:
-> On Sat, 11 Sep 2004 04:13, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > i raised the bug about /etc/mtab on debian, they said it's not
-> > critical to debian because i'm using patched versions of initscripts.
-> 
-> What patches are you using on the init scripts?  My patch to sysvinit only 
-> changes /sbin/init itself, the scripts remain the same.
-> 
-> Who said that it's not critical to Debian?  
+On Wed, 8 Sep 2004 03:46, Yuichi Nakamura <himainu-ynakam@miomio.jp> wrote:
+>   }
+>
+>   retval = PAM_SUCCESS;
+> - if (pwd == NULL || salt == NULL || strlen(salt) == 1) {
+> -  if (geteuid()) {
+> + if (pwd == NULL || salt == NULL || strlen(salt) == 1) {
+> +
+> +  if (geteuid() || SELINUX_ENABLED) {
 
- non-critical to non-selinux systems.
+Why not just skip the geteuid() test entirely and run the helper whenever it's 
+not possible to directly read /etc/shadow?  The worst-case scenario for such 
+a code change is to needlessly run the helper in situations where a disk 
+error or other serious failure makes the file unavailable, but optimising 
+performance for grossly broken systems which are essentially unusable is not 
+worth doing IMHO.
 
-> Where did they say it?
- 
- Miquel van Smoorenburg 
-
- http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=270919
-
- l.
+Also skipping the geteuid() test entirely will also potentially allow other 
+MAC systems to be dropped in place with little effort.
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
