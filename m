@@ -1,47 +1,45 @@
-From: "Josh" <josh@mercuryfs.net>
-To: <SELinux@tycho.nsa.gov>
-Cc: "Freenet Developers Email List \(E-mail\)" <devl@freenetproject.org>
-Subject: nice job on SE-Linux! I have something to contribute too
-Date: Tue, 24 Jul 2001 18:24:27 -0700
-Message-ID: <003f01c114a8$8c75b4b0$35512304@koi>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA06642
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 22:00:09 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id BAA22446
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 01:59:54 GMT
+Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
+	by jazzband.ncsc.mil  with ESMTP id BAA22442
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 01:59:53 GMT
+Date: Tue, 24 Jul 2001 22:02:59 -0400 (EDT)
+From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
+To: Steve Eckmann <eckmann@computer.org>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: 8.3 filenames
+In-Reply-To: <4.3.2.7.2.20010724165057.00a965d0@mail1.abac.com>
+Message-ID: <Pine.LNX.4.30.0107242201140.16596-100000@biocserver.BIOC.CWRU.Edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-As a long time Big Brother fan, I'm very happy to see the NSA taking the
-right PR approach.
-Had this project been started 10 years ago, I probably would have applied at
-the NSA.
-Had the book "Body of Secrets" been released then, I definitely would have
-applied.
-Nice job! For $16 billion a year, I KNOW we're getting our monies worth! (if
-only the FBI were half as good)
+On Tue, 24 Jul 2001, Steve Eckmann wrote:
 
-Now for my contribution: I have designed a permanent caching location
-independent global file system. I will be very useful for the US government,
-and the entire world for that matter.
+> My selinux kernel displays only 8.3 filenames for floppy and cdrom
+> drives, but non-selinux kernels display "longnames". I've encountered
+> this anomaly with every selinux installation that I've tried, over
+> RH6.2 and RH7.1. I've built a lot of linux kernels and haven't seen
+> this problem before. I guess I'm doing something wrong with filesystem
+> configuration, but what?
 
-Currently, it's all blueprints, patents and trademarks. But the code will be
-coming (after funding).
+cat /proc/filesystems. you probably want vfat, iso9660, and such ... those
+are built based on kernel configurations. you can build them as modules
+now if you still have your kernel config lying around. make xconfig and in
+filesystems chose 'module' for each of those, then make modules_install
+for your kernel .. then insmod 'em.
 
-Please visit www.mercuryfs.net for the design details. Considering the
-technical nature of this group, I recommend you all go straight to the
-"Intro to MFS" presentation, then read the summary and design.
+should be relatively easy.
 
-I look forward to using SE-Linux as our base code. I believe the 2 together
-will make history.
-Any suggestions regarding the design are welcome.
-
-Although I intend to make some money off of the design, the government will
-get it for free, because of SE-Linux.
-
-- Josh
-
-PS: MFS will be impervious to Echelon. And as an open source design, there
-will be no government backdoor. Sorry. I hope the export license is granted.
-If not, o-well, its still going to happen. :)
+____________________________
+jose nazario						     jose@cwru.edu
+	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
+				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
 
 
 --
