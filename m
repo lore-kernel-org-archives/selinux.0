@@ -1,33 +1,63 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i96KpkrT009340
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 16:51:46 -0400 (EDT)
-Received: from oe-im1.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i96KobnN027591
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 20:50:38 GMT
-Reply-To: <don.patterson@tresys.com>
-From: "Don Patterson" <don.patterson@tresys.com>
-To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
-Cc: "Selinux-Dev" <selinux-dev@tresys.com>
-Subject: Updated release of setools-1.4.1 
-Date: Wed, 6 Oct 2004 16:51:44 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Message-Id: <20041006205145.EVIJ1068.mm-ismta3.bizmailsrvcs.net@ICEMAN>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i971E9rT010760
+	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 21:14:09 -0400 (EDT)
+Received: from sccrmhc13.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i971E7co011029
+	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 01:14:08 GMT
+Subject: libsepol+mls compile failure
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-niw0LLfxPwRlzKeVx/qB"
+Date: Wed, 06 Oct 2004 21:12:55 -0400
+Message-Id: <1097111576.31497.6.camel@chris.pebenito.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated release of setools-1.4.1 is now available from our website at
-http://www.tresys.com/selinux/selinux_policy_tools.html. This is a minor bug
-fix release to address a problem with rules not being rendered in apol and a
-few other small bugs that were brought to our attention.
 
-Thank you.
+--=-niw0LLfxPwRlzKeVx/qB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Don Patterson
-Tresys Technology
-http://www.tresys.com
+I was going to try out MLS, but I get the following compile failure in
+libsepol:
 
+mls.c: In function `mls_compute_av':
+mls.c:36: error: `policydb' undeclared (first use in this function)
+mls.c:36: error: (Each undeclared identifier is reported only once
+mls.c:36: error: for each function it appears in.)
+mls.c: In function `mls_compute_context_len':
+mls.c:84: error: `policydb' undeclared (first use in this function)
+mls.c: In function `mls_sid_to_context':
+mls.c:114: error: `policydb' undeclared (first use in this function)
+mls.c: In function `mls_context_to_sid':
+mls.c:230: error: `policydb' undeclared (first use in this function)
+
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+
+--=-niw0LLfxPwRlzKeVx/qB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBZJgXvI7kLeavkkMRAtqVAJwLGIcUXCGn85C2aQbs5eS8cqKWVgCbBKi4
+RIn24gv57W8+lwdcpwCojCo=
+=Pi84
+-----END PGP SIGNATURE-----
+
+--=-niw0LLfxPwRlzKeVx/qB--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
