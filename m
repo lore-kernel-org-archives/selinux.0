@@ -1,66 +1,54 @@
-From: "John Scroggins" <dataefx@earthlink.net>
-To: <mayerf@tresys.com>, <SELinux@tycho.nsa.gov>
-Subject: RE: Security policy analysis
-Date: Tue, 9 Oct 2001 16:32:38 -0700
-Message-ID: <LOBBKHHMGNHFHNPEJJLBGEHECAAA.dataefx@earthlink.net>
+Message-ID: <3BC3E52E.1EEF701E@atc.tcs.co.in>
+Date: Wed, 10 Oct 2001 11:35:34 +0530
+From: "Ravi Prakash B.V." <ravi@atc.tcs.co.in>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <ACEHIKGIGFEDAIKEMMMIAEMOJPAA.mayerf@tresys.com>
+To: SELinux@tycho.nsa.gov
+Subject: Interested in Reserach work
+References: <ACEHIKGIGFEDAIKEMMMIAEMOJPAA.mayerf@tresys.com>
+Content-Type: multipart/mixed;
+ boundary="------------39763DC5D9B79AD8669B65B0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We're looking at SE Linux as a building block upon which we can build
-protected applications of various types.  One of the issues we are working
-through include identifying a core "baseline" Linux configuration and
-associated SE Linux policy for that baseline.  One means of doing this is to
-examine sample policies (like the one distributed with the source).  If
-anyone else is doing similar things, we'd like to like to hear more.  Also,
-is anyone else working on alternative sample policies, especially for a core
-Linux configuration?
+This is a multi-part message in MIME format.
+--------------39763DC5D9B79AD8669B65B0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I am not sure if anyone is doing so at the present time, but the direction
-you are heading is interesting..  As it would help to broaden the use of the
-kernel in general by supplying those "sample policies". I think one of the
-hindrances in a large deployment scenario is understanding the policy
-structure(s) and how they apply to processes (that require protection). A
-more extensive set of elements which would help guide the potential
-user,(admin or engineer) in defining environment specific variables, may be
-a welcome addition.
+Dear all,
 
-We also find ourselves incrementally building tools to analyze policy.conf
-files (e.g., show all types with a given attribute, show all rules that
-involve a given type/attribute).  Essentially to help reverse engineer and
-analyze the intent of a given policy.  We have some capabilities built, and
-are writing additional ones as time and need allow (essentially by borrowing
-the lex/yacc source from checkpolicy, and building our own policy database
-and analysis logic).
+I joined into this group today.
+I am interested to do the research work in  security area. I want to
+contribute my research work to this group.
+I would like to know the current active work in the group so that i can
+join and start work in  one of it.
 
-I see this as potentially valuable. I too, would also like to see an
-extended discussion regarding this resource.
+Thanks & Regards,
+Ravi Prakash B.V.
+--------------39763DC5D9B79AD8669B65B0
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="ravi.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Ravi Prakash B.V.
+Content-Disposition: attachment;
+ filename="ravi.vcf"
 
-Is anyone else building similar tools?  We'd be happy
-to share our source incrementally with members of the list as we build new
-capabilities if anyone is interested.
+begin:vcard 
+n:Venkata Ravi Prakash;Burlagadda
+tel;cell:98490 30284
+tel;home:08644 26681
+tel;work:040 6328079(direct) 040 7814515/17/19 extn:387
+x-mozilla-html:FALSE
+org:Tata Consultancy Services;Advanced Technology Centre
+version:2.1
+email;internet:ravi@atc.tcs.co.in
+title:ASE
+adr;quoted-printable:;;1-2-10, Coramandel House,=0D=0ASardar Patel Road;Secunderabad;AP;500003;India
+x-mozilla-cpt:;28992
+fn:Burlagadda Venkata Ravi Prakash
+end:vcard
 
-Integrating this into a kernel-building utility sounds interesting. :)
-
-PS- Please reply to the mail list; we'd like to start open discussions of
-policy analysis and development.
-
-Regards,
-Frank Mayer
-mayerf@tresys.com
-Tresys Technology
-
-
-
---
-You have received this message because you are subscribed to the selinux
-list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+--------------39763DC5D9B79AD8669B65B0--
 
 
 --
