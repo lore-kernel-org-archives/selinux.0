@@ -1,69 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1H09VRb012532
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 19:09:31 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1H081lK017404
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 00:08:01 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1H0iHRb012675
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 19:44:18 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1H0iHc3009823
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 00:44:17 GMT
 Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i1H07xOX017374
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 00:08:00 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 2E3BD61BEF
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 11:08:07 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 00689-02 for <selinux@tycho.nsa.gov>;
-	Tue, 17 Feb 2004 11:08:06 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 63D0561B13
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 11:08:06 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id EED38B59DD
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 11:08:04 +1100 (EST)
+        by jazzband.ncsc.mil  with ESMTP id i1H0iFR0009784 for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 00:44:16 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Something seems to be self-contradictory
-Date: Tue, 17 Feb 2004 11:08:04 +1100
-References: <20040216175312.84847.qmail@web15205.mail.bjs.yahoo.com>
-In-Reply-To: <20040216175312.84847.qmail@web15205.mail.bjs.yahoo.com>
+To: Matthew Hamrick <mhamrick@cryptonomicon.net>, selinux@tycho.nsa.gov
+Subject: Re: SE/Linux Article on Cryptonomicon.Net
+Date: Tue, 17 Feb 2004 11:42:52 +1100
+References: <815F59D7-60A0-11D8-97B0-00306555A856@cryptonomicon.net>
+In-Reply-To: <815F59D7-60A0-11D8-97B0-00306555A856@cryptonomicon.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="gb2312"
-Message-Id: <200402171108.04387.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200402171142.52562.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 17 Feb 2004 04:53, Park Lee <parklee_2004@yahoo.com.cn> wrote:
-> You say that:
-> >A domain is a special type.
-> >When you define types they can have attributes, one >attribute is "domain"
-> > which indicates that it's possible to >use that type for labelling
-> > processes.
->
-> Do you mean that program is assigned a domain?
+On Tue, 17 Feb 2004 03:52, Matthew Hamrick <mhamrick@cryptonomicon.net> wrote:
+> Thought the readers of this list might appreciate seeing this article
+> that just appeared on our sister site, Cryptonomicon.Net. For the
+> purposes of full-disclosure, we should mention we're SE/Linux fans here
+> at Security Technique. One of our internal servers is a Debian box with
+> SE/Linux patches applied.
 
-Every running process has a domain.
+Thanks for the pointer.
 
-> Then what is the difference between a program and a common file?
-> There are some examples:
+I have just written a comment on the site to note that the Red Hat work is not 
+using MLS at this time.  Someone who casually reads the article might 
+interpret it to mean that MLS is a current Red Hat feature.  I don't want 
+someone to misinterpret the article, get incorrect expectations, and then be 
+disappointed.
 
-The only files that can be labeled with a "domain" are under /proc.
-
-> # sshd_exec_t is the type of the sshd executable.
-> # sshd_key_t is the type of the ssh private key files
-> type sshd_exec_t, file_type, exec_type, sysadmfile;
-> type sshd_key_t, file_type, sysadmfile;
-> (in selinux-usr\policy\domains\program\ssh.te)
->
-> In my opinion, the sshd executable is a program ,and the ssh private key
-> files are common files. But, Why Doesn't the type of sshd executable have a
-> domain attribute with it?
-
-In SE Linux as in regular Unix, there is nothing really special about a file 
-that can be executed.  In Unix permissions the difference between an 
-executable and a data file is 1 bit in the file mode.  In SE Linux the 
-difference is the presence of execute permission in the SE policy.
+The article is great, I'm just afraid of people interpreting it in the wrong 
+way.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
