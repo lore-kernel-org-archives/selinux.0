@@ -1,39 +1,48 @@
-Subject: Re: Multiple contexts
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CI7jIi017550
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 13:07:45 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CI5m8I007775
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 18:05:49 GMT
+Date: Wed, 12 Jan 2005 18:18:14 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-In-Reply-To: <20050112181814.GD26175@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net>
-	 <20050110232312.GI6967@lkcl.net>
-	 <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050111214818.GE26175@lkcl.net>
-	 <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112144411.GZ26175@lkcl.net>
-	 <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112181814.GD26175@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Multiple contexts
+Message-ID: <20050112181814.GD26175@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net> <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil> <20050111214818.GE26175@lkcl.net> <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil> <20050112144411.GZ26175@lkcl.net> <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 13:03:02 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 13:18, Luke Kenneth Casson Leighton wrote:
->  sorry.
+On Wed, Jan 12, 2005 at 10:00:47AM -0500, Stephen Smalley wrote:
+> On Wed, 2005-01-12 at 09:44, Luke Kenneth Casson Leighton wrote:
+> >  ... how about encoding the file attributes in the policy files,
+> >  such that they are ACL-like?
 > 
->  something simple:
-> 
->  i am thinking along the lines of more than one file context being
->  associated with a file - that sort of thing.
-> 
->  and permission being checked and allowed on either of the contexts.
+> I don't follow your line of thinking.  
 
-I already explained why you don't want that - it puts the policy into
-the filesystem state.
+ sorry.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+ something simple:
+
+ i am thinking along the lines of more than one file context being
+ associated with a file - that sort of thing.
+
+ and permission being checked and allowed on either of the contexts.
+
+ in this way, someone can keep the default policy made for apache
+ (both the .te and the .fc file)
+
+ and can also create their own home-grown policy.
+
+ the issue of creating a special "samba_apache_file_type_t" and
+ deviating from two sets of standard policy files does seem...
+ somewhat archaic.
+
+ l.
 
 
 --
