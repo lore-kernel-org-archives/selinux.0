@@ -1,41 +1,25 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA24966
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 17:52:55 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA19637
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 22:50:47 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id WAA19633
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 22:50:47 GMT
-Message-Id: <200211202300.SAA17633@moss-shockers.ncsc.mil>
-Date: Wed, 20 Nov 2002 18:00:15 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: conflicting header files
-To: bam@snoopy.apana.org.au
-Cc: selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA28030
+	for <selinux@tycho.nsa.gov>; Thu, 21 Nov 2002 09:09:28 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA25281
+	for <selinux@tycho.nsa.gov>; Thu, 21 Nov 2002 14:07:26 GMT
+Received: from mx.nas-smoothtransition.com (nas-vm-189.nas-smoothtransition.com [66.95.157.189] (may be forged))
+        by jazzband.ncsc.mil  with ESMTP id OAA25277 for <selinux@tycho.nsa.gov>; Thu, 21 Nov 2002 14:07:26 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
+Subject: RE: login (new default_contexts, run-time detection)
+Date: Thu, 21 Nov 2002 09:08:59 -0500
+Message-ID: <000901c29167$8cd05e00$6600a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <200211191639.LAA14536@moss-shockers.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> However, when compiling checkpolicy,
-> lsm-2.4/security/selinux/include/linux/flask/ss/global.h is included
-> (command line parameter), which also includes linux/flask/security.h,
-> 
-> Is checkpolicy considered a special case?
-
-Yes.  Notice that checkpolicy is compiled from the same core sources
-as the in-kernel security server with the addition of the parser
-and scanner for the policy compiler.  It doesn't use libsecure in
-any way.  In addition to compiling the policy, checkpolicy allows
-you to exercise a userspace copy of the security server functions
-with a particular policy.
-
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+Is there a simple method to determine which flavor of login (i.e., which
+version of selinux) is being used at run time?  
 
 
 --
