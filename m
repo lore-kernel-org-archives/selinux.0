@@ -1,51 +1,66 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87CuXrT025988
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 08:56:33 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87CuXll008596
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 12:56:33 GMT
-Subject: Re: SuSE 9.1 SELinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-Cc: stefano.zanarini@yacme.com, selinux@tycho.nsa.gov
-In-Reply-To: <200409061316.i86DGhWU026428@mms-r00.iijmio.jp>
-References: <1094456102.2213.3.camel@pignoletto.cantina.yacme>
-	 <200409061316.i86DGhWU026428@mms-r00.iijmio.jp>
-Content-Type: text/plain
-Message-Id: <1094561676.15891.12.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 07 Sep 2004 08:54:36 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87ExKrT026895
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 10:59:21 -0400 (EDT)
+Received: from moss-huskies.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87ExJll013594
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 14:59:19 GMT
+Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id i87Exw0c005601
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 10:59:58 -0400
+Received: (from hdholm@localhost)
+	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id i87Exw2G005600
+	for selinux@tycho.nsa.gov; Tue, 7 Sep 2004 10:59:58 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: fedora-selinux-list@redhat.com
+Subject: Re: [OT] SELinux vs. other systems [was Re: [idea] udev + selinux]
+Date: Sat, 4 Sep 2004 18:49:09 +1000
+Cc: Linas Vepstas <linas@austin.ibm.com>, Nigel Kukard <nkukard@lbsd.net>,
+   SELinux <SELinux@tycho.nsa.gov>
+References: <20040830173744.GD10151@lbsd.net> <200409022215.20830.russell@coker.com.au> <20040902170734.GA9645@austin.ibm.com>
+In-Reply-To: <20040902170734.GA9645@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409041849.09954.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-09-06 at 09:16, Yuichi Nakamura wrote:
-> Stephen Smalley said that there is a deadlock in reiserfs with SELinux.
-> http://marc.theaimsgroup.com/?l=selinux&m=109422792406335&w=2
-> 
-> But I would like to know the detail of deadlock.
-> Could someone tell me where is the deadlock or the condition that the deadlock happens??
-> A Novell Japan person will report to Bugzilla.
+On Fri, 3 Sep 2004 03:07, Linas Vepstas <linas@austin.ibm.com> wrote:
+> Well, here's another idle question, again off-topic: Does SELinux provide
+> any sort of assurances that storage media weren't tampered with between
+> reboots?
 
-There are two issues:
-1) Deadlock in the reiserfs xattr code when reiserfs creates the xattr
-directory or files since this leads to a reiserfs->SELinux->reiserfs
-cycle upon the d_instantiate on the newly created inode (before said
-inode is marked private by reiserfs).  Patch proposed on lkml:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108635056719373&w=2
+No, that is outside the scope of the SE Linux project.
 
-2) Permission denial by SELinux when reiserfs internally tries to access
-the xattr directory or files, as there is no security label on such
-inodes.  Proposal for a new security hook so that reiserfs can tell
-SELinux that these inodes are private and should not be mediated by
-SELinux:
-http://marc.theaimsgroup.com/?l=reiserfs&m=108747586800352&w=2
-Proposal still requires an implementation of the hook for SELinux, but
-that shouldn't be difficult if the hook itself is accepted.
+I am one of the many people in Red Hat who are involved in working on crypto 
+block device support.  One of my own systems has a root file system that is 
+AES encrypted with the kernel and initrd (which includes the decryption key) 
+on removable media.  Eventually I want to see this become a standard feature 
+of Fedora, maybe in FC4.  I think it will address most of what you want in 
+this regard.
+
+Note that the NSA guys do not talk to me about any security stuff, so I don't 
+expect them to have any involvement in such things.
+
+> For example, with BIOS/firmware getting more sophisticated over time,
+> there's potential for an attacker to break in, remotely, into
+> bios/firmware, shortly before booting into the OS, and then alter
+> disk contents.  Yes, I know this is far-fetched, but was just curious.
+
+When booting from removable media that contains the decryption key the attack 
+scenario would be to replace the BIOS with one that sends everything it reads 
+from disk (IE everything that the boot loader reads) over an Ethernet 
+interface.
+
+A trojan BIOS that modifies the kernel during the boot load process to 
+introduce a security hole would be doable if you have adequate resources.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
