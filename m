@@ -1,79 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA11995
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2001 00:48:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id EAA19942
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2001 04:48:22 GMT
-Received: from ausmac.net (ausmac.net [203.12.68.15])
-	by jazzband.ncsc.mil  with SMTP id EAA19938
-	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2001 04:48:21 GMT
-Date: Wed, 11 Apr 2001 14:48:22 +1000 (EST)
-From: Grant Bayley <gbayley@ausmac.net>
-To: "frenzy@frenzy.org" <mcclellr@OIT.EDU>
-cc: Will Dye <willdye@dsndata.com>, <selinux@tycho.nsa.gov>
-Subject: Re: Mirror sites
-In-Reply-To: <Pine.OSF.4.31.0104102100040.1237-100000@snoopy.oit.edu>
-Message-ID: <Pine.BSO.4.32.0104111445260.24948-100000@ausmac.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA12940
+	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2001 08:09:36 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA01144
+	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2001 12:09:11 GMT
+Received: from mailgw2a.lmco.com (mailgw2a.lmco.com [192.91.147.7])
+	by jazzswing.ncsc.mil  with ESMTP id MAA01140
+	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2001 12:09:10 GMT
+Received: from emss03g01.ems.lmco.com (emss03g01.ems.lmco.com [141.240.4.144])
+	by mailgw2a.lmco.com (8.8.8/8.8.8) with ESMTP id IAA27317
+	for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2001 08:09:34 -0400 (EDT)
+Received: from CONVERSION-DAEMON by lmco.com (PMDF V5.2-32 #38888) id <0GBM00701N2ONJ@lmco.com> for selinux@tycho.nsa.gov;
+ Wed, 11 Apr 2001 08:08:48 -0400 (EDT)
+Received: from emss09i00.ems.lmco.com ([158.183.24.10]) by lmco.com (PMDF V5.2-32 #38888)
+ with ESMTP id <0GBM001I8N2KD2@lmco.com> for selinux@tycho.nsa.gov; Wed, 11 Apr 2001 08:08:44 -0400 (EDT)
+Date: Wed, 11 Apr 2001 08:09:53 -0400
+From: "Needham, Douglas" <douglas.needham@lmco.com>
+Subject: kernel summit presentation?
+To: selinux@tycho.nsa.gov
+Message-id: <0C73AA5F720CD311AC2A0008C7DBA9B404B865EE@emss09m13.ems.lmco.com>
+MIME-version: 1.0
+Content-type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I watched the webcast of the presentation to the kernel summit, and would
+like to see the actual slides used for the presentation. 
 
-Hi Randy,
+Is there a place where these can be downloaded? 
 
-I'm already running an unofficial one in Australia but I've announced
-it's presence a couple of times here before.  At present, since
-the files are only available via HTTP, it's manually updated whenever a
-new release is announced or put online.
+Also, some of the questions asked were a little difficult to hear. 
 
-You're welcome to simply mirror from this if you like:
+Would it be possible for someone that was there associated with the selinux
+development group to sum up the questions, and maybe even some of the
+offline discussions that were held that were not part of the webcast? 
 
-http://the.wiretapped.net/security/operating-systems/selinux/
-ftp://ftp.wiretapped.net/pub/security/operating-systems/selinux/
-
-On the issue of "clearance" I can't honestly think of why you'd need it
-given the files are already available to all and sundry and based on a
-GPL-licenced product.  What me worry anyway - I'm not American!
-
-Grant
-
--------------------------------------------------------
-Grant Bayley                         gbayley@ausmac.net
--Admin @ AusMac Archive, Wiretapped.net, 2600 Australia
- www.ausmac.net   www.wiretapped.net   www.2600.org.au
--------------------------------------------------------
+I think this would be very informative. 
 
 
-On Tue, 10 Apr 2001, frenzy@frenzy.org wrote:
+Doug Needham
+Lockheed Martin
+Information Assurance Engineering 
+douglas.needham@lmco.com
 
->  Along the lines of storing that file, are there any proposals for mirror
-> sites currently? If so, I would be willing to host a mirror in Oregon. If not,
-> would proper clearance have to be obtained, or could some of us get together
-> and get it started? While the 31meg download is not a problem for those of
-> us who currently have high speed connections, it would be nice for
-> dialup/low-speed broadband users to have several download sites to choose
-> from.
->  I would be willing to work with a group to hash out some update policies
-> for the mirror sites if more people are interested and it would be
-> feasible.
-> Sincerely,
->
-> Randy McClelland-Bane
-> http://www.frenzy.org
-> MSN: drekbot@hotmail.com ICQ: 32276169
-> "We must be the change we wish to see
-> in the world." - Mahatma Gandhi
->
->
->
->
->
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
 
 
 --
