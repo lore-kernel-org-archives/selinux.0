@@ -1,53 +1,71 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB25xvRb012562
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 00:59:58 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB26sTRb012703
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 01:54:29 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB25xHp5006295
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 05:59:17 GMT
-Received: from webmail.cedant.com (webmail.cedant.com [216.55.191.201])
-	by jazzswing.ncsc.mil  with ESMTP id hB25xHt0006292
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 05:59:17 GMT
-Received: from webmail.servalens.com (localhost [127.0.0.1])
-	by webmail.cedant.com (8.12.8p2/8.12.8) with SMTP id hB25xtQE052201
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 21:59:55 -0800 (PST)
-	(envelope-from selinux@servalens.com)
-Message-ID: <4156.165.247.144.4.1070344795.squirrel@webmail.servalens.com>
-In-Reply-To: <200312021349.26640.russell@coker.com.au>
-References: <2700.165.247.144.4.1070315301.squirrel@webmail.servalens.com>
-    <200312021349.26640.russell@coker.com.au>
-Date: Mon, 1 Dec 2003 21:59:55 -0800 (PST)
-Subject: Re: Future of selinux/lsm
-From: selinux@servalens.com
+	by jazzswing.ncsc.mil  with ESMTP id hB26rmp5008202
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 06:53:48 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+	by jazzswing.ncsc.mil  with ESMTP id hB26rmt0008199
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 06:53:48 GMT
+Received: from nexus.verbum.private (dhcp024-208-187-170.columbus.rr.com [24.208.187.170])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(Client CN "nexus.verbum.org", Issuer "monk.verbum.org" (verified OK))
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 5862C32A6C0
+	for <selinux@tycho.nsa.gov>; Tue,  2 Dec 2003 01:54:40 -0500 (EST)
+Subject: "new" SELinux 2.4.22 UML kernel patch + sample Debian filesystem
+From: Colin Walters <walters@verbum.org>
 To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FpXaN8S93XVg/b0Jmjv3"
+Message-Id: <1070347847.12634.512.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Date: Tue, 02 Dec 2003 01:50:48 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Well that was really stupid of me to say all that without providing the link.
 
-I read it somewhere about 5 weeks ago. It was a matter of fact
-announcement written by someone that looked like they had a say as to what
-was included in the kernel. So it was written up like a changelog with a
-rant of why LSM was being removed etc. I just assumed from that it was
-common knowledge, but was surprised I didn't see chatter on the web from
-people discussing it.
+--=-FpXaN8S93XVg/b0Jmjv3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So I have been searching the web and my systems looking for the URL or the
-archived HTML file. No luck yet. I am sure I saved it because it was
-significant to an ongoing project. Anyway, maybe it was a hoax. But it
-appeared legit. Maybe I'm losing it.
+Hi,
 
-Anyway. Not important. The feedback just from these few responses I've
-gotten is all I needed going forward. I'll just have to test and think
-about 2.4 with the LSM patches vs. a 2.6 kernel since this deployment will
-be in the next 6 months. I'll be on SLES8 with a custom kernel for
-SELinux.
+I've merged the 2.4.22 LSM patch in Russell's Debian kernel patches with
+the latest 2.4.22 UML bits, and placed the result here:
 
-Thanks.
+http://web.verbum.org/selinux/uml/
 
-Robert
+Additionally, I've created a roomy 350MB Debian sid image (which gzipped
+into just 370kb), set up with the latest Debian sid SELinux packages.=20
+It seems to work fine even in enforcing mode.  I had to disable bootlogd
+though.
 
+It's a great way to play around with SELinux, especially if you use
+UML's copy-on-write filesystem bits.  That way if you mess something up,
+you can just delete your COW file and restart from the base image.
+
+One tip: you will likely want to give your UML at least 64MB of ram;
+setfiles seems to be summarily executed by the OOM killer with less.=20
+Here's how I'm booting the UML:
+
+walters@nexus> ./linux enforcing=3D1 mem=3D64M ubd0=3D/build/uml/debian-se-=
+work.img,/build/uml/debian-se.img eth0=3Dtuntap,tap0
+
+Enjoy!
+
+
+--=-FpXaN8S93XVg/b0Jmjv3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/zDZHOIkJWWp2WGURAiKHAJ0QgqjMDsKZDITaNVV5KQQbVcwRSQCfVrnf
+glSgAh2vIIMgCjJVf96B2aA=
+=b/qb
+-----END PGP SIGNATURE-----
+
+--=-FpXaN8S93XVg/b0Jmjv3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
