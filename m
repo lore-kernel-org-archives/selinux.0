@@ -1,62 +1,58 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82JeOrT002472
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:40:25 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82JeNv0029261
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:40:23 GMT
-Subject: Re: Proposed Hardware File Context file.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
-In-Reply-To: <413741A3.3070305@redhat.com>
-References: <200408241818.40064.russell@coker.com.au>
-	 <41371628.2020408@redhat.com>
-	 <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil>
-	 <200409022338.20644.russell@coker.com.au>
-	 <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil>
-	 <413741A3.3070305@redhat.com>
-Content-Type: text/plain
-Message-Id: <1094153919.17265.375.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 02 Sep 2004 15:38:39 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82Jh6rT002527
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:43:06 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82Jg840008417
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:42:16 GMT
+Message-ID: <413777B3.1090009@redhat.com>
+Date: Thu, 02 Sep 2004 15:42:43 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: Stephen Smalley <sds@epoch.ncsc.mil>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Russell Coker <russell@coker.com.au>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Latest Patches
+References: <200408241818.40064.russell@coker.com.au> <1093640295.24188.29.camel@moss-lions.epoch.ncsc.mil> <200408282346.05926.russell@coker.com.au> <1093897455.3227.6.camel@moss-lions.epoch.ncsc.mil> <41371628.2020408@redhat.com> <1094129654.17265.30.camel@moss-spartans.epoch.ncsc.mil> <41373AEE.1040206@redhat.com> <1094139993.17265.232.camel@moss-spartans.epoch.ncsc.mil> <41374200.3000005@redhat.com> <20040902194822.GI5745@lkcl.net>
+In-Reply-To: <20040902194822.GI5745@lkcl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-09-02 at 11:52, Daniel J Walsh wrote:
-> Collin and I were discussing a way to label hardware devices correctly.
-> 
-> One proposal would be to come up with a new file_contexts file based off 
-> of path and hardware type.
-> 
-> So we could have a file with
-> 
-> /dev/h
-> 
-> /u?dev/[shmx]d[^/]*    -b    system_u:object_r:fixed_disk_device_t
-> /u?dev/[shmx]d[^/]*    -b    system_u:object_r:removable_disk_device_t cdrom
-> 
-> Then either add a param to matchpathcon or a new function that would 
-> pass in the hardware type
-> and get the correct context.
-> 
-> Then tools like udev could use this to create the device with the 
-> correct context.
-> 
-> ideas??
+Luke Kenneth Casson Leighton wrote:
 
-This is separate from the main file_contexts configuration used by
-setfiles, restorecon, and rpm?  If so, what prevents the device from
-being relabeled back to the wrong type by them?  If not, how do they
-determine the hardware type to pass in?  
+>On Thu, Sep 02, 2004 at 11:53:36AM -0400, Daniel J Walsh wrote:
+>
+>  
+>
+>>>That doesn't make it correct.  You can't just change the existing
+>>>labeling behavior and superblock type for the tmpfs internal mount for
+>>>shmem.  As per prior discussions on this list with Luke, you want to:
+>>>- mount tmpfs on /dev with fscontext=system_u:object_r:device_t (James
+>>>sent Arjan the necessary patch for that along with the xattr handler
+>>>based on the earlier patches by Luke)
+>>>
+>>>
+>>>      
+>>>
+>>We can't do that because the file system is mounted in the initrd before 
+>>context is loaded
+>>    
+>>
+>
+> um.  why?  *curious*.
+>
+> i mean, why mount the /dev filesystem in the initrd ?
+>
+> and, also, why before running /sbin/init? [hope i'm right about that]
+> 
+> l.
+>
+>  
+>
+I am guessing certain devices are required before /sbin/init is started.
+Devices required to mount the / file system?
 
-It also isn't clear that you care about the pathname regex or file type
-if you know that you are dealing with a particular hardware type (and
-unit); you can just map those directly to a context.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
