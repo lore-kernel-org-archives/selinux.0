@@ -1,90 +1,130 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91L6gsJ028751
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 17:06:42 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h91L4rZt009224
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 21:04:54 GMT
-Received: from Woody.fw.matav.hu (matav-1.matav.hu [145.236.241.98])
-	by jazzswing.ncsc.mil  with ESMTP id h91L4rM3009221
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 21:04:53 GMT
-Date: Wed, 1 Oct 2003 20:57:58 +0000
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [selinux] Re: X Windows discussion
-Message-ID: <20031001205758.GD13500@bunuel.tii.matav.hu>
-References: <1064880029.5342.349.camel@moss-tarheels.epoch.ncsc.mil> <200309301631.12831.wlsel@verizon.net> <200310011534.09826.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-In-Reply-To: <200310011534.09826.russell@coker.com.au>
-From: mag@bunuel.tii.matav.hu (Magosányi Árpád)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91LdnsJ029126
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 17:39:49 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h91Ldm7d002427
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 21:39:48 GMT
+Received: from out002.verizon.net (out002pub.verizon.net [206.46.170.141])
+        by jazzband.ncsc.mil  with ESMTP id h91LdmRn002424 for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 21:39:48 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: russell@coker.com.au, SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Re: SE-X and Crypto Discussions
+Date: Wed, 1 Oct 2003 17:42:09 -0400
+References: <200309302141.31559.wlsel@verizon.net> <200310011518.30077.russell@coker.com.au>
+In-Reply-To: <200310011518.30077.russell@coker.com.au>
+MIME-Version: 1.0
+Message-Id: <200310011742.09393.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A levelezõm azt hiszi, hogy Russell Coker a következõeket írta:
-> Are many people running systems where screen capture speed is a bottleneck?
 
-I am not in that set, if it does matter:)
+I digested what you said here, Eamon's earlier comments about authentication, 
+and my initial sketches of SE-N.
 
-> For local connections we control access to the Unix domain socket and to the 
-> TCP port.  For remote connections the only sensible thing to do is to use ssh 
-> tunneling.  You just have to avoid doing "ssh -X untrusted-host" (you would 
-> be amazed how many people try to do X forwarding from my play machine).
+I concur that SSH already solves the authentication and tunneling concerns.
 
-No. What if my environment have proper physical security, and consists
-of one or more trusted hosts being on the same switched network (for
-example I use the multilevel packet switch certified TCSEC A1 :), and
-some untrusted hosts being either on the same switched network or
-at the far end of some router or firewall? Or -horribile dictu-
-my site is connected to other similar enclaves through ipsec or
-ssl channels, which channels end in a firewall/guard which is able
-to properly label the traffic either through CIPSO or RIPSO,
-or putting source tcp ports/ip addresses to predefined
-intervalls/values?
+The issue now is how to transmit the remote Xclient's security context to the 
+Xserver in a secure and trustworthy manner, so that the Xserver can (per your 
+example) protect your trusted application from your IRC client.
 
-The above is a set of assumptions which can be more or less easily
-satisfied (well, me buying an A1 switch was just a joke, but if you
-have a spare one, I will give you my postal address ;). With this
-set of assumptions you do not have to need X forwarding.
+The simplest approach would be to modify SSH to obtain the Xclient's context 
+and then send it through the tunnel such that it is made available to the 
+Xserver via the existing kernel interfaces.  The problem is that this is a 
+ugly hack, it limits future inter-system context exchanging to an SSH 
+paradigm, and worse will likely become a vulnerability as it presents an 
+target for a skillful adversary to spoof the client security context to the 
+Xserver--or whichever other server might choose to follow this precedent.
 
-Anyway, the main point here is not cryptography, but authentication.
-And authentication should be done by Xauthority, I think.
+Properly, there has to be a uniform isolation of the inter-system security 
+context exchanging apparatus so that it is completely invisible (and thereby 
+inaccessible) to the end users.  Security-aware apps/servers would only 
+indirectly invoke the apparatus when, for example, they requested a security 
+context via, say, getsockopt() (and whose security extension can be 
+controlled within policy).  System Administrators would see it only when they 
+have to configure their hosts (more on this later).
 
-> As for labeled networking, requiring IPSEC is a difficult issue, many people 
-> have deployed networks with other systems and are not in a hurry to change.  
+The only way I can see to achieve this level of protection is to enhance the 
+labeled networking option's concept of a "security perimeter" by encrypting 
+the security contexts it stores in the IP Options field, using keys that are 
+maintained by the kernel, so that the machine can not only accept both 
+labeled and unlabeled traffic but can also securely transmit the security 
+contexts over untrusted networks without the potential for being spoofed.
 
-Yes, and even naked cipso/ripso are not a real option.
+Cooperating SysAdmins can configure which hosts they'll exchange security 
+contexts with (thus defining which security perimeters they are members of) 
+by installing the public keys of those hosts within their machines (and maybe 
+some mapping information to deal with heterogenous policy differences).  They 
+would also have to open their firewalls to allow incoming traffic to the 
+apparatus's listener.
 
-____And here comes the important part:____
+The result of this is that when a security-aware server--not just Xserver, but 
+any server--receives an incoming connection request, it can ask for the 
+client's security context with a simple getsockopt() and enforce policy 
+accordingly (or whatever it wants to do based on the context).  If 
+getsockopt() reports no context associated with the socket, then the server 
+can resort to a "catch-all" policy or perhaps refuse the connection.
 
-Having labels communicated to the packet filter IS an option which can be
-relatively easily done, and can be used for communicating labels in a
-multitude of ways through nodes.
-Here are some scenarios which can be done if labels are translated to
-netfilter marks:
+This is SE-N:  Simple, elegant, and minimizes if not outright eliminates 
+altogether openings for hackers to attack and/or spoof.  I just don't see how 
+SSH, with the client side hopelessly under user control, can be made as 
+secure for the purpose of exchanging security contexts that ultimately will 
+affect policy enforcement.  If it can, show me where and how I'm missing it.
 
-1. outgoing packets can be SNAT-ed to either some port ranges or source
-addresses based on label. In this way the other end can directly attach
-the appropriate label to the traffic with the existing capabilities.
+If it would help, I'll be happy to flesh SE-N out further in the form of a 
+design specification.
 
-2. same for routing decisions to always go through trusted paths.
+Bill
 
-3. my favourite multilevel network protocol is plain old http(s),
-with a X-security-level: or similar header. Wrap-in to this protocol
-is easily implementable, wrap-out is actually implemented by Zorp.
-We just need the labels, which can be picked up from the netfilter
-mark, or with mechanisms given in point 1.
 
-I guess that the main point is to have a way for the network mechanisms
-to attach the label to the outgoing traffic in a manner which can be
-handled by them by their usual habit.
-
-> If we demand that all networked SE-X users have IPSEC and labeled networking 
-> running then we'll greatly delay any use of the technology.
-
-And if we have iptable_semark module, we'll greatly speed it up...
-
--- 
-GNU GPL: csak tiszta forrásból
+On Wednesday 01 October 2003 01:18 am, Russell Coker wrote:
+> On Wed, 1 Oct 2003 11:41, Bill Laut wrote:
+> > I think this question is likely best directed to either Stephen or
+> > Howard.
+> >
+> > I'm breaking this specific question out of the "X Windows Discussion"
+> > thread so that it can be addressed separately by the appropriate
+> > authority. Namely, it is my understanding that NSA employees are
+> > forbidden from discussing cryptology in forums such as this one. 
+> > Unfortunately, the X Windows thread will eventually have to address such
+> > topics if we are to have meaningful dialog on how best to transmit policy
+> > data over potentially untrustworthy networks.
+>
+> Why not just tunnel it over ssh?
+>
+> X tunneling over ssh works well, what do you think needs to be done that
+> can't be done via ssh?
+>
+> ssh allows the client and the server to cryptographically prove their
+> identity to each other.  The ssh client has appropriate authorization to
+> connect to the X server, and the ssh server can start the X client process.
+>
+> The problem we need to solve is how to manage different X connections
+> having different privs.  If I login to a trusted-host and want to run a
+> trusted application and an IRC client, then how do I make sure that my
+> trusted application's X window is protected from my IRC client?  As ssh
+> currently doesn't support a choice of login contexts this is difficult to
+> arrange unless we login to different Unix accounts.  It's not difficult to
+> create two accounts with the same UID but different default roles for SE
+> Linux, it is a bit of a hack though.
+>
+> Another possibility is to use different identity files in ssh and have
+> different environment= options in the authorized_keys file.  This is
+> perhaps a grosser hack, but it's user-controlled.  If we are going to
+> implement hack solutions then perhaps we want both administrator and user
+> controlled versions.
+>
+> If we determine that ssh in it's current form is incapable of doing what we
+> want then we can modify it.  Such modifications do not require any changes
+> to the crypto code, and as the NSA has already published similar ssh
+> patches (the SE Linux patch) they obviously have no problems with such
+> things.
+>
+> For upstream X server development the addition of SSL support would
+> probably be a good thing.  But I don't think that has to be directly
+> related to SE Linux work (although we will surely use it if someone else
+> develops it).
 
 
 --
