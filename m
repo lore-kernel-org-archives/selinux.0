@@ -1,77 +1,50 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: policy patches
-Date: Thu, 30 Sep 2004 06:20:41 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <200409292354.15227.russell@coker.com.au> <20040929174540.GA4373@rom.cip.ifi.lmu.de>
-In-Reply-To: <20040929174540.GA4373@rom.cip.ifi.lmu.de>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ZkxWBO06lnK2Yw5"
-Message-Id: <200409300620.41527.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8TLoPrT019427
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 17:50:25 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8TLoFjQ000017
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 21:50:19 GMT
+Date: Wed, 29 Sep 2004 23:01:16 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: Access to xdm_t
+Message-ID: <20040929220116.GE5873@lkcl.net>
+References: <20040929163222.GA4125@rom.cip.ifi.lmu.de> <200409300350.06284.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200409300350.06284.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, Sep 30, 2004 at 03:50:06AM +1000, Russell Coker wrote:
 
---Boundary-00=_ZkxWBO06lnK2Yw5
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > Also, is it OK to dontaudit access to .xsession-errors (on SuSE it lives
+> > under ~ and I do not want to give all derived user domains access to user's
+> > home dir). Or will this cause errors with some programs?
+> 
+> That should be fine.
+ 
+ thomas, when you've done that could you kindly send an appropriate
+ patch in, and could it please be considered for inclusion in the
+ strict policy, because i'm fed up of hacking in the audit messages
+ to get rid of xsession-errors access all the time!
 
-On Thu, 30 Sep 2004 03:45, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
-wrote:
-> > +ifdef(`unlimitedUsers', `
-> > +role staff_r types rpm_t;
-> > +domain_auto_trans(staff_t, rpm_exec_t, rpm_t)
-> > +')
->
-> AFAIK unlimitedUsers was removed recently, so this snippet makes no
-> sense anymore.
+ ... that having been said, what happens when you _need_ to know what
+ errors a program (kvm - a program in development) is generating?
 
-Thanks, I've removed that from my tree.
-
-> On Debian, it's
-> /usr/sbin/nagios                --      system_u:object_r:nagios_exec_t
-> and
-> /usr/lib/cgi-bin/nagios         --      system_u:object_r:nagios_cgi_exec_t
->
-> These should be added also.
-
-Thanks for that.  I've attached a new nagios.fc with that change.
+ l.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
---Boundary-00=_ZkxWBO06lnK2Yw5
-Content-Type: text/plain;
-  charset="iso-8859-15";
-  name="nagios.fc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="nagios.fc"
-
-# nagios - network monitoring server
-/var/log/netsaint(/.*)?			system_u:object_r:nagios_log_t
-/usr/lib(64)?/netsaint/plugins(/.*)?		system_u:object_r:bin_t
-/usr/lib(64)?/cgi-bin/netsaint/.+	--	system_u:object_r:nagios_cgi_exec_t
-# nagios
-ifdef(`distro_debian', `
-/usr/sbin/nagios		--	system_u:object_r:nagios_exec_t
-/usr/lib/cgi-bin/nagios/.+	--	system_u:object_r:nagios_cgi_exec_t
-', `
-/usr/bin/nagios			--	system_u:object_r:nagios_exec_t
-/usr/lib(64)?/nagios/cgi/.+	--	system_u:object_r:nagios_cgi_exec_t
-')
-/etc/nagios(/.*)?			system_u:object_r:nagios_etc_t
-/var/log/nagios(/.*)?			system_u:object_r:nagios_log_t
-/usr/lib(64)?/nagios/plugins(/.*)?	system_u:object_r:bin_t
-
---Boundary-00=_ZkxWBO06lnK2Yw5--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
