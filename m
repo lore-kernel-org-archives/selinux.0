@@ -1,54 +1,128 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i67ImWrT008004
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 14:48:32 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i67ImVaX004656
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 18:48:31 GMT
-Subject: Re: Question
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Christopher Soghoian <genome4hire@dubfire.net>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <20040705162019.A5156@sphinx.mythic-beasts.com>
-References: <20040705162019.A5156@sphinx.mythic-beasts.com>
-Content-Type: text/plain
-Message-Id: <1089226058.1774.182.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i67JvorT008425
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 15:57:50 -0400 (EDT)
+Subject: Re: New SE-DBUS patch
+From: Colin Walters <walters@redhat.com>
+To: Matthew Rickard <mjricka@epoch.ncsc.mil>
+Cc: dbus@freedesktop.org, selinux@tycho.nsa.gov
+In-Reply-To: <1088690606.2625.34.camel@moss-tarheels.epoch.ncsc.mil>
+References: <1088088202.6679.35.camel@prometheus.epoch.ncsc.mil>
+	 <1088180362.12016.27.camel@localhost.localdomain>
+	 <1088690606.2625.34.camel@moss-tarheels.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kaFn1duIOBFPYyQKMuvQ"
+Date: Wed, 07 Jul 2004 15:56:50 -0400
+Message-Id: <1089230210.31994.8.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Date: Wed, 07 Jul 2004 14:47:38 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-07-05 at 11:20, Christopher Soghoian wrote:
-> What we'd like to be able to do, is to freeze the process right before
-> the read/write request gets rejected.. and then call a script, which
-> can gather some forensic information on the process.
-> 
-> It's important for us to be able to do this -before- the process's request
-> is rejected.
-> 
-> I don't think theres anything in place right now to do this (or am I wrong?),
-> but could someone please let me know how difficult it would be to add this,
-> and where the code would have to go?
-> 
-> Ideally, we'd like to do a `kill -s SIGSTOP` on the process, and then run
-> a script (passing in the misbehaving pid).
 
-You would need to be selective in the set of permission checks that
-triggered such behavior, as some permissions checks are called at points
-where it would not be safe for you to block in this manner (e.g. kernel
-locks may be held, or you may not even be in process context).  You
-could introduce an additional access vector for this purpose, similar to
-the existing vectors that control the auditing behavior.  You could then
-modify avc_has_perm_noaudit() to (after releasing its own lock) call
-force_sig_specific(SIGSTOP, current) if a) in process context, and b)
-the requested permissions were denied, and c) the denied permissions
-were present in the new vector, and to then call call_usermodehelper()
-to run your script.  Or you could do likewise in specific hook
-functions, e.g. selinux_inode_permission(), if you only wanted to apply
-such behavior to specific hooks.
+--=-kaFn1duIOBFPYyQKMuvQ
+Content-Type: multipart/mixed; boundary="=-5hBauo5BY3PwN9SIlYez"
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
+--=-5hBauo5BY3PwN9SIlYez
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+I'm testing out the Matthew's SE-DBUS stuff, and due to the new netlink
+classes, the dbus classes have to be moved later in the flask
+definitions in order to prevent conflict.  It would be a good idea I
+think to apply the flask changes now, so things don't have to be
+adjusted when more new classes are defined.
+
+Also I needed the following changes to the D-BUS SELinux policy itself
+to get it to run.  Since a number of the changes I think affect any
+userspace object manager, I abstracted it out into a new attribute that
+could also be applied to e.g. SE-X.
+
+I'm working on testing the service activation bits now.
+
+
+--=-5hBauo5BY3PwN9SIlYez
+Content-Disposition: attachment; filename=dbus-flask-0.2.diff
+Content-Type: text/x-patch; name=dbus-flask-0.2.diff; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+LS0tIGFjY2Vzc192ZWN0b3JzfgkyMDA0LTA2LTMwIDExOjQ4OjM1LjAwMDAwMDAwMCAtMDQwMA0K
+KysrIGFjY2Vzc192ZWN0b3JzCTIwMDQtMDctMDYgMTM6Mzk6NTIuMDQ1NTM4MTM2IC0wNDAwDQpA
+QCAtNTQ5LDMgKzU0OSwxMyBAQA0KIA0KIGNsYXNzIG5ldGxpbmtfZG5ydF9zb2NrZXQNCiBpbmhl
+cml0cyBzb2NrZXQNCisNCisjIERlZmluZSB0aGUgYWNjZXNzIHZlY3RvciBpbnRlcnByZXRhdGlv
+biBmb3IgY29udHJvbGxpbmcNCisjIGFjY2VzcyBhbmQgY29tbXVuaWNhdGlvbiB0aHJvdWdoIHRo
+ZSBELUJVUyBtZXNzYWdpbmcNCisjIHN5c3RlbS4NCisjDQorY2xhc3MgZGJ1cw0KK3sNCisJYWNx
+dWlyZV9zdmMNCisJc2VuZF9tc2cNCit9DQotLS0gc2VjdXJpdHlfY2xhc3Nlc34JMjAwNC0wNi0z
+MCAxMTo0ODozNS4wMDAwMDAwMDAgLTA0MDANCisrKyBzZWN1cml0eV9jbGFzc2VzCTIwMDQtMDct
+MDYgMTM6Mzk6MDYuMDkzNTIzOTA0IC0wNDAwDQpAQCAtNzQsNCArNzQsNiBAQA0KIGNsYXNzIG5l
+dGxpbmtfaXA2Zndfc29ja2V0DQogY2xhc3MgbmV0bGlua19kbnJ0X3NvY2tldA0KIA0KK2NsYXNz
+IGRidXMNCisNCiAjIEZMQVNLDQo=
+
+
+--=-5hBauo5BY3PwN9SIlYez
+Content-Disposition: attachment; filename=se-dbus.patch
+Content-Type: text/x-patch; name=se-dbus.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+LS0tIC9kZXYvbnVsbAkyMDA0LTA2LTI0IDEzOjU4OjQwLjAwMDAwMDAwMCAtMDQwMA0KKysrIHBv
+bGljeS9kb21haW5zL3VzZXJzcGFjZV9vYmptZ3IudGUJMjAwNC0wNy0wNiAxNzozNzoxNS4wMDAw
+MDAwMDAgLTA0MDANCkBAIC0wLDAgKzEsOSBAQA0KKyNERVNDIFVzZXJzcGFjZSBPYmplY3QgTWFu
+YWdlcnMNCisjDQorIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorDQorY2FuX2dl
+dHNlY3VyaXR5KHVzZXJzcGFjZV9vYmptZ3IpDQorIyBGb3IgZGV0ZXJtaW5pbmcgU0VMaW51eCBw
+b2xpY3kgdHlwZQ0KK2FsbG93IHVzZXJzcGFjZV9vYmptZ3Igc2VsaW51eF9jb25maWdfdDpmaWxl
+IHsgZ2V0YXR0ciByZWFkIH07DQorIyBGb3Igbm90aWZpY2F0aW9ucyBvZiBwb2xpY3kgcmVsb2Fk
+cw0KK2FsbG93IHVzZXJzcGFjZV9vYmptZ3Igc2VsZjpuZXRsaW5rX3NlbGludXhfc29ja2V0IHsg
+Y3JlYXRlIGJpbmQgcmVhZCB9Ow0KLS0tIC9zcmMvd29yay9ycG1zL3NlbGludXgtcG9saWN5LXN0
+cmljdC9ub2FyY2gvZXRjL3NlbGludXgvc3RyaWN0L3NyYy9wb2xpY3kvZG9tYWlucy9wcm9ncmFt
+L2RidXNkLnRlCTIwMDQtMDctMDcgMTU6Mzk6NDIuNDYzNjMxOTQ0IC0wNDAwDQorKysgcG9saWN5
+L2RvbWFpbnMvcHJvZ3JhbS9kYnVzZC50ZQkyMDA0LTA3LTA3IDEyOjExOjQ1LjU3MTQwNzg3MiAt
+MDQwMA0KQEAgLTIsMjAgKzIsMjQgQEANCiAjDQogIyBBdXRob3I6ICBSdXNzZWxsIENva2VyIDxy
+dXNzZWxsQGNva2VyLmNvbS5hdT4NCiANCi1kYWVtb25fZG9tYWluKGRidXNkKQ0KK2RhZW1vbl9k
+b21haW4oZGJ1c2QsIGAsIHVzZXJzcGFjZV9vYmptZ3InKQ0KIHR5cGUgZXRjX2RidXNkX3QsIGZp
+bGVfdHlwZSwgc3lzYWRtZmlsZTsNCiANCiBhbGxvdyBkYnVzZF90IGRidXNkX3Zhcl9ydW5fdDpz
+b2NrX2ZpbGUgeyBjcmVhdGUgZ2V0YXR0ciBzZXRhdHRyIHVubGluayB9Ow0KIA0KIHJfZGlyX2Zp
+bGUoZGJ1c2RfdCwgZXRjX2RidXNkX3QpDQogYWxsb3cgZGJ1c2RfdCBzZWxmOnVuaXhfc3RyZWFt
+X3NvY2tldCBjcmVhdGVfc3RyZWFtX3NvY2tldF9wZXJtczsNCithbGxvdyBkYnVzZF90IHNlbGY6
+dW5peF9kZ3JhbV9zb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsNCiANCiBhbGxvdyBkYnVzZF90
+IGV0Y190OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsNCiAjIGRhY19vdmVycmlkZTogL3Zhci9ydW4v
+ZGJ1cyBpcyBvd25lZCBieSBtZXNzYWdlYnVzIG9uIERlYmlhbg0KIGFsbG93IGRidXNkX3Qgc2Vs
+ZjpjYXBhYmlsaXR5IHsgZGFjX292ZXJyaWRlIHNldGdpZCBzZXR1aWQgfTsNCithbGxvdyBkYnVz
+ZF90IHNlbGY6ZmlsZSB7IGdldGF0dHIgcmVhZCB9Ow0KK2FsbG93IGRidXNkX3QgcHJvY190OmZp
+bGUgeyByZWFkIH07DQogDQogIyBJIGV4cGVjdCB3ZSBuZWVkIG1vcmUgdGhhbiB0aGlzDQogYWxs
+b3cgeyBkYnVzX2NsaWVudF9kb21haW4gdXNlcmRvbWFpbiB9IGRidXNkX3Zhcl9ydW5fdDpkaXIg
+c2VhcmNoOw0KIGFsbG93IHsgZGJ1c19jbGllbnRfZG9tYWluIHVzZXJkb21haW4gfSBkYnVzZF92
+YXJfcnVuX3Q6c29ja19maWxlIHsgd3JpdGUgfTsNCiBhbGxvdyB7IGRidXNfY2xpZW50X2RvbWFp
+biB1c2VyZG9tYWluIH0gZGJ1c2RfdDp1bml4X3N0cmVhbV9zb2NrZXQgeyBjb25uZWN0dG8gfTsN
+CithbGxvdyB7IGRidXNfY2xpZW50X2RvbWFpbiB1c2VyZG9tYWluIH0gZGJ1c2RfdDpkYnVzIHsg
+c2VuZF9tc2cgfTsNCiBjYW5feXBiaW5kKGRidXNkX3QpDQotLS0gL3NyYy93b3JrL3JwbXMvc2Vs
+aW51eC1wb2xpY3ktc3RyaWN0L25vYXJjaC9ldGMvc2VsaW51eC9zdHJpY3Qvc3JjL3BvbGljeS9h
+dHRyaWIudGUJMjAwNC0wNy0wNyAxNTozOTo0Mi40NTU2MzMxNjAgLTA0MDANCisrKyBwb2xpY3kv
+YXR0cmliLnRlCTIwMDQtMDctMDYgMTc6MTE6NTIuMDAwMDAwMDAwIC0wNDAwDQpAQCAtNTksNiAr
+NTksMTAgQEANCiAjIGNvbnN0cmFpbnRzIGNvbmZpZ3VyYXRpb24uDQogYXR0cmlidXRlIHByaXZy
+b2xlOw0KIA0KKyMgVGhlIHVzZXJzcGFjZV9vYmptZ3IgYXR0cmlidXRlIGlkZW50aWZpZXMgZXZl
+cnkgZG9tYWluDQorIyB3aGljaCBlbmZvcmNlcyBpdHMgb3duIHBvbGljeS4NCithdHRyaWJ1dGUg
+dXNlcnNwYWNlX29iam1ncjsNCisNCiAjIFRoZSBwcml2X3N5c3RlbV9yb2xlIGF0dHJpYnV0ZSBp
+ZGVudGlmaWVzIGV2ZXJ5IGRvbWFpbiB0aGF0IGNhbg0KICMgY2hhbmdlIHJvbGUgZnJvbSBhIHVz
+ZXIgcm9sZSB0byBzeXN0ZW1fciByb2xlLCBhbmQgaWRlbnRpdHkgZnJvbSBhIHVzZXINCiAjIGlk
+ZW50aXR5IHRvIHN5c3RlbV91LiAgSXQgaXMgdXNlZCBpbiB0aGUgY29uc3RyYWludHMgY29uZmln
+dXJhdGlvbi4NCg==
+
+
+--=-5hBauo5BY3PwN9SIlYez--
+
+--=-kaFn1duIOBFPYyQKMuvQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA7FWCOIkJWWp2WGURAmFjAJ9ty18eayEvvIwlLvPDo5ewSWt/RACfSugF
+I9ybmOLvKauGRr4Y6dADSMY=
+=kr5X
+-----END PGP SIGNATURE-----
+
+--=-kaFn1duIOBFPYyQKMuvQ--
 
 
 --
