@@ -1,31 +1,35 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j31KTGDo015166
-	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2005 15:29:17 -0500 (EST)
-Subject: Re: patch: cleanup uses of notdevfile_class_set
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j31KYvDo015282
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2005 15:34:57 -0500 (EST)
+Subject: Re: [patch] tighten fetchmail policy
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Greg Norris <haphazard@kc.rr.com>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050330165215.GD5791@thorium.jmh.mhn.de>
-References: <20050330165215.GD5791@thorium.jmh.mhn.de>
+In-Reply-To: <20050330014646.GA19610@yggdrasil.localdomain>
+References: <20050330014646.GA19610@yggdrasil.localdomain>
 Content-Type: text/plain
-Date: Fri, 01 Apr 2005 15:29:00 -0500
-Message-Id: <1112387340.9437.25.camel@moss-lions.epoch.ncsc.mil>
+Date: Fri, 01 Apr 2005 15:34:36 -0500
+Message-Id: <1112387676.9437.31.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+Merged, except for this little bit.
+Better to use r_file_perms and allow the lock permission, unless there
+is a good reason not to allow lock.
 
-On Wed, 2005-03-30 at 18:52 +0200, Thomas Bleher wrote:
-> This patch replaces uses of allow ...:notdevfile_class_set r_file_perms;
-> with r_dir_file(). This should be no problem normally; user_t used to
-> have access to sock_file and fifo_file under /var and /var/spool - I
-> have removed this access, if there are any files where access is really
-> needed they should probably get extra types.
+On Tue, 2005-03-29 at 19:46 -0600, Greg Norris wrote:
+>  
+>  # file access
+> -allow fetchmail_t etc_t:file r_file_perms;
+> -allow fetchmail_t fetchmail_etc_t:file r_file_perms;
+> +allow fetchmail_t etc_t:file { read getattr ioctl };
+> +allow fetchmail_t fetchmail_etc_t:file { read getattr ioctl };
+>  allow fetchmail_t mail_spool_t:dir search;
+>  file_type_auto_trans(fetchmail_t, mail_spool_t,
+> fetchmail_uidl_cache_t, file)
 > 
-> Please apply.
-> Thomas
 > 
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
