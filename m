@@ -1,27 +1,27 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA13466
-	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 09:43:58 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA05179
-	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 14:42:01 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id OAA05175 for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 14:41:59 GMT
-Date: Fri, 1 Nov 2002 09:42:55 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: <azeredo@qmc.ufsc.br>
-cc: <selinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA13394
+	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 09:37:10 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA00525
+	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 14:35:15 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id OAA00507
+	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 14:35:09 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: azeredo@qmc.ufsc.br, <selinux@tycho.nsa.gov>
 Subject: Re: Problems with policy in RH8
+Date: Fri, 1 Nov 2002 15:36:36 +0100
+References: <Pine.LNX.4.33.0211011219430.2804-100000@quark.qmc.ufsc.br>
 In-Reply-To: <Pine.LNX.4.33.0211011219430.2804-100000@quark.qmc.ufsc.br>
-Message-ID: <Pine.LNX.4.33.0211010930310.16058-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200211011536.36890.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 1 Nov 2002 azeredo@qmc.ufsc.br wrote:
-
->
->
+On Fri, 1 Nov 2002 15:37, azeredo@qmc.ufsc.br wrote:
 >   I saw at the  mail list someone was trying to get selinux to run in RH8.
 > I am trying too. And got many audit messages. The first one was:
 >
@@ -29,22 +29,16 @@ On Fri, 1 Nov 2002 azeredo@qmc.ufsc.br wrote:
 > path=/lib/libnss_files-2.2.93.so dev=16:01 ino=159491
 > scontext=system_u:system_r:initrc_t
 > tcontext=system_u:obeject_r:var_spool_t tclass=file
->
 
-  It looks like the file '/lib/libnss_files-2.2.93.so' is labeled
-incorrectly. Did you rerun 'make relabel' as shown in step 16 of the
-README after booting into SELinux?
-
-  If you look at the policy/file_contexts/types.fc, you'll see the
-specification for labeling /lib, and that file should be labeled as
-system_u:object_r:shlib_t.
-
-  We have run SELinux with RH8.
+That file should be labelled system_u:object_r:shlib_t not 
+system_u:obeject_r:var_spool_t.  I think that if you entirely relabel your 
+system then most of the problems will disappear.
 
 -- 
-Wayne Salamon
-wsalamon@tislabs.com
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
