@@ -1,49 +1,39 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2EaXXZ005840
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 09:36:34 -0500 (EST)
-Received: from oe-im2.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2EZD4G010066
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 14:35:13 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
-Cc: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
-   "'Chad Hanson'" <chanson@TrustedCS.com>,
-   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>, <selinux@tycho.nsa.gov>
-Subject: RE: dynamic context transitions
-Date: Tue, 2 Nov 2004 09:36:28 -0500
-Message-ID: <00bc01c4c0e9$59d01aa0$1e0c010a@columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1099405366.31739.65.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2EhgXZ005921
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 09:43:42 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2EgL4G010595
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 14:42:22 GMT
+Subject: Re: Patch to make can_network stronger and remove nscd tunable.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41879A1B.40103@redhat.com>
+References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de>
+	 <1099078308.12321.96.camel@moss-lions.epoch.ncsc.mil>
+	 <418661C8.8000801@redhat.com> <200411030027.28875.russell@coker.com.au>
+	 <41879A1B.40103@redhat.com>
+Content-Type: text/plain
+Message-Id: <1099406385.31739.77.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 02 Nov 2004 09:39:45 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> MLS requires some way to identify trusted subjects and grant them the
-> necessary privileges to override the BLP restrictions.  How would you
-> do it?  Conventional approaches include POSIX.1e capabilities (e.g.
-> if the process has the CAP_MAC_WRITE capability, it can write down)
-> or TE (e.g. if the policy contains "allow foo_t bar_t:file
-> mls_writedown;" then a process in "foo_t" can write down to files
-> labeled "bar_t").  Either approach lets you bind MLS privileges to
-> specific programs, but the TE-based approach is clearly finer-grained
-> (per-object) and provides better support for protecting and isolating
-> the trusted subject.  We didn't invent this idea, TE has been used in
-> this manner from the beginning IIUC (and we have certainly used it in
-> this manner in research predecessors of SELinux).
+On Tue, 2004-11-02 at 09:30, Daniel J Walsh wrote:
+> ypbind.
+> 
+> I will add
+> 
+> allow $1_t self:capability net_bind_service; to ypbind.
 
-OK, then TE is deemed a more fundamental protection scheme, like rings, and MLS
-a higher-level access control policy dependent upon TE's protection features.
-I'm OK with that model, as long as we treat the TE more basic and important than
-MLS, and not contort TE to fix MLS problems.  
+Will it work without the permission, e.g. if you just dontaudit the
+permission?
 
-I better understand the desire now, it truly isn't related to MLS, but TE
-privilege management in general.  The problem truly is the lack of an efficient
-means to switch between domains. I would suggest our continued exploring more
-controlled means of managing privilege (such the type hierarchy I mentioned)
-than the ability to state arbitrary relationships (if we must go down this
-path).  Frank
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
