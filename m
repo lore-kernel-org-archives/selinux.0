@@ -1,57 +1,135 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7PNpwrT009958
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 19:51:59 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7PNp9LV007436
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 23:51:11 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
-Date: Thu, 26 Aug 2004 09:51:48 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040823214228.GA13677@lkcl.net> <200408252357.08855.russell@coker.com.au> <20040825162035.GA7260@lkcl.net>
-In-Reply-To: <20040825162035.GA7260@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408260951.48939.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7Q7XNrT011402
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 03:33:25 -0400 (EDT)
+Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7Q7XL0g005361
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 07:33:22 GMT
+Received: from [212.227.126.206] (helo=mrelayng.kundenserver.de)
+	by moutng.kundenserver.de with esmtp (Exim 3.35 #1)
+	id 1C0El8-0004n3-00
+	for selinux@tycho.nsa.gov; Thu, 26 Aug 2004 09:33:22 +0200
+Received: from pd953a87a.dip.t-dialin.net ([217.83.168.122] helo=localhost)
+	by mrelayng.kundenserver.de with asmtp (TLSv1:DES-CBC3-SHA:168)
+	(Exim 3.35 #1)
+	id 1C0El6-0008Tn-00
+	for selinux@tycho.nsa.gov; Thu, 26 Aug 2004 09:33:20 +0200
+Date: Thu, 26 Aug 2004 09:33:21 +0200
+From: Stefan SF <stefan@sf-net.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: policy for scponly - need help
+Message-ID: <20040826073321.GA16772@crux.sternplastic>
+References: <20040819173620.GA8543@crux.localdomain> <1092967183.29540.30.camel@nexus.verbum.private> <20040820080156.GA8602@crux.sternplastic> <1093009277.4336.11.camel@nexus.verbum.private> <20040820162215.GA15914@crux.sternplastic>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+In-Reply-To: <20040820162215.GA15914@crux>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 26 Aug 2004 02:20, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > udev uses the same file_contexts file, so it should work.  The only
-> > possible problem I can think of is that if you have a machine which boots
-> > without IDE disk access and which has no IDE modules loaded at the time
-> > that it has the file_contexts file generated then this would not work
-> > (think of servers that have IDE CD-ROM or DVD drives but hardware RAID or
-> > SCSI for main storage).
-> >
-> > Of course this is not necessarily a problem, Fedora kernels have the IDE
-> > drivers statically linked into the kernel, and there were some issues
-> > last time I tried building a Debian kernel with IDE as a module so the
-> > number of people who might get hit by this is very small.
->
->  ... initrd.  initial ramdisk.  contains all ide drivers, 'n'stuff.
 
-Last time I was doing this there were some kernel bugs related to IDE drivers.  
-One of which was having two drivers which need symbols that the other exports 
-(so it was impossible to load them).  At the time almost no testing was being 
-done on this and it didn't seem that the problem was going to be fixed in a 
-reasonable amount of time.
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I gave up using an initrd in Debian at about the same time.  The problem was 
-that the Debian mkinitrd program tried to work out too many things about the 
-system by itself.  This made it difficult if it's guesses were wrong, or if 
-you wanted to prepare an initrd for a different configuration (either for a 
-significant configuration change or making an initrd for use on another 
-machine).
+Hi,
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+ok, I've altered the rules and hope that there is no big hole in it ;-)
+So here are the files:
+
+
+
+domains/program/scponly.te
+#DESC scponly - A shell which provides only scp/sftp access
+#
+# It's based on Colin Walters "rssh" policy
+
+type scponly_exec_t, file_type, exec_type, sysadmfile;
+
+ifdef(`ssh.te',`
+allow sshd_t scponly_exec_t:file { getattr execute read };
+allow trade_t scponly_exec_t:file { entrypoint };
+')
+
+
+
+macros/program/scponly_macros.te
+#DESC scponly - A shell which provides only scp/sftp access
+#
+# It's based on Colin Walters "rssh" policy
+
+undefine(`scponly_domain')
+ifdef(`scponly.te', `
+define(`scponly_domain',`
+type scponly_$1_t, domain, userdomain, privlog, privfd;
+role scponly_$1_r types scponly_$1_t;
+allow system_r scponly_$1_r;
+
+# types for correct labeling
+type scponly_$1_home_dir_t, file_type, sysadmfile;
+type scponly_$1_home_t, file_type, sysadmfile;
+type scponly_$1_home_ssh_t, file_type, sysadmfile;
+
+# types for read and write
+type scponly_$1_rw_t, file_type, sysadmfile;
+type scponly_$1_ro_t, file_type, sysadmfile;
+
+general_domain_access(scponly_$1_t);
+uses_shlib(scponly_$1_t);
+base_file_read_access(scponly_$1_t);
+r_dir_file(scponly_$1_t, etc_t);
+r_dir_file(scponly_$1_t, etc_runtime_t);
+can_exec(scponly_$1_t, bin_t);
+
+# basic read/write
+r_dir_file(scponly_$1_t, scponly_$1_ro_t);
+create_dir_file(scponly_$1_t, scponly_$1_rw_t);
+
+# scponlyc needs to chroot
+allow scponly_$1_t scponly_$1_t:capability { dac_override dac_read_search setuid sys_chroot };
+allow scponly_$1_t scponly_$1_home_dir_t:dir { getattr read search };
+allow scponly_$1_t scponly_$1_ro_t:file { execute execute_no_trans };
+
+ifdef(`ssh.te',`
+allow scponly_$1_t sshd_t:unix_stream_socket rw_stream_socket_perms;
+r_dir_file(sshd_t, scponly_$1_ro_t);
+domain_trans(sshd_t, scponly_exec_t, scponly_$1_t);
+')
+')
+
+', `
+
+define(`scponly_domain',`')
+
+')
+
+
+
+file_contexts/program/scponly.fc
+/usr/bin/scponly                system_u:object_r:scponly_exec_t
+/usr/sbin/scponlyc              system_u:object_r:scponly_exec_t
+
+
+
+domains/misc/local.te
+scponly_domain(user)
+
+
+
+ciao, Stefan
+
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBLZJBUEn3BeoPvtwRAjSdAJ9luFYYZyHigmzbhgaAKL5rxYdrSQCeIhVO
+tX32fchEsBMziFAVm/fJdYo=
+=rIgU
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
