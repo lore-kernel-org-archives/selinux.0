@@ -1,36 +1,24 @@
-Subject: Re: policy language extensions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Dale Amon <amon@vnl.com>
-Cc: david caplan <dac@tresys.com>, "NSA's SELinux" <SELinux@tycho.nsa.gov>
-In-Reply-To: <20030926130232.GF10225@vnl.com>
-References: <3F7361F8.1080603@tresys.com>  <20030926130232.GF10225@vnl.com>
-Content-Type: text/plain
-Message-Id: <1064583595.5099.245.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 26 Sep 2003 09:39:56 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: Eamon Walsh <ewalsh@epoch.ncsc.mil>, selinux@tycho.ncsc.mil
+Subject: Re: Emacs major mode for policy editing
+Date: Fri, 26 Sep 2003 17:43:58 -0400
+References: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil>
+In-Reply-To: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil>
+MIME-Version: 1.0
+Message-Id: <200309261743.58567.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-09-26 at 09:02, Dale Amon wrote:
-> Some things could be difficult though: policy statements
-> do not appear to me to have a 1:1 relation to the binary 
-> representation.
+On Thursday 25 September 2003 11:36 am, Eamon Walsh wrote:
+> My name is Eamon Walsh; I recently joined the NSA selinux team.
+> I will be working on putting policy enforcement into XFree86.
+>
 
-Correct.  A policy statement may specify sets of types and classes as
-well as using type attributes to represent sets of types; these
-statements are expanded into individual (source type, target type,
-target class, access vectors or new types) tuples in the binary
-representation.  Also, you may have overlapping or even redundant policy
-statements in the policy.conf that are unioned by the policy compiler
-(particularly due to macro expansions), so removing a statement doesn't
-necessarily mean that the permissions should go away.  If you take a
-close look at the policy patch tools posted to the list back in June by
-Frank Mayer, you'll see that they had to consider these issues for that
-work.
- 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+When do you anticipate having security-enhanced X completed?
+
+Bill
 
 
 --
