@@ -1,104 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA24557
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 10:45:15 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA19099
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 15:45:10 GMT
-Received: from khaipur.xiat.org ([66.125.68.98])
-	by jazzswing.ncsc.mil  with ESMTP id PAA19095
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 15:45:09 GMT
-Date: Mon, 03 Dec 2001 07:40:53 -0800
-From: Paul Krumviede <pwk@acm.org>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA26593
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 15:08:46 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA10376
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 20:08:05 GMT
+Received: from vorpal.mcs.drexel.edu (vorpal.mcs.drexel.edu [129.25.6.250])
+	by jazzband.ncsc.mil  with ESMTP id UAA10372
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 20:08:05 GMT
+Subject: Re: X windows with i810 chip
+From: Justin Smith <jsmith@mcs.drexel.edu>
 To: Stephen Smalley <sds@tislabs.com>
-cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: use of ps in ipsec shutdown
-Message-ID: <202680429.1007365253@localhost>
-In-Reply-To: <Pine.GSO.4.33.0112030911410.4293-100000@raven>
-References: <Pine.GSO.4.33.0112030911410.4293-100000@raven>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <Pine.GSO.4.33.0112031009550.4293-100000@raven>
+References: <Pine.GSO.4.33.0112031009550.4293-100000@raven>
+Content-Type: text/plain
+Date: 03 Dec 2001 15:05:09 -0500
+Message-Id: <1007409909.1588.0.camel@vorpal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---On Monday, 03 December, 2001 09:23 -0500 Stephen Smalley 
-<sds@tislabs.com> wrote:
+On Mon, 2001-12-03 at 10:13, Stephen Smalley wrote:
+> 
+> indirectly through /usr/X11R6/bin/Xwrapper, which is labeled with the
+> xserver_exec_t type.  This type causes a domain transition from user_t
+> to user_xserver_t.  So I don't know why your X server is running in the
+> wrong domain.
+> 
+Yes, I saw the reason for this problem. The file_contexts listing
+only assigns xserver_t to /usr/X11R6/bin/Xwrapper when many systems name
+the X server X or XFree86 (mine does the latter). I assigned  the
+xserver_t type to both of these files and it solved the problem.
 
->
-> On Fri, 30 Nov 2001, Paul Krumviede wrote:
->
->> i noticed that the supplied policy left some processes in the
->> initrc_t domain, such as _plutorun and _plutoload. i also noticed
->> that the ipsec startup script invokes logger, and that whack,
->> running in the initrc_t domain, was being denied permission
->> to connect to the socket set up by pluto. so i labeled the
->> /usr/local/sbin/ipsec script, whack, _plutoload, _plutoread
->> and whack as ipsec_exec_t types, and allowed ipsec_t
->> to execute shells, bin_t and sbin_t things (the latter in part
->> because the default label of things in /usr/local/lib/ipsec
->> is sbin_t). this seems to have fixed all the things decribed
->> above (although i'm open to suggestions as to alternative
->> approaches).
->
-> The problem with this approach is that it increases the risk that
-> malicious code will be able to execute in the ipsec_t domain and
-> thus gain access to a PF_KEY socket.  The ipsec_t domain should only
-> be granted execute access to the ipsec_exec_t type, and this type
-> should only be assigned to code that legitimately needs to access
-> PF_KEY sockets.  Any other code should be run in a different domain.
+I am now able to run X windows and even gdm, although gdm has some
+strange problems. When running under it, the newrole command gets the
+error message: 'unable to find user in passwd'. I do not get this
+message when running under ordinary X windows.
 
-what i want to do is partition all of the ipsec-related code, and then
-break those things into more specific domains, such as a domain
-that can access/manage keying material and a domain that can
-access things in the first domain (perhaps an ipsec_client_t as
-you suggest in a subsequent messages). i've been thinking of
-an ipsec_admin role as well (one of mark's comments in sysadm.te
-alludes to this) and then restricing access to some of the ipsec
-functions to this role (and to initrc_t).
+Another anomaly: in Redhat 7.1, /dev/hdc can be a hard drive OR a cdrom
+(!). The gnome desktop wouldn't start initially because the system
+thought it was trying to access a fixed disk.
 
-the first pass at such a partition started when i noticed that i
-had processes running in the initrc_t domain.
+In addition, MAKEDEV should be assigned a type that is some sort of
+system script rather than a device_t.
 
->> i also noticed that _startklips wanted (limited) access
->> to /proc/sys/net/ipsec/icmp, so i gave some sysctl
->> access.
->
-> We can modify the module to bind a distinct type to /proc/sys/net/ipsec if
-> desired.
-
-that seems worthwhile.
-
->> i later noticed a number of avc denials at shutdown
->> when ps, apparently run out of _realsetup, is attempting
->> to read some of the process information. for example, i see
->>
->> avc:  denied  { getattr } for  pid=2358 exe=/bin/ps path=/1 dev=00:03
->> ino=65538
->>    scontext=system_u:system_r:ipsec_t
->>    tcontext=system_u:system_r:init_t
->>    tclass=dir
->
-> This is probably happening because the script is now running in ipsec_t,
-> which isn't a good idea anyway.  But this is a common problem when ps
-> scans /proc, because only a subset of /proc will be accessible to most
-> domains.  It is ok to deny these accesses, because this process only
-> truly needs to access the /proc/PID entries for processes within the
-> ipsec_t domain in order to shut down those processes.  You can suppress
-> the audit messages via auditdeny rule, as mentioned by Mark.
-
-yes, for some reason i was thinking that ps would fail. i'll add the
-auditdeny rules.
-
->> i'd be happy to share the changed/new policy files when i
->> have them working (or earlier if anybody so desires).
->
-> Yes, please do.  But I don't want to grant the ipsec_t domain execute
-> access to any other types in the example policy.
-
-i'll work on refining what i have to reflect a division between things
-that actually need to access the PF_KEY socket and those things
-that don't need direct access to the socket.
-
--paul
+Thanks very much for your comments. I'll create a domain for postgres.
+> 
+--
 
 
 --
