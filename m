@@ -1,43 +1,77 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6MK6nHa022086
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 16:06:50 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6MK5iFB001810
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:05:44 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h6MK5gGD001807
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:05:43 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Charlie Watts <st_possenti@yahoo.com>, selinux@tycho.nsa.gov
-Subject: Re: Linuxfromscratch.org
-Date: Tue, 22 Jul 2003 16:06:42 -0400
-References: <20030722014248.34651.qmail@web40613.mail.yahoo.com>
-In-Reply-To: <20030722014248.34651.qmail@web40613.mail.yahoo.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6MKFBHa022192
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 16:15:11 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6MKFADW016712
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:15:10 GMT
+Received: from mvmail1.mv.cougaarsoftware.com (h-68-165-169-235.SNVACAID.covad.net [68.165.169.235])
+        by jazzband.ncsc.mil  with ESMTP id h6MKF9eN016709 for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:15:09 GMT
+Message-ID: <029e01c3508d$f298d920$f40111ac@rtripathixp>
+Reply-To: "Rakesh Tripathi" <rtripathi@cougaarsoftware.com>
+From: "Rakesh Tripathi" <rtripathi@cougaarsoftware.com>
+To: <selinux@tycho.nsa.gov>
+References: <01d101c34fd7$12532e30$f40111ac@rtripathixp> <200307221554.44650.russell@coker.com.au>
+Subject: Re: Few questions related to Selinux on Redhat 8.0
+Date: Tue, 22 Jul 2003 13:15:07 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307221606.42540.russell@coker.com.au>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 21 Jul 2003 21:42, Charlie Watts wrote:
-> I want to make a linux system from scratch. I have never compiled my
-> own kernel, but I was wondering if i could start with the SE Linux
-> kernel. I am using the instructions from linuxfromscratch.org to make
-> the system on my laptop, which is running Mandrake 9, on a i686, 512Mb
-> ram, and a 1.13 GHz P IV. Ext3 file system. Any advice would be great.
+Russell ,
+thanks for the response .
+I have not changed the user passwd and i reloaded the policy after i added
+the user.
 
-I recommend that you compile your own kernel without SE Linux first, and then 
-try using SE Linux after you have had some practise at building your own 
-kernel.  Otherwise if you have a problem you won't know whether it's SE Linux 
-related or just a general kernel build issue.
+Thanks
+rakesh
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+----- Original Message -----
+From: "Russell Coker" <russell@coker.com.au>
+To: "Rakesh Tripathi" <rtripathi@cougaarsoftware.com>;
+<selinux@tycho.nsa.gov>
+Sent: Tuesday, July 22, 2003 12:54 PM
+Subject: Re: Few questions related to Selinux on Redhat 8.0
+
+
+> On Mon, 21 Jul 2003 18:26, Rakesh Tripathi wrote:
+> > 1.) How do I add new user to the system ?
+> > I tried using suseradd utility and I can see my user being added to the
+> > /etc/passwd file but when I try to login directly on the machine or
+through
+> > ssh it says incorrect password . Is there any thing more I need to do ?
+>
+> Did you use "adminpasswd" to change the user's password after creating the
+> user?
+>
+> > 2.) I want only certain users to be able to run a particular application
+.
+> > For example I want user Joe to be able to run java. Can any one tell me
+how
+> > can I go about doing it or can some one point me to some documentation.
+>
+> Do you just want an option as to whether the program is to be run or not?
+Or
+> do you also want to have it run in a different security context?
+>
+> If the former then edit the policy to add a new file_type for the file and
+> have policy to allow only appropriate user domains to read/execute it.
+>
+> Then edit an appropriate file_contexts file (maybe types.fc) to add an
+entry
+> for it.
+>
+> Load the policy and relabel the file and it should work.
+>
+> --
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
+>
+>
+>
 
 
 --
