@@ -1,47 +1,140 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA10478
-	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 14:10:34 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA10800
+	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 14:36:04 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA00191
-	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 18:09:27 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id SAA00186
-	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 18:09:27 GMT
-Date: Thu, 22 Aug 2002 14:10:17 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: "M. H." <metalhead00@hotmail.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: restrict access by user identity
-In-Reply-To: <F41O9vchHWvVZ9YbfAd0000ccf5@hotmail.com>
-Message-ID: <Pine.GSO.4.33.0208221358250.29931-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id SAA01499
+	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 18:34:58 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id SAA01495
+	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 18:34:55 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: patch for svipw etc
+Date: Thu, 22 Aug 2002 20:35:40 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_GZC9EDE62WHINGXXNOBM"
+Message-Id: <20020822183541.094A6897B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 22 Aug 2002, M. H. wrote:
+--------------Boundary-00=_GZC9EDE62WHINGXXNOBM
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-> I would like to be able to do the following thing:
-> Let's assume I set the type of a file to type_a.
-> I would like to be able to ensure that users who can read files of type_a
-> can only do so for files which are labeled with their name (so the scontext
-> of the file is <username>:object_r:type_a.) So userA would then not be able
-> to read a file labeled with userB:object_r:type_a.
-> Is this possible?
+The attached patch file adds svipw, sadduser, and sadminpasswd to the spasswd 
+family of programs.
 
-You could try to implement such a restriction via the policy/constraints
-configuration (see the Configuring the SELinux Policy report).  However, I
-wouldn't recommend this approach.  The preferred approach would be to
-define separate types for userA's objects and userB's objects, with
-separate domains and roles for userA and userB.
+svipw and sadduser are wrappers for vipw and adduser as you might expect.  
+What they do (and the changed spasswd, schsh and schfn programs do) is to 
+wait for the program they run (passwd, vipw, adduser, chsh, or chfn) to 
+complete, then they set the correct security contexts on the /etc/passwd and 
+/etc/shadow files.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+The change of /etc/passwd is needed because the new policy has 
+file_type_auto_trans(passwd_t, etc_t, shadow_t) and the /etc/passwd gets 
+created in type shadow_t.
 
+The change of /etc/shadow is just for paranoia.  Errors changing the SID of 
+/etc/passwd are reported to the user and logged, errors changing the SID of 
+/etc/shadow are just silently logged to syslog (no point telling the user 
+that system security may be stuffed).
 
+Also should probably have an init script that uses chsid or chcon to set the 
+right context of /etc/passwd, otherwise an inopportune reboot could result in 
+/etc/passwd being unreadable by regular processes (IE "ls -l" would not work).
 
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
+
+--------------Boundary-00=_GZC9EDE62WHINGXXNOBM
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="diff"
+
+ZGlmZiAtcnVOIC90bXAvc2VsaW51eC91dGlscy9zcGFzc3dkL01ha2VmaWxlIHV0aWxzL3NwYXNz
+d2QvTWFrZWZpbGUKLS0tIC90bXAvc2VsaW51eC91dGlscy9zcGFzc3dkL01ha2VmaWxlCTIwMDEt
+MDctMTggMjI6MDQ6MDYuMDAwMDAwMDAwICswMjAwCisrKyB1dGlscy9zcGFzc3dkL01ha2VmaWxl
+CTIwMDItMDgtMTcgMDA6MTc6MzQuMDAwMDAwMDAwICswMjAwCkBAIC0xLDEyICsxLDE0IEBACiBQ
+QVNTV0Q9L3Vzci9iaW4vcGFzc3dkCiBDSEZOPS91c3IvYmluL2NoZm4KIENIU0g9L3Vzci9iaW4v
+Y2hzaAorVVNFUkFERD0vdXNyL3NiaW4vdXNlcmFkZAorVklQVz0vdXNyL3NiaW4vdmlwdwogCiBD
+RkxBR1MgKz0gLVdhbGwgLWcgLUkvdXNyL2xvY2FsL3NlbGludXgvaW5jbHVkZQogTERGTEFHUyAr
+PSAtTC91c3IvbG9jYWwvc2VsaW51eC9saWIKIExJQlMgKz0gLWxzZWN1cmUKIAotUFJPR1MgPSBz
+cGFzc3dkIHNjaGZuIHNjaHNoCitQUk9HUyA9IHNwYXNzd2Qgc2FkbWlucGFzc3dkIHN1c2VyYWRk
+IHN2aXB3IHNjaGZuIHNjaHNoCiBERVNURElSID0gL3Vzci9sb2NhbC9zZWxpbnV4L2JpbgogCiBh
+bGw6ICAkKFBST0dTKQpAQCAtMTcsNiArMTksMTUgQEAKIHNwYXNzd2Qubzogc3Bhc3N3ZC5jCiAJ
+JChDQykgJChDRkxBR1MpIC1EUEFTU1dEPVwiJChQQVNTV0QpXCIgLWMgLW8gJEAgJDwKIAorc2Fk
+bWlucGFzc3dkLm86IHNwYXNzd2QuYworCSQoQ0MpICQoQ0ZMQUdTKSAtREFETUlOX1VTRSAtRFBB
+U1NXRD1cIiQoUEFTU1dEKVwiIC1jIC1vICRAICQ8CisKK3N1c2VyYWRkLm86IHNwYXNzd2QuYwor
+CSQoQ0MpICQoQ0ZMQUdTKSAtREFETUlOX1VTRSAtRFBBU1NXRD1cIiQoVVNFUkFERClcIiAtYyAt
+byAkQCAkPAorCitzdmlwdy5vOiBzcGFzc3dkLmMKKwkkKENDKSAkKENGTEFHUykgLURBRE1JTl9V
+U0UgLURQQVNTV0Q9XCIkKFZJUFcpXCIgLWMgLW8gJEAgJDwKKwogc2NoZm4ubzogc3Bhc3N3ZC5j
+CiAJJChDQykgJChDRkxBR1MpIC1EUEFTU1dEPVwiJChDSEZOKVwiIC1jIC1vICRAICQ8CiAKZGlm
+ZiAtcnVOIC90bXAvc2VsaW51eC91dGlscy9zcGFzc3dkL3NwYXNzd2QuYyB1dGlscy9zcGFzc3dk
+L3NwYXNzd2QuYwotLS0gL3RtcC9zZWxpbnV4L3V0aWxzL3NwYXNzd2Qvc3Bhc3N3ZC5jCTIwMDEt
+MDctMTggMjI6MDQ6MDYuMDAwMDAwMDAwICswMjAwCisrKyB1dGlscy9zcGFzc3dkL3NwYXNzd2Qu
+YwkyMDAyLTA4LTE3IDAwOjU1OjIyLjAwMDAwMDAwMCArMDIwMApAQCAtMSwyOSArMSw3MCBAQAog
+I2luY2x1ZGUgPHVuaXN0ZC5oPgogI2luY2x1ZGUgPHB3ZC5oPgogI2luY2x1ZGUgPHN5cy90eXBl
+cy5oPgorI2luY2x1ZGUgPHN5cy93YWl0Lmg+CiAjaW5jbHVkZSA8c3RkaW8uaD4KICNpbmNsdWRl
+IDxzdGRsaWIuaD4KICNpbmNsdWRlIDxwcm9jX3NlY3VyZS5oPgogI2luY2x1ZGUgPHNzLmg+Cisj
+aW5jbHVkZSA8c3lzbG9nLmg+CiAKICNpZm5kZWYgUEFTU1dECiAjZGVmaW5lIFBBU1NXRCAiL3Vz
+ci9iaW4vcGFzc3dkIgogI2VuZGlmCiAKKyNkZWZpbmUgU0hBRE9XX0NPTlRFWFQgIi9ldGMvc2Vj
+dXJpdHkvc2hhZG93X2NvbnRleHQiCisjZGVmaW5lIFBBU1NXRF9DT05URVhUICIvZXRjL3NlY3Vy
+aXR5L3Bhc3N3ZF9jb250ZXh0IgorCitzZWN1cml0eV9pZF90IHNpZF9mcm9tX2ZpbGUoY29uc3Qg
+Y2hhciAqIGNvbnN0IGZpbGUpCit7CisgIHNlY3VyaXR5X2lkX3Qgc2lkOworICBjaGFyIGJ1Zlsx
+MDI0XTsKKyAgRklMRSAqZnAgPSBmb3BlbihmaWxlLCAiciIpOworICBpZighZnAgfHwgIWZnZXRz
+KGJ1Ziwgc2l6ZW9mKGJ1ZiksIGZwKSkKKyAgeworICAgIGZwcmludGYoc3RkZXJyLCAiQ2FuJ3Qg
+cmVhZCAlc1xuIiwgZmlsZSk7CisgICAgZXhpdCgxKTsKKyAgfQorICBzdHJ0b2soYnVmLCAiXG4i
+KTsKKyAgaWYoc2VjdXJpdHlfY29udGV4dF90b19zaWQoYnVmLCBzdHJsZW4oYnVmKSArIDEsICZz
+aWQpKQorICB7CisgICAgZnByaW50ZihzdGRlcnIsICJDYW4ndCBnZXQgZmlsZSBjb250ZXh0IGZy
+b20gJXMuXG4iLCBmaWxlKTsKKyAgICBleGl0KDEpOworICB9CisgIGZjbG9zZShmcCk7CisgIHJl
+dHVybiBzaWQ7Cit9CisKICNkZWZpbmUgU1ogMjU1CiAKLWNoYXIgKnBhc3N3ZF9hcmd2W10gPSB7
+IFBBU1NXRCwgTlVMTCB9OwogCiBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpIAogewot
+ICBzdHJ1Y3QgcGFzc3dkICpwdzsKLSAgc2VjdXJpdHlfY29udGV4dF90IGNvbnRleHQ7CiAgIGNo
+YXIgKnA7CisgIHNlY3VyaXR5X2lkX3Qgc2hhZG93X3NpZCwgcGFzc3dkX3NpZDsKKyNpZm5kZWYg
+QURNSU5fVVNFCiAgIHNlY3VyaXR5X2lkX3Qgc2lkOworICBzdHJ1Y3QgcGFzc3dkICpwdzsKKyAg
+c2VjdXJpdHlfY29udGV4dF90IGNvbnRleHQ7CiAgIHVpZF90IHJ1aWQ7Ci0gIGludCByZXQ7CiAg
+IHVuc2lnbmVkIGludCBsZW47CisjZW5kaWYKKyAgaW50IHJldDsKKyAgaW50IHN0YXR1czsKKyAg
+Y2hhciAqKnBhc3N3ZF9hcmd2OworICBpbnQgaTsKIAorICBwYXNzd2RfYXJndiA9IG1hbGxvYygg
+KGFyZ2MgKyAxKSAqIHNpemVvZihjaGFyICopICk7CisgIGlmKCFwYXNzd2RfYXJndikKKyAgewor
+ICAgIGZwcmludGYoc3RkZXJyLCAiQ2FuJ3QgbWFsbG9jLlxuIik7CisgICAgZXhpdCgxKTsKKyAg
+fQorICBmb3IoaSA9IDE7IGkgPD0gYXJnYzsgaSsrKQorICAgIHBhc3N3ZF9hcmd2W2ldID0gYXJn
+dltpXTsKKyAgcGFzc3dkX2FyZ3ZbMF0gPSBQQVNTV0Q7CisKKyNpZm5kZWYgQURNSU5fVVNFCiAg
+IGlmIChhcmdjICE9IDEpIHsKICAgICBmcHJpbnRmKHN0ZGVyciwgIiVzOiAgd3JhcHBlciBkb2Vz
+IG5vdCBhY2NlcHQgYXJndW1lbnRzXG4iLAogCSAgICBhcmd2WzBdKTsKQEAgLTcxLDcgKzExMiw3
+IEBACiAgICAgICBleGl0KDEpOwogICAgIH0KICAgfQotICAKKwogICBmb3IgKHAgPSBjb250ZXh0
+OyAqcCAmJiAqcCAhPSAnOic7IHArKykKICAgICA7CiAgICpwID0gMDsKQEAgLTgxLDcgKzEyMiw1
+MiBAQAogICAgIGV4aXQoMSk7CiAgIH0KIAotICBleGVjdihQQVNTV0QsIHBhc3N3ZF9hcmd2KTsK
+LSAgcGVycm9yKGFyZ3ZbMF0pOwotICBleGl0KDEpOworI2VuZGlmCisKKyAgc2hhZG93X3NpZCA9
+IHNpZF9mcm9tX2ZpbGUoU0hBRE9XX0NPTlRFWFQpOworICBwYXNzd2Rfc2lkID0gc2lkX2Zyb21f
+ZmlsZShQQVNTV0RfQ09OVEVYVCk7CisgIAorICBmb3IgKHAgPSBQQVNTV0QgKyBzdHJsZW4oUEFT
+U1dEKTsgKnAgIT0gJy8nOyBwLS0pCisgICAgOworICBpZigqcCA9PSAnLycpCisgICAgcCsrOwor
+CisgIG9wZW5sb2cocCwgTE9HX0NPTlMsIExPR19BVVRIKTsKKworICByZXQgPSBmb3JrKCk7Cisg
+IHN3aXRjaChyZXQpCisgIHsKKyAgY2FzZSAwOiAgLyogY2hpbGQgKi8KKyAgICBleGVjdihQQVNT
+V0QsIHBhc3N3ZF9hcmd2KTsKKyAgICBwZXJyb3IoYXJndlswXSk7CisgICAgZXhpdCgxKTsKKyAg
+Y2FzZSAtMTogLyogZXJyb3IgKi8KKyAgICBwZXJyb3IoYXJndlswXSk7CisgICAgZXhpdCgxKTsK
+KyAgfQorICBpZih3YWl0KCZzdGF0dXMpICE9IHJldCkKKyAgeworICAgIGZwcmludGYoc3RkZXJy
+LCAiRXJyb3Igd2FpdGluZyBmb3IgY2hpbGQuXG4iKTsKKyAgICByZXQgPSAxOworICB9CisgIGVs
+c2UKKyAgeworICAgIGlmKCFXSUZFWElURUQoc3RhdHVzKSB8fCBXRVhJVFNUQVRVUyhzdGF0dXMp
+ICE9IDApCisgICAgICBmcHJpbnRmKHN0ZGVyciwgIkNoaWxkIGhhZCBhbiBlcnJvci5cbiIpOwor
+ICAgIGVsc2UKKyAgICAgIHJldCA9IDA7CisgIH0KKworICBpZihjaHNpZCgiL2V0Yy9wYXNzd2Qi
+LCBwYXNzd2Rfc2lkKSkKKyAgeworICAgIGZwcmludGYoc3RkZXJyLCAiQ2FuJ3QgdXBkYXRlIHRo
+ZSBzaWQgZm9yIC9ldGMvcGFzc3dkXG4iKTsKKyAgICBzeXNsb2coTE9HX0VSUiwgIkNhbid0IHVw
+ZGF0ZSB0aGUgc2lkIGZvciAvZXRjL3Bhc3N3ZCIpOworICAgIHJldCA9IDE7CisgIH0KKyAgaWYo
+Y2hzaWQoIi9ldGMvc2hhZG93Iiwgc2hhZG93X3NpZCkpCisgIHsKKyAgICBzeXNsb2coTE9HX0FM
+RVJULCAiQ2FuJ3QgdXBkYXRlIHRoZSBzaWQgZm9yIC9ldGMvc2hhZG93Iik7CisgICAgcmV0ID0g
+MTsKKyAgfQorICByZXR1cm4gcmV0OwogfQo=
+
+--------------Boundary-00=_GZC9EDE62WHINGXXNOBM--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
