@@ -1,64 +1,77 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7UNXErT008691
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 19:33:14 -0400 (EDT)
-Received: from smtp.gentoo.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7UNWQAE028364
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 23:32:26 GMT
-Message-ID: <4133B938.3070201@tresys.com>
-Date: Mon, 30 Aug 2004 19:33:12 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7V4XPrT009804
+	for <selinux@tycho.nsa.gov>; Tue, 31 Aug 2004 00:33:25 -0400 (EDT)
+Message-ID: <00ee01c48f13$acb88160$f97d220a@linux.bs1.fc.nec.co.jp>
+From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
+To: <paulmck@us.ibm.com>, "Stephen Smalley" <sds@epoch.ncsc.mil>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+   "James Morris" <jmorris@redhat.com>
+References: <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp> <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil> <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp> <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil> <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp> <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil> <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp> <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil> <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp> <1093880119.5447.87.camel@moss-spartans.epoch.ncsc.mil> <20040830161328.GC1243@us.ibm.com>
+Subject: Re: [PATCH]SELinux performance improvement by RCU (Re: RCU issue with SELinux)
+Date: Tue, 31 Aug 2004 13:33:33 +0900
 MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: banning copying of binaries (e.g. mozilla etc).
-References: <20040830222355.GI31497@lkcl.net>
-In-Reply-To: <20040830222355.GI31497@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
+Hi Stephen, Paul, thanks for your comments.
 
->okay, got a weird issue where i am curious as to whether selinux could
->help.
->
->imagine that ipt_owner has been successfully hacked up (hacked as in
->the literal and true meaning of the word not the one the press associate
->with it) to support program names (or as a last resort inodes) as part
->of the checking / filtering rules.
->
->i.e. like fireflier's rather buggy userspace support for allowing
->e.g. mozilla to do port 80 and port 445 but NOT any other program,
->only done properly and in the kernel.
->
->now imagine that someone bypasses these rules by simply copying the
->binary.
->
->in this way, they would be able to at the very least bypass "DENY"
->rules.
->
->my question is, therefore, is there an easy way to ban users from
->copying binaries, whilst still allowing users to run them?
->
->l.
->
->  
->
-I'm not sure what you are talking about here, there is no such thing as 
-a "deny" rule in selinux, everything is denied by default.
-What you want to do is simply restrict the user domains from doing the 
-things you don't want, and giving only, say, mozilla the access it 
-needs. That way if they do copy the binary to their home it'll be 
-staff_home_t and can 1) either be denied execute by staff_t or 2) be 
-allowed to execute_no_trans so that anything it does is contrained by 
-the users domain restrictions. Futher, you can give user domains access 
-to execute binaries without reading them, this should work fine but that 
-is an incomplete solution. The bottom line is you can not easily keep 
-users from getting binaries onto the system, all you can do is prevent 
-them from executing them or only let them execute them in their 
-restricted domains.
+> > > The attached take-4 patches replace the avc_lock in security/selinux/avc.c
+> > > by the lock-less read access with RCU.
+> > 
+> > Thanks.  Was there a reason you didn't move the rcu_read_lock call after
+> > the avc_insert call per the suggestion of Paul McKenney, or was that
+> > just an oversight?  No need to send a new patch, just ack whether or not
+> > you meant to switch the order there.
+> 
+> One reason might be because I called it out in the text of my message,
+> but failed to put it in my patch.  :-/  Of course, if there is some reason
+> why moving the rcu_read_lock() call is bad, I would like to know for
+> my own education.
 
-Joshua Brindle
+In my understanding, the issue is the Paul's suggestion as follows:
+
+> So I do not believe that avc_insert() needs rcu_read_lock().
+> Unless I am missing something, the rcu_read_lock() acquired
+> in avc_has_perm_noaudit() should be moved after the call to
+> avc_insert().
+
+I don't move the rcu_read_lock() because of the possibility of preemption
+between the spin_unlock_irqrestore() in avc_insert() and the rcu_read_lock()
+which may be inserted after avc_insert() in avc_has_perm_noaudit().
+
+When it's returning from avc_insert(), we can't ignore the possibility
+that execution is preempted in this timing.
+Therefore, I didn't move rcu_read_lock() in spite of its redundancy.
+
+If rcu_read_lock() was moved after avc_insert()
+[ in avc_insert() ]----------------------------
+                :
+        spin_lock_irqsave(&avc_cache.slots_lock[hvalue], flag);
+        list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
+                :
+        }
+        list_add_rcu(&node->list, &avc_cache.slots[hvalue]);
+found:
+        spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flag);  ---------
+        //  +--> including preempt_enable()                               |
+                It has the danger of releasing the 'node'.                V
+    }                                                                preemption
+out:                                                                     is
+    return node;                                                       possible
+}
+-----------------------------------------------
+Because it's legal to hold the rcu_read_lock() twice as Paul says,
+we should do it for safety.
+It's the reason that I didn't move rcu_read_lock() at this point,
+and it might be lack of my explanation, sorry.
+
+Thanks.
+--------
+Kai Gai <kaigai@ak.jp.nec.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
