@@ -1,45 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7B4GMHa012723
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 00:16:22 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7B4F4OD015238
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 04:15:04 GMT
-Received: from hotmail.com (bay8-f125.bay8.hotmail.com [64.4.27.125])
-	by jazzswing.ncsc.mil  with ESMTP id h7B4F3KO015235
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 04:15:03 GMT
-From: "Timmy Jones" <zapperlink@hotmail.com>
-To: selinux@tycho.nsa.gov
-Subject: SELinux network issue.
-Date: Sun, 10 Aug 2003 21:16:19 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY8-F125Ql2D4TlFaB0004b0a9@hotmail.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7B6VmHa012965
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 02:31:48 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h7B6VlFq003446
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 06:31:47 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h7B6VZMg003441 for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 06:31:46 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Timmy Jones" <zapperlink@hotmail.com>, selinux@tycho.nsa.gov
+Subject: Re: SELinux network issue.
+Date: Mon, 11 Aug 2003 16:31:23 +1000
+References: <BAY8-F125Ql2D4TlFaB0004b0a9@hotmail.com>
+In-Reply-To: <BAY8-F125Ql2D4TlFaB0004b0a9@hotmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200308111631.23407.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Greetings,
+On Mon, 11 Aug 2003 14:16, Timmy Jones wrote:
+> with. Also I had thought that it sounds like a router issue however, in
+> windows XP all works fine. Im not sure if there is something in SE that is
+> disabling this or what but if anyone has any suggestions or solutions it
+> would be appreciated. Thanks in advance.
 
-I am currently working with selinux 2.4 and running it side by side with 
-RH9. I had ran into a issue after several attempts to fix the problem have 
-come to a conclusion that it would be best to see if any of you have faced 
-this issue. I did a somewhat generic SELinux install and was able to boot 
-safely into RH9. I however had problems accessing the internet thru it. My 
-network card is a Broadcom 4400 which works fine with linux. I was able to 
-contact my router via web access and to that extent it was ok. However when 
-testing internet against a website eg: www.google.com I had failed to access 
-the site along with many other popular sites. I investigated this further by 
-monitoring the traffic. I noticed It did a DNS request for www.google.com 
-and sent me back the ip address..  however after the ip sent out..... 
-silence.  I thought well.. something might be blocking this right. I killed 
-iptables and ipchains... knowing already they should be set null to begin 
-with. Also I had thought that it sounds like a router issue however, in 
-windows XP all works fine. Im not sure if there is something in SE that is 
-disabling this or what but if anyone has any suggestions or solutions it 
-would be appreciated. Thanks in advance.
+Run the command "dmesg" after attempting the network operations.  If SE Linux 
+blocks the packets then it will log the fact with "avc" messages.  These 
+messages will be in the kernel message buffer (which can be inspected by 
+"dmesg") and in /var/log/kern.log.
 
-_________________________________________________________________
-Tired of spam? Get advanced junk mail protection with MSN 8. 
-http://join.msn.com/?page=features/junkmail
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
