@@ -1,163 +1,98 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i616CLrT004555
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jul 2004 02:12:21 -0400 (EDT)
-Received: from audiogram.mail.pas.earthlink.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i616C5P8003082
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jul 2004 06:12:05 GMT
-Received: from h-68-164-213-183.atlngahp.dynamic.covad.net ([68.164.213.183] helo=mindspring.com)
-	by audiogram.mail.pas.earthlink.net with asmtp (Exim 4.34)
-	id 1Bfunz-00066q-Hc
-	for selinux@tycho.nsa.gov; Wed, 30 Jun 2004 23:12:20 -0700
-Message-ID: <40E3AB39.9040804@mindspring.com>
-Date: Thu, 01 Jul 2004 02:12:09 -0400
-From: Richard Hally <rhally@mindspring.com>
+Message-ID: <40E3F655.8040000@laufwerka.de>
+Date: Thu, 01 Jul 2004 13:32:37 +0200
+From: Pascal Hahn <p.hahn@laufwerka.de>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [Fwd: additions to strict policy]
-Content-Type: multipart/mixed;
- boundary="------------030500070001020008000207"
+To: russell@coker.com.au
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: apache rule to make it write in directory
+References: <40E298E8.9030107@laufwerka.de> <200407010027.39259.russell@coker.com.au>
+In-Reply-To: <200407010027.39259.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030500070001020008000207
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Russell Coker schrieb:
 
-Below is a message the was sent to the Fedora-selinux-list. Perhaps some 
-of these allow rules can be added to the NSA example policy.
-Thanks,
-Richard Hally
+>On Wed, 30 Jun 2004 20:41, Pascal Hahn <p.hahn@laufwerka.de> wrote:
+>  
+>
+>>Russell Coker wrote:
+>>    
+>>
+>>>On Fri, 25 Jun 2004 16:35, Pascal Hahn <p.hahn@laufwerka.de> wrote:
+>>>      
+>>>
+>>>>heres my output i get from avc messages:
+>>>>
+>>>>/Jun 16 13:39:36 lboxx avc:  denied  { write } for  pid=3161
+>>>>exe=/usr/sbin/apache2 path=/var/www/localhost/lwa/infos/auth.tmp
+>>>>dev=hdc6 ino=96389 scontext=system_u:system_r:httpd_t
+>>>>tcontext=system_u:object_r:httpd_sys_content_t tclass=file
+>>>>        
+>>>>
+>>>Try the following:
+>>>file_type_auto_trans(httpd_t, httpd_sys_content_t,
+>>>httpd_sys_script_rw_t, file)
+>>>      
+>>>
+>>I inserted the rule but get the following error although:
+>>
+>>
+>>Jun 30 12:45:30 lboxx avc:  denied  { write } for  pid=3190
+>>exe=/usr/sbin/apache2 name=ip.tmp dev=hdc6 ino=96390
+>>scontext=system_u:system_r:httpd_t
+>>tcontext=system_u:object_r:httpd_sys_content_t tclass=file
+>>    
+>>
+>
+>The following should solve it:
+>chcon -t httpd_sys_script_rw_t ip.tmp
+>
+>Same goes for all other files like it, and you want an entry in 
+>file_contexts/misc/custom.fc to avoid accidentally relabelling it back.
+>
+>  
+>
+Hi there,
 
--------- Original Message --------
-Subject: additions to strict policy
-Date: Tue, 29 Jun 2004 02:14:17 -0400
-From: Richard Hally <rhallyx@mindspring.com>
-Reply-To: Fedora SELinux support list for users & developers. 
-<fedora-selinux-list@redhat.com>
-To: fedora-selinux-list@redhat.com
-
-Below (and as an attached file) are some policy allow rules to be added
-to the strict policy.
-These allow rules were developed by running the latest /devel tree using
-selinux-policy-strict-sources-1.13.10-3 and putting the resulting avc
-denied messages through audit2allow.
-Most are necessary to perform normal operations while in  enforcing mode.
-Some of the rules marked "#from booting" may be candidates for dontaudit
-rules.
-
-Thanks for the help,
-Richard Hally
-
-#from " logrotate -f /etc/logrotate.conf" while root(sysadm_r)
-allow logrotate_t devpts_t:dir { search };
-allow logrotate_t initrc_t:process { transition };
-allow logrotate_t mysqld_log_t:file { execute };
-allow logrotate_t mysqld_log_t:file { execute_no_trans };
-allow logrotate_t privoxy_log_t:file { execute };
-allow logrotate_t privoxy_log_t:file { execute_no_trans };
-allow logrotate_t selinux_config_t:dir { search };
-allow logrotate_t selinux_config_t:file { getattr read };
-allow logrotate_t staff_home_dir_t:dir { read search };
-allow logrotate_t var_t:file { getattr };
-allow logrotate_t var_t:file { read };
-
-# from booting
-allow lvm_t file_t:dir { getattr read };
-allow mount_t ptmx_t:chr_file { read write };
-allow mount_t rhgb_gph_t:fd { use };
-allow mount_t rhgb_t:unix_stream_socket { read write };
-allow rhgb_t staff_home_dir_t:dir { search };
-# from booting
-allow udev_t dbusd_t:unix_stream_socket { connectto };
-allow udev_t dbusd_var_run_t:dir { search };
-allow udev_t dbusd_var_run_t:sock_file { write };
-allow udev_t file_t:dir { search };
- 
+I fixed all my errors and inserted an own role called laufwerka_t. all 
+runs fine. also sudo is doing its job nicely until it should execute the 
+reboot command. I only get an error from apache called :
 
 
-# from exe=/usr/bin/mDNSResponder during boot
-allow user_t dns_port_t:udp_socket { name_bind };
-
-# from starting mozilla as staff_r
-allow staff_mozilla_t file_t:dir { getattr };
-allow staff_mozilla_t staff_home_t:file { unlink };
-allow staff_mozilla_t xdm_tmp_t:dir { search };
-
-# from normal gnome session as staff_r
-allow staff_screensaver_t xdm_tmp_t:dir { search };
-allow staff_screensaver_t xdm_tmp_t:sock_file { write };
-allow staff_t file_t:dir { getattr };
-allow staff_t staff_t:netlink_route_socket { create };
-
-#from starting postgresql server during boot and using postgresql as user.
-allow initrc_su_t postgresql_db_t:dir { search };
-allow user_t postgresql_db_t:dir { add_name getattr read remove_name
-search write };
-allow user_t postgresql_db_t:file { create getattr read rename unlink
-write };
-allow staff_t user_tmp_t:sock_file { write };
-allow staff_t user_t:unix_stream_socket { connectto };
+Could not set exec context to system_u:system_r:laufwerka_t.
 
 
+The laufwerka_t also got a filetype called laufwerka_src_t
+
+here is the most important parts of the definitions i made:
+domains/program/laufwerka.te:
+
+type laufwerka_t, admin, domain,  auth_chkpwd, privuser, privrole, 
+privlog, privowner, mlstrustedreader, mlstrustedwriter, 
+mlstrustedobject, privfd;
+role sysadm_r types laufwerka_t;
 
 
---------------030500070001020008000207
-Content-Type: text/plain;
- name="addthese.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="addthese.te"
+file_contexts/program/laufwerka.fc:
 
-#from " logrotate -f /etc/logrotate.conf" while root(sysadm_r) 
-allow logrotate_t devpts_t:dir { search };
-allow logrotate_t initrc_t:process { transition };
-allow logrotate_t mysqld_log_t:file { execute };
-allow logrotate_t mysqld_log_t:file { execute_no_trans };
-allow logrotate_t privoxy_log_t:file { execute };
-allow logrotate_t privoxy_log_t:file { execute_no_trans };
-allow logrotate_t selinux_config_t:dir { search };
-allow logrotate_t selinux_config_t:file { getattr read };
-allow logrotate_t staff_home_dir_t:dir { read search };
-allow logrotate_t var_t:file { getattr };
-allow logrotate_t var_t:file { read };
+/var/www/[^/]+/lwa(/.*)?        system_u:object_r:laufwerka_src_t
 
-# from booting
-allow lvm_t file_t:dir { getattr read };
-allow mount_t ptmx_t:chr_file { read write };
-allow mount_t rhgb_gph_t:fd { use };
-allow mount_t rhgb_t:unix_stream_socket { read write };
-allow rhgb_t staff_home_dir_t:dir { search };
-# from booting
-allow udev_t dbusd_t:unix_stream_socket { connectto };
-allow udev_t dbusd_var_run_t:dir { search };
-allow udev_t dbusd_var_run_t:sock_file { write };
-allow udev_t file_t:dir { search };
-                                                                                
-# from exe=/usr/bin/mDNSResponder during boot
-allow user_t dns_port_t:udp_socket { name_bind };
+types/files.te:
 
-# from starting mozilla as staff_r
-allow staff_mozilla_t file_t:dir { getattr };
-allow staff_mozilla_t staff_home_t:file { unlink };
-allow staff_mozilla_t xdm_tmp_t:dir { search };
+type laufwerka_src_t, file_type, sysadmfile;
 
-# from normal gnome session as staff_r
-allow staff_screensaver_t xdm_tmp_t:dir { search };
-allow staff_screensaver_t xdm_tmp_t:sock_file { write };
-allow staff_t file_t:dir { getattr };
-allow staff_t staff_t:netlink_route_socket { create };
+and finally the changes i made to the apache macro:
 
-#from starting postgresql server during boot and using postgresql as user.
-allow initrc_su_t postgresql_db_t:dir { search };
-allow user_t postgresql_db_t:dir { add_name getattr read remove_name search write };
-allow user_t postgresql_db_t:file { create getattr read rename unlink write };
-allow staff_t user_tmp_t:sock_file { write };
-allow staff_t user_t:unix_stream_socket { connectto };
+domain_auto_trans(httpd_t, laufwerka_src_t, laufwerka_t)
 
 
+Can anyone now tell me how i can use sudo to execute my reboot?
 
---------------030500070001020008000207--
+Thanks a lot
+
+Pascal Hahn
+
 
 
 --
