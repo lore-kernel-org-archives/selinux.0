@@ -1,35 +1,35 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53LErrT015342
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 17:14:53 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i54LEZls000799
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 17:14:36 -0400 (EDT)
-Date: Thu, 3 Jun 2004 21:12:15 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: tridge@samba.org
-Cc: SE-Linux <selinux@tycho.nsa.gov>, tng-technical@lists.samba-tng.org,
-   samba-technical@samba.org
-Subject: Re: se-samba
-Message-ID: <20040603211215.GK3856@lkcl.net>
-References: <200405312249.11522.rcoker@redhat.com> <16571.47722.750708.219840@samba.org> <20040531232931.GE8312@lkcl.net> <1086081794.3268.39.camel@localhost.localdomain> <20040601110924.GE8312@lkcl.net> <1086096477.3268.63.camel@localhost.localdomain> <20040601133547.GU8312@lkcl.net> <E1BV9Yp-0002wU-00@intern.SerNet.DE> <16573.1058.707078.949935@samba.org> <20040602124523.GA3708@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040602124523.GA3708@lkcl.net>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: Summary of Informal SELinux Meeting on May 6, 2004
+Date: Fri, 4 Jun 2004 18:03:23 +1000
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'SELinux'" <SELinux@tycho.nsa.gov>,
+   "'Fedora SELinux support list for users & developers.'" <fedora-selinux-list@redhat.com>
+References: <200406022032.i52KWuSf003348@gotham.columbia.tresys.com> <20040603195738.GE3856@lkcl.net>
+In-Reply-To: <20040603195738.GE3856@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406041803.23026.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-btw if anyone is concerned about the speed of a multi-processed
-arrangement (one daemon per service, where services equals
-double-digits as in samba-tng) then of course all you need
-to do to fix the fork() issue is to use the same approach as
-apache(1&2): have a pool of pre-forked processes on tap.
+On Fri, 4 Jun 2004 05:57, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+>  all in the same single monolithic daemon that bound itself
+>  to several different ports and several different unix domain
+>  sockets, you wouldn't seriously consider saying that "this
+>  hybrid is a trusted application" would you?
 
-in fact i am surprised that 1) smbd has not had such code added
-to it already 2) that serious consideration has not been given
-to using the new apache2 framework: careful analysis of libapr
-shows significant code duplication and similarity in key areas.
+"trusted" in this context does not mean "the code is great and we can totally 
+trust it", but rather "due to the design of the system we have no choice but 
+to trust it as it can totally break the security if it has a problem".
 
-l.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
