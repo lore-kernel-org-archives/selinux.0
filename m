@@ -1,37 +1,34 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9EEWwWt018770
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 10:32:58 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9EEWvhS008632
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 14:32:57 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9EEWvEs008629 for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 14:32:57 GMT
-Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9EEWuAn013678
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 10:32:57 -0400 (EDT)
-Subject: Re: [patch] 2.6.0-test7-selinux1
+Subject: Re: can't start X window in enforce mode
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <3F89E737.7090004@hotmail.com>
-References: <1065712103.8181.266.camel@moss-spartans.epoch.ncsc.mil>
-	 <3F89E737.7090004@hotmail.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Michael Reilly <michaelr@cisco.com>, lky <lky77@sjtu.edu.cn>,
+   SELINUX <SELinux@tycho.nsa.gov>
+In-Reply-To: <200310131752.11106.russell@coker.com.au>
+References: <000901c390ef$d8b3c770$5d38a8c0@lky>
+	 <3F89E077.9030802@cisco.com>  <200310131752.11106.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1066141976.5054.148.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1066143647.5054.178.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 14 Oct 2003 10:32:56 -0400
+Date: 14 Oct 2003 11:00:47 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-10-12 at 19:43, James de Lurker wrote:
-> I just can't get this to apply cleanly. I assume that the reference here is
-> the standard kernel.org linux-2.6.0-test7 ?
+On Mon, 2003-10-13 at 03:52, Russell Coker wrote:
+> On Mon, 13 Oct 2003 09:15, Michael Reilly wrote:
+> > I had both problems.  I added the dontaudit memory devices
+> > as mentioned in the file macros/program/xserver_macros.te.
+> >
+> > I have the second problem and have not yet solved it.  Nothing is logged
+> > and I cannot figure out what is wrong.
+> 
+> Try doing
+> grep -v dontaudit policy.conf > new-policy
+> mv new-policy policy.conf
+> 
+> Then load the policy and see what happens.
 
-Yes.
-
-$ wget ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-2.6.0-test7.tar.bz2
-$ tar xjf linux-2.6.0-test7.tar.bz2
-$ cd linux-2.6.0-test7
-$ patch -p1 < ~/2.6.0-test7-selinux1.patch
+There should likely be a policy Makefile target to generate and load
+a policy that does not suppress any auditing.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
