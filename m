@@ -1,50 +1,45 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBACKUIi019814
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 07:20:30 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBACIpwg019071
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 12:18:52 GMT
-Subject: Re: Single home directory type for all roles.
-From: Russell Coker <rcoker@redhat.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>,
-   SE Linux list <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@snu.edu>,
-   Jim Carter <jwcart2@epoch.ncsc.mil>, Colin Walters <walters@redhat.com>,
-   Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <20041209200301.59535.qmail@web50204.mail.yahoo.com>
-References: <20041209200301.59535.qmail@web50204.mail.yahoo.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBADI8Ii020088
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 08:18:08 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBADGUwg021655
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 13:16:30 GMT
+Subject: Re: Adding a new user domain
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Nick Gray <nick-lists@austin.rr.com>
+Cc: SE Linux list <selinux@tycho.nsa.gov>
+In-Reply-To: <1102631518.24067.29.camel@hawaii.grays-systems.com>
+References: <1102624510.24067.8.camel@hawaii.grays-systems.com>
+	 <1102624952.32175.249.camel@moss-spartans.epoch.ncsc.mil>
+	 <1102631518.24067.29.camel@hawaii.grays-systems.com>
 Content-Type: text/plain
-Date: Fri, 10 Dec 2004 23:20:26 +1100
-Message-Id: <1102681226.4509.139.camel@aeon>
+Message-Id: <1102684377.1628.14.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 10 Dec 2004 08:12:57 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-09 at 12:03 -0800, Casey Schaufler wrote:
-> In the U2X world the issue of /tmp was solved
+On Thu, 2004-12-09 at 17:31, Nick Gray wrote:
+> It appears that the file was in the wrong place
+> 
+> Now I am getting:
+> 
+> domains/user.te:3:ERROR 'syntax error' at token 'allow' on line 6742:
+> allow sysadm_r tomcat_r
+> allow system_r tomcat_r
+> /usr/bin/checkpolicy:  error(s) encountered while parsing configuration
+> make: *** [policy.18] Error 1
 
-What is U2X?
+First, note that user domains don't exist in targeted policy, so if you
+want to use them, you first have to convert to strict.  But you don't
+need them if all you want to do is confine a daemon.
 
->     /tmp becomes /tmp/<labelname>
+Second, you are missing semicolons above.
 
-There is talk of adding poly-instantiated directories to SE Linux which
-will give similar facilities.  I'm not aware of any code release yet
-though.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-> and then resolution continues. A process with a
-> "moldy" attribute of it's own is does not have the
-> additional component added, addressing the admin
-> issue. Some systems created the subdirectories on
-> reference, others required it be done
-> administratively. There are similar tricks that
-> can be played with variable symlinks.
-
-Yes, that solves many of the issues related to users attacking other
-users via sym-links.  But it doesn't entirely solve the issues related
-to attacking the administrator processes.  It's a fairly standard
-practice for the administrator to inspect the files of a user and modify
-them on occasion.  This means that the admin has to work inside the
-mouldy directory.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
