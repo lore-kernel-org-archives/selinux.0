@@ -1,46 +1,48 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9MEvXWt003742
-	for <selinux@tycho.nsa.gov>; Wed, 22 Oct 2003 10:57:33 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9MHmhWt004722
+	for <selinux@tycho.nsa.gov>; Wed, 22 Oct 2003 13:48:43 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9MEvVIE020211
-	for <selinux@tycho.nsa.gov>; Wed, 22 Oct 2003 14:57:31 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
-        by jazzband.ncsc.mil  with ESMTP id h9MEvU1J020208 for <selinux@tycho.nsa.gov>; Wed, 22 Oct 2003 14:57:30 GMT
-Subject: Re: questions about EA/ACL
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: lky <lky77@sjtu.edu.cn>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <00ac01c39838$4b173af0$5d38a8c0@lky>
-References: <00ac01c39838$4b173af0$5d38a8c0@lky>
+	by jazzband.ncsc.mil  with ESMTP id h9MHmbIE000254
+	for <selinux@tycho.nsa.gov>; Wed, 22 Oct 2003 17:48:37 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h9MHmb1J000250 for <selinux@tycho.nsa.gov>; Wed, 22 Oct 2003 17:48:37 GMT
+Subject: Re: [Patch] checkpolicy (3)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Joerg Hoh <joerg@devone.org>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+In-Reply-To: <20031021205052.GC3638@hydra.joerghoh.de>
+References: <20031020212056.GF3579@hydra.joerghoh.de>
+	 <1066738297.27065.9.camel@moss-spartans.epoch.ncsc.mil>
+	 <20031021154814.GA3638@hydra.joerghoh.de>
+	 <1066762919.27065.207.camel@moss-spartans.epoch.ncsc.mil>
+	 <20031021195947.GB3638@hydra.joerghoh.de>
+	 <1066767195.27065.227.camel@moss-spartans.epoch.ncsc.mil>
+	 <20031021205052.GC3638@hydra.joerghoh.de>
 Content-Type: text/plain
-Message-Id: <1066834645.15666.106.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1066844907.32228.35.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 22 Oct 2003 10:57:25 -0400
+Date: 22 Oct 2003 13:48:28 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-10-21 at 13:50, lky wrote:
-> Can I patch the 2.4-based or 2.6-based SELinux with the ACL patch and
-> run ACL with SELinux enabled? Or should I have to disable SELinux
-> before run the ACL? I just want both SELinux and ACL policy.I think
-> both the 2.4-based and 2.6-based SELinux have the EA patch,right?
-> thanks!
+On Tue, 2003-10-21 at 16:50, Joerg Hoh wrote:
+> The compiler itself does the this automatic cast (and only warns about
+> that); yeah, we may exclude this patch.
 
-The 2.6 kernel has support for EA and ACL already.  The 2.4 kernel does
-not have support built in for EA and ACL, but SELinux requires the use
-of the EA patch from acl.bestbits.at.  On the 2.4.21 kernel, the
-combined ea+acl+nfsacl patch from acl.bestbits.at was used for SELinux
-because the patch was not split into seperate pieces.  So if you are
-using 2.4.21 or 2.6 kernel, then you shouldn't have to patch your
-kernel, just enable ACL support.
-
-You do not have to disable SELinux to use ACLs, they use different
-extended attribute prefixes.
+Ok, so let's consider the changes in this patch besides the casting of
+constants, i.e. changing certain variables from int to size_t since they
+are used to store the return value of functions that return size_t, e.g.
+fwrite, strlen.  Using size_t for these variables avoids truncation on
+the return value, but note that some of these variables are subsequently
+assigned to u32 entries in a buf array (after conversion to little
+endian) and written out to the binary policy file.  So truncation of the
+value is still possible, and I'm puzzled that the compiler is not
+warning about this if sizeof(size_t) != sizeof(u32).
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
