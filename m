@@ -1,46 +1,44 @@
-From: gdsmarshall@hushmail.com
-Message-Id: <200206251543.g5PFhg451838@mailserver4.hushmail.com>
-To: SELinux@tycho.nsa.gov
-Subject: libsecure fails to compile
-Date: Tue, 25 Jun 2002 08:43:42 -0700
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11639
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 12:59:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA21245
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 16:58:41 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id QAA21241
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 16:58:39 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 7C39F92462
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 02:58:49 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 137142492
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 12:58:46 -0400 (EDT)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: macros like dir_file_class_set
+Date: Tue, 25 Jun 2002 12:58:45 -0400
+MIME-Version: 1.0
+Message-Id: <20020625165846.137142492@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Steve, could macros like dir_file_class_set be changed to expand to a single 
+line?
 
- 
-Hello,
+The reason is that I find it very conveniant to have all lines in the policy 
+file be independant.  Sure it's good to have the policy file be free-form to 
+enable the user to write such policy files, but for generated code I think 
+that every line should be atomic, so that for example I can do "grep -v 
+dontaudit" if I want to test something.
 
-I am trying to compile libsecure, but it fails with the below error.
-
-make -C src 
-make[1]: Entering directory `/root/selinux/selinux/libsecure/src'
-cc -o arch/i386/fstat64_secure.o -c -I../include -I/usr/local/selinux/include arch/i386/fstat64_secure.c
-In file included from arch/i386/fstat64_secure.c:6:
-arch/i386/xstat64_conv.h: In function `xstat64_conv':
-arch/i386/xstat64_conv.h:38: structure has no member named `__st_ino'
-make[1]: *** [arch/i386/fstat64_secure.o] Error 1
-make[1]: Leaving directory `/root/selinux/selinux/libsecure/src'
-make: *** [all] Error 2
-gatekeeper:~/selinux/selinux/libsecure#
-
-I understand xstat64_conv.h is missing __st_ino, what should this be please?
-
-I had no problems compiling the kernel which is now running quite happily,
-Linux gatekeeper 2.4.18-selinux #4 Mon Jun 24 18:18:25 BST 2002 i486 unknown
-
-I am using debian (stable)  I know Russell Coker has done lots of work with SELinux on debian, but I can not get to the stage of compiling the utilities yet.
-
-Many thanks for your help in advance,
-
-Spencer
-
-
-
-Communicate in total privacy.
-Get your free encrypted email at https://www.hushmail.com/?l=2
-
-Looking for a good deal on a domain name? http://www.hush.com/partners/offers.cgi?id=domainpeople
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
