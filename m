@@ -1,56 +1,70 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA05217
-	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 08:37:51 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA05749
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 09:49:47 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA06377
-	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 12:36:14 GMT
+	by jazzband.ncsc.mil  with ESMTP id NAA10331
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 13:48:09 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id MAA06373 for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 12:36:13 GMT
+        by jazzband.ncsc.mil  with ESMTP id NAA10291 for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 13:48:07 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E172D92466
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 23:49:41 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 93C5D411
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 15:49:33 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Swollen su_macros.te file
-Date: Tue, 13 Aug 2002 14:37:37 +0200
-Cc: selinux@tycho.nsa.gov
-References: <20020813113027.63095.qmail@web40015.mail.yahoo.com>
-In-Reply-To: <20020813113027.63095.qmail@web40015.mail.yahoo.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: ptrace permissions
+Date: Tue, 13 Aug 2002 15:49:33 +0200
 MIME-Version: 1.0
-Message-Id: <20020813123738.760622BA@lyta.coker.com.au>
+Message-Id: <20020813134933.93C5D411@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 13 Aug 2002 13:30, Brad Chapman wrote:
-> > > > So how do you cause the situation where your programs are running in
-> > > > the su domain and causing the errors to be logged?
-> > >
-> > >         I don't know. Does it have anything to do with the
-> > > domain_auto_trans() m4 macro, or does it have to do with the use of su
-> > > at all?
-> >
-> > Show me the error messages from your system logs that caused you to add
-> > all those rules.  They will contain the name of the program which was
-> > denied access.
->
->          TBH, I never retained any. But I can tell you that any and every
-> program not already covered caused errors. For example, programs like
-> rpm, lilo, kwrite, kedit, XFree86, quake3.x86, devfsd, insmod, depmod,
-> smbd, nmbd, etc would all generate errors, all from the scontext of
-> Brad:sysadm_r:sysadm_su_t (I made myself a sysadm as an experiment. Maybe
-> that's the problem?)
+root@test:/usr/src/test/woody# ps axf --context
+  PID    SID CONTEXT                                  COMMAND
+31819    432 root:user_r:user_t                       -bash
+31944    432 root:user_r:user_t                        \_ ps axf --context
+27769    432 root:user_r:user_t                       -bash
+23336    432 root:user_r:user_t                       -bash
+25574    511 root:user_r:chtest_super_t                \_ ./entry
+31943    512 root:user_r:chtest_t                     /sbin/syslogd
+29358    512 root:user_r:chtest_t                     /usr/sbin/sshd
+31789    512 root:user_r:chtest_t                      \_ /usr/sbin/sshd
+31790    512 root:user_r:chtest_t                          \_ -bash
+root@test:/usr/src/test/woody# id
+uid=0(root) gid=0(root) groups=0(root) context=root:user_r:user_t sid=432
+root@test:/usr/src/test/woody# strace -p 31943
+select(1, [], NULL, NULL, NULL <unfinished ...>
+root@test:/usr/src/test/woody# strace -p 29358
+select(7, [4], NULL, NULL, NULL <unfinished ...>
+root@test:/usr/src/test/woody# strace -p 31790
+attach: ptrace(PTRACE_ATTACH, ...): Operation not permitted
+root@test:/usr/src/test/woody# strace -p 31789
+attach: ptrace(PTRACE_ATTACH, ...): Operation not permitted
+root@test:/usr/src/test/woody# id
+uid=0(root) gid=0(root) groups=0(root) context=root:user_r:user_t sid=432
+root@test:/usr/src/test/woody#
 
-Firstly, you should not be running quake etc as sysadm_t.  Running programs 
-that are known to be a security risk (such as games) with administrative 
-privs is a bad idea.
+I am trying to strace programs in my chroot environment.  I can trace a 
+syslogd, a sshd, but the child sshd and a bash login shell it spawned are 
+untracable.  Here's the AVC message:
 
->          BTW, should I try your policy now, or wait until this is fixed,
-> then try your policy?
+avc:  denied  { sys_ptrace } for  pid=31984 comm=strace capability=19 
+scontext=root:user_r:user_t tcontext=root:user_r:user_t tclass=capability
 
-Either should work.  But if you want to try my policy then do it now.
+I'm using the latest SE Linux from the latest LSM kernel patch.
 
+The bash process is UID!=0, but the sshd is UID==0.
 
-Russell Coker
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
