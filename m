@@ -1,64 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA23888
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 12:49:15 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA12197
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 17:47:54 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id RAA12193
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 17:47:53 GMT
-Date: Wed, 20 Mar 2002 12:48:40 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: package configuration (for dpkg - rpm will have the same issues)
-In-Reply-To: <20020320171217.2BF8A3CF33@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0203201230580.11981-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA24263
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 13:44:31 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA06509
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 18:43:28 GMT
+Received: from c001.snv.cp.net (c001-h001.c001.snv.cp.net [209.228.32.115])
+        by jazzband.ncsc.mil  with SMTP id SAA06504 for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 18:43:26 GMT
+From: "Leslie J. French" <ljf@semandex.net>
+To: <selinux@tycho.nsa.gov>
+Subject: SMP mode?
+Date: Wed, 20 Mar 2002 13:44:51 -0500
+Message-ID: <BFEMIIHKHLALNELLMPOMGEMDCAAA.ljf@semandex.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Apologies for a newbie question, but I can't find anything explicit in the
+archive.
 
-On Wed, 20 Mar 2002, Russell Coker wrote:
+Is it known if SELinux works/doesn't work when installed on top of
+RedHat7.1-smp? I'm running a dual-processor system and the apps (which are
+very CPU & network intensive) work OK in the normal boot and fail
+mysteriously in SELinux (e.g. "Operation not permitted" but with nothing in
+the log, even in avc "permissive" mode). It's running 2002011718 version.
 
-> I don't like that idea at all.  Having two sources for the same data is
-> guaranteed to cause you trouble.
->
-> What benefit is there to using chsid instead of a hacked setfiles?
+I'll repeat the experiment on a single-CPU box, since it is most likely my
+fault, but I'd appreciate it if it's *known* that there are problems in this
+area.
 
-Perhaps there isn't any.
-
-setfiles was designed to set the security contexts for the entire
-filesystem in accordance with an overall configuration.  The intent was to
-only use it during installation to initialize the mappings and optionally
-later to reset the mappings to the initial state again.  You might also
-use it to implement wholesale changes to the mappings due to a major
-policy change.
-
-Once you've initialized the mappings and are running a SELinux kernel, the
-mappings are maintained dynamically by the kernel to reflect create,
-delete, and relabel (chsid) operations.  At that point, you can set the
-security context for particular files in a similar manner to the Unix
-ownership and mode via chcon or the modified file utilities.  Even apart
-from chsid operations, there will be some drift from the original setfiles
-configuration as new files are created, particularly when file type
-transition rules are defined that deviate from the parent directory's
-type.
-
-When a new package is installed on a system running SELinux, I expected
-chcon or the modified file utilities to be used to set the security
-context appropriately for its files in a similar manner to the use
-of chown/chmod or the existing file utilities for setting the Unix
-attributes.  But it also seems necessary to update the setfiles
-configuration for future installations, resets, or major policy changes.
-So perhaps a hacked setfiles is a good idea.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+Leslie French
+Semandex Networks
 
 
 --
