@@ -1,51 +1,44 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6S99srT008492
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 05:09:54 -0400 (EDT)
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6S99NAN027910
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 09:09:23 GMT
-Received: from localhost (shorty@debby [127.0.0.1])
-	by localhost.localdomain (8.12.11/8.12.11/Debian-5) with ESMTP id i6S99lJ4026387
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 11:09:47 +0200
-Subject: Addendum: SeLinux packages compiled smoothly on ppc (after some
-	help ..)
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1090967773.7271.2017.camel@debby>
-References: <1090967773.7271.2017.camel@debby>
-Content-Type: text/plain
-Message-Id: <1091005786.7265.2186.camel@debby>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6S9qErT008618
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 05:52:14 -0400 (EDT)
+Received: from sq.rns-nis.co.yu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6S9pdAN028795
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 09:51:44 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sq.rns-nis.co.yu (Postfix) with ESMTP id 106966BBEB
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 11:48:54 +0200 (CEST)
+Received: from sq.rns-nis.co.yu ([127.0.0.1])
+	by localhost (sq [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 31249-06 for <selinux@tycho.nsa.gov>;
+	Wed, 28 Jul 2004 11:48:49 +0200 (CEST)
+Received: from dl.oss.co.yu (mps.rns-nis.co.yu [194.247.213.6])
+	by sq.rns-nis.co.yu (Postfix) with ESMTP id A9A166BA59
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 11:48:48 +0200 (CEST)
+Date: Wed, 28 Jul 2004 11:46:31 +0200
+From: "Milan P. Stanic" <mps@rns-nis.co.yu>
+To: selinux@tycho.nsa.gov
+Subject: Re: New or Old SELinux
+Message-ID: <20040728094631.GA2977@rns-nis.co.yu>
+References: <1090955044.1886.49.camel@allhosts>
 Mime-Version: 1.0
-Date: Wed, 28 Jul 2004 11:09:46 +0200
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1090955044.1886.49.camel@allhosts>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-07-28 at 00:36, Wolfgang Pfeiffer wrote:
-> Hi all
-> 
-> With the patches/packages from (IIRC :)
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+On Tue, Jul 27, 2004 at 04:04:05PM -0300, Martin Sarsale wrote:
+> I would like to stay in stable but I couldn't find any of the New
+> SELinux (coreutils, procps, etc) enabled packages for deb stable, so I
+> guess I'll have to stick with the old SELinux (on kernels 2.4.x).
 
-should read:
-With the patches or packages plus patches from (IIRC :)
+Which kernel version you have on stable, 2.4 or 2.6?
 
-> http://www.coker.com.au/newselinux/
-> it's possible to build these binaries on ppc (on Debian/unstable and a
-> Powerbook G4):
->  [ ... ]
+I have backport (it is far from perfect, but it works) for woody with
+2.6 kernels at http://www.rns-nis.co.yu/~mps/
+It is few months old, though.
 
-IIRC: At least in one case (openssl) I took the package from a Debian
-mirror and and the patch for it from 
-http://www.coker.com.au/newselinux/
-
-This made the build with the Debian package build system easier for me
-... :)
-
-Sorry
-Wolfgang
--- 
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
-
+Backporting SE Linux utilities and libraries isn't hard at all,
+thanks to the excellent work of the Debian maintainer.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
