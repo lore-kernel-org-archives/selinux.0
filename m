@@ -1,49 +1,93 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CJmLrT019454
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 15:48:21 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7CJmLBo021234
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 19:48:21 GMT
-Subject: Re: device types
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <rcoker@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200408101539.14895.rcoker@redhat.com>
-References: <200408101539.14895.rcoker@redhat.com>
-Content-Type: text/plain
-Message-Id: <1092340025.16219.166.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 12 Aug 2004 15:47:05 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7DFNxrT024315
+	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 11:23:59 -0400 (EDT)
+Received: from mail.mvalent.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7DFNvRl014289
+	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 15:23:57 GMT
+Subject: vsftpd and security labels
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Date: Fri, 13 Aug 2004 11:23:58 -0400
+Message-ID: <E6E16A6D4277CD459BBDE6713766033CA50D95@exchange.mvalent.local>
+From: "James R. Marcus" <jmarcus@mvalent.net>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-08-10 at 01:39, Russell Coker wrote:
-> /u?dev/irlpt[0-9]+     -c      system_u:object_r:tty_device_t
-> 
-> Wouldn't it be more appropriate to have irlpt be printer_device_t?
-> 
-> /u?dev/md.*            -c      system_u:object_r:fixed_disk_device_t
-> 
-> In what situation will a /dev/md* device node be a character device?  The 
-> block devices are already labelled.  The only device nodes of class chr_file 
-> labelled with fixed_disk_device_t are for raw devices and a flash device, 
-> probably neither of which will work properly due to lack of policy.
-> 
-> 
-> I have attached a patch which fixes these problems and a couple of other minor 
-> issues (including making the /dev/*nrft* entries only take one line) and 
-> adding an entry for /dev/dm-* (which LVM on Fedora seems to create).
-> 
-> Finally I've added a solution to the BSD pty issue.  I've labelled all the 
-> device nodes as bsdpty_device_t and made domains that don't use such nodes 
-> have dontaudit rules for them.  This stops programs like sshd from trying all 
-> of the BSD pty's first and filling the audit logs for no good cause.
+I have been working on a problem with running vsftpd on SELinux for a
+while now.  My latest error complains about security labels.
+I read the FAQ on these types of errors and it said to make sure
+/selinux is mounted. 
+I recompiled my Kernel removing gr security in effort to resolve a
+similar issue.  
+When I recompile the kernel to I need to boot to a liveCD and do the
+chroot relabel?
 
-Thanks, merged.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I have run this command successfully in the past.
+ftp / # emerge sec-policy/selinux-ftpd
+Calculating dependencies ...done!
+>>> emerge (1 of 1) sec-policy/selinux-ftpd-20040713 to /
+>>> md5 src_uri ;-) selinux-ftpd-20040713.tar.bz2
+>>> Unpacking source...
+>>> Unpacking selinux-ftpd-20040713.tar.bz2 to
+/var/tmp/portage/selinux-ftpd-20040713/work
+>>> Source unpacked.
+ * Backup of policy source is "200408131113-selinux-ftpd.tar.bz2".
+
+>>> Install selinux-ftpd-20040713 into
+/var/tmp/portage/selinux-ftpd-20040713/image/ category sec-policy
+man:
+prepallstrip:
+strip: 
+>>> Completed installing into
+/var/tmp/portage/selinux-ftpd-20040713/image/
+
+>>> Merging sec-policy/selinux-ftpd-20040713 to /
+sfperms
+selinux
+>>> Setting SELinux security labels
+/usr/sbin/setfiles:  read 570 specifications
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_exec_t on
+line number 596
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_exec_t on
+line number 597
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_exec_t on
+line number 598
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_exec_t on
+line number 599
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_exec_t on
+line number 600
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_exec_t on
+line number 601
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_etc_t on
+line number 602
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_var_run_t on
+line number 603
+/usr/sbin/setfiles:  invalid context system_u:object_r:ftpd_var_run_t on
+line number 604
+/usr/sbin/setfiles:  invalid context system_u:object_r:xferlog_t on line
+number 605
+Exiting after 10 errors.
+
+!!! ERROR: sec-policy/selinux-ftpd-20040713 failed.
+!!! Function dyn_preinst, Line 906, Exitcode 1
+!!! Failed to set SELinux security labels.
+
+!!! FAILED preinst: 1
+
+
+ftp / # mount
+/dev/hda3 on / type xfs (rw,noatime)
+none on /dev type devfs (rw)
+none on /selinux type selinuxfs (rw)
+none on /proc type proc (rw)
+none on /sys type sysfs (rw)
+none on /dev/pts type devpts (rw)
+none on /dev/shm type tmpfs (rw)
+
+
 
 
 --
