@@ -1,105 +1,57 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA25597
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 13:12:36 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA21610
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 17:11:07 GMT
-Received: from austin.bmh.com (austin.bmh.com [216.54.77.38])
-        by jazzband.ncsc.mil  with ESMTP id RAA21606 for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 17:11:07 GMT
-Received: (from root@localhost)
-	by austin.bmh.com (8.11.6/8.11.2) id g6CHAK310987
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 13:10:20 -0400
-From: Natr Brazell <brazell@bmh.com>
-Message-ID: <63597.137.246.8.231.1026493819.squirrel@austin.bmh.com>
-Date: Fri, 12 Jul 2002 13:10:19 -0400 (EDT)
-Subject: =?iso-8859-1?Q?Re:_revising_the_su_decision?=
-To: jabiru_croc@yahoo.com
-In-Reply-To: <20020712111941.30466.qmail@web40009.mail.yahoo.com>
-References: <20020712111941.30466.qmail@web40009.mail.yahoo.com>
-Cc: russell@coker.com.au, selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA25984
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 14:10:18 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA07677
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 18:09:41 GMT
+Received: from unicorn.lemuria.org (b067043.adsl.hansenet.de [62.109.67.43])
+	by jazzswing.ncsc.mil  with ESMTP id SAA07673
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 18:09:40 GMT
+Date: Fri, 12 Jul 2002 20:06:08 +0200
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: revising the su decision
+Message-ID: <20020712200607.C26001@lemuria.org>
+References: <20020712111941.30466.qmail@web40009.mail.yahoo.com> <63597.137.246.8.231.1026493819.squirrel@austin.bmh.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <63597.137.246.8.231.1026493819.squirrel@austin.bmh.com>; from brazell@bmh.com on Fri, Jul 12, 2002 at 01:10:19PM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just joined this mailing list so perhaps my question is already answered  
-however...
+On Fri, Jul 12, 2002 at 01:10:19PM -0400, Natr Brazell wrote:
+> facility I am at even though no one knows anything about selinux expect 
+> how to spell it so I guess I am the expert.  (Haven't got the T-Shirt yet) 
+> but I have got people looking at my configuration as a starting point for 
+> future projects.  Now to my question...
+> 
+> ...  What is this lists proposal for how to manage and push to multiple 
+> machines quickly and securely based on the above comments?
 
-...  I work in an R&D environment with machines that are usually up and 
-configured for the duration of the experiment and then scrapped and 
-reloaded  for the next experiment.  Usually a time span of two months at 
-the most.  While in the experiment there are several tasks that must be 
-done consistently across all of my machines such as verifying time sync 
-with ntp etc.  In the past we used rsh (no really) with .rhosts files and 
-wrote scripts to push from a single entry point to manage all the machines 
-at the same time.  We also use this configuration to push new software 
-builds (every morning) across all machines.  When I say all machines I am 
-addressing 30-65 or more PCs.  Using SELINUX is a requirement at the 
-facility I am at even though no one knows anything about selinux expect 
-how to spell it so I guess I am the expert.  (Haven't got the T-Shirt yet) 
-but I have got people looking at my configuration as a starting point for 
-future projects.  Now to my question...
+I'm probably about as much expert as you are (no T-shirt, either) so
+don't trust me unless someone else says I got it right, but this is
+what I think would be the right way to do it:
 
-...  What is this lists proposal for how to manage and push to multiple 
-machines quickly and securely based on the above comments?
+a) SELinux basic assumption is not to trust, especially not remote
+parties. that's a Good Thing(tm).
 
-Nate Brazell
-BMH Associates, Inc
-Leaders in Modeling and Simulation
-System Administrator
-> Mr. Coker,
-> 
-> --- Russell Coker <russell@coker.com.au> wrote:
->> Up until now the su program was not modified, so changing to a
->> different UID  was a separate and independant operation from changing
->> domain via newrole.
->> 
->> However now that the sshd policy has been set to default to not allow
->> logins  as sysadm_r:sysadm_t this causes some inconveniance.  I have
->> to ssh in to my  server as a non-root account with a non-sysadm_r
->> context.  Then I have to use
-> 
->> newrole to change to sysadm_r (entering the password), and then I have
->> to su  to the root account (entering the root password).
->> 
->> This requires entering the password two times (or three if not using
->> ssh  authorized_keys).
->> 
->> This is excessively painful, and I think that to make SE Linux more
->> usable we
-> 
->> need to address this issue, possibly by changing su to allow it to
->> change  roles too.
->> 
->> What do you think?
-> 
->           Why do you have to change your role to sysadm_r before su'ing
->           to
-> root? I was under the impression that becoming uid 0 by either logging
-> in or su'ing was sufficient.....
-> 
-> Brad
-> 
-> 
-> =====
-> Brad Chapman
-> 
-> Permanent e-mails: kakadu_croc@yahoo.com
-> 		   jabiru_croc@yahoo.com
-> 		   tanami_croc@devel.lbsd.net
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> Sign up for SBC Yahoo! Dial - First Month Free
-> http://sbc.yahoo.com
-> 
-> --
-> You have received this message because you are subscribed to the
-> selinux list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
-> quotes as the message.
+b) so, what you need is a trusted process ON the machines. ideally,
+with a policy crafted specifically for it. I'll call this process
+instwa, the "install watcher". it could be as simple as a cronjob
+called every 5 minutes that essentially does:
 
+if ( any file in /var/install ) then ( rpm/dpkg/whatever -i $file )
 
+c) give your remote/install user write priviledges for /var/install
+
+d) voila. you can push software unto the machines and the instwa will
+take care of the installation.
+
+-- 
+New GPG Key issued (old key expired):
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 You have received this message because you are subscribed to the selinux list.
