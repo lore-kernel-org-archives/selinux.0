@@ -1,60 +1,58 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Karl MacMillan" <kmacmillan@tresys.com>
-Subject: Re: Now that SELinux supports booleans should we replace tunables with booleans?
-Date: Wed, 14 Apr 2004 23:38:51 +1000
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   "'SELinux'" <SELinux@tycho.nsa.gov>,
-   "'Selinux Dev'" <selinux-dev@tresys.com>
-References: <200404141310.i3EDAlJx015401@gotham.columbia.tresys.com>
-In-Reply-To: <200404141310.i3EDAlJx015401@gotham.columbia.tresys.com>
+Message-ID: <013401c42226$2d5037b0$010aff0a@gw>
+From: "todd glassey" <todd.glassey@worldnet.att.net>
+To: "Tom" <tom@lemuria.org>, "'SELinux'" <SELinux@tycho.nsa.gov>
+References: <187711B80DB3334B97BBC3AD87859D3D02210FE7@nor-msg7.stortek.com> <20040414111002.E26635@lemuria.org>
+Subject: Re: Logo Artwork for SELinux?
+Date: Wed, 14 Apr 2004 06:37:44 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200404142338.51788.russell@coker.com.au>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 14 Apr 2004 23:11, "Karl MacMillan" <kmacmillan@tresys.com> wrote:
-> > For most items in tunable.te they won't be changed often or for small
-> > reasons.
-> > In some cases changing tunable.te will require application restart (or
-> > system
-> > reboot) to fully take affect.
+Tom - you are forgetting - this is not a logo for the team - its a visual
+moniker for tagging this effort "for the rest of the world"...
+
+Todd
+
+----- Original Message ----- 
+From: "Tom" <tom@lemuria.org>
+To: "'SELinux'" <SELinux@tycho.nsa.gov>
+Sent: Wednesday, April 14, 2004 2:10 AM
+Subject: Re: Logo Artwork for SELinux?
+
+
+> On Tue, Apr 13, 2004 at 10:57:44AM -0400, Dowd, Alan S wrote:
+> > This whole thread reminds me of a scene near the end of the TV broadcast
+> > version of "The Hitchhikers Guide to the Galaxy." Our protagonists are
+> > stranded on Neolithic Earth with a spaceship (Galgafringian Arkship B)
+full
+> > of "middlemen," among them marketing executives. The marketing
+executives
+> > have formed a committee to reinvent the wheel. Their major concern is
+"What
+> > color should it be?" We're all demonstrating our outstanding
+qualifications
+> > for Arkship B here.
 >
-> Why is a reboot required?
-
-If we have a tunable option to determine which domain processes run in (such 
-as single_userdomain) or a tunable that determines the identity that daemons 
-get (such as direct_sysadm_daemon) then restarting processes is necessary.  
-Some people find it difficult to do this successfully and find it easier to 
-do a reboot.
-
-> > The aim of booleans is for things that are designed to be transient (EG
-> > secure
-> > levels).
+> :)
 >
-> I don't agree completely with this. Booleans allow well defined policy
-> changes to be made by domains without policy compilation and reloading
-> privileges. In order to use the tunables, a user/domain must have full
-> access to change anything about the policy. With the booleans a user can be
-> authorized to change a portion of the policy in a specific way without any
-> other policy privileges. This seems like an important advantage to me.
+> Then again, when you look at code all day, it is very refreshing to do
+> some visual creative work for a change.
+>
+>
+>
+> -- 
+> PGP/GPG key: http://web.lemuria.org/pubkey.html
+> pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+>      Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+> the words "unsubscribe selinux" without quotes as the message.
 
-The advantages of booleans are clear IMHO.  But they don't seem applicable to 
-something that will be set at install time on a system that is capable of 
-building a policy.  Maybe for an iPaQ booleans for tunable options would be 
-good.  For a desktop or server they seem to offer less benefits.
-
-Finally, for booleans both options have to be in the policydb and in the 
-kernel at run-time.  For tunable.te they aren't, and can significantly reduce 
-the policy size.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
