@@ -1,86 +1,91 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14271
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 09:06:00 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14752
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 09:58:42 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA08750
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:03:44 GMT
-Received: from hellcat.admin.navo.hpc.mil (hellcat.admin.navo.hpc.mil [204.222.179.34])
-	by jazzswing.ncsc.mil  with ESMTP id OAA08746
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:03:43 GMT
+	by jazzswing.ncsc.mil  with ESMTP id OAA11724
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:56:26 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id OAA11720
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:56:24 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: "Subba Rao" <sailorn@attglobal.net>, Russell Coker <russell@coker.com.au>,
-        selinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux compile errors
-Date: Mon, 2 Dec 2002 08:04:16 -0600
-References: <200211301704.RAA19613@jazzband.ncsc.mil>
-In-Reply-To: <200211301704.RAA19613@jazzband.ncsc.mil>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Jesse Pollard <pollard@admin.navo.hpc.mil>, selinux@tycho.nsa.gov
+Subject: Re: expect
+Date: Mon, 2 Dec 2002 15:58:27 +0100
+References: <200211292002.PAA23890@moss-shockers.ncsc.mil> <200212011308.58878.russell@coker.com.au> <200212020809.20563.pollard@admin.navo.hpc.mil>
+In-Reply-To: <200212020809.20563.pollard@admin.navo.hpc.mil>
 MIME-Version: 1.0
-Message-Id: <200212020804.16595.pollard@admin.navo.hpc.mil>
+Message-Id: <200212021558.27661.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 30 November 2002 11:03 am, Subba Rao wrote:
-> I will first try the SSH without the kerberos option.  If it works then I
-> will  file a bug report for Slackware.
+I've had a new idea while writing this message and put it at the top.  If 
+someone in .gov/.mil can make sure this gets to Steve I'd appreciate it (his 
+server doesn't seem to like my server).
 
-It's not exactly a Slackware problem. They accept the configuration as defined 
-by  the person making the submission.
+Allowing daemons the tty access could probably be addressed in another way.  
+If we had a separate role and domain for starting daemons that could be 
+entered with newrole (which then removes the need for run_init as the role 
+would not have permission to do anything other than restarting daemons) we 
+could then allow all daemons read/write/ioctl access to the terminal for it.  
+Then if we deny the daemons read access to /dev (wherever possible) and 
+/dev/pts (always) then after you exit the shell that newrole ran (relabelling 
+your tty) the daemon won't be able to access your tty or open other ttys.
 
-Since you are doing a raw rebuild, you have to specify the "without-kerberos5"
-and possibly "without-kerberos4" as well.
+This would also mean that if you have several daemons to restart (EG an LDAP 
+error forces me to restart everything that uses LDAP - POP, mail server, 
+nscd, etc) you could just type the commands in instead of having to enter 
+your password many times.
 
-This is a leftover ? from adding kerberos support to OpenSSH by the OpenSSH
-project. This was added only within the last 2/3 months, and the people using
-it/developing it MUST have Kerberos included (Major Shared Resource Center
-as part of the DoD HPC modernization program - me incuded as a user). I don't
-know why it is on by default since it is useless without the path to the
-Kerberos libraries. It may actually be a bug in the "configure" phase and not
-a bug in the code.
+I believe that this isn't as good as my solution with expect, and it isn't 
+something that can be done in a hurry either.
 
-> ======= At 2002-11-30, 17:58:00 you wrote: =======
+On Mon, 2 Dec 2002 15:09, Jesse Pollard wrote:
+> > I have made my Debian packages depend on the appropriate version of
+> > expect so you can just install the packages and be sure that the right
+> > things are automatically installed.
 >
-> >On Sat, 30 Nov 2002 17:45, Subba Rao wrote:
-> >> /usr/include/bits/string2.h:446: warning: pointer of type `void *' used
-> >> in arithmetic /usr/include/bits/string2.h:448: warning: pointer of type
-> >> `void *' used in arithmetic /usr/include/bits/string2.h:453: warning:
-> >> pointer of type `void *' used in arithmetic
-> >
-> >That looks like a bug in the string2.h file, but it might be a bug in
-> >something else that it depends on.
-> >
-> >Does Slackware have a bug tracking system?  If so file a bug report about
-> >this.
-> >
-> >> gcc -g -O2 -Wall -Wpointer-arith
-> >> -Wno-uninitialized -DWITH_SELINUX -I/usr/local/selinux/include -I. -I.
-> >> -I/usr/kerberos/include -DSSHDIR=\"/etc/ssh\"
-> >> -D_PATH_SSH_PROGRAM=\"/usr/bin/ssh\"
-> >> -D_PATH_SSH_ASKPASS_DEFAULT=\"/usr/libexec/openssh/ssh-askpass\"
-> >> -D_PATH_SFTP_SERVER=\"/usr/libexec/openssh/sftp-server\"
-> >> -D_PATH_SSH_KEY_SIGN=\"/usr/libexec/openssh/ssh-keysign\"
-> >> -D_PATH_SSH_PIDDIR=\"/var/run\"
-> >> -D_PATH_PRIVSEP_CHROOT_DIR=\"/var/empty\"
-> >> -DSSH_RAND_HELPER=\"/usr/libexec/openssh/ssh-rand-helper\"
-> >> -DHAVE_CONFIG_H -c monitor_wrap.c In file included from
-> >> monitor_wrap.c:36:
-> >> auth.h:42: krb5.h: No such file or directory
-> >> make[1]: *** [monitor_wrap.o] Error 1
-> >> make[1]: Leaving directory `/usr/src/selinux/utils/openssh-3.4p1'
-> >> make: *** [xopenssh] Error 2
-> >>  --------------------------------------
-> >
-> >Have you tried adding --without-kerberos5 to the ./configure for ssh?
->
-> = = = = = = = = = = = = = = = = = = = =
+> IMHO not the best solution, since the existance of "expect" depends
+> entirely on local policy. At our site, it is not to be installed without a
+> LOT of justification first, and only with policy wavers on an individual
+> basis.
+
+Expect is in the main section of Debian.  It's a fully supported program, not 
+something that has to be separately installed.
+
+Not using expect requires another solution to the problem of daemons wanting 
+to write startup messages to terminals.  The CVS policy has no solution to 
+this problem, thus in a default install the administrator is UNABLE to 
+restart many popular daemons without rebooting the server!!!
+
+The situation in the CVS might be suitable for your use, but it is not 
+suitable for the majority of Debian users.  SE Linux is currently not getting 
+significant use in Debian because the ratio of effort to result is not 
+percieved as being good enough.  Removing expect significantly increases the 
+effort and thus makes the situation worse.
+
+In my judgement the solution I have adopted is the best for my use, my 
+clients, and every Debian administrator I know.
+
+If you have a better solution then I'd like to hear of it!
+
+Currently IMHO there are two options, what I have done with expect, and 
+allowing all daemons read/write access to the administrator tty.
+
+> Making it mandatory for the system to function would mean that the Debian
+> distribution will not be permitted. This isn't a major problem for us, at
+> least, since we have standardized on RH.
+
+Which means of course there's no reason for me to change on your account.
 
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Any opinions expressed are solely my own.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
