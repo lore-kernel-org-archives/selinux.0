@@ -1,55 +1,45 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i83Dn5rT007462
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 09:49:05 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i83Dn4UQ019759
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 13:49:04 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 0753BC4C09A
-	for <selinux@tycho.nsa.gov>; Fri,  3 Sep 2004 15:49:04 +0200 (CEST)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 14560-10 for <selinux@tycho.nsa.gov>;
-	Fri, 3 Sep 2004 15:49:03 +0200 (CEST)
-Received: from wintermute.xmldesign.de (pD9E4F7B2.dip.t-dialin.net [217.228.247.178])
-	by legolas.drinsama.de (Postfix) with ESMTP id D3A2FC4C098
-	for <selinux@tycho.nsa.gov>; Fri,  3 Sep 2004 15:49:02 +0200 (CEST)
-Received: from [127.0.0.1] (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id D046B234095
-	for <selinux@tycho.nsa.gov>; Fri,  3 Sep 2004 15:49:00 +0200 (CEST)
-Subject: automatic copying files between machines
-From: Erich Schubert <erich@debian.org>
-To: SE-Linux <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i83DtdrT007553
+	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 09:55:39 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i83DsnFY009187
+	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 13:54:49 GMT
+Subject: Re: reiferfs in SUSE9.1
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200409031338.i83DccKp019984@mms-r01.iijmio.jp>
+References: <200409031338.i83DccKp019984@mms-r01.iijmio.jp>
 Content-Type: text/plain
-Date: Fri, 03 Sep 2004 15:49:00 +0200
-Message-Id: <1094219340.22849.26.camel@wintermute.xmldesign.de>
+Message-Id: <1094219636.19206.135.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 03 Sep 2004 09:53:56 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-i have some SELinux machines running just fine.
-One is doing E-mail, the other is playing filewall and doing DNS etc.
+On Fri, 2004-09-03 at 09:38, Yuichi Nakamura wrote:
+> Some people in Japan(including me) say that they can not use reiserfs in SUSE9.1(selinux enabled).
+> 
+> In fs_use, we added the following.
+> fs_use_xattr reiserfs system_u:object_r:fs_t.
+> 
+> System boot succeeds but hangs up in init scripts.
+> # I forget correct place,sorry because I do not have the environment now...
+> 
+> We can use SELinux in SUSE9.1 with ext3 filesystem.
+> 
+> Does anyone use reiserfs in SUSE9.1?
 
-On the mail machine i'd like to do some statistics, using mailgraph.
-I've already written a policy for that (except for the cgi), but i don't
-have (and want) a webserver on that box. Therefore i'd like to transfer
-the rrd files with a cronjob to a nearby machine which does have a web
-server (and later on to a central admin machine, collecting all such
-data).
+reiserfs is known to not work with SELinux.  There is a deadlock in the
+reiserfs xattr code when interacting with SELinux, and there is no way
+presently for reiserfs to inform SELinux that it shouldn't try to
+mediate access to the internal directories and files used to store the
+xattrs.  reiserfs maintainers know about the issues, but not clear that
+they care...
 
-What is the best "SELinux-way" of doing such?
-Authentication is less an issue - the two machines are on a switched
-network, i know their MACs and anyone having physical access to the
-switch, well, i can't prevent him from doing bad stuff anyway...
-But i'd like to have these things SELinux-clean. ;-)
-
-Greetings,
-Erich Schubert
 -- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
-    A polar bear is a rectangular bear after a coordinate transform.   //\
- Mancher findet sein Herz nicht eher, als bis er seinen Kopf verliert. V_/_
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
