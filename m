@@ -1,48 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16D3FRb022325
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 08:03:15 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i16D3EOi020422
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 13:03:14 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i16D3DWW020370 for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 13:03:13 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Tomas Hoger <thoger@pobox.sk>, Eric Estabrooks <eric@urbanrage.com>
-Subject: Re: selinux-policy-default
-Date: Sat, 7 Feb 2004 00:01:49 +1100
-Cc: selinux@tycho.nsa.gov
-References: <40232CBB.7020607@urbanrage.com> <20040206103154.GA939@moche.atriaky.sk>
-In-Reply-To: <20040206103154.GA939@moche.atriaky.sk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402070001.49328.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16EHhRb022671
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 09:17:44 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i16EGLQk023240
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 14:16:21 GMT
+Received: from nox.lemuria.org ([213.191.86.35])
+	by jazzswing.ncsc.mil  with ESMTP id i16EGLYo023228
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 14:16:21 GMT
+Date: Fri, 6 Feb 2004 15:17:21 +0100
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: Conference News from Germany
+Message-ID: <20040206151721.C3787@lemuria.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 6 Feb 2004 21:31, Tomas Hoger <thoger@pobox.sk> wrote:
-> On Thu, Feb 05, 2004 at 11:57:15PM -0600, Eric Estabrooks wrote:
-> > domains/admin.te:32:ERROR 'unknown type sysadm_locate_t' at token ';' on
-> > line 5974:
-> > allow sysadm_locate_t { sysadm_mozilla_ro_t sysadm_mozilla_rw_t }:dir {
-> > getattr
-> > search };
->
-> I came across similar problem yesterday evening.  I think problem is that
-> *_locate_t domains are not created in user_domain and admin_domain macros.
-> See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=231343 , there you can
-> find simple patch which solved problem for me.  Can anyone look at it and
-> tell if my solution is correct?
+Two updates:
 
-I'll upload a new version of the package to fix this shortly.
+
+One, my speech at the DFN-CERT workshop was very good, and
+well-received by the audience of about 300 visitors. The moderator had
+to cut the (15 min) questions session off and I continued answering
+questions in the foyer for at least half an hour afterwards. 
+Interest in SELinux was very high, from university admins to
+consultants with some bank ("sorry, I can't tell you which one").
+
+
+Two, Carsten and I will be speaking again at the Cebit, europes largest
+computer fair, on Friday, March 19. There is a "Linux Park" area with
+scheduled speeches, and we were both invited to talk there, which we
+gladly will. The audience there is expected to be quite technical and
+knowledgable, and there will probably be a speech about RSBAC the same
+day, so we may have a couple good questions to answer.
+
+
+
+In other news, I can heavily recommend the Gentoo Live CD. I used it at
+the DFN-CERT workshop for demoing an SELinux system. The absolute only
+thing I missed was the policy sources, it would've been cool to be able
+to show a few policy files as well.
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
