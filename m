@@ -1,48 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i23FT1Rb011614
-	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2004 10:29:02 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i23FRM6Q019463
-	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2004 15:27:22 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i23FQf5t019327
-	for <selinux@tycho.nsa.gov>; Wed, 3 Mar 2004 15:27:21 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id A89A161C71
-	for <selinux@tycho.nsa.gov>; Thu,  4 Mar 2004 02:26:57 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 09849-05 for <selinux@tycho.nsa.gov>;
-	Thu, 4 Mar 2004 02:26:57 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 58D2261C70
-	for <selinux@tycho.nsa.gov>; Thu,  4 Mar 2004 02:26:57 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 1797E53670
-	for <selinux@tycho.nsa.gov>; Thu,  4 Mar 2004 02:26:56 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: policy booleans
-Date: Thu, 4 Mar 2004 02:26:55 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200403040226.55513.russell@coker.com.au>
+Subject: Re: [Announce][Patch] Enhanced MLS support
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chad Hanson <chanson@tcs-sec.com>
+Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@redhat.com>
+In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA309E3BA@chaos.tcs.tcs-sec.com>
+References: <791924EBDA572C4FA970D4A94AA95DA309E3BA@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain
+Message-Id: <1078327895.13948.56.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 03 Mar 2004 10:31:36 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Would it be possible for booleans to apply to things other than allow 
-statements?
+On Tue, 2004-03-02 at 14:44, Chad Hanson wrote:
+> Attached are patches to enable the detection of MLS on a SELinux system. 
+> 
+> This consists of an mls object inside of selinuxfs (/selinux/mls), a library
+> call for libselinux (is_selinux_mls_enabled()), and application patches for
+> pam and init. The init patch enables loading of MLS or non-MLS policy
+> depending on kernel configuration. The pam patch will ask for the MLS level
+> if a default context is not found.
 
-I would like to have booleans determining which domains are allowed in a role, 
-and which role transitions are permitted.
+The init and pam patches will need to go to Dan (cc'd above) for
+inclusion after we have released a libselinux that includes
+is_selinux_mls_enabled().  This can happen independently of the kernel
+support getting into the Fedora kernel, as is_selinux_mls_enabled() will
+return 0 if /selinux/mls doesn't exist at all.  With regard to the init
+patch, it would likely be cleaner to bracket the snprintf with your test
+of is_selinux_mls_enabled() and print the entire version string
+(including -mls suffix if appropriate) once to the policy_file buffer;
+the separate strncat could theoretically overflow the buffer and is
+wasteful anyway (having to walk the string again).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
