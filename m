@@ -1,61 +1,114 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOFwqIi020494
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 10:58:53 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOFvMgi023442
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:57:22 GMT
-Subject: Re: xen 2.0 - adding selinux permissions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20041124154936.GB14100@lkcl.net>
-References: <20041123220352.GF5146@lkcl.net>
-	 <1101303556.22014.56.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041124150927.GP5146@lkcl.net>
-	 <1101308769.22014.136.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041124154936.GB14100@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1101311675.22014.165.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Wed, 24 Nov 2004 10:54:35 -0500
+Message-ID: <41A4B35B.3050902@redhat.com>
+Date: Wed, 24 Nov 2004 11:14:19 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Still getting random execute permissions on shared libraries.
+References: <41A3EC21.1090200@comcast.net> <1101303008.22014.47.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1101303008.22014.47.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-24 at 10:49, Luke Kenneth Casson Leighton wrote:
->  okay, regarding the second argument to avc_has_perm(),
->  i asked the nice xen developers if it'd be possible to
->  associate a sid with each virtual machine.
-> 
->  i mean, if nothing else, it's a matter of grabbing the
->  number (id) of the xen machine being contacted and faking up
->  a sid - sprintf(sid, "xen_vm_%d_t", xen_id);
-> 
->  which is pretty yuk.
-> 
->  how would i go about _not_ hacking something like that up?
-> 
->  how would it be possible for the xen master machine to create
->  a sid per xen machine?  xen_vm_0_t, xen_vm_1_t etc.
+Stephen Smalley wrote:
 
-I'm not clear on how you intend to use these distinct security contexts
-(and let's not confuse them with SIDs), particularly for the management
-interface.  You are applying a check as to whether a given process on
-the master can perform a given control operation; in what case would you
-need to distinguish on a per-VM basis?
+>On Tue, 2004-11-23 at 21:04, Daniel J Walsh wrote:
+>  
+>
+>>Trying to run java from within firefox is a disaster, Mozilla crashes.
+>>
+>>allow user_mozilla_t ld_so_cache_t:file execute;
+>>allow user_mozilla_t lib_t:file execute; (Jar files)
+>>allow user_mozilla_t user_tmp_t:file execute;
+>>allow user_t ld_so_cache_t:file execute;
+>>allow user_t locale_t:file execute;
+>>    
+>>
+>
+>They aren't random.  As discussed previously here and on
+>fedora-selinux-list, execution of a legacy binary causes the
+>read_implies_exec behavior to be enabled for the process, so that
+>subsequent read requests are transparently mapped to read|execute.  This
+>was a change in the upstream kernel, not SELinux, and was to allow
+>introduction of NX support without breaking compatibility with legacy
+>binaries.  SELinux is merely checking permissions based on the
+>information supplied by the core kernel.
+>
+>Your options are:
+>- get java rebuilt with a PT_GNU_STACK header so the kernel doesn't
+>treat it as a legacy binary (assuming that it doesn't assume that read
+>implies exec),
+>- change policy to allow execute permission in these cases (although it
+>would be preferable here to move java into its own domain in that case,
+>so that you only have to allow it these permissions and not the entire
+>user domain or mozilla domain).
+>  
+>
+I can't do either.  We do not ship java jre.  It comes from Sun.  If 
+someone out there could
+ask them to build it with PT_GNU_STACK it would be helpful.
 
-Now, if you want to control interactions among the VMs or access by a VM
-to a resource, that is another matter, but I'm not clear that is going
-to be visible to SELinux at all.  IIUC, with NetTop/VMWare, there was a
-process on the host OS for each VM and the host OS was used for access
-to files, devices, etc, so SELinux on the host could associate a
-different domain with each of those processes and control their access
-to files, devices, etc.  But I don't think the situation is the same
-with Xen.
+This is using java runtime environment so I don't believe there is any 
+execing going on,  So my only
+choice would be to allow mozilla these privs.  I added the following 
+changes to make it work.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+diff --exclude-from=exclude -N -u -r 
+nsapolicy/macros/program/mozilla_macros.te 
+policy-1.19.5/macros/program/mozilla_macros.te
+--- nsapolicy/macros/program/mozilla_macros.te    2004-11-24 
+07:00:51.000000000 -0500
++++ policy-1.19.5/macros/program/mozilla_macros.te    2004-11-24 
+10:57:51.332334406 -0500
+@@ -29,7 +29,8 @@
+ 
+ allow $1_mozilla_t usr_t:{ lnk_file file } { getattr read };
+ allow $1_mozilla_t var_lib_t:file { getattr read };
+-allow $1_mozilla_t urandom_device_t:chr_file { getattr ioctl read };
++allow $1_mozilla_t { random_device_t urandom_device_t }:chr_file { 
+getattr ioctl read append };
++
+ allow $1_mozilla_t self:socket create_socket_perms;
+ allow $1_mozilla_t self:file { getattr read };
+ 
+@@ -117,8 +118,20 @@
+ dontaudit $1_mozilla_t file_type:dir getattr;
+ allow $1_mozilla_t self:sem create_sem_perms;
+ 
++ifdef(`userhelper.te', `
++domain_auto_trans($1_mozilla_t, userhelper_exec_t, $1_userhelper_t)
++')
+ dontaudit $1_mozilla_t selinux_config_t:dir search;
+ 
++#
++# Rules needed to run java apps
++#
++allow $1_mozilla_t ld_so_cache_t:file execute;
++allow $1_mozilla_t locale_t:file execute;
++dontaudit $1_mozilla_t *:{ chr_file file } execute;
++dontaudit $1_t ld_so_cache_t:file execute;
++dontaudit $1_t locale_t:file execute;
++
+ ifdef(`xdm.te', `
+ allow $1_mozilla_t xdm_t:fifo_file { write read };
+ allow $1_mozilla_t xdm_tmp_t:dir search;
 
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc 
+policy-1.19.5/file_contexts/types.fc
+--- nsapolicy/file_contexts/types.fc    2004-11-24 07:00:50.000000000 -0500
++++ policy-1.19.5/file_contexts/types.fc    2004-11-24 
+10:57:51.324335309 -0500
+@@ -334,6 +334,9 @@
+ /usr(/.*)?            system_u:object_r:usr_t
+ /usr(/.*)?/lib(64)?(/.*)?    system_u:object_r:lib_t
+ /usr(/.*)?/lib(64)?/.*\.so(\.[^/]*)*    --    system_u:object_r:shlib_t
++/usr(/.*)?/java/.*\.so(\.[^/]*)*    --    system_u:object_r:shlib_t
++/usr(/.*)?/java/.*\.jar    --    system_u:object_r:shlib_t
++/usr(/.*)?/java/.*\.jsa    --    system_u:object_r:shlib_t
+ /usr(/.*)?/lib(64)?(/.*)?/ld-[^/]*\.so(\.[^/]*)* system_u:object_r:ld_so_t
+ /usr(/.*)?/bin(/.*)?        system_u:object_r:bin_t
+ /usr(/.*)?/Bin(/.*)?        system_u:object_r:bin_t
 
 --
 This message was distributed to subscribers of the selinux mailing list.
