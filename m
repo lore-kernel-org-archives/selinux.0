@@ -1,59 +1,59 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h438NhI4020907
-	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 04:23:44 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h43Em5I4021485
+	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 10:48:06 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h438Nh7R027304
-	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 08:23:43 GMT
-Received: from smtp-3.paradise.net.nz (smtp-3a.paradise.net.nz [202.0.32.196])
-        by jazzband.ncsc.mil  with ESMTP id h438NfKP027301 for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 08:23:42 GMT
-Received: from localhost.localdomain (203-79-76-1.ipn5.paradise.net.nz [203.79.76.1])
-	by smtp-3.paradise.net.nz (Postfix) with ESMTP id 5C9DEAEFA6
-	for <selinux@tycho.nsa.gov>; Sat,  3 May 2003 20:23:32 +1200 (NZST)
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Wesley Parish <wes.parish@paradise.net.nz>
+	by jazzband.ncsc.mil  with ESMTP id h43Em47R006894
+	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 14:48:04 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h43ElpKP006890 for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 14:48:02 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Subject: Re: Support for XWindows ?
-Date: Sat, 3 May 2003 10:22:50 +1200
-References: <20030503004232.1113.qmail@web20805.mail.yahoo.com> <200305031551.14261.russell@coker.com.au>
-In-Reply-To: <200305031551.14261.russell@coker.com.au>
+Subject: SE Linux on Familiar
+Date: Sun, 4 May 2003 00:46:40 +1000
 MIME-Version: 1.0
-Message-Id: <200305031022.50946.wes.parish@paradise.net.nz>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200305040046.40916.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm thinking of setting up a spare box for use with selinux as a spam-culler 
-:( can't manage "spammer-culler" yet - damned nuisance Intel deleting the EOU 
-and EORU instructions, don't you think?! ;), firewall and general over-all 
-cop for a home network, preparatory to selling the NZ government etc, on 
-using it.
+I have reached a major milestone in my SE Linux on Familiar work.  I now have 
+an iPaQ booting in enforcing mode and allowing logins over the serial port 
+(both terminal logins and ppp sessions).
 
-I hadn't realized that you already had working policies for X-Window.  That 
-does encourage me!
+All the difficult work is done.
 
-Wesley Parish
+I have developed two solutions to the busybox wrapper problem (I have yet to 
+determine which is best or whether there is a place for both of them).
 
-On Saturday 03 May 2003 05:51 pm, Russell Coker wrote:
-> On Sat, 3 May 2003 10:42, Akshay Gangam wrote:
-> > I have a running installed on a stand alone system,
-> > with lsm2.4+selinux+RH8.0 on it.
-> > The kernel is in permissive mode, but I have not moved
-> > to enforcing mode, since I not sure of the support for
-> > XWindows. Does changing is enforcing mode, leave me
-> > deprived of Emacs/Xwindows to read documentation or to
-> > open multiple terminal sessions ?
->
-> Notice the xdm.te and xserver.te files in the policy source directory. 
-> These provide the security policy for a patched XDM (not included in a base
-> SE Linux installation) and for running "startx" from the command line.
->
-> Note which email program that I am using to write this message...
+Currently the sshd and xdm programs I am using are not patched (so I login to 
+the iPaQ via ssh as system_u:system_r:sysadm_t).  Patching ssh will be easy, 
+I have a lot of practise at this.  Patching the xdm program should not be any 
+more difficult than patching kdm (painful, nasty and messy - but not 
+technically challenging).
+
+Currently the xdm program is not functional.  It does some undesirable things 
+(such as wanting read-write access to /root), so I will need some policy 
+changes and maybe some code changes to get it going.  But it's a lot easier 
+to get this going now that I have the basic functionality in place.
+
+All of the things that could cause the iPaQ to become unbootable if I made a 
+mistake (requiring that I spend an hour reloading all the software) are done.  
+I have developed basic installation proceedures for this as well.
+
+Some of the code and policy that I have written is rather ugly and needs to be 
+cleaned up, that shouldn't be really difficult.  Tomorrow I will post some 
+policy patches that are related to my iPaQ work.
+
+I anticipate that I will have an iPaQ that's running SE Linux in enforcing 
+mode that is ready for non-development use within a week.
 
 -- 
-Mau e ki, "He aha te mea nui?"
-You ask, "What is the most important thing?"
-Maku e ki, "He tangata, he tangata, he tangata."
-I reply, "It is people, it is people, it is people."
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
