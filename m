@@ -1,127 +1,52 @@
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: patch libsecure
-Date: Wed, 23 Apr 2003 20:48:16 +0200
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_G88T81GP59MH80XCVKVD"
-Message-Id: <200304232048.16402.carstengrohmann@gmx.de>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3NKNxI4004743
+	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 16:23:59 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h3NKNw7R027456
+	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 20:23:58 GMT
+Received: from petrus.schuldei.org ([81.27.1.16])
+        by jazzband.ncsc.mil  with ESMTP id h3NKNvKP027398 for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 20:23:57 GMT
+Date: Wed, 23 Apr 2003 22:13:33 +0200
+From: Andreas Schuldei <andreas@schuldei.org>
+To: Peter Gervai <grin@tolna.net>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: please offer your good advices / new policies: exim, dovecot, maradns, (aptitude)
+Message-ID: <20030423201331.GA14673@lukas>
+References: <20030423111231.GV3993@narya.grin.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20030423111231.GV3993@narya.grin.hu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+* Peter Gervai (grin@tolna.net) [030423 20:56]:
+> (One line for every packet ever arriving on the network!)
+> 
+> I don't see the reason for this (I have wild guesses), and I don't see the
+> solution. And I don't get why nobody had this problem before. Shall I
+> dontaudit these (modifying dhcpc, newrole, sshd, ...)? Is there a better
+> solution?
 
---------------Boundary-00=_G88T81GP59MH80XCVKVD
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+yes, that is what i did, too. (i think i asked the same question
+here, too, and never got an answer.)
 
-Hi,
+i have here collected over time:
+dontaudit dhcpd_t sshd_t:packet_socket { recvfrom };
+dontaudit dhcpd_t courier_tcpd_t:packet_socket { recvfrom };
+dontaudit dhcpd_t netmsg_eth1_t:packet_socket { recvfrom };
+dontaudit dhcpd_t icmp_socket_t:rawip_socket { recvfrom };
+dontaudit dhcpd_t ping_t:rawip_socket { recvfrom };
+dontaudit dhcpd_t named_t:packet_socket { recvfrom };
+dontaudit dhcpd_t netmsg_eth0_t:packet_socket { recvfrom };
+dontaudit dhcpd_t apt_t:packet_socket { recvfrom };
+dontaudit dhcpd_t inetd_t:packet_socket { recvfrom };
+dontaudit dhcpd_t postfix_master_t:packet_socket { recvfrom };
+dontaudit dhcpd_t tcp_socket_t:packet_socket { recvfrom };
+dontaudit dhcpd_t dhcpd_t:packet_socket { recvfrom };
+dontaudit dhcpd_t icmp_socket_t:packet_socket { recvfrom };
+dontaudit dhcpd_t sysadm_ssh_t:packet_socket { recvfrom };
 
-I missing some free calls in the libsecure test files. The attached patch=
-=20
-insert this calls.
-
-Carsten
---------------Boundary-00=_G88T81GP59MH80XCVKVD
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch.libsecure"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch.libsecure"
-
-? patch.libsecure
-Index: test/getsecsid.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/getsecsid.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 getsecsid.c
---- test/getsecsid.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
-+++ test/getsecsid.c	23 Apr 2003 18:43:19 -0000
-@@ -51,6 +51,6 @@
- 	}
- 
- 	printf("Context:  %s\n", scontext);
--
-+	free(scontext);
- 	exit(0);
- }
-Index: test/lstat_s.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/lstat_s.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 lstat_s.c
---- test/lstat_s.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
-+++ test/lstat_s.c	23 Apr 2003 18:43:19 -0000
-@@ -48,6 +48,7 @@
- 		}
- 
- 		printf("Context:  %s\n", context);
-+		free(context);
- 	}
- 
- 	exit(0);
-Index: test/sid_to_context.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/sid_to_context.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 sid_to_context.c
---- test/sid_to_context.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
-+++ test/sid_to_context.c	23 Apr 2003 18:43:19 -0000
-@@ -43,5 +43,6 @@
- 	}
- 
- 	printf("%s\n", buf);
-+	free(buf);
- 	exit(0);
- }
-Index: test/stat_s.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/stat_s.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 stat_s.c
---- test/stat_s.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
-+++ test/stat_s.c	23 Apr 2003 18:43:19 -0000
-@@ -48,6 +48,7 @@
- 		}
- 
- 		printf("Context:  %s\n", context);
-+		free(context);
- 	}
- 
- 	exit(0);
-Index: test/statfs_s.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/statfs_s.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 statfs_s.c
---- test/statfs_s.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
-+++ test/statfs_s.c	23 Apr 2003 18:43:19 -0000
-@@ -48,6 +48,7 @@
- 		}
- 
- 		printf("Context:  %s\n", context);
-+		free(context);
- 	}
- 
- 	exit(0);
-Index: test/arch/i386/stat64_s.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/arch/i386/stat64_s.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 stat64_s.c
---- test/arch/i386/stat64_s.c	15 Mar 2002 13:01:17 -0000	1.1.1.1
-+++ test/arch/i386/stat64_s.c	23 Apr 2003 18:43:19 -0000
-@@ -49,6 +49,7 @@
- 		}
- 
- 		printf("Context:  %s\n", context);
-+		free(context);
- 	}
- 
- 	exit(0);
-
---------------Boundary-00=_G88T81GP59MH80XCVKVD--
-
+basicly, these are all the services i run on that box.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
