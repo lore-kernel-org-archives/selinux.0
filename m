@@ -1,55 +1,50 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6T93IrT017169
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 05:03:19 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6T92mbB007614
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 09:02:48 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 09:03:18 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1Bq6KY-0000yW-HP
-	for selinux@tycho.nsa.gov; Thu, 29 Jul 2004 08:32:02 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Bq6zX-0001iT-Da
-	for selinux@tycho.nsa.gov; Thu, 29 Jul 2004 10:14:23 +0100
-Date: Thu, 29 Jul 2004 10:14:23 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TAhLrT017487
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 06:43:21 -0400 (EDT)
+Received: from crisium.vnl.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TAhJCb000247
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 10:43:20 GMT
+Received: from amon by crisium.vnl.com with local (Exim 4.32 #1 (Debian))
+	id 1Bq8NZ-0006eK-NX
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 11:43:17 +0100
+Date: Thu, 29 Jul 2004 11:43:17 +0100
+From: Dale Amon <amon@vnl.com>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: udev and .dev...
-Message-ID: <20040729091423.GC6443@lkcl.net>
+Subject: Re: pear-shaped behaviour after enough make reloads
+Message-ID: <20040729104317.GE24051@vnl.com>
+References: <20040728211229.GB18711@lkcl.net> <20040728225322.GE18711@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040728225322.GE18711@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-dear selinux people,
+On Wed, Jul 28, 2004 at 11:53:22PM +0100, Luke Kenneth Casson Leighton wrote:
+>  i had to kill off processes manually one by one, umount the partitions
+>  manually, poweroff, and i chose to boot with enforcing=0 init 1 in
+>  order to safely run ldconfig and make relabel.
+> 
+>  i find this all a bit odd, i haven't a clue what's causing it.
 
-ah ha!  okay, the reason why my hard drive was inaccessible
-is because /.dev/* had all been set to default_t :)
+Is this particular machine and kernel presently stable 
+when running the same kernel and no selinux? I have
+seen very strange things happen over the years when
+hardware is failing or marginal, power supply voltages
+are on the edge... I've seen particular PCI modules
+blow the bus out of the water, etc, etc...
 
-soooo... to fix that [rather than a patch, a sed command]:
-
-	:%s/u?dev/.?u?dev/g
-
-this will allow setfiles to set up the security contexts on
-the /.dev which is the _real_ filesystem /dev stuff which will
-allow things like, oh, init (!!) to access the hard drive.
-
-argh :)
-
-l.
+Worth checking before you ruin Stephen Smalley's sleep 
+and fill it with nightmares of kernel race conditions
+and random byte squashers. :-)
 
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
