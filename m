@@ -1,47 +1,41 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4IUFXZ025553
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 13:30:17 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4ISrCH014491
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 18:28:53 GMT
-Subject: Re: Updated SELinux Release
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Colin Walters <walters@verbum.org>,
-   Manoj Srivastava <manoj.srivastava@stdc.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1099592751.5414.22.camel@selinux>
-References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
-	 <87vfcmqvi5.fsf@glaurung.internal.golden-gryphon.com>
-	 <1099539462.5018.2.camel@nexus.verbum.private>
-	 <1099575525.3174.7.camel@moss-spartans.epoch.ncsc.mil>
-	 <1099592751.5414.22.camel@selinux>
-Content-Type: text/plain
-Message-Id: <1099592755.3174.172.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 04 Nov 2004 13:25:55 -0500
+Message-ID: <418A7862.9060807@redhat.com>
+Date: Thu, 04 Nov 2004 13:43:46 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: I would like to move some of the port definitions out of the te files
+ into a separate location.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-11-04 at 13:25, Christopher J. PeBenito wrote:
-> Well in this case, I believe these changes were because of the MLS
-> compile failures I had.  When the code was originally moved over to
-> libsepol from checkpolicy, the MLS functions weren't switched over from
-> the global policydb to the policydb pointer in the function call.  So
-> really, this fixes the broken API.
+I have modified can_network to be able to accept ports that you can 
+connect to.
 
-Right, the change corresponds with the patch I posted to the list in
-response to those compilation failures for the optional MLS code
-(disabled by default).  But they don't affect the shared library API/ABI
-at all even with MLS enabled, because it doesn't export these
-functions.  The shared library only exports the symbols marked global in
-libsepol/src/libsepol.map.  Everything else is only exported by the
-static library.
+So you can do a
+can_network(local_login_t, `kerberos_port_t')
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+or
 
+can_udp_network($1_t, `resolve_port_t')
+
+The problem is that some of these ports are not defined unless the te 
+file is included.  Thus net_contexts is
+flooded with ifdef's.  The problem is that this is written from a daemon 
+point of view.  IE if I am running the
+kerberos daemon I want to name_bind to it so I define kerberos_port_t.  
+As we more to the connect side, we
+can lock down daemons to say that they can only connect to certain ports 
+so we might need kerberos_port_t
+defined even though our policy does not include kerberos.te.  I might 
+want to lock down a daemon on targeted
+to only be able to connect to port XYZ but do not want to support policy 
+for XYZ daemon.
+
+What do you think of moving most of the definitions to types/network.te 
+or types/ports.te and allowing them to be used by all daemons.
+
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
