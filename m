@@ -1,44 +1,60 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B0k7rT003194
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 20:46:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B0pmrT003232
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 20:51:48 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B0juP2005541
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 20:45:57 -0400 (EDT)
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B0pfP2005675
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 20:51:42 -0400 (EDT)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Date: Fri, 11 Jun 2004 10:46:51 +1000
-Cc: Ed Street <edstreet@street-tek.com>, "'SE-Linux'" <selinux@tycho.nsa.gov>
-References: <20040610022221.7796D3A4063@abyss.simplyaquatics.com> <200406101510.31547.russell@coker.com.au> <20040610202134.GB2861@lkcl.net>
-In-Reply-To: <20040610202134.GB2861@lkcl.net>
+Subject: Re: [debian] - installation of mysqld requires chfn
+Date: Fri, 11 Jun 2004 10:52:37 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040609222209.GH5727@lkcl.net> <200406101220.53966.russell@coker.com.au> <20040610204147.GE2861@lkcl.net>
+In-Reply-To: <20040610204147.GE2861@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200406111046.51540.russell@coker.com.au>
+Message-Id: <200406111052.37270.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 11 Jun 2004 06:21, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > issue in version 1.1.7-5 by making the files not be copied to the chroot
-> > if master.cf does not specify any services to be chrooted.
+On Fri, 11 Jun 2004 06:41, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> if you look at dpkg.te, and presumably rpm.te too, are you at all
+> concerned about the ever-increasing permission set that's added to
+> these two packages' policies?
+
+No.
+
+> it doesn't seem right to me that dpkg's policy file has to grant
+> permission to run passwd.te in order to install oh, say, foomatic-db.
 >
->  ah - ah... do you know if he addressed the issue of the context of
->  those files being copied over from /etc/ to /var/spool/postfix/etc
+> it just goes against the grain of granting least privilege.
 
-Of course not.  He just made the scripts not copy them if they are not needed.
+We can't grant least privilege to dpkg and rpm.  By design these programs need 
+write access to every significant file on the system and can totally break 
+the system with the smallest bug.
 
->  as well, such that of course initrd_t then needs to have permission
->  to rm etc_t and such?
+Trying to reduce the access of such programs to the system makes no sense.
 
-There is no initrd_t, I presume you mean initrc_t.
+> i'm just concerned that dpkg.te and rpm.te turn into these
+> pretty-much-everything "monsters".
+
+That's what they do!
+
+> so, let's see... is it possible to add something into dpkg
+> (se_dpkg?) to make it call run_init or do a domain_auto_trans
+> just before calling the postinstall / prerm etc. scripts,
+> to move it from dpkg.te into dpkg_<PACKAGENAME>.te?
+
+What good would that do?  dpkg/rpm still has full control.  They can replace 
+libc, they can replace anything in /sbin, /bin, etc.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
