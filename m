@@ -1,36 +1,45 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA29575
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2002 12:00:55 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA28255
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2002 17:00:01 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id RAA28251 for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2002 17:00:01 GMT
-Date: Fri, 8 Feb 2002 12:00:01 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: runas.c line 131
-In-Reply-To: <20020207222600.C73133A2671@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0202081153220.22738-100000@raven>
+Date: Fri, 8 Feb 2002 19:32:18 +0200 (EET)
+From: Hacko <toltec@karai.net>
+To: SELinux@tycho.nsa.gov
+Subject: shell history task
+Message-ID: <Pine.LNX.4.44.0202081906001.2448-100000@karai.karai.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi all,
 
-On Fri, 8 Feb 2002, Russell Coker wrote:
+let's take for example bash,
 
-> The context_new() call on line 131 of runas.c doesn't include a check for a
-> return of NULL if the context is invalid.  Shortly afterwards the pointer is
-> dereferenced giving a SEGV.
+shell user have an .bash_history,
+the first thing to do for unauthorized user is:
 
-Thanks for the catch.
+unset HISTFILE,
+ln -s /dev/null .bash_history
+or something like that
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+from the other side:
+- .bash_history often reveals what for example root wrote or
+connect, if you become root.
+- even from typing of the hacker you can know what he knows.
+- etc.
 
+
+so my task is:
+
+user_ can't read, link, write, etc his own .bash_history,
+		but append works ;),
+                from the shell level, not from the user_ level
+
+user_ becomming root       --- same ---- (su-stuff)
+unset HISTFILE, etc don't work
+
+(all these are under auditdeny)
+
+best regards,
+
+Hacko
 
 
 
