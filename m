@@ -1,45 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2IxORb017343
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 13:59:24 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB2Iwhp5025790
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 18:58:43 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2J1WRb017393
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 14:01:32 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB2J1VqY012336
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 19:01:31 GMT
 Received: from unicorn.lemuria.org (c152152.adsl.hansenet.de [213.39.152.152])
-	by jazzswing.ncsc.mil  with ESMTP id hB2Iwgt0025779
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 18:58:43 GMT
-Date: Tue, 2 Dec 2003 19:52:19 +0100
+        by jazzband.ncsc.mil  with ESMTP id hB2J1U0o012330 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 19:01:30 GMT
+Date: Tue, 2 Dec 2003 19:54:33 +0100
 From: Tom <tom@lemuria.org>
 To: selinux@tycho.nsa.gov
-Subject: Re: policy under version control
-Message-ID: <20031202195219.G18433@lemuria.org>
-References: <20031129132619.GE26960@lukas.schuldei.com> <1070291615.12270.120.camel@moss-spartans.epoch.ncsc.mil> <20031201202813.I16359@lemuria.org> <200312021430.51186.russell@coker.com.au> <20031202080830.E17580@lemuria.org> <1070377124.16958.13.camel@nexus.verbum.private>
+Subject: Re: selinux-policy-default
+Message-ID: <20031202195432.H18433@lemuria.org>
+References: <3FCC831A.1070002@zurich.ibm.com> <200312030159.41676.russell@coker.com.au> <3FCCAEA2.2040703@zurich.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1070377124.16958.13.camel@nexus.verbum.private>; from walters@verbum.org on Tue, Dec 02, 2003 at 09:58:45AM -0500
+In-Reply-To: <3FCCAEA2.2040703@zurich.ibm.com>; from vbc@zurich.ibm.com on Tue, Dec 02, 2003 at 04:24:18PM +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Dec 02, 2003 at 09:58:45AM -0500, Colin Walters wrote:
-> if you're curious.
+On Tue, Dec 02, 2003 at 04:24:18PM +0100, Chris Vanden Berghe wrote:
+> Yes, but I did use --purge, so I expected that all configuration files
+> would have been deleted by this.
 
-I am :)
+I think I had the same issue. It appears some things are left behind.
+Try --purge again and check if both /etc/selinux and /usr/share/selinux
+have gone.
 
 
-> You shouldn't think in terms of changes to individual files with arch. 
-> All changesets in arch are atomic modifications to an entire tree.  
-> So you don't really explicitly define what files are identical or
-> whatever; instead, if you don't modify them, they simply aren't included
-> in your changesets.
-> 
-> Also, instead of thinking of the distributed nature as a "network-aware
-> symlink", I think the most important thing is that it's a truly global
-> namespace of changesets (composed mostly of just simple patches), which
-> have archives which map to URLs.
+> And, as Dave suggested, I'm currently installing this under a
+> non-selinux kernel (since the selinux one doesn't boot: it complains
+> that it cannot find the policy file :-( ).  So the idea was to install
+> all the selinux related packages under a non-selinux kernel and to
+> afterwards boot with the selinux kernel.
 
-Thanks, you explain this much better than I could. Someone else said
-off-list that he'd be interested. I think I'll just give it a shot and
-try to set up an arch repository on nox.lemuria.org this week.
-
+You might want to check my step-by-step howto at
+http://selinux.lemuria.org and check if you've done all that.
 
 -- 
 http://web.lemuria.org/pubkey.html
