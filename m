@@ -1,141 +1,106 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2LWgXZ010117
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 16:32:42 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2LXTXZ010134
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 16:33:29 -0500 (EST)
 Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2LWeLn015094
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 21:32:41 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 2 Nov 2004 22:32:37 +0100
-Date: Tue, 2 Nov 2004 22:32:21 +0100
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2LXSLn015107
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 21:33:28 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 2 Nov 2004 22:33:28 +0100
+Date: Tue, 2 Nov 2004 22:33:12 +0100
 From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: patch: typealias cleanup
-Message-Id: <20041102213220.GA3804@jmh.mhn.de>
+Subject: patch: arpwatch cleanup
+Message-Id: <20041102213312.GB3804@jmh.mhn.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
+	protocol="application/pgp-signature"; boundary="FFoLq8A0u+X9iRU8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---tjCHc7DPkfUGtrlw
-Content-Type: multipart/mixed; boundary="YiEDa0DAkWCtVeE4"
+--FFoLq8A0u+X9iRU8
+Content-Type: multipart/mixed; boundary="lCAWRPmW1mITcIfM"
 Content-Disposition: inline
 
 
---YiEDa0DAkWCtVeE4
+--lCAWRPmW1mITcIfM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-The following patch replaces all occurences of aliases with their real
-counterparts. It would be nice if this could be merged now so some
-aliases can be removed after the next release.
+The following patch cleans up the arpwatch policy. It does not add any
+new permissions, it just organizes them more cleanly.
+It also adds /var/lib/arpwatch to the file_contexts file since this is=20
+the place where both SuSE and Debian store arpwatch data.
 
-Thanks,
+Please apply.
+
 Thomas
 
 --=20
 http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
 GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---YiEDa0DAkWCtVeE4
+--lCAWRPmW1mITcIfM
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="typealias-cleanup.patch"
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="arpwatch-cleanup.patch"
 
---- orig/domains/program/unused/calamaris.te
-+++ mod/domains/program/unused/calamaris.te
-@@ -18,8 +18,8 @@
- ')
-=20
- allow calamaris_t { var_t var_run_t }:dir { getattr search };
--allow calamaris_t var_log_squid_t:dir search;
--allow calamaris_t var_log_squid_t:file { getattr read };
-+allow calamaris_t squid_log_t:dir search;
-+allow calamaris_t squid_log_t:file { getattr read };
- allow calamaris_t { usr_t lib_t }:file { getattr read };
- allow calamaris_t usr_t:lnk_file { getattr read };
- dontaudit calamaris_t usr_t:file ioctl;
-
-
---- orig/domains/program/unused/dbusd.te
-+++ mod/domains/program/unused/dbusd.te
-@@ -4,7 +4,7 @@
-=20
- dbusd_domain(system)
-=20
--allow system_dbusd_t dbusd_var_run_t:sock_file create_file_perms;
-+allow system_dbusd_t system_dbusd_var_run_t:sock_file create_file_perms;
-=20
- ifdef(`pamconsole.te', `
- r_dir_file(system_dbusd_t, pam_var_console_t)
-
-
---- orig/domains/program/unused/distcc.te
-+++ mod/domains/program/unused/distcc.te
-@@ -23,7 +23,7 @@
- can_exec(distccd_t,lib_t)
-=20
- # comm stuff
--allow distccd_t resolv_conf_t:file r_file_perms;
-+allow distccd_t net_conf_t:file r_file_perms;
- allow distccd_t self:{ unix_stream_socket unix_dgram_socket } { create con=
-nect read write };
- allow distccd_t self:fifo_file { read write getattr };
-=20
+--- orig/domains/program/unused/arpwatch.te
++++ mod/domains/program/unused/arpwatch.te
+@@ -10,22 +10,23 @@
+ # arpwatch_exec_t is the type of the arpwatch executable.
+ #
+ daemon_domain(arpwatch, `, privmail')
++
++# for files created by arpwatch
+ type arpwatch_data_t, file_type, sysadmfile;
+-allow arpwatch_t self:netlink_route_socket r_netlink_socket_perms;
+-allow arpwatch_t self:capability { net_admin net_raw };
+-allow arpwatch_t self:udp_socket create_socket_perms;
+-allow arpwatch_t self:unix_dgram_socket create_socket_perms;
+-allow arpwatch_t arpwatch_t:capability { setgid setuid };
+-allow arpwatch_t arpwatch_t:packet_socket create_socket_perms;
+-allow arpwatch_t arpwatch_t:unix_stream_socket create_stream_socket_perms;
+ create_dir_file(arpwatch_t,arpwatch_data_t)
+-allow arpwatch_t tmp_t:dir { search };
+ tmp_domain(arpwatch)
+-allow arpwatch_t net_conf_t:file { getattr read };
+-allow arpwatch_t netif_lo_t:netif { udp_send };
+-allow arpwatch_t sbin_t:dir { search };
+-allow arpwatch_t sbin_t:lnk_file { read };
++
++allow arpwatch_t self:capability { net_admin net_raw setgid setuid };
++
+ can_network(arpwatch_t)
++allow arpwatch_t self:netlink_route_socket r_netlink_socket_perms;
++allow arpwatch_t self:udp_socket create_socket_perms;
++allow arpwatch_t self:unix_dgram_socket create_socket_perms;
++allow arpwatch_t self:packet_socket create_socket_perms;
++allow arpwatch_t self:unix_stream_socket create_stream_socket_perms;
++
++allow arpwatch_t sbin_t:dir search;
++allow arpwatch_t sbin_t:lnk_file read;
+ can_ypbind(arpwatch_t)
+ allow system_mail_t arpwatch_tmp_t:file rw_file_perms;
+ ifdef(`postfix.te', `
 
 
---- orig/domains/program/unused/dpkg.te
-+++ mod/domains/program/unused/dpkg.te
-@@ -85,7 +85,7 @@
- domain_auto_trans(dpkg_t, httpd_exec_t, httpd_t)
- ')
- ifdef(`named.te', `
--file_type_auto_trans(dpkg_t, named_zone_t, rndc_conf_t, file)
-+file_type_auto_trans(dpkg_t, named_zone_t, named_conf_t, file)
- ')
- ifdef(`nsd.te', `
- allow nsd_crond_t initrc_t:fd use;
-
-
---- orig/file_contexts/program/dbusd.fc
-+++ mod/file_contexts/program/dbusd.fc
-@@ -1,3 +1,3 @@
--/usr/bin/dbus-daemon-1	--	system_u:object_r:dbusd_exec_t
-+/usr/bin/dbus-daemon-1	--	system_u:object_r:system_dbusd_exec_t
- /etc/dbus-1(/.*)?		system_u:object_r:etc_dbusd_t
--/var/run/dbus(/.*)?		system_u:object_r:dbusd_var_run_t
-+/var/run/dbus(/.*)?		system_u:object_r:system_dbusd_var_run_t
-
-
---- orig/file_contexts/program/gatekeeper.fc
-+++ mod/file_contexts/program/gatekeeper.fc
-@@ -4,4 +4,4 @@
- /usr/sbin/gnugk		--	system_u:object_r:gatekeeper_exec_t
- /var/run/gk\.pid	--	system_u:object_r:gatekeeper_var_run_t
- /var/run/gnugk(/.*)?		system_u:object_r:gatekeeper_var_run_t
--/var/log/gnugk(/.*)?		system_u:object_r:var_log_gatekeeper_t
-+/var/log/gnugk(/.*)?		system_u:object_r:gatekeeper_var_log_t
-
-
---- orig/macros/program/dbusd_macros.te
-+++ mod/macros/program/dbusd_macros.te
-@@ -21,7 +21,7 @@
- ', `
- type $1_dbusd_t, domain, privlog, userspace_objmgr;
- role $1_r types $1_dbusd_t;
--domain_auto_trans($1_t, dbusd_exec_t, $1_dbusd_t)
-+domain_auto_trans($1_t, system_dbusd_exec_t, $1_dbusd_t)
- read_locale($1_dbusd_t)
- allow $1_t $1_dbusd_t:process { sigkill signal };
- dontaudit $1_dbusd_t var_t:dir { getattr search };
+--- orig/file_contexts/program/arpwatch.fc
++++ mod/file_contexts/program/arpwatch.fc
+@@ -1,3 +1,7 @@
+ # arpwatch - keep track of ethernet/ip address pairings
+ /usr/sbin/arpwatch	--	system_u:object_r:arpwatch_exec_t
++ifdef(`distro_redhat', `
+ /var/arpwatch(/.*)?	system_u:object_r:arpwatch_data_t
++', `
++/var/lib/arpwatch(/.*)?		system_u:object_r:arpwatch_data_t
++')
 
 
 
 
---YiEDa0DAkWCtVeE4--
+--lCAWRPmW1mITcIfM--
 
---tjCHc7DPkfUGtrlw
+--FFoLq8A0u+X9iRU8
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -143,12 +108,12 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBh/zkxWIrrrL0q+cRAkSpAJ4rK2lWGquWqS/G9JlC9MiSCcYbxQCfd96B
-cdG4V3vCW+AEG4xyyrCGy/8=
-=dQ2R
+iD8DBQFBh/0YxWIrrrL0q+cRAh1/AKCQU3vEP/7fHnB0/dzWbW6UXHh4wACfRsU1
+SjZKmvMXIzXcvNx/2/vMIbE=
+=i6ar
 -----END PGP SIGNATURE-----
 
---tjCHc7DPkfUGtrlw--
+--FFoLq8A0u+X9iRU8--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
