@@ -1,34 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35DtTDo008363
-	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 09:55:30 -0400 (EDT)
-Subject: Re: New policy for DCC
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: David Hampton <hampton-rh@rainbolthampton.net>
-Cc: SELinux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
-In-Reply-To: <1111454598.18940.57.camel@hampton-pc.rainbolthampton.net>
-References: <1111454598.18940.57.camel@hampton-pc.rainbolthampton.net>
+Subject: Re: policy hierarchy patch
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>,
+   selinux-dev@tresys.com
+In-Reply-To: <4251BA1E.9040406@trustedcs.com>
+References: <1112631282.19526.18.camel@localhost>
+	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com>
 Content-Type: text/plain
-Date: Tue, 05 Apr 2005 09:54:31 -0400
-Message-Id: <1112709271.1883.16.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 05 Apr 2005 10:03:02 -0400
+Message-Id: <1112709782.19531.39.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged into the SELinux policy CVS tree at sourceforge.
 
-On Mon, 2005-03-21 at 20:23 -0500, David Hampton wrote:
-> This is a new strict policy for the DCC spam filter.  It is based on the
-> selinux-policy-strict-sources-1.23.2-1 fedora RPM.  This policy requires
-> the definition of dcc reserved ports that were in the net_contexts diff
-> I sent last Wednesday.  Please let me know if there are any problems
-> with or changes needed to this policy.
+> Sounds good to me.  I should actually be able to take a look at it tomorrow and 
+> help you out with the code.  I know that the parsing isn't the prettiest...  I 
+> think I may be able to make it look better in C code.  And we didn't really like 
+> the spaces anyway.
 > 
-> David
-> 
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+
+So what were you thinking? the hierarchy stuff already has the
+infrastructure for checking for '.' in the identifier and splitting out
+the "parent", which in your case would be the lower part of the range.
+Obviously these have hierarchy specific names and would be very
+confusing to on-lookers so maybe we could generalize those to avoid
+repeating code. 
+
+Then we just convert everything to identifier and anything that expects
+a category can check for '.' and set the values appropriately, this
+seems even cleaner than the way it's done now with the MLS_CAT_RANGE
+string.. 
+
+I can probably bang this out pretty quickly unless you had something
+else you wanted to do with MLS or prefer to deal with that part
+yourself, let me know what you want to do. Also, will you be able to
+send a policy patch at the same time that rids the policy of those
+spaces?
+
+Thanks, Joshua Brindle
 
 
 --
