@@ -1,61 +1,75 @@
-Message-ID: <5D201EB6E3041946BC4F8F6A14296132607EF0@svnt4-5.inepar.com.br>
-From: "Luis Fernando C. Talora" <luis.talora@iesa.com.br>
-To: "'Colin Walters'" <walters@verbum.org>,
-   "Luis Fernando C. Talora" <luis.talora@iesa.com.br>
-Cc: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
-   "(SELinux@tycho.nsa.gov)" <SELinux@tycho.nsa.gov>
-Subject: RES: RES: Problem with SELinux and Squid+Winbind+Samba
-Date: Wed, 8 Dec 2004 15:47:22 -0200 
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB8ID3Ii006806
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 13:13:04 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB8ID6u3027602
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 18:13:06 GMT
+Subject: Re: patch: general cleanup
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20041206234358.GG3678@jmh.mhn.de>
+References: <20041206233528.GD3678@jmh.mhn.de>
+	 <20041206234358.GG3678@jmh.mhn.de>
+Content-Type: text/plain
+Message-Id: <1102529738.30962.13.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 08 Dec 2004 13:15:38 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you all! I´ll make a few tests and will let you know.
+On Mon, 2004-12-06 at 18:43, Thomas Bleher wrote:
+> * Thomas Bleher <bleher@informatik.uni-muenchen.de> [2004-12-07 00:35]:
+> > Remove some duplicated permissions and attributes.
+> > 
+> > Adds a few permissions:
+> > * initrc can setattr xconsole_device_t
+> > * mount can read device_t:lnk_file and read xdm_t:fifo_file
+> 
+> Oops, forgot to attach patch.
+> Here it is.
+> 
+> Thomas
 
-Regards,
+> --- orig/macros/program/sudo_macros.te
+> +++ mod/macros/program/sudo_macros.te
+> @@ -31,7 +31,6 @@
+>  rw_dir_create_file($1_sudo_t, $1_tmp_t)
+>  rw_dir_create_file($1_sudo_t, $1_home_t)
+>  domain_auto_trans($1_t, sudo_exec_t, $1_sudo_t)
+> -r_dir_file($1_sudo_t, selinux_config_t)
+>  ')
 
-Luís F. C. Talora 
+This doesn't look like a duplicate rule to me.
 
------Mensagem original-----
-De: Colin Walters [mailto:walters@verbum.org] 
-Enviada em: quarta-feira, 8 de dezembro de 2004 13:19
-Para: Luis Fernando C. Talora
-Cc: 'Luke Kenneth Casson Leighton'; (SELinux@tycho.nsa.gov)
-Assunto: Re: RES: Problem with SELinux and Squid+Winbind+Samba
+>  # arch-tag: 67418b54-b56c-44d7-841c-5c895e795cd8
+> --- orig/macros/user_macros.te
+> +++ mod/macros/user_macros.te
+> @@ -221,22 +222,22 @@
+>  #  Allow users to mount file systems like floppies and cdrom
+>  #
+>  mount_domain($1, $1_mount, `, fs_domain')
+> -role $1_r types $1_mount_t;
+>  r_dir_file($1_t, mnt_t)
+> +allow $1_mount_t device_t:lnk_file read;
+>  allow $1_mount_t removable_device_t:blk_file read;
+>  allow $1_mount_t iso9660_t:filesystem relabelfrom;
+>  allow $1_mount_t removable_t:filesystem { mount relabelto };
+>  allow $1_mount_t removable_t:dir mounton;
+>  ifdef(`xdm.te', `
+>  allow $1_mount_t xdm_t:fd use;
+> -allow $1_mount_t xdm_t:fifo_file write;
+> +allow $1_mount_t xdm_t:fifo_file { read write };
+>  ')
+>  ')
 
-On Wed, 2004-12-08 at 08:36 -0200, Luis Fernando C. Talora wrote:
-> That´s the problem: I have no idea of how to build policies for SELinux...
-> Is there a way to remove SELinux features without reinstaling the OS 
-> from the scratch?
+Same with the role $1_r types $1_mount_t rule.  I see similar role rules
+elsewhere for system_r and sysadm_r, but not for user_r and staff_r.
 
-You can disable SELinux enforcement just for Squid.
-http://fedora.redhat.com/docs/selinux-faq-fc3/index.html#using-s-c-securityl
-evel
-
-> Or (maybe it´s better) could you please tell me where to find some 
-> documentation about SELinux?
-
-http://fedora.redhat.com/docs/selinux-faq-fc3/index.html
-And there's a lot of other links from there.
-===================================================================
-Esta mensagem pode conter informação confidencial e/ou privilegiada.
-Se você não for o destinatário ou a pessoa autorizada a receber esta 
-mensagem, não deverá utilizar, copiar, alterar, divulgar a informação 
-nela contida ou tomar qualquer ação baseada nessas informações. Se 
-você recebeu esta mensagem por engano, por favor avise imediatamente 
-o remetente, respondendo o e-mail e em seguida apague-o.Agradecemos 
-sua cooperação. 
-
-This message may contain confidential and/or privileged information. 
-If you are not the addressee or authorized to receive this for the 
-addressee, you must not use, copy, disclose, change, take any action 
-based on this message or any information herein. If you have received
-this message in error, please advise the sender immediately by reply 
-e-mail and delete this message. Thank you for your cooperation.
-===================================================================
-
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
