@@ -1,36 +1,58 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA9KloIi025516
-	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 15:47:50 -0500 (EST)
-Received: from mailrelay1.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA9Klpsi023471
-	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 20:47:52 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 9 Nov 2004 21:47:51 +0100
-Date: Tue, 9 Nov 2004 21:47:40 +0100
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA9L4vIi025674
+	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 16:04:57 -0500 (EST)
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA9L4wM7024314
+	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 21:04:59 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 9 Nov 2004 22:04:59 +0100
+Date: Tue, 9 Nov 2004 22:04:47 +0100
 From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: patch: file_contexts fixes
-Message-Id: <20041109204739.GB2543@jmh.mhn.de>
+Subject: patch: misc policy additions
+Message-Id: <20041109210447.GC2543@jmh.mhn.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GZVR6ND4mMseVXL/"
+	protocol="application/pgp-signature"; boundary="UnaWdueM1EBWVRzC"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---GZVR6ND4mMseVXL/
-Content-Type: multipart/mixed; boundary="uZ3hkaAS1mZxFaxD"
+--UnaWdueM1EBWVRzC
+Content-Type: multipart/mixed; boundary="F8dlzb82+Fcn6AgP"
 Content-Disposition: inline
 
 
---uZ3hkaAS1mZxFaxD
+--F8dlzb82+Fcn6AgP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Attached patch fixes some file contexts and adds new ones. It should be
-pretty self-explanatory.
-The only place where I was not sure was vmware.fc. I just saw that the
-old contexts were wrong.
+A few policy additions:
+
+add support for xconsole_device_t
+
+assert.te: nfs_export_all_rw is not there anymore. Nobody complained
+till now, so maybe this is not needed at all?
+
+initrc.te: these permissions are needed on suse systems, I think they
+can be generally allowed.
+
+restorecon.te: ttyfiles don't have the device_type attribute
+
+apmd.te: acpid stores files under /var/lib on suse systems
+
+cupsd.te: cupsd_config_t depends on hald
+
+rpm.te: rpm is granted setrlimit further up in the policy
+
+xdm.te: I have default_context_t files symlinked, I think it's OK to
+allow this in the general case. I also needed device_t:lnk_file access
+once, can't remember why, but I don't think it's harmful.
+
+global_macros.te: the patch snippet is from var_run_domain(). Domains
+need search access to var_t:dir if they want to access /var/run.
+
+I think the other stuff is clear.
 
 Thomas
 
@@ -38,179 +60,380 @@ Thomas
 http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
 GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---uZ3hkaAS1mZxFaxD
+--F8dlzb82+Fcn6AgP
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="context_fixes.patch"
+Content-Disposition: attachment; filename=patch
 Content-Transfer-Encoding: quoted-printable
 
-diff -urN orig/file_contexts/distros.fc mod/file_contexts/distros.fc
---- orig/file_contexts/distros.fc	2004-10-06 22:21:13.000000000 +0200
-+++ mod/file_contexts/distros.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -32,3 +32,11 @@
- /usr/share/cvs/contrib/rcs2log	--	system_u:object_r:bin_t
+diff -urN orig/assert.te mod/assert.te
+--- orig/assert.te	2004-11-09 08:45:50.000000000 +0100
++++ mod/assert.te	2004-11-09 21:50:48.000000000 +0100
+@@ -36,7 +36,7 @@
+ # Verify that executable types, the system dynamic loaders, and the
+ # system shared libraries can only be modified by administrators.
+ #
+-neverallow {domain  ifdef(`nfs_export_all_rw',`-kernel_t') ifdef(`ldconfig=
+=2Ete', `-ldconfig_t') -admin} { exec_type ld_so_t shlib_t }:file { write a=
+ppend unlink rename };
++neverallow {domain  -kernel_t ifdef(`ldconfig.te', `-ldconfig_t') -admin} =
+{ exec_type ld_so_t shlib_t }:file { write append unlink rename };
+ neverallow {domain  ifdef(`ldconfig.te', `-ldconfig_t') -change_context -a=
+dmin } { exec_type ld_so_t shlib_t }:file relabelto;
+=20
+ #
+@@ -54,8 +54,8 @@
+ #
+ # Verify that other system software can only be modified by administrators.
+ #
+-neverallow {domain ifdef(`nfs_export_all_rw',`-kernel_t') ifdef(`ldconfig.=
+te', `-ldconfig_t') -admin } { lib_t bin_t sbin_t }:dir { add_name remove_n=
+ame rename };
+-neverallow { domain ifdef(`nfs_export_all_rw',`-kernel_t') -admin } { lib_=
+t bin_t sbin_t }:file { write append unlink rename };
++neverallow {domain -kernel_t ifdef(`ldconfig.te', `-ldconfig_t') -admin } =
+{ lib_t bin_t sbin_t }:dir { add_name remove_name rename };
++neverallow { domain -kernel_t -admin } { lib_t bin_t sbin_t }:file { write=
+ append unlink rename };
+=20
+ #
+ # Verify that only certain domains have access to the raw disk devices.
+diff -urN orig/domains/program/initrc.te mod/domains/program/initrc.te
+--- orig/domains/program/initrc.te	2004-11-09 08:45:50.000000000 +0100
++++ mod/domains/program/initrc.te	2004-11-09 21:50:48.000000000 +0100
+@@ -245,7 +245,7 @@
+=20
+ ifdef(`apmd.te',
+ `# Access /dev/apm_bios.
+-allow initrc_t apm_bios_t:chr_file { setattr getattr };')
++allow initrc_t apm_bios_t:chr_file { setattr getattr read };')
+=20
+ ifdef(`lpd.te',
+ `# Read printconf files.
+@@ -291,7 +291,7 @@
+ dontaudit initrc_t mail_spool_t:lnk_file read;
+=20
+ allow initrc_t sysfs_t:dir { getattr read search };
+-allow initrc_t sysfs_t:file { getattr read };
++allow initrc_t sysfs_t:file { getattr read write };
+ allow initrc_t sysfs_t:lnk_file { getattr read };
+ allow initrc_t udev_runtime_t:file rw_file_perms;
+ allow initrc_t device_type:chr_file setattr;
+diff -urN orig/domains/program/ldconfig.te mod/domains/program/ldconfig.te
+--- orig/domains/program/ldconfig.te	2004-11-09 08:45:50.000000000 +0100
++++ mod/domains/program/ldconfig.te	2004-11-09 21:51:43.000000000 +0100
+@@ -31,3 +31,15 @@
+=20
+ allow ldconfig_t fs_t:filesystem getattr;
+ allow ldconfig_t tmp_t:dir search;
++
++ifdef(`apache.te', `
++# dontaudit access to /usr/lib/apache, normal programs cannot read these l=
+ibs anyway
++dontaudit ldconfig_t httpd_modules_t:dir search;
++')
++
++ifdef(`distro_suse', `
++# because of libraries in /var/lib/samba/bin
++allow ldconfig_t { var_lib_t bin_t }:dir search;
++allow ldconfig_t var_lib_t:lnk_file read;
++')
++
+diff -urN orig/domains/program/logrotate.te mod/domains/program/logrotate.te
+--- orig/domains/program/logrotate.te	2004-11-09 08:45:50.000000000 +0100
++++ mod/domains/program/logrotate.te	2004-11-09 21:50:48.000000000 +0100
+@@ -16,8 +16,8 @@
+ type logrotate_t, domain, privowner, privmail, priv_system_role, nscd_clie=
+nt_domain;
+ role system_r types logrotate_t;
+ role sysadm_r types logrotate_t;
+-uses_shlib(logrotate_t);
+-general_domain_access(logrotate_t);
++uses_shlib(logrotate_t)
++general_domain_access(logrotate_t)
+ type logrotate_exec_t, file_type, sysadmfile, exec_type;
+=20
+ system_crond_entry(logrotate_exec_t, logrotate_t)
+@@ -54,7 +54,7 @@
+ # Run helper programs.
+ allow logrotate_t { bin_t sbin_t }:dir r_dir_perms;
+ allow logrotate_t { bin_t sbin_t }:lnk_file read;
+-can_exec(logrotate_t, { bin_t sbin_t shell_exec_t ls_exec_t });
++can_exec(logrotate_t, { bin_t sbin_t shell_exec_t ls_exec_t })
+=20
+ # Read PID files.
+ allow logrotate_t pidfile:file r_file_perms;
+diff -urN orig/domains/program/restorecon.te mod/domains/program/restorecon=
+=2Ete
+--- orig/domains/program/restorecon.te	2004-11-09 08:45:50.000000000 +0100
++++ mod/domains/program/restorecon.te	2004-11-09 21:50:48.000000000 +0100
+@@ -41,7 +41,7 @@
+ allow restorecon_t unlabeled_t:dir_file_class_set { getattr relabelfrom };
+ allow restorecon_t unlabeled_t:dir read;
+ allow restorecon_t device_type:{ chr_file blk_file } { getattr relabelfrom=
+ relabelto };
+-allow restorecon_t { device_t device_type }:{ chr_file blk_file } { getatt=
+r relabelfrom relabelto };
++allow restorecon_t { device_t device_type ttyfile }:{ chr_file blk_file } =
+{ getattr relabelfrom relabelto };
+ ifdef(`distro_redhat', `
+ allow restorecon_t tmpfs_t:{ chr_file blk_file } { rw_file_perms relabelfr=
+om relabelto };
+ ')
+diff -urN orig/domains/program/syslogd.te mod/domains/program/syslogd.te
+--- orig/domains/program/syslogd.te	2004-11-09 08:45:50.000000000 +0100
++++ mod/domains/program/syslogd.te	2004-11-09 21:50:48.000000000 +0100
+@@ -43,12 +43,18 @@
+=20
+ # Create and bind to /dev/log or /var/run/log.
+ file_type_auto_trans(syslogd_t, { device_t var_run_t }, devlog_t, sock_fil=
+e)
++ifdef(`distro_suse', `
++# suse creates a /dev/log under /var/lib/stunnel for chrooted stunnel
++file_type_auto_trans(syslogd_t, var_lib_t, devlog_t, sock_file)
++')
+ allow syslogd_t self:unix_dgram_socket create_socket_perms;
+ allow syslogd_t self:unix_dgram_socket sendto;
+ allow syslogd_t self:unix_stream_socket create_stream_socket_perms;
+ allow syslogd_t self:fifo_file rw_file_perms;
+ allow syslogd_t devlog_t:unix_stream_socket name_bind;
+ allow syslogd_t devlog_t:unix_dgram_socket name_bind;
++# log to the xconsole
++allow syslogd_t xconsole_device_t:fifo_file { ioctl read write };
+=20
+ # Domains with the privlog attribute may log to syslogd.
+ allow privlog devlog_t:sock_file rw_file_perms;
+diff -urN orig/domains/program/unused/apmd.te mod/domains/program/unused/ap=
+md.te
+--- orig/domains/program/unused/apmd.te	2004-11-09 08:45:51.000000000 +0100
++++ mod/domains/program/unused/apmd.te	2004-11-09 21:50:48.000000000 +0100
+@@ -45,6 +45,8 @@
+ # acpid also has a logfile
+ log_domain(apmd)
+=20
++var_lib_domain(apmd)
++
+ allow apmd_t self:file { getattr read ioctl };
+ allow apmd_t self:process getsession;
+=20
+diff -urN orig/domains/program/unused/cups.te mod/domains/program/unused/cu=
+ps.te
+--- orig/domains/program/unused/cups.te	2004-11-09 08:45:51.000000000 +0100
++++ mod/domains/program/unused/cups.te	2004-11-09 21:52:10.000000000 +0100
+@@ -225,6 +225,6 @@
+=20
+ domain_auto_trans(hald_t, cupsd_config_exec_t, cupsd_config_t)
+=20
+-')
+ # Alternatives asks for this
+ allow cupsd_config_t initrc_exec_t:file getattr;
++')
+diff -urN orig/domains/program/unused/nrpe.te mod/domains/program/unused/nr=
+pe.te
+--- orig/domains/program/unused/nrpe.te	2004-06-16 19:38:16.000000000 +0200
++++ mod/domains/program/unused/nrpe.te	2004-11-09 21:50:48.000000000 +0100
+@@ -16,6 +16,7 @@
+ allow nrpe_t urandom_device_t:chr_file { getattr ioctl read };
+=20
+ allow nrpe_t self:fifo_file rw_file_perms;
++allow nrpe_t self:unix_dgram_socket create_socket_perms;
+ # use sockets inherited from inetd
+ allow nrpe_t inetd_t:tcp_socket { ioctl read write };
+ allow nrpe_t devtty_t:chr_file { read write };
+@@ -32,7 +33,7 @@
+ # for /bin/sh
+ allow nrpe_t bin_t:lnk_file read;
+=20
+-# read /proc/meminfo, /proc/self/mounts and /etc/mtab
+-allow nrpe_t { self proc_t etc_runtime_t }:file { getattr read };
++# read /proc/meminfo, /proc/self/mounts, /etc/localtime and /etc/mtab
++allow nrpe_t { self proc_t etc_runtime_t locale_t }:file { getattr read };
+=20
+ # you will have to add more permissions here, depending on the scripts you=
+ call!
+diff -urN orig/domains/program/unused/resmgrd.te mod/domains/program/unused=
+/resmgrd.te
+--- orig/domains/program/unused/resmgrd.te	2004-10-29 20:33:17.000000000 +0=
+200
++++ mod/domains/program/unused/resmgrd.te	2004-11-09 21:50:48.000000000 +01=
+00
+@@ -16,7 +16,7 @@
+ allow resmgrd_t device_t:lnk_file { getattr read };
+ # not sure if it needs write access, needs to be investigated further...
+ allow resmgrd_t removable_device_t:blk_file { getattr ioctl read write };
+-allow resmgrd_t scsi_generic_device_t:chr_file { getattr ioctl read };
++allow resmgrd_t scsi_generic_device_t:chr_file { getattr ioctl read write =
+};
+ allow resmgrd_t scanner_device_t:chr_file { getattr };
+ # I think a dontaudit should be enough there
+ dontaudit resmgrd_t fixed_disk_device_t:blk_file { getattr ioctl read };
+diff -urN orig/domains/program/unused/rpm.te mod/domains/program/unused/rpm=
+=2Ete
+--- orig/domains/program/unused/rpm.te	2004-11-09 08:45:54.000000000 +0100
++++ mod/domains/program/unused/rpm.te	2004-11-09 21:50:48.000000000 +0100
+@@ -66,11 +66,6 @@
+ domain_auto_trans(rpm_script_t, cupsd_exec_t, cupsd_t)
  ')
 =20
+-ifdef(`gpg.te', `
+-# gpg wants this so it does not dump core on errors
+-allow rpm_t self:process setrlimit;
+-')
+-
+ # for a bug in rm
+ dontaudit initrc_t pidfile:file write;
+=20
+diff -urN orig/domains/program/unused/xdm.te mod/domains/program/unused/xdm=
+=2Ete
+--- orig/domains/program/unused/xdm.te	2004-11-09 08:45:55.000000000 +0100
++++ mod/domains/program/unused/xdm.te	2004-11-09 21:50:48.000000000 +0100
+@@ -43,7 +43,7 @@
+ typealias xdm_rw_etc_t alias etc_xdm_t;
+=20
+ allow xdm_t default_context_t:dir search;
+-allow xdm_t default_context_t:file { read getattr };
++allow xdm_t default_context_t:{ file lnk_file } { read getattr };
+=20
+ can_network(xdm_t)
+ can_ypbind(xdm_t)
+@@ -62,6 +62,10 @@
+=20
+ # init script wants to check if it needs to update windowmanagerlist
+ allow initrc_t xdm_rw_etc_t:file { getattr read };
 +ifdef(`distro_suse', `
-+/var/lib/samba/bin(/.*)?				system_u:object_r:bin_t
-+/var/lib/samba/bin/.*\.so(\.[^/]*)*		-l	system_u:object_r:lib_t
-+/usr/lib/samba/classic/.*			--	system_u:object_r:bin_t
-+/usr/lib/samba/classic/[^/]*\.so(\.[^/]*)*	--	system_u:object_r:shlib_t
-+/success					--	system_u:object_r:etc_runtime_t
-+/etc/defkeymap\.map				--	system_u:object_r:etc_runtime_t
++# set permissions on /tmp/.X11-unix
++allow initrc_t xdm_tmp_t:dir setattr;
 +')
-diff -urN orig/file_contexts/program/crond.fc mod/file_contexts/program/cro=
-nd.fc
---- orig/file_contexts/program/crond.fc	2004-06-19 10:31:43.000000000 +0200
-+++ mod/file_contexts/program/crond.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -11,7 +11,7 @@
- /var/spool/cron/[^/]*	--	<<none>>
- /var/log/cron.*		--	system_u:object_r:crond_log_t
- /var/run/crond\.reboot	--	system_u:object_r:crond_var_run_t
--/var/run/crond\.pid	--	system_u:object_r:crond_var_run_t
-+/var/run/crond?\.pid	--	system_u:object_r:crond_var_run_t
- # fcron
- /usr/sbin/fcron		--	system_u:object_r:crond_exec_t
- /var/spool/fcron	-d	system_u:object_r:cron_spool_t
-diff -urN orig/file_contexts/program/cups.fc mod/file_contexts/program/cups=
-=2Efc
---- orig/file_contexts/program/cups.fc	2004-10-17 13:07:14.000000000 +0200
-+++ mod/file_contexts/program/cups.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -18,9 +18,12 @@
- /usr/lib(64)?/cups/backend/.* --	system_u:object_r:cupsd_exec_t
- /usr/lib(64)?/cups/daemon/.*	 --	system_u:object_r:cupsd_exec_t
- /usr/sbin/cupsd		--	system_u:object_r:cupsd_exec_t
-+ifdef(`hald.te', `
-+# cupsd_config depends on hald
- /usr/bin/cups-config-daemon --	system_u:object_r:cupsd_config_exec_t
- /usr/sbin/hal_lpadmin --	system_u:object_r:cupsd_config_exec_t
- /usr/sbin/printconf-backend --	system_u:object_r:cupsd_config_exec_t
-+')
- /var/log/cups(/.*)?		system_u:object_r:cupsd_log_t
- /var/spool/cups(/.*)?		system_u:object_r:print_spool_t
- /var/run/cups/printcap	--	system_u:object_r:cupsd_var_run_t
-diff -urN orig/file_contexts/program/hotplug.fc mod/file_contexts/program/h=
-otplug.fc
---- orig/file_contexts/program/hotplug.fc	2004-10-19 21:15:26.000000000 +02=
-00
-+++ mod/file_contexts/program/hotplug.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -1,6 +1,7 @@
- # hotplug
- /etc/hotplug(/.*)?		system_u:object_r:hotplug_etc_t
- /sbin/hotplug		--	system_u:object_r:hotplug_exec_t
-+/etc/hotplug\.d/.*	--	system_u:object_r:hotplug_exec_t
- /sbin/netplugd		--	system_u:object_r:hotplug_exec_t
- /etc/hotplug.d/default/default.* system_u:object_r:sbin_t
- /etc/netplug.d(/.*)? 	 	system_u:object_r:sbin_t
-@@ -8,3 +9,4 @@
- /etc/hotplug/.*rc	-- 	system_u:object_r:sbin_t
- /etc/hotplug/hotplug.functions --	system_u:object_r:sbin_t
- /var/run/usb(/.*)?		system_u:object_r:hotplug_var_run_t
-+/var/run/hotplug(/.*)?		system_u:object_r:hotplug_var_run_t
-diff -urN orig/file_contexts/program/ifconfig.fc mod/file_contexts/program/=
-ifconfig.fc
---- orig/file_contexts/program/ifconfig.fc	2004-02-02 16:17:23.000000000 +0=
-100
-+++ mod/file_contexts/program/ifconfig.fc	2004-11-09 21:41:33.000000000 +01=
-00
-@@ -3,6 +3,7 @@
- /sbin/iwconfig		--	system_u:object_r:ifconfig_exec_t
- /sbin/ip		--	system_u:object_r:ifconfig_exec_t
- /sbin/tc		--	system_u:object_r:ifconfig_exec_t
-+/usr/sbin/tc		--	system_u:object_r:ifconfig_exec_t
- /bin/ip			--	system_u:object_r:ifconfig_exec_t
- /sbin/ethtool		--	system_u:object_r:ifconfig_exec_t
- /sbin/mii-tool		--	system_u:object_r:ifconfig_exec_t
-diff -urN orig/file_contexts/program/inetd.fc mod/file_contexts/program/ine=
-td.fc
---- orig/file_contexts/program/inetd.fc	2004-09-11 14:31:47.000000000 +0200
-+++ mod/file_contexts/program/inetd.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -6,3 +6,4 @@
- /usr/sbin/in\..*d	--	system_u:object_r:inetd_child_exec_t
- /usr/sbin/stunnel	--	system_u:object_r:inetd_child_exec_t
- /var/log/(x)?inetd\.log	--	system_u:object_r:inetd_log_t
-+/var/run/inetd\.pid	--	system_u:object_r:inetd_var_run_t
-diff -urN orig/file_contexts/program/ssh.fc mod/file_contexts/program/ssh.fc
---- orig/file_contexts/program/ssh.fc	2004-10-17 13:07:14.000000000 +0200
-+++ mod/file_contexts/program/ssh.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -8,6 +8,7 @@
- /etc/ssh/ssh_host_rsa_key --	system_u:object_r:sshd_key_t
- /usr/sbin/sshd	        --	system_u:object_r:sshd_exec_t
- HOME_DIR/\.ssh(/.*)?		system_u:object_r:ROLE_home_ssh_t
-+/var/run/sshd\.init\.pid	--	system_u:object_r:sshd_var_run_t
- # subsystems
- /usr/lib(64)?/misc/sftp-server --	system_u:object_r:bin_t
- /usr/libexec/openssh/sftp-server -- system_u:object_r:bin_t
-diff -urN orig/file_contexts/program/syslogd.fc mod/file_contexts/program/s=
-yslogd.fc
---- orig/file_contexts/program/syslogd.fc	2003-11-26 19:01:08.000000000 +01=
-00
-+++ mod/file_contexts/program/syslogd.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -5,4 +5,7 @@
- /sbin/syslog-ng		--	system_u:object_r:syslogd_exec_t
- /dev/log		-s	system_u:object_r:devlog_t
- /var/run/log		-s	system_u:object_r:devlog_t
-+ifdef(`distro_suse', `
-+/var/lib/stunnel/dev/log	-s	system_u:object_r:devlog_t
-+')
- /var/run/syslogd\.pid	--	system_u:object_r:syslogd_var_run_t
-diff -urN orig/file_contexts/program/vmware.fc mod/file_contexts/program/vm=
-ware.fc
---- orig/file_contexts/program/vmware.fc	2004-09-25 19:52:50.000000000 +0200
-+++ mod/file_contexts/program/vmware.fc	2004-11-09 21:42:51.000000000 +0100
-@@ -38,5 +38,5 @@
- # ~/vmware, and the preferences and license files are in ~/.vmware.
- #
- HOME_DIR/\.vmware(/.*)?	system_u:object_r:ROLE_vmware_file_t
--HOME_DIR/\vmware(/.*)?	system_u:object_r:ROLE_vmware_file_t
--HOME_DIR/\vmware[^/]*/.*\.cfg	--	system_u:object_r:ROLE_vmware_conf_t
-+HOME_DIR/vmware(/.*)?	system_u:object_r:ROLE_vmware_file_t
-+HOME_DIR/\.vmware[^/]*/.*\.cfg	--	system_u:object_r:ROLE_vmware_conf_t
-diff -urN orig/file_contexts/program/xdm.fc mod/file_contexts/program/xdm.fc
---- orig/file_contexts/program/xdm.fc	2004-09-15 19:01:07.000000000 +0200
-+++ mod/file_contexts/program/xdm.fc	2004-11-09 21:42:27.000000000 +0100
-@@ -16,7 +16,11 @@
- /etc/X11/[wx]dm/Xsession	--	system_u:object_r:xsession_exec_t
- /etc/kde/kdm/Xsession	--	system_u:object_r:xsession_exec_t
- /var/run/xdmctl(/.*)?		system_u:object_r:xdm_var_run_t
-+/var/run/xdm\.pid	--	system_u:object_r:xdm_var_run_t
- /var/lib/[xkw]dm(/.*)?		system_u:object_r:xdm_var_lib_t
-+ifdef(`distro_suse', `
-+/var/lib/pam_devperm/:0	--	system_u:object_r:xdm_var_lib_t
-+')
- /usr/lib/qt-3.3/etc/settings/qtrc(/.*)? system_u:object_r:xdm_var_lib_t
 =20
  #
+ # Use capabilities.
+@@ -120,6 +124,7 @@
+ # Access devices.
+ allow xdm_t device_t:dir { read search };
+ allow xdm_t console_device_t:chr_file setattr;
++allow xdm_t xconsole_device_t:fifo_file { getattr setattr };
+ allow xdm_t framebuf_device_t:chr_file { getattr setattr };
+ allow xdm_t mouse_device_t:chr_file { getattr setattr };
+ allow xdm_t apm_bios_t:chr_file { setattr getattr read write };
+@@ -130,6 +135,7 @@
+ allow xdm_t v4l_device_t:chr_file { setattr getattr };
+ allow xdm_t scanner_device_t:chr_file { setattr getattr };
+ allow xdm_t tty_device_t:chr_file { ioctl read write setattr getattr };
++allow xdm_t device_t:lnk_file read;
+ can_resmgrd_connect(xdm_t)
+=20
+ # Access xdm log files.
+diff -urN orig/file_contexts/program/apmd.fc mod/file_contexts/program/apmd=
+=2Efc
+--- orig/file_contexts/program/apmd.fc	2004-02-13 19:53:37.000000000 +0100
++++ mod/file_contexts/program/apmd.fc	2004-11-09 21:50:48.000000000 +0100
+@@ -5,3 +5,4 @@
+ /var/run/apmd\.pid	--	system_u:object_r:apmd_var_run_t
+ /var/run/.?acpid.socket	-s	system_u:object_r:apmd_var_run_t
+ /var/log/acpid		--	system_u:object_r:apmd_log_t
++/var/lib/acpi(/.*)?		system_u:object_r:apmd_var_lib_t
 diff -urN orig/file_contexts/types.fc mod/file_contexts/types.fc
 --- orig/file_contexts/types.fc	2004-11-09 08:45:55.000000000 +0100
-+++ mod/file_contexts/types.fc	2004-11-09 21:41:33.000000000 +0100
-@@ -260,6 +260,7 @@
- /opt/.*/lib(64)?/.*\.so(\.[^/]*)*	--	system_u:object_r:shlib_t
- /opt/.*/libexec(/.*)?	system_u:object_r:bin_t
- /opt/.*/bin(/.*)?		system_u:object_r:bin_t
-+/opt/.*/sbin(/.*)?		system_u:object_r:sbin_t
- /opt/.*/man(/.*)?		system_u:object_r:man_t
- /opt/.*/var/lib(64)?(/.*)?		system_u:object_r:var_lib_t
-=20
-@@ -380,6 +381,7 @@
- /var/lib/msttcorefonts(/.*)?		system_u:object_r:fonts_t
++++ mod/file_contexts/types.fc	2004-11-09 21:50:48.000000000 +0100
+@@ -125,6 +125,7 @@
+ /u?dev/full		-c	system_u:object_r:null_device_t
+ /u?dev/zero		-c	system_u:object_r:zero_device_t
+ /u?dev/console		-c	system_u:object_r:console_device_t
++/u?dev/xconsole		-p	system_u:object_r:xconsole_device_t
+ /u?dev/(kmem|mem|port)	-c	system_u:object_r:memory_device_t
+ /u?dev/nvram		-c	system_u:object_r:memory_device_t
+ /u?dev/random		-c	system_u:object_r:random_device_t
+diff -urN orig/macros/global_macros.te mod/macros/global_macros.te
+--- orig/macros/global_macros.te	2004-11-09 08:45:55.000000000 +0100
++++ mod/macros/global_macros.te	2004-11-09 21:50:48.000000000 +0100
+@@ -379,6 +379,7 @@
+ ', `
+ file_type_auto_trans($1_t, var_run_t, $1_var_run_t, $2)
  ')
- /usr/share/fonts(/.*)?			system_u:object_r:fonts_t
-+/usr/share/ghostscript/fonts(/.*)?	system_u:object_r:fonts_t
- /usr/local/share/fonts(/.*)?		system_u:object_r:fonts_t
++allow $1_t var_t:dir search;
+ allow $1_t $1_var_run_t:dir rw_dir_perms;
+ ')
+=20
+diff -urN orig/macros/program/apache_macros.te mod/macros/program/apache_ma=
+cros.te
+--- orig/macros/program/apache_macros.te	2004-11-09 08:45:55.000000000 +0100
++++ mod/macros/program/apache_macros.te	2004-11-09 21:50:48.000000000 +0100
+@@ -110,7 +110,7 @@
+ create_dir_file(httpd_$1_script_t, httpd_$1_script_rw_t)
+ ra_dir_file(httpd_$1_script_t, httpd_$1_script_ra_t)
+=20
+-if (httpd_enable_cgi) && (httpd_unified) {
++if (httpd_enable_cgi && httpd_unified) {
+ ifelse($1, sys, `
+ domain_auto_trans(httpd_t, httpdcontent, httpd_sys_script_t)
+ domain_auto_trans(httpd_suexec_t, httpdcontent, httpd_sys_script_t)
+diff -urN orig/macros/program/cdrecord_macros.te mod/macros/program/cdrecor=
+d_macros.te
+--- orig/macros/program/cdrecord_macros.te	2004-11-07 18:33:13.000000000 +0=
+100
++++ mod/macros/program/cdrecord_macros.te	2004-11-09 21:50:48.000000000 +01=
+00
+@@ -28,7 +28,7 @@
+=20
+ can_resmgrd_connect($1_cdrecord_t)
+=20
+-allow $1_cdrecord_t home_root_t:dir { search };
++allow $1_cdrecord_t { tmp_t home_root_t }:dir search;
+=20
+ # allow cdrecord to read user files
+ r_dir_file($1_cdrecord_t, { $1_home_t $1_tmp_t })
+@@ -45,7 +45,7 @@
+ allow $1_cdrecord_t scsi_generic_device_t:chr_file { getattr read write io=
+ctl };
+=20
+ allow $1_cdrecord_t self:capability { ipc_lock sys_nice setuid };
+-allow $1_cdrecord_t self:process { getsched setsched fork };
++allow $1_cdrecord_t self:process { getsched setsched fork sigchld sigkill =
+};
+=20
+ ')
+=20
+diff -urN orig/macros/program/gpg_agent_macros.te mod/macros/program/gpg_ag=
+ent_macros.te
+--- orig/macros/program/gpg_agent_macros.te	2004-11-09 08:45:56.000000000 +=
+0100
++++ mod/macros/program/gpg_agent_macros.te	2004-11-09 21:50:48.000000000 +0=
+100
+@@ -45,13 +45,11 @@
+=20
+ allow $1_gpg_agent_t device_t:dir { getattr read };
+=20
+-# read ~/.gnupg
++# read and write ~/.gnupg (gpg-agent stores secret keys in ~/.gnupg/privat=
+e-keys-v1.d )
+ allow $1_gpg_agent_t { home_root_t $1_home_dir_t }:dir search;
+-r_dir_file($1_gpg_agent_t, $1_gpg_secret_t)
++create_dir_file($1_gpg_agent_t, $1_gpg_secret_t)
+ if (use_nfs_home_dirs) {
+-r_dir_file($1_gpg_agent_t, nfs_t)
+-# write ~/.xsession-errors
+-allow $1_gpg_agent_t nfs_t:file write;
++create_dir_file($1_gpg_agent_t, nfs_t)
+ }
+=20
+ allow $1_gpg_agent_t self:unix_stream_socket create_stream_socket_perms;
+diff -urN orig/types/device.te mod/types/device.te
+--- orig/types/device.te	2004-11-09 08:45:56.000000000 +0100
++++ mod/types/device.te	2004-11-09 21:50:48.000000000 +0100
+@@ -28,6 +28,10 @@
+ type console_device_t, device_type, dev_fs;
 =20
  #
-@@ -451,6 +453,6 @@
-=20
++# xconsole_device_t is the type of /dev/xconsole
++type xconsole_device_t, file_type, dev_fs;
++
++#
+ # memory_device_t is the type of /dev/kmem,
+ # /dev/mem, and /dev/port.
  #
- #  The krb5.conf file is always being tested for writability, so
--#  we defined a type to dontautit
-+#  we defined a type to dontaudit
- #
- /etc/krb5\.conf		--	system_u:object_r:krb5_conf_t
 
---uZ3hkaAS1mZxFaxD--
+--F8dlzb82+Fcn6AgP--
 
---GZVR6ND4mMseVXL/
+--UnaWdueM1EBWVRzC
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -218,12 +441,12 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBkSzrxWIrrrL0q+cRArZMAKCjL0nBbbrwdRcm52fNgktixjUmzQCfVO/6
-QYp0eY86ZCd7ANvSjqMZfQg=
-=Zy5w
+iD8DBQFBkTDvxWIrrrL0q+cRAshWAJ9nEdu43AeEQnmjhuIc/SuA8vmE+ACgrpua
+uw/NSBs+pe0RcnlU1QiPNq4=
+=oE5n
 -----END PGP SIGNATURE-----
 
---GZVR6ND4mMseVXL/--
+--UnaWdueM1EBWVRzC--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
