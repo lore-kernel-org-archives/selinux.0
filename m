@@ -1,38 +1,34 @@
-Subject: Re: Latest diffs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: ivg2@cornell.edu
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1107294094.32037.0.camel@cobra.ivg2.net>
-References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FA9717.2000609@redhat.com>
-	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
-	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107294094.32037.0.camel@cobra.ivg2.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12D8X53021845
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 08:08:33 -0500 (EST)
+Subject: RE: Advice on bringing up SE Linux
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Villalovos, John L" <john.l.villalovos@intel.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <60C14C611F1DDD4198D53F2F43D8CA3B035B5599@orsmsx410>
+References: <60C14C611F1DDD4198D53F2F43D8CA3B035B5599@orsmsx410>
 Content-Type: text/plain
-Message-Id: <1107349071.890.63.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107349320.890.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 02 Feb 2005 07:57:51 -0500
+Date: Wed, 02 Feb 2005 08:02:00 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-01 at 16:41, Ivan Gyurdiev wrote:
-> > +# libGL
-> > +/usr/X11R6/lib/libGL\.so.* 	-- system_u:object_r:texrel_shlib_t
-> > +
-> 
-> How about those:
-> 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=145067
+On Tue, 2005-02-01 at 15:50, Villalovos, John L wrote:
+> I will work on trying to get load_policy compiled up for what we have
+> going and see if I can get it to work that way.
 
-Dan has already marked certain shared objects with texrel_shlib_t in his
-diffs; I was only adding libGL because I was also changing an existing
-execmod allow rule for it to use the new texrel_shlib_t type.  I think
-that the shared objects you originally listed are being reviewed by Red
-Hat and some of them will be fixed, as not all of them truly require
-text relocations.
+Note that you don't need the full load_policy logic to just perform a
+basic load, especially given that you are using a pre-boolean policy
+version.  You should be able to strip load_policy down to just opening
+the policy file, mmap'ing it, and calling security_load_policy from
+libselinux (or if you don't want to build libselinux, you could just
+handcode load_policy to open /selinux/load and write the mmap'd policy
+file to it).  The boolean support in the current load_policy isn't
+critical, and is completely irrelevant for a version 15 policy.
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
 
 
