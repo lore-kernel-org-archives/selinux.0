@@ -1,71 +1,39 @@
-Message-ID: <655108679.1073882102217.JavaMail.osg@spnode33>
-Date: Sun, 11 Jan 2004 23:35:02 -0500 (EST)
-From: "PORTER,CHRISTOPHER B" <console@ufl.edu>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: Module problems after 2.4 upgrade
-Cc: SELinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0CDINRb012332
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jan 2004 08:18:23 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0CDICiV018460
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jan 2004 13:18:12 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i0CDIB06018457 for <selinux@tycho.nsa.gov>; Mon, 12 Jan 2004 13:18:11 GMT
+Subject: Re: Questions about install SELinux in Fedora Core
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: Park Lee <parklee_2004@yahoo.com.cn>, selinux@tycho.nsa.gov
+In-Reply-To: <200401112231.54137.russell@coker.com.au>
+References: <20040111024703.62855.qmail@web15208.mail.bjs.yahoo.com>
+	 <200401112231.54137.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1073913483.11263.39.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset=us-ascii
+Date: Mon, 12 Jan 2004 08:18:03 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm not familiar with the process of or need to relabel that 
-directory. After compiling the kernel to a floppy disk I did "make 
-modules" and "make modules_install", which both seemed to work. 
-I'm a bit boggled as to why the system then can't find the modules 
-when it can if I simply remove the floppy and boot from the non-SE 
-kernel. In other words, the configuration files haven't changed.
+On Sun, 2004-01-11 at 06:31, Russell Coker wrote:
+> 2.6.0 and 2.6.1 run fine without any patches.
 
-
-Thanks for the suggestion though,
-
-
-Christopher Porter
-console@ufl.edu
-
-On Sun Jan 11 17:04:24 EST 2004, Thomas Bleher 
-<bleher@informatik.uni-muenchen.de> wrote:
-
-> * "PORTER,CHRISTOPHER B" <console@ufl.edu> [2004-01-11 22:46]:
->> KERNEL: 2.4.20-8
->> OS: Redhat 9 (Shrike)
->> 
->> I've installed the SE kernel, done make bzdisk, and done make 
->> modules and make modules_install. Everything exited 
->> successfully, and the floppy boots fine. However, when the 
->> system goes to start various services and load modules, I get a 
->> range of problems such as those that follow:
->> 
->> "modprobe: Can't locate module ..."
->> 
->> "Do you need to install insmod?"
->> 
->> I double-checked and made sure that loadable module support WAS 
->> compiled in. I tried once before to grab new modutils but it 
->> didn't pan out. Any suggestions or known problems?
->  Have you relabeled your /lib/modules? Only matters if you boot 
-> up in
-> enforcing mode, which is not clear from your message.
-> 
-> Just a random thought, because I stumbled over this two times 
-> today.
-> 
-> Friendly,
-> Thomas
-> 
-> --
-> This message was distributed to subscribers of the selinux 
-> mailing list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-> 
-
-
-
---
-PORTER,CHRISTOPHER B
+The latest -mm patch (2.6.1-mm2) includes all of the patches to the
+SELinux module except for a reworking of the skb logging and new
+port-based controls by James Morris.  2.6.1 still lacked the resource
+limit inheritance control as well as the networking controls, and 2.6.0
+further lacked the signal inheritance control and several fixes.  Hence,
+while you can use vanilla 2.6.0 or 2.6.1 without any patches, it isn't
+exactly the same; certain controls won't be present.
+ 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
