@@ -1,37 +1,47 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
-To: Wayne Salamon <wsalamon@tislabs.com>
-Subject: Re: Core policy, second pass
-Date: Thu, 27 Feb 2003 09:23:25 +0100
-References: <Pine.LNX.4.33.0302261350580.3945-200000@vox.gw.tislabs.com>
-In-Reply-To: <Pine.LNX.4.33.0302261350580.3945-200000@vox.gw.tislabs.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA09530
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 05:21:38 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id KAA17106
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 10:18:24 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id KAA17102
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 10:18:23 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 6F4399253C
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 21:21:35 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id BC942521
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 11:21:28 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: sendmail policy
+Date: Thu, 27 Feb 2003 11:21:27 +0100
 MIME-Version: 1.0
-Message-Id: <200302270923.25751.carsten.grohmann@raumbildsysteme.de>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200302271121.27632.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Am Mittwoch, 26. Februar 2003 19:57 schrieb Wayne Salamon:
-> Well, we need some consensus. Who is the typical user of the SELinux
-> download, and what are their requirements? Or, do we require some
-> customization for the user to be able to run, to enable base
-> functionality?
+# Use capabilities
+allow $1_mail_t self:capability net_bind_service;
 
-I think the idea of Leslie J. French with a really core policy based 
-only of the "CPU+DISK" (incl. ssh) rules, is a good way. The other 
-rules for net, gpg and others should be optional and only includes by 
-admins wish.
-Thru this we will have no problems with strip down the policy. We will 
-have a little base set. It will be simple to maintain also. 
-All others rules could be include manually or e.g. vie "make 
-workstation".
-In pratice we could use a rules directory and different target 
-directorys (base, network, mail, user, x, ..) and link the rules to 
-each necessary destination. A makefile could generate the policy only 
-from the target directory.
+Why is the above in macros/program/sendmail_macros.te?
 
-Carsten
+I may have written the policy like that to keep the functionality of the 
+previous sendmail policy.  However I don't have a Sendmail machine for 
+testing and I can't think of any good reason for allowing such access.
+
+Maybe this should be removed?
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
