@@ -1,38 +1,37 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "lky" <lky77@sjtu.edu.cn>, "SELINUX" <SELinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8I6oOxF004548
+	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 02:50:24 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8I6mgLY019327
+	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 06:48:42 GMT
+Received: from sjtu.edu.cn ([202.112.26.54])
+	by jazzswing.ncsc.mil  with ESMTP id h8I6mesG019321
+	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 06:48:41 GMT
+Message-ID: <001001c37db2$0d2f9a20$5d38a8c0@lky>
+From: "lky" <lky77@sjtu.edu.cn>
+To: <jwcart2@epoch.ncsc.mil>
+Cc: "SELINUX" <SELinux@tycho.nsa.gov>
+References: <000a01c37d46$29ed8300$5d38a8c0@lky> <1063823878.7533.38.camel@moss-lions.epoch.ncsc.mil>
 Subject: Re: Installation Problem
-Date: Thu, 18 Sep 2003 14:37:08 +1000
-References: <000a01c37d46$29ed8300$5d38a8c0@lky>
-In-Reply-To: <000a01c37d46$29ed8300$5d38a8c0@lky>
-Cc: James Morris <jmorris@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>
+Date: Thu, 18 Sep 2003 14:56:53 +0800
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="gb2312"
-Message-Id: <200309181437.08434.russell@coker.com.au>
+	charset="gb2312"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 18 Sep 2003 04:04, lky wrote:
-> Hi, I am attempting to install the new 2.4-based SELinux at Redhat9.0. But
-> when I finished the installation I found I couldn't reboot the Redhat9.0
-> any longer while I can boot with the SELinux kernel. When I boot with the
-> Redhat9.0 kernel I got the following error message:
+Absolutely right! Thanks a lot!
 
-I am under the impression that this kernel bug (as described by James Carter) 
-has not yet been correctly tracked down and fixed.
 
-Discussing this matter with James Morris and Stephen Tweedie off-list may be 
-beneficial, it would be good if this bug could be fixed before 2.4.23...
+> SELinux uses extended attributes for file security contexts.  We (and
+> others) have encountered problems booting unmodified 2.4 kernels after
+> assigning extended attributes to the root filesystem.  
+> 
+> A 2.4 kernel with the Extended Attribute patch applied will boot.  The
+> kernel source that you are using for SELinux has the EA patch, so you
+> can use it to make a non-SELinux kernel.
+> 
 
-I suggest discussing it off-list as Stephen may require more information about 
-your system than you are willing to provide in a public forum.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 
 --
