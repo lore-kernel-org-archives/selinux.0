@@ -1,99 +1,85 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9B9rWrT005080
-	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 05:53:32 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9B9qLfG021714
-	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 09:52:22 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Mon, 11 Oct 2004 11:53:31 +0200
-Date: Mon, 11 Oct 2004 11:54:11 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Agressive Trimming of types.fc
-Message-Id: <20041011095410.GB15844@jmh.mhn.de>
-References: <1097177305.8508.49.camel@moss-lions.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9BCtTrT005776
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 08:55:29 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9BCsFfG025292
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 12:54:19 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id A55BFC4C088
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 14:55:19 +0200 (CEST)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 25598-06 for <selinux@tycho.nsa.gov>;
+	Mon, 11 Oct 2004 14:55:19 +0200 (CEST)
+Received: from wintermute.xmldesign.de (p50801E76.dip.t-dialin.net [80.128.30.118])
+	by legolas.drinsama.de (Postfix) with ESMTP id C4DCDC4C084
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 14:55:18 +0200 (CEST)
+Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
+	by wintermute.xmldesign.de (Postfix) with ESMTP id BE488234069
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 14:55:17 +0200 (CEST)
+Subject: Asterisk on SELinux
+From: Erich Schubert <erich@debian.org>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Mon, 11 Oct 2004 14:55:16 +0200
+Message-Id: <1097499317.16758.40.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GPJrCs/72TxItFYR"
-In-Reply-To: <1097177305.8508.49.camel@moss-lions.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
+apparently, the following statements are needed in net_contexts:
 
---GPJrCs/72TxItFYR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+portcon udp 2727 system_u:object_r:asterisk_port_t
 
-* James Carter <jwcart2@epoch.ncsc.mil> [2004-10-07 22:53]:
-> Attached is an aggressive trimming of types.fc. =20
->=20
->  types.fc |  104
-> ++++++---------------------------------------------------------
->  1 files changed, 11 insertions(+), 93 deletions(-)
->=20
-> I am trying to make things a little easier to maintain and a little more
-> flexible (to avoid the "it's i686 not i386" issues).  Please let me know
-> what you think.
->=20
-> This patch uses more generalized rules in labeling the following:
-> 	lib_t and shlib_t in /opt
-> 	lib_t, shlib_t, and ld_so_t in /lib(64)?
-> 	lib_t, shlib_t, ld_so_t, bin_t, and sbin_t in /usr
+(sorry, i do not know what port udp/2727 is. google found "media gateway
+control protocol call agent (MGCP)" and "broadband voice")
 
-It looks nice from a SuSE POV, except for two small points:
 
-/usr/sbin/setfiles:  relabeling /usr/include/pgsql/internal/lib from system=
-_u:object_r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /usr/include/pgsql/internal/lib/dllist.h fr=
-om system_u:object_r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /usr/include/pgsql/server/lib from system_u=
-:object_r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /usr/include/pgsql/server/lib/stringinfo.h =
-=66rom system_u:object_r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /usr/include/pgsql/server/lib/dllist.h from=
- system_u:object_r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /usr/include/pgsql/server/lib/lispsort.h fr=
-om system_u:object_r:usr_t to system_u:object_r:lib_t
+and in in domains/asterisk.te:
 
-I think everything under /usr/include should be labeled usr_t.
-I do not really know how to fix this cleanly, but I don't think it's a
-very big deal.
+# needed to have asterisk start
+allow asterisk_t self:process setsched;
 
-/usr/sbin/setfiles:  relabeling /opt/gnome2.8/var/lib from system_u:object_=
-r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /opt/gnome2.8/var/lib/scrollkeeper from sys=
-tem_u:object_r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /opt/gnome2.8/var/lib/scrollkeeper/C from s=
-ystem_u:object_r:usr_t to system_u:object_r:lib_t
-/usr/sbin/setfiles:  relabeling /opt/gnome2.8/var/lib/scrollkeeper/C/scroll=
-keeper_cl.xml from system_u:object_r:usr_t to system_u:object_r:lib_t
-[and so on]
+# probably for talking to a running instance
+allow asterisk_t self:fifo_file rw_file_perms;
 
-Should these be labeled var_lib_t?
+# the debian standard installation hasn't got all dirs needed
+allow asterisk_t asterisk_spool_t:dir create_dir_perms;
 
-Otherwise the patch looks good and also fixes a few wrong labelings, so
-it should definitely be included into cvs.
+# not sure what is stored in tmp, but IAX related
+tmp_domain(asterisk)
 
-Thomas
+# asterisk will need to allocate additional non-priv ports
+# for VoIP voice channels. Yes i know this line is ugly.
+# suggestions
+allow asterisk_t port_t:{ udp_socket tcp_socket } name_bind;
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+# for /proc/net/route it seems
+allow asterisk_t proc_t:file r_file_perms;
 
---GPJrCs/72TxItFYR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+# demo files installed in /usr/share/asterisk/sounds/demo-instruct.gsm
+# are labeled usr_t
+allow asterisk_t usr_t:file r_file_perms;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+# some helper apps are probably there
+allow asterisk_t { bin_t sbin_t }:dir search;
 
-iD8DBQFBalhCxWIrrrL0q+cRAoecAJ4wNCFvJBhVQ8CoBkHcpRTiDIUgbQCghDX/
-+rMvkbr+A6zUUMspjHXYTGQ=
-=S94i
------END PGP SIGNATURE-----
 
---GPJrCs/72TxItFYR--
+
+Unfortunately, while asterisk does now start (as root only, not as
+non-root-user... not sure why, but i think the user/group setup isn't
+right yet... how do i change a unix users primary group in selinux?)
+my test SIP call didn't get properly accepted.
+
+Greetings,
+Erich Schubert
+-- 
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
+   There was never a good war or a bad peace. - Benjamin Franklin   //\
+            Es ist besser, geliebt und verloren zu haben,           V_/_
+                    als niemals geliebt zu haben.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
