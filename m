@@ -1,36 +1,25 @@
-Message-ID: <20050225175717.45835.qmail@web51505.mail.yahoo.com>
-Date: Fri, 25 Feb 2005 09:57:16 -0800 (PST)
+Message-ID: <20050225190043.30364.qmail@web51510.mail.yahoo.com>
+Date: Fri, 25 Feb 2005 11:00:42 -0800 (PST)
 From: Park Lee <parklee_sel@yahoo.com>
-Subject: Isson on meaning of local socket in ... 
-To: SELinux@tycho.nsa.gov
-Cc: sds@epoch.ncsc.mil
+Subject: Re: [PATCH][SELINUX] 3/7 Add node controls
+To: jmorris@redhat.com
+Cc: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-  In subsection 8.1.1 of "Integrating Flexible Support
-for Security Policies into the Linux Operating
-System", It says:
-  "The Linux network component creates two special
-purpose sockets for use by the AF_INET protocol
-family.The tcp_socket is used to send resets when a
-TCP packet is rejected, since there may be no local
-socket corresponding to the packet. The icmp socket is
-used to send ICMP messages."
+On Fri 9 Jan 2004 - at 10:39, James Morris wrote:
+> This patch against 2.6.1-mm2 adds 'node' access
+> controls for SELinux, which allows network traffic 
+> to be controlled on the basis of remote address. 
 
-  I found that tcp_socket was also setup by local host
-in tcp_v4_init(). 
-  Then, What does the "local socket" mean, here? 
-  Does it refer to "user socket" which is mentioned by
-Jmorris ( see
-http://marc.theaimsgroup.com/?l=bk-commits-head&m=108407589700679&w=2
-)? 
-  Or just as an antonym of "foreign socket" or "remote
-socket"?
+Can 'node' access controls now permit controls
+on inbound messages based on the source address in
+addition to permit controls on outbound messages based
+on the destination address you mentioned above.
 
-  Thank you.
+Thanx.
 
 
 =====
