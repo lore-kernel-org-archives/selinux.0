@@ -1,34 +1,58 @@
-Subject: Re: dynamic context transitions
-From: Colin Walters <walters@verbum.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   Chad Hanson <chanson@TrustedCS.com>, Karl MacMillan <kmacmillan@tresys.com>,
-   Frank Mayer <mayerf@tresys.com>, Darrel Goeddel <DGoeddel@TrustedCS.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <1099587019.3174.137.camel@moss-spartans.epoch.ncsc.mil>
-References: <36282A1733C57546BE392885C06185924D93DC@chaos.tcs.tcs-sec.com>
-	 <20041103172609.GE5061@lkcl.net>
-	 <1099587019.3174.137.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 05 Nov 2004 00:31:40 -0500
-Message-Id: <1099632701.25416.19.camel@nexus.verbum.private>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA594NXZ001204
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 04:04:25 -0500 (EST)
+Received: from web51504.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id iA594NKf011155
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 09:04:23 GMT
+Message-ID: <20041105090423.51837.qmail@web51504.mail.yahoo.com>
+Date: Fri, 5 Nov 2004 01:04:23 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: SELinux with IPSec - something going on ?
+To: selinux@tycho.nsa.gov, jaegert@us.ibm.com
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1539650032-1099645463=:48635"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-11-04 at 11:50 -0500, Stephen Smalley wrote:
+--0-1539650032-1099645463=:48635
+Content-Type: text/plain; charset=us-ascii
 
-> I would like to move forward with this proposal, going beyond a
-> discussion of whether or not it should be implemented to how it should
-> be implemented. 
-
-There seemed to be a consensus behind restricting dynamic transitions to
-within a "domain hierarchy"; i.e. that an application could not
-dynamically gain more privileges, only shed them.  Is that true?  And if
-so, what will the language to define them look like?
+Hi,
+ 
+I also intend to do some work on Integrating IPSEC with network mandatory controls. I'd like to know how many parts this work may include? what these parts respectively are? and what about the workload for doing it?
+ 
+Thanks.
 
 
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
 
+
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-1539650032-1099645463=:48635
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Hi,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>I&nbsp;also intend to do some work on&nbsp;Integrating IPSEC with network mandatory controls. I'd like&nbsp;to know&nbsp;how many&nbsp;parts&nbsp;this work may include?&nbsp;what these parts&nbsp;respectively&nbsp;are? and what about the workload for doing it?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks.</DIV><BR><BR><DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
+<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
+--0-1539650032-1099645463=:48635--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
