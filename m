@@ -1,42 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA28596
-	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2001 14:09:01 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA01531
-	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2001 18:07:16 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id SAA01527
-	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2001 18:07:15 GMT
-Date: Thu, 4 Oct 2001 14:08:07 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA28864
+	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2001 14:54:21 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA29231
+	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2001 18:53:51 GMT
+Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
+	by jazzband.ncsc.mil  with ESMTP id SAA29227
+	for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2001 18:53:50 GMT
+Date: Thu, 4 Oct 2001 15:01:20 -0400 (EDT)
+From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
 To: Conan Callen <ccallen@windowpane.com>
 cc: <selinux@tycho.nsa.gov>
 Subject: Re: debugging tools
 In-Reply-To: <Pine.LNX.4.33.0110041000330.15881-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.33.0110041359440.7555-100000@raven>
+Message-ID: <Pine.LNX.4.30.0110041500170.10894-100000@biocserver.BIOC.CWRU.Edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
 On Thu, 4 Oct 2001, Conan Callen wrote:
 
-> I want to start stepping through the selinux / lsm code so I can see what
-> is happening. Does anyone have any recomendations on kernel debugging
-> tools for doing this? I've been using vstudio on windows for years and the
-> windows sdk debugger for working with kernel code. So far the only
-> tool used on linux are emacs and vi ;)
-
-Is this just a learning exercise or have you encountered a bug that you
-want to track down?  If you really want some kind of kernel debugger, you
-might try the SGI kGDB (see http://kgdb.sourceforge.net).
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+> I want to start stepping through the selinux / lsm code so I can see
+> what is happening. Does anyone have any recomendations on kernel
+> debugging tools for doing this?
 
 
+look for kprof and kdb, lkcd should also be helpful:
+
+http://oss.sgi.com/projects/
+
+that should be a good place to start. i think that kprof uses the same
+output format as gprof so it can use the same analysis tools.
+
+hope that helps
+
+____________________________
+jose nazario						     jose@cwru.edu
+	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
+				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
 
 
 --
