@@ -1,43 +1,122 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JE7KRb010396
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 10:07:21 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4JE4tB2015712
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 14:04:55 GMT
-Received: from smtp.sws.net.au ([61.95.69.6])
-	by jazzswing.ncsc.mil  with ESMTP id i4JE4bwi015560
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 14:04:54 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: is this pretty much it (to patch kdm 3.2.2)?
-Date: Thu, 20 May 2004 00:05:52 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040519074242.GK7348@lkcl.net>
-In-Reply-To: <20040519074242.GK7348@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200405200005.52165.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JEVWRb010580
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 10:31:32 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4JEVTAR011780
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 14:31:29 GMT
+Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
+        by jazzband.ncsc.mil  with SMTP id i4JEVSHn011777 for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 14:31:28 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
+  by smtp804.mail.ukl.yahoo.com with SMTP; 19 May 2004 14:21:44 -0000
+Date: Wed, 19 May 2004 14:19:02 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Frank Mayer <mayerf@tresys.com>, dac@tresys.com
+Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
+Subject: Re: adduser script
+Message-ID: <20040519141902.GG4221@lkcl.net>
+References: <20040519091721.GA8839@lkcl.net> <00bf01c43d98$482f4fc0$4c0c010a@columbia.tresys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <00bf01c43d98$482f4fc0$4c0c010a@columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 19 May 2004 17:42, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> is this pretty much all that's required???  compared to the 2.4 stuff
-> it's like tiny.
+On Wed, May 19, 2004 at 07:56:11AM -0400, Frank Mayer wrote:
+> See seuser and the seuser* scripts in the setools package
+ 
+ ah _ha_.
 
-In addition to the issues Steve mentioned, there is (or was) another problem.  
-There were compilation problems with the SE Linux headers last time I tried 
-to compile kdm.  As kdm is in the middle of a huge package that takes ages to 
-compile I hadn't got around to trying to compile it recently.  In your 
-message you didn't mention whether you successfully compiled the code with 
-the patch in question.  Does it compile?
+ okay.
+
+ these are a very good base for adoption / adaption into adduser.
+
+ unfortunately, the programs call useradd directly, which is what
+ adduser-ng does [in a plugin].
+
+ frank, would you be willing to split out the functionality
+ of seuseradd etc. that deals with /etc/selinux/users into
+ _separate_ programs?
+
+ and make seuseradd etc. call those programs?
+
+ at the moment, the structure is like this:
+
+ seuseradd ---> useradd [-> accesses /etc/passwd]
+            |
+			|-> direct access to /etc/selinux/users
+
+ and adduser-ng does this, with plugins being optional:
+
+ adduser-ng ---> useradd [-> accesses /etc/passwd]
+             |
+			 |-> exim4plugin [-> accesses /etc/aliases]
+			 |
+			 |-> eximplugin [-> accesses /etc/aliases]
+			 |
+			 |-> PasswdUser plugin [-> direct access to /etc/shadow]
+   
+  
+  what i would like to see is this:
+
+ seuseradd ---> useradd [-> accesses /etc/passwd]
+            |
+			|-> addseuser [-> direct access to /etc/selinux/users]
+
+
+ then i could _very_ easily do this, with oh about 1/2 a days' work:
+
+ adduser-ng ---> useradd [-> accesses /etc/passwd]
+             |
+			 |-> exim4plugin [-> accesses /etc/aliases]
+			 |
+			 |-> eximplugin [-> accesses /etc/aliases]
+			 |
+			 |-> PasswdUser plugin [-> direct access to /etc/shadow]
+             |
+			 |-> addseuser [-> direct access to /etc/selinux/users]
+
+
+ where addseuser is the functionality of the present seuseradd
+ that manages /etc/selinux/users, split out into a separate program.
+
+ etc.  same for seuserdel etc.
+
+
+ go on, go on, you know you want to :)
+
+ pleeease?
+
+ everyone gains, because then the [standard] program adduser could be
+ used to manage selinux users.
+
+ sincerely,
+
+ l.
+
+
+> owner-selinux@tycho.nsa.gov wrote:
+> > Subject: adduser script
+> > 
+> > 
+> > has anyone considered writing an adduser script modification
+> > for selinux that adds users to /etc/selinux/users?
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
