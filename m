@@ -1,54 +1,76 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Joshua Brindle" <JBrindle@snu.edu>, <SELinux@tycho.nsa.gov>
-Subject: Re: selinux play machine
-Date: Fri, 7 Mar 2003 10:25:39 +0100
-References: <se67e0d0.047@atlas.snu.edu>
-In-Reply-To: <se67e0d0.047@atlas.snu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303071025.39192.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA09401
+	for <selinux@tycho.nsa.gov>; Sun, 9 Mar 2003 05:12:56 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id KAA12487
+	for <selinux@tycho.nsa.gov>; Sun, 9 Mar 2003 10:12:55 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+        by jazzband.ncsc.mil  with ESMTP id KAA12483 for <selinux@tycho.nsa.gov>; Sun, 9 Mar 2003 10:12:52 GMT
+Date: Sun, 9 Mar 2003 21:12:26 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SE-Linux debian-installer
+Message-ID: <20030309101226.GA4550@snoopy.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 7 Mar 2003 06:58, Joshua Brindle wrote:
-> Russell, i don't know if you just messed up or forgot to set the sid on
-> spasswd but...
->
-> > Someone changed the root password, it's a pity they weren't responsible
-> > enough to change it back afterwards.  I've changed the SID of the spasswd
-> > program to prevent this happening again...
->
->
-> root@cose:/# spasswd
-> Enter new UNIX password:
-> Retype new UNIX password:
-> passwd: password updated successfully
+Hello,
 
-Changing the SID was only a temporary measure, and I didn't get around to 
-installing a proper fix before I upgraded the "selinux" package (which 
-changed the SID back).
+Some people are still after my debian-installer disk, even though it is
+very old, and never worked...
 
-I've changed the "users" file so that root now gets domain user_u and 
-therefore is prohibited from changing the password.
+I don't have time to update it myself, especially since it would require
+me to download all the packages over my relatively slow Internet link.
 
-Also I've changed the policy such that you can't run "passwd" from the command 
-line (because the passwd program keeps trying to create a lock file 
-indefinately - this is primarily a Debian problem the version of passwd used 
-in Red Hat gives up after a reasonable number of tries).  I'll submit the 
-changes as soon as the NAI people have dealt with my last policy changes.
+Instead, I will just describe what is needed to create one yourself.
+This is untested, errors might exist. Still it should give you the
+general idea.
 
+If you just want a SE-Linux system, and you want it now, you are advised
+to take another approach.
 
-In future please send messages about such issues to me, or at least CC me on 
-them.
+1. Install CVS.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+2. CVS_RSH=ssh cvs -d :ext:bam@cvs.debian.org:/cvs/debian-boot co debian-installer
+(I think that is correct, not absolutely certain). You should get
+directories under debian-installer: CVS/    anna/   doc/
+main-menu/  rootskel/  tools/ README  build/  libdebian-installer/
+retriever/  scripts/   utils/
 
+3. cd debian-installer/build
+
+4. Install dependancies listed in debian/control, if they are not
+in Debian, you will need to build the source in the CVS you just
+downloaded. In fact, if udebs are required that aren't yet available in
+Debian, you might have to build them here, too (hopefully everything is
+in Debian now though). "dpkg-buildpackage -rfakeroot" where required.
+
+5. Copy sources.list to sources.list.local and modify as appropriate.
+Do not modify sources.list. Possibly you will want to get this to use
+my SE-Linux udeb kernel image (note: only 2.4.19 is available at the
+moment) as the first priority.
+
+6. fakeroot make TYPE=net
+
+Theoritically you should be left with a disk image in the dest
+directory.
+
+In practise, you are likely to get errors. Fix them, and continue ;-).
+
+>From memory, my kernel was too big, so I had to download the beta
+version of UPX, compile it, in order to compress it so it would fit on a
+floppy image.
+
+(sorry, I can't predict what other errors you might get).
+
+7. Write a patch for selinux-small, Debian package, that will build a
+selinux*.udeb, with appropriate menus, etc. Submit patch to Russell.
+
+All right, I don't expect many people to get up to step 7...
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
