@@ -1,37 +1,49 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA05731
-	for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2002 15:24:14 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA05594
+	for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2002 15:15:59 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gBGKODI23647
-	for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2002 20:24:13 GMT
-Received: from hq.caci.com (mailtest.caci.com [204.194.72.241])
-        by jazzband.ncsc.mil  with ESMTP id gBGKOBf23640 for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2002 20:24:12 GMT
-Subject: Domain transition
-To: SELinux@tycho.nsa.gov
-Message-ID: <OF0E5EECFE.7EB8F6E6-ON85256C91.006E1E8E@caci.com>
-From: "Richard Mayo" <rmayo@caci.com>
-Date: Mon, 16 Dec 2002 15:09:59 -0500
+	by jazzband.ncsc.mil  with ESMTP id gBGKFwI22933
+	for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2002 20:15:58 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id gBGKFqf22929 for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2002 20:15:57 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+Subject: Re: new kernel patch
+Date: Mon, 16 Dec 2002 21:15:26 +0100
+References: <200212161827.NAA00650@moss-shockers.ncsc.mil>
+In-Reply-To: <200212161827.NAA00650@moss-shockers.ncsc.mil>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Message-Id: <200212162115.26728.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have a few questions, and I hope you good folks can help me out:
+On Mon, 16 Dec 2002 19:27, Stephen D. Smalley wrote:
+> When an inode is allocated, its SID is initialized to the unlabeled
+> initial SID (=> system_u:object_r:unlabeled_t), and its security class
+> is initialized to the file class by default.  This log message indicates
+> that a devfs inode reached a permission check without first being
+> initialized by inode_doinit, likely due to a race between
+> selinux_inode_post_lookup and a cached lookup.  The empty permission
+> set is due to an inability to map the requested permission (likely search)
+> to a permission in the file class.
+>
+> As a short term fix, I'd suggest the attached patch.  A proper fix requires
+> adjusting the inode_init call in d_instantiate and the SELinux hook
+> function to properly handle filesystems that rely on genfs_contexts.
 
+This works.  I'll add it to my kernel-patch package for Debian.
 
-1)    What is "domain transition"?  I've configured my system such that it
-doesn't happen, but I'm wondering if it's the best way to go.
-2)    Is there a text file on my system with the list of user roles or is
-that information stored some other way?
-3)    Can I configure the operating system NOT to ask for a user role on
-login?  I would much prefer to have user role determined BY the login.
+Also I've updated my kernel-patch-2.5-lsm package to include your latest 
+patch.
 
-I'm sure I'll have others, but I can't think of anything at this time.
-
-
-
-R.
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
