@@ -1,8 +1,8 @@
 From: lonnie@outstep.com
 To: SELinux Mailing <SELinux@tycho.nsa.gov>
-Subject: rh7.2 xdmcp
-Message-ID: <1008631268.3c1e7de40a5a0@mail.outstep.com>
-Date: Mon, 17 Dec 2001 18:21:08 -0500 (EST)
+Subject: setting up new test user domain?
+Message-ID: <1008694906.3c1f767ac3e8f@mail.outstep.com>
+Date: Tue, 18 Dec 2001 12:01:46 -0500 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
@@ -10,18 +10,31 @@ List-Id: selinux@tycho.nsa.gov
 
 Hello All,
 
-I have gotten SELinux up and running and even talking to the network but did 
-run into a little problem with trying to tell it to open up port 177 (XDMCP)
+Since I am very new to SELinux, I hope that all of you will forgive the many 
+dumb questions that I will probably end up asking.
 
-when I run "setup" it allows me to change the redhat firewall settings, but I 
-am not sure that they are actually taking effect. I tell it to open up port 177 
-and then exit out of the setup, but an "nmap -sI localhost" does not show the 
-port is open.
+Instead of modifying the user.te and every.te for our project, I think that it 
+might be better if I simple create a new test domain and place a "test" user in 
+that domain.
 
-has anyone else had this problem?
+>From what I can understand so far, if the user does not belong to a particular 
+domain then they will not have access it. 
 
-cheers,
+With this in mind then if I add a user to a newly developed domain for that 
+particular user and also have their HOME directory as a member if the single 
+user domain then I could effectively prevent them from moving out of 
+the /home/test into the /home or any other directory.
+
+Would this be correct? If so then couls someone please help me to figure out 
+how to set up a simple domain from which to begin this process?
+
+Also, I have made a subdirectory in the selinux/domains directory because I 
+have seen this in the make file as well and this will make it so that I do not 
+have to modify the makefile.
+
+All Help would be greatly appreciated,
 Lonnie
+
 
 --
 You have received this message because you are subscribed to the selinux list.
