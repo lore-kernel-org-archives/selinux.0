@@ -1,50 +1,54 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Dale Amon <amon@vnl.com>
-Subject: Re: have you seen spfx2.c?
-Date: Wed, 5 Dec 2001 12:44:59 +0100
-Cc: SELinux@tycho.nsa.gov
-References: <E16ALyE-000BX7-00@f6.mail.ru> <Pine.BSO.4.33.0112021406500.3173-100000@ausmac.net> <20011203151621.A7873@vnl.com>
-In-Reply-To: <20011203151621.A7873@vnl.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA21792
+	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2001 00:18:18 -0500 (EST)
+From: lonnie@outstep.com
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id FAA05265
+	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2001 05:17:37 GMT
+Received: from mail.outstep.com (a904j637.tower.wayne.edu [141.217.140.65])
+	by jazzband.ncsc.mil  with ESMTP id FAA05261
+	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2001 05:17:36 GMT
+To: selinux@tycho.nsa.gov
+Subject: User Level Security Policies
+Message-ID: <1007874114.3c12f042364c3@mail.outstep.com>
+Date: Sun, 09 Dec 2001 00:01:54 -0500 (EST)
 MIME-Version: 1.0
-Message-Id: <20011205174017.6F8B933165F@lyta.coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 3 Dec 2001 16:16, Dale Amon wrote:
-> The logic fails in real life. There is one kernel,
-> written by experts. There are tens if not hundreds of
-> thousands of apps, written by novices, experts, people
-> who listen, people who don't listen, supported,
-> unsupported...
+Hello All,
 
-This thread shouldn't be dragging on, but I feel that there are a couple of 
-crucial points that are being missed.
+Hope that you are all doing well today.
 
-Firstly there is the issue of multiple levels of protection.  I have three 
-locked doors leading to my apartment which I believe gives me significant 
-benefits over having only a single locked door.  When I setup co-located 
-servers I run packet filters on the servers and also get the ISP to put a 
-firewall in place.  Similarly I expect that having two sub-systems trying to 
-achieve the same security result by different methods (daemons that don't 
-have security holes and a kernel to limit the access the daemons get) is 
-worth-while.
+I am new to this list and have looked briefly over the archives regarding 
+suppoer for Redhat 7.2 and see that SELinux does not yet support it.
 
-The next issue is that even good programmers make mistakes occasionally.  I 
-consider the author of Postfix to be one of the best programmers in the 
-world, he really knows how to code and really knows security.  In spite of 
-this I plan to limit the access Postfix gets to my system, even the best 
-programmers can make mistakes occasionally, and besides the person who 
-compiled it could have done something wrong.
+I have two question that I hope someone could please answer for me, ok.
 
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+First the easy one.
+1.) Is there some estimation as to when RH 7.2 might be supported?
 
+Now the harder one.
+2.) We have been looking at various security methods such as "restricted 
+shells", "chroot", etc... to find a method of locking a user into their HOME 
+directory. While this may sound a little restrictive, the current special 
+project that we are working on required that we allow the user to login via kdm 
+after which a simple window manager (fvwm95) would be started and then the user 
+could select an application to run.
+
+The catch is that the user would really never have a shell available to them 
+and only be able to run one of the applications that we have pre-configured for 
+them. 
+
+Also, we would like to prevent the user from navigating out of their HOME 
+directory at all times.
+
+My question is "Can SELinux implement these types of security policies for our 
+needs?"
+
+Best Regards,
+Lonnie Cumberland
 
 --
 You have received this message because you are subscribed to the selinux list.
