@@ -1,35 +1,24 @@
-Date: Sun, 28 Sep 2003 21:22:51 +0200
+Date: Sun, 28 Sep 2003 21:45:03 +0200
 From: Tom <tom@lemuria.org>
-To: WATASE Jumpei <watase@olive.ocn.ne.jp>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: SELinux in Japan
-Message-ID: <20030928212248.A23771@lemuria.org>
-References: <20030925202623.B13075@lemuria.org> <20030928181755.2694A2F05@m-kg252p.ocn.ne.jp>
+To: SELinux@tycho.nsa.gov
+Subject: Mirror for 2.6.x packages
+Message-ID: <20030928214459.A24316@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20030928181755.2694A2F05@m-kg252p.ocn.ne.jp>; from watase@olive.ocn.ne.jp on Mon, Sep 29, 2003 at 03:17:51AM +0900
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Sep 29, 2003 at 03:17:51AM +0900, WATASE Jumpei wrote:
-> I suppose, if you cover how to manage SELinux-boxes, and how to hack
-> SELinux policy in your talk, it will be very helpful for Japanese
-> sysadmins and developers, and encourage them to get started.
+On Thu, Aug 21, 2003 at 01:40:23PM -0400, Colin Walters wrote:
+> My 2.6.0 Debian packages are here:
+> 
+> http://web.verbum.org/debian/experimental/
 
-The presentation I answered the CFP with was a bit more of an
-introductory paper, but after hearing how big SELinux is in Japan, I've
-decided to rework parts of it. I will try to cover the bases you
-mention, but keep in mind that I only have 60 min.
+I am now mirroring these packages on selinux.lemuria.org - to use the
+mirror, add:
 
+deb http://selinux.lemuria.org/walters/ ./
 
-> I'm not sure I myself can attend the conference, but if you have
-> time and you like, I would like to try to arrange a meeting or 
-> something like a "pizza(beer) party" with SElinux people near Tokyo
-> during your visit.:-)
-
-Sure, that sounds interesting. I will be arriving several days early,
-and will probably be in Tokyo the entire week. We should probably move
-that part off-list. :)
+to your sources.list
 
 
 -- 
