@@ -3,34 +3,37 @@ Content-Type: text/plain;
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: some missing printer devices
-Date: Sun, 15 Sep 2002 19:18:01 +0200
-References: <200209151641.QAA28645@jazzband.ncsc.mil>
-In-Reply-To: <200209151641.QAA28645@jazzband.ncsc.mil>
+Subject: Re: some patches
+Date: Sun, 15 Sep 2002 19:25:40 +0200
+References: <200209151556.PAA17617@jazzswing.ncsc.mil>
+In-Reply-To: <200209151556.PAA17617@jazzswing.ncsc.mil>
 MIME-Version: 1.0
-Message-Id: <200209151918.01141.russell@coker.com.au>
+Message-Id: <200209151925.40549.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 15 Sep 2002 18:42, Carsten Grohmann wrote:
-> The attached patch add some missing printer devices lpd.fc.
+On Sun, 15 Sep 2002 17:56, Carsten Grohmann wrote:
+> I've attached follow patches:
+> inetd.diff:
+>   add a type var_log_inetd_t for daemons logs
 
-/dev/usblp* is not in devices.txt so it's probably not suitable for 
-distributing.
+That must be a SUSE specific thing.  I haven't seen a need for it it in Debian 
+and the policy indicates that there's no need for it in Red Hat either...
 
-/dev/ttyS* is more commonly used for ppp, the next most common use is for 
-serial port logins.  The policy should reflect this, tty_device_t is the 
-current type and it works well.
+I suggest putting it in suse.te.
 
-I can't recall ever seeing a serial printer, modern printers can't be serial 
-because they use too much data transfer.  Anyone who has a serial printer 
-will have to do some customising of their policy.
+> ldconfig.diff:
+>   dontaudit ldconfig_t device_t:dir { search };
+>   change { read write } for sysadm_devpts_t and sysadm_tty_device_t
+>   to rw_file_perms, because I need also getattr and ioctl for SuSE
 
-Also when updating policy for /dev entries make sure you update the genfs 
-entries for the devfs file system.
+I've put that in my tree.
 
-I've added /dev/lp* and /dev/usb/lp* to my policy tree with matching changes 
-to the genfs_contexts file.
+> pppd.diff:
+>   allow pppd_t device_t:dir { search };
+
+In my tree I have the daemon_domain() macro grant search and getattr access to 
+device_t...
 
 -- 
 I do not get viruses because I do not use MS software.
