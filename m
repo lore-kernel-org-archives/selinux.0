@@ -1,47 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA01660
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 08:18:12 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA28769
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 12:17:47 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA01809
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 08:41:16 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA12842
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 12:39:50 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA28765
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 12:17:46 GMT
-Date: Mon, 24 Jun 2002 08:17:59 -0400 (EDT)
+        by jazzband.ncsc.mil  with ESMTP id MAA12838 for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 12:39:50 GMT
+Date: Mon, 24 Jun 2002 08:40:38 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
 cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: compressed policy DB
-In-Reply-To: <20020602001216.4F1A77125@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0206240804030.10386-100000@raven>
+Subject: Re: ichsid
+In-Reply-To: <20020613230056.71DDA1F38@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206240833080.10386-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sun, 2 Jun 2002, Russell Coker wrote:
+On Fri, 14 Jun 2002, Russell Coker wrote:
 
-> 12 hours ago I gave a talk to the Nederlandse Linux Gebruikers Groep on SE
-> Linux.  During the talk one of the audience members asked why the policy db
-> can't be gzip compressed.
+> I believe that we need a program "ichsid" to change the SID of a file by
+> Inode instead of by name.
 >
-> This seems to be a good idea, the kernel already contains code for the gzip
-> algorithm which is used for compressed initrd images, cramfs, and ppp.  Using
-> the same code for policy db's would not add any significant code to the
-> kernel, and would save significant amounts of disk space on an initrd.
+> The reason for this is for the mount points of /dev, /proc, /usr, and other
+> file systems that are not easily/conveniantly umountable.
 >
-> What do you think?
+> Providing this functionality as part of the setfiles ability to change the
+> context database directly when running on a non-SE kernel should not be
+> difficult, and would provide the minimum functionality for getting SE Linux
+> on a machine with a few reboots (boot into SE Linux, see messages such as the
+> following, boot into non-SE Linux to run setfiles, then boot SE again) or
+> with some debugfs work.
+>
+> Providing it as part of the kernel interface would be even more useful.
 
-Sounds reasonable, but I'm not sure about the actual code re-use.  It
-appears that the boot code and the ramdisk code each use an #include'd
-copy of lib/inflate.c, the ppp code #include's drivers/net/zlib.c, and
-cramfs relies on fs/inflate_fs.
+As you mention, providing the functionality in setfiles to directly update
+the persistent label mapping based on inode number should be
+straightforward, although I'm not sure about the right interface (e.g.
+just a command-line invocation or a new form of specification in
+file_contexts).  You would need to specify the particular filesystem as
+well as the inode number, so you might specify the path of any file
+within the filesystem, like statfs, and the particular inode number.
+
+A kernel interface to update the persistent label mapping for an
+inode number would likewise be straightforward, although it would bypass
+the typical search permission checks on the directories in the path that
+are performed by the existing chsid call.  However, finding the in-core
+inode (if one exists) so that we can update it with the new SID might pose
+a problem for filesystems where the inode number is not sufficient for
+finding files, like reiserfs.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
