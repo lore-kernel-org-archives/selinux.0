@@ -1,52 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA00043
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:36:27 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA26967
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:36:00 GMT
-Received: from web40015.mail.yahoo.com (web40015.mail.yahoo.com [66.218.78.55])
-	by jazzswing.ncsc.mil  with SMTP id TAA26957
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:35:59 GMT
-Message-ID: <20020627193625.27977.qmail@web40015.mail.yahoo.com>
-Date: Thu, 27 Jun 2002 12:36:25 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Major reduction in errors
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20020627184720.E0872694@lyta.coker.com.au>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: gdsmarshall@hushmail.com, Selinux@tycho.nsa.gov
+Subject: Re: errors installing.....
+Date: Thu, 27 Jun 2002 15:40:56 -0400
+References: <200206271655.g5RGtjM07176@mailserver4.hushmail.com>
+In-Reply-To: <200206271655.g5RGtjM07176@mailserver4.hushmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20020627194529.060527D01@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mr. Coker,
+On Thu, 27 Jun 2002 12:55, gdsmarshall@hushmail.com wrote:
+> /etc/selinux# make -C /etc/selinux relabel
+> make: Entering directory `/etc/selinux'
+> /usr/bin/load_policy /ss_policy
+> security_load_policy: Invalid argument
+> make: *** [tmp/load] Error 2
+> make: Leaving directory `/etc/selinux'
+>
+> In /var/log/messages, I get
+> Jun 27 17:51:52 gatekeeper kernel: ss:  loading policy configuration from
+> /ss_policy Jun 27 17:51:52 gatekeeper kernel: security:  policydb magic
+> number 8 does not match expected magic number -109248628
+>
+> does anyone know what the problem is please? and how do I fix it.
 
---- Russell Coker <russell@coker.com.au> wrote: 
-> avc:  denied  { read } for  pid=12 exe=/sbin/devfsd path=/.devfsd dev=00:07 
-> ino=2 scontext=system_u:system_r:devfsd_t tcontext=system_u:object_r:devfs_t 
-> tclass=chr_file
-> 
-> You need the following in the devfs_contexts file:
-> devfscon /.devfsd               system_u:object_r:devfs_control_t
+Looks like your kernel doesn't have the same policy version as the database.
 
-        This causes a syntax error when I attempt to compile the policy.
+What version of my packages are you using?  Are you using "woody" not 
+"unstable"?  Maybe you should get the core selinux packages from my site too.
 
-Brad
-
-
-
-
-=====
-Brad Chapman
-
-Permanent e-mails: kakadu_croc@yahoo.com
-		   jabiru_croc@yahoo.com
-		   tanami_croc@devel.lbsd.net
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
