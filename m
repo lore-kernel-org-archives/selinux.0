@@ -1,63 +1,68 @@
-Message-ID: <20040608043054.58295.qmail@web51505.mail.yahoo.com>
-Date: Mon, 7 Jun 2004 21:30:54 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Is SIDs no longer used?
-To: sds@epoch.ncsc.mil
-Cc: SELinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1849098909-1086669054=:57405"
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i588d2rT010513
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jun 2004 04:39:02 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i588cwcx028201
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jun 2004 04:38:59 -0400 (EDT)
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp802.mail.ukl.yahoo.com with SMTP; 8 Jun 2004 08:38:45 -0000
+Date: Tue, 8 Jun 2004 08:36:06 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: dpkg fails on installing nvidia-glx because /etc/init.d/nvidia-glx start is run
+Message-ID: <20040608083606.GN3305@lkcl.net>
+References: <20040607231556.GI3305@lkcl.net> <200406080212.i582C1uG013226@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200406080212.i582C1uG013226@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1849098909-1086669054=:57405
-Content-Type: text/plain; charset=us-ascii
+On Mon, Jun 07, 2004 at 10:12:01PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 07 Jun 2004 23:15:56 -0000, Luke Kenneth Casson Leighton <lkcl@lkcl.net>  said:
+> > hiya (russell?)
+> > 
+> > i just installed the nvidia-glx package (don't ask :)
+> 
+> > i need to write an nvidia-glx policy, don't i?
+> 
+> Not necessarily.  At least under Fedora, all the NVidia stuff ends up
+> labelled correctly by the contents of file_contexts/program/xserver.fc
+> (All the /usr/lib *.so's  end up as shlib_t, and the /dev/nvidia.* end
+> up as xserver_misc_device_t, and you're ready to rock-n-roll...)
+> 
+> You may just need to cd to /etc/<selinux-path> and do a 'make relabel'.
+ 
+ *sigh*.  yeh, i did.
 
-Dear sir,
- 
-       In <<Configuring the SELinux Policy>>, there was something about SIDs:
- 
-"In order to better encapsulate security contexts and to provide greater
-efficiency, the policy enforcement code of SELinux typically handles security identifiers (SIDs) rather than security contexts."
- 
-        But in <<Getting Started with SE Linux HOWTO: the new SE Linux>>, I saw the following:
- 
-"SIDs and PSIDs no longer used
-SIDs (Security Identifiers) were used in the old SE Linux in the interface to the kernel (from userspace). PSIDs (Persistent SIDs) were used in the kernel code for  mapping files to contexts for files and directories on disk. In the new SE Linux, the extended attributes contain the context so SIDs and PSIDs are no longer necessary."
- 
-        Then, I want to ask: Is SIDs really no longer used? If it's true, What does the policy enforcement code of SELinux typically handle?
- 
-Thank you!
- 
-Respectfully yours,
-Park Lee
-2004-06-08
+ i did the make relabel and th libGL.so.1.0.5336 is ... yep, shlib_t.
+ the symlink is lib_t.
 
 
-		
----------------------------------
-Do you Yahoo!?
-Friends.  Fun. Try the all-new Yahoo! Messenger
---0-1849098909-1086669054=:57405
-Content-Type: text/html; charset=us-ascii
+ btw during the install i got "cannot create symbolic link
+ /usr/X11/lib/ libglx-something to /usr/lib/nvidia-something".
 
-<DIV>Dear sir,</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In &lt;&lt;Configuring the SELinux Policy&gt;&gt;, there was something about SIDs:</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>"In order to better encapsulate security contexts and to provide greater<BR>efficiency, the policy enforcement code of SELinux typically handles security identifiers (SIDs) rather than security contexts."</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; But in &lt;&lt;Getting Started with SE Linux HOWTO: the new SE Linux&gt;&gt;, I saw the following:</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>"SIDs and PSIDs no longer used<BR>SIDs (Security Identifiers) were used in the old SE Linux in the interface to the kernel (from userspace). PSIDs (Persistent SIDs) were used in the kernel code for&nbsp; mapping files to contexts for files and directories on disk. In the new SE Linux, the extended attributes contain the context so SIDs and PSIDs are no longer necessary."</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then, I want to ask: Is SIDs really no longer used? If it's true, What does the policy enforcement code of SELinux typically handle?</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thank you!</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Respectfully yours,</DIV>
-<DIV>Park Lee<BR>2004-06-08<BR></DIV><p>
-		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>Friends.  Fun. <a href="http://messenger.yahoo.com/">Try the all-new Yahoo! Messenger</a>
---0-1849098909-1086669054=:57405--
+ ... why aren't these files _created_ with the correct permissions?
+
+ can that be done?
+
+
+ l.
+
+
+
+-- 
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
