@@ -1,38 +1,49 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJEoWRb018185
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 09:50:32 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJG8nRb018659
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 11:08:49 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAJEoVqY003498
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 14:50:31 GMT
+	by jazzband.ncsc.mil  with ESMTP id hAJG8mqY008293
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 16:08:48 GMT
 Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hAJEoU0o003489 for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 14:50:31 GMT
+        by jazzband.ncsc.mil  with ESMTP id hAJG8k0o008284 for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 16:08:47 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id F380661BE6
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 03:08:40 +1100 (EST)
+Received: from ns.sws.net.au ([127.0.0.1])
+	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 12248-04 for <selinux@tycho.nsa.gov>;
+	Thu, 20 Nov 2003 03:08:40 +1100 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by ns.sws.net.au (Postfix) with ESMTP id 9938061BE5
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 03:08:40 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 48A32925E8
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 03:08:40 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id A73B47F0A0
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 03:08:38 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>
-Subject: Re: Policy error of the day
-Date: Thu, 20 Nov 2003 01:50:21 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <20031119144708.GB8546@vnl.com>
-In-Reply-To: <20031119144708.GB8546@vnl.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: calling Bill Laut
+Date: Thu, 20 Nov 2003 03:08:38 +1100
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311200150.21987.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200311200308.38077.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 20 Nov 2003 01:47, Dale Amon <amon@vnl.com> wrote:
-> The policy build error for today is:
->
-> ERROR 'unknown type mailman_queue_chkpwd_t' at token ';' on line 81971:
-> #line 10047
-> allow mailman_queue_su_t mailman_queue_chkpwd_t:process transition;
-> /usr/bin/checkpolicy:  error(s) encountered while parsing configuration
-> make: *** [/etc/security/selinux/policy.15] Error 1
+Your ISP Verizon seems to block mail from at least three major Australian 
+ISPs, their relays give code 550 messages saying that I am not allowed to 
+send.  When connecting from a Dutch co-location center I can establish the 
+session, but the TCP session was cancelled twice after the subject of 
+"Verizon sucks".
 
-The chkpwd changes broke mailman.  I'm not sure whether it's worth trying to 
-fix this or whether mailman itself should be fixed instead.  I'll probably do 
-a work-around soon.
+Please get yourself a reliable mail service such as hotmail.com.
+
+
+PS  How's progress on SE-X?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
