@@ -1,41 +1,43 @@
-Subject: Re: Multiple contexts
+Subject: Re: Added is_context_configurable function
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-In-Reply-To: <20050111214818.GE26175@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net>
-	 <20050110232312.GI6967@lkcl.net>
-	 <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050111214818.GE26175@lkcl.net>
+To: Colin Walters <walters@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1105481440.24748.22.camel@nexus.verbum.private>
+References: <41E2FEF4.5070604@redhat.com>
+	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E3FAF4.2060109@redhat.com>
+	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <1105481440.24748.22.camel@nexus.verbum.private>
 Content-Type: text/plain
-Message-Id: <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 09:00:49 -0500
+Date: Wed, 12 Jan 2005 09:19:15 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-01-11 at 16:48, Luke Kenneth Casson Leighton wrote:
->  recursion was added to ACLs - or "inheritance" - because to fix access
->  to subdirectories and all contents you are required in NT 4.0 to change
->  ALL permissions on ALL subdirectories and contents!
-> 
->  basically you now have to traverse the directory tree right
->  up to the mount point [as stephen says] in order to determine access
->  rights, combining and checking permissions as you go.
-> 
->  eeuuuw.
-> 
->  ... was that what you were referring to stephen?
+On Tue, 2005-01-11 at 17:10, Colin Walters wrote:
+> I've said this before, but I don't like the idea of having to edit
+> file_contexts whenever I want to change the labels.  I feel that the 
+> on-disk version should be canonical, and the file_contexts only used for
+> system initialization.
 
-No.  I'm simply referring to the fact that if your policy is encoded in
-the file attributes themselves, as with ACLs, then you cannot analyze
-the potential information flow among security equivalence classes in the
-system (which is necessary if you want to ensure confidentiality or
-integrity guarantees) without looking at all of the file attributes. 
-Centralizing the policy allows you to analyze the potential information
-flow separately, and organizing the set of subjects and objects into
-security equivalence classes (types in TE, levels in MLS) makes the
-system manageable (vs. per-object policy as with ACLs).
+That is also my view.  However, if people are going to run setfiles or
+restorecon at runtime to check or set contexts (which is current
+practice in Fedora), then we do need a way to distinguish legitimate
+customizations from what are essentially bugs in the policy (e.g. lack
+of a file type transition rule) or applications (e.g. failure to
+preserve or set context on a file where file type transition rules are
+insufficient).  The file contexts configuration seemed like a reasonable
+way to capture that distinction to me.  Two questions:
+1) Is it sufficient to identify legitimate customizations based solely
+on the TE type of the file?  If not, what other information should be
+taken into account, irrespective of whether this is done via
+file_contexts or via a different config file?
+2) Is it feasible for the policy writer to identify all such TE types a
+priori in the policy without covering such a large set as to make
+setfiles/restorecon completely useless by default? If not, what
+mechanism will be provided to allow users/admins to easily mark
+additional types without conflicting with future policy updates?
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
