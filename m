@@ -1,64 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJB4IRb017266
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 06:04:18 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAJB3lBb014497
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 11:03:47 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id hAJB3j4o014482
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 11:03:46 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 2686161BE7
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 22:04:10 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 30291-10 for <selinux@tycho.nsa.gov>;
-	Wed, 19 Nov 2003 22:04:09 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id DA9EE61BE6
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 22:04:09 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id ABFF7925E8
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 22:04:09 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 44EA47F0A0
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 22:04:08 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: setools
-Date: Wed, 19 Nov 2003 22:04:07 +1100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJCLfRb017476
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 07:21:41 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hAJCLeqY026796
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 12:21:40 GMT
+Received: from smtp01.net-yan.com (smtp01.net-yan.com [210.0.255.210])
+        by jazzband.ncsc.mil  with ESMTP id hAJCLZ0o026776 for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 12:21:39 GMT
+Received: from unknown (HELO samgpj2wzuimme) (samwun@hgcbroadband.com@[218.189.140.202])
+          (envelope-sender <samwun@hgcbroadband.com>)
+          by localhost (qmail-ldap-1.03) with SMTP
+          for <selinux@tycho.nsa.gov>; 19 Nov 2003 12:21:29 -0000
+From: "samwun" <samwun@hgcbroadband.com>
+To: "'SELinux ML'" <selinux@tycho.nsa.gov>
+Subject: RE: where to download LSM-patched 2.4 
+Date: Wed, 19 Nov 2003 20:23:12 +0800
+Message-ID: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200311192204.07725.russell@coker.com.au>
+	charset="us-ascii"
+In-Reply-To: <1069238207.1811.11.camel@kola localhost>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have just uploaded setools to Debian.
+Dear all,
 
-I have a few suggestions for new features for apol (the only part of setools 
-that I've used so far):
+Where can I download LSM-patched 2.4 for lsm-2.4-selinux-2003040709.tgz
+kernel source?
 
-It should take a command line parameter of a policy.conf file.  I want to type
-"apol /tmp/policy.conf" and save the effort of going through a GUI to specify 
-a file to load.
+Before I used LSM 2.4 selinux source, I encountered problem when I was
+trying to install SELinux.
+The problem is the SELinux kernel is able to loaded up after a reboot,
+but
+whenever issuing a command
+"ls --context" or whatever other SELinx related command options, it
+always
+said that the command ooptions needs SELinux kernel to support,  but I
+have
+verified the /var/log/messages file and uname command telling the
+SELinux
+kernel is loaded successfully. What could be missing from my
+installation?
 
-The "search using type" option in "Roles" displays types that are not domains 
-(and therefore can't be in any role).  The drop-down would contain much less 
-data if it only listed viable options.
+That's why I decided to use LSM selinux source instead the one from
+http://www.nsa.gov/selinux/download.html
 
-There seems to be no way to say "tell me all interactions between staff_t and 
-sshd_t".  Maybe I'm missing something here.
+I downloaded LSM source from
+http://www.hakin9.org/fr/attachments/nr1/materials/selinux/download/
 
+What are the difference between the LSM source with the one from nsa?
 
-Anyway apol is good, I recommend that you all try it out.
+Is there any updated document about how to install selinux on kernel
+2.4?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Thanks
+Sam
+
 
 
 --
