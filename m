@@ -1,45 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA04988
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 13:47:37 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA18844
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 17:47:12 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id RAA18838
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 17:47:12 GMT
-Date: Mon, 24 Jun 2002 13:46:36 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ichsid
-In-Reply-To: <Pine.GSO.4.33.0206241322320.10386-301000@raven>
-Message-ID: <Pine.GSO.4.33.0206241343570.10386-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: gdsmarshall@hushmail.com
+Message-Id: <200206251543.g5PFhg451838@mailserver4.hushmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: libsecure fails to compile
+Date: Tue, 25 Jun 2002 08:43:42 -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 24 Jun 2002, Stephen Smalley wrote:
+ 
+Hello,
 
-> Afterward, 'setfiles -i pathname ino context' can be used to set the
-> context of an inode, where pathname is the path of any file within the
-> desired filesystem and ino is the inode number.  If run on a SELinux
-> kernel, it will use the new ichsid call; otherwise, it will directly
-> mutate the persistent label mapping.
+I am trying to compile libsecure, but it fails with the below error.
 
-Sorry, I mis-spoke.  pathname should be the path of the root of the
-desired filesystem, as with the typical setfiles usage.  Otherwise, when
-run on a non-SELinux kernel, setfiles won't find the persistent label
-mapping properly.  When run on a SELinux kernel, pathname can actually be
-any path within the filesystem, since the ichsid call merely extracts the
-superblock from the looked up inode.
+make -C src 
+make[1]: Entering directory `/root/selinux/selinux/libsecure/src'
+cc -o arch/i386/fstat64_secure.o -c -I../include -I/usr/local/selinux/include arch/i386/fstat64_secure.c
+In file included from arch/i386/fstat64_secure.c:6:
+arch/i386/xstat64_conv.h: In function `xstat64_conv':
+arch/i386/xstat64_conv.h:38: structure has no member named `__st_ino'
+make[1]: *** [arch/i386/fstat64_secure.o] Error 1
+make[1]: Leaving directory `/root/selinux/selinux/libsecure/src'
+make: *** [all] Error 2
+gatekeeper:~/selinux/selinux/libsecure#
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I understand xstat64_conv.h is missing __st_ino, what should this be please?
+
+I had no problems compiling the kernel which is now running quite happily,
+Linux gatekeeper 2.4.18-selinux #4 Mon Jun 24 18:18:25 BST 2002 i486 unknown
+
+I am using debian (stable)  I know Russell Coker has done lots of work with SELinux on debian, but I can not get to the stage of compiling the utilities yet.
+
+Many thanks for your help in advance,
+
+Spencer
 
 
+
+Communicate in total privacy.
+Get your free encrypted email at https://www.hushmail.com/?l=2
+
+Looking for a good deal on a domain name? http://www.hush.com/partners/offers.cgi?id=domainpeople
 
 
 --
