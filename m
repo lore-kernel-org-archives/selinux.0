@@ -1,84 +1,90 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDMVfIi008089
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 17:31:41 -0500 (EST)
-Received: from tcsfw2.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBDMTxUx027452
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 22:29:59 GMT
-Received: (from smmsp@localhost)
-	by tcsfw2.tcs-sec.com (8.12.2/8.12.2) id iBDMViuc022198
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 17:31:44 -0500 (EST)
-Message-ID: <41BE1887.4010201@trustedcs.com>
-Date: Mon, 13 Dec 2004 16:32:39 -0600
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDNbnIi008376
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 18:37:51 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBDNbZX4018480
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 23:37:47 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id B405961AFD
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 10:37:16 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 27424-08 for <selinux@tycho.nsa.gov>;
+	Tue, 14 Dec 2004 10:37:16 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 329ED61AF6
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 10:37:15 +1100 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 99DB5DC
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 03:50:07 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: dhcpc.te patch
+Date: Tue, 14 Dec 2004 03:50:05 +1100
 MIME-Version: 1.0
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: [patch] selinux_capget()
-Content-Type: multipart/mixed;
- boundary="------------010303070100030900080408"
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_+gcvBuwCtXsQpMM"
+Message-Id: <200412140350.07001.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010303070100030900080408
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--Boundary-00=_+gcvBuwCtXsQpMM
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Currently, SELinux restricts the use of capabilities by a process based on the 
-process domain's access to the capability security class.  This restriction is 
-not reflected in the capabilities returned by the capget system call.  I have 
-attached a small patch which would remove the "disallowed" capabilities from the 
-effective set that is returned from the call.  This seems to be a good idea to 
-me because it gives an accurate picture of the the capabilities that a process 
-can use.  Does anyone else have an opinion on this?
+The attached patch removes some redundant dontaudit rules from dhcpc.te.
+
+It seems that Dan fixed the bugs some months ago but we didn't get around to 
+fixing the policy to match.
+
+If other distributions don't have the patch then it's still appropriate to 
+apply this patch so people can discover the problem and get Dan's patches 
+applied.
 
 -- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Darrel
-
---------------010303070100030900080408
-Content-Type: text/plain;
- name="selinux_capget.patch"
+--Boundary-00=_+gcvBuwCtXsQpMM
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="selinux_capget.patch"
+Content-Disposition: attachment;
+	filename="diff"
 
-Index: hooks.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/linux-2.6/security/selinux/hooks.c,v
-retrieving revision 1.26
-diff -u -r1.26 hooks.c
---- hooks.c	6 Dec 2004 20:04:06 -0000	1.26
-+++ hooks.c	13 Dec 2004 21:14:15 -0000
-@@ -1365,13 +1365,26 @@
- static int selinux_capget(struct task_struct *target, kernel_cap_t *effective,
-                           kernel_cap_t *inheritable, kernel_cap_t *permitted)
- {
-+	struct task_security_struct *tsec;
-+	struct av_decision avd;
- 	int error;
+--- /usr/src/se/policy/domains/program/unused/dhcpc.te	2004-12-13 09:55:23.000000000 +1100
++++ domains/program/unused/dhcpc.te	2004-12-14 03:38:39.000000000 +1100
+@@ -58,10 +58,6 @@
+ # for the dhcp client to run ping to check IP addresses
+ ifdef(`ping.te', `
+ domain_auto_trans(dhcpc_t, ping_exec_t, ping_t)
+-# because dhcpc is buggy and leaves file handles open...
+-dontaudit ping_t dhcpc_state_t:file read;
+-dontaudit ping_t dhcpc_t:packet_socket { read write };
+-dontaudit ping_t dhcpc_t:udp_socket { read write };
+ ifdef(`hotplug.te', `
+ allow ping_t hotplug_t:fd use;
+ ') dnl end if hotplug
+@@ -109,11 +105,6 @@
+ ')
+ ifdef(`ifconfig.te', `
+ domain_auto_trans(dhcpc_t, ifconfig_exec_t, ifconfig_t)
+-# because dhclient is buggy and does not close file handles
+-ifdef(`hide_broken_symptoms', `
+-dontaudit ifconfig_t dhcpc_t:{ packet_socket udp_socket } { read write };
+-dontaudit ifconfig_t dhcpc_state_t:file { read write };
+-')dnl end broken symptoms
+ ')dnl end if def ifconfig
  
- 	error = task_has_perm(current, target, PROCESS__GETCAP);
- 	if (error)
- 		return error;
  
--	return secondary_ops->capget(target, effective, inheritable, permitted);
-+	error = secondary_ops->capget(target, effective, inheritable,
-+	                              permitted);
-+	if (error)
-+		return error;
-+
-+	/* Remove the capabilites that are not allowed to be used by the domain
-+	   from the effective set */
-+	tsec = target->security;
-+	(void)avc_has_perm_noaudit(tsec->sid, tsec->sid,
-+	                           SECCLASS_CAPABILITY, ~0, &avd);
-+	cap_mask(*effective, avd.allowed);
-+	return 0;
- }
- 
- static int selinux_capset_check(struct task_struct *target, kernel_cap_t *effective,
 
---------------010303070100030900080408--
+--Boundary-00=_+gcvBuwCtXsQpMM--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
