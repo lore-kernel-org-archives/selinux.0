@@ -1,41 +1,28 @@
-Date: Wed, 24 Apr 2002 13:07:03 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
 To: Debian User <rogelio@evoworks.evoserve.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: How to fix configuration 
-In-Reply-To: <20020424151143.4AF0D815C8@coffeesaur2.evoserve.com>
-Message-ID: <Pine.GSO.4.33.0204241301060.4053-100000@raven>
+Subject: Re: How to fix configuration
+Date: Wed, 24 Apr 2002 19:55:38 +0200
+Cc: <SELinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0204241301060.4053-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0204241301060.4053-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020424175539.4AF5D6C1D@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 24 Apr 2002 19:07, Stephen Smalley wrote:
+> There is a contributed script in the distribution, scripts/newrules.pl,
 
-On Wed, 24 Apr 2002, Debian User wrote:
+This is not in my current Debian packages, it'll be in the next version.
 
-> Im getting lots of error messages when i use my pc after installing
-> selinux. How do I fix the configs? Where should i start? Are the error
-> messages enough to be able to fix my configuration?
-
-Are you using Russell Coker's Debian selinux package or the upstream
-distribution?  If the latter, I'd suggest using the former, since the
-upstream distribution isn't set up for Debian.
-
-There is a contributed script in the distribution, scripts/newrules.pl,
-that filters your dmesg output and generates the allow rules that would
-need to be added to your policy configuration to avoid these denials.
-However, you will typically need to review these rules carefully to
-determine whether they are truly acceptable.  In many cases, you will need
-to add new domains and/or types rather than simply adding the allow rule
-that corresponds to the audit message.  These issues are discussed briefly
-in a new report that will hopefully be available soon.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
