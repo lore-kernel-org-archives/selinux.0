@@ -1,32 +1,48 @@
-Subject: Announcement: Tresys Setools 1.1.1
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1073326398.17416.27.camel@colossus.columbia.tresys.com>
-Mime-Version: 1.0
-Date: Mon, 05 Jan 2004 13:13:18 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i062a5Rb006871
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2004 21:36:05 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i062a3iV012634
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 02:36:03 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i062Zp06012602 for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 02:36:02 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Ignacio Tripodi <ignaciot@unt.edu>, selinux@tycho.nsa.gov
+Subject: Re: UML support
+Date: Tue, 6 Jan 2004 13:34:25 +1100
+References: <F3EFFBE2-3F93-11D8-85C4-000393013D1A@unt.edu>
+In-Reply-To: <F3EFFBE2-3F93-11D8-85C4-000393013D1A@unt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200401061334.25315.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Tresys Setools version 1.1.1 has been released. It is available from our
-website:
+On Tue, 6 Jan 2004 02:29, Ignacio Tripodi <ignaciot@unt.edu> wrote:
+> Has anybody tried using UML (user mode linux) on an SELinux system yet?
+> More precisely, I'm asking about the possibility of running a
+> non-SELinux or SELinux-enabled environment, depending on who logs in.
+> Can you have a virtual block device with a labeled filesystem?
 
-http://www.tresys.com/selinux/
+A UML block device is just a mapping of a regular file to a block device 
+inside the UML.  It can be used in any way that block devices are used with 
+all the usual file system options, this includes SE Linux labeling.
 
-The sourceforge cvs tree for SELinux has also been updated. This release
-is a minor bug fix release and include the following fixes:
+SE Linux requires minor kernel patches to work with UML, I have been 
+maintaining such patches on http://www.coker.com.au/uml/ .  I will soon 
+release new patches for 2.4.24.
 
-- Fixed a memory leak in information flow analysis.
-- Makefile fixes to allow the non-gui target to build on systems without
-X and Tcl/TK.
-- Fixed compile errors on some older compilers.
+As for SE or non-SE depending on who logs in.  You can have SE Linux UML 
+kernels and non-SE UML kernels running at the same machine.  I'm not sure if 
+this is what you want though.
 
 -- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
-(410) 290-1411 x134
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
