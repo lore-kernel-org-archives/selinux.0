@@ -1,97 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iACIgTIi012442
-	for <selinux@tycho.nsa.gov>; Fri, 12 Nov 2004 13:42:29 -0500 (EST)
-Date: Fri, 12 Nov 2004 13:42:32 -0500
-From: Amy L Herzog <aherzog@mitre.org>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iACKwwIi013347
+	for <selinux@tycho.nsa.gov>; Fri, 12 Nov 2004 15:58:59 -0500 (EST)
+Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iACKwxs5010968
+	for <selinux@tycho.nsa.gov>; Fri, 12 Nov 2004 20:59:01 GMT
+Message-Id: <200411122058.iACKwtfX028640@turing-police.cc.vt.edu>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: dynamic context transitions
-Message-ID: <20041112184232.GK15243@golconda.mitre.org>
-References: <4182959B.4080503@trustedcs.com> <1099328185.21386.140.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>
+Subject: Re: dynamic context transitions 
+In-Reply-To: Your message of "Fri, 12 Nov 2004 13:24:18 EST."
+             <1100283858.4306.122.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <4182959B.4080503@trustedcs.com>
+            <1100283858.4306.122.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1099328185.21386.140.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; boundary="==_Exmh_-2053730671P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 12 Nov 2004 15:58:55 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-  >
-  > Question for people writing policy analysis tools (some cc'd):
-  > What impact do you see such a change having on the ability to
-  > analyze policies?  How difficult would it be to have your tools
-  > collapse the domains in one of these "dynamic transition groups"
-  > into a single equivalence class for information flow analysis?
+--==_Exmh_-2053730671P
+Content-Type: text/plain; charset=us-ascii
 
-Sorry to jump in a bit late on this. For our information flow analysis
-tools, our instinct is to simply expand the LTS we build from the
-policy to include the 'process dyntransition' permission (with a
-write-like flow, just like the current 'process transition'
-permission). Although it would be fairly easy to collapse domains that
-have full dynamic transition permissions to one another, doing so
-wouldn't affect the truth of any information flow assertions
-(i.e. system security goals) in the system.
+On Fri, 12 Nov 2004 13:24:18 EST, Stephen Smalley said:
+> per-thread security attributes.  SELinux already stores the security
+> attributes on a per kernel thread basis (in the task struct) even though
+> the current process context can only change via exec presently.  If you
 
-For the same reasons many have mentioned in this thread, summed up by
-Stephen's comments below, we don't feel that these changes offer
-sufficient reason to alter our information flow analysis strategy by
-taking timing into consideration. While analysis tools that take into
-account particular trust assumptions the user is making about a
-program's behavior might be useful, we see that as a fundamentally
-different approach than the one we've chosen.
+Would it make sense to change the semantics to "only change via exec
+or clone" (or does it already do that and I didn't spot it?)
 
-So in terms of impact on us as policy analysis tool writers, it's
-minimal. There is a small additional impact on end-users of our tools,
-who would presumably need to include the "trusted" programs in the
-list of allowable exceptions to some information flow assertions.
+> threads (as they are different tasks in the kernel).  This also raises
+> the question again of whether we should do likewise for the other
+> libselinux functions that act on /proc/self/attr, e.g. to support
+> per-thread fscreate context.
 
-I think this proposed change in fact makes it *more* important to
-perform some kind of information flow analysis on your policy,
-actually. I can easily imagine use of the dynamic context rules (over
-time, by successive policy administrators) having serious and
-unintended consequences. And perhaps the only way to reliably keep
-track of such consequences is to have a clear picture of which
-information flow invariants should hold true for your system, and a
-clear way of checking your policy against those assertions.
+If you want to go down that road, then the functions should be fixed
+to all be symmetric regarding per-thread usages.  If some work one way
+and some another, that's a security hole-by-misunderstanding just waiting
+to happen....
 
-A final note is that dynamic context switching is likely to have
-consequences on automatic policy generation as well. We've talked
-about this internally some, at least in the context of what the MITRE
-polgen tools do for policy generation. For us, the biggest impact is
-that when we generate policy using existing types for system
-resources, we don't as part of the *generation* process examine the
-policy graph rooted at those resources. But again, the impact here is
-just that post-generation analysis of your entire (newly expanded)
-policy becomes much more crucial. 
+--==_Exmh_-2053730671P
+Content-Type: application/pgp-signature
 
--Amy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Stephen Smalley wrote:
-  >
-  > From the kernel POV, any code in the application has the potential
-  > to execute with the maximum set of permissions granted to any
-  > domain in the "domain transition group", or in reality, their
-  > union.  You may carefully write your application to shed and gain
-  > permissions as needed, but an exploit of a flaw in that
-  > application may indeed succeed in getting code to execute in that
-  > process with that maximum set of permissions.  Hence, the
-  > application still has to be "trusted" to exercise that maximal set
-  > of permissions, and has a corresponding assurance burden.  In
-  > contrast, if you decompose the application, the kernel can ensure
-  > that only the specific code that should execute with privilege
-  > does so, and the trust burden on the rest of the application is
-  > greatly reduced.  See the difference?
+iD8DBQFBlSQPcC3lWbTT17ARAjMpAKDyqWzd3/Q649P0cU8UasheMBjmZACffLYL
+UEVdWV4HUGnUBUtmH/5d43s=
+=c6dX
+-----END PGP SIGNATURE-----
 
-
-
-
-
-
--- 
-Amy Herzog
-Lead INFOSEC Engineer
-The MITRE Corporation
-G026 - Secure Technology Solutions
-781.271.5271
+--==_Exmh_-2053730671P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
