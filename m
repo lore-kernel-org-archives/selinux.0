@@ -1,18 +1,19 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA05321
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 11:32:18 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA18223
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 15:31:06 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id PAA18211 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 15:31:05 GMT
-Date: Thu, 18 Apr 2002 11:32:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA05241
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 11:23:05 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA24568
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 15:21:24 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id PAA24564
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 15:21:23 GMT
+Date: Thu, 18 Apr 2002 11:22:27 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Tom <tom@lemuria.org>
 cc: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: policy question
-In-Reply-To: <20020418171532.B6551@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0204181124100.5560-100000@raven>
+In-Reply-To: <20020418112238.A1788@lemuria.org>
+Message-ID: <Pine.GSO.4.33.0204181120330.5560-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -21,21 +22,21 @@ List-Id: selinux@tycho.nsa.gov
 
 On Thu, 18 Apr 2002, Tom wrote:
 
-> The sole problem being that the scripts aren't executed in the
-> unix-sense of execution, but by being loaded and interpreted by the
-> apache process.
+> Scenario: Webhosting with PHP, multiple users (possibly many)
+> Danger: PHP runs as a module, i.e. with apache's user and permissions.
+> that means it is trivial for every user to acess other user's files,
+> including .php files that may include things like database passwords.
 
-Immunix's SubDomain provides a mechanism for confining "subprocesses" for
-web servers.  Read their paper for the details.
-
-IMHO, if you truly want to confine these "scripts" differently than the
-main apache process, they should run in separate processes.
+The example apache policy (by MITRE) provides separate domains for system
+CGI scripts and user CGI scripts, and limits each to a particular set of
+permissions.  MITRE also created a simple patch to suexec to transition to
+a per-user security context in that case, using a revised apache policy
+that allows for such transitions.  We haven't mainstreamed the modified
+suexec or revised apache policy in the upstream distribution.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
-
 
 
 
