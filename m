@@ -1,47 +1,50 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2PNh4x6014128
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 18:43:04 -0500 (EST)
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2QHifx6018748
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 12:44:41 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2PNh3R1005846
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 23:43:04 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h2PNgwj9005838 for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 23:42:59 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "david caplan" <dac@tresys.com>, "SE Linux" <selinux@tycho.nsa.gov>
-Subject: Re: usermod
-Date: Wed, 26 Mar 2003 00:42:33 +0100
-References: <GBEAJBKHFOBIBBJBCGAGAEOACKAA.dac@tresys.com>
-In-Reply-To: <GBEAJBKHFOBIBBJBCGAGAEOACKAA.dac@tresys.com>
+	by jazzband.ncsc.mil  with ESMTP id h2QHieR1029498
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 17:44:40 GMT
+Received: from RelayDAL.nai.com (relaydal.nai.com [205.227.136.197])
+        by jazzband.ncsc.mil  with ESMTP id h2QHidj9029495 for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 17:44:40 GMT
+Received: from txwsout1.nai.com (txwsout1.na.nai.com [161.69.216.92] (may be forged))
+	by RelayDAL.nai.com (Switch-2.2.5/Switch-2.2.5) with SMTP id h2QHgLY27865
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 11:42:21 -0600 (CST)
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303260042.33489.russell@coker.com.au>
+	charset="iso-8859-1"
+Subject: RE: policy patches
+Date: Wed, 26 Mar 2003 11:47:01 -0600
+Message-ID: <8894CA1F87A5D411BD24009027EE783801C14D03@md-exchange1.na.nai.com>
+From: <Kelly_Djahandari@nai.com>
+To: <russell@coker.com.au>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 25 Mar 2003 21:18, david caplan wrote:
-> Was there a reason usermod was not wrapped similar to useradd/userdel?
+Russell's policy patches have been applied and the modified files are available on sourceforge. Thanks Russell.
 
-I never use that program and it seems that the other people involved in 
-writing the wrappers don't use it either.
+Kelly Djahandari
+Network Associates Laboratories
 
-> On a similar note, what about the gpasswd/group[add|mod|del] family?  As
-> they are all sbin_t, they do not have permission, when run by sysadm_t, to
-> open /etc/gshadow (which is shadow_t).
-
-Once again, it's not something that apparently gets used much.  Also you 
-forgot to mention vigr which is another program in need of a wrapper.
-
-It's been on my todo list to fix this for a while but I haven't got around to 
-it.  I'm sure that if you send Steve a patch to address this then it'll get 
-in the next release.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> -----Original Message-----
+> From: Russell Coker [mailto:russell@coker.com.au]
+> Sent: Saturday, March 22, 2003 5:14 PM
+> To: SE Linux
+> Subject: policy patches
+> 
+> 
+> I've attached a patch for the passwd_t policy as previously described.
+> 
+> I've also attached a patch containing some trivial changes, 
+> none of which 
+> should require much consideration before being included.
+> 
+> -- 
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced 
+> Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
+> 
 
 
 --
