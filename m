@@ -1,63 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JKa0Rb014014
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 16:36:00 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4JKXXB4017410
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 20:33:34 GMT
-Message-ID: <40ABC543.5050600@netscape.net>
-Date: Wed, 19 May 2004 14:36:19 -0600
-From: Charles R Martin <chasrmartin@netscape.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JL3aRb014247
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 17:03:36 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4JL3XAR012645
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 21:03:33 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4JL3WHn012543 for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 21:03:32 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: Bug#193644: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=193644 (cron upstream patch)
+Date: Thu, 20 May 2004 07:02:24 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>, 193644@bugs.debian.org
+References: <20040519091454.GL7348@lkcl.net> <20040519181120.GA6115@moregruel.net> <20040519200057.GD24597@lkcl.net>
+In-Reply-To: <20040519200057.GD24597@lkcl.net>
 MIME-Version: 1.0
-To: ewalsh@epoch.ncsc.mil
-CC: selinux@tycho.nsa.gov
-Subject: Re: SE-X available
-References: <1084828114.3551.52.camel@moss-tarheels.epoch.ncsc.mil>
-In-Reply-To: <1084828114.3551.52.camel@moss-tarheels.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200405200702.24155.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-By the way, this heading managed to put this into my junk mail 
-folder.... apparently 'SE-X available' looked like spam....
+On Thu, 20 May 2004 06:00, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+>  it's worth double-checking, and russell would be able to confirm:
+>  on an SELinux system, system_u _can_ never be a valid username...
 
-ewalsh@epoch.ncsc.mil wrote:
+Correct.
 
->The Security-Enhanced Linux support for X lives in the XACE-SELINUX
->branch of the X.org CVS tree, which is hosted at freedesktop.org.
->
->To obtain the code via anonymous CVS, use:
->
->$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg login
->CVS password: <hit return>
->$ cvs -d :pserver:anoncvs@cvs.freedesktop.org:/cvs/xorg co -P
->-rXACE-SELINUX xc
->
->You'll need the latest SELinux release which contains the new X security
->classes, attributes, and supporting types.
->
->When building the X server, make sure your config/cf/host.def includes
->the following:
->
->#define BuildXACE       YES
->#define BuildXSELinux   YES
->#define ExtraLibraries -lselinux
->
->Note that there is no policy written yet, so nothing is allowed; you'll
->need to be in permissive mode.  The denied messages should appear in the
->log file, /var/log/Xorg.0.log, and on the X server's stderr also I
->believe.  They don't start with the "avc:  " pattern that audit2allow
->uses, so that program will have to be modified to work.
->
->The security architecture in the X server is more or less based on the
->paper, "Securing the X Window System with SELinux" that is available in
->our documentation section.  There are some minor differences, notably
->the property and xextension classes.  I'll try to come up with
->class/access vector descriptions similar to the ones that were posted
->earlier.
->
->  
->
+>  the thing is that from what i gather, SELinux actually checks things
+>  via the username that it sees cron jobs create.
 
+It checks that the type of the crontab file is an entry-point for the domain 
+used for executing cron jobs.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
