@@ -1,41 +1,88 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20023
-	for <selinux@tycho.nsa.gov>; Thu, 1 Aug 2002 09:45:08 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA12981
-	for <selinux@tycho.nsa.gov>; Thu, 1 Aug 2002 13:44:16 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA12973
-	for <selinux@tycho.nsa.gov>; Thu, 1 Aug 2002 13:44:16 GMT
-Date: Thu, 1 Aug 2002 09:38:24 -0400 (EDT)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: Nigel Clarke <nigel@forever-networks.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: PROBLEM PATCHING THE KERNEL
-In-Reply-To: <HGEEKCPKMCLEIOHFGKCNAELECAAA.nigel@forever-networks.com>
-Message-ID: <Pine.LNX.4.33.0208010937110.27496-100000@vox.gw.tislabs.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: New SuSE rules
+Date: Thu, 1 Aug 2002 17:13:51 +0200
+References: <200208010657.GAA28694@jazzband.ncsc.mil>
+In-Reply-To: <200208010657.GAA28694@jazzband.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020801151351.47F1E76BC@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 31 Jul 2002, Nigel Clarke wrote:
-
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Thu, 1 Aug 2002 08:59, Carsten Grohmann wrote:
+> My new rule set for SuSE can be found under
+> http://www.carstengrohmann.de/download/selinux/.
+> This include additional rules for the getty_t, so that runs now fine with
+> the suse mingetty.
+> I am sorry, but this time the file README.suserules are only in german.
 >
-> I've just installed Redhat 7.2.  I'm having some problems with the
-> SElinux kernel patch file(s).
->
+> Please mail me any comments, if it works fine, if there problems ....
 
-  Can you tell us which distribution you are trying to configure?  Is this
-the NSA distributed version?
+Firstly try and avoid using file_type and domain if possible.  I really doubt 
+that getty needs to be able to read everything under /proc/[0-9]* and stat 
+every file or device on the file system.
 
+I guess that it's doing some type of "lsof" operation, so some dontaudit 
+would be in order.
+
+What is /dev/blog?  It's not in Documentation/devices.txt in the kernel 
+source...
+
+> # Allow access to modules_object_t (lib/modules)
+> allow initrc_t modules_object_t:dir { write remove_name };
+> allow initrc_t modules_dep_t:file { unlink };
+
+Why does initrc_t need to remove files from /lib/modules?  Perhaps a domain 
+transition to update_modules_t is what you need...
+
+> # Access to file_t (/opt)
+> allow ldconfig_t file_t:dir { getattr read search };
+> allow ldconfig_t file_t:{ file lnk_file } { getattr read };
+
+You should never grant anything access to file_t.  The existance of file_t 
+labelled objects indicates a deficiency in yout file_contexts.
+
+> # Access to /dev/xconsole
+> allow syslogd_t device_t:fifo_file { ioctl read write };
+
+We need a better type for that pipe.
+
+> # Access to /dev/tty10
+> allow syslogd_t tty_device_t:chr_file { append ioctl };
+
+Do you realise that anyone can kill the machine by pressing ^S on VC 10?
+
+> file_type_auto_trans(ntpd_t, etc_t, etc_ntp_t)
+
+Why does ntpd need to create files under /etc?  Must be a deficiency in the 
+package.
+
+> allow ntpd_t console_device_t:chr_file { read write };
+
+My Debian package has the following patch to macros/global_macros.te to 
+address that:
+-allow $1_t console_device_t:chr_file rw_file_perms;
++allow $1_t { sysadm_tty_device_t console_device_t }:chr_file rw_file_perms;
+
+> # Access to /proc/sys/kernel
+> allow ntpd_t sysctl_kernel_t:dir { search };
+> allow ntpd_t sysctl_kernel_t:file { read };
+
+That's in my Debian package.
+
+> # Access to /var
+> allow ntpd_t var_t:dir { search };
+
+That's in the daemon_domain macro, it should have worked without that.
 
 -- 
-Wayne Salamon
-wsalamon@tislabs.com
-
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
