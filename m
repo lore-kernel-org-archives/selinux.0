@@ -1,63 +1,68 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38H4pRb019014
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:04:52 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i38H4on0022929
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:04:51 GMT
-Message-Id: <200404081704.i38H4ncM017181@turing-police.cc.vt.edu>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38HUBRb019256
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:30:11 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i38HS9Ub006047
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:28:10 GMT
+Subject: Re: strange labeling problem
+From: Colin Walters <walters@redhat.com>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Policy backward compatibility 
-In-Reply-To: Your message of "Thu, 08 Apr 2004 09:21:35 EDT."
-             <1081430495.6379.89.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <1081430495.6379.89.camel@moss-spartans.epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1081431133.6379.99.camel@moss-spartans.epoch.ncsc.mil>
+References: <1081376404.9215.13.camel@nexus.verbum.private>
+	 <1081431133.6379.99.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HHjRLCAbV3CI8h7iAxJy"
+Message-Id: <1081445224.3361.107.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1842369464P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Thu, 08 Apr 2004 13:04:49 -0400
+Date: Thu, 08 Apr 2004 13:27:05 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1842369464P
-Content-Type: text/plain; charset=us-ascii
 
-On Thu, 08 Apr 2004 09:21:35 EDT, Stephen Smalley said:
+--=-HHjRLCAbV3CI8h7iAxJy
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> seems inconsistent with typical kernel practice.  James has proposed
-> dropping the backward compatibility support, and requiring that every
-> installed kernel have a suitable binary policy installed, possibly
-> encoding the associated kernel release (e.g. output of uname -r) in the
-> binary policy pathname (and possibly doing likewise for the checkpolicy
-> program?).  
-> 
-> Thoughts?
+On Thu, 2004-04-08 at 09:32, Stephen Smalley wrote:
 
-What would be the upgrade path when installing a new kernel?  Would there be an
-option for the policy tools similar to the current mkinitrd, that allows you to
-specify the kernel version to use (so you can build an initrd for the kernel
-you're about to try to boot)?  The other option is having to boot into some
-sort of single-user mode and then do the make reload/relabel before continuing
-to multiuser.
+> This typically means that the type wasn't defined in the policy when the
+> inode was last brought in-core.  So ls -Z (or getfilecon or getfattr)
+> will continue to report the actual attribute value from the disk, but
+> SELinux is handling it as unlabeled_t since it had no definition for the
+> type when the inode was brought in-core.
 
-What would the scheme be if you had to for some reason boot an older kernel
-(for instance, having to drop back to 2.6.5-mm1 because -mm2 is b0rked for
-something)?
+Ahh, I see.
 
+> > I had tried rerunning chcon -t gconfd_exec_t /usr/libexec/gconfd-2
+> > several times.  I verified that the stored xattr was correct; i.e. a
+> > getfattr -d -m . /usr/libexec/gconfd-2 showed gconfd_exec_t.
+>=20
+> chcon likely never called setfilecon at all, since getfilecon would have
+> told it that the file already had the right context. =20
 
---==_Exmh_1842369464P
-Content-Type: application/pgp-signature
+Ok, and this is basically an optimization, so we don't have to rewrite
+the xattr on disk?
+
+> Try setfilecon instead. =20
+
+It's kind of confusing that there can be this kind of desynchronization
+between chcon and ls -Z.  It will probably be a pretty rare case - it'll
+likely only hit people who are developing policy. =20
+
+--=-HHjRLCAbV3CI8h7iAxJy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQFAdYYxcC3lWbTT17ARAmL1AJ9GUHSNBKi40zW1EKvsAsV4LSDT6wCgw90/
-l8gxMQ+0DQ1kxbgiEmpxRdA=
-=pN3d
+iD8DBQBAdYtoOIkJWWp2WGURAqITAJ9LMidx34+Nzah9Nhz5XvicQMQitgCdF6jG
+G8P2WUFDnWBRoyd5TQqqI0c=
+=ldED
 -----END PGP SIGNATURE-----
 
---==_Exmh_1842369464P--
+--=-HHjRLCAbV3CI8h7iAxJy--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
