@@ -1,54 +1,86 @@
-Subject: Re: writing rules to disallow a domain to read particular files
-From: Colin Walters <walters@verbum.org>
-To: jsingh@ensim.com
-Cc: nsa <SELinux@tycho.nsa.gov>
-In-Reply-To: <1098086321.5142.11.camel@jsingh.india.ensim.com>
-References: <1097940101.2569.5.camel@jsingh.india.ensim.com>
-	 <1097948413.3872.3.camel@x-infinity.verbum.private>
-	 <1098017660.2740.33.camel@jsingh.india.ensim.com>
-	 <1098030922.15741.20.camel@x-infinity.verbum.private>
-	 <1098086321.5142.11.camel@jsingh.india.ensim.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TRJHgTTzJ6ZHiEaX6kin"
-Date: Mon, 18 Oct 2004 09:18:00 -0400
-Message-Id: <1098105480.9768.21.camel@x-infinity.verbum.private>
+Subject: Re: mv and cp behavior.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>,
+   RH SELinux list <rhselinux-list@redhat.com>
+In-Reply-To: <41712EEF.9090402@redhat.com>
+References: <41712EEF.9090402@redhat.com>
+Content-Type: text/plain
+Message-Id: <1098105487.27895.40.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Mon, 18 Oct 2004 09:18:07 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 2004-10-16 at 10:23, Daniel J Walsh wrote:
+> Seems we have unexpected results when doing the mv command in both 
+> Strict and targeted policy.
+> 
+> A couple of examples where users are going to be confused (I was yesterday).
+> 
+> 1. Setting up dhcp
+> 
+>      I was setting up a test dhcp server yesterday in targeted policy so
+>     I installed the machine,
+>     copied the dhcpd.conf file from an existing server to the /tmp
+>     directory.  Then I moved the file
+>     to the /etc/ directory.
 
---=-TRJHgTTzJ6ZHiEaX6kin
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This is the same issue that came up on fedora-devel-list earlier.  mv
+always preserves security context if possible (always for
+intra-filesystem rename, and if the target filesystem supports it for
+cross-filesystem rename).
 
-On Mon, 2004-10-18 at 13:28 +0530, Jaspreet Singh wrote:
+> 2. Modifying files on a web server
+> 
+>     Collin has setup a web server and setup a directory underneath in
+>     /var/www/myblog it owned by httpd_staff_content_t which he
+>     can write files into and update his blog.  He edits files in his
+>     home directory can them moves them to the httpd directory.
+>     The problem is the apache server can't display them, because they
+>     have a context of staff_home_t.  (This would happen in both
+>     strict and targeted).    In this case he needs to use chcon to
+>     relabel the file to httpd_staff_content_t since restorecon would change
+>     the context to something else.
 
-> That was an eye opener .. i didn't know so much was possible with
-> SELinux. Could you pass me on some document which can elaborate on
-> policy rules and configuration (and discusses whats all possible with
-> these policies).
+Only if he failed to update his file_contexts configuration to reflect
+his setup for /var/www/myblog. 
 
-http://www.nsa.gov/selinux/papers/policy2-abs.cfm
+> 3.  Mv/cp do not follow the DAC conventions in all cases.  If I have a 
+> file marked as bin_t and executable and I move it to /tmp.
+> It is still executable in DAC but the bin_t context gets removed and 
+> replaced with some type of *_tmp_t context.
 
-> Just to test the above approach i tried the following on on my FC2 box
-> with FC3 selinux-files , but i had some bad time compiling my changes
-> ...
+cp should only preserve security context when the --context/-c option is
+used or when all attributes are supposed to be preserved, IIRC.  mv
+should always preserve security context if possible (i.e. local
+rename(2) or target filesystem supports the context).  If mv cannot
+preserve security context, it should display a warning.  I think that
+this behavior is consistent with DAC ownership/mode preservation.
 
-You'll need the strict policy for this, basically.
+> 1.  Implement a matchpathcon in mv so the context is setup correctly on 
+> newly created files.
 
+I had previously suggested changing mv to call matchpathcon on the new
+path, compare with the existing context on the file, and _ask_ the user
+if they want to relabel if they differ.  You don't want to do this
+silently, as it subverts the protection.  Requires a user confirmation. 
+Look at the existing mv code for dealing with overwriting an unwritable
+file, where it also prompts the user for confirmation.
 
---=-TRJHgTTzJ6ZHiEaX6kin
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> 4.  In certain situations file context is manipulated by policy.  IE if 
+> I move a file to /tmp, policy forces the file to be staff_tmp_t.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+I don't follow; an explicit setfscreatecon() always overrides default
+transitions.  But it may not be permitted by policy, in which case
+you'll get a denial.
 
-iD8DBQBBc8KIOIkJWWp2WGURAuHfAJ9eFZT0+X+zWMb2nAKaE9ndi6s01gCeL6Vx
-0Z2KVmrUbhtsqvFGxRzlPAw=
-=XPPM
------END PGP SIGNATURE-----
+I don't recommend any change in behavior _other_ than having mv offer
+the user the choice of relabeling.
 
---=-TRJHgTTzJ6ZHiEaX6kin--
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
