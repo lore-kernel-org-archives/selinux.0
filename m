@@ -1,43 +1,52 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1PBCCRb029090
-	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 06:12:12 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1PFMlRb000362
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 10:22:47 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1PBCBQQ004013
-	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 11:12:11 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i1PBBxP0003986 for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 11:12:10 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: keen@internode.on.net, "keen@internode.on.net" <keen@internode.on.net>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: I/O Redirect?
-Date: Wed, 25 Feb 2004 22:10:34 +1100
-References: <403c6984.108.36cc.1234700170@internode.on.net>
-In-Reply-To: <403c6984.108.36cc.1234700170@internode.on.net>
+	by jazzband.ncsc.mil  with ESMTP id i1PFMkQQ022980
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 15:22:46 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+        by jazzband.ncsc.mil  with ESMTP id i1PFMjP0022975 for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 15:22:45 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id i1PFMjb08200
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 10:22:45 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id i1PFMii06809
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 10:22:45 -0500
+Received: from redhat.com (celtics.boston.redhat.com [172.16.65.39])
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id i1PFMimk005930
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 10:22:44 -0500
+Message-ID: <403CBDC4.30100@redhat.com>
+Date: Wed, 25 Feb 2004 10:22:44 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402252210.34582.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Suggested change to setfiles interface.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Feb 2004 20:23, "keen@internode.on.net" <keen@internode.on.net> 
-wrote:
-> however, files which were created in /tmp using commands
-> such as:
-> ping 127.0.0.5 -c 4 > pingfile
->
-> do not result in a user_ping_t context file being saved,
+I find it curios that the setfiles interface works in recursive mode by 
+default.  As we have been trying to get the install to handle labeling 
+the file system, several files had to be labeled in the installer 
+including /.  The only way to do this was to pipe
+echo / | setfiles -s file_context
 
-When you do "command > file" the shell will create the file.  The context of 
-the file is determined at file creation time, therefore it is determined by 
-the context of the shell.
+Looking into this I found this curious that this works differently then
+setfiles file_context  /
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I would like to see these work consistantly and us add a recursive on 
+non recursive switch to setfiles. 
+
+So
+
+setfiles -R file_contexts /
+would implement the current behavior
+
+setfiles file_contexts /
+would just relabel /.
+
+Dan
+
 
 
 --
