@@ -1,31 +1,46 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JDauRb010105
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 09:36:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JDj9Rb010190
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 09:45:09 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4JDYUB2012617
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 13:34:31 GMT
-Received: from smtp800.mail.ukl.yahoo.com (smtp800.mail.ukl.yahoo.com [217.12.12.142])
-	by jazzswing.ncsc.mil  with SMTP id i4JDYTwi012607
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 13:34:29 GMT
-Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 19 May 2004 13:35:21 -0000
-Date: Wed, 19 May 2004 13:32:43 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ed Street <edstreet@street-tek.com>
+	by jazzswing.ncsc.mil  with ESMTP id i4JDghB2013510
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 13:42:44 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+	by jazzswing.ncsc.mil  with ESMTP id i4JDghwi013459
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 13:42:43 GMT
+From: "Ed Street" <edstreet@street-tek.com>
+To: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>
 Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: Re: adduser script
-Message-ID: <20040519133243.GD4221@lkcl.net>
-References: <20040519091721.GA8839@lkcl.net> <20040519115634.9C18D3A4054@abyss.simplyaquatics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040519115634.9C18D3A4054@abyss.simplyaquatics.com>
+Subject: RE: adduser script
+Date: Wed, 19 May 2004 09:44:40 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <20040519133243.GD4221@lkcl.net>
+Message-Id: <20040519134441.672D53A4054@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Hello,
+
+That should work. One other thing you may want do is give the user a choice
+in which role(s) to assign, that would eliminate any typo's and be newbie
+friendly, say 1) user_r 2) staff_r 3 sysadm_r q) quit or something similar.
+By default any abuser not in the users file is assigned user_r.
+
+Ed
+
+-----Original Message-----
+From: Luke Kenneth Casson Leighton [mailto:lkcl@lkcl.net] 
+Sent: Wednesday, May 19, 2004 9:33 AM
+To: Ed Street
+Cc: 'SE-Linux'
+Subject: Re: adduser script
 
 On Wed, May 19, 2004 at 07:56:33AM -0400, Ed Street wrote:
 > Hello,
 > 
-> That should not be to difficult, just pass a context(s) switch or prompt for
+> That should not be to difficult, just pass a context(s) switch or prompt
+for
 > it.
 
  investigating more, i find a package adduser-ng (adduser next
@@ -68,34 +83,13 @@ On Wed, May 19, 2004 at 07:56:33AM -0400, Ed Street wrote:
  entry, does it matter?
 
  l.
+ 
 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of Luke Kenneth Casson Leighton
-> Sent: Wednesday, May 19, 2004 5:17 AM
-> To: SE-Linux
-> Subject: adduser script
-> 
-> has anyone considered writing an adduser script modification
-> for selinux that adds users to /etc/selinux/users?
-> 
-> ---
-> 
-> Checked by AVG anti-virus system (http://www.grisoft.com).
-> Version: 6.0.687 / Virus Database: 448 - Release Date: 5/16/2004
->  
-> 
+---
 
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.687 / Virus Database: 448 - Release Date: 5/16/2004
+ 
 
 
 --
