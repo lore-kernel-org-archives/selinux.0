@@ -1,60 +1,57 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>, lky <lky77@sjtu.edu.cn>
-Subject: Re: question about su and passwd
-Date: Tue, 28 Oct 2003 02:01:03 +1100
-Cc: SELINUX <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-References: <001401c39a74$ac06b370$5d38a8c0@lky> <1067266352.18818.51.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1067266352.18818.51.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9U41UWt010953
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 23:01:35 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9U41TXK011522
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 04:01:29 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+        by jazzband.ncsc.mil  with ESMTP id h9U40Jj4011509 for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 04:00:43 GMT
+Message-ID: <3FA08C65.2020309@diyab.net>
+Date: Wed, 29 Oct 2003 22:58:29 -0500
+From: Diyab <diyab@diyab.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310280201.03376.russell@coker.com.au>
+To: russell@coker.com.au
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Diamond Rio 500 and other device nodes
+References: <200310300227.27364.russell@coker.com.au>
+In-Reply-To: <200310300227.27364.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 28 Oct 2003 01:52, Stephen Smalley wrote:
-> On Fri, 2003-10-24 at 17:20, lky wrote:
-> > Hi, When I change the account with su I found the security context
-> > didn't change( the 2 account have different contexts ). Should I use
-> > aother command?
->
-> Since 'su' is most frequently used simply to obtain privileges (aka
-> capabilities) for administrative tasks by becoming the Linux superuser,
-> it seems undesirable to also change the SELinux user identity, as
+Russell Coker wrote:
 
-My interpretation of lky's message was that they wanted to change role/domain 
-not SE Linux identity.  Although now you mention this, the original message 
-was unclear.  Lky, please clarify what you desire.
+> What do you think is the correct type for the device node for the "Diamond Rio 
+> 500" (/dev/usb/rio500)?
+> 
+> It's a portable MP3 player and storage device with a USB interface, so I think 
+> that removable_device_t is appropriate, in concept it's similar to a floppy 
+> disk drive.
+> 
+> Also I've used scanner_device_t for USB digital cameras, I think of a camera 
+> as a portable scanner.  ;)  But I guess a case could be made for considering 
+> digital cameras to be removable storage.
+> 
+> 
+> I have been considering whether I should merge the v4l_device_t device nodes 
+> with those for scanners.  However I think that although the concept is the 
+> same the likely use is different.  Having one program to use v4l to control a 
+> security system while another program acts as a scanner server is likely, 
+> while it's likely that a program which is authorised for accessing a scanner 
+> will also be authorised for digital cameras.
+> 
 
-I agree with Steve that changing the SE Linux identity is not desirable, IMHO 
-the only supported way of changing identity should be to logout and login 
-again.
+Just curious, but how will the files on the device be labeled once the 
+device is mounted?  For example if I plug in my digital camera and mount 
+it so that I can copy the pictures from it am I going to have access to 
+read the files?  Will I even be able to mount it as a normal user?  Is 
+this going to be a problem since we can't label the device filesystem?
 
-> SELinux can represent such changes via role/domain changes while
-> preserving user accountability.  newrole supports changing roles within
-> a session, and domain transitions within a role can occur upon executing
-
-If lky desires to change role as well as UID that still provides some issues.  
-Changing UID via "su" and changing role via newrole require different 
-passwords as they are checking different things.  Doing both in the same 
-operation does not seem to be possible.
-
-However doing this through sudo is possible as sudo already has configuration 
-options for specifying which UID transitions are permitted and which 
-passwords should be used.  I recall that someone (Dan?) posted a sudo patch 
-to do this sort of thing.
-
-There is only one case that I can think of where such things are really 
-needed, that is for logging in to an account with a non-root UID and staff_r, 
-and then wanting to change to UID==0 and sysadm_r.  Maybe a special-case 
-program for this operation would be a better solution?
+Timothy,
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
 
 
 --
