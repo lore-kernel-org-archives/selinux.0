@@ -1,45 +1,44 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12808
-	for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 10:10:06 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12849
+	for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 10:33:15 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA17110
-	for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 15:09:00 GMT
+	by jazzband.ncsc.mil  with ESMTP id PAA17625
+	for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 15:32:10 GMT
 Received: from angusbay.vnl.com ([194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id PAA17106 for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 15:08:59 GMT
-Date: Sun, 24 Mar 2002 15:22:23 +0000
+        by jazzband.ncsc.mil  with ESMTP id PAA17621 for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 15:32:09 GMT
+Date: Sun, 24 Mar 2002 15:45:41 +0000
 From: Dale Amon <amon@vnl.com>
 To: Russell Coker <russell@coker.com.au>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Mix and Match problems
-Message-ID: <20020324152223.GM20057@vnl.com>
-References: <20020322212840.CF3FE108F@lyta.coker.com.au>
+Subject: Mix and Match 2: relabel problems
+Message-ID: <20020324154541.GA31389@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020322212840.CF3FE108F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A question for Russ. In your debian package you still
-have the original policy/README file. If you are 
-trying to build an selinux using your policy Makefile
-there is a catch-22. The README suggests building
-and installing policy first; but your Makefile uses
-chsid. chsid is not built until the next step when
-you make and make install libsecure; and even then
-it would not ordinarily be built as the original 
-libsecure/test/Makefile suggests it is needed only 
-if chcon is not present.
+Okay, getting close. I rebooted into selinux after remembering to
+do the make relable this time. Then I did Russell's policy make install,
+and it works under an selinux kernel as I surmised it would.
 
-After going through that, I still got errors when
-trying to use your make install. I'm going to 
-presume that is due to the fact that I'm doing
-a build under a non-selinux kernel and thus
-chsid is missing something it needs.
+However I'm still missing something in his policy, because when
+I relabel after the boot:
 
-This may all be moot, and I'm getting the problems
-only because I'm mixing your policy with Stephen's
-release, but thought I'd mention it in case it's
-of any use.
+> make verbose
+./setfiles -v file_contexts `mount | awk '/ext[23]/{print $3}'`
+./setfiles:  Running on a SELinux kernel, using new system calls
+./setfiles:  read 352 specifications
+./setfiles:  invalid context system_u:object_r:slapd_db_t on line number 65
+./setfiles:  invalid context system_u:object_r:slapd_replog_t on line number 66
+./setfiles:  invalid context system_u:object_r:slapd_exec_t on line number 401
+make: *** [verbose] Error 1
+
+I'm using the policy/ from Russell's selinux_2002031409-2_i386.deb dist in
+the lsm-2.4-selinux-2002031409.tgz base release. With minor twiddles of
+my own to make things work together.
+
+Any suggestions?
+
 
 
 --
