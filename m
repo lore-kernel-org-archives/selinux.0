@@ -1,59 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3D29XZ014301
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 08:02:09 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3D25JZ016117
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 13:02:08 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: Patch to make can_network stronger and remove nscd tunable.
-Date: Wed, 3 Nov 2004 17:16:45 +1100
-Cc: Daniel J Walsh <dwalsh@redhat.com>, jwcart2@epoch.ncsc.mil,
-   SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@epoch.ncsc.mil>
-References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <4187AE44.40204@redhat.com> <20041103000707.GD2547@jmh.mhn.de>
-In-Reply-To: <20041103000707.GD2547@jmh.mhn.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200411031716.45644.russell@coker.com.au>
+Subject: Re: dynamic context transitions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Frank Mayer <mayerf@tresys.com>,
+   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>,
+   SELinux List <SELinux@tycho.nsa.gov>,
+   "'Chad Hanson'" <chanson@TrustedCS.com>
+In-Reply-To: <1099431220.23756.129.camel@pham.columbia.tresys.com>
+References: <000501c4bf9b$a157d2e0$6701a8c0@columbia.tresys.com>
+	 <1099316236.21386.31.camel@moss-spartans.epoch.ncsc.mil>
+	 <4186DCE7.9030401@tresys.com>
+	 <1099409596.31739.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <1099417155.23756.112.camel@pham.columbia.tresys.com>
+	 <1099418564.31739.208.camel@moss-spartans.epoch.ncsc.mil>
+	 <1099431220.23756.129.camel@pham.columbia.tresys.com>
+Content-Type: text/plain
+Message-Id: <1099490029.1213.15.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 03 Nov 2004 08:53:49 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 03 November 2004 11:07, Thomas Bleher 
-<bleher@informatik.uni-muenchen.de> wrote:
-> allow logrotate_t acct_data_t:dir search;
-> allow logrotate_t acct_data_t:file create_file_perms;
+On Tue, 2004-11-02 at 16:33, Karl MacMillan wrote:
+> On Tue, 2004-11-02 at 13:02 -0500, Stephen Smalley wrote:
+> > The amount of trust placed in samba is the same, but the dynamic context
+> > transition allows the kernel to handle the mediation directly and
+> > atomically with respect to the file access.  Otherwise, you have to
+> > duplicate the checking in samba (which will still ultimately get the
+> > decisions from the kernel via selinuxfs) and deal in some way with race
+> > conditions.  Keep in mind that we are talking about user-writable
+> > directories that are being exported by samba.
+> > 
+> 
+> This is using the dynamic context transitions as a practical
+> _discretionary_ security measure then. That may have some benefit. I'm
+> still concerned that the benefits don't outweigh the costs. We are,
+> after all, talking about breaking some fundamental assumptions of the
+> SELinux mechanism in a way that may give many people a false sense of
+> security.
 
-I don't think that is correct either.  If you only have search access to a 
-directory then you can not create a file inside it...
-
-> >  allow ftpd_t ftp_data_port_t:tcp_socket name_bind;
-> > +allow ftpd_t port_t:tcp_socket { name_bind };
->
-> I confess I am not too familiar with ftp, but does it really need to
-> bind to arbitrary ports, seems excessive and unneeded (and is not
-> granted in current policy as far as I can see)
-
-I guess that would be for active FTP.  It's ugly but I don't think that we 
-have a choice.
-
-> > +/usr/lib/mailman/bin/qrunner    --
-> > system_u:object_r:mailman_queue_exec_t +/etc/mailman(/.*)?    
-> > system_u:object_r:mailman_data_t
-> > +/var/spool/mailman(/.*)?    system_u:object_r:mailman_data_t
->
-> Sorry, I do not know mailman at all, so please excuse my ignorance.
-> But does mailman really have to write to /etc/mailman, which is
-> presumably it's configuration data? This is not nice at all.
-
-It shouldn't be necessary, and isn't unless mailman has changed recently.
+Discretionary?  To samba, I suppose, but not to the client.  We are
+still talking about the enforcement of a mandatory policy, whether the
+enforcement is provided by samba as a userspace object manager or by the
+kernel based on samba's dynamic transitions.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
