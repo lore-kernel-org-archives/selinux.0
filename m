@@ -1,39 +1,29 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3E95dRb027567
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 05:05:40 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3E95dmw019073
-	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:05:39 GMT
-Received: from nox.lemuria.org ([213.191.86.35])
-        by jazzband.ncsc.mil  with ESMTP id i3E95c4w019070 for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:05:38 GMT
-Date: Wed, 14 Apr 2004 11:05:38 +0200
+Date: Wed, 14 Apr 2004 11:10:02 +0200
 From: Tom <tom@lemuria.org>
-To: SELinux Mailing List <selinux@tycho.nsa.gov>
+To: "'SELinux'" <SELinux@tycho.nsa.gov>
 Subject: Re: Logo Artwork for SELinux?
-Message-ID: <20040414110538.D26635@lemuria.org>
-References: <20040410212453.GA19726@vnl.com> <Pine.LNX.4.44.0404120322400.21241-100000@cirrus.av8.net> <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org>
+Message-ID: <20040414111002.E26635@lemuria.org>
+References: <187711B80DB3334B97BBC3AD87859D3D02210FE7@nor-msg7.stortek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org>; from elvedin@ods.org on Mon, Apr 12, 2004 at 09:57:36AM -0500
+In-Reply-To: <187711B80DB3334B97BBC3AD87859D3D02210FE7@nor-msg7.stortek.com>; from DowdAS@NORTHAMERICA.Stortek.com on Tue, Apr 13, 2004 at 10:57:44AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Apr 12, 2004 at 09:57:36AM -0500, Elvedin Trnjanin wrote:
-> I suggest we avoid any preference to a country or orginization (US or UN)
-> and just perhaps go with some cryptography related thing, random numbers
-> (1s, 0s) in the background or something of that sort.
+On Tue, Apr 13, 2004 at 10:57:44AM -0400, Dowd, Alan S wrote:
+> This whole thread reminds me of a scene near the end of the TV broadcast
+> version of "The Hitchhikers Guide to the Galaxy." Our protagonists are
+> stranded on Neolithic Earth with a spaceship (Galgafringian Arkship B) full
+> of "middlemen," among them marketing executives. The marketing executives
+> have formed a committee to reinvent the wheel. Their major concern is "What
+> color should it be?" We're all demonstrating our outstanding qualifications
+> for Arkship B here.
 
-How about using the proposed light-blue UN colour for the random number
-strings (why random? let's give the geeks something to do and have it
-actually mean something).
+:)
 
-Add Tux with chainmail shirt.
+Then again, when you look at code all day, it is very refreshing to do
+some visual creative work for a change.
 
-Plus a simple "SELinux" as text.
-
-
-I'll see what I can whip up. I'm by far no graphics dude, but I know a
-little about gimp.
 
 
 -- 
