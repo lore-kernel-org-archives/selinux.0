@@ -1,71 +1,39 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hATCVaRb000085
-	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 07:31:36 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hATD4VRb000182
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 08:04:31 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hATCVZqY024660
-	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 12:31:35 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id hATCVY0o024657 for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 12:31:34 GMT
-Date: Sat, 29 Nov 2003 12:31:20 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Policy error of the day
-Message-ID: <20031129123120.GI18062@vnl.com>
+	by jazzband.ncsc.mil  with ESMTP id hATD4UqY025011
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 13:04:30 GMT
+Received: from unicorn.lemuria.org (c152152.adsl.hansenet.de [213.39.152.152])
+        by jazzband.ncsc.mil  with ESMTP id hATD4T0o025008 for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 13:04:30 GMT
+Date: Sat, 29 Nov 2003 13:57:25 +0100
+From: Tom <tom@lemuria.org>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Re: Information about packages
+Message-ID: <20031129135720.A9047@lemuria.org>
+References: <3FC72C83.8050309@ipen.br> <200311282241.05097.russell@coker.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <200311282241.05097.russell@coker.com.au>; from russell@coker.com.au on Fri, Nov 28, 2003 at 10:41:05PM +1100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ah...Russ... did you do something naughty? I note all of these are
-failing after the postinst.d/selinux. I wonder if you are 
-expecting these installs to be occuring under selinux rather
-than on a non-selinux 'factory' machine in a chroot:
+On Fri, Nov 28, 2003 at 10:41:05PM +1100, Russell Coker wrote:
+> > appropriate and more "up-to-date" (in this moment) to install in a
+> > *Debian/testing* with  *kernel 2.6.0* ?
+> 
+> deb http://www.coker.com.au/newselinux/ ./
 
-run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-dpkg: error processing selinux-policy-default (--configure):
- 1Error running trigger postinst: No such file or directory
-run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-dpkg: error processing modutils (--configure):
- 1Error running trigger postinst: No such file or directory
-run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-dpkg: error processing strace (--configure):
- 1Error running trigger postinst: No such file or directory
-run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-dpkg: error processing hdparm (--configure):
- 1Error running trigger postinst: No such file or directory
-run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-dpkg: error processing dash (--configure):
- 1Error running trigger postinst: No such file or directory
-run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-dpkg: error processing cramfsprogs (--configure):
- 1Error running trigger postinst: No such file or directory
-dpkg: dependency problems prevent configuration of initrd-tools:
- initrd-tools depends on cramfsprogs; however:
-  Package cramfsprogs is not configured yet.
- initrd-tools depends on dash | ash; however:
-  Package dash is not configured yet.
-  Package ash is not installed.
-dpkg: error processing initrd-tools (--configure):
- dependency problems - leaving unconfigured
-Errors were encountered while processing:
- selinux-policy-default
- modutils
- strace
- hdparm
- dash
- cramfsprogs
- initrd-tools
-E: Sub-process /usr/bin/dpkg returned an error code (1)
+I now mirror these as well, so europeans might be better off (read: get
+faster downloads) at:
+
+deb http://selinux.lemuria.org/newselinux/ ./
+
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
