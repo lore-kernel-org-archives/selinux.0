@@ -1,41 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j13LnR53003603
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 16:49:27 -0500 (EST)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j13M8S53003738
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 17:08:28 -0500 (EST)
+Received: from orsfmr004.jf.intel.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j13M8Tf1021055
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 22:08:30 GMT
+Received: from orsfmr101.jf.intel.com (orsfmr101.jf.intel.com [10.7.209.17])
+	by orsfmr004.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1 2004/09/17 17:50:56 root Exp $) with ESMTP id j13M8U8o011845
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 22:08:30 GMT
+Received: from orsmsxvs041.jf.intel.com (orsmsxvs041.jf.intel.com [192.168.65.54])
+	by orsfmr101.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2 2004/09/17 18:05:01 root Exp $) with SMTP id j13M8Ec9018373
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 22:08:30 GMT
+Received: from orsmsx331.amr.corp.intel.com ([192.168.65.56])
+ by orsmsxvs041.jf.intel.com (SAVSMTP 3.1.2.35) with SMTP id M2005020314083011947
+ for <selinux@tycho.nsa.gov>; Thu, 03 Feb 2005 14:08:30 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Subject: RE: Advice on bringing up SE Linux
-Date: Thu, 3 Feb 2005 13:49:07 -0800
-Message-ID: <60C14C611F1DDD4198D53F2F43D8CA3B036251F3@orsmsx410>
+Subject: Best way to label a filesystem for another system
+Date: Thu, 3 Feb 2005 14:08:28 -0800
+Message-ID: <60C14C611F1DDD4198D53F2F43D8CA3B03625283@orsmsx410>
 From: "Villalovos, John L" <john.l.villalovos@intel.com>
-To: <russell@coker.com.au>
-Cc: "Stephen Smalley" <sds@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> The upstream developer of busybox was accepting of SE Linux patches,
-> I had some SE Linux patches in the busybox CVS at one time (not sure
-> if they are still there).  If I get a bit of spare time I'll do some
-> more work on Busybox SE Linux support, it's good to have for recovery
-> purposes and I think I've still got some patches hanging around that
-> I never got sorted out properly for release.
-> 
-> Also you may want to check out the paper I presented at OLS on
-> getting SE Linux running on iPaQ's, the stuff about wrapping busybox
-> etc will probably be of interest to you.
-> 
-> If you get the JFFS2 support written I'll be very interested, I have
-> a couple of iPaQ's I want to get running SE Linux again.
+I'm trying to figure out what is the best way for me to label (set file
+contexts) on a file system which will be used for an embedded system.
 
-At the moment Busybox does not compile with SE Linux enabled.  It am
-guessing that is using the old 2.4 API stuff.  It is looking for an
-include file which is no longer there in the new SE Linux code.
+At the moment it is an EXT2 file system created by genext2fs.  I can
+mount the file system using the loop back device.
 
-We will see on the JFFS2 stuff.  At the moment we haven't made a
-commitment for that.  We still have more investigation to do to see if
-it is necessary.
+So I was hoping that the current utilities supported a --root option or
+something but they don't seem too.
 
+Any good ideas on the best way to do this.
+
+Also is there an easy way to parse the list of file contexts from the
+policy?  Could I write a script to parse the file and then do a chcon on
+each file/directory in my filesystem.
+
+Thanks,
 John
 
 
