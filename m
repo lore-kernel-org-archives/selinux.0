@@ -1,37 +1,44 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA24101
+	for <selinux@tycho.nsa.gov>; Mon, 16 Sep 2002 17:19:25 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA04712
+	for <selinux@tycho.nsa.gov>; Mon, 16 Sep 2002 21:17:41 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id VAA04708 for <selinux@tycho.nsa.gov>; Mon, 16 Sep 2002 21:17:39 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: "Femitha Majeed" <m_femitha@hotmail.com>, SELinux@tycho.nsa.gov
-Subject: Re: SELinux and kernel module compatibility
-Date: Mon, 16 Sep 2002 21:27:29 +0200
-References: <F3105knsCKH0D8r8e4D000074cc@hotmail.com>
-In-Reply-To: <F3105knsCKH0D8r8e4D000074cc@hotmail.com>
+To: Tim Bird <tim@bird.org>, linux-security-module@wirex.com
+Subject: Re: Any assured channel work for Linux
+Date: Mon, 16 Sep 2002 23:19:12 +0200
+References: <3D85F3D9.D06AAC4A@bird.org>
+In-Reply-To: <3D85F3D9.D06AAC4A@bird.org>
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Message-Id: <200209162127.29842.russell@coker.com.au>
+Message-Id: <200209162319.12992.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 16 Sep 2002 19:52, Femitha Majeed wrote:
-> This is a newbie question.
->
-> I have a loadable kernel module that works on linux (RH6.2), when I try to
-> compile it in SELinux, it compiles (it looks like that). When I do an
-> insmod module.o,I get the error saying that it was compiled for a different
-> linux version, while this is an lsm version.
->
-> Probably my Makefile is wrong.
->
-> Could anyone tell me how to compile in SELinux?
+On Mon, 16 Sep 2002 17:08, Tim Bird wrote:
+> I've looked around at various projects, but don't see
+> anything that directly addresses intra-machine
+> assured channel IPCs.  I know that the MAC capabilities
+> provided by LSM let me constrain access to things like
+> /dev/mem, and to operations performed on pipes sockets.
+> But would LSM hooks allow one process to
+> authenticate another process at the other end of a
+> standard IPC like a pipe or a shared memory segment?
 
-Did you compile the module using the same kernel source tree as used to 
-compile SE Linux?
+SE Linux (which is based on LSM) restricts access to shared memory regions, 
+unix domain sockets, pipes, etc.  In SE Linux there are system calls to 
+determine who is connecting to you by a Unix domain socket and work is in 
+progress on extending the same functionality to TCP sockets over the network.
 
-The proceedure should be:
-compile kernel with SE support (don't do "make clean" or anything)
-compile module.
+It seems that SE Linux does everything you want.
 
-Anything else can't be expected to work.
+Or am I misunderstanding your question?
 
 -- 
 I do not get viruses because I do not use MS software.
