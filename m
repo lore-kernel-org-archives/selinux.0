@@ -1,50 +1,48 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76B47rT011223
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 07:04:07 -0400 (EDT)
-Received: from mail.c-sam.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76B46O0017854
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 11:04:06 GMT
-Date: Fri, 6 Aug 2004 12:56:15 +0200
-From: Andreas Schuldei <andreas@schuldei.org>
-To: Russell Coker <rcoker@redhat.com>
-Cc: Andreas Schuldei <andreas@schuldei.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: problems with selinux-policy-default 1:1.14-2
-Message-ID: <20040806105615.GB3510@lukas.schuldei.com>
-References: <20040803233114.GQ1828@markus.schuldei.org> <200408062015.33606.rcoker@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200408062015.33606.rcoker@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76C5ErT011474
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 08:05:14 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76C4bps024369
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 12:04:38 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
+Date: Fri, 6 Aug 2004 22:05:08 +1000
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>,
+   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
+References: <20040801172751.GD20103@lkcl.net> <1091474356.23449.272.camel@moss-spartans.epoch.ncsc.mil> <20040802211212.GB6260@lkcl.net>
+In-Reply-To: <20040802211212.GB6260@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408062205.08533.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Russell Coker (rcoker@redhat.com) [040806 12:16]:
-> On Wed, 4 Aug 2004 09:31, Andreas Schuldei <andreas@schuldei.org> wrote:
-> > lrwxrwxrwx    1 root     root           33 Aug  4 00:57 src ->
-> > /usr/share/selinux/policy/current petrus:~# l /usr/share/selinux/policy
-> > total 12
-> > drwxr-xr-x    3 root     root         4096 Aug  4 00:57 .
-> > drwxr-xr-x    3 root     root         4096 Aug  4 00:57 ..
-> > drwxr-xr-x    9 root     root         4096 Aug  4 00:57 default
-> > ==========================
-> >
-> > src is a dangeling symlink.
-> 
-> What happened to the current directory?
+On Tue, 3 Aug 2004 07:12, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+>  p.s. first cut at mods attached for general review NO I HAVEN'T
+>  COMPILED IT.
 
-i didnt do anything with it. my guess is that it is generated
-later during the configuration of the file.
+One thing to note is that is_selinux_enabled() reads /proc/filesystems and 
+then reads /proc/self/attr/current.  This is more work than you want to do 
+for every device node.  So you want to cache the result of 
+is_selinux_enabled() to some degree.  You certainly don't want to call it 
+twice in the same code path.
 
-i might attempt to selinux-ize my notebook, i can investigate
-more closely then.
+udev is tricky in this regard because there is the possibility that udev may 
+be started before SE Linux is enabled.
 
-> > changing it to point to /usr/share/selinux/policy/default
-> 
-> Don't do that.  If you do that the upgrading the policy will automatically 
-> over-write changes that you have made to your policy.
+Maybe the best thing to do would be to check for SE Linux being enabled once 
+for each group of new devices that you add, and only once for the system 
+startup.
 
-i changed the symlink back once the current directory was created
-and populated. you surely know your installprocess better then i
-do. perhaps you could investigate?
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
