@@ -1,39 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA66twSf016002
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 01:55:58 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hA66tvKl016491
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 06:55:57 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id hA66tt5m016488 for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 06:55:56 GMT
-Date: Thu, 6 Nov 2003 17:55:49 +1100
-From: Brian May <bam@snoopy.apana.org.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA6BllSf016682
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 06:47:47 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hA6BlO1W017923
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 11:47:24 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id hA6BlN5e017920
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 11:47:24 GMT
+Date: Thu, 6 Nov 2003 11:47:41 +0000
+From: Dale Amon <amon@vnl.com>
 To: selinux@tycho.nsa.gov
-Subject: XWindows, trust, EROS
-Message-ID: <20031106065548.GA6956@snoopy.apana.org.au>
+Subject: Can't get the right debian packages to load
+Message-ID: <20031106114741.GA23322@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+I've been trying all morning to create a set of
+preference PINS to pick up Russell's new debian
+archive entries as top preference while still 
+grabbing policycoreutils, login, etc from Colin's
+old one, and have both override the current sid
+versions which are often higher than either.
 
-For some reason I thought EROS was dead, but the mailing lists
-seem to be strong...
+I've tried a number of things which should have 
+worked, but at best I end up with Colin's packages
+coming in and overriding Russells too.
 
-Anyway, here is a discussion on X-Windows, trusted windows,
-untrusted windows, etc, which may/may not have implications here for
-people interested in using SE-Linux to limit access to "dangerous"
-X-Windows operations.
+Has anyone else got an apt preference file that pulls
+off this neat trick? (Russell's Package file has no
+corresponding Release file, so most of the pin 
+options don't work)
 
-http://www.eros-os.org/pipermail/eros-arch/2003-November/003849.html
+The preference order I need is:
 
-(Note: I haven't read this thread in detail myself yet).
+Coker	override Walters or sid regardless of version
+Walters override sid regardless of version
+sid     default
 
-(Note2: I apologize if this is already common knowledge or totally
-irrelevant...)
 -- 
-Brian May <bam@snoopy.apana.org.au>
+------------------------------------------------------
+       IN MY NAME:            Dale Amon, CEO/MD
+  No Mushroom clouds over     Islandone Society
+    London and New York.      www.islandone.org
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
