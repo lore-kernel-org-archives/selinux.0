@@ -1,242 +1,95 @@
-Message-ID: <41475DEA.90907@redhat.com>
-Date: Tue, 14 Sep 2004 17:08:58 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: More fixes for nscd in targeted policy
-Content-Type: multipart/mixed;
- boundary="------------060109030702060409020501"
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8EMtLrT013923
+	for <selinux@tycho.nsa.gov>; Tue, 14 Sep 2004 18:55:22 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8EMsQJe014722
+	for <selinux@tycho.nsa.gov>; Tue, 14 Sep 2004 22:54:26 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.10) with ESMTP id i8EMtMkn005569
+	for <selinux@tycho.nsa.gov>; Tue, 14 Sep 2004 18:55:22 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id i8EMtLr24916
+	for <selinux@tycho.nsa.gov>; Tue, 14 Sep 2004 18:55:21 -0400
+Subject: [patch] add proc_fs attribute
+From: Colin Walters <walters@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EUxgdZbUSL6lJeuHnsAO"
+Date: Tue, 14 Sep 2004 18:56:43 -0400
+Message-Id: <1095202603.8379.27.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060109030702060409020501
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+
+--=-EUxgdZbUSL6lJeuHnsAO
+Content-Type: multipart/mixed; boundary="=-mQgWRijVq8rED1mw8Ef7"
 
 
+--=-mQgWRijVq8rED1mw8Ef7
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---------------060109030702060409020501
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
+Hi,
 
-diff --exclude-from=exclude -N -u -r nsapolicy/appconfig/media policy-1.17.15/appconfig/media
---- nsapolicy/appconfig/media	1969-12-31 19:00:00.000000000 -0500
-+++ policy-1.17.15/appconfig/media	2004-09-14 11:08:47.000000000 -0400
-@@ -0,0 +1,3 @@
-+cdrom system_u:object_r:removable_device_t
-+floppy system_u:object_r:removable_device_t
-+disk system_u:object_r:fixed_disk_device_t
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/named.te policy-1.17.15/domains/program/unused/named.te
---- nsapolicy/domains/program/unused/named.te	2004-09-14 09:18:10.000000000 -0400
-+++ policy-1.17.15/domains/program/unused/named.te	2004-09-14 16:59:49.090149450 -0400
-@@ -12,10 +12,10 @@
- #
- type rndc_port_t, port_type;
- 
--daemon_domain(named)
-+daemon_domain(named, `, nscd_shmem_domain')
- tmp_domain(named)
- 
--# for /var/run/ndc used in BIND 8
-+# For /var/run/ndc used in BIND 8
- file_type_auto_trans(named_t, var_run_t, named_var_run_t, sock_file)
- 
- # ndc_t is the domain for the ndc program
-@@ -23,6 +23,11 @@
- role sysadm_r types ndc_t;
- role system_r types ndc_t;
- 
-+ifdef(`targeted_policy', `
-+dontaudit ndc_t root_t:file { getattr read };
-+dontaudit ndc_t unlabeled_t:file { getattr read };	
-+')
-+
- can_exec(named_t, named_exec_t)
- allow named_t sbin_t:dir search;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/nscd.te policy-1.17.15/domains/program/unused/nscd.te
---- nsapolicy/domains/program/unused/nscd.te	2004-09-10 16:10:36.000000000 -0400
-+++ policy-1.17.15/domains/program/unused/nscd.te	2004-09-14 16:59:24.541807946 -0400
-@@ -24,6 +24,7 @@
- ifdef(`nscd_all_connect', `
- can_unix_connect(domain, nscd_t)
- allow domain nscd_var_run_t:sock_file rw_file_perms;
-+allow domain nscd_var_run_t:file r_file_perms;
- allow domain { var_run_t var_t }:dir search;
- allow domain nscd_t:nscd { getpwd getgrp gethost };
- dontaudit domain nscd_t:nscd { shmempwd shmemgrp shmemhost };
-@@ -60,3 +61,7 @@
- allow nscd_t shadow_t:file getattr;
- 
- dontaudit nscd_t sysadm_home_dir_t:dir search;
-+#
-+# Handle winbind for samba, Might only be needed for targeted policy
-+#
-+dontaudit nscd_t var_run_t:sock_file rw_file_perms;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ntpd.te policy-1.17.15/domains/program/unused/ntpd.te
---- nsapolicy/domains/program/unused/ntpd.te	2004-09-09 15:36:13.000000000 -0400
-+++ policy-1.17.15/domains/program/unused/ntpd.te	2004-09-14 17:01:58.987097221 -0400
-@@ -8,7 +8,7 @@
- #
- # Rules for the ntpd_t domain.
- #
--daemon_domain(ntpd)
-+daemon_domain(ntpd, `, nscd_shmem_domain')
- type ntp_drift_t, file_type, sysadmfile;
- type ntp_port_t, port_type;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/portmap.te policy-1.17.15/domains/program/unused/portmap.te
---- nsapolicy/domains/program/unused/portmap.te	2004-09-09 15:36:13.000000000 -0400
-+++ policy-1.17.15/domains/program/unused/portmap.te	2004-09-14 16:59:37.482406411 -0400
-@@ -11,7 +11,7 @@
- #
- # Rules for the portmap_t domain.
- #
--daemon_domain(portmap)
-+daemon_domain(portmap, `, nscd_shmem_domain')
- 
- can_network(portmap_t)
- can_ypbind(portmap_t)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/squid.te policy-1.17.15/domains/program/unused/squid.te
---- nsapolicy/domains/program/unused/squid.te	2004-09-09 15:36:13.000000000 -0400
-+++ policy-1.17.15/domains/program/unused/squid.te	2004-09-14 16:54:08.434636776 -0400
-@@ -13,7 +13,7 @@
- can_tcp_connect(squid_t, httpd_t)
- ')
- 
--daemon_domain(squid, `, web_client_domain')
-+daemon_domain(squid, `, web_client_domain, nscd_client_domain')
- type squid_conf_t, file_type, sysadmfile;
- 
- allow { squid_t initrc_t } squid_conf_t:file r_file_perms;
-@@ -66,3 +66,4 @@
- allow squid_t { bin_t sbin_t }:dir search;
- 
- dontaudit squid_t { home_root_t security_t devpts_t }:dir getattr;
-+dontaudit squid_t tty_device_t:chr_file { read write };
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/global_macros.te policy-1.17.15/macros/global_macros.te
---- nsapolicy/macros/global_macros.te	2004-09-10 16:10:36.000000000 -0400
-+++ policy-1.17.15/macros/global_macros.te	2004-09-14 16:54:08.435636665 -0400
-@@ -545,6 +545,7 @@
- # Create/access any file in a labeled filesystem;
- allow $1 file_type:dir_file_class_set *;
- allow $1 sysctl_t:{ dir file } *;
-+allow $1 proc_mdstat_t:file *;
- allow $1 device_type:devfile_class_set *;
- allow $1 mtrr_device_t:file *;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mozilla_macros.te policy-1.17.15/macros/program/mozilla_macros.te
---- nsapolicy/macros/program/mozilla_macros.te	2004-09-09 15:36:12.000000000 -0400
-+++ policy-1.17.15/macros/program/mozilla_macros.te	2004-09-14 16:54:08.436636554 -0400
-@@ -71,6 +71,8 @@
- allow $1_lpr_t $1_mozilla_rw_t:file rw_file_perms;
- ')
- 
-+dontaudit $1_mozilla_t tmp_t:lnk_file read;
-+
- #
- # This is another place where I sould like to allow system customization.
- # We need to allow the admin to select whether then want to allow mozilla
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/ypbind_macros.te policy-1.17.15/macros/program/ypbind_macros.te
---- nsapolicy/macros/program/ypbind_macros.te	2004-09-09 15:36:12.000000000 -0400
-+++ policy-1.17.15/macros/program/ypbind_macros.te	2004-09-14 16:54:08.436636554 -0400
-@@ -10,8 +10,8 @@
- define(`can_ypbind', `
- r_dir_file($1,var_yp_t)
- can_network($1)
-+dontaudit $1 reserved_port_t:{ tcp_socket udp_socket } name_bind;
- allow $1 port_t:{ tcp_socket udp_socket } name_bind;
--allow $1 $1:capability { net_bind_service };
- ') dnl can_ypbind
- ') dnl allow_ypbind
- ') dnl ypbind.te
-diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.17.15/tunables/distro.tun
---- nsapolicy/tunables/distro.tun	2004-09-09 15:36:11.000000000 -0400
-+++ policy-1.17.15/tunables/distro.tun	2004-09-14 16:54:08.437636443 -0400
-@@ -5,7 +5,7 @@
- # appropriate ifdefs.
- 
- 
--dnl define(`distro_redhat')
-+define(`distro_redhat')
- 
- dnl define(`distro_suse')
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.17.15/tunables/tunable.tun
---- nsapolicy/tunables/tunable.tun	2004-09-09 15:36:11.000000000 -0400
-+++ policy-1.17.15/tunables/tunable.tun	2004-09-14 16:54:08.438636332 -0400
-@@ -1,54 +1,51 @@
- # Allow all domains to connect to nscd
--dnl define(`nscd_all_connect')
-+define(`nscd_all_connect')
- 
- # Allow users to control network interfaces (also needs USERCTL=true)
- dnl define(`user_net_control')
- 
- # Allow users to execute the mount command
--dnl define(`user_can_mount')
-+define(`user_can_mount')
- 
- # Allow rpm to run unconfined.
--dnl define(`unlimitedRPM')
-+define(`unlimitedRPM')
- 
- # Allow privileged utilities like hotplug and insmod to run unconfined.
--dnl define(`unlimitedUtils')
-+define(`unlimitedUtils')
- 
- # Support NFS home directories
--dnl define(`nfs_home_dirs')
-+define(`nfs_home_dirs')
- 
- # Allow users to run games
--dnl define(`use_games')
-+define(`use_games')
- 
- # Allow ypbind to run with NIS
--dnl define(`allow_ypbind')
-+define(`allow_ypbind')
- 
- # Allow rc scripts to run unconfined, including any daemon
- # started by an rc script that does not have a domain transition
- # explicitly defined.
--dnl define(`unlimitedRC')
-+define(`unlimitedRC')
- 
- # Allow sysadm_t to directly start daemons
- define(`direct_sysadm_daemon')
- 
- # Do not audit things that we know to be broken but which
- # are not security risks
--dnl define(`hide_broken_symptoms')
-+define(`hide_broken_symptoms')
- 
- # Allow sysadm_t to do almost everything
- dnl define(`unrestricted_admin')
- 
- # Allow the read/write/create on any NFS file system
--dnl define(`nfs_export_all_rw')
--
--# Allow users to unrestricted access
--dnl define(`unlimitedUsers')
-+define(`nfs_export_all_rw')
- 
- # Allow the reading on any NFS file system
- dnl define(`nfs_export_all_ro')
- 
- # Allow user_r to reach sysadm_r via su, sudo, or userhelper.
- # Otherwise, only staff_r can do so.
--dnl define(`user_canbe_sysadm')
-+define(`user_canbe_sysadm')
- 
- # Allow xinetd to run unconfined, including any services it starts
- # that do not have a domain transition explicitly defined.
+The attached patch should fix this denial:
 
---------------060109030702060409020501--
+audit(1095188105.721:0): avc:  denied  { read }
+for  pid=3D2789 exe=3D/sbin/mdadm name=3Dmdstat dev=3Dproc ino=3D-268435080
+scontext=3Duser_u:system_r:unconfined_t
+tcontext=3Dsystem_u:object_r:proc_mdstat_t tclass=3Dfile
+
+
+--=-mQgWRijVq8rED1mw8Ef7
+Content-Disposition: attachment; filename=policy-procfs-unconfined.patch
+Content-Type: text/x-patch; name=policy-procfs-unconfined.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+LS0tIHBvbGljeS0xLjE3LjE1L2F0dHJpYi50ZX4JMjAwNC0wOS0xNCAwOToxODoyNy4wMDAwMDAw
+MDAgLTA0MDANCisrKyBwb2xpY3ktMS4xNy4xNS9hdHRyaWIudGUJMjAwNC0wOS0xNCAxODoyMjow
+NC41ODY2MzA4MTYgLTA0MDANCkBAIC0yMDksNiArMjA5LDEwIEBADQogIyBmaWxlcywgc29ja2V0
+cywgb3IgcGlwZXMgdW5kZXIgL2Rldi4NCiBhdHRyaWJ1dGUgZGV2X2ZzOw0KIA0KKyMgVGhlIHBy
+b2NfZnMgYXR0cmlidXRlIGlkZW50aWZpZXMgYWxsIHR5cGVzIHRoYXQgbWF5IGJlIGFzc2lnbmVk
+IHRvDQorIyBmaWxlcyB1bmRlciAvcHJvYy4NCithdHRyaWJ1dGUgcHJvY19mczsNCisNCiAjIFRo
+ZSBzeXNhZG1maWxlIGF0dHJpYnV0ZSBpZGVudGlmaWVzIGFsbCB0eXBlcyBhc3NpZ25lZCB0byBm
+aWxlcyANCiAjIHRoYXQgc2hvdWxkIGJlIGNvbXBsZXRlbHkgYWNjZXNzaWJsZSB0byBhZG1pbmlz
+dHJhdG9ycy4gIEl0IGlzIHVzZWQNCiAjIGluIFRFIHJ1bGVzIHRvIGdyYW50IHN1Y2ggYWNjZXNz
+IGZvciBhZG1pbmlzdHJhdG9yIGRvbWFpbnMuDQotLS0gcG9saWN5LTEuMTcuMTUvbWFjcm9zL2ds
+b2JhbF9tYWNyb3MudGV+CTIwMDQtMDktMTQgMTg6MTg6MzAuMzU4MTk4NDg4IC0wNDAwDQorKysg
+cG9saWN5LTEuMTcuMTUvbWFjcm9zL2dsb2JhbF9tYWNyb3MudGUJMjAwNC0wOS0xNCAxODoyMzo0
+Mi42MzY3MjQ5MzYgLTA0MDANCkBAIC01NTMsNyArNTUzLDcgQEANCiAjIHBzZXVkbyBmaWxlc3lz
+dGVtIHR5cGVzIHRoYXQgYXJlIGFwcGxpZWQgdG8gYm90aCB0aGUgZmlsZXN5c3RlbQ0KICMgYW5k
+IGl0cyBmaWxlcy4NCiBhbGxvdyAkMSB7IHVubGFiZWxlZF90IGZzX3R5cGUgfTpkaXJfZmlsZV9j
+bGFzc19zZXQgKjsNCi1hbGxvdyAkMSB7IHByb2Nfa21zZ190IHByb2Nfa2NvcmVfdCB9OiBmaWxl
+ICo7DQorYWxsb3cgJDEgeyBwcm9jX2ZzIH06IGZpbGUgKjsNCiANCiAjIEZvciAvcHJvYy9waWQN
+CiByX2Rpcl9maWxlKCQxLGRvbWFpbikNCi0tLSBwb2xpY3ktMS4xNy4xNS90eXBlcy9wcm9jZnMu
+dGV+CTIwMDQtMDktMTQgMDk6MTg6MjcuMDAwMDAwMDAwIC0wNDAwDQorKysgcG9saWN5LTEuMTcu
+MTUvdHlwZXMvcHJvY2ZzLnRlCTIwMDQtMDktMTQgMTg6MjI6NDAuMTQ4MjI0NjMyIC0wNDAwDQpA
+QCAtMTIsMTAgKzEyLDEwIEBADQogIyBwcm9jX2ttc2dfdCBpcyB0aGUgdHlwZSBvZiAvcHJvYy9r
+bXNnLg0KICMgcHJvY19rY29yZV90IGlzIHRoZSB0eXBlIG9mIC9wcm9jL2tjb3JlLg0KICMNCi10
+eXBlIHByb2NfdCwgZnNfdHlwZSwgcm9vdF9kaXJfdHlwZTsNCi10eXBlIHByb2Nfa21zZ190Ow0K
+LXR5cGUgcHJvY19rY29yZV90Ow0KLXR5cGUgcHJvY19tZHN0YXRfdDsNCit0eXBlIHByb2NfdCwg
+ZnNfdHlwZSwgcHJvY19mcywgcm9vdF9kaXJfdHlwZTsNCit0eXBlIHByb2Nfa21zZ190LCBwcm9j
+X2ZzOw0KK3R5cGUgcHJvY19rY29yZV90LCBwcm9jX2ZzOw0KK3R5cGUgcHJvY19tZHN0YXRfdCwg
+cHJvY19mczsNCiANCiAjDQogIyBzeXNjdGxfdCBpcyB0aGUgdHlwZSBvZiAvcHJvYy9zeXMuDQo=
+
+
+--=-mQgWRijVq8rED1mw8Ef7--
+
+--=-EUxgdZbUSL6lJeuHnsAO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBR3cqOIkJWWp2WGURAvw8AJ4hB3BKe26qDULbbWPWkk3aKPoDhQCfUqK9
+C96GUu7Jvt3nSJl/PAi+FpE=
+=DzfQ
+-----END PGP SIGNATURE-----
+
+--=-EUxgdZbUSL6lJeuHnsAO--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
