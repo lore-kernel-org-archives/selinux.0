@@ -1,69 +1,69 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20074
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 09:26:41 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA23611
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 16:44:40 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id OAA16377
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 14:26:05 GMT
-Received: from og.latency.net (og.latency.net [209.123.200.27])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id OAA16373
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 14:26:04 GMT
-Received: from betlap.rahul.net (localhost [127.0.0.1])
-	by og.latency.net (Postfix) with ESMTP id F20A413FB27
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 09:27:32 -0500 (EST)
-Date: Fri, 12 Jan 2001 09:26:50 -0500
-From: Bennett Todd <bet@rahul.net>
-To: selinux@tycho.nsa.gov
-Subject: Open Source IPSec implementations (was Re: Security enhancements, et al)
-Message-ID: <20010112092650.A7355@rahul.net>
-References: <3A5C118F.36583E35@occamnetworks.com> <Pine.LNX.4.21.0101100924010.5905-100000@mail.thesportsregi <5.0.0.25.2.20010111124540.01be6940@gnat.inet.org> <20010112130604.A6705@kuching.hsc.fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="+epxrXWOh++2HLjY"
-In-Reply-To: <20010112130604.A6705@kuching.hsc.fr>; from Jean-Jacques.Bernard@hsc.fr on Fri, Jan 12, 2001 at 01:06:04PM +0100
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA06977
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 21:44:03 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA06973
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 21:44:03 GMT
+Received: from coalstove.epoch.ncsc.mil (coalstove [144.51.25.13])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA14669
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 16:44:38 -0500 (EST)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA23506
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 16:33:28 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA21265
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 21:32:00 GMT
+Received: from sgi.com (sgi.SGI.COM [192.48.153.1])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA21261
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 21:31:59 GMT
+From: "LA Walsh" <law@sgi.com>
+To: "Jesse Pollard" <pollard@tomcat.admin.navo.hpc.mil>,
+        "Stephen Smalley" <sds@tislabs.com>
+Cc: <selinux@tycho.nsa.gov>, <linux-privs-discuss@sourceforge.net>
+Subject: RE: [Linux-privs-discuss] SELinux & Linux-privs projects
+Date: Fri, 12 Jan 2001 13:31:39 -0800
+Message-ID: <NBBBJGOOMDFADJDGDCPHCEBDCKAA.law@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <200101112310.RAA87961@tomcat.admin.navo.hpc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
 
---+epxrXWOh++2HLjY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> That is true for some security policies, not for others. POSIX is/was
+> based on the TSEC description, which is a very black/white model. It
+> does not support a more complex model such as a chinese wall structure.
+---
+	No?  User1 wants to access the Firm-A defense file.  Runs a transition
+program that adds Firm-A to the user's mac-label division list.  Now any
+files or users that are working on Firm-B defense files (which have gone
+through the same transition to mac-label w/division "firm-b" added) are 
+inaccessible to the User1.  User1 is now permanently banned from firm-b
+files by having transitioned into a user with 'firm-a' access.
 
-2001-01-12-07:06:04 Jean-Jacques Bernard-Gundol:
-> RJ Atkinson <rja@inet.org>:
-> > 09:41 10/01/01, Johnathon Day:
-> > >The "Open Source" IPSECs I know of are: NIST (Linux), FreeS/WAN (Linux=
-),
-> > >CISCO (BSD), MIT (BSD) and DOD (BSD).=20
-> >         I don't think there exists an MIT (BSD) IPsec. I think
-> > you meant the "NRL (BSD) IPsec" that happens to be distributed
-> > by MIT as a service to the community, at the request of ARPA,
-> At least two are missing here: the KAME stack for {free,net}bsd and
-> BSD/OS and the openbsd stack. I didn't know CISCO made a ipsec stack
-> for BSD.
+	Seems like that implements perfectly a chinese wall /conflict of
+interest model.  
 
-If we're attempting to enumerate all open source IPSec
-implementations, please let's not forget pipsec,
-<URL:http://www.enst.fr/~beyssac/pipsec/>, for both BSD and Linux.
-I'm especially fond of it, since it seems to be the simplest and
-lightest-weight IPSec implementation I've found so far.
+	To my mind MAC+capabilities + a transitions config file = "domain
+or type enforcement".  I see the transitions file as being fairly easy to
+maintain.  	
 
--Bennett
+	MAC and capabilities are basic building blocks from which you can
+build other security models.
 
---+epxrXWOh++2HLjY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	I'm told you can build MAC and capabilities from DTE with 
+sufficient rules, and perhaps that is so, but it seems that set of rules
+would be considerably more complex than a "transitions" file with which
+to implement DTE or Chinese Wall.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+-l
 
-iD8DBQE6XxQqHZWg9mCTffwRAsG0AJ0dwfbrHENqAmGgv5kB73mfv+b7+gCfRa9y
-k6H6Jd6v4SbhRHXvj9zo9vg=
-=IaMU
------END PGP SIGNATURE-----
 
---+epxrXWOh++2HLjY--
+
 
 --
 You have received this message because you are subscribed to the selinux list.
