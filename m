@@ -1,51 +1,80 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4IEp6Rb002128
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 10:51:06 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4IFDuRb002322
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 11:13:56 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4IEp3AR025017
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 14:51:03 GMT
-Received: from smtp.sws.net.au ([61.95.69.6])
-        by jazzband.ncsc.mil  with ESMTP id i4IEoxHn024900 for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 14:51:03 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Chris Babcock" <cbabcock@luthresearch.com>
-Subject: Re: suggestion to help transition to selinux: dynamic loading of  libselinux
-Date: Wed, 19 May 2004 00:49:45 +1000
-Cc: selinux@tycho.nsa.gov
-References: <OFC9F6DDFC.10588DF6-ONCA256E98.00360A82@lesbell.com.au> <200405190007.35107.russell@coker.com.au> <2613.68.6.187.64.1084889973.squirrel@mxlx1.surveysavvy.com>
-In-Reply-To: <2613.68.6.187.64.1084889973.squirrel@mxlx1.surveysavvy.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200405190049.45870.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id i4IFDrAT026827
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 15:13:54 GMT
+Date: Tue, 18 May 2004 15:11:12 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: list of permissions created by allow2audit: what do i do now?
+Message-ID: <20040518151112.GF24917@lkcl.net>
+References: <20040518104026.GC24333@lkcl.net> <1084884047.28966.59.camel@moss-spartans.epoch.ncsc.mil> <20040518130244.GB24917@lkcl.net> <1084886403.28966.76.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1084886403.28966.76.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 19 May 2004 00:19, "Chris Babcock" <cbabcock@luthresearch.com> wrote:
-> > Until the policy is loaded there are no SE Linux constraints on the
-> > machine
-> > state.  However at that time only init is running so it shouldn't be a
-> > problem.
->
-> The danger involved with replacement of /lib/libselinux.so on an selinux
-> system is pretty obvious, however if the system is operating properly it
-> shouldn't be too much of an issue.
->
-> What I was thinking about was more along the lines of what happens on a
-> system where a vendor distributes selinux enabled utilities (using dlopen
-> as described) but doesn't install the library by default and leaves
-> selinux disabled in kernel.
+On Tue, May 18, 2004 at 09:20:03AM -0400, Stephen Smalley wrote:
+> On Tue, 2004-05-18 at 09:02, Luke Kenneth Casson Leighton wrote:
+> >  given the number of errors i am seeing, and given that they won't
+> >  go away, perhaps there is some breakdown in communication between
+> >  the rules being in the policy.conf file and their application to
+> >  packages.
+> 
+> They aren't applied until you compile that policy.conf via checkpolicy
+> and load the resulting binary policy into the kernel.  make load in the
+> policy directory will do that for you.
+ 
+ okay, yes, done that.
 
-If the vendor in question does not install libselinux then the are designing 
-their system to be only protected by Unix permissions.  To create a file 
-in /lib you have to have UID 0, so again anyone who can install libselinux 
-has already taken over the system.
+> >  for example, should i be doing a make relabel every time i add
+> >  some new rules?
+> 
+> No.  You only have to relabel if you have altered the file contexts
+> configuration in some manner (but note that this is true if you enable
+> additional .te files, as that automatically requires their .fc files).
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+ okay, so i... didn't add anything to file_contexts, i only
+ created a domain/program/localstuff.te and ... hm, well i
+ _did_ create a blank file_contexts/programs/localstuff.fc,
+ so i'm doing a make relabel anyway, just in case.
+
+ as i understand it, the domains define what is allowed, and the
+ file_contexts define if you will... the starting points of those
+ "allowances" [ i know that's clumsily put ].
+
+ e.g. file_contexts/program/xdm.fc has as its first line:
+
+ /usr/bin/[xgkw]dm       -- system_u:object_r:xdm_exec_t
+
+ therefore, the programs gdm, xdm, kdm and wdm all have type xdm_exec_t
+ therefore, according to line 24 of domains/programs/xdm.te, gdm,
+ xdm, kdm and wdm are all allowed to automatically transition from
+ the initialisation context into a new context named xdm_t.
+
+ therefore, the programs gdm, xdm, kdm and wdm are all allowed to do
+ the things that are mentioned as allow xdm_t etc.
+
+ ... so why, if i [appear to be] doing things correctly, do i still
+ get errors, for example, when i have explicitly added:
+
+ allow xdm_xserver_t var_lib_t:file { getattr read };
+
+ okay, just a guess: when you declare an allow, are the relevant
+ permissions added or replaced if there already exists, say,
+ allow xdm_xserver_t var_lib_t:file { read };
+
+ and i then add, in a following line to policy.conf : 
+ allow xdm_xserver_t var_lib_t:file { getattr };
+
+ do i end up with _only_ getattr permissions or do i end up
+ with both read _and_ getattr?
+
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
