@@ -1,52 +1,54 @@
-Message-Id: <200410272039.i9RKdeGl004055@turing-police.cc.vt.edu>
-To: jayendren@hivsa.com
-Cc: "'steven harp'" <steven.harp@adventiumlabs.org>,
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: Limiting the power of can_network, improving the security of strict policy.
+Date: Thu, 28 Oct 2004 21:07:13 +1000
+Cc: jayendren@hivsa.com, "'steven harp'" <steven.harp@adventiumlabs.org>,
    "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: Re: Limiting the power of can_network, improving the security of strict policy. 
-In-Reply-To: Your message of "Wed, 27 Oct 2004 19:27:48 +0200."
-             <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAqur+5IHVuUGKlxy5XOOGrsKAAAAQAAAAtvBgX3z5LkOux3E0aOx0UAEAAAAA@hivsa.com>
-From: Valdis.Kletnieks@vt.edu
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAqur+5IHVuUGKlxy5XOOGrsKAAAAQAAAAtvBgX3z5LkOux3E0aOx0UAEAAAAA@hivsa.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1352188747P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Wed, 27 Oct 2004 16:39:40 -0400
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAqur+5IHVuUGKlxy5XOOGrsKAAAAQAAAAtvBgX3z5LkOux3E0aOx0UAEAAAAA@hivsa.com> <200410272039.i9RKdeGl004055@turing-police.cc.vt.edu>
+In-Reply-To: <200410272039.i9RKdeGl004055@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200410282107.13472.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1352188747P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 28 Oct 2004 06:39, Valdis.Kletnieks@vt.edu wrote:
+> SELinux is about *authorization*, not authentication.  Your best bet for
+> securing authentication is to look at customize PAM modules - SELinux
+> basically assumes that "If PAM allowed this user to login this role, they
+> must be authenticated, so we'll provide authorization appropriate for
+> the user's role".
 
-On Wed, 27 Oct 2004 19:27:48 +0200, Jayendren Anand Maduray said:
+There is a SE Linux related issue in this.  In the future we will be 
+supporting other methods of authentication.  There are useful methods of 
+authentication such as smart-cards which may have similar interfaces to the 
+OS as useless things such as biometrics.
 
-> Are there n e plans to incorporate biometrics as well as VOS (Virtual
-> Operating System) architecture to allow a more secure method of
-> authentication?
+We need to make sure that only certain applications can communicate with the 
+authentication hardware, and the hardware in question may have multiple 
+capabilities (think of a smart-card that authenticates the user and also has 
+a GPG implementation).  So we will probably need a user-space object manager 
+to control access to the security hardware.  Finally we need a trusted path 
+so that a GPG card will only sign things when instructed by the user (not a 
+trojan).
 
-SELinux is about *authorization*, not authentication.  Your best bet for
-securing authentication is to look at customize PAM modules - SELinux
-basically assumes that "If PAM allowed this user to login this role, they
-must be authenticated, so we'll provide authorization appropriate for
-the user's role".
+> Note that biometrics do *not* automagically make it more secure - in
+> particular, they don't do very much at all for securing network access.
+> Improperly used, they make things *worse* (how do you revoke credentials
+> based on an iris scanner, for instance? ;)
 
-Note that biometrics do *not* automagically make it more secure - in
-particular, they don't do very much at all for securing network access.
-Improperly used, they make things *worse* (how do you revoke credentials
-based on an iris scanner, for instance? ;)
+Remove the eye.  ;)
 
---==_Exmh_1352188747P
-Content-Type: application/pgp-signature
+One big disadvantage of biometric systems is the risk of theft.  Having keys 
+or cards stolen is bad, having an eye or a finger stolen is really bad.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBgAeLcC3lWbTT17ARAqa0AKDjtuSmWhudXwwmm5LOVXxSV0G1aQCfV2zo
-fLjyQPzzQnC6ddaBFlFP0vk=
-=pwcM
------END PGP SIGNATURE-----
-
---==_Exmh_1352188747P--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
