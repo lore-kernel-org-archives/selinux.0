@@ -1,57 +1,53 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38DMIRb017420
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 09:22:18 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38DWURb017472
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 09:32:30 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i38DJxUZ012614
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:20:00 GMT
+	by jazzswing.ncsc.mil  with ESMTP id i38DUUUZ013642
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:30:30 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i38DJxmT012611
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:19:59 GMT
-Subject: Policy backward compatibility
+	by jazzswing.ncsc.mil  with ESMTP id i38DUTmT013639
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:30:30 GMT
+Subject: Re: strange labeling problem
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Cc: James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-   Russell Coker <russell@coker.com.au>, selinux-dev@tresys.com
+To: Colin Walters <walters@redhat.com>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1081376404.9215.13.camel@nexus.verbum.private>
+References: <1081376404.9215.13.camel@nexus.verbum.private>
 Content-Type: text/plain
-Message-Id: <1081430495.6379.89.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1081431133.6379.99.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 08 Apr 2004 09:21:35 -0400
+Date: Thu, 08 Apr 2004 09:32:13 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Wed, 2004-04-07 at 18:20, Colin Walters wrote:
+> Hi,
+> 
+> I encountered this issue earlier today.  It had me totally stumped:
+> 
+> root@optimus-prime:/home/walters$ ls -alZ /usr/libexec/gconfd-2
+> -rwxr-xr-x+ root     root     system_u:object_r:gconfd_exec_t  /usr/libexec/gconfd-2
+> walters@optimus-prime:~$ ls -alZ /usr/libexec/gconfd-2
+> ls: /usr/libexec/gconfd-2: Permission denied
+> audit(1081374706.094:0): avc:  denied  { getattr } for  pid=13695 exe=/bin/ls 
+>   path=/usr/libexec/gconfd-2 dev=hda2 ino=683045 scontext=user_u:user_r:user_t 
+>   tcontext=system_u:object_r:unlabeled_t tclass=file
 
-I wanted to raise the issue of policy backward compatibility for general
-discussion, as this has been coming up in private discussions recently
-as new enhancements have been made to SELinux.  When Tresys implemented
-the conditional policy extensions (policy version 16), they included
-compatibility code in the kernel and checkpolicy so that the kernel
-would continue to accept the older policy version and so that
-checkpolicy could continue to generate the older policy version.  James
-Morris generalized this compatibility support and extended it when he
-implemented support for ipv6 node labeling (policy version 17), so that
-the kernel and checkpolicy could handle versions 17-15.  
+This typically means that the type wasn't defined in the policy when the
+inode was last brought in-core.  So ls -Z (or getfilecon or getfattr)
+will continue to report the actual attribute value from the disk, but
+SELinux is handling it as unlabeled_t since it had no definition for the
+type when the inode was brought in-core.
 
-There are at least three other possible enhancements that I know of that
-will require further changes to the binary policy format (split netlink
-classes, automatic user identity transitions, conditional support for
-RBAC rules), plus we need to purge the initial SID and access vector
-definitions at some point of obsolete symbols so that they are
-consistent with the current implementation, which will likely require
-another policy version change as existing initial SID and permission
-values will be affected.
+> I had tried rerunning chcon -t gconfd_exec_t /usr/libexec/gconfd-2
+> several times.  I verified that the stored xattr was correct; i.e. a
+> getfattr -d -m . /usr/libexec/gconfd-2 showed gconfd_exec_t.
 
-The concern is that the backward compatibility code is becoming
-increasingly cumbersome, and providing safe behavior for compatibility
-isn't always straightforward.  This kind of compatibility code also
-seems inconsistent with typical kernel practice.  James has proposed
-dropping the backward compatibility support, and requiring that every
-installed kernel have a suitable binary policy installed, possibly
-encoding the associated kernel release (e.g. output of uname -r) in the
-binary policy pathname (and possibly doing likewise for the checkpolicy
-program?).  
-
-Thoughts?
+chcon likely never called setfilecon at all, since getfilecon would have
+told it that the file already had the right context.  Try setfilecon
+instead.  If it had called setfilecon -> setxattr, then SELinux would
+have updated the inode SID accordingly.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
