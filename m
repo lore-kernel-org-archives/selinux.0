@@ -1,131 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02206
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 14:50:52 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA02735
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 18:49:12 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id SAA02731 for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 18:49:11 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 0AF2C92466
-	for <selinux@tycho.nsa.gov>; Tue, 27 Aug 2002 04:50:48 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 746F9841
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 20:50:40 +0200 (CEST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: netscape & x patches
-Date: Mon, 26 Aug 2002 20:50:40 +0200
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA02516
+	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 15:25:30 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA12137
+	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 19:24:22 GMT
+Received: from web40011.mail.yahoo.com (web40011.mail.yahoo.com [66.218.78.29])
+	by jazzswing.ncsc.mil  with SMTP id TAA12133
+	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 19:24:21 GMT
+Message-ID: <20020826192528.23787.qmail@web40011.mail.yahoo.com>
+Date: Mon, 26 Aug 2002 12:25:28 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: devfs change
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20020826182454.9C15B4E2@lyta.coker.com.au>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_GCSGODFZFN4NA0KEUVQ7"
-Message-Id: <20020826185040.746F9841@lyta.coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---------------Boundary-00=_GCSGODFZFN4NA0KEUVQ7
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+--- Russell Coker <russell@coker.com.au> wrote:
+> I've attached a patch to change devfs_t to device_t everywhere, and make some
+> 
+> other related changes.
+> 
+> Also there's a couple of minor things unrelated to devfs in this because they
+> 
+> were trivial and close to the devfs changes.
+> 
 
-Attached is a file of patches for netscape and xserver.
+Is this patch included in your current policy?
 
-This has some significant changes.  Firstly I removed the 
-$1_netscape_noread_t type because I think it's simply a bad idea and it's 
-obsoleted by my newer work on user_home_dir_t etc.
+Brad
 
-I have netscape being denied all access to $1_home_t, and I have added a new 
-type $1_netscape_ro_t which is for directories and files that are readable by 
-Netscape and for which $1_t has full read-write access.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
-
---------------Boundary-00=_GCSGODFZFN4NA0KEUVQ7
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="netscape.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="netscape.diff"
-
-ZGlmZiAtcnVOIC90bXAvcG9saWN5L21hY3Jvcy9wcm9ncmFtL25ldHNjYXBlX21hY3Jvcy50ZSBw
-b2xpY3kvbWFjcm9zL3Byb2dyYW0vbmV0c2NhcGVfbWFjcm9zLnRlCi0tLSAvdG1wL3BvbGljeS9t
-YWNyb3MvcHJvZ3JhbS9uZXRzY2FwZV9tYWNyb3MudGUJMjAwMi0wOC0yMyAyMDo0NDoyMS4wMDAw
-MDAwMDAgKzAyMDAKKysrIHBvbGljeS9tYWNyb3MvcHJvZ3JhbS9uZXRzY2FwZV9tYWNyb3MudGUJ
-MjAwMi0wOC0yNiAxOTozNzoyMy4wMDAwMDAwMDAgKzAyMDAKQEAgLTM4LDI1ICszOCwxNSBAQAog
-CiAjIEFsbG93IHRoZSB1c2VyIGRvbWFpbiB0byByZWxhYmVsIHRvIG9yIGNyZWF0ZSBmaWxlcyB3
-aXRoIHRoaXMgdHlwZQogIyB0byBwcm92aWRlIHRoZSBkb21haW4gd2l0aCB3cml0ZSBhY2Nlc3Mg
-dG8gcGFydGljdWxhciBmaWxlcy4KLWFsbG93ICQxX3QgJDFfaG9tZV90OnsgZGlyIGZpbGUgbG5r
-X2ZpbGUgfSByZWxhYmVsZnJvbTsKLWFsbG93ICQxX3QgJDFfbmV0c2NhcGVfcndfdDp7IGRpciBm
-aWxlIGxua19maWxlIH0gcmVsYWJlbHRvOworYWxsb3cgJDFfdCAkMV9uZXRzY2FwZV9yd190Onsg
-ZGlyIGZpbGUgbG5rX2ZpbGUgfSB7IHJlbGFiZWxmcm9tIHJlbGFiZWx0byB9OwogYWxsb3cgJDFf
-dCAkMV9uZXRzY2FwZV9yd190OmRpciBjcmVhdGVfZGlyX3Blcm1zOwogYWxsb3cgJDFfdCAkMV9u
-ZXRzY2FwZV9yd190OnsgZmlsZSBsbmtfZmlsZSB9IGNyZWF0ZV9maWxlX3Blcm1zOwogCi0jIEFs
-bG93IHRoZSB1c2VyIGRvbWFpbiB0byByZWxhYmVsIGZpbGVzIHdyaXR0ZW4gYnkgdGhpcyBkb21h
-aW4KLSMgdG8gdGhlIGhvbWUgZGlyZWN0b3J5IHR5cGUsIHNvIHRoYXQgdGhlIHVzZXIgY2FuICJp
-bXBvcnQiCi0jIGRvd25sb2FkZWQgZmlsZXMgZm9yIGdlbmVyYWwgdXNlIGlmIGRlc2lyZWQuCi1h
-bGxvdyAkMV90ICQxX25ldHNjYXBlX3J3X3Q6eyBkaXIgZmlsZSBsbmtfZmlsZSB9IHJlbGFiZWxm
-cm9tOwotYWxsb3cgJDFfdCAkMV9ob21lX3Q6eyBkaXIgZmlsZSBsbmtfZmlsZSB9IHJlbGFiZWx0
-bzsKLQotIyBUeXBlIGZvciBmaWxlcyB0aGF0IGFyZSBub3QgcmVhZGFibGUgYnkgdGhpcyBkb21h
-aW4uCi10eXBlICQxX25ldHNjYXBlX25vcmVhZF90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7Ci0K
-LSMgQWxsb3cgdGhlIHVzZXIgZG9tYWluIHRvIHJlbGFiZWwgdG8gb3IgY3JlYXRlIGZpbGVzIHdp
-dGggdGhpcyB0eXBlCi0jIHRvIG1ha2UgdGhlbSB1bnJlYWRhYmxlIGJ5IHRoaXMgZG9tYWluLgot
-YWxsb3cgJDFfdCAkMV9uZXRzY2FwZV9ub3JlYWRfdDpkaXIgY3JlYXRlX2Rpcl9wZXJtczsKLWFs
-bG93ICQxX3QgJDFfbmV0c2NhcGVfbm9yZWFkX3Q6bm90ZGV2ZmlsZV9jbGFzc19zZXQgY3JlYXRl
-X2ZpbGVfcGVybXM7Ci1hbGxvdyAkMV90ICQxX25ldHNjYXBlX25vcmVhZF90OnsgZGlyIGZpbGUg
-bG5rX2ZpbGUgfSByZWxhYmVsdG87CisjIFR5cGUgZm9yIGZpbGVzIHRoYXQgYXJlIHJlYWQtb25s
-eSBmb3IgdGhpcyBkb21haW4KK3R5cGUgJDFfbmV0c2NhcGVfcm9fdCwgZmlsZV90eXBlLCBzeXNh
-ZG1maWxlOworcl9kaXJfZmlsZSgkMV9uZXRzY2FwZV90LCAkMV9uZXRzY2FwZV9yb190KQorcndf
-ZGlyX2NyZWF0ZV9maWxlKCQxX3QsICQxX25ldHNjYXBlX3JvX3QpCithbGxvdyAkMV90ICQxX25l
-dHNjYXBlX3JvX3Q6eyBkaXIgZmlsZSBsbmtfZmlsZSB9IHsgcmVsYWJlbHRvIHJlbGFiZWxmcm9t
-IH07CiAKICMgQWxsb3cgdGhlIHVzZXIgZG9tYWluIHRvIHNlbmQgYW55IHNpZ25hbCB0byB0aGUg
-bmV0c2NhcGUgcHJvY2Vzcy4KIGFsbG93ICQxX3QgJDFfbmV0c2NhcGVfdDpwcm9jZXNzIHNpZ25h
-bF9wZXJtczsKQEAgLTkzLDkgKzgzLDE3IEBACiAKIGlmZGVmKGB4ZG0udGUnLCBgCiAjIEFsbG93
-IGNvbm5lY3Rpb25zIHRvIFggc2VydmVyIHJ1biBieSBhbiBYIERpc3BsYXkgTWFuYWdlci4KLWFs
-bG93ICQxX25ldHNjYXBlX3QgeGRtX3hzZXJ2ZXJfdG1wX3Q6ZGlyIHJfZGlyX3Blcm1zOwotYWxs
-b3cgJDFfbmV0c2NhcGVfdCB4ZG1feHNlcnZlcl90bXBfdDpzb2NrX2ZpbGUgcndfZmlsZV9wZXJt
-czsKLWNhbl91bml4X2Nvbm5lY3QoJDFfbmV0c2NhcGVfdCwgeGRtX3hzZXJ2ZXJfdCknKQorI2Fs
-bG93ICQxX25ldHNjYXBlX3QgeGRtX3RtcF90OmRpciByX2Rpcl9wZXJtczsKKyNhbGxvdyAkMV9u
-ZXRzY2FwZV90IHhkbV90bXBfdDpzb2NrX2ZpbGUgcndfZmlsZV9wZXJtczsKK2Nhbl91bml4X2Nv
-bm5lY3QoJDFfbmV0c2NhcGVfdCwgeGRtX3hzZXJ2ZXJfdCkKK2FsbG93ICQxX25ldHNjYXBlX3Qg
-eGRtX3hzZXJ2ZXJfdG1wX3Q6ZGlyIHNlYXJjaDsKK2FsbG93ICQxX25ldHNjYXBlX3QgeGRtX3hz
-ZXJ2ZXJfdG1wX3Q6c29ja19maWxlIHsgcmVhZCB3cml0ZSB9OworYWxsb3cgJDFfbmV0c2NhcGVf
-dCB4ZG1fdDpmZCB1c2U7Citkb250YXVkaXQgJDFfbmV0c2NhcGVfdCB4ZG1fdDp0Y3Bfc29ja2V0
-IHsgcmVhZCB3cml0ZSB9OworCisjIGZvciAueHNlc3Npb24tZXJyb3JzCitkb250YXVkaXQgJDFf
-bmV0c2NhcGVfdCAkMV9ob21lX3Q6ZmlsZSB3cml0ZTsKKycpCiAKICMgQWxsb3cgcHJvYmluZyBv
-ZiBuZXR3b3JrIGludGVyZmFjZXMuCiBhbGxvdyAkMV9uZXRzY2FwZV90IGtlcm5lbF90OnN5c3Rl
-bSBuZXRfaW9fY29udHJvbDsKZGlmZiAtcnVOIC90bXAvcG9saWN5L21hY3Jvcy9wcm9ncmFtL3hz
-ZXJ2ZXJfbWFjcm9zLnRlIHBvbGljeS9tYWNyb3MvcHJvZ3JhbS94c2VydmVyX21hY3Jvcy50ZQot
-LS0gL3RtcC9wb2xpY3kvbWFjcm9zL3Byb2dyYW0veHNlcnZlcl9tYWNyb3MudGUJMjAwMi0wOC0y
-MyAyMTowNDoyOS4wMDAwMDAwMDAgKzAyMDAKKysrIHBvbGljeS9tYWNyb3MvcHJvZ3JhbS94c2Vy
-dmVyX21hY3Jvcy50ZQkyMDAyLTA4LTI2IDE4OjU3OjUyLjAwMDAwMDAwMCArMDIwMApAQCAtNDEs
-OSArNDEsOCBAQAogZXZlcnlfZG9tYWluKCQxX3hzZXJ2ZXJfdCkKIAogIyBVc2UgY2FwYWJpbGl0
-aWVzLiAgQWNjZXNzIC9kZXYvbWVtLiAgCi0jIENvbW1lbnRlZCBvdXQgYnkgZGVmYXVsdC4gIFVu
-Y29tbWVudCBpZiB5b3Ugd2FudCB0byBydW4gWC4KLSNhbGxvdyAkMV94c2VydmVyX3QgJDFfeHNl
-cnZlcl90OmNhcGFiaWxpdHkgeyBuZXRfYmluZF9zZXJ2aWNlIHNldHVpZCBzZXRnaWQgY2hvd24g
-ZGFjX292ZXJyaWRlIGZzZXRpZCBzeXNfcmF3aW8gbWtub2Qgc3lzX2FkbWluIHN5c19uaWNlIH07
-Ci0jYWxsb3cgJDFfeHNlcnZlcl90IG1lbW9yeV9kZXZpY2VfdDpjaHJfZmlsZSB7IHJ3X2ZpbGVf
-cGVybXMgZXhlY3V0ZSB9OworYWxsb3cgJDFfeHNlcnZlcl90IHNlbGY6Y2FwYWJpbGl0eSB7IG5l
-dF9iaW5kX3NlcnZpY2Ugc2V0dWlkIHNldGdpZCBjaG93biBkYWNfb3ZlcnJpZGUgZnNldGlkIHN5
-c19yYXdpbyBzeXNfYWRtaW4gc3lzX25pY2UgfTsKK2FsbG93ICQxX3hzZXJ2ZXJfdCBtZW1vcnlf
-ZGV2aWNlX3Q6Y2hyX2ZpbGUgeyByd19maWxlX3Blcm1zIGV4ZWN1dGUgfTsKIAogYWxsb3cgJDFf
-eHNlcnZlcl90IG10cnJfZGV2aWNlX3Q6ZmlsZSByd19maWxlX3Blcm1zOwogYWxsb3cgJDFfeHNl
-cnZlcl90IGFwbV9iaW9zX3Q6Y2hyX2ZpbGUgcndfZmlsZV9wZXJtczsKQEAgLTgyLDggKzgxLDkg
-QEAKIAogIyBBY2Nlc3MgdHR5cy4KIGlmZWxzZSgkMSwgeGRtLCAsIGAKLWFsbG93ICQxX3hzZXJ2
-ZXJfdCAkMV90dHlfZGV2aWNlX3Q6Y2hyX2ZpbGUgeyBzZXRhdHRyIHJ3X2ZpbGVfcGVybXN9Oycp
-Ci1hbGxvdyAkMV94c2VydmVyX3QgdHR5X2RldmljZV90OmNocl9maWxlIHsgc2V0YXR0ciByd19m
-aWxlX3Blcm1zfTsKK2FsbG93ICQxX3hzZXJ2ZXJfdCAkMV90dHlfZGV2aWNlX3Q6Y2hyX2ZpbGUg
-eyBzZXRhdHRyIHJ3X2ZpbGVfcGVybXMgfTsKKycpCithbGxvdyAkMV94c2VydmVyX3QgdHR5X2Rl
-dmljZV90OmNocl9maWxlIHsgc2V0YXR0ciByd19maWxlX3Blcm1zIH07CiAKICMgR2V0IG5ldHdv
-cmsgaW50ZXJmYWNlIGNvbmZpZ3VyYXRpb24uCiBhbGxvdyAkMV94c2VydmVyX3Qga2VybmVsX3Q6
-c3lzdGVtIHsgbmV0X2lvX2NvbnRyb2wgfTsK
-
---------------Boundary-00=_GCSGODFZFN4NA0KEUVQ7--
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
