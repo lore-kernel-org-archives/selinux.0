@@ -1,192 +1,90 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2BH3iDo008809
-	for <selinux@tycho.nsa.gov>; Fri, 11 Mar 2005 12:03:45 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2BGwVP0023877
-	for <selinux@tycho.nsa.gov>; Fri, 11 Mar 2005 16:58:32 GMT
-Date: Fri, 11 Mar 2005 17:07:48 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Policy for giFT p2p
-Message-ID: <20050311170747.GE8481@lkcl.net>
-References: <1110246204.20298.10.camel@cobra.ivg2.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2C2f4Do012006
+	for <selinux@tycho.nsa.gov>; Fri, 11 Mar 2005 21:41:04 -0500 (EST)
+Received: from wproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2C2XHX8001690
+	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 02:33:17 GMT
+Received: by wproxy.gmail.com with SMTP id 71so1826535wra
+        for <selinux@tycho.nsa.gov>; Fri, 11 Mar 2005 18:35:48 -0800 (PST)
+Message-ID: <fa8ec5d805031118353197f745@mail.gmail.com>
+Date: Fri, 11 Mar 2005 21:35:48 -0500
+From: Kodungallur Varma <ramgwu@gmail.com>
+Reply-To: Kodungallur Varma <ramgwu@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: problems using setcon()
+In-Reply-To: <20050309084655.GC5236@thorium.jmh.mhn.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1110246204.20298.10.camel@cobra.ivg2.net>
+Content-Type: text/plain; charset=US-ASCII
+References: <fa8ec5d80503082008161e5619@mail.gmail.com>
+	 <20050309084655.GC5236@thorium.jmh.mhn.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+all,
 
-great!  i also use giftd, with apollon.
+       I came to know that I cant simply cast a string into a security
+identifier as shown below. insted I found out that I have to use
+security_compute_create(). I found a relevant conversation in the
+mailing list:
+----------------------------
+On Tue, 2005-02-15 at 17:53, Luke Kenneth Casson Leighton wrote:
+> on the setcon(), because i happened to be in sshd_privsep_t, and because
+> i happened to be setting the context to user_t, and because it was
+> sshd_exec_t doing the setting, i expect an "automatic" transition
+> to occur to sshd_privsep_user_t.
 
-does it work if the giftd daemon has already been launched?
+That makes no sense.  If you want to compute a derived context to pass
+to the setcon() call, you can use security_compute_create() to get one
+from policy, e.g. see the corresponding logic in rpm_execcon(3) in
+libselinux.
+---------------------------
 
-what happens if i run the giftd daemon manually and _then_
-run say apollon?
+I have absolutely no idea how the security_compute_create() works or
+ho to use it. all I need ot do is to dynamically change context into a
+domain for which the type enforcement policy file has been written.
+the man pages for security_compute_create() has very little
+information on how and where to use it. is there an example of how we
+can use it? also is rpm_execcon(3) relevant in this context.
 
-also remember apollon is one of the gift front-ends.
+any help on this would be great. thank you in advance.
 
-l.
+Ram
 
-On Mon, Mar 07, 2005 at 08:43:20PM -0500, Ivan Gyurdiev wrote:
-> The following makes the giFT peer to peer software work without denials
-> on strict selinux. It is a plugin-based app that lets you connect
-> to various p2p networks at the same time. It is currently not part
-> of Fedora Core (or Extras), but I use it all the time.
+On Wed, 9 Mar 2005 09:46:56 +0100, Thomas Bleher
+<bleher@informatik.uni-muenchen.de> wrote:
+> * Kodungallur Varma <ramgwu@gmail.com> [2005-03-09 05:33]:
+> > Hi all,
+> >
+> >  I am trying to dynamically change the context of my program by
+> > using the setcon() function. I have a simple program that tries to do
+> > that but the setcon() function always returns -1 for the input in the
+> > program.
+> >
+> > #include <stdio.h>
+> > #include <selinux/selinux.h>
+> >
+> > int main()
+> > {
+> >    int i;
+> >    char str[100];
+> >    strcpy(str,"system_u:object_r:libselinux_test_t");
+>                  ^^^^^^^^^^^^^^^^^
+> Your Problem is here. object_r cannot be used for any domains. Further,
+> you can't change users (from user_u to system_u) unless you are
+> specifically authorized.
+> If you use "user_u:user_r:libselinux_test_t" you should be able to get
+> it to work (you'll need some additional permissions as dyntransition is
+> not covered by domain_auto_trans())
 > 
-> Instantiate with this:
-> gift_domains(user)
-> gift_domains(staff)
-> gift_domains(sysadm)
+> HTH,
+> Thomas
 > 
-> Any complaints? 
+> --
+> http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+> GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 > 
-> The .fc file obviously needs to be tuned for rpm distribution - 
-> I believe there are rpm packages of this out there. 
-> If not, maybe I'll write some. 
 > 
-> This is against selinux-policy-strict-sources-1.21.15-6 
-> on Fedora Rawhide. 
-> 
-> -- 
-> Ivan Gyurdiev <ivg2@cornell.edu>
-> Cornell University
-
-> /usr/local/bin/giftd	--	system_u:object_r:giftd_exec_t
-> /usr/local/bin/giftui	-- 	system_u:object_r:gift_exec_t
-> HOME_DIR/\.giFT(/.*)?		system_u:object_r:ROLE_gift_home_t
-
-> #
-> # Macros for giFT
-> #
-> # Author: Ivan Gyurdiev <ivg2@cornell.edu>
-> #
-> # gift_domains(domain_prefix)
-> # declares a domain for giftui and giftd
-> 
-> #########################
-> #  gift_domain(user)    #
-> #########################
-> 
-> define(`gift_domain', `
-> 
-> # Connect to X
-> x_client_domain($1, gift, `')	
-> 
-> # Transition
-> domain_auto_trans($1_t, gift_exec_t, $1_gift_t)
-> can_exec($1_gift_t, gift_exec_t)
-> role $1_r types $1_gift_t;
-> 
-> # Self permissions
-> allow $1_gift_t self:process getsched;
-> 
-> # Home files
-> home_domain($1, gift)
-> 
-> # Fonts, icons
-> r_dir_file($1_gift_t, usr_t)
-> r_dir_file($1_gift_t, fonts_t)
-> 
-> # Launch gift daemon
-> allow $1_gift_t self:process fork;
-> domain_auto_trans($1_gift_t, giftd_exec_t, $1_giftd_t)
-> 
-> # Connect to gift daemon
-> can_network($1_gift_t)
-> 
-> # Read /proc/meminfo
-> allow $1_gift_t proc_t:dir search;
-> allow $1_gift_t proc_t:file { getattr read };
-> 
-> # Tmp/ORBit
-> tmp_domain($1_gift)
-> file_type_auto_trans($1_gift_t, $1_tmp_t, $1_gift_tmp_t)
-> can_unix_connect($1_t, $1_gift_t)
-> can_unix_connect($1_gift_t, $1_t)
-> allow $1_t $1_gift_tmp_t:sock_file write;
-> allow $1_gift_t $1_tmp_t:file { getattr read write lock };
-> allow $1_gift_t $1_tmp_t:sock_file { read write };
-> dontaudit $1_gift_t $1_tmp_t:dir setattr;
-> 
-> # Access random device
-> allow $1_gift_t urandom_device_t:chr_file { read getattr ioctl };
-> 
-> # giftui looks in .icons, .themes, .fonts-cache.
-> dontaudit $1_gift_t $1_home_t:dir { getattr read search };
-> dontaudit $1_gift_t $1_home_t:file { getattr read };
-> 
-> ') dnl gift_domain
-> 
-> ##########################
-> #  giftd_domain(user)    #
-> ##########################
-> 
-> define(`giftd_domain', `
-> 
-> type $1_giftd_t, domain;
-> 
-> # Transition from user type
-> domain_auto_trans($1_t, giftd_exec_t, $1_giftd_t)
-> role $1_r types $1_giftd_t;
-> 
-> # Self permissions, allow fork
-> allow $1_giftd_t self:process { fork signal sigchld setsched };
-> allow $1_giftd_t self:unix_stream_socket create_socket_perms;
-> 
-> read_sysctl($1_giftd_t)
-> read_locale($1_giftd_t)
-> uses_shlib($1_giftd_t)
-> 
-> # Access home domain
-> home_domain_access($1_giftd_t, $1, gift)
-> 	
-> # Allow networking
-> allow $1_giftd_t port_t:tcp_socket name_bind;
-> allow $1_giftd_t port_t:udp_socket name_bind;
-> can_network_server($1_giftd_t)
-> can_network_client($1_giftd_t)
-> 
-> # FIXME: ???
-> dontaudit $1_giftd_t self:udp_socket listen;
-> 
-> # Plugins
-> r_dir_file($1_giftd_t, usr_t)
-> 
-> # Connect to xdm
-> ifdef(`xdm.te', `
-> allow $1_giftd_t xdm_t:fd use;
-> allow $1_giftd_t xdm_t:fifo_file write;
-> ') 
-> 
-> ') dnl giftd_domain
-> 
-> ##########################
-> #  gift_domains(user)    #
-> ##########################
-> 
-> define(`gift_domains', `
-> gift_domain($1)
-> giftd_domain($1)
-> ') dnl gift_domains
-
-> # DESC - giFT file sharing tool
-> #
-> # Author: Ivan Gyurdiev <ivg2@cornell.edu>
-> #
-> 
-> type gift_exec_t, file_type, exec_type, sysadmfile;
-> type giftd_exec_t, file_type, exec_type, sysadmfile;
-> 
-> # Everything else is in macros/gift_macros.te
-
-
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
