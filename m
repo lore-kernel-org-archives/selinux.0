@@ -1,84 +1,83 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA05633
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 08:44:24 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA02743
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:43:45 GMT
-Received: from austin.bmh.com (austin.bmh.com [216.54.77.38])
-	by jazzswing.ncsc.mil  with ESMTP id MAA02739
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:43:44 GMT
-Received: (from root@localhost)
-	by austin.bmh.com (8.11.6/8.11.2) id g6FCfxP09118
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 08:41:59 -0400
-From: Natr Brazell <brazell@bmh.com>
-Message-ID: <63919.137.246.8.231.1026736919.squirrel@austin.bmh.com>
-Date: Mon, 15 Jul 2002 08:41:59 -0400 (EDT)
-Subject: =?iso-8859-1?Q?Re:_revising_the_su_decision?=
-To: tom@lemuria.org
-In-Reply-To: <20020712200607.C26001@lemuria.org>
-References: <20020712200607.C26001@lemuria.org>
-Cc: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA06363
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 10:24:36 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA25759
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 14:23:05 GMT
+Received: from tomcat.admin.navo.hpc.mil (tomcat.admin.navo.hpc.mil [204.222.179.33])
+        by jazzband.ncsc.mil  with ESMTP id OAA25755 for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 14:23:04 GMT
+Date: Mon, 15 Jul 2002 09:24:28 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200207151424.JAA10680@tomcat.admin.navo.hpc.mil>
+To: russell@coker.com.au, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: revising the su decision
+In-Reply-To: <20020712232915.70A7C44D@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a great idea for managing packages on the workstation however your 
-recommendation is a pull instead of a push.  I need something that allows 
-a developer the ability to push a single file or whole new software 
-distribution depending on the needs.  We work with developers on hand to 
-isolate and resolve issues on the fly (R&D remember).  Changes have to be 
-released en mass on the fly.
+Russell Coker <russell@coker.com.au>:
+> On Fri, 12 Jul 2002 17:46, Jesse Pollard wrote:
+> > The separation now means that a root compromise is not all that usefull.
+> >
+> > Consider what happes if a root compromise performs a "su - root". It
+> > currently looks like the compromise would suddenly get whatever role has
+> > been assiged to root.
+> 
+> You are assuming here that root:user_r:user_t can su to any domain without a 
+> password, and that a default su to a domain will get the maximum SE Linux 
+> privs.
+> 
+> The former assumption is not what I had been thinking of, and the latter is a 
+> matter of policy.
 
-Thanks,
-Your suggestion has definate value.  I will use it for managing system 
-related packages.
+I was basing it on the current functionality of "su". Right now, any use of
+su will succeed for root. If additional options (not just "-") are provided
+to establish a different security context, and that context change requires
+a password, then my objections are overcome. The advantage of a different
+option to set security context is that some (like some user support activity)
+want to be able to switch to the users environment (minus the security context).
+This would be accomplished by "su - user". To complete the security context
+too, another option (how about something like "su - -s user") would allow
+switching to user environment context and security context; but requires
+a password (not necessarily the users password but that's a different subject).
 
-Natr  
+It would also allow a "su -s user" to only setup the security context of that
+target user account (good for verifying that the user context is correct).
 
+> I had imagined that the ability to do "su - account" without a password would 
+> depend on both UID=0 and being sysadm_r:sysadm_t.
+> 
+> > The advantage of the newrole is to REQUIRE a password before gaining
+> > sysadm_r.
+> 
+> Yes, but that doesn't stop us from having one program doing both
+> "newrole -r sysadm_r" and "su -" functionality.
 
-> On Fri, Jul 12, 2002 at 01:10:19PM -0400, Natr Brazell wrote:
->> facility I am at even though no one knows anything about selinux
->> expect  how to spell it so I guess I am the expert.  (Haven't got the
->> T-Shirt yet)  but I have got people looking at my configuration as a
->> starting point for  future projects.  Now to my question...
->> 
->> ...  What is this lists proposal for how to manage and push to
->> multiple  machines quickly and securely based on the above comments?
+No it doesn't. Should work fine, with the additional safegards that are
+implicit in the "newrole".
+ 
+> > Now, If you merge the newrole functions into su and remove the automatic
+> > su to itself (ie su root when root still requires a password, AND su to
+> > any account requires a password), then my objections are much weaker.
 > 
-> I'm probably about as much expert as you are (no T-shirt, either) so
-> don't trust me unless someone else says I got it right, but this is
-> what I think would be the right way to do it:
+> How about su to any account without a password gets the same result as such a 
+> su operation now, the source UID must be 0 and the context doesn't change.
 > 
-> a) SELinux basic assumption is not to trust, especially not remote
-> parties. that's a Good Thing(tm).
-> 
-> b) so, what you need is a trusted process ON the machines. ideally,
-> with a policy crafted specifically for it. I'll call this process
-> instwa, the "install watcher". it could be as simple as a cronjob
-> called every 5 minutes that essentially does:
-> 
-> if ( any file in /var/install ) then ( rpm/dpkg/whatever -i $file )
-> 
-> c) give your remote/install user write priviledges for /var/install
-> 
-> d) voila. you can push software unto the machines and the instwa will
-> take care of the installation.
-> 
-> -- 
-> New GPG Key issued (old key expired):
-> http://web.lemuria.org/pubkey.html
-> pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
->      Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A
->      04F5
-> 
-> --
-> You have received this message because you are subscribed to the
-> selinux list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
-> quotes as the message.
+> I think that your disagreement is due to imagining a different way of 
+> implementing it to that which I had imagined.
 
+I was just imagining some of the various attacks using "su" to gain privileges
+or context. I think that any security context change sould always require
+a password, and hence, a real tty structure associated with the "su" process
+for additional audit information (as to who/what is connected to that
+tty/pty).
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 
 --
 You have received this message because you are subscribed to the selinux list.
