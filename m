@@ -1,56 +1,53 @@
-Message-ID: <4078835F.2030801@snu.edu>
-Date: Sat, 10 Apr 2004 18:29:35 -0500
-From: Joshua Brindle <jbrindle@snu.edu>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3B2jrRb002379
+	for <selinux@tycho.nsa.gov>; Sat, 10 Apr 2004 22:45:53 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3B2jqmw005367
+	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 02:45:52 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i3B2je4w005337 for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 02:45:51 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Matthew J. Fanto" <mattjf@uncompiled.com>
+Subject: Re: Logo Artwork for SELinux?
+Date: Sun, 11 Apr 2004 12:44:17 +1000
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
+References: <200404041856.17745.wlsel@verizon.net> <200404102107.06368.russell@coker.com.au> <1081613326.456.11.camel@nemesis>
+In-Reply-To: <1081613326.456.11.camel@nemesis>
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: audio-entropyd policy
-Content-Type: multipart/mixed;
- boundary="------------070507050404070400090708"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200404111244.17434.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070507050404070400090708
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 11 Apr 2004 02:08, "Matthew J. Fanto" <mattjf@uncompiled.com> wrote:
+> I also think a button for is necessary. I don't think Joshua was going
+> for the dutch flag when he designed it, but rather the colors of the US
+> (the red, white and blue).  A flag of the US would not work in the
+> background. I'm don't know how much those of you not living in the US
+> would like such a color scheme though.
 
-audio-entropyd available at http://www.vanheusden.com/aed/ adds entropy 
-from sound devices (after being cleansed and hashed). This is 
-particularly useful on headless servers which don't get any 
-mouse/keyboard related entropy. The policy was written by Chris Pebenito.
+People who live in France, the Netherlands, the UK, Australia, New Zealand, 
+and many other countries are unlikely to complain because they also have the 
+same colors on their flag.
 
-Joshua Brindle
+http://www.photius.com/flags/alphabetic_list.html
 
---------------070507050404070400090708
-Content-Type: text/plain;
- name="audio-entropyd.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audio-entropyd.te"
+>From a quick scan of the flags of the world web page (URL above) it seems that 
+red, white, and blue is one of the most common combinations of colors for a 
+national flag, and may even be THE most common combination.
 
-#DESC audio-entropyd - Generate entropy from audio input
-#
-# Author: Chris PeBenito <pebenito@gentoo.org>
-#
+I suspect that the color choice of the US flag was inspired by the French 
+flag, but according to the history sites I've checked it seems that the 
+origin of the design was lost.
 
-daemon_domain(entropyd)
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-allow entropyd_t self:capability { ipc_lock sys_admin };
-
-allow entropyd_t random_device_t:chr_file rw_file_perms;
-allow entropyd_t device_t:dir r_dir_perms;
-allow entropyd_t sound_device_t:chr_file r_file_perms;
-
---------------070507050404070400090708
-Content-Type: text/plain;
- name="audio-entropyd.fc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audio-entropyd.fc"
-
-/usr/sbin/audio-entropyd	--	system_u:object_r:entropyd_exec_t
-
---------------070507050404070400090708--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
