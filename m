@@ -1,68 +1,125 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4NLMVRb006900
-	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 17:22:32 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4NLMTAR012221
-	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 21:22:29 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4NLiPRb006957
+	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 17:44:25 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4NLfuB2001932
+	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 21:41:56 GMT
 Received: from mailrelay2.lrz-muenchen.de (mailrelay2.lrz-muenchen.de [129.187.254.102])
-        by jazzband.ncsc.mil  with ESMTP id i4NLMSHn012218 for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 21:22:28 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.99.1] [192.168.99.1]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 23 May 2004 23:22:27 +0200
-Date: Sun, 23 May 2004 23:22:12 +0200
+	by jazzswing.ncsc.mil  with ESMTP id i4NLftwi001929
+	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 21:41:55 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.99.1] [192.168.99.1]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 23 May 2004 23:44:20 +0200
+Date: Sun, 23 May 2004 23:44:06 +0200
 From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: policy for suse
-Message-Id: <20040523212212.GA6147@jmh.mhn.de>
+Subject: [patch] policy for nrpe
+Message-Id: <20040523214406.GB6147@jmh.mhn.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Dxnq1zWXvFF0Q93v
+--QRj9sO5tAVLaXnSD
+Content-Type: multipart/mixed; boundary="Yylu36WmvOXNoKYn"
+Content-Disposition: inline
+
+
+--Yylu36WmvOXNoKYn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Per request from Ed Street, I have made my SuSE policy available.
-You can find it in my arch-archive tbleher@gmx.de--selinux,
-branch policy--suse--0.
-Most changes are either in suse.te or enclosed in ifdef(`suse.te', `')
-for now so that it is clear which policy was modified.
+The attached patch adds policy support for nrpe.
+(nrpe stands for Nagios Remote Plugin Execution and is a client called
+=66rom inetd which performs checks on a client on behalf of a Nagios
+server)
 
-Please note that this is not yet in a mergable form, but is published so
-that others can use and improve it. I will post the different changes as
-separate patches to the list.
-
-Short instructions on fetching the policy:
-$ tla register-archive http://www.cip.ifi.lmu.de/~bleher/arch/selinux/
-$ tla get tbleher@gmx.de--selinux/policy--suse--0
-
-To update (ala cvs up):
-$ tla replay
-
-See your local changes:
-$ tla changes --diffs
-
-See changes between fedora and suse-policy:
-$ tla changes --diffs tbleher@gmx.de--selinux/policy--fedora--0
-
-Patches welcome!
-
+Please apply.
 Thomas
-
-PS:
-For more infos on Arch, see http://wiki.gnuarch.org/
-
-Browsable version of the policy:
-http://www.cip.ifi.lmu.de/~bleher/cgi-bin/archzoom.cgi/tbleher%40gmx.de--se=
-linux/policy--suse--0
 
 --=20
 http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
 GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---Dxnq1zWXvFF0Q93v
+--Yylu36WmvOXNoKYn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nrpe.patch"
+
+--- orig/domains/program/unused/nrpe.te	1970-01-01 01:00:00.000000000 +0100
++++ mod/domains/program/unused/nrpe.te	2004-05-23 23:28:33.000000000 +0200
+@@ -0,0 +1,39 @@
++# DESC nrpe - Nagios Remote Plugin Execution
++#
++# Author: Thomas Bleher <ThomasBleher@gmx.de>
++#
++# Depends: tcpd.te
++# X-Debian-Packages: nagios-nrpe-server
++#
++# This policy assumes that nrpe is called from inetd
++
++type nrpe_port_t, port_type;
++
++daemon_base_domain(nrpe)
++domain_auto_trans(tcpd_t, nrpe_exec_t, nrpe_t)
++
++allow nrpe_t urandom_device_t:chr_file { getattr ioctl read };
++
++allow nrpe_t self:fifo_file rw_file_perms;
++# use sockets inherited from inetd
++allow nrpe_t inetd_t:tcp_socket { ioctl read write };
++allow nrpe_t inetd_t:fd { use };
++allow nrpe_t inetd_t:process { sigchld };
++allow nrpe_t devtty_t:chr_file { read write };
++
++allow nrpe_t self:process setpgid;
++
++etc_domain(nrpe)
++
++# permissions for the scripts executed by nrpe
++#
++# call shell programs
++can_exec(nrpe_t, { bin_t shell_exec_t ls_exec_t })
++allow nrpe_t { bin_t sbin_t }:dir search;
++# for /bin/sh
++allow nrpe_t bin_t:lnk_file read;
++
++# read /proc/meminfo, /proc/self/mounts and /etc/mtab
++allow nrpe_t { self proc_t etc_runtime_t }:file { getattr read };
++
++# you will have to add more permissions here, depending on the scripts you call!
+--- orig/file_contexts/program/nrpe.fc	1970-01-01 01:00:00.000000000 +0100
++++ mod/file_contexts/program/nrpe.fc	2004-05-23 23:28:13.000000000 +0200
+@@ -0,0 +1,5 @@
++# nrpe
++/usr/bin/nrpe		--	system_u:object_r:nrpe_exec_t
++/etc/nagios/nrpe.cfg	--	system_u:object_r:nrpe_etc_t
++/usr/lib/netsaint/plugins(/.*)?	--	system_u:object_r:bin_t
++/usr/lib/nagios/plugins(/.*)?	--	system_u:object_r:bin_t
+--- orig/net_contexts
++++ mod/net_contexts
+@@ -142,6 +142,7 @@
+ portcon tcp 5269 system_u:object_r:jabber_interserver_port_t
+ ')
+ ifdef(`postgresql.te', `portcon tcp 5432 system_u:object_r:postgresql_port_t')
++ifdef(`nrpe.te', `portcon tcp 5666 system_u:object_r:nrpe_port_t')
+ ifdef(`use_x_ports', `
+ portcon tcp 6000  system_u:object_r:xserver_port_t
+ portcon tcp 6001  system_u:object_r:xserver_port_t
+--- orig/domains/program/unused/inetd.te
++++ mod/domains/program/inetd.te
+@@ -54,6 +54,7 @@
+ ifdef(`rshd.te', `allow inetd_t rsh_port_t:tcp_socket name_bind;')
+ ifdef(`amanda.te', `allow inetd_t amanda_port_t:tcp_socket name_bind;')
+ ifdef(`swat.te', `allow inetd_t swat_port_t:tcp_socket name_bind;')
++ifdef(`nrpe.te', `allow inetd_t nrpe_port_t:tcp_socket name_bind;')
+ ifdef(`amanda.te', `
+ allow inetd_t biff_port_t:tcp_socket name_bind;
+ allow inetd_t biff_port_t:udp_socket name_bind;
+
+--Yylu36WmvOXNoKYn--
+
+--QRj9sO5tAVLaXnSD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -70,12 +127,12 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAsRYExWIrrrL0q+cRAgFZAJ4+g+yJJfYb7gt78cybagfh0q3smACaArXi
-M3VDahEmyWG59o7/q8CFbag=
-=FHjK
+iD8DBQFAsRsmxWIrrrL0q+cRAjeYAJwL1t73RqGSCW1gSagm7Y7mWvXlggCfdiGo
+J3Ta+CZnscA2gZSLzYMbnoo=
+=Za3A
 -----END PGP SIGNATURE-----
 
---Dxnq1zWXvFF0Q93v--
+--QRj9sO5tAVLaXnSD--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
