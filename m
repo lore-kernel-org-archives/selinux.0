@@ -1,47 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h54AYEI4021399
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 06:34:14 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h54BsgI4021667
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 07:54:42 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h54AXess009965
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 10:33:40 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h54AXchY009962
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 10:33:39 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: postfix rules
-Date: Wed, 4 Jun 2003 20:33:20 +1000
-References: <200306041119.15601.carsten.grohmann@raumbildsysteme.de>
-In-Reply-To: <200306041119.15601.carsten.grohmann@raumbildsysteme.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306042033.20756.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h54Bs8ss013036
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 11:54:08 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h54Bs8hY013033
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 11:54:08 GMT
+Subject: Re: file labels during init process
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200306041048.19435.carsten.grohmann@raumbildsysteme.de>
+References: <200306041048.19435.carsten.grohmann@raumbildsysteme.de>
+Content-Type: text/plain
+Message-Id: <1054727665.2600.9.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 04 Jun 2003 07:54:25 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 4 Jun 2003 19:19, Carsten Grohmann wrote:
-> I would add domain_auto_trans(postfix_master_t,
-> postfix_postqueue_exec_t, postfix_postqueue_t)
-> ,but I'm not sure.
->  What do you thing?
+On Wed, 2003-06-04 at 04:48, Carsten Grohmann wrote:
+> Today I found this log message:
+> avc:  denied  { search } for  pid=1 exe=/sbin/init path=/var/log 
+> dev=03:09 ino=6 scontext=system_u:system_r:init_t 
+> tcontext=system_u:object_r:file_t tclass=dir
+> 
+> I have a problem with this entry. The complete filesystem is labeled 
+> correct. The partition hda7 mounted as /var/log is also labled with 
+> the correct type. Could it be that the init process access the 
+> filesystem before the labels "grasp"?
 
-Adding that policy will solve the apparent problem, I've added it to my tree.
-
-However I am curious as to why this happens on your system but not on mine.  
-I've run many Postfix machines with different versions of Postfix and 
-configurations and not had it run postqueue from postfix_master_t.
-
-I suspect that perhaps your distribution has different scripts for Postfix to 
-run during it's startup phase than in Debian.
+No, I think that this reflects an attempt to access the /var/log mount
+point directory (left in file_t, since it is covered by the mounted
+directory by the time you run setfiles) before the partition has been
+mounted.  If you drop into singleuser mode and unmount /var/log, you can
+label it at that point if you want a particular type on it.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
