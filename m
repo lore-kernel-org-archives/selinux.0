@@ -1,40 +1,31 @@
 Subject: Re: Java Policy
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov
 In-Reply-To: <4203B048.5070607@redhat.com>
 References: <4203B048.5070607@redhat.com>
 Content-Type: text/plain
-Message-Id: <1107538571.8078.98.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 04 Feb 2005 13:02:22 -0500
+Message-Id: <1107540182.408.3.camel@cobra.ivg2.net>
 Mime-Version: 1.0
-Date: Fri, 04 Feb 2005 12:36:11 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-02-04 at 12:26, Daniel J Walsh wrote:
-> This is policy for the java plugin.
-> Do not know if we want user apps that run java to transition.
-> 
-> Will be sending in a big diff later today, but wanted input sooner.
 
-- Neither I nor Tim Fraser wrote this java policy ;)  Looks like there
-is also cruft leftover from the netscape/mozilla policy in there.
+> #  java
+> /usr/java/jre.*/bin/java.+ --	system_u:object_r:java_exec_t
 
-- Might want to make it a general legacy_binary_t domain for use not
-only by java but by other legacy binaries.
+That's not where java is on my computer. Jpackage SRPM installs it in
+/usr/lib/jvm/jre-1.5.0_01-sun/bin/ 
 
-- I think there should also be a transition from the user domains on
-these legacy programs, so that they can be separately confined.
-
-- Not clear that you need to use a boolean in this domain, as the entire
-purpose of it is to deal with binaries that need this access.  Unless we
-can turn it off for other architectures.  But if you are going to use a
-boolean, we definitely want a separate one so that we can allow it to
-these legacy binaries without allowing it to the base user domains.
+and then it's linked through the alternatives system:
+/usr/bin/java -> /etc/alternatives/java -> 
+	/usr/lib/jvm/jre-1.5.0_01-sun/bin/java
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
