@@ -1,136 +1,78 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6N57JHa023766
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 01:07:20 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6NCESHa024767
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 08:14:29 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6N57IDW029005
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 05:07:19 GMT
-Received: from mailrtr1.mailzone.edeltacom.com (mailrtr1.mailzone.edeltacom.com [216.248.176.137])
-        by jazzband.ncsc.mil  with ESMTP id h6N57DeN029002 for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 05:07:18 GMT
-From: "Stephen Reese" <sreese@prcdigital.com>
-To: "'Kerry Thompson'" <kerry@crypt.gen.nz>, selinux@tycho.nsa.gov
-Subject: RE: grub/boot redhat9 problem
-Date: Wed, 23 Jul 2003 01:07:04 -0400
-Message-ID: <000001c350d8$42e0c290$6601a8c0@inspiron>
+	by jazzband.ncsc.mil  with ESMTP id h6NCEODW006115
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 12:14:24 GMT
+Received: from prometheus.epoch.ncsc.mil (prometheus.epoch.ncsc.mil [144.51.25.40])
+        by jazzband.ncsc.mil  with ESMTP id h6NCEOeN006111 for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 12:14:24 GMT
+Received: from prometheus.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6NCENxH014037
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 08:14:23 -0400
+Received: (from jwcart2@localhost)
+	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h6NCENcw014035
+	for selinux@tycho.nsa.gov; Wed, 23 Jul 2003 08:14:23 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6MKpNHa022377
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 16:51:23 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6MKpMDW018240
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:51:22 GMT
+Received: from citation.av8.net ([130.105.12.4])
+        by jazzband.ncsc.mil  with ESMTP id h6MKpLeN018237 for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:51:21 GMT
+Date: Tue, 22 Jul 2003 16:49:12 -0400 (EDT)
+From: Dean Anderson <dean@av8.com>
+To: Russell Coker <russell@coker.com.au>
+cc: Charlie Watts <st_possenti@yahoo.com>, <selinux@tycho.nsa.gov>
+Subject: Re: Linuxfromscratch.org
+In-Reply-To: <200307221606.42540.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.44.0307221644010.21542-100000@vista.av8.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1888.202.27.185.71.1058921880.squirrel@www.crypt.gen.nz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I ran the quickinstall, but I think missed something in the kernel
-configuration. I attempted to copy as many setting as I could from a
-stock functional kernel, but I think I missed a switch...
+if you are looking for integrity, Linuxfromscratch is just the start.
 
------Original Message-----
-From: Kerry Thompson [mailto:kerry@crypt.gen.nz] 
-Sent: Tuesday, July 22, 2003 8:58 PM
-To: sreese@prcdigital.com
-Subject: Re: grub/boot redhat9 problem
+You have to come up with a way to exclude Kerningan-style compiler hacks,
+and similar OS hacks from being inserted into the "clean" source build.
 
+Kernigan, as some will remember, early in Unix days (70s), altered the
+compiler to include a backdoor in login when it compiled login.c, and
+altered the compiler to insert the backdoor-inserter whenever it compiled
+itself.  So even if you recompiled Unix from scratch from clean source,
+you still had a backdoor.  I think even if you retargeted the compiler, it
+still inserted to the apprpropriate backdoor-inserter.  A similar hack can
+be done at the OS level.
 
-Yikes, something's weird. Looks like the ide-disk kernel module isn't
-there. Did you run 'make modules_install' after building the kernel to
-install the kernel modules ?
+		--Dean
 
-Kerry
+On Tue, 22 Jul 2003, Russell Coker wrote:
 
-Stephen Reese said:
-> kmod: failed to exec /sbinmodprobe -s -k ide-disk, errno2
-> VFS: Cannot open root device "hda2" or 03:02
-> Please apend a correct "root" boot option
-> Kernel panic: VFS: Unable to mount root fs on 03:02
+> On Mon, 21 Jul 2003 21:42, Charlie Watts wrote:
+> > I want to make a linux system from scratch. I have never compiled my
+> > own kernel, but I was wondering if i could start with the SE Linux
+> > kernel. I am using the instructions from linuxfromscratch.org to make
+> > the system on my laptop, which is running Mandrake 9, on a i686, 512Mb
+> > ram, and a 1.13 GHz P IV. Ext3 file system. Any advice would be great.
 >
+> I recommend that you compile your own kernel without SE Linux first, and then
+> try using SE Linux after you have had some practise at building your own
+> kernel.  Otherwise if you have a problem you won't know whether it's SE Linux
+> related or just a general kernel build issue.
 >
-> Filesystem            Size  Used Avail Use% Mounted on
-> /dev/hda2              25G  1.8G   22G   8% /
-> /dev/hda1              99M   39M   56M  41% /boot
-> none                  504M     0  504M   0% /dev/shm
->
-> # grub.conf generated by anaconda
-> #
-> # Note that you do not have to rerun grub after making changes to this
-
-> file # NOTICE:  You have a /boot partition.  This means that
-> #          all kernel and initrd paths are relative to /boot/, eg. #
->      root (hd0,0)
-> #          kernel /vmlinuz-version ro root=/dev/hda2
-> #          initrd /initrd-version.img
-> #boot=/dev/hda
-> default=2
-> timeout=10
-> splashimage=(hd0,0)/grub/splash.xpm.gz
-> title Red Hat Linux (2.4.21-selinux)
-> 	root (hd0,0)
-> 	kernel /vmlinuz-2.4.21-selinux ro root=/dev/hda2
-> 	initrd /initrd-2.4.21-selinux.img
-> title Red Hat Linux (2.4.20-19.9)
-> 	root (hd0,0)
-> 	kernel /vmlinuz-2.4.20-19.9 ro root=LABEL=/
-> 	initrd /initrd-2.4.20-19.9.img
-> title Red Hat Linux (2.4.20-19.9smp)
-> 	root (hd0,0)
-> 	kernel /vmlinuz-2.4.20-19.9smp ro root=LABEL=/
-> 	initrd /initrd-2.4.20-19.9smp.img
-> title Red Hat Linux (2.4.20-18.9)
-> 	root (hd0,0)
-> 	kernel /vmlinuz-2.4.20-18.9 ro root=LABEL=/
-> 	initrd /initrd-2.4.20-18.9.img
-> title Red Hat Linux (2.4.20-18.9smp)
-> 	root (hd0,0)
-> 	kernel /vmlinuz-2.4.20-18.9smp ro root=LABEL=/
-> 	initrd /initrd-2.4.20-18.9smp.img
-> title Red Hat Linux (2.4.20-8smp)
-> 	root (hd0,0)
-> 	kernel /vmlinuz-2.4.20-8smp ro root=LABEL=/
-> 	initrd /initrd-2.4.20-8smp.img
-> title Red Hat Linux-up (2.4.20-8)
-> 	root (hd0,0)
-> 	kernel /vmlinuz-2.4.20-8 ro root=LABEL=/
-> 	initrd /initrd-2.4.20-8.img
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-> On Behalf Of Kerry Thompson
-> Sent: Monday, July 21, 2003 10:59 PM
-> To: sreese@prcdigital.com
-> Cc: selinux@tycho.nsa.gov
-> Subject: RE: make quickinstall redhat9 problem
->
->
-> Stephen Reese said:
->> installing tk and tcl was the trick thanks for the help now I get to 
->> figure out where I went wrong with the kernel complile =)
->>
->> VFS: cannot open root device "Label=/"
->
-> Change your bootloader ( /boot/grub/grub.conf for GRUB ) to use 
-> root=/dev/hda1 or wherever your root is rather than using Label=/
->
-> Kerry
+> --
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
 >
 >
 > --
-> Kerry Thompson, CCNA CISSP
-> Information Systems Security Consultant http://www.crypt.gen.nz  
-> kerry@crypt.gen.nz
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 >
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing 
-> list. If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without 
-> quotes as the message.
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing 
-> list. If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without 
-> quotes as the message.
-
-
-
 
 
 --
