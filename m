@@ -1,66 +1,87 @@
-Subject: Re: spasswd.c
+Subject: Re: Re:
 From: kayo <kayo@pyra.ca>
 To: Russell Coker <russell@coker.com.au>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200302162251.40417.russell@coker.com.au>
-References: <DTCOIKAKKNB3NWCMMKNXKJCDHTEAEFP3JRHWOJAF@ziplip.com>
-	 <200302162251.40417.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kBNs+FeFlaQKdBznV3hN"
-Message-Id: <1045507488.3079.5.camel@smeagol>
+In-Reply-To: <200302172106.05892.russell@coker.com.au>
+References: <1045508773.3e5132a538d6e@webmail.crazylinux.net>
+	 <200302172106.05892.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-il9t3zMECZszevrGU0BW"
+Message-Id: <1045513919.3407.13.camel@smeagol>
 Mime-Version: 1.0
-Date: 17 Feb 2003 12:44:48 -0600
+Date: 17 Feb 2003 14:31:59 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-kBNs+FeFlaQKdBznV3hN
+--=-il9t3zMECZszevrGU0BW
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Your little play machine rocks, but in my insomnia one night i will find
-something you havent included in your security model. But damn you cant
-do shit even as root... i would like to see what you did and why and how
-cheers
+wow, so maybe we should try another cpu arch? i dont think it is
+possible in the way we think now but could a group of gifted individuals
+make it possible. let's even say the attacker had no physical access
+think about it... nothing is impossible=20
 
 
 
-
-
-On Sun, 2003-02-16 at 15:51, Russell Coker wrote:
-> On Sun, 16 Feb 2003 22:36, Dusty Hall wrote:
-> >   Thanks for the fix, it worked like a champ.  Although now I'm having
-> > problems compiling disk-utils, specifically raw.c.  The following is th=
-e
-> > error message:
-> >
-> > cc -O -pipe -O2 -m486 -fomit-frame-pointer -I../lib -Wall
-> > -Wmissing-prototypes -Wstrict-prototypes -I/usr/include/ncurses -DNCH=
-=3D0
-> > -I/usr/include/slang -D_FILE_OFFSET_BITS=3D64 -DSBINDIR=3D\"/sbin\"
-> > -DUSRSBINDIR=3D\"/usr/sbin\" -DLOGDIR=3D\"/var/log\" -DVARPATH=3D\"/var=
-\"
-> > -DLOCALEDIR=3D\"/usr/share/locale\"  -s  raw.c   -o raw raw.c:22:
-> > linux/raw.h: No such file or directory
+On Mon, 2003-02-17 at 14:06, Russell Coker wrote:
+> On Mon, 17 Feb 2003 20:06, dlambrou@crazylinux.net wrote:
+> > Kayo you could use the CryptoAPI for linux.www.kerneli.org
+> > I think is into 2.5 now as well.
 >=20
-> It seems that your system doesn't have the latest headers.  Login to my p=
-lay=20
-> machine and copy the headers you need.  The login details are in my SE Li=
-nux=20
-> web site.
+> Yes.  Encrypted block devices on Linux means CryptoAPI.
+>=20
+> > With CryptoAPI though ,if we assume you use the hash of your
+> > passphrase as the symmetric key, noone can guarantee that
+> > a some sort of crypto attack will not reveal the plaindata.
+> > It really depends for how long you data is valuable :-)
+>=20
+> There are some attacks on it.  One involves moving blocks if you get acce=
+ss to=20
+> the hard drive when the machine is off.  Also if you can determine the bl=
+ock=20
+> numbers for some files then you would have a good advantage (getting read=
+=20
+> access to the files lilo puts under /boot would help).
+>=20
+> > Russell said:
+> > "Of course a trojan in a flash BIOS could still get past this, but it w=
+ould
+> > be a lot more difficult.  TCPA is supposed to address these issues (if =
+you
+> > trust TCPA).  Also the LinuxBIOS people are working on similar schemes =
+but
+> > their work in this regard was classified last time I checked their web
+> > site. "
+> >
+> > Russell would you trust TCPA if the core root of trust for measurement
+> > was Open Source ?
+>=20
+> To a certain extent.  However you have to consider that a modern CPU is m=
+uch=20
+> more complex than a complete computer system was 10 years ago.  A second =
+CPU=20
+> with some flash memory could fit inside a modern CPU module.  Flash memor=
+y=20
+> could be detected, but a CPU with a small amount of RAM and ROM might not=
+ be. =20
+> Do you trust Intel?
+>=20
+> OpenCores is an interesting project...
 
---=-kBNs+FeFlaQKdBznV3hN
+--=-il9t3zMECZszevrGU0BW
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQA+US2f+2nlubU9QZIRApNdAJ9Asipa+RiOUE3/Ln7qK9QD4X367gCeOZSp
-Ty0W+J0To/zs0IcN9+qF1do=
-=DLvD
+iD8DBQA+UUa/+2nlubU9QZIRAj0pAJ4lrup8w41hsG42YH+SHN564BSiPACbBf/N
+jhvIFJTASx9dEly1SE2v9LI=
+=CI8p
 -----END PGP SIGNATURE-----
 
---=-kBNs+FeFlaQKdBznV3hN--
+--=-il9t3zMECZszevrGU0BW--
 
 
 --
