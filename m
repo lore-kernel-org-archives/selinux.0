@@ -1,53 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i064pmRb007286
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2004 23:51:48 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i064okxr013663
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 04:50:46 GMT
-Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
-	by jazzswing.ncsc.mil  with ESMTP id i064ojYc013660
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 04:50:45 GMT
-Received: from hawaii.efficax.net (hawaii.efficax.net [127.0.0.1])
-	by hawaii.efficax.net (8.12.10/8.12.10) with ESMTP id i064pkhl000342
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2004 22:51:46 -0600
-Received: (from nick@localhost)
-	by hawaii.efficax.net (8.12.10/8.12.10/Submit) id i064pkNM000340
-	for selinux@tycho.nsa.gov; Mon, 5 Jan 2004 22:51:46 -0600
-Subject: OOPs
-From: Nick <nagray@austin.rr.com>
-Reply-To: nagray@austin.rr.com
-To: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i06Et4Rb009164
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 09:55:04 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i06EsqiV029299
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 14:54:53 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i06Esq06029296 for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 14:54:52 GMT
+Subject: Re: modification of vixie-cron patch to get crond working in
+	permissive mode
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+   Russell Coker <russell@coker.com.au>, Eamon Walsh <ewalsh@epoch.ncsc.mil>
+In-Reply-To: <200401011705.12427.arekm@pld-linux.org>
+References: <200401011705.12427.arekm@pld-linux.org>
 Content-Type: text/plain
-Message-Id: <1073364706.20253.142.camel@hawaii.efficax.net>
+Message-Id: <1073400871.3476.207.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 05 Jan 2004 22:51:46 -0600
+Date: Tue, 06 Jan 2004 09:54:31 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I know, I know, RTFM. I can only claim tired and hungry. And I'm sorry Russel
-I forgot a subject again. I retract my question and goodnight (after a trip to
-Jack in the Box)
+On Thu, 2004-01-01 at 11:05, Arkadiusz Miskiewicz wrote:
+> This patch should be applied after fedora core selinux patch for vixie-cron 
+> (probably the same as on nsa.gov/selinux page).
+> 
+> It changes behaviour when running selinux in permissive mode. Until now when 
+> there were no known context with which jobs should be executed then error 
+> message was logged and crontab file was skipped. Now error message is logged 
+> but jobs are still run.
+> 
+> It's better to have working crond + bunch of log messages instead of not 
+> usable crond.
+> 
+> Please apply + rediff new selinux patch.
 
-Nix
-
-
-I was building Fedora tonight after taking a couple of weeks off and
-during the "rpmbuild --rebuild *.src.rpm" I am getting this error
-
-Any quick ideas?
-
-
-RPM build errors:
-    File not found by glob: /var/tmp/star-1.5a25-root/usr/bin/*star
-    File not found: /var/tmp/star-1.5a25-root/usr/bin/spax
-    File not found by glob:
-/var/tmp/star-1.5a25-root/usr/share/man/man1/star*
+I doubt that we want to fork the error handling on each operation into
+separate cases for enforcing vs. permissive.  The only case where this
+might be reasonable is the entrypoint permission check, since this is
+essentially emulating a kernel check in userspace to deal with the fact
+that crontab files are not directly executed.  In the future, I would
+expect this to be encapsulated in the userspace AVC, so that the
+application code can just call avc_has_perm, and the AVC will internally
+check the enforcing flag and handle it, as in the kernel.
 
 -- 
-Nick (Nix) Gray
-Senior Systems Engineer
-Bruzenak Inc.
-(512) 331-7998
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
