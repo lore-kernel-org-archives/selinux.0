@@ -1,34 +1,40 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA06123
+	for <selinux@tycho.nsa.gov>; Thu, 28 Mar 2002 17:56:18 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA26991
+	for <selinux@tycho.nsa.gov>; Thu, 28 Mar 2002 22:55:13 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id WAA26985 for <selinux@tycho.nsa.gov>; Thu, 28 Mar 2002 22:55:11 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 723B292452
+	for <selinux@tycho.nsa.gov>; Fri, 29 Mar 2002 09:56:12 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 46B53C4C8
+	for <selinux@tycho.nsa.gov>; Thu, 28 Mar 2002 23:56:04 +0100 (CET)
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: "Walker, Jason" <Jason.Walker@csoconline.com>,
-        "'SeLinux@tycho.nsa.gov'" <SeLinux@tycho.nsa.gov>
-Subject: Re: Troubles with 2.4.18 kernel
-Date: Thu, 28 Mar 2002 23:23:54 +0100
-References: <72222DC86846D411ABD300A0C9EB08A106C52D23@csoc-mail-box.csoconline.com>
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A106C52D23@csoc-mail-box.csoconline.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: setfiles - patch
+Date: Thu, 28 Mar 2002 23:56:03 +0100
 MIME-Version: 1.0
-Message-Id: <20020328222355.29056421B8@lyta.coker.com.au>
+Message-Id: <20020328225604.46B53C4C8@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 28 Mar 2002 22:21, Walker, Jason wrote:
-> My VMWare installation is having some problems with the 2.4.18 kernel.
-> Specifically, the IDE CD-ROM drive is causing lockups in the virtual
-> machine.  This is happening with both a 'stock' 2.4.18 kernel and with the
-> SELinux version.
->
-> Problem is, I can't find older releases of LSM/SELinux on the nsa.gov
-> website...where are older releases kept?
+On Thu, 28 Mar 2002 22:47, Russell Coker wrote:
+> I've attached a little patch for setfiles which allows "-" to be specified
+> instead of a file system name to make it read file names from stdin.
 
-http://lsm.immunix.org/
+Just found a minor bug in my code.  I had to add a check such as the 
+following after the strtok() because strtok doesn't do anything if the only 
+character in the string is '\n'!
+if(buf[0] != '\n')
 
-Immunix has had SE Linux included in their patches for several versions now 
-and they have lots of old versions on their site.
-
-I usually take my patches from Immunix instead of the NSA site.  When a new 
-kernel comes out Immunix has a patch long before the NSA.
+This is because programs like dpkg like to append an empty line after the 
+list of files, and adding a "grep ." in the pipeline is too annoying.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
