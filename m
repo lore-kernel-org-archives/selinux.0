@@ -1,91 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FK5ZWt028380
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 16:05:35 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9FK5YmR023559
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 20:05:34 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-        by jazzband.ncsc.mil  with ESMTP id h9FK5Wjp023556 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 20:05:33 GMT
-Message-ID: <3F8D9B39.4060904@ipen.br>
-Date: Wed, 15 Oct 2003 17:08:41 -0200
-From: =?UTF-8?B?Q2FybG9zIEFuw61zaW8gTW9udGVpcm8=?= <monteiro@ipen.br>
-MIME-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FLKNWt028913
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 17:20:25 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9FLKF0p024590
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 21:20:15 GMT
+Received: from extern.mail.waldi.eu.org ([82.139.201.30])
+	by jazzswing.ncsc.mil  with ESMTP id h9FLK8r7024587
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 21:20:14 GMT
+Date: Wed, 15 Oct 2003 23:20:13 +0200
+From: Bastian Blank <bastian+selinux=tycho.nsa.gov@waldi.eu.org>
 To: selinux@tycho.nsa.gov
-CC: =?UTF-8?B?Q2FybG9zIEFuw61zaW8gTW9udGVpcm8=?= <monteiro@ipen.br>
-Subject: Re: enforce mode problems
-References: <3F8D2B57.2080807@ipen.br> <1066242001.7399.87.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/alternative;
- boundary="------------080106050905060903020806"
+Subject: Re: avc_toggle and avc_enforcing
+Message-ID: <20031015212013.GA27905@wavehammer.waldi.eu.org>
+References: <3F8BE8E5.9050006@ipen.br> <1066145242.5054.213.camel@moss-spartans.epoch.ncsc.mil> <2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, Oct 15, 2003 at 10:21:48AM +1300, Kerry Thompson wrote:
+> - initrd now mandatory
 
---------------080106050905060903020806
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+i hope you know, that initrd support is not available on some
+architectures?
+it may be better to rename /sbin/init to /sbin/init.real (yes, some
+packaging system supports that) and use a script as /sbin/init. this
+script loads the policy and executes the real init.
 
-Stephen Smalley wrote:
+bastian
 
->You need to address the avc messages before switching into enforcing
->mode.  From the sound of it, you still haven't labeled your
->filesystems.  Did you run 'make relabel' to completion?  What does ls -Z
->/sbin/init show?
->
->  
->
-1) Yes, 'make relabel' to completion. I think that all filesystem  is 
-labeled, except /selinux and /proc directories.
-
-2) ls -Z /sbin/init
-    invalid option.
-
-obs.:
-ls --context /sbin/init
--rwxr-xr-x  root     root     system_u:object_r:init_exec_t    /sbin/init
-
-Regards.
-
-
-
---------------080106050905060903020806
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <title></title>
-</head>
-<body>
-Stephen Smalley wrote:<br>
-<blockquote type="cite"
- cite="mid1066242001.7399.87.camel@moss-spartans.epoch.ncsc.mil">
-  <pre wrap=""></pre>
-  <pre wrap=""><!---->You need to address the avc messages before switching into enforcing
-mode.  From the sound of it, you still haven't labeled your
-filesystems.  Did you run 'make relabel' to completion?  What does ls -Z
-/sbin/init show?
-
-  </pre>
-</blockquote>
-1) Yes, 'make relabel' to completion. I think that all filesystem  is labeled,
-except /selinux and /proc directories.<br>
-<br>
-2) ls -Z /sbin/init <br>
-    invalid option.<br>
-<br>
-obs.:<br>
-ls --context /sbin/init<br>
--rwxr-xr-x  root     root     system_u:object_r:init_exec_t    /sbin/init<br>
-<br>
-Regards.<br>
-<br>
-<br>
-</body>
-</html>
-
---------------080106050905060903020806--
-
+-- 
+You can't evaluate a man by logic alone.
+		-- McCoy, "I, Mudd", stardate 4513.3
 
 --
 This message was distributed to subscribers of the selinux mailing list.
