@@ -1,123 +1,46 @@
-Message-ID: <420BD7E6.4000208@redhat.com>
-Date: Thu, 10 Feb 2005 16:53:42 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1AM1oL9015053
+	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 17:01:51 -0500 (EST)
+Message-ID: <420BD99C.8050508@redhat.com>
+Date: Thu, 10 Feb 2005 17:01:00 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: libselinux patch to add file_context.homedirs and remove potential
- memory and fd leaks.
-Content-Type: multipart/mixed;
- boundary="------------010107030209040807070208"
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: SE Linux <selinux@tycho.nsa.gov>, Nalin Dahyabhai <nalin@redhat.com>
+Subject: Re: Rewrite of genhomedircon
+References: <420BC588.4@redhat.com> <1108071785.22172.270.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1108071785.22172.270.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010107030209040807070208
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Stephen Smalley wrote:
 
+>On Thu, 2005-02-10 at 15:35, Daniel J Walsh wrote:
+>  
+>
+>>genhomedircon will generate only one HOME_ROOT based off the location in 
+>>the /etc/default/useradd.
+>>    
+>>
+>
+>Is this limitation (to a single HOME_ROOT) going to be a problem in
+>practice?
+>
+>  
+>
+It is causing problems in other unexpected ways.  We are seeing 
+potential conflicts
+where a user account gets created say on /var/ and now we end up with 
+/var being labeled
+home_root_t.  The reason for having home_root_t is so that directories 
+that get created under
+it will automatically get created with the correct context.  We have 
+also seen conflicts where
+users create some directories in /home and /home/devel where they could 
+conflict. 
 
-
---------------010107030209040807070208
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/matchpathcon.c libselinux-1.21.9/src/matchpathcon.c
---- nsalibselinux/src/matchpathcon.c	2005-01-31 13:50:18.000000000 -0500
-+++ libselinux-1.21.9/src/matchpathcon.c	2005-02-10 16:51:59.000000000 -0500
-@@ -519,10 +519,13 @@
- {
- 	FILE *fp;
- 	FILE *localfp;
-+	FILE *homedirfp;
- 	char local_path[PATH_MAX + 1];
-+	char homedir_path[PATH_MAX + 1];
- 	char line_buf[BUFSIZ + 1];
- 	unsigned int lineno, pass, i, j, maxnspec;
- 	spec_t *spec_copy;
-+	int status=-1;
- 
- 	/* Open the specification file. */
- 	if (!path)
-@@ -530,6 +533,9 @@
- 	if ((fp = fopen(path, "r")) == NULL)
- 		return -1;
- 
-+	snprintf(homedir_path, sizeof(homedir_path), "%s.homedirs", path);
-+	homedirfp = fopen(homedir_path, "r");
-+
- 	snprintf(local_path, sizeof(local_path), "%s.local", path);
- 	localfp = fopen(local_path, "r");
- 
-@@ -547,33 +553,41 @@
- 		nspec = 0;
- 		while (fgets_unlocked(line_buf, sizeof line_buf, fp) && nspec < maxnspec) {
- 			if (process_line(path, line_buf, pass, ++lineno) != 0)
--				return -1;
-+				goto finish;
- 		}
-+		if (homedirfp) 
-+			while (fgets_unlocked(line_buf, sizeof line_buf, homedirfp) && nspec < maxnspec) {
-+				if (process_line(homedir_path, line_buf, pass, ++lineno) != 0)
-+					goto finish;
-+			}
-+
-+
- 		if (localfp) 
- 			while (fgets_unlocked(line_buf, sizeof line_buf, localfp) && nspec < maxnspec) {
- 				if (process_line(local_path, line_buf, pass, ++lineno) != 0)
--					return -1;
-+					goto finish;
- 			}
- 
- 		if (pass == 0) {
--			if (nspec == 0)
--				return 0;
-+			if (nspec == 0) {
-+				status = 0;
-+				goto finish;
-+			}
- 			if ((spec_arr = malloc(sizeof(spec_t) * nspec)) ==
- 			    NULL)
--				return -1;
-+				goto finish;
- 			memset(spec_arr, '\0', sizeof(spec_t) * nspec);
- 			maxnspec = nspec;
- 			rewind(fp);
-+			if (homedirfp) rewind(homedirfp);
- 			if (localfp) rewind(localfp);
- 		}
- 	}
--	fclose(fp);
--	if (localfp) fclose(localfp);
- 
- 	/* Move exact pathname specifications to the end. */
- 	spec_copy = malloc(sizeof(spec_t) * nspec);
- 	if (!spec_copy)
--		return -1;
-+		goto finish;
- 	j = 0;
- 	for (i = 0; i < nspec; i++) {
- 		if (spec_arr[i].hasMetaChars)
-@@ -588,7 +602,13 @@
- 
- 	nodups_specs(path);
- 
--	return 0;
-+	status = 0;
-+ finish:
-+	fclose(fp);
-+	if (spec_arr != spec_copy) free(spec_arr);
-+	if (homedirfp) fclose(homedirfp);
-+	if (localfp) fclose(localfp);
-+	return status;
- }
- hidden_def(matchpathcon_init)
- 
-
---------------010107030209040807070208--
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
