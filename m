@@ -1,64 +1,62 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA12400
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 15:17:05 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA11316
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 19:16:59 GMT
-Received: from mail.aimster.com ([64.124.173.11])
-	by jazzband.ncsc.mil  with ESMTP id TAA11312
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 19:16:58 GMT
-Received: from Cassius (cm-24-29-57-207.nycap.rr.com [24.29.57.207])
-	by mail.aimster.com (8.11.0/8.11.0) with SMTP id f58JBiA31570
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 15:11:44 -0400
-Message-ID: <003601c0f04f$a3166390$cf391d18@darkbritannia.com>
-From: "Frank Zecca" <frank@aimster.com>
-To: <selinux@tycho.nsa.gov>
-Subject: setting up selinux
-Date: Fri, 8 Jun 2001 15:16:13 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA12469
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 15:23:28 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA01207
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 19:23:05 GMT
+Received: from smtp5.andrew.cmu.edu (SMTP5.ANDREW.CMU.EDU [128.2.10.85])
+	by jazzswing.ncsc.mil  with ESMTP id TAA01203
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 19:23:05 GMT
+Date: Fri, 8 Jun 2001 15:23:26 -0400 (EDT)
+From: Zachary Uram <zu22@andrew.cmu.edu>
+To: Jonathan Day <jd9812@my-deja.com>
+cc: selinux@tycho.nsa.gov
+Subject: RE: hello?
+In-Reply-To: <200106081503.IAA15302@mail22.bigmailbox.com>
+Message-ID: <Pine.GSO.4.21L.0106081520000.5848-100000@unix7.andrew.cmu.edu>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0029_01C0F02D.F4AA2600"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Fri, 8 Jun 2001, Jonathan Day wrote:
+> 
+> Second, selinux and OpenBSD aim for security in two orthogonal ways. (ie: They don't interact at all.) SELinux aims for security through setting up quantifiable boundaries on resources. Nothing goes in or out, without explicit permission. Thus, if a program is compromised, the impact of that is going to be much smaller than it would be, otherwise.
 
-------=_NextPart_000_0029_01C0F02D.F4AA2600
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Hi Jonathan,
 
-Ok I'm a little lost on this... it tells me to edit security policies, =
-but my question is where? The installation guide on nsa.gov is a little =
-hard to follow :)  I've compiled the kernel OK but this first step seems =
-to have thrown the whole thing off.=20
+Oh I see.
 
-Frank
+> OpenBSD is an exercise in phenominal auditing. I think they've found one, maybe two, potential security problems in the pasy year. It is also a hotbed of encryption. Their IPSec implementation is extremely good, for example, and OpenSSH is one of the best SSH clones going.
 
-------=_NextPart_000_0029_01C0F02D.F4AA2600
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Auditing is software verification & validation testing? How do
+they find the bugs in the code?
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META content=3D"text/html; charset=3Diso-8859-1" =
-http-equiv=3DContent-Type>
-<META content=3D"MSHTML 5.00.2920.0" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>Ok I'm a little lost on this... it =
-tells me to edit=20
-security policies, but my question is where? The installation guide on =
-nsa.gov=20
-is a little hard to follow :)&nbsp; I've compiled the kernel OK but this =
-first=20
-step seems to have thrown the whole thing off. </FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Frank</FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_0029_01C0F02D.F4AA2600--
+> As for which is better, it depends on which track suits your needs the best. Personally, I suspect that when the Stanford Checker is released onto the world, the wholesale auditing of Linux, the various extensions, and every package ever written for it, will become an industry of its own.
+
+What is Stanford Checker? Can I download it for free? What is
+website? Is it like the weblint of Linux security?
+
+> The other thing you need to consider is that SELinux, as it stands, isn't designed to work with MOSIX, yet MOSIX seems (from the publicity) to be destined for the kernel. This means that SELinux is going to need some degree of extending and bashing to get it to work with a distributed environment.
+
+MOSIX is to Linux as POSIX is to UNIX? Does MOSIX have website?
+
+> I've never tried SELinux with Debian, but it should run just fine. It's not distribution-specific.
+
+Cool.
+Thanks.
+
+I want to start installing different secure OSes on my machines
+and then try break in and examine my logs to learn.
+
+SDG,
+Zach
+
+
+uram@cmu.edu
+"Blessed are those who have not seen and yet have faith." - John 20:29
+
 
 
 --
