@@ -1,35 +1,31 @@
-Message-ID: <3F4A1B8E.9070901@tresys.com>
-Date: Mon, 25 Aug 2003 10:22:06 -0400
-From: David Caplan <dac@tresys.com>
-MIME-Version: 1.0
-To: =?ISO-8859-2?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: questions
-References: <1061676714.1648.281.camel@kusturica>
-In-Reply-To: <1061676714.1648.281.camel@kusturica>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Subject: warning and question: e2fsck
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 25 Aug 2003 16:29:08 +0200
+Message-Id: <1061821751.1665.700.camel@kusturica>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi!
 
+Kernel: 2.6.0-test3
+relevant configs: ext2 and ext3 support, support with selinux extended
+attributes
 
-Magosányi Árpád wrote:
-> 
-> -What tools and techniques exist for analysing the policy?
->  For example how can I list domains besides using grep and friends
->  on the policy file?
+I have made a make relabel.
+After the next reboot, fsck have complained that the extended attribute
+is not okay. 
+I have made an e2fsck.
+It seems that most of my files have been deleted due to it.
+e2fsck is from debian sarge
 
-You can check out our tools (http://www.tresys.com/setools), 
-specifically apol for policy analysis.  Apol has many features which can 
-help you break down the policy components as well as search through the 
-rules with filters on object types/classes/permissions/attributes/etc.
+And the question:
+How can I avoid it next time besides not fscking?
 
-David
-
-___________________________
-David Caplan
-Tresys Technology, LLC.
-dac@tresys.com
+-- 
+GNU GPL: csak tiszta forrásból
 
 
 --
