@@ -1,139 +1,68 @@
-Subject: Re: writing rules to disallow a domain to read particular files
-From: Jaspreet Singh <jsingh@ensim.com>
-Reply-To: jsingh@ensim.com
-To: Colin Walters <walters@verbum.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-   lkcl@lkcl.net
-Cc: nsa <SELinux@tycho.nsa.gov>
-In-Reply-To: <1098030922.15741.20.camel@x-infinity.verbum.private>
-References: <1097940101.2569.5.camel@jsingh.india.ensim.com>
-	 <1097948413.3872.3.camel@x-infinity.verbum.private>
-	 <1098017660.2740.33.camel@jsingh.india.ensim.com>
-	 <1098030922.15741.20.camel@x-infinity.verbum.private>
-Content-Type: text/plain
-Message-Id: <1098092475.6415.10.camel@jsingh.india.ensim.com>
-Mime-Version: 1.0
-Date: Mon, 18 Oct 2004 15:11:16 +0530
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9ICeqrT020391
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 08:40:52 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9ICdPG3024746
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 12:39:37 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id AE3E761AFB
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 22:40:37 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 27939-02 for <selinux@tycho.nsa.gov>;
+	Mon, 18 Oct 2004 22:40:37 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 1798661AF7
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 22:40:37 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 34595B5ACE
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 22:40:32 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: squid policy
+Date: Mon, 18 Oct 2004 22:40:31 +1000
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_/m7cBZmWyhsvpMe"
+Message-Id: <200410182240.31688.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--Boundary-00=_/m7cBZmWyhsvpMe
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Hi,
+The attached policy patch is needed for new versions of squid.
 
-could you please explain me how are booleans handled in selinux targeted
-policies.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-eg. a grep on booleans like -
+--Boundary-00=_/m7cBZmWyhsvpMe
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
-"read_default_t" , "snmpd_disable_trans" etc ...
+--- /usr/src/se/policy/file_contexts/program/squid.fc	2004-06-17 15:10:44.000000000 +1000
++++ file_contexts/program/squid.fc	2004-10-18 22:39:51.000000000 +1000
+@@ -3,6 +3,6 @@
+ /var/cache/squid(/.*)?		system_u:object_r:squid_cache_t
+ /var/spool/squid(/.*)?		system_u:object_r:squid_cache_t
+ /var/log/squid(/.*)?		system_u:object_r:squid_log_t
+-/etc/squid\.conf	--	system_u:object_r:squid_conf_t
++/etc/squid(/.*)?		system_u:object_r:squid_conf_t
+ /var/run/squid\.pid	--	system_u:object_r:squid_var_run_t
+ /usr/share/squid(/.*)?		system_u:object_r:squid_conf_t
 
-relieved that their declaration exists in policy.conf file.
-
-I have changed some rules in policy and having a tough time compiling
-due to -
-
-:ERROR 'unknown boolean user_direct_mouse in conditional expression' at
-token 'user_direct_mouse' on line 4862:
-
-any clues ??
-
-Jaspreet
-
-
-
-On Sun, 2004-10-17 at 22:05, Colin Walters wrote:
-> On Sun, 2004-10-17 at 18:24 +0530, Jaspreet Singh wrote:
-> 
-> > The higher goal is to support (site) virtualization e.g.
-> > 
-> > apart from /home/users I want to have /home/virtual/siteNum/home/users
-> > 
-> > and now based on the access writes of users of a particular site I want
-> > them to access services like apache. so that apache cant access
-> > /home/virtual/siteNum/home/users/public_html/files.html
-> 
-> I think I see.  Ok.  There are two broad approaches.  First is to go
-> with full_user_role for each user.  Let's say that you have three users:
-> jaspreet, bob, and manoj.  You have three sites: foocom, barcom, bazcom.
-> You want jaspreet to have control over foocom and barcom, bob to control
-> barcom, and manoj to control foocom and bazcom.
-> 
-> macros/program/apache_macros.te:
-> define(`httpd_virtual_subdomain',`
-> type httpd_$1_content_t, file_type, sysadmfile;
-> r_dir_file(httpd_t, httpd_$1_content_t)
-> # Also may want to define types for CGI scripts, etc here
-> ')
-> 
-> define(`user_virtual_access',`
-> rw_dir_create_file($1, httpd_$2_content_t)
-> allow $1_t httpd_$2_content_t:{ file lnk_file } { relablelfrom relabelto };
-> ')
-> 
-> domains/misc/local.te:
-> full_user_role(jaspreet)
-> full_user_role(bob)
-> full_user_role(manoj)
-> httpd_virtual_subdomain(foocom)
-> httpd_virtual_subdomain(barcom)
-> httpd_virtual_subdomain(bazcom)
-> user_virtual_access(jaspreet_t, foocom)
-> user_virtual_access(jaspreet_t, barcom)
-> user_virtual_access(bob_t, barcom)
-> user_virtual_access(manoj_t, foocom)
-> user_virtual_access(manoj_t, bazcom)
-> 
-> users.te:
-> 
-> user jaspreet roles { jaspreet_t };
-> user bob roles { bob_t };
-> user manoj roles { manoj_t };
-> 
-> That should do the trick.
-> 
-> > But, this would be computationally more complex to something like a role
-> > based approach.
-> 
-> Right, so the second approach would be:
-> 
-> domains/misc/local.te:
-> full_user_role(foocom_webmaster)
-> full_user_role(barcom_webmaster)
-> full_user_role(bazcom_webmaster)
-> 
-> users.te:
-> 
-> user jaspreet roles { foocom_webmaster_t barcom_webmaster_t };
-> user bob roles { barcom_webmaster_t };
-> user manoj roles { foocom_webmaster_t bazcom_webmaster_t };
-> 
-> This is a lot simpler from the policy side, but your users will have to
-> be aware of newrole.
-> 
-> > Now, I know only login method can assign roles , so what about the
-> > non-login sessions ???
-> 
-> You can use newrole to change between allowed roles, for example:
-> $ id
-> uid=500(jaspreet) gid=500(jaspreet) groups=500(jaspreet) context=jaspreet_u:foocom_webmaster_r:foocom_webmaster_t
-> $ $EDITOR /home/virtual/foocom/jaspreet/hi.html
-> $ newrole -r barcom_webmaster_t
-> Password for jaspreet: xxxxx
-> $ id
-> uid=500(jaspreet) gid=500(jaspreet) groups=500(jaspreet) context=jaspreet_u:barcom_webmaster_r:foocom_webmaster_t
-> $ $EDITOR /home/virtual/barcom/jaspreet/hi.html
-> 
-> > and one more thing which came to my mind was (may be irrelevent to the
-> > context) ... What if I "mount  --bind" contents of a directory to
-> > multiple places and give different file tags to the different mount
-> > points .. will the selinux system work properly in this scenario ( coz
-> > it wont in case of LIDS which rely upon ACLs)
-> 
-> During initial file labeling, SELinux ignores bind mounts.  Because it
-> labels the actual inodes instead of attempting to use runtime pathname-
-> based access, it doesn't matter if a program traverses to an inode via a
-> bind mount, it still has the same label.
-> 
-
+--Boundary-00=_/m7cBZmWyhsvpMe--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
