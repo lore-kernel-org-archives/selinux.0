@@ -1,121 +1,34 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SL6drT014425
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 17:06:39 -0400 (EDT)
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SL68Vb020555
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 21:06:09 GMT
-Subject: Re: SeLinux packages compiled smoothly on ppc (after some help ..)
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Cc: russell@coker.com.au
-Content-Type: text/plain
-Message-Id: <1091048795.19088.100.camel@debby>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SMO9rT014754
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 18:24:09 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SMO3Xs017821
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 22:24:07 GMT
+Subject: SSH needs to signal itself
+From: Erich Schubert <erich@debian.org>
+To: selinux@tycho.nsa.gov, russell@coker.com.au
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 29 Jul 2004 00:23:53 +0200
+Message-Id: <1091053433.30708.0.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Date: Wed, 28 Jul 2004 23:06:35 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry I have to paste  below the content from the archives - By a stupid
-accident ("rm -rf *" in the wrong directory: I did this dozens of times
-the last 2 days: This time in the wrong dir :) I lost all my mails ... I
-had to let nsa Majordomo send me the archives of the messages from the
-last few days.
+Hi,
+I had stuck ssh processes (stuck in the pam phase) with wrong usernames.
+Apparently ssh tried to signal itself to shut down the connection which
+was blocked by SElinux until i added the rule
+  allow sshd_t sshd_t:process signal;
 
-Here's Russell Cokers archived message that I will answer  below (I hope
-I didn't destroy the correct formatting of Russell's message):
-
-######################################################
-On Wed, 28 Jul 2004 08:36, Wolfgang Pfeiffer <roto@gmx.net> wrote:
-> dpkg_1.10.22_powerpc.deb
-> ssh_3.8.1p1-7_powerpc.deb
-
-Looks like you got the wrong version of these two.
-
-> fakeroot apt-get source --compile dpkg=1.10.22-se1
->
-> works not with 2.95, but with 3.4.
-> The build with 2.95 ended with:
-> ______________________________________
-> checking for initscr in -lncurses... yes
-> checking if TIOCNOTTY is defined in sys/ioctl.h... yes
-> checking for va_copy... no
-> checking for va_list assignment copy... configure: error: no
-> make: *** [/home/shorty/testone/dpkg-1.10.22/build/configure-stamp] Error 1
-> Build command 'cd dpkg-1.10.22 && dpkg-buildpackage -b -uc' failed.
-> E: Child process failed
-> ______________________________________
-
-File a FTBFS bug against dpkg in the Debian BTS.
-
-
-> And this:
-> I patched the openssh sources only with the openssh-selinux.patch.gz
-> and *not* with the
-> ssh.diff.gz
-> that can be found in the same directory on
-> http://www.coker.com.au/newselinux/
-
-Then you need to run "autoconf" before building it, otherwise you don't get SE 
-Linux support.
-
-> And please let me know in case someone would like to upload ppc packages
-> like the ones above. With detailed guidance on how exactly to build them
-> I'd enjoy to help here, and make them available for others, too ...
-
-Please make them available for the benefit of other people.
-
-#########################################################
-
-
-I have a problem in downloading the openssh sources from
-http://selinux.lemuria.org/newselinux/ssh/
-with a 
-apt-get source openssh
-
-This command will download me a package from the debian mirrors I have
-in my sources list, but not the package from
-<http://selinux.lemuria.org/newselinux>
-that I also have in my sources list.
-
-Is there a possibility to downlowd the openssh sources from
-http://selinux.lemuria.org/newselinux manually and then create the
-debian/ dir in the unpacked openssh dir with dpkg-source, or a with
-similar tool?
-
-I know I could simply try replace the original 
-openssh_3.8.1p1-7.diff.gz from the debian mirror with the 
-http://selinux.lemuria.org/newselinux/ssh/openssh_3.8.1p1-7.se1.diff.gz
-
-But I'm not sure whether this will mess up the resulting binary ... so
-if possible I'd like to run a standard build with one of the
-apt/dpkg/whatever tools on Debian
-
-Second:
-The compile errors probably will disappear if I run "autoconf" as you
-told -- But is it neccessary to run "autoconf" for every build I was
-reporting yesterday, or definitely just for the 2 (dpkg, ssh) you were
-mentioning?
-
-Thanks in anticipation
-
-Note:
-Sorry for the slightly pedantic procedure here: But I'd like to make the
-resulting packages available for others, too ...
-
-Note 2:
-Those who sent me private mails the last 2 days are invited to send them
-again to me, if possible: I lost, as I said, all mails this afternoon: I
-have all mails that were double-sent to me *and* this list (Thanks to
-nsa Majordomo :) ...
-
-
-Thanks in anticipation
-
-Regards
-Wolfgang
-
+Greetings,
+Erich Schubert
 -- 
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+      erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C     (o_
+ A man doesn't know what he knows until he knows what he doesn't know. //\
+     Es ist beschämender seinen Freunden zu mißtrauen als von ihnen    V_/_
+         getäuscht zu werden. --- François de la Rochefoucauld
+
+
 
 
 --
