@@ -1,47 +1,47 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA08742
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 02:05:52 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA12022
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 11:00:33 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id GAA12872
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 06:05:43 GMT
-Received: from clmboh1-smtp3.columbus.rr.com (clmboh1-smtp3.columbus.rr.com [65.24.0.112])
-	by jazzband.ncsc.mil  with ESMTP id GAA12868
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 06:05:42 GMT
-Received: from xfiles (dhcp065-025-147-146.columbus.rr.com [65.25.147.146])
-	by clmboh1-smtp3.columbus.rr.com (8.11.2/8.11.2) with SMTP id f3H62wf07998
-	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 02:02:58 -0400 (EDT)
-From: "Michael N. Bernstein" <bernstein.46@osu.edu>
-To: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>
-Subject: security enhancements outside of flask model
-Date: Tue, 17 Apr 2001 02:06:41 -0400
-Message-ID: <LMEJJDOADCLJPCBCJHFKMEIMCAAA.bernstein.46@osu.edu>
+	by jazzband.ncsc.mil  with ESMTP id PAA02380
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 15:00:24 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+	by jazzband.ncsc.mil  with SMTP id PAA02376
+	for <selinux@tycho.nsa.gov>; Tue, 17 Apr 2001 15:00:23 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A1015240F8@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Gnome Display Manager
+Date: Tue, 17 Apr 2001 10:00:31 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <Pine.SOL.3.95.1010416134702.10460G-100000@clipper.gw.tislabs.com>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+To All:
 
-Is there any work being done in the selinux realm to secure other
-parts of the kernel?  (e.g. kernel module, etc.).
+I have a version of the Gnome Display Manager (gdm) that work with
+selinux. This is a beta port with some work to be done. Any feedback
+would be a big help.
 
-michael bernstein
-bernstein.46@osu.edu
-sjester@setec.org 
-www.phi.ro : www.cis.ohio-state.edu/europa : www.sadjester.net
-"No more secrets"
+You can download this file at sourceforge.net
 
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
+Anonymous CVS Access 
 
-iQA/AwUBOtvdRElS5P10mbrgEQJR/QCgnXtdFUWhqU0PR6OZ2q15r7DbzrkAn0xi
-o/YCJSFE105yeS27zbUhzVD3
-=DOcb
------END PGP SIGNATURE-----
+The selinux SourceForge CVS repository can be checked out through anonymous 
+(pserver) CVS with the following instruction set. The module you wish 
+to check out must be specified as the modulename. When prompted for 
+a password for anonymous, simply press the Enter key. 
+
+
+cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux login 
+
+cvs -z3 -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux co
+selinux/extra/gdm-2.0.98.1 
+
+Or via web
+
+http://prdownloads.sourceforge.net/selinux/gdm-SeLinux-2.0.98.1.tgz
 
 
 --
