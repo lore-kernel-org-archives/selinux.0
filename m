@@ -1,53 +1,62 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA12032
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 19:10:55 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id XAA29342
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 23:09:17 GMT
-Received: from web40012.mail.yahoo.com (web40012.mail.yahoo.com [66.218.78.30])
-        by jazzband.ncsc.mil  with SMTP id XAA29338 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 23:09:17 GMT
-Message-ID: <20020819231053.24335.qmail@web40012.mail.yahoo.com>
-Date: Mon, 19 Aug 2002 16:10:53 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Changing the default role/type of a user
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20020819224448.7446C129F@lyta.coker.com.au>
+Date: Tue, 20 Aug 2002 06:51:48 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Jeremy Kusnetz <JKusnetz@nrtc.org>
+cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
+Subject: Re: New to SELinux
+In-Reply-To: <9366A6ACB518D511B54B0008C78609E002440271@exchange.nrtc.org>
+Message-ID: <Pine.GSO.4.33.0208200637180.13775-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Russell Coker <russell@coker.com.au> wrote:
-> On Tue, 20 Aug 2002 00:01, Brad Chapman wrote:
-> > In my policy, my username of Brad is placed in the role user_r and the
-> > domain user_t. However, the login program has my username in the role
-> > sysadm_r and the domain sysadm_t, despite there being no such role
-> > configured in the users file. Why does the login program do this?
-> 
-> It sounds like it's set to that in /etc/security/default_context .
-> 
-> Although if the policy doesn't permit this then login should not be allowed 
-> to do it.  Are you running in permissive mode?
+On Mon, 19 Aug 2002, Jeremy Kusnetz wrote:
 
-Yes, but when I try to login with Brad:sysadm_r:sysadm_t, it fails, since I
-don't have that role in the list in the users file; AAR, it complains that
-there's no SID for it. So I enter user_r and user_t for my role/type, which 
-IS in the users file, and it logs in happily.
+> I've been reading SELinux documentation and getting ready to try to deploy
+> it on a system.
+>
+> A couple of questions.  Are there any up to date archives of this mailing
+> list other then what's on NSA's site, since it doesn't get updated daily
+> (last update on July 3rd)?
 
-I am using permissive mode right now, because I want to be absolutely sure that
-the parts of the policy which apply to what I do are foolproof. My su_macros
-and user_macros files are growing again, but otherwise my (or your) policy is
-quite well set up, IMO.
+Try http://marc.theaimsgroup.com/?l=selinux.  Or you can simply send email
+to majordomo@tycho.nsa.gov to get the archives via the index and get
+commands.  The NSA web site's hypermail archives are only updated when a
+new release is made.
 
-Brad
+> Second, I got a scared and read a slashdot article from today saying that
+> NSA is no longer developing SELinux due to lobbying from  Microsoft because
+> the government is competing against private American companies.  Is this
+> true?  Is SELinux still being developed?  Is it still being developed by
+> NSA, or someonen else now.
+
+Yes, SELinux is still being actively developed by the NSA, by us, and by
+others.
+
+> If it is still being developed, is there an SELinux patch to the 2.4.19
+> kernel?  I can only find patches to 2.4.18.  I see LSM has a patch to 2.4.19
+> but I read somewhere that I should only use SELinux LSM patches.
+
+There should be a new NSA public release available soon with a
+2.4.19-based kernel.  As you noted, you should typically use the LSM
+patch available from the NSA site when using SELinux, because it may
+contain further changes to the LSM patch and/or to the SELinux
+kernel module that were made after the latest LSM snapshot patch was
+generated.  For example, the next NSA release should include the new sock
+hooks, a reliable accept_secure implementation, a bug fix to the
+ipc_permission hook, and configurable sysctl labeling, none of which made
+it into the 2.4.19-lsm1 snapshot patch.  However, if you need to use
+2.4.19 immediately with SELinux, you can use the LSM snapshot patch until
+the new NSA release is available - I don't think that there are any
+compatibility issues at present.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-__________________________________________________
-Do You Yahoo!?
-HotJobs - Search Thousands of New Jobs
-http://www.hotjobs.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
