@@ -1,67 +1,99 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5UCVf0S026603
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 08:31:41 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h5UCVX5e019093
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 12:31:33 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h5UCVX92019090 for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 12:31:33 GMT
-Subject: Re: improvements to chcon.c
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
-In-Reply-To: <1056781690.14920.81.camel@columbia>
-References: <1056781690.14920.81.camel@columbia>
-Content-Type: text/plain
-Message-Id: <1056976283.1110.748.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 30 Jun 2003 08:31:23 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5UD4E0S026765
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 09:04:14 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h5UD3Mss008651
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 13:03:23 GMT
+Received: from MOZART.PatioEnclosuresInc.com (mail.patioenclosuresinc.com [206.183.7.174])
+	by jazzswing.ncsc.mil  with ESMTP id h5UD3MhY008648
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 13:03:22 GMT
+Message-ID: <B4E788FBFCD6844F96A017F337797AE167B626@mozart.patioenclosuresinc.com>
+From: "Rottura, Steven" <SRottura@patioenclosuresinc.com>
+To: "'Brian May'" <bam@snoopy.apana.org.au>, selinux@tycho.nsa.gov
+Subject: RE: biometric codecs / hardware signed blackbox-capable interconn
+	ecti ve system-resources
+Date: Mon, 30 Jun 2003 08:58:22 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-06-28 at 02:28, Colin Walters wrote:
-> I found that I almost always just wanted to change one component of a
-> security contenxt, not the whole thing.  For example, I wanted to
-> recursively change the user of /var/www/verbum.org to "walters", while
-> keeping the varied types such as httpd_user_content_t,
-> httpd_user_script_exec_t, etc. 
-> 
-> However chcon didn't really give me an easy way to do this. 
-> 
-> With the attached patch, I can just say:
-> chcon -R -h -u walters /var/www/verbum.org
-> 
-> This is my first attempt at programming using the SELinux API, so please
-> review the changes carefully.  This patch is against the woody patch to
-> coreutils.
+a lot can be gleaned from a person's physical presence, which is in the
+first place required for on-site access, if you mean someone could reproduce
+the signal from the metric device, there must be enccoding measures against
+that coupled into the device; passwords are a weakness compared to something
+'fuzzy done on the fly' ; plus any transfer of private key is usually
+wrapped in a public, which is technically computable below #p for brute
+force // point is: wouldn't it be awesome to compile a list of equipment and
+begin figuring out configurations to support it -- especially if some of the
+equipment was emergent... 
 
-Thanks for implementing this ability.  However, a couple of notes:
-(1) The SELinux API has been overhauled as part of preparing for
-mainline Linux 2.5 integration, and the new API is being back ported to
-the 2.4-based SELinux (although this back port won't be ready for the
-next public release), so the old coreutils patch will soon be obsolete. 
-See http://www.nsa.gov/selinux/lk/coreutils-selinux.patch.gz for a
-snapshot of the new coreutils patch.  See the PORTING file in
-http://www.nsa.gov/selinux/lk/selinux-doc-1.0.tgz for discussion of the
-API changes.
-(2) The omission of the ability to manipulate individual fields of the
-security context from the utility patches was intentional.   The goal is
-to minimize and centralize the set of code that has awareness of the
-internal structure of the security context so that it can be easily
-altered (e.g. adding or removing security attributes) with minimal
-impact to the rest of the system.  SELinux seeks to provide policy
-flexibility not only in the ability to configure the policy, but also in
-the ability to drop in significantly revised or even completely new
-security models in place of the example security server.  Hence, it
-would be preferable to encapsulate this logic further within a library.
-(3) The context_* functions defined by context.h are intended to be used
-to easily split up a security context, get or set its individual
-components, and reconstitute it into a complete string.
+the other point i was wondering about which was not interesting ? was
+whether there were hardware to facilitate and ensure a sort of "secure
+interprocess communication" ; replace the word process with 'object' -- like
+secure virtual machines; only really secured by hardware mutliplex / etc.
 
+-----Original Message-----
+From: Brian May [mailto:bam@snoopy.apana.org.au]
+Sent: Friday, June 27, 2003 8:12 PM
+To: selinux-team@epoch.ncsc.mil; selinux@tycho.nsa.gov
+Subject: Re: biometric codecs / hardware signed blackbox-capable
+interconnecti ve system-resources
+
+
+On Fri, Jun 27, 2003 at 03:39:03PM -0400, Rottura, Steven wrote:
+> > > 	Does SELinux ever consider biometric or other specialized hardware
+> > > interfacing (i know it's just a patch for linux, but aren't there
+> > > specialized devices it should intrinsically be built to deal with) /
+> > > specialized hardware for partitioning and protecting each user /
+> > > application's priveledge (realtime, on the fly)?  
+
+SE-Linux is an authorization system, that makes decisions on what
+processes can access what resources.
+
+It is not an authentication system. An authentication system is
+what that can decide who the user is that is using the terminal.
+
+However, SE-Linux does need an authentication system. eg. when first
+logging in to a computer. On most systems this is done with PAM, so if
+you have a PAM module read a biometric fingerprint, you can use that for
+logins.
+
+This raises some other issues though. For instance, biometrics can not
+be used as a general replacement for passwords, there are too many
+weaknesses. The digital image of you biometric features could be stolen
+for instance, like a password can be, but unlike the password, the
+digital image cannot be change.
+
+Then there is the other issue to. The computer knows user X logged on,
+but how can it be sure that user X is still the user that is using (and
+in control) of the computer? This is an issue for certain operations in
+particular, eg. GPG signing outgoing E-Mail, running newrole to become
+sysadm_r, etc.
+
+I don't see any solutions here. For instance, lets say I went to a
+untrusted computer console A. I insert a smart card to authenticate
+myself, and automatically sysadm_r priviliges on remote computer B. This
+could be done in a secure manner, and in such a way that that no data
+on the smartcard can be stolen. This is easy, convenient, and means
+you don't have to keep track of numerous passwords and retype them in
+frequently (remember too that the more often you enter the password, the
+more likely it is someone will observe it getting entered).
+
+Unknown to me though, the copy of bash on A was altered, it forked
+another process that also connected to B with sysadm_r priviliges, and
+executed a command like "rm -rf /".
+
+Anyway, I hope this gives you some things to consider...
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Brian May <bam@snoopy.apana.org.au>
 
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
