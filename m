@@ -1,66 +1,47 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i989KorT020248
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 05:20:50 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i989rprT020343
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 05:53:51 -0400 (EDT)
 Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i989JeBk017162
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 09:19:41 GMT
-Date: Fri, 8 Oct 2004 10:31:54 +0100
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i989qgBk017622
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 09:52:42 GMT
+Date: Fri, 8 Oct 2004 11:04:59 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-   lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
-   Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
-   linux-net@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
-Message-ID: <20041008093154.GA5089@lkcl.net>
-References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu> <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: .fonts-cache being created as user_home_dir_t
+Message-ID: <20041008100458.GC5089@lkcl.net>
+References: <20041005091026.GB25251@lkcl.net> <200410071250.14304.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <200410071250.14304.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Oct 07, 2004 at 09:56:07AM -0400, Stephen Smalley wrote:
-
-> On Thu, 2004-10-07 at 01:42, Valdis.Kletnieks@vt.edu wrote:
-
-> > audit(1097111349.727:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:netif_lo_t tclass=netif
-> > audit(1097111349.754:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:node_lo_t tclass=node
-> > audit(1097111349.782:0): avc:  denied  { recv_msg } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:smtp_port_t tclass=tcp_socket
-> > 
-> > At least for the recv_msg error, I *think* the message is generated because
-> > when we get into net/socket.c, we call security_socket_recvmsg() in
-> > __recv_msg() - and (possibly only when we have the VP patch applied?) at that
-> > point we're in a softirqd context rather than the context of the process that
-> > will finally receive the packet, so the SELinux code ends up checking the wrong
-
-> Valdis,
+On Thu, Oct 07, 2004 at 12:50:14PM +1000, Russell Coker wrote:
+> On Tue, 5 Oct 2004 19:10, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > it looks like a file_auto_trans() is missing somewhere: i find
+> > that ~/.fonts.cache-1 is set to type user_home_dir_t.
 > 
-> These permission checks are based on the receiving socket security
-> context, not any process security context, and are performed by the
-> sock_rcv_skb hook when mediating packet receipt on a socket.  The
-> auxiliary pid and comm or exe information is meaningless for such
-> checks.  avc_audit could possibly be modified to check whether we are in
-> softirq and omit them in those cases from the audit messages.  
+> Is that being created by kdm?  
 
-> This has
-> been discussed previously on the selinux mailing list, please see the
-> archives.
+ i couldn't entirely say: let me see if i can find out...
+ a search through all kdebase *.cpp,h only shows up
+ something in kcontrol kio handler.  so that didn't work.
 
- an alternative possible solution is to get the packet _out_ from
- the interrupt context and have the aux pid comm exe information added.
+> Is the machine in permissive mode at the time 
+> the file is created?
 
- as i understand it "a" possible way to do that would be to have a
- userspace ip_queue which simply marks the packet as "seen it" and then
- does "now please reprocess it".
+ no.
 
- by the time that packets get to ip_queue in userspace, they will have
- had their aix pid comm exe info added (and the file sock stuff).
 
- alternatively, someone could spend a lot of their time doing exactly
- the same thing in kernel-space.
-
- l.
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
