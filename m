@@ -1,46 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8QD6VsJ000050
-	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2003 09:06:31 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8QD4kZt014504
-	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2003 13:04:46 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h8QD4jM3014501
-	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2003 13:04:46 GMT
-Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8QD6TRL019145
-	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2003 09:06:29 -0400 (EDT)
-Subject: sourceforge selinux CVS tree updated
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Message-Id: <1064581589.5099.231.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 26 Sep 2003 09:06:29 -0400
+Message-ID: <3F744120.6090509@tresys.com>
+Date: Fri, 26 Sep 2003 09:37:36 -0400
+From: David Caplan <dac@tresys.com>
+MIME-Version: 1.0
+To: Dale Amon <amon@vnl.com>
+Cc: "NSA's SELinux" <SELinux@tycho.nsa.gov>
+Subject: Re: policy language extensions
+References: <3F7361F8.1080603@tresys.com> <20030926130232.GF10225@vnl.com>
+In-Reply-To: <20030926130232.GF10225@vnl.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The sourceforge selinux CVS tree has been updated to include
-various updates that have been posted since the last public release
-(including a number of contributed patches). 
 
-If you have developer access, you can checkout a copy by doing the
-following, replacing USERNAME with your sourceforge account name:
-  export CVS_RSH=ssh
-  cvs -z3 -d:ext:USERNAME@cvs.sf.net:/cvsroot/selinux co nsa
 
-If not, you can checkout a copy by doing the following:
-  cvs -d:pserver:anonymous@cvs.sf.net:/cvsroot/selinux login
-	(hit enter when prompted for a password)
-  cvs -z3 -d:pserver:anonymous@cvs.sf.net:/cvsroot/selinux co nsa
-  
-If you don't have developer access but are a regular contributor, you can
-send one of the project admins a note requesting developer access with your 
-sourceforge account name.
+Dale Amon wrote:
+> 
+> Some things could be difficult though: policy statements
+> do not appear to me to have a 1:1 relation to the binary 
+> representation.
+> 
+
+You are right, they do not.  The policy statement:
+
+allow  domain  init_t : process  { sigchld signull };
+
+expands into a hash table entry (in the binary policy) for every type 
+associated with the domain attribute.  In a very stripped down policy I 
+was looking at this was 49 types.
+
+You also need to keep in mind that "subtraction" or disabling of rules, 
+via a conditional policy, is not equivalent to removing permissions.  If 
+the above rule were in a condition block that was disabled, there might 
+still be an allow rule in the base policy, or even in another 
+conditional block, that allowed those permissions.
+
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+__________________________________
+
+David Caplan     410 290 1411 x105
+dac@tresys.com
+Tresys Technology, LLC
+8840 Stanford Blvd., Suite 2100
+Columbia, MD 21045
 
 
 --
