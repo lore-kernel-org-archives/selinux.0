@@ -1,118 +1,105 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA05837
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 20:26:15 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id BAA28234
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2001 01:25:32 GMT
-Received: from jsmith.org (pool-141-158-40-48.phil.east.verizon.net [141.158.40.48])
-	by jazzband.ncsc.mil  with ESMTP id BAA28230
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2001 01:25:22 GMT
-Subject: Didn't notice this question
-From: Justin Smith <jsmith@mcs.drexel.edu>
+Date: Wed, 12 Dec 2001 01:43:35 +0000
+From: Dale Amon <amon@vnl.com>
 To: Stephen Smalley <sds@tislabs.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.GSO.4.33.0112041403260.28408-100000@raven>
-References: <Pine.GSO.4.33.0112041403260.28408-100000@raven>
-Content-Type: text/plain
-Date: 11 Dec 2001 20:23:09 -0500
-Message-Id: <1008120189.1675.0.camel@jsmith.org>
+Cc: Secure Linux Mailing List <SELinux@tycho.nsa.gov>
+Subject: Undefined refs in compile attempt
+Message-ID: <20011212014335.GA16538@vnl.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2001-12-04 at 14:43, Stephen Smalley wrote:
-> newrules.te'.  Could you clarify under what terms you are releasing
-> this script (e.g. GPL)?
+Not sure why I'm getting failures in the compile. I applied all 
+of the patches before starting:
 
-> 
-Of  course, I am GPL'ing this script. Here's a slightly revised form (it
-runs dmesg itself):
+  532  tar zxf sm-selinux-200111191100.tgz
+  541  cd selinux
+  542  patch -p1 < ../delete.patch 
+  543  patch -p1 < ../avc.patch 
+  544  patch -p1 < ../module.patch 
+  545  patch -p1 < ../util-linux.patch 
+  547  cd module
+  548  make insert
+  549  cd ../../lsm
+  550  patch -p1 < ../module.patch 
+  553  make mrproper
+  554  cp -a ../old.config .config
+  556  make oldconfig
+  558  make dep
+  560  make bzImage
+  561  make modules
+  592  make INSTALL_MOD_PATH=/usr/src/Selinux modules_install
+  594  cp -a System.map ../Selinux/boot/System.map-2.4.14-lsm 
+  595  cp -a arch/i386/boot/bzImage ../Selinux/boot/vmlinuz-2.4.14-lsm 
+  604  cd ../selinux/module
 
+At which point a make install fails:
 
-#----------------------------cut-------------------
-#!/usr/bin/perl
+cc -o checkpolicy ebitmap.o queue.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services.o y.tab.o lex.yy.o checkpolicy.o -lfl
+policydb.o: In function `user_destroy':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:357: undefined reference to `mls_user_destroy'
+policydb.o: In function `policydb_context_isvalid':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:487: undefined reference to `mls_context_isvalid'
+policydb.o: In function `context_read_and_validate':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:513: undefined reference to `mls_read_range'
+policydb.o: In function `perm_read':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:552: undefined reference to `mls_read_perm'
+policydb.o: In function `class_read':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:752: undefined reference to `mls_read_class'
+policydb.o: In function `user_read':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:890: undefined reference to `mls_read_user'
+policydb.o: In function `policydb_read':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:958: undefined reference to `mls_read_nlevels'
+policydb.o: In function `context_write':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:1158: undefined reference to `mls_write_range'
+policydb.o: In function `class_write':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:1317: undefined reference to `mls_write_class'
+policydb.o: In function `user_write':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:1403: undefined reference to `mls_write_user'
+policydb.o: In function `policydb_write':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:1444: undefined reference to `mls_write_nlevels'
+policydb.o: In function `roles_init':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:47: undefined reference to `sens_index'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:47: undefined reference to `cat_index'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:50: undefined reference to `sens_destroy'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:51: undefined reference to `cat_destroy'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:53: undefined reference to `sens_read'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:55: undefined reference to `cat_read'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:56: undefined reference to `sens_write'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/policydb.c:56: undefined reference to `cat_write'
+services.o: In function `context_struct_compute_av':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/services.c:174: undefined reference to `mls_compute_av'
+services.o: In function `context_struct_to_string':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/services.c:277: undefined reference to `mls_compute_context_len'
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/services.c:295: undefined reference to `mls_sid_to_context'
+services.o: In function `security_context_to_sid':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/services.c:450: undefined reference to `mls_context_to_sid'
+services.o: In function `security_compute_sid':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/services.c:601: undefined reference to `mls_compute_sid'
+services.o: In function `convert_context':
+/usr/src/selinux/module/checkpolicy/../selinux_plug/ss/services.c:798: undefined reference to `mls_convert_context'
+collect2: ld returned 1 exit status
+make[1]: *** [checkpolicy] Error 1
+make[1]: Leaving directory `/usr/src/selinux/module/checkpolicy'
+make: *** [checkpolicy/checkpolicy] Error 2
+
+Here is the relevant part of the .config
+
 #
-#    newrules.pl.
+# Security options
 #
-#    
-#    Copyright (C) 2001  Justin R. Smith (jsmith@mcs.drexel.edu)
-#
-#    This program is free software; you can redistribute it and/or 
-#    modify
-#    it under the terms of the GNU General Public License as published
-#    by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA     
-#                                        02111-1307  USA
-#
-
-# Get the 'access denied' messages
-@allmessages=split /\n/,`dmesg`;
-
-
-my %rules = ();
-
-# format: $rules{ "$scontext|$tcontext|$tclass"}
-#          = { '$accesstype' => 1}; 
-
-foreach $inline (@allmessages)
-  {
-    next unless ($inline =~ m/avc:\s*denied\s*\{((\w|\s)*)\}/);
-    my $accesstype = $1;
-    my $nextline = $';
-    $nextline =~ m/scontext=\w+:\w+:(\w+)\s*/;
-    my $scontext = $1;
-    $nextline = $';
-    $nextline =~ m/tcontext=\w+:\w+:(\w+)\s*/;
-    my $tcontext = $1;
-    $nextline = $';
-    $nextline =~ m/tclass=(\w+)\s*\Z/;
-    my $tclass = $1;
-    my @atypes = split /\s+/,$accesstype;
-    foreach $atype (@atypes)
-      {
-	next unless $atype =~ m/\S/;
-	my $trim=undef;
-	$atype =~ m/\s*(\w+)\s*/;
-	$trim = $1;
-	$rules{"$scontext|$tcontext|$tclass"}{$trim}=1;
-      }
-  }
-
-# done  with the input file
-# now generate the rules
-
-foreach $k (sort keys %rules)
-  {
-    my ($scontext,$tcontext,$tclass) = split /\|/, $k;
-    print  "allow $scontext $tcontext:$tclass { ";
-    my $access_types = $rules{$k};
-    foreach $t (sort keys %$access_types)
-      {
-	print  "$t ";
-      }
-    print  "};\n";
-  }
-#
-
-------------------cut---------------------------
-
-
-If I find the time (?), I'll try to expand this to a gui tool for
-configuring security policies (using Perl/Tk).
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_SECURITY_IP=y
+CONFIG_SECURITY_SELINUX=y
+CONFIG_SECURITY_SELINUX_DEVELOP=y
+CONFIG_SECURITY_SELINUX_MLS=y
 
 -- 
-
-
+------------------------------------------------------
+    Nuke bin Laden:           Dale Amon, CEO/MD
+  improve the global          Islandone Society
+     gene pool.               www.islandone.org
+------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
