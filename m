@@ -1,98 +1,37 @@
-Message-ID: <40E3F655.8040000@laufwerka.de>
-Date: Thu, 01 Jul 2004 13:32:37 +0200
-From: Pascal Hahn <p.hahn@laufwerka.de>
-MIME-Version: 1.0
-To: russell@coker.com.au
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: apache rule to make it write in directory
-References: <40E298E8.9030107@laufwerka.de> <200407010027.39259.russell@coker.com.au>
-In-Reply-To: <200407010027.39259.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i61JsUrT009909
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jul 2004 15:54:31 -0400 (EDT)
+Received: from p15107633.pureserver.info (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i61JsSbv010628
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jul 2004 19:54:28 GMT
+Date: Fri, 2 Jul 2004 13:48:50 +0200
+From: Jan Gehring <pr0gm4@linoratix.com>
+To: selinux@tycho.nsa.gov
+Subject: Compiling error - sysvinit
+Message-Id: <20040702134850.353b2f51.pr0gm4@linoratix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker schrieb:
+Hello ml,
 
->On Wed, 30 Jun 2004 20:41, Pascal Hahn <p.hahn@laufwerka.de> wrote:
->  
->
->>Russell Coker wrote:
->>    
->>
->>>On Fri, 25 Jun 2004 16:35, Pascal Hahn <p.hahn@laufwerka.de> wrote:
->>>      
->>>
->>>>heres my output i get from avc messages:
->>>>
->>>>/Jun 16 13:39:36 lboxx avc:  denied  { write } for  pid=3161
->>>>exe=/usr/sbin/apache2 path=/var/www/localhost/lwa/infos/auth.tmp
->>>>dev=hdc6 ino=96389 scontext=system_u:system_r:httpd_t
->>>>tcontext=system_u:object_r:httpd_sys_content_t tclass=file
->>>>        
->>>>
->>>Try the following:
->>>file_type_auto_trans(httpd_t, httpd_sys_content_t,
->>>httpd_sys_script_rw_t, file)
->>>      
->>>
->>I inserted the rule but get the following error although:
->>
->>
->>Jun 30 12:45:30 lboxx avc:  denied  { write } for  pid=3190
->>exe=/usr/sbin/apache2 name=ip.tmp dev=hdc6 ino=96390
->>scontext=system_u:system_r:httpd_t
->>tcontext=system_u:object_r:httpd_sys_content_t tclass=file
->>    
->>
->
->The following should solve it:
->chcon -t httpd_sys_script_rw_t ip.tmp
->
->Same goes for all other files like it, and you want an entry in 
->file_contexts/misc/custom.fc to avoid accidentally relabelling it back.
->
->  
->
-Hi there,
+i tried to compile sysvinit-2.85 but i get the following error.
 
-I fixed all my errors and inserted an own role called laufwerka_t. all 
-runs fine. also sudo is doing its job nicely until it should execute the 
-reboot command. I only get an error from apache called :
+root@maracuja src # make LDFLAGS="-s -lselinux" CFLAGS="-D_GNU_SOURCE"
+cc -c -D_GNU_SOURCE -DWITH_SELINUX init.c
+[...]
+init.c:97: error: `SELINUXMNT' undeclared (first use in this function)
+[...]
+init.c:123: error: `SELINUXPOLICY' undeclared (first use in this function)
+make: *** [init.o] Error 1
 
 
-Could not set exec context to system_u:system_r:laufwerka_t.
+What am i doing wrong?
 
+Thanks for any help
 
-The laufwerka_t also got a filetype called laufwerka_src_t
-
-here is the most important parts of the definitions i made:
-domains/program/laufwerka.te:
-
-type laufwerka_t, admin, domain,  auth_chkpwd, privuser, privrole, 
-privlog, privowner, mlstrustedreader, mlstrustedwriter, 
-mlstrustedobject, privfd;
-role sysadm_r types laufwerka_t;
-
-
-file_contexts/program/laufwerka.fc:
-
-/var/www/[^/]+/lwa(/.*)?        system_u:object_r:laufwerka_src_t
-
-types/files.te:
-
-type laufwerka_src_t, file_type, sysadmfile;
-
-and finally the changes i made to the apache macro:
-
-domain_auto_trans(httpd_t, laufwerka_src_t, laufwerka_t)
-
-
-Can anyone now tell me how i can use sudo to execute my reboot?
-
-Thanks a lot
-
-Pascal Hahn
-
+Jan
 
 
 --
