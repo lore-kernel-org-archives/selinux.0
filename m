@@ -1,113 +1,67 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6BKe5rT028535
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 16:40:05 -0400 (EDT)
-Received: from smtp814.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6BKdiNZ013512
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 20:39:44 GMT
-Date: Sun, 11 Jul 2004 21:50:47 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6C8M9rT000313
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 04:22:09 -0400 (EDT)
+Received: from smtp806.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6C8M7PJ002927
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 08:22:08 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp806.mail.ukl.yahoo.com with SMTP; 12 Jul 2004 08:22:08 -0000
+Date: Mon, 12 Jul 2004 09:33:09 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org
-Subject: [SE/Linux] warning about debian hotplug package 20040329-9!
-Message-ID: <20040711205047.GQ4677@lkcl.net>
-References: <20040709201413.GB3168@lkcl.net> <200407112050.08313.russell@coker.com.au> <20040711112237.GI3390@lkcl.net> <40F16D8B.4010601@bellsouth.net>
+To: Thomas Hood <jdthood@aglu.demon.nl>
+Cc: 258725@bugs.debian.org, "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Bug#258725: Location of net.agent
+Message-ID: <20040712083309.GU4677@lkcl.net>
+References: <20040711145538.GA15954@wonderland.linux.it> <1089615747.2520.213.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <40F16D8B.4010601@bellsouth.net>
+In-Reply-To: <1089615747.2520.213.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-dear selinux and linux kernel,
+On Mon, Jul 12, 2004 at 09:02:27AM +0200, Thomas Hood wrote:
 
-i am after some assistance in clarifying how hotplug works, with
-a view to solving an issue with SE/Linux where the default
-SE/Linux policy is to deny write permission to /etc/hotplug
-(with good reason) but the hotplug package is presently demanding
-write permission.
+> The reason for using net.agent is precisely to delay the processing
+> of hotplug network-interface events until such time as the system is
+> ready to bring up network interfaces.
 
-a simple request for a change to writing to /var/state/hotplug
-instead has thrown up a number of issues with kernel (2.6.6)
-hotplugging and i would greatly appreciate some confirmation
-and some assistance.
+ ah ha :)
 
+> We don't want to switch off the hotplug system prior to this because
+> then we would miss the events.
 
-i raised a bug with the debian maintainer for hotplug [he
-is known to be, how to describe in a few polite words, a
-control freak.  coming from me, that's saying a lot].
+ switch off?
 
-i suggested that the location for files to be written to be moved
-to /var/state/hotplug and he CLOSED the bug with a message saying
-"you can't do that, /var might not be mounted at the time".
+ surely you mean switch on?
 
-i reopened the bug, and then pointed out that the boottime order
-was "Mounting local filesystems" (/etc/init.d/mountall.sh) followed
-by "Starting Hotplug" (/etc/init.d/hotplug) and he responded with
-"well the kernel can run hotplug at any time".
+> Is it really the case that it would be preferable, for SELinux reasons,
+> to put net.agent into a subdirectory of /etc/hotplug/ ?
 
-which seems to me to be a bit daft: if you haven't initialised
-the hotplug system with /etc/init.d/hotplug, what's the point of
-responding to kernel-triggered hotplug events?
+ the alternative is to make a special case for every single
+ file that could possibly, now and in the future, write into
+ the directory /etc/hotplug.  as you might imagine, that gets
+ quite messy quite quickly.
 
-sounds like an issue with the kernel, there, to me.
+ by recommending a subdirectory, it is possible to do the
+ selinux-equivalent of setgid, such that any file in that
+ subdirectory will be made writeable to the hotplug scripts.
 
-can anyone on the linux kernel mailing list who has knowledge of
-the hotplug kernel stuff (and also who knows or is capable of knowing
-how the debian hotplug system works) confirm whether hotplug
-events will or will not be triggered by the kernel if you have NOT
-run the /etc/init.d/hotplug script?
+ (and incidentally, not by anything else _other_ than the hotplug
+  scripts, but that's another story)
 
+ it would also then be possible for distributions that guarantee
+ the existence of /var on a local filesystem that will have
+ been mounted by /etc/init.d/mountall.sh, to symlink /etc/hotplug/run
+ to /var/run/hotplug.
 
-for example, i'm staring at line 176 of /etc/hotplug/usb.rc (v 1.22)
-in version hotplug-20040329-8 and i note that usbdevfs is mounted
-on /proc/bus/usb.
+ or /etc/hotplug/state to /var/state/hotplug.
 
-a comment at line 148 and 164 makes it clear (ish) that a distro
-could mount usbdevfs, which could cause a "partial" initialisation
-of the usb hotplugging subsystem, and hotplug events could have
-been dropped as a result, or not properly started.
+ whichever people who have more experience of FHS than i deem to be
+ more appropriate.
 
-so, distros shouldn't _be_ doing a partial initialisation of the
-usb subsystem, basically!
+ l.
 
-anyway.
-
-from this cursory examination, i would conclude that the
-argument used [to justify not moving state information to a
-new directory /var/state/hotplug] by the debian maintainer of
-hotplug that "the hotplug system may generate events at any
-time" is bogus.
-
-e.g. under such circumstances where a distribution has
-initialised the usb hotplug system BEFORE /etc/init.d/hotplug start
-gets a chance to run "/etc/hotplug/usb.rc start", hotplug
-events are likely to get missed - not least because the
-filesystem might not have been initialised / mounted (except
-the root filesystem maybe) and consequently it's hazardous and
-problematic, and the usb.rc script has to reinvent some of
-the events it might have missed!!
-
-l.
-
-On Sun, Jul 11, 2004 at 12:40:43PM -0400, Jim McCullough wrote:
-> Luke Kenneth Casson Leighton wrote:
-> 
-> >On Sun, Jul 11, 2004 at 08:50:08PM +1000, Russell Coker wrote:
-> > 
-> >
-> >>On Sat, 10 Jul 2004 06:14, Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-> >>wrote:
-> >>   
-> >>
-> >>>warning warning warning, do not install hotplug version 20040329-9
-> >>>from debian unstable because /etc/hotplug/net.rc attempts to write
-> >>>to /etc/hotplug/net.enable.
-> >>>
-> >>>hotplug writing to /etc/ even /etc/hotplug is banned by the [present]
-> >>>selinux policy.
-> >>>
-> >>>i'm raising a bugreport about this one if there isn't one already.
-> >>>     
-> >>>
-> >>That package is broken in other ways.  
 
 --
 This message was distributed to subscribers of the selinux mailing list.
