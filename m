@@ -1,64 +1,118 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59A6erT018439
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 06:06:41 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i59A6aIl004795
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 06:06:37 -0400 (EDT)
-Date: Wed, 9 Jun 2004 10:03:45 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>, samba-technical@samba.org,
-   tng-technical@lists.samba-tng.org
-Subject: se-samba - a possible way to get round no seteuid
-Message-ID: <20040609100345.GA5727@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59BEirT018774
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 07:14:45 -0400 (EDT)
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i59BEgTV019237
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 07:14:42 -0400 (EDT)
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Wed, 9 Jun 2004 13:14:41 +0200
+Date: Wed, 9 Jun 2004 13:14:28 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: How to handle tmpfiles under /home ?
+Message-Id: <20040609111427.GA2006@jmh.mhn.de>
+References: <20040607234412.GB2073@jmh.mhn.de> <200406091505.52603.russell@coker.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+In-Reply-To: <200406091505.52603.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i'm just investigating exim4 to put in some hacks to make it
-possible to transition between different executables.
 
-exim4 does a lot of execve'ing about, but it's always to the
-same executable name (i.e. /usr/sbin/exim4).
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-russell's idea is to make exim4 execve to different executable
-names, and then a different context can be associated with each
-purpose.
+* Russell Coker <russell@coker.com.au> [2004-06-09 08:20]:
+> On Tue, 8 Jun 2004 09:44, Thomas Bleher <bleher@informatik.uni-muenchen.d=
+e>=20
+> wrote:
+> > I recently ran into a problem with tmpfiles in my homedir. I have
+> > configured mutt to store mails I write under ~/.mutt/tmp/.
+> > Unfortunately, current policy only allows postfix to read user_tmp_t.
+> > This leads to postfix sending totally empty mails in enforcing mode.
+>=20
+> What version of the policy allows postfix to access user_tmp_t?
+>=20
+> user_mail_t is allowed access to files of type user_tmp_t.  But apart fro=
+m=20
+> that there should be no access of postfix to user_tmp_t.
 
-then, a set of capabilities can be associated with each executable,
-which will of course do a straight execve to /usr/sbin/exim4 -
-taking the new context with it.
+Yeah, I was unclear here. The denial occurs in user_mail_t.
 
-it occurred to me that a similar approach could be taken with samba.
+> user_tmp_t generally should not be used for files under the user home=20
+> directory, so ~/.mutt/tmp should be labelled as user_home_t.
+>=20
+> If you create a file on /tmp and mv it to ~ then if ~ and /tmp are on the=
+ same=20
+> file system then it will get the type user_tmp_t, is this the case with m=
+utt? =20
+> What does that have to do with Postfix anyway?  Postfix should not be=20
+> attempting delivery to ~/.mutt anyway.
+>=20
+> Your message didn't clarify what your problem is, or what your objectives=
+ are,=20
+> so I can't give any advice until I get more information.
 
-instead of doing a seteuid back to root, you do an execve to
-an executable named samba-root.
+Apparently my mail wasn't clear so I'll try to restate my problem:
+I'm using mutt to read mail over IMAP, sent mail goes through a local
+postfix. mutt can be configured where to store mails which are being
+composed. I chose ~/.mutt/tmp which means that newly created messages
+have type user_home_t. mutt then calls /usr/sbin/sendmail which
+transitions to user_mail_t. sendmail wants to read the new message,
+fails to do so because it isn't allowed to read user_home_t; as a result
+a totally empty message is sent.
 
-or, in the main loop, you do an execve() to an executable named
-smbd-child, and then do a setuid, and when you're done, you do
-an execve back to smbd.
+I have fixed this particular case in my local policy already but I
+posted it here because I think that this is a more general problem:
+I think it is generally encouraged for users to set $TMP and $TMPDIR to
+some directory which is under their control and not world-writable.
+This can be done under /tmp (I think Bastille-Linux had a script for
+this) but it is much easier for users to do this in their homedir.
+The problem however is that setting $TMP to something under ~ breaks
+with current policy.
+This is OK on systems with only a few users who can easily be educated
+but presents problems on systems with a few thousand users.
+So my hope is that there will be some generic solution (like ~/.tmp) as
+I still see some security benefits to private homedirs, even with
+SELinux.
 
-it's a hell of a lot simpler approach than messing about with
-proxying and a darn site simpler than doing a rewrite of samba
-to do user-space checking.
+>=20
+> As for Steve's message about putting the MUA into it's own domain, the pr=
+oblem=20
+> with that is that the MUA is usually expected to be able to attach files =
+=66rom=20
+> any directory and save received attachments to any directory.  It wants t=
+o=20
+> run gpg and store the gpg pass-phrase, so unless the usage patterns are=
+=20
+> significantly changed there's little ability to lock things down.
+=20
+I agree with this. Additionally I'm reading mail over imap, so my mail
+reader needs network access.
 
-and you could potentially just leave this approach compiled in
-by default, and, like with exim4, just symbolic link 
-/usr/sbin/smbd-child to /usr/sbin/smbd for non-selinux systems.
+Thomas
 
-l.
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAxvETxWIrrrL0q+cRAnEuAKCZpQIczA1LC6dH9VSA0d9nXTOTygCcD5Nc
+RMZ7TOrspzcAqbPIl5hm2kE=
+=RwdO
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
