@@ -1,23 +1,32 @@
-Message-Id: <5.1.0.14.0.20010706212907.009ec040@mail.carambole.com>
-Date: Fri, 06 Jul 2001 21:33:49 +0200
-To: SELinux@tycho.nsa.gov
-From: Thomas Sjogren <thomas@northernsecurity.net>
-Subject: developing.
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Date: Fri, 6 Jul 2001 17:02:24 -0400 (EDT)
+From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
+To: Thomas Sjogren <thomas@northernsecurity.net>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: developing.
+In-Reply-To: <5.1.0.14.0.20010706212907.009ec040@mail.carambole.com>
+Message-ID: <Pine.LNX.4.30.0107061701530.18577-100000@biocserver.BIOC.CWRU.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
-we´re working on a passwd patch that will force root/users to choose 
-acceptable login passwords and we want to use this with SELinux. is there 
-any recommendations, requirements for this sort of thing?
+On Fri, 6 Jul 2001, Thomas Sjogren wrote:
 
-/Thomas
+> we´re working on a passwd patch that will force root/users to choose
+> acceptable login passwords and we want to use this with SELinux. is
+> there any recommendations, requirements for this sort of thing?
 
+solar designer has a pluggable on'the-fly password routine that plugs into
+PAM.
 
-security analyst   |   northernsecurity.net
-+46 (0) 739 76 23 06   |   0xAADE91FC
+http://www.openwall.com/
+
+that may work for you. check it out.
+
+____________________________
+jose nazario						     jose@cwru.edu
+	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
+				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
 
 
 --
