@@ -1,72 +1,84 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3RJkYRb000653
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:46:34 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3RJkRYW021357
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 19:46:27 GMT
-Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
-        by jazzband.ncsc.mil  with ESMTP id i3RJkQBf021281 for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 19:46:26 GMT
-From: "Ed Street" <edstreet@street-tek.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
-   "'Russell Coker'" <russell@coker.com.au>
-Cc: "'Selinux'" <selinux@tycho.nsa.gov>
-Subject: RE: /etc/passwd labeling issues
-Date: Tue, 27 Apr 2004 15:46:03 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3RKMiRb001060
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 16:22:44 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i3RKKWZx015831
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 20:20:32 GMT
+Received: from stingray.missi.ncsc.mil (stingray.missi.ncsc.mil [144.51.50.20])
+	by jazzswing.ncsc.mil  with ESMTP id i3RKKVJv015825
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 20:20:31 GMT
+Message-ID: <200404271949.i3RJntRK009239@stingray.missi.ncsc.mil>
+From: CDSelle@missi.ncsc.mil
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+Subject: RE: mkinitrd on Debian
+Date: Tue, 27 Apr 2004 16:23:23 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <1083080493.24445.117.camel@moss-spartans.epoch.ncsc.mil>
-Message-Id: <20040427194604.B6FFD3A405A@abyss.simplyaquatics.com>
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C42C95.7CFC3830"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-I would recommend using the wrapper because it can be generic in case of
-other issues like this, at least until the main problem is solved.
+------_=_NextPart_000_01C42C95.7CFC3830
+Content-Type: text/plain;
+	charset="iso-8859-1"
 
-Ed
+Russel,
+
+We haven't met, but I'm a SELinux user trying to install on a Debian system.
+Is the script you attached to this message in October still current, or is
+there a better way to make a SELinux initrd for Debian sid systems now?
+
+Thanks,
+Chad Sellers
+
+
 
 -----Original Message-----
-From: Stephen Smalley [mailto:sds@epoch.ncsc.mil] 
-Sent: Tuesday, April 27, 2004 11:42 AM
-To: Russell Coker
-Cc: Ed Street; Selinux
-Subject: Re: /etc/passwd labeling issues
+From: Russell Coker [mailto:russell@coker.com.au]
+Sent: Tuesday, October 07, 2003 9:27 AM
+To: SE Linux
+Subject: mkinitrd on Debian
 
-On Mon, 2004-04-26 at 23:25, Russell Coker wrote:
-> On Tue, 27 Apr 2004 08:44, "Ed Street" <edstreet@street-tek.com> wrote:
-> > So we have 2 choices for our debian users.  A) Change the password,
-change
-> 
-> No, we have only one realistic choice.  To fix PAM and make it work
-correctly 
-> as it does in Fedora.
 
-Or use the wrapper-based approach of the older SELinux, i.e. spasswd and
-friends.
+If you copy the attached script into /etc/mkinitrd/scripts on a Debian
+system 
+then it should support building a correct initrd for the new SE Linux.
 
-As I recall, Fedora includes more than just a modified pam for this
-purpose; it also required modifications to libuser, shadow-utils, and
-components of util-linux to preserve contexts on /etc/passwd and
-/etc/shadow.
+Should being the operative word, as I have not converted any Debian systems 
+which support initrd to the new SE Linux I could not properly test this.
+
+Let me know how it works.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
----
 
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.667 / Virus Database: 429 - Release Date: 4/23/2004
- 
+------_=_NextPart_000_01C42C95.7CFC3830
+Content-Type: application/octet-stream;
+	name="selinux-mkinitrd"
+Content-Disposition: attachment;
+	filename="selinux-mkinitrd"
 
----
+#!/bin/sh
 
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.670 / Virus Database: 432 - Release Date: 4/27/2004
- 
+cp /etc/security/selinux/policy.15 $INITRDDIR
+cp /usr/sbin/load_policy $INITRDDIR/sbin
+mkdir $INITRDDIR/selinux
+cat > $INITRDDIR/scripts/selinux << END
+mount -n none -t selinuxfs /selinux
+/sbin/load_policy /policy.15
+umount -n /selinux
+END
+chmod 755 $INITRDDIR/scripts/selinux
 
+------_=_NextPart_000_01C42C95.7CFC3830--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
