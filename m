@@ -1,42 +1,81 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA11532
-	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 15:47:39 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA05126
-	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 19:46:33 GMT
-Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
-	by jazzswing.ncsc.mil  with ESMTP id TAA05122
-	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 19:46:33 GMT
-Reply-To: blacknet@simplyaquatics.com
-From: blacknet@simplyaquatics.com (Ed Street)
-To: gmw@tycho.ncsc.mil
-Subject: Re:  RE: NSA moving away from SELinux?????
-Cc: selinux@tycho.nsa.gov
-Date: Thu, 22 Aug 2002 15:47:26 -400
-Message-Id: <3d653fcedbdda1.36526453@simplyaquatics.com>
-References: <0D2F5426C26FD511A1C400B0D0D0596835521C@deliverance.tycho.ncsc.mil>
-MIME-version: 1.0
-Content-type: text/plain; charset="iso-8859-1"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA12110
+	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 16:51:57 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA26189
+	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 20:50:18 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id UAA26185 for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 20:50:16 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>, "M. H." <metalhead00@hotmail.com>
+Subject: Re: restrict access by user identity
+Date: Thu, 22 Aug 2002 22:51:44 +0200
+Cc: <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0208221358250.29931-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0208221358250.29931-100000@raven>
+MIME-Version: 1.0
+Message-Id: <20020822205144.E6FAA6B15@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Thu, 22 Aug 2002 20:10, Stephen Smalley wrote:
+> On Thu, 22 Aug 2002, M. H. wrote:
+> > I would like to be able to do the following thing:
+> > Let's assume I set the type of a file to type_a.
+> > I would like to be able to ensure that users who can read files of type_a
+> > can only do so for files which are labeled with their name (so the
+> > scontext of the file is <username>:object_r:type_a.) So userA would then
+> > not be able to read a file labeled with userB:object_r:type_a.
+> > Is this possible?
+>
+> You could try to implement such a restriction via the policy/constraints
+> configuration (see the Configuring the SELinux Policy report).  However, I
+> wouldn't recommend this approach.  The preferred approach would be to
+> define separate types for userA's objects and userB's objects, with
+> separate domains and roles for userA and userB.
 
-I for one and very glad to see this clarity (tho it's a shame this type of gossip is going on).  I read that article and noted it was lacking in factual basics.  Then when I looked at the follow ups and a famous software companies name was brought into the picture I couldn't help but laugh.  This is the very same reason i'm not a frequent visitor to that news site.
+Also make sure you use the most recent version of the sample policy that is 
+available for this.
 
-Ed
+Older versions had user_t and user_home_t specified right through the policy 
+files.  When I first setup a machine with multiple user roles (the SE demo 
+machine at LinuxTag in Germany) I spent about 45 minutes getting it to the 
+stage where it was half-usable (barely enough for a demo machine) with 
+multiple roles.
 
-> The National Security Agency remains committed to operating system security
-> research in general and specifically in continuing our research using the
-> Security-enhanced Linux prototype.  Our relationships with open source
-> researchers have been very beneficial and we hope to continue and expand
-> such relationships in the future.
-> 
-> Grant M. Wagner
-> Technical Director
-> Secure Systems Research Office
-> National Security Agency
+Successive policy revisions have improved this considerably.
 
+Any time you see a reference to user_t or user_home_t in a .te file then the 
+.te file is buggy and will cause you problems with multiple user roles (IE 
+you'll have to re-write that .te file).  I've just done a grep of my policy 
+tree, it looks like I've got some work to do in this regard.  :(
+
+If you are using a policy V9 policy DB (kernel 2.4.17 from memory) then this 
+will be a problem for you.  It would be quite possible to merge the policy 
+file support needed for policy V9 with the newer versions of the macro files 
+etc that support multiple user roles, but it would probably be a lot easier 
+to upgrade to a newer kernel with a V11 policy DB.
+
+It seems that the major issues with my current policy are:
+1)  login and sshd need a user_t for a default transition (if you use a 
+non-SE version of login or sshd).  So you can add new user roles but you MUST 
+have user_r and user_t.
+2) You have to change newrole.te when adding new roles, IFF they are to be 
+permitted to change roles.  Of course if you add a new role that isn't to be 
+allowed to change to any other role then it's not a problem.  Failure to 
+change newrole.te means that the terminal device type doesn't get changed.  
+The most noticable symptom of this is that you do "newrole -r sysadm_r" and 
+then "su" doesn't work because it transitions to a domain that doesn't have 
+the "write almost anything" access of sysadm_t.
+
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
