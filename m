@@ -1,34 +1,34 @@
-Date: Tue, 25 Sep 2001 08:21:54 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA07918
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2001 08:59:45 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA22416
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2001 12:58:08 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id MAA22412
+	for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2001 12:58:07 GMT
+Date: Tue, 25 Sep 2001 08:59:22 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 Reply-To: Stephen Smalley <sds@tislabs.com>
-To: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
-cc: SELinuxML <SELinux@tycho.nsa.gov>
-Subject: Re: I can ' t use named on LSM-based Prototype. Why?
-In-Reply-To: <002401c14595$5d1a8fb0$68026c85@ilios104>
-Message-ID: <Pine.SOL.3.95.1010925081359.18877A-100000@clipper.gw.tislabs.com>
+To: Devon Hubbard <devon@mac.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: SELinux on embedded devices?
+In-Reply-To: <B7D0C7DD.6697%devon@mac.com>
+Message-ID: <Pine.SOL.3.95.1010925085323.18877F-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 25 Sep 2001, Yuichi Nakamura wrote:
+On Fri, 21 Sep 2001, Devon Hubbard wrote:
 
-> I found that named(bind 9.1.0) didn't work on SELinux(LSM-based Prototype)
-> even if the kernel was flask development mode.
-> 
-> Why named doesn't work on LSM based prototype?
+> Has anyone worked on putting SELinux on embedded devices?  Of course PDAs
+> are by themselves inherently un-secure because of their portable nature but
+> embedded devices that have wireless connections need high security as well.
 
-Did you apply the patch that I posted to the mailing list for
-selinux_ip_postroute (See
-http://marc.theaimsgroup.com/?l=selinux&m=99962056431023&w=2).
-If not, then apply this patch and try again.  If you already
-applied this patch, then check /var/log/messages and/or the output of
-'dmesg' for any messages, particularly ones from selinux_ip_postroute.
-
-Also, be aware that an updated release should be available soon
-based on 2.4.10 with a number of bug fixes and improvements to
-both LSM and SELinux.
+This was discussed earlier on the thread starting at
+http://marc.theaimsgroup.com/?l=selinux&m=97883795603704&w=2
 
 --
 Stephen D. Smalley, NAI Labs
