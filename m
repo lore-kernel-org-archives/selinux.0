@@ -1,107 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA02890
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 08:37:37 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA18565
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:34:22 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA03079
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 08:58:54 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1QDwrI28663
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:58:53 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA18560
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:34:22 GMT
-Date: Wed, 26 Feb 2003 08:36:31 -0500 (EST)
+        by jazzband.ncsc.mil  with ESMTP id h1QDwrf28659 for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:58:53 GMT
+Received: from localhost (wsalamon@localhost)
+	by vox.gw.tislabs.com (8.11.2/8.11.2) with ESMTP id h1QDw7r03779
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 08:58:07 -0500
+Date: Wed, 26 Feb 2003 08:58:07 -0500 (EST)
 From: Wayne Salamon <wsalamon@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Core policy
-In-Reply-To: <200302242059.51557.russell@coker.com.au>
-Message-ID: <Pine.LNX.4.33.0302260836250.3682-100000@vox.gw.tislabs.com>
+To: <selinux@tycho.nsa.gov>
+Subject: Core policy, second pass
+Message-ID: <Pine.LNX.4.33.0302260856550.3682-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 24 Feb 2003, Russell Coker wrote:
 
-> On Mon, 24 Feb 2003 19:55, Wayne Salamon wrote:
-> > Here is a list of policy files that may considered the core policy.
-> > However, this policy needs some work in order to build, but I'm trying to
-> > get a feel for what users typically run on their systems.
->
-> I think that you need to firstly define "core" more clearly.
->
-> In previous discussions about core policy I always thought it was the packages
-> needed for booting and for base functionality.  I don't think that such
-> criteria matches your list of packages.
->
-> > apache.te	Apache Web server; may need to be simplified to allow only
-> > 		serving Web pages without CGI, etc.
->
-> Most workstations do not need Apache.  The suggestion of separating out the
-> CGI part is a good one.  I will investigate it.
->
-> > apmd.te		Automatic Power Management daemon
-> > cardmgr.te	PCMCIA control programs
->
-> Perhaps we should have different groupings of policy?  apmd.te and cardmgr.te
-> go together.  It's quite rare to use one without the other.
->
-> > cups.te		Common Unix Printing System
-> > lpr.te		Print client
->
-> Do we need choices in the core policy?  Maybe we should make one the
-> recommended option and the other the optional replacement.
->
-> > dhcpc.te	DHCP client
-> > pump.te		DHCP client
->
-> I think that whatever pump needs should be merged into dhcpc.te.  There isn't
-> that much a DHCP client can do, so there isn't a need to have two policy
-> files IMHO.  Maybe a bit of ifdef in the policy for some of the less used
-> features, but that's all.
->
-> > gpm.te		General Purpose Mouse driver
->
-> GPM is not suitable for core IMHO.  I've never used it or seen anyone use it.
->
-> > portslave.te	Terminal server software (not sure about this one)
->
-> Portslave is not needed for core policy.  The vast majority of Linux machines
-> are not running as terminal servers.
->
-> > procmail.te	Mail delivery agent for mail servers (may be removed)
->
-> It's a server-only thing, IMHO it's claim is exactly as good as that of
-> Apache.
->
-> > rpcd.te		RPC daemon (not sure; how often do client workstations export
-> > 		RPC services)
->
-> Also using rpc without care is a huge security risk.  If you want a secure
-> system then removing RPC is often a good thing to do.
->
-> > X Windows potential core domains
-> > ==================================================
-> > xdm.te		X Display Manager
-> > xfs.te		X font server
->
-> xfs is not required IMHO.  I think that the only need for XFS is for TrueType
-> fonts, and I get the impression that anti-aliasing benefits from this too.
-> But the core functionality is fine without it.
->
-> As for xdm, it currently doesn't work properly and has excessive permissions.
-> I'm working on this now, I expect to have it sorted out in a couple of weeks
-> along with a patch for kdm 3.1.
->
-> > the policy source files. Also, there are several instances of rules being
-> > duplicated in the generated policy due to macro usage.
->
-> Duplication of rules is a minor annoyance, and I've been fixing it wherever I
-> notice it.  But is it a big problem?  The compiler removes that anyway...
->
->
+Sorry about that last empty message.
+
+I've done some experimentation with a subset of the policy files. This
+policy builds (with some changes required as attached). I need to further
+examine denials, but so far there doesn't appear to be very many.
+
+Here's a list of policy files I used:
+
+atd.te          dhcpc.te     ldconfig.te     newrole.te     su.te
+automount.te    fsadm.te     load_policy.te  sxid.te
+bootloader.te   getty.te     login.te        passwd.te      syslogd.te
+checkpolicy.te  ifconfig.te  logrotate.te    ping.te        tmpreaper.te
+chkpwd.te       inetd.te     lpd.te          portmap.te
+crond.te        initrc.te    lpr.te          rpm.te         useradd.te
+crontab.te      init.te      modutil.te      selopt.te      utempter.te
+ipchains.te     mount.te     setfiles.te
+devfsd.te       klogd.te     netutils.te     ssh.te
+
+  I needed to change two of the macros so far (see attached patch). Being
+that you can run lpr without lpd, the lpr_macros.te file conditionally
+uses types from lpd.te.
+
+  I left selopt.te in for now, but it can be removed. If core is defined
+to allow SELinux experimentation, then selopt can stay.
+
+  Comments? Any of the above that are unnecessary? Any not included that
+are necessary? I know rpm.te could probably be removed as well, but if
+users typically query installed packages, I think it's needed.
+
 
 -- 
 Wayne Salamon
 wsalamon@tislabs.com
+
+
 
 
 --
