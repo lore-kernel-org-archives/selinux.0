@@ -1,38 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA04617
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 10:40:56 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA02056
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 14:39:20 GMT
-Received: from smtpproxy2.mitre.org (smtpproxy2.mitre.org [192.80.55.70])
-        by jazzband.ncsc.mil  with ESMTP id OAA02052 for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 14:39:20 GMT
-To: Russell Coker <russell@coker.com.au>
-Cc: Ben McGinnes <bmcginnes@enternet.com.au>, selinux@tycho.nsa.gov,
-        guttman@mitre.org (Joshua D. Guttman)
-Subject: Re: A 'Statement of Assurance' on SELinux patents
-Reply-To: guttman@mitre.org (Joshua D. Guttman)
-References: <000f01c23d4a$e938e750$0a01a8c0@ed> <3D5114BB.D45BAD57@cpcug.org>
-	<20020808235352.B4737@mail.enternet.com.au>
-	<20020808142256.7DBB620B@lyta.coker.com.au>
-From: guttman@mitre.org (Joshua D. Guttman)
-Date: 08 Aug 2002 10:40:46 -0400
-In-Reply-To: <20020808142256.7DBB620B@lyta.coker.com.au>
-Message-ID: <nhafzxpquq9.fsf@banjara.mitre.org>
+Date: Thu, 8 Aug 2002 11:12:34 -0400 (EDT)
+From: Chris Vance <cvance@tislabs.com>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Install setfiles manpage
+In-Reply-To: <200207291738.RAA14908@jazzband.ncsc.mil>
+Message-ID: <Pine.LNX.4.33.0208081111280.19788-100000@zorg.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has anybody checked how long it will be before the patents expire?
-Maybe it's not too many years.
 
-        Joshua 
--- 
-	Joshua D. Guttman		<guttman@mitre.org> 
-	MITRE, Mail Stop S119		Office:	+1 781 271 2654
-	202 Burlington Rd.		Cell:	+1 781 526 5713
-	Bedford, MA 01730-1420 USA	Fax:	+1 781 271 8953
+Thanks for catching this, your patch has been applied to our tree and will
+be included in the next NSA release.
 
+chris.
+
+On Mon, 29 Jul 2002, Carsten Grohmann wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Today I am missing the sefiles man page. This patch change the Makefile to
+> install this man page.
+> I am sorry, but I can't commit this to the cvs. Can anybody do this for me?
+>
+> Thanks
+>
+>   Carsten
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.0.6 (GNU/Linux)
+> Comment: For info see http://www.gnupg.org
+>
+> iEYEARECAAYFAj1FeNQACgkQ4oaNQP0tWXCcnwCgnrugZcTKZV6My0yI/ta2bw2F
+> CEoAn1RyFYxSLKYZTZbi3mQlI1biWOd1
+> =QS53
+> -----END PGP SIGNATURE-----
+>
 
 
 --
