@@ -1,54 +1,48 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDFqYIi004453
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 10:52:35 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDK4bIi006875
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 15:04:37 -0500 (EST)
 Received: from tcsfw2.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBDFqbX4002258
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 15:52:37 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBDK4dX4011940
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 20:04:40 GMT
 Received: (from smmsp@localhost)
-	by tcsfw2.tcs-sec.com (8.12.2/8.12.2) id iBDFqWvL004116
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 10:52:32 -0500 (EST)
-Message-ID: <41BDBAF1.2060502@trustedcs.com>
-Date: Mon, 13 Dec 2004 09:53:21 -0600
+	by tcsfw2.tcs-sec.com (8.12.2/8.12.2) id iBDK4ekn016861
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 15:04:40 -0500 (EST)
+Message-ID: <41BDF612.7090707@trustedcs.com>
+Date: Mon, 13 Dec 2004 14:05:38 -0600
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
 To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: [patch] typeattribute statements
+Subject: Re: [patch] typeattribute statements
+References: <41BDBAF1.2060502@trustedcs.com>
+In-Reply-To: <41BDBAF1.2060502@trustedcs.com>
 Content-Type: multipart/mixed;
- boundary="------------090502030805060401010206"
+ boundary="------------090701050903090205000401"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090502030805060401010206
+--------------090701050903090205000401
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hello,
-     I have attached a simple patch which introduces a "typeattribute" statement 
-to the policy grammar.  This will allow attributes to be added to a type after 
-its initial definition - much like the "typealias" statement allows for aliasing 
-after the initial type definition.  The usage is as follows:
+Darrel Goeddel wrote:
 
-typeattribute TYPE ATTRIBUTES;
+> ... The patch is against the current sourceforge CVS chekpolicy directory.
+> 
 
-where TYPE is the type you are adding attributes to and ATTRIBUTES is a comma 
-separated list of the attributes you would like to add.
-
-Such statements are useful for policy tweaking without extensive modification to 
-the existing .te files (which makes tracking changes much easier).
-
-The patch is against the current sourceforge CVS chekpolicy directory.
+There is a bad call to free() in the patch that was sent earlier.  A new patch 
+is attached.  I apologize for the goof.  Questions/comments?
 
 -- 
 
 Darrel
 
---------------090502030805060401010206
+--------------090701050903090205000401
 Content-Type: text/plain;
- name="typeattr.patch"
+ name="typeattr-2.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="typeattr.patch"
+ filename="typeattr-2.patch"
 
 Index: policy_parse.y
 ===================================================================
@@ -103,7 +97,7 @@ diff -u -r1.25 policy_parse.y
  	if (pass == 2) {
  		while ((id = queue_remove(id_queue))) 
  			free(id);
-@@ -1686,6 +1691,84 @@
+@@ -1686,6 +1691,83 @@
  	return 0;
  }
  
@@ -177,7 +171,6 @@ diff -u -r1.25 policy_parse.y
 +
 +		if (ebitmap_set_bit(&attr->types, (t->value - 1), TRUE)) {
 +			yyerror("out of memory");
-+			free(id);
 +			return -1;
 +		}
 +	}
@@ -205,7 +198,7 @@ diff -u -r1.6 policy_scan.l
  type				{ return(TYPE); }
  BOOL |
 
---------------090502030805060401010206--
+--------------090701050903090205000401--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
