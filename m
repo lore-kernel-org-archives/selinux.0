@@ -1,61 +1,31 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7PBemrT004567
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 07:40:48 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7PBe0LV026221
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 11:40:01 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7PBhVrT004603
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 07:43:31 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7PBhTuQ005029
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 11:43:30 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
-Date: Wed, 25 Aug 2004 21:40:41 +1000
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: prelink on debian
+Date: Wed, 25 Aug 2004 21:43:25 +1000
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040823214228.GA13677@lkcl.net> <20040824002244.GA25356@lkcl.net> <20040824091520.GE11911@rom.cip.ifi.lmu.de>
-In-Reply-To: <20040824091520.GE11911@rom.cip.ifi.lmu.de>
+References: <20040823232135.GA12720@lkcl.net>
+In-Reply-To: <20040823232135.GA12720@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
-Message-Id: <200408252140.41362.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200408252143.25077.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 24 Aug 2004 19:15, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
-wrote:
-> * Luke Kenneth Casson Leighton <lkcl@lkcl.net> [2004-08-24 03:38]:
-> > in amongst this lot are two lines that say /dev/hdc something here
-> >
-> > we go:
-> > > +/.?u?dev/hdc  -b system_u:object_r:tunably_defined_disk_t
-> > > +/.?u?dev/[h]d[^/^c]* -b system_u:object_r:fixed_disk_device_t
->
-> I don't think this is the right approach. Not all users have their
-> CD-Rom on /dev/hdc.
-> I've been using a hack to the Makefile which works well on the
-> hundred-odd machines we have here:
+On Tue, 24 Aug 2004 09:21, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> prelink is a script on debian: i had to add this because prelink checks
+> that there's > 50mb of disk space and then exec's prelink.bin.
 
-I agree.  Luke's code makes a tunable for whether /dev/hdc is a cd-rom, not 
-whether /dev/hdb, /dev/hdd, etc might be a tunable.
+OK, this needs a ifdef(`distro_debian', around it.
 
-> --- orig/Makefile
-> +++ mod/Makefile
-> @@ -145,6 +145,7 @@
->         @grep -v "^/root" $@.tmp > $@.root
->         @/usr/sbin/genhomedircon . $@.root  > $@
->         @grep "^/root" $@.tmp >> $@
-> +       @for i in /proc/ide/hd*/media; do grep -q cdrom $$i && echo $$i |
-> awk -F / '{ print "/dev/"$$4"\t-b\tsystem_u:object_r:removable_device_t"}'
-> >> $@; done @-rm $@.tmp $@.root
-
-Good work, but there's one minor bug.  If a system has no CD-ROM drives (or 
-possibly if the last IDE drive is not a CD) then it returns an error and 
-aborts the make.
-
-Appending a "|| true" to the command seems to fix this bug without any 
-side-affects.
-
-       @for i in /proc/ide/hd*/media; do grep -q cdrom $$i && echo $$i | awk 
--F / '{ print "/dev/"$$4"\t-b\tsystem_u:object_r:removable_device_t"}' >> $@ 
-|| true; done @-rm $@.tmp $@.root
+Do you think we should have the shell script labelled as sbin_t on Debian?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
