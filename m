@@ -1,73 +1,79 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA9NFVIi026572
-	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 18:15:31 -0500 (EST)
-Received: from rwcrmhc11.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA9NE7xp024319
-	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 23:14:08 GMT
-Message-ID: <41914F8B.3060102@tresys.com>
-Date: Tue, 09 Nov 2004 18:15:23 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [RFC][PATCH] Control ability to have a writable executable mapping
-References: <1100025603.408.203.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1100025603.408.203.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAA1A2Ii026989
+	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 20:10:02 -0500 (EST)
+Received: from sccrmhc11.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAA18dxp027589
+	for <selinux@tycho.nsa.gov>; Wed, 10 Nov 2004 01:08:39 GMT
+Subject: [patch] libselinux/utils/selinuxconfig.c
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3pi+tmBcWKHnjOtFRRuv"
+Date: Tue, 09 Nov 2004 20:09:14 -0500
+Message-Id: <1100048954.24818.3.camel@chris.pebenito.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
 
->I know that the PAX/selinux integration patch approaches this
->differently, applying a check based on the executable file type rather
->than the process domain, but I would favor a domain-based check for its
->greater generality (ability to handle multiple instances of the same
->program in different ways) and more direct representation of the actual
->operation (can this process perform this action?).  Admittedly, the
->domain-based check does impose a cost on policy writers - you have to
->define separate domains vs. just separate file types in order to
->selectively allow this permission.  But I believe that this cost is
->justified.
->  
->
-I can't think of any circumstances where the domain which an application 
-is in should have an impact on it's PaX flags.
-In general we want whatever defaults (pageexec, mprotect, randmmap) on 
-all the time except in cases where one or more of those flags don't work 
-(eg, java doesn't like pageexec, nor does mono). The caller domain makes 
-no difference in whether those will or will not function with PaX 
-protection, nor should it make a difference in whether those are enabled.
-
-That said, I know the current implementation breaks the current domain 
-source, target object type model, and it would be better to make it the 
-same for no better reason than consistancy.
-
-On the other hand, you are right, it does impose a higher cost on policy 
-writing. However, it isn't clear that SELinux facilitates this sort of 
-flag setting via permissions well, since SELinux will deny by default 
-all the flags would be off (!) which is less secure.
-
->Please note that this patch does NOT provide the functionality of PAX,
->exec-shield, NX support, etc.  It merely provides SELinux policy control
->over the ability to create an executable mapping that can contain data
->not covered by file permission checks.
->
->  
->
-out of curiousity, is revocation handled?
-
->Constructive comments welcome.
->
->  
->
-It seems like the whole purpose of this is to enforce a consistancy 
-between filesystem permissions and mmaped files in memory?
-Does this fall into the same category as PaX where denying the flag 
-actually causes a less secure default?
+--=-3pi+tmBcWKHnjOtFRRuv
+Content-Type: multipart/mixed; boundary="=-XJxJyAMkaE8I3LNVGqp8"
 
 
-Joshua Brindle
+--=-XJxJyAMkaE8I3LNVGqp8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Here's a trivial patch to display the file_contexts path in
+selinuxconfig.  Gentoo has a script to relabel individual packages using
+setfiles, and this is useful rather than having a hard-coded path for
+file_contexts.
+
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+
+--=-XJxJyAMkaE8I3LNVGqp8
+Content-Disposition: attachment; filename=selinuxconfig.c.diff
+Content-Type: text/x-patch; name=selinuxconfig.c.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
+
+SW5kZXg6IHV0aWxzL3NlbGludXhjb25maWcuYw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNy
+b290L3NlbGludXgvbnNhL3NlbGludXgtdXNyL2xpYnNlbGludXgvdXRpbHMvc2VsaW51eGNvbmZp
+Zy5jLHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS4yDQpkaWZmIC11IC1yMS4yIHNlbGludXhjb25m
+aWcuYw0KLS0tIHV0aWxzL3NlbGludXhjb25maWcuYwkxNSBKdW4gMjAwNCAxMzoxNjozMCAtMDAw
+MAkxLjINCisrKyB1dGlscy9zZWxpbnV4Y29uZmlnLmMJMTAgTm92IDIwMDQgMDE6MDQ6NDEgLTAw
+MDANCkBAIC0yOCw2ICsyOCw3IEBADQogCXByaW50ZigiYmluYXJ5X3BvbGljeV9wYXRoPVwiJXNc
+IlxuIiwgc2VsaW51eF9iaW5hcnlfcG9saWN5X3BhdGgoKSk7DQogCXByaW50ZigidXNlcl9jb250
+ZXh0c19wYXRoPVwiJXNcIlxuIiwgc2VsaW51eF91c2VyX2NvbnRleHRzX3BhdGgoKSk7DQogCXBy
+aW50ZigiY29udGV4dHNfcGF0aD1cIiVzXCJcbiIsIHNlbGludXhfY29udGV4dHNfcGF0aCgpKTsN
+CisJcHJpbnRmKCJmaWxlX2NvbnRleHRzX3BhdGg9XCIlc1wiXG4iLCBzZWxpbnV4X2ZpbGVfY29u
+dGV4dF9wYXRoKCkpOw0KIAlleGl0KDApOw0KIA0KIH0NCg==
+
+
+--=-XJxJyAMkaE8I3LNVGqp8--
+
+--=-3pi+tmBcWKHnjOtFRRuv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBkWo6vI7kLeavkkMRAicsAJ9APUg4jt3/GWLjvm241kzcu25JzgCgpuHt
+VyirFy7kUtxk73IlYoTxY94=
+=4REy
+-----END PGP SIGNATURE-----
+
+--=-3pi+tmBcWKHnjOtFRRuv--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
