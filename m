@@ -1,48 +1,53 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA24440
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 14:02:57 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA24480
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 14:05:24 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA13145
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 18:00:50 GMT
-Received: from angusbay.vnl.com ([194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id SAA13141 for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 18:00:49 GMT
-Date: Wed, 5 Jun 2002 19:03:45 +0100
-From: Dale Amon <amon@vnl.com>
-To: Admissions Office <admissions@internet.edu.nf>
-Cc: selinux@tycho.nsa.gov, John Summerfield <summer@os2.ami.com.au>
-Subject: Re: Open Question to the NSA & The List
-Message-ID: <20020605180345.GC18112@vnl.com>
-References: <200206051255.g55CtvT12933@numbat.Os2.Ami.Com.Au> <006101c20cb1$f316af10$91c03b8e@OK>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <006101c20cb1$f316af10$91c03b8e@OK>
+	by jazzband.ncsc.mil  with ESMTP id SAA13393
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 18:04:03 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+        by jazzband.ncsc.mil  with SMTP id SAA13389 for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 18:04:02 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524392@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Justin Smith'" <jsmith@mcs.drexel.edu>, selinux@tycho.nsa.gov
+Subject: RE: Sorry, read this one: Re: SELinux Dumb Questions Answered
+Date: Wed, 5 Jun 2002 13:05:41 -0500 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jun 05, 2002 at 10:56:34AM -0600, Admissions Office wrote:
-> There has been alot of talk over the mention that a Colo company (ours)
-> would like to install the SELinux on clients servers. My question to the
-> Powers In Charge here is: Can we use this software at no charge? People ask
-> for it daily, we have users that installed themselves. Its just we are being
-> asked to do it as part of a total service to clients.  If someone from the
-> NSA, as well as the other interested parties on this list could answer this
-> it would be great. And yes, I understand that the NSA does not reply on many
-> things. I do not see how a simple answer would hurt as its on a U.S.
-> Government server that is property of the NSA.
-> 
-> Thank You.
-> 
-> Pamela Patterson
+The Answer to the TE patents issue.
 
-I think the answer is the parties who really are involved are
-probably talking right now and when it is all ironed out, 
-they will report to this list.
+Mark Westerman
 
-I personally expect it will be sorted out and that everything
-will indeed be GPL. But that is for those who are *actually*
-in the responsible positions to sort.
+>From the Secure Computing Web Site
 
-I'm sure we'll hear something soon.
+http://www.securecomputing.com/archive/press/2000/nsa_faq_secure_linux.html
+
+Question 6: Will SCC use its patent on Type Enforcement TM to restrict 
+use, future development, derivative work, or release of the source
+code of the system? 
+
+There will be no restrictions on the use of TE by the Linux 
+open source community. We believe that leveraging the 
+resources of the Linux community is the best way to develop robust 
+security for Linux. Our modifications to Linux will consist of: 
+
+     strong policy enforcement code which is integrated into 
+     the kernel itself and a flexible policy engine which 
+     is structured as a separate kernel component. 
+
+We will release source code for all the modifications to the existing 
+kernel and for a general-purpose security policy engine under the GPL. 
+We are still defining the exact functionality of this engine, 
+but it will support a broad set of basic applications, it will be 
+functional, and it will be complete enough to enable the Linux 
+community to develop other policy engines. We expect that others 
+will choose to enhance this code and return their enhancements to the
+community
+
+
 
 
 --
