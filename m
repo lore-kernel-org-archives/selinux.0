@@ -1,45 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i086JYRb020200
-	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 01:19:34 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i087G8Rb020388
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 02:16:09 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i086IVxr007466
-	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 06:18:31 GMT
+	by jazzswing.ncsc.mil  with ESMTP id i087F5xr009501
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 07:15:05 GMT
 Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i086ITYc007449
-	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 06:18:30 GMT
+	by jazzswing.ncsc.mil  with ESMTP id i087F2Yc009487
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 07:15:03 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id C0EDA61C47
+	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 18:14:43 +1100 (EST)
+Received: from ns.sws.net.au ([127.0.0.1])
+	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 28738-04 for <selinux@tycho.nsa.gov>;
+	Thu, 8 Jan 2004 18:14:43 +1100 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by ns.sws.net.au (Postfix) with ESMTP id 7864A61C44
+	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 18:14:43 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 56086924F5
+	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 18:14:43 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 78E99B59C0
+	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 18:14:41 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: Kerberos
-Date: Thu, 8 Jan 2004 17:18:08 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200401081401.18967.russell@coker.com.au> <200401081644.02192.russell@coker.com.au> <84wu83at2v.fsf@snoopy.apana.org.au>
-In-Reply-To: <84wu83at2v.fsf@snoopy.apana.org.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: rshd
+Date: Thu, 8 Jan 2004 18:14:40 +1100
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200401081718.08454.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200401081814.40877.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 8 Jan 2004 16:48, Brian May <bam@snoopy.apana.org.au> wrote:
-> >>>>> "Russell" == Russell Coker <russell@coker.com.au> writes:
->     >> Or perhaps I am confused with a different meaning for the word
->     >> "client"?
->     >>
->     >> Here, for client, I consider ssh, telnet, etc to be clients and
->     >> sshd, telnetd, etc to be servers.
->
->     Russell> For kerberos sshd is a client and the Kerberos server is
->     Russell> the server.
->
-> I see your point, but this gets a bit messy; sshd never actually talks
-> to the KDC server. ssh does.
+ifdef(`rshd.te',
+`# Connect second port to rshd.
+can_tcp_connect(rshd_t, $1_t)')
+')dnl end tcp server
 
-Could you please give me a summary of how Kerberos works in terms of SE Linux.  
-What talks to what by what mechanism, and when it does so.
-
-It seems that I don't understand how this is supposed to work.
+What is the above section of user_macros.te about?  Why does an rsh server 
+connect back to the client?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
