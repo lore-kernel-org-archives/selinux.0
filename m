@@ -1,38 +1,150 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6HMR6Ha001254
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2003 18:27:07 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6HMR0DW023798
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2003 22:27:00 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id h6HMQeeN023782 for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2003 22:26:54 GMT
-Date: Fri, 18 Jul 2003 08:25:52 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6HN0JHa001381
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2003 19:00:20 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6HMxGFB014074
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2003 22:59:17 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+	by jazzswing.ncsc.mil  with ESMTP id h6HMxGGD014057
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2003 22:59:16 GMT
 Subject: Re: [patch] policy metadata
-Message-ID: <20030717222552.GA25260@snoopy.apana.org.au>
+From: Colin Walters <walters@verbum.org>
+To: Brian May <bam@snoopy.apana.org.au>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+In-Reply-To: <20030717222552.GA25260@snoopy.apana.org.au>
 References: <1058463241.14302.16.camel@columbia>
+	 <20030717222552.GA25260@snoopy.apana.org.au>
+Content-Type: multipart/mixed; boundary="=-VMgtdkAFWffYQuHaDxBI"
+Message-Id: <1058482582.2551.1.camel@columbia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1058463241.14302.16.camel@columbia>
+Date: 17 Jul 2003 18:56:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jul 17, 2003 at 01:34:02PM -0400, Colin Walters wrote:
-> While Debianizing all the SE 2.5 stuff, I got pretty fed up with
-> answering 100+ questions about whether or not to install individual
-> policy files.  So I've been working on a few new options for installing
-> the Debian SELinux policy.
-> 
-> The main idea is to add information to each .te file about which Debian
-> packages use it.  I went with the semi-RFC822 style formatting in use
-> and called it "X-Debian-Packages:".
 
-I am not still not clear on how this extra information will be used to
-help solve the above problem...
--- 
-Brian May <bam@snoopy.apana.org.au>
+--=-VMgtdkAFWffYQuHaDxBI
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Thu, 2003-07-17 at 18:25, Brian May wrote:
+
+> I am not still not clear on how this extra information will be used to
+> help solve the above problem...
+
+I've attached my policy-remove-unwanted script, as well as the Debconf
+.templates file.  Hopefully that makes things clearer...
+
+Do you have any specific questions?
+
+
+
+--=-VMgtdkAFWffYQuHaDxBI
+Content-Disposition: attachment; filename=policy-remove-unwanted
+Content-Type: text/x-sh; name=policy-remove-unwanted; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+IyEvYmluL2Jhc2gNCiMgSW5zdGFsbCBTRUxpbnV4IHBvbGljeSBmaWxlcw0KIyBMb29zZWx5IGJh
+c2VkIG9uIGEgUGVybCByZW1vdmUtdW53YW50ZWQtcG9saWN5IGJ5IFJ1c3NlbGwgQ29rZXIuDQoj
+IENvcHlyaWdodCAoQykgMjAwMyBDb2xpbiBXYWx0ZXJzIDx3YWx0ZXJzQGRlYmlhbi5vcmc+DQoN
+CiMgVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0
+IGFuZC9vcg0KIyBtb2RpZnkgaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQ
+dWJsaWMgTGljZW5zZSBhcw0KIyBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRh
+dGlvbjsgZWl0aGVyIHZlcnNpb24gMiwgb3IgKGF0DQojIHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIg
+dmVyc2lvbi4NCiMNCiMgVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRo
+YXQgaXQgd2lsbCBiZSB1c2VmdWwsIGJ1dA0KIyBXSVRIT1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91
+dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9mDQojIE1FUkNIQU5UQUJJTElUWSBvciBGSVRO
+RVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUgR05VDQojIEdlbmVyYWwgUHVi
+bGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4NCiMNCiMgWW91IHNob3VsZCBoYXZlIHJlY2Vp
+dmVkIGEgY29weSBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UNCiMgYWxvbmcgd2l0
+aCB0aGlzIHByb2dyYW07IGlmIG5vdCwgd3JpdGUgdG8gdGhlIEZyZWUgU29mdHdhcmUNCiMgRm91
+bmRhdGlvbiwgSW5jLiwgNTkgVGVtcGxlIFBsYWNlLCBTdWl0ZSAzMzAsIEJvc3RvbiwgTUENCiMg
+MDIxMTEtMTMwNyBVU0EuDQoNCnNldCAtZQ0KDQptZXRob2Q9IiQxIg0Kc2hpZnQNCg0KdGVzdCAt
+biAiJG1ldGhvZCIgfHwgKGVjaG8gInVzYWdlOiAkMCBNRVRIT0QiOyBleGl0IDEpDQoNCmlmIHRl
+c3QgIiRtZXRob2QiID0gIkRvbid0IHRvdWNoIjsgdGhlbg0KICAgIGV4aXQgMA0KZmkNCg0KIyMj
+IFV0aWxpdHkgZnVuY3Rpb25zDQpzaGVsbCAoKSB7DQogICAgZWNobw0KICAgIGVjaG8gIkluc3Rh
+bGxhdGlvbiBzdXNwZW5kZWQuICBCZSBzdXJlIHRvIHR5cGUgXCJleGl0XCIgd2hlbiB5b3UgYXJl
+IGZpbmlzaGVkLiINCiAgICAke1NIRUxMOi0vYmluL3NofQ0KfQ0KDQpoYXZlcGtnICgpIHsNCiAg
+ICBwa2c9JDENCiAgICBpZiB0ZXN0IC16ICIkRFBLR19JU19TTE9XX0FTX0hFTEwiOyB0aGVuDQoJ
+ZHBrZyAtcyAiJHBrZyIgMj4vZGV2L251bGwgfCBlZ3JlcCAtcSAnW1s6c3BhY2U6XV1pbnN0YWxs
+ZWQnIDE+L2Rldi9udWxsIDI+JjENCiAgICBlbHNlDQoJdGVzdCAtZiAvdmFyL2xpYi9kcGtnL2lu
+Zm8vIiRwa2ciLmxpc3QNCiAgICBmaQ0KICAgIHJldHVybg0KfQ0KDQpxdWVyeXBvbGljeSAoKSB7
+DQogICAgZmlsZT0iJDEiDQogICAgZGVzY3JpcHRpb249IiQyIg0KICAgIGRlYnM9IiQzIg0KICAg
+IGRlZmF1bHQ9IiQ0Ig0KICAgIGlmIFsgLW4gIiRkZXNjcmlwdGlvbiIgXTsgdGhlbg0KCXByaW50
+ZiAiSW5jbHVkZSBcIiVzXCIgKCVzKSBpbiBwb2xpY3k/XG4iICIkZGVzY3JpcHRpb24iICIkZmls
+ZSINCiAgICBlbHNlDQoJcHJpbnRmICJJbmNsdWRlIFwiJXNcIiBpbiBwb2xpY3k/XG4iICIkZmls
+ZSINCiAgICBmaQ0KICAgIGlmIFsgLW4gIiRkZWJzIiBdOyB0aGVuDQoJaWYgWyAiJGRlYnMiID0g
+Ik5PREVCTElORSIgXTsgdGhlbg0KCSAgICBwcmludGYgIiAoRmlsZSBkb2VzIG5vdCBoYXZlIGFu
+IFgtRGViaWFuLVBhY2thZ2VzOiBoZWFkZXIpXG4iDQoJZWxzZQ0KCSAgICBwcmludGYgIiAoUmVm
+ZXJlbmNlcyBrbm93biBpbnN0YWxsZWQgcGFja2FnZXM6ICVzKVxuIiAiJGRlYnMiDQoJZmkNCiAg
+ICBlbHNlDQoJcHJpbnRmICIgKERvZXMgbm90IHJlZmVyZW5jZSBhbnkga25vd24gaW5zdGFsbGVk
+IHBhY2thZ2VzKVxuIg0KICAgIGZpDQogICAgcHJpbnRmICIgWWVzL05vL0Rpc3BsYXkvQmFja2dy
+b3VuZCAiICAgIA0KICAgIGNhc2UgIiRkZWZhdWx0IiBpbg0KCXkpIHByaW50ZiAiW1kvbi9kL2Jd
+PyAiOzsNCgkqKSBwcmludGYgIlt5L04vZC9iXT8gIjs7DQogICAgZXNhYw0KICAgIHJlYWQgYW5z
+DQogICAgY2FzZSAkKGVjaG8gIiRhbnMiIHwgdHIgJ1tBLVpdJyAnW2Etel0nKSBpbg0KCXkqKSBy
+ZXR1cm4gMDs7DQoJbiopIHJldHVybiAxOzsNCglkfEQqKSBzZW5zaWJsZS1wYWdlciAiJGZpbGUi
+OyBxdWVyeXBvbGljeSAiJGZpbGUiICIkZGVzY3JpcHRpb24iICIkZGVicyIgIiRkZWZhdWx0Ijsg
+cmV0dXJuOzsNCglifEIpIHNoZWxsOyBxdWVyeXBvbGljeSAiJGZpbGUiICIkZGVzY3JpcHRpb24i
+ICIkZGVicyIgIiRkZWZhdWx0Ijs7DQoJKikgaWYgdGVzdCAiJGRlZmF1bHQiID0gInkiOyB0aGVu
+IHJldHVybiAwOyBlbHNlIHJldHVybiAxOyBmaTs7DQogICAgZXNhYw0KICAgIHJldHVybiAxDQp9
+DQoNCiMjIyBCZWdpbiBzY3JpcHQNCmNkIC91c3Ivc2hhcmUvc2VsaW51eC9wb2xpY3kvDQoNCmN1
+cnJlbnQ9JChjZCBjdXJyZW50ICYmIGZpbmQgZG9tYWlucy9wcm9ncmFtIC10eXBlIGYgMj4vZGV2
+L251bGwpDQoNCiMgTG9vcCBvdmVyIGFsbCB0aGUgZmlsZXMgaW4gZG9tYWlucy9wcm9ncmFtLCBh
+bmQgcXVlcnkgdGhlIHVzZXIgYWJvdXQNCiMgZWFjaCBvbmUuDQpkZWxwb2xpY3k9DQpmb3IgZmls
+ZSBpbiAkY3VycmVudDsgZG8NCiAgICBpZiAhIGVncmVwIC1xICJeJGZpbGVcXCQiIGlnbm9yZWRp
+ZmYgMj4vZGV2L251bGw7IHRoZW4NCglvcmlnZmlsZT0iJGZpbGUiDQoJZmlsZT0iY3VycmVudC8k
+ZmlsZSINCglpZiBoZWFkIC0xICIkZmlsZSIgfCBlZ3JlcCAtcSAnXiNERVNDJzsgdGhlbg0KCSAg
+ICBkZXNjcmlwdGlvbj0kKGhlYWQgLTEgIiRmaWxlIiB8IHNlZCAtciAtZSAncy9eI0RFU0NbWzpz
+cGFjZTpdXSovLycpDQoJICAgIGhhdmVfZGVibGluZT0JICAgIA0KCSAgICBpZiBlZ3JlcCAtcSAn
+XiNbWzpzcGFjZTpdXSpYLURlYmlhbi1QYWNrYWdlczonICIkZmlsZSI7IHRoZW4NCgkJaGF2ZV9k
+ZWJsaW5lPXllcw0KCQlkZWJzPSQoZWdyZXAgJ14jW1s6c3BhY2U6XV0qWC1EZWJpYW4tUGFja2Fn
+ZXM6JyAiJGZpbGUiIHwgXA0KCSAgICAgICAgICAgICAgICBzZWQgLXIgLWUgJ3MvXi4qWC1EZWJp
+YW4tUGFja2FnZXM6W1s6c3BhY2U6XV0qLy8nIC1lICdzL15bWzpzcGFjZTpdXSovLycgLWUgJ3Mv
+W1s6c3BhY2U6XV0qJC8vJykNCgkgICAgZmkNCgkgICAgaW5zdGRlYnM9DQoJICAgIGZvciBwa2cg
+aW4gJGRlYnM7IGRvDQoJCWlmIGhhdmVwa2cgJHBrZzsgdGhlbiBpbnN0ZGVicz0iJGluc3RkZWJz
+ICRwa2ciOyBicmVhazsgZmkNCgkgICAgZG9uZQ0KCSAgICBpbnN0ZGVicz0kKGVjaG8gJGluc3Rk
+ZWJzIHwgc2VkIC1yIC1lICdzL15bWzpzcGFjZTpdXSovLycgLWUgJ3MvW1s6c3BhY2U6XV0qJC8v
+JykNCgkgICAgcmVtb3ZlPW5vDQoJICAgIGNhc2UgIiRtZXRob2QiIGluDQoJCUF1dG9tYXRpYykN
+CgkJICAgIGlmIFsgLXogIiRoYXZlX2RlYmxpbmUiIF07IHRoZW4NCgkJCWlmICEgcXVlcnlwb2xp
+Y3kgIiRmaWxlIiAiJGRlc2NyaXB0aW9uIiAiTk9ERUJMSU5FIiAieSI7IHRoZW4NCgkJCSAgICBy
+ZW1vdmU9eWVzDQoJCQlmaQ0KCQkgICAgZWxzZQ0KCQkJaWYgWyAteiAiJGluc3RkZWJzIiBdOyB0
+aGVuDQoJCQkgICAgcmVtb3ZlPXllcw0KCQkJZmkNCgkJICAgIGZpOzsNCgkJU2VtaS1BdXRvbWF0
+aWMpDQoJCSAgICBpZiBbIC16ICIkaW5zdGRlYnMiIF0gfHwgISBxdWVyeXBvbGljeSAiJGZpbGUi
+ICIkZGVzY3JpcHRpb24iICIkaW5zdGRlYnMiICJ5IjsgdGhlbg0KCQkJcmVtb3ZlPXllcw0KCQkg
+ICAgZmk7Ow0KCQlNYW51YWwpDQoJCSAgICBpZiAhIHF1ZXJ5cG9saWN5ICIkZmlsZSIgIiRkZXNj
+cmlwdGlvbiIgIiRpbnN0ZGVicyIgIm4iOyB0aGVuDQoJCQlyZW1vdmU9eWVzDQoJCSAgICBmaTs7
+DQoJCSopIHByaW50ZiAiSW50ZXJuYWwgZXJyb3I7IHVua25vd24gbWV0aG9kIHR5cGUgXCIlc1wi
+IVxuIiAiJG1ldGhvZCI7IGV4aXQgMTs7DQoJICAgIGVzYWMNCgkgICAgaWYgWyAiJHJlbW92ZSIg
+PSAieWVzIiBdOyB0aGVuDQoJCWRlbHBvbGljeT0iJGRlbHBvbGljeSAkb3JpZ2ZpbGUiDQoJCXBy
+aW50ZiAiUmVtb3ZpbmcgXCIlc1wiXG4iICIkZmlsZSINCgkgICAgZWxzZQ0KCQlwcmludGYgIktl
+ZXBpbmcgXCIlc1wiXG4iICIkZmlsZSINCgkgICAgZmkNCglmaQ0KICAgIGZpDQpkb25lDQoNCiMg
+UmVjb3JkIHdoaWNoIGZpbGVzIHRoZXkgZGlkbid0IHdhbnQgaW4gImRlbGZpbGVzIi4NCjogPiBk
+ZWxmaWxlcw0KZm9yIGZpbGUgaW4gJGRlbHBvbGljeTsgZG8NCiAgICBybSAiY3VycmVudC8kZmls
+ZSINCiAgICBlY2hvICIkZmlsZSIgPj4gZGVsZmlsZXMNCmRvbmUNCg==
+
+--=-VMgtdkAFWffYQuHaDxBI
+Content-Disposition: attachment; filename=selinux-policy-default.templates
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; name=selinux-policy-default.templates; charset=UTF-8
+
+VGVtcGxhdGU6IHNlbGludXgtcG9saWN5LWRlZmF1bHQvcG9saWN5X2luc3RhbGxhdGlvbl9tZXRo
+b2QNClR5cGU6IHNlbGVjdA0KQ2hvaWNlczogQXV0b21hdGljLCBTZW1pLUF1dG9tYXRpYywgTWFu
+dWFsLCBEb24ndCBUb3VjaA0KRGVmYXVsdDogU2VtaS1BdXRvbWF0aWMNCkRlc2NyaXB0aW9uOiBD
+aG9vc2UgYSBwb2xpY3kgaW5zdGFsbGF0aW9uIG1ldGhvZC4NCiBUaGVyZSBhcmUgc2V2ZXJhbCBh
+dmFpbGFibGUgbWV0aG9kcyBieSB3aGljaCB5b3UgY2FuIGluc3RhbGwgbmV3DQogU0VMaW51eCBw
+b2xpY3kgZmlsZXMuICBJZiB5b3UgY2hvb3NlICJBdXRvbWF0aWMiLCBhbGwgcG9saWN5IGZpbGVz
+DQogd2hpY2ggbWF0Y2gga25vd24gaW5zdGFsbGVkIERlYmlhbiBwYWNrYWdlcyB3aWxsIGJlIGF1
+dG9tYXRpY2FsbHkNCiBpbnN0YWxsZWQuICBZb3Ugd2lsbCBnZXQgYSBub3RpY2Ugb2Ygd2hpY2gg
+cG9saWN5IGZpbGVzIHdlcmUNCiBpbnN0YWxsZWQuDQogLg0KIEZvciBtb3JlIGNvbnRyb2wsIHlv
+dSBtYXkgY2hvb3NlICJTZW1pLUF1dG9tYXRpYyIgKHRoZSBkZWZhdWx0KSwNCiB3aGljaCBpcyBs
+aWtlICJBdXRvbWF0aWMiIGluIHRoYXQgaXQgb25seSB3b3JrcyBvbiBwb2xpY3kgZmlsZXMgd2hp
+Y2gNCiBtYXRjaCBpbnN0YWxsZWQgRGViaWFuIHBhY2thZ2VzOyBob3dldmVyLCBpdCB3aWxsIHBy
+b21wdCB5b3UgYmVmb3JlDQogaW5zdGFsbGluZyBhIHBvbGljeSBmaWxlLg0KIC4NCiBUaGUgIk1h
+bnVhbCIgb3B0aW9uIHdpbGwgZW5hYmxlIHByb21wdGluZyBmb3IgYWxsIGF2YWlsYWJsZSBwb2xp
+Y3kNCiBmaWxlcy4NCiAuDQogRmluYWxseSwgIkRvbid0IFRvdWNoIiB3aWxsIHRvdGFsbHkgZGlz
+YWJsZSBhbGwgcHJvbXB0aW5nLiAgWW91IHdpbGwNCiBiZSByZXNwb25zaWJsZSBmb3IgbWFpbnRh
+aW5pbmcgdGhlIHBvbGljeSB5b3Vyc2VsZi4NCiANCg==
+
+--=-VMgtdkAFWffYQuHaDxBI--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
