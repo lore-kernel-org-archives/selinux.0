@@ -1,57 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA03839
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 12:58:50 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA03882
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 13:00:34 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA12687
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 16:57:21 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id QAA12683
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 16:57:21 GMT
-Date: Tue, 24 Sep 2002 12:58:31 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: <azeredo@qmc.ufsc.br>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Problems compiling selinux in Mandrake 8.1
-In-Reply-To: <1032881732.3d908644afb3b@qmc.ufsc.br>
-Message-ID: <Pine.GSO.4.33.0209241252310.23277-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id QAA12789
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 16:59:05 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id QAA12779
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 16:59:03 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "david caplan" <dac@tresys.com>, <selinux@tycho.nsa.gov>
+Subject: Re: checkpolicy and login names
+Date: Tue, 24 Sep 2002 19:00:20 +0200
+References: <GBEAJBKHFOBIBBJBCGAGKEKGCFAA.dac@tresys.com>
+In-Reply-To: <GBEAJBKHFOBIBBJBCGAGKEKGCFAA.dac@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200209241900.20427.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 24 Sep 2002 16:32, david caplan wrote:
+> We just ran across the case where we were trying to add a login name with a
+> '.' in it.  When we tried to add the user to the policy, checkpolicy choked
+> on the '.' in the id.  The parser expects an Identifier, which is defined
+> to be a letter followed by a combination of letter|digit|_ of any length.
 
-On Tue, 24 Sep 2002 azeredo@qmc.ufsc.br wrote:
+What about "chown user.group file"?  I think that alone is a good enough 
+reason not to want to have a '.' in a user-name.
 
->   After giving up compiling selinux on SuSe 7.2  cause LIDS didn't work
+Of course there does not have to be any mapping between user-names and SE 
+identities, and the SE identities should not be limited in the same way as 
+Unix account names for this reason.
 
-Sorry, I don't understand.  LIDS and SELinux are two different security
-modules, and you can't use them together without some kind of stacking
-module.  So why would you enable LIDS?  In any event, people on the list
-have previously reported using SELinux on SuSe, so that should be
-possible.
+I could imagine a model where you might have Unixname.something as the SE 
+identity...
 
-> I am now trying to compile selinux on Mandrake 8.1, and got the
-> following mesage:
-
-Are you using the current release of SELinux (2002082308) from the NSA web
-site (http://www.nsa.gov/selinux)?  If not, what are you using?
-
-> security/vmlinux-obj.o: In function `selopt_init':
-> security/vmlinux-obj.o(.text.init+0x1af): undefined reference to `selopt_queue_exit'
-> security/vmlinux-obj.o(.text.init+0x1b4): undefined reference to `selopt_cache_exit'
-> security/vmlinux-obj.o(.text.init+0x1b9): undefined reference to
-> `selopt_perimtab_exit'
-> security/vmlinux-obj.o(.text.init+0x1be): undefined reference to `flnetlink_exit'
-> make: *** [vmlinux] Error 1
-
-What is your .config?  In particular, is NetFilter enabled and which
-SELinux options did you enable?
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
