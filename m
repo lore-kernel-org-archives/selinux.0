@@ -1,46 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA12200
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 12:21:21 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA12407
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 12:41:34 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA13034
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 17:20:22 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id RAA13030 for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 17:20:20 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-Subject: Re: gdm
-Date: Mon, 25 Feb 2002 18:21:08 +0100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <72222DC86846D411ABD300A0C9EB08A1015242DF@csoc-mail-box.csoconline.com>
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015242DF@csoc-mail-box.csoconline.com>
+	by jazzband.ncsc.mil  with ESMTP id RAA14148
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 17:40:35 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id RAA14144 for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 17:40:35 GMT
+Date: Mon, 25 Feb 2002 12:40:32 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: devfs permissions
+In-Reply-To: <20020224121902.AC8E4286E3@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0202251238390.16566-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020225172108.5A90313539@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 25 Feb 2002 17:51, Westerman, Mark wrote:
-> If you would like I will try and redo the gdm domain
-> to follow this guidline and make the change to xdm_t.
->
-> Russell did you need to make modifications to the
-> domain for the kdm ?
 
-No, but as my system is still running in debugging mode (and producing 
-hundreds of kernel messages about security policy denying operations - so 
-many that I haven't even looked at a fraction of them) I can't be sure that 
-I've got all the necessary rules.
+On Sun, 24 Feb 2002, Russell Coker wrote:
 
-It shouldn't be difficult to change it later, if nothing else what I have 
-currently sent out will be a good starting point for other interested people.
+> In either case we need to have devfsd manage SIDs on devfs nodes, currently
+> /dev/initctl and /dev/log don't get assigned a SID on devfs (also other pipes
+> and sockets would have the same problem - but aren't as important and don't
+> fail as spectacularly).
 
--- 
-Signatures >4 lines are rude.  If you send email to me or to a mailing list
-that I am subscribed to which has >4 lines of legalistic junk at the end
-then you are specifically authorizing me to do whatever I wish with the
-message (the sig won't be read).
+Files created at runtime, such as /dev/initctl and /dev/log, should be
+labeled based on the file_type_auto_trans() rules that already exist for
+the appropriate domains.  Of course, the current rules assume that the
+parent directory type is device_t.  I see that you changed the / entry in
+devfs_contexts from device_t to devfs_t.  I'm not sure I agree with that
+change - it will require additional file_type_auto_trans rules for the
+devfs case.  Why not use device_t for both devfs and traditional /dev?
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
