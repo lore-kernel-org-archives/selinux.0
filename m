@@ -1,67 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA15695
-	for <selinux@tycho.nsa.gov>; Sun, 29 Sep 2002 19:05:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA15835
+	for <selinux@tycho.nsa.gov>; Sun, 29 Sep 2002 20:22:31 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA05578
-	for <selinux@tycho.nsa.gov>; Sun, 29 Sep 2002 23:03:35 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id XAA05574
-	for <selinux@tycho.nsa.gov>; Sun, 29 Sep 2002 23:03:33 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 7F99492465
-	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 09:05:03 +1000 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 9A23BA4DD
-	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 01:03:08 +0200 (CEST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id AAA07927
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 00:20:59 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id AAA07922
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 00:20:57 GMT
+Date: Mon, 30 Sep 2002 10:22:06 +1000
+From: Brian May <bam@snoopy.apana.org.au>
 To: selinux@tycho.nsa.gov
-Subject: missed a bit from the last message
-Date: Mon, 30 Sep 2002 01:02:48 +0200
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_OO28H09MENZB0U8BMVSC"
-Message-Id: <200209300102.48526.russell@coker.com.au>
+Subject: Indentifying SE-Linux version
+Message-ID: <20020930002206.GB24855@snoopy.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+The version of the SELinux libraries seem to be constantly
+changing, and introducing new incompatabilities, etc.
 
---------------Boundary-00=_OO28H09MENZB0U8BMVSC
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+I think we need a way to identify what version of selinux
+a given binary has been compiled against.
 
-Here's a line that was missed from my last message.  Needed to allow games to 
-read .Xauthority with the new policy.
+This could be done, for instance, with an identifying string inside
+libsecure.a that is also put in compiled code, so we can do something
+like:
 
+strings /usr/bin/stat | grep SELINUX
+
+to obtain, say "SELINUX V12".
+
+Something like (not tested):
+
+static char id[] = "\nSELINUX v12\n";
+
+should be sufficient...
+
+(Assuming that this hasn't already been done)
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---------------Boundary-00=_OO28H09MENZB0U8BMVSC
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="1"
-
-diff -ru /usr/share/selinux/policy/default/macros/program/x_client_macros.te /usr/share/selinux/policy/current/macros/program/x_client_macros.te
---- /usr/share/selinux/policy/default/macros/program/x_client_macros.te	2002-09-30 00:15:28.000000000 +0200
-+++ /usr/share/selinux/policy/current/macros/program/x_client_macros.te	2002-09-30 01:00:28.000000000 +0200
-@@ -39,6 +39,8 @@
- # Use this type for files created in /tmp.
- file_type_auto_trans($1_$2_t, tmp_t, $1_$2_rw_t)
- 
-+allow $1_$2_t $1_home_xauth_t:file { getattr read };
-+
- # Allow the user domain to relabel to or create files with this type
- # to provide the domain with write access to particular files.
- allow $1_t $1_$2_rw_t:{ dir file lnk_file } { relabelfrom relabelto };
-
---------------Boundary-00=_OO28H09MENZB0U8BMVSC--
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
