@@ -1,54 +1,118 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i29MU5Rb015622
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2004 17:30:05 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2A9trRb017598
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 04:55:53 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i29MSN6Q008346
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2004 22:28:23 GMT
-Received: from maja.beep.pl (smtp.sys.beep.pl [195.245.198.13])
-	by jazzswing.ncsc.mil  with ESMTP id i29MSN5t008315
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2004 22:28:23 GMT
-Received: from [156.17.236.105] (helo=arm.t19.ds.pwr.wroc.pl ident=arekm)
-	by maja.beep.pl with asmtp (TLSv1:RC4-MD5:128)
-	(Exim 4.30)
-	id 1B0pdT-0004r5-Ri
-	for selinux@tycho.nsa.gov; Tue, 09 Mar 2004 23:23:40 +0100
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-To: selinux@tycho.nsa.gov
-Subject: blocking security xattr changes when policy is not loaded
-Date: Tue, 9 Mar 2004 23:29:42 +0100
+	by jazzswing.ncsc.mil  with ESMTP id i2A9sC6Q028179
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 09:54:12 GMT
+Received: from mta06-svc.ntlworld.com (mta06-svc.ntlworld.com [62.253.162.46])
+	by jazzswing.ncsc.mil  with ESMTP id i2A9sB5t028176
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 09:54:11 GMT
+Received: from hotmail.com ([62.253.144.49]) by mta06-svc.ntlworld.com
+          (InterMail vM.4.01.03.37 201-229-121-137-20020806) with ESMTP
+          id <20040310095551.WJLH19383.mta06-svc.ntlworld.com@hotmail.com>
+          for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 09:55:51 +0000
+Message-ID: <404EE624.7010901@hotmail.com>
+Date: Wed, 10 Mar 2004 09:55:48 +0000
+From: James de Lurker <jtl2nospamMUNGIEjump@hotmail.com>
+Reply-To: see.the.sig.2.reply.by.email.offlist@hotmail.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Message-Id: <200403092329.42958.arekm@pld-linux.org>
+CC: selinux@tycho.nsa.gov
+Subject: Re: grsecurity / LSM issue
+References: <20040308043522.GA4760@coker.com.au>
+In-Reply-To: <20040308043522.GA4760@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Mon, 8 Mar 2004 15:35:22 +1100  Russell Coker wrote:
 
-The case is that 2.6 selinux enabled kernel but _without_ policy loaded do not 
-allow to change security xattr for root user.
+> Brad Spender of the GR Security project has claimed that my Debian SE Linux
+> play machine was cracked.  A quick inspection didn't show any evidence of a
+> crack [..]
 
-The question is why is that?
+Would it be possible to make a snapshot clone of the disk and make that
+available to people experienced with forensics? I was thinking of the 
+honeypot/net project folks and the competition to analyse a rooted system a
+few years back. Some of those guys could tear into it effectively, if they 
+have the time. The economics of that exercise are interesting; when one
+compares the costs of building secure by default machines against simply
+reloading less secure setups that become compromised ( the latter being
+all too common a "standard procedure" in commercial environments ).
 
-I'm asking because for example I'm using pwconv from pwdutils (which replace 
-shadow-utils + have nice selinux support) and pwconv creates temporary 
-file /etc/shadow.tmpWAjQQd + does rename(). Of course pwconv wants to keep 
-security xattr on shadow file intact so it tries to 
-label /etc/shadow.tmpWAjQQd with same security xattr as /etc/shadow has 
-but ... kernel won't allow it to do that! setfilecon -> invalid argument
+But first it will be necessary to verify the claim of compromise, difficult
+if the perpetrator wishes to retain control over a 0day crack.
 
-Solution is to disable copying security xattr in pwconv but then I just loose 
-proper security xattr on shadow and that's bad.
 
-Why such restriction is made in kernel? It doesn't give more security to the 
-system. If I get root account (policy not loaded) then I can do anything like 
-replacing kernel with modified one etc, etc.
+> Brad states that he will provide evidence within 24 hours, I am eagerly looking
+> forward to this.
 
-Blocking security xattr for root in such case smells like security by 
-obscurity.
+Anyone calling "time" on this? I read the claims on the grsecurity page
+with interest - about LSM being used as means to stealth backdoors more
+effectively on cracked machines in the future:
+
+   http://www.grsecurity.net/lsm.php
+
+Here are the assertions that I find interesting:
+
+( Starts Verbatim extract from URL )
+
+Why LSM will harm the security of all Linux systems:
+  Though LSM can be disabled in the vanilla kernel to allow the system to 
+work functionally as it did in 2.4, all linux distributions will most 
+likely be enabling it in their kernels. The mere existence of a security 
+framework is not going to urge more users to use Trusted OS components in 
+their kernels.
+  Because LSM is compiled and enabled in the kernel, its symbols are 
+exported. Thus, every rootkit and backdoor writer will have every hook he 
+ever wanted in the kernel. This will allow for a new generation of 
+sophisticated backdoors and rootkits that will be nearly impossible to detect.
+			
+Why I personally dislike LSM
+I believe LSM entered the kernel, not because of its technical merit or 
+usefulness, but because of apathy from people involved in kernel 
+development who are able to make a difference in such decisions.
+I do not appreciate that the original intention of those backing LSM was to 
+allow for the existence of proprietary security modules that used the 
+kernel's GPL'd interfaces. This is no longer an issue, however I believe 
+that such an intention may have affected the design of LSM greatly to allow 
+for such a thing, instead of designing LSM for actual usefulness.
+	
+( Ends verbatim extract from http://www.grsecurity.net/lsm.php )
+
+
+I like to keep an open mind even in areas where peers consider my own
+competence to be high.
+
+Adversarial processes with substance could be beneficial to both 
+grsecurity's approach _and_ LSM; but it is the substance that is of 
+interest here. Anything else is just PR maneuvering.
+
+Comments from those with detailed knowledge of working with both systems
+would be of considerable interest. I shall probably also have a play with
+Adamantix, next month, when I can find the time to do it justice.
+   http://www.trusteddebian.org/
+
+
+> In any case I may put the Debian machine off-line for a while.  Most of my
+> work is on Fedora now and I don't think that two play machines offers any
+> significant benefit over one.
+
+A known compromised one neutered against doing anything harmful
+could also be of _considerable_ interest for educational purposes!
+
+This begs the question: Is LSM as implemented in Russell's build being
+exploited as suggested by the webpage?
+
 -- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+
+   -- James
+
+ From and Reply To are INVALID.
+
+All public postings use munged headers[1]- To contact me off list:
+   1) Remove "M U N G I E j u m p" ONLY: leave that "nospam" in there!
+   2) change "hotmail" 2 "myrealbox" after the @
+
 
 
 --
