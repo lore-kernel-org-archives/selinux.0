@@ -1,150 +1,76 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA04775
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 10:35:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA04895
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 10:51:18 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA14773
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 14:34:33 GMT
+	by jazzband.ncsc.mil  with ESMTP id OAA15626
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 14:50:06 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id OAA14769 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 14:34:30 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id A90BC92457
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 00:35:36 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 351F1181C
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 16:35:28 +0200 (CEST)
+        by jazzband.ncsc.mil  with ESMTP id OAA15622 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 14:50:03 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-Subject: Fwd: Re: setfiles patch
-Date: Thu, 18 Apr 2002 16:35:27 +0200
+To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy question
+Date: Thu, 18 Apr 2002 16:51:01 +0200
+References: <20020418112238.A1788@lemuria.org> <20020418104424.B714A44C1C@lyta.coker.com.au> <20020418142518.A5613@lemuria.org>
+In-Reply-To: <20020418142518.A5613@lemuria.org>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_3VPR8HYGHYXZ9FP342LW"
-Message-Id: <20020418143528.351F1181C@lyta.coker.com.au>
+Message-Id: <20020418145101.D31F444CB8@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 18 Apr 2002 14:25, Tom wrote:
+> > > Scenario: Webhosting with PHP, multiple users (possibly many)
+> > > Danger: PHP runs as a module, i.e. with apache's user and permissions.
+> >
+> > Here's the problem, not just for SE Linux but also for regular Unix
+> > permissions models and every other security system I know of.
+>
+> Absolutely. The problem is that you have a unified frontend with
+> diversification at the backend. This is the same issue you have for
+> ssh, except that ssh (and other remote login tools) have a method for
+> changing to a specific user, based on user/password data.
 
---------------Boundary-00=_3VPR8HYGHYXZ9FP342LW
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Ssh solves it by forking a new process and changing UID BEFORE doing any work.
 
-Right, thanks for the advice.
+> > Trying to give access to only code from a certain shared object inside a
+> > program is never going to work.  Anything Apache can do to get access,
+> > some malicious code can also potentially do.
+>
+> That is not what I want to do. I want to regulate access to certain
+> FILES. I don't care about apache itself at this point. The scenario I
+> want to avoid is this:
+>
+> /var/www/user1/script.php
+> /var/www/user2/script.php
+>
+> where user2's script contains something like:
+> <? $f=fopen("../user1/script.php"); read($f); ?>
 
-I have relised my mistake, I was over-riding those CFLAGS in my build
- process.
+What you could do is to have a unix domain socket named /var/www/socket/user1 
+which the Apache process creates and then forks off a child process to run 
+all PHP code for user1 under the UID of that user, and then pass back the 
+data to Apache through the socket for retransmission to the client.
 
-I have attached my latest patch which just adds a "-s" switch for taking file
-names from standard input and a "-m" switch to not display the missed regular
-expressions afterwards.
+In concept this is reasonably simple, and the performance impact shouldn't be 
+that great (a site with lots of static content and a small amount of PHP 
+won't be hit much - a site with lots of PHP will take so much CPU time that 
+it won't make much difference ;).
 
-Actually maybe it should be the other way around, use a "-m" if you want to
-see the unmatched regex's - they don't seem very useful to me.
+An Apache module should be able to handle this.
 
-Sorry, forgot the patch on the last message.
 
---------------Boundary-00=_3VPR8HYGHYXZ9FP342LW
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="setfiles.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="setfiles.diff"
+Also while we're talking about such things.  I think we need to split gpg 
+into at least two parts.  We need a separate program to read the secret key 
+file so it can trigger a domain_auto_trans rule and thus prevent a hostile 
+script from doing "gpg -e ~/.gnupg/secring.gpg".
 
-LS0tIHNlbGludXgtc21hbGwtMjAwMjAzMTQwOS5vcmlnL3NldGZpbGVzL3NldGZpbGVzLjgKKysr
-IHNlbGludXgtc21hbGwtMjAwMjAzMTQwOS9zZXRmaWxlcy9zZXRmaWxlcy44CkBAIC0wLDAgKzEs
-NjQgQEAKKy5USCAic2V0ZmlsZXMiICI4IiAiMjAwMjAzMTQwOSIgIiIgIiIKKy5TSCAiTkFNRSIK
-K3NldGZpbGVzIFwtIGluaXRpYWxpc2UgdGhlIFNJRHMgb24gYSBwYXJ0aXRpb24uCisKKy5TSCAi
-U1lOT1BTSVMiCisuQiBzZXRmaWxlcworLkkgW1wtZF0gW1wtbl0gW1wtdl0gW1wtbV0gW1wtc10g
-W1wtUl0gc3BlY19maWxlIHBhdGhuYW1lIFttb3JlIHBhdGhzXQorCisuU0ggIkRFU0NSSVBUSU9O
-IgorVGhpcyBtYW51YWwgcGFnZSBkb2N1bWVudHMgYnJpZWZseSB0aGUKKy5CUiBzZXRmaWxlcyAs
-Citwcm9ncmFtLgorLlAKK1RoaXMgcHJvZ3JhbSBpcyBwcmltYXJpbHkgdXNlZCB0byBpbml0aWFs
-aXNlIHRoZSBzZWN1cml0eSBjb250ZXh0IGRhdGFiYXNlIG9uCithIGZpbGVzeXN0ZW0uICBUaGlz
-IHdpbGwgYmUgcnVuIGFzIHBhcnQgb2YgdGhlIFNFIExpbnV4IGluc3RhbGxhdGlvbiBwcm9jZXNz
-LgorLlAKK0l0IGNhbiBhbHNvIGJlIHJ1biBhdCBhbnkgdGltZSB0byBjb3JyZWN0IGVycm9ycywg
-dG8gYWRkIHN1cHBvcnQgZm9yIG5ldyBwb2xpY3ksCitvciB3aXRoIHRoZSBcLW4gb3B0aW9uIGl0
-IGNhbiBqdXN0IGNoZWNrIHdoZXRoZXIgdGhlIGZpbGUgY29udGV4dHMgYXJlIGFsbCBhcworeW91
-IGV4cGVjdC4KKworLlNIICJPUFRJT05TIgorLlRQIAorLkIgXC1kCitzaG93IHdoYXQgc3BlY2lm
-aWNhdGlvbiBtYXRjaGVkIGVhY2ggZmlsZS4KKy5UUCAKKy5CIFwtbgorZG9uJ3QgY2hhbmdlIGFu
-eSBmaWxlIGxhYmVscy4KKy5UUCAKKy5CIFwtdgorc2hvdyBjaGFuZ2VzIGluIGZpbGUgbGFiZWxz
-LgorLlRQIAorLkIgXC1tCitkb24ndCB3YXJuIGFib3V0IHNwZWNpZmljYXRpb25zIHRoYXQgZG9u
-J3QgbWF0Y2ggYW55IGZpbGVzLgorLlRQIAorLkIgXC1zCit0YWtlIGEgbGlzdCBvZiBmaWxlcyBm
-cm9tIHN0YW5kYXJkIGlucHV0IGluc3RlYWQgb2YgdXNpbmcgYSBwYXRobmFtZSBvbiB0aGUKK2Nv
-bW1hbmQgbGluZS4KKy5UUCAKKy5CIFwtUgorcmVjcmVhdGUgdGhlIHBlcnNpc3RlbnQgbGFiZWwg
-bWFwcGluZ3MgZnJvbSBzY3JhdGNoLgorTXVzdCByZWJvb3QgdG8gdGFrZSBhZmZlY3QuCisuVFAg
-CisuQiBzcGVjX2ZpbGUKK3RoZSBzcGVjaWZpY2F0aW9uIGZpbGUgd2hpY2ggY29udGFpbnMgbGlu
-ZXMgb2YgdGhlIGZvbGxvd2luZyBmb3JtCisuQiByZWdleHAgWyBcLXR5cGUgXSAoIGNvbnRleHQg
-fCA8PG5vbmU+PiApCitUaGUgcmVndWxhciBleHByZXNzaW9uIGlzIGFuY2hvcmVkIGF0IGJvdGgg
-ZW5kcy4gIFRoZSB0eXBlIGZpZWxkIHdpbGwgY29udGFpbgorXC1cLSBvciBcLWQgZm9yIHdoZXRo
-ZXIgeW91IHdhbnQgdG8gbWF0Y2ggcmVndWxhciBmaWxlcyBvciBkaXJlY3Rvcmllcy4gIFRoZQor
-Y29udGV4dCBjYW4gYmUgYSByZWd1bGFyIFNFIHNlY3VyaXR5IGNvbnRleHQgb2YgdGhlIHN0cmlu
-ZyA8PG5vbmU+PiB0byBzcGVjaWZ5Cit0aGF0IHRoZSBmaWxlIGlzIG5vdCB0byBoYXZlIGl0J3Mg
-Y29udGV4dCBjaGFuZ2VkLgorLkJSIAorVGhlIGxhc3QgbWF0Y2hpbmcgc3BlY2lmaWNhdGlvbiBp
-cyB1c2VkLgorLlRQIAorLkIgcGF0aG5hbWUKK2lzIHRoZSByb290IG9mIGEgZmlsZSBzeXN0ZW0g
-dGhhdCBpcyB0byBiZSBjaGVja2VkLiBOb3QgdXNlZCBpZiB0aGUKKy5CIFwtcworcGFyYW1ldGVy
-IGlzIHVzZWQuCisKKy5TSCAiQVVUSE9SIgorVGhpcyBtYW4gcGFnZSwgd2FzIHdyaXR0ZW4gYnkg
-UnVzc2VsbCBDb2tlciA8cnVzc2VsbEBjb2tlci5jb20uYXU+LgorVGhlIHByb2dyYW0gd2FzIHdy
-aXR0ZW4gYnkgU3RlcGhlbiBTbWFsbGV5LCBOQUkgTGFicyA8c3NtYWxsZXlAbmFpLmNvbT4KKwor
-LlNIICJTRUUgQUxTTyIKKy5CUiBsb2FkX3BvbGljeSAoOCksCisuQlIgY2hlY2twb2xpY3kgKDgp
-Ci0tLSBzZWxpbnV4LXNtYWxsLTIwMDIwMzE0MDkub3JpZy9zZXRmaWxlcy9zZXRmaWxlcy5jCisr
-KyBzZWxpbnV4LXNtYWxsLTIwMDIwMzE0MDkvc2V0ZmlsZXMvc2V0ZmlsZXMuYwpAQCAtMTcsNiAr
-MTcsOCBAQAogICogLWQgICBTaG93IHdoYXQgc3BlY2lmaWNhdGlvbiBtYXRjaGVkIGVhY2ggZmls
-ZS4KICAqIC1uCURvIG5vdCBjaGFuZ2UgYW55IGZpbGUgbGFiZWxzLgogICogLXYJU2hvdyBjaGFu
-Z2VzIGluIGZpbGUgbGFiZWxzLiAgCisgKiAtbSAgIERvbid0IHdhcm4gYWJvdXQgbm8gbWF0Y2hl
-cy4KKyAqIC1zICAgVXNlIHN0ZGluIGZvciBhIGxpc3Qgb2YgZmlsZXMgaW5zdGVhZCBvZiBzZWFy
-Y2hpbmcgYSBwYXJ0aXRpb24uCiAgKiAtUiAgIFJlY3JlYXRlIHRoZSBwZXJzaXN0ZW50IGxhYmVs
-IG1hcHBpbmdzIGZyb20gc2NyYXRjaC4KICAqICAgICAgTXVzdCByZWJvb3QgdG8gdGFrZSBhZmZl
-Y3QuCiAgKiBzcGVjX2ZpbGUJVGhlIHNwZWNpZmljYXRpb24gZmlsZS4KQEAgLTY0LDYgKzY2LDcg
-QEAKICNpbmNsdWRlIDxmc19zZWN1cmUuaD4KICNpbmNsdWRlIDxzcy5oPgogI2luY2x1ZGUgInBz
-aWQuaCIKKyNpbmNsdWRlIDxsaW1pdHMuaD4KIAogc3RydWN0IHBzaWR0YWIgKnBzaWRzOwogCkBA
-IC03Niw5ICs3OSwxMSBAQAogICogQ29tbWFuZC1saW5lIG9wdGlvbnMuCiAgKi8KIHN0YXRpYyBp
-bnQgY2hhbmdlID0gMTsKK3N0YXRpYyBpbnQgd2Fybl9ub19tYXRjaCA9IDE7CiBzdGF0aWMgaW50
-IGRlYnVnID0gMDsKIHN0YXRpYyBpbnQgdmVyYm9zZSA9IDA7CiBzdGF0aWMgaW50IHJlc2V0ID0g
-MDsKK3N0YXRpYyBpbnQgdXNlX3N0ZGluID0gMDsKIAogLyoKICAqIFByb2dyYW0gbmFtZSBhbmQg
-ZXJyb3IgbWVzc2FnZSBidWZmZXIuCkBAIC00NTUsMTEgKzQ2MCwxNCBAQAogCXN0cnVjdCBzdGF0
-IHNiOwogCiAJLyogUHJvY2VzcyBhbnkgb3B0aW9ucy4gKi8KLQl3aGlsZSAoKG9wdCA9IGdldG9w
-dChhcmdjLCBhcmd2LCAiZG52UiIpKSA+IDApIHsKKwl3aGlsZSAoKG9wdCA9IGdldG9wdChhcmdj
-LCBhcmd2LCAiZG1udlJzIikpID4gMCkgewogCQlzd2l0Y2ggKG9wdCkgewogCQljYXNlICdkJzoK
-IAkJCWRlYnVnID0gMTsKIAkJCWJyZWFrOworCQljYXNlICdtJzoKKwkJCXdhcm5fbm9fbWF0Y2gg
-PSAwOworCQkJYnJlYWs7CiAJCWNhc2UgJ24nOgogCQkJY2hhbmdlID0gMDsKIAkJCWJyZWFrOwpA
-QCAtNDY5LDEwICs0NzcsMTMgQEAKIAkJY2FzZSAnUic6CiAJCQlyZXNldCA9IDE7CiAJCQlicmVh
-azsKKwkJY2FzZSAncyc6CisJCQl1c2Vfc3RkaW4gPSAxOworCQkJYnJlYWs7CiAJCX0KIAl9CiAK
-LQlpZiAob3B0aW5kID4gKGFyZ2MgLSAyKSkgeworCWlmICgob3B0aW5kIC0gdXNlX3N0ZGluKSA+
-IChhcmdjIC0gMikpIHsKIAkJZnByaW50ZihzdGRlcnIsCiAJCQkidXNhZ2U6ICAlcyBbLWRudlJd
-IHNwZWNfZmlsZSBwYXRobmFtZS4uLlxuIiwKIAkJCWFyZ3ZbMF0pOwpAQCAtNjc1LDcgKzY4Niw3
-MCBAQAogCSAqIEFwcGx5IHRoZSBzcGVjaWZpY2F0aW9ucyB0byB0aGUgZmlsZSBzeXN0ZW1zLgog
-CSAqLwogCXByb2duYW1lID0gYXJndlswXTsKLQlmb3IgKDsgb3B0aW5kIDwgYXJnYzsgb3B0aW5k
-KyspIHsKKwlpZih1c2Vfc3RkaW4pCisJeworCQljaGFyIGJ1ZltQQVRIX01BWF07CisJCWlmKCFm
-bGFza19lbmFibGVkKQorCQl7CisJCQlzcHJpbnRmKHBhdGhuYW1lLCAiJXMvJXMiLCBhcmd2W29w
-dGluZF0sICIuIik7CisJCQlpID0gbWF0Y2gocGF0aG5hbWUsICZzYiwgJnNpZCk7CisJCQlpZiAo
-aSA8IDApIAorCQkJCWNvbnRleHQgPSBGSUxFX0NPTlRFWFQ7CisJCQllbHNlCisJCQkJY29udGV4
-dCA9IHNwZWNbaV0uY29udGV4dDsKKworCQkJcHJpbnRmKCIlczogIGxhYmVsaW5nIGZpbGVzIHVu
-ZGVyICVzIChkZWZhdWx0IGZpbGUgY29udGV4dCAlcylcbiIsIGFyZ3ZbMF0sCisJCQkgICAgICAg
-YXJndltvcHRpbmRdLCBjb250ZXh0KTsKKworCQkJcHNpZHMgPSBwc2lkdGFiX2luaXQoYXJndltv
-cHRpbmRdLCBjb250ZXh0LCBGU19DT05URVhULCByZXNldCk7CisJCQlpZiAocHNpZHMgPT0gTlVM
-TCkgeworCQkJCWZwcmludGYoc3RkZXJyLAorCQkJCQkiJXM6ICB1bmFibGUgdG8gaW5pdGlhbGl6
-ZSBQU0lEIG1hcHBpbmcgZm9yICVzXG4iLAorCQkJCQlhcmd2WzBdLCBhcmd2W29wdGluZF0pOwor
-CQkJCWV4aXQoMSk7CisJCQl9CisJCX0KKwkJCisJCXdoaWxlKGZnZXRzKGJ1Ziwgc2l6ZW9mKGJ1
-ZiksIHN0ZGluKSkKKwkJeworCQkJc3RydWN0IHN0YXQgc2I7CisJCQlzdHJ0b2soYnVmLCAiXG4i
-KTsKKwkJCWlmKGJ1ZlswXSAhPSAnXG4nKQorCQkJeworCQkJCWlmKHN0YXQoYnVmLCAmc2IpKQor
-CQkJCQlmcHJpbnRmKHN0ZGVyciwgIkZpbGUgXCIlc1wiIG5vdCBmb3VuZC5cbiIsIGJ1Zik7CisJ
-CQkJZWxzZQorCQkJCXsKKwkJCQkJaW50IGZsYWc7CisJCQkJCXN3aXRjaChzYi5zdF9tb2RlKQor
-CQkJCQl7CisJCQkJCWNhc2UgU19JRkRJUjoKKwkJCQkJCWZsYWcgPSBGVFdfRDsKKwkJCQkJYnJl
-YWs7CisJCQkJCWNhc2UgU19JRkxOSzoKKwkJCQkJCWZsYWcgPSBGVFdfU0w7CisJCQkJCWJyZWFr
-OworCQkJCQlkZWZhdWx0OgorCQkJCQkJZmxhZyA9IEZUV19GOworCQkJCQl9CisJCQkJCWFwcGx5
-X3NwZWMoYnVmLCAmc2IsIGZsYWcsIE5VTEwpOworCQkJCX0KKwkJCX0KKwkJfQorCQlpZiAoIWZs
-YXNrX2VuYWJsZWQpCisJCQlwc2lkdGFiX2Rlc3Ryb3kocHNpZHMpOworCisJCS8qCisJCSAqIEV2
-YWx1YXRlIHRoZSBhc3NvY2lhdGlvbiBoYXNoIHRhYmxlIGRpc3RyaWJ1dGlvbiBmb3IgdGhlCisJ
-CSAqIGRpcmVjdG9yeSB0cmVlIGp1c3QgdHJhdmVyc2VkLgorCQkgKi8KKwkJZmlsZV9zcGVjX2V2
-YWwoKTsKKworCQkvKiBSZXNldCB0aGUgYXNzb2NpYXRpb24gaGFzaCB0YWJsZSB0byBjbGVhbiB1
-cCBtZW1vcnkgdXNlLiAqLworCQlmaWxlX3NwZWNfZGVzdHJveSgpOworCX0KKwllbHNlIGZvciAo
-OyBvcHRpbmQgPCBhcmdjOyBvcHRpbmQrKykKKwl7CiAKIAkJaWYgKGZsYXNrX2VuYWJsZWQpIHsK
-IAkJCXByaW50ZigiJXM6ICBsYWJlbGluZyBmaWxlcyB1bmRlciAlc1xuIiwgYXJndlswXSwKQEAg
-LTcyMyw2ICs3OTcsNyBAQAogCQlmaWxlX3NwZWNfZGVzdHJveSgpOwogCX0KIAorCWlmKHdhcm5f
-bm9fbWF0Y2gpCiAJZm9yIChpID0gMDsgaSA8IG5zcGVjOyBpKyspIHsKIAkJaWYgKHNwZWNbaV0u
-bWF0Y2hlcyA9PSAwKSB7CiAJCQlpZiAoc3BlY1tpXS50eXBlX3N0cikgewo=
-
---------------Boundary-00=_3VPR8HYGHYXZ9FP342LW--
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
