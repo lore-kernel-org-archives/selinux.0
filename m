@@ -1,47 +1,41 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81GoSrT022561
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 12:50:29 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81GoReu009166
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 16:50:27 GMT
-Subject: Re: Interpret security context
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81GrSrT022592
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 12:53:28 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81GqdY2014486
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 16:52:39 GMT
+Subject: Re: udev policy
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040901143631.18080.qmail@web51505.mail.yahoo.com>
-References: <20040901143631.18080.qmail@web51505.mail.yahoo.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200409011753.01483.russell@coker.com.au>
+References: <200409011753.01483.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1094057331.13328.83.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1094057500.13328.86.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 01 Sep 2004 12:48:52 -0400
+Date: Wed, 01 Sep 2004 12:51:40 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-09-01 at 10:36, Park Lee wrote:
-> Hi,
-> In subsection 5.2.1 Object Labeling of <<The Flask Security
-> Architecture: System Support for Diverse Security Policies>>, it says:
->    A security context, the first policy-independent data type, is a
-> variable-length string which can be interpreted by any application or
-> user with an understanding of the security policy.
->  
->         While, In subsection 2.1.Flask Concepts of <<Configuring the
-> SELinux Policy>>, it says:
->    The content and format of a security context depends on the
-> particular security model, so a security context is only interpreted
-> by the security server.
->  
->         Then, Who can interpret the security context except security
-> server? Can any application or user with an understanding of the
-> security policy interpret the security context in the end?
+On Wed, 2004-09-01 at 03:53, Russell Coker wrote:
+> The attached patch allows udev in rawhide to work properly with no audit 
+> messages.
 
-No conflict there.  The context _can_ be interpreted by anything that
-understands the policy; the context _is_ only interpreted by the
-security server in the Flask architecture (i.e. it is _not_ interpreted
-by the object managers).  The point is that the context intepretation
-requires knowledge of the policy, while the object managers are policy
-neutral.  
-  
+--- /usr/src/se/policy/domains/program/unused/udev.te	2004-09-01 10:52:36.000000000 +1000
++++ domains/program/unused/udev.te	2004-09-01 17:51:52.000000000 +1000
+@@ -43,7 +43,8 @@
+ allow udev_t { device_t device_type }:{chr_file blk_file} { relabelfrom relabelto create_file_perms };
+ 	
+ # to read the file_contexts file
+-r_dir_file(udev_t, { selinux_config_t file_context_t default_context_t } )
++allow udev_t { selinux_config_t default_context_t file_context_t }:dir search;
++allow udev_t { selinux_config_t file_context_t }:file { getattr read };
+ 
+ allow udev_t policy_config_t:dir { search };
+ allow udev_t proc_t:file { read };
+
+What's wrong with using r_dir_file here?
+
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
