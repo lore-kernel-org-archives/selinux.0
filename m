@@ -1,43 +1,40 @@
-Date: Thu, 21 Feb 2002 10:32:10 -0500 (EST)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA25827
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2002 10:36:51 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA03338
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2002 15:35:53 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id PAA03334 for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2002 15:35:52 GMT
+Date: Thu, 21 Feb 2002 10:36:04 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Tracy R Reed <treed@ultraviolet.org>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Documentation! (Was: Re: activity?)
-In-Reply-To: <20020220183947.B5148@ultraviolet.org>
-Message-ID: <Pine.GSO.4.33.0202211023390.819-100000@raven>
+To: Shaun Savage <savages@pcez.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: SELinux
+In-Reply-To: <3C748541.6050708@pcez.com>
+Message-ID: <Pine.GSO.4.33.0202211033090.819-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 20 Feb 2002, Tracy R Reed wrote:
+On Wed, 20 Feb 2002, Shaun Savage wrote:
 
-> It is easier to set up than in the past. But what it REALLY needs to be
-> useful to me is some good documentation aimed at the system administrator.
-> I've read the papers on the site but I still just can't get it in my head
-> how to do much with it. I would love to see some examples of how to alter
-> policies, add new domains for new software, etc. I would like to see a
-> good glossary of all of the terminology used also. LIDS was easy to figure
-> out compared to SE Linux. I just know SE Linux is the better solution for
-> me but I am having problems figuring out how to actually customize it to
-> my system requirements!
->
-> Please, someone, write some docs!
+> The linux/security/selinux/include/flask/*.h
+> av_permissions.h gives the bit pattern of all the permissions
+> av_perm_to_string.h & common_perm_to_string.h is some of the string
+>     permissions
+> class_to_string.h is most of the objects
+> flask.h gives the object classes
 
-By the way, although we are working on a new policy report, you can find
-an informal description of the policy language in the Policy Configuration
-Language subsection of http://www.nsa.gov/selinux/slinux-abs.html, and you
-can find a description of the original example policy configuration in
-http://www.nsa.gov/selinux/policy-abs.html.  And, of course, there is the
-paper from the 2001 OLS.
-
-A number of SELinux users have developed and posted revisions to the
-example policy, including the addition of permissions to existing domains
-and the creation of new domains, so you can certainly look to their
-examples from the mailing list archives.
-
-Feel free to ask specific questions about configuring the policy.
+The definitions in these files are automatically generated from
+configuration files.  A policy developer shouldn't need to look directly
+at these header files - you can simply look at the security_classes and
+access_vectors configuration files.  They are located in the flask
+subdirectory of the SELinux module (lsm*/security/selinux/flask) and are
+installed into /usr/local/selinux/flask for use in compiling the policy
+configuration.
 
 --
 Stephen D. Smalley, NAI Labs
