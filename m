@@ -1,42 +1,55 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4BNZ9I4000732
-	for <selinux@tycho.nsa.gov>; Sun, 11 May 2003 19:35:10 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4CCIGI4002065
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 08:18:16 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4BNZ87R029494
-	for <selinux@tycho.nsa.gov>; Sun, 11 May 2003 23:35:08 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id h4BNZ6KP029491 for <selinux@tycho.nsa.gov>; Sun, 11 May 2003 23:35:07 GMT
-Date: Mon, 12 May 2003 09:34:50 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: kernel crashes
-Message-ID: <20030511233450.GD11671@snoopy.apana.org.au>
-References: <20030503002143.GB28891@snoopy.apana.org.au> <200305031526.03543.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200305031526.03543.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id h4CCIE7R007757
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 12:18:15 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h4CCICKP007749 for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 12:18:13 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 6D16BBF4E
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 22:18:01 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 21763-04
+ for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 22:18:00 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 227F0BF3D
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 22:18:00 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id A9C70924A3
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 22:17:59 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 9045A25A6
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 22:16:41 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SE Linux talk for LUV on 3rd of June
+Date: Mon, 12 May 2003 22:16:40 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200305122216.40918.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, May 03, 2003 at 03:26:03PM +1000, Russell Coker wrote:
-> On Sat, 3 May 2003 10:21, Brian May wrote:
-> > Next time I reboot my computer, I will boot it in single user
-> > mode, and see if it still crashes with fewer daemons being
-> > loaded.
-> 
-> Good idea.  Then try adding different types of load (disk IO, fork/exec, etc).
+http://www.luv.asn.au/
+Next month I am giving a talk for the Linux Users of Victoria on SE Linux, see 
+the above URL for details.
 
-My crashes only seem to occur when connecting to the computer via a ssh
-connection.
+Sometime before then I'll put my play machine online again so that after my 
+talk the LUV members can login and check it out.
 
-If I do stuff entirely on the console, with X/Gnome and without X, it
-hasn't crashed yet.
+Also I am in discussions about giving a talk for the LUV programmer's SIG on 
+SE Linux programming.  As I am now permanently based in Australia I will 
+probably look at giving SE Linux talks in other states and maybe NZ as well.
 
-Its been a while since I logged on last with ssh, so I will have to do
-so again, and see if it causes it to crash again.
 -- 
-Brian May <bam@snoopy.apana.org.au>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
