@@ -1,111 +1,101 @@
-Date: Tue, 15 Jan 2002 23:33:50 +0100
-From: Bognar Attila <attila@ebizlab.hit.bme.hu>
-Subject: Redhat 7.2 + selinux-2001121010.tgz
-To: SELinux@tycho.nsa.gov
-Message-id: <004201c19e14$b4bc7a30$ca00a8c0@foka>
-MIME-version: 1.0
-Content-type: multipart/alternative;
- boundary="Boundary_(ID_jl6MrIAN23Dw4XfCHnipUw)"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA26333
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2002 18:52:28 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id XAA01889
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2002 23:51:39 GMT
+Received: from sendmail (savages.net [208.170.193.18] (may be forged))
+	by jazzband.ncsc.mil  with ESMTP id XAA01885
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2002 23:51:38 GMT
+Message-ID: <3C44BD78.4090205@pcez.com>
+Date: Tue, 15 Jan 2002 15:38:32 -0800
+From: Shaun Savage <savages@pcez.com>
+MIME-Version: 1.0
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>, selinux@tycho.nsa.gov
+Subject: Re: General Users
+References: <72222DC86846D411ABD300A0C9EB08A10152428B@csoc-mail-box.csoconline.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Westerman, Mark wrote:
 
---Boundary_(ID_jl6MrIAN23Dw4XfCHnipUw)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7BIT
+To sum it up you want dynamic user add or daily policy update.
 
-Hi all!
+here is a kluge idea:
+create a new push/pull program to down load the policy daily, using what 
+ever security you need.
+create a policy to allow this program to load the new policy.  here 
+again you define the security needed.
+create a script to generate the "user" file and make the new policy 
+ready to send
 
-I just installed a fresh Redhat 7.2 to test SELinux, and tried to put selinux-2001121010 on it. I followed the step-by-step guide in the readme file, however when compiling (linking):
+now the get_user_sids would work in getting the default context/sid
 
-make[2]: Entering directory `/usr/src/selinux/utils/util-linux-2.11f/text-utils'
-cc -O -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -I../lib -Wall -Wmissing-prototypes -Wstrict-prototypes -I/usr/include/ncurses -DNCH=0 -I/usr/include/slang -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\" -DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\" -DLOCALEDIR=\"/usr/share/locale\" -DMOREHELPFILE=\"/usr/share/misc/more.help\" -s more.o ../lib/xstrncpy.o -o more
-more.o: In function `my_putstring':
-more.o(.text+0xa): undefined reference to `putp'
-more.o: In function `my_setupterm':
-more.o(.text+0x20): undefined reference to `setupterm'
-more.o: In function `my_tgetnum':
-more.o(.text+0x32): undefined reference to `tigetnum'
-more.o: In function `my_tgetflag':
-more.o(.text+0x42): undefined reference to `tigetflag'
-more.o: In function `my_tgetstr':
-more.o(.text+0x52): undefined reference to `tigetstr'
-more.o: In function `my_tgoto':
-more.o(.text+0x68): undefined reference to `tparm'
-more.o: In function `initterm':
-more.o(.text+0x2cf2): undefined reference to `PC'
-more.o: In function `reset_tty':
-more.o(.text+0x3545): undefined reference to `tputs'
-collect2: ld returned 1 exit status
-make[2]: *** [more] Error 1
-make[2]: Leaving directory `/usr/src/selinux/utils/util-linux-2.11f/text-utils'
-make[1]: *** [all] Error 1
-make[1]: Leaving directory `/usr/src/selinux/utils/util-linux-2.11f'
-make: *** [xutil-linux] Error 2
-[root@xxx: /usr/src/selinux/utils] #
+The problem here is this push/pull program would need to be protected. 
+ by selinux policy and encryption.  
 
-What do you suggest? (all ncurses related rpms are installed or what versions should I install?)
+The better way would be to allow dynamic user add.  When a user logins 
+in, the nis information sent back to the client has a selinux group. 
+this selinux group allows a user different user rights but the policy 
+lookup is dependent on the group and user.  group_sid + dymanic_user = sid
 
-Thanks,
+user_group:user_r:user_t  where user is the user name and group is the 
+group name.
 
-attila
+user = zot and group = student
+zot_student:user_r:user_t
+thr group 'student' is defined in the  policy.
+ 
+This would require new syscalls,  sid= new_user(name, group, context), 
+and del_user(sid)  
+
+Shaun
+ 
+
+>I am not worried about user Profile Management or any type 
+>of group management.
+>
+>The issues is the actual SELinux policy management.
+>When you create the policy from the policy
+>rules the binary file is store in /ss_policy. To add a 
+>user to the system now you must:
+>	1. Add the user to the system
+>	2. Add the user to the file SELinux/policy/users
+>		user xxxx roles { user_r };
+>	3. Rebuild the policy file.
+>		make install
+>	4. Load the new policy into the kernel or reboot.
+>		load_policy /ss_policy
+>	5. Add the user to the /etc/security/default_context
+>	6. Add the user to the /etc/security/cron_context
+>
+>
+>Some of the problems I will have with this type of implementation is
+>	1. I do not believe that the load_policy will be allowed on the 
+>         general workstation (security reasons) . That leaves only reboot. 
+>	2. Rebuild the policy file for hundred workstation is not a feasible
+>
+>	   implementation. 
+>	3. The policy files will the same for each workstations so a push of
+>         the policy files is ok. (this will be performed via encryption)
+>	4. As stated early password will be distributed via NIS (legacy
+>reasons
+>         not an option to change).
+>
+>Any more Ideas or suggestions would be greatly appreciated
+>
+>Mark Westerman
+>
+>--
+>You have received this message because you are subscribed to the selinux list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
+>
+>
 
 
 
-
---Boundary_(ID_jl6MrIAN23Dw4XfCHnipUw)
-Content-type: text/html; charset=iso-8859-2
-Content-transfer-encoding: 7BIT
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=Content-Type content="text/html; charset=iso-8859-2">
-<META content="MSHTML 6.00.2600.0" name=GENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=#ffffff>
-<DIV><FONT face=Arial size=2>Hi all!</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2>I just installed a fresh Redhat 7.2 to test 
-SELinux, and tried to put selinux-2001121010 on it. I followed the step-by-step 
-guide in the readme file, however when compiling (linking):</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2>make[2]: Entering directory 
-`/usr/src/selinux/utils/util-linux-2.11f/text-utils'<BR>cc -O 
--D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -I../lib -Wall -Wmissing-prototypes 
--Wstrict-prototypes -I/usr/include/ncurses -DNCH=0 -I/usr/include/slang 
--D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\" -DUSRSBINDIR=\"/usr/sbin\" 
--DLOGDIR=\"/var/log\" -DVARPATH=\"/var\" -DLOCALEDIR=\"/usr/share/locale\" 
--DMOREHELPFILE=\"/usr/share/misc/more.help\" -s more.o ../lib/xstrncpy.o -o 
-more<BR>more.o: In function `my_putstring':<BR>more.o(.text+0xa): undefined 
-reference to `putp'<BR>more.o: In function 
-`my_setupterm':<BR>more.o(.text+0x20): undefined reference to 
-`setupterm'<BR>more.o: In function `my_tgetnum':<BR>more.o(.text+0x32): 
-undefined reference to `tigetnum'<BR>more.o: In function 
-`my_tgetflag':<BR>more.o(.text+0x42): undefined reference to 
-`tigetflag'<BR>more.o: In function `my_tgetstr':<BR>more.o(.text+0x52): 
-undefined reference to `tigetstr'<BR>more.o: In function 
-`my_tgoto':<BR>more.o(.text+0x68): undefined reference to `tparm'<BR>more.o: In 
-function `initterm':<BR>more.o(.text+0x2cf2): undefined reference to 
-`PC'<BR>more.o: In function `reset_tty':<BR>more.o(.text+0x3545): undefined 
-reference to `tputs'<BR>collect2: ld returned 1 exit status<BR>make[2]: *** 
-[more] Error 1<BR>make[2]: Leaving directory 
-`/usr/src/selinux/utils/util-linux-2.11f/text-utils'<BR>make[1]: *** [all] Error 
-1<BR>make[1]: Leaving directory 
-`/usr/src/selinux/utils/util-linux-2.11f'<BR>make: *** [xutil-linux] Error 
-2<BR>[root@xxx: /usr/src/selinux/utils] #<BR></FONT></DIV>
-<DIV><FONT face=Arial size=2>What do you suggest? (all ncurses related rpms are 
-installed or what versions should I install?)</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2>Thanks,</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2>attila</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2>&nbsp;</DIV></FONT></BODY></HTML>
-
---Boundary_(ID_jl6MrIAN23Dw4XfCHnipUw)--
 
 --
 You have received this message because you are subscribed to the selinux list.
