@@ -1,30 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j06ETUIi008807
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 09:29:30 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j06ETXoP011177
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 14:29:33 GMT
-Received: from twoface.columbia.tresys.com (twoface.columbia.tresys.com [10.1.13.32] (may be forged))
-	by gotham.columbia.tresys.com (8.12.8/8.12.8) with ESMTP id j06ETS8R006422
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 09:29:28 -0500
-Subject: passwd using getprevcon() for enforcement
-From: Joshua Brindle <method@gentoo.org>
-To: selinux <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j06Ei3Ii008954
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 09:44:03 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j06EgAww007825
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 14:42:10 GMT
+Subject: Re: passwd using getprevcon() for enforcement
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Joshua Brindle <method@gentoo.org>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1105021782.972.9.camel@twoface>
+References: <1105021782.972.9.camel@twoface>
 Content-Type: text/plain
-Date: Thu, 06 Jan 2005 09:29:41 -0500
-Message-Id: <1105021782.972.9.camel@twoface>
+Message-Id: <1105022304.24438.60.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Thu, 06 Jan 2005 09:38:24 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was wondering why Fedora's passwd is patched to use getprevcon()? It
-seems to me that enforcing policy on a types previous context is very
-broken behavior. Shouldn't the patch enforce on the current context and
-have different passwd types for privileged users (i seem to remember
-that there was a passwd_t and sysadm_passwd_t but that might have been
-old-api).
+On Thu, 2005-01-06 at 09:29, Joshua Brindle wrote:
+> I was wondering why Fedora's passwd is patched to use getprevcon()? It
+> seems to me that enforcing policy on a types previous context is very
+> broken behavior. Shouldn't the patch enforce on the current context and
+> have different passwd types for privileged users (i seem to remember
+> that there was a passwd_t and sysadm_passwd_t but that might have been
+> old-api).
 
-Joshua Brindle	
+It is performing a check of the caller's permissions, so it wants the
+domain of the caller (the previous context), not its own context.  It is
+asking the question "Can the caller perform a privileged passwd
+operation?", not the question "Can I perform a privileged passwd
+operation?".   Parallel:  When the kernel performs a permission check,
+it uses the credentials of the current process, not the kernel's own
+credentials.  s/kernel/passwd program/
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
