@@ -1,48 +1,36 @@
-Message-ID: <3F744120.6090509@tresys.com>
-Date: Fri, 26 Sep 2003 09:37:36 -0400
-From: David Caplan <dac@tresys.com>
-MIME-Version: 1.0
-To: Dale Amon <amon@vnl.com>
-Cc: "NSA's SELinux" <SELinux@tycho.nsa.gov>
 Subject: Re: policy language extensions
-References: <3F7361F8.1080603@tresys.com> <20030926130232.GF10225@vnl.com>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Dale Amon <amon@vnl.com>
+Cc: david caplan <dac@tresys.com>, "NSA's SELinux" <SELinux@tycho.nsa.gov>
 In-Reply-To: <20030926130232.GF10225@vnl.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <3F7361F8.1080603@tresys.com>  <20030926130232.GF10225@vnl.com>
+Content-Type: text/plain
+Message-Id: <1064583595.5099.245.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 26 Sep 2003 09:39:56 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
-Dale Amon wrote:
-> 
+On Fri, 2003-09-26 at 09:02, Dale Amon wrote:
 > Some things could be difficult though: policy statements
 > do not appear to me to have a 1:1 relation to the binary 
 > representation.
-> 
 
-You are right, they do not.  The policy statement:
-
-allow  domain  init_t : process  { sigchld signull };
-
-expands into a hash table entry (in the binary policy) for every type 
-associated with the domain attribute.  In a very stripped down policy I 
-was looking at this was 49 types.
-
-You also need to keep in mind that "subtraction" or disabling of rules, 
-via a conditional policy, is not equivalent to removing permissions.  If 
-the above rule were in a condition block that was disabled, there might 
-still be an allow rule in the base policy, or even in another 
-conditional block, that allowed those permissions.
-
-
+Correct.  A policy statement may specify sets of types and classes as
+well as using type attributes to represent sets of types; these
+statements are expanded into individual (source type, target type,
+target class, access vectors or new types) tuples in the binary
+representation.  Also, you may have overlapping or even redundant policy
+statements in the policy.conf that are unioned by the policy compiler
+(particularly due to macro expansions), so removing a statement doesn't
+necessarily mean that the permissions should go away.  If you take a
+close look at the policy patch tools posted to the list back in June by
+Frank Mayer, you'll see that they had to consider these issues for that
+work.
+ 
 -- 
-__________________________________
-
-David Caplan     410 290 1411 x105
-dac@tresys.com
-Tresys Technology, LLC
-8840 Stanford Blvd., Suite 2100
-Columbia, MD 21045
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
