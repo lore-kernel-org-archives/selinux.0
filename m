@@ -1,134 +1,80 @@
-Date: Thu, 24 Mar 2005 22:27:54 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Karl MacMillan <kmacmillan@tresys.com>,
-   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Kaigai Kohei'" <kaigai@ak.jp.nec.com>,
-   "'KaiGai Kohei'" <kaigai@kaigai.gr.jp>,
-   "'SELinux Mail List'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
-Subject: Re: [RFC & PATCH] inherited type definition.
-Message-ID: <20050324222754.GF8553@lkcl.net>
-References: <20050322001439.GB8444@lkcl.net> <200503221353.j2MDrT8R010539@gotham.columbia.tresys.com> <20050324110438.GC13372@lkcl.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2OMm0Do005790
+	for <selinux@tycho.nsa.gov>; Thu, 24 Mar 2005 17:48:00 -0500 (EST)
+Received: from vds-320151.amen-pro.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2OMjBQL010591
+	for <selinux@tycho.nsa.gov>; Thu, 24 Mar 2005 22:45:12 GMT
+Subject: [RFC] selinux-support (1.0.1) available
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: ubuntu-hardened@lists.ubuntu.com
+Cc: selinux@tycho.nsa.gov, ubuntu-devel@lists.ubuntu.com,
+   ubuntu-users@lists.ubuntu.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-pOWNiSYB47FzLab1szJG"
+Date: Thu, 24 Mar 2005 23:47:12 +0100
+Message-Id: <1111704432.27644.62.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050324110438.GC13372@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Mar 24, 2005 at 11:04:38AM +0000, Luke Kenneth Casson Leighton wrote:
-> On Tue, Mar 22, 2005 at 08:53:28AM -0500, Karl MacMillan wrote:
-> 
-> > > -----Original Message-----
-> > > From: Luke Kenneth Casson Leighton [mailto:lkcl@lkcl.net] 
-> > > Sent: Monday, March 21, 2005 7:15 PM
-> > <snip>
-> > > > 
-> > > > First, you missed the switch to the @ being required in order to 
-> > > > inherit permissions through extends - making that syntax, 
-> > > as far as I 
-> > > > can tell, the same as what you are suggesting.
-> > > 
-> > >  i understood it to be the other way round - that the @ is 
-> > > required to  _not_ allow a permission to be inherited through extends.
-> > > 
-> > > 
-> > 
-> > Like I said - it switched part way through the discussion.
->  
->  okay, i must have missed that.
-> 
->  ... but, after a couple of days' thought, i don't believe
->  that what i am suggesting is anything anywhere near the @
->  syntax, and it is in fact in response to some comments by
->  stephen [where he mentioned that it would be better to split
->  domains up further using macros than it would be to use
->  this inheritance system with some modifications suggested
->  by me, so off i went to think of some better modifications -
->  clarification below]
-> 
-> 
-> > > > Next, my objection is that there is only one subset of 
-> > > permissions - 
-> > > > there is no way to have user_ftp_t inherit one set of 
-> > > permissions from 
-> > > > user_t and user_httpd_t inherit another set of permissions from 
-> > > > user_t.
-> > > 
-> > >  note syntax in example [copied from above]:
-> > > 
-> > > > >  some_macro (`
-> > > > > 	 inheritable($1_ftp_t, parent_class2_t) {
-> > >                      ^^^^^^^^  ^^^^^^^^^^^^^^^
-> > > > > 
-> > > > > 		allow ....;
-> > > > > 
-> > > > > 	 }
-> > > 
-> > >  so, to link this with your examples above, let's express this in
-> > >  "inheritable() { ... }" syntax:
-> > > 
-> > > 	some_macro (`
-> > > 		inheritable($1_ftp_t, $1_httpd_t) {
-> > > 			allow ....;
-> > > 		}
-> > > 		inheritable($1_ftp_t) {
-> > > 			allow ....;
-> > > 		}
-> > > 		inheritable($1_httpd_t) {
-> > > 			allow ....;
-> > > 		}
-> > > 		allow ....;
-> > > 	}
-> > > 
-> > > 	')
-> > > 
-> > >  make sense?
-> > > 
-> > 
-> > I guess I don't understand how your proposed syntax works. What does it mean
-> > when there are two types?
- 
- sorry - i mis-read your question.
 
- when there are two types, it means: when you use
- some_macro(user) and you then declare type user_httpd_t it
- gets all the stuff where user_httpd_t occurs in _any_ inheritable()
- wrap and when you declare user_ftp_t, likewise.
+--=-pOWNiSYB47FzLab1szJG
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
- 		inheritable($1_ftp_t, $1_httpd_t) {
- 			allow A;
-		}
-		inheritable($1_ftp_t) {
-			allow B;
-		}
-		inheritable($1_httpd_t) {
-			allow C;
-		}
-		allow D;
+Hi,
 
- therefore:
+I'm glad to announce the public availability of the selinux-support
+(meta-)package which accomplishes the goal of installing the user-land
+tools for Security-Enhanced Linux support and few configuration-related
+files that will be used in a near future during the deployment of
+SELinux within Ubuntu Linux.
 
-	user_httpd_t comprises allow A and allow C
+The packages depending on selinux-support (which are subsequently
+installed when installing it) are:
 
-	user_ftp_t comprises allow A and allow B,
+	* selinux-doc
+	* slat
+	* selinux-utils
+	* libselinux1
+	* libselinux1-dev
+	* policycoreutils
+	* libsepol1
+	* checkpolicy
+	* selinux-policy-default
 
-	user_t comprises allow A B C _and_ D.
+It also provides the Python bindings for libselinux, coming from the
+Hardened Gentoo project and available in the Gentoo CVS:
+http://www.gentoo.org/cgi-bin/viewcvs.cgi/dev-python/python-selinux
 
- because D is not inside an inheritable() wrap, it never gets
- inherited by "extends" syntax.
+It's available (as apt'able package) at the repository=20
+http://pearls.tuxedo-es.org/selinux/debian
+and more concretely in
+http://pearls.tuxedo-es.org/selinux/debian/selinux-support/
 
- hence, this could be viewed as a simplification of having to
- split some_macro into ... mmm... _four (!) separate sub-macros
- one each covering the permissions allow A, allow B, allow C
- and allow D:
+Please, send back comments, suggestions, critics, etc.
 
-	 some_macro ('
-	     some_macro_A($1) # representing inheritable A group above
-	     some_macro_B($1) # ... etc.
-	     some_macro_C($1)
-	     some_macro_D($1)
-	     ')
+I would like to thank Andrew Mitchell because of his help and comments
+during it's short) development :)
 
- l.
+Thanks, cheers.
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-pOWNiSYB47FzLab1szJG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCQ0NwDcEopW8rLewRAg24AKDI+nGNU08JBeJ3RYgc9QyGSUDDKACdHPbP
+sWi+0orByzM0YjtFUCptoJY=
+=nhmY
+-----END PGP SIGNATURE-----
+
+--=-pOWNiSYB47FzLab1szJG--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
