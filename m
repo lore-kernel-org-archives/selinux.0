@@ -1,45 +1,98 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4QNv8Rb000041
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 19:57:08 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4QNsbar023301
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 23:54:38 GMT
-Received: from mxlx1.surveysavvy.com (mxlx1.surveysavvy.com [63.108.92.46])
-	by jazzswing.ncsc.mil  with SMTP id i4QNsbQu023294
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 23:54:37 GMT
-Message-ID: <1985.68.6.187.64.1085615340.squirrel@mxlx1.surveysavvy.com>
-In-Reply-To: <004901c44366$a0f3bd70$9a0c010a@columbia.tresys.com>
-References: <004901c44366$a0f3bd70$9a0c010a@columbia.tresys.com>
-Date: Wed, 26 May 2004 16:49:00 -0700 (PDT)
-Subject: Re: FW: XP as a base for NetTop
-From: "Chris Babcock" <cbabcock@luthresearch.com>
-To: mayerf@tresys.com
-Cc: "'SELinux List'" <selinux@tycho.nsa.gov>
+Message-ID: <40B53A27.9070709@nc.rr.com>
+Date: Wed, 26 May 2004 20:45:27 -0400
+From: Jeff Johnson <n3npq@nc.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: New design for policy on disk allowing multiple policy rpms to
+ be simultaniously installed.
+References: <40B394AF.2000801@redhat.com> <40B39C09.5040300@nc.rr.com> <1085590563.31854.95.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1085590563.31854.95.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Stephen Smalley wrote:
->> Looks like Microsoft is indeed pushing an XP-based NetTop
->> called Trusted Multi-Net/Typhon XP, e.g.:
+Stephen Smalley wrote:
+
+>On Tue, 2004-05-25 at 15:18, Jeff Johnson wrote:
+>  
+>
+>>Well, the existing means to handle simultaneous installs of otherwise 
+>>mutually exclusive packages is the
+>>alternatives mechanism used to handle sendmail vs. postfix and lpd vs. cups.
 >>
->> http://www.computerweekly.com/Article123730.htm
+>>Yes, symlinks, feeble, but that is the existing mechanism, might as well 
+>>use if in the distro.
+>>    
 >>
-> http://download.microsoft.com/download/4/f/8/4f89f896-f020-46d1-adc0-08a18c8432d
-> 5/Trusted%20Multi-Net%20for%20SSE%202003.ppt
+>
+>Can you elaborate on how this works presently?  How do you avoid
+>conflicts among multiple packages owning those symlinks?
+>
+>  
 >
 
-Interesting.
+Sure.
 
-The slides indicate that in their system threads are able to change what
-context they run in.
+sendmail and postfix are mutually conflicting because both wish to use 
+/usr/lib/sendmail.
 
-It makes me wonder if they have some magic to prevent threads from
-poluting shared data (unlikely), or if it is just a hack to avoid process
-vs. thread design issues on windows.
+So the path is a symlink, conflicts avoided because the symlink is not part
+of any package, but rather a side effect of the install:
+$ rpm -qf /usr/lib/sendmail
+file /usr/lib/sendmail is not owned by any package
 
--Chris
+See also "man alternatives".
+
+Here are the scripts from the sendmail package, edited to remove "other 
+stuff":
+
+$ rpm -q --scripts sendmail
+
+postinstall scriptlet (using /bin/sh):
+
+#
+# Set up the alternatives files for MTAs.
+#
+/usr/sbin/alternatives --install /usr/sbin/sendmail mta 
+/usr/sbin/sendmail.sendmail 90 \
+        --slave /usr/bin/mailq mta-mailq /usr/bin/mailq.sendmail \
+        --slave /usr/bin/newaliases mta-newaliases 
+/usr/bin/newaliases.sendmail \
+        --slave /usr/bin/rmail mta-rmail /usr/bin/rmail.sendmail \
+        --slave /usr/lib/sendmail mta-sendmail /usr/lib/sendmail.sendmail \
+        --slave /etc/pam.d/smtp mta-pam /etc/pam.d/smtp.sendmail \
+        --slave /usr/share/man/man8/sendmail.8.gz mta-sendmailman 
+/usr/share/man/man8/sendmail.sendmail.8.gz \
+        --slave /usr/share/man/man1/mailq.1.gz mta-mailqman 
+/usr/share/man/man1/mailq.sendmail.1.gz \
+        --slave /usr/share/man/man1/newaliases.1.gz mta-newaliasesman 
+/usr/share/man/man1/newaliases.sendmail.1.gz \
+        --slave /usr/share/man/man5/aliases.5.gz mta-aliasesman 
+/usr/share/man/man5/aliases.sendmail.5.gz \
+        --initscript sendmail
+ 
+ 
+
+preuninstall scriptlet (using /bin/sh):
+if [ $1 = 0 ]; then
+        /usr/sbin/alternatives --remove mta /usr/sbin/sendmail.sendmail
+fi
+exit 0
+postuninstall scriptlet (using /bin/sh):
+if [ "$1" -ge "1" ]; then
+        mta=`readlink /etc/alternatives/mta`
+        if [ "$mta" == "/usr/sbin/sendmail.sendmail" ]; then
+                /usr/sbin/alternatives --set mta /usr/sbin/sendmail.sendmail
+        fi
+fi
+exit 0
+
+HTH
+
+73 de Jeff
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
