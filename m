@@ -1,54 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h944KdsJ014413
-	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 00:20:39 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h944InZt007609
-	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 04:18:49 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h944ImM3007605
-	for <selinux@tycho.nsa.gov>; Sat, 4 Oct 2003 04:18:48 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id B2C7592472
-	for <selinux@tycho.nsa.gov>; Sat,  4 Oct 2003 14:20:30 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 6EEAE7F004
-	for <selinux@tycho.nsa.gov>; Sat,  4 Oct 2003 14:20:22 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: serial devices
-Date: Sat, 4 Oct 2003 14:20:21 +1000
+To: James Morris <jmorris@redhat.com>
+Subject: Re: Fedora Project and SELinux
+Date: Sat, 4 Oct 2003 17:14:44 +1000
+Cc: "SELinux (E-mail)" <SELinux@tycho.nsa.gov>
+References: <Pine.LNX.4.44.0310031602210.22164-100000@thoron.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0310031602210.22164-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200310041420.21903.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200310041714.44636.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently we have serial ports labeled at tty_device_t by default.
+On Sat, 4 Oct 2003 06:28, James Morris wrote:
+> As far as I know, Fedora will not initially be released with SELinux
+> enabled, but a future version may.  This is also up to the Fedora
+> development community, and further discussion on the issue should
+> probably be directed to fedora-devel-list
 
-The problem is that serial ports are used for modems, printers, and many other 
-things than terminals.  Currently the sample policy does not permit such 
-access.  So cups and lpd are not granted access, and if you want to run 
-minicom you have to change the context of the device (and add new policy) or 
-run minicom as sysadm_t.
+If Fedora doesn't include SE Linux then it would not be difficult to make a 
+version with SE Linux.  There's only about a dozen packages to build.
 
-I have been thinking of creating a new type for non-login serial devices and 
-granting pppd, cups and lpd full access to it, then the administrator would 
-have the option of granting users access to it for running minicom without 
-allowing them to spoof logins.
-
-Another possibility is to have different types for the device as used by cups, 
-pppd, and minicom.  Then change the contexts of serial devices to indicate 
-which service they are for, but this could be painful to administer.
-
-What do you think?
+If the official Fedora doesn't support it then it would be easy for someone to 
+establish their own repository of Fedora with SE Linux.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
 
 
 --
