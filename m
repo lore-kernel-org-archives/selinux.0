@@ -1,81 +1,89 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA05679
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 09:12:40 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA01376
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:11:12 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id NAA01372 for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:11:12 GMT
-Date: Wed, 10 Jul 2002 09:12:21 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: audit bug in fd handling
-In-Reply-To: <20020710074550.C3E6D106@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0207100909500.26546-200000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA05993
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 09:48:14 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA16835
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:47:38 GMT
+Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
+	by jazzswing.ncsc.mil  with ESMTP id NAA16831
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:47:38 GMT
+Reply-To: <blacknet@simplyaquatics.com>
+From: "Ed Street" <blacknet@simplyaquatics.com>
+To: "'Stephen Smalley'" <sds@tislabs.com>,
+        "'Russell Coker'" <russell@coker.com.au>
+Cc: "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: cleaning psidfiles database
+Date: Wed, 10 Jul 2002 09:48:12 -0400
+Message-ID: <007601c22818$6ee1e7a0$0a01a8c0@ed>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-824023566-1026306741=:26546"
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <Pine.GSO.4.33.0207100717310.26546-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hello,
 
----559023410-824023566-1026306741=:26546
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Speaking of make relabel.  Would it not be a good idea to run a relabel
+at boot time?
 
+Ed
 
-On Wed, 10 Jul 2002, Russell Coker wrote:
+=> -----Original Message-----
+=> From: owner-selinux@tycho.nsa.gov
+[mailto:owner-selinux@tycho.nsa.gov] On
+=> Behalf Of Stephen Smalley
+=> Sent: Wednesday, July 10, 2002 7:36 AM
+=> To: Russell Coker
+=> Cc: SE Linux
+=> Subject: Re: cleaning psidfiles database
+=> 
+=> 
+=> On Wed, 10 Jul 2002, Russell Coker wrote:
+=> 
+=> > psidfiles_init:  error 22 in obtaining SID for context
+=> > system_u:object_r:dmesg_exec_t (psid 9).
+=> > psidfiles_init:  error 22 in obtaining SID for context
+=> > system_u:object_r:mesg_exec_t (psid 107).
+=> >
+=> > As a follow up to my previous messages on the topic of psidfiles,
+if
+=> the root
+=> > file system is mounted without a valid policy (or if an initrd is
+used
+=> that
+=> > doesn't have a valid policydb) then messages such as the above
+appear
+=> for all
+=> > types that used to be applied to files on the file system.  The
+above
+=> two
+=> > examples are for file types that were not used for several months!
+=> 
+=> What previous messages on the topic of psidfiles?  Are you referring
+back
+=> to the "Major reduction in errors" thread?
+=> 
+=> You can use 'make reset' in the policy directory to recreate the
+=> persistent label mappings from scratch, purging any obsoleted
+entries.
+=> 
+=> --
+=> Stephen D. Smalley, NAI Labs
+=> ssmalley@nai.com
+=> 
+=> 
+=> 
+=> 
+=> --
+=> You have received this message because you are subscribed to the
+selinux
+=> list.
+=> If you no longer wish to subscribe, send mail to
+majordomo@tycho.nsa.gov
+=> with
+=> the words "unsubscribe selinux" without quotes as the message.
 
-> It seems that when a file handle open read/write is inherited by a domain
-> that is permitted read access only, an error about write access will be
-> logged - even if there is a dontaudit rule!
-
-The attached patch (also committed to the sourceforge CVS tree) fixes this
-bug in the auditdeny logic.  To apply, save the patch to
-~/auditdeny.patch, cd lsm-2.4, and patch -p0 < ~/auditdeny.patch.  Then,
-rebuild your kernel.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
----559023410-824023566-1026306741=:26546
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="auditdeny.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0207100912210.26546@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="auditdeny.patch"
-
-SW5kZXg6IHNlY3VyaXR5L3NlbGludXgvaW5jbHVkZS9saW51eC9mbGFzay9h
-dmMuaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNy
-b290L3NlbGludXgvbnNhL2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9pbmNs
-dWRlL2xpbnV4L2ZsYXNrL2F2Yy5oLHYNCnJldHJpZXZpbmcgcmV2aXNpb24g
-MS4zDQpkaWZmIC11IC1yMS4zIGF2Yy5oDQotLS0gc2VjdXJpdHkvc2VsaW51
-eC9pbmNsdWRlL2xpbnV4L2ZsYXNrL2F2Yy5oCTMgSnVuIDIwMDIgMTM6NDY6
-NTEgLTAwMDAJMS4zDQorKysgc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2xp
-bnV4L2ZsYXNrL2F2Yy5oCTEwIEp1bCAyMDAyIDEzOjAzOjUyIC0wMDAwDQpA
-QCAtMjE0LDYgKzIxNCw3IEBADQogCXVuc2lnbmVkIGxvbmcJZmxhZ3M7DQog
-CXN0cnVjdCBhdmNfZW50cnkgZW50cnk7DQogCV9fdTMyIHNlcW5vOw0KKwlh
-Y2Nlc3NfdmVjdG9yX3QgZGVuaWVkOw0KIA0KIAlzcGluX2xvY2tfaXJxc2F2
-ZSgmYXZjX2xvY2ssIGZsYWdzKTsNCiAJYXZjX2NhY2hlX3N0YXRzX2luY3Io
-QVZDX0VOVFJZX0xPT0tVUFMpOw0KQEAgLTI1NCw5ICsyNTUsMTEgQEANCiAJ
-CWFlID0gYWVyZWYtPmFlOw0KIAl9DQogDQotCWlmICghcmVxdWVzdGVkIHx8
-IChyZXF1ZXN0ZWQgJiBhZS0+YWxsb3dlZCkgIT0gcmVxdWVzdGVkKSB7DQot
-CQlpZiAoIXJlcXVlc3RlZCB8fCAocmVxdWVzdGVkICYgYWUtPmF1ZGl0ZGVu
-eSkpDQotCQkJYXZjX2F1ZGl0KHNzaWQsIHRzaWQsIHRjbGFzcywgcmVxdWVz
-dGVkICYgfihhZS0+YWxsb3dlZCksIGFlLA0KKwlkZW5pZWQgPSByZXF1ZXN0
-ZWQgJiB+KGFlLT5hbGxvd2VkKTsNCisNCisJaWYgKCFyZXF1ZXN0ZWQgfHwg
-ZGVuaWVkKSB7DQorCQlpZiAoIXJlcXVlc3RlZCB8fCAoZGVuaWVkICYgYWUt
-PmF1ZGl0ZGVueSkpDQorCQkJYXZjX2F1ZGl0KHNzaWQsIHRzaWQsIHRjbGFz
-cywgZGVuaWVkLCBhZSwNCiAJCQkJICBBVkNfQVVESVRERU5ZLCBhdWRpdGRh
-dGEpOw0KICNpZmRlZiBDT05GSUdfU0VDVVJJVFlfU0VMSU5VWF9ERVZFTE9Q
-DQogCQlpZiAoYXZjX2RlYnVnX2Fsd2F5c19hbGxvdykgew0K
----559023410-824023566-1026306741=:26546--
 
 --
 You have received this message because you are subscribed to the selinux list.
