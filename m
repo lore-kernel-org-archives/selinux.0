@@ -1,80 +1,105 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i730MMrT017250
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 20:22:22 -0400 (EDT)
-Received: from flame.hosts.ndo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i730MKKV001287
-	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 00:22:20 GMT
-Date: Tue, 3 Aug 2004 00:15:34 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: "Marco d'Itri" <md@Linux.IT>
-Cc: 263079@bugs.debian.org, SE-Linux <selinux@tycho.nsa.gov>,
-   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
-Subject: Re: Bug#263079: udev: missing mknod on ppp
-Message-ID: <20040802231534.GB16238@lkcl.net>
-References: <E1Brl5k-0006Jd-1F@lkcl.net> <20040802224118.GA18849@wonderland.linux.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040802224118.GA18849@wonderland.linux.it>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i733InrT018045
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 23:18:50 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i733IEXV028845
+	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 03:18:15 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 6383561BD2
+	for <selinux@tycho.nsa.gov>; Tue,  3 Aug 2004 13:18:37 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 07874-09 for <selinux@tycho.nsa.gov>;
+	Tue, 3 Aug 2004 13:18:37 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id E69C861BBE
+	for <selinux@tycho.nsa.gov>; Tue,  3 Aug 2004 13:18:36 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 8F0C5B59A7
+	for <selinux@tycho.nsa.gov>; Tue,  3 Aug 2004 13:18:35 +1000 (EST)
+From: Russell Coker <rcoker@redhat.com>
+Reply-To: rcoker@redhat.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: postgrey policy
+Date: Tue, 3 Aug 2004 13:18:34 +1000
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_KQwDBIidJZizWWd"
+Message-Id: <200408031318.34469.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 03, 2004 at 12:41:18AM +0200, Marco d'Itri wrote:
-> On Aug 03, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> 
-> > udev appears to be missing out ppp: i got a request
-> > to mknod /dev/ppp c 108 0 when running pon provider
-> I see no sign of this being an udev bug.
-> Please upgrade your kernel and read again README.Debian.
-> If you don't have /sys/class/ppp/ppp/dev, your kernel is too old.
-> 
-> -- 
-> ciao, |
-> Marco | [7408 op/KllxVxdFKI]
 
+--Boundary-00=_KQwDBIidJZizWWd
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Attached is policy for the postgrey daemon for grey-listing in Postfix.
 
-Script started on Tue Aug  3 00:07:18 2004
-highfield:~# more /etc/motd
-Linux highfield 2.6.6-selinux1 #5 Tue May 18 16:33:29 GMT 2004 i686 GNU/Linux
-highfield:~# ls /sys/class/ppp/ppp/dev
-/sys/class/ppp/ppp/dev
-highfield:~# 
-Script done on Tue Aug  3 00:07:30 2004
+Grey-listing means giving a 45x code in response to email the first time a 
+particular IP address or combination of IP address and email address attempts 
+to send mail to you.  Some minutes later the mail will be received.
 
+Spam machines generally don't re-try so greylisting stops lots of spam, and as 
+long as the delay is significantly less than 4 hours (usually only a few 
+minutes) someone who sends legit email will never notice any difference.
 
-so this might be a kernel bug then?
+-- 
+http://apac.redhat.com/disclaimer
+See above URL for disclaimer.
 
-thank you for pointing me at the README.Debian because it makes clear
-that for SE/Linux there are certain /dev entries that may not get
-fired up by udev, and consequently won't have se/linux permissions set!
+--Boundary-00=_KQwDBIidJZizWWd
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="postgrey.fc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="postgrey.fc"
 
-i've had to modify /etc/init.d/udev to do a manual /sbin/restorecon on
-all entries listed in /etc/udev/links.conf.
+# postgrey - postfix grey-listing server
+/usr/sbin/postgrey	--	system_u:object_r:postgrey_exec_t
+/var/run/postgrey\.pid	--	system_u:object_r:postgrey_var_run_t
+/etc/postgrey(/.*)?		system_u:object_r:postgrey_etc_t
+/var/lib/postgrey(/.*)?		system_u:object_r:postgrey_var_lib_t
 
-i have some vague and rushed recollection of forcibly doing an
-/sbin/restorecon in /etc/init.d/modutils, too.
+--Boundary-00=_KQwDBIidJZizWWd
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="postgrey.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="postgrey.te"
 
-does anyone have any suggestions on how /etc/modutils should be dealt
-with on a tmpfs-mounted /dev?
+#DESC postgrey - Postfix Grey-listing server
+#
+# Author:  Russell Coker <russell@coker.com.au>
+# X-Debian-Packages: postgrey
 
-bearing in mind that a [patched, see
-http://hands.com/~lkcl/selinux/2.6.6 tmfs-xattr patch] selinux tmpfs
-would be mounted with NO initial selinux permissions, and that
-ANYTHING that goes into it will need to have a security context set
-on it for there to be any chance of it being accessible.
+daemon_domain(postgrey)
 
-the issue is, therefore that /etc/init.d/modutils will endeavour to
-manually install modules at startup - even before udev is run - and
-it doesn't bother to set the selinux permissions.
+allow postgrey_t urandom_device_t:chr_file { getattr read };
 
-and also, as this initial bug might be raising, if udev doesn't
-notice a device driver, /sbin/restorecon (or equivalent) won't ever
-get called.
+# for perl
+allow postgrey_t sbin_t:dir search;
+allow postgrey_t usr_t:{ file lnk_file } { getattr read };
+dontaudit postgrey_t usr_t:file ioctl;
 
-ideas, anyone?
+allow postgrey_t { etc_t etc_runtime_t }:file { getattr read };
+etcdir_domain(postgrey)
 
-l.
+can_network(postgrey_t)
+allow postgrey_t self:unix_stream_socket create_stream_socket_perms;
+allow postgrey_t proc_t:file { getattr read };
 
+allow postgrey_t self:capability { chown setuid };
+
+var_lib_domain(postgrey)
+
+allow postgrey_t tmp_t:dir getattr;
+
+--Boundary-00=_KQwDBIidJZizWWd--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
