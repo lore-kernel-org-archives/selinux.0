@@ -1,41 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA10771
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2003 17:33:14 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA24151
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2003 22:30:23 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA24144
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2003 22:30:21 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: j.logsdon@lancaster.ac.uk, selinux@tycho.nsa.gov
-Subject: Re: gcc problem
-Date: Wed, 22 Jan 2003 23:33:01 +0100
-References: <Pine.LNX.4.10.10301222128260.6823-100000@mercury.quantex>
-In-Reply-To: <Pine.LNX.4.10.10301222128260.6823-100000@mercury.quantex>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA13410
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 07:59:54 -0500 (EST)
+From: j.logsdon@lancaster.ac.uk
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h0NCxsI21120
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 12:59:54 GMT
+Received: from parmenides.zen.co.uk (parmenides.zen.co.uk [212.23.8.69])
+        by jazzband.ncsc.mil  with SMTP id h0NCxrf21116 for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 12:59:53 GMT
+Received: from localhost (j.logsdon@localhost)
+	by quantex-research.com (8.8.7/8.8.7) with ESMTP id NAA16057
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 13:03:02 GMT
+Date: Thu, 23 Jan 2003 13:03:01 +0000 (GMT)
+To: selinux@tycho.nsa.gov
+Subject: Good news and bad news with the NSA version
+Message-ID: <Pine.LNX.4.10.10301231244480.5934-100000@mercury.quantex>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200301222333.01452.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-While we're discussing the topic.  I've compiled the kernel for my SE play 
-machine with GCC 3.2 and the recent Debian packages I've released have been 
-compiled with it too.
+Hi again
 
-So GCC 3.2 seems moderately OK for compiling kernels and SE utilities at the 
-moment (although I won't be deploying a 3.2 compiled kernel on one of my 
-serious servers for some weeks).
+Firstly the good news - recall that I had a problem looking for some 2.96
+modules with RH8 which uses gcc-3.2.  I cleared out both directories and
+re-expanded the tarball that I downloaded.  This compilation went fine and
+all the files were relabelled OK.
 
-I haven't tested the NSA compilation scripts so I can't comment on them.
+Then I rebooted using the new kernel and to start with it all looked good
+but then hung after the 'initialising random number generator' stage.  The
+last messages were:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Jan 23 12:10:43 venus random: Initializing random number generator:
+succeeded
+Jan 23 12:10:43 venus kernel: Initializing RT netlink socket
+Jan 23 12:10:43 venus kernel: Starting kswapd
+Jan 23 12:10:43 venus kernel: Journalled Block Device driver loaded
+Jan 23 12:10:44 venus kernel: Installing knfsd (copyright (C) 1996 
+okir@monad.swb.de).
+
+then after a further 8 minutes my patience ran out and I rebooted into RH8
+again.
+
+There was a message during the selinux boot against ne (I am using an old
+NE2000 ISA card) that the device had failed so I don't know whether there
+would still have been a problem with the networking side.  Under a normal
+boot, the networking is set up after the random number generator so the
+failure may be due to this.  
+
+Can anyone guide me as to what is wrong?  When it boots into RH8 there is
+no delay at all.
+
+TIA
+
+John
 
 
 --
