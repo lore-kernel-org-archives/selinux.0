@@ -1,63 +1,63 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3UBi9I4003777
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 07:44:09 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3UDHII4004160
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 09:17:18 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3UBhv7R002063
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 11:43:58 GMT
+	by jazzband.ncsc.mil  with ESMTP id h3UDH67R006864
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 13:17:06 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h3UBhvKP002060 for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 11:43:57 GMT
+        by jazzband.ncsc.mil  with ESMTP id h3UDH6KP006861 for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 13:17:06 GMT
 Subject: Re: truncate(2) and setattr
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200304301034.38073.russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200304302231.13209.russell@coker.com.au>
 References: <200304301034.38073.russell@coker.com.au>
+	 <1051703388.1118.119.camel@moss-huskers.epoch.ncsc.mil>
+	 <200304302231.13209.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1051703014.1118.116.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1051708617.1118.173.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 30 Apr 2003 07:43:36 -0400
+Date: 30 Apr 2003 09:16:59 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-04-29 at 20:34, Russell Coker wrote:
-> Why does truncate(2) require setattr access to the file?
+On Wed, 2003-04-30 at 08:31, Russell Coker wrote:
+> This issue was first raised on the SE Linux IRC channel.  It was pointed out 
+> that rw_file_perms does not permit truncating a file, which is not the 
+> expected behavior.
 > 
-> Using truncate(file, len + 1) to increase the size of the file by 1 byte has 
-> exactly the same affect on the file attributes as seeking to the end and 
-> writing one byte.
+> I don't think that changing this would require any additional complexity in 
+> the policy.  IMHO truncate() access should be determined by the write 
+> permission (and possibly append permission for truncate() being used to 
+> increase the size of a file).
 > 
-> Using truncate to make a file smaller has no greater affect on the file 
-> attributes.
+> I suspect that the end result of such a change is that we would be able to 
+> remove many instances of setattr permission from various domains that only 
+> really need truncate() access.
 
-The size of a file is one of its attributes.  If you look at the
-internal implementation in fs/open.c:do_truncate, you'll see that it
-calls fs/attr.c:notify_change with flags indicating that the size and
-ctime attributes are changing.  notify_change is also used for other
-attribute changes, e.g. chown, chmod, utimes.  If you look at
-fs/attr.c:notify_change, you'll see that it calls the
-security_inode_setattr hook to perform a permission check prior to
-calling the inode->i_op->setattr operation or the inode_setattr
-function.  In SELinux, the corresponding hook function
-(security/selinux/hooks.c:selinux_inode_setattr) always checks setattr
-permission to the file.
+So you want something like the below patch, which omits the file setattr
+permission check in the truncate case.
 
-Now, it is also true that fs/open.c:do_sys_truncate checks write
-permission to the inode by calling fs/namei.c:permission, which calls
-the security_inode_permission hook == selinux_inode_permission for
-SELinux, and fs/open.c:do_sys_ftruncate requires that the file mode
-includes write access.  Hence, at present, both write permission and
-setattr permission are required for truncate.  This reflects the fact
-that truncate affects both the file data and its size attribute.
+Index: lsm-2.4/security/selinux/hooks.c
+===================================================================
+RCS file: /home/pal/CVS/lsm-2.4/security/selinux/hooks.c,v
+retrieving revision 1.89
+diff -u -r1.89 hooks.c
+--- lsm-2.4/security/selinux/hooks.c	27 Mar 2003 20:05:18 -0000	1.89
++++ lsm-2.4/security/selinux/hooks.c	30 Apr 2003 13:09:39 -0000
+@@ -2034,6 +2034,10 @@
+ 
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ {
++	if (iattr->ia_valid == (ATTR_SIZE | ATTR_CTIME)) {
++		/* truncate covered by write permission check */
++		return 0;
++	}
+ 	return dentry_has_perm(current, dentry, FILE__SETATTR, NULL);
+ }
+ 
 
-A case could be made for splitting up the SELinux setattr file
-permission into distinct permissions for the different attributes, and
-checking the appropriate permission in selinux_inode_setattr based on
-the iattr->ia_valid flags, similar to how fs/attr.c:inode_change_ok
-performs different checks depending on those flags.  This is a fine line
-in terms of balancing between providing least privilege and making the
-policy unnecessarily complicated, as SELinux itself does not depend on
-the values of these attributes for its own access controls.
-
+  
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
