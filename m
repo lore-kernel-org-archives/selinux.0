@@ -1,15 +1,12 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j36JASDo020497
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2005 15:10:29 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j36J5KCd021412
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2005 19:05:22 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j36JEQDo020565
+	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2005 15:14:27 -0400 (EDT)
 Subject: Re: More patches
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>
+Cc: ivg2@cornell.edu, SELinux <selinux@tycho.nsa.gov>,
+   Steve Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>
 In-Reply-To: <42542F02.2020304@redhat.com>
 References: <200502032350.40924.russell@coker.com.au>
 	 <1108048794.10328.14.camel@moss-lions.epoch.ncsc.mil>
@@ -18,27 +15,31 @@ References: <200502032350.40924.russell@coker.com.au>
 	 <4253D7BA.6030604@redhat.com> <1112810151.7822.4.camel@cobra.ivg2.net>
 	 <42542F02.2020304@redhat.com>
 Content-Type: text/plain
-Date: Wed, 06 Apr 2005 14:13:59 -0400
-Message-Id: <1112811239.3469.4.camel@cobra.ivg2.net>
+Date: Wed, 06 Apr 2005 15:13:12 -0400
+Message-Id: <1112814792.4187.16.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> My understanding was that
+On Wed, 2005-04-06 at 14:48 -0400, Daniel J Walsh wrote:
+> Ivan Gyurdiev wrote:
 > 
->  netlink_kobject_uevent_socket was added so that we would not need the netlink_socket rule.
-> 
-> Either I am wrong or you might need an updated kernel.
+> >> allow hald_t bin_t:file getattr;
+> >>-allow hald_t self:netlink_socket create_socket_perms;
+> >> allow hald_t self:netlink_kobject_uevent_socket create_socket_perms;
+> >> allow hald_t self:netlink_route_socket r_netlink_socket_perms;
+> >> allow hald_t self:capability { net_admin sys_admin dac_override dac_read_search mknod };
+> >>    
+> >>
+> >
 
-Ok, I wasn't sure about that, since I didn't see when it was added.
-Which kernel do I need? I am running 2.6.11-1.1226_FC4.
+Steve had suggested to me to leave that line in for now for
+compatibility with older kernels.
 
-Strace still shows protocol 15... same behavior as previously reported.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
