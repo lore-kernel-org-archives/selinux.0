@@ -1,33 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAAE4hSf003682
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 09:04:43 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAAE4bKl001684
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:04:37 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAAE5QSf003702
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 09:05:26 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAAE511W002055
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:05:01 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hAAE4a5m001679 for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:04:36 GMT
-Subject: Re: stripped static binaries
+	by jazzswing.ncsc.mil  with ESMTP id hAAE515e002052
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:05:01 GMT
+Subject: Re: Invalid Security Context error
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200311091638.15350.carstengrohmann@gmx.de>
-References: <200311091638.15350.carstengrohmann@gmx.de>
+To: Dhruv Gami <dgami@uncc.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200311090545.hA95j16H029965@ns3.biznetindia.com>
+References: <200311090545.hA95j16H029965@ns3.biznetindia.com>
 Content-Type: text/plain
-Message-Id: <1068473072.32532.5.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1068473123.32532.7.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 10 Nov 2003 09:04:32 -0500
+Date: Mon, 10 Nov 2003 09:05:23 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-11-09 at 10:38, Carsten Grohmann wrote:
-> I think, we should strip the static binaries like load_policy. Thru 
-> this we could save space in the initrd. The patch for the 
-> policycoreutils is attached.
+On Sun, 2003-11-09 at 00:45, Dhruv Gami wrote:
+> Hello Everyone,
 > 
-> What do you think about it?
+> finally i managed to compile everything, though some of the patches
+> needed manual changes (will post a list of patches that didnt work
+> properly).
+> 
+> Now, when i rebooted the machine for the first time after compiling
+> everything, and following the README doc step by step, i was asked
+> 
+> -------------
+> login: root
+> password: *****
+> 
+> would you like to enter a security context? [y]
+>        Enter role sysadm_r
+>        Enter type sysadm_t
+> Not a valid security context
+> -------------
+> 
+> have i missed some context setting somewhere ?
+> 
+> regards,
+> Gami
 
-With Dan's patched init program, it is not necessary to perform the load
-from an initrd.
+This implies that you never loaded a policy during initialization.
+You can either perform the load via an initrd as described in
+the README, or you can use Dan's patched init program.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
