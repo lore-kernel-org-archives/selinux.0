@@ -1,146 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAGN8Ii021201
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 11:23:08 -0500 (EST)
-Message-ID: <41B9CD6A.2030008@redhat.com>
-Date: Fri, 10 Dec 2004 11:23:06 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAGS5Ii021250
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 11:28:05 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAGQOwi006013
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 16:26:27 GMT
+Subject: Re: Single home directory type for all roles.
+From: Colin Walters <walters@redhat.com>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux ML <selinux@tycho.nsa.gov>, Nalin Dahyabhai <nalin@redhat.com>
-Subject: Manipulating user roles without policy-sources installed
-References: <20041207000805.GH3678@jmh.mhn.de>	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>	 <41B8826D.30105@redhat.com>	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil> <1102614049.32175.168.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1102614049.32175.168.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------050401040204020305050807"
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Russell Coker <rcoker@redhat.com>,
+   SE Linux list <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@snu.edu>,
+   Jim Carter <jwcart2@epoch.ncsc.mil>, Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <1102684310.1628.12.camel@moss-spartans.epoch.ncsc.mil>
+References: <20041207000805.GH3678@jmh.mhn.de>
+	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
+	 <41B8826D.30105@redhat.com>
+	 <1102613299.10785.21.camel@nexus.verbum.private>
+	 <1102615344.4509.39.camel@aeon>  <41B8AB69.1060805@redhat.com>
+	 <1102623195.4509.86.camel@aeon>  <41B8B409.4070807@redhat.com>
+	 <1102631395.10785.25.camel@nexus.verbum.private>
+	 <1102684310.1628.12.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 10 Dec 2004 11:28:04 -0500
+Message-Id: <1102696085.10785.51.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050401040204020305050807
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2004-12-10 at 08:11 -0500, Stephen Smalley wrote:
+> On Thu, 2004-12-09 at 17:29, Colin Walters wrote:
+> > On Thu, 2004-12-09 at 15:22 -0500, Daniel J Walsh wrote:
+> > 
+> > > BTW I like the idea of defaulting to staff_r.  I think we should do that 
+> > > and turn off user_canbe_sysadm.
+> > 
+> > Fully agreed on this btw.
+> 
+> I'm not sure about this proposal.  Remember that I reworked user.te so
+> that user_canbe_sysadm does not convey all of the permissions of staff_t
+> to user_t (i.e. the full priv_user macro); it only conveys the
+> reach_sysadm permissions for using su/sudo/userhelper to reach sysadm. 
 
-Take a look at this patch that will install the users file on the system 
-and allow local admins to manipulate  a local.users file.
-We still need to handle file context though, perhaps include filecontext 
-file pre genhomedircon.
+Ok, that makes sense.
 
-I want to change genpolusers syntax to be
+> Also, if you have everyone default to staff_r, including user_u, then if
+> you ever want to enable the user/staff separation, you have to relabel
+> all of the home directories for people you want to put back into user_r,
+> which is likely a larger set than the ones you want to put into
+> staff_r. 
 
-genpolusers inpolicy outpolicy userfile1 [userfile2 ... ]
-
-So if I add a user to /etc/selinux/strict/users/local.users I execute
-
-genpolusers /etc/selinux/strict/policy/policy.18 
-/etc/selinux/strict/policy/policy.18.new 
-/etc/selinux/strict/users/system.users \ 
-/etc/selinux/strict/users/local.users
-mv -f /etc/selinux/strict/policy/policy.18.new 
-/etc/selinux/strict/policy/policy.18
-load_policy /etc/selinux/strict/policy/policy.18
-
-Tools like useradd and system-config-users can start to manipulate 
-/etc/selinux/strict/users/local.users, to setup roles.
+Well, I think we want to avoid switching user roles as much as possible;
+if we have integrated roles into useradd, then the system administrator
+can add any additional users they want into user_r or staff_r as
+desired.
 
 
---------------050401040204020305050807
-Content-Type: text/x-patch;
- name="policy-users.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policy-users.patch"
-
-diff --exclude-from=exclude -N -u -r nsapolicy/local.users policy-1.19.12/local.users
---- nsapolicy/local.users	1969-12-31 19:00:00.000000000 -0500
-+++ policy-1.19.12/local.users	2004-12-10 10:59:20.750916770 -0500
-@@ -0,0 +1,25 @@
-+##################################
-+#
-+# User configuration.
-+#
-+# This file defines additional users recognized by the system security policy.
-+# Only the user identities defined in this file and the users.system file
-+# may be used as the user attribute in a security context.
-+#
-+# Each user has a set of roles that may be entered by processes
-+# with the users identity.  The syntax of a user declaration is:
-+#
-+# 	user username roles role_set [ ranges MLS_range_set ];
-+#
-+# The MLS range set should only be specified if MLS was enabled
-+# for the module and checkpolicy.
-+
-+# sample for administrative user
-+#user jadmin roles { staff_r sysadm_r };
-+
-+# or if you want to be able to directly start daemons 
-+
-+#user jadmin roles { staff_r sysadm_r system_r };
-+
-+# sample for regular user
-+#user jdoe roles { user_r }; 
-diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.19.12/Makefile
---- nsapolicy/Makefile	2004-10-25 14:01:13.000000000 -0400
-+++ policy-1.19.12/Makefile	2004-12-10 10:54:18.524901686 -0500
-@@ -26,6 +26,7 @@
- INSTALLDIR = $(DESTDIR)/etc/selinux/strict
- POLICYPATH = $(INSTALLDIR)/policy
- SRCPATH = $(INSTALLDIR)/src
-+USERPATH = $(INSTALLDIR)/users
- CONTEXTPATH = $(INSTALLDIR)/contexts
- LOADPATH = $(POLICYPATH)/$(POLICYVER)
- FCPATH = $(CONTEXTPATH)/files/file_contexts
-@@ -37,13 +38,13 @@
- ALLTEFILES := attrib.te tmp/program_used_flags.te $(ALL_MACROS) $(ALL_TYPES) $(ALL_DOMAINS) assert.te 
- TE_RBAC_FILES := $(ALLTEFILES) rbac
- ALL_TUNABLES := $(wildcard tunables/*.tun )
--
-+USER_FILES := users serviceusers
- POLICYFILES = $(addprefix $(FLASKDIR),security_classes initial_sids access_vectors)
- ifeq ($(MLS),y)
- POLICYFILES += mls
- endif
- POLICYFILES += $(ALL_TUNABLES) $(TE_RBAC_FILES)
--POLICYFILES += users serviceusers
-+POLICYFILES += $(USER_FILES)
- POLICYFILES += constraints initial_sid_contexts fs_use genfs_contexts net_contexts
- 
- UNUSED_TE_FILES := $(wildcard domains/program/unused/*.te)
-@@ -54,9 +55,23 @@
- APPDIR=$(CONTEXTPATH)
- APPFILES = $(addprefix $(APPDIR)/,default_contexts default_type initrc_context failsafe_context userhelper_context removable_context dbus_contexts) $(CONTEXTPATH)/files/media
- 
-+$(USERPATH)/system.users: $(ALL_TUNABLES) $(USER_FILES) policy.conf
-+	@mkdir -p $(USERPATH)
-+	@echo "# " > tmp/system.users
-+	@echo "# Do not edit this file. " >> tmp/system.users
-+	@echo "# This file is replaced on reinstalls of this policy." >> tmp/system.users
-+	@echo "# Please edit users.custom to make local changes." >> tmp/system.users
-+	@echo "#" >> tmp/system.users
-+	m4 $(ALL_TUNABLES) tmp/program_used_flags.te $(USER_FILES) | grep -h -v "^#" | grep [a-zA-Z] >> tmp/system.users
-+	install -m 644 tmp/system.users $@
-+
-+$(USERPATH)/local.users: local.users
-+	@mkdir -p $(USERPATH)
-+	install -m 644 $< $@
-+
- ROOTFILES = $(addprefix $(APPDIR)/users/,root)
- 
--install: $(APPFILES) $(ROOTFILES) $(LOADPATH) $(FCPATH) 
-+install: $(APPFILES) $(ROOTFILES) $(LOADPATH) $(FCPATH) $(USERPATH)/system.users $(USERPATH)/local.users
- 	@echo "Validating file_contexts ..."	
- 	$(SETFILES) -q -c $(LOADPATH) $(FCPATH)
- 
-@@ -99,6 +114,7 @@
- $(LOADPATH):  policy.conf $(CHECKPOLICY)
- 	mkdir -p $(POLICYPATH)
- 	$(CHECKPOLICY) -o $@ policy.conf
-+
- # Note: Can't use install, so not sure how to deal with mode, user, and group
- #	other than by default.
- 
-
---------------050401040204020305050807--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
