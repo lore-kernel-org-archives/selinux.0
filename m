@@ -1,34 +1,31 @@
-From: "Carl Carpenter" <ccarpenter@hillcountry.org>
-To: "SELinux" <SELinux@tycho.nsa.gov>
-Subject: Problems with eth0
-Date: Wed, 10 Oct 2001 09:06:04 -0500
-Message-ID: <DIECIJMLKGOOCPBJIBKJAELJCEAA.ccarpenter@hillcountry.org>
+Date: Wed, 10 Oct 2001 10:22:29 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Carl Carpenter <ccarpenter@hillcountry.org>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Problems with eth0
+In-Reply-To: <DIECIJMLKGOOCPBJIBKJAELJCEAA.ccarpenter@hillcountry.org>
+Message-ID: <Pine.GSO.4.33.0110101014090.25153-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have discovered how SELinux provides such terrific security--it doesn't
-load the eth0 drivers, thereby keeping the server off the network.
-Seriously, I have a problem when running the SELinux kernel in that the eth0
-module can't be found during bootup (modprobe:  can't locate module eth0).
-I'm running 2.4.10-lsm on RH 7.1 (I386).  It works fine in normal mode.  I
-followed the install instructions step-for-step, selecting the preferred
-method of building the SELinux module as part of the kernel.  If I got any
-error messages, I didn't see them with all the other messages on the screen.
-I'm fairly new to Linux, so this may be an easy fix, but it's beyond me at
-the moment.  Thanks in advance for any help.
 
-Carl Carpenter
-IT Manager
-Hill Country Community MHMR Center
-"Hiroshima 1945, Chernobyl 1986, Windows 2000"
+On Wed, 10 Oct 2001, Carl Carpenter wrote:
 
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.285 / Virus Database: 151 - Release Date: 10/5/2001
+> Seriously, I have a problem when running the SELinux kernel in that the eth0
+> module can't be found during bootup (modprobe:  can't locate module eth0).
+
+You need to customize your kernel configuration for your hardware.  The
+default kernel configuration (part of the mainstream linux kernel tree,
+not modified by LSM/SELinux) doesn't enable many network card drivers.
+You need to enable the driver for your network card under the Network
+device support menu.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
 
 
 
