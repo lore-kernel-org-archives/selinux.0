@@ -1,43 +1,80 @@
-Message-ID: <3F9DBDFA.908@diyab.net>
-Date: Mon, 27 Oct 2003 19:53:14 -0500
-From: Diyab <diyab@diyab.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9SJisWt003307
+	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2003 14:44:54 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9SJisIE017173
+	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2003 19:44:54 GMT
+Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
+        by jazzband.ncsc.mil  with ESMTP id h9SJiq1J017170 for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2003 19:44:52 GMT
+Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
+	by sjtu.edu.cn (WorldPost) with ESMTP id D5029347260
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 03:44:49 +0800 (BEIST)
+Message-ID: <003b01c39d8d$5ead9690$5d38a8c0@lky>
+From: "lky" <lky77@sjtu.edu.cn>
+To: "SELINUX" <SELinux@tycho.nsa.gov>
+Subject: question about 2.6 modules 
+Date: Wed, 29 Oct 2003 03:54:59 +0800
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: lky <lky77@sjtu.edu.cn>, SELINUX <SELinux@tycho.nsa.gov>
-Subject: Re: question about su and passwd
-References: <001401c39a74$ac06b370$5d38a8c0@lky>	 <3F9AFDB0.1020406@diyab.net> <1067268199.18818.59.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1067268199.18818.59.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0038_01C39DD0.6C846440"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+This is a multi-part message in MIME format.
 
-> On Sat, 2003-10-25 at 18:48, Diyab wrote:
-> 
->>passwd, like most of the other user management tools, requires a
->>selinux specific version called spasswd.  There are some file labeling
->>issues which the normal passwd program can not handle and that is why
->>the modified version was made.  If you search the list archives you can
->>find out more information about that.
-> 
-> 
-> The spasswd wrappers were replaced with direct patches to the base
-> programs by Dan Walsh when the code was ported to the new SELinux API.
-> This allows the files to be directly created in the right context and
-> eliminates the window where the passwd file is in a more restrictive
-> context than necessary.
-> 
+------=_NextPart_000_0038_01C39DD0.6C846440
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
 
-Ah, my apoligies.  I have not had the opportunity to upgrade to the 
-newer releases yet and I was not aware of the change.  Thanks for 
-pointing this out Stephen.
+SGk6DQogICAgSSByZWluc3RhbGxlZCBteSBsaW51eCBzeXN0ZW0gdG9kYXkuIEkgaW5zdGFsbGVk
+IHRoZSBSZWRoYXQ5LjAgZmlyc3QuIFRoZW4gSSBpbnN0YWxsZWQgMi42LWJhc2VkIFNFTGludXgu
+IEluIGZhY3QgSSBpbnN0YWxsZWQgdHdvIDIuNiBrZXJuZWxzLiBPbmUgaXMgdGhlIG1haW50ZW5h
+bmNlIGtlcm5lbCB3aXRoIFNFTGludXggZGlzYWJsZWQgYW5kIHRoZSBvdGhlciB3aXRoIFNFTGlu
+dXggZW5hYmxlZC5CZWZvcmUgdGhlIGluc3RhbGxhdGlvbiBJIGluc3RhbGxlZCB0aGUgbmV3IG1v
+ZHV0aWxzIChkb3dubG9hZGVkIGZyb20gaHR0cDovL3d3dy5rZXJuZWwub3JnL3B1Yi9saW51eC9r
+ZXJuZWwvcGVvcGxlL3J1c3R5L21vZHVsZXMpICAgZm9yIHRoZSAyLjYga2VybmVsIGZpcnN0LiBB
+bmQgdGhlbiBJIG1vZGlmaWVkIHRoZSAvZXRjL3JjLnN5c2luaXQsIGp1c3QgbGV0ICcvcHJvYy9z
+eXMva2VybmVsL21vZHByb2JlJyByZXBsYWNlZCBieSAnL3NiaW4vbW9kcHJvYmUnLkFmdGVyIHRo
+YXQgSSBpbnN0YWxsZWQgdGhlIG1haW50ZW5hbmNlIGtlcm5lbCBmaXJzdC4gRXZlcnl0aGluZyBp
+cyBvayBidXQgd2hlbiBJIHJlYm9vdGVkIHRoZSBuZXcga2VybmVsIEkgZm91bmQgbW9kdWxlcyBz
+dWNoIGFzIG15IG5ldHdvcmsgY2FyZCBhbmQgbG9vcGJhY2sgZGV2aWNlIGNhbid0IGJlIGF1dG9t
+YXRpY2FsbHkgbG9hZGVkIHRvIHdvcmsgeWV0LiBXaHk/IFRoZSBtb2R1bGVzIHNob3VsZCB3b3Jr
+IGFmdGVyIGluc3RhbGxlZCB0aGUgbmV3IG1vZHV0aWxzIGZvciAyLjYga2VybmVsLiBIYXZlIEkg
+Zm9yZ290IHNvbWV0aGluZz8gDQogICAgVGhhbmtzIQ0KbGt5ICANCg==
 
-Timothy,
+------=_NextPart_000_0038_01C39DD0.6C846440
+Content-Type: text/html;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
 
--- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
+MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
+WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+SGk6PC9GT05UPjwvRElW
+Pg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPiZuYnNwOyZuYnNwOyZuYnNwOyBJIHJlaW5zdGFsbGVk
+IG15IGxpbnV4IHN5c3RlbSB0b2RheS4gSSANCmluc3RhbGxlZCB0aGUgUmVkaGF0OS4wIGZpcnN0
+LiBUaGVuIEkgaW5zdGFsbGVkIDIuNi1iYXNlZCBTRUxpbnV4LiBJbiBmYWN0IEkgDQppbnN0YWxs
+ZWQgdHdvIDIuNiBrZXJuZWxzLiBPbmUgaXMgdGhlIG1haW50ZW5hbmNlIGtlcm5lbCB3aXRoIFNF
+TGludXggZGlzYWJsZWQgDQphbmQgdGhlIG90aGVyIHdpdGggU0VMaW51eCBlbmFibGVkLkJlZm9y
+ZSB0aGUgaW5zdGFsbGF0aW9uIEkgaW5zdGFsbGVkIHRoZSBuZXcgDQptb2R1dGlscyAoZG93bmxv
+YWRlZCANCmZyb20mbmJzcDtodHRwOi8vd3d3Lmtlcm5lbC5vcmcvcHViL2xpbnV4L2tlcm5lbC9w
+ZW9wbGUvcnVzdHkvbW9kdWxlcykmbmJzcDsmbmJzcDsgDQo8L0ZPTlQ+PEZPTlQgZmFjZT1Bcmlh
+bD5mb3IgdGhlIDIuNiBrZXJuZWwgZmlyc3QuJm5ic3A7QW5kIHRoZW4gSSBtb2RpZmllZCB0aGUg
+DQovZXRjL3JjLnN5c2luaXQsIGp1c3QgbGV0ICcvcHJvYy9zeXMva2VybmVsL21vZHByb2JlJyBy
+ZXBsYWNlZCBieSANCicvc2Jpbi9tb2Rwcm9iZScuQWZ0ZXIgdGhhdCBJIGluc3RhbGxlZCB0aGUg
+bWFpbnRlbmFuY2Uga2VybmVsIGZpcnN0LiBFdmVyeXRoaW5nIA0KaXMgb2sgYnV0IHdoZW4gSSBy
+ZWJvb3RlZCB0aGUgbmV3IGtlcm5lbCBJIGZvdW5kIG1vZHVsZXMgc3VjaCBhcyBteSBuZXR3b3Jr
+IGNhcmQgDQphbmQgbG9vcGJhY2sgZGV2aWNlIGNhbid0IGJlIGF1dG9tYXRpY2FsbHkgbG9hZGVk
+IHRvIHdvcmsgeWV0LiBXaHk/Jm5ic3A7VGhlIA0KbW9kdWxlcyZuYnNwO3Nob3VsZCB3b3JrIGFm
+dGVyIGluc3RhbGxlZCB0aGUgbmV3IG1vZHV0aWxzIGZvciAyLjYgDQprZXJuZWwuJm5ic3A7SGF2
+ZSBJIGZvcmdvdCBzb21ldGhpbmc/Jm5ic3A7PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNl
+PUFyaWFsPiZuYnNwOyZuYnNwOyZuYnNwOyBUaGFua3MhPC9GT05UPjwvRElWPg0KPERJVj48Rk9O
+VCBmYWNlPUFyaWFsPmxreSZuYnNwOyZuYnNwOzwvRk9OVD48L0RJVj48L0JPRFk+PC9IVE1MPg0K
+
+------=_NextPart_000_0038_01C39DD0.6C846440--
+
 
 
 --
