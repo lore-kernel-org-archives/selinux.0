@@ -1,50 +1,74 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: =?iso-8859-2?q?Magos=E1nyi=20=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Subject: Re: general security lib (was: 2.6.0-test3)
-Date: Sat, 23 Aug 2003 00:09:19 +1000
+Subject: Re: 2.6.0-test3
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
 Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <1061468940.1665.16.camel@kusturica> <1061487623.22355.27.camel@columbia> <1061555921.1648.142.camel@kusturica>
-In-Reply-To: <1061555921.1648.142.camel@kusturica>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Message-Id: <200308230009.19552.russell@coker.com.au>
+In-Reply-To: <200308222321.21113.russell@coker.com.au>
+References: <1061468940.1665.16.camel@kusturica>
+	 <20030822045320.GD15441@snoopy.apana.org.au>
+	 <1061557334.28086.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <200308222321.21113.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1061561820.28086.147.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 22 Aug 2003 10:17:00 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 22 Aug 2003 22:38, Magosányi Árpád wrote:
-> 2003-08-21, cs keltezéssel Colin Walters ezt írta:
-> > at all.  Russell, what do you think about starting to send these patches
-> > to the Debian package maintainers and get them integrated?  At least the
->
-> It might be the least unconvenient solution for the short run.
->
-> But for the long run it would be better if the upstream maintainers
-> would integrate support for the userspace security API. And they
+On Fri, 2003-08-22 at 09:21, Russell Coker wrote:
+> I get the impression that no-one at the NSA has the time to spare for 
+> back-porting the xattr handler, and it seems that everyone else who could do 
+> it is also focussed on 2.6.0.  So it looks like this isn't going to happen.
 
-A modification to PAM could allow the sshd, login, and cron patches to go 
-away.
+It really wouldn't be difficult to do, and certainly doesn't require any
+deep SELinux or xattr knowledge.  Just copy fs/ext3/xattr_security.c and
+the related changes to fs/ext3/{Makefile,super.c} and fs/Config.in from
+the new 2.4-based SELinux to the old 2.4-based SELinux.  Of course, you
+do need to merge the EA patch from acl.bestbits.at as well, but that
+also shouldn't be too difficult.
 
-Theodore Ts'o suggested to me that a new PAM call be added to run the shell 
-which takes appropriate parameters about user-name etc.  Then a SE Linux 
-version of this module could change the security context appropriately, thus 
-requiring only one copy of the code to determine the context to use, and not 
-requiring any on-going modification to applications.
+> Also just writing the xattr handler would not be enough, you would need a 
+> program that can read SIDs and then write equivalent xattrs, it shouldn't be 
+> difficult but it's another thing that has to be done.
 
-This design concept sounds really good, and as it's Ted's suggestion I don't 
-expect any great resistance to accepting the patch upstream once it's been 
-tested and proven to work.
+If you simply want to set the xattrs from the file contexts
+configuration, you can just run the new setfiles program.  If you want
+to set the xattrs from the persistent label mapping, then you would need
+to restore the psid code to the new setfiles program and adjust it to
+get the value from the mapping and set the xattr from it.  Not
+difficult, but a little bit of work.
 
-I've been meaning to work on this for almost a year, I might start work next 
-week.
+> Finally you would need wrapper programs for login, sshd, etc that check which 
+> version of SE Linux is running and execute the correct version of the program 
+> to match (but this is easy to do).
+
+Not clear if this is necessary, unless you want to be able to switch
+back and forth.  If you just want to upgrade, you should be able to just
+install the new versions while running the old kernel (since this won't
+affect already running instances) and then immediately boot the new
+kernel.
+
+> SUSE developed the ReiserFS xattr patches.  However they will not be merged 
+> into the main ReiserFS tree, Hans recommends waiting for ReiserFS v4 for 
+> xattr support.  :-#
+
+I'm not sure about this guidance, as reiser4 isn't in mainline yet, and
+last I looked at the reiser4 code, it did NOT include any xattr support
+or handlers.  Using the SuSE xattr patches for reiser seems to be the
+only real option for current reiser users.
+
+> NB  In my kernel patch package for Debian I have ported the LSM patch to 
+> operate with the ACL patch, and installing the LSM patch will also get the 
+> ACL patch.  So Debian users who build a kernel with a version of my patch 
+> package of 2003.07.11-2 (Aug 5) or later will be able to boot from their 2.4 
+> kernel if the upgrade fails.
+
+It should then be a very easy task to transfer over the xattr_security.c
+handlers and the corresponding changes from the new 2.4-based SELinux to
+your patch so that the older SELinux can access the xattrs.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
