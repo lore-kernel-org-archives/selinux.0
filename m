@@ -1,55 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1KxQXZ000338
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 15:59:26 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1Kw5CC005724
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 20:58:06 GMT
-Subject: RE: dynamic context transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: Darrel Goeddel <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
-   Frank Mayer <mayerf@tresys.com>
-In-Reply-To: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com>
+Subject: Re: dynamic context transitions
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Stephen Smalley <sds@epoch.ncsc.mil>, SELinux List <SELinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>, James Morris <jmorris@redhat.com>
+In-Reply-To: <418662EE.5090001@trustedcs.com>
+References: <4182959B.4080503@trustedcs.com>
+	 <20041029211809.GJ8897@lkcl.net> <20041030090603.GK8897@lkcl.net>
+	 <1099315214.21386.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041101141025.GZ8897@lkcl.net>  <418662EE.5090001@trustedcs.com>
 Content-Type: text/plain
-Message-Id: <1099342548.21386.239.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 01 Nov 2004 16:27:40 -0500
+Message-Id: <1099344460.23756.49.camel@pham.columbia.tresys.com>
 Mime-Version: 1.0
-Date: Mon, 01 Nov 2004 15:55:48 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-11-01 at 13:28, Chad Hanson wrote:
-> Let me try to give some background.
+On Mon, 2004-11-01 at 10:23 -0600, Darrel Goeddel wrote:
+> James,
+>      I am hoping that this response will also address your question of 
+> applicability outside of the MLS policy.
 > 
-> The ability for a process to perform actions at multiple MLS labels exists
-> whether dynamic transitions exist or not. Privilege bracketing does limit
-> the use and permits removal of the ability from the process.
+> Luke Kenneth Casson Leighton wrote:
+> >  this proposal is a little bit like seteuid-for-selinux, only not
+> >  really, because seteuid has the ability to switch to any uid and then
+> >  to any uid after that, ad infinitum.
+> > 
 > 
-> MLS level transitions will need to be controlled via new permissions on the 
-> process class (mls_upgrade and mls_downgrade).  Similar permissions will be 
-> implemented for objects.  Most processes will not have the ability to alter 
-> their MLS level (just as most will not be able to alter their domain).  For 
-> processes that have the ability to alter their mls level, they will need to
-> be 
-> regarded as having access to all levels of information within the process' 
-> clearance.
+> That is correct.  We are looking at a well-defined (via the policy) set of 
+> available type transitions.  Note that you can also specify a one-way dynamic 
+> transition as well (type1_t can dynamically transition to type2_t, but type2_t 
+> has no dynamic transitions available).  This will allow a daemon process to 
+> initialize itself with one set of access rights (bind ports, read conf files, 
+> etc.), and then lock itself into a domain with less access rights for the 
+> duration of its execution.  This is similar, but *much* more powerful than, 
+> changing the uid, or even using the libcap interface to drop specific capabilities.
 > 
-> I would assume this would along the lines of the trusted reader/writer
-> concept. THe app is bounded to an MLS range. Instead of a process being
-> ranged and running at unclass-confidential, it is bounded by confidential
-> and effectively is running at either unclassfied or confidential and able to
-> transition between the two levels.
 
-I think I would need to see your MLS implementation to fully assess the
-implications, but I'm not clear as to why this requires changing levels
-dynamically vs. just giving the process the capability to write down
-while remaining at a single level.  Also, I'd be a bit concerned about
-what happens while the process is running at the lower level, e.g.
-attempted access by untrusted processes running at that lower level.
+Dropping privileges after startup can already be accomplished with
+conditional policies, though it requires that only one process be
+running in a given domain.
+
+Karl
+
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
 
 
 --
