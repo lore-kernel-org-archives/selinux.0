@@ -1,30 +1,36 @@
-Date: Fri, 5 Jul 2002 08:08:13 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA08238
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jul 2002 08:12:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA12832
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jul 2002 12:11:35 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id MAA12828
+	for <selinux@tycho.nsa.gov>; Fri, 5 Jul 2002 12:11:34 GMT
+Date: Fri, 5 Jul 2002 08:11:59 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: named pt2
-In-Reply-To: <1025732909.3620.136.camel@phobos>
-Message-ID: <Pine.GSO.4.33.0207050805400.29942-100000@raven>
+To: Howard Holm <hdholm@epoch.ncsc.mil>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: Updated Release
+In-Reply-To: <200207031959.PAA09221@coalpipe.epoch.ncsc.mil>
+Message-ID: <Pine.GSO.4.33.0207050808590.29942-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On 3 Jul 2002, Timothy Wood wrote:
+The updated release (2002070313) has been imported and merged into the
+sourceforge selinux CVS tree, under the 'nsa' module.   As usual, you can
+access it via:
 
-> Can someone explain to my why bind works if I let init start it but it
-> does not start if I start it as root from the cli?
-
-When running init scripts directly from an administrator shell, you need
-to use run_init so that the init script will run with the right security
-context (system_u:system_r:initrc_t) and any daemons will transition to
-the correct domain.
+export
+CVSROOT=:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux
+cvs -z3 co nsa
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
