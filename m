@@ -1,38 +1,33 @@
-Subject: Re: Add a new class
+Subject: Re: [patch] allow users of tmp_domain to read /usr/tmp
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
+To: Colin Walters <walters@verbum.org>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20050112194047.55536.qmail@web51509.mail.yahoo.com>
-References: <20050112194047.55536.qmail@web51509.mail.yahoo.com>
+In-Reply-To: <1105565245.4415.29.camel@nexus.verbum.private>
+References: <1105565245.4415.29.camel@nexus.verbum.private>
 Content-Type: text/plain
-Message-Id: <1105565690.23136.22.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105566103.23136.32.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 16:34:50 -0500
+Date: Wed, 12 Jan 2005 16:41:43 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 14:40, Park Lee wrote:
-> Now, I'm using FC2. I try to add a new class ( also
-> just for learing ).
-> I've added a new class to security_classes and the
-> permissions to access_vectors (In
-> /etc/security/selinux/src/policy/flask), after that,
-> rebuilt the headers with the Makefile in the flask
-> directory and put them in
-> /usr/src/linux-2.6.5-1.358/security/selinux/include as
-> Joshua Brindle have mentioned. and then rebooted on
-> the new kernel.
-> After I rebooted on the new kernel, I went into
-> /etc/security/selinux/src/policy, and ran 'make load'.
-> But this time, the security_load_policy failed!
-> The following is what appeared on my screen:
+On Wed, 2005-01-12 at 16:27, Colin Walters wrote:
+> Hi,
+> 
+> On Fedora at least, /usr/tmp is a symlink to /var/tmp.  Users of
+> tmp_domain get write access to tmp_t:dir, so I think it makes sense to
+> automatically grant access to tmp_t:lnk_file as well, so that programs
+> which refer to /usr/tmp work.  This should be safe since as discussed
+> earlier no non-unconfined domain can create tmp_t:lnk_file.
+> 
+> This came up on the #fedora-selinux channel where a user was trying to
+> get their CGI script to work.
 
-What messages did you get in /var/log/messages or dmesg output upon the
-load?
-
-Did you add the new class to the end of the current set of classes? 
-Otherwise, it will perturb the values of the existing classes and the
-kernel will refuse to load it after the initial policy load.
+Hmm...I had thought that we had agreed that /usr/tmp should be dropped
+from types.fc and left in usr_t, then just allow read to usr_t:lnk_file
+as a safer approach.  In fact, the current types.fc file only assigns
+tmp_t if /usr/tmp is a directory (via the -d flag), and it is labeled
+usr_t on my FC3 systems (strict).
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
