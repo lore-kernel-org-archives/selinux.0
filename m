@@ -1,23 +1,46 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA08564
-	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2001 12:34:10 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA00687
-	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2001 16:32:54 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id QAA00683
-	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2001 16:32:53 GMT
-Date: Fri, 24 Aug 2001 12:33:18 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: Selinux lsm and Free Swan
-In-Reply-To: <Pine.SOL.3.95.1010824112248.1386C-300000@clipper.gw.tislabs.com>
-Message-ID: <Pine.SOL.3.95.1010824123028.1386O-100000@clipper.gw.tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA08658
+	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2001 12:49:24 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA15503
+	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2001 16:49:02 GMT
+Received: from csoc-fire05.csoconline.com (csoc-mail-msfc.csoconline.com [140.169.36.3])
+	by jazzband.ncsc.mil  with SMTP id QAA15499
+	for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2001 16:49:02 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A1015241C5@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Stephen Smalley'" <sds@tislabs.com>,
+        "Westerman, Mark"
+	 <Mark.Westerman@csoconline.com>
+Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: RE: Selinux lsm and Free Swan
+Date: Fri, 24 Aug 2001 11:49:16 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+
+The hooks.patch work great no problem with 
+starting the Freeswan, I have yet to test it
+out, I don't foresee any problems yet
+
+Thanks
+Mark Westerman
+
+PS. Now I am trying to intergrate the international patch
+for crypto file system
+
+
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tislabs.com]
+Sent: Friday, August 24, 2001 11:33 AM
+To: Westerman, Mark
+Cc: 'selinux@tycho.nsa.gov'
+Subject: Re: Selinux lsm and Free Swan
+
 
 
 I just looked briefly at the FreeSWAN KLIPS code, and I
@@ -32,7 +55,6 @@ kernel-daemon communication.
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
