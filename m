@@ -1,49 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA06411
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 15:04:23 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA21432
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 20:03:48 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id UAA21428
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 20:03:48 GMT
-Date: Thu, 17 Jan 2002 15:04:18 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Trent Jaeger <jaegert@us.ibm.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: klogd_t problem
-In-Reply-To: <OF90AA15D0.BDA8EACC-ON85256B44.0068C05D@pok.ibm.com>
-Message-ID: <Pine.GSO.4.33.0201171426520.18610-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA06702
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 15:59:03 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA22344
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 20:58:14 GMT
+Received: from khaipur.xiat.org ([66.125.68.98])
+        by jazzband.ncsc.mil  with ESMTP id UAA22340 for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 20:58:13 GMT
+Received: from [10.0.1.17] (goedel.xiat.org [10.0.1.17])
+	(authenticated)
+	by khaipur.xiat.org (8.11.6/8.11.6) with ESMTP id g0HKwTL13370
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 12:58:29 -0800
+Date: Thu, 17 Jan 2002 12:58:21 -0800
+From: Paul Krumviede <pwk@acm.org>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: 2.4.16 release, ipsec, roles and ECHILD errors
+Message-ID: <408439755.1011272301@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+ever since the december 2001 release, i've been running into
+problems getting frees/wan 1.94 working with the 2.4.16 kernel
+when selinux is configured in the kernel. after much experimentation
+i noticed something that seems quite strange.
 
-On Thu, 17 Jan 2002, Trent Jaeger wrote:
+background: attempts to get automatically keyed IPsec
+connections to go into the "routed" or "up" states would
+yield failures with pclose() with errno set to ECHILD. this
+happens when pluto, the user-space key management
+daemon, tries to run some of the associated scripts.
 
-> Should the following be changed as follows, should System.map always be a
-> file, or is there something else wrong.
->
-> old: allow domains boot_t:file r_file_perms;
-> to:   allow domains boot_t:{file lnk_file} r_file_perms;
+by happenstance, things started working a few days ago,
+and then stopped working. what seemed to make the
+difference was the role i used to login on the console.
+if i login with the user_r role, run "newrole -r sysadm_r"
+and su, then start (using run_init) the ipsec components
+and attempt to bring an IPsec connection into a useful
+state (e.g., "ipsec auto --route conn-name"), then things
+fail as above.
 
-This change is fine (except that you presumably mean 'domain' not
-'domains').  This is just an oversight in the example policy.  I expect
-that there are a number of similar omissions.  Thanks for mentioning it.
-Please keep in mind that the example policy is just an example to help
-demonstrate SELinux and to provide people with a starting point.  We don't
-view it as "complete" (indeed, "complete" is meaningless without a better
-definition of the target environment and the security requirements).  As
-always, we encourage feedback and contributions to the example policy to
-help make it more "complete".
+but if i login with the sysadm_r role, su, and then start
+up the ipsec components the same way, things work.
+things work if i login as root, in either the user_r or
+sysadm_r role.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+i'm running in permissive mode, so that shouldn't
+be a problem. if i compile the same kernel without
+selinux, then there doesn't seem to be any problem
+getting the IPsec connections up and running.
 
+i took a quick look at some of the ssh code, which
+also uses pclose(), but it seems to never check the
+error status, while pluto does.
 
-
+-paul
 
 
 --
