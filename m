@@ -1,34 +1,51 @@
-Subject: Re: About security field in struct sk_buff
+Subject: Re: Proposed change to install
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20041224183055.44205.qmail@web51507.mail.yahoo.com>
-References: <20041224183055.44205.qmail@web51507.mail.yahoo.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41D00FE7.2070203@redhat.com>
+References: <41D00FE7.2070203@redhat.com>
 Content-Type: text/plain
-Message-Id: <1104156347.15615.64.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1104158005.15615.84.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 27 Dec 2004 09:05:47 -0500
+Date: Mon, 27 Dec 2004 09:33:25 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-12-24 at 13:30, Park Lee wrote:
-> Hi,
->  In /usr/src/linux/security/selinux/include/objsec.h,
-> there seems no SELinux security data structure for
-> struct sk_buff.
->   Does this means that SELinux doesn't use the
-> security field (i.e. the unsigned short security) in
-> struct sk_buff at all?
+On Mon, 2004-12-27 at 08:36, Daniel J Walsh wrote:
+> But with install, I believe 
+> matchpathcon is required.  So I am have modified the patch in coreutils 
+> to call matchpathcon and setfilecon.  This function currently will fail 
+> silently, leaving the current behavior.  Do you think this should report 
+> errors?
 
-As with your other question, please do not post the same question to all
-three lists (selinux, fedora-selinux-list, linux-security-module).  Just
-pick the most appropriate one (in this case, I'd say just selinux) and
-wait for an answer.
+Likely not, if it is the default behavior, as the caller may not have
+permission to relabel files at all or to the particular context. 
+Definitely not for errno == EOPNOTSUPP, i.e. filesystems that do not
+support the security xattr.
 
-I've explained previously that we had to drop the sk_buff security field
-and hooks because it wasn't accepted into the mainline Linux 2.6
-kernel.  The unsigned short security field isn't related to LSM, and
-isn't useable for it.
+> I am not sure what we should do with the "preserve_context" field.  Also 
+> it is questionable whether we should use setfscreatecon rather then 
+> setfilecon.
+
+You don't want to call your new function if the -P or -Z options were
+specified, as your new function will clobber whatever context would have
+been preserved by -P or set by -Z.  We definitely want to be able to
+still use -P to explicitly request preservation of the original context
+or -Z to explicitly request a particular context for the installed file.
+
+Using setfscreatecon() prior to file creation would be preferable to
+avoid any window where the file will be in wrong context, but may be
+more difficult to integrate into install.
+
+I believe that you don't need to check scontext for NULL if
+matchpathcon() returns 0; matchpathcon() should never return 0 with a
+NULL scontext unless I am missing something.
+
+On a different note, should matchpathcon() be doing something different
+in the <<none>> case rather than returning it to the caller, so that the
+caller doesn't have to hardcode a check for it?  Possibly return -1 with
+errno ENOENT as in the case where there is no matching entry in
+file_contexts?
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
