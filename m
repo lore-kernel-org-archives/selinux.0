@@ -1,52 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i69BhlrT018645
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 07:43:47 -0400 (EDT)
-Received: from mproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i69BhRbg028492
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 11:43:28 GMT
-Received: by mproxy.gmail.com with SMTP id d19so207784rnf
-        for <selinux@tycho.nsa.gov>; Fri, 09 Jul 2004 04:43:39 -0700 (PDT)
-Message-ID: <e294b46e0407090443663d55c4@mail.gmail.com>
-Date: Fri, 9 Jul 2004 12:43:38 +0100
-From: Bradley Chapman <kakadu@gmail.com>
-To: russell@coker.com.au
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i69CERrT018783
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 08:14:27 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i69CEQNR003645
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 12:14:26 GMT
 Subject: Re: An SELinux policy for Red Hat 9
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200407092111.55045.russell@coker.com.au>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Bradley Chapman <kakadu@gmail.com>
+Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+In-Reply-To: <e294b46e0407090443663d55c4@mail.gmail.com>
+References: <e294b46e040708131736c57b6@mail.gmail.com>
+	 <200407092111.55045.russell@coker.com.au>
+	 <e294b46e0407090443663d55c4@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1089375253.11726.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-References: <e294b46e040708131736c57b6@mail.gmail.com> <200407092111.55045.russell@coker.com.au>
+Date: Fri, 09 Jul 2004 08:14:13 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mr. Coker,
-
-On Fri, 9 Jul 2004 21:11:55 +1000, Russell Coker <russell@coker.com.au> wrote:
+On Fri, 2004-07-09 at 07:43, Bradley Chapman wrote:
+> On Fri, 9 Jul 2004 21:11:55 +1000, Russell Coker <russell@coker.com.au> wrote:
+> > But if you REALLY want to use RHL 9, the current policy should work OK, you
+> > just have to make the appropriate changes to pam, logrotate, cron, coreutils,
+> > etc.
 > 
-> 
-> On Fri, 9 Jul 2004 06:17, Bradley Chapman <kakadu@gmail.com> wrote:
-> > Does anyone know of a good place where I can start reading about how
-> > to adapt, or obtain, an SELinux policy for Red Hat 9, running the
-> > 2.6.7 kernel with the SELinux userspace package dated 20040628-16?
-> 
-> Why would you want to do that?  Consider Fedora Core 1 as RHL 10, and FC2 as
-> RHL 11 an just upgrade a couple of versions to get SE Linux support.
+> What sort of changes? Path changes? 
 
-I would do that - except for the fact that the system I want to run
-SELinux on is my personal system, and upgrading it is currently not
-something I wish to do. I may want to upgrade to FC2 later, but right
-now I want to stick with RHL9.
+I think Russell is referring to the userland patches for those
+packages.  The current patches and SRPMS in our userland tree are drawn
+from the Fedora Core development tree, so you are likely to run into
+dependency problems building them on RH9.  And Fedora Core actually
+includes _many_ other patched userland packages for SELinux; we only
+maintain a core subset in our tree for reference purposes for people who
+want to port to other distributions.  A few examples of patched userland
+packages in Fedora Core that are not in our tree include gdm, usermode,
+atd, and libuser, and there are many others.  There is also the issue of
+glibc security awareness; the RH9 glibc won't enable secure mode upon
+domain transitions, unlike the Fedora Core glibc.
 
-> 
-> But if you REALLY want to use RHL 9, the current policy should work OK, you
-> just have to make the appropriate changes to pam, logrotate, cron, coreutils,
-> etc.
+If you truly are limited to using RH9, then you should likely grab an
+older release of SELinux that was based on RH9.  But life will be
+simpler if you can move to FC2.
 
-What sort of changes? Path changes? 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Thanks,
-
-Brad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
