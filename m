@@ -1,28 +1,46 @@
 Subject: Re: Multiple contexts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-In-Reply-To: <20050110232312.GI6967@lkcl.net>
+To: ivg2@cornell.edu
+Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1105390249.8093.21.camel@cobra.ivg2.net>
 References: <1105390249.8093.21.camel@cobra.ivg2.net>
-	 <20050110232312.GI6967@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 11 Jan 2005 15:09:51 -0500
+Date: Tue, 11 Jan 2005 15:08:15 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-10 at 18:23, Luke Kenneth Casson Leighton wrote:
->  i can only hazard a hazardous guess therefore that the more
->  "normal" ACL system [that we are used to seeing] was rejected
->  because it makes the formal proof methodology more difficult.
+On Mon, 2005-01-10 at 15:50, Ivan Gyurdiev wrote:
+> Why doesn't SElinux support multiple contexts per file?
+> It seems to me that this feature would be very useful. 
+> Is this technically not feasible?
+> 
+> I've been trying to get the following setup working on FC3 (rawhide):
+> 
+> /var/www/html.userX  - 
+> 	virtual server for userX.mydomain labeled httpd_sys_content_t
+> /home/userX - 
+> 	home folder for userX, exported via Samba (not yet, but
+> 	it will be, once dwalsh puts in booleans for samba reading home)
+> 
+> /home/userX/webserver - symlink to /var/www/html.userX 
+> 
+> Now, /var/www/html.userX needs to be accessed both by smbd and httpd.
+> I need to label it with both samba_share_t and httpd_sys_content_t.
+> 
+> I have to edit the cryptic m4 policy file to add a type that's
+> accessible by both. Why is this necessary? Why can't selinux
+> either
+> 	(1) Label the file with both contexts, and permit
+> 	the operation if any context permits it
 
-With ACLs, you have to traverse the entire filesystem state in order to:
-1) determine what your policy truly is (and that policy can change
-underneath you during your traversal),
-2) apply any widespread changes in policy state.
-
-Management and scalability nightmare.
+Because then policy would be encoded in the file attributes, not in a
+centralized security policy.  Hence, one would be unable to analyze
+information flow in the system based solely on the policy and would have
+to also analyze the complete filesystem state, and that state is much
+more subject to change at runtime than the policy itself (one would
+hope).
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
