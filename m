@@ -1,34 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1EJaRb006652
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 09:19:36 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB1EJZqY005855
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:19:35 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1EOsRb006716
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 09:24:54 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hB1EO9p5003467
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:24:09 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hB1EJZ0o005851 for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:19:35 GMT
-Subject: Re:
+	by jazzswing.ncsc.mil  with ESMTP id hB1EO9t0003464
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:24:09 GMT
+Subject: Re: policy problems
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Nick <nagray@austin.rr.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1070143772.4562.253.camel@hawaii>
-References: <1070143772.4562.253.camel@hawaii>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20031130183701.GA14242@wavehammer.waldi.eu.org>
+References: <20031130183701.GA14242@wavehammer.waldi.eu.org>
 Content-Type: text/plain
-Message-Id: <1070288104.12270.56.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1070288686.12270.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 01 Dec 2003 09:15:04 -0500
+Date: Mon, 01 Dec 2003 09:24:46 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-11-29 at 17:09, Nick wrote:
-> I seem to have lost usage of Kudzu (Actually it still runs but cannot
-> see the printer on the parallel port) after installing SELinux. Is this
-> a known issue? 
-> 
-> I am running in permissive mode. Any suggestions?
+On Sun, 2003-11-30 at 13:37, Bastian Blank wrote:
+> - inetd don't get the correct domain. the correct policy, inetd.te is
+>   included and the file is labeled correcly but the process remains in
+>   initrc_t.
+> | # ls -al --context /usr/sbin/inetd
+> | -rwxr-xr-x  root     root     system_u:object_r:inetd_exec_t /usr/sbin/inetd
+> | # ps aux | grep "[i]netd"
+> | root       916  0.0  0.4  1624  540 ?        S    18:28   0:00 /usr/sbin/inetd
+> | # cat /proc/916/attr/current;echo
+> | system_u:system_r:initrc_t
 
-Likely just a kernel configuration issue, i.e. you didn't enable the
-driver.  Try using Arjan's 2.6 kernel RPMs from under
-http://people.redhat.com/arjanv/2.5.
+Is there a 'type_transition initrc_t inetd_exec_t:process inetd_t;' rule
+in your policy.conf file?  xinetd is running in inetd_t on my system.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
