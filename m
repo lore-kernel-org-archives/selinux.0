@@ -1,50 +1,107 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3NEl8I4002075
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 10:47:08 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3NEl27R012904
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 14:47:02 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id h3NEkvKP012895 for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 14:47:00 GMT
-Date: Wed, 23 Apr 2003 14:49:33 +0100
-From: Dale Amon <amon@vnl.com>
-To: "Matthew S. Hamrick" <mhamrick@cryptonomicon.net>
-Cc: Joshua Brindle <JBrindle@snu.edu>, selinux@tycho.nsa.gov,
-   ccallen@windowpane.com, larrycohen99@yahoo.com
-Subject: Re: A different view of the Theo de Raadt funding question
-Message-ID: <20030423134933.GB23745@vnl.com>
-References: <sea5bbd3.074@atlas.snu.edu> <60ABFE7C-757A-11D7-94C6-00306555A856@cryptonomicon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <60ABFE7C-757A-11D7-94C6-00306555A856@cryptonomicon.net>
+From: "david caplan" <dac@tresys.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: RE: Help for setools 0.8
+Date: Wed, 23 Apr 2003 11:19:09 -0400
+Message-ID: <GBEAJBKHFOBIBBJBCGAGMECICMAA.dac@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <Pine.GSO.4.44.0304161011360.24461-100000@boreas.ecs.syr.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Apr 23, 2003 at 06:57:29AM -0400, Matthew S. Hamrick wrote:
-> others. Then when the mandatory review came at the 85% funding level, 
-> this along with the fact that he was a Canadian (while the TrustedBSD 
-> team was based in ... uh... Maryland, I think) might have been the 
-> cause for DARPA's concerns. I would guess that the program manager at 
+In case others have had similar problems, the Bwidgets package that comes
+with Debian (at least in this case) was 1.3.1.  We've been using a newer
+version (1.4.1 off of the sourceforge site,
+http://sourceforge.net/projects/tcllib), and apparently there are some
+incompatabilities with the older version.  We'll make sure to note this in
+our README file.
 
-This could have a great deal to do with it. I've run
-up against it myself. I'm a US citizen but resident
-in the UK. I was looking into to some SBIR's with
-a friend in Pittsburgh and we found that it is required
-that funds may not be used outside of the US. Not
-even if the non-resident is a citizen. I doubt DARPA
-grants are that much different from SBIR's. I've 
-worked under both at various times.
+Thanks to Keisuke Inoue for figuring this out.
 
-I'm surprised they didn't hit the school with a 
-request to return part of the funds used outside
-of the United States.
+David
 
--- 
-------------------------------------------------------
-       IN MY NAME:            Dale Amon, CEO/MD
-  No Mushroom clouds over     Islandone Society
-    London and New York.      www.islandone.org
-------------------------------------------------------
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+> Behalf Of Keisuke Inoue
+> Sent: Wednesday, April 16, 2003 10:18 AM
+> To: david caplan
+> Cc: 'SELinux'
+> Subject: RE: Help for setools 0.8
+>
+>
+> Thank you for the responce.
+>
+> > Is apol.tcl in /usr/local/lib/apol?  That is the default installation
+>
+> Yes.
+> Is it that the error occurs when apol.tcl is executed (with awin)?
+>
+> Keisuke Inoue
+>
+> On Wed, 16 Apr 2003, david caplan wrote:
+>
+> > Hi.
+> >
+> > Is apol.tcl in /usr/local/lib/apol?  That is the default installation
+> > location for the tcl/tk front end script.  The apol application
+> expects the
+> > script to be there unless you've set the APOL_INSTALL_DIR environment
+> > variable.
+> >
+> > David
+> >
+> > > -----Original Message-----
+> > > From: owner-selinux@tycho.nsa.gov
+> [mailto:owner-selinux@tycho.nsa.gov]On
+> > > Behalf Of Keisuke Inoue
+> > > Sent: Tuesday, April 15, 2003 11:49 AM
+> > > To: 'SELinux'
+> > > Subject: Help for setools 0.8
+> > >
+> > >
+> > > Hello,
+> > >
+> > > I am Keisuke Inoue, a student in Syracuse University, NY.
+> > > I am trying to use the setools 0.8, and cannot figure out
+> what is wrong:
+> > >
+> > >      # apol
+> > >      Error in StartScript (/usr/local/lib/apol//apol.tcl):
+> > >
+> > >      If APOL_INSTALL_DIR is set, make sure directory is correct
+> > >
+> > > I am using 2.4 LSM based kernel, Debian unstable, with Russell Coker's
+> > > SELinux packages. Makefile was changed accordingly, but I haven't done
+> > > anything else.
+> > >
+> > >     TCL_INCLUDE	= -I/usr/include/tcl8.3
+> > >     TCL_LIBINC	= -L/usr/lib/tcl8.3
+> > >     YACC	= bison-1.35 -y
+> > >
+> > >     POLICY_SRC_DIR  = /etc/selinux
+> > >
+> > > Thank you very much,
+> > >
+> > > K
+> > >
+> > >
+> > >
+> > > --
+> > > This message was distributed to subscribers of the selinux
+> mailing list.
+> > > If you no longer wish to subscribe, send mail to
+> > > majordomo@tycho.nsa.gov with
+> > > the words "unsubscribe selinux" without quotes as the message.
+> >
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
