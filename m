@@ -1,61 +1,57 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i683QgrT010515
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 23:26:42 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i683QLCu019321
-	for <selinux@tycho.nsa.gov>; Thu, 8 Jul 2004 03:26:22 GMT
-From: Russell Coker <rcoker@redhat.com>
-Reply-To: rcoker@redhat.com
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: comment change in attrib.te
-Date: Thu, 8 Jul 2004 13:26:36 +1000
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_s7L7A3doMx1RFPp"
-Message-Id: <200407081326.36713.rcoker@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i684farT010868
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jul 2004 00:41:37 -0400 (EDT)
+Date: Wed, 7 Jul 2004 20:28:48 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: cifs_t
+Message-ID: <20040707202848.GC12112@lkcl.net>
+References: <200407052352.53439.russell@coker.com.au> <1089224292.1774.160.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1089224292.1774.160.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, Jul 07, 2004 at 02:18:12PM -0400, Stephen Smalley wrote:
+> On Mon, 2004-07-05 at 09:52, Russell Coker wrote:
+> > typealias sambafs_t alias cifs_t;
+> > 
+> > What is the benefit of the above?
+> > 
+> > If we are going to make cifs_t the new name for what is currently sambafs_t 
+> > then surely the correct thing to do is to change the declaration of sambafs_t 
+> > to cifs_t and use the following typealias:
+> > 
+> > typealias cifs_t alias sambafs_t;
+> 
+> Looking at the CVS tree, it appears that it was changed from cifs_t to
+> sambafs_t on 5/4/2004, as part of a merge of a policy diff from Fedora. 
+> cifs_t was retained as an alias for compatibility, IIRC.
+ 
+ i understand from russell that cifs_t (sambafs_t) is for client-side
+ access auditing (not from server-side stuff as i originally assumed).
 
---Boundary-00=_s7L7A3doMx1RFPp
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ ... what happens when wine, which is in the process of implementing its
+ own [entire] smb client access method, due to license incompatibility
+ [and intransigence] of samba [team], provides an alternative
+ non-samba-based SMB access system?
 
-I think that the attached comment change is worth having.  We want to 
-discourage people from putting in rules that allow all domains to perform an 
-action such as reading a file.  The current comment will tend to encourage 
-such actions.
+ ... or is that something to worry about for another day, as-and-when?
+
+ l.
 
 -- 
-http://apac.redhat.com/disclaimer
-See above URL for disclaimer.
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
---Boundary-00=_s7L7A3doMx1RFPp
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
-diff -ru /usr/src/se/policy/attrib.te ./attrib.te
---- /usr/src/se/policy/attrib.te	2004-07-08 13:09:32.000000000 +1000
-+++ ./attrib.te	2004-07-08 13:23:23.000000000 +1000
-@@ -41,8 +41,7 @@
- # The domain attribute identifies every type that can be 
- # assigned to a process.  This attribute is used in TE rules 
- # that should be applied to all domains, e.g. permitting 
--# init to kill all processes or permitting all processes
--# to read a particular file.
-+# init to kill all processes.
- attribute domain;
- 
- # The privuser attribute identifies every domain that can 
-
---Boundary-00=_s7L7A3doMx1RFPp--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
