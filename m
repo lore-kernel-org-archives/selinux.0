@@ -1,81 +1,105 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MNGWdW026679
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 18:16:32 -0500 (EST)
-Received: from vds-320151.amen-pro.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MNEAZE023461
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 23:14:10 GMT
-Subject: Re: JFFS2 Extended attributes support & SELinux in handhelds
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Josh Boyer <jdub@us.ibm.com>
-Cc: familiar-dev@handhelds.org, selinux@tycho.nsa.gov,
-   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-   familiar@handhelds.org, handhelds@handhelds.org,
-   kernel-discuss@handhelds.org, oe@handhelds.org, agruen@suse.de,
-   Russell Coker <rcoker@redhat.com>
-In-Reply-To: <1109096502.7813.5.camel@windu.rchland.ibm.com>
-References: <1109089039.4100.114.camel@localhost.localdomain>
-	 <1109096502.7813.5.camel@windu.rchland.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GIpU+2InhgwMn2MGFZRL"
-Date: Wed, 23 Feb 2005 00:13:37 +0100
-Message-Id: <1109114017.4100.139.camel@localhost.localdomain>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MNoFdW026810
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 18:50:15 -0500 (EST)
+Received: from smtp.osdl.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MNljZG025091
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 23:47:53 GMT
+Date: Tue, 22 Feb 2005 15:47:37 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: lsm <linux-security-module@wirex.com>, Chris Wright <chrisw@osdl.org>,
+   James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
+   Ivan Gyurdiev <ivg2@cornell.edu>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [RFC][PATCH] Pass requested protection to security_file_mmap/mprotect hooks
+Message-ID: <20050222234737.GK15867@shell0.pdx.osdl.net>
+References: <1109095368.15893.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1109095368.15893.17.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
+> This patch adds a reqprot parameter to the security_file_mmap and
+> security_file_mprotect hooks that is the original requested protection
+> value prior to any modification for read-implies-exec, and changes the
+> SELinux module to allow a mode of operation (controllable via
+> a /selinux/checkreqprot setting) where it applies checks based on that
+> protection value rather than the protection that will be applied by the
+> kernel, effectively restoring SELinux's original behavior prior to the
+> introduction of the read-implies-exec logic in the mainline kernel.  At
+> present, the read-implies-exec logic causes SELinux to see every
+> mmap/mprotect read request by legacy binaries or binaries marked with
+> PT_GNU_STACK RWE as a read|execute request, which tends to distort
+> policy even if it reflects what is ultimately possible.
 
---=-GIpU+2InhgwMn2MGFZRL
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Only other way I can see is to effectively tweak policy based on
+tsk->personality.  While it seems ugly, it's an accurate reflection
+of both policy and reality (with some confusion of audit messages when
+building policy).  But your patch is probably the most straight-forward
+way to do it.
 
-El mar, 22-02-2005 a las 12:21 -0600, Josh Boyer escribi=F3:
-> You should send this to the JFFS2 development list.  The xattr support
-> is probably a JFFS3 candidate.
->=20
-> The mtd tree is the most current.  Any development would probably get
-> the most benefit from being done there.  Especially since JFFS3 doesn't
-> exist anywhere else :).
+> Index: linux-2.6/mm/mprotect.c
+> ===================================================================
+> RCS file: /nfshome/pal/CVS/linux-2.6/mm/mprotect.c,v
+> retrieving revision 1.10
+> diff -u -p -r1.10 mprotect.c
+> --- linux-2.6/mm/mprotect.c	27 Dec 2004 15:09:53 -0000	1.10
+> +++ linux-2.6/mm/mprotect.c	22 Feb 2005 14:36:21 -0000
+> @@ -193,7 +193,7 @@ fail:
+>  asmlinkage long
+>  sys_mprotect(unsigned long start, size_t len, unsigned long prot)
+>  {
+> -	unsigned long vm_flags, nstart, end, tmp;
+> +	unsigned long vm_flags, nstart, end, tmp, reqprot = prot;
 
-As we have talked in #mtd, I've moved everything to JFFS3 code and
-re-worked the pretty basic stuff that was already done, as a really
-dirty night-hack.
+Do you want to sample prot after it's been cleared of GROWSUP/DOWN bits
+just to keep reqport as clean as possible?
 
-I hadn't time to fix the remaining errors (no, it's not a working
-patch), nor the remaining "stolen" ReiserFS code that needs to be
-modified in order to make JFFS3 happy with it (priv. directory handling
-in xattr initialization, etc).
-I'm going to have limited time for it, I have exams these two weeks and
-also finish some other work in progress.
+> +		prot = reqprot;
+> +
+>  	if (vma->vm_file != NULL && vma->anon_vma != NULL && (prot & PROT_EXEC)) {
+>  		/*
+>  		 * We are making executable a file mapping that has
+> Index: linux-2.6/security/selinux/selinuxfs.c
+> ===================================================================
+> RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/selinuxfs.c,v
+> retrieving revision 1.51
+> diff -u -p -r1.51 selinuxfs.c
+> --- linux-2.6/security/selinux/selinuxfs.c	2 Dec 2004 15:21:42 -0000	1.51
+> +++ linux-2.6/security/selinux/selinuxfs.c	22 Feb 2005 15:33:39 -0000
+> @@ -34,6 +34,8 @@
+>  #include "objsec.h"
+>  #include "conditional.h"
+>  
+> +unsigned int selinux_checkreqprot = 0;
 
-I've uploaded a patch that applies to 2.6.11-rc4 tree, with latest mtd
-tree included.
+unnecessary initialization
 
-http://pearls.tuxedo-es.org/patches/mtd-jffs3-xattr-20050222-2.6.11-rc4.pat=
-ch
-(998Kb)
+> +
+>  static DECLARE_MUTEX(sel_sem);
+>  
+>  /* global data for booleans */
+> @@ -72,6 +74,7 @@ enum sel_inos {
+>  	SEL_DISABLE,	/* disable SELinux until next reboot */
+>  	SEL_AVC,	/* AVC management directory */
+>  	SEL_MEMBER,	/* compute polyinstantiation membership decision */
+> +	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
+>  };
+>  
+>  #define TMPBUFLEN	12
+> @@ -300,6 +303,55 @@ static struct file_operations sel_contex
+>  	.write		= sel_write_context,
+>  };
+>  
+> +#define TMPBUFLEN	12
 
-I would appreciate any collaboration and help with it.
+Looks an unnecessary duplicate 
 
-Cheers, thanks in advance and enjoy (not working) it.
-:)
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-GIpU+2InhgwMn2MGFZRL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCG7yhDcEopW8rLewRAsCcAJ0VszZeor6cyo4agnO8yTvmfkOJWACeM3yo
-WOcOVilekHd0pQYJaGjmBJA=
-=uEtg
------END PGP SIGNATURE-----
-
---=-GIpU+2InhgwMn2MGFZRL--
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 
 --
 This message was distributed to subscribers of the selinux mailing list.
