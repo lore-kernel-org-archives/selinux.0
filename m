@@ -1,30 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBSIgoIi023645
-	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 13:42:50 -0500 (EST)
-Received: from hawaii.grays-systems.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBSIf1Gx024142
-	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 18:41:02 GMT
-Received: (from nick@localhost)
-	by hawaii.grays-systems.com (8.13.1/8.13.1/Submit) id iBSIgrFN022445
-	for selinux@tycho.nsa.gov; Tue, 28 Dec 2004 12:42:53 -0600
-Subject: Newrole in targeted mode
-From: Nick Gray <nick-lists@austin.rr.com>
-To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: Proposed change to install
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41D1A19D.8000704@redhat.com>
+References: <41D00FE7.2070203@redhat.com>
+	 <1104158005.15615.84.camel@moss-spartans.epoch.ncsc.mil>
+	 <41D1A19D.8000704@redhat.com>
 Content-Type: text/plain
-Date: Tue, 28 Dec 2004 12:42:53 -0600
-Message-Id: <1104259373.22401.0.camel@hawaii.grays-systems.com>
+Message-Id: <1104259387.21391.103.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Tue, 28 Dec 2004 13:43:07 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am trying this as root.
+On Tue, 2004-12-28 at 13:10, Daniel J Walsh wrote:
+> Could add check to see if matchpathcon is failing for something other 
+> than EPERM, which maybe should be reported???
 
-newrole -r sysadm_r -t sysadm_t
+EACCES would be the common case, for processes that cannot read
+file_contexts.  ENOENT is another possible frequent case, for files that
+match no entry or match <<none>> (if we change matchpathcon to return -1
+with errno ENOENT for that case).  The only other error (and the only
+one worth reporting) might be ENOMEM for memory allocation failures.
 
-It seems to work, but my context doesn't change and I can't change the
-enforce to 0. Isn't this still how it is done with the targeted policy?
+> Sounds good, that way we don't need to check.
 
-Nix
+Or check for ENOENT and ignore the error in that case.  That is likely
+what we will want for restorecon once matchpathcon handles <<none>>
+internally.
+
+> +static int setdefaultfilecon(const char *path) {
+
+Might as well make this void and not return any error code as the caller
+doesn't use it anyway.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
