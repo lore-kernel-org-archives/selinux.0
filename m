@@ -1,34 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA22901
-	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 05:49:50 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gB9AnnI23376
-	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 10:49:49 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA23080
+	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 06:42:42 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id LAA28254
+	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 11:40:22 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id gB9Anlf23372 for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 10:49:47 GMT
+	by jazzswing.ncsc.mil  with ESMTP id LAA28250
+	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 11:40:21 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 349A292668
-	for <selinux@tycho.nsa.gov>; Mon,  9 Dec 2002 21:49:46 +1100 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 01F9492668
+	for <selinux@tycho.nsa.gov>; Mon,  9 Dec 2002 22:42:38 +1100 (EST)
 Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id AF747EC
-	for <selinux@tycho.nsa.gov>; Mon,  9 Dec 2002 11:49:38 +0100 (CET)
+	by lyta.coker.com.au (Postfix) with ESMTP id 5FA6FEC
+	for <selinux@tycho.nsa.gov>; Mon,  9 Dec 2002 12:42:33 +0100 (CET)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Subject: selinux-small/module/Makefile
-Date: Mon, 9 Dec 2002 11:49:36 +0100
+Subject: Debian package building on multiple architectures
+Date: Mon, 9 Dec 2002 12:42:32 +0100
 MIME-Version: 1.0
-Message-Id: <200212091149.36395.russell@coker.com.au>
+Message-Id: <200212091242.32684.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
--e s/parisc64/parisc/
-I believe that the sed command for setting the architecture should have the 
-above added to it for HPPA.
+http://buildd.debian.org/build.php?&pkg=selinux-small
+The above URL shows the progress of the auto-builders in compiling 
+selinux-small for Debian.
 
-With that added it builds for me on HPPA.
+At the moment HPPA, ARM, S390, and SPARC are successful (i386 is not in the 
+list because I compile for i386 myself).
+
+Now we need some people to try compiling kernels for these platforms and 
+booting them.  I'll build ARM (but I'll need to boot the kernels on other 
+people's machines for a while until I get my own hardware).  S390 should be 
+easy enough if you have a fast x86 machine (say an Athlon 1400) for Hercules.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
