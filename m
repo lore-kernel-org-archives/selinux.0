@@ -1,39 +1,55 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38DbbRb017530
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 09:37:37 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38DkMRb017646
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 09:46:23 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i38DZbUZ014047
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:35:37 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i38DZamT014039
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:35:36 GMT
-Subject: Re: strange labeling problem
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@redhat.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1081431133.6379.99.camel@moss-spartans.epoch.ncsc.mil>
-References: <1081376404.9215.13.camel@nexus.verbum.private>
-	 <1081431133.6379.99.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1081431443.6379.103.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 08 Apr 2004 09:37:23 -0400
+	by jazzswing.ncsc.mil  with ESMTP id i38DiNUZ014767
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:44:23 GMT
+Received: from mail.idtweb.com (mail.idtweb.com [63.140.241.100])
+	by jazzswing.ncsc.mil  with ESMTP id i38DiMmT014758
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:44:22 GMT
+From: "Dan Thomsen" <dthomsen@tresys.com>
+To: "'Michael Pender'" <michael.pender@nanochron.com>,
+   "'Bill Laut'" <wlsel@verizon.net>, "'Untitled'" <selinux@tycho.nsa.gov>
+Subject: RE: Logo Artwork for SELinux?
+Date: Thu, 8 Apr 2004 08:45:54 -0500
+Message-ID: <001801c41d6f$d6a66160$0201a8c0@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <BC9A42A6.9C89%michael.pender@nanochron.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-04-08 at 09:32, Stephen Smalley wrote:
-> chcon likely never called setfilecon at all, since getfilecon would have
-> told it that the file already had the right context.  Try setfilecon
-> instead.  If it had called setfilecon -> setxattr, then SELinux would
-> have updated the inode SID accordingly.
+> IMO the graphic selected should emphasize a *defensive* posture.  For
+> example, Tux with an armored helmet, shield and lance.  Or Tux with a
+big
+> Doberman on a leash.  Or possibly Tux in camouflage with a helmet.
+> 
+> Or maybe Tux with a fire-breathing dragon on a leash... :)
 
-This suggests that perhaps chcon should have a force option to force it
-to relabel even if it thinks that the file already has the correct
-context.  Looks like '-f' is already taken.
+If you want a defensive look, how about considering a steel hexagon
+field (like a beehive) with Tux looking out through one of the holes.
+One of the main strengths of type enforcement is to keep things
+separate.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I thought of using steel bars, but it would look like Tux was in jail.
+The message "Security Enhanced Linux - the choice of convicted penguins"
+is probably the wrong message.
+
+I suggest if you don't want to tip your hand with a logo indicating your
+security mechanisms use a windows logo.
+
+I know it was my suggestion, but I like Joshua's penguin-in-black icon,
+its subtle and it fun.
+
+---
+Dan Thomsen
+Tresys Technology    www.tresys.com
+dthomsen@tresys.com  d.j.thomsen@ieee.org
+cell: 612 968-5178   home: 612 789-4082
+
+
+
 
 
 --
