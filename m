@@ -1,41 +1,42 @@
-Subject: Re: [RFC & PATCH] inherited type definition.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: Kaigai Kohei <kaigai@ak.jp.nec.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <423E9CFF.3080808@kaigai.gr.jp>
-References: <42346C17.3090301@kaigai.gr.jp>
-	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
-	 <4235C937.3030404@kaigai.gr.jp>
-	 <1110824712.21378.196.camel@moss-spartans.epoch.ncsc.mil>
-	 <4236CC03.5010104@kaigai.gr.jp>
-	 <1110897751.25947.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <4237B950.2090604@ak.jp.nec.com>
-	 <1110981928.4802.81.camel@moss-spartans.epoch.ncsc.mil>
-	 <42394ECA.7010204@ak.jp.nec.com>
-	 <1111067742.8664.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <42399AE4.5040508@kaigai.gr.jp>  <423E9CFF.3080808@kaigai.gr.jp>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2LJcvDo009073
+	for <selinux@tycho.nsa.gov>; Mon, 21 Mar 2005 14:38:57 -0500 (EST)
+Subject: Re: latest diff
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <423BCC68.3090003@redhat.com>
+References: <423BCC68.3090003@redhat.com>
 Content-Type: text/plain
-Date: Mon, 21 Mar 2005 10:59:42 -0500
-Message-Id: <1111420782.13101.16.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 21 Mar 2005 14:40:40 -0500
+Message-Id: <1111434040.3178.20.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-21 at 19:07 +0900, KaiGai Kohei wrote:
-> This attached patch implements (1) EXTENDS syntax with TYPE statement and
-> (2) '@' prefix to distinguish whether an assigned type/attribute includes
-> own child types or not.
+Merged.
 
-Thanks for this revised patch.  I think at this point we need some
-concrete examples of how this new language extension can be applied to
-solve real problems in a manner that is superior to the use of macros
-(or alternatively, if the language supported them, templates of some
-kind).  That will help us determine whether this language extension is
-justified.
+On Sat, 2005-03-19 at 01:53 -0500, Daniel J Walsh wrote:
+> Several Ivan Cleanups of x_client_macro, tvtime,  mozilla, mplayer
+> 
+> Some cleanup of the dovecot policy, adding keys
+> 
+> I think we can remove the hostname policy, it adds little value.  I 
+> added don't audit sys_admin to dhcpc
+> which is triggered by hostname being run by dhcp.  Code seems to work 
+> without allowing this privs.  I
+> think it would work fine without hostname policy.  I think we could 
+> probably get rid of consoletype also.
+> 
+> Moved arpwatch out of mta.te
+> 
+> Add syslogng support to syslog.te
+> 
+> Dan
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
 
 
