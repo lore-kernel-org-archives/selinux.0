@@ -1,41 +1,76 @@
-Subject: Re: sepcut is broken
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Mark Shakespeare <mshakes@llnl.gov>, SELinux List <SELinux@tycho.nsa.gov>,
-   Daniel J Walsh <dwalsh@redhat.com>, Russell Coker <russell@coker.com.au>
-In-Reply-To: <1074792957.27824.101.camel@colossus.columbia.tresys.com>
-References: <p0602040cbc34b0d29bb3@[128.115.96.64]>
-	 <1074789931.27824.87.camel@colossus.columbia.tresys.com>
-	 <1074792409.13445.148.camel@moss-spartans.epoch.ncsc.mil>
-	 <1074792957.27824.101.camel@colossus.columbia.tresys.com>
-Content-Type: text/plain
-Message-Id: <1074795898.13445.196.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0N70uRb013013
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 02:00:56 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0N70tCa027275
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 07:00:55 GMT
+Received: from twilight.cs.hut.fi (twilight.cs.hut.fi [130.233.40.5])
+        by jazzband.ncsc.mil  with ESMTP id i0N70sVC027272 for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 07:00:55 GMT
+Date: Fri, 23 Jan 2004 09:00:39 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: selinux@tycho.nsa.gov
+Subject: libselinux upgrade from 1.4-1 to 1.4-6 broke installwatch.so
+Message-ID: <20040123070039.GE11115051@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Date: Thu, 22 Jan 2004 13:24:58 -0500
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-01-22 at 12:35, Karl MacMillan wrote:
-> I think that sounds like a better solution as well. Any thoughts on the
-> specifics of the format? A file with just a list of module file names
-> would work and be simple for the make process to use, but now is a good
-> time to consider if any other information should be included in the
-> file. Additionally, this could allow developers to group .te files in
-> subdirectories if they wanted some more organization.
+CheckInstall is a product that monitors software installation ("make
+install" for instance) and records the copied files. Using this information,
+it creates an RPM, DEP or slackware package. It includes installwatch.so
+that is used with preloading (LD_PRELOAD=/usr/local/lib/installwatch.so) for
+the actual monitoring.  See:
+http://asic-linux.com.mx/~izto/checkinstall/index.php
 
-The kernel configuration just specifies option values, and the kernel
-Makefiles specify the lists of object files to be built based on those
-option values.  We could eliminate the indirection for the policy, i.e.
-one option per optional .te file.  The list of core policy .te files
-could be specified in the Makefile, and the build process could then
-just add the contents of the .config file to that list to produce the
-full list of enabled .te files.  A 'make config' could automatically
-enable all dependencies when you enable a .te file based on the Depends
-lines in the optional .te files.
+Basically everything that depends on /lib/libselinux.so.1 (things like cp,
+mkdir, mv etc etc) no longer work on Fedora Core devel installation when
+run with LD_PRELOAD=/usr/local/lib/installwatch.so. The result is
+segmentation fault.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I traced it back to upgrade from libselinux-1.4-1 to libselinux-1.4-6:
+
+ root@babbage:/>rpm -q checkinstall glibc coreutils libselinux
+ checkinstall-1.5.3-1
+ glibc-2.3.3-1
+ coreutils-5.0-35
+ libselinux-1.4-1
+ root@babbage:/>LD_PRELOAD=/usr/local/lib/installwatch.so cp /etc/issue
+ /tmp/FOOO
+ root@babbage:/>^D
+ root@babbage:/backup-versioned>chroot 2003-12-21T052000 
+ root@babbage:/>rpm -q checkinstall glibc coreutils libselinux
+ checkinstall-1.5.3-1
+ glibc-2.3.3-1
+ coreutils-5.0-35
+ libselinux-1.4-6
+ root@babbage:/>LD_PRELOAD=/usr/local/lib/installwatch.so cp /etc/issue
+ /tmp/FOOO
+ zsh: segmentation fault  LD_PRELOAD=/usr/local/lib/installwatch.so cp
+ /etc/issue /root/FOOO
+
+So with libselinux-1.4-1, it works, with 1.4-6 is broken. I tried
+tried building checkinstall-1.6.0beta3 from source, but its installwatch.so
+shows the same behaviour.
+
+I'm running a kernel (2.4.21-jam1+security_fixes) that doesn't include
+selinux fwiw. Nothing else wrt. glibc, coreutils or libselinux seems broken
+on this installation.
+
+I tried copying the libselinux-1.4-1 versions of lib/libselinux.so.1 to
+/lib, and this fixes the current installation
+wrt. checkinstall. So it is really libselinux that makes the
+difference (/bin/cp does depend on other libraries, too).
+
+Also, I added this bug to redhat bugzilla:
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114067
+
+So if anybody is interested enough, comments can be added there, too.
+
+ 
+-- v --
+
+v@iki.fi
 
 
 --
