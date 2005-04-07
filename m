@@ -1,131 +1,85 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j36MZdDo022000
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2005 18:35:39 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j36MXEkY010938
-	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2005 22:33:14 GMT
-Subject: Re: More patches
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <42544387.6010706@redhat.com>
-References: <200502032350.40924.russell@coker.com.au>
-	 <1108048794.10328.14.camel@moss-lions.epoch.ncsc.mil>
-	 <4253CD52.1090206@redhat.com>
-	 <1112790317.4187.1.camel@moss-lions.epoch.ncsc.mil>
-	 <4253D7BA.6030604@redhat.com> <1112810151.7822.4.camel@cobra.ivg2.net>
-	 <42542F02.2020304@redhat.com> <1112811239.3469.4.camel@cobra.ivg2.net>
-	 <42543BBD.4090308@redhat.com> <1112814718.3817.6.camel@cobra.ivg2.net>
-	 <42544387.6010706@redhat.com>
-Content-Type: multipart/mixed; boundary="=-88L4VE+8o8uznvleDQMs"
-Date: Wed, 06 Apr 2005 17:39:09 -0400
-Message-Id: <1112823549.20840.4.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j372JfDo022829
+	for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2005 22:19:45 -0400 (EDT)
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j372HAkY021278
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 02:17:12 GMT
+Message-ID: <425497FF.9090705@ak.jp.nec.com>
+Date: Thu, 07 Apr 2005 11:16:31 +0900
+From: Kaigai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [RFC & PATCH] inherited type definition.
+References: <42346C17.3090301@kaigai.gr.jp> <200504062249.14886.russell@coker.com.au> <4253F745.9070609@kaigai.gr.jp> <200504070130.46902.russell@coker.com.au>
+In-Reply-To: <200504070130.46902.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
 
---=-88L4VE+8o8uznvleDQMs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+>>I think that the required skill for tracking the security policy with
+>>inherited type is same as one for the security policy writen with
+>>attributes.
+>
+>
+> When inspecting policy to determine it's operation you can see a list of
+> attributes on a type declaration and know that each applies to the type.
+>
+> With inheritance as you describe you have exclusion rules such that you don't
+> necessarily know that domain user_foo_t can access bar_t just because user_t
+> can access bar_t and user_foo_t inherits.
+
+Is it same as attributes work ?
+A permission is often granted implicitly via attributes.
+We have to check a type declaration and attached attributes,
+when a permission is granted to types/attributes.
+
+When a type is declared with attribute, we have to check this.
+When a type is declared with parent type, we have to check this.
+Both are essentially same, I think.
+
+> If we want to make a change to the inheritance it doesn't change the access
+> granted to just one domain or type but instead it operates on an unknown
+> number of domains/types.
+
+Sorry, what does mean 'make a change to the inheritance' ?
+
+If it means that changing the permission attached to parent-type make effects
+to some child-types, 'unknown number of domains/types' is over expression.
+A permission granted via parent-type is limited to child-types explicitly
+declared as an inherited type.
+
+If it means that changing the relationship between parent and child make effects
+to some child-types, it is fact that we have to grant all necessary permissions
+to child-types from scrach. But I think it's redundant and needlessness.
+This situation is similar trying to declare a new file-type without file_type attributes.
 
 
-> BTW have you done anything with dmidecode?
+>>Does the example of user_t/user_r/user_ssh_t mean 'inherited domain'?
+>>It has not been a significant issue yet, I think.
+>>I think it's enough benefit to create a new type which can be accessed from
+>>multi domains. (e.g Apache & FTPd shared directory)
+>
+>
+> It does mean inherited domain.
+>
+> I want to write policy such that someone can load a binary policy module for a
+> new user role professor_r which then automatically creates the domain
+> professor_foo_t because the base policy has appropriate statements that are
+> equivalent in functionality to the macros we currently use in macros/programs
+> for such things.
 
-Now attached - small domain for dmidecode that allows
-it to read /dev/mem and gives it rawio privileges.
+Generally, any methods have strong and weak point.
+I have no intention to disallow the availability of existing macros.
+Each methods should be used for own strong point.
 
-Patch for hal to transition to this domain, 
-as well as bringing back the netlink rule for backwards compatibility.
-
+Thanks,
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
---=-88L4VE+8o8uznvleDQMs
-Content-Disposition: attachment; filename=hal_dmidecode.diff
-Content-Type: text/x-patch; name=hal_dmidecode.diff; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-diff -aru policy.old/domains/program/hald.te policy/domains/program/hald.te
---- policy.old/domains/program/hald.te	2005-04-06 17:23:59.000000000 -0400
-+++ policy/domains/program/hald.te	2005-04-06 17:30:22.000000000 -0400
-@@ -29,8 +29,11 @@
- allow hald_t { bin_t sbin_t }:dir search;
- allow hald_t self:fifo_file rw_file_perms;
- allow hald_t usr_t:file { getattr read };
--
- allow hald_t bin_t:file getattr;
-+
-+# For backwards compatibility with older kernels
-+allow hald_t self:netlink_socket create_socket_perms;
-+
- allow hald_t self:netlink_kobject_uevent_socket create_socket_perms;
- allow hald_t self:netlink_route_socket r_netlink_socket_perms;
- allow hald_t self:capability { net_admin sys_admin dac_override dac_read_search mknod };
-@@ -77,17 +80,14 @@
- allow hald_t mnt_t:dir search;
- r_dir_file(hald_t, proc_net_t)
- 
--
--# For /usr/libxexc/hald-addon-acpi - writes to /var/run/acpid.socket
-+# For /usr/libexec/hald-addon-acpi - writes to /var/run/acpid.socket
- ifdef(`apmd.te', `
- allow hald_t apmd_var_run_t:sock_file write;
- allow hald_t apmd_t:unix_stream_socket connectto;
- ')
- 
--# For /usr/sbin/dmidecode
--# Violates assertion
--#allow hald_t memory_device_t:chr_file read;
--allow hald_t self:capability sys_rawio;
-+# For /usr/libexec/hald-probe-smbios
-+domain_auto_trans(hald_t, dmidecode_exec_t, dmidecode_t)
- 
- # ??
- ifdef(`lvm.te', `
-
---=-88L4VE+8o8uznvleDQMs
-Content-Disposition: attachment; filename=dmidecode.fc
-Content-Type: text/plain; name=dmidecode.fc; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-# dmidecode 
-/usr/sbin/dmidecode	--	   	system_u:object_r:dmidecode_exec_t
-/usr/sbin/ownership	--		system_u:object_r:dmidecode_exec_t
-/usr/sbin/vpddecode	--		system_u:object_r:dmidecode_exec_t
-
---=-88L4VE+8o8uznvleDQMs
-Content-Disposition: attachment; filename=dmidecode.te
-Content-Type: text/plain; name=dmidecode.te; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-#DESC dmidecode - decodes DMI data for x86/ia64 bioses 
-#
-# Author: Ivan Gyurdiev <ivg2@cornell.edu>
-#
-
-type dmidecode_t, domain, privmem;
-type dmidecode_exec_t, file_type, exec_type, sysadmfile;
-
-# Allow execution by the sysadm
-role sysadm_r types dmidecode_t;
-role system_r types dmidecode_t;
-domain_auto_trans(sysadm_t, dmidecode_exec_t, dmidecode_t)
-
-uses_shlib(dmidecode_t)
-
-# Allow terminal access
-access_terminal(dmidecode_t, sysadm)
-
-# Allow dmidecode to read /dev/mem
-allow dmidecode_t memory_device_t:chr_file read;
-
-allow dmidecode_t self:capability sys_rawio;
-
---=-88L4VE+8o8uznvleDQMs--
-
+Linux Promotion Center, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
