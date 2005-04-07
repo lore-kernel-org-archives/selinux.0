@@ -1,43 +1,59 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37HvEue028499
-	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 13:57:14 -0400 (EDT)
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j37HpvsH009845
-	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 17:51:57 GMT
-Received: from taynzmail03.nz-tay.cpqcorp.net (taynzmail03.nz-tay.cpqcorp.net [16.47.4.103])
-	by atlrel6.hp.com (Postfix) with ESMTP id 264F8AF7C
-	for <selinux@tycho.nsa.gov>; Thu,  7 Apr 2005 13:54:08 -0400 (EDT)
-Received: from anw.zk3.dec.com (alpha.zk3.dec.com [16.140.128.4])
-	by taynzmail03.nz-tay.cpqcorp.net (Postfix) with ESMTP id D41B1226B
-	for <selinux@tycho.nsa.gov>; Thu,  7 Apr 2005 13:54:07 -0400 (EDT)
-Message-ID: <425573BA.5050304@hp.com>
-Date: Thu, 07 Apr 2005 13:54:02 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Looking for the last CIPSO draft
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37IR0ue028899
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 14:27:00 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j37ILbsH012563
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 18:21:39 GMT
+Date: Thu, 7 Apr 2005 19:33:07 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: I am attempting to add a secadm_r
+Message-ID: <20050407183307.GA19784@lkcl.net>
+References: <425553ED.1040703@redhat.com> <20050407164645.GX19784@lkcl.net> <1112893253.27110.62.camel@moss-spartans.epoch.ncsc.mil> <20050407174544.GY19784@lkcl.net> <1112895576.27110.86.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1112895576.27110.86.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Thu, Apr 07, 2005 at 01:39:36PM -0400, Stephen Smalley wrote:
 
-I am trying to find the last CIPSO draft produced by the IETF working 
-group.  I have found a copy of draft-ietf-cipso-ipsecurity-01.txt which 
-specifies version 2.2 of the protocol.  However, I have seen references 
-both to draft-ietf-cipso-ipsecurity-02.txt and version 2.3 of the protocol.
+> >  if secadm could be drastically restricted to pretty much only be
+> >  able to run policy / labelling selinux command tools - even better.
+> 
+> Problematic at present, given that policy is modified in source form,
+> unless you want to require all policy modifications to be done off-line
+> and then only allow updated binary policy to be installed by the secadm.
 
-I understand IETF drafts are meant to expire and find their way to the 
-dustbin, but I am trying to better understand the protocol and would 
-greatly appreciate a pointer to the last CIPSO draft or even a copy sent 
-via email.
+ the arrangement that i have is complicated by the fact that
+ when a new user is added, some additions to about three
+ policy source files are also required, which defines some new
+ domains under which the user is exclusively allowed access to
+ a subdirectory of the transfer area and to that area _alone_.
 
-Thanks,
+ i am therefore giving serious consideration to writing this as a
+ script, which the day-to-day operator will be allowed to run (yes,
+ there could end up being hundreds of new users, each with their own
+ separate and exclusively accessible transfer area)
 
--- 
-. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-. paul.moore@hp.com                                      hewlett packard
-. (603) 884-5056                                          linux security
+ and setting up a domain under which this script can be run, and
+ allowing the operator to run it.
+
+ that is the _only_ way that i would normally like policy to
+ be modifiable on this system - except possibly by sysadm_r.
+
+ i could then give serious consideration to allowing staff_r the right
+ to run this magic script.
+
+
+ ... i get the impression that it might be better to have
+ a sysadm_r role (as it presently is) which is allowed
+ "EVVERRYTHING", and a second-tier role which is allowed
+ "everything-sysadm-can-presently-do-except-policy-related-stuff".
+
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
