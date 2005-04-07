@@ -1,49 +1,37 @@
-Subject: Re: policy hierarchy patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-In-Reply-To: <425456F1.5000905@trustedcs.com>
-References: <1112631282.19526.18.camel@localhost>
-	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com>
-	 <1112709782.19531.39.camel@localhost> <425320BD.5050207@trustedcs.com>
-	 <425456F1.5000905@trustedcs.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37DvFDo025798
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 09:57:15 -0400 (EDT)
+Subject: Re: More patches
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, jwcart2@epoch.ncsc.mil,
+   SELinux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
+In-Reply-To: <42542F02.2020304@redhat.com>
+References: <200502032350.40924.russell@coker.com.au>
+	 <1108048794.10328.14.camel@moss-lions.epoch.ncsc.mil>
+	 <4253CD52.1090206@redhat.com>
+	 <1112790317.4187.1.camel@moss-lions.epoch.ncsc.mil>
+	 <4253D7BA.6030604@redhat.com> <1112810151.7822.4.camel@cobra.ivg2.net>
+	 <42542F02.2020304@redhat.com>
 Content-Type: text/plain
-Date: Thu, 07 Apr 2005 08:32:35 -0400
-Message-Id: <1112877155.27110.15.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 07 Apr 2005 08:13:11 -0400
+Message-Id: <1112875991.27110.4.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-04-06 at 16:38 -0500, Darrel Goeddel wrote:
-> Here is a version that I am happy with.  There were only a few minor fixes from
-> the past patch.  As before, this patch is relative to Joshua's
-> hierarchy-backport patch, and it should be applied when that patch is applied to
-> keep mls processing working in the policy compiler.  I haven't really looked
-> over Joshua's patch with a fine tooth comb, but it sure has been working nice
-> for me.  Anybody see anything wrong with the mls patch (or suggestions)?
+On Wed, 2005-04-06 at 14:48 -0400, Daniel J Walsh wrote:
+> My understanding was that
+> 
+>  netlink_kobject_uevent_socket was added so that we would not need the netlink_socket rule.
+> 
+> Either I am wrong or you might need an updated kernel.
 
-The original hierarchy patch also collapsed the identifier and
-user_identifier together, thereby allowing "-" to occur in any
-identifier.  As a result, if someone specifies s0-s9 in the policy
-without whitespace, it will be incorrectly interpreted as an attempt to
-specify a level named "s0-s9".  Further, nothing prevents someone from
-defining a level or category name that includes a "-" presently.
-Options are to revert the change from the original patch that collapsed
-identifier and user_identifier together (only adding "." to identifier,
-not "-") or to add further handling to the action routines to deal with
-it.
-
-It also looks like you have double free error upon encountering an
-undefined sensitivity name in a user declaration.
-
-As a minor note, I suppose that the 'make mlsconvert' should also change
-MLS=y in the Makefile so that you don't have to do that as an extra
-step.
+Ultimately, we can phase out the old rule, but we need to wait until the
+kernel change makes its way into the Fedora kernels.
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
 
 
