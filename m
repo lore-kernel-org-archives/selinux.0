@@ -1,38 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37DvFDo025798
-	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 09:57:15 -0400 (EDT)
-Subject: Re: More patches
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, jwcart2@epoch.ncsc.mil,
-   SELinux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
-In-Reply-To: <42542F02.2020304@redhat.com>
-References: <200502032350.40924.russell@coker.com.au>
-	 <1108048794.10328.14.camel@moss-lions.epoch.ncsc.mil>
-	 <4253CD52.1090206@redhat.com>
-	 <1112790317.4187.1.camel@moss-lions.epoch.ncsc.mil>
-	 <4253D7BA.6030604@redhat.com> <1112810151.7822.4.camel@cobra.ivg2.net>
-	 <42542F02.2020304@redhat.com>
-Content-Type: text/plain
-Date: Thu, 07 Apr 2005 08:13:11 -0400
-Message-Id: <1112875991.27110.4.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37FjEue026808
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 11:45:14 -0400 (EDT)
+Message-ID: <425553ED.1040703@redhat.com>
+Date: Thu, 07 Apr 2005 11:38:21 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>, SE Linux <selinux@tycho.nsa.gov>
+Subject: I am attempting to add a secadm_r
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-04-06 at 14:48 -0400, Daniel J Walsh wrote:
-> My understanding was that
-> 
->  netlink_kobject_uevent_socket was added so that we would not need the netlink_socket rule.
-> 
-> Either I am wrong or you might need an updated kernel.
+I do not want to get in a conversation about how many ways there are 
+around this, from sysadm_r.   I know that, but when I was at DOD
+a couple of weeks ago they stated that they wanted a separate role from 
+policy management, from the role of the system administrator.  They
+did not care about this being protected, but wanted a way to stop 
+accidentally modifying the machine.  In DOD the System Administrator and
+the Security Administrator are different roles. 
 
-Ultimately, we can phase out the old rule, but we need to wait until the
-kernel change makes its way into the Fedora kernels.
+Any ways trying a simple experiment I have added the following  roles
+
+role secadm_r types sysadm_t
+role secadm_r types checkpolicy_t
+role secadm_r types newrole_t
+
+And I add secadm_r as a "root" role in the users file.
+
+Now when I try to newrole from root:sysadm_r:sysadm_t to 
+root:secadm_r:sysadm_t
+
+I get a process transition failure
+
+from
+
+root:sysadm_r:newrole_t to root:secadm_r:sysadm_t.
+
+What am I missing?
+
+the
+allow newrole_t sysadm_t:process transition;
+
+rule exists
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
 
 
 --
