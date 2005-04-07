@@ -1,36 +1,31 @@
-Subject: Re: I am attempting to add a secadm_r
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37HWhue028115
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 13:32:44 -0400 (EDT)
+Subject: Re: More patches
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1112892841.27110.52.camel@moss-spartans.epoch.ncsc.mil>
-References: <425553ED.1040703@redhat.com>
-	 <1112892841.27110.52.camel@moss-spartans.epoch.ncsc.mil>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4253D7BA.6030604@redhat.com>
+References: <200502032350.40924.russell@coker.com.au>
+	 <1108048794.10328.14.camel@moss-lions.epoch.ncsc.mil>
+	 <4253CD52.1090206@redhat.com>
+	 <1112790317.4187.1.camel@moss-lions.epoch.ncsc.mil>
+	 <4253D7BA.6030604@redhat.com>
 Content-Type: text/plain
-Date: Thu, 07 Apr 2005 13:10:54 -0400
-Message-Id: <1112893854.27110.66.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 07 Apr 2005 13:31:22 -0400
+Message-Id: <1112895082.6414.3.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-04-07 at 12:54 -0400, Stephen Smalley wrote:
-> Normally, to add a new user role, you would add the following lines to
-> domains/user.te:
-> 	full_user_role(secadm)
-> This will define both a secadm_r role and a secadm_t domain, along with
-> associated types.  Then you can replace role and domain transitions for
-> sysadm with corresponding ones in the specific program domains like
-> checkpolicy, load_policy, setfiles, restorecon, etc so that secadm can
-> enter those domains but sysadm cannot.
+Merged.
 
-Note that this will mean that you want to add a "secadm_r:secadm_t" line
-to the default_type file.   Then, if you add role_type_tty_change rules
-from whatever starting role you use for the user, then you should be
-able to newrole -r secadm_r to get to secadm_r:secadm_t.  Defining a new
-role without defining a new initial domain is pointless; you haven't
-achieved any real separation.
+On Wed, 2005-04-06 at 08:36 -0400, Daniel J Walsh wrote:
+> Fixed the patches, so they will build.
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
 
 
