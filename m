@@ -1,55 +1,54 @@
-Message-ID: <4255A62F.80405@trustedcs.com>
-Date: Thu, 07 Apr 2005 16:29:19 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-Subject: Re: policy hierarchy patch
-References: <1112631282.19526.18.camel@localhost>	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com>	 <1112709782.19531.39.camel@localhost> <425320BD.5050207@trustedcs.com>	 <425456F1.5000905@trustedcs.com>	 <1112877155.27110.15.camel@moss-spartans.epoch.ncsc.mil>	 <42556015.6090405@trustedcs.com> <1112907833.19565.9.camel@localhost>
-In-Reply-To: <1112907833.19565.9.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37NHDue001094
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 19:17:16 -0400 (EDT)
+Received: from leapster.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j37NBqsH028774
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 23:11:53 GMT
+Received: from rosso.dwerryhouse.com.au (doof-vpn [10.150.0.2])
+	by leapster.org (Postfix) with ESMTP id D7F3C398C3
+	for <selinux@tycho.nsa.gov>; Fri,  8 Apr 2005 09:14:30 +1000 (EST)
+Date: Fri, 8 Apr 2005 09:14:25 +1000
+From: Paul Dwerryhouse <paul@dwerryhouse.com.au>
+To: selinux@tycho.nsa.gov
+Subject: SELinux packages for SuSE 9.2
+Message-ID: <20050407231425.GA14489@dwerryhouse.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> On Thu, 2005-04-07 at 11:30 -0500, Darrel Goeddel wrote:
-> 
->>Stephen Smalley wrote:
 
->>>The original hierarchy patch also collapsed the identifier and
->>>user_identifier together, thereby allowing "-" to occur in any
->>>identifier.  As a result, if someone specifies s0-s9 in the policy
->>>without whitespace, it will be incorrectly interpreted as an attempt to
->>>specify a level named "s0-s9".  Further, nothing prevents someone from
->>>defining a level or category name that includes a "-" presently.
->>>Options are to revert the change from the original patch that collapsed
->>>identifier and user_identifier together (only adding "." to identifier,
->>>not "-") or to add further handling to the action routines to deal with
->>>it.
->>>
-> 
-> 
-> Out of curiousity, why are sensitivity ranged specified with '-' and
-> category ranged specified with '.'?
-> 
+Hi all,
 
-To ease (or make possible) parsing things like "s0:c1 . c4 - s1:c1 . c4".
-If it was "s0:c1 - c4 - s1:c1 - c4", the second '-' is ambiguous.  At least
-thats why I think its that way...
+I have created SELinux-enabled packages for SuSE 9.2, and these can be
+found here:
 
-> I think this is correct, not just because of the explanation above but
-> because this may cause issues with space sensitivity in type sets, ie
-> { foo-bar } is the same as { foo -bar } now, but wouldn't be with this
-> patch. I'll fix this and send out a patch tomorrow.
+http://suse-selinux.leapster.org/
 
-Ahhh. I misread the comment earlier - I read it as "go back to IDENTIFIER and
-MLS_IDENTIFIER".  I think going back to "USER_IDENTIFIER and IDENTIFIER", and
-ditching the '-' in Ithe current DENTIFIER is the way to go.
+Packages such as libselinux, policycoreutils, etc, have been built from
+the main NSA SELinux CVS tree.
+
+I built the other userspace packages by patching SuSE's 9.2 SRPMs with
+the selinux patches from Fedora's devel CVS tree, and in many cases
+modified them to make the patches apply properly.
+
+Also provided is an SELinux-enabled kernel, based on the 2.6.11.4
+kernel-of-the-day source from SuSE's ftp server, with the latest
+SELinux patch applied.
+
+I have not altered the policy yet, so as it stands, the system will hang
+if placed into enforcing mode. This is fairly simple to fix - just a small
+change to the getty policy is required - and I hope to have an updated
+policy package available later today. However, there will still be a
+considerable number of policy fixes needed before this is usable.
+
+Cheers,
+
+Paul.
 
 -- 
-
-Darrel
+Paul Dwerryhouse				| PGP Key ID: 0x6B91B584
+Melbourne, Australia				|
 
 --
 This message was distributed to subscribers of the selinux mailing list.
