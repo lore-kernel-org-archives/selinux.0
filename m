@@ -1,48 +1,43 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37HoIue028421
-	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 13:50:19 -0400 (EDT)
-Subject: Re: I am attempting to add a secadm_r
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050407174544.GY19784@lkcl.net>
-References: <425553ED.1040703@redhat.com> <20050407164645.GX19784@lkcl.net>
-	 <1112893253.27110.62.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050407174544.GY19784@lkcl.net>
-Content-Type: text/plain
-Date: Thu, 07 Apr 2005 13:39:36 -0400
-Message-Id: <1112895576.27110.86.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j37HvEue028499
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 13:57:14 -0400 (EDT)
+Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j37HpvsH009845
+	for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2005 17:51:57 GMT
+Received: from taynzmail03.nz-tay.cpqcorp.net (taynzmail03.nz-tay.cpqcorp.net [16.47.4.103])
+	by atlrel6.hp.com (Postfix) with ESMTP id 264F8AF7C
+	for <selinux@tycho.nsa.gov>; Thu,  7 Apr 2005 13:54:08 -0400 (EDT)
+Received: from anw.zk3.dec.com (alpha.zk3.dec.com [16.140.128.4])
+	by taynzmail03.nz-tay.cpqcorp.net (Postfix) with ESMTP id D41B1226B
+	for <selinux@tycho.nsa.gov>; Thu,  7 Apr 2005 13:54:07 -0400 (EDT)
+Message-ID: <425573BA.5050304@hp.com>
+Date: Thu, 07 Apr 2005 13:54:02 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Looking for the last CIPSO draft
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-04-07 at 18:45 +0100, Luke Kenneth Casson Leighton wrote:
->  in the scenario i describe, which i mention in case dan could
->  incorporate it (it may happen to be the same thing), i would like
->  secadm to be able to do policy / labelling, and for sysadm to _not_
->  be able to.
+Hello,
 
-Right, that is what Dan intends, IIUC.  But while you can (relatively)
-easily prevent sysadm from directly modifying policy, loading it, and
-relabeling files, you cannot easily prevent him from indirectly
-achieving the same ends without greatly stripping away his privileges
-even for ordinary administrative work, as I and others have mentioned in
-the past (yes, I know Dan doesn't want to revive that discussion, but I
-did want to make sure that Luke remembers it since he is asking about
-this).   e.g. see the thread starting at 
-http://marc.theaimsgroup.com/?l=selinux&m=105457887918050&w=2
+I am trying to find the last CIPSO draft produced by the IETF working 
+group.  I have found a copy of draft-ietf-cipso-ipsecurity-01.txt which 
+specifies version 2.2 of the protocol.  However, I have seen references 
+both to draft-ietf-cipso-ipsecurity-02.txt and version 2.3 of the protocol.
 
->  if secadm could be drastically restricted to pretty much only be
->  able to run policy / labelling selinux command tools - even better.
+I understand IETF drafts are meant to expire and find their way to the 
+dustbin, but I am trying to better understand the protocol and would 
+greatly appreciate a pointer to the last CIPSO draft or even a copy sent 
+via email.
 
-Problematic at present, given that policy is modified in source form,
-unless you want to require all policy modifications to be done off-line
-and then only allow updated binary policy to be installed by the secadm.
+Thanks,
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+. paul.moore@hp.com                                      hewlett packard
+. (603) 884-5056                                          linux security
 
 --
 This message was distributed to subscribers of the selinux mailing list.
