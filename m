@@ -1,68 +1,57 @@
-Subject: Re: I am attempting to add a secadm_r
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <42558933.7050605@redhat.com>
-References: <425553ED.1040703@redhat.com>
-	 <1112892841.27110.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112893854.27110.66.camel@moss-spartans.epoch.ncsc.mil>
-	 <42558933.7050605@redhat.com>
+Subject: Re: policy hierarchy patch
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>,
+   selinux-dev@tresys.com
+In-Reply-To: <42556015.6090405@trustedcs.com>
+References: <1112631282.19526.18.camel@localhost>
+	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com>
+	 <1112709782.19531.39.camel@localhost> <425320BD.5050207@trustedcs.com>
+	 <425456F1.5000905@trustedcs.com>
+	 <1112877155.27110.15.camel@moss-spartans.epoch.ncsc.mil>
+	 <42556015.6090405@trustedcs.com>
 Content-Type: text/plain
-Date: Thu, 07 Apr 2005 15:37:00 -0400
-Message-Id: <1112902620.27110.139.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 07 Apr 2005 17:03:53 -0400
+Message-Id: <1112907833.19565.9.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-04-07 at 15:25 -0400, Daniel J Walsh wrote:
-> Ok, this is the point I was trying to understand.  I was hoping I could 
-> define a role without defining
-> an initial type.  I was hoping for secadm_r:sysadm_t or 
-> secadm_r:staff_t.  Forcing a new initial type,
-> seems a little touch.  This causes the creation of new roles to be more 
-> difficult. 
-> 
-> I would have thought you could define a staff_t and then depending on 
-> which roles they were currently
-> under, which domains they could reach.
-> 
-> So staff_r:staff_t can not add users.
-> But useradd_r:staff_t can.
+On Thu, 2005-04-07 at 11:30 -0500, Darrel Goeddel wrote:
+> Stephen Smalley wrote:
+> > On Wed, 2005-04-06 at 16:38 -0500, Darrel Goeddel wrote:
+> > 
+> >>Here is a version that I am happy with.  There were only a few minor fixes from
+> >>the past patch.  As before, this patch is relative to Joshua's
+> >>hierarchy-backport patch, and it should be applied when that patch is applied to
+> >>keep mls processing working in the policy compiler.  I haven't really looked
+> >>over Joshua's patch with a fine tooth comb, but it sure has been working nice
+> >>for me.  Anybody see anything wrong with the mls patch (or suggestions)?
+> > 
+> > 
+> > The original hierarchy patch also collapsed the identifier and
+> > user_identifier together, thereby allowing "-" to occur in any
+> > identifier.  As a result, if someone specifies s0-s9 in the policy
+> > without whitespace, it will be incorrectly interpreted as an attempt to
+> > specify a level named "s0-s9".  Further, nothing prevents someone from
+> > defining a level or category name that includes a "-" presently.
+> > Options are to revert the change from the original patch that collapsed
+> > identifier and user_identifier together (only adding "." to identifier,
+> > not "-") or to add further handling to the action routines to deal with
+> > it.
+> > 
 
-That doesn't really work, because the process-to-object permissions are
-primarily determined based on the TE rules, so a staff_r:staff_t process
-can control a useradd_r:staff_t process (unless you start adding a lot
-of constraints over permissions based on roles).  Further, in this
-particular case, as I understand it, you truly want a real user role,
-not just a specialized pseudo role for particular programs, because you
-want to be able to assign secadm to one person and sysadm to another
-person, and have them fully separated from one another, not just one
-person switching back and forth via newrole or invoking a program in a
-role via sudo or userhelper. 
+Out of curiousity, why are sensitivity ranged specified with '-' and
+category ranged specified with '.'?
 
-> I would want to eliminate the su transition to sysadm_r:sysadm_t and 
-> force say a staff user to
-> newrole -r secadm_r
-> 
-> and become secadm_r:staff_t and then su and be able to do the 
-> checkpolicy/load_policy type stuff.
+I think this is correct, not just because of the explanation above but
+because this may cause issues with space sensitivity in type sets, ie
+{ foo-bar } is the same as { foo -bar } now, but wouldn't be with this
+patch. I'll fix this and send out a patch tomorrow.
 
-The su pam_selinux integration makes this a bit harder too, as we want
-to convey uid 0 / Linux capabilities to the process without forcing them
-to a single SELinux user identity.  Of course, as I noted to Luke, you
-could have multiple /etc/passwd accounts with uid 0 and map the
-usernames to different roles in policy/users.
 
-> If I do full_user_role I get alot more privs then I necessarily want.
-
-You can certainly create a stripped down version of full_user_role that
-is much more minimal in its permissions, but you still need a distinct
-initial domain for the role to protect it from subversion by other
-roles.
-  
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Joshua
 
 
 --
