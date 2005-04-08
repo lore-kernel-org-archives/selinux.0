@@ -1,61 +1,46 @@
-Date: Fri, 8 Apr 2005 16:26:57 +0200
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: Park Lee <parklee_sel@yahoo.com>, SELinux@tycho.nsa.gov
-Subject: Re: What's the pronunciation of "SELinux"?
-Message-ID: <20050408142657.GA8278@localhost>
-References: <20050408064742.67765.qmail@web51504.mail.yahoo.com> <200504081729.14844.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j38MU3tA009181
+	for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2005 18:30:04 -0400 (EDT)
+Received: from cunningham.myip.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j38MRFUH011542
+	for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2005 22:27:16 GMT
+Subject: getfattr works, but getfilecon doesn't
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1112999252.3261.5.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200504081729.14844.russell@coker.com.au>
+Date: Sat, 09 Apr 2005 08:27:33 +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Apr 08, 2005 at 05:29:12PM +1000, Russell Coker wrote:
-> On Friday 08 April 2005 16:47, Park Lee <parklee_sel@yahoo.com> wrote:
-> >   Does anyone know what the pronunciation of "SELinux"
-> > is? i.e. How to pronounce SELinux?
-> 
-> That depends on the speed.
-> 
-> Slowly it's "S E Linux", more quickly it may resemble "sea-Linux"
-> and some people have pronounced it like "easy-Linux".
-> 
-> For the pronounciation of "Linux" you want the file "linux.au" where
-> Linus tells it.  Let me know by private email if you can't find a
-> copy of that file and I'll put it on my site.
-> 
-> Would you like me to make an MP3 where I say "SE Linux" a few times?
+Hi.
 
-Yes :)
+Thanks for the responses to my email the other day.
 
-Although in Germany, when talking to Linux folks it might be a nice
-idea to pronounce the "SE" in German, that is the "e" in this case is
-an "e" like in "elk": This can be understood as a pun, alluding to the
-"Mercedes SEL" limousine, which in Germany still seems to be a symbol
-for a luxury car: Linuxers, at least those that I know, don't seem to
-like it if you allude their non-SElinux systems being substandard ... :P
+I've made further progress, such that I now know that the labels are
+properly stored and accessible through the getfattr command, but not
+through getfilecon.
 
-> 
+I added printks to the kernel, and see them activated in the case of
+getfattr, but not for getfilecon. The return code that getfilecon
+received back from its getxattr call is -1.
 
+I can keep working through this myself, but if someone knows the answer
+offhand, I'd really appreciate hearing it.
 
-As for the Torvalds-pronounces-Linux sound files :
+Regards,
 
-from <http://www.paul.sladen.org/pronunciation/>:
-http://www.paul.sladen.org/pronunciation/torvalds-says-linux.au
-http://www.paul.sladen.org/pronunciation/torvalds-says-linux.wav
-http://www.paul.sladen.org/pronunciation/torvalds-says-linux.mp3
-
-
-And even a penguin saying it (little movie, my favorite, so far .. :):
-http://uranus.it.swin.edu.au/~jn/media/saylinux.avi
-from [<http://uranus.it.swin.edu.au/~jn/linux/saylinux.htm>]
-
-Regards
-  Wolfgang
+Nigel
 -- 
-Wolfgang Pfeiffer
-http://profiles.yahoo.com/wolfgangpfeiffer
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
