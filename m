@@ -1,47 +1,59 @@
-Subject: Re: SELinux packages for SuSE 9.2
+Subject: Re: setfiles segfault
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Dwerryhouse <paul@dwerryhouse.com.au>
-Cc: selinux@tycho.nsa.gov, Thomas Bleher <bleher@informatik.uni-muenchen.de>
-In-Reply-To: <20050407231425.GA14489@dwerryhouse.com.au>
-References: <20050407231425.GA14489@dwerryhouse.com.au>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1112919608.2991.31.camel@chris.pebenito.net>
+References: <1112919608.2991.31.camel@chris.pebenito.net>
 Content-Type: text/plain
-Date: Fri, 08 Apr 2005 07:37:21 -0400
-Message-Id: <1112960241.32127.5.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 08 Apr 2005 08:40:51 -0400
+Message-Id: <1112964051.32127.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-04-08 at 09:14 +1000, Paul Dwerryhouse wrote:
-> Hi all,
+On Thu, 2005-04-07 at 20:20 -0400, Chris PeBenito wrote:
+> On the current setfiles, if you do altroot, and you point it at an empty
+> directory, it segfaults:
 > 
-> I have created SELinux-enabled packages for SuSE 9.2, and these can be
-> found here:
+> gorn setfiles # ./setfiles /etc/security/selinux/file_contexts -d -r /tmp/empty/ /tmp/empty/
+> ./setfiles:  labeling files, pretending /tmp/empty is /
+> ./setfiles:  labeling files under /tmp/empty/
+> Segmentation fault
+> gorn setfiles # touch /tmp/empty/foo
+> gorn setfiles # ./setfiles /etc/security/selinux/file_contexts -d -r /tmp/empty/ /tmp/empty/
+> ./setfiles:  labeling files, pretending /tmp/empty is /
+> ./setfiles:  labeling files under /tmp/empty/
+> ./setfiles:  /tmp/empty/foo matched by system_u:object_r:default_t
+> matchpathcon_filespec_eval:  hash table stats: 1 elements, 1/65536 buckets used, longest chain length 1
+> ./setfiles:  Done.
 > 
-> http://suse-selinux.leapster.org/
+> As evidenced above, the altroot directory does not match the root
+> directory correctly.  Any trailing /'s are stripped by the time the path
+> gets used in the match() call, which is correct.  But then if there is
+> an altroot, the name pointer is advanced by the length of the root path
+> string to strip off the altroot path, for matching.  This works in all
+> cases, except for the root directory, which becomes an empty string
+> since the path is the same as the altroot path.  Since the lstat() in
+> the function uses the true path, it succeeds, but the
+> matchpathcon_index() fails, leaving the hashtable empty (fl_head is
+> null).  Then when we get back to main and do the
+> matchpathcon_filespec_destroy(), the function tries to free a null
+> pointer, causing the segfault.
 > 
-> Packages such as libselinux, policycoreutils, etc, have been built from
-> the main NSA SELinux CVS tree.
+> The attached patch fixes this condition, by checking if the name is an
+> empty string.  I initially considered concatenating on a / in this case,
+> rather then the current implementation, but this won't work since all
+> the strings are const.  It also removes buf from the function, as it
+> seems redundant, since the one operation done to buf is also done to
+> name, and buf is just a copy of name.  This patch is against sourceforge
+> cvs.
 > 
-> I built the other userspace packages by patching SuSE's 9.2 SRPMs with
-> the selinux patches from Fedora's devel CVS tree, and in many cases
-> modified them to make the patches apply properly.
-> 
-> Also provided is an SELinux-enabled kernel, based on the 2.6.11.4
-> kernel-of-the-day source from SuSE's ftp server, with the latest
-> SELinux patch applied.
-> 
-> I have not altered the policy yet, so as it stands, the system will hang
-> if placed into enforcing mode. This is fairly simple to fix - just a small
-> change to the getty policy is required - and I hope to have an updated
-> policy package available later today. However, there will still be a
-> considerable number of policy fixes needed before this is usable.
+>  setfiles.c |    8 +++++---
+>  1 files changed, 5 insertions(+), 3 deletions(-)
 
-Have you looked at Thomas Bleher's policy for SuSE?  Also, should I add
-a URL to your site to the SuSE page on the SELinux sourceforge site, 
-http://selinux.sourceforge.net/distros/suse.php3, and to the selinux-
-doc/README?
-
-Now if only someone could get these changes into the main SuSE distro...
+Thanks, merged into policycoreutils 1.23.4.  I also modified
+matchpathcon_filespec_destroy in libselinux 1.23.6 to check for a null
+fl_head on entry.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
