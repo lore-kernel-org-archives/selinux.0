@@ -1,38 +1,30 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Park Lee <parklee_sel@yahoo.com>
+Date: Fri, 8 Apr 2005 09:56:14 +0200
+From: Tom <tom@lemuria.org>
+To: SELinux@tycho.nsa.gov
 Subject: Re: What's the pronunciation of "SELinux"?
-Date: Fri, 8 Apr 2005 17:29:12 +1000
-Cc: SELinux@tycho.nsa.gov
+Message-ID: <20050408095614.A15807@lemuria.org>
 References: <20050408064742.67765.qmail@web51504.mail.yahoo.com>
-In-Reply-To: <20050408064742.67765.qmail@web51504.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200504081729.14844.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050408064742.67765.qmail@web51504.mail.yahoo.com>; from parklee_sel@yahoo.com on Thu, Apr 07, 2005 at 11:47:42PM -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 08 April 2005 16:47, Park Lee <parklee_sel@yahoo.com> wrote:
+On Thu, Apr 07, 2005 at 11:47:42PM -0700, Park Lee wrote:
 >   Does anyone know what the pronunciation of "SELinux"
 > is? i.e. How to pronounce SELinux?
 
-That depends on the speed.
+Throughout all of my presentations, both english and german, I have
+always said "S-E-Linux" (i.e. pronouncing the S and E as individual
+letters).
 
-Slowly it's "S   E   Linux", more quickly it may resemble "sea-Linux" and some 
-people have pronounced it like "easy-Linux".
+I've never heard anyone else saying it different.
 
-For the pronounciation of "Linux" you want the file "linux.au" where Linus 
-tells it.  Let me know by private email if you can't find a copy of that file 
-and I'll put it on my site.
-
-Would you like me to make an MP3 where I say "SE Linux" a few times?
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
