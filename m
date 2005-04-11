@@ -1,125 +1,129 @@
-Message-ID: <425AE087.7090001@trustedcs.com>
-Date: Mon, 11 Apr 2005 15:39:35 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: policy hierarchy patch
-References: <1112631282.19526.18.camel@localhost>	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com>	 <1112709782.19531.39.camel@localhost> <425320BD.5050207@trustedcs.com>	 <425456F1.5000905@trustedcs.com>	 <1112877155.27110.15.camel@moss-spartans.epoch.ncsc.mil>	 <42556015.6090405@trustedcs.com> <1112907833.19565.9.camel@localhost>	 <4255A62F.80405@trustedcs.com> <1112984816.10298.5.camel@localhost>
-In-Reply-To: <1112984816.10298.5.camel@localhost>
-Content-Type: multipart/mixed;
- boundary="------------040101060300010805060006"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3BMGutA025458
+	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2005 18:16:56 -0400 (EDT)
+Received: from cunningham.myip.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3BMAmWk013137
+	for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2005 22:10:49 GMT
+Subject: Re: getfattr works, but getfilecon doesn't
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1113235573.22198.31.camel@moss-spartans.epoch.ncsc.mil>
+References: <1112999252.3261.5.camel@desktop.cunningham.myip.net.au>
+	 <1113235573.22198.31.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Message-Id: <1113257683.3645.1039.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+Date: Tue, 12 Apr 2005 08:14:43 +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040101060300010805060006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Stephen.
 
-Joshua Brindle wrote:
-> On Thu, 2005-04-07 at 16:29 -0500, Darrel Goeddel wrote:
+On Tue, 2005-04-12 at 02:06, Stephen Smalley wrote:
+> On Sat, 2005-04-09 at 08:27 +1000, Nigel Cunningham wrote:
+> > Thanks for the responses to my email the other day.
 > 
->>Joshua Brindle wrote:
->>
->>>On Thu, 2005-04-07 at 11:30 -0500, Darrel Goeddel wrote:
->>>
->>>
->>>>Stephen Smalley wrote:
->>
->>>>>The original hierarchy patch also collapsed the identifier and
->>>>>user_identifier together, thereby allowing "-" to occur in any
->>>>>identifier.  As a result, if someone specifies s0-s9 in the policy
->>>>>without whitespace, it will be incorrectly interpreted as an attempt to
->>>>>specify a level named "s0-s9".  Further, nothing prevents someone from
->>>>>defining a level or category name that includes a "-" presently.
->>>>>Options are to revert the change from the original patch that collapsed
->>>>>identifier and user_identifier together (only adding "." to identifier,
->>>>>not "-") or to add further handling to the action routines to deal with
->>>>>it.
->>>>>
->>>
->>>
+> Hmmm...did you get a response?  I think that the ramfs security xattr
+> patches weren't upstreamed because there wasn't a real demand for them
+> at the time, unlike the tmpfs security xattr support.
+
+No - no response :>. I seem to have found so far that I don't appear to
+need the ramfs seucrity patch. Just to give you a little more info, I'm
+seeking to cross-compile SELinux for our (Cyclades) Alterpath Console
+Server. It's a ppc_8xx based machine. I cross compiled the extended
+attribute tools, and they are working fine - I can read and write
+attributes on the mounted system. This includes attributes added to the
+files while the fs is mounted ext2 loopback when the image is being
+built. It seems, then, that I don't need the updated patch (although I
+can provided it if necessary).
+
+> > I've made further progress, such that I now know that the labels are
+> > properly stored and accessible through the getfattr command, but not
+> > through getfilecon.
+> > 
+> > I added printks to the kernel, and see them activated in the case of
+> > getfattr, but not for getfilecon. The return code that getfilecon
+> > received back from its getxattr call is -1.
 > 
-> Ok, here is a patch against cvs (includes Darrel's MLS changes). It
-> builds MLS and non-MLS policies with and without type and role
-> hierarchies so this should be good to go, let me know if there are any
-> other problems.
-> 
-> Joshua
+> And what errno?  What does an strace should in terms of the actual
+> arguments passed to getxattr(2) by getfattr vs. getfilecon?  Different
+> sized buffers?
 
-Thanks for merging my changes into the main patch.  I have a few additions in 
-the attached patch, which is relative to your latest patch.
+Here's the output. (I have a few extra printfs in there from before I
+cross compiled strace).
 
-I had a possible double free in define_category.  I added back the declaration 
-for is_valid_identifier in policy_scan.l to avoid a warning.  I also removed 
-including '-' as a valid character in the standard IDENTIFIER (this is what we 
-were after, right?).  There are a few tweaks to the policy Makefile.  The first 
-is changing "s9 : c0.c127" to "s9:c0.c127" - I thought that was a bit more 
-readable.  The second is changing MLS=n to MLS=y in the makefile when running 
-the mlsconvert target.
+I have seen, talking with Russell last night, that my policy install
+wasn't working quite right. I'm wondering now whether these issues will
+go away once I get the install right. It looks to me at the moment like
+the getfilecon is just not giving a helpful error from things it does as
+side-effects, rather than that the xattr call itself is failing.
+(Indeed, it must be this because the xattr call isn't even made!)
 
+[root@CAS selinux]# strace getfilecon /var
+execve("/usr/sbin/getfilecon", ["getfilecon", "/var"], [/* 17 vars */]) = 0
+uname({sys="Linux", node="CAS", ...})   = 0
+brk(0)                                  = 0x10012000
+open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = -1 ENOENT (No such file or directory)
+open("/lib/libselinux.so.1", O_RDONLY)  = 3
+read(3, "\177ELF\1\2\1\0\0\0\0\0\0\0\0\0\0\3\0\24\0\0\0\1\0\0>\4"..., 1024) = 1024
+fstat64(3, {st_mode=S_IFREG|0755, st_size=90588, ...}) = 0
+mmap(0xffca000, 154832, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0xffca000
+mprotect(0xffdf000, 68816, PROT_NONE)   = 0
+mmap(0xffea000, 24576, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED, 3, 0x10000) = 0xffea000
+close(3)                                = 0
+open("/lib/libc.so.6", O_RDONLY)        = 3
+read(3, "\177ELF\1\2\1\0\0\0\0\0\0\0\0\0\0\3\0\24\0\0\0\1\0\1\316"..., 1024) = 1024
+fstat64(3, {st_mode=S_IFREG|0755, st_size=1397660, ...}) = 0
+mmap(0xfe64000, 1398004, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0xfe64000
+mprotect(0xffa2000, 95476, PROT_NONE)   = 0
+mmap(0xffa4000, 77824, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED, 3, 0x130000) = 0xffa4000
+mmap(0xffb7000, 9460, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xffb7000
+close(3)                                = 0
+brk(0)                                  = 0x10012000
+brk(0x10013000)                         = 0x10013000
+fstat64(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(4, 64), ...}) = 0
+ioctl(1, TCGETS or TCGETS, {B9600 opost isig icanon echo ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x30017000
+write(1, "libselinux::selinux_policyroot\n", 31libselinux::selinux_policyroot
+) = 31
+access("/etc/selinux/", F_OK)           = 0
+open("/etc/selinux/config", O_RDONLY|O_LARGEFILE) = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x30018000
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+munmap(0x30018000, 4096)                = 0
+write(1, "libselinux::init_selinuxmnt\n", 28libselinux::init_selinuxmnt
+) = 28
+open("/proc/mounts", O_RDONLY|O_LARGEFILE) = 3
+brk(0x10014000)                         = 0x10014000
+fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x30018000
+read(3, "rootfs / rootfs rw 0 0\n/dev/root"..., 1024) = 170
+close(3)                                = 0
+munmap(0x30018000, 4096)                = 0
+write(1, "Given path=/var, XATTR_NAME_SELI"..., 102Given path=/var, XATTR_NAME_SELINUX=security.selinux, buf=0x100122e8, size=255, getxattr returned -1.
+) = 102
+write(2, "getfilecon:  getfilecon(/var) fa"..., 37getfilecon:  getfilecon(/var) failed
+) = 37
+munmap(0x30017000, 4096)                = 0
+exit(2)                                 = ?
+[root@CAS selinux]#
+
+Thanks!
+
+Nigel
 -- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
 
-Darrel
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
 
---------------040101060300010805060006
-Content-Type: text/x-patch;
- name="hier-mls-suppl.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hier-mls-suppl.patch"
-
-diff -ruNp hier2/checkpolicy/policy_parse.y hier2-dgo/checkpolicy/policy_parse.y
---- hier2/checkpolicy/policy_parse.y	2005-04-11 14:22:07.964067426 -0500
-+++ hier2-dgo/checkpolicy/policy_parse.y	2005-04-11 14:32:19.078544643 -0500
-@@ -1325,7 +1325,6 @@ static int define_category(void)
- 
- 	while ((id = queue_remove(id_queue))) {
- 		if (id_has_dot(id)) {
--			free(id);
- 			yyerror("category aliases may not contain periods");
- 			goto bad_alias;
- 		}
-diff -ruNp hier2/checkpolicy/policy_scan.l hier2-dgo/checkpolicy/policy_scan.l
---- hier2/checkpolicy/policy_scan.l	2005-04-11 14:22:07.965067174 -0500
-+++ hier2-dgo/checkpolicy/policy_scan.l	2005-04-11 14:40:20.299361117 -0500
-@@ -25,6 +25,7 @@
- static char linebuf[2][255];
- static unsigned int lno = 0;
- int yywarn(char *msg);
-+static int is_valid_identifier(char *id);
- 
- char source_file[255];
- unsigned long source_lineno = 1;
-@@ -185,7 +186,7 @@ H1				{ return(H1); }
- h2 |
- H2				{ return(H2); }
- "/"({letter}|{digit}|_|"."|"-"|"/")*	{ return(PATH); }
--{letter}({letter}|{digit}|_|"."|"-")*({letter}|{digit})	{ if (is_valid_identifier(yytext)) 
-+{letter}({letter}|{digit}|_|".")*({letter}|{digit})	{ if (is_valid_identifier(yytext)) 
- 						return(IDENTIFIER); 
- 					  else 
- 					  	REJECT;
-diff -ruNp hier2/policy/Makefile hier2-dgo/policy/Makefile
---- hier2/policy/Makefile	2005-04-11 14:22:07.969066167 -0500
-+++ hier2-dgo/policy/Makefile	2005-04-11 14:31:14.108728717 -0500
-@@ -327,8 +327,11 @@ mlsconvert: 
- 	done
- 	@for file in $(USER_FILES); do \
- 		echo "Converting $$file"; \
--		sed -e 's/;/ level s0 range s0 - s9 : c0.c127;/' $$file > $$file.new && \
-+		sed -e 's/;/ level s0 range s0 - s9:c0.c127;/' $$file > $$file.new && \
- 		mv $$file.new $$file; \
- 	done
--	@sed -e '/sid kernel/s/s0/s0 - s9 : c0.c127/' initial_sid_contexts > initial_sid_contexts.new && mv initial_sid_contexts.new initial_sid_contexts
-+	@sed -e '/sid kernel/s/s0/s0 - s9:c0.c127/' initial_sid_contexts > initial_sid_contexts.new && mv initial_sid_contexts.new initial_sid_contexts
-+	@echo "Enabling MLS in the Makefile"
-+	@sed "s/MLS=n/MLS=y/" Makefile > Makefile.new
-+	@mv Makefile.new Makefile
- 	@echo "Done"
-
---------------040101060300010805060006--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
