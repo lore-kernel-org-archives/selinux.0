@@ -1,32 +1,30 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: inode_doinit_with_dentry messages
-Date: Wed, 13 Apr 2005 04:01:25 +1000
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
 Cc: James Morris <jmorris@redhat.com>, SELinux@tycho.nsa.gov
-References: <Xine.LNX.4.44.0504121252030.17231-100000@thoron.boston.redhat.com> <1113325464.25217.142.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1113325464.25217.142.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200504130401.29883.russell@coker.com.au>
+In-Reply-To: <200504130353.42587.russell@coker.com.au>
+References: 
+	 <Xine.LNX.4.44.0504121252030.17231-100000@thoron.boston.redhat.com>
+	 <200504130353.42587.russell@coker.com.au>
+Content-Type: text/plain
+Date: Tue, 12 Apr 2005 13:55:22 -0400
+Message-Id: <1113328522.25217.181.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 13 April 2005 03:04, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> I don't think we want to create a special case just for this particular
-> error message, or pollute selinuxfs with individual toggles for each
-> such case.  Possibly we could convert many of the error messages in
-> hooks.c and ss/*.c to using audit_log instead of printk, then set up
-> filtering in auditd.
+On Wed, 2005-04-13 at 03:53 +1000, Russell Coker wrote:
+> Everyone who wants to use strict policy, which is probably everyone for whom 
+> SE Linux is a major factor in choosing a distribution.
 
-Sounds reasonable.
+Sorry, doesn't strict policy define a superset of the file types in the
+targeted policy?  Thus, there shouldn't be inode_doinit errors upon
+targeted -> strict conversion, only the reverse (which should be rare).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
