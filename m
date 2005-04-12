@@ -1,67 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3CDp4tA029538
-	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2005 09:51:04 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3CDlgWG004379
-	for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2005 13:47:42 GMT
-Message-ID: <425BCFF9.1090701@redhat.com>
-Date: Tue, 12 Apr 2005 09:41:13 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: named policy patch
+Date: Tue, 12 Apr 2005 23:56:43 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <200504122326.33930.russell@coker.com.au> <425BCF41.80403@redhat.com>
+In-Reply-To: <425BCF41.80403@redhat.com>
 MIME-Version: 1.0
-To: Junji Kanemaru <linux@linuon.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: dhcpd policy settings
-References: <425B6127.3060808@linuon.com>
-In-Reply-To: <425B6127.3060808@linuon.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200504122356.46860.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Junji Kanemaru wrote:
+On Tuesday 12 April 2005 23:38, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >+/usr/sbin/named-checkconf --	system_u:object_r:named_checkconf_exec_t
+>
+> Why not just label chckconf as named_exec_t?
 
->Hi,
->
->I have problem with dhcpd that it seems some recent policy update
->has affected dhcpd runtime environment.
->dhcpd gets avc permission error when dhcpd accesses to 
->/var/lib/dhcpd.leases.  The dmesg says:
->
->audit(1113209633.019:0): avc:  denied  { search } for  
->pid=5585 exe=/usr/sbin/dhcpd name=lib dev=dm-0 ino=1409026 
->scontext=root:system_r:dhcpd_t tcontext=system_u:object_r:home_root_t
->tclass=dir
->
->So I quick looked into policy setting and found there's a type setting
->in /etc/selinux/targeted/src/policy/file_contexts/file_contexts that
->/var/lib is set to 'system_u:object_r:home_root_t' but 'dhcpd.te' doesn't
->have permission to traverse 'home_root_t:dir'...
->I added permission 'allow dhcpd_t home_root_t:dir { getattr search };' to
->'dhcpd.te', the error has gone. 
->But I'm not really sure if I did right thing or not, I'd like to hear from 
->SELinux gurus if it is OK with this fix or there's some security exploit with
->my fix, or there's complete fix...
->Please enlighten me.
->
->  
->
-This looks like you have a user with a home directory in a place like
-/var/lib Which is causing it to be relabeled
-home_root_t. genhomedircon generates locations for homedirectories via
-the getpwd calls, and it looks for user accounts
-with uid >= 500, and sets up the parent as home_root_t.
+We don't want a transition from sysadm_t when the administrator runs it.  
+named_t does not have access to sysadm_tty_device_t or sysadm_devpts_t, I 
+believe that if the startup fails then the administrator will want to run 
+named-checkconf as part of a debugging process and will therefore need to 
+have it running in sysadm_t to display the results.
 
-
->Thanks,
->
->-- Junji
->
->  
->
-
+It's exactly the same as the situation with ntpdate.
 
 -- 
-
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
