@@ -1,39 +1,25 @@
 Subject: Re: policy hierarchy patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-In-Reply-To: <425456F1.5000905@trustedcs.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1112631282.19526.18.camel@localhost>
 References: <1112631282.19526.18.camel@localhost>
-	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com>
-	 <1112709782.19531.39.camel@localhost> <425320BD.5050207@trustedcs.com>
-	 <425456F1.5000905@trustedcs.com>
 Content-Type: text/plain
-Date: Wed, 13 Apr 2005 12:16:12 -0400
-Message-Id: <1113408972.29415.95.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 13 Apr 2005 12:46:45 -0400
+Message-Id: <1113410805.29415.100.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-04-06 at 16:38 -0500, Darrel Goeddel wrote:
-> There is a slightly modified behavior with this patch.  Previously, if you
-> specified a category that did not exist (or was not allowed to be associated
-> with the specified sensitivity) in a context or rule with mls portions, the
-> compiler would issue a warning and keep on chugging.  This generated a perfectly
-> nice policy, but you may not be getting what you wanted due to a typo or
-> misconfiguration because you missed a warning.  The compiler now treats these
-> circumstances as errors just as if you tried to use a type that does not exist
-> in an allow rule.
+On Mon, 2005-04-04 at 12:14 -0400, Joshua Brindle wrote:
+> This patch implements hierarchical types and roles in the current CVS
+> compiler. More information is available in selinux-doc/README.HIERARCHY,
+> which is included below.
 
-Just to clarify, anytime the compiler calls yyerror (which it was doing
-for these errors), it was incrementing policydb_errors, and checkpolicy
-checks policydb_errors after yyparse() returns and bails out at that
-point if it is non-zero.  Hence, the compiler wasn't treating them as
-just warnings, but was proceeding to parse the rest of the policy since
-the error didn't prevent continued processing (e.g. so that if you had
-several such errors, they would all get reported in one pass rather than
-having to repeatedly fix-and-compile, fix-and-compile, ...).
+In the future, I think it would be preferable to create man pages rather
+than README files for such documentation, similar to how Dan has written
+man pages for 'booleans'.  That would make the information more
+accessible to end users.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
