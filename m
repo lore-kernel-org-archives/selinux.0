@@ -1,91 +1,94 @@
-Message-ID: <425E7552.3030002@redhat.com>
-Date: Thu, 14 Apr 2005 09:51:14 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg2@cornell.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   selinux@tycho.nsa.gov
-Subject: Re: Provide finer-grained booleans for execmem/execmod, please
-References: <1113485318.373.39.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1113485318.373.39.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3EE7K7C017783
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 10:07:20 -0400 (EDT)
+Subject: Re: Latest Patch
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <Dan-Walsh@comcast.net>
+Cc: SELinux <selinux@tycho.nsa.gov>, Steve Smalley <sds@epoch.ncsc.mil>
+In-Reply-To: <4256D267.7050403@comcast.net>
+References: <4256D267.7050403@comcast.net>
+Content-Type: text/plain
+Date: Thu, 14 Apr 2005 10:04:37 -0400
+Message-Id: <1113487477.6549.18.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+Merged.
 
->Hi,
->
->I'd like to again request finer-grained booleans for execmem and
->execmod, possibly nested within the existing coarse-grained boolean, so
->that we can allow it as needed for X and similar programs while denying
->it elsewhere.  To show why this is useful, below is the diff of paxtest
->(with nested function moved to global scope) results on the latest FC3
->kernel with SELinux permissive vs. enforcing with the allow_execmem and
->allow_execmod booleans set to 0.  The permissive output shows what is
->being provided by exec-shield w/o SELinux, while the enforcing output
->shows what added benefit is provided by the SELinux execmem/execmod
->controls when they are denied to the domain in question.  Note that in
->this test, /proc/sys/kernel/exec-shield was 1 and paxtest was built via
->make generic.
->
->  
->
-We can do that, the problem is we are having an explosion of booleans.  
-I just don't want to
-get to the point where every app that needs execmem has a boolean.  
-Maybe we need two booleans
-allow_trusted_execmem, allow_untrusted_execmem.  So ones that are 
-explainable like Java and X
-would be trusted and other random ones that we can not necessarily 
-explain would be untrusted.
+You didn't actually add anything to tunables.tun, so I added:
++# Do not allow sysadm_t to be in the security manager domain
++dnl define(`separate_secadm')
+Feel free to change.
 
-Dan
+When I tested the policy, I couldn't newrole to secadm_r.  Steve found
+that there was a bug in the newrole policy.  It needed the fowner
+capability, so that was added.
 
->--- paxtest-permissive.log	2005-04-11 14:14:23.000000000 -0400
->+++ paxtest-enforcing.log	2005-04-11 14:14:23.000000000 -0400
->@@ -9,18 +9,18 @@
-> Executable data                          : Killed
-> Executable heap                          : Killed
-> Executable stack                         : Killed
->-Executable anonymous mapping (mprotect)  : Vulnerable
->-Executable bss (mprotect)                : Vulnerable
->-Executable data (mprotect)               : Vulnerable
->-Executable heap (mprotect)               : Vulnerable
->-Executable shared library bss (mprotect) : Vulnerable
->-Executable shared library data (mprotect): Vulnerable
->-Executable stack (mprotect)              : Vulnerable
->+Executable anonymous mapping (mprotect)  : Killed
->+Executable bss (mprotect)                : Killed
->+Executable data (mprotect)               : Killed
->+Executable heap (mprotect)               : Killed
->+Executable shared library bss (mprotect) : Killed
->+Executable shared library data (mprotect): Killed
->+Executable stack (mprotect)              : Killed
-> Anonymous mapping randomisation test     : 8 bits (guessed)
->-Heap randomisation test (ET_EXEC)        : 14 bits (guessed)
->-Heap randomisation test (ET_DYN)         : 12 bits (guessed)
->+Heap randomisation test (ET_EXEC)        : 13 bits (guessed)
->+Heap randomisation test (ET_DYN)         : No randomisation
-> Main executable randomisation (ET_EXEC)  : No randomisation
->-Main executable randomisation (ET_DYN)   : 12 bits (guessed)
->+Main executable randomisation (ET_DYN)   : No randomisation
-> Shared library randomisation test        : No randomisation
-> Stack randomisation test (SEGMEXEC)      : 17 bits (guessed)
-> Stack randomisation test (PAGEEXEC)      : 17 bits (guessed)
->@@ -30,4 +30,4 @@
-> Return to function (memcpy, RANDEXEC)    : Vulnerable
-> Executable shared library bss            : Vulnerable
-> Executable shared library data           : Vulnerable
->-Writable text segments                   : Vulnerable
->+Writable text segments                   : Killed
->
->  
->
+Other then that, it seems to work as advertised.
 
+On Fri, 2005-04-08 at 14:50 -0400, Daniel J Walsh wrote:
+> This one needs to be reviewed.   I have added secadm_r:secadm_t
+> 
+> Basically I have created a new macro
+> 
+> security_manager_domain($1)
+> 
+> Which is called by sysadm and secadm
+> 
+> This domain has all the rules necessary for manipulating policy and 
+> selinux objects.
+> 
+> It also adds an attribute secadmin, which is the only attribute allowed 
+> to transition to checkpolicy_t, setfiles_t, load_policy_t
+> 
+> A tunable is built around allowing sysadm_t in this domain.   (Defaults 
+> to sysadmin in this domain).
+> 
+> Also created a limited_user_role domain that is called by 
+> full_user_role.  With all the allow rules required to get secadm_r to work.
+> 
+> I had to put the role secadm_r types XYZ types all over the place.  I 
+> would be nice if the language made this easier.
+> Right now we have role sysadm_r there also, so even if the transition is 
+> not allowed the role rule is still there.  
+> 
+> A few strange rules allowing checkpolicy and load_policy to read 
+> sysadm_tmp_t files has been removed.
+> 
+> I treated restorecon differently from the other policy files since I 
+> could see where a sysadm might need access to this while
+> setfiles is less likely.  We can argue this point.
+> 
+> Added a privsysmod attribute for any domain needing sys_module.  
+> (kernel, howl, insmod and NetworkManager)
+> 
+> Changed admin_tty_type from a define to an attribute.  Made it easier to 
+> add additional admin ttys in the future.
+> 
+> Some changes from Ivan are also here.
+> 
+> mudutil.te removed from targeted directory, since we are now using the 
+> full modutil.te from strict.
+> 
+> I think we can tighten up the differentiation between sysadm_t and 
+> secadm_t by removing sysadmfile from all of the policy files.
+> 
+> The rules in security_manager_domain add those rules back in.   
+> limited_user_domain could also be a little tighter. 
+> 
+> Steve Grubb mentioned to me there is also a need, request for and 
+> "auditadmin" role, so with some of these changes that would
+> be pretty easy to implement.   Now just need to get libsepol_usermod 
+> stuff done.
+> 
+> 
+> Dan
 
 -- 
-
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
