@@ -1,56 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3EKSZ7C021058
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 16:28:35 -0400 (EDT)
-Received: from palrel13.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3EKOnJd014413
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 20:24:49 GMT
-Received: from mailrelay01.cac.cpqcorp.net (mailrelay01.cac.cpqcorp.net [16.47.132.152])
-	by palrel13.hp.com (Postfix) with ESMTP id D0EA51C0441E
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 13:24:49 -0700 (PDT)
-Received: from anw.zk3.dec.com (alpha.zk3.dec.com [16.140.128.4])
-	by mailrelay01.cac.cpqcorp.net (Postfix) with ESMTP id B49A244E
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 13:24:48 -0700 (PDT)
-Message-ID: <425ED188.3020008@hp.com>
-Date: Thu, 14 Apr 2005 16:24:40 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3EKdX7C021139
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 16:39:33 -0400 (EDT)
+Received: from web51510.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j3EKX1IT001707
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 20:33:01 GMT
+Message-ID: <20050414203549.46129.qmail@web51510.mail.yahoo.com>
+Date: Thu, 14 Apr 2005 13:35:49 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: RE: dcache_lock deadlock due to auditing
+To: Daniel H Jones <danjones@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: linux-audit@redhat.com, selinux@tycho.nsa.gov, selinux-dev@tresys.com
+In-Reply-To: 6667
 MIME-Version: 1.0
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: You mentioned somewhere there is a step by step guide	to	getting
- the MLS policy installed on a machine?
-References: <41EC4682.8050807@trustedcs.com>	 <41F6D30D.9070904@trustedcs.com>	 <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil>	 <42408CAB.4030007@redhat.com>	 <1111583468.21107.15.camel@moss-spartans.epoch.ncsc.mil>	 <424175DA.9040804@redhat.com> <1111586615.21107.60.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1111586615.21107.60.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2005-03-23 at 08:57 -0500, Daniel J Walsh wrote:
-> 
->>If I follow those instructions with the Current Rawhide kernel and the 
->>soon to be released selinux-policy-mls, can I get a SELinux/MLS machine
->>up and running or do I need addtional packages from TCS?
->  
-> You should be able to get a basic system working without any further
-> packages (I did).  But you will need to make the home directory and /tmp
-> ranged (as mentioned in README.MLS) in order to allow access by multiple
-> levels since the polyinstantiated directory support is not in the
-> mainline kernel, and are likely to encounter various denials when trying
-> to operate at multiple levels.  For a fully operational MLS system,
-> there will have to be further userspace work.
-> 
+>I'm guessing the security context obtained from the SELinux hooks are 
+>is represented by a sid. Is this true? 
 
-I just wanted to get some clarification here as the MLS README is a 
-little vague in this area - assuming I have followed all of the install 
-instructions in the README file, what we be the correct label to use for 
-the mountpoints (one of the last steps in the install process), 
-especially the pseudo filesystems such as /proc?
+Yes. This patch is already part of the audit subsystem code and on its way
+upstream.
 
-Thanks,
+>If that's the case, can it be readily converted to the string representation 
+>for display at audit_log_exit time?
 
--- 
-. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-. paul.moore@hp.com                                      hewlett packard
-. (603) 884-5056                                          linux security
+The patch does that.
+
+-Steve Grubb
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Small Business - Try our new resources site!
+http://smallbusiness.yahoo.com/resources/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
