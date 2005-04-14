@@ -1,81 +1,60 @@
-Message-Id: <200504141937.j3EJbk8R026238@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'Serge Hallyn'" <serue@us.ibm.com>, <selinux@tycho.nsa.gov>,
-   "'James Morris'" <jmorris@redhat.com>, <selinux-dev@tresys.com>,
-   <linux-audit@redhat.com>
-Subject: RE: dcache_lock deadlock due to auditing
-Date: Thu, 14 Apr 2005 15:37:46 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1113495337.373.166.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3EKHf7C020936
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 16:17:41 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3EKDuJd013328
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 20:13:56 GMT
+Subject: Question: ROLE_file_type vs customizable
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com
+Content-Type: text/plain
+Date: Thu, 14 Apr 2005 16:20:06 -0400
+Message-Id: <1113510007.14090.5.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+What is the purpose of "$1_file_type". How does that differ from
+"customizable", besides embedding the user in the type? Should
+customizable be $1_customizable instead, and then there can be a
+centralized rule that allows ROLE_t relabelto/relabelfrom and other
+privileges to ROLE_customizable ?
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Thursday, April 14, 2005 12:16 PM
-> To: Karl MacMillan
-> Cc: 'Serge Hallyn'; selinux@tycho.nsa.gov; 'James Morris'; selinux-
-> dev@tresys.com; linux-audit@redhat.com
-> Subject: RE: dcache_lock deadlock due to auditing
-> 
-> On Thu, 2005-04-14 at 12:06 -0400, Karl MacMillan wrote:
-> > Just to be clear, this decision is really to continue the movement away from
-> avc
-> > messages being a complete source for audit message related to SELinux to
-> both
-> > avc and syscall auditing being required to get a full picture. My sense is
-> that
-> > this is the direction that things must go in for technical and political
-> > reasons, though I have to say that my preference would be (for what it's
-> worth)
-> > for SELinux avc audit messages to be complete, self-contained, and be
-> triggered
-> > even with DAC permissions deny access.
-> 
-> The SELinux avc audit messages will remain complete as far as having all
-> the information you need to tie it back to policy or generate policy
-> rules, i.e. the security contexts and class information.  The auxiliary
-> audit information (pid, exe, path, port, ipaddr, etc) has always just
-> been to help track down the causes of denials.  As far as being
-> triggered for DAC denials, that just isn't an option, as the LSM hooks
-> are placed after the DAC checks in most cases and won't be reached for
-> DAC denials.  That avoids filling the logs with MAC denials that would
-> have been denied due to DAC anyway (which is quite common due to
-> application and library probing of the environment) and doesn't leak
-> information (since both the DAC denial and the MAC denial yield the same
-> error code).  But if your real concern is capturing the relevant
-> security contexts upon a DAC denial, we can support that; SELinux
-> already provides hook functions for copying the contexts of processes
-> and files to buffers to support the /proc/pid/attr and xattr APIs, so
-> that audit framework can call those hooks and save that information for
-> processing by audit_log_exit upon DAC denials as well.
-> 
+Here are all the allow rules associated with $1_file_type.
+Why is gpg able to write to every file type marked with this attribute?
 
-Having the context information is part of my real concern. The thought is to
-build intrusion detection systems that interpret audit messages in terms of
-SELinux policy. The only additional benefit to having all of the data part of
-SELinux audit messages is that the policy could control the generation of the
-messages - e.g., the intrusion detection piece could change a boolean that
-increased the number of audit messages for a particular type. The way this is
-moving will cause my audit policy to be stored in two places in vastly different
-forms.
+allow sysadm_gpg_t sysadm_file_type:dir { read getattr lock search ioctl
+add_name remove_name write };
+allow sysadm_gpg_t sysadm_file_type:file { create ioctl read getattr
+lock write setattr append link unlink rename };
+allow sysadm_gpg_t sysadm_file_type:lnk_file { create read getattr
+setattr link unlink rename };
+allow user_gpg_t user_file_type:dir { read getattr lock search ioctl
+add_name remove_name write };
+allow user_gpg_t user_file_type:file { create ioctl read getattr lock
+write setattr append link unlink rename };
+allow user_gpg_t user_file_type:lnk_file { create read getattr setattr
+link unlink rename };
+allow user_locate_t { home_root_t user_home_dir_t user_file_type }:dir
+{ getattr search };
+allow user_locate_t user_file_type:{ file lnk_file } { getattr read };
+allow user_file_type user_home_t:filesystem associate;
+allow staff_gpg_t staff_file_type:dir { read getattr lock search ioctl
+add_name remove_name write };
+allow staff_gpg_t staff_file_type:file { create ioctl read getattr lock
+write setattr append link unlink rename };
+allow staff_gpg_t staff_file_type:lnk_file { create read getattr setattr
+link unlink rename };
+allow staff_locate_t { home_root_t staff_home_dir_t
+staff_file_type }:dir { getattr search };
+allow staff_locate_t staff_file_type:{ file lnk_file } { getattr read };
+allow staff_file_type staff_home_t:filesystem associate;
 
-Karl
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
-> 
-> --
-> Stephen Smalley <sds@tycho.nsa.gov>
-> National Security Agency
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
