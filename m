@@ -1,40 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3EKdX7C021139
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 16:39:33 -0400 (EDT)
-Received: from web51510.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j3EKX1IT001707
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 20:33:01 GMT
-Message-ID: <20050414203549.46129.qmail@web51510.mail.yahoo.com>
-Date: Thu, 14 Apr 2005 13:35:49 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: RE: dcache_lock deadlock due to auditing
-To: Daniel H Jones <danjones@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-audit@redhat.com, selinux@tycho.nsa.gov, selinux-dev@tresys.com
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: You mentioned somewhere there is a step by step
+	guide	to	getting the MLS policy installed on a machine?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <425ED188.3020008@hp.com>
+References: <41EC4682.8050807@trustedcs.com>
+	 <41F6D30D.9070904@trustedcs.com>
+	 <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil>
+	 <42408CAB.4030007@redhat.com>
+	 <1111583468.21107.15.camel@moss-spartans.epoch.ncsc.mil>
+	 <424175DA.9040804@redhat.com>
+	 <1111586615.21107.60.camel@moss-spartans.epoch.ncsc.mil>
+	 <425ED188.3020008@hp.com>
+Content-Type: text/plain
+Date: Thu, 14 Apr 2005 16:38:13 -0400
+Message-Id: <1113511093.2123.74.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->I'm guessing the security context obtained from the SELinux hooks are 
->is represented by a sid. Is this true? 
+On Thu, 2005-04-14 at 16:24 -0400, Paul Moore wrote:
+> I just wanted to get some clarification here as the MLS README is a 
+> little vague in this area - assuming I have followed all of the install 
+> instructions in the README file, what we be the correct label to use for 
+> the mountpoints (one of the last steps in the install process), 
+> especially the pseudo filesystems such as /proc?
 
-Yes. This patch is already part of the audit subsystem code and on its way
-upstream.
+Good timing; I just got done converting a fresh FC4 test2 install over
+to MLS, and James Morris has recently experimented with the MLS
+conversion as well.  I'm making some minor updates to README.MLS based
+on that experience.  chcon system_u:object_r:file_t:s0 /proc should work
+for you.  A few other points to note:
+1) I had to umount /proc/bus/usb and /proc/sys/fs/binfmt_misc prior to
+being able to umount /proc.
+2) I also had to umount and relabel /var/lib/nfs/rpc_pipefs.
+3) Rather than immediately booting the MLS-enabled kernel into multi-
+user mode, you should instead boot with enforcing=0 single to fix up the
+context on /etc/mtab, which is re-created by the shutdown while you were
+still running with selinux=0.  You can run /sbin/restorecon /etc/mtab
+from single-user mode, then /usr/sbin/setenforce 1 and exit the single-
+user shell to come up multi-user.
 
->If that's the case, can it be readily converted to the string representation 
->for display at audit_log_exit time?
+I did the conversion from strict policy.
 
-The patch does that.
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
--Steve Grubb
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Small Business - Try our new resources site!
-http://smallbusiness.yahoo.com/resources/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
