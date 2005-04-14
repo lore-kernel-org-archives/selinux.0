@@ -1,40 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3EAPO7C016499
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 06:25:25 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3EAIsIT008061
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 10:18:56 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: dhcpd policy settings
-Date: Thu, 14 Apr 2005 20:21:23 +1000
-Cc: Junji Kanemaru <linux@linuon.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <425B6127.3060808@linuon.com> <425BCFF9.1090701@redhat.com>
-In-Reply-To: <425BCFF9.1090701@redhat.com>
+To: SELinux@tycho.nsa.gov
+Subject: ntpdate policy
+Date: Thu, 14 Apr 2005 20:39:12 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-2022-jp"
-Message-Id: <200504142021.28322.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ShkXCEkO6oMtIva"
+Message-Id: <200504142039.14484.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 12 April 2005 23:41, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> This looks like you have a user with a home directory in a place like
-> /var/lib Which is causing it to be relabeled
-> home_root_t. genhomedircon generates locations for homedirectories via
-> the getpwd calls, and it looks for user accounts
-> with uid >= 500, and sets up the parent as home_root_t.
+--Boundary-00=_ShkXCEkO6oMtIva
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The real problem here is the UID being >500.  The solution is to use the "-r" 
-option to useradd to create a system account, it will probably solve other 
-problems too.
+allow sysadm_t ntp_port_t:udp_socket name_bind;
+
+When running ntpdate with the strict policy the above is required.
+
+Patch attached.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_ShkXCEkO6oMtIva
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ntpd.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ntpd.diff"
+
+--- ntpd.te.old	2005-04-14 20:38:34.000000000 +1000
++++ ntpd.te	2005-04-14 19:13:25.000000000 +1000
+@@ -14,6 +14,7 @@
+ 
+ type ntpdate_exec_t, file_type, sysadmfile, exec_type;
+ domain_auto_trans(initrc_t, ntpdate_exec_t, ntpd_t)
++allow sysadm_t ntp_port_t:udp_socket name_bind;
+ 
+ logdir_domain(ntpd)
+ 
+
+--Boundary-00=_ShkXCEkO6oMtIva--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
