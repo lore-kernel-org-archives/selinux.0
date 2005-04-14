@@ -1,40 +1,67 @@
-Subject: Re: policy hierarchy patch
+Subject: Provide finer-grained booleans for execmem/execmod, please
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <425AE087.7090001@trustedcs.com>
-References: <1112631282.19526.18.camel@localhost>
-	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com>
-	 <1112709782.19531.39.camel@localhost> <425320BD.5050207@trustedcs.com>
-	 <425456F1.5000905@trustedcs.com>
-	 <1112877155.27110.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <42556015.6090405@trustedcs.com> <1112907833.19565.9.camel@localhost>
-	 <4255A62F.80405@trustedcs.com> <1112984816.10298.5.camel@localhost>
-	 <425AE087.7090001@trustedcs.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   Jim Carter <jwcart2@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 14 Apr 2005 09:01:31 -0400
-Message-Id: <1113483691.373.28.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 14 Apr 2005 09:28:38 -0400
+Message-Id: <1113485318.373.39.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-04-11 at 15:39 -0500, Darrel Goeddel wrote:
-> Thanks for merging my changes into the main patch.  I have a few additions in 
-> the attached patch, which is relative to your latest patch.
-> 
-> I had a possible double free in define_category.  I added back the declaration 
-> for is_valid_identifier in policy_scan.l to avoid a warning.  I also removed 
-> including '-' as a valid character in the standard IDENTIFIER (this is what we 
-> were after, right?).  There are a few tweaks to the policy Makefile.  The first 
-> is changing "s9 : c0.c127" to "s9:c0.c127" - I thought that was a bit more 
-> readable.  The second is changing MLS=n to MLS=y in the makefile when running 
-> the mlsconvert target.
+Hi,
 
-Thanks, both patches have been merged into sourceforge CVS (except for
-the policy patch, which I've separated and forwarded along to Jim Carter
-so that he can include it with the next update to policy), as of
-libsepol version 1.5.5 and checkpolicy version 1.23.1.
+I'd like to again request finer-grained booleans for execmem and
+execmod, possibly nested within the existing coarse-grained boolean, so
+that we can allow it as needed for X and similar programs while denying
+it elsewhere.  To show why this is useful, below is the diff of paxtest
+(with nested function moved to global scope) results on the latest FC3
+kernel with SELinux permissive vs. enforcing with the allow_execmem and
+allow_execmod booleans set to 0.  The permissive output shows what is
+being provided by exec-shield w/o SELinux, while the enforcing output
+shows what added benefit is provided by the SELinux execmem/execmod
+controls when they are denied to the domain in question.  Note that in
+this test, /proc/sys/kernel/exec-shield was 1 and paxtest was built via
+make generic.
+
+--- paxtest-permissive.log	2005-04-11 14:14:23.000000000 -0400
++++ paxtest-enforcing.log	2005-04-11 14:14:23.000000000 -0400
+@@ -9,18 +9,18 @@
+ Executable data                          : Killed
+ Executable heap                          : Killed
+ Executable stack                         : Killed
+-Executable anonymous mapping (mprotect)  : Vulnerable
+-Executable bss (mprotect)                : Vulnerable
+-Executable data (mprotect)               : Vulnerable
+-Executable heap (mprotect)               : Vulnerable
+-Executable shared library bss (mprotect) : Vulnerable
+-Executable shared library data (mprotect): Vulnerable
+-Executable stack (mprotect)              : Vulnerable
++Executable anonymous mapping (mprotect)  : Killed
++Executable bss (mprotect)                : Killed
++Executable data (mprotect)               : Killed
++Executable heap (mprotect)               : Killed
++Executable shared library bss (mprotect) : Killed
++Executable shared library data (mprotect): Killed
++Executable stack (mprotect)              : Killed
+ Anonymous mapping randomisation test     : 8 bits (guessed)
+-Heap randomisation test (ET_EXEC)        : 14 bits (guessed)
+-Heap randomisation test (ET_DYN)         : 12 bits (guessed)
++Heap randomisation test (ET_EXEC)        : 13 bits (guessed)
++Heap randomisation test (ET_DYN)         : No randomisation
+ Main executable randomisation (ET_EXEC)  : No randomisation
+-Main executable randomisation (ET_DYN)   : 12 bits (guessed)
++Main executable randomisation (ET_DYN)   : No randomisation
+ Shared library randomisation test        : No randomisation
+ Stack randomisation test (SEGMEXEC)      : 17 bits (guessed)
+ Stack randomisation test (PAGEEXEC)      : 17 bits (guessed)
+@@ -30,4 +30,4 @@
+ Return to function (memcpy, RANDEXEC)    : Vulnerable
+ Executable shared library bss            : Vulnerable
+ Executable shared library data           : Vulnerable
+-Writable text segments                   : Vulnerable
++Writable text segments                   : Killed
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
