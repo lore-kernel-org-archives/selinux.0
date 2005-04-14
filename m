@@ -1,41 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3E3e67C014544
-	for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2005 23:40:06 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3E3aST4029437
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 03:36:28 GMT
-Subject: Re: [ PATCH ] Cumulative patch - various fixes,
-	untrusted_content_t, mozilla, gnome types
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: dwalsh@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1113445869.6139.52.camel@cobra.ivg2.net>
-References: <1113445869.6139.52.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Wed, 13 Apr 2005 23:42:33 -0400
-Message-Id: <1113450153.10622.3.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3EAPO7C016499
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 06:25:25 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3EAIsIT008061
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 10:18:56 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: dhcpd policy settings
+Date: Thu, 14 Apr 2005 20:21:23 +1000
+Cc: Junji Kanemaru <linux@linuon.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <425B6127.3060808@linuon.com> <425BCFF9.1090701@redhat.com>
+In-Reply-To: <425BCFF9.1090701@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-2022-jp"
+Message-Id: <200504142021.28322.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok I see the first thing that's wrong with this patch...
-ROLE_t can't access ROLE_untrusted_content_t.
+On Tuesday 12 April 2005 23:41, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> This looks like you have a user with a home directory in a place like
+> /var/lib Which is causing it to be relabeled
+> home_root_t. genhomedircon generates locations for homedirectories via
+> the getpwd calls, and it looks for user accounts
+> with uid >= 500, and sets up the parent as home_root_t.
 
-ROLE_untrusted_content_t is marked both $1_file_type and customizable.
-It seems to me that one of those things should imply access (at least
-read, getattr, relabelto, relabelfrom) by the ROLE_t type, or is that
-not the case? Which one? 
-
-Also, is there a reason why certain types are declared in both
-admin_macros and user_macros? I put this new type in both, following 
-a pattern with the other types, but I don't see why this stuff can't
-go into base_user_macros for a single copy. 
+The real problem here is the UID being >500.  The solution is to use the "-r" 
+option to useradd to create a system account, it will probably solve other 
+problems too.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
