@@ -1,65 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3F1hi7C023200
-	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 21:43:44 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3F1duJd000989
-	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 01:39:56 GMT
-Subject: [ PATCH ] restrict_home
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3F7pk7C024302
+	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 03:51:46 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3F7j9FR019047
+	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 07:45:09 GMT
+Subject: Re: [ PATCH ] restrict_home
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
 To: dwalsh@redhat.com
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1113450153.10622.3.camel@cobra.ivg2.net>
+In-Reply-To: <1113529561.22664.15.camel@cobra.ivg2.net>
 References: <1113445869.6139.52.camel@cobra.ivg2.net>
 	 <1113450153.10622.3.camel@cobra.ivg2.net>
-Content-Type: multipart/mixed; boundary="=-G4oJFBwol8JVudTJHvB9"
-Date: Thu, 14 Apr 2005 21:46:00 -0400
-Message-Id: <1113529561.22664.15.camel@cobra.ivg2.net>
+	 <1113529561.22664.15.camel@cobra.ivg2.net>
+Content-Type: multipart/mixed; boundary="=-txI5whDdotiDs96OE3fh"
+Date: Fri, 15 Apr 2005 03:54:01 -0400
+Message-Id: <1113551645.15594.3.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-G4oJFBwol8JVudTJHvB9
+--=-txI5whDdotiDs96OE3fh
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Wed, 2005-04-13 at 23:42 -0400, Ivan Gyurdiev wrote:
-> Ok I see the first thing that's wrong with this patch...
 
-Attached is a new version - resynced against latest policy, and removed
-miscellaneous patches. 
+> Attached is a new version - resynced against latest policy, and removed
+> miscellaneous patches. 
 
-- Allowed ROLE_t full access to ROLE_untrusted_content_t (should this be
-only relabelfrom instead? how do we want to protect the default user
-context from untrusted content? )
+...and yet another one. Fix more bugs, resync again against policy,
+allow ROLE_t to read mime types, and restrict games from reading home_t
+to reading gnome settings/data.
 
-- Added types: mime_types_t, ROLE_mime_types_t, and read_mime_types()
-macro - it's used in mozilla
 
-- Added type ROLE_fonts_t. It should be used for per/user (home) fonts,
-but I'm not sure where those are stored - for now I just marked
-$HOME/.fonts. Added read_fonts() macro to read those, and read
-the .font.cache-1 file, and changed a bunch of programs to use that.
-Removed X's privilege to read ROLE_home_t, and replaced with this macro.
-Moved fonts contexts into fontconfig.fc
-
-- Gave giFT name_connect permission
-
-=====================
-
-Any comments?
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
 Cornell University
 
---=-G4oJFBwol8JVudTJHvB9
+--=-txI5whDdotiDs96OE3fh
 Content-Disposition: attachment; filename=restrict_home.diff
-Content-Type: text/x-patch; name=restrict_home.diff; charset=UTF-8
+Content-Type: text/x-patch; name=restrict_home.diff; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-diff -aur policy.old/domains/program/fontconfig.te policy/domains/program/fontconfig.te
+diff -aru policy.old/domains/program/fontconfig.te policy/domains/program/fontconfig.te
 --- policy.old/domains/program/fontconfig.te	2005-04-13 21:52:20.000000000 -0400
 +++ policy/domains/program/fontconfig.te	2005-04-13 20:00:52.000000000 -0400
 @@ -0,0 +1,7 @@
@@ -70,7 +55,7 @@ diff -aur policy.old/domains/program/fontconfig.te policy/domains/program/fontco
 +#
 +
 +# Look in fontconfig_macros.te
-diff -aur policy.old/domains/program/gnome.te policy/domains/program/gnome.te
+diff -aru policy.old/domains/program/gnome.te policy/domains/program/gnome.te
 --- policy.old/domains/program/gnome.te	2005-04-13 21:52:20.000000000 -0400
 +++ policy/domains/program/gnome.te	2005-04-13 19:30:07.000000000 -0400
 @@ -0,0 +1,7 @@
@@ -81,7 +66,7 @@ diff -aur policy.old/domains/program/gnome.te policy/domains/program/gnome.te
 +#
 +
 +# Look in gnome_macros.te
-diff -aur policy.old/domains/program/mailcap.te policy/domains/program/mailcap.te
+diff -aru policy.old/domains/program/mailcap.te policy/domains/program/mailcap.te
 --- policy.old/domains/program/mailcap.te	2005-04-14 20:17:32.000000000 -0400
 +++ policy/domains/program/mailcap.te	2005-04-14 21:10:34.000000000 -0400
 @@ -0,0 +1,9 @@
@@ -94,7 +79,7 @@ diff -aur policy.old/domains/program/mailcap.te policy/domains/program/mailcap.t
 +type mime_types_t, file_type, sysadmfile;
 +
 +# Look in mailcap_macros.te
-diff -aur policy.old/file_contexts/program/gnome.fc policy/file_contexts/program/gnome.fc
+diff -aru policy.old/file_contexts/program/gnome.fc policy/file_contexts/program/gnome.fc
 --- policy.old/file_contexts/program/gnome.fc	2005-04-13 21:52:10.000000000 -0400
 +++ policy/file_contexts/program/gnome.fc	2005-04-14 20:32:29.000000000 -0400
 @@ -0,0 +1,7 @@
@@ -105,9 +90,9 @@ diff -aur policy.old/file_contexts/program/gnome.fc policy/file_contexts/program
 +HOME_DIR/\.themes(/.*)?		system_u:object_r:ROLE_gnome_data_t
 +HOME_DIR/\.icons(/.*)?		system_u:object_r:ROLE_gnome_data_t
 +HOME_DIR/\.thumbnails(/.*)?	system_u:object_r:ROLE_gnome_data_t
-diff -aur policy.old/file_contexts/program/mailcap.fc policy/file_contexts/program/mailcap.fc
+diff -aru policy.old/file_contexts/program/mailcap.fc policy/file_contexts/program/mailcap.fc
 --- policy.old/file_contexts/program/mailcap.fc	2005-04-14 20:17:39.000000000 -0400
-+++ policy/file_contexts/program/mailcap.fc	2005-04-14 20:35:07.000000000 -0400
++++ policy/file_contexts/program/mailcap.fc	2005-04-15 03:36:56.000000000 -0400
 @@ -0,0 +1,8 @@
 +#
 +# Mime types
@@ -116,8 +101,8 @@ diff -aur policy.old/file_contexts/program/mailcap.fc policy/file_contexts/progr
 +/etc/mailcap	--	system_u:object_r:mime_types_t
 +/etc/mime.types	--	system_u:object_r:mime_types_t
 +HOME_DIR/\.mailcap	--	system_u:object_r:ROLE_mime_types_t
-+HOME_DOR/\.mime_types	--	system_u:object_r:ROLE_mime_types_t
-diff -aur policy.old/file_contexts/program/mozilla.fc policy/file_contexts/program/mozilla.fc
++HOME_DIR/\.mime\.types	--	system_u:object_r:ROLE_mime_types_t
+diff -aru policy.old/file_contexts/program/mozilla.fc policy/file_contexts/program/mozilla.fc
 --- policy.old/file_contexts/program/mozilla.fc	2005-04-13 21:02:52.000000000 -0400
 +++ policy/file_contexts/program/mozilla.fc	2005-04-13 21:03:26.000000000 -0400
 @@ -4,8 +4,6 @@
@@ -129,9 +114,9 @@ diff -aur policy.old/file_contexts/program/mozilla.fc policy/file_contexts/progr
  HOME_DIR/My.Downloads(/.*)?	system_u:object_r:ROLE_mozilla_home_t
  HOME_DIR/\.java(/.*)?		system_u:object_r:ROLE_mozilla_home_t
  /usr/bin/netscape	--	system_u:object_r:mozilla_exec_t
-diff -aur policy.old/file_contexts/types.fc policy/file_contexts/types.fc
---- policy.old/file_contexts/types.fc	2005-04-14 20:24:48.000000000 -0400
-+++ policy/file_contexts/types.fc	2005-04-14 20:39:37.000000000 -0400
+diff -aru policy.old/file_contexts/types.fc policy/file_contexts/types.fc
+--- policy.old/file_contexts/types.fc	2005-04-15 03:29:49.000000000 -0400
++++ policy/file_contexts/types.fc	2005-04-15 03:30:01.000000000 -0400
 @@ -387,17 +387,6 @@
  /usr/X11R6/man(/.*)?		system_u:object_r:man_t
  
@@ -150,9 +135,9 @@ diff -aur policy.old/file_contexts/types.fc policy/file_contexts/types.fc
  # /var/run
  #
  /var/run(/.*)?			system_u:object_r:var_run_t
-diff -aur policy.old/macros/admin_macros.te policy/macros/admin_macros.te
+diff -aru policy.old/macros/admin_macros.te policy/macros/admin_macros.te
 --- policy.old/macros/admin_macros.te	2005-04-12 12:23:17.000000000 -0400
-+++ policy/macros/admin_macros.te	2005-04-14 21:10:11.000000000 -0400
++++ policy/macros/admin_macros.te	2005-04-15 03:12:13.000000000 -0400
 @@ -14,11 +14,17 @@
  #
  undefine(`admin_domain')
@@ -171,9 +156,9 @@ diff -aur policy.old/macros/admin_macros.te policy/macros/admin_macros.te
  # Type and access for pty devices.
  can_create_pty($1, `, admin_tty_type')
  
-diff -aur policy.old/macros/base_user_macros.te policy/macros/base_user_macros.te
+diff -aru policy.old/macros/base_user_macros.te policy/macros/base_user_macros.te
 --- policy.old/macros/base_user_macros.te	2005-04-12 12:20:28.000000000 -0400
-+++ policy/macros/base_user_macros.te	2005-04-14 20:15:40.000000000 -0400
++++ policy/macros/base_user_macros.te	2005-04-15 03:16:52.000000000 -0400
 @@ -69,7 +69,7 @@
  
  # Create, access, and remove files in home directory.
@@ -193,9 +178,19 @@ diff -aur policy.old/macros/base_user_macros.te policy/macros/base_user_macros.t
  
  # Instantiate a derived domain for user cron jobs.
  ifdef(`crond.te', `crond_domain($1)')
-diff -aur policy.old/macros/global_macros.te policy/macros/global_macros.te
---- policy.old/macros/global_macros.te	2005-04-14 20:41:59.000000000 -0400
-+++ policy/macros/global_macros.te	2005-04-14 20:49:02.000000000 -0400
+@@ -344,6 +347,9 @@
+ allow $1_t default_t:notdevfile_class_set r_file_perms;
+ }
+ 
++# Read mime types
++read_mime_types($1_t, $1)
++
+ read_sysctl($1_t);
+ 
+ #
+diff -aru policy.old/macros/global_macros.te policy/macros/global_macros.te
+--- policy.old/macros/global_macros.te	2005-04-15 03:28:12.000000000 -0400
++++ policy/macros/global_macros.te	2005-04-15 03:27:54.000000000 -0400
 @@ -156,6 +156,28 @@
  r_dir_file($1, locale_t)
  ')
@@ -225,7 +220,7 @@ diff -aur policy.old/macros/global_macros.te policy/macros/global_macros.te
  
  ###################################
  #
-diff -aur policy.old/macros/program/fontconfig_macros.te policy/macros/program/fontconfig_macros.te
+diff -aru policy.old/macros/program/fontconfig_macros.te policy/macros/program/fontconfig_macros.te
 --- policy.old/macros/program/fontconfig_macros.te	2005-04-13 21:51:58.000000000 -0400
 +++ policy/macros/program/fontconfig_macros.te	2005-04-14 20:51:12.000000000 -0400
 @@ -0,0 +1,15 @@
@@ -244,7 +239,25 @@ diff -aur policy.old/macros/program/fontconfig_macros.te policy/macros/program/f
 +create_dir_file($1_t, $1_fonts_cache_t)
 +
 +') dnl gnome_domain
-diff -aur policy.old/macros/program/gnome_macros.te policy/macros/program/gnome_macros.te
+diff -aru policy.old/macros/program/games_domain.te policy/macros/program/games_domain.te
+--- policy.old/macros/program/games_domain.te	2005-04-14 16:34:49.000000000 -0400
++++ policy/macros/program/games_domain.te	2005-04-15 03:13:42.000000000 -0400
+@@ -43,10 +43,11 @@
+ can_udp_send($1_games_t, $1_games_t)
+ can_tcp_connect($1_games_t, $1_games_t)
+ 
+-# Access /home/user/.gnome2
+-create_dir_file($1_games_t, $1_home_t)
++# Access /home/user/.gnome2, /home/user/.themes
++allow $1_games_t $1_gnome_settings_t:dir { getattr search };
++allow $1_games_t $1_gnome_settings_t:file create_file_perms;
+ allow $1_games_t $1_home_dir_t:dir { read getattr search };
+-allow $1_games_t $1_home_t:dir { read getattr };
++r_dir_file($1_games_t, $1_gnome_data_t)
+ 
+ create_dir_file($1_games_t, $1_tmp_t)
+ allow $1_games_t $1_tmp_t:sock_file create_file_perms;
+diff -aru policy.old/macros/program/gnome_macros.te policy/macros/program/gnome_macros.te
 --- policy.old/macros/program/gnome_macros.te	2005-04-13 21:51:55.000000000 -0400
 +++ policy/macros/program/gnome_macros.te	2005-04-13 20:47:47.000000000 -0400
 @@ -0,0 +1,16 @@
@@ -264,7 +277,7 @@ diff -aur policy.old/macros/program/gnome_macros.te policy/macros/program/gnome_
 +create_dir_file($1_t, $1_gnome_data_t)
 +
 +') dnl gnome_domain
-diff -aur policy.old/macros/program/gpg_agent_macros.te policy/macros/program/gpg_agent_macros.te
+diff -aru policy.old/macros/program/gpg_agent_macros.te policy/macros/program/gpg_agent_macros.te
 --- policy.old/macros/program/gpg_agent_macros.te	2005-04-14 20:57:52.000000000 -0400
 +++ policy/macros/program/gpg_agent_macros.te	2005-04-14 20:58:18.000000000 -0400
 @@ -89,7 +89,7 @@
@@ -276,7 +289,7 @@ diff -aur policy.old/macros/program/gpg_agent_macros.te policy/macros/program/gp
  # read kde font cache
  allow $1_gpg_pinentry_t usr_t:file { getattr read };
  
-diff -aur policy.old/macros/program/java_macros.te policy/macros/program/java_macros.te
+diff -aru policy.old/macros/program/java_macros.te policy/macros/program/java_macros.te
 --- policy.old/macros/program/java_macros.te	2005-04-14 20:56:47.000000000 -0400
 +++ policy/macros/program/java_macros.te	2005-04-14 21:11:05.000000000 -0400
 @@ -4,7 +4,7 @@
@@ -298,7 +311,7 @@ diff -aur policy.old/macros/program/java_macros.te policy/macros/program/java_ma
  
  # Search bin directory under javaplugin for javaplugin executable
  allow $1_javaplugin_t bin_t:dir search;
-diff -aur policy.old/macros/program/mailcap_macros.te policy/macros/program/mailcap_macros.te
+diff -aru policy.old/macros/program/mailcap_macros.te policy/macros/program/mailcap_macros.te
 --- policy.old/macros/program/mailcap_macros.te	2005-04-14 20:17:26.000000000 -0400
 +++ policy/macros/program/mailcap_macros.te	2005-04-14 20:17:06.000000000 -0400
 @@ -0,0 +1,14 @@
@@ -316,9 +329,9 @@ diff -aur policy.old/macros/program/mailcap_macros.te policy/macros/program/mail
 +create_dir_file($1_t, $1_mime_types_t)
 +
 +') dnl gnome_domain
-diff -aur policy.old/macros/program/mozilla_macros.te policy/macros/program/mozilla_macros.te
+diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozilla_macros.te
 --- policy.old/macros/program/mozilla_macros.te	2005-04-12 12:26:11.000000000 -0400
-+++ policy/macros/program/mozilla_macros.te	2005-04-14 20:56:11.000000000 -0400
++++ policy/macros/program/mozilla_macros.te	2005-04-15 03:06:58.000000000 -0400
 @@ -16,7 +16,9 @@
  # provided separately in domains/program/mozilla.te. 
  #
@@ -477,7 +490,7 @@ diff -aur policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  dbusd_client(system, $1_mozilla)
  ifdef(`apache.te', `
  ifelse($1, sysadm, `', `
-diff -aur policy.old/macros/program/x_client_macros.te policy/macros/program/x_client_macros.te
+diff -aru policy.old/macros/program/x_client_macros.te policy/macros/program/x_client_macros.te
 --- policy.old/macros/program/x_client_macros.te	2005-04-14 20:55:18.000000000 -0400
 +++ policy/macros/program/x_client_macros.te	2005-04-14 20:55:51.000000000 -0400
 @@ -74,7 +74,7 @@
@@ -489,7 +502,7 @@ diff -aur policy.old/macros/program/x_client_macros.te policy/macros/program/x_c
  
  # Allow connections to X server.
  ifdef(`xserver.te', `
-diff -aur policy.old/macros/program/xserver_macros.te policy/macros/program/xserver_macros.te
+diff -aru policy.old/macros/program/xserver_macros.te policy/macros/program/xserver_macros.te
 --- policy.old/macros/program/xserver_macros.te	2005-04-14 21:15:36.000000000 -0400
 +++ policy/macros/program/xserver_macros.te	2005-04-14 21:18:01.000000000 -0400
 @@ -77,6 +77,9 @@
@@ -522,9 +535,9 @@ diff -aur policy.old/macros/program/xserver_macros.te policy/macros/program/xser
  ')dnl end macro definition
  
  ', `
-diff -aur policy.old/macros/user_macros.te policy/macros/user_macros.te
+diff -aru policy.old/macros/user_macros.te policy/macros/user_macros.te
 --- policy.old/macros/user_macros.te	2005-04-12 12:23:06.000000000 -0400
-+++ policy/macros/user_macros.te	2005-04-14 21:10:04.000000000 -0400
++++ policy/macros/user_macros.te	2005-04-15 03:16:24.000000000 -0400
 @@ -21,6 +21,11 @@
  type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_home_dir_type;
  type $1_home_t, file_type, sysadmfile, home_type, user_home_type, $1_file_type;
@@ -538,7 +551,7 @@ diff -aur policy.old/macros/user_macros.te policy/macros/user_macros.te
  
  base_user_domain($1)
 
---=-G4oJFBwol8JVudTJHvB9--
+--=-txI5whDdotiDs96OE3fh--
 
 
 --
