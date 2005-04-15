@@ -1,11 +1,11 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3FF1c7C027081
-	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 11:01:38 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3FEsvFR001311
-	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 14:54:57 GMT
-Message-ID: <425FD50A.4090102@redhat.com>
-Date: Fri, 15 Apr 2005 10:51:54 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3FF3D7C027119
+	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 11:03:13 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3FExKaf024283
+	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 14:59:20 GMT
+Message-ID: <425FD568.1090507@redhat.com>
+Date: Fri, 15 Apr 2005 10:53:28 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: ivg2@cornell.edu
@@ -24,17 +24,14 @@ Ivan Gyurdiev wrote:
 >customizable be $1_customizable instead, and then there can be a
 >centralized rule that allows ROLE_t relabelto/relabelfrom and other
 >privileges to ROLE_customizable ?
->  
 >
-Customizable is just a flag to tell restorecon/setfiles/fixfiles not to 
-mess with this file_context.
-So no their should only be one type.  $1_file_type is a type the a user 
-can manipulate specific
-to the user.
-
 >Here are all the allow rules associated with $1_file_type.
 >Why is gpg able to write to every file type marked with this attribute?
 >
+>  
+>
+gpg needs to be able to sign/encrypt stuff, I think is the reasoning.
+
 >allow sysadm_gpg_t sysadm_file_type:dir { read getattr lock search ioctl
 >add_name remove_name write };
 >allow sysadm_gpg_t sysadm_file_type:file { create ioctl read getattr
