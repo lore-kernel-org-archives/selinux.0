@@ -1,37 +1,42 @@
-Date: Thu, 14 Apr 2005 23:52:07 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Paul Moore <paul.moore@hp.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-Subject: Re: You mentioned somewhere there is a step by step guide	to	getting the MLS policy installed on a machine?
-Message-ID: <20050414225207.GA9016@lkcl.net>
-References: <41EC4682.8050807@trustedcs.com> <41F6D30D.9070904@trustedcs.com> <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil> <42408CAB.4030007@redhat.com> <1111583468.21107.15.camel@moss-spartans.epoch.ncsc.mil> <424175DA.9040804@redhat.com> <1111586615.21107.60.camel@moss-spartans.epoch.ncsc.mil> <425ED188.3020008@hp.com> <1113511093.2123.74.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1113511093.2123.74.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3F0oN7C022966
+	for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2005 20:50:24 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3F0kaJd029620
+	for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2005 00:46:36 GMT
+Date: Thu, 14 Apr 2005 20:46:25 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Paul Moore <paul.moore@hp.com>
+cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: You mentioned somewhere there is a step by step guide to getting
+ the MLS policy installed on a machine?
+In-Reply-To: <425ED188.3020008@hp.com>
+Message-ID: <Xine.LNX.4.44.0504142045190.30142-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Apr 14, 2005 at 04:38:13PM -0400, Stephen Smalley wrote:
+On Thu, 14 Apr 2005, Paul Moore wrote:
 
-> 3) Rather than immediately booting the MLS-enabled kernel into multi-
-> user mode, you should instead boot with enforcing=0 single to fix up the
-> context on /etc/mtab, which is re-created by the shutdown while you were
-> still running with selinux=0.  You can run /sbin/restorecon /etc/mtab
-> from single-user mode, then /usr/sbin/setenforce 1 and exit the single-
-> user shell to come up multi-user.
+> I just wanted to get some clarification here as the MLS README is a 
+> little vague in this area - assuming I have followed all of the install 
+> instructions in the README file, what we be the correct label to use for 
+> the mountpoints (one of the last steps in the install process), 
+> especially the pseudo filesystems such as /proc?
 
- /etc/mtab is/was an issue (not in MLS) iirc with debian - it
- was the cause of much grief - esp. when a program didn't exit
- at shutdown, locked the partition (e.g. /usr), caused umount
- to fail, cascade-caused /etc/mtab to not be updated, there's
- a bug in /etc/init.d/mountvirtfs.sh where it incorrectly
- detect(s/ed?) that /etc/mtab wasn't writeable, cascade-caused
- mountvirtfs.sh to think that /usr was still mounted read-write
- from the prior shutdown, and it went pear-shaped from there.
+In general you just add :s0 to the end of the existing context.
 
- l.
+Use getfattr -n security.selinux to see what they are with selinux=0
+
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
 
 
 --
