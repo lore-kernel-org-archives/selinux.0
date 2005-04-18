@@ -1,71 +1,55 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3I2Jf7C009014
-	for <selinux@tycho.nsa.gov>; Sun, 17 Apr 2005 22:19:42 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3I2CVRD012257
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 02:12:33 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 4FB2861AEE
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 10:59:13 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 16849-02 for <selinux@tycho.nsa.gov>;
-	Mon, 18 Apr 2005 10:59:12 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id A6B5761AED
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 10:59:12 +1000 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id EF39027102
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 12:13:48 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: postgrey policy
-Date: Mon, 18 Apr 2005 12:13:45 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_bfxYCWooA2R59d0"
-Message-Id: <200504181213.47787.russell@coker.com.au>
+Subject: Re: [RFC & PATCH] inherited type definition.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: Kaigai Kohei <kaigai@ak.jp.nec.com>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <4260BF6C.6030008@kaigai.gr.jp>
+References: <42346C17.3090301@kaigai.gr.jp>
+	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
+	 <4235C937.3030404@kaigai.gr.jp>
+	 <1110824712.21378.196.camel@moss-spartans.epoch.ncsc.mil>
+	 <4236CC03.5010104@kaigai.gr.jp>
+	 <1110897751.25947.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <4237B950.2090604@ak.jp.nec.com>
+	 <1110981928.4802.81.camel@moss-spartans.epoch.ncsc.mil>
+	 <42394ECA.7010204@ak.jp.nec.com>
+	 <1111067742.8664.31.camel@moss-spartans.epoch.ncsc.mil>
+	 <42399AE4.5040508@kaigai.gr.jp>  <423E9CFF.3080808@kaigai.gr.jp>
+	 <1111420782.13101.16.camel@moss-spartans.epoch.ncsc.mil>
+	 <42412635.4030108@ak.jp.nec.com>
+	 <1111586217.21107.54.camel@moss-spartans.epoch.ncsc.mil>
+	 <4260BF6C.6030008@kaigai.gr.jp>
+Content-Type: text/plain
+Date: Mon, 18 Apr 2005 08:25:45 -0400
+Message-Id: <1113827145.28051.36.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_bfxYCWooA2R59d0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sat, 2005-04-16 at 16:31 +0900, KaiGai Kohei wrote:
+> How is the current status of inheritable-type patch ?
+> Can I think that we can use such statements checkpolicy-1.24 or later ?
+> Please, don't forget. :-)
+> 
+> I modified the latest patch against to checkpolicy-1.23.1 on Fedora's CVS.
+> Since there is only one FAILED hunk on checkpolicy.c:518, I modified this.
 
-The attached patch allows the latest version of postgrey to do what it wants.  
-It can work without getattr access to { bin_t sbin_t }:dir but there seems no 
-harm in granting it.
+Hi,
+
+Thanks for updating the patch.  However,  from the discussions on the
+list, I haven't seen any clear indication that this new language
+feature:
+a) solves a real problem in a superior manner to the use of macros, and
+b) is being demanded by people who are presently developing policy.
+
+I'm willing to be convinced otherwise, but I just haven't seen the
+evidence for it yet.  Have you considered working on a template feature
+for the language instead, as that clearly would be beneficial?
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
---Boundary-00=_bfxYCWooA2R59d0
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- postgrey.te.old	2005-04-18 12:11:10.000000000 +1000
-+++ postgrey.te	2005-04-18 12:12:04.000000000 +1000
-@@ -10,7 +10,7 @@
- allow postgrey_t urandom_device_t:chr_file { getattr read };
- 
- # for perl
--allow postgrey_t sbin_t:dir search;
-+allow postgrey_t { bin_t sbin_t }:dir { getattr search };
- allow postgrey_t usr_t:{ file lnk_file } { getattr read };
- dontaudit postgrey_t usr_t:file ioctl;
- 
-
---Boundary-00=_bfxYCWooA2R59d0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
