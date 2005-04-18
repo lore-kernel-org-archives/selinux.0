@@ -1,39 +1,37 @@
-Subject: Re: [POLICY/PATCH] IA-64 Boot Partition
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   "SELinux-ML(NSA)" <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <4263E641.9010100@kaigai.gr.jp>
-References: <4260B74B.3000002@kaigai.gr.jp>
-	 <1113666959.6081.25.camel@sgc.columbia.tresys.com>
-	 <42613C72.5060408@kaigai.gr.jp>
-	 <1113827271.28051.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <4263E641.9010100@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Mon, 18 Apr 2005 13:14:06 -0400
-Message-Id: <1113844446.28051.70.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Mon, 18 Apr 2005 16:10:52 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Park Lee <parklee_sel@yahoo.com>
+cc: SELinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Be labeled with SID or security context?
+In-Reply-To: <20050418165241.9635.qmail@web51510.mail.yahoo.com>
+Message-ID: <Xine.LNX.4.44.0504181610210.13604-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-04-19 at 01:54 +0900, KaiGai Kohei wrote:
-> In Japan, Secure-OS such as SELinux is hoped for embedded computing field,
-> because applying the latest security patch for those application is not
-> as easy as one for our desktop PC.
-> So, I wonder who did evaluate the behavior on ARM/MIPS archtecture.
+On Mon, 18 Apr 2005, Park Lee wrote:
 
-Earlier versions of SELinux were ported to ARM and successfully run on
-the iPAQ by two independent efforts, but that was all prior to the 2.6
-SELinux.  At this point, the largest challenge to SELinux there is
-likely the fact that the 2.6 SELinux depends on extended attributes for
-file security contexts, and jffs2 doesn't support them natively.  There
-has been discussion of supporting extended attributes in jffs3, I
-believe.
+> Hi,
+>   In SELinux, sockets inherit the SID of its creating
+> process. 
+>   Then, can we say that sockets are labeled with the
+> SID of its creating process? (i.e. Can we say that
+> SELinux uses the SID of a socket's creating process to
+> label the socket?)
+>   Or, can we also say that sockets are labeled with
+> the security context of its creating process ? 
+>   Which one is better? Thanks,
 
+It's the same thing but a SID is something which is now internal to 
+SELinux kernel code, so use security context instead.
+
+
+- James
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
