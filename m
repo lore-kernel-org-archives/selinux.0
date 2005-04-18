@@ -1,37 +1,38 @@
-Date: Mon, 18 Apr 2005 16:10:52 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Park Lee <parklee_sel@yahoo.com>
-cc: SELinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Be labeled with SID or security context?
-In-Reply-To: <20050418165241.9635.qmail@web51510.mail.yahoo.com>
-Message-ID: <Xine.LNX.4.44.0504181610210.13604-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3IMcQ7C017582
+	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 18:38:27 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3IMVAcd021397
+	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 22:31:10 GMT
+Subject: [ANN] SETools-2.1.0 release
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux <selinux@tycho.nsa.gov>
+Cc: selinux-dev@tresys.com
+Content-Type: text/plain
+Date: Mon, 18 Apr 2005 18:34:55 -0400
+Message-Id: <1113863695.16319.71.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 18 Apr 2005, Park Lee wrote:
+A new version of Setools is available from
+http://www.tresys.com/selinux. This release includes:
 
-> Hi,
->   In SELinux, sockets inherit the SID of its creating
-> process. 
->   Then, can we say that sockets are labeled with the
-> SID of its creating process? (i.e. Can we say that
-> SELinux uses the SID of a socket's creating process to
-> label the socket?)
->   Or, can we also say that sockets are labeled with
-> the security context of its creating process ? 
->   Which one is better? Thanks,
+- Version 19 binary policy support
 
-It's the same thing but a SID is something which is now internal to 
-SELinux kernel code, so use security context instead.
+- Support for parsing MLS components (but no MLS analysis)
 
+- Improved direct relabel analysis 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+- Added role transition and conditional expressions to sediff
 
+As well as minor bug fixes.
+
+b4f9fda61546477d92b70cf63e8a3c0b  setools-2.1.0.tar.bz2
+3a31b624156b679f4c762553bca53ea5be3ae016  setools-2.1.0.tar.bz2
+
+Joshua Brindle
+Tresys Technology
 
 
 --
