@@ -1,38 +1,36 @@
-Subject: Re: [POLICY/PATCH] IA-64 Boot Partition
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   "SELinux-ML(NSA)" <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <42613C72.5060408@kaigai.gr.jp>
-References: <4260B74B.3000002@kaigai.gr.jp>
-	 <1113666959.6081.25.camel@sgc.columbia.tresys.com>
-	 <42613C72.5060408@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Mon, 18 Apr 2005 08:27:51 -0400
-Message-Id: <1113827271.28051.39.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <20050418165241.9635.qmail@web51510.mail.yahoo.com>
+Date: Mon, 18 Apr 2005 09:52:40 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Be labeled with SID or security context?
+To: SELinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-04-17 at 01:25 +0900, KaiGai Kohei wrote:
-> Thanks for your solution.
-> Indeed, we can solve this problem with appending a line into /etc/fstab
-> or a command line option.
-> 
-> BTW, what archtectures are used and checked by SELinux's people ?
-> For example, kernel panic is occured on the 2.6.6 or former kernel for IA-64
-> when SELinux is enabled. This phenomenon have been overlooked.
-> 
-> I can validate the evidence on IA64/i386 environment.
-> Is there a person who can try to run SELinux on infrequent(not i386) plathome?
+Hi,
+  In SELinux, sockets inherit the SID of its creating
+process. 
+  Then, can we say that sockets are labeled with the
+SID of its creating process? (i.e. Can we say that
+SELinux uses the SID of a socket's creating process to
+label the socket?)
+  Or, can we also say that sockets are labeled with
+the security context of its creating process ? 
+  Which one is better?
 
-All of my machines are x86, so I'm afraid I can't be of much help there.
+Thanks,
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Best Regards,
+Park Lee
 
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Plan great trips with Yahoo! Travel: Now over 17,000 guides!
+http://travel.yahoo.com/p-travelguide
 
 --
 This message was distributed to subscribers of the selinux mailing list.
