@@ -1,40 +1,71 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3I15r7C008740
-	for <selinux@tycho.nsa.gov>; Sun, 17 Apr 2005 21:05:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3I2Jf7C009014
+	for <selinux@tycho.nsa.gov>; Sun, 17 Apr 2005 22:19:42 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3I0wiRD010313
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 00:58:45 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3I2CVRD012257
+	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 02:12:33 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 4FB2861AEE
+	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 10:59:13 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 16849-02 for <selinux@tycho.nsa.gov>;
+	Mon, 18 Apr 2005 10:59:12 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id A6B5761AED
+	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 10:59:12 +1000 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id EF39027102
+	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 12:13:48 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: [ PATCH ] Cumulative patch - various fixes, untrusted_content_t, mozilla, gnome types
-Date: Mon, 18 Apr 2005 11:01:26 +1000
-Cc: ivg2@cornell.edu, dwalsh@redhat.com, selinux@tycho.nsa.gov
-References: <1113445869.6139.52.camel@cobra.ivg2.net> <200504172346.39313.russell@coker.com.au> <20050417233312.GI18167@lkcl.net>
-In-Reply-To: <20050417233312.GI18167@lkcl.net>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: postgrey policy
+Date: Mon, 18 Apr 2005 12:13:45 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200504181101.31615.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_bfxYCWooA2R59d0"
+Message-Id: <200504181213.47787.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 18 April 2005 09:33, Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-wrote:
-> On Sun, Apr 17, 2005 at 11:46:34PM +1000, Russell Coker wrote:
-> > Mozilla will desire read/write access to the .gconf directory and it's
-> > files
->
->  not under circumstances where it's built with kde support, it won't.
+--Boundary-00=_bfxYCWooA2R59d0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-If we were somehow able to get everyone to build Mozilla with KDE support then 
-it would merely defer the issue until we find the next gconf application.
+The attached patch allows the latest version of postgrey to do what it wants.  
+It can work without getattr access to { bin_t sbin_t }:dir but there seems no 
+harm in granting it.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_bfxYCWooA2R59d0
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+--- postgrey.te.old	2005-04-18 12:11:10.000000000 +1000
++++ postgrey.te	2005-04-18 12:12:04.000000000 +1000
+@@ -10,7 +10,7 @@
+ allow postgrey_t urandom_device_t:chr_file { getattr read };
+ 
+ # for perl
+-allow postgrey_t sbin_t:dir search;
++allow postgrey_t { bin_t sbin_t }:dir { getattr search };
+ allow postgrey_t usr_t:{ file lnk_file } { getattr read };
+ dontaudit postgrey_t usr_t:file ioctl;
+ 
+
+--Boundary-00=_bfxYCWooA2R59d0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
