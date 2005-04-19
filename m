@@ -1,43 +1,44 @@
-Date: Tue, 19 Apr 2005 18:29:54 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Paul Moore <paul.moore@hp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: selinux-policy-mls is now available for your testing pleasure.
-In-Reply-To: <42657740.9000005@hp.com>
-Message-ID: <Xine.LNX.4.44.0504191827130.17819-100000@thoron.boston.redhat.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Jason <jason@tyrannical.org>
+Subject: Re: Problems with SElinux and MySQL accessing file on /tmp
+Date: Tue, 19 Apr 2005 22:45:47 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <426468C8.1080102@tyrannical.org>
+In-Reply-To: <426468C8.1080102@tyrannical.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200504192245.51491.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 19 Apr 2005, Paul Moore wrote:
+On Tuesday 19 April 2005 12:11, Jason <jason@tyrannical.org> wrote:
+>  I get that when I try to use a mysql query "load data concurrent infile
+> '/tmp/filename' etc"
+>
+> allow mysqld_t tmp_t:dir { getattr }; doesn't help. I need a way to give
+> mysql  getattr globally, or at least in the tmp folder.  in
+> filecontexts, /tmp/.* is listed as <<none>>
+>
+> the file it's accessing in /tmp is user_u:object_r:tmp_t
 
->   5 Enabled the MLS policy via the Fedora GUI tool and ensured that the
->     relabel option was selected
->   6 Rebooted with the new MLS policy only to have the machine lock,
->     it wasn't able to execute something related to init (I should have
->     taken better notes here - sorry)
+The following policy should allow what you want:
+allow mysqld_t tmp_t:file r_file_perms;
 
-You still need to perform the manual mointpoint relabeling per the MLS 
-readme.
+However this might not be ideal for security reasons, there may be data in 
+files labeled as tmp_t.
 
-> 10 Rebooted with 'single' and noticed lots of permission denied
->     messages pertaining to '/dev/.udevdb/*' files
+Maybe a better option would be to create a directory named /var/lib/mysql/tmp 
+for temporary files related to mysql (it will have type mysqld_db_t which 
+grants full access to mysqld_t).  Then you won't be granting any extra access 
+to mysqld_t and you won't need to change your policy.
 
-Odd, I haven't seen that.
-
-Did you update to all of the new SELinux packages in Dan's FTP directory?
-
-> 12 Rebooted normally, i.e. 'rhgb quiet 5', and X failed to start
-
-Haven't tried X yet, not sure it's supposed to work.
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
