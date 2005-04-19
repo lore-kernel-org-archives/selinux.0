@@ -1,45 +1,77 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3K0ct7C026961
+	for <selinux@tycho.nsa.gov>; Tue, 19 Apr 2005 20:38:56 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3K0VPm9004747
+	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 00:31:26 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Jason <jason@tyrannical.org>
-Subject: Re: Problems with SElinux and MySQL accessing file on /tmp
-Date: Tue, 19 Apr 2005 22:45:47 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <426468C8.1080102@tyrannical.org>
-In-Reply-To: <426468C8.1080102@tyrannical.org>
+To: ivg2@cornell.edu
+Subject: Re: Proposed policy feature: $1_domain attribute
+Date: Tue, 19 Apr 2005 23:32:26 +1000
+Cc: selinux@tycho.nsa.gov
+References: <1109685518.764.9.camel@cobra.ivg2.net>
+In-Reply-To: <1109685518.764.9.camel@cobra.ivg2.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200504192245.51491.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200504192332.29946.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 19 April 2005 12:11, Jason <jason@tyrannical.org> wrote:
->  I get that when I try to use a mysql query "load data concurrent infile
-> '/tmp/filename' etc"
+On Wednesday 02 March 2005 00:58, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+> I'd like to mark all role-dependent domains with a new attribute
+> $1_domain (analogous to $1_file_type), and then do the following in
+> base_user_macros.te:
 >
-> allow mysqld_t tmp_t:dir { getattr }; doesn't help. I need a way to give
-> mysql  getattr globally, or at least in the tmp folder.  in
-> filecontexts, /tmp/.* is listed as <<none>>
+> can_ps($1, $1_domain)
+> can_ptrace($1, $1_domain)
 >
-> the file it's accessing in /tmp is user_u:object_r:tmp_t
+> Objections?
 
-The following policy should allow what you want:
-allow mysqld_t tmp_t:file r_file_perms;
+I'm catching up on email.
 
-However this might not be ideal for security reasons, there may be data in 
-files labeled as tmp_t.
+I object to the policy you suggest above for the same reasons as everyone 
+else.
 
-Maybe a better option would be to create a directory named /var/lib/mysql/tmp 
-for temporary files related to mysql (it will have type mysqld_db_t which 
-grants full access to mysqld_t).  Then you won't be granting any extra access 
-to mysqld_t and you won't need to change your policy.
+However I believe that there is one significant point which has been 
+overlooked.
+
+If I want to allow a domain (such as staff_t) to be able to manage the role 
+user_r then there is currently no complete way of doing it.  Policy such as 
+the following is commonly used to allow staff_t to kill user processes that 
+are doing undesired things:
+can_ps(staff_t, user_t)
+allow staff_t user_t:process signal;
+
+This of course doesn't permit staff_t to see or kill user_gpg_t etc.
+
+Something like the following might be useful:
+can_ps(staff_t, user_domain)
+allow staff_t user_domain:process signal;
+
+If I was running a university shell server I would probably give some trusted 
+postgrad students access to UID 0 and have policy such as the following:
+can_ps(postgrad_t, user_domain)
+allow postgrad_t user_domain:process signal;
+
+That would keep the under-graduate students in line...
+
+
+So I think that having an attribute for user domains makes sense.  Having an 
+attribute named user_domain as well as an attribute userdomain is a bad idea.  
+The name $1_domain seems appropriate, so maybe we should rename the current 
+userdomain attribute to user_login_domain (which is a better name anyway) 
+before implementing this.
+
+We could then have assertions to prevent the obvious mistakes such as allowing 
+ptrace of a more privileged process in the policy macros for gpg etc.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
