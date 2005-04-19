@@ -1,40 +1,39 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3J4mf7C019140
+	for <selinux@tycho.nsa.gov>; Tue, 19 Apr 2005 00:48:41 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3J4iBZj017794
+	for <selinux@tycho.nsa.gov>; Tue, 19 Apr 2005 04:44:12 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Subject: Re: I am attempting to add a secadm_r
-Date: Tue, 19 Apr 2005 14:32:52 +1000
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-References: <425553ED.1040703@redhat.com> <1112893854.27110.66.camel@moss-spartans.epoch.ncsc.mil> <42558933.7050605@redhat.com>
-In-Reply-To: <42558933.7050605@redhat.com>
+Date: Tue, 19 Apr 2005 14:43:37 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <425553ED.1040703@redhat.com> <1112893253.27110.62.camel@moss-spartans.epoch.ncsc.mil> <20050407174544.GY19784@lkcl.net>
+In-Reply-To: <20050407174544.GY19784@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200504191432.56810.russell@coker.com.au>
+Message-Id: <200504191443.40548.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 08 April 2005 05:25, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Ok, this is the point I was trying to understand.  I was hoping I could
-> define a role without defining
-> an initial type.  I was hoping for secadm_r:sysadm_t or
-> secadm_r:staff_t.  Forcing a new initial type,
-> seems a little touch.  This causes the creation of new roles to be more
-> difficult.
+On Friday 08 April 2005 03:45, Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
+wrote:
+> > What prevents you from doing what you describe via two usernames
+> > in /etc/passwd that both map to uid 0 but have different role
+> > authorizations in policy/users?
 >
-> I would have thought you could define a staff_t and then depending on
-> which roles they were currently
-> under, which domains they could reach.
->
-> So staff_r:staff_t can not add users.
-> But useradd_r:staff_t can.
+>  prevents... nothing ... i remember something appearing to go
+>  wrong when i did that last - something to do with samba, it
+>  ended up at the username "root" even though i'd logged in as
+>  "root2".
 
-Sure that could be done:
-
-domain_auto_trans(staff_t, useradd_exec_t, useradd_t)
-role staff_secadm_r types useradd_t;
-
-But I agree with Steve that it doesn't offer much.  Having a separate initial 
-domain for such operations makes more sense.
+It's annoying that $USER and $LOGNAME have the first entry in the passwd file 
+that has the right UID.  Maybe the best thing to do would be to have 
+~/.bashrc or /etc/profile set $USER and $LOGNAME based on $HOME.  There's 
+nothing we can do about "id -un" though.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
