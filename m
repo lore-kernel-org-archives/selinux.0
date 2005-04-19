@@ -1,50 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3J1CU7C018181
-	for <selinux@tycho.nsa.gov>; Mon, 18 Apr 2005 21:12:30 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3J15Acd027045
-	for <selinux@tycho.nsa.gov>; Tue, 19 Apr 2005 01:05:11 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Subject: Re: [POLICY/PATCH] IA-64 Boot Partition
-Date: Tue, 19 Apr 2005 11:07:56 +1000
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-   "SELinux-ML(NSA)" <selinux@tycho.nsa.gov>
-References: <4260B74B.3000002@kaigai.gr.jp> <1113827271.28051.39.camel@moss-spartans.epoch.ncsc.mil> <4263E641.9010100@kaigai.gr.jp>
-In-Reply-To: <4263E641.9010100@kaigai.gr.jp>
+Message-ID: <426468C8.1080102@tyrannical.org>
+Date: Mon, 18 Apr 2005 22:11:20 -0400
+From: Jason <jason@tyrannical.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-2022-jp"
-Message-Id: <200504191108.00367.russell@coker.com.au>
+To: SELinux@tycho.nsa.gov
+Subject: Problems with SElinux and MySQL accessing file on /tmp
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 19 April 2005 02:54, KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
-> In Japan, Secure-OS such as SELinux is hoped for embedded computing field,
-> because applying the latest security patch for those application is not
-> as easy as one for our desktop PC.
-> So, I wonder who did evaluate the behavior on ARM/MIPS archtecture.
+I am having an error with selinux that I can't seem to fix.
 
-I was one of the people who got SE Linux to work on an iPaQ.  I own two iPaQ's 
-and plan to get them going again as soon as JFFS2 supports XATTRs.
+ avc: denied { getattr } for pid=123 exe=/usr/libexec/mysqld
 
-I have no immediate plans to get any more machines other than x86.  In 
-Australia P3-800 class machines are really cheap, such machines provide all 
-the computer power I generally need so I don't have any plans to purchase 
-anything better.
+ I get that when I try to use a mysql query "load data concurrent infile 
+'/tmp/filename' etc"
 
-I have access to some other platforms in the Red Hat test lab, but nothing I 
-can actually have on my desk.
+allow mysqld_t tmp_t:dir { getattr }; doesn't help. I need a way to give 
+mysql  getattr globally, or at least in the tmp folder.  in 
+filecontexts, /tmp/.* is listed as <<none>>
 
-We really need to get some people seriously using SE Linux on non-x86 
-platforms for their regular computer use to get everything tested out.
+the file it's accessing in /tmp is user_u:object_r:tmp_t
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+audit2allow doesn't display anything since it's a denied { getattr } 
+without any other info.
+
+Does anyone have an idea what can be done?
+
+TIA,
+
+Jason
 
 --
 This message was distributed to subscribers of the selinux mailing list.
