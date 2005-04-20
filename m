@@ -1,54 +1,63 @@
-Subject: Re: attributes on the other end of a network connection
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kodungallur Varma <ramgwu@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <fa8ec5d805041919096c4391a0@mail.gmail.com>
-References: <fa8ec5d80503082008161e5619@mail.gmail.com>
-	 <20050309084655.GC5236@thorium.jmh.mhn.de>
-	 <fa8ec5d805031118353197f745@mail.gmail.com>
-	 <1110812772.21378.79.camel@moss-spartans.epoch.ncsc.mil>
-	 <fa8ec5d8050328195571c9d4fc@mail.gmail.com>
-	 <1112107028.4339.34.camel@moss-spartans.epoch.ncsc.mil>
-	 <fa8ec5d8050329194145add881@mail.gmail.com>
-	 <1112186117.8012.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <fa8ec5d805041919096c4391a0@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 20 Apr 2005 08:19:36 -0400
-Message-Id: <1113999576.1028.41.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4266511F.9040300@hp.com>
+Date: Wed, 20 Apr 2005 08:54:55 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+Subject: Re: selinux-policy-mls is now available for your testing pleasure.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-04-19 at 22:09 -0400, Kodungallur Varma wrote:
-> Hi all,
+James Morris wrote:
+> On Tue, 19 Apr 2005, Paul Moore wrote:
 > 
->         I have a basic client and a server program. my server has the
-> capability to setcon() to a new domain, the client domain precisely.
-> my server needs to find the domain and user name of the client user(my
-> client tries to get a tcp connection first). I heard there is a
-> function which gives the context and attributes of the other end,
-> given the attributes got at the servers end and vice-versa. I dont
-> know where exactly to look for that function capability, but I am
-> starting in the libselinux library. for security reasons, my client
-> also needs to be able to execute this function to get the attributes
-> of the server, just to know that it is connecting to the right server.
-> if anyone knows about any such function, please pass on to me. thanx a lot..
+> 
+>>  5 Enabled the MLS policy via the Fedora GUI tool and ensured that the
+>>    relabel option was selected
+>>  6 Rebooted with the new MLS policy only to have the machine lock,
+>>    it wasn't able to execute something related to init (I should have
+>>    taken better notes here - sorry)
+> 
+> 
+> You still need to perform the manual mointpoint relabeling per the MLS 
+> readme.
+> 
 
-That requires some form of labeled networking support, which doesn't
-exist in the mainline SELinux presently.  Older SELinux had an
-experimental labeled networking implementation (Selopt) by James Morris
-based on CIPSO/FIPS188 options, but the necessary security hooks and
-fields weren't accepted into mainline Linux.  Trent Jaeger of IBM has
-implemented implicit packet labeling based on IPSEC SA, and I believe
-that there is work ongoing to provide such an interface using that
-support, but that hasn't been merged yet.  getpeercon(3) is the existing
-interface, but only works for Unix domain stream sockets presently, as
-James noted.  
+Yup, figured that one out the hard way ... ;) ... just figured I would
+mention it here since Dan's original post didn't make any reference to
+having to do any manual relabel operations.
+
+>>10 Rebooted with 'single' and noticed lots of permission denied
+>>    messages pertaining to '/dev/.udevdb/*' files
+>  
+> Odd, I haven't seen that.
+
+Taking a bit of a closer look, the files with a permission denied error
+seem to be missing a SELinux context as well as any permission flags as
+well as an owner and group (ls -Z fills the fields in with a '?').
+
+I'll try fixing them manually (or maybe just deleting them since it
+looks like udev recreates them on boot anyway) and see what happens.
+
+> Did you update to all of the new SELinux packages in Dan's FTP directory?
+
+Not originally no, but looking at them this morning all the versions I
+have installed are the same versions as Dan's or newer.  I also noticed
+that Dan setup that directory as a YUM repository so I added it to my
+list and did a yum update - no new/updated packages.
+
+>>12 Rebooted normally, i.e. 'rhgb quiet 5', and X failed to start
+> 
+> 
+> Haven't tried X yet, not sure it's supposed to work.
+> 
+> 
+> - James
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
-
+. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+. paul.moore@hp.com                                      hewlett packard
+. (603) 884-5056                                          linux security
 
 --
 This message was distributed to subscribers of the selinux mailing list.
