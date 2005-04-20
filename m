@@ -1,121 +1,74 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3KDY07C000479
-	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 09:34:00 -0400 (EDT)
-Subject: Cleanup of chkpwd and su macros
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Wed, 20 Apr 2005 09:30:15 -0400
-Message-Id: <1114003815.31519.24.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4266673A.1020403@redhat.com>
+Date: Wed, 20 Apr 2005 10:29:14 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Paul Moore <paul.moore@hp.com>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: selinux-policy-mls is now available for your testing pleasure.
+References: <42602C45.3030706@redhat.com> <42657740.9000005@hp.com>
+In-Reply-To: <42657740.9000005@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Here are the changes I made to chkpwd_domain().  I am not sure "allow
-$1_t self:netlink_audit_socket create_netlink_socket_perms;" is needed
-for non-system domains. 
+Paul Moore wrote:
 
-Index: macros/program/chkpwd_macros.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/program/chkpwd_macros.te,v
-retrieving revision 1.15
-diff -u -r1.15 chkpwd_macros.te
---- macros/program/chkpwd_macros.te	16 Feb 2005 19:40:17 -0000	1.15
-+++ macros/program/chkpwd_macros.te	19 Apr 2005 13:42:41 -0000
-@@ -17,30 +17,27 @@
- # Derived domain based on the calling user domain and the program.
- type $1_chkpwd_t, domain, privlog, nscd_client_domain, auth;
- 
-+role $1_r types $1_chkpwd_t;
-+
- # is_selinux_enabled
- allow $1_chkpwd_t proc_t:file read;
-+
- can_getcon($1_chkpwd_t)
- can_ypbind($1_chkpwd_t)
- can_kerberos($1_chkpwd_t)
- can_ldap($1_chkpwd_t)
- can_resolve($1_chkpwd_t)
--# Transition from the user domain to this domain.
-+
- ifelse($1, system, `
- domain_auto_trans(auth_chkpwd, chkpwd_exec_t, system_chkpwd_t)
--role system_r types system_chkpwd_t;
--dontaudit auth_chkpwd shadow_t:file { getattr read };
- allow auth_chkpwd sbin_t:dir search;
--dontaudit $1_chkpwd_t { user_tty_type tty_device_t }:chr_file rw_file_perms;
--can_ypbind(auth_chkpwd)
--can_kerberos(auth_chkpwd)
--can_ldap(auth_chkpwd)
--can_resolve(auth_chkpwd)
-+allow auth_chkpwd self:netlink_audit_socket create_netlink_socket_perms;
-+dontaudit system_chkpwd_t { user_tty_type tty_device_t }:chr_file rw_file_perms;
-+dontaudit auth_chkpwd shadow_t:file { getattr read };
- ', `
- domain_auto_trans($1_t, chkpwd_exec_t, $1_chkpwd_t)
- allow $1_t sbin_t:dir search;
--
--# The user role is authorized for this domain.
--role $1_r types $1_chkpwd_t;
-+allow $1_t self:netlink_audit_socket create_netlink_socket_perms;
- 
- # Write to the user domain tty.
- access_terminal($1_chkpwd_t, $1)
+> Daniel J Walsh wrote:
+>
+>> Based off STRICT policy.
+>>
+>> ftp://people.redhat.com/dwalsh/SELinux/Fedora/selinux-policy-mls-*
+>>
+>> It is not in Rawhide, yet but I will provide it via my people page.
+>>
+>> This has not been tested.
+>> I have not got an MLS machine up and running yet.
+>
+>
+> Since I have been looking into this lately I figured I would give it a 
+> whirl and report back my experiences, here they are:
+>
+>  1 Installed FC4T2 via the 'Workstation' option using two partitions,
+>    one for '/' and one for swap
+>  2 Applied all of the related updates via YUM (done on April 19th)
+>  3 Installed the MLS policy (version 1.23-11-2) but continued to use
+>    the default targeted policy
+>  4 Rebooted into kernel 2.6.11-1.1240_FC4smp to verify everything was
+>    OK (it was)
+>  5 Enabled the MLS policy via the Fedora GUI tool and ensured that the
+>    relabel option was selected
+>  6 Rebooted with the new MLS policy only to have the machine lock,
+>    it wasn't able to execute something related to init (I should have
+>    taken better notes here - sorry)
+>  7 Rebooted (the hard way, Ctrl-Alt-Del only resulted in more AVC
+>    denial messages) with 'selinux=0 single'
+>  8 Unmounted '/proc' and '/sys' then relabeled them to
+>    'system_u:object_r:file_t:s0' and 'user_u:object_r:file_t:s0'
+>    respectively; also relabeled '/var/lib/nfs/rpc_pipefs' to
+>    'user_u:object_r:var_lib_nfs_t:s0'
+>  9 Rebooted with 'enforcing=0 single' and this time the FS-wide
+>    relabel happened as part of the boot process
+> 10 Rebooted with 'single' and noticed lots of permission denied
+>    messages pertaining to '/dev/.udevdb/*' files
 
+udevdb/* files should be labeled udev_tbl_t  Accordiung to policy
 
-Here are the changes to the su macros.  user_su_t definitely needs the
-"allow $1_su_t self:netlink_audit_socket create_netlink_socket_perms;"
-rule, but now that I look at it again I don't know why I put it in the
-ifdef.  The ifdef is not really needed anyway since chkpwd.te is in
-domains/program, not domains/program/unused.  I don't know why both the
-domain_auto_trans rule (in su_restricted_domain()) and the can_exec rule
-(in su_domain() which uses su_restricted_domain()) would be needed.
+> 11 Switched to runlevel 3 and saw a variety of AVC denial messages but
+>    things went mostly to plan and I had a login prompt which appeared
+>    to work as expected
+> 12 Rebooted normally, i.e. 'rhgb quiet 5', and X failed to start
+>
+> I'm going to keep playing with this system, but I thought some people 
+> here might want to see a quick little report on how the MLS policy RPM 
+> worked.
+>
+Could you clear you /var/log/messages or /var/log/audit/audit.log file.  
+Reboot and then send the AVC messages.
 
-Index: macros/program/su_macros.te
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/program/su_macros.te,v
-retrieving revision 1.36
-diff -u -r1.36 su_macros.te
---- macros/program/su_macros.te	10 Mar 2005 21:07:51 -0000	1.36
-+++ macros/program/su_macros.te	19 Apr 2005 16:29:38 -0000
-@@ -32,7 +32,6 @@
- domain_auto_trans($1_t, su_exec_t, $1_su_t)
- 
- allow $1_su_t sbin_t:dir search;
--domain_auto_trans($1_su_t, chkpwd_exec_t, $2_chkpwd_t)
- 
- uses_shlib($1_su_t)
- allow $1_su_t etc_t:file { getattr read };
-@@ -88,6 +87,12 @@
- allow $1_su_t { var_t var_run_t }:dir search;
- allow $1_su_t initrc_var_run_t:file rw_file_perms;
- can_kerberos($1_su_t)
-+
-+ifdef(`chkpwd.te', `
-+domain_auto_trans($1_su_t, chkpwd_exec_t, $2_chkpwd_t)
-+allow $1_su_t self:netlink_audit_socket create_netlink_socket_perms;
-+')
-+
- ') dnl end su_restricted_domain
- 
- define(`su_mini_domain', `
-@@ -109,10 +114,6 @@
- 
- define(`su_domain', `
- su_mini_domain($1)
--ifdef(`chkpwd.te', `
--# Run chkpwd.
--can_exec($1_su_t, chkpwd_exec_t)
--')
- 
- # Inherit and use descriptors from gnome-pty-helper.
- ifdef(`gnome-pty-helper.te', `allow $1_su_t $1_gph_t:fd use;')
+Dan
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+
 
 
 --
