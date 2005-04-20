@@ -1,153 +1,90 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3KNWO7C005417
+	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 19:32:24 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3KNOgJK015969
+	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 23:24:43 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Latest diffs
-Date: Wed, 20 Apr 2005 23:17:42 +1000
-Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-References: <425ED759.7070800@redhat.com>
-In-Reply-To: <425ED759.7070800@redhat.com>
+To: Richard Hally <rhally@mindspring.com>
+Subject: Re: Experiences with selinux enabled targetted on Fedora Core 3
+Date: Thu, 21 Apr 2005 09:27:06 +1000
+Cc: "Fedora SELinux support list for users &amp; developers." <fedora-selinux-list@redhat.com>,
+   SELinux <selinux@tycho.nsa.gov>
+References: <20050221160539.6aba22bd.r.godzilla@comcast.net> <200504201621.46953.russell@coker.com.au> <42661F69.30102@mindspring.com>
+In-Reply-To: <42661F69.30102@mindspring.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200504202317.46457.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200504210927.10015.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 15 April 2005 06:49, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Some cleanups in strict to handle turning off unlimitedRC
-
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/initrc.te 
-policy-1.23.11/domains/program/initrc.te
---- nsapolicy/domains/program/initrc.te 2005-03-24 08:58:25.000000000 -0500
-+++ policy-1.23.11/domains/program/initrc.te    2005-04-14 15:30:19.000000000 
--0400
-@@ -12,7 +12,7 @@
- # initrc_exec_t is the type of the init program.
- #
- # do not use privmail for sendmail as it creates a type transition conflict
--type initrc_t, ifdef(`unlimitedRC', `admin, etc_writer, fs_domain, privmem, 
-auth_write, ') domain, privlog, privowner, privmodule, ifdef(`sendmail.te', 
-`', `privmail,') ifdef(`distro_debian', `etc_writer, ') sysctl_kernel_writer, 
-nscd_client_domain;
-+type initrc_t, fs_domain, ifdef(`unlimitedRC', `admin, etc_writer, privmem, 
-auth_write, ') domain, privlog, privowner, privmodule, ifdef(`sendmail.te', 
-`', `privmail,') ifdef(`distro_debian', `etc_writer, ') sysctl_kernel_writer, 
-nscd_client_domain;
- 
- role system_r types initrc_t;
- uses_shlib(initrc_t);
-
-Note that the above is needed for the following command:
-echo "raidautorun /dev/md0" | nash --quiet
-
-Below are the relevant bits from the strace output:
-mknod("/dev/md0", S_IFBLK|0600, makedev(9, 0)) = 0
-open("/dev/md0", O_RDWR)                = 0
-ioctl(0, 0x914, 0)                      = 0
-
-What does ioctl 0x914 do?  Is there a better way we can manage the device node 
-creation?  Can udev create it?
-
-@@ -195,10 +195,8 @@
- allow initrc_t tmpfs_t:chr_file rw_file_perms;
- allow initrc_t tmpfs_t:dir r_dir_perms;
- 
--ifdef(`distro_redhat', ` 
- # Allow initrc domain to set the enforcing flag.
- can_setenforce(initrc_t)
--')
- 
- #
- # readahead asks for these
-
-I don't think that we can count on all distributions needing init scripts that 
-toggle between permissive and enforcing modes, so this conditional should 
-remain in.
-
-@@ -209,6 +207,7 @@
- # for /halt /.autofsck and other flag files
- file_type_auto_trans({ initrc_t sysadm_t }, root_t, etc_runtime_t, file)
- 
-+file_type_auto_trans(initrc_t, device_t, fixed_disk_device_t, blk_file)
- ')dnl end distro_redhat
- 
- allow initrc_t system_map_t:{ file lnk_file } r_file_perms;
-
-Probably should have a comment for this, something like the following:
-# This is so that nash can create /dev/md0 for RAID device auto-detection.
-
-Also should have ifdef(`distro_redhat' around it as only Red Hat has nash.
-
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/load_policy.te 
-policy-1.23.11/domains/program/load_policy.te
---- nsapolicy/domains/program/load_policy.te    2005-04-14 15:01:53.000000000 
--0400
-+++ policy-1.23.11/domains/program/load_policy.te       2005-04-14 
-15:20:16.000000000 -0400
-@@ -58,3 +58,4 @@
- 
- read_locale(load_policy_t)
- r_dir_file(load_policy_t, selinux_config_t)
-+allow load_policy_t proc_t:file { getattr read };
-
-I think it's best to add this to the can_loadpol() macro to make things 
-clearer.
-
-> Added audit_control to login domains to handle pam_loginuid.so
+On Wednesday 20 April 2005 19:22, Richard Hally <rhally@mindspring.com> wrote:
+> >Using dontaudit rules for such things also gives correct behavior in
+> >situations where relabelling will not.  As an example there is the
+> > following rule:
+> >dontaudit lvm_t file_t:dir search;
+> >
+> >Without this rule the lvm utilities when run before /var is mounted would
+> >create the /var/lock directory on the mount-point.  This is not desired
+> >functionality, the machine is in single-user mode at the time (so the lack
+> > of locking is not a problem) and creating directories that later get
+> > hidden by mounting a file system is not desirable.
+> >
+> >So far no-one has provided any reasons not to use dontaudit rules.
+> >Accusations of kludging don't count as a reason.
+> >
+> >I don't consider file_t labelling for a mount point as "mislabelling". 
+> > The mount point directory is expected to be hidden, so generally only
+> > mount needs to access it.
 >
-> Fixes for syslogng
+> I for one consider the use of "dontaudit" to be unethical but that is
+> just my opinion.
 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/syslogd.te 
-policy-1.23.11/domains/program/syslogd.te
---- nsapolicy/domains/program/syslogd.te        2005-04-04 10:21:10.000000000 
--0400
-+++ policy-1.23.11/domains/program/syslogd.te   2005-04-14 15:20:16.000000000 
--0400
-@@ -111,4 +111,6 @@
- allow syslogd_t kernel_t:system { syslog_mod syslog_console };
- allow syslogd_t self:capability { sys_admin chown fsetid };
- allow syslogd_t var_log_t:dir { create setattr };
-+allow syslogd_t syslogd_port_t:tcp_socket name_bind;
-+allow syslogd_t rsh_port_t:tcp_socket name_connect;
- }
+Why is it unethical to make software perform correctly even when it is not 
+written to?
 
-What is this about?  We don't have a syslogd_port_t label on a TCP port, and 
-AFAIK syslogd doesn't use TCP anyway.
+> Think about preventing someone's software from doing what was designed
+> and implemented to do. Shouldn't you at least notify the
+> developer/maintainer that there is a problem with their software? That
 
-Why would a syslogd want to connect to a rsh server?
+Yes, I do that.  I don't always notify them first.  The first priority is to 
+get the policy fixed, if I don't do it then someone else may do it and do it 
+badly (see this thread as an example).
 
+> seems to be the correct thing to do in the open source community.
+> If there is a actual security problem shouldn't there be some
+> notification of the vulnerability as a minimum? If it is not an actual
+> security vulnerability but perhaps a theoretical one, a proof of concept
+> is usually appropriate.
 
-diff --exclude-from=exclude -N -u -r 
-nsapolicy/domains/program/unused/apache.te 
-policy-1.23.11/domains/program/unused/apache.te
---- nsapolicy/domains/program/unused/apache.te  2005-04-07 22:22:55.000000000 
--0400
-+++ policy-1.23.11/domains/program/unused/apache.te     2005-04-14 
-15:20:16.000000000 -0400
-@@ -401,3 +401,4 @@
- dontaudit system_mail_t httpd_t:tcp_socket { read write };
- ')
- 
-+allow httpd_t var_t:file read;
+If it's a functionality issue such as creating a directory /var/lock on the 
+root file system when /var is a mount point then it's not such a big deal.
 
-I don't think that httpd_t needs to access var_t:file.  If it did then it 
-would certainly need more than just read access.
+> If it is a violation of some generally accepted standard, isn't a
+> bugzilla the right thing to do?
 
+Yes.  Of course there are other considerations.  Sometimes I already have some 
+open bug reports and don't feel inclined to make minor bug reports when more 
+serious bugs are open.
 
-+# Don't use logdir_domain since this is a security file
-+type auditd_log_t, file_type, secure_file_type;
-+file_type_auto_trans(auditd_t, var_log_t, auditd_log_t, file)
-+allow auditd_t auditd_log_t:dir { setattr rw_dir_perms };
+> If some action by the software is "uninteresting" shouldn't it be
+> allowed absent some reason that makes it in fact "interesting"?
 
-We should have the following instead:
+Searching a directory of type file_t that is an empty mount point isn't 
+interesting.  If however a directory that shouldn't be accessed by the 
+program in question gets type file_t through file system corruption or other 
+errors then we do not want to allow such access.
 
-# Do not use logdir_domain since this is a security file
-type auditd_log_t, file_type, secure_file_type;
-allow auditd_t var_log_t:dir search;
-rw_dir_create_file(auditd_t, auditd_log_t)
+> I would like to hear what others think of  this "dontaudit considered
+> harmful"  idea. I understand the use of dontaudit as a temporary
+> expedient but other than that it seem that there should be more done
+> about the situations where it is used at least in terms of notifying the
+> developers/maintainers of the software involved.
 
-Apostrophies are bad.  We want to limit where auditd_t can write to as much as 
-possible.
+Why don't you go through the policy, remove a bunch of dontaudit rules and see 
+what happens.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
