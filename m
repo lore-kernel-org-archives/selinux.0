@@ -1,39 +1,40 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3KDF07C000259
-	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 09:15:00 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3KD7QqS028924
-	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 13:07:26 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions [144.51.25.4])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3KDAfRH015963
-	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 09:10:41 -0400 (EDT)
-Subject: CVS Policy on Sourceforge Updated
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Wed, 20 Apr 2005 09:11:17 -0400
-Message-Id: <1114002677.31519.5.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <426654FE.9040206@hp.com>
+Date: Wed, 20 Apr 2005 09:11:26 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: selinux-policy-mls is now available for your testing pleasure.
+References: <Xine.LNX.4.44.0504191827130.17819-100000@thoron.boston.redhat.com> <1113998845.1028.37.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1113998845.1028.37.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-1.23.12 2005-04-20
-* Merged Dan Walsh's Netlink changes to handle new auditing pam modules.
-* Merged Dan Walsh's patch removing the sysadmfile attribute from policy
-files to separate sysadm_t from secadm_t.
-* Added CVS and uucpd policy from Dan Walsh.
-* Cleanup by Dan Walsh to handle turning off unlimitedRC.
-* Merged Russell Coker's fixes to ntpd, postgrey, and named policy.
-* Cleanup of chkpwd_domain and added permissions to su_domain macro due
-to pam changes to support audit.
-* Added nlmsg_relay and nlmsg_readpriv permissions to the
-netlink_audit_socket class.
+Stephen Smalley wrote:
+> On Tue, 2005-04-19 at 18:29 -0400, James Morris wrote:
+> 
+>>>12 Rebooted normally, i.e. 'rhgb quiet 5', and X failed to start
+>>
+>>Haven't tried X yet, not sure it's supposed to work.
+> 
+> Works for me.  Of course, you do need to have the allow_execmem=1
+> boolean enabled for X to run, but that is independent of
+> MLS.  /usr/sbin/setsebool -P allow_execmem=1.  Did the RPM include a
+> booleans file?
+> 
+
+Yes it did, however, the allow_execmem entry was missing.  I added it 
+via setsebool and verified that it was in the booleans.local file and 
+rebooted to see gdm startup this time but I could not login - according 
+to the xsession-errors file Xlib failed to connect to the display, which 
+was running on ":0.0".
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
-
+. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+. paul.moore@hp.com                                      hewlett packard
+. (603) 884-5056                                          linux security
 
 --
 This message was distributed to subscribers of the selinux mailing list.
