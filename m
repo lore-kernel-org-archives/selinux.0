@@ -1,63 +1,39 @@
-Message-ID: <4266511F.9040300@hp.com>
-Date: Wed, 20 Apr 2005 08:54:55 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Re: selinux-policy-mls is now available for your testing pleasure.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3KDF07C000259
+	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 09:15:00 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3KD7QqS028924
+	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 13:07:26 GMT
+Received: from moss-lions.epoch.ncsc.mil (moss-lions [144.51.25.4])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3KDAfRH015963
+	for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2005 09:10:41 -0400 (EDT)
+Subject: CVS Policy on Sourceforge Updated
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 20 Apr 2005 09:11:17 -0400
+Message-Id: <1114002677.31519.5.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Tue, 19 Apr 2005, Paul Moore wrote:
-> 
-> 
->>  5 Enabled the MLS policy via the Fedora GUI tool and ensured that the
->>    relabel option was selected
->>  6 Rebooted with the new MLS policy only to have the machine lock,
->>    it wasn't able to execute something related to init (I should have
->>    taken better notes here - sorry)
-> 
-> 
-> You still need to perform the manual mointpoint relabeling per the MLS 
-> readme.
-> 
-
-Yup, figured that one out the hard way ... ;) ... just figured I would
-mention it here since Dan's original post didn't make any reference to
-having to do any manual relabel operations.
-
->>10 Rebooted with 'single' and noticed lots of permission denied
->>    messages pertaining to '/dev/.udevdb/*' files
->  
-> Odd, I haven't seen that.
-
-Taking a bit of a closer look, the files with a permission denied error
-seem to be missing a SELinux context as well as any permission flags as
-well as an owner and group (ls -Z fills the fields in with a '?').
-
-I'll try fixing them manually (or maybe just deleting them since it
-looks like udev recreates them on boot anyway) and see what happens.
-
-> Did you update to all of the new SELinux packages in Dan's FTP directory?
-
-Not originally no, but looking at them this morning all the versions I
-have installed are the same versions as Dan's or newer.  I also noticed
-that Dan setup that directory as a YUM repository so I added it to my
-list and did a yum update - no new/updated packages.
-
->>12 Rebooted normally, i.e. 'rhgb quiet 5', and X failed to start
-> 
-> 
-> Haven't tried X yet, not sure it's supposed to work.
-> 
-> 
-> - James
+1.23.12 2005-04-20
+* Merged Dan Walsh's Netlink changes to handle new auditing pam modules.
+* Merged Dan Walsh's patch removing the sysadmfile attribute from policy
+files to separate sysadm_t from secadm_t.
+* Added CVS and uucpd policy from Dan Walsh.
+* Cleanup by Dan Walsh to handle turning off unlimitedRC.
+* Merged Russell Coker's fixes to ntpd, postgrey, and named policy.
+* Cleanup of chkpwd_domain and added permissions to su_domain macro due
+to pam changes to support audit.
+* Added nlmsg_relay and nlmsg_readpriv permissions to the
+netlink_audit_socket class.
 
 -- 
-. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-. paul.moore@hp.com                                      hewlett packard
-. (603) 884-5056                                          linux security
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
