@@ -1,61 +1,70 @@
-Message-ID: <42679D6B.1050300@redhat.com>
-Date: Thu, 21 Apr 2005 08:32:43 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Jim Carter <jwcart2@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Latest diffs
-References: <425ED759.7070800@redhat.com> <200504202317.46457.russell@coker.com.au>
-In-Reply-To: <200504202317.46457.russell@coker.com.au>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [Fwd: Re: Experiences with selinux enabled targetted on Fedora
+	Core 3]
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Richard Hally <rhally@mindspring.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <42677591.8020703@mindspring.com>
+References: <42677591.8020703@mindspring.com>
+Content-Type: text/plain
+Date: Thu, 21 Apr 2005 08:29:38 -0400
+Message-Id: <1114086578.4054.69.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+On Thu, 2005-04-21 at 05:42 -0400, Richard Hally wrote:
+> Because you(and other people) have not made an attempt to have the 
+> software changed to perform correctly!
 
->On Friday 15 April 2005 06:49, Daniel J Walsh <dwalsh@redhat.com> wrote:
->  
->
->>Some cleanups in strict to handle turning off unlimitedRC
->>    
->>
->
->diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/initrc.te 
->policy-1.23.11/domains/program/initrc.te
->--- nsapolicy/domains/program/initrc.te 2005-03-24 08:58:25.000000000 -0500
->+++ policy-1.23.11/domains/program/initrc.te    2005-04-14 15:30:19.000000000 
->-0400
->@@ -12,7 +12,7 @@
-> # initrc_exec_t is the type of the init program.
-> #
-> # do not use privmail for sendmail as it creates a type transition conflict
->-type initrc_t, ifdef(`unlimitedRC', `admin, etc_writer, fs_domain, privmem, 
->auth_write, ') domain, privlog, privowner, privmodule, ifdef(`sendmail.te', 
->`', `privmail,') ifdef(`distro_debian', `etc_writer, ') sysctl_kernel_writer, 
->nscd_client_domain;
->+type initrc_t, fs_domain, ifdef(`unlimitedRC', `admin, etc_writer, privmem, 
->auth_write, ') domain, privlog, privowner, privmodule, ifdef(`sendmail.te', 
->`', `privmail,') ifdef(`distro_debian', `etc_writer, ') sysctl_kernel_writer, 
->nscd_client_domain;
-> 
-> role system_r types initrc_t;
-> uses_shlib(initrc_t);
->
->Note that the above is needed for the following command:
->echo "raidautorun /dev/md0" | nash --quiet
->
->Below are the relevant bits from the strace output:
->mknod("/dev/md0", S_IFBLK|0600, makedev(9, 0)) = 0
->open("/dev/md0", O_RDWR)                = 0
->ioctl(0, 0x914, 0)                      = 0
->
->  
->
->What does ioctl 0x914 do?  Is there a better way we can manage the device node 
->creation?  Can udev create it?
->  
->
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155556
+In many cases, I think that they have (i.e. filed bugzilla reports,
+introduced patches into the Fedora packages to avoid e.g. leaked file
+descriptors, etc).
+
+> Apparently, there are many cases where notification has not taken place 
+> at all. The last I looked there were over 4100  dontaudit rules(in the 
+> strict policy) and that number is not decreasing.
+
+Notification doesn't mean that it will be immediately fixed upstream,
+eh?  Or ever fixed until SELinux is more pervasive and until strict
+policy is more pervasive.  If it only shows up with SELinux, and it only
+shows up with strict policy, then most upstream package maintainers
+aren't going to have a lot of motivation to change it right now.
+
+> In those cases(not necessarily this one) where it is no "big deal" then 
+> why  not "allow" rather than "dontaudit". In those cases where there 
+> isn't a good reason for not allowing something it should be allowed. If 
+> there is a good reason for not allowing something then there need to be 
+> changes made to the software.
+
+Principle of least privilege; if the program doesn't have a legitimate
+need for the access, it should be denied.  Allowing "trivial" accesses
+that aren't truly needed has an unfortunate way of allowing escalation
+of access far beyond what you might expect from the individual "trivial"
+accesses as independent units.  And yes, changing the software is
+desirable, but we aren't in a position to dictate such changes; we can
+only ask.  In the meantime, we _can_ deny the access until such a time
+as the software is changed.
+
+> Perhaps you should change all the "dontaudit" rules to "allow" and see 
+> what happens.
+
+Well, for one thing, a lot more programs would be able to directly
+read /etc/shadow rather than having to use the chkpwd helper.
+
+> The use of "dontaudit" implies that software is doing something that is 
+> should not be doing. In prohibiting the software from doing whatever 
+> that is _without attempting_ to have it corrected is where I find the 
+> current approach lacking.
+
+dontaudit implies that software is doing something in violation of
+policy.  But policy is dependent on your particular security
+requirements, and it is fairly safe to say that not all applications are
+going to be written with your particular security requirements in mind.
+
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
