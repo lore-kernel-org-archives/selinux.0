@@ -1,54 +1,83 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MMCQgA019750
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 18:12:26 -0400 (EDT)
-Received: from palrel11.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MM7I3X007518
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 22:07:19 GMT
-Received: from mailrelay01.cac.cpqcorp.net (mailrelay01.cac.cpqcorp.net [16.47.132.152])
-	by palrel11.hp.com (Postfix) with ESMTP id E6B6A46C5
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 15:07:18 -0700 (PDT)
-Received: from anw.zk3.dec.com (wasted.zk3.dec.com [16.140.32.3])
-	by mailrelay01.cac.cpqcorp.net (Postfix) with ESMTP id A2D6E705
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 15:07:17 -0700 (PDT)
-Message-ID: <42697589.2040506@hp.com>
-Date: Fri, 22 Apr 2005 18:07:05 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MNPagA019982
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 19:25:37 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MNHXrf003586
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 23:17:34 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Jochen Schmitt <Jochen@herr-schmitt.de>
+Subject: Re: Sugg. for SELinux enabled Interpreters
+Date: Sat, 23 Apr 2005 07:41:34 +1000
+Cc: selinux@tycho.nsa.gov
+References: <E1CtATI-0008Ib-00@mrelayng.kundenserver.de>
+In-Reply-To: <E1CtATI-0008Ib-00@mrelayng.kundenserver.de>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: A small patch for auditd.te
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200504230741.36883.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Below is my attempt at fixing the audit policy so that the auditd and 
-auditctl work correctly at boot time.  I tested this on the latest FC4 
-bits augmented with Dan's MLS policy RPM and the latest audit RPMs from 
-David Woodhouse's repository.
+On Tuesday 25 January 2005 07:05, Jochen Schmitt <Jochen@herr-schmitt.de> 
+wrote:
+> Hallo,
+>
+> I have bought a book about SELinux form O'Reilly. In this book it
+> was discussed, that some applications, like KDE have issues with
+> SELinux.
+>
+> On KDE the problem is the kdeinit process, which coused, that
+> SELinux can not distlinguish the diffent programms started by
+> kdeinit.
 
-Index: auditd.te
-===================================================================
-RCS file: 
-/cvsroot/selinux/nsa/selinux-usr/policy/domains/program/unused/auditd.te,v
-retrieving revision 1.6
-diff -r1.6 auditd.te
-4a5,6
- > # Some fixes by Paul Moore <paul.moore@hp.com>
- > #
-15a18
- > allow auditd_t self:process setsched;
-34a38
- > allow auditctl_t init_t:fd use;
-38a43
- > role system_r types auditctl_t;
-42a48,51
- > allow initrc_t auditctl_exec_t:file rx_file_perms;
- > allow initrc_t auditd_etc_t:file r_file_perms;
- > domain_auto_trans(initrc_t, auditctl_exec_t, auditctl_t)
+Below is a message from Luke about this matter.  In this example reconfiguring 
+KDE is the better option.  I've pasted the message because I have no net 
+access at the moment and can't lookup a URL.
+
+We should get some bugs filed against kdeinit in all the distributions to make 
+this an option that the administrator can configure permanently for the 
+entire system.  Also Fedora, RHEL, and any other distribution which gets SE 
+Linux as the default install option should probably default to this.
+
+
+ Subject: kdeinit
+ Date: 2004-07-25 23:01
+ From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+ To: SE-Linux <selinux@tycho.nsa.gov>
+ 
+as you've seen, i sent a message to the kde-devel list, stephan kindly
+responded by saying that it's possible to disable kdeinit by
+defining KDE_IS_PRELINKED.
+
+i've modified startkde (possibly not the smartest thing to do) to
+have this at the top:
+
+        #!/bin/sh
+        #
+        #  DEFAULT KDE STARTUP SCRIPT ( KDE-3.2 )
+        #
+
+        KDE_IS_PRELINKED=1
+        export KDE_IS_PRELINKED
+
+and voila, it appears that i end up saving about 30mbyte of virtual
+memory - something that _could_ save a lot of time on a system that
+is pushed for physical ram.
+
+so it's a trade-off between saving some virtual memory and saving some
+speed in the library pre-loading.
+
+... but the important thing is that as far as SE/Linux is concerned
+it IS possible to remove kdeinit from the loop, and therefore it IS
+possible to write selinux policy files without kdeinit getting in
+the way.
 
 -- 
-. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-. paul.moore@hp.com                                      hewlett packard
-. (603) 884-5056                                          linux security
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
