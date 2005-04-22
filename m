@@ -1,77 +1,29 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MNPagA019982
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 19:25:37 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MNHXrf003586
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 23:17:34 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Jochen Schmitt <Jochen@herr-schmitt.de>
-Subject: Re: Sugg. for SELinux enabled Interpreters
-Date: Sat, 23 Apr 2005 07:41:34 +1000
-Cc: selinux@tycho.nsa.gov
-References: <E1CtATI-0008Ib-00@mrelayng.kundenserver.de>
-In-Reply-To: <E1CtATI-0008Ib-00@mrelayng.kundenserver.de>
+To: Nick <nick-lists@austin.rr.com>
+Subject: Re: SELinux Policy Editor and CAP_SYS_BOOT
+Date: Sat, 23 Apr 2005 08:47:29 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <1105645034.32758.35.camel@hawaii.efficax.net>
+In-Reply-To: <1105645034.32758.35.camel@hawaii.efficax.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200504230741.36883.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200504230847.32685.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 25 January 2005 07:05, Jochen Schmitt <Jochen@herr-schmitt.de> 
-wrote:
-> Hallo,
->
-> I have bought a book about SELinux form O'Reilly. In this book it
-> was discussed, that some applications, like KDE have issues with
-> SELinux.
->
-> On KDE the problem is the kdeinit process, which coused, that
-> SELinux can not distlinguish the diffent programms started by
-> kdeinit.
+On Friday 14 January 2005 06:37, Nick <nick-lists@austin.rr.com> wrote:
+> I have the need to enable (and make work) the shutdown and halt
+> accounts. I set a password for these accounts and tried to use them and
+> got the expected "you must be root" a collegue pointed out that I might
+> need the CAP_SYS_BOOT capability turned on. After an hour of Googling on
+> something that relates to CAP_SYS_BOOT and makes sense within the
+> context of SELinux.
 
-Below is a message from Luke about this matter.  In this example reconfiguring 
-KDE is the better option.  I've pasted the message because I have no net 
-access at the moment and can't lookup a URL.
-
-We should get some bugs filed against kdeinit in all the distributions to make 
-this an option that the administrator can configure permanently for the 
-entire system.  Also Fedora, RHEL, and any other distribution which gets SE 
-Linux as the default install option should probably default to this.
-
-
- Subject: kdeinit
- Date: 2004-07-25 23:01
- From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
- To: SE-Linux <selinux@tycho.nsa.gov>
- 
-as you've seen, i sent a message to the kde-devel list, stephan kindly
-responded by saying that it's possible to disable kdeinit by
-defining KDE_IS_PRELINKED.
-
-i've modified startkde (possibly not the smartest thing to do) to
-have this at the top:
-
-        #!/bin/sh
-        #
-        #  DEFAULT KDE STARTUP SCRIPT ( KDE-3.2 )
-        #
-
-        KDE_IS_PRELINKED=1
-        export KDE_IS_PRELINKED
-
-and voila, it appears that i end up saving about 30mbyte of virtual
-memory - something that _could_ save a lot of time on a system that
-is pushed for physical ram.
-
-so it's a trade-off between saving some virtual memory and saving some
-speed in the library pre-loading.
-
-... but the important thing is that as far as SE/Linux is concerned
-it IS possible to remove kdeinit from the loop, and therefore it IS
-possible to write selinux policy files without kdeinit getting in
-the way.
+init_t has capability sys_boot as it is the domain that instructs the kernel 
+to reboot in normal situations.  The administrator merely asks the init 
+process to perform the reboot.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
