@@ -1,51 +1,35 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MNPagA019981
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 19:25:52 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MNxLgA020172
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 19:59:21 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MNHXrf003585
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 23:17:34 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MNpJrf005567
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 23:51:20 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: sshd transition points (user@ip or net_context with setcon)
-Date: Sat, 23 Apr 2005 08:20:32 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20050221134124.GR14038@lkcl.net>
-In-Reply-To: <20050221134124.GR14038@lkcl.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Tweaks to the amavis policy
+Date: Sat, 23 Apr 2005 09:54:19 +1000
+Cc: "Fedora SELinux support list for users &amp; developers." <fedora-selinux-list@redhat.com>,
+   David Hampton <hampton-rh@rainbolthampton.net>, selinux@tycho.nsa.gov
+References: <1110979100.20316.18.camel@hampton-pc.rainbolthampton.net> <200504221819.49152.russell@coker.com.au> <4268DB1F.80409@redhat.com>
+In-Reply-To: <4268DB1F.80409@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200504230820.35232.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200504230954.23278.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 22 February 2005 00:41, Luke Kenneth Casson Leighton 
-<lkcl@lkcl.net> wrote:
-> after kindly receiving a message which advised how to achieve the
-> same net effect as sought (using AllowUsers in sshd_config) i was
-> wondering if anyone considered it _actually_ worthwhile to go
-> ahead and provide a means to achieve the same effect (as AllowUsers)
-> with SE-Linux policy and some modifications to sshd (to use setcon
-> and thereby be able to do net_contexts on a per-user basis).
+On Friday 22 April 2005 21:08, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >allow tmpreaper_t amavisd_quarantine_t:dir { rw_dir_perms unlink };
+> >allow tmpreaper_t amavisd_quarantine_t:file { getattr unlink };
+>
+> Why not add the attribute tmpfile to amavisd_quarantine_t and you get
+> this for free.
 
-Have you considered using sshd_extern_t?
-
-The current policy allows you to configure inetd to run sshd via:
-runcon system_u:system_r:sshd_extern_t sshd -- -i
-
-You could have sshd being run with the default context for connections 
-corresponding to trusted IP addresses and use runcon to get sshd_extern_t for 
-others.  The policy is flexible enough to allow multiple sshd contexts to be 
-added easily which correspond to different combinations of user roles.
-
-Some inetd programs allow running different programs based on IP address, 
-while others require you to use a different port for each one (maybe have the 
-firewall convert incoming connections to different destination ports based on 
-the source IP Address).
-
-The disadvantage of AllowUsers is that it's enforced by the sshd itself.  If 
-you are concerned about the security of the sshd then restricting external 
-users to security contexts that don't permit any damage is a good idea.
+True.  tmpfile does grant access to the initrc_t domain, but that shouldn't be 
+a problem in this case (and I can imagine a start script for amavis wanting 
+to do such things).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
