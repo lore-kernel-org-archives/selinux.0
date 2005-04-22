@@ -1,43 +1,29 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MCbxJR015449
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 08:37:59 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MCU3rf005891
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 12:30:03 GMT
-Subject: Re: policy hierarchy patch
-From: Joshua Brindle <jbrindle@tresys.com>
-To: russell@coker.com.au
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200504221152.39180.russell@coker.com.au>
-References: <1112631282.19526.18.camel@localhost>
-	 <200504221152.39180.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MFCxgA016724
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 11:13:00 -0400 (EDT)
+Subject: Updated Policy in Sourceforge CVS
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: SELinux <selinux@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>
 Content-Type: text/plain
-Date: Fri, 22 Apr 2005 08:32:37 -0400
-Message-Id: <1114173157.9531.8.camel@localhost>
+Date: Fri, 22 Apr 2005 11:08:53 -0400
+Message-Id: <1114182533.10476.8.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-04-22 at 11:52 +1000, Russell Coker wrote:
-> On Tuesday 05 April 2005 02:14, Joshua Brindle <jbrindle@tresys.com> wrote:
-> > 	type apache;
-> > 	type apache.cgi;
-> > 	type apache.cgi.user;
-> 
-> This is a bad example.  Currently the domains for user CGI scripts have access 
-> that the main Apache domain lacks.  I expect it to be common that a less 
-> privileged process will be granted access to files that have low integrity 
-> and therefore it's access will not be a sub-set of the more privileged domain 
-> that launches it.
-> 
+1.23.13 2005-04-22
+* Merged more changes from Dan Walsh to initrc_t for removal of
+unconfined_domain.
+* Merged Dan Walsh's split of auditd policy into auditd_t for the audit
+daemon and auditctl_t for the autoctl program.
+* Added use of name_connect to uncond_can_ypbind macro by Dan Walsh.
+* Merged other cleanup and fixes by Dan Walsh.
 
-Right, I guess I could have flushed the example out a bit more but the
-intention was that the type "apache" is really an unused domain that has
-the privileges of all the apache processes (including cgi's). The type
-"apache.main" could then be the main processes domain and would have a
-subset of the permissions of apache and possibly apache.cgi.
-
-Joshua Brindle
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
