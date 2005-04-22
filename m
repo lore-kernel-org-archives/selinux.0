@@ -1,61 +1,43 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MBKu7C015024
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 07:20:56 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MBD1rf028488
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 11:13:01 GMT
-Message-ID: <4268DB1F.80409@redhat.com>
-Date: Fri, 22 Apr 2005 07:08:15 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: russell@coker.com.au,
-   "Fedora SELinux support list for users &amp; developers." <fedora-selinux-list@redhat.com>
-CC: David Hampton <hampton-rh@rainbolthampton.net>, selinux@tycho.nsa.gov
-Subject: Re: Tweaks to the amavis policy
-References: <1110979100.20316.18.camel@hampton-pc.rainbolthampton.net> <200504221819.49152.russell@coker.com.au>
-In-Reply-To: <200504221819.49152.russell@coker.com.au>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MCbxJR015449
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 08:37:59 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MCU3rf005891
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 12:30:03 GMT
+Subject: Re: policy hierarchy patch
+From: Joshua Brindle <jbrindle@tresys.com>
+To: russell@coker.com.au
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200504221152.39180.russell@coker.com.au>
+References: <1112631282.19526.18.camel@localhost>
+	 <200504221152.39180.russell@coker.com.au>
+Content-Type: text/plain
+Date: Fri, 22 Apr 2005 08:32:37 -0400
+Message-Id: <1114173157.9531.8.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+On Fri, 2005-04-22 at 11:52 +1000, Russell Coker wrote:
+> On Tuesday 05 April 2005 02:14, Joshua Brindle <jbrindle@tresys.com> wrote:
+> > 	type apache;
+> > 	type apache.cgi;
+> > 	type apache.cgi.user;
+> 
+> This is a bad example.  Currently the domains for user CGI scripts have access 
+> that the main Apache domain lacks.  I expect it to be common that a less 
+> privileged process will be granted access to files that have low integrity 
+> and therefore it's access will not be a sub-set of the more privileged domain 
+> that launches it.
+> 
 
->On Thursday 17 March 2005 00:18, David Hampton 
-><hampton-rh@rainbolthampton.net> wrote:
->  
->
->>I've added support to the (unused) amavis policy to allow interaction
->>with additional mail filters, and added a new type specifically for
->>quarantined spam and viruses.  I also tweaked the network access to
->>limit ports that can be used by amavisd.  I'd appreciate any feedback on
->>these changes or tips on how to write better policies.  Thanks.
->>    
->>
->
->+# Tmp reaper
->+ifdef(`tmpreaper.te', `
->+allow tmpreaper_t amavisd_quarantine_t:dir { read search getattr setattr 
->unlink };
->+allow tmpreaper_t amavisd_quarantine_t:file getattr;
->+')
->
->tmpreaper_t should not need setattr access to the directory.
->
->To perform any useful function tmpreaper_t will need read/write access to the 
->directory and unlink access to the file such as the following:
->
->allow tmpreaper_t amavisd_quarantine_t:dir { rw_dir_perms unlink };
->allow tmpreaper_t amavisd_quarantine_t:file { getattr unlink };
->
->  
->
-Why not add the attribute tmpfile to amavisd_quarantine_t and you get 
-this for free.
+Right, I guess I could have flushed the example out a bit more but the
+intention was that the type "apache" is really an unused domain that has
+the privileges of all the apache processes (including cgi's). The type
+"apache.main" could then be the main processes domain and would have a
+subset of the permissions of apache and possibly apache.cgi.
 
-Dan
-
--- 
-
+Joshua Brindle
 
 
 --
