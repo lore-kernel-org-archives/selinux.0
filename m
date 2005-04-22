@@ -1,103 +1,62 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: This weeks diffs
-Date: Fri, 22 Apr 2005 18:42:37 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <4266BFF9.10906@redhat.com>
-In-Reply-To: <4266BFF9.10906@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3MBKu7C015024
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 07:20:56 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3MBD1rf028488
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 11:13:01 GMT
+Message-ID: <4268DB1F.80409@redhat.com>
+Date: Fri, 22 Apr 2005 07:08:15 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_BkLaCJxOX0G3nYc"
-Message-Id: <200504221842.41749.russell@coker.com.au>
+To: russell@coker.com.au,
+   "Fedora SELinux support list for users &amp; developers." <fedora-selinux-list@redhat.com>
+CC: David Hampton <hampton-rh@rainbolthampton.net>, selinux@tycho.nsa.gov
+Subject: Re: Tweaks to the amavis policy
+References: <1110979100.20316.18.camel@hampton-pc.rainbolthampton.net> <200504221819.49152.russell@coker.com.au>
+In-Reply-To: <200504221819.49152.russell@coker.com.au>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_BkLaCJxOX0G3nYc
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Russell Coker wrote:
 
-On Thursday 21 April 2005 06:47, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Several fixes to get MLS policy working better around initrc_tty files.
+>On Thursday 17 March 2005 00:18, David Hampton 
+><hampton-rh@rainbolthampton.net> wrote:
+>  
 >
-> Change hostname_t to only transition when run by dhcpc_t.  (Added to
-> targeted)
+>>I've added support to the (unused) amavis policy to allow interaction
+>>with additional mail filters, and added a new type specifically for
+>>quarantined spam and viruses.  I also tweaked the network access to
+>>limit ports that can be used by amavisd.  I'd appreciate any feedback on
+>>these changes or tips on how to write better policies.  Thanks.
+>>    
+>>
 >
-> Several fixes to allow dhclient to work properly.
-
-+daemon_domain(dhcpc, `, privuser')
-
-What is going on here?  Is dhcpc_t trying to launch processes on behalf of the 
-user?
-
-> More fixes for initrc_t for removal of unconfined_domain.
+>+# Tmp reaper
+>+ifdef(`tmpreaper.te', `
+>+allow tmpreaper_t amavisd_quarantine_t:dir { read search getattr setattr 
+>unlink };
+>+allow tmpreaper_t amavisd_quarantine_t:file getattr;
+>+')
 >
-> Several fixes for amanda to be able to backup a system.
+>tmpreaper_t should not need setattr access to the directory.
 >
-> Allow httpd_suexec_t to create httpd_log files.
+>To perform any useful function tmpreaper_t will need read/write access to the 
+>directory and unlink access to the file such as the following:
 >
-> Split auditd policy out into auditd_t for audit daemon and auditctl_t
-> for autoctl program
+>allow tmpreaper_t amavisd_quarantine_t:dir { rw_dir_perms unlink };
+>allow tmpreaper_t amavisd_quarantine_t:file { getattr unlink };
 >
-> Allow cups to communicate with desktop in targeted policy.
+>  
 >
-> Fix prelink to be able to be run by admin.
->
-> Misc file_context fixes.
->
-> fix ypbind_macros.te to use name_connect.
+Why not add the attribute tmpfile to amavisd_quarantine_t and you get 
+this for free.
 
-+allow getty_t initrc_devpts_t:chr_file rw_file_perms;
-
-How/why does getty get to access a /dev/pts file?  I don't think that this is 
-required, if it is then it's a gross bug in getty or init.
-
-+allow udev_t device_t:file rw_file_perms;
-
-This is a bug.  There should never be a file labelled as device_t.
-
-+/sbin/rdisc            --      system_u:object_r:traceroute_exec_t
-
-Isn't rdisc supposed to run as a daemon?  If so then it will need a pidfile 
-and thus more access than traceroute_t gets.  I've attached a first cut at a 
-policy for it, it doesn't work yet as I don't have a test setup though.
+Dan
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_BkLaCJxOX0G3nYc
-Content-Type: text/plain;
-  charset="utf-8";
-  name="rdisc.fc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="rdisc.fc"
 
-/sbin/rdisc		system_u:object_r:rdisc_exec_t
-
---Boundary-00=_BkLaCJxOX0G3nYc
-Content-Type: text/plain;
-  charset="utf-8";
-  name="rdisc.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="rdisc.te"
-
-#DESC rdisc - network router discovery daemon
-#
-# Author:  Russell Coker <russell@coker.com.au>
-
-daemon_base_domain(rdisc)
-allow rdisc_t self:rawip_socket create_socket_perms;
-allow rdisc_t self:udp_socket create_socket_perms;
-allow rdisc_t self:capability net_raw;
-
---Boundary-00=_BkLaCJxOX0G3nYc--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
