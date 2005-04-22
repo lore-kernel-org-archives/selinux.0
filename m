@@ -1,51 +1,44 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3M8EP7C014338
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 04:14:25 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3M8Oi7C014371
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 04:24:44 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3M86Trf021763
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 08:06:30 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3M8Gmrf021979
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 08:16:49 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: David Hampton <hampton-rh@rainbolthampton.net>
-Subject: Re: Updates to amavisd [patch]
-Date: Fri, 22 Apr 2005 18:09:27 +1000
-Cc: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <1113514551.6056.38.camel@hampton-pc.rainbolthampton.net>
-In-Reply-To: <1113514551.6056.38.camel@hampton-pc.rainbolthampton.net>
+Subject: Re: Tweaks to the amavis policy
+Date: Fri, 22 Apr 2005 18:19:46 +1000
+Cc: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
+References: <1110979100.20316.18.camel@hampton-pc.rainbolthampton.net>
+In-Reply-To: <1110979100.20316.18.camel@hampton-pc.rainbolthampton.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <200504221809.30984.russell@coker.com.au>
+Message-Id: <200504221819.49152.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 15 April 2005 07:35, David Hampton <hampton-rh@rainbolthampton.net> 
-wrote:
-> The attached patch updates the (unused) amavisd policy to work with the
-> changes in the FC strict/1.23.10-2 policy.  It also fixes the access
-> needed by tmpreaper to delete files from the caught spam/virus
-> directory.
+On Thursday 17 March 2005 00:18, David Hampton 
+<hampton-rh@rainbolthampton.net> wrote:
+> I've added support to the (unused) amavis policy to allow interaction
+> with additional mail filters, and added a new type specifically for
+> quarantined spam and viruses.  I also tweaked the network access to
+> limit ports that can be used by amavisd.  I'd appreciate any feedback on
+> these changes or tips on how to write better policies.  Thanks.
 
-+allow initrc_t amavisd_etc_t:file read;
-Generally it's a bad idea to grant read access without getattr.
++# Tmp reaper
++ifdef(`tmpreaper.te', `
++allow tmpreaper_t amavisd_quarantine_t:dir { read search getattr setattr 
+unlink };
++allow tmpreaper_t amavisd_quarantine_t:file getattr;
++')
 
-@@ -120,6 +122,6 @@
+tmpreaper_t should not need setattr access to the directory.
 
- # Tmp reaper
- ifdef(`tmpreaper.te', `
--allow tmpreaper_t amavisd_quarantine_t:dir { read search getattr setattr 
-unlink
- };
--allow tmpreaper_t amavisd_quarantine_t:file getattr;
-+allow tmpreaper_t amavisd_quarantine_t:dir create_dir_perms;
-+allow tmpreaper_t amavisd_quarantine_t:file link_file_perms;
- ')
+To perform any useful function tmpreaper_t will need read/write access to the 
+directory and unlink access to the file such as the following:
 
-tmpreaper_t shouldn't be creating directories.  For the file access { getattr 
-unlink } should be sufficient.
-
-The following should do:
 allow tmpreaper_t amavisd_quarantine_t:dir { rw_dir_perms unlink };
 allow tmpreaper_t amavisd_quarantine_t:file { getattr unlink };
 
