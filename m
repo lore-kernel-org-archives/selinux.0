@@ -1,35 +1,34 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3M27o7C013418
-	for <selinux@tycho.nsa.gov>; Thu, 21 Apr 2005 22:07:50 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3M86M7C014291
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 04:06:23 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3M1xvVU011426
-	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 01:59:59 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3M7wPrf021542
+	for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2005 07:58:27 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Alex Ackerman <alex@darkhonor.com>
-Subject: Re: pppd Patch for PPTPClient
-Date: Fri, 22 Apr 2005 12:02:40 +1000
-Cc: selinux@tycho.nsa.gov
-References: <41E40180.9020500@darkhonor.com>
-In-Reply-To: <41E40180.9020500@darkhonor.com>
+To: fedora-selinux-list@redhat.com
+Subject: Re: Updates to dcc [patch]
+Date: Fri, 22 Apr 2005 18:00:44 +1000
+Cc: David Hampton <hampton-rh@rainbolthampton.net>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+References: <1113514561.6056.41.camel@hampton-pc.rainbolthampton.net>
+In-Reply-To: <1113514561.6056.41.camel@hampton-pc.rainbolthampton.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <200504221202.43118.russell@coker.com.au>
+Message-Id: <200504221800.47811.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 12 January 2005 03:40, Alex Ackerman <alex@darkhonor.com> wrote:
-> Comments?
+On Friday 15 April 2005 07:36, David Hampton <hampton-rh@rainbolthampton.net> 
+wrote:
+> The attached patch updates the (unused) dcc policy to work with the
+> changes in the FC strict/1.23.10-2 policy.  It also makes a couple of
+> tweaks to the policy
 
-+allow pppd_t self:unix_stream_socket { accept connectto listen };
++allow initrc_t dcc_var_run_t:dir rw_dir_perms;
 
-Better to change the previous line to create_stream_socket_perms.
-
-+allow pppd_t var_run_t:sock_file { create setattr unlink write };
-
-Need a better type for this, var_run_t:sock_file should not exist in strict 
-policy.
+Use the pidfile attribute for dcc_var_run_t and you won't need that.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
