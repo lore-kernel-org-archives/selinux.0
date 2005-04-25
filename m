@@ -1,57 +1,57 @@
-Subject: Re: Strange audit messages - whitespace
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov,
-   linux-audit@redhat.com
-In-Reply-To: <20050424162826.1167.qmail@web51509.mail.yahoo.com>
-References: <20050424162826.1167.qmail@web51509.mail.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 25 Apr 2005 08:54:14 -0400
-Message-Id: <1114433654.27036.78.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3PEwTgA001321
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 10:58:30 -0400 (EDT)
+Received: from palrel10.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3PEqrYj023085
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 14:52:54 GMT
+Received: from mailrelay01.cac.cpqcorp.net (mailrelay01.cac.cpqcorp.net [16.47.132.152])
+	by palrel10.hp.com (Postfix) with ESMTP id E1E8E2197
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 07:52:55 -0700 (PDT)
+Received: from anw.zk3.dec.com (and.zk3.dec.com [16.140.64.3])
+	by mailrelay01.cac.cpqcorp.net (Postfix) with ESMTP id 75CE552F
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 07:52:54 -0700 (PDT)
+Message-ID: <426D0440.501@hp.com>
+Date: Mon, 25 Apr 2005 10:52:48 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: A small patch for auditd.te
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-04-24 at 09:28 -0700, Steve G wrote:
-> >I get audit messages that look like this (with lots of 
-> >extra whitespace) for my new GConf domain. Any idea what 
-> >can cause this? 
-> 
-> This sounds like an old kernel bug. There was a patch on the audit mail list that
-> fixes it. It is pending being merged in the mm kernel. It only affects syslog  
-> messages. If you use the audit daemon, you won't see the problem.
-> 
-> -Steve Grubb
-> 
-> 
-> --- linux/kernel/audit.c.orig   2005-02-16 13:49:28.839925080 -0500
-> +++ linux/kernel/audit.c        2005-02-16 13:53:24.757060224 -0500
-> @@ -513,8 +513,8 @@
->                 if (!audit_pid) { /* No daemon */
->                         int offset = ab->nlh ? NLMSG_SPACE(0) : 0;
->                         int len    = skb->len - offset;
-> -                       printk(KERN_ERR "%*.*s\n",
-> -                              len, len, skb->data + offset);
-> +                       skb->data[offset + len] = '\0';
-> +                       printk(KERN_ERR "%s\n", skb->data + offset);
->                 }
->                 kfree_skb(skb);
->                 ab->nlh = NULL;
+* My apologies if this is a duplicate, my first message seems to have
+   been lost.
 
-Any reason that small bug fixes like this aren't upstreamed immediately
-rather than waiting on the overall audit patchset?
+Below is my attempt at fixing the audit policy so that the auditd and
+auditctl work correctly at boot time.  I tested this on the latest FC4
+bits augmented with Dan's MLS policy RPM and the latest audit RPMs from
+David Woodhouse's repository.
 
-Although I suppose that the real bug here is in printk's handling of the
-"%*.*s" format, so either it should not support that format at all or
-someone needs to find the bug in it and fix it.  Also, what does skb-
->data[offset+len] contain prior to setting it to the NUL character as
-above?
- 
+Index: auditd.te
+===================================================================
+RCS file:
+/cvsroot/selinux/nsa/selinux-usr/policy/domains/program/unused/auditd.te,v
+retrieving revision 1.6
+diff -r1.6 auditd.te
+4a5,6
+> # Some fixes by Paul Moore <paul.moore@hp.com>
+> #
+15a18
+> allow auditd_t self:process setsched;
+34a38
+> allow auditctl_t init_t:fd use;
+38a43
+> role system_r types auditctl_t;
+42a48,51
+> allow initrc_t auditctl_exec_t:file rx_file_perms;
+> allow initrc_t auditd_etc_t:file r_file_perms;
+> domain_auto_trans(initrc_t, auditctl_exec_t, auditctl_t)
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
-
+. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+. paul.moore@hp.com                                      hewlett packard
+. (603) 884-5056                                          linux security
 
 --
 This message was distributed to subscribers of the selinux mailing list.
