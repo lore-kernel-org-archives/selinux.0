@@ -1,75 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3PKdWgA004190
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 16:39:32 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3PKdcuo006809
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 20:39:39 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: David Hampton <hampton-rh@rainbolthampton.net>
-Subject: Re: New policy for DCC
-Date: Tue, 26 Apr 2005 06:39:33 +1000
-Cc: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
-References: <1111454598.18940.57.camel@hampton-pc.rainbolthampton.net> <200504220054.22405.russell@coker.com.au> <1114427681.13081.24.camel@hampton-pc.rainbolthampton.net>
-In-Reply-To: <1114427681.13081.24.camel@hampton-pc.rainbolthampton.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3PM2MgA004773
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 18:02:22 -0400 (EDT)
+Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3PM2TYj006303
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 22:02:29 GMT
+Received: from taynzmail03.nz-tay.cpqcorp.net (taynzmail03.nz-tay.cpqcorp.net [16.47.4.103])
+	by atlrel6.hp.com (Postfix) with ESMTP id 0915B1293
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 18:02:32 -0400 (EDT)
+Received: from anw.zk3.dec.com (and.zk3.dec.com [16.140.64.3])
+	by taynzmail03.nz-tay.cpqcorp.net (Postfix) with ESMTP id D0EF9214D
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 18:02:31 -0400 (EDT)
+Message-ID: <426D68F2.6040509@hp.com>
+Date: Mon, 25 Apr 2005 18:02:26 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200504260639.37371.russell@coker.com.au>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Small patch to udev.te
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 25 April 2005 21:14, David Hampton <hampton-rh@rainbolthampton.net> 
-wrote:
-> On Fri, 2005-04-22 at 00:54 +1000, Russell Coker wrote:
-> > Firstly daemons should not be started with su.
->
-> Agreed, but thats how the designer of DCC implemented it.
+Here is another small patch to fix a problem with udev on bootup.
 
-So it's up to the distribution maintainers (people such as us) to correct this 
-mistake.
-
-> > Why do you use init_service_domain() and domain_auto_trans(initrc_t,
-> > dcc_script_exec_t, dcc_script_t)?
-> >
-> > Surely the daemon is to be started either from inittab or from an
-> > /etc/init.d script but not both.
->
-> Its started from /etc/init.d or by hand.  I'll correct the policy to
-> remove init_service_domain.
-
-OK, then daemon_base_domain() or daemon_domain() is what you want.
-
-> > Putting a unix domain socket in /etc is wrong.  Among other things it
-> > will probably break things for anyone who wants to run with a read-only
-> > root file system.
->
-> Agreed.  This was moved from /var/dcc to /etc by the packager.  I've
-> submitted a patch to restore it to the /var/dcc directory.  In the mean
-> time I wrote the policy to work with either location.
-
-OK, but when you publish policy please publish it to work with the fixed 
-package.
-
-> > I feel confident in guessing that it's not
-> > nearly half as complex as Postfix and doesn't need so many domains.
-> > Excessive domains makes the policy difficult to analyse.  For starters
-> > dccifd_t and dccm_t can be merged.
->
-> I have no problem reducing the number of domains.  I got the impression
-> somewhere that each executable should be its own domain.  Would three
-> domains be reasonable (the server, clients that connect to the server,
-> everything else), or just two (executables that access the network and
-> the utility programs)?
-
-Try it with three.  Once I see working policy for three domains I can make a 
-better judgement as to whether it would be best expressed as two domains.
+Index: udev.te
+===================================================================
+RCS file: 
+/cvsroot/selinux/nsa/selinux-usr/policy/domains/program/unused/udev.te,v
+retrieving revision 1.42
+diff -u -r1.42 udev.te
+--- udev.te     22 Apr 2005 15:02:30 -0000      1.42
++++ udev.te     25 Apr 2005 22:00:44 -0000
+@@ -33,7 +33,7 @@
+  allow udev_t self:unix_stream_socket {connectto 
+create_stream_socket_perms};
+  allow udev_t self:unix_dgram_socket create_socket_perms;
+  allow udev_t self:fifo_file rw_file_perms;
+-allow udev_t device_t:file rw_file_perms;
++allow udev_t device_t:file { unlink rw_file_perms };
+  allow udev_t device_t:sock_file create_file_perms;
+  allow udev_t device_t:lnk_file create_lnk_perms;
+  allow udev_t { device_t device_type }:{ chr_file blk_file } { 
+relabelfrom relabelto create_file_perms };
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+. paul.moore@hp.com                                      hewlett packard
+. (603) 884-5056                                          linux security
 
 --
 This message was distributed to subscribers of the selinux mailing list.
