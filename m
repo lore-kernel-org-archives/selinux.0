@@ -1,41 +1,57 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3PD3pgA000426
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 09:03:51 -0400 (EDT)
-Received: from web51505.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j3PCwGYj011419
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 12:58:16 GMT
-Message-ID: <20050425125803.25719.qmail@web51505.mail.yahoo.com>
-Date: Mon, 25 Apr 2005 05:58:02 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: Strange audit messages - whitespace
-To: Stephen Smalley <sds@tycho.nsa.gov>, Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov,
+   linux-audit@redhat.com
+In-Reply-To: <20050424162826.1167.qmail@web51509.mail.yahoo.com>
+References: <20050424162826.1167.qmail@web51509.mail.yahoo.com>
+Content-Type: text/plain
+Date: Mon, 25 Apr 2005 08:54:14 -0400
+Message-Id: <1114433654.27036.78.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->IIRC, this is believed to be a bug in the handling of the "%*.*s" format
->by printk as used by the kernel audit framework.
+On Sun, 2005-04-24 at 09:28 -0700, Steve G wrote:
+> >I get audit messages that look like this (with lots of 
+> >extra whitespace) for my new GConf domain. Any idea what 
+> >can cause this? 
+> 
+> This sounds like an old kernel bug. There was a patch on the audit mail list that
+> fixes it. It is pending being merged in the mm kernel. It only affects syslog  
+> messages. If you use the audit daemon, you won't see the problem.
+> 
+> -Steve Grubb
+> 
+> 
+> --- linux/kernel/audit.c.orig   2005-02-16 13:49:28.839925080 -0500
+> +++ linux/kernel/audit.c        2005-02-16 13:53:24.757060224 -0500
+> @@ -513,8 +513,8 @@
+>                 if (!audit_pid) { /* No daemon */
+>                         int offset = ab->nlh ? NLMSG_SPACE(0) : 0;
+>                         int len    = skb->len - offset;
+> -                       printk(KERN_ERR "%*.*s\n",
+> -                              len, len, skb->data + offset);
+> +                       skb->data[offset + len] = '\0';
+> +                       printk(KERN_ERR "%s\n", skb->data + offset);
+>                 }
+>                 kfree_skb(skb);
+>                 ab->nlh = NULL;
 
-Yes.
+Any reason that small bug fixes like this aren't upstreamed immediately
+rather than waiting on the overall audit patchset?
 
->What's the status on getting the patch by Peter Martucelli to eliminate that 
->usage upstreamed?
+Although I suppose that the real bug here is in printk's handling of the
+"%*.*s" format, so either it should not support that format at all or
+someone needs to find the bug in it and fix it.  Also, what does skb-
+>data[offset+len] contain prior to setting it to the NUL character as
+above?
+ 
 
-It got dropped from the -mm tree because of merge problems with Andi's code.
-Andrew said it will be picked up again. So I'd say it will land in 2.6.13. In any
-event, we are trying to get all the patches that were in the mm tree and dropped
-into FC4 kernel this week. This includes the comm/exe patch.
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
--Steve Grubb
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
