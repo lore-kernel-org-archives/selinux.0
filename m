@@ -1,51 +1,66 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3OGYigA026441
-	for <selinux@tycho.nsa.gov>; Sun, 24 Apr 2005 12:34:44 -0400 (EDT)
-Received: from web51509.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j3OGQPu7010164
-	for <selinux@tycho.nsa.gov>; Sun, 24 Apr 2005 16:26:25 GMT
-Message-ID: <20050424162826.1167.qmail@web51509.mail.yahoo.com>
-Date: Sun, 24 Apr 2005 09:28:26 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Strange audit messages - whitespace
-To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: 6667
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3P73JgA028854
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 03:03:19 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3P6srYj024620
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 06:54:55 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id E842261AD8
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 16:56:14 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 06520-05 for <selinux@tycho.nsa.gov>;
+	Mon, 25 Apr 2005 16:56:14 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 694F761AD7
+	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 16:56:14 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Subject: cdrecord policy patch
+Date: Mon, 25 Apr 2005 16:56:27 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_eSJbCv+SE3V1Sk4"
+Message-Id: <200504251656.30648.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->I get audit messages that look like this (with lots of 
->extra whitespace) for my new GConf domain. Any idea what 
->can cause this? 
+--Boundary-00=_eSJbCv+SE3V1Sk4
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This sounds like an old kernel bug. There was a patch on the audit mail list that
-fixes it. It is pending being merged in the mm kernel. It only affects syslog  
-messages. If you use the audit daemon, you won't see the problem.
+The attached patch is necessary for cdrecord to search for drives.
 
--Steve Grubb
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+--Boundary-00=_eSJbCv+SE3V1Sk4
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="cdrecord.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="cdrecord.diff"
 
---- linux/kernel/audit.c.orig   2005-02-16 13:49:28.839925080 -0500
-+++ linux/kernel/audit.c        2005-02-16 13:53:24.757060224 -0500
-@@ -513,8 +513,8 @@
-                if (!audit_pid) { /* No daemon */
-                        int offset = ab->nlh ? NLMSG_SPACE(0) : 0;
-                        int len    = skb->len - offset;
--                       printk(KERN_ERR "%*.*s\n",
--                              len, len, skb->data + offset);
-+                       skb->data[offset + len] = '\0';
-+                       printk(KERN_ERR "%s\n", skb->data + offset);
-                }
-                kfree_skb(skb);
-                ab->nlh = NULL;
+--- macros/program/cdrecord_macros.te.orig	2005-04-25 16:53:12.000000000 +1000
++++ macros/program/cdrecord_macros.te	2005-04-25 16:53:23.000000000 +1000
+@@ -40,7 +40,7 @@
+ allow $1_cdrecord_t etc_t:file { getattr read };
+ 
+ # allow searching for cdrom-drive
+-allow $1_cdrecord_t device_t:dir { getattr search };
++allow $1_cdrecord_t device_t:dir r_dir_perms;
+ allow $1_cdrecord_t device_t:lnk_file { getattr read };
+ 
+ # allow cdrecord to write the CD
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+--Boundary-00=_eSJbCv+SE3V1Sk4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
