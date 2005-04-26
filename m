@@ -1,51 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3PM2MgA004773
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 18:02:22 -0400 (EDT)
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3PM2TYj006303
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 22:02:29 GMT
-Received: from taynzmail03.nz-tay.cpqcorp.net (taynzmail03.nz-tay.cpqcorp.net [16.47.4.103])
-	by atlrel6.hp.com (Postfix) with ESMTP id 0915B1293
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 18:02:32 -0400 (EDT)
-Received: from anw.zk3.dec.com (and.zk3.dec.com [16.140.64.3])
-	by taynzmail03.nz-tay.cpqcorp.net (Postfix) with ESMTP id D0EF9214D
-	for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2005 18:02:31 -0400 (EDT)
-Message-ID: <426D68F2.6040509@hp.com>
-Date: Mon, 25 Apr 2005 18:02:26 -0400
-From: Paul Moore <paul.moore@hp.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3QJNRgA011802
+	for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2005 15:23:27 -0400 (EDT)
+Received: from web51507.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j3QJNQAT022598
+	for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2005 19:23:26 GMT
+Message-ID: <20050426192327.70954.qmail@web51507.mail.yahoo.com>
+Date: Tue, 26 Apr 2005 12:23:27 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Signal problem
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Small patch to udev.te
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Here is another small patch to fix a problem with udev on bootup.
+Hello,
 
-Index: udev.te
-===================================================================
-RCS file: 
-/cvsroot/selinux/nsa/selinux-usr/policy/domains/program/unused/udev.te,v
-retrieving revision 1.42
-diff -u -r1.42 udev.te
---- udev.te     22 Apr 2005 15:02:30 -0000      1.42
-+++ udev.te     25 Apr 2005 22:00:44 -0000
-@@ -33,7 +33,7 @@
-  allow udev_t self:unix_stream_socket {connectto 
-create_stream_socket_perms};
-  allow udev_t self:unix_dgram_socket create_socket_perms;
-  allow udev_t self:fifo_file rw_file_perms;
--allow udev_t device_t:file rw_file_perms;
-+allow udev_t device_t:file { unlink rw_file_perms };
-  allow udev_t device_t:sock_file create_file_perms;
-  allow udev_t device_t:lnk_file create_lnk_perms;
-  allow udev_t { device_t device_type }:{ chr_file blk_file } { 
-relabelfrom relabelto create_file_perms };
+I ran across a problem while working on the audit code that has SE Linux
+implications. The function security_task_kill does not hook all paths for signal 
+entry/delivery. Just to make sure you know the piece of code I'm talking 
+about:
 
--- 
-. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-. paul.moore@hp.com                                      hewlett packard
-. (603) 884-5056                                          linux security
+http://lxr.linux.no/source/kernel/signal.c#L630
+
+Some background -- we have a CAPP requirement to identify the sender of the 
+TERM signal to the audit daemon. We placed a hook inside check_kill_permission().
+It was called on a PPC, but my i686 kernel never sees it. I think there is some
+arch specific code that changes how signals are delivered on ix86.
+
+My test was simply /etc/rc.d/init.d/auditd stop
+and then look for a message stating the shutdown signal was received.
+
+Using strace, the usual entry method was syscall 37 (kill). After that who knows
+what the code path is? I'm moving the audit hook to a whole new place 
+to solve our problem. But I thought you might want to know about this since 
+security_task_kill appears to be not hooking signals on all platforms.
+
+-Steve Grubb
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
