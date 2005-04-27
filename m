@@ -1,43 +1,37 @@
-Date: Tue, 26 Apr 2005 13:48:46 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-   selinux@tycho.nsa.gov
 Subject: Re: Signal problem
-Message-ID: <20050426204846.GE493@shell0.pdx.osdl.net>
-References: <20050426203837.1560.qmail@web51507.mail.yahoo.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20050426201806.58515.qmail@web51501.mail.yahoo.com>
+References: <20050426201806.58515.qmail@web51501.mail.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 27 Apr 2005 07:25:47 -0400
+Message-Id: <1114601147.4115.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050426203837.1560.qmail@web51507.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Steve G (linux_4ever@yahoo.com) wrote:
-> >Upon termination, what's queued to the netlink socket but not yet
-> >received is going to be lost, right?
+On Tue, 2005-04-26 at 13:18 -0700, Steve G wrote:
+> >Isn't this unreliable anyway, e.g. your hook might queue up the audit
+> >message for processing by auditd, but auditd gets the signal before it
+> >handles the message and exits without emptying the queue?
 > 
-> I've also tested with nonfatal signals. This bug has been verified by other
-> people, too.
+> The message would be in syslog in that scenario. It isn't there either.
 
-Nonfatal signals are delivered to auditd, but don't generate the audit
-record?  Is it being filtered away?
+Not necessarily; it could be queued on the netlink socket while
+audit_pid was still non-zero, and then the signal is received and auditd
+doesn't drain it properly. 
 
-> >Perhaps you need to be able to set pid == 0, and still drain the fd 
-> >when you recieve a TERM?
-> 
-> There's no way to drain the netlink socket in a race-free way. I've created a
-> whole new technique as a consequence. I'm just down to placing the hook.
+Trivial test for you would be to make your original hook call printk()
+instead of audit_log*, and see if you get the message
+in /var/log/messages or dmesg as expected.  In any event, I definitely
+get SELinux permission denials and audit messages via the existing
+security hook there for signal delivery.
 
-If you first set audit_pid to 0, all future messages will go to syslog.  It's
-only current netlink socket queue that needs to be drained.  So there's
-no livelock issue, just a race against the typical 5 seconds or whatever
-it is for init scripts between TERM and KILL while you madly drain the
-queue.
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
