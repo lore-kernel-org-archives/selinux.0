@@ -1,83 +1,88 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3RKL8gA019688
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2005 16:21:08 -0400 (EDT)
-Received: from vds-320151.amen-pro.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3RKKrES025486
-	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2005 20:20:54 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3RKL4gA019682
+	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2005 16:21:05 -0400 (EDT)
+Received: from vds-320151.amen-pro.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3RKKqCp024442
+	for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2005 20:20:53 GMT
 Subject: Re: [RFC][PATCH 1/2] Further SELinux restrictions on mprotect
 From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-   roland@redhat.com, mingo@redhat.com, James Morris <jmorris@redhat.com>
-In-Reply-To: <426FC551.5030100@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, drepper@redhat.com, roland@redhat.com,
+   mingo@redhat.com, James Morris <jmorris@redhat.com>
+In-Reply-To: <1114619778.4115.127.camel@moss-spartans.epoch.ncsc.mil>
 References: <1114017480.8495.93.camel@localhost.localdomain>
 	 <1114619778.4115.127.camel@moss-spartans.epoch.ncsc.mil>
-	 <426FC551.5030100@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f+BAQ1xHaZp+Dl12RSwk"
-Date: Wed, 27 Apr 2005 22:18:09 +0200
-Message-Id: <1114633089.8548.30.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-V4pLi93Zvu2/yGkDX5O1"
+Date: Wed, 27 Apr 2005 22:13:05 +0200
+Message-Id: <1114632785.8548.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-f+BAQ1xHaZp+Dl12RSwk
+--=-V4pLi93Zvu2/yGkDX5O1
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-El mi=E9, 27-04-2005 a las 10:01 -0700, Ulrich Drepper escribi=F3:
-> Stephen Smalley wrote:
-> > What do others think about these additional permission checks,
-> > particularly in terms of being able to practically apply them?  Has
-> > anyone else experimented with them?
+El mi=E9, 27-04-2005 a las 12:36 -0400, Stephen Smalley escribi=F3:
+> Thanks for working on these patches. =20
+
+Thanks to you for the guidance and feedback.
+
+> I built a 2.6.12-rc3 kernel with
+> execshield and both of these patches applied, and then performed a
+> little experimentation, yielding the following results:
 >=20
-> I certainly like all the lockdown in this area we can get.  The other
-> approaches to achieve this (i.e., pax) are simply unsuitable for a
-> general OS release.  The fact that some programs need relaxed policies
-> now doesn't mean this cannot be changed.
+> The execstack check kills the mprotstack test of the modified paxtest as
+> expected even if execmem is allowed.  Likewise, the execheap check kills
+> the mprotheap test of the modified paxtest.
+>=20
+> As expected, X requires execheap permission presently.
 
-I agree, it's a matter of doing it well, and doing it simple, at least
-from the users side.
-That would ensure a future and wide deployment in an huge variety of
-distributions (ie. Debian, Ubuntu...), and more important, in the
-"Desktop world", generally.
+Yes.
 
-> For instance, the X issue you saw is iirc changed upstream.  Maybe
-> upstream =3D=3D R7, but I think the people are receptive.
+> Running firefox with the Sun java plugin installed yields an execstack
+> denial on firefox-bin, and the plugin doesn't seem to work then.  Hence,
+> we don't seem to gain any benefit in that particular case.
 
-I was looking around it, and seems that is patched right now.
-I think it was also on RH's bugzilla, submitted by Ingo, but I dunno
-certainly.
+Related with the issue regarding OOo.
 
-> As for the JVM, I have contacts at Sun and I'm sure they have an equal
-> interest in making the JVM secure.
+> Running valgrind does not yield an execstack denial and only appears to
+> require execmem permission.
 
-Good to know, personally I don't care much on Java but we must provide
-support for the most possible wide range of users, and that would help a
-lot.
+It's a special case as Ulrich notes in the latter reply.
+I was wrong about it, I apologize for any inconvenience.
 
-> valgrind is a special tool, I'm not worried.
+> Running OpenOffice generates audit messages for both execstack and
+> execheap denials on soffice.bin, but still appears to function.  Not
+> sure what is occurring there.
 
-:)
+OOo may use a JVM, that depends slightly on your installation, and it's
+not something *imperative* to have, thus, it can cause the denials but
+still work, of course without the features relying in the JVM.
+It could be good to check (using Ingo's /proc/PID/maps markers patch)
+where's located the executable heap segment and where's the executable
+stack, for use in a later debugging (indeed, OOo is a big beast in that
+terms...).
 
-Cheers and thanks for your comments,
+Cheers and many thanks for testing,
 --=20
 Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
 [1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
---=-f+BAQ1xHaZp+Dl12RSwk
+--=-V4pLi93Zvu2/yGkDX5O1
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBCb/OBDcEopW8rLewRAt/bAKDGZRY5GfDLzPnh68ofLPFxBuWEBwCfXpeG
-8wnMNP6tzK3IfNuOf9gCWtY=
-=OIwN
+iD8DBQBCb/JRDcEopW8rLewRAs7kAJ4z70Q70agRt3ADou72OzyVA7gB+ACfWiWi
+IKsCX0+ghzh8+8Oi0udP72A=
+=uMOx
 -----END PGP SIGNATURE-----
 
---=-f+BAQ1xHaZp+Dl12RSwk--
+--=-V4pLi93Zvu2/yGkDX5O1--
 
 
 --
