@@ -1,39 +1,51 @@
-Subject: Re: Is there a SELinux tutorial for ISVs ?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Davide Bolcioni <dbolcioni@3di.it>,
-   fedora-selinux-list@redhat.com, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1114709532.8548.69.camel@localhost.localdomain>
-References: <426F8B45.8070509@3di.it>
-	 <pan.2005.04.27.23.10.29.993659@navi.cx> <42709B74.4000508@3di.it>
-	 <42710736.2020001@redhat.com>
-	 <1114709532.8548.69.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 28 Apr 2005 13:51:33 -0400
-Message-Id: <1114710693.6708.237.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C06185928E2A19@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, Davide Bolcioni <dbolcioni@3di.it>
+Cc: fedora-selinux-list@redhat.com, SELinux <SELinux@tycho.nsa.gov>
+Subject: RE: Is there a SELinux tutorial for ISVs ?
+Date: Thu, 28 Apr 2005 14:29:11 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-04-28 at 19:32 +0200, Lorenzo Hernández García-Hierro
-wrote:
-> I've been thinking on it when working on the SELinux deployment within
-> Ubuntu Linux, and binary policies are something pretty handy for binary
-> packages-based distributions, among the general benefit they provide.
+
 > 
-> I might be able to work on something, but I would like to know first how
-> many people is interested in this and how many of them would be able to
-> contribute to it in the long term.
+> This string of messages brings up something I wanted to get a 
+> conversation going on how to handle non OS Provided policy.
+> 
+> We all know we need a better mechanism for handling "binary" 
+> policy in 
+> the future.  ( I think the future is now.)
+> I see three people providing policy.
+> 
 
-Tresys Technology already has a working implementation of binary policy
-modules, including a module abstraction with a dependency model, a
-compiler for generating such modules, and a linker for linking them
-together with a "base module".  Planned for upstreaming after FC4.  See
-their prior posts to the selinux list or their web site for info.
+I agree, as an ISV we need a way to add custom policy to support our
+applications. We currently use a processed version to the policy to have
+source modules until the binary modules are part of Fedora.
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+> 1. OS Provider with base policy.  (It would also be nice if the base 
+> policy got broken into several policies and only the policy
+> of the running service would be loaded.  If we got to this state we 
+> would need a new mechanism for restoring file context since
+> file_context might not meet the currently loaded policy. 
+> 
+> 2. Third Party application developers.  As the use of targeted policy 
+> has begun to take off, Third Party ISV have started to question
+> how they can play in this world.
+> 
+
+Exactly, see statement above.
+
+> I see Tresys Stuff solving the problems of both of the above.
+> 
+> 3 Local User customization and minor policies.  Currently we 
+> have people 
+
+Along with local user policy, there needs to be local network policy
+customizations as well. This is required from an MLS perspective and I would
+think be useful for TE network restrictions as well.
 
 
 --
