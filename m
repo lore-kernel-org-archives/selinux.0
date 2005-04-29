@@ -1,92 +1,71 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j42EVugA019471
-	for <selinux@tycho.nsa.gov>; Mon, 2 May 2005 10:31:57 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j42EUmEY014941
-	for <selinux@tycho.nsa.gov>; Mon, 2 May 2005 14:30:48 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j42EVggA019453
+	for <selinux@tycho.nsa.gov>; Mon, 2 May 2005 10:31:42 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j42EUaYR025169
+	for <selinux@tycho.nsa.gov>; Mon, 2 May 2005 14:30:37 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j42EVmum018560
-	for <selinux@tycho.nsa.gov>; Mon, 2 May 2005 10:31:48 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j42EVfP3018555
+	for <selinux@tycho.nsa.gov>; Mon, 2 May 2005 10:31:41 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j42EVmuU018559
-	for selinux@tycho.nsa.gov; Mon, 2 May 2005 10:31:48 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j42EVeLW018554
+	for selinux@tycho.nsa.gov; Mon, 2 May 2005 10:31:40 -0400
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3UF7qgA010685
-	for <selinux@tycho.nsa.gov>; Sat, 30 Apr 2005 11:07:52 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j3U002gA008107
+	for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2005 20:00:02 -0400 (EDT)
 Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3UF7CXo023457
-	for <selinux@tycho.nsa.gov>; Sat, 30 Apr 2005 15:07:13 GMT
-Received: from [192.168.2.105] (cpe-69-202-105-200.twcny.res.rr.com [69.202.105.200])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j3UF77Sl016673
-	for <selinux@tycho.nsa.gov>; Sat, 30 Apr 2005 11:07:07 -0400 (EDT)
-Subject: Re: Restrict Home v. 4
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j3TNxS9W012488
+	for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2005 23:59:28 GMT
+Subject: Re: Restrict Home v. 3
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
 To: selinux@tycho.nsa.gov
-In-Reply-To: <1114819155.18710.4.camel@localhost.localdomain>
+Cc: dwalsh@redhat.com, russell@coker.com.au
+In-Reply-To: <1114806411.15876.2.camel@localhost.localdomain>
 References: <1114806411.15876.2.camel@localhost.localdomain>
-	 <1114819155.18710.4.camel@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-NPF6RqkSNF0xLm2wZbN+"
-Date: Sat, 30 Apr 2005 11:07:05 -0400
-Message-Id: <1114873625.19665.6.camel@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-OZBz/FQzHvKW+zuRRma0"
+Date: Fri, 29 Apr 2005 19:59:15 -0400
+Message-Id: <1114819155.18710.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-NPF6RqkSNF0xLm2wZbN+
+--=-OZBz/FQzHvKW+zuRRma0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-New version - I am now running in enforcing mode w/ this patch,
-and there's very few denials - some complaints from xdm when it
-logs in that it can't read gnome icons...
+On Fri, 2005-04-29 at 16:26 -0400, Ivan Gyurdiev wrote:
+> Here's version 2 of this patch, still not in
+> merge-able state, but getting closer.
 
-Other than that, it seems to mostly work. 
-However, it requires restorecon on both /tmp and /home,
-and I'm sure a lot of newly created folders will be the wrong type.
+..and version 3 - adds policy for gnome_vfs_daemon, and
+allows mozilla to communicate w/ it over ORBit.
 
-==============================================================
+Also centralizes the gnome stuff into one gnome_domain()
+call, which makes things easier.
 
-V4 Changelog:
+Adds a new attribute called mount_point for every
+mount point, and uses that to grant mounton to mount,
+and getattr to gnome_vfs_daemon.
 
-- Prevent gnome_vfs_daemon from starting bonobo_activation_server,
-because that's a major problem - all things it starts inherit
-from its type, causing chaos - not sure how to confine it,
-but if started together w/ gnome_vfs it gets staff_t type.
+Is binfmt_misc_fs_t a mount point? Marked it as such, because
+of denials, but I'm not sure.
 
-- Rework file_browse_domain macros - separate into three macros,
-to be invoked when necessary. For example, mozilla doesn't
-need to suppress read denials, because the GNOME file dialog
-hides inaccessible folders. Also, add more types to finally
-get rid of *all* the denials. All, except the "secure_file_type"
-ones, but I lost that argument...
+Also, this makes bonobo-activation-server run in the gnome-vfs-daemon
+domain as a side effect - is this a bad thing? I haven't seen denials
+yet...
 
-- Add labeling of $HOME/downloads and Mozilla's built-in
-"My Downloads" as ROLE_untrusted_content_t
+Patch attached.
 
-- Make gmplayer work better.
-
-- Fix bugs.
-
-TODO:
-======
-
-Mozilla's still talking to ROLE_t over ORBit - find out
-what it's talking to, and confine it - gnome_settings_daemon ?
-
-The Places menu in the file dialog is not working - why?
-
-GNOME (Places) bookmark saving erases the old file,
-and writes it over - this is a problem - how to set the type?
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
 Cornell University
 
---=-NPF6RqkSNF0xLm2wZbN+
-Content-Disposition: attachment; filename=restrict_home4.diff
-Content-Type: text/x-patch; name=restrict_home4.diff; charset=UTF-8
+--=-OZBz/FQzHvKW+zuRRma0
+Content-Disposition: attachment; filename=restrict_home3.diff
+Content-Type: text/x-patch; name=restrict_home3.diff; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 diff -aru policy.old/attrib.te policy/attrib.te
@@ -290,7 +269,7 @@ diff -aru policy.old/domains/program/rhgb.te policy/domains/program/rhgb.te
  dontaudit rhgb_t var_t:dir search;
 diff -aru policy.old/domains/program/xdm.te policy/domains/program/xdm.te
 --- policy.old/domains/program/xdm.te	2005-04-29 13:42:37.000000000 -0400
-+++ policy/domains/program/xdm.te	2005-04-30 08:09:36.000000000 -0400
++++ policy/domains/program/xdm.te	2005-04-29 13:43:32.000000000 -0400
 @@ -225,7 +225,9 @@
  
  # Read /usr/share/terminfo/l/linux and /usr/share/icons/default/index.theme...
@@ -377,15 +356,8 @@ diff -aru policy.old/file_contexts/program/orbit.fc policy/file_contexts/program
 +/tmp/orbit-USER/bonobo.*        --      system_u:object_r:ROLE_orbit_tmp_t
 diff -aru policy.old/file_contexts/types.fc policy/file_contexts/types.fc
 --- policy.old/file_contexts/types.fc	2005-04-29 12:29:34.000000000 -0400
-+++ policy/file_contexts/types.fc	2005-04-30 09:52:46.000000000 -0400
-@@ -53,12 +53,14 @@
- HOME_ROOT		-d	system_u:object_r:home_root_t
- HOME_DIR		-d	system_u:object_r:ROLE_home_dir_t
- HOME_DIR/.+			system_u:object_r:ROLE_home_t
-+HOME_DIR/downloads(/.*)?	system_u:object_r:ROLE_untrusted_content_t
-+HOME_DIR/.*Downloads(/.*)?	system_u:object_r:ROLE_untrusted_content_t
- 
- /root/\.default_contexts	-- 	system_u:object_r:default_context_t
++++ policy/file_contexts/types.fc	2005-04-29 15:02:40.000000000 -0400
+@@ -58,7 +58,7 @@
  
  #
  # Mount points; do not relabel subdirectories, since
@@ -394,7 +366,7 @@ diff -aru policy.old/file_contexts/types.fc policy/file_contexts/types.fc
  /mnt(/[^/]*)?		-d	system_u:object_r:mnt_t
  /mnt/[^/]*/.*			<<none>>
  /media(/[^/]*)?		-d	system_u:object_r:mnt_t
-@@ -388,17 +390,6 @@
+@@ -388,17 +388,6 @@
  /usr/X11R6/man(/.*)?		system_u:object_r:man_t
  
  #
@@ -435,23 +407,8 @@ diff -aru policy.old/macros/admin_macros.te policy/macros/admin_macros.te
  
 diff -aru policy.old/macros/base_user_macros.te policy/macros/base_user_macros.te
 --- policy.old/macros/base_user_macros.te	2005-04-29 12:20:50.000000000 -0400
-+++ policy/macros/base_user_macros.te	2005-04-30 10:10:18.000000000 -0400
-@@ -68,14 +68,21 @@
- allow $1_t dri_device_t:chr_file getattr;
- dontaudit $1_t dri_device_t:chr_file rw_file_perms;
- 
--file_browse_domain($1_t)
-+# Supress ls denials:
-+# getattr() - ls -l
-+# search_dir() - symlink path resolution
-+# read_dir() - deep ls: ls parent/...
-+
-+dontaudit_getattr($1_t)
-+dontaudit_search_dir($1_t)
-+dontaudit_read_dir($1_t)
- 
- # allow ptrace
- can_ptrace($1_t, $1_t)
++++ policy/macros/base_user_macros.te	2005-04-29 17:05:33.000000000 -0400
+@@ -75,7 +75,7 @@
  
  # Create, access, and remove files in home directory.
  file_type_auto_trans($1_t, $1_home_dir_t, $1_home_t)
@@ -460,7 +417,7 @@ diff -aru policy.old/macros/base_user_macros.te policy/macros/base_user_macros.t
  can_setfscreate($1_t)
  
  allow $1_t autofs_t:dir { search getattr };
-@@ -176,7 +183,6 @@
+@@ -176,7 +176,6 @@
  ifdef(`tvtime.te', `tvtime_domain($1)')
  ifdef(`mozilla.te', `mozilla_domain($1)')
  ifdef(`samba.te', `samba_domain($1)')
@@ -468,7 +425,7 @@ diff -aru policy.old/macros/base_user_macros.te policy/macros/base_user_macros.t
  ifdef(`gpg.te', `gpg_domain($1)')
  ifdef(`xauth.te', `xauth_domain($1)')
  ifdef(`startx.te', `xserver_domain($1)')
-@@ -189,7 +195,17 @@
+@@ -189,7 +188,17 @@
  ifdef(`uml.te', `uml_domain($1)')
  ifdef(`cdrecord.te', `cdrecord_domain($1)')
  ifdef(`mplayer.te', `mplayer_domains($1)')
@@ -486,7 +443,7 @@ diff -aru policy.old/macros/base_user_macros.te policy/macros/base_user_macros.t
  
  # Instantiate a derived domain for user cron jobs.
  ifdef(`crond.te', `crond_domain($1)')
-@@ -350,6 +366,10 @@
+@@ -350,6 +359,10 @@
  allow $1_t default_t:notdevfile_class_set r_file_perms;
  }
  
@@ -499,7 +456,7 @@ diff -aru policy.old/macros/base_user_macros.te policy/macros/base_user_macros.t
  #
 diff -aru policy.old/macros/global_macros.te policy/macros/global_macros.te
 --- policy.old/macros/global_macros.te	2005-04-29 12:17:51.000000000 -0400
-+++ policy/macros/global_macros.te	2005-04-30 10:05:12.000000000 -0400
++++ policy/macros/global_macros.te	2005-04-29 15:17:11.000000000 -0400
 @@ -156,7 +156,6 @@
  r_dir_file($1, locale_t)
  ')
@@ -508,47 +465,6 @@ diff -aru policy.old/macros/global_macros.te policy/macros/global_macros.te
  ###################################
  #
  # access_terminal(domain, typeprefix)
-@@ -620,23 +619,25 @@
- allow $1_t etc_t:dir r_dir_perms;
- ')
- 
--# Do not flood message log, if the user does a browse
--define(`file_browse_domain', `
-+# Dontaudit macros to prevent flooding the log
- 
--# Regular files/directories that are not security sensitive
-+define(`dontaudit_getattr', `
- dontaudit $1 file_type - secure_file_type:dir_file_class_set getattr; 
--dontaudit $1 file_type - secure_file_type:dir { read search };
--
--# /dev
--dontaudit $1 dev_fs:dir_file_class_set getattr;
--dontaudit $1 dev_fs:dir { read search };
--
--# /proc
--dontaudit $1 sysctl_t:dir_file_class_set getattr;
--dontaudit $1 proc_fs:dir { read search };
--
--')dnl end file_browse_domain
--
-+dontaudit $1 unlabeled_t:dir_file_class_set getattr;
-+dontaudit $1 { fs_type proc_fs dev_fs sysctl_type }:dir_file_class_set getattr;
-+')dnl end dontaudit_getattr 
-+
-+define(`dontaudit_search_dir', `
-+dontaudit $1 file_type - secure_file_type:dir search;
-+dontaudit $1 unlabeled_t:dir search;
-+dontaudit $1 { fs_type proc_fs dev_fs sysctl_type }:dir search;
-+')dnl end dontaudit_search_dir
-+
-+define(`dontaudit_read_dir', `
-+dontaudit $1 file_type - secure_file_type:dir read;
-+dontaudit $1 unlabeled_t:dir read;
-+dontaudit $1 { fs_type proc_fs dev_fs sysctl_type }:dir read;
-+')dnl end dontaudit_read_dir
- 
- # Define legacy_domain  for legacy binaries (java)
- # "legacy" binary == lacks PT_GNU_STACK header, i.e. built with an old
 diff -aru policy.old/macros/program/apache_macros.te policy/macros/program/apache_macros.te
 --- policy.old/macros/program/apache_macros.te	2005-04-29 13:45:39.000000000 -0400
 +++ policy/macros/program/apache_macros.te	2005-04-29 13:46:23.000000000 -0400
@@ -563,7 +479,7 @@ diff -aru policy.old/macros/program/apache_macros.te policy/macros/program/apach
  ra_dir_file(httpd_$1_script_t, httpd_$1_script_ra_t)
 diff -aru policy.old/macros/program/fontconfig_macros.te policy/macros/program/fontconfig_macros.te
 --- policy.old/macros/program/fontconfig_macros.te	2005-04-13 21:51:58.000000000 -0400
-+++ policy/macros/program/fontconfig_macros.te	2005-04-30 10:11:53.000000000 -0400
++++ policy/macros/program/fontconfig_macros.te	2005-04-29 15:52:08.000000000 -0400
 @@ -0,0 +1,42 @@
 +#
 +# Fontconfig related types 
@@ -575,7 +491,7 @@ diff -aru policy.old/macros/program/fontconfig_macros.te policy/macros/program/f
 +# read_fonts(domain, role_prefix) - 
 +#         allow domain to read fonts, optionally per/user
 +#  
-+# dontaudit_home_fonts(domain, role_prefix) - 
++# disallow_home_fonts(domain, role_prefix) - 
 +#	block the denials of home fonts - hack for X
 +
 +define(`fontconfig_domain', `
@@ -601,7 +517,7 @@ diff -aru policy.old/macros/program/fontconfig_macros.te policy/macros/program/f
 +')
 +')
 +
-+define(`dontaudit_home_fonts', `
++define(`disallow_home_fonts', `
 +dontaudit $1 $2_gnome_settings_t:dir { getattr search };
 +dontaudit $1 $2_fonts_cache_t:file r_file_perms;
 +dontaudit $1 $2_fonts_t:dir r_dir_perms;
@@ -630,7 +546,7 @@ diff -aru policy.old/macros/program/games_domain.te policy/macros/program/games_
  allow $1_games_t $1_tmp_t:sock_file create_file_perms;
 diff -aru policy.old/macros/program/gconf_macros.te policy/macros/program/gconf_macros.te
 --- policy.old/macros/program/gconf_macros.te	2005-04-18 10:34:50.000000000 -0400
-+++ policy/macros/program/gconf_macros.te	2005-04-30 07:43:33.000000000 -0400
++++ policy/macros/program/gconf_macros.te	2005-04-29 18:28:28.000000000 -0400
 @@ -0,0 +1,67 @@
 +#
 +# GConfd daemon  
@@ -758,7 +674,7 @@ diff -aru policy.old/macros/program/gift_macros.te policy/macros/program/gift_ma
  can_network_client($1_giftd_t)
 diff -aru policy.old/macros/program/gnome_macros.te policy/macros/program/gnome_macros.te
 --- policy.old/macros/program/gnome_macros.te	2005-04-13 21:51:55.000000000 -0400
-+++ policy/macros/program/gnome_macros.te	2005-04-30 07:48:18.000000000 -0400
++++ policy/macros/program/gnome_macros.te	2005-04-29 18:28:59.000000000 -0400
 @@ -0,0 +1,22 @@
 +#
 +# GNOME related types 
@@ -784,8 +700,8 @@ diff -aru policy.old/macros/program/gnome_macros.te policy/macros/program/gnome_
 +') dnl gnome_domain
 diff -aru policy.old/macros/program/gnome_vfs_macros.te policy/macros/program/gnome_vfs_macros.te
 --- policy.old/macros/program/gnome_vfs_macros.te	2005-04-29 17:14:13.000000000 -0400
-+++ policy/macros/program/gnome_vfs_macros.te	2005-04-30 07:55:47.000000000 -0400
-@@ -0,0 +1,76 @@
++++ policy/macros/program/gnome_vfs_macros.te	2005-04-29 19:37:32.000000000 -0400
+@@ -0,0 +1,79 @@
 +#
 +# Gnome-vfs daemon  
 +#
@@ -835,16 +751,19 @@ diff -aru policy.old/macros/program/gnome_vfs_macros.te policy/macros/program/gn
 +
 +# ORBit domain. 
 +orbit_domain($1_gnome_vfsd, $1)
++orbit_connect($1_gnome_vfsd, $1_gnome_vfsd)
++
++# Allow fork, pipe to execute bonobo-activation-server
++allow $1_gnome_vfsd_t bin_t:dir search;
++can_exec($1_gnome_vfsd_t, bin_t);
++allow $1_gnome_vfsd_t self:process { getsched fork sigchld };
++allow $1_gnome_vfsd_t self:fifo_file rw_file_perms;
 +
 +# Read random device
 +allow $1_gnome_vfsd_t urandom_device_t:chr_file { read getattr ioctl };
 +
 +# /tmp access (?) 
 +allow $1_gnome_vfsd_t tmp_t:dir { read getattr search };
-+
-+# Fork
-+allow $1_gnome_vfsd_t self:process { getsched fork sigchld };
-+allow $1_gnome_vfsd_t self:fifo_file rw_file_perms;
 +
 +') dnl gnome_vfs_domain
 +
@@ -935,7 +854,7 @@ diff -aru policy.old/macros/program/mailcap_macros.te policy/macros/program/mail
 +
 diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozilla_macros.te
 --- policy.old/macros/program/mozilla_macros.te	2005-04-23 20:25:40.000000000 -0400
-+++ policy/macros/program/mozilla_macros.te	2005-04-30 10:15:40.000000000 -0400
++++ policy/macros/program/mozilla_macros.te	2005-04-29 19:33:33.000000000 -0400
 @@ -16,7 +16,9 @@
  # provided separately in domains/program/mozilla.te. 
  #
@@ -947,22 +866,18 @@ diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  
  # Type transition
  if (! disable_mozilla_trans) {
-@@ -28,8 +30,12 @@
+@@ -28,8 +30,9 @@
  home_domain($1, mozilla)
  x_client_domain($1_mozilla, $1)
  
 -# Browse files
--file_browse_domain($1_mozilla_t)
-+# GNOME Open/Save As dialogs
-+dontaudit_getattr($1_mozilla_t)
-+dontaudit_search_dir($1_mozilla_t)
-+
 +# Look for plugins 
+ file_browse_domain($1_mozilla_t)
 +allow $1_mozilla_t bin_t:dir { getattr read search };
  
  can_network_client($1_mozilla_t)
  allow $1_mozilla_t ftp_port_t:tcp_socket name_connect;
-@@ -53,7 +59,24 @@
+@@ -53,7 +56,24 @@
  # Fork, set resource limits and scheduling info.
  allow $1_mozilla_t self:process { fork signal_perms setrlimit setsched getsched };
  
@@ -987,7 +902,7 @@ diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  allow $1_mozilla_t var_lib_t:file { getattr read };
  allow $1_mozilla_t { random_device_t urandom_device_t }:chr_file { getattr ioctl read };
  allow $1_mozilla_t self:socket create_socket_perms;
-@@ -66,8 +89,6 @@
+@@ -66,8 +86,6 @@
  can_exec($1_mozilla_t, bin_t)
  allow $1_mozilla_t bin_t:lnk_file read;
  allow $1_mozilla_t device_t:dir r_dir_perms;
@@ -996,7 +911,7 @@ diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  allow $1_mozilla_t self:dir search;
  allow $1_mozilla_t self:lnk_file read;
  r_dir_file($1_mozilla_t, proc_net_t)
-@@ -81,47 +102,12 @@
+@@ -81,47 +99,12 @@
  # interacting with gstreamer
  r_dir_file($1_mozilla_t, var_t)
  
@@ -1048,7 +963,7 @@ diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  
  allow $1_mozilla_t $1_t:unix_stream_socket connectto;
  allow $1_mozilla_t sysctl_net_t:dir search;
-@@ -135,8 +121,7 @@
+@@ -135,8 +118,7 @@
  allow $1_mozilla_t mozilla_conf_t:file r_file_perms;
  dontaudit $1_mozilla_t port_type:tcp_socket name_bind;
  dontaudit $1_mozilla_t dri_device_t:chr_file rw_file_perms;
@@ -1058,7 +973,7 @@ diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  allow $1_mozilla_t self:sem create_sem_perms;
  
  # Java plugin
-@@ -144,16 +129,32 @@
+@@ -144,16 +126,32 @@
  javaplugin_domain($1_mozilla, $1)
  ')
  
@@ -1094,7 +1009,7 @@ diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  ')dnl end if mplayer.te  
  
  if (allow_execmem) {
-@@ -162,6 +163,7 @@
+@@ -162,6 +160,7 @@
  if (allow_execmod) {
  allow $1_mozilla_t texrel_shlib_t:file execmod;
  }
@@ -1102,108 +1017,9 @@ diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozi
  dbusd_client(system, $1_mozilla)
  ifdef(`apache.te', `
  ifelse($1, sysadm, `', `
-diff -aru policy.old/macros/program/mplayer_macros.te policy/macros/program/mplayer_macros.te
---- policy.old/macros/program/mplayer_macros.te	2005-04-30 09:13:55.000000000 -0400
-+++ policy/macros/program/mplayer_macros.te	2005-04-30 10:50:58.000000000 -0400
-@@ -6,9 +6,9 @@
- # mplayer_domains(user) declares domains for mplayer, gmplayer,
- # and mencoder
- 
--##############################################
--#    mplayer_common(user, mplayer domain)    #
--##############################################
-+#####################################################
-+#    mplayer_common(role_prefix, mplayer_domain)    #
-+#####################################################
- 
- define(`mplayer_common',`
- 
-@@ -62,28 +62,28 @@
- }
- ')
- 
--############################
--#  mplayer_domain(user)    #
--############################
-+###################################
-+#  mplayer_domain(role_prefix)    #
-+###################################
- 
- define(`mplayer_domain',`
- 
--type $1_mplayer_t, domain;
-+type $1_mplayer_t, domain, nscd_client_domain;
- 
- # Type transition
- domain_auto_trans($1_t, mplayer_exec_t, $1_mplayer_t)
- role $1_r types $1_mplayer_t;
- 
--# Home access, X access, Browse files
-+# Home access, X access
- home_domain($1, mplayer)
- x_client_domain($1_mplayer, $1)
--file_browse_domain($1_mplayer_t)
- 
- # Mplayer common stuff
- mplayer_common($1, mplayer)
- 
- # Fork 
- allow $1_mplayer_t self:process { fork signal_perms getsched };
-+allow $1_mplayer_t self:fifo_file rw_file_perms;
- 
- # Audio, alsa.conf
- allow $1_mplayer_t sound_device_t:chr_file rw_file_perms;
-@@ -101,11 +101,35 @@
- allow $1_mplayer_t $1_mplayer_tmpfs_t:file execute;
- }
- 
-+#======gmplayer gui==========#
-+# File dialogs
-+dontaudit_getattr($1_mplayer_t)
-+dontaudit_read_dir($1_mplayer_t)
-+dontaudit_search_dir($1_mplayer_t)
-+
-+# Unfortunately the ancient file dialog starts in /
-+allow $1_mplayer_t home_root_t:dir read;
-+
-+# Icons..
-+ifdef(`gnome.te', `
-+r_dir_file($1_mplayer_t, $1_gnome_data_t)
-+')
-+
-+# Read /etc/mtab
-+allow $1_mplayer_t etc_runtime_t:file { read getattr };
-+
-+# Run bash/sed (??) 
-+allow $1_mplayer_t bin_t:dir search;
-+allow $1_mplayer_t bin_t:lnk_file read;
-+can_exec($1_mplayer_t, bin_t)
-+can_exec($1_mplayer_t, shell_exec_t)
-+#============================#
-+
- ') dnl end mplayer_domain
- 
--############################
--#  mencoder_domain(user)   #
--############################
-+###################################
-+#  mencoder_domain(role_prefix)   #
-+###################################
- 
- define(`mencoder_domain',`
- 
-@@ -125,7 +149,7 @@
- ') dnl end mencoder_domain
- 
- #############################
--#  mplayer_domains(user)    #
-+#  mplayer_domains(role)    #
- #############################
- 
- define(`mplayer_domains', `
 diff -aru policy.old/macros/program/orbit_macros.te policy/macros/program/orbit_macros.te
 --- policy.old/macros/program/orbit_macros.te	2005-04-29 15:01:27.000000000 -0400
-+++ policy/macros/program/orbit_macros.te	2005-04-30 08:06:42.000000000 -0400
++++ policy/macros/program/orbit_macros.te	2005-04-29 18:28:46.000000000 -0400
 @@ -0,0 +1,28 @@
 +#
 +# ORBit related types 
@@ -1247,16 +1063,16 @@ diff -aru policy.old/macros/program/x_client_macros.te policy/macros/program/x_c
  ifdef(`xserver.te', `
 diff -aru policy.old/macros/program/xserver_macros.te policy/macros/program/xserver_macros.te
 --- policy.old/macros/program/xserver_macros.te	2005-04-29 12:22:20.000000000 -0400
-+++ policy/macros/program/xserver_macros.te	2005-04-30 10:11:40.000000000 -0400
++++ policy/macros/program/xserver_macros.te	2005-04-29 15:50:39.000000000 -0400
 @@ -79,6 +79,14 @@
  allow xdm_xserver_t init_t:fd use;
  
  dontaudit xdm_xserver_t home_dir_type:dir { read search };
 +
 +# Suppress fonts denials
-+dontaudit_home_fonts(xdm_xserver_t, user)
-+dontaudit_home_fonts(xdm_xserver_t, staff)
-+dontaudit_home_fonts(xdm_xserver_t, sysadm)
++disallow_home_fonts(xdm_xserver_t, user)
++disallow_home_fonts(xdm_xserver_t, staff)
++disallow_home_fonts(xdm_xserver_t, sysadm)
 +
 +# Read global fonts
 +read_fonts(xdm_xserver_t)
@@ -1269,7 +1085,7 @@ diff -aru policy.old/macros/program/xserver_macros.te policy/macros/program/xser
  allow $1_xserver_t $1_home_dir_t:dir { getattr search };
 +
 +# Suppress fonts denials
-+dontaudit_home_fonts($1_xserver_t, $1)
++disallow_home_fonts($1_xserver_t, $1)
 +
 +# Now re-enable according to boolean
  if (allow_xserver_home_fonts) {
@@ -1307,7 +1123,7 @@ diff -aru policy.old/macros/user_macros.te policy/macros/user_macros.te
  base_user_domain($1)
 diff -aru policy.old/types/device.te policy/types/device.te
 --- policy.old/types/device.te	2005-04-29 19:03:41.000000000 -0400
-+++ policy/types/device.te	2005-04-30 09:21:38.000000000 -0400
++++ policy/types/device.te	2005-04-29 19:03:55.000000000 -0400
 @@ -10,7 +10,7 @@
  #
  # device_t is the type of /dev.
@@ -1319,7 +1135,7 @@ diff -aru policy.old/types/device.te policy/types/device.te
  # null_device_t is the type of /dev/null.
 diff -aru policy.old/types/devpts.te policy/types/devpts.te
 --- policy.old/types/devpts.te	2005-04-29 19:01:33.000000000 -0400
-+++ policy/types/devpts.te	2005-04-30 09:19:37.000000000 -0400
++++ policy/types/devpts.te	2005-04-29 19:01:43.000000000 -0400
 @@ -16,6 +16,6 @@
  # devpts_t is the type of the devpts file system and 
  # the type of the root directory of the file system.
@@ -1330,7 +1146,7 @@ diff -aru policy.old/types/devpts.te policy/types/devpts.te
  
 diff -aru policy.old/types/file.te policy/types/file.te
 --- policy.old/types/file.te	2005-04-29 18:52:14.000000000 -0400
-+++ policy/types/file.te	2005-04-30 09:22:36.000000000 -0400
++++ policy/types/file.te	2005-04-29 19:30:11.000000000 -0400
 @@ -23,37 +23,37 @@
  type eventpollfs_t, fs_type;
  type futexfs_t, fs_type;
@@ -1501,7 +1317,7 @@ diff -aru policy.old/types/security.te policy/types/security.te
  #
  # policy_config_t is the type of /etc/security/selinux/*
 
---=-NPF6RqkSNF0xLm2wZbN+--
+--=-OZBz/FQzHvKW+zuRRma0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
