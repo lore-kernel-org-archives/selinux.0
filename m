@@ -1,53 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j42FC6gA019832
-	for <selinux@tycho.nsa.gov>; Mon, 2 May 2005 11:12:07 -0400 (EDT)
-Subject: Re: Updated Policy in Sourceforge CVS
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
+Subject: Re: How should we handle automount.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1114805046.6480.15.camel@moss-lions.epoch.ncsc.mil>
-References: <1114805046.6480.15.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 02 May 2005 11:12:06 -0400
-Message-Id: <1115046726.3337.6.camel@moss-lions.epoch.ncsc.mil>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <427640CB.80702@redhat.com>
+References: <427640CB.80702@redhat.com>
+Content-Type: text/plain
+Date: Mon, 02 May 2005 13:12:04 -0400
+Message-Id: <1115053924.1712.40.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Oops.  I was in a sub-directory when I committed on Friday.  Everything
-that was suppose to have been committed on Friday is now committed.
+On Mon, 2005-05-02 at 11:01 -0400, Daniel J Walsh wrote:
+> Needs to be able to create/remove mounton arbitrary directories in 
+> arbitrary locations?
 
-Sorry for any confusion that might have caused.
+Allowing it to do so on arbitrary directories doesn't seem desirable,
+any more than allowing mount to mount on arbitrary directories.  Can we
+identify a reasonable set of mount point directories that might be used
+by automount?
 
+> file_domain_auto_trans(automount_t, file_type, autofs_t, dir)  ????
 
- On Fri, 2005-04-29 at 16:04 -0400, James Carter wrote:
-> 1.23.14 2005-04-29
-> 
-> * Added afs policy from Andrew Reisse.
-> 
-> * Merged patch from Lorenzo Hernández García-Hierro which defines
-> execstack and execheap permissions.  The patch excludes these
-> permissions from general_domain_access and updates the macros for X,
-> legacy binaries, users, and unconfined domains.
-> 
-> * Added nlmsg_relay permisison where netlink_audit_socket class is used.
-> Added nlmsg_readpriv permission to auditd_t and auditctl_t.
-> 
-> * Merged some minor cleanups from Russell Coker and David Hampton.
-> 
-> * Merged patch from Dan Walsh.  Many changes made to allow targeted
-> policy to run closer to strict and now almost all of non-userspace is
-> protected via SELinux.  Kernel is now in unconfined_domain for targeted
-> and runs as root:system_r:kernel_t.  Added transitionbool to
-> daemon_sub_domain, mainly to turn off httpd_suexec transitioning.
-> Implemented web_client_domain name_connect rules.  Added yp support for
-> cups.  Now the real hotplug, udev, initial_sid_contexts are used for the
-> targeted policy.  Other minor cleanups and fixes.  Auditd fixes by Paul
-> Moore.
-> 
+s/domain/type
+
+autofs_t is for the autofs inodes themselves, so I don't think you want
+to apply them to the mount point directories.  Does automount always re-
+create the mount point directory, or does it re-use one if it already
+exists?
+
+> Then how do we allow automount to delete the directory?
+
+It would need permissions to the parent, so you need to be able to
+enumerate or identify by attribute what directory types might be used.
+
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
 
 
