@@ -1,38 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j44AicgA002926
-	for <selinux@tycho.nsa.gov>; Wed, 4 May 2005 06:44:38 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j44AhHWY005483
-	for <selinux@tycho.nsa.gov>; Wed, 4 May 2005 10:43:18 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j44BB4gA003028
+	for <selinux@tycho.nsa.gov>; Wed, 4 May 2005 07:11:04 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j44B9aZx019000
+	for <selinux@tycho.nsa.gov>; Wed, 4 May 2005 11:09:37 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 9004F61ADF
-	for <selinux@tycho.nsa.gov>; Wed,  4 May 2005 18:44:56 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id 0379A61AE1
+	for <selinux@tycho.nsa.gov>; Wed,  4 May 2005 19:11:13 +1000 (EST)
 Received: from smtp.sws.net.au ([127.0.0.1])
 	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 12519-03 for <selinux@tycho.nsa.gov>;
-	Wed, 4 May 2005 18:44:56 +1000 (EST)
+	id 12519-08 for <selinux@tycho.nsa.gov>;
+	Wed, 4 May 2005 19:11:12 +1000 (EST)
 Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 29F9461ADD
-	for <selinux@tycho.nsa.gov>; Wed,  4 May 2005 18:44:56 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id 8F57C61ADF
+	for <selinux@tycho.nsa.gov>; Wed,  4 May 2005 19:11:12 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: "SE-Linux" <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: postfix policy patch
-Date: Wed, 4 May 2005 20:43:01 +1000
+Subject: restorecon policy
+Date: Wed, 4 May 2005 21:09:37 +1000
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_4cKeC6NKqVi1q6j"
-Message-Id: <200505042043.04355.russell@coker.com.au>
+  boundary="Boundary-00=_11KeCDwq6OxwQ4P"
+Message-Id: <200505042109.41109.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_4cKeC6NKqVi1q6j
+--Boundary-00=_11KeCDwq6OxwQ4P
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Against latest Fedora strict policy.
+The attached patch is needed by rawhide running with the strict policy.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -40,7 +40,7 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_4cKeC6NKqVi1q6j
+--Boundary-00=_11KeCDwq6OxwQ4P
 Content-Type: text/x-diff;
   charset="us-ascii";
   name="diff"
@@ -48,18 +48,19 @@ Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
 	filename="diff"
 
---- domains/program/postfix.te.orig	2005-05-04 20:34:06.000000000 +1000
-+++ domains/program/postfix.te	2005-05-04 20:34:48.000000000 +1000
-@@ -180,6 +180,7 @@
- # for OpenSSL certificates
- r_dir_file(postfix_smtpd_t,usr_t)
- allow postfix_smtpd_t etc_aliases_t:file r_file_perms;
-+allow postfix_smtpd_t self:file { getattr read };
+--- domains/program/restorecon.te.orig	2005-05-04 21:07:58.000000000 +1000
++++ domains/program/restorecon.te	2005-05-04 21:08:19.000000000 +1000
+@@ -20,7 +20,7 @@
+ role secadm_r types restorecon_t;
  
- # for prng_exch
- allow postfix_smtpd_t postfix_spool_t:file rw_file_perms;
+ allow restorecon_t initrc_devpts_t:chr_file { read write ioctl };
+-allow restorecon_t { tty_device_t admin_tty_type }:chr_file { read write ioctl };
++allow restorecon_t { tty_device_t admin_tty_type devtty_t }:chr_file { read write ioctl };
+ 
+ domain_auto_trans({ initrc_t sysadm_t secadm_t }, restorecon_exec_t, restorecon_t)
+ allow restorecon_t { userdomain init_t privfd }:fd use;
 
---Boundary-00=_4cKeC6NKqVi1q6j--
+--Boundary-00=_11KeCDwq6OxwQ4P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
