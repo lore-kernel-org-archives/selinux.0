@@ -1,117 +1,60 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: ivg2@cornell.edu
 Subject: Re: [Fwd: Latest Diff]
-Date: Fri, 6 May 2005 11:34:23 +1000
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: russell@coker.com.au
 Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-References: <427A757F.9040009@redhat.com> <1115329465.13097.23.camel@localhost.localdomain>
-In-Reply-To: <1115329465.13097.23.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200505061134.27455.russell@coker.com.au>
+In-Reply-To: <200505061134.27455.russell@coker.com.au>
+References: <427A757F.9040009@redhat.com>
+	 <1115329465.13097.23.camel@localhost.localdomain>
+	 <200505061134.27455.russell@coker.com.au>
+Content-Type: text/plain
+Date: Thu, 05 May 2005 21:58:03 -0400
+Message-Id: <1115344683.15149.11.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 06 May 2005 07:44, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
-> > > diff --exclude-from=exclude -N -u -r
-> > > nsapolicy/domains/program/restorecon.te
-> > > policy-1.23.14/domains/program/restorecon.te ---
-> > > nsapolicy/domains/program/restorecon.te	2005-04-27 10:28:49.000000000
-> > > -0400 +++ policy-1.23.14/domains/program/restorecon.te	2005-05-05
-> > > 15:11:06.000000000 -0400 @@ -20,7 +20,7 @@
-> > >  role secadm_r types restorecon_t;
-> > >
-> > >  allow restorecon_t initrc_devpts_t:chr_file { read write ioctl };
-> > > -allow restorecon_t { tty_device_t admin_tty_type }:chr_file { read
-> > > write ioctl }; +allow restorecon_t { tty_device_t admin_tty_type
-> > > devtty_t }:chr_file { read write ioctl };
->
-> Perhaps (?):
->
-> allow restorecon_t tty_device_t:chr_file { read write ioctl};
-> access_terminal(restorecon_t, $2)
 
-You mean:
-access_terminal(restorecon_t, sysadm)
+> > Is it better to create orbit-$USER in a startup script, or
+> > to include selinux support in libORBit2 in order to
+> > properly set the context of /tmp/orbit-$USER to ROLE_orbit_tmp_t
+> > when it's created?
+> 
+> What does orbit do exactly?  What needs to access it?
 
-> access_terminal(restorecon_t, initrc)
+ORBit is an implementation of CORBA - it has to do with 
+inter-process communication. All GNOME programs use
+it to talk to each other. For example, mozilla (with gnome support)
+uses it to talk to GConf and the gnome vfs daemon 
+(and other things that I haven't figured out yet, which 
+need to be constrained). 
 
-There is no initrc_tty_device_t defined (and we are not going to define one).
+Apps create sockets in /tmp/orbit-$USER, and read/write to other apps'
+sockets to talk to them. 
 
-> > > diff --exclude-from=exclude -N -u -r
-> > > nsapolicy/domains/program/unused/auditd.te
-> > > policy-1.23.14/domains/program/unused/auditd.te ---
-> > > nsapolicy/domains/program/unused/auditd.te	2005-05-02
-> > > 14:06:54.000000000 -0400 +++
-> > > policy-1.23.14/domains/program/unused/auditd.te	2005-05-02
-> > > 14:57:26.000000000 -0400 @@ -56,3 +56,4 @@
-> > >  allow auditctl_t sysctl_kernel_t:file read;
-> > >  allow auditd_t self:process setsched;
-> > >  dontaudit auditctl_t init_t:fd use;
-> > > +allow auditctl_t initrc_devpts_t:chr_file { read write };
->
-> Perhaps (?):
->
-> access_terminal(auditctl_t, initrc)
+The current orbit rules in mozilla/gift are a mess, because they allow
+interaction w/ ROLE_tmp_t, which seems to me like a bad idea.
 
-Again, it's not going to work.
+I have a better suggestion (I think), included as part of my patch here:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155800
 
-> > >  allow consoletype_t crond_t:fifo_file { read getattr ioctl };
-> > > diff --exclude-from=exclude -N -u -r
-> > > nsapolicy/domains/program/unused/cups.te
-> > > policy-1.23.14/domains/program/unused/cups.te ---
-> > > nsapolicy/domains/program/unused/cups.te	2005-05-02 14:06:54.000000000
-> > > -0400 +++ policy-1.23.14/domains/program/unused/cups.te	2005-05-02
-> > > 14:57:26.000000000 -0400 @@ -22,6 +22,7 @@
-> > >  logdir_domain(cupsd)
-> > >
-> > >  tmp_domain(cupsd)
-> > > +file_type_auto_trans(cupsd_t, tmp_t, cupsd_tmp_t, fifo_file)
->
-> tmp_domain(cupsd, `', { file dir fifo_file })
+It's the patch you were looking at earlier, but I've added a lot more
+stuff, and fixed bugs. It can't be merged at this point, but parts of
+it probably can..
 
-Yes.
+...but orbit-$USER needs to be labeled properly, and it can be created
+by anything that interfaces w/ libORBit-2, I think...which means
+that either it has to be created by a startup script, or
+the library should be modified to use matchpathcon() 
+when it creates the folder. I don't know which. 
+I also thought perhaps there should be a skeleton for /tmp
+(https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=156452)
+but I'm now starting to think that's may be a bad idea, and I should
+close the bug.
 
-> > > @@ -47,6 +47,7 @@
-> > >  allow hald_t printer_device_t:chr_file rw_file_perms;
-> > >  allow hald_t urandom_device_t:chr_file read;
-> > >  allow hald_t mouse_device_t:chr_file r_file_perms;
-> > > +allow hald_t memory_device_t:chr_file r_file_perms;
->
-> ?? That no longer triggers an assertion violation?
-> I specifically had to allow it in the assertion list when
-> it was necessary for dmidecode. Why is it still necessary?
 
-I agree, this shouldn't be needed.
 
-> > > diff --exclude-from=exclude -N -u -r
-> > > nsapolicy/macros/program/games_domain.te
-> > > policy-1.23.14/macros/program/games_domain.te ---
-> > > nsapolicy/macros/program/games_domain.te	2005-04-27 10:28:54.000000000
-> > > -0400 +++ policy-1.23.14/macros/program/games_domain.te	2005-05-05
-> > > 15:10:05.000000000 -0400 @@ -17,11 +17,14 @@
-> > >  if (! disable_games_trans) {
-> > >  domain_auto_trans($1_t, games_exec_t, $1_games_t)
-> > >  }
-> > > +can_exec($1_games_t, games_exec_t)
->
-> It needs to re-execute itself??
 
-Absolutely.
-
-> Is it better to create orbit-$USER in a startup script, or
-> to include selinux support in libORBit2 in order to
-> properly set the context of /tmp/orbit-$USER to ROLE_orbit_tmp_t
-> when it's created?
-
-What does orbit do exactly?  What needs to access it?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
