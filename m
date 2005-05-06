@@ -1,116 +1,93 @@
-Message-ID: <427B6434.30201@redhat.com>
-Date: Fri, 06 May 2005 08:33:56 -0400
+Message-ID: <427B6664.6070803@redhat.com>
+Date: Fri, 06 May 2005 08:43:16 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: ivg2@cornell.edu
+To: russell@coker.com.au
 CC: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: [Fwd: Latest Diff]
-References: <427A757F.9040009@redhat.com> <1115329465.13097.23.camel@localhost.localdomain>
-In-Reply-To: <1115329465.13097.23.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <427A757F.9040009@redhat.com> <200505061533.10266.russell@coker.com.au>
+In-Reply-To: <200505061533.10266.russell@coker.com.au>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+Russell Coker wrote:
 
->>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/restorecon.te policy-1.23.14/domains/program/restorecon.te
->>>--- nsapolicy/domains/program/restorecon.te	2005-04-27 10:28:49.000000000 -0400
->>>+++ policy-1.23.14/domains/program/restorecon.te	2005-05-05 15:11:06.000000000 -0400
->>>@@ -20,7 +20,7 @@
->>> role secadm_r types restorecon_t;
->>> 
->>> allow restorecon_t initrc_devpts_t:chr_file { read write ioctl };
->>>-allow restorecon_t { tty_device_t admin_tty_type }:chr_file { read write ioctl };
->>>+allow restorecon_t { tty_device_t admin_tty_type devtty_t }:chr_file { read write ioctl };
->>>      
->>>
+>On Friday 06 May 2005 05:35, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>  
 >
->Perhaps (?):
+>>+allow cupsd_t crond_t:fd use;
+>>    
+>>
 >
->allow restorecon_t tty_device_t:chr_file { read write ioctl};
->access_terminal(restorecon_t, $2)
->access_terminal(restorecon_t, initrc)
+>Something is wrong here.  crond_t has attribute privfd, and from 
+>daemon_base_domain() cupsd_t gets the following:
+>allow cupsd_t privfd:fd use;
+>
+>-daemon_domain(hald, `, fs_domain, nscd_client_domain')
+>+daemon_domain(hald, `, fs_domain, nscd_client_domain, privmem')
+>
+>-allow hald_t self:capability { net_admin sys_admin dac_override 
+>dac_read_search mknod };
+>+allow hald_t self:capability { net_admin sys_admin dac_override 
+>dac_read_search mknod sys_rawio };
+>
+>+allow hald_t memory_device_t:chr_file r_file_perms;
+>
+>The dmidecode_t domain removes the need for those changes.
 >
 >  
 >
->>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/auditd.te policy-1.23.14/domains/program/unused/auditd.te
->>>--- nsapolicy/domains/program/unused/auditd.te	2005-05-02 14:06:54.000000000 -0400
->>>+++ policy-1.23.14/domains/program/unused/auditd.te	2005-05-02 14:57:26.000000000 -0400
->>>@@ -56,3 +56,4 @@
->>> allow auditctl_t sysctl_kernel_t:file read;
->>> allow auditd_t self:process setsched;
->>> dontaudit auditctl_t init_t:fd use; 
->>>+allow auditctl_t initrc_devpts_t:chr_file { read write };
->>>      
->>>
->
->Perhaps (?):
->
->access_terminal(auditctl_t, initrc) 
->
->  
->
->>> allow consoletype_t crond_t:fifo_file { read getattr ioctl };
->>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/cups.te policy-1.23.14/domains/program/unused/cups.te
->>>--- nsapolicy/domains/program/unused/cups.te	2005-05-02 14:06:54.000000000 -0400
->>>+++ policy-1.23.14/domains/program/unused/cups.te	2005-05-02 14:57:26.000000000 -0400
->>>@@ -22,6 +22,7 @@
->>> logdir_domain(cupsd)
->>> 
->>> tmp_domain(cupsd)
->>>+file_type_auto_trans(cupsd_t, tmp_t, cupsd_tmp_t, fifo_file)
->>>      
->>>
->
->tmp_domain(cupsd, `', { file dir fifo_file })
->
->  
->
-ok
+Ok Removed
 
->>>@@ -47,6 +47,7 @@
->>> allow hald_t printer_device_t:chr_file rw_file_perms;
->>> allow hald_t urandom_device_t:chr_file read;
->>> allow hald_t mouse_device_t:chr_file r_file_perms;
->>>+allow hald_t memory_device_t:chr_file r_file_perms;
->>>      
->>>
+>+can_unix_connect(i18n_input_t, initrc_t)
 >
->?? That no longer triggers an assertion violation?
+>What's happening here?  Looks like a daemon running in the wrong domain.
+>
+>+allow kudzu_t proc_t:lnk_file getattr;
+>
+>We already have the following:
+>allow kudzu_t { self proc_t }:lnk_file read;
+>
+>We should probably change it to:
+>allow kudzu_t { self proc_t }:lnk_file { getattr read };
+>
 >  
 >
-privmem attribute allows this.
+I don't see this.
 
->I specifically had to allow it in the assertion list when
->it was necessary for dmidecode. Why is it still necessary?
+>-dontaudit lvm_t var_run_t:dir getattr;
+>+var_run_domain(lvm)
+>
+>What is this for?  CLVM?
 >
 >  
 >
->>>diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/games_domain.te policy-1.23.14/macros/program/games_domain.te
->>>--- nsapolicy/macros/program/games_domain.te	2005-04-27 10:28:54.000000000 -0400
->>>+++ policy-1.23.14/macros/program/games_domain.te	2005-05-05 15:10:05.000000000 -0400
->>>@@ -17,11 +17,14 @@
->>> if (! disable_games_trans) {
->>> domain_auto_trans($1_t, games_exec_t, $1_games_t)
->>> }
->>>+can_exec($1_games_t, games_exec_t)
->>>      
->>>
+I don't recall but it was trying to write a pid file.
+
+>-allow udev_t tmpfs_t:dir rw_dir_perms;
+>-allow udev_t tmpfs_t:sock_file create_file_perms;
+>+allow udev_t tmpfs_t:dir create_dir_perms;
+>+allow udev_t tmpfs_t:{ sock_file file } create_file_perms;
 >
->It needs to re-execute itself??
+>In what situations is this required?  When udev is working correctly it will 
+>never try to create files or directories of type tmpfs_t.
 >
->===============
+>  
 >
->Question: 
+This is happening before the /dev is relabeled.
+
+>+/etc/rhgb(/.*)?                -d              system_u:object_r:mnt_t
 >
->Is it better to create orbit-$USER in a startup script, or
->to include selinux support in libORBit2 in order to 
->properly set the context of /tmp/orbit-$USER to ROLE_orbit_tmp_t 
->when it's created?
+>Why move this from rhgb.fc to distros.fc?  Surely it's more of a RHGB specific 
+>thing than a distribution specific thing.  Not that there are any other 
+>distributions using RHGB at the moment.
 >
 >  
 >
 
+Because we are not support rhgb in targeted.  But need to be able to 
+mount on it.
 
 -- 
 
