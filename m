@@ -1,60 +1,73 @@
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
 Subject: Re: [Fwd: Latest Diff]
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: russell@coker.com.au
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <200505061134.27455.russell@coker.com.au>
+Date: Fri, 6 May 2005 15:33:06 +1000
+Cc: SELinux <SELinux@tycho.nsa.gov>
 References: <427A757F.9040009@redhat.com>
-	 <1115329465.13097.23.camel@localhost.localdomain>
-	 <200505061134.27455.russell@coker.com.au>
-Content-Type: text/plain
-Date: Thu, 05 May 2005 21:58:03 -0400
-Message-Id: <1115344683.15149.11.camel@localhost.localdomain>
-Mime-Version: 1.0
+In-Reply-To: <427A757F.9040009@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200505061533.10266.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Friday 06 May 2005 05:35, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> +allow cupsd_t crond_t:fd use;
 
-> > Is it better to create orbit-$USER in a startup script, or
-> > to include selinux support in libORBit2 in order to
-> > properly set the context of /tmp/orbit-$USER to ROLE_orbit_tmp_t
-> > when it's created?
-> 
-> What does orbit do exactly?  What needs to access it?
+Something is wrong here.  crond_t has attribute privfd, and from 
+daemon_base_domain() cupsd_t gets the following:
+allow cupsd_t privfd:fd use;
 
-ORBit is an implementation of CORBA - it has to do with 
-inter-process communication. All GNOME programs use
-it to talk to each other. For example, mozilla (with gnome support)
-uses it to talk to GConf and the gnome vfs daemon 
-(and other things that I haven't figured out yet, which 
-need to be constrained). 
+-daemon_domain(hald, `, fs_domain, nscd_client_domain')
++daemon_domain(hald, `, fs_domain, nscd_client_domain, privmem')
 
-Apps create sockets in /tmp/orbit-$USER, and read/write to other apps'
-sockets to talk to them. 
+-allow hald_t self:capability { net_admin sys_admin dac_override 
+dac_read_search mknod };
++allow hald_t self:capability { net_admin sys_admin dac_override 
+dac_read_search mknod sys_rawio };
 
-The current orbit rules in mozilla/gift are a mess, because they allow
-interaction w/ ROLE_tmp_t, which seems to me like a bad idea.
++allow hald_t memory_device_t:chr_file r_file_perms;
 
-I have a better suggestion (I think), included as part of my patch here:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155800
+The dmidecode_t domain removes the need for those changes.
 
-It's the patch you were looking at earlier, but I've added a lot more
-stuff, and fixed bugs. It can't be merged at this point, but parts of
-it probably can..
++can_unix_connect(i18n_input_t, initrc_t)
 
-...but orbit-$USER needs to be labeled properly, and it can be created
-by anything that interfaces w/ libORBit-2, I think...which means
-that either it has to be created by a startup script, or
-the library should be modified to use matchpathcon() 
-when it creates the folder. I don't know which. 
-I also thought perhaps there should be a skeleton for /tmp
-(https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=156452)
-but I'm now starting to think that's may be a bad idea, and I should
-close the bug.
+What's happening here?  Looks like a daemon running in the wrong domain.
 
++allow kudzu_t proc_t:lnk_file getattr;
 
+We already have the following:
+allow kudzu_t { self proc_t }:lnk_file read;
 
+We should probably change it to:
+allow kudzu_t { self proc_t }:lnk_file { getattr read };
 
+-dontaudit lvm_t var_run_t:dir getattr;
++var_run_domain(lvm)
+
+What is this for?  CLVM?
+
+-allow udev_t tmpfs_t:dir rw_dir_perms;
+-allow udev_t tmpfs_t:sock_file create_file_perms;
++allow udev_t tmpfs_t:dir create_dir_perms;
++allow udev_t tmpfs_t:{ sock_file file } create_file_perms;
+
+In what situations is this required?  When udev is working correctly it will 
+never try to create files or directories of type tmpfs_t.
+
++/etc/rhgb(/.*)?                -d              system_u:object_r:mnt_t
+
+Why move this from rhgb.fc to distros.fc?  Surely it's more of a RHGB specific 
+thing than a distribution specific thing.  Not that there are any other 
+distributions using RHGB at the moment.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
