@@ -1,38 +1,31 @@
-Subject: Re: [Fwd: Latest Diff]
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: russell@coker.com.au
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1115344683.15149.11.camel@localhost.localdomain>
-References: <427A757F.9040009@redhat.com>
-	 <1115329465.13097.23.camel@localhost.localdomain>
-	 <200505061134.27455.russell@coker.com.au>
-	 <1115344683.15149.11.camel@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j46KqvgA020086
+	for <selinux@tycho.nsa.gov>; Fri, 6 May 2005 16:52:58 -0400 (EDT)
+Subject: Updated Policy in Sourceforge CVS
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: SELinux <selinux@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>
 Content-Type: text/plain
-Date: Fri, 06 May 2005 11:39:51 -0400
-Message-Id: <1115393991.17301.18.camel@localhost.localdomain>
+Date: Fri, 06 May 2005 16:52:18 -0400
+Message-Id: <1115412738.3271.1.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> ...but orbit-$USER needs to be labeled properly, and it can be created
-> by anything that interfaces w/ libORBit-2, I think...which means
-> that either it has to be created by a startup script, or
-> the library should be modified to use matchpathcon() 
-> when it creates the folder. I don't know which. 
-> I also thought perhaps there should be a skeleton for /tmp
-> (https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=156452)
-> but I'm now starting to think that's may be a bad idea, and I should
-> close the bug.
-
-...and does tmpwatch need to be allowed to erase those folders?
-If so, startup script is not an option... because right now tmpwatch
-goes and tries to erase all of this..
+1.23.15 2005-05-06
+* Added tripwire and yam policy from David Hampton.
+* Merged minor fixes to amavid and a clarification to the httpdcontent
+attribute comments from David Hampton.
+* Merged patch from Dan Walsh.  Includes fixes for restorecon, games,
+and postfix from Russell Coker.  Adds support for debugfs.  Restores
+support for reiserfs.  Allows udev to work with tmpfs_t before /dev is
+labled.  Removes transition from sysadm_t (unconfined_t) to ifconfig_t
+for the targeted policy.  Other minor cleanups and fixes.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
