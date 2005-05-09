@@ -1,103 +1,126 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j48J00gA028139
-	for <selinux@tycho.nsa.gov>; Sun, 8 May 2005 15:00:01 -0400 (EDT)
-Received: from sunspire.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j48IvuUT028834
-	for <selinux@tycho.nsa.gov>; Sun, 8 May 2005 18:57:57 GMT
-Message-ID: <427E6159.4090804@gentoo.org>
-Date: Sun, 08 May 2005 21:58:33 +0300
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SELinux <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j495gSgA029909
+	for <selinux@tycho.nsa.gov>; Mon, 9 May 2005 01:42:29 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j495e8IZ017814
+	for <selinux@tycho.nsa.gov>; Mon, 9 May 2005 05:40:09 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: petre rodan <kaiowas@gentoo.org>
 Subject: Re: gentoo diffs
-References: <427CBAD8.6060901@gentoo.org> <200505090349.22645.russell@coker.com.au>
-In-Reply-To: <200505090349.22645.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6C77386137FD48741352C17D"
+Date: Mon, 9 May 2005 15:40:11 +1000
+Cc: SELinux <selinux@tycho.nsa.gov>
+References: <427CBAD8.6060901@gentoo.org> <200505090349.22645.russell@coker.com.au> <427E6159.4090804@gentoo.org>
+In-Reply-To: <427E6159.4090804@gentoo.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_+evfC7LaQV4BIBr"
+Message-Id: <200505091540.14984.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6C77386137FD48741352C17D
-Content-Type: text/plain; charset=ISO-8859-1
+--Boundary-00=_+evfC7LaQV4BIBr
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-
-Hi,
-
-Russell Coker wrote:
-
-[snip]
-
-> +daemon_base_domain(svc_start)
-> +domain_auto_trans(init_t, svc_start_exec_t, svc_start_t)
-> 
-> Is this for daemons that may be started either from /etc/inittab 
-> or /etc/init.d scripts?
-
-yes, basicaly it's about svscanboot that acording to the documentation is started from inittab.
-gentoo's default is to start svscan from an init script, but some users asked for the other way arround.
-these two binaries are somewhat equivalent and both have a svc_start_exec_t label.
-
->>* kerberos: gentoo file locations
-> 
-> Those should have ifdef(`distro_gentoo' around them.  Ideally we want as many 
-> ifdef(`distro_... rules in the file contexts as possible.  The more stuff 
-> that can be removed because of being applicable to distributions other than 
-> the one you use the better.  setfiles still has performance issues...
-
-ok, I'll keep that in mind.
-
->>* postfix: gentoo file locations for 64bit systems
-> 
-> Are you seriously planning to have both 32bit and 64bit versions of Postfix 
-> installed on the same system at the same time
->  If not then you shouldn't be using special names for 64bit versions. 
-> If you are then I suspect you are
-> doing something vastly different from what everyone else is doing and 
-> ifdef(`distro_gentoo' would be appropriate.
+On Monday 09 May 2005 04:58, petre rodan <kaiowas@gentoo.org> wrote:
+> > Also I'm quite certain that you are not using all four combinations
+> > of /usr/lib(exec)?(64)?/postfix/.
 >
-> We should probably have ifdef(`distro_redhat' and ifdef(`distro_debian' in any 
-> case.
-> 
-> Also I'm quite certain that you are not using all four combinations 
-> of /usr/lib(exec)?(64)?/postfix/.
+> http://bugs.gentoo.org/show_bug.cgi?id=89321
+>
+> we have /usr/lib/postfix and /usr/lib64/postfix depending on the profile
+> under which it was compiled. having it like lib(exec)?(64)? means that it's
+> very easy to maintain, but if that's not possible, no problem.
 
-http://bugs.gentoo.org/show_bug.cgi?id=89321
+Why do you want /usr/lib64/postfix?
 
-we have /usr/lib/postfix and /usr/lib64/postfix depending on the profile under which it was compiled.
-having it like lib(exec)?(64)? means that it's very easy to maintain, but if that's not possible, no problem.
+The point of /usr/lib64 is for files where you have both 32bit and 64bit 
+versions installed at the same time.  This is when you have shared objects 
+which could be used by either 32bit or 64bit programs.
 
-> I plan to extend the stem compression support in setfiles to two levels, 
-> taking full advantage of that means removing such conditionals from the 
-> policy.
+/usr/libexec/postfix on Red Hat systems contains no shared objects, only 
+executables, on ia32_64 the same locations are used.  I can't work out any 
+reason for having both 32bit and 64bit versions of those executables (there 
+is no good support for having Postfix call 32bit programs for some operations 
+and 64bit for others so any attempt to make use of functionality that this 
+would provide would be painful).
 
-thanks,
-peter
+Debian uses /usr/lib/postfix for the same files but also has some shared 
+object in the same directory.  However those shared objects are only for the 
+use of Postfix so they have not bothered using /usr/lib64/postfix for the 
+amd64 packages.
+
+In summary, /usr/lib64/postfix causes needless differences between 32bit and 
+64bit systems for no benefit.  Incidentally this will prevent a main.cf file 
+from Debian working on Gentoo AMD64.  Not sure whether main.cf files can be 
+shared between 32bit and 64bit Gentoo machines, this is something you 
+probably want to investigate.
 
 -- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---------------enig6C77386137FD48741352C17D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+--Boundary-00=_+evfC7LaQV4BIBr
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+--- ./file_contexts/program/postfix.fc.orig	2005-05-09 15:13:40.000000000 +1000
++++ ./file_contexts/program/postfix.fc	2005-05-09 15:15:27.000000000 +1000
+@@ -2,20 +2,32 @@
+ /etc/postfix(/.*)?		system_u:object_r:postfix_etc_t
+ ifdef(`distro_redhat', `
+ /etc/postfix/aliases.*		system_u:object_r:etc_aliases_t
++/usr/libexec/postfix/.*	--	system_u:object_r:postfix_exec_t
++/usr/libexec/postfix/cleanup --	system_u:object_r:postfix_cleanup_exec_t
++/usr/libexec/postfix/local	--	system_u:object_r:postfix_local_exec_t
++/usr/libexec/postfix/master	--	system_u:object_r:postfix_master_exec_t
++/usr/libexec/postfix/pickup	--	system_u:object_r:postfix_pickup_exec_t
++/usr/libexec/postfix/(n)?qmgr --	system_u:object_r:postfix_qmgr_exec_t
++/usr/libexec/postfix/showq	--	system_u:object_r:postfix_showq_exec_t
++/usr/libexec/postfix/smtp	--	system_u:object_r:postfix_smtp_exec_t
++/usr/libexec/postfix/smtpd	--	system_u:object_r:postfix_smtpd_exec_t
++/usr/libexec/postfix/bounce	--	system_u:object_r:postfix_bounce_exec_t
++/usr/libexec/postfix/pipe	--	system_u:object_r:postfix_pipe_exec_t
++', `
++/usr/lib/postfix/.*	--	system_u:object_r:postfix_exec_t
++/usr/lib/postfix/cleanup --	system_u:object_r:postfix_cleanup_exec_t
++/usr/lib/postfix/local	--	system_u:object_r:postfix_local_exec_t
++/usr/lib/postfix/master	--	system_u:object_r:postfix_master_exec_t
++/usr/lib/postfix/pickup	--	system_u:object_r:postfix_pickup_exec_t
++/usr/lib/postfix/(n)?qmgr --	system_u:object_r:postfix_qmgr_exec_t
++/usr/lib/postfix/showq	--	system_u:object_r:postfix_showq_exec_t
++/usr/lib/postfix/smtp	--	system_u:object_r:postfix_smtp_exec_t
++/usr/lib/postfix/smtpd	--	system_u:object_r:postfix_smtpd_exec_t
++/usr/lib/postfix/bounce	--	system_u:object_r:postfix_bounce_exec_t
++/usr/lib/postfix/pipe	--	system_u:object_r:postfix_pipe_exec_t
+ ')
+ /etc/postfix/postfix-script.* -- system_u:object_r:postfix_exec_t
+ /etc/postfix/prng_exch	--	system_u:object_r:postfix_prng_t
+-/usr/lib(exec)?/postfix/.*	--	system_u:object_r:postfix_exec_t
+-/usr/lib(exec)?/postfix/cleanup --	system_u:object_r:postfix_cleanup_exec_t
+-/usr/lib(exec)?/postfix/local	--	system_u:object_r:postfix_local_exec_t
+-/usr/lib(exec)?/postfix/master	--	system_u:object_r:postfix_master_exec_t
+-/usr/lib(exec)?/postfix/pickup	--	system_u:object_r:postfix_pickup_exec_t
+-/usr/lib(exec)?/postfix/(n)?qmgr --	system_u:object_r:postfix_qmgr_exec_t
+-/usr/lib(exec)?/postfix/showq	--	system_u:object_r:postfix_showq_exec_t
+-/usr/lib(exec)?/postfix/smtp	--	system_u:object_r:postfix_smtp_exec_t
+-/usr/lib(exec)?/postfix/smtpd	--	system_u:object_r:postfix_smtpd_exec_t
+-/usr/lib(exec)?/postfix/bounce	--	system_u:object_r:postfix_bounce_exec_t
+-/usr/lib(exec)?/postfix/pipe	--	system_u:object_r:postfix_pipe_exec_t
+ /usr/sbin/postalias	--	system_u:object_r:postfix_master_exec_t
+ /usr/sbin/postcat	--	system_u:object_r:postfix_master_exec_t
+ /usr/sbin/postdrop	--	system_u:object_r:postfix_postdrop_exec_t
 
-iD8DBQFCfmFeGSBEIeh4AEYRAid5AJ48eiEDvSZGu2hhBcwfJ+96mjcDQQCdGXQD
-e3or4NzcLlwc1lq4PY6mJ/U=
-=f2g4
------END PGP SIGNATURE-----
-
---------------enig6C77386137FD48741352C17D--
+--Boundary-00=_+evfC7LaQV4BIBr--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
