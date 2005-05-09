@@ -1,29 +1,58 @@
-Subject: Re: [ PATCHES ] mozilla, gift, games, orbit, gconf, genhomedircon
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: dwalsh@redhat.com
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1115625128.7589.19.camel@localhost.localdomain>
-References: <1115625128.7589.19.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 09 May 2005 07:40:40 -0400
-Message-Id: <1115638840.9774.1.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <427F76BE.60506@redhat.com>
+Date: Mon, 09 May 2005 10:42:06 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: ivg2@cornell.edu
+CC: russell@coker.com.au, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: [Fwd: Latest Diff]
+References: <427A757F.9040009@redhat.com>	 <1115344683.15149.11.camel@localhost.localdomain>	 <1115393991.17301.18.camel@localhost.localdomain>	 <200505072351.04728.russell@coker.com.au>	 <1115485468.21610.8.camel@localhost.localdomain> <1115495425.20062.2.camel@localhost.localdomain>
+In-Reply-To: <1115495425.20062.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
 
-> 04-gconfd.diff - 
-> introduce policy for GConf, and a gnome
-> container domain that will be used to instantiate
-> a lot of stuff in the future
+>On Sat, 2005-05-07 at 13:04 -0400, Ivan Gyurdiev wrote:
+>  
+>
+>>>One possibility would be to allow tmpwatch to go through user (not sysadm) 
+>>>home directories but not have search access to home_root_t.  But this makes 
+>>>the protection of user home directories from tmpwatch dependant on the label 
+>>>of home_root_t, I'm not certain that in all cases of automounting and strange 
+>>>configuration of home directories we can rely on the label of home_root_t 
+>>>being assigned to /home to protect sub-directories.
+>>>      
+>>>
+>>I am a bit confused - /tmp/orbit-$USER is not in /home...
+>>I was just wondering whether the orbit folder should be allowed to
+>>be erased by tmpwatch due to inactivity... If so, it will need to 
+>>be recreated (without rebooting), and that's why I was saying that
+>>in that case, libORBit probably needs to set the correct context itself,
+>>as opposed to a startup script solution that creates this folder.
+>>
+>>There is no problem as far as tmpwatch goes - I can just mark the type
+>>tmpfile, I guess.
+>>    
+>>
+>
+>Patch for ORBit2 here - see the last attachment:
+>https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155800
+>
+>I think I should submit the ORBit part of this patch for inclusion...
+>
+>  
+>
+I am not crazy about this patch.  Since I don't think we need to run a 
+priveledged orbit. 
+If we have the init scripts create a /tmp/orbit directory and the login 
+creates orbit-$USER
+under there we can get all the transitions correct.  Can't we?
 
-There's two lines in here about untrusted_content_t in gift
-that shouldn't be there - you can erase those...
+Dan
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+
 
 
 --
