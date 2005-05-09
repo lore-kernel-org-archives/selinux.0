@@ -1,58 +1,74 @@
-Message-ID: <427F76BE.60506@redhat.com>
-Date: Mon, 09 May 2005 10:42:06 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: ivg2@cornell.edu
-CC: russell@coker.com.au, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: [Fwd: Latest Diff]
-References: <427A757F.9040009@redhat.com>	 <1115344683.15149.11.camel@localhost.localdomain>	 <1115393991.17301.18.camel@localhost.localdomain>	 <200505072351.04728.russell@coker.com.au>	 <1115485468.21610.8.camel@localhost.localdomain> <1115495425.20062.2.camel@localhost.localdomain>
-In-Reply-To: <1115495425.20062.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: russell@coker.com.au, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <427F76BE.60506@redhat.com>
+References: <427A757F.9040009@redhat.com>
+	 <1115344683.15149.11.camel@localhost.localdomain>
+	 <1115393991.17301.18.camel@localhost.localdomain>
+	 <200505072351.04728.russell@coker.com.au>
+	 <1115485468.21610.8.camel@localhost.localdomain>
+	 <1115495425.20062.2.camel@localhost.localdomain>
+	 <427F76BE.60506@redhat.com>
+Content-Type: text/plain
+Date: Mon, 09 May 2005 14:12:56 -0400
+Message-Id: <1115662376.10218.16.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
 
->On Sat, 2005-05-07 at 13:04 -0400, Ivan Gyurdiev wrote:
->  
->
->>>One possibility would be to allow tmpwatch to go through user (not sysadm) 
->>>home directories but not have search access to home_root_t.  But this makes 
->>>the protection of user home directories from tmpwatch dependant on the label 
->>>of home_root_t, I'm not certain that in all cases of automounting and strange 
->>>configuration of home directories we can rely on the label of home_root_t 
->>>being assigned to /home to protect sub-directories.
->>>      
->>>
->>I am a bit confused - /tmp/orbit-$USER is not in /home...
->>I was just wondering whether the orbit folder should be allowed to
->>be erased by tmpwatch due to inactivity... If so, it will need to 
->>be recreated (without rebooting), and that's why I was saying that
->>in that case, libORBit probably needs to set the correct context itself,
->>as opposed to a startup script solution that creates this folder.
->>
->>There is no problem as far as tmpwatch goes - I can just mark the type
->>tmpfile, I guess.
->>    
->>
->
->Patch for ORBit2 here - see the last attachment:
->https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155800
->
->I think I should submit the ORBit part of this patch for inclusion...
->
->  
->
-I am not crazy about this patch.  Since I don't think we need to run a 
-priveledged orbit. 
-If we have the init scripts create a /tmp/orbit directory and the login 
-creates orbit-$USER
-under there we can get all the transitions correct.  Can't we?
+> I am not crazy about this patch.  Since I don't think we need to run a 
+> priveledged orbit. 
 
-Dan
+orbit is not privileged - there will be no orbit domain - 
+it's just a file type with some macros to mark the appropriate sockets,
+and allow connections between them.
+
+The benefit of this is that:
+
+(1) Applications no longer access ROLE_tmp_t, 
+they access ROLE_orbit_tmp_t instead, which is a more
+specific type for this operation, separate from the type
+that would be used for other things.
+
+(2) Once things are properly confined they will not need
+to access ROLE_orbit_tmp_t either, which is really the point of 
+this patch - proper labeling of orbit sockets for each 
+application. Already gift is disallowed access to anything but 
+gconf orbit sockets. This doesn't work for mozilla yet, because 
+it talks to gnome-vfs-daemon, and other things, but eventually 
+all of them should be confined. 
+
+(3) This removes generic types, and adds more specific ones.
+I see this as a step forward.
+
+See the patches I sent for the implementation.
+
+> If we have the init scripts create a /tmp/orbit directory and the login 
+> creates orbit-$USER
+> under there we can get all the transitions correct.  Can't we?
+
+So, do you oppose the whole patch, or just the part the makes
+orbit depend on libselinux?
+
+I'm not sure about a startup script - that's a possible solution,
+but Bill Nottingham didn't like my /tmp skeleton idea, and after
+a while I thought it would be better to do this in the application
+as well.
+
+With a startup script, we have to create the folder for all users,
+regardless of whether they need it. Also, orbit
+creates /tmp/orbit-$USER-(random hex number) for some reason,
+and I haven't figured out why it does that yet. Also, tmpwatch
+might erase that folder due to inactivity (and maybe it should
+be able to). If that happens, we don't want to have to reboot
+to recreate it. 
 
 -- 
-
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
