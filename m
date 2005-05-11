@@ -1,241 +1,219 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4BFW0gA018590
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 11:32:00 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4BFWCgA018608
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 11:32:13 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4BFTIiX000221
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 15:29:18 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4BFTUiX000252
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 15:29:31 GMT
 Received: from moss-huskies.epoch.ncsc.mil (moss-huskies [144.51.25.7])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4BFTqRH028701
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 11:29:52 -0400 (EDT)
-Subject: [RFC]{Patch 4/5] Polyinstantation
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4BFU4RH028706
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 11:30:04 -0400 (EDT)
+Subject: [RFC]{Patch 5/5] Polyinstantation
 From: Chad Sellers <cdselle@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-dz7B6FetLdjogHhyT0ia"
-Date: Wed, 11 May 2005 11:30:38 -0400
-Message-Id: <1115825438.28084.31.camel@moss-huskies.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-28C/aFyPwJtjEex2jyUz"
+Date: Wed, 11 May 2005 11:30:51 -0400
+Message-Id: <1115825451.28084.32.camel@moss-huskies.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-dz7B6FetLdjogHhyT0ia
+--=-28C/aFyPwJtjEex2jyUz
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Attached is the patch to gdm, as well as the diff of the rawhide spec
-file for the SRPM.  If you want to download a patched SRPM, it is
-available here:
-
-http://www.flux.utah.edu/~sds/gdm-2.6.0.8-12.poly.0.src.rpm
+Attached is the patch to policy, as well as the example config file.
 
 
--- 
-Chad Sellers
-cdselle@tycho.nsa.gov
 
---=-dz7B6FetLdjogHhyT0ia
-Content-Disposition: attachment; filename=gdm-2.6.0.8-selinux-poly.patch
-Content-Type: text/x-patch; name=gdm-2.6.0.8-selinux-poly.patch; charset=UTF-8
+--=-28C/aFyPwJtjEex2jyUz
+Content-Disposition: attachment; filename=policy.diff
+Content-Type: text/x-patch; name=policy.diff; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-diff -urN gdm-2.6.0.8.orig/configure gdm-2.6.0.8/configure
---- gdm-2.6.0.8.orig/configure	2005-05-05 10:55:37.000000000 -0400
-+++ gdm-2.6.0.8/configure	2005-05-05 11:11:22.000000000 -0400
-@@ -29067,6 +29067,7 @@
+diff -urN --exclude=policy.conf policy.orig/attrib.te policy/attrib.te
+--- policy.orig/attrib.te	2005-04-26 13:26:32.000000000 -0400
++++ policy/attrib.te	2005-05-05 13:47:50.000000000 -0400
+@@ -438,3 +438,11 @@
+ # of the file system.
+ attribute customizable;
  
- 	cat >>confdefs.h <<\_ACEOF
- #define HAVE_SELINUX 1
-+#define SELINUX_POLY 1
- _ACEOF
++# For labeling types that are to be polyinstantiated
++attribute polydir;
++# And for labeling the parent directories of those polyinstantiated directories
++# This is necessary for remounting the original in the parent to give
++# security aware apps access
++attribute polyparent;
++# And labeling for the member directories
++attribute polymember;
+diff -urN --exclude=policy.conf policy.orig/domains/misc/test.te policy/domains/misc/test.te
+--- policy.orig/domains/misc/test.te	1969-12-31 19:00:00.000000000 -0500
++++ policy/domains/misc/test.te	2005-05-05 14:01:48.000000000 -0400
+@@ -0,0 +1,4 @@
++type_member user_t tmp_t:dir user_tmp_t;
++type_member user_t user_home_dir_t:dir user_home_t;
++type_member staff_t tmp_t:dir staff_tmp_t;
++type_member staff_t staff_home_dir_t:dir staff_home_t;
+diff -urN --exclude=policy.conf policy.orig/domains/program/login.te policy/domains/program/login.te
+--- policy.orig/domains/program/login.te	2005-04-26 13:26:32.000000000 -0400
++++ policy/domains/program/login.te	2005-05-05 13:57:44.000000000 -0400
+@@ -130,6 +130,9 @@
+ domain_auto_trans($1_login_t, shell_exec_t, unconfined_t)
+ ')
  
- 	EXTRA_DAEMON_LIBS="$EXTRA_DAEMON_LIBS -lselinux -lattr"
-diff -urN gdm-2.6.0.8.orig/configure.in gdm-2.6.0.8/configure.in
---- gdm-2.6.0.8.orig/configure.in	2005-03-07 15:40:09.000000000 -0500
-+++ gdm-2.6.0.8/configure.in	2005-05-05 11:11:22.000000000 -0400
-@@ -588,7 +588,7 @@
- 	echo "SELinux support requested (--with-selinux was given), checking prerequisites"
- 	if test -d /usr/local/selinux/include ; then
- 		echo "Found /usr/local/selinux/include, will look there for SELinux stuff as well"
--		CFLAGS="$CFLAGS -I/usr/local/selinux/include"
-+		CFLAGS="$CFLAGS -I/usr/local/selinux/include -DSELINUX_POLY=1"
- 		LDFLAGS="$LDFLAGS -L/usr/local/selinux/lib"
- 	fi
- 	AC_CHECK_HEADER(selinux/selinux.h)
-diff -urN gdm-2.6.0.8.orig/daemon/slave.c gdm-2.6.0.8/daemon/slave.c
---- gdm-2.6.0.8.orig/daemon/slave.c	2005-05-05 10:55:28.000000000 -0400
-+++ gdm-2.6.0.8/daemon/slave.c	2005-05-05 11:16:53.000000000 -0400
-@@ -30,7 +30,9 @@
- #include <unistd.h>
- #include <utime.h>
- #if defined(_POSIX_PRIORITY_SCHEDULING) && defined(HAVE_SCHED_YIELD)
-+#undef __USE_MISC
- #include <sched.h>
-+#define __USE_MISC 1
- #endif
- #ifdef HAVE_LOGINCAP
- #include <login_cap.h>
-@@ -84,6 +86,16 @@
- #include "errorgui.h"
- #include "cookie.h"
- 
-+/* Just including this so I don't have to figure out the make process yet */
-+#define SELINUX_POLY 1
-+#ifdef SELINUX_POLY
-+#include <sys/syscall.h>
-+#include <sys/mount.h>
-+#include <linux/unistd.h>
-+#define CLONE_NEWNS 0x00020000 /* Flag to create new namespace */
-+static inline _syscall2 (int, clone, int, flags, int, arg)
-+#endif
++# Login can polyinstantiate
++polyinstantiater($1_login_t)
 +
- /* Some per slave globals */
- static GdmDisplay *d;
- static gchar *login = NULL;
-@@ -3517,6 +3529,56 @@
- 		gdm_error (_("%s: setsid() failed: %s!"),
- 			   "session_child_run", strerror(errno));
+ ')dnl end login_domain macro
+ #################################
+ #
+diff -urN --exclude=policy.conf policy.orig/domains/program/xdm.te policy/domains/program/xdm.te
+--- policy.orig/domains/program/xdm.te	2005-04-26 13:26:32.000000000 -0400
++++ policy/domains/program/xdm.te	2005-05-05 13:57:37.000000000 -0400
+@@ -344,3 +344,11 @@
  
-+#ifdef SELINUX_POLY
-+	/* Make the appropriate bind mounts.  */
-+	if (security_setupns(0) > 0) {
-+		security_setupns(1);
-+	}
-+	/* Copy the .Xauthority file into the user's new home directory */
-+	FILE *xauthfile, *newxauthfile;
-+	int myrc, mywc;
-+	char *c;
-+	char *polyfname=NULL, *polypath=NULL, *xdirfname=NULL;
-+	polyfname = malloc(PATH_MAX);
-+	if (!polyfname)
-+		goto polyend;
-+	polypath = getenv("HOME");
-+	if (!polypath)
-+		goto polyend;
-+	c = strrchr(polypath,'/');
-+	*c = '\0';
-+	snprintf(polyfname, PATH_MAX, "%s/.%s-poly-orig/.Xauthority",polypath,(c+1));
-+	*c = '/';
-+	xauthfile = fopen(polyfname, "r");
-+	if (xauthfile != NULL) {
-+		snprintf(polyfname, PATH_MAX, "%s/.Xauthority",polypath);
-+		newxauthfile = fopen(polyfname, "w");
-+		if (newxauthfile != NULL) {
-+			while (!feof(xauthfile) && !ferror(xauthfile)) {
-+				myrc=fread(polyfname, 1, PATH_MAX, xauthfile);
-+				mywc=0;
-+				while (myrc > mywc) {
-+					mywc+=fwrite((polyfname+mywc), 1, (myrc-mywc), newxauthfile);
-+					if (ferror(newxauthfile))
-+						break;
-+				}
-+			}
-+			fclose(newxauthfile);
-+		}
-+		fclose(xauthfile);
-+	}
-+	/* Link /tmp/.X11-unix to poly directory */
-+	xdirfname = malloc(PATH_MAX);
-+	if (!xdirfname)
-+		goto polyend;
-+	sprintf(xdirfname, "/tmp/.X11-unix");
-+	sprintf(polyfname, "/.tmp-poly-orig/.X11-unix");
-+	symlink(polyfname,xdirfname);
-+polyend:
-+	free(xdirfname);
-+	free(polyfname);
-+#endif
+ # Run telinit->init to shutdown.
+ can_exec(xdm_t, init_exec_t)
 +
- 	ve_setenv ("XAUTHORITY", GDM_AUTHFILE (d), TRUE);
++# xdm_t can polyinstantiate
++polyinstantiater(xdm_t)
++# xdm needs access for linking .X11-unix to poly /tmp
++allow xdm_t polymember:dir { add_name remove_name write };
++allow xdm_t polymember:lnk_file { create unlink };
++# xdm needs access for copying .Xauthority into new home
++allow xdm_t polymember:file { create getattr write };
+diff -urN --exclude=policy.conf policy.orig/macros/global_macros.te policy/macros/global_macros.te
+--- policy.orig/macros/global_macros.te	2005-04-26 13:26:33.000000000 -0400
++++ policy/macros/global_macros.te	2005-05-05 14:14:19.000000000 -0400
+@@ -426,7 +426,7 @@
+ # by default, only plain files and dirs may be stored there.
+ # This can be overridden with a third parameter
+ define(`tmp_domain', `
+-type $1_tmp_t, file_type, sysadmfile, tmpfile $2;
++type $1_tmp_t, file_type, sysadmfile, polymember, tmpfile $2;
+ ifelse($3, `',
+ `file_type_auto_trans($1_t, tmp_t, $1_tmp_t, `{ file dir }')',
+ `file_type_auto_trans($1_t, tmp_t, $1_tmp_t, `$3')')
+@@ -744,3 +744,34 @@
+ ')
  
- 	/* Here we setup our 0,1,2 descriptors, we do it here
-@@ -3863,16 +3925,6 @@
- 	}
- #endif
+ ')dnl end unconfined_domain
++
++# Allow domain to perform polyinstantiation functions
++# polyinstantiater(domain)
++define(`polyinstantiater', `
++
++# Need to give access to /selinux/member
++allow $1 security_t:security compute_member;
++
++# Need to give access to the directories to be polyinstantiated
++allow $1 polydir:dir { getattr mounton add_name create setattr write search };
++
++# Need to give access to the polyinstantiated subdirectories
++allow $1 polymember:dir {getattr search };
++
++# Need to give access to parent directories where original
++# is remounted for polyinstantiation aware programs (like gdm)
++allow $1 polyparent:dir { getattr mounton };
++
++# Need to give permission to create directories where applicable
++allow $1 polymember: dir { create setattr };
++allow $1 polydir: dir { write add_name };
++allow $1 self:process setfscreate;
++allow $1 polyparent:dir { write add_name };
++# Default type for mountpoints
++allow $1 poly_t:dir { create mounton };
++
++# Need sys_admin capability for mounting
++allow $1 self:capability sys_admin;
++
++')dnl end polyinstantiater
++
+diff -urN --exclude=policy.conf policy.orig/macros/program/su_macros.te policy/macros/program/su_macros.te
+--- policy.orig/macros/program/su_macros.te	2005-05-05 13:16:01.000000000 -0400
++++ policy/macros/program/su_macros.te	2005-05-05 14:25:29.000000000 -0400
+@@ -23,7 +23,7 @@
  
--#ifdef HAVE_SELINUX
--	if ( ! gdm_selinux_setup (pwent->pw_name)) {
--		/* 66 means no "session crashed" examine .xsession-errors
--		   dialog */
--		gdm_error_box (d, GTK_MESSAGE_ERROR,
--			       _("Error! Unable to set executable context."));
--		_exit (66);
--	}
--#endif
--
- 	VE_IGNORE_EINTR (execv (argv[0], argv));
+ define(`su_restricted_domain', `
+ # Derived domain based on the calling user domain and the program.
+-type $1_su_t, domain, privlog, privrole, privuser, privowner, privfd, nscd_client_domain;
++type $1_su_t, domain, privlog, privrole, privuser, privowner, privfd, nscd_client_domain, mlsfileread, mlsfilewrite, mlsfileupgrade, mlsfiledowngrade, mlsprocsetsl;
  
- 	/* will go to .xsession-errors */
-@@ -4232,7 +4284,35 @@
-     /* Start user process */
-     gdm_sigchld_block_push ();
-     gdm_sigterm_block_push ();
+ # for SSP
+ allow $1_su_t urandom_device_t:chr_file { getattr read };
+@@ -93,6 +93,14 @@
+ allow $1_su_t self:netlink_audit_socket create_netlink_socket_perms;
+ ')
+ 
++# Su can polyinstantiate
++polyinstantiater($1_su_t)
++# Su has to unmount polyinstantiated directories (like home)
++# that should not be polyinstantiated under the new user
++allow $1_su_t fs_t:filesystem unmount;
++# Su needs additional permission to mount over a previous mount
++allow $1_su_t polymember:dir mounton;
 +
-+#ifdef HAVE_SELINUX
-+	if ( ! gdm_selinux_setup (pwent->pw_name)) {
-+		/* 66 means no "session crashed" examine .xsession-errors
-+		   dialog */
-+		gdm_error_box (d, GTK_MESSAGE_ERROR,
-+			       _("Error! Unable to set executable context."));
-+		_exit (66);
-+	}
-+#endif
-+
-+#ifdef SELINUX_POLY
-+    /*
-+    * If building with SELinux support, we want to support polyinstantiated
-+    * directories.  To do this we clone the child in a new address space
-+    * so we can bind mount as necessary.
-+    */
-+
-+    setenv("HOME",home_dir,1);
-+    if (security_setupns(0) < 1) {
-+	pid = d->sesspid = fork ();
-+    }
-+    else {
-+	pid = d->sesspid = clone(CLONE_NEWNS|SIGCHLD, 0);
-+    }
-+#else
-     pid = d->sesspid = fork ();
-+#endif /* SELINUX_POLY */
-+
-     if (pid == 0)
- 	    gdm_unset_signals ();
-     gdm_sigterm_block_pop ();
+ ') dnl end su_restricted_domain
+ 
+ define(`su_mini_domain', `
+diff -urN --exclude=policy.conf policy.orig/macros/user_macros.te policy/macros/user_macros.te
+--- policy.orig/macros/user_macros.te	2005-04-26 13:26:33.000000000 -0400
++++ policy/macros/user_macros.te	2005-05-05 14:05:54.000000000 -0400
+@@ -18,8 +18,8 @@
+ # Use capabilities
+ 
+ # Type for home directory.
+-type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_home_dir_type;
+-type $1_home_t, file_type, sysadmfile, home_type, user_home_type, $1_file_type;
++type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_home_dir_type, polydir;
++type $1_home_t, file_type, sysadmfile, home_type, user_home_type, $1_file_type, polymember;
+ 
+ tmp_domain($1, `, user_tmpfile, $1_file_type', `{ file lnk_file dir sock_file fifo_file }')
+ 
+diff -urN --exclude=policy.conf policy.orig/types/file.te policy/types/file.te
+--- policy.orig/types/file.te	2005-04-26 13:26:32.000000000 -0400
++++ policy/types/file.te	2005-05-05 14:06:57.000000000 -0400
+@@ -43,7 +43,7 @@
+ #
+ # root_t is the type for the root directory.
+ #
+-type root_t, file_type, sysadmfile;
++type root_t, file_type, sysadmfile, polyparent;
+ 
+ #
+ # mnt_t is the type for mount points such as /mnt/cdrom
+@@ -53,7 +53,7 @@
+ # home_root_t is the type for the directory where user home directories
+ # are created
+ #
+-type home_root_t, file_type, sysadmfile;
++type home_root_t, file_type, sysadmfile, polyparent;
+ 
+ #
+ # lost_found_t is the type for the lost+found directories.
+@@ -77,7 +77,7 @@
+ #
+ # tmp_t is the type of /tmp and /var/tmp.
+ #
+-type tmp_t, file_type, sysadmfile, tmpfile;
++type tmp_t, file_type, sysadmfile, tmpfile, polydir;
+ 
+ #
+ # etc_t is the type of the system etc directories.
 
---=-dz7B6FetLdjogHhyT0ia
-Content-Disposition: attachment; filename=gdm.spec.diff
-Content-Type: text/x-patch; name=gdm.spec.diff; charset=UTF-8
+--=-28C/aFyPwJtjEex2jyUz
+Content-Disposition: attachment; filename=polydirs
+Content-Type: text/plain; name=polydirs; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
---- gdm.spec	2005-05-03 10:18:52.000000000 -0400
-+++ gdm.spec.good	2005-05-05 14:47:58.000000000 -0400
-@@ -16,7 +16,7 @@
- Summary: The GNOME Display Manager.
- Name: gdm
- Version: 2.6.0.8
--Release: 12
-+Release: 12.poly.0
- Epoch: 1
- License: LGPL/GPL
- Group: User Interface/X
-@@ -46,6 +46,7 @@
- Patch28: gdm-2.6.0.8-xdmcp.patch
- Patch29: gdm-2.6.0.8-fix-halt-command.patch
- Patch30: gdm-2.6.0.8-process-all-messages.patch
-+Patch31: gdm-2.6.0.8-selinux-poly.patch
- 
- BuildRoot: %{_tmppath}/gdm-%{PACKAGE_VERSION}-root
- 
-@@ -117,6 +118,7 @@
- %patch28 -p1 -b .xdmcp
- %patch29 -p1 -b .fix-halt-command
- %patch30 -p1 -b .process-all-messages
-+%patch31 -p1
- 
- # fix the time format for ja
- perl -pi -e "s|^msgstr \"%a %b %d, %H:%M\"|msgstr \"%m/%d \(%a\) %H:%M\"|; s|^msgstr \"%a %b %d, %I:%M %p\"|msgstr \"%m/%d \(%a\) %p %I:%M\"|" po/ja.po
+system_u:object_r:poly_t:s0
 
---=-dz7B6FetLdjogHhyT0ia--
+/tmp
+/home #No rules in test policy for this
+$HOME
+
+
+--=-28C/aFyPwJtjEex2jyUz--
 
 
 --
