@@ -1,25 +1,25 @@
-Message-ID: <42824AE2.9020509@us.ibm.com>
-Date: Wed, 11 May 2005 14:11:46 -0400
-From: Janak Desai <janak@us.ibm.com>
-MIME-Version: 1.0
-To: Casey Schaufler <casey@schaufler-ca.com>
-CC: Chad Sellers <cdselle@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4BIIEgA020117
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 14:18:14 -0400 (EDT)
 Subject: Re: [RFC]{Patch 0/5] Polyinstantation
-References: <20050511174111.48865.qmail@web31610.mail.mud.yahoo.com>
+From: Chad Sellers <cdselle@tycho.nsa.gov>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <20050511174111.48865.qmail@web31610.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <20050511174111.48865.qmail@web31610.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 11 May 2005 14:16:51 -0400
+Message-Id: <1115835411.28698.12.camel@moss-huskies.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler wrote:
-
+On Wed, 2005-05-11 at 10:41 -0700, Casey Schaufler wrote:
 > --- Chad Sellers <cdselle@tycho.nsa.gov> wrote:
 > 
-> 
->>This patch us a userspace patch to provide
->>polyinstantiation support in
->>SELinux.  ...
-> 
+> > This patch us a userspace patch to provide
+> > polyinstantiation support in
+> > SELinux.  ...
 > 
 > Clever.
 > 
@@ -33,9 +33,14 @@ Casey Schaufler wrote:
 > How will the two instances of /tmp/foo be
 > differentiated in the audit trail?
 > 
+The two instances of /tmp/foo have different contexts (that's the
+reason /tmp was polyinstantiated in the first place).  Any audit
+messages (avc messages do this now) should include the context of the
+file (as well as device and inode), not just the filename.  So, the two
+instances can be differentiated.  Additionally, auditing based on
+filename is unreliable to begin with.
 
-In addition to the pathname, the audit record
-will contain the user's sensitivity level.
+
 
 > In existing MLS systems many trusted programs
 > use "label flipping" to access resources at
@@ -48,9 +53,30 @@ will contain the user's sensitivity level.
 > have polyinstantiation mechanisms that handle
 > that case.
 > 
+I agree that this is a bad practice, but these programs could move to my
+scheme.  MLS applications that use "label flipping" have to be security
+aware in order to perform that flipping (meaning they have to call
+security functions to flip their label).  So, they could include a call
+to my library function to modify their namespace appropriately when
+flipping labels.  Of course, this requires the entrypoint program
+starting the application to have setup a new namespace for the
+application in the first place.  If the application flips so frequently
+that this affects performance, then I'd say the application is flipping
+labels a little too frequently.
 
--Janak
-
+> 
+> Casey Schaufler
+> casey@schaufler-ca.com
+> 
+> 
+> 		
+> __________________________________ 
+> Do you Yahoo!? 
+> Yahoo! Small Business - Try our new resources site!
+> http://smallbusiness.yahoo.com/resources/ 
+-- 
+Chad Sellers
+cdselle@tycho.nsa.gov
 
 
 --
