@@ -1,51 +1,72 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4BIntgA020402
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 14:49:56 -0400 (EDT)
-Received: from e35.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4BIlCiX021377
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 18:47:12 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e35.co.us.ibm.com (8.12.10/8.12.9) with ESMTP id j4BIlHT9513994
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 14:47:19 -0400
-Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
-	by d03relay04.boulder.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id j4BIlHMA179394
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 12:47:17 -0600
-Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av04.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id j4BIlHsc004357
-	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 12:47:17 -0600
-From: "Timothy R. Chavez" <tinytim@us.ibm.com>
-To: Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4BJ4bgA020812
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 15:04:38 -0400 (EDT)
+Received: from web31613.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j4BJ243Y022857
+	for <selinux@tycho.nsa.gov>; Wed, 11 May 2005 19:02:04 GMT
+Message-ID: <20050511190205.83556.qmail@web31613.mail.mud.yahoo.com>
+Date: Wed, 11 May 2005 12:02:05 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: [RFC]{Patch 0/5] Polyinstantation
-Date: Wed, 11 May 2005 13:48:29 -0500
-References: <20050511174111.48865.qmail@web31610.mail.mud.yahoo.com>
-In-Reply-To: <20050511174111.48865.qmail@web31610.mail.mud.yahoo.com>
+To: "Timothy R. Chavez" <tinytim@us.ibm.com>, selinux@tycho.nsa.gov
+In-Reply-To: 6667
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200505111348.29360.tinytim@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 11 May 2005 12:41, you wrote:
 
-> Suppose a user logs in at UNCLASSIFIED (to read email)
-> and while she's there she looks at /tmp/foo. She
-> logs off, then logs in at SECRET to do some secret
-> work, during which she looks at (a different)
-> /tmp/foo. The Powers That Be later decide that
-> this user may have been up to no good, and want
-> to examine the audit trail associated with her.
-> How will the two instances of /tmp/foo be
-> differentiated in the audit trail?
+--- "Timothy R. Chavez" <tinytim@us.ibm.com> wrote:
 
-I'm not too familiar with MLS, but is it really necessary to audit every thing 
-the user is  accessing?  What if /tmp/foo maps to something uninteresting in 
-both SECRET and UNCLASSIFIED, do we really care?  If /tmp/foo maps to 
-something security-critical and interesting, I'd suspect it will be audited 
-(irrespective of namespace, at the inode level), in which case a record will 
-be generated with a security context, loginuid, etc.
+> I'm not too familiar with MLS, but is it really
+> necessary to audit every thing 
+> the user is  accessing?
 
--tim
+In the usual case accessing files in /tmp
+will be completely uninteresting to any
+sane security officer. In unusual cases,
+or in the presence of an insane security
+officer it must be possible to do so.
+Polyinstantiated directories have driven
+any number of otherwise rational admins
+over the edge.
+
+> What if /tmp/foo maps to
+> something uninteresting in 
+> both SECRET and UNCLASSIFIED, do we really care?
+
+Nope. We don't care. The user who is being watched
+may care a lot if difficulty in differentiation
+lands her in jail. It can happen.
+
+> If
+> /tmp/foo maps to 
+> something security-critical and interesting, I'd
+> suspect it will be audited 
+> (irrespective of namespace, at the inode level), in
+> which case a record will 
+> be generated with a security context, loginuid, etc.
+
+This is only going to be true if it's known in
+advance by the admins that /tmp/foo will contain
+important stuff, and which /tmp/foo that's going
+to be.
+
+
+Unix MLS systems address polyinstantiated
+directories in the pathname resolution code
+rather than remapping process mount spaces.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Yahoo! Mail Mobile 
+Take Yahoo! Mail with you! Check email on your mobile phone. 
+http://mobile.yahoo.com/learn/mail 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
