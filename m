@@ -1,58 +1,67 @@
-Message-ID: <42836C4C.6010301@redhat.com>
-Date: Thu, 12 May 2005 10:46:36 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4CHvqgA027744
+	for <selinux@tycho.nsa.gov>; Thu, 12 May 2005 13:57:53 -0400 (EDT)
+Received: from web60413.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j4CHsx5F015740
+	for <selinux@tycho.nsa.gov>; Thu, 12 May 2005 17:54:59 GMT
+Message-ID: <20050512175506.46422.qmail@web60413.mail.yahoo.com>
+Date: Thu, 12 May 2005 10:55:06 -0700 (PDT)
+From: Roger Brunell <rog_brunell@yahoo.com>
+Subject: policy directory structure - Debian and Tresys tools
+To: SELinux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmillan@tresys.com>
-Subject: Re: Busted by constraints.
-References: <428368FF.2080603@redhat.com> <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+As a follow-on to a prior comment; I am trying to
+build the Tresys "SELinux Tools (setools), version
+2.0" on a Knoppix 3.8.1 (Debian derived) system. I
+already have the selinux running with the default
+strict policy. I want to now start exploring what is
+in a policy.
 
->On Thu, 2005-05-12 at 10:32 -0400, Daniel J Walsh wrote:
->  
->
->>Auditing of constraint failures sucks.  We are putting out incorrect 
->>error messages.  Or at least not informative enough to help the 
->>user/policy writer to figure out what is wrong.
->>
->>Yesterday,  Another engineer and I spent a lot of time trying to figure 
->>out why setfscreatecon was failing.  The only indication was the the
->>application was not allowed to created a directory.  Of course the allow 
->>rule was present in the policy.  Eventually we figured out we needed
->>the privowner priv to get by a constraint.    Shouldn't the kernel be 
->>reporting a constraint failure.  Isn't this going to become a lot more
->>important with MLS?
->>    
->>
->
->The AVC just sees that a given permission was denied, not what component
->of the policy engine denied it.  See "Flask architecture", "policy-
->flexibility", ...
->
->But nothing prevents you from creating a simple tool linked against
->libsepol that takes an avc denial and determines which part of the
->policy caused it.  I'd expect that to be part of an audit analysis tool
->like seaudit, not a change to the kernel.
->
->  
->
-Well I would have no idea how to do it, but it is going to be 
-increasingly needed
-as constraints grow.
+It (the Tresys package) appears to have a different
+idea of where a policy is located, compiled into one
+of the tools; than where the policy actually ends up .
+And they are both from the same website.
 
-Something to tell me the failure is caused by a missing role or 
-constraint would be great.
-audit2why :^)
-Dan
+-------
+root@lppda:/p/selinux/nsa/setools-2.0# make
+cd libapol; make libapol libapolso
+make[1]: Entering directory
+`/p/selinux/nsa/setools-2.0/libapol'
+cc -Wall -O2 -fPIC   -DLIBSELINUX -DLIBSEFS
+-DLIBAPOL_VERSION_STRING='"2.0"'
+-DAPOL_INSTALL_DIR='"/usr/share/setools"'
+-DLIBAPOL_POLICY_INSTALL_DIR='"/etc/security/selinux"'
+-DLIBAPOL_SELINUX_DIR='"/selinux"'
+-DLIBAPOL_DEFAULT_POLICY='"/etc/security/selinux/src/policy/policy.conf"'
+-I. -o cond.o -c cond.c
+cond.c:20:28: sys/capability.h: No such file or
+directory
+make[1]: *** [cond.o] Error 1
+make[1]: Leaving directory
+`/p/selinux/nsa/setools-2.0/libapol'
+-----
+I think that is expecting the default policy path to
+be  under '/etc/security/selinux'.
 
--- 
+I haven't investigated the missing include yet.
 
 
+Roger Brunell
+
+Roger Brunell
+
+Infosec Engineer (retired)
+"Born 20 years too early"
+
+
+		
+Discover Yahoo! 
+Use Yahoo! to plan a weekend, have fun online and more. Check it out! 
+http://discover.yahoo.com/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
