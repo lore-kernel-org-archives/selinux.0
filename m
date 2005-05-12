@@ -1,87 +1,43 @@
-Message-ID: <4282B1C1.2080202@redhat.com>
-Date: Wed, 11 May 2005 21:30:41 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Chad Sellers <cdselle@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [RFC]{Patch 0/5] Polyinstantation
-References: <1115825335.28084.27.camel@moss-huskies.epoch.ncsc.mil>	 <42826782.9040108@redhat.com> <1115844045.28698.30.camel@moss-huskies.epoch.ncsc.mil>
-In-Reply-To: <1115844045.28698.30.camel@moss-huskies.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Strange trace - tty problems
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Thu, 12 May 2005 01:10:26 -0400
+Message-Id: <1115874626.18756.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chad Sellers wrote:
 
->On Wed, 2005-05-11 at 16:13 -0400, Daniel J Walsh wrote:
->
->  
->
->>Why are you still sharing the /tmp directory within the same roles.  I 
->>think it would be preferable to
->>not share at all.  This would protect one user_u from another.   
->>    
->>
->This code does polyinstantiation by context, thereby separating one
->context from another.  Are you suggesting separating entities within the
->same context from one another?  Meaning that the member directory chosen
->would be dependent on the source user, role, type, level, compartment,
->and uid/unix username?
->  
->
-Not sure what you mean by context.  Are you saying that all user_r would 
-share the same /tmp?
-I would prefer that the directories be separated by UID/ROLE.  One of 
-the shortcomings
-of SELinux is that you really do not separate users into different 
-roles.  So most systems will
-have only limited user roles, maybe user_r, staff_r and sysadm_r.  So if 
-I give each user their
-own /tmp directory, you eliminate users attacking each other, or at 
-least make it more difficult.
+What's this? Prior to this I was updating 400+ packages,
+cleaning bad repositories (so no more false httpd execmem bugs),
+updating the policy, and doing a restorecon -R /. 
 
-I think the users /tmp directory should be the same for all logins.  So 
-if I copy a file to /tmp
-and then go to another machine and scp it off, the file will be there.   
+Then I couldn't open any terminals. Logging out of X 
+and back in let me open terminals just fine.
 
-This would then work on all Linux systems with or without SELinux and 
-independant of the policy.
+Is this selinux related?
 
-Dan
-
->  
->
->>How are 
->>you handling system sockets?
->>/tmp/.X11-unix/
->>/tmp/.X0-lock
->>I think postrgres also puts stuff out there.
->>    
->>
->Yes, this is a pain.  The problem with directories like /tmp and $HOME
->is that they have become global dumping places.  The problem with
->breaking them up is that programs use that global dumping place as a
->convenient way to connect to other programs.  So, you have sockfiles and
->pipes that need to persist in multiple (but not all) member directories.
->The library doesn't handle this stuff, and so I handle it in the
->entrypoint patches (see the gdm patch or what happens if you pass -X to
->the setupns command line utility).  This is one reason that I remount
->the original directory elsewhere for security-aware (and allowed) apps
->to access it.  The entrypoint program (say gdm) symlinks the necessary
->files into the member directory.  If unionfs gets some upstream support,
->it would provide a much more elegant way to do this.
->
->I've only patched this to make X work.  I'm sure other programs (such as
->postgres) might require similar modifications in order to work.
->
->  
->
->>    
->>
-
+audit(1115874036.581:0): avc:  granted  { setenforce } for
+scontext=root:sysadm_r:sysadm_t tcontext=system_u:object_r:security_t
+tclass=security
+idr_remove called for id=0 which is not allocated.
+ [<c020e872>] sub_remove+0x86/0xe6
+ [<c02598b7>] release_dev+0x5d8/0xa0c
+ [<c020e8ea>] idr_remove+0x18/0x75
+ [<c02598ec>] release_dev+0x60d/0xa0c
+ [<c017bf88>] do_sync_write+0x9e/0xec
+ [<c01f33f8>] avc_has_perm+0x4e/0x66
+ [<c013fff2>] autoremove_wake_function+0x0/0x37
+ [<c025a2db>] tty_release+0x7/0xa
+ [<c017ce33>] __fput+0x4b/0xfa
+ [<c017b620>] filp_close+0x4f/0x6d
+ [<c0103a61>] syscall_call+0x7/0xb
 
 -- 
-
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
