@@ -1,43 +1,28 @@
-Subject: Strange trace - tty problems
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Thu, 12 May 2005 01:10:26 -0400
-Message-Id: <1115874626.18756.5.camel@localhost.localdomain>
+Date: Thu, 12 May 2005 09:35:01 +0000
+From: =?iso-8859-2?B?TWFnb3PhbnlpIMFycOFk?= <mag@bunuel.tii.matav.hu>
+To: Chad Sellers <cdselle@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [selinux] [RFC]{Patch 0/5] Polyinstantation
+Message-ID: <20050512093501.GB19380@bunuel.tii.matav.hu>
+References: <1115825335.28084.27.camel@moss-huskies.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <1115825335.28084.27.camel@moss-huskies.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+A levelezõm azt hiszi, hogy Chad Sellers a következõeket írta:
+> This patch us a userspace patch to provide polyinstantiation support in
+> SELinux.  
 
-What's this? Prior to this I was updating 400+ packages,
-cleaning bad repositories (so no more false httpd execmem bugs),
-updating the policy, and doing a restorecon -R /. 
+Hi!
 
-Then I couldn't open any terminals. Logging out of X 
-and back in let me open terminals just fine.
-
-Is this selinux related?
-
-audit(1115874036.581:0): avc:  granted  { setenforce } for
-scontext=root:sysadm_r:sysadm_t tcontext=system_u:object_r:security_t
-tclass=security
-idr_remove called for id=0 which is not allocated.
- [<c020e872>] sub_remove+0x86/0xe6
- [<c02598b7>] release_dev+0x5d8/0xa0c
- [<c020e8ea>] idr_remove+0x18/0x75
- [<c02598ec>] release_dev+0x60d/0xa0c
- [<c017bf88>] do_sync_write+0x9e/0xec
- [<c01f33f8>] avc_has_perm+0x4e/0x66
- [<c013fff2>] autoremove_wake_function+0x0/0x37
- [<c025a2db>] tty_release+0x7/0xa
- [<c017ce33>] __fput+0x4b/0xfa
- [<c017b620>] filp_close+0x4f/0x6d
- [<c0103a61>] syscall_call+0x7/0xb
+Thanks, a long-awaited feature.
+(A bit too complicated, I think rsbac's "append role to end of symlynk target"
+is more elegant, but at least we have it.)
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+GNU GPL: csak tiszta forrásból
 
 
 --
