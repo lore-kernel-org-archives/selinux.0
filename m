@@ -1,53 +1,40 @@
 Subject: Re: Busted by constraints.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050513151013.18860.qmail@web31605.mail.mud.yahoo.com>
-References: <20050513151013.18860.qmail@web31605.mail.mud.yahoo.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
+References: <428368FF.2080603@redhat.com>
+	 <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 13 May 2005 11:20:55 -0400
-Message-Id: <1115997655.3576.64.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 May 2005 11:35:36 -0400
+Message-Id: <1115998536.3576.72.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-05-13 at 08:10 -0700, Casey Schaufler wrote:
-> So where is the policy-in-effect stored?
-> Certainly you're not going to suggest using
-> the policy source file that happens to be there
-> at the time of analysis. That policy file
-> (actually, that set of policy files soon)
-> may bear little resemblence to the policy
-> that was in force at the time the event
-> occured. Even if you're talking about the
-> policy file at the time of collection
-> there is real risk that the content of the
-> policy file does not match what the kernel
-> is enforcing.
+On Thu, 2005-05-12 at 10:30 -0400, Stephen Smalley wrote:
+> The AVC just sees that a given permission was denied, not what component
+> of the policy engine denied it.  See "Flask architecture", "policy-
+> flexibility", ...
 
-audit2why/libsepol actually acts on the binary policy file, and libsepol
-has the same policy engine code as the kernel, but I understand your
-concern about matching up with the policy that was in effect at the time
-of the denial.  However, keep in mind that:
-a) keeping a versioned repository of your policies is a good idea
-independent of this issue,
-b) we are only trying to identify what component of the policy caused a
-denial (e.g. Type Enforcement, RBAC, or constraint), and this is not
-likely to be highly variable across policy changes/upgrades for a given
-denial.
-
-It might be useful if the kernel audit messages included some kind of
-policy identifier / hash that could be used in correlating against a
-versioned repository of policies.   That wouldn't be difficult.
-
-> Enjoy. It's pretty pointless.
-
-To the contrary, it specifically addresses Dan's problem (i.e. being
-able to quickly determine which part of the policy caused a given denial
-for application and policy debugging), where he knows what policy he is
-using at the time of the denial.  And it should provide a basis for
-future work on audit analysis tools, even if we have to make further
-enhancements to support that functionality fully.
+BTW, to elaborate on this point, when a permission check is first made
+for a given (subject security context, object security context, object
+security class) triple, the AVC gets a complete access vector (all
+permission decisions) for that triple from the security server, so the
+security server does the complete policy computation at that time and
+never sees subsequent permission checks on the same triple as long as
+the cache entry isn't evicted.  Hence, even if we modified the kernel
+security server to log a message about the cause when it receives a
+request for a computation and one of the requested permissions is
+denied, we'd still never see the causes for denials that are handled
+entirely by the AVC using the cached access vector.   To support that in
+the kernel (vs. creating a utility like audit2why), we'd have to have
+the kernel security server return a vector of _reasons_ for each denied
+permission in the access vector to the AVC and have the AVC interpret
+that vector when generating the audit message.  In addition to being
+rather painful, that also tends to break the desired encapsulation of
+policy logic within the security server in the kernel (vs. having some
+policy-aware applications like audit2why).
 
 -- 
 Stephen Smalley
