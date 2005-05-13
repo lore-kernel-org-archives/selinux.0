@@ -1,82 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4DCKCgA002368
-	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 08:20:13 -0400 (EDT)
-Received: from web60414.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j4DCHM6j004032
-	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 12:17:22 GMT
-Message-ID: <20050513121723.1202.qmail@web60414.mail.yahoo.com>
-Date: Fri, 13 May 2005 05:17:22 -0700 (PDT)
-From: Roger Brunell <rog_brunell@yahoo.com>
-Subject: Policy 1.22 Presentation?
-To: SELinux <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Policy 1.22 Presentation?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Roger Brunell <rog_brunell@yahoo.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050513121723.1202.qmail@web60414.mail.yahoo.com>
+References: <20050513121723.1202.qmail@web60414.mail.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 13 May 2005 08:29:46 -0400
+Message-Id: <1115987386.3576.39.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Folks;
-  This may seem to be a rather mundane question, but
-some guidance would be appreciated. I *think* I have
-selinux running on a Debian derived OS (2.6.11-3). I
-installed the NSA 1.22 policy. 
+On Fri, 2005-05-13 at 05:17 -0700, Roger Brunell wrote:
+>   This may seem to be a rather mundane question, but
+> some guidance would be appreciated. I *think* I have
+> selinux running on a Debian derived OS (2.6.11-3). I
+> installed the NSA 1.22 policy. 
 
-?1? There were messages during the policy 'install'
-about undefined things:
+1.22 is fairly old now (March 9th release); I'd work off the sourceforge
+selinux CVS tree or the Fedora devel CVS tree.  We're just waiting on
+Linux 2.6.12 to be released to put an updated release on nsa.gov.
 
-------
-install -m 644 local.users
-/etc/selinux/strict/users/local.users
+>   Something left a bunch of error messages in that
+> file.
 
-Validating file_contexts ...
+The genhomedircon script (from policycoreutils) generates the
+file_contexts.homedirs file.  It attempts to determine the default home
+directory root from /etc/default/useradd (by grep'ing for ^HOME), then
+checks /etc/libuser.conf for ^LU_HOMEDIRECTORY.  It naturally shouldn't
+be dumping error messages into the file itself.  Does the problem
+persist with the latest version of the script and policy from the
+sourceforge selinux CVS tree or the Fedora devel CVS tree?
 
-/usr/sbin/setfiles -q -c
-/etc/selinux/strict/policy/policy.19
-/etc/selinux/strict/contexts/files/file_contexts
+> ?2? The policy makefile does 'MLS' or 'strict'; what
+> about 'targeted'? How is that installed? I think that
+> is the model I need. Guard the door; but let the
+> customers do what they want to each other.
 
-/etc/selinux/strict/contexts/files/file_contexts.homedirs:
- line 28 has invalid file type /etc/default/useradd:
------
+Grab the latest selinux-policy-targeted.spec file from the Fedora CVS
+tree to see how they are building targeted policy from the policy
+sources.  There is one included in the policy directory as an example,
+but it isn't up-to-date with the latest Fedora one.
 
-  Something left a bunch of error messages in that
-file.
+-- 
+Stephen Smalley
+National Security Agency
 
-----
-#
-# Context for user user_u
-#
-
-grep: /etc/default/useradd: No such file or
-directory/[^/]*             -d     
-user_u:object_r:user_home_dir_t
-grep: /etc/default/useradd: No such file or
-directory/[^/]*/.+                 
-user_u:object_r:user_home_t
-grep: /etc/default/useradd: No such file or
-directory/[^/]*/\.ssh(/.*)?        
-user_u:object_r:user_home_ssh_t
-----
- Is this a "RedHatism"? 
- What should be here?
- Does it pose a problem in Debian?
- I don't have the /etc/default/useradd file.
-
-?2? The policy makefile does 'MLS' or 'strict'; what
-about 'targeted'? How is that installed? I think that
-is the model I need. Guard the door; but let the
-customers do what they want to each other.
-
-
-
-
-Roger Brunell
-
-Infosec Engineer (retired)
-"Born 20 years too early"
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
