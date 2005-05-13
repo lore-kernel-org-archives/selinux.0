@@ -1,43 +1,27 @@
-Subject: Re: Busted by constraints.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <1116012601.3576.183.camel@moss-spartans.epoch.ncsc.mil>
-References: <428368FF.2080603@redhat.com>
-	 <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
-	 <42836C4C.6010301@redhat.com>
-	 <1115996428.3576.47.camel@moss-spartans.epoch.ncsc.mil>
-	 <1116012601.3576.183.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4DKMZgA006223
+	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 16:22:35 -0400 (EDT)
+Subject: Updated Policy in Sourceforge CVS
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: SELinux <selinux@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, petre rodan <kaiowas@gentoo.org>
 Content-Type: text/plain
-Date: Fri, 13 May 2005 16:00:55 -0400
-Message-Id: <1116014455.3576.186.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 May 2005 16:20:37 -0400
+Message-Id: <1116015637.8752.10.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-05-13 at 15:30 -0400, Stephen Smalley wrote:
-> In creating audit2why, I ran into the known namespace collision between
-> libsepol and libselinux; they both define the base set of Flask types,
-> with the one set of definitions for security-aware applications running
-> on SELinux and the other set of definitions for the binary policy and
-> the userspace security server code (the latter is only exported by the
-> static libsepol, not the shared library).  I worked around the collision
-> temporarily in audit2why.c by not including selinux.h and manually
-> defining function prototypes for the functions from libselinux, but I
-> think we should eliminate the collision by applying the attached script
-> to all *.[chy] files in libsepol and checkpolicy and then applying the
-> attached patch to audit2why.  I don't think we want to actually fold the
-> types together, as the libsepol definitions need to stay consistent with
-> the binary policy format whereas the libselinux ones don't need to be
-> fixed size (and in the case of security_id_t we cannot fold them since
-> one is an integer and the other is a struct).  Seem reasonable?
-
-Ah, there was one duplicated expression in the sed script, but otherwise
-it yielded the expected result, and the resulting libsepol, checkpolicy,
-and audit2why all build as expected.  Committed to sourceforge CVS.
+1.23.16 2005-05-13
+* Added rdisc policy from Russell Coker.
+* Merged minor fix to named policy by Petre Rodan.
+* Merged minor fixes to policy from Russell Coker for kudzu, named,
+screen, setfiles, telnet, and xdm.
+* Merged minor fix to Makefile from Russell Coker.
 
 -- 
-Stephen Smalley
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
 
 
