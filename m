@@ -1,45 +1,83 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4DFxEgA004013
+	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 11:59:29 -0400 (EDT)
+Received: from web31605.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j4DFuA7F024818
+	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 15:56:10 GMT
+Message-ID: <20050513155622.31532.qmail@web31605.mail.mud.yahoo.com>
+Date: Fri, 13 May 2005 08:56:22 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Busted by constraints.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
-References: <428368FF.2080603@redhat.com>
-	 <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 13 May 2005 11:35:36 -0400
-Message-Id: <1115998536.3576.72.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+   Casey Schaufler <casey@schaufler-ca.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-05-12 at 10:30 -0400, Stephen Smalley wrote:
-> The AVC just sees that a given permission was denied, not what component
-> of the policy engine denied it.  See "Flask architecture", "policy-
-> flexibility", ...
 
-BTW, to elaborate on this point, when a permission check is first made
-for a given (subject security context, object security context, object
-security class) triple, the AVC gets a complete access vector (all
-permission decisions) for that triple from the security server, so the
-security server does the complete policy computation at that time and
-never sees subsequent permission checks on the same triple as long as
-the cache entry isn't evicted.  Hence, even if we modified the kernel
-security server to log a message about the cause when it receives a
-request for a computation and one of the requested permissions is
-denied, we'd still never see the causes for denials that are handled
-entirely by the AVC using the cached access vector.   To support that in
-the kernel (vs. creating a utility like audit2why), we'd have to have
-the kernel security server return a vector of _reasons_ for each denied
-permission in the access vector to the AVC and have the AVC interpret
-that vector when generating the audit message.  In addition to being
-rather painful, that also tends to break the desired encapsulation of
-policy logic within the security server in the kernel (vs. having some
-policy-aware applications like audit2why).
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
--- 
-Stephen Smalley
-National Security Agency
+ 
+> audit2why/libsepol actually acts on the binary
+> policy file, and libsepol
+> has the same policy engine code as the kernel, but I
+> understand your
+> concern about matching up with the policy that was
+> in effect at the time
+> of the denial.
 
+Since the policy is a variable in the security
+lattice it needs to be included in the audit 
+information.
+
+> However, keep in mind that:
+> a) keeping a versioned repository of your policies
+> is a good idea
+> independent of this issue,
+
+Sure, just as versioned repositories of your
+users and system installation is a good idea.
+
+> b) we are only trying to identify what component of
+> the policy caused a
+> denial (e.g. Type Enforcement, RBAC, or constraint),
+> and this is not
+> likely to be highly variable across policy
+> changes/upgrades for a given
+> denial.
+
+The likelyhood of change does not discount the
+threat of change.
+
+> It might be useful if the kernel audit messages
+> included some kind of
+> policy identifier / hash that could be used in
+> correlating against a
+> versioned repository of policies.   That wouldn't be
+> difficult.
+
+Your audit message should explicitly identify
+what policy resulted in any failure.
+ 
+> > Enjoy. It's pretty pointless.
+> 
+> To the contrary, it specifically addresses Dan's
+> problem
+
+OKay, it's a valuable debug tool until such
+time as you repair the audit records.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
