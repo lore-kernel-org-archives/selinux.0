@@ -1,70 +1,119 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4DGm8gA004460
-	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 12:48:09 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4DGit6j021869
-	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 16:45:14 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 27EB961AF1
-	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 17:20:35 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 21315-08 for <selinux@tycho.nsa.gov>;
-	Fri, 13 May 2005 17:20:34 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id B24C761ADD
-	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 17:20:34 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: setfiles and relabeling
-Date: Sat, 14 May 2005 02:44:26 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_wlNhC9dDBmuoQpj"
-Message-Id: <200505140244.32358.russell@coker.com.au>
+Subject: Re: Busted by constraints.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <1115996428.3576.47.camel@moss-spartans.epoch.ncsc.mil>
+References: <428368FF.2080603@redhat.com>
+	 <1115908243.32202.114.camel@moss-spartans.epoch.ncsc.mil>
+	 <42836C4C.6010301@redhat.com>
+	 <1115996428.3576.47.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-5QWBcRjwIELS04SY9qsn"
+Date: Fri, 13 May 2005 15:30:01 -0400
+Message-Id: <1116012601.3576.183.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_wlNhC9dDBmuoQpj
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-As fixfiles calls setfiles we need the attached patch so that setfiles runs in 
-the correct domain for a autorelabel on boot.  Things still work otherwise 
-(the machine will be in permissive mode), but it gives more AVC messages 
-which hide things that may be worth seeing.
+--=-5QWBcRjwIELS04SY9qsn
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Fri, 2005-05-13 at 11:00 -0400, Stephen Smalley wrote:
+> Ok, just committed the two attached patches for libsepol and
+> policycoreutils to introduce an audit2why utility.
+
+In creating audit2why, I ran into the known namespace collision between
+libsepol and libselinux; they both define the base set of Flask types,
+with the one set of definitions for security-aware applications running
+on SELinux and the other set of definitions for the binary policy and
+the userspace security server code (the latter is only exported by the
+static libsepol, not the shared library).  I worked around the collision
+temporarily in audit2why.c by not including selinux.h and manually
+defining function prototypes for the functions from libselinux, but I
+think we should eliminate the collision by applying the attached script
+to all *.[chy] files in libsepol and checkpolicy and then applying the
+attached patch to audit2why.  I don't think we want to actually fold the
+types together, as the libsepol definitions need to stay consistent with
+the binary policy format whereas the libselinux ones don't need to be
+fixed size (and in the case of security_id_t we cannot fold them since
+one is an integer and the other is a struct).  Seem reasonable?
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
 
---Boundary-00=_wlNhC9dDBmuoQpj
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
+--=-5QWBcRjwIELS04SY9qsn
+Content-Disposition: attachment; filename=fixnamespace
+Content-Type: application/x-shellscript; name=fixnamespace
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
 
---- domains/program/setfiles.te.orig	2005-05-14 02:39:14.000000000 +1000
-+++ domains/program/setfiles.te	2005-05-14 02:39:47.000000000 +1000
-@@ -26,6 +26,9 @@
- 
- domain_auto_trans(secadmin, setfiles_exec_t, setfiles_t)
- allow setfiles_t { userdomain privfd initrc_t init_t }:fd use;
-+ifdef(`distro_redhat', `
-+domain_auto_trans(initrc_t, setfiles_exec_t, setfiles_t)
-+')
- 
- uses_shlib(setfiles_t)
- allow setfiles_t self:capability { dac_override dac_read_search fowner };
+#!/bin/sh
+sed -e "s/security_context_t/sepol_security_context_t/g" \
+    -e "s/security_id_t/sepol_security_id_t/g" \
+    -e "s/access_vector_t/sepol_access_vector_t/g" \
+    -e "s/security_class_t/sepol_security_class_t/g" \
+    -e "s/av_decision/sepol_av_decision/g" \
+    -e "s/SECCLASS_NULL/SEPOL_SECCLASS_NULL/g" \
+    -e "s/SECCLASS_NULL/SEPOL_SECCLASS_NULL/g" \
+    -e "s/SECSID_NULL/SEPOL_SECSID_NULL/g" \
+$1 > $1.new
+mv $1.new $1
 
---Boundary-00=_wlNhC9dDBmuoQpj--
+--=-5QWBcRjwIELS04SY9qsn
+Content-Disposition: attachment; filename=audit2why-namespace.patch
+Content-Type: text/x-patch; name=audit2why-namespace.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Index: policycoreutils/audit2why/audit2why.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/audit2why/audit2why.c,v
+retrieving revision 1.1
+diff -u -p -r1.1 audit2why.c
+--- policycoreutils/audit2why/audit2why.c	13 May 2005 14:42:21 -0000	1.1
++++ policycoreutils/audit2why/audit2why.c	13 May 2005 19:14:22 -0000
+@@ -8,22 +8,13 @@
+ #include <limits.h>
+ #include <sepol/sepol.h>
+ #include <sepol/services.h>
++#include <selinux/selinux.h>
+ 
+ #define AVCPREFIX "avc:  denied  { "
+ #define SCONTEXT "scontext="
+ #define TCONTEXT "tcontext="
+ #define TCLASS "tclass="
+ 
+-/* Copied from selinux/selinux.h.
+-   Should be replaced with #include <selinux/selinux.h>,
+-   but first requires elimination of namespace collisions
+-   between libselinux and libsepol. */
+-extern const char *selinux_binary_policy_path(void);
+-extern security_class_t string_to_security_class(const char *name);
+-extern access_vector_t string_to_av_perm(security_class_t tclass, const char *name);
+-extern int security_policyvers(void);
+-extern int is_selinux_enabled(void);
+-
+ void usage(char *progname, int rc) 
+ {
+  	fprintf(stderr, "usage:  %s [-p policy] < /var/log/audit/audit.log\n", progname);
+@@ -39,10 +30,10 @@ int main(int argc, char **argv) 
+ 	FILE *fp;
+ 	int opt, rc, set_path = 0;
+ 	char *p, *scon, *tcon, *tclassstr, *permstr;
+-	security_id_t ssid, tsid;
+-	security_class_t tclass;
+-	access_vector_t perm, av;
+-	struct av_decision avd;
++	sepol_security_id_t ssid, tsid;
++	sepol_security_class_t tclass;
++	sepol_access_vector_t perm, av;
++	struct sepol_av_decision avd;
+ 	unsigned int reason;
+ 	int vers = 0;
+ 
+
+--=-5QWBcRjwIELS04SY9qsn--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
