@@ -1,51 +1,67 @@
-Subject: Re: Policy 1.22 Presentation?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Roger Brunell <rog_brunell@yahoo.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050513121723.1202.qmail@web60414.mail.yahoo.com>
-References: <20050513121723.1202.qmail@web60414.mail.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 13 May 2005 08:29:46 -0400
-Message-Id: <1115987386.3576.39.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4DFD4gA003402
+	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 11:13:05 -0400 (EDT)
+Received: from web31605.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j4DFA17F021724
+	for <selinux@tycho.nsa.gov>; Fri, 13 May 2005 15:10:01 GMT
+Message-ID: <20050513151013.18860.qmail@web31605.mail.mud.yahoo.com>
+Date: Fri, 13 May 2005 08:10:13 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: Busted by constraints.
+To: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-05-13 at 05:17 -0700, Roger Brunell wrote:
->   This may seem to be a rather mundane question, but
-> some guidance would be appreciated. I *think* I have
-> selinux running on a Debian derived OS (2.6.11-3). I
-> installed the NSA 1.22 policy. 
 
-1.22 is fairly old now (March 9th release); I'd work off the sourceforge
-selinux CVS tree or the Fedora devel CVS tree.  We're just waiting on
-Linux 2.6.12 to be released to put an updated release on nsa.gov.
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2005-05-12 at 13:37 -0700, Casey Schaufler
+> wrote:
 
->   Something left a bunch of error messages in that
-> file.
+> Everything we need to reproduce the denial is
+> included in the audit
+> message (i.e. the relevant security contexts and
+> object information)
+> except for the policy itself.
 
-The genhomedircon script (from policycoreutils) generates the
-file_contexts.homedirs file.  It attempts to determine the default home
-directory root from /etc/default/useradd (by grep'ing for ^HOME), then
-checks /etc/libuser.conf for ^LU_HOMEDIRECTORY.  It naturally shouldn't
-be dumping error messages into the file itself.  Does the problem
-persist with the latest version of the script and policy from the
-sourceforge selinux CVS tree or the Fedora devel CVS tree?
+Yup.
 
-> ?2? The policy makefile does 'MLS' or 'strict'; what
-> about 'targeted'? How is that installed? I think that
-> is the model I need. Guard the door; but let the
-> customers do what they want to each other.
+> So all you need is
+> the audit log and the
+> policy that was in effect at the time, and you can
+> reproduce the
+> computation.
 
-Grab the latest selinux-policy-targeted.spec file from the Fedora CVS
-tree to see how they are building targeted policy from the policy
-sources.  There is one included in the policy directory as an example,
-but it isn't up-to-date with the latest Fedora one.
+So where is the policy-in-effect stored?
+Certainly you're not going to suggest using
+the policy source file that happens to be there
+at the time of analysis. That policy file
+(actually, that set of policy files soon)
+may bear little resemblence to the policy
+that was in force at the time the event
+occured. Even if you're talking about the
+policy file at the time of collection
+there is real risk that the content of the
+policy file does not match what the kernel
+is enforcing.
 
--- 
-Stephen Smalley
-National Security Agency
+> I'll make a simple patch to libsepol
+> and a trivial utility
+> that does this.
 
+Enjoy. It's pretty pointless.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+Discover Yahoo! 
+Stay in touch with email, IM, photo sharing and more. Check it out! 
+http://discover.yahoo.com/stayintouch.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
