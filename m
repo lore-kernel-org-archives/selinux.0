@@ -1,72 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4FBEpgA012823
-	for <selinux@tycho.nsa.gov>; Sun, 15 May 2005 07:14:51 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4FBBdiA007733
-	for <selinux@tycho.nsa.gov>; Sun, 15 May 2005 11:11:40 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: ls -Z on non-SE machine
-Date: Sun, 15 May 2005 21:11:31 +1000
-Cc: SELinux <selinux@tycho.nsa.gov>
-References: <200505151921.23171.russell@coker.com.au> <20050515102704.GA16326@lkcl.net>
-In-Reply-To: <20050515102704.GA16326@lkcl.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: policy change needed for screen
+Date: Sun, 15 May 2005 22:51:10 +1000
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <200505082354.10951.russell@coker.com.au>
+In-Reply-To: <200505082354.10951.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200505152111.34732.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_CX0hCHHxoQ/aty6"
+Message-Id: <200505152251.14468.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 15 May 2005 20:27, Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-wrote:
-> how about just silently ignoring the -Z option if selinux is
-> detected to not be enabled?
->
-> or placing dummy information in its place which any selinux-aware
-> shell scripts can pick up on.
+--Boundary-00=_CX0hCHHxoQ/aty6
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-You appear to have totally ignored my points about analysis of SE Linux disks 
-in non-SE machines and recovery of SE Linux systems from non-SE rescue disks.
+On Sunday 08 May 2005 23:54, Russell Coker <russell@coker.com.au> wrote:
+> The attached policy patch allows init scripts to remove directories whos
+> type has the pidfile attribute.  This permits the screen directories to be
+> removed and will also allow init scripts to clean up other directories
+> created by daemons.
 
-We could just not use the -Z option if we don't want the security contexts to 
-be displayed.  But the entire point here is to have them available.
-
-> On Sun, May 15, 2005 at 07:21:20PM +1000, Russell Coker wrote:
-> > Currently "ls -Z" refuses to operate if it detects that SE Linux is not
-> > enabled on the machine.
-> >
-> > This makes no sense to me.  Files that are labelled when running SE Linux
-> > keep their labels (and the values of such labels may still be read) when
-> > not running SE Linux.  It seems quite reasonable to me that an
-> > administrator may want to take a disk out of a SE Linux machine and mount
-> > it on a non-SE machine for debugging problems or forensics.  The current
-> > behavior of ls works against such operations.
-> >
-> > I believe that the best thing to do is to have ls not be linked against
-> > libselinux and instead just call the XATTR api for reading the file
-> > contexts. Ideally I think that such functionality should be enabled
-> > unconditionally so that any administrator who receives a disk that was
-> > used on a SE Linux system will have the ability to conveniently view all
-> > the data on it.
-> >
-> > --
-> > http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux
-> > packages http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> > http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> > http://www.coker.com.au/~russell/  My home page
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> > with the words "unsubscribe selinux" without quotes as the message.
+Attached is an updated patch.  The change is necessary to allow init scripts 
+to create /var/log/dmesg when the machine is in the most strict 
+configuration.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_CX0hCHHxoQ/aty6
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+--- domains/program/initrc.te.orig	2005-05-08 22:39:11.000000000 +1000
++++ domains/program/initrc.te	2005-05-15 22:48:45.000000000 +1000
+@@ -131,7 +131,7 @@
+ # Update /var/log/wtmp and /var/log/dmesg.
+ allow initrc_t wtmp_t:file { setattr rw_file_perms };
+ allow initrc_t var_log_t:dir rw_dir_perms;
+-allow initrc_t var_log_t:file { setattr rw_file_perms };
++allow initrc_t var_log_t:file create_file_perms;
+ allow initrc_t lastlog_t:file { setattr rw_file_perms };
+ allow initrc_t logfile:file { read append };
+ 
+@@ -230,7 +230,7 @@
+ allow initrc_t home_type:file r_file_perms;
+ 
+ # for system start scripts
+-allow initrc_t pidfile:dir rw_dir_perms;
++allow initrc_t pidfile:dir { rmdir rw_dir_perms };
+ allow initrc_t pidfile:sock_file unlink;
+ rw_dir_create_file(initrc_t, var_lib_t)
+ 
+
+--Boundary-00=_CX0hCHHxoQ/aty6--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
