@@ -1,40 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4FB0TgA012744
-	for <selinux@tycho.nsa.gov>; Sun, 15 May 2005 07:00:29 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4FAvJiA007500
-	for <selinux@tycho.nsa.gov>; Sun, 15 May 2005 10:57:19 GMT
-Subject: Re: ls -Z on non-SE machine
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4FB9rgA012789
+	for <selinux@tycho.nsa.gov>; Sun, 15 May 2005 07:09:53 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4FB6UsN008211
+	for <selinux@tycho.nsa.gov>; Sun, 15 May 2005 11:06:30 GMT
+Date: Sun, 15 May 2005 12:16:01 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050515102704.GA16326@lkcl.net>
-References: <200505151921.23171.russell@coker.com.au>
-	 <20050515102704.GA16326@lkcl.net>
-Content-Type: text/plain
-Date: Sun, 15 May 2005 06:56:59 -0400
-Message-Id: <1116154619.7833.2.camel@localhost.localdomain>
+Subject: Re: ls -Z on non-SE machine
+Message-ID: <20050515111601.GF16326@lkcl.net>
+References: <200505151921.23171.russell@coker.com.au> <20050515102704.GA16326@lkcl.net> <1116154619.7833.2.camel@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1116154619.7833.2.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-05-15 at 11:27 +0100, Luke Kenneth Casson Leighton wrote:
-> how about just silently ignoring the -Z option if selinux is
-> detected to not be enabled?
+On Sun, May 15, 2005 at 06:56:59AM -0400, Ivan Gyurdiev wrote:
+> On Sun, 2005-05-15 at 11:27 +0100, Luke Kenneth Casson Leighton wrote:
+> > how about just silently ignoring the -Z option if selinux is
+> > detected to not be enabled?
+> 
+> I believe that's what it does right now, and Russell's arguing against
+> that behavior - he's saying you should be able to view the contexts,
+> whether or not SELinux is running (unless I am misunderstanding).
+ 
+ no, it doesn't.  an error is generated saying that the "-Z" argument is
+ not understood.
 
-I believe that's what it does right now, and Russell's arguing against
-that behavior - he's saying you should be able to view the contexts,
-whether or not SELinux is running (unless I am misunderstanding).
+ the resultant error (non-zero exit code) causes, for example,
+ initialisation scripts to fail.
 
-> > I believe that the best thing to do is to have ls not be linked against 
-> > libselinux and instead just call the XATTR api for reading the file contexts.  
-> > Ideally I think that such functionality should be enabled unconditionally 
+ the behaviour is also different: an error code is printed out on
+ stderr.
 
+ that's _not_ silent behaviour :)
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+ yes, i am running my laptop with debian / selinux disabled, with
+ the se-aware coreutils package still installed on it.
+
+ every time i boot up, i get a "ls -Z" error in one of the key
+ initialisation scripts.
+
+ l.
 
 
 --
