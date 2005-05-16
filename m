@@ -1,38 +1,45 @@
-Subject: Re: bash: cd: /etc/selinux/strict/users/: No such file or directory
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Roger Brunell <rog_brunell@yahoo.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050516120907.86410.qmail@web60425.mail.yahoo.com>
-References: <20050516120907.86410.qmail@web60425.mail.yahoo.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4GIpNgA022235
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 14:51:23 -0400 (EDT)
+Received: from oe-im2.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4GIlwge029748
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 18:47:58 GMT
+Subject: dead types (was: crond_log_t)
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
+Cc: selinux-dev@tresys.com, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200505170004.58546.russell@coker.com.au>
+References: <200505170004.58546.russell@coker.com.au>
 Content-Type: text/plain
-Date: Mon, 16 May 2005 11:34:47 -0400
-Message-Id: <1116257687.28782.85.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 16 May 2005 14:49:31 -0400
+Message-Id: <1116269371.2883.35.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-05-16 at 05:09 -0700, Roger Brunell wrote:
-> Folks;
->   This (the subject line) is immedaiately after doing a fresh load of policy
-> 1.22 on a Knoppix (Debian derived) system.
+On Tue, 2005-05-17 at 00:04 +1000, Russell Coker wrote:
+> What is the point of the type crond_log_t?
 > 
->   The home.dirs file was messed up; and I had just created a
-> /etc/default/useradd file. a 'make reload' didn't fix the home.dir problem; so
-> I deleted the entire /etc/selinux/strict subtree and reran the entire load
-> process.
-> 
->   I need to know what parts of the structure are needed to be made by hand?
+> It's been in the policy for ages but I don't recall any time at which it had a 
+> purpose.
 
-Try 'make install load'.  It used to be the case that load depended on
-install, but Dan Walsh decoupled them to avoid clobbering locally
-customizable files upon a subsequent make load (so that updates to the
-TE configuration wouldn't clobber local customizations to users or
-booleans).  In any event, that particular error shouldn't be fatal; it
-should just proceed to load the policy.
+Speaking of dead types, while looking around, I found that lvm_vg_t has
+no rules (other then those implied by it's attributes).  I'm not very
+familiar with LVM, but from what I'm guessing, it was used for LVM
+volume group device nodes.  However, these are treated in exactly the
+same was as fixed_disk_device_t, so at some point the rules were
+switched over to fixed_disk_device_t, but lvm_vg_t was not deleted.
+There are no file context entries for this type.
+
+Udev_runtime_t seems to be a copy of udev_tbl_t, based on the
+description in types/file.te.  Only hotplug and initrc have access to
+this type.  It also has no file context entries.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
