@@ -1,41 +1,63 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4GD7kgA019005
-	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 09:07:46 -0400 (EDT)
-Received: from web51507.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j4GD4Ege006705
-	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 13:04:14 GMT
-Message-ID: <20050516130235.6023.qmail@web51507.mail.yahoo.com>
-Date: Mon, 16 May 2005 06:02:35 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: fixfiles and lost+found
-To: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200505151640.44051.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4GDuXgA019385
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 09:56:34 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4GDrAge013331
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 13:53:11 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 2285661AEC
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 10:47:07 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 01277-05 for <selinux@tycho.nsa.gov>;
+	Mon, 16 May 2005 10:47:06 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id B135161AEB
+	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 10:47:06 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: bluetooth policy patch
+Date: Mon, 16 May 2005 23:53:04 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_EXKiC+XLKM/S+SJ"
+Message-Id: <200505162353.08139.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--Boundary-00=_EXKiC+XLKM/S+SJ
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> fullrelabel() {
->     logit "Cleaning out /tmp"
->+    test -d /tmp/lost+found && chattr +i /tmp/lost+found
->     rm -rf /tmp/.??* /tmp/*
->+    test -d /tmp/lost+found && chattr -i /tmp/lost+found
->     LogReadOnly
->     restore
-> }
+/var/run/sdp is a Unix domain socket not a regular file.
 
-Shouldn't this have a trap statement in case its gets terminated after making it
-immutable and before putting it back?
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
--Steve Grubb
+--Boundary-00=_EXKiC+XLKM/S+SJ
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
+--- file_contexts/program/bluetooth.fc.orig	2005-05-16 23:51:18.000000000 +1000
++++ file_contexts/program/bluetooth.fc	2005-05-16 23:51:27.000000000 +1000
+@@ -4,4 +4,4 @@
+ /usr/sbin/hcid		--	system_u:object_r:bluetooth_exec_t
+ /usr/sbin/sdpd		--	system_u:object_r:bluetooth_exec_t
+ /usr/sbin/hciattach	--	system_u:object_r:bluetooth_exec_t
+-/var/run/sdp		--	system_u:object_r:bluetooth_var_run_t
++/var/run/sdp		-s	system_u:object_r:bluetooth_var_run_t
 
-		
-__________________________________ 
-Yahoo! Mail Mobile 
-Take Yahoo! Mail with you! Check email on your mobile phone. 
-http://mobile.yahoo.com/learn/mail 
+--Boundary-00=_EXKiC+XLKM/S+SJ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
