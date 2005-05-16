@@ -1,76 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4GCCQgA018593
-	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 08:12:26 -0400 (EDT)
-Received: from web60425.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j4GC8rhq014888
-	for <selinux@tycho.nsa.gov>; Mon, 16 May 2005 12:08:53 GMT
-Message-ID: <20050516120907.86410.qmail@web60425.mail.yahoo.com>
-Date: Mon, 16 May 2005 05:09:07 -0700 (PDT)
-From: Roger Brunell <rog_brunell@yahoo.com>
-Subject: bash: cd: /etc/selinux/strict/users/: No such file or directory
-To: SELinux <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: ls -Z on non-SE machine
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200505162148.38650.russell@coker.com.au>
+References: <200505151921.23171.russell@coker.com.au>
+	 <1116243084.28782.12.camel@moss-spartans.epoch.ncsc.mil>
+	 <200505162148.38650.russell@coker.com.au>
+Content-Type: text/plain
+Date: Mon, 16 May 2005 08:36:19 -0400
+Message-Id: <1116246979.28782.61.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Folks;
-  This (the subject line) is immedaiately after doing a fresh load of policy
-1.22 on a Knoppix (Debian derived) system.
+On Mon, 2005-05-16 at 21:48 +1000, Russell Coker wrote:
+> It's true that libselinux functionality required by ls can work on a non-SE 
+> machine.  However in that case when coreutils is compiled for non-SE systems 
+> ls will not have such functionality.  I believe that it would be best to have 
+> the "ls -Z" functionality on systems without libselinux.
 
-  The home.dirs file was messed up; and I had just created a
-/etc/default/useradd file. a 'make reload' didn't fix the home.dir problem; so
-I deleted the entire /etc/selinux/strict subtree and reran the entire load
-process.
+Not sure that this is a real issue; distros have seemed willing to
+accept libselinux as part of the base system, much like libattr/libacl.
+If they weren't, then we'd have to revisit the patches anyway to allow
+dlopen'ing of libselinux so that they could ship a single coreutils
+binary package that could support either SELinux or non-SELinux, as
+noted previously by Luke.
 
-  I need to know what parts of the structure are needed to be made by hand?
+> There is already code in coreutils to manage xattrs, can some of that be 
+> re-used?
 
-------------
-root@lppda:/etc/selinux/src# make load
-install -m 644 file_contexts/file_contexts
-/etc/selinux/strict/contexts/files/fi
-le_contexts
-install -m 644 file_contexts/homedir_template
-/etc/selinux/strict/contexts/files
-/homedir_template
-mkdir -p /etc/selinux/strict/policy
-/usr/bin/checkpolicy  -o /etc/selinux/strict/policy/policy.19 policy.conf
-/usr/bin/checkpolicy:  loading policy configuration from policy.conf
-security:  3 users, 5 roles, 334 types, 18 bools
-security:  54 classes, 20262 rules
-/usr/bin/checkpolicy:  policy configuration loaded
-/usr/bin/checkpolicy:  writing binary representation (version 19) to
-/etc/selinu
-x/strict/policy/policy.19
-/usr/bin/checkpolicy -c 18 -o /etc/selinux/strict/policy/policy.18 policy.conf
-/usr/bin/checkpolicy:  loading policy configuration from policy.conf
-security:  3 users, 5 roles, 334 types, 18 bools
-security:  54 classes, 20262 rules
-/usr/bin/checkpolicy:  policy configuration loaded
-/usr/bin/checkpolicy:  writing binary representation (version 18) to
-/etc/selinu
-x/strict/policy/policy.18
-/usr/sbin/load_policy /etc/selinux/strict/policy/policy.19
-sepol_genusers: Can't load system.users:  No such file or directory
-/usr/sbin/load_policy:  Error while setting user configuration from
-/etc/selinux
-/strict/users//{local.users,system.users}:  No such file or directory
-touch tmp/load
-root@lppda:/etc/selinux/src# ls
+I think that there is code for preserving attributes, and in the case of
+ls, code for indicating whether the file has attributes via a simple
+flag in the mode string, but I don't think they include code for
+displaying attributes in ls - I think they require you to run a separate
+utility to display the attributes like getfattr or getfacl.  SELinux is
+distinctive in the level of direct integration.  And in the case of
+preserving attributes, SELinux tends to do it differently (via
+setfscreatecon) so that the attributes are set down when the file is
+created rather than later.
 
+> The MLS issue is compelling, this change will do.
 
+Yes, I think just removing the is_selinux_enabled() test is sane in the
+case of ls.   Might be more problematic for programs like cp where they
+are using SELinux-specific interfaces like setfscreatecon.
 
-Roger Brunell
+-- 
+Stephen Smalley
+National Security Agency
 
-Infosec Engineer (retired)
-"Born 20 years too early"
-
-
-		
-__________________________________ 
-Yahoo! Mail Mobile 
-Take Yahoo! Mail with you! Check email on your mobile phone. 
-http://mobile.yahoo.com/learn/mail 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
