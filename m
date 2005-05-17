@@ -10,8 +10,8 @@ References: <428368FF.2080603@redhat.com>
 	 <1116269095.28782.102.camel@moss-spartans.epoch.ncsc.mil>
 	 <428917F4.6030203@redhat.com>
 Content-Type: text/plain
-Date: Tue, 17 May 2005 07:39:37 -0400
-Message-Id: <1116329977.917.7.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 17 May 2005 08:05:05 -0400
+Message-Id: <1116331505.917.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -19,12 +19,16 @@ List-Id: selinux@tycho.nsa.gov
 On Mon, 2005-05-16 at 18:00 -0400, Daniel J Walsh wrote:
 > I think, this patch is needed to export symbols of newly added libsepol 
 > functions. 
+> 
+> Also policycoreutils-rhat.patch needed to build on 64 bit platforms, 
+> plus some other stuff.
 
-No.  These particular functions are _only_ for the static library and
-programs that link with it, as they expose too much of the internals of
-libsepol.  Note that audit2why is linked with libsepol.a, not the shared
-library (prior to your policycoreutils patch).  We will not _export_
-these symbols via the shared library.
+Also, I specifically put it into sbin rather than bin because you need
+to be able to read the policy and the audit log in order to use it
+effectively, so it didn't seem overly useful to put it into bin.
+
+Note that the output has changed somewhat with my last patch from the
+sample messages I posted earlier (that you included into the man page).
 
 -- 
 Stephen Smalley
