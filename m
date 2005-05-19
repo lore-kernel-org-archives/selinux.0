@@ -1,57 +1,32 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4JFwkgA015372
-	for <selinux@tycho.nsa.gov>; Thu, 19 May 2005 11:58:46 -0400 (EDT)
-Received: from rproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4JFsbDf000593
-	for <selinux@tycho.nsa.gov>; Thu, 19 May 2005 15:54:37 GMT
-Received: by rproxy.gmail.com with SMTP id c16so345430rne
-        for <selinux@tycho.nsa.gov>; Thu, 19 May 2005 08:54:53 -0700 (PDT)
-Message-ID: <46ce702f05051908547025fbeb@mail.gmail.com>
-Date: Thu, 19 May 2005 10:54:53 -0500
-From: Serge Hallyn <serge.hallyn@gmail.com>
-Reply-To: Serge Hallyn <serge.hallyn@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: targeted policy patch
-In-Reply-To: <1116516582.7682.70.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4JGpMgA015935
+	for <selinux@tycho.nsa.gov>; Thu, 19 May 2005 12:51:24 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4JGlDDf004338
+	for <selinux@tycho.nsa.gov>; Thu, 19 May 2005 16:47:13 GMT
+Subject: [ANN] SETools-2.1.1 release
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux <selinux@tycho.nsa.gov>
+Cc: selinux-dev@tresys.com
+Content-Type: text/plain
+Date: Thu, 19 May 2005 12:47:34 -0400
+Message-Id: <1116521254.10370.14.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <46ce702f050519081136af356@mail.gmail.com>
-	 <1116516582.7682.70.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ah, ok, thanks.
+A new version of Setools is available from
+http://www.tresys.com/selinux. This release is primarily a bugfix
+release. Specific changes include gcc-4.0 support and miscellaneous
+fixes in libseaudit and libapol.
 
-What about the strict policy?  Should I use that out of fc as well?
+sha1 d8205e2d61fab584d8daba8a1aafc2e662ed0aee  setools-2.1.1.tar.bz2
+md5 b90ea097e39d01695cfc4033623d322e  setools-2.1.1.tar.bz2
 
-thanks,
--serge
 
-On 5/19/05, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2005-05-19 at 10:11 -0500, Serge Hallyn wrote:
-> > Hi,
-> >
-> > In order to compile the sf.net targeted policy on a gentoo system with
-> > the sf.net checkpolicy, I needed the following patch.  It does several
-> > small things, the last of which I expect is actually wrong, but at
-> > least gets me a compiling policy:
-> >
-> > 1. preserves kernel.te to get its type declaration.
-> > 2. fixes what i assume is a type, 'rm -rf domains/misc/used' instead of unused
-> > 3. deletes setfiles.fc, since setfiles_exec_t is not declared in the policy
-> > 4. adds the unrestricted attribute to the insmod_t domain.  This stops
-> > a conflict with the neverallow rule for ~signal -> unconfined_t.
-> 
-> I'd advise using the targeted policy spec file from the Fedora Core CVS
-> tree instead; we only update our spec files occasionally (e.g. prior to
-> an updated release on nsa.gov) and they are only intended as examples.
-> FC4 targeted policy includes many more domains.
-> 
-> --
-> Stephen Smalley
-> National Security Agency
-> 
->
+Joshua Brindle
+Tresys Technology
+
 
 
 --
