@@ -1,61 +1,48 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4MHbDgA003237
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 13:37:13 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4MHWVvS019591
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 17:32:31 GMT
-Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
-	by open.hands.com (Postfix) with ESMTP id 8BFE9BF31
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 18:32:41 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1DZuSe-0001V9-Te
-	for selinux@tycho.nsa.gov; Sun, 22 May 2005 18:42:00 +0100
-Date: Sun, 22 May 2005 18:42:00 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4MI7sgA003380
+	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 14:07:54 -0400 (EDT)
+Received: from marta.kurtwerks.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4MI3CvS020734
+	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 18:03:13 GMT
+Received: from luther.kurtwerks.com (luther.kurtwerks.com [192.168.0.4])
+	by marta.kurtwerks.com (Postfix) with ESMTP id 82A29B8849
+	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 14:03:30 -0400 (EDT)
+From: Kurt Wall <kwall@kurtwerks.com>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: depinit
-Message-ID: <20050522174200.GP10156@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: depinit
+Date: Sun, 22 May 2005 14:03:26 -0400
+References: <20050522174200.GP10156@lkcl.net>
+In-Reply-To: <20050522174200.GP10156@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200505221403.26383.kwall@kurtwerks.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hiya people,
+On Sunday 22 May 2005 13:42, Luke Kenneth Casson Leighton enlightened us 
+thusly:
+> hiya people,
+>
+> i have come across someone who unbelievably is completely
+> disconnected from the free software community, despite the fact that
+> he has come up with an absolutely invaluable core piece of software.
+>
+> richard lightman, is the author of depinit, and by complete
+> coincidence i happen to be working at the same tiny company in
+> farnham, uk, that he is working for.
 
-i have come across someone who unbelievably is completely disconnected
-from the free software community, despite the fact that he has come up
-with an absolutely invaluable core piece of software.
+I've heard of this. I think IBM came up with something similar
+that used make to compute dependencies.
 
-richard lightman, is the author of depinit, and by complete coincidence
-i happen to be working at the same tiny company in farnham, uk, that
-he is working for.
+> despite depinit being a core critical component of linux from
+> scratch, and thence, for some time, in gentoo, he has received
+> XXXX-ALL feedback on depinit - despite it being the only real
+> significant advance in unix system service maintenance since sysinit!
 
-despite depinit being a core critical component of linux from
-scratch, and thence, for some time, in gentoo, he has received
-XXXX-ALL feedback on depinit - despite it being the only real
-significant advance in unix system service maintenance since sysinit!
+Please translate "XXXX-ALL" for me.
 
-so.
-
-question for you.
-
-would it be worth anybody's while for me to work with richard
-to add support for selinux into depinit?
-
-e.g. is anyone _not_ doing gentoo/hardened because they're using
-depinit?  would anyone _use_ depinit in gentoo/hardened _if_ it
-had support for selinux?  FC?  anyone?
-
-don't think, btw, that i'd be offended to not receive any response,
-because i realise quite how much work is involved :)
-
-l.
-
-
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Kurt
 
 --
 This message was distributed to subscribers of the selinux mailing list.
