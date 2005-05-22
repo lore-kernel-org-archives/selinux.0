@@ -1,67 +1,61 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4M64hgA001503
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 02:04:44 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4M601vS006454
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 06:00:06 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id ACFE361AEF
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 01:23:50 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 18412-03 for <selinux@tycho.nsa.gov>;
-	Sun, 22 May 2005 01:23:50 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 4734B61AEA
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 01:23:50 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: pppd.fc
-Date: Sun, 22 May 2005 16:00:00 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_k/BkCzX5gILasaV"
-Message-Id: <200505221600.04526.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4MHbDgA003237
+	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 13:37:13 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4MHWVvS019591
+	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 17:32:31 GMT
+Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
+	by open.hands.com (Postfix) with ESMTP id 8BFE9BF31
+	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 18:32:41 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1DZuSe-0001V9-Te
+	for selinux@tycho.nsa.gov; Sun, 22 May 2005 18:42:00 +0100
+Date: Sun, 22 May 2005 18:42:00 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: depinit
+Message-ID: <20050522174200.GP10156@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_k/BkCzX5gILasaV
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+hiya people,
 
-The attached patch is needed because pppd sometimes uses names such 
-as /var/run/pppd2.tdb .
+i have come across someone who unbelievably is completely disconnected
+from the free software community, despite the fact that he has come up
+with an absolutely invaluable core piece of software.
+
+richard lightman, is the author of depinit, and by complete coincidence
+i happen to be working at the same tiny company in farnham, uk, that
+he is working for.
+
+despite depinit being a core critical component of linux from
+scratch, and thence, for some time, in gentoo, he has received
+XXXX-ALL feedback on depinit - despite it being the only real
+significant advance in unix system service maintenance since sysinit!
+
+so.
+
+question for you.
+
+would it be worth anybody's while for me to work with richard
+to add support for selinux into depinit?
+
+e.g. is anyone _not_ doing gentoo/hardened because they're using
+depinit?  would anyone _use_ depinit in gentoo/hardened _if_ it
+had support for selinux?  FC?  anyone?
+
+don't think, btw, that i'd be offended to not receive any response,
+because i realise quite how much work is involved :)
+
+l.
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_k/BkCzX5gILasaV
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- file_contexts/program/pppd.fc.orig	2005-05-22 15:58:22.000000000 +1000
-+++ file_contexts/program/pppd.fc	2005-05-22 15:58:49.000000000 +1000
-@@ -4,7 +4,7 @@
- /dev/ppp		-c	system_u:object_r:ppp_device_t
- /dev/pppox.*		-c	system_u:object_r:ppp_device_t
- /dev/ippp.*		-c	system_u:object_r:ppp_device_t
--/var/run/pppd\.tdb	--	system_u:object_r:pppd_var_run_t
-+/var/run/pppd[0-9]*\.tdb --	system_u:object_r:pppd_var_run_t
- /var/run/ppp(/.*)?		system_u:object_r:pppd_var_run_t
- /etc/ppp		-d	system_u:object_r:pppd_etc_t
- /etc/ppp/.*		--	system_u:object_r:pppd_etc_rw_t
-
---Boundary-00=_k/BkCzX5gILasaV--
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
