@@ -1,96 +1,101 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4NENOgA008422
-	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 10:23:25 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4NEIpMj022356
-	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 14:18:51 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j4NEJiFG018224
-	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 10:19:44 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j4NEJiTO018223
-	for selinux@tycho.nsa.gov; Mon, 23 May 2005 10:19:44 -0400
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4MKLSgA003912
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 16:21:28 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4MKGivS024747
-	for <selinux@tycho.nsa.gov>; Sun, 22 May 2005 20:16:45 GMT
-Date: Sun, 22 May 2005 21:25:55 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: depinit
-Message-ID: <20050522202555.GR10156@lkcl.net>
-References: <20050522174200.GP10156@lkcl.net> <200505221403.26383.kwall@kurtwerks.com>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4NHi6gA009367
+	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 13:44:06 -0400 (EDT)
+Received: from web60412.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j4NHdVMj028167
+	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 17:39:31 GMT
+Message-ID: <20050523173932.26073.qmail@web60412.mail.yahoo.com>
+Date: Mon, 23 May 2005 10:39:32 -0700 (PDT)
+From: Roger Brunell <rog_brunell@yahoo.com>
+Subject: Re: Time estimate to create Debian enforceable policy 
+To: Valdis.Kletnieks@vt.edu
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200505231621.j4NGL5pS016223@turing-police.cc.vt.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200505221403.26383.kwall@kurtwerks.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[advance notice for busy people: contents of this message mostly off-topic]
 
-On Sun, May 22, 2005 at 02:03:26PM -0400, Kurt Wall wrote:
-> On Sunday 22 May 2005 13:42, Luke Kenneth Casson Leighton enlightened us 
-> thusly:
-> > hiya people,
-> >
-> > i have come across someone who unbelievably is completely
-> > disconnected from the free software community, despite the fact that
-> > he has come up with an absolutely invaluable core piece of software.
-> >
-> > richard lightman, is the author of depinit, and by complete
-> > coincidence i happen to be working at the same tiny company in
-> > farnham, uk, that he is working for.
+--- Valdis.Kletnieks@vt.edu wrote:
+
+> On Mon, 23 May 2005 06:26:11 PDT, Roger Brunell said:
+> > Folk;
+> >   I am looking for some SWAGs in [days|weeks|months]
+> > for:
+> > Given moderately smart person, w/:
+> ...
+> >       appropiate resources (SELinux running on system)
+> > 
+> > To create, test and verify a meaningful, workable and enforceable
+> >    policy for a <<elided>> (Mish-Mash of Debian parts)
+> >    system.
 > 
-> I've heard of this. I think IBM came up with something similar
-> that used make to compute dependencies.
+> You *have* omitted "step 0" - creating a "meaningful" policy requires that
+> you have some *goals* of what the policy does and does not even attempt to
+> address (the difference of 'strict' and 'targeted' policies are an
+> indication of how much the goals impact the end product - similar issues will
+> arise for things like "should XYZ have a boolean or not?").
 
- i've seen a research paper by sun microsystems, too.
+  Actually I do have an objective.
+     But before I can try that I have to modify the policy so that
+   the machine will work as a general purpose machine. Old school, have to
+   start with the basics. "A fool with a tool is still a fool".
 
- also there's always NT's MSRPC-controlled "svcctl", the format of
- which also allows you to specify service interdependencies.
+  After I understand all the mechanics and interactions, then what I want
+  is:
 
- ... and yet linux is still, despite the best efforts of the
- linux standards base, still living with something cobbled together
- from nearly 30 years ago.
+   the policy we need has just two requirements.
+     1. Only ifconfig writes to any network interface.
+     2. No one writes to any hard drive.
 
- at least redhat and suse (and probably others i don't know much about)
- service startup scripts are making an effort to be LSB compliant.
-
- my debian-based laptop takes TWO MINUTES to get to a console
- login because of the services it runs.  that's a _joke_.
-
- anyway - all of this is off-topic.
-
- i may have a requirement for utilising depinit instead of debian
- /etc/init.d and /sbin/init - because i believe it to be much more
- capable of doing fast boot-times.
-
- one of the other requirements is selinux.
-
- one plus one equals a whole boat-load more work.
-
- if anyone _else_ is interested to see depinit be selinux'd,
- such that i would end up with testers and potential
- contributors, i'd be more inclined to bother.
+   anything else if fine. DOS is not a concern.
 
 
-
-> > despite depinit being a core critical component of linux from
-> > scratch, and thence, for some time, in gentoo, he has received
-> > XXXX-ALL feedback on depinit - despite it being the only real
-> > significant advance in unix system service maintenance since sysinit!
 > 
-> Please translate "XXXX-ALL" for me.
- 
- ... not on-list :)
- 
- pick any bad word you like in the language of your choice -
- it'll do *cackle*
+> Assuming that you can use 'strict' or 'targeted' as a rough baseline, the
+> biggest time consumer there will be "getting a Debian system with SELinux
+> running".  Once you actually *get* all the pieces (the policy, the policy
+> utils, the hooks for 'init' to load it at boot, setools so you can create
+> labelled users, and so on), 
 
- l.
+    that part is done, to the extent that I am able to test it. sestatus
+    gives expected results; apol and seaudit don't complain, ...
+
+    After installing that, I still have 150 unique avc messages during the
+    boot process alone. These are the things that need to be cleaned up.
+    I did build the initrd with labeled files, so the audit messages are
+    other actions that are not accounted for in the policy.
+
+
+
+> you're probably looking at "several long
+> afternoons
+> fixing the file_contexts for things Debian installs in places different from
+> Fedora", and probably a day for each package that needs SELinux support that
+> doesn't already (although a few, such as "stuff run from httpd", are a bigger
+> challenge).
+
+
+
+> 
+> (No, I don't know what state the Debian support is currently - I'm merely
+> providing
+> feedback on the specifications themselves....)
+> 
+
+
+Roger Brunell
+
+Infosec Engineer (retired)
+"Born 20 years too early"
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Find what you need with new enhanced search. 
+http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
