@@ -1,69 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4NI4XgA010024
-	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 14:04:33 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4NHxdhG013725
-	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 17:59:39 GMT
-Date: Mon, 23 May 2005 18:14:22 +0100
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4NIsXgA010659
+	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 14:54:33 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4NInuMj004017
+	for <selinux@tycho.nsa.gov>; Mon, 23 May 2005 18:49:57 GMT
+Date: Mon, 23 May 2005 16:32:39 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Kurt Wall <kwall@kurtwerks.com>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: depinit
-Message-ID: <20050523171422.GQ8953@lkcl.net>
-References: <20050522174200.GP10156@lkcl.net> <200505221403.26383.kwall@kurtwerks.com> <20050522202555.GR10156@lkcl.net> <200505231628.j4NGStKQ016569@turing-police.cc.vt.edu>
+To: Roger Brunell <rog_brunell@yahoo.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Time estimate to create Debian enforceable policy
+Message-ID: <20050523153239.GH8953@lkcl.net>
+References: <20050523132611.20533.qmail@web60425.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200505231628.j4NGStKQ016569@turing-police.cc.vt.edu>
+In-Reply-To: <20050523132611.20533.qmail@web60425.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, May 23, 2005 at 12:28:54PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 22 May 2005 21:25:55 BST, Luke Kenneth Casson Leighton said:
+hi roger,
+
+slightly confused by your message.  there have been a couple of people
+who have debian / selinux working, from russell and dan's .deb packages.
+
+i spent nearly 5 months on the project - a lot of that was spent
+trying to get KDE 3.4 (from cvs!) to work, including running the
+alpha-qualitied kvm, with its support for udev.
+
+the basic work's already been done, in there.
+
+i would be rather concerned about the lack of SELinux experience
+of your moderately smart person.  SElinux is _not_ for the
+faint-hearted, from a development perspective.
+
+... what _kind_ of policy?
+
+are you talking about a radical departure from "strict" or
+"targetted"?
+
+i would strongly advise against that.
+
+l.
+
+On Mon, May 23, 2005 at 06:26:11AM -0700, Roger Brunell wrote:
+> Folk;
+>   I am looking for some SWAGs in [days|weeks|months]
+> for:
+> Given moderately smart person, w/:
+>       20 years UNIX experience.
+>       30 years programming exp.
+>        1.5 years with Linux/Debian
+>        4 weeks SELinux exp.
+>       appropiate resources (SELinux running on system)
 > 
-> >  i may have a requirement for utilising depinit instead of debian
-> >  /etc/init.d and /sbin/init - because i believe it to be much more
-> >  capable of doing fast boot-times.
-> > 
-> >  one of the other requirements is selinux.
-> > 
-> >  one plus one equals a whole boat-load more work.
+> To create, test and verify a meaningful, workable and enforceable
+>    policy for a <<elided>> (Mish-Mash of Debian parts)
+>    system.
 > 
-> The current Fedora patch to add SELinux support to SysVinit is all of 318
-> lines.  150 lines of that is one large chunk of added subroutines you can
-> use yourself, another 15 is adding all the "should we enable it" testing.
-> 100 lines is adding SELinux support to 'killall' and 'sulogin'.
+>    
 > 
-> You're handed most of the code you need, and identifying the correct place
-> to add the 15 lines of checking is pretty easy.  It's *not* a boat-load more
-> work.
-
- sorry, valdis - i was thinking more along the lines of writing the
- policy.
-
- thank you for the pointers - they're really appreciated.
-
- depinit provides concepts like "start this service group named 'mail'"
- which will go away and bring up networking and anything else you need.
-
- there _is_ no "start" option or "stop" option to the service
- startup scripts.  if the script dies, the service is assumed to have
- died: the signal is caught by depinit (all signals are caught by
- depinit) and an "action" script e.g. /etc/depinit/sig_chld is called.
- 
- if you _want_ the service to stop, you get depinit to automatically
- send increasingly aggressive levels of signals to the "service" script.
-
- there _is_ no stupid numbering schemes - not the stupid symlinks, and
- not the stupid runlevels.
-
- everything is _named_.  properly.
-
- the present policy - init.te, initrc.te - is therefore going
- to be mostly irrelevant.
-
- that's where quite a lot of the work would go.
-
- l.
+> 
+> Roger Brunell
+> 
+> Infosec Engineer (retired)
+> "Born 20 years too early"
+> 
+> 
+> 		
+> __________________________________ 
+> Yahoo! Mail Mobile 
+> Take Yahoo! Mail with you! Check email on your mobile phone. 
+> http://mobile.yahoo.com/learn/mail 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 -- 
 --
