@@ -1,32 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4OJjEgA020692
-	for <selinux@tycho.nsa.gov>; Tue, 24 May 2005 15:45:14 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4OJeSMp004266
-	for <selinux@tycho.nsa.gov>; Tue, 24 May 2005 19:40:29 GMT
-Received: from FLM800 (flm800.columbia.tresys.com [10.1.13.34])
-	by gotham.columbia.tresys.com (8.12.8/8.12.8) with ESMTP id j4OJdt5F031234
-	for <selinux@tycho.nsa.gov>; Tue, 24 May 2005 15:39:58 -0400
-Message-Id: <200505241939.j4OJdt5F031234@gotham.columbia.tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>
-Subject: couple validatetrans questions
-Date: Tue, 24 May 2005 15:40:27 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Subject: Re: couple validatetrans questions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+In-Reply-To: <200505241939.j4OJdt5F031234@gotham.columbia.tresys.com>
+References: <200505241939.j4OJdt5F031234@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 24 May 2005 15:40:18 -0400
+Message-Id: <1116963618.27904.193.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-1) I see that validatetrans was added along with mlsvalidatetrans. Is this
-used anywhere? Is there a notion of its use outside of MLS? If so can anyone
-provide an example?
+On Tue, 2005-05-24 at 15:40 -0400, Frank Mayer wrote:
+> 1) I see that validatetrans was added along with mlsvalidatetrans. Is this
+> used anywhere? Is there a notion of its use outside of MLS? If so can anyone
+> provide an example?
 
-2). Is it still the case that validatetrans/mlsvalidatetrans only works for
-file classes? Any plans to extend to other classes?
+It is not used yet, but seemed useful to support for types as well.  It
+lets you impose restrictions on file relabeling based on the entire
+(process context, old file context, new file context) triple, unlike the
+pairwise permission checks.
 
-Frank
+> 2). Is it still the case that validatetrans/mlsvalidatetrans only works for
+> file classes? Any plans to extend to other classes?
 
+It only makes sense for object classes that support relabeling, which is
+presently only files.  For processes, you only have two contexts (old
+process context, new process context) to consider, so the pairwise
+permission checks are sufficient.  If we allow relabeling of IPC objects
+in the future, then it would make sense to also apply it to them.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
