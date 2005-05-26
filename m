@@ -1,3177 +1,2958 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4QIUbgA006727
-	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 14:30:37 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4QIUggA006739
+	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 14:30:42 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4QIPDmU007728
-	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 18:25:13 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4QIPJmU007740
+	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 18:25:19 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j4QIQOiH024358
-	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 14:26:24 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j4QIQU5n024368
+	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 14:26:30 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j4QIQOZi024357
-	for selinux@tycho.nsa.gov; Thu, 26 May 2005 14:26:24 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j4QIQUHY024367
+	for selinux@tycho.nsa.gov; Thu, 26 May 2005 14:26:30 -0400
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4QHWUgA006175
-	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 13:32:30 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4QHXngA006195
+	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 13:33:49 -0400 (EDT)
 Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4QHR6mU002724
-	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 17:27:06 GMT
-Subject: [Patch 1/3] Loadable policy module infrastructure
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4QHSPmU002827
+	for <selinux@tycho.nsa.gov>; Thu, 26 May 2005 17:28:25 GMT
+Subject: [Patch 3/3] Loadable policy module infrastructure
 From: Joshua Brindle <jbrindle@tresys.com>
 To: selinux <selinux@tycho.nsa.gov>
 Cc: selinux-dev@tresys.com
 Content-Type: text/plain
-Date: Thu, 26 May 2005 13:27:02 -0400
-Message-Id: <1117128423.3483.19.camel@localhost>
+Date: Thu, 26 May 2005 13:27:05 -0400
+Message-Id: <1117128425.3483.21.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-diff -burNd a1/libsepol/include/sepol/avtab.h b/libsepol/include/sepol/avtab.h
---- a1/libsepol/include/sepol/avtab.h	2005-05-25 13:15:54.656228856 -0400
-+++ b/libsepol/include/sepol/avtab.h	2005-05-25 13:11:20.056974288 -0400
-@@ -101,9 +101,6 @@
+diff -burNd a1/checkpolicy/Makefile b/checkpolicy/Makefile
+--- a1/checkpolicy/Makefile	2005-05-25 13:14:58.691736752 -0400
++++ b/checkpolicy/Makefile	2005-05-25 13:11:19.295090112 -0400
+@@ -1,20 +1,21 @@
+ #
+ # Makefile for building the checkpolicy program
+ #
+-PREFIX ?= ${DESTDIR}/usr
++PREFIX ?= $(DESTDIR)/usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+-LIBDIR ?= ${PREFIX}/lib
+-INCLUDEDIR ?= ${PREFIX}/include
++LIBDIR ?= $(PREFIX)/lib
++INCLUDEDIR ?= $(PREFIX)/include
+ TARGETS = checkpolicy 
  
- avtab_ptr_t avtab_insert_nonunique(avtab_t * h, avtab_key_t * key, avtab_datum_t * datum);
+-CFLAGS = -g -Wall -O2 -pipe
++CFLAGS = -g -Wall -O2 -pipe -fno-strict-aliasing
  
--avtab_ptr_t avtab_insert_with_parse_context(avtab_t *h, avtab_key_t *key,
--					    avtab_datum_t *datum, void *parse_context);
--
- avtab_ptr_t avtab_search_node(avtab_t * h, avtab_key_t * key, int specified);
+-override CFLAGS += -I. -I${INCLUDEDIR}
++#override CFLAGS += -I. -I$(INCLUDEDIR)
++CFLAGS += -I. -I../libselinux/include -I../libsepol/include -I../libsemod/include
  
- avtab_ptr_t avtab_search_node_next(avtab_ptr_t node, int specified);
-diff -burNd a1/libsepol/include/sepol/conditional.h b/libsepol/include/sepol/conditional.h
---- a1/libsepol/include/sepol/conditional.h	2005-05-25 13:15:54.657228704 -0400
-+++ b/libsepol/include/sepol/conditional.h	2005-05-25 13:11:19.383076736 -0400
-@@ -74,27 +74,34 @@
- typedef struct cond_node {
- 	int cur_state;
- 	cond_expr_t *expr;
-+	/* these true/false lists point into te_avtab when that is used */
-+	cond_av_list_t *true_list;
-+	cond_av_list_t *false_list;
-+	/* and these are using during parsing and for modules */
-+	avrule_t *avtrue_list;
-+	avrule_t *avfalse_list;
- 	/* these fields are not written to binary policy */
- 	int nbools;
- 	uint32_t bool_ids[COND_MAX_BOOLS];
- 	uint32_t expr_pre_comp;
- 	/*                                               */
--	cond_av_list_t *true_list;
--	cond_av_list_t *false_list;
- 	struct cond_node *next;
- } cond_node_t;
+ OBJS += y.tab.o lex.yy.o queue.o checkpolicy.o
  
- int cond_evaluate_expr(policydb_t *p, cond_expr_t *expr);
-+cond_expr_t *cond_copy_expr(cond_expr_t *expr);
+-LIBS=-lfl ${LIBDIR}/libsepol.a
++LIBS=-lfl $(LIBDIR)/libsepol.a
  
- int cond_normalize_expr(policydb_t *p, cond_node_t *cn);
--cond_node_t *cond_node_search(policydb_t *p,cond_node_t *cn);
-+void cond_node_destroy(cond_node_t *node);
-+cond_node_t *cond_node_search(policydb_t *p, cond_node_t *list ,cond_node_t *cn);
- int evaluate_conds(policydb_t *p);
--avtab_datum_t *cond_av_list_search(avtab_key_t *key, cond_av_list_t *cond_list);
+ all:  $(TARGETS)
  
- void cond_optimize_lists(cond_list_t *cl);
-+avtab_datum_t *cond_av_list_search(avtab_key_t *key, cond_av_list_t *cond_list);
- 
- int cond_policydb_init(policydb_t* p);
- void cond_policydb_destroy(policydb_t* p);
-+void cond_list_destroy(cond_list_t *list);
- 
- int cond_init_bool_indexes(policydb_t* p);
- int cond_destroy_bool(hashtab_key_t key, hashtab_datum_t datum, void *p);
-@@ -102,7 +109,7 @@
- int cond_index_bool(hashtab_key_t key, hashtab_datum_t datum, void *datap);
- 
- int cond_read_bool(policydb_t *p, hashtab_t h, struct policy_file *fp);
--int cond_read_list(policydb_t *p, void *fp);
-+int cond_read_list(policydb_t *p, cond_list_t **list, void *fp);
- 
- void cond_compute_av(avtab_t *ctab, avtab_key_t *key, struct sepol_av_decision *avd);
- 
-diff -burNd a1/libsepol/include/sepol/ebitmap.h b/libsepol/include/sepol/ebitmap.h
---- a1/libsepol/include/sepol/ebitmap.h	2005-05-25 13:14:59.135669264 -0400
-+++ b/libsepol/include/sepol/ebitmap.h	2005-05-25 13:11:19.706027640 -0400
-@@ -47,6 +47,7 @@
- 
- int ebitmap_cmp(ebitmap_t * e1, ebitmap_t * e2);
- int ebitmap_or(ebitmap_t * dst, ebitmap_t * e1, ebitmap_t * e2);
-+int ebitmap_or_eq(ebitmap_t *dst, ebitmap_t *e1);
- int ebitmap_cpy(ebitmap_t * dst, ebitmap_t * src);
- int ebitmap_contains(ebitmap_t * e1, ebitmap_t * e2);
- int ebitmap_get_bit(ebitmap_t * e, unsigned int bit);
-diff -burNd a1/libsepol/include/sepol/expand.h b/libsepol/include/sepol/expand.h
---- a1/libsepol/include/sepol/expand.h	1969-12-31 19:00:00.000000000 -0500
-+++ b/libsepol/include/sepol/expand.h	2005-05-25 13:11:20.464912272 -0400
-@@ -0,0 +1,40 @@
-+/* Authors: Jason Tang <jtang@tresys.com>
-+ *	    Joshua Brindle <jbrindle@tresys.com>
-+ *          Karl MacMillan <kmacmillan@tresys.com>
-+ *
-+ * A set of utility functions that aid policy decision when dealing
-+ * with hierarchal items.
-+ *
-+ * Copyright (C) 2005 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include <sepol/conditional.h>
-+
-+#ifndef _SEPOL_EXPAND_H
-+#define _SEPOL_EXPAND_H
-+
-+int expand_module(policydb_t *base, policydb_t *out,
-+                        int verbose, char *error_buf, size_t error_buf_size);
-+int expand_convert_type_set(policydb_t *p, uint32_t *typemap, type_set_t *set, ebitmap_t *types);
-+int type_set_expand(type_set_t *set, ebitmap_t *t, policydb_t *p);
-+int role_set_expand(role_set_t *x, ebitmap_t *r, policydb_t *p);
-+int expand_rule(policydb_t *source_pol,
-+                avrule_t *source_rule, avtab_t *dest_avtab,
-+                cond_av_list_t **cond, cond_av_list_t **other,
-+                int enabled, char **error_msg);
-+
-+#endif
-diff -burNd a1/libsepol/include/sepol/flask_types.h b/libsepol/include/sepol/flask_types.h
---- a1/libsepol/include/sepol/flask_types.h	2005-05-25 13:14:59.310642664 -0400
-+++ b/libsepol/include/sepol/flask_types.h	2005-05-25 13:11:20.326933248 -0400
-@@ -43,9 +43,11 @@
-  * generated header file flask.h.
-  */
- typedef uint16_t sepol_security_class_t;
-+
- #define SEPOL_SECCLASS_NULL			0x0000 /* no class */
- 
- #define SELINUX_MAGIC 0xf97cff8c 
-+#define SELINUX_MOD_MAGIC 0xf97cff8d
- 
- typedef uint32_t sepol_security_id_t;
- #define SEPOL_SECSID_NULL 0
-diff -burNd a1/libsepol/include/sepol/hierarchy.h b/libsepol/include/sepol/hierarchy.h
---- a1/libsepol/include/sepol/hierarchy.h	2005-05-25 13:15:54.657228704 -0400
-+++ b/libsepol/include/sepol/hierarchy.h	2005-05-25 13:11:19.945991160 -0400
-@@ -1,6 +1,5 @@
- /* Authors: Jason Tang <jtang@tresys.com>
-  *	    Joshua Brindle <jbrindle@tresys.com>
-- *          Karl MacMillan <kmacmillan@tresys.com>
+diff -burNd a1/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+--- a1/checkpolicy/checkpolicy.c	2005-05-25 13:14:59.173663488 -0400
++++ b/checkpolicy/checkpolicy.c	2005-05-25 13:11:19.811011680 -0400
+@@ -16,8 +16,14 @@
   *
-  * A set of utility functions that aid policy decision when dealing
-  * with hierarchal items.
-@@ -22,12 +21,10 @@
-  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
- 
--#ifndef _HIERARCHY_H_
--#define _HIERARCHY_H_
--
--#include <sepol/avtab.h>
--#include <sepol/hashtab.h>
--
--int hierarchy_check_constraints(policydb_t *p, char *error_msg, uint32_t error_len);
-+#ifndef _SEPOL_HIERARCHY_H
-+#define _SEPOL_HIERARCHY_H_
- 
-+int hierarchy_is_valid_name (char *);
-+int hierarchy_check_constraints(policydb_t *p, char *error_msg,
-+                                uint32_t error_len);
- #endif
-diff -burNd a1/libsepol/include/sepol/policydb.h b/libsepol/include/sepol/policydb.h
---- a1/libsepol/include/sepol/policydb.h	2005-05-25 13:15:54.659228400 -0400
-+++ b/libsepol/include/sepol/policydb.h	2005-05-25 13:11:19.429069744 -0400
-@@ -2,6 +2,12 @@
- /* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
- 
- /*
+  *	Added IPv6 support.
+  *
 + * Updated: Joshua Brindle <jbrindle@tresys.com>
 + *	    Karl MacMillan <kmacmillan@tresys.com>
-+ *	    Jason Tang <jtang@tresys.com>
-+ *	    
-+ *	Module support
++ *          Jason Tang     <jtang@tresys.com>
 + *
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-  *
-  *	Support for enhanced MLS infrastructure.
-@@ -63,6 +69,22 @@
-  * users, roles, types, sensitivities, categories, etc.
-  */
- 
-+/* type set preserves data needed by modules such as *, ~ and attributes */
-+typedef struct type_set {
-+	ebitmap_t types;
-+	ebitmap_t negset;
-+#define TYPE_STAR 1
-+#define TYPE_COMP 2
-+	uint32_t flags;
-+} type_set_t;
-+
-+typedef struct role_set {
-+	ebitmap_t roles;
-+#define ROLE_STAR 1
-+#define ROLE_COMP 2
-+	uint32_t flags;
-+} role_set_t;
-+
- /* Permission attributes */
- typedef struct perm_datum {
- 	uint32_t value;		/* permission bit + 1 */
-@@ -88,7 +110,7 @@
- typedef struct role_datum {
- 	uint32_t value;		/* internal role value */
- 	ebitmap_t dominates;	/* set of roles dominated by this role */
--	ebitmap_t types;	/* set of authorized types for role */
-+	type_set_t types;	/* set of authorized types for role */
- } role_datum_t;
- 
- typedef struct role_trans {
-@@ -112,12 +134,13 @@
- 	unsigned char isattr;   /* is this a type attribute? */
- 	ebitmap_t types;        /* types with this attribute */
- #endif
-+        uint32_t order;         /* order of appearance within source policy */
- } type_datum_t;
- 
- /* User attributes */
- typedef struct user_datum {
- 	uint32_t value;		/* internal user value */
--	ebitmap_t roles;	/* set of authorized roles for user */
-+	role_set_t roles;	/* set of authorized roles for user */
- 	mls_range_t range;	/* MLS range (min. - max.) for user */
- 	mls_level_t dfltlevel;	/* default login MLS level for user */
-         unsigned defined;
-@@ -152,6 +175,50 @@
- struct cond_node;
- 
- typedef struct cond_node cond_list_t;
-+struct cond_av_list;
-+
-+typedef struct class_perm_node {
-+	uint32_t class;
-+	uint32_t data; /* permissions or new type */
-+	struct class_perm_node *next;
-+} class_perm_node_t; 
-+
-+typedef struct avrule {
-+/* these typedefs are almost exactly the same as those in avtab.h - they are
-+ * here because of the need to include neverallow and dontaudit messages */
-+#define AVRULE_ALLOWED     1
-+#define AVRULE_AUDITALLOW  2
-+#define AVRULE_AUDITDENY   4
-+#define AVRULE_DONTAUDIT   8
-+#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT)
-+#define AVRULE_TRANSITION 16
-+#define AVRULE_MEMBER     32
-+#define AVRULE_CHANGE     64
-+#define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
-+#define AVRULE_NEVERALLOW 128
-+        uint32_t specified;
-+#define RULE_SELF 1
-+        uint32_t flags;
-+        type_set_t stypes;
-+        type_set_t ttypes;
-+        class_perm_node_t *perms;
-+        unsigned long line;  /* line number from policy.conf where
-+                              * this rule originated  */
-+        struct avrule *next;
-+} avrule_t;
-+
-+typedef struct role_trans_rule {
-+        role_set_t roles; /* current role */
-+        type_set_t types; /* program executable type */
-+        uint32_t new_role;              /* new role */
-+        struct role_trans_rule *next;
-+} role_trans_rule_t;
-+
-+typedef struct role_allow_rule {
-+        role_set_t roles; /* current role */
-+        role_set_t new_roles; /* new roles */
-+        struct role_allow_rule *next;
-+} role_allow_rule_t;
- 
- /*
-  * The configuration data includes security contexts for 
-@@ -192,6 +259,11 @@
- 	struct genfs *next;
- } genfs_t;
- 
-+typedef struct policycon {
-+        uint32_t component_type;
-+	struct ocontext *head;
-+} policycon_t;
-+
- /* symbol table array indices */
- #define SYM_COMMONS 0
- #define SYM_CLASSES 1
-@@ -203,6 +275,10 @@
- #define SYM_CATS    7
- #define SYM_NUM     8
- 
-+/* this #define gives the index into policycon tables for attributes */
-+#define SYM_ATTRIBS (SYM_BOOLS + 1)
-+#define POLICYCON_NUM (SYM_ATTRIBS + 1)
-+
- /* object context array indices */
- #define OCON_ISID  0	/* initial SIDs */
- #define OCON_FS    1	/* unlabeled file systems */
-@@ -213,8 +289,23 @@
- #define OCON_NODE6 6	/* IPv6 nodes */
- #define OCON_NUM   7
- 
-+/* role_type_node_t holds the types for role declarations
-+ * in avrule blocks */
-+typedef struct role_type_node {
-+        uint32_t role;
-+        type_set_t types;
-+        struct role_type_node *next;
-+} role_type_node_t;
-+
- /* The policy database */
- typedef struct policydb {
-+#define POLICY_KERN 0
-+#define POLICY_BASE 1
-+#define POLICY_MOD 2
-+	uint32_t policy_type;
-+	char *name;
-+	char *version;
-+
- 	/* symbol tables */
- 	symtab_t symtab[SYM_NUM];
- #define p_commons symtab[SYM_COMMONS]
-@@ -241,7 +332,19 @@
- 	class_datum_t **class_val_to_struct;
- 	role_datum_t **role_val_to_struct;
- 	user_datum_t **user_val_to_struct;
-+	type_datum_t **type_val_to_struct;
- 
-+	/* RULES */
-+	
-+	/* symbolic storage of rules - used in parsing and for modules */
-+	/* av rules stored as a list */
-+	avrule_t *avrules;
-+	/* role transitions */
-+	role_trans_rule_t *role_tr_rules;
-+	/* role allows */
-+	role_allow_rule_t *role_allow_rules;
-+
-+	/* compiled storage of rules - use for the kernel policy */
- 	/* type enforcement access vectors and transitions */
- 	avtab_t te_avtab;
- 
-@@ -267,13 +370,17 @@
- 	   fixed labeling behavior. */
-   	genfs_t *genfs;
- 
-+        /* keep an array of policycon objects; each element points to
-+         * a linked list of ocontexts for that policy component */
-+        policycon_t policycon[POLICYCON_NUM];
-+
- 	/* range transitions */
- 	range_trans_t *range_tr;
- 
- 	unsigned policyvers;
- } policydb_t;
- 
--extern int policydb_init(policydb_t * p);
-+extern int policydb_init(policydb_t * p, int policy_type);
- 
- extern int policydb_index_classes(policydb_t * p);
- 
-@@ -291,6 +396,26 @@
- 
- extern int policydb_context_isvalid(policydb_t *p, context_struct_t *c);
- 
-+void class_perm_node_init(class_perm_node_t *x);
-+void type_set_init(type_set_t *x);
-+void type_set_destroy(type_set_t *x);
-+void role_set_init(role_set_t *x);
-+void role_set_destroy(role_set_t *x);
-+void avrule_init(avrule_t *x);
-+void avrule_destroy(avrule_t *x);
-+void role_datum_init(role_datum_t *x);
-+void role_datum_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p);
-+void role_allow_rule_init(role_allow_rule_t *x);
-+void user_datum_init(user_datum_t *x);
-+void user_datum_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p);
-+void avrule_list_destroy(avrule_t *x);
-+
-+int check_assertions(policydb_t *p, avrule_t *avrules, avtab_t *avtab);
-+int symtab_insert(policydb_t *x, uint32_t sym, hashtab_key_t key,
-+                  hashtab_datum_t data, uint32_t *value);
-+
-+
-+
- /* A policy "file" may be a memory region referenced by a (data, len) pair
-    or a file referenced by a FILE pointer. */
- struct policy_file {
-@@ -301,12 +426,15 @@
- 	char *data;
- 	size_t len;
- 	FILE *fp;
-+        unsigned char buffer[BUFSIZ];
- };
- 
- extern int policydb_read(policydb_t * p, struct policy_file * fp, unsigned int verbose);
- 
- extern int policydb_write(struct policydb *p, struct policy_file *pf);
- 
-+extern int avrule_list_read(policydb_t *p, avrule_t **avrules, struct policy_file *fp);
-+
- #define PERM_SYMTAB_SIZE 32
- 
- /* Identify specific policy version changes */
-@@ -321,12 +449,17 @@
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
- #define POLICYDB_VERSION_MAX	POLICYDB_VERSION_MLS
- 
-+/* Module versions */
-+#define MOD_POLICYDB_VERSION_BASE	4
-+
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_POLICYCON
-+
- /*
-  * Set policy version for writing policies.
-  * May be any value from POLICYDB_VERSION_MIN to POLICYDB_VERSION_MAX.
-  * If not set, then policydb_write defaults to the max.
-  */
--extern int sepol_set_policyvers(unsigned int policyvers);
-+extern int sepol_set_policyvers(unsigned int policy_type, unsigned int policyvers);
- 
- /* Enable/Disable MLS support for the service functions.
-    MLS support is appropriately enabled/disabled when a policydb file
-@@ -347,6 +480,11 @@
- 
- #define POLICYDB_MAGIC SELINUX_MAGIC
- #define POLICYDB_STRING "SE Linux"
-+#define POLICYDB_MOD_MAGIC SELINUX_MOD_MAGIC
-+#define POLICYDB_MOD_STRING "SE Linux Module"
-+
-+/* Just here for debugging module packages */
-+#define SEMOD_MODULE_PACKAGE_MAGIC 0xf97cff8e
- 
- #endif	/* _POLICYDB_H_ */
- 
-diff -burNd a1/libsepol/src/assertion.c b/libsepol/src/assertion.c
---- a1/libsepol/src/assertion.c	1969-12-31 19:00:00.000000000 -0500
-+++ b/libsepol/src/assertion.c	2005-05-25 13:11:20.410920480 -0400
-@@ -0,0 +1,95 @@
-+/* Authors: Joshua Brindle <jbrindle@tresys.com>
-+ *              
-+ * Assertion checker for avtab entries, taken from 
-+ * checkpolicy.c by Steve Smalley
-+ *              
-+ * Copyright (C) 2005 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include <sepol/avtab.h>
-+#include <sepol/policydb.h>
-+#include <sepol/expand.h>
-+
-+static int check_assertion_helper(policydb_t *p, unsigned int stype, unsigned int ttype,
-+        class_perm_node_t *perm, avtab_t *avtab, unsigned long line)
-+{
-+        avtab_key_t avkey;
-+        avtab_datum_t *avdatump;
-+        class_perm_node_t *curperm;
-+
-+        curperm = perm;
-+
-+        while (curperm) {
-+                avkey.source_type = stype + 1;
-+                avkey.target_type = ttype + 1;
-+                avkey.target_class = curperm->class;
-+                avdatump = avtab_search(avtab, &avkey, AVTAB_AV);
-+                if (!avdatump)
-+                        goto cont;
-+
-+                if ((avdatump->specified & AVTAB_ALLOWED) && (avtab_allowed(avdatump) & curperm->data)) {
-+                        fprintf(stderr, "assertion on line %lu violated by allow %s %s:%s ;\n",
-+                                line, p->p_type_val_to_name[stype], p->p_type_val_to_name[ttype],
-+                                p->p_class_val_to_name[curperm->class - 1]);
-+                        return -1;
-+                }
-+
-+                cont:
-+                curperm = curperm->next;
-+        }
-+        return 0;
-+}
-+
-+int check_assertions(policydb_t *p, avrule_t *avrules, avtab_t *avtab)
-+{
-+        avrule_t *a;
-+        unsigned int i, j;
-+	int errors = 0;
-+
-+        a = avrules;
-+        while (a) {
-+                if (!(a->specified & AVRULE_NEVERALLOW))
-+                        goto cont;
-+
-+		/* The assertions pretty much have to be pre-expanded since we no 
-+		   longer have access to attributes and such */
-+			
-+                for (i = ebitmap_startbit(&a->stypes.types); i < ebitmap_length(&a->stypes.types); i++) {
-+                        if (!ebitmap_get_bit(&a->stypes.types, i))
-+                                continue;
-+                        if (a->flags & RULE_SELF) {
-+                                if (check_assertion_helper(p, i, i, a->perms, avtab, a->line))
-+                                        errors++;
-+                        }
-+                        for (j = ebitmap_startbit(&a->ttypes.types); j < ebitmap_length(&a->ttypes.types); j++) {
-+                                if (!ebitmap_get_bit(&a->ttypes.types, j))
-+                                        continue;
-+                                if (check_assertion_helper(p, i, j, a->perms, avtab, a->line))
-+                                    errors++;
-+                        }
-+                }
-+                cont:
-+                a = a->next;
-+        }
-+
-+	if (errors) {
-+		fprintf(stderr, "%d assertion violations occured\n", errors);	
-+		return -1;
-+	}
-+
-+        return 0;
-+}
-diff -burNd a1/libsepol/src/avtab.c b/libsepol/src/avtab.c
---- a1/libsepol/src/avtab.c	2005-05-25 13:15:54.660228248 -0400
-+++ b/libsepol/src/avtab.c	2005-05-25 13:11:19.338083576 -0400
-@@ -46,7 +46,7 @@
-  AVTAB_HASH_MASK)
- 
- static avtab_ptr_t 
--   avtab_insert_node(avtab_t *h, int hvalue, avtab_ptr_t prev, avtab_ptr_t cur, avtab_key_t *key, avtab_datum_t *datum)
-+   avtab_insert_node(avtab_t *h, int hvalue, avtab_ptr_t prev, avtab_key_t *key, avtab_datum_t *datum)
- {
- 	avtab_ptr_t newnode;
- 	newnode = (avtab_ptr_t) malloc(sizeof(struct avtab_node));
-@@ -68,7 +68,6 @@
- }
- 
- 
--
- int avtab_insert(avtab_t * h, avtab_key_t * key, avtab_datum_t * datum)
- {
- 	int hvalue;
-@@ -97,7 +96,7 @@
- 			break;
- 	}
- 
--	newnode = avtab_insert_node(h, hvalue, prev, cur, key, datum);
-+	newnode = avtab_insert_node(h, hvalue, prev, key, datum);
- 	if(!newnode)
- 		return -ENOMEM;
- 
-@@ -135,28 +134,7 @@
- 		    key->target_class < cur->key.target_class)
- 			break;
- 	}
--	newnode = avtab_insert_node(h, hvalue, prev, cur, key, datum);
--	
--	return newnode;
--}
--
--/* Unlike avtab_insert(), this function stores a caller-provided parse_context pointer, AND
-- * allow multiple insertions of the same key/specified mask into the table, AND returns
-- * a pointer to the new node added, all as needed by the conditional avtab.  
-- */
--avtab_ptr_t
-- avtab_insert_with_parse_context(avtab_t *h, avtab_key_t *key, avtab_datum_t *datum, void *parse_context)
--{
--	avtab_ptr_t newnode;
--
--	if (!h)
--		return NULL;
--
--	newnode = avtab_insert_nonunique(h, key, datum);
--	if(!newnode)
--		return NULL;
--		
--	newnode->parse_context = parse_context;
-+	newnode = avtab_insert_node(h, hvalue, prev, key, datum);
- 		
- 	return newnode;			
- }
-diff -burNd a1/libsepol/src/conditional.c b/libsepol/src/conditional.c
---- a1/libsepol/src/conditional.c	2005-05-25 13:15:54.661228096 -0400
-+++ b/libsepol/src/conditional.c	2005-05-25 13:11:19.342082968 -0400
-@@ -2,6 +2,11 @@
-  *          Frank Mayer <mayerf@tresys.com>
-  *          David Caplan <dac@tresys.com>
-  *
-+ * Updated: Karl MacMillan <kmacmillan@tresys.com>
-+ *          Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ *      Added support for binary policy modules
-+ *
-  * Copyright (C) 2003 - 2005 Tresys Technology, LLC
-  *
-  *  This library is free software; you can redistribute it and/or
-@@ -125,13 +130,11 @@
- }
- 
- /* return either a pre-existing matching node or create a new node */
--cond_node_t *cond_node_search(policydb_t *p, cond_node_t *cn)
-+cond_node_t *cond_node_search(policydb_t *p, cond_node_t *list, cond_node_t *cn)
- {
--	cond_node_t *list,*new;
-+	cond_node_t *new;
- 	int i;
- 
--	list = p->cond_list;
--
- 	while(list) {
- 		if (cond_expr_equal(cn,list)) break;
- 		list = list->next;
-@@ -139,10 +142,13 @@
- 	if (list) return list;
- 	else {
- 		new = (cond_node_t *)malloc(sizeof (cond_node_t));
-+                memset(new, 0, sizeof(cond_node_t));
- 		if (!new) {
- 			return NULL;
- 		}
--		new->expr = cn->expr;
-+		new->expr = cond_copy_expr(cn->expr);
-+                if (!new->expr)
-+                        return NULL;
- 		new->cur_state = cond_evaluate_expr(p, new->expr);
- 		new->nbools = cn->nbools;
- 		for (i = 0; i < cn->nbools; i++)
-@@ -150,6 +156,8 @@
- 		new->expr_pre_comp = cn->expr_pre_comp;
- 		new->true_list = NULL;
- 		new->false_list = NULL;
-+                new->avtrue_list = NULL;
-+                new->avfalse_list = NULL;
- 		/* add conditional node to policy list */
- 		new->next = p->cond_list;
- 		p->cond_list = new;
-@@ -220,6 +228,30 @@
- 	return s[0];
- }
- 
-+cond_expr_t *cond_copy_expr(cond_expr_t *expr)
-+{
-+        cond_expr_t *cur, *head, *tail, *new_expr;
-+        tail = head = NULL;
-+        cur = expr;
-+        while (cur) {
-+                new_expr = (cond_expr_t*)malloc(sizeof(cond_expr_t));
-+                if (!new_expr)
-+                        return NULL;
-+                memset(new_expr, 0, sizeof(cond_expr_t));
-+
-+                new_expr->expr_type = cur->expr_type;
-+                new_expr->bool = cur->bool;
-+
-+                if (!head)
-+                        head = new_expr;
-+                if (tail)
-+                        tail->next = new_expr;
-+                tail = new_expr;
-+                cur = cur->next;
-+        }
-+        return head;
-+}
-+
- /*
-  * evaluate_cond_node evaluates the conditional stored in
-  * a cond_node_t and if the result is different than the
-@@ -268,7 +300,7 @@
- 	cond_av_list_t *tmp;
- 	int i, j, k, orig_value[COND_MAX_BOOLS];
- 	uint32_t test = 0x0;
--	
-+	avrule_t *tmp2;
- 
- 	cn->nbools = 0;
- 
-@@ -294,6 +326,10 @@
- 		tmp = cn->true_list;
- 		cn->true_list = cn->false_list;
- 		cn->false_list = tmp;
-+                tmp2 = cn->avtrue_list;
-+                cn->avtrue_list = cn->avfalse_list;
-+                cn->avfalse_list = tmp2;
-+                
- 		/* free the "not" node in the list */
- 		free(e);
- 	}
-@@ -382,7 +418,7 @@
- 	}
- }
- 
--static void cond_node_destroy(cond_node_t *node)
-+void cond_node_destroy(cond_node_t *node)
- {
- 	cond_expr_t *cur_expr, *next_expr;
- 
-@@ -393,12 +429,13 @@
- 		next_expr = cur_expr->next;
- 		free(cur_expr);
- 	}
-+        avrule_list_destroy(node->avtrue_list);
-+        avrule_list_destroy(node->avfalse_list);
- 	cond_av_list_destroy(node->true_list);
- 	cond_av_list_destroy(node->false_list);
--	free(node);
- }
- 
--static void cond_list_destroy(cond_list_t *list)
-+void cond_list_destroy(cond_list_t *list)
- {
- 	cond_node_t *next, *cur;
- 	
-@@ -408,6 +445,7 @@
- 	for (cur = list; cur != NULL; cur = next) {
- 		next = cur->next;
- 		cond_node_destroy(cur);
-+                free(cur);
- 	}
- }
- 
-@@ -669,7 +707,7 @@
- 	return -1;
- }
- 
--int cond_read_list(policydb_t *p, void *fp)
-+int cond_read_list(policydb_t *p, cond_list_t **list, void *fp)
- {
- 	cond_node_t *node, *last = NULL;
- 	uint32_t *buf;
-@@ -691,7 +729,7 @@
- 			goto err;
- 
- 		if (i == 0) {
--			p->cond_list = node;
-+			*list = node;
- 		} else {
- 			last->next = node;
- 		}
-diff -burNd a1/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
---- a1/libsepol/src/ebitmap.c	2005-05-25 13:14:58.958696168 -0400
-+++ b/libsepol/src/ebitmap.c	2005-05-25 13:11:19.522055608 -0400
-@@ -1,5 +1,26 @@
- 
--/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
-+/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
-+ *
-+ * Updated: Karl MacMillan <kmacmillan@tresys.com>
-+ *
-+ *      Added support for binary policy modules
-+ *
-+ * Copyright (C) 2005 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
- 
- /* FLASK */
- 
-@@ -58,6 +79,19 @@
- 	return 0;
- }
- 
-+int ebitmap_or_eq(ebitmap_t *dst, ebitmap_t *e1)
-+{
-+       int ret;
-+       ebitmap_t tmp;
-+
-+       if (ebitmap_or(&tmp, dst, e1))
-+               return -1;
-+       ebitmap_destroy(dst);
-+       ret = ebitmap_cpy(dst, &tmp);
-+       ebitmap_destroy(&tmp);
-+               
-+       return ret;
-+}
- 
- int ebitmap_cmp(ebitmap_t * e1, ebitmap_t * e2)
- {
-diff -burNd a1/libsepol/src/genbools.c b/libsepol/src/genbools.c
---- a1/libsepol/src/genbools.c	2005-05-25 13:14:58.993690848 -0400
-+++ b/libsepol/src/genbools.c	2005-05-25 13:11:19.592044968 -0400
-@@ -126,7 +125,7 @@
- 
- 	/* Preserve the policy version of the original policy
- 	   for the new policy. */
--	sepol_set_policyvers(policydb.policyvers);
-+	sepol_set_policyvers(POLICY_KERN, policydb.policyvers);
- 
- 	if (load_booleans(&policydb, booleans) < 0) {
- 		__sepol_debug_printf("%s:  Warning!  Error while reading %s\n",
-@@ -189,7 +176,7 @@
- 
- 	/* Preserve the policy version of the original policy
- 	   for the new policy. */
--	sepol_set_policyvers(policydb.policyvers);
-+	sepol_set_policyvers(POLICY_KERN, policydb.policyvers);
- 
- 	for (i = 0; i < nel; i++) {
- 		datum = hashtab_search(policydb.p_bools.table, names[i]);
-diff -burNd a1/libsepol/src/genusers.c b/libsepol/src/genusers.c
---- a1/libsepol/src/genusers.c	2005-05-25 13:14:58.931700272 -0400
-+++ b/libsepol/src/genusers.c	2005-05-25 13:11:19.527054848 -0400
-@@ -81,7 +81,7 @@
- 		usrdatum = hashtab_search(policydb->p_users.table, q);
- 		if (usrdatum) {
- 			/* Replacing an existing user definition. */
--			ebitmap_init(&usrdatum->roles);
-+			ebitmap_init(&usrdatum->roles.roles);
- 			usrdatum->defined = 1;
- 		} else {
- 			char *id = strdup(q);
-@@ -98,7 +98,7 @@
- 			}
- 			memset(usrdatum, 0, sizeof(user_datum_t));
- 			usrdatum->value = ++policydb->p_users.nprim;
--			ebitmap_init(&usrdatum->roles);
-+			ebitmap_init(&usrdatum->roles.roles);
- 			usrdatum->defined = 1;
- 			rc = hashtab_insert(policydb->p_users.table,
- 					    id, (hashtab_datum_t) usrdatum);
-@@ -158,7 +158,7 @@
- 			/* Set the role and every role it dominates */
- 			for (bit = ebitmap_startbit(&roldatum->dominates); bit < ebitmap_length(&roldatum->dominates); bit++) {
- 				if (ebitmap_get_bit(&roldatum->dominates, bit))
--					if (ebitmap_set_bit(&usrdatum->roles, bit, 1)) {
-+					if (ebitmap_set_bit(&usrdatum->roles.roles, bit, 1)) {
- 						__sepol_debug_printf("%s:  out of memory for %s on line %u\n",
- 							path, buffer, lineno);
- 						errno = ENOMEM;
-@@ -309,7 +309,7 @@
- 	usrdatum = (user_datum_t *) datum;
- 	ebitmap_set_bit(free_users, usrdatum->value - 1, 1);
- 
--	ebitmap_destroy(&usrdatum->roles);
-+	ebitmap_destroy(&usrdatum->roles.roles);
- 	free(datum);
- 	pol->p_users.nprim--;
- }
-@@ -389,7 +389,7 @@
- 	/* Set the policy version for the new binary policy image we are
- 	   about to generate so that it stays the same as the original,
- 	   even if we support a newer one. */
--	sepol_set_policyvers(policydb.policyvers);
-+	sepol_set_policyvers(policydb.policyvers, POLICY_KERN);
- 
- 	/* Compute the length for the new binary policy image. */
- 	pf.type = PF_LEN;
-diff -burNd a1/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
---- a1/libsepol/src/hierarchy.c	2005-05-25 13:15:54.661228096 -0400
-+++ b/libsepol/src/hierarchy.c	2005-05-25 13:11:19.340083272 -0400
-@@ -302,12 +302,12 @@
- 		return 1;
- 	}
- 
--	if (ebitmap_or(&eb, &r->types, &rp->types)) {
-+	if (ebitmap_or(&eb, &r->types.types, &rp->types.types)) {
- 		/* Memory error */
- 		return -1;
- 	}
- 	
--	if (!ebitmap_cmp(&eb, &rp->types)) {
-+	if (!ebitmap_cmp(&eb, &rp->types.types)) {
- 		ebitmap_destroy(&eb);
- 		/* This is a violation of the hiearchal constraint, return error condition */
- 		snprintf(a->errmsg, ERRMSG_LEN, "Role hierarchy violation, %s exceeds %s",
-diff -burNd a1/libsepol/src/policydb.c b/libsepol/src/policydb.c
---- a1/libsepol/src/policydb.c	2005-05-25 13:15:54.663227792 -0400
-+++ b/libsepol/src/policydb.c	2005-05-25 13:11:19.345082512 -0400
-@@ -44,6 +44,7 @@
- #include <stdlib.h>
- 
- #include <sepol/policydb.h>
-+#include <sepol/expand.h>
- #include <sepol/mls.h>
- #include <sepol/conditional.h>
- 
-@@ -52,30 +53,47 @@
- /* These need to be updated if SYM_NUM or OCON_NUM changes */
- static struct policydb_compat_info policydb_compat[] = {
- 	{
-+		.type		= POLICY_KERN,
- 		.version	= POLICYDB_VERSION_BASE,
- 		.sym_num	= SYM_NUM - 3,
- 		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
-+		.type		= POLICY_KERN,
- 		.version	= POLICYDB_VERSION_BOOL,
- 		.sym_num	= SYM_NUM - 2,
- 		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
-+		.type		= POLICY_KERN,
- 		.version	= POLICYDB_VERSION_IPV6,
- 		.sym_num	= SYM_NUM - 2,
- 		.ocon_num	= OCON_NUM,
- 	},
- 	{
-+		.type		= POLICY_KERN,
- 		.version	= POLICYDB_VERSION_NLCLASS,
- 		.sym_num	= SYM_NUM - 2,
- 		.ocon_num	= OCON_NUM,
- 	},
- 	{
-+		.type		= POLICY_KERN,
- 		.version	= POLICYDB_VERSION_MLS,
- 		.sym_num	= SYM_NUM,
- 		.ocon_num	= OCON_NUM,
- 	},
-+	{
-+		.type		= POLICY_BASE,
-+		.version 	= MOD_POLICYDB_VERSION_BASE,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM,
-+        },
-+	{
-+		.type		= POLICY_MOD,
-+		.version	= MOD_POLICYDB_VERSION_BASE,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= 0,
-+        }
- };
- 
- #if 0
-@@ -115,13 +133,14 @@
- 	return mls_enabled;
- }
- 
--struct policydb_compat_info *policydb_lookup_compat(int version)
-+struct policydb_compat_info *policydb_lookup_compat(int version, int type)
- {
- 	int i;
- 	struct policydb_compat_info *info = NULL;
- 	
- 	for (i = 0; i < sizeof(policydb_compat)/sizeof(*info); i++) {
--		if (policydb_compat[i].version == version) {
-+		if (policydb_compat[i].version == version &&
-+		    policydb_compat[i].type == type) {
- 			info = &policydb_compat[i];
- 			break;
- 		}
-@@ -129,6 +148,120 @@
- 	return info;
- }
- 
-+void type_set_init(type_set_t *x)
-+{       
-+        memset(x, 0, sizeof(type_set_t));
-+        ebitmap_init(&x->types);
-+        ebitmap_init(&x->negset); 
-+}       
-+        
-+void type_set_destroy(type_set_t *x)
-+{               
-+        ebitmap_destroy(&x->types);
-+        ebitmap_destroy(&x->negset);
-+}           
-+
-+void role_set_init(role_set_t *x)
-+{       
-+        memset(x, 0, sizeof(role_set_t));
-+        ebitmap_init(&x->roles);
-+}
-+
-+void role_set_destroy(role_set_t *x)
-+{       
-+        ebitmap_destroy(&x->roles);
-+}
-+
-+void role_datum_init(role_datum_t *x)
-+{
-+        memset(x, 0, sizeof(role_datum_t));
-+        ebitmap_init(&x->dominates);
-+        type_set_init(&x->types);
-+}
-+
-+void role_datum_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p)
-+{
-+        role_datum_t *x = (role_datum_t *)datum;
-+        free(key);
-+        ebitmap_destroy(&x->dominates);
-+        type_set_destroy(&x->types);
-+}
-+
-+void role_type_node_init(role_type_node_t *x)
-+{
-+        memset(x, 0, sizeof(role_type_node_t));
-+        type_set_init(&x->types);
-+}
-+
-+void user_datum_init(user_datum_t *x)
-+{
-+        memset(x, 0, sizeof(user_datum_t));
-+        role_set_init(&x->roles);
-+}
-+
-+void user_datum_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p)
-+{
-+        user_datum_t *x = (user_datum_t *)datum;
-+        free(key);
-+        role_set_destroy(&x->roles);
-+}
-+
-+void class_perm_node_init(class_perm_node_t *x)
-+{
-+        memset(x, 0, sizeof(class_perm_node_t));
-+}
-+
-+void avrule_init(avrule_t *x)
-+{
-+        memset(x, 0, sizeof(avrule_t));
-+        type_set_init(&x->stypes);
-+        type_set_init(&x->ttypes);
-+}
-+
-+void avrule_destroy(avrule_t *x)
-+{
-+        class_perm_node_t *cur, *next;
-+
-+        type_set_destroy(&x->stypes);
-+        type_set_destroy(&x->ttypes);
-+
-+        next = x->perms;
-+        while (next) {
-+                cur = next;
-+                next = cur->next;
-+                free(cur);
-+        }
-+}
-+
-+void role_trans_rule_init(role_trans_rule_t *x)
-+{
-+        memset(x,0,sizeof(*x));
-+        role_set_init(&x->roles);
-+        type_set_init(&x->types);
-+}
-+
-+void role_allow_rule_init(role_allow_rule_t *x)
-+{
-+        memset(x,0,sizeof(role_allow_rule_t));
-+        role_set_init(&x->roles);
-+        role_set_init(&x->new_roles);
-+}
-+
-+void avrule_list_destroy(avrule_t *x)
-+{
-+        avrule_t *next, *cur;
-+
-+        if (!x)
-+                return;
-+
-+        next = x;
-+        while (next) {
-+                cur = next;
-+                next = next->next;
-+                avrule_destroy(cur);
-+        }
-+}
-+
- /* 
-  * Initialize the role table.
-  */
-@@ -172,7 +305,7 @@
- /*
-  * Initialize a policy database structure.
-  */
--int policydb_init(policydb_t * p)
-+int policydb_init(policydb_t * p, int policy_type)
- {
- 	int i, rc;
- 
-@@ -184,6 +317,10 @@
- 		if (rc)
- 			goto out_free_symtab;
- 	}
-+        for (i = 0; i < POLICYCON_NUM; i++) {
-+                p->policycon[i].component_type = i;
-+                p->policycon[i].head = NULL;
-+	}
- 
- 	rc = avtab_init(&p->te_avtab);
- 	if (rc)
-@@ -208,7 +345,6 @@
- 	goto out;
- }
- 
--
- /*
-  * The following *_index functions are used to
-  * define the val_to_name and val_to_struct arrays
-@@ -282,8 +418,10 @@
- 		if (!typdatum->value || typdatum->value > p->p_types.nprim)
- 			return -EINVAL;
- 		p->p_type_val_to_name[typdatum->value - 1] = (char *) key;
-+		p->type_val_to_struct[typdatum->value - 1] = typdatum;
- 	}
- 
-+
- 	return 0;
- }
- 
-@@ -401,6 +539,25 @@
- 	return 0;
- }
- 
-+int policydb_index_types(policydb_t *p)
-+{
-+        free(p->p_type_val_to_name);
-+        p->p_type_val_to_name = (char**)malloc(p->p_types.nprim * sizeof(char*));
-+        if (!p->p_type_val_to_name)
-+                return -1;
-+ 
-+        free(p->type_val_to_struct);
-+        p->type_val_to_struct = (type_datum_t**)
-+                malloc(p->p_types.nprim * sizeof(type_datum_t*));
-+        if (!p->type_val_to_struct)
-+                return -1;
-+ 
-+        if (hashtab_map(p->p_types.table, type_index, p))
-+                return -1;
-+ 
-+        return 0;
-+}
-+
- /*
-  * Define the other val_to_name and val_to_struct arrays
-  * in a policy database structure.  
-@@ -415,7 +572,7 @@
- 		       p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim,
- 		       p->p_bools.nprim);
- 
--		if (mls_enabled)
-+		if (sepol_mls_enabled())
- 			printf(", %d sens, %d cats", p->p_levels.nprim,
- 			       p->p_cats.nprim);
- 
-@@ -431,20 +588,27 @@
- 		hashtab_hash_eval(p->symtab[i].table, symtab_name[i]);
- #endif
- 
-+        free(p->role_val_to_struct);
- 	p->role_val_to_struct = (role_datum_t **)
- 	    malloc(p->p_roles.nprim * sizeof(role_datum_t *));
- 	if (!p->role_val_to_struct)
- 		return -1;
- 
-+        free(p->user_val_to_struct);
- 	p->user_val_to_struct = (user_datum_t **)
- 	    malloc(p->p_users.nprim * sizeof(user_datum_t *));
- 	if (!p->user_val_to_struct)
- 		return -1;
- 
-+        free(p->type_val_to_struct);
-+        p->type_val_to_struct = (type_datum_t **)
-+            malloc(p->p_types.nprim * sizeof(type_datum_t *));
-+        if (!p->type_val_to_struct)
-+                return -1;
-+
- 	cond_init_bool_indexes(p);
- 
- 	for (i = SYM_ROLES; i < SYM_NUM; i++) {
--		if (p->sym_val_to_name[i])
- 			free(p->sym_val_to_name[i]);
- 		p->sym_val_to_name[i] = (char **)
- 		    malloc(p->symtab[i].nprim * sizeof(char *));
-@@ -457,6 +621,7 @@
- 	return 0;
- }
- 
-+
- /*
-  * The following *_destroy functions are used to
-  * free any memory allocated for each kind of
-@@ -539,7 +704,7 @@
- 		free(key);
- 	role = (role_datum_t *) datum;
- 	ebitmap_destroy(&role->dominates);
--	ebitmap_destroy(&role->types);
-+        type_set_destroy(&role->types);
- 	free(datum);
- 	return 0;
- }
-@@ -559,7 +724,7 @@
- 	if (key)
- 		free(key);
- 	usrdatum = (user_datum_t *) datum;
--	ebitmap_destroy(&usrdatum->roles);
-+        role_set_destroy(&usrdatum->roles);
- 	ebitmap_destroy(&usrdatum->range.level[0].cat);
- 	ebitmap_destroy(&usrdatum->range.level[1].cat);
- 	ebitmap_destroy(&usrdatum->dfltlevel.cat);
-@@ -610,6 +775,9 @@
- 	genfs_t *g, *gtmp;
- 	int i;
- 
-+        if (!p)
-+                return;
-+        
- 	for (i = 0; i < SYM_NUM; i++) {
- 		hashtab_map(p->symtab[i].table, destroy_f[i], 0);
- 		hashtab_destroy(p->symtab[i].table);
-@@ -657,6 +825,14 @@
- 		g = g->next;
- 		free(gtmp);
- 	}
-+        for (i = 0; i < POLICYCON_NUM; i++) {
-+                for (c = p->policycon[i].head; c != NULL; c = ctmp) {
-+                        ctmp = c->next;
-+			context_destroy(&c->context[0]);
-+			free(c->u.name);
-+			free(c);
-+                }
-+        }
- 	cond_policydb_destroy(p);
- 	return;
- }
-@@ -699,8 +875,11 @@
- {
- 	role_datum_t *role;
- 	user_datum_t *usrdatum;
-+	ebitmap_t types, roles;
-+        int ret = 1;
- 
--
-+	ebitmap_init(&types);
-+	ebitmap_init(&roles);
- 	if (!c->role || c->role > p->p_roles.nprim)
- 		return 0;
- 
-@@ -715,8 +894,11 @@
- 		 * Role must be authorized for the type.
- 		 */
- 		role = p->role_val_to_struct[c->role - 1];
--		if (!ebitmap_get_bit(&role->types,
--				     c->type - 1))
-+		if (type_set_expand(&role->types, &types, p)) {
-+			printf("something bad happened while expanding types\n");
-+                        return 0;
-+		}
-+		if (!ebitmap_get_bit(&types, c->type - 1))
- 			/* role may not be associated with type */
- 			return 0;
- 		
-@@ -727,8 +909,11 @@
- 		if (!usrdatum)
- 			return 0;
- 
--		if (!ebitmap_get_bit(&usrdatum->roles,
--				     c->role - 1))
-+                if (role_set_expand(&usrdatum->roles, &roles, p)) {
-+			printf("something bad happened while expanding roles\n");
-+                        return 0;
-+                }
-+		if (!ebitmap_get_bit(&roles, c->role - 1))
- 			/* user may not be associated with role */
- 			return 0;
- 	}
-@@ -736,9 +921,13 @@
- 	if (!mls_context_isvalid(p, c))
- 		return 0;
- 
--	return 1;
-+	return ret;
- }
- 
-+
-+/***********************************************************************/
-+/* everything below is for policy reads */
-+
- /*
-  * Read a MLS range structure from a policydb binary 
-  * representation file.
-@@ -1132,7 +1321,7 @@
- 	if (ebitmap_read(&role->dominates, fp))
- 		goto bad;
- 
--	if (ebitmap_read(&role->types, fp))
-+	if (ebitmap_read(&role->types.types, fp))
- 		goto bad;
- 
- 	if (strcmp(key, OBJECT_R) == 0) {
-@@ -1196,6 +1385,478 @@
- 	return -1;
- }
- 
-+int role_trans_read(role_trans_t **t, struct policy_file *fp)
-+{                       
-+        int i;
-+        uint32_t *buf, nel;
-+        role_trans_t *tr, *ltr;
-+                                
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)
-+                return -1;
-+        nel = le32_to_cpu(buf[0]);
-+        ltr = NULL;
-+        for (i = 0; i < nel; i++) {
-+                tr = malloc(sizeof(struct role_trans));
-+                if (!tr) {
-+                        return -1;
-+                }       
-+                memset(tr, 0, sizeof(struct role_trans));
-+                if (ltr) {
-+                        ltr->next = tr;
-+                } else {
-+                        *t = tr;
-+                }       
-+                buf = next_entry(fp, sizeof(uint32_t)*3);
-+                if (!buf)
-+                        return -1;
-+                tr->role = le32_to_cpu(buf[0]);
-+                tr->type = le32_to_cpu(buf[1]);
-+                tr->new_role = le32_to_cpu(buf[2]);
-+                ltr = tr;
-+        }
-+        return 0;
-+}
-+
-+int role_allow_read(role_allow_t **r, struct policy_file *fp)
-+{
-+        int i;
-+        uint32_t *buf, nel;
-+        role_allow_t *ra, *lra;
-+
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)
-+                return -1;
-+        nel = le32_to_cpu(buf[0]);
-+        lra = NULL;
-+        for (i = 0; i < nel; i++) {
-+                ra = malloc(sizeof(struct role_allow));
-+                if (!ra) {
-+                        return -1;
-+                }
-+                memset(ra, 0, sizeof(struct role_allow));
-+                if (lra) {
-+                        lra->next = ra;
-+                } else {
-+                        *r = ra;
-+                }
-+                buf = next_entry(fp, sizeof(uint32_t)*2);
-+                if (!buf)
-+                        return -1;
-+                ra->role = le32_to_cpu(buf[0]);
-+                ra->new_role = le32_to_cpu(buf[1]);
-+                lra = ra;
-+        }
-+        return 0;
-+}
-+
-+static int ocontext_read (struct policydb_compat_info *info,
-+                          policydb_t * p, struct policy_file * fp) {
-+        unsigned int i, j;
-+        size_t nel, len;
-+        ocontext_t *l, *c;
-+        uint32_t *buf;
-+        for (i = 0; i < info->ocon_num; i++) {
-+                buf = next_entry(fp, sizeof(uint32_t));
-+                if (!buf)
-+                        return -1;
-+                nel = le32_to_cpu(buf[0]);
-+                l = NULL;
-+                for (j = 0; j < nel; j++) {
-+                        c = malloc(sizeof(ocontext_t));
-+                        if (!c) {
-+                                return -1;
-+                        }
-+                        memset(c, 0, sizeof(ocontext_t));
-+                        if (l) {
-+                                l->next = c;
-+                        } else {
-+                                p->ocontexts[i] = c;
-+                        }
-+                        l = c;
-+                        switch (i) {
-+                        case OCON_ISID:
-+                                buf = next_entry(fp, sizeof(uint32_t));
-+                                if (!buf)
-+                                        return -1;
-+                                c->sid[0] = le32_to_cpu(buf[0]);
-+                                if (context_read_and_validate(&c->context[0], p, fp))
-+                                        return -1;
-+                                break;
-+                        case OCON_FS:
-+                        case OCON_NETIF:
-+                                buf = next_entry(fp, sizeof(uint32_t));
-+                                if (!buf)
-+                                        return -1;
-+                                len = le32_to_cpu(buf[0]);
-+                                buf = next_entry(fp, len);
-+                                if (!buf)
-+                                        return -1;
-+                                c->u.name = malloc(len + 1);
-+                                if (!c->u.name) {
-+                                        return -1;
-+                                }
-+                                memcpy(c->u.name, buf, len);
-+                                c->u.name[len] = 0;
-+                                if (context_read_and_validate(&c->context[0], p, fp))
-+                                        return -1;
-+                                if (context_read_and_validate(&c->context[1], p, fp))
-+                                        return -1;
-+                                break;
-+                        case OCON_PORT:
-+				buf = next_entry(fp, sizeof(uint32_t)*3);
-+                                if (!buf)
-+                                        return -1;
-+                                c->u.port.protocol = le32_to_cpu(buf[0]);
-+                                c->u.port.low_port = le32_to_cpu(buf[1]);
-+                                c->u.port.high_port = le32_to_cpu(buf[2]);
-+                                if (context_read_and_validate(&c->context[0], p, fp))
-+                                        return -1;
-+                                break;
-+                        case OCON_NODE:
-+                                buf = next_entry(fp, sizeof(uint32_t)* 2);
-+                                if (!buf)
-+                                        return -1;
-+                                c->u.node.addr = le32_to_cpu(buf[0]);
-+                                c->u.node.mask = le32_to_cpu(buf[1]);
-+                                if (context_read_and_validate(&c->context[0], p, fp))
-+                                        return -1;
-+                                break;
-+                        case OCON_FSUSE:
-+                                buf = next_entry(fp, sizeof(uint32_t)*2);
-+                                if (!buf)
-+                                        return -1;
-+                                c->v.behavior = le32_to_cpu(buf[0]);
-+                                len = le32_to_cpu(buf[1]);
-+                                buf = next_entry(fp, len);
-+                                if (!buf)
-+                                        return -1; 
-+                                c->u.name = malloc(len + 1);
-+                                if (!c->u.name) {
-+                                        return -1; 
-+                                }               
-+                                memcpy(c->u.name, buf, len);
-+                                c->u.name[len] = 0;
-+                                if (context_read_and_validate(&c->context[0], p, fp))
-+                                        return -1;
-+                                break;  
-+                        case OCON_NODE6: {
-+                                int k;
-+                                
-+                                buf = next_entry(fp, sizeof(uint32_t) * 8);
-+                                if (!buf) 
-+                                        return -1;
-+                                for (k = 0; k < 4; k++)
-+                                        c->u.node6.addr[k] = le32_to_cpu(buf[k]);
-+                                for (k = 0; k < 4; k++)
-+                                        c->u.node6.mask[k] = le32_to_cpu(buf[k+4]);
-+                                if (context_read_and_validate(&c->context[0], p, fp))
-+                                        return -1;
-+                                break;  
-+                        }       
-+                        }       
-+                }               
-+        }
-+        return 0;               
-+}
-+
-+static int genfs_read (policydb_t *p, struct policy_file *fp) {
-+        uint32_t *buf;
-+        size_t nel, nel2, len, len2;
-+        genfs_t *genfs_p, *newgenfs, *genfs;
-+        unsigned int i, j;
-+        ocontext_t *l, *c, *newc;
-+
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)               
-+                goto bad;               
-+        nel = le32_to_cpu(buf[0]);
-+        genfs_p = NULL;         
-+        for (i = 0; i < nel; i++) {
-+                newgenfs = malloc(sizeof(genfs_t));
-+                if (!newgenfs) {        
-+                        goto bad;
-+                }                       
-+                memset(newgenfs, 0, sizeof(genfs_t));
-+                buf = next_entry(fp, sizeof(uint32_t));
-+                if (!buf)       
-+                        goto bad;
-+                len = le32_to_cpu(buf[0]);
-+                buf = next_entry(fp, len);
-+                if (!buf)       
-+                        goto bad;
-+                newgenfs->fstype = malloc(len + 1);
-+                if (!newgenfs->fstype) {
-+                        goto bad;
-+                }       
-+                memcpy(newgenfs->fstype, buf, len);
-+                newgenfs->fstype[len] = 0;
-+                for (genfs_p = NULL, genfs = p->genfs; genfs;
-+                     genfs_p = genfs, genfs = genfs->next) {
-+                        if (strcmp(newgenfs->fstype, genfs->fstype) == 0) {
-+                                printf("security:  dup genfs fstype %s\n", newgenfs->fstype);
-+                                goto bad;
-+                        }       
-+                        if (strcmp(newgenfs->fstype, genfs->fstype) < 0)
-+                                break;
-+                }               
-+                newgenfs->next = genfs; 
-+                if (genfs_p)    
-+                        genfs_p->next = newgenfs;
-+                else
-+                        p->genfs = newgenfs;
-+                buf = next_entry(fp, sizeof(uint32_t));
-+                if (!buf)
-+                        goto bad;
-+                nel2 = le32_to_cpu(buf[0]);
-+                for (j = 0; j < nel2; j++) {
-+                        newc = malloc(sizeof(ocontext_t));
-+                        if (!newc) {
-+                                goto bad;
-+                        }
-+                        memset(newc, 0, sizeof(ocontext_t));
-+                        buf = next_entry(fp, sizeof(uint32_t));
-+                        if (!buf)
-+                                goto bad;
-+                        len = le32_to_cpu(buf[0]);
-+                        buf = next_entry(fp, len);
-+                        if (!buf)
-+                                goto bad;
-+                        newc->u.name = malloc(len + 1);
-+                        if (!newc->u.name) {
-+                                goto bad;
-+                        }
-+                        memcpy(newc->u.name, buf, len);
-+                        newc->u.name[len] = 0;
-+                        buf = next_entry(fp, sizeof(uint32_t));
-+                        if (!buf)
-+                                goto bad;
-+                        newc->v.sclass = le32_to_cpu(buf[0]);
-+                        if (context_read_and_validate(&newc->context[0], p, fp))
-+                                goto bad;
-+                        for (l = NULL, c = newgenfs->head; c;
-+                             l = c, c = c->next) {
-+                                if (!strcmp(newc->u.name, c->u.name) &&
-+                                    (!c->v.sclass || !newc->v.sclass || newc->v.sclass == c->v.sclass)) {
-+                                        printf("security:  dup genfs entry (%s,%s)\n", newgenfs->fstype, c->u.name);
-+                                        goto bad;
-+                                }
-+                                len = strlen(newc->u.name);
-+                                len2 = strlen(c->u.name);
-+                                if (len > len2)
-+                                        break;
-+                        }
-+                        newc->next = c;
-+                        if (l)
-+                                l->next = newc;
-+                        else
-+                                newgenfs->head = newc;
-+                }
-+        }
-+
-+        return 0;
-+
-+bad:
-+	return -1;
-+}
-+
-+/* The following are read functions for module structures */
-+
-+static int role_set_read(role_set_t *r, struct policy_file *fp)
-+{                       
-+        uint32_t *buf;
-+        if (ebitmap_read(&r->roles, fp))
-+                return -1;
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)
-+                return -1;
-+        r->flags = le32_to_cpu(buf[0]);
-+
-+        return 0;
-+}
-+
-+static int type_set_read(type_set_t *t, struct policy_file *fp)
-+{
-+        uint32_t *buf;
-+
-+        if (ebitmap_read(&t->types, fp))
-+                return -1;
-+        if (ebitmap_read(&t->negset, fp))
-+                return -1;
-+
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)
-+                return -1;
-+        t->flags = le32_to_cpu(buf[0]);
-+
-+        return 0;
-+}
-+
-+int role_trans_rule_read(role_trans_rule_t **r, struct policy_file *fp)
-+{
-+        uint32_t *buf, nel;
-+        int i;
-+        role_trans_rule_t *tr, *ltr;
-+
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)
-+                return -1;
-+        nel = le32_to_cpu(buf[0]);
-+        ltr = NULL;
-+        for (i = 0; i < nel; i++) {
-+                tr = malloc(sizeof(role_trans_rule_t));
-+                if (!tr) {
-+                        return -1;
-+                }
-+                role_trans_rule_init(tr);
-+
-+                if (ltr) {
-+                        ltr->next = tr;
-+                } else {
-+                        *r = tr;
-+                }
-+
-+                if (role_set_read(&tr->roles, fp))
-+                        return -1;
-+
-+                if (type_set_read(&tr->types, fp))
-+                        return -1;
-+
-+                buf = next_entry(fp, sizeof(uint32_t));
-+                tr->new_role = le32_to_cpu(buf[0]);
-+                ltr = tr;
-+        }
-+
-+        return 0;
-+}
-+
-+int role_allow_rule_read(role_allow_rule_t **r, struct policy_file *fp)
-+{
-+        int i;
-+        uint32_t *buf, nel;
-+        role_allow_rule_t *ra, *lra;
-+
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)
-+                return -1;
-+        nel = le32_to_cpu(buf[0]);
-+        lra = NULL;
-+        for (i = 0; i < nel; i++) {
-+                ra = malloc(sizeof(role_allow_rule_t));
-+                if (!ra) {
-+                        return -1;
-+                }
-+                role_allow_rule_init(ra);
-+
-+                if (lra) {
-+                        lra->next = ra;
-+                } else {
-+                        *r = ra;
-+                }
-+
-+                if (role_set_read(&ra->roles, fp))
-+                        return -1;
-+
-+                if (role_set_read(&ra->new_roles, fp))
-+                        return -1;
-+
-+                lra = ra;
-+        }
-+        return 0;
-+}
-+
-+static avrule_t *read_avrule(policydb_t *p, struct policy_file *fp)
-+{                       
-+        int i;                  
-+        uint32_t *buf, len;
-+        class_perm_node_t *cur, *tail = NULL;
-+        avrule_t *avrule;
-+
-+        avrule = (avrule_t*)malloc(sizeof(avrule_t));
-+        if (!avrule)
-+                return NULL;
-+
-+        avrule_init(avrule);
-+
-+        buf = next_entry(fp, sizeof(uint32_t) * 2);
-+        if (!buf)
-+                goto bad;
-+        
-+        (avrule)->specified = le32_to_cpu(buf[0]);
-+        (avrule)->flags = le32_to_cpu(buf[1]);
-+                                
-+        if (type_set_read(&avrule->stypes, fp))
-+                goto bad;
-+                
-+        if (type_set_read(&avrule->ttypes, fp))
-+                goto bad;
-+                                
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf)
-+                goto bad;
-+        len = le32_to_cpu(buf[0]); 
-+                        
-+                        
-+        for (i = 0; i < len; i++) { 
-+                cur = (class_perm_node_t*)malloc(sizeof(class_perm_node_t));
-+                if (!cur)
-+                        goto bad;
-+                class_perm_node_init(cur);
-+
-+                buf = next_entry(fp, sizeof(uint32_t) * 2);
-+                if (!buf)
-+                        goto bad;
-+
-+                cur->class = le32_to_cpu(buf[0]);
-+                cur->data = le32_to_cpu(buf[1]);
-+
-+                if (!tail) {
-+			avrule->perms = cur;
-+                } else {
-+                        tail->next = cur;
-+                }
-+                tail = cur;
-+        }
-+
-+        return avrule;
-+bad:
-+        if (avrule)
-+                avrule_destroy(avrule);
-+        return NULL;
-+}
-+
-+int avrule_list_read(policydb_t *p, avrule_t **avrules,
-+                                struct policy_file *fp)
-+{
-+        int i;
-+        avrule_t *cur, *tail;
-+        uint32_t *buf, len;
-+
-+        *avrules = tail = NULL;
-+
-+        buf = next_entry(fp, sizeof(uint32_t));
-+        if (!buf) {
-+                return -1;
-+        }
-+        len = le32_to_cpu(buf[0]);
-+
-+        for (i = 0; i < len; i++) {
-+                cur = read_avrule(p, fp);
-+                if (!cur) {
-+                        return -1;
-+                }
-+
-+                if (!tail) {
-+                        *avrules = cur;
-+                } else {
-+                        tail->next = cur;
-+                }
-+                tail = cur;
-+        }
-+
-+        return 0;
-+}
-+
- 
- /*
-  * Read a MLS level structure from a policydb binary 
-@@ -1252,8 +1913,13 @@
- 	memcpy(key, buf, len);
- 	key[len] = 0;
- 
--	if (ebitmap_read(&usrdatum->roles, fp))
-+	if (p->policy_type == POLICY_KERN) {
-+		if (ebitmap_read(&usrdatum->roles.roles, fp))
-+			goto bad;
-+	} else {
-+		if (role_set_read(&usrdatum->roles, fp))
- 		goto bad;
-+	}
- 
- 	if (p->policyvers >= POLICYDB_VERSION_MLS) {
- 		if (mls_read_range_helper(&usrdatum->range, fp))
-@@ -1369,87 +2035,113 @@
-  */
- int policydb_read(policydb_t * p, struct policy_file * fp, unsigned verbose)
- {
--	role_allow_t *ra, *lra;
--	role_trans_t *tr, *ltr;
- 	range_trans_t *rt, *lrt;
--
--	ocontext_t *l, *c, *newc;
--	genfs_t *genfs_p, *genfs, *newgenfs;
- 	unsigned int i, j, r_policyvers;
- 	uint32_t *buf, config;
--	size_t len, len2, nprim, nel, nel2;
-+	size_t len, nprim, nel;
- 	char *policydb_str;
- 	struct policydb_compat_info *info;
-+        int policy_type, index;
- 
- 	config = 0;
- 
--	if (policydb_init(p)) 
--		return -1;
- 
- 	/* Read the magic number and string length. */
- 	buf = next_entry(fp, sizeof(uint32_t)* 2);
- 	if (!buf)
--		goto bad;
-+		return -1;
- 	for (i = 0; i < 2; i++)
- 		buf[i] = le32_to_cpu(buf[i]);
- 
--	if (buf[0] != POLICYDB_MAGIC) {
--		printf("security:  policydb magic number 0x%x does not match expected magic number 0x%x\n", buf[0], POLICYDB_MAGIC);
--		goto bad;
-+	if (buf[0] != POLICYDB_MAGIC && buf[0] != POLICYDB_MOD_MAGIC) {
-+		printf("security:  policydb magic number 0x%x does not match expected magic number 0x%x or 0x%x\n",
-+			buf[0], POLICYDB_MAGIC, POLICYDB_MOD_MAGIC);
-+		return -1;
- 	}
- 
-+	if (buf[0] == POLICYDB_MAGIC)
-+		policy_type = POLICY_KERN;
-+	else
-+		policy_type = POLICY_MOD;
-+        
- 	len = buf[1];
- 	if (len != strlen(POLICYDB_STRING)) {
- 		printf("security:  policydb string length %zu does not match expected length %zu\n", len, strlen(POLICYDB_STRING));
--		goto bad;
-+		return -1;
- 	}
- 	buf = next_entry(fp, len);
- 	if (!buf) {
- 		printf("security:  truncated policydb string identifier\n");
--		goto bad;
-+		return -1;
- 	}
- 	policydb_str = malloc(len + 1);
- 	if (!policydb_str) {
- 		printf("security:  unable to allocate memory for policydb string of length %zu\n", len);
--		goto bad;
-+		return -1;
- 	}
- 	memcpy(policydb_str, buf, len);
- 	policydb_str[len] = 0;
- 	if (strcmp(policydb_str, POLICYDB_STRING)) {
- 		printf("security:  policydb string %s does not match my string %s\n", policydb_str, POLICYDB_STRING);
- 		free(policydb_str);
--		goto bad;
-+		return -1;
- 	}
- 	/* Done with policydb_str. */
- 	free(policydb_str);
- 	policydb_str = NULL;
- 
--	/* Read the version, config, and table sizes. */
--	buf = next_entry(fp, sizeof(uint32_t)*4);
-+	/* Read the version, config, and table sizes (and policy type if it's a module). */
-+        if (policy_type == POLICY_KERN)
-+                nel = 4;
-+        else
-+                nel = 5;
-+
-+	buf = next_entry(fp, sizeof(uint32_t)*nel);
- 	if (!buf)
--		goto bad;
--	for (i = 0; i < 4; i++)
-+		return -1;
-+	for (i = 0; i < nel; i++)
- 		buf[i] = le32_to_cpu(buf[i]);
- 
--	p->policyvers = r_policyvers = buf[0];
-+	index = 0;
-+
-+	r_policyvers = buf[index];
- 	if (r_policyvers < POLICYDB_VERSION_MIN || r_policyvers > POLICYDB_VERSION_MAX) {
- 		printf("security:  policydb version %d does not match "
--		       "my version range %d-%d\n", buf[0], POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
--		goto bad;
-+		       "my version range %d-%d\n", buf[index], POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
-+		return -1;
- 	}
-+	index++;
- 
--	if (buf[1] & POLICYDB_CONFIG_MLS)
--		mls_enabled = 1;
-+	if (policy_type != POLICY_KERN) {
-+		/* We know it's a module but not whether it's a base module 
-+		   or regular module, buf[4] tells us which */
-+		policy_type = buf[index];
-+                if (policy_type != POLICY_MOD && policy_type != POLICY_BASE) {
-+                        printf("Policy type is incorrect: %x\n", policy_type);
-+                        return -1;
-+                }
-+		index++;
-+	}
- 
--	info = policydb_lookup_compat(r_policyvers);
-+	/* Initialize the policy structure now that we know what kind it is */
-+	if (policydb_init(p, policy_type)) 
-+		return -1;
-+        p->policyvers = r_policyvers;
-+
-+	if (buf[index] & POLICYDB_CONFIG_MLS) {
-+                sepol_set_mls(1);
-+        }
-+        index++;
-+
-+	info = policydb_lookup_compat(r_policyvers, policy_type);
- 	if (!info) {
- 		printf("security:  unable to find policy compat info for version %d\n", r_policyvers);
- 		goto bad;
- 	}
- 
--	if (buf[2] != info->sym_num || buf[3] != info->ocon_num) {
-+	if (buf[index] != info->sym_num || buf[index + 1] != info->ocon_num) {
- 		printf("security:  policydb table sizes (%d,%d) do not match mine (%d,%d)\n",
--		       buf[2], buf[3], info->sym_num, info->ocon_num);
-+		       buf[index], buf[index + 1], info->sym_num, info->ocon_num);
- 		goto bad;
- 	}
- 
-@@ -1467,60 +2159,22 @@
- 		p->symtab[i].nprim = nprim;
- 	}
- 
-+	if (policy_type == POLICY_KERN) {
-+
- 	if (avtab_read(&p->te_avtab, fp, config))
- 		goto bad;
- 	if (r_policyvers >= POLICYDB_VERSION_BOOL)
--		if (cond_read_list(p, fp))
-+			if (cond_read_list(p, &p->cond_list, fp))
- 			goto bad;
- 
--	buf = next_entry(fp, sizeof(uint32_t));
--	if (!buf)
--		goto bad;
--	nel = le32_to_cpu(buf[0]);
--	ltr = NULL;
--	for (i = 0; i < nel; i++) {
--		tr = malloc(sizeof(role_trans_t));
--		if (!tr) {
--			goto bad;
--		}
--		memset(tr, 0, sizeof(role_trans_t));
--		if (ltr) {
--			ltr->next = tr;
--		} else {
--			p->role_tr = tr;
--		}
--		buf = next_entry(fp, sizeof(uint32_t)*3);
--		if (!buf)
-+                if (role_trans_read(&p->role_tr, fp))
- 			goto bad;
--		tr->role = le32_to_cpu(buf[0]);
--		tr->type = le32_to_cpu(buf[1]);
--		tr->new_role = le32_to_cpu(buf[2]);
--		ltr = tr;
--	}
- 
--	buf = next_entry(fp, sizeof(uint32_t));
--	if (!buf)
--		goto bad;
--	nel = le32_to_cpu(buf[0]);
--	lra = NULL;
--	for (i = 0; i < nel; i++) {
--		ra = malloc(sizeof(struct role_allow));
--		if (!ra) {
--			goto bad;
--		}
--		memset(ra, 0, sizeof(struct role_allow));
--		if (lra) {
--			lra->next = ra;
--		} else {
--			p->role_allow = ra;
--		}
--		buf = next_entry(fp, sizeof(uint32_t)*2);
--		if (!buf)
-+                if (role_allow_read(&p->role_allow, fp))
- 			goto bad;
--		ra->role = le32_to_cpu(buf[0]);
--		ra->new_role = le32_to_cpu(buf[1]);
--		lra = ra;
- 	}
-+        /* FIX ME: do the alternate read here for modules */
-+
- 
- 	if (policydb_index_classes(p))
- 		goto bad;
-@@ -1528,194 +2182,14 @@
- 	if (policydb_index_others(p, verbose))
- 		goto bad;
- 
--	for (i = 0; i < info->ocon_num; i++) {
--		buf = next_entry(fp, sizeof(uint32_t));
--		if (!buf)
--			goto bad;
--		nel = le32_to_cpu(buf[0]);
--		l = NULL;
--		for (j = 0; j < nel; j++) {
--			c = malloc(sizeof(ocontext_t));
--			if (!c) {
--				goto bad;
--			}
--			memset(c, 0, sizeof(ocontext_t));
--			if (l) {
--				l->next = c;
--			} else {
--				p->ocontexts[i] = c;
--			}
--			l = c;
--			switch (i) {
--			case OCON_ISID:
--				buf = next_entry(fp, sizeof(uint32_t));
--				if (!buf)
--					goto bad;
--				c->sid[0] = le32_to_cpu(buf[0]);
--				if (context_read_and_validate(&c->context[0], p, fp))
--					goto bad;
--				break;
--			case OCON_FS:
--			case OCON_NETIF:
--				buf = next_entry(fp, sizeof(uint32_t));
--				if (!buf)
--					goto bad;
--				len = le32_to_cpu(buf[0]);
--				buf = next_entry(fp, len);
--				if (!buf)
--					goto bad;
--				c->u.name = malloc(len + 1);
--				if (!c->u.name) {
--					goto bad;
--				}
--				memcpy(c->u.name, buf, len);
--				c->u.name[len] = 0;
--				if (context_read_and_validate(&c->context[0], p, fp))
--					goto bad;
--				if (context_read_and_validate(&c->context[1], p, fp))
--					goto bad;
--				break;
--			case OCON_PORT:
--				buf = next_entry(fp, sizeof(uint32_t)*3);
--				if (!buf)
--					goto bad;
--				c->u.port.protocol = le32_to_cpu(buf[0]);
--				c->u.port.low_port = le32_to_cpu(buf[1]);
--				c->u.port.high_port = le32_to_cpu(buf[2]);
--				if (context_read_and_validate(&c->context[0], p, fp))
--					goto bad;
--				break;
--			case OCON_NODE:
--				buf = next_entry(fp, sizeof(uint32_t)* 2);
--				if (!buf)
--					goto bad;
--				c->u.node.addr = le32_to_cpu(buf[0]);
--				c->u.node.mask = le32_to_cpu(buf[1]);
--				if (context_read_and_validate(&c->context[0], p, fp))
--					goto bad;
--				break;
--			case OCON_FSUSE:
--				buf = next_entry(fp, sizeof(uint32_t)*2);
--				if (!buf)
--					goto bad;
--				c->v.behavior = le32_to_cpu(buf[0]);
--				len = le32_to_cpu(buf[1]);
--				buf = next_entry(fp, len);
--				if (!buf)
--					goto bad;
--				c->u.name = malloc(len + 1);
--				if (!c->u.name) {
--					goto bad;
--				}
--				memcpy(c->u.name, buf, len);
--				c->u.name[len] = 0;
--				if (context_read_and_validate(&c->context[0], p, fp))
--					goto bad;
--				break;
--			case OCON_NODE6: {
--				int k;
- 				
--				buf = next_entry(fp, sizeof(uint32_t) * 8);
--				if (!buf)
--					goto bad;
--				for (k = 0; k < 4; k++)
--					c->u.node6.addr[k] = le32_to_cpu(buf[k]);
--				for (k = 0; k < 4; k++)
--					c->u.node6.mask[k] = le32_to_cpu(buf[k+4]);
--				if (context_read_and_validate(&c->context[0], p, fp))
-+	if (ocontext_read (info, p, fp) == -1) {
- 					goto bad;
--				break;
--			}
--			}
--		}
- 	}
- 
--	buf = next_entry(fp, sizeof(uint32_t));
--	if (!buf)
--		goto bad;
--	nel = le32_to_cpu(buf[0]);
--	genfs_p = NULL;
--	for (i = 0; i < nel; i++) {
--		newgenfs = malloc(sizeof(genfs_t));
--		if (!newgenfs) {
--			goto bad;
--		}
--		memset(newgenfs, 0, sizeof(genfs_t));
--		buf = next_entry(fp, sizeof(uint32_t));
--		if (!buf)
--			goto bad;
--		len = le32_to_cpu(buf[0]);
--		buf = next_entry(fp, len);
--		if (!buf)
--			goto bad;
--		newgenfs->fstype = malloc(len + 1);
--		if (!newgenfs->fstype) {
--			goto bad;
--		}
--		memcpy(newgenfs->fstype, buf, len);
--		newgenfs->fstype[len] = 0;
--		for (genfs_p = NULL, genfs = p->genfs; genfs; 
--		     genfs_p = genfs, genfs = genfs->next) {
--			if (strcmp(newgenfs->fstype, genfs->fstype) == 0) {
--				printf("security:  dup genfs fstype %s\n", newgenfs->fstype);
--				goto bad;
--			}
--			if (strcmp(newgenfs->fstype, genfs->fstype) < 0)
--				break;
--		}
--		newgenfs->next = genfs;
--		if (genfs_p)
--			genfs_p->next = newgenfs;
--		else
--			p->genfs = newgenfs;
--		buf = next_entry(fp, sizeof(uint32_t));
--		if (!buf)
--			goto bad;
--		nel2 = le32_to_cpu(buf[0]);
--		for (j = 0; j < nel2; j++) {
--			newc = malloc(sizeof(ocontext_t));
--			if (!newc) {
--				goto bad;
--			}
--			memset(newc, 0, sizeof(ocontext_t));
--			buf = next_entry(fp, sizeof(uint32_t));
--			if (!buf)
--				goto bad;
--			len = le32_to_cpu(buf[0]);
--			buf = next_entry(fp, len);
--			if (!buf)
--				goto bad;
--			newc->u.name = malloc(len + 1);
--			if (!newc->u.name) {
--				goto bad;
--			}
--			memcpy(newc->u.name, buf, len);
--			newc->u.name[len] = 0;
--			buf = next_entry(fp, sizeof(uint32_t));
--			if (!buf)
--				goto bad;
--			newc->v.sclass = le32_to_cpu(buf[0]);
--			if (context_read_and_validate(&newc->context[0], p, fp))
--				goto bad;
--			for (l = NULL, c = newgenfs->head; c; 
--			     l = c, c = c->next) {
--				if (!strcmp(newc->u.name, c->u.name) &&
--				    (!c->v.sclass || !newc->v.sclass || newc->v.sclass == c->v.sclass)) {
--					printf("security:  dup genfs entry (%s,%s)\n", newgenfs->fstype, c->u.name);
-+        if (genfs_read (p, fp) == -1) {
- 					goto bad;
- 				}
--				len = strlen(newc->u.name);
--				len2 = strlen(c->u.name);
--				if (len > len2)
--					break;
--			}
--			newc->next = c;
--			if (l)
--				l->next = newc;
--			else
--				newgenfs->head = newc;
--		}
--	}
- 
- 	if (r_policyvers >= POLICYDB_VERSION_MLS) {
- 		buf = next_entry(fp, sizeof(uint32_t));
-diff -burNd a1/libsepol/src/private.h b/libsepol/src/private.h
---- a1/libsepol/src/private.h	2005-05-25 13:14:58.861710912 -0400
-+++ b/libsepol/src/private.h	2005-05-25 13:11:20.113965624 -0400
-@@ -19,40 +19,40 @@
- 
- /* Policy compatibility information. */
- struct policydb_compat_info {
-+	int type;
- 	int version;
- 	int sym_num;
- 	int ocon_num;
- };
- 
--extern struct policydb_compat_info *policydb_lookup_compat(int version);
-+extern struct policydb_compat_info *policydb_lookup_compat(int version, int type);
- extern void __sepol_debug_printf(const char *fmt, ...);
- 
- /* Reading from a policy "file". */
- static inline void *next_entry(struct policy_file * fp, size_t bytes)
- {
--	static unsigned char buffer[BUFSIZ];
- 	size_t nread;
- 
--	if (bytes > sizeof buffer)
-+	if (bytes > sizeof(fp->buffer))
- 		return NULL;
- 
- 	switch (fp->type) {
- 	case PF_USE_STDIO:
--		nread = fread(buffer, bytes, 1, fp->fp);
-+		nread = fread(fp->buffer, bytes, 1, fp->fp);
- 		if (nread != 1)
- 			return NULL;
- 		break;
- 	case PF_USE_MEMORY:
- 		if (bytes > fp->len) 
- 			return NULL;
--		memcpy(buffer, fp->data, bytes);
-+		memcpy(fp->buffer, fp->data, bytes);
- 		fp->data += bytes;
- 		fp->len -= bytes;
- 		break;
- 	default:
- 		return NULL;
- 	}
--	return buffer;
-+	return fp->buffer;
- }
- 
- extern int mls_enabled;
-diff -burNd a1/libsepol/src/services.c b/libsepol/src/services.c
---- a1/libsepol/src/services.c	2005-05-25 13:15:54.664227640 -0400
-+++ b/libsepol/src/services.c	2005-05-25 13:11:19.467063968 -0400
-@@ -1370,13 +1347,13 @@
- 	}
- 	memset(mysids, 0, maxnel*sizeof(sepol_security_id_t));
- 
--	for (i = ebitmap_startbit(&user->roles); i < ebitmap_length(&user->roles); i++) {
--		if (!ebitmap_get_bit(&user->roles, i)) 
-+	for (i = ebitmap_startbit(&user->roles.roles); i < ebitmap_length(&user->roles.roles); i++) {
-+		if (!ebitmap_get_bit(&user->roles.roles, i)) 
- 			continue;		
- 		role = policydb->role_val_to_struct[i];
- 		usercon.role = i+1;
--		for (j = ebitmap_startbit(&role->types); j < ebitmap_length(&role->types); j++) {
--			if (!ebitmap_get_bit(&role->types, j)) 
-+		for (j = ebitmap_startbit(&role->types.types); j < ebitmap_length(&role->types.types); j++) {
-+			if (!ebitmap_get_bit(&role->types.types, j)) 
- 				continue;	
- 			usercon.type = j+1;
- 			if (usercon.type == fromcon->type)
-diff -burNd a1/libsepol/src/util.c b/libsepol/src/util.c
---- a1/libsepol/src/util.c	1969-12-31 19:00:00.000000000 -0500
-+++ b/libsepol/src/util.c	2005-05-25 13:11:19.488060776 -0400
-@@ -0,0 +1,135 @@
-+/* Authors: Joshua Brindle <jbrindle@tresys.com>
-+ * 	    Jason Tang <jtang@tresys.com>
-+ *
-+ * A set of utility functions that aid policy decision when dealing
-+ * with hierarchal namespaces.
-+ *
-+ * Copyright (C) 2005 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include <assert.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+
-+#include <sepol/flask_types.h>
-+#include <sepol/policydb.h>
-+
-+int type_set_or(type_set_t *dst, type_set_t *a, type_set_t *b)
-+{
-+        type_set_init(dst);
-+
-+        if (ebitmap_or(&dst->types, &a->types, &b->types)) {
-+                fprintf(stderr, "Memory error\n");
-+                return -1;
-+        }
-+        if (ebitmap_or(&dst->negset, &a->negset, &b->negset)) {
-+                fprintf(stderr, "Memory error\n");
-+                return -1;
-+        }
-+
-+        dst->flags |= a->flags;
-+        dst->flags |= b->flags;
-+
-+        return 0;
-+}
-+
-+int type_set_cpy(type_set_t *dst, type_set_t *src)
-+{
-+        type_set_init(dst);
-+
-+        dst->flags = src->flags;
-+        if (ebitmap_cpy(&dst->types, &src->types))
-+                return -1;
-+        if (ebitmap_cpy(&dst->negset, &src->negset))
-+                return -1;
-+
-+        return 0;
-+}
-+
-+int type_set_or_eq(type_set_t *dst, type_set_t *other)
-+{
-+        int ret;
-+        type_set_t tmp;
-+
-+        if (type_set_or(&tmp, dst, other))
-+                return -1;
-+        type_set_destroy(dst);
-+        ret = type_set_cpy(dst, &tmp);
-+        type_set_destroy(&tmp);
-+
-+        return ret;
-+}
-+
-+int role_set_get_role(role_set_t *x, uint32_t role)
-+{
-+        if (x->flags & ROLE_STAR)
-+                return 1;
-+
-+        if (ebitmap_get_bit(&x->roles, role - 1)) {
-+                if (x->flags & ROLE_COMP)
-+                        return 0;
-+                else
-+                        return 1;
-+        } else {
-+                if (x->flags & ROLE_COMP)
-+                        return 1;
-+                else
-+                        return 0;
-+        }
-+}
-+
-+/* Insert into a symbol table for a module. This function will handle inserting
-+ * the appropriate scope information in addition to inserting the symbol into
-+ * the hash table.
-+ *
-+ * arguments:
-+ *   policydb_t *x     module policy to modify
-+ *   uint32_t sym             the symbole table for insertion (SYM_*)
-+ *   hashtab_key_t key     the key for the symbol - not copied
-+ *   hashtab_datum_t data  the data for the symbol - not copied
-+ *
-+ * returns:
-+ *   N                     success - returns the value for the new entry
-+ *   -ENOMEM               memory error
-+ *   error codes from hashtab_insert
-+ *   -1                    general error
-+ */
-+int symtab_insert(policydb_t *x, uint32_t sym, hashtab_key_t key, hashtab_datum_t data,
-+                      uint32_t *value)
-+{                     
-+        /* fixme - the failures after the hashtab_insert  will leave the policy
-+         * in a inconsistent state. */
-+        int rc;
-+
-+        rc = hashtab_insert(x->symtab[sym].table, key, data);
-+        if (rc)
-+                return rc;
-+                
-+        /* if no value is passed in the symbol is not primary (i.e. aliases) */
-+        if (value)
-+                *value = ++x->symtab[sym].nprim;
-+        else    
-+                return 0;
-+                
-+        if (x->policy_type == POLICY_BASE)
-+                return 0;
-+
-+	/* The module scoping stuff goes here */
-+                
-+        return 0;
-+}
-+
-diff -burNd a1/libsepol/src/write.c b/libsepol/src/write.c
---- a1/libsepol/src/write.c	2005-05-25 13:15:54.666227336 -0400
-+++ b/libsepol/src/write.c	2005-05-25 13:11:19.465064272 -0400
-@@ -10,8 +10,12 @@
-  *
-  * 	Added conditional policy language extensions
-  *
-+ * Updated: Joshua Brindle <jbrindle@tresys.com> and Jason Tang <jtang@tresys.org>
-+ *
-+ *	Module writing support
++ *	Policy Module support.
 + *
   * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
 - * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-+ * Copyright (C) 2003-2005 Tresys Technology, LLC
-  *
-  *  This library is free software; you can redistribute it and/or
-  *  modify it under the terms of the GNU Lesser General Public
-@@ -28,6 +32,8 @@
-  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ * Copyright (C) 2003 - 2005 Tresys Technology, LLC
+  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+  *	This program is free software; you can redistribute it and/or modify
+  *  	it under the terms of the GNU General Public License as published by
+@@ -51,6 +57,11 @@
+  * booleans or conditional rules are thrown away a warning is printed.
   */
  
-+#include <assert.h>
-+
- #include <sepol/ebitmap.h>
- #include <sepol/avtab.h>
- #include <sepol/mls.h>
-@@ -37,18 +43,19 @@
- #include "private.h"
++#include <ctype.h>
++#include <fcntl.h>
++#include <stdio.h>
++#include <string.h>
++#include <errno.h>
+ #include <getopt.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+@@ -59,9 +70,6 @@
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+-#include <fcntl.h>
+-#include <stdio.h>
+-#include <errno.h>
+ #include <sys/mman.h>
  
- static unsigned int policyvers = POLICYDB_VERSION_MAX;
-+static unsigned int policy_type;
+ #include <sepol/policydb.h>
+@@ -69,6 +77,7 @@
+ #include <sepol/conditional.h>
+ #include <sepol/hierarchy.h>
+ #include <sepol/flask.h>
++#include <sepol/expand.h>
  
--int sepol_set_policyvers(unsigned int version)
+ #include "queue.h"
+ #include "checkpolicy.h"
+@@ -83,12 +92,12 @@
+ extern queue_t id_queue;
+ extern unsigned int policydb_errors;
+ extern unsigned long policydb_lineno;
+-extern unsigned long source_lineno;
+ extern char source_file[];
+-extern unsigned int pass;
+ 
+ extern FILE *yyin;
++extern void init_parser(int);
+ extern int yyparse(void);
++extern int yywarn(char *);
+ extern void yyrestart(FILE *);
+ 
+ char *txtfile = "policy.conf";
+@@ -147,15 +150,6 @@
+ 	return 0;
+ }
+ 
+-static int type_attr_remove(hashtab_key_t key __attribute__ ((unused)), hashtab_datum_t datum, void *p __attribute__ ((unused)))
 -{
--	if (version < POLICYDB_VERSION_MIN ||
--	    version > POLICYDB_VERSION_MAX)
--		return -EINVAL;
-+static int avrule_list_write(avrule_t *avrules, struct policy_file *fp);
+-	type_datum_t *typdatum;
+-
+-	typdatum = (type_datum_t *) datum;
+-	if (typdatum->isattr)
+-		return 1;
+-	return 0;
+-}
  
--	/* MLS backwards compatibility to mainline inclusion */
--	if (mls_enabled && (version < POLICYDB_VERSION_MLS))
-+int sepol_set_policyvers(unsigned int type, unsigned int version)
-+{
-+	if (type == POLICY_KERN) {
-+		if (version < POLICYDB_VERSION_MIN || version > POLICYDB_VERSION_MAX)
- 		return -EINVAL;
-+	}
+ #ifdef EQUIVTYPES
+ static int insert_type_rule(avtab_key_t *k, avtab_datum_t *d, 
+@@ -321,63 +315,6 @@
  
- 	policyvers = version;
-+	policy_type = type;
- 	return 0;
- }
+ extern char *av_to_string(uint32_t tclass, sepol_access_vector_t av);
  
-@@ -78,7 +85,7 @@
- 	return 0;
- }
- 
--int ebitmap_write(ebitmap_t * e, struct policy_file * fp)
-+static int ebitmap_write(ebitmap_t * e, struct policy_file * fp)
- {
- 	ebitmap_node_t *n;
- 	uint32_t buf[32], bit, count;
-@@ -112,7 +119,7 @@
- 	return 0;
- }
- 
--int avtab_write_item(avtab_ptr_t cur, struct policy_file *fp)
-+static int avtab_write_item(avtab_ptr_t cur, struct policy_file *fp)
- {
- 	uint32_t buf[32];
- 	size_t items, items2;
-@@ -154,7 +161,7 @@
- 	return 0;
- }
- 
--int avtab_write(avtab_t * a, struct policy_file * fp)
-+static int avtab_write(avtab_t * a, struct policy_file * fp)
+-void check_assertion_helper(unsigned int stype, unsigned int ttype, ebitmap_t *tclasses, 
+-			    sepol_access_vector_t *avp, unsigned long line) 
+-{
+-	avtab_key_t avkey;
+-	avtab_datum_t *avdatump;
+-	unsigned int k;
+-	
+-
+-	for (k = ebitmap_startbit(tclasses); k < ebitmap_length(tclasses); k++) {
+-		if (!ebitmap_get_bit(tclasses, k)) 
+-			continue;
+-		avkey.source_type = stype + 1;
+-		avkey.target_type = ttype + 1;
+-		avkey.target_class = k + 1;
+-		avdatump = avtab_search(&policydb.te_avtab, &avkey, AVTAB_AV);
+-		if (!avdatump) 
+-			continue;
+-
+-		if ((avdatump->specified & AVTAB_ALLOWED) &&
+-		    (avtab_allowed(avdatump) & avp[k])) {
+-			fprintf(stderr, "assertion on line %ld violated by allow %s %s:%s {%s };\n", line, policydb.p_type_val_to_name[stype], policydb.p_type_val_to_name[ttype], policydb.p_class_val_to_name[k], 
+-				av_to_string(k+1,
+-					     avtab_allowed(avdatump) & avp[k]));
+-			policydb_errors++;
+-		}
+-	}
+-}
+-
+-void check_assertions(void) 
+-{
+-	te_assert_t *a, *tmp;
+-	unsigned int i, j;
+-
+-	a = te_assertions;
+-	while (a) {
+-		for (i = ebitmap_startbit(&a->stypes); i < ebitmap_length(&a->stypes); i++) {
+-			if (!ebitmap_get_bit(&a->stypes, i))
+-				continue;
+-			if (a->self) {
+-				check_assertion_helper(i, i, &a->tclasses, a->avp, a->line);
+-			}
+-			for (j = ebitmap_startbit(&a->ttypes); j < ebitmap_length(&a->ttypes); j++) {
+-				if (!ebitmap_get_bit(&a->ttypes, j)) 
+-					continue;
+-				check_assertion_helper(i, j, &a->tclasses, a->avp, a->line);
+-			}
+-		}
+-		tmp = a;
+-		a = a->next;
+-		ebitmap_destroy(&tmp->stypes);
+-		ebitmap_destroy(&tmp->ttypes);
+-		ebitmap_destroy(&tmp->tclasses);
+-		free(tmp->avp);
+-		free(tmp);
+-	}
+-}
+-
+ int display_bools()
  {
  	int i;
- 	avtab_ptr_t cur;
-@@ -180,7 +187,7 @@
-  * Write a MLS level structure to a policydb binary 
-  * representation file.
-  */
--int mls_write_level(mls_level_t * l,
-+static int mls_write_level(mls_level_t * l,
- 		    struct policy_file * fp)
- {
- 	uint32_t sens;
-@@ -230,7 +237,7 @@
+@@ -389,11 +326,11 @@
  	return 0;
  }
  
--int sens_write(hashtab_key_t key, hashtab_datum_t datum, void *p)
-+static int sens_write(hashtab_key_t key, hashtab_datum_t datum, void *p)
+-void display_expr(cond_expr_t *exp)
++void display_expr(cond_expr_t *expr)
  {
- 	level_datum_t *levdatum;
- 	uint32_t buf[32];
-@@ -257,7 +264,7 @@
- 	return 0;
- }
  
--int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *p)
-+static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *p)
- {
- 	cat_datum_t *catdatum;
- 	uint32_t buf[32];
-@@ -283,7 +290,138 @@
- 	return 0;
- }
- 
--int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *p)
-+static int role_trans_write(role_trans_t *r, struct policy_file *fp) 
-+{
-+	role_trans_t *tr;
-+	uint32_t buf[3];
-+	size_t nel, items;
-+
-+	nel = 0;
-+	for (tr = r; tr; tr = tr->next) 
-+		nel++;
-+	buf[0] = cpu_to_le32(nel);
-+	items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+	if (items != 1)
-+		return -1;
-+	for (tr = r; tr; tr = tr->next) {
-+		buf[0] = cpu_to_le32(tr->role);
-+		buf[1] = cpu_to_le32(tr->type);
-+		buf[2] = cpu_to_le32(tr->new_role);
-+		items = put_entry(buf, sizeof(uint32_t), 3, fp);
-+		if (items != 3)
-+			return -1;		
-+	}
-+
-+	return 0;
-+}
-+
-+static int role_allow_write(role_allow_t *r, struct policy_file *fp)
-+{
-+	role_allow_t *ra;
-+	uint32_t buf[2];
-+	size_t nel, items;
-+
-+	nel = 0;
-+	for (ra = r; ra; ra = ra->next) 
-+		nel++;
-+	buf[0] = cpu_to_le32(nel);
-+	items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+	if (items != 1)
-+		return -1;
-+	for (ra = r; ra; ra = ra->next) {
-+		buf[0] = cpu_to_le32(ra->role);
-+		buf[1] = cpu_to_le32(ra->new_role);
-+		items = put_entry(buf, sizeof(uint32_t), 2, fp);
-+		if (items != 2)
-+			return -1;		
-+	}
-+	return 0;
-+}
-+
-+static int role_set_write(role_set_t *x, struct policy_file *fp)
-+{
-+	size_t items;
-+	uint32_t buf[1];
-+
-+	if (ebitmap_write(&x->roles, fp))
-+		return -1;
-+
-+	buf[0] = cpu_to_le32(x->flags);
-+	items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+	if (items != 1)
-+		return -1;
-+
-+	return 0;
-+}
-+
-+static int type_set_write(type_set_t *x, struct policy_file *fp)
-+{
-+	size_t items;
-+	uint32_t buf[1];
-+
-+	if (ebitmap_write(&x->types, fp))
-+		return -1;
-+	if (ebitmap_write(&x->negset, fp))
-+		return -1;
-+        
-+	buf[0] = cpu_to_le32(x->flags);
-+	items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+	if (items != 1)
-+		return -1;
-+
-+	return 0;
-+}
-+
-+static int role_trans_rule_write(role_trans_rule_t *t, struct policy_file *fp)
-+{
-+	int nel = 0;
-+	size_t items;
-+	uint32_t buf[1];
-+	role_trans_rule_t *tr;
-+
-+        for (tr = t; tr; tr = tr->next)
-+                nel++;
-+        buf[0] = cpu_to_le32(nel);
-+        items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+        if (items != 1)
-+                return -1;
-+        for (tr =t; tr; tr = tr->next) {
-+		if (role_set_write(&tr->roles, fp))
-+			return -1;
-+		if (type_set_write(&tr->types, fp))
-+			return -1;
-+                buf[0] = cpu_to_le32(tr->new_role);
-+                items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+                if (items != 1)
-+                        return -1;
-+        }
-+	return 0;
-+}
-+
-+static int role_allow_rule_write(role_allow_rule_t *r, struct policy_file * fp)
-+{
-+	int nel = 0;
-+	size_t items;
-+	uint32_t buf[1];
-+	role_allow_rule_t *ra;
-+
-+        for (ra = r ; ra; ra = ra->next)
-+                nel++;
-+        buf[0] = cpu_to_le32(nel);
-+        items = put_entry(buf, sizeof(uint32_t), 1, fp);
-+        if (items != 1)
-+                return -1;
-+        for (ra = r; ra; ra = ra->next) {
-+		if (role_set_write(&ra->roles, fp))
-+			return -1;
-+		if (role_set_write(&ra->new_roles, fp))
-+			return -1;
-+        }
-+	return 0;
-+}
-+
-+
-+static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *p)
- {
- 	cond_bool_datum_t *booldatum;
- 	uint32_t buf[3], len;
-@@ -315,7 +453,7 @@
-  * the conditional. This means that the avtab with the conditional
-  * rules will not be saved but will be rebuilt on policy load.
-  */
--int cond_write_av_list(cond_av_list_t *list, struct policy_file *fp)
-+static int cond_write_av_list(cond_av_list_t *list, struct policy_file *fp)
- {
- 	uint32_t buf[4];
- 	cond_av_list_t *cur_list;
-@@ -331,18 +469,17 @@
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items != 1)
- 		return -1;
--	if (items == 0)
--		return 0;
- 
- 	for (cur_list = list; cur_list != NULL; cur_list = cur_list->next) {
- 		if (cur_list->node->parse_context)
- 			if (avtab_write_item(cur_list->node, fp))
- 				return -1;
- 	}
-+
- 	return 0;
- }
- 
--int cond_write_node(cond_node_t *node, struct policy_file *fp)
-+static int cond_write_node(cond_node_t *node, struct policy_file *fp)
- {
- 	cond_expr_t *cur_expr;
- 	uint32_t buf[2];
-@@ -372,17 +509,23 @@
- 			return -1;
- 	}
- 
-+        if (policy_type == POLICY_KERN) {
- 	if (cond_write_av_list(node->true_list, fp) != 0)
- 		return -1;
- 	if (cond_write_av_list(node->false_list, fp) != 0)
- 		return -1;
-+	} else {
-+		if (avrule_list_write(node->avtrue_list, fp))
-+			return -1;
-+		if (avrule_list_write(node->avfalse_list, fp))
-+			return -1;
-+	}
- 	
- 	return 0;
- }
- 
--int cond_write_list(cond_list_t *list, void *p)
-+static int cond_write_list(cond_list_t *list, struct policy_file *fp)
- {
--	struct policy_file *fp = p;
- 	cond_node_t *cur;
- 	uint32_t len, items;
- 	uint32_t buf[1];
-@@ -396,7 +539,7 @@
- 		return -1;
- 
- 	for (cur = list; cur != NULL; cur = cur->next) {
--		if (cond_write_node(cur, p) != 0)
-+		if (cond_write_node(cur, fp) != 0)
- 			return -1;
- 	}
- 	return 0;
-@@ -619,9 +762,13 @@
- 
- 	if (ebitmap_write(&role->dominates, fp))
- 		return -1;
--
--	if (ebitmap_write(&role->types, fp))
-+	if (policy_type == POLICY_KERN) {
-+		if (ebitmap_write(&role->types.types, fp))
-+			return -1;
-+	} else {
-+		if (type_set_write(&role->types, fp))
- 		return -1;
-+	}
- 
- 	return 0;
- }
-@@ -640,10 +787,18 @@
- 	buf[items++] = cpu_to_le32(len);
- 	buf[items++] = cpu_to_le32(typdatum->value);
- 	buf[items++] = cpu_to_le32(typdatum->primary);
-+	if (policy_type != POLICY_KERN) {
-+		buf[items++] = cpu_to_le32(typdatum->isattr);
-+	}
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
- 		return -1;
- 
-+	if (policy_type != POLICY_KERN) {
-+		if (ebitmap_write(&typdatum->types, fp))
-+			return -1;
-+	}
-+
- 	items = put_entry(key, 1, len, fp);
- 	if (items != len)
- 		return -1;
-@@ -673,9 +828,13 @@
- 	if (items != len)
- 		return -1;
- 
--	if (ebitmap_write(&usrdatum->roles, fp))
-+	if (policy_type == POLICY_KERN) {
-+		if (ebitmap_write(&usrdatum->roles.roles, fp))
- 		return -1;
--
-+	} else {
-+		if (role_set_write(&usrdatum->roles, fp))
-+			return -1;
-+	}
- 	if (policyvers >= POLICYDB_VERSION_MLS) {
- 		if (mls_write_range_helper(&usrdatum->range, fp))
- 			return -1;
-@@ -699,112 +858,12 @@
- 	cat_write,
- };
+ 	cond_expr_t *cur;
+-	for (cur = exp; cur != NULL; cur = cur->next) {
++	for (cur = expr; cur != NULL; cur = cur->next) {
+ 		switch (cur->expr_type) {
+ 		case COND_BOOL:
+ 			printf("%s ", policydbp->p_bool_val_to_name[cur->bool - 1]);
+@@ -472,7 +409,6 @@
+ 	int show_version = 0;
+ 	struct policy_file pf;
  
 -
--/*
-- * Write the configuration data in a policy database
-- * structure to a policy database binary representation
-- * file.
-- */
--int policydb_write(policydb_t * p, struct policy_file * fp)
--{
--	struct role_allow *ra;
--	struct role_trans *tr;
--	struct range_trans *rt;
-+static int ocontext_write (struct policydb_compat_info *info, policydb_t * p,
-+                           struct policy_file * fp) {
-+        int i, j;
-+        size_t nel, items, len;
-+	uint32_t buf[32];
- 	ocontext_t *c;
--	genfs_t *genfs;
--	int i, j, num_syms;
--	uint32_t buf[32], config;
--	size_t items, items2, len, nel;
--	struct policydb_compat_info *info;
--	char *policydb_str = POLICYDB_STRING;
--
--	config = 0;
--	if (mls_enabled)
--		config |= POLICYDB_CONFIG_MLS;
--
--	/* Write the magic number and string identifiers. */
--	items = 0;
--	buf[items++] = cpu_to_le32(POLICYDB_MAGIC);
--	len = strlen(POLICYDB_STRING);
--	buf[items++] = cpu_to_le32(len);
--	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
--	if (items != items2)
--		return -1;
--	items = put_entry(policydb_str, 1, len, fp);
--	if (items != len)
--		return -1;
--
--	/* Write the version, config, and table sizes. */
--	items = 0;
--	info = policydb_lookup_compat(policyvers);
--	if (!info) {
--		fprintf(stderr, "policydb_lookup_compat() failed for %d\n", policyvers);
--		return -1;
--	}
--
--	buf[items++] = cpu_to_le32(policyvers);
--	buf[items++] = cpu_to_le32(config);
--	buf[items++] = cpu_to_le32(info->sym_num);
--	buf[items++] = cpu_to_le32(info->ocon_num);
--	
--	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
--	if (items != items2)
--		return -1;
--
--	num_syms = info->sym_num;
--	for (i = 0; i < num_syms; i++) {
--		buf[0] = cpu_to_le32(p->symtab[i].nprim);
--		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
--		items = put_entry(buf, sizeof(uint32_t), 2, fp);
--		if (items != 2)
--			return -1;
--		if (hashtab_map(p->symtab[i].table, write_f[i], fp))
--			return -1;
--	}
--
--	if (avtab_write(&p->te_avtab, fp))
--		return -1;
--
--	if (policyvers < POLICYDB_VERSION_BOOL) {
--		if (p->p_bools.nprim)
--			fprintf(stderr, "warning: discarding booleans and conditional rules\n");
--
--	} else {
--		if (cond_write_list(p->cond_list, fp))
--			return -1;
--	}
--
--	nel = 0;
--	for (tr = p->role_tr; tr; tr = tr->next) 
--		nel++;
--	buf[0] = cpu_to_le32(nel);
--	items = put_entry(buf, sizeof(uint32_t), 1, fp);
--	if (items != 1)
--		return -1;
--	for (tr = p->role_tr; tr; tr = tr->next) {
--		buf[0] = cpu_to_le32(tr->role);
--		buf[1] = cpu_to_le32(tr->type);
--		buf[2] = cpu_to_le32(tr->new_role);
--		items = put_entry(buf, sizeof(uint32_t), 3, fp);
--		if (items != 3)
--			return -1;		
--	}
--
--	nel = 0;
--	for (ra = p->role_allow; ra; ra = ra->next) 
--		nel++;
--	buf[0] = cpu_to_le32(nel);
--	items = put_entry(buf, sizeof(uint32_t), 1, fp);
--	if (items != 1)
--		return -1;
--	for (ra = p->role_allow; ra; ra = ra->next) {
--		buf[0] = cpu_to_le32(ra->role);
--		buf[1] = cpu_to_le32(ra->new_role);
--		items = put_entry(buf, sizeof(uint32_t), 2, fp);
--		if (items != 2)
--			return -1;		
--	}
--
- 	for (i = 0; i < info->ocon_num; i++) {
- 		nel = 0;
- 		for (c = p->ocontexts[i]; c; c = c->next)
-@@ -823,7 +882,7 @@
- 				if (context_write(&c->context[0], fp))
- 					return -1;
- 				break;
--			case OCON_FS:
-+			case OCON_FS:  /* FALLTHROUGH */
- 			case OCON_NETIF:
- 				len = strlen(c->u.name);
- 				buf[0] = cpu_to_le32(len);
-@@ -884,11 +943,25 @@
- 				if (context_write(&c->context[0], fp))
- 					return -1;
- 				break;	
-+                        /* FIX ME: policy-server will need the SID
-+                           name, stored in c->u.name.  Thus create a new
-+                           ocontext chain (OCON_USER, maybe?) and read/write
-+                           the relevant information */
-+                        default:
-+                                /* should never get here */
-+                                assert(0);
+ 	while ((ch = getopt(argc, argv, "o:dbMVc:")) != EOF) {
+ 		switch (ch) {
+ 		case 'o':
+@@ -575,6 +511,8 @@
  			}
  		}
- 	}
-+        return 0;
-+}
+ 	} else {
++                policydb_t parse_policy;
 +
-+static int genfs_write (policydb_t *p, struct policy_file *fp) {
-+        genfs_t *genfs;
-+        ocontext_t *c;
-+        size_t nel = 0, items, len;
-+        uint32_t buf[32];
- 
--	nel = 0;
- 	for (genfs = p->genfs; genfs; genfs = genfs->next) 
- 		nel++;
- 	buf[0] = cpu_to_le32(nel);
-@@ -928,8 +1001,16 @@
- 				return -1;
+ 		yyin = fopen(file, "r");
+ 		if (!yyin) {
+ 			fprintf(stderr, "%s:  unable to open %s\n", argv[0], 
+@@ -582,7 +520,8 @@
+ 			exit(1);
  		}
- 	}
-+        return 0;
-+}
  
--	if (policyvers >= POLICYDB_VERSION_MLS) {
-+/* FIX ME: do policycon write here */
-+
-+static int range_write(policydb_t *p, struct policy_file *fp)
-+{
-+        size_t nel, items;
-+        struct range_trans *rt;
-+        uint32_t buf[32];
- 		nel = 0;
- 		for (rt = p->range_tr; rt; rt = rt->next)
- 			nel++;
-@@ -946,8 +1027,193 @@
- 			if (mls_write_range_helper(&rt->range, fp))
- 				return -1;
+-		if (policydb_init(&policydb))
++		/* We build this as a base policy first since that is all the parser understands */
++		if (policydb_init(&parse_policy, POLICY_BASE))
+ 			exit(1);
+ 
+ 		/* Let sepol know if we are dealing with MLS support */
+@@ -593,65 +532,77 @@
+ 			fprintf(stderr, "%s:  out of memory\n", argv[0]);
+ 			exit(1);
  		}
-+        return 0;
-+}
+-		policydbp = &policydb;
+-		policydb_errors = 0;
+-		pass = 1;
++		policydbp = &parse_policy;
++                init_parser(1);
+ 		if (yyparse() || policydb_errors) {
+ 			fprintf(stderr, "%s:  error(s) encountered while parsing configuration\n", argv[0]);
+ 			exit(1);
+ 		}
+ 		rewind(yyin);
+-		policydb_lineno = 1;
++                init_parser(2);
+ 		source_file[0] = '\0';
+-		source_lineno = 1;
+ 		yyrestart(yyin);
+-		pass = 2;
+ 		if (yyparse() || policydb_errors) {
+ 			fprintf(stderr, "%s:  error(s) encountered while parsing configuration\n", argv[0]);
+ 			exit(1);
+ 		}
+ 		queue_destroy(id_queue);
+-
+ 		cond_check_type_rules();
+ 		cond_optimize_lists(policydb.cond_list);
+ 
+-		check_assertions();
+ 		if (policydb_errors) 
+ 			exit(1);
+ 
+ 		if (policyvers >= POLICYDB_VERSION_NLCLASS &&
+-		    policydb.p_classes.nprim < SECCLASS_NETLINK_DNRT_SOCKET) {
++		    parse_policy.p_classes.nprim < SECCLASS_NETLINK_DNRT_SOCKET) {
+ 			fprintf(stderr, "%s:  policy lacks new netlink classes, unable to generate policy version %d\n", argv[0], policyvers);
+ 			exit(1);
+ 		}
+ 
+-		if (hierarchy_check_constraints(&policydb, error_msg, sizeof(error_msg))) {
++		if (hierarchy_check_constraints(&parse_policy, error_msg, sizeof(error_msg))) {
+ 			fprintf(stderr, "%s\n", error_msg);
+ 			exit(1);
+ 		}
+ 
+-		/* remove type attributes */
+-		hashtab_map_remove_on_error(policydb.p_types.table, 
+-					    type_attr_remove, 0, 0);
++		if (policydb_init(&policydb, POLICY_KERN))
++			exit(1);
 +
-+static int avrule_write(avrule_t *avrule, struct policy_file *fp)
-+{
-+	size_t items, items2;
-+	uint32_t buf[32], len;
-+	class_perm_node_t *cur;
++		if (expand_module(&parse_policy, &policydb, 0, error_msg, ERRMSG_LEN)) {
++                        fprintf(stderr, "Error while expanding policy: %s\n", error_msg);
++			exit(1);
++                }
++		policydbp = &policydb;
 +
-+	items = 0;
-+	buf[items++] = cpu_to_le32(avrule->specified);
-+	buf[items++] = cpu_to_le32(avrule->flags);
-+	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
-+	if (items2 != items)
-+		return -1;
-+
-+	if (type_set_write(&avrule->stypes, fp))
-+		return -1;
-+
-+	if (type_set_write(&avrule->ttypes, fp))
-+		return -1;
-+
-+	cur = avrule->perms;
-+	len = 0;
-+	while (cur) {
-+		len++;
-+		cur = cur->next;
-+	}
-+	items = 0;
-+	buf[items++] = cpu_to_le32(len);
-+	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
-+	if (items2 != items)
-+		return -1;
-+	cur = avrule->perms;
-+	while (cur) {
-+		items = 0;
-+		buf[items++] = cpu_to_le32(cur->class);
-+		buf[items++] = cpu_to_le32(cur->data);
-+		items2 = put_entry(buf, sizeof(uint32_t), items, fp);
-+		if (items2 != items)
++		if (check_assertions(policydbp, policydbp->avrules, &policydbp->te_avtab)) {
++                        fprintf(stderr, "Check assertions failed.\n");
 +			return -1;
-+		
-+		cur = cur->next;
++                }
+ 		
++		if (check_assertions(policydbp, policydbp->avrules, &policydbp->te_cond_avtab)) {
++                        fprintf(stderr, "Check assertions failed.\n");
++			return -1;
++                }
+ 		fclose(yyin);
  	}
  
+ 	if (policydb_load_isids(&policydb, &sidtab))
+ 		exit(1);
+ 
++	if (policydb_index_others(policydbp, 1))
++		exit(1);
++        
+ 	printf("%s:  policy configuration loaded\n", argv[0]);
+ 
+ 	if (outfile) {
+ 		printf("%s:  writing binary representation (version %d) to %s\n",
+ 		       argv[0], policyvers, outfile);
+-		outfp = fopen(outfile, "w");
++		outfp = fopen(outfile, "wb");
+ 		if (!outfp) {
+ 			perror(outfile);
+ 			exit(1);
+ 		}
+ 
+-		if (sepol_set_policyvers(policyvers)) {
++		if (sepol_set_policyvers(POLICY_KERN, policyvers)) {
+ 			fprintf(stderr,"%s:  incompatible policy (version %d) "
+ 				"for writing to %s\n", argv[0],
+ 				policyvers, outfile);
+diff -burNd a1/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+--- a1/checkpolicy/policy_parse.y	2005-05-25 13:14:58.689737056 -0400
++++ b/checkpolicy/policy_parse.y	2005-05-25 13:11:19.301089200 -0400
+@@ -1,4 +1,3 @@
+-
+ /*
+  * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
+  */
+@@ -12,8 +11,14 @@
+  *
+  * 	Added conditional policy language extensions
+  *
++ * Updated: Joshua Brindle <jbrindle@tresys.com>
++ *	    Karl MacMillan <kmacmillan@tresys.com>
++ *          Jason Tang     <jtang@tresys.com>
++ *
++ *	Added support for binary policy modules
++ *
+  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+- * Copyright (C) 2003 - 2004 Tresys Technology, LLC
++ * Copyright (C) 2003 - 2005 Tresys Technology, LLC
+  *	This program is free software; you can redistribute it and/or modify
+  *  	it under the terms of the GNU General Public License as published by
+  *	the Free Software Foundation, version 2.
+@@ -22,13 +27,17 @@
+ /* FLASK */
+ 
+ %{
+-#include <sys/types.h>
++#include <assert.h>
+ #include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
+ #include <sys/socket.h>
+-#include <netinet/in.h>
++#include <sys/types.h>
+ #include <arpa/inet.h>
+-#include <stdlib.h>
++#include <netinet/in.h>
+ 
++#include <sepol/expand.h>
+ #include <sepol/policydb.h>
+ #include <sepol/services.h>
+ #include <sepol/conditional.h>
+@@ -43,25 +52,37 @@
+  * for NULL (ie 0) because that is a potentially valid return.
+  */
+ static cond_av_list_t *conditional_unused_error_code;
+-#define COND_ERR (cond_av_list_t *)&conditional_unused_error_code
++#define COND_ERR (avrule_t *)&conditional_unused_error_code
+ 
+ #define TRUE 1
+ #define FALSE 0
+ 
+ policydb_t *policydbp;
+ queue_t id_queue = 0;
+-unsigned int pass;
+ char *curfile = 0;
+-unsigned int curline; 
++
++static unsigned int pass;
++static avrule_t *last_avrule = NULL;
++
++/* So as to make it easier to verify the correctness of the module
++ * changes, keep track of how many types (sans attributes and aliases)
++ * have been found.  Conveniently this also acts as to ensure that
++ * type values are ordered based upon their declaration within the
++ * policy.conf file, which is what non-module policy_parse.y did. */
++static uint32_t num_types_found = 0;
+ 
+ extern unsigned long policydb_lineno;
++extern unsigned long source_lineno;
++extern unsigned int policydb_errors;
++extern unsigned int policyvers;
+ 
+ extern char yytext[];
+ extern int yylex(void);
+ extern int yywarn(char *msg);
+ extern int yyerror(char *msg);
+ 
+-static char errormsg[255];
++#define ERRORMSG_LEN 255
++static char errormsg[ERRORMSG_LEN + 1] = {0};
+ 
+ static int insert_separator(int push);
+ static int insert_id(char *id,int push);
+@@ -78,6 +99,7 @@
+ static int define_typealias(void);
+ static int define_typeattribute(void);
+ static int define_type(int alias);
++static int define_type_noalias(void);
+ static int define_compute_type(int which);
+ static int define_te_avtab(int which);
+ static int define_role_types(void);
+@@ -89,13 +111,11 @@
+ static int define_constraint(constraint_expr_t *expr);
+ static int define_validatetrans(constraint_expr_t *expr);
+ static int define_bool();
+-static int define_conditional(cond_expr_t *expr,cond_av_list_t *t_list, cond_av_list_t *f_list );
++static int define_conditional(cond_expr_t *expr, avrule_t *t_list, avrule_t *f_list );
+ static cond_expr_t *define_cond_expr(uint32_t expr_type, void *arg1, void* arg2);
+-static cond_av_list_t *define_cond_pol_list(cond_av_list_t *avlist, cond_av_list_t *stmt);
+-static cond_av_list_t *define_cond_compute_type(int which);
+-static cond_av_list_t *define_cond_te_avtab(int which);
+-static cond_av_list_t *cond_list_append(cond_av_list_t *sl, avtab_key_t *key, avtab_datum_t *datum);
+-static void cond_reduce_insert_list(cond_av_list_t *new, cond_av_list_t **active, cond_av_list_t **inactive, int state ); 
++static avrule_t *define_cond_pol_list(avrule_t *avlist, avrule_t *stmt);
++static avrule_t *define_cond_compute_type(int which);
++static avrule_t *define_cond_te_avtab(int which);
+ static uintptr_t define_cexpr(uint32_t expr_type, uintptr_t arg1, uintptr_t arg2);
+ static int define_user(void);
+ static int parse_security_context(context_struct_t *c);
+@@ -182,11 +202,14 @@
+ %right NOT
+ %left EQUALS NOTEQUAL
+ %%
+-policy			: classes initial_sids access_vectors
+-                          { if (pass == 1) { if (policydb_index_classes(policydbp)) return -1; } }
++policy			: base_policy
++                        ;
++base_policy             : classes initial_sids access_vectors
++                          { if (pass == 1) { if (policydb_index_classes(policydbp)) return -1; }
++                            else if (pass == 2) { if (policydb_index_others(policydbp, 0)) return -1; }}
+ 			  opt_mls te_rbac users opt_constraints 
+                          { if (pass == 1) { if (policydb_index_bools(policydbp)) return -1;}
+-			   if (pass == 2) { if (policydb_index_others(policydbp, 1)) return -1;} } 
++			   else if (pass == 2) { if (policydb_index_others(policydbp, 0)) return -1;}}
+ 			  initial_sid_contexts opt_fs_contexts fs_uses opt_genfs_contexts net_contexts 
+ 			;
+ classes			: class_def 
+@@ -321,13 +344,13 @@
+ 			{ if (insert_id("F",0)) return -1; }
+                         ;
+ cond_stmt_def           : IF cond_expr '{' cond_pol_list '}'
+-                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2, (cond_av_list_t*)$4,(cond_av_list_t*) 0) < 0) return -1;  }}
++                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2, (avrule_t*)$4, (avrule_t*) 0) < 0) return -1;  }}
+                         | IF cond_expr '{' cond_pol_list '}' ELSE '{' cond_pol_list '}'
+-                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2,(cond_av_list_t*)$4,(cond_av_list_t*)$8) < 0 ) return -1;  }}       
++                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2,(avrule_t*)$4,(avrule_t*)$8) < 0 ) return -1;  }}       
+                         | IF cond_expr '{' cond_pol_list '}' ELSE '{' '}'
+-                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2,(cond_av_list_t*)$4,(cond_av_list_t*) 0) < 0 ) return -1;  }}       
++                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2,(avrule_t*)$4,(avrule_t*) 0) < 0 ) return -1;  }}       
+                         | IF cond_expr '{' '}' ELSE '{' cond_pol_list '}'
+-                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2,(cond_av_list_t*) 0,(cond_av_list_t*) $7) < 0 ) return -1;  }}       
++                        { if (pass == 2) { if (define_conditional((cond_expr_t*)$2,(avrule_t*) 0,(avrule_t*) $7) < 0 ) return -1;  }}       
+                         | IF cond_expr '{' '}' ELSE '{' '}'
+                         /* do nothing */
+                         | IF cond_expr '{' '}' 
+@@ -361,9 +384,9 @@
+ 			  if ($$ == COND_ERR) return   -1; }
+                         ;
+ cond_pol_list           : cond_rule_def
+-                        { $$ = define_cond_pol_list((cond_av_list_t *) 0, (cond_av_list_t *)$1);}
++                        { $$ = define_cond_pol_list((avrule_t *) 0, (avrule_t *)$1);}
+                         | cond_pol_list cond_rule_def 
+-                        { $$ = define_cond_pol_list((cond_av_list_t *)$1, (cond_av_list_t *)$2); }
++                        { $$ = define_cond_pol_list((avrule_t *)$1, (avrule_t *)$2); }
+ 			;
+ cond_rule_def           : cond_transition_def
+                         { $$ = $1; }
+@@ -371,13 +394,13 @@
+                         { $$ = $1; }
+                         ;
+ cond_transition_def	: TYPE_TRANSITION names names ':' names identifier ';'
+-                        { $$ = define_cond_compute_type(AVTAB_TRANSITION) ;
++                        { $$ = define_cond_compute_type(AVRULE_TRANSITION) ;
+                           if ($$ == COND_ERR) return -1;}
+                         | TYPE_MEMBER names names ':' names identifier ';'
+-                        { $$ = define_cond_compute_type(AVTAB_MEMBER) ;
++                        { $$ = define_cond_compute_type(AVRULE_MEMBER) ;
+                           if ($$ ==  COND_ERR) return -1;}
+                         | TYPE_CHANGE names names ':' names identifier ';'
+-                        { $$ = define_cond_compute_type(AVTAB_CHANGE) ;
++                        { $$ = define_cond_compute_type(AVRULE_CHANGE) ;
+                           if ($$ == COND_ERR) return -1;}
+     			;
+ cond_te_avtab_def	: cond_allow_def
+@@ -390,27 +413,27 @@
+ 			  { $$ = $1; }
+ 			;
+ cond_allow_def		: ALLOW names names ':' names names  ';'
+-			{ $$ = define_cond_te_avtab(AVTAB_ALLOWED) ;
++			{ $$ = define_cond_te_avtab(AVRULE_ALLOWED) ;
+                           if ($$ == COND_ERR) return -1; }
+ 		        ;
+ cond_auditallow_def	: AUDITALLOW names names ':' names names ';'
+-			{ $$ = define_cond_te_avtab(AVTAB_AUDITALLOW) ;
++			{ $$ = define_cond_te_avtab(AVRULE_AUDITALLOW) ;
+                           if ($$ == COND_ERR) return -1; }
+ 		        ;
+ cond_auditdeny_def	: AUDITDENY names names ':' names names ';'
+-			{ $$ = define_cond_te_avtab(AVTAB_AUDITDENY) ;
++			{ $$ = define_cond_te_avtab(AVRULE_AUDITDENY) ;
+                           if ($$ == COND_ERR) return -1; }
+ 		        ;
+ cond_dontaudit_def	: DONTAUDIT names names ':' names names ';'
+-			{ $$ = define_cond_te_avtab(-AVTAB_AUDITDENY);
++			{ $$ = define_cond_te_avtab(AVRULE_DONTAUDIT);
+                           if ($$ == COND_ERR) return -1; }
+ 		        ;
+ transition_def		: TYPE_TRANSITION names names ':' names identifier ';'
+-                        {if (define_compute_type(AVTAB_TRANSITION)) return -1;}
++                        {if (define_compute_type(AVRULE_TRANSITION)) return -1;}
+                         | TYPE_MEMBER names names ':' names identifier ';'
+-                        {if (define_compute_type(AVTAB_MEMBER)) return -1;}
++                        {if (define_compute_type(AVRULE_MEMBER)) return -1;}
+                         | TYPE_CHANGE names names ':' names identifier ';'
+-                        {if (define_compute_type(AVTAB_CHANGE)) return -1;}
++                        {if (define_compute_type(AVRULE_CHANGE)) return -1;}
+     			;
+ range_trans_def		: RANGE_TRANSITION names names mls_range_def ';'
+ 			{ if (define_range_trans()) return -1; }
+@@ -422,22 +445,24 @@
+ 			| neverallow_def
+ 			;
+ allow_def		: ALLOW names names ':' names names  ';'
+-			{if (define_te_avtab(AVTAB_ALLOWED)) return -1; }
++			{if (define_te_avtab(AVRULE_ALLOWED)) return -1; }
+ 		        ;
+ auditallow_def		: AUDITALLOW names names ':' names names ';'
+-			{if (define_te_avtab(AVTAB_AUDITALLOW)) return -1; }
++			{if (define_te_avtab(AVRULE_AUDITALLOW)) return -1; }
+ 		        ;
+ auditdeny_def		: AUDITDENY names names ':' names names ';'
+-			{if (define_te_avtab(AVTAB_AUDITDENY)) return -1; }
++			{if (define_te_avtab(AVRULE_AUDITDENY)) return -1; }
+ 		        ;
+ dontaudit_def		: DONTAUDIT names names ':' names names ';'
+-			{if (define_te_avtab(-AVTAB_AUDITDENY)) return -1; }
++			{if (define_te_avtab(AVRULE_DONTAUDIT)) return -1; }
+ 		        ;
+ neverallow_def		: NEVERALLOW names names ':' names names  ';'
+-			{if (define_te_avtab(-AVTAB_ALLOWED)) return -1; }
++			{if (define_te_avtab(AVRULE_NEVERALLOW)) return -1; }
+ 		        ;
+ role_type_def		: ROLE identifier TYPES names ';'
+ 			{if (define_role_types()) return -1;}
++ 			| ROLE identifier';'
++ 			{if (define_role_types()) return -1;}
+                         ;
+ role_dominance		: DOMINANCE '{' roles '}'
+ 			;
+@@ -643,11 +668,8 @@
+                         | FSUSETRANS identifier security_context_def ';'
+                         {if (define_fs_use(SECURITY_FS_USE_TRANS)) return -1;}
+                         ;
+-opt_genfs_contexts      : genfs_contexts
+-                        | 
+-                        ;
+-genfs_contexts	        : genfs_context_def
+-			| genfs_contexts genfs_context_def
++opt_genfs_contexts      : genfs_context_def opt_genfs_contexts
++                        | /* empty */
+ 			;
+ genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
+ 			{if (define_genfs_context(1)) return -1;}
+@@ -656,6 +678,7 @@
+                         | GENFSCON identifier path security_context_def
+ 			{if (define_genfs_context(0)) return -1;}
+ 			;
++/* FIX ME: add policycon statements here */
+ ipv4_addr_def		: number '.' number '.' number '.' number
+ 			{ 
+ 			  unsigned int addr;
+@@ -763,6 +786,18 @@
+ 			{ if (insert_id(yytext,0)) return -1; }
+ 			;
+ %%
++
++/* initialize all of the state variables for the scanner/parser */
++void init_parser(int pass_number)
++{
++        policydb_lineno = 1;
++        source_lineno = 1;
++        policydb_errors = 0;
++        pass = pass_number;
++        last_avrule = NULL;
++        num_types_found = 0;
++}
++
+ #define DEBUG 1
+ 
+ static int insert_separator(int push)
+@@ -805,7 +840,44 @@
  	return 0;
  }
  
-+static int avrule_list_write(avrule_t *avrules, struct policy_file *fp)
+-/* If the identifier has a dot within it return 1, else return 0. */
++/* Add a rule onto an avtab hash table only if it does not already
++ * exist.  (Note that the avtab is discarded afterwards; it will be
++ * regenerated during expansion.)  Return 1 if rule was added (or
++ * otherwise handled successfully), 0 if it conflicted with something,
++ * or -1 on error. */
++static int insert_check_type_rule(avrule_t *rule, avtab_t *avtab, cond_av_list_t **list, cond_av_list_t **other)
 +{
-+	uint32_t buf[32], len;
-+	avrule_t *avrule;
-+
-+	avrule = avrules;
-+	len = 0;
-+	while (avrule) {
-+		len++;
-+		avrule = avrule->next;
-+	}
-+
-+	buf[0] = cpu_to_le32(len);
-+	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1)
-+		return -1;
-+
-+	avrule = avrules;
-+	while (avrule) {
-+		avrule_write(avrule, fp);
-+		avrule = avrule->next;
-+	}
-+
-+	return 0;
++	char *error_msg = NULL;
++	int ret;
++	
++	ret = expand_rule(policydbp, rule, avtab, list, other, 0, &error_msg);
++	switch (ret) {
++        case 0: {
++                if (error_msg == NULL) {
++                        yywarn("Conflicting rule");
++                }
++                else {
++                        yywarn(error_msg);
++                }
++                free(error_msg);
++                break;
++        }
++        case -1: {
++                if (error_msg == NULL) {
++                        yyerror("Error inserting rule");
++                }
++                else {
++                        yyerror(error_msg);
++                }
++                free(error_msg);
++                break;
++        }
++        }
++	return ret;
 +}
 +
-+/*
-+ * Write the configuration data in a policy database
-+ * structure to a policy database binary representation
-+ * file.
-+ */
-+int policydb_write(policydb_t * p, struct policy_file * fp)
++/* If the identifier has a dot within it and that its first character
++   is not a dot then return 1, else return 0. */
+ static int id_has_dot(char *id)
+ {
+         if (strchr(id, '.') >= id + 1) {
+@@ -819,7 +891,7 @@
+ 	char *id = 0;
+ 	class_datum_t *datum = 0;
+ 	int ret;
+-
++	uint32_t value;
+ 
+ 	if (pass == 2) {
+ 		id = queue_remove(id_queue);
+@@ -832,9 +904,12 @@
+ 		yyerror("no class name for class definition?");
+ 		return -1;
+ 	}
+-        if (id_has_dot(id)) {
+-                free(id);
+-                yyerror("class identifiers may not contain periods");
++        datum = hashtab_search(policydbp->p_classes.table, id);
++        if (datum) {
++                snprintf(errormsg, ERRORMSG_LEN,
++                         "duplicate declaration for class %s\n", id);
++                free (id);
++                yyerror(errormsg);
+                 return -1;
+         }
+ 	datum = (class_datum_t *) malloc(sizeof(class_datum_t));
+@@ -843,20 +918,13 @@
+ 		goto bad;
+ 	}
+ 	memset(datum, 0, sizeof(class_datum_t));
+-	datum->value = ++policydbp->p_classes.nprim;
+ 
+-	ret = hashtab_insert(policydbp->p_classes.table,
+-			     (hashtab_key_t) id, (hashtab_datum_t) datum);
+-
+-	if (ret == HASHTAB_PRESENT) {
+-		--policydbp->p_classes.nprim;
+-		yyerror("duplicate class definition");
+-		goto bad;
+-	}
+-	if (ret == HASHTAB_OVERFLOW) {
++        ret = symtab_insert(policydbp, SYM_CLASSES, id, datum, &value);
++        if (ret) {
+ 		yyerror("hash table overflow");
+-		goto bad;
++                return -1;
+ 	}
++        datum->value = value;
+ 	return 0;
+ 
+       bad:
+@@ -939,13 +1007,19 @@
+ 		yyerror("no common name for common perm definition?");
+ 		return -1;
+ 	}
++        comdatum = hashtab_search(policydbp->p_commons.table, id);
++        if (comdatum) {
++                snprintf(errormsg, ERRORMSG_LEN,
++                         "duplicate declaration for common %s\n", id);
++                yyerror(errormsg);
++                return -1;
++        }
+ 	comdatum = (common_datum_t *) malloc(sizeof(common_datum_t));
+ 	if (!comdatum) {
+ 		yyerror("out of memory");
+ 		goto bad;
+ 	}
+ 	memset(comdatum, 0, sizeof(common_datum_t));
+-	comdatum->value = ++policydbp->p_commons.nprim;
+ 	ret = hashtab_insert(policydbp->p_commons.table,
+ 			 (hashtab_key_t) id, (hashtab_datum_t) comdatum);
+ 
+@@ -957,6 +1031,7 @@
+ 		yyerror("hash table overflow");
+ 		goto bad;
+ 	}
++        comdatum->value = ++policydbp->p_commons.nprim;
+ 	if (symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE)) {
+ 		yyerror("out of memory");
+ 		goto bad;
+@@ -1466,7 +1541,7 @@
+ 	char *id;
+ 	type_datum_t *attr;
+ 	int ret;
+-
++	uint32_t value;
+ 
+ 	if (pass == 2) {
+ 		free(queue_remove(id_queue));
+@@ -1493,12 +1568,14 @@
+ 	}
+ 	memset(attr, 0, sizeof(type_datum_t));
+ 	attr->isattr = TRUE;
+-	ret = hashtab_insert(policydbp->p_types.table,
+-			     id, (hashtab_datum_t) attr);
++        attr->primary = TRUE;
++        
++        ret = symtab_insert(policydbp, SYM_TYPES, id, attr, &value);
+ 	if (ret) {
+ 		yyerror("hash table overflow");
+ 		return -1;
+ 	}
++        attr->value = value;
+ 
+ 	return 0;
+ }
+@@ -1523,7 +1600,7 @@
+ 
+ 	t = hashtab_search(policydbp->p_types.table, id);
+ 	if (!t || t->isattr) {
+-		sprintf(errormsg, "unknown type %s", id);
++		sprintf(errormsg, "unknown type %s, or it was already declared as an attribute", id);
+ 		yyerror(errormsg);
+ 		free(id);
+ 		return -1;
+@@ -1544,6 +1621,12 @@
+ 		memset(aliasdatum, 0, sizeof(type_datum_t));
+ 		aliasdatum->value = t->value;
+ 
++                /* Type aliases are intentionally added to the global
++                   scope.  The reason is that they do not provide any
++                   new capabilities; they are still linked to its
++                   original type.  Thus, to determine the alias's
++                   scope, one must dereference to the original type
++                   and then look up that type's scope. */
+ 		ret = hashtab_insert(policydbp->p_types.table,
+ 				     (hashtab_key_t) id, (hashtab_datum_t) aliasdatum);
+ 
+@@ -1622,7 +1705,7 @@
+ 	char *id;
+ 	type_datum_t *datum, *aliasdatum, *attr;
+ 	int ret, newattr = 0;
+-
++	uint32_t value;
+ 
+ 	if (pass == 2) {
+ 		while ((id = queue_remove(id_queue))) 
+@@ -1639,6 +1722,14 @@
+ 		yyerror("no type name for type definition?");
+ 		return -1;
+ 	}
++        datum = hashtab_search(policydbp->p_types.table, id);
++        if (datum) {
++                snprintf(errormsg, ERRORMSG_LEN,
++                         "duplicate declaration for type %s\n", id);
++                free(id);
++                yyerror(errormsg);
++                return -1;
++        }
+ 
+ 	datum = (type_datum_t *) malloc(sizeof(type_datum_t));
+ 	if (!datum) {
+@@ -1648,25 +1739,16 @@
+ 	}
+ 	memset(datum, 0, sizeof(type_datum_t));
+ 	datum->primary = TRUE;
+-	datum->value = ++policydbp->p_types.nprim;
+ 
+-	ret = hashtab_insert(policydbp->p_types.table,
+-			     (hashtab_key_t) id, (hashtab_datum_t) datum);
+-
+-	if (ret == HASHTAB_PRESENT) {
+-		--policydbp->p_types.nprim;
+-		free(datum);
+-		sprintf(errormsg, "name conflict for type %s", id);
+-		yyerror(errormsg);
+-		free(id);
+-		return -1;
+-	}
+-	if (ret == HASHTAB_OVERFLOW) {
++        ret = symtab_insert(policydbp, SYM_TYPES, (hashtab_key_t) id, (hashtab_datum_t) datum, &value);
++	if (ret) {
+ 		yyerror("hash table overflow");
+ 		free(datum);
+ 		free(id);
+ 		return -1;
+ 	}
++        datum->value = value;
++        datum->order = ++num_types_found;
+ 
+ 	if (alias) { 
+ 		while ((id = queue_remove(id_queue))) {
+@@ -1677,18 +1759,8 @@
+ 			}
+ 			memset(aliasdatum, 0, sizeof(type_datum_t));
+ 			aliasdatum->value = datum->value;
+-
+-			ret = hashtab_insert(policydbp->p_types.table,
+-					     (hashtab_key_t) id, (hashtab_datum_t) aliasdatum);
+-
+-			if (ret == HASHTAB_PRESENT) {
+-				sprintf(errormsg, "name conflict for type alias %s", id);
+-				yyerror(errormsg);
+-				free(aliasdatum);
+-				free(id);
+-				return -1;
+-			}
+-			if (ret == HASHTAB_OVERFLOW) {
++                        ret = symtab_insert(policydbp, SYM_TYPES, id, (hashtab_datum_t) aliasdatum, NULL);
++			if (ret) {
+ 				yyerror("hash table overflow");
+ 				free(aliasdatum);
+ 				free(id);
+@@ -1744,67 +1816,35 @@
+ 	return 0;
+ }
+ 
+-struct val_to_name {
+-	unsigned int val;
+-	char *name;
+-};
+-
+-static int type_val_to_name_helper(hashtab_key_t key, hashtab_datum_t datum, void *p)
+-{
+-	type_datum_t *typdatum;
+-	struct val_to_name *v = p;
+-
+-	typdatum = (type_datum_t *) datum;
+-
+-	if (v->val == typdatum->value) {
+-		v->name = key;
+-		return 1;
+-	}
+-
+-	return 0;
+-}
+-
+-static char *type_val_to_name(unsigned int val) 
+-{
+-	struct val_to_name v;
+-	int rc;
+-
+-	v.val = val;
+-	rc = hashtab_map(policydbp->p_types.table, 
+-			 type_val_to_name_helper, &v);
+-	if (rc)
+-		return v.name;
+-	return NULL;
++/* FIX ME: to be used by module requires */
++#if 0
++static int define_type_noalias(void) {
++    return define_type(0);
+ }
++#endif
+ 
+-
+-static int set_types(ebitmap_t *set,
+-		     ebitmap_t *negset,
++/* Adds a type, given by its textual name, to a typeset.  If *add is
++   0, then add the type to the negative set; otherwise if *add is 1
++   then add it to the positive side. */
++static int set_types(type_set_t *set,
+ 		     char *id,
+ 		     int *add)
+ {
+ 	type_datum_t *t;
+-	unsigned int i;
+ 
+ 	if (strcmp(id, "*") == 0) {
+-		/* set all types not in negset */
+-		for (i = 0; i < policydbp->p_types.nprim; i++) {
+-			if (!ebitmap_get_bit(negset, i))
+-				ebitmap_set_bit(set, i, TRUE);
+-		}
++                /* set TYPE_STAR flag */
++                set->flags = TYPE_STAR;
+ 		free(id);
++                *add = 1;
+ 		return 0;
+ 	}
+ 
+ 	if (strcmp(id, "~") == 0) {
+ 		/* complement the set */
+-		for (i = 0; i < policydbp->p_types.nprim; i++) {
+-			if (ebitmap_get_bit(set, i))
+-				ebitmap_set_bit(set, i, FALSE);
+-			else 
+-				ebitmap_set_bit(set, i, TRUE);
+-		}
++                set->flags = TYPE_COMP;
+ 		free(id);
++                *add = 1;
+ 		return 0;
+ 	}
+ 
+@@ -1816,103 +1856,73 @@
+ 
+ 	t = hashtab_search(policydbp->p_types.table, id);
+ 	if (!t) {
+-		sprintf(errormsg, "unknown type %s", id);
++		snprintf(errormsg, ERRORMSG_LEN, "unknown type %s", id);
+ 		yyerror(errormsg);
+ 		free(id);
+ 		return -1;
+ 	}
+ 
+-	if (t->isattr) {
+-		/* set or clear all types with this attribute,
+-		   but do not set anything explicitly cleared previously */
+-		for (i = ebitmap_startbit(&t->types); i < ebitmap_length(&t->types); i++) {
+-			if (!ebitmap_get_bit(&t->types, i)) 
+-				continue;		
+-			if (!(*add)) {
+-				ebitmap_set_bit(set, i, FALSE);
+-				ebitmap_set_bit(negset, i, TRUE);
+-			} else if (!ebitmap_get_bit(negset, i)) {
+-				ebitmap_set_bit(set, i, TRUE);
+-#if VERBOSE
+-			} else {
+-				char *name = type_val_to_name(i+1);
+-				sprintf(errormsg, "ignoring %s due to prior -%s", name, name);
+-				yywarn(errormsg);
+-#endif
+-			}
+-		}
+-	} else {
+-		/* set or clear one type, but do not set anything
+-		   explicitly cleared previously */	
+-		if (!(*add)) {
+-			ebitmap_set_bit(set, t->value - 1, FALSE);
+-			ebitmap_set_bit(negset, t->value - 1, TRUE);
+-		} else if (!ebitmap_get_bit(negset, t->value - 1)) {
+-			ebitmap_set_bit(set, t->value - 1, TRUE);
+-#if VERBOSE
+-		} else {
+-			sprintf(errormsg, "ignoring %s due to prior -%s", id, id);
+-			yywarn(errormsg);
+-#endif
++        if (*add == 0) {
++                ebitmap_set_bit(&set->negset, t->value - 1, TRUE);
+ 		}
++        else {
++                ebitmap_set_bit(&set->types, t->value - 1, TRUE);
+ 	}
+-
+ 	free(id);
+ 	*add = 1;
+ 	return 0;
+ }
+ 
+-
+-static int define_compute_type(int which)
++static int define_compute_type_helper(int which, avrule_t **rule)
+ {
+ 	char *id;
+-	avtab_key_t avkey;
+-	avtab_datum_t avdatum, *avdatump;
+ 	type_datum_t *datum;
+ 	class_datum_t *cladatum;
+-	ebitmap_t stypes, ttypes, tclasses, negset;
+-	uint32_t newtype = 0;
+-	int ret, add = 1;
+-	unsigned int i, j, k;
++	ebitmap_t tclasses;
++	avrule_t *avrule;
++	class_perm_node_t *perm;
++	int i, add = 1;
+ 
+-	if (pass == 1) {
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		id = queue_remove(id_queue);
+-		free(id);
+-		return 0;
++	avrule = malloc(sizeof(avrule_t));
++	if (!avrule) {
++		yyerror("out of memory");
++		return -1;
+ 	}
++	avrule_init(avrule);
++        avrule->specified = which;
++        avrule->line = policydb_lineno;
+ 
+-	ebitmap_init(&stypes);
+-	ebitmap_init(&ttypes);
+-	ebitmap_init(&tclasses);
+-
+-	ebitmap_init(&negset);
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&stypes, &negset, id, &add))
++                if (set_types(&avrule->stypes, id, &add))
+ 			return -1;
+ 	}
+-	ebitmap_destroy(&negset);
+-
+-	ebitmap_init(&negset);
++        add = 1;
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&ttypes, &negset, id, &add))
++		if (set_types(&avrule->ttypes, id, &add))
+ 			return -1;
+ 	}
+-	ebitmap_destroy(&negset);
+ 
++        ebitmap_init(&tclasses);
+ 	while ((id = queue_remove(id_queue))) {
++                uint32_t classvalue;
+ 		cladatum = hashtab_search(policydbp->p_classes.table, id);
+ 		if (!cladatum) {
+ 			sprintf(errormsg, "unknown class %s", id);
+ 			yyerror(errormsg);
+ 			goto bad;
+ 		}
+-		ebitmap_set_bit(&tclasses, cladatum->value - 1, TRUE);
++                if (policyvers < POLICYDB_VERSION_NLCLASS &&
++		    (cladatum->value >= SECCLASS_NETLINK_ROUTE_SOCKET &&
++		     cladatum->value <= SECCLASS_NETLINK_DNRT_SOCKET)) {
++			sprintf(errormsg, "remapping class %s to netlink_socket "
++			        "for policy version %d", id, policyvers);
++			yywarn(errormsg);
++			classvalue = SECCLASS_NETLINK_SOCKET;
++                }
++                else {
++                        classvalue = cladatum->value;
++                }
++                ebitmap_set_bit(&tclasses, classvalue - 1, TRUE);
+ 		free(id);
+ 	}
+ 
+@@ -1929,91 +1939,35 @@
+ 		goto bad;
+ 	}
+ 
+-	for (i = ebitmap_startbit(&stypes); i < ebitmap_length(&stypes); i++) {
+-		if (!ebitmap_get_bit(&stypes, i)) 
+-			continue;
+-		for (j = ebitmap_startbit(&ttypes); j < ebitmap_length(&ttypes); j++) {
+-			if (!ebitmap_get_bit(&ttypes, j)) 
+-				continue;
+-			for (k = ebitmap_startbit(&tclasses); k < ebitmap_length(&tclasses); k++) {
+-				if (!ebitmap_get_bit(&tclasses, k)) 
+-					continue;
+-				avkey.source_type = i + 1;
+-				avkey.target_type = j + 1;
+-				avkey.target_class = k + 1;
+-				avdatump = avtab_search(&policydbp->te_avtab, &avkey, AVTAB_TYPE);
+-				if (avdatump) {
+-					switch (which) {
+-					case AVTAB_TRANSITION:
+-						newtype = avtab_transition(avdatump);
+-						break;
+-					case AVTAB_MEMBER:
+-						newtype = avtab_member(avdatump);
+-						break;
+-					case AVTAB_CHANGE:
+-						newtype = avtab_change(avdatump);
+-						break;
+-					}
+-					if ( (avdatump->specified & which) &&
+-					     (newtype != datum->value) ) {
+-						sprintf(errormsg, "conflicting rule for (%s, %s:%s):  default was %s, is now %s", type_val_to_name(i+1), type_val_to_name(j+1), policydbp->p_class_val_to_name[k],
+-							type_val_to_name(newtype),
+-							type_val_to_name(datum->value));
+-						yywarn(errormsg);
+-					}
+-					avdatump->specified |= which;
+-					switch (which) {
+-					case AVTAB_TRANSITION:
+-						avtab_transition(avdatump) = datum->value;
+-						break;
+-					case AVTAB_MEMBER:
+-						avtab_member(avdatump) = datum->value;
+-						break;
+-					case AVTAB_CHANGE:
+-						avtab_change(avdatump) = datum->value;
+-						break;
+-					}
+-				} else {
+-					memset(&avdatum, 0, sizeof avdatum);
+-					avdatum.specified |= which;
+-					switch (which) {
+-					case AVTAB_TRANSITION:
+-					        avtab_transition(&avdatum) = datum->value;
+-						break;
+-					case AVTAB_MEMBER:
+-						avtab_member(&avdatum) = datum->value;
+-						break;
+-					case AVTAB_CHANGE:
+-						avtab_change(&avdatum) = datum->value;
+-						break;
+-					}
+-					ret = avtab_insert(&policydbp->te_avtab, &avkey, &avdatum);
+-					if (ret) {
+-						yyerror("hash table overflow");
+-						goto bad;
+-					}
+-				}
++	for (i = ebitmap_startbit(&tclasses); i < ebitmap_length(&tclasses); i++ ) {
++		if (ebitmap_get_bit(&tclasses, i)) {
++			perm = malloc(sizeof(class_perm_node_t));
++			if (!perm) {
++				yyerror("out of memory"); 
++				return -1;
+ 			}
++			class_perm_node_init(perm);
++			perm->class = i + 1;
++			perm->data = datum->value;
++			perm->next = avrule->perms;
++			avrule->perms = perm;
+ 		}
+ 	}
+ 
++        *rule = avrule;
+ 	return 0;
+ 
+       bad:
++      	avrule_destroy(avrule);
++      	free(avrule);
+ 	return -1;
+ }
+ 
+-static cond_av_list_t *define_cond_compute_type(int which)
++static int define_compute_type(int which)
+ {
+ 	char *id;
+-	cond_av_list_t *sub_list;
+-	avtab_key_t avkey;
+-	avtab_datum_t avdatum, *avdatump;
+-	type_datum_t *datum;
+-	class_datum_t *cladatum;
+-	ebitmap_t stypes, ttypes, tclasses, negset;
+-	uint32_t newtype = 0;
+-	int i, j, k, add = 1;
++	avrule_t *avrule;
++        int retval;
+ 
+ 	if (pass == 1) {
+ 		while ((id = queue_remove(id_queue)))
+@@ -2024,217 +1978,63 @@
+ 			free(id);
+ 		id = queue_remove(id_queue);
+ 		free(id);
+-		return (cond_av_list_t *)1; /* any non-NULL value */
+-	}
+-	
+-	ebitmap_init(&stypes);
+-	ebitmap_init(&ttypes);
+-	ebitmap_init(&tclasses);
+-
+-	ebitmap_init(&negset);
+-	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&stypes, &negset, id, &add))
+-			return  COND_ERR;
+-	}
+-	ebitmap_destroy(&negset);
+-
+-	ebitmap_init(&negset);
+-	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&ttypes, &negset, id, &add))
+-			return COND_ERR;
+-	}
+-	ebitmap_destroy(&negset);
+-
+-	while ((id = queue_remove(id_queue))) {
+-		cladatum = hashtab_search(policydbp->p_classes.table, id);
+-		if (!cladatum) {
+-			sprintf(errormsg, "unknown class %s", id);
+-			yyerror(errormsg);
+-			goto bad;
+-		}
+-		ebitmap_set_bit(&tclasses, cladatum->value - 1, TRUE);
+-		free(id);
+-	}
+-
+-	id = (char *) queue_remove(id_queue);
+-	if (!id) {
+-		yyerror("no newtype?");
+-		goto bad;
+-	}
+-	datum = (type_datum_t *) hashtab_search(policydbp->p_types.table,
+-						(hashtab_key_t) id);
+-	if (!datum || datum->isattr) {
+-		sprintf(errormsg, "unknown type %s", id);
+-		yyerror(errormsg);
+-		goto bad;
++		return 0;
+ 	}
+ 
+-	/* create sub_list to be passed back and appended to true or false list */
+-	sub_list = (cond_av_list_t *) 0;
+-
+-	for (i = ebitmap_startbit(&stypes); i < ebitmap_length(&stypes); i++) {
+-		if (!ebitmap_get_bit(&stypes, i)) 
+-			continue;
+-		for (j = ebitmap_startbit(&ttypes); j < ebitmap_length(&ttypes); j++) {
+-			if (!ebitmap_get_bit(&ttypes, j)) 
+-				continue;
+-			for (k = ebitmap_startbit(&tclasses); k < ebitmap_length(&tclasses); k++) {
+-				if (!ebitmap_get_bit(&tclasses, k)) 
+-					continue;
+-				avkey.source_type = i + 1;
+-				avkey.target_type = j + 1;
+-				avkey.target_class = k + 1;
+-				avdatump = avtab_search(&policydbp->te_avtab, &avkey, AVTAB_TYPE);
++	if (define_compute_type_helper(which, &avrule))
++		return -1;
+ 				
+-				/* does rule exist in base policy? */
+-				if ((avdatump) && (avdatump->specified & which)) {
+-					switch (which) {
+-					case AVTAB_TRANSITION:
+-						newtype = avtab_transition(avdatump);
+-						break;
+-					case AVTAB_MEMBER:
+-						newtype = avtab_member(avdatump);
+-						break;
+-					case AVTAB_CHANGE:
+-						newtype = avtab_change(avdatump);
+-						break;
+-					}
+-					if ( (newtype != datum->value) ) {
+-						sprintf(errormsg, "conflicting type rule for conditional "
+-							"(%s, %s:%s) in base: default is %s, conditional %s "
+-							"will be ignored", 
+-							type_val_to_name(i+1), 
+-							type_val_to_name(j+1), 
+-							policydbp->p_class_val_to_name[k],
+-							type_val_to_name(newtype),
+-							type_val_to_name(datum->value));
+-						yywarn(errormsg);
+-					} else {
+-						sprintf(errormsg, "conditional type rule (%s, %s:%s): "
+-							"has same default, %s, as rule in base policy; "
+-							"conditional %s will be ignored", 
+-							type_val_to_name(i+1), 
+-							type_val_to_name(j+1), 
+-							policydbp->p_class_val_to_name[k],
+-							type_val_to_name(newtype),
+-							type_val_to_name(datum->value));
+-						yywarn(errormsg);
+-					}
++	retval = insert_check_type_rule(avrule, &policydbp->te_avtab, NULL, NULL);
++	switch (retval) {
++        case 1: {
++                /* append this avrule to the end of the rules list */
++                if (last_avrule == NULL) {
++                        policydbp->avrules = last_avrule = avrule;
+ 				}
+-				/* rule does not exist in base policy */
+ 				else {
+-					
+-					memset(&avdatum, 0, sizeof avdatum);
+-					avdatum.specified |= which;
+-					switch (which) {
+-					case AVTAB_TRANSITION:
+-					        avtab_transition(&avdatum) = datum->value;
+-						break;
+-					case AVTAB_MEMBER:
+-						avtab_member(&avdatum) = datum->value;
+-						break;
+-					case AVTAB_CHANGE:
+-						avtab_change(&avdatum) = datum->value;
+-						break;
+-					}
+-					/* add rule to sub list */
+-					sub_list = cond_list_append(sub_list, &avkey, &avdatum);
+-					if (sub_list == COND_ERR) {
+-						yyerror("list overflow");
+-						goto bad;
+-					}
+-				}
++                        last_avrule->next = avrule;
++                        last_avrule = avrule;
+ 			}
++                return 0;
+ 		}
++        case 0: {
++                /* rule conflicted, so don't actually add this rule */
++                avrule_destroy(avrule);
++                free(avrule);
++                return 0;
+ 	}
+-	
+-	return sub_list;
+-
+-      bad:
+-	return COND_ERR;
+-}
+-
+-static cond_av_list_t *cond_list_append(cond_av_list_t *sl, avtab_key_t *key, avtab_datum_t *datum) {
+-
+-	cond_av_list_t  *n, *end;
+-
+-	n = (cond_av_list_t *) malloc(sizeof(cond_av_list_t));
+-	if (!n) {
+-		  yyerror("out of memory");
+-		  return COND_ERR;
++        case -1: {
++                avrule_destroy(avrule);
++                free(avrule);
++                return -1;
+ 	}
+-	memset(n, 0, sizeof(cond_av_list_t));
+-	if (sl) {
+-		for(end=sl; end->next != NULL; end = end->next);
+-		end->next = n;
++        default: {
++                assert(0); /* should never get here */
+ 	}
+-	else sl = n;
+-	n->next = NULL;
+-	
+-	/* construct new node */
+-	n->node = (avtab_ptr_t) malloc(sizeof(struct avtab_node));
+-	if (!n->node) {
+-		yyerror("out of memory");
+-		return COND_ERR;
+ 	}
+-	memset(n->node, 0, sizeof(struct avtab_node));
+-	n->node->key = *key;
+-	n->node->datum = *datum;
+-	/* the next two fields get filled in when we add to true/false list  */
+-	n->node->next = (avtab_ptr_t) 0;
+-	n->node->parse_context = (void *) 0;
+-	
+-	return(sl);
+ }
+ 
+-
+-static int perm_name(hashtab_key_t key, hashtab_datum_t datum, void *data)
++static avrule_t *define_cond_compute_type(int which)
+ {
+-	struct val_to_name *v = data;
+-	perm_datum_t *perdatum;
+-
+-	perdatum = (perm_datum_t *) datum;
++	char *id;
++	avrule_t *avrule;
+ 
+-	if (v->val == perdatum->value) {
+-		v->name = key;
+-		return 1;
++	if (pass == 1) {
++		while ((id = queue_remove(id_queue))) 
++			free(id);
++		while ((id = queue_remove(id_queue))) 
++			free(id);
++		while ((id = queue_remove(id_queue))) 
++			free(id);
++		id = queue_remove(id_queue);
++		free(id);
++		return (avrule_t*)1;
+ 	}
+ 
+-	return 0;
+-}
+-
+-
+-char *av_to_string(uint32_t tclass, sepol_access_vector_t av)
+-{
+-	struct val_to_name v;
+-	static char avbuf[1024];
+-	class_datum_t *cladatum;
+-	char *perm = NULL, *p;
+-	unsigned int i;
+-	int rc;
+-
+-	cladatum = policydbp->class_val_to_struct[tclass-1];
+-	p = avbuf;
+-	for (i = 0; i < cladatum->permissions.nprim; i++) {
+-		if (av & (1 << i)) {
+-			v.val = i+1;
+-			rc = hashtab_map(cladatum->permissions.table,
+-					 perm_name, &v);
+-			if (!rc && cladatum->comdatum) {
+-				rc = hashtab_map(
+-					cladatum->comdatum->permissions.table,
+-					perm_name, &v);
+-			}
+-			if (rc)
+-				perm = v.name;
+-			if (perm) {
+-				sprintf(p, " %s", perm);
+-				p += strlen(p);
+-			}
+-		}
+-	}
++	if (define_compute_type_helper(which, &avrule))
++		return COND_ERR;
+ 
+-	return avbuf;
++	return avrule;
+ }
+ 
+ static int define_bool()
+@@ -2242,7 +2042,7 @@
+ 	char *id, *name;
+ 	cond_bool_datum_t *datum;
+ 	int ret;
+-
++	uint32_t value;
+ 
+ 	if (pass == 2) {
+ 		while ((id = queue_remove(id_queue)))
+@@ -2262,10 +2062,20 @@
+         }
+ 	name = id;
+ 
++        datum = hashtab_search(policydbp->p_bools.table, name);
++        if (datum) {
++                snprintf(errormsg, ERRORMSG_LEN, 
++                         "duplicate declaration for bool %s\n", id);
++                free(id);
++                yyerror(errormsg);
++                return -1;
++        }
++
+ 	id = (char *) queue_remove(id_queue);
+ 	if (!id) {
+ 		yyerror("no default value for bool definition?");
+ 		free(name);
++                /* FIX ME: allow this if in a module's require section */
+ 		return -1;
+ 	}
+ 
+@@ -2278,213 +2088,74 @@
+ 	}
+ 	memset(datum, 0, sizeof(cond_bool_datum_t));
+ 	datum->state = (int)(id[0] == 'T') ? 1 : 0;
+-	datum->value = ++policydbp->p_bools.nprim;
+-
+-	ret = hashtab_insert(policydbp->p_bools.table,
+-			     (hashtab_key_t) name, (hashtab_datum_t) datum);
++        ret = symtab_insert(policydbp, SYM_BOOLS, name, datum, &value);
+ 
+-	if (ret == HASHTAB_PRESENT) {
+-		--policydbp->p_bools.nprim;
+-		free(datum);
+-		sprintf(errormsg, "name conflict for bool %s", id);
+-		yyerror(errormsg);
+-		free(id);
+-		free(name);
+-		return -1;
+-	}
+-	if (ret == HASHTAB_OVERFLOW) {
++	if (ret) {
+ 		yyerror("hash table overflow");
+ 		free(datum);
+ 		free(id);
+ 		free(name);
+ 		return -1;
+ 	}
++	datum->value = value;
++
+ 	return 0;
+ }
+ 
+-static cond_av_list_t *define_cond_pol_list( cond_av_list_t *avlist, cond_av_list_t *sl )
++static avrule_t *define_cond_pol_list(avrule_t *avlist, avrule_t *sl)
+ {
+-	cond_av_list_t *end;
+-
+ 	if (pass == 1) {
+ 		/* return something so we get through pass 1 */
+-		return (cond_av_list_t *)1;
+-	}
+-
+-	/* if we've started collecting sub lists, prepend to start of collection
+-	   because it's probably less iterations than appending. */
+-	if (!sl) return avlist;
+-	else if (!avlist) return sl;
+-	else {
+-		end = sl;
+-		while (end->next) end = end->next;
+-		end->next = avlist;
+-	} 
+-	return sl;
+-}
+-
+-static int te_avtab_helper(int which, unsigned int stype, unsigned int ttype, 
+-			   ebitmap_t *tclasses, sepol_access_vector_t *avp)
+-
+-{
+-	avtab_key_t avkey;
+-	avtab_datum_t avdatum, *avdatump;
+-	int ret;
+-	unsigned int k;
+-
+-	if (which == -AVTAB_ALLOWED) {
+-		yyerror("neverallow should not reach this function.");
+-		return -1;
+-	}
+-
+-	for (k = ebitmap_startbit(tclasses); k < ebitmap_length(tclasses); k++) {
+-		if (!ebitmap_get_bit(tclasses, k)) 
+-			continue;
+-		avkey.source_type = stype + 1;
+-		avkey.target_type = ttype + 1;
+-		avkey.target_class = k + 1;
+-		avdatump = avtab_search(&policydbp->te_avtab, &avkey, AVTAB_AV);
+-		if (!avdatump) {
+-			memset(&avdatum, 0, sizeof avdatum);
+-			avdatum.specified = (which > 0) ? which : -which;
+-			ret = avtab_insert(&policydbp->te_avtab, &avkey, &avdatum);
+-			if (ret) {
+-				yyerror("hash table overflow");
+-				return -1;
+-			}
+-			avdatump = avtab_search(&policydbp->te_avtab, &avkey, AVTAB_AV);
+-			if (!avdatump) {
+-				yyerror("inserted entry vanished!");
+-				return -1;
+-			}
+-		}
+-
+-		avdatump->specified |= ((which > 0) ? which : -which);
+-
+-		switch (which) {
+-		case AVTAB_ALLOWED:
+-			avtab_allowed(avdatump) |= avp[k];
+-			break;
+-		case AVTAB_AUDITALLOW:
+-			avtab_auditallow(avdatump) |= avp[k];
+-			break;
+-		case AVTAB_AUDITDENY:
+-			avtab_auditdeny(avdatump) |= avp[k];
+-			break;
+-		case -AVTAB_AUDITDENY:
+-			if (avtab_auditdeny(avdatump))
+-				avtab_auditdeny(avdatump) &= ~avp[k];
+-			else
+-				avtab_auditdeny(avdatump) = ~avp[k];
+-			break;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-static  cond_av_list_t *cond_te_avtab_helper(int which, int stype, int ttype, 
+-			   ebitmap_t *tclasses, sepol_access_vector_t *avp )
+-
+-{
+-	cond_av_list_t *sl;
+-	avtab_key_t avkey;
+-	avtab_datum_t avdatum;
+-	int  k;
+-
+-	if (which == -AVTAB_ALLOWED) {
+-		yyerror("neverallow should not reach this function.");
+-		return COND_ERR;
+-	}
+-
+-	/* create sub_list to be passed back and appended to true or false list */
+-	sl = (cond_av_list_t *) 0;
+-
+-	for (k = ebitmap_startbit(tclasses); k < ebitmap_length(tclasses); k++) {
+-		if (!ebitmap_get_bit(tclasses, k)) 
+-			continue;
+-		/* build the key */
+-		avkey.source_type = stype + 1;
+-		avkey.target_type = ttype + 1;
+-		avkey.target_class = k + 1;
+-		
+-		/* build the datum */
+-		memset(&avdatum, 0, sizeof avdatum);
+-		avdatum.specified = (which > 0) ? which : -which;
+-
+-		switch (which) {
+-		case AVTAB_ALLOWED:
+-			avtab_allowed(&avdatum) = avp[k];
+-			break;
+-		case AVTAB_AUDITALLOW:
+-			avtab_auditallow(&avdatum) = avp[k];
+-			break;
+-		case AVTAB_AUDITDENY:
+-			yyerror("AUDITDENY statements are not allowed in a conditional block; use DONTAUDIT");
+-			return COND_ERR;
+-		case -AVTAB_AUDITDENY:
+-			avtab_auditdeny(&avdatum) = ~avp[k];
+-			break;
+-		}
+-
+-		/* add to temporary list */
+-		sl = cond_list_append(sl, &avkey, &avdatum);
+-
+-		if (sl == COND_ERR) {
+-			yyerror("list overflow");
+-			return COND_ERR;
+-		}
++		return (avrule_t *)1;
+ 	}
+ 
++        /* prepend the new avlist to the pre-existing one */
++        sl->next = avlist;
+ 	return sl;
+ }
+ 
+-static cond_av_list_t *define_cond_te_avtab(int which)
++static int define_te_avtab_helper(int which, avrule_t **rule)
+ {
+ 	char *id;
+-	cond_av_list_t *sub_list, *final_list, *tail;
+ 	class_datum_t *cladatum;
+-	perm_datum_t *perdatum;
+-	ebitmap_t stypes, ttypes, tclasses, negset;
+-	sepol_access_vector_t *avp;
+-	int i, j, hiclass, self = 0, add = 1;
++	perm_datum_t *perdatum = NULL;
++	class_perm_node_t *perms, *tail = NULL, *cur_perms = NULL;
++	ebitmap_t tclasses;
++	avrule_t *avrule;
++	unsigned int i, hiclass;
++	int add = 1, ret = 0;
+ 	int suppress = 0;
+ 
+-	if (pass == 1) {
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		return (cond_av_list_t *) 1; /* any non-NULL value */
++	avrule = (avrule_t*)malloc(sizeof(avrule_t));
++	if (!avrule) {
++		yyerror("memory error");
++		ret = -1;
++		goto out;
+ 	}
++	avrule_init(avrule);
++        avrule->specified = which;
++        avrule->line = policydb_lineno;
+ 
+-	ebitmap_init(&stypes);
+-	ebitmap_init(&ttypes);
+-	ebitmap_init(&tclasses);
+-
+-	ebitmap_init(&negset);
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&stypes, &negset, id, &add))
+-			return COND_ERR;
++		if (set_types(&avrule->stypes, id, &add)) {
++			ret = -1;
++			goto out;
+ 	}
+-	ebitmap_destroy(&negset);
+-
+-	ebitmap_init(&negset);
++	}
++        add = 1;
+ 	while ((id = queue_remove(id_queue))) {
+ 		if (strcmp(id, "self") == 0) {
+-			self = 1;
++			avrule->flags |= RULE_SELF;
+ 			continue;
+ 		}
+-		if (set_types(&ttypes, &negset, id, &add))
+-			return COND_ERR;
++		if (set_types(&avrule->ttypes, id, &add)) {
++			ret = -1;
++			goto out;
++		}
+ 	}
+-	ebitmap_destroy(&negset);
+ 
+ 	hiclass = 0;
++	ebitmap_init(&tclasses);
+ 	while ((id = queue_remove(id_queue))) {
+ 		uint32_t classvalue;
+ 
+@@ -2492,9 +2163,9 @@
+ 		if (!cladatum) 	{
+ 			sprintf(errormsg, "unknown class %s used in rule", id);
+ 			yyerror(errormsg);
+-			goto bad;
++			ret = -1;
++			goto out;
+ 		}
+-		
+ 		if (policyvers < POLICYDB_VERSION_NLCLASS &&
+ 		    (cladatum->value >= SECCLASS_NETLINK_ROUTE_SOCKET &&
+ 		     cladatum->value <= SECCLASS_NETLINK_DNRT_SOCKET)) {
+@@ -2512,14 +2183,27 @@
+ 		free(id);
+ 	}
+ 
+-	avp = malloc(hiclass * sizeof(sepol_access_vector_t));
+-	if (!avp) {
++	perms = NULL;
++	for (i = ebitmap_startbit(&tclasses); i < ebitmap_length(&tclasses); i++) {
++		if (!ebitmap_get_bit(&tclasses, i))
++			continue;
++		cur_perms = (class_perm_node_t *)malloc(sizeof(class_perm_node_t));
++		if (!cur_perms) {
+ 		yyerror("out of memory");
+-		return COND_ERR;
++			ret = -1;
++			goto out;
+ 	}
+-	for (i = 0; i < hiclass; i++)
+-		avp[i] = 0;
++		class_perm_node_init(cur_perms);
++		cur_perms->class = i + 1;
++		if (!perms)
++			perms = cur_perms;
++		if (tail)
++			tail->next = cur_perms;
++		tail = cur_perms;
++	}
++
+ 	while ((id = queue_remove(id_queue))) {
++		cur_perms = perms;
+ 		for (i = ebitmap_startbit(&tclasses); i < ebitmap_length(&tclasses); i++) {
+ 			if (!ebitmap_get_bit(&tclasses, i)) 
+ 				continue;
+@@ -2527,20 +2211,19 @@
+ 
+ 			if (strcmp(id, "*") == 0) {
+ 				/* set all permissions in the class */
+-				avp[i] = ~0;
+-				continue;
++				cur_perms->data = ~0U;
++				goto next;
+ 			}
+ 
+ 			if (strcmp(id, "~") == 0) {
+ 				/* complement the set */
+-				if (which == -AVTAB_AUDITDENY) 
++				if (which == AVRULE_DONTAUDIT) 
+ 					yywarn("dontaudit rule with a ~?");
+-				avp[i] = ~avp[i];
+-				continue;
++				cur_perms->data = ~cur_perms->data;
++				goto next;
+ 			}
+ 
+-			perdatum = hashtab_search(cladatum->permissions.table,
+-						  id);
++			perdatum = hashtab_search(cladatum->permissions.table, id);
+ 			if (!perdatum) {
+ 				if (cladatum->comdatum) {
+ 					perdatum = hashtab_search(cladatum->comdatum->permissions.table,
+@@ -2552,272 +2235,116 @@
+ 				if (!suppress)
+ 				  yyerror(errormsg);
+ 				continue;
+-			}
+-
+-			avp[i] |= (1 << (perdatum->value - 1));
+-		}
+-
+-		free(id);
+-	}
+-
+-	sub_list = NULL;
+-	tail = NULL;
+-	final_list = NULL;
+-
+-	if (self) {
+-		for (i = ebitmap_startbit(&stypes); i < ebitmap_length(&stypes); i++) {
+-			if (!ebitmap_get_bit(&stypes, i)) 
+-				continue;
+-			if (self) {
+-				if ((sub_list = cond_te_avtab_helper(which, i, i, &tclasses, avp )) == COND_ERR)
+-					return COND_ERR;
+-				if (final_list) {
+-					tail->next = sub_list;
+-					while (tail->next != NULL)
+-						tail = tail->next;
+ 				} else {
+-					final_list = sub_list;
+-					tail = final_list;
+-					while (tail->next != NULL)
+-						tail = tail->next;
+-				}
+-			}
+-		}
+-	}
+-	for (i = ebitmap_startbit(&stypes); i < ebitmap_length(&stypes); i++) {
+-		if (!ebitmap_get_bit(&stypes, i)) 
+-			continue;
+-		for (j = ebitmap_startbit(&ttypes); j < ebitmap_length(&ttypes); j++) {
+-			if (!ebitmap_get_bit(&ttypes, j)) 
+-				continue;
+-			if ((sub_list = cond_te_avtab_helper(which, i, j, &tclasses, avp)) == COND_ERR)
+-				return COND_ERR;
+-			if (final_list) {
+-				tail->next = sub_list;
+-				while (tail->next != NULL)
+-					tail = tail->next;
+-			} else {
+-				final_list = sub_list;
+-				tail = final_list;
+-				while (tail->next != NULL)
+-					tail = tail->next;
++                                cur_perms->data |= 1U << (perdatum->value - 1);
+ 			}
++next:
++                        cur_perms = cur_perms->next;
+ 		}
++		free(id);
+ 	}
+ 
+-	ebitmap_destroy(&stypes);
+-	ebitmap_destroy(&ttypes);
+-	ebitmap_destroy(&tclasses);
+-	free(avp);
++        avrule->perms = perms;
++        *rule = avrule;
+ 	
+-	return final_list;
+- bad:
+-	return COND_ERR;
++out:
++	return ret;
+ }
+ 
+-
+-static int define_te_avtab(int which)
++static avrule_t *define_cond_te_avtab(int which)
+ {
+ 	char *id;
+-	class_datum_t *cladatum;
+-	perm_datum_t *perdatum;
+-	ebitmap_t stypes, ttypes, tclasses, negset;
+-	sepol_access_vector_t *avp;
+-	unsigned int i, j, hiclass;
+-	int self = 0, add = 1;
+-	te_assert_t *newassert;
+-	int suppress = 0;
++	avrule_t *avrule;
++	int i;
+ 
+ 	if (pass == 1) {
++		for (i = 0; i < 4; i++) {
+ 		while ((id = queue_remove(id_queue))) 
+ 			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		while ((id = queue_remove(id_queue))) 
+-			free(id);
+-		return 0;
+ 	}
+-
+-	ebitmap_init(&stypes);
+-	ebitmap_init(&ttypes);
+-	ebitmap_init(&tclasses);
+-
+-	ebitmap_init(&negset);
+-	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&stypes, &negset, id, &add))
+-			return -1;
+-	}
+-	ebitmap_destroy(&negset);
+-
+-	ebitmap_init(&negset);
+-	while ((id = queue_remove(id_queue))) {
+-		if (strcmp(id, "self") == 0) {
+-			self = 1;
+-			continue;
+-		}
+-		if (set_types(&ttypes, &negset, id, &add))
+-			return -1;
++		return (avrule_t *) 1; /* any non-NULL value */
+ 	}
+-	ebitmap_destroy(&negset);
+ 
+-	hiclass = 0;
+-	while ((id = queue_remove(id_queue))) {
+-		uint32_t classvalue;
++	if (define_te_avtab_helper(which, &avrule))
++		return COND_ERR;
+ 
+-		cladatum = hashtab_search(policydbp->p_classes.table, id);
+-		if (!cladatum) {
+-			sprintf(errormsg, "unknown class %s used in rule", id);
+-			yyerror(errormsg);
+-			goto bad;
+-		}
++	return avrule;
++}
+ 		
+-		if (policyvers < POLICYDB_VERSION_NLCLASS &&
+-		    (cladatum->value >= SECCLASS_NETLINK_ROUTE_SOCKET &&
+-		     cladatum->value <= SECCLASS_NETLINK_DNRT_SOCKET)) {
+-			sprintf(errormsg, "remapping class %s to netlink_socket "
+-			        "for policy version %d", id, policyvers);
+-			yywarn(errormsg);
+-			classvalue = SECCLASS_NETLINK_SOCKET;
+-			suppress = 1;
+-		} else
+-			classvalue = cladatum->value;
++static int define_te_avtab(int which)
 +{
-+	int i, num_syms;
-+	uint32_t buf[32], config;
-+	size_t items, items2, len;
-+	struct policydb_compat_info *info;
-+	char *policydb_str;
-+
-+	config = 0;
-+	if (sepol_mls_enabled())
-+		config |= POLICYDB_CONFIG_MLS;
-+
-+	/* Write the magic number and string identifiers. */
-+	items = 0;
-+        if (p->policy_type == POLICY_KERN) {
-+		buf[items++] = cpu_to_le32(POLICYDB_MAGIC);
-+		len = strlen(POLICYDB_STRING);
-+		policydb_str = POLICYDB_STRING;
-+	} else {
-+		buf[items++] = cpu_to_le32(POLICYDB_MOD_MAGIC);
-+		len = strlen(POLICYDB_MOD_STRING);
-+		policydb_str = POLICYDB_MOD_STRING;
-+	}
-+	buf[items++] = cpu_to_le32(len);
-+	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
-+	if (items != items2)
++	char *id;
++	avrule_t *avrule;
++	int i;
+ 				
+-		ebitmap_set_bit(&tclasses, classvalue - 1, TRUE);	
+-		if (classvalue > hiclass)
+-			hiclass = classvalue;
++	if (pass == 1) {
++		for (i = 0; i < 4; i++) {
++			while ((id = queue_remove(id_queue))) 
+ 		free(id);
+ 	}
+-
+-	avp = malloc(hiclass * sizeof(sepol_access_vector_t));
+-	if (!avp) {
+-		yyerror("out of memory");
+-		return -1;
+-	}
+-	for (i = 0; i < hiclass; i++)
+-		avp[i] = 0;
+-
+-	while ((id = queue_remove(id_queue))) {
+-		for (i = ebitmap_startbit(&tclasses); i < ebitmap_length(&tclasses); i++) {
+-			if (!ebitmap_get_bit(&tclasses, i)) 
+-				continue;
+-			cladatum = policydbp->class_val_to_struct[i];
+-
+-			if (strcmp(id, "*") == 0) {
+-				/* set all permissions in the class */
+-				avp[i] = ~0U;
+-				continue;
++		return 0;
+ 			}
+ 
+-			if (strcmp(id, "~") == 0) {
+-				/* complement the set */
+-				if (which == -AVTAB_AUDITDENY) 
+-					yywarn("dontaudit rule with a ~?");
+-				avp[i] = ~avp[i];
+-				continue;
+-			}
++	if (define_te_avtab_helper(which, &avrule))
 +		return -1;
-+	items = put_entry(policydb_str, 1, len, fp);
-+	if (items != len)
-+		return -1;
-+
-+	/* Write the version, config, and table sizes. */
-+	items = 0;
-+	info = policydb_lookup_compat(policyvers, p->policy_type);
-+	if (!info) {
-+		fprintf(stderr, "policydb_lookup_compat() failed for %d\n", policyvers);
-+		return -1;
-+	}
-+
-+	buf[items++] = cpu_to_le32(policyvers);
-+        if (p->policy_type != POLICY_KERN) {
-+		buf[items++] = cpu_to_le32(p->policy_type);
-+	}
-+	buf[items++] = cpu_to_le32(config);
-+	buf[items++] = cpu_to_le32(info->sym_num);
-+	buf[items++] = cpu_to_le32(info->ocon_num);
-+	
-+	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
-+	if (items != items2)
-+		return -1;
-+        
-+        if (p->policy_type == POLICY_MOD) {
-+                /* FIX ME: write module version here */
-+                /*...*/
-+                assert(0);
-+        } 
-+	num_syms = info->sym_num;
-+	for (i = 0; i < num_syms; i++) {
-+                
-+		buf[0] = cpu_to_le32(p->symtab[i].nprim);
-+		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
-+		items = put_entry(buf, sizeof(uint32_t), 2, fp);
-+		if (items != 2)
-+			return -1;
-+		if (hashtab_map(p->symtab[i].table, write_f[i], fp))
-+			return -1;
-+	}
-+
-+	if (p->policy_type == POLICY_KERN) {
-+		if (avtab_write(&p->te_avtab, fp))
-+			return -1;
+ 
+-			perdatum = hashtab_search(cladatum->permissions.table,
+-						  id);
+-			if (!perdatum) {
+-				if (cladatum->comdatum) {
+-					perdatum = hashtab_search(cladatum->comdatum->permissions.table,
+-								  id);
+-				}
+-			}
+-			if (!perdatum) {
+-				sprintf(errormsg, "permission %s is not defined for class %s", id, policydbp->p_class_val_to_name[i]);
+-				if (!suppress)
+-				  yyerror(errormsg);
+-				continue;
++        /* append this avrule to the end of the rules list */
++        if (last_avrule == NULL) {
++                policydbp->avrules = last_avrule = avrule;
+ 			}
+-
+-			avp[i] |= (1 << (perdatum->value - 1));
++        else {
++                last_avrule->next = avrule;
++                last_avrule = avrule;
+ 		}
++	return 0;
++}
+ 
+-		free(id);
+-	}
++static int define_role(char *id)
++{
++	role_datum_t *role;
++	uint32_t value;
++	int ret;
+ 
+-	if (which == -AVTAB_ALLOWED) {
+-		newassert = malloc(sizeof(te_assert_t));
+-		if (!newassert) {
++	role = (role_datum_t *) hashtab_search(policydbp->p_roles.table,
++					       id);
++	if (!role) {
++		role = (role_datum_t *) malloc(sizeof(role_datum_t));
++		if (!role) {
+ 			yyerror("out of memory");
++			free(id);
+ 			return -1;
+ 		}
+-		memset(newassert, 0, sizeof(te_assert_t));
+-		newassert->stypes = stypes;
+-		newassert->ttypes = ttypes;
+-		newassert->tclasses = tclasses;
+-		newassert->self = self;
+-		newassert->avp = avp;
+-		newassert->line = policydb_lineno;
+-		newassert->next = te_assertions;
+-		te_assertions = newassert;
+-		return 0;
+-	}
+-
+-	for (i = ebitmap_startbit(&stypes); i < ebitmap_length(&stypes); i++) {
+-		if (!ebitmap_get_bit(&stypes, i)) 
+-			continue;
+-		if (self) {
+-			if (te_avtab_helper(which, i, i, &tclasses, avp))
+-				return -1;
+-		}
+-		for (j = ebitmap_startbit(&ttypes); j < ebitmap_length(&ttypes); j++) {
+-			if (!ebitmap_get_bit(&ttypes, j)) 
+-				continue;
+-			if (te_avtab_helper(which, i, j, &tclasses, avp))
+-				return -1;
+-		}
+-	}
++		role_datum_init(role);
+ 
+-	ebitmap_destroy(&stypes);
+-	ebitmap_destroy(&ttypes);
+-	ebitmap_destroy(&tclasses);
+-	free(avp);
++		ret = symtab_insert(policydbp, SYM_ROLES, id, (hashtab_datum_t*)role, &value);
+ 
+-	return 0;
+- bad:
++		if (ret) {
++			yyerror("hash table overflow");
++			free(role);
+ 	return -1;
+-}
+-
+-
+-static int role_val_to_name_helper(hashtab_key_t key, hashtab_datum_t datum, void *p)
+-{
+-	struct val_to_name *v = p;
+-	role_datum_t *roldatum;
+-
+-	roldatum = (role_datum_t *) datum;
+-
+-	if (v->val == roldatum->value) {
+-		v->name = key;
+-		return 1;
+ 	}
+ 
++		role->value = value;
++		ebitmap_set_bit(&role->dominates, value - 1, TRUE);
 +        }
-+
-+	if (p->policy_type == POLICY_KERN && policyvers < POLICYDB_VERSION_BOOL) {
-+		if (p->p_bools.nprim)
-+			fprintf(stderr, "warning: discarding booleans and conditional rules\n");
-+
-+	} else if (p->policy_type == POLICY_KERN) {
-+		if (cond_write_list(p->cond_list, fp))
+ 	return 0;
+ }
+ 
+-
+-static char *role_val_to_name(unsigned int val) 
++/* FIX ME: to be used by module requires */
++#if 0
++static int define_role_require(void)
+ {
+-	struct val_to_name v;
+-	int rc;
+-
+-	v.val = val;
+-	rc = hashtab_map(policydbp->p_roles.table, 
+-			 role_val_to_name_helper, &v);
+-	if (rc)
+-		return v.name;
+-	return NULL;
++        char *id = queue_remove(id_queue);
++        int retval = define_role(id);
++        return retval;
+ }
++#endif
+ 
+ static int define_role_types(void)
+ {
+ 	role_datum_t *role;
+-	char *role_id, *id;
+-	int ret, add = 1;
+-	ebitmap_t negset;
++	char *id;
++	int add = 1;
+ 
+ 	if (pass == 1) {
+ 		while ((id = queue_remove(id_queue))) 
+@@ -2825,43 +2352,19 @@
+ 		return 0;
+ 	}
+ 
+-	role_id = queue_remove(id_queue);
+-
+-	role = (role_datum_t *) hashtab_search(policydbp->p_roles.table,
+-					       role_id);
+-	if (!role) {
+-		role = (role_datum_t *) malloc(sizeof(role_datum_t));
+-		if (!role) {
+-			yyerror("out of memory");
+-			free(role_id);
+-			return -1;
+-		}
+-		memset(role, 0, sizeof(role_datum_t));
+-		role->value = ++policydbp->p_roles.nprim;
+-		ebitmap_set_bit(&role->dominates, role->value-1, TRUE);
+-		ret = hashtab_insert(policydbp->p_roles.table,
+-				     (hashtab_key_t) role_id, (hashtab_datum_t) role);
+-
+-		if (ret) {
+-			yyerror("hash table overflow");
+-			free(role);
+-			free(role_id);
++	id = queue_remove(id_queue);
++        if (define_role(id))
+ 			return -1;
+-		}
+-	} else
+-		free(role_id);
+-
+-	ebitmap_init(&negset);
++	role = (role_datum_t *) hashtab_search(policydbp->p_roles.table,
++					       id);
++        assert(role);
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&role->types, &negset, id, &add))
++                if (set_types(&role->types, id,&add))
+ 			return -1;
+ 	}
+-	ebitmap_destroy(&negset);
+-
+ 	return 0;
+ }
+ 
+-
+ static role_datum_t *
+  merge_roles_dom(role_datum_t * r1, role_datum_t * r2)
+ {
+@@ -2882,20 +2385,20 @@
+ 		yyerror("out of memory");
+ 		return NULL;
+ 	}
+-	if (ebitmap_or(&new->types, &r1->types, &r2->types)) {
++	if (ebitmap_or(&new->types.types, &r1->types.types, &r2->types.types)) {
+ 		yyerror("out of memory");
+ 		return NULL;
+ 	}
+ 	if (!r1->value) {
+ 		/* free intermediate result */
+-		ebitmap_destroy(&r1->types);
++		type_set_destroy(&r1->types);
+ 		ebitmap_destroy(&r1->dominates);
+ 		free(r1);
+ 	}
+ 	if (!r2->value) {
+ 		/* free intermediate result */
+ 		yyerror("right hand role is temporary?");
+-		ebitmap_destroy(&r2->types);
++		type_set_destroy(&r2->types);
+ 		ebitmap_destroy(&r2->dominates);
+ 		free(r2);
+ 	}
+@@ -2907,6 +2410,7 @@
+ {
+ 	role_datum_t *rdp = (role_datum_t *) arg;
+ 	role_datum_t *rdatum = (role_datum_t *) datum;
++	ebitmap_t *types = NULL;
+ 	int i;
+ 
+ 	/* Don't bother to process against self role */
+@@ -2916,6 +2420,8 @@
+ 	/* If a dominating role found */
+ 	if (ebitmap_get_bit(&(rdatum->dominates), rdp->value - 1))
+ 	{
++		if (type_set_expand(&rdp->types, types, policydbp)) 
 +			return -1;
-+	}
-+
-+	if (p->policy_type == POLICY_KERN) {
-+		if (role_trans_write(p->role_tr, fp))
-+			return -1;
-+
-+		if (role_allow_write(p->role_allow, fp))
-+			return -1;
-+	} else {
+ 		/* raise types and dominates from dominated role */
+ 		for (i = ebitmap_startbit(&rdp->dominates); 
+ 			i < ebitmap_length(&rdp->dominates); i++) 
+@@ -2923,11 +2429,11 @@
+ 			if (ebitmap_get_bit(&rdp->dominates, i))
+ 				ebitmap_set_bit(&rdatum->dominates, i, TRUE);
+ 		}
+-		for (i = ebitmap_startbit(&rdp->types); 
+-			i < ebitmap_length(&rdp->types); i++)	
++		for (i = ebitmap_startbit(types); 
++			i < ebitmap_length(types); i++)	
+ 		{
+-			if (ebitmap_get_bit(&rdp->types, i))
+-				ebitmap_set_bit(&rdatum->types, i, TRUE);
++			if (ebitmap_get_bit(types, i))
++				ebitmap_set_bit(&rdatum->types.types, i, TRUE);
+ 		}		
+ 	}
+ 
+@@ -2940,6 +2446,7 @@
+ {
+ 	role_datum_t *role;
+ 	char *role_id;
++	ebitmap_t *types = NULL;
+ 	unsigned int i;
+ 	int ret;
+ 
+@@ -2977,13 +2484,15 @@
+ 			if (ebitmap_get_bit(&r->dominates, i))
+ 				ebitmap_set_bit(&role->dominates, i, TRUE);
+ 		}
+-		for (i = ebitmap_startbit(&r->types); i < ebitmap_length(&r->types); i++)	{
+-			if (ebitmap_get_bit(&r->types, i))
+-				ebitmap_set_bit(&role->types, i, TRUE);
++		if (type_set_expand(&r->types, types, policydbp)) 
++			return NULL;
++		for (i = ebitmap_startbit(types); i < ebitmap_length(types); i++)	{
++			if (ebitmap_get_bit(types, i))
++				ebitmap_set_bit(&role->types.types, i, TRUE);
+ 		}
+ 		if (!r->value) {
+ 			/* free intermediate result */
+-			ebitmap_destroy(&r->types);
++			type_set_destroy(&r->types);
+ 			ebitmap_destroy(&r->dominates);
+ 			free(r);
+ 		}
+@@ -2997,29 +2506,21 @@
+ 	return role;
+ }
+ 
+-
+-static int set_roles(ebitmap_t *set,
++static int set_roles(role_set_t *set,
+ 		     char *id)
+ {
+ 	role_datum_t *r;
+-	unsigned int i;
+ 
+ 	if (strcmp(id, "*") == 0) {
+ 		/* set all roles */
+-		for (i = 0; i < policydbp->p_roles.nprim; i++) 
+-			ebitmap_set_bit(set, i, TRUE);
++		set->flags = ROLE_STAR;
+ 		free(id);
+ 		return 0;
+ 	}
+ 
+ 	if (strcmp(id, "~") == 0) {
+ 		/* complement the set */
+-		for (i = 0; i < policydbp->p_roles.nprim; i++) {
+-			if (ebitmap_get_bit(set, i))
+-				ebitmap_set_bit(set, i, FALSE);
+-			else 
+-				ebitmap_set_bit(set, i, TRUE);
+-		}
++		set->flags = ROLE_COMP;
+ 		free(id);
+ 		return 0;
+ 	}
+@@ -3032,19 +2533,20 @@
+ 		return -1;
+ 	}
+ 
+-	/* set one role */
+-	ebitmap_set_bit(set, r->value - 1, TRUE);
++        ebitmap_set_bit(&set->roles, r->value - 1, TRUE);
+ 	free(id);
+ 	return 0;
+ }
+ 
+-
+ static int define_role_trans(void)
+ {
+ 	char *id;
+ 	role_datum_t *role;
+-	ebitmap_t roles, types, negset;
+-	struct role_trans *tr = 0;
++	role_set_t roles;
++	type_set_t types;
++	ebitmap_t e_types, e_roles;
++	struct role_trans *tr = NULL;
++	struct role_trans_rule *rule = NULL;
+ 	unsigned int i, j;
+ 	int add = 1;
+ 
+@@ -3058,20 +2560,20 @@
+ 		return 0;
+ 	}
+ 
+-	ebitmap_init(&roles);
+-	ebitmap_init(&types);
++	role_set_init(&roles);
++	ebitmap_init(&e_roles);
++	type_set_init(&types);
++	ebitmap_init(&e_types);
+ 
+ 	while ((id = queue_remove(id_queue))) {
+ 		if (set_roles(&roles, id))
+ 			return -1;
+ 	}
+-
+-	ebitmap_init(&negset);
++        add = 1;
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&types, &negset, id, &add))
++		if (set_types(&types, id, &add))
+ 			return -1;
+ 	}
+-	ebitmap_destroy(&negset);
+ 
+ 	id = (char *) queue_remove(id_queue);
+ 	if (!id) {
+@@ -3085,17 +2587,24 @@
+ 		goto bad;
+ 	}
+ 
+-	for (i = ebitmap_startbit(&roles); i < ebitmap_length(&roles); i++) {
+-		if (!ebitmap_get_bit(&roles, i)) 
++	/* This ebitmap business is just to ensure that there are not conflicting role_trans rules */
++	if (role_set_expand(&roles, &e_roles, policydbp))
++		goto bad;
 +		
-+		if (role_trans_rule_write(p->role_tr_rules, fp))
-+			return -1;
++	if (type_set_expand(&types, &e_types, policydbp))
++		goto bad;
 +
-+		if (role_allow_rule_write(p->role_allow_rules, fp))
-+			return -1;
-+	}
++	for (i = ebitmap_startbit(&e_roles); i < ebitmap_length(&e_roles); i++) {
++		if (!ebitmap_get_bit(&e_roles, i)) 
+ 			continue;
+-		for (j = ebitmap_startbit(&types); j < ebitmap_length(&types); j++) {
+-			if (!ebitmap_get_bit(&types, j)) 
++		for (j = ebitmap_startbit(&e_types); j < ebitmap_length(&e_types); j++) {
++			if (!ebitmap_get_bit(&e_types, j))
+ 				continue;
+ 
+ 			for (tr = policydbp->role_tr; tr; tr = tr->next) {
+ 				if (tr->role == (i+1) && tr->type == (j+1)) {
+ 					sprintf(errormsg, "duplicate role transition defined for (%s,%s)", 
+-						role_val_to_name(i+1), type_val_to_name(j+1));
++						policydbp->p_role_val_to_name[i], policydbp->p_type_val_to_name[j]);
+ 					yyerror(errormsg);
+ 					goto bad;
+ 				}
+@@ -3112,8 +2621,26 @@
+ 			tr->new_role = role->value;
+ 			tr->next = policydbp->role_tr;
+ 			policydbp->role_tr = tr;
 +
-+        if (ocontext_write(info, p, fp) == -1) {
-+                return -1;
-+        }
-+        if (genfs_write(p, fp) == -1) {
-+                return -1;
-+        }
-+        
-+	if (policyvers >= POLICYDB_VERSION_MLS) {
-+                if (range_write(p, fp)) {
++		}
+ 		}
++
++	/* Now add the real rule */
++	rule = malloc(sizeof(struct role_trans_rule));
++	if (!rule) {
++		yyerror("out of memory");
++		return -1;
+ 	}
++	memset(rule, 0, sizeof(struct role_trans_rule));
++	rule->roles = roles;
++	rule->types = types;
++	rule->new_role = role->value;
++			
++        rule->next = policydbp->role_tr_rules;
++        policydbp->role_tr_rules = rule;
++
++	ebitmap_destroy(&e_roles);
++	ebitmap_destroy(&e_types);
+ 
+ 	return 0;
+ 
+@@ -3121,13 +2648,10 @@
+ 	return -1;
+ }
+ 
+-
+ static int define_role_allow(void)
+ {
+ 	char *id;
+-	ebitmap_t roles, new_roles;
+-	struct role_allow *ra = 0;
+-	unsigned int i, j;
++	struct role_allow_rule *ra = 0;
+ 
+ 	if (pass == 1) {
+ 		while ((id = queue_remove(id_queue))) 
+@@ -3137,47 +2661,25 @@
+ 		return 0;
+ 	}
+ 
+-	ebitmap_init(&roles);
+-	ebitmap_init(&new_roles);
+-
+-	while ((id = queue_remove(id_queue))) {
+-		if (set_roles(&roles, id))
++	ra = malloc(sizeof(role_allow_rule_t));
++	if (!ra) {
++		yyerror("out of memory");
+ 			return -1;
+ 	}
+-
++	role_allow_rule_init(ra);
+ 
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_roles(&new_roles, id))
++		if (set_roles(&ra->roles, id))
+ 			return -1;
+ 	}
+ 
+-	for (i = ebitmap_startbit(&roles); i < ebitmap_length(&roles); i++) {
+-		if (!ebitmap_get_bit(&roles, i)) 
+-			continue;
+-		for (j = ebitmap_startbit(&new_roles); j < ebitmap_length(&new_roles); j++) {
+-			if (!ebitmap_get_bit(&new_roles, j)) 
+-				continue;
+-
+-			for (ra = policydbp->role_allow; ra; ra = ra->next) {
+-				if (ra->role == (i+1) && ra->new_role == (j+1))
+-					break;
+-			}
+-
+-			if (ra) 
+-				continue;
+-
+-			ra = malloc(sizeof(struct role_allow));
+-			if (!ra) {
+-				yyerror("out of memory");
++	while ((id = queue_remove(id_queue))) {
++		if (set_roles(&ra->new_roles, id))
+ 				return -1;
+ 			}
+-			memset(ra, 0, sizeof(struct role_allow));
+-			ra->role = i+1;
+-			ra->new_role = j+1;
+-			ra->next = policydbp->role_allow;
+-			policydbp->role_allow = ra;
+-		}
+-	}
++
++        ra->next = policydbp->role_allow_rules;
++        policydbp->role_allow_rules = ra;
+ 
+ 	return 0;
+ }
+@@ -3399,10 +2901,10 @@
+ 	struct constraint_expr *expr, *e1 = NULL, *e2;
+ 	user_datum_t *user;
+ 	role_datum_t *role;
++        type_datum_t *type;
+ 	ebitmap_t negset;
+ 	char *id;
+ 	uint32_t val;
+-	int add = 1;
+ 
+ 	if (pass == 1) {
+ 		if (expr_type == CEXPR_NAMES) {
+@@ -3493,11 +2995,15 @@
+ 				}
+ 				val = role->value;
+ 			} else if (expr->attr & CEXPR_TYPE) {
+-				if (set_types(&expr->names, &negset, id, &add)) {
++				type = (type_datum_t *) hashtab_search(policydbp->p_types.table,
++									(hashtab_key_t) id);
++				if (!type) {
++					sprintf(errormsg, "unknown type %s", id);
++					yyerror(errormsg);
+ 					free(expr);
+ 					return 0;
+ 				}
+-				continue;
++                                val = type->value;
+ 			} else {
+ 				yyerror("invalid constraint expression");
+ 				free(expr);
+@@ -3524,12 +3030,12 @@
+ 	return 0;
+ }
+ 
+-static int define_conditional(cond_expr_t *expr, cond_av_list_t *t, cond_av_list_t *f )
++static int define_conditional(cond_expr_t *expr, avrule_t *t, avrule_t *f )
+ {
+ 	cond_expr_t *e;
+-	cond_node_t *cn, tmp, *cn_new;
+-	int depth;
+-
++	int depth, retval;
++        cond_node_t cn, *cn_old;
++        avrule_t *tmp, *last_tmp;
+ 
+ 	/* expression cannot be NULL */
+ 	if ( !expr) {
+@@ -3590,169 +3096,128 @@
+ 	}
+ 
+         /*  use tmp conditional node to partially build new node */
+-	cn = &tmp;
+-	cn->expr = expr;
+-	cn->true_list = t;
+-	cn->false_list = f;
++        memset(&cn, 0, sizeof(cn));
++        cn.expr = expr;
++        cn.avtrue_list = t;
++        cn.avfalse_list = f;
+       
+ 	/* normalize/precompute expression */
+-	if (cond_normalize_expr(policydbp, cn) < 0) {
++	if (cond_normalize_expr(policydbp, &cn) < 0) {
+ 		yyerror("problem normalizing conditional expression");
+ 		return -1;
+ 	}
+ 
+ 	/* get the existing conditional node, or a new one*/
+-	cn_new = cond_node_search(policydbp, cn);
+-	if(cn_new) {
+-		cond_reduce_insert_list (cn->true_list, &cn_new->true_list, &cn_new->false_list, cn_new->cur_state);
+-		cond_reduce_insert_list (cn->false_list, &cn_new->false_list, &cn_new->true_list, !cn_new->cur_state);
+-	} else { 
+-		yyerror("could not get a conditional node");
++        cn_old = cond_node_search(policydbp, policydbp->cond_list, &cn);
++        if (!cn_old) {
+ 		return -1;
+ 	}
+ 
+-
+-	return 0;
+-}
+-
+-
+-/*  Set the ENABLE bit and parse_context for each rule and check rules to see if they already exist.
+- * Insert rules into the conditional db when appropriate.
+- *  
+- * new - list of rules to potentially add/insert
+- * active - list to add rule to, and address to use as parse_context
+- * inactive - opposite rule list in same conditional
+- * state - whether rules in new are on or off by default.
+- *
+- * There are 4 possible conditions for a TYPE_* rule.  Allow rules are always inserted or
+- * OR'd with existing allow rules on the same side of the same conditional.
+- *
+- * 1) Not present anywhere -> add it
+- * 2) Already in cond, same side -> warn, replace default in prev rule, delete this rule
+- * 3) Just added to opp side -> search again (we may still add this rule)
+- * 4) In another conditional (either side) -> warn, delete this rule
+- */
+-static void cond_reduce_insert_list(cond_av_list_t *new, cond_av_list_t **active, cond_av_list_t **inactive, int state)
+-{
+-	int add_rule = 1;
+-	cond_av_list_t *c, *top;
+-	avtab_ptr_t dup;
+-	uint32_t old_data = 0, new_data = 0;
+-
+-	top = c = new; 
+-	/* loop through all the rules in the list */
+-	while(c) {
+-
+-                /* is conditional rule a TYPE_* rule that's already in a conditional? */
+-                /* [note that we checked to see if it's in the base when we parsed the rule] */
+-		if ((c->node->datum.specified & AVTAB_TYPE) &&
+-		    ((dup = avtab_search_node(&policydbp->te_cond_avtab, &c->node->key, c->node->datum.specified & AVTAB_TYPE)) != NULL) ){
+-			do {
+-				/* is the rule we found in the current rule list or the equivalent */
+-				if (dup->parse_context == active) {
+-					/* change original default */
+-					switch(c->node->datum.specified & AVTAB_TYPE) {
+-					case AVTAB_TRANSITION:
+-						old_data = avtab_transition(&dup->datum);
+-						new_data = avtab_transition(&c->node->datum);
+-						avtab_transition(&dup->datum) = new_data;
+-						break;
+-					case AVTAB_MEMBER:
+-						old_data = avtab_member(&dup->datum);
+-						new_data = avtab_member(&c->node->datum);
+-						avtab_member(&dup->datum) = new_data;
+-						break;
+-					case AVTAB_CHANGE:
+-						old_data = avtab_change(&dup->datum);
+-						new_data = avtab_change(&c->node->datum);
+-						avtab_change(&dup->datum) = new_data;
++        /* verify te rules */
++	tmp = cn.avtrue_list;
++        last_tmp = NULL;
++	while (tmp) {
++		if (!tmp->specified & AVRULE_TRANSITION)
++			continue;
++		retval = insert_check_type_rule(tmp,
++                                                &policydbp->te_cond_avtab,
++                                                &cn_old->true_list, &cn_old->false_list);
++                switch (retval) {
++                case 1: {
++                        last_tmp = tmp;
++                        tmp = tmp->next;
+ 						break;
+ 					}
+-					sprintf(errormsg, "duplicate type rule on same side of conditional for (%s, %s:%s); overwrote original default %s with %s",
+-						type_val_to_name(c->node->key.source_type), 
+-						type_val_to_name(c->node->key.target_type), 
+-						policydbp->p_class_val_to_name[c->node->key.target_class],
+-						type_val_to_name(old_data),
+-						type_val_to_name(new_data));					
+-					yywarn(errormsg);
+-					add_rule = 0;
+-					break;
++                case 0: {
++                        /* rule conflicted, so remove it from consideration */
++                        if (last_tmp == NULL) {
++                                cn.avtrue_list = cn.avtrue_list->next;
++                                avrule_destroy(tmp);
++                                tmp = cn.avtrue_list;
++                        }
++                        else {
++                                last_tmp->next = tmp->next;
++                                avrule_destroy(tmp);
++                                tmp = last_tmp->next;
+ 				}
+-				/* if the rule we found is in the opposite rule list that's OK*/
+-				if (dup->parse_context == inactive) {
+-					continue;
+-				} else {
+-					/* the rule we found must be in another conditional */
+-					sprintf(errormsg, "discarding conflicting conditional type rule for (%s, %s:%s); may only be in one conditional",
+-						type_val_to_name(c->node->key.source_type), 
+-						type_val_to_name(c->node->key.target_type), 
+-						policydbp->p_class_val_to_name[c->node->key.target_class]);
+-					yywarn(errormsg);
+-					add_rule = 0;
+ 					break;
+ 				}
+-			} while ( (dup = avtab_search_node_next(dup, c->node->datum.specified & AVTAB_TYPE)) != NULL);
++                case -1: {
 +                        return -1;
 +                }
++                default: {
++                        assert(0);  /* should never get here */
++                }
++                }
 +	}
-+
+ 
+-		} /* end dealing with TYPE_* rules */
+-		else if ( (c->node->datum.specified & AVTAB_AV ) &&
+-		     ((dup = avtab_search_node(&policydbp->te_cond_avtab, &c->node->key, c->node->datum.specified & AVTAB_AV)) != NULL) ){
+-			do {
+-				/* we only care if the same AV rule is on the same side of the same conditional */
+-				if (dup->parse_context == active) {
+-					/* add to original */
+-					switch(c->node->datum.specified & AVTAB_AV) {
+-					case AVTAB_ALLOWED:
+-						new_data = avtab_allowed(&c->node->datum);
+-						avtab_allowed(&dup->datum) |= new_data;
+-						break;
+-					case AVTAB_AUDITALLOW:
+-						new_data = avtab_auditallow(&c->node->datum);
+-						avtab_auditallow(&dup->datum) |= new_data;
+-						break;
+-					case AVTAB_AUDITDENY:
+-						new_data = avtab_auditdeny(&c->node->datum);
+-						/* Since a '0' in an auditdeny mask represents a 
+-						 * permission we do NOT want to audit (dontaudit), we use
+-						 * the '&' operand to ensure that all '0's in the mask
+-						 * are retained (much unlike the allow and auditallow cases).
+-						 */
+-						avtab_auditdeny(&dup->datum) &= new_data;
++	tmp = cn.avfalse_list;
++        last_tmp = NULL;
++	while (tmp) {
++		if (!tmp->specified & AVRULE_TRANSITION)
++			continue;
++		retval = insert_check_type_rule(tmp,
++                                                &policydbp->te_cond_avtab,
++                                                &cn_old->false_list, &cn_old->true_list);
++                switch (retval) {
++                case 1: {
++                        last_tmp = tmp;
++                        tmp = tmp->next;
+ 						break;
+ 					}
+-					add_rule = 0;
++                case 0: {
++                        /* rule conflicted, so remove it from consideration  */
++                        if (last_tmp == NULL) {
++                                cn.avfalse_list = cn.avfalse_list->next;
++                                avrule_destroy(tmp);
++                                tmp = cn.avfalse_list;
++                        }
++                        else {
++                                last_tmp->next = tmp->next;
++                                avrule_destroy(tmp);
++                                tmp = last_tmp->next;
++                        }
+ 					break;
+ 				}
+-			} while ( (dup = avtab_search_node_next(dup, c->node->datum.specified & AVTAB_AV)) != NULL);
+-		} /* end dealing with ALLOW rules */
++                case -1: {
++                        return -1;
++                }
++                default: {
++                        assert(0);  /* should never get here */
++                }
++                }
++	}
+ 
+-		top = c->next;
+-		/* Either insert the rule into the policy and active list, or discard the rule */
+-		if (add_rule) {
+-			c->node = avtab_insert_with_parse_context(&policydbp->te_cond_avtab, 
+-								  &c->node->key,
+-								  &c->node->datum,
+-								  active);
+-			/* set whether the rule is enabled/disabled */
+-			if (state) {
+-				c->node->datum.specified |= AVTAB_ENABLED;
+-			} else {
+-				c->node->datum.specified &= ~AVTAB_ENABLED;
++        /* append the new conditional node to the existing ones.
++         * during expansion the list will be reversed -- i.e., the
++         * last AV rule will be the first one listed in the policy.
++         * this matches the behavior of the upstream compiler. */
++        if (cn_old->avtrue_list == NULL) {
++                cn_old->avtrue_list = cn.avtrue_list;
++        }
++        else {
++                for (tmp = cn_old->avtrue_list; tmp->next != NULL; tmp = tmp->next)
++                        ;
++                tmp->next = cn.avtrue_list;
++        }
++        if (cn_old->avfalse_list == NULL) {
++                cn_old->avfalse_list = cn.avfalse_list;
++        }
++        else {
++                for (tmp = cn_old->avfalse_list; tmp->next != NULL; tmp = tmp->next)
++                        ;
++                tmp->next = cn.avfalse_list;
+ 			}
+ 
+-			/* prepend new rule to active list */
+- 			c->next = *active; 
+- 			*active = c; 
+-		} else {
+-			/* discard rule */
+-			free(c->node);
+-			free(c);
++        /* note that there is no check here for duplicate rules, nor
++         * check that rule already exists in base -- that will be
++         * handled during conditional expansion, in expand.c */
+ 			
+-			add_rule = 1;
+-		}
+-                /* next rule */
+-		c = top;
++	cn.avtrue_list = NULL;
++	cn.avfalse_list = NULL;
++	cond_node_destroy(&cn);
+ 		
+-	} /* while */
 +	return 0;
-+}
+ }
+ 
+ static cond_expr_t *
+@@ -3855,7 +3320,7 @@
+ }
+ 
+
+-static int set_user_roles(ebitmap_t *set,
++static int set_user_roles(role_set_t *set,
+ 			  char *id)
+ {
+ 	role_datum_t *r;
+@@ -3863,20 +3328,14 @@
+ 
+ 	if (strcmp(id, "*") == 0) {
+ 		/* set all roles */
+-		for (i = 0; i < policydbp->p_roles.nprim; i++) 
+-			ebitmap_set_bit(set, i, TRUE);
++		set->flags = ROLE_STAR;
+ 		free(id);
+ 		return 0;
+ 	}
+ 
+ 	if (strcmp(id, "~") == 0) {
+ 		/* complement the set */
+-		for (i = 0; i < policydbp->p_roles.nprim; i++) {
+-			if (ebitmap_get_bit(set, i))
+-				ebitmap_set_bit(set, i, FALSE);
+-			else 
+-				ebitmap_set_bit(set, i, TRUE);
+-		}
++		set->flags = ROLE_COMP;
+ 		free(id);
+ 		return 0;
+ 	}
+@@ -3892,7 +3351,7 @@
+ 	/* set the role and every role it dominates */
+ 	for (i = ebitmap_startbit(&r->dominates); i < ebitmap_length(&r->dominates); i++) {
+ 		if (ebitmap_get_bit(&r->dominates, i))
+-			ebitmap_set_bit(set, i, TRUE);
++			ebitmap_set_bit(&set->roles, i, TRUE);
+ 	}
+ 	free(id);
+ 	return 0;
+@@ -3967,6 +3426,7 @@
+ 	int ret;
+ 	level_datum_t *levdatum;
+ 	int l;
++	uint32_t value;
+ 
+ 	if (pass == 1) {
+ 		while ((id = queue_remove(id_queue))) 
+@@ -4002,17 +3462,15 @@
+ 			free(id);
+ 			return -1;
+ 		}
+-		memset(usrdatum, 0, sizeof(user_datum_t));
+-		usrdatum->value = ++policydbp->p_users.nprim;
+-		ebitmap_init(&usrdatum->roles);
+-		ret = hashtab_insert(policydbp->p_users.table,
+-				     (hashtab_key_t) id, (hashtab_datum_t) usrdatum);
++                user_datum_init(usrdatum);
++                ret = symtab_insert(policydbp, SYM_USERS, id, (hashtab_datum_t*)usrdatum, &value);
+ 		if (ret) {
+ 			yyerror("hash table overflow");
+ 			free(usrdatum);
+ 			free(id);
+ 			return -1;
+ 		}
++		usrdatum->value = value;
+ 	} else
+ 		free(id);
+ 
+@@ -4806,7 +4264,7 @@
+ 	char *id;
+ 	level_datum_t *levdatum = 0;
+ 	mls_range_t range;
+-	ebitmap_t doms, types, negset;
++	type_set_t doms, types;
+ 	range_trans_t *rt = 0;
+ 	unsigned int i, j;
+ 	int l, add = 1;
+@@ -4834,22 +4292,18 @@
+ 		return 0;
+ 	}
+ 
+-	ebitmap_init(&doms);
+-	ebitmap_init(&types);
++	type_set_init(&doms);
++	type_set_init(&types);
+ 
+-	ebitmap_init(&negset);
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&doms, &negset, id, &add))
++		if (set_types(&doms, id, &add))
+ 			return -1;
+ 	}
+-	ebitmap_destroy(&negset);
+-
+-	ebitmap_init(&negset);
++        add = 1;
+ 	while ((id = queue_remove(id_queue))) {
+-		if (set_types(&types, &negset, id, &add))
++		if (set_types(&types, id, &add))
+ 			return -1;
+ 	}
+-	ebitmap_destroy(&negset);
+ 
+ 	id = (char *)queue_remove(id_queue);
+ 	if (!id) {
+@@ -4895,17 +4349,18 @@
+ 		return -1;
+ 	}
+ 
+-	for (i = ebitmap_startbit(&doms); i < ebitmap_length(&doms); i++) {
+-		if (!ebitmap_get_bit(&doms, i))
++	for (i = ebitmap_startbit(&doms.types); i < ebitmap_length(&doms.types); i++) {
++		if (!ebitmap_get_bit(&doms.types, i))
+ 			continue;
+-		for (j = ebitmap_startbit(&types); j < ebitmap_length(&types); j++) {
+-			if (!ebitmap_get_bit(&types, j))
++		for (j = ebitmap_startbit(&types.types); j < ebitmap_length(&types.types); j++) {
++			if (!ebitmap_get_bit(&types.types, j))
+ 				continue;
+ 
+ 			for (rt = policydbp->range_tr; rt; rt = rt->next) {
+ 				if (rt->dom == (i + 1) && rt->type == (j + 1)) {
+ 					sprintf(errormsg, "duplicate range_transition defined for (%s,%s)",
+-					        type_val_to_name(i + 1), type_val_to_name(j + 1));
++					        policydbp->p_type_val_to_name[i + 1],
++                                                policydbp->p_type_val_to_name[j + 1]);
+ 					yyerror(errormsg);
+ 					return -1;
+ 				}
+@@ -4938,13 +4393,11 @@
+ 		}
+ 	}
+ 
+-	ebitmap_destroy(&doms);
+-	ebitmap_destroy(&types);
++	type_set_destroy(&doms);
++	type_set_destroy(&types);
+ 	ebitmap_destroy(&range.level[0].cat);
+ 	ebitmap_destroy(&range.level[1].cat);
+ 	return 0;
+ }
+ 
+ /* FLASK */
+-
+-
 
 
 --
