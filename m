@@ -1,45 +1,60 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4RK33gA014966
-	for <selinux@tycho.nsa.gov>; Fri, 27 May 2005 16:03:03 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4RJvkrx002660
-	for <selinux@tycho.nsa.gov>; Fri, 27 May 2005 19:57:46 GMT
-Date: Fri, 27 May 2005 21:05:40 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
-Subject: Re: [RFC] Module language syntax
-Message-ID: <20050527200540.GC1544@lkcl.net>
-References: <1117217853.9785.22.camel@localhost> <20050527185331.GA1544@lkcl.net> <1117220066.9783.27.camel@localhost>
+Subject: file_type_auto_trans is not sufficient
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: SELinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com
+Content-Type: text/plain
+Date: Fri, 27 May 2005 23:09:20 -0400
+Message-Id: <1117249760.19257.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1117220066.9783.27.camel@localhost>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, May 27, 2005 at 02:54:26PM -0400, Joshua Brindle wrote:
-> On Fri, 2005-05-27 at 19:53 +0100, Luke Kenneth Casson Leighton wrote:
-> > On Fri, May 27, 2005 at 02:17:33PM -0400, Joshua Brindle wrote:
-> > 
-> > > installation. The production environment then does not need a build
-> > > environment such as make, m4 and so on. The module tools will allow
-> > > these modules to be "linked in" to the current policy. It's at this link
-> > > time that both the modules dependencies and the optional dependencies
-> > > are determined and optionals with fulfilled dependencies are enabled.
-> >  
-> >  i take it that booleans are ... just... added / supported, too?
-> > 
-> >  such that they are declared in the binary module, used in the binary
-> >  module, added to the config files and can be set at runtime, yes/
-> > 
-> >  l.
-> > 
-> 
-> booleans and conditionals are runtime and are not at all affected by the
-> loadable modules. 
+As part of my current project, I am running into a large number of cases
+where file_type_auto_trans is not an acceptable solution for changing
+the context for a newly created file/directory. This always
+happens in a conflicting-transition scenario (very common):
 
+For example:
 
- great!  ... just checkin :)
+1) 
+libgnome needs to create .gnome2 and .gnome2_private with
+a context that differs from the parent directory. Applications
+that link to libgnome may already have a transition defined 
+for (ROLE_home_dir_t: dir)
+
+2)
+libfontconfig needs to create .font.cache-# with
+a context that differs from the parent directory. Same
+problem for (ROLE_hime_dir_t: file)
+
+3) 
+Mail apps need to be able to save mail to $HOME
+under some context (likely ROLE_untrusted_content_t:file/dir).
+Same goes for web content saved by mozilla. This conflicts
+with the usual transition.
+
+4) 
+libORBit2 needs to create /tmp/orbit-$USER... with a specific
+context while the app may have its own tmp_domain. Same for libICE.
+
+===============
+
+To address those problems, I think I need to add selinux support
+to a number of applications, and perform the transition in the code. 
+I'm not sure what's the best way to do that. Does adding 
+the following functions to libselinux (or elsewhere) make sense?
+
+int mkdir_restorecon(const char *pathname, mode_t mode);
+int creat_restorecon(const char *pathname, mode_t mode);
+int mknod_restorecon(const char *pathname, mode_t mode, dev_t dev);
+
+Those would perform getfscreate/matchpathcon/setfscreate cycle,
+and would ignore errors in permissive mode.
+
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
