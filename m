@@ -1,60 +1,101 @@
-Message-Id: <200505291716.j4THGA9b009438@turing-police.cc.vt.edu>
-To: SELinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-Subject: On building a smaller 'strict' policy.
-From: Valdis.Kletnieks@vt.edu
+Subject: Re: file_type_auto_trans is not sufficient
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <42999EF1.3020205@redhat.com>
+References: <1117249760.19257.18.camel@localhost.localdomain>
+	 <1117252045.19698.16.camel@localhost.localdomain>
+	 <42980072.6090701@redhat.com>
+	 <1117336632.24194.8.camel@localhost.localdomain>
+	 <42999EF1.3020205@redhat.com>
+Content-Type: text/plain
+Date: Sun, 29 May 2005 13:44:59 -0400
+Message-Id: <1117388699.21505.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1117386968_6734P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Sun, 29 May 2005 13:16:09 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1117386968_6734P
-Content-Type: text/plain; charset=us-ascii
 
-OK, so I finally got fed up with having the 'strict' policy take up
-4,821 or so *pages* of slab entries for avc_node, and decided to see how
-much I could pare it down.  Moving stuff I didn't actually have or use
-from domains/program/foo.te into unused/foo.te more or less worked, and
-only using up 2,230 pages of slab (a noticable difference on a 256M laptop).
+> >/* Performs a context match, and changes the file creation context.
+> > * On success, returns the old context. On failure, returns NULL.
+> > * The context returned must be freed with freecon() */
+> >
+> >security_context_t switch_context(const char* pathname, mode_t mode) {
+> >        security_context_t prev_ctx = NULL;
+> >        security_context_t tmp_ctx = NULL;
+> >
+> >        /* Attempt to get the current context. */
+> >        if (getfscreatecon(&prev_ctx) < 0)
+> >                return NULL;
+> >
+> >        /* Attempt a match. */
+> >        if (matchpathcon(pathname, mode, &tmp_ctx) >= 0) {
+> >                if (setfscreatecon(tmp_ctx) < 0) {
+> >                        freecon(tmp_ctx);
+> >                        freecon(prev_ctx);
+> >                        return NULL;
+> >                }
+> >                freecon(tmp_ctx);
+> >        }
+> >
+> >        return prev_ctx;
+> >}
+> >
+> >...and then do this in every app that needs it, replacing
+> >mkdir with the appropriate function. This is annoying.... 
+> >but I can't think how else to write a better interface.
+> >
+> >/* Performs a mkdir call, and sets the context of the directory
+> > * being created, according to matchpathcon. On SElinux failure
+> > * returns -1. Otherwise, returns the usual mkdir status. */
+> >
+> >int mkdir_restorecon(const char *pathname, mode_t mode) {
+> >        security_context_t prev_ctx = NULL;
+> >        int status;
+> >
+> >        if (is_selinux_enabled()) {
+> >                prev_ctx = switch_context(pathname, mode);
+> >
+> >                if ((prev_ctx != NULL) && security_getenforce())
+> >                        return -1;
+> >        }
+> >
+> >        status = mkdir(pathname, mode);
+> >
+> >        if (prev_ctx != NULL) {
+> >                setfscreatecon(prev_ctx);
+> >                freecon(prev_ctx);
+> >        }
+> >
+> >        return status;
+> >}
+> >
+> >  
+> >
+> You do not necessarily want to return an error or matchpathcon failure.  
+> matchpathcon can return ENOENT to indicate that it matched <<none>>
 
-Nits:  In an effort to minimize the size even *more*, I tried nuking the
-corresponding macros/program/foo_macros.te files, since much of the bulk of
-the policy.conf is created by FOO_macros.te expanding a whole bunch of
-USER_FOO_t for all user types (cdrecord chunks out some 100 per role, as
-near as I can tell).
+>                if ((prev_ctx != NULL) && security_getenforce())
 
-The resmgrd, kerberos, and ypbind entries in macros/programs end up getting
-referenced in ways that fail gloriously when you try to build policy, so
-obviously, wholesale skipping over macros the way the .tc files get skipped
-over for unused .te isn't going to work.  Fortunately, the four I had problems
-with are defined in such a way that there's little real growth in the policy
-because they're wrapped in a "ifdef(`foo.te')"
+This should be if ((prev_ctx == NULL) ... 
+Given that, there is no error on matchpathcon failure.
 
-Would it be a Good Idea to be more agressive in wrapping the other FOO_macros.te
-with such an ifdef?  Or does this become a *total* non-issue with the soon-to-arrive
-'loadable policy module' stuff?
+> In this case the setfscreatecon should not be called but the code should 
+> continue.  IE the
+> file should get created with the default context.
 
-For what it's worth:
+That's what it does... it also tries to setfscreatecon back to 
+restore the old context on no change, but I thought that was acceptable.
 
-[/etc/selinux/strict/src/policy]3 egrep -v '^#|^$' policy.conf | wc
-  28831  218148 1768137
+The issue is - this interface is rather ugly - can anyone come up 
+with a better one, or should I go ahead and patch various programs like
+this. 
 
-A major savings. ;)
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
---==_Exmh_1117386968_6734P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCmfjYcC3lWbTT17ARArnRAJ9+IWdBISIZUdKBIB+E34LpvshOUwCfS6xz
-CRoRqQL+lzhFrXgzKGr1ouk=
-=QrQe
------END PGP SIGNATURE-----
-
---==_Exmh_1117386968_6734P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
