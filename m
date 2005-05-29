@@ -1,25 +1,60 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-Subject: dhcpc_t and privuser
-Date: Mon, 30 May 2005 02:09:47 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200505300209.51414.russell@coker.com.au>
+Message-Id: <200505291716.j4THGA9b009438@turing-police.cc.vt.edu>
+To: SELinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
+Subject: On building a smaller 'strict' policy.
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1117386968_6734P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Sun, 29 May 2005 13:16:09 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why does the domain dhcpc_t have the privuser attribute?
+--==_Exmh_1117386968_6734P
+Content-Type: text/plain; charset=us-ascii
 
-It doesn't seem to have any use as dhcpc_t can't transition to any user 
-domains anyway.  dhclient works well on both strict and targeted without it.
+OK, so I finally got fed up with having the 'strict' policy take up
+4,821 or so *pages* of slab entries for avc_node, and decided to see how
+much I could pare it down.  Moving stuff I didn't actually have or use
+from domains/program/foo.te into unused/foo.te more or less worked, and
+only using up 2,230 pages of slab (a noticable difference on a 256M laptop).
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Nits:  In an effort to minimize the size even *more*, I tried nuking the
+corresponding macros/program/foo_macros.te files, since much of the bulk of
+the policy.conf is created by FOO_macros.te expanding a whole bunch of
+USER_FOO_t for all user types (cdrecord chunks out some 100 per role, as
+near as I can tell).
+
+The resmgrd, kerberos, and ypbind entries in macros/programs end up getting
+referenced in ways that fail gloriously when you try to build policy, so
+obviously, wholesale skipping over macros the way the .tc files get skipped
+over for unused .te isn't going to work.  Fortunately, the four I had problems
+with are defined in such a way that there's little real growth in the policy
+because they're wrapped in a "ifdef(`foo.te')"
+
+Would it be a Good Idea to be more agressive in wrapping the other FOO_macros.te
+with such an ifdef?  Or does this become a *total* non-issue with the soon-to-arrive
+'loadable policy module' stuff?
+
+For what it's worth:
+
+[/etc/selinux/strict/src/policy]3 egrep -v '^#|^$' policy.conf | wc
+  28831  218148 1768137
+
+A major savings. ;)
+
+--==_Exmh_1117386968_6734P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCmfjYcC3lWbTT17ARArnRAJ9+IWdBISIZUdKBIB+E34LpvshOUwCfS6xz
+CRoRqQL+lzhFrXgzKGr1ouk=
+=QrQe
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1117386968_6734P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
