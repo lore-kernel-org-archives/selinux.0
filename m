@@ -1,86 +1,33 @@
-Subject: Re: file_type_auto_trans is not sufficient
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Daniel J Walsh <dwalsh@redhat.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: ivg2@cornell.edu
+Subject: Re: Strange trace - tty problems
+Date: Sun, 29 May 2005 16:27:02 +1000
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <42980072.6090701@redhat.com>
-References: <1117249760.19257.18.camel@localhost.localdomain>
-	 <1117252045.19698.16.camel@localhost.localdomain>
-	 <42980072.6090701@redhat.com>
-Content-Type: text/plain
-Date: Sat, 28 May 2005 23:17:12 -0400
-Message-Id: <1117336632.24194.8.camel@localhost.localdomain>
-Mime-Version: 1.0
+References: <1115874626.18756.5.camel@localhost.localdomain>
+In-Reply-To: <1115874626.18756.5.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200505291627.05984.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thursday 12 May 2005 15:10, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+> Then I couldn't open any terminals. Logging out of X
+> and back in let me open terminals just fine.
 
-> setfscreatecon takes precedence.
+The issue of not being able to open terminals is separate from the trace you 
+saw.  Usually when you see such a trace you can still open terminals.
 
-...on second thought this interface doesn't work at all - 
-apps call higher level functions for portability - the C
-standard functions (fopen...), glib (g_mkdir).
-
-Maybe just add:
-
-/* Performs a context match, and changes the file creation context.
- * On success, returns the old context. On failure, returns NULL.
- * The context returned must be freed with freecon() */
-
-security_context_t switch_context(const char* pathname, mode_t mode) {
-        security_context_t prev_ctx = NULL;
-        security_context_t tmp_ctx = NULL;
-
-        /* Attempt to get the current context. */
-        if (getfscreatecon(&prev_ctx) < 0)
-                return NULL;
-
-        /* Attempt a match. */
-        if (matchpathcon(pathname, mode, &tmp_ctx) >= 0) {
-                if (setfscreatecon(tmp_ctx) < 0) {
-                        freecon(tmp_ctx);
-                        freecon(prev_ctx);
-                        return NULL;
-                }
-                freecon(tmp_ctx);
-        }
-
-        return prev_ctx;
-}
-
-...and then do this in every app that needs it, replacing
-mkdir with the appropriate function. This is annoying.... 
-but I can't think how else to write a better interface.
-
-/* Performs a mkdir call, and sets the context of the directory
- * being created, according to matchpathcon. On SElinux failure
- * returns -1. Otherwise, returns the usual mkdir status. */
-
-int mkdir_restorecon(const char *pathname, mode_t mode) {
-        security_context_t prev_ctx = NULL;
-        int status;
-
-        if (is_selinux_enabled()) {
-                prev_ctx = switch_context(pathname, mode);
-
-                if ((prev_ctx != NULL) && security_getenforce())
-                        return -1;
-        }
-
-        status = mkdir(pathname, mode);
-
-        if (prev_ctx != NULL) {
-                setfscreatecon(prev_ctx);
-                freecon(prev_ctx);
-        }
-
-        return status;
-}
+There is another kernel bug which makes it unable to create new Unix98 pty 
+devices until you first close every open device.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
