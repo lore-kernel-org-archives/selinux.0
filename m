@@ -1,48 +1,85 @@
-Message-ID: <42980072.6090701@redhat.com>
-Date: Sat, 28 May 2005 01:24:02 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: ivg2@cornell.edu
-CC: SELinux@tycho.nsa.gov
 Subject: Re: file_type_auto_trans is not sufficient
-References: <1117249760.19257.18.camel@localhost.localdomain> <1117252045.19698.16.camel@localhost.localdomain>
-In-Reply-To: <1117252045.19698.16.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <42980072.6090701@redhat.com>
+References: <1117249760.19257.18.camel@localhost.localdomain>
+	 <1117252045.19698.16.camel@localhost.localdomain>
+	 <42980072.6090701@redhat.com>
+Content-Type: text/plain
+Date: Sat, 28 May 2005 23:17:12 -0400
+Message-Id: <1117336632.24194.8.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
 
->>To address those problems, I think I need to add selinux support
->>to a number of applications, and perform the transition in the code. 
->>I'm not sure what's the best way to do that. Does adding 
->>the following functions to libselinux (or elsewhere) make sense?
->>
->>int mkdir_restorecon(const char *pathname, mode_t mode);
->>int creat_restorecon(const char *pathname, mode_t mode);
->>int mknod_restorecon(const char *pathname, mode_t mode, dev_t dev);
->>
->>Those would perform getfscreate/matchpathcon/setfscreate cycle,
->>and would ignore errors in permissive mode.
->>    
->>
->
->Actually, what exactly happens when you call setfscreate() and
->at the same time you have a matching file_type_auto_trans rule?
->
->In my case for /tmp/gconfd-$USER vs /tmp/orbit-$USER,
->(process is gconf, executing libORBit code that creates orbit-$USER)
->the orbit getfscreate() rule took precedence over
->the matching file_type_auto_trans in gconfd... does
->this always happen, or do I have to make a choice 
->between either file_type_auto_trans, or setfscreate() ?
->
->  
->
-setfscreatecon takes precedence.
+> setfscreatecon takes precedence.
+
+...on second thought this interface doesn't work at all - 
+apps call higher level functions for portability - the C
+standard functions (fopen...), glib (g_mkdir).
+
+Maybe just add:
+
+/* Performs a context match, and changes the file creation context.
+ * On success, returns the old context. On failure, returns NULL.
+ * The context returned must be freed with freecon() */
+
+security_context_t switch_context(const char* pathname, mode_t mode) {
+        security_context_t prev_ctx = NULL;
+        security_context_t tmp_ctx = NULL;
+
+        /* Attempt to get the current context. */
+        if (getfscreatecon(&prev_ctx) < 0)
+                return NULL;
+
+        /* Attempt a match. */
+        if (matchpathcon(pathname, mode, &tmp_ctx) >= 0) {
+                if (setfscreatecon(tmp_ctx) < 0) {
+                        freecon(tmp_ctx);
+                        freecon(prev_ctx);
+                        return NULL;
+                }
+                freecon(tmp_ctx);
+        }
+
+        return prev_ctx;
+}
+
+...and then do this in every app that needs it, replacing
+mkdir with the appropriate function. This is annoying.... 
+but I can't think how else to write a better interface.
+
+/* Performs a mkdir call, and sets the context of the directory
+ * being created, according to matchpathcon. On SElinux failure
+ * returns -1. Otherwise, returns the usual mkdir status. */
+
+int mkdir_restorecon(const char *pathname, mode_t mode) {
+        security_context_t prev_ctx = NULL;
+        int status;
+
+        if (is_selinux_enabled()) {
+                prev_ctx = switch_context(pathname, mode);
+
+                if ((prev_ctx != NULL) && security_getenforce())
+                        return -1;
+        }
+
+        status = mkdir(pathname, mode);
+
+        if (prev_ctx != NULL) {
+                setfscreatecon(prev_ctx);
+                freecon(prev_ctx);
+        }
+
+        return status;
+}
 
 -- 
-
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
