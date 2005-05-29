@@ -1,94 +1,25 @@
-Message-ID: <42999EF1.3020205@redhat.com>
-Date: Sun, 29 May 2005 06:52:33 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Subject: dhcpc_t and privuser
+Date: Mon, 30 May 2005 02:09:47 +1000
 MIME-Version: 1.0
-To: ivg2@cornell.edu
-CC: SELinux@tycho.nsa.gov
-Subject: Re: file_type_auto_trans is not sufficient
-References: <1117249760.19257.18.camel@localhost.localdomain>	 <1117252045.19698.16.camel@localhost.localdomain>	 <42980072.6090701@redhat.com> <1117336632.24194.8.camel@localhost.localdomain>
-In-Reply-To: <1117336632.24194.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200505300209.51414.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+Why does the domain dhcpc_t have the privuser attribute?
 
->>setfscreatecon takes precedence.
->>    
->>
->
->...on second thought this interface doesn't work at all - 
->apps call higher level functions for portability - the C
->standard functions (fopen...), glib (g_mkdir).
->
->Maybe just add:
->
->/* Performs a context match, and changes the file creation context.
-> * On success, returns the old context. On failure, returns NULL.
-> * The context returned must be freed with freecon() */
->
->security_context_t switch_context(const char* pathname, mode_t mode) {
->        security_context_t prev_ctx = NULL;
->        security_context_t tmp_ctx = NULL;
->
->        /* Attempt to get the current context. */
->        if (getfscreatecon(&prev_ctx) < 0)
->                return NULL;
->
->        /* Attempt a match. */
->        if (matchpathcon(pathname, mode, &tmp_ctx) >= 0) {
->                if (setfscreatecon(tmp_ctx) < 0) {
->                        freecon(tmp_ctx);
->                        freecon(prev_ctx);
->                        return NULL;
->                }
->                freecon(tmp_ctx);
->        }
->
->        return prev_ctx;
->}
->
->...and then do this in every app that needs it, replacing
->mkdir with the appropriate function. This is annoying.... 
->but I can't think how else to write a better interface.
->
->/* Performs a mkdir call, and sets the context of the directory
-> * being created, according to matchpathcon. On SElinux failure
-> * returns -1. Otherwise, returns the usual mkdir status. */
->
->int mkdir_restorecon(const char *pathname, mode_t mode) {
->        security_context_t prev_ctx = NULL;
->        int status;
->
->        if (is_selinux_enabled()) {
->                prev_ctx = switch_context(pathname, mode);
->
->                if ((prev_ctx != NULL) && security_getenforce())
->                        return -1;
->        }
->
->        status = mkdir(pathname, mode);
->
->        if (prev_ctx != NULL) {
->                setfscreatecon(prev_ctx);
->                freecon(prev_ctx);
->        }
->
->        return status;
->}
->
->  
->
-You do not necessarily want to return an error or matchpathcon failure.  
-matchpathcon can return ENOENT to indicate that it matched <<none>>
-
-In this case the setfscreatecon should not be called but the code should 
-continue.  IE the
-file should get created with the default context.
+It doesn't seem to have any use as dhcpc_t can't transition to any user 
+domains anyway.  dhclient works well on both strict and targeted without it.
 
 -- 
-
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
