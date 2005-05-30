@@ -1,101 +1,81 @@
-Subject: Re: file_type_auto_trans is not sufficient
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <42999EF1.3020205@redhat.com>
-References: <1117249760.19257.18.camel@localhost.localdomain>
-	 <1117252045.19698.16.camel@localhost.localdomain>
-	 <42980072.6090701@redhat.com>
-	 <1117336632.24194.8.camel@localhost.localdomain>
-	 <42999EF1.3020205@redhat.com>
-Content-Type: text/plain
-Date: Sun, 29 May 2005 13:44:59 -0400
-Message-Id: <1117388699.21505.4.camel@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4U1SfgA024432
+	for <selinux@tycho.nsa.gov>; Sun, 29 May 2005 21:28:41 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4U1Mgg6005837
+	for <selinux@tycho.nsa.gov>; Mon, 30 May 2005 01:22:42 GMT
+Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
+	by open.hands.com (Postfix) with ESMTP id 011EFBF7C
+	for <selinux@tycho.nsa.gov>; Mon, 30 May 2005 02:22:50 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1DcZ7w-0007Iw-HB
+	for selinux@tycho.nsa.gov; Mon, 30 May 2005 02:31:36 +0100
+Date: Mon, 30 May 2005 02:31:36 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: gentoo/hardened
+Message-ID: <20050530013136.GA28006@lkcl.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+hi,
 
-> >/* Performs a context match, and changes the file creation context.
-> > * On success, returns the old context. On failure, returns NULL.
-> > * The context returned must be freed with freecon() */
-> >
-> >security_context_t switch_context(const char* pathname, mode_t mode) {
-> >        security_context_t prev_ctx = NULL;
-> >        security_context_t tmp_ctx = NULL;
-> >
-> >        /* Attempt to get the current context. */
-> >        if (getfscreatecon(&prev_ctx) < 0)
-> >                return NULL;
-> >
-> >        /* Attempt a match. */
-> >        if (matchpathcon(pathname, mode, &tmp_ctx) >= 0) {
-> >                if (setfscreatecon(tmp_ctx) < 0) {
-> >                        freecon(tmp_ctx);
-> >                        freecon(prev_ctx);
-> >                        return NULL;
-> >                }
-> >                freecon(tmp_ctx);
-> >        }
-> >
-> >        return prev_ctx;
-> >}
-> >
-> >...and then do this in every app that needs it, replacing
-> >mkdir with the appropriate function. This is annoying.... 
-> >but I can't think how else to write a better interface.
-> >
-> >/* Performs a mkdir call, and sets the context of the directory
-> > * being created, according to matchpathcon. On SElinux failure
-> > * returns -1. Otherwise, returns the usual mkdir status. */
-> >
-> >int mkdir_restorecon(const char *pathname, mode_t mode) {
-> >        security_context_t prev_ctx = NULL;
-> >        int status;
-> >
-> >        if (is_selinux_enabled()) {
-> >                prev_ctx = switch_context(pathname, mode);
-> >
-> >                if ((prev_ctx != NULL) && security_getenforce())
-> >                        return -1;
-> >        }
-> >
-> >        status = mkdir(pathname, mode);
-> >
-> >        if (prev_ctx != NULL) {
-> >                setfscreatecon(prev_ctx);
-> >                freecon(prev_ctx);
-> >        }
-> >
-> >        return status;
-> >}
-> >
-> >  
-> >
-> You do not necessarily want to return an error or matchpathcon failure.  
-> matchpathcon can return ENOENT to indicate that it matched <<none>>
+i've just installed gentoo/hardened on a laptop, and i wanted to run
+Xorg on it.
 
->                if ((prev_ctx != NULL) && security_getenforce())
+bearing in mind the warnings about gentoo/hardened not having
+"workstation" capability, i noted these and carried on, happy in the
+knowledge that i would be able to sort it out.
 
-This should be if ((prev_ctx == NULL) ... 
-Given that, there is no error on matchpathcon failure.
+... then i found out what chris had done.
 
-> In this case the setfscreatecon should not be called but the code should 
-> continue.  IE the
-> file should get created with the default context.
+chris - i hope you don't mind me saying this...
 
-That's what it does... it also tries to setfscreatecon back to 
-restore the old context on no change, but I thought that was acceptable.
+... but you have made a _lot_ of work for yourself, and for
+people like myself who would be happy to contribute / get
+things working.
 
-The issue is - this interface is rather ugly - can anyone come up 
-with a better one, or should I go ahead and patch various programs like
-this. 
+what chris has done is, rather than create (for example, as one
+possible way forward) a gentoo_hardened define and comment out
+blocks of code is... he's started from the sf.net cvs policy
+and REMOVED entire sections from the gentoo released selinux
+policy (including a large number of booleans).
+
+that makes it _really_ difficult for me - or anyone else - to follow
+what's gone on, and to add stuff in, because you first have to identify
+the "missing" stuff, and then add in what you need.  maybe.  because
+if you copy the sf.net policy files into a gentoo/hardened policy,
+you find that they are out-of-date (missing defines, macros, even
+missing flasks!)
+
+so, i have a plea and a question:
+
+* chris, would you _please_ consider tracking the sf cvs more closely,
+  and submitting more patches to this list, rather than diverging?
+
+* to the people maintaining selinux cvs, would you consider adding a
+  define gentoo_hardened as well as a gentoo_selinux or consider
+  anything else - _anything_ - that would make it possible to consider
+  sf.net cvs the "authoritative" and central repository of selinux
+  policy for all distros?
+
+pooling resources and expertise in this complex area is the only _sane_
+way forward.  massive forking of selinux policy on a per-distro basis is
+a good way to ensure that expertise and volunteers are difficult to come
+by.
+
+... of course, as always, you are entirely at liberty to completely
+ignore anything and/or everything i say: i am paid by no-one and answer
+to no-one - i just want this stuff to be easier and for it to succeed.
+
+l.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
