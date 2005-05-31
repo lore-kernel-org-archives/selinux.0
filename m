@@ -1,44 +1,43 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VKKrgA008906
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 16:20:53 -0400 (EDT)
-Subject: Re: [Patch 1/3] Loadable policy module infrastructure
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux-dev@tresys.com, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1117569209.9783.85.camel@localhost>
-References: <1117128423.3483.19.camel@localhost>
-	 <1117554540.28924.184.camel@moss-spartans.epoch.ncsc.mil>
-	 <1117569209.9783.85.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 16:05:44 -0400
-Message-Id: <1117569944.28924.294.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VKS7gA009001
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 16:28:07 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VKLmpZ003679
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 20:21:49 GMT
+Date: Tue, 31 May 2005 21:30:33 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: smaller memory footprint for 'strict' policy - helping gentoo as well
+Message-ID: <20050531203033.GB11815@lkcl.net>
+References: <20050531012824.GI28006@lkcl.net> <200505311353.j4VDrD4l027704@turing-police.cc.vt.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200505311353.j4VDrD4l027704@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-05-31 at 15:53 -0400, Joshua Brindle wrote:
-> would ebitmap_inplace_or be better? 
+On Tue, May 31, 2005 at 09:53:12AM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 31 May 2005 02:28:24 BST, Luke Kenneth Casson Leighton said:
+> 
+> > ... would the concept of a macros/unused directory help out, here?
+> > along with a list of the macros you removed (and the files
+> > they're in), valdis - and why.  and chris, also?
+> 
+> Almost all the gains I got were basically from moving stuff from
+> domains/programs/foo.te to domains/programs/unused/foo.te
+> 
+> > ... surely... there's some analysis done by the m4 macro
+> > compiler that automatically removes "unwanted" / "unused"
+> > macros?
+> 
+> The remaining gotcha is that some of the stuff in macros/program/foo_macros.te
+> could use some better ifdef wrapping, which I haven't looked into yet.
+ 
+ someone (stephen?) mentioned that policy.conf doesn't end up with stuff
+ that isn't actually required.
 
-I think you can do better.
-
-> This function is called from the linking code by passing in a reference to an ebitmap inside, say, a role set so it is unsafe to assign.
-
-I don't follow.  In either case, you are destroying dst and mutating it
-in place; current code does it by ebitmap_cpy(dst, &tmp) and then
-destroys tmp, but you could just as easily memcpy(dst, &tmp, sizeof
-*dst) and not destroy tmp, avoiding any extra allocation and copy.  In
-either case, dst->node and dst->highbit fields are mutated.
-
-> Yes, pre-expansion (or even checking context validity after expansion) would be better, we were more worried about correctness than performance this time, we'll optimize these things later
-
-It isn't significantly different than having to index (to generate the
-val_to_struct arrays) prior to calling this function.  And deferring the
-expansion means you have a new failure mode from this function due to
-OOM condition that didn't exist previously.
-
--- 
-Stephen Smalley
-National Security Agency
+ l.
 
 
 --
