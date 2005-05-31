@@ -1,66 +1,40 @@
-Date: Tue, 31 May 2005 22:21:12 +0100
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VLJTgA009602
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 17:19:29 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VLDBpZ009201
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 21:13:11 GMT
+Date: Tue, 31 May 2005 22:22:10 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   "'Stephen Smalley'" <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-   dwalsh@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: file_type_auto_trans is not sufficient
-Message-ID: <20050531212112.GF11815@lkcl.net>
-References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com> <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
+   selinuxdev <selinux-dev@tresys.com>
+Subject: Re: smaller memory footprint for 'strict' policy - helping gentoo as well
+Message-ID: <20050531212210.GG11815@lkcl.net>
+References: <20050531012824.GI28006@lkcl.net> <429BCDDD.8080106@gentoo.org> <20050531110947.GB4131@lkcl.net> <200505311410.j4VEAecr028211@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
+In-Reply-To: <200505311410.j4VEAecr028211@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 31, 2005 at 10:57:20AM -0400, Ivan Gyurdiev wrote:
+On Tue, May 31, 2005 at 10:10:40AM -0400, Valdis.Kletnieks@vt.edu wrote:
+
+> in there that *my* config totally doesn't need).  I suspect the reason I saw
+> such big savings is because some of the stuff in macros/program generates a
+> *lot* of $USER_foo_t types unnecessarily (thus the need for more ifdefs to
+> suppress that).
 > 
-> > The other option, of course, is to change the applications to use/create many
-> > more directories, each with a separate type to allow the file_type_auto_trans
-> > rules to work. Your orbit example might mean that there is a /tmp/orbit
-> > directory where all orbit files are created.
-> 
-> The problem is not multiple source domains - that can be addressed
-> through macros. The problem is that those domains use the same directory
-> (Usually /tmp, or /home), for their own purposes, and they need the same
-> transition (same directory and target class (dir/file)). 
-> 
-> Because you can have only one transition, this creates a problem.
- 
- ...
+> I'll make up a proper patch later this week when I have more time...
 
- thinking "sideways" again - as i am wont to do.
+ GREAT! the less, the merrier :)
 
- how about... a "sideways" solution to this - at the kernel level?
 
- a "silent" redirection / remount, on a per-application basis?
 
- no, i'm not joking.
-
- an option to "mount" which allows a specific APPLICATION (or group of
- applications) to have any files/directories it creates/accesses in a
- subdirectory ACTUALLY occur ELSEWHERE.
-
- e.g.:
-
- mount -o redirectexe=/usr/bin/mozilla-firefox /tmp /tmp/mozilla
- mount -o redirectexe=/usr/bin/gnomeshite,/usr/bin/gnomemoreshite /tmp /tmp/gconf
-
- hm, that could get out-of-hand - the number of programs involved
- that would need redirection..
-
- *thinks* ... some other mechanism for "grouping" executables...
-
- you could even hang it off of an selinux context (!) or selinux domain
- (!) such that a set of executables, possibly those executed by
- certain users, would result in filesystem redirection - but not others.
-
- at your own discretion.
-
- then, you _could_ specify /tmp/gconf equals "a different file context".
-
- l.
-
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
