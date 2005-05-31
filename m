@@ -1,43 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VCRjgA001319
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 08:27:45 -0400 (EDT)
-Received: from ppsw-0.csi.cam.ac.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VCLUpZ000598
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 12:21:31 GMT
-Date: Tue, 31 May 2005 13:29:31 +0100
-From: Stephen Bennett <spb@gentoo.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: gentoo/hardened
-Message-ID: <20050531132931.5c2bee94@localhost>
-In-Reply-To: <20050531110542.GA4131@lkcl.net>
-References: <20050530013136.GA28006@lkcl.net>
-	<1117496766.1742.39.camel@chris.pebenito.net>
-	<20050531005739.GH28006@lkcl.net>
-	<1117512454.1742.101.camel@chris.pebenito.net>
-	<20050531110542.GA4131@lkcl.net>
+Subject: Re: file_type_auto_trans is not sufficient
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <1117249760.19257.18.camel@localhost.localdomain>
+References: <1117249760.19257.18.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 31 May 2005 09:18:46 -0400
+Message-Id: <1117545526.28924.57.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 31 May 2005 12:05:42 +0100
-Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
->  ... so am i allowed to ask you, after endeavouring to shoot
->  everybody down in flames: any chance you could make your
->  latest [experimental?] gentoo policy available?  i do need
->  to get a gentoo/hardenened workstation running, asap.
+On Fri, 2005-05-27 at 23:09 -0400, Ivan Gyurdiev wrote:
+> To address those problems, I think I need to add selinux support
+> to a number of applications, and perform the transition in the code. 
+> I'm not sure what's the best way to do that. Does adding 
+> the following functions to libselinux (or elsewhere) make sense?
+> 
+> int mkdir_restorecon(const char *pathname, mode_t mode);
+> int creat_restorecon(const char *pathname, mode_t mode);
+> int mknod_restorecon(const char *pathname, mode_t mode, dev_t dev);
+> 
+> Those would perform getfscreate/matchpathcon/setfscreate cycle,
+> and would ignore errors in permissive mode.
 
-It's all in cvs --
-http://www.gentoo.org/cgi-bin/viewcvs.cgi/selinux/?root=gentoo-projects
-would probably be the place to start. If you don't like the viewcvs
-interface, there does exist an anoncvs mirror of it that's Not For
-Public Consumption (or was last thing I heard from the owner) -- mail me
-off list if you want the address. I also have some patches (well, one
-very big patch really) to import most of the changes from nsa cvs, done
-mainly for my benefit -- the mips box really needs a 2.6.12-rc kernel,
-and running that with a policy that has no concept of name_connect is
-painful.
+I'd advise against creating a composite interface like this, as it runs
+into the same problems that we had with the original SELinux API (which
+had extended forms of mkdir/creat/mknod/exec), i.e. use of glibc
+functions that internally use these functions, as you note in a later
+message.  Instead, keep the setting and resetting of the fscreate
+context as a separate operation, and then let the application continue
+to use ordinary mkdir/create/mknod or glibc functions for the actual
+creation.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
