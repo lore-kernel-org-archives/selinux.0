@@ -1,36 +1,52 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VIcXgA007801
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 14:38:33 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VIWGpZ014464
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 18:32:16 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions [144.51.25.4])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VIWxRH025328
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 14:32:59 -0400 (EDT)
-Subject: Updated Policy in Sourceforge CVS
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [Patch 1/3] Loadable policy module infrastructure
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+In-Reply-To: <1117128423.3483.19.camel@localhost>
+References: <1117128423.3483.19.camel@localhost>
 Content-Type: text/plain
-Date: Tue, 31 May 2005 14:33:23 -0400
-Message-Id: <1117564403.3260.13.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 31 May 2005 14:38:23 -0400
+Message-Id: <1117564703.28924.243.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-1.23.18 2005-05-31
-* Merged minor fixes to pppd.fc and courier.te by Russell Coker
-* Removed devfsd policy as suggested by Russell Coker
-* Merged patch from Dan Walsh.  Includes beginnings of Ivan Gyurdiev's
-Font Config policy.  Don't transition to fsadm_t from unconfined_t
-(sysadm_t) in targeted policy.  Add support for debugfs in modutil.
-Allow automount to create and delete directories in /root and /home
-dirs.  Move can_ypbind to chkpwd_macro.te.  Allow useradd to create
-additional files and types via the skell mechanism.  Other minor
-cleanups and fixes.
+On Thu, 2005-05-26 at 13:27 -0400, Joshua Brindle wrote:
+> diff -burNd a1/libsepol/src/util.c b/libsepol/src/util.c
+> --- a1/libsepol/src/util.c	1969-12-31 19:00:00.000000000 -0500
+> +++ b/libsepol/src/util.c	2005-05-25 13:11:19.488060776 -0400
+> +int type_set_or(type_set_t *dst, type_set_t *a, type_set_t *b)
+> +{
+> +        type_set_init(dst);
+> +
+> +        if (ebitmap_or(&dst->types, &a->types, &b->types)) {
+> +                fprintf(stderr, "Memory error\n");
+> +                return -1;
+> +        }
+> +        if (ebitmap_or(&dst->negset, &a->negset, &b->negset)) {
+> +                fprintf(stderr, "Memory error\n");
+> +                return -1;
+> +        }
+> +
+> +        dst->flags |= a->flags;
+> +        dst->flags |= b->flags;
+> +
+> +        return 0;
+> +}
+
+I don't see any users of this function or even an exported function
+prototype for it (or for a number of other functions), but am uncertain
+about its semantics if it is going to be used.  The simple or'ing of the
+negset and flags means that:
+- anything excluded from either set will be excluded from the result
+even if it was present in the other set,
+- if either set is a set complement, then the result will be the
+complement of the union.
+
+That's quite different from an ebitmap_or() of the expanded type sets.
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley
 National Security Agency
 
 
