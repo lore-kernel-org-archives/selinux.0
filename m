@@ -1,37 +1,47 @@
-Date: Tue, 31 May 2005 22:10:27 +0100
+Date: Tue, 31 May 2005 22:12:48 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-   Karl MacMillan <kmacmillan@tresys.com>, SELinux@tycho.nsa.gov,
-   dwalsh@redhat.com
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
+   dwalsh@redhat.com, branden@debian.org
 Subject: Re: file_type_auto_trans is not sufficient
-Message-ID: <20050531211027.GD11815@lkcl.net>
-References: <200505311632.j4VGW95F032656@gotham.columbia.tresys.com> <1117558114.4455.0.camel@dhcp83-8.boston.redhat.com> <1117559223.28924.202.camel@moss-spartans.epoch.ncsc.mil> <1117561043.4455.1.camel@dhcp83-8.boston.redhat.com>
+Message-ID: <20050531211247.GE11815@lkcl.net>
+References: <200505311632.j4VGW95F032656@gotham.columbia.tresys.com> <1117558114.4455.0.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1117561043.4455.1.camel@dhcp83-8.boston.redhat.com>
+In-Reply-To: <1117558114.4455.0.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 31, 2005 at 01:37:23PM -0400, Ivan Gyurdiev wrote:
+On Tue, May 31, 2005 at 12:48:34PM -0400, Ivan Gyurdiev wrote:
 > 
-> > Problem is that they both want to create directly in /tmp.  It would be
-> > preferable if they had a dedicated subtree, e.g. /tmp/gconfd
-> > and /tmp/orbit, with all per-user subdirectories underneath, so that the
-> > top-level directory could be typed separately and set up a priori (at
-> > boot if truly under /tmp, as they might otherwise have been deleted).
+> > I know - that is why I am suggesting that each application could use multiple
+> > directories. That means that orbit might put files into multiple directories
+> > that were previously created, e.g. both /tmp and /tmp/orbit.
 > 
-> So you're saying that the directories should be created ahead of time by
-> a startup script, and restorecon executed on them... something 
-> like tmpskel? Maybe that can be used for libICE, which I want to
-> label /tmp/.ICE-unix as ice_tmp_t.
+> I am not following this - can you give an example.
+> 
+> Say you have an application such as gconf, which stores its data 
+> in /tmp/gconfd-$USER (so it needs to be able to create that). 
+> GConf is linked to libORBit2, hence it needs to be able to
+> create /tmp/orbit-$USER.
+> 
+> Running gconfd in an individual domain is possible (and that's exactly
+> what I've done). Running orbit in its domain does not work (at least not
+> without a dynamic transition), because it's library code.
+> 
+> Are you saying that either gconfd or orbit need to move their files
+> outside their designated directory and into /tmp?
  
- there is a whole slew of legacy applications that assume
- access to /tmp/.ICE-unix, /tmp/.X11-unix etc.
+ into /tmp/gconfd/something-$USER.
 
- it's a known problem for which the solution - creating tmp
- subdirectories - has been "scheduled" / "shelved".
+ yep.
 
+ maybe the way forward is to create a [tiny] library with two
+ functions in it: one that creates /tmp/socket and another
+ that opens it, convert all programs to use that library, then
+ convert the library to create /tmp/dir/socket.
+ 
  l.
 
 
