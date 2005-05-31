@@ -1,50 +1,58 @@
-Subject: Re: file_type_auto_trans is not sufficient
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1117546607.28924.71.camel@moss-spartans.epoch.ncsc.mil>
-References: <1117249760.19257.18.camel@localhost.localdomain>
-	 <1117252045.19698.16.camel@localhost.localdomain>
-	 <42980072.6090701@redhat.com>
-	 <1117336632.24194.8.camel@localhost.localdomain>
-	 <42999EF1.3020205@redhat.com>
-	 <1117388699.21505.4.camel@localhost.localdomain>
-	 <1117422237.9452.15.camel@localhost.localdomain>
-	 <1117440314.12101.18.camel@localhost.localdomain>
-	 <1117546607.28924.71.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 11:09:15 -0400
-Message-Id: <1117552155.15167.36.camel@dhcp83-8.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VFe7gA005856
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 11:40:07 -0400 (EDT)
+Received: from web31609.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j4VFXppZ025116
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 15:33:51 GMT
+Message-ID: <20050531153358.61421.qmail@web31609.mail.mud.yahoo.com>
+Date: Tue, 31 May 2005 08:33:58 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: gentoo/hardened
+To: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1117512454.1742.101.camel@chris.pebenito.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+--- Chris PeBenito <pebenito@gentoo.org> wrote:
 
->   At that time, it was
-> possible to use them in multi-threaded apps because the fscreate and
-> exec contexts are stored per-kernel-thread, NPTL used a 1:1 user:kernel
-> threading model, and /proc/self referenced the per-thread state.  Then,
-> circa 2.6.0-test6, /proc was suddenly changed such that top-level /proc
-> only contains the thread group leaders and /proc/self refers to the
-> thread group leader rather than the per-thread state, and you have to
-> use /proc/self/task/<tid> to access the per-thread state.  Thus, at
-> present, any multi-threaded app will encounter a denial upon attempting
-> to use setfscreatecon(3) or setexeccon(3) from a thread other than the
-> thread group  leader.  In short, the API doesn't presently allow for use
-> by multiple threads, although the implementation could support it (for
-> any threading library that uses a 1:1 user-to-kernel threading model).
+> The complexity of policy is created by the fact
+> that Linux is a general purpose OS.
 
-So other threads will fail to create the desired file in enforcing mode.
-This certainly seems like a bad thing...
+Err, no. The complexity of policy is an artifact
+of the ad hoc way policy is being applied to the
+system. By approaching the policy one program at
+a time, and putting all of ten minutes thought
+into the policy for each program, you are destined
+to end up with a higgeldee piggeldee hodgepodge
+that grows beyond the bounds of control.
 
-Would you recommend I go ahead with this setfscreatecon scheme, though?
+> The current policy is hard to understand,
+> regardless.
 
-I don't see any other way to create things in the proper context when
-you have two (or more) conflicting file_type_auto_trans rules.
+And undocumented, and undesigned.
 
+> This is something that we are working on
+> improving at Tresys with our reference
+> policy work.
+
+Good. I would love to see a design for the policy.
+I mean, to date it has been like you're walking
+along a fence and every time you come to a post
+you staple whatever happens to be lying on the
+ground nearby onto it. What is the point?
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
