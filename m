@@ -1,41 +1,36 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VKS7gA009001
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 16:28:07 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VKLmpZ003679
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 20:21:49 GMT
-Date: Tue, 31 May 2005 21:30:33 +0100
+Date: Tue, 31 May 2005 22:10:27 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: smaller memory footprint for 'strict' policy - helping gentoo as well
-Message-ID: <20050531203033.GB11815@lkcl.net>
-References: <20050531012824.GI28006@lkcl.net> <200505311353.j4VDrD4l027704@turing-police.cc.vt.edu>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+   Karl MacMillan <kmacmillan@tresys.com>, SELinux@tycho.nsa.gov,
+   dwalsh@redhat.com
+Subject: Re: file_type_auto_trans is not sufficient
+Message-ID: <20050531211027.GD11815@lkcl.net>
+References: <200505311632.j4VGW95F032656@gotham.columbia.tresys.com> <1117558114.4455.0.camel@dhcp83-8.boston.redhat.com> <1117559223.28924.202.camel@moss-spartans.epoch.ncsc.mil> <1117561043.4455.1.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200505311353.j4VDrD4l027704@turing-police.cc.vt.edu>
+In-Reply-To: <1117561043.4455.1.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 31, 2005 at 09:53:12AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 31 May 2005 02:28:24 BST, Luke Kenneth Casson Leighton said:
+On Tue, May 31, 2005 at 01:37:23PM -0400, Ivan Gyurdiev wrote:
 > 
-> > ... would the concept of a macros/unused directory help out, here?
-> > along with a list of the macros you removed (and the files
-> > they're in), valdis - and why.  and chris, also?
+> > Problem is that they both want to create directly in /tmp.  It would be
+> > preferable if they had a dedicated subtree, e.g. /tmp/gconfd
+> > and /tmp/orbit, with all per-user subdirectories underneath, so that the
+> > top-level directory could be typed separately and set up a priori (at
+> > boot if truly under /tmp, as they might otherwise have been deleted).
 > 
-> Almost all the gains I got were basically from moving stuff from
-> domains/programs/foo.te to domains/programs/unused/foo.te
-> 
-> > ... surely... there's some analysis done by the m4 macro
-> > compiler that automatically removes "unwanted" / "unused"
-> > macros?
-> 
-> The remaining gotcha is that some of the stuff in macros/program/foo_macros.te
-> could use some better ifdef wrapping, which I haven't looked into yet.
+> So you're saying that the directories should be created ahead of time by
+> a startup script, and restorecon executed on them... something 
+> like tmpskel? Maybe that can be used for libICE, which I want to
+> label /tmp/.ICE-unix as ice_tmp_t.
  
- someone (stephen?) mentioned that policy.conf doesn't end up with stuff
- that isn't actually required.
+ there is a whole slew of legacy applications that assume
+ access to /tmp/.ICE-unix, /tmp/.X11-unix etc.
+
+ it's a known problem for which the solution - creating tmp
+ subdirectories - has been "scheduled" / "shelved".
 
  l.
 
