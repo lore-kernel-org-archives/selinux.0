@@ -1,63 +1,76 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VEH5gA004863
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 10:17:05 -0400 (EDT)
-Received: from h80ad25eb.async.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VEAkpZ013866
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 14:10:48 GMT
-Message-Id: <200505311410.j4VEAecr028211@turing-police.cc.vt.edu>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
-   selinuxdev <selinux-dev@tresys.com>
-Subject: Re: smaller memory footprint for 'strict' policy - helping gentoo as well 
-In-Reply-To: Your message of "Tue, 31 May 2005 12:09:48 BST."
-             <20050531110947.GB4131@lkcl.net>
-From: Valdis.Kletnieks@vt.edu
-References: <20050531012824.GI28006@lkcl.net> <429BCDDD.8080106@gentoo.org>
-            <20050531110947.GB4131@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1117548639_3664P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 31 May 2005 10:10:40 -0400
+Message-Id: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <ivg2@cornell.edu>, "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: <SELinux@tycho.nsa.gov>, <dwalsh@redhat.com>
+Subject: RE: file_type_auto_trans is not sufficient
+Date: Tue, 31 May 2005 10:12:21 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1117546555.13058.14.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1117548639_3664P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 31 May 2005 12:09:48 BST, Luke Kenneth Casson Leighton said:
-
->  okay - then i must have misunderstood what valdis has done that
->  reduces the memory footprint so dramatically.
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Ivan Gyurdiev
+> Sent: Tuesday, May 31, 2005 9:36 AM
+> To: Stephen Smalley
+> Cc: SELinux@tycho.nsa.gov; dwalsh@redhat.com
+> Subject: Re: file_type_auto_trans is not sufficient
 > 
->  i mean, _yes_ of course, personally, i remove any policy
->  domains that aren't used, i assume that naturally _everybody_
->  does that because otherwise a package could be installed
->  without consent and it would work (whereas if the policy
->  isn't there, it will definitely fail).
+> 
+> > I'd advise against creating a composite interface like this, as it runs
+> > into the same problems that we had with the original SELinux API (which
+> > had extended forms of mkdir/creat/mknod/exec), i.e. use of glibc
+> > functions that internally use these functions, as you note in a later
+> > message.
+> 
+> I agree, that was a bad idea.
+> 
+> >   Instead, keep the setting and resetting of the fscreate
+> > context as a separate operation, and then let the application continue
+> > to use ordinary mkdir/create/mknod or glibc functions for the actual
+> > creation.
+> 
+> Yes, but there's problems with that - in particular:
+> 
+> - is this thread-safe - see my later message
+> 
+> - is this a good idea - it pushes dynamic type changes into various
+> programs, while otherwise it's all in the policy, and easier to analyze
+> 
+> - makes virtually everything depend on libselinux
+> 
+> - I'm replicating the same code pattern in lots of places...
+> 
+> - it puts linux-specific code into otherwise portable apps. I've
+> surrounded it all by WITH_SELINUX, but it's still rather ugly -
+> don't think upstream will like it.
+> 
 
-The only thing that I really did was get very fascist about moving stuff to
-unused/, (I have more things in unused/ than not) and identify a few things in
-macros/program that need some work (I think I identified like 10 entire files
-in there that *my* config totally doesn't need).  I suspect the reason I saw
-such big savings is because some of the stuff in macros/program generates a
-*lot* of $USER_foo_t types unnecessarily (thus the need for more ifdefs to
-suppress that).
+The other option, of course, is to change the applications to use/create many
+more directories, each with a separate type to allow the file_type_auto_trans
+rules to work. Your orbit example might mean that there is a /tmp/orbit
+directory where all orbit files are created. This may not be any more feasible,
+but I think it should at least be considered.
 
-I'll make up a proper patch later this week when I have more time...
+Karl
 
---==_Exmh_1117548639_3664P
-Content-Type: application/pgp-signature
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
-iD8DBQFCnHBfcC3lWbTT17ARAmkiAKCY57LSRSdTYc72sXxAAR2EKloEGACdEuA3
-iwkdi1r5BHniNWW8z7HzsLs=
-=6iOF
------END PGP SIGNATURE-----
 
---==_Exmh_1117548639_3664P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
