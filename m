@@ -1,67 +1,49 @@
-Subject: RE: file_type_auto_trans is not sufficient
+Subject: Re: file_type_auto_trans is not sufficient
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-   dwalsh@redhat.com
-In-Reply-To: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com>
-References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1117546607.28924.71.camel@moss-spartans.epoch.ncsc.mil>
+References: <1117249760.19257.18.camel@localhost.localdomain>
+	 <1117252045.19698.16.camel@localhost.localdomain>
+	 <42980072.6090701@redhat.com>
+	 <1117336632.24194.8.camel@localhost.localdomain>
+	 <42999EF1.3020205@redhat.com>
+	 <1117388699.21505.4.camel@localhost.localdomain>
+	 <1117422237.9452.15.camel@localhost.localdomain>
+	 <1117440314.12101.18.camel@localhost.localdomain>
+	 <1117546607.28924.71.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 31 May 2005 10:57:20 -0400
-Message-Id: <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
+Date: Tue, 31 May 2005 11:09:15 -0400
+Message-Id: <1117552155.15167.36.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> The other option, of course, is to change the applications to use/create many
-> more directories, each with a separate type to allow the file_type_auto_trans
-> rules to work. Your orbit example might mean that there is a /tmp/orbit
-> directory where all orbit files are created.
 
-The problem is not multiple source domains - that can be addressed
-through macros. The problem is that those domains use the same directory
-(Usually /tmp, or /home), for their own purposes, and they need the same
-transition (same directory and target class (dir/file)). 
+>   At that time, it was
+> possible to use them in multi-threaded apps because the fscreate and
+> exec contexts are stored per-kernel-thread, NPTL used a 1:1 user:kernel
+> threading model, and /proc/self referenced the per-thread state.  Then,
+> circa 2.6.0-test6, /proc was suddenly changed such that top-level /proc
+> only contains the thread group leaders and /proc/self refers to the
+> thread group leader rather than the per-thread state, and you have to
+> use /proc/self/task/<tid> to access the per-thread state.  Thus, at
+> present, any multi-threaded app will encounter a denial upon attempting
+> to use setfscreatecon(3) or setexeccon(3) from a thread other than the
+> thread group  leader.  In short, the API doesn't presently allow for use
+> by multiple threads, although the implementation could support it (for
+> any threading library that uses a 1:1 user-to-kernel threading model).
 
-Because you can have only one transition, this creates a problem.
+So other threads will fail to create the desired file in enforcing mode.
+This certainly seems like a bad thing...
 
-For example, look at mozilla, using the patches I posted earlier:
+Would you recommend I go ahead with this setfscreatecon scheme, though?
 
-Needs transition on :
-
-(ROLE_home_dir_t, file) -> ROLE_untrusted_content_t
-     when saving web pages
-(ROLE_home_dir_t, file) -> ROLE_fonts_cache_t 
-     when updating the font cache (read_fonts macro, libfontconfig)
-(ROLE_home_dir_t, dir) -> ROLE_mozilla_home_t 
-     when creating its home directory
-(ROLE_home_dir_t, dir) -> ROLE_untrusted_content_t
-     when saving web pages image data
-
-(tmp_t, file) -> ROLE_untrusted_content_t
-     when saving temporary files from the internet
-(tmp_t, dir) -> ROLE_untrusted_content_t
-     same problem
-(tmp_t, dir) -> ROLE_orbit_tmp_t 
-      when creating the ORBit temp folder, libORBit2 (through bonobo)
-
-Evolution has most of the same problems.
-
-This is most problematic when the creation code is in a shared library,
-because that gets called from lots of domains, which may use the same 
-container directory/mode pair for their own data.
-
-Earlier we discussed how keeping settings away from content would be a
-good idea. Still, that wouldn't solve the problem, since then you would 
-have to distinguish between different types of settings, which would
-all need a transition (and an app may need to use all of them via 
-shared libraries)
-
-You're also suggesting that the problem is with the application, while
-to me this seems like a SELinux problem. I'm not sure restructuring
-directories so that they only store homogenous data (labeled the same
-way) is feasable (or desirable). 
+I don't see any other way to create things in the proper context when
+you have two (or more) conflicting file_type_auto_trans rules.
 
 
 --
