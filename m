@@ -1,51 +1,56 @@
-Subject: Re: file_type_auto_trans is not sufficient
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1117440314.12101.18.camel@localhost.localdomain>
-References: <1117249760.19257.18.camel@localhost.localdomain>
-	 <1117252045.19698.16.camel@localhost.localdomain>
-	 <42980072.6090701@redhat.com>
-	 <1117336632.24194.8.camel@localhost.localdomain>
-	 <42999EF1.3020205@redhat.com>
-	 <1117388699.21505.4.camel@localhost.localdomain>
-	 <1117422237.9452.15.camel@localhost.localdomain>
-	 <1117440314.12101.18.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 09:36:47 -0400
-Message-Id: <1117546607.28924.71.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VDrlgA004560
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 09:53:47 -0400 (EDT)
+Received: from h80ad25eb.async.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VDlpC0015078
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 13:47:52 GMT
+Message-Id: <200505311347.j4VDlfo7027518@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Chris PeBenito <pebenito@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: gentoo/hardened 
+In-Reply-To: Your message of "Tue, 31 May 2005 01:57:39 BST."
+             <20050531005739.GH28006@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <20050530013136.GA28006@lkcl.net> <1117496766.1742.39.camel@chris.pebenito.net>
+            <20050531005739.GH28006@lkcl.net>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1117547259_3664P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 31 May 2005 09:47:40 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-05-30 at 04:05 -0400, Ivan Gyurdiev wrote:
-> More significantly, however, how does this scheme work in multithreaded
-> context? It seems like it won't work - the switch-create-restore
-> sequence should not be interruptible if multiple threads share
-> the same creation context...
+--==_Exmh_1117547259_3664P
+Content-Type: text/plain; charset=us-ascii
 
-The issue of multi-threaded apps came up when the SELinux API was
-overhauled for 2.6 and the original extended operations like
-mkdir_secure() and execve_secure() were replaced by setfscreatecon() and
-setexeccon() prior to the normal operation.  At that time, it was
-possible to use them in multi-threaded apps because the fscreate and
-exec contexts are stored per-kernel-thread, NPTL used a 1:1 user:kernel
-threading model, and /proc/self referenced the per-thread state.  Then,
-circa 2.6.0-test6, /proc was suddenly changed such that top-level /proc
-only contains the thread group leaders and /proc/self refers to the
-thread group leader rather than the per-thread state, and you have to
-use /proc/self/task/<tid> to access the per-thread state.  Thus, at
-present, any multi-threaded app will encounter a denial upon attempting
-to use setfscreatecon(3) or setexeccon(3) from a thread other than the
-thread group  leader.  In short, the API doesn't presently allow for use
-by multiple threads, although the implementation could support it (for
-any threading library that uses a 1:1 user-to-kernel threading model).
+On Tue, 31 May 2005 01:57:39 BST, Luke Kenneth Casson Leighton said:
 
--- 
-Stephen Smalley
-National Security Agency
+>  valdis just this week chopped a stack-load of [iirc
+>  correctly: unused? ] macro stuff out and the memory usage
+>  dropped dramatically.
+> 
+>  if what valdis has done is suitable for gentoo/hardened,
+>  that would [fortunately!] make this justification redundant
+>  (i hope!)
 
+What I did *seems* to work *on my laptop*.  The *correct* way to do it would
+involve adding a whole bunch of m4 ifdefs.  I think for what Chris was trying
+to do for Gentoo, the *right* fix wasn't deleting code, but wrapping the
+code to be removed in a ifndef(`gentoo') wrapper....
+
+--==_Exmh_1117547259_3664P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCnGr7cC3lWbTT17ARAmrUAJ0ax27KM/QsxY+ESiD6ObOVhPUy3QCePlso
+3ALNP0IFerHCAkGv8+BmTTE=
+=e1Td
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1117547259_3664P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
