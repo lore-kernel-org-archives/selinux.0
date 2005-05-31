@@ -1,47 +1,50 @@
 Subject: Re: file_type_auto_trans is not sufficient
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <1117545526.28924.57.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1117440314.12101.18.camel@localhost.localdomain>
 References: <1117249760.19257.18.camel@localhost.localdomain>
-	 <1117545526.28924.57.camel@moss-spartans.epoch.ncsc.mil>
+	 <1117252045.19698.16.camel@localhost.localdomain>
+	 <42980072.6090701@redhat.com>
+	 <1117336632.24194.8.camel@localhost.localdomain>
+	 <42999EF1.3020205@redhat.com>
+	 <1117388699.21505.4.camel@localhost.localdomain>
+	 <1117422237.9452.15.camel@localhost.localdomain>
+	 <1117440314.12101.18.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 31 May 2005 09:35:55 -0400
-Message-Id: <1117546555.13058.14.camel@dhcp83-8.boston.redhat.com>
+Date: Tue, 31 May 2005 09:36:47 -0400
+Message-Id: <1117546607.28924.71.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2005-05-30 at 04:05 -0400, Ivan Gyurdiev wrote:
+> More significantly, however, how does this scheme work in multithreaded
+> context? It seems like it won't work - the switch-create-restore
+> sequence should not be interruptible if multiple threads share
+> the same creation context...
 
-> I'd advise against creating a composite interface like this, as it runs
-> into the same problems that we had with the original SELinux API (which
-> had extended forms of mkdir/creat/mknod/exec), i.e. use of glibc
-> functions that internally use these functions, as you note in a later
-> message.
+The issue of multi-threaded apps came up when the SELinux API was
+overhauled for 2.6 and the original extended operations like
+mkdir_secure() and execve_secure() were replaced by setfscreatecon() and
+setexeccon() prior to the normal operation.  At that time, it was
+possible to use them in multi-threaded apps because the fscreate and
+exec contexts are stored per-kernel-thread, NPTL used a 1:1 user:kernel
+threading model, and /proc/self referenced the per-thread state.  Then,
+circa 2.6.0-test6, /proc was suddenly changed such that top-level /proc
+only contains the thread group leaders and /proc/self refers to the
+thread group leader rather than the per-thread state, and you have to
+use /proc/self/task/<tid> to access the per-thread state.  Thus, at
+present, any multi-threaded app will encounter a denial upon attempting
+to use setfscreatecon(3) or setexeccon(3) from a thread other than the
+thread group  leader.  In short, the API doesn't presently allow for use
+by multiple threads, although the implementation could support it (for
+any threading library that uses a 1:1 user-to-kernel threading model).
 
-I agree, that was a bad idea.
-
->   Instead, keep the setting and resetting of the fscreate
-> context as a separate operation, and then let the application continue
-> to use ordinary mkdir/create/mknod or glibc functions for the actual
-> creation.
-
-Yes, but there's problems with that - in particular:
-
-- is this thread-safe - see my later message
-
-- is this a good idea - it pushes dynamic type changes into various
-programs, while otherwise it's all in the policy, and easier to analyze 
-
-- makes virtually everything depend on libselinux
-
-- I'm replicating the same code pattern in lots of places...
-
-- it puts linux-specific code into otherwise portable apps. I've
-surrounded it all by WITH_SELINUX, but it's still rather ugly - 
-don't think upstream will like it.
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
