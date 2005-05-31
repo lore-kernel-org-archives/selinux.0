@@ -1,40 +1,36 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VLJTgA009602
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 17:19:29 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VLKwgA009636
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 17:20:58 -0400 (EDT)
 Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VLDBpZ009201
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 21:13:11 GMT
-Date: Tue, 31 May 2005 22:22:10 +0100
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VLEdpZ009335
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 21:14:39 GMT
+Date: Tue, 31 May 2005 22:23:39 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
-   selinuxdev <selinux-dev@tresys.com>
-Subject: Re: smaller memory footprint for 'strict' policy - helping gentoo as well
-Message-ID: <20050531212210.GG11815@lkcl.net>
-References: <20050531012824.GI28006@lkcl.net> <429BCDDD.8080106@gentoo.org> <20050531110947.GB4131@lkcl.net> <200505311410.j4VEAecr028211@turing-police.cc.vt.edu>
+To: Stephen Bennett <spb@gentoo.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: gentoo/hardened
+Message-ID: <20050531212339.GH11815@lkcl.net>
+References: <20050530013136.GA28006@lkcl.net> <1117496766.1742.39.camel@chris.pebenito.net> <20050531005739.GH28006@lkcl.net> <1117512454.1742.101.camel@chris.pebenito.net> <20050531110542.GA4131@lkcl.net> <20050531132931.5c2bee94@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200505311410.j4VEAecr028211@turing-police.cc.vt.edu>
+In-Reply-To: <20050531132931.5c2bee94@localhost>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 31, 2005 at 10:10:40AM -0400, Valdis.Kletnieks@vt.edu wrote:
-
-> in there that *my* config totally doesn't need).  I suspect the reason I saw
-> such big savings is because some of the stuff in macros/program generates a
-> *lot* of $USER_foo_t types unnecessarily (thus the need for more ifdefs to
-> suppress that).
+On Tue, May 31, 2005 at 01:29:31PM +0100, Stephen Bennett wrote:
+> On Tue, 31 May 2005 12:05:42 +0100
+> Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> >  ... so am i allowed to ask you, after endeavouring to shoot
+> >  everybody down in flames: any chance you could make your
+> >  latest [experimental?] gentoo policy available?  i do need
+> >  to get a gentoo/hardenened workstation running, asap.
 > 
-> I'll make up a proper patch later this week when I have more time...
+> It's all in cvs --
+> http://www.gentoo.org/cgi-bin/viewcvs.cgi/selinux/?root=gentoo-projects
+> would probably be the place to start. 
 
- GREAT! the less, the merrier :)
+ _great_.  ta.
 
-
-
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
 
 --
 This message was distributed to subscribers of the selinux mailing list.
