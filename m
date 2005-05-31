@@ -1,51 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VB76gA000722
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 07:07:06 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VB1DC0007475
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 11:01:13 GMT
-Date: Tue, 31 May 2005 12:09:48 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Joshua Brindle <method@gentoo.org>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, selinuxdev <selinux-dev@tresys.com>
-Subject: Re: smaller memory footprint for 'strict' policy - helping gentoo as well
-Message-ID: <20050531110947.GB4131@lkcl.net>
-References: <20050531012824.GI28006@lkcl.net> <429BCDDD.8080106@gentoo.org>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VCRjgA001319
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 08:27:45 -0400 (EDT)
+Received: from ppsw-0.csi.cam.ac.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VCLUpZ000598
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 12:21:31 GMT
+Date: Tue, 31 May 2005 13:29:31 +0100
+From: Stephen Bennett <spb@gentoo.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: gentoo/hardened
+Message-ID: <20050531132931.5c2bee94@localhost>
+In-Reply-To: <20050531110542.GA4131@lkcl.net>
+References: <20050530013136.GA28006@lkcl.net>
+	<1117496766.1742.39.camel@chris.pebenito.net>
+	<20050531005739.GH28006@lkcl.net>
+	<1117512454.1742.101.camel@chris.pebenito.net>
+	<20050531110542.GA4131@lkcl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <429BCDDD.8080106@gentoo.org>
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, May 30, 2005 at 10:37:17PM -0400, Joshua Brindle wrote:
+On Tue, 31 May 2005 12:05:42 +0100
+Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+>  ... so am i allowed to ask you, after endeavouring to shoot
+>  everybody down in flames: any chance you could make your
+>  latest [experimental?] gentoo policy available?  i do need
+>  to get a gentoo/hardenened workstation running, asap.
 
-> >... surely... there's some analysis done by the m4 macro
-> >compiler that automatically removes "unwanted" / "unused"
-> >macros?
-> >
-> >could that be done as a separate pre-pass / analysis step,
-> >making it unnecessary to consider a macros/unused directory?
-> >
-> > 
-> >
-> Why? if the macro is unused it never makes it past the policy.conf which 
-> you shouldn't be reading directly anyway, aside from debugging.
- 
- okay - then i must have misunderstood what valdis has done that
- reduces the memory footprint so dramatically.
-
- i mean, _yes_ of course, personally, i remove any policy
- domains that aren't used, i assume that naturally _everybody_
- does that because otherwise a package could be installed
- without consent and it would work (whereas if the policy
- isn't there, it will definitely fail).
-
- i am confused.
-
- valdis, hi, any chance you could elaborate?
-
- l.
-
+It's all in cvs --
+http://www.gentoo.org/cgi-bin/viewcvs.cgi/selinux/?root=gentoo-projects
+would probably be the place to start. If you don't like the viewcvs
+interface, there does exist an anoncvs mirror of it that's Not For
+Public Consumption (or was last thing I heard from the owner) -- mail me
+off list if you want the address. I also have some patches (well, one
+very big patch really) to import most of the changes from nsa cvs, done
+mainly for my benefit -- the mips box really needs a 2.6.12-rc kernel,
+and running that with a policy that has no concept of name_connect is
+painful.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
