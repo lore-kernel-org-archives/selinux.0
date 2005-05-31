@@ -1,58 +1,63 @@
-Subject: Re: file_type_auto_trans is not sufficient
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <1117546555.13058.14.camel@dhcp83-8.boston.redhat.com>
-References: <1117249760.19257.18.camel@localhost.localdomain>
-	 <1117545526.28924.57.camel@moss-spartans.epoch.ncsc.mil>
-	 <1117546555.13058.14.camel@dhcp83-8.boston.redhat.com>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 09:53:51 -0400
-Message-Id: <1117547631.28924.83.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VEH5gA004863
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 10:17:05 -0400 (EDT)
+Received: from h80ad25eb.async.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VEAkpZ013866
+	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 14:10:48 GMT
+Message-Id: <200505311410.j4VEAecr028211@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
+   selinuxdev <selinux-dev@tresys.com>
+Subject: Re: smaller memory footprint for 'strict' policy - helping gentoo as well 
+In-Reply-To: Your message of "Tue, 31 May 2005 12:09:48 BST."
+             <20050531110947.GB4131@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <20050531012824.GI28006@lkcl.net> <429BCDDD.8080106@gentoo.org>
+            <20050531110947.GB4131@lkcl.net>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1117548639_3664P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 31 May 2005 10:10:40 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-05-31 at 09:35 -0400, Ivan Gyurdiev wrote:
-> Yes, but there's problems with that - in particular:
+--==_Exmh_1117548639_3664P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 31 May 2005 12:09:48 BST, Luke Kenneth Casson Leighton said:
+
+>  okay - then i must have misunderstood what valdis has done that
+>  reduces the memory footprint so dramatically.
 > 
-> - is this thread-safe - see my later message
+>  i mean, _yes_ of course, personally, i remove any policy
+>  domains that aren't used, i assume that naturally _everybody_
+>  does that because otherwise a package could be installed
+>  without consent and it would work (whereas if the policy
+>  isn't there, it will definitely fail).
 
-Answer:  Thread-safe, yes.  Allowed by current libselinux, no.
+The only thing that I really did was get very fascist about moving stuff to
+unused/, (I have more things in unused/ than not) and identify a few things in
+macros/program that need some work (I think I identified like 10 entire files
+in there that *my* config totally doesn't need).  I suspect the reason I saw
+such big savings is because some of the stuff in macros/program generates a
+*lot* of $USER_foo_t types unnecessarily (thus the need for more ifdefs to
+suppress that).
 
-> - is this a good idea - it pushes dynamic type changes into various
-> programs, while otherwise it's all in the policy, and easier to analyze 
+I'll make up a proper patch later this week when I have more time...
 
-Everything still has to be allowed by the policy, so analysis is still
-feasible.  setfscreatecon() just selects one of the types allowed by the
-policy for that domain to create.  Further, as you are using
-matchpathcon(3), you can still see the filesystem mapping via
-file_contexts.  Possibly the real question is whether the fine-grained
-typing is truly justified and/or whether it might be feasible to achieve
-via relocation so that the parent directory can be the distinguisher.
+--==_Exmh_1117548639_3664P
+Content-Type: application/pgp-signature
 
-> - makes virtually everything depend on libselinux
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Already true, e.g. /sbin/init, coreutils, ...
-If it is a real concern, then others have suggested dlopen() and
-friends.  But given that distros have been willing to date to accept
-fundamental dependency for init and coreutils, it seems unlikely to be
-needed.
+iD8DBQFCnHBfcC3lWbTT17ARAmkiAKCY57LSRSdTYc72sXxAAR2EKloEGACdEuA3
+iwkdi1r5BHniNWW8z7HzsLs=
+=6iOF
+-----END PGP SIGNATURE-----
 
-> - I'm replicating the same code pattern in lots of places...
-
-True.
-
-> - it puts linux-specific code into otherwise portable apps. I've
-> surrounded it all by WITH_SELINUX, but it's still rather ugly - 
-> don't think upstream will like it.
-
-True.
-
--- 
-Stephen Smalley
-National Security Agency
-
+--==_Exmh_1117548639_3664P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
