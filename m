@@ -1,32 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j4VNxpgA010727
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 19:59:51 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j4VNrpC0019176
-	for <selinux@tycho.nsa.gov>; Tue, 31 May 2005 23:53:52 GMT
-Date: Wed, 1 Jun 2005 01:02:31 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chad Sellers <chad@thesellers.net>
-Cc: selinux@tycho.nsa.gov
 Subject: Re: file_type_auto_trans is not sufficient
-Message-ID: <20050601000231.GA8278@lkcl.net>
-References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com> <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com> <20050531212112.GF11815@lkcl.net> <79483BF9-8FE1-46B8-BD6C-20C98BD6F7A8@thesellers.net>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Karl MacMillan <kmacmillan@tresys.com>,
+   SELinux@tycho.nsa.gov, dwalsh@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050531212112.GF11815@lkcl.net>
+References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com>
+	 <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
+	 <20050531212112.GF11815@lkcl.net>
+Content-Type: text/plain
+Date: Wed, 01 Jun 2005 07:21:53 -0400
+Message-Id: <1117624913.32745.11.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <79483BF9-8FE1-46B8-BD6C-20C98BD6F7A8@thesellers.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 31, 2005 at 07:09:43PM -0400, Chad Sellers wrote:
-> That said, this doesn't solve Ivan's problem.  You still have a  
-> single application (gconfd in his example) creating /tmp/gconfd and / 
-> tmp/orbit, with only one type transition rule allowed.  You can't  
-> mount /tmp/gconfd over /tmp for portions of execution, and then /tmp/ 
-> orbit over /tmp for other parts of execution.
+On Tue, 2005-05-31 at 22:21 +0100, Luke Kenneth Casson Leighton wrote:
+>  thinking "sideways" again - as i am wont to do.
+> 
+>  how about... a "sideways" solution to this - at the kernel level?
+> 
+>  a "silent" redirection / remount, on a per-application basis?
+> 
+>  no, i'm not joking.
+> 
+>  an option to "mount" which allows a specific APPLICATION (or group of
+>  applications) to have any files/directories it creates/accesses in a
+>  subdirectory ACTUALLY occur ELSEWHERE.
 
- drat - duh, course you can't.
+That's polyinstantiated directories.  See Chad Seller's postings.
+However, it uses the kernel's existing support for per-process
+namespaces and bind mounts rather than anything new in the kernel.
 
- "transitional" library it is, then.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
