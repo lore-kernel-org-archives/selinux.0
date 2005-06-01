@@ -1,35 +1,31 @@
-Subject: Re: file_type_auto_trans is not sufficient
+Subject: Re: [Patch 2/3] Loadable policy module infrastructure
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Karl MacMillan <kmacmillan@tresys.com>,
-   SELinux@tycho.nsa.gov, dwalsh@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050531212112.GF11815@lkcl.net>
-References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com>
-	 <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
-	 <20050531212112.GF11815@lkcl.net>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+In-Reply-To: <1117128424.3482.20.camel@localhost>
+References: <1117128424.3482.20.camel@localhost>
 Content-Type: text/plain
-Date: Wed, 01 Jun 2005 07:21:53 -0400
-Message-Id: <1117624913.32745.11.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 01 Jun 2005 08:25:36 -0400
+Message-Id: <1117628736.32745.31.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-05-31 at 22:21 +0100, Luke Kenneth Casson Leighton wrote:
->  thinking "sideways" again - as i am wont to do.
-> 
->  how about... a "sideways" solution to this - at the kernel level?
-> 
->  a "silent" redirection / remount, on a per-application basis?
-> 
->  no, i'm not joking.
-> 
->  an option to "mount" which allows a specific APPLICATION (or group of
->  applications) to have any files/directories it creates/accesses in a
->  subdirectory ACTUALLY occur ELSEWHERE.
+On Thu, 2005-05-26 at 13:27 -0400, Joshua Brindle wrote:
+> diff -burNd a1/libsepol/src/expand.c b/libsepol/src/expand.c
+> --- a1/libsepol/src/expand.c	1969-12-31 19:00:00.000000000 -0500
+> +++ b/libsepol/src/expand.c	2005-05-25 13:11:19.526055000 -0400
+> +        new_type->isattr = type->isattr;
+> +        if (!type->isattr) {
+> +                new_type->value = ++state->out->p_types.nprim;
+> +                /* FIX ME: temp fix here */
+> +                new_type->value = type->order;
+> +                new_type->primary = 1;
+> +        }
 
-That's polyinstantiated directories.  See Chad Seller's postings.
-However, it uses the kernel's existing support for per-process
-namespaces and bind mounts rather than anything new in the kernel.
+Is this an attempt to preserve type value ordering to allow easier
+comparison of the resulting binary policies before and after the patch?
+Shouldn't matter if using sediff, right?  I'd advise just dropping it.
 
 -- 
 Stephen Smalley
