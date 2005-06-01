@@ -1,32 +1,32 @@
-Subject: Re: [Patch 2/3] Loadable policy module infrastructure
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [Patch 1/3] Loadable policy module infrastructure
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
 Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
-In-Reply-To: <1117628736.32745.31.camel@moss-spartans.epoch.ncsc.mil>
-References: <1117128424.3482.20.camel@localhost>
-	 <1117628736.32745.31.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1117128423.3483.19.camel@localhost>
+References: <1117128423.3483.19.camel@localhost>
 Content-Type: text/plain
-Date: Wed, 01 Jun 2005 09:02:09 -0400
-Message-Id: <1117630930.17444.4.camel@localhost>
+Date: Wed, 01 Jun 2005 11:13:25 -0400
+Message-Id: <1117638805.32745.59.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-06-01 at 08:25 -0400, Stephen Smalley wrote:
-> 
-> Is this an attempt to preserve type value ordering to allow easier
-> comparison of the resulting binary policies before and after the
-> patch?
-> Shouldn't matter if using sediff, right?  I'd advise just dropping it.
+On Thu, 2005-05-26 at 13:27 -0400, Joshua Brindle wrote:
+> diff -burNd a1/libsepol/src/assertion.c b/libsepol/src/assertion.c
+> --- a1/libsepol/src/assertion.c	1969-12-31 19:00:00.000000000 -0500
+> +++ b/libsepol/src/assertion.c	2005-05-25 13:11:20.410920480 -0400
+> +                if ((avdatump->specified & AVTAB_ALLOWED) && (avtab_allowed(avdatump) & curperm->data)) {
+> +                        fprintf(stderr, "assertion on line %lu violated by allow %s %s:%s ;\n",
+> +                                line, p->p_type_val_to_name[stype], p->p_type_val_to_name[ttype],
+> +                                p->p_class_val_to_name[curperm->class - 1]);
+> +                        return -1;
 
-Yes, it was added so that we could ensure the binaries created are the
-same. sediff can verify much of the policy is the same but it still
-doesn't analyze every piece of policy (eg, constraints, ocontexts, MLS)
-so even though sediff showed no difference we wanted to ensure the
-policies were indeed identical. I had every intention to drop this after
-everyone was satisfied that it was creating policies correctly :)
+The original code in checkpolicy also displayed the access vector as a
+string, which this omits.
 
-Joshua
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
