@@ -1,35 +1,36 @@
-Subject: Re: [Patch 1/3] Loadable policy module infrastructure
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
-In-Reply-To: <1117638805.32745.59.camel@moss-spartans.epoch.ncsc.mil>
-References: <1117128423.3483.19.camel@localhost>
-	 <1117638805.32745.59.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 01 Jun 2005 15:22:08 -0400
-Message-Id: <1117653728.17443.9.camel@localhost>
-Mime-Version: 1.0
+Message-ID: <429E2727.30407@theptrgroup.com>
+Date: Wed, 01 Jun 2005 17:22:47 -0400
+From: Mike Anderson <mike@theptrgroup.com>
+Reply-To: mike@theptrgroup.com
+MIME-Version: 1.0
+To: SElinux <SELinux@tycho.nsa.gov>
+Subject: SELinux on Arm?
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-06-01 at 11:13 -0400, Stephen Smalley wrote:
-> On Thu, 2005-05-26 at 13:27 -0400, Joshua Brindle wrote:
-> > diff -burNd a1/libsepol/src/assertion.c b/libsepol/src/assertion.c
-> > --- a1/libsepol/src/assertion.c	1969-12-31 19:00:00.000000000 -0500
-> > +++ b/libsepol/src/assertion.c	2005-05-25 13:11:20.410920480 -0400
-> > +                if ((avdatump->specified & AVTAB_ALLOWED) && (avtab_allowed(avdatump) & curperm->data)) {
-> > +                        fprintf(stderr, "assertion on line %lu violated by allow %s %s:%s ;\n",
-> > +                                line, p->p_type_val_to_name[stype], p->p_type_val_to_name[ttype],
-> > +                                p->p_class_val_to_name[curperm->class - 1]);
-> > +                        return -1;
-> 
-> The original code in checkpolicy also displayed the access vector as a
-> string, which this omits.
-> 
+Greetings!
 
-you caught me!
+  All of the traffic I've seen over the past few months has been for the
+X86.  Is anyone working on
+SELinux (2.6.x) on the ARM/XSCALE?  If so, what distro and target board?
 
-I just added this back in, it'll be in the next patchset.
+TIA,
+
+Mike
+
+-- 
+
+---------------------------------------------------------------
+Mike Anderson                    703.585.9384
+CTO/Chief Scientist              mike@ThePTRGroup.com
+www.ThePTRGroup.com              Embedded, Real-Time Solutions
+---------------------------------------------------------------
+"Software development is like making a baby. 
+ You can't make a baby in one month by impregnating nine women.
+ Some things just take time."
+             
+      -Paraphrased from The Mythical Man Month
 
 
 --
