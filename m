@@ -1,59 +1,60 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j53GFggA001789
-	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 12:15:42 -0400 (EDT)
-Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j53G9GjH007201
-	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 16:09:16 GMT
-Message-Id: <200506031609.j53G8v1W005959@turing-police.cc.vt.edu>
-To: Roger Brunell <rog_brunell@yahoo.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Labeling confusion with apt-get/dpkg 
-In-Reply-To: Your message of "Fri, 03 Jun 2005 07:36:39 PDT."
-             <20050603143639.59205.qmail@web33209.mail.mud.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20050603143639.59205.qmail@web33209.mail.mud.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j53HU5gA002479
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 13:30:05 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j53HNFhg019032
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 17:23:15 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j53HNdUf026092
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 13:23:39 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j53HNdO28815
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 13:23:39 -0400
+Subject: Bonobo
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: selinux@tycho.nsa.gov, David Malcolm <dmalcolm@redhat.com>,
+   Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 13:23:00 -0400
+Message-Id: <1117819380.22249.31.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1117814928_3726P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Fri, 03 Jun 2005 12:08:50 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1117814928_3726P
-Content-Type: text/plain; charset=us-ascii
+(sorry for 2 mails - posting on list this time) 
 
-On Fri, 03 Jun 2005 07:36:39 PDT, Roger Brunell said:
+What can be done to restrict bonobo? 
 
-> and I do not have a libpam that is selinux aware. Manoj's site lists libpam as
-> a target that needs to be worked, but as yet has no updated modules. I think I
-> saw something on freenode:#selinux where he said there were 8000 lines of
-> changes that needed to be reviewed and encorporated.
+My understanding is that bonobo allows applications to start other
+apps, based on searching for a particular capability. Mozilla uses
+bonobo, evolution uses bonobo, and pretty much any gnome app seems
+to use bonobo. What role should SElinux play in this process to 
+make the system more secure?
 
-Maybe there's 8K lines of changes *total* - but the SELinux patches that Fedora
-puts into the 'pam' RPM total all of....
+We've patched policy to implement per-domain labeling of orbit sockets,
+which restricts which apps can talk to which others over orbit. However,
+that doesn't seem sufficient. Currently bonobo runs as ROLE_t, and
+clients need to connect to it to launch other applications. That means:
 
-%  rpm2cpio pam-0.79-8.src.rpm | cpio -itv | grep selin
-12990 blocks
--rw-rw-r--   1 root     root        60083 Apr  5 03:40 pam-0.78-selinux.patch
--rw-rw-r--   1 root     root        10327 Sep  9  2004 pam-pwdbselinux.patch
+(1) All bonobo clients are given the right to connect to
+ROLE_orbit_tmp_t sockets, which is the same as the orbit
+socket type for any ROLE_t applications.
 
-Certainly not 8K lines in there. 2500 or so according to 'wc', and of that
-a large chunk is adding a new PAM module.  Might be a long afternoon's work,
-but probably not a "show stopper"
+I want to put bonobo in its own domain, but then it needs
+to be able to launch ROLE_t apps, and that becomes a problem.
 
---==_Exmh_1117814928_3726P
-Content-Type: application/pgp-signature
+(2) Bonobo can launch applications that ROLE_t can launch.
+The bonobo client could trick the bonobo server to launch the
+wrong applications. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+I'm interested in how userspace object managers work, and whether
+such a thing would be appropriate in this situation. It seems
+like it would be useful to enforce what can launch what else
+over bonobo, independent of the "search-by-capability" thing.
 
-iD8DBQFCoICQcC3lWbTT17ARAiPkAKCiZGMY/TQiuB2geb6vK/DF1mHLxwCg0Oqg
-Kj355dtODSr59/s7ZrQnqI0=
-=9NLB
------END PGP SIGNATURE-----
 
---==_Exmh_1117814928_3726P--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
