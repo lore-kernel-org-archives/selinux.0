@@ -1,23 +1,24 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j53EZTgA000755
-	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 10:35:29 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j53ET4jH001555
-	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 14:29:04 GMT
-Date: Fri, 3 Jun 2005 15:37:31 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Roger Brunell <rog_brunell@yahoo.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j53Eh3gA000839
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 10:43:03 -0400 (EDT)
+Received: from web33209.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j53EacjH001820
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 14:36:38 GMT
+Message-ID: <20050603143639.59205.qmail@web33209.mail.mud.yahoo.com>
+Date: Fri, 3 Jun 2005 07:36:39 -0700 (PDT)
+From: Roger Brunell <rog_brunell@yahoo.com>
 Subject: Re: Labeling confusion with apt-get/dpkg
-Message-ID: <20050603143731.GA16399@lkcl.net>
-References: <20050603131809.GI8365@lkcl.net> <20050603134210.76808.qmail@web33204.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: SELinux <selinux@tycho.nsa.gov>
 In-Reply-To: <20050603134210.76808.qmail@web33204.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 03, 2005 at 06:42:10AM -0700, Roger Brunell wrote:
+
+
+--- Roger Brunell <rog_brunell@yahoo.com> wrote:
+
 > 
 > 
 > --- Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
@@ -31,7 +32,8 @@ On Fri, Jun 03, 2005 at 06:42:10AM -0700, Roger Brunell wrote:
 > >  i forget what
 > >
 > 
-> Ok; I tried that, so-so results, the full console is far below, but the essence
+> Ok; I tried that, so-so results, the full console is far below, but the
+> essence
 > is here:
 > 
 > root@flattop:/# se_apt-get tcsh
@@ -40,14 +42,167 @@ On Fri, Jun 03, 2005 at 06:42:10AM -0700, Roger Brunell wrote:
 > 
 > Is the auth procedure RedHat-centric?  I am running Debian based.
 
-can you run strace -o log.txt -ff se_apt-get install tcsh for me,
-please, then post the logs ON A WEB SITE DO NOT ATTACH THEM TO THE LIST
-and let me know where the url is?
+  Further research shows that run_init dynamicly links:
+     root@flattop:/# ldd /usr/sbin/run_init
+        libselinux.so.1 => /lib/libselinux.so.1 (0xb7fca000)
+        libpam.so.0 => /lib/libpam.so.0 (0xb7fc1000)
+        libpam_misc.so.0 => /lib/libpam_misc.so.0 (0xb7fbe000)
+        libc.so.6 => /lib/tls/libc.so.6 (0xb7e89000)
+        libdl.so.2 => /lib/tls/libdl.so.2 (0xb7e86000)
+        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0xb7fea000)
 
-cheers,
+and I do not have a libpam that is selinux aware. Manoj's site lists libpam as
+a target that needs to be worked, but as yet has no updated modules. I think I
+saw something on freenode:#selinux where he said there were 8000 lines of
+changes that needed to be reviewed and encorporated.
 
-l.
+This may be a show-stopper....
 
+Rog
+
+> 
+> 
+> 
+> root@flattop:/# which se_apt-get
+> /usr/sbin/se_apt-get
+> root@flattop:/# ll /usr/sbin/se_apt-get
+> lrwxrwxrwx  1 root root 7 Jun  2 12:37 /usr/sbin/se_apt-get -> se_dpkg
+> root@flattop:/# ll /usr/sbin/se_dpkg   
+> -rwxr-xr-x  1 root root 118 Jan 19 12:26 /usr/sbin/se_dpkg
+> root@flattop:/# file /usr/sbin/se_dpkg
+> /usr/sbin/se_dpkg: Bourne shell script text executable
+> root@flattop:/# cat /usr/sbin/se_dpkg
+> #!/bin/sh
+> 
+> EXEC=`echo $0 | cut -f2 -d_`
+> 
+> if [ "$EXEC" != "dpkg" ]; then
+>   cd /
+> fi
+> 
+> exec /usr/sbin/run_init $EXEC "$@"
+> root@flattop:/# 
+> root@flattop:/# 
+> root@flattop:/# se_apt-get tcsh
+> cannot find your entry in the passwd file.
+> authentication failed.
+> root@flattop:/# 
+> root@flattop:/# grep root /etc/passwd
+> root:x:0:0:root:/root:/bin/bash
+> root@flattop:/# grep root /etc/shadow
+> root:DEADZByreU07Q:12527:0:99999:7:::
+> root@flattop:/# 
+> 
+> 
+>  
+> >  but if you run apt-get on its own, yep, that's pretty much what
+> >  happens...
+> > 
+> >  also have you installed the _modified_ version of dpkg - the one with
+> >  the /etc/dpkg/postinst.d patch?
+> 
+> 
+>    Can't really say. I used an archive of SEL-aware packages supplied by
+> Manoj
+> Srivastava. (www.golden-gryphon.com/software/security/selinux.xhtml)
+> 
+> 
+> > 
+> >  ... get it while it hot, from selinux.lemuria.org/newselinux ...
+> > 
+> >  if you want something to do "proper" fix, you would do
+> >  well to analyse dpkg where it unpacks .debs and creates
+> >  files/directories/symlinks, and to patch it to do setfilecon()
+> >  calls at the appropriate points [just like rpm has been
+> >  so patched - and accepted, it being rpm, redhat requiring FC to
+> >  do selinux and all... ]
+> > 
+> >  l.
+> > 
+> > 
+> > > 'dpkg' was updated with the
+> > > sel-aware version. I then checked the labels and found conflicting data:
+> > > 
+> > > root@flattop:/usr/bin# cd /bin
+> > > root@flattop:/bin# ls -lZ bash
+> > > -rwxr-xr-x  root     root     system_u:object_r:shell_exec_t   bash
+> > > root@flattop:/bin# ls -lZ tcsh
+> > > -rwxr-xr-x  root     root     system_u:object_r:bin_t          tcsh
+> > > root@flattop:/bin# 
+> > > 
+> > > I look in /etc/selinux/strict/contexts/files/file_contexts:
+> > > 
+> > >     158 #
+> > >     159 # /bin
+> > >     160 #
+> > >     161 /bin(/.*)?                      system_u:object_r:bin_t
+> > >     162 /bin/tcsh               --      system_u:object_r:shell_exec_t
+> > >     163 /bin/bash               --      system_u:object_r:shell_exec_t
+> > >     164 /bin/bash2              --      system_u:object_r:shell_exec_t
+> > > 
+> > > bash's label came from line 163 (during a relabel op). While, it appears,
+> > that
+> > > tcsh's label is from 161 (updated by dpkg). But why not a match with 162?
+> > > 
+> > > Who reads and interprets the file_contexts file? It doesn't appear to be
+> > > conditional.
+> > > 
+> > > 
+> > > 
+> > > Roger Brunell
+> > > 
+> > > Infosec Engineer (retired)
+> > > "Born 20 years too early"
+> > > 
+> > > 
+> > > 		
+> > > __________________________________ 
+> > > Discover Yahoo! 
+> > > Have fun online with music videos, cool games, IM and more. Check it out!
+> 
+> > > http://discover.yahoo.com/online.html
+> > > 
+> > > --
+> > > This message was distributed to subscribers of the selinux mailing list.
+> > > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> > with
+> > > the words "unsubscribe selinux" without quotes as the message.
+> > 
+> > -- 
+> > --
+> > <a href="http://lkcl.net">http://lkcl.net</a>
+> > --
+> > 
+> 
+> 
+> Roger Brunell
+> 
+> Infosec Engineer (retired)
+> "Born 20 years too early"
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Tired of spam?  Yahoo! Mail has the best spam protection around 
+> http://mail.yahoo.com 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
+
+
+Roger Brunell
+
+Infosec Engineer (retired)
+"Born 20 years too early"
+
+
+		
+__________________________________ 
+Discover Yahoo! 
+Stay in touch with email, IM, photo sharing and more. Check it out! 
+http://discover.yahoo.com/stayintouch.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
