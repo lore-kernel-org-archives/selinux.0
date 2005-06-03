@@ -1,208 +1,59 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j53Eh3gA000839
-	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 10:43:03 -0400 (EDT)
-Received: from web33209.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j53EacjH001820
-	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 14:36:38 GMT
-Message-ID: <20050603143639.59205.qmail@web33209.mail.mud.yahoo.com>
-Date: Fri, 3 Jun 2005 07:36:39 -0700 (PDT)
-From: Roger Brunell <rog_brunell@yahoo.com>
-Subject: Re: Labeling confusion with apt-get/dpkg
-To: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050603134210.76808.qmail@web33204.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j53GFggA001789
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 12:15:42 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j53G9GjH007201
+	for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2005 16:09:16 GMT
+Message-Id: <200506031609.j53G8v1W005959@turing-police.cc.vt.edu>
+To: Roger Brunell <rog_brunell@yahoo.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Labeling confusion with apt-get/dpkg 
+In-Reply-To: Your message of "Fri, 03 Jun 2005 07:36:39 PDT."
+             <20050603143639.59205.qmail@web33209.mail.mud.yahoo.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20050603143639.59205.qmail@web33209.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1117814928_3726P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 03 Jun 2005 12:08:50 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--==_Exmh_1117814928_3726P
+Content-Type: text/plain; charset=us-ascii
 
+On Fri, 03 Jun 2005 07:36:39 PDT, Roger Brunell said:
 
---- Roger Brunell <rog_brunell@yahoo.com> wrote:
+> and I do not have a libpam that is selinux aware. Manoj's site lists libpam as
+> a target that needs to be worked, but as yet has no updated modules. I think I
+> saw something on freenode:#selinux where he said there were 8000 lines of
+> changes that needed to be reviewed and encorporated.
 
-> 
-> 
-> --- Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> 
-> > On Fri, Jun 03, 2005 at 05:18:34AM -0700, Roger Brunell wrote:
-> > > Chalk this up to inexperience, but I am confused, I think.
-> > > I used apt-get to install tcsh on my system. 
-> > 
-> >  you need to use se_apt-get, a wrapper around apt-get
-> >  that places apt-get into the right security domain or somethingorother
-> >  i forget what
-> >
-> 
-> Ok; I tried that, so-so results, the full console is far below, but the
-> essence
-> is here:
-> 
-> root@flattop:/# se_apt-get tcsh
-> cannot find your entry in the passwd file.
-> authentication failed.
-> 
-> Is the auth procedure RedHat-centric?  I am running Debian based.
+Maybe there's 8K lines of changes *total* - but the SELinux patches that Fedora
+puts into the 'pam' RPM total all of....
 
-  Further research shows that run_init dynamicly links:
-     root@flattop:/# ldd /usr/sbin/run_init
-        libselinux.so.1 => /lib/libselinux.so.1 (0xb7fca000)
-        libpam.so.0 => /lib/libpam.so.0 (0xb7fc1000)
-        libpam_misc.so.0 => /lib/libpam_misc.so.0 (0xb7fbe000)
-        libc.so.6 => /lib/tls/libc.so.6 (0xb7e89000)
-        libdl.so.2 => /lib/tls/libdl.so.2 (0xb7e86000)
-        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0xb7fea000)
+%  rpm2cpio pam-0.79-8.src.rpm | cpio -itv | grep selin
+12990 blocks
+-rw-rw-r--   1 root     root        60083 Apr  5 03:40 pam-0.78-selinux.patch
+-rw-rw-r--   1 root     root        10327 Sep  9  2004 pam-pwdbselinux.patch
 
-and I do not have a libpam that is selinux aware. Manoj's site lists libpam as
-a target that needs to be worked, but as yet has no updated modules. I think I
-saw something on freenode:#selinux where he said there were 8000 lines of
-changes that needed to be reviewed and encorporated.
+Certainly not 8K lines in there. 2500 or so according to 'wc', and of that
+a large chunk is adding a new PAM module.  Might be a long afternoon's work,
+but probably not a "show stopper"
 
-This may be a show-stopper....
+--==_Exmh_1117814928_3726P
+Content-Type: application/pgp-signature
 
-Rog
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> 
-> 
-> 
-> root@flattop:/# which se_apt-get
-> /usr/sbin/se_apt-get
-> root@flattop:/# ll /usr/sbin/se_apt-get
-> lrwxrwxrwx  1 root root 7 Jun  2 12:37 /usr/sbin/se_apt-get -> se_dpkg
-> root@flattop:/# ll /usr/sbin/se_dpkg   
-> -rwxr-xr-x  1 root root 118 Jan 19 12:26 /usr/sbin/se_dpkg
-> root@flattop:/# file /usr/sbin/se_dpkg
-> /usr/sbin/se_dpkg: Bourne shell script text executable
-> root@flattop:/# cat /usr/sbin/se_dpkg
-> #!/bin/sh
-> 
-> EXEC=`echo $0 | cut -f2 -d_`
-> 
-> if [ "$EXEC" != "dpkg" ]; then
->   cd /
-> fi
-> 
-> exec /usr/sbin/run_init $EXEC "$@"
-> root@flattop:/# 
-> root@flattop:/# 
-> root@flattop:/# se_apt-get tcsh
-> cannot find your entry in the passwd file.
-> authentication failed.
-> root@flattop:/# 
-> root@flattop:/# grep root /etc/passwd
-> root:x:0:0:root:/root:/bin/bash
-> root@flattop:/# grep root /etc/shadow
-> root:DEADZByreU07Q:12527:0:99999:7:::
-> root@flattop:/# 
-> 
-> 
->  
-> >  but if you run apt-get on its own, yep, that's pretty much what
-> >  happens...
-> > 
-> >  also have you installed the _modified_ version of dpkg - the one with
-> >  the /etc/dpkg/postinst.d patch?
-> 
-> 
->    Can't really say. I used an archive of SEL-aware packages supplied by
-> Manoj
-> Srivastava. (www.golden-gryphon.com/software/security/selinux.xhtml)
-> 
-> 
-> > 
-> >  ... get it while it hot, from selinux.lemuria.org/newselinux ...
-> > 
-> >  if you want something to do "proper" fix, you would do
-> >  well to analyse dpkg where it unpacks .debs and creates
-> >  files/directories/symlinks, and to patch it to do setfilecon()
-> >  calls at the appropriate points [just like rpm has been
-> >  so patched - and accepted, it being rpm, redhat requiring FC to
-> >  do selinux and all... ]
-> > 
-> >  l.
-> > 
-> > 
-> > > 'dpkg' was updated with the
-> > > sel-aware version. I then checked the labels and found conflicting data:
-> > > 
-> > > root@flattop:/usr/bin# cd /bin
-> > > root@flattop:/bin# ls -lZ bash
-> > > -rwxr-xr-x  root     root     system_u:object_r:shell_exec_t   bash
-> > > root@flattop:/bin# ls -lZ tcsh
-> > > -rwxr-xr-x  root     root     system_u:object_r:bin_t          tcsh
-> > > root@flattop:/bin# 
-> > > 
-> > > I look in /etc/selinux/strict/contexts/files/file_contexts:
-> > > 
-> > >     158 #
-> > >     159 # /bin
-> > >     160 #
-> > >     161 /bin(/.*)?                      system_u:object_r:bin_t
-> > >     162 /bin/tcsh               --      system_u:object_r:shell_exec_t
-> > >     163 /bin/bash               --      system_u:object_r:shell_exec_t
-> > >     164 /bin/bash2              --      system_u:object_r:shell_exec_t
-> > > 
-> > > bash's label came from line 163 (during a relabel op). While, it appears,
-> > that
-> > > tcsh's label is from 161 (updated by dpkg). But why not a match with 162?
-> > > 
-> > > Who reads and interprets the file_contexts file? It doesn't appear to be
-> > > conditional.
-> > > 
-> > > 
-> > > 
-> > > Roger Brunell
-> > > 
-> > > Infosec Engineer (retired)
-> > > "Born 20 years too early"
-> > > 
-> > > 
-> > > 		
-> > > __________________________________ 
-> > > Discover Yahoo! 
-> > > Have fun online with music videos, cool games, IM and more. Check it out!
-> 
-> > > http://discover.yahoo.com/online.html
-> > > 
-> > > --
-> > > This message was distributed to subscribers of the selinux mailing list.
-> > > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> > with
-> > > the words "unsubscribe selinux" without quotes as the message.
-> > 
-> > -- 
-> > --
-> > <a href="http://lkcl.net">http://lkcl.net</a>
-> > --
-> > 
-> 
-> 
-> Roger Brunell
-> 
-> Infosec Engineer (retired)
-> "Born 20 years too early"
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> Tired of spam?  Yahoo! Mail has the best spam protection around 
-> http://mail.yahoo.com 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+iD8DBQFCoICQcC3lWbTT17ARAiPkAKCiZGMY/TQiuB2geb6vK/DF1mHLxwCg0Oqg
+Kj355dtODSr59/s7ZrQnqI0=
+=9NLB
+-----END PGP SIGNATURE-----
 
-
-Roger Brunell
-
-Infosec Engineer (retired)
-"Born 20 years too early"
-
-
-		
-__________________________________ 
-Discover Yahoo! 
-Stay in touch with email, IM, photo sharing and more. Check it out! 
-http://discover.yahoo.com/stayintouch.html
+--==_Exmh_1117814928_3726P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
