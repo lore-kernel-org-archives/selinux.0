@@ -1,67 +1,56 @@
-Subject: Re: Question about assurance?
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <20050605163932.63622.qmail@web51508.mail.yahoo.com>
-References: <20050605163932.63622.qmail@web51508.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vEWd9GnGr6t9VkvuNJcO"
-Date: Sun, 05 Jun 2005 21:12:14 +0200
-Message-Id: <1117998734.25172.5.camel@localhost.localdomain>
+Subject: fork rules
+From: Arpan Darivemula <apd005@latech.edu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Sun, 05 Jun 2005 15:13:38 -0500
+Message-Id: <1118002418.21085.10.camel@Raikiri.metadns.cx>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi
 
---=-vEWd9GnGr6t9VkvuNJcO
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Could I please get some help with the following rule:
+Here is what I'm trying to do: I want to have a rule that toggles a
+process fork.  Here is what I have
 
-El dom, 05-06-2005 a las 09:39 -0700, Park Lee escribi=F3:
-> Hi,
->=20
-> In "5.1 Architecture Overview" of=A1=B6The Flask Security
-> Architecture: System Support for Diverse Security
-> Policies=A1=B7, It says:
->=20
-> "Secondary goals for the architecture include
-> application
-> transparency, defense-in-depth, ease of assurance,
-> and minimal performance impact".
->=20
-> Here, Is the meaning of word "assurance" the same as
-> the meaning of "assurance" of "Security assurance" in
-> ISO/IEC15408 (i.e. Information technology - Security
-> techniques --Evaluation criteria for IT security)?=20
-> or Does it just mean another thing?
+----fork.c----
+# include <stdio.h>
+# include <unistd.h>
 
-At least for me, that part means that you can easily implement
-information assurance models on top of the Flask architecture, with the
-"defense in depth" philosophy, which is basically putting layered
-defenses all-together for ensuring that breakage, corruption, overriding
-or any other type of mis-use either desired or undesired against one or
-more layers, can't lead to a complete compromise of the environment.
+int main( int argc, char **argv )
+{
+        int pid;
 
-All the rest of CC and the like it's much of the same, but talking in
-technical terms, it's what I've told you AFAIK.
+        pid = getpid();
+        printf( "Parent PID: %i\n", pid );
 
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+        if ( fork() == 0 )
+        {
+                pid = getpid();
+                printf( "Child PID: %i\n", pid );
+        }
+}
+---------------
+----fc file----
+/home/dsi/fork  --      user_u:object_r:dsifork_exec_t
+---------------
+----te file----
+type dsifork_exec_t, file_type, sysadmfile;
+allow user_t dsifork_exec_t:file {execute execute_no_trans read};
+neverallow dsifork_exec_t self:process{fork};
+----------------
+Now the process forks nonetheless. The rule does not make any difference
+in stopping the fork. How can I control a fork in this ? I want to be
+able to have a line that can allow or block the fork.
 
---=-vEWd9GnGr6t9VkvuNJcO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Thankyou
+Arpan
 
-iD8DBQBCo06NDcEopW8rLewRAjg8AJ9l+WarUdZktGgb4/K8rEHeL0bPGwCfXt7q
-rGgnpYbRm/aZ523TEbWvzAY=
-=7jWk
------END PGP SIGNATURE-----
 
---=-vEWd9GnGr6t9VkvuNJcO--
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
