@@ -1,7 +1,7 @@
-Message-ID: <20050605101828.68291.qmail@web51501.mail.yahoo.com>
-Date: Sun, 5 Jun 2005 03:18:28 -0700 (PDT)
+Message-ID: <20050605163932.63622.qmail@web51508.mail.yahoo.com>
+Date: Sun, 5 Jun 2005 09:39:32 -0700 (PDT)
 From: Park Lee <parklee_sel@yahoo.com>
-Subject: Policy Logic vs. Policy component?
+Subject: Question about assurance?
 To: SELinux <SELinux@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
@@ -11,18 +11,22 @@ List-Id: selinux@tycho.nsa.gov
 
 Hi,
 
-In Figure 2 of "The Flask Security Architecture:System
-Support for Diverse Security Policies", There is a
-statement:
-"The security server consults the labeling rules in
-the policy logic, determines a security context for
-the new object, ... ".
+In "5.1 Architecture Overview" of¡¶The Flask Security
+Architecture: System Support for Diverse Security
+Policies¡·, It says:
 
-Here, can we replace the words "policy logic" with
-"policy component"?
-and Why it is called "policy logic"?
+"Secondary goals for the architecture include
+application
+transparency, defense-in-depth, ease of assurance,
+and minimal performance impact".
 
+Here, Is the meaning of word "assurance" the same as
+the meaning of "assurance" of "Security assurance" in
+ISO/IEC15408 (i.e. Information technology - Security
+techniques --Evaluation criteria for IT security)? 
+or Does it just mean another thing?
 
+Thank you.
 
 Best Regards,
 Park Lee
