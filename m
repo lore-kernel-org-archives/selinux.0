@@ -1,70 +1,70 @@
-Message-ID: <20050606011743.99212.qmail@web51508.mail.yahoo.com>
-Date: Sun, 5 Jun 2005 18:17:43 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: Question about assurance?
-To: lorenzo@gnu.org
-Cc: SELinux <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <200506060148.j561mRLu020682@turing-police.cc.vt.edu>
+To: Arpan Darivemula <apd005@latech.edu>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: fork rules 
+In-Reply-To: Your message of "Sun, 05 Jun 2005 15:13:38 CDT."
+             <1118002418.21085.10.camel@Raikiri.metadns.cx>
+From: Valdis.Kletnieks@vt.edu
+References: <1118002418.21085.10.camel@Raikiri.metadns.cx>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1118022506_4209P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Sun, 05 Jun 2005 21:48:27 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05 Jun 2005 at 21:12, Lorenzo Hernández
-García-Hierro wrote:
-> El dom, 05-06-2005 a las 09:39 -0700, Park Lee 
-> escribi?
->> Hi,
->> 
->> In "5.1 Architecture Overview" of¡¶The Flask 
->> Security Architecture: System Support for Diverse 
->> Security Policies¡·, It says:
->>
->> "Secondary goals for the architecture include
->> application transparency, defense-in-depth, ease 
->> of assurance,and minimal performance impact".
->> 
->> Here, Is the meaning of word "assurance" the same 
->> as the meaning of "assurance" of "Security 
->> assurance" in ISO/IEC15408 (i.e. Information 
->> technology - Security techniques --Evaluation 
->> criteria for IT security)?  or Does it just mean 
->> another thing?
->
-> At least for me, that part means that you can 
-> easily implement information assurance models on 
-> top of the Flask architecture, 
+--==_Exmh_1118022506_4209P
+Content-Type: text/plain; charset=us-ascii
 
-What's the information assurance model? Would you
-please give me an example?
+On Sun, 05 Jun 2005 15:13:38 CDT, Arpan Darivemula said:
 
-> with the "defense in depth" philosophy, which is
-> basically putting layered defenses all-together for
-> ensuring that breakage, corruption, overriding
-> or any other type of mis-use either desired or 
-> undesired against one or more layers, can't lead to 
-> a complete compromise of the environment.
+> int main( int argc, char **argv )
+> {
+>         int pid;
+> 
+>         pid = getpid();
+>         printf( "Parent PID: %i\n", pid );
+> 
+>         if ( fork() == 0 )
+>         {
+>                 pid = getpid();
+>                 printf( "Child PID: %i\n", pid );
+>         }
+> }
 
-Thanks.
+I'd stick a 'sleep(120);' in there just before the fork() call, and then
+start using 'pa axZ' or similar to find out what you're actually running as.
 
-> All the rest of CC and the like it's much of the 
-> same, but talking in technical terms, it's what 
-> I've told you AFAIK.
+> neverallow dsifork_exec_t self:process{fork};
 
-What do you mean in the statement?
+You're probably not actually in dsifork_exec_t. Probably because:
+
+> allow user_t dsifork_exec_t:file {execute execute_no_trans read};
+
+Did you really want execute_*NO*_trans there?  That means that a user_t
+can exec a dsifork_exec_t and *remain* a user_t.  I think you wanted something
+like:
+
+domain_auto_trans(user_t, dsi_fork_t, dsi_fork_exec_t);
+neverallow dsi_fork_t self:process(fork);
+
+and then label the file as dsi_fork_exec_t, and apply the restriction to
+dsi_fork_t
 
 
+--==_Exmh_1118022506_4209P
+Content-Type: application/pgp-signature
 
-Thank you very much.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Best Regards,
-Park Lee
+iD8DBQFCo6tqcC3lWbTT17ARApMIAKDOwj+JKFfptZosvqkJ7Htg9S3f6ACfS4cR
+1ZtlJ1y6272IGJYP+cNzY44=
+=iYkc
+-----END PGP SIGNATURE-----
 
-
-		
-__________________________________ 
-Discover Yahoo! 
-Stay in touch with email, IM, photo sharing and more. Check it out! 
-http://discover.yahoo.com/stayintouch.html
+--==_Exmh_1118022506_4209P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
