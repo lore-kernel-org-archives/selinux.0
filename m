@@ -1,27 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j567iKgA013784
-	for <selinux@tycho.nsa.gov>; Mon, 6 Jun 2005 03:44:20 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j567b0Xi005707
-	for <selinux@tycho.nsa.gov>; Mon, 6 Jun 2005 07:37:02 GMT
-Subject: dhcp policy
-From: Russell Coker <rcoker@redhat.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Policy Logic vs. Policy component?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050605101828.68291.qmail@web51501.mail.yahoo.com>
+References: <20050605101828.68291.qmail@web51501.mail.yahoo.com>
 Content-Type: text/plain
-Date: Sun, 05 Jun 2005 23:26:22 +1000
-Message-Id: <1117977983.3225.92.camel@aeon>
+Date: Mon, 06 Jun 2005 09:59:16 -0400
+Message-Id: <1118066356.23249.21.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ifdef(`dhcpd.te', `define(`use_dhcpd')')
-ifdef(`dnsmasq.te', `define(`use_dhcpd')')
+On Sun, 2005-06-05 at 03:18 -0700, Park Lee wrote:
+> In Figure 2 of "The Flask Security Architecture:System
+> Support for Diverse Security Policies", There is a
+> statement:
+> "The security server consults the labeling rules in
+> the policy logic, determines a security context for
+> the new object, ... ".
+> 
+> Here, can we replace the words "policy logic" with
+> "policy component"?
+> and Why it is called "policy logic"?
 
-The above needs to be added to the net_contexts file before the port 67
-labeling.  The current policy does not permit a dhcpd to bind to port
-67...
+A policy component would be something like TE, RBAC, or MLS.  Policy
+logic is a more general term.
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
