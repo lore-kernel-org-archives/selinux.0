@@ -1,56 +1,70 @@
-Subject: fork rules
-From: Arpan Darivemula <apd005@latech.edu>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Sun, 05 Jun 2005 15:13:38 -0500
-Message-Id: <1118002418.21085.10.camel@Raikiri.metadns.cx>
-Mime-Version: 1.0
+Message-ID: <20050606011743.99212.qmail@web51508.mail.yahoo.com>
+Date: Sun, 5 Jun 2005 18:17:43 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Question about assurance?
+To: lorenzo@gnu.org
+Cc: SELinux <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi
+On 05 Jun 2005 at 21:12, Lorenzo Hernández
+García-Hierro wrote:
+> El dom, 05-06-2005 a las 09:39 -0700, Park Lee 
+> escribi?
+>> Hi,
+>> 
+>> In "5.1 Architecture Overview" of¡¶The Flask 
+>> Security Architecture: System Support for Diverse 
+>> Security Policies¡·, It says:
+>>
+>> "Secondary goals for the architecture include
+>> application transparency, defense-in-depth, ease 
+>> of assurance,and minimal performance impact".
+>> 
+>> Here, Is the meaning of word "assurance" the same 
+>> as the meaning of "assurance" of "Security 
+>> assurance" in ISO/IEC15408 (i.e. Information 
+>> technology - Security techniques --Evaluation 
+>> criteria for IT security)?  or Does it just mean 
+>> another thing?
+>
+> At least for me, that part means that you can 
+> easily implement information assurance models on 
+> top of the Flask architecture, 
 
-Could I please get some help with the following rule:
-Here is what I'm trying to do: I want to have a rule that toggles a
-process fork.  Here is what I have
+What's the information assurance model? Would you
+please give me an example?
 
-----fork.c----
-# include <stdio.h>
-# include <unistd.h>
+> with the "defense in depth" philosophy, which is
+> basically putting layered defenses all-together for
+> ensuring that breakage, corruption, overriding
+> or any other type of mis-use either desired or 
+> undesired against one or more layers, can't lead to 
+> a complete compromise of the environment.
 
-int main( int argc, char **argv )
-{
-        int pid;
+Thanks.
 
-        pid = getpid();
-        printf( "Parent PID: %i\n", pid );
+> All the rest of CC and the like it's much of the 
+> same, but talking in technical terms, it's what 
+> I've told you AFAIK.
 
-        if ( fork() == 0 )
-        {
-                pid = getpid();
-                printf( "Child PID: %i\n", pid );
-        }
-}
----------------
-----fc file----
-/home/dsi/fork  --      user_u:object_r:dsifork_exec_t
----------------
-----te file----
-type dsifork_exec_t, file_type, sysadmfile;
-allow user_t dsifork_exec_t:file {execute execute_no_trans read};
-neverallow dsifork_exec_t self:process{fork};
-----------------
-Now the process forks nonetheless. The rule does not make any difference
-in stopping the fork. How can I control a fork in this ? I want to be
-able to have a line that can allow or block the fork.
-
-
-Thankyou
-Arpan
+What do you mean in the statement?
 
 
 
+Thank you very much.
 
+Best Regards,
+Park Lee
+
+
+		
+__________________________________ 
+Discover Yahoo! 
+Stay in touch with email, IM, photo sharing and more. Check it out! 
+http://discover.yahoo.com/stayintouch.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
