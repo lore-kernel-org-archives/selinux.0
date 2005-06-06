@@ -1,43 +1,30 @@
-Subject: Re: Question about assurance?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>,
-   Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-In-Reply-To: <20050606162001.37607.qmail@web51504.mail.yahoo.com>
-References: <20050606162001.37607.qmail@web51504.mail.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 06 Jun 2005 12:25:19 -0400
-Message-Id: <1118075119.23249.52.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200506061740.j56HeH5F009471@gotham.columbia.tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'NSA Selinux Mailinglist'" <selinux@tycho.nsa.gov>
+Subject: RE: couple validatetrans questions
+Date: Mon, 6 Jun 2005 13:40:17 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-reply-to: <1116963618.27904.193.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-06-06 at 09:20 -0700, Park Lee wrote:
-> But, I think they are 2 different things. Then, Does
-> Lorenzo misunderstand the word "assurance" in "ease
-> of assurance" in my question ? 
+Stephen Smalley wrote:
+> It lets you impose restrictions on file relabeling based on the
+> entire (process context, old file context, new file context) triple,
+> unlike the pairwise permission checks.   
 
-Yes, I think he just misunderstood the question.  Reports on the
-assurance work done for DTOS can be found under
-http://www.cs.utah.edu/flux/dtos.  Reports on assurance work done for
-Flask can be found under http://www.cs.utah.edu/flux/flask.
+Am I correct in understanding that for constrain statements, t1 (and u1 &
+r1) mean source type (user or role) and t2 (and u2 & r2) mean target.
+However, for validatetrans, t3 now means source (i.e., the subject process),
+and t1 now means "old" context and t2 "new" context (since validatetrans
+deals only with context relabel)?
 
+I expected *1 to stay meaning the source/subject context, but concluded it
+was as above. Did I miss something? 
 
-> > http://www.nsa.gov/selinux/papers/inevitability/#2
-> 
-> It can not be open, why?
-
-Works for me.  It should take you to Section 2 of that paper; you can
-always omit the #2 and just scan down to the 2nd section yourself.
-Quoting from it:
-
-"Assurance evidence must be provided to demonstrate that the features
-meet the desired system security properties and to demonstrate that the
-features are implemented correctly."
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
