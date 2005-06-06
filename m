@@ -1,66 +1,44 @@
-Message-ID: <20050606162001.37607.qmail@web51504.mail.yahoo.com>
-Date: Mon, 6 Jun 2005 09:20:01 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
 Subject: Re: Question about assurance?
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Park Lee <parklee_sel@yahoo.com>
 Cc: SELinux <SELinux@tycho.nsa.gov>,
-   Lorenzo "Hernández" "García-Hierro" <lorenzo@gnu.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+   Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+In-Reply-To: <20050606162001.37607.qmail@web51504.mail.yahoo.com>
+References: <20050606162001.37607.qmail@web51504.mail.yahoo.com>
+Content-Type: text/plain
+Date: Mon, 06 Jun 2005 12:25:19 -0400
+Message-Id: <1118075119.23249.52.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 06 Jun 2005 at 10:24, Stephen Smalley wrote:
-> On Sun, 2005-06-05 at 09:39 -0700, Park Lee wrote:
->> Hi,
->>  
->> In "5.1 Architecture Overview" of¡¶The Flask 
->> Security Architecture: System Support for Diverse 
->> Security Policies¡·, It says:
->> 
->> "Secondary goals for the architecture include
->> application transparency, defense-in-depth, ease 
->> of assurance, and minimal performance impact".
->> 
->> Here, Is the meaning of word "assurance" the same 
->> as the meaning of "assurance" of "Security 
->> assurance" in  ISO/IEC15408 (i.e. Information 
->> technology - Security techniques --Evaluation 
->> criteria for IT security)? 
->
-> Yes.
+On Mon, 2005-06-06 at 09:20 -0700, Park Lee wrote:
+> But, I think they are 2 different things. Then, Does
+> Lorenzo misunderstand the word "assurance" in "ease
+> of assurance" in my question ? 
 
-Yesterday, "Lorenzo Hernández García-Hierro"
-<lorenzo@gnu.org> wrote on the list for the issue as
-the following:
-"At least for me, that part means that you can easily
-implement information assurance models on top of the
-Flask architecture,..."
+Yes, I think he just misunderstood the question.  Reports on the
+assurance work done for DTOS can be found under
+http://www.cs.utah.edu/flux/dtos.  Reports on assurance work done for
+Flask can be found under http://www.cs.utah.edu/flux/flask.
 
 
-Then, Is the meaning of word "assurance" in
-"information assurance models" the same as the meaning
-of "assurance" of "Security assurance" in CC ?  
-But, I think they are 2 different things. Then, Does
-Lorenzo misunderstand the word "assurance" in "ease
-of assurance" in my question ? 
+> > http://www.nsa.gov/selinux/papers/inevitability/#2
+> 
+> It can not be open, why?
 
-> http://www.nsa.gov/selinux/papers/inevitability/#2
+Works for me.  It should take you to Section 2 of that paper; you can
+always omit the #2 and just scan down to the 2nd section yourself.
+Quoting from it:
 
-It can not be open, why?
+"Assurance evidence must be provided to demonstrate that the features
+meet the desired system security properties and to demonstrate that the
+features are implemented correctly."
 
+-- 
+Stephen Smalley
+National Security Agency
 
-Thanks a lot.
-
-Best Regards,
-Park Lee
-
-
-		
-__________________________________ 
-Discover Yahoo! 
-Get on-the-go sports scores, stock quotes, news and more. Check it out! 
-http://discover.yahoo.com/mobile.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
