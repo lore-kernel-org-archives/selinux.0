@@ -1,24 +1,34 @@
-Message-Id: <200506071459.j57ExA5F018131@gotham.columbia.tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <brandon-pollet@utulsa.edu>, <SELinux@tycho.nsa.gov>
-Subject: RE: Dynamic Policy Enforcement in SELinux
-Date: Tue, 7 Jun 2005 10:59:10 -0400
+Date: Tue, 7 Jun 2005 11:50:37 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Frank Mayer <mayerf@tresys.com>
+cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'NSA Selinux Mailinglist'" <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>
+Subject: RE: couple validatetrans questions
+In-Reply-To: <200506071451.j57Epo5F018028@gotham.columbia.tresys.com>
+Message-ID: <Xine.LNX.4.44.0506071148260.25039-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-reply-to: <1118094711.42a4c577888fb@cc.utulsa.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-brandon-pollet@utulsa.edu wrote:
-> I can also provide a link for postscript or PDF. If you
-> have any questions or feedback please send it to the address below I
-> would love to hear what you all think. Thank you.       
-> 
-> Dynamic Policy Enforcement in SElinux
+On Tue, 7 Jun 2005, Frank Mayer wrote:
 
-A pdf format would make it easier for many to quickly review, as well as a
-reference to an abstract describing what you mean by "dynamic". Thanks 
+> A trivial code change to make assuming there hasn't been extensive use of
+> validatetrans/mlsvalidatetrans. Until then I guess I'll just have to work
+> harder at explaining the subtle difference. 
+
+I recall there was an email or other document which explained all of the
+*1, *2, *3 semantics, but I can't find it anymore.
+
+Perhaps Chad knows where we can find it.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 
 
