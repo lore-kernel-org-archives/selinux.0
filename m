@@ -1,50 +1,44 @@
-Subject: Re: fork rules
-From: Arpan Darivemula <apd005@latech.edu>
+Message-ID: <20050607010537.57367.qmail@web51508.mail.yahoo.com>
+Date: Mon, 6 Jun 2005 18:05:37 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Question about assurance?
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1118066249.23249.18.camel@moss-spartans.epoch.ncsc.mil>
-References: <1118002418.21085.10.camel@Raikiri.metadns.cx>
-	 <1118066249.23249.18.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 06 Jun 2005 13:01:52 -0500
-Message-Id: <1118080912.10446.5.camel@Raikiri.metadns.cx>
-Mime-Version: 1.0
+In-Reply-To: <1118075119.23249.52.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you for clearing up the use of neverallow.
-Arpan
+On Mon, 06 Jun 2005 at 12:25, Stephen Smalley wrote:
+> Quoting from it:
+> 
+> "Assurance evidence must be provided to demonstrate
+> that the features meet the desired system security 
+> properties and to demonstrate that the features are 
+> implemented correctly."
 
-On Mon, 2005-06-06 at 09:57 -0400, Stephen Smalley wrote:
-> On Sun, 2005-06-05 at 15:13 -0500, Arpan Darivemula wrote:
-> > ----fc file----
-> > /home/dsi/fork  --      user_u:object_r:dsifork_exec_t
-> > ---------------
-> > ----te file----
-> > type dsifork_exec_t, file_type, sysadmfile;
-> > allow user_t dsifork_exec_t:file {execute execute_no_trans read};
-> > neverallow dsifork_exec_t self:process{fork};
-> > ----------------
-> > Now the process forks nonetheless. The rule does not make any difference
-> > in stopping the fork. How can I control a fork in this ? I want to be
-> > able to have a line that can allow or block the fork.
-> 
-> 1) dsifork_exec_t is the type of an executable file, not a process
-> domain.  You need a type dsifork_t, domain; statement to declare the
-> process domain and a domain_auto_trans(user_t, dsifork_exec_t,
-> dsifork_t) macro call to set up the transition from user_t to dsifork_t
-> upon executing the executable file.
-> 2) A domain can only do what is explicitly allowed by allow rules,
-> nothing more.  neverallow is a compile-time assertion on the policy
-> (i.e. verify that there are no allow rules in the policy that give this
-> permission), not a runtime policy rule.
-> 
-> Naturally, looking at existing policy for examples is always a good
-> idea.  Also, see
-> http://selinux.sourceforge.net/resources.php3
-> for some documentation resources that are available.
-> 
+Thank you very much!
 
+Now, I know that the goal of "ease of assurance" in
+flask architecture means that flask architecture
+should be easily to demonstrate that the features meet
+the desired system security properties and be easily
+to demonstrate that the features are implemented
+correctly.
+Am I right?
+
+Thanks,
+
+
+
+Best Regards,
+Park Lee
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
