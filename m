@@ -1,71 +1,41 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j59Eo5gA010816
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2005 10:50:06 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j59EgEFL020888
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2005 14:42:14 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j59EgeWb020960
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2005 10:42:40 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j59EgeO21381
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2005 10:42:40 -0400
-Subject: Restorecon script
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j59I1qgA012491
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2005 14:01:52 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j59HrxFL007416
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2005 17:54:00 GMT
+Subject: Re: [uml-devel] 2.6.12-rc6-mm1 patches testing
+From: antoine <antoine@nagafix.co.uk>
+To: SELinux <selinux@tycho.nsa.gov>
+Cc: Blaisorblade <blaisorblade@yahoo.it>
+In-Reply-To: <200506091920.34246.blaisorblade@yahoo.it>
+References: <1118280325.10107.124.camel@localhost>
+	 <200506091724.50908.blaisorblade@yahoo.it>
+	 <1118332604.10190.58.camel@localhost>
+	 <200506091920.34246.blaisorblade@yahoo.it>
 Content-Type: text/plain
-Date: Thu, 09 Jun 2005 10:41:59 -0400
-Message-Id: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
+Date: Thu, 09 Jun 2005 19:04:38 +0100
+Message-Id: <1118340278.10190.112.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Any comments on the following script?
-It's a profile script, to be shipped with selinux-policy-strict, 
-executed per login shell. It hardcodes the applications, 
-unfortunately, but does what we want for right now 
-(at least a temp. solution, unless someone has a better one?)
-Also, user needs to start a login shell to get it to run.
+> UML needs simply to mmap (PROT_EXEC) datas from the /tmp/vm_XXXXXX file to 
+> work, and so it tries doing this very early, to give the user a hint on what 
+> happens. On a fs mounted noexec this is forbidden, so possibly it's forbidden 
+> also by SELinux; however, it would be nicer if SELinux could simply allow 
+> mmap()ing with PROT_EXEC without allowing file execution...; allowing mmap() 
+> does not put a big hole inside protections while allowing file execution 
+> does...means that if the user can supply a program to execute, that program 
+> can be written to mmap() and execute code from /tmp, but at that point the 
+> intruder could simply execute his code.
 
-#!/bin/bash
+Can anyone answer this for us please?
+I am trying to workaround this:
+audit(1117846877.640:0): avc:  denied  { execute } for  pid=29031 comm=um-kernel path=/tmp/vm_file-NnIm5X (deleted) dev=md7 ino=3965039 scontext=root:sysadm_r:um_kernel_t tcontext=root:object_r:um_tmp_t tclass=file
+Without giving uml execute access to its tmp directory.
 
-([ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled) || exit
-
-DIRS=" \
-/tmp/.ICE-unix \
-/tmp/orbit-$USER \
-$HOME/.fonts \
-$HOME/.fonts/auto \
-$HOME/.gnome2 \
-$HOME/.gnome2/share/fonts \
-$HOME/.gnome2/share/cursor-fonts \
-$HOME/.gnome2_private \
-$HOME/.mozilla \
-$HOME/.evolution \
-$HOME/.thunderbird \
-"
-
-UNIQUE_DIRS=" \
-/tmp/.ICE-unix \
-/tmp/orbit-$USER \
-$HOME/.fonts \
-$HOME/.gnome2 \
-$HOME/.gnome2_private \
-$HOME/.mozilla \
-$HOME/.evolution \
-$HOME/.thunderbird \
-"
-
-for DIR in $DIRS; do
-[ -d $DIR ] || mkdir -p $DIR
-done
-
-RESTORED=`/sbin/restorecon -v $UNIQUE_DIRS 2>&1`
-if [ ! -z "$RESTORED" ]; then
-        /sbin/restorecon -R `echo "$RESTORED" | awk '{ print $3 }'`
-fi
-
+Antoine
 
 
 --
