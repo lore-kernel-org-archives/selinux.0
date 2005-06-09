@@ -1,54 +1,49 @@
-Subject: Re: Bonobo
+Subject: Re: general selinux questions
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <gyurdiev@redhat.com>
-Cc: selinux@tycho.nsa.gov, David Malcolm <dmalcolm@redhat.com>,
-   Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1117819380.22249.31.camel@dhcp83-8.boston.redhat.com>
-References: <1117819380.22249.31.camel@dhcp83-8.boston.redhat.com>
+To: antoine <antoine@nagafix.co.uk>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118319901.10190.25.camel@localhost>
+References: <1118281858.9481.4.camel@localhost>
+	 <1118319901.10190.25.camel@localhost>
 Content-Type: text/plain
-Date: Thu, 09 Jun 2005 14:29:20 -0400
-Message-Id: <1118341760.30110.125.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 09 Jun 2005 14:36:46 -0400
+Message-Id: <1118342206.30110.132.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-03 at 13:23 -0400, Ivan Gyurdiev wrote:
-> (sorry for 2 mails - posting on list this time) 
-> 
-> What can be done to restrict bonobo? 
-> 
-> My understanding is that bonobo allows applications to start other
-> apps, based on searching for a particular capability. Mozilla uses
-> bonobo, evolution uses bonobo, and pretty much any gnome app seems
-> to use bonobo. What role should SElinux play in this process to 
-> make the system more secure?
-> 
-> We've patched policy to implement per-domain labeling of orbit sockets,
-> which restricts which apps can talk to which others over orbit. However,
-> that doesn't seem sufficient. Currently bonobo runs as ROLE_t, and
-> clients need to connect to it to launch other applications. That means:
-> 
-> (1) All bonobo clients are given the right to connect to
-> ROLE_orbit_tmp_t sockets, which is the same as the orbit
-> socket type for any ROLE_t applications.
-> 
-> I want to put bonobo in its own domain, but then it needs
-> to be able to launch ROLE_t apps, and that becomes a problem.
-> 
-> (2) Bonobo can launch applications that ROLE_t can launch.
-> The bonobo client could trick the bonobo server to launch the
-> wrong applications. 
-> 
-> I'm interested in how userspace object managers work, and whether
-> such a thing would be appropriate in this situation. It seems
-> like it would be useful to enforce what can launch what else
-> over bonobo, independent of the "search-by-capability" thing.
+On Thu, 2005-06-09 at 13:25 +0100, antoine wrote:
+> Some more questions:
+> 7) What can I do to logrotate.te to make it rotate my mysql logfiles but
+> have the correct label on the new /var/log/mysql/mysql.log file. As it
+> is now it comes up as var_log_t rather than mysql_var_log_t
 
-Take a look at the SELinux modification to dbusd.  Bonobo server should
-be able to get the context of the client via getpeercon(3), and then use
-the userspace AVC or the security API directly to get decisions about
-proper labels to use for launched applications and whether or not such
-applications should be launched by the client.
+Does type mysqle_var_log_t have the logfile attribute?  If so, then
+logrotate.te should be allowing logrotate the necessary permissions to
+re-create the file with that type.  Of course, your logrotate program
+has to be modified to preserve types on log files; the one in Fedora
+should have such modifications.
+
+> 8) How can I allow daemons to write to /dev/log?
+> allow psad_t devlog_t:sock_file write;
+> Is not allowed...
+
+Add the 'privlog' attribute to the domain for the daemon.
+
+> 9) One of my scripts needs to kill a few processes by name (if they
+> exist) so it does something like 'ps -ef | grep "someLongUniqueString in
+> processName"' but that triggers all sorts of violations. Is there a
+> better way?
+
+I'm not sure why you wouldn't use killall, but I don't think that will
+help with the denials anyway.  Notice that the existing policy often
+dontaudit's such attempts to avoid generating noise, e.g.
+	dontaudit foo_t domain:dir search;
+Note that if you are in enforcing mode, then it will stop trying after
+the search failure, so you won't get the subsequent denials on the
+attempts to read files under the directory.  So don't assume that you
+need to add more dontaudit rules just because of the output while in
+permissive mode.
 
 -- 
 Stephen Smalley
