@@ -1,102 +1,86 @@
-Message-Id: <200506101958.j5AJwc5F002311@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
-   <selinux-dev@tresys.com>
-Subject: RE: Restorecon script
-Date: Fri, 10 Jun 2005 15:58:38 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-reply-to: <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
+Subject: Re: general selinux questions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: antoine <antoine@nagafix.co.uk>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118433604.10190.353.camel@localhost>
+References: <1118281858.9481.4.camel@localhost>
+	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118433604.10190.353.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 15:54:43 -0400
+Message-Id: <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Friday, June 10, 2005 2:21 PM
-> To: Karl MacMillan
-> Cc: 'Stephen Smalley'; 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-
-> dev@tresys.com
-> Subject: RE: Restorecon script
-> 
-> 
-> > Or only giving the read access I assume. So we are not trying to protect
-> from
-> > malicious code running in the user's domain disclosing data by relabeling to
-> > httpd_user_content_t, for example?
-> 
-> Malicious code should not be running in the user_t domain.
-> the user_t domain is highly privileged, and we should try to keep
-> malicious code out of it. That's why most vulnerable applications
-> are being placed in restricted domains.
-> 
+On Fri, 2005-06-10 at 21:00 +0100, antoine wrote:
+> That makes sense.
+> I thought a simple bash redirect would work:
+> ping [whatever] >& tempfile
+> But it still complained about the fifo... So I worked around it by
+> executing ping within the mycron domain and giving that domain the
+> privileges needed.
 
-All applications are vulnerable and malicious code will run in this domain at
-some point. This is about what happens when that eventually happens. I'm just
-clarifying what the goals of these changes are.
+Likely needed to redirect stdin too.
 
-> I don't think there's much we can do to protect from the user domain,
-> since it also represents the actual user, working from the terminal,
-> which must be allowed to do what he/she desires.
-> 
+> I use Gentoo, it does the same thing:
+> # grep tmpfs_t policy.conf
+> type tmpfs_t, file_type, sysadmfile, fs_type;
+> allow { tmpfs_t tmp_t } tmpfs_t:filesystem associate;
+> (..)
 
-Depends on the system - not all users get to do what they want on all systems .
-. .
+Yes, but does it restorecon /tmp or use a context mount to get it into
+tmp_t rather than tmpfs_t?
 
-> > If that is the case the user domain is
-> > trusted to manage these files at their discretion. One point I was trying to
-> > make is that this probably has to be the case as removing relabel permission
-> > from the user domain has no impact.
-> 
-> The user domain actually didn't have too many relabel privileges, until
-> I added them just now to our version of policy.
-> 
-> > Relabeling on every login still seems excessive and based on what this
-> policy is
-> > trying to accomplish perhaps not a good idea.
-> 
-> Please note that *recursive* relabeling is only performed if
-> relabeling of a top level directory (in that list) fails. Therefore
-> it's not all that slow. Do you have an alternative proposal?
-> 
+> I was trying a mixed approach: not using -r and making the root of the
+> chroot not root_t but specific to the domain. So I had sprinkled some
+> (/chroot/[service]) in the .fc files.
 
-I'm not concerned about the performance. Relabeling always has risks and
-complicates analysis of security policies - I think it is best avoided except
-under special circumstances. This is really the point that started this whole
-thread - relabeling should be treated as a special case if at all possible.
+Yes, that should work; named.fc in the Fedora policy is similar:
+/var/named/chroot(/.*)?         system_u:object_r:named_conf_t
+/var/named/chroot/dev/null   -c system_u:object_r:null_device_t
+/var/named/chroot/dev/random -c system_u:object_r:random_device_t
+/var/named/chroot/dev/zero -c   system_u:object_r:zero_device_t
+/var/named/chroot/etc(/.*)?     system_u:object_r:named_conf_t
+/var/named/chroot/etc/rndc.key  -- system_u:object_r:dnssec_t
+/var/named/chroot/var/run/named.* system_u:object_r:named_var_run_t
+/var/named/chroot/var/tmp(/.*)? system_u:object_r:named_cache_t
+/var/named/chroot/var/named(/.*)?       system_u:object_r:named_zone_t
+/var/named/chroot/var/named/slaves(/.*)? system_u:object_r:named_cache_t
+/var/named/chroot/var/named/data(/.*)? system_u:object_r:named_cache_t
+/var/named/chroot/var/named/named\.ca   --      system_u:object_r:named_conf_t
 
-The alternative is to do this at package installation time. This would allow,
-for example, for an admin to verify that it is safe to relabel and potentially
-take the system off line.
+> It's ok now, except I've had to move a directory out of the way: I can't
+> delete it, even as root in non-enforcing mode... trace included at the
+> bottom of this email. In the process I noticed that the code tries to
+> access '/etc/selinux' which does not exist on Gentoo systems: the
+> settings are in /etc/security/selinux, and there is no file named config
+> in there anyway... 
+> To remove these files I guess I'll have to reboot onto another disk (or
+> cdrom), fsck, mount it and remove it from there...
 
-> >  If the files are under the user's
-> > control then they should be fully under their control.
-> 
-> The way to do that is by integrating ugly libselinux code into
-> a large number of applications. I think this will not be
-> well received by the upstream developers at this time.
-> 
-> > What if I am waiting to
-> > relabel my ~/public_html until I am done with the content and this
-> administrator
-> > controlled script does it for me?
-> 
-> The script is only invoked when you launch a login shell (this is
-> actually a problem). Also, it does not do anything with public_html.
+Are you sure you are in permissive mode (getenforce)?  If so, then
+SELinux shouldn't be in your way at all.  /chroot is a local fs?
+Fedora migrated to /etc/selinux and reorganized the layout in FC3, but
+libselinux knows to fall back to the old locations
+under /etc/security/selinux if it cannot find /etc/selinux, so that
+shouldn't be a problem.
 
-Public_html is just an example - replace it with .ssh if you want.
+> Any snippets of code I could re-use on Gentoo?
+> I looked at a FC3 system for direct_sysadm, but couldn't find it.
 
-Karl
+macros/global_macros.te.  Critical rules are:
+domain_auto_trans(sysadm_t, $1_exec_t, $1_t)
+role_transition sysadm_r $1_exec_t system_r;
+where $1 is each daemon domain.
+That's for direct execution of the daemons.
+For just running init scripts, you would only need:
+domain_auto_trans(sysadm_t, initrc_exec_t, initrc_t)
+role_transition sysadm_r initrc_exec_t system_r;
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
