@@ -1,36 +1,41 @@
-Subject: Re: general selinux questions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: antoine <antoine@nagafix.co.uk>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
-References: <1118281858.9481.4.camel@localhost>
-	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118433604.10190.353.camel@localhost>
-	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 10 Jun 2005 15:59:06 -0400
-Message-Id: <1118433546.3774.221.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 10 Jun 2005 21:18:14 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Ivan Gyurdiev <gyurdiev@redhat.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
+   selinux-dev@tresys.com
+Subject: Re: Restorecon script
+Message-ID: <20050610201814.GB8525@lkcl.net>
+References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com> <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 15:54 -0400, Stephen Smalley wrote:
-> macros/global_macros.te.  Critical rules are:
-> domain_auto_trans(sysadm_t, $1_exec_t, $1_t)
-> role_transition sysadm_r $1_exec_t system_r;
-> where $1 is each daemon domain.
-> That's for direct execution of the daemons.
-> For just running init scripts, you would only need:
-> domain_auto_trans(sysadm_t, initrc_exec_t, initrc_t)
-> role_transition sysadm_r initrc_exec_t system_r;
+On Fri, Jun 10, 2005 at 02:21:01PM -0400, Ivan Gyurdiev wrote:
+> >  If the files are under the user's
+> > control then they should be fully under their control. 
+> 
+> The way to do that is by integrating ugly libselinux code into
+> a large number of applications. I think this will not be 
+> well received by the upstream developers at this time.
+ 
+ at some point, i believe that they are going to have to.
 
-Note btw that you then need to authorize the user who does this for
-system_r as well, as there is no way to automatically transition the
-user identity to system_u.
+ developers use "chown()" and "chgrp()" etc. all the time.
 
--- 
-Stephen Smalley
-National Security Agency
+ the people developing selinux have done a _great_ job designing
+ something that covers nearly all of the cases.
+
+ ... idea for you.
+ 
+ how about "auto-file-domaining" on chown() and chgrp(), in
+ a similar way that exec() performs auto-domain-transitioning?
+
+ l.
 
 
 --
