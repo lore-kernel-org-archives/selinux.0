@@ -1,35 +1,25 @@
-Subject: Re: Restorecon script
+Subject: Re: libsepol - users [ Patch v. 0]
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050610202339.GD8525@lkcl.net>
-References: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
-	 <1118416713.3774.108.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118425944.3720.7.camel@dhcp83-8.boston.redhat.com>
-	 <20050610202339.GD8525@lkcl.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118342870.30978.12.camel@dhcp83-8.boston.redhat.com>
+References: <1118342870.30978.12.camel@dhcp83-8.boston.redhat.com>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 17:59:08 -0400
-Message-Id: <1118440748.4812.71.camel@dhcp83-8.boston.redhat.com>
+Date: Fri, 10 Jun 2005 18:04:18 -0400
+Message-Id: <1118441058.7908.2.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 21:23 +0100, Luke Kenneth Casson Leighton wrote:
-> On Fri, Jun 10, 2005 at 01:52:24PM -0400, Ivan Gyurdiev wrote:
-> 
-> > since that transition takes precedence. Perhaps the ICEauth
-> > files should be moved to a subdirectory?
-> 
->  definitely.  however, as described in my other post just now,
->  /tmp/.ICE-unix has "legacy" apps that need to be transitioned over
->  to utilise a new directory.
+On Thu, 2005-06-09 at 14:47 -0400, Ivan Gyurdiev wrote:
+> I have yet to see if this code works at all, but please have a look
+> to determine if it's moving in the right direction. The goals are:
 
-Do you know which applications exactly use ICE?
-I've only seen gnome-session and dcop so far (and
-then a lot of applications that talk to 
-gnome-session/dcop over ICE)
+no comment?
+
+Come on, it can't be that bad :)
+
 
 
 
