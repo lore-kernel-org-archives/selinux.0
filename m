@@ -1,66 +1,39 @@
 Subject: Re: general selinux questions
-From: antoine <antoine@nagafix.co.uk>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118413116.3774.90.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: antoine <antoine@nagafix.co.uk>
+Cc: SELinux <selinux@tycho.nsa.gov>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1118415315.10190.329.camel@localhost>
 References: <1118281858.9481.4.camel@localhost>
 	 <1118319901.10190.25.camel@localhost>
 	 <1118342206.30110.132.camel@moss-spartans.epoch.ncsc.mil>
 	 <1118413296.10190.312.camel@localhost>
 	 <1118413116.3774.90.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118415315.10190.329.camel@localhost>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 15:55:15 +0100
-Message-Id: <1118415315.10190.329.camel@localhost>
+Date: Fri, 10 Jun 2005 10:50:01 -0400
+Message-Id: <1118415001.3774.99.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 10:18 -0400, Stephen Smalley wrote:
-> On Fri, 2005-06-10 at 15:21 +0100, antoine wrote:
-> > I am using this one from Gentoo 2004.1 (which has selinux support):
-> > syslog-ng-1.6.7  -hardened +selinux -static +tcpd
-> > (latest from amd64 stable) Which is supposed to have the same mods.
-> 
-> Is logrotate part of syslog-ng on Gentoo?  It is a separate package in
-> Fedora.  
-Nope, sorry, it's just me copying the wrong thing... I meant:
-app-admin/logrotate	3.7.1-r1
-sec-policy/selinux-logrotate	20050408
+On Fri, 2005-06-10 at 15:55 +0100, antoine wrote:
+> Not sure about the can_exec though? Why would you ever want to execute a
+> logfile?
 
-> 
-> > logrotate.te contains:
-> > 
-> > # Set a context other than the default one for newly created files.
-> > can_setfscreate(logrotate_t)
-> > # Change ownership on log files.
-> > allow logrotate_t self:capability { chown dac_override dac_read_search
-> > kill fsetid fowner sys_resource sys_nice };
-> 
-> What about: 
-> allow logrotate_t logfile:dir rw_dir_perms;
-> allow logrotate_t logfile:file create_file_perms; 
+Good question.  I know that at one point, logrotate was generating
+temporary script files and executing them, but they should have their
+own type, and it looks like even that has been removed from the Fedora
+logrotate (by a -noTMPDIR patch).   I'd drop it and see if anything
+breaks.
 
-It is all there, I found:
+You may also want to check how the Gentoo logrotate compares with the
+one in the Fedora CVS tree; looks like there are several patches in the
+Fedora package, including one related to SELinux.
 
-# grep logfile ./domains/program/logrotate.te
-allow logrotate_t logfile:dir rw_dir_perms;
-allow logrotate_t logfile:lnk_file read;
-allow logrotate_t logfile:file create_file_perms;
-can_exec(logrotate_t,logfile)
-
-Not sure about the can_exec though? Why would you ever want to execute a
-logfile?
-> 
-> > So I guess that my next question is: how do I figure out what is going
-> > wrong?
-> 
-> You can always force a manual run of logrotate and trace/debug it in the
-> usual manner.  Might want to ask on the gentoo lists as well since it
-> may be specific to it.
-Will do.
-
-Thanks
-Antoine
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
