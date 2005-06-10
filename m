@@ -1,79 +1,67 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5AIdYgA021438
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 14:39:34 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5AIVU1O018109
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 18:31:30 GMT
-Subject: RE: Restorecon script
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Karl MacMillan <kmacmillan@tresys.com>
+Message-Id: <200506101859.j5AIx45F001812@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
 Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
+   "'Ivan Gyurdiev'" <gyurdiev@redhat.com>,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-In-Reply-To: <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com>
-References: <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 10 Jun 2005 14:31:23 -0400
-Message-Id: <1118428283.3720.45.camel@dhcp83-8.boston.redhat.com>
-Mime-Version: 1.0
+   <selinux-dev@tresys.com>
+Subject: RE: Restorecon script
+Date: Fri, 10 Jun 2005 14:59:04 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-reply-to: <1118426683.3774.159.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> > What do you mean? The policy is not modified when applications are
-> > installed. I know Tresys is working on binary policy modules, but
-> > at the current time policy is only modified when I upgrade
-> > the selinux package, or when I recompile it.
-> > 
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Friday, June 10, 2005 2:05 PM
+> To: Karl MacMillan
+> Cc: 'Joshua Brindle'; Ivan Gyurdiev; 'Daniel J Walsh'; 'SELinux'; selinux-
+> dev@tresys.com
+> Subject: RE: Restorecon script
 > 
-> Of course, but the concept holds that this only needs to be done when the rpm
-> that adds the need for the additional file types is installed. The fact that the
-> policy doesn't change until then is only an artifact of a lack of
-> infrastructure.
-
-/tmp on tmpfs is cleared on every boot, creating the need for
-a startup script.
-
-> > I don't see how it's possible to solve this problem just by
-> > restructuring directories. Can you give an example of how
-> > the gconf-vs-orbit problem can be solved - see the file_type_auto_trans
-> > thread for full description.
-> > 
+> IMHO, you shouldn't be putting it into ~/public_html until you are ready
+> for it to be exported; that doesn't seem to be different from current
+> usage.
 > 
-> I thought this was answered - they need to be put in separate directories, e.g.
-> /tmp/orbit/orbit-$USER and /tmp/gconfd/gconfd-$USER. That way /tmp/orbit and
-> /tmp/gconfd can have different types 
 
-Who will create /tmp/orbit and /tmp/gconfd, and how will you
-get them to have different types? 
+Weak example, I agree, but I think that the concept holds.
 
-> and the only changes required for orbit and
-> gconfd are to put their files in a different location. If /tmp is tmpfs there
-> needs to be a script that creates these directories with the correct labels at
-> boot.
+> A larger concern might be that you don't want the restorecon to clobber
+> local customization, e.g. to distinguish read-only content under
+> ~/public_html from content that can be modified by a user CGI.  I think
+> that the customizable types support would actually prevent that, as
+> restorecon won't touch those types by default.
+> 
+> One advantage of relabeling on login (similar to relabeling from
+> rc.sysinit that is presently done for certain files) is that it helps
+> counter type lossage that may occur over time due to direct user
+> manipulation (e.g. moving aside your public_html and dropping in a new
+> tree, but failing to restorecon it manually) or under targeted policy.
+> Obviously it is better to proactively preserve the types in the first
+> place, but we aren't there yet.
+> 
 
-... and this leads us to... selinux.sh. 
-Except you're saying that it should be executed once on boot, as root,
-and not per login shell, is that correct? We may actually need to 
-do that, since at the current time I can't create .ICE-unix in this
-script - insufficient privileges.
+I don't disagree, but having the problems magically fixed by logging in seems
+strange and potentially confusing to users. This is all trying to make
+everything transparent to the user. I hate to say it, but I think that it will
+ultimately not be transparent and in that case maybe the best option is the
+least number of implicit operations and user involvement.
 
-> Changes retroactively seem problematic (see my other email). I think this is a
-> hard problem - not relabeling possibly means confused users and relabeling
-> possibly means going against the user's wishes or confusing them.
+Karl 
 
-I don't think the user's intended to be changing the types of those 
-directories - they are to be used for internal settings. That's
-why most of them are hidden files.
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
 
->  I have to say
-> that not relabeling is probably more confusing, but it starts to feel like
-> fixing problems by rebooting . . . it just changes to logging in. 
+> --
+> Stephen Smalley
+> National Security Agency
 
-The relabeling was actually not what I was focusing on - the
-real issue was whether it's a good idea to pre-create folders
-ahead of time.
 
 
 --
