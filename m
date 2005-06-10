@@ -1,46 +1,74 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5AICxgA021064
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 14:12:59 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5AI4t1O014736
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 18:04:56 GMT
-Subject: Re: Restorecon script
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050610135235.35540.qmail@web51508.mail.yahoo.com>
-References: <20050610135235.35540.qmail@web51508.mail.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 10 Jun 2005 14:04:48 -0400
-Message-Id: <1118426689.3720.21.camel@dhcp83-8.boston.redhat.com>
-Mime-Version: 1.0
+Message-Id: <200506101806.j5AI635F009168@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
+   "'Ivan Gyurdiev'" <gyurdiev@redhat.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
+   <selinux-dev@tresys.com>
+Subject: RE: Restorecon script
+Date: Fri, 10 Jun 2005 14:06:03 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-reply-to: <1118425292.3774.137.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 06:52 -0700, Steve G wrote:
-> Hi,
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Friday, June 10, 2005 1:42 PM
+> To: Karl MacMillan
+> Cc: 'Joshua Brindle'; Ivan Gyurdiev; 'Daniel J Walsh'; 'SELinux'; selinux-
+> dev@tresys.com
+> Subject: RE: Restorecon script
 > 
-> >Creating folders ahead of time is the most acceptable solution so far.
+> On Fri, 2005-06-10 at 13:44 -0400, Karl MacMillan wrote:
+> > It would probably still be better practice to execute the script in the
+> user's
+> > domain or a limited version of that domain from the trusted domain (e.g.
+> rpm) -
+> > if nothing else that means that the relabeling happens less often. Of
+> course, if
+> > the user's domain has this relabel privilege anyway, having the privileged
+> > domain doing the relabeling, either directly or indirectly, doesn't really
+> help
+> > at all. The user can just install / write the script themselves. Removing
+> the
+> > relabeling privilege from the user is probably difficult and they can just
+> copy
+> > files into the appropriate directories and get the same result (assuming
+> type
+> > transition rules are in place).
 > 
-> What if the machine doesn't have X installed? (Such as a server.)
-
-Then folders related to X have no need to be there.
-That's unfortunate, but it is a simple solution for now.
-The alternative would be to break up the directories we want
-to create in different rpm packages, and then reassemble them
-in a single call to restorecon (since we can't afford to call
-restorecon for each app - it takes forever). 
-
-> >I'm not sure how exactly this should be done, but some sort of simple 
-> >script like this is one possibility. 
+> These files are under the user's control anyway; the purpose of labeling
+> them with their own type is to allow particular user apps to access them
+> without allowing those apps to access all of the user's files.
 > 
-> How about walking the list of dirs and if they exist, do a restorecon? I'm
-> assuming this script is going to be called via /etc/bashrc?
 
-One of the goals of this script is to create the directories
-if they do not exist. If not, the applications themselves create them,
-and create them with the wrong context.
+Or only giving the read access I assume. So we are not trying to protect from
+malicious code running in the user's domain disclosing data by relabeling to
+httpd_user_content_t, for example? If that is the case the user domain is
+trusted to manage these files at their discretion. One point I was trying to
+make is that this probably has to be the case as removing relabel permission
+from the user domain has no impact.
+
+Relabeling on every login still seems excessive and based on what this policy is
+trying to accomplish perhaps not a good idea. If the files are under the user's
+control then they should be fully under their control. What if I am waiting to
+relabel my ~/public_html until I am done with the content and this administrator
+controlled script does it for me?
+
+Karl
+
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
+> --
+> Stephen Smalley
+> National Security Agency
 
 
 
