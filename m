@@ -1,91 +1,78 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5B1KggA024429
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 21:20:42 -0400 (EDT)
-Received: from web31603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5B1D0fM018651
-	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 01:13:00 GMT
-Message-ID: <20050611011302.16457.qmail@web31603.mail.mud.yahoo.com>
-Date: Fri, 10 Jun 2005 18:13:01 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Restorecon script 
-To: "'SELinux'" <selinux@tycho.nsa.gov>
-Cc: selinux-dev@tresys.com
-In-Reply-To: <200506110009.j5B09XXa016042@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5B5FLgA025256
+	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 01:15:21 -0400 (EDT)
+Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5B57dmF021830
+	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 05:07:39 GMT
+Date: Fri, 10 Jun 2005 23:11:46 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Ivan Gyurdiev <gyurdiev@redhat.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
+   selinux-dev@tresys.com
+Subject: Re: Restorecon script
+Message-ID: <20050610221146.GJ8525@lkcl.net>
+References: <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com> <1118428283.3720.45.camel@dhcp83-8.boston.redhat.com> <20050610202629.GF8525@lkcl.net> <1118440668.4812.68.camel@dhcp83-8.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1118440668.4812.68.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, Jun 10, 2005 at 05:57:48PM -0400, Ivan Gyurdiev wrote:
+> 
+> > > Who will create /tmp/orbit and /tmp/gconfd, and how will you
+> > > get them to have different types? 
+> >  
+> >  a special selinux-aware library, that all gconfd-aware programs and
+> >  orbit-aware programs must utilise, respectively.
+> > 
+> >  heck, it could even do the setfilecon() for you.
+> 
+> That library is libselinux. I've already tried this,
+> and it doesn't work very well, for the reasons mentioned in my chown()
+> email.
+ 
+ sorry, i introduced two issues in my email: the one about chown() was
+ just a thought tacked on to the end.
 
---- Valdis.Kletnieks@vt.edu wrote:
+ please ignore and totally disassociate any thought about chown() from
+ the "/tmp/<DIR>/.SOCKET-$USER" idea.
 
-> You'd *THINK* that a simple 'export
-> TMPDIR=/tmp/$USER' would fix everything,
-> but NOOOOO.. ;)
+ 
+> ==========
+> 
+> I do agree with the other comments, however, that a per application
+> solution is appropriate. 
 
-The Unix MLS systems demonstrated that
-this simple notion was a bit naive. Some
-of the commonly used applications pre-date
-environment variables (which came along
-quite late in the evolution of Unix) and
-have never really been happy with them.
-Others intentionally eschew them for any
-number of reasons that made sense at the
-time.
+ you mean a per-application-or-better-per-client-server group
+ (gconfd is just the server...)
 
-I know, "in the Linux world, everything
-get rewritten". Some habits appear to die
-hard.
+ which implies two functions: one for creating the socket in the right
+ place (and the subdirectory if appropriate, hence there is a place
+ where selinux could be introduced, if appropriate, to set the
+ appropriate permissions: almost undoubtedly this will be needed).
 
-> (I wonder if Chad Seller's polyinstantation patches
-> to build a small tree of
-> /tmp mounts per user, combined with fscontext=
-> mounts, would do any good...
+ one for connection _to_ the socket.
 
-If the experience of MLS on Unix is any guide
-(I know that not everyone is convinced) then
-yes, they will help in many cases. Most uses
-of /tmp really don't care where files end up.
-Alas, some do, and retraining everyone to do
-it correctly has yet to take hold, even with
-30 years of trying.
+> For /tmp, we can we can implement a tmpskel
+> similar to /skel that gets created at init.
 
-X11 puts it's UDS in /tmp to make running as
-an unprivileged user easier. You could say that
-a polyinstatiated /tmp does exactly the right
-thing for X11. Unless you have a setuid
-application. Or want to allow multiple users
-or contexts to create windows.
+> Please consider that this script was just yesterday's solution to make
+> the policy usable. I do realize that it has drawbacks, and does not
+> work well in the long run, so thanks for the comments.
+> 
+> The important thing to me is the agreement that creating folders
+> ahead of time is the right thing to do. The mechanism for doing
+> that can be changed.
+> 
+> 
 
-On Unix MLS systems MLS X servers (there are
-several) usually punt on the UDS issue 
-(shared memory transports as well) and accept
-only IP socket connections. But then, they use
-labeled network protocols (CIPSO and/or TSIX)
-to make that work right.
-
-There does not appear to be a magic bullet
-for this problem. PolyTmp helps, library
-repairs can help, and fixing applications can
-help. So long as the /tmp culture remains,
-and there's no reason to expect it to die,
-it will be a challenge to the humble
-(and arrogant) system designer.
-
-Oh, and the YahooMail spell checker wants to
-replace "polyinstantiate" with "polyunsaturate".
-In Trix we called 'em "moldy" directories, a
-whimsical pronunciation of MLD. Must be Friday.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
