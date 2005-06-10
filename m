@@ -5,8 +5,8 @@ Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
 In-Reply-To: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
 References: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 11:15:13 -0400
-Message-Id: <1118416513.3774.103.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 10 Jun 2005 11:18:33 -0400
+Message-Id: <1118416713.3774.108.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -19,10 +19,15 @@ On Thu, 2005-06-09 at 10:41 -0400, Ivan Gyurdiev wrote:
 > (at least a temp. solution, unless someone has a better one?)
 > Also, user needs to start a login shell to get it to run.
 
-Under strict policy, restorecon fails upon the matchpathcon() call due
-to lack of access to the file_contexts configuration.  The script
-doesn't check for such failure, and thus ends up trying to run
-restorecon repeatedly on "Permission" (Permission denied).
+There are a number of other directories under $HOME that likewise have
+derived types, e.g.
+$HOME/.ssh
+$HOME/.gnupg
+$HOME/.gconf
+$HOME/.gconfd
+$HOME/public_html
+
+and some individual files like $HOME/.Xauthority.
 
 -- 
 Stephen Smalley
