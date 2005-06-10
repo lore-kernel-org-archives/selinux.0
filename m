@@ -1,51 +1,57 @@
-Subject: RE: Restorecon script
+Subject: Re: Restorecon script
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
    "'Joshua Brindle'" <jbrindle@tresys.com>,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
    selinux-dev@tresys.com
-In-Reply-To: <200506101958.j5AJwc5F002311@gotham.columbia.tresys.com>
-References: <200506101958.j5AJwc5F002311@gotham.columbia.tresys.com>
+In-Reply-To: <20050610201814.GB8525@lkcl.net>
+References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com>
+	 <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
+	 <20050610201814.GB8525@lkcl.net>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 16:45:36 -0400
-Message-Id: <1118436336.4812.9.camel@dhcp83-8.boston.redhat.com>
+Date: Fri, 10 Jun 2005 16:54:17 -0400
+Message-Id: <1118436857.4812.19.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> All applications are vulnerable and malicious code will run in this domain at
-> some point. This is about what happens when that eventually happens. I'm just
-> clarifying what the goals of these changes are.
-
-The way to fix that is to put the applications in a restricted domain,
-not to make user_t that restricted domain, by refusing to grant the
-user relabel rights to files that he/she should have access to.
-
-> > Please note that *recursive* relabeling is only performed if
-> > relabeling of a top level directory (in that list) fails. Therefore
-> > it's not all that slow. Do you have an alternative proposal?
+On Fri, 2005-06-10 at 21:18 +0100, Luke Kenneth Casson Leighton wrote:
+> On Fri, Jun 10, 2005 at 02:21:01PM -0400, Ivan Gyurdiev wrote:
+> > >  If the files are under the user's
+> > > control then they should be fully under their control. 
 > > 
+> > The way to do that is by integrating ugly libselinux code into
+> > a large number of applications. I think this will not be 
+> > well received by the upstream developers at this time.
+>  
+>  at some point, i believe that they are going to have to.
 > 
-> I'm not concerned about the performance. Relabeling always has risks and
-> complicates analysis of security policies - I think it is best avoided except
-> under special circumstances. This is really the point that started this whole
-> thread - relabeling should be treated as a special case if at all possible.
+>  developers use "chown()" and "chgrp()" etc. all the time.
 
-The script was mostly concerned with creating things in the right
-context to begin with. It would be easy to modify it to not relabel 
-anything if it locates a folder that's in the wrong context, but 
-I'm not sure whether that should be done - seems to me like
-the wrong context should be fixed.
+This is different from chown and chgrp, because unlike chown and
+chgrp, SElinux centralizes labeling decisions using regular
+expressions. This makes the code slower.
+Also, chown and chgrp are part of POSIX, whereas SElinux is not,
+which makes the code non-portable. Also, SElinux is
+not yet widely used, which means it has to be if-deffed out.
+Also, it requires a library to be linked in, while chown
+and chmod do not (other than libc).
 
-> The alternative is to do this at package installation time. This would allow,
-> for example, for an admin to verify that it is safe to relabel and potentially
-> take the system off line.
+Also, Stephen has mentioned that the current setfscreatecon
+code does not work well with multiple threads.
 
-How exactly would this be done at installation time, in such a manner
-as to account for existing users?
+Due to all of the above, adding SELinux code in applications
+currently seems like a bad idea.
+
+>  how about "auto-file-domaining" on chown() and chgrp(), in
+>  a similar way that exec() performs auto-domain-transitioning?
+
+Automatic transitions already exist, and are not sufficient.
+A full regexp match is too slow to perform by default in all
+cases.
 
 
 --
