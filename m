@@ -1,63 +1,79 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5AIdYgA021438
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 14:39:34 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5AIVU1O018109
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 18:31:30 GMT
 Subject: RE: Restorecon script
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
 To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>,
+Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
    selinux-dev@tresys.com
-In-Reply-To: <200506101806.j5AI635F009168@gotham.columbia.tresys.com>
-References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com>
+In-Reply-To: <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com>
+References: <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 14:21:01 -0400
-Message-Id: <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
+Date: Fri, 10 Jun 2005 14:31:23 -0400
+Message-Id: <1118428283.3720.45.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> Or only giving the read access I assume. So we are not trying to protect from
-> malicious code running in the user's domain disclosing data by relabeling to
-> httpd_user_content_t, for example? 
+> > What do you mean? The policy is not modified when applications are
+> > installed. I know Tresys is working on binary policy modules, but
+> > at the current time policy is only modified when I upgrade
+> > the selinux package, or when I recompile it.
+> > 
+> 
+> Of course, but the concept holds that this only needs to be done when the rpm
+> that adds the need for the additional file types is installed. The fact that the
+> policy doesn't change until then is only an artifact of a lack of
+> infrastructure.
 
-Malicious code should not be running in the user_t domain.
-the user_t domain is highly privileged, and we should try to keep
-malicious code out of it. That's why most vulnerable applications
-are being placed in restricted domains.
+/tmp on tmpfs is cleared on every boot, creating the need for
+a startup script.
 
-I don't think there's much we can do to protect from the user domain,
-since it also represents the actual user, working from the terminal,
-which must be allowed to do what he/she desires.
+> > I don't see how it's possible to solve this problem just by
+> > restructuring directories. Can you give an example of how
+> > the gconf-vs-orbit problem can be solved - see the file_type_auto_trans
+> > thread for full description.
+> > 
+> 
+> I thought this was answered - they need to be put in separate directories, e.g.
+> /tmp/orbit/orbit-$USER and /tmp/gconfd/gconfd-$USER. That way /tmp/orbit and
+> /tmp/gconfd can have different types 
 
-> If that is the case the user domain is
-> trusted to manage these files at their discretion. One point I was trying to
-> make is that this probably has to be the case as removing relabel permission
-> from the user domain has no impact.
+Who will create /tmp/orbit and /tmp/gconfd, and how will you
+get them to have different types? 
 
-The user domain actually didn't have too many relabel privileges, until
-I added them just now to our version of policy.
+> and the only changes required for orbit and
+> gconfd are to put their files in a different location. If /tmp is tmpfs there
+> needs to be a script that creates these directories with the correct labels at
+> boot.
 
-> Relabeling on every login still seems excessive and based on what this policy is
-> trying to accomplish perhaps not a good idea.
+... and this leads us to... selinux.sh. 
+Except you're saying that it should be executed once on boot, as root,
+and not per login shell, is that correct? We may actually need to 
+do that, since at the current time I can't create .ICE-unix in this
+script - insufficient privileges.
 
-Please note that *recursive* relabeling is only performed if
-relabeling of a top level directory (in that list) fails. Therefore
-it's not all that slow. Do you have an alternative proposal?
+> Changes retroactively seem problematic (see my other email). I think this is a
+> hard problem - not relabeling possibly means confused users and relabeling
+> possibly means going against the user's wishes or confusing them.
 
->  If the files are under the user's
-> control then they should be fully under their control. 
+I don't think the user's intended to be changing the types of those 
+directories - they are to be used for internal settings. That's
+why most of them are hidden files.
 
-The way to do that is by integrating ugly libselinux code into
-a large number of applications. I think this will not be 
-well received by the upstream developers at this time.
+>  I have to say
+> that not relabeling is probably more confusing, but it starts to feel like
+> fixing problems by rebooting . . . it just changes to logging in. 
 
-> What if I am waiting to
-> relabel my ~/public_html until I am done with the content and this administrator
-> controlled script does it for me?
-
-The script is only invoked when you launch a login shell (this is
-actually a problem). Also, it does not do anything with public_html.
-
+The relabeling was actually not what I was focusing on - the
+real issue was whether it's a good idea to pre-create folders
+ahead of time.
 
 
 --
