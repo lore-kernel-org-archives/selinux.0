@@ -1,72 +1,95 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5AJrogA022032
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 15:53:50 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5AJk8fM009651
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 19:46:10 GMT
-Message-Id: <200506101945.j5AJjo5F002174@gotham.columbia.tresys.com>
+Message-Id: <200506101958.j5AJwc5F002311@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
 To: <gyurdiev@redhat.com>
-Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
+Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
    <selinux-dev@tresys.com>
 Subject: RE: Restorecon script
-Date: Fri, 10 Jun 2005 15:45:50 -0400
+Date: Fri, 10 Jun 2005 15:58:38 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="US-ASCII"
-In-reply-to: <1118428283.3720.45.camel@dhcp83-8.boston.redhat.com>
+In-reply-to: <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 > -----Original Message-----
 > From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Friday, June 10, 2005 2:31 PM
+> Sent: Friday, June 10, 2005 2:21 PM
 > To: Karl MacMillan
-> Cc: 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-dev@tresys.com
+> Cc: 'Stephen Smalley'; 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-
+> dev@tresys.com
 > Subject: RE: Restorecon script
 > 
 > 
-> > and the only changes required for orbit and
-> > gconfd are to put their files in a different location. If /tmp is tmpfs
-> there
-> > needs to be a script that creates these directories with the correct labels
-> at
-> > boot.
+> > Or only giving the read access I assume. So we are not trying to protect
+> from
+> > malicious code running in the user's domain disclosing data by relabeling to
+> > httpd_user_content_t, for example?
 > 
-> ... and this leads us to... selinux.sh.
-> Except you're saying that it should be executed once on boot, as root,
-> and not per login shell, is that correct? We may actually need to
-> do that, since at the current time I can't create .ICE-unix in this
-> script - insufficient privileges.
+> Malicious code should not be running in the user_t domain.
+> the user_t domain is highly privileged, and we should try to keep
+> malicious code out of it. That's why most vulnerable applications
+> are being placed in restricted domains.
 > 
 
-Sort of - the script might need its own domain.
+All applications are vulnerable and malicious code will run in this domain at
+some point. This is about what happens when that eventually happens. I'm just
+clarifying what the goals of these changes are.
 
-> > Changes retroactively seem problematic (see my other email). I think this is
-> a
-> > hard problem - not relabeling possibly means confused users and relabeling
-> > possibly means going against the user's wishes or confusing them.
-> 
-> I don't think the user's intended to be changing the types of those
-> directories - they are to be used for internal settings. That's
-> why most of them are hidden files.
+> I don't think there's much we can do to protect from the user domain,
+> since it also represents the actual user, working from the terminal,
+> which must be allowed to do what he/she desires.
 > 
 
-Maybe - doesn't mean that blindly relabeling them won't cause problems or
-confusion. It is a large change to reset permissions on home directories on
-login. Seems like this is better done at installation time or on specific admin
-/ user request.
+Depends on the system - not all users get to do what they want on all systems .
+. .
 
-> >  I have to say
-> > that not relabeling is probably more confusing, but it starts to feel like
-> > fixing problems by rebooting . . . it just changes to logging in.
+> > If that is the case the user domain is
+> > trusted to manage these files at their discretion. One point I was trying to
+> > make is that this probably has to be the case as removing relabel permission
+> > from the user domain has no impact.
 > 
-> The relabeling was actually not what I was focusing on - the
-> real issue was whether it's a good idea to pre-create folders
-> ahead of time.
+> The user domain actually didn't have too many relabel privileges, until
+> I added them just now to our version of policy.
+> 
+> > Relabeling on every login still seems excessive and based on what this
+> policy is
+> > trying to accomplish perhaps not a good idea.
+> 
+> Please note that *recursive* relabeling is only performed if
+> relabeling of a top level directory (in that list) fails. Therefore
+> it's not all that slow. Do you have an alternative proposal?
+> 
 
-Which it seems like it is in general.
+I'm not concerned about the performance. Relabeling always has risks and
+complicates analysis of security policies - I think it is best avoided except
+under special circumstances. This is really the point that started this whole
+thread - relabeling should be treated as a special case if at all possible.
+
+The alternative is to do this at package installation time. This would allow,
+for example, for an admin to verify that it is safe to relabel and potentially
+take the system off line.
+
+> >  If the files are under the user's
+> > control then they should be fully under their control.
+> 
+> The way to do that is by integrating ugly libselinux code into
+> a large number of applications. I think this will not be
+> well received by the upstream developers at this time.
+> 
+> > What if I am waiting to
+> > relabel my ~/public_html until I am done with the content and this
+> administrator
+> > controlled script does it for me?
+> 
+> The script is only invoked when you launch a login shell (this is
+> actually a problem). Also, it does not do anything with public_html.
+
+Public_html is just an example - replace it with .ssh if you want.
+
+Karl
 
 ---
 Karl MacMillan
