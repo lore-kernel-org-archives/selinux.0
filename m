@@ -1,89 +1,65 @@
-Message-Id: <200506102105.j5AL5A5F003141@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+Message-Id: <200506102105.j5AL5ulD008435@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Ivan Gyurdiev <gyurdiev@redhat.com>,
+   Karl MacMillan <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
    "'Joshua Brindle'" <jbrindle@tresys.com>,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
-   <selinux-dev@tresys.com>
-Subject: RE: Restorecon script
-Date: Fri, 10 Jun 2005 17:05:10 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-reply-to: <1118436336.4812.9.camel@dhcp83-8.boston.redhat.com>
+   selinux-dev@tresys.com
+Subject: Re: Restorecon script 
+In-Reply-To: Your message of "Fri, 10 Jun 2005 21:18:14 BST."
+             <20050610201814.GB8525@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com> <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
+            <20050610201814.GB8525@lkcl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1118437554_4545P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 10 Jun 2005 17:05:55 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Friday, June 10, 2005 4:46 PM
-> To: Karl MacMillan
-> Cc: 'Stephen Smalley'; 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-
-> dev@tresys.com
-> Subject: RE: Restorecon script
-> 
-> 
-> > All applications are vulnerable and malicious code will run in this domain
-> at
-> > some point. This is about what happens when that eventually happens. I'm
-> just
-> > clarifying what the goals of these changes are.
-> 
-> The way to fix that is to put the applications in a restricted domain,
-> not to make user_t that restricted domain, by refusing to grant the
-> user relabel rights to files that he/she should have access to.
-> 
+--==_Exmh_1118437554_4545P
+Content-Type: text/plain; charset=us-ascii
 
-This has nothing to do with whether the user should or should not have access -
-it is about limiting the trust placed in code running on the user's behalf.
+On Fri, 10 Jun 2005 21:18:14 BST, Luke Kenneth Casson Leighton said:
 
-Creating more least-privilege code limits the damage from malicious code,
-certainly, but in this case it doesn't fix all problems. Some code will be run
-in the user domain that will be exploitable or the user will simply run a
-Trojan. At that point the malicious code running in user_t can, for example,
-disclose sensitive user data by either moving it or relabeling it so that an
-application like apache can read it. This can potentially be addressed but it
-will be enormously difficult and time consuming.
+>  how about "auto-file-domaining" on chown() and chgrp(), in
+>  a similar way that exec() performs auto-domain-transitioning?
 
-> > > Please note that *recursive* relabeling is only performed if
-> > > relabeling of a top level directory (in that list) fails. Therefore
-> > > it's not all that slow. Do you have an alternative proposal?
-> > >
-> >
-> > I'm not concerned about the performance. Relabeling always has risks and
-> > complicates analysis of security policies - I think it is best avoided
-> except
-> > under special circumstances. This is really the point that started this
-> whole
-> > thread - relabeling should be treated as a special case if at all possible.
-> 
-> The script was mostly concerned with creating things in the right
-> context to begin with. It would be easy to modify it to not relabel
-> anything if it locates a folder that's in the wrong context, but
-> I'm not sure whether that should be done - seems to me like
-> the wrong context should be fixed.
-> 
-> > The alternative is to do this at package installation time. This would
-> allow,
-> > for example, for an admin to verify that it is safe to relabel and
-> potentially
-> > take the system off line.
-> 
-> How exactly would this be done at installation time, in such a manner
-> as to account for existing users?
+Ouch.
 
-A post install script that creates directories and/or relabels existing
-directories.
+The major conceptual difficulty is that exec() is a logical and obvious place
+to change domains in a manner similar to set(u|g)id binaries. Programmers are
+*used* to the concept that "exec() splats everything" to the point that they
+sometimes get bit when they encounter something that *isnt* reset by exec()
+(the open file descriptor table is a common example).
 
-Karl
+However, that model doesn't extend easily to chown/chgrp.  The problem is twofold:
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+1) You may want this auto-file to happen in programs that have absolutely no
+business going anywhere *near* chown/chgrp. (I'll go a step further and say
+that doing this behind-the-scenes magic to a program that's *allowed* to
+chown(), instead of fixing the program to DTRT, is a security mess just waiting
+to happen).
 
+2) Even if the code *is* doing chown/chgrp, you end up with lots of "magic" -
+two chown() calls to set the same "user" may set different security contexts,
+and two chown() calls that set different users may set the same context.
 
+--==_Exmh_1118437554_4545P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCqgCycC3lWbTT17ARAgpJAKCJzgTS3j23W57KgJLx/icmmdm9fQCgg/SW
+noBJ9o/R2h8n2JteOWaFlJU=
+=ldA5
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118437554_4545P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
