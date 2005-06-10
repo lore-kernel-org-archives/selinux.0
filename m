@@ -1,59 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5ALHOgA023001
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 17:17:24 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5AL9efM013195
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 21:09:45 GMT
-Message-Id: <200506102109.j5AL9W5F003192@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
-   <selinux-dev@tresys.com>
 Subject: RE: Restorecon script
-Date: Fri, 10 Jun 2005 17:09:32 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-reply-to: <1118437074.4812.24.camel@dhcp83-8.boston.redhat.com>
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
+   selinux-dev@tresys.com
+In-Reply-To: <1118437418.363.21.camel@localhost>
+References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com>
+	 <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
+	 <1118437418.363.21.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 17:30:45 -0400
+Message-Id: <1118439045.4812.43.camel@dhcp83-8.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Friday, June 10, 2005 4:58 PM
-> To: Karl MacMillan
-> Cc: 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-dev@tresys.com
-> Subject: RE: Restorecon script
+On Fri, 2005-06-10 at 17:03 -0400, Joshua Brindle wrote:
+> On Fri, 2005-06-10 at 14:21 -0400, Ivan Gyurdiev wrote:
+> <snip>
+> > 
+> > The way to do that is by integrating ugly libselinux code into
+> > a large number of applications. I think this will not be 
+> > well received by the upstream developers at this time.
+> > 
 > 
-> 
-> > Maybe - doesn't mean that blindly relabeling them won't cause problems or
-> > confusion. It is a large change to reset permissions on home directories on
-> > login. Seems like this is better done at installation time or on specific
-> admin
-> > / user request.
-> 
-> Why should blindly relabeling internal files cause problems or
-> confusion? I am assuming that policy has the correct context, and
-> anything else is wrong
+> which is why the patches to upstream developers should either make the
+> directory structure the app uses configurable or change it to use
+> multiple directories. This is a good idea anyway, putting objects with
+> different security properties into different places. This should be much
+> more acceptable to an upstream developer than integrating "ugly
+> libselinux code"
 
-Labeling by path is unsafe when the system is not in a known good state.
+I don't see how it's possible to eliminate the problem of ambiguity
+by creating more directories. Can you demonstrate an example,
+where you do not need to create anything ahead of time,
+and can rely on the app to create its own folders?
 
-Karl
+If you need to pre-create stuff, then you won't need selinux-aware
+code in your apps. That's the approach we're taking.
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+Assuming this could be made to work (which I don't see how it can),
+I don't see why it's a good idea to force directory structure based on
+policy. Directories are made for grouping things, and security
+properties may or may not be the criterion you'd like to use
+for grouping. For example, the /tmp directory groups temporary files,
+which obviously need to be of different contexts - hence this entire
+problem.
 
-> - after all those are _internal_ files,
-> not to be directly manipulated by the user, but handled
-> automatically.
-> 
-> The script does not reset permissions on home directories, it
-> resets permissions on specific subfolders. More importantly,
-> it does not reset the top level directory.
+>  SELinux on Red Hat is suppose to be transparent and this clearly
+> is not.
+
+This is strict policy only, not targeted.
+
+>  If the rpm added the directories to user homedirs and labeled
+> them the net effect would be the same. I really question how this can be
+> thought of as anything other than an administrative issue. The admin
+> installs the app, the app needs it's resources labeled, the admin (by
+> way of rpm) should label the resources, I can't see how any other way
+> makes sense.
+
+Okay, I agree with this solution. It's not very clear how to implement
+right now, but it is the right thing to do, eventually.
 
 
 
