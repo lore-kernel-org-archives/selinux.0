@@ -1,35 +1,28 @@
-Subject: Re: general selinux questions
+Subject: Re: Restorecon script
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: antoine <antoine@nagafix.co.uk>
-Cc: SELinux <selinux@tycho.nsa.gov>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1118415315.10190.329.camel@localhost>
-References: <1118281858.9481.4.camel@localhost>
-	 <1118319901.10190.25.camel@localhost>
-	 <1118342206.30110.132.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118413296.10190.312.camel@localhost>
-	 <1118413116.3774.90.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118415315.10190.329.camel@localhost>
+To: Ivan Gyurdiev <gyurdiev@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
+References: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 10:50:01 -0400
-Message-Id: <1118415001.3774.99.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 10 Jun 2005 11:15:13 -0400
+Message-Id: <1118416513.3774.103.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 15:55 +0100, antoine wrote:
-> Not sure about the can_exec though? Why would you ever want to execute a
-> logfile?
+On Thu, 2005-06-09 at 10:41 -0400, Ivan Gyurdiev wrote:
+> Any comments on the following script?
+> It's a profile script, to be shipped with selinux-policy-strict, 
+> executed per login shell. It hardcodes the applications, 
+> unfortunately, but does what we want for right now 
+> (at least a temp. solution, unless someone has a better one?)
+> Also, user needs to start a login shell to get it to run.
 
-Good question.  I know that at one point, logrotate was generating
-temporary script files and executing them, but they should have their
-own type, and it looks like even that has been removed from the Fedora
-logrotate (by a -noTMPDIR patch).   I'd drop it and see if anything
-breaks.
-
-You may also want to check how the Gentoo logrotate compares with the
-one in the Fedora CVS tree; looks like there are several patches in the
-Fedora package, including one related to SELinux.
+Under strict policy, restorecon fails upon the matchpathcon() call due
+to lack of access to the file_contexts configuration.  The script
+doesn't check for such failure, and thus ends up trying to run
+restorecon repeatedly on "Permission" (Permission denied).
 
 -- 
 Stephen Smalley
