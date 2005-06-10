@@ -1,69 +1,60 @@
-Subject: RE: Restorecon script
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5ALhmgA023227
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 17:43:48 -0400 (EDT)
+Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5ALZh1O002315
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 21:35:43 GMT
+Date: Fri, 10 Jun 2005 21:26:29 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Ivan Gyurdiev <gyurdiev@redhat.com>
 Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
    selinux-dev@tresys.com
-In-Reply-To: <1118437418.363.21.camel@localhost>
-References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com>
-	 <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
-	 <1118437418.363.21.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 10 Jun 2005 17:30:45 -0400
-Message-Id: <1118439045.4812.43.camel@dhcp83-8.boston.redhat.com>
+Subject: Re: Restorecon script
+Message-ID: <20050610202629.GF8525@lkcl.net>
+References: <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com> <1118428283.3720.45.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1118428283.3720.45.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 17:03 -0400, Joshua Brindle wrote:
-> On Fri, 2005-06-10 at 14:21 -0400, Ivan Gyurdiev wrote:
-> <snip>
-> > 
-> > The way to do that is by integrating ugly libselinux code into
-> > a large number of applications. I think this will not be 
-> > well received by the upstream developers at this time.
-> > 
+On Fri, Jun 10, 2005 at 02:31:23PM -0400, Ivan Gyurdiev wrote:
 > 
-> which is why the patches to upstream developers should either make the
-> directory structure the app uses configurable or change it to use
-> multiple directories. This is a good idea anyway, putting objects with
-> different security properties into different places. This should be much
-> more acceptable to an upstream developer than integrating "ugly
-> libselinux code"
+> > > What do you mean? The policy is not modified when applications are
+> > > installed. I know Tresys is working on binary policy modules, but
+> > > at the current time policy is only modified when I upgrade
+> > > the selinux package, or when I recompile it.
+> > > 
+> > 
+> > Of course, but the concept holds that this only needs to be done when the rpm
+> > that adds the need for the additional file types is installed. The fact that the
+> > policy doesn't change until then is only an artifact of a lack of
+> > infrastructure.
+> 
+> /tmp on tmpfs is cleared on every boot, creating the need for
+> a startup script.
+> 
+> > > I don't see how it's possible to solve this problem just by
+> > > restructuring directories. Can you give an example of how
+> > > the gconf-vs-orbit problem can be solved - see the file_type_auto_trans
+> > > thread for full description.
+> > > 
+> > 
+> > I thought this was answered - they need to be put in separate directories, e.g.
+> > /tmp/orbit/orbit-$USER and /tmp/gconfd/gconfd-$USER. That way /tmp/orbit and
+> > /tmp/gconfd can have different types 
+> 
+> Who will create /tmp/orbit and /tmp/gconfd, and how will you
+> get them to have different types? 
+ 
+ a special selinux-aware library, that all gconfd-aware programs and
+ orbit-aware programs must utilise, respectively.
 
-I don't see how it's possible to eliminate the problem of ambiguity
-by creating more directories. Can you demonstrate an example,
-where you do not need to create anything ahead of time,
-and can rely on the app to create its own folders?
+ heck, it could even do the setfilecon() for you.
 
-If you need to pre-create stuff, then you won't need selinux-aware
-code in your apps. That's the approach we're taking.
-
-Assuming this could be made to work (which I don't see how it can),
-I don't see why it's a good idea to force directory structure based on
-policy. Directories are made for grouping things, and security
-properties may or may not be the criterion you'd like to use
-for grouping. For example, the /tmp directory groups temporary files,
-which obviously need to be of different contexts - hence this entire
-problem.
-
->  SELinux on Red Hat is suppose to be transparent and this clearly
-> is not.
-
-This is strict policy only, not targeted.
-
->  If the rpm added the directories to user homedirs and labeled
-> them the net effect would be the same. I really question how this can be
-> thought of as anything other than an administrative issue. The admin
-> installs the app, the app needs it's resources labeled, the admin (by
-> way of rpm) should label the resources, I can't see how any other way
-> makes sense.
-
-Okay, I agree with this solution. It's not very clear how to implement
-right now, but it is the right thing to do, eventually.
-
+ l.
 
 
 --
