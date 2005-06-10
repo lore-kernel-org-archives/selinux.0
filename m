@@ -1,41 +1,97 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5AE0MgA018701
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 10:00:22 -0400 (EDT)
-Received: from web51508.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5ADqkfM022343
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 13:52:46 GMT
-Message-ID: <20050610135235.35540.qmail@web51508.mail.yahoo.com>
-Date: Fri, 10 Jun 2005 06:52:35 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Restorecon script
-To: gyurdiev@redhat.com
+Subject: Re: general selinux questions
+From: antoine <antoine@nagafix.co.uk>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118370767.30464.16.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1118342206.30110.132.camel@moss-spartans.epoch.ncsc.mil>
+References: <1118281858.9481.4.camel@localhost>
+	 <1118319901.10190.25.camel@localhost>
+	 <1118342206.30110.132.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 15:21:36 +0100
+Message-Id: <1118413296.10190.312.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Thu, 2005-06-09 at 14:36 -0400, Stephen Smalley wrote:
+> On Thu, 2005-06-09 at 13:25 +0100, antoine wrote:
+> > Some more questions:
+> > 7) What can I do to logrotate.te to make it rotate my mysql logfiles but
+> > have the correct label on the new /var/log/mysql/mysql.log file. As it
+> > is now it comes up as var_log_t rather than mysql_var_log_t
+> 
+> Does type mysqle_var_log_t have the logfile attribute?
+It is created using 'log_domain(mysqld)':
+#grep mysqld_log_t policy.conf
+type mysqld_log_t, file_type, sysadmfile, logfile;
+allow mysqld_t mysqld_log_t:file { create ioctl read getattr lock write
+setattr append link unlink rename };
+type_transition mysqld_t var_log_t:file mysqld_log_t;
+allow initrc_t mysqld_log_t:file { write append setattr ioctl };
 
->Creating folders ahead of time is the most acceptable solution so far.
+So I'm not sure why it does not behave, here is the syslog-ng.d/mysql:
 
-What if the machine doesn't have X installed? (Such as a server.)
+/var/log/mysql/mysql.err /var/log/mysql/mysql.log /var/log/mysql/mysqld.err {
+monthly
+create 660 mysql mysql
+notifempty
+size 5M
+sharedscripts
+missingok
+postrotate
+/bin/kill -HUP `cat /var/run/mysqld/mysqld.pid`
+endscript
+}
 
->I'm not sure how exactly this should be done, but some sort of simple 
->script like this is one possibility. 
 
-How about walking the list of dirs and if they exist, do a restorecon? I'm
-assuming this script is going to be called via /etc/bashrc?
+>   If so, then
+> logrotate.te should be allowing logrotate the necessary permissions to
+> re-create the file with that type.  Of course, your logrotate program
+> has to be modified to preserve types on log files; the one in Fedora
+> should have such modifications.
+I am using this one from Gentoo 2004.1 (which has selinux support):
+syslog-ng-1.6.7  -hardened +selinux -static +tcpd
+(latest from amd64 stable) Which is supposed to have the same mods.
+logrotate.te contains:
 
--Steve Grubb
+# Set a context other than the default one for newly created files.
+can_setfscreate(logrotate_t)
+# Change ownership on log files.
+allow logrotate_t self:capability { chown dac_override dac_read_search
+kill fsetid fowner sys_resource sys_nice };
 
+So I guess that my next question is: how do I figure out what is going
+wrong?
 
-		
-__________________________________ 
-Discover Yahoo! 
-Stay in touch with email, IM, photo sharing and more. Check it out! 
-http://discover.yahoo.com/stayintouch.html
+> > 8) How can I allow daemons to write to /dev/log?
+> > allow psad_t devlog_t:sock_file write;
+> > Is not allowed...
+> 
+> Add the 'privlog' attribute to the domain for the daemon.
+Ah Thanks.
+
+> > 9) One of my scripts needs to kill a few processes by name (if they
+> > exist) so it does something like 'ps -ef | grep "someLongUniqueString in
+> > processName"' but that triggers all sorts of violations. Is there a
+> > better way?
+> 
+> I'm not sure why you wouldn't use killall, but I don't think that will
+> help with the denials anyway.
+I probably could (just that the long grep restricts more than what
+killall allows - it feels safer)
+>   Notice that the existing policy often
+> dontaudit's such attempts to avoid generating noise, e.g.
+> 	dontaudit foo_t domain:dir search;
+> Note that if you are in enforcing mode, then it will stop trying after
+> the search failure, so you won't get the subsequent denials on the
+> attempts to read files under the directory.  So don't assume that you
+> need to add more dontaudit rules just because of the output while in
+> permissive mode.
+Good, I hadn't thought of that.
+
+Many thanks
+Antoine
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
