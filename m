@@ -1,27 +1,60 @@
-Date: Fri, 10 Jun 2005 21:23:39 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <gyurdiev@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Restorecon script
-Message-ID: <20050610202339.GD8525@lkcl.net>
-References: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com> <1118416713.3774.108.camel@moss-spartans.epoch.ncsc.mil> <1118425944.3720.7.camel@dhcp83-8.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1118425944.3720.7.camel@dhcp83-8.boston.redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5ALHOgA023001
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 17:17:24 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5AL9efM013195
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 21:09:45 GMT
+Message-Id: <200506102109.j5AL9W5F003192@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <gyurdiev@redhat.com>
+Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
+   <selinux-dev@tresys.com>
+Subject: RE: Restorecon script
+Date: Fri, 10 Jun 2005 17:09:32 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-reply-to: <1118437074.4812.24.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 10, 2005 at 01:52:24PM -0400, Ivan Gyurdiev wrote:
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
+> Sent: Friday, June 10, 2005 4:58 PM
+> To: Karl MacMillan
+> Cc: 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-dev@tresys.com
+> Subject: RE: Restorecon script
+> 
+> 
+> > Maybe - doesn't mean that blindly relabeling them won't cause problems or
+> > confusion. It is a large change to reset permissions on home directories on
+> > login. Seems like this is better done at installation time or on specific
+> admin
+> > / user request.
+> 
+> Why should blindly relabeling internal files cause problems or
+> confusion? I am assuming that policy has the correct context, and
+> anything else is wrong
 
-> since that transition takes precedence. Perhaps the ICEauth
-> files should be moved to a subdirectory?
+Labeling by path is unsafe when the system is not in a known good state.
 
- definitely.  however, as described in my other post just now,
- /tmp/.ICE-unix has "legacy" apps that need to be transitioned over
- to utilise a new directory.
+Karl
 
- l.
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
+> - after all those are _internal_ files,
+> not to be directly manipulated by the user, but handled
+> automatically.
+> 
+> The script does not reset permissions on home directories, it
+> resets permissions on specific subfolders. More importantly,
+> it does not reset the top level directory.
+
 
 
 --
