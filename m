@@ -1,41 +1,51 @@
-Date: Fri, 10 Jun 2005 21:18:14 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <gyurdiev@redhat.com>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+Subject: RE: Restorecon script
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
    "'Joshua Brindle'" <jbrindle@tresys.com>,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
    selinux-dev@tresys.com
-Subject: Re: Restorecon script
-Message-ID: <20050610201814.GB8525@lkcl.net>
-References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com> <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
+In-Reply-To: <200506101958.j5AJwc5F002311@gotham.columbia.tresys.com>
+References: <200506101958.j5AJwc5F002311@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 16:45:36 -0400
+Message-Id: <1118436336.4812.9.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 10, 2005 at 02:21:01PM -0400, Ivan Gyurdiev wrote:
-> >  If the files are under the user's
-> > control then they should be fully under their control. 
+
+> All applications are vulnerable and malicious code will run in this domain at
+> some point. This is about what happens when that eventually happens. I'm just
+> clarifying what the goals of these changes are.
+
+The way to fix that is to put the applications in a restricted domain,
+not to make user_t that restricted domain, by refusing to grant the
+user relabel rights to files that he/she should have access to.
+
+> > Please note that *recursive* relabeling is only performed if
+> > relabeling of a top level directory (in that list) fails. Therefore
+> > it's not all that slow. Do you have an alternative proposal?
+> > 
 > 
-> The way to do that is by integrating ugly libselinux code into
-> a large number of applications. I think this will not be 
-> well received by the upstream developers at this time.
- 
- at some point, i believe that they are going to have to.
+> I'm not concerned about the performance. Relabeling always has risks and
+> complicates analysis of security policies - I think it is best avoided except
+> under special circumstances. This is really the point that started this whole
+> thread - relabeling should be treated as a special case if at all possible.
 
- developers use "chown()" and "chgrp()" etc. all the time.
+The script was mostly concerned with creating things in the right
+context to begin with. It would be easy to modify it to not relabel 
+anything if it locates a folder that's in the wrong context, but 
+I'm not sure whether that should be done - seems to me like
+the wrong context should be fixed.
 
- the people developing selinux have done a _great_ job designing
- something that covers nearly all of the cases.
+> The alternative is to do this at package installation time. This would allow,
+> for example, for an admin to verify that it is safe to relabel and potentially
+> take the system off line.
 
- ... idea for you.
- 
- how about "auto-file-domaining" on chown() and chgrp(), in
- a similar way that exec() performs auto-domain-transitioning?
-
- l.
+How exactly would this be done at installation time, in such a manner
+as to account for existing users?
 
 
 --
