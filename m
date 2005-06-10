@@ -1,35 +1,37 @@
 Subject: Re: Restorecon script
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Ivan Gyurdiev <gyurdiev@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
-In-Reply-To: <1118419542.366.8.camel@localhost>
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118416513.3774.103.camel@moss-spartans.epoch.ncsc.mil>
 References: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
-	 <42A8F6C1.20106@tresys.com>
-	 <1118370767.30464.16.camel@localhost.localdomain>
-	 <1118419542.366.8.camel@localhost>
+	 <1118416513.3774.103.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 12:11:11 -0400
-Message-Id: <1118419871.3774.128.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 10 Jun 2005 13:12:44 -0400
+Message-Id: <1118423564.3880.0.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 12:05 -0400, Joshua Brindle wrote:
-> scripts that install stuff to skel maybe should be responsible for
-> adding them to user dirs and labeling properly. This would be a trusted
-> app (rpm or whatever) instead of a user shell script
+On Fri, 2005-06-10 at 11:15 -0400, Stephen Smalley wrote:
+> On Thu, 2005-06-09 at 10:41 -0400, Ivan Gyurdiev wrote:
+> > Any comments on the following script?
+> > It's a profile script, to be shipped with selinux-policy-strict, 
+> > executed per login shell. It hardcodes the applications, 
+> > unfortunately, but does what we want for right now 
+> > (at least a temp. solution, unless someone has a better one?)
+> > Also, user needs to start a login shell to get it to run.
+> 
+> Under strict policy, restorecon fails upon the matchpathcon() call due
+> to lack of access to the file_contexts configuration.  The script
+> doesn't check for such failure, and thus ends up trying to run
+> restorecon repeatedly on "Permission" (Permission denied).
 
-You have to be careful in that case, as that trusted app becomes an
-obvious target for attack and it is acting on paths into user-writable
-directories.  One benefit of running it in the user's context (via the
-shell script or when the app is first run by the user and initially
-creates these files) is that the relabeling can be confined to the
-user's types and there is no risk of misuse of privilege.
- 
--- 
-Stephen Smalley
-National Security Agency
+Yes, we're adding rules to make this work.
+The current policy is rather broken, but I think we will have a version
+that works (more or less) by the end of today.
+
+
 
 
 --
