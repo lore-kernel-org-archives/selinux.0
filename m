@@ -1,36 +1,51 @@
-Subject: RE: Restorecon script
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
-   Ivan Gyurdiev <gyurdiev@redhat.com>, "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   "'SELinux'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
-In-Reply-To: <200506101744.j5AHi55F008714@gotham.columbia.tresys.com>
-References: <200506101744.j5AHi55F008714@gotham.columbia.tresys.com>
+Subject: Re: Restorecon script
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118416713.3774.108.camel@moss-spartans.epoch.ncsc.mil>
+References: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
+	 <1118416713.3774.108.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 13:41:32 -0400
-Message-Id: <1118425292.3774.137.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 10 Jun 2005 13:52:24 -0400
+Message-Id: <1118425944.3720.7.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-10 at 13:44 -0400, Karl MacMillan wrote:
-> It would probably still be better practice to execute the script in the user's
-> domain or a limited version of that domain from the trusted domain (e.g. rpm) -
-> if nothing else that means that the relabeling happens less often. Of course, if
-> the user's domain has this relabel privilege anyway, having the privileged
-> domain doing the relabeling, either directly or indirectly, doesn't really help
-> at all. The user can just install / write the script themselves. Removing the
-> relabeling privilege from the user is probably difficult and they can just copy
-> files into the appropriate directories and get the same result (assuming type
-> transition rules are in place).
+On Fri, 2005-06-10 at 11:18 -0400, Stephen Smalley wrote:
+> On Thu, 2005-06-09 at 10:41 -0400, Ivan Gyurdiev wrote:
+> > Any comments on the following script?
+> > It's a profile script, to be shipped with selinux-policy-strict, 
+> > executed per login shell. It hardcodes the applications, 
+> > unfortunately, but does what we want for right now 
+> > (at least a temp. solution, unless someone has a better one?)
+> > Also, user needs to start a login shell to get it to run.
+> 
+> There are a number of other directories under $HOME that likewise have
+> derived types, e.g.
+> $HOME/.ssh
+> $HOME/.gnupg
+> $HOME/.gconf
+> $HOME/.gconfd
+> $HOME/public_html
 
-These files are under the user's control anyway; the purpose of labeling
-them with their own type is to allow particular user apps to access them
-without allowing those apps to access all of the user's files.
+file_type_auto_trans is sufficient to handle those at this time. 
+We can add them one at a time, when transition conflicts arise.
 
--- 
-Stephen Smalley
-National Security Agency
+> and some individual files like $HOME/.Xauthority.
+
+Is .Xauthority created in a library, other than xauth?
+It hasn't created any problems so far, so I've ignored it.
+
+On the other hand, I know ICEauthority is created in libICE,
+and that's currently broken, since I set its context to
+ROLE_iceauth_home_t - for example gnome_session (one of
+the two apps that appear to be relying on ICE), stores
+files there, using libICE, and they're set to ROLE_home_t,
+since that transition takes precedence. Perhaps the ICEauth
+files should be moved to a subdirectory?
+
 
 
 --
