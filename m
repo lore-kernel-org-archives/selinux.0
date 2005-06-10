@@ -1,54 +1,36 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5AM68gA023437
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 18:06:08 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5ALw31O003327
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 21:58:03 GMT
 Subject: Re: Restorecon script
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-In-Reply-To: <20050610202629.GF8525@lkcl.net>
-References: <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com>
-	 <1118428283.3720.45.camel@dhcp83-8.boston.redhat.com>
-	 <20050610202629.GF8525@lkcl.net>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050610202339.GD8525@lkcl.net>
+References: <1118328119.29360.4.camel@dhcp83-8.boston.redhat.com>
+	 <1118416713.3774.108.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118425944.3720.7.camel@dhcp83-8.boston.redhat.com>
+	 <20050610202339.GD8525@lkcl.net>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 17:57:48 -0400
-Message-Id: <1118440668.4812.68.camel@dhcp83-8.boston.redhat.com>
+Date: Fri, 10 Jun 2005 17:59:08 -0400
+Message-Id: <1118440748.4812.71.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> > Who will create /tmp/orbit and /tmp/gconfd, and how will you
-> > get them to have different types? 
->  
->  a special selinux-aware library, that all gconfd-aware programs and
->  orbit-aware programs must utilise, respectively.
+On Fri, 2005-06-10 at 21:23 +0100, Luke Kenneth Casson Leighton wrote:
+> On Fri, Jun 10, 2005 at 01:52:24PM -0400, Ivan Gyurdiev wrote:
 > 
->  heck, it could even do the setfilecon() for you.
+> > since that transition takes precedence. Perhaps the ICEauth
+> > files should be moved to a subdirectory?
+> 
+>  definitely.  however, as described in my other post just now,
+>  /tmp/.ICE-unix has "legacy" apps that need to be transitioned over
+>  to utilise a new directory.
 
-That library is libselinux. I've already tried this,
-and it doesn't work very well, for the reasons mentioned in my chown()
-email.
+Do you know which applications exactly use ICE?
+I've only seen gnome-session and dcop so far (and
+then a lot of applications that talk to 
+gnome-session/dcop over ICE)
 
-==========
-
-I do agree with the other comments, however, that a per application
-solution is appropriate. For /tmp, we can we can implement a tmpskel
-similar to /skel that gets created at init.
-
-Please consider that this script was just yesterday's solution to make
-the policy usable. I do realize that it has drawbacks, and does not
-work well in the long run, so thanks for the comments.
-
-The important thing to me is the agreement that creating folders
-ahead of time is the right thing to do. The mechanism for doing
-that can be changed.
 
 
 
