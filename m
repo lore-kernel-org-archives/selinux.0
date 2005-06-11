@@ -1,36 +1,56 @@
-Subject: RE: Restorecon script
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>
-In-Reply-To: <200506111745.j5BHjX5F009794@gotham.columbia.tresys.com>
-References: <200506111745.j5BHjX5F009794@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Sat, 11 Jun 2005 14:35:28 -0400
-Message-Id: <1118514928.5704.36.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <20050611184522.51251.qmail@web51505.mail.yahoo.com>
+Date: Sat, 11 Jun 2005 11:45:22 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Question about integration of IPsec with SELinux?
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050611172750.41238.qmail@web31601.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 11 Jun 2005 at 10:27, Casey Schaufler wrote:
 
-> 
-> I'm confused . . . you seem to be disagreeing by agreeing. 
+> IPSEC is the forward looking mechanism for
+> passing process attributes between machines.
 
-That's exactly what I'm doing. 
-You're arguing against giving ROLE_t the right to relabel certain
-files. I say the battle is futile, and applications need to be moved
-out of ROLE_t to achieve any kind of security. ROLE_t is just too 
-broad an umbrella for grouping applications - I prefer to think of it
-as a domain for apps without a policy yet.
+What is the meaning of "forward looking mechanism"?
+Why it it called so? 
 
-Anyway, I agree that rpm would be better suited for creating
-directories - mostly because of resource tracking per application,
-and the login shell requirement....so I surrender the argument.
+> Without it (or one of the protocols that
+> preceeded it but have fallen from favor)
+> there is no way to make access control decisions
+> on network based communications. 
+
+Do you mean that we can't make access control
+decisions if we do not use IPsec?
+
+> You can't
+> do an MLS cluster, for example, without passing
+> sensitivity and clearance information among
+> the machines involved. There are plans afoot
+> to produce an SELinux based MLS system, and
+> without networking capabilties the market
+> opportunity is too small to consider.
+
+What does "networking capabilities" mean here?
+
+
+Thank you
 
 
 
+
+Best Regards,
+Park Lee
+
+
+		
+__________________________________ 
+Discover Yahoo! 
+Get on-the-go sports scores, stock quotes, news and more. Check it out! 
+http://discover.yahoo.com/mobile.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
