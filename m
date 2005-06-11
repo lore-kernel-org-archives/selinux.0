@@ -1,61 +1,83 @@
-Message-Id: <200506111745.j5BHjX5F009794@gotham.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5BI3WgA027478
+	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 14:03:32 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5BHtIfO012754
+	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 17:55:18 GMT
+Message-Id: <200506111755.j5BHtY5F009857@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>
-Subject: RE: Restorecon script
-Date: Sat, 11 Jun 2005 13:45:33 -0400
+To: <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>
+Subject: RE: Nested Booleans
+Date: Sat, 11 Jun 2005 13:55:34 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-reply-to: <1118440053.4812.60.camel@dhcp83-8.boston.redhat.com>
+In-reply-to: <1118450947.31022.11.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 > -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Friday, June 10, 2005 5:48 PM
-> To: Karl MacMillan
-> Cc: 'Stephen Smalley'; 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-
-> dev@tresys.com
-> Subject: RE: Restorecon script
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Ivan Gyurdiev
+> Sent: Friday, June 10, 2005 8:49 PM
+> To: selinux@tycho.nsa.gov
+> Subject: Re: Nested Booleans
 > 
+> On Fri, 2005-06-10 at 20:38 -0400, Ivan Gyurdiev wrote:
+> > Why is it not possible to nest booleans - this is always causing
+> > problems for me. For example, right now I can't compile my policy,
+> > because it contains code like this:
 > 
-> > Creating more least-privilege code limits the damage from malicious code,
-> > certainly, but in this case it doesn't fix all problems. Some code will be
-> run
-> > in the user domain that will be exploitable or the user will simply run a
-> > Trojan. At that point the malicious code running in user_t can, for example,
-> > disclose sensitive user data by either moving it or relabeling it so that an
-> > application like apache can read it. This can potentially be addressed but
-> it
-> > will be enormously difficult and time consuming.
-> 
-> ROLE_t has access to cp, which equates a relabel, does it not?
-> If the user can read the file...
-> 
+> On second thought this is poorly structured, and doesn't make
+> sense - will fix. However, I still think that it would be nice
+> if I could nest booleans..
 
-I'm confused . . . you seem to be disagreeing by agreeing. That is exactly the
-point I've been hammering on - we have no protection from malicious code in
-ROLE_t disclosing user data. From my previous mail:
+Me too - if you squint at the patches that Josh sent for modules you will see
+the infrastructure to support this. The goal is to transform nested conditionals
+into non-nested conditionals with appropriate expressions (so that the kernel
+will not need changes to understand the nesting). For example:
 
-> Removing the relabeling privilege from the user is probably difficult and they
-> can just copy files into the appropriate directories and get the same result
-> (assuming type transition rules are in place).
+if (foo) {
+	allow a . . .
+	if (bar) {
+		allow b
+	}
+}
+
+Would become:
+
+if (foo) {
+	allow a . . .
+}
+
+if (foo && bar) {
+	allow b . . .
+}
+
+The fun really starts when you consider type transition rules and arbitrary
+nesting with optional blocks for modules (both nesting conditional blocks in
+optional blocks and optional blocks in conditionals at arbitrary depths). The
+infrastructure we have submitted (and will resubmit with fixes next week) should
+handle all of that with some parsing magic. Not certain when we will be able to
+create that parsing magic, though, as it is not in our short term plans.
 
 Karl
-
-> > A post install script that creates directories and/or relabels existing
-> > directories.
-> 
-> ... ok
 
 ---
 Karl MacMillan
 Tresys Technology
 http://www.tresys.com
 (410) 290-1411 ext 134
+ 
+> --
+> Ivan Gyurdiev <ivg2@cornell.edu>
+> Cornell University
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 
