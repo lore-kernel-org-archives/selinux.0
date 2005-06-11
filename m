@@ -1,60 +1,70 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5B0HWgA024200
-	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 20:17:33 -0400 (EDT)
-Received: from turing-police.cirt.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5B09Q1O009841
-	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 00:09:26 GMT
-Message-Id: <200506110009.j5B09XXa016042@turing-police.cc.vt.edu>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, gyurdiev@redhat.com,
-   "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-Subject: Re: Restorecon script 
-In-Reply-To: Your message of "Fri, 10 Jun 2005 21:21:26 BST."
-             <20050610202126.GC8525@lkcl.net>
-From: Valdis.Kletnieks@vt.edu
-References: <1118426293.3720.14.camel@dhcp83-8.boston.redhat.com> <200506101819.j5AIJi5F009499@gotham.columbia.tresys.com>
-            <20050610202126.GC8525@lkcl.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5B0jGgA024280
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 20:45:16 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5B0bZfM018240
+	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 00:37:35 GMT
+Received: from [192.168.1.102] (c-24-61-202-223.hsd1.ma.comcast.net [24.61.202.223])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j5B0bbdf011708
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jun 2005 20:37:37 -0400 (EDT)
+Subject: Nested Booleans
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 20:38:14 -0400
+Message-Id: <1118450294.31022.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1118448572_4545P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Fri, 10 Jun 2005 20:09:33 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1118448572_4545P
-Content-Type: text/plain; charset=us-ascii
+Why is it not possible to nest booleans - this is always causing
+problems for me. For example, right now I can't compile my policy, 
+because it contains code like this:
 
-On Fri, 10 Jun 2005 21:21:26 BST, Luke Kenneth Casson Leighton said:
+if (mozilla_writehome) {
+write_untrusted($1_mozilla_t, $1)
+file_type_auto_trans($1_mozilla_t, { $1_home_t $1_home_dir_t },
+$1_untrusted_content_t)
+}
+file_type_auto_trans($1_mozilla_t, { tmp_t $1_tmp_t },
+$1_untrusted_content_t)
 
->  and a solution to the "i can't do that because there are so many
->  applications implicitly utilising /tmp/orbit-$USER, /tmp/gconfd-$USER,
->  /tmp/.ICE-unix, /tmp/.font-unix, /tmp/.X11-unix, is to create a
->  runtime-configurable library that can be told "use
->  /tmp/<DIR>/.xxx-$USER instead of /tmp/.xxx-$USER".
-> 
->  once all programs use the library, change the location.
+and then:
 
-You'd *THINK* that a simple 'export TMPDIR=/tmp/$USER' would fix everything,
-but NOOOOO.. ;)
+################################################
+# write_untrusted(source, role_prefix)
+#
+define(`write_untrusted', `
+write_network_home($1)
+create_dir_file($1, $2_untrusted_content_t)
+') dnl write_untrusted
 
-(I wonder if Chad Seller's polyinstantation patches to build a small tree of
-/tmp mounts per user, combined with fscontext= mounts, would do any good...
+and:
 
---==_Exmh_1118448572_4545P
-Content-Type: application/pgp-signature
+################################################
+# write_network_home(source)
+#
+# Allows source domain to create directories and
+# files on network file system
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+define(`write_network_home', `
+allow $1 home_root_t:dir search;
 
-iD8DBQFCqiu8cC3lWbTT17ARAn4EAJsGVp/AV6tSecJADkE89DQTlQ04QQCcCfDi
-FLEziGUI+OCwTCbs+oH9XA0=
-=P1p3
------END PGP SIGNATURE-----
+if (use_nfs_home_dirs) {
+create_dir_file($1, nfs_t)
+}
+if (use_samba_home_dirs) {
+create_dir_file($1, cifs_t)
+}
+allow $1 autofs_t:dir { search getattr };
+') dnl write_network_home
 
---==_Exmh_1118448572_4545P--
+
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
