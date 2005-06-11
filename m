@@ -1,55 +1,62 @@
-Message-ID: <20050611172750.41238.qmail@web31601.mail.mud.yahoo.com>
-Date: Sat, 11 Jun 2005 10:27:50 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Question about integration of IPsec with SELinux?
-To: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050611103859.34488.qmail@web51505.mail.yahoo.com>
+Message-Id: <200506111745.j5BHjX5F009794@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <gyurdiev@redhat.com>
+Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>
+Subject: RE: Restorecon script
+Date: Sat, 11 Jun 2005 13:45:33 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1118440053.4812.60.camel@dhcp83-8.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
---- Park Lee <parklee_sel@yahoo.com> wrote:
-
-> there is an item which says:"Integrate IPSEC with
-> network mandatory controls".
-> I know that it means:"integration of SELinux and
-> IPSEC
-> for the purpose of labeling and protecting network
-> packets in accordance with security policy".
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
+> Sent: Friday, June 10, 2005 5:48 PM
+> To: Karl MacMillan
+> Cc: 'Stephen Smalley'; 'Joshua Brindle'; 'Daniel J Walsh'; 'SELinux'; selinux-
+> dev@tresys.com
+> Subject: RE: Restorecon script
 > 
->      But, Would you please tell me :
-> Is there any motivation of doing it? What is the
-> significance of doing it? Where to use it? 
-> and Is there a scene/scenario for it?
+> 
+> > Creating more least-privilege code limits the damage from malicious code,
+> > certainly, but in this case it doesn't fix all problems. Some code will be
+> run
+> > in the user domain that will be exploitable or the user will simply run a
+> > Trojan. At that point the malicious code running in user_t can, for example,
+> > disclose sensitive user data by either moving it or relabeling it so that an
+> > application like apache can read it. This can potentially be addressed but
+> it
+> > will be enormously difficult and time consuming.
+> 
+> ROLE_t has access to cp, which equates a relabel, does it not?
+> If the user can read the file...
+> 
 
-IPSEC is the forward looking mechanism for
-passing process attributes between machines.
-Without it (or one of the protocols that
-preceeded it but have fallen from favor)
-there is no way to make access control decisions
-on network based communications. You can't
-do an MLS cluster, for example, without passing
-sensitivity and clearance information among
-the machines involved. There are plans afoot
-to produce an SELinux based MLS system, and
-without networking capabilties the market
-opportunity is too small to consider.
+I'm confused . . . you seem to be disagreeing by agreeing. That is exactly the
+point I've been hammering on - we have no protection from malicious code in
+ROLE_t disclosing user data. From my previous mail:
 
+> Removing the relabeling privilege from the user is probably difficult and they
+> can just copy files into the appropriate directories and get the same result
+> (assuming type transition rules are in place).
 
+Karl
 
+> > A post install script that creates directories and/or relabels existing
+> > directories.
+> 
+> ... ok
 
-Casey Schaufler
-casey@schaufler-ca.com
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
 
-
-		
-__________________________________ 
-Discover Yahoo! 
-Find restaurants, movies, travel and more fun for the weekend. Check it out! 
-http://discover.yahoo.com/weekend.html 
 
 
 --
