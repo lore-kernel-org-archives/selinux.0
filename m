@@ -1,33 +1,39 @@
-Date: Fri, 10 Jun 2005 22:42:49 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Ivan Gyurdiev <gyurdiev@redhat.com>,
-   Karl MacMillan <kmacmillan@tresys.com>,
-   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-Subject: Re: Restorecon script
-Message-ID: <20050610214249.GH8525@lkcl.net>
-References: <200506101806.j5AI635F009168@gotham.columbia.tresys.com> <1118427661.3720.36.camel@dhcp83-8.boston.redhat.com> <20050610201814.GB8525@lkcl.net> <200506102105.j5AL5ulD008435@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200506102105.j5AL5ulD008435@turing-police.cc.vt.edu>
+Message-ID: <20050611103859.34488.qmail@web51505.mail.yahoo.com>
+Date: Sat, 11 Jun 2005 03:38:58 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Question about integration of IPsec with SELinux?
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: jaegert@us.ibm.com, SELinux <SELinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 10, 2005 at 05:05:55PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 10 Jun 2005 21:18:14 BST, Luke Kenneth Casson Leighton said:
-> 
-> >  how about "auto-file-domaining" on chown() and chgrp(), in
-> >  a similar way that exec() performs auto-domain-transitioning?
-> 
-> Ouch.
+Dear sir,
 
- ... just a thought :)
+    In SELinux Future Work
+(http://www.nsa.gov/selinux/info/todo.cfm),
+there is an item which says:"Integrate IPSEC with
+network mandatory controls".
+I know that it means:"integration of SELinux and IPSEC
+for the purpose of labeling and protecting network
+packets in accordance with security policy".
 
- l.
+     But, Would you please tell me :
+Is there any motivation of doing it? What is the
+significance of doing it? Where to use it? 
+and Is there a scene/scenario for it?
 
+     Thank you very much.
+
+
+Best Regards,
+Park Lee
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
