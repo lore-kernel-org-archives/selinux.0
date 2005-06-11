@@ -1,98 +1,108 @@
-Message-Id: <200506111800.j5BI0L5F009888@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>, "'Joshua Brindle'" <jbrindle@tresys.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <selinux@tycho.nsa.gov>
-Subject: RE: Restorecon script
-Date: Sat, 11 Jun 2005 14:00:19 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5BI7pgA027527
+	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 14:07:52 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5BI00mF000968
+	for <selinux@tycho.nsa.gov>; Sat, 11 Jun 2005 18:00:01 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 97F5961B0C
+	for <selinux@tycho.nsa.gov>; Sun, 12 Jun 2005 03:59:44 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 14597-01 for <selinux@tycho.nsa.gov>;
+	Sun, 12 Jun 2005 03:59:43 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 1354961B09
+	for <selinux@tycho.nsa.gov>; Sun, 12 Jun 2005 03:59:43 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Date: Sun, 12 Jun 2005 03:59:36 +1000
+References: <1116243381.3353.5.camel@localhost.localdomain>
+	<20050516165136.GB5733@nostromo.devel.redhat.com>
+	<428B3690.8000205@redhat.com>
+In-Reply-To: <428B3690.8000205@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1118439045.4812.43.camel@dhcp83-8.boston.redhat.com>
+Message-Id: <200506120359.40729.russell@coker.com.au>
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Fwd: Re: Bringing interfaces up at boot and SElinux (?)
+Reply-To: russell@coker.com.au
+List-Unsubscribe: <http://www.redhat.com/mailman/listinfo/fedora-test-list>,
+	<mailto:fedora-test-list-request@redhat.com?subject=unsubscribe>
+List-Archive: <https://www.redhat.com/archives/fedora-test-list>
+List-Post: <mailto:fedora-test-list@redhat.com>
+List-Help: <mailto:fedora-test-list-request@redhat.com?subject=help>
+List-Subscribe: <http://www.redhat.com/mailman/listinfo/fedora-test-list>,
+	<mailto:fedora-test-list-request@redhat.com?subject=subscribe>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_MayqCR5V1hFLyeg"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--Boundary-00=_MayqCR5V1hFLyeg
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of Ivan Gyurdiev
-> Sent: Friday, June 10, 2005 5:31 PM
-> To: Joshua Brindle
-> Cc: Karl MacMillan; 'Stephen Smalley'; 'Daniel J Walsh'; 'SELinux'; selinux-
-> dev@tresys.com
-> Subject: RE: Restorecon script
-> 
-> On Fri, 2005-06-10 at 17:03 -0400, Joshua Brindle wrote:
-> > On Fri, 2005-06-10 at 14:21 -0400, Ivan Gyurdiev wrote:
-> > <snip>
-> > >
-> > > The way to do that is by integrating ugly libselinux code into
-> > > a large number of applications. I think this will not be
-> > > well received by the upstream developers at this time.
-> > >
-> >
-> > which is why the patches to upstream developers should either make the
-> > directory structure the app uses configurable or change it to use
-> > multiple directories. This is a good idea anyway, putting objects with
-> > different security properties into different places. This should be much
-> > more acceptable to an upstream developer than integrating "ugly
-> > libselinux code"
-> 
-> I don't see how it's possible to eliminate the problem of ambiguity
-> by creating more directories. Can you demonstrate an example,
-> where you do not need to create anything ahead of time,
-> and can rely on the app to create its own folders?
-> 
-> If you need to pre-create stuff, then you won't need selinux-aware
-> code in your apps. That's the approach we're taking.
-> 
-> Assuming this could be made to work (which I don't see how it can),
-> I don't see why it's a good idea to force directory structure based on
-> policy. Directories are made for grouping things, and security
-> properties may or may not be the criterion you'd like to use
-> for grouping. For example, the /tmp directory groups temporary files,
-> which obviously need to be of different contexts - hence this entire
-> problem.
-> 
+This patch seemed to have been missed.
 
-I think this is resolved - the directories need to be created ahead-of-time. 
+----------  Forwarded Message  ----------
 
-There are many reasons to keep files from different domains from being created
-in the same directory. The common example is the ability of two domains to
-create files in the same directory allows them to pass information even if they
-can't read each others files (through testing for the existence of files). Not a
-concern on all systems, but a large concern on some.
+Subject: Re: Bringing interfaces up at boot and SElinux (?)
+Date: Sunday 22 May 2005 23:36
+From: Russell Coker <russell@coker.com.au>
+To: fedora-test-list@redhat.com
+Cc: Daniel J Walsh <dwalsh@redhat.com>
 
-Karl
+On Wednesday 18 May 2005 22:35, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >The error is probably from SELinux; there's a ping in
+> > /sbin/dhclient-script when it times out.
+>
+> dhcpc should have the ability to ping.
+> domain_auto_trans(dhcpc_t, ping_exec_t, ping_t)
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+The problem is that ping_t is not defined in the targeted policy.
 
-> >  SELinux on Red Hat is suppose to be transparent and this clearly
-> > is not.
-> 
-> This is strict policy only, not targeted.
-> 
-> >  If the rpm added the directories to user homedirs and labeled
-> > them the net effect would be the same. I really question how this can be
-> > thought of as anything other than an administrative issue. The admin
-> > installs the app, the app needs it's resources labeled, the admin (by
-> > way of rpm) should label the resources, I can't see how any other way
-> > makes sense.
-> 
-> Okay, I agree with this solution. It's not very clear how to implement
-> right now, but it is the right thing to do, eventually.
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+The attached patch will give dhcpc_t the access to do what it wants when
+ there is no ping_t domain, it will work with both targeted and strict policy
+ (tested on targeted).
 
+--
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+-------------------------------------------------------
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_MayqCR5V1hFLyeg
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+--- domains/program/dhcpc.te.orig	2005-05-22 23:17:50.000000000 +1000
++++ domains/program/dhcpc.te	2005-05-22 23:18:22.000000000 +1000
+@@ -68,6 +68,9 @@
+ ifdef(`cardmgr.te', `
+ allow ping_t cardmgr_t:fd use;
+ ') dnl end if cardmgr
++', `
++allow dhcpc_t self:capability setuid;
++allow dhcpc_t self:rawip_socket create_socket_perms;
+ ') dnl end if ping
+ 
+ ifdef(`dhcpd.te', `', `
+
+--Boundary-00=_MayqCR5V1hFLyeg--
 
 
 --
