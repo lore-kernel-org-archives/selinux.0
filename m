@@ -1,55 +1,45 @@
-Message-ID: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com>
-Date: Sat, 11 Jun 2005 12:49:52 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <20050612021611.94597.qmail@web51501.mail.yahoo.com>
+Date: Sat, 11 Jun 2005 19:16:11 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
 Subject: Re: Question about integration of IPsec with SELinux? 
-To: Valdis.Kletnieks@vt.edu, Park Lee <parklee_sel@yahoo.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, Valdis.Kletnieks@vt.edu
 Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <200506111918.j5BJIeQp015251@turing-police.cc.vt.edu>
+In-Reply-To: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 11 Jun 2005 at 12:49, Casey Schaufler wrote:
 
+> --- Valdis.Kletnieks@vt.edu wrote:
+>
+>> (I'm guessing that OpenSSH was one of the "other
+>> protocols" Casey mentioned -
+>> it's *very* useful in it's problem space, but isn't
+>> the best choice for *this*
+>> problem (building an MLS cluster)...)
+>
+> The higher level the protocol the fewer system
+> services (e.g. NFS) that you can use it for.
 
---- Valdis.Kletnieks@vt.edu wrote:
+If we use OpenSSH, Does it mean that we should send
+the data and its security attribute (e.g. sensitivity
+and clearance information of the data) together within
+a packet? 
+and Is there any other way to send security attribute
+first and then the date (just like in IPsec case)
+except using IPsec?
 
-> (I'm guessing that OpenSSH was one of the "other
-> protocols" Casey mentioned -
-> it's *very* useful in it's problem space, but isn't
-> the best choice for *this*
-> problem (building an MLS cluster)...)
+Thanks,
 
-The higher level the protocol the fewer system
-services (e.g. NFS) that you can use it for.
+Best Regards,
+Park Lee
 
-> > What does "networking capabilities" mean here?
-> 
-> Nobody is interested in doing a single-system MLS
-> that can't talk to the
-> network (or at least, few enough that there's no
-> market for it).  On the
-> other hand, if you can deploy it across all the
-> servers in the machine room,
-> then it gets interesting.
-
-Valdis has the nut of it.
-
-Perhaps I should have said "facilities" or
-"useful features". English is not always a
-great language.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Discover Yahoo! 
-Get on-the-go sports scores, stock quotes, news and more. Check it out! 
-http://discover.yahoo.com/mobile.html
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
