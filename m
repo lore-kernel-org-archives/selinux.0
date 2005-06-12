@@ -1,53 +1,84 @@
-Message-ID: <20050612184454.91209.qmail@web31603.mail.mud.yahoo.com>
-Date: Sun, 12 Jun 2005 11:44:54 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Questions about "labeled networking" and "network message" 
-To: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050612172106.46491.qmail@web51505.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <200506121918.j5CJIhlt021805@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Park Lee <parklee_sel@yahoo.com>, Casey Schaufler <casey@schaufler-ca.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Question about integration of IPsec with SELinux? 
+In-Reply-To: Your message of "Sun, 12 Jun 2005 16:20:38 BST."
+             <20050612152038.GC31033@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com> <20050612021611.94597.qmail@web51501.mail.yahoo.com> <20050612114421.GA31033@lkcl.net> <200506121239.j5CCdksZ009355@turing-police.cc.vt.edu>
+            <20050612152038.GC31033@lkcl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1118603922_5642P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Sun, 12 Jun 2005 15:18:42 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--==_Exmh_1118603922_5642P
+Content-Type: text/plain; charset=us-ascii
 
+On Sun, 12 Jun 2005 16:20:38 BST, Luke Kenneth Casson Leighton said:
 
---- Park Lee <parklee_sel@yahoo.com> wrote:
+>  the underlying SIDs of selinux are 32-bit.
 
+Whoops. I forgot about that. ;)
 
-> ... How to understand the statement:"typically is
-> used in military and government environments
-> dealing with classified information."? Would you
-> please give me a scenario of the statement?
+>  [i do not know about IPsec or IPv6.]
 
-Typical MLS deployments involve an expensive
-shared resource, either a supercomputer or a
-Very Large dataset. MLS allows users with different
-levels or compartments of sensitivity to use
-the expensive resource at the same time. Most
-civilain environments are willing to allow
-a certain amount of information flow between
-those sharing the resource, whereas the military
-and intellegence communities are more concerned
-about such flow.
+The 'spi' field in the ip_auth_hdr and ip_esp_hdr is a u32, which is what
+I was thinking of...
 
-Given that most Linux developers are more
-concerned with environments that do not
-involve sharing single large expensive
-resources it is understandable that other
-security issues have taken precedence over
-MLS.
+>  ... when you only have 32-bit SIDs, as you do in selinux,
+>  how do you merge two departments or two corporations together,
+>  _after_ their MLS security has been independently developed?
 
+We just rely on the magic of sidtab_context_to_sid() -  it's basically
+handed something that looks like a 'foo_u:bar_r:baz_t' and cranks out a
+new SID, which is only used in the kernel.  As long as the merger of the
+two systems doesn't require more total SID's than a u32 can represent,
+there's no problem.
 
+You however *do* need to adress collisions between two different foo_u ;)
 
-Casey Schaufler
-casey@schaufler-ca.com
+>  ah - but how do you say "a local [to me] user when they log
+>  in to the remote domain must be allowed to run program X"
+>  when the number for the selinux SID on that remote domain
+>  utilises the same SID number - for a different purpose?
 
+The SIDs are locally generated on the fly. It's the *CONTEXT* that might
+be in use elsewhere.  You'd basically want to make sure that on-the-wire you
+always pass around a context label rather than a SID.
 
-		
-__________________________________ 
-Discover Yahoo! 
-Get on-the-go sports scores, stock quotes, news and more. Check it out! 
-http://discover.yahoo.com/mobile.html
+You'll want *some* way of managing the allocation of contexts cluster-wide,
+just so you don't have two usages of jdoe_u that refer to two different users..
+
+>  are you intending to add in a prefix of some kind, just like
+>  there is in NT / VAX-VMS security?
+
+Might be worth looking into..
+
+> > What information needs to be passed when opening an inter-domain trusted
+> > connection, that isn't already available in the IPSec headers?
+> 
+>  could you possibly help out here by clarifying that we are talking
+>  about the same thing?
+
+You already clarified that we weren't.. ;)
+
+--==_Exmh_1118603922_5642P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCrIqScC3lWbTT17ARAjJyAJ0SxPgwHTA3qzjf44G1xMK6bk5tgwCeNH5W
+tQ5eS44AgMxx4SlfmELprVo=
+=YJR1
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118603922_5642P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
