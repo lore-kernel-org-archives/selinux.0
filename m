@@ -1,44 +1,55 @@
-Date: Sun, 12 Jun 2005 16:25:05 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Park Lee <parklee_sel@yahoo.com>, Casey Schaufler <casey@schaufler-ca.com>,
-   SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Question about integration of IPsec with SELinux?
-Message-ID: <20050612152505.GD31033@lkcl.net>
-References: <20050612021611.94597.qmail@web51501.mail.yahoo.com> <200506121234.j5CCYt4G009234@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200506121234.j5CCYt4G009234@turing-police.cc.vt.edu>
+Message-ID: <42AC5B89.9080902@kaigai.gr.jp>
+Date: Mon, 13 Jun 2005 00:58:01 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: "SELinux(NSA)" <SELinux@tycho.nsa.gov>
+Subject: Re: [PATCH] independent with attribute declararion oeder for attachment
+References: <42AC23B6.8070304@kaigai.gr.jp> <42AC457C.6020805@tresys.com>
+In-Reply-To: <42AC457C.6020805@tresys.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Jun 12, 2005 at 08:34:54AM -0400, Valdis.Kletnieks@vt.edu wrote:
+Hi Joshua, Thanks for your comments.
 
-> OpenSSH and OpenSSL *both* suffer from the very real *practical* problem
-> that their connections terminate in userspace, while IPsec terminates
-> connections in the kernel.  
+This patch does NOT mean implict declaration of attribute, ALL attributes
+require explict declaration when it's used in any TE statements such as ALLOW.
+I wrote this patch to resolve declaration ordering problem. The feature of
+problem is different from ROLE statement does not has explicitly declaration
+statement.
 
+Currently, the declaration statement of attribute must be placed in forward
+of where it is used by any TE statements and TYPE declaration.
+After you apply this patch, the declaration statement of attribute must be
+placed in forward or backward of where it is used.
+So, we still require ATTRIBUTE statments for explict declaration.
 
- ah - there _is_ a way round that: to use something like tun/tap.
+We can always discover an attribute declaration per effective attribute
+in policy sources.
+(An attached attribute to type without declaration is ignored.)
+Does the declaration order in the policy source have a significant effect
+for Tresys's loadable policy module ?
 
- there's a VPN project i forget the name of... tinc, yes, it's called
- tinc.
+Thanks,
 
- it's an entirely userspace VPN.
-
- it would, imo, be perfectly reasonable to add into tun/tap a means to
- pass selinux avc queries etc. over that.
-
- ... heck - why not? :)
-
- l.
-
- p.s. i _hate_ the concept of doing this kind of high-level
- work in userspace.  i _wish_ linus wasn't so damn stupidly pig-headed
- about monolithic kernels.  all this stuff would be _so_ much less
- hassle and so much a non-issue on top of an L4 microkernel or in the
- GNU/Hurd.
-
+>>The following actions are same as current checkpolicy.
+>>* ALLOW and any TE statements with undeclared attributes are restricted.
+>>* Duplicate attribute declaration is restricted.
+>>
+>>* Any attribute need a declaration by ATTRIBUTE statement.
+>>
+> 
+> It is undesirable to implicitly declare symbols by using them. In fact
+> with the loadable policy modules this becomes problematic since we have
+> to keep track of all dependancy information. For example, since roles
+> are declared implicitly when assigned a type it isn't possible to
+> discern declaring a role from using a role. In a module using a role
+> should always have a dependancy on the role but declaring it wouldn't.
+> This is something we are trying to solve but adding more implictly
+> declared symbols would only make it harder.
+> 
+> Joshua Brindle
 
 --
 This message was distributed to subscribers of the selinux mailing list.
