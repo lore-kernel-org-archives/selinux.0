@@ -1,54 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5CKSjgA002309
-	for <selinux@tycho.nsa.gov>; Sun, 12 Jun 2005 16:28:45 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5CKKkO0019219
-	for <selinux@tycho.nsa.gov>; Sun, 12 Jun 2005 20:20:46 GMT
-Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
-	by free.hands.com (Postfix) with ESMTP id 7E97ABF88
-	for <selinux@tycho.nsa.gov>; Sun, 12 Jun 2005 21:20:45 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1DhZ5J-0000Lk-GZ
-	for selinux@tycho.nsa.gov; Sun, 12 Jun 2005 21:29:33 +0100
-Date: Sun, 12 Jun 2005 21:29:33 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: [owner@bugs.debian.org: Bug#249496 acknowledged by developer (Bug#249496: fixed in dpkg 1.13.9)]
-Message-ID: <20050612202933.GF31033@lkcl.net>
+Message-Id: <200506122030.j5CKUIp5025196@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Park Lee <parklee_sel@yahoo.com>, Casey Schaufler <casey@schaufler-ca.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Question about integration of IPsec with SELinux? 
+In-Reply-To: Your message of "Sun, 12 Jun 2005 21:25:39 BST."
+             <20050612202539.GE31033@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com> <20050612021611.94597.qmail@web51501.mail.yahoo.com> <20050612114421.GA31033@lkcl.net> <200506121239.j5CCdksZ009355@turing-police.cc.vt.edu> <20050612152038.GC31033@lkcl.net> <200506121918.j5CJIhlt021805@turing-police.cc.vt.edu>
+            <20050612202539.GE31033@lkcl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; boundary="==_Exmh_1118608217_24934P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Sun, 12 Jun 2005 16:30:17 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-whoo-hoo!  thank you, manoj, thank you scott!
+--==_Exmh_1118608217_24934P
+Content-Type: text/plain; charset=us-ascii
 
------ Forwarded message from Debian Bug Tracking System <owner@bugs.debian.org> -----
+On Sun, 12 Jun 2005 21:25:39 BST, Luke Kenneth Casson Leighton said:
 
-This is an automatic notification regarding your Bug report
-#249496: dpkg: [patch] - SElinux patches (security enhanced linux),
-which was filed against the dpkg package.
+>  well, if you're going to follow the convention of passing around the
+>  context [as a string] then you might as well continue with that
+>  tradition...
+> 
+>  i dunno... say, by adding @hostname or @dns.domain.name
+> 
+>  e.g. foo_u:bar_r:baz_t@toplevelmlsgroup.mycompany.co.uk or
+>  foo_u:bar_r:baz_t@myworkstation.mycompany.co.uk
 
-It has been closed by one of the developers, namely
-Scott James Remnant <scott@netsplit.com>.
+Much as I hate to admit it, Microsoft got this one right, with their AD
+tree structure - you don't want to drag a machine name around, you want to
+drag around an 'ou=' type thing that describes the *logical* role of the
+entity.  Remember, you probably care more that I'm connecting as "a sysadmin
+in this department" than the actual host I'm connecting from (assuming of course
+that all hosts I'm connecting from are part of the cluster)....
 
-....
+--==_Exmh_1118608217_24934P
+Content-Type: application/pgp-signature
 
-Description: 
- dpkg       - Package maintenance system for Debian
- dpkg-dev   - Package building tools for Debian
- dselect    - a user tool to manage Debian packages
-Closes: 21236 156317 193653 246802 249496 282323 304297 307139
-Changes: 
- dpkg (1.13.9) unstable; urgency=low
- .
-   The "On like Donkey Kong" Release.
- .
- .
-   SELinux support (Manoj Srivastava):
-   * On SELinux-enabled systems, try to set the security context when the
-     package is unpacked.  Closes: #193653, #249496, #307139.
-   * Added build-dependancy on libselinux1-dev.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCrJtZcC3lWbTT17ARAmCxAJ9plQJrBKpZK7XIoYC+CjoN4AmBdACgluhC
+oSjWGukLVKiNYnHjx7onMkw=
+=Q0Mx
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118608217_24934P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
