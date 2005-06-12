@@ -1,27 +1,17 @@
-Message-ID: <20050612161632.71302.qmail@web51501.mail.yahoo.com>
-Date: Sun, 12 Jun 2005 09:16:32 -0700 (PDT)
+Message-ID: <20050612163402.80361.qmail@web51510.mail.yahoo.com>
+Date: Sun, 12 Jun 2005 09:34:02 -0700 (PDT)
 From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: Question about integration of IPsec with SELinux? 
-To: Valdis.Kletnieks@vt.edu
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <200506121234.j5CCYt4G009234@turing-police.cc.vt.edu>
+Subject: Re: Question about integration of IPsec with SELinux?
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Valdis.Kletnieks@vt.edu, Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050611172750.41238.qmail@web31601.mail.mud.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 12 Jun 2005 at 08:34, Valdis.Kletnieks@vt.edu
-wrote:
->> and Is there any other way to send security
->> attribute first and then the date (just like in 
->> IPsec case) except using IPsec?
->
-> Are there any other ways? Sure.
- 
-Would you please show me some already existing ways?
 
-Thank you.
 
 
 Best Regards,
