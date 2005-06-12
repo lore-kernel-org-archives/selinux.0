@@ -1,66 +1,74 @@
-Message-ID: <20050612172106.46491.qmail@web51505.mail.yahoo.com>
-Date: Sun, 12 Jun 2005 10:21:06 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Questions about "labeled networking" and "network message" 
-To: James Morris <jmorris@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
+Message-ID: <20050612174607.58223.qmail@web31610.mail.mud.yahoo.com>
+Date: Sun, 12 Jun 2005 10:46:07 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: Question about integration of IPsec with SELinux?
+To: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050612170212.40575.qmail@web51506.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dear sir,
-
-In "Networking in NSA Security-Enhanced Linux" (
-http://www.linuxjournal.com/article/7764 ), you wrote:
-
-"It is likely that some form of labeled networking
-will be implemented for SELinux. This is where
-network traffic itself is labeled and typically is
-used in military and government environments
-dealing with classified information." 
 
 
-What I want to ask is:
-What is the purpose of "labeled networking"? Is there
-any use of it?
-and, How to understand the statement:"typically is
-used in military and government environments
-dealing with classified information."? Would you
-please give me a scenario of the statement?
+--- Park Lee <parklee_sel@yahoo.com> wrote:
+
+
+> But, when we "Integrate IPSEC with network mandatory
+> controls", we only label and protect _network_
+> _packets_, How can we control _processes_ in network
+> circumstance?
+
+Hum. Allow me to make sure we've got fundimentals
+covered before I try answering this.
+
+A system compares attributes of processes such
+as user IDs, group memberships, clearances, and
+domain affiliations with attributes of storage
+containers such as ownership, sensitivity, and
+access control lists to determine what accesses
+may be permitted. An interesting special case of
+this behavior is interprocess communication,
+in which the sending process treats the receiving
+process as a storage container. In the local
+system case, where both the sending process and
+the receiving process are on the same machine,
+the attributes relevent to an access decision are
+available, and the IPC mechanism can make the call
+without special accomodation. If the processes
+are on different machines the IPC mechanism must
+provide transport of the required attributes so
+that the decision can be made.
+
+> and, Can I view what you wrote as a application of
+> "labeled networking"
+> which is mentioned by James Morris in
+> http://www.linuxjournal.com/article/7764 ?
+> then, What is the purpose of a "labeled networking"?
+
+Labeled networking is an implementation of
+mechanism to provide sufficient attribute
+information for the TCP/IP and UDP/IP IPC
+mechanisms to be useful in an environment
+that requires all IPC mechanisms provide access
+control. This includes the LSPP specification
+of the Common Criteria.
+
+Labeled networking is not new. SGI and Cray
+completed B1 evaluations in 1995 that used CIPSO.
+The SGI system looked like a cluster where
+Cray chose to treat their machine as a single
+network component.
 
 
 
-You also wrote in the paper:
+Casey Schaufler
+casey@schaufler-ca.com
 
-"Network interfaces are labeled as follows: 
-netifcon interface context default_msg_context
-The default_msg_context parameter is intended to be
-used for labeling messages arriving on the interface,
-but is not currently used. "
-
-
-Then,
-Does this means that messages, whether sending or
-receiveing in SELinux, are not associated with any
-security context/SID at all now? and Does SELinux not
-control them because there are no security context/SID
-associated with them?
-Or, Are these messages just labeled with some other
-kind of security context/SID? 
-
-
-Thank you very much.
-
-Best Regards,
-Park Lee
-
-
-		
-__________________________________ 
-Discover Yahoo! 
-Use Yahoo! to plan a weekend, have fun online and more. Check it out! 
-http://discover.yahoo.com/
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
