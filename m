@@ -1,55 +1,36 @@
-Message-ID: <42AC5B89.9080902@kaigai.gr.jp>
-Date: Mon, 13 Jun 2005 00:58:01 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Message-ID: <20050612161632.71302.qmail@web51501.mail.yahoo.com>
+Date: Sun, 12 Jun 2005 09:16:32 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Question about integration of IPsec with SELinux? 
+To: Valdis.Kletnieks@vt.edu
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <200506121234.j5CCYt4G009234@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: "SELinux(NSA)" <SELinux@tycho.nsa.gov>
-Subject: Re: [PATCH] independent with attribute declararion oeder for attachment
-References: <42AC23B6.8070304@kaigai.gr.jp> <42AC457C.6020805@tresys.com>
-In-Reply-To: <42AC457C.6020805@tresys.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Joshua, Thanks for your comments.
+On Sun, 12 Jun 2005 at 08:34, Valdis.Kletnieks@vt.edu
+wrote:
+>> and Is there any other way to send security
+>> attribute first and then the date (just like in 
+>> IPsec case) except using IPsec?
+>
+> Are there any other ways? Sure.
+ 
+Would you please show me some already existing ways?
 
-This patch does NOT mean implict declaration of attribute, ALL attributes
-require explict declaration when it's used in any TE statements such as ALLOW.
-I wrote this patch to resolve declaration ordering problem. The feature of
-problem is different from ROLE statement does not has explicitly declaration
-statement.
+Thank you.
 
-Currently, the declaration statement of attribute must be placed in forward
-of where it is used by any TE statements and TYPE declaration.
-After you apply this patch, the declaration statement of attribute must be
-placed in forward or backward of where it is used.
-So, we still require ATTRIBUTE statments for explict declaration.
 
-We can always discover an attribute declaration per effective attribute
-in policy sources.
-(An attached attribute to type without declaration is ignored.)
-Does the declaration order in the policy source have a significant effect
-for Tresys's loadable policy module ?
+Best Regards,
+Park Lee
 
-Thanks,
-
->>The following actions are same as current checkpolicy.
->>* ALLOW and any TE statements with undeclared attributes are restricted.
->>* Duplicate attribute declaration is restricted.
->>
->>* Any attribute need a declaration by ATTRIBUTE statement.
->>
-> 
-> It is undesirable to implicitly declare symbols by using them. In fact
-> with the loadable policy modules this becomes problematic since we have
-> to keep track of all dependancy information. For example, since roles
-> are declared implicitly when assigned a type it isn't possible to
-> discern declaring a role from using a role. In a module using a role
-> should always have a dependancy on the role but declaring it wouldn't.
-> This is something we are trying to solve but adding more implictly
-> declared symbols would only make it harder.
-> 
-> Joshua Brindle
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
