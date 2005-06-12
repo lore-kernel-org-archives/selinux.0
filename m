@@ -1,9 +1,9 @@
-Message-ID: <20050612175030.99422.qmail@web31601.mail.mud.yahoo.com>
-Date: Sun, 12 Jun 2005 10:50:29 -0700 (PDT)
+Message-ID: <20050612184454.91209.qmail@web31603.mail.mud.yahoo.com>
+Date: Sun, 12 Jun 2005 11:44:54 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Question about integration of IPsec with SELinux? 
+Subject: Re: Questions about "labeled networking" and "network message" 
 To: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050612021611.94597.qmail@web51501.mail.yahoo.com>
+In-Reply-To: <20050612172106.46491.qmail@web51505.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
@@ -12,16 +12,30 @@ List-Id: selinux@tycho.nsa.gov
 
 
 --- Park Lee <parklee_sel@yahoo.com> wrote:
- 
-> ... Is there any other way to send security
-> attribute
-> first and then the date (just like in IPsec case)
-> except using IPsec?
 
-CIPSO provides sufficient mechanism to do this.
-There are also the TSIG TSIX protocols, but I
-seriously doubt you'd want to invest heavily in
-those with IPSEC around.
+
+> ... How to understand the statement:"typically is
+> used in military and government environments
+> dealing with classified information."? Would you
+> please give me a scenario of the statement?
+
+Typical MLS deployments involve an expensive
+shared resource, either a supercomputer or a
+Very Large dataset. MLS allows users with different
+levels or compartments of sensitivity to use
+the expensive resource at the same time. Most
+civilain environments are willing to allow
+a certain amount of information flow between
+those sharing the resource, whereas the military
+and intellegence communities are more concerned
+about such flow.
+
+Given that most Linux developers are more
+concerned with environments that do not
+involve sharing single large expensive
+resources it is understandable that other
+security issues have taken precedence over
+MLS.
 
 
 
@@ -32,9 +46,8 @@ casey@schaufler-ca.com
 		
 __________________________________ 
 Discover Yahoo! 
-Find restaurants, movies, travel and more fun for the weekend. Check it out! 
-http://discover.yahoo.com/weekend.html 
-
+Get on-the-go sports scores, stock quotes, news and more. Check it out! 
+http://discover.yahoo.com/mobile.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
