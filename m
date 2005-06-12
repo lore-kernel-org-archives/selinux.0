@@ -1,9 +1,9 @@
-Message-ID: <20050612174607.58223.qmail@web31610.mail.mud.yahoo.com>
-Date: Sun, 12 Jun 2005 10:46:07 -0700 (PDT)
+Message-ID: <20050612175030.99422.qmail@web31601.mail.mud.yahoo.com>
+Date: Sun, 12 Jun 2005 10:50:29 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Question about integration of IPsec with SELinux?
+Subject: Re: Question about integration of IPsec with SELinux? 
 To: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050612170212.40575.qmail@web51506.mail.yahoo.com>
+In-Reply-To: <20050612021611.94597.qmail@web51501.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
@@ -12,63 +12,29 @@ List-Id: selinux@tycho.nsa.gov
 
 
 --- Park Lee <parklee_sel@yahoo.com> wrote:
+ 
+> ... Is there any other way to send security
+> attribute
+> first and then the date (just like in IPsec case)
+> except using IPsec?
 
-
-> But, when we "Integrate IPSEC with network mandatory
-> controls", we only label and protect _network_
-> _packets_, How can we control _processes_ in network
-> circumstance?
-
-Hum. Allow me to make sure we've got fundimentals
-covered before I try answering this.
-
-A system compares attributes of processes such
-as user IDs, group memberships, clearances, and
-domain affiliations with attributes of storage
-containers such as ownership, sensitivity, and
-access control lists to determine what accesses
-may be permitted. An interesting special case of
-this behavior is interprocess communication,
-in which the sending process treats the receiving
-process as a storage container. In the local
-system case, where both the sending process and
-the receiving process are on the same machine,
-the attributes relevent to an access decision are
-available, and the IPC mechanism can make the call
-without special accomodation. If the processes
-are on different machines the IPC mechanism must
-provide transport of the required attributes so
-that the decision can be made.
-
-> and, Can I view what you wrote as a application of
-> "labeled networking"
-> which is mentioned by James Morris in
-> http://www.linuxjournal.com/article/7764 ?
-> then, What is the purpose of a "labeled networking"?
-
-Labeled networking is an implementation of
-mechanism to provide sufficient attribute
-information for the TCP/IP and UDP/IP IPC
-mechanisms to be useful in an environment
-that requires all IPC mechanisms provide access
-control. This includes the LSPP specification
-of the Common Criteria.
-
-Labeled networking is not new. SGI and Cray
-completed B1 evaluations in 1995 that used CIPSO.
-The SGI system looked like a cluster where
-Cray chose to treat their machine as a single
-network component.
+CIPSO provides sufficient mechanism to do this.
+There are also the TSIG TSIX protocols, but I
+seriously doubt you'd want to invest heavily in
+those with IPSEC around.
 
 
 
 Casey Schaufler
 casey@schaufler-ca.com
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+
+		
+__________________________________ 
+Discover Yahoo! 
+Find restaurants, movies, travel and more fun for the weekend. Check it out! 
+http://discover.yahoo.com/weekend.html 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
