@@ -1,41 +1,49 @@
-Subject: Re: Question about integration of IPsec with SELinux?
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-Id: <200506131337.j5DDb6Ro021818@turing-police.cc.vt.edu>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Valdis.Kletnieks@vt.edu, Park Lee <parklee_sel@yahoo.com>,
-   Casey Schaufler <casey@schaufler-ca.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050612202539.GE31033@lkcl.net>
-References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com>
-	 <20050612021611.94597.qmail@web51501.mail.yahoo.com>
-	 <20050612114421.GA31033@lkcl.net>
-	 <200506121239.j5CCdksZ009355@turing-police.cc.vt.edu>
-	 <20050612152038.GC31033@lkcl.net>
-	 <200506121918.j5CJIhlt021805@turing-police.cc.vt.edu>
-	 <20050612202539.GE31033@lkcl.net>
-Content-Type: text/plain
-Date: Mon, 13 Jun 2005 09:00:37 -0400
-Message-Id: <1118667637.24565.17.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Question about integration of IPsec with SELinux? 
+In-Reply-To: Your message of "Mon, 13 Jun 2005 11:01:58 BST."
+             <20050613100158.GA6610@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <200506121918.j5CJIhlt021805@turing-police.cc.vt.edu> <20050612233233.18232.qmail@web31610.mail.mud.yahoo.com>
+            <20050613100158.GA6610@lkcl.net>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1118669823_4308P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Mon, 13 Jun 2005 09:37:03 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-06-12 at 21:25 +0100, Luke Kenneth Casson Leighton wrote:
->  well, if you're going to follow the convention of passing around the
->  context [as a string] then you might as well continue with that
->  tradition...
-> 
->  i dunno... say, by adding @hostname or @dns.domain.name
-> 
->  e.g. foo_u:bar_r:baz_t@toplevelmlsgroup.mycompany.co.uk or
->  foo_u:bar_r:baz_t@myworkstation.mycompany.co.uk
+--==_Exmh_1118669823_4308P
+Content-Type: text/plain; charset=us-ascii
 
-No; you want a separate notion of policy domain of interpretation (DOI),
-which is a separate component of the security association (not the
-security context).
+On Mon, 13 Jun 2005 11:01:58 BST, Luke Kenneth Casson Leighton said:
 
--- 
-Stephen Smalley
-National Security Agency
+>  because what happens if there _is_ no network by which you can access
+>  or validate the domain policy such that you can trouble-shoot the
+>  network interface?
 
+The guys who build Juniper routers have an interesting solution for that - when
+yo make a config change, it doesn't go permanently live.  If you don't enter a
+*second* 'commit' command, after 5 mins or so it auto-reverts to the previous
+config.  Really handy when you bork a routing table and hose your SSH session
+into the router - our IOS guys immediaely made that their number 1 "We wish
+Cisco did this too.." request ;)
+
+
+--==_Exmh_1118669823_4308P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCrYv/cC3lWbTT17ARArcNAKD3Px/M063+Q1bUn1ObXliq7r6WCQCggepE
+836625CqOWrMScQH8Sh9zRg=
+=bM9Z
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118669823_4308P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
