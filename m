@@ -1,60 +1,76 @@
-Subject: Re: libsepol - users [ Patch v. 0]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <gyurdiev@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118679035.9356.7.camel@dhcp83-8.boston.redhat.com>
-References: <1118342870.30978.12.camel@dhcp83-8.boston.redhat.com>
-	 <1118441058.7908.2.camel@dhcp83-8.boston.redhat.com>
-	 <1118677251.24565.97.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118679035.9356.7.camel@dhcp83-8.boston.redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5DJoSgA009163
+	for <selinux@tycho.nsa.gov>; Mon, 13 Jun 2005 15:50:28 -0400 (EDT)
+Subject: Re: [PATCH] devpts xattr support
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: James Morris <jmorris@redhat.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>,
+   Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+In-Reply-To: <Xine.LNX.4.44.0410271428590.10702-100000@thoron.boston.redhat.com>
+References: 
+	 <Xine.LNX.4.44.0410271428590.10702-100000@thoron.boston.redhat.com>
 Content-Type: text/plain
-Date: Mon, 13 Jun 2005 13:15:05 -0400
-Message-Id: <1118682905.24565.118.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 13 Jun 2005 15:32:41 -0400
+Message-Id: <1118691161.24565.147.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-06-13 at 12:10 -0400, Ivan Gyurdiev wrote:
-> Yes, I understand the concern - I am not ignoring the issue.
-> I've tried to write it this way for efficiency, but if you prefer I
-> can duplicate the strings.
+On Wed, 2004-10-27 at 14:31 -0400, James Morris wrote:
+> On Wed, 27 Oct 2004, Darrel Goeddel wrote:
+> 
+> > I'm all for that.  I will play around with a few ideas and see if I can 
+> > come with anything useful.  I'm thinking along the lines of the 
+> > permission call which uses i_op->permission if it exists and falls back 
+> > to vfs_permission if it does not.  Maybe we can create a fallback for 
+> > *xattr...
+> 
+> Yes, it seems logical that we could have a generic fallback in the VFS
+> code for getxattr and listxattr, although I guess this would have been
+> considered before and rejected for some reason (possibly advice from
+> upstream?).
 
-I suppose it depends on whether we expect any other users of these
-functions, and whether they are likely to only require such localized
-reference as well.
+Below is a simple patch that does this for getxattr.  ls -Z then works
+for e.g. /proc /dev/pts /selinux.
 
-> Right, I fixed this, and now it actually compiles and runs :)
+Index: linux-2.6/fs/xattr.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/fs/xattr.c,v
+retrieving revision 1.9
+diff -u -p -r1.9 xattr.c
+--- linux-2.6/fs/xattr.c	27 Dec 2004 15:09:17 -0000	1.9
++++ linux-2.6/fs/xattr.c	31 May 2005 12:56:27 -0000
+@@ -142,15 +142,19 @@ getxattr(struct dentry *d, char __user *
+ 		if (error)
+ 			goto out;
+ 		error = d->d_inode->i_op->getxattr(d, kname, kvalue, size);
+-		if (error > 0) {
+-			if (size && copy_to_user(value, kvalue, error))
+-				error = -EFAULT;
+-		} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
+-			/* The file system tried to returned a value bigger
+-			   than XATTR_SIZE_MAX bytes. Not possible. */
+-			error = -E2BIG;
+-		}
++	} else if (!strncmp(kname, XATTR_SECURITY_PREFIX, sizeof XATTR_SECURITY_PREFIX - 1)) {
++		const char *suffix = kname + sizeof XATTR_SECURITY_PREFIX - 1;
++		error = security_inode_getsecurity(d->d_inode, suffix, kvalue, size);
+ 	}
++	if (error > 0) {
++		if (size && copy_to_user(value, kvalue, error))
++			error = -EFAULT;
++	} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
++		/* The file system tried to returned a value bigger
++		   than XATTR_SIZE_MAX bytes. Not possible. */
++		error = -E2BIG;
++	} 
++
+ out:
+ 	if (kvalue)
+ 		kfree(kvalue);
 
-Ok, and I presume the static variables were moved to a .c file.  We
-should likely adjust the libsepol/src/Makefile to be consistent with the
-libselinux one so that we get stricter checking.
-
-> Can you explain this a bit more - I haven't worked w/ varargs a lot.
-
-Just prefix the sepol_debug_printf() definition with that attribute
-qualifier, and the compiler will apply normal printf-style checking to
-the arguments against the format string.
-
-> So, is genhomedircon wrong in that assumption? Should it be looking
-> at the <username> file instead?
-
-The <username> or default_contexts would be more accurate, but then you
-have the problem of which default do you want, e.g. login, sshd, xdm,
-etc.  Could differ, e.g. root login via xdm might default to staff while
-root login on console might default to sysadm.
-
-Of course, if we had polyinstantiated home directories, then you get a
-separate home directory for each role.
-
-> I'll look at that. Is the mls context supposed to allow spaces?
-
-The normal context parsing code in the security server
-(mls_context_to_sid) and in libselinux (context_new) doesn't allow
-whitespace within the context, but checkpolicy allows it in the source
-policy configuration, e.g. s0 : c0, c2 is legal to checkpolicy but
-libselinux or the kernel would only take s0:c0,c2.  That's why the
-genusers code strips whitespace prior to passing the MLS level or range
-along to mls_context_to_sid.
 
 -- 
 Stephen Smalley
