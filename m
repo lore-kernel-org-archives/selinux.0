@@ -1,42 +1,43 @@
-Date: Mon, 13 Jun 2005 22:17:55 +0100
+Date: Mon, 13 Jun 2005 22:19:51 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Valdis.Kletnieks@vt.edu, Park Lee <parklee_sel@yahoo.com>,
-   Casey Schaufler <casey@schaufler-ca.com>, SELinux <SELinux@tycho.nsa.gov>
+Cc: Park Lee <parklee_sel@yahoo.com>, Casey Schaufler <casey@schaufler-ca.com>,
+   Valdis.Kletnieks@vt.edu, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: Question about integration of IPsec with SELinux?
-Message-ID: <20050613211755.GC17412@lkcl.net>
-References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com> <20050612021611.94597.qmail@web51501.mail.yahoo.com> <20050612114421.GA31033@lkcl.net> <200506121239.j5CCdksZ009355@turing-police.cc.vt.edu> <20050612152038.GC31033@lkcl.net> <1118666993.24565.13.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <20050613211951.GD17412@lkcl.net>
+References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com> <20050612021611.94597.qmail@web51501.mail.yahoo.com> <20050612114421.GA31033@lkcl.net> <1118666230.24565.1.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1118666993.24565.13.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1118666230.24565.1.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jun 13, 2005 at 08:49:53AM -0400, Stephen Smalley wrote:
-> On Sun, 2005-06-12 at 16:20 +0100, Luke Kenneth Casson Leighton wrote:
-> >  the underlying SIDs of selinux are 32-bit.
-> <snip>
-> >  ... when you only have 32-bit SIDs, as you do in selinux,
-> >  how do you merge two departments or two corporations together,
-> >  _after_ their MLS security has been independently developed?
+On Mon, Jun 13, 2005 at 08:37:10AM -0400, Stephen Smalley wrote:
+> On Sun, 2005-06-12 at 12:44 +0100, Luke Kenneth Casson Leighton wrote:
+> >  btw i should also raise - again - the wisdom of only utilising
+> >  a 32-bit security descriptor in a networked environment.
+> > 
+> >  only 32-bit means that if you want to merge or join two secure
+> >  environments together, well.... you basically can't: you have a clash
+> >  of 32-bit SIDs.
+> > 
+> >  with NT / VAX-VMS style security descriptors (comprising 4of 32-bit
+> >  "SIDs" for a domain and a 32-bit "RID" - relative ID) you can at least
+> >  start creating inter-domain trust relationships.
 > 
-> SIDs are node-local and non-persistent (and now kernel-private)
-> identifiers.  Complete non-issue.
- 
- *sigh* yes, it took valdis and i a couple of rounds of email
- on sunday to establish / remind ourselves of that.
+> As is clearly noted in all SELinux documentation, SIDs are purely non-
+> global (node-local) and non-persistent handles to security contexts.
+> And as of Linux 2.6, they are furthermore kernel-private (or in the case
+> of the userspace AVC, application-private).
 
- 
-> For a CIPSO-style implementation like the Selopt implementation by James
-> Morris for the old SELinux, you can store the SID in the option and then
-> perform translation on the receiving host based on a network SID cache
-> that maps (source address, SID) pairs to local SIDs, using a userspace
-> security context mapping daemon to get the actual security context if
-> the network SID isn't already cached.
- 
- ah HA!  so there exists something that does ... sort-of-NAT, already?
- GREAT!
+ so the security "context" label string is equivalent to an NT "RID".
 
+ and - just to clarify: the DOI - domain of interpretation -
+ is equivalent to the NT domain "prefix"?
+
+ cheers,
+
+ l.
 
 
 --
