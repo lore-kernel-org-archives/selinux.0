@@ -1,44 +1,57 @@
-Date: Mon, 13 Jun 2005 23:44:54 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Question about integration of IPsec with SELinux?
-Message-ID: <20050613224454.GF17617@lkcl.net>
-References: <20050613213951.GB17617@lkcl.net> <20050613220328.31770.qmail@web31602.mail.mud.yahoo.com>
+Subject: Re: libsepol - users [ Patch v. 0]
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118682905.24565.118.camel@moss-spartans.epoch.ncsc.mil>
+References: <1118342870.30978.12.camel@dhcp83-8.boston.redhat.com>
+	 <1118441058.7908.2.camel@dhcp83-8.boston.redhat.com>
+	 <1118677251.24565.97.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118679035.9356.7.camel@dhcp83-8.boston.redhat.com>
+	 <1118682905.24565.118.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 18:59:07 -0400
+Message-Id: <1118703548.2604.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050613220328.31770.qmail@web31602.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jun 13, 2005 at 03:03:28PM -0700, Casey Schaufler wrote:
+On Mon, 2005-06-13 at 13:15 -0400, Stephen Smalley wrote:
+> On Mon, 2005-06-13 at 12:10 -0400, Ivan Gyurdiev wrote:
+> > Yes, I understand the concern - I am not ignoring the issue.
+> > I've tried to write it this way for efficiency, but if you prefer I
+> > can duplicate the strings.
 > 
-> 
-> --- Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-> wrote:
-> 
-> 
-> >  wilma@DOI1 has **nothing** to do with wilma@DOI2.
-> 
-> This is the sort of thing that seperates the
-> developers from the admins. Of course wilma@DOI1
-> isn't wilma@DOI2. Nonetheless, reams of
-> documentation and countless warnings
-> notwithstanding, the human that creates the mapping
-> between DOI1 and DOI2 will 99 44/100% of the time
-> map wilma directly to wilma. It's bad enough for
-> usernames. I see no reason to expect it to be
-> any better for policy constructs.
+> I suppose it depends on whether we expect any other users of these
+> functions, and whether they are likely to only require such localized
+> reference as well.
 
- everyone sees "Administrator" on local workstations.
+If I write a function to retrieve data from the config file, and
+return it to the user, it would use this user_config structure...
 
- do they _genuinely_ believe that "Administrator" on workstation
- 1 is the same as "Administrator" on workstation 2??
+> > Right, I fixed this, and now it actually compiles and runs :)
+> 
+> Ok, and I presume the static variables were moved to a .c file.
 
- ... but anyway: the lessons there should be learned from the
- way that nt's "active directory" infrastructure is managed.
+Yes... I mostly have it working... still some bugs to fix,
+and must add more functions - set_roles, delete..
 
- if it's dumb enough for nt admins to not screw up...
+>   We
+> should likely adjust the libsepol/src/Makefile to be consistent with the
+> libselinux one so that we get stricter checking.
+
+How so?
+
+> > So, is genhomedircon wrong in that assumption? Should it be looking
+> > at the <username> file instead?
+> 
+> The <username> or default_contexts would be more accurate, but then you
+> have the problem of which default do you want, e.g. login, sshd, xdm,
+> etc.  Could differ, e.g. root login via xdm might default to staff while
+> root login on console might default to sysadm.
+
+Hmmm... and here I thought this was going to be simple - one file
+to deal with :)
 
 
 --
