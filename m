@@ -1,49 +1,71 @@
-Message-Id: <200506131337.j5DDb6Ro021818@turing-police.cc.vt.edu>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Question about integration of IPsec with SELinux? 
-In-Reply-To: Your message of "Mon, 13 Jun 2005 11:01:58 BST."
-             <20050613100158.GA6610@lkcl.net>
-From: Valdis.Kletnieks@vt.edu
-References: <200506121918.j5CJIhlt021805@turing-police.cc.vt.edu> <20050612233233.18232.qmail@web31610.mail.mud.yahoo.com>
-            <20050613100158.GA6610@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1118669823_4308P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 13 Jun 2005 09:37:03 -0400
+Message-ID: <20050613141014.17870.qmail@web31608.mail.mud.yahoo.com>
+Date: Mon, 13 Jun 2005 07:10:14 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: Question about integration of IPsec with SELinux?
+To: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050613100158.GA6610@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1118669823_4308P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 13 Jun 2005 11:01:58 BST, Luke Kenneth Casson Leighton said:
-
->  because what happens if there _is_ no network by which you can access
->  or validate the domain policy such that you can trouble-shoot the
->  network interface?
-
-The guys who build Juniper routers have an interesting solution for that - when
-yo make a config change, it doesn't go permanently live.  If you don't enter a
-*second* 'commit' command, after 5 mins or so it auto-reverts to the previous
-config.  Really handy when you bork a routing table and hose your SSH session
-into the router - our IOS guys immediaely made that their number 1 "We wish
-Cisco did this too.." request ;)
 
 
---==_Exmh_1118669823_4308P
-Content-Type: application/pgp-signature
+--- Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFCrYv/cC3lWbTT17ARArcNAKD3Px/M063+Q1bUn1ObXliq7r6WCQCggepE
-836625CqOWrMScQH8Sh9zRg=
-=bM9Z
------END PGP SIGNATURE-----
+> > You will do well to consider the implications
+> > of allowing anything other than identical policies
+> > within a cluster or even a grid. 
+> 
+>  okay.
+> 
+>  simplistic view: in nt-land, you have local
+> workstations
+>  'policy' and you have a global 'policy'.
 
---==_Exmh_1118669823_4308P--
+The "one policy" ought to allow for the 
+differentiation between local and global
+without resorting to naming each individual
+machine explicitly. Clusters typically name
+the nodes dynamicaly after all.
+
+>  in this way you have a scheme whereby the
+> workstation is still
+>  to some extent useable / recoverable even when
+> disconnected
+>  (isolated) from the domain.
+
+Does it make sense for a machine that is part
+of a global "system" to have a policy that is
+potentially inconsistent with the whole? Maybe.
+Your are definitely getting into one of the areas
+that can cause trouble. User Wilma defined in
+two places differently because there are two of
+her. Since users are in the policy, you have a
+sticky issue.
+
+
+>  even though it's access-control based, there is
+> much to be
+>  learned from the application of microsoft's nt
+> domain protocol.
+
+Learning from the experience of
+others is for squares.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Discover Yahoo! 
+Find restaurants, movies, travel and more fun for the weekend. Check it out! 
+http://discover.yahoo.com/weekend.html 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
