@@ -1,35 +1,41 @@
 Subject: Re: Question about integration of IPsec with SELinux?
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Park Lee <parklee_sel@yahoo.com>, Casey Schaufler <casey@schaufler-ca.com>,
-   Valdis.Kletnieks@vt.edu, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050612114421.GA31033@lkcl.net>
+Cc: Valdis.Kletnieks@vt.edu, Park Lee <parklee_sel@yahoo.com>,
+   Casey Schaufler <casey@schaufler-ca.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050612152038.GC31033@lkcl.net>
 References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com>
 	 <20050612021611.94597.qmail@web51501.mail.yahoo.com>
 	 <20050612114421.GA31033@lkcl.net>
+	 <200506121239.j5CCdksZ009355@turing-police.cc.vt.edu>
+	 <20050612152038.GC31033@lkcl.net>
 Content-Type: text/plain
-Date: Mon, 13 Jun 2005 08:37:10 -0400
-Message-Id: <1118666230.24565.1.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 13 Jun 2005 08:49:53 -0400
+Message-Id: <1118666993.24565.13.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-06-12 at 12:44 +0100, Luke Kenneth Casson Leighton wrote:
->  btw i should also raise - again - the wisdom of only utilising
->  a 32-bit security descriptor in a networked environment.
-> 
->  only 32-bit means that if you want to merge or join two secure
->  environments together, well.... you basically can't: you have a clash
->  of 32-bit SIDs.
-> 
->  with NT / VAX-VMS style security descriptors (comprising 4of 32-bit
->  "SIDs" for a domain and a 32-bit "RID" - relative ID) you can at least
->  start creating inter-domain trust relationships.
+On Sun, 2005-06-12 at 16:20 +0100, Luke Kenneth Casson Leighton wrote:
+>  the underlying SIDs of selinux are 32-bit.
+<snip>
+>  ... when you only have 32-bit SIDs, as you do in selinux,
+>  how do you merge two departments or two corporations together,
+>  _after_ their MLS security has been independently developed?
 
-As is clearly noted in all SELinux documentation, SIDs are purely non-
-global (node-local) and non-persistent handles to security contexts.
-And as of Linux 2.6, they are furthermore kernel-private (or in the case
-of the userspace AVC, application-private).
+SIDs are node-local and non-persistent (and now kernel-private)
+identifiers.  Complete non-issue.
+
+For a CIPSO-style implementation like the Selopt implementation by James
+Morris for the old SELinux, you can store the SID in the option and then
+perform translation on the receiving host based on a network SID cache
+that maps (source address, SID) pairs to local SIDs, using a userspace
+security context mapping daemon to get the actual security context if
+the network SID isn't already cached.
+
+For IPSEC, there is no explicit label in the packet, just the SPI that
+indicates the IPSEC security association, and that contains the security
+context/SID information that was exchanged when the SA was set up.
 
 -- 
 Stephen Smalley
