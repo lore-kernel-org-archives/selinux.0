@@ -3,39 +3,34 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Cc: Valdis.Kletnieks@vt.edu, Park Lee <parklee_sel@yahoo.com>,
    Casey Schaufler <casey@schaufler-ca.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050612152038.GC31033@lkcl.net>
+In-Reply-To: <20050612202539.GE31033@lkcl.net>
 References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com>
 	 <20050612021611.94597.qmail@web51501.mail.yahoo.com>
 	 <20050612114421.GA31033@lkcl.net>
 	 <200506121239.j5CCdksZ009355@turing-police.cc.vt.edu>
 	 <20050612152038.GC31033@lkcl.net>
+	 <200506121918.j5CJIhlt021805@turing-police.cc.vt.edu>
+	 <20050612202539.GE31033@lkcl.net>
 Content-Type: text/plain
-Date: Mon, 13 Jun 2005 08:49:53 -0400
-Message-Id: <1118666993.24565.13.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 13 Jun 2005 09:00:37 -0400
+Message-Id: <1118667637.24565.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-06-12 at 16:20 +0100, Luke Kenneth Casson Leighton wrote:
->  the underlying SIDs of selinux are 32-bit.
-<snip>
->  ... when you only have 32-bit SIDs, as you do in selinux,
->  how do you merge two departments or two corporations together,
->  _after_ their MLS security has been independently developed?
+On Sun, 2005-06-12 at 21:25 +0100, Luke Kenneth Casson Leighton wrote:
+>  well, if you're going to follow the convention of passing around the
+>  context [as a string] then you might as well continue with that
+>  tradition...
+> 
+>  i dunno... say, by adding @hostname or @dns.domain.name
+> 
+>  e.g. foo_u:bar_r:baz_t@toplevelmlsgroup.mycompany.co.uk or
+>  foo_u:bar_r:baz_t@myworkstation.mycompany.co.uk
 
-SIDs are node-local and non-persistent (and now kernel-private)
-identifiers.  Complete non-issue.
-
-For a CIPSO-style implementation like the Selopt implementation by James
-Morris for the old SELinux, you can store the SID in the option and then
-perform translation on the receiving host based on a network SID cache
-that maps (source address, SID) pairs to local SIDs, using a userspace
-security context mapping daemon to get the actual security context if
-the network SID isn't already cached.
-
-For IPSEC, there is no explicit label in the packet, just the SPI that
-indicates the IPSEC security association, and that contains the security
-context/SID information that was exchanged when the SA was set up.
+No; you want a separate notion of policy domain of interpretation (DOI),
+which is a separate component of the security association (not the
+security context).
 
 -- 
 Stephen Smalley
