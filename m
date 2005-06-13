@@ -1,72 +1,64 @@
 Subject: Re: libsepol - users [ Patch v. 0]
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <gyurdiev@redhat.com>
 Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118677251.24565.97.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1118679035.9356.7.camel@dhcp83-8.boston.redhat.com>
 References: <1118342870.30978.12.camel@dhcp83-8.boston.redhat.com>
 	 <1118441058.7908.2.camel@dhcp83-8.boston.redhat.com>
 	 <1118677251.24565.97.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118679035.9356.7.camel@dhcp83-8.boston.redhat.com>
 Content-Type: text/plain
-Date: Mon, 13 Jun 2005 12:10:34 -0400
-Message-Id: <1118679035.9356.7.camel@dhcp83-8.boston.redhat.com>
+Date: Mon, 13 Jun 2005 13:15:05 -0400
+Message-Id: <1118682905.24565.118.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2005-06-13 at 12:10 -0400, Ivan Gyurdiev wrote:
+> Yes, I understand the concern - I am not ignoring the issue.
+> I've tried to write it this way for efficiency, but if you prefer I
+> can duplicate the strings.
 
-> - In the future, please post as a diff -uprN generated patch against
-> libsepol, not as separate file attachments even when only adding new
-> files.  The patch can be an attachment if you prefer that, although
-> inline has advantages for reading and commenting (quoting sections of
-> the diffs easily in the reply).
+I suppose it depends on whether we expect any other users of these
+functions, and whether they are likely to only require such localized
+reference as well.
 
-Okay...
+> Right, I fixed this, and now it actually compiles and runs :)
 
-> - I'm not sure about having the uc_set_* functions simply save the
-> provided pointers rather than allocating their own storage (e.g. strdup
-> them).  Especially since you do have an explicit destructor that could
-> easily handle freeing the memory.  It looks like you only need the
-> buffer to stay around temporarily anyway, but I'm a little concerned
-> about more general use of the structure and functions in the future.
+Ok, and I presume the static variables were moved to a .c file.  We
+should likely adjust the libsepol/src/Makefile to be consistent with the
+libselinux one so that we get stricter checking.
 
-Yes, I understand the concern - I am not ignoring the issue.
-I've tried to write it this way for efficiency, but if you prefer I
-can duplicate the strings.
+> Can you explain this a bit more - I haven't worked w/ varargs a lot.
 
-> - No functions in .h files other than static inlines (users_internal.h).
+Just prefix the sepol_debug_printf() definition with that attribute
+qualifier, and the compiler will apply normal printf-style checking to
+the arguments against the format string.
 
-Right, I fixed this, and now it actually compiles and runs :)
+> So, is genhomedircon wrong in that assumption? Should it be looking
+> at the <username> file instead?
 
-> Not new to your code, but sepol_debug_printf should have an
-> __attribute__ ((format (printf, 1, 2))).
+The <username> or default_contexts would be more accurate, but then you
+have the problem of which default do you want, e.g. login, sshd, xdm,
+etc.  Could differ, e.g. root login via xdm might default to staff while
+root login on console might default to sysadm.
 
-Can you explain this a bit more - I haven't worked w/ varargs a lot.
-  
-> - As a warning, the notion of the first role as the "default" role is
-> somewhat of a lie.  Default role for a user process is determined by
-> libselinux based on /etc/selinux/strict/contexts/default_contexts and
-> the optional /etc/selinux/strict/contexts/users/<username> file and may
-> vary depending on the application (e.g. local login vs. ssh login vs gdm
-> login vs. cron job vs. su shell vs. sudo command).  Kernel binary policy
-> just specifies set of allowed roles with no real ordering or notion of
-> default.  I know that genhomedircon already makes the assumption that
-> the first role is the default, but that is just a convention.
+Of course, if we had polyinstantiated home directories, then you get a
+separate home directory for each role.
 
-So, is genhomedircon wrong in that assumption? Should it be looking
-at the <username> file instead?
+> I'll look at that. Is the mls context supposed to allow spaces?
 
-> - Not new to your code, but the parsing of lines from the users files is
-> not as general as it should be, e.g. checkpolicy would allow a single
-> user entry to span multiple lines whereas genusers does not.
+The normal context parsing code in the security server
+(mls_context_to_sid) and in libselinux (context_new) doesn't allow
+whitespace within the context, but checkpolicy allows it in the source
+policy configuration, e.g. s0 : c0, c2 is legal to checkpolicy but
+libselinux or the kernel would only take s0:c0,c2.  That's why the
+genusers code strips whitespace prior to passing the MLS level or range
+along to mls_context_to_sid.
 
-I'll look at that. Is the mls context supposed to allow spaces?
-
-=======
-
-P.S. I'm actually testing this now - fixed a bunch of bugs, 
-and running through valgrind to clear memory leaks. I'll
-submit a testable patch next time.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
