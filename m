@@ -1,64 +1,39 @@
-Date: Mon, 13 Jun 2005 11:01:58 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: Question about integration of IPsec with SELinux?
-Message-ID: <20050613100158.GA6610@lkcl.net>
-References: <200506121918.j5CJIhlt021805@turing-police.cc.vt.edu> <20050612233233.18232.qmail@web31610.mail.mud.yahoo.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Park Lee <parklee_sel@yahoo.com>, Casey Schaufler <casey@schaufler-ca.com>,
+   Valdis.Kletnieks@vt.edu, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050612114421.GA31033@lkcl.net>
+References: <20050611194952.24393.qmail@web31609.mail.mud.yahoo.com>
+	 <20050612021611.94597.qmail@web51501.mail.yahoo.com>
+	 <20050612114421.GA31033@lkcl.net>
+Content-Type: text/plain
+Date: Mon, 13 Jun 2005 08:37:10 -0400
+Message-Id: <1118666230.24565.1.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050612233233.18232.qmail@web31610.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Jun 12, 2005 at 04:32:33PM -0700, Casey Schaufler wrote:
+On Sun, 2005-06-12 at 12:44 +0100, Luke Kenneth Casson Leighton wrote:
+>  btw i should also raise - again - the wisdom of only utilising
+>  a 32-bit security descriptor in a networked environment.
 > 
-> --- Valdis.Kletnieks@vt.edu wrote:
+>  only 32-bit means that if you want to merge or join two secure
+>  environments together, well.... you basically can't: you have a clash
+>  of 32-bit SIDs.
 > 
-> 
-> > You'll want *some* way of managing the allocation of
-> > contexts cluster-wide,
-> > just so you don't have two usages of jdoe_u that
-> > refer to two different users..
-> 
-> You will do well to consider the implications
-> of allowing anything other than identical policies
-> within a cluster or even a grid. 
+>  with NT / VAX-VMS style security descriptors (comprising 4of 32-bit
+>  "SIDs" for a domain and a 32-bit "RID" - relative ID) you can at least
+>  start creating inter-domain trust relationships.
 
- okay.
+As is clearly noted in all SELinux documentation, SIDs are purely non-
+global (node-local) and non-persistent handles to security contexts.
+And as of Linux 2.6, they are furthermore kernel-private (or in the case
+of the userspace AVC, application-private).
 
- simplistic view: in nt-land, you have local workstations
- 'policy' and you have a global 'policy'.
-
-
-
- the local workstations' policies are typically set up to
- allow a local admin to log in to the machine, etc. using the
- local SAM database (and you select the workstation domain /
- local SAM by selecting the workstation's name on the login
- dialog box to do that).
-
- what you DO NOT DO is add any permissions into the local SAM database
- for any local users to be able to access any of the domain resources.
-
- in this way you have a scheme whereby the workstation is still
- to some extent useable / recoverable even when disconnected
- (isolated) from the domain.
-
- do you _really_ want a domain-wide policy that specifies
- "only the domain admin has the manage the network interfaces"?
-
- because what happens if there _is_ no network by which you can access
- or validate the domain policy such that you can trouble-shoot the
- network interface?
-
- !!!
-
- 
- even though it's access-control based, there is much to be
- learned from the application of microsoft's nt domain protocol.
-
- l.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
