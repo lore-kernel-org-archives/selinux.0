@@ -1,75 +1,47 @@
-Message-ID: <20050614181118.75027.qmail@web51506.mail.yahoo.com>
-Date: Tue, 14 Jun 2005 11:11:17 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: Question about integration of IPsec with SELinux?
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Valdis.Kletnieks@vt.edu, Stephen Smalley <sds@tycho.nsa.gov>,
-   Trent Jaeger <jaegert@us.ibm.com>, SELinux <SELinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5EJf9gA017415
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 15:41:09 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5EJWoBf013486
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 19:32:50 GMT
+Subject: Re: general selinux questions
+From: antoine <antoine@nagafix.co.uk>
+To: Colin Walters <walters@verbum.org>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118770638.3422.27.camel@nexus.verbum.private>
+References: <1118281858.9481.4.camel@localhost>
+	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118433604.10190.353.camel@localhost>
+	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118769876.10262.52.camel@localhost>
+	 <1118770638.3422.27.camel@nexus.verbum.private>
+Content-Type: text/plain
+Date: Tue, 14 Jun 2005 20:50:42 +0100
+Message-Id: <1118778642.10262.70.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 12 Jun 2005 at 10:46, Casey Schaufler wrote:
+> This should be system_r, not object_r, I'm pretty sure.
+> 
+> > 2)
+> > All similar to the one above (any code that calls sendmail):
+> > audit(1118761207.922:0): avc:  denied  { transition } for  pid=28648
+> > exe=/bin/bash path=/usr/sbin/sendmail dev=md3 ino=783481
+> > scontext=system_u:system_r:myscript_exec_t
+> > tcontext=system_u:object_r:sysadm_mail_t tclass=process
+> 
+> Similarly, try audit2why.
+> 
+I almost hosed the live system this is happening on by trying (and
+failing) to upgrade to current cvs... Fortunately I still had a console
+and access to static versions of ls and cp to restore the libs!
+I had tried to build a statically linked version, but it dies - which
+has to be expected I guess...
+Any other ideas? (or a way to compile it against 1.22)
 
-> A system compares attributes of processes such
-> as user IDs, group memberships, clearances, and
-> domain affiliations with attributes of storage
-> containers such as ownership, sensitivity, and
-> access control lists to determine what accesses
-> may be permitted. An interesting special case of
-> this behavior is interprocess communication,
-> in which the sending process treats the receiving
-> process as a storage container. In the local
-> system case, where both the sending process and
-> the receiving process are on the same machine,
-> the attributes relevent to an access decision are
-> available, and the IPC mechanism can make the call
-> without special accomodation. If the processes
-> are on different machines the IPC mechanism must
-> provide transport of the required attributes so
-> that the decision can be made.
+Antoine
 
-
-Now let's suppose that processes are on different
-machines,
-Do you mean that attributes of receiving process
-should be sent to the sending machine, which
-contains the sending process? and the access control
-are made on the sending machine to decide
-whether the sending process can do interprocess
-communication with its receiving process?
-Can we view the sending process as a subject,and view
-the receiving process as an object in the interprocess
-communication on different machines?
-
-If it is, let's see another situation:
-We use the attributes of the sending process to label
-the packets which are sent by the sending
-process. when the packets are received on receiving
-machine, the receiving machine can use the
-attributes of the receiving process and the attributes
-of the packets to determine whether these packets can
-be received. Here, the receiving process becomes
-subject, and the packets which represent its sending
-process become objects. 
-Then, Does this situation become conflict with what
-you wrote above?
-
-
-Thanks a lot.
-
-
-
-Best Regards,
-Park Lee
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Make Yahoo! your home page 
-http://www.yahoo.com/r/hs
 
 --
 This message was distributed to subscribers of the selinux mailing list.
