@@ -1,58 +1,49 @@
-Subject: Re: libsepol - users [ Patch v. 0]
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118682905.24565.118.camel@moss-spartans.epoch.ncsc.mil>
-References: <1118342870.30978.12.camel@dhcp83-8.boston.redhat.com>
-	 <1118441058.7908.2.camel@dhcp83-8.boston.redhat.com>
-	 <1118677251.24565.97.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118679035.9356.7.camel@dhcp83-8.boston.redhat.com>
-	 <1118682905.24565.118.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 13 Jun 2005 18:59:07 -0400
-Message-Id: <1118703548.2604.5.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5E5KtgA011888
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 01:20:56 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5E5CfBf026357
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 05:12:43 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [RFC] Module language syntax
+Date: Tue, 14 Jun 2005 15:12:16 +1000
+Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+References: <1117217853.9785.22.camel@localhost> <20050527185331.GA1544@lkcl.net> <1117220066.9783.27.camel@localhost>
+In-Reply-To: <1117220066.9783.27.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200506141512.21436.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-06-13 at 13:15 -0400, Stephen Smalley wrote:
-> On Mon, 2005-06-13 at 12:10 -0400, Ivan Gyurdiev wrote:
-> > Yes, I understand the concern - I am not ignoring the issue.
-> > I've tried to write it this way for efficiency, but if you prefer I
-> > can duplicate the strings.
-> 
-> I suppose it depends on whether we expect any other users of these
-> functions, and whether they are likely to only require such localized
-> reference as well.
+On Saturday 28 May 2005 04:54, Joshua Brindle <jbrindle@tresys.com> wrote:
+> booleans and conditionals are runtime and are not at all affected by the
 
-If I write a function to retrieve data from the config file, and
-return it to the user, it would use this user_config structure...
+So loading a module can define new booleans?
 
-> > Right, I fixed this, and now it actually compiles and runs :)
-> 
-> Ok, and I presume the static variables were moved to a .c file.
+> loadable modules. The optional dependencies added for modules are
+> totally separate from conditionals and are much closer to m4 ifdefs in
+> practice and could hopefully be used to replace many of them.
 
-Yes... I mostly have it working... still some bugs to fix,
-and must add more functions - set_roles, delete..
+The optional parts of modules will still take up disk space.  I presume that 
+they will take up RAM as well - the program that loads the policy won't know 
+which modules might be loaded.
 
->   We
-> should likely adjust the libsepol/src/Makefile to be consistent with the
-> libselinux one so that we get stricter checking.
+Currently the strict policy is 10M in size and growing.  This is a problem 
+that will become worse if we remove ifdefs.
 
-How so?
+Some ifdefs will need to be changed to optional dependencies for correct 
+functionality, maybe many.  I don't see this as a benefit but rather as an 
+unavoidable problem that is outweighed by the benefits of modules.
 
-> > So, is genhomedircon wrong in that assumption? Should it be looking
-> > at the <username> file instead?
-> 
-> The <username> or default_contexts would be more accurate, but then you
-> have the problem of which default do you want, e.g. login, sshd, xdm,
-> etc.  Could differ, e.g. root login via xdm might default to staff while
-> root login on console might default to sysadm.
-
-Hmmm... and here I thought this was going to be simple - one file
-to deal with :)
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
