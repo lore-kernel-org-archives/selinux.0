@@ -1,45 +1,84 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5EHTQgA016332
-	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 13:29:27 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5EHKdvj023562
-	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 17:20:39 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by mail.nagafix.co.uk (Postfix) with ESMTP id 7DEDDAEF83
-	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 17:41:09 +0100 (BST)
-Received: from mail.nagafix.co.uk ([127.0.0.1])
- by localhost (viper [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
- id 29030-02 for <selinux@tycho.nsa.gov>;
- Tue, 14 Jun 2005 17:41:06 +0100 (BST)
-Received: from [192.168.0.1] (81-1-74-34.homechoice.co.uk [81.1.74.34])
-	by mail.nagafix.co.uk (Postfix) with ESMTP id 398D6AEF82
-	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 17:41:06 +0100 (BST)
-Subject: Java & SELinux? JNI?
-From: antoine <antoine@nagafix.co.uk>
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Tue, 14 Jun 2005 18:38:27 +0100
-Message-Id: <1118770707.10262.58.camel@localhost>
+Subject: Re: general selinux questions
+From: Colin Walters <walters@verbum.org>
+To: antoine <antoine@nagafix.co.uk>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1118769876.10262.52.camel@localhost>
+References: <1118281858.9481.4.camel@localhost>
+	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118433604.10190.353.camel@localhost>
+	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118769876.10262.52.camel@localhost>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fwnXW0j9UnJXG2xmtRB2"
+Date: Tue, 14 Jun 2005 13:37:18 -0400
+Message-Id: <1118770638.3422.27.camel@nexus.verbum.private>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has anyone written a default policy for Java 1.5?
-I've just made one for Java + Tomcat 5.5 and discovered a few things
-along the way: Java1.5 needs write access to /dev/random! (even when
-just running or compiling things - there is a bug id for this @sun), it
-also tests to see if it can execute files in /tmp/!, etc
 
-Also, has anyone looked at providing a JNI interface to libselinux?
-I could find a few uses for this where the same java instance may be
-used by different contexts and would need to rely on lower level code to
-enforce file access (and provide another layer of protection for file
-paths trickery). It would need some fairly tight integration between the
-domains and the Java code but it could be quite useful. An example of
-this would be webapps in tomcat, but this could also be applied to
-application contexts within the same webapp too.
+--=-fwnXW0j9UnJXG2xmtRB2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Antoine
+On Tue, 2005-06-14 at 18:24 +0100, antoine wrote:
+> > > ping [whatever] >& tempfile
+> (...)=20
+> > Likely needed to redirect stdin too.
+> DOH. I'll try that.
+>=20
+>=20
+> [Note]:
+> Just about anything (ie: ssh login) seems to require:
+> 'allow sysadm_t devpts_t:chr_file getattr;'
+> (I've put it in admin.te for now)
+
+That should be harmless.
+
+> I've only got 2 problems left I *really* cannot figure out:
+> 1)
+> audit(1118762231.596:0): avc:  denied  { transition } for  pid=3D28871
+> exe=3D/usr/lib/postfix/master path=3D/usr/lib/postfix/pipe dev=3Dmd3
+> ino=3D670776 scontext=3Dsystem_u:system_r:postfix_master_t
+> tcontext=3Dsystem_u:object_r:postfix_pipe_t tclass=3Dprocess
+> So I've added this to postfix.te (from audit2allow):
+> allow postfix_master_t postfix_pipe_t:process transition;
+> But it has no effect and the same audit message keeps coming up!
+> I have absolutely no idea where to go from here...
+
+Tried audit2why?  Could be constraints or RBAC denial.
+
+> Here are some related rules:
+> domain_auto_trans(postfix_master_t, postfix_pipe_exec_t, postfix_pipe_t)
+> I tried adding these:
+> role_transition system_r postfix_pipe_exec_t object_r;
+> allow postfix_master_t postfix_pipe_t:process transition;
+> role object_r types postfix_pipe_t;
+
+This should be system_r, not object_r, I'm pretty sure.
+
+> 2)
+> All similar to the one above (any code that calls sendmail):
+> audit(1118761207.922:0): avc:  denied  { transition } for  pid=3D28648
+> exe=3D/bin/bash path=3D/usr/sbin/sendmail dev=3Dmd3 ino=3D783481
+> scontext=3Dsystem_u:system_r:myscript_exec_t
+> tcontext=3Dsystem_u:object_r:sysadm_mail_t tclass=3Dprocess
+
+Similarly, try audit2why.
+
+
+--=-fwnXW0j9UnJXG2xmtRB2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCrxXOOIkJWWp2WGURApsQAJ9q6hWFYCNl9GsEZMZ6N8GFYYAQsQCfWU94
+yS3J4Xcln74T1pPQacGEx9Y=
+=J2d1
+-----END PGP SIGNATURE-----
+
+--=-fwnXW0j9UnJXG2xmtRB2--
 
 
 --
