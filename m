@@ -1,91 +1,44 @@
-Subject: Re: general selinux questions
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5EHTQgA016332
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 13:29:27 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5EHKdvj023562
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 17:20:39 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by mail.nagafix.co.uk (Postfix) with ESMTP id 7DEDDAEF83
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 17:41:09 +0100 (BST)
+Received: from mail.nagafix.co.uk ([127.0.0.1])
+ by localhost (viper [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+ id 29030-02 for <selinux@tycho.nsa.gov>;
+ Tue, 14 Jun 2005 17:41:06 +0100 (BST)
+Received: from [192.168.0.1] (81-1-74-34.homechoice.co.uk [81.1.74.34])
+	by mail.nagafix.co.uk (Postfix) with ESMTP id 398D6AEF82
+	for <selinux@tycho.nsa.gov>; Tue, 14 Jun 2005 17:41:06 +0100 (BST)
+Subject: Java & SELinux? JNI?
 From: antoine <antoine@nagafix.co.uk>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
-References: <1118281858.9481.4.camel@localhost>
-	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118433604.10190.353.camel@localhost>
-	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
+To: SELinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 14 Jun 2005 18:24:36 +0100
-Message-Id: <1118769876.10262.52.camel@localhost>
+Date: Tue, 14 Jun 2005 18:38:27 +0100
+Message-Id: <1118770707.10262.58.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > ping [whatever] >& tempfile
-(...) 
-> Likely needed to redirect stdin too.
-DOH. I'll try that.
+Has anyone written a default policy for Java 1.5?
+I've just made one for Java + Tomcat 5.5 and discovered a few things
+along the way: Java1.5 needs write access to /dev/random! (even when
+just running or compiling things - there is a bug id for this @sun), it
+also tests to see if it can execute files in /tmp/!, etc
 
+Also, has anyone looked at providing a JNI interface to libselinux?
+I could find a few uses for this where the same java instance may be
+used by different contexts and would need to rely on lower level code to
+enforce file access (and provide another layer of protection for file
+paths trickery). It would need some fairly tight integration between the
+domains and the Java code but it could be quite useful. An example of
+this would be webapps in tomcat, but this could also be applied to
+application contexts within the same webapp too.
 
-[Note]:
-Just about anything (ie: ssh login) seems to require:
-'allow sysadm_t devpts_t:chr_file getattr;'
-(I've put it in admin.te for now)
-
-
-I've only got 2 problems left I *really* cannot figure out:
-1)
-audit(1118762231.596:0): avc:  denied  { transition } for  pid=28871
-exe=/usr/lib/postfix/master path=/usr/lib/postfix/pipe dev=md3
-ino=670776 scontext=system_u:system_r:postfix_master_t
-tcontext=system_u:object_r:postfix_pipe_t tclass=process
-So I've added this to postfix.te (from audit2allow):
-allow postfix_master_t postfix_pipe_t:process transition;
-But it has no effect and the same audit message keeps coming up!
-I have absolutely no idea where to go from here...
-
-Here are some related rules:
-domain_auto_trans(postfix_master_t, postfix_pipe_exec_t, postfix_pipe_t)
-I tried adding these:
-role_transition system_r postfix_pipe_exec_t object_r;
-allow postfix_master_t postfix_pipe_t:process transition;
-role object_r types postfix_pipe_t;
-
--rwxr-xr-x  root     root
-system_u:object_r:postfix_master_exec_t /usr/lib/postfix/master
--rwxr-xr-x  root     root
-system_u:object_r:postfix_pipe_exec_t /usr/lib/postfix/pipe
-
-2)
-All similar to the one above (any code that calls sendmail):
-audit(1118761207.922:0): avc:  denied  { transition } for  pid=28648
-exe=/bin/bash path=/usr/sbin/sendmail dev=md3 ino=783481
-scontext=system_u:system_r:myscript_exec_t
-tcontext=system_u:object_r:sysadm_mail_t tclass=process
-
-I tried the same rules as above with no effect...
-
-
-> > I use Gentoo, it does the same thing:
-> > # grep tmpfs_t policy.conf
-> > type tmpfs_t, file_type, sysadmfile, fs_type;
-> > allow { tmpfs_t tmp_t } tmpfs_t:filesystem associate;
-> > (..)
-> 
-> Yes, but does it restorecon /tmp or use a context mount to get it into
-> tmp_t rather than tmpfs_t?
-When/where? You've lost me...
-
-> Are you sure you are in permissive mode (getenforce)?  If so, then
-> SELinux shouldn't be in your way at all.  /chroot is a local fs?
-Yes /chroot is just a sub-directory of /
-# getenforce
-Permissive
-
-> Fedora migrated to /etc/selinux and reorganized the layout in FC3, but
-> libselinux knows to fall back to the old locations
-> under /etc/security/selinux if it cannot find /etc/selinux, so that
-> shouldn't be a problem.
-Gentoo has /etc/security/selinux but no 'config' file in there.
-
-Is there an equivalent to run_init for cron scripts? (one of my cron
-scripts is misbehaving and I want to trace it in exactly the same env)
-
-
-Thanks
 Antoine
 
 
