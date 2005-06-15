@@ -1,90 +1,126 @@
-Message-ID: <20050615030006.93510.qmail@web31613.mail.mud.yahoo.com>
-Date: Tue, 14 Jun 2005 20:00:06 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Question about integration of IPsec with SELinux?
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050615012023.22041.qmail@web51509.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: Re: Content macros v 2 (create implies read in policy)
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: SELinux <SELinux@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1118855232.25735.10.camel@celtics.boston.redhat.com>
+References: <1118744201.3416.13.camel@localhost.localdomain>
+	 <1118770918.7853.5.camel@celtics.boston.redhat.com>
+	 <1118855232.25735.10.camel@celtics.boston.redhat.com>
+Content-Type: text/plain
+Date: Wed, 15 Jun 2005 15:38:38 -0400
+Message-Id: <1118864318.25735.43.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+> The other major thing that doesn't work is printing
+> if read_APP_content or read_untrusted is disabled.
+> I need to investigate how printing is done to get
+> this working. In particular, why isn't lpr
+> reading the document, instead of APP. If lpr
+> was reading the document, we could add a print_untrusted boolean
+> to lpr that's different from read_untrusted_content.
 
---- Park Lee <parklee_sel@yahoo.com> wrote:
+So, here's an outline of the problem.
 
-> Tue, 14 Jun 2005 at 14:23, Casey Schaufler wrote:
-> >> Do you mean that attributes of receiving process
-> >> should be sent to the sending machine, which
-> >> contains the sending process?
-> >
-> > You'd have to anticipate what attributes
-> > of what objects would be needed before you
-> > could send packets. Beyond current technology.
-> > 
-> >> and the access control
-> >> are made on the sending machine to decide
-> >> whether the sending process can do interprocess
-> >> communication with its receiving process?
-> >
-> > Again, if you could get the attributes of all
-> > the receivers onto the sender in a reliable way
-> > that would be great.
-> 
-> Do you mean that now we can not achieve this with
-> current technology?
+CHANGES:
+=========
+I've done two things in the content macros that might be of interest,
+because they break stuff.
 
-I mean that the sender cannot know the attributes
-that will be present on the receiver at the time
-of delivery when the packet is sent. Golly, with
-UDP, you don't even know (or care) if the receiver
-exists. You can't make the access control decision
-on the sender because you don't have enough 
-information and the steps that would be required
-to get the information and ensure that it didn't
-change during the delivery process* would
-introduce all sorts of performance and lock
-contention issues.
+1) I've broken the assumption that create implies read. 
+If you look at the write_* macros, you will see that the new
+versions I added are specifically written to disallow read.
+I was actually surprised to see that create implies read
+everywhere, and there's not even a macro for write-only.
+I added a new core macro called create_noread_file_perms.
 
-> Here, The receiving socket will receive packets sent
-> by sending process. So, I think that the receiving
-> socket is initiative, and the packets are passive on
-> receiving machine.
+2) if you look at the read_content macro, you will see
+that the read_untrusted_content boolean has no effect
+if the read_APP_content boolean is present, and false.
+What this means is - I can prevent an application from
+reading any content, whether it's trusted, or not. 
+The booleans stack.
 
-A socket is not an active entity. The process
-associated with it is, but the process may
-never read the information from the socket.
-The packets have no volition of their own,
-they are the spawn of the sending process.
+Now, those two things make sense to me, but at the same time break
+printing.
 
-> Then, Would you please tell me why the sending
-> process
-> is still the subject and the receiving socket is
-> still
-> the object?
+BOOLEAN STATE:
+==============
+Now assume the following state of booleans:
 
-The sending process puts information into the
-receiving socket. The access control decision
-is (on Unix MLS systems at least) made based on
-the attributes of the socket and the attributes
-of the sending process, as propogated to the
-receiver via CIPSO or TSIG SAMP.
+mozilla_read_content is off - this indicates that mozilla
+has no business reading my private files, trusted or not
 
-------
-* RFC 1149 has been implemented, after all.
+mail_read_content is off - this indicates evolution/t-bird
+can't read my private files, trusted or not
+
+read_untrusted_content is on - this indicates that 
+the applications that are allowed to read content, can
+also read untrusted content. This is the likely state
+of that boolean for now, lacking any sort of conversion
+mechanism at this point, other than chcon to
+change content from untrusted to trusted. This 
+needs to change in the future to something
+more user friendly, or this whole untrusted
+business will be of limited use.
+
+write_untrusted_content is on - this indicates
+that applications that try to write untrusted
+content are allowed to do so.
+
+THE PROBLEM:
+============
+Now, lpr, being a somewhat trusted application, can read content,
+without a controlling boolean, so that it can print it out.
+Since I've also allowed reading untrusted content, it
+should be able to print my file.
+
+Mozilla/evolution is also allowed to write that file to disk.
+
+What's broken is the part where mozilla/evolution read
+the untrusted content back in. I'm not sure why they do this.
+There's speculation that they do this, in order to concaternate 
+the file itself, with header data. That part is disallowed, 
+because those apps can't read *any* content. I've decided 
+to do away with the capability of reading content for the 
+purpose of uploading it to forms, for using it as attachments... 
+it's a download only stream, with this particular configuration.
+
+POSSIBLE SOLUTIONS:
+===================
+
+0) Fix apps so they do this printer manipulation in
+their private folders, whether that's in $HOME or in /tmp.
+This requires changing the application code, which is unfortunate.
+I have to investigate whether this is library code or not.
+If the folder is in /tmp, it might require pre-creating more
+folders with a script (or alternative mechanism, when implemented).
+
+1) Stop trying to change the assumption that create implies read,
+and grant back this privilege to mozilla. This, however, subverts
+read content booleans. Now mozilla can read untrusted content,
+by write implies read. Being untrusted does not mean unimportant. 
+It means it's data that originated from the web, that hasn't 
+been processed in any way to make it trusted. Consider saved mail,
+saved by evolution, currently marked untrusted. Now mozilla
+can read your mail, even though you *specifically* disabled
+the read_mozilla_content boolean. Say solution 1 ignores this problem. 
+
+2) Stop trying to change the assumption that create implies
+read, and at the same time create further separation of
+content, beyond trusted and untrusted (as in...your saved mail
+is not the same thing as saved webpages, and mozilla
+has no business reading your mail). We might want to do
+that in the distant future anyway, regardless of this problem.
+Alter the content macros to deal with this improved level of
+granularity. 
+
+Any opinions, on which option is best, or anything else?
 
 
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Discover Yahoo! 
-Get on-the-go sports scores, stock quotes, news and more. Check it out! 
-http://discover.yahoo.com/mobile.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
