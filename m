@@ -1,34 +1,160 @@
-Date: Wed, 15 Jun 2005 23:04:22 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Trent Jaeger <jaegert@us.ibm.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-   Casey Schaufler <casey@schaufler-ca.com>, owner-selinux@tycho.nsa.gov,
-   Park Lee <parklee_sel@yahoo.com>, SELinux <SELinux@tycho.nsa.gov>,
-   Valdis.Kletnieks@vt.edu
-Subject: Re: Question about integration of IPsec with SELinux?
-Message-ID: <20050615220422.GD10412@lkcl.net>
-References: <1118755273.32637.20.camel@moss-spartans.epoch.ncsc.mil> <OF97C604C7.165153E0-ON85257020.004FB4D8-85257020.004FD2DE@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5FMiagA026683
+	for <selinux@tycho.nsa.gov>; Wed, 15 Jun 2005 18:44:36 -0400 (EDT)
+Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5FMZaPv023597
+	for <selinux@tycho.nsa.gov>; Wed, 15 Jun 2005 22:35:36 GMT
+Subject: Re: ANN: SELinux Reference Policy Release
+From: Colin Walters <walters@verbum.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mZr5k/TUCZoBCnoGj4vX"
+Date: Wed, 15 Jun 2005 18:35:51 -0400
+Message-Id: <1118874951.24338.35.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <OF97C604C7.165153E0-ON85257020.004FB4D8-85257020.004FD2DE@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-thank you, both!
+
+--=-mZr5k/TUCZoBCnoGj4vX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2005-06-15 at 17:42 -0400, Christopher J. PeBenito wrote:
+> The first release of the SELinux Reference Policy is now available on
+> Sourceforge from http://serefpolicy.sourceforge.net.
+>=20
+> This is an experimental release, and definitely is not usable as a
+> drop-in replacement for the current policy, as it can only boot a very
+> limited RHEL4 system.  It is directed towards policy developers, to
+> generate community feedback and discussion.
+
+Wow.  This looks quite fantastic.  I really, really like the inline
+documentation work.
+
+This work reminds me though; I was thinking a week or so ago about what
+it would be like to write e.g. an Eclipse plugin for policy writing.
+One of the core problems one would run into (and I bet the polgen people
+hit this too) is that it's a nightmare to deal with m4; how do you know
+what macros are available and what they do?  The macros form the real
+policy language, so an IDE would need to understand them.
+
+You're left with basically hardcoding a list of them, or resorting to
+some evil hack to try to extract the macro names and filter unwanted
+macros.
+
+The inline documentation in the reference policy is really a form of
+easily parseable metadata that could also be used for this purpose.
+However, it's a bit verbose now.  Let's take an example:
+
+########################################
+## <interface name=3D"selinux_get_enforce_mode">
+##      <description>
+##              Allows the caller to get the mode of policy enforcement
+##              (enforcing or permissive mode).
+##      </description>
+##      <parameter name=3D"domain">
+##              The process type to allow to get the enforcing mode.
+##      </parameter>
+## </interface>
+#
+define(`selinux_get_enforce_mode',`
+        gen_require(`$0'_depend)
+
+        allow $1 security_t:dir { read search getattr };
+        allow $1 security_t:file { getattr read };
+')
+
+You have to declare "selinux_get_enforce_mode" twice; it's verbose
+and error-prone.
+
+What if we actually extended checkpolicy with the notion of "policy
+functions"?  For example, suppose we had syntax like this:
+
+# Allows the caller to get the mode of policy enforcement (enforcing or
+# permissive)
+# @param basetype The process type to allow to get the enforcing mode.
+function selinux_get_enforce_mode(domain basetype) {
+  allow basetype security_t:dir { read search getattr };
+  allow basetype security_t:file { getattr read };
+}
+
+Much nicer, no?
+
+Ok, so that's a pretty simple function; here's a more complicated
+example, from your apps/gpg.if:
+
+#######################################
+#
+# Per user domain template for this module
+#
+# gpg_per_userdomain_template(userdomain_prefix)
+#
+define(`gpg_per_userdomain_template',`
+        type $1_gpg_t;
+        domain_type($1_gpg_t)
+        domain_entry_file($1_gpg_t,gpg_exec_t)
+        role $1_r types $1_gpg_t;
+
+        ...
+
+        # transition from the userdomain to the derived domain
+        allow $1_t $1_gpg_t:process transition;
+        allow $1_t gpg_exec_t:file rx_file_perms;
+        type_transition $1_t gpg_exec_t:process $1_gpg_t;
+
+        ...
+
+Wouldn't it be nice if we could do instead:
+
+# Define derived domains for GPG from @userdomain
+# @param user The user domain to derive from
+# @param userrole The user role to authorize for GPG
+function gpg_per_userdomain(domain user, role userrole) {
+  derivedtype gpg_t from user
+
+  domain_type(gpg_t)
+  domain_entry_file(gpg_t, gpg_exec_t)
+  role userrole types gpg_t
+
+  ...
+
+  allow user gpg_t:process transition;
+  allow user gpg_exec_t:file rx_file_perms;
+  type_transition user gpg_exec_t:process gpg_t;
+
+  ...
+}
+
+The key idea here is that an IDE could actually parse this, and easily
+determine programatically what types and roles are generated by the
+function, without doing hacks like expanding the M4 and parsing that,
+and then guessing.
+
+Your policy modules work removes one of the major uses of M4 in the
+policy (that being ifdef(`foo.te')), and having policy functions would
+kill the other major use.
+
+Since you're embarking on rewriting the policy, I thought I'd bring this
+up now.
 
 
-On Tue, Jun 14, 2005 at 10:31:53AM -0400, Trent Jaeger wrote:
+--=-mZr5k/TUCZoBCnoGj4vX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> > Also, I should have an IBM technical report on the Linux IPSec-LSM-SELinux 
-> > integration available soon.   I will post to the list when it is 
-> > available.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> A glossary, no.  Some concepts are discussed in 
-> http://www.cs.utah.edu/flux/papers/ajay-thesis-abs.html
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
+iD8DBQBCsK1GOIkJWWp2WGURApb6AJ4xWH/VpCN5YGS++YcajH+CcA0cxACdG67v
+0vqAWfj0F4vMX58GMu2H+cc=
+=6IL/
+-----END PGP SIGNATURE-----
+
+--=-mZr5k/TUCZoBCnoGj4vX--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
