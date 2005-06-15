@@ -1,34 +1,34 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5FLorgA026270
-	for <selinux@tycho.nsa.gov>; Wed, 15 Jun 2005 17:50:53 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5FLfrPv021053
-	for <selinux@tycho.nsa.gov>; Wed, 15 Jun 2005 21:41:53 GMT
-Subject: ANN: SELinux Reference Policy Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 17:42:25 -0400
-Message-Id: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+Date: Wed, 15 Jun 2005 23:04:22 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Trent Jaeger <jaegert@us.ibm.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+   Casey Schaufler <casey@schaufler-ca.com>, owner-selinux@tycho.nsa.gov,
+   Park Lee <parklee_sel@yahoo.com>, SELinux <SELinux@tycho.nsa.gov>,
+   Valdis.Kletnieks@vt.edu
+Subject: Re: Question about integration of IPsec with SELinux?
+Message-ID: <20050615220422.GD10412@lkcl.net>
+References: <1118755273.32637.20.camel@moss-spartans.epoch.ncsc.mil> <OF97C604C7.165153E0-ON85257020.004FB4D8-85257020.004FD2DE@us.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <OF97C604C7.165153E0-ON85257020.004FB4D8-85257020.004FD2DE@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The first release of the SELinux Reference Policy is now available on
-Sourceforge from http://serefpolicy.sourceforge.net.
+thank you, both!
 
-This is an experimental release, and definitely is not usable as a
-drop-in replacement for the current policy, as it can only boot a very
-limited RHEL4 system.  It is directed towards policy developers, to
-generate community feedback and discussion.
 
-Any feedback is welcome.
+On Tue, Jun 14, 2005 at 10:31:53AM -0400, Trent Jaeger wrote:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+> > Also, I should have an IBM technical report on the Linux IPSec-LSM-SELinux 
+> > integration available soon.   I will post to the list when it is 
+> > available.
 
+> A glossary, no.  Some concepts are discussed in 
+> http://www.cs.utah.edu/flux/papers/ajay-thesis-abs.html
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
