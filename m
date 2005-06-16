@@ -1,47 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GIC3gA003199
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 14:12:03 -0400 (EDT)
-Subject: Re: ANN: SELinux Reference Policy Release
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Making libselinux depend on libsepol
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
-References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1118944751.30202.62.camel@moss-spartans.epoch.ncsc.mil>
+References: <1118944064.28244.4.camel@celtics.boston.redhat.com>
+	 <1118944751.30202.62.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 16 Jun 2005 14:04:02 -0400
-Message-Id: <1118945042.25139.1.camel@moss-lions.epoch.ncsc.mil>
+Date: Thu, 16 Jun 2005 14:03:50 -0400
+Message-Id: <1118945030.28244.8.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We support the idea of an SELinux reference policy that is more
-structured and easier to customize. This is a great start. 
-I'm sure that Tresys would really appreciate any and all feedback.
 
-A community effort to improve this reference policy should greatly
-improve the usability of SELinux. If successful, we'd eventually like to
-see it, or something like it, to replace our example policy as the focal
-point of community policy development. As this happens, we would likely
-scale back on the maintenance of our example policy and rely on this
-community-developed policy as the reference for SELinux, allowing us to
-devote more time to advance the capabilities of SELinux.
+> No, it seems fine, and it is already the case that /sbin/init is
+> depending on libsepol (for the same reason).  This should simplify the
+> SELinux patch for /sbin/init and avoid the need to keep customizing it
+> whenever we add another form of runtime policy manipulation (e.g. in
+> addition to booleans and local users, there have also been requests to
+> allow local customizations of network contexts).
 
+Right, this is all part of Dan's grand plan :)
+He has me working on integrating useradd utilities with 
+libselinux and libsepol, but net contexts are next on the list.
 
-On Wed, 2005-06-15 at 17:42 -0400, Christopher J. PeBenito wrote:
-> The first release of the SELinux Reference Policy is now available on
-> Sourceforge from http://serefpolicy.sourceforge.net.
-> 
-> This is an experimental release, and definitely is not usable as a
-> drop-in replacement for the current policy, as it can only boot a very
-> limited RHEL4 system.  It is directed towards policy developers, to
-> generate community feedback and discussion.
-> 
-> Any feedback is welcome.
-> 
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+I'm changing the signature to this:
+
+int security_map_policy(void** newdata, size_t newlen, int setbools)
+
+Do you think it would be necessary/desirable to specify path locations
+in the caller also? This seems rather unnecessary to me - not sure..
+especially in a function designed to hide the details of the loading
+process.
 
 
 --
