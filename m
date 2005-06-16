@@ -1,41 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GFvFgA001690
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 11:57:15 -0400 (EDT)
-Received: from www346.sakura.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GFmWZm027883
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 15:48:35 GMT
-Message-ID: <42B19EE1.80808@kaigai.gr.jp>
-Date: Fri, 17 Jun 2005 00:46:41 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GGARgA002341
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:10:29 -0400 (EDT)
+Received: from smtp-bedford.mitre.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GG1JI8018236
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 16:01:20 GMT
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (8.11.6/8.11.6) with SMTP id j5GG1oo00429
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:01:50 -0400
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (Postfix) with ESMTP id 45542BEFB
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:01:50 -0400 (EDT)
+Received: from MAILHUB2 (mailhub2.mitre.org [129.83.28.8])
+	by smtp-bedford.mitre.org (8.11.6/8.11.6) with ESMTP id j5GG1oA00381
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:01:50 -0400
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Question about integration of IPsec with SELinux?
+References: <20050613220328.31770.qmail@web31602.mail.mud.yahoo.com>
+From: bsniffen@mitre.org (Brian T. Sniffen)
+Date: Thu, 16 Jun 2005 12:01:41 -0400
+In-Reply-To: <20050613220328.31770.qmail@web31602.mail.mud.yahoo.com> (Casey
+ Schaufler's message of "Mon, 13 Jun 2005 15:03:28 -0700 (PDT)")
+Message-ID: <d287jguwasa.fsf@jon-strange.mitre.org>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: ANN: SELinux Reference Policy Release
-References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>	 <42B18324.6020502@kaigai.gr.jp> <1118935044.18294.75.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1118935044.18294.75.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, Christopher.
+Casey Schaufler <casey@schaufler-ca.com> writes:
 
-> I don't understand the reason for your suggestion.  The XML is mainly
-> for documentation purposes.
+> Username mapping errors are bad, but one or the
+> other of the individuals involved usually detects
+> the problem quickly enough. I don't know that I'd
+> expect the same to be true of policy elements.
 
-Hmm, I guessed there are deeply intention on using XML, not only documentation.
+We already see admins doing this regularly: they drop a file from Red
+Hat's strict policy into the their Fedora system using Targeted
+policy, or from Fedora onto a Debian system, and are surprised when it
+does not work.
 
-> We haven't done much thought about internationalization yet, since its a
-> challenge to get high quality documentation in English in the first
-> place.  The attribute would probably be better as lang="xx", e.g.,
-> lang="jp", so its standardized.  Then in the future tools can easily get
-> the right language.
+The average userbase will always expect user_t and httpd_t to mean the
+same things everywhere, even though they will not.  It's because of
+this difficulty that polgen does only structural analysis, ignoring
+accidents of naming.  We're having enough trouble adapting our output
+to the evolving details of policy differences (e.g., unconfined_t vs. user_t).
 
-Indeed, internationalized documentation may be early in the day.
-But, don't forget to treat other than ASCII characters on this XML engine please.
+-Brian
 
-Thanks, I have hopes in this new policy and approach.
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
