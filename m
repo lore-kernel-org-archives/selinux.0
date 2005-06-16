@@ -1,43 +1,46 @@
-Subject: Re: Making libselinux depend on libsepol
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: gyurdiev@redhat.com
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GIC3gA003199
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 14:12:03 -0400 (EDT)
+Subject: Re: ANN: SELinux Reference Policy Release
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1118944064.28244.4.camel@celtics.boston.redhat.com>
-References: <1118944064.28244.4.camel@celtics.boston.redhat.com>
+In-Reply-To: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 16 Jun 2005 13:59:11 -0400
-Message-Id: <1118944751.30202.62.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 16 Jun 2005 14:04:02 -0400
+Message-Id: <1118945042.25139.1.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-16 at 13:47 -0400, Ivan Gyurdiev wrote:
-> I plan to add a function with this signature:
-> 
-> int security_map_policy(void** newdata, size_t* newlen)
-> or security_create_policy 
-> or security_construct_policy if you prefer..
-> 
-> It will go into a file called policy.c in libselinux,
-> and security_load_policy will go in that file too.
-> 
-> The function would basically do what policycoreutils/load_policy.c
-> does right now - put the policy, users, and booleans together
-> in one simple function in a library form, as opposed to
-> calling a tool to do it.
-> 
-> However, that makes libselinux depend on libsepol....
-> Is that a bad thing?
+We support the idea of an SELinux reference policy that is more
+structured and easier to customize. This is a great start. 
+I'm sure that Tresys would really appreciate any and all feedback.
 
-No, it seems fine, and it is already the case that /sbin/init is
-depending on libsepol (for the same reason).  This should simplify the
-SELinux patch for /sbin/init and avoid the need to keep customizing it
-whenever we add another form of runtime policy manipulation (e.g. in
-addition to booleans and local users, there have also been requests to
-allow local customizations of network contexts).
+A community effort to improve this reference policy should greatly
+improve the usability of SELinux. If successful, we'd eventually like to
+see it, or something like it, to replace our example policy as the focal
+point of community policy development. As this happens, we would likely
+scale back on the maintenance of our example policy and rely on this
+community-developed policy as the reference for SELinux, allowing us to
+devote more time to advance the capabilities of SELinux.
 
+
+On Wed, 2005-06-15 at 17:42 -0400, Christopher J. PeBenito wrote:
+> The first release of the SELinux Reference Policy is now available on
+> Sourceforge from http://serefpolicy.sourceforge.net.
+> 
+> This is an experimental release, and definitely is not usable as a
+> drop-in replacement for the current policy, as it can only boot a very
+> limited RHEL4 system.  It is directed towards policy developers, to
+> generate community feedback and discussion.
+> 
+> Any feedback is welcome.
+> 
 -- 
-Stephen Smalley
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
 
 
