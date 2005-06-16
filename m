@@ -1,101 +1,75 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GDwtgA000344
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 09:58:56 -0400 (EDT)
-Received: from www346.sakura.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GDoDZm019915
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 13:50:16 GMT
-Message-ID: <42B18324.6020502@kaigai.gr.jp>
-Date: Thu, 16 Jun 2005 22:48:20 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GE3lgA000445
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 10:03:47 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GDtAZm020210
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 13:55:10 GMT
 Subject: Re: ANN: SELinux Reference Policy Release
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: antoine <antoine@nagafix.co.uk>
+Cc: Colin Walters <walters@verbum.org>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1118877949.10103.19.camel@localhost>
 References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	 <1118874951.24338.35.camel@nexus.verbum.private>
+	 <1118877949.10103.19.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 16 Jun 2005 09:55:13 -0400
+Message-Id: <1118930113.18294.56.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-
-I looked the SELinux Reference Policy lightly.
-I prefer such the approach defines explicit interface between modules.
-
-So, I have two propositions. What do you think ?
-
-(1) The part of macros' implementation should be enclosed by tags of <interface>.
-     If you intend to manage the reference policy modules by XML database in future,
-     managing the whole of interface is better than only description, I think.
---[ e.g ]--------------------------------
-########################################
-## <interface name="domain_kill_all_domains">
-##      <description>
-##              Send a kill signal to all domains.
-##      </description>
-##      <parameter name="domain">
-##              The type of the process performing this action.
-##      </parameter>
-# <implementation>  <-- Add one
-define(`domain_kill_all_domains',`
-         gen_require(`$0'_depend)
-
-         allow $1 domain:process sigkill;
-         allow $1 self:capability kill;
-')
-          :
-#  </implementation> <-- Add one
-## </interface>
-------------------------------------------
-
-(2) I want to contain lang="XXXX" in the description field for internationalization.
-     By default, that should be writen in English, and opitionally taking out the description
-     field writen in Japanese and so on will be useful for non-native English user.
-
-# Please set your encoding to UTF-8.
---[ e.g ]--------------------------------
-## <description>
-##      <p>
-##      This module contains basic filesystem types and interfaces. This
-##      includes:
-##      <ul>
-##              <li>The concept of different file types including basic
-##              files, mount points, tmp files, etc.</li>
-##              <li>Access to groups of files and all files.</li>
-##              <li>Types and interfaces for the basic filesystem layout
-##              (/, /etc, /tmp, /usr, etc.).</li>
-##      </ul>
-##      </p>
-## </description>
-## <description lang="Japanese">
-##	<p>
-##	このモジュールは以下のファイルシステム用タイプとインターフェースを含みます。
-##	<ul>
-##		<li>通常ファイル、マウントポイント、一時ファイルなど異なったファイル
-##		タイプに対する基本概念</li>
-##		<li>ファイルの集合および全体に対するアクセス</li>
-##		<li>基本的なファイルシステム構造に対するタイプとインターフェース
-##		(/, /etc, /tmp, /usr, etc.).</li>
-##	</ul>
-##	</p>
-## </description>
------------------------------------------
-
-Thanks,
-
-Christopher J. PeBenito wrote:
-> The first release of the SELinux Reference Policy is now available on
-> Sourceforge from http://serefpolicy.sourceforge.net.
+On Thu, 2005-06-16 at 00:25 +0100, antoine wrote:
+> (...)
+> Good work!
 > 
-> This is an experimental release, and definitely is not usable as a
-> drop-in replacement for the current policy, as it can only boot a very
-> limited RHEL4 system.  It is directed towards policy developers, to
-> generate community feedback and discussion.
-> 
-> Any feedback is welcome.
+> > # Define derived domains for GPG from @userdomain
+> > # @param user The user domain to derive from
+> > # @param userrole The user role to authorize for GPG
+> > function gpg_per_userdomain(domain user, role userrole) {
+> >   derivedtype gpg_t from user
+> > 
+> >   domain_type(gpg_t)
+> >   domain_entry_file(gpg_t, gpg_exec_t)
+> >   role userrole types gpg_t
+> > 
+> >   ...
+> > 
+> > The key idea here is that an IDE could actually parse this,
+> Not just IDEs, my brain finds it easier to parse too.
+> XML if overused nowadays.
+
+The inline documentation was meant to be machine parseable.  Its used to
+create the interface documentation on the website
+(http://serefpolicy.sourceforge.net/api-docs/), which is much more
+readable, and also to create the modules.conf and tunables.conf files.
+Also, as Karl mentioned, it was meant to be loaded into other tools,
+such as SEFramework
+(http://www.selinux-symposium.org/2005/presentations/session6/6-1-wilson.pdf).
+
+We did look into other available formats for machine parseable comments,
+and XML is really the best choice if you want the comments to be
+transformed into many different formats, and easily loaded into other
+programs; its already well understood, and parsers exist for many
+programming languages.  Simpler (for humans to read) commenting formats
+just don't have these options, and mainly target one transformation.
+
+> >  and easily
+> > determine programatically what types and roles are generated by the
+> > function, without doing hacks like expanding the M4 and parsing that,
+> > and then guessing.
+> Absolutely.
+
+It is more complex then that, because you still have to take into
+account *'s and ~'s and attributes.  We've thought about this problem a
+little, and we'll be looking more into this in the future.
 
 -- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
