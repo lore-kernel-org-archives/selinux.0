@@ -1,44 +1,101 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GD4fgA029887
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 09:04:42 -0400 (EDT)
-Received: from mout.perfora.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GCtZI8002121
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:55:35 GMT
-Subject: Re: Step by step installation instruction
-From: Christopher Warner <chris@servertogo.com>
-To: hendra <ikasari@centrin.net.id>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <004401c57215$f870f840$0101a8c0@hendra>
-References: <004401c57215$f870f840$0101a8c0@hendra>
-Content-Type: text/plain
-Date: Thu, 16 Jun 2005 04:14:20 -0400
-Message-Id: <1118909660.13716.119.camel@sabrina>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GDwtgA000344
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 09:58:56 -0400 (EDT)
+Received: from www346.sakura.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GDoDZm019915
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 13:50:16 GMT
+Message-ID: <42B18324.6020502@kaigai.gr.jp>
+Date: Thu, 16 Jun 2005 22:48:20 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: ANN: SELinux Reference Policy Release
+References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You should refer to your specific distribution documentation on how to
-activate Selinux. If you're bolting into your homegrown, then you'll
-need to read a lot of source and do a lot of patching.
+Hi,
 
-If you want, you can shoot an email back and I'll provide a list of
-links i've bookmarked over the past couple of months but it's nothing
-you couldn't google up.
+I looked the SELinux Reference Policy lightly.
+I prefer such the approach defines explicit interface between modules.
 
--Christopher Warner
+So, I have two propositions. What do you think ?
 
-On Thu, 2005-06-16 at 08:51 +0700, hendra wrote:
-> Hi all,
->  
-> I'm a newbie on SElinux. Can someone give me information about how to
-> installing SElinux step by step. I already trying alot of tutorial on
-> how to install, but still failed, especially when I do make load.
-> There always message "No rule to make load". As for information I'm
-> using downloadable kernel ver 2.6.11.10 with SElinux embedded enabled
-> already.
->  
-> Thanks for help
+(1) The part of macros' implementation should be enclosed by tags of <interface>.
+     If you intend to manage the reference policy modules by XML database in future,
+     managing the whole of interface is better than only description, I think.
+--[ e.g ]--------------------------------
+########################################
+## <interface name="domain_kill_all_domains">
+##      <description>
+##              Send a kill signal to all domains.
+##      </description>
+##      <parameter name="domain">
+##              The type of the process performing this action.
+##      </parameter>
+# <implementation>  <-- Add one
+define(`domain_kill_all_domains',`
+         gen_require(`$0'_depend)
 
+         allow $1 domain:process sigkill;
+         allow $1 self:capability kill;
+')
+          :
+#  </implementation> <-- Add one
+## </interface>
+------------------------------------------
+
+(2) I want to contain lang="XXXX" in the description field for internationalization.
+     By default, that should be writen in English, and opitionally taking out the description
+     field writen in Japanese and so on will be useful for non-native English user.
+
+# Please set your encoding to UTF-8.
+--[ e.g ]--------------------------------
+## <description>
+##      <p>
+##      This module contains basic filesystem types and interfaces. This
+##      includes:
+##      <ul>
+##              <li>The concept of different file types including basic
+##              files, mount points, tmp files, etc.</li>
+##              <li>Access to groups of files and all files.</li>
+##              <li>Types and interfaces for the basic filesystem layout
+##              (/, /etc, /tmp, /usr, etc.).</li>
+##      </ul>
+##      </p>
+## </description>
+## <description lang="Japanese">
+##	<p>
+##	このモジュールは以下のファイルシステム用タイプとインターフェースを含みます。
+##	<ul>
+##		<li>通常ファイル、マウントポイント、一時ファイルなど異なったファイル
+##		タイプに対する基本概念</li>
+##		<li>ファイルの集合および全体に対するアクセス</li>
+##		<li>基本的なファイルシステム構造に対するタイプとインターフェース
+##		(/, /etc, /tmp, /usr, etc.).</li>
+##	</ul>
+##	</p>
+## </description>
+-----------------------------------------
+
+Thanks,
+
+Christopher J. PeBenito wrote:
+> The first release of the SELinux Reference Policy is now available on
+> Sourceforge from http://serefpolicy.sourceforge.net.
+> 
+> This is an experimental release, and definitely is not usable as a
+> drop-in replacement for the current policy, as it can only boot a very
+> limited RHEL4 system.  It is directed towards policy developers, to
+> generate community feedback and discussion.
+> 
+> Any feedback is welcome.
+
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
