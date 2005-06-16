@@ -1,44 +1,70 @@
-Subject: Re: Content macros v 2 (create implies read in policy)
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: SELinux <SELinux@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1118864318.25735.43.camel@celtics.boston.redhat.com>
-References: <1118744201.3416.13.camel@localhost.localdomain>
-	 <1118770918.7853.5.camel@celtics.boston.redhat.com>
-	 <1118855232.25735.10.camel@celtics.boston.redhat.com>
-	 <1118864318.25735.43.camel@celtics.boston.redhat.com>
-Content-Type: text/plain
-Date: Wed, 15 Jun 2005 20:17:31 -0400
-Message-Id: <1118881051.9851.4.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5G20XgA027445
+	for <selinux@tycho.nsa.gov>; Wed, 15 Jun 2005 22:00:33 -0400 (EDT)
+Received: from andromeda.centrin.net.id (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5G1pRPv004731
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 01:51:30 GMT
+Received: from hendra ([202.146.238.178])
+	by andromeda.centrin.net.id (8.13.1/8.13.1) with SMTP id j5G1pbfK004455
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 08:51:38 +0700
+Message-ID: <004401c57215$f870f840$0101a8c0@hendra>
+Reply-To: "hendra" <ikasari@centrin.net.id>
+From: "hendra" <ikasari@centrin.net.id>
+To: <selinux@tycho.nsa.gov>
+Subject: Step by step installation instruction
+Date: Thu, 16 Jun 2005 08:51:37 +0700
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0041_01C57250.9B1DF8B0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
-> 2) Stop trying to change the assumption that create implies
-> read, and at the same time create further separation of
-> content, beyond trusted and untrusted (as in...your saved mail
-> is not the same thing as saved webpages, and mozilla
-> has no business reading your mail). We might want to do
-> that in the distant future anyway, regardless of this problem.
-> Alter the content macros to deal with this improved level of
-> granularity. 
+------=_NextPart_000_0041_01C57250.9B1DF8B0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-On second thought I choose this option.
+Hi all,
 
-It's obvious why no write_file_perms exists - it's assumed
-that we always want overwrite protection as well, so it
-makes no sense to allow create_file_perms from multiple
-apps on a data type that's supposed to be isolated.
+I'm a newbie on SElinux. Can someone give me information about how to =
+installing SElinux step by step. I already trying alot of tutorial on =
+how to install, but still failed, especially when I do make load. There =
+always message "No rule to make load". As for information I'm using =
+downloadable kernel ver 2.6.11.10 with SElinux embedded enabled already.
 
-It would be better to put some effort into different
-content types, and the way they should interact instead,
-so mozilla can't either read or overwrite your mail.
+Thanks for help
+------=_NextPart_000_0041_01C57250.9B1DF8B0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-This is also the least intrusive option.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Hi all,</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>I'm a newbie on SElinux. Can someone =
+give me=20
+information about how to installing SElinux step by step. I already =
+trying alot=20
+of tutorial on how to install, but still failed, especially when I do =
+make load.=20
+There always message "No rule to make load". As for information I'm =
+using=20
+downloadable kernel ver 2.6.11.10 with SElinux embedded enabled=20
+already.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Thanks for =
+help</FONT></DIV></BODY></HTML>
 
-
+------=_NextPart_000_0041_01C57250.9B1DF8B0--
 
 
 --
