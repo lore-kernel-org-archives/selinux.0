@@ -1,51 +1,61 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GGARgA002341
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:10:29 -0400 (EDT)
-Received: from smtp-bedford.mitre.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GG1JI8018236
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 16:01:20 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with SMTP id j5GG1oo00429
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:01:50 -0400
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (Postfix) with ESMTP id 45542BEFB
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:01:50 -0400 (EDT)
-Received: from MAILHUB2 (mailhub2.mitre.org [129.83.28.8])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with ESMTP id j5GG1oA00381
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 12:01:50 -0400
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Question about integration of IPsec with SELinux?
-References: <20050613220328.31770.qmail@web31602.mail.mud.yahoo.com>
-From: bsniffen@mitre.org (Brian T. Sniffen)
-Date: Thu, 16 Jun 2005 12:01:41 -0400
-In-Reply-To: <20050613220328.31770.qmail@web31602.mail.mud.yahoo.com> (Casey
- Schaufler's message of "Mon, 13 Jun 2005 15:03:28 -0700 (PDT)")
-Message-ID: <d287jguwasa.fsf@jon-strange.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GHt3gA002994
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 13:55:03 -0400 (EDT)
+Received: from estila.tuxedo-es.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GHjrI8027805
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 17:45:54 GMT
+Subject: Re: ANN: SELinux Reference Policy Release
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: antoine <antoine@nagafix.co.uk>, Colin Walters <walters@verbum.org>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1118930113.18294.56.camel@sgc.columbia.tresys.com>
+References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
+	 <1118874951.24338.35.camel@nexus.verbum.private>
+	 <1118877949.10103.19.camel@localhost>
+	 <1118930113.18294.56.camel@sgc.columbia.tresys.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KvpiaFnoiviM30B4Wh69"
+Date: Thu, 16 Jun 2005 19:46:23 +0200
+Message-Id: <1118943983.8987.23.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> writes:
 
-> Username mapping errors are bad, but one or the
-> other of the individuals involved usually detects
-> the problem quickly enough. I don't know that I'd
-> expect the same to be true of policy elements.
+--=-KvpiaFnoiviM30B4Wh69
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-We already see admins doing this regularly: they drop a file from Red
-Hat's strict policy into the their Fedora system using Targeted
-policy, or from Fedora onto a Debian system, and are surprised when it
-does not work.
+El jue, 16-06-2005 a las 09:55 -0400, Christopher J. PeBenito escribi=F3:
+> We did look into other available formats for machine parseable comments,
+> and XML is really the best choice if you want the comments to be
+> transformed into many different formats, and easily loaded into other
+> programs; its already well understood, and parsers exist for many
+> programming languages.  Simpler (for humans to read) commenting formats
+> just don't have these options, and mainly target one transformation.
 
-The average userbase will always expect user_t and httpd_t to mean the
-same things everywhere, even though they will not.  It's because of
-this difficulty that polgen does only structural analysis, ignoring
-accidents of naming.  We're having enough trouble adapting our output
-to the evolving details of policy differences (e.g., unconfined_t vs. user_t).
+A modified Gnome-doc (ie. Kernel-doc) might be an interesting option.
+It would be a matter of modifying the lex and other stuff to make it
+parsing our own commenting style within the policy files.
 
--Brian
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
+--=-KvpiaFnoiviM30B4Wh69
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCsbrvDcEopW8rLewRAsX+AKCe+W/EOrRxBkSauSrO7mThz/o8/wCcD+zv
+DyiVThcJrCowsecsH3FVq8A=
+=4dpx
+-----END PGP SIGNATURE-----
+
+--=-KvpiaFnoiviM30B4Wh69--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
