@@ -1,34 +1,43 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5GNQVgA005475
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 19:26:31 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5GNHKI8022482
-	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 23:17:20 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5H1ewgA005846
+	for <selinux@tycho.nsa.gov>; Thu, 16 Jun 2005 21:40:59 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5H1ViI8029170
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 01:31:46 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: ivg2@cornell.edu
 Subject: Re: mail_client_macros.te
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: russell@coker.com.au
+Date: Fri, 17 Jun 2005 11:32:02 +1000
 Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200506170827.59180.russell@coker.com.au>
-References: <200506170827.59180.russell@coker.com.au>
-Content-Type: text/plain
-Date: Thu, 16 Jun 2005 19:19:13 -0400
-Message-Id: <1118963954.19768.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+References: <200506170827.59180.russell@coker.com.au> <1118963954.19768.2.camel@localhost.localdomain>
+In-Reply-To: <1118963954.19768.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200506171132.07632.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-17 at 08:27 +1000, Russell Coker wrote:
-> The attached patch is needed to compile a policy without innd.te.
+On Friday 17 June 2005 09:19, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+> On Fri, 2005-06-17 at 08:27 +1000, Russell Coker wrote:
+> > The attached patch is needed to compile a policy without innd.te.
+>
+> I don't see why the innd port is dependent on the innd policy.
 
-I don't see why the innd port is dependent on the innd policy.
+As long as the type is defined in innd.te it is.  The policy won't compile 
+without innd.te included.
 
-The client is usually on a different machine than the server.
+The other option is to move the type to types/network.te.
+
+Do you think we should change the policy to move all port type definitions to 
+types/network.te and have all ports labeled unconditionally?
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
