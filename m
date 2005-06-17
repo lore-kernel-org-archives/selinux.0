@@ -1,30 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5HAXkgA007776
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 06:33:47 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5HAP11R010263
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 10:25:01 GMT
-Date: Fri, 17 Jun 2005 11:33:46 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: horietk@nttdata.co.jp
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [RFC]Kernel Built-in IDS extension
-Message-ID: <20050617103346.GP10412@lkcl.net>
-References: <E6ACF5196CB5AA4FB50C32559083A36901633F01@MAILSV12.msg.nttdata.co.jp>
+Subject: Re: mail_client_macros.te
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: ivg2@cornell.edu
+Cc: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1118973361.21694.5.camel@localhost.localdomain>
+References: <200506170827.59180.russell@coker.com.au>
+	 <1118963954.19768.2.camel@localhost.localdomain>
+	 <200506171132.07632.russell@coker.com.au>
+	 <1118973361.21694.5.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 17 Jun 2005 07:33:46 -0400
+Message-Id: <1119008026.12524.14.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <E6ACF5196CB5AA4FB50C32559083A36901633F01@MAILSV12.msg.nttdata.co.jp>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 17, 2005 at 06:16:47PM +0900, horietk@nttdata.co.jp wrote:
+On Thu, 2005-06-16 at 21:56 -0400, Ivan Gyurdiev wrote:
+> On Fri, 2005-06-17 at 11:32 +1000, Russell Coker wrote:
+> > Do you think we should change the policy to move all port type definitions to 
+> > types/network.te and have all ports labeled unconditionally?
+> 
+> I think so... at least most of them.
 
-> I believe that these features are useful in some cases.
-> For examaple, it is possible to detect harzardous access context which 
-> appears only when malicious operation is tried and to apply more 
-> restricted policy by means of turning on booleans automatically.
+Concur.   I think that was discussed earlier - it lets us properly
+restrict name_bind for the well-defined ports even when that service
+isn't on the machine (without requiring the full domain for the service
+to also be present), as well to define proper policy over name_connect
+on the client side.
 
- COOL!
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
