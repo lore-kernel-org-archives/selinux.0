@@ -1,47 +1,36 @@
+Date: Fri, 17 Jun 2005 12:08:17 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: horietk@nttdata.co.jp, <selinux@tycho.nsa.gov>
 Subject: Re: [RFC]Kernel Built-in IDS extension
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: horietk@nttdata.co.jp
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <E6ACF5196CB5AA4FB50C32559083A36901633F01@MAILSV12.msg.nttdata.co.jp>
-References: 
-	 <E6ACF5196CB5AA4FB50C32559083A36901633F01@MAILSV12.msg.nttdata.co.jp>
-Content-Type: text/plain
-Date: Fri, 17 Jun 2005 10:00:58 -0400
-Message-Id: <1119016858.12524.98.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: <1119013351.12524.81.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.44.0506171203270.2902-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-17 at 18:16 +0900, horietk@nttdata.co.jp wrote:
-> example) buffer overflow detection and system protection.
->   bool etc_locked false ;
->   bool bool_locked false ;
->   trap ftpd_t shell_exec_t:file { execute } { etc_locked bool_locked } ;
->   if (etc_locked) {
->      /* read only, no one can change /etc files  */
->      allow sysadm_t etc_t:file { r_file_perms }; 
->   } else {
->      /* sysadm can edit /etc files */
->      allow sysadm_t etc_t:file { rw_file_perms }; 
->   }
->   if (!bool_locked) {
->      /* sysadm can operate booleans */
->      allow sysadm_t security_t:security setbool;
->   }
+On Fri, 17 Jun 2005, Stephen Smalley wrote:
 
-This particular example is not particularly motivating, since:
-a) you aren't doing anything to lock down ftpd_t itself upon this trap,
-and
-b) you are instead locking down sysadm_t, so this presents an obvious
-denial-of-service attack against legitimate admins.
+> Did you consider a userspace implementation, e.g. extend auditd to match
+> against avc messages it receives from the kernel (likely using a
+> libsepol function to perform the matching), and then having auditd
 
-Note that self:process execmem makes a good candidate for a trap, as
-that reflects an attempt to make anonymous memory executable, e.g. an
-attempt to make the stack executable.
+Why limit the input to the IDS to AVC messages?  There are many ways of
+collecting attack signatures, and not necessarily even from the local 
+system.
 
+And yes, this definitely does not belong in the kernel.
+
+Also see http://personal.utulsa.edu/~brandon-pollet/DynamicPolicy-BP.pdf
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
+
 
 
 --
