@@ -1,36 +1,48 @@
-Date: Fri, 17 Jun 2005 12:08:17 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: horietk@nttdata.co.jp, <selinux@tycho.nsa.gov>
-Subject: Re: [RFC]Kernel Built-in IDS extension
-In-Reply-To: <1119013351.12524.81.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.44.0506171203270.2902-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0 (Apple Message framework v730)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <90B34285-A36F-46C2-8081-3408F4241E6C@utulsa.edu>
+Cc: Brandon Pollet <bpollet@gmail.com>, John Hale <john-hale@utulsa.edu>
+From: Brandon Pollet <brandon@utulsa.edu>
+Subject: SELinux Integrated Logging Tool
+Date: Fri, 17 Jun 2005 15:01:21 -0500
+To: SELinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 17 Jun 2005, Stephen Smalley wrote:
+After releasing information about my Dynamic Policy Enforcement  
+system last week, I wanted to share some of the other projects that  
+we have developed at the University of Tulsa over the last year.
 
-> Did you consider a userspace implementation, e.g. extend auditd to match
-> against avc messages it receives from the kernel (likely using a
-> libsepol function to perform the matching), and then having auditd
+This project was developed by Nicholas Davis and it is titled  
+"Improving the Logging Facility in Security Enhanced Linux." The  
+abstract for this paper and a link to a PDF version of it appear  
+below. Please post any feedback or questions you may have. Thank you
 
-Why limit the input to the IDS to AVC messages?  There are many ways of
-collecting attack signatures, and not necessarily even from the local 
-system.
+Abstract
 
-And yes, this definitely does not belong in the kernel.
+Security-Enhanced Linux offers a robust Mandatory Access Control  
+protection scheme
+that enhances standard Unix-based permissions, and allows for greater  
+overall system
+security. While a wide array of configuration tools are currently  
+available, system
+administration of SELinux is still cumbersome. One strategic area of  
+improvement is
+kernel event logging, specifically for Security-Enhanced Linux  
+generated events. This
+thesis describes SILT, a tool designed to enhance SELinux logging. A  
+flexible interface
+supports command-line and graphical logging configuration. Backend  
+scripts tune the
+logging facility, according to user direction. SILT provides a  
+convenient mechanism
+for administrators to manage logging events effectively, allowing for  
+improved system
+maintenance.
 
-Also see http://personal.utulsa.edu/~brandon-pollet/DynamicPolicy-BP.pdf
+Link
 
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+http://personal.utulsa.edu/~brandon-pollet/SILT-Davis.pdf
 
 
 --
