@@ -1,188 +1,119 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5H7VmgA007001
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 03:31:50 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5H7N01R006708
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 07:23:01 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: mail_client_macros.te
-Date: Fri, 17 Jun 2005 17:22:32 +1000
-Cc: ivg2@cornell.edu, SE-Linux <selinux@tycho.nsa.gov>
-References: <200506170827.59180.russell@coker.com.au> <200506171132.07632.russell@coker.com.au> <42B24006.2020706@redhat.com>
-In-Reply-To: <42B24006.2020706@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5H9PmgA007484
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 05:25:49 -0400 (EDT)
+Received: from ms1.nttdata.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5H9GWoA017005
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 09:16:33 GMT
+Received: from ms1.nttdata.co.jp (localhost [127.0.0.1])
+	by ms1.nttdata.co.jp (8.12.11/3.7W-NTTDATA-TOP-11/02/04) with ESMTP id j5H9H2kp000570
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 18:17:02 +0900 (JST)
+Received: from mail1.nttdata.co.jp ([163.135.10.21])
+	by ms1.nttdata.co.jp (8.12.11/3.7W-NTTDATA-TOP-11/18/04) with ESMTP id j5H9Gm2K000420
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 18:16:48 +0900 (JST)
+Received: from mail1.nttdata.co.jp (localhost [127.0.0.1])
+	by mail1.nttdata.co.jp (8.12.11/3.7W-NTTDATA-TOP-01/18/05) with ESMTP id j5H9GmHC006963
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 18:16:48 +0900 (JST)
+Received: from msggw-r02.msg.nttdata.co.jp ([10.10.1.56])
+	by mail1.nttdata.co.jp (8.12.11/3.7W-NTTDATA-TOP-11/02/04) with ESMTP id j5H9Gl2Q006960
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jun 2005 18:16:47 +0900 (JST)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_8onsCRvD/v/FWNB"
-Message-Id: <200506171722.36925.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Subject: [RFC]Kernel Built-in IDS extension
+Date: Fri, 17 Jun 2005 18:16:47 +0900
+Message-ID: <E6ACF5196CB5AA4FB50C32559083A36901633F01@MAILSV12.msg.nttdata.co.jp>
+From: <horietk@nttdata.co.jp>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_8onsCRvD/v/FWNB
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi,
 
-On Friday 17 June 2005 13:14, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >The other option is to move the type to types/network.te.
-> >
-> >Do you think we should change the policy to move all port type definitions
-> > to types/network.te and have all ports labeled unconditionally?
->
-> Now that we are using named_connect, yes.  The port needs to be defined
-> so both the client and server app can connect to it.
+I'm glad to announce the release of experimental kernel extensions to 
+SELinux access control, which enables intrusion detection and system 
+protection functionalities.
 
-I've attached a patch to implement this change.
+The extensions have following features.
+1. Detecting the access violation and can log that trial.
+2. Operating booleans of 'Conditional Policy' when the access violation 
+is detected.
+3. Kernel built-in implementation. All the detections and the operations 
+are performed within kernel.
+4. To specify access contexts to be detected and boolean variables to be 
+turned on, extended policy notation was introduced, which resembles the 
+'allow' statement.
 
-There is one potential problem.  I can imagine people wanting to use some 
-ports with obvious numbers (such as 1234 for monopd) for other uses.
+   trap <subject> <object>:<class> <permissions> <booleans> ;
 
-For example if someone wanted to use netcat to test out some network 
-operations they may choose 1234 as an arbitrary port.  Naturally this could 
-fail anyway if you have two users on the machine doing similar things, but in 
-the case of a single user machine they may be slightly unhappy to have this.
+Also, the AVC 'detected' log is recorded. (see below)
 
-My patch is against the current rawhide policy package and covers all cases 
-apart from AFS, GIFT, and inetd children (I'll do those later if the current 
-patch is considered a good thing, they are a little more invasive so I just 
-did the simple ones for the first pass).
+"Jun 13 10:05:47 molder kernel: audit(1118624747.611:0): avc:  detected  
+{ execute } for  pid=4126 exe=/usr/sbin/in.ftpd name=sh dev=dm-0 
+ino=3572008 scontext=scontext=system_u:system_r:ftpd_t 
+tcontext=system_u:object_r:shell_exec_t tclass=file"
 
-It may be that we want to reserve ports only for the most commonly used 
-programs.  So we would reserve ports that are in /etc/services and ports for 
-commonly used programs regardless of whether the programs in question are 
-installed.  For port assignments that aren't in /etc/services and which are 
-not really common (port 1234 for monopd is the best example) we could use the 
-previous system of only assigning them if the .te file in question is 
-included.
+I believe that these features are useful in some cases.
+For examaple, it is possible to detect harzardous access context which 
+appears only when malicious operation is tried and to apply more 
+restricted policy by means of turning on booleans automatically.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+example) buffer overflow detection and system protection.
+  bool etc_locked false ;
+  bool bool_locked false ;
+  trap ftpd_t shell_exec_t:file { execute } { etc_locked bool_locked } ;
+  if (etc_locked) {
+     /* read only, no one can change /etc files  */
+     allow sysadm_t etc_t:file { r_file_perms }; 
+  } else {
+     /* sysadm can edit /etc files */
+     allow sysadm_t etc_t:file { rw_file_perms }; 
+  }
+  if (!bool_locked) {
+     /* sysadm can operate booleans */
+     allow sysadm_t security_t:security setbool;
+  }
 
---Boundary-00=_8onsCRvD/v/FWNB
-Content-Type: application/x-gzip;
-  name="diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="diff.gz"
+If an unauthorized shell execution tried by ftpd is detected, kernel 
+itself performs policy modification.
 
-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
+Of course, not only 'unconditional trap' but also 'conditional trap' can 
+be used too.
+  bool bool_a false ;
+  bool bool_b false ;
+  bool bool_c false ;
+  if (bool_a) {
+     trap xxx_t yyy_t:file { perms } { bool_b } ;
+  } else {
+     trap xxx_t yyy_t:file { perms } { bool_a bool_c } ;
+  }
+So, rather complicated boolean operations can be determined.
 
---Boundary-00=_8onsCRvD/v/FWNB--
+The patches and the documents are available at SourceForge site.
+  http://sourceforge.net/projects/lk-ids
+
+There are three patches.
+[1] kernel patch (to version 2.6.11)
+ - Member correspoding to 'trap' vector is added to avtab and policydb 
+structures. (Mainly avc.h and avtab.h modifications)
+ - Requested permission is compared with 'trap' vector, separate from 
+SELinux's permission check. (Mainly avc.c modifications)
+ - Internal boolean operation by kernel itself. (Mainly conditional.c 
+and selinuxfs.c)
+[2] checkpolicy patch (to version 1.22)
+[3] libsetools patch (to version 1.4)
+ - Policy parser, compiler and related library are extended to meet 
+'trap' notation.
+
+I hope I could have a lot of comments, suggestions and feedbacks.
+
+Best regards,
+
+-----
+NTT DATA CORPORATION
+Open Source Software Development Center
+Takashi Horie
+E-Mail: horie-t@users.sourceforge.net
+E-Mail: horietk@nttdata.co.jp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
