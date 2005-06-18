@@ -1,50 +1,48 @@
-Message-ID: <20050618153949.72823.qmail@web51502.mail.yahoo.com>
-Date: Sat, 18 Jun 2005 08:39:49 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: SELinux Integrated Logging Tool
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <90B34285-A36F-46C2-8081-3408F4241E6C@utulsa.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5IMnGgA016606
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 18:49:16 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5IMeEQ1010730
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 22:40:14 GMT
+Subject: Re: Useradd Integration (v. 2)
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: SELinux <selinux@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1119132219.26988.14.camel@localhost.localdomain>
+References: <1119132219.26988.14.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 18 Jun 2005 18:41:59 -0400
+Message-Id: <1119134520.27489.4.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
->This project was developed by Nicholas Davis and it is titled  
->"Improving the Logging Facility in Security Enhanced Linux." The  
->abstract for this paper and a link to a PDF version of it appear  
->below. Please post any feedback or questions you may have.
+> Next, I will work on writing C functions for manipulating the
+> homedir_template file. They will be analogous to users_file.c,
+> and basically move genhomedircon's job into the libsepol library.
 
-I read through it. I don't see what it has to do with SE Linux at all. It looks
-like a general purpose syslog configurator. This is something that *is* needed
-and people may like to use the tool for that purpose. It really does look
-interesting, but for reasons other than SE Linux.
+Actually, I think it would be better if I pulled out 
+iterate, mod_user, add... into a more generic thing I can reuse
+for net_contexts, and homedir... 
 
-As James said, auditd is the way forward. It uses a more reliable communication
-interface and is designed specifically to fill the audit niche. I have a "gui"
-config tool that is based on dialog. I will probably put it on the web, but I am
-reluctant to include it with the audit package at this point. If I find time, I
-will probably extend it to include building auditctl rules.
+So: a method for iterating records in a file... 
+for modifying records in a file.
 
-There is a recent tool in the audit package, ausearch, that lets you search for
-any event based on many criteria. At this point, the intention is to meet CAPP
-needs, but future work is going to allow searching based on labels. There is also
-a feature that many people don't know about and that is the ability to interpret
-the logs so that its easier to understand. A sample use would be: ausearch -i -m
-AVC.
+Then the structure of the record would be specified for each
+thing I want to iterate over - instead of user_config_t, it would
+be something else, with a different parse function.
 
-I will be at OLS next month for the audit BoF. I would like to share with
-attendees some of the possibilities for future development. This includes event
-notification and an audit log explorer (not to be confused with a viewer).
+I haven't actually seen the checkpolicy parsing code, and how
+modular it is - I used the genusers parsing code... If the
+checkpolicy code is sufficiently modular, I should be able to 
+reuse that...
 
--Steve Grubb
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
-
-		
-____________________________________________________ 
-Yahoo! Sports 
-Rekindle the Rivalries. Sign up for Fantasy Football 
-http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
