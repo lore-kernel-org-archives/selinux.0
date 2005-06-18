@@ -1,75 +1,503 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5KCOigA024370
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 08:24:44 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5KCOdgA024364
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 08:24:39 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5KCEvs2003388
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 12:14:57 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5KCEqs2003385
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 12:14:52 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j5KCG85d003556
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 08:16:08 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j5KCG3KH003551
+	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 08:16:03 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j5KCG8MJ003555
-	for selinux@tycho.nsa.gov; Mon, 20 Jun 2005 08:16:08 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j5KCG3QL003550
+	for selinux@tycho.nsa.gov; Mon, 20 Jun 2005 08:16:03 -0400
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5K3VLgA021604
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2005 23:31:21 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5IMAvgA016515
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 18:10:57 -0400 (EDT)
 Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5K3LaGW014193
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 03:21:36 GMT
-Subject: Re: Useradd Integration (v. 3)
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5IM1Pfq006936
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 22:01:25 GMT
+Subject: Useradd Integration (v. 2)
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
 To: SELinux <selinux@tycho.nsa.gov>
 Cc: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1119134520.27489.4.camel@localhost.localdomain>
-References: <1119132219.26988.14.camel@localhost.localdomain>
-	 <1119134520.27489.4.camel@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-a1uumVP3ayr1MnJP6HE9"
-Date: Sun, 19 Jun 2005 23:24:03 -0400
-Message-Id: <1119237843.20806.9.camel@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-b1s4koXcpBZhnnD1euSm"
+Date: Sat, 18 Jun 2005 18:03:39 -0400
+Message-Id: <1119132219.26988.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-a1uumVP3ayr1MnJP6HE9
+--=-b1s4koXcpBZhnnD1euSm
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Sat, 2005-06-18 at 18:42 -0400, Ivan Gyurdiev wrote:
-> > Next, I will work on writing C functions for manipulating the
-> > homedir_template file. They will be analogous to users_file.c,
-> > and basically move genhomedircon's job into the libsepol library.
-> 
-> Actually, I think it would be better if I pulled out 
-> iterate, mod_user, add... into a more generic thing I can reuse
-> for net_contexts, and homedir... 
+Here's v.2 of my useradd patch.
 
-Attached libsepol changes for v.3.
+I'm sure it has lots of bugs - I have yet to pass valgrind,
+and address FIXMEs.. but at least it shows something working here.. 
+I also still haven't addressed Steven's concerns about
+multiline parsing, and proper default role, but I'll
+get to that eventually.
 
-I've changed some of the functions above into
-generic parser utilities, and created a concept of a record - 
-you can provide a table of methods for how to work with a particular
-record, and then use the record_file.c methods to iterate over
-records in a file using the same code, just a different parsing
-function.
+Patch does:
 
-I am still not quite happy with this. It could be made simpler,
-and better. I'm pretty sure the MLS parsing code is broken,
-and I need to rewrite/test this. 
+- break up libsepol genusers into policy and file portions,
+to allow future work on different backends than a flat file
 
-On the other hand I got multiline parsing to work,
-and parsing is simpler in general. I can also
-reuse a large part of the code to parse other things
-than the users file.
+- several handlers to do various things like add user, delete user,
+iterate users, modify user, add role, delete role, set roles 
 
-Next - homedir template file..
+- designate functions that work with the policy image as "backwards
+compatibility". Instead, we will work with the policydb, which will be
+faster, and simpler. That way the image doesn't have to be analyzed
+and the db reconstructed on every function call.
+
+- unify most of policycoreutils/load_policy.c into a single function
+in libselinux. This will simplify reloading the policy from different
+programs. If you're wondering why that portion of the headers is 
+in selinux-sepol.h, it's because I can't add <sepol/policydb.h>
+due to header conflict (sidtab).
+
+- first pass useradd integration. No usermod and userdel 
+integration yet
+==========
+
+Next, I will work on writing C functions for manipulating the
+homedir_template file. They will be analogous to users_file.c,
+and basically move genhomedircon's job into the libsepol library.
+
+The idea is that the users_file functions will invoke template
+manipulating functions whenever the user is added, deleted, or 
+the user's default role is changed. It will properly edit 
+file_contexts.homedirs, and also restorecon the right things
+if the user's defrole is changed.
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
 Cornell University
 
---=-a1uumVP3ayr1MnJP6HE9
+--=-b1s4koXcpBZhnnD1euSm
+Content-Disposition: attachment; filename=libselinux.diff
+Content-Type: text/x-patch; name=libselinux.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -Naur libselinux-1.23.10.orig/include/selinux/selinux.h libselinux-1.23.10.new/include/selinux/selinux.h
+--- libselinux-1.23.10.orig/include/selinux/selinux.h	2005-06-16 15:30:20.000000000 -0400
++++ libselinux-1.23.10.new/include/selinux/selinux.h	2005-06-18 01:14:43.000000000 -0400
+@@ -1,6 +1,7 @@
+ #ifndef _SELINUX_H_
+ #define _SELINUX_H_
+ 
++#include <stdlib.h>
+ #include <sys/types.h>
+ #include <stdarg.h>
+ 
+@@ -9,6 +10,8 @@
+ {
+ #endif
+ 
++extern void security_debug(int on);
++
+ /* Return 1 if we are running on a SELinux kernel, or 0 if not or -1 if we get an error. */
+ extern int is_selinux_enabled(void);
+ /* Return 1 if we are running on a SELinux MLS kernel, or 0 otherwise. */
+@@ -133,7 +136,7 @@
+ 				 const char *username,
+ 				 security_context_t **con);
+ 
+-/* Load a policy configuration. */
++/* Load a policy image. */
+ extern int security_load_policy(void *data, size_t len);
+ 
+ /* Translate boolean strict to name value pair. */
+diff -Naur libselinux-1.23.10.orig/include/selinux/selinux-sepol.h libselinux-1.23.10.new/include/selinux/selinux-sepol.h
+--- libselinux-1.23.10.orig/include/selinux/selinux-sepol.h	1969-12-31 19:00:00.000000000 -0500
++++ libselinux-1.23.10.new/include/selinux/selinux-sepol.h	2005-06-18 01:15:55.000000000 -0400
+@@ -0,0 +1,26 @@
++#ifndef _SELINUX_SEPOL_H
++#define _SELINUX_SEPOL_H
++
++#include <sepol/policydb.h>
++
++/* Create a policy database */
++int security_create_policydb(
++	policydb_t** policydb,
++	const char* polpath_arg,
++	const char* boolpath_arg,
++	int setbools_arg);
++
++/* Create a policydb from the default configuration */
++static inline int security_create_default_policydb(policydb_t** policydb) {
++	return security_create_policydb(policydb, NULL, NULL, 1);
++}
++
++/* Destroy a policy database */
++static inline void security_destroy_policydb(policydb_t* policydb) {
++	policydb_destroy(policydb);
++	free(policydb);
++}
++
++/* Load a policy database */
++extern int security_load_policydb(policydb_t* policydb);
++#endif
+diff -Naur libselinux-1.23.10.orig/src/debug.c libselinux-1.23.10.new/src/debug.c
+--- libselinux-1.23.10.orig/src/debug.c	2005-06-16 15:10:08.000000000 -0400
++++ libselinux-1.23.10.new/src/debug.c	2005-06-17 14:20:46.000000000 -0400
+@@ -1,7 +1,11 @@
+ #include <stdarg.h>
+ #include <stdio.h>
+ 
+-int seldebug = 1;
++static int seldebug = 1;
++
++void security_debug(int on) {
++	seldebug = on;
++}
+ 
+ __attribute__ ((format (printf, 1, 2))) 
+ void __selinux_debug_printf(const char *fmt, ...) {
+diff -Naur libselinux-1.23.10.orig/src/load_policy.c libselinux-1.23.10.new/src/load_policy.c
+--- libselinux-1.23.10.orig/src/load_policy.c	2005-04-29 14:07:14.000000000 -0400
++++ libselinux-1.23.10.new/src/load_policy.c	1969-12-31 19:00:00.000000000 -0500
+@@ -1,27 +0,0 @@
+-#include <unistd.h>
+-#include <sys/types.h>
+-#include <fcntl.h>
+-#include <stdlib.h>
+-#include <stdio.h>
+-#include <errno.h>
+-#include <selinux/selinux.h>
+-#include "policy.h"
+-#include <limits.h>
+-
+-int security_load_policy(void *data, size_t len)
+-{
+-	char path[PATH_MAX];
+-	int fd, ret;
+-	
+-	snprintf(path, sizeof path, "%s/load", selinux_mnt);
+-	fd = open(path, O_RDWR);
+-	if (fd < 0) 
+-		return -1;
+-
+-	ret = write(fd, data, len);
+-	close(fd);
+-	if (ret < 0)
+-		return -1;
+-	return 0;
+-}
+-
+diff -Naur libselinux-1.23.10.orig/src/Makefile libselinux-1.23.10.new/src/Makefile
+--- libselinux-1.23.10.orig/src/Makefile	2005-04-29 14:07:14.000000000 -0400
++++ libselinux-1.23.10.new/src/Makefile	2005-06-16 16:54:49.000000000 -0400
+@@ -13,6 +13,7 @@
+ LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
+ CFLAGS = -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+ override CFLAGS += -I../include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
++LDFLAGS = -lsepol
+ RANLIB=ranlib
+ 
+ all: $(LIBA) $(LIBSO)
+diff -Naur libselinux-1.23.10.orig/src/policy.c libselinux-1.23.10.new/src/policy.c
+--- libselinux-1.23.10.orig/src/policy.c	1969-12-31 19:00:00.000000000 -0500
++++ libselinux-1.23.10.new/src/policy.c	2005-06-18 01:33:12.000000000 -0400
+@@ -0,0 +1,279 @@
++#include <stdlib.h>
++#include <stdio.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
++#include <limits.h>
++#include <unistd.h>
++#include <string.h>
++#include "policy.h"
++
++#include <selinux/selinux-sepol.h>
++#include <sepol/selinux.h>
++#include "selinux_internal.h"
++
++static inline int try_open(const char* polpath) {
++	int fd = open(polpath, O_RDONLY);
++
++	if (fd < 0) {
++		__selinux_debug_printf(
++			"%s: could not open '%s' for reading: %s\n",
++			__FUNCTION__, polpath, strerror(errno));
++		return -1;
++	}
++
++	return fd;
++}
++
++static inline int map_policy(const char* polpath_arg, int ntries, 
++	void** map, size_t* map_len) {
++
++	int fd = -1;
++	struct stat sb;
++	char polpath[PATH_MAX];
++
++	/* Did the user specify where to load from ? */
++	if (polpath_arg != NULL) {
++
++		/* Open a valid policy */
++		snprintf(polpath, sizeof polpath, "%s", polpath_arg);
++
++		fd = try_open(polpath);
++		if (fd < 0)
++			return -1;
++	}
++
++	/* He/she didn't. Try some things. */
++	else {
++		int vers = -1;
++
++		/* Open a valid policy */
++		while (ntries-- && (fd < 0)) {
++
++			vers = (vers == -1)? security_policyvers(): vers - 1;
++
++			/* Try a particular version */
++			snprintf(polpath, sizeof polpath, "%s.%d",
++				selinux_binary_policy_path(), vers);
++
++			fd = try_open(polpath);
++		}
++
++                if (fd < 0)
++			return -1;
++        }
++
++	/* Stat policy */
++	if (fstat(fd, &sb) < 0) {
++		__selinux_debug_printf(
++			"%s: could not stat '%s': %s\n",
++			__FUNCTION__, polpath, strerror(errno));
++		close(fd);
++		return -1;
++	}
++
++	/* Map policy file */
++	*map_len = sb.st_size;
++	*map = mmap(NULL, *map_len, PROT_READ | PROT_WRITE, 
++		MAP_PRIVATE, fd, 0);
++
++	if (*map == MAP_FAILED) {
++		__selinux_debug_printf(
++			"%s: could not map '%s': %s\n",
++		__FUNCTION__, polpath, strerror(errno));
++		close(fd);
++		return -1;
++        }
++
++	return 0;
++}
++
++static inline int load_file_booleans(
++	policydb_t* tmp_policydb, const char* boolpath_arg) {
++
++	const char* boolpath =
++		(boolpath_arg == NULL) ?
++		selinux_booleans_path():boolpath_arg;
++
++	if (sepol_load_booleans(tmp_policydb, boolpath) < 0) {
++
++		/* No booleans file or state booleans - non-fatal. */
++		if (errno == ENOENT || errno == EINVAL)
++			__selinux_debug_printf("%s: warning while "
++			"setting booleans from %s: %s\n", __FUNCTION__,
++				boolpath, strerror(errno));
++
++		/* Fatal error */
++		else {
++			__selinux_debug_printf("%s: error while "
++			"setting booleans from %s: %s\n", __FUNCTION__,
++				boolpath, strerror(errno));
++
++			return -1;
++		}
++	}
++
++	return 0;
++}
++
++static inline int load_current_booleans(policydb_t* tmp_policydb) {
++	int i, ret = 0;
++
++	char** names = NULL;
++	int names_len = 0;
++	int* values = NULL;
++		
++	/* Preserve current boolean values. */
++	if (security_get_boolean_names(&names, &names_len)) {
++		/* Possibly ok, as there may be no booleans. */
++		__selinux_debug_printf("%s: Warning! unable to "
++			"get boolean names: %s\n",
++			__FUNCTION__, strerror(errno));
++		goto exit;
++	}
++	if (!names_len)
++		goto exit;
++
++	values = malloc(sizeof(int) * names_len);
++	if (!values) {
++		__selinux_debug_printf("%s: out of memory\n", __FUNCTION__);
++			ret = -1;
++			goto exit;
++	}
++
++	for (i = 0; i < names_len; i++) {
++		values[i] = security_get_boolean_active(names[i]);
++		if (values[i] < 0) {
++			__selinux_debug_printf("%s: Error while "
++				"getting value for boolean %s: %s\n",
++				__FUNCTION__, names[i], strerror(errno));
++				ret = -1;
++				goto exit;
++		}
++	}
++
++	if (sepol_load_booleans_array(tmp_policydb, names, values, names_len) < 0) {
++
++		/* No booleans file or state booleans - non-fatal. */
++		if (errno == ENOENT || errno == EINVAL)
++			__selinux_debug_printf("%s: warning while "
++				"setting booleans: %s\n", 
++				__FUNCTION__, strerror(errno));
++
++		/* Fatal error */
++		else {
++			__selinux_debug_printf("%s: error while "
++				"setting booleans: %s\n", 
++				__FUNCTION__, strerror(errno));
++
++			ret = -1;
++			goto exit;
++		}
++	}
++
++	exit:
++        for (i = 0; i < names_len; i++)
++                free(names[i]);
++        free(names);
++        free(values);
++
++	return ret;
++}
++
++int security_create_policydb(
++	policydb_t** policydb, 
++	const char* polpath_arg, 
++	const char* boolpath_arg, 
++	int setbools) {
++
++	/* Paths */
++	const char* usrpath = selinux_users_path();
++
++	/* Policy map */	
++	void* map = NULL;
++	size_t map_len; 
++
++	/* Temporary policydb */
++	policydb_t* tmp_policydb = 
++		(policydb_t*) malloc(sizeof(policydb_t));
++
++	if (!tmp_policydb) {
++		__selinux_debug_printf("%s: out of memory", __FUNCTION__);
++		goto err;
++	}
++
++	/* Map policy file */
++	if (map_policy(polpath_arg, 3, &map, &map_len) < 0)
++		goto err;
++
++	/* Construct a policy db */
++	if (policydb_from_image(map, map_len, tmp_policydb) < 0) {
++		munmap(map, map_len);
++		goto err;
++	}
++	munmap(map, map_len);
++
++	/* Load users. Error is not fatal. */
++	if (sepol_file_load_users(tmp_policydb, usrpath) < 0) {
++		__selinux_debug_printf(
++			"%s: error while setting user configuration "
++			"from %s: %s\n", __FUNCTION__, usrpath, 
++			strerror(errno));
++	}
++
++	/* Load booleans */
++	if (setbools) {
++		if (load_file_booleans(tmp_policydb, boolpath_arg) < 0) 
++			goto err;
++	}
++	else if (load_current_booleans(tmp_policydb) < 0) 
++		goto err;
++
++
++	/* Update policydb pointer */
++	*policydb = tmp_policydb;
++
++	return 0; 
++
++err:
++	/* Destroy policydb */
++	policydb_destroy(tmp_policydb);
++	free(tmp_policydb);
++
++	return -1;
++}
++
++int security_load_policydb(policydb_t* policydb) {
++	void* data = NULL;
++	size_t len;
++
++	if (policydb_to_image(policydb, &data, &len) < 0)
++		goto err;
++
++	if (security_load_policy(data, len) < 0)
++		goto err;	
++
++	free(data);
++        return 0;
++
++	err:
++	free(data);
++	return -1;	
++}
++
++int security_load_policy(void *data, size_t len) {
++        char path[PATH_MAX];
++        int fd, ret;
++
++        snprintf(path, sizeof path, "%s/load", selinux_mnt);
++        fd = open(path, O_RDWR);
++        if (fd < 0)
++                return -1;
++
++        ret = write(fd, data, len);
++        close(fd);
++        if (ret < 0)
++                return -1;
++        return 0;
++}
+diff -Naur libselinux-1.23.10.orig/src/selinux_internal.h libselinux-1.23.10.new/src/selinux_internal.h
+--- libselinux-1.23.10.orig/src/selinux_internal.h	2005-04-29 14:07:14.000000000 -0400
++++ libselinux-1.23.10.new/src/selinux_internal.h	2005-06-18 00:28:12.000000000 -0400
+@@ -1,6 +1,9 @@
+ #include <selinux/selinux.h>
+ #include "dso.h"
+ 
++__attribute__ ((format (printf, 1, 2)))
++void __selinux_debug_printf(const char *fmt, ...);
++
+ hidden_proto(security_set_boolean)
+ hidden_proto(security_commit_booleans)
+ hidden_proto(security_check_context)
+
+--=-b1s4koXcpBZhnnD1euSm
 Content-Disposition: attachment; filename=libsepol.diff
 Content-Type: text/x-patch; name=libsepol.diff; charset=UTF-8
 Content-Transfer-Encoding: 7bit
@@ -140,7 +568,7 @@ diff -Naur libsepol-1.5.9.orig/include/sepol/policydb.h libsepol-1.5.9.new/inclu
  /* Identify specific policy version changes */
 diff -Naur libsepol-1.5.9.orig/include/sepol/sepol.h libsepol-1.5.9.new/include/sepol/sepol.h
 --- libsepol-1.5.9.orig/include/sepol/sepol.h	2005-06-16 12:35:07.000000000 -0400
-+++ libsepol-1.5.9.new/include/sepol/sepol.h	2005-06-19 00:57:33.000000000 -0400
++++ libsepol-1.5.9.new/include/sepol/sepol.h	2005-06-18 01:27:55.000000000 -0400
 @@ -3,6 +3,16 @@
  
  #include <sys/types.h>
@@ -158,7 +586,7 @@ diff -Naur libsepol-1.5.9.orig/include/sepol/sepol.h libsepol-1.5.9.new/include/
  
  /* Given an existing binary policy (starting at 'data', with length 'len')
     and a boolean configuration file named by 'boolpath', rewrite the binary
-@@ -16,20 +26,39 @@
+@@ -16,20 +26,32 @@
     with 'nel' elements, rewrite the binary policy for the boolean settings.  
     The binary policy is rewritten in place in memory.
     Returns 0 upon success or -1 otherwise. */
@@ -175,8 +603,7 @@ diff -Naur libsepol-1.5.9.orig/include/sepol/sepol.h libsepol-1.5.9.new/include/
 -			  const char *usersdir,
 -			  void **newdata, size_t *newlen);
 +extern int sepol_genusers(
-+	void *data, size_t len, 
-+	const char *usersdir,
++	void *data, size_t len, const char *usersdir,
 +	void **newdata, size_t *newlen);
 +
 +static inline int sepol_genbools_policydb(
@@ -184,26 +611,20 @@ diff -Naur libsepol-1.5.9.orig/include/sepol/sepol.h libsepol-1.5.9.new/include/
 +
 +	return sepol_load_booleans(policydb, boolpath);
 +}
-+
-+static inline int sepol_genusers_policydb( 
-+	policydb_t* policydb, const char* usersdir) {
-+
-+	return sepol_load_users_file(policydb, usersdir);
-+}
  
  /* Enable or disable deletion of users by sepol_genusers(3) when
     a user in original binary policy image is not defined by the
     new user configurations.  Defaults to disabled. */
 -extern void sepol_set_delusers(int on);
 +static inline void sepol_set_delusers(int on) {
-+	sepol_set_delusers_policy(on);
++	sepol_policy_set_delusers(on);
 +}
 +
 +/* ==== End backwards compatibility ==== */
  
  /* Set internal policydb from a file for subsequent service calls. */
  extern int sepol_set_policydb_from_file(FILE *fp);
-@@ -39,4 +68,5 @@
+@@ -39,4 +61,5 @@
  
  /* Turn on or off sepol error messages. */
  extern void sepol_debug(int on);
@@ -322,50 +743,85 @@ diff -Naur libsepol-1.5.9.orig/include/sepol/user_config.h libsepol-1.5.9.new/in
 +#endif
 diff -Naur libsepol-1.5.9.orig/include/sepol/users_file.h libsepol-1.5.9.new/include/sepol/users_file.h
 --- libsepol-1.5.9.orig/include/sepol/users_file.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/include/sepol/users_file.h	2005-06-19 00:29:04.000000000 -0400
-@@ -0,0 +1,39 @@
++++ libsepol-1.5.9.new/include/sepol/users_file.h	2005-06-17 22:15:39.000000000 -0400
+@@ -0,0 +1,74 @@
 +#ifndef _SEPOL_USERS_FILE_H
 +#define _SEPOL_USERS_FILE_H
 +
 +#include <sepol/user_config.h>
 +#include <sepol/policydb.h>
++#include <limits.h>
 +
-+extern int sepol_load_users_file(
-+	policydb_t* policydb,
-+	const char* usersdir);
++/* Execute handler on all users iteratively, and terminate
++ * on negative return */
++int sepol_file_iterate_users(const char* users_file,
++	int (*handler) (user_config_t user, void* arg), void* arg);
 +
-+extern int sepol_add_user_file(
++/* Executes handler on the matching username, and then rewrites the
++ * config file, with the updated user structure (the handler should
++ * change it). Also loads the user into policy. */
++int sepol_file_mod_user(
 +	policydb_t* policydb,
-+	const char* usersdir,
-+	user_config_t user);
-+
-+extern int sepol_del_user_file(
-+	policydb_t* policydb,
-+	const char* usersdir,
-+	const char* username);
-+
-+extern int sepol_set_roles_file(
-+	policydb_t* policydb,
-+	const char* usersdir,
++	const char* users_file,
 +	const char* username,
-+	const char** roles);
++	int (*handler) (user_config_t user, void* arg),
++	void* arg);
 +
-+extern int sepol_add_role_file(
-+	policydb_t* policydb,
-+	const char* usersdir,
-+	const char* username,
-+	const char* role);
++/* Loads users listed in the files into the policy */
++int sepol_file_load_users(policydb_t* policydb, const char* usersdir);
 +
-+extern int sepol_del_role_file(
-+	policydb_t* policydb,
-+	const char* usersdir,
-+	const char* username,
-+	const char* role);
++/* Add/delete users from the users file and policy */
++extern int sepol_file_add_user(policydb_t* policydb,
++	const char *usersdir, user_config_t user);
++
++extern int user_del(user_config_t user, void* arg);
++static inline int sepol_file_del_user(policydb_t* policydb,
++	const char* usersdir, const char* username) {
++
++	char path[PATH_MAX];
++	snprintf(path, sizeof path, "%s/local.users", usersdir);
++	return sepol_file_mod_user(policydb, path, username, &user_del, NULL);
++}
++
++/* Role manipulation */
++extern int user_set_roles(user_config_t user, void* roles_arg);
++static inline int sepol_file_set_roles(
++	policydb_t* policydb, const char* usersdir,
++	const char* username, const char** roles) {
++
++	char path[PATH_MAX];
++	snprintf(path, sizeof path, "%s/local.users", usersdir);
++	return sepol_file_mod_user(policydb, path, username,
++		&user_set_roles, (void*) roles);
++}
++
++extern int user_add_role(user_config_t user, void* role_arg);
++static inline int sepol_file_add_role(
++	policydb_t* policydb, const char* usersdir,
++	const char* username, const char* role) {
++
++	char path[PATH_MAX];
++	snprintf(path, sizeof path, "%s/local.users", usersdir);
++	return sepol_file_mod_user(policydb, path, username,
++		&user_add_role, (void*) role);
++}
++
++extern int user_del_role(user_config_t user, void* role_arg);
++static inline int sepol_file_del_role(
++	policydb_t* policydb, const char* usersdir,
++	const char* username, const char* role) {
++	
++	char path[PATH_MAX];
++	snprintf(path, sizeof path, "%s/local.users", usersdir);
++	return sepol_file_mod_user(policydb, path, username,
++		&user_del_role, (void*) role);
++}
++
 +
 +#endif
 diff -Naur libsepol-1.5.9.orig/include/sepol/users_policy.h libsepol-1.5.9.new/include/sepol/users_policy.h
 --- libsepol-1.5.9.orig/include/sepol/users_policy.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/include/sepol/users_policy.h	2005-06-19 00:52:34.000000000 -0400
++++ libsepol-1.5.9.new/include/sepol/users_policy.h	2005-06-18 00:47:32.000000000 -0400
 @@ -0,0 +1,18 @@
 +#ifndef __SEPOL_USERS_INTERNAL_H
 +#define __SEPOL_USERS_INTERNAL_H
@@ -374,15 +830,15 @@ diff -Naur libsepol-1.5.9.orig/include/sepol/users_policy.h libsepol-1.5.9.new/i
 +#include <sepol/user_config.h>
 +
 +/* Del users */
-+extern void sepol_set_delusers_policy(int on);
++extern void sepol_policy_set_delusers(int on);
 +
 +/* Clear unused users (before reloading policy */
-+void sepol_clear_users_policy(policydb_t *policydb);
++void sepol_policy_clear_unused(policydb_t* policydb);
 +
 +/* Add/delete/load users from the policy */
-+extern int sepol_add_user_policy(policydb_t *policydb, user_config_t user);
-+extern int sepol_del_user_policy(policydb_t *policydb, const char *username);
-+extern int sepol_load_user_policy(policydb_t *policydb, user_config_t user);
++extern int sepol_policy_add_user(policydb_t* policydb, user_config_t user);
++extern int sepol_policy_del_user(policydb_t* policydb, const char* username);
++extern int sepol_policy_load_user(user_config_t user, void* policydb);
 +
 +#endif
 diff -Naur libsepol-1.5.9.orig/src/booleans.c libsepol-1.5.9.new/src/booleans.c
@@ -563,7 +1019,7 @@ diff -Naur libsepol-1.5.9.orig/src/booleans.c libsepol-1.5.9.new/src/booleans.c
 +}
 diff -Naur libsepol-1.5.9.orig/src/compatibility.c libsepol-1.5.9.new/src/compatibility.c
 --- libsepol-1.5.9.orig/src/compatibility.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/src/compatibility.c	2005-06-19 00:36:46.000000000 -0400
++++ libsepol-1.5.9.new/src/compatibility.c	2005-06-18 00:46:00.000000000 -0400
 @@ -0,0 +1,87 @@
 +#include <stdlib.h>
 +#include <string.h>
@@ -583,7 +1039,7 @@ diff -Naur libsepol-1.5.9.orig/src/compatibility.c libsepol-1.5.9.new/src/compat
 +	if (policydb_from_image(data, len, &policydb) < 0)
 +		return SEPOL_ERR;
 +
-+	if (sepol_load_users_file(&policydb, usersdir) < 0)
++	if (sepol_file_load_users(&policydb, usersdir) < 0)
 +		goto err;
 +
 +        if (policydb_to_image(&policydb, new_data, new_len) < 0) 
@@ -654,7 +1110,7 @@ diff -Naur libsepol-1.5.9.orig/src/compatibility.c libsepol-1.5.9.new/src/compat
 +}
 diff -Naur libsepol-1.5.9.orig/src/debug.c libsepol-1.5.9.new/src/debug.c
 --- libsepol-1.5.9.orig/src/debug.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/src/debug.c	2005-06-19 21:47:29.000000000 -0400
++++ libsepol-1.5.9.new/src/debug.c	2005-06-17 14:18:41.000000000 -0400
 @@ -0,0 +1,18 @@
 +#include <stdarg.h>
 +#include <stdio.h>
@@ -1988,11 +2444,11 @@ diff -Naur libsepol-1.5.9.orig/src/genusers.c.~1.2.~ libsepol-1.5.9.new/src/genu
 -}
 diff -Naur libsepol-1.5.9.orig/src/libsepol.map libsepol-1.5.9.new/src/libsepol.map
 --- libsepol-1.5.9.orig/src/libsepol.map	2005-06-16 12:35:12.000000000 -0400
-+++ libsepol-1.5.9.new/src/libsepol.map	2005-06-19 00:36:06.000000000 -0400
++++ libsepol-1.5.9.new/src/libsepol.map	2005-06-18 01:19:39.000000000 -0400
 @@ -1,4 +1,4 @@
  {
 -  global: sepol_genbools*; sepol_set_policydb_from_file; sepol_check_context; sepol_genusers; sepol_debug; sepol_set_delusers;
-+  global: sepol_*; policydb_*_image; policydb_destroy; uc_*;  
++  global: sepol_genbools*; sepol_set_policydb_from_file; sepol_check_context; sepol_genusers; sepol_debug; sepol_set_delusers; uc_*; user_*; sepol_file_*; sepol_policy_*; policydb_*_image; policydb_destroy; sepol_load_booleans*;  
    local: *;
  };
 diff -Naur libsepol-1.5.9.orig/src/Makefile libsepol-1.5.9.new/src/Makefile
@@ -2121,20 +2577,21 @@ diff -Naur libsepol-1.5.9.orig/src/policydb_convert.c libsepol-1.5.9.new/src/pol
 +}
 diff -Naur libsepol-1.5.9.orig/src/private.h libsepol-1.5.9.new/src/private.h
 --- libsepol-1.5.9.orig/src/private.h	2005-06-16 12:35:12.000000000 -0400
-+++ libsepol-1.5.9.new/src/private.h	2005-06-19 19:02:55.000000000 -0400
-@@ -4,6 +4,11 @@
++++ libsepol-1.5.9.new/src/private.h	2005-06-17 22:28:39.000000000 -0400
+@@ -4,6 +4,12 @@
  
  #include <byteswap.h>
  #include <endian.h>
 +#include <sepol/policydb.h>
 +
-+#define SEPOL_EXIT 1
 +#define SEPOL_SUCCESS 0
 +#define SEPOL_ERR -1
++#define SEPOL_HANDLER_ERR -2
++#define SEPOL_HANDLER_SIGDEL 1
  
  #if __BYTE_ORDER == __LITTLE_ENDIAN
  #define cpu_to_le32(x) (x)
-@@ -25,7 +30,9 @@
+@@ -25,7 +31,9 @@
  };
  
  extern struct policydb_compat_info *policydb_lookup_compat(int version);
@@ -2145,434 +2602,10 @@ diff -Naur libsepol-1.5.9.orig/src/private.h libsepol-1.5.9.new/src/private.h
  
  /* Reading from a policy "file". */
  static inline void *next_entry(struct policy_file * fp, size_t bytes)
-diff -Naur libsepol-1.5.9.orig/src/record_file.c libsepol-1.5.9.new/src/record_file.c
---- libsepol-1.5.9.orig/src/record_file.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/src/record_file.c	2005-06-19 22:27:23.000000000 -0400
-@@ -0,0 +1,343 @@
-+#include <stdio.h>
-+#include <stdio_ext.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <limits.h>
-+#include <ctype.h>
-+
-+#include "record_file.h"
-+#include "private.h"
-+
-+void record_dispose_line(parse_info_t* info) {
-+	if (info->orig_line) {
-+		free(info->orig_line);
-+		info->orig_line = NULL;
-+	}
-+
-+	if (info->working_copy) {
-+		free(info->working_copy);
-+		info->working_copy = NULL;
-+	}
-+
-+	info->ptr = NULL;
-+}
-+
-+char* record_fetch_string(parse_info_t* info) {
-+	char* start = info->ptr;
-+
-+	while (*(info->ptr) && !isspace(*(info->ptr)))
-+		info->ptr++;
-+	*(info->ptr)++ = '\0';
-+
-+	return start;
-+}
-+
-+int record_assert_noeof(parse_info_t* info) {
-+	if (!info->ptr) {
-+		__sepol_debug_printf("%s: unexpected end of file\n",
-+			__FUNCTION__);
-+		return SEPOL_ERR;
-+	}
-+	return SEPOL_SUCCESS;
-+}
-+
-+int record_assert_space(parse_info_t* info) {
-+	if (!isspace(*(info->ptr))) {
-+		__sepol_debug_printf("%s: malformed line %u in %s: \n%s\n",
-+			__FUNCTION__, info->lineno, info->filename,
-+			info->orig_line);
-+		return SEPOL_ERR;
-+	}
-+	return SEPOL_SUCCESS;
-+}
-+
-+
-+int record_assert_ch(parse_info_t* info, const char ch) {
-+
-+	if (record_assert_noeof(info) < 0)
-+		return SEPOL_ERR;
-+
-+	if (*(info->ptr) != ch) {
-+		__sepol_debug_printf("%s: malformed line %u in %s: \n%s\n"
-+		"expected character \'%c\', but found \'%c\'\n", 
-+		__FUNCTION__, info->lineno, info->filename, 
-+		info->orig_line, ch, *(info->ptr));
-+
-+		return SEPOL_ERR;
-+	}
-+
-+	return SEPOL_SUCCESS;
-+}
-+
-+int record_assert_str(parse_info_t* info, const char* assert_str) {
-+
-+	if (record_assert_noeof(info) < 0)
-+		return SEPOL_ERR;
-+
-+        if (strncasecmp(info->ptr, assert_str, strlen(assert_str))) {
-+		__sepol_debug_printf("%s: malformed line %u in %s: \n%s\n"
-+		"expected string \"%s\"\n",__FUNCTION__, 
-+		info->lineno, info->filename, info->orig_line, assert_str);
-+
-+		return SEPOL_ERR;
-+	}
-+
-+	info->ptr += strlen(assert_str);
-+	return SEPOL_SUCCESS;
-+}
-+
-+int record_skip_space(parse_info_t* info) {
-+	unsigned int len = 0;
-+	int lineno = info->lineno;
-+	char* buffer = NULL;
-+	char* ptr;
-+
-+	if (info->ptr) { 
-+		while (*(info->ptr) && isspace(*(info->ptr)))
-+			info->ptr++;
-+		
-+		if (*(info->ptr))
-+			return SEPOL_SUCCESS;
-+	}
-+
-+	record_dispose_line(info);
-+
-+	while (getline(&buffer, &len, info->file_stream) >= 0) {
-+		lineno++;
-+
-+		/* Empty line */
-+		if (len == 0) {
-+			if (info->copy_stream)
-+				fprintf(info->copy_stream, "\n"); 
-+			goto next;
-+		}
-+
-+		/* Eat newline, preceding whitespace */
-+		if (buffer[len - 1] == '\n')
-+			buffer[len - 1] = '\0';
-+
-+		ptr = buffer;
-+		while (*ptr && isspace(*ptr))
-+			ptr++;
-+
-+		/* Skip comments and blank lines */
-+		if (!(*ptr) || *ptr == '#') {
-+			if (info->copy_stream)			
-+				fprintf(info->copy_stream, "%s", buffer);
-+			goto next;
-+		}
-+
-+		else {
-+			char* tmp = strdup(buffer);
-+			if (!tmp) {
-+				__sepol_debug_printf("%s: out of memory\n", 
-+					__FUNCTION__);
-+				goto err;
-+			}
-+
-+			info -> lineno = lineno;
-+			info -> working_copy = buffer;
-+			info -> len = len;
-+			info -> orig_line = tmp;
-+			info -> ptr = ptr;
-+
-+			return SEPOL_SUCCESS;
-+		}
-+	
-+		next:	
-+		free(buffer);
-+		buffer = 0;
-+	}
-+
-+	return SEPOL_SUCCESS;
-+		
-+	err:
-+	if (buffer)
-+		free(buffer);
-+
-+	return SEPOL_ERR;
-+}
-+
-+static int process_records (
-+	record_table_t* rtable, 
-+	parse_info_t* info,
-+	int (*handler) (record_t record, void* arg),
-+	void* arg) {
-+
-+	record_t* record = NULL;
-+	int status = 0;
-+
-+	while(!(status & RECORD_HANDLER_SIGEXIT)) { 
-+
-+		/* Create a record config structure */
-+		record = rtable->create();
-+		if (!record) {
-+			__sepol_debug_printf("%s: out of memory\n", __FUNCTION__);
-+			goto err;
-+		}
-+
-+		status = rtable->parse(info, record);
-+		if (status < 0) 
-+			goto err;
-+		else if (status == SEPOL_EXIT)
-+			goto out;
-+	
-+		status = handler(record, arg); 
-+
-+		if (status & RECORD_HANDLER_SIGMATCH)
-+			info -> match_found = 1;
-+
-+		if (status & RECORD_HANDLER_SIGERR) 
-+			goto err;
-+
-+		if (info->copy_stream && ! (status & RECORD_HANDLER_SIGDEL))
-+			rtable->print(record, info->copy_stream);
-+
-+		rtable->destroy(record);
-+		record = NULL;
-+	}
-+
-+	out:
-+	if (record)
-+		rtable->destroy(record);
-+	return SEPOL_SUCCESS;
-+
-+	err:
-+	if (record)
-+		rtable->destroy(record);
-+	return SEPOL_ERR;
-+}
-+
-+static int open_file(parse_info_t* info, int copy_stream) {
-+
-+	info->file_stream = fopen(info->filename, "r");
-+	if (!info->file_stream) {
-+		 __sepol_debug_printf("%s: unable to open %s for reading: %s\n",
-+			__FUNCTION__, info->filename, strerror(errno));
-+		return SEPOL_ERR;
-+	}
-+	__fsetlocking(info->file_stream, FSETLOCKING_BYCALLER);
-+
-+	if (copy_stream) {
-+		char tmp_file[PATH_MAX];   
-+		snprintf(tmp_file, sizeof tmp_file, "%s.bak", info->filename);
-+		
-+		info->copy_stream = fopen(tmp_file, "a");
-+		if (!info->copy_stream) {
-+			__sepol_debug_printf("%s: unable to open %s for append: %s\n",
-+				__FUNCTION__, tmp_file, strerror(errno));
-+			fclose(info->file_stream);
-+                	return SEPOL_ERR;
-+        	}
-+    	    __fsetlocking(info->copy_stream, FSETLOCKING_BYCALLER);
-+	}
-+
-+	return SEPOL_SUCCESS;
-+}
-+
-+static int close_file(parse_info_t* info, int err) {
-+	fclose(info->file_stream);
-+
-+	if (info->copy_stream) {
-+		char tmp_file[PATH_MAX];
-+		snprintf(tmp_file, sizeof tmp_file, "%s.bak", info->filename);
-+
-+		fclose(info->copy_stream);
-+		if (!info->match_found) {
-+			remove(tmp_file);
-+			__sepol_debug_printf("%s: unable to match record\n",
-+         			__FUNCTION__);
-+			errno = EIO;
-+			return SEPOL_SUCCESS;
-+		}
-+		else if (err) { 
-+			remove(tmp_file);
-+			return SEPOL_SUCCESS;
-+		}
-+		else
-+			return rename(tmp_file, info->filename);
-+	}
-+
-+	return SEPOL_SUCCESS;
-+}
-+
-+int record_iterate_file(
-+	const char* filename,
-+	record_table_t* rtable,
-+	int (*handler) (record_t record, void* arg),
-+	void* arg) { 
-+
-+	parse_info_t info;
-+	info.filename = filename;
-+	info.lineno = 0;
-+	info.working_copy = NULL;
-+	info.orig_line = NULL;
-+	info.file_stream = NULL;
-+	info.copy_stream = NULL;
-+	info.len = 0;
-+	info.match_found = 0;
-+	info.ptr = NULL;
-+
-+	if (open_file(&info, 0) < 0)
-+		goto err;
-+
-+	if (process_records(rtable, &info, handler, arg) < 0)
-+		goto err;	
-+
-+	close_file(&info, 0);
-+	return SEPOL_SUCCESS;
-+
-+err:
-+	close_file(&info, 1);
-+	return SEPOL_ERR;
-+}
-+
-+int record_modify_file(
-+	const char* filename, 
-+	record_table_t* rtable,
-+	int (*handler) (record_t record, void* arg),
-+	void* arg) {
-+
-+	parse_info_t info;
-+	info.filename = filename;
-+	info.lineno = 0;
-+	info.working_copy = NULL;
-+	info.orig_line = NULL;
-+	info.file_stream = NULL;
-+	info.copy_stream = NULL;
-+	info.len = 0;
-+	info.match_found = 0;
-+	info.ptr = NULL;
-+
-+	if (open_file(&info, 1) < 0)
-+		goto err;
-+
-+	if (process_records(rtable, &info, handler, arg) < 0)
-+		goto err;
-+
-+	return close_file(&info, 0);
-+err:
-+	close_file(&info, 1);
-+        return SEPOL_ERR;
-+}
-+
-+int record_addto_file(
-+	const char* filename,
-+	record_table_t* rtable,
-+	record_t record) {
-+
-+	FILE* fp;
-+
-+	fp = fopen(filename, "a");
-+	if (!fp) {
-+		__sepol_debug_printf("%s: can't open %s for append: %s\n", 
-+			__FUNCTION__, filename, strerror(errno));
-+		return SEPOL_ERR;
-+	}
-+
-+	fseek(fp, 0, SEEK_END);
-+
-+	rtable->print(record, fp);
-+	fclose(fp);
-+	return SEPOL_SUCCESS;
-+}
-diff -Naur libsepol-1.5.9.orig/src/record_file.h libsepol-1.5.9.new/src/record_file.h
---- libsepol-1.5.9.orig/src/record_file.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/src/record_file.h	2005-06-19 22:06:00.000000000 -0400
-@@ -0,0 +1,73 @@
-+#ifndef _SEPOL_RECORD_FILE_H
-+#define _SEPOL_RECORD_FILE_H
-+
-+#ifndef RECORD_DEFINED
-+typedef void* record_t;
-+#define RECORD_DEFINED
-+#endif
-+
-+#define RECORD_HANDLER_SIGOK 	0x0001
-+#define RECORD_HANDLER_SIGERR	0x0002
-+#define RECORD_HANDLER_SIGMATCH 0x0004
-+#define RECORD_HANDLER_SIGDEL	0x0008
-+#define RECORD_HANDLER_SIGEXIT  0x0010
-+
-+typedef struct parse_info {
-+	unsigned int lineno;
-+	char* orig_line;
-+	char* working_copy;
-+	char* ptr;
-+	unsigned int len;
-+	const char* filename;
-+	FILE* file_stream;
-+	FILE* copy_stream;
-+	int match_found;
-+} parse_info_t;
-+
-+typedef struct record_table {
-+	record_t (*create) (void);
-+	void (*destroy) (record_t record);
-+	int (*parse) (parse_info_t* info, record_t record);
-+	void (*print) (record_t record, FILE* str);
-+} record_table_t;
-+
-+/*
-+ * Iterate over all records in the given file,
-+ * and invoke the handler with its given argument on each record.
-+ * The handler is supplied a record_t structure containing
-+ * the parsed data.
-+ */
-+
-+int record_iterate_file(
-+	const char* filename,
-+	record_table_t* rtable,
-+	int (*handler) (record_t record, void* arg), void* arg);
-+
-+/*
-+ * Copy filename to filename.tmp, updating a particular record.
-+ * Invoke the handler, which may update the record, or issue a
-+ * delete signal. On failure, the tmp file is erased.
-+ * On success, the tmp file replaces the old file.
-+ */
-+int record_modify_file(
-+        const char* filename,
-+        record_table_t* rtable,
-+	int (*handler) (record_t record, void* arg), void* arg);
-+
-+/*
-+ * Add a record to the config file (local) and to policy.
-+ */
-+int record_addto_file(
-+	const char* filename,
-+	record_table_t* rtable,
-+	record_t record);
-+
-+void record_dispose_line(parse_info_t* info);
-+int record_skip_space(parse_info_t* info);
-+char* record_fetch_string(parse_info_t* info);
-+int record_assert_noeof(parse_info_t* info);
-+int record_assert_space(parse_info_t* info);
-+int record_assert_ch(parse_info_t* info, const char ch);
-+int record_assert_str(parse_info_t* info, const char* assert_str);
-+
-+#endif
 diff -Naur libsepol-1.5.9.orig/src/user_config.c libsepol-1.5.9.new/src/user_config.c
 --- libsepol-1.5.9.orig/src/user_config.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/src/user_config.c	2005-06-19 21:50:29.000000000 -0400
-@@ -0,0 +1,157 @@
++++ libsepol-1.5.9.new/src/user_config.c	2005-06-17 22:27:15.000000000 -0400
+@@ -0,0 +1,148 @@
 +#include <errno.h>
 +#include <stdlib.h>
 +#include <sepol/user_config.h>
@@ -2584,17 +2617,13 @@ diff -Naur libsepol-1.5.9.orig/src/user_config.c libsepol-1.5.9.new/src/user_con
 +int uc_add_role(user_config_t user, const char* role) {
 +        struct role* r = (struct role*) malloc(sizeof(struct role));
 +	if (!r) {
-+		__sepol_debug_printf("%s: out of memory\n", 
-+			__FUNCTION__);
++		errno = ENOMEM;
 +		return SEPOL_ERR;
 +	}
 +
 +	r->role = strdup(role);
-+	if (!role) {
-+		__sepol_debug_printf("%s: out of memory\n", 
-+			__FUNCTION__);
-+		return SEPOL_ERR;
-+	}
++	if (!role) return SEPOL_ERR;
++		
 +
 +        r->next = user->roles;
 +        user->roles = r;
@@ -2630,13 +2659,8 @@ diff -Naur libsepol-1.5.9.orig/src/user_config.c libsepol-1.5.9.new/src/user_con
 +	for (ptr = user->roles; ptr != NULL; ptr=ptr -> next) {
 +		if (!strcmp(ptr->role, role)) {
 +
-+			if (user->num_roles == 1) {
-+				__sepol_debug_printf("%s: unable to delete"
-+					"the last role for user %s\n", 
-+					__FUNCTION__, uc_get_name(user));
-+
++			if (user->num_roles == 1) 
 +				return SEPOL_ERR;
-+			}
 +
 +			if (prev)
 +				prev->next = ptr->next;
@@ -2730,10 +2754,56 @@ diff -Naur libsepol-1.5.9.orig/src/user_config.c libsepol-1.5.9.new/src/user_con
 +
 +	free(user);
 +}
+diff -Naur libsepol-1.5.9.orig/src/user_config_handlers.c libsepol-1.5.9.new/src/user_config_handlers.c
+--- libsepol-1.5.9.orig/src/user_config_handlers.c	1969-12-31 19:00:00.000000000 -0500
++++ libsepol-1.5.9.new/src/user_config_handlers.c	2005-06-17 22:29:34.000000000 -0400
+@@ -0,0 +1,42 @@
++#include <sepol/user_config.h>
++
++#include "private.h"
++
++/* Config handlers are passed to
++ * iterator functions so that they can
++ * manipulate user configuration. 
++ * They can't be inlined 
++ */
++
++int user_del(user_config_t user, void* arg) {
++	return SEPOL_HANDLER_SIGDEL;
++}
++
++int user_add_role(user_config_t user, void* role_arg) {
++	char* role = (char*) role_arg;
++	return uc_has_role(user, role)? 0: uc_add_role(user,role);
++}
++
++int user_del_role(user_config_t user, void* role_arg) {
++	char* role = (char*) role_arg;
++	return uc_del_role(user, role);
++}
++
++int user_set_roles(user_config_t user, void* roles_arg) {
++	const char** roles = (const char**) roles_arg;
++	const char** ptr = roles;
++	int status = uc_reset_roles(user);
++
++	if (status < 0)
++		return status;
++
++	while(ptr) {
++		status = uc_add_role(user, *ptr);
++		if (status < 0)
++			return SEPOL_ERR;
++		ptr++;
++	}
++
++	return SEPOL_SUCCESS;
++}
++
 diff -Naur libsepol-1.5.9.orig/src/users_file.c libsepol-1.5.9.new/src/users_file.c
 --- libsepol-1.5.9.orig/src/users_file.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/src/users_file.c	2005-06-19 23:10:39.000000000 -0400
-@@ -0,0 +1,480 @@
++++ libsepol-1.5.9.new/src/users_file.c	2005-06-18 00:54:50.000000000 -0400
+@@ -0,0 +1,505 @@
 +#include <stdio.h>
 +#include <stdio_ext.h>
 +#include <stdlib.h>
@@ -2742,24 +2812,18 @@ diff -Naur libsepol-1.5.9.orig/src/users_file.c libsepol-1.5.9.new/src/users_fil
 +#include <ctype.h>
 +
 +#include <sepol/policydb.h>
-+#include <sepol/users_file.h>
 +#include <sepol/user_config.h>
++#include <sepol/users_file.h>
 +#include <sepol/users_policy.h>
 +
 +#include "private.h"
-+
-+typedef user_config_t record_t;
-+#define RECORD_DEFINED
-+#include "record_file.h"
-+
-+#define MLS_MAX 40
-+/* FIXME: what's the correct value */
 +
 +/*
 + * Print user record to the given stream 
 + */
 +static void print_user(user_config_t user, FILE* str) {
 +	const char *mls_level, *mls_range, *role, *def_role;
++
 +
 +	/* Interpret NULL name as deletion signal */
 +	if (uc_get_name(user) == NULL) 
@@ -2794,430 +2858,461 @@ diff -Naur libsepol-1.5.9.orig/src/users_file.c libsepol-1.5.9.new/src/users_fil
 + * and construct a user_config_t structure from it
 + */
 +
-+static int parse_user(parse_info_t* info, user_config_t user) {
-+
++static int parse_user_line(char* ptr, user_config_t user) {
 +	int islist = 0;
-+	char mls[MLS_MAX];
-+	int i;
-+	
 +	char* start;
-+	
-+	if (record_skip_space(info) < 0)
-+		goto err;
-+	if (!info->ptr)
-+		goto last;
-+	
++
 +	/* Parse user name */
-+	if (record_assert_str(info, "user") < 0)
-+		goto err;
++	if (strncasecmp(ptr, "user", 4))
++		return SEPOL_ERR;
++	ptr += 4;
++	if (!isspace(*ptr))
++		return SEPOL_ERR;
++	while (*ptr && isspace(*ptr))
++		ptr++;
++	if (!(*ptr))
++		return SEPOL_ERR;
++
++	start = ptr;
++
++	while (*ptr && !isspace(*ptr))
++		ptr++;
++	if (!(*ptr))
++		return SEPOL_ERR;
++	*ptr++ = '\0';
++
++	if (uc_set_name(user, start) < 0)
++		return SEPOL_ERR;
++
++	/* Parse roles header */ 
++	while (*ptr && isspace(*ptr))
++		ptr++;
++	if (!(*ptr))
++		return SEPOL_ERR;
++
++	if (strncasecmp(ptr, "roles", 5))
++		return SEPOL_ERR;
++	ptr += 5;
 +	
-+	if (record_assert_space(info) < 0)
-+		goto err;
-+
-+	if (record_skip_space(info) < 0)
-+		goto err;
-+
-+	if (record_assert_noeof(info) < 0)
-+		goto err;
-+
-+	if (uc_set_name(user, record_fetch_string(info)) < 0)
-+		goto err;
-+
-+	/* Parse roles header */
-+	if (record_skip_space(info) < 0)
-+		goto err;
-+
-+	if (record_assert_str(info,"roles") < 0)
-+		goto err;
-+
-+	if (record_assert_space(info) < 0)
-+		goto err;
-+	
-+	if (record_skip_space(info) < 0)
-+		goto err;
-+
-+	if (record_assert_noeof(info) < 0)
-+		goto err;
-+
-+	if (*(info->ptr) == '{') {
++	if (!isspace(*ptr))
++		return SEPOL_ERR;
++	while (*ptr && isspace(*ptr))
++		ptr++;
++	if (!(*ptr))
++		return SEPOL_ERR;
++	if (*ptr == '{') {
 +		islist = 1;
-+		info->ptr++;
++		ptr++;
 +	} else
 +		islist = 0;
 +
 +	/* For each role, loop */
 +	do { 
-+		if (record_skip_space(info) < 0)
-+			goto err;
-+		if (record_assert_noeof(info) < 0)
-+			goto err;
++		while (*ptr && isspace(*ptr))
++			ptr++;
++		if (!(*ptr))
++			return SEPOL_ERR;
++		start = ptr;
 +
-+		start = info->ptr;
-+		while (*(info->ptr) && *(info->ptr) != ';' 
-+			&& *(info->ptr) != '}' && !isspace(*(info->ptr))) 
-+			info->ptr++;
-+		*(info->ptr)++ = '\0';
-+	
-+		if (uc_add_role(user, start) < 0)
-+			goto err;
++		while (*ptr && *ptr != ';' && *ptr != '}' && !isspace(*ptr)) 
++			ptr++;
 +
-+		if (record_skip_space(info) < 0)
-+			goto err;
-+		if (record_assert_noeof(info) < 0)	
-+			goto err;
++		if (!(*ptr))
++			return SEPOL_ERR;
 +
-+		if (*(info->ptr) == '}') 
++		*ptr++ = '\0';
++
++		while (*ptr && isspace(*ptr))
++			ptr++;
++
++		if (*ptr == '}') 
 +			islist = 0;
++
++		if (uc_add_role(user, start) < 0)
++			return SEPOL_ERR;
 +
 +	} while (islist);
 +
++
 +	/* Handle mls */
 +	if (mls_enabled) {
++		char* ptr2;
 +
 +		/* Parse level header */
-+		if (record_skip_space(info) < 0)
-+			goto err;
-+		if (record_assert_noeof(info) < 0)
-+			goto err;
++		while (*ptr && isspace(*ptr))
++			ptr++;
++		if (!(*ptr))
++			return SEPOL_ERR;
++		if (*ptr == ';')
++			return SEPOL_SUCCESS;		
 +
-+		if (*(info->ptr) == ';')
-+			goto out;
-+
-+		if (record_assert_str(info, "level") < 0)
-+			goto err;
-+
-+		if (record_assert_space(info) < 0)
-+			goto err;
-+
-+		if (record_skip_space(info) < 0)
-+			goto err;
-+		if (record_assert_noeof(info) < 0)
-+			goto err;
++		if (strncasecmp(ptr, "level", 5))
++			return SEPOL_ERR;
++		ptr += 5;
++		if (!isspace(*ptr))
++			return SEPOL_ERR;
++		while (*ptr && isspace(*ptr))
++			ptr++;
++		if (!(*ptr))
++			return SEPOL_ERR;
 +
 +		/* Parse level, spaces are allowed */
-+		do {
-+			if (!isspace(info->ptr)) { 
-+				if (i > (MLS_MAX - 2)) 
-+					goto context_toobig;
-+				mls[i++] = *(info->ptr);
-+			}
-+			info->ptr++;
-+	
-+			if (record_skip_space(info) < 0)
-+				goto err;
-+			if (record_assert_noeof(info) < 0)
-+				goto err;
++		start = ptr;
++		ptr2 = ptr;
++		while (*ptr2 && strncasecmp(ptr2, "range", 5)) {
++			if (!isspace(ptr2))
++				*ptr++ = *ptr2;
++			ptr2++;
++		}
++		if (!(*ptr2))
++			return SEPOL_ERR;
++		*ptr++ = '\0';
++		ptr = ptr2;
 +
-+		} while(!strncasecmp(info->ptr, "range", 5));
-+
-+		mls[i] = '\0';
-+		i = 0;
-+		if (uc_set_mls_level(user, mls) < 0)
-+			goto err;
++		if (uc_set_mls_level(user, start) < 0)
++			return SEPOL_ERR;
 +
 +		/* Parse range header */
-+		if (record_assert_str(info, "range") < 0)
-+			goto err;
-+
-+		if (record_assert_space(info) < 0)
-+			goto err;
-+
-+		if (record_skip_space(info) < 0)
-+			goto err;
-+		if (record_assert_noeof(info) < 0)
-+			goto err;
++		if (strncasecmp(ptr, "range", 5))
++			return SEPOL_ERR;
++		ptr += 5;
++		if (!isspace(*ptr))
++			return SEPOL_ERR;
++		while (*ptr && isspace(*ptr))
++			ptr++;
++		if (!(*ptr))
++			return SEPOL_ERR;
 +
 +		/* Parse range, spaces are allowed */
-+                do {
-+			if (!isspace(info->ptr)) {
-+				if (i > (MLS_MAX - 2))
-+					goto context_toobig;
-+				mls[i++] = *(info->ptr);
-+			}
-+			(info->ptr)++;
-+
-+			if (record_skip_space(info) < 0)
-+				goto err;
-+			if (record_assert_noeof(info) < 0)
-+				goto err;
-+
-+		} while(*(info->ptr) != ';');
-+
-+		mls[i] = '\0';
-+		if (uc_set_mls_range(user, mls) < 0)
-+			goto err;
++		start = ptr;
++		ptr2 = ptr;
++		while (*ptr2 && *ptr2 != ';') {
++			if (!isspace(ptr2))
++				*ptr++ = *ptr2;
++			ptr2++;
++		}
++		if (!(*ptr2))
++			return SEPOL_ERR;
++		*ptr++ = '\0';
++		ptr = ptr2;
++		if (uc_set_mls_range(user, start) < 0)
++			return SEPOL_ERR;
 +	}
 +
-+	out:
-+	record_dispose_line(info);
++	return SEPOL_SUCCESS;
++}
++
++/*
++ * Iterate over all user records in the given file,
++ * and invoke the handler with its given argument on each user.
++ * The handler is supplied a user_config_t structure containing 
++ * the parsed data.
++ */
++
++int sepol_file_iterate_users(
++	const char* users_file, 
++	int (*handler) (user_config_t user, void* arg), 
++	void* arg) 
++{ 
++	FILE *fp = NULL;
++	char *buffer = NULL, *ptr = NULL;
++	unsigned int lineno = 0;
++	size_t len = 0;
++
++	/* Open the users file */
++	fp = fopen(users_file,"r");
++	if (fp == NULL) {
++		__sepol_debug_printf("%s: unable to open %s for reading\n", 
++			__FUNCTION__, users_file);
++		return SEPOL_ERR;
++	}
++	__fsetlocking(fp, FSETLOCKING_BYCALLER);
++
++	/* Iterate over each line of the file */
++	while (getline(&buffer, &len, fp) >= 0) {
++		lineno++;
++
++		/* Empty line */
++		if (len == 0) 
++			goto next;
++
++		/* Eat newline, preceding whitespace */
++		if ((buffer[len - 1] == '\n'))
++			buffer[len - 1] = '\0';
++		ptr = buffer;
++		while (*ptr && isspace(*ptr))
++			ptr++;
++
++		/* Process users */
++		if (*ptr && *ptr != '#') { 
++
++			user_config_t user = NULL;
++			int status = 0;
++
++			/* Create a user config structure */
++			user = uc_create();
++			if (!user) {
++				__sepol_debug_printf("%s: out of memory while "
++				"iterating %s\n", __FUNCTION__, users_file);
++
++				errno = ENOMEM;
++				goto err;
++			}
++
++			/* Parse user data into that structure */
++			if( parse_user_line(ptr, user) < 0 ) {
++				__sepol_debug_printf("%s: malformed line "
++					"%u in %s\n", __FUNCTION__, lineno, 
++					users_file);
++
++				errno = EIO;
++				uc_destroy(user);
++				goto err;
++			}
++
++			/* Invoke handler with the user config struct 
++			   Please note that the user config struct data 
++			   is only valid while buffer is not written over */
++			status = handler(user, arg); 
++
++			uc_destroy(user);
++
++			/* If the handler returned a negative number, 
++			 * stop iterating */
++			if (status < 0) 
++				goto handler_exit;
++		}
++	
++		next:
++			free(buffer);
++			buffer = NULL;
++	}
++
++	fclose(fp);
 +	return SEPOL_SUCCESS;
 +
-+	last:
-+	return SEPOL_EXIT;
-+
-+	context_toobig:
-+	__sepol_debug_printf("%s: MLS context is too long\n", 
-+		__FUNCTION__);
-+	record_dispose_line(info);
++err:
++	free(buffer);
++	fclose(fp);
 +	return SEPOL_ERR;
 +
-+	err:
-+	record_dispose_line(info);
-+	return SEPOL_ERR;
++handler_exit:
++	free(buffer);
++	fclose(fp);
++	return SEPOL_HANDLER_ERR;
 +}
 +
-+static record_table_t USER_RTABLE = {
-+	.create  = uc_create,
-+	.destroy = uc_destroy,
-+	.parse   = parse_user,
-+	.print   = print_user
-+};
++/*
++ * Copy users_file to users_file.tmp, updating data for a particular user.
++ * Invoke the handler, which may update the user data. 
++ * Grammar vertification is performed on all users. On failure, the tmp 
++ * file is erased. On success, the tmp file replaces the old file.
++ */
++int sepol_file_mod_user(policydb_t* policydb, const char* users_file, 
++	const char* username,  
++	int (*handler) (user_config_t user, void* arg), 
++	void* arg) 
++{
 +
-+typedef struct user_query {
-+	const char* name;
-+	policydb_t* policydb;
-+} user_query_t;
-+
-+typedef struct role_query {
-+	const char* name;
-+	const char* role;
-+	policydb_t* policydb;
-+} role_query_t;
-+
-+typedef struct roles_query {
-+	const char* name;
-+	const char** roles;
-+	policydb_t* policydb;
-+} roles_query_t;
-+
-+static int user_load(user_config_t user, void* policydb_arg) {
-+	policydb_t* policydb = (policydb_t*) policydb_arg;
-+
-+	if (sepol_load_user_policy(policydb, user) < 0)
-+		return RECORD_HANDLER_SIGERR;
-+	else
-+		return RECORD_HANDLER_SIGOK;	
-+}
-+
-+static int user_del(user_config_t user, void* query_arg) {	
++	char tmp_file[PATH_MAX], *ptr, *buffer = NULL;
++        size_t len = 0;
++	FILE *fp, *fp2;
++	unsigned int lineno = 0;
 +	int status = 0;
-+	
-+	user_query_t* query = (user_query_t*) query_arg;
++	int match = 0;
++	user_config_t user = NULL;
 +
-+	if (!strcmp(uc_get_name(user), query->name))
-+		status |= RECORD_HANDLER_SIGMATCH;
++	snprintf(tmp_file, sizeof tmp_file, "%s.bak", users_file);
 +
-+	if (sepol_del_user_policy(query->policydb, query->name) < 0) {
-+		status |= RECORD_HANDLER_SIGERR;
-+		goto exit;
-+	}
-+	else
-+		status |= RECORD_HANDLER_SIGDEL;
++        fp = fopen(users_file, "r");
++        if (!fp) {
++                __sepol_debug_printf("%s: unable to open %s for reading\n", 
++			__FUNCTION__, users_file);
++                return SEPOL_ERR;
++        }
++	__fsetlocking(fp, FSETLOCKING_BYCALLER);
 +
-+	status |= RECORD_HANDLER_SIGOK;
-+	exit:
-+	return status;
-+}
++        fp2 = fopen(tmp_file, "a");
++        if (!fp2) {
++                __sepol_debug_printf("%s: unable to open %s for writing\n", 
++			__FUNCTION__, tmp_file);
++                fclose(fp);
++                return SEPOL_ERR;
++        }
++	__fsetlocking(fp2, FSETLOCKING_BYCALLER);
 +
-+static int user_add_role(user_config_t user, void* query_arg) {
-+	int status = 0;
++	/* Iterate over each line of the file */
++	while (getline(&buffer, &len, fp) >= 0) {
++		lineno++;
 +
-+	role_query_t* query = (role_query_t*) query_arg;
-+
-+	if (!strcmp(uc_get_name(user), query->name))
-+		status |= RECORD_HANDLER_SIGMATCH;
-+
-+	if (uc_has_role(user, query->role))
-+		goto exit;
-+	
-+	else if (uc_add_role(user, query->role) < 0) {
-+		status |= RECORD_HANDLER_SIGERR;
-+		goto exit;
-+	}
-+	
-+	if (sepol_load_user_policy(query->policydb, user) < 0) {
-+		status |= RECORD_HANDLER_SIGERR;
-+		goto exit;
-+	}
-+
-+	status |= RECORD_HANDLER_SIGOK;
-+	exit:
-+	return status;
-+}
-+
-+static int user_del_role(user_config_t user, void* query_arg) {
-+	int status = 0;
-+	
-+	role_query_t* query = (role_query_t*) query_arg;
-+
-+	if (!strcmp(uc_get_name(user), query->name))
-+		status |= RECORD_HANDLER_SIGMATCH;
-+
-+	if (uc_del_role(user, query->role) < 0) {
-+		status |= RECORD_HANDLER_SIGERR;
-+		goto exit;
-+	}
-+
-+	if (sepol_load_user_policy(query->policydb, user) < 0) {
-+		status |= RECORD_HANDLER_SIGERR;
-+		goto exit;
-+	}
-+	
-+	status |= RECORD_HANDLER_SIGOK;
-+	exit:	
-+	return status;
-+}
-+
-+static int user_set_roles(user_config_t user, void* query_arg) {
-+	int status = 0;
-+	const char** ptr;
-+
-+	roles_query_t* query = (roles_query_t*) query_arg;
-+
-+	if (!strcmp(uc_get_name(user), query->name))
-+		status |= RECORD_HANDLER_SIGMATCH;
-+
-+	if (uc_reset_roles(user) < 0) {
-+		status |= RECORD_HANDLER_SIGERR;
-+		goto exit;
-+	}
-+		
-+	ptr = query->roles;
-+	while(ptr) {
-+		if (uc_add_role(user, *ptr) < 0) {
-+			status |= RECORD_HANDLER_SIGERR;
-+			goto exit;
++		/* Empty line */
++		if (len == 0) {
++			fprintf(fp2, "\n");
++			goto next;
 +		}
-+		ptr++;
++
++		/* Eat newline, preceding whitespace */
++		if (buffer[len - 1] == '\n')
++			buffer[len - 1] = '\0';
++		ptr = buffer;
++		while (*ptr && isspace(*ptr))
++			ptr++;
++
++                /* Skip comments and blank lines */
++                if (!(*ptr) || *ptr == '#')
++			fprintf(fp2, "%s", buffer);
++		
++                /* Process the rest */
++                else {
++
++			/* Create a user config structure */
++			user_config_t user = uc_create();
++			if (!user) {
++				__sepol_debug_printf("%s: out of memory while "
++				"iterating %s\n", __FUNCTION__, users_file);
++
++				errno = ENOMEM;
++				goto err;
++			}
++
++			/* Parse user data into that structure */
++			if( parse_user_line(ptr, user) < 0 ) {
++				__sepol_debug_printf("%s: malformed line %u "
++				"in %s\n", __FUNCTION__, lineno, users_file);
++
++				errno = EIO;
++				goto err;
++			}
++
++			/* Invoke handler - it may modify user */
++			if (!strcmp(username, uc_get_name(user))) {	
++				status = handler(user, arg);
++				match = 1;
++			}
++
++			/* On delete signal, delete the user. */
++			if (match && (status == SEPOL_HANDLER_SIGDEL)) {
++				if (sepol_policy_del_user(
++					policydb, uc_get_name(user)) < 0) 
++				goto err;
++			}
++
++			/* Try to load the user into policy */
++			else if (match && (status >= 0)) {
++
++				/* Success - print to file */
++				if (sepol_policy_load_user(
++					user, (void*) policydb) >= 0) 
++					print_user(user, fp2);
++				else 
++					goto err;
++			}
++
++			/* Handler error */
++			else 
++				goto err;
++
++                        uc_destroy(user);
++			user = NULL;
++		}
++	
++		next:
++			free(buffer);
++			buffer = NULL;
 +	}
 +
-+	if (sepol_load_user_policy(query->policydb, user) < 0) {
-+		status |= RECORD_HANDLER_SIGERR;
-+		goto exit;
++        fclose(fp);
++	fclose(fp2);
++	if (!match) {
++		remove(tmp_file);
++		__sepol_debug_printf("%s: unable to find user %s\n", 
++			__FUNCTION__, username);
++		errno = EIO;
++		return SEPOL_ERR;
 +	}
++	return rename(tmp_file, users_file);
 +
-+	status |= RECORD_HANDLER_SIGOK;
-+	exit:
-+	return status;
++err:
++	if (buffer)
++		free(buffer);
++	if (user) 
++		uc_destroy(user);
++        fclose(fp);
++	fclose(fp2);
++	remove(tmp_file);
++        return SEPOL_ERR;
 +}
 +
-+int sepol_load_users_file( 
-+	policydb_t* policydb, 
-+	const char* usersdir) {
++/* Load users from usersdir (both local.users and system.users)
++ * into the provided policydb */
 +
++int sepol_file_load_users(policydb_t* policydb, const char* usersdir) {
 +	char path[PATH_MAX];
 +
 +	/* Clear unused users */
-+	sepol_clear_users_policy(policydb);
++	sepol_policy_clear_unused(policydb);
 +
 +	/* Load base set of system users from the policy package. */
 +	snprintf(path, sizeof path, "%s/system.users", usersdir);
-+	if (record_iterate_file(path, &USER_RTABLE, 
-+		user_load, (void*) policydb) < 0) {
++	if (sepol_file_iterate_users(
++			path, &sepol_policy_load_user, 
++			(void*) policydb) < 0) {
++
++		__sepol_debug_printf("%s: Can't load system.users: %s\n", 
++			__FUNCTION__, strerror(errno));
 +		return SEPOL_ERR;
 +	}
 +
 +	/* Load local users */
 +	snprintf(path, sizeof path, "%s/local.users", usersdir);
-+	if (record_iterate_file(path, &USER_RTABLE,
-+		user_load, (void*) policydb) < 0) {
++	if (sepol_file_iterate_users(
++			path, &sepol_policy_load_user, 
++			(void*) policydb) < 0) {
++
++		__sepol_debug_printf("%s: Can't load local.users: %s\n", 
++			__FUNCTION__, strerror(errno));
 +		return SEPOL_ERR;
 +	}
 +
-+        return SEPOL_SUCCESS;
++	return SEPOL_SUCCESS;
 +}
 +
-+/* Add/delete users */
-+
-+int sepol_add_user_file(
-+	policydb_t* policydb, 
-+	const char* usersdir,
-+	user_config_t user) {
++/* 
++ * Add a user to the users config file (local) and to policy. 
++ */
++int sepol_file_add_user(policydb_t* policydb, 
++	const char* usersdir, user_config_t user) {
 +
 +	char path[PATH_MAX];
++	FILE* fp;
++
++	/* First, add the user to policy */
++        if (sepol_policy_add_user(policydb, user) < 0) {
++		__sepol_debug_printf("%s: Can't load %s into policy\n", 
++			__FUNCTION__, uc_get_name(user));
++		return SEPOL_ERR;
++        }
++
++	/* Add the user at the end of the config file */
 +	snprintf(path, sizeof path, "%s/local.users", usersdir);
 +
-+	if (!(user_load(user, (void*) policydb) & RECORD_HANDLER_SIGOK)) 
-+		return SEPOL_ERR; 
++	fp = fopen(path, "a");
++	if (!fp) {
++		__sepol_debug_printf("%s: Can't load local.users: %s\n", 
++			__FUNCTION__, strerror(errno));
++		return SEPOL_ERR;
++	}
 +
-+	return record_addto_file(path, &USER_RTABLE, user);
++	fseek(fp, 0, SEEK_END);
++
++	print_user(user, fp);
++	fclose(fp);
++	return SEPOL_SUCCESS;
 +}
-+
-+int sepol_del_user_file(
-+	policydb_t* policydb,
-+        const char* usersdir, 
-+	const char* username) {
-+
-+	user_query_t query;
-+	char path[PATH_MAX];
-+	snprintf(path, sizeof path, "%s/local.users", usersdir);
-+
-+	query.name = username;
-+	query.policydb = policydb;
-+
-+	return record_modify_file(path, &USER_RTABLE,
-+		user_del, (void*) &query);		
-+}
-+
-+/* Role manipulation */
-+int sepol_set_roles_file(
-+	policydb_t* policydb, 
-+	const char* usersdir,
-+	const char* username, 
-+	const char** roles) {
-+
-+	roles_query_t query;
-+	char path[PATH_MAX];
-+	snprintf(path, sizeof path, "%s/local.users", usersdir);
-+
-+	query.name = username;
-+	query.policydb = policydb;
-+	query.roles = roles;
-+
-+	return record_modify_file(path, &USER_RTABLE,
-+		user_set_roles, (void*) &query);		
-+}
-+
-+int sepol_add_role_file(
-+	policydb_t* policydb, 
-+	const char* usersdir,
-+	const char* username, 
-+	const char* role) {
-+	
-+	role_query_t query;
-+	char path[PATH_MAX];
-+
-+	query.name = username;
-+	query.policydb = policydb;
-+	query.role = role;
-+
-+	snprintf(path, sizeof path, "%s/local.users", usersdir);
-+	return record_modify_file(path, &USER_RTABLE,
-+		user_add_role, (void*) &query);
-+}
-+
-+int sepol_del_role_file(
-+	policydb_t* policydb, 
-+	const char* usersdir,
-+	const char* username, 
-+	const char* role) {
-+
-+	role_query_t query;
-+	char path[PATH_MAX];
-+	snprintf(path, sizeof path, "%s/local.users", usersdir);
-+
-+	query.name = username;
-+	query.policydb = policydb;
-+	query.role = role;
-+
-+	return record_modify_file(path, &USER_RTABLE,
-+		user_del_role, (void*) &query);
-+}
-+
 diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_policy.c
 --- libsepol-1.5.9.orig/src/users_policy.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsepol-1.5.9.new/src/users_policy.c	2005-06-19 18:43:00.000000000 -0400
-@@ -0,0 +1,345 @@
++++ libsepol-1.5.9.new/src/users_policy.c	2005-06-17 22:30:43.000000000 -0400
+@@ -0,0 +1,344 @@
 +#include <stdlib.h>
 +#include <sepol/policydb.h>
 +#include <sepol/mls.h>
@@ -3293,7 +3388,7 @@ diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_p
 +	pol->p_users.nprim--;
 +}
 +
-+void sepol_clear_users_policy(policydb_t* policydb) {
++void sepol_policy_clear_unused(policydb_t* policydb) {
 +	struct ebitmap free_users;
 +	struct kill_user_data kud;
 +
@@ -3317,7 +3412,7 @@ diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_p
 +
 +/* Add a user to the given policydb. The user may not exist already */
 +
-+int sepol_add_user_policy(policydb_t* policydb, user_config_t user) {
++int sepol_policy_add_user(policydb_t* policydb, user_config_t user) {
 +	char* name;
 +	user_datum_t* usrdatum;
 +
@@ -3341,14 +3436,14 @@ diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_p
 +	
 +	else {
 +		free(name);
-+		return sepol_load_user_policy(policydb, user);
++		return sepol_policy_load_user(user, policydb);
 +	}
 +}
 +
 +/* Delete a user from the given policydb. This function will
 + * fail if the user does not exist. */
 +
-+int sepol_del_user_policy(policydb_t* policydb, const char* username) {
++int sepol_policy_del_user(policydb_t* policydb, const char* username) {
 +	user_datum_t* usrdatum;
 +	struct kill_user_data kud;
 +
@@ -3391,7 +3486,8 @@ diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_p
 + * which case the supplied data replaces the existing data. Alternatively,
 + * the user could be new. */
 +
-+int sepol_load_user_policy(policydb_t* policydb, user_config_t user) {
++int sepol_policy_load_user(user_config_t user, void* policydb_arg) {
++	policydb_t* policydb = (policydb_t*) policydb_arg;
 +
 +	/* For user data */
 +	const char* tmp;
@@ -3447,9 +3543,8 @@ diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_p
 +		/* Search for the role */
 +		roldatum = hashtab_search(policydb->p_roles.table, role);
 +		if (!roldatum) {
-+			__sepol_debug_printf("%s: undefined role "
-+				"%s for user %s\n", 
-+				__FUNCTION__, role, name);
++			__sepol_debug_printf("sepol_add_user(): undefined role "
++				"%s for user %s\n", role, name);
 +
 +			errno = EIO;
 +			free(role);
@@ -3462,9 +3557,8 @@ diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_p
 +
 +			if (ebitmap_get_bit(&roldatum->dominates, bit)) {
 +				if (ebitmap_set_bit(&usrdatum->roles, bit, 1)) {
-+					__sepol_debug_printf("%s:"
-+					"  out of memory for %s\n", 
-+					__FUNCTION__, name);
++					__sepol_debug_printf("sepol_add_user():"
++					"  out of memory for %s\n", name);
 +
 +					errno = ENOMEM;
 +					free(role);
@@ -3564,7 +3658,418 @@ diff -Naur libsepol-1.5.9.orig/src/users_policy.c libsepol-1.5.9.new/src/users_p
 +		return SEPOL_ERR;
 +}
 
---=-a1uumVP3ayr1MnJP6HE9--
+--=-b1s4koXcpBZhnnD1euSm
+Content-Disposition: attachment; filename=shadow.diff
+Content-Type: text/x-patch; name=shadow.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -Naur -X shadow.excludes shadow-4.0.7.orig/configure.in shadow-4.0.7.new/configure.in
+--- shadow-4.0.7.orig/configure.in	2004-12-19 21:31:26.000000000 -0500
++++ shadow-4.0.7.new/configure.in	2005-06-18 00:37:57.000000000 -0400
+@@ -246,9 +246,18 @@
+ fi
+ 
+ if test "$with_selinux" = "yes"; then
+-	AC_CHECK_LIB(selinux, is_selinux_enabled, [LIBSELINUX="-lselinux"], [SELinuux enabled but libselinux not found])
++	AC_CHECK_LIB(selinux, security_create_policydb, [LIBSELINUX="-lselinux"], 
++		AC_MSG_ERROR(SELinux enabled but libselinux missing or wrong version))
++	AC_CHECK_LIB(sepol, sepol_file_add_user, [LIBSEPOL="-lsepol"], 
++		AC_MSG_ERROR(SELinux enabled but libsepol missing or wrong version))
++
+ 	AC_SUBST(LIBSELINUX)
+-	AC_CHECK_HEADERS(selinux/selinux.h, [], [selinux/selinux.h is missing])
++	AC_SUBST(LIBSEPOL)
++
++	AC_CHECK_HEADERS(selinux/selinux.h, [], AC_MSG_ERROR(selinux/selinux.h is missing))
++	AC_CHECK_HEADERS(sepol/sepol.h, [], AC_MSG_ERROR(sepol/sepol.h is missing))
++	AC_CHECK_HEADERS(sepol/user_config.h, [], AC_MSG_ERROR(sepol/user_config.h is missing))
++
+ 	AC_DEFINE(WITH_SELINUX, 1, [Build shadow with SELinux support])
+ fi
+ 
+diff -Naur -X shadow.excludes shadow-4.0.7.orig/lib/selinux.h shadow-4.0.7.new/lib/selinux.h
+--- shadow-4.0.7.orig/lib/selinux.h	1969-12-31 19:00:00.000000000 -0500
++++ shadow-4.0.7.new/lib/selinux.h	2005-06-17 15:45:12.000000000 -0400
+@@ -0,0 +1,21 @@
++#ifndef _SHADOW_SELINUX_H
++#define _SHADOW_SELINUX_H
++
++#include <sepol/user_config.h>
++#include "defines.h"
++
++#define E_SUCCESS	0	/* success */
++#define E_POL_MAP	100	/* can't map the SELinux policy */
++#define E_POL_UPDATE	101	/* can't update the policy/users file */
++#define E_POL_LOAD	102	/* can't load the SELinux policy */
++#define E_UC_ERR	103	/* can't construct the user_config structure */
++#define E_SELINUX_OFF	104	/* selinux is disabled */
++
++int selinux_get_roles (
++	char *list, 
++	user_config_t* sel_user);
++
++int selinux_add(const char* name, user_config_t sel_user);
++int selinux_delete(const char* name);
++
++#endif
+diff -Naur -X shadow.excludes shadow-4.0.7.orig/src/Makefile.am shadow-4.0.7.new/src/Makefile.am
+--- shadow-4.0.7.orig/src/Makefile.am	2004-10-25 20:48:32.000000000 -0400
++++ shadow-4.0.7.new/src/Makefile.am	2005-06-17 11:11:14.000000000 -0400
+@@ -62,7 +62,8 @@
+ passwd_LDADD   = $(LDADD) $(LIBPAM) $(LIBCRACK)
+ su_SOURCES     = su.c suauth.c
+ su_LDADD       = $(LDADD) $(LIBPAM)
+-useradd_LDADD  = $(LDADD) $(LIBPAM)
++useradd_LDADD  = $(LDADD) $(LIBPAM) $(LIBSELINUX) $(LIBSEPOL)
++useradd_SOURCES = useradd.c selinux.c  
+ userdel_LDADD  = $(LDADD) $(LIBPAM)
+ usermod_LDADD  = $(LDADD) $(LIBPAM)
+ 
+diff -Naur -X shadow.excludes shadow-4.0.7.orig/src/selinux.c shadow-4.0.7.new/src/selinux.c
+--- shadow-4.0.7.orig/src/selinux.c	1969-12-31 19:00:00.000000000 -0500
++++ shadow-4.0.7.new/src/selinux.c	2005-06-18 17:28:26.000000000 -0400
+@@ -0,0 +1,160 @@
++#include <config.h>
++
++#ifdef WITH_SELINUX
++
++#include <errno.h>
++#include <selinux/selinux.h>
++#include <selinux/selinux-sepol.h>
++#include <sepol/sepol.h>
++#include "selinux.h"
++
++extern char* Prog;
++
++int selinux_get_roles (
++	char *list, 
++	user_config_t* sel_user)
++{
++	char* cp;
++	int ret = E_SUCCESS;
++
++	if (!*list)
++		return ret;
++
++	*sel_user = uc_create();
++	if (!*sel_user) {
++		ret = E_UC_ERR;
++		goto err;
++	}
++
++	do {
++		/*
++		 * Strip role from list
++		 */
++
++		if ((cp = strchr (list, ',')))
++			*cp++ = '\0';
++
++		/* FIXME: check the validity of roles here ?? */
++
++		/*
++		 * Add role to user roles
++		 */
++
++		if (uc_add_role(*sel_user, list) < 0) {
++			ret = E_UC_ERR;
++			goto err;
++		}
++
++		list = cp;
++
++	} while (list);
++
++	return ret;
++
++	err:
++
++	if (errno == ENOMEM)
++		fprintf(stderr, _("%s: out of memory.\n"), Prog);
++	else
++		fprintf(stderr, _("%s: unspecified error while "
++			"constructing SELinux user structure.\n"), Prog);
++
++	if (*sel_user)
++		uc_destroy(*sel_user);
++
++	*sel_user = NULL;
++
++	return ret;
++}
++
++int selinux_add(const char* name, user_config_t sel_user) {
++	int ret = E_SUCCESS;
++	policydb_t* policydb = NULL;
++
++	if (!sel_user) {
++		ret = E_UC_ERR;
++		fprintf(stderr, 
++			_("%s: user SELinux structure is null.\n"), Prog);
++		goto exit;
++	}
++	
++	if (uc_set_name(sel_user, name) < 0) {
++		ret = E_UC_ERR;
++
++		if (errno == ENOMEM)
++			fprintf(stderr, _("%s: out of memory.\n"), Prog);
++
++		else
++			fprintf(stderr, _("%s: unspecified error while "
++			"constructing SELinux user structure.\n"), Prog);
++	
++		goto exit;
++	}
++
++	if (security_create_default_policydb(&policydb) < 0) {
++		ret = E_POL_MAP;
++		fprintf(stderr, _("%s: can't create SELinux policy db.\n"), Prog);
++		goto exit;
++	}
++
++	if (sepol_file_add_user(policydb, selinux_users_path(), sel_user) < 0) {
++
++		ret = E_POL_UPDATE;
++		fprintf(stderr, _("%s: can't add %s to SElinux file.\n"), 
++			Prog, uc_get_name(sel_user));
++		goto exit;
++	}
++
++	if (security_load_policydb(policydb) < 0) {
++		ret = E_POL_LOAD;
++		fprintf(stderr, _("%s: Warning! User %s added to file, "
++			"but we can't reload the SELinux policy.\n"), 
++			Prog, uc_get_name(sel_user));
++
++		goto exit;
++	}
++
++	exit:
++	if (sel_user)
++		uc_destroy(sel_user);
++
++	if (policydb)
++		security_destroy_policydb(policydb);
++
++	return ret;
++}
++
++int selinux_delete(const char* name) {
++
++	policydb_t* policydb = NULL;
++	int ret = E_SUCCESS;
++
++	if (security_create_default_policydb(&policydb) < 0) {
++		ret = E_POL_MAP;
++		fprintf(stderr, _("%s: can't create SELinux policy db.\n"), Prog);
++		goto exit;
++        }
++
++        if (sepol_file_del_user(policydb, selinux_users_path(), name) < 0) {
++
++		ret = E_POL_UPDATE;
++		fprintf(stderr, 
++			_("%s: can't remove %s from SElinux file.\n"), 
++				Prog, name);
++		goto exit;
++        }
++
++        if (security_load_policydb(policydb) < 0) {
++		ret = E_POL_LOAD;
++		fprintf(stderr, _("%s: Warning! User %s removed from file, "
++			"but we can't reload the SELinux policy.\n"), 
++			Prog, name);
++		goto exit;
++        }
++	exit:
++
++	security_destroy_policydb(policydb);
++        return ret;
++}
++
++# endif
+diff -Naur -X shadow.excludes shadow-4.0.7.orig/src/useradd.c shadow-4.0.7.new/src/useradd.c
+--- shadow-4.0.7.orig/src/useradd.c	2005-06-16 16:42:10.000000000 -0400
++++ shadow-4.0.7.new/src/useradd.c	2005-06-18 17:31:24.000000000 -0400
+@@ -48,6 +48,11 @@
+ #include <security/pam_misc.h>
+ #include <pwd.h>
+ #endif				/* USE_PAM */
++#ifdef WITH_SELINUX
++#include "selinux.h"
++#include <selinux/selinux.h>
++#include <sepol/sepol.h>
++#endif
+ #include "pwauth.h"
+ #if HAVE_LASTLOG_H
+ #include <lastlog.h>
+@@ -105,10 +110,15 @@
+ static int is_shadow_grp;
+ #endif
+ static char **user_groups;	/* NULL-terminated list */
++#ifdef WITH_SELINUX
++user_config_t sel_user = NULL;	/* SELinux user configuration */
++static int do_selinux_add = 0;
++static int sel_user_added = 0;
++#endif
+ static long sys_ngroups;
+ static int do_grp_update = 0;	/* group files need to be updated */
+ 
+-static char *Prog;
++char *Prog;
+ 
+ static int
+  bflg = 0,			/* new default root of home directory */
+@@ -125,8 +135,9 @@
+  nflg = 0,			/* do NOT create a group having the same name as the user */
+  oflg = 0,			/* permit non-unique user ID to be specified with -u */
+  rflg = 0,			/* create a system account */
++ Rflg = 0,			/* SElinux roles for this user */ 
+  sflg = 0,			/* shell program for new account */
+- uflg = 0;			/* specify user ID for new account */
++ uflg = 0,			/* specify user ID for new account */
+  lflg = 0;			/* do not add user to lastlog database file */
+ 
+ extern char *optarg;
+@@ -241,6 +252,14 @@
+ 	if (gr_dbm_added)
+ 		fprintf (stderr, _("%s: rebuild the group database\n"),
+ 			 Prog);
++
++#ifdef WITH_SELINUX
++	if (sel_user_added) {
++		int ret = selinux_delete(user_name);
++		if (ret != E_SUCCESS) 
++			fprintf(stderr, _("%s: SELinux undo failed\n"));
++	}
++#endif
+ #ifdef	SHADOWPWD
+ 	if (sp_dbm_added)
+ 		sp_dbm_remove (user_name);
+@@ -738,12 +757,14 @@
+ 	fprintf (stderr, _("               [-f inactive] [-e expire]\n"));
+ #endif
+ 	fprintf (stderr, _("               [-p passwd] [-M] [-n] [-r] [-l] name\n"));
++#ifdef WITH_SELINUX
++        fprintf (stderr, _("               [-R role,...] \n"));
++#endif
+ 	fprintf (stderr,
+ 		 _("       useradd -D [-g group] [-b base] [-s shell]\n"));
+ #ifdef SHADOWPWD
+ 	fprintf (stderr, _("               [-f inactive] [-e expire]\n"));
+ #endif
+-
+ 	exit (E_USAGE);
+ }
+ 
+@@ -1153,13 +1174,13 @@
+ {
+ 	const struct group *grp;
+ 	int anyflag = 0;
+-	int arg;
++	int arg, ret;
+ 	char *cp;
+ 
+ #ifdef SHADOWPWD
+-#define FLAGS "A:Du:og:G:d:s:c:mk:p:f:e:b:O:Mnrl"
++#define FLAGS "A:Du:og:G:R:d:s:c:mk:p:f:e:b:O:Mnrl"
+ #else
+-#define FLAGS "A:Du:og:G:d:s:c:mk:p:b:O:Mnrl"
++#define FLAGS "A:Du:og:G:R:d:s:c:mk:p:b:O:Mnrl"
+ #endif
+ 	while ((arg = getopt (argc, argv, FLAGS)) != EOF) {
+ #undef FLAGS
+@@ -1310,6 +1331,27 @@
+ 			}
+ 			user_pass = optarg;
+ 			break;
++
++		case 'R':
++#ifdef WITH_SELINUX
++
++			if (!is_selinux_enabled()) {
++				fprintf(stderr, _("%s: flag -R requires "
++					"enabled SElinux."), Prog);
++				exit (E_SELINUX_OFF);
++			}
++
++			ret = selinux_get_roles (optarg, &sel_user);
++			if (ret != E_SUCCESS) 
++				exit (ret);
++			else
++				do_selinux_add++;
++#else
++			fprintf(stderr, _("%s: flag -R is not available: "
++				"not compiled with SELinux support.\n", Prog));
++#endif
++			Rflg++;
++			break;
+ 		case 's':
+ 			if (!VALID (optarg) || (optarg[0] &&
+ 						(optarg[0] != '/'
+@@ -1646,6 +1688,18 @@
+ 
+ 	if (do_grp_update)
+ 		grp_update ();
++
++#ifdef WITH_SELINUX
++	if (do_selinux_add) {
++		int ret = selinux_add (user_name, sel_user);
++		if (ret != E_SUCCESS)
++			fail_exit (ret);
++		else
++			sel_user_added = 1;
++
++		/* FIXME: do genhomedircon thing here */
++	}
++#endif
+ }
+ 
+ /* a fake something */
+@@ -1770,6 +1824,11 @@
+ 
+ static void create_home (void)
+ {
++	int mode = 0777 & ~getdef_num ("UMASK", 022);
++#ifdef WITH_SELINUX
++	security_context_t con = NULL;
++#endif
++
+ 	if (access (user_home, F_OK)) {
+ 		/* XXX - create missing parent directories.  --marekm */
+ 		if (mkdir (user_home, 0)) {
+@@ -1778,8 +1837,15 @@
+ 				 Prog, user_home);
+ 			fail_exit (E_HOMEDIR);
+ 		}
++#ifdef WITH_SELINUX
++		security_context_t con = NULL;
++		if (!matchpathcon (user_home, mode, &con))
++			setfilecon(user_home, con);
++		if (con)
++			freecon(con);
++#endif
+ 		chown (user_home, user_id, user_gid);
+-		chmod (user_home, 0777 & ~getdef_num ("UMASK", 022));
++		chmod (user_home, mode);
+ 		home_added++;
+ 	}
+ }
+@@ -1866,6 +1932,11 @@
+ 	bindtextdomain (PACKAGE, LOCALEDIR);
+ 	textdomain (PACKAGE);
+ 
++#ifdef WITH_SELINUX
++	/* security_debug(0);
++	 * sepol_debug(0); */
++#endif
++
+ 	OPENLOG("useradd");
+ 
+ 	sys_ngroups = sysconf(_SC_NGROUPS_MAX);
+
+--=-b1s4koXcpBZhnnD1euSm--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
