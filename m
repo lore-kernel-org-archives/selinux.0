@@ -1,48 +1,50 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5IMnGgA016606
-	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 18:49:16 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5IMeEQ1010730
-	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 22:40:14 GMT
-Subject: Re: Useradd Integration (v. 2)
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: SELinux <selinux@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1119132219.26988.14.camel@localhost.localdomain>
-References: <1119132219.26988.14.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 18 Jun 2005 18:41:59 -0400
-Message-Id: <1119134520.27489.4.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5INIUgA016697
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 19:18:30 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5IN9QQ1011002
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jun 2005 23:09:27 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id BFC2C61B07
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2005 09:09:15 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 18568-06 for <selinux@tycho.nsa.gov>;
+	Sun, 19 Jun 2005 09:09:15 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 5CD8D61AFA
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2005 09:09:15 +1000 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 2428838
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2005 09:09:14 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: SE Linux play machine
+Date: Sun, 19 Jun 2005 09:09:09 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200506190909.12269.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+http://www.coker.com.au/selinux/play.html
 
-> Next, I will work on writing C functions for manipulating the
-> homedir_template file. They will be analogous to users_file.c,
-> and basically move genhomedircon's job into the libsepol library.
+I've put a SE Linux play machine online again, see the above URL for details.
 
-Actually, I think it would be better if I pulled out 
-iterate, mod_user, add... into a more generic thing I can reuse
-for net_contexts, and homedir... 
+The machine demonstrates that SE Linux has the ability to make all access 
+decisions for the system without needing Unix permissions.  The reasons for 
+this are to demonstrate the abilities of SE Linux, to allow people to learn 
+about it, and to test out the strict policy.
 
-So: a method for iterating records in a file... 
-for modifying records in a file.
-
-Then the structure of the record would be specified for each
-thing I want to iterate over - instead of user_config_t, it would
-be something else, with a different parse function.
-
-I haven't actually seen the checkpolicy parsing code, and how
-modular it is - I used the genusers parsing code... If the
-checkpolicy code is sufficiently modular, I should be able to 
-reuse that...
+#selinux is the channel for discussion on irc.freenode.net.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
