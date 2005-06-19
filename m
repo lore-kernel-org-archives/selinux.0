@@ -1,45 +1,44 @@
-Date: Sun, 19 Jun 2005 23:13:57 +0100
+Date: Sun, 19 Jun 2005 23:17:00 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: ivg2@cornell.edu, SELinux@tycho.nsa.gov
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, SELinux@tycho.nsa.gov
 Subject: Re: dumb newbie questions
-Message-ID: <20050619221357.GH8415@lkcl.net>
-References: <1119210718.17213.6.camel@localhost.localdomain> <20050619201452.70676.qmail@web31610.mail.mud.yahoo.com>
+Message-ID: <20050619221700.GI8415@lkcl.net>
+References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com> <1119210718.17213.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050619201452.70676.qmail@web31610.mail.mud.yahoo.com>
+In-Reply-To: <1119210718.17213.6.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Jun 19, 2005 at 01:14:52PM -0700, Casey Schaufler wrote:
-> 
-> 
-> --- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
-> 
-> > You're misrepresenting the point of my response...
-> 
-> Well, maybe a little.
-> 
-> > Who writes the policy is not important.
-> 
-> I think it is. The developer, who understands
-> the intent of the application and it behavior,
-> ought to be in charge of the SELinux policy.
- 
- no, no, and definitely no.
+On Sun, Jun 19, 2005 at 03:51:58PM -0400, Ivan Gyurdiev wrote:
 
- i made the mistake, 8 months ago, of making that recommendation.
+> What I think is a problem is when people use the output
+> of audit2allow as the policy... which is what I see happening.
 
- russell kindly put me right about it: you could likely, with enough
- searching, find his response.
+ that's exactly what i do as a first approximation, because i don't have
+ enough info in my head about all those macros.
 
- the person doing the application is EXTREMELY unlikely to have the
- expertise and knowledge sufficient to get selinux and to get selinux
- policy right.
+ some of those macros expand out to TWENTY THOUSAND statements.
 
- heck - it took me (and i pride myself on being a knowledge
- sponge) TWO MONTHS to go from being an ill-educated
- pain-in-the-ass to being an over-confident pain-in-the-ass.
+> To me that largely defeats the purpose of SELinux... 
+
+ *shrug*
+
+ what else would an inexperienced person use?
+
+ _after_ doing audit2allow, you can at least go back and look at some of
+ the macros.
+
+ if you want a useful tool, then what you want is an analyser
+ that will suggest appropriate macros to use AFTER someone
+ has done repeated application of audit2allow.
+
+ an se-lint, if you will.
+
+ and yes, i am aware that even doing the audit2allow "thing" doesn't
+ help you in the slightest if you haven't a clue about domain
+ transitions.
 
  l.
 
