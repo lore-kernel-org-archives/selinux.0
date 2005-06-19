@@ -1,63 +1,45 @@
-Date: Sun, 19 Jun 2005 23:10:36 +0100
+Date: Sun, 19 Jun 2005 23:13:57 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: ivg2@cornell.edu, SELinux@tycho.nsa.gov
 Subject: Re: dumb newbie questions
-Message-ID: <20050619221035.GG8415@lkcl.net>
-References: <1119214637.17213.41.camel@localhost.localdomain> <20050619213151.53651.qmail@web31601.mail.mud.yahoo.com>
+Message-ID: <20050619221357.GH8415@lkcl.net>
+References: <1119210718.17213.6.camel@localhost.localdomain> <20050619201452.70676.qmail@web31610.mail.mud.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050619213151.53651.qmail@web31601.mail.mud.yahoo.com>
+In-Reply-To: <20050619201452.70676.qmail@web31610.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Jun 19, 2005 at 02:31:51PM -0700, Casey Schaufler wrote:
+On Sun, Jun 19, 2005 at 01:14:52PM -0700, Casey Schaufler wrote:
+> 
+> 
+> --- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+> 
+> > You're misrepresenting the point of my response...
+> 
+> Well, maybe a little.
+> 
+> > Who writes the policy is not important.
+> 
+> I think it is. The developer, who understands
+> the intent of the application and it behavior,
+> ought to be in charge of the SELinux policy.
  
-> Yes, he has. I hope that effort is successful.
-> I strongly dislike the direction of RedHat
-> shipping a binary only policy, and one that
-> so few people understand, and that the
-> applications it impacts can't even be repaired
-> by their maintainers. 
+ no, no, and definitely no.
 
- as the bun-fight over crond demonstrated (at least to me), the
- maintainers _can_ listen - if you have enough time, patience and
- flexibility.
+ i made the mistake, 8 months ago, of making that recommendation.
 
- for those people who missed it, crond (not the vixie cron, the other
- one) did not properly support selinux, and needed it.
+ russell kindly put me right about it: you could likely, with enough
+ searching, find his response.
 
- a long _long_ time was spent explaining to the maintainer of crond
- that yes, selinux really _does_ have a concept of "system".
+ the person doing the application is EXTREMELY unlikely to have the
+ expertise and knowledge sufficient to get selinux and to get selinux
+ policy right.
 
- the poor guy had added the concept of "*system*" to cater
- for the fact that unix-on-its-own doesn't have a clue about
- "system" privileges, and he had added some extra field
- into his internal data structures in order to be able to
- distinguish between "system" level cron jobs [run as root]
- and those that were explicitly to be run under the username
- of "root".
-
- after about 10-15 email exchanges, he eventually explained
- things clearly enough for it to get through our thick heads,
- and _then_ we had enough of an understanding of what he had
- created, in order to be able to successfully convince him that
- yes, selinux's "system_u" needs to ride "on the back of" his
- pseudo-created "*system*" concept.
- 
- from there i kind of lost the plot a bit (i overdid it a
- bit :) and he and dan managed to finish it off and write an
- acceptable patch.
-
- i put it to you, therefore, casey, that it is _your_ job - and mine -
- to explain selinux clearly enough, to be patient enough, to listen
- enough.
-
- the one about openssh (the file handle one where an exec()
- had happened and the file handle hadn't been closed) was _way_
- over my head, but heck - there were people here who understood it.
-
- one step at a time.
+ heck - it took me (and i pride myself on being a knowledge
+ sponge) TWO MONTHS to go from being an ill-educated
+ pain-in-the-ass to being an over-confident pain-in-the-ass.
 
  l.
 
