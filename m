@@ -1,59 +1,75 @@
+Message-ID: <20050619201452.70676.qmail@web31610.mail.mud.yahoo.com>
+Date: Sun, 19 Jun 2005 13:14:52 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: dumb newbie questions
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Casey Schaufler <casey@schaufler-ca.com>
+To: ivg2@cornell.edu
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
-References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 19 Jun 2005 15:51:58 -0400
-Message-Id: <1119210718.17213.6.camel@localhost.localdomain>
-Mime-Version: 1.0
+In-Reply-To: <1119210718.17213.6.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-06-19 at 09:40 -0700, Casey Schaufler wrote:
-> 
-> --- Ivan Gyurdiev <gyurdiev@redhat.com> wrote:
-> 
-> 
-> > I wish FAQs would stop recommending this, since
-> > that's what everyone 
-> > does to get their scripts to run. audit2allow is a
-> > helper program
-> > for policy writers, and nothing more. It's a mistake
-> > to pipe
-> > its output into anything... instead you should
-> > provide that to the
-> > SELinux people, so they can write proper policy.
-> 
-> If only the "SELinux people" can write "proper"
-> policy SELinux has no place in the linux mainline.
-> I suggest that the "SELinux People" would do well
-> to provide documentation that is sufficient for
-> the developer in question to create a "proper"
-> policy rather than asserting that it's only
-> something that they can do. The attitute presented
-> is akin to saying that no one but RedHat should
-> create Makefiles because, after all, they are
-> the "Distribution People".
 
-You're misrepresenting the point of my response...
 
-Who writes the policy is not important.
-Well - it is important, but that's not what I was talking
-about here. I am all for improvements in the way SELinux
-is distributed, and documented, so that more people can 
-write policy.
+--- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
 
-What I think is a problem is when people use the output
-of audit2allow as the policy... which is what I see happening.
-To me that largely defeats the purpose of SELinux... 
+> You're misrepresenting the point of my response...
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Well, maybe a little.
 
+> Who writes the policy is not important.
+
+I think it is. The developer, who understands
+the intent of the application and it behavior,
+ought to be in charge of the SELinux policy.
+
+> Well - it is important, but that's not what I was
+> talking about here.
+
+Yes, it's important. And an issue.
+
+> I am all for improvements in the way SELinux
+> is distributed, and documented, so that more people
+> can write policy.
+
+I am a strong advocate of the above.
+
+> What I think is a problem is when people use the
+> output of audit2allow as the policy... which is
+> what I see happening.
+
+A developer will use the best tools available.
+Since audit2allow appears to be the best tool
+available for the development of policy that is
+what will be used. It appears to be the best
+tool available because the FAQs you are
+disparaging constitute the best available
+documentation and they recommend it. If there
+were documentation that described how it
+ought to be done maybe you could get it done
+properly.
+
+> To me that largely defeats the purpose of SELinux...
+
+You are correct in that bad policies are
+bad for SELinux. I believe that having policies
+created by someone other than the developer
+of the application, except as a first-pass
+effort to help the developer along, is a
+virtual guarantee that the SELinux will join
+the ranks of those systems used to prove that
+it is impossible to produce a useable secure OS.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
