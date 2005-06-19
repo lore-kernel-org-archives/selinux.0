@@ -1,30 +1,58 @@
-Message-ID: <e8a2934d05061911222ca18f9b@mail.gmail.com>
-Date: Sun, 19 Jun 2005 23:52:03 +0530
-From: Preeti Malakar <preeti.malakar@gmail.com>
-Reply-To: Preeti Malakar <preeti.malakar@gmail.com>
-To: SELinux@tycho.nsa.gov
-Subject: SELinux not enforced, messagse while booting, please help me
+Subject: Re: dumb newbie questions
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
+References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Sun, 19 Jun 2005 15:51:58 -0400
+Message-Id: <1119210718.17213.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sir, 
-     
-        I installed Fedora Core 3 . after that i checked the
-/usr/sbin/sestatus -v it showed selinux is disabled so according to
-http://fedora.redhat.com/docs/selinux-faq-fc3/index.html#id2825945, i
-changed the SELINUX=enforcing in the file
-/etc/sysconfig/selinux . But after rebooting the system , its showing
-some weird messages which are like this:
-audit(1119217507.781:0):avc:denied {search} for pid=1
-exe=/sbin/init.dev=tempfs ino=910 scontext=system_u:system_r:kernel_t
-tcontext=system_u:object_r:tmpfs_t tclass=dir
-and after sometime its static, no alteration
-i m unable to understand what should i do, please help me, do i have
-to reinstall fedora 3?
+On Sun, 2005-06-19 at 09:40 -0700, Casey Schaufler wrote:
+> 
+> --- Ivan Gyurdiev <gyurdiev@redhat.com> wrote:
+> 
+> 
+> > I wish FAQs would stop recommending this, since
+> > that's what everyone 
+> > does to get their scripts to run. audit2allow is a
+> > helper program
+> > for policy writers, and nothing more. It's a mistake
+> > to pipe
+> > its output into anything... instead you should
+> > provide that to the
+> > SELinux people, so they can write proper policy.
+> 
+> If only the "SELinux people" can write "proper"
+> policy SELinux has no place in the linux mainline.
+> I suggest that the "SELinux People" would do well
+> to provide documentation that is sufficient for
+> the developer in question to create a "proper"
+> policy rather than asserting that it's only
+> something that they can do. The attitute presented
+> is akin to saying that no one but RedHat should
+> create Makefiles because, after all, they are
+> the "Distribution People".
 
-thanking you
+You're misrepresenting the point of my response...
+
+Who writes the policy is not important.
+Well - it is important, but that's not what I was talking
+about here. I am all for improvements in the way SELinux
+is distributed, and documented, so that more people can 
+write policy.
+
+What I think is a problem is when people use the output
+of audit2allow as the policy... which is what I see happening.
+To me that largely defeats the purpose of SELinux... 
+
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
