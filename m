@@ -1,82 +1,66 @@
-Message-ID: <20050619213151.53651.qmail@web31601.mail.mud.yahoo.com>
-Date: Sun, 19 Jun 2005 14:31:51 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
+Date: Sun, 19 Jun 2005 23:10:36 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: ivg2@cornell.edu, SELinux@tycho.nsa.gov
 Subject: Re: dumb newbie questions
-To: ivg2@cornell.edu
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1119214637.17213.41.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <20050619221035.GG8415@lkcl.net>
+References: <1119214637.17213.41.camel@localhost.localdomain> <20050619213151.53651.qmail@web31601.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050619213151.53651.qmail@web31601.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, Jun 19, 2005 at 02:31:51PM -0700, Casey Schaufler wrote:
+ 
+> Yes, he has. I hope that effort is successful.
+> I strongly dislike the direction of RedHat
+> shipping a binary only policy, and one that
+> so few people understand, and that the
+> applications it impacts can't even be repaired
+> by their maintainers. 
 
+ as the bun-fight over crond demonstrated (at least to me), the
+ maintainers _can_ listen - if you have enough time, patience and
+ flexibility.
 
---- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+ for those people who missed it, crond (not the vixie cron, the other
+ one) did not properly support selinux, and needed it.
 
-> 
-> > I think it is. The developer, who understands
-> > the intent of the application and it behavior,
-> > ought to be in charge of the SELinux policy.
-> 
-> On the other hand you might argue that the developer
-> of the application is biased toward the
-> application..
-> and likely to allow things that shouldn't be
-> allowed.
+ a long _long_ time was spent explaining to the maintainer of crond
+ that yes, selinux really _does_ have a concept of "system".
 
-Yes, the developer will do that. It's the
-old useability VS security argument all over.
-I doubt that you're arguing for removing
-the chmod() syscall, although that's a logical
-step from your position. SELinux provides
-a mechanism by which the system can constrain
-an application. Great. What I don't condone
-is the uneducated application of this mechanism
-to applications on a production system. I agree
-that the rote use of audit2allow is a bad idea.
-I also take the position that the developer
-and/or maintainer of an application is the
-person responsible for the behavior of the
-application, and that includes the behavior
-under SELinux.
+ the poor guy had added the concept of "*system*" to cater
+ for the fact that unix-on-its-own doesn't have a clue about
+ "system" privileges, and he had added some extra field
+ into his internal data structures in order to be able to
+ distinguish between "system" level cron jobs [run as root]
+ and those that were explicitly to be run under the username
+ of "root".
 
-If you can't get developers to buy into
-supporting SELinux properly SELinux will
-die on the vine. You will not get developers
-into the SELinux camp without sufficient
-and readily available tools and documentation.
-Oh, and respect, too.
+ after about 10-15 email exchanges, he eventually explained
+ things clearly enough for it to get through our thick heads,
+ and _then_ we had enough of an understanding of what he had
+ created, in order to be able to successfully convince him that
+ yes, selinux's "system_u" needs to ride "on the back of" his
+ pseudo-created "*system*" concept.
+ 
+ from there i kind of lost the plot a bit (i overdid it a
+ bit :) and he and dan managed to finish it off and write an
+ acceptable patch.
 
-I hope that when I bring the project I
-have underway out I can include a rational
-SELinux policy as part of the package.
-I do not have faith that the "SELinux People"
-will understand it sufficiently to provide
-a policy for it.
+ i put it to you, therefore, casey, that it is _your_ job - and mine -
+ to explain selinux clearly enough, to be patient enough, to listen
+ enough.
 
-> Anyway, I think Steven (Smalley) has mentioned that
-> more efforts to decentralize policy will occur
-> after Tresys' binary modules work is merged.
+ the one about openssh (the file handle one where an exec()
+ had happened and the file handle hadn't been closed) was _way_
+ over my head, but heck - there were people here who understood it.
 
-Yes, he has. I hope that effort is successful.
-I strongly dislike the direction of RedHat
-shipping a binary only policy, and one that
-so few people understand, and that the
-applications it impacts can't even be repaired
-by their maintainers. Harumph.
+ one step at a time.
 
+ l.
 
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-____________________________________________________ 
-Yahoo! Sports 
-Rekindle the Rivalries. Sign up for Fantasy Football 
-http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
