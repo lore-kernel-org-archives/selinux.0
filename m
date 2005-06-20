@@ -1,111 +1,62 @@
-Message-ID: <42B70888.2070703@redhat.com>
-Date: Mon, 20 Jun 2005 14:18:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
+Date: Mon, 20 Jun 2005 19:49:09 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: "R. Steven Rainwater" <srainwater@ncc.com>
-CC: gyurdiev@redhat.com, SELinux@tycho.nsa.gov
+Cc: SELinux@tycho.nsa.gov
 Subject: Re: dumb newbie questions
-References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>	 <1119210718.17213.6.camel@localhost.localdomain>	 <1119213695.17213.29.camel@localhost.localdomain>	 <1119238487.5253.23.camel@localhost.localdomain>	 <200506200445.j5K4jbRc007280@turing-police.cc.vt.edu>	 <1119278717.30000.10.camel@rodan.ncc.com>	 <1119280474.2766.9.camel@celtics.boston.redhat.com>	 <1119281369.30000.56.camel@rodan.ncc.com>	 <1119282248.2766.31.camel@celtics.boston.redhat.com>	 <1119285617.30000.88.camel@rodan.ncc.com>	 <1119286753.5061.11.camel@celtics.boston.redhat.com> <1119290793.30000.115.camel@rodan.ncc.com>
-In-Reply-To: <1119290793.30000.115.camel@rodan.ncc.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <20050620184909.GA8451@lkcl.net>
+References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com> <1119210718.17213.6.camel@localhost.localdomain> <1119213695.17213.29.camel@localhost.localdomain> <1119238487.5253.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1119238487.5253.23.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-R. Steven Rainwater wrote:
+allo steven, i didn't notice it was you doin the asking :)
+long time no talk!
 
->On Mon, 2005-06-20 at 11:59, Ivan Gyurdiev wrote:
->  
->
->>Are you sure the denial you got when running your script
->>as root from a shell said: scontext=...httpd.. ? It would
->>help if you could double check that.
->>    
->>
->
->No problem. Here's the whole thing with a little more detail.
->
->The perl script "test.pl":
->
->#!/usr/bin/perl
->print "Content-type: text/html\n\n";
->print "Hello!\n"
->
->Experiment #1:
->
->The script is located in /var/www/cgi-bin:
->
->ls -alZ shows:
->
->-rwxrwxr-x apache:apache root:object_r:httpd_sys_content_t test.pl
->
->Hit through apache I get "Hello!" in my browser as expected.
->
->Executed locally from the command line as Root, the script silently
->fails (produces no output). Four errors appear in the message log:
->
->Jun 20 12:56:22 orac2 kernel: audit(1119290182.484:0): avc:  denied  {
->read write } for  pid=20536 comm=test.pl name=0 dev=devpts ino=2
->scontext=root:system_r:httpd_sys_script_t
->tcontext=root:object_r:devpts_t tclass=chr_file
->
->Jun 20 12:56:22 orac2 kernel: audit(1119290182.484:0): avc:  denied  {
->read write } for  pid=20536 comm=test.pl path=/dev/pts/0 dev=devpts
->ino=2 scontext=root:system_r:httpd_sys_script_t
->tcontext=root:object_r:devpts_t tclass=chr_file
->
->Jun 20 12:56:22 orac2 kernel: audit(1119290182.485:0): avc:  denied  {
->read write } for  pid=20536 comm=test.pl path=/dev/pts/0 dev=devpts
->ino=2 scontext=root:system_r:httpd_sys_script_t
->tcontext=root:object_r:devpts_t tclass=chr_file
->
->Jun 20 12:56:22 orac2 kernel: audit(1119290182.486:0): avc:  denied  {
->read write } for  pid=20536 comm=test.pl path=/dev/pts/0 dev=devpts
->ino=2 scontext=root:system_r:httpd_sys_script_t
->tcontext=root:object_r:devpts_t tclass=chr_file
->
->Executed locally by user 'rsr', the script also fails and produces four
->identical error messages except that scontext now starts with 'user_u'
->instead of 'root' in each error.
->
->
->Experiment #2:
->
->I used 'cp' to copy the file to /home/rsr
->
->ls -alZ shows:
->
->-rwxrwxr-x apache:apache root:object_r:user_home_t test.pl
->
->Executed locally from the command line as user 'rsr', the script runs as
->expected, printing "Hello!".
->
->Executed locally from the command line as root, the script runs as
->expected, printing "Hello!".
->
->No errors appear in the messages log when run from /home/rsr.
->
->Let me know if I left anything useful out...
->
->-Steve
->
->  
->
-Ok there is a bug in policy.
+On Sun, Jun 19, 2005 at 10:34:47PM -0500, R. Steven Rainwater wrote:
 
-Basically we have a
+> Ouch again. I simply don't have two months to get this system up and
+> running. I've never had that many security problems on our servers and
+> we've been running normal Linux for years, so I don't think the extra
+> security of selinux will really be that helpful, especially if I can't
+> easily admin my boxes or install and run new programs when I need to.
+> I'm begining to think the best route would be to completely disable
+> selinux and go back to normal linux mode. What's the best way to do
+> that?
+> 
+> I've found two ways of getting rid of selinux:
+> 
+> 1. adding SELINUX=disabled to /etc/sysconfig/selinux
+> 
+> 2. or, add SELINUX=permissive
 
-domain_auto_trans(sysadm_t, httpd_sys_script_exec_t, httpd_sys_script_t)
+ i wouldn't recommend either of these.
+ 
+ what i _would_ recommend is that you install the "targetted"
+ policy rather than the "strict" one.
 
-I have been ifdefing these out for targeted policy, but I am wondering 
-if we want these for strict policy either.
+ ... but if you absolutely absolutely must "get rid" of selinux, then
+ use 1. not 2.
 
-Fix will be in selinux-policy-targeted-1.23.18-16
-
-Dan
-
--- 
+ remember that you will need to relabel your filesystem if you wish to
+ reintroduce selinux, because 1) will create files without an selinux
+ permission (equivalent to chmod 000 on files) and 2) will allow files
+ to be created that would otherwise be banned, such that they are likely
+ to have the _wrong_ [unpredictable] selinux file contexts.
 
 
+ the targetted policy allows anything that isn't constrained by selinux
+ to happily do what it likes - as long as it doesn't stomp on the toes
+ of anything that _is_ constrained.
+
+ e.g. if you haven't got a web server installed then you can write your
+ own program, run as root, to bind to port 80.
+
+ [on a "strict" system, if you haven't added the apache.te policy in then
+  NOTHING can bind to port 80, even if you're running as root.]
+
+ l.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
