@@ -1,32 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5K3xQgA021794
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2005 23:59:26 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5K3nfGW015665
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2005 03:49:41 GMT
-Subject: Re: Useradd Integration (v. 3)
+Subject: Re: dumb newbie questions
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: SELinux <selinux@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1119237843.20806.9.camel@localhost.localdomain>
-References: <1119132219.26988.14.camel@localhost.localdomain>
-	 <1119134520.27489.4.camel@localhost.localdomain>
-	 <1119237843.20806.9.camel@localhost.localdomain>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <20050619221700.GI8415@lkcl.net>
+References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
+	 <1119210718.17213.6.camel@localhost.localdomain>
+	 <20050619221700.GI8415@lkcl.net>
 Content-Type: text/plain
-Date: Sun, 19 Jun 2005 23:52:17 -0400
-Message-Id: <1119239537.21841.1.camel@localhost.localdomain>
+Date: Mon, 20 Jun 2005 00:11:01 -0400
+Message-Id: <1119240661.21892.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> Next - homedir template file..
+>  some of those macros expand out to TWENTY THOUSAND statements.
 
-Or rather...file_contexts format..
-I have no intention of calling genhomedircon,
-so the template is useless for me, and will
-just be harder to deal with..
+..which is a completely irrelevant statistic.
+
+What's important is how accurate the macro's header explains 
+what the macro does. 
+
+I highly dislike policy which doesn't make use of proper macros - 
+it looks like a random collection of allow rules with no
+sense of purpose of any kind. That's part of the reason
+I don't like audit2allow.
+
+To me, the structure of policy should follow the structure of code - 
+if you have a shared library somewhere, you should have a macro
+(or several of them) that can be called by whatever links to 
+that library. Otherwise you just end up adding the same allow 
+rules all over the place, and they're not organized in a 
+logical module.
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
