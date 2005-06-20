@@ -1,47 +1,73 @@
-Date: Sun, 19 Jun 2005 23:17:00 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, SELinux@tycho.nsa.gov
+Message-ID: <20050620001655.12758.qmail@web31610.mail.mud.yahoo.com>
+Date: Sun, 19 Jun 2005 17:16:55 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: dumb newbie questions
-Message-ID: <20050619221700.GI8415@lkcl.net>
-References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com> <1119210718.17213.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1119210718.17213.6.camel@localhost.localdomain>
+To: SELinux@tycho.nsa.gov
+In-Reply-To: <20050619221357.GH8415@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Jun 19, 2005 at 03:51:58PM -0400, Ivan Gyurdiev wrote:
 
-> What I think is a problem is when people use the output
-> of audit2allow as the policy... which is what I see happening.
 
- that's exactly what i do as a first approximation, because i don't have
- enough info in my head about all those macros.
+--- Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+wrote:
 
- some of those macros expand out to TWENTY THOUSAND statements.
 
-> To me that largely defeats the purpose of SELinux... 
+> > I think it is. The developer, who understands
+> > the intent of the application and it behavior,
+> > ought to be in charge of the SELinux policy.
+>  
+>  no, no, and definitely no.
+> 
+>  i made the mistake, 8 months ago, of making that
+> recommendation.
+> 
+>  russell kindly put me right about it: you could
+> likely, with enough
+>  searching, find his response.
+> 
+>  the person doing the application is EXTREMELY
+> unlikely to have the
+>  expertise and knowledge sufficient to get selinux
+> and to get selinux
+>  policy right.
 
- *shrug*
+My point, and I hope that someday I'll
+come up with the right set of words to
+make it clear, is that if it is indeed
+the case that application developers
+cannot be trained to get the SELinux policy
+correct that that is a fatal deficiency
+in the facility. SELinux cannot survive,
+even with the backing of the NSA and RedHat,
+if the developer community does not get
+behind it and that will not happen until
+developers have the information and tools
+they need to become expert in the generation
+of policies.
 
- what else would an inexperienced person use?
+In the MLS Unix world it was difficult to
+train people who where disinterested in the
+program even when their jobs depended on it.
+Once people became engaged with MLS, and
+that required lots of D O C U M E N T A T I O N,
+they learned how they could take advantage
+of it. Then they learned to quit worrying and
+love the bomb.
 
- _after_ doing audit2allow, you can at least go back and look at some of
- the macros.
 
- if you want a useful tool, then what you want is an analyser
- that will suggest appropriate macros to use AFTER someone
- has done repeated application of audit2allow.
 
- an se-lint, if you will.
+Casey Schaufler
+casey@schaufler-ca.com
 
- and yes, i am aware that even doing the audit2allow "thing" doesn't
- help you in the slightest if you haven't a clue about domain
- transitions.
 
- l.
-
+		
+____________________________________________________ 
+Yahoo! Sports 
+Rekindle the Rivalries. Sign up for Fantasy Football 
+http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
