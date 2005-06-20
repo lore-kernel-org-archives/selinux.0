@@ -1,9 +1,9 @@
-Message-ID: <20050620001655.12758.qmail@web31610.mail.mud.yahoo.com>
-Date: Sun, 19 Jun 2005 17:16:55 -0700 (PDT)
+Message-ID: <20050620002826.84410.qmail@web31601.mail.mud.yahoo.com>
+Date: Sun, 19 Jun 2005 17:28:26 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: dumb newbie questions
 To: SELinux@tycho.nsa.gov
-In-Reply-To: <20050619221357.GH8415@lkcl.net>
+In-Reply-To: <20050619221035.GG8415@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,51 +11,25 @@ List-Id: selinux@tycho.nsa.gov
 
 
 
---- Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-wrote:
+> i put it to you, therefore, casey, that it
+> is _your_ job - and mine - to explain selinux
+> clearly enough, to be patient enough, to listen
+> enough.
 
+I do not know enough about SELinux to explain it.
+I do not know how to do a policy.
+I do not have a clue why the existing policy
+module is deemed sensible.
 
-> > I think it is. The developer, who understands
-> > the intent of the application and it behavior,
-> > ought to be in charge of the SELinux policy.
->  
->  no, no, and definitely no.
-> 
->  i made the mistake, 8 months ago, of making that
-> recommendation.
-> 
->  russell kindly put me right about it: you could
-> likely, with enough
->  searching, find his response.
-> 
->  the person doing the application is EXTREMELY
-> unlikely to have the
->  expertise and knowledge sufficient to get selinux
-> and to get selinux
->  policy right.
+I would like to. But there is no source of
+information. Oh sure, I've been referred to
+papers written about Flux back in the previous
+century. They are not helpful. Finally, I do
+not see how a scheme under which the policy
+is generated after the fact by people other
+than the developers can possibly make sense.
 
-My point, and I hope that someday I'll
-come up with the right set of words to
-make it clear, is that if it is indeed
-the case that application developers
-cannot be trained to get the SELinux policy
-correct that that is a fatal deficiency
-in the facility. SELinux cannot survive,
-even with the backing of the NSA and RedHat,
-if the developer community does not get
-behind it and that will not happen until
-developers have the information and tools
-they need to become expert in the generation
-of policies.
-
-In the MLS Unix world it was difficult to
-train people who where disinterested in the
-program even when their jobs depended on it.
-Once people became engaged with MLS, and
-that required lots of D O C U M E N T A T I O N,
-they learned how they could take advantage
-of it. Then they learned to quit worrying and
-love the bomb.
+But, that's just me.
 
 
 
