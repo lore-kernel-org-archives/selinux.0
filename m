@@ -1,60 +1,99 @@
-Date: Mon, 20 Jun 2005 20:05:07 +0100
+Date: Mon, 20 Jun 2005 20:21:24 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: "R. Steven Rainwater" <srainwater@ncc.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: SELinux@tycho.nsa.gov
 Subject: Re: dumb newbie questions
-Message-ID: <20050620190507.GD8451@lkcl.net>
-References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com> <1119210718.17213.6.camel@localhost.localdomain> <1119213695.17213.29.camel@localhost.localdomain> <1119238487.5253.23.camel@localhost.localdomain> <200506200445.j5K4jbRc007280@turing-police.cc.vt.edu> <1119278717.30000.10.camel@rodan.ncc.com> <1119280474.2766.9.camel@celtics.boston.redhat.com> <1119281369.30000.56.camel@rodan.ncc.com>
+Message-ID: <20050620192124.GG8451@lkcl.net>
+References: <20050619221357.GH8415@lkcl.net> <20050620001655.12758.qmail@web31610.mail.mud.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1119281369.30000.56.camel@rodan.ncc.com>
+In-Reply-To: <20050620001655.12758.qmail@web31610.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jun 20, 2005 at 10:29:29AM -0500, R. Steven Rainwater wrote:
+On Sun, Jun 19, 2005 at 05:16:55PM -0700, Casey Schaufler wrote:
+> 
+> 
+> --- Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+> wrote:
+> 
+> 
+> > > I think it is. The developer, who understands
+> > > the intent of the application and it behavior,
+> > > ought to be in charge of the SELinux policy.
+> >  
+> >  no, no, and definitely no.
+> > 
+> >  i made the mistake, 8 months ago, of making that
+> > recommendation.
+> > 
+> >  russell kindly put me right about it: you could
+> > likely, with enough
+> >  searching, find his response.
+> > 
+> >  the person doing the application is EXTREMELY
+> > unlikely to have the
+> >  expertise and knowledge sufficient to get selinux
+> > and to get selinux
+> >  policy right.
+> 
+> My point, and I hope that someday I'll
+> come up with the right set of words to
+> make it clear, is that if it is indeed
+> the case that application developers
+> cannot be trained to get the SELinux policy
+> correct that that is a fatal deficiency
+> in the facility. 
 
-> What can I say, I chose the subject line for a reason... :-)
- 
- :)
+ i _would_ agree with you... if it wasn't for this:
 
- use ls -Z a _lot_.
+ * that security in unix is glaringly deficient;
 
- then go through the file named file_contexts checking the
- regexps to make sure that the file context you see with
- ls -Z matches one of the regexps you see in the file_contexts
- file.
+ * that application developers are notoriously ignorant of security issues;
 
- if it don't look like it's correct (because you did a mv rather than cp
- with the option to set the file context when the file is in its new
- location) then do a restorecon.
+ * that languages like c and c++ and processors like the x86 _invite_ 
+ security issues.
 
- but most critically, remember that only certain areas have been
- "allocated" as suitable areas for cgi-scripts.
+ and that this is true _irrespective_ of whether selinux exists or not.
 
- look in httpd.fc (or is it apache.fc) to see what those areas are.
+ yes?
 
- you will expect to see a line like:
- 
- 	/var/www/cgi-bin/*  -- httpd_cgi_exec_t
+ i think this can be said (i invite people to disagree).
 
- which means that anything executed from /var/www/cgi-bin/
- will be given an selinux context of httpd_cgi_exec_t.
+ based on the above three statements (*) being true, it can be concluded
+ that when you introduce selinux, the expectation for ordinary
+ applications developers to "get it right" simply becomes an absolute
+ nonsense.
 
- [... but remember what i said above about file_contexts: if you then put
-  files _into_ /var/www/cgi-bin/ you must double check that (in this
-  case) they have (e.g.) a context of httpd_cgi_exec_t (by using ls -Z)
-  and if they _don't_ then you _must_ do restorecon
-  /var...../mynewscript.
- ]
+ the mere _introduction_ of security-aware selinux developers and the
+ use of a formally structured policy makes it possible to draw
+ application developers' attention to security deficiencies in their
+ programs, and they can then be invited to fix them.
 
- so.
 
- if you just blop files into /var/www/my-home-grown-cgi-server-directory
- and then don't also modify httpd.fc to reflect this new location
- (with an appropriate regexp) then no amount of restorecon'ing will
- help you.
+ a [possibly too] simple example is that of the debian
+ initscripts, one of which attempted to do a touch on /etc
+ in order to detect whether /etc/mtab could potentially be
+ written to [instead of doing touch on /etc/mtab itself!]
 
- hope this helps.
+ because selinux "strict" policy quite rightly bans all but
+ appropriate programs to have write permission to /etc (and
+ this particular initscript most certainly ain't one of those
+ programs!), the entire behaviour of the debian initscripts
+ (in this case, mounting and managing the initial filesystem
+ partitions!) went off down a different path, causing some
+ quite serious recovery problems.
+
+ the solution was NOT to "fix selinux" but instead the solution
+ was to fix the initscript.
+
+ ... but would that have been detected if it wasn't for the strictness
+ of selinux being Mandatory Access Control, such that an avc message
+ comes up?
+
+ of course it wouldn't have been.
+
+ there are plenty other (better) examples.
 
  l.
 
