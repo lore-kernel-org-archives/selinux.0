@@ -1,49 +1,56 @@
-Message-Id: <200506202101.j5KL1e5E005203@turing-police.cc.vt.edu>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: SELinux@tycho.nsa.gov
+Message-ID: <20050620213628.46862.qmail@web31601.mail.mud.yahoo.com>
+Date: Mon, 20 Jun 2005 14:36:28 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: dumb newbie questions 
-In-Reply-To: Your message of "Mon, 20 Jun 2005 13:41:06 PDT."
-             <20050620204106.99967.qmail@web31603.mail.mud.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20050620204106.99967.qmail@web31603.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1119301295_19943P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 20 Jun 2005 17:01:38 -0400
+To: Valdis.Kletnieks@vt.edu
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <200506202101.j5KL1e5E005203@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1119301295_19943P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 20 Jun 2005 13:41:06 PDT, Casey Schaufler said:
 
-> bunch SELinux isn't going to find, too. And
-> once SELinux is used to find all the problems,
-> and they get fixed, we can turn SELinux off
-> because it's unnecessary. Right?
+--- Valdis.Kletnieks@vt.edu wrote:
 
-This presupposes two very unlikely events:
+> This presupposes two very unlikely events:
+> 
+> 1) That *all* the problems are found
 
-1) That *all* the problems are found
-2) That no further software upgrades happen, introducing more problems.
+Nope, just that all the problems that the
+"policy" would find are found. Since the
+policy will not find things it does not
+find ...
 
-Other than that, yes, you could turn it off once your system is
-100% secured and infallible.
+> 2) That no further software upgrades happen,
+> introducing more problems.
 
---==_Exmh_1119301295_19943P
-Content-Type: application/pgp-signature
+Or changes that are made to get around the
+SELinux policy that has arbitrarily been
+imposed on an application.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> Other than that, yes, you could turn it off once
+> your system is
+> 100% secured and infallible.
 
-iD8DBQFCty6ucC3lWbTT17ARAkHvAJ4pRn7IdPDnMWYnvg1eezJF5AKlnACgsUNZ
-9+QO2X+GBlOt8hJGk3LuT2U=
-=7g0Z
------END PGP SIGNATURE-----
+You could turn it off well before then and
+still gain complete benefit.  Let's face it,
+SELinux, even with the strict policy, is not
+going to identify all flaws any more than a
+Biba integrity policy would.
 
---==_Exmh_1119301295_19943P--
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+____________________________________________________ 
+Yahoo! Sports 
+Rekindle the Rivalries. Sign up for Fantasy Football 
+http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
