@@ -1,8 +1,7 @@
 Subject: Re: dumb newbie questions
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "R. Steven Rainwater" <srainwater@ncc.com>
-Cc: SELinux@tycho.nsa.gov
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
 In-Reply-To: <1119281369.30000.56.camel@rodan.ncc.com>
 References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
 	 <1119210718.17213.6.camel@localhost.localdomain>
@@ -13,38 +12,48 @@ References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
 	 <1119280474.2766.9.camel@celtics.boston.redhat.com>
 	 <1119281369.30000.56.camel@rodan.ncc.com>
 Content-Type: text/plain
-Date: Mon, 20 Jun 2005 11:44:08 -0400
-Message-Id: <1119282248.2766.31.camel@celtics.boston.redhat.com>
+Date: Mon, 20 Jun 2005 11:56:41 -0400
+Message-Id: <1119283001.24129.3.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-06-20 at 10:29 -0500, R. Steven Rainwater wrote:
-> On Mon, 2005-06-20 at 10:14, Ivan Gyurdiev wrote:
-> > > I quoted the source of my one line perl test script
-> > >and error message it generated in a previous post. 
-> > 
-> > ...and  I've pointed out that your script doesn't run,
-> > because httpd scripts are not allowed to write to the 
-> > terminal.
-> 
+On Mon, 2005-06-20 at 10:29 -0500, R. Steven Rainwater wrote: 
 > What I wasn't understanding is why selinux thinks it's an httpd script.
 > It seemed like a pretty generic "hello world" program to me. I'm
 > assuming now, that selinux makes guesses about what sort of program it
-> is by where it's located?
+> is by where it's located? My hello world program works in my home
+> directory but not in the httpd perl directory. I still don't entirely
+> understand why this should be but at least I know about it now and can
+> look out for it.
 
-No - it doesn't guess anything - it makes this decision 
-based on the SELinux context of the file (which eventually
-determines the SELinux context of the process).
-See my other mail.
+SELinux performs security transitions upon execve() based on the
+security context of the program file, where the security context of the
+file is an attribute associated with the file's inode similar to the
+file's owner/group/mode information (but stored via extended attributes,
+man 5 attr, as with ACLs).  To initialize the security context when a
+file is installed, there is a file_contexts configuration file that
+specifies file security contexts based on pathname regular expressions.
+Programs like rpm and install know to set the inode attribute at
+install-time based on this configuration.  restorecon can also be used
+to manually reset the inode attribute to the one specified in the
+file_contexts configuration.  But in general, after initialization, the
+inode attribute should be maintained through a combination of policy
+rules and (when necessary for fine-grained labeling) security-aware
+applications so that it reflects the real security state of the inode.
+At runtime, we don't want to base security decisions on pathnames, which
+are merely a way (among potentially many different ways) to refer to the
+object and don't reflect the real security state of the referenced
+object.  We instead want to base decisions on the security attribute of
+the object, which is properly stored (or at least associated) with the
+inode.  At install-time, we can infer some aspects of the security
+properties of the file from its location under the assumption of secure
+development and distribution.  After installation, we want to track the
+real security state of the system.
 
-This context is stored in the filesystem extended attributes
-(xattr).
-
-> What can I say, I chose the subject line for a reason... :-)
-
-:) 
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
