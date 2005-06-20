@@ -1,7 +1,9 @@
 Subject: Re: dumb newbie questions
-From: "R. Steven Rainwater" <srainwater@ncc.com>
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <1119282248.2766.31.camel@celtics.boston.redhat.com>
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: "R. Steven Rainwater" <srainwater@ncc.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <1119285617.30000.88.camel@rodan.ncc.com>
 References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
 	 <1119210718.17213.6.camel@localhost.localdomain>
 	 <1119213695.17213.29.camel@localhost.localdomain>
@@ -11,51 +13,61 @@ References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
 	 <1119280474.2766.9.camel@celtics.boston.redhat.com>
 	 <1119281369.30000.56.camel@rodan.ncc.com>
 	 <1119282248.2766.31.camel@celtics.boston.redhat.com>
+	 <1119285617.30000.88.camel@rodan.ncc.com>
 Content-Type: text/plain
-Message-Id: <1119285617.30000.88.camel@rodan.ncc.com>
+Date: Mon, 20 Jun 2005 12:59:13 -0400
+Message-Id: <1119286753.5061.11.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
-Date: Mon, 20 Jun 2005 11:40:17 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-06-20 at 10:44, Ivan Gyurdiev wrote:
-> On Mon, 2005-06-20 at 10:29 -0500, R. Steven Rainwater wrote:
-> > I'm assuming now, that selinux makes guesses about what
-> > sort of program it is by where it's located?
+
+> Okay, this is begining to make a little sense. So looking at my test
+> script again, when it's sitting in my home directory ls -alZ shows this:
 > 
-> No - it doesn't guess anything - it makes this
-> decision based on the SELinux context of the file
-> (which eventually determines the SELinux context 
-> of the process).
+> -rwxrwxr-x rsr:rsr root:object_r:user_home_t  test.pl
+> 
+> If I run it there it works fine. But when I move it anywhere in the
+> /var/www tree, ls -alZ shows this:
+> 
+> -rwxrwxr-x rsr:rsr root:object_r:httpd_sys_content_t test.pl
 
-Okay, this is begining to make a little sense. So looking at my test
-script again, when it's sitting in my home directory ls -alZ shows this:
+You need to make the distinction between move (as in mv)
+and copy (as in cp). The former doesn't change context (just like
+it doesn't change permissions). 
 
--rwxrwxr-x rsr:rsr root:object_r:user_home_t  test.pl
+> And here it doesn't run (for me or root) but it will run for Apache.
 
-If I run it there it works fine. But when I move it anywhere in the
-/var/www tree, ls -alZ shows this:
+That might be a bug in policy...
+cc-ed dwalsh
 
--rwxrwxr-x rsr:rsr root:object_r:httpd_sys_content_t test.pl
+>  So
+> that means that when I copy or move a script, the context automagically
+> changes to correspond to whatever security rules are allowed within that
+> directory? That still sounds to me like "context" means it runs if I put
+> it in one directory but doesn't run if I put it in another.
 
-And here it doesn't run (for me or root) but it will run for Apache. So
-that means that when I copy or move a script, the context automagically
-changes to correspond to whatever security rules are allowed within that
-directory? That still sounds to me like "context" means it runs if I put
-it in one directory but doesn't run if I put it in another.
+Context in SELinux is mostly determined based on location.
+It uses organization based on the directory structure to label things
+properly. As Stephen explained, it matches based on regular expressions
+on the path.
 
-It also seems that with the "user_home_t" context the program can use
-stdout and run normally but with "httpd_sys_content_t" it can't use
-stdout and can only be run from Apache.
 
-I've discovered the chcon utility, so now I'm wondering if what I need
-to do is change the context of my script to something that will allow
-both Apache to run it as a CGI and ALSO allow root or another user to
-run the script normally with stdout. But how do I find out what context
-to set it to? Is there a list of available contexts and what permissions
-they have? 
+> I've discovered the chcon utility, so now I'm wondering if what I need
+> to do is change the context of my script to something that will allow
+> both Apache to run it as a CGI and ALSO allow root or another user to
+> run the script normally with stdout.
 
--Steve
+So, as Eric mentioned, SELinux shouldn't be transitioning to a different
+context when executing a web script from the user shell. It sounds
+to me like this isn't what's happening, however. It sounds like
+unconfined_t simply can't access those files, which I suspect is a bug.
+
+Are you sure the denial you got when running your script as root from a
+shell said: scontext=...httpd.. ? It would help if you could double 
+check that.
+
+
 
 
 
