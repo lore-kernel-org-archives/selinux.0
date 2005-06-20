@@ -1,65 +1,35 @@
-Message-ID: <a1025d74050620061231e65d7d@mail.gmail.com>
-Date: Mon, 20 Jun 2005 09:12:37 -0400
-From: Trevor Vaughan <peiriannydd@gmail.com>
-Reply-To: Trevor Vaughan <peiriannydd@gmail.com>
-To: "R. Steven Rainwater" <srainwater@ncc.com>
 Subject: Re: dumb newbie questions
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1119137931.11593.53.camel@rodan.ncc.com>
+From: "R. Steven Rainwater" <srainwater@ncc.com>
+To: SELinux@tycho.nsa.gov
+In-Reply-To: <200506200445.j5K4jbRc007280@turing-police.cc.vt.edu>
+References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com>
+	 <1119210718.17213.6.camel@localhost.localdomain>
+	 <1119213695.17213.29.camel@localhost.localdomain>
+	 <1119238487.5253.23.camel@localhost.localdomain>
+	 <200506200445.j5K4jbRc007280@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Message-Id: <1119278717.30000.10.camel@rodan.ncc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <20050618153949.72823.qmail@web51502.mail.yahoo.com>
-	 <1119137931.11593.53.camel@rodan.ncc.com>
+Date: Mon, 20 Jun 2005 09:45:17 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Steven,
+On Sun, 2005-06-19 at 23:45, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 19 Jun 2005 22:34:47 CDT, "R. Steven Rainwater" said:
+> perl -e 'print "Hello World!\n"'
+> 
+> doesn't generate any AVCs on my system when run as a normal
+> user.  So that's a straw man.
 
-I'm also relatively new to the SELinux game and have run into some
-similar PERL + Apache quirks.
+I quoted the source of my one line perl test script and error message it
+generated in a previous post. It doesn't run on my system, which is
+using CentOS 4.1. All my scripts have been working fine on a non-selinux
+box. I'm not writing any new scripts (other than the one line test
+script), just trying to move an existing website and associated scripts
+to an selinux box. Some of the perl scripts run fine, other don't run at
+all, generating the avc errors. See my previous post for the details.
 
-Basically, it looks like you have a PERL script running from within
-the Apache context (i.e. run by Apache) and the script is attempting
-to write to a character device, probably the terminal (as mentioned in
-a previous post).
-
-The rule that you generated with audit2allow will work but you REALLY
-need to think about whether or not you need to give Apache RW access
-to the terminal.
-
-Try this:
-
-1. Run the script from your home directory as a normal user. (This should work).
-2. Write a PERL script, to be run from within Apache, that writes a
-file that is inside the web directory (whatever that may be on your
-system, probably /var/httpd/htdocs or the like).  (This should work
-since it is within the httpd system space.)
-
-Also, are you running in strict or targeted mode?  It sounds like
-targeted mode, if not, you might want to try that first.
-
-Finally, as mentioned in another post, you'll need to get the policy
-sources, add what you need to change, and re-compile them to make this
-work.  I would not recommend adding any raw devices to the Apache
-directive, but that's up to you.
-
-Personally, I've found that the SELinux additions work great for boxes
-that are stripped down servers and where the system linkages are well
-understood but that when you start linking all around the system
-(especially with PERL) you may get unexpected results.  However, most
-of these can be fixed from within the script and, if not, solved with
-a read-only context.  Any time that you need to change something to
-provide write access, I would take a good, hard, look at the situation
-at hand.
-
-Good Luck,
-
-Trevor
-
-> kernel: audit(1119056704.257:0): avc: denied { read write } for pid=3020
-> comm=test.pl path=/dev/pts/0 dev=devpts ino=2
-> scontext=root:system_r:httpd_sys_script_t
-> tcontext=root:object_r:devpts_t tclass=chr_file
+-Steve
 
 
 --
