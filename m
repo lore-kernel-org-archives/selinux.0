@@ -1,79 +1,118 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5LNZSgA012306
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 19:35:28 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5LNPPK0003812
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 23:25:25 GMT
-Subject: Re: ANN: SELinux Reference Policy Release
-From: antoine <antoine@nagafix.co.uk>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   Colin Walters <walters@verbum.org>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1118943983.8987.23.camel@localhost.localdomain>
-References: <1118871745.18294.28.camel@sgc.columbia.tresys.com>
-	 <1118874951.24338.35.camel@nexus.verbum.private>
-	 <1118877949.10103.19.camel@localhost>
-	 <1118930113.18294.56.camel@sgc.columbia.tresys.com>
-	 <1118943983.8987.23.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Wed, 22 Jun 2005 00:25:49 +0100
-Message-Id: <1119396349.9416.50.camel@localhost>
-Mime-Version: 1.0
+Message-ID: <42B8A699.206@tresys.com>
+Date: Tue, 21 Jun 2005 19:45:29 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: alexander-barclay@utulsa.edu, Brandon Pollet <brandon@utulsa.edu>,
+   SELinux@tycho.nsa.gov, John Hale <john-hale@utulsa.edu>
+Subject: Re: XML Based Policy Configuration for SELinux
+References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu> <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu> <20050621212059.GA9434@lkcl.net>
+In-Reply-To: <20050621212059.GA9434@lkcl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> El jue, 16-06-2005 a las 09:55 -0400, Christopher J. PeBenito escribió:
-> > We did look into other available formats for machine parseable comments,
-> > and XML is really the best choice if you want the comments to be
-> > transformed into many different formats, and easily loaded into other
-> > programs; its already well understood, and parsers exist for many
-> > programming languages.  Simpler (for humans to read) commenting formats
-> > just don't have these options, and mainly target one transformation.
-As long as that transformation is the XML one, we are ok. Just an extra
-step needed when using the XML data which should not be a problem.
+Luke Kenneth Casson Leighton wrote:
 
-> A modified Gnome-doc (ie. Kernel-doc) might be an interesting option.
-> It would be a matter of modifying the lex and other stuff to make it
-> parsing our own commenting style within the policy files.
-Yes. How about using a more human-readable format *with* the ability to
-generate the long-winded XML from it so we get the benefit of both?
-I am not just suggesting this for someone else to do, if you think this
-is worth doing I would be willing to write the code myself.
+>On Tue, Jun 21, 2005 at 02:59:42PM -0500, alexander-barclay@utulsa.edu wrote:
+>  
+>
+> <snip>
+>
+> it is not a worst-case scenario: the policy.conf file is completely
+> _useless_ on its own as it only makes sense in combination with
+> file_contexts and the tunables (i might have missed something else
+> out... hmmm)
+>  
+>
+This isn't true, apol, and probably other tools, read policy.conf for 
+doing policy analysis.
 
-Example:
-/**
-  * @interface selinux_get_enforce_mode
-  * @description Allows the caller to get the mode of policy enforcement
-  *         (enforcing or permissive mode).
-  * @param domain The process type to allow to get the enforcing mode.
-  */
-Could easily be translated to the XML that was given as example:
-########################################
-## <interface name="selinux_get_enforce_mode">
-##      <description>
-##              Allows the caller to get the mode of policy enforcement
-##              (enforcing or permissive mode).
-##      </description>
-##      <parameter name="domain">
-##              The process type to allow to get the enforcing mode.
-##      </parameter>
-## </interface>
-#
-Now which one do you prefer?
-I am not against XML on principle (I have used SGML/XML since 1995) just
-trying to keep things human readable as much as possible.
-We could also the use the @return notation to show which domains are
-created by the macro:
-@return mydomain_tmp_t, mydomain_var_t, etc
+> policy.conf is an "intermediary": do not be deceived by it being in a
+> readable flat file format!
+>
+sure but it also contains all the information you need to see how the 
+loaded policy will work
 
-> We have some Java code lying around that can parse the generated XML
-> if you want it. We are also working on an eclipse based policy
-> development environment.
-Is there any code publicly available?
+><snip>
+>
+> - 1) policy.conf + file_contexts + tunables
+> - 2) policy.NN + file_contexts + tunables
+> - 3) /etc/selinux/src/* (*.te, *.fc, users, mls, rpac, net_contexts etc) +
+>      tunables
+>  
+>
+tunables will be part of the language once the modules are in use and 
+therefore will be preserved in the binary module format
 
-Antoine
+><snip>
+>  
+>
+> which are actually quite difficult - if not impossible - to
+> "extract" from the policy.conf file, in isolation, with no
+> access to the "users" file.
+>
+>  
+>
+that is precisely what all the analysis do
 
+> basically, policy.conf and file_contexts do not provide the "full
+> picture" that would make the representation of selinux policy in XML
+> file format "useful" to developers and sysadmins.
+>  
+>
+file_contexts are an initial configuration and not necessarilly as 
+interesting as the actual filesystem contexts
+
+> wish list item 1):
+>
+> * the ability to read /etc/selinux/src/* (*.te, *.fc, users,
+>   mls, rpac, net_contexts etc) + tunables into an XML formatted file
+>
+>  
+>
+
+Why? XML's only purpose in life is to transform from a generalized 
+format to some other format, mostly for human consumption. Having the 
+rules themselves in XML does very little in the way of making the policy 
+easier to read (or rather detracts from that) and you'd just have to 
+convert it to the existing format anyway. The XML in the reference 
+policy is for documentation only, and is used to convert from the inline 
+docs to html, text, possibly man pages and so on, it is not meant to be 
+read directly.
+
+>   whilst still recognising that certain areas of the policy are to do
+>   with certain programs / services.
+>
+>   i.e. reflecting the directory "domains" and the individual files _in_
+>   domains in the tree structure of the XML document.  i.e. giving
+>   apache.te its own "node" hierarchy as distinct and completely
+>   separate from "src/domains//misc/kernel.te".
+>
+>  
+>
+Thats what the type hierarchy patch we sent a while back is suppose to 
+do. So you make an "apache" type and then children types that are 
+constrained by the permissions of apache. This is a compiler and 
+infrastructure enforced constraint that is very useful for doing things 
+such as delegating access to parts of the policy and ensuring it doesn't 
+exceed the original permissions granted.
+
+> wish list item 2)
+>
+> * the ability to output /etc/selinux/src/* (*.te, *.fc, users,
+>   mls, rpac, net_contexts etc) + tunables etc from an XML
+>   formatted file.
+> 
+> _that's_ useful.
+>  
+>
+How is it useful exactly? what would the XML be used for? converting 
+something to XML for the sake of doing so doesn't really accomplish 
+anything.
+
+Joshua Brindle
+Tresys Technology
 
 --
 This message was distributed to subscribers of the selinux mailing list.
