@@ -1,48 +1,42 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5LN87gA012106
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 19:08:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5LNG0gA012189
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 19:16:00 -0400 (EDT)
 Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5LMwZkw018304
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 22:58:35 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5LN6Skw018432
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 23:06:29 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by mail.nagafix.co.uk (Postfix) with ESMTP id F0368AEF83
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 23:17:38 +0100 (BST)
+	by mail.nagafix.co.uk (Postfix) with ESMTP id C83EDAEF84
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 23:25:33 +0100 (BST)
 Received: from mail.nagafix.co.uk ([127.0.0.1])
  by localhost (viper.nagafix.co.uk [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 30606-13 for <selinux@tycho.nsa.gov>;
- Tue, 21 Jun 2005 23:17:36 +0100 (BST)
+ with ESMTP id 30626-13 for <selinux@tycho.nsa.gov>;
+ Tue, 21 Jun 2005 23:25:31 +0100 (BST)
 Received: from [192.168.0.1] (unknown [81.1.93.24])
-	by mail.nagafix.co.uk (Postfix) with ESMTP id 1E3F1AEF82
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 23:17:36 +0100 (BST)
-Subject: 'name_connect' undefined!
+	by mail.nagafix.co.uk (Postfix) with ESMTP id C1877AEF83
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 23:25:30 +0100 (BST)
+Subject: upgrade howto
 From: antoine <antoine@nagafix.co.uk>
 To: SELinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 21 Jun 2005 23:58:30 +0100
-Message-Id: <1119394710.9416.23.camel@localhost>
+Date: Wed, 22 Jun 2005 00:06:24 +0100
+Message-Id: <1119395184.9416.31.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On a x86 box running Gentoo SELinux profile , I cannot 'emerge sync' (in
-enforcing mode): I get the following error message:
+What is the safest way of upgrading libselinux and libsepol?
 
-audit(1119487194.838:0): avc:  denied  { name_connect } for  dest=873
-scontext=root:sysadm_r:portage_fetch_t
-tcontext=system_u:object_r:rsyncd_port_t tclass=tcp_socket
+I attempted it a couple of weeks ago and had to resort to statically
+linked copies of ls and tar to restore the previous version after the
+upgrade broke my system. Clearly, I did something wrong. What is scary
+is that a lot of the core system utilities are linked against libselinux
+(ls, init, portage, etc) and that when I upgrade, it would seem that I
+need to rebuild them (as just upgrading the library left them unusable)
+- which is impossible without these basic tools... catch 22?
 
-audit2allow gives me:
-allow portage_fetch_t rsyncd_port_t:tcp_socket name_connect;
-Which would make sense, except that 'name_connect' is not defined
-anywhere! (and therefore I cannot compile the policy with that value)
-So I tried allowing connect, name_bind and so on, but the audit message
-is still coming up. Where does this 'name_connect' come from if it is
-not in my policy source tree? (and how do I fix it)
-
-Why this is not part for the default policy, I do not understand.
-portage_fetch_t is the domain used by portage for fetching things via
-rsync (and rsync is the main fetch method - webrsync being the other):
-domain_auto_trans(portage_t, rsyncd_exec_t, portage_fetch_t)
+Note: this is on a Gentoo system where everything is compiled from
+source and so a big rpm upgrade transaction is simply not an option
+here.
 
 Thanks
 Antoine
