@@ -1,79 +1,99 @@
-Subject: RE: [RFC]Kernel Built-in IDS extension
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: horietk@nttdata.co.jp
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <E6ACF5196CB5AA4FB50C32559083A36901633F0F@MAILSV12.msg.nttdata.co.jp>
-References: 
-	 <E6ACF5196CB5AA4FB50C32559083A36901633F0F@MAILSV12.msg.nttdata.co.jp>
-Content-Type: text/plain
-Date: Tue, 21 Jun 2005 08:32:35 -0400
-Message-Id: <1119357155.19219.21.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Mime-Version: 1.0 (Apple Message framework v730)
+To: SELinux@tycho.nsa.gov
+Message-Id: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu>
+Content-Type: multipart/alternative; boundary=Apple-Mail-1--665684508
+Cc: Brandon Pollet <brandon@utulsa.edu>, John Hale <john-hale@utulsa.edu>
+Subject: XML Based Policy Configuration for SELinux
+From: Brandon Pollet <brandon@utulsa.edu>
+Date: Tue, 21 Jun 2005 12:37:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-06-21 at 19:24 +0900, horietk@nttdata.co.jp wrote:
-> Certainly, I agree that the logging daemon based implementation is much 
-> simpler than kernel based one. But I think syslogd may not be reliable 
-> enough for this kind of purpose, i.e. printk() loses some of messages 
-> under very high load. So this is one of benefits which kernel based 
-> implementation gives.
 
-The kernel audit framework allows redirection of audit messages to a
-separate audit daemon, with the communication handled via netlink.  In
-FC4, this is now the default; there has been a lot of work on the kernel
-audit framework and auditd for FC4.
+--Apple-Mail-1--665684508
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	delsp=yes;
+	format=flowed
 
-> Currently, I have a plan for integrating IDS functionality with MLS 
-> instead of boolean. This implementation will make trap description more 
-> flexible and stateful. The following usage is intended.
-> 
-> example) Progressive access policy
-> By means of detecting symbolic access context which indicates transition 
-> to the next processing phase, the privileges of running daemon can be 
-> changed according to its progress. 
-> 
-> It provides similar functionality to domain trasition. But no execve() 
-> is needed. I think it's more secure way because the daemon's privileges 
-> can be configured such that the process is only allowed the privileges 
-> which are needed exactly at that point.
-> 
-> How about this plan?
+Recently there was a discussion about using XML in SELinux policy and  
+so I wanted send out this Master's Report by Tyronne Nash. This paper  
+covers some of the work we have done at the University of Tulsa to  
+convert and extend the SELinux policy language with an XML  
+specification. The abstract and a link to the full document are  
+contained below. Let me know what you think.
 
-I'm not sure I follow your description.  Items to note:
+thanks,
+Brandon Pollet
 
-- SELinux includes a setcon(3) operation since 2.6.11 (introduced by
-Trusted Computer Solutions), so programs can be modified to change
-contexts (if allowed by policy) during their operation for such
-privilege bracketing.  But such privilege bracketing within the program
-is not as good as decomposing the program into multiple programs and
-performing exec-based transitions, because it requires that the entire
-application be trusted to maintain any desired separation between the
-old and new contexts and the binding between the code and the set of
-privileges at any given point is weak and unreliable.
+Abstract
 
-- Dynamically changing the process context in the kernel without an
-explicit setcon(3) call seems even worse, because at least with an
-explicit setcon(3) call, the program had to be aware of the transition
-and would know to adjust its state prior to switching contexts to
-maintain any desired separation.
+Security-Enhanced Linux provides an implementation of mandatory  
+access control but
+is limited by the available tools for policy configuration and  
+analysis. This work ex-
+amines policy management and demonstrates a method to translate the  
+information in
+the policy.conf file to XML. The portability of XML and availability  
+of existing general
+purpose XML tools will allow policy information to be analysed in new  
+ways.
 
-I'm not sure what you mean by integrating it with MLS rather than
-booleans; the booleans seem like a more natural fit and allow the policy
-writer to define exactly how he wants the policy rules to evolve.
+Link
+http://personal.utulsa.edu/~brandon-pollet/XMLPolicy-TN.pdf
 
-But again, it isn't clear that it is justified to provide this
-functionality in the kernel, especially given the use of auditd these
-days for SELinux auditing.  It would seem to make more sense to extend
-auditd to trap specific SELinux audit messages (among other things) and
-possibly run a helper to adjust boolean settings to tighten or deny
-access for the process that is exhibiting questionable behavior without
-interfering with normal operation by legitimate users.
- 
--- 
-Stephen Smalley
-National Security Agency
 
+--Apple-Mail-1--665684508
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html;
+	charset=ISO-8859-1
+
+<HTML><BODY style=3D"word-wrap: break-word; -khtml-nbsp-mode: space; =
+-khtml-line-break: after-white-space; ">Recently there was a discussion =
+about using XML in SELinux policy and so I wanted send out this Master's =
+Report by Tyronne Nash. This paper covers some of the work we have done =
+at the University of Tulsa to convert and extend the SELinux policy =
+language with an XML specification. The abstract and a link to the full =
+document are contained below. Let me know what you think.<DIV><BR =
+class=3D"khtml-block-placeholder"></DIV><DIV>thanks,</DIV><DIV>Brandon =
+Pollet</DIV><DIV><BR =
+class=3D"khtml-block-placeholder"></DIV><DIV>Abstract</DIV><DIV><BR =
+class=3D"khtml-block-placeholder"></DIV><DIV style=3D"margin-top: 0px; =
+margin-right: 0px; margin-bottom: 0px; margin-left: 0px; "><FONT =
+class=3D"Apple-style-span" face=3D"Times">Security-Enhanced Linux =
+provides an implementation of mandatory access control but</FONT><FONT =
+class=3D"Apple-style-span" face=3D"Times">=A0</FONT></DIV><DIV =
+style=3D"margin-top: 0px; margin-right: 0px; margin-bottom: 0px; =
+margin-left: 0px; "><FONT class=3D"Apple-style-span" face=3D"Times">is =
+limited by the available tools for policy configuration and analysis. =
+This work ex-</FONT><FONT class=3D"Apple-style-span" =
+face=3D"Times">=A0</FONT></DIV><DIV style=3D"margin-top: 0px; =
+margin-right: 0px; margin-bottom: 0px; margin-left: 0px; "><FONT =
+class=3D"Apple-style-span" face=3D"Times">amines policy management and =
+demonstrates a method to translate the information in</FONT><FONT =
+class=3D"Apple-style-span" face=3D"Times">=A0</FONT></DIV><DIV =
+style=3D"margin-top: 0px; margin-right: 0px; margin-bottom: 0px; =
+margin-left: 0px; "><FONT class=3D"Apple-style-span" face=3D"Times">the =
+policy.conf file to XML. The portability of XML and availability of =
+existing general</FONT><FONT class=3D"Apple-style-span" =
+face=3D"Times">=A0</FONT></DIV><DIV style=3D"margin-top: 0px; =
+margin-right: 0px; margin-bottom: 0px; margin-left: 0px; "><FONT =
+class=3D"Apple-style-span" face=3D"Times">purpose XML tools will allow =
+policy information to be analysed in new ways.</FONT><FONT =
+class=3D"Apple-style-span" face=3D"Times">=A0</FONT></DIV><DIV =
+style=3D"margin-top: 0px; margin-right: 0px; margin-bottom: 0px; =
+margin-left: 0px; "><BR class=3D"khtml-block-placeholder"></DIV><DIV =
+style=3D"margin-top: 0px; margin-right: 0px; margin-bottom: 0px; =
+margin-left: 0px; ">Link</DIV><DIV style=3D"margin-top: 0px; =
+margin-right: 0px; margin-bottom: 0px; margin-left: 0px; "><A =
+href=3D"http://personal.utulsa.edu/~brandon-pollet/XMLPolicy-TN.pdf">http:=
+//personal.utulsa.edu/~brandon-pollet/XMLPolicy-TN.pdf</A></DIV><DIV =
+style=3D"margin-top: 0px; margin-right: 0px; margin-bottom: 0px; =
+margin-left: 0px; "><BR =
+class=3D"khtml-block-placeholder"></DIV></BODY></HTML>=
+
+--Apple-Mail-1--665684508--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
