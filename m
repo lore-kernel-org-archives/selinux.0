@@ -1,39 +1,35 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5MHG4gA019263
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 13:16:04 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5MH6Ork029135
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 17:06:24 GMT
-Date: Wed, 22 Jun 2005 13:06:24 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Prakash Saivasan <helloprak@yahoo.com>
-cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: need info about a paper
-In-Reply-To: <20050622095308.12636.qmail@web54410.mail.yahoo.com>
-Message-ID: <Xine.LNX.4.44.0506221301580.7826-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5MJ7cgA020058
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 15:07:38 -0400 (EDT)
+Subject: Updated SELinux Release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1110402140.6299.22.camel@moss-spartans.epoch.ncsc.mil>
+References: <1110402140.6299.22.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 22 Jun 2005 14:57:10 -0400
+Message-Id: <1119466630.13181.175.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 22 Jun 2005, Prakash Saivasan wrote:
+An updated SELinux release is available from the NSA SELinux web site;
+see http://www.nsa.gov/selinux/news.cfm#R050622.
 
-> "W. E. Boebert and R. Y. Kain.
-> A Practical Alternative to Hierarchical Integrity
-> Policies.
-> In Proceedings of the Eighth National Computer
-> Security Conference, 1985"
+This SELinux release is based on Linux 2.6.12.  The 2.6.12 kernel
+includes the name_connect permission check for controlling outbound
+connections.  The SELinux kernel patch for 2.6.12 includes the execstack
+and execheap permission checks contributed by Lorenzo.  The hierarchical
+role and type support by Tresys Technology has been merged into libsepol
+and checkpolicy.  A new audit2why utility has been added to
+policycoreutils to help identify the causes of avc denials. libsepol has
+been re-licensed under the LGPL.  Updated versions of setools by Tresys
+and polgen by MITRE were added.  A number of patches for the userspace
+libraries, tools, and policy were merged.
 
-The way I ended up getting a copy of this was to put in an inter-library
-loan request at my local library, who were able to find another library
-which had the NCSC proceedings.
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Stephen Smalley
+National Security Agency
 
 
 --
