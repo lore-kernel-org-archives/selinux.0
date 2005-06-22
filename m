@@ -1,142 +1,67 @@
-Message-ID: <42B8DF16.3060108@tresys.com>
-Date: Tue, 21 Jun 2005 23:46:30 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5M4P0gA013897
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 00:25:00 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5M4FPrk025873
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 04:15:26 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 1EF6761B04
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 14:15:13 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 00393-06 for <selinux@tycho.nsa.gov>;
+	Wed, 22 Jun 2005 14:15:12 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id AF3D061B01
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 14:15:12 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>, "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: mkfs.cramfs
+Date: Wed, 22 Jun 2005 14:15:05 +1000
 MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: alexander-barclay@utulsa.edu, Brandon Pollet <brandon@utulsa.edu>,
-   SELinux@tycho.nsa.gov, John Hale <john-hale@utulsa.edu>
-Subject: Re: XML Based Policy Configuration for SELinux
-References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu> <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu> <20050621212059.GA9434@lkcl.net> <42B8A699.206@tresys.com> <20050622004114.GH9859@lkcl.net>
-In-Reply-To: <20050622004114.GH9859@lkcl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_OXOuCgGfufiIqOB"
+Message-Id: <200506221415.10141.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
+--Boundary-00=_OXOuCgGfufiIqOB
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->[joshua thank you for the corrections]
->
->Wish List item 3)
->
->that the tools that do the converting to/from XML be
->written in python!!!
->  
->
-The doctool to generate module.conf, tunables.conf and the html docs for 
-the reference policy is in python :)
+I've attached a patch for fsadm.fc to make mkfs.cramfs not have fsadm_exec_t.  
+It doesn't access block devices and is more like an archive utility than a 
+regular mkfs program.
 
-> <snip>
->
-> 
-> i get the impression that you like XML as little as i did when the
-> buzz-word first came out.
->
->  
->
-No, I think XML is very useful for the right tasks
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-> i agree with you that XML is not particularly useful for
-> being read by humans (although it can be which is useful
-> for debugging, if the tool/library that generated the XML
-> file includes appropriate white space, which they frequently
-> don't *sigh*...)
->
-> it _is_, however, useful for being read by computer programs.
->
-> XML is the sort of thing that allows people with very little
-> understanding of e.g. selinux to write, write, using simple
-> libraries, their Own Glorious parsing analysis and communication
-> tools.
->
->  
->
-I'm not sure what this means. How does XML help people that don't 
-understand selinux do anything?
-Changing the language to XML might add parsers but tools won't magically 
-appear. Further, there are plenty of tools that parse the current 
-format, there is little reason to move to an XML based policy language 
-when totally functional parsers already exist to do anything you need.
+--Boundary-00=_OXOuCgGfufiIqOB
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
-> my guess is that once all the hard work is done of specifying
-> an XML file format and writing (hopefully in python *hope*,
-> *hope*, hint, hint) a parsing/converter tool to convert
-> `cd /etc/selinux/src; make distclean; find .` in and out of
-> XML file format, that:
->
->  
->
-the modules might be in XML but there will be lots of m4 that will still 
-have to be processed before any XML parser could use the output..
+--- fsadm.fc.orig	2005-06-22 14:12:25.000000000 +1000
++++ fsadm.fc	2005-06-22 14:12:44.000000000 +1000
+@@ -1,6 +1,7 @@
+ # fs admin utilities
+ /sbin/fsck.*		--	system_u:object_r:fsadm_exec_t
+ /sbin/mkfs.*		--	system_u:object_r:fsadm_exec_t
++/sbin/mkfs\.cramfs	--	system_u:object_r:sbin_t
+ /sbin/e2fsck		--	system_u:object_r:fsadm_exec_t
+ /sbin/mkdosfs		--	system_u:object_r:fsadm_exec_t
+ /sbin/dosfsck		--	system_u:object_r:fsadm_exec_t
 
-> - writing a python program that took an XML file and generated an
->   HTML report would take about... *shrug* - two to three hours
->
->   [i did a similar thing for converting a fwbuilder's XML file
->    into an HTML report because fwbuilder is missing a
->    print option.  so it would take _me_ under 90 mins
->    to convert my fw_report.py program to understand an
->    SE-Linux-Policy-DTD-compliant XML file]
->
-> - writing a python tcl/tk program that took an XML selinux file
->   as input and output that could be used to write SElinux policy
->   would take... mmm... *finger-in-air* ... ten days?
->
-> - you could write a program similar to fwbuilder that understood
->   SE/Linux policy [instead of firewall rules].
->
->   fwbuilder's file format is in XML.
->
->  
->
-I'm not sure it's fair to compare a policy language which is often in 
-implementations with 300k+ rules with a firewall app that probably 
-rarely has 1000. I can't ever imagine a time when selinux policy is 
-written directly in expanded format (no macros or templates of some 
-sort, whether it's m4 or not) and using XML on the unexpanded format is 
-again, not possible
-
->   adapting fwbuilder as the basis for a GUI-based selinux policy
->   writing tool would take... *finger-in-air* ... four weeks?
->
->   (fwbuilder is written in c++).
->
-> 
->
-> the same cannot be said for programs having to understand
-> the /etc/selinux/src/* policy files directly.
->
->  
->
-Parsers exist for this
-
-> the above timescales all would need, individually, to have
-> the cost of writing a read-write parser to them in each of
-> the python and c++ languages, respectively.
-> 
-> and it would _need_ to be a library [not a file format].
->
->  
->
-we have some: libapol, libsepol and an upcoming API for modifying the 
-policy through an infrastructure like the policy modules or the policy 
-server
-
-> you wanna write such a library?  fine!!  [i don't!!]
->
->  
->
-we did :)
-
-> bottom line: i strongly suggest using the right kind of
-> words that will encourage the people at this university to
-> do this work!!!
->  
->
-I think you misunderstood. Clearly I want the university guys to do work 
-that helps SELinux, I just question how this specific work could.
-
-
-Joshua Brindle
+--Boundary-00=_OXOuCgGfufiIqOB--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
