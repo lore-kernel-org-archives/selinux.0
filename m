@@ -1,37 +1,33 @@
-Subject: Re: 'name_connect' undefined!
+Subject: Re: upgrade howto
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: antoine <antoine@nagafix.co.uk>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1119394710.9416.23.camel@localhost>
-References: <1119394710.9416.23.camel@localhost>
+In-Reply-To: <1119395184.9416.31.camel@localhost>
+References: <1119395184.9416.31.camel@localhost>
 Content-Type: text/plain
-Date: Wed, 22 Jun 2005 07:42:41 -0400
-Message-Id: <1119440561.13181.8.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 22 Jun 2005 07:45:33 -0400
+Message-Id: <1119440733.13181.12.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-06-21 at 23:58 +0100, antoine wrote:
-> On a x86 box running Gentoo SELinux profile , I cannot 'emerge sync' (in
-> enforcing mode): I get the following error message:
+On Wed, 2005-06-22 at 00:06 +0100, antoine wrote:
+> What is the safest way of upgrading libselinux and libsepol?
 > 
-> audit(1119487194.838:0): avc:  denied  { name_connect } for  dest=873
-> scontext=root:sysadm_r:portage_fetch_t
-> tcontext=system_u:object_r:rsyncd_port_t tclass=tcp_socket
-> 
-> audit2allow gives me:
-> allow portage_fetch_t rsyncd_port_t:tcp_socket name_connect;
-> Which would make sense, except that 'name_connect' is not defined
-> anywhere! (and therefore I cannot compile the policy with that value)
-> So I tried allowing connect, name_bind and so on, but the audit message
-> is still coming up. Where does this 'name_connect' come from if it is
-> not in my policy source tree? (and how do I fix it)
+> I attempted it a couple of weeks ago and had to resort to statically
+> linked copies of ls and tar to restore the previous version after the
+> upgrade broke my system. Clearly, I did something wrong. What is scary
+> is that a lot of the core system utilities are linked against libselinux
+> (ls, init, portage, etc) and that when I upgrade, it would seem that I
+> need to rebuild them (as just upgrading the library left them unusable)
+> - which is impossible without these basic tools... catch 22?
 
-name_connect permission was introduced in 2.6.12 (to provide better
-control over outbound TCP connections), so you need a newer policy that
-defines it and allows it where appropriate.  Or you can patch it into
-your policy, e.g. grab policy/flask/* from the sourceforge CVS tree and
-drop them into your policy.
+I'm puzzled by this, as libselinux and libsepol should always remain
+backward compatible.  If they weren't, we would be changing the shared
+library version.  I've successfully upgraded to the latest upstream
+libselinux and libsepol even on older systems from a source build (i.e.
+a make install relabel in libselinux and libsepol) without problems in
+the past.  More details on the nature of the breakage, please?
 
 -- 
 Stephen Smalley
