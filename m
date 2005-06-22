@@ -1,35 +1,45 @@
-Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5MJ7cgA020058
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 15:07:38 -0400 (EDT)
-Subject: Updated SELinux Release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1110402140.6299.22.camel@moss-spartans.epoch.ncsc.mil>
-References: <1110402140.6299.22.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: upgrade howto
+From: antoine <antoine@nagafix.co.uk>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1119441245.13181.18.camel@moss-spartans.epoch.ncsc.mil>
+References: <1119395184.9416.31.camel@localhost>
+	 <1119441245.13181.18.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 22 Jun 2005 14:57:10 -0400
-Message-Id: <1119466630.13181.175.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 22 Jun 2005 20:41:23 +0100
+Message-Id: <1119469283.9358.37.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated SELinux release is available from the NSA SELinux web site;
-see http://www.nsa.gov/selinux/news.cfm#R050622.
+On Wed, 2005-06-22 at 07:54 -0400, Stephen Smalley wrote:
+> On Wed, 2005-06-22 at 00:06 +0100, antoine wrote:
+> > What is the safest way of upgrading libselinux and libsepol?
+> > 
+> > I attempted it a couple of weeks ago and had to resort to statically
+> > linked copies of ls and tar to restore the previous version after the
+> > upgrade broke my system. Clearly, I did something wrong. What is scary
+> > is that a lot of the core system utilities are linked against libselinux
+> > (ls, init, portage, etc) and that when I upgrade, it would seem that I
+> > need to rebuild them (as just upgrading the library left them unusable)
+> > - which is impossible without these basic tools... catch 22?
+> 
+> Note btw that while upgrading should always work, downgrading is another
+> matter.  So if Gentoo was using a newer base version of libsepol and
+> libselinux (e.g. one from the sourceforge CVS tree), and you downgraded
+> to an older one (e.g. the last nsa.gov release, which was in March),
+> that could easily break your system as your userland may be depending on
+> newer interfaces.  nsa.gov releases are only made periodically,
+> typically when there is a new Linux kernel release (e.g. one should be
+> occurring soon for 2.6.12), whereas the sourceforge CVS tree tracks
+> development much more closely, and some distributions (like Fedora)
+> track the sourceforge CVS tree directly.
 
-This SELinux release is based on Linux 2.6.12.  The 2.6.12 kernel
-includes the name_connect permission check for controlling outbound
-connections.  The SELinux kernel patch for 2.6.12 includes the execstack
-and execheap permission checks contributed by Lorenzo.  The hierarchical
-role and type support by Tresys Technology has been merged into libsepol
-and checkpolicy.  A new audit2why utility has been added to
-policycoreutils to help identify the causes of avc denials. libsepol has
-been re-licensed under the LGPL.  Updated versions of setools by Tresys
-and polgen by MITRE were added.  A number of patches for the userspace
-libraries, tools, and policy were merged.
+I was upgrading from CVS and clearly I must have done something wrong.
+I've just upgraded by creating new Gentoo ebuild files for the just
+released versions and it all worked fine.
 
--- 
-Stephen Smalley
-National Security Agency
+Antoine
 
 
 --
