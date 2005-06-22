@@ -1,118 +1,111 @@
-Message-ID: <42B8A699.206@tresys.com>
-Date: Tue, 21 Jun 2005 19:45:29 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: alexander-barclay@utulsa.edu, Brandon Pollet <brandon@utulsa.edu>,
+Date: Wed, 22 Jun 2005 01:41:14 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: alexander-barclay@utulsa.edu, Brandon Pollet <brandon@utulsa.edu>,
    SELinux@tycho.nsa.gov, John Hale <john-hale@utulsa.edu>
 Subject: Re: XML Based Policy Configuration for SELinux
-References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu> <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu> <20050621212059.GA9434@lkcl.net>
-In-Reply-To: <20050621212059.GA9434@lkcl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <20050622004114.GH9859@lkcl.net>
+References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu> <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu> <20050621212059.GA9434@lkcl.net> <42B8A699.206@tresys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <42B8A699.206@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
+[joshua thank you for the corrections]
 
->On Tue, Jun 21, 2005 at 02:59:42PM -0500, alexander-barclay@utulsa.edu wrote:
->  
->
-> <snip>
->
-> it is not a worst-case scenario: the policy.conf file is completely
-> _useless_ on its own as it only makes sense in combination with
-> file_contexts and the tunables (i might have missed something else
-> out... hmmm)
->  
->
-This isn't true, apol, and probably other tools, read policy.conf for 
-doing policy analysis.
+Wish List item 3)
 
-> policy.conf is an "intermediary": do not be deceived by it being in a
-> readable flat file format!
->
-sure but it also contains all the information you need to see how the 
-loaded policy will work
+that the tools that do the converting to/from XML be
+written in python!!!
 
-><snip>
->
-> - 1) policy.conf + file_contexts + tunables
-> - 2) policy.NN + file_contexts + tunables
-> - 3) /etc/selinux/src/* (*.te, *.fc, users, mls, rpac, net_contexts etc) +
->      tunables
->  
->
-tunables will be part of the language once the modules are in use and 
-therefore will be preserved in the binary module format
 
-><snip>
->  
->
-> which are actually quite difficult - if not impossible - to
-> "extract" from the policy.conf file, in isolation, with no
-> access to the "users" file.
->
->  
->
-that is precisely what all the analysis do
+On Tue, Jun 21, 2005 at 07:45:29PM -0400, Joshua Brindle wrote:
 
-> basically, policy.conf and file_contexts do not provide the "full
-> picture" that would make the representation of selinux policy in XML
-> file format "useful" to developers and sysadmins.
->  
->
-file_contexts are an initial configuration and not necessarilly as 
-interesting as the actual filesystem contexts
+> >wish list item 2)
+> >
+> >* the ability to output /etc/selinux/src/* (*.te, *.fc, users,
+> >  mls, rpac, net_contexts etc) + tunables etc from an XML
+> >  formatted file.
+> >
+> >_that's_ useful.
+> > 
+> >
+> How is it useful exactly? what would the XML be used for? 
 
-> wish list item 1):
->
-> * the ability to read /etc/selinux/src/* (*.te, *.fc, users,
->   mls, rpac, net_contexts etc) + tunables into an XML formatted file
->
->  
->
+> converting 
+> something to XML for the sake of doing so doesn't really accomplish 
+> anything.
+ 
+ i get the impression that you like XML as little as i did when the
+ buzz-word first came out.
 
-Why? XML's only purpose in life is to transform from a generalized 
-format to some other format, mostly for human consumption. Having the 
-rules themselves in XML does very little in the way of making the policy 
-easier to read (or rather detracts from that) and you'd just have to 
-convert it to the existing format anyway. The XML in the reference 
-policy is for documentation only, and is used to convert from the inline 
-docs to html, text, possibly man pages and so on, it is not meant to be 
-read directly.
+ i agree with you that XML is not particularly useful for
+ being read by humans (although it can be which is useful
+ for debugging, if the tool/library that generated the XML
+ file includes appropriate white space, which they frequently
+ don't *sigh*...)
 
->   whilst still recognising that certain areas of the policy are to do
->   with certain programs / services.
->
->   i.e. reflecting the directory "domains" and the individual files _in_
->   domains in the tree structure of the XML document.  i.e. giving
->   apache.te its own "node" hierarchy as distinct and completely
->   separate from "src/domains//misc/kernel.te".
->
->  
->
-Thats what the type hierarchy patch we sent a while back is suppose to 
-do. So you make an "apache" type and then children types that are 
-constrained by the permissions of apache. This is a compiler and 
-infrastructure enforced constraint that is very useful for doing things 
-such as delegating access to parts of the policy and ensuring it doesn't 
-exceed the original permissions granted.
+ it _is_, however, useful for being read by computer programs.
 
-> wish list item 2)
->
-> * the ability to output /etc/selinux/src/* (*.te, *.fc, users,
->   mls, rpac, net_contexts etc) + tunables etc from an XML
->   formatted file.
-> 
-> _that's_ useful.
->  
->
-How is it useful exactly? what would the XML be used for? converting 
-something to XML for the sake of doing so doesn't really accomplish 
-anything.
+ XML is the sort of thing that allows people with very little
+ understanding of e.g. selinux to write, write, using simple
+ libraries, their Own Glorious parsing analysis and communication
+ tools.
 
-Joshua Brindle
-Tresys Technology
+ my guess is that once all the hard work is done of specifying
+ an XML file format and writing (hopefully in python *hope*,
+ *hope*, hint, hint) a parsing/converter tool to convert
+ `cd /etc/selinux/src; make distclean; find .` in and out of
+ XML file format, that:
+
+ - writing a python program that took an XML file and generated an
+   HTML report would take about... *shrug* - two to three hours
+
+   [i did a similar thing for converting a fwbuilder's XML file
+    into an HTML report because fwbuilder is missing a
+    print option.  so it would take _me_ under 90 mins
+    to convert my fw_report.py program to understand an
+    SE-Linux-Policy-DTD-compliant XML file]
+
+ - writing a python tcl/tk program that took an XML selinux file
+   as input and output that could be used to write SElinux policy
+   would take... mmm... *finger-in-air* ... ten days?
+
+ - you could write a program similar to fwbuilder that understood
+   SE/Linux policy [instead of firewall rules].
+
+   fwbuilder's file format is in XML.
+
+   adapting fwbuilder as the basis for a GUI-based selinux policy
+   writing tool would take... *finger-in-air* ... four weeks?
+
+   (fwbuilder is written in c++).
+
+ 
+
+ the same cannot be said for programs having to understand
+ the /etc/selinux/src/* policy files directly.
+
+ the above timescales all would need, individually, to have
+ the cost of writing a read-write parser to them in each of
+ the python and c++ languages, respectively.
+ 
+ and it would _need_ to be a library [not a file format].
+
+ you wanna write such a library?  fine!!  [i don't!!]
+
+ bottom line: i strongly suggest using the right kind of
+ words that will encourage the people at this university to
+ do this work!!!
+
+ l.
+
+
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
