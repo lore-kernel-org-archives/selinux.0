@@ -1,78 +1,42 @@
-Message-ID: <42B94A03.8020508@tresys.com>
-Date: Wed, 22 Jun 2005 07:22:43 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: alexander-barclay@utulsa.edu, Brandon Pollet <brandon@utulsa.edu>,
-   SELinux@tycho.nsa.gov, John Hale <john-hale@utulsa.edu>
-Subject: Re: XML Based Policy Configuration for SELinux
-References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu> <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu> <20050621212059.GA9434@lkcl.net> <42B8A699.206@tresys.com> <20050622004114.GH9859@lkcl.net> <42B8DF16.3060108@tresys.com> <20050622053327.GB14480@lkcl.net>
-In-Reply-To: <20050622053327.GB14480@lkcl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: 'name_connect' undefined!
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: antoine <antoine@nagafix.co.uk>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1119394710.9416.23.camel@localhost>
+References: <1119394710.9416.23.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 22 Jun 2005 07:42:41 -0400
+Message-Id: <1119440561.13181.8.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
-
->On Tue, Jun 21, 2005 at 11:46:30PM -0400, Joshua Brindle wrote:
->
->  
->
->>>Wish List item 3)
->>>
->>>that the tools that do the converting to/from XML be
->>>written in python!!!
->>>
->>>
->>>      
->>>
->>The doctool to generate module.conf, tunables.conf and the html docs for 
->>the reference policy is in python :)
->>    
->>
+On Tue, 2005-06-21 at 23:58 +0100, antoine wrote:
+> On a x86 box running Gentoo SELinux profile , I cannot 'emerge sync' (in
+> enforcing mode): I get the following error message:
 > 
-> wheeeee :)
->
->  
->
-glad you approve :)
-
->>>XML is the sort of thing that allows people with very little
->>>understanding of e.g. selinux to write, write, using simple
->>>libraries, their Own Glorious parsing analysis and communication
->>>tools.
->>>
->>>
->>>
->>>      
->>>
->>I'm not sure what this means. How does XML help people that don't 
->>understand selinux do anything?
->>    
->>
->
-> to illustrate: i did not need to understand anything about the ordering
-> of the application of incoming NAT and incoming firewall rules which
-> are different from the ordering of the application of outgoing NAT and
-> outgoing firewall rules in order to write my fw_builder.py program,
-> which simply takes the output of fwbuilder (an XML file) and spews
-> forth a prettified HTML version of the firewall policy.
+> audit(1119487194.838:0): avc:  denied  { name_connect } for  dest=873
+> scontext=root:sysadm_r:portage_fetch_t
+> tcontext=system_u:object_r:rsyncd_port_t tclass=tcp_socket
 > 
-> more later.
->  
->
-This isn't right. The XML part of this equation is just the route those 
-authors chose to get a free parser, the tool would work exactly the same 
-from the user prespective if the file format was binary using 
-alternating happy faces and frowny faces. It's just the tool and the 
-developers that have to deal with the backend storage format. It might 
-be nice in the firewall case to transform the config file into html but 
-I can't think of a way this is helpful for SELinux policy.
+> audit2allow gives me:
+> allow portage_fetch_t rsyncd_port_t:tcp_socket name_connect;
+> Which would make sense, except that 'name_connect' is not defined
+> anywhere! (and therefore I cannot compile the policy with that value)
+> So I tried allowing connect, name_bind and so on, but the audit message
+> is still coming up. Where does this 'name_connect' come from if it is
+> not in my policy source tree? (and how do I fix it)
 
-The bottom line is that the tools would be great but the XML has nothing 
-to do with that.
+name_connect permission was introduced in 2.6.12 (to provide better
+control over outbound TCP connections), so you need a newer policy that
+defines it and allows it where appropriate.  Or you can patch it into
+your policy, e.g. grab policy/flask/* from the sourceforge CVS tree and
+drop them into your policy.
 
-Joshua
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
