@@ -1,117 +1,142 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5M2ewgA013378
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2005 22:40:58 -0400 (EDT)
-Received: from estila.tuxedo-es.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5M2UrK0012626
-	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 02:30:53 GMT
-Subject: RE: ANN: SELinux Reference Policy Release
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'antoine'" <antoine@nagafix.co.uk>,
-   "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
-   "'Colin Walters'" <walters@verbum.org>,
-   "'SELinux Mail List'" <selinux@tycho.nsa.gov>
-In-Reply-To: <200506220148.j5M1ltqc008740@gotham.columbia.tresys.com>
-References: <200506220148.j5M1ltqc008740@gotham.columbia.tresys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1HjT6h8GVY++B5fkyNaD"
-Date: Wed, 22 Jun 2005 04:31:27 +0200
-Message-Id: <1119407487.27105.93.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <42B8DF16.3060108@tresys.com>
+Date: Tue, 21 Jun 2005 23:46:30 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: alexander-barclay@utulsa.edu, Brandon Pollet <brandon@utulsa.edu>,
+   SELinux@tycho.nsa.gov, John Hale <john-hale@utulsa.edu>
+Subject: Re: XML Based Policy Configuration for SELinux
+References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu> <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu> <20050621212059.GA9434@lkcl.net> <42B8A699.206@tresys.com> <20050622004114.GH9859@lkcl.net>
+In-Reply-To: <20050622004114.GH9859@lkcl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Luke Kenneth Casson Leighton wrote:
 
---=-1HjT6h8GVY++B5fkyNaD
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+>[joshua thank you for the corrections]
+>
+>Wish List item 3)
+>
+>that the tools that do the converting to/from XML be
+>written in python!!!
+>  
+>
+The doctool to generate module.conf, tunables.conf and the html docs for 
+the reference policy is in python :)
 
-El mar, 21-06-2005 a las 21:47 -0400, Karl MacMillan escribi=F3:
-> See below for my thoughts on the format. If you are interested in helping=
- we
-> would be happy for any contributions. The sf cvs is updated nightly. We s=
-hould
-> get what we view as the task list up on the website soon and welcome any
-> suggestions for what should be accomplished in the near or long term.=20
+> <snip>
+>
+> 
+> i get the impression that you like XML as little as i did when the
+> buzz-word first came out.
+>
+>  
+>
+No, I think XML is very useful for the right tasks
 
-I will be glad to help during this summer for sure, just lemme know
-about the group of people going to work over it and we can try to
-organize a common schedule for it, as it seems a huge job which needs a
-well organized development and deployment process. (Well, some are
-getting paid for it ;) ).
+> i agree with you that XML is not particularly useful for
+> being read by humans (although it can be which is useful
+> for debugging, if the tool/library that generated the XML
+> file includes appropriate white space, which they frequently
+> don't *sigh*...)
+>
+> it _is_, however, useful for being read by computer programs.
+>
+> XML is the sort of thing that allows people with very little
+> understanding of e.g. selinux to write, write, using simple
+> libraries, their Own Glorious parsing analysis and communication
+> tools.
+>
+>  
+>
+I'm not sure what this means. How does XML help people that don't 
+understand selinux do anything?
+Changing the language to XML might add parsers but tools won't magically 
+appear. Further, there are plenty of tools that parse the current 
+format, there is little reason to move to an XML based policy language 
+when totally functional parsers already exist to do anything you need.
 
-The road-map in http://serefpolicy.sourceforge.net/ doesn't look
-meaningful to me though.
+> my guess is that once all the hard work is done of specifying
+> an XML file format and writing (hopefully in python *hope*,
+> *hope*, hint, hint) a parsing/converter tool to convert
+> `cd /etc/selinux/src; make distclean; find .` in and out of
+> XML file format, that:
+>
+>  
+>
+the modules might be in XML but there will be lots of m4 that will still 
+have to be processed before any XML parser could use the output..
 
-> I think that we can make this more readable without punting on the xml (w=
-hich I
-> actually think is easier to read than the javadoc style @ tags). We are g=
-oing to
-> trim down the XML to look more like:
->=20
-> ##=20
-> ## <description>
-> ##	Allows the caller to get the mode of policy enforcement
-> ## </description>
-> ##
-> ## <param name=3D"domain">
-> ## 	The process type to allow to get the enforcing mode.
-> ## </param>
-> ##
+> - writing a python program that took an XML file and generated an
+>   HTML report would take about... *shrug* - two to three hours
+>
+>   [i did a similar thing for converting a fwbuilder's XML file
+>    into an HTML report because fwbuilder is missing a
+>    print option.  so it would take _me_ under 90 mins
+>    to convert my fw_report.py program to understand an
+>    SE-Linux-Policy-DTD-compliant XML file]
+>
+> - writing a python tcl/tk program that took an XML selinux file
+>   as input and output that could be used to write SElinux policy
+>   would take... mmm... *finger-in-air* ... ten days?
+>
+> - you could write a program similar to fwbuilder that understood
+>   SE/Linux policy [instead of firewall rules].
+>
+>   fwbuilder's file format is in XML.
+>
+>  
+>
+I'm not sure it's fair to compare a policy language which is often in 
+implementations with 300k+ rules with a firewall app that probably 
+rarely has 1000. I can't ever imagine a time when selinux policy is 
+written directly in expanded format (no macros or templates of some 
+sort, whether it's m4 or not) and using XML on the unexpanded format is 
+again, not possible
 
-So, we strip out the '##', then parse each "chain" (should we
-concatenate it and thus making an only one XML file with the whole
-reference?), and then use the proper style-sheet to run the formatting?
+>   adapting fwbuilder as the basis for a GUI-based selinux policy
+>   writing tool would take... *finger-in-air* ... four weeks?
+>
+>   (fwbuilder is written in c++).
+>
+> 
+>
+> the same cannot be said for programs having to understand
+> the /etc/selinux/src/* policy files directly.
+>
+>  
+>
+Parsers exist for this
 
-It makes sense but a per-file basis approach would be more easy to
-deploy, anyways, more challenge, more fun.
+> the above timescales all would need, individually, to have
+> the cost of writing a read-write parser to them in each of
+> the python and c++ languages, respectively.
+> 
+> and it would _need_ to be a library [not a file format].
+>
+>  
+>
+we have some: libapol, libsepol and an upcoming API for modifying the 
+policy through an infrastructure like the policy modules or the policy 
+server
 
-> That means that the interface name will be derived from the actual interf=
-ace
-> declaration, which should probably be changed to a macro for declaring
-> interfaces. The final xml file that is output won't change, we will just
-> generate some of the tags. Thoughts?
+> you wanna write such a library?  fine!!  [i don't!!]
+>
+>  
+>
+we did :)
 
- - for each file (.te, .fc, ...) we strip out the commented XML
-   - we dump it in a xml/dir/file.extension
-     - we concatenate each file.{fc, te, ...}
-      - we produce a single XML file
-        - we're done for parsing and doing any formatting on top of the
-          source XML file.
+> bottom line: i strongly suggest using the right kind of
+> words that will encourage the people at this university to
+> do this work!!!
+>  
+>
+I think you misunderstood. Clearly I want the university guys to do work 
+that helps SELinux, I just question how this specific work could.
 
-Though It's not the best time to think about it, will give it a further
-look later.
 
-How it looks to you?
-
-> Not yet - if you want the parsing code I can release it though.
-
-It would be good to have all-in-place. With single, separated pieces we
-can't do it, either we have everything clear and well exposed in the
-proper place or we have nothing.
-
-I'm new around this (the ref. policy) and also on the policy itself, I'm
-still not too familiar with it (hadn't enough time to deal with it
-properly), so, I may be wrong, then please give advice and I'll try to
-make it going smooth and straight forward ;).
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-1HjT6h8GVY++B5fkyNaD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCuM1/DcEopW8rLewRAlvbAKCKVbGWXyKKdRZd0aWqWBBGiBuPkwCgvQHM
-I6Rg5Gu3RPd6Ku/e2nHVMio=
-=GTj2
------END PGP SIGNATURE-----
-
---=-1HjT6h8GVY++B5fkyNaD--
+Joshua Brindle
 
 --
 This message was distributed to subscribers of the selinux mailing list.
