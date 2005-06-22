@@ -1,74 +1,100 @@
-Date: Wed, 22 Jun 2005 23:38:42 +0100
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5MNsWgA022416
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 19:54:32 -0400 (EDT)
+Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5MNinrk021432
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 23:44:50 GMT
+Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
+	by free.hands.com (Postfix) with ESMTP id A3D46BF30
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 00:44:50 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1DlF2O-0005Cs-Jg
+	for selinux@tycho.nsa.gov; Thu, 23 Jun 2005 00:53:44 +0100
+Date: Thu, 23 Jun 2005 00:53:44 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: alexander-barclay@utulsa.edu, Brandon Pollet <brandon@utulsa.edu>,
-   SELinux@tycho.nsa.gov, John Hale <john-hale@utulsa.edu>
-Subject: Re: XML Based Policy Configuration for SELinux
-Message-ID: <20050622223842.GH14480@lkcl.net>
-References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu> <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu> <20050621212059.GA9434@lkcl.net> <42B8A699.206@tresys.com> <20050622004114.GH9859@lkcl.net> <42B8DF16.3060108@tresys.com> <20050622053327.GB14480@lkcl.net> <42B94A03.8020508@tresys.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: http://www.securityfocus.com/columnists/334/3
+Message-ID: <20050622235344.GP14480@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <42B94A03.8020508@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jun 22, 2005 at 07:22:43AM -0400, Joshua Brindle wrote:
-> Luke Kenneth Casson Leighton wrote:
- 
-> The bottom line is that the tools would be great 
+quote:
 
- i agree with that.
+	What about buying a switch that includes a packet
+	filter? This solution should provide a trustworthy
+	network with the added bonus of isolating and filtering
+	each host.
 
-> but the XML has nothing 
-> to do with that.
-
- then we will have to agree to disagree on that point, because
- there are far more XML parsing libraries in virtually every known
- useable language under the sun.
- 
- here are the options, as i see them:
-
- * a tool, written in i-don't-really-care-what-language-but-i-like-python,
-   which takes `find /etc/selinux/src/*` and turns it into formally-defined,
-   well-structured XML format which has a formal DTD representing users,
-   *.te, *.fc, macros, etc.
-   
-   then utilities and programs written which understand the DTD
-   and therefore can "manipulate" selinux policy for any purpose
-   can be written in any programming language which has an XML library.
+	It's not a technology problem, it's a management
+	problem. There are plenty of tools that can be used to
+	control inter-host trust, but they are generally not
+	used because they're "too hard" or "inconvenient" or
+	whatever. For example, the big Cisco switches all have
+	the ability to process ACLs at high speed. Isolating
+	and filtering each host is very possible and would be
+	very effective using existing technology.
 
 
- * a library, written in [probably] c and then wrapped with swig,
-   which understands and provides access to the contents of
-   /etc/selinux/*
+	Let's imagine a simple scenario: suppose I have a
+	subnet consisting of 150 hosts that all access a local
+	departmental server with file serviceand print service,
+	etc. Further, let's imagine that the hosts on that
+	subnet need Internet browsing access and access to
+	an enterprise Email server (IMAP + SMTP) that sits
+	someplace else on my corporate LAN.  And, perhaps,
+	some of my users need access to the mainframe for SQL,
+	while others don't. So, I could put ACLs in the switch
+	to, "allow all/all to the local subnet server," "allow
+	IMAP, SMTP to the off-network mail server," "allow all,
+	port 80, to the web caching proxy off-network," "allow
+	{list} SQL to the mainframe," "default: deny all."
+	That's not very hard, is it? Does Bob's workstation need
+	to talk directly to Jane's? No? Then don't allow it.
 
-   then, utilities and programs which "manipulate" selinux policy can
-   conveniently be written in c and with some awkwardness [due to swig]
-   written in any other programming language.
-
- some questions for you:
-
-	 which of these two options is less of a maintenance headache?
- 
- and
- 
-	 which of these two options provides the most flexibility?
- 
- and
-
- 	which of these two options would be most acceptable to
-	non-expert selinux admins and developers for writing their
-	own home-grown tools?
-
- most people look at the /etc/selinux/src and go "yukk".
+	And a network like that is going to be extremely
+	resistant to worms or active penetration. Of course
+	nobody does that kind of thing: they just plug it all
+	together, make it work, and then ignore it and hope
+	it doesn't get hacked.
 
 
- oh - btw - the idea about "function definitions" in the m4 language?
- GREAT idea - i believe it would make the "formal definition" in XML
- format that much easier.
+scenario:
 
- l.
+	utilise selinux to (assuming individual hosts' selinux
+	policies can be trusted!!!!) set up the above, as a
+	lo-cost alternative [not have to have expensive Cisco
+	routers which achieve the ACLs]
 
+wish-list:
+
+	have fwbuilder create selinux policies creating the
+	network-based access rules!!!!!
+
+pie-in-sky-wish-list:
+
+	have fwbuilder create selinux network-based firewall
+	policies in XML format *grin*
+
+background [for people who might not know what i'm talking about]:
+
+	it is possible to do some of the same job as a
+	firewall, in selinux policy rules: start by looking
+	at /etc/selinux/src/net_contexts and search for strings
+	occuring in there in the rest of your selinux policy
+	source.
+
+	selinux policy rules can do a certain degree of network
+	access restriction based on the program _and_ the user
+	that's doing the network access.
+
+l.
+
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
