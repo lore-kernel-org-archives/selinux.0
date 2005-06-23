@@ -1,56 +1,155 @@
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] disallow * and ~ in rules
-Date: Thu, 23 Jun 2005 15:29:07 -0400
-Cc: selinux <selinux@tycho.nsa.gov>
-References: <1119543471.8955.5.camel@localhost> <1119552466.8955.22.camel@localhost> <1119553228.28493.197.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1119553228.28493.197.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NJnfgA000527
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 15:49:41 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NJdERO013654
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 19:39:18 GMT
+Message-Id: <200506231939.j5NJdXqc031369@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <ivg2@cornell.edu>
+Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>
+Subject: RE: file contexts and modularity
+Date: Thu, 23 Jun 2005 15:39:33 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-6"
-Message-Id: <200506231529.07106.jbrindle@tresys.com>
+	charset="US-ASCII"
+In-reply-to: <1119553208.16753.33.camel@celtics.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 23 June 2005 15:00, Stephen Smalley wrote:
-> On Thu, 2005-06-23 at 14:47 -0400, Joshua Brindle wrote:
-> > I agree that neverallow has very legitimate reasons for * but dontaudit
-> > and auditallow are a little less clear. Perhaps auditallow should allow
-> > *, it's conceivable that someone would want to audit all access to an
-> > object (though in the current policies and reference policy * would have
-> > the same net effect as domain with fewer avtab entries). This may not be
-> > the case for all policies though. The attached patch disallows it in all
-> > rule types but neverallow.
->
-> Yes, I think requiring people to use an attribute like domain or
-> file_type is preferable anyway; otherwise you end up with massive
-> explosion in the set of rules for a lot of types that can't possibly be
-> used in that manner anyway.
->
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:ivg2@cornell.edu]
+> Sent: Thursday, June 23, 2005 3:00 PM
+> To: Karl MacMillan
+> Cc: selinux@tycho.nsa.gov; 'Daniel J Walsh'
+> Subject: RE: file contexts and modularity
+> 
+> 
+> > Are you intending to do away with genhomedircon so that everything will be
+> in
+> > libselinux?
+> 
+> libsepol...
+> 
+> The problem is that genhomedircon is in python, and useradd is in C.
 
-agreed.
+Not objecting - just checking.
 
-> > I forgot to mention constraints, which currently allow * and ~, any
-> > thoughts on this?
->
-> I'd exclude * and ~ entirely in type sets except for neverallow.  In
-> every other case, we should be using type attributes (like domain or
-> file_type) and type set exclusion rather than * or ~.   For permission
-> sets, I think they are useful.  For role sets, I'm not sure - we don't
-> have a parallel to attributes for roles, so there is no easy way to say
-> all roles or all roles except X,Y,Z in any other way.
+> Furthermore genhomedircon doesn't do what I want.
+> 
+> >  Why are you going to have to run around the file system? Isn't this
+> > a matter for taking the file contexts file that still has ROLE and HOMEDIR
+> > statements and processing that?
+> 
+> If I have a separate file for each user, I have to concat them together
+> for matchpathcon, is that not the case? I guess I can do that, but I'd
+> rather not..
+> 
 
-in the constraint case * seems to be entirely unnecessary. However I'm not 
-convinced that a compliment would never be useful in a constraint. 
+Why have a file per user?
 
-As for roles, it certainly isn't an issue now but one can easily concieve a 
-policy that creates a role for each user on the system. Then something like 
-allow system_r * would actually make sense (err, more sense than now) but 
-still isn't the best way, which would be adding the allow when the role is 
-created. I don't think it's a problem to remove * and ~ from role sets, at 
-least not yet.
+> If you take the more general case of removing an application - imagine
+> you want to remove mozilla, and have its contexts gone - you have
+> to reconstruct the entire file_contexts file from all the .fc files.
+> 
 
-Joshua
+The module infrastructure already handles this - it produces a flat
+file_contexts file. Seems like this could be run through what is essentially
+genhomedircon to produce another flat text file for matchpathcon. This would
+obviously be backward compatible with the current source policies.
+
+> > Can you give an overview of these patches - what you are trying to
+> accomplish in
+> > more detail and the design?
+> 
+> Well I was trying to accomplish the following:
+> 
+> - add -R flag to useradd, and have it automatically validate
+> and add user roles, and generate user contexts (and add user to running
+> policy)
+> 
+> - have userdel undo the above
+> 
+> - have usermod modify user roles in file and policy, and on default
+> role change, recreate the contexts.
+> 
+
+We were planning on deprecating seuser because of general bit rot. It does do
+all of this (through wrappers, etc) so if any of that code is useful feel free
+to grab it (it's GPL).
+
+> - expose the net_contexts file through the libsepol library
+> 
+
+Changes or just query?
+
+> In addition I am doing the following changes, which affect you:
+> 
+> - modify all libsepol functions to work via policydb and
+> not (data,len) image (because there's no reason to policydb_read
+> on each function call...)
+> 
+
+Definitely a good idea.
+
+> - make policydb an opaque data structure to address the
+> exposure created above
+> 
+
+Great - and then various helper functions can be added incrementally until there
+is a full API.
+
+> - separate genusers policy and parsing, to allow for alternative
+> data source in the future for the user information than the flat file.
+> 
+> 
+> This is accomplished by defining a "record" structure for
+> each configuration group (for example, the user record contains
+> the user's name, roles, default role, and mls info (and I've
+> bundled home dir for other purposes)). The fscon record
+> contains a regexp, a class (-b, -p), and a context. I'm
+> currently trying to break out the context as its own record,
+> since that makes sense to me.
+> 
+> Each record has a bunch of _file methods that define how
+> it can be parsed from a file, and written to a file.
+> 
+> Then I have a central routine called record_iterate,
+> and another one called record_modify_file that loop
+> over a file, and parse records (based on a table
+> of functions that explains how to do that),
+> and execute arbitrary handlers. Modify_file
+> is pretty similar to iterate, except it
+> copies records to a second stream while
+> it's iterating, and then overwrites
+> the original at the end. Those functions
+> support events like delete, and match
+> that can be signaled by the handler, and support
+> configuring whether certain errors are fatal..
+> 
+
+Hmm . . . why have the records so directly tied to files? Seems like the API
+needs to be a little higher level to actually make it work with something like
+an LDAP backend.
+
+Thanks for the overview - it has clarified some things for me. I'm trying to get
+a handle on how we want things to look in the future. One concern is that this
+api uses libsepol - e.g. it makes it clear to the caller that it is manipulating
+a policy file. We have been discussing / imagining an API that will be forward
+portable to the policy server where the act of adding a user might involve and
+IPC call to the server and be significantly more abstract than a policy
+manipulation. Not certain, therefore, that libsepol is the correct place for the
+client api (e.g. the one used by useradd). Thoughts?
+
+Karl
+
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
