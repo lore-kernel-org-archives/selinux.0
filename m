@@ -1,44 +1,37 @@
-Subject: Re: general selinux questions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: antoine <antoine@nagafix.co.uk>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1119548686.28493.161.camel@moss-spartans.epoch.ncsc.mil>
-References: <1118281858.9481.4.camel@localhost>
-	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118433604.10190.353.camel@localhost>
-	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118769876.10262.52.camel@localhost>
-	 <1118770638.3422.27.camel@nexus.verbum.private>
-	 <1119470092.9358.43.camel@localhost>  <1119540816.9390.35.camel@localhost>
-	 <1119546240.28493.128.camel@moss-spartans.epoch.ncsc.mil>
-	 <1119548467.9390.56.camel@localhost>
-	 <1119548686.28493.161.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NIHMgA029467
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 14:17:22 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NI7WNa004905
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 18:07:32 GMT
+Subject: RE: file contexts and modularity
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <200506231737.j5NHbmqc029627@gotham.columbia.tresys.com>
+References: <200506231737.j5NHbmqc029627@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 23 Jun 2005 13:55:55 -0400
-Message-Id: <1119549355.28493.175.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 23 Jun 2005 14:05:08 -0400
+Message-Id: <1119549909.16753.5.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-23 at 13:44 -0400, Stephen Smalley wrote:
-> On Thu, 2005-06-23 at 18:41 +0100, antoine wrote:
-> > I removed the change, so now I can start postfix again without problems,
-> > but I am back where I started with spamd:
-> > 
-> > audit(1119545469.251:0): avc:  denied  { transition } for  pid=19693
-> > exe=/usr/bin/spamc path=/usr/sbin/sendmail dev=md3 ino=783481
-> > scontext=system_u:system_r:spamd_t
-> > tcontext=system_u:object_r:postfix_pipe_t tclass=process
-> 
-> Again, object_r in process context.
 
-And note that this would violate both a constraint (role change in
-violation of the constraint on r1 != r2) and a role allow restriction.
-But audit2why just reports the first cause.
+> I think that I missed something - why do you need to know which contexts are
+> associated with an app or user?
 
--- 
-Stephen Smalley
-National Security Agency
+So that I can get rid of them once the user's removed (userdel).
+
+It seems like I'll just put each user in a separate .fc file
+for now... but then if you wanted to remove an app, you'd
+have to remove the app's .fc file, and the app's entries
+in each user file as well (and any template entries)...
+or alternatively you'd have to regenerate everything.
+
+
+
 
 
 --
