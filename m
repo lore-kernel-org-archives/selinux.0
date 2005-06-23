@@ -1,108 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NHm5gA029110
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 13:48:06 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NHcDNa003059
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 17:38:15 GMT
-Message-Id: <200506231737.j5NHbmqc029627@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>
-Subject: RE: file contexts and modularity
-Date: Thu, 23 Jun 2005 13:37:48 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-reply-to: <1119495651.8194.28.camel@localhost.localdomain>
+Subject: Re: general selinux questions
+From: antoine <antoine@nagafix.co.uk>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1119546240.28493.128.camel@moss-spartans.epoch.ncsc.mil>
+References: <1118281858.9481.4.camel@localhost>
+	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118433604.10190.353.camel@localhost>
+	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118769876.10262.52.camel@localhost>
+	 <1118770638.3422.27.camel@nexus.verbum.private>
+	 <1119470092.9358.43.camel@localhost>  <1119540816.9390.35.camel@localhost>
+	 <1119546240.28493.128.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 23 Jun 2005 18:41:07 +0100
+Message-Id: <1119548467.9390.56.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of Ivan Gyurdiev
-> Sent: Wednesday, June 22, 2005 11:01 PM
-> To: selinux@tycho.nsa.gov
-> Cc: Daniel J Walsh
-> Subject: file contexts and modularity
+> > But I've got:
+> > domain_auto_trans(initrc_t, postfix_master_exec_t, postfix_master_t)
+> > allow initrc_t postfix_master_t:process { noatsecure siginh rlimitinh };
+> > role_transition system_r postfix_master_exec_t object_r;
 > 
-> So, I know Tresys is working on binary policy modules.
-> 
+> This is wrong.  object_r is only for objects, not processes.
+Yes, I figured the last one was not helping. I was just trying random
+things, hoping to understand the error message better.
+I removed the change, so now I can start postfix again without problems,
+but I am back where I started with spamd:
 
-It's not just the modules that are an issue - it is the policy server as well.
+audit(1119545469.251:0): avc:  denied  { transition } for  pid=19693
+exe=/usr/bin/spamc path=/usr/sbin/sendmail dev=md3 ino=783481
+scontext=system_u:system_r:spamd_t
+tcontext=system_u:object_r:postfix_pipe_t tclass=process
 
-> What's the plan for dealing with the file_contexts file?
-> 
-> In particular, will this continue to be stored
-> as a single giant flat file, or will it be broken up
-> (or stored differently..)
-> 
+Even though I have:
+domain_auto_trans(postfix_pipe_t, spamc_exec_t, spamd_t)
+domain_auto_trans(spamd_t, sendmail_exec_t, postfix_pipe_t)
+(to allow mail to be filtered by spamassassin in/out)
+system_u:object_r:spamc_exec_t   /usr/bin/spamc
+system_u:object_r:sendmail_exec_t /usr/sbin/sendmail
 
-There are no plans to have the resulting file stored differently for the policy
-modules. Each loadable module contains the file_contexts for that module. These
-are concatenated together to create the standard file_contexts file that is put
-in the same place. This does cause some problems with ordering, which we have a
-partial fix for that I will sent out in a separate email.
+Audit2why tells me I should add a type attribute, but I really cannot
+figure out *which one* that could be, and to which domain:
 
-We haven't made any decisions for the policy server other than we want the
-policy server to encapsulate all policy access including file context
-information. The details aren't clear to me and I would like some input about
-this. See
-http://sepolicy-server.sourceforge.net/index.php?page=policy-management-design
-for some information about this.
+audit(1119545469.251:0): avc:  denied  { transition } for  pid=19693
+exe=/usr/bin/spamc path=/usr/sbin/sendmail dev=md3 ino=783481
+scontext=system_u:system_r:spamd_t
+tcontext=system_u:object_r:postfix_pipe_t tclass=process
+        Was caused by:
+                Constraint violation.
+                Check policy/constraints.
+                Typically, you just need to add a type attribute to the
+domain to satisfy the constraint.
 
-> ============
-> 
-> I ask, because I am trying to figure out how to
-> recover which contexts belong to which user, when parsing
-> the file_context.homedirs file, as part of my
-> useradd/usermod/userdel patch.
-> 
-> This isn't as simple as it sounds, since
-> I can't use the user field (<<none>> contexts).
-> I suppose I could regenerate the right contexts from the
-> template, but that seems like bad design. Basically
-> it's exactly the same problem as establishing which
-> file_contexts relate to which app, so I'm wondering
-> what's the planned solution for that? Is there a plan?
-> 
-> If we're going to keep this in a big flat file,
-> there should be some sort of way to indicate
-> a container for file contexts... (a dependency
-> keyword(s) or something)... or we could split it up
-> into multiple files.
-> 
-> Reminds me of the XML thread for some reason :)
-> But on the other hand XML-style requires strict nesting
-> relationship, while it would seem better to just do something like:
-> 
-> regexp class context [ dep_keyword1 dep_keyword2... ]
-> (same row, brackets required).
-> 
-> Keywords could be users, applications, booleans, tunables, whatever..
-> 
+I've been stuck on this one little nagging denial for over a week now...
 
-I think that I missed something - why do you need to know which contexts are
-associated with an app or user?
-
-Karl
-
-> --
-> Ivan Gyurdiev <ivg2@cornell.edu>
-> Cornell University
-> 
-> 
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
+Thanks
+Antoine
 
 
 --
