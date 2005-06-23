@@ -1,57 +1,62 @@
-Subject: Re: XML Based Policy Configuration for SELinux
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5N383gA023244
+	for <selinux@tycho.nsa.gov>; Wed, 22 Jun 2005 23:08:03 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5N2vmFC011989
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 02:57:48 GMT
+Subject: file contexts and modularity
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Joshua Brindle <jbrindle@tresys.com>, alexander-barclay@utulsa.edu,
-   Brandon Pollet <brandon@utulsa.edu>, SELinux@tycho.nsa.gov,
-   John Hale <john-hale@utulsa.edu>
-In-Reply-To: <20050622223842.GH14480@lkcl.net>
-References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu>
-	 <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu>
-	 <20050621212059.GA9434@lkcl.net> <42B8A699.206@tresys.com>
-	 <20050622004114.GH9859@lkcl.net> <42B8DF16.3060108@tresys.com>
-	 <20050622053327.GB14480@lkcl.net> <42B94A03.8020508@tresys.com>
-	 <20050622223842.GH14480@lkcl.net>
+To: selinux@tycho.nsa.gov
+Cc: Daniel J Walsh <dwalsh@redhat.com>
 Content-Type: text/plain
-Date: Wed, 22 Jun 2005 20:22:32 -0400
-Message-Id: <1119486152.7677.15.camel@localhost.localdomain>
+Date: Wed, 22 Jun 2005 23:00:51 -0400
+Message-Id: <1119495651.8194.28.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+So, I know Tresys is working on binary policy modules.
 
->  * a library, written in [probably] c and then wrapped with swig,
->    which understands and provides access to the contents of
->    /etc/selinux/*
-> 
->    then, utilities and programs which "manipulate" selinux policy can
->    conveniently be written in c and with some awkwardness [due to swig]
->    written in any other programming language.
+What's the plan for dealing with the file_contexts file?
 
-I'd like to note that I'm currently working on a small piece of 
-that - placing the necessary code to work with file_contexts
-and net_contexts, and local.users from the libsepol library.
-Basically, I need to integrate useradd utilities with
-the selinux code, so roles and per user contexts are
-added/deleted/modified automatically.
+In particular, will this continue to be stored
+as a single giant flat file, or will it be broken up
+(or stored differently..)
 
-It's not what you're describing, but at least it provides
-some parsing code that generates a data structure (record)
-that you can later pass to handlers and accomplish various
-things more easily. I have written functions to iterate
-a file of a single kind of record (such as the file_contexts 
-file) and execute arbitrary handler that's individually
-passed each record. I can also modify records with
-a handler, delete records, and re-write
-the file (preserving comments). Current status is debugging, 
-and adding more validation/rollback features to the 
-few handlers I've written.
+============
 
-It's not what you're describing, but it mostly does what
-we need for useradd integration, and can be extended 
-with more features later. The point is, it's not so
-hard to get something up and running in C, as you
-describe it.
+I ask, because I am trying to figure out how to 
+recover which contexts belong to which user, when parsing
+the file_context.homedirs file, as part of my 
+useradd/usermod/userdel patch.
+
+This isn't as simple as it sounds, since
+I can't use the user field (<<none>> contexts).
+I suppose I could regenerate the right contexts from the
+template, but that seems like bad design. Basically
+it's exactly the same problem as establishing which
+file_contexts relate to which app, so I'm wondering
+what's the planned solution for that? Is there a plan?
+
+If we're going to keep this in a big flat file, 
+there should be some sort of way to indicate
+a container for file contexts... (a dependency
+keyword(s) or something)... or we could split it up
+into multiple files.
+
+Reminds me of the XML thread for some reason :)
+But on the other hand XML-style requires strict nesting
+relationship, while it would seem better to just do something like:
+
+regexp class context [ dep_keyword1 dep_keyword2... ] 
+(same row, brackets required).
+
+Keywords could be users, applications, booleans, tunables, whatever..
+
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
