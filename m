@@ -1,43 +1,61 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: sshd policy
-Date: Fri, 24 Jun 2005 01:21:53 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <200506231632.32753.russell@coker.com.au> <1119529295.28493.0.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1119529295.28493.0.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200506240121.56790.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NFhUgA027745
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 11:43:30 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NFXfNa024458
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 15:33:41 GMT
+Subject: Re: general selinux questions
+From: antoine <antoine@nagafix.co.uk>
+To: Colin Walters <walters@verbum.org>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1119470092.9358.43.camel@localhost>
+References: <1118281858.9481.4.camel@localhost>
+	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118433604.10190.353.camel@localhost>
+	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
+	 <1118769876.10262.52.camel@localhost>
+	 <1118770638.3422.27.camel@nexus.verbum.private>
+	 <1119470092.9358.43.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 23 Jun 2005 16:33:36 +0100
+Message-Id: <1119540816.9390.35.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 23 June 2005 22:21, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2005-06-23 at 16:32 +1000, Russell Coker wrote:
-> > I have attached the source files and the diff for a change to the way
-> > sshd works.
-> >
-> > Recent versions of OpenSSH by default will re-exec the sshd as part of
-> > the login process.  This means that there is no need for one process to
-> > have all the permissions that sshd is usually granted.  So I have split
-> > up the sshd policy into two domains, one of which listens on the port and
-> > the other does most of the sshd work.
->
-> How does sshd respond to SIGHUP?  Also a re-exec?  If so, then this
-> could be problematic, as it would transition domains on the initial
-> daemon incorrectly, right?
+> > > I have absolutely no idea where to go from here...
+> > 
+> > Tried audit2why?  Could be constraints or RBAC denial.
 
-Correct.  I tested all the functions I use, but I never kill -1 the sshd so it 
-didn't occur to me to test it.
+Oh well, I thought it was working but that was before I restarted
+postfix. When I do, I get (audit2why):
 
-It looks like my idea is not usable.
+audit(1119536844.319:0): avc:  denied  { transition } for  pid=11754
+exe=/bin/bash path=/usr/sbin/postfix dev=md3 ino=783515
+scontext=system_u:system_r:initrc_t
+tcontext=system_u:object_r:postfix_master_t tclass=process
+        Was caused by:
+                Constraint violation.
+                Check policy/constraints.
+                Typically, you just need to add a type attribute to the
+domain to satisfy the constraint.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+But I've got:
+domain_auto_trans(initrc_t, postfix_master_exec_t, postfix_master_t)
+allow initrc_t postfix_master_t:process { noatsecure siginh rlimitinh };
+role_transition system_r postfix_master_exec_t object_r;
+role system_r types postfix_master_t;
+(may be redundant but does not help)
+
+system_u:object_r:postfix_master_exec_t /usr/lib/postfix/master
+system_u:object_r:postfix_pipe_exec_t /usr/lib/postfix/pipe
+
+Which type attribute could it be?
+Any ideas?
+
+Thanks
+Antoine
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
