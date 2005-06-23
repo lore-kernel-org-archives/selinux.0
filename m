@@ -1,91 +1,108 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NHRRgA028827
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 13:27:27 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NHH5RO029162
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 17:17:05 GMT
-Subject: Re: sshd policy
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200506240127.09518.russell@coker.com.au>
-References: <200506231632.32753.russell@coker.com.au>
-	 <1119528580.17098.19.camel@localhost.localdomain>
-	 <200506240127.09518.russell@coker.com.au>
-Content-Type: text/plain
-Date: Thu, 23 Jun 2005 13:15:02 -0400
-Message-Id: <1119546902.4739.6.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NHm5gA029110
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 13:48:06 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NHcDNa003059
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 17:38:15 GMT
+Message-Id: <200506231737.j5NHbmqc029627@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>
+Subject: RE: file contexts and modularity
+Date: Thu, 23 Jun 2005 13:37:48 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-reply-to: <1119495651.8194.28.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> > > allow $1_launcher_t self:unix_dgram_socket create_socket_perms;
-> > > allow $1_launcher_t self:unix_stream_socket
-> >
-> > create_stream_socket_perms;
-> > ...
-> >
-> > > allow $1_t $1_launcher_t:tcp_socket rw_socket_perms;
-> > > allow $1_t $1_launcher_t:unix_stream_socket rw_socket_perms;
-> >
-> > Should launcher be able to rw the dgram socket as well?
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Ivan Gyurdiev
+> Sent: Wednesday, June 22, 2005 11:01 PM
+> To: selinux@tycho.nsa.gov
+> Cc: Daniel J Walsh
+> Subject: file contexts and modularity
 > 
-> It doesn't seem to need it, I merely allowed what was necessary to get it 
-> working.
+> So, I know Tresys is working on binary policy modules.
 > 
-> > Should those rules be put together, or am I misunderstanding how
-> > it works?
+
+It's not just the modules that are an issue - it is the policy server as well.
+
+> What's the plan for dealing with the file_contexts file?
 > 
-> As they are different they don't go together well.
-
-Different? One side gets the rights to create sockets, and the other
-side gets the right to write to given sockets... seems like a
-communication channel to me. That's why I asked about the dgram
-socket.
-
-> > > # do not allow statfs()
-> > > dontaudit $1_t fs_type:filesystem getattr;
-> >
-> > Is this sufficient? Can you look and see if samba needs this as well?
-> > In particular, after mounting SMB filesystem, df generates denials,
-> > and that's a bugzilla currently. However, I think fs_type didn't
-> > quite work for that case - I was seeing denials on the top level
-> > directory, whether it was fs_type or not. Related rules are
-> > also in gnome-vfs-daemon.te (not sure if that's merged).
+> In particular, will this continue to be stored
+> as a single giant flat file, or will it be broken up
+> (or stored differently..)
 > 
-> Strange, a quick inspection of the latest rawhide policy indicates that this 
-> shouldn't happen.
 
-How do you figure that - test samba?
-I have to admit that I haven't rechecked that in a while,
-but last I checked it generated denials..
+There are no plans to have the resulting file stored differently for the policy
+modules. Each loadable module contains the file_contexts for that module. These
+are concatenated together to create the standard file_contexts file that is put
+in the same place. This does cause some problems with ordering, which we have a
+partial fix for that I will sent out in a separate email.
 
-> > > allow $1_t port_type:tcp_socket name_connect;
-> >
-> > Protocol? Port?
+We haven't made any decisions for the policy server other than we want the
+policy server to encapsulate all policy access including file context
+information. The details aren't clear to me and I would like some input about
+this. See
+http://sepolicy-server.sourceforge.net/index.php?page=policy-management-design
+for some information about this.
+
+> ============
 > 
-> We need sshd to connect to most/all ports.  ssh tunneling is widely used to 
-> create secure network access for protocols such as POP (NB POP-SSL isn't much 
-> use because most clients don't seem to support checking the server 
-> certificate).
-
-Okay.
-
+> I ask, because I am trying to figure out how to
+> recover which contexts belong to which user, when parsing
+> the file_context.homedirs file, as part of my
+> useradd/usermod/userdel patch.
 > 
-> > > if (use_samba_home_dirs) {
-> > > allow $1_t cifs_t:dir { search getattr };
-> > > allow $1_t cifs_t:file { getattr read };
-> > > }
-> >
-> > Please no more NFS/CIFS block of this kind - I specifically tried to
-> > macro-ize this. Also, why is this necessary? Why is sshd reading
-> > the home directories?
+> This isn't as simple as it sounds, since
+> I can't use the user field (<<none>> contexts).
+> I suppose I could regenerate the right contexts from the
+> template, but that seems like bad design. Basically
+> it's exactly the same problem as establishing which
+> file_contexts relate to which app, so I'm wondering
+> what's the planned solution for that? Is there a plan?
 > 
-> ~/.ssh/authorized_keys
+> If we're going to keep this in a big flat file,
+> there should be some sort of way to indicate
+> a container for file contexts... (a dependency
+> keyword(s) or something)... or we could split it up
+> into multiple files.
+> 
+> Reminds me of the XML thread for some reason :)
+> But on the other hand XML-style requires strict nesting
+> relationship, while it would seem better to just do something like:
+> 
+> regexp class context [ dep_keyword1 dep_keyword2... ]
+> (same row, brackets required).
+> 
+> Keywords could be users, applications, booleans, tunables, whatever..
+> 
 
-I don't see where it's allowed access to ROLE_home_ssh_t..
+I think that I missed something - why do you need to know which contexts are
+associated with an app or user?
+
+Karl
+
+> --
+> Ivan Gyurdiev <ivg2@cornell.edu>
+> Cornell University
+> 
+> 
+
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
 
 
 --
