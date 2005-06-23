@@ -1,44 +1,61 @@
-Subject: Re: general selinux questions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: antoine <antoine@nagafix.co.uk>
-Cc: Colin Walters <walters@verbum.org>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1119540816.9390.35.camel@localhost>
-References: <1118281858.9481.4.camel@localhost>
-	 <1118341614.30110.122.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118433604.10190.353.camel@localhost>
-	 <1118433283.3774.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <1118769876.10262.52.camel@localhost>
-	 <1118770638.3422.27.camel@nexus.verbum.private>
-	 <1119470092.9358.43.camel@localhost>  <1119540816.9390.35.camel@localhost>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NHM8gA028763
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 13:22:08 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NHBkRO028949
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 17:11:46 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j5NHCJ55021654
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 13:12:19 -0400
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j5NHCJu23352
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 13:12:19 -0400
+Received: from wbar1.sjo1-4-4-004-002.sjo1.dsl-verizon.net (vpn50-45.rdu.redhat.com [172.16.50.45])
+	by pobox.corp.redhat.com (8.12.8/8.12.8) with ESMTP id j5NHCJi9015139
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 13:12:19 -0400
+Subject: [PATCH] selinux_sb_copy_data requires a whole page?
+From: Eric Paris <eparis@parisplace.org>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 23 Jun 2005 13:04:00 -0400
-Message-Id: <1119546240.28493.128.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 23 Jun 2005 13:15:20 -0400
+Message-Id: <1119546920.10817.19.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-23 at 16:33 +0100, antoine wrote:
-> Oh well, I thought it was working but that was before I restarted
-> postfix. When I do, I get (audit2why):
-> 
-> audit(1119536844.319:0): avc:  denied  { transition } for  pid=11754
-> exe=/bin/bash path=/usr/sbin/postfix dev=md3 ino=783515
-> scontext=system_u:system_r:initrc_t
-> tcontext=system_u:object_r:postfix_master_t tclass=process
+Currently selinux_sb_copy_data requires an entire page be allocated to
+void *orig when the function is called.  This "requirement" is based on
+the fact that we call copy_page(in_save, nosec_save); and in_save =
+orig.  Problem is that the lustre filesystem was calling do_kern_mount
+with about 10 bytes of options, which got passed here and then we
+corrupted page size - 10 bytes of memory (with all zeros.)  Causing a
+panic.
 
-object_r should never be on a process, and system_r -> object_r
-certainly shouldn't be allowed.  
+The first fix and one that seems we might want to do is change copy_page
+to memcpy(in_save, nosec_save, strlen(nosec_save)) so we only copy back
+what we need to.
 
-> But I've got:
-> domain_auto_trans(initrc_t, postfix_master_exec_t, postfix_master_t)
-> allow initrc_t postfix_master_t:process { noatsecure siginh rlimitinh };
-> role_transition system_r postfix_master_exec_t object_r;
+The lustre fs people have agreed to allocate a whole page because
+"that's the way sys_mount does it."  
 
-This is wrong.  object_r is only for objects, not processes.
+Is there a good reason I'm missing why we should require a whole page?
+Maybe somebody else (or an old version of lustre) is going to hit on
+this.  Comments?
 
--- 
-Stephen Smalley
-National Security Agency
+Eric
+
+--- linux-2.6.9/security/selinux/hooks.c.cor	2005-06-23 16:53:05.000000000 -0400
++++ linux-2.6.9/security/selinux/hooks.c	2005-06-23 16:54:01.000000000 -0400
+@@ -1980,7 +1980,7 @@ static int selinux_sb_copy_data(struct f
+ 		}
+ 	} while (*in_end++);
+ 
+-	copy_page(in_save, nosec_save);
++	memcpy(in_save, nosec_save, strlen(nosec_save));
+ 	free_page((unsigned long)nosec_save);
+ out:
+ 	return rc;
+
 
 
 --
