@@ -1,52 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NIVHgA029596
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 14:31:18 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NIKtRO005525
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 18:20:55 GMT
-Message-Id: <200506231821.j5NILDqc030401@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <ivg2@cornell.edu>
-Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NIbYgA029713
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 14:37:35 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NIRjNa006298
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 18:27:45 GMT
 Subject: RE: file contexts and modularity
-Date: Thu, 23 Jun 2005 14:21:13 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-reply-to: <1119549909.16753.5.camel@celtics.boston.redhat.com>
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <200506231821.j5NILDqc030401@gotham.columbia.tresys.com>
+References: <200506231821.j5NILDqc030401@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 23 Jun 2005 14:25:16 -0400
+Message-Id: <1119551117.16753.12.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:ivg2@cornell.edu]
-> Sent: Thursday, June 23, 2005 2:05 PM
-> To: Karl MacMillan
-> Cc: selinux@tycho.nsa.gov; 'Daniel J Walsh'
-> Subject: RE: file contexts and modularity
-> 
-> 
-> > I think that I missed something - why do you need to know which contexts are
-> > associated with an app or user?
-> 
-> So that I can get rid of them once the user's removed (userdel).
-> 
-> It seems like I'll just put each user in a separate .fc file
-> for now... but then if you wanted to remove an app, you'd
-> have to remove the app's .fc file, and the app's entries
-> in each user file as well (and any template entries)...
-> or alternatively you'd have to regenerate everything.
-> 
-> 
 
-Regenerating seems easier and more likely to be correct to me.
+> Regenerating seems easier
 
-Karl
+...seems harder to me - I'm doing this from a C library,
+and I already have written code to delete stuff from a single file.
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+Running around the filesystem to piece together a new file
+will be a pain...
+
+>  and more likely to be correct to me.
+
+...how so?
+
+
+
 
 
 
