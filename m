@@ -1,42 +1,27 @@
-Subject: Re: [PATCH] disallow * and ~ in rules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200506241629.50884.russell@coker.com.au>
-References: <1119543471.8955.5.camel@localhost>
-	 <1119552466.8955.22.camel@localhost>
-	 <1119553228.28493.197.camel@moss-spartans.epoch.ncsc.mil>
-	 <200506241629.50884.russell@coker.com.au>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OC7NgA005081
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 08:07:23 -0400 (EDT)
+Subject: Re: [PATCH] selinux_sb_copy_data requires a whole page?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Eric Paris <eparis@parisplace.org>
+Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1119558154.10817.45.camel@localhost.localdomain>
+References: 
+	 <Xine.LNX.4.44.0506231548050.14587-100000@thoron.boston.redhat.com>
+	 <1119558154.10817.45.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 07:35:08 -0400
-Message-Id: <1119612908.12865.11.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 24 Jun 2005 07:56:33 -0400
+Message-Id: <1119614193.12865.24.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 16:29 +1000, Russell Coker wrote:
-> I agree for dontaudit, but disagree for auditallow.
-> 
-> Sometimes when debugging policy issues I want to see all the accesses to an 
-> object.  Writing rules that cover everything can be a drag, and running apol 
-> also takes time.  It's a lot easier to just do: auditallow * foo_t:file *;
+On Thu, 2005-06-23 at 16:22 -0400, Eric Paris wrote:
+> This would still (maybe) leave sec info in the buffer after the null
+> whereas previously it would have been nulled out.  Do we care?
 
-But that can just as easily be written as:
-	auditallow domain foo_t:file *;
-with no loss in what it truly provides (and definite improvement in the
-size of the resulting policy).  Note that we aren't eliminating use of *
-in permission sets, just in type sets and role sets.  The problem with *
-in type sets is that you never truly want all types (except in
-assertions checking for policy errors); you only want "all process
-types, i.e. domain" or "all file types, i.e. file_type", etc.
-
-> Having role attributes would be handy.
-> 
-> The in_user_role() macro is a gross hack, role attributes would remove the 
-> need for it.
-
-Hmm...need a list somewhere that tracks all requests for improvements to
-the policy language...
+I don't think so.  fs code should stop on the NUL byte; if it doesn't,
+that is a bug in the fs code.
 
 -- 
 Stephen Smalley
