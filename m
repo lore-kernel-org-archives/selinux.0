@@ -1,42 +1,32 @@
-Subject: Re: mdadm policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: ivg2@cornell.edu
-Cc: antoine <antoine@nagafix.co.uk>, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux <selinux@tycho.nsa.gov>, walters@redhat.com
-In-Reply-To: <1119639933.31852.82.camel@celtics.boston.redhat.com>
-References: <1119569243.9390.77.camel@localhost>
-	 <1119577846.20101.26.camel@localhost.localdomain>
-	 <1119605711.9645.28.camel@localhost>
-	 <1119627684.30464.8.camel@celtics.boston.redhat.com>
-	 <1119630905.9645.37.camel@localhost>
-	 <1119635200.31852.16.camel@celtics.boston.redhat.com>
-	 <1119636160.9645.46.camel@localhost>
-	 <1119639933.31852.82.camel@celtics.boston.redhat.com>
-Content-Type: text/plain
-Date: Fri, 24 Jun 2005 15:47:15 -0400
-Message-Id: <1119642435.12865.176.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Fri, 24 Jun 2005 15:50:28 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: "Brian T. Sniffen" <bsniffen@mitre.org>,
+   Karl MacMillan <kmacmillan@tresys.com>, <selinux@tycho.nsa.gov>
+Subject: Re: Alternative user management approach
+In-Reply-To: <1119637275.12865.116.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.44.0506241549100.19660-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 15:05 -0400, Ivan Gyurdiev wrote:
-> So, we can't stop an intentional attack like this.
-> The only question is whether we should stop unintentional
-> attack (sysadm doesn't know bin_t/sbin_t program is hostile,
-> sysadm installed it anyway, sysadm doesn't have capability
-> to write to fixed_disk_device, but mdadm does, and 
-> gives hostile program desired escalation). 
+On Fri, 24 Jun 2005, Stephen Smalley wrote:
 
-It isn't just hostile programs you are concerned about, but flawed
-programs, both in terms of robustness (containing damage from a simple
-mistake) and in terms of exploitation of a flawed program.  Ensuring
-that a privileged domain can only execute a small set of carefully
-controlled code is necessary in order to have any confidence here - you
-can then focus your assurance effort on that small set of code.
+> Yes, but SELinux doesn't isolate those shells even if they have
+> different SELinux user identities if they have the same role and domain.
+> In fact, you only get real isolation in SELinux between domains (or MLS
+> levels, if using MLS).  
 
+But how would this change impact MLS, given that levels are associated 
+with SELinux users?
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
