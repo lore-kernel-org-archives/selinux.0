@@ -1,67 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5O9j6gA004499
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 05:45:06 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5O9Ya2B022341
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 09:34:37 GMT
 Subject: Re: mdadm policy
-From: antoine <antoine@nagafix.co.uk>
-To: ivg2@cornell.edu
-Cc: SELinux <selinux@tycho.nsa.gov>, walters@redhat.com
-In-Reply-To: <1119577846.20101.26.camel@localhost.localdomain>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: antoine <antoine@nagafix.co.uk>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1119569243.9390.77.camel@localhost>
 References: <1119569243.9390.77.camel@localhost>
-	 <1119577846.20101.26.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 10:35:11 +0100
-Message-Id: <1119605711.9645.28.camel@localhost>
+Date: Fri, 24 Jun 2005 07:29:26 -0400
+Message-Id: <1119612566.12865.7.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> (1) It allows everything the program wants to do, regardless
-> of whether it is a good idea.
-> > "I think it should probably use macros for shlib and
-ptys, and use dontaudit instead of allow for some of the devices"
-AFAIK, the only one I had missed in the statement above was the tmpfs.
-I'll admit I was going to keep zero_device_t and a few others...
+On Fri, 2005-06-24 at 00:27 +0100, antoine wrote:
+> I was looking for a policy for mdadm, I know there is one in Fedora, but
+> I use gentoo and I couldn't download it without getting the whole rpm,
+> so I ended up writing one (attached) - it is also a good learning
+> exercise. Shouldn't it be in serefpolicy.sourceforge.net?
 
-> (2) It is not organized in any sensible way. Sensible way means
-> making use of existing macros, grouping rules together,
-> and commenting *everything* with the purpose for adding
-> that rule (or better yet group of rules) - this is the
-> overall action that you want to allow with this block of rules.
-As above. Once the devices are gone and you use macros where possible,
-it kind of organises itself.
+The reference policy being developed by Tresys Technology is still in
+early development, and doesn't yet include an equivalent to everything
+from the upstream example policy.  But you can grab individual files
+from the upstream example policy from the selinux sourceforge CVS tree,
+e.g.:
+http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/policy/domains/program/unused/mdadm.te?rev=1.14&view=log
+http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/policy/file_contexts/program/mdadm.fc?rev=1.3&view=log
 
-> (3) It adds primitive rules for things already present in macros.
-> For example, the daemon_domain covers the transition.
-Missed that little one, thanks. (no harm done)
+Also, there is a public Fedora CVS tree (but that likely doesn't help
+too much, as you would still need to extract the files from the tarball,
+since the Fedora CVS tree is organized for packaging rather than
+upstream development, i.e. an upstream tarball + patches + spec file).
 
-> (4)...and there's numerous specific things wrong with it,
-Numerous? That covers pretty much everything already! It isn't that big
-> that I won't go into....starting from lack of exec_type on
-> the bin_type, not following naming conventions, etc..
-bin_type: Ooops.
-What naming conventions did I miss?
-
-Thanks for the policy, it is definitely much cleaner with macros
-(although fundamentally not that different - which is good news for me),
-Just few questions, does it really need:
-* read access to all of etc_t and etc_runtime_t?
-* self:capability dac_override ipc_lock
-* read_sysctl(mdadm_t)
-* r_dir_file(mdadm_t, sysfs_t)
-* read_locale(mdadm_t)
-Anyone know? Mine works without them.
-
-I guess it allows execution of /bin and /sbin for the "PROGRAM" user
-defined action, so I could keep it more restricted by only allowing
-execution of sendmail_exec_t for my use. Since this is the only
-statement in the policy that allows execution of external code, it feels
-like the most important place to put restrictions on.
-
-Thanks
-Antoine
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
