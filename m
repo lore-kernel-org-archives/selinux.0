@@ -1,54 +1,56 @@
-Subject: RE: file contexts and modularity
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Frank Mayer <mayerf@tresys.com>
-Cc: "'Karl MacMillan'" <kmacmillan@tresys.com>, ivg2@cornell.edu,
-   "'James Morris'" <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <200506241805.j5OI5fqc018169@gotham.columbia.tresys.com>
-References: <200506241805.j5OI5fqc018169@gotham.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OIsZgA009485
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 14:54:35 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OIrx2B002773
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 18:53:59 GMT
+Subject: RE: Alternative user management approach
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <200506241836.j5OIaJqc018526@gotham.columbia.tresys.com>
+References: <200506241836.j5OIaJqc018526@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 14:40:53 -0400
-Message-Id: <1119638453.12865.128.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 24 Jun 2005 14:52:04 -0400
+Message-Id: <1119639124.31852.69.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 14:05 -0400, Frank Mayer wrote:
-> So the avtab that we have now would be 300,970 x 32 bytes = ~9.6MB versus
-> the alternative avtab of 354,714 * 24 = ~8.5MB or about a ~1.1MB savings
-> (about 10%) with very little code change and essentially zero performance
-> impact. If the audit-to-allow rule ration stays 1-10, then this change makes
-> sense.
+cc-ed Dan Walsh...
+
+Please take a look at this proposal.
+The suggestion is that we use more generic "SELinux users"
+instead of creating an selinux user for every user.
+
+> > Also, what's to stop you from implementing this with the current
+> > mechanism?
+> > 
+> > The "role class" could be the SElinux user.
+> > 
+> > Then useradd could be changed to only reload policy if you're adding
+> > new SElinux users ("role classes"). Better - useradd would stay
+> > unchanged, and a new application would be written called
+> > classadd or something.
+> > 
 > 
-> I suspect we can look around and find other examples where small or no
-> performance tradeoffs can made for large size savings. For example if we
-> make the specified flag 16 bit instead of 32 (we're using less then 16 now),
-> we could save another ~.7MB of memory, or a total of ~1.8MB or about 19%.
-> Coupled with smaller policies in the future, we should be able to make
-> significant progress with less pain than a complete restructure of the
-> policydb.
+> That sounds good to me, actually. No need to remove the local.users
+> infrastructure - we can just use it for the role users.
+> 
+> > Then you'd still need to map users to their SELinux users/classes
+> > though..
+> 
+> Which will be done by login processes through libselinux. Haven't looked, but it
+> may not even need an api change.
 
-While I agree that saving space in the avtab nodes will help and is
-desirable, I don't think it is going to be sufficient; I think we have
-to reduce the sheer numbers of such nodes, and I'm not convinced that
-the loadable module support and the reference policy will result in a
-sufficiently small avtab.  So I think we need to take it another step...
+How exactly would this be done.
+Currently there's a 1:1 maping from user to selinux user. I assumed this
+is hardcoded - is this not the case? I'm not sure what login utilities
+do..
 
-> If we go ahead and keep attributes around (as we have in the loadable module
-> work), then the savings can be much greater, but we'd have to study the
-> performance impacts better. The implementation changes would also be more
-> radical. For example the same sample policy above that had ~300K allow rules
-> in the binary policy had only ~27K allow rules in the source policy before
-> expansion. Some rules will expand anyway because of multiple classes, but I
-> believe most expansion is due to attribute expansion.
-
-Yes, I think we should investigate this idea, despite its impact on the
-existing code, as it should significantly reduce the number of avtab
-nodes.
-
--- 
-Stephen Smalley
-National Security Agency
+If it is hardcoded, it needs to
+be made configurable, and integrated w/ useradd utilities.
 
 
 --
