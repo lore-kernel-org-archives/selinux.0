@@ -1,51 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OMqLgA011379
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 18:52:21 -0400 (EDT)
-Received: from web31614.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j5OMph2B017230
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 22:51:43 GMT
-Message-ID: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com>
-Date: Fri, 24 Jun 2005 15:52:16 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Alternative user management approach 
-To: selinux@tycho.nsa.gov
-In-Reply-To: <200506242211.j5OMBUA5012667@turing-police.cc.vt.edu>
+Date: Fri, 24 Jun 2005 19:23:21 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: "Brian T. Sniffen" <bsniffen@mitre.org>,
+   Karl MacMillan <kmacmillan@tresys.com>, <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>
+Subject: Re: Alternative user management approach
+In-Reply-To: <1119643133.12865.181.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.44.0506241922240.20022-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 24 Jun 2005, Stephen Smalley wrote:
+
+> > But how would this change impact MLS, given that levels are associated 
+> > with SELinux users?
+> 
+> Ok, so instead of just "role class", the SELinux user identity becomes a
+> "role/level class", and you just have an extra level of indirection
+> between Linux users and levels, just as you would have between Linux
+> users and roles.  So you can map a set of Linux users who are authorized
+> for a given range to a single SELinux user identity if you want.  But
+> you still have the freedom to maintain separate SELinux user identities
+> per Linux uid if you truly want that; that would all be controlled by
+> the new config file that specifies the mappings.
+
+Ok, this sounds quite flexible for MLS (cd'd Chad in case he has some
+input).
 
 
---- Valdis.Kletnieks@vt.edu wrote:
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 
-> And for the most part, yes DAC is sufficient - but
-> there's a few things I'd
-> like to apply at the MAC level using constraints. 
-> I'd much rather have one
-> user_u with 20-30 locally added ($u1 != $u2)
-> constraints than have to drag
-> around user1_u..user1000_u with corresponding
-> ruleset explosion....
-
-I'm probably missing something, but it looks to
-me like the user seperation issue is handled quite
-nicely by a well implemented B&L category set.
-There are may places using MLS systems in that 
-way today.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-____________________________________________________ 
-Yahoo! Sports 
-Rekindle the Rivalries. Sign up for Fantasy Football 
-http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
