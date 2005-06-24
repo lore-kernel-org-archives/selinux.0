@@ -1,31 +1,27 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OICjgA008856
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 14:12:46 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OICA2B000098
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 18:12:10 GMT
 Subject: Re: Alternative user management approach
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Karl MacMillan <kmacmillan@tresys.com>
 Cc: selinux@tycho.nsa.gov
 In-Reply-To: <200506241602.j5OG2Gqc016513@gotham.columbia.tresys.com>
 References: <200506241602.j5OG2Gqc016513@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 14:10:15 -0400
-Message-Id: <1119636615.31852.37.camel@celtics.boston.redhat.com>
+Date: Fri, 24 Jun 2005 14:19:57 -0400
+Message-Id: <1119637197.12865.113.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> 1) Reloading the kernel policy on user change just seems . . . wrong.
-> 2) Having the users in the kernel can be problematic for large numbers of users.
-> 3) These problems get much worse if we are talking about large, distributed user
-> databases. Are sites with 10,000 users going to force a policy reload on every
-> machine every time a user is added? Are all 10,000 users going to be stored in
-> the kernel?
-
+On Fri, 2005-06-24 at 12:02 -0400, Karl MacMillan wrote:
+> This makes the SELinux user more what we are calling a 'user role'. For example,
+> the policy could create 3 user roles with different role authorizations (which
+> become 'role capabilities'):
+> 
+> user role		role capabilities
+> ------------------------------------
+> normal		user_r
+> staff			staff_r sysadm_r
+> sysadm		sysadm_r
+> 
 > Normal Linux users are then mapped to user roles by username or group membership
 > (this should be done by libselinux and not involve the kernel). For example, if
 > the primary group of the user is wheel then they could be assigned to staff,
@@ -33,13 +29,21 @@ List-Id: selinux@tycho.nsa.gov
 > a user roughly equivalent to adding roles - something done by a policy developer
 > that does not need to be done as part of normal system administration.
 
-So you're taking away the sysadmin's ability to define fine-grained
-role membership, and replace it with giving the sysadmin the ability
-to define coarse-grained "role class" membership, and each "role class"
-is determined by the policy developer...hmm 
+Yes, the idea of performing generalized user mapping in libselinux has
+been suggested previously on the list.  One concern we had with it
+originally was that the SELinux user identity provided stronger
+accountability than the Linux uid, but the audit uid can serve that
+purpose now, and you are still using the SELinux user identity aka "user
+role" (likely to create confusion due with SELinux roles, maybe role
+group or role set) above to bound the possible range of reachable
+SELinux roles aka "role capabilities" (likely to create confusion with
+POSIX/Linux capabilities) for programs like newrole (although how
+su/sudo/userhelper fit into this new scheme remains unclear).  So I
+agree that this makes sense.
 
-Not sure I like this...although I see the scalability concern.
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
