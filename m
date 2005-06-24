@@ -1,87 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OI0ugA008708
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 14:00:56 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OI0J2B029121
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 18:00:20 GMT
-Subject: Re: mdadm policy
-From: antoine <antoine@nagafix.co.uk>
-To: ivg2@cornell.edu
-Cc: SELinux <selinux@tycho.nsa.gov>, walters@redhat.com
-In-Reply-To: <1119635200.31852.16.camel@celtics.boston.redhat.com>
-References: <1119569243.9390.77.camel@localhost>
-	 <1119577846.20101.26.camel@localhost.localdomain>
-	 <1119605711.9645.28.camel@localhost>
-	 <1119627684.30464.8.camel@celtics.boston.redhat.com>
-	 <1119630905.9645.37.camel@localhost>
-	 <1119635200.31852.16.camel@celtics.boston.redhat.com>
-Content-Type: text/plain
-Date: Fri, 24 Jun 2005 19:02:40 +0100
-Message-Id: <1119636160.9645.46.camel@localhost>
-Mime-Version: 1.0
+Message-Id: <200506241805.j5OI5fqc018169@gotham.columbia.tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Karl MacMillan'" <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>, <ivg2@cornell.edu>
+Cc: "'James Morris'" <jmorris@redhat.com>, <selinux@tycho.nsa.gov>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+Subject: RE: file contexts and modularity
+Date: Fri, 24 Jun 2005 14:05:41 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <200506241605.j5OG5tqc016540@gotham.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 13:46 -0400, Ivan Gyurdiev wrote:
-> > Well that's no comfort at all, mdadm_t domain has the ability to access
-> > raw disks and send mail... That's worrying enough.
-> 
-> I don't see anything about sending mail, but perhaps
-> I'm not looking hard enough. You're talking about adding this
-> privilege?
-Sorry, sending mail is not actually a function of mdadm (in code), it is
-just a configuration option that pipes to sendmail:
+Karl MacMillan wrote:
+> One more idea - remove the multiple data fields in avtab_datum and
+> have multiple entries for each key representing different rule types.
+> If a small enough percentage of keys have only 1 type of rule
+> (probably allow) then this should be a win. Haven't done the analysis
+> of a real policy yet to know if this is a win, but seems like it
+> would be (and anecdotal evidence from libapol suggests that it will
+> be - this is similar to how the libapol av hash works).      
 
->From the man page:
+Just to expand on this, we have contemplated making this change in the past.
+Here's a quick analysis: An avtab_datum_t is 4 x 32 bit words = 16 bytes .
+An avtab node has a 3 x 32 bit (12 bytes) key, an avtab_datum (16 bytes) and
+a next pointer (4 bytes) for 32 bytes total. 32 bytes times 100,000s rules
+== mucho memory.
 
-MAILADDR
-The mailaddr line gives an E-mail address that alerts should be sent to
-when is running in --monitor mode (and was given the --scan option).
-There  should  only be one MAILADDR line and it should have only one
-address.
+Taking am arbitrary sample policy and looking at the stats with apol, I have
+298,894 allow rules, 2,076 type_trans rules, 25 type_change rules, 3
+auditallow rules, and 53,719 dontaudit rules. Assume that all the
+type_change rules share a common key with one of the type_trans rules, and
+that all the audit rules share a common key with allow rules (a generally
+safe assumption IMHO), we should have 300,970 avtab entries of which only
+53,744 use more than one datum. 
 
-PROGRAM
-The  program  line  gives the name of a program to be run when mdadm
---monitor detects potentially interesting events on any of the arrays
-that it is monitoring.
-This program gets run with two or three arguments, they being the Event,
-the md device, and possibly the related component device.
-There should only be one program line and it should be give only one
-program.
+So if we eliminated the 3 datum fields and just have one, and use the rule
+type already encoded in the specified flag as part of the key (and we
+partially do this now anyway), we would add 53,744 avtab entries but reduce
+the size of each entry by 8 bytes for a (32-8 = 24) 24 byte avtab node size.
 
 
-So it looks to me like the transition to sendmail should always be
-included - well actually, ifdef(mta.te).
+So the avtab that we have now would be 300,970 x 32 bytes = ~9.6MB versus
+the alternative avtab of 354,714 * 24 = ~8.5MB or about a ~1.1MB savings
+(about 10%) with very little code change and essentially zero performance
+impact. If the audit-to-allow rule ration stays 1-10, then this change makes
+sense.
 
-> > # RAID block device access
-> > allow mdadm_t fixed_disk_device_t:blk_file create_file_perms;
-> 
-> hmm..yes..
-> 
-> Well, in this case, mdadm_t is the trusted domain,
-> and you *want* to transition it to other domains upon execution
-> of something that you don't trust.
-> 
-> So yes, if  you want want to send mail, you would add 
-> a transition like this:
-> domain_auto_trans(mdadm_t, sendmail_exec_t, sendmail_t (or whatever..))
-> 
-> What is this PROGRAM configurable option - can you describe in more 
-> detail. I don't know anything about mdadm.
-> 
-> > I will tweak my policy to make it run sendmail in
-> > sendmail_t and nothing else. That's safer than mdadm_t.
-> 
-> Perhaps this is something that should be in default policy - it
-> sounds like a good threat model.
+I suspect we can look around and find other examples where small or no
+performance tradeoffs can made for large size savings. For example if we
+make the specified flag 16 bit instead of 32 (we're using less then 16 now),
+we could save another ~.7MB of memory, or a total of ~1.8MB or about 19%.
+Coupled with smaller policies in the future, we should be able to make
+significant progress with less pain than a complete restructure of the
+policydb.
 
-What should be the domain to transition to upon execution of bin/sbin?
-Rather than using can_exec, I believe it should be:
-domain_auto_trans(mdadm_t, bin_t, that_domain_t)
-domain_auto_trans(mdadm_t, sbin_t, that_domain_t)
-But personally, I'll leave that out and rely on the email notification.
+If we go ahead and keep attributes around (as we have in the loadable module
+work), then the savings can be much greater, but we'd have to study the
+performance impacts better. The implementation changes would also be more
+radical. For example the same sample policy above that had ~300K allow rules
+in the binary policy had only ~27K allow rules in the source policy before
+expansion. Some rules will expand anyway because of multiple classes, but I
+believe most expansion is due to attribute expansion.
 
-Antoine
+Frank
+
 
 
 --
