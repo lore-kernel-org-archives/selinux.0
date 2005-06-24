@@ -1,76 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OFhsgA007128
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 11:43:54 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OFhJ2B017780
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 15:43:19 GMT
-Subject: Re: mdadm policy
+Subject: RE: file contexts and modularity
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: antoine <antoine@nagafix.co.uk>
-Cc: SELinux <selinux@tycho.nsa.gov>, walters@redhat.com
-In-Reply-To: <1119605711.9645.28.camel@localhost>
-References: <1119569243.9390.77.camel@localhost>
-	 <1119577846.20101.26.camel@localhost.localdomain>
-	 <1119605711.9645.28.camel@localhost>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1119614906.12865.39.camel@moss-spartans.epoch.ncsc.mil>
+References: <200506231939.j5NJdXqc031369@gotham.columbia.tresys.com>
+	 <1119558539.16753.74.camel@celtics.boston.redhat.com>
+	 <1119614906.12865.39.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 11:41:24 -0400
-Message-Id: <1119627684.30464.8.camel@celtics.boston.redhat.com>
+Date: Fri, 24 Jun 2005 11:43:56 -0400
+Message-Id: <1119627837.30464.11.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2005-06-24 at 08:08 -0400, Stephen Smalley wrote:
+> On Thu, 2005-06-23 at 16:28 -0400, Ivan Gyurdiev wrote:
+> >Karl MacMillan wrote:
+> > > Not certain, therefore, that libsepol is the correct place for the
+> > > client api (e.g. the one used by useradd). Thoughts?
+> > 
+> > It's difficult to me to write forward portable code, when I don't
+> > know the future :)
+> 
+> True.  But we can at least seek to provide an interface to useradd from
+> libsepol that doesn't expose the fact that we are necessarily dealing
+> with a binary policy file/image, just an abstract policy object that may
+> be backed by a binary policy or may be backed by the policy daemon.
 
-> What naming conventions did I miss?
+The current interface keeps the policydb_t as an opaque data structure..
+On the other hand it also passes in a sel_root parameter (for
+selinux_policy_root(), which I'm not so sure about).
 
-The bin type should be named mdadm_exec_t, not mdadm_bin_t
-
-> Thanks for the policy, it is definitely much cleaner with macros
-> (although fundamentally not that different - which is good news for me),
-
-It's Colin Walters' policy according to the header.
-
-> Just few questions, does it really need:
-> * read access to all of etc_t and etc_runtime_t?
-
-The current policy assumes that etc_t and etc_runtime_t
-are not protected types. It takes the opposite approach of 
-marking specific types that should be protected. I find
-this rather undesirable, but that's the way it is done...
-
-Those rules are usually added to access /etc/fstab and
-/etc/mtab.
-
-> * self:capability dac_override ipc_lock
-
-This looks interesting...
-
-> * read_sysctl(mdadm_t)
-> * r_dir_file(mdadm_t, sysfs_t)
-> * read_locale(mdadm_t)
-> Anyone know? Mine works without them.
-
-Not sure, but those don't seem too much of a threat.
-How do you know it works without them? Your setup
-is just one of many... 
-
-> I guess it allows execution of /bin and /sbin for the "PROGRAM" user
-> defined action, so I could keep it more restricted by only allowing
-> execution of sendmail_exec_t for my use.
-
-Perhaps...
-
-Note that the execution occurs without a transition (execute_no_trans),
-which means that while executing the sub-program, it runs in
-the same confined domain.
-
->  Since this is the only
-> statement in the policy that allows execution of external code, it feels
-> like the most important place to put restrictions on.
-
-See above - execution of external code isn't so much of a problem
-as long as it occurs in the same domain. If the external code
-does anything undesirable, it will be done in the mdadm domain.
 
 
 
