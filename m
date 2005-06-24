@@ -1,92 +1,52 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OGT4gA007701
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 12:29:04 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OGT3UD021109
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 16:29:03 GMT
-Message-Id: <200506241628.j5OGSpqc016758@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <ivg2@cornell.edu>
-Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>
-Subject: RE: file contexts and modularity
-Date: Fri, 24 Jun 2005 12:28:52 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1119628980.30464.28.camel@celtics.boston.redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OGXWgA007777
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 12:33:33 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OGXVUD021289
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 16:33:31 GMT
+Subject: Re: mdadm policy
+From: antoine <antoine@nagafix.co.uk>
+To: ivg2@cornell.edu
+Cc: SELinux <selinux@tycho.nsa.gov>, walters@redhat.com
+In-Reply-To: <1119627684.30464.8.camel@celtics.boston.redhat.com>
+References: <1119569243.9390.77.camel@localhost>
+	 <1119577846.20101.26.camel@localhost.localdomain>
+	 <1119605711.9645.28.camel@localhost>
+	 <1119627684.30464.8.camel@celtics.boston.redhat.com>
+Content-Type: text/plain
+Date: Fri, 24 Jun 2005 17:35:05 +0100
+Message-Id: <1119630905.9645.37.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:ivg2@cornell.edu]
-> Sent: Friday, June 24, 2005 12:03 PM
-> To: Karl MacMillan
-> Cc: selinux@tycho.nsa.gov; 'Daniel J Walsh'
-> Subject: RE: file contexts and modularity
+> > I guess it allows execution of /bin and /sbin for the "PROGRAM" user
+> > defined action, so I could keep it more restricted by only allowing
+> > execution of sendmail_exec_t for my use.
 > 
+> Perhaps...
 > 
-> > What's wrong with:
-> >
-> > 1) Read file contexts with ROLE, etc. still present.
-> > 2) Extract all context lines with ROLE.
-> 
-> Okay..
-> 
-> > 3) Write all plain context lines to new file.
-> 
-> There should be none of those...
-> 
-> > 4) Iterate through users and append to the new file all of the extracted
-> context
-> > lines with ROLE, etc statements replaced.
-> 
-> The replace is a pain to do... and if there's a whole lot
-> of users I have to do it a whole lot of times.
-> 
+> Note that the execution occurs without a transition (execute_no_trans),
+> which means that while executing the sub-program, it runs in
+> the same confined domain.
+Well that's no comfort at all, mdadm_t domain has the ability to access
+raw disks and send mail... That's worrying enough.
 
-This is a performance objection? I can't believe that it will be slow enough to
-matter and the tradeoff for obvious correctness seems worth it to me.
+# RAID block device access
+allow mdadm_t fixed_disk_device_t:blk_file create_file_perms;
 
-> Furthermore I may or may not want to affect other users
-> with modifications to my single user that I'm interested in.
-
-? What effect could there be? This file should be reproducible at all times and
-should accurately reflect a) the current file contexts as defined by the policy
-and b) the current users and their data (home dir, etc).
-
-> Right now I will validate all users when passing through the file,
-> but will not modify anything that does not concern me,
-> whether there's an error or not.
+> >  Since this is the only
+> > statement in the policy that allows execution of external code, it feels
+> > like the most important place to put restrictions on.
 > 
-> Also, there's no reason why delete should have to gather data like
-> add for expansions - I don't want to require the same interface
-> for delete as for add... you're saying I should require information on
-> all home directories (and/or any future expansion that we may
-> decide to add) just to delete some user...
-> 
+> See above - execution of external code isn't so much of a problem
+> as long as it occurs in the same domain. If the external code
+> does anything undesirable, it will be done in the mdadm domain.
+True as long as the domain is sufficiently constrained, which is not the
+case for mdadm. I will tweak my policy to make it run sendmail in
+sendmail_t and nothing else. That's safer than mdadm_t.
 
-Yep. Also, to bring this in line with my other suggestion about how to handle
-users in general, it seems like the way to go is to have a chunk of file
-contexts for each SELinux user (what I am calling user roles) that is generated
-at policy development time. This can be applied to each home directory at user
-add/change time. That means that genhomedircon can basically stick around - it
-is only a build requirement. This just means we have to have a special setfiles
-mode for home directory labeling that uses the correct home directory file
-contexts.
-
-Karl
-
-> > 5) Replace old file contexts file with new one.
-> 
-> Yes... I was appending to the old file previously, but
-> copy/modify and replace is the way to go.
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
+Antoine
 
 
 --
