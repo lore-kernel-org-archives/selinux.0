@@ -1,46 +1,47 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: dumb newbie questions
-Date: Fri, 24 Jun 2005 16:22:59 +1000
-Cc: "R. Steven Rainwater" <srainwater@ncc.com>, gyurdiev@redhat.com,
-   SELinux@tycho.nsa.gov
-References: <20050619164015.15419.qmail@web31615.mail.mud.yahoo.com> <1119290793.30000.115.camel@rodan.ncc.com> <42B70888.2070703@redhat.com>
-In-Reply-To: <42B70888.2070703@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] disallow * and ~ in rules
+Date: Fri, 24 Jun 2005 16:29:46 +1000
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
+References: <1119543471.8955.5.camel@localhost> <1119552466.8955.22.camel@localhost> <1119553228.28493.197.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1119553228.28493.197.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200506241623.07883.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200506241629.50884.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 21 June 2005 04:18, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Ok there is a bug in policy.
+On Friday 24 June 2005 05:00, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2005-06-23 at 14:47 -0400, Joshua Brindle wrote:
+> > I agree that neverallow has very legitimate reasons for * but dontaudit
+> > and auditallow are a little less clear. Perhaps auditallow should allow
+> > *, it's conceivable that someone would want to audit all access to an
+> > object (though in the current policies and reference policy * would have
+> > the same net effect as domain with fewer avtab entries). This may not be
+> > the case for all policies though. The attached patch disallows it in all
+> > rule types but neverallow.
 >
-> Basically we have a
->
-> domain_auto_trans(sysadm_t, httpd_sys_script_exec_t, httpd_sys_script_t)
->
-> I have been ifdefing these out for targeted policy, but I am wondering
-> if we want these for strict policy either.
+> Yes, I think requiring people to use an attribute like domain or
+> file_type is preferable anyway; otherwise you end up with massive
+> explosion in the set of rules for a lot of types that can't possibly be
+> used in that manner anyway.
 
-If you don't have such a domain transition then the program will have 
-different security contexts for running from a user login vs running from 
-Apache.  As the login session generally has more access the likely result is 
-that some bugs or configuration issues will result in the script working 
-properly when run from a terminal but not working when Apache runs them.
+I agree for dontaudit, but disagree for auditallow.
 
-Also running in different domains means different types for files that are 
-created, in the default policy the only example of this is files under /tmp.  
-If a cgi-bin script creates a directory under /tmp of a fixed name (yes we 
-know it's bad but lots of scripts do it anyway) and then creates files under 
-it then running the script once as sysadm_t or unconfined_t may then prevent 
-the script from working when it is run from Apache.  This leads to potential 
-situations where a script that has been working fine suddenly stops working 
-for no clear reason just because it was once run from a terminal session.
+Sometimes when debugging policy issues I want to see all the accesses to an 
+object.  Writing rules that cover everything can be a drag, and running apol 
+also takes time.  It's a lot easier to just do: auditallow * foo_t:file *;
 
-One of the advantages that SE Linux offers is that bad use of temporary file 
-names cease to be open security holes and become DOS attacks instead.
+> sets, I think they are useful.  For role sets, I'm not sure - we don't
+> have a parallel to attributes for roles, so there is no easy way to say
+> all roles or all roles except X,Y,Z in any other way.
+
+Having role attributes would be handy.
+
+The in_user_role() macro is a gross hack, role attributes would remove the 
+need for it.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
