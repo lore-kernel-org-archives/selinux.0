@@ -1,42 +1,76 @@
-Subject: Re: Alternative user management approach
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@redhat.com>
-Cc: "Brian T. Sniffen" <bsniffen@mitre.org>,
-   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <Xine.LNX.4.44.0506241549100.19660-100000@thoron.boston.redhat.com>
-References: 
-	 <Xine.LNX.4.44.0506241549100.19660-100000@thoron.boston.redhat.com>
-Content-Type: text/plain
-Date: Fri, 24 Jun 2005 15:58:53 -0400
-Message-Id: <1119643133.12865.181.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OMBqgA011214
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 18:11:52 -0400 (EDT)
+Received: from turing-police.cirt.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OMBlUD010861
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 22:11:48 GMT
+Message-Id: <200506242211.j5OMBUA5012667@turing-police.cc.vt.edu>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: gyurdiev@redhat.com, "'Brian T. Sniffen'" <bsniffen@mitre.org>,
+   selinux@tycho.nsa.gov
+Subject: Re: Alternative user management approach 
+In-Reply-To: Your message of "Fri, 24 Jun 2005 14:41:45 EDT."
+             <200506241841.j5OIfiqc018618@gotham.columbia.tresys.com>
+From: Valdis.Kletnieks@vt.edu
+References: <200506241841.j5OIfiqc018618@gotham.columbia.tresys.com>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1119651089_4848P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 24 Jun 2005 18:11:30 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 15:50 -0400, James Morris wrote:
-> On Fri, 24 Jun 2005, Stephen Smalley wrote:
+--==_Exmh_1119651089_4848P
+Content-Type: text/plain; charset=us-ascii
+
+On Fri, 24 Jun 2005 14:41:45 EDT, Karl MacMillan said:
+> > -----Original Message-----
+> > From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
+> > Sent: Friday, June 24, 2005 2:33 PM
+> > To: Brian T. Sniffen
+> > Cc: Karl MacMillan; selinux@tycho.nsa.gov
+> > Subject: Re: Alternative user management approach
+> > 
+> > On Fri, 2005-06-24 at 14:09 -0400, Brian T. Sniffen wrote:
+> > > "Karl MacMillan" <kmacmillan@tresys.com> writes:
+> > >
+> > > > This makes the SELinux user more what we are calling a 'user
+> > > > role'. For example, the policy could create 3 user roles with
+> > > > different role authorizations (which become 'role capabilities'):
+> > >
+> > > This seems like a great innovation.  But it does inherit one problem
+> > > of generic user_u: there's no longer any MAC separating users.  If I'm
+> > > a normal user, my shell has exactly the same security context as your
+> > > shell---right?
+> > 
+> > Is the user info used for anything besides rbac?
+> > I don't think it is...
+> > 
 > 
-> > Yes, but SELinux doesn't isolate those shells even if they have
-> > different SELinux user identities if they have the same role and domain.
-> > In fact, you only get real isolation in SELinux between domains (or MLS
-> > levels, if using MLS).  
-> 
-> But how would this change impact MLS, given that levels are associated 
-> with SELinux users?
+> It can be used for constraints. There have been some suggested uses for this,
+> but none are currently implemented in real policies. User separation seems
+> better left to DAC.
 
-Ok, so instead of just "role class", the SELinux user identity becomes a
-"role/level class", and you just have an extra level of indirection
-between Linux users and levels, just as you would have between Linux
-users and roles.  So you can map a set of Linux users who are authorized
-for a given range to a single SELinux user identity if you want.  But
-you still have the freedom to maintain separate SELinux user identities
-per Linux uid if you truly want that; that would all be controlled by
-the new config file that specifies the mappings.
+I think I was the guy who started the whole constraints discussion ;)
 
--- 
-Stephen Smalley
-National Security Agency
+And for the most part, yes DAC is sufficient - but there's a few things I'd
+like to apply at the MAC level using constraints.  I'd much rather have one
+user_u with 20-30 locally added ($u1 != $u2) constraints than have to drag
+around user1_u..user1000_u with corresponding ruleset explosion....
 
+--==_Exmh_1119651089_4848P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCvIURcC3lWbTT17ARAgyPAKD23l0Qa7nZ+k7+OTb/M2tovD4zEwCgqqS+
+95dQv5nWSrMs1aGyJ/1gbIA=
+=zDKS
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1119651089_4848P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
