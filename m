@@ -1,42 +1,48 @@
 Subject: RE: Alternative user management approach
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1119639668.12865.141.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gyurdiev@redhat.com
+Cc: Karl MacMillan <kmacmillan@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
+   selinux@tycho.nsa.gov
+In-Reply-To: <1119639124.31852.69.camel@celtics.boston.redhat.com>
 References: <200506241836.j5OIaJqc018526@gotham.columbia.tresys.com>
-	 <1119639668.12865.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <1119639124.31852.69.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 15:21:54 -0400
-Message-Id: <1119640914.31852.87.camel@celtics.boston.redhat.com>
+Date: Fri, 24 Jun 2005 15:23:09 -0400
+Message-Id: <1119640989.12865.156.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 15:01 -0400, Stephen Smalley wrote:
-> On Fri, 2005-06-24 at 14:36 -0400, Karl MacMillan wrote:
-> > Which will be done by login processes through libselinux. Haven't looked, but it
-> > may not even need an api change.
+On Fri, 2005-06-24 at 14:52 -0400, Ivan Gyurdiev wrote:
+> How exactly would this be done.
+> Currently there's a 1:1 maping from user to selinux user. I assumed this
+> is hardcoded - is this not the case? I'm not sure what login utilities
+> do..
 > 
-> get_ordered_context_list(3) and friends.  login and su use
-> get_ordered_context_list(3) via pam_selinux.
-> Most other programs just use get_default_context(3), which is
-> implemented internally via get_ordered_context_list(3), just taking the
-> first one.  sshd also uses get_default_context_with_role(3) if a role
-> was specified, which just takes the first one with a matching role if it
-> exists.
-> 
-> In each case, the input is just the Linux username, and it returns the
-> security context(s) to use for the user's process.  You'd have to
-> internally determine the group set if you wanted to base decisions on
-> that as well.
+> If it is hardcoded, it needs to
+> be made configurable, and integrated w/ useradd utilities.
 
-So... would this be accomplished by changing security_compute_user
-to map between DAC uid and selinux uid before writing
-to /selinux/user ?
+It is handled by libselinux get_ordered_context_list(3), which first
+attempts to obtain a list of reachable security contexts for the user,
+and if that fails (due to the user not being defined in the policy), it
+falls back to user_u as the default.  So you just need to implement the
+user mapping logic in that function based on some new config file, and
+adjust a few programs that explicitly try to use or manipulate SELinux
+user identity.  The latter includes:
+- newrole, run_init (try to re-authenticate the user based on the
+SELinux user identity rather than the Linux uid, should be changed to
+use the audit uid if possible),
+- sudo, usermode (try to transition to a security context for "root").
+In general, we need to reconsider how su/sudo/userhelper work in this
+environment.  Original SELinux kept su and newrole as separate,
+independent steps with su only dealing with Linux uid, not context, and
+newrole preserving the user identity across role changes.  Fedora
+integrated user context transitions into su (via pam_selinux), sudo, and
+userhelper. 
 
-Where would the remap occur...
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
