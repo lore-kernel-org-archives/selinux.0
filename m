@@ -1,119 +1,112 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5NNbIgA002016
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 19:37:18 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5NNRQNa019226
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 23:27:26 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by mail.nagafix.co.uk (Postfix) with ESMTP id 163DCAEF83
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 23:46:14 +0100 (BST)
-Received: from mail.nagafix.co.uk ([127.0.0.1])
- by localhost (viper.nagafix.co.uk [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 21980-13 for <selinux@tycho.nsa.gov>;
- Thu, 23 Jun 2005 23:46:12 +0100 (BST)
-Received: from [192.168.0.1] (unknown [81.1.90.226])
-	by mail.nagafix.co.uk (Postfix) with ESMTP id 1C6A9AEF82
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 23:46:12 +0100 (BST)
-Subject: mdadm policy
-From: antoine <antoine@nagafix.co.uk>
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-CicUDSgghUlm9U+AS5vp"
-Date: Fri, 24 Jun 2005 00:27:23 +0100
-Message-Id: <1119569243.9390.77.camel@localhost>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5O1vvgA002604
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2005 21:57:57 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5O1lVRO007174
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 01:47:31 GMT
+Subject: Re: mdadm policy
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: antoine <antoine@nagafix.co.uk>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1119569243.9390.77.camel@localhost>
+References: <1119569243.9390.77.camel@localhost>
+Content-Type: multipart/mixed; boundary="=-XDmcNfxMQrsHMk5QH91C"
+Date: Thu, 23 Jun 2005 21:50:46 -0400
+Message-Id: <1119577846.20101.26.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-CicUDSgghUlm9U+AS5vp
+--=-XDmcNfxMQrsHMk5QH91C
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-I was looking for a policy for mdadm, I know there is one in Fedora, but
-I use gentoo and I couldn't download it without getting the whole rpm,
-so I ended up writing one (attached) - it is also a good learning
-exercise. Shouldn't it be in serefpolicy.sourceforge.net?
+On Fri, 2005-06-24 at 00:27 +0100, antoine wrote:
+> I was looking for a policy for mdadm, I know there is one in Fedora, but
+> I use gentoo and I couldn't download it without getting the whole rpm,
 
-Works for me (tm)
-Is this any good? (I think it should probably use macros for shlib and
-ptys, and use dontaudit instead of allow for some of the devices)
+Policy is attached, and I recommend using something similar
+over the one you have.
 
-Antoine
+> so I ended up writing one (attached) - it is also a good learning
+> exercise. Shouldn't it be in serefpolicy.sourceforge.net?
+> 
+> Works for me (tm)
 
---=-CicUDSgghUlm9U+AS5vp
-Content-Disposition: inline; filename=mdadm.fc
-Content-Type: text/plain; name=mdadm.fc; charset=ISO-8859-15
+The following things are wrong with this policy:
+
+(1) It allows everything the program wants to do, regardless
+of whether it is a good idea.
+
+(2) It is not organized in any sensible way. Sensible way means
+making use of existing macros, grouping rules together,
+and commenting *everything* with the purpose for adding
+that rule (or better yet group of rules) - this is the
+overall action that you want to allow with this block of rules.
+
+(3) It adds primitive rules for things already present in macros.
+For example, the daemon_domain covers the transition.
+
+(4)...and there's numerous specific things wrong with it,
+that I won't go into....starting from lack of exec_type on
+the bin_type, not following naming conventions, etc..
+
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
+
+--=-XDmcNfxMQrsHMk5QH91C
+Content-Disposition: attachment; filename=mdadm.te
+Content-Type: text/plain; name=mdadm.te; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-/etc/mdadm.conf					--	system_u:object_r:mdadm_etc_t
-/sbin/mdadm					--	system_u:object_r:mdadm_bin_t
+#DESC mdadm - Linux RAID tool
+#
+# Author: Colin Walters <walters@redhat.com>
+#
 
---=-CicUDSgghUlm9U+AS5vp
-Content-Disposition: inline; filename=mdadm.te
-Content-Type: text/plain; name=mdadm.te; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+daemon_base_domain(mdadm, `, fs_domain')
+role sysadm_r types mdadm_t;
 
-# antoine@nagafix.co.uk
+allow initrc_t mdadm_var_run_t:file create_file_perms;
 
-daemon_domain(mdadm, `, fs_domain')
+# Kernel filesystem permissions
+r_dir_file(mdadm_t, proc_t)
+allow mdadm_t proc_mdstat_t:file rw_file_perms;
+read_sysctl(mdadm_t)
+r_dir_file(mdadm_t, sysfs_t) 
 
-type mdadm_etc_t, file_type, sysadmfile;
-type mdadm_bin_t, file_type, sysadmfile;
+# Configuration
+allow mdadm_t { etc_t etc_runtime_t }:file { getattr read };
+read_locale(mdadm_t)
 
-domain_auto_trans(initrc_t, mdadm_bin_t, mdadm_t)
-domain_auto_trans(sysadm_t, mdadm_bin_t, mdadm_t)
+# Linux capabilities
+allow mdadm_t self:capability { dac_override sys_admin ipc_lock };
 
-# role system_r types mdadm_t;
+# Helper program access
+can_exec(mdadm_t, { bin_t sbin_t })
 
-allow initrc_t mdadm_etc_t:file read;
-allow mdadm_t mdadm_etc_t:file { getattr read };
+# RAID block device access
+allow mdadm_t fixed_disk_device_t:blk_file create_file_perms;
+allow mdadm_t device_t:lnk_file { getattr read };
 
-allow mdadm_t etc_t:dir search;
+# Ignore attempts to read every device file
+dontaudit mdadm_t device_type:{ chr_file blk_file } getattr;
+dontaudit mdadm_t device_t:{ fifo_file file dir chr_file blk_file } { read getattr };
+dontaudit mdadm_t devpts_t:dir r_dir_perms;
 
-allow mdadm_t ld_so_cache_t:file { getattr read };
-allow mdadm_t lib_t:dir search;
-allow mdadm_t lib_t:lnk_file read;
-allow mdadm_t shlib_t:file { execute getattr read };
+# Ignore attempts to read/write sysadmin tty
+dontaudit mdadm_t sysadm_tty_device_t:chr_file rw_file_perms;
 
-allow mdadm_t proc_mdstat_t:file { getattr read };
-allow mdadm_t proc_t:dir search;
-allow mdadm_t root_t:dir search;
+# Other random ignores
+dontaudit mdadm_t tmpfs_t:dir r_dir_perms;
+dontaudit mdadm_t initctl_t:fifo_file getattr;
+var_run_domain(mdadm)
+allow mdadm_t var_t:dir { getattr search };
 
-allow mdadm_t tmpfs_t:dir { getattr read };
-
-
-allow mdadm_t device_t:lnk_file read;
-
-allow mdadm_t self:capability sys_admin;
-
-
-# DEV:
-allow mdadm_t clock_device_t:chr_file getattr;
-allow mdadm_t console_device_t:chr_file { getattr read write };
-allow mdadm_t cpu_device_t:chr_file getattr;
-allow mdadm_t device_t:blk_file { getattr ioctl read };
-allow mdadm_t device_t:chr_file getattr;
-allow mdadm_t device_t:dir { getattr read search };
-allow mdadm_t device_t:file getattr;
-allow mdadm_t device_t:lnk_file getattr;
-allow mdadm_t devlog_t:sock_file getattr;
-allow mdadm_t devpts_t:dir { getattr read };
-allow mdadm_t devtty_t:chr_file getattr;
-allow mdadm_t fixed_disk_device_t:blk_file getattr;
-allow mdadm_t init_t:fd use;
-allow mdadm_t initctl_t:fifo_file getattr;
-allow mdadm_t memory_device_t:chr_file getattr;
-allow mdadm_t mouse_device_t:chr_file getattr;
-allow mdadm_t null_device_t:chr_file { getattr read };
-allow mdadm_t ptmx_t:chr_file getattr;
-allow mdadm_t random_device_t:chr_file getattr;
-allow mdadm_t tty_device_t:chr_file getattr;
-#allow mdadm_t tun_tap_device_t:chr_file getattr;
-allow mdadm_t zero_device_t:chr_file getattr;
-
-allow mdadm_t fixed_disk_device_t:blk_file read;
-
---=-CicUDSgghUlm9U+AS5vp--
+--=-XDmcNfxMQrsHMk5QH91C--
 
 
 --
