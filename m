@@ -1,15 +1,16 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OJPjgA009865
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 15:25:46 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OJPgUD004001
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 19:25:42 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OJWNgA009925
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 15:32:23 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OJVk2B004870
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 19:31:47 GMT
 Subject: Re: mdadm policy
-From: antoine <antoine@nagafix.co.uk>
-To: ivg2@cornell.edu
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: antoine <antoine@nagafix.co.uk>
 Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
    walters@redhat.com
-In-Reply-To: <1119639933.31852.82.camel@celtics.boston.redhat.com>
+In-Reply-To: <1119641274.9645.58.camel@localhost>
 References: <1119569243.9390.77.camel@localhost>
 	 <1119577846.20101.26.camel@localhost.localdomain>
 	 <1119605711.9645.28.camel@localhost>
@@ -18,50 +19,34 @@ References: <1119569243.9390.77.camel@localhost>
 	 <1119635200.31852.16.camel@celtics.boston.redhat.com>
 	 <1119636160.9645.46.camel@localhost>
 	 <1119639933.31852.82.camel@celtics.boston.redhat.com>
+	 <1119641274.9645.58.camel@localhost>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 20:27:53 +0100
-Message-Id: <1119641274.9645.58.camel@localhost>
+Date: Fri, 24 Jun 2005 15:29:51 -0400
+Message-Id: <1119641392.31852.93.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 15:05 -0400, Ivan Gyurdiev wrote:
-> > So it looks to me like the transition to sendmail should always be
-> > included - well actually, ifdef(mta.te).
-> 
-> cc-ed Dan Walsh.
-> Proposed transition to sendmail from mdadm.te
-> (so it can send alerts to user).
-> 
-> Re: can_exec({ bin_t, sbin_t }) rule
-> 
-> Antoine, you have to be root/sysadm_t to configure
-> execution of such programs, right? If you have sysadm_t, you
-> can disable any and all security. The only protection
-> from sysadm_t that selinux provides is protection from
-> inadvertently running hostile code that messes w/ selinux
-> files - that's why we have a role called secadm_t
-> (I think this is work in progress).
-I admit the threat is minimal, but I just don't like the idea of running
-things as mdadm_t when it isn't necessary.
-You would need to know what is run by mdadm (as mdadm.conf is not
-readable by non root/sysadm_t) *and* find a flaw in it *and* trigger the
-mdadm error condition. Very slim indeed.
-On the other hand, any flaw in one of the bin_t/sbin_t programs run by
-mdadm would lead to a full compromise (using raw disks). And there has
-been more than one flaw found in sendmail/postfix/... And since it is
-avoidable, why not remove access to raw disks before launching the
-program. (I think the transition to sendmail_t is the minimum)
 
-> So, we can't stop an intentional attack like this.
-> The only question is whether we should stop unintentional
-> attack (sysadm doesn't know bin_t/sbin_t program is hostile,
-> sysadm installed it anyway, sysadm doesn't have capability
-> to write to fixed_disk_device, but mdadm does, and 
-> gives hostile program desired escalation). 
-Hostile program  *or* shell script with insecure privileges/files, etc.
+> Hostile program  *or* shell script with insecure privileges/files, etc.
 
-Antoine
+No, improperly secured (but non-hostile) program is 
+not an issue, because remember... you're still running 
+in the mdadm_t domain. Your program can't write any files, 
+because mdadm_t is not allowed to. It has to explicitly
+try to subvert this by writing to raw disk (at which point
+it's obviously a hostile program).
+
+In fact, if you try to run anything complicated at all it
+will likely fail, and not work at all, including sendmail.
+
+The only threat to me appears to be a root kit, but 
+at that point you've already subverted selinux to a large
+degree, and I'm not sure it's worth protecting anymore.
+
+
+
+
 
 
 --
