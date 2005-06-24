@@ -1,93 +1,56 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OHUogA008433
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 13:30:50 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OHUmUD025324
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 17:30:48 GMT
-Message-Id: <200506241730.j5OHUjqc017646@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Casey Schaufler'" <casey@schaufler-ca.com>, <selinux@tycho.nsa.gov>
-Subject: RE: Alternative user management approach
-Date: Fri, 24 Jun 2005 13:30:47 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <20050624172536.36208.qmail@web31606.mail.mud.yahoo.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OHnBgA008584
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 13:49:11 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OHmZ2B028492
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 17:48:35 GMT
+Subject: Re: mdadm policy
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: antoine <antoine@nagafix.co.uk>
+Cc: SELinux <selinux@tycho.nsa.gov>, walters@redhat.com
+In-Reply-To: <1119630905.9645.37.camel@localhost>
+References: <1119569243.9390.77.camel@localhost>
+	 <1119577846.20101.26.camel@localhost.localdomain>
+	 <1119605711.9645.28.camel@localhost>
+	 <1119627684.30464.8.camel@celtics.boston.redhat.com>
+	 <1119630905.9645.37.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 24 Jun 2005 13:46:40 -0400
+Message-Id: <1119635200.31852.16.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Casey Schaufler [mailto:casey@schaufler-ca.com]
-> Sent: Friday, June 24, 2005 1:26 PM
-> To: Karl MacMillan; selinux@tycho.nsa.gov
-> Subject: RE: Alternative user management approach
-> 
-> 
-> 
-> --- Karl MacMillan <kmacmillan@tresys.com> wrote:
-> 
-> 
-> > To make my suggestion more concrete, I think a
-> > mapping file in
-> > /etc/selinux/policyname that maps from users to
-> > SELinux users. The config would
-> > be an ordered list of mappings that use username and
-> > group information. That
-> > means that if the admin wants to use group info they
-> > can, otherwise it is
-> > ignored. The first match in the ordered list would
-> > win. Maybe something like:
-> >
-> > id:root	sysadm
-> > group:wheel staff
-> > default	normal
-> >
-> > There are a lot of possibilities including boolean
-> > logic, wildcards, etc. Not
-> > certain how much complexity is needed.
-> 
-> As a thought, how about:
-> 
-> userid:grouplist:policyname
-> 
-> where userid or grouplist can be '*' (any) and
-> only exact matches count. Most explicit match
-> is used.
-> 
->     root:*:sysadm
->     fred:wheel:wand
->     *:wheel:staff
->     *:*:normal
-> 
-> Fred would be in "wand" if only in group wheel,
-> in "normal" if in groups wheel and dev. Fun.
-> 
-> 
-> 
 
-Looks reasonable to me - removes ordering which is nice (ordering is so fragile
-and error prone). Now if we can just answer the hard question of whether the
-whole concept makes sense . . .
+> Well that's no comfort at all, mdadm_t domain has the ability to access
+> raw disks and send mail... That's worrying enough.
 
-Karl
+I don't see anything about sending mail, but perhaps
+I'm not looking hard enough. You're talking about adding this
+privilege?
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+> # RAID block device access
+> allow mdadm_t fixed_disk_device_t:blk_file create_file_perms;
 
-> 
-> Casey Schaufler
-> casey@schaufler-ca.com
-> 
-> 
-> 
-> __________________________________
-> Yahoo! Mail
-> Stay connected, organized, and protected. Take the tour:
-> http://tour.mail.yahoo.com/mailtour.html
+hmm..yes..
 
+Well, in this case, mdadm_t is the trusted domain,
+and you *want* to transition it to other domains upon execution
+of something that you don't trust.
+
+So yes, if  you want want to send mail, you would add 
+a transition like this:
+domain_auto_trans(mdadm_t, sendmail_exec_t, sendmail_t (or whatever..))
+
+What is this PROGRAM configurable option - can you describe in more 
+detail. I don't know anything about mdadm.
+
+> I will tweak my policy to make it run sendmail in
+> sendmail_t and nothing else. That's safer than mdadm_t.
+
+Perhaps this is something that should be in default policy - it
+sounds like a good threat model.
 
 
 --
