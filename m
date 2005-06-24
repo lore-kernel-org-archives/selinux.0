@@ -1,15 +1,15 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OHAVgA008234
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 13:10:31 -0400 (EDT)
-Received: from web31604.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5OHATUD023792
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 17:10:29 GMT
-Message-ID: <20050624171029.23369.qmail@web31604.mail.mud.yahoo.com>
-Date: Fri, 24 Jun 2005 10:10:29 -0700 (PDT)
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OHPbgA008386
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 13:25:37 -0400 (EDT)
+Received: from web31606.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j5OHP22B026870
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 17:25:02 GMT
+Message-ID: <20050624172536.36208.qmail@web31606.mail.mud.yahoo.com>
+Date: Fri, 24 Jun 2005 10:25:35 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: RE: file contexts and modularity
+Subject: RE: Alternative user management approach
 To: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200506241656.j5OGuIqc017327@gotham.columbia.tresys.com>
+In-Reply-To: <200506241704.j5OH4jqc017398@gotham.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
@@ -19,28 +19,55 @@ List-Id: selinux@tycho.nsa.gov
 
 --- Karl MacMillan <kmacmillan@tresys.com> wrote:
 
-> Yes - I think that there are going to be
-> valid policy usage patterns that will
-> generate a large number of rules for the
-> foreseeable future.
 
-I expect you speak the truth.
+> To make my suggestion more concrete, I think a
+> mapping file in
+> /etc/selinux/policyname that maps from users to
+> SELinux users. The config would
+> be an ordered list of mappings that use username and
+> group information. That
+> means that if the admin wants to use group info they
+> can, otherwise it is
+> ignored. The first match in the ordered list would
+> win. Maybe something like:
+> 
+> id:root	sysadm
+> group:wheel staff
+> default	normal
+> 
+> There are a lot of possibilities including boolean
+> logic, wildcards, etc. Not
+> certain how much complexity is needed.
 
-> That, coupled with
-> the very high cache hit ratio, means that
-> work on 1 is valuable.
+As a thought, how about:
 
-I can't argue with that.
+userid:grouplist:policyname
+
+where userid or grouplist can be '*' (any) and
+only exact matches count. Most explicit match
+is used.
+
+    root:*:sysadm
+    fred:wheel:wand
+    *:wheel:staff
+    *:*:normal
+
+Fred would be in "wand" if only in group wheel,
+in "normal" if in groups wheel and dev. Fun.
+
 
 
 
 Casey Schaufler
 casey@schaufler-ca.com
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+
+		
+__________________________________ 
+Yahoo! Mail 
+Stay connected, organized, and protected. Take the tour: 
+http://tour.mail.yahoo.com/mailtour.html 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
