@@ -1,40 +1,57 @@
-Subject: RE: file contexts and modularity
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <1119637968.12865.119.camel@moss-spartans.epoch.ncsc.mil>
-References: <200506231939.j5NJdXqc031369@gotham.columbia.tresys.com>
-	 <1119558539.16753.74.camel@celtics.boston.redhat.com>
-	 <1119614906.12865.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <1119627837.30464.11.camel@celtics.boston.redhat.com>
-	 <1119637968.12865.119.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 24 Jun 2005 14:37:26 -0400
-Message-Id: <1119638246.31852.57.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OIg0gA009324
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 14:42:00 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OIfO2B002245
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 18:41:24 GMT
+Message-Id: <200506241841.j5OIfiqc018618@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <gyurdiev@redhat.com>, "'Brian T. Sniffen'" <bsniffen@mitre.org>
+Cc: <selinux@tycho.nsa.gov>
+Subject: RE: Alternative user management approach
+Date: Fri, 24 Jun 2005 14:41:45 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1119637960.31852.51.camel@celtics.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 14:32 -0400, Stephen Smalley wrote:
-> On Fri, 2005-06-24 at 11:43 -0400, Ivan Gyurdiev wrote:
-> > The current interface keeps the policydb_t as an opaque data structure..
-> > On the other hand it also passes in a sel_root parameter (for
-> > selinux_policy_root(), which I'm not so sure about).
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
+> Sent: Friday, June 24, 2005 2:33 PM
+> To: Brian T. Sniffen
+> Cc: Karl MacMillan; selinux@tycho.nsa.gov
+> Subject: Re: Alternative user management approach
 > 
-> Yes, I think we need to hide that from adduser.
+> On Fri, 2005-06-24 at 14:09 -0400, Brian T. Sniffen wrote:
+> > "Karl MacMillan" <kmacmillan@tresys.com> writes:
+> >
+> > > This makes the SELinux user more what we are calling a 'user
+> > > role'. For example, the policy could create 3 user roles with
+> > > different role authorizations (which become 'role capabilities'):
+> >
+> > This seems like a great innovation.  But it does inherit one problem
+> > of generic user_u: there's no longer any MAC separating users.  If I'm
+> > a normal user, my shell has exactly the same security context as your
+> > shell---right?
+> 
+> Is the user info used for anything besides rbac?
+> I don't think it is...
+> 
 
-I could put it in the policydb..
+It can be used for constraints. There have been some suggested uses for this,
+but none are currently implemented in real policies. User separation seems
+better left to DAC.
 
-Then when security_create_policydb_default() makes the policydb
-it could call policydb_set_root().
+Karl
 
-I could also remove security_create_policydb() 
-(which is the same as security_create_policydb_default, 
-except it allows caller to specify the sel_root - 
-intended to provide back some of the functionality 
-of policycoreutils/load_policy.c arguments).
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
 
 
 --
