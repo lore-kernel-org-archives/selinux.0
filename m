@@ -1,57 +1,132 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OG5TgA007388
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 12:05:29 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OG5SUD020006
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 16:05:28 GMT
+Message-Id: <200506241605.j5OG5tqc016540@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Karl MacMillan'" <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>, <ivg2@cornell.edu>
+Cc: "'James Morris'" <jmorris@redhat.com>, <selinux@tycho.nsa.gov>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
 Subject: RE: file contexts and modularity
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <200506241539.j5OFd8qc016279@gotham.columbia.tresys.com>
-References: <200506241539.j5OFd8qc016279@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 24 Jun 2005 12:03:00 -0400
-Message-Id: <1119628980.30464.28.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Date: Fri, 24 Jun 2005 12:05:57 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <200506241430.j5OEUbqc015010@gotham.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> What's wrong with:
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Karl MacMillan
+> Sent: Friday, June 24, 2005 10:31 AM
+> To: 'Stephen Smalley'; ivg2@cornell.edu
+> Cc: 'James Morris'; selinux@tycho.nsa.gov; 'Daniel J Walsh'
+> Subject: RE: file contexts and modularity
 > 
-> 1) Read file contexts with ROLE, etc. still present.
-> 2) Extract all context lines with ROLE.
+> > -----Original Message-----
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > Sent: Friday, June 24, 2005 8:22 AM
+> > To: ivg2@cornell.edu
+> > Cc: James Morris; Karl MacMillan; selinux@tycho.nsa.gov; 'Daniel J Walsh'
+> > Subject: RE: file contexts and modularity
+> >
+> > On Thu, 2005-06-23 at 16:28 -0400, Ivan Gyurdiev wrote:
+> > > it still takes 4 seconds for useradd to load the policy.
+> > > It's awfully slow.... that's 2x policydb_read, because of
+> > > the verify-after-write.
+> >
+> > This is something that I think merits further discussion.  I think that
+> > the real problem is that the avtab size has grown far beyond what we
+> > originally anticipated and this is hurting us both in time (to
+> > manipulate policies, to load policies, and even to search the avtab) and
+> > in space (kernel memory consumption by the avtab is huge).  We certainly
+> > didn't expect the avtab to reach 484,677 distinct entries (FC4 strict
+> > policy) and even the targeted policy in FC4 is now up to 215886 entries.
+> 
+> And this seems to be one of the most common complaints that people make.
+> 
+> > While the loadable/binary policy module work may help somewhat by
+> > allowing us to omit policy modules easily for packages that are not
+> > installed and the userspace security server will allow us to omit
+> > userspace policy from the kernel, I still expect this to be a problem
+> > for default installs and general purpose systems, particularly as we
+> > begin to extend SELinux into securing the desktop.
+> 
+> I agree - the loadable modules will probably be a small help.
+> 
+> > This suggests that
+> > we may need to refactor the data representation for the avtab, replacing
+> > it with a more compact representation that will require more complex and
+> > likely slower computation in the kernel for security_compute_av (but
+> > this should mostly be hidden by the AVC).  In effect, something more
+> > like the avrules of the module work, i.e. more like policy.conf itself,
+> > where we can store multiple classes and multiple types in a single
+> > entry, and possibly even preserve the notion of type attributes to
+> > reduce the need for storing the same (large) type set repeatedly.
+> 
+> This seems like too large a step. What's really funny is that we added a
+> hashtable similar to the avtab to libapol for sediff because the rule storage
+> (which is similar to what was added for the module work) was too slow /
+> cumbersome for certain types of analysis. Additionally, I think that we want
+> to
+> avoid data structures that force memory allocation in the security_compute_av
+> code path.
+> 
+> The most obvious compromise is simply putting attributes in the avtab. This
+> would require adding a reverse map from types to attributes probably. Lookup
+> complexity would be, I think, worst case O(N^2) where N is the number
+> attributes. Actually O(N^2 + N^2) because of the conditional avtab lookup.
+> 
+> Other ideas:
+> - reducing our namespaces to 16bits. Do we really need 32 bits for types,
+> attributes, and object classes?
+> 
+> - Automatic merging of similar/identical type/object class triplets. This
+> would
+> be a big win for the 10,000 domain web hosting machine use case.
+> 
 
-Okay..
+One more idea - remove the multiple data fields in avtab_datum and have multiple
+entries for each key representing different rule types. If a small enough
+percentage of keys have only 1 type of rule (probably allow) then this should be
+a win. Haven't done the analysis of a real policy yet to know if this is a win,
+but seems like it would be (and anecdotal evidence from libapol suggests that it
+will be - this is similar to how the libapol av hash works).
 
-> 3) Write all plain context lines to new file.
+Karl 
 
-There should be none of those...
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
 
-> 4) Iterate through users and append to the new file all of the extracted context
-> lines with ROLE, etc statements replaced.
-
-The replace is a pain to do... and if there's a whole lot
-of users I have to do it a whole lot of times.
-
-Furthermore I may or may not want to affect other users
-with modifications to my single user that I'm interested in.
-Right now I will validate all users when passing through the file,
-but will not modify anything that does not concern me, 
-whether there's an error or not.
-
-Also, there's no reason why delete should have to gather data like
-add for expansions - I don't want to require the same interface
-for delete as for add... you're saying I should require information on
-all home directories (and/or any future expansion that we may 
-decide to add) just to delete some user...
-
-> 5) Replace old file contexts file with new one.
-
-Yes... I was appending to the old file previously, but
-copy/modify and replace is the way to go.
+> >  Also,
+> > a direct representation of the notion of unconfined might be useful in
+> > eliminating policy bloat, although that is difficult to capture and
+> > targeted policy has been denying even unconfined certain permissions if
+> > certain booleans are disabled (e.g. execmem/execmod).
+> >
+> 
+> Interesting - maybe store unconfined as exceptions rather than what is
+> allowed?
+> 
+> Karl
+> 
+> ---
+> Karl MacMillan
+> Tresys Technology
+> http://www.tresys.com
+> (410) 290-1411 ext 134
+> 
+> > --
+> > Stephen Smalley
+> > National Security Agency
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 
