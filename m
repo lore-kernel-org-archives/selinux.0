@@ -1,117 +1,97 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OGc3gA007851
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 12:38:04 -0400 (EDT)
-Received: from web31611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j5OGbS2B023472
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 16:37:28 GMT
-Message-ID: <20050624163802.24970.qmail@web31611.mail.mud.yahoo.com>
-Date: Fri, 24 Jun 2005 09:38:02 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Alternative user management approach
-To: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200506241602.j5OG2Gqc016513@gotham.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OGb6gA007827
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 12:37:06 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OGaxUD021446
+	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 16:37:04 GMT
+Message-Id: <200506241636.j5OGauqc016824@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Casey Schaufler'" <casey@schaufler-ca.com>, <selinux@tycho.nsa.gov>
+Subject: RE: file contexts and modularity
+Date: Fri, 24 Jun 2005 12:36:57 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <20050624155123.43926.qmail@web31601.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
---- Karl MacMillan <kmacmillan@tresys.com> wrote:
-
-
-> This starts with some basic assertions:
-> 1) Reloading the kernel policy on user change just
-> seems . . . wrong.
-
-That's because it is wrong.
-
-> ...
-> We have a partial solution to this already
-> with the concept of a generic user
-> (user_u).
-
-A good start.
-
-> Our suggestion is to expand this concept
-> to have multiple generalized users with
-> rich mappings from Linux users to SELinux
-> users.
-
-How is the different from roles?
-Oh, never mind, you answer below.
-
-> This would mean that specific users would
-> no longer be a part of the SELinux policy,
-> removing the need for libsepol changes.
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Casey Schaufler
+> Sent: Friday, June 24, 2005 11:51 AM
+> To: selinux@tycho.nsa.gov
+> Subject: RE: file contexts and modularity
 > 
-> This makes the SELinux user more what we
-> are calling a 'user role'. For example,
-> the policy could create 3 user roles with
-> different role authorizations (which
-> become 'role capabilities'):
 > 
-> user role		role capabilities
-> ------------------------------------
-> normal		user_r
-> staff			staff_r sysadm_r
-> sysadm		sysadm_r
 > 
-> Normal Linux users are then mapped to user
-> roles by username or group membership
-> (this should be done by libselinux and not
-> involve the kernel). For example, if
-> the primary group of the user is wheel then
-> they could be assigned to staff,
-> root assigned to sysadm, and everyone else to
-> normal.
-
-I suggest a seperate "/etc/usrrole" or similar
-rather than overloading an existing attribute.
-The folks who did System V/MLS stole the group
-membership and introduced a variety of issues
-when the scheme was applied to systems with
-multiple concurrent groups and the BSD file
-system group ownership symantics. On a system
-with capabilities enforced properly you may
-not want root to have sysadm, too.
-
-> This makes the addition of
-> a user roughly equivalent to adding roles -
-> something done by a policy developer
-> that does not need to be done as part of normal
-> system administration.
-
-Not sure I quite parse your meaning here.
-
-> In the future, this can be greatly expanded in the
-> reference policy with more
-> fine-grained role capabilities. For example:
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> user role		role capabilities
-> -----------------------------------
-> normal		user_r
-> staff			staff_r webadmin_r logadmin_r genadmin_r
-> secadmin		staff_r genadmin_r secadmin_r
-> sysadm		webadmin_r logadmin_r genadmin_r
+> > This is something that I think merits further
+> > discussion.  I think that
+> > the real problem is that the avtab size has grown
+> > far beyond what we
+> > originally anticipated and this is hurting us both
+> > in time (to
+> > manipulate policies, to load policies, and even to
+> > search the avtab) and
+> > in space (kernel memory consumption by the avtab is
+> > huge).  We certainly
+> > didn't expect the avtab to reach 484,677 distinct
+> > entries (FC4 strict
+> > policy) and even the targeted policy in FC4 is now
+> > up to 215886 entries.
 > 
-> Questions/Thoughts?
+> With close to half a million (Ack!) rules you
+> end up with a memory burden that would be
+> excessive even if you could represent a rule in
+> a single byte. Oh sure, you could swap out rule
+> pages on a LRU scheme, or hash them to death,
+> but the basic problem is not the representation
+> of hundreds of thousands of rules, it's a matter
+> of having hundreds of thousands of rules. Good
+> heavens, the policy file is starting to look
+> like the IRS tax code.
+> 
 
-I think you're on the right track to
-seperate users from policy. The details
-are most likely a matter of taste once
-you establish that adding a normal user
-doesn't need to update the policy.
+Let's try to separate out the problems correctly. There are 2 issues:
+
+1) The current kernel avtab makes an inappropriate space / time tradeoff.
+2) The current policies are not sufficiently designed and may have too many
+rules.
+
+1 can be fixed even if 2 is true, which it might be. We are trying to address
+that with refpolicy. I would encourage you to make concrete suggestions for the
+reference policy - one of its aims is to add the design component to SELinux
+policies that you are suggesting. Otherwise, your opinions on SELinux policies
+are clear at this point - is it doing any good to restate them in threads that
+are only tangentially related?
+
+Karl
+
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
+> 
+> Casey Schaufler
+> casey@schaufler-ca.com
+> 
+> 
+> 
+> ____________________________________________________
+> Yahoo! Sports
+> Rekindle the Rivalries. Sign up for Fantasy Football
+> http://football.fantasysports.yahoo.com
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
