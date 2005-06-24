@@ -1,73 +1,40 @@
-Message-Id: <200506241838.j5OIc0qc018533@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>
-Subject: RE: Alternative user management approach
-Date: Fri, 24 Jun 2005 14:38:02 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1119637197.12865.113.camel@moss-spartans.epoch.ncsc.mil>
+Subject: RE: file contexts and modularity
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1119637968.12865.119.camel@moss-spartans.epoch.ncsc.mil>
+References: <200506231939.j5NJdXqc031369@gotham.columbia.tresys.com>
+	 <1119558539.16753.74.camel@celtics.boston.redhat.com>
+	 <1119614906.12865.39.camel@moss-spartans.epoch.ncsc.mil>
+	 <1119627837.30464.11.camel@celtics.boston.redhat.com>
+	 <1119637968.12865.119.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 24 Jun 2005 14:37:26 -0400
+Message-Id: <1119638246.31852.57.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Friday, June 24, 2005 2:20 PM
-> To: Karl MacMillan
-> Cc: selinux@tycho.nsa.gov
-> Subject: Re: Alternative user management approach
+On Fri, 2005-06-24 at 14:32 -0400, Stephen Smalley wrote:
+> On Fri, 2005-06-24 at 11:43 -0400, Ivan Gyurdiev wrote:
+> > The current interface keeps the policydb_t as an opaque data structure..
+> > On the other hand it also passes in a sel_root parameter (for
+> > selinux_policy_root(), which I'm not so sure about).
 > 
-> On Fri, 2005-06-24 at 12:02 -0400, Karl MacMillan wrote:
-> > This makes the SELinux user more what we are calling a 'user role'. For
-> example,
-> > the policy could create 3 user roles with different role authorizations
-> (which
-> > become 'role capabilities'):
-> >
-> > user role		role capabilities
-> > ------------------------------------
-> > normal		user_r
-> > staff			staff_r sysadm_r
-> > sysadm		sysadm_r
-> >
-> > Normal Linux users are then mapped to user roles by username or group
-> membership
-> > (this should be done by libselinux and not involve the kernel). For example,
-> if
-> > the primary group of the user is wheel then they could be assigned to staff,
-> > root assigned to sysadm, and everyone else to normal. This makes the
-> addition of
-> > a user roughly equivalent to adding roles - something done by a policy
-> developer
-> > that does not need to be done as part of normal system administration.
-> 
-> Yes, the idea of performing generalized user mapping in libselinux has
-> been suggested previously on the list.  One concern we had with it
-> originally was that the SELinux user identity provided stronger
-> accountability than the Linux uid, but the audit uid can serve that
-> purpose now, and you are still using the SELinux user identity aka "user
-> role" (likely to create confusion due with SELinux roles, maybe role
-> group or role set) above to bound the possible range of reachable
-> SELinux roles aka "role capabilities" (likely to create confusion with
-> POSIX/Linux capabilities) for programs like newrole (although how
-> su/sudo/userhelper fit into this new scheme remains unclear).  So I
-> agree that this makes sense.
-> 
+> Yes, I think we need to hide that from adduser.
 
-No idea about better names, though I agree that both are prone to confusion.
-Anyone have any ideas?
+I could put it in the policydb..
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+Then when security_create_policydb_default() makes the policydb
+it could call policydb_set_root().
 
-> --
-> Stephen Smalley
-> National Security Agency
-
+I could also remove security_create_policydb() 
+(which is the same as security_create_policydb_default, 
+except it allows caller to specify the sel_root - 
+intended to provide back some of the functionality 
+of policycoreutils/load_policy.c arguments).
 
 
 --
