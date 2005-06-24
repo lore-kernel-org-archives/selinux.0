@@ -1,27 +1,30 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OC7NgA005081
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 08:07:23 -0400 (EDT)
-Subject: Re: [PATCH] selinux_sb_copy_data requires a whole page?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Eric Paris <eparis@parisplace.org>
-Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1119558154.10817.45.camel@localhost.localdomain>
-References: 
-	 <Xine.LNX.4.44.0506231548050.14587-100000@thoron.boston.redhat.com>
-	 <1119558154.10817.45.camel@localhost.localdomain>
+Subject: RE: file contexts and modularity
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: ivg2@cornell.edu
+Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1119558539.16753.74.camel@celtics.boston.redhat.com>
+References: <200506231939.j5NJdXqc031369@gotham.columbia.tresys.com>
+	 <1119558539.16753.74.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 07:56:33 -0400
-Message-Id: <1119614193.12865.24.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 24 Jun 2005 08:08:26 -0400
+Message-Id: <1119614906.12865.39.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-23 at 16:22 -0400, Eric Paris wrote:
-> This would still (maybe) leave sec info in the buffer after the null
-> whereas previously it would have been nulled out.  Do we care?
+On Thu, 2005-06-23 at 16:28 -0400, Ivan Gyurdiev wrote:
+>Karl MacMillan wrote:
+> > Not certain, therefore, that libsepol is the correct place for the
+> > client api (e.g. the one used by useradd). Thoughts?
+> 
+> It's difficult to me to write forward portable code, when I don't
+> know the future :)
 
-I don't think so.  fs code should stop on the NUL byte; if it doesn't,
-that is a bug in the fs code.
+True.  But we can at least seek to provide an interface to useradd from
+libsepol that doesn't expose the fact that we are necessarily dealing
+with a binary policy file/image, just an abstract policy object that may
+be backed by a binary policy or may be backed by the policy daemon.
 
 -- 
 Stephen Smalley
