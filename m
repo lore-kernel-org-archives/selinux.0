@@ -1,34 +1,42 @@
-Subject: Re: mdadm policy
+Subject: Re: [PATCH] disallow * and ~ in rules
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: antoine <antoine@nagafix.co.uk>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1119569243.9390.77.camel@localhost>
-References: <1119569243.9390.77.camel@localhost>
+To: russell@coker.com.au
+Cc: Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200506241629.50884.russell@coker.com.au>
+References: <1119543471.8955.5.camel@localhost>
+	 <1119552466.8955.22.camel@localhost>
+	 <1119553228.28493.197.camel@moss-spartans.epoch.ncsc.mil>
+	 <200506241629.50884.russell@coker.com.au>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 07:29:26 -0400
-Message-Id: <1119612566.12865.7.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 24 Jun 2005 07:35:08 -0400
+Message-Id: <1119612908.12865.11.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 00:27 +0100, antoine wrote:
-> I was looking for a policy for mdadm, I know there is one in Fedora, but
-> I use gentoo and I couldn't download it without getting the whole rpm,
-> so I ended up writing one (attached) - it is also a good learning
-> exercise. Shouldn't it be in serefpolicy.sourceforge.net?
+On Fri, 2005-06-24 at 16:29 +1000, Russell Coker wrote:
+> I agree for dontaudit, but disagree for auditallow.
+> 
+> Sometimes when debugging policy issues I want to see all the accesses to an 
+> object.  Writing rules that cover everything can be a drag, and running apol 
+> also takes time.  It's a lot easier to just do: auditallow * foo_t:file *;
 
-The reference policy being developed by Tresys Technology is still in
-early development, and doesn't yet include an equivalent to everything
-from the upstream example policy.  But you can grab individual files
-from the upstream example policy from the selinux sourceforge CVS tree,
-e.g.:
-http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/policy/domains/program/unused/mdadm.te?rev=1.14&view=log
-http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/policy/file_contexts/program/mdadm.fc?rev=1.3&view=log
+But that can just as easily be written as:
+	auditallow domain foo_t:file *;
+with no loss in what it truly provides (and definite improvement in the
+size of the resulting policy).  Note that we aren't eliminating use of *
+in permission sets, just in type sets and role sets.  The problem with *
+in type sets is that you never truly want all types (except in
+assertions checking for policy errors); you only want "all process
+types, i.e. domain" or "all file types, i.e. file_type", etc.
 
-Also, there is a public Fedora CVS tree (but that likely doesn't help
-too much, as you would still need to extract the files from the tarball,
-since the Fedora CVS tree is organized for packaging rather than
-upstream development, i.e. an upstream tarball + patches + spec file).
+> Having role attributes would be handy.
+> 
+> The in_user_role() macro is a gross hack, role attributes would remove the 
+> need for it.
+
+Hmm...need a list somewhere that tracks all requests for improvements to
+the policy language...
 
 -- 
 Stephen Smalley
