@@ -1,29 +1,24 @@
 Subject: Re: [PATCH] disallow * and ~ in rules
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200506242324.33247.russell@coker.com.au>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200506231636.35348.jbrindle@tresys.com>
 References: <1119543471.8955.5.camel@localhost>
-	 <200506241629.50884.russell@coker.com.au>
-	 <1119612908.12865.11.camel@moss-spartans.epoch.ncsc.mil>
-	 <200506242324.33247.russell@coker.com.au>
+	 <200506231529.07106.jbrindle@tresys.com>
+	 <1119557965.28493.273.camel@moss-spartans.epoch.ncsc.mil>
+	 <200506231636.35348.jbrindle@tresys.com>
 Content-Type: text/plain
-Date: Fri, 24 Jun 2005 09:29:44 -0400
-Message-Id: <1119619784.12865.74.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 24 Jun 2005 09:59:55 -0400
+Message-Id: <1119621595.12865.76.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-06-24 at 23:24 +1000, Russell Coker wrote:
-> I just did a quick test and found a .3% size difference.  I'm surprised, I had 
-> expected that as auditallow doesn't permit an operation the rules would not 
-> result in anything in the binary policy for an operation which is not 
-> permitted.  Does the current behavior really make sense?
+On Thu, 2005-06-23 at 16:36 -0400, Joshua Brindle wrote:
+> Fair enough, attached is hopefully the final patch, * and ~ disabled in all 
+> type sets other than neverallow and removed from role sets entirely.
 
-checkpolicy isn't that smart, at least not presently ;)
-Same core logic is shared for allow/auditallow/auditdeny/dontaudit, see
-te_avtab_helper() in policy_parse.y.  Yes, we could have it optimize
-away auditallow entries for which no corresponding allow entry exists.
+Thanks, merged (checkpolicy 1.25.1).
 
 -- 
 Stephen Smalley
