@@ -1,57 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5OIg0gA009324
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 14:42:00 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5OIfO2B002245
-	for <selinux@tycho.nsa.gov>; Fri, 24 Jun 2005 18:41:24 GMT
-Message-Id: <200506241841.j5OIfiqc018618@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>, "'Brian T. Sniffen'" <bsniffen@mitre.org>
-Cc: <selinux@tycho.nsa.gov>
-Subject: RE: Alternative user management approach
-Date: Fri, 24 Jun 2005 14:41:45 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1119637960.31852.51.camel@celtics.boston.redhat.com>
+Subject: RE: file contexts and modularity
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'Karl MacMillan'" <kmacmillan@tresys.com>, ivg2@cornell.edu,
+   "'James Morris'" <jmorris@redhat.com>, selinux@tycho.nsa.gov,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <200506241805.j5OI5fqc018169@gotham.columbia.tresys.com>
+References: <200506241805.j5OI5fqc018169@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 24 Jun 2005 14:40:53 -0400
+Message-Id: <1119638453.12865.128.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Friday, June 24, 2005 2:33 PM
-> To: Brian T. Sniffen
-> Cc: Karl MacMillan; selinux@tycho.nsa.gov
-> Subject: Re: Alternative user management approach
+On Fri, 2005-06-24 at 14:05 -0400, Frank Mayer wrote:
+> So the avtab that we have now would be 300,970 x 32 bytes = ~9.6MB versus
+> the alternative avtab of 354,714 * 24 = ~8.5MB or about a ~1.1MB savings
+> (about 10%) with very little code change and essentially zero performance
+> impact. If the audit-to-allow rule ration stays 1-10, then this change makes
+> sense.
 > 
-> On Fri, 2005-06-24 at 14:09 -0400, Brian T. Sniffen wrote:
-> > "Karl MacMillan" <kmacmillan@tresys.com> writes:
-> >
-> > > This makes the SELinux user more what we are calling a 'user
-> > > role'. For example, the policy could create 3 user roles with
-> > > different role authorizations (which become 'role capabilities'):
-> >
-> > This seems like a great innovation.  But it does inherit one problem
-> > of generic user_u: there's no longer any MAC separating users.  If I'm
-> > a normal user, my shell has exactly the same security context as your
-> > shell---right?
-> 
-> Is the user info used for anything besides rbac?
-> I don't think it is...
-> 
+> I suspect we can look around and find other examples where small or no
+> performance tradeoffs can made for large size savings. For example if we
+> make the specified flag 16 bit instead of 32 (we're using less then 16 now),
+> we could save another ~.7MB of memory, or a total of ~1.8MB or about 19%.
+> Coupled with smaller policies in the future, we should be able to make
+> significant progress with less pain than a complete restructure of the
+> policydb.
 
-It can be used for constraints. There have been some suggested uses for this,
-but none are currently implemented in real policies. User separation seems
-better left to DAC.
+While I agree that saving space in the avtab nodes will help and is
+desirable, I don't think it is going to be sufficient; I think we have
+to reduce the sheer numbers of such nodes, and I'm not convinced that
+the loadable module support and the reference policy will result in a
+sufficiently small avtab.  So I think we need to take it another step...
 
-Karl
+> If we go ahead and keep attributes around (as we have in the loadable module
+> work), then the savings can be much greater, but we'd have to study the
+> performance impacts better. The implementation changes would also be more
+> radical. For example the same sample policy above that had ~300K allow rules
+> in the binary policy had only ~27K allow rules in the source policy before
+> expansion. Some rules will expand anyway because of multiple classes, but I
+> believe most expansion is due to attribute expansion.
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+Yes, I think we should investigate this idea, despite its impact on the
+existing code, as it should significantly reduce the number of avtab
+nodes.
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
