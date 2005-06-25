@@ -1,66 +1,75 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5PGYIgA014373
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 12:34:18 -0400 (EDT)
-Received: from web31604.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5PGY5N4026426
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 16:34:05 GMT
-Message-ID: <20050625163406.10898.qmail@web31604.mail.mud.yahoo.com>
-Date: Sat, 25 Jun 2005 09:34:06 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5PJYOgA014999
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 15:34:25 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5PJYBN4029046
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 19:34:11 GMT
 Subject: Re: Alternative user management approach
-To: selinux@tycho.nsa.gov
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
 In-Reply-To: <42BD7A43.909@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com>
+	 <42BD31CE.9090908@redhat.com>  <42BD7A43.909@tresys.com>
+Content-Type: text/plain
+Date: Sat, 25 Jun 2005 15:37:08 -0400
+Message-Id: <1119728228.13078.34.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+> The biggest challenge after this is labeling, how to label home 
+> directories 
 
---- Joshua Brindle <jbrindle@tresys.com> wrote:
+How to label the home directories?
+Will directories keep their role-dependent contexts?
+
+Sounds like:
+
+useradd---->
+(add a linux user)
+	-------> security_create_policydb_default()	
+		(map file, load bools, load users, create policydb)
+
+	-------> sepol_user_suser_map_file()
+	(writes to user->suser map (file backend))
+
+		--------> sepol_suser_get_defrole_file(suser)
+		(gets def. context (and thus ROLE) for user's suser)
+
+		--------> sepol_fscon_user_add()
+		(writes user's file contexts based on this)
+		(uses template...)
+
+	-------> security_destroy_policydb();
+
+suseradd----> 
+(add a selinux user/class)
+	
+	-------> security_create_policydb_default()
+		(map file, load bools, load users, create policydb)
+
+	-------> sepol_suser_add_file()
+	(sepol function to do that using file backend)
+	(writes to suser->roles map)
+
+		----------> sepol_suser_add_policy()
+		(add suser to binary policy)
+
+	-------> security_load_policydb();
+
+	-------> security_destroy_policydb();
 
 
-> The biggest challenge after this is labeling,
-> how to label home directories (Probably should
-> only be done at useradd time, or when you 
-> log into a computer the first time with LDAP, the
-> utilities will have to 
-> be a bit smarter about labeling)
+Please note that none of this addresses the speed issue.
+A policydb still needs to be constructed for validation purposes.
 
-Unix MLS systems require that the home directory
-be labeled upon creation, usually by the useradd
-utility or the local equivalent, but sometimes
-by hand. Spontainious creation of home directories
-on first login was never on anyone's high priority
-todo list, so it remains an unsolved problem.
-There are systems that will automount your
-home directory, but that requires MLS aware NFS.
-
-Unix MLS systems keep a default label as well as
-a clearance, using the default label for the user
-as label for the home directory. It is of course
-possible to muck things up by have a default label
-that is not dominated by all labels in your
-clearance, but most sysadmins figure that out
-very quickly.
-
-Of course, on Unix MLS systems all files have
-labels attached, per the TCSEC requirements,
-unless an entire file system in unlabeled in
-which case all files are treated at the same
-sensitivity. I don't know if y'all plan to
-label all files for SELinux MLS or what you
-might do instead.
+However, it does address the scalability concern of not
+loading every user into the kernel policy.
 
 
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
