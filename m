@@ -1,52 +1,73 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5PAQsgA013374
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 06:26:54 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5PAQBs8011508
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 10:26:11 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j5PAQjf5021056
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 06:26:45 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j5PAQju03526
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 06:26:45 -0400
-Received: from [172.16.50.12] (vpn50-12.rdu.redhat.com [172.16.50.12])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j5PAQic0026306
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 06:26:45 -0400
-Message-ID: <42BD31CE.9090908@redhat.com>
-Date: Sat, 25 Jun 2005 06:28:30 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5PFbsgA014169
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 11:37:54 -0400 (EDT)
+Received: from rwcrmhc12.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5PFb8s8020467
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jun 2005 15:37:09 GMT
+Message-ID: <42BD7A43.909@tresys.com>
+Date: Sat, 25 Jun 2005 11:37:39 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
 CC: selinux@tycho.nsa.gov
 Subject: Re: Alternative user management approach
-References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com>
-In-Reply-To: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com>
+References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com> <42BD31CE.9090908@redhat.com>
+In-Reply-To: <42BD31CE.9090908@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok this all sounds good, but how do we come to a consensus. 
+Daniel J Walsh wrote:
 
-Do we need an "role attribute" to define "user" roles.
+> Ok this all sounds good, but how do we come to a consensus.
+> Do we need an "role attribute" to define "user" roles.
+>
+> roleattribute staff_r user;
+> roleattribute user_r user;
+> roleattribute sysadm_r user;
+>
+> Then do we need a mechanism in policy to associate roles with "user" 
+> roles?
 
-roleattribute staff_r user;
-roleattribute user_r user;
-roleattribute sysadm_r user;
+no language changes are necessary
 
-Then do we need a mechanism in policy to associate roles with "user" roles?
+> How does all this work with MLS ranges?
+>
+> Should we have a brainstorming session?  It is important to us (Red 
+> Hat) that we get this settled soon.
+>
+> Do we have a new file which associates uids to user roles?
+>
+yes, from the policy language and kernel perspectives there need not be 
+any changes, basically instead of creating specific users:
 
-How does all this work with MLS ranges?
+user jbrindle { staff_r sysadm_r }
 
-Should we have a brainstorming session?  It is important to us (Red Hat) 
-that we get this settled soon.
+you create generic users:
 
-Do we have a new file which associates uids to user roles?
+user admin { staff_r sysadm_r }
+user user_u { user_r }
 
-Dan
+and then associate linux logins (or groups!) with those generic users: 
+(libselinux will read this file instead of using the implicit login name 
+-> selinux name mapping)
 
+group:wheel   admin
+default            user_u
 
--- 
+MLS would work the same way, the only difference being that you may need 
+more generic users to sufficiently cover all the role + level 
+combinations you need.
 
+To make this backend independant the same mapping info could be sitting 
+in ldap or some other database.
+
+The biggest challenge after this is labeling, how to label home 
+directories (Probably should only be done at useradd time, or when you 
+log into a computer the first time with LDAP, the utilities will have to 
+be a bit smarter about labeling)
+
+Joshua Brindle
 
 
 --
