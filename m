@@ -1,41 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5QKHbgA019645
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 16:17:37 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5QKHCFZ016206
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 20:17:13 GMT
-Subject: Re: Alternative user management approach
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5QLgPgA019939
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 17:42:25 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5QLfQqP022634
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 21:41:26 GMT
+Subject: Execmem boolean
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200506270238.24851.russell@coker.com.au>
-References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com>
-	 <42BD7A43.909@tresys.com> <1119728228.13078.34.camel@localhost.localdomain>
-	 <200506270238.24851.russell@coker.com.au>
 Content-Type: text/plain
-Date: Sun, 26 Jun 2005 16:17:46 -0400
-Message-Id: <1119817066.2454.11.camel@localhost.localdomain>
+Date: Sun, 26 Jun 2005 17:42:42 -0400
+Message-Id: <1119822163.4357.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-06-27 at 02:38 +1000, Russell Coker wrote:
-> On Sunday 26 June 2005 05:37, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
-> > > The biggest challenge after this is labeling, how to label home
-> > > directories
-> >
-> > How to label the home directories?
-> > Will directories keep their role-dependent contexts?
-> 
-> Yes.  Only the identity of the home directories will have to change. This 
-> means of course that genhomedircon needs to be updated to know how to map 
-> Unix account names to SE Linux identities, that shouldn't be difficult.
 
-We're moving to a libsepol solution written in C, automatically
-invoked from useradd - so nothing's as easy as it seems. Once finished,
-however, the C solution should be smarter, and more capable than
-the python tool.
+Something needs to be done about the allow_execmem boolean - 
+the default strict policy configuration on Fedora disables it,
+which causes X not to work out of the box under strict policy. 
+I think this is highly undesirable.
+
+Should allow_execmem be enabled by default?
+
+I know Stephen was asking about more fine-grained control
+over allow_execmem and allow_execmod.
+
+How can we combine those two requirements to come up with
+a better solution?
+
+Perhaps have allow_execmem turned on by default,
+and then and-ed with per application booleans, we can
+turn it off for selected applications?
+
+The opposite approach (off by default, turn on
+per application) doesn't work quite so well, beause
+then you have per application booleans not respecting
+the value of a global allow_execmem...
+
+Or, we could get rid of allow_execmem completely, and
+have only per application booleans...
+
+--------
+
+P.S. Please remove the gift port from types/network.te,
+because otherwise the gift domain won't compile - this port is 
+restricted to gift.te.
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
