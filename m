@@ -1,40 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5QGcqgA018731
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 12:38:52 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5QGbrqP010648
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 16:37:54 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: ivg2@cornell.edu
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5QHkngA019043
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 13:46:49 -0400 (EDT)
+Received: from web31608.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5QHkPFZ013960
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 17:46:25 GMT
+Message-ID: <20050626174616.48163.qmail@web31608.mail.mud.yahoo.com>
+Date: Sun, 26 Jun 2005 10:46:16 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Alternative user management approach
-Date: Mon, 27 Jun 2005 02:38:21 +1000
-Cc: selinux@tycho.nsa.gov
-References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com> <42BD7A43.909@tresys.com> <1119728228.13078.34.camel@localhost.localdomain>
-In-Reply-To: <1119728228.13078.34.camel@localhost.localdomain>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <200506270236.18235.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200506270238.24851.russell@coker.com.au>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 26 June 2005 05:37, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
-> > The biggest challenge after this is labeling, how to label home
-> > directories
->
-> How to label the home directories?
-> Will directories keep their role-dependent contexts?
 
-Yes.  Only the identity of the home directories will have to change.  This 
-means of course that genhomedircon needs to be updated to know how to map 
-Unix account names to SE Linux identities, that shouldn't be difficult.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--- Russell Coker <russell@coker.com.au> wrote:
+
+
+> The group-name thing could become fun if we have
+> multiple names for the same 
+> GID (it's not recommended but it works at the
+> moment) and the GID is the 
+> primary group for some users.  The Unix user-name is
+> unambiguous as we start 
+> with the name for every operation AFAIK.
+> 
+> > How does all this work with MLS ranges?
+> 
+> How does it cause problems with MLS?
+
+Maybe it doesn't. On the other hand, can you
+explain how it might work if you have a user
+(I'll call him Barney today) who is cleared
+to Secret in compartment A17 and B43? Do we
+have to have a seperate role for Secret,A17
+and Secret,B32 or do we need SELinux users
+
+   Barney,Unclassified
+   Barney,Secret
+   Barney,Secret,A17
+   Barnet,Secret,B43
+   Barney,Secret,A17,B43
+
+I could see arguments put forth for either
+of these schemes as well as a number of others.
+Just as multiple groups can muddy the waters
+so to can clearance ranges result in issues of
+attribute permutation.
+
+> > Do we have a new file which associates uids to
+> user roles?
+> 
+> Unix account names not UIDs. I think a mapping file
+> is the only way.
+
+Names not numbers, definitly.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Find what you need with new enhanced search. 
+http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
