@@ -1,75 +1,46 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5QHkngA019043
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 13:46:49 -0400 (EDT)
-Received: from web31608.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5QHkPFZ013960
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 17:46:25 GMT
-Message-ID: <20050626174616.48163.qmail@web31608.mail.mud.yahoo.com>
-Date: Sun, 26 Jun 2005 10:46:16 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5QKHbgA019645
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 16:17:37 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5QKHCFZ016206
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 20:17:13 GMT
 Subject: Re: Alternative user management approach
-To: selinux@tycho.nsa.gov
-In-Reply-To: <200506270236.18235.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200506270238.24851.russell@coker.com.au>
+References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com>
+	 <42BD7A43.909@tresys.com> <1119728228.13078.34.camel@localhost.localdomain>
+	 <200506270238.24851.russell@coker.com.au>
+Content-Type: text/plain
+Date: Sun, 26 Jun 2005 16:17:46 -0400
+Message-Id: <1119817066.2454.11.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
---- Russell Coker <russell@coker.com.au> wrote:
-
-
-> The group-name thing could become fun if we have
-> multiple names for the same 
-> GID (it's not recommended but it works at the
-> moment) and the GID is the 
-> primary group for some users.  The Unix user-name is
-> unambiguous as we start 
-> with the name for every operation AFAIK.
+On Mon, 2005-06-27 at 02:38 +1000, Russell Coker wrote:
+> On Sunday 26 June 2005 05:37, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+> > > The biggest challenge after this is labeling, how to label home
+> > > directories
+> >
+> > How to label the home directories?
+> > Will directories keep their role-dependent contexts?
 > 
-> > How does all this work with MLS ranges?
-> 
-> How does it cause problems with MLS?
+> Yes.  Only the identity of the home directories will have to change. This 
+> means of course that genhomedircon needs to be updated to know how to map 
+> Unix account names to SE Linux identities, that shouldn't be difficult.
 
-Maybe it doesn't. On the other hand, can you
-explain how it might work if you have a user
-(I'll call him Barney today) who is cleared
-to Secret in compartment A17 and B43? Do we
-have to have a seperate role for Secret,A17
-and Secret,B32 or do we need SELinux users
+We're moving to a libsepol solution written in C, automatically
+invoked from useradd - so nothing's as easy as it seems. Once finished,
+however, the C solution should be smarter, and more capable than
+the python tool.
 
-   Barney,Unclassified
-   Barney,Secret
-   Barney,Secret,A17
-   Barnet,Secret,B43
-   Barney,Secret,A17,B43
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
-I could see arguments put forth for either
-of these schemes as well as a number of others.
-Just as multiple groups can muddy the waters
-so to can clearance ranges result in issues of
-attribute permutation.
-
-> > Do we have a new file which associates uids to
-> user roles?
-> 
-> Unix account names not UIDs. I think a mapping file
-> is the only way.
-
-Names not numbers, definitly.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Find what you need with new enhanced search. 
-http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
