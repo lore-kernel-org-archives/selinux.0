@@ -1,72 +1,30 @@
-Subject: Re: Execmem boolean
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: ivg2@cornell.edu
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1119822163.4357.9.camel@localhost.localdomain>
-References: <1119822163.4357.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 27 Jun 2005 10:49:16 -0400
-Message-Id: <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5REwogA024521
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 10:58:51 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5REviMC009401
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 14:57:44 GMT
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Alternative user management approach
+Date: Mon, 27 Jun 2005 10:59:36 -0400
+Cc: selinux@tycho.nsa.gov
+References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com> <42BD7A43.909@tresys.com> <42BDB86A.5050502@redhat.com>
+In-Reply-To: <42BDB86A.5050502@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200506271059.36187.jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-06-26 at 17:42 -0400, Ivan Gyurdiev wrote:
-> Something needs to be done about the allow_execmem boolean - 
-> the default strict policy configuration on Fedora disables it,
-> which causes X not to work out of the box under strict policy. 
-> I think this is highly undesirable.
-> 
-> Should allow_execmem be enabled by default?
-> 
-> I know Stephen was asking about more fine-grained control
-> over allow_execmem and allow_execmod.
-> 
-> How can we combine those two requirements to come up with
-> a better solution?
-> 
-> Perhaps have allow_execmem turned on by default,
-> and then and-ed with per application booleans, we can
-> turn it off for selected applications?
-> 
-> The opposite approach (off by default, turn on
-> per application) doesn't work quite so well, beause
-> then you have per application booleans not respecting
-> the value of a global allow_execmem...
-> 
-> Or, we could get rid of allow_execmem completely, and
-> have only per application booleans...
+On Saturday 25 June 2005 16:02, Daniel J Walsh wrote:
+<snip>
+> Ok what does a third party vendor then do.  Say they create a role of
+> nurse_r, doctor_r, labtech_r?
 
-Yes, I'm not sure how much value the global allow_execmem/allow_execmod
-booleans provide.  In particular, since execmod should be limited to
-specific file types (although the targeted policy presently violates
-this), it isn't clear that you need a boolean there at all.  I'd say
-that only execmod to types other than texrel_shlib_t truly require a
-boolean.  execmem for the user domains (and all the associated programs
-that run in them) is more problematic.
-
-Note also that the execstack/execheap permission checks are now upstream
-and should soon be in the FC devel kernel, so they will also begin to
-have an impact.  execmem is the more general control (make any anonymous
-mapping executable); execstack is a specific case (make the primary
-process stack executable).  Programs that need to generate code at
-runtime will require execmem but should not require execstack.  Programs
-that require an executable stack will require both permissions.  No
-program should legitimately require execheap, but it will take time to
-fix them, starting with X module loader.
-
-Also note that the legacy binary rules in the current policy are partly
-obsoleted by the checkreqprot change that went into 2.6.12, so that
-unless you are overriding the default checkreqprot value, SELinux is
-only checking the protection requested by the application, so read
-requests should no longer show up as read|execute to SELinux.  This
-should eliminate the need for allowing execute to various file types
-that are only mapped with read access by the application itself.
-
--- 
-Stephen Smalley
-National Security Agency
-
+I don't think I understand the question. This is about user management, adding 
+roles would entail the same things it does now. 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
