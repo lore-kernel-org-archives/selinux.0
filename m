@@ -1,78 +1,102 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5RHxVgA026542
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 13:59:31 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5RHwNMC025508
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 17:58:23 GMT
-Subject: RE: file contexts and modularity
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <200506271725.j5RHP9qc019649@gotham.columbia.tresys.com>
-References: <200506271725.j5RHP9qc019649@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Mon, 27 Jun 2005 13:56:20 -0400
-Message-Id: <1119894980.26533.33.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5RMXWgA028839
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 18:33:33 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5RMWKMC016023
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 22:32:21 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: Alternative user management approach
+Date: Tue, 28 Jun 2005 08:32:42 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20050627153200.88746.qmail@web31609.mail.mud.yahoo.com>
+In-Reply-To: <20050627153200.88746.qmail@web31609.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200506280832.46267.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tuesday 28 June 2005 01:32, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > MLS category combinations
+> > that may be used.  We have 10 sensitivity levels in
+> > the default MLS policy at
+> > the moment and 128 categories.  Therefore there are
+> > 10*2^128 possible MLS
+> > combinations that may be assigned to a user
+> > identity.
+>
+> In the 15 years I've been dealing with MLS systems I
+> have never seen anyone encounter the problems of
+> category permutations. A given user will be in a
+> single
+> category, and usually a single level. In truth, a site
+> will usually use levels or catagories, but almost
+> never
+> both. Further, a given site will usually use
+> system-high,
+> system-low, and two or three others.
 
-> How would a non-home directory expansion work?
+That will make things easier for us.
 
-I can't answer this question, but I think claiming that such use
-cases will not exist in the future is not warranted.
+> > senior managers).  In such a
+> > scheme all managers would need separate entries in
+> > the users file and all
+> > non-managers would be mapped into a group depending
+> > on who they report to.
+>
+> Yes, I can see how that might result in issues.
+> I'll refer back to the marketplace experience, which
+> indicates that it is not likely you will see MLS taken
+> advantage of to this granularity.
 
-Why do expansions exist? Because we can't hardcode user information,
-and this information has to be extracted as the users are created.
+That's interesting to know.
 
-What makes you think this can't occur in other situations in the future.
-Consider a scenario where you don't know the locations of things
-in advance, and you have to query some sort of external source
-to find that out... say GNOME implements a download folder, like 
-I've been saying they should. I remember someone on the usability
-list argued that it might be a smart idea to have its name be
-configurable via GConf key. I don't know how good of an idea that is,
-but now you have another thing which doesn't have a fixed name, and
-you have to extract from an external source. I can easily see 
-something like this being used in the future:
+> > > Well, they need to add the MLS charactoristics.
+> >
+> > Yes, but let's not get hung up on that.  We are
+> > talking about what has to be
+> > done to manage users.
+>
+> Of course. Users with a degenerate clearance (one MLS
+> level+category-set) are strait forward. Users with
+> large
+> or discontiguous clearance (six levels and multiple
+> categories, with combinations) may require more
+> attention, especially regrading home directories and
+> mailboxes.
 
-HOME_DIR/GNOME_MEDIA -- gnome_media_content_t
-HOME_DIR/GNOME_...blah
+Yes, home directory labeling for users with multiple clearance levels will be 
+an issue.
 
-and that's just one scenario.
+> > > This I don't understand 'tall.
+> >
+> > If the organization policy requires that each Unix
+> > user has a separate set of
+> > SE Linux access rights then every time a Unix user
+> > is added a change will
+> > have to be made to the SE Linux policy database on
+> > every machine.  The new
+> > feature is designed to dramatically reduce the
+> > number of changes to the
+> > policy database, but it won't be useful for
+> > everyone.  It should be a no-cost
+> > option though so anyone who doesn't want it can just
+> > not use it.
+>
+> Where the feature is MLS, right?
 
-Consider that one of the major problems of SELinux today is how
-location-oriented labeling is - it's focused on where the data
-is, not what the data is. Those two things don't always match - 
-people use nonstandard locations all the time, and expansions
-may be one way to deal with that in the future.
+In the context of this discussion when I say "the new feature" I mean the 
+ability to have arbitrary mappings between Unix user-names and SE Linux 
+identities.
 
-> Without a compelling use case I think that this is a slippery slope
-> that could cause problems.
-
-I realize this is not a compelling use case right now, but 
-I'm just saying it should be a consideration before we go
-and put expansion-handling code into matchpathcon.
-
-> I more concerned about the other questions - how would a user switch policies
-> with this scheme? 
-
-Does switching policies require changing the file contexts?
-I typically use strict policy, so I'm not sure... 
-I suppose this file could be re-generated?
-
-> How would network home directories work?
-
-The same way they work right now?
-I didn't realize network home dirs support xattr..
-
->  Tying the creation of
-> the labeling information to calling adduser seems fragile.
-
-Perhaps... 
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
