@@ -1,75 +1,93 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5R2PVgA020898
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 22:25:34 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5R2ORqP005366
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 02:24:29 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Casey Schaufler <casey@schaufler-ca.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5R2hhgA020986
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jun 2005 22:43:44 -0400 (EDT)
+Received: from web31601.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5R2hGFZ022902
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 02:43:16 GMT
+Message-ID: <20050627024312.86723.qmail@web31601.mail.mud.yahoo.com>
+Date: Sun, 26 Jun 2005 19:43:12 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Alternative user management approach
-Date: Mon, 27 Jun 2005 12:24:58 +1000
+To: russell@coker.com.au
 Cc: selinux@tycho.nsa.gov
-References: <20050626174616.48163.qmail@web31608.mail.mud.yahoo.com>
-In-Reply-To: <20050626174616.48163.qmail@web31608.mail.mud.yahoo.com>
+In-Reply-To: <200506271225.00771.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200506271225.00771.russell@coker.com.au>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 27 June 2005 03:46, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > How does all this work with MLS ranges?
-> >
-> > How does it cause problems with MLS?
->
-> Maybe it doesn't. On the other hand, can you
-> explain how it might work if you have a user
-> (I'll call him Barney today) who is cleared
-> to Secret in compartment A17 and B43? Do we
-> have to have a seperate role for Secret,A17
-> and Secret,B32 or do we need SELinux users
->
->    Barney,Unclassified
->    Barney,Secret
->    Barney,Secret,A17
->    Barnet,Secret,B43
->    Barney,Secret,A17,B43
 
-So the issue that you are raising is that the number of combinations of MLS 
-clearance is potentially 2^(number of categories) * (number of levels) which 
-is much greater than 2^(number of roles in strict policy), and that the 
-number of such combinations which is desired in MLS may be significantly 
-greater than the number of role combinations which are desired with a strict 
-policy.
 
-This will make management a little more complex, but I don't imagine that the 
-situation of having the number of SE Linux identities approaching the number 
-of Unix accounts will be common.  I expect that in most real systems they 
-usually choose a category of access to grant each user as assigning access 
-individually to each user is more effort.
+--- Russell Coker <russell@coker.com.au> wrote:
 
-For the case where each Unix user has a discrete set of access rights the 
-administrator would just do exactly what they do today.  Their security 
-policy merely prevents them from taking advantage of the new feature which we 
-are designing.  It's not a problem of the feature, just a fact that it won't 
-be useful for everyone.
 
-> > Unix account names not UIDs. I think a mapping file
-> > is the only way.
->
-> Names not numbers, definitly.
+> So the issue that you are raising is that the number
+> of combinations of MLS 
+> clearance is potentially 2^(number of categories) *
+> (number of levels) which 
+> is much greater than 2^(number of roles in strict
+> policy), and that the 
+> number of such combinations which is desired in MLS
+> may be significantly 
+> greater than the number of role combinations which
+> are desired with a strict 
+> policy.
 
-Although there is something to be said for using GID numbers.  If you have 
-number 500 in your GID field in /etc/passwd and there are two entries for 500 
-in /etc/group then things can be ambiguous if using the group name.
+I don't intend to raise number-of-policy issues.
+I said that I wouldn't do that.
+I am curious how MLS is going to interact with the
+rest of the policy rules.
+ 
+> This will make management a little more complex, but
+> I don't imagine that the 
+> situation of having the number of SE Linux
+> identities approaching the number 
+> of Unix accounts will be common.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+That's handy.
+
+> I expect that in
+> most real systems they 
+> usually choose a category of access to grant each
+> user as assigning access 
+> individually to each user is more effort.
+
+I'm not sure I understand your meaning.
+
+> For the case where each Unix user has a discrete set
+> of access rights the 
+> administrator would just do exactly what they do
+> today.
+
+Well, they need to add the MLS charactoristics.
+
+> Their security 
+> policy merely prevents them from taking advantage of
+> the new feature which we 
+> are designing.  
+
+This I don't understand 'tall.
+
+> It's not a problem of the feature,
+> just a fact that it won't 
+> be useful for everyone.
+
+> Although there is something to be said for using GID
+> numbers.  
+
+Agreed in practice if not principle.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+____________________________________________________ 
+Yahoo! Sports 
+Rekindle the Rivalries. Sign up for Fantasy Football 
+http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
