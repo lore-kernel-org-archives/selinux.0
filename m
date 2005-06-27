@@ -1,164 +1,47 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5RFWWgA024959
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 11:32:33 -0400 (EDT)
-Received: from web31609.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j5RFW0jQ019085
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 15:32:00 GMT
-Message-ID: <20050627153200.88746.qmail@web31609.mail.mud.yahoo.com>
-Date: Mon, 27 Jun 2005 08:32:00 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Alternative user management approach
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200506271344.01368.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5RFdsgA025040
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 11:39:55 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5RFdNjQ019486
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 15:39:23 GMT
+Subject: RE: file contexts and modularity
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <200506271508.j5RF7tqc018129@gotham.columbia.tresys.com>
+References: <200506271508.j5RF7tqc018129@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 27 Jun 2005 11:36:40 -0400
+Message-Id: <1119886600.18293.50.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+> An alternative option is to leave the home directory keywords unexpanded and
+> have matchpatchcon expand them on demand. This requires knowledge of what is a
+> home directory, which is difficult to get. We can either store that information
+> somewhere or require the caller to provide, e.g., setfiles could get a flag that
+> to allow the admin to specify which directories are home directories.
 
---- Russell Coker <russell@coker.com.au> wrote:
+I disagree that expansions necessarily have to relate to home
+directories, and I think it's difficult to predict how expansions will
+work in the future. It's hard to come up with a concrete example - this
+really depends on what we choose to do with policy in the future.
+The point is that we are moving complex logic into a low-level program
+such as matchpathcon...and I'm not sure we should do that. It's
+a layering issue - where should complexity be placed.
 
- > It's not the number of policies, but the number of
-> MLS category combinations 
-> that may be used.  We have 10 sensitivity levels in
-> the default MLS policy at 
-> the moment and 128 categories.  Therefore there are
-> 10*2^128 possible MLS 
-> combinations that may be assigned to a user
-> identity.
+> Anyone else have some insight? It really files like we are over-engineering this
+> problem and there is some simple solution once we fully understand the problem.
+> I have the gut feeling that pre-expanded file_contexts is the wrong way to go,
+> but no clear argument as to why. 
 
-In the 15 years I've been dealing with MLS systems I
-have never seen anyone encounter the problems of
-category permutations. A given user will be in a
-single
-category, and usually a single level. In truth, a site
-will usually use levels or catagories, but almost
-never
-both. Further, a given site will usually use
-system-high,
-system-low, and two or three others.
+You have a point that we're storing mostly redundant information, but
+that's often necessary to achieve speed and simplicity - isn't that
+exactly the problem with the in-kernel policy?
 
->  Naturally a single 
-> policy won't contain a small fraction of them, but
-> it's still likely to 
-> contain a much larger number of combinations than
-> with the strict policy 
-> which only has membership of three roles (of which
-> only five combinations are 
-> sensible).
-> 
-> > I said that I wouldn't do that.
-> > I am curious how MLS is going to interact with the
-> > rest of the policy rules.
-> 
-> But surely that has nothing to do with the issue of
-> mapping Unix account names 
-> to SE Linux access which is the topic of this
-> thread.
-
-Okay, if you say so, I'll believe you. I really can't
-say  that I understand the intended implementation
-well enough to come to that conclusion. That's
-why I asked.
-
-
-> > I'm not sure I understand your meaning.
-> 
-> In a company you will have an administrator,
-> department heads, and within each 
-> department you will have access granted to middle
-> managers and non-managers.  
-> The access granted to non-management employees will
-> be the same for large 
-> numbers of employees.  If each middle manager is
-> given a different category 
-> for them and their staff then the number of
-> different sets of access rights 
-> will be 2*(number of middle managers)+(number of
-> senior managers).  In such a 
-> scheme all managers would need separate entries in
-> the users file and all 
-> non-managers would be mapped into a group depending
-> on who they report to.
-
-Yes, I can see how that might result in issues.
-I'll refer back to the marketplace experience, which
-indicates that it is not likely you will see MLS taken
-advantage of to this granularity.
- 
-> > Well, they need to add the MLS charactoristics.
-> 
-> Yes, but let's not get hung up on that.  We are
-> talking about what has to be 
-> done to manage users.
-
-Of course. Users with a degenerate clearance (one MLS
-level+category-set) are strait forward. Users with
-large
-or discontiguous clearance (six levels and multiple
-categories, with combinations) may require more
-attention, especially regrading home directories and
-mailboxes.
-
-> At the moment with the strict policy you have to add
-> a line to the users file 
-> and recompile and load the policy.  With MLS the
-> operation is essentially the 
-> same, you just need some extra data in the line
-> added to the users file.
-
-That's reassuring.
-
-> > This I don't understand 'tall.
-> 
-> If the organization policy requires that each Unix
-> user has a separate set of 
-> SE Linux access rights then every time a Unix user
-> is added a change will 
-> have to be made to the SE Linux policy database on
-> every machine.  The new 
-> feature is designed to dramatically reduce the
-> number of changes to the 
-> policy database, but it won't be useful for
-> everyone.  It should be a no-cost 
-> option though so anyone who doesn't want it can just
-> not use it.
-
-Where the feature is MLS, right?
-
-> > Agreed in practice if not principle.
-> 
-> Absolutely.  Using GID numbers sucks badly, and I am
-> not seriously pushing for 
-> using it.  Just noting the fact that group names
-> have some potential issues.  
-> But I guess we can just say "don't do that".  The
-> groupadd program refuses to 
-> create such groups, so you have to use vigr to add
-> them and then the groupdel 
-> program won't remove any of the groups in question
-> if the GID is the primary 
-> GID for some user.
-
-Anyhow, thanks for the clarifications. I'm still
-trying to
-wrap my brittle old whits around the SELinux MLS
-implementation.
-
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-____________________________________________________ 
-Yahoo! Sports 
-Rekindle the Rivalries. Sign up for Fantasy Football 
-http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
