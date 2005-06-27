@@ -1,30 +1,27 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5REwogA024521
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 10:58:51 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5REviMC009401
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 14:57:44 GMT
 From: Joshua Brindle <jbrindle@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Alternative user management approach
-Date: Mon, 27 Jun 2005 10:59:36 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20050624225217.97028.qmail@web31614.mail.mud.yahoo.com> <42BD7A43.909@tresys.com> <42BDB86A.5050502@redhat.com>
-In-Reply-To: <42BDB86A.5050502@redhat.com>
+To: "Karl MacMillan" <kmacmillan@tresys.com>
+Subject: Re: [PATCH] disallow * and ~ in rules
+Date: Mon, 27 Jun 2005 11:06:09 -0400
+Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>, russell@coker.com.au,
+   "'selinux'" <selinux@tycho.nsa.gov>
+References: <200506241429.j5OESxqc014966@gotham.columbia.tresys.com>
+In-Reply-To: <200506241429.j5OESxqc014966@gotham.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200506271059.36187.jbrindle@tresys.com>
+Message-Id: <200506271106.09183.jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 25 June 2005 16:02, Daniel J Walsh wrote:
 <snip>
-> Ok what does a third party vendor then do.  Say they create a role of
-> nurse_r, doctor_r, labtech_r?
-
-I don't think I understand the question. This is about user management, adding 
-roles would entail the same things it does now. 
+> >
+> > Hmm...need a list somewhere that tracks all requests for improvements to
+> > the policy language...
+>
+> We can put this on the policy server sf site as long as everyone knows that
+> we can't address all of these requests as part of that project.
+>
+http://sepolicy-server.sourceforge.net/index.php?page=compiler-wishlist
 
 --
 This message was distributed to subscribers of the selinux mailing list.
