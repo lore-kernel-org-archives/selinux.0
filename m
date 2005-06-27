@@ -1,46 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5RFdsgA025040
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 11:39:55 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5RFdNjQ019486
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jun 2005 15:39:23 GMT
-Subject: RE: file contexts and modularity
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <200506271508.j5RF7tqc018129@gotham.columbia.tresys.com>
-References: <200506271508.j5RF7tqc018129@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Mon, 27 Jun 2005 11:36:40 -0400
-Message-Id: <1119886600.18293.50.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Message-ID: <42C022EC.8000701@linuon.com>
+Date: Tue, 28 Jun 2005 01:01:48 +0900
+From: Junji Kanemaru <linux@linuon.com>
+MIME-Version: 1.0
+To: ivg2@cornell.edu
+CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Joshua Brindle <jbrindle@tresys.com>, alexander-barclay@utulsa.edu,
+   Brandon Pollet <brandon@utulsa.edu>, SELinux@tycho.nsa.gov,
+   John Hale <john-hale@utulsa.edu>
+Subject: Re: XML Based Policy Configuration for SELinux
+References: <7D1D591C-7CB7-4FAA-82DF-0CA87BE3372F@utulsa.edu>	 <20050621184940.GA8354@lkcl.net> <1119383982.42b871aef1898@cc.utulsa.edu>	 <20050621212059.GA9434@lkcl.net> <42B8A699.206@tresys.com>	 <20050622004114.GH9859@lkcl.net> <42B8DF16.3060108@tresys.com>	 <20050622053327.GB14480@lkcl.net> <42B94A03.8020508@tresys.com>	 <20050622223842.GH14480@lkcl.net> <1119486152.7677.15.camel@localhost.localdomain>
+In-Reply-To: <1119486152.7677.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi guys,
 
-> An alternative option is to leave the home directory keywords unexpanded and
-> have matchpatchcon expand them on demand. This requires knowledge of what is a
-> home directory, which is difficult to get. We can either store that information
-> somewhere or require the caller to provide, e.g., setfiles could get a flag that
-> to allow the admin to specify which directories are home directories.
+I'm impressed xml based policy discussion here.
+Is there XML based policy project home page that you are working on?
+The idea, having policy in XML is similar to what we have been discussing
+here in Japan.
 
-I disagree that expansions necessarily have to relate to home
-directories, and I think it's difficult to predict how expansions will
-work in the future. It's hard to come up with a concrete example - this
-really depends on what we choose to do with policy in the future.
-The point is that we are moving complex logic into a low-level program
-such as matchpathcon...and I'm not sure we should do that. It's
-a layering issue - where should complexity be placed.
+What we are thinking is:
 
-> Anyone else have some insight? It really files like we are over-engineering this
-> problem and there is some simple solution once we fully understand the problem.
-> I have the gut feeling that pre-expanded file_contexts is the wrong way to go,
-> but no clear argument as to why. 
+1) Policy maintainer creates policy source
+2) Convert the source to XML and put them into XMLDB using tool
+3) Users(regular admins I'd say) pickup and download policy fragments
+    what exactly they need from XMLDB with XML query
+4) Then convert the XML source to regular policy source and compile
+    and apply.
 
-You have a point that we're storing mostly redundant information, but
-that's often necessary to achieve speed and simplicity - isn't that
-exactly the problem with the in-kernel policy?
+Some people would think it is wasteful, why not having raw policy
+source in DB. But I think XML makes things easier for adding, modifing
+and deleting some part of policy.
+
+IMO, currently it is very difficult to find dependencies in the policy source
+but if we have it in XML it is easier.
+
+-- Junji
+Linuon Inc.
+Tokyo Japan
 
 
 --
