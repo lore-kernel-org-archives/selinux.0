@@ -1,50 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5SCkbgA002778
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 08:46:37 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5SCjJxl024560
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 12:45:19 GMT
-Message-Id: <200506281244.j5SCiqqc027274@gotham.columbia.tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <russell@coker.com.au>, "'Casey Schaufler'" <casey@schaufler-ca.com>
-Cc: <selinux@tycho.nsa.gov>
-Subject: RE: Alternative user management approach
-Date: Tue, 28 Jun 2005 08:44:52 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5SDm6gA003303
+	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 09:48:06 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5SDlPaC016469
+	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 13:47:25 GMT
+Message-Id: <200506281347.j5SDlCqc027855@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <ivg2@cornell.edu>
+Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>
+Subject: RE: file contexts and modularity
+Date: Tue, 28 Jun 2005 09:47:11 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-reply-to: <200506280832.46267.russell@coker.com.au>
+In-reply-to: <1119894980.26533.33.camel@celtics.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
->> In the 15 years I've been dealing with MLS systems I have never seen
->> anyone encounter the problems of category permutations. A given user
->> will be in a single category, and usually a single level. In truth, a
->> site will usually use levels or catagories, but almost never both.
->> Further, a given site will usually use system-high, system-low, and
->> two or three others.
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:ivg2@cornell.edu]
+> Sent: Monday, June 27, 2005 1:56 PM
+> To: Karl MacMillan
+> Cc: selinux@tycho.nsa.gov; 'Daniel J Walsh'
+> Subject: RE: file contexts and modularity
 > 
-> That will make things easier for us.
+> 
+> > I more concerned about the other questions - how would a user switch
+> policies
+> > with this scheme?
+> 
+> Does switching policies require changing the file contexts?
+> I typically use strict policy, so I'm not sure...
+> I suppose this file could be re-generated?
+> 
 
-The problem is building a general mechanism that can handle nearly any
-situation. I agree that over the past 20+ years, most MLS applications I've
-seen use a small portion of the possible lattice supported. However they use
-differing portions. And some applications, in particular compartmented mode
-applications, can use many categories with the potential for a large number
-of points in the lattice being assigned to specific users. Worse users can
-be granted and removed access to lattice points (i.e., categories) now and
-then. 
+Yes - the two policies could potentially have no types in common.
 
-Nonetheless I agree with Steve's earlier suggestions that we just have to
-figure a way to build a number of "roles mapping users", potentially on the
-fly, to account for any set of levels that a site may want to assign to a
-user. MLS will be a small % of the SELinux systems used, and a small % of
-those will use more than a few security levels. Most of the traditional uses
-of MLS systems are better addressed by type enforcement, as our application
-experience shows us every day. So a little pain for MLS SELinux boxes is not
-unjustified for increased benefit of our suggested new user management
-approach IMHO. Frank
+> > How would network home directories work?
+> 
+> The same way they work right now?
+> I didn't realize network home dirs support xattr..
+> 
+
+They don't, but they will. And they don't really work right now.
+
+Karl
+
+> >  Tying the creation of
+> > the labeling information to calling adduser seems fragile.
+> 
+> Perhaps...
+
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
 
 
 
