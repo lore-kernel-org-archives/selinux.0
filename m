@@ -1,55 +1,35 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5SEh5gA003906
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 10:43:07 -0400 (EDT)
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5SEgNaC021334
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 14:42:23 GMT
-Message-ID: <36282A1733C57546BE392885C0618592A25876@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: Frank Mayer <mayerf@tresys.com>, russell@coker.com.au,
-   "'Casey Schaufler'" <casey@schaufler-ca.com>
-Cc: selinux@tycho.nsa.gov
-Subject: RE: Alternative user management approach
-Date: Tue, 28 Jun 2005 10:43:46 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5SEj7gA003942
+	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 10:45:07 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5SEiPaC021497
+	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 14:44:26 GMT
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: [PATCH] SELinux Loadable Modules
+Date: Tue, 28 Jun 2005 10:46:04 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+Message-Id: <200506281046.04113.jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This set of patches (not included in email since they are fairly large) 
+include all the infrastructure from before as well as the module store, 
+compiler and associated utilities. These patches implement the full module 
+compiler and management system. The patches as well as the additional library 
+and clients are available at: 
+http://sepolicy-server.sourceforge.net/index.php?page=modules
 
-First, I would like to state a method for limiting the need to reload the
-policy and make it work in a distributed environment is certainly needed.
+Instructions for using the module store and some general information about 
+policy modules is available at:
+http://sepolicy-server.sourceforge.net/index.php?page=module-overview
 
-> 
-> The problem is building a general mechanism that can handle nearly any
-> situation. I agree that over the past 20+ years, most MLS applications
-I've
-> seen use a small portion of the possible lattice supported. 
+I appreciate any feedback on these patches and the module system in general.
 
-It is true that a small subset of labels are used in a number of
-environments, there are special cases where people create and use dynamic
-labels on the fly thus utilizing a large number of categories.
-
-
-> However they use differing portions. And some applications, in particular 
-> compartmented mode applications, can use many categories with the
-potential for 
-> a large number of points in the lattice being assigned to specific users. 
-> Worse users can be granted and removed access to lattice points (i.e., 
-> categories) now and then. 
-> 
-
-It is very true that different user's will have different clearances.
-Depending on the number of levels (usually a couple) and categories (can
-vary from a few to many) you could require alot of different combinations. 
-
-Another factor in the potential increase of mappings would the increased use
-of roles. Currently, their use is very limited, but if you increase the
-roles to allow users to perform different actions, you increase the number
-of combinations as well. 
-
--Chad
+Joshua Brindle
+Tresys Technology
 
 --
 This message was distributed to subscribers of the selinux mailing list.
