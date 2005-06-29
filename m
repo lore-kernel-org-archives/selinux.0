@@ -1,52 +1,46 @@
-Message-ID: <42C2F865.2040102@redhat.com>
-Date: Wed, 29 Jun 2005 15:37:09 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: ivg2@cornell.edu
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: Execmem boolean
-References: <1119822163.4357.9.camel@localhost.localdomain>	 <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>	 <42C2DB70.2070204@redhat.com>	 <1120070997.3553.172.camel@moss-spartans.epoch.ncsc.mil> <1120071263.20484.45.camel@celtics.boston.redhat.com>
-In-Reply-To: <1120071263.20484.45.camel@celtics.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: RE: file contexts and modularity
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gyurdiev@redhat.com
+Cc: Janak Desai <jdesai@us.ibm.com>, Karl MacMillan <kmacmillan@tresys.com>,
+   selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1120073041.20484.70.camel@celtics.boston.redhat.com>
+References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>
+	 <1120073041.20484.70.camel@celtics.boston.redhat.com>
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 15:50:57 -0400
+Message-Id: <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+On Wed, 2005-06-29 at 15:24 -0400, Ivan Gyurdiev wrote:
+> Can you explain how this would work a bit?
+> How would matchpathcon work on a polyinstantiated directory?
 
->> Strict policy likely
->>shouldn't allow execmod to anything but texrel_shlib_t, and can thus
->>omit the boolean altogether.
->>    
->>
->
->Please don't break strict policy :(
->
->I still have some hope left to be able to 
->run it on my home machine. The level of "strictness"
->should be configurable.
->
->  
->
->We could kill the allow_execmod/allow_execmem booleans,
->allow execmod to texrel, allow exemem for X,
->  
->
-Ok.
-Should be a boolean allow_X_execmem.  Most people don't need execmem for 
-X.  (Only nvidia binary drivers)
+I'm not sure what you are asking.  Basic concept is that the user
+actually has a separate home directory (and /tmp and whatever else) per
+role, and the right one is automatically bind mounted onto their
+official home directory location at login time (and adjusted as needed
+upon su, newrole, etc).  The code allows for dynamic creation of those
+per-role home directories on demand, e.g. when the user logs in at a
+given role, but of course, that will leave them with an empty directory
+at present.  We would need to deal with setup, e.g. initial copying of
+skeleton files when the per-role directory is first created, which could
+be handled at login time.  Chad Sellers posted example patches earlier
+for login, gdm, and su.  Implementation would be greatly simplified by
+unshare(2) call, which would allow handling it in libpam rather than
+patching each login-like program - Janak was working on such a patch.
+Current implementation creates the per-role directories as
+subdirectories of the official home directory location, but others have
+suggested making that location configurable.
 
->and then have per app booleans for other things we don't trust
->(like Java applets?). 
->
->
->
->
->  
->
-
+So at that point you no longer need to keep home directory contexts in
+file_contexts at all, and you just exclude home directories from
+relabeling.
 
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
