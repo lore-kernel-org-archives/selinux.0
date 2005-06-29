@@ -1,64 +1,43 @@
-Subject: RE: file contexts and modularity
+Subject: Re: file contexts and modularity
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Janak Desai <jdesai@us.ibm.com>, Karl MacMillan <kmacmillan@tresys.com>,
-   selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <1120075771.3553.234.camel@moss-spartans.epoch.ncsc.mil>
+To: Janak Desai <janak@us.ibm.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <42C302F9.4080901@us.ibm.com>
 References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>
 	 <1120073041.20484.70.camel@celtics.boston.redhat.com>
 	 <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
 	 <1120075381.20484.75.camel@celtics.boston.redhat.com>
-	 <1120075771.3553.234.camel@moss-spartans.epoch.ncsc.mil>
+	 <42C302F9.4080901@us.ibm.com>
 Content-Type: text/plain
-Date: Wed, 29 Jun 2005 16:22:53 -0400
-Message-Id: <1120076573.20484.93.camel@celtics.boston.redhat.com>
+Date: Wed, 29 Jun 2005 16:43:59 -0400
+Message-Id: <1120077839.20484.104.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-06-29 at 16:09 -0400, Stephen Smalley wrote:
-> On Wed, 2005-06-29 at 16:03 -0400, Ivan Gyurdiev wrote:
-> > > So at that point you no longer need to keep home directory contexts in
-> > > file_contexts at all, and you just exclude home directories from
-> > > relabeling.
-> > 
-> > How is the context of the bind-mounted home dir configured?
-> 
-> The mount point directory's context can just be a single fixed context
-> for all users, as it is just a mount point.
 
-ok ..
+> Subdirectory context is obtained from the policy
+> using security_compute_member() call. 
 
-> > and subdirectories? pre-created?
-> 
-> Optionally, but typically just created by login-style programs (ideally
-> via libpam) when the user first logs in at a given role.
+int security_compute_member(security_context_t scon,
+                            security_context_t tcon,
+                            security_class_t tclass,
+                            security_context_t *newcon)
 
-> > what determines their context?
-> 
-> Obtained via security_compute_member, which in turn relies on
-> type_member rules in the policy.  See Chad's earlier postings.  The
-> security_setupns() function is in our libselinux tree, but you'd also
-> need the patches he posted to login and friends for experimentation.
+So, it seems to me that
+this is insufficient basis to determine proper newcon - 
+file_type_auto_trans doesn't work for the same reason.
 
-I don't have the list archived that far back,
-but from reading about this online it looks like an analog
-to file_type_auto_trans, which doesn't work, because
-of ambiguity. Pre-creating things is required, which
-currently works via matchpathcon....
+(scon, tcon, tclass) -> newcon 
 
-..or am I misunderstanding how this works?
+is a 1:many map, and not 1:1.
 
-> > I am trying to understand where the labeling 
-> > information is stored, if you want to get rid of the 
-> > file_contexts.homedirs file.
-> 
-> It is computed based on the user process' security context and the base
-> context on the mount point directory.
-
-That makes sense for the mount point itself, but not
-for sub-content.
+So...how will pre-creation work if the file_contexts.homedirs
+file is erased (the only many:1 map available, 
+which becomes 1:1 given evaluation order).
 
 
 --
