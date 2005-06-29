@@ -1,31 +1,35 @@
-Subject: Re: Execmem boolean
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: ivg2@cornell.edu, selinux@tycho.nsa.gov
-In-Reply-To: <42C2F865.2040102@redhat.com>
-References: <1119822163.4357.9.camel@localhost.localdomain>
-	 <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
-	 <42C2DB70.2070204@redhat.com>
-	 <1120070997.3553.172.camel@moss-spartans.epoch.ncsc.mil>
-	 <1120071263.20484.45.camel@celtics.boston.redhat.com>
-	 <42C2F865.2040102@redhat.com>
+Subject: RE: file contexts and modularity
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Janak Desai <jdesai@us.ibm.com>, Karl MacMillan <kmacmillan@tresys.com>,
+   selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
+References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>
+	 <1120073041.20484.70.camel@celtics.boston.redhat.com>
+	 <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 29 Jun 2005 15:58:20 -0400
-Message-Id: <1120075100.3553.226.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 29 Jun 2005 16:03:01 -0400
+Message-Id: <1120075381.20484.75.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-06-29 at 15:37 -0400, Daniel J Walsh wrote:
-> Ok.
-> Should be a boolean allow_X_execmem.  Most people don't need execmem for 
-> X.  (Only nvidia binary drivers)
 
-I've seen it with other (open source) drivers too.
+> So at that point you no longer need to keep home directory contexts in
+> file_contexts at all, and you just exclude home directories from
+> relabeling.
 
--- 
-Stephen Smalley
-National Security Agency
+How is the context of the bind-mounted home dir configured?
+
+and subdirectories? pre-created?
+what determines their context?
+
+I am trying to understand where the labeling 
+information is stored, if you want to get rid of the 
+file_contexts.homedirs file.
+
+
 
 
 --
