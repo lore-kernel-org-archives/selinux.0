@@ -1,54 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5T25fgA009134
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 22:05:41 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5T24saC001461
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 02:04:54 GMT
-Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
-	by free.hands.com (Postfix) with ESMTP id 49375BF7A
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 03:04:53 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1DnS5F-0002gt-58
-	for selinux@tycho.nsa.gov; Wed, 29 Jun 2005 03:13:49 +0100
-Date: Wed, 29 Jun 2005 03:13:49 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: wish-list item for selinux policy analyss
-Message-ID: <20050629021349.GA10219@lkcl.net>
+Subject: Re: Groups in the alternative user solution
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gyurdiev@redhat.com
+Cc: kmacmillan@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1119988230.7417.6.camel@celtics.boston.redhat.com>
+References: <1119980076.4806.23.camel@celtics.boston.redhat.com>
+	 <1119987846.22225.222.camel@moss-spartans.epoch.ncsc.mil>
+	 <1119988230.7417.6.camel@celtics.boston.redhat.com>
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 10:35:13 -0400
+Message-Id: <1120055713.3553.105.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-dear selinux people,
+On Tue, 2005-06-28 at 15:50 -0400, Ivan Gyurdiev wrote:
+> > I'd actually suggest that we not try to map Unix/Linux groups to SELinux
+> > users at all, and require explicit Linux user -> SELinux user mappings.
+> > Unix groups and SELinux user identities serve very different purposes,
+> 
+> I thought they both served the purpose of grouping together
+> things that should have the same security properties, and 
+> isolating things that should have different ones.
 
-on my wish-list for selinux is a means to tell, at runtime,
-which avc messages have been utilised.  not when - if.
+Groups are still fundamentally discretionary (group membership is
+usually administratively-defined, but assigning group ownership or group
+ACLs to files is at the discretion of the user or any program he runs).
 
-the equivalent of code coverage analysis tools.
+> > and I can't see a good reason to link them together (and definite danger
+> > in doing so).
+> 
+> Why is that?
 
-i envisage this to be implemented - hand-waving - by a single
-bit which is marked in the in-kernel-memory store of selinux avc
-policy, for reasons of minimising impact on run-time performance
-(i believe that tying something into the avc audit logging
-system, would be too slow).
+Because people are already using groups for a variety of purposes, and
+will tend to just re-use existing groups and map them onto SELinux user
+identities/roles blindly without really considering what is appropriate,
+e.g. the assumption that everyone in group wheel should be mapped to
+staff/sysadm is dangerous.
 
-the reason for this is to be able to fire up a system, run
-it for a while (live) say oh a few months, and then determine
-which bits of the selinux policy.conf have never ever actually
-been used.
+> >   Better to require them to manage that mapping
+> > separately.  
+> 
+> Well, that's certainly the easier approach...
 
-track them down, and remove them from the selinux source policy.
-
-... via analysis of the policy.conf, back to the macros from
-whence they came.
-
-l.
+Yes.  Of course, ultimately such a mapping has to allow for distributed
+management too.
 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
