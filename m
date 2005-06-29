@@ -1,48 +1,50 @@
-Subject: Re: Groups in the alternative user solution
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5TFUPgA013175
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 11:30:26 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5TFSvdE002734
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 15:28:57 GMT
+Subject: Re: wish-list item for selinux policy analyss
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: kmacmillan@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <1120055713.3553.105.camel@moss-spartans.epoch.ncsc.mil>
-References: <1119980076.4806.23.camel@celtics.boston.redhat.com>
-	 <1119987846.22225.222.camel@moss-spartans.epoch.ncsc.mil>
-	 <1119988230.7417.6.camel@celtics.boston.redhat.com>
-	 <1120055713.3553.105.camel@moss-spartans.epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050629021349.GA10219@lkcl.net>
+References: <20050629021349.GA10219@lkcl.net>
 Content-Type: text/plain
-Date: Wed, 29 Jun 2005 11:05:25 -0400
-Message-Id: <1120057525.17121.23.camel@celtics.boston.redhat.com>
+Date: Wed, 29 Jun 2005 11:27:12 -0400
+Message-Id: <1120058832.17121.38.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+>  reason for this is to be able to fire up a system, run
+> it for a while (live) say oh a few months, and then determine
+> which bits of the selinux policy.conf have never ever actually
+> been used.
 
-> Groups are still fundamentally discretionary (group membership is
-> usually administratively-defined, but assigning group ownership or group
-> ACLs to files is at the discretion of the user or any program he runs).
+I see several problems with this idea:
 
-Yes, but assigning group ownership to files does not translate to
-the selinux user corresponding to that group getting access to the
-files... Essentially the same group maps to both MAC and DAC access
-control.
+1) Usage frequency does not necessarily correlate to
+whether the rule is valid or not - you'd have to test
+every code path to establish whether the rule is needed or not.
+I find this to be better accomplished with comments in policy
+before every group of rules (and _not_ using audit2allow).
 
-That groups are already used for various purposes seems beneficial to me
-- you can refit your existing grouping system to deal with SELinux
-without going through each user individually.
+2) It's not clear that policy source should fit as well as possible to
+program usage patterns. Those patterns can change, and I think
+it's a good idea to leave some room for such changes - policy usually
+permits the program to do more than it actually does, and I think
+that's okay, as long as nothing dangerous is allowed. 
 
-It's true that your group requirements for DAC may not be the same
-as for selinux... but we don't know if that's the case.
+3) Another reason for (2) is that policy source is reduced 
+to a number of primitives (macros) that you work with. Some of
+those macros couple functionality that doesn't always go
+together, but usually does - generic macros). The result
+is permissions you don't need. However, that's not necessarily
+a problem - it allows the policy writer to overlook certain
+things, and focus on more important concerns. 
 
-> > >   Better to require them to manage that mapping
-> > > separately.  
-> > 
-> > Well, that's certainly the easier approach...
-> 
-> Yes.  Of course, ultimately such a mapping has to allow for distributed
-> management too.
-
-That requires writing a different backend for manging those records.
-How would the interface work for this - would the caller have to specify
-backend, or would the selinux library determine what's appropriate?
 
 
 --
