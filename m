@@ -1,67 +1,39 @@
-Date: Wed, 29 Jun 2005 13:35:50 -0500
+Date: Wed, 29 Jun 2005 13:42:24 -0500
 From: serue@us.ibm.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-security-module@wirex.com, SELinux <selinux@tycho.nsa.gov>
+To: James Morris <jmorris@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, serue@us.ibm.com,
+   linux-security-module@wirex.com, SELinux <selinux@tycho.nsa.gov>
 Subject: Re: RFC: jail functionality
-Message-ID: <20050629183550.GB19299@serge.austin.ibm.com>
-References: <20050629161409.GB16233@serge.austin.ibm.com> <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <20050629184224.GC19299@serge.austin.ibm.com>
+References: <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil> <Xine.LNX.4.44.0506291402040.12494-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <Xine.LNX.4.44.0506291402040.12494-100000@thoron.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Wed, 2005-06-29 at 11:14 -0500, serue@us.ibm.com wrote:
-> > Attached are the old task_lookup patch which was used by the bsdjail lsm,
-> > a patch for selinux to utilize this hook, and a sample jail policy and
-> > .fc, which presumably would eventually be changed to a jail_domain()
-> > policy macro.  Does this seem at all useful by itself, or should this
-> > wait until it were actually needed for a complete linux jails
-> > implementation?
+Quoting James Morris (jmorris@redhat.com):
+> On Wed, 29 Jun 2005, Stephen Smalley wrote:
 > 
-> What's the real benefit of "hiding" tasks in this manner?
-
-In terms of security, I'd say none, except perhaps a hard-to-exploit
-covert channel.  IMO, it would only be for user convenience.
-
-> SELinux can
-> already prevent processes from accessing anything under /proc/pid for a
-> process in another domain, and procps already conveniently omits entries
-> for any such inaccessible /proc/pid directories, so the typical user
-> experience is the same (i.e. users won't see processes that are
-> inaccessible in ps output) and at most, only the pids are exposed
-> in /proc.  
-
-I didn't think procps did that.  In that case, I guess tasklookup can
-be taken off the list of jail requisites.
-
-> > Is there any interest in seeing the virtual network devices and
-> > network namespaces pushed upstream?
+> > > The attached task-lookup patches?
+> > 
+> > Not sure it provides much value.
 > 
-> Yes, although I can't say that I've looked at their approach.
+> If yoy need this, why not look at proper isolation via Xen?
 
-Ok - so long as there is interest, I will try to take some time to
-write a standalone patch for it.  Then hopefully if their approach
-or my port of it is not acceptable, someone else will code up an
-acceptable version :)
+Xen may be overkill for some cases, as you need (almost) a whole OS
+for each jail.  Zones and bsd jails (I believe) should easily be
+able to run hundreds of jails - provided of course they don't all
+peak at once.
 
-> > Read-only bind mounts?
-> 
-> Not sure what happened to earlier discussions and patches related to
-> that issue on lkml.
+Don't get me wrong, I'm a big fan of virtualization, and while I
+don't get to right now, IBM is putting a lot of effort into Xen.
 
-Christoph Hellwig said he wants it, but wanted a different
-implementation, but hasn't had a chance to write up his own.  The author
-of the existing patches feels there's not enough support/interest and
-too much opposition, so has not resubmitted (after I believe his 6th
-version).
+> LSM is about access control, not virtualization.
 
-> > The attached task-lookup patches?
-> 
-> Not sure it provides much value.
-
-Sounds good.
+And jails require some amount of access control.  I don't want to
+introduce a new LSM for this, but just put together the various
+existing (and not-yet-existing) pieces into an easy to use package.
 
 thanks,
 -serge
