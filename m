@@ -1,58 +1,98 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5THVegA014366
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 13:31:40 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5THUl79013665
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 17:30:47 GMT
-Subject: RE: file contexts and modularity
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <1119987085.4806.42.camel@celtics.boston.redhat.com>
-References: <200506281347.j5SDlCqc027855@gotham.columbia.tresys.com>
-	 <1119987085.4806.42.camel@celtics.boston.redhat.com>
-Content-Type: text/plain
-Date: Wed, 29 Jun 2005 13:28:29 -0400
-Message-Id: <1120066109.20484.19.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Message-ID: <42C2DB70.2070204@redhat.com>
+Date: Wed, 29 Jun 2005 13:33:36 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: ivg2@cornell.edu, selinux@tycho.nsa.gov
+Subject: Re: Execmem boolean
+References: <1119822163.4357.9.camel@localhost.localdomain> <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The more I think about this, the more it seems to me that:
+Stephen Smalley wrote:
 
-1) Expansions are important, and not to be considered a hack - 
-they're our only way to create configurable locations,
-which we need, since users don't like to comply with our
-standard locations. Expansions don't necessarily relate to home
-directories, as I've pointed out.
+>On Sun, 2005-06-26 at 17:42 -0400, Ivan Gyurdiev wrote:
+>  
+>
+>>Something needs to be done about the allow_execmem boolean - 
+>>the default strict policy configuration on Fedora disables it,
+>>which causes X not to work out of the box under strict policy. 
+>>I think this is highly undesirable.
+>>
+>>Should allow_execmem be enabled by default?
+>>
+>>I know Stephen was asking about more fine-grained control
+>>over allow_execmem and allow_execmod.
+>>
+>>How can we combine those two requirements to come up with
+>>a better solution?
+>>
+>>Perhaps have allow_execmem turned on by default,
+>>and then and-ed with per application booleans, we can
+>>turn it off for selected applications?
+>>
+>>The opposite approach (off by default, turn on
+>>per application) doesn't work quite so well, beause
+>>then you have per application booleans not respecting
+>>the value of a global allow_execmem...
+>>
+>>Or, we could get rid of allow_execmem completely, and
+>>have only per application booleans...
+>>    
+>>
+>
+>Yes, I'm not sure how much value the global allow_execmem/allow_execmod
+>booleans provide.  In particular, since execmod should be limited to
+>specific file types (although the targeted policy presently violates
+>this), it isn't clear that you need a boolean there at all.  I'd say
+>that only execmod to types other than texrel_shlib_t truly require a
+>boolean.  execmem for the user domains (and all the associated programs
+>that run in them) is more problematic.
+>
+>  
+>
+Problem is with third party apps,  They don't get labeled texrel_shlib_t 
+and therefore do not work.
 
-2) We need a generic mechanism for installing
-such expansions, and checking those...
+allow execmod allows them to work with the shlib_t label.  We can change 
+this to a targeted vs strict.
 
-3) Performing expansion of template in matchpathcon seems 
-fundamentally wrong to me. The expansion would be performed 
-on every invocation, and that would be slow, and unnecessary -
-if it's already computed, why not use it? 
+>Note also that the execstack/execheap permission checks are now upstream
+>and should soon be in the FC devel kernel, so they will also begin to
+>have an impact.  execmem is the more general control (make any anonymous
+>mapping executable); execstack is a specific case (make the primary
+>process stack executable).  Programs that need to generate code at
+>runtime will require execmem but should not require execstack.  Programs
+>that require an executable stack will require both permissions.  No
+>program should legitimately require execheap, but it will take time to
+>fix them, starting with X module loader.
+>  
+>
+Did these get added as default allow?  If policy is 19 or less?  Deny if 
+policy > 19?
 
-4) A context file for each user? Hmm...
-500 users...500 files...concat those together?
-A large context file with all the users in it doesn't
-seem a whole lot better.
+I don't think we should add any more access checks without bumping the 
+policy version and putting
+that logic in.
 
-[root@celtics files]# cat file_contexts|wc
-   2384    6045  102497
 
-[root@celtics files]# cat file_contexts.homedirs|grep root|wc
-     47     118    2755
 
-So... say we have a machine with 500 users.
-500 * 47 = 23500 lines, or 10 times the size of the current
-file_contexts file, which takes forever to read (that's
-why install is so slow, right?)
+>Also note that the legacy binary rules in the current policy are partly
+>obsoleted by the checkreqprot change that went into 2.6.12, so that
+>unless you are overriding the default checkreqprot value, SELinux is
+>only checking the protection requested by the application, so read
+>requests should no longer show up as read|execute to SELinux.  This
+>should eliminate the need for allowing execute to various file types
+>that are only mapped with read access by the application itself.
+>
+>  
+>
 
-I don't think the current file_contexts approach scales too
-well with lots of users...
+
+-- 
+
 
 
 --
