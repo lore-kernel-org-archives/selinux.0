@@ -1,86 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5TIIXgA014841
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 14:18:33 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5TIHd79016768
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 18:17:39 GMT
-Message-Id: <200506291817.j5TIHQ7f013656@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>
-Subject: RE: file contexts and modularity
-Date: Wed, 29 Jun 2005 14:17:26 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-reply-to: <1120066109.20484.19.camel@celtics.boston.redhat.com>
+Date: Wed, 29 Jun 2005 13:35:50 -0500
+From: serue@us.ibm.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: linux-security-module@wirex.com, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: RFC: jail functionality
+Message-ID: <20050629183550.GB19299@serge.austin.ibm.com>
+References: <20050629161409.GB16233@serge.austin.ibm.com> <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Wednesday, June 29, 2005 1:28 PM
-> To: Karl MacMillan
-> Cc: selinux@tycho.nsa.gov; 'Daniel J Walsh'
-> Subject: RE: file contexts and modularity
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Wed, 2005-06-29 at 11:14 -0500, serue@us.ibm.com wrote:
+> > Attached are the old task_lookup patch which was used by the bsdjail lsm,
+> > a patch for selinux to utilize this hook, and a sample jail policy and
+> > .fc, which presumably would eventually be changed to a jail_domain()
+> > policy macro.  Does this seem at all useful by itself, or should this
+> > wait until it were actually needed for a complete linux jails
+> > implementation?
 > 
-> The more I think about this, the more it seems to me that:
+> What's the real benefit of "hiding" tasks in this manner?
+
+In terms of security, I'd say none, except perhaps a hard-to-exploit
+covert channel.  IMO, it would only be for user convenience.
+
+> SELinux can
+> already prevent processes from accessing anything under /proc/pid for a
+> process in another domain, and procps already conveniently omits entries
+> for any such inaccessible /proc/pid directories, so the typical user
+> experience is the same (i.e. users won't see processes that are
+> inaccessible in ps output) and at most, only the pids are exposed
+> in /proc.  
+
+I didn't think procps did that.  In that case, I guess tasklookup can
+be taken off the list of jail requisites.
+
+> > Is there any interest in seeing the virtual network devices and
+> > network namespaces pushed upstream?
 > 
-> 1) Expansions are important, and not to be considered a hack -
-> they're our only way to create configurable locations,
-> which we need, since users don't like to comply with our
-> standard locations. Expansions don't necessarily relate to home
-> directories, as I've pointed out.
+> Yes, although I can't say that I've looked at their approach.
+
+Ok - so long as there is interest, I will try to take some time to
+write a standalone patch for it.  Then hopefully if their approach
+or my port of it is not acceptable, someone else will code up an
+acceptable version :)
+
+> > Read-only bind mounts?
 > 
+> Not sure what happened to earlier discussions and patches related to
+> that issue on lkml.
 
-I still don't agree with this - how do you know how to expand these if it is not
-tied to a specific user? Additionally, all of this is caused by using file
-contexts for runtime labeling, which I have pointed out repeatedly is a
-questionable security practice.
+Christoph Hellwig said he wants it, but wanted a different
+implementation, but hasn't had a chance to write up his own.  The author
+of the existing patches feels there's not enough support/interest and
+too much opposition, so has not resubmitted (after I believe his 6th
+version).
 
-> 2) We need a generic mechanism for installing
-> such expansions, and checking those...
+> > The attached task-lookup patches?
 > 
-> 3) Performing expansion of template in matchpathcon seems
-> fundamentally wrong to me. The expansion would be performed
-> on every invocation, and that would be slow, and unnecessary -
-> if it's already computed, why not use it?
-> 
+> Not sure it provides much value.
 
-Fundamentally wrong seems a little strong - this is just a space / time tradeoff
-not a major architectural decision.
+Sounds good.
 
-> 4) A context file for each user? Hmm...
-> 500 users...500 files...concat those together?
-> A large context file with all the users in it doesn't
-> seem a whole lot better.
-> 
-> [root@celtics files]# cat file_contexts|wc
->    2384    6045  102497
-> 
-> [root@celtics files]# cat file_contexts.homedirs|grep root|wc
->      47     118    2755
-> 
-> So... say we have a machine with 500 users.
-> 500 * 47 = 23500 lines, or 10 times the size of the current
-> file_contexts file, which takes forever to read (that's
-> why install is so slow, right?)
-> 
-> I don't think the current file_contexts approach scales too
-> well with lots of users...
-
-More importantly, we have just decided to remove specific user information from
-the policy and leaving it in the file contexts seems strange.
-
-Karl
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
-
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
