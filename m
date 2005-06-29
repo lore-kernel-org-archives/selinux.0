@@ -1,38 +1,56 @@
-Subject: Re: Groups in the alternative user solution
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: kmacmillan@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <1119987846.22225.222.camel@moss-spartans.epoch.ncsc.mil>
-References: <1119980076.4806.23.camel@celtics.boston.redhat.com>
-	 <1119987846.22225.222.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 28 Jun 2005 15:50:30 -0400
-Message-Id: <1119988230.7417.6.camel@celtics.boston.redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5SNq8gA008650
+	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 19:52:08 -0400 (EDT)
+Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5SNokxl017043
+	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 23:50:46 GMT
+Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
+	by free.hands.com (Postfix) with ESMTP id F344CBEE4
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 00:51:14 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1DnPzt-0002VB-7c
+	for selinux@tycho.nsa.gov; Wed, 29 Jun 2005 01:00:09 +0100
+Date: Wed, 29 Jun 2005 01:00:09 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: http://sourceforge.net/mailarchive/forum.php?thread_id=6364737&forum_id=35600
+Message-ID: <20050629000009.GA9566@lkcl.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+of interest to some mad people somewhere: ibm research's "sHype"
+hypervisor security architecture.
 
-> I'd actually suggest that we not try to map Unix/Linux groups to SELinux
-> users at all, and require explicit Linux user -> SELinux user mappings.
-> Unix groups and SELinux user identities serve very different purposes,
+annoyingly, it is "modelled" on flask [i say annoyingly because
+they "modelled" sHype on selinux instead of incorporating
+support for selinux into sHype and xen]
 
-I thought they both served the purpose of grouping together
-things that should have the same security properties, and 
-isolating things that should have different ones.
+over the next year (starting jan 2005) they plan to do the following:
 
-> and I can't see a good reason to link them together (and definite danger
-> in doing so).
+* Port sHype to Xen 
 
-Why is that?
+* Add stronger security/isolation guarantees (confinement)
+  to what is currently available through Xen"s (and other
+  hypervisors") address space separation mechanisms, e.g.,
+  to enable information flow control in Xen
 
->   Better to require them to manage that mapping
-> separately.  
+*  Enhance Xen to support trusted computing under Linux using
+  TCG/TPM-based attestation mechanisms
 
-Well, that's certainly the easier approach...
+*  Enhance Xen to support secure resource metering,
+  verification, and control.
 
+* Apply our experience in automated security analysis to Xen
+  to make it more robust
 
+* Make Xen suitable for Common Criteria evaluation 
+
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
