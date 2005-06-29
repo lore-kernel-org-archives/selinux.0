@@ -1,42 +1,70 @@
-Date: Wed, 29 Jun 2005 13:42:24 -0500
-From: serue@us.ibm.com
-To: James Morris <jmorris@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, serue@us.ibm.com,
-   linux-security-module@wirex.com, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: RFC: jail functionality
-Message-ID: <20050629184224.GC19299@serge.austin.ibm.com>
-References: <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil> <Xine.LNX.4.44.0506291402040.12494-100000@thoron.boston.redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5TIoCgA015355
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 14:50:13 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5TInJ79019245
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 18:49:19 GMT
+Subject: RE: file contexts and modularity
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <200506291817.j5TIHQ7f013656@gotham.columbia.tresys.com>
+References: <200506291817.j5TIHQ7f013656@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Wed, 29 Jun 2005 14:46:59 -0400
+Message-Id: <1120070819.20484.40.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Xine.LNX.4.44.0506291402040.12494-100000@thoron.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting James Morris (jmorris@redhat.com):
-> On Wed, 29 Jun 2005, Stephen Smalley wrote:
-> 
-> > > The attached task-lookup patches?
-> > 
-> > Not sure it provides much value.
-> 
-> If yoy need this, why not look at proper isolation via Xen?
 
-Xen may be overkill for some cases, as you need (almost) a whole OS
-for each jail.  Zones and bsd jails (I believe) should easily be
-able to run hundreds of jails - provided of course they don't all
-peak at once.
+> I still don't agree with this - how do you know how to expand these if it is not
+> tied to a specific user? 
 
-Don't get me wrong, I'm a big fan of virtualization, and while I
-don't get to right now, IBM is putting a lot of effort into Xen.
+That's my point exactly - matchpathcon doesn't have the necessary data,
+and it will be difficult for it to perform this operation. Expansions
+should be performed by programs that know how to do that.
 
-> LSM is about access control, not virtualization.
+useradd knows the user being added, and the home directory, for example.
 
-And jails require some amount of access control.  I don't want to
-introduce a new LSM for this, but just put together the various
-existing (and not-yet-existing) pieces into an easy to use package.
+We could have a program that walks the fstab, and collects data
+on where certain mount points are, and then perform an expansion to
+configure that..
 
-thanks,
--serge
+We could detect a change in some gconf key that configures a path,
+and have it perform an expansion.
+
+I suppose only the sysadm could do this for now, maybe not so 
+in the future.
+
+> Additionally, all of this is caused by using file
+> contexts for runtime labeling, which I have pointed out repeatedly is a
+> questionable security practice.
+
+You've done no such thing - you've pointed out that
+automated relabeling without timing control by the sysadmin
+is potentially dangerous. I don't see why that means that
+automated relabeling (as in..performed internally, and not by
+chcon) in general is a bad thing. I'm not sure what you mean by
+"runtime labeling".
+
+> Fundamentally wrong seems a little strong - this is just a space / time tradeoff
+> not a major architectural decision.
+
+But why? 
+What's the gain of doing the same work over and over again?
+I mentioned that I don't want to concat files together, but 
+at least that way performing the expansion happens once, when
+relevant - not on every matchpathcon invocation...
+
+> More importantly, we have just decided to remove specific user information from
+> the policy and leaving it in the file contexts seems strange.
+
+The file contexts serves a different purpose.
+I agree with you in that I don't like having hundreds of files there,
+but at the same time I don't see an alternative.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
