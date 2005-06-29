@@ -1,97 +1,62 @@
-Message-ID: <42C2DB70.2070204@redhat.com>
-Date: Wed, 29 Jun 2005 13:33:36 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5THd5gA014454
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 13:39:05 -0400 (EDT)
+Received: from mail37-res-R.bigfish.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5THcC79014195
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 17:38:12 GMT
+Message-ID: <42C2DC80.8070904@unify.com>
+Date: Wed, 29 Jun 2005 10:38:08 -0700
+From: Ron Kuris <rk@unify.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: ivg2@cornell.edu, selinux@tycho.nsa.gov
-Subject: Re: Execmem boolean
-References: <1119822163.4357.9.camel@localhost.localdomain> <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
+To: Casey Schaufler <casey@schaufler-ca.com>
+CC: gyurdiev@redhat.com, Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: wish-list item for selinux policy analyss
+References: <20050629165658.82487.qmail@web31609.mail.mud.yahoo.com>
+In-Reply-To: <20050629165658.82487.qmail@web31609.mail.mud.yahoo.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->On Sun, 2005-06-26 at 17:42 -0400, Ivan Gyurdiev wrote:
->  
->
->>Something needs to be done about the allow_execmem boolean - 
->>the default strict policy configuration on Fedora disables it,
->>which causes X not to work out of the box under strict policy. 
->>I think this is highly undesirable.
->>
->>Should allow_execmem be enabled by default?
->>
->>I know Stephen was asking about more fine-grained control
->>over allow_execmem and allow_execmod.
->>
->>How can we combine those two requirements to come up with
->>a better solution?
->>
->>Perhaps have allow_execmem turned on by default,
->>and then and-ed with per application booleans, we can
->>turn it off for selected applications?
->>
->>The opposite approach (off by default, turn on
->>per application) doesn't work quite so well, beause
->>then you have per application booleans not respecting
->>the value of a global allow_execmem...
->>
->>Or, we could get rid of allow_execmem completely, and
->>have only per application booleans...
->>    
->>
->
->Yes, I'm not sure how much value the global allow_execmem/allow_execmod
->booleans provide.  In particular, since execmod should be limited to
->specific file types (although the targeted policy presently violates
->this), it isn't clear that you need a boolean there at all.  I'd say
->that only execmod to types other than texrel_shlib_t truly require a
->boolean.  execmem for the user domains (and all the associated programs
->that run in them) is more problematic.
->
->  
->
-Problem is with third party apps,  They don't get labeled texrel_shlib_t 
-and therefore do not work.
+Casey Schaufler wrote:
 
-allow execmod allows them to work with the shlib_t label.  We can change 
-this to a targeted vs strict.
+| I say amen to points 1-3. I add ...
+|
+| 4) A derived policy set will only tell you what the programs do,
+| not what they are intended to do. Should I leave doors unlocked
+| because burglers attempt to use them? If no burgler tries my door
+| for a year does that mean having a lock on my door is unnecessary?
 
->Note also that the execstack/execheap permission checks are now upstream
->and should soon be in the FC devel kernel, so they will also begin to
->have an impact.  execmem is the more general control (make any anonymous
->mapping executable); execstack is a specific case (make the primary
->process stack executable).  Programs that need to generate code at
->runtime will require execmem but should not require execstack.  Programs
->that require an executable stack will require both permissions.  No
->program should legitimately require execheap, but it will take time to
->fix them, starting with X module loader.
->  
->
-Did these get added as default allow?  If policy is 19 or less?  Deny if 
-policy > 19?
+I think the logic here is backwards.  If nobody is using that door for
+a year, then that door is a candidate for becoming a wall instead of a
+door.  Otherwise, you end up in a maze of twisty passages, where
+nobody knows what doors are needed and why.  Fewer doors means less
+memory also, which can be important for embedded systems.
 
-I don't think we should add any more access checks without bumping the 
-policy version and putting
-that logic in.
+I think this wish-list item doesn't tell you what you can remove from
+a policy.  However, it might tell you which rules are candidates to be
+changed to a "deny" rule (or lack of an "allow" rule really).  Lets
+say a particular program used to create temp files but they don't any
+more.  Chances are, the rule will stay around, unless you realize it
+isn't getting used any more, in which case you might want to
+investigate it.
 
+I do the same thing with iptables.  I have rules for services/ports
+that have counters.  If the counters are zero, I look at the service
+and decide whether or not I still need that service any more.
 
+Ron
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
->Also note that the legacy binary rules in the current policy are partly
->obsoleted by the checkreqprot change that went into 2.6.12, so that
->unless you are overriding the default checkreqprot value, SELinux is
->only checking the protection requested by the application, so read
->requests should no longer show up as read|execute to SELinux.  This
->should eliminate the need for allowing execute to various file types
->that are only mapped with read access by the application itself.
->
->  
->
-
-
--- 
+iD8DBQFCwtx/VkC/44kdyuYRAre/AKDlOMgNkc5M790lbwWM3sT7M9UCrgCg264u
+Om80p6tVIIr77yhxpXj7mnw=
+=MBlJ
+-----END PGP SIGNATURE-----
 
 
 
