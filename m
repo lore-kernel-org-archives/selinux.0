@@ -1,118 +1,56 @@
-Message-ID: <42C3010B.5040108@redhat.com>
-Date: Wed, 29 Jun 2005 16:14:03 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <42C300F9.2030701@us.ibm.com>
+Date: Wed, 29 Jun 2005 16:13:45 -0400
+From: Janak Desai <janak@us.ibm.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <SELinux@tycho.nsa.gov>
-Subject: policycoreutils-rhat.patch
-Content-Type: multipart/mixed;
- boundary="------------070008020704070109010204"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: gyurdiev@redhat.com, janak@us.ibm.com,
+   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+Subject: Re: file contexts and modularity
+References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>	 <1120073041.20484.70.camel@celtics.boston.redhat.com> <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070008020704070109010204
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Yes, I am continuing the work started by Chad Sellers. I am working with
+the new unshare system call and using pam session management hooks to
+setup and reset namespace from session creating programs. I am
+currently unit testing/debugging the stuff and am hoping to post the
+pam patches here in about a week or so.
 
-Fix load_policy booleans warning to not say error.
+-Janak
 
-Fix newrole to handle pam better.
+Stephen Smalley wrote:
+> On Wed, 2005-06-29 at 15:24 -0400, Ivan Gyurdiev wrote:
+> 
+>>Can you explain how this would work a bit?
+>>How would matchpathcon work on a polyinstantiated directory?
+> 
+> 
+> I'm not sure what you are asking.  Basic concept is that the user
+> actually has a separate home directory (and /tmp and whatever else) per
+> role, and the right one is automatically bind mounted onto their
+> official home directory location at login time (and adjusted as needed
+> upon su, newrole, etc).  The code allows for dynamic creation of those
+> per-role home directories on demand, e.g. when the user logs in at a
+> given role, but of course, that will leave them with an empty directory
+> at present.  We would need to deal with setup, e.g. initial copying of
+> skeleton files when the per-role directory is first created, which could
+> be handled at login time.  Chad Sellers posted example patches earlier
+> for login, gdm, and su.  Implementation would be greatly simplified by
+> unshare(2) call, which would allow handling it in libpam rather than
+> patching each login-like program - Janak was working on such a patch.
+> Current implementation creates the per-role directories as
+> subdirectories of the official home directory location, but others have
+> suggested making that location configurable.
+> 
+> So at that point you no longer need to keep home directory contexts in
+> file_contexts at all, and you just exclude home directories from
+> relabeling.
+> 
 
-Fix genhomedircon to work properly with Ivan's changes.
 
--- 
-
-
-
---------------070008020704070109010204
-Content-Type: text/x-patch;
- name="policycoreutils-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/load_policy/load_policy.c policycoreutils-1.23.11/load_policy/load_policy.c
---- nsapolicycoreutils/load_policy/load_policy.c	2005-04-14 07:22:16.000000000 -0400
-+++ policycoreutils-1.23.11/load_policy/load_policy.c	2005-05-28 01:25:28.000000000 -0400
-@@ -103,7 +103,7 @@
- 			if (errno == ENOENT || errno == EINVAL) {
- 				/* No booleans file or stale booleans in the file; non-fatal. */
- 				if (! quiet) 
--					fprintf(stderr, _("%s:  Warning!  Error while setting booleans from %s:  %s\n"), argv[0], boolpath, strerror(errno));
-+					fprintf(stderr, _("%s:  Warning while setting booleans from %s\n"), argv[0], boolpath);
- 			} else {
- 				fprintf(stderr, _("%s:  Error while setting booleans from %s:  %s\n"), argv[0], boolpath, strerror(errno));
- 				exit(2);
-@@ -115,7 +115,7 @@
- 		if (ret) {
- 			/* Possibly ok, as there may be no booleans. */
- 			if (! quiet) 
--				fprintf(stderr, _("%s:  Warning!  Error while getting boolean names:  %s\n"), argv[0], strerror(errno));
-+				fprintf(stderr, _("%s:  Warning! unable to get boolean names:  %s\n"), argv[0], strerror(errno));
- 			goto load;
- 		}
- 		if (!len)
-@@ -137,7 +137,7 @@
- 			if (errno == EINVAL) {
- 				/* Stale booleans in the file; non-fatal. */
- 				if (! quiet) 
--					fprintf(stderr, _("%s:  Warning!  Error while setting booleans:  %s\n"), argv[0], strerror(errno));
-+					fprintf(stderr, _("%s:  Warning!  Unable to reset all booleans\n"), argv[0]);
- 			} else {
- 				fprintf(stderr, _("%s:  Error while setting booleans:  %s\n"), argv[0], strerror(errno));
- 				exit(2);
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/newrole/newrole.c policycoreutils-1.23.11/newrole/newrole.c
---- nsapolicycoreutils/newrole/newrole.c	2005-05-20 13:15:12.000000000 -0400
-+++ policycoreutils-1.23.11/newrole/newrole.c	2005-05-28 01:25:28.000000000 -0400
-@@ -198,6 +198,11 @@
-     result = 0;  /* user authenticated OK! */
-   }
- 
-+  /* Ask PAM to verify acct_mgmt */
-+  if( PAM_SUCCESS != pam_acct_mgmt(pam_handle,0) ) {
-+    result = 0;  /* user authenticated OK! */
-+  }
-+
-   /* We're done with PAM.  Free `pam_handle'. */
-   pam_end( pam_handle, PAM_SUCCESS );
-  
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/genhomedircon policycoreutils-1.23.11/scripts/genhomedircon
---- nsapolicycoreutils/scripts/genhomedircon	2005-04-14 07:22:16.000000000 -0400
-+++ policycoreutils-1.23.11/scripts/genhomedircon	2005-06-14 13:01:12.000000000 -0400
-@@ -357,16 +357,22 @@
- 		return udict
- 
- 	def getHomeDirContext(self, user, home, role):
--		ret="\n\n#\n# Context for user %s\n#\n\n" % user
-+		ret="\n\n#\n# Home Context for user %s\n#\n\n" % user
- 		rc=commands.getstatusoutput("grep '^HOME_DIR' %s | sed -e 's|HOME_DIR|%s|' -e 's/ROLE/%s/' -e 's/system_u/%s/'" % (self.getHomeDirTemplate(), home, role, user))
- 		return ret + rc[1] + "\n"
- 
-+	def getUserContext(self, user, sel_user, role):
-+		ret="\n\n#\n# Other Context for user %s\n#\n\n" % user
-+		rc=commands.getstatusoutput("grep 'USER' %s | sed -e 's/USER/%s/' -e 's/ROLE/%s/' -e 's/system_u/%s/'" % (self.getHomeDirTemplate(), user, role, sel_user))
-+		return ret + rc[1] + "\n"
-+
- 	def genHomeDirContext(self):
- 		users = self.getUsers()
- 		ret=""
- 		# Fill in HOME and ROLE for users that are defined
- 		for u in users.keys():
- 			ret += self.getHomeDirContext (u, users[u]["home"], users[u]["role"])
-+			ret += self.getUserContext (u, u, users[u]["role"])
- 		return ret+"\n"
- 
- 	def checkExists(self, home):
-@@ -429,6 +435,7 @@
- 		for h in self.getHomeDirs():
- 			ret += self.getHomeDirContext ("user_u" , h+'/[^/]*', "user")
- 			ret += self.getHomeRootContext(h)
-+		ret += self.getUserContext(".*", "user_u", "user") + "\n"
- 		ret += self.genHomeDirContext()
- 		return ret
- 
-
---------------070008020704070109010204--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
