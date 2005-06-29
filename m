@@ -1,69 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5TIoCgA015355
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 14:50:13 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5TInJ79019245
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 18:49:19 GMT
-Subject: RE: file contexts and modularity
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <200506291817.j5TIHQ7f013656@gotham.columbia.tresys.com>
-References: <200506291817.j5TIHQ7f013656@gotham.columbia.tresys.com>
+Subject: Re: Execmem boolean
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: ivg2@cornell.edu, selinux@tycho.nsa.gov
+In-Reply-To: <42C2DB70.2070204@redhat.com>
+References: <1119822163.4357.9.camel@localhost.localdomain>
+	 <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
+	 <42C2DB70.2070204@redhat.com>
 Content-Type: text/plain
-Date: Wed, 29 Jun 2005 14:46:59 -0400
-Message-Id: <1120070819.20484.40.camel@celtics.boston.redhat.com>
+Date: Wed, 29 Jun 2005 14:49:57 -0400
+Message-Id: <1120070997.3553.172.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-06-29 at 13:33 -0400, Daniel J Walsh wrote:
+> Problem is with third party apps,  They don't get labeled texrel_shlib_t 
+> and therefore do not work.
+> 
+> allow execmod allows them to work with the shlib_t label.  We can change 
+> this to a targeted vs strict.
 
-> I still don't agree with this - how do you know how to expand these if it is not
-> tied to a specific user? 
+IMHO, we can allow execmod to texrel_shlib_t without requiring a boolean
+around it at all.  Only case where I would care to shut off execmod is
+for anything not explicitly labeled texrel_shlib_t, as that label
+already indicates an explicit decision to allow text relocation on that
+file.  Hence, we can keep wider execmod access (e.g. to shlib_t,
+home_type, file_type, whatever) restricted via allow_execmod, and just
+always include execmod to texrel_shlib_t.  Strict policy likely
+shouldn't allow execmod to anything but texrel_shlib_t, and can thus
+omit the boolean altogether.
 
-That's my point exactly - matchpathcon doesn't have the necessary data,
-and it will be difficult for it to perform this operation. Expansions
-should be performed by programs that know how to do that.
+> Did these get added as default allow?  If policy is 19 or less?  Deny if 
+> policy > 19?
+> 
+> I don't think we should add any more access checks without bumping the 
+> policy version and putting
+> that logic in.
 
-useradd knows the user being added, and the home directory, for example.
+Well, they are already in 2.6.13-rc1, and no, they are not tied to a
+particular policy version.  I think FC4 targeted policy already allows
+them for unconfined domains.
 
-We could have a program that walks the fstab, and collects data
-on where certain mount points are, and then perform an expansion to
-configure that..
-
-We could detect a change in some gconf key that configures a path,
-and have it perform an expansion.
-
-I suppose only the sysadm could do this for now, maybe not so 
-in the future.
-
-> Additionally, all of this is caused by using file
-> contexts for runtime labeling, which I have pointed out repeatedly is a
-> questionable security practice.
-
-You've done no such thing - you've pointed out that
-automated relabeling without timing control by the sysadmin
-is potentially dangerous. I don't see why that means that
-automated relabeling (as in..performed internally, and not by
-chcon) in general is a bad thing. I'm not sure what you mean by
-"runtime labeling".
-
-> Fundamentally wrong seems a little strong - this is just a space / time tradeoff
-> not a major architectural decision.
-
-But why? 
-What's the gain of doing the same work over and over again?
-I mentioned that I don't want to concat files together, but 
-at least that way performing the expansion happens once, when
-relevant - not on every matchpathcon invocation...
-
-> More importantly, we have just decided to remove specific user information from
-> the policy and leaving it in the file contexts seems strange.
-
-The file contexts serves a different purpose.
-I agree with you in that I don't like having hundreds of files there,
-but at the same time I don't see an alternative.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
