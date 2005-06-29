@@ -1,51 +1,49 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5SNq8gA008650
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 19:52:08 -0400 (EDT)
-Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5SNokxl017043
-	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 23:50:46 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5T25fgA009134
+	for <selinux@tycho.nsa.gov>; Tue, 28 Jun 2005 22:05:41 -0400 (EDT)
+Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5T24saC001461
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 02:04:54 GMT
 Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
-	by free.hands.com (Postfix) with ESMTP id F344CBEE4
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 00:51:14 +0100 (BST)
+	by free.hands.com (Postfix) with ESMTP id 49375BF7A
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 03:04:53 +0100 (BST)
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1DnPzt-0002VB-7c
-	for selinux@tycho.nsa.gov; Wed, 29 Jun 2005 01:00:09 +0100
-Date: Wed, 29 Jun 2005 01:00:09 +0100
+	id 1DnS5F-0002gt-58
+	for selinux@tycho.nsa.gov; Wed, 29 Jun 2005 03:13:49 +0100
+Date: Wed, 29 Jun 2005 03:13:49 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: http://sourceforge.net/mailarchive/forum.php?thread_id=6364737&forum_id=35600
-Message-ID: <20050629000009.GA9566@lkcl.net>
+Subject: wish-list item for selinux policy analyss
+Message-ID: <20050629021349.GA10219@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-of interest to some mad people somewhere: ibm research's "sHype"
-hypervisor security architecture.
+dear selinux people,
 
-annoyingly, it is "modelled" on flask [i say annoyingly because
-they "modelled" sHype on selinux instead of incorporating
-support for selinux into sHype and xen]
+on my wish-list for selinux is a means to tell, at runtime,
+which avc messages have been utilised.  not when - if.
 
-over the next year (starting jan 2005) they plan to do the following:
+the equivalent of code coverage analysis tools.
 
-* Port sHype to Xen 
+i envisage this to be implemented - hand-waving - by a single
+bit which is marked in the in-kernel-memory store of selinux avc
+policy, for reasons of minimising impact on run-time performance
+(i believe that tying something into the avc audit logging
+system, would be too slow).
 
-* Add stronger security/isolation guarantees (confinement)
-  to what is currently available through Xen"s (and other
-  hypervisors") address space separation mechanisms, e.g.,
-  to enable information flow control in Xen
+the reason for this is to be able to fire up a system, run
+it for a while (live) say oh a few months, and then determine
+which bits of the selinux policy.conf have never ever actually
+been used.
 
-*  Enhance Xen to support trusted computing under Linux using
-  TCG/TPM-based attestation mechanisms
+track them down, and remove them from the selinux source policy.
 
-*  Enhance Xen to support secure resource metering,
-  verification, and control.
+... via analysis of the policy.conf, back to the macros from
+whence they came.
 
-* Apply our experience in automated security analysis to Xen
-  to make it more robust
-
-* Make Xen suitable for Common Criteria evaluation 
+l.
 
 -- 
 --
