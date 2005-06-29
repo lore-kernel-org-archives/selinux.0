@@ -1,34 +1,34 @@
-Subject: RE: file contexts and modularity
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Janak Desai <jdesai@us.ibm.com>, Karl MacMillan <kmacmillan@tresys.com>,
-   selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
-References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>
-	 <1120073041.20484.70.camel@celtics.boston.redhat.com>
-	 <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Execmem boolean
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+In-Reply-To: <42C2F865.2040102@redhat.com>
+References: <1119822163.4357.9.camel@localhost.localdomain>
+	 <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
+	 <42C2DB70.2070204@redhat.com>
+	 <1120070997.3553.172.camel@moss-spartans.epoch.ncsc.mil>
+	 <1120071263.20484.45.camel@celtics.boston.redhat.com>
+	 <42C2F865.2040102@redhat.com>
 Content-Type: text/plain
-Date: Wed, 29 Jun 2005 16:03:01 -0400
-Message-Id: <1120075381.20484.75.camel@celtics.boston.redhat.com>
+Date: Wed, 29 Jun 2005 16:07:03 -0400
+Message-Id: <1120075623.20484.79.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> So at that point you no longer need to keep home directory contexts in
-> file_contexts at all, and you just exclude home directories from
-> relabeling.
+> Ok.
+> Should be a boolean allow_X_execmem.  Most people don't need execmem for 
+> X.  (Only nvidia binary drivers)
 
-How is the context of the bind-mounted home dir configured?
+Are you sure? I thought it was always needed...
+I recall bringing this up in the first place, because I ran into
+this problem at work (where I don't use Nvidia binary modules).
 
-and subdirectories? pre-created?
-what determines their context?
+I've had execmem enabled forever on my home computer.
 
-I am trying to understand where the labeling 
-information is stored, if you want to get rid of the 
-file_contexts.homedirs file.
-
+I can recheck...
 
 
 
