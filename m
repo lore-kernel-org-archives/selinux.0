@@ -1,35 +1,52 @@
-Subject: Re: Execmem boolean
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <42C2F865.2040102@redhat.com>
-References: <1119822163.4357.9.camel@localhost.localdomain>
-	 <1119883756.32316.74.camel@moss-spartans.epoch.ncsc.mil>
-	 <42C2DB70.2070204@redhat.com>
-	 <1120070997.3553.172.camel@moss-spartans.epoch.ncsc.mil>
-	 <1120071263.20484.45.camel@celtics.boston.redhat.com>
-	 <42C2F865.2040102@redhat.com>
+Subject: RE: file contexts and modularity
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gyurdiev@redhat.com
+Cc: Janak Desai <jdesai@us.ibm.com>, Karl MacMillan <kmacmillan@tresys.com>,
+   selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1120075381.20484.75.camel@celtics.boston.redhat.com>
+References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>
+	 <1120073041.20484.70.camel@celtics.boston.redhat.com>
+	 <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
+	 <1120075381.20484.75.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Wed, 29 Jun 2005 16:07:03 -0400
-Message-Id: <1120075623.20484.79.camel@celtics.boston.redhat.com>
+Date: Wed, 29 Jun 2005 16:09:31 -0400
+Message-Id: <1120075771.3553.234.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-06-29 at 16:03 -0400, Ivan Gyurdiev wrote:
+> > So at that point you no longer need to keep home directory contexts in
+> > file_contexts at all, and you just exclude home directories from
+> > relabeling.
+> 
+> How is the context of the bind-mounted home dir configured?
 
-> Ok.
-> Should be a boolean allow_X_execmem.  Most people don't need execmem for 
-> X.  (Only nvidia binary drivers)
+The mount point directory's context can just be a single fixed context
+for all users, as it is just a mount point.
 
-Are you sure? I thought it was always needed...
-I recall bringing this up in the first place, because I ran into
-this problem at work (where I don't use Nvidia binary modules).
+> and subdirectories? pre-created?
 
-I've had execmem enabled forever on my home computer.
+Optionally, but typically just created by login-style programs (ideally
+via libpam) when the user first logs in at a given role.
 
-I can recheck...
+> what determines their context?
 
+Obtained via security_compute_member, which in turn relies on
+type_member rules in the policy.  See Chad's earlier postings.  The
+security_setupns() function is in our libselinux tree, but you'd also
+need the patches he posted to login and friends for experimentation.
+
+> I am trying to understand where the labeling 
+> information is stored, if you want to get rid of the 
+> file_contexts.homedirs file.
+
+It is computed based on the user process' security context and the base
+context on the mount point directory.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
