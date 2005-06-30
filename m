@@ -1,63 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5U76ggA019876
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 03:06:42 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5U756Bs028127
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 07:05:06 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5UBdrgA021002
+	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 07:39:53 -0400 (EDT)
+Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5UBcqfl025122
+	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 11:38:52 GMT
+Date: Thu, 30 Jun 2005 12:47:49 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: gyurdiev@redhat.com, SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: wish-list item for selinux policy analyss
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050630003700.GB8415@lkcl.net>
-References: <20050629021349.GA10219@lkcl.net>
-	 <1120058832.17121.38.camel@celtics.boston.redhat.com>
-	 <20050630003700.GB8415@lkcl.net>
-Content-Type: text/plain
-Date: Thu, 30 Jun 2005 03:05:56 -0400
-Message-Id: <1120115156.26946.50.camel@localhost.localdomain>
+Message-ID: <20050630114749.GH8415@lkcl.net>
+References: <20050630010838.GF8415@lkcl.net> <20050630011009.79646.qmail@web31609.mail.mud.yahoo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050630011009.79646.qmail@web31609.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, Jun 29, 2005 at 06:10:09PM -0700, Casey Schaufler wrote:
+> >  wrong way round, casey.
+> > 
+> >  intent of wish-list item is to be able to say "this
+> > door
+> >  hasn't been used for a year, let's brick it up".
 
-> > 2) It's not clear that policy source should fit as well as possible to
-> > program usage patterns. Those patterns can change, and I think
-> > it's a good idea to leave some room for such changes - policy usually
-> > permits the program to do more than it actually does, and I think
-> > that's okay, as long as nothing dangerous is allowed. 
-> 
->  i am a little fried right now to explain why i believe that is
->  not a good argument, but i believe that if you look carefully
->  at what you have said, you are saying "i think allowing more
->  than is necessary is okay, therefore i don't think we should
->  tools to people who _might_ want to go a little further / make
->  a more restrictive policy because we want it to be _difficult_
->  for them to disagree with us and diverge from policy source
->  as controlled by us."
+> I get it now. My brain was still in the
+> context of reducing the size of the
+> policy, 
 
-No, actually, what I was saying is that I don't believe such a 
-tool (as described) would be very helpful to me at tracking down 
-policy bit rot. I feel that taking out rules written by someone 
-else, based on my particular usage patterns is the wrong way to 
-go... though I've done it before, because there was no way to 
-figure out what those rules try to do, and why they were there
-(people didn't comment policy).
+ this could help - albeit not as much as ... okay,
+ separate-message-to-list-time, i have an idea.
 
-If I'm the app developer, I should know why the rules are in 
-there. If I'm the policy developer, I should comment my policy 
-to accomplish that, and to allow other policy writers to contribute,
-and maintain policy.  If I'm the end user, I probably shouldn't 
-be taking important rules out of the policy without consideration 
-of the policy writer's intent, and expect it not to break.
+> and I may have made a
+> connection that wasn't really there.
 
-This is just my personal opinion - it has nothing to do with
-the company I work for, or some grand conspiracy to maintain
-control of the policy (no such thing exists, since it is open
-source). I don't understand why you need an internal kernel 
-change to do what you like, however - what's wrong with working 
-on top of the audit log? Just comment out all the rules you're
-interested in, and look for denials?
+> If the goal is to reduce the policy
+> size you might use this method
+> to find rules you can remove, 
+
+ yes.
+
+> and
+> that could be denial rules, which
+> would be what I objected too.
+
+ ah :)
 
 
 --
