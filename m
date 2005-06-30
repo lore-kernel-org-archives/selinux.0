@@ -1,37 +1,27 @@
-Subject: Re: crontab policy
+Subject: Re: security_compute_av(3)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: russell@coker.com.au
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200506301439.29861.russell@coker.com.au>
-References: <200506301439.29861.russell@coker.com.au>
+In-Reply-To: <200506301356.37995.russell@coker.com.au>
+References: <200506301356.37995.russell@coker.com.au>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 08:36:01 -0400
-Message-Id: <1120134961.11798.18.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Jun 2005 08:38:48 -0400
+Message-Id: <1120135128.11798.22.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-30 at 14:39 +1000, Russell Coker wrote:
-> The attached patch is needed to allow the "crontab -u" checks to operate 
-> correctly.  Without this the check always returns 0 and crontab will allow 
-> root to create crontabs for anyone regardless of SE Linux context.
-> 
-> Note that it may be necessary to go further.  I am operating under the 
-> assumption that if you want to grant a particular crontab domain the access 
-> to create crontab files for other users then you will grant extra access to 
-> the crontab domain as well as the "passwd crontab" access to the parent 
-> domain in the policy.  Maybe we should allow all $1_crontab_t domains to 
-> perform the security checks?
+On Thu, 2005-06-30 at 13:56 +1000, Russell Coker wrote:
+> It appears that most functions in this man page require the header file 
+> selinux/av_permissions.h, but the man page omits to mention this.
 
-This should be done via macros, e.g. can_getsecurity() provides the
-necessary permissions to get security decisions via selinuxfs.  Not sure
-that the ability to read /etc/selinux/config is truly necessary, as you
-only need that to find out the paths to the policy files, which aren't
-required for using selinuxfs.  userspace_objmgr defines a broader set of
-permissions including the ability to get security decisions,
-read /etc/selinux/config and /etc/selinux/$SELINUXTYPE/contexts, and get
-notifications of policy reloads and changes to the enforcing flag via
-netlink.
+Um, ok.  Didn't you write that man page?  Feel free to submit a patch ;)
+av_permissions.h is actually only needed for security_compute_av and
+checkPasswdAccess (and avc_has_perm).  The other functions would only
+need the class definitions, which are in flask.h.  And ultimately, these
+will be replaced by dynamic mappings from string names for classes and
+permissions to values determined at runtime, handled by the userspace
+security server.
 
 -- 
 Stephen Smalley
