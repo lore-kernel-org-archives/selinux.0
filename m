@@ -1,46 +1,62 @@
-Subject: RE: file contexts and modularity
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: gyurdiev@redhat.com
-Cc: Janak Desai <jdesai@us.ibm.com>, Karl MacMillan <kmacmillan@tresys.com>,
-   selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
-In-Reply-To: <1120076573.20484.93.camel@celtics.boston.redhat.com>
+Subject: Re: file contexts and modularity
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Janak Desai <janak@us.ibm.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1120077839.20484.104.camel@celtics.boston.redhat.com>
 References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>
 	 <1120073041.20484.70.camel@celtics.boston.redhat.com>
 	 <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
 	 <1120075381.20484.75.camel@celtics.boston.redhat.com>
-	 <1120075771.3553.234.camel@moss-spartans.epoch.ncsc.mil>
-	 <1120076573.20484.93.camel@celtics.boston.redhat.com>
+	 <42C302F9.4080901@us.ibm.com>
+	 <1120077839.20484.104.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 09:54:45 -0400
-Message-Id: <1120139685.11798.52.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Jun 2005 09:53:25 -0400
+Message-Id: <1120139605.32561.28.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-06-29 at 16:22 -0400, Ivan Gyurdiev wrote:
-> I don't have the list archived that far back,
-> but from reading about this online it looks like an analog
-> to file_type_auto_trans, which doesn't work, because
-> of ambiguity. Pre-creating things is required, which
-> currently works via matchpathcon....
+On Wed, 2005-06-29 at 16:44 -0400, Ivan Gyurdiev wrote:
+> > Subdirectory context is obtained from the policy
+> > using security_compute_member() call. 
+> 
+> int security_compute_member(security_context_t scon,
+>                             security_context_t tcon,
+>                             security_class_t tclass,
+>                             security_context_t *newcon)
+> 
+> So, it seems to me that
+> this is insufficient basis to determine proper newcon - 
+> file_type_auto_trans doesn't work for the same reason.
+> 
+> (scon, tcon, tclass) -> newcon 
+> 
+> is a 1:many map, and not 1:1.
+> 
+> So...how will pre-creation work if the file_contexts.homedirs
+> file is erased (the only many:1 map available, 
+> which becomes 1:1 given evaluation order).
 
-So far, the polyinstantiated directory support has only considered
-automated creation of the per-user/role/level directories, not anything
-within them (except for setup code for preserving X-related sockets
-in /tmp and .Xauthority in $HOME to allow it to work with gdm).  Hence,
-it would need to be extended to allow more general setup, e.g. copying
-in skeleton files when a per-role directory is first created and setting
-up their contexts as appropriate.  Which might require some kind of
-configuration, not necessarily file_contexts/matchpathcon.
+To clarify, what I mean is... the file_context allows us to uniquely 
+identify files, and label them appropriately. The (scon, tcon, tclass)
+pair is not sufficient to uniquely identify the resultant type. 
+There are many occasions where we need multiple types with the same
+triple, which is why we have this hack script that Karl doesn't like
+at all, which does pre-creation of subfolders. However, that 
+script requires the file_contexts file to work, so I don't 
+see how it can be removed, with or without polyinstantiation.
 
-> That makes sense for the mount point itself, but not
-> for sub-content.
+I can see the problem being fixed if you label files under /home
+_and_ /tmp with a ROLE independent-type. This will also remove the
+need to relabel after a change in primary role, which is currently
+a major issue. However, I wasn't sure if that was being suggested? 
+Is this what we're discussing here - removing role-dependent labeling,
+since other roles' content will be hidden by polyinstantiation?
 
-Yes, it is only dealing with the per-role directory at present.
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
