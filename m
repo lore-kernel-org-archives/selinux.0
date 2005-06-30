@@ -1,74 +1,45 @@
-Message-Id: <200506302043.j5UKh17f031735@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>, "'Rix, Tom'" <trix@camber.com>
-Cc: <selinux@tycho.nsa.gov>
-Subject: RE: SELinux auditing and NISPOM Ch 8
-Date: Thu, 30 Jun 2005 16:42:59 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1120152375.11798.113.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5UKi3gA026426
+	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 16:44:03 -0400 (EDT)
+Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5UKgwfl003568
+	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 20:42:58 GMT
+Date: Thu, 30 Jun 2005 21:51:43 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Ivan Gyurdiev <gyurdiev@redhat.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: wish-list item for selinux policy analyss
+Message-ID: <20050630205143.GC8421@lkcl.net>
+References: <20050629021349.GA10219@lkcl.net> <1120058832.17121.38.camel@celtics.boston.redhat.com> <20050630003700.GB8415@lkcl.net> <1120115156.26946.50.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1120115156.26946.50.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of Stephen Smalley
-> Sent: Thursday, June 30, 2005 1:26 PM
-> To: Rix, Tom
-> Cc: selinux@tycho.nsa.gov
-> Subject: Re: SELinux auditing and NISPOM Ch 8
-> 
-> On Thu, 2005-06-30 at 12:05 -0500, Rix, Tom wrote:
-> > Does SELinux provide the level of auditing required by DSS NISPOM
-> > chapter 8, legal and illegal rwx accesses?
-> > Are there any resources (HOWTO's) on how SELinux can be applied to
-> > meeting any of the Chapter 8 requirements?
-> 
-> SELinux itself only deals with auditing of MAC permission checks.  By
-> default, it audits all MAC permission denials (but specific ones can be
-> suppressed via dontaudit rules to avoid noise) and it can also be
-> configured to audit specific allowed permissions via auditallow rules
-> (e.g. to ensure that certain events like policy loads are always
-> audited).
-> 
+On Thu, Jun 30, 2005 at 03:05:56AM -0400, Ivan Gyurdiev wrote:
+ 
+> This is just my personal opinion - it has nothing to do with
+> the company I work for, or some grand conspiracy to maintain
+> control of the policy (no such thing exists, since it is open
+> source). I don't understand why you need an internal kernel 
+> change to do what you like, however - what's wrong with working 
+> on top of the audit log? Just comment out all the rules you're
+> interested in, and look for denials?
+ 
+ hiya ivan,
 
-Just to clarify - SELinux by itself probably does not meet these requirements
-because failures from standard linux access control will not be audited.
+ yes, joshua described something which would achieve the same thing
+ using audit logging.
 
-> The Linux 2.6 kernel provides an audit framework with more general
-> auditing functionality, and a fair amount of work has gone into
-> enhancing that functionality - see the linux-audit mailing list:
-> http://www.redhat.com/mailman/listinfo/linux-audit
-> 
-> If you want to experiment with some of that general auditing
-> functionality, you might try Fedora Core 4 and its 'audit' package.
-> That functionality should be included in an update to RHEL4, iirc.
-> 
+ (thank you joshua!)
 
-This framework should meet the requirements - it is designed to meet the CAPP
-audit requirements which are very similar to NISPOM Ch 8. It will require
-configuration, however, that as far as I know no one has done.
+ l.
 
-Karl
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
-> --
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
-
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
