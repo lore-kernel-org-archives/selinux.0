@@ -1,55 +1,37 @@
-Subject: Re: idea for reducing policy size: put representation of macros in
-	binary form
+Subject: Re: crontab policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050630115350.GJ8415@lkcl.net>
-References: <20050630115350.GJ8415@lkcl.net>
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200506301439.29861.russell@coker.com.au>
+References: <200506301439.29861.russell@coker.com.au>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 08:22:49 -0400
-Message-Id: <1120134169.11798.8.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Jun 2005 08:36:01 -0400
+Message-Id: <1120134961.11798.18.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-30 at 12:53 +0100, Luke Kenneth Casson Leighton wrote:
-> mad-cap idea that should NOT be taken to its literal extreme (except
-> possibly in the case of an embedded system with more time than memory on
-> its hands).
+On Thu, 2005-06-30 at 14:39 +1000, Russell Coker wrote:
+> The attached patch is needed to allow the "crontab -u" checks to operate 
+> correctly.  Without this the check always returns 0 and crontab will allow 
+> root to create crontabs for anyone regardless of SE Linux context.
 > 
-> how about, in trading off against processing power, making a
-> [possibly limited] means to represent the macros or equivalent
-> in binary form in the policy?
-> 
-> the reasoning behind this is to reduce the size of the policy, and to
-> have them expanded out (not using m4 obviously) by the selinux
-> capability module at runtime.
-> 
-> optionally cacheing the results of course, with the possibility of
-> throwing these cached results away if too much memory gets used.
-> 
-> certain macros could be an appropriate target but others, macros of
-> macros etc. would not.  yet.
+> Note that it may be necessary to go further.  I am operating under the 
+> assumption that if you want to grant a particular crontab domain the access 
+> to create crontab files for other users then you will grant extra access to 
+> the crontab domain as well as the "passwd crontab" access to the parent 
+> domain in the policy.  Maybe we should allow all $1_crontab_t domains to 
+> perform the security checks?
 
-There have been previous discussions on list about creating some kind of
-template construct in the policy language that would provide a reduced
-functionality form of the macros directly in the language, thereby
-allowing them to be preserved at least in the binary policy module form
-and thus expanded at policy linking time, even if we don't push them all
-the way down into the kernel's binary policy.  Feel free to
-contribute ;)
-
-But as far as reducing policy size goes, I think that the already
-suggested approaches of:
-- storing a type->attribute reverse map in the binary policy rather than
-pre-expanding and discarding all attributes during policy compilation,
-- storing rules based on attributes directly in terms of the attributes
-in the avtab rather than exploding into type sets,
-- splitting avtab nodes into separate entries for each kind of datum
-rather than coalescing the av rules together and the type rules
-together, and
-- reducing the size of the fields in the avtab nodes
-will be more than adequate.
+This should be done via macros, e.g. can_getsecurity() provides the
+necessary permissions to get security decisions via selinuxfs.  Not sure
+that the ability to read /etc/selinux/config is truly necessary, as you
+only need that to find out the paths to the policy files, which aren't
+required for using selinuxfs.  userspace_objmgr defines a broader set of
+permissions including the ability to get security decisions,
+read /etc/selinux/config and /etc/selinux/$SELINUXTYPE/contexts, and get
+notifications of policy reloads and changes to the enforcing flag via
+netlink.
 
 -- 
 Stephen Smalley
