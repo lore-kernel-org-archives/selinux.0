@@ -1,28 +1,55 @@
-Subject: Re: wish-list item for selinux policy analyss
+Subject: Re: idea for reducing policy size: put representation of macros in
+	binary form
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: gyurdiev@redhat.com
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1120115156.26946.50.camel@localhost.localdomain>
-References: <20050629021349.GA10219@lkcl.net>
-	 <1120058832.17121.38.camel@celtics.boston.redhat.com>
-	 <20050630003700.GB8415@lkcl.net>
-	 <1120115156.26946.50.camel@localhost.localdomain>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050630115350.GJ8415@lkcl.net>
+References: <20050630115350.GJ8415@lkcl.net>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 08:16:31 -0400
-Message-Id: <1120133791.11798.1.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Jun 2005 08:22:49 -0400
+Message-Id: <1120134169.11798.8.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-30 at 03:05 -0400, Ivan Gyurdiev wrote:
-> I don't understand why you need an internal kernel 
-> change to do what you like, however - what's wrong with working 
-> on top of the audit log? Just comment out all the rules you're
-> interested in, and look for denials?
+On Thu, 2005-06-30 at 12:53 +0100, Luke Kenneth Casson Leighton wrote:
+> mad-cap idea that should NOT be taken to its literal extreme (except
+> possibly in the case of an embedded system with more time than memory on
+> its hands).
+> 
+> how about, in trading off against processing power, making a
+> [possibly limited] means to represent the macros or equivalent
+> in binary form in the policy?
+> 
+> the reasoning behind this is to reduce the size of the policy, and to
+> have them expanded out (not using m4 obviously) by the selinux
+> capability module at runtime.
+> 
+> optionally cacheing the results of course, with the possibility of
+> throwing these cached results away if too much memory gets used.
+> 
+> certain macros could be an appropriate target but others, macros of
+> macros etc. would not.  yet.
 
-Or just add auditallow rules and let it audit all grantings for a while,
-then reduce your rule set accordingly.
+There have been previous discussions on list about creating some kind of
+template construct in the policy language that would provide a reduced
+functionality form of the macros directly in the language, thereby
+allowing them to be preserved at least in the binary policy module form
+and thus expanded at policy linking time, even if we don't push them all
+the way down into the kernel's binary policy.  Feel free to
+contribute ;)
+
+But as far as reducing policy size goes, I think that the already
+suggested approaches of:
+- storing a type->attribute reverse map in the binary policy rather than
+pre-expanding and discarding all attributes during policy compilation,
+- storing rules based on attributes directly in terms of the attributes
+in the avtab rather than exploding into type sets,
+- splitting avtab nodes into separate entries for each kind of datum
+rather than coalescing the av rules together and the type rules
+together, and
+- reducing the size of the fields in the avtab nodes
+will be more than adequate.
 
 -- 
 Stephen Smalley
