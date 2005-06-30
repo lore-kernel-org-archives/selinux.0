@@ -1,50 +1,42 @@
-Subject: Re: Groups in the alternative user solution
+Subject: RE: file contexts and modularity
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: gyurdiev@redhat.com
-Cc: casey@schaufler-ca.com, kmacmillan@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <1120138022.32561.12.camel@celtics.boston.redhat.com>
-References: <1119980076.4806.23.camel@celtics.boston.redhat.com>
-	 <1119987846.22225.222.camel@moss-spartans.epoch.ncsc.mil>
-	 <1119988230.7417.6.camel@celtics.boston.redhat.com>
-	 <1120055713.3553.105.camel@moss-spartans.epoch.ncsc.mil>
-	 <1120057525.17121.23.camel@celtics.boston.redhat.com>
-	 <1120059525.3553.137.camel@moss-spartans.epoch.ncsc.mil>
-	 <1120138022.32561.12.camel@celtics.boston.redhat.com>
+Cc: Janak Desai <jdesai@us.ibm.com>, Karl MacMillan <kmacmillan@tresys.com>,
+   selinux@tycho.nsa.gov, "'Daniel J Walsh'" <dwalsh@redhat.com>
+In-Reply-To: <1120076573.20484.93.camel@celtics.boston.redhat.com>
+References: <200506291905.j5TJ4r7f019262@gotham.columbia.tresys.com>
+	 <1120073041.20484.70.camel@celtics.boston.redhat.com>
+	 <1120074657.3553.217.camel@moss-spartans.epoch.ncsc.mil>
+	 <1120075381.20484.75.camel@celtics.boston.redhat.com>
+	 <1120075771.3553.234.camel@moss-spartans.epoch.ncsc.mil>
+	 <1120076573.20484.93.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 09:46:07 -0400
-Message-Id: <1120139167.11798.46.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Jun 2005 09:54:45 -0400
+Message-Id: <1120139685.11798.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-30 at 09:27 -0400, Ivan Gyurdiev wrote:
-> What about Casey's suggestion in this thread:
-> 
-> > 
-> >     root:*:sysadm
-> >     fred:wheel:wand
-> >     *:wheel:staff
-> >     *:*:normal
-> > 
-> > Fred would be in "wand" if only in group wheel,
-> > in "normal" if in groups wheel and dev. Fun.
-> 
-> Not sure I understand... 
-> So if Fred is in more groups other than wheel, 
-> he maps to normal? What's the rationale for that?
+On Wed, 2005-06-29 at 16:22 -0400, Ivan Gyurdiev wrote:
+> I don't have the list archived that far back,
+> but from reading about this online it looks like an analog
+> to file_type_auto_trans, which doesn't work, because
+> of ambiguity. Pre-creating things is required, which
+> currently works via matchpathcon....
 
-I didn't understand the reasoning there either, particularly as we
-aren't dealing with the effective GID but the entire authorized group
-list for the user since we are only doing this once at login/su time.
+So far, the polyinstantiated directory support has only considered
+automated creation of the per-user/role/level directories, not anything
+within them (except for setup code for preserving X-related sockets
+in /tmp and .Xauthority in $HOME to allow it to work with gdm).  Hence,
+it would need to be extended to allow more general setup, e.g. copying
+in skeleton files when a per-role directory is first created and setting
+up their contexts as appropriate.  Which might require some kind of
+configuration, not necessarily file_contexts/matchpathcon.
 
-> Controlling information disclosure? Does that * 
-> take precedence to fred? What about conflicts? 
-> This seems complicated..
+> That makes sense for the mount point itself, but not
+> for sub-content.
 
-I was originally thinking more along the lines of just selecting the
-first matching entry (order-dependent), and group match just required
-membership in the listed group, not an exact match (if you are going to
-support group-based matching).
+Yes, it is only dealing with the per-role directory at present.
 
 -- 
 Stephen Smalley
