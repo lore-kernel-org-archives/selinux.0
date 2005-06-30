@@ -1,56 +1,62 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5UMukgA027386
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 18:56:47 -0400 (EDT)
-Received: from e1.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5UMtefl008823
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 22:55:40 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e1.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id j5UMtcLL005214
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 18:55:38 -0400
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay04.pok.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id j5UMtclF240238
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 18:55:38 -0400
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11/8.13.3) with ESMTP id j5UMtbEP003434
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 18:55:38 -0400
-Date: Thu, 30 Jun 2005 18:01:26 -0500
-From: serue@us.ibm.com
-To: Greg KH <greg@kroah.com>
-Cc: linux-security-module@wirex.com, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: RFC: jail functionality
-Message-ID: <20050630230126.GA24203@serge.austin.ibm.com>
-References: <20050629161409.GB16233@serge.austin.ibm.com> <20050630054433.GA23147@kroah.com>
+Subject: cgiemail and senmail policy
+From: "R. Steven Rainwater" <srainwater@ncc.com>
+To: SELinux@tycho.nsa.gov
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1119137931.11593.53.camel@rodan.ncc.com>
+References: <20050618153949.72823.qmail@web51502.mail.yahoo.com>
+	 <1119137931.11593.53.camel@rodan.ncc.com>
+Content-Type: text/plain
+Message-Id: <1120169474.17769.60.camel@rodan.ncc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050630054433.GA23147@kroah.com>
+Date: Thu, 30 Jun 2005 17:11:15 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Greg KH (greg@kroah.com):
-> On Wed, Jun 29, 2005 at 11:14:09AM -0500, serue@us.ibm.com wrote:
-> > Hi,
-> > 
-> > I'd still like to see bsdjail/vserver/zone functionality in linux.  It
-> > seems to me the following pieces are needed:
-> > 
-> > 	more?
-> 
-> /sbin/hotplug and/or kevents.
+I'm running a CentOS 4.1 (Red Hat EL) box with an Apache web server. I
+thought I'd worked out all the problems with my cgi scripts but a new
+one cropped up today. We use the good ol' MIT cgiemail program to handle
+form submissions that get sent via sendmail. When someone submits a
+form, I get a series of avc errors and no email gets sent. What's the
+best way to fix this (i.e. to make Apache able to use cgiemail to send
+email via sendmail)?  Here are the errors I'm getting:
+ 
+Jun 30 16:47:33 orac kernel: audit(1120168053.409:0): avc:  denied  {
+write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
+ino=948452 scontext=root:system_r:system_mail_t
+tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
 
-Thanks - I can't even imagine what the issues would be.  I'll need to
-look at their architectures in more detail.
+Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
+write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
+ino=948452 scontext=root:system_r:system_mail_t
+tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
 
-> I spent a few hours with one of the authors of the bsd jail code talking
-> about this and in the end, he just laughed and said "good luck."  He
-> also admitted that this was one of the reasons bsd wouldn't get such an
-> event notifier subsystem, so I figured it was a fair trade off.
+Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
+write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
+ino=948452 scontext=root:system_r:system_mail_t
+tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
 
-I wonder how/whether it's working under linux-vserver.
+Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
+read write } for  pid=27969 comm=sendmail path=/tmp/tmpfKM8Top (deleted)
+dev=dm-0 ino=948418 scontext=root:system_r:system_mail_t
+tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
 
-I'll have to look into these.
+Jun 30 16:47:33 orac kernel: audit(1120168053.510:0): avc:  denied  {
+search } for  pid=27969 comm=sendmail name=www dev=dm-0 ino=556110
+scontext=root:system_r:system_mail_t
+tcontext=system_u:object_r:httpd_sys_content_t tclass=dir
 
-thanks,
--serge
+Jun 30 16:47:33 orac kernel: audit(1120168053.511:0): avc:  denied  {
+getattr }
+for  pid=27969 comm=sendmail path=/var/www dev=dm-0 ino=556110
+scontext=root:system_r:system_mail_t
+tcontext=system_u:object_r:httpd_sys_content_t tclass=dir
+
+
+
+The system is using selinux-policy-targeted-1.17.30-2.88.
+
+-Steve
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
