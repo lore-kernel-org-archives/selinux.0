@@ -1,36 +1,49 @@
-Subject: Re: RFC: jail functionality
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Colin Walters <walters@verbum.org>
-Cc: serue@us.ibm.com, James Morris <jmorris@redhat.com>,
-   linux-security-module@wirex.com, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1120137574.4524.70.camel@nexus.verbum.private>
-References: <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.44.0506291402040.12494-100000@thoron.boston.redhat.com>
-	 <20050629184224.GC19299@serge.austin.ibm.com>
-	 <1120137574.4524.70.camel@nexus.verbum.private>
+Subject: Re: Groups in the alternative user solution
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: casey@schaufler-ca.com, kmacmillan@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1120059525.3553.137.camel@moss-spartans.epoch.ncsc.mil>
+References: <1119980076.4806.23.camel@celtics.boston.redhat.com>
+	 <1119987846.22225.222.camel@moss-spartans.epoch.ncsc.mil>
+	 <1119988230.7417.6.camel@celtics.boston.redhat.com>
+	 <1120055713.3553.105.camel@moss-spartans.epoch.ncsc.mil>
+	 <1120057525.17121.23.camel@celtics.boston.redhat.com>
+	 <1120059525.3553.137.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 30 Jun 2005 09:23:11 -0400
-Message-Id: <1120137791.11798.27.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Jun 2005 09:27:02 -0400
+Message-Id: <1120138022.32561.12.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-06-30 at 09:19 -0400, Colin Walters wrote:
-> But you should be aware that for a lot of the zone use cases, resource
-> management is very important, and SELinux doesn't provide that.  You
-> mention CKRM, but that's a whole other kernel patch.  Xen definitely
-> seems to be the approach that's winning here.
 
-IMHO, CKRM should be integrated with SELinux to allow policy control
-over resource management.
+> Seems unlikely to me, given the difference between DAC and MAC.
+> But I'm open to other opinions on the subject.
 
-For strict isolation (which does seem to be the theme of jail) as well
-as complete transparency of that isolation, virtualization make sense.
-But for controlled sharing, you will ultimately need OS-level controls.
+What about Casey's suggestion in this thread:
 
--- 
-Stephen Smalley
-National Security Agency
+> 
+>     root:*:sysadm
+>     fred:wheel:wand
+>     *:wheel:staff
+>     *:*:normal
+> 
+> Fred would be in "wand" if only in group wheel,
+> in "normal" if in groups wheel and dev. Fun.
+
+Not sure I understand... 
+So if Fred is in more groups other than wheel, 
+he maps to normal? What's the rationale for that?
+Controlling information disclosure? Does that * 
+take precedence to fred? What about conflicts? 
+This seems complicated..
+
+============
+
+Should this idea be dropped? More opinions?
+
+
 
 
 --
