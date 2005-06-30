@@ -1,74 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5U0aRgA018107
-	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 20:36:27 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5U0ZV79011126
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 00:35:31 GMT
-Date: Thu, 30 Jun 2005 01:37:00 +0100
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5U0vQgA018245
+	for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2005 20:57:27 -0400 (EDT)
+Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5U0trdE015151
+	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 00:55:54 GMT
+Date: Thu, 30 Jun 2005 02:05:26 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <gyurdiev@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+To: Ron Kuris <rk@unify.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, gyurdiev@redhat.com,
+   SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: wish-list item for selinux policy analyss
-Message-ID: <20050630003700.GB8415@lkcl.net>
-References: <20050629021349.GA10219@lkcl.net> <1120058832.17121.38.camel@celtics.boston.redhat.com>
+Message-ID: <20050630010526.GE8415@lkcl.net>
+References: <20050629165658.82487.qmail@web31609.mail.mud.yahoo.com> <42C2DC80.8070904@unify.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1120058832.17121.38.camel@celtics.boston.redhat.com>
+In-Reply-To: <42C2DC80.8070904@unify.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jun 29, 2005 at 11:27:12AM -0400, Ivan Gyurdiev wrote:
-> >  reason for this is to be able to fire up a system, run
-> > it for a while (live) say oh a few months, and then determine
-> > which bits of the selinux policy.conf have never ever actually
-> > been used.
+On Wed, Jun 29, 2005 at 10:38:08AM -0700, Ron Kuris wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> I see several problems with this idea:
+> Casey Schaufler wrote:
 > 
-> 1) Usage frequency does not necessarily correlate to
-> whether the rule is valid or not - you'd have to test
-> every code path to establish whether the rule is needed or not.
-
- yes.
-
- this i would deem to be acceptable.
-
- after say six months of running a system live, i believe
- it reasonable for an admin to conclude that after such a period of time
- (they may choose a more or less acceptable period of time) that any
- rules not in use by then ain't gonna be needed.
-
- for that PARTICULAR config / usage pattern.
-
- of course, if the box requires additional packages / changes in
- requirements, the criteria changes / usage patterns change.
-
-
-> I find this to be better accomplished with comments in policy
-> before every group of rules (and _not_ using audit2allow).
+> | I say amen to points 1-3. I add ...
+> |
+> | 4) A derived policy set will only tell you what the programs do,
+> | not what they are intended to do. Should I leave doors unlocked
+> | because burglers attempt to use them? If no burgler tries my door
+> | for a year does that mean having a lock on my door is unnecessary?
 > 
-> 2) It's not clear that policy source should fit as well as possible to
-> program usage patterns. Those patterns can change, and I think
-> it's a good idea to leave some room for such changes - policy usually
-> permits the program to do more than it actually does, and I think
-> that's okay, as long as nothing dangerous is allowed. 
+> I think the logic here is backwards.  
 
- i am a little fried right now to explain why i believe that is
- not a good argument, but i believe that if you look carefully
- at what you have said, you are saying "i think allowing more
- than is necessary is okay, therefore i don't think we should
- tools to people who _might_ want to go a little further / make
- a more restrictive policy because we want it to be _difficult_
- for them to disagree with us and diverge from policy source
- as controlled by us."
+ yep.  selinux is "MAC".
 
- if i have mistaken the intent of your statement, please
- accept my apologies for the above interpretation of what you
- have said.
- 
- l.
+> a year, then that door is a candidate for becoming a wall instead of a
+> door.  Otherwise, you end up in a maze of twisty passages, where
+> nobody knows what doors are needed and why.  Fewer doors means less
+> memory also, which can be important for embedded systems.
+> 
+> I think this wish-list item doesn't tell you what you can remove from
+> a policy.  However, it might tell you which rules are candidates to be
+> changed to a "deny" rule (or lack of an "allow" rule really).  
 
- 
+ absolutely.
+
+ that was the intent.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
