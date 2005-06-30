@@ -1,71 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j5UCsjgA021751
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 08:54:45 -0400 (EDT)
-Received: from sccrmhc13.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j5UCr6Bs017449
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jun 2005 12:53:07 GMT
-Message-ID: <42C3EB52.4000208@tresys.com>
-Date: Thu, 30 Jun 2005 08:53:38 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: wish-list item for selinux policy analyss
-References: <20050629021349.GA10219@lkcl.net>
-In-Reply-To: <20050629021349.GA10219@lkcl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: RFC: jail functionality
+From: Colin Walters <walters@verbum.org>
+To: serue@us.ibm.com
+Cc: James Morris <jmorris@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+   linux-security-module@wirex.com, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050629184224.GC19299@serge.austin.ibm.com>
+References: <1120062900.3553.151.camel@moss-spartans.epoch.ncsc.mil>
+	 <Xine.LNX.4.44.0506291402040.12494-100000@thoron.boston.redhat.com>
+	 <20050629184224.GC19299@serge.austin.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-py6vrG2Dhvt9j9RqpJut"
+Date: Thu, 30 Jun 2005 09:19:34 -0400
+Message-Id: <1120137574.4524.70.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
 
->dear selinux people,
->
->on my wish-list for selinux is a means to tell, at runtime,
->which avc messages have been utilised.  not when - if.
->
->the equivalent of code coverage analysis tools.
->
->i envisage this to be implemented - hand-waving - by a single
->bit which is marked in the in-kernel-memory store of selinux avc
->policy, for reasons of minimising impact on run-time performance
->(i believe that tying something into the avc audit logging
->system, would be too slow).
->
->the reason for this is to be able to fire up a system, run
->it for a while (live) say oh a few months, and then determine
->which bits of the selinux policy.conf have never ever actually
->been used.
->
->track them down, and remove them from the selinux source policy.
->
->... via analysis of the policy.conf, back to the macros from
->whence they came.
->
->l
->  
->
-Not that I think this is a good idea; many rules are only there for 
-corner case situations or errors but if you really want to do it you 
-don't even need a new tool, the existing ones will do just fine.
+--=-py6vrG2Dhvt9j9RqpJut
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-First add an auditallow * * for all object classes and permissions, then 
-reload that policy
-wait until you have the data you want (6 months should yield a few tb of 
-logs)
-grep granted /wherever/log | sed -e s/granted/denied/ | audit2allow > 
-somefile
-then sediff /etc/selinux/strict/policy/policy.18 somefile
+On Wed, 2005-06-29 at 13:42 -0500, serue@us.ibm.com wrote:
+> Quoting James Morris (jmorris@redhat.com):
+> > On Wed, 29 Jun 2005, Stephen Smalley wrote:
+> >=20
+> > > > The attached task-lookup patches?
+> > >=20
+> > > Not sure it provides much value.
+> >=20
+> > If yoy need this, why not look at proper isolation via Xen?
+>=20
+> Xen may be overkill for some cases, as you need (almost) a whole OS
+> for each jail.  Zones and bsd jails (I believe) should easily be
+> able to run hundreds of jails - provided of course they don't all
+> peak at once.
 
-you'll want to diff against the binary since the audit messages will be 
-the equivalent of an expanded policy
-Have fun, you'll probably get 100,000's of rules
+What you are saying is: Xen is a heavyweight virtualization solution
+that doesn't scale well when the user wants many instances of the exact
+same OS, as opposed to potentially different OSes.
 
-you could use apol at this point to track down the rules in the 
-policy.conf.. tracing back to the macro call that made it will be very 
-challenging though
+However, solving this (or at least drastically reducing the overhead) is
+on the Xen roadmap:
 
-Joshua Brindle
+http://www.cl.cam.ac.uk/Research/SRG/netos/xen/roadmap.html
+
+(Shared buffer-cache and VM 'forks')
+
+> And jails require some amount of access control.  I don't want to
+> introduce a new LSM for this, but just put together the various
+> existing (and not-yet-existing) pieces into an easy to use package.
+
+I think this is useful, actually.  For some uses like build system
+chroots, all the user really wants is some integrity protection against
+accidental damage from poorly-written code, they don't need resource
+management or any strong guarantees of integrity in the face of
+malicious code. =20
+
+But you should be aware that for a lot of the zone use cases, resource
+management is very important, and SELinux doesn't provide that.  You
+mention CKRM, but that's a whole other kernel patch.  Xen definitely
+seems to be the approach that's winning here.
+
+
+--=-py6vrG2Dhvt9j9RqpJut
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCw/FmOIkJWWp2WGURAiF8AJwM/zi0tfA0bu/bq6AJhwDiEjRgSwCfcgZN
+86GLLNyZbB4yxOMQ5aK8Uic=
+=BK6P
+-----END PGP SIGNATURE-----
+
+--=-py6vrG2Dhvt9j9RqpJut--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
