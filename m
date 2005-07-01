@@ -1,62 +1,76 @@
-Subject: cgiemail and senmail policy
-From: "R. Steven Rainwater" <srainwater@ncc.com>
-To: SELinux@tycho.nsa.gov
-Cc: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1119137931.11593.53.camel@rodan.ncc.com>
-References: <20050618153949.72823.qmail@web51502.mail.yahoo.com>
-	 <1119137931.11593.53.camel@rodan.ncc.com>
-Content-Type: text/plain
-Message-Id: <1120169474.17769.60.camel@rodan.ncc.com>
-Mime-Version: 1.0
-Date: Thu, 30 Jun 2005 17:11:15 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j61JKugA003513
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jul 2005 15:20:56 -0400 (EDT)
+Received: from south-border.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j61JJfQO020194
+	for <selinux@tycho.nsa.gov>; Fri, 1 Jul 2005 19:19:41 GMT
+Date: Fri, 1 Jul 2005 15:19:36 -0400 (EDT)
+From: The UnSeen <ian@south-border.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: "Rix, Tom" <trix@camber.com>, selinux@tycho.nsa.gov
+Subject: Re: SELinux auditing and NISPOM Ch 8
+In-Reply-To: <1120152375.11798.113.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.GSO.4.60.0507011517410.25250@sandbox.south-border.com>
+References: <C0F7E4581C28614D958C06117024FC9F03D69F@iris.camber.com>
+ <1120152375.11798.113.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1120245576=:25250"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm running a CentOS 4.1 (Red Hat EL) box with an Apache web server. I
-thought I'd worked out all the problems with my cgi scripts but a new
-one cropped up today. We use the good ol' MIT cgiemail program to handle
-form submissions that get sent via sendmail. When someone submits a
-form, I get a series of avc errors and no email gets sent. What's the
-best way to fix this (i.e. to make Apache able to use cgiemail to send
-email via sendmail)?  Here are the errors I'm getting:
- 
-Jun 30 16:47:33 orac kernel: audit(1120168053.409:0): avc:  denied  {
-write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
-ino=948452 scontext=root:system_r:system_mail_t
-tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
-write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
-ino=948452 scontext=root:system_r:system_mail_t
-tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
-
-Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
-write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
-ino=948452 scontext=root:system_r:system_mail_t
-tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
-
-Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
-read write } for  pid=27969 comm=sendmail path=/tmp/tmpfKM8Top (deleted)
-dev=dm-0 ino=948418 scontext=root:system_r:system_mail_t
-tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
-
-Jun 30 16:47:33 orac kernel: audit(1120168053.510:0): avc:  denied  {
-search } for  pid=27969 comm=sendmail name=www dev=dm-0 ino=556110
-scontext=root:system_r:system_mail_t
-tcontext=system_u:object_r:httpd_sys_content_t tclass=dir
-
-Jun 30 16:47:33 orac kernel: audit(1120168053.511:0): avc:  denied  {
-getattr }
-for  pid=27969 comm=sendmail path=/var/www dev=dm-0 ino=556110
-scontext=root:system_r:system_mail_t
-tcontext=system_u:object_r:httpd_sys_content_t tclass=dir
+---559023410-851401618-1120245576=:25250
+Content-Type: TEXT/PLAIN; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8BIT
 
 
+Or, Get RedHat ES/WS 3.0 updates 3 or 4 which have LAuS builtin with the 
+possibility of enabling SELinux MAC.  I've not tried both at the same 
+time though....
 
-The system is using selinux-policy-targeted-1.17.30-2.88.
+$.02
 
--Steve
+Ian
 
+
+On Thu, 30 Jun 2005, Stephen Smalley wrote:
+
+> On Thu, 2005-06-30 at 12:05 -0500, Rix, Tom wrote:
+>> Does SELinux provide the level of auditing required by DSS NISPOM
+>> chapter 8, legal and illegal rwx accesses?
+>> Are there any resources (HOWTO’s) on how SELinux can be applied to
+>> meeting any of the Chapter 8 requirements?
+>
+> SELinux itself only deals with auditing of MAC permission checks.  By
+> default, it audits all MAC permission denials (but specific ones can be
+> suppressed via dontaudit rules to avoid noise) and it can also be
+> configured to audit specific allowed permissions via auditallow rules
+> (e.g. to ensure that certain events like policy loads are always
+> audited).
+>
+> The Linux 2.6 kernel provides an audit framework with more general
+> auditing functionality, and a fair amount of work has gone into
+> enhancing that functionality - see the linux-audit mailing list:
+> http://www.redhat.com/mailman/listinfo/linux-audit
+>
+> If you want to experiment with some of that general auditing
+> functionality, you might try Fedora Core 4 and its 'audit' package.
+> That functionality should be included in an update to RHEL4, iirc.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+
+---559023410-851401618-1120245576=:25250--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
