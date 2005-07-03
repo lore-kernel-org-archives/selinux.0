@@ -1,74 +1,43 @@
-Message-ID: <42C7F467.6070908@redhat.com>
-Date: Sun, 03 Jul 2005 10:21:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "R. Steven Rainwater" <srainwater@ncc.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: cgiemail and senmail policy
-References: <20050618153949.72823.qmail@web51502.mail.yahoo.com>	 <1119137931.11593.53.camel@rodan.ncc.com> <1120169474.17769.60.camel@rodan.ncc.com>
-In-Reply-To: <1120169474.17769.60.camel@rodan.ncc.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Libre Software Meeting 2005
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mIp3fLeZpHhHB8sa21Sg"
+Date: Sun, 03 Jul 2005 20:47:31 +0200
+Message-Id: <1120416451.2912.8.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-R. Steven Rainwater wrote:
 
->I'm running a CentOS 4.1 (Red Hat EL) box with an Apache web server. I
->thought I'd worked out all the problems with my cgi scripts but a new
->one cropped up today. We use the good ol' MIT cgiemail program to handle
->form submissions that get sent via sendmail. When someone submits a
->form, I get a series of avc errors and no email gets sent. What's the
->best way to fix this (i.e. to make Apache able to use cgiemail to send
->email via sendmail)?  Here are the errors I'm getting:
-> 
->Jun 30 16:47:33 orac kernel: audit(1120168053.409:0): avc:  denied  {
->write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
->ino=948452 scontext=root:system_r:system_mail_t
->tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
->
->Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
->write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
->ino=948452 scontext=root:system_r:system_mail_t
->tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
->
->Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
->write } for  pid=27969 comm=sendmail path=/tmp/filegvNeNa dev=dm-0
->ino=948452 scontext=root:system_r:system_mail_t
->tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
->
->Jun 30 16:47:33 orac kernel: audit(1120168053.410:0): avc:  denied  {
->read write } for  pid=27969 comm=sendmail path=/tmp/tmpfKM8Top (deleted)
->dev=dm-0 ino=948418 scontext=root:system_r:system_mail_t
->tcontext=root:object_r:httpd_sys_script_rw_t tclass=file
->
->Jun 30 16:47:33 orac kernel: audit(1120168053.510:0): avc:  denied  {
->search } for  pid=27969 comm=sendmail name=www dev=dm-0 ino=556110
->scontext=root:system_r:system_mail_t
->tcontext=system_u:object_r:httpd_sys_content_t tclass=dir
->
->Jun 30 16:47:33 orac kernel: audit(1120168053.511:0): avc:  denied  {
->getattr }
->for  pid=27969 comm=sendmail path=/var/www dev=dm-0 ino=556110
->scontext=root:system_r:system_mail_t
->tcontext=system_u:object_r:httpd_sys_content_t tclass=dir
->
->
->
->The system is using selinux-policy-targeted-1.17.30-2.88.
->
->-Steve
->
->  
->
-Upgrade to    the latest RHEL policy on.
+--=-mIp3fLeZpHhHB8sa21Sg
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-ftp://people.redhat.com/dwalsh/SELinux/RHEL4/u1
+Hi,
 
-Dan
+Anyone is going to attend to the LSM 2005?
+If so, it could be interesting to arrange a meeting of SELinux users and
+enthusiasts. If someone is going to attend to the conference, please
+follow up the thread and we can try to get everything in place for it ;)
 
--- 
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
+--=-mIp3fLeZpHhHB8sa21Sg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCyDLDDcEopW8rLewRAgwEAJ4hDUP23xLwMCx2PuOCFhr0H8cAGACg4OY9
+YU8cYSa/IiQd5OkG7+1vrB8=
+=Ycov
+-----END PGP SIGNATURE-----
+
+--=-mIp3fLeZpHhHB8sa21Sg--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
