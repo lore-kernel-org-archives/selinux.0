@@ -1,45 +1,39 @@
-Subject: Logging of a system call
-From: Paulo Silva <pjs@eurotux.com>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PvQcGaR5QbuozIzee5Pa"
-Date: Tue, 05 Jul 2005 09:51:14 +0100
-Message-Id: <1120553474.19633.2.camel@valen>
-Mime-Version: 1.0
+Message-ID: <20050705141733.47877.qmail@web51508.mail.yahoo.com>
+Date: Tue, 5 Jul 2005 07:17:33 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: Logging of a system call
+To: Paulo Silva <pjs@eurotux.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1120553474.19633.2.camel@valen>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-PvQcGaR5QbuozIzee5Pa
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+>I was wondering if anyone knows an easy way to log all invocations of a
+>particular system call in a Linux system (kernel 2.6).
 
-Hi all,
+If you have the audit system installed - http://people.redhat.com/sgrubb/audit,
+you can do this:
 
-I was wondering if anyone knows an easy way to log all invocations of a
-particular system call in a Linux system (kernel 2.6).
+auditctl -a entry,always -S syscallname
 
-My first ideia was to use SELinux but I haven't experience developing
-new policies, has anybody done something similar with SELinux?
+The results will be in either /var/log/audit/audit.log or syslog depending on
+whether you are running the audit daemon or not.
 
-Thanks
---=20
-Paulo Silva <pjs@eurotux.com>
-Eurotux Inform=E1tica, SA
+>My first ideia was to use SELinux but I haven't experience developing
+>new policies, has anybody done something similar with SELinux?
 
---=-PvQcGaR5QbuozIzee5Pa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+The audit system was designed for this, please give it a try.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+-Steve
 
-iD8DBQBCykoCeQzSq19lY0MRAob6AJ9RxEEYAgUSq3jYx3T8+Pi2VOiwNACfbnUQ
-dezKejdOtLz1TBmfgJze6EI=
-=ul8R
------END PGP SIGNATURE-----
 
---=-PvQcGaR5QbuozIzee5Pa--
-
+		
+____________________________________________________ 
+Yahoo! Sports 
+Rekindle the Rivalries. Sign up for Fantasy Football 
+http://football.fantasysports.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
