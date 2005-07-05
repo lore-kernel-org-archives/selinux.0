@@ -1,54 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65KLKgA026069
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 16:21:20 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j65KJNEn004067
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 20:19:24 GMT
-Message-ID: <42CAEB48.1030309@redhat.com>
-Date: Tue, 05 Jul 2005 16:19:20 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65KRMgA026132
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 16:27:23 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j65KOnSt006592
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 20:24:49 GMT
+Subject: RE: Groups in the alternative user solution
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
 To: Karl MacMillan <kmacmillan@tresys.com>
-CC: "'Colin Walters'" <walters@verbum.org>, selinux@tycho.nsa.gov
-Subject: Re: Groups in the alternative user solution
-References: <200507052001.j65K1W7f018433@gotham.columbia.tresys.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Colin Walters'" <walters@verbum.org>, selinux@tycho.nsa.gov
 In-Reply-To: <200507052001.j65K1W7f018433@gotham.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <200507052001.j65K1W7f018433@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 05 Jul 2005 16:22:46 -0400
+Message-Id: <1120594966.22231.19.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
 
->>-----Original Message-----
->>From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
->>Behalf Of Daniel J Walsh
->>Sent: Tuesday, July 05, 2005 3:40 PM
->>To: Colin Walters
->>Cc: selinux@tycho.nsa.gov
->>Subject: Re: Groups in the alternative user solution
->>
->>Colin Walters wrote:
->>
->>    
->>
+> The derived home directory types are there to separate contents by role - which
+> seems important to me (at least today). I think that the primary reason for this
+> is integrity (.bashrc), but there is no reason that it can't be used for
+> confidentiality as well. What if that medical record viewing application can
+> create files in the home directory? If the home directory data is separated by
+> role then normal users still can't see the data from the records in the event
+> the viewer app incorrectly saves data to the home directory.
 
-But this does not scale.
+I think rbac simply does not work today, because of those per role
+directory types. Apps can't read .bashrc, can't read .bash_profile,
+can't read .xauth files, and you end up with a nonfunctional system
+if you try to manage multiple roles with the same user.
 
-If the patient app is allow to write a medical record to the users 
-homedir it should be labeled medical_record and not be allowed
-to be viewed by the user unless he is in running the app.  This should 
-not be protected by the homedir file context, it will never scale.
-
-In the case of the doctor being able to assume multiple roles, what 
-context would the patient record app write to the home dir.
-
-RBAC being tied to TE in the homedirs is broken. 
-
-Currently if we switch a user from user_r to staff_r, he looses access 
-to all his files until a magic relabel happens.  If we allow
-an expansion of roles available to the user, the problem explodes.
-
-Dan
 
 
 --
