@@ -1,51 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65JgAgA025617
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:42:10 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j65JeEEn001016
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 19:40:15 GMT
-Message-ID: <42CAE220.9060802@redhat.com>
-Date: Tue, 05 Jul 2005 15:40:16 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Groups in the alternative user solution
-References: <20050630191417.26186.qmail@web31611.mail.mud.yahoo.com>	 <42CADC3F.8000206@redhat.com> <1120592032.16262.5.camel@nexus.verbum.private>
-In-Reply-To: <1120592032.16262.5.camel@nexus.verbum.private>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65Jq4gA025726
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:52:04 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j65JnUSt004312
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 19:49:30 GMT
+Received: from moss-lions.epoch.ncsc.mil (moss-lions [144.51.25.4])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65JoUZf016247
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:50:30 -0400 (EDT)
+Subject: Updated Policy in Sourceforge CVS
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Tue, 05 Jul 2005 15:50:39 -0400
+Message-Id: <1120593039.3157.15.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Colin Walters wrote:
-
->On Tue, 2005-07-05 at 15:15 -0400, Daniel J Walsh wrote:
->
->  
->
->>This would potentially eliminate the 1000's of file contexts files problem,
->>since almost all users would map to the default user_r and user_home_t...
->>for his home dir file context.
->>    
->>
->
->But isn't a large part of the point of this to ensure that e.g. grissom
->can never access medical records stored in welby's home directory, even
->if welby accidentally sets the DAC permissions to allow it?  Or is
->something else in this scheme preventing that?
->
->  
->
-I would argue that medical records should never be stored in a users 
-home directory.
-
-The idea here is that the application to view medical records would not 
-be able to be run
-by the ordinary user.
-
+1.25.1 2005-07-05
+* Moved role_tty_type_change, reach_sysadm, and priv_user macros from
+user.te to user_macros.te as suggested by Steve.
+* Modified admin_domain macro so autrace would work and removed privuser
+attribute for dhcpc as suggested by Russell Coker.
+* Merged rather large patch from Dan Walsh.  Moves targeted/strict/mls
+policies closer together.  Adds local.te for users to customize.
+Includes minor fixes to auditd, cups, cyrus_imapd, dhcpc, and dovecot.
+Includes Russell Coker's patch that defines all ports in network.te.
+Ports are always defined now, no ifdefs are used in network.te.  Also
+includes Ivan Gyurdiev's user home directory policy patches.  These
+patches add alsa, bonobo, ethereal, evolution, gconf, gnome, gnome_vfs,
+iceauth, orbit, and thunderbird policy.  They create read_content,
+write_trusted, and write_untrusted macros in content.te.  They create
+network_home, write_network_home, read_network_home,
+base_domain_ro_access, home_domain_access, home_domain, and
+home_domain_ro macros in home_macros.te.  They also create
+$3_read_content, $3_write_content, and write_untrusted booleans.
 
 -- 
-
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
