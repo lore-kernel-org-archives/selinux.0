@@ -1,40 +1,55 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65KH6gA026005
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 16:17:06 -0400 (EDT)
-Received: from web51502.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j65KF9En003795
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 20:15:10 GMT
-Message-ID: <20050705201454.97294.qmail@web51502.mail.yahoo.com>
-Date: Tue, 5 Jul 2005 13:14:54 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: [RFC]Kernel Built-in IDS extension (UPDATED)
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1120587252.2644.192.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65KLKgA026069
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 16:21:20 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j65KJNEn004067
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 20:19:24 GMT
+Message-ID: <42CAEB48.1030309@redhat.com>
+Date: Tue, 05 Jul 2005 16:19:20 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Karl MacMillan <kmacmillan@tresys.com>
+CC: "'Colin Walters'" <walters@verbum.org>, selinux@tycho.nsa.gov
+Subject: Re: Groups in the alternative user solution
+References: <200507052001.j65K1W7f018433@gotham.columbia.tresys.com>
+In-Reply-To: <200507052001.j65K1W7f018433@gotham.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Karl MacMillan wrote:
 
->- As before, I'm not convinced that you can't achieve the same effect by
->extending auditd, using auditallow rules to generate notifications of
->events of interest to it, and letting it (or a helper it runs)
->manipulate booleans based on some other config.
+>>-----Original Message-----
+>>From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+>>Behalf Of Daniel J Walsh
+>>Sent: Tuesday, July 05, 2005 3:40 PM
+>>To: Colin Walters
+>>Cc: selinux@tycho.nsa.gov
+>>Subject: Re: Groups in the alternative user solution
+>>
+>>Colin Walters wrote:
+>>
+>>    
+>>
 
-There is already work underway to move audit events around for realtime
-notification. It will feature a plugin architecture for filtering and responding
-to events. An IDS is one of the applications intended for this. I'll put the code
-out sometime soon for review. But with the plugin architecture, it will be easier
-for people to extend without affecting the audit daemon's integrity.
+But this does not scale.
 
--Steve Grubb
+If the patient app is allow to write a medical record to the users 
+homedir it should be labeled medical_record and not be allowed
+to be viewed by the user unless he is in running the app.  This should 
+not be protected by the homedir file context, it will never scale.
 
+In the case of the doctor being able to assume multiple roles, what 
+context would the patient record app write to the home dir.
 
-		
-__________________________________ 
-Discover Yahoo! 
-Have fun online with music videos, cool games, IM and more. Check it out! 
-http://discover.yahoo.com/online.html
+RBAC being tied to TE in the homedirs is broken. 
+
+Currently if we switch a user from user_r to staff_r, he looses access 
+to all his files until a magic relabel happens.  If we allow
+an expansion of roles available to the user, the problem explodes.
+
+Dan
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
