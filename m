@@ -1,96 +1,55 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65JH6gA025381
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:17:06 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j65JEWSt001510
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 19:14:33 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j65JFCmX022011
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:15:12 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j65JFBV03711
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:15:11 -0400
-Received: from [172.16.83.117] (dhcp83-117.boston.redhat.com [172.16.83.117])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j65JFBcs002912
-	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:15:11 -0400
-Message-ID: <42CADC3F.8000206@redhat.com>
-Date: Tue, 05 Jul 2005 15:15:11 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j65JZlgA025539
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 15:35:47 -0400 (EDT)
+Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j65JXDSt003429
+	for <selinux@tycho.nsa.gov>; Tue, 5 Jul 2005 19:33:14 GMT
 Subject: Re: Groups in the alternative user solution
+From: Colin Walters <walters@verbum.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <42CADC3F.8000206@redhat.com>
 References: <20050630191417.26186.qmail@web31611.mail.mud.yahoo.com>
-In-Reply-To: <20050630191417.26186.qmail@web31611.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	 <42CADC3F.8000206@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZXx4Ia/pgGKHZDnB9nw2"
+Date: Tue, 05 Jul 2005 15:33:51 -0400
+Message-Id: <1120592032.16262.5.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok we are actually  trying to code something up to deal with this 
-discussion.  This is our current thoughts on
-handling users.  We have not come to a decent way of handling 
-file_contexts.    We are attempting in this
-example to limit the number of file_context/user files.
 
-Example policy for a hospital would have 5 types of SELinux users.
+--=-ZXx4Ia/pgGKHZDnB9nw2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-cat /etc/selinux/strict/users/local.users
-user doctor_u { user_r nurse_r labtech_r doctor_r };
-user labtech_u { user_r labtech_r };
-user nurse_u { user_r nurse_r };
-user user_u { user_r };
-user staff_u { staff_r sysadm_r secadm_r };
+On Tue, 2005-07-05 at 15:15 -0400, Daniel J Walsh wrote:
 
+>=20
+> This would potentially eliminate the 1000's of file contexts files proble=
+m,
+> since almost all users would map to the default user_r and user_home_t...
+> for his home dir file context.
 
-Then we create a file called map.users
-
-cat /etc/selinux/strict/users/map.users
-staff_u: dwalsh,ivan
-doctor_u: green,welby,spock
-nurse_u: cratchet,nightengale
-labtech_u: grissom
-user_u:  *
+But isn't a large part of the point of this to ensure that e.g. grissom
+can never access medical records stored in welby's home directory, even
+if welby accidentally sets the DAC permissions to allow it?  Or is
+something else in this scheme preventing that?
 
 
-As far as file_context files are concerned, only dwalsh and ivan would 
-need to
-have user specific file_context.homedir files be created, since all 
-other users
-on the system would map to the "user" type.
+--=-ZXx4Ia/pgGKHZDnB9nw2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Some how we need to make the system smart enough to know that SELINUX 
-Users map
-to a default role/type;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-So when "grissom" logs in his id -Z will show
+iD8DBQBCyuCfOIkJWWp2WGURAm71AJwJ7eCM43CHcgEksWGembHVBMnlvwCfWpXp
+TIwFjHqpwGoRu/hnh2AG+iQ=
+=G/p6
+-----END PGP SIGNATURE-----
 
-labtech_u:user_r:user_t
-
-He then can:
-
-newrole -r labtech_r
-
-And can run labtech applications.
-
-Dr. Green would login as
-
-doctor_u:user_r:user_t
-
-He could then run newrole and change to any of doctor_r, nurse_r, or 
-labtech_r
-and run the associated applications.
-
-The only time home directory file context would need to change would be 
-if the
-user became an admin.
-
-This would potentially eliminate the 1000's of file contexts files problem,
-since almost all users would map to the default user_r and user_home_t...
-for his home dir file context.
-
-
-
--- 
-
+--=-ZXx4Ia/pgGKHZDnB9nw2--
 
 
 --
