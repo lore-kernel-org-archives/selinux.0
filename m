@@ -1,37 +1,43 @@
-Subject: Re: [PATCH] SELinux Loadable Modules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200506281046.04113.jbrindle@tresys.com>
-References: <200506281046.04113.jbrindle@tresys.com>
+Subject: Useradd patchset - seeking comments..
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Daniel J Walsh <dwalsh@redhat.com>, sds@tycho.nsa.gov,
+   kmacmillan@tresys.com, selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Wed, 06 Jul 2005 14:04:48 -0400
-Message-Id: <1120673088.21423.63.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 06 Jul 2005 17:21:23 -0400
+Message-Id: <1120684883.24068.16.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-06-28 at 10:46 -0400, Joshua Brindle wrote:
-> This set of patches (not included in email since they are fairly large) 
-> include all the infrastructure from before as well as the module store, 
-> compiler and associated utilities. These patches implement the full module 
-> compiler and management system. The patches as well as the additional library 
-> and clients are available at: 
-> http://sepolicy-server.sourceforge.net/index.php?page=modules
-> 
-> Instructions for using the module store and some general information about 
-> policy modules is available at:
-> http://sepolicy-server.sourceforge.net/index.php?page=module-overview
-> 
-> I appreciate any feedback on these patches and the module system in general.
+Here [ http://ivan.ivg2.net/selinux/patches/ ]
+is an updated patchset that attempts to 
+accomplish the following:
 
-These patches, along with the new libsemod and the added semodule*
-utilities in policycoreutils, have been committed to the sourceforge CVS
-tree, along with some minor fixes and cleanups.
+- provide library routines to easily edit and modify
+the various selinux data files (users file, file contexts,
+template file, map file... ) through libselinux,
+and make some changes to allow alternative backends
+in the future.
 
--- 
-Stephen Smalley
-National Security Agency
+- integrate the utilities useradd/usermod/userdel
+with libselinux interface for manipulating users
+(currently useradd/userdel...still have to work
+on usermod). 
+
+- alter the 1:1 user-to-seluser map scheme to
+what was discussed per Karl's proposal. Groups
+are disallowed. Syntax is subject to change.
+
+- simplify the code necessary to work with
+and load policy in libsepol - this involves
+changing policydb to an opaque data structure,
+and deprecating functions that manipulate the
+policy (data, len) image. Also, there is a convenient
+create_policydb function in libselinux.
+
+Patchset is not finished, but I want to see if you
+have any comments... 
 
 
 --
