@@ -1,56 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j67HtJgA014177
-	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 13:55:19 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j67HqOT1002366
-	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 17:52:24 GMT
-Message-Id: <200507071752.j67HqmQ4011181@gotham.columbia.tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <selinux@tycho.nsa.gov>,
-   "'Fedora SELinux support  list for users &amp; developers.'" <fedora-selinux-list@redhat.com>
-Subject: ANN: Dates set of Second SELinux Symposium
-Date: Thu, 7 Jul 2005 13:52:46 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Subject: RE: Useradd patchset - seeking comments..
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, sds@tycho.nsa.gov,
+   selinux@tycho.nsa.gov
+In-Reply-To: <200507071645.j67GjKQ4010377@gotham.columbia.tresys.com>
+References: <200507071645.j67GjKQ4010377@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 07 Jul 2005 14:23:20 -0400
+Message-Id: <1120760600.2997.6.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The Second Security Enhanced Linux Symposium is scheduled for 28 February -
-2 
-March 2006 in Baltimore, Maryland, USA. Last year's inaugural symposium was
-a 
-tremendous success providing the SELinux development and user community the 
-opportunity to discuss related research results, development plans, and 
-applications. In the second Symposium, we will build upon that success with
-a 
-special focus on applications of SELinux to solve real-world security 
-challenges. The Symposium is an opportunity to learn about SELinux and share
 
-technical and application experiences. 
+> I'll try to look at these - are they against the latest CVS with the module
+> infrastructure?
 
-The Symposium is a 3-day conference, with one day for tutorials and two days
-for 
-technical presentations and interchange. The call for papers will be
-released in 
-the coming days. For additional information see the Symposium's web site at 
-www.selinux-symposium.org or e-mail at info@selinux-symposium.org.
+No... I need to resync against that.
 
+They're against the patched (rpm -bp):
 
-Technical Committee:
- 
-	Joshua Brindle, Tresys
-	Russell Coker, Red Hat
-	Chad Hanson, TCS
-	Trent Jaeger, IBM
-	Pete Loscocco, NSA
-	Karl MacMillan, Tresys
-	Frank Mayer (Chair), Tresys
-	James Morris, Red Hat
-	Doc Shankar, IBM
-	Stephen Smalley, NSA
-	Daniel Walsh, Red Hat
+libsepol-1.6-1
+policycoreutils-1.24-1
+checkpolicy-1.23.4-1
+libselinux-1.24-1
+shadow-utils-4.0.7-9
 
+In other words you can't really test them out - just look at code.
+There's also some evil bugs which I just fixed today
+(I got usermod working, and fixed userdel), but I haven't 
+updated patches - most of it should stay the same though.
+
+>  Quick comment is that I don't think that the extern patch is
+> useful and worth the trouble. Things in headers are, by definition, exported.
+> Extern has no effect and does not add clarity IMHO.
+> http://www.eskimo.com/~scs/C-faq/q1.11.html
+
+Noted, but I don't see why you're complaining, since
+your patch is already merged, isn't it? - shouldn't create
+problems for you.
 
 
 
