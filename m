@@ -1,35 +1,57 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j67GktgA012929
-	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 12:46:55 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j67Gif3a024241
-	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 16:44:41 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j67Gigbg002312
-	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 12:44:42 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j67GifV08025
-	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 12:44:41 -0400
-Received: from celtics.boston.redhat.com (celtics.boston.redhat.com [172.16.80.115])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j67Gifcs015484
-	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 12:44:41 -0400
-Subject: Should usermod restorecon HOME_DIR on role change
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Thu, 07 Jul 2005 12:42:00 -0400
-Message-Id: <1120754520.30014.3.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j67HtJgA014177
+	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 13:55:19 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j67HqOT1002366
+	for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2005 17:52:24 GMT
+Message-Id: <200507071752.j67HqmQ4011181@gotham.columbia.tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: <selinux@tycho.nsa.gov>,
+   "'Fedora SELinux support  list for users &amp; developers.'" <fedora-selinux-list@redhat.com>
+Subject: ANN: Dates set of Second SELinux Symposium
+Date: Thu, 7 Jul 2005 13:52:46 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When usermod changes the uid (-u),
-it changes the uid of all files rooted under the home 
-directory, but does not change it for files elsewhere. 
+The Second Security Enhanced Linux Symposium is scheduled for 28 February -
+2 
+March 2006 in Baltimore, Maryland, USA. Last year's inaugural symposium was
+a 
+tremendous success providing the SELinux development and user community the 
+opportunity to discuss related research results, development plans, and 
+applications. In the second Symposium, we will build upon that success with
+a 
+special focus on applications of SELinux to solve real-world security 
+challenges. The Symposium is an opportunity to learn about SELinux and share
 
-Should it also operate the same way
-when changing the selinux user/class?
+technical and application experiences. 
+
+The Symposium is a 3-day conference, with one day for tutorials and two days
+for 
+technical presentations and interchange. The call for papers will be
+released in 
+the coming days. For additional information see the Symposium's web site at 
+www.selinux-symposium.org or e-mail at info@selinux-symposium.org.
+
+
+Technical Committee:
+ 
+	Joshua Brindle, Tresys
+	Russell Coker, Red Hat
+	Chad Hanson, TCS
+	Trent Jaeger, IBM
+	Pete Loscocco, NSA
+	Karl MacMillan, Tresys
+	Frank Mayer (Chair), Tresys
+	James Morris, Red Hat
+	Doc Shankar, IBM
+	Stephen Smalley, NSA
+	Daniel Walsh, Red Hat
+
+
 
 
 --
