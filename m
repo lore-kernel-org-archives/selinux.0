@@ -1,65 +1,42 @@
-Message-Id: <200507072013.j67KDjQ4012679@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, <sds@tycho.nsa.gov>,
-   <selinux@tycho.nsa.gov>
 Subject: RE: Useradd patchset - seeking comments..
-Date: Thu, 7 Jul 2005 16:13:45 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1120760600.2997.6.camel@celtics.boston.redhat.com>
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, sds@tycho.nsa.gov,
+   selinux@tycho.nsa.gov
+In-Reply-To: <200507072013.j67KDjQ4012679@gotham.columbia.tresys.com>
+References: <200507072013.j67KDjQ4012679@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 07 Jul 2005 16:27:10 -0400
+Message-Id: <1120768031.6275.13.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Thursday, July 07, 2005 2:23 PM
-> To: Karl MacMillan
-> Cc: 'Daniel J Walsh'; sds@tycho.nsa.gov; selinux@tycho.nsa.gov
-> Subject: RE: Useradd patchset - seeking comments..
-> 
-> 
-> > I'll try to look at these - are they against the latest CVS with the module
-> > infrastructure?
-> 
-> No... I need to resync against that.
-> 
-> They're against the patched (rpm -bp):
-> 
-> libsepol-1.6-1
-> policycoreutils-1.24-1
-> checkpolicy-1.23.4-1
-> libselinux-1.24-1
-> shadow-utils-4.0.7-9
-> 
-> In other words you can't really test them out - just look at code.
-> There's also some evil bugs which I just fixed today
-> (I got usermod working, and fixed userdel), but I haven't
-> updated patches - most of it should stay the same though.
-> 
-> >  Quick comment is that I don't think that the extern patch is
-> > useful and worth the trouble. Things in headers are, by definition,
-> exported.
-> > Extern has no effect and does not add clarity IMHO.
-> > http://www.eskimo.com/~scs/C-faq/q1.11.html
-> 
-> Noted, but I don't see why you're complaining, since
-> your patch is already merged, isn't it? - shouldn't create
-> problems for you.
 
-Long term maintenance is everyone's concern and that will not be the last piece
-of code that we contribute. Also, I don't like the style - I think that people
-start worrying about the keyword even though it is useless. Verbosity is only
-useful if it communicates something not already stated.
+> Long term maintenance is everyone's concern 
 
-Karl
+Which is why this patch should be merged for clarity.
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
+> Also, I don't like the style - I think that people
+> start worrying about the keyword even though it is useless. Verbosity is only
+> useful if it communicates something not already stated.
+
+It communicates the storage class of the function, which I believe
+is not explicitly stated anywhere. It only stated implicitly, and
+programmers such as myself get confused by the lack of keyword -
+there's several storage classes to choose from, and this makes it clear.
+It also allows you to grep the file for extern, which you may
+want to do for some reason.
+
+You can disagree, but /usr/include/* speaks for itself - 
+the vast majority of headers are explicitly marked extern, 
+which establishes the dominant style.
+
+===============
+
+Also, we should move all headers describing functions 
+not exported by the shared library into a subfolder...
 
 
 
