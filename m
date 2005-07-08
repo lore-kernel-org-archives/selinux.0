@@ -1,32 +1,25 @@
-Message-Id: <200507072042.j67KgqQ4013262@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, <sds@tycho.nsa.gov>,
-   <selinux@tycho.nsa.gov>
 Subject: RE: Useradd patchset - seeking comments..
-Date: Thu, 7 Jul 2005 16:42:52 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1120768031.6275.13.camel@celtics.boston.redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gyurdiev@redhat.com
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1120768031.6275.13.camel@celtics.boston.redhat.com>
+References: <200507072013.j67KDjQ4012679@gotham.columbia.tresys.com>
+	 <1120768031.6275.13.camel@celtics.boston.redhat.com>
+Content-Type: text/plain
+Date: Fri, 08 Jul 2005 08:42:48 -0400
+Message-Id: <1120826568.19035.30.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Thursday, July 07, 2005 4:27 PM
-> To: Karl MacMillan
-> Cc: 'Daniel J Walsh'; sds@tycho.nsa.gov; selinux@tycho.nsa.gov
-> Subject: RE: Useradd patchset - seeking comments..
-> 
-> 
-> > Long term maintenance is everyone's concern
+On Thu, 2005-07-07 at 16:27 -0400, Ivan Gyurdiev wrote:
+> > Long term maintenance is everyone's concern 
 > 
 > Which is why this patch should be merged for clarity.
 > 
 > > Also, I don't like the style - I think that people
-> > start worrying about the keyword even though it is useless. Verbosity is
-> only
+> > start worrying about the keyword even though it is useless. Verbosity is only
 > > useful if it communicates something not already stated.
 > 
 > It communicates the storage class of the function, which I believe
@@ -36,37 +29,26 @@ List-Id: selinux@tycho.nsa.gov
 > It also allows you to grep the file for extern, which you may
 > want to do for some reason.
 > 
-
-There are only 3 options for libraries that I am aware of: static, non-exported,
-and exported. Having non-exported prototypes in public headers is, to me, very
-confusing. Most of the confusion about what is exported / not exported in
-libsepol comes from the fact that it was the bulk of checkpolicy before it
-became a library. Ideally the confusion would be fixed by other means.
-
-> You can disagree, but /usr/include/* speaks for itself -
-> the vast majority of headers are explicitly marked extern,
+> You can disagree, but /usr/include/* speaks for itself - 
+> the vast majority of headers are explicitly marked extern, 
 > which establishes the dominant style.
 > 
-
-Maybe . . .
-
 > ===============
 > 
-> Also, we should move all headers describing functions
+> Also, we should move all headers describing functions 
 > not exported by the shared library into a subfolder...
 
-Agreed - though that would only support my argument. Anyway - I've stated my
-opinion and won't argue about this anymore. It is not important enough and Steve
-will do what he wants anyway :)
+Yes, creating a include/sepol/private or similar and moving the headers
+associated only with the static library into it would make sense.  Not
+sure if there are any other libraries that have a similar issue with
+exporting a much wider interface via the static library than the shared
+library.
 
-Karl
+As for extern, I don't care either way, just need to be consistent.
 
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
