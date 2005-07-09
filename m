@@ -1,54 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6932ugA027374
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jul 2005 23:02:56 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6930QGt022823
-	for <selinux@tycho.nsa.gov>; Sat, 9 Jul 2005 03:00:27 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 9A48961B05
-	for <selinux@tycho.nsa.gov>; Sat,  9 Jul 2005 13:00:11 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 13190-10 for <selinux@tycho.nsa.gov>;
-	Sat, 9 Jul 2005 13:00:11 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 2451861B02
-	for <selinux@tycho.nsa.gov>; Sat,  9 Jul 2005 13:00:11 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: crond_t
-Date: Sat, 9 Jul 2005 13:00:03 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <200507090004.57794.russell@coker.com.au> <42CE8CCF.6000508@redhat.com>
-In-Reply-To: <42CE8CCF.6000508@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200507091300.07806.russell@coker.com.au>
+Message-ID: <e8a2934d050709003658d0eda7@mail.gmail.com>
+Date: Sat, 9 Jul 2005 13:06:45 +0530
+From: Preeti Malakar <preeti.malakar@gmail.com>
+Reply-To: Preeti Malakar <preeti.malakar@gmail.com>
+To: SELinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: some problem SE Linux
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 09 July 2005 00:25, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Russell Coker wrote:
-> >It seems that the domain crond_t needs the attribute privfd.  The number
-> > of things that are run from cron jobs demands it.  A user of the rawhide
-> > policy reported a problem running ping from a cron job on IRC.
->
-> crond_t has privfd.
+Sir
+     I am using Fedora Core 2 with SE Linux enabled .. When I was
+working in the text mode (with context as root;sysadm_r:sysadm_t), I
+encountered some problems
 
-In which version?  selinux-policy-targeted-sources-1.24-3 doesn't have it.
 
-> Are you talking about system_crond_t and friends?
+i)  I found that after every few minutes the tty which is opened is
+showing the following message
 
-No, the domain_auto_trans() rules from those domains give the fd use rules 
-that are needed.
+audit(1120886700.973:0):avc : denied { transition } for pid=3429
+exe=/usr/sbin/crond path=/bin/bash dev=sda12 ino=355528
+scontext=system_u:system_r:crond_t tcontext=user_u:sysadm_r;sysadm_t
+tclass=process
+
+Please tell me why is this message being shown
+
+ii)  While adding a user using #useradd foo , I got the following message...
+audit(1120890662.162:0);avc:denied { read write } for pid=11204
+exe=/usr/sbin/useradd name=group.lock dev=sda12 ino=604951
+scontext=root_sysadm_r:useradd_t
+tcontext=system_u:object_r:firstboot_rw_t tclass=file
+useradd;error locking group file
+
+I could not add user, please help me
+
+
+iii) While logging in as user preeti it shows audit(1120887420.309:0)
+:avc:denied { read } for pid=3563 exe=/bin/bash name=.bash_profile
+dev=sda12 ino=664419 scontext= user_u:user_r:user_t
+tcontext=system_u:object_r:home_root_t tclass=file
+-bash: /home/preeti/.bash_profile Permission denied
+-bash-2.05b$
+
+ 
+Sir, please tell me what is going on, I cannot understand
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+PREETI MALAKAR
+M.TECH CSE 2nd YR
+IIT GUWAHTI
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
