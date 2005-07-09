@@ -1,77 +1,54 @@
-Message-Id: <200507081928.j68JSDvx005028@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Daniel J Walsh'" <dwalsh@redhat.com>, <gyurdiev@redhat.com>,
-   "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: libsemod????
-Date: Fri, 8 Jul 2005 15:28:13 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6932ugA027374
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jul 2005 23:02:56 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6930QGt022823
+	for <selinux@tycho.nsa.gov>; Sat, 9 Jul 2005 03:00:27 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 9A48961B05
+	for <selinux@tycho.nsa.gov>; Sat,  9 Jul 2005 13:00:11 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 13190-10 for <selinux@tycho.nsa.gov>;
+	Sat, 9 Jul 2005 13:00:11 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 2451861B02
+	for <selinux@tycho.nsa.gov>; Sat,  9 Jul 2005 13:00:11 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: crond_t
+Date: Sat, 9 Jul 2005 13:00:03 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200507090004.57794.russell@coker.com.au> <42CE8CCF.6000508@redhat.com>
+In-Reply-To: <42CE8CCF.6000508@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <42CEAE9E.5090902@redhat.com>
+  charset="iso-8859-1"
+Message-Id: <200507091300.07806.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of Daniel J Walsh
-> Sent: Friday, July 08, 2005 12:50 PM
-> To: gyurdiev@redhat.com; Stephen Smalley
-> Cc: SELinux
-> Subject: libsemod????
-> 
-> Why are we creating more libraries?  What benefit does the added
-> complexity give us?  Why not just have one library for policy file
-> management and one for selinux management?  A developer using these
-> libraries in the future is not going to care about selinux/sepol/semod.
-> He wants to build an selinux aware app he will probably want to link to
-> libselinux.
-> 
->  ls -l /lib/libse*
-> -rwxr-xr-x  1 root root  77192 Jun 29 16:08 /lib/libselinux.so.1
-> -rwxr-xr-x  1 root root 135140 Jul  7 07:15 /lib/libsepol.so.1
-> 
-> Are these libraries too large.  I do not want to add additional packages
-> just for libraries.
-> 
-> --
-> 
+On Saturday 09 July 2005 00:25, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Russell Coker wrote:
+> >It seems that the domain crond_t needs the attribute privfd.  The number
+> > of things that are run from cron jobs demands it.  A user of the rawhide
+> > policy reported a problem running ping from a cron job on IRC.
+>
+> crond_t has privfd.
 
-The three libraries accomplish 3 very different tasks:
+In which version?  selinux-policy-targeted-sources-1.24-3 doesn't have it.
 
-1. Libsepol - policy manipulation.
-2. Libselinux - access / labeling decisions and other runtime policy support.
-3. Libsemod (which has been suggested off-list to become libsemanage) -
-management of selinux policy including addition and removal of modules, selinux
-user management, file context modification, etc.
+> Are you talking about system_crond_t and friends?
 
-I think that as things move forward the applications that link to multiple
-versions will decrease. User-space object managers and trusted selinux aware
-applications (e.g., dbus or login) will link to libselinux. Management tools
-will link to libsemod (e.g., semodule, useradd). Libsepol is the backend for the
-management tools - it could be made static I guess.
+No, the domain_auto_trans() rules from those domains give the fd use rules 
+that are needed.
 
-The alternative is that dbus will have code for adding policy modules including
-over the network in the future (if libsemod is merged with libselinux) or that
-checkpolicy will have the same code (if it is merged with libsepol). Doesn't
-seem ideal to me. What is the downside? Extra packages?
-
-Karl
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
