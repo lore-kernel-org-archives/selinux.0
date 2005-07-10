@@ -1,54 +1,59 @@
-Message-ID: <e8a2934d050709003658d0eda7@mail.gmail.com>
-Date: Sat, 9 Jul 2005 13:06:45 +0530
-From: Preeti Malakar <preeti.malakar@gmail.com>
-Reply-To: Preeti Malakar <preeti.malakar@gmail.com>
-To: SELinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: some problem SE Linux
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6ABxDgA002727
+	for <selinux@tycho.nsa.gov>; Sun, 10 Jul 2005 07:59:13 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6ABuVRY001669
+	for <selinux@tycho.nsa.gov>; Sun, 10 Jul 2005 11:56:31 GMT
+Message-ID: <42D10CEA.1070305@redhat.com>
+Date: Sun, 10 Jul 2005 07:56:26 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: crond_t
+References: <200507090004.57794.russell@coker.com.au> <42CE8CCF.6000508@redhat.com> <200507091300.07806.russell@coker.com.au>
+In-Reply-To: <200507091300.07806.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sir
-     I am using Fedora Core 2 with SE Linux enabled .. When I was
-working in the text mode (with context as root;sysadm_r:sysadm_t), I
-encountered some problems
+Russell Coker wrote:
 
+>On Saturday 09 July 2005 00:25, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>  
+>
+>>Russell Coker wrote:
+>>    
+>>
+>>>It seems that the domain crond_t needs the attribute privfd.  The number
+>>>of things that are run from cron jobs demands it.  A user of the rawhide
+>>>policy reported a problem running ping from a cron job on IRC.
+>>>      
+>>>
+>>crond_t has privfd.
+>>    
+>>
+>
+>In which version?  selinux-policy-targeted-sources-1.24-3 doesn't have it.
+>
+>  
+>
+>>Are you talking about system_crond_t and friends?
+>>    
+>>
+>
+>No, the domain_auto_trans() rules from those domains give the fd use rules 
+>that are needed.
+>
+>  
+>
+It is in strict policy, not in targeted.
+selinux-policy-*-1.25.1-6
 
-i)  I found that after every few minutes the tty which is opened is
-showing the following message
-
-audit(1120886700.973:0):avc : denied { transition } for pid=3429
-exe=/usr/sbin/crond path=/bin/bash dev=sda12 ino=355528
-scontext=system_u:system_r:crond_t tcontext=user_u:sysadm_r;sysadm_t
-tclass=process
-
-Please tell me why is this message being shown
-
-ii)  While adding a user using #useradd foo , I got the following message...
-audit(1120890662.162:0);avc:denied { read write } for pid=11204
-exe=/usr/sbin/useradd name=group.lock dev=sda12 ino=604951
-scontext=root_sysadm_r:useradd_t
-tcontext=system_u:object_r:firstboot_rw_t tclass=file
-useradd;error locking group file
-
-I could not add user, please help me
-
-
-iii) While logging in as user preeti it shows audit(1120887420.309:0)
-:avc:denied { read } for pid=3563 exe=/bin/bash name=.bash_profile
-dev=sda12 ino=664419 scontext= user_u:user_r:user_t
-tcontext=system_u:object_r:home_root_t tclass=file
--bash: /home/preeti/.bash_profile Permission denied
--bash-2.05b$
-
- 
-Sir, please tell me what is going on, I cannot understand
+Dan
 
 -- 
-PREETI MALAKAR
-M.TECH CSE 2nd YR
-IIT GUWAHTI
+
 
 
 --
