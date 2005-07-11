@@ -1,44 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6BD8WgA007893
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2005 09:08:32 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6BD5do0002694
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2005 13:05:39 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j6BD6BJk004383
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2005 09:06:11 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j6BD6Bxr004382
-	for selinux@tycho.nsa.gov; Mon, 11 Jul 2005 09:06:11 -0400
-To: SELinux@tycho.nsa.gov
-Cc: ramsdell@mitre.org, sds@tycho.nsa.gov
-Subject: ANN: SLAT 2.0
-From: ramsdell@linus.mitre.org (John D. Ramsdell)
-Date: 09 Jul 2005 18:11:41 -0400
-In-Reply-To: <e8a2934d050709003658d0eda7@mail.gmail.com>
-Message-ID: <ogtvf3jmxya.fsf@divan.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: RE: libsemod????
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, gyurdiev@redhat.com,
+   "'SELinux'" <SELinux@tycho.nsa.gov>
+In-Reply-To: <200507081928.j68JSDvx005028@gotham.columbia.tresys.com>
+References: <200507081928.j68JSDvx005028@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 11 Jul 2005 10:01:41 -0400
+Message-Id: <1121090501.12334.66.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-SLAT is used to analyze SE Linux policy, and see if it meets policy
-goals.  It does so by transforming policy and the goals into input for
-a model checker.  The model checker reports the policy goal the
-failures it finds.
+On Fri, 2005-07-08 at 15:28 -0400, Karl MacMillan wrote:
+> The three libraries accomplish 3 very different tasks:
+> 
+> 1. Libsepol - policy manipulation.
+> 2. Libselinux - access / labeling decisions and other runtime policy support.
+> 3. Libsemod (which has been suggested off-list to become libsemanage) -
+> management of selinux policy including addition and removal of modules, selinux
+> user management, file context modification, etc.
+> 
+> I think that as things move forward the applications that link to multiple
+> versions will decrease. User-space object managers and trusted selinux aware
+> applications (e.g., dbus or login) will link to libselinux. Management tools
+> will link to libsemod (e.g., semodule, useradd). Libsepol is the backend for the
+> management tools - it could be made static I guess.
 
-SLAT version 2.0 is available at <http://www.mitre.org/tech/selinux>.
-The current MLS format is not accepted by SLAT 1.x.x, so this version
-uses APOL's permission mappings to specify the direction in which
-information flows for each class-permission pair.  It also analyzes
-binary policies instead of the source version of the policy.  If you
-download the source version of SLAT 2.0, be sure to install
-libsepol-devel.
+Notice also that libsepol at least needs to be useable on non-SELinux
+hosts for offline binary policy file generation and manipulation.  In
+contrast, libselinux is specifically for security-aware applications
+running on SELinux.
 
-Sorry if this is a repeat.  I thought I sent out the same message
-yesterday. 
+> The alternative is that dbus will have code for adding policy modules including
+> over the network in the future (if libsemod is merged with libselinux) or that
+> checkpolicy will have the same code (if it is merged with libsepol). Doesn't
+> seem ideal to me. What is the downside? Extra packages?
 
-John
+I say we roll them all into glibc ;)
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
