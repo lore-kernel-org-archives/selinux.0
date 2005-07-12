@@ -1,35 +1,30 @@
-Subject: Re: port and address caches
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Tue, 12 Jul 2005 15:34:10 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
 To: Joy Latten <latten@austin.ibm.com>
-Cc: James Morris <jmorris@redhat.com>, SELinux@tycho.nsa.gov
+cc: SELinux@tycho.nsa.gov
+Subject: Re: port and address caches
 In-Reply-To: <200507121746.j6CHkePX004477@faith.austin.ibm.com>
-References: <200507121746.j6CHkePX004477@faith.austin.ibm.com>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 14:06:28 -0400
-Message-Id: <1121191588.16209.136.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <Xine.LNX.4.44.0507121533180.4276-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-07-12 at 12:46 -0500, Joy Latten wrote:
-> My colleague implemented port and ipaddress caches 
-> in security_port_sid() and security_node_sid(). 
-> I ran a few benchmark tests as indicated below. 
-> The reaim benchmark is the only one that I
-> know contains networking tests. The 16-way with the cache changes
+On Tue, 12 Jul 2005, Joy Latten wrote:
+
 > indicate some performance improvement. I am currently working 
 > on a testcase that will somewhat exercise the use of ports and/or
 > ipaddresses. Hopefully this will better indicate an improvement.
 
-Hi,
+apachebench can give you a very quick and simple view of the network 
+overhead.
 
-Thanks for continuing to work on these patches.  Can you post or provide
-a URL to a current version of the patches, against a recent upstream
-kernel (e.g. 2.6.13-rc2-mm2)?
 
+- James
 -- 
-Stephen Smalley
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
