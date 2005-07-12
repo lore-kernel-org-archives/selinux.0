@@ -1,35 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6BIWZgA010130
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2005 14:32:36 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6BISwd6013122
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2005 18:28:58 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions [144.51.25.4])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6BIU2Zf010739
-	for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2005 14:30:02 -0400 (EDT)
-Subject: Updated Policy in Sourceforge CVS
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: SELinux <selinux@tycho.nsa.gov>
+Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6CCqDgA015721
+	for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2005 08:52:13 -0400 (EDT)
+Subject: Re: Ottawa Linux Symposium
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1112367226.14481.76.camel@moss-spartans.epoch.ncsc.mil>
+References: <1112367226.14481.76.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 11 Jul 2005 14:30:07 -0400
-Message-Id: <1121106607.3252.17.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 12 Jul 2005 08:48:17 -0400
+Message-Id: <1121172497.16209.37.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-1.25.2 2005-07-11
-* Merged patch from Dan Walsh.  Added allow_ptrace boolean to allow
-sysadm_t to ptrace and debug apps.  Gives auth_chkpwd the audit_control
-and audit_write capabilities.  Stops targeted policy from transitioning
-from unconfined_t to netutils.  Allows cupsd to audit messages.  Gives
-prelink the execheap, execmem, and execstack permissions by default.
-Adds can_winbind boolean and functions to better handle samba and
-winbind communications.  Eliminates allow_execmod checks around
-texrel_shlib_t libraries.  Other minor cleanups and fixes.
+On Fri, 2005-04-01 at 09:53 -0500, Stephen Smalley wrote:
+> Hi,
+> 
+> If anyone plans on attending the Ottawa Linux Symposium this year and is
+> interested in having an informal SELinux meeting there, send me a note
+> privately, please.  Information about the symposium is available at:
+> http://www.linuxsymposium.org/2005/
 
+As a reminder (particularly since I sent the original message so early
+this year), several SELinux developers and users will be at the Ottawa
+Linux Symposium this year (July 20-23), so we will likely have an
+informal meeting sometime during the symposium.  We do not have a
+formally scheduled SELinux BOF this year, although there are several
+security-related BOFs on the schedule (Thursday evening - separate BOFs
+on security certification, general Linux security, and audit) that
+several of us are likely to attend.  If you plan to attend OLS and are
+interesting in joining us for an informal SELinux meeting, then send me
+a note privately.
+ 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley
 National Security Agency
 
 
