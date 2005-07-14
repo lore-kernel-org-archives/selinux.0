@@ -1,113 +1,55 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6EGL9gA004400
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 12:21:09 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6EGH0kZ023563
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 16:17:00 GMT
-Date: Thu, 14 Jul 2005 12:17:39 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: MCS/Targeted Policy...
-In-Reply-To: <20050714033414.97168.qmail@web31611.mail.mud.yahoo.com>
-Message-ID: <Xine.LNX.4.44.0507141155320.13333-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6EHEBgA004801
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 13:14:12 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6EHAk5c028750
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 17:10:46 GMT
+Received: from nexus.verbum.private (localhost.localdomain [127.0.0.1])
+	by monk.area614.net (Postfix) with ESMTP id D2BCB4107A0
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 13:10:48 -0400 (EDT)
+Subject: security context character set
+From: Colin Walters <walters@verbum.org>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ioQmTYgcLzFvM0TDMtVw"
+Date: Thu, 14 Jul 2005 13:10:41 -0400
+Message-Id: <1121361041.29699.10.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 13 Jul 2005, Casey Schaufler wrote:
 
-> > There are some fundamental differences between the
-> > systems; here are some
-> > very basic definitions:
-> > 
-> > - ACLs govern discretionary access rights to an
-> > object.
-> > - MCS constrains DAC and TE access rights to an
-> > object.
-> 
-> Discretionary Type Enforcement? Is that
-> really what you want to propose?
+--=-ioQmTYgcLzFvM0TDMtVw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Not exactly.  The proposal is further discretionary restrictions on TE, to
-provide end users with more direct control over their objects.
+Hi,
 
-TE itself always remains a MAC system.
+I was wondering if there was a guarantee that security contexts would be
+valid UTF-8 (or more strictly ASCII).  This came up because I wrote a
+patch for D-BUS which sends contexts over the network; right now they
+are marshaled as DBUS_TYPE_STRING which is defined to be UTF-8.
 
-> > MCS can also operate on TE attributes.
-> 
-> Giving users descretionary control over
-> TE attributes seems counter to the "SELinux
-> is a MAC scheme" position I've heard
-> fairly regularly, but it is a logical
-> extension.
+http://lists.freedesktop.org/archives/dbus/2005-July/003037.html
 
-This does not necessarily mean user control over TE attributes, just that 
-MCS policy constraints can directly reference TE attributes.
-
-> > ACLs are limited to a small set of file type OS
-> > objects.  MCS could be
-> > applied to any of the objects which SELinux
-> > controls, including userspace
-> > components.
-> 
-> ACLs on sockets have been done in the past,
-> you know, just as has MLS.
-
-I'd be interested to know where was this done (especially a deployed 
-product).
-
-> > ACLs will still be in 
-> >   effect, and security could be seriously degraded
-> > without TE in place, as 
-> >   ACLs are a privilege escalation mechanism.
-> 
-> What! This you've got to explain.
-
-Ok, assume that ACLs have been used with TE to synthesize an MCS-like
-security mechansim.  If TE is disabled (e.g. boot with selinux=0), the
-ACLs will still be there, but without TE's containment, integrity control
-etc. features.  The big difference with MCS is that it only further
-constrains DAC and TE policy.  ACLs are permissive and assign access 
-rights directly to objects.
-
-> 
-> > In the
-> > case of MCS, the 
-> >   category labels would do nothing without SELinux
-> > enabled.
-> 
-> Ah. The POSIX ACL group made sure that adding
-> an ACL to a file would not interfere with the
-> mode bits, nor encourage users to set them
-> "wide open" and count on the ACL alone.
-> 
-> Imagine a system with MCS. If everything
-> and everyone used MCS, all the mode bits
-> could be 777, and you might do that so they
-> would not interfere with the desired MCS
-> activity. Bring that up without SELinux.
-
-I don't understand this: MCS only further restricts secuirty policy
-implemnted via mode bits.  It cannot directly reduce the security of the
-system with or without SELinux enabled.
-
-> In review, MCS is a logical extension to
-> SELinux. I expect you'll have to put more
-> limits on its flexibility than you think.
-> I expect to enjoy watching the experiment.
-
-It is indeed still considered experimental.
-
-Thanks for the input.
+I'm pretty sure they have to be because all the tools just dump them to
+the user's terminal (which expects UTF-8), and tools like seaudit use
+them in GTK+ which requires UTF-8 strings.  But I just thought I'd check
+here.
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+--=-ioQmTYgcLzFvM0TDMtVw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC1pyROIkJWWp2WGURAnxDAJ9UTxZPRPUFaVCiYNbHpWOo3ozuYACeJ6Hx
+ph3OBAaoZWh1PZKzBMh/Jdg=
+=7NVe
+-----END PGP SIGNATURE-----
+
+--=-ioQmTYgcLzFvM0TDMtVw--
 
 
 --
