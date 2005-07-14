@@ -1,11 +1,11 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6EApmgA001918
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 06:51:48 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6EAlfkZ021961
-	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 10:47:41 GMT
-Message-ID: <42D6430C.1010404@redhat.com>
-Date: Thu, 14 Jul 2005 06:48:44 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6EB1wgA001989
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 07:01:58 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6EAwa5c021637
+	for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 10:58:36 GMT
+Message-ID: <42D6456F.6040001@redhat.com>
+Date: Thu, 14 Jul 2005 06:58:55 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Junji Kanemaru <linux@linuon.com>
@@ -82,6 +82,10 @@ allow system_mail_t cvs_data_t:file { getattr read };
 dontaudit cvs_t devtty_t:chr_file { read write };
 allow cvs_t default_t:dir search;
 allow cvs_t default_t:lnk_file read;
+
+
+-- 
+
 
 
 -- 
