@@ -1,98 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6FKD2gA014368
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:13:02 -0400 (EDT)
-Received: from e2.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6FK9PrE022565
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 20:09:25 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e2.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id j6FK9QXV000561
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:09:26 -0400
-Received: from d01av03.pok.ibm.com (d01av03.pok.ibm.com [9.56.224.217])
-	by d01relay04.pok.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id j6FK9Q7d222780
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:09:26 -0400
-Received: from d01av03.pok.ibm.com (loopback [127.0.0.1])
-	by d01av03.pok.ibm.com (8.12.11/8.13.3) with ESMTP id j6FK9Qtv004844
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:09:26 -0400
-Message-ID: <42D817ED.9000009@us.ibm.com>
-Date: Fri, 15 Jul 2005 16:09:17 -0400
-From: Janak Desai <janak@us.ibm.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov, janak@us.ibm.com
-Subject: [PATCH 2/2] unshare system call patch - needed to test pam_namespace
-Content-Type: multipart/mixed;
- boundary="------------090509000008030500060603"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6FKFTgA014411
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:15:29 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6FKB7Bp007206
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 20:11:07 GMT
+Subject: Re: [RFC] selinux management API
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1121457421.28365.42.camel@localhost>
+References: <42D7CC53.9030803@tresys.com>
+	 <1121442990.4488.87.camel@celtics.boston.redhat.com>
+	 <42D7FC9A.7000901@tresys.com>
+	 <1121455199.10134.15.camel@celtics.boston.redhat.com>
+	 <1121455743.28369.36.camel@localhost>
+	 <1121456743.10134.36.camel@celtics.boston.redhat.com>
+	 <1121457421.28365.42.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 15 Jul 2005 16:08:43 -0400
+Message-Id: <1121458123.10134.49.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090509000008030500060603
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Here is part of the unshare system call patch. This one implements
-system call for i386 arch. I do have suggestion for code change for
-some other architectures, but since I haven't tested them I haven't
-included in the patch.
+> > I think it's all about the implementation details...
+> > the interface is a great guideline, but in the end all of this
+> > has to be implemented, and it has to be convenient for the caller..
+> > 
+> 
+> thats fine but we want a future proof, stable, scalable API, the
+> implementation details will be handled at implementation time.
 
--Janak
+I was under the impression that you'd want me to help with the
+implementation... I already have code that does precisely this.
+With some modification, it can be made to work on libsemanage.
 
---------------090509000008030500060603
-Content-Type: text/plain;
- name="justi2-fsdevel"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="justi2-fsdevel"
+====
 
-
-
-[PATCH 2/2] unshare system call: System Call setup for i386 arch
-
-
-Signed-off-by: Janak Desai
-
------------------------------------------------------------------------
-
---------------090509000008030500060603
-Content-Type: text/plain;
- name="p2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="p2.patch"
-
-diff -Naurp linux-2.6.12/arch/i386/kernel/syscall_table.S linux-2.6.12-unshare-p2/arch/i386/kernel/syscall_table.S
---- linux-2.6.12/arch/i386/kernel/syscall_table.S	2005-06-17 19:48:29.000000000 +0000
-+++ linux-2.6.12-unshare-p2/arch/i386/kernel/syscall_table.S	2005-06-22 13:20:44.000000000 +0000
-@@ -289,3 +289,4 @@ ENTRY(sys_call_table)
- 	.long sys_add_key
- 	.long sys_request_key
- 	.long sys_keyctl
-+	.long sys_unshare
-diff -Naurp linux-2.6.12/include/asm-i386/unistd.h linux-2.6.12-unshare-p2/include/asm-i386/unistd.h
---- linux-2.6.12/include/asm-i386/unistd.h	2005-06-17 19:48:29.000000000 +0000
-+++ linux-2.6.12-unshare-p2/include/asm-i386/unistd.h	2005-06-22 13:22:22.000000000 +0000
-@@ -294,8 +294,9 @@
- #define __NR_add_key		286
- #define __NR_request_key	287
- #define __NR_keyctl		288
-+#define __NR_unshare		289
- 
--#define NR_syscalls 289
-+#define NR_syscalls 290
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-diff -Naurp linux-2.6.12/include/linux/syscalls.h linux-2.6.12-unshare-p2/include/linux/syscalls.h
---- linux-2.6.12/include/linux/syscalls.h	2005-06-17 19:48:29.000000000 +0000
-+++ linux-2.6.12-unshare-p2/include/linux/syscalls.h	2005-06-22 13:24:09.000000000 +0000
-@@ -505,4 +505,6 @@ asmlinkage long sys_request_key(const ch
- asmlinkage long sys_keyctl(int cmd, unsigned long arg2, unsigned long arg3,
- 			   unsigned long arg4, unsigned long arg5);
- 
-+asmlinkage long sys_unshare(unsigned long unshare_flags);
-+
- #endif
-
---------------090509000008030500060603--
+Anyway, I still don't understand how you plan to do the 
+template expansion - you're treating that as an implementation detail,
+and I think you shouldn't overlook this concern, because it's
+not clear how it will work. 
 
 
 --
