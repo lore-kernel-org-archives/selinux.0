@@ -1,46 +1,36 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6F5TwgA008699
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 01:29:58 -0400 (EDT)
-Received: from zproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6F5PhBp013357
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 05:25:43 GMT
-Received: by zproxy.gmail.com with SMTP id 9so317436nzo
-        for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2005 22:26:28 -0700 (PDT)
-Message-ID: <856763c80507142226142e4159@mail.gmail.com>
-Date: Thu, 14 Jul 2005 22:26:28 -0700
-From: Alexander Kabanov <shurikk@gmail.com>
-Reply-To: Alexander Kabanov <shurikk@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: apache virtualhost and selinux
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6FCh6gA010852
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 08:43:08 -0400 (EDT)
+Received: from gw.linuon.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6FCdVrE008712
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 12:39:32 GMT
+Message-ID: <42D7AE69.30100@linuon.com>
+Date: Fri, 15 Jul 2005 21:39:05 +0900
+From: Junji Kanemaru <linux@linuon.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: cvs and mta
+References: <42D4D4AC.9010403@linuon.com> <42D4EB9B.2050701@redhat.com> <42D5D42B.9090705@linuon.com> <42D6456F.6040001@redhat.com>
+In-Reply-To: <42D6456F.6040001@redhat.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All,
 
-I'm new to SELinux, would like to solve the following
-problem (not sure I can do this with SELinux)
+> How about the following?
 
-so, here is the description:
+Thanks. I'll try it next week since I'm out of office now.
 
-- httpd (apache, let say it has some modules like mod_perl, mod_php,
-mod_jk etc.)
-- virtual hosts like
- /path/host1
- /path/host2
- etc.
+> What is it looking at that is marked default_t? I don't like those rules.
 
-is there a way to contol access of  /path/host1/script1.php to
-/path/host2 files using SELinux policies?
+I used to have cvs user on server which was shared by
+developers to access cvs repo.
+I moved them to /var/cvs now so it shouldn't be needed anymore.
 
-suexec (works for CGI scripts only not for similar to mod_php modules)
-is know solution, is it possible to implement this with SELinux
-policies?
+Thank you for your help.
 
-Thanks
-
--Alex
+-- Junji
 
 
 --
