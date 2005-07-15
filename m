@@ -1,48 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6FKFTgA014411
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:15:29 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6FKB7Bp007206
-	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 20:11:07 GMT
-Subject: Re: [RFC] selinux management API
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1121457421.28365.42.camel@localhost>
-References: <42D7CC53.9030803@tresys.com>
-	 <1121442990.4488.87.camel@celtics.boston.redhat.com>
-	 <42D7FC9A.7000901@tresys.com>
-	 <1121455199.10134.15.camel@celtics.boston.redhat.com>
-	 <1121455743.28369.36.camel@localhost>
-	 <1121456743.10134.36.camel@celtics.boston.redhat.com>
-	 <1121457421.28365.42.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 15 Jul 2005 16:08:43 -0400
-Message-Id: <1121458123.10134.49.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6FL3MgA014741
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 17:03:22 -0400 (EDT)
+Received: from e6.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6FKxirE026477
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 20:59:44 GMT
+Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
+	by e6.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id j6FKxk49023159
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:59:46 -0400
+Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
+	by d01relay02.pok.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id j6FKxjPD260802
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:59:45 -0400
+Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
+	by d01av04.pok.ibm.com (8.12.11/8.13.3) with ESMTP id j6FKxjZv003610
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:59:45 -0400
+Received: from [127.0.0.1] (sig-9-65-227-13.mts.ibm.com [9.65.227.13])
+	by d01av04.pok.ibm.com (8.12.11/8.12.11) with ESMTP id j6FKxiwB003593
+	for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2005 16:59:45 -0400
+Message-ID: <42D823BA.4050409@us.ibm.com>
+Date: Fri, 15 Jul 2005 16:59:38 -0400
+From: Janak Desai <janak@us.ibm.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: size limit on posts?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Is there a size limit on posts to this mailing list? I have sent
+pam_namespace patch twice (first attempt almost 3 hours ago), but
+haven't seen it posted yet. It was about 54KB. Follow up emails
+with unshare patches, that are needed to test the namespace patch,
+have shown up so I was wondering if there is a size limit or
+some other issue with that specific email.
 
-> > I think it's all about the implementation details...
-> > the interface is a great guideline, but in the end all of this
-> > has to be implemented, and it has to be convenient for the caller..
-> > 
-> 
-> thats fine but we want a future proof, stable, scalable API, the
-> implementation details will be handled at implementation time.
+So if you are confused why I am sending unshare kernel patches
+here, please bare with me. They were sent after the namespace patch
+which hasn't yet shown up.
 
-I was under the impression that you'd want me to help with the
-implementation... I already have code that does precisely this.
-With some modification, it can be made to work on libsemanage.
+Thanks.
 
-====
-
-Anyway, I still don't understand how you plan to do the 
-template expansion - you're treating that as an implementation detail,
-and I think you shouldn't overlook this concern, because it's
-not clear how it will work. 
+-Janak
 
 
 --
