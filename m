@@ -1,20 +1,24 @@
-Subject: Re: [PATCH] fix hierarchy checking location
+Subject: Re: [PATCH] Makefile fixes and cleanups for selinux-usr
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Joshua Brindle <jbrindle@tresys.com>
 Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1121442472.28368.16.camel@localhost>
-References: <1121442472.28368.16.camel@localhost>
+In-Reply-To: <1121353750.11005.3.camel@localhost>
+References: <1121353750.11005.3.camel@localhost>
 Content-Type: text/plain
-Date: Mon, 18 Jul 2005 10:29:21 -0400
-Message-Id: <1121696961.32546.28.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 18 Jul 2005 10:28:01 -0400
+Message-Id: <1121696881.32546.24.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-07-15 at 11:47 -0400, Joshua Brindle wrote:
-> This patch puts the hierarchy check in the right place (currently it's before the policy expand)
+On Thu, 2005-07-14 at 11:09 -0400, Joshua Brindle wrote:
+> This patch makes the repository able to be built with DESTDIR set and
+> also adds the ability to define DEBUG to get debug CFLAGS enabled for
+> the entire repository as well as some misc fixes and cleanups.
 
-All hunks failed, but merged manually.
+Thanks, merged, along with a few other changes.
+
+Let me know if these Makefile changes cause problems for anyone...
 
 -- 
 Stephen Smalley
