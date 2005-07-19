@@ -1,66 +1,68 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JJtPgA010199
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 15:55:25 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6JJoMZb018418
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 19:50:22 GMT
-Message-Id: <200507191950.j6JJotvx014893@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   "'Ulrich Drepper'" <drepper@redhat.com>, <selinux@tycho.nsa.gov>
-Subject: RE: SElinux nss/nscd service
-Date: Tue, 19 Jul 2005 15:50:55 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JK96gA010363
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 16:09:06 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6JK4m3G000043
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 20:04:48 GMT
+Message-Id: <200507192004.j6JK4evx015326@gotham.columbia.tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: <selinux@tycho.nsa.gov>,
+   "'Fedora SELinux support  list for users &amp; developers.'" <fedora-selinux-list@redhat.com>
+Subject: Call for Paper - 2nd SELinux Symposium
+Date: Tue, 19 Jul 2005 16:04:40 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1121801122.7252.15.camel@celtics.boston.redhat.com>
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Tuesday, July 19, 2005 3:25 PM
-> To: Karl MacMillan
-> Cc: 'Daniel J Walsh'; 'Ulrich Drepper'; selinux@tycho.nsa.gov
-> Subject: RE: SElinux nss/nscd service
-> 
-> 
-> > This is different - managing the users as an admin is going to be backend
-> > specific. Everything that you list is local files specific, right?
-> 
-> Just because passwords are done that way doesn't necessary mean we want
-> the selinux map to work that way.
+SECOND SECURITY ENHANCED LINUX SYMPOSIUM (www.selinux-symposium.org)
+Call for Papers
+ 
+The call for papers for the Second Security Enhanced Linux (SELinux) 
+Symposium is now open. The Symposium is scheduled for February 28-March 
+2, 2006, at the Wyndham Hotel, Baltimore, Maryland, USA. The event is 
+the only of its kind to examine SELinux and the power of the flexible 
+mandatory access control security it brings to Linux.  Last year's 
+inaugural symposium was a tremendous success providing the SELinux 
+development and user community the opportunity to discuss related 
+research results, development plans, and applications.
+ 
+Any topics relating to SELinux technology, flexible mandatory access 
+control, and its application to real-world problem are of interest for 
+this symposium. Such topic include:
 
-Yes it does - the whole goal of this is to enable user information to be managed
-however the backend wants. Centralized user management means that it is
-centralized completely. Admins aren't going to be very happy when their ldap
-directory manages users just great except they have to go to every selinux
-machine and run some program or edit some random text file. One of the main
-points of this user suggestion is that user information _must_ be able to be
-centralized or we will break things like ldap.
+	+ Innovations and advancement in SELinux technology
+	+ Use and application of SELinux and Type Enforcement
+	+ SELinux development experiences and tools
+	+ Use and Configuration of MLS and RBAC in securing systems
+	+ Updates on the various Linux distributions using SELinux
+	+ Practical "root"-less system administration policies
+	+ Case studies and application experience SELinux
+	+ Related research and development activities
+	+ Tools and products supporting/using SELinux
+	+ Security evaluation and certification issues
+	+ User and customers concerns and needs
+	+ Tutorials
 
- I don't see why it has to be backend
-> specific (but then again, I'm sure there's probably a reason,
-> or glibc would provide a backend independent write interface for pwd).
-> 
-> In any case, backend specific or not, I don't plan to reimplement the
-> read/write code in 10 places, so it should go in a library, not in pam.
-> 
-> 
+No marketing pitches will be accepted. 
 
-It doesn't matter whether it is a library or not, it matters whether this is a
-public api upon which applications will start to depend. Putting this in
-libselinux means that we are stuck with the api for _years_.
+The call for papers is open until September 19, 2005. For additional 
+information and submittal requirements, see www.selinux-symposium.org.
 
-Karl
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
+Technical Committee:
+ 
+	Joshua Brindle, Tresys
+	Russell Coker, Red Hat
+	Chad Hanson, TCS
+	Trent Jaeger, IBM
+	Pete Loscocco, NSA
+	Karl MacMillan, Tresys
+	Frank Mayer (Chair), Tresys
+	James Morris, Red Hat
+	Doc Shankar, IBM
+	Stephen Smalley, NSA
+	Daniel Walsh, Red Hat
 
 
 
