@@ -1,50 +1,57 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JJo5gA010126
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 15:50:05 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JJtPgA010199
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 15:55:25 -0400 (EDT)
 Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6JJj1Zb017463
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 19:45:02 GMT
-Message-Id: <200507191945.j6JJjVvx014794@gotham.columbia.tresys.com>
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6JJoMZb018418
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 19:50:22 GMT
+Message-Id: <200507191950.j6JJotvx014893@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Ulrich Drepper'" <drepper@redhat.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>
-Cc: <gyurdiev@redhat.com>, <selinux@tycho.nsa.gov>
+To: <gyurdiev@redhat.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Ulrich Drepper'" <drepper@redhat.com>, <selinux@tycho.nsa.gov>
 Subject: RE: SElinux nss/nscd service
-Date: Tue, 19 Jul 2005 15:45:31 -0400
+Date: Tue, 19 Jul 2005 15:50:55 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="UTF-8"
-In-reply-to: <42DD4972.5040204@redhat.com>
+	charset="us-ascii"
+In-reply-to: <1121801122.7252.15.camel@celtics.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 > -----Original Message-----
-> From: Ulrich Drepper [mailto:drepper@redhat.com]
-> Sent: Tuesday, July 19, 2005 2:42 PM
-> To: Daniel J Walsh
-> Cc: Karl MacMillan; gyurdiev@redhat.com; selinux@tycho.nsa.gov
-> Subject: Re: SElinux nss/nscd service
+> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
+> Sent: Tuesday, July 19, 2005 3:25 PM
+> To: Karl MacMillan
+> Cc: 'Daniel J Walsh'; 'Ulrich Drepper'; selinux@tycho.nsa.gov
+> Subject: RE: SElinux nss/nscd service
 > 
-> Daniel J Walsh wrote:
-> > So you want the pam_selinux module to implement all the potential
-> > backends?  What happens if an app does not use pam but needs this info?
 > 
-> What "all the potential backends"?  Just define the backend is LDAP and
-> be done with it.  And NIS/NIS+ backend needs specific code to be written
-> to access the data which is not going to be added to glibc either unless
-> there is *real* need shown.  Plus, NIS is completely unsafe and for NIS+
-> there is no server implementation available.  The only other backends in
-> use are some database backed ones but those are highly suspicious and I
-> doubt they work reliably.
+> > This is different - managing the users as an admin is going to be backend
+> > specific. Everything that you list is local files specific, right?
+> 
+> Just because passwords are done that way doesn't necessary mean we want
+> the selinux map to work that way.
+
+Yes it does - the whole goal of this is to enable user information to be managed
+however the backend wants. Centralized user management means that it is
+centralized completely. Admins aren't going to be very happy when their ldap
+directory manages users just great except they have to go to every selinux
+machine and run some program or edit some random text file. One of the main
+points of this user suggestion is that user information _must_ be able to be
+centralized or we will break things like ldap.
+
+ I don't see why it has to be backend
+> specific (but then again, I'm sure there's probably a reason,
+> or glibc would provide a backend independent write interface for pwd).
+> 
+> In any case, backend specific or not, I don't plan to reimplement the
+> read/write code in 10 places, so it should go in a library, not in pam.
+> 
 > 
 
-? Potential means that they might not exist yet.
-
-> Just implement it somewhere for now.  In a couple of months/a year we
-> can revisit the decision.
-> 
-
-Which means changing every caller. If we want to just hack something, fine, let's just call it a hack though.
+It doesn't matter whether it is a library or not, it matters whether this is a
+public api upon which applications will start to depend. Putting this in
+libselinux means that we are stuck with the api for _years_.
 
 Karl
 
@@ -53,10 +60,6 @@ Karl MacMillan
 Tresys Technology
 http://www.tresys.com
 (410) 290-1411 ext 134
-
-> --
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
-
 
 
 
