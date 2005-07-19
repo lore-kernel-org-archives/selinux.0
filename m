@@ -1,42 +1,42 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JIwngA009472
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 14:58:49 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6JIsU3G018306
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 18:54:31 GMT
-Subject: RE: SElinux nss/nscd service
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   "'Ulrich Drepper'" <drepper@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200507191844.j6JIhwvx013861@gotham.columbia.tresys.com>
-References: <200507191844.j6JIhwvx013861@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Tue, 19 Jul 2005 14:52:12 -0400
-Message-Id: <1121799132.7252.6.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JJ20gA009525
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 15:02:00 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6JIuvZb009585
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 18:56:57 GMT
+Message-ID: <42DD4D40.3010001@redhat.com>
+Date: Tue, 19 Jul 2005 14:58:08 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Chad Hanson <chanson@TrustedCS.com>
+CC: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
+Subject: Re: init running at s9 by default on a MLS system?
+References: <36282A1733C57546BE392885C0618592AF2872@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592AF2872@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Chad Hanson wrote:
 
-> No - I want pam_ldap to be able to provide arbitrary data (the SELinux user
-> mapping) to pam_selinux which uses it to obtain the login context. Again, don't
-> know if this is possible, but it seems like it should be. An app that doesn't
-> want to use pam can directly obtain the data from ldap or whatever - is this a
-> big worry? There should be a single authentication method for a system - there's
-> a reason no one uses slackware :)
+>>How do you specify in policy that kernel_t transitions to 
+>>init_t but at 
+>>level s0?
+>>
+>>    
+>>
+>
+>Like as follows:
+>
+># run init_t at OS_LO-OS_HI
+>range_transition kernel_t init_exec_t s0 - s9:c0.c127;
+>
+>-Chad
+>  
+>
+That line is already in policy.
 
-This is not possible, because this information is necessary for things
-other than login programs:
-
-- displaying information (system-config-users?)
-- modifying the mapping (usermod? useradd? libuser? userdel?)
-- obtaining the the mapping data for other purposes (genhomedircon)
- 
-So, there are plenty of reasons why the admin requires access to
-other users' mapping data, so this code should be placed in a library.
-By Ulrich's arguments it would seem glibc is not that library...
+-- 
 
 
 
