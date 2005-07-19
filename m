@@ -1,37 +1,71 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JFTDgA007286
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 11:29:13 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6JFDaZb011831
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 15:13:37 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j6JFE8Ad004738
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 11:14:08 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j6JFE8V24851
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 11:14:08 -0400
-Received: from celtics.boston.redhat.com (celtics.boston.redhat.com [172.16.80.115])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j6JFE7ll013257
-	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 11:14:07 -0400
-Subject: Adding more NSCD constants
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Tue, 19 Jul 2005 11:11:49 -0400
-Message-Id: <1121785909.22954.2.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6JFU4gA007320
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 11:30:04 -0400 (EDT)
+Received: from web31612.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j6JFObZb013317
+	for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2005 15:24:38 GMT
+Message-ID: <20050719152504.99856.qmail@web31612.mail.mud.yahoo.com>
+Date: Tue, 19 Jul 2005 08:25:04 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: MCS/Targeted Policy...
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: James Morris <jmorris@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <42DD054E.1030301@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-How hard is it to add more constants to av_permissions.h?
-This file says "automatically generated" but I'm not sure
-what it's generated from.
 
-If we add another NSCD cache (which is the plan... for the 
-selinux_users nss service), then we need more constants for
-NSCD.
 
+--- Daniel J Walsh <dwalsh@redhat.com> wrote:
+
+> Let me try.  SELinux does not give any more access
+> then standard DAC 
+> Controls.  So I would say SELinux is only
+> restrictive  on top of 
+> Standard DAC.
+
+Yes, and therein lies a potential problem.
+The reason that ACLs are integrated with mode
+bits is that DAC -as a whole- needs to be
+sensible. If someone decides that SELinux DAC
+is better than Unix DAC (somebody will) they
+may chose to eschew Unix DAC and make all their
+files mode 777 (rwxrwxrwx to those born after
+the epoch), counting on the presence of SELinux
+to protect them they way they want to be
+protected. There is no problem unless there is
+a change to the SELinux DAC policy and that
+policy is sufficient to meet their needs.
+
+Boot a kernel without SELinux, or with a
+different policy and you have a problem.
+
+> ACL, however grant additional access
+> over standard DAC, 
+> so they are permissive
+> on standard DAC.
+
+I don't think you've read the POSIX Draft.
+ACLs are intergrated with mode bits. If you
+use chmod to set the mode bits the desired
+result occurs. The spec is very careful
+about that. The statement that ACLs grant
+additional access makes no sense to me
+whatever, unless you're refering to the
+improved granularity of specification.
+
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
