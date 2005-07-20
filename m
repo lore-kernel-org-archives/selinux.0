@@ -1,64 +1,57 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6KH8kgA018354
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 13:08:46 -0400 (EDT)
-Received: from crisium.vnl.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6KH4IDg019407
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 17:04:19 GMT
-Date: Wed, 20 Jul 2005 17:59:37 +0100
-From: Dale Amon <amon@vnl.com>
-To: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
-Subject: Re: Suse selinux policy
-Message-ID: <20050720165937.GB18922@vnl.com>
-References: <20050718234403.GA30685@vnl.com> <20050720103541.GB8124@thorium.jmh.mhn.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6KHkqgA018650
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 13:46:52 -0400 (EDT)
+Received: from kokytos.rz.ifi.lmu.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6KHgKDg022794
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 17:42:25 GMT
+Received: from minsk.cip.ifi.lmu.de (minsk.cip.ifi.lmu.de [141.84.214.166])
+	by kokytos.rz.ifi.lmu.de (Postfix) with ESMTP id B82FE435E1
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 19:42:21 +0200 (CEST)
+Date: Wed, 20 Jul 2005 13:04:55 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: SELinux repository for Sarge?
+Message-ID: <20050720110453.GC8124@thorium.jmh.mhn.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
-In-Reply-To: <20050720103541.GB8124@thorium.jmh.mhn.de>
+	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---/WwmFnJnmDyWGHa4
-Content-Type: text/plain; charset=us-ascii
+--NDin8bjvE/0mNLFQ
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 20, 2005 at 12:35:43PM +0200, Thomas Bleher wrote:
-> I don't know about SLES9 but afaik most SuSE products don't contain a
-> policy package (I once saw one for an older version but it was very
-> outdated). From what I've heard SuSE favors AppArmor over SELinux so
-> it's unlikely they will support SELinux[1].
+Hi all,
 
-It doesn't make sense to me. Why would the kernel in
-SLES9 have selinux compiled in (with default boot of
-selinux=3D0) and the CD's contain libselinux, policycoreutils,
-etc, etc, and no policy? The Novell OES version uses
-the same disk set as well, I have been working
-with both over the last month.
+does anyone plan to maintain SELinux packages for Debian Sarge (aka 3.1)?
+I will need an apt-get-able repository for some servers in the near
+future.  I know about the repository from Russell, but it seems to be
+tracking unstable. If noone steps up I will build packages myself, but
+I'd rather not.
+
+Thomas
 
 --=20
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---/WwmFnJnmDyWGHa4
+--NDin8bjvE/0mNLFQ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFC3oL5ZHES7UL0zXERAgNeAJ4uozRQNJM2uHA5kU7V6F/zCmvh+wCeIYr+
-0EEALVOfNnyUSFYl04YX+CA=
-=QqIX
+iD8DBQFC3i/VxWIrrrL0q+cRApPIAJ9KEHnCqXQc+toIT2ejOYUykGuKugCeNyW3
+QKq+lQHL2WUIGhNJP1XB8N4=
+=bXa/
 -----END PGP SIGNATURE-----
 
---/WwmFnJnmDyWGHa4--
+--NDin8bjvE/0mNLFQ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
