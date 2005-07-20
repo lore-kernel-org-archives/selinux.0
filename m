@@ -1,97 +1,91 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6KIscgA019571
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 14:54:38 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6KInO9b017764
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 18:49:24 GMT
-Subject: Re: SElinux nss/nscd service
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   "'Ulrich Drepper'" <drepper@redhat.com>, selinux@tycho.nsa.gov,
-   dwalsh@redhat.com
-In-Reply-To: <20050720113015.GO8851@lkcl.net>
-References: <1121794572.4780.15.camel@celtics.boston.redhat.com>
-	 <200507191825.j6JIPsvx013481@gotham.columbia.tresys.com>
-	 <20050719215424.GA8851@lkcl.net>
-	 <1121815377.15541.15.camel@localhost.localdomain>
-	 <20050720095524.GK8851@lkcl.net>
-	 <1121857492.24646.21.camel@localhost.localdomain>
-	 <20050720113015.GO8851@lkcl.net>
-Content-Type: text/plain
-Date: Wed, 20 Jul 2005 14:52:21 -0400
-Message-Id: <1121885541.29587.19.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6KIuPgA019613
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 14:56:25 -0400 (EDT)
+Received: from palrel10.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6KIpvDg000941
+	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 18:51:57 GMT
+Message-ID: <42DE9D3B.7020504@hp.com>
+Date: Wed, 20 Jul 2005 14:51:39 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Jonathan Kim <jkim@TrustedCS.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Chad Hanson <chanson@TrustedCS.com>,
+   selinux@tycho.nsa.gov
+Subject: Re: init running at s9 by default on a MLS system?
+References: <36282A1733C57546BE392885C0618592AF290B@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592AF290B@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> > Pam modules are for authentication and login issues. 
-> > This mapping is used for other purposes as well, and also needs to 
-> > be modified from multiple programs and/or shared libraries, which should
-> > not replicate the necessary code.
+Jonathan Kim wrote:
+> Yes the line is updated originally by TCS and wrapped with mls_policy
+> tunable later. 
 > 
->  then you almost undoubtedly need something like winbindd in
->  order to "centralise" the management of the security "classes",
+> I applied current Dan Walsh's selinux-policy-mls-1.25.2-5 on on Fedora
+> Rawhide to FC4 and I see the init process is running correctly at
+> s0-s9:c0.c127.
+> 
 
-Management can be centralized just fine with a shared library.
+I am running version 1.25.2-5 of Dan's MLS policy RPM and looking at the 
+source version of the policy RPM I see the range_transition line and if 
+I recompile the policy the line is present in the policy.conf file.
 
->  and to provide a simple RPC mechanism for communicating over a unix
->  domain socket (or other IPC mechanism - but _please_ don't put dbus
->  on the list of options to explore).
+However, if I reboot the machine using either the policy that I have 
+recompiled or Dan's original policy it appears that init is running in 
+system_u:system_r:init_t:s9:c0.c127 not s0-s9:c0.c127.
 
-RPC? Before we write something incredibly complex here, please
-remember that at the present time we only support flat files,
-and we don't even support those very well. Sure, we'd like
-that to change, but I'm not sure such extra complexity is 
-warranted at the present time.
+Am I missing something?
 
->  aside from anything, as long as you get the simple RPC
->  mechanism correct and well-defined, you can CHANGE the
->  implementation [of selinux "classes"] behind the RPC mechanism -
->  and it's _not going to matter_.
-
-I think that's true for any well-defined API, regardless
-of whether it's a daemon or a shared library.
-
-I also have my doubts about whether we can set an API
-in stone and never change it, regardless of where it's placed.
-I think that's probably not going to work, and we should
-not overdesign things yet. 
-
->  before you go criticising the reasons why i recommended a
->  winbindd-like solution, can i invite you to examine its source
->  code (or better yet the nss_winbindd source code because it's
->  simpler) and also ask questions about why winbindd was created?
-
-Ok. Why was winbindd created? 
-
->  aside from anything, a second [and more importantly, redhat-funded]
->  person examining a solution recommended by an external source [who
->  isn't funded to work on selinux] means that this proposed area to
->  explore can be properly evaluated: it might _not_ be a good way
->  forward.
-
-I am confused by this statement - does not quite parse...
-
->  all i can say is that winbindd in combination with its nsswitch
->  and pam service works _extremely_ well at providing "the holy
->  grail" single-sign-on, in a mixed NT and Unix environment.
-
-That's great, but we're not doing single-sign-on authentication.
-
-The primary question I have is - why should we have a daemon that runs
-in the background, when we currently have very few callers that will
-be using it, and at particularly rare circumstances (when you're
-administering user accounts). So, what's the justification
-for using up system resources with a daemon program. 
-
-I see this issue largely equivalent to libuser - we should
-do the same thing that libuser does, and put it in libsemanage
-(or another library, but not glibc yet).
+> 
+>>-----Original Message-----
+>>From: Daniel J Walsh [mailto:dwalsh@redhat.com]
+>>Sent: Tuesday, July 19, 2005 1:58 PM
+>>To: Chad Hanson
+>>Cc: Paul Moore; selinux@tycho.nsa.gov
+>>Subject: Re: init running at s9 by default on a MLS system?
+>>
+>>
+>>Chad Hanson wrote:
+>>
+>>
+>>>>How do you specify in policy that kernel_t transitions to 
+>>>>init_t but at 
+>>>>level s0?
+>>>>
+>>>>   
+>>>>
+>>>
+>>>Like as follows:
+>>>
+>>># run init_t at OS_LO-OS_HI
+>>>range_transition kernel_t init_exec_t s0 - s9:c0.c127;
+>>>
+>>>-Chad
+>>> 
+>>>
+>>
+>>That line is already in policy.
+>>
+>>-- 
+>>
+>>
+>>
+>>--
+>>This message was distributed to subscribers of the selinux 
+>>mailing list.
+>>If you no longer wish to subscribe, send mail to 
+>>majordomo@tycho.nsa.gov with
+>>the words "unsubscribe selinux" without quotes as the message.
+>>
+> 
+> 
 
 
+-- 
+. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+. paul.moore@hp.com                                      hewlett packard
+. (603) 884-5056                                          linux security
 
 --
 This message was distributed to subscribers of the selinux mailing list.
