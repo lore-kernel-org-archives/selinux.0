@@ -1,55 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LIKDgA028677
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:20:13 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LIEnBa000700
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:14:49 GMT
-Message-ID: <42DFE632.1080001@tresys.com>
-Date: Thu, 21 Jul 2005 14:15:14 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: gyurdiev@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: Re: [ libsepol 3/6] Users
-References: <1121967866.9844.32.camel@celtics.boston.redhat.com>
-In-Reply-To: <1121967866.9844.32.camel@celtics.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LILPgA028707
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:21:25 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LIGlrg000918
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:16:48 GMT
+Subject: Re: [ libsepol 0/6] Context reorganization
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <42DFE4CA.1070707@tresys.com>
+References: <1121967118.9844.17.camel@celtics.boston.redhat.com>
+	 <42DFE2A7.9020200@tresys.com>
+	 <1121969017.9844.50.camel@celtics.boston.redhat.com>
+	 <42DFE4CA.1070707@tresys.com>
+Content-Type: text/plain
+Date: Thu, 21 Jul 2005 14:14:23 -0400
+Message-Id: <1121969663.9844.63.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
 
->The following patch is intended to replace
->genusers.c (but not yet). It provides functions 
->to add, delete and load users into a policydb object.
->It uses a structure (sepol_uinfo_t) as the
->higher level representation for a user, and
->takes out the parsing.
->
->libsepol-2.1-users.diff
->
->Disclaimer 1:
->The role list must be NULL terminated. 
->
->  
->
-The libsemanage api I'm writing right now has num_roles, IMO better than 
-null termination in that it's easier to make mistakes with null termination
+> well, that is because the cache bitmap is empty. I'm not sure exactly 
+> what the order you do things in but you'll need to either call 
+> policydb_index_others after you've loaded all the users 
 
-struct semanage_user {
-        char *name;             /* Key */
-        struct semanage_role **roles;
-        int num_roles;
-        struct semanage_mls *mls;
-}
+I specifically don't want to do that - that's why I use realloc
+and index users one by one... 
 
->Disclaimer 2:
->Not sure MLS processing is correct - please
->take a look.
->  
->
-I've been talking to the TCS guys while here about the right thing to do 
-with MLS so the libsemanage api should be correct.
+Notice how the new API deals with single users, and
+does not provide a way to load many users at once. 
+It's supposed to be used as part of an iterator
+in libsemanage, and I don't want to loop over
+the entire set of users every time I modify a single
+one. 
+
 
 
 
