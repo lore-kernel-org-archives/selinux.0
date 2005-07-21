@@ -1,100 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LEl3gA026354
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 10:47:04 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LEgNrg010955
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:42:28 GMT
-Subject: Re: [RFC][PATCH] polyinstantiation using process namespace
-From: Chad Sellers <csellers@tresys.com>
-To: selinux@tycho.nsa.gov, Janak Desai <janak@us.ibm.com>
-In-Reply-To: <42DFACFB.6050603@us.ibm.com>
-References: <1121893384.6269.29.camel@localhost.localdomain>
-	 <42DFACFB.6050603@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LErOgA026439
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 10:53:24 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LEm1Ba000578
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:48:01 GMT
+Subject: Re: ainit
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   fedora-selinux-list@redhat.com
+In-Reply-To: <200507212142.28830.russell@coker.com.au>
+References: <200507212142.28830.russell@coker.com.au>
 Content-Type: text/plain
-Date: Thu, 21 Jul 2005 14:40:48 -0400
-Message-Id: <1121971248.4416.10.camel@localhost.localdomain>
+Date: Thu, 21 Jul 2005 10:50:24 -0400
+Message-Id: <1121957424.13068.53.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Responses below.
-
-Thanks,
-Chad
-
-
-> >         2) Current patch skips malformed or invalid lines in the 
-> >            /etc/security/namespace.conf file. For example, missing
-> >            arguments or lack of absolute pathnames or unknown
-> >            polyinstantiation method. Is it better to exit with an
-> >            error instead of not performing polyinstnation for that
-> >            particular directory?
-> >         
-> > Probably should exit with error, as that's failing secure.  The only
-> > catch here is that if you boot a machine, and there are no users listed
-> > as exempt (I think you renamed this to override_user), then no one could
-> > log in.  That's definitely failing secure, but it's not going to earn
-> > you popularity points.  Assuming that most systems will have users not
-> > subject to polyinstantiation, I'd say it's better to exit with an error.
-> > 
+On Thu, 2005-07-21 at 21:42 +1000, Russell Coker wrote:
+> Is this really what we want?  Having a system process allocate shared memory 
+> that can be used by any user processes?  Also it seems likely that other 
+> sound programs will need to access the shared memory in question.
 > 
-> Good point. I can easily change this to exit with error. However, since
-> I have made exempt/override user specification per directory, an
-> improperly configured namespce.conf will still result in no one being
-> able to login from init state 3 or 5. If that happens, admins will have
-> to boot in single user mode to fix it.
+> There are three possible assumptions that we could make:
 > 
+> 1)  Anyone who is serious about security doesn't use ALSA so such
+> access doesn't matter that much.
 
-I usually vote for preventing an admin from having to use single user
-mode, but it's already a precedent when dealing with pam (at least every
-time I screw up my pam config, I end up having to use single user mode).
+This isn't the case.  ALSA isn't any different then OSS from a SELinux
+viewpoint.  I don't have ainit on any of my Gentoo machines; after a few
+minutes on Google, it seems that this is a Redhat/Fedora specific
+program.
 
+> 2)  Sound devices are a channel for communication anyway so it doesn't
+> really grant any new access.
 
-> >         4) What should be the security context of the reset directory,
-> >            where original contents are available to only authorized
-> >            processes? Right now I am using mode of 000, but I know 
-> >            that is not correct since polyinstantiated directory is 
-> >            mounted on top of that directory. 
-> >         
-> > I'm not sure if you're referring to the context and mode of the created
-> > reset directory (*-poly.orig), or the original directory that is mounted
-> > on it.  The original directory should have a system context (in
-> > file_contexts) and mode appropriate to keep the access limited to
-> > authorized processes.  These will probably vary from directory to
-> > directory.  The created reset directory is only a mount point, so it
-> > needs a label that has almost no permissions on it (essentially only
-> > mounton given to entrypoint programs).  This should be the same type
-> > (something like poly_reset_t) for all mount points.  The mode doesn't
-> > matter, but I made it 000 to make sure that no one accidentally put
-> > something there while in permissive mode.
-> > 
-> 
-> Yes, the problem is that once you bind mount original directory on
-> the created reset directory, access checks are made against the
-> bind mounted original directory mode/context. For example, /tmp is 777.
-> The reset directory, /.poly-orig is 000. Now, after /tmp is bind mounted
-> on /.poly-orig, /.poly-orig is also 777. Which means a user is
-> still able to access the original directory.
-> 
+I don't see any SysV IPC objects on my machines that use ALSA, so it
+seems that ALSA has an optional feature that uses IPC, but it is not
+required for playing or recording sound.
 
-Yes, that's where they system policy must be changed.  /tmp (or any
-other polyinstantiated directory) should no longer be accessible to
-anyone.  So, we have to modify policy to only allow entrypoint programs
-and trusted domains to access this parent directory for the polydirs.
-Similarly, we need to change the DAC perms on it to something
-appropriate for a directory that is inaccessible to most users (700
-probably).  Current policy and DAC permissions are designed to make the
-common /tmp work, which means they give a lot of permissions that we
-want to get away from.  With polyinstantiation, we can solve this
-problem.
+> Does ALSA require that a shared memory segment be available to all
+> programs that are accessing the sound device?
+
+This is the important question to ask of this feature.
+
+> Can an application stuff some data into the sound hardware without
+> using the user-space code from ALSA in such a way that another
+> application can read it?
+
+Adding in shared memory access between all user domains is a much easier
+channel for communication then a sound device is; it doesn't need to go
+through the hardware since all user domains can read and write the
+segments.
+
+> 3)  We need to have pam_console launch programs such as ainit in a context 
+> determined by the user role.
+
+Probably the right answer if the shared memory doesn't have to be shared
+between all user domains.
 
 -- 
-----------------------
-Chad Sellers
+Chris PeBenito
 Tresys Technology, LLC
-csellers@tresys.com
-(410)290-1411 x117
-http://www.tresys.com
+(410) 290-1411 x150
 
 
 --
