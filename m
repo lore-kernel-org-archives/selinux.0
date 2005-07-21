@@ -1,64 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LAP6gA024362
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 06:25:06 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LAKXrg022286
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 10:20:33 GMT
-Subject: RE: [RFC] selinux management API
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <36282A1733C57546BE392885C0618592AF27EE@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592AF27EE@chaos.tcs.tcs-sec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LAidgA024440
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 06:44:39 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LAdJBa025585
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 10:39:19 GMT
+Received: from [192.168.1.102] (c-24-61-202-223.hsd1.ma.comcast.net [24.61.202.223])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j6LAe2Bv000695
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 06:40:03 -0400 (EDT)
+Subject: Sepol related questions
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 21 Jul 2005 06:22:31 -0400
-Message-Id: <1121941351.19340.25.camel@localhost.localdomain>
+Date: Thu, 21 Jul 2005 06:42:31 -0400
+Message-Id: <1121942551.19675.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+1) What purpose does user_datum_t->cache serve,
+and how is it different from the list of authorized roles
+(user_datum_t->roles.roles) I can't remember this field 
+being there - is this something recently added as part of 
+the modules patch. I ask because my user loading code does 
+not set any bits in this cache, and neither does genusers... 
+after which policydb_context_is_valid fails in this path:
 
-I believe we're discussing the same thing, from different points 
-of view, and a solution can be designed that fits everyone's needs.
+if (!ebitmap_get_bit(&usrdatum->cache, c->role - 1))
+	/* user may not be associated with role */
+	return 0;
 
-> > But I don't like the idea of Admins modifying policy in order to 
-> > customize their system.  This is what we
-> > are trying to get away from.   
+2) What is the proper fallback user
+mls level and mls range on an mls-enabled system
+when the user hasn't configured those parameters.
 
-Dan's concern is from usability point of view.
-The policy source is not a good way for a sysadmin
-to modify security restrictions. It is better suited
-for specifying static parts of policy, shipped by
-the vendor, which require rich language to
-properly describe..
+What is the proper fallback mls field,
+in a context where it's missing, on an mls-enabled
+system.
 
-I'm not sure setools are an acceptable replacement 
-either. There are existing tools and systems,
-which we could integrate with. From our discussions at Red Hat, 
-I understand that Dan wants iptables to be used as a frontend
-to configuring certain parts of policy. He also
-wants to hide the interface security context from the user.
-I can only assume that he wants the port context hidden too.
-On the other hand he'd like to be able to specify the
-source context (application context) and match against it. 
+3) Is the context string as returned by 
+context_struct_to_string (services.c) supposed
+to be null terminated - and also is
+the string passed to sepol_context_to_sid 
+supposed to be null terminated. If so,
+what purpose does the buffer size serve?
 
-I'm not sure whether all of this is a good idea or not,
-(or wheter entirely possible), but it seems clear that 
-any policy manipulation should occur through 
-libsemanage, and eventually through libsepol.
-Any iptables integration (if implemented) would have
-to occur via those libaries.
-
-So yes, it seems to me that it would be appropriate
-to provide an API for managing network interfaces.
-Whether we support changing the context of an interface,
-or simply querying it, is an implementation detail.
-I started writing some libsepol support with
-the query operation today. I've also implemented
-query on ports (give sepol a number, or a range,
-get back the security context).
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
