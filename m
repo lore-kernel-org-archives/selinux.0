@@ -1,70 +1,58 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6L0qfgA022084
-	for <selinux@tycho.nsa.gov>; Wed, 20 Jul 2005 20:52:42 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6L0m9Dg027713
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 00:48:10 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id BF7FD61B00
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 10:48:10 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 11257-05 for <selinux@tycho.nsa.gov>;
-	Thu, 21 Jul 2005 10:48:10 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 5F43261AFE
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 10:48:10 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: restorecon policy
-Date: Thu, 21 Jul 2005 10:48:05 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_JDv3CKlr0DTlGcA"
-Message-Id: <200507211048.09050.russell@coker.com.au>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6L5JMgA023202
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 01:19:22 -0400 (EDT)
+Received: from crisium.vnl.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6L5E4Ba000023
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 05:14:04 GMT
+Received: from amon by crisium.vnl.com with local (Exim 4.50 #1 (Debian))
+	id 1DvTKp-0001cZ-Ky
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 06:11:03 +0100
+Date: Thu, 21 Jul 2005 06:11:03 +0100
+From: Dale Amon <amon@vnl.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: Suse selinux policy
+Message-ID: <20050721051103.GA30139@vnl.com>
+References: <20050718234403.GA30685@vnl.com> <20050720103541.GB8124@thorium.jmh.mhn.de> <20050720165937.GB18922@vnl.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
+In-Reply-To: <20050720165937.GB18922@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_JDv3CKlr0DTlGcA
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Is there anyone here from Suse who could discuess
+SELinux setup in SLES9? The silence thus far is=20
+deafening...
+
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
+
+--OgqxwSJOaUobr8KG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 Content-Disposition: inline
 
-Currently the command "restorecon -R /" gives an unreasonably large number of 
-error messages on the /proc and /sys file systems.  I don't think that it 
-needs the access to the directories on those file systems and removing such 
-access greatly reduces the number of messages.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-The attached patch makes this change.
+iD8DBQFC3y5nZHES7UL0zXERApq3AJ4sl5yaFbx42lynA9owSdoqNwXjYQCfft4D
+ynis35fr7C4dRFK/non/Jk0=
+=q8QN
+-----END PGP SIGNATURE-----
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_JDv3CKlr0DTlGcA
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="restorecon.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="restorecon.diff"
-
---- domains/program/restorecon.te.orig	2005-07-21 10:45:02.000000000 +1000
-+++ domains/program/restorecon.te	2005-07-21 10:45:16.000000000 +1000
-@@ -49,7 +49,6 @@
- allow restorecon_t ptyfile:chr_file getattr;
- 
- allow restorecon_t fs_t:filesystem getattr;
--allow restorecon_t fs_type:dir r_dir_perms;
- 
- allow restorecon_t etc_runtime_t:file { getattr read };
- allow restorecon_t etc_t:file { getattr read };
-
---Boundary-00=_JDv3CKlr0DTlGcA--
+--OgqxwSJOaUobr8KG--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
