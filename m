@@ -1,44 +1,56 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LIEQgA028604
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:14:26 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LIKDgA028677
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:20:13 -0400 (EDT)
 Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LI91Ba000009
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:09:01 GMT
-Message-ID: <42DFE4CA.1070707@tresys.com>
-Date: Thu, 21 Jul 2005 14:09:14 -0400
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LIEnBa000700
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:14:49 GMT
+Message-ID: <42DFE632.1080001@tresys.com>
+Date: Thu, 21 Jul 2005 14:15:14 -0400
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: gyurdiev@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: Re: [ libsepol 0/6] Context reorganization
-References: <1121967118.9844.17.camel@celtics.boston.redhat.com>	<42DFE2A7.9020200@tresys.com> <1121969017.9844.50.camel@celtics.boston.redhat.com>
-In-Reply-To: <1121969017.9844.50.camel@celtics.boston.redhat.com>
+Subject: Re: [ libsepol 3/6] Users
+References: <1121967866.9844.32.camel@celtics.boston.redhat.com>
+In-Reply-To: <1121967866.9844.32.camel@celtics.boston.redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Ivan Gyurdiev wrote:
 
->>The purpose of the cache is so that we don't have to do expansion of the 
->>type sets every time we want to validate a context (since this happens 
->>before expansion). The cache is built from policydb_index_others so if 
->>you are't calling that it won't be built. This should work fine with an 
->>already expanded policy since type_set_expand will just copy the type 
->>bitmap to the cache.
->>    
->>
+>The following patch is intended to replace
+>genusers.c (but not yet). It provides functions 
+>to add, delete and load users into a policydb object.
+>It uses a structure (sepol_uinfo_t) as the
+>higher level representation for a user, and
+>takes out the parsing.
 >
->policydb_index_others is called when I do a policydb_read to
->load the base policy, but at that point no users are loaded... 
->then later when I load a user, and try to check a context, it fails
->on the cache check.
+>libsepol-2.1-users.diff
+>
+>Disclaimer 1:
+>The role list must be NULL terminated. 
+>
 >  
 >
-well, that is because the cache bitmap is empty. I'm not sure exactly 
-what the order you do things in but you'll need to either call 
-policydb_index_others after you've loaded all the users in or 
-hashtab_map policydb_user_cache (not recommended), or fill in the cache 
-bitmap yourself when loading the users in (really not recommended!)
+The libsemanage api I'm writing right now has num_roles, IMO better than 
+null termination in that it's easier to make mistakes with null termination
+
+struct semanage_user {
+        char *name;             /* Key */
+        struct semanage_role **roles;
+        int num_roles;
+        struct semanage_mls *mls;
+}
+
+>Disclaimer 2:
+>Not sure MLS processing is correct - please
+>take a look.
+>  
+>
+I've been talking to the TCS guys while here about the right thing to do 
+with MLS so the libsemanage api should be correct.
+
 
 
 --
