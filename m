@@ -1,41 +1,72 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LILPgA028707
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:21:25 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LIGlrg000918
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:16:48 GMT
-Subject: Re: [ libsepol 0/6] Context reorganization
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <42DFE4CA.1070707@tresys.com>
-References: <1121967118.9844.17.camel@celtics.boston.redhat.com>
-	 <42DFE2A7.9020200@tresys.com>
-	 <1121969017.9844.50.camel@celtics.boston.redhat.com>
-	 <42DFE4CA.1070707@tresys.com>
-Content-Type: text/plain
-Date: Thu, 21 Jul 2005 14:14:23 -0400
-Message-Id: <1121969663.9844.63.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LIO8gA028774
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:24:09 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LIJVrg001453
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:19:31 GMT
+Message-ID: <42DFE71F.40602@tresys.com>
+Date: Thu, 21 Jul 2005 14:19:11 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: gyurdiev@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: Re: [ libsepol 6/6] Summary
+References: <1121968509.9844.47.camel@celtics.boston.redhat.com>
+In-Reply-To: <1121968509.9844.47.camel@celtics.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
 
-> well, that is because the cache bitmap is empty. I'm not sure exactly 
-> what the order you do things in but you'll need to either call 
-> policydb_index_others after you've loaded all the users 
+>There is no 6/6.. i started counting at 0.
+>Just wanted to mention some things:
+>  
+>
+meh.
 
-I specifically don't want to do that - that's why I use realloc
-and index users one by one... 
+>- Note that no new functions are exposed
+>via the shared interface, following the plan
+>to make this library static.
+>
+>- Hopefully internal data structures can
+>eventually be removed from headers, and
+>we can rely on external data structures.
+>
+>  
+>
+probably not, there isn't really a need to add a layer of abstraction 
+between checkpolicy and libsepol as checkpolicy is very tied to the 
+policydb structure.
 
-Notice how the new API deals with single users, and
-does not provide a way to load many users at once. 
-It's supposed to be used as part of an iterator
-in libsemanage, and I don't want to loop over
-the entire set of users every time I modify a single
-one. 
+>- If you have complaints about the API,
+>please let me know, and I'll fix it - I
+>received no comments on my users patch
+>when I posted it last time, so I followed
+>the same approach.
+>
+>- Checkpolicy code should be routed to those new
+>functions, and so should libsemanage.
+>
+>- I haven't put in a scope check (is_id_in_scope),
+>which checkpolicy currently does -
+>I didn't understand quite how that works. 
+>If it is necessary, please let me know.
+>
+>  
+>
+Depends on what you are doing. The scope checks to see if symbols being 
+refered to are in scope. In the module language there is an optional 
+command that has a scope different from the global (symbols required for 
+the optional to be activated are added to the active scope).
 
+For purely monolithic policies it won't have an effect but with modules 
+it must be done to ensure internal consistency in the policy.
+
+>- manpages still need to be written
+>  
+>
+don't you mean info pages ;)
 
 
 
