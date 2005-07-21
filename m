@@ -1,54 +1,104 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LAidgA024440
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 06:44:39 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LAdJBa025585
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 10:39:19 GMT
-Received: from [192.168.1.102] (c-24-61-202-223.hsd1.ma.comcast.net [24.61.202.223])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j6LAe2Bv000695
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 06:40:03 -0400 (EDT)
-Subject: Sepol related questions
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Thu, 21 Jul 2005 06:42:31 -0400
-Message-Id: <1121942551.19675.8.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LBlRgA024731
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 07:47:27 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LBfpBa002278
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 11:42:04 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 3B58B61B00
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 21:42:30 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 25170-07 for <selinux@tycho.nsa.gov>;
+	Thu, 21 Jul 2005 21:42:29 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id C801061AFE
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 21:42:29 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   fedora-selinux-list@redhat.com
+Subject: ainit
+Date: Thu, 21 Jul 2005 21:42:23 +1000
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ko43C00AtN4/pfv"
+Message-Id: <200507212142.28830.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-1) What purpose does user_datum_t->cache serve,
-and how is it different from the list of authorized roles
-(user_datum_t->roles.roles) I can't remember this field 
-being there - is this something recently added as part of 
-the modules patch. I ask because my user loading code does 
-not set any bits in this cache, and neither does genusers... 
-after which policydb_context_is_valid fails in this path:
+--Boundary-00=_ko43C00AtN4/pfv
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-if (!ebitmap_get_bit(&usrdatum->cache, c->role - 1))
-	/* user may not be associated with role */
-	return 0;
+The attached patch is needed for correct functionality of ainit with the 
+latest strict policy when running reasonably recent rawhide packages.
 
-2) What is the proper fallback user
-mls level and mls range on an mls-enabled system
-when the user hasn't configured those parameters.
+Is this really what we want?  Having a system process allocate shared memory 
+that can be used by any user processes?  Also it seems likely that other 
+sound programs will need to access the shared memory in question.
 
-What is the proper fallback mls field,
-in a context where it's missing, on an mls-enabled
-system.
+There are three possible assumptions that we could make:
 
-3) Is the context string as returned by 
-context_struct_to_string (services.c) supposed
-to be null terminated - and also is
-the string passed to sepol_context_to_sid 
-supposed to be null terminated. If so,
-what purpose does the buffer size serve?
+1)  Anyone who is serious about security doesn't use ALSA so such access 
+doesn't matter that much.
+
+2)  Sound devices are a channel for communication anyway so it doesn't really 
+grant any new access.  NB  I don't know enough about sound programming to 
+know whether this assumption is correct.  Does ALSA require that a shared 
+memory segment be available to all programs that are accessing the sound 
+device?  If so the assumption holds for ALSA.  Can an application stuff some 
+data into the sound hardware without using the user-space code from ALSA in 
+such a way that another application can read it?
+
+3)  We need to have pam_console launch programs such as ainit in a context 
+determined by the user role.
+
+
+Option 3 might be the best one long-term.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+--Boundary-00=_ko43C00AtN4/pfv
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="alsa.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="alsa.diff"
+
+--- domains/program/alsa.te.orig	2005-07-20 17:08:26.000000000 +1000
++++ domains/program/alsa.te	2005-07-20 17:36:28.000000000 +1000
+@@ -5,13 +5,20 @@
+ #
+ type alsa_t, domain, privlog, daemon;
+ type alsa_exec_t, file_type, sysadmfile, exec_type;
++role system_r types alsa_t;
+ uses_shlib(alsa_t)
++read_locale(alsa_t)
++dontaudit alsa_t var_t:dir search;
+ allow alsa_t self:sem  create_sem_perms;
+ allow alsa_t self:shm  create_shm_perms;
+ allow alsa_t self:unix_stream_socket create_stream_socket_perms;
++allow alsa_t self:unix_dgram_socket create_socket_perms;
+ type alsa_etc_rw_t, file_type, sysadmfile, usercanread;
+ rw_dir_create_file(alsa_t,alsa_etc_rw_t)
+-allow alsa_t self:capability { setgid setuid ipc_owner };
++allow alsa_t self:capability { setgid setuid ipc_owner sys_admin };
+ allow alsa_t devpts_t:chr_file { read write };
+ allow alsa_t etc_t:file { getattr read };
+ domain_auto_trans(pam_console_t, alsa_exec_t, alsa_t)
++
++allow userdomain alsa_t:sem rw_sem_perms;
++allow userdomain alsa_t:shm { rw_shm_perms destroy };
+
+--Boundary-00=_ko43C00AtN4/pfv--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
