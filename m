@@ -1,104 +1,66 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LBlRgA024731
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 07:47:27 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LBfpBa002278
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 11:42:04 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 3B58B61B00
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 21:42:30 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 25170-07 for <selinux@tycho.nsa.gov>;
-	Thu, 21 Jul 2005 21:42:29 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id C801061AFE
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 21:42:29 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-   fedora-selinux-list@redhat.com
-Subject: ainit
-Date: Thu, 21 Jul 2005 21:42:23 +1000
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LDXZgA025713
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 09:33:36 -0400 (EDT)
+Received: from mx07.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LDSCBa017239
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 13:28:13 GMT
+Received: from admin0 (pdd5cde.ykhmac00.ap.so-net.ne.jp [218.221.92.222])
+	by mx07.ms.so-net.ne.jp  with SMTP id j6LDSvTL023138
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 22:28:57 +0900 (JST)
+Message-ID: <002b01c58df8$260c6700$0300a8c0@admin0>
+From: "shintarou_fujiwara" <shin216@xf7.so-net.ne.jp>
+To: <selinux@tycho.nsa.gov>
+Subject: I have a question about log on SELinux
+Date: Thu, 21 Jul 2005 22:28:56 +0900
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ko43C00AtN4/pfv"
-Message-Id: <200507212142.28830.russell@coker.com.au>
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-2022-jp";
+	reply-type=original
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_ko43C00AtN4/pfv
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+My name is Shin from JAPAN.
 
-The attached patch is needed for correct functionality of ainit with the 
-latest strict policy when running reasonably recent rawhide packages.
+Hello, I'm pretty new to this SELinux world,but one of my friend have some 
+question on logging .
 
-Is this really what we want?  Having a system process allocate shared memory 
-that can be used by any user processes?  Also it seems likely that other 
-sound programs will need to access the shared memory in question.
+He is now using RHEL4u1 and testing SELinux .
 
-There are three possible assumptions that we could make:
+He uses targeted & enforcing and httpd_enable_cgi tuned off .
 
-1)  Anyone who is serious about security doesn't use ALSA so such access 
-doesn't matter that much.
+When he accesses to cbi-bin directory, he got these messages on 
+/var/log/messages.
+######################################################
+#First one is,
 
-2)  Sound devices are a channel for communication anyway so it doesn't really 
-grant any new access.  NB  I don't know enough about sound programming to 
-know whether this assumption is correct.  Does ALSA require that a shared 
-memory segment be available to all programs that are accessing the sound 
-device?  If so the assumption holds for ALSA.  Can an application stuff some 
-data into the sound hardware without using the user-space code from ALSA in 
-such a way that another application can read it?
+Jul 12 18:16:20 host1 kernel:
+audit(1121159780.840:0): avc:  denied  { search } for  pid=3037
+comm=httpd name=cgi-bin dev=cciss/c0d0p1 ino=883150
+          ^^^^
+scontext=user_u:system_r:httpd_t 
+tcontext=system_u:object_r:httpd_sys_script_exec_t
+tclass=dir
 
-3)  We need to have pam_console launch programs such as ainit in a context 
-determined by the user role.
+#Second one is,
 
+Jul 12 18:16:20 host1 kernel:
+audit(1121159780.840:0): avc:  denied  { getattr } for  pid=3037
+comm=httpd path=/var/www/cgi-bin dev=cciss/c0d0p1 ino=883150
+          ^^^^
+scontext=user_u:system_r:httpd_t 
+tcontext=system_u:object_r:httpd_sys_script_exec_t
+tclass=dir
+########################################################
+His question is , the difference between "name" and "path" .
 
-Option 3 might be the best one long-term.
+He and I have no idea the differences between these two.
+They look totaly the same...
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Please give us an advice .
 
---Boundary-00=_ko43C00AtN4/pfv
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="alsa.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="alsa.diff"
+Thank you.
 
---- domains/program/alsa.te.orig	2005-07-20 17:08:26.000000000 +1000
-+++ domains/program/alsa.te	2005-07-20 17:36:28.000000000 +1000
-@@ -5,13 +5,20 @@
- #
- type alsa_t, domain, privlog, daemon;
- type alsa_exec_t, file_type, sysadmfile, exec_type;
-+role system_r types alsa_t;
- uses_shlib(alsa_t)
-+read_locale(alsa_t)
-+dontaudit alsa_t var_t:dir search;
- allow alsa_t self:sem  create_sem_perms;
- allow alsa_t self:shm  create_shm_perms;
- allow alsa_t self:unix_stream_socket create_stream_socket_perms;
-+allow alsa_t self:unix_dgram_socket create_socket_perms;
- type alsa_etc_rw_t, file_type, sysadmfile, usercanread;
- rw_dir_create_file(alsa_t,alsa_etc_rw_t)
--allow alsa_t self:capability { setgid setuid ipc_owner };
-+allow alsa_t self:capability { setgid setuid ipc_owner sys_admin };
- allow alsa_t devpts_t:chr_file { read write };
- allow alsa_t etc_t:file { getattr read };
- domain_auto_trans(pam_console_t, alsa_exec_t, alsa_t)
-+
-+allow userdomain alsa_t:sem rw_sem_perms;
-+allow userdomain alsa_t:shm { rw_shm_perms destroy };
-
---Boundary-00=_ko43C00AtN4/pfv--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
