@@ -1,54 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LIYbgA028940
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:34:37 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LITDBa003061
-	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:29:13 GMT
-Subject: Re: [ libsepol 2/6] Ports
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <42DFE3B6.7070402@tresys.com>
-References: <1121967601.9844.26.camel@celtics.boston.redhat.com>
-	 <42DFE3B6.7070402@tresys.com>
-Content-Type: text/plain
-Date: Thu, 21 Jul 2005 14:27:30 -0400
-Message-Id: <1121970450.9844.72.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6LIfPgA029063
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 14:41:25 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6LIalrg003890
+	for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2005 18:36:47 GMT
+Message-ID: <42DFEB26.5020105@tresys.com>
+Date: Thu, 21 Jul 2005 14:36:22 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: gyurdiev@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: Re: [ libsepol 1/6] Fix memory leaks
+References: <1121967363.9844.21.camel@celtics.boston.redhat.com>
+In-Reply-To: <1121967363.9844.21.camel@celtics.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
 
-> This probably belongs in libsemanage. I'm trying to get a comprehensive 
-> API and set of structs so that you can start writing the port and user 
-> code with respect to it. I'll try to get this out later today.
+>The following patch fixes memory leaks.
+>The ones in policydb_convert are due to double
+>initialization (policydb_read does its own init).
+>
+>libsepol-1.2-fix_memory_leaks.diff
+>
+>This patch depends on
+>libsepol-1.1-context.diff
+>
+>  
+>
+adding the -p flag to diff would be very helpful
 
-I already have a whole bunch of code written that has to do with
-parsing things. I need to do a better job with transactions in
-that code, but hopefully I won't need to go and rewrite all of it.
-
-The code is based on the wrapper structures that I showed you earlier - 
-they are called records. Then I have record_iterate_file() and
-record_modify_file() that can be made to work on any type
-of record. They handle record creation/destruction/parsing
-according to an object table that you pass in. They
-invoke an arbitrary handler to process each record, 
-which can send signals, such as 
-SIGADD, SIGDEL, SIGERR, SIGOK... The handler can
-also send back a feedback record in addition
-to the one being processed (for add).
-Then record_modify_file() can act upon those signals 
-by exiting the iteration loop, or skipping the user 
-from writing to the modified stream, or adding a new 
-user, etc...
-
-So basically, it comes down to writing a bunch of handlers
-that signal the iterator functions. For a different backend,
-obviously you'd implement this very differently, since
-you don't need to iterate things.
-
-
+I'm not sure where these frees are being added to I can't tell if they 
+are correct
 
 --
 This message was distributed to subscribers of the selinux mailing list.
