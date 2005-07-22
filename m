@@ -1,79 +1,48 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MBu0gA004499
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 07:56:00 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MBoSKk011472
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 11:50:28 GMT
-Subject: Iptables discussion
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmillan@tresys.com>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <42E0310B.5070404@tresys.com>
-References: <200507212030.j6LKUTvx008177@gotham.columbia.tresys.com>
-	 <1121978850.15334.2.camel@celtics.boston.redhat.com>
-	 <42E00E51.7050001@tresys.com>
-	 <1121979985.15334.5.camel@celtics.boston.redhat.com>
-	 <42E0105F.9030607@tresys.com>
-	 <1121981131.15334.13.camel@celtics.boston.redhat.com>
-	 <42E0310B.5070404@tresys.com>
-Content-Type: text/plain
-Date: Fri, 22 Jul 2005 07:53:26 -0400
-Message-Id: <1122033206.19625.7.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MCZfgA004703
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 08:35:41 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MCUuYP002282
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 12:30:56 GMT
+Message-ID: <42E0E706.5050903@redhat.com>
+Date: Fri, 22 Jul 2005 08:31:02 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: gyurdiev@redhat.com
+CC: Joshua Brindle <jbrindle@tresys.com>,
+   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: Iptables discussion
+References: <200507212030.j6LKUTvx008177@gotham.columbia.tresys.com>	 <1121978850.15334.2.camel@celtics.boston.redhat.com>	 <42E00E51.7050001@tresys.com>	 <1121979985.15334.5.camel@celtics.boston.redhat.com>	 <42E0105F.9030607@tresys.com>	 <1121981131.15334.13.camel@celtics.boston.redhat.com>	 <42E0310B.5070404@tresys.com> <1122033206.19625.7.camel@localhost.localdomain>
+In-Reply-To: <1122033206.19625.7.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-07-21 at 19:34 -0400, Joshua Brindle wrote:
-> Ivan Gyurdiev wrote:
-> 
-> >>I don't think thats such a great idea. Really alot of the meat of the 
-> >>define_* functions has already moved to declare_symbol. The stuff that 
-> >>is remaining is really parser specific such as handling where things can 
-> >>be declared, handling multiple declarations, etc. It serves no purpose 
-> >>to generalize this code as it really is about how to parse the policy 
-> >>and not how to build up these structures.
-> >>    
-> >>
-> >
-> >How can I add te_avtab rules to policy at the moment, without
-> >using checkpolicy?
-> >  
-> >
-> All the te_avtab code has been removed from checkpolicy for the modules. 
-> In fact, aside from checking type transition conflicts, checkpolicy 
-> doesn't add any rules at all to the avtab, this is done at expand time.
-> 
-> further, avtab_insert, avtab_search, etc have always been in libsepol, 
-> in avtab.c
+Network Integration with SELinux, stinks from a users point of view.
 
-static avtab_ptr_t
-   avtab_insert_node(avtab_t *h, int hvalue, avtab_ptr_t prev,
-avtab_key_t *key, avtab_datum_t *datum)
+Lets look at some potential usage scenarios.
 
+User has two network devices (Internal and External)  He wants to allow 
+only Apache to listen on the external device, and only communicate via 
+LDAP over the internal device?  How would he set that up?  (IF someone 
+says he will rewrite policy, I will scream, and then ask you to write 
+policy to allow this. ) 
 
-This is not the high level API that I am looking for.
-A caller of this function would not know, or care, what prev is,
-or what the format of a datum is, or what table this would go into.
+MLS System, wants to have two Apache systems,  One listening at port 80 
+for Top Secret communications, another at port 81 for secret.  How do 
+you do this?
 
-------
+You want to setup a Zone Transfer between your two named servers.  You 
+want to guarantee that named_t on one machine is talking to named_t on 
+another machine over an encrypted line? 
 
-Let me get to the point - we have iptables, which configures netfilter.
-Then we have policy, which configures selinux. That's two configuration
-systems, and having two configuration systems is not good - you have to 
-go change both to get anything to work. Furthermore, iptables has
-a superior configuration system from a user's point of view, because
-it's easier to work with than writing policy in m4 macros.
+I believe the only way for users to do these things successfully is to 
+have integration of SELinux with iptables, and no writing/rewriting of 
+policy will solve the problem.
 
-So, what do we do about that? Dan is suggesting we might integrate
-iptables with policy, and have it automatically generate some rules,
-pertaining to interfaces, ports, etc... we can now query sepol
-for the port label, and query sepol for the interface label. 
+Dan
 
-I'm not sure how this should be done, or whether this should be done,
-but it merits further discussion. Should modules play a role into
-this...is it a good idea...etc.
+-- 
 
 
 
