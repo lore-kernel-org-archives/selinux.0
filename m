@@ -1,43 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MJnrgA009184
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 15:49:53 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MJiHKk008360
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 19:44:17 GMT
-Message-ID: <42E14CB5.6020402@tresys.com>
-Date: Fri, 22 Jul 2005 15:44:53 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: Dropping unused booleans
-References: <1122061096.13068.152.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1122061096.13068.152.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MJq9gA009227
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 15:52:11 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MJlKYP024083
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 19:47:21 GMT
+Subject: Re: Iptables discussion
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <42E146D3.60809@tresys.com>
+References: <200507221246.j6MCkqvx015455@gotham.columbia.tresys.com>
+	 <1122039886.24847.6.camel@celtics.boston.redhat.com>
+	 <42E10804.5030401@tresys.com>
+	 <1122046798.25951.27.camel@celtics.boston.redhat.com>
+	 <42E146D3.60809@tresys.com>
+Content-Type: text/plain
+Date: Fri, 22 Jul 2005 15:44:47 -0400
+Message-Id: <1122061488.30783.14.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
 
->While testing reference policy, I realized that there are booleans that
->weren't being used -- they were declared but not actually used in an
->if() statement.  In my case, I was testing a targeted policy, and all of
->the policies that did use the booleans were excluded.  It seems that
->this is a bad thing.  Since conditional policy is used as a
->configuration for setting, it provides the system operator/admin with an
->option which has no effect, and thus is extremely misleading.  It seems
->especially important to not have useless options showing up since this
->affects operators, which may know nothing about the policy.
->
->I think the best place to happen would be in checkpolicy/libsepol, since
->it has the complete policy's true and false lists for each bool.  It
->would drop the boolean and throw a non-fatal warning message.  Thoughts?
->  
->
-I think this is correct, this sounds like something post-expand since a 
-module could declare a boolean that is used by another module (therefore 
-you can't determine unused booleans until after linking and expanding)
+> >No...an intermediate representation on the libsepol level,
+> >as well as the libsemanage level. 
+> >
+> >  
+> >
+> we need to figure out what we need to store before we decide if we need 
+> another policy representation.
 
+Speaking of which... I'm duplicating your sepol_*_t records
+almost one-to-one in the libsepol api. I don't see a way around 
+that, however, because they are located in libsemanage.
+
+> >Can you please rename the library, so I can send patches against it?
+> >I tried to do this myself, but you didn't like my patch.
+> >
+> >  
+> >
+> It won't matter since the library doesn't currently match the proposed 
+> API.
+
+It does matter, because I can write patches against it, and not write
+semod_ everywhere that I need to fix later.
+
+>  Probably the best thing would be to write your user and port 
+> management stuff against the new API and see if it actually works.
+
+I can't see if actually works, because there is no library to test it
+with. It used to work when it was in libselinux... I'm sure I'll have
+to change it a bit to fit with your structure names, and your apis,
+and your transaction processing.
+
+> semanage_user_change(semanage_handle_t *, semanage_user_t *userdata, 
+> char* key);
+> it would totally replace the datum, no unioning or anything like that
+
+If you're assuming character key, please assume character key in
+the delete functions as well. I'm not against it, simply pointing out..
+
+The drawback to not providing any more specific change functions 
+to the caller, is that now you have to do a query and a change for
+everything, even if all you're doing is adding information, and not
+extracting any. That means two iterations in the flat file case...
+but for the sake of simplicity and cleanness of API, maybe I'll agree.
+
+However, not having a query function is just wrong, I disagree with
+that.
 
 
 --
