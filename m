@@ -1,51 +1,60 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MIdigA008463
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:39:44 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MIYtYP015967
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 18:34:55 GMT
-Subject: Re: Iptables discussion
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Jason Tang <jtang@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1122056898.32644.60.camel@localhost.localdomain>
-References: <200507221246.j6MCkqvx015455@gotham.columbia.tresys.com>
-	 <1122039886.24847.6.camel@celtics.boston.redhat.com>
-	 <42E10804.5030401@tresys.com>
-	 <1122046798.25951.27.camel@celtics.boston.redhat.com>
-	 <1122053292.32644.51.camel@localhost.localdomain>
-	 <1122054896.29328.16.camel@celtics.boston.redhat.com>
-	 <1122056898.32644.60.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 22 Jul 2005 14:32:28 -0400
-Message-Id: <1122057148.29328.42.camel@celtics.boston.redhat.com>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MIj7gA008542
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:45:07 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MIeIYP016617
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 18:40:19 GMT
+Message-Id: <200507221840.j6MIe4vx019652@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <gyurdiev@redhat.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>
+Subject: RE: Iptables discussion
+Date: Fri, 22 Jul 2005 14:40:06 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <1122056320.29328.38.camel@celtics.boston.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> No, buffering in callbacks is also dangerous in multi-threaded programs.
-> The callback function, if not properly written, is no longer MT-safe nor
-> reentrant.
-
-So what you're saying that "a piece of software, if not properly
-written, can have bugs". I definitely agree with that :)
-
-> On Fri, 2005-07-22 at 13:59 -0400, Ivan Gyurdiev wrote: 
-> > The function name is actually passed back by the error system I have.
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
+> >  Any idea about what the rules
+> > that will be generated will look like? I'm trying to get a handle on exactly
+> how
+> > this network configuration will look and whether it is going to require
+> pulling
+> > out parts of the existing policy.
 > 
-> Having a function name is not sufficient for multi-threaded programs.
+> I don't know what the rules will look like yet, but please note
+> that iptables has both deny and allow rules...right...
+> I'm not sure how we can handle the deny ones.
+> 
+> >  For example, would the apache module stop
+> > allowing any send / receive on any node, netif, or port and then there would
+> be
+> > a default local network configuration provided?
+> 
+> So, when the firewall shuts down, the default networking policy
+> is reset to ACCEPT all in our firewall scripts, but that's
+> done only after the interfaces are shut down. Similarly,
+> the firewall comes up before the interfaces go up...
+> I'm not sure how all that applies to selinux.
 
-You can get the thread id via pthread_self(), but this wouldn't work
-with RPC.
+This brings up the tension that Josh mentioned between the 'runtime' nature of
+the iptables policy and the selinux - regenerating the policy everytime you
+invoke iptables seems problematic. This and the whole everything is allowed
+until denied approach seems like it is going to make this challenging.
 
-====
+Karl
 
-Let's end this discussion here, because I've agreed to use your 
-non-callback system, on the grounds that eventually libsemanage
-will need to work over the network, where callback error reporting
-is probably a mistake.
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+
 
 
 --
