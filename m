@@ -1,43 +1,51 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MI6MgA008120
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:06:22 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MIPugA008332
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:25:56 -0400 (EDT)
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MI1YYP012206
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 18:01:34 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MIL8YP014496
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 18:21:08 GMT
 Subject: RE: Iptables discussion
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
 To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200507221631.j6MGVYvx018288@gotham.columbia.tresys.com>
-References: <200507221631.j6MGVYvx018288@gotham.columbia.tresys.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <200507221528.j6MFSSvx017547@gotham.columbia.tresys.com>
+References: <200507221528.j6MFSSvx017547@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 22 Jul 2005 13:59:06 -0400
-Message-Id: <1122055146.29328.22.camel@celtics.boston.redhat.com>
+Date: Fri, 22 Jul 2005 14:18:40 -0400
+Message-Id: <1122056320.29328.38.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> > (2) I have to rewrite my code to use it, while my API seems better.
-> > What's your objection?
-> 
-> 1) Very difficult to use for a multi-threaded application. How do I know what
-> function call by which thread generated the error?
+> Are you imagining a file like local.users for network related configuration -
+> this would allow direct modification of the configuration files for those that
+> would prefer that to using tools / libsemanage?
 
-The function name is actually passed back by the error system I have.
-I suppose you could have your callback write the thread id (can't
-remember if pthread api provides that), although if RPC gets involved
-with scheme starts not to make sense.
+If you're talking about ports and interfaces, then yes, that would make
+sense. For iptables-generated allow rules and such, I don't
+know....it actually makes little sense to write out the rules.
 
-> 2) Possibly difficult to implement if the the API is making RPC calls to a
-> remote server. In that case the underlying implementation will look like what we
-> have proposed and will simply strip the error, make the callback, and then
-> return normally - all with the same delay as if the api looks like our proposal.
+>  Any idea about what the rules
+> that will be generated will look like? I'm trying to get a handle on exactly how
+> this network configuration will look and whether it is going to require pulling
+> out parts of the existing policy.
 
-That's a valid argument, I hadn't thought about that issue.
-Ok I will alter my code to use your buffer system.
+I don't know what the rules will look like yet, but please note
+that iptables has both deny and allow rules...right...
+I'm not sure how we can handle the deny ones.
+
+>  For example, would the apache module stop
+> allowing any send / receive on any node, netif, or port and then there would be
+> a default local network configuration provided? 
+
+So, when the firewall shuts down, the default networking policy
+is reset to ACCEPT all in our firewall scripts, but that's
+done only after the interfaces are shut down. Similarly,
+the firewall comes up before the interfaces go up...
+I'm not sure how all that applies to selinux.
 
 
 --
