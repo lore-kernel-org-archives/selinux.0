@@ -1,78 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MEOKgA005736
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 10:24:20 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MEIlKk028855
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:18:47 GMT
-Message-Id: <200507221419.j6MEJDvx016520@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <gyurdiev@redhat.com>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: RE: Iptables discussion
-Date: Fri, 22 Jul 2005 10:19:14 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1122039886.24847.6.camel@celtics.boston.redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MENlgA005708
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 10:23:47 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MEJ1YP016553
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:19:01 GMT
+Subject: Re: [ libsepol 0/6] Context reorganization
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1122041703.24847.20.camel@celtics.boston.redhat.com>
+References: <1121967118.9844.17.camel@celtics.boston.redhat.com>
+	 <42DFE2A7.9020200@tresys.com>
+	 <1121969017.9844.50.camel@celtics.boston.redhat.com>
+	 <42DFE4CA.1070707@tresys.com>
+	 <1121969663.9844.63.camel@celtics.boston.redhat.com>
+	 <1122040159.24847.10.camel@celtics.boston.redhat.com>
+	 <42E0FC94.2060501@tresys.com>
+	 <1122041079.24847.15.camel@celtics.boston.redhat.com>
+	 <42E0FE98.20307@tresys.com>
+	 <1122041703.24847.20.camel@celtics.boston.redhat.com>
+Content-Type: text/plain
+Date: Fri, 22 Jul 2005 10:16:34 -0400
+Message-Id: <1122041794.24847.22.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> Sent: Friday, July 22, 2005 9:45 AM
-> To: Karl MacMillan
-> Cc: 'Daniel J Walsh'; 'Joshua Brindle'; selinux@tycho.nsa.gov
-> Subject: RE: Iptables discussion
+On Fri, 2005-07-22 at 10:15 -0400, Ivan Gyurdiev wrote:
+> > you have to index the policy if you want to validate contexts, it's a 
+> > necessity that won't go away
 > 
+> I maintain the reverse tables properly - I just don't call 
+> the functions you expect me to, and neither does 
+> sepol_genusers_policydb. It looks like it's necessary to add:
 > 
-> > Solving the user-interface issues can be done more effectively, in my
-> opinion,
-> > by hiding both iptables and SElinux. My preference would be to extend the
-> > SELinux policy language to be able to express the kind of controls that you
-> are
-> > interested in expressing and create a configuration tool (gui or text based)
-> > that generates the policy. That would leave a policy.conf or equivalent that
-> > could be analyzed for correctness.
+>         /* This pre-expands the roles and users for context validity
+> checking */
+>         if (hashtab_map(p->p_roles.table, policydb_role_cache, p))
+>                 return -1;
 > 
-> I think whatever rules are automatically generated will be at a low
-> level of complexity, because anything else would be better handled by
-> writing policy. Given this, I think it will be trivial to generate
-> additions to policy.conf to address your analysis concern. Where
-> exactly this is done is an implementation detail :)
-> 
+> to policydb_reindex_users().
 
-Good - after re-reading you and Dan's messages I realized that you might be
-simply suggesting that the iptables program generate SELinux policy. That makes
-sense to me and is consistent with what I am saying about a user-interface. The
-only other comment is that I would like this to be optional. We have a need to
-create systems that have a fixed policy.
 
-> What's missing here, is a good API to work with policy, so that you
-> can manipulate policy internals with anything other than checkpolicy.
-> That's why I'm asking for an intermediate representation. My particular
-> implementation of it may not be very good (suggestions welcome),
-> but it's certainly better than what's out there - I don't think
-> passing in policy-dependent integer id's, and exposing internal data
-> structures will make a successful api.
-
-Why not continue down the path that we have started with libsemanage? I think it
-is better to have a well-defined set of local machine customizations that are
-available via libsemanage than forcing applications to do direct policy
-manipulation. This will, I think, result in an smaller, easier to use API that
-will allow a transition path to the policy server (which will hopefully allow us
-to do these kinds of customizations across multiple machines). It also helps
-with policy updates - by clearly defining local customizations and upstream
-policy it is easier for package managers and admins to handle policy updates.
-
-Karl
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
+Well I meant the user cache one...
+And then I'd have to expand roles manually when adding individual users.
 
 
 --
