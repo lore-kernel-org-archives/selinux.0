@@ -1,51 +1,47 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MIPugA008332
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:25:56 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MIL8YP014496
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 18:21:08 GMT
-Subject: RE: Iptables discussion
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200507221528.j6MFSSvx017547@gotham.columbia.tresys.com>
-References: <200507221528.j6MFSSvx017547@gotham.columbia.tresys.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MIXPgA008378
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:33:25 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MISbYP015179
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 18:28:37 GMT
+Subject: Re: Iptables discussion
+From: Jason Tang <jtang@tresys.com>
+To: gyurdiev@redhat.com
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1122054896.29328.16.camel@celtics.boston.redhat.com>
+References: <200507221246.j6MCkqvx015455@gotham.columbia.tresys.com>
+	 <1122039886.24847.6.camel@celtics.boston.redhat.com>
+	 <42E10804.5030401@tresys.com>
+	 <1122046798.25951.27.camel@celtics.boston.redhat.com>
+	 <1122053292.32644.51.camel@localhost.localdomain>
+	 <1122054896.29328.16.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Fri, 22 Jul 2005 14:18:40 -0400
-Message-Id: <1122056320.29328.38.camel@celtics.boston.redhat.com>
+Date: Fri, 22 Jul 2005 14:28:18 -0400
+Message-Id: <1122056898.32644.60.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2005-07-22 at 13:54 -0400, Ivan Gyurdiev wrote:
+> You can buffer the feedback in the callback function if you wish.
 
-> Are you imagining a file like local.users for network related configuration -
-> this would allow direct modification of the configuration files for those that
-> would prefer that to using tools / libsemanage?
+No, buffering in callbacks is also dangerous in multi-threaded programs.
+The callback function, if not properly written, is no longer MT-safe nor
+reentrant.
 
-If you're talking about ports and interfaces, then yes, that would make
-sense. For iptables-generated allow rules and such, I don't
-know....it actually makes little sense to write out the rules.
+On Fri, 2005-07-22 at 13:59 -0400, Ivan Gyurdiev wrote: 
+> The function name is actually passed back by the error system I have.
 
->  Any idea about what the rules
-> that will be generated will look like? I'm trying to get a handle on exactly how
-> this network configuration will look and whether it is going to require pulling
-> out parts of the existing policy.
+Having a function name is not sufficient for multi-threaded programs.
 
-I don't know what the rules will look like yet, but please note
-that iptables has both deny and allow rules...right...
-I'm not sure how we can handle the deny ones.
+> I suppose you could have your callback write the thread id (can't
+> remember if pthread api provides that),
 
->  For example, would the apache module stop
-> allowing any send / receive on any node, netif, or port and then there would be
-> a default local network configuration provided? 
+The function is pthread_self().
 
-So, when the firewall shuts down, the default networking policy
-is reset to ACCEPT all in our firewall scripts, but that's
-done only after the interfaces are shut down. Similarly,
-the firewall comes up before the interfaces go up...
-I'm not sure how all that applies to selinux.
+
+-- 
+Jason Tang / jtang@tresys.com
 
 
 --
