@@ -1,45 +1,53 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MEUJgA005800
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 10:30:19 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MEPXYP017503
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:25:33 GMT
-Message-ID: <42E101BE.4070203@tresys.com>
-Date: Fri, 22 Jul 2005 10:25:02 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: gyurdiev@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: Re: [ libsepol 0/6] Context reorganization
-References: <1121967118.9844.17.camel@celtics.boston.redhat.com>	<42DFE2A7.9020200@tresys.com>	<1121969017.9844.50.camel@celtics.boston.redhat.com>	<42DFE4CA.1070707@tresys.com>	<1121969663.9844.63.camel@celtics.boston.redhat.com>	<1122040159.24847.10.camel@celtics.boston.redhat.com>	<42E0FC94.2060501@tresys.com>	<1122041079.24847.15.camel@celtics.boston.redhat.com>	<42E0FE98.20307@tresys.com> <1122041703.24847.20.camel@celtics.boston.redhat.com>
-In-Reply-To: <1122041703.24847.20.camel@celtics.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MEW9gA005834
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 10:32:10 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MERNYP017668
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:27:23 GMT
+Subject: RE: Iptables discussion
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <200507221419.j6MEJDvx016520@gotham.columbia.tresys.com>
+References: <200507221419.j6MEJDvx016520@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 22 Jul 2005 10:24:56 -0400
+Message-Id: <1122042296.24847.30.camel@celtics.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
 
->>you have to index the policy if you want to validate contexts, it's a 
->>necessity that won't go away
->>    
->>
->
->I maintain the reverse tables properly - I just don't call 
->the functions you expect me to, and neither does 
->sepol_genusers_policydb. It looks like it's necessary to add:
->
->        /* This pre-expands the roles and users for context validity
->checking */
->        if (hashtab_map(p->p_roles.table, policydb_role_cache, p))
->                return -1;
->
->to policydb_reindex_users().
->  
->
-No, this will expand the type_sets for each role, which should already 
-be done by index_others. You'll want to use policydb_user_cache. I still 
-don't recommend doing this but I'll have to look at the code later to 
-see if there is something else that can be done.
+> > What's missing here, is a good API to work with policy, so that you
+> > can manipulate policy internals with anything other than checkpolicy.
+> > That's why I'm asking for an intermediate representation. My particular
+> > implementation of it may not be very good (suggestions welcome),
+> > but it's certainly better than what's out there - I don't think
+> > passing in policy-dependent integer id's, and exposing internal data
+> > structures will make a successful api.
+> 
+> Why not continue down the path that we have started with libsemanage? I think it
+> is better to have a well-defined set of local machine customizations that are
+> available via libsemanage than forcing applications to do direct policy
+> manipulation. This will, I think, result in an smaller, easier to use API that
+> will allow a transition path to the policy server (which will hopefully allow us
+> to do these kinds of customizations across multiple machines). It also helps
+> with policy updates - by clearly defining local customizations and upstream
+> policy it is easier for package managers and admins to handle policy updates.
+
+Well, libsemanage will end up relying on libsepol, so it's just a
+question of where this issue is resolved - I think both libraries should
+present API that does not expose policydb internals. Then program X that
+wants to do rule generation would call libsemanage, and libsemanage
+would handle (1) the transaction, (2) the audit trail you want in
+policy.conf, and then would pass down the request to libsepol without
+doing things like generating sid's itself, and looking at caches, and
+other policydb details.
+
+
+
 
 
 
