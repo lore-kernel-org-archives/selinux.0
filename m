@@ -1,57 +1,43 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MI2CgA008078
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:02:12 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MI6MgA008120
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 14:06:22 -0400 (EDT)
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MHvNYP011562
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 17:57:23 GMT
-Subject: Re: Iptables discussion
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MI1YYP012206
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 18:01:34 GMT
+Subject: RE: Iptables discussion
 From: Ivan Gyurdiev <gyurdiev@redhat.com>
 Reply-To: gyurdiev@redhat.com
-To: Jason Tang <jtang@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1122053292.32644.51.camel@localhost.localdomain>
-References: <200507221246.j6MCkqvx015455@gotham.columbia.tresys.com>
-	 <1122039886.24847.6.camel@celtics.boston.redhat.com>
-	 <42E10804.5030401@tresys.com>
-	 <1122046798.25951.27.camel@celtics.boston.redhat.com>
-	 <1122053292.32644.51.camel@localhost.localdomain>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Joshua Brindle'" <jbrindle@tresys.com>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <200507221631.j6MGVYvx018288@gotham.columbia.tresys.com>
+References: <200507221631.j6MGVYvx018288@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 22 Jul 2005 13:54:55 -0400
-Message-Id: <1122054896.29328.16.camel@celtics.boston.redhat.com>
+Date: Fri, 22 Jul 2005 13:59:06 -0400
+Message-Id: <1122055146.29328.22.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> On Fri, 2005-07-22 at 12:14 -0400, Ivan Gyurdiev wrote: 
-> > (1) The errors are buffered, and not displayed as they occur, so you
-> > don't know what is happening if something hangs
+> > (2) I have to rewrite my code to use it, while my API seems better.
+> > What's your objection?
 > 
-> As Karl mentioned, callbacks (and other asynchronous events) in
-> multi-threaded programs are dangerous.  
+> 1) Very difficult to use for a multi-threaded application. How do I know what
+> function call by which thread generated the error?
 
-I admit that I haven't thought much about the implications
-of doing a callback over the wire. For this kind of thing,
-it would seem appropriate to buffer error output.
+The function name is actually passed back by the error system I have.
+I suppose you could have your callback write the thread id (can't
+remember if pthread api provides that), although if RPC gets involved
+with scheme starts not to make sense.
 
-> In addition some programs might
-> not want immediate feedback for various reasons or designs. 
+> 2) Possibly difficult to implement if the the API is making RPC calls to a
+> remote server. In that case the underlying implementation will look like what we
+> have proposed and will simply strip the error, make the callback, and then
+> return normally - all with the same delay as if the api looks like our proposal.
 
-You can buffer the feedback in the callback function if you wish.
-
-> In what manner could a program "hang" without affording the possibility
-> of reporting an error?  Suppose that your _debug() callback scheme were
-> to be employed.  At some point in time the program recognizes an error
-> and invokes the callback.  Now instead one were to use our proposed
-> error handling scheme.  Instead of making the callback it merely returns
-> an error code.  Either way program execution has not hung.
-
-I was thinking of status output, and not error output, so you are
-correct that this is not an issue. In the case of status output, it is
-easy to tell where a loop/hang may occur, because you can see the 
-messages prior.
-
-
+That's a valid argument, I hadn't thought about that issue.
+Ok I will alter my code to use your buffer system.
 
 
 --
