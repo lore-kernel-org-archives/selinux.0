@@ -1,48 +1,75 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MCZfgA004703
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 08:35:41 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MCUuYP002282
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 12:30:56 GMT
-Message-ID: <42E0E706.5050903@redhat.com>
-Date: Fri, 22 Jul 2005 08:31:02 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MCgPgA004785
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 08:42:25 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MCaoKk016930
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 12:36:51 GMT
+Message-Id: <200507221237.j6MCbHvx015373@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <gyurdiev@redhat.com>, "'Joshua Brindle'" <jbrindle@tresys.com>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
+Subject: RE: Iptables discussion
+Date: Fri, 22 Jul 2005 08:37:18 -0400
 MIME-Version: 1.0
-To: gyurdiev@redhat.com
-CC: Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: Iptables discussion
-References: <200507212030.j6LKUTvx008177@gotham.columbia.tresys.com>	 <1121978850.15334.2.camel@celtics.boston.redhat.com>	 <42E00E51.7050001@tresys.com>	 <1121979985.15334.5.camel@celtics.boston.redhat.com>	 <42E0105F.9030607@tresys.com>	 <1121981131.15334.13.camel@celtics.boston.redhat.com>	 <42E0310B.5070404@tresys.com> <1122033206.19625.7.camel@localhost.localdomain>
-In-Reply-To: <1122033206.19625.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1122033206.19625.7.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Network Integration with SELinux, stinks from a users point of view.
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
+> 
+> ------
+> 
+> Let me get to the point - we have iptables, which configures netfilter.
+> Then we have policy, which configures selinux. That's two configuration
+> systems, and having two configuration systems is not good - you have to
+> go change both to get anything to work. Furthermore, iptables has
+> a superior configuration system from a user's point of view, because
+> it's easier to work with than writing policy in m4 macros.
+> 
+> So, what do we do about that? Dan is suggesting we might integrate
+> iptables with policy, and have it automatically generate some rules,
+> pertaining to interfaces, ports, etc... we can now query sepol
+> for the port label, and query sepol for the interface label.
+> 
+> I'm not sure how this should be done, or whether this should be done,
+> but it merits further discussion. Should modules play a role into
+> this...is it a good idea...etc.
 
-Lets look at some potential usage scenarios.
+I understand the goal of this integration and agree that it is difficult for a
+user to specify network policy in two places. The same could be said, though,
+about many aspects of the policy. There must be agreement between the apache
+config and the apache policy for example. This is a general failing of Linux (it
+is also a strength in that the loose coupling allows replacing large subsystems
+easily).
 
-User has two network devices (Internal and External)  He wants to allow 
-only Apache to listen on the external device, and only communicate via 
-LDAP over the internal device?  How would he set that up?  (IF someone 
-says he will rewrite policy, I will scream, and then ask you to write 
-policy to allow this. ) 
+Having said that, I have a _very_ strong preference for all of the network
+policy being part of the SELinux policy. Many of our customers care about the
+ability to reason about and analyze SELinux policy in an automated way. If
+significant parts of the policy are moved out of the SELinux policy proper or,
+more importantly, expressed in a language with a model that has received none of
+the rigorous scrutiny that type enforcement has received then our ability to do
+this automated analysis will be seriously degraded. This would be a real loss,
+particular for customers that need higher levels of assurance about the
+correctness of the security of their systems (I'm using the term assurance in an
+informal way here).
 
-MLS System, wants to have two Apache systems,  One listening at port 80 
-for Top Secret communications, another at port 81 for secret.  How do 
-you do this?
+I would suggest that making this choice based on whether the iptables syntax or
+the SELinux policy syntax is more intuitive is missing an important point: both
+are too complicated and potentially beyond the ability or patience of many users
+/ admins that will want to make these customizations. Why not create a tool that
+generates both and leave the loose coupling? That frees you to do some real
+user-interface work to create something easier to understand.
 
-You want to setup a Zone Transfer between your two named servers.  You 
-want to guarantee that named_t on one machine is talking to named_t on 
-another machine over an encrypted line? 
+Karl
 
-I believe the only way for users to do these things successfully is to 
-have integration of SELinux with iptables, and no writing/rewriting of 
-policy will solve the problem.
-
-Dan
-
--- 
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
 
 
 
