@@ -1,185 +1,154 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MFXJgA006473
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 11:33:19 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MFSWYP025539
-	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 15:28:33 GMT
-Message-Id: <200507221528.j6MFSDvx017543@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Daniel J Walsh'" <dwalsh@redhat.com>
-Cc: <gyurdiev@redhat.com>, "'Joshua Brindle'" <jbrindle@tresys.com>,
-   <selinux@tycho.nsa.gov>
-Subject: RE: Iptables discussion
-Date: Fri, 22 Jul 2005 11:28:14 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6MFg5gA006582
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 11:42:05 -0400 (EDT)
+Received: from e6.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6MFaVKk009250
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 15:36:31 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e6.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id j6MFbJ5f007830
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 11:37:19 -0400
+Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
+	by d01relay04.pok.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id j6MFbJVY245902
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 11:37:19 -0400
+Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
+	by d01av01.pok.ibm.com (8.12.11/8.13.3) with ESMTP id j6MFbJPi008016
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 11:37:19 -0400
+Received: from localhost (sig-9-48-47-45.mts.ibm.com [9.48.47.45])
+	by d01av01.pok.ibm.com (8.12.11/8.12.11) with ESMTP id j6MFbHTP007966
+	for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2005 11:37:19 -0400
+Date: Fri, 22 Jul 2005 11:37:15 -0400 (Eastern Daylight Time)
+From: Janak Desai <janak@us.ibm.com>
+To: selinux@tycho.nsa.gov
+Subject: [RFC][PATCH] newrole - support for polyinstantiated directories
+Message-ID: <Pine.WNT.4.63.0507221135090.1000@IBM-AIP3070F3AM>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <42E105EE.6050603@redhat.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Daniel J Walsh [mailto:dwalsh@redhat.com]
-> Sent: Friday, July 22, 2005 10:43 AM
-> To: Karl MacMillan
-> Cc: gyurdiev@redhat.com; 'Joshua Brindle'; selinux@tycho.nsa.gov
-> Subject: Re: Iptables discussion
-> 
-> Karl MacMillan wrote:
-> 
-> >>-----Original Message-----
-> >>From: Ivan Gyurdiev [mailto:gyurdiev@redhat.com]
-> >>Sent: Friday, July 22, 2005 9:45 AM
-> >>To: Karl MacMillan
-> >>Cc: 'Daniel J Walsh'; 'Joshua Brindle'; selinux@tycho.nsa.gov
-> >>Subject: RE: Iptables discussion
-> >>
-> >>
-> >>
-> >>
-> >>>Solving the user-interface issues can be done more effectively, in my
-> >>>
-> >>>
-> >>opinion,
-> >>
-> >>
-> >>>by hiding both iptables and SElinux. My preference would be to extend the
-> >>>SELinux policy language to be able to express the kind of controls that you
-> >>>
-> >>>
-> >>are
-> >>
-> >>
-> >>>interested in expressing and create a configuration tool (gui or text
-> based)
-> >>>that generates the policy. That would leave a policy.conf or equivalent
-> that
-> >>>could be analyzed for correctness.
-> >>>
-> >>>
-> >>I think whatever rules are automatically generated will be at a low
-> >>level of complexity, because anything else would be better handled by
-> >>writing policy. Given this, I think it will be trivial to generate
-> >>additions to policy.conf to address your analysis concern. Where
-> >>exactly this is done is an implementation detail :)
-> >>
-> >>
-> >>
-> >
-> >Good - after re-reading you and Dan's messages I realized that you might be
-> >simply suggesting that the iptables program generate SELinux policy. That
-> makes
-> >sense to me and is consistent with what I am saying about a user-interface.
-> The
-> >only other comment is that I would like this to be optional. We have a need
-> to
-> >create systems that have a fixed policy.
-> >
-> >
-> Yes,  I am suggesting potentially IPTables could generate policy that
-> you could check, and I am
-> not suggesting that you remove the existing policy semantics.  I believe
-> that users have a need and
-> knowledge on how to configue iptables, and many tools have been written
-> to allow the mangement of
-> network security via IPTables.  The enhancement I would be looking for
-> is how we could get
-> iptables to communicate with SELinux to further constrain the system.
-> 
-> I see policy as being somewhat static.  IE We write the core policy that
-> will work pretty much the same way
-> on everyones machine.  The problem is that users have sections of policy
-> that will differ.  Users, Ports, Interfaces
-> on a machine by machine basis.  They have to be able to simply extend or
-> modify policy to work better in their environments.
-> I also see users needing to write small sections of policy, without
-> modifying policy sources.  As an example I have a bug
-> report right now from a user looking to use an app (plugin) with
-> squirrelmail to do mail forwarding.   This app gets execed via
-> squirrelmail and fails because it needs the setgid capability.  Now if
-> the user could write one line of code, he could get the app working the
-> way he wants, without having to disable squirrelmail protection or all
-> of httpd.
-> 
 
-I agree that there are different kinds of policy customizations. We have been
-using a model of:
+Patch Summary:
+This patch adds a pam session management hook in the 
+newrole command.
 
-Upstream policy (e.g. NSA, ref policy) -> oem modification / additions (e.g.,
-Red Hat) -> third party additions (e.g. ISVs) -> local customizations.
-
-Each of these has different needs. I agree that when we hit third part additions
-the bulk of the policy is static. I had been assuming that the local
-customizations would be a well-defined set of settings that the admin could
-twiddle. Your squirrelmail example is sort-of different, though. I can clearly
-see the need for it, but don't have a good idea of how to facilitate that
-without pushing the user into full-on policy customization.
-
-> There are customers that will pay for a customized policy that will lock
-> down their system to a security specification and want it proovably
-> secure.  There are a lot more customers who will pay for security  that
-> they are reasonably certain protects their machine, but are not willing
-> to pay someone to customize it.
-> 
-
-Definitely, and the former category will probably stay small of the foreseeable
-future. I think we can meet the needs of both, though. 
-
-> >
-> >
-> >>What's missing here, is a good API to work with policy, so that you
-> >>can manipulate policy internals with anything other than checkpolicy.
-> >>That's why I'm asking for an intermediate representation. My particular
-> >>implementation of it may not be very good (suggestions welcome),
-> >>but it's certainly better than what's out there - I don't think
-> >>passing in policy-dependent integer id's, and exposing internal data
-> >>structures will make a successful api.
-> >>
-> >>
-> >
-> >Why not continue down the path that we have started with libsemanage? I think
-> it
-> >is better to have a well-defined set of local machine customizations that are
-> >available via libsemanage than forcing applications to do direct policy
-> >manipulation. This will, I think, result in an smaller, easier to use API
-> that
-> >will allow a transition path to the policy server (which will hopefully allow
-> us
-> >to do these kinds of customizations across multiple machines). It also helps
-> >with policy updates - by clearly defining local customizations and upstream
-> >policy it is easier for package managers and admins to handle policy updates.
-> >
-> >
-> >
-> I agree.
-> 
-
-OK.
-
-Karl
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
-
-> >Karl
-> >
-> >---
-> >Karl MacMillan
-> >Tresys Technology
-> >http://www.tresys.com
-> >(410) 290-1411 ext 134
-> >
-> >
-> >
-> >
-> 
-> 
-> --
+Patch Justification:
+This patch is needed to provide polyinstantiated directories.
+Polyinstantiated directories are needed to achieve greater 
+information separation for public use directories such 
+as /tmp and /var/tmp, and provide users with writeable home 
+directories as they transition roles, types or mls level.
+Currently, the newrole command uses pam for authentication only.
+Addition of the pam session management hook allows newrole to
+unmount existing polyinstantiated directories and setup 
+appropriate polyinstantiation based on the new security
+context that is being entered through newrole.
 
 
+Overall Approach:
+The pam session management hook is placed in the child process
+that newrole forks. The hooks is placed after the call to 
+setexeccon(), which sets setcurity context of the next exec'ed
+process.
+
+Testing:
+The patch has been unit tested on uni-processor i386 architecture
+based Fedora Core 3 system running 2.6.12 kernel.
+
+Signed-off-by: Janak Desai
+
+-------------------------------------------------------------------
+diff -Naurp newrole/newrole.c newrole-namespace/newrole.c
+--- newrole/newrole.c	2005-07-22 11:48:04.000000000 +0000
++++ newrole-namespace/newrole.c	2005-07-22 14:33:08.000000000 +0000
+@@ -151,7 +151,7 @@ int authenticate_via_pam( const struct p
+ 
+ /* authenticate_via_pam()
+  *
+- * in:     pw - struct containing data from our user's line in 
++ * in:     pw - struct containing data from our user's line in
+  *                         the passwd file.
+  * out:    nothing
+  * return: value   condition
+@@ -200,6 +200,59 @@ int authenticate_via_pam( const struct p
+ 
+ } /* authenticate_via_pam() */
+ 
++
++int namespace_via_pam( const struct passwd * );
++
++/* namespace_via_pam()
++ *
++ * in:     pw - struct containing data from our user's line in
++ *                         the passwd file.
++ * out:    nothing
++ * return: value   condition
++ *         -----   ---------
++ *           1     PAM thinks that the namespace setup was successful
++ *           0     otherwise
++ *
++ * This function uses PAM to setup namespace if polyinstantiated
++ * directories are configured on the system.
++ *
++ */
++
++int namespace_via_pam( const struct passwd *pw ) {
++
++  int result = 0;    /* our result, set to 0 (namespace not set) by default */
++  pam_handle_t *pam_handle;      /* opaque handle used by all PAM functions */
++
++  /* This is a jump table of functions for PAM to use when it wants to *
++   * communicate with the user.  We'll be using misc_conv(), which is  *
++   * provided for us via pam_misc.h.                                   */
++  struct pam_conv pam_conversation = {
++    misc_conv,
++    NULL
++  };
++
++  /* Make `p_pam_handle' a valid PAM handle so we can use it when *
++   * calling PAM functions.                                       */
++  if( PAM_SUCCESS != pam_start( SERVICE_NAME,
++				pw->pw_name,
++				&pam_conversation,
++				&pam_handle ) ) {
++    fprintf( stderr, _("failed to initialize PAM\n") );
++    exit( -1 );
++  }
++
++  /* Ask PAM to setup session for the user running this program */
++  if( PAM_SUCCESS == pam_open_session(pam_handle,0) ) {
++    result = 1;  /* Namespace setup OK! */
++  }
++
++  /* We're done with PAM.  Free `pam_handle'. */
++  pam_end( pam_handle, PAM_SUCCESS );
++
++  return( result );
++
++} /* namespace_via_pam() */
++
+ #else /* else !USE_PAM */
+ 
+ 
+@@ -663,6 +716,10 @@ int main( int argc, char *argv[] ) {
+        fprintf(stderr, _("Could not set exec context to %s.\n"), new_context);
+        exit(-1);
+   }
++
++#ifdef USE_PAM
++  if( namespace_via_pam(pw) )
++#endif /* USE_PAM */
+   execv(argv[optind-1],argv+optind-1);
+ 
+   /* If we reach here, then we failed to exec the new shell. */
+diff -Naurp newrole/newrole.pamd newrole-namespace/newrole.pamd
+--- newrole/newrole.pamd	2005-07-22 11:48:04.000000000 +0000
++++ newrole-namespace/newrole.pamd	2005-07-22 14:14:00.000000000 +0000
+@@ -3,4 +3,5 @@ auth       required	/lib/security/$ISA/p
+ account    required	/lib/security/$ISA/pam_stack.so service=system-auth
+ password   required	/lib/security/$ISA/pam_stack.so service=system-auth
+ session    required	/lib/security/$ISA/pam_stack.so service=system-auth
++session    required	/lib/security/$ISA/pam_namespace.so unmnt_first
+ session    optional	/lib/security/$ISA/pam_xauth.so
 
 
 --
