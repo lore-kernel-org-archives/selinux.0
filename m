@@ -1,34 +1,31 @@
-Subject: Re: I have a question about log on SELinux
+Subject: Re: ainit
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <002b01c58df8$260c6700$0300a8c0@admin0>
-References: <002b01c58df8$260c6700$0300a8c0@admin0>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   fedora-selinux-list@redhat.com
+In-Reply-To: <200507212142.28830.russell@coker.com.au>
+References: <200507212142.28830.russell@coker.com.au>
 Content-Type: text/plain
-Date: Mon, 25 Jul 2005 10:15:30 -0400
-Message-Id: <1122300930.2351.41.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 25 Jul 2005 10:18:53 -0400
+Message-Id: <1122301133.2351.44.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-07-21 at 22:28 +0900, shintarou_fujiwara wrote:
-> His question is , the difference between "name" and "path" .
+On Thu, 2005-07-21 at 21:42 +1000, Russell Coker wrote:
+> The attached patch is needed for correct functionality of ainit with the 
+> latest strict policy when running reasonably recent rawhide packages.
 > 
-> He and I have no idea the differences between these two.
-> They look totaly the same...
+> Is this really what we want?  Having a system process allocate shared memory 
+> that can be used by any user processes?  Also it seems likely that other 
+> sound programs will need to access the shared memory in question.
 
-name is just a single path component, whereas path is a complete path.
-Depending on the particular hook location, SELinux can sometimes
-generate a path for the audit record but in many cases cannot do so and
-is limited to just the component name.  It always logs the device and
-inode information.  
+Not a good idea.  Look at nscd handling for its shmem interface; we use
+an attribute to allow certain domains such access, but most domains are
+limited to the socket IPC-based interface.  This program should likewise
+have some kind of fallback to an IPC-based interface if the shmem
+interface isn't allowed.
 
-You can use the audit framework to get more information, although RHEL4
-may not support it until a later update.  Run 'auditctl -e 1'
-or boot your kernel with audit=1 to enable syscall auditing.  Then the
-audit framework will emit syscall audit messages after any SELinux audit
-messages.
- 
 -- 
 Stephen Smalley
 National Security Agency
