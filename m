@@ -1,38 +1,34 @@
-Subject: Re: Suse selinux policy
+Subject: Re: I have a question about log on SELinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dale Amon <amon@vnl.com>
+To: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20050720165937.GB18922@vnl.com>
-References: <20050718234403.GA30685@vnl.com>
-	 <20050720103541.GB8124@thorium.jmh.mhn.de> <20050720165937.GB18922@vnl.com>
+In-Reply-To: <002b01c58df8$260c6700$0300a8c0@admin0>
+References: <002b01c58df8$260c6700$0300a8c0@admin0>
 Content-Type: text/plain
-Date: Mon, 25 Jul 2005 10:03:31 -0400
-Message-Id: <1122300211.2351.34.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 25 Jul 2005 10:15:30 -0400
+Message-Id: <1122300930.2351.41.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-07-20 at 17:59 +0100, Dale Amon wrote:
-> It doesn't make sense to me. Why would the kernel in
-> SLES9 have selinux compiled in (with default boot of
-> selinux=0) and the CD's contain libselinux, policycoreutils,
-> etc, etc, and no policy? The Novell OES version uses
-> the same disk set as well, I have been working
-> with both over the last month.
+On Thu, 2005-07-21 at 22:28 +0900, shintarou_fujiwara wrote:
+> His question is , the difference between "name" and "path" .
+> 
+> He and I have no idea the differences between these two.
+> They look totaly the same...
 
-Just my opinion:  If they include policy in SLES, they have to support
-it too.  Whereas just including the SELinux code but disabling it by
-default and not providing a policy themselves lets them say that they
-have "SELinux support" without having to deal with the time and effort
-required to properly configure a policy for the entire distro, integrate
-support throughout their userland, test the system with a loaded policy
-in enforcing mode, etc.  Pushes the burden to the customer, while still
-claiming the advertising benefit of claiming that they support SELinux.
-Note that their press release about acquiring AppArmor/SubDomain claimed
-that they were the first commercial distro to support SELinux, where
-"support" apparently just means "code included", and not even all of
-that.
+name is just a single path component, whereas path is a complete path.
+Depending on the particular hook location, SELinux can sometimes
+generate a path for the audit record but in many cases cannot do so and
+is limited to just the component name.  It always logs the device and
+inode information.  
 
+You can use the audit framework to get more information, although RHEL4
+may not support it until a later update.  Run 'auditctl -e 1'
+or boot your kernel with audit=1 to enable syscall auditing.  Then the
+audit framework will emit syscall audit messages after any SELinux audit
+messages.
+ 
 -- 
 Stephen Smalley
 National Security Agency
