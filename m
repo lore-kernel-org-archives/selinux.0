@@ -1,94 +1,116 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6PL7jgA027653
-	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2005 17:07:45 -0400 (EDT)
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6PL1aAP014161
-	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2005 21:01:36 GMT
-Message-ID: <36282A1733C57546BE392885C0618592AF2E21@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   Daniel J Walsh
-	 <dwalsh@redhat.com>
-Cc: James Morris <jmorris@redhat.com>,
-   Casey Schaufler
-	 <casey@schaufler-ca.com>, gyurdiev@redhat.com,
-   Joshua Brindle
-	 <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
-Subject: RE: Iptables discussion
-Date: Mon, 25 Jul 2005 17:04:44 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6PMljgA028384
+	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2005 18:47:48 -0400 (EDT)
+Received: from sccrmhc12.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6PMfaAP027124
+	for <selinux@tycho.nsa.gov>; Mon, 25 Jul 2005 22:41:36 GMT
+Message-ID: <42E56ACA.9080200@tresys.com>
+Date: Mon, 25 Jul 2005 18:42:18 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: gyurdiev@redhat.com
+CC: Daniel J Walsh <dwalsh@redhat.com>,
+   "Christopher J. PeBenito" <cpebenito@tresys.com>,
+   James Morris <jmorris@redhat.com>, Casey Schaufler <casey@schaufler-ca.com>,
+   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: Iptables discussion
+References: <20050724152822.95995.qmail@web34310.mail.mud.yahoo.com>	<Lynx.SEL.4.62.0507250019380.21934@thoron.boston.redhat.com>	<42E50756.5030302@redhat.com>  <1122315868.13068.200.camel@sgc>	<1122316136.2997.69.camel@celtics.boston.redhat.com>	<1122317025.2997.74.camel@celtics.boston.redhat.com>	<42E535A5.1030406@redhat.com>  <42E536FB.10408@tresys.com> <1122321195.2997.126.camel@celtics.boston.redhat.com>
+In-Reply-To: <1122321195.2997.126.camel@celtics.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
 
-> 
-> I think the better way would be to change the way the policy works,
-> rather then conditionally applying the attribute.  The default should
-> probably be to not have any netifcon statements except for interfaces we
-> want different behavior.  The above macro would be changed to use
-> netif_t as the target, rather then netif_type.  Then all interface types
-> still keep the netif_type attribute, so the privilege of using all
-> interfaces still exists, if needed, but since there are no netifcons,
-> all interfaces fall back to the initial sid type (netif_t).  When the
-> user wants different behaviors for a specific interface, then the tool
-> would add the netifcon to the policy, and add the appropriate rules to
-> the policy.
-> 
-> To make this work better, then the can_network*() macros could be
-> modified to have an additional optional parameter to specify which
-> interface(s) to use.  Then if the interface is supplied, the specified
-> interface type is used; otherwise, the generic interface (netif_t) is
-> used.
-> 
-> So you could have:
-> 
-> can_network(apache_t)
-> 
-> and then to change it to only use eth0,
-> 
-> can_network(apache_t,eth0_netif_t)
-> 
-> and label the external interface in net_contexts:
-> 
-> netifcon eth0 system_u:object_r:eth0_netif_t 
-> system_u:object_r:unlabeled_t
-> 
-> or perhaps the type could just be shortened to just eth0, and the type
-> name inferred.  This would then just result in a one line 
-> policy change,
-> and a netifcon for each specified interface.
+>>>type netif_eth0_t, netif_type;
+>>>netifcon eth0 system_u:object_r:netif_eth0_t 
+>>>system_u:object_r:unlabeled_t
+>>>allow httpd_t netif_eth0_t:netif { tcp_recv tcp_send rawip_send 
+>>>rawip_recv };
+>>>allow named_t netif_eth0_t:netif { udp_recv udp_send tcp_recv tcp_send 
+>>>rawip_send rawip_recv };
+>>>      
+>>>
+>
+>Those seem reasonable.
+>
+>  
+>
+rawip_* isn't necessary and should not be added
 
-There is a problem with virtual interfaces here as they contain colons I
-believe.
+>>IMHO, I think that we _cannot_ add code to iptables to manage policy. 
+>>This is a bad idea for a number of reasons that I've talked about in 
+>>other emails.
+>>    
+>>
+>
+>I haven't seen any of those, can you point me somewhere?
+>
+>  
+>
+earlier in this thread, the consistency arguments (iptables having a 
+run-time state vs. a persistant state, contrary to the persistant state 
+of the selinux policy)
 
-> 
-> The reference policy does not have the can_network() style macros, but
-> rather specifies ports, nodes, and netifs interfaces 
-> separately, so this
-> would also be fairly simple.  So the apache policy might 
-> start out with
-> this:
-> 
-> corenet_tcp_sendrecv_generic_if(apache_t)
-> 
-> to use generic (netif_t) interfaces, and to make it use the "external"
-> interfaces eth1 and eth2, we just change it to
-> 
-> corenet_tcp_sendrecv_external_if(apache_t)
-> 
-> and label the external interfaces by adding this in corenetwork:
-> 
-> network_interface(external, eth1,s0, eth2,s0)
-> 
-> (sensitivity would be dropped on non MLS policies)
-> 
+>>This functionality should be put in system-config-security to set up the 
+>>firewall iptables rules and manage a subset of the network related 
+>>policy rules. 
+>>    
+>>
+>
+>I don't understand why we have two sets of rules to manage the same
+>thing.
+>
+>  
+>
+there will always be 2 sets, we are trying to keep them consistent. 
+Also, iptables can state alot more than the policy currently supports. 
+Adding this to iptables means defining certain types of 'supported' 
+rules to add to the policy. Rather than do that this should be done from 
+the interface that already limits what kind of rules you can do and 
+simplifies them for the user (system-config-network{,-tui}
 
-I like the ideas above and think they sound reasonable.  
+>>This should leverage the module system so that 
+>>system-config-security essentially owns a module that it can put it's 
+>>rules in, remove them, etc. We can later use the policy server to limit 
+>>this applications policy actions to just those under the primary network 
+>>type.
+>>    
+>>
+>
+>Good idea...
+>
+>  
+>
+>>The interfaces to do this work should be exported through libsemanage to 
+>>do it seamlessly regardless of policy backend. The labels will have to 
+>>(unfortunatly) be part of some configutation file, which is policy 
+>>specific. 
+>>    
+>>
+>
+>The labels can be inferred from the card name, if necessary.
+>
+>  
+>
+no, implicit labeling considered harmful. This destroys the concept of 
+equivalence classes (which is what types are). You should be able to 
+make 2 interfaces equivalent without having a set of rules for each of them.
 
--Chad
+>>Also the other issue with allow-by-default firewalls and deny rules, 
+>>which can't be addresssed in policy at all (and I think it's a very bad 
+>>idea for some network config app to recurse the entire policy looking 
+>>for rules that might violate it's internal settings).
+>>    
+>>
+>
+>Deny rules could possibly be ... denied :) on an selinux-enabled system.
+>
+>  
+>
+that means the app needs to get a full copy of the policy and try to 
+find allow rules that could violate the deny state of the iptables rule, 
+this is bad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
