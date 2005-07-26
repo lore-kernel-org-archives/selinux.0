@@ -1,64 +1,67 @@
-Subject: Re: Sepol related questions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: ivg2@cornell.edu
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Chad Hanson <chanson@TrustedCS.com>, James Morris <jmorris@redhat.com>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <1121942551.19675.8.camel@localhost.localdomain>
-References: <1121942551.19675.8.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 09:49:27 -0400
-Message-Id: <1122385767.4470.31.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6QEfdgA003297
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 10:41:41 -0400 (EDT)
+Received: from iron2-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6QEa92V015355
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 14:36:12 GMT
+Message-Id: <3un3qj$3ptdhc@iron2-mx.tops.gwu.edu>
+Date: Tue, 26 Jul 2005 10:36:03 -0400
+From: Yuichi Nakamura <ynakam@gwu.edu>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
+Cc: ynakam@gwu.edu
+Subject: ANN: SELinux Policy Editor 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-07-21 at 06:42 -0400, Ivan Gyurdiev wrote:
-> 2) What is the proper fallback user
-> mls level and mls range on an mls-enabled system
-> when the user hasn't configured those parameters.
-> 
-> What is the proper fallback mls field,
-> in a context where it's missing, on an mls-enabled
-> system.
+We are glad to announce that SELinux Policy Editor 1.0 has been released.
+In this release, 
+our policy called "Simplified policy" can be used without GUI.
+To try, visit http://seedit.sourceforge.net/ .                  
+Install manual, how to and specification documentations are ready.
 
-IIUC, there is no planned fallback for the MLS field except for the
-kernel's handling of inodes, which is needed to allow seamless upgrade
-from non-MLS to MLS.  James has a patch under development to default the
-MLS field of existing inodes to the MLS value of the 'file' initial SID,
-as defined in policy/initial_sid_contexts, where that value would be set
-to system high in a real MLS policy and just s0 in the Red Hat MCS
-policy.
+SELinux Policy Editor and Simplified policy works on Fedora Core4 and 3.
+Our tool does not affect existing SELinux, you can go back to default 
+SELinux easily. Feel free to try.
 
-> 3) Is the context string as returned by 
-> context_struct_to_string (services.c) supposed
-> to be null terminated - and also is
-> the string passed to sepol_context_to_sid 
-> supposed to be null terminated. If so,
-> what purpose does the buffer size serve?
+If you have question, suggestion or something email to 
+seedit-admin@lists.sourceforge.net.
 
-Originally, context strings were always nul terminated (and the length
-included the nul terminator); the separate length allowed a program to
-handle the context completely opaquely if it had no need to interpret it
-in any way (not even as a string) and avoided recomputation of the
-length, as the constructor of the context always knows that length.
-When we migrated to the xattr API and wanted to allow use of the attr
-utilities (setfattr/getfattr) for SELinux attributes as well, we ran
-into an issue where they do not consider the null terminator as part of
-the attribute value for strings, instead just using the length, so we
-had to deal with that situation both when setting a context and when
-getting a context.  Thus, context_to_sid (both in kernel and in
-libsepol) no longer assumes that the input value is nul-terminated, and
-getfilecon no longer assumes that the value returned by the kernel (via
-the xattr API) is nul-terminated (but it adds the nul terminator before
-returning the context to the caller).  So applications can always assume
-that the context returned by any libselinux or libsepol function will be
-nul terminated.
+* About SELinux Policy Editor
+SELinux Policy Editor is a tool to edit and view SELinux policy, 
+originally developed by Hitachi Softwarek, not developed in 
+SELinux Policy Editor Project(seedit.sourceforge.net).
 
--- 
-Stephen Smalley
-National Security Agency
+ The tool is composed of simplified policy and GUI. 
+Simplified policy hides detail of SELinux configuration, 
+and GUI makes configuration much easier.
+It is not just a GUI tool, the important component is simplified policy. 
+You can also configure simplified policy without GUI.
+Following is example of simplified policy for Apache.
+domain httpd_t;
+domain_trans initrc_t /usr/sbin/httpd;
+allow /var/www r,s;
+allownet -tcp -port 80;
+As you see, type is not used. You can use file name, port number in 
+configuration.
+For detail about simplified policy, see
+http://seedit.sourceforge.net/doc/simplified_policy_manual.pdf
 
+
+* TODO
+- Review the security of simplified policy
+- Extend syntax of simplified policy for detailed configuration
+- Auto generation of simplified policy
+- Write more policy by simplified policy 
+- Test on other distributions
+
+---
+Yuichi Nakamura
+Hitachi Software, The George Washington University
+Japan SELinux Users Group(JSELUG)
+Japan Open Source Advocacy Organization(JOSAO)
+SELinux Policy Editor:  http://seedit.sourceforge.net/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
