@@ -1,9 +1,8 @@
 Subject: Re: [ libsepol 10 ] Bugfixes for 0-9
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gyurdiev@redhat.com
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1122404439.4470.117.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1122404471.6329.42.camel@celtics.boston.redhat.com>
 References: <1121967118.9844.17.camel@celtics.boston.redhat.com>
 	 <1122386595.4470.40.camel@moss-spartans.epoch.ncsc.mil>
 	 <1122387393.4470.54.camel@moss-spartans.epoch.ncsc.mil>
@@ -13,30 +12,29 @@ References: <1121967118.9844.17.camel@celtics.boston.redhat.com>
 	 <1122396106.4470.76.camel@moss-spartans.epoch.ncsc.mil>
 	 <1122396779.2812.32.camel@celtics.boston.redhat.com>
 	 <1122404439.4470.117.camel@moss-spartans.epoch.ncsc.mil>
+	 <1122404471.6329.42.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Tue, 26 Jul 2005 15:01:11 -0400
-Message-Id: <1122404471.6329.42.camel@celtics.boston.redhat.com>
+Date: Tue, 26 Jul 2005 15:06:06 -0400
+Message-Id: <1122404766.4470.122.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-07-26 at 15:00 -0400, Stephen Smalley wrote:
-> On Tue, 2005-07-26 at 12:52 -0400, Ivan Gyurdiev wrote:
-> > You're right, I need to do this properly, and post the relative
-> > patch on list - attached.
-> > 
-> > Depends on: 
-> > 
-> > libsepol-1.1-context.diff 
-> > libsepol-1.2-ports.diff               
-> > libsepol-1.2-interfaces.diff 
-> > libsepol-1.2-fix_memory_leaks.diff 
-> > libsepol-3.1-write_services_printf.diff
-> 
-> Ok, all ten merged, plus the uninit variable patch posted by Dan.
+On Tue, 2005-07-26 at 15:01 -0400, Ivan Gyurdiev wrote:
+> Remove unnecessary null-termination as pointed out (priv mail)?
 
-Remove unnecessary null-termination as pointed out (priv mail)?
-If null termination is removed +1 strlen should also go away.
+Yes.
+
+> If null termination is removed +1 strlen should also go away.
+
+No.  Still need that for the nul terminator after the type when !
+mls_enabled.  That is why it used to be included in that computation -
+it was either going to be for the field separator or the nul terminator
+after the type, depending on whether or not MLS was enabled.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
