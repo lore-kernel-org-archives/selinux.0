@@ -1,33 +1,23 @@
-Subject: Re: Adding more NSCD constants
+Subject: Re: MLS dominance
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: gyurdiev@redhat.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1121785909.22954.2.camel@celtics.boston.redhat.com>
-References: <1121785909.22954.2.camel@celtics.boston.redhat.com>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
+In-Reply-To: <200507201419.j6KEJSvx025003@gotham.columbia.tresys.com>
+References: <200507201419.j6KEJSvx025003@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Tue, 26 Jul 2005 09:12:54 -0400
-Message-Id: <1122383574.4470.2.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 26 Jul 2005 09:27:52 -0400
+Message-Id: <1122384472.4470.11.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-07-19 at 11:11 -0400, Ivan Gyurdiev wrote:
-> How hard is it to add more constants to av_permissions.h?
-> This file says "automatically generated" but I'm not sure
-> what it's generated from.
-> 
-> If we add another NSCD cache (which is the plan... for the 
-> selinux_users nss service), then we need more constants for
-> NSCD.
+On Wed, 2005-07-20 at 10:19 -0400, Frank Mayer wrote:
+> Is there any reason why the dominance statement (the MLS flavor) doesn't end
+> with a semicolon like most others? Frank
 
-Not sure that this is still relevant, but the method for adding such
-definitions is to modify policy/flask/access_vectors, run make in
-policy/flask, and then copy over the generated headers to libselinux and
-(if they are needed) to the SELinux kernel module.
-
-Tresys has plans to migrate at least the userspace class/permission
-definitions to a runtime registration via the userspace security server
-rather than being fixed constants.
+No particular reason; it just didn't present any ambiguity in the parser
+to not include an explicit terminator there.  There are other statements
+that likewise lack such terminators.  
 
 -- 
 Stephen Smalley
