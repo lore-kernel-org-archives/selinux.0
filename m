@@ -1,67 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6QEfdgA003297
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 10:41:41 -0400 (EDT)
-Received: from iron2-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6QEa92V015355
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 14:36:12 GMT
-Message-Id: <3un3qj$3ptdhc@iron2-mx.tops.gwu.edu>
-Date: Tue, 26 Jul 2005 10:36:03 -0400
-From: Yuichi Nakamura <ynakam@gwu.edu>
+Message-ID: <42E65ACD.1030805@guardiandigital.com>
+Date: Tue, 26 Jul 2005 11:46:21 -0400
+From: Pax Dickinson <pax@guardiandigital.com>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-Cc: ynakam@gwu.edu
-Subject: ANN: SELinux Policy Editor 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: SELinux@tycho.nsa.gov
+Subject: Failed to get default security context?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We are glad to announce that SELinux Policy Editor 1.0 has been released.
-In this release, 
-our policy called "Simplified policy" can be used without GUI.
-To try, visit http://seedit.sourceforge.net/ .                  
-Install manual, how to and specification documentations are ready.
+Hi all,
 
-SELinux Policy Editor and Simplified policy works on Fedora Core4 and 3.
-Our tool does not affect existing SELinux, you can go back to default 
-SELinux easily. Feel free to try.
+I'm using a slightly modified version of the reference policy and I'm 
+having trouble getting regular users logged in under the correct context.
 
-If you have question, suggestion or something email to 
-seedit-admin@lists.sourceforge.net.
+When I log in as root over ssh, everything is OK and my context is 
+root:sysadm_r:sysadm_t.  However if I create a regular user and log in 
+over ssh I'm given a system_u:system_r:sshd_t context and the system log 
+reads :
 
-* About SELinux Policy Editor
-SELinux Policy Editor is a tool to edit and view SELinux policy, 
-originally developed by Hitachi Softwarek, not developed in 
-SELinux Policy Editor Project(seedit.sourceforge.net).
+Jul 26 11:32:36 salle2 sshd[2711]: Accepted password for pax from 
+192.168.1.208 port 55677
+Jul 26 11:32:36 salle2 sshd[2713]: error: Failed to get default security 
+context for pax. Continuing in permissve mode
+Jul 26 11:32:36 salle2 sshd[2711]: error: Failed to get default security 
+context for pax. Continuing in permissve mode
+Jul 26 11:32:36 salle2 sshd[2711]: error: 
+security_compute_relabel(/dev/ttyp2) failed: Invalid argument
+Jul 26 11:32:36 salle2 sshd[2714]: error: Failed to get default security 
+context for pax. Continuing in permissve mode
 
- The tool is composed of simplified policy and GUI. 
-Simplified policy hides detail of SELinux configuration, 
-and GUI makes configuration much easier.
-It is not just a GUI tool, the important component is simplified policy. 
-You can also configure simplified policy without GUI.
-Following is example of simplified policy for Apache.
-domain httpd_t;
-domain_trans initrc_t /usr/sbin/httpd;
-allow /var/www r,s;
-allownet -tcp -port 80;
-As you see, type is not used. You can use file name, port number in 
-configuration.
-For detail about simplified policy, see
-http://seedit.sourceforge.net/doc/simplified_policy_manual.pdf
+I tried adding an entry to local.users and specifying a role for that 
+username, but it doesn't seem to help.  If I log in at the console as 
+root I'm given a context of system_u:system_r:local_login_t which may be 
+part of the same problem or something completely different.
 
+Is this a known problem with the reference policy or am I doing 
+something wrong?  Any advice would be greatly appreciated.
 
-* TODO
-- Review the security of simplified policy
-- Extend syntax of simplified policy for detailed configuration
-- Auto generation of simplified policy
-- Write more policy by simplified policy 
-- Test on other distributions
+Thanks, Pax
 
----
-Yuichi Nakamura
-Hitachi Software, The George Washington University
-Japan SELinux Users Group(JSELUG)
-Japan Open Source Advocacy Organization(JOSAO)
-SELinux Policy Editor:  http://seedit.sourceforge.net/
+--
+Pax Dickinson
+Guardian Digital, Inc.
+pax@guardiandigital.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
