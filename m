@@ -1,45 +1,61 @@
-Subject: Re: console param in kernel boot string causes deadlock
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yevheniy Yevtushenko <keeper@keeper.org.ua>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1122405614.4470.128.camel@moss-spartans.epoch.ncsc.mil>
-References: <42DE6997.6060704@keeper.org.ua>
-	 <1122405614.4470.128.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 15:37:38 -0400
-Message-Id: <1122406658.4470.130.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6QKuvgA007240
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:56:59 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6QKpR2V025368
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 20:51:27 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j6QKpSs5006270
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:51:28 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j6QKpNV09027
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:51:23 -0400
+Received: from celtics.boston.redhat.com (celtics.boston.redhat.com [172.16.80.115])
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j6QKpMMT019695
+	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:51:22 -0400
+Subject: [ policycoreutils ] Resend: make restorecon print status messages
+	to stdout
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary="=-idKLQuKLYfGR5jYMT9us"
+Date: Tue, 26 Jul 2005 16:48:45 -0400
+Message-Id: <1122410926.3642.1.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-07-26 at 15:20 -0400, Stephen Smalley wrote:
-> On Wed, 2005-07-20 at 18:11 +0300, Yevheniy Yevtushenko wrote:
-> > Hello!
-> > 
-> > I have faced problem with kernel boot log redirect. I tried to add 
-> > 'console=/dev/tty8 selinux=1 enforcing=1' and got immediate kernel hung 
-> > up. It looks like deadlock or endless loop. There is no difference what 
-> > value is in parameter ( /dev/tty0, /dev/console, /dev/null or whatever 
-> > else). There is no output besides of grub boot message.
-> > I have tried with FC3 kernel and FC4 kernel. There is no difference. But 
-> > in permissive mode system boots up. And output goes to tty8. There is no 
-> > corresponding avc messages in logs. make enableaudit does not show 
-> > anything useful.
-> > Have anybody either faced with it? Is this anything known?
-> 
-> No, I haven't seen this problem, and I have successfully booted with a
-> serial console (e.g. console=ttyS0) without difficulty.
-> 
-> Can you enable NMI watchdog and reproduce?
 
-The other odd aspect here is that even with enforcing=1, the kernel is
-effectively permissive until a policy is loaded (in Fedora,
-by /sbin/init).  BTW, I assume you dropped the 'quiet' option from the
-console parameters.
+--=-idKLQuKLYfGR5jYMT9us
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-Stephen Smalley
-National Security Agency
+
+
+--=-idKLQuKLYfGR5jYMT9us
+Content-Disposition: attachment; filename=policycoreutils-restorecon-stdout.diff
+Content-Type: text/x-patch; name=policycoreutils-restorecon-stdout.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -p -aru policycoreutils.work/restorecon/restorecon.c policycoreutils-restorecon-stdout/restorecon/restorecon.c
+--- policycoreutils.work/restorecon/restorecon.c	2005-06-29 16:09:47.000000000 -0400
++++ policycoreutils-restorecon-stdout/restorecon/restorecon.c	2005-07-26 16:46:17.000000000 -0400
+@@ -211,11 +211,11 @@ int restore(char *filename) {
+       } else 	
+ 	      if (verbose && 
+ 		  (verbose > 1 || !user_only_changed))
+-		      fprintf(stderr,"%s reset %s context %s->%s\n",
++		      printf("%s reset %s context %s->%s\n",
+ 			      progname, filename, (retcontext >= 0 ? prev_context : ""), scontext);
+     }
+     if (verbose > 1 && customizable>0) {
+-	    fprintf(stderr,"%s: %s not reset customized by admin to %s\n",
++	    printf("%s: %s not reset customized by admin to %s\n",
+ 		      progname, filename, prev_context);
+     }
+ 
+
+--=-idKLQuKLYfGR5jYMT9us--
 
 
 --
