@@ -1,62 +1,82 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6QKuvgA007240
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:56:59 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6QKpR2V025368
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 20:51:27 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j6QKpSs5006270
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:51:28 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j6QKpNV09027
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:51:23 -0400
-Received: from celtics.boston.redhat.com (celtics.boston.redhat.com [172.16.80.115])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j6QKpMMT019695
-	for <selinux@tycho.nsa.gov>; Tue, 26 Jul 2005 16:51:22 -0400
-Subject: [ policycoreutils ] Resend: make restorecon print status messages
-	to stdout
-From: Ivan Gyurdiev <gyurdiev@redhat.com>
-Reply-To: gyurdiev@redhat.com
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-idKLQuKLYfGR5jYMT9us"
-Date: Tue, 26 Jul 2005 16:48:45 -0400
-Message-Id: <1122410926.3642.1.camel@celtics.boston.redhat.com>
+Message-Id: <200507262053.j6QKrPuY003850@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+Subject: Re: [RFC][PATCH 1/3] Reduce avtab node size 
+In-Reply-To: Your message of "Mon, 25 Jul 2005 15:41:27 EDT."
+             <1122320487.3029.21.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <1122320487.3029.21.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1122411205_2654P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 26 Jul 2005 16:53:25 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--==_Exmh_1122411205_2654P
+Content-Type: text/plain; charset=us-ascii
 
---=-idKLQuKLYfGR5jYMT9us
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Mon, 25 Jul 2005 15:41:27 EDT, Stephen Smalley said:
 
+> This patch set has three patches - the patch for the kernel, the patch
+> for libsepol, and the patch for checkpolicy.  The kernel patch is below.
+> As usual, the patched kernel will still read old binary policy versions
+> as well, and even better, it will translate such old binary policy
+> versions into the more compact in-memory representation, so the memory
+> savings can be realized even without an updated libsepol/checkpolicy.
+> 
+> ---
+> 
+>  security/selinux/include/security.h |    3 
+>  security/selinux/ss/avtab.c         |  189 +++++++++++++++++++++------------
+>  security/selinux/ss/avtab.h         |   37 +++---
+>  security/selinux/ss/conditional.c   |  204 +++++++++++++++++++--------------
+---
+>  security/selinux/ss/policydb.c      |    7 +
+>  security/selinux/ss/services.c      |   43 +++----
+>  6 files changed, 275 insertions(+), 208 deletions(-)
 
+I gave this a whirl, with bad results...  It applied cleanly to my 2.6.13-rc3-mm1,
+and built OK, but died at system boot.  Partial hand-copied output follows -
+(I didn't have a serial console, and I'm having some CTS issues..)
 
---=-idKLQuKLYfGR5jYMT9us
-Content-Disposition: attachment; filename=policycoreutils-restorecon-stdout.diff
-Content-Type: text/x-patch; name=policycoreutils-restorecon-stdout.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+security: conflicting type rules when adding type rule for true.
 
-diff -p -aru policycoreutils.work/restorecon/restorecon.c policycoreutils-restorecon-stdout/restorecon/restorecon.c
---- policycoreutils.work/restorecon/restorecon.c	2005-06-29 16:09:47.000000000 -0400
-+++ policycoreutils-restorecon-stdout/restorecon/restorecon.c	2005-07-26 16:46:17.000000000 -0400
-@@ -211,11 +211,11 @@ int restore(char *filename) {
-       } else 	
- 	      if (verbose && 
- 		  (verbose > 1 || !user_only_changed))
--		      fprintf(stderr,"%s reset %s context %s->%s\n",
-+		      printf("%s reset %s context %s->%s\n",
- 			      progname, filename, (retcontext >= 0 ? prev_context : ""), scontext);
-     }
-     if (verbose > 1 && customizable>0) {
--	    fprintf(stderr,"%s: %s not reset customized by admin to %s\n",
-+	    printf("%s: %s not reset customized by admin to %s\n",
- 		      progname, filename, prev_context);
-     }
- 
+..
 
---=-idKLQuKLYfGR5jYMT9us--
+unable to handle kernel paging request at 6b6b6b73
+..
+show_stack
+show_registers
+die
+do_pagefault
+error_code
+cond_list_destroy
+policydb_destroy
+policydb_read
+security_load_policy
+sel_write_load
+vfs_write
+sys_write
+syscall_call
+...
+and then it panics because it tried to kill init.
 
+This ring any bells, or suggest debugging next steps?
+
+--==_Exmh_1122411205_2654P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC5qLFcC3lWbTT17ARApHQAKDlkHq6zmWfazL8GPgpyR1G9Uq/5gCfdsZ/
+bQMeE3YFJSPyz0uPOiyjjiU=
+=CbDF
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1122411205_2654P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
