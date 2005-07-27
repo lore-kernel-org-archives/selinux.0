@@ -1,123 +1,67 @@
-Subject: Re: [RFC][PATCH 1/3] Reduce avtab node size
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Valdis.Kletnieks@vt.edu
+Message-Id: <200507271636.j6RGaCc1004671@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <200507262053.j6QKrPuY003850@turing-police.cc.vt.edu>
-References: <1122320487.3029.21.camel@moss-spartans.epoch.ncsc.mil>
-	 <200507262053.j6QKrPuY003850@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Wed, 27 Jul 2005 11:32:15 -0400
-Message-Id: <1122478335.19989.133.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [RFC][PATCH 1/3] Reduce avtab node size 
+In-Reply-To: Your message of "Wed, 27 Jul 2005 11:32:15 EDT."
+             <1122478335.19989.133.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <1122320487.3029.21.camel@moss-spartans.epoch.ncsc.mil> <200507262053.j6QKrPuY003850@turing-police.cc.vt.edu>
+            <1122478335.19989.133.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1122482172_4035P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Wed, 27 Jul 2005 12:36:12 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-07-26 at 16:53 -0400, Valdis.Kletnieks@vt.edu wrote:
-> I gave this a whirl, with bad results...  It applied cleanly to my 2.6.13-rc3-mm1,
-> and built OK, but died at system boot.  Partial hand-copied output follows -
-> (I didn't have a serial console, and I'm having some CTS issues..)
+--==_Exmh_1122482172_4035P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <4650.1122482156.1@turing-police.cc.vt.edu>
+
+On Wed, 27 Jul 2005 11:32:15 EDT, Stephen Smalley said:
+
+> This patch, relative to the prior one, fixes both bugs - the diff for
+> conditional.c solves the double free problem on the error handling path
+> and the diff for avtab.c solves the false conflict detection.  
 > 
-> security: conflicting type rules when adding type rule for true.
+> diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/avtab.c linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/avtab.c
 
-This patch, relative to the prior one, fixes both bugs - the diff for
-conditional.c solves the double free problem on the error handling path
-and the diff for avtab.c solves the false conflict detection.  
+Much better.  Patch applied clean, compiled clean.  System boots, runs as expected,
+and attempts to intentionally generate AVC messages do in fact generate the
+expected messages.  Before-and-after memory stats:
 
-diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/avtab.c linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/avtab.c
---- linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/avtab.c	2005-07-27 11:19:47.000000000 -0400
-+++ linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/avtab.c	2005-07-27 11:02:40.000000000 -0400
-@@ -58,6 +58,7 @@ static int avtab_insert(struct avtab *h,
- {
- 	int hvalue;
- 	struct avtab_node *prev, *cur, *newnode;
-+	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
- 	if (!h)
- 		return -EINVAL;
-@@ -69,7 +70,7 @@ static int avtab_insert(struct avtab *h,
- 		if (key->source_type == cur->key.source_type &&
- 		    key->target_type == cur->key.target_type &&
- 		    key->target_class == cur->key.target_class &&
--		    (key->specified & cur->key.specified))
-+		    (specified & cur->key.specified))
- 			return -EEXIST;
- 		if (key->source_type < cur->key.source_type)
- 			break;
-@@ -98,6 +99,7 @@ avtab_insert_nonunique(struct avtab * h,
- {
- 	int hvalue;
- 	struct avtab_node *prev, *cur, *newnode;
-+	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
- 	if (!h)
- 		return NULL;
-@@ -108,7 +110,7 @@ avtab_insert_nonunique(struct avtab * h,
- 		if (key->source_type == cur->key.source_type &&
- 		    key->target_type == cur->key.target_type &&
- 		    key->target_class == cur->key.target_class &&
--		    (key->specified & cur->key.specified))
-+		    (specified & cur->key.specified))
- 			break;
- 		if (key->source_type < cur->key.source_type)
- 			break;
-@@ -129,6 +131,7 @@ struct avtab_datum *avtab_search(struct 
- {
- 	int hvalue;
- 	struct avtab_node *cur;
-+	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
- 	if (!h)
- 		return NULL;
-@@ -138,7 +141,7 @@ struct avtab_datum *avtab_search(struct 
- 		if (key->source_type == cur->key.source_type &&
- 		    key->target_type == cur->key.target_type &&
- 		    key->target_class == cur->key.target_class &&
--		    (key->specified & cur->key.specified))
-+		    (specified & cur->key.specified))
- 			return &cur->datum;
- 
- 		if (key->source_type < cur->key.source_type)
-@@ -163,6 +166,7 @@ avtab_search_node(struct avtab *h, struc
- {
- 	int hvalue;
- 	struct avtab_node *cur;
-+	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
- 	if (!h)
- 		return NULL;
-@@ -172,7 +176,7 @@ avtab_search_node(struct avtab *h, struc
- 		if (key->source_type == cur->key.source_type &&
- 		    key->target_type == cur->key.target_type &&
- 		    key->target_class == cur->key.target_class &&
--		    (key->specified & cur->key.specified))
-+		    (specified & cur->key.specified))
- 			return cur;
- 
- 		if (key->source_type < cur->key.source_type)
-@@ -196,6 +200,7 @@ avtab_search_node_next(struct avtab_node
- 	if (!node)
- 		return NULL;
- 
-+	specified &= ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 	for (cur = node->next; cur; cur = cur->next) {
- 		if (node->key.source_type == cur->key.source_type &&
- 		    node->key.target_type == cur->key.target_type &&
-diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/conditional.c linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/conditional.c
---- linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/conditional.c	2005-07-27 11:19:47.000000000 -0400
-+++ linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/conditional.c	2005-07-27 10:23:12.000000000 -0400
-@@ -474,6 +474,7 @@ int cond_read_list(struct policydb *p, v
- 	return 0;
- err:
- 	cond_list_destroy(p->cond_list);
-+	p->cond_list = NULL;
- 	return -1;
- }
- 
+Stock 2.6.13-rc3-mm1:
+slabinfo - version: 2.1 (statistics)
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : tunables <limit> <batchcount> <sharedfactor> : slabdata <active_slabs> <num_slabs> <sharedavail> : globalstat <listallocs> <maxobjs> <grown> <reaped> <error> <maxfreeable> <nodeallocs> <remotefrees> : cpustat <allochit> <allocmiss> <freehit> <freemiss>
+avtab_node        583563 583632     44   84    1 : tunables   32   16    0 : slabdata   6948   6948      0 : globalstat  583564 583564  6948    0 				   0    0    0    0 : cpustat 541880  41683      0      0
 
--- 
-Stephen Smalley
-National Security Agency
+With patch:
+slabinfo - version: 2.1 (statistics)
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : tunables <limit> <batchcount> <sharedfactor> : slabdata <active_slabs> <num_slabs> <sharedavail> : globalstat <listallocs> <maxobjs> <grown> <reaped> <error> <maxfreeable> <nodeallocs> <remotefrees> : cpustat <allochit> <allocmiss> <freehit> <freemiss>
+avtab_node        606400 606425     28  127    1 : tunables   32   16    0 : slabdata   4775   4775      0 : globalstat  606410 606410  4775    0 				   0    0    0    0 : cpustat 568201  38199      0      0
 
+Got over 8M of memory back (2173 4K pages) - pretty significant on a 256M laptop. ;)
+As a result, I probably can't do a meaningful macro-benchmark on the speed, because
+the 8M of memory will outweigh any code slowdowns...
+
+Not sure why the number of active objects went up from 583K to 606K - I *did* do
+a yum update and went from strict policy 1.25.3-3 to 1.25.3-5.  If anybody cares, I
+can back that off and see if it goes back down....
+
+
+--==_Exmh_1122482172_4035P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC57f8cC3lWbTT17ARAprhAJ9FB1/TdbiEs4/O9oJpS5N89+/bJACeMTxg
+NtBMeGOPo9KzNTuHynlZwy4=
+=oO9w
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1122482172_4035P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
