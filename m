@@ -2,43 +2,117 @@ Subject: Re: [RFC][PATCH 1/3] Reduce avtab node size
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Valdis.Kletnieks@vt.edu
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <200507262143.j6QLhBnd006410@turing-police.cc.vt.edu>
+In-Reply-To: <200507262053.j6QKrPuY003850@turing-police.cc.vt.edu>
 References: <1122320487.3029.21.camel@moss-spartans.epoch.ncsc.mil>
 	 <200507262053.j6QKrPuY003850@turing-police.cc.vt.edu>
-	 <1122411830.4470.134.camel@moss-spartans.epoch.ncsc.mil>
-	 <200507262117.j6QLHVB2005226@turing-police.cc.vt.edu>
-	 <1122413172.19989.6.camel@moss-spartans.epoch.ncsc.mil>
-	 <200507262143.j6QLhBnd006410@turing-police.cc.vt.edu>
 Content-Type: text/plain
-Date: Wed, 27 Jul 2005 07:40:31 -0400
-Message-Id: <1122464431.19989.20.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 27 Jul 2005 11:32:15 -0400
+Message-Id: <1122478335.19989.133.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-07-26 at 17:43 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 26 Jul 2005 17:26:12 EDT, Stephen Smalley said:
+On Tue, 2005-07-26 at 16:53 -0400, Valdis.Kletnieks@vt.edu wrote:
+> I gave this a whirl, with bad results...  It applied cleanly to my 2.6.13-rc3-mm1,
+> and built OK, but died at system boot.  Partial hand-copied output follows -
+> (I didn't have a serial console, and I'm having some CTS issues..)
 > 
-> > Actually, looking at the code, I think I see the problem; we can have a
-> > false conflict there due to enabled flags.  Have to also look into why
-> > it doesn't recover gracefully, as it should just reject the policy in
-> > that case, not die, of course.
-> 
-> Glad you could find it on the sketchy info I gave you. :)
-> 
-> I assume "graceful recovery" means "issue a useful message, and then refuse
-> to boot" as opposed to oopsing and panicing? I *want* my box to refuse to come
-> up if it can't find the policy, just in a nicer manner.. ;)
+> security: conflicting type rules when adding type rule for true.
 
-Right.  This behavior is presently handled by /sbin/init - if the
-initial policy load fails (i.e. SELinux module returns an error to it
-upon the attempted load), then /sbin/init will halt if the system is in
-enforcing mode (based on the enforcing= boot parameter if one was
-specified or /etc/selinux/config otherwise).  Normally, an error during
-the policy load causes the SELinux module to just free the partially
-loaded policy and return an error to the caller (in this
-case, /sbin/init), but obviously something is going wrong here in the
-module's error handling path for a failed policy load.
+This patch, relative to the prior one, fixes both bugs - the diff for
+conditional.c solves the double free problem on the error handling path
+and the diff for avtab.c solves the false conflict detection.  
+
+diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/avtab.c linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/avtab.c
+--- linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/avtab.c	2005-07-27 11:19:47.000000000 -0400
++++ linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/avtab.c	2005-07-27 11:02:40.000000000 -0400
+@@ -58,6 +58,7 @@ static int avtab_insert(struct avtab *h,
+ {
+ 	int hvalue;
+ 	struct avtab_node *prev, *cur, *newnode;
++	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 
+ 	if (!h)
+ 		return -EINVAL;
+@@ -69,7 +70,7 @@ static int avtab_insert(struct avtab *h,
+ 		if (key->source_type == cur->key.source_type &&
+ 		    key->target_type == cur->key.target_type &&
+ 		    key->target_class == cur->key.target_class &&
+-		    (key->specified & cur->key.specified))
++		    (specified & cur->key.specified))
+ 			return -EEXIST;
+ 		if (key->source_type < cur->key.source_type)
+ 			break;
+@@ -98,6 +99,7 @@ avtab_insert_nonunique(struct avtab * h,
+ {
+ 	int hvalue;
+ 	struct avtab_node *prev, *cur, *newnode;
++	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 
+ 	if (!h)
+ 		return NULL;
+@@ -108,7 +110,7 @@ avtab_insert_nonunique(struct avtab * h,
+ 		if (key->source_type == cur->key.source_type &&
+ 		    key->target_type == cur->key.target_type &&
+ 		    key->target_class == cur->key.target_class &&
+-		    (key->specified & cur->key.specified))
++		    (specified & cur->key.specified))
+ 			break;
+ 		if (key->source_type < cur->key.source_type)
+ 			break;
+@@ -129,6 +131,7 @@ struct avtab_datum *avtab_search(struct 
+ {
+ 	int hvalue;
+ 	struct avtab_node *cur;
++	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 
+ 	if (!h)
+ 		return NULL;
+@@ -138,7 +141,7 @@ struct avtab_datum *avtab_search(struct 
+ 		if (key->source_type == cur->key.source_type &&
+ 		    key->target_type == cur->key.target_type &&
+ 		    key->target_class == cur->key.target_class &&
+-		    (key->specified & cur->key.specified))
++		    (specified & cur->key.specified))
+ 			return &cur->datum;
+ 
+ 		if (key->source_type < cur->key.source_type)
+@@ -163,6 +166,7 @@ avtab_search_node(struct avtab *h, struc
+ {
+ 	int hvalue;
+ 	struct avtab_node *cur;
++	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 
+ 	if (!h)
+ 		return NULL;
+@@ -172,7 +176,7 @@ avtab_search_node(struct avtab *h, struc
+ 		if (key->source_type == cur->key.source_type &&
+ 		    key->target_type == cur->key.target_type &&
+ 		    key->target_class == cur->key.target_class &&
+-		    (key->specified & cur->key.specified))
++		    (specified & cur->key.specified))
+ 			return cur;
+ 
+ 		if (key->source_type < cur->key.source_type)
+@@ -196,6 +200,7 @@ avtab_search_node_next(struct avtab_node
+ 	if (!node)
+ 		return NULL;
+ 
++	specified &= ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 	for (cur = node->next; cur; cur = cur->next) {
+ 		if (node->key.source_type == cur->key.source_type &&
+ 		    node->key.target_type == cur->key.target_type &&
+diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/conditional.c linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/conditional.c
+--- linux-2.6.13-rc3-mm1-avtab/security/selinux/ss/conditional.c	2005-07-27 11:19:47.000000000 -0400
++++ linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/conditional.c	2005-07-27 10:23:12.000000000 -0400
+@@ -474,6 +474,7 @@ int cond_read_list(struct policydb *p, v
+ 	return 0;
+ err:
+ 	cond_list_destroy(p->cond_list);
++	p->cond_list = NULL;
+ 	return -1;
+ }
+ 
 
 -- 
 Stephen Smalley
