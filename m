@@ -1,44 +1,54 @@
-Subject: Re: Failed to get default security context?
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Pax Dickinson <pax@guardiandigital.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <42E65ACD.1030805@guardiandigital.com>
-References: <42E65ACD.1030805@guardiandigital.com>
-Content-Type: text/plain
-Date: Thu, 28 Jul 2005 09:53:25 -0400
-Message-Id: <1122558805.5058.22.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6SE0dgA021179
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 10:00:41 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6SDrwcq006982
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 13:53:59 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [RFC] selinux management API
+Date: Thu, 28 Jul 2005 23:54:44 +1000
+Cc: gyurdiev@redhat.com, selinux@tycho.nsa.gov
+References: <42D7CC53.9030803@tresys.com> <200507281836.06447.russell@coker.com.au> <42E8E10C.70205@tresys.com>
+In-Reply-To: <42E8E10C.70205@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200507282354.49190.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-07-26 at 11:46 -0400, Pax Dickinson wrote:
-> I'm using a slightly modified version of the reference policy and I'm 
-> having trouble getting regular users logged in under the correct context.
-> 
-> When I log in as root over ssh, everything is OK and my context is 
-> root:sysadm_r:sysadm_t.  However if I create a regular user and log in 
-> over ssh I'm given a system_u:system_r:sshd_t context and the system log 
-> reads :
-[cut]
-> Jul 26 11:32:36 salle2 sshd[2713]: error: Failed to get default security 
-> context for pax. Continuing in permissve mode
+On Thursday 28 July 2005 23:43, Joshua Brindle <jbrindle@tresys.com> wrote:
+> >Also more liberal use of const would be good.  I expect that the above
+> >functions will not change the module data so const void * would probably
+> > be the correct type.  I realise that this is still in the design phase,
+> > but I think that we are ready to design which data gets modified by the
+> > library code and which doesn't.
+>
+> sure but only if it doesn't ripple throughout the rest of the library
 
-Some policy related to the transitions to user domains are still TODO.
-I'll look again at which interfaces are needed.
+It would only ripple throughout the rest of the library if necessary.
 
-> I tried adding an entry to local.users and specifying a role for that 
-> username, but it doesn't seem to help.  If I log in at the console as 
-> root I'm given a context of system_u:system_r:local_login_t which may be 
-> part of the same problem or something completely different.
+If a function has a const parameter and then passes that parameter to another 
+function then either the second function needs a const parameter or the data 
+must be copied.  This is a feature not a bug!
 
-I've not been able to reproduce this; perhaps pam_selinux is not
-enabled?
+When my code passes data to a library function via a const pointer then I know 
+that (as long as there are no bugs in the library) the data will not be 
+modified.  If the pointer is not const then it may be modified and my program 
+has to correctly manage the situation where it is changed.
+
+If the code is designed well then using const in all the places that the 
+design suggests it will not be difficult or complex.  If the code is badly 
+designed then it needs a better design.  In either case there is no reason 
+for not using const!
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
