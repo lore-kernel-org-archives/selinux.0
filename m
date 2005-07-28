@@ -1,67 +1,64 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6SGCNgA022350
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 12:12:25 -0400 (EDT)
-Received: from host.we-code.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6SG6ZI0009999
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 16:06:35 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by host.we-code.com (Postfix) with ESMTP id DD70313C2C4
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 12:06:45 -0400 (EDT)
-Received: from host.we-code.com ([127.0.0.1])
- by localhost (host.we-code.com [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 15527-09 for <selinux@tycho.nsa.gov>;
- Thu, 28 Jul 2005 12:06:45 -0400 (EDT)
-Received: from [10.0.1.5] (unknown [69.38.128.66])
-	(using TLSv1 with cipher RC4-SHA (128/128 bits))
-	(No client certificate requested)
-	by host.we-code.com (Postfix) with ESMTP id 1F26B13C13F
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 12:06:45 -0400 (EDT)
-Mime-Version: 1.0 (Apple Message framework v733)
-Message-Id: <D3543036-7457-4441-AF34-85B0756322C8@tobyjoe.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: selinux@tycho.nsa.gov
-From: Toby Boudreaux <selinux@tobyjoe.com>
-Subject: FastCGI and SELinux
-Date: Thu, 28 Jul 2005 12:06:23 -0400
+Date: Thu, 28 Jul 2005 17:59:05 +0100
+From: Dale Amon <amon@vnl.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
+Subject: Re: Suse selinux policy
+Message-ID: <20050728165905.GB19278@vnl.com>
+References: <20050718234403.GA30685@vnl.com> <20050720103541.GB8124@thorium.jmh.mhn.de> <20050720165937.GB18922@vnl.com> <1122300211.2351.34.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="p4qYPpj5QlsIQJ0K"
+In-Reply-To: <1122300211.2351.34.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello, everyone. This is my first post to the list.
 
-I'm running a CentOS 4 server with SELinux and have been having  
-problems getting Apache2 and mod_fastcgi to play nicely when SELinux  
-is enabled.
+--p4qYPpj5QlsIQJ0K
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've run all "avc" messages through audit2allow and have modified my  
-local.te file and I've gotten the avc messages to disappear.
+On Mon, Jul 25, 2005 at 10:03:31AM -0400, Stephen Smalley wrote:
+> Just my opinion:  If they include policy in SLES, they have to support
+> it too.  Whereas just including the SELinux code but disabling it by
+> default and not providing a policy themselves lets them say that they
+> have "SELinux support" without having to deal with the time and effort
+> required to properly configure a policy for the entire distro, integrate
+> support throughout their userland, test the system with a loaded policy
+> in enforcing mode, etc.  Pushes the burden to the customer, while still
+> claiming the advertising benefit of claiming that they support SELinux.
+> Note that their press release about acquiring AppArmor/SubDomain claimed
+> that they were the first commercial distro to support SELinux, where
+> "support" apparently just means "code included", and not even all of
+> that.
 
-Unfortunately, mod_fastcgi is still not working when SELinux is enabled.
+Thanks for getting back to me. I was hoping it was
+a failure on my part to *find* it but did fear this
+might be the case.=20
 
-I'm getting no messages, but when I turn off enforcing, mod_fastcgi  
-works perfectly.
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
-I've purchased the O'Reilly book and have read much of it, but I'm  
-still uncertain as to what the problem is and how to investigate/ 
-address it.
+--p4qYPpj5QlsIQJ0K
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-The core problem seems to be that any FastCGI process doesn't write  
-data back to the IPC socket Apache is reading. Instead, it dumps the  
-entire response into STDERR.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-I gather by the lack of "avc" messages that there are no normal  
-domain/user conflicts.
+iD8DBQFC6Q7ZZHES7UL0zXERAsscAJ43PWt32jdlR403i6LYd75AS20eRACeK/do
+iKra5k/LUWCDG2DzArojCA0=
+=9TKe
+-----END PGP SIGNATURE-----
 
-I've searched high and low and can't find mention of a way to get  
-this to work, aside from disabling SELinux. I chose this OS in part  
-*because* of SELinux, so I don't want to disable it :)
-
-Has anyone experienced something similar, and might you be able to  
-point a newbie in the right direction?
-
-Thanks,
-toby boudreaux
-
-
+--p4qYPpj5QlsIQJ0K--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
