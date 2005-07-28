@@ -1,64 +1,63 @@
-Date: Thu, 28 Jul 2005 17:59:05 +0100
-From: Dale Amon <amon@vnl.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
-Subject: Re: Suse selinux policy
-Message-ID: <20050728165905.GB19278@vnl.com>
-References: <20050718234403.GA30685@vnl.com> <20050720103541.GB8124@thorium.jmh.mhn.de> <20050720165937.GB18922@vnl.com> <1122300211.2351.34.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6SJLegA024325
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 15:21:42 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6SJExcq027218
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 19:14:59 GMT
+Subject: file context ordering
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Thu, 28 Jul 2005 15:16:00 -0400
+Message-Id: <1122578160.20983.14.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="p4qYPpj5QlsIQJ0K"
-In-Reply-To: <1122300211.2351.34.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+One of the problems we've come against with reference policy (also in
+loadable modules) is the fact that the file context specifications are
+not ordered correctly, since the system file_contexts are taken from the
+modules and concatenated in an arbitrary order.  The matchpathcon code
+finds a match by going through all of the specs, and the last one that
+is matched is used.
 
---p4qYPpj5QlsIQJ0K
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is a little sorting in matchpathcon, to push the specs with
+regular expressions to the top and explicit matches (those without
+regular expressions) to the bottom.  This has worked for the current
+policy since the specs in file_contexts/program/*.fc are generally
+specific matches and types.fc has always been at the top.  Types.fc has
+most of the very unspecific regular expressions, and is hand ordered.
+With reference policy, all of these specs are split up into their
+respective modules, so there is no ordering of file contexts, except
+within a module.
 
-On Mon, Jul 25, 2005 at 10:03:31AM -0400, Stephen Smalley wrote:
-> Just my opinion:  If they include policy in SLES, they have to support
-> it too.  Whereas just including the SELinux code but disabling it by
-> default and not providing a policy themselves lets them say that they
-> have "SELinux support" without having to deal with the time and effort
-> required to properly configure a policy for the entire distro, integrate
-> support throughout their userland, test the system with a loaded policy
-> in enforcing mode, etc.  Pushes the burden to the customer, while still
-> claiming the advertising benefit of claiming that they support SELinux.
-> Note that their press release about acquiring AppArmor/SubDomain claimed
-> that they were the first commercial distro to support SELinux, where
-> "support" apparently just means "code included", and not even all of
-> that.
+To try to fix this we looked for regular expression sorting algorithms,
+but pretty much came up empty.  So we wrote support/fc_sort.c to do a
+stable sort (merge sort) with this comparison function:
 
-Thanks for getting back to me. I was hoping it was
-a failure on my part to *find* it but did fear this
-might be the case.=20
+1. does one have a meta chars and the other not
+2. length of the spec up to the first meta char
+3. length of the entire spec
+4. does one have a specific file type (--, -d, etc.) and the other not
 
---=20
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+This still does not end up being perfect, since we have specs that are
+of about the same specificity, and end up being in a different order
+then the current fc.  For example, these two specs end up being in the
+opposite order that they are in the NSA example policy:
 
---p4qYPpj5QlsIQJ0K
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+/usr(/.*)?/bin(/.*)?        system_u:object_r:bin_t
+/usr(/.*)?/lib(64)?(/.*)?   system_u:object_r:lib_t
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+So this results in a handful of mislabeled files
+(think /usr/lib/foo/bin/*).
 
-iD8DBQFC6Q7ZZHES7UL0zXERAsscAJ43PWt32jdlR403i6LYd75AS20eRACeK/do
-iKra5k/LUWCDG2DzArojCA0=
-=9TKe
------END PGP SIGNATURE-----
+What are your thoughts on how to fix this?
 
---p4qYPpj5QlsIQJ0K--
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
