@@ -1,65 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6T91WgA028520
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 05:01:32 -0400 (EDT)
-Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6T8sjhF028424
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 08:54:45 GMT
-Date: Fri, 29 Jul 2005 09:55:40 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Lorenzo Hern?ndez Garc?a-Hierro <lorenzo@gnu.org>
-Cc: "Sriram, Kannan" <ksriram@ti.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: SELinux for embedded devices...
-Message-ID: <20050729085540.GF11752@lkcl.net>
-References: <45F366B1BC4F7C4A895F0F34C41E61A5511366@dbde01.ent.ti.com> <1122610349.14844.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1122610349.14844.21.camel@localhost.localdomain>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6TAWbgA029011
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 06:32:37 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6TAQfC2014713
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 10:26:41 GMT
+Message-ID: <42EA046A.1010405@redhat.com>
+Date: Fri, 29 Jul 2005 06:26:50 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: file context ordering
+References: <1122578160.20983.14.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1122578160.20983.14.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jul 29, 2005 at 06:12:29AM +0200, Lorenzo Hern?ndez Garc?a-Hierro wrote:
+Christopher J. PeBenito wrote:
 
-> El vie, 29-07-2005 a las 07:50 +0530, Sriram, Kannan escribi?:
-> > Hello all,
-> > 
-> >  I'm a newbie to SELinux, trying to figure out if SELinux is applicable/
-> > suitable to embedded system security, especially mobile terminals/
-> > smartphones. I have the following very basic questions... Pls help me
-> > out, or redirect me to the appropriate forum.
-> > 
-> > 1. Is SELinux applicable and suitable for mobile equipment, where the
-> > end user always has root privileges? Has SELinux been ported to any
-> > embedded device yet (some ARM platform??).
+>One of the problems we've come against with reference policy (also in
+>loadable modules) is the fact that the file context specifications are
+>not ordered correctly, since the system file_contexts are taken from the
+>modules and concatenated in an arbitrary order.  The matchpathcon code
+>finds a match by going through all of the specs, and the last one that
+>is matched is used.
+>
+>There is a little sorting in matchpathcon, to push the specs with
+>regular expressions to the top and explicit matches (those without
+>regular expressions) to the bottom.  This has worked for the current
+>policy since the specs in file_contexts/program/*.fc are generally
+>specific matches and types.fc has always been at the top.  Types.fc has
+>most of the very unspecific regular expressions, and is hand ordered.
+>With reference policy, all of these specs are split up into their
+>respective modules, so there is no ordering of file contexts, except
+>within a module.
+>
+>To try to fix this we looked for regular expression sorting algorithms,
+>but pretty much came up empty.  So we wrote support/fc_sort.c to do a
+>stable sort (merge sort) with this comparison function:
+>
+>1. does one have a meta chars and the other not
+>2. length of the spec up to the first meta char
+>3. length of the entire spec
+>4. does one have a specific file type (--, -d, etc.) and the other not
+>
+>This still does not end up being perfect, since we have specs that are
+>of about the same specificity, and end up being in a different order
+>then the current fc.  For example, these two specs end up being in the
+>opposite order that they are in the NSA example policy:
+>
+>/usr(/.*)?/bin(/.*)?        system_u:object_r:bin_t
+>/usr(/.*)?/lib(64)?(/.*)?   system_u:object_r:lib_t
+>
+>  
+>
+We could add on a case by case basis
 
-> I was working on the design of extended attributes for JFFS2 (in which
-> SELinux relies for labeling file-system objects), even got help from an
-> Intel guy, but I got stuck at it, without any resources for testing, and
-> the Intel guy who was willing to work together with me was requested for
-> legal approbation before doing anything. Thus, time passed and I
-> couldn't go a step further on doing anything serious about it.
+/usr(/.*)?/lib(64)?(/.*)?/bin(/.*)?   system_u:object_r:bin_t
+Or hard code some hierarchy where bin_t is always after lib_t in this situation.
 
- i have a complete test environment for doing this sort of
- thing, it's been sitting unused for several months because
- the project has been shut down.
+I would doubt we would have /usr/bin/lib/...
 
- the device is a skyminder - a 90Mhz Cirrus Logic "Maverick"
- ARM 720T and it contains a GSM radio module and a GPS module.
- the company ran out of money to do things like, oh i dunno,
- correct the radio interference from the GSM radio module
- to the audio codec and the microphone for example, which
- was only discovered recently when i developed enough of the
- drivers and test procedures to notice it was a problem.
 
- ... but _other_ than that, the device is perfectly serviceable,
- runs a 2.6.11 kernel, uses JFFS2 on its 16Mbyte flash RAM,
- i have all the source code blah blah full development
- environment blah blah.
 
- yes i briefly considered adding selinux in to the mix, but
- not on the budget they were paying me.
+>So this results in a handful of mislabeled files
+>(think /usr/lib/foo/bin/*).
+>
+>What are your thoughts on how to fix this?
+>
+>  
+>
 
- l.
+
+-- 
+
 
 
 --
