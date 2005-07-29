@@ -1,81 +1,43 @@
-Subject: [RFC][PATCH 3/3] Reduce number of avtab nodes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
-References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6THjNgA002188
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 13:45:25 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6THdOC2026239
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 17:39:24 GMT
+Subject: Libsepol ongoing
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: jbrindle@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1122658154.28860.19.camel@celtics.boston.redhat.com>
+References: <1122658154.28860.19.camel@celtics.boston.redhat.com>
 Content-Type: text/plain
-Date: Fri, 29 Jul 2005 13:23:25 -0400
-Message-Id: <1122657805.6573.213.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 29 Jul 2005 13:36:37 -0400
+Message-Id: <1122658597.28860.27.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch, relative to the checkpolicy patch to reduce avtab node size,
-updates checkpolicy for the changes to libsepol.
+The following ongoing things need IMHO need completion for libsepol.
+I just thought I'd list them here, since I'll be gone
+for the next three weeks, and maybe someone wants to work
+on something.
 
----
+1) Replace all use of printf/fprintf with new debug system
 
- checkpolicy.c  |    7 ++-----
- policy_parse.y |    6 +++---
- 2 files changed, 5 insertions(+), 8 deletions(-)
+2) Replace all use of __sepol_debug_printf with new debug system
 
-diff -X /home/sds/dontdiff -rup checkpolicy-avtab1/checkpolicy.c checkpolicy/checkpolicy.c
---- checkpolicy-avtab1/checkpolicy.c	2005-07-28 14:47:49.000000000 -0400
-+++ checkpolicy/checkpolicy.c	2005-07-28 14:49:06.000000000 -0400
-@@ -584,14 +584,11 @@ int main(int argc, char **argv)
- 		}
- 
- 		if (check_assertions(policydbp,
--                                     policydbp->global->branch_list->avrules,
--                                     &policydbp->te_avtab) ||
--		    check_assertions(policydbp,
--                                     policydbp->global->branch_list->avrules,
--                                     &policydbp->te_cond_avtab)) {
-+                                     policydbp->global->branch_list->avrules)) {
-                         fprintf(stderr, "Check assertions failed.\n");
- 			return -1;
-                 }
-+
- 		fclose(yyin);
- 	}
- 
-diff -X /home/sds/dontdiff -rup checkpolicy-avtab1/policy_parse.y checkpolicy/policy_parse.y
---- checkpolicy-avtab1/policy_parse.y	2005-07-06 13:28:08.000000000 -0400
-+++ checkpolicy/policy_parse.y	2005-07-28 14:49:06.000000000 -0400
-@@ -2483,7 +2483,7 @@ static int dominate_role_recheck(hashtab
- 	/* If a dominating role found */
- 	if (ebitmap_get_bit(&(rdatum->dominates), rdp->value - 1))
- 	{
--		if (type_set_expand(&rdp->types, types, policydbp)) 
-+		if (type_set_expand(&rdp->types, types, policydbp, 1)) 
- 			return -1;
- 		/* raise types and dominates from dominated role */
- 		for (i = ebitmap_startbit(&rdp->dominates); 
-@@ -2564,7 +2564,7 @@ static role_datum_t *
- 			if (ebitmap_get_bit(&r->dominates, i))
- 				ebitmap_set_bit(&role->dominates, i, TRUE);
- 		}
--		if (type_set_expand(&r->types, types, policydbp)) 
-+		if (type_set_expand(&r->types, types, policydbp, 1)) 
- 			return NULL;
- 		for (i = ebitmap_startbit(types); i < ebitmap_length(types); i++)	{
- 			if (ebitmap_get_bit(types, i))
-@@ -2683,7 +2683,7 @@ static int define_role_trans(void)
- 	if (role_set_expand(&roles, &e_roles, policydbp))
- 		goto bad;
- 		
--	if (type_set_expand(&types, &e_types, policydbp))
-+	if (type_set_expand(&types, &e_types, policydbp, 1))
- 		goto bad;
- 
- 	for (i = ebitmap_startbit(&e_roles); i < ebitmap_length(&e_roles); i++) {
+3) Replace boolean and interface data structures with opaque records
+for libsemanage (see how the other ones are done)
 
--- 
-Stephen Smalley
-National Security Agency
+4) Move all non-exported functions without static callers out
+of the headers, and into internal headers.
+
+5) Move checkpolicy scope support into libsepol, and
+add scope checking on symbol lookups (?)
+
+6) Replace duplicate checkpolicy user/port/context support
+with calls to libsepol
 
 
 --
