@@ -1,50 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6TI8pgA002387
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 14:08:51 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6TI2qC2029269
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 18:02:52 GMT
-Subject: Re: file context ordering
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Ron Kuris <rk@unify.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <42E946ED.2050705@unify.com>
-References: <1122578160.20983.14.camel@sgc.columbia.tresys.com>
-	 <42E946ED.2050705@unify.com>
+Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Karl MacMillan <kmacmillan@tresys.com>,
+   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 29 Jul 2005 14:02:03 -0400
-Message-Id: <1122660123.20983.58.camel@sgc>
+Date: Fri, 29 Jul 2005 14:01:45 -0400
+Message-Id: <1122660105.6573.227.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-07-28 at 13:58 -0700, Ron Kuris wrote:
-> My suggestion:
+On Fri, 2005-07-29 at 12:49 -0400, Stephen Smalley wrote:
+> The following patch set reduces the number of avtab nodes by preserving
+> attributes in TE allow/dontaudit/auditallow rules when possible rather
+> than expanding them during policy compilation, and having the kernel use
+> a type->attribute reverse map to perform the access vector computation,
+> per the earlier discussions on the list.  This slows down security
+> server computations, but these only occur on AVC cache misses, so the
+> expected performance impact is negligible.  I have not yet attempted to
+> measure the performance impact.  If it proves to be measurable at all,
+> we can likely optimize it in the same manner that I used for the
+> assertion checking code (see below).
 > 
-> Use M4 diversions to raise the priority of the more important rules.
-> M4 will output diverted text at the end of the script, and you can
-> prioritize each section this way.
-> 
-> This worked perfectly for me when I had a similar problem:
-> 
-> divert(3)
-> [ insert selinux rules here ]
-> divert(0)
-> 
-> The rules between the diverts will be output at the end, in order by
-> the diversion number (in this case, 3).
+> Unlike the first patchset, where you could just patch the kernel and see
+> the memory savings from the reduction in the per-node size even with a
+> policy.19 file, this patch set requires you to patch your kernel,
+> libsepol, and checkpolicy and build a policy.20 policy in order to see
+> the reduction in nodes, as that is handled during compilation.
 
-Well this is definitely an interesting solution.  The problem is that it
-doesn't apply to the loadable policy modules, since the file contexts in
-a module don't have m4.  Preserving m4 into the modules, and having
-semodule run m4 to reconstruct file_contexts is probably a bad idea.
-Adding a weight to specs, which is what Steve suggested, would be more
-general than leveraging m4.
+I forgot to mention:  when I tried recompiling the FC/devel strict
+policy with the updated checkpolicy, it failed an assertion check
+(neverallow statement) on one of the conditional rules.  Older
+checkpolicy wasn't checking assertions on the conditional avtab, only on
+the base avtab; this was fixed by Tresys as part of the module support
+patches.  The assertion failure turned up to be that rpcd.te has a
+create_dir_file(kernel_t, {file_type - shadow_t }) conditional rule if
+nfs_export_all_rw is enabled, which means that kernel_t needs the
+etc_writer attribute.  kernel.te only gives kernel_t the etc_writer
+attribute _if_ the nfs_export_all_rw tunable is defined, but it is no
+longer a tunable and has been converted to a boolean (and attribute
+assignment isn't conditional).  Hence, I had to add that attribute
+(without the ifdef) to compile the policy.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
