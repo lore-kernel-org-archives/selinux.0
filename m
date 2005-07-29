@@ -1,81 +1,173 @@
-Subject: Re: file context ordering
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1122641058.6573.86.camel@moss-spartans.epoch.ncsc.mil>
-References: <1122578160.20983.14.camel@sgc.columbia.tresys.com>
-	 <1122641058.6573.86.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 29 Jul 2005 16:09:07 -0400
-Message-Id: <1122667747.20983.78.camel@sgc>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6TL1rgA004180
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 17:01:55 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6TKt0hF029656
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 20:55:00 GMT
+Subject: Re: [ libsemanage ] Key extract function
+From: Ivan Gyurdiev <gyurdiev@redhat.com>
+Reply-To: gyurdiev@redhat.com
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: jbrindle@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1122665303.28860.30.camel@celtics.boston.redhat.com>
+References: <1122658154.28860.19.camel@celtics.boston.redhat.com>
+	 <1122665303.28860.30.camel@celtics.boston.redhat.com>
+Content-Type: multipart/mixed; boundary="=-9pG7WR1FNIY11lBFBo4p"
+Date: Fri, 29 Jul 2005 16:53:06 -0400
+Message-Id: <1122670387.28860.43.camel@celtics.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-07-29 at 08:44 -0400, Stephen Smalley wrote:
-> > There is a little sorting in matchpathcon, to push the specs with
-> > regular expressions to the top and explicit matches (those without
-> > regular expressions) to the bottom.  This has worked for the current
-> > policy since the specs in file_contexts/program/*.fc are generally
-> > specific matches and types.fc has always been at the top.  Types.fc has
-> > most of the very unspecific regular expressions, and is hand ordered.
-> > With reference policy, all of these specs are split up into their
-> > respective modules, so there is no ordering of file contexts, except
-> > within a module.
-[cut]
-> > To try to fix this we looked for regular expression sorting algorithms,
-> > but pretty much came up empty.
-[cut]
-> Back when NAI looked into modifying setfiles originally to sort the .fc
-> entries, I had looked briefly into techniques for computing the
-> generality of a given pathname regex as a way of ordering them, but they
-> didn't want to pursue that approach due to time limitations and concerns
-> about complexity and ambiguity.  I have that email somewhere if you want
-> me to dig it out.
 
-Yes, if you would.  Thanks.
+--=-9pG7WR1FNIY11lBFBo4p
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> > This still does not end up being perfect, since we have specs that are
-> > of about the same specificity, and end up being in a different order
-> > then the current fc.  For example, these two specs end up being in the
-> > opposite order that they are in the NSA example policy:
-> > 
-> > /usr(/.*)?/bin(/.*)?        system_u:object_r:bin_t
-> > /usr(/.*)?/lib(64)?(/.*)?   system_u:object_r:lib_t
-> > 
-> > So this results in a handful of mislabeled files
-> > (think /usr/lib/foo/bin/*).
-> > 
-> > What are your thoughts on how to fix this?
-> 
-> The simplest approach would seem to just be:
-> - introduce an optional ordering value field so that the policy writer
-> can explicitly order entries relative to each other even when they are
-> in separate modules (but this naturally has issues when different people
-> are writing different modules without knowing exactly what is in the
-> other modules),
+The following patch implements the key extract function.
+The key is basically the part of the record that uniquely identifies
+it in a collection of the same records. This introduces the
+concept of a record collection in libsepol, which may be
+the wrong place for it, but I think for now it should stay there.
 
-The issues you're talking about could be more problematic in the future.
-Especially since, with both loadable policy modules and reference
-policy, one of the things we're trying to facilitate is handling of 3rd
-party policy modules.  Not that I'm saying that this is a bad solution.
-It just seems like it might be more painful untangling a labeling
-problems this way, since weights are arbitrary, than adding more
-specific expressions on a case by case basis, as Dan suggested.  You
-also end up at the same problem if the weights are the same.
+This patch provides a way to obtain the key given the data structure.
 
-> - have matchpathcon check for multiple matching specifications with the
-> same ordering value (whether explicitly specified or implicitly
-> determined using your algorithm) and issue warnings in those cases so
-> that we get warnings on such ambiguity, just as it presently warns about
-> multiple hard links that match conflicting specifications.
+The key is part of the data structure, which may seem unnecessarily
+redundant, but I think it's the right interface - we may choose to
+change this behavior in the future, and it just seems wrong to pass
+a data structure partially filled as the key to functions like
+query() or destroy() (in semanage).
 
-This is probably a good thing to have, regardless.
+======
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Note that the port key will create problems - I might need to change 
+that, because the same key can match many different records, 
+which breaks the definition of a key, and causes chaos in 
+the libsemanage processing layer. I think for now leave it as is, 
+and we'll fix it later if necessary - I am not entirely 
+clear how libsemanage will work in order to select a proper key.
+
+--=-9pG7WR1FNIY11lBFBo4p
+Content-Disposition: attachment; filename=libsemanage-1-key_extract.diff
+Content-Type: text/x-patch; name=libsemanage-1-key_extract.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -p -aru libsemanage.work/include/semanage/port_record.h libsemanage-1-key_extract/include/semanage/port_record.h
+--- libsemanage.work/include/semanage/port_record.h	2005-07-29 16:43:38.000000000 -0400
++++ libsemanage-1-key_extract/include/semanage/port_record.h	2005-07-29 16:43:08.000000000 -0400
+@@ -20,8 +20,15 @@ int semanage_port_compare(semanage_port_
+ static inline
+ int semanage_port_key_create(
+ 	int low, int high, int proto, 
+-	semanage_port_key_t* key) {
+-	return sepol_port_key_create(low, high, proto, key);
++	semanage_port_key_t* key_ptr) {
++	return sepol_port_key_create(low, high, proto, key_ptr);
++}
++
++static inline
++int semanage_port_key_extract(
++	semanage_port_t port,
++	semanage_port_key_t* key_ptr) {
++	return sepol_port_key_extract(port, key_ptr);
+ }
+ 
+ static inline
+diff -p -aru libsemanage.work/include/semanage/user_record.h libsemanage-1-key_extract/include/semanage/user_record.h
+--- libsemanage.work/include/semanage/user_record.h	2005-07-29 16:43:38.000000000 -0400
++++ libsemanage-1-key_extract/include/semanage/user_record.h	2005-07-29 16:43:11.000000000 -0400
+@@ -12,6 +12,11 @@ int semanage_user_key_create(const char*
+ 	return sepol_user_key_create(name, key);
+ }
+ 
++static inline
++int semanage_user_key_extract(semanage_user_t user, semanage_user_key_t* key) {
++	return sepol_user_key_extract(user, key);
++}
++
+ static inline 
+ void semanage_user_key_free(semanage_user_key_t key) {
+ 	sepol_user_key_free(key);
+
+--=-9pG7WR1FNIY11lBFBo4p
+Content-Disposition: attachment; filename=libsepol-1-key_extract.diff
+Content-Type: text/x-patch; name=libsepol-1-key_extract.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -p -aru libsepol.work/include/sepol/port_record.h libsepol-1-key_extract/include/sepol/port_record.h
+--- libsepol.work/include/sepol/port_record.h	2005-07-29 16:43:37.000000000 -0400
++++ libsepol-1-key_extract/include/sepol/port_record.h	2005-07-29 16:30:25.000000000 -0400
+@@ -18,7 +18,11 @@ extern int sepol_port_compare(
+ 
+ extern int sepol_port_key_create(
+ 	int low, int high, int proto,
+-	sepol_port_key_t* key);
++	sepol_port_key_t* key_ptr);
++
++extern int sepol_port_key_extract(
++	sepol_port_t port, 
++	sepol_port_key_t* key_ptr);
+ 
+ extern void sepol_port_key_free(
+ 	sepol_port_key_t key);
+diff -p -aru libsepol.work/include/sepol/user_record.h libsepol-1-key_extract/include/sepol/user_record.h
+--- libsepol.work/include/sepol/user_record.h	2005-07-29 16:43:37.000000000 -0400
++++ libsepol-1-key_extract/include/sepol/user_record.h	2005-07-29 16:30:29.000000000 -0400
+@@ -11,6 +11,10 @@ extern int sepol_user_key_create(
+ 	const char* name,
+ 	sepol_user_key_t* key);
+ 
++extern int sepol_user_key_extract(
++	sepol_user_t user,
++	sepol_user_key_t* key_ptr);
++
+ extern void sepol_user_key_free(
+ 	sepol_user_key_t key);
+ 
+diff -p -aru libsepol.work/src/port_record.c libsepol-1-key_extract/src/port_record.c
+--- libsepol.work/src/port_record.c	2005-07-29 16:43:37.000000000 -0400
++++ libsepol-1-key_extract/src/port_record.c	2005-07-29 16:30:42.000000000 -0400
+@@ -46,6 +46,18 @@ int sepol_port_key_create(
+ 	return STATUS_SUCCESS;
+ }
+ 
++int sepol_port_key_extract(sepol_port_t port, sepol_port_key_t* key_ptr) {
++	if (sepol_port_key_create(
++		port->low, port->high, port->proto, key_ptr) < 0) {
++		DEBUG(__FUNCTION__, "could not extract key from "
++			"port %s %d:%d\n", sepol_port_get_proto_str(port),
++			port->low, port->high);
++		return STATUS_ERR;
++	}
++
++	return STATUS_SUCCESS;
++}
++
+ void sepol_port_key_free(sepol_port_key_t key) {
+ 	free(key);
+ }
+diff -p -aru libsepol.work/src/user_record.c libsepol-1-key_extract/src/user_record.c
+--- libsepol.work/src/user_record.c	2005-07-29 16:43:37.000000000 -0400
++++ libsepol-1-key_extract/src/user_record.c	2005-07-29 16:30:39.000000000 -0400
+@@ -47,6 +47,16 @@ int sepol_user_key_create(
+ 
+ 	*key_ptr = tmp_key;
+ 	return STATUS_SUCCESS;
++}
++
++int sepol_user_key_extract(sepol_user_t user, sepol_user_key_t* key_ptr) {
++	if (sepol_user_key_create(user->name, key_ptr) < 0) {
++		DEBUG(__FUNCTION__, "could not extract key from user %s\n",
++			user->name);
++		return STATUS_ERR;
++	}
++
++	return STATUS_SUCCESS;
+ }	
+ 
+ void sepol_user_key_free(sepol_user_key_t key) {
+
+--=-9pG7WR1FNIY11lBFBo4p--
 
 
 --
