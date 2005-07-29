@@ -1,53 +1,32 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6TJ0kgA002913
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 15:00:48 -0400 (EDT)
-Received: from mail19-res-R.bigfish.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6TIslC2004950
-	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 18:54:47 GMT
-Message-ID: <42EA7B30.8090207@unify.com>
-Date: Fri, 29 Jul 2005 11:53:36 -0700
-From: Ron Kuris <rk@unify.com>
+Date: Fri, 29 Jul 2005 15:05:00 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>,
+   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
+In-Reply-To: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Lynx.SEL.4.62.0507291504330.12480@thoron.boston.redhat.com>
+References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: file context ordering
-References: <1122578160.20983.14.camel@sgc.columbia.tresys.com>	 <42E946ED.2050705@unify.com> <1122660123.20983.58.camel@sgc>
-In-Reply-To: <1122660123.20983.58.camel@sgc>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 29 Jul 2005, Stephen Smalley wrote:
 
-Christopher J. PeBenito wrote:
+> - I didn't increment the policy version again for this patch set,
+> so it is still version 20, as with the prior patch set.  If we
+> were to upstream these patches separately, I'd split them into separate
+> versions, but if we roll them up for a single upstream change, there is
+> no reason to separate them.
 
-| On Thu, 2005-07-28 at 13:58 -0700, Ron Kuris wrote:
-|
-|> Use M4 diversions ... [snip]
-|
-|
-| Well this is definitely an interesting solution.  The problem is
-| that it doesn't apply to the loadable policy modules, since the
-| file contexts in a module don't have m4.  Preserving m4 into the
-| modules, and having semodule run m4 to reconstruct file_contexts is
-| probably a bad idea. Adding a weight to specs, which is what Steve
-| suggested, would be more general than leveraging m4.
-|
-I guess I don't know enough about the loadable module plans.
+I would suggest rolling them into one policy version change.
 
-So that means the loadable modules cannot use any of the m4 macros either?
 
-Ron
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFC6nswVkC/44kdyuYRAuoyAKDGKVk6aOCtUZg5hOKY6NrEQ3U2YgCfQnUx
-ugMfR4Bw5R7AHr1cUwm/4wM=
-=Tqmz
------END PGP SIGNATURE-----
-
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 
 --
