@@ -1,54 +1,53 @@
-Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Karl MacMillan <kmacmillan@tresys.com>,
-   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
-References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 29 Jul 2005 14:01:45 -0400
-Message-Id: <1122660105.6573.227.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6TJ0kgA002913
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 15:00:48 -0400 (EDT)
+Received: from mail19-res-R.bigfish.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6TIslC2004950
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 18:54:47 GMT
+Message-ID: <42EA7B30.8090207@unify.com>
+Date: Fri, 29 Jul 2005 11:53:36 -0700
+From: Ron Kuris <rk@unify.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: file context ordering
+References: <1122578160.20983.14.camel@sgc.columbia.tresys.com>	 <42E946ED.2050705@unify.com> <1122660123.20983.58.camel@sgc>
+In-Reply-To: <1122660123.20983.58.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-07-29 at 12:49 -0400, Stephen Smalley wrote:
-> The following patch set reduces the number of avtab nodes by preserving
-> attributes in TE allow/dontaudit/auditallow rules when possible rather
-> than expanding them during policy compilation, and having the kernel use
-> a type->attribute reverse map to perform the access vector computation,
-> per the earlier discussions on the list.  This slows down security
-> server computations, but these only occur on AVC cache misses, so the
-> expected performance impact is negligible.  I have not yet attempted to
-> measure the performance impact.  If it proves to be measurable at all,
-> we can likely optimize it in the same manner that I used for the
-> assertion checking code (see below).
-> 
-> Unlike the first patchset, where you could just patch the kernel and see
-> the memory savings from the reduction in the per-node size even with a
-> policy.19 file, this patch set requires you to patch your kernel,
-> libsepol, and checkpolicy and build a policy.20 policy in order to see
-> the reduction in nodes, as that is handled during compilation.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I forgot to mention:  when I tried recompiling the FC/devel strict
-policy with the updated checkpolicy, it failed an assertion check
-(neverallow statement) on one of the conditional rules.  Older
-checkpolicy wasn't checking assertions on the conditional avtab, only on
-the base avtab; this was fixed by Tresys as part of the module support
-patches.  The assertion failure turned up to be that rpcd.te has a
-create_dir_file(kernel_t, {file_type - shadow_t }) conditional rule if
-nfs_export_all_rw is enabled, which means that kernel_t needs the
-etc_writer attribute.  kernel.te only gives kernel_t the etc_writer
-attribute _if_ the nfs_export_all_rw tunable is defined, but it is no
-longer a tunable and has been converted to a boolean (and attribute
-assignment isn't conditional).  Hence, I had to add that attribute
-(without the ifdef) to compile the policy.
+Christopher J. PeBenito wrote:
 
--- 
-Stephen Smalley
-National Security Agency
+| On Thu, 2005-07-28 at 13:58 -0700, Ron Kuris wrote:
+|
+|> Use M4 diversions ... [snip]
+|
+|
+| Well this is definitely an interesting solution.  The problem is
+| that it doesn't apply to the loadable policy modules, since the
+| file contexts in a module don't have m4.  Preserving m4 into the
+| modules, and having semodule run m4 to reconstruct file_contexts is
+| probably a bad idea. Adding a weight to specs, which is what Steve
+| suggested, would be more general than leveraging m4.
+|
+I guess I don't know enough about the loadable module plans.
+
+So that means the loadable modules cannot use any of the m4 macros either?
+
+Ron
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFC6nswVkC/44kdyuYRAuoyAKDGKVk6aOCtUZg5hOKY6NrEQ3U2YgCfQnUx
+ugMfR4Bw5R7AHr1cUwm/4wM=
+=Tqmz
+-----END PGP SIGNATURE-----
+
 
 
 --
