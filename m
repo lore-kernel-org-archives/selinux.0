@@ -1,95 +1,53 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6SL5KgA025193
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 17:05:20 -0400 (EDT)
-Received: from mail22-haw-R.bigfish.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6SKwccq014348
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 20:58:38 GMT
-Message-ID: <42E946ED.2050705@unify.com>
-Date: Thu, 28 Jul 2005 13:58:21 -0700
-From: Ron Kuris <rk@unify.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6T2QegA026862
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 22:26:42 -0400 (EDT)
+Received: from dragon.ti.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6T2Jucq022743
+	for <selinux@tycho.nsa.gov>; Fri, 29 Jul 2005 02:19:56 GMT
+Received: from dlep30.itg.ti.com ([157.170.139.157])
+	by dragon.ti.com (8.13.1/8.13.1) with ESMTP id j6T2Kmrn014073
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 21:20:48 -0500 (CDT)
+Received: from dlep90.itg.ti.com (localhost [127.0.0.1])
+	by dlep30.itg.ti.com (8.12.11/8.12.11) with ESMTP id j6T2KHeD014001
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 21:20:17 -0500 (CDT)
+Received: from dbde01.ent.ti.com (localhost [127.0.0.1])
+	by dlep90.itg.ti.com (8.12.11/8.12.11) with ESMTP id j6T2KF0f024184
+	for <selinux@tycho.nsa.gov>; Thu, 28 Jul 2005 21:20:16 -0500 (CDT)
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: file context ordering
-References: <1122578160.20983.14.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1122578160.20983.14.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: SELinux for embedded devices...
+Date: Fri, 29 Jul 2005 07:50:13 +0530
+Message-ID: <45F366B1BC4F7C4A895F0F34C41E61A5511366@dbde01.ent.ti.com>
+From: "Sriram, Kannan" <ksriram@ti.com>
+To: "SELinux Mail List" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-My suggestion:
+Hello all,
 
-Use M4 diversions to raise the priority of the more important rules.
-M4 will output diverted text at the end of the script, and you can
-prioritize each section this way.
+ I'm a newbie to SELinux, trying to figure out if SELinux is applicable/
+suitable to embedded system security, especially mobile terminals/
+smartphones. I have the following very basic questions... Pls help me
+out, or redirect me to the appropriate forum.
 
-This worked perfectly for me when I had a similar problem:
+1. Is SELinux applicable and suitable for mobile equipment, where the
+end user always has root privileges? Has SELinux been ported to any
+embedded device yet (some ARM platform??).
 
-divert(3)
-[ insert selinux rules here ]
-divert(0)
+2. Assuming I have made the kernel on the flash to be tamperproof (can't
+replace the SElinux image on the flash with the "SE" part disabled),
+isn't  it still possible at runtime to disable the security server?
 
-The rules between the diverts will be output at the end, in order by
-the diversion number (in this case, 3).
+3. Same as above, is it possible to change the security policy files, or
+reload a different set of policies (given root access).
 
-Ron
+And now the big question, is there a way to prevent both (2) and (3)??
+Or have I completely misunderstood the whole thing??
 
-Christopher J. PeBenito wrote:
-
-| One of the problems we've come against with reference policy (also
-| in loadable modules) is the fact that the file context
-| specifications are not ordered correctly, since the system
-| file_contexts are taken from the modules and concatenated in an
-| arbitrary order.  The matchpathcon code finds a match by going
-| through all of the specs, and the last one that is matched is used.
-|
-|
-| There is a little sorting in matchpathcon, to push the specs with
-| regular expressions to the top and explicit matches (those without
-| regular expressions) to the bottom.  This has worked for the
-| current policy since the specs in file_contexts/program/*.fc are
-| generally specific matches and types.fc has always been at the top.
-| Types.fc has most of the very unspecific regular expressions, and
-| is hand ordered. With reference policy, all of these specs are
-| split up into their respective modules, so there is no ordering of
-| file contexts, except within a module.
-|
-| To try to fix this we looked for regular expression sorting
-| algorithms, but pretty much came up empty.  So we wrote
-| support/fc_sort.c to do a stable sort (merge sort) with this
-| comparison function:
-|
-| 1. does one have a meta chars and the other not 2. length of the
-| spec up to the first meta char 3. length of the entire spec 4. does
-| one have a specific file type (--, -d, etc.) and the other not
-|
-| This still does not end up being perfect, since we have specs that
-| are of about the same specificity, and end up being in a different
-| order then the current fc.  For example, these two specs end up
-| being in the opposite order that they are in the NSA example
-| policy:
-|
-| /usr(/.*)?/bin(/.*)?        system_u:object_r:bin_t
-| /usr(/.*)?/lib(64)?(/.*)?   system_u:object_r:lib_t
-|
-| So this results in a handful of mislabeled files (think
-| /usr/lib/foo/bin/*).
-|
-| What are your thoughts on how to fix this?
-|
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFC6UbtVkC/44kdyuYRAjQQAKD9Cyizhuv12Cz91GbckGn0WnoLLgCgqptl
-wSTxRNrI9uO/g5Z/FTtM5oY=
-=TUVs
------END PGP SIGNATURE-----
-
+Thanks in advance,
+Sriram.
 
 
 --
