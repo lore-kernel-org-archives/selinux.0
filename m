@@ -1,101 +1,178 @@
-Subject: [RFC][PATCH 0/3] Reduce number of avtab nodes
+Subject: [RFC][PATCH 1/3] Reduce number of avtab nodes
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: Karl MacMillan <kmacmillan@tresys.com>,
    Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
    James Morris <jmorris@redhat.com>
+In-Reply-To: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 29 Jul 2005 12:49:59 -0400
-Message-Id: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 29 Jul 2005 13:16:46 -0400
+Message-Id: <1122657406.6573.205.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The following patch set reduces the number of avtab nodes by preserving
-attributes in TE allow/dontaudit/auditallow rules when possible rather
-than expanding them during policy compilation, and having the kernel use
-a type->attribute reverse map to perform the access vector computation,
-per the earlier discussions on the list.  This slows down security
-server computations, but these only occur on AVC cache misses, so the
-expected performance impact is negligible.  I have not yet attempted to
-measure the performance impact.  If it proves to be measurable at all,
-we can likely optimize it in the same manner that I used for the
-assertion checking code (see below).
+This patch, relative to the kernel patch to reduce avtab node size,
+modifies the SELinux module to create a type->attribute reverse mapping,
+with the type always included in its own mapping as a degenerate case,
+and to use this mapping when computing access vectors.  This occurs even
+if the binary policy lacks the mapping (i.e. older binary policy
+version), in which case only the type itself is set in the bitmap and
+used for computations.  This patch also happens to include a fix for a
+longstanding memory leak in policydb_destroy for role_allow, role_trans,
+and range_trans rules that was discovered in the corresponding libsepol
+code by Ivan.  We can split that out separately for upstream if
+necessary.
 
-Unlike the first patchset, where you could just patch the kernel and see
-the memory savings from the reduction in the per-node size even with a
-policy.19 file, this patch set requires you to patch your kernel,
-libsepol, and checkpolicy and build a policy.20 policy in order to see
-the reduction in nodes, as that is handled during compilation.
+---
 
-This patchset is relative to the prior patch set.  I've also made the
-two patch sets available under http://www.cs.utah.edu/~sds/avtab1 and
-http://www.cs.utah.edu/~sds/avtab2 respectively, along with prepatched
-tarballs of libsepol and checkpolicy for convenience.  These include the
-bug fixes for the first patch set and a re-base to the latest cvs.
+ security/selinux/ss/policydb.c |   40 ++++++++++++++++++++++++++++++++++++++
+ security/selinux/ss/policydb.h |    3 ++
+ security/selinux/ss/services.c |   43 +++++++++++++++++++++++++++--------------
+ 3 files changed, 72 insertions(+), 14 deletions(-)
 
-Some notes:
-- Expansion of attributes is only suppressed in type sets in
-allow/dontaudit/auditallow rules, and only if the type set does not
-include a negative set (e.g. file_type - shadow_t), wildcard (*), or
-complement (~) and only if the rule is not a self rule.   I didn't
-originally catch the latter (self rules), which had an interesting
-effect (allow x self:process p; was being mis-interpreted as allow x
-x:process p; for every t in x by the kernel).
+diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab1/security/selinux/ss/policydb.c linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/policydb.c
+--- linux-2.6.13-rc3-mm1-avtab1/security/selinux/ss/policydb.c	2005-07-29 09:20:05.000000000 -0400
++++ linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/policydb.c	2005-07-29 09:21:01.000000000 -0400
+@@ -589,6 +589,9 @@ void policydb_destroy(struct policydb *p
+ 	struct ocontext *c, *ctmp;
+ 	struct genfs *g, *gtmp;
+ 	int i;
++	struct role_allow *ra, *lra = NULL;
++	struct role_trans *tr, *ltr = NULL;
++	struct range_trans *rt, *lrt = NULL;
+ 
+ 	for (i = 0; i < SYM_NUM; i++) {
+ 		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+@@ -629,6 +632,28 @@ void policydb_destroy(struct policydb *p
+ 
+ 	cond_policydb_destroy(p);
+ 
++	for (tr = p->role_tr; tr; tr = tr->next) {
++		if (ltr) kfree(ltr);
++		ltr = tr;
++	}
++	if (ltr) kfree(ltr);
++
++	for (ra = p->role_allow; ra; ra = ra -> next) {
++		if (lra) kfree(lra);
++		lra = ra;
++	}
++	if (lra) kfree(lra);
++
++	for (rt = p->range_tr; rt; rt = rt -> next) {
++		if (lrt) kfree(lrt);
++		lrt = rt;
++	}
++	if (lrt) kfree(lrt);
++
++	for (i = 0; i < p->p_types.nprim; i++)
++		ebitmap_destroy(&p->type_attr_map[i]);
++	kfree(p->type_attr_map);
++
+ 	return;
+ }
+ 
+@@ -1830,6 +1855,21 @@ int policydb_read(struct policydb *p, vo
+ 		}
+ 	}
+ 
++	p->type_attr_map = kmalloc(p->p_types.nprim*sizeof(struct ebitmap), GFP_KERNEL);
++	if (!p->type_attr_map)
++		goto bad;
++
++	for (i = 0; i < p->p_types.nprim; i++) {
++		ebitmap_init(&p->type_attr_map[i]);
++		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
++			if (ebitmap_read(&p->type_attr_map[i], fp))
++				goto bad;
++		}
++		/* add the type itself as the degenerate case */
++		if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
++				goto bad;
++	}
++
+ 	rc = 0;
+ out:
+ 	return rc;
+diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab1/security/selinux/ss/policydb.h linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/policydb.h
+--- linux-2.6.13-rc3-mm1-avtab1/security/selinux/ss/policydb.h	2005-06-17 15:48:29.000000000 -0400
++++ linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/policydb.h	2005-07-29 09:21:01.000000000 -0400
+@@ -237,6 +237,9 @@ struct policydb {
+ 	/* range transitions */
+ 	struct range_trans *range_tr;
+ 
++	/* type -> attribute reverse mapping */
++	struct ebitmap *type_attr_map;
++
+ 	unsigned int policyvers;
+ };
+ 
+diff -X /home/sds/dontdiff -rup linux-2.6.13-rc3-mm1-avtab1/security/selinux/ss/services.c linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/services.c
+--- linux-2.6.13-rc3-mm1-avtab1/security/selinux/ss/services.c	2005-07-29 09:20:05.000000000 -0400
++++ linux-2.6.13-rc3-mm1-avtab2/security/selinux/ss/services.c	2005-07-29 09:21:01.000000000 -0400
+@@ -268,6 +268,8 @@ static int context_struct_compute_av(str
+ 	struct avtab_key avkey;
+ 	struct avtab_node *node;
+ 	struct class_datum *tclass_datum;
++	struct ebitmap *sattr, *tattr;
++	unsigned int i, j;
+ 
+ 	/*
+ 	 * Remap extended Netlink classes for old policy versions.
+@@ -300,23 +302,36 @@ static int context_struct_compute_av(str
+ 	 * If a specific type enforcement rule was defined for
+ 	 * this permission check, then use it.
+ 	 */
+-	avkey.source_type = scontext->type;
+-	avkey.target_type = tcontext->type;
+ 	avkey.target_class = tclass;
+ 	avkey.specified = AVTAB_AV;
+-	for (node = avtab_search_node(&policydb.te_avtab, &avkey);
+-	     node != NULL;
+-	     node = avtab_search_node_next(node, avkey.specified)) {
+-		if (node->key.specified == AVTAB_ALLOWED)
+-			avd->allowed = node->datum.data;
+-		else if (node->key.specified == AVTAB_AUDITALLOW)
+-			avd->auditallow = node->datum.data;
+-		else if (node->key.specified == AVTAB_AUDITDENY)
+-			avd->auditdeny = node->datum.data;
+-	}
++	sattr = &policydb.type_attr_map[scontext->type - 1];
++	tattr = &policydb.type_attr_map[tcontext->type - 1];
++	for (i = ebitmap_startbit(sattr); 
++	     i < ebitmap_length(sattr); i++) {
++		if (!ebitmap_get_bit(sattr, i))
++		    continue;
++		for (j = ebitmap_startbit(tattr); 
++		     j < ebitmap_length(tattr); j++) {
++			if (!ebitmap_get_bit(tattr, j))
++				continue;
++			avkey.source_type = i + 1;
++			avkey.target_type = j + 1;
++			for (node = avtab_search_node(&policydb.te_avtab, &avkey);
++			     node != NULL;
++			     node = avtab_search_node_next(node, avkey.specified)) {
++				if (node->key.specified == AVTAB_ALLOWED)
++					avd->allowed |= node->datum.data;
++				else if (node->key.specified == AVTAB_AUDITALLOW)
++					avd->auditallow |= node->datum.data;
++				else if (node->key.specified == AVTAB_AUDITDENY)
++					avd->auditdeny &= node->datum.data;
++			}
++
++			/* Check conditional av table for additional permissions */
++			cond_compute_av(&policydb.te_cond_avtab, &avkey, avd);
+ 
+-	/* Check conditional av table for additional permissions */
+-	cond_compute_av(&policydb.te_cond_avtab, &avkey, avd);
++		}
++	}
+ 
+ 	/*
+ 	 * Remove any permissions prohibited by a constraint (this includes
 
-- I didn't increment the policy version again for this patch set,
-so it is still version 20, as with the prior patch set.  If we
-were to upstream these patches separately, I'd split them into separate
-versions, but if we roll them up for a single upstream change, there is
-no reason to separate them.
-
-- Compatibility code for writing older policy versions from the patched
-checkpolicy is not written yet, unlike with the prior patchset.  Looks
-rather painful (and I thought it was already painful with the last
-patchset), as I'd have to expand the avtab and we've already discarded
-the attribute->type mappings at this point (the type->attribute reverse
-mappings aren't quite as helpful for such expansion).
-
-- Assertion checking is significantly slower.  I added some new inline
-ebitmap operations to help speed it up, but it is still a lot slower
-than previously.
-
-- A possible solution to both of the above problems would be to build a
-fully expanded avtab during module expansion in addition to the
-non-expanded one and saving it in the policydb for later use in
-assertion checking and writing older policy versions.  But that will
-obviously slow down module expansion and consume a lot more memory when
-constructing policies.  Thoughts?  Patches?
-
-Some data on the file size, number of slab objects (avtab nodes) and
-slab object size (avtab node size) is below for the unpatched code
-(version 19), the first patchset (reduce avtab node size, split multiple
-data entries), and this second patchset (reduce number of nodes).  As I
-didn't create separate policy versions for each patchset, 20.1 refers to
-the first patchset and 20.2 refers to the second patchset.  Since the
-first patchset reduces the node size, it has essentially the same impact
-on targeted and strict policies, i.e. roughly halving the memory size.
-In contrast, since the second patchset only reduces the number of nodes
-and only when attributes are used in rules, it has a markedly different
-impact on targeted vs. strict policy, although it reduces the memory
-size for both.  In general, as policies move toward greater least
-privilege, this patch set will provide less of an improvement, although
-it is unlikely that we will ever get away completely from having some
-rules that use attributes.
-
-Targeted Policy
-Vers | File | #Objs  | ObjSize
-------------------------------
-19   | 8.0M | 347387 |  32
-20.1 | 4.1M | 350813 |  16
-20.2 | 391K | 23751  |  16
-
-Strict Policy
-Vers | File | #Objs | ObjSize
-------------------------------
-19   | 16M  | 664756 | 32
-20.1 | 8.0M | 689183 | 16
-20.2 | 2.9M | 229295 | 16
 
 -- 
 Stephen Smalley
