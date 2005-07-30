@@ -1,45 +1,78 @@
-Date: Sat, 30 Jul 2005 00:20:00 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>,
-   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
-Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
-In-Reply-To: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Lynx.SEL.4.62.0507300018460.14594@thoron.boston.redhat.com>
-References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6U8F5gA006625
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 04:15:07 -0400 (EDT)
+Received: from mx05.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6U8867R029065
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 08:08:07 GMT
+Received: from admin0 (pdd5cde.ykhmac00.ap.so-net.ne.jp [218.221.92.222])
+	by mx05.ms.so-net.ne.jp  with SMTP id j6U88vS1007262
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 17:08:57 +0900 (JST)
+Message-ID: <002201c594dd$eee47500$0300a8c0@admin0>
+From: "shintarou_fujiwara" <shin216@xf7.so-net.ne.jp>
+To: "selinux mailing list" <selinux@tycho.nsa.gov>
+Subject: no-ip policy
+Date: Sat, 30 Jul 2005 17:08:56 +0900
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="279723856-1316313081-1122697200=:14594"
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_001F_01C59529.5E7B16D0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This is a multi-part message in MIME format.
 
---279723856-1316313081-1122697200=:14594
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+------=_NextPart_000_001F_01C59529.5E7B16D0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-2022-jp";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 
-The checkpolicy stuff doesn't compile for me:
+Hi , I'm shin from JAPAN .
 
-$ make
-cc -g -Wall -O2 -pipe -fno-strict-aliasing -I. -I/usr/include -o 
-checkpolicy.o -c checkpolicy.c
-checkpolicy.c: In function ‘cond_check_type_rules_list’:
-checkpolicy.c:288: error: ‘avtab_key_t’ has no member named 
-‘specified’
-checkpolicy.c:289: error: too few arguments to function ‘avtab_search’
-checkpolicy.c: In function ‘main’:
-checkpolicy.c:587: error: too few arguments to function 
-‘check_assertions’
-make: *** [checkpolicy.o] Error 1
+ I'm working on a private home-server by FC3 using no-ip DNS services. Here 
+I'v written down a policy for it.
+Any comments ?
 
+------=_NextPart_000_001F_01C59529.5E7B16D0
+Content-Type: application/octet-stream;
+	name="noip.fc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="noip.fc"
 
+####################for noip##########################=0A=
+/usr/local/bin/noip2    system_u:object_r:noip_exec_t=0A=
+/usr/local/etc/no-ip2\.conf    system_u:object_r:noip_conf_t=0A=
+=0A=
 
--- 
-James Morris
-<jmorris@redhat.com>
+------=_NextPart_000_001F_01C59529.5E7B16D0
+Content-Type: application/octet-stream;
+	name="noip.te"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="noip.te"
 
---279723856-1316313081-1122697200=:14594--
+#############for noip###############=0A=
+daemon_domain(noip)=0A=
+=0A=
+type noip_conf_t,file_type,sysadmfile;=0A=
+=0A=
+can_network(noip_t)=0A=
+uses_shlib(noip_t)=0A=
+base_file_read_access(noip_t)=0A=
+tmpfs_domain(noip)=0A=
+rw_dir_file(noip_t,noip_conf_t)=0A=
+=0A=
+allow noip_t noip_t:shm create_shm_perms;=0A=
+allow noip_t noip_t:socket_class_set create_stream_socket_perms;=0A=
+allow noip_t kernel_t:fd { use };=0A=
+allow noip_t etc_t:file { read };=0A=
+allow noip_t etc_t:file { getattr };=0A=
+allow noip_t noip_t:capability { setgid };=0A=
+allow noip_t noip_t:capability { setuid };=0A=
+
+------=_NextPart_000_001F_01C59529.5E7B16D0--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
