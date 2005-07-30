@@ -1,77 +1,66 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6U8F5gA006625
-	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 04:15:07 -0400 (EDT)
-Received: from mx05.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6U8867R029065
-	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 08:08:07 GMT
-Received: from admin0 (pdd5cde.ykhmac00.ap.so-net.ne.jp [218.221.92.222])
-	by mx05.ms.so-net.ne.jp  with SMTP id j6U88vS1007262
-	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 17:08:57 +0900 (JST)
-Message-ID: <002201c594dd$eee47500$0300a8c0@admin0>
-From: "shintarou_fujiwara" <shin216@xf7.so-net.ne.jp>
-To: "selinux mailing list" <selinux@tycho.nsa.gov>
-Subject: no-ip policy
-Date: Sat, 30 Jul 2005 17:08:56 +0900
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6UGRwgA008013
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 12:28:00 -0400 (EDT)
+Received: from mail.4-mail.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6UGKu7R016799
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 16:20:57 GMT
+Received: from localhost (gate [127.0.0.1])
+	by mail.4-mail.net (Postfix) with ESMTP id D4558673CB
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 18:21:46 +0200 (CEST)
+Received: from mail.4-mail.net ([127.0.0.1])
+ by localhost (mail.4-mail.net [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 19345-04 for <selinux@tycho.nsa.gov>;
+ Sat, 30 Jul 2005 18:21:38 +0200 (CEST)
+Received: from [192.168.100.3] (85-124-59-247.dynamic.xdsl-line.inode.at [85.124.59.247])
+	by mail.4-mail.net (Postfix) with ESMTP id 0DBE4673CA
+	for <selinux@tycho.nsa.gov>; Sat, 30 Jul 2005 18:21:37 +0200 (CEST)
+Message-ID: <42EBC487.2080908@online-tutorials.net>
+Date: Sat, 30 Jul 2005 20:18:47 +0200
+From: Simon Hecht <simon_hecht@online-tutorials.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_001F_01C59529.5E7B16D0"
+To: selinux@tycho.nsa.gov
+Subject: tcl headers, useradd and libuser.conf
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Hello,
 
-------=_NextPart_000_001F_01C59529.5E7B16D0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-2022-jp";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+I try to install selinux on a Debian system (sarge) but during the 
+installation I had some problems:
 
-Hi , I'm shin from JAPAN .
 
- I'm working on a private home-server by FC3 using no-ip DNS services. Here 
-I'v written down a policy for it.
-Any comments ?
+setools (2.1.1):
 
-------=_NextPart_000_001F_01C59529.5E7B16D0
-Content-Type: application/octet-stream;
-	name="noip.fc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="noip.fc"
+I have install tcl and tk with
 
-####################for noip##########################=0A=
-/usr/local/bin/noip2    system_u:object_r:noip_exec_t=0A=
-/usr/local/etc/no-ip2\.conf    system_u:object_r:noip_conf_t=0A=
-=0A=
+apt-get install tcl8.4 tcl8.4-dev tk8.4 tk8.4-dev
 
-------=_NextPart_000_001F_01C59529.5E7B16D0
-Content-Type: application/octet-stream;
-	name="noip.te"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="noip.te"
+but the headers have been installed to /usr/include/tcl8.4/ and so 
+#include <tcl.h> and #include <tk.h> doen't work. I changed some Makefiles.
 
-#############for noip###############=0A=
-daemon_domain(noip)=0A=
-=0A=
-type noip_conf_t,file_type,sysadmfile;=0A=
-=0A=
-can_network(noip_t)=0A=
-uses_shlib(noip_t)=0A=
-base_file_read_access(noip_t)=0A=
-tmpfs_domain(noip)=0A=
-rw_dir_file(noip_t,noip_conf_t)=0A=
-=0A=
-allow noip_t noip_t:shm create_shm_perms;=0A=
-allow noip_t noip_t:socket_class_set create_stream_socket_perms;=0A=
-allow noip_t kernel_t:fd { use };=0A=
-allow noip_t etc_t:file { read };=0A=
-allow noip_t etc_t:file { getattr };=0A=
-allow noip_t noip_t:capability { setgid };=0A=
-allow noip_t noip_t:capability { setuid };=0A=
 
-------=_NextPart_000_001F_01C59529.5E7B16D0--
+policy (1.24):
+
+make all && make install returned something like: grep: 
+/etc/default/useradd: No such file or directory
+
+It seems that the useradd file does'n exist on a new debian system, but 
+useradd -D -g100 -f0 -s/bin/bash fixed this problem.
+
+
+And now I got the following error:
+
+grep: /etc/libuser.conf: No such file or directory
+You do not have access to /etc/libuser.conf LU_HOMEDIRECTORY=
+
+I searched for hours but I didn't find a solution. How do I solve this?
+
+Sorry for my bad english ;)
+
+Simon Hecht
+
+
 
 
 --
