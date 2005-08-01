@@ -1,66 +1,70 @@
-Date: Mon, 1 Aug 2005 15:22:12 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Message-ID: <42EE3879.2050409@tresys.com>
+Date: Mon, 01 Aug 2005 10:58:01 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-   Karl MacMillan <kmacmillan@tresys.com>,
-   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+CC: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov
 Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
-Message-ID: <20050801142212.GC10132@lkcl.net>
-References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil> <Lynx.SEL.4.62.0507311149080.22444@thoron.boston.redhat.com> <1122903665.6573.281.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>	 <Lynx.SEL.4.62.0507311149080.22444@thoron.boston.redhat.com> <1122903665.6573.281.camel@moss-spartans.epoch.ncsc.mil>
 In-Reply-To: <1122903665.6573.281.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 01, 2005 at 09:41:05AM -0400, Stephen Smalley wrote:
-> On Sun, 2005-07-31 at 11:59 -0400, James Morris wrote:
-> > With these patches, on a 64-bit system, after boot:
-> > 
-> >   
-> >             #objs  objsize   kernmem
-> > Targeted:
-> >   Before:  237888       40     9.1MB
-> >   After:    19968       24     468KB
-> > 
-> > Strict:
-> >   Before:  571680       40   21.81MB
-> >   After:   221052       24    5.06MB
-> 
-> Ok, this along with the data I posted for 32-bit is certainly
-> encouraging as far as memory savings are concerned.  Things that we need
-> to resolve before committing/upstreaming these changes include:
-> 
-> - We need to measure the performance impact of the changes on the
-> kernel, if any, and possibly optimize the compute_av code if it is
-> measurable.
+Stephen Smalley wrote:
 
- little story for you that is comp-sci related [which if
- you're aware of these sorts of things i humbly apologise for
- mentioning - grandmas, eggs, suck, sorry :) ]
+> <snip>
+>
+>- We need to be sure that we are comfortable with collapsing the type
+>value space and class value space to 16 bits.  That was done by the
+>first patchset as part of reducing the avtab node size.  The avtab_read
+>code checks for value truncation when reading older binary policies; we
+>should also add checks to checkpolicy to ensure that we don't overflow
+>
+>during policy compilation.
+>
+I know it won't affect the size but why not make all symbol value spaces 16 bits, just for consistency?
 
- andrew tridgell wrote an upper-case / lower-case unicode
- converter for samba.  it wasn't a 16-bit lookup table,
- because 65536 * 2 equals 128kbytes which is _way_ more memory
- than can fit into a first level cache of some processors.
- consequently, performance of a lookup table would be crap.
- what he wrote instead was a small algorithm with lookup ranges.
- it was heaps faster.
- 
- anyway, what you're doing is reminiscent of that and so
- i thought i should mention it and i invite you to consider
- performing some tests on hardware ranging from ARM 2-400mhz
- with the usual shit-for-brains caches through PIIIs and
- AMD K7s to P4s, picking the most likely candidates where
- it's going to matter or even possibly consider offering /
- enabling / disabling different optimisations depending on
- the processor target (CONFIG_xxx).
+Also, here is a trivial patch to let audit2why compile with -Werror (which the Makefile in cvs does by default)
 
- again though i respectfully ask you to totally ignore me
- should you have considered these things already - comp-sci
- being what it is.
+diff -purN nsa-patched/selinux-usr/libsepol/include/sepol/ebitmap.h nsa-new/selinux-usr/libsepol/include/sepol/ebitmap.h
 
- l.
+--- nsa-patched/selinux-usr/libsepol/include/sepol/ebitmap.h    2005-08-01 10:53:54.503439624 -0400
+
++++ nsa-new/selinux-usr/libsepol/include/sepol/ebitmap.h        2005-08-01 10:51:25.564081848 -0400
+
+@@ -46,7 +46,7 @@ static inline void ebitmap_init(ebitmap_
+
+        memset(e, 0, sizeof(*e));
+
+ }
+
+-static inline unsigned int ebitmap_nextbit(ebitmap_t *e,
+
++static inline unsigned int ebitmap_nextbit(ebitmap_t *e __attribute__ ((__unused__)),
+
+                                           ebitmap_node_t **n,
+
+                                           unsigned int bit)
+
+ {
+
+@@ -59,7 +59,7 @@ static inline unsigned int ebitmap_nextb
+
+        return (bit+1);
+
+ }
+
+-static inline int ebitmap_node_get_bit(ebitmap_t *e,
+
++static inline int ebitmap_node_get_bit(ebitmap_t *e __attribute__ ((__unused__)),
+
+                                       ebitmap_node_t * n,
+
+                                       unsigned int bit)
+
+ {
+
 
 
 --
