@@ -8,27 +8,30 @@ References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
 	 <1122903665.6573.281.camel@moss-spartans.epoch.ncsc.mil>
 	 <42EE3879.2050409@tresys.com>
 Content-Type: text/plain
-Date: Mon, 01 Aug 2005 11:04:15 -0400
-Message-Id: <1122908655.6573.302.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 01 Aug 2005 11:09:04 -0400
+Message-Id: <1122908944.6573.305.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Mon, 2005-08-01 at 10:58 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> 
+> > <snip>
+> >
+> >- We need to be sure that we are comfortable with collapsing the type
+> >value space and class value space to 16 bits.  That was done by the
+> >first patchset as part of reducing the avtab node size.  The avtab_read
+> >code checks for value truncation when reading older binary policies; we
+> >should also add checks to checkpolicy to ensure that we don't overflow
+> >
+> >during policy compilation.
+> >
 > I know it won't affect the size but why not make all symbol value
 > spaces 16 bits, just for consistency?
 
-Hmm..well, I didn't actually change the datum types, as you may have
-noticed, even for types (e.g. struct type_datum).   I only shrank the
-avtab types.  We could certainly shrink them all, but the compatibility
-code begins to get increasingly ugly...
-
-> Also, here is a trivial patch to let audit2why compile with -Werror
-> (which the Makefile in cvs does by default)
-
-Ah, thanks - hadn't tried rebuilding that after the latest changes.
-libsepol itself needs to be changed to be built with stricter warning
-flags, and the resulting warnings need to be cleaned up.
+Also, my real question here is whether we are sure that 16 bit value
+space is going to be enough forever for types.
 
 -- 
 Stephen Smalley
