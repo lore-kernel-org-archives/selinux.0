@@ -1,48 +1,60 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j6VGXggA012069
-	for <selinux@tycho.nsa.gov>; Sun, 31 Jul 2005 12:33:42 -0400 (EDT)
-Received: from host.we-code.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j6VGQXY8000843
-	for <selinux@tycho.nsa.gov>; Sun, 31 Jul 2005 16:26:33 GMT
-In-Reply-To: <42ECF837.8010704@gentoo.org>
-References: <D3543036-7457-4441-AF34-85B0756322C8@tobyjoe.com> <DD7A8E82-4804-4477-9527-AF057B449598@tobyjoe.com> <42ECF837.8010704@gentoo.org>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: multipart/alternative; boundary=Apple-Mail-1-638620913
-Message-Id: <7866090C-49B1-422E-A1C4-900310C25433@tobyjoe.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-From: Toby Boudreaux <selinux@tobyjoe.com>
-Subject: Re: FastCGI and SELinux
-Date: Sun, 31 Jul 2005 12:27:05 -0400
-To: Petre Rodan <kaiowas@gentoo.org>
+Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@redhat.com>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>,
+   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+In-Reply-To: <Lynx.SEL.4.62.0507311149080.22444@thoron.boston.redhat.com>
+References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+	 <Lynx.SEL.4.62.0507311149080.22444@thoron.boston.redhat.com>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 09:41:05 -0400
+Message-Id: <1122903665.6573.281.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 2005-07-31 at 11:59 -0400, James Morris wrote:
+> With these patches, on a 64-bit system, after boot:
+> 
+>   
+>             #objs  objsize   kernmem
+> Targeted:
+>   Before:  237888       40     9.1MB
+>   After:    19968       24     468KB
+> 
+> Strict:
+>   Before:  571680       40   21.81MB
+>   After:   221052       24    5.06MB
 
---Apple-Mail-1-638620913
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	delsp=yes;
-	format=flowed
+Ok, this along with the data I posted for 32-bit is certainly
+encouraging as far as memory savings are concerned.  Things that we need
+to resolve before committing/upstreaming these changes include:
 
-Petre - Thanks SO much.
-Suddenly I'm seeing lots of avc messages. Debugging this should be  
-very easy now.
+- We need to measure the performance impact of the changes on the
+kernel, if any, and possibly optimize the compute_av code if it is
+measurable.
 
--toby boudreaux
+- We need to write compatibility code for writing out older binary
+policy versions from libsepol/checkpolicy for the latest change.  This
+is necessary even just to support loading version 19 policies,
+since /sbin/init and load_policy regenerate the binary policy image
+in-memory when adjusting them for local boolean and user definitions and
+thus need that support in policydb_write.
 
-On Jul 31, 2005, at 12:11 PM, Petre Rodan wrote:
+- We need to improve assertion checking time (neverallow rules), as it
+is significantly slowed by the lack of an expanded avtab.
 
-> make enableaudit
+- We need to be sure that we are comfortable with collapsing the type
+value space and class value space to 16 bits.  That was done by the
+first patchset as part of reducing the avtab node size.  The avtab_read
+code checks for value truncation when reading older binary policies; we
+should also add checks to checkpolicy to ensure that we don't overflow
+during policy compilation.
 
+-- 
+Stephen Smalley
+National Security Agency
 
---Apple-Mail-1-638620913
-Content-Transfer-Encoding: 7bit
-Content-Type: text/html;
-	charset=US-ASCII
-
-<HTML><BODY style="word-wrap: break-word; -khtml-nbsp-mode: space; -khtml-line-break: after-white-space; ">Petre - Thanks SO much.<DIV>Suddenly I'm seeing lots of avc messages. Debugging this should be very easy now.</DIV><DIV><BR class="khtml-block-placeholder"></DIV><DIV>-toby boudreaux</DIV><DIV><BR><DIV><DIV>On Jul 31, 2005, at 12:11 PM, Petre Rodan wrote:</DIV><BR class="Apple-interchange-newline"><BLOCKQUOTE type="cite"><P style="margin: 0.0px 0.0px 0.0px 0.0px"><FONT face="Helvetica" size="3" style="font: 12.0px Helvetica">make enableaudit</FONT></P> </BLOCKQUOTE></DIV><BR></DIV></BODY></HTML>
---Apple-Mail-1-638620913--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
