@@ -1,40 +1,46 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j720ZdgA022550
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:35:39 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j720SFVk005427
-	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2005 00:28:15 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j720T8Vr027338
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:29:08 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j720T7V20163
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:29:07 -0400
-Received: from thoron.boston.redhat.com (thoron.boston.redhat.com [172.16.80.63])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j720T7gT013760
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:29:07 -0400
-Date: Mon, 1 Aug 2005 20:29:07 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: Red Hat LSPP mailing list
-Message-ID: <Lynx.SEL.4.62.0508012025260.27490@thoron.boston.redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j722MegA022913
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 22:22:42 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j722FDVk018970
+	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2005 02:15:14 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Jason Tang <jtang@tresys.com>
+Subject: Re: [RFC] selinux management API
+Date: Tue, 2 Aug 2005 12:15:49 +1000
+Cc: Joshua Brindle <jbrindle@tresys.com>, gyurdiev@redhat.com,
+   selinux@tycho.nsa.gov
+References: <42D7CC53.9030803@tresys.com> <200507281836.06447.russell@coker.com.au> <1122919952.5842.3.camel@localhost.localdomain>
+In-Reply-To: <1122919952.5842.3.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200508021215.54459.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If anyone is interested in joining the Red Hat LSPP discussion mailing 
-list, it's now open for general subscription:
+On Tuesday 02 August 2005 04:12, Jason Tang <jtang@tresys.com> wrote:
+> > Is the plan to support binary or text modules for these operations?  If
+> > binary modules then module_data should have type void *.
+>
+> libsemanage will handle only binary modules.  The caller is assumed to
+> have invoked checkmodule beforehand.
+>
+> The reason why these pointers are 'char' is that we want
+> byte-addressible memory.  It is true that using 'char' can be
+> misleading, but alas C is deficient here.
 
-https://www.redhat.com/mailman/listinfo/redhat-lspp
+In what situations is void * not byte addressable?
 
+System calls such as send(2) use void * on Linux (char * on Solaris), are you 
+saying that you can't send arbitrary data down a socket?
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
