@@ -1,46 +1,40 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j722MegA022913
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 22:22:42 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j722FDVk018970
-	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2005 02:15:14 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Jason Tang <jtang@tresys.com>
-Subject: Re: [RFC] selinux management API
-Date: Tue, 2 Aug 2005 12:15:49 +1000
-Cc: Joshua Brindle <jbrindle@tresys.com>, gyurdiev@redhat.com,
+Subject: Re: [ libsemanage ] Key extract function
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gyurdiev@redhat.com
+Cc: Daniel J Walsh <dwalsh@redhat.com>, jbrindle@tresys.com,
    selinux@tycho.nsa.gov
-References: <42D7CC53.9030803@tresys.com> <200507281836.06447.russell@coker.com.au> <1122919952.5842.3.camel@localhost.localdomain>
-In-Reply-To: <1122919952.5842.3.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200508021215.54459.russell@coker.com.au>
+In-Reply-To: <1122670387.28860.43.camel@celtics.boston.redhat.com>
+References: <1122658154.28860.19.camel@celtics.boston.redhat.com>
+	 <1122665303.28860.30.camel@celtics.boston.redhat.com>
+	 <1122670387.28860.43.camel@celtics.boston.redhat.com>
+Content-Type: text/plain
+Date: Tue, 02 Aug 2005 09:17:47 -0400
+Message-Id: <1122988667.11904.17.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 02 August 2005 04:12, Jason Tang <jtang@tresys.com> wrote:
-> > Is the plan to support binary or text modules for these operations?  If
-> > binary modules then module_data should have type void *.
->
-> libsemanage will handle only binary modules.  The caller is assumed to
-> have invoked checkmodule beforehand.
->
-> The reason why these pointers are 'char' is that we want
-> byte-addressible memory.  It is true that using 'char' can be
-> misleading, but alas C is deficient here.
+On Fri, 2005-07-29 at 16:53 -0400, Ivan Gyurdiev wrote:
+> The following patch implements the key extract function.
+> The key is basically the part of the record that uniquely identifies
+> it in a collection of the same records. This introduces the
+> concept of a record collection in libsepol, which may be
+> the wrong place for it, but I think for now it should stay there.
+> 
+> This patch provides a way to obtain the key given the data structure.
+> 
+> The key is part of the data structure, which may seem unnecessarily
+> redundant, but I think it's the right interface - we may choose to
+> change this behavior in the future, and it just seems wrong to pass
+> a data structure partially filled as the key to functions like
+> query() or destroy() (in semanage).
 
-In what situations is void * not byte addressable?
-
-System calls such as send(2) use void * on Linux (char * on Solaris), are you 
-saying that you can't send arbitrary data down a socket?
+Thanks, merged.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
