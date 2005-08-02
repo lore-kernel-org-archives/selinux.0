@@ -1,45 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j71IKogA019903
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 14:20:50 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j71IEKQo022691
-	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 18:14:20 GMT
-Subject: Re: [RFC] selinux management API
-From: Jason Tang <jtang@tresys.com>
-To: russell@coker.com.au
-Cc: Joshua Brindle <jbrindle@tresys.com>, gyurdiev@redhat.com,
-   selinux@tycho.nsa.gov
-In-Reply-To: <200507281836.06447.russell@coker.com.au>
-References: <42D7CC53.9030803@tresys.com>
-	 <1121442990.4488.87.camel@celtics.boston.redhat.com>
-	 <42D7FC9A.7000901@tresys.com>  <200507281836.06447.russell@coker.com.au>
-Content-Type: text/plain
-Date: Mon, 01 Aug 2005 14:12:32 -0400
-Message-Id: <1122919952.5842.3.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j720ZdgA022550
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:35:39 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j720SFVk005427
+	for <selinux@tycho.nsa.gov>; Tue, 2 Aug 2005 00:28:15 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j720T8Vr027338
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:29:08 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j720T7V20163
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:29:07 -0400
+Received: from thoron.boston.redhat.com (thoron.boston.redhat.com [172.16.80.63])
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j720T7gT013760
+	for <selinux@tycho.nsa.gov>; Mon, 1 Aug 2005 20:29:07 -0400
+Date: Mon, 1 Aug 2005 20:29:07 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: Red Hat LSPP mailing list
+Message-ID: <Lynx.SEL.4.62.0508012025260.27490@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-07-28 at 18:36 +1000, Russell Coker wrote:
-> int semanage_module_install(semanage_handle_t *,
->                             char *module_data, size_t data_len);
-> int semanage_module_upgrade(semanage_handle_t *,
->                             char *module_data, size_t data_len);
-> int semanage_module_install_base(semanage_handle_t *,
->                                  char *module_data, size_t data_len);
-> 
-> Is the plan to support binary or text modules for these operations?  If binary 
-> modules then module_data should have type void *.
+If anyone is interested in joining the Red Hat LSPP discussion mailing 
+list, it's now open for general subscription:
 
-libsemanage will handle only binary modules.  The caller is assumed to
-have invoked checkmodule beforehand.
+https://www.redhat.com/mailman/listinfo/redhat-lspp
 
-The reason why these pointers are 'char' is that we want
-byte-addressible memory.  It is true that using 'char' can be
-misleading, but alas C is deficient here.
 
+
+- James
 -- 
-Jason Tang / jtang@tresys.com
+James Morris
+<jmorris@redhat.com>
 
 
 --
