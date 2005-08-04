@@ -1,44 +1,29 @@
-Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-   Karl MacMillan <kmacmillan@tresys.com>,
-   Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
-In-Reply-To: <1123159932.13654.17.camel@moss-spartans.epoch.ncsc.mil>
-References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <Lynx.SEL.4.62.0507311149080.22444@thoron.boston.redhat.com>
-	 <1122903665.6573.281.camel@moss-spartans.epoch.ncsc.mil>
-	 <1123159932.13654.17.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j74Lg5gA016752
+	for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2005 17:42:06 -0400 (EDT)
+Received: from storix.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j74LY9il017264
+	for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2005 21:34:10 GMT
+Received: from rich (65.106.88.139.ptr.us.xo.net [65.106.88.139])
+	by storix.com (Postfix) with ESMTP id 03F931596F
+	for <selinux@tycho.nsa.gov>; Thu,  4 Aug 2005 14:36:37 -0700 (PDT)
+Subject: chcon v. setfilecon
+From: rich turner <rich@storix.com>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 04 Aug 2005 12:14:11 -0400
-Message-Id: <1123172051.13654.80.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 04 Aug 2005 14:38:18 -0700
+Message-Id: <1123191498.4481.76.camel@rich>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-08-04 at 08:52 -0400, Stephen Smalley wrote:
-> This patch modifies the assertion checking code to expand the avtabs
-> prior to checking the assertions, leveraging the expand_avtab function
-> that was added by the prior patch to provide compatibility support for
-> writing older binary policy versions.  This appears to eliminate the
-> performance penalty introduced by the earlier patches for assertion
-> checking.
+what is the difference between these commands? it seems they both do the
+same thing.
 
-The above patch is also available from
-http://www.cs.utah.edu/~sds/libsepol-assert.patch
+is setfilecon deprecated and replaced with chcon?
 
-I've also now converted over most users of ebitmaps in libsepol and
-checkpolicy to using the new inline operators, and added a
-ebitmap_for_each_bit macro to simplify the code.  Those patches are
-available from http://www.cs.utah.edu/~sds/libsepol-ebitmap.patch and
-http://www.cs.utah.edu/~sds/checkpolicy-ebitmap.patch.
-
-Next step is to similarly convert the users of ebitmaps in the kernel.
-
--- 
-Stephen Smalley
-National Security Agency
+on my fedora core3 system i have the setfilecon command but not the
+chcon command. on fc4 i have the chcon command.
 
 
 --
