@@ -1,59 +1,52 @@
-Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-Id: <200508041435.j74EZ4jY011001@turing-police.cc.vt.edu>
 To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200508041742.46851.russell@coker.com.au>
-References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
-	 <200508041742.46851.russell@coker.com.au>
-Content-Type: text/plain
-Date: Thu, 04 Aug 2005 09:25:08 -0400
-Message-Id: <1123161908.13654.42.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+   James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes 
+In-Reply-To: Your message of "Thu, 04 Aug 2005 17:57:50 +1000."
+             <200508041757.54938.russell@coker.com.au>
+From: Valdis.Kletnieks@vt.edu
+References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil> <42EE3879.2050409@tresys.com> <1122908944.6573.305.camel@moss-spartans.epoch.ncsc.mil>
+            <200508041757.54938.russell@coker.com.au>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1123166104_3070P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 04 Aug 2005 10:35:04 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-08-04 at 17:42 +1000, Russell Coker wrote:
-> Currently the speed penalty of assertions is a great disincentive for adding 
-> new assertions.  One of my slower machines has a checkpolicy time of 6.9s 
-> without assertions and 18.9s with them (and the policy that is being compiled 
-> is considerably simpler and smaller than the default policy).
-> 
-> I had considered adding some assertions to the daemon_domain macro and 
-> friends.  This might increase the computational work involved in checking 
-> assertions by a factor of 10 or more.
-> 
-> Maybe we should have a checkpolicy option to not check assertions?  Then when 
-> doing policy development work of the form "add access to a directory, compile 
-> and load policy, add access to a file in the directory, compile and load 
-> policy, etc" we could turn off assertions and then just check assertions 
-> before distributing policy.
-> 
-> Steve, I expect that you will take an extreme dislike to this idea and I admit 
-> that it has some significant possibilities for getting things wrong.  However 
-> given the number of people who currently comment out lines in assert.te 
-> because they don't know what they are doing I don't think it will make things 
-> any worse than they are now.
+--==_Exmh_1123166104_3070P
+Content-Type: text/plain; charset=us-ascii
 
-I'm not sure what this would ultimately mean in the future, where policy
-changes will have to go through the policy daemon being developed by
-Tresys and it will be applying assertion checks to the linked and
-expanded policy prior to loading it.  Naturally, you don't want the
-client to be able to tell the daemon to skip assertion checks ;)
+On Thu, 04 Aug 2005 17:57:50 +1000, Russell Coker said:
 
-As far as the current situation goes, I'm not fundamentally opposed to a
-simple option to checkpolicy to disable assertion checking, as long as
-the default behavior (in the absence of an explicit option) remains to
-check them.  Although on the other hand that might reduce incentives for
-people to optimize the assertion checking logic.
+> One thing that was idly discussed was a public build server that would use one 
+> domain and several types for every package that was to be compiled.  When you 
+> look at distributions such as Debian with ~10,000 packages the number 64K 
+> doesn't seem so large.
 
-For the purposes of this thread/patchset, I just wanted to ensure that
-the new logic didn't make assertion checking significantly slower, and
-that seems to have been addressed by my latest patch.
+10K?? I only count 1,806 in Fedora Core 4....
 
--- 
-Stephen Smalley
-National Security Agency
+What percent of these packages need any special handling other than
+"run as the invoking user"? FC4 has about 180 .te files in domains/programs,
+so just about 10% there.  I have *no* idea if "the next 8K packages" will
+sustain that 10%, or if it will be significantly lower.
 
+In any case, yes, that could run over 64K.
+
+--==_Exmh_1123166104_3070P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC8ieYcC3lWbTT17ARAoNiAKCRdu/xBBgYieKtF9XzjfdiD+laFwCfZNyI
+LCKAO1N6V+s5GGcC8LRilUE=
+=R2jJ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1123166104_3070P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
