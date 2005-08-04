@@ -1,49 +1,38 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>, "SE-Linux" <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: [RFC][PATCH 0/3] Reduce number of avtab nodes
-Date: Thu, 4 Aug 2005 17:42:43 +1000
-References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 4 Aug 2005 17:57:50 +1000
+Cc: Joshua Brindle <jbrindle@tresys.com>, James Morris <jmorris@redhat.com>,
+   selinux@tycho.nsa.gov
+References: <1122655799.6573.193.camel@moss-spartans.epoch.ncsc.mil> <42EE3879.2050409@tresys.com> <1122908944.6573.305.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1122908944.6573.305.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <200508041742.46851.russell@coker.com.au>
+Message-Id: <200508041757.54938.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 30 July 2005 02:49, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> - Assertion checking is significantly slower.  I added some new inline
-> ebitmap operations to help speed it up, but it is still a lot slower
-> than previously.
+On Tuesday 02 August 2005 01:09, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> Also, my real question here is whether we are sure that 16 bit value
+> space is going to be enough forever for types.
 
-Currently the speed penalty of assertions is a great disincentive for adding 
-new assertions.  One of my slower machines has a checkpolicy time of 6.9s 
-without assertions and 18.9s with them (and the policy that is being compiled 
-is considerably simpler and smaller than the default policy).
+I don't think so.
 
-I had considered adding some assertions to the daemon_domain macro and 
-friends.  This might increase the computational work involved in checking 
-assertions by a factor of 10 or more.
+One thing that was idly discussed was a public build server that would use one 
+domain and several types for every package that was to be compiled.  When you 
+look at distributions such as Debian with ~10,000 packages the number 64K 
+doesn't seem so large.
 
-Maybe we should have a checkpolicy option to not check assertions?  Then when 
-doing policy development work of the form "add access to a directory, compile 
-and load policy, add access to a file in the directory, compile and load 
-policy, etc" we could turn off assertions and then just check assertions 
-before distributing policy.
-
-Steve, I expect that you will take an extreme dislike to this idea and I admit 
-that it has some significant possibilities for getting things wrong.  However 
-given the number of people who currently comment out lines in assert.te 
-because they don't know what they are doing I don't think it will make things 
-any worse than they are now.
+But maybe the MCS policy will reduce the need for types.  How well would a 
+system with 10,000 categories work?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
