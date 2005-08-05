@@ -1,62 +1,68 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j75JWWOb003412
-	for <selinux@tycho.nsa.gov>; Fri, 5 Aug 2005 15:32:32 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j75JOMrI000205
-	for <selinux@tycho.nsa.gov>; Fri, 5 Aug 2005 19:24:27 GMT
-Message-ID: <42F3BD54.9050603@tresys.com>
-Date: Fri, 05 Aug 2005 15:26:12 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j75KYkOb003880
+	for <selinux@tycho.nsa.gov>; Fri, 5 Aug 2005 16:34:46 -0400 (EDT)
+Received: from ccerelbas04.cce.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j75KQfrI010223
+	for <selinux@tycho.nsa.gov>; Fri, 5 Aug 2005 20:26:41 GMT
+Message-ID: <42F3CBB0.4060304@hp.com>
+Date: Fri, 05 Aug 2005 16:27:28 -0400
+From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>
-CC: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: Red Hat's passwd
-References: <42F3904F.5080401@tresys.com>	<1123261941.20237.9.camel@nexus.verbum.private>	<42F3ACF2.9050905@tresys.com> <42F3B235.3080701@redhat.com>	<42F3B900.1090700@tresys.com> <1123269706.20237.25.camel@nexus.verbum.private>
-In-Reply-To: <1123269706.20237.25.camel@nexus.verbum.private>
+To: selinux@tycho.nsa.gov
+Cc: jkim@TrustedCS.com, chanson@TrustedCS.com,
+   Daniel J Walsh <dwalsh@redhat.com>
+Subject: [PATCH] Fix the range_transition rule
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Colin Walters wrote:
+Below is a patch to libsepol/src/expand.c to fix a problem with MLS 
+range transitions.  The problem is that the function expand_module() 
+reassigns numeric values for the types when copying them and the routine 
+used to copy the range transitions, range_trans_clone(), simply copied 
+the old type values leading to bad values in the resulting policy file.
 
->On Fri, 2005-08-05 at 15:07 -0400, Joshua Brindle wrote:
->
->  
->
->>Sounds good to me, trivial patch to do this.. Also, I assume you will 
->>change the previous patch for passwd.c to the new function.
->>    
->>
->
->Shouldn't we also remove checkPasswdAccess from the header?  Otherwise
->what's the point?
->
->  
->
-no but we need to add the other..
+This fix uses the old type value to look up the type name in the old 
+symbol table and then uses the type name to lookup the new type value.
 
-The point is to allow some transition time so that both are available 
-until everything is fixed, then we can remove the other without having 
-any problems.
+--- libsepol-1.7.9/src/expand.c.orig    2005-08-05 15:33:26.000000000 -0400
++++ libsepol-1.7.9/src/expand.c 2005-08-05 16:14:18.000000000 -0400
+@@ -1349,11 +1349,21 @@ static int range_trans_clone(expand_stat
 
---- selinux.h   (revision 920)
-+++ selinux.h   (working copy)
-@@ -290,6 +290,7 @@
+          while (range != NULL) {
+                  range_trans_t *new_range;
++                type_datum_t *type;
++                char *type_name;
++
+                  if ((new_range = malloc(sizeof(*new_range))) == NULL) {
+                          goto out_of_mem;
+                  }
+-                new_range->dom = range->dom;
+-                new_range->type = range->type;
++
++                /* convert the range_transition domain and type */
++                type_name = state->base->p_type_val_to_name[range->dom 
+- 1];
++                type = hashtab_search(state->out->p_types.table, 
+type_name);
++                new_range->dom = type->value;
++                type_name = state->base->p_type_val_to_name[range->type 
+- 1];
++                type = hashtab_search(state->out->p_types.table, 
+type_name);
++                new_range->type = type->value;
++
+                  if (mls_level_clone(&new_range->range.level[0], 
+&range->range.level[0]) == -1 ||
+                      mls_level_clone(&new_range->range.level[1], 
+&range->range.level[1])) {
+                          goto out_of_mem;
 
- /* Check a permission in the passwd class.
-    Return 0 if granted or -1 otherwise. */
-+extern int selinux_check_passwd_access(access_vector_t requested);
- extern int checkPasswdAccess(access_vector_t requested);
 
- /* Set the path to the selinuxfs mount point explicitly.
-
->I should note this approach addresses the consistency and namespacing
->from the developer point of view, but doesn't address possible symbol
->collisions.  Possibly that could wait until a soname bump, just thought
->I'd point it out.
->  
->
-
+-- 
+. paul moore . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+. paul.moore@hp.com                                      hewlett packard
+. (603) 884-5056                                          linux security
 
 --
 This message was distributed to subscribers of the selinux mailing list.
