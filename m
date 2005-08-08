@@ -1,29 +1,60 @@
-Message-ID: <42F79E2C.7060006@trustedcs.com>
-Date: Mon, 08 Aug 2005 13:02:20 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <Dan-Walsh@comcast.net>
-CC: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: Category Translation patch for MCS/MLS Policy
-References: <42F38DA8.4090300@comcast.net> <42F79CD4.1070404@trustedcs.com>
-In-Reply-To: <42F79CD4.1070404@trustedcs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Colin Walters <walters@verbum.org>
+To: Daniel J Walsh <Dan-Walsh@comcast.net>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <42F38DA8.4090300@comcast.net>
+References: <42F38DA8.4090300@comcast.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/OnwdduNv5XVMFJbFIQt"
+Date: Mon, 08 Aug 2005 14:17:07 -0400
+Message-Id: <1123525027.636.9.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Darrel Goeddel wrote:
-> Attached is our latest incarnation of the translation framework.
 
-Since I hit send before I actually attached the patch...  The patch
-can be found at:
+--=-/OnwdduNv5XVMFJbFIQt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-http://home.insightbb.com/~dgoeddel/translation.patch
+On Fri, 2005-08-05 at 12:02 -0400, Daniel J Walsh wrote:
+> I have written up a patch for libselinux to implement two functions, to=20
+> translate the security level.
 
-Sorry about that.
+To namespace these a bit more strongly (and make them easier to read),
+perhaps something like:
 
--- 
+> getselevelbyname
 
-Darrel
+selinux_get_level_by_name
+
+> getselevelbysename
+
+selinux_get_level_by_sename  (there may be a better name here, not sure)
+
+> setransconlevel
+
+selinux_translate_level
+
+> typedef struct selevel {
+
+Perhaps struct selinux_category/selinux_category_t?
+
+
+
+--=-/OnwdduNv5XVMFJbFIQt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC96GjOIkJWWp2WGURAq0xAJ9RHqPl5jBPWR5Wc8oiBX/IhtrxLwCeIML8
+jnk2sSeGp2eNBs8PxV2Rhck=
+=2d8o
+-----END PGP SIGNATURE-----
+
+--=-/OnwdduNv5XVMFJbFIQt--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
