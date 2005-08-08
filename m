@@ -1,47 +1,41 @@
-Message-ID: <20050808174331.70367.qmail@web34312.mail.mud.yahoo.com>
-Date: Mon, 8 Aug 2005 10:43:31 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Category Translation patch for MCS/MLS Policy
-To: Daniel J Walsh <Dan-Walsh@comcast.net>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <42F38DA8.4090300@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: RE: Attributes in new binary format
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'Joshua Brindle'" <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
+   selinux-dev@tresys.com
+In-Reply-To: <200508081641.j78GfSss016318@gotham.columbia.tresys.com>
+References: <200508081641.j78GfSss016318@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 08 Aug 2005 13:48:32 -0400
+Message-Id: <1123523312.13654.317.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2005-08-08 at 12:41 -0400, Frank Mayer wrote:
+> It all comes down to trade-offs. In our experience there are times you need
+> to or are forced to use the binary format for analysis. We can with some
+> effort do the expansion in lipabol and put the binary format into the
+> current format without attributes. However, we always wished the binary
+> format had attributes. Now it does (almost). 
+> 
+> If it required extensive kernel resources to maintain the symbols in the
+> binary file format, we wouldn't suggest it. But it seems like the effort is
+> fairly small (skip over entries on read) and the gain, IMO, is great. Hence
+> the suggestion. Frank
 
+I'm not convinced there is a real gain (useful traceback from analysis
+still requires higher level formats than the kernel format, even if we
+include the attribute symbols in the kernel format), and in any event,
+the kernel doesn't need the information.  The more natural step would be
+to emit an auxiliary file with the additional information like the
+kernel's System.map file and install that file for use by userspace
+tools than to put it into the kernel's format.
 
---- Daniel J Walsh <Dan-Walsh@comcast.net> wrote:
+-- 
+Stephen Smalley
+National Security Agency
 
-
-> Comments?
-
-In the Unix MLS systems we found that
-allowing whitespace in label names was
-a bad idea. We also found that aliases
-(e.g. TS for TopSecret, secret for Secret)
-are absolutely necessary. I will not
-participate in the case sensitive/insensitive
-debate, but y'all should have it over
-with. Then there's my favorite issue,
-that of whether a user cleared only to
-Secret can see the lable names for TopSecret.
-
-You may not chose to address all of these
-issues, but you should be ready to
-explain why they don't matter as you will
-be asked.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
