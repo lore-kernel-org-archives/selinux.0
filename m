@@ -1,55 +1,37 @@
-Subject: Re: Attributes in new binary format
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-dev@tresys.com
-In-Reply-To: <42F7805B.3040607@tresys.com>
-References: <42F7805B.3040607@tresys.com>
-Content-Type: text/plain
-Date: Mon, 08 Aug 2005 12:30:14 -0400
-Message-Id: <1123518614.13654.244.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200508081641.j78GfSss016318@gotham.columbia.tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'Joshua Brindle'" <jbrindle@tresys.com>
+Cc: <selinux@tycho.nsa.gov>, <selinux-dev@tresys.com>
+Subject: RE: Attributes in new binary format
+Date: Mon, 8 Aug 2005 12:41:28 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1123518614.13654.244.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-08-08 at 11:55 -0400, Joshua Brindle wrote:
-> In the new binary format the attribute values are preserved in the avtab 
-> but the attribute entries in the type symbol table are destroyed.
-> 
-> This makes analysis on the binary format difficult for a number of reasons.
-> 
-> Tools like apol will have to expand the type bitmaps and will lose 
-> attibutes on types. This is the same as analysing the current (v19) 
-> binary format but including attributes will be beneficial to analysis.
-> 
-> Further, the hierarchal constraint checking is currently broken with the 
-> new format. The reason is that we must be able to expand attributes at 
-> check time to ensure that types weren't given permissions via attributes 
-> that violate the constraints. This can be done with the new format but 
-> it's very time consuming.
-> 
-> I'd like to suggest that we preserve the attibute entries in the type 
-> table in the binary format and modify the kernel read function to not 
-> allocate space for them as it reads them in. This makes the binary 
-> format much more usable in terms of analysis at no cost to the kernel 
-> memory.
-> 
-> Let me know what you think.
+ 
+> I don't see why any of this would mean that we should put this
+> information into the kernel's binary format, particularly given that
+> the kernel is just going to discard it at read time (and it would
+> need the isattr flag to be written into the kernel binary format to
+> know what to discard at that point, I assume).  Including attributes
+> in analysis can be done by performing the analysis on policy source
+> or the policy module format.  
 
-I don't see why any of this would mean that we should put this
-information into the kernel's binary format, particularly given that the
-kernel is just going to discard it at read time (and it would need the
-isattr flag to be written into the kernel binary format to know what to
-discard at that point, I assume).  Including attributes in analysis can
-be done by performing the analysis on policy source or the policy module
-format.  As far as the hierarchical constraint checking code is
-concerned, can't it just use expand_avtab like the assertion checking
-code now does?  Running time on checkpolicy actually shows a nontrivial
-speed up from the original upstream checkpolicy to the latest patched
-one with the inline ebitmap operators.
+It all comes down to trade-offs. In our experience there are times you need
+to or are forced to use the binary format for analysis. We can with some
+effort do the expansion in lipabol and put the binary format into the
+current format without attributes. However, we always wished the binary
+format had attributes. Now it does (almost). 
 
--- 
-Stephen Smalley
-National Security Agency
+If it required extensive kernel resources to maintain the symbols in the
+binary file format, we wouldn't suggest it. But it seems like the effort is
+fairly small (skip over entries on read) and the gain, IMO, is great. Hence
+the suggestion. Frank
+
 
 
 --
