@@ -1,31 +1,34 @@
-Subject: Re: chcon v. setfilecon
+Subject: Re: libselinux does not compile on ia64
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: rich turner <rich@storix.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1123191498.4481.76.camel@rich>
-References: <1123191498.4481.76.camel@rich>
+To: Manoj Srivastava <manoj.srivastava@stdc.com>
+Cc: Janak Desai <jdesai@us.ibm.com>, selinux@tycho.nsa.gov
+In-Reply-To: <877jez41lm.fsf@glaurung.internal.golden-gryphon.com>
+References: <877jez41lm.fsf@glaurung.internal.golden-gryphon.com>
 Content-Type: text/plain
-Date: Mon, 08 Aug 2005 08:44:01 -0400
-Message-Id: <1123505041.13654.117.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 08 Aug 2005 08:36:13 -0400
+Message-Id: <1123504573.13654.113.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-08-04 at 14:38 -0700, rich turner wrote:
-> what is the difference between these commands? it seems they both do the
-> same thing.
+On Sat, 2005-08-06 at 08:49 -0500, Manoj Srivastava wrote:
+> Hi,
 > 
-> is setfilecon deprecated and replaced with chcon?
 > 
-> on my fedora core3 system i have the setfilecon command but not the
-> chcon command. on fc4 i have the chcon command.
+> 	The latest libselinux fails to compile on IA64 with the
+>  following error:
+>  cc -Wall -I../include -D_GNU_SOURCE    setupns.c  -L../src -lselinux  -o setupn
+>  setupns.c:17: error: syntax error before "clone"
+>  setupns.c:22: warning: return type defaults to `int'
+> 
+>         Apparently, there is no clone on IA64.  There is an excerpt
+>  from libc 2.3.2 that implements a clone look alike for IA64; however,
+>  libc is LGPL'd , so the combination is no longer public domain.
 
-setfilecon was a trivial example utility provided with libselinux to
-demonstrate usage of its setfilecon() function.  chcon is a "real"
-utility patterned after chown/chmod with a richer interface and set of
-functionality.  chcon is included in coreutils.  I don't know why you
-wouldn't have it in FC3; it should be there.  Red Hat stopped installing
-setfilecon from libselinux as it served no purpose for end users.
+At this point, I think setupns in libselinux is obsoleted by Janak's
+patches for pam.  Right, Janak?  So we could just drop it altogether,
+both utils/setupns.c (example utility) and src/setupns.c (libselinux
+function).  There are no users of it yet.
 
 -- 
 Stephen Smalley
