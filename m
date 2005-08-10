@@ -1,42 +1,33 @@
-Subject: Re: checkpolicy constraints bug
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200508102332.48483.russell@coker.com.au>
-References: <200508102332.48483.russell@coker.com.au>
-Content-Type: text/plain
-Date: Wed, 10 Aug 2005 11:16:41 -0400
-Message-Id: <1123687001.3018.72.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7AFuMOb003029
+	for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2005 11:56:22 -0400 (EDT)
+Received: from hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7AFmM7C022400
+	for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2005 15:48:23 GMT
+Message-ID: <BAY17-F3426AFBCE35978EDAE7471BEBA0@phx.gbl>
+From: "nitin kanaskar" <nvk02@hotmail.com>
+To: selinux@tycho.nsa.gov
+Subject: new to selinux
+Date: Wed, 10 Aug 2005 21:18:22 +0530
 Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-08-10 at 23:32 +1000, Russell Coker wrote:
-> constrain process transition
->       ( r1 == r2 or ( t1 == privrole and t2 == userdomain )
-> ifdef(`crond.te', `
->          or (t1 == crond_t and t2 == user_crond_domain)
-> ')
-> ifdef(`userhelper.te',
->       `or (t1 == userhelperdomain)')
-> ifdef(`postfix.te', `
-> ifdef(`direct_sysadm_daemon',
->       `or (t1 == sysadm_mail_t and t2 == system_mail_t and r2 == system_r )')
-> ')
->        or (t1 == priv_system_role and r2 == system_r )
->         );
-> 
-> 
-> The above section in the constraints file for the strict policy works with 
-> checkpolicy version 1.23.1-1 (FC4 release) but fails with 1.25.3-1 (latest 
-> rawhide).
 
-Yes, reproduced it here as well.  Looks like a bug in the module
-expansion code for constraint sets.  I have a patch in testing now.
+hi all...
+i ve started reading selinux papers
+and am interested in contributing
+in any area listed in the section
+'remaining work' of the site.
+Could anybody provide any suggestions?
 
--- 
-Stephen Smalley
-National Security Agency
+Regards
+Nitin
+
+_________________________________________________________________
+Logon to MSN Games http://www.msngamez.com/in/gamezone/ Enjoy unlimited 
+action
 
 
 --
