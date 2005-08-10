@@ -1,33 +1,32 @@
-Date: Wed, 10 Aug 2005 16:42:32 -0500
+Date: Wed, 10 Aug 2005 16:45:01 -0500
 From: serue@us.ibm.com
 To: SELinux@tycho.nsa.gov
-Subject: [PATCH] don't risk returning freed data in get_failsafe_context
-Message-ID: <20050810214232.GE7826@serge.austin.ibm.com>
+Subject: [PATCH] free conary on error path in get_default_context()
+Message-ID: <20050810214501.GF7826@serge.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes a bug found in get_context_list.c by Coverity:
+This patch fixes a trivial bug found in get_context_list.c by Coverity:
 
-	If get_failsafe_context() fails, 'reachable' is freed, then we
-	goto out:, where we set *list=reachable.  I suspect reachable
-	should first be set to NULL.  Though the rc<0 may keep users
-	from trying to use *list (quick audit of libselinux/{src,utils}
-	suggests that's the case), this still seems prudent.
+	When strdup(conary) fails, conary is not freed.
 
 Index: src/get_context_list.c
 ===================================================================
 --- src.orig/get_context_list.c
 +++ src/get_context_list.c
-@@ -410,6 +410,7 @@ failsafe:
-     rc = get_failsafe_context(user, &reachable[0]);
-     if (rc < 0) {
- 	    freeconary(reachable);
-+	    reachable = NULL;
- 	    goto out;
-     }
-     rc = 1; /* one context in the list */
+@@ -60,9 +60,9 @@ int get_default_context(const char* user
+ 	    return -1;
+ 
+     *newcon = strdup(conary[0]);
++    freeconary(conary);
+     if (!(*newcon))
+ 	    return -1;
+-    freeconary(conary);
+     return 0;
+ }
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
