@@ -1,68 +1,43 @@
-Message-ID: <20050810151100.93211.qmail@web34306.mail.mud.yahoo.com>
-Date: Wed, 10 Aug 2005 08:11:00 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Category Translation patch for MCS/MLS Policy
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <42F9E53A.8080008@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: Re: checkpolicy constraints bug
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200508102332.48483.russell@coker.com.au>
+References: <200508102332.48483.russell@coker.com.au>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 11:16:41 -0400
+Message-Id: <1123687001.3018.72.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
---- Daniel J Walsh <dwalsh@redhat.com> wrote:
-
-> One thing we are
-> thinking about for MCS 
-> is to allow an file to be in multiple categories.
-
-Do you mean something different from the B&L
-notion of multiple categories? Bell and LePadula,
-as we all know, would allow a file to be marked
-with multiple categories, but the accessing
-process would have to have all of the said
-categories for success. 
-
-> So a c1-c3 
-> translation might look like
+On Wed, 2005-08-10 at 23:32 +1000, Russell Coker wrote:
+> constrain process transition
+>       ( r1 == r2 or ( t1 == privrole and t2 == userdomain )
+> ifdef(`crond.te', `
+>          or (t1 == crond_t and t2 == user_crond_domain)
+> ')
+> ifdef(`userhelper.te',
+>       `or (t1 == userhelperdomain)')
+> ifdef(`postfix.te', `
+> ifdef(`direct_sysadm_daemon',
+>       `or (t1 == sysadm_mail_t and t2 == system_mail_t and r2 == system_r )')
+> ')
+>        or (t1 == priv_system_role and r2 == system_r )
+>         );
 > 
-> "MedicalRecords,MassGeneral,Cancer"
-> or
-> "CompanyConfidential,IBMNonDisclosure5"
 > 
-> So we would want files to show this, but if I do a
-> ps -eZ command I 
-> don't want "System High" processes to translate it.
+> The above section in the constraints file for the strict policy works with 
+> checkpolicy version 1.23.1-1 (FC4 release) but fails with 1.25.3-1 (latest 
+> rawhide).
 
-Why's that?
+Yes, reproduced it here as well.  Looks like a bug in the module
+expansion code for constraint sets.  I have a patch in testing now.
 
-> So does MLS ps command translate?
+-- 
+Stephen Smalley
+National Security Agency
 
-If you're asking what I think you're asking
-the answer is yes.
-
-> Or does MCS have to add the concept
-> of "system high"?
-
-Not strictly. You could enumerate all categories,
-but system high is much simpler, and you can
-probably steal^H^H^H^Hhare more of the MLS code
-that way. You might want to come up with a name
-that's less threatening, perhaps "allcats", or
-"star".
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
- 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
