@@ -1,38 +1,34 @@
-Date: Wed, 10 Aug 2005 16:45:49 -0500
-From: serue@us.ibm.com
-To: SELinux@tycho.nsa.gov
-Subject: [PATCH] Free alloc'ed memory on error path in matchpathcon_filespec_add
-Message-ID: <20050810214549.GG7826@serge.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7AM5kOb006155
+	for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2005 18:05:46 -0400 (EDT)
+Received: from ns2.gaussoin.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7ALujE7023539
+	for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2005 21:56:46 GMT
+Received: from sexydeathchix.com (sexydeathchix.com [216.9.34.141])
+	by ns2.gaussoin.com (8.12.8p1/8.12.8) with ESMTP id j7ALvi1e007292
+	for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2005 14:57:44 -0700 (PDT)
+	(envelope-from jaron@hitechcrime.net)
+Date: Wed, 10 Aug 2005 14:57:44 -0700 (PDT)
+From: Jaron Omega <jaron@hitechcrime.net>
+To: selinux@tycho.nsa.gov
+Subject: I'm new too.
+Message-ID: <20050810143936.G7154@ns2.gaussoin.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes a trivial bug found in matchpathcon.c by Coverity:
 
-	When matchpathcon_filespec_add() fails to allocate fl->file
-	and jumps to oom:, it fails to free fl which was malloced
-	immedately above.  Jump to oom_freefl: instead and free it.
+Hi, I'm Jaron Omega of San Diego CA.  I've been interested in
+computer security for many years; to include it's ups and downs.
+I first saw an implementation of MAC at a conference several
+years ago by a SAIC employee (his name escapes me at the moment).
+At the time, it was too CPU extensive to be common.  That's not
+the case anymore and so I'm taking more of an active interest in
+this sort of implementation.  I also hope to contribute in some
+way through my study of this sort of security measure.
 
-Index: src/matchpathcon.c
-===================================================================
---- src.orig/matchpathcon.c
-+++ src/matchpathcon.c
-@@ -274,11 +274,13 @@ int matchpathcon_filespec_add(ino_t ino,
- 	fl->specind = specind;
- 	fl->file = malloc(strlen(file) + 1);
- 	if (!fl->file)
--		goto oom;
-+		goto oom_freefl;
- 	strcpy(fl->file, file);
- 	fl->next = prevfl->next;
- 	prevfl->next = fl;
- 	return fl->specind;
-+oom_freefl:
-+	free(fl);
- oom:
- 	myprintf("%s:  insufficient memory for file label entry for %s\n",
- 		 __FUNCTION__, file);
+Omega
 
 --
 This message was distributed to subscribers of the selinux mailing list.
