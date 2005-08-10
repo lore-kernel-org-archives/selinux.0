@@ -1,33 +1,61 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7AFuMOb003029
-	for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2005 11:56:22 -0400 (EDT)
-Received: from hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7AFmM7C022400
-	for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2005 15:48:23 GMT
-Message-ID: <BAY17-F3426AFBCE35978EDAE7471BEBA0@phx.gbl>
-From: "nitin kanaskar" <nvk02@hotmail.com>
-To: selinux@tycho.nsa.gov
-Subject: new to selinux
-Date: Wed, 10 Aug 2005 21:18:22 +0530
+Subject: Re: new to selinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: nitin kanaskar <nvk02@hotmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <BAY17-F3426AFBCE35978EDAE7471BEBA0@phx.gbl>
+References: <BAY17-F3426AFBCE35978EDAE7471BEBA0@phx.gbl>
+Content-Type: text/plain
+Date: Wed, 10 Aug 2005 12:46:06 -0400
+Message-Id: <1123692366.3018.110.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-08-10 at 21:18 +0530, nitin kanaskar wrote:
+> hi all...
+> i ve started reading selinux papers
+> and am interested in contributing
+> in any area listed in the section
+> 'remaining work' of the site.
+> Could anybody provide any suggestions?
 
-hi all...
-i ve started reading selinux papers
-and am interested in contributing
-in any area listed in the section
-'remaining work' of the site.
-Could anybody provide any suggestions?
+Depends on your skills and interests, naturally.  That page is only
+updated periodically, and is fairly generic - it is likely better to
+scan the recent mailing list archives
+(http://marc.theaimsgroup.com/?l=selinux is more up-to-date than the
+only periodically updated ones on nsa.gov) for areas of current
+activity.  A natural first step is just getting a SELinux system up and
+running and gain some familiarity with using and configuring it.  Some
+resources are listed at http://selinux.sf.net.  Some possible areas
+where you might contribute include:
 
-Regards
-Nitin
+- Testing and expanding the reference policy.  See
+http://serefpolicy.sourceforge.net/.
 
-_________________________________________________________________
-Logon to MSN Games http://www.msngamez.com/in/gamezone/ Enjoy unlimited 
-action
+- Contribute to ongoing work to improve libsepol and create a management
+infrastructure.  See 
+http://marc.theaimsgroup.com/?l=selinux&m=112265972617608&w=2
+as well as other discussions on the list about that work.
+Note that you need to work relative to the CVS tree of the sourceforge
+selinux site for any such development, see
+http://sourceforge.net/cvs/?group_id=21266
+
+- Add testcases to the SELinux testsuite in the LTP.  See
+http://marc.theaimsgroup.com/?l=selinux&m=112230493816120&w=2
+
+- Test and contribute to the ongoing polyinstantiation support
+development.  See
+http://marc.theaimsgroup.com/?l=selinux&m=112169238725927&w=2
+
+- Test and contribute to various externally developed policy tools to
+make them more useable.  See
+http://www.tresys.com/selinux/selinux_policy_tools.html
+http://www.mitre.org/tech/selinux/
+http://seedit.sourceforge.net/
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
