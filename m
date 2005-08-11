@@ -1,29 +1,34 @@
-Message-ID: <42FB7440.1000209@tresys.com>
-Date: Thu, 11 Aug 2005 11:52:32 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Colin Walters <walters@verbum.org>,
-   selinux@tycho.nsa.gov
-Subject: Re: Red Hat's passwd
-References: <42F3904F.5080401@tresys.com>	<1123261941.20237.9.camel@nexus.verbum.private>	<42F3ACF2.9050905@tresys.com> <42F3B235.3080701@redhat.com>	<42F3B900.1090700@tresys.com> <1123772451.7810.33.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1123772451.7810.33.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: avtab reduction, binary policy format version change
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain
+Date: Thu, 11 Aug 2005 13:21:27 -0400
+Message-Id: <1123780887.7810.78.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+Hi,
 
->The patches to rename checkPasswdAccess (while temporarily retaining the
->old symbol for compatibility) were merged as of libselinux 1.25.1.  So
->if/when people convert all users of it over to the new name, we can wait
->a bit and then drop the old symbol altogether.
->  
->
-Dan, are you going to be able to merge those changes into passwd?
+The patches to libsepol and checkpolicy for reducing the size and number
+of avtab nodes have been committed to the sourceforge CVS tree as of
+libsepol 1.7.13 and checkpolicy 1.25.8.  The kernel patch is going to be
+submitted soon for -mm, but will not go into mainline until 2.6.14.  The
+binary policy format version has been incremented to version 20.  To
+build a policy for older kernels, you will need to use the -c 19 option
+to checkpolicy.  The patches for the kernel, libsepol, and checkpolicy
+are also available from http://www.flux.utah.edu/~sds/, as are complete
+patched tarballs of libsepol and checkpolicy.
 
-We need to eliminate as many hard coded class references as possible to 
-make transitioning to the userspace security server easier.
+The policy Makefile will likely need to be adjusted again to generate
+both version 19 and version 20 policies during the transition, and to
+load the appropriate one based on the kernel policy version.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
