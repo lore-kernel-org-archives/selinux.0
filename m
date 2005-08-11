@@ -1,24 +1,24 @@
-Subject: Re: [PATCH] fix use-after-free in matchpathcon.c
+Subject: Re: Red Hat's passwd
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: serue@us.ibm.com
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20050810213226.GA7826@serge.austin.ibm.com>
-References: <20050810213226.GA7826@serge.austin.ibm.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Colin Walters <walters@verbum.org>,
+   selinux@tycho.nsa.gov
+In-Reply-To: <42F3B900.1090700@tresys.com>
+References: <42F3904F.5080401@tresys.com>
+	 <1123261941.20237.9.camel@nexus.verbum.private>
+	 <42F3ACF2.9050905@tresys.com> <42F3B235.3080701@redhat.com>
+	 <42F3B900.1090700@tresys.com>
 Content-Type: text/plain
-Date: Thu, 11 Aug 2005 10:17:47 -0400
-Message-Id: <1123769867.7810.19.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 11 Aug 2005 11:00:51 -0400
+Message-Id: <1123772451.7810.33.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-08-10 at 16:32 -0500, serue@us.ibm.com wrote:
-> Following is a set of patches against (potential) bugs found by
-> Coverity in libselinux.  Hopefully the rest of the selinux-usr
-> libraries will follow.  None of the selinux-usr ones looked
-> groundbreaking, whereas a quick peek at some later libraries
-> looked scarier.
-
-Thanks, all merged as of libselinux 1.25.2.
+The patches to rename checkPasswdAccess (while temporarily retaining the
+old symbol for compatibility) were merged as of libselinux 1.25.1.  So
+if/when people convert all users of it over to the new name, we can wait
+a bit and then drop the old symbol altogether.
 
 -- 
 Stephen Smalley
