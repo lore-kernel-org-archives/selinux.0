@@ -1,24 +1,25 @@
-Subject: Re: Red Hat's passwd
+Subject: Re: libselinux does not compile on ia64
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Colin Walters <walters@verbum.org>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <42F3B900.1090700@tresys.com>
-References: <42F3904F.5080401@tresys.com>
-	 <1123261941.20237.9.camel@nexus.verbum.private>
-	 <42F3ACF2.9050905@tresys.com> <42F3B235.3080701@redhat.com>
-	 <42F3B900.1090700@tresys.com>
+To: Janak Desai <janak@us.ibm.com>
+Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
+   Janak Desai <jdesai@us.ibm.com>, selinux@tycho.nsa.gov
+In-Reply-To: <42F75828.1090700@us.ibm.com>
+References: <877jez41lm.fsf@glaurung.internal.golden-gryphon.com>
+	 <1123504573.13654.113.camel@moss-spartans.epoch.ncsc.mil>
+	 <42F75828.1090700@us.ibm.com>
 Content-Type: text/plain
-Date: Thu, 11 Aug 2005 11:00:51 -0400
-Message-Id: <1123772451.7810.33.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 11 Aug 2005 11:01:41 -0400
+Message-Id: <1123772501.7810.35.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The patches to rename checkPasswdAccess (while temporarily retaining the
-old symbol for compatibility) were merged as of libselinux 1.25.1.  So
-if/when people convert all users of it over to the new name, we can wait
-a bit and then drop the old symbol altogether.
+On Mon, 2005-08-08 at 09:03 -0400, Janak Desai wrote:
+> Yup. That's correct. We can drop setupns() from both utils/setupns.c and
+> src/setupns.c. Functionality provided by setupns() has migrated to the
+> pam_namespace patch.
+
+Ok, setupns has been dropped from libselinux as of 1.25.1.
 
 -- 
 Stephen Smalley
