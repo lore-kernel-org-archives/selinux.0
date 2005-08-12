@@ -1,56 +1,25 @@
-Subject: Re: [PATCH] fix order of error checking in libsepol
+Subject: Re: [PATCH] check ebitmap_write return value in policydb_write
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: serue@us.ibm.com
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20050812192231.GA7053@sergelap.austin.ibm.com>
-References: <20050812192231.GA7053@sergelap.austin.ibm.com>
+In-Reply-To: <20050812192854.GA7273@sergelap.austin.ibm.com>
+References: <20050812192854.GA7273@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Date: Fri, 12 Aug 2005 12:33:39 -0400
-Message-Id: <1123864419.23483.73.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 12 Aug 2005 15:05:09 -0400
+Message-Id: <1123873509.23483.95.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-08-12 at 14:22 -0500, serue@us.ibm.com wrote:
+On Fri, 2005-08-12 at 14:28 -0500, serue@us.ibm.com wrote:
 > The following patch fixes a bug found by Coverity in libsepol:
 > 
-> 	In write.c, a check for items==0 is done after a goto out: if
-> 	items!=1, resulting in dead code, and rc==-1 when items==0
-> 	(which I assume is not intended).
-> 
-> thanks,
-> -serge
-> 
-> Index: src/write.c
-> ===================================================================
-> --- src.orig/write.c
-> +++ src/write.c
-> @@ -567,10 +567,9 @@ static int cond_write_av_list(policydb_t
->  	
->  	buf[0] = cpu_to_le32(len);
->  	items = put_entry(buf, sizeof(uint32_t), 1, fp);
-> -	if (items != 1)
-> -		goto out;
-> -	if (items == 0) {
-> -		rc = 0;
-> +	if (items != 1) {
-> +		if (items == 0)
-> +			rc = 0;
->  		goto out;
->  	}
+> 	In policydb_write, the return value of ebitmap_write() is not
+> 	checked.
 
-Actually, I think what was intended here was:
-	if (items != 1)
-		goto out;
-	if (len == 0) {
-		rc = 0;
-		goto out;
-	}
-
-items is the number of successfully written items, so anything other
-than 1 at that point is indeed an error, whereas len may be 0, in which
-case we can skip the list loop (not that there is any harm in just
-falling through to it).
+Thanks, merged this one, and a corrected fix for the prior one.
+Also fixed policydb_destroy to correctly handle the case where
+type_attr_map/attr_type_map are NULL.
 
 -- 
 Stephen Smalley
