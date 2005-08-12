@@ -1,8 +1,8 @@
-Date: Fri, 12 Aug 2005 14:22:31 -0500
+Date: Fri, 12 Aug 2005 14:28:54 -0500
 From: serue@us.ibm.com
 To: SELinux@tycho.nsa.gov
-Subject: [PATCH] fix order of error checking in libsepol
-Message-ID: <20050812192231.GA7053@sergelap.austin.ibm.com>
+Subject: [PATCH] check ebitmap_write return value in policydb_write
+Message-ID: <20050812192854.GA7273@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
@@ -10,31 +10,26 @@ List-Id: selinux@tycho.nsa.gov
 
 The following patch fixes a bug found by Coverity in libsepol:
 
-	In write.c, a check for items==0 is done after a goto out: if
-	items!=1, resulting in dead code, and rc==-1 when items==0
-	(which I assume is not intended).
-
-thanks,
--serge
+	In policydb_write, the return value of ebitmap_write() is not
+	checked.
 
 Index: src/write.c
 ===================================================================
 --- src.orig/write.c
 +++ src/write.c
-@@ -567,10 +567,9 @@ static int cond_write_av_list(policydb_t
- 	
- 	buf[0] = cpu_to_le32(len);
- 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
--	if (items != 1)
--		goto out;
--	if (items == 0) {
--		rc = 0;
-+	if (items != 1) {
-+		if (items == 0)
-+			rc = 0;
- 		goto out;
+@@ -1514,8 +1514,10 @@ int policydb_write(policydb_t * p, struc
+         }
+ 
+ 	if (policy_type == POLICY_KERN && policyvers >= POLICYDB_VERSION_AVTAB) {
+-		for (i = 0; i < p->p_types.nprim; i++)
+-			ebitmap_write(&p->type_attr_map[i], fp);
++		for (i = 0; i < p->p_types.nprim; i++) {
++			if (ebitmap_write(&p->type_attr_map[i], fp) == -1)
++				return -1;
++		}
  	}
  
+ 	return 0;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
