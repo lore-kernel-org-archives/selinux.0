@@ -1,142 +1,65 @@
-Message-ID: <36282A1733C57546BE392885C0618592B93140@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh
-	 <dwalsh@redhat.com>
-Cc: Darrel Goeddel <DGoeddel@TrustedCS.com>,
-   Daniel J Walsh
-	 <Dan-Walsh@comcast.net>, SELinux <SELinux@tycho.nsa.gov>
-Subject: RE: Category Translation patch for MCS/MLS Policy
-Date: Mon, 15 Aug 2005 16:35:06 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7FMbCOb008702
+	for <selinux@tycho.nsa.gov>; Mon, 15 Aug 2005 18:37:13 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7FMSGdf011145
+	for <selinux@tycho.nsa.gov>; Mon, 15 Aug 2005 22:28:17 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id A8F2C61AF1
+	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2005 08:28:12 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 12223-01 for <selinux@tycho.nsa.gov>;
+	Tue, 16 Aug 2005 08:28:12 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 31B4861AF0
+	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2005 08:28:12 +1000 (EST)
+Received: from intranet.corp.redhat.com (intranet.corp.redhat.com [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 9BE1F44
+	for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2005 08:28:11 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: syslinux
+Date: Tue, 16 Aug 2005 08:28:07 +1000
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C5A1D8.D271FA20"
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_7bRADFeVVMfsXKA"
+Message-Id: <200508160828.11139.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
-------_=_NextPart_000_01C5A1D8.D271FA20
+--Boundary-00=_7bRADFeVVMfsXKA
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+The attached patch is needed to run syslinux on a strict system.
 
-Attached is a patch to dlopen libselinux from procps and call getpidcon.
-This patch is relative to procps-3.2.5-6.3 (from Fedora Updates).
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
--Chad
-
-Stephen Smalley wrote:
-
-> 
-> IIRC, at present, procps doesn't use libselinux at all; procps directly
-> reads /proc/pid/attr/current and displays that value, since procps
-> already deals directly with /proc/pid entries and the maintainer
-> preferred to avoid a dependency of procps on libselinux (but was willing
-> to accept a dlopen of libselinux if we were to create such a patch, as
-> long as procps continues to work in the absence of libselinux).  Hence,
-> without further changes, procps won't perform any translation at all.
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
->  
-
-
-------_=_NextPart_000_01C5A1D8.D271FA20
-Content-Type: application/octet-stream;
-	name="procps-3.2.5-libselinux.patch"
-Content-Transfer-Encoding: quoted-printable
+--Boundary-00=_7bRADFeVVMfsXKA
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="procps-3.2.5-libselinux.patch"
+	filename="diff"
 
-diff -Nur procps-3.2.5.orig/ps/module.mk procps-3.2.5/ps/module.mk=0A=
---- procps-3.2.5.orig/ps/module.mk	2004-07-14 22:20:06.000000000 =
-+0000=0A=
-+++ procps-3.2.5/ps/module.mk	2005-05-09 19:46:22.000000000 +0000=0A=
-@@ -20,7 +20,7 @@=0A=
- TARFILES +=3D $(PSSRC) $(addprefix ps/,$(PS_X))=0A=
- =0A=
- ps/ps: $(PSOBJ) $(LIBPROC)=0A=
--	$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^=0A=
-+	$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^ -ldl=0A=
- =0A=
- # This just adds the stacktrace code=0A=
- ps/debug: $(PSOBJ) stacktrace.o $(LIBPROC)=0A=
-diff -Nur procps-3.2.5.orig/ps/output.c procps-3.2.5/ps/output.c=0A=
---- procps-3.2.5.orig/ps/output.c	2005-01-14 19:06:19.000000000 =
-+0000=0A=
-+++ procps-3.2.5/ps/output.c	2005-08-10 20:54:47.000000000 +0000=0A=
-@@ -53,6 +53,7 @@=0A=
- #include <sys/mman.h>=0A=
- #include <time.h>=0A=
- #include <unistd.h>=0A=
-+#include <dlfcn.h>=0A=
- =0A=
- #include "../proc/readproc.h"=0A=
- #include "../proc/sysinfo.h"=0A=
-@@ -1094,31 +1095,34 @@=0A=
- =0A=
- // move the bulk of this to libproc sometime=0A=
- static int pr_context(char *restrict const outbuf, const proc_t =
-*restrict const pp){=0A=
--  char filename[48];=0A=
-+  static int (*ps_getpidcon)(pid_t pid, char **context) =3D 0;=0A=
-+  static int tried_load =3D 0;=0A=
-   size_t len;=0A=
--  ssize_t num_read;=0A=
--  int fd;=0A=
-+  char *context;=0A=
- =0A=
--// wchan file is suitable for testing=0A=
--//snprintf(filename, sizeof filename, "/proc/%d/wchan", pp->tgid);=0A=
--snprintf(filename, sizeof filename, "/proc/%d/attr/current", =
-pp->tgid);=0A=
--=0A=
--  fd =3D open(filename, O_RDONLY, 0);=0A=
--  if(likely(fd=3D=3D-1)) goto fail;=0A=
--  num_read =3D read(fd, outbuf, 666);=0A=
--  close(fd);=0A=
--  if(unlikely(num_read<=3D0)) goto fail;=0A=
--  outbuf[num_read] =3D '\0';=0A=
--=0A=
--  len =3D 0;=0A=
--  while(outbuf[len]>' ' && outbuf[len]<=3D'~') len++;=0A=
--  outbuf[len] =3D '\0';=0A=
--  if(len) return len;=0A=
--=0A=
--fail:=0A=
--  outbuf[0] =3D '-';=0A=
--  outbuf[1] =3D '\0';=0A=
--  return 1;=0A=
-+  if(!ps_getpidcon && !tried_load){=0A=
-+    void *handle =3D dlopen("libselinux.so.1", RTLD_NOW);=0A=
-+    if(handle){=0A=
-+      dlerror();=0A=
-+      ps_getpidcon =3D dlsym(handle, "getpidcon");=0A=
-+      if(dlerror())=0A=
-+        ps_getpidcon =3D 0;=0A=
-+    }=0A=
-+    tried_load++;=0A=
-+  }=0A=
-+  if(ps_getpidcon && !ps_getpidcon(pp->tgid, &context)){=0A=
-+    size_t max_len =3D OUTBUF_SIZE-1;=0A=
-+    len =3D strlen(context);=0A=
-+    if(len > max_len) len =3D max_len;=0A=
-+    memcpy(outbuf, context, len);=0A=
-+    outbuf[len] =3D '\0';=0A=
-+    free(context);=0A=
-+  }else{=0A=
-+    outbuf[0] =3D '-';=0A=
-+    outbuf[1] =3D '\0';=0A=
-+    len =3D 1;=0A=
-+  }=0A=
-+  return len;=0A=
- }=0A=
- =0A=
- =0A=
+--- file_contexts/program/fsadm.fc.orig	2005-08-15 21:49:56.000000000 +1000
++++ file_contexts/program/fsadm.fc	2005-08-15 21:50:18.000000000 +1000
+@@ -37,3 +37,4 @@
+ /sbin/partx		--	system_u:object_r:fsadm_exec_t
+ /usr/bin/partition_uuid	--	system_u:object_r:fsadm_exec_t
+ /sbin/partprobe		--	system_u:object_r:fsadm_exec_t
++/usr/bin/syslinux	--	system_u:object_r:fsadm_exec_t
 
-------_=_NextPart_000_01C5A1D8.D271FA20--
+--Boundary-00=_7bRADFeVVMfsXKA--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
