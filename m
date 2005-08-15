@@ -1,81 +1,76 @@
-Subject: Re: [patch 1/2] Fix memory leaks in libsepol/checkpolicy
+Subject: Re: [patch 2/2] Fix memory leaks in libsepol/checkpolicy
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1123879137.23483.117.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1123879848.23483.124.camel@moss-spartans.epoch.ncsc.mil>
 References: <1123879137.23483.117.camel@moss-spartans.epoch.ncsc.mil>
+	 <1123879848.23483.124.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 15 Aug 2005 12:46:43 -0400
-Message-Id: <1124124403.15009.90.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 15 Aug 2005 12:51:49 -0400
+Message-Id: <1124124709.15009.97.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Additional memory leak fixes.  This patch for libsepol fixes leakage of
-the role and user ebitmap caches (upon multiple calls to the index
-functions), and leakage of the attribute type datums when attributes are
-finally removed from the types symtab for the expanded kernel policy.
+Additional memory leak fixes.  This patch for checkpolicy fixes leakage
+of the id by get_local_type when the type has already been defined, and
+leakage of constraint expressions (caused by my prior patch that cloned
+constraint expressions to avoid pointer aliasing, so that we can use
+policydb_destroy on the parse policy).
 
 ---
 
- src/expand.c   |    9 ++++++++-
- src/policydb.c |    2 ++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ module_compiler.c |    4 +++-
+ policy_parse.y    |    8 +++++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-Index: libsepol/src/policydb.c
+Index: checkpolicy/module_compiler.c
 ===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/policydb.c,v
-retrieving revision 1.23
-retrieving revision 1.24
-diff -u -p -r1.23 -r1.24
---- libsepol/src/policydb.c	12 Aug 2005 21:10:15 -0000	1.23
-+++ libsepol/src/policydb.c	15 Aug 2005 14:05:39 -0000	1.24
-@@ -429,6 +429,7 @@ int policydb_role_cache(hashtab_key_t ke
- 	role = (role_datum_t *)datum;
- 	p = (policydb_t *)arg;
- 
-+	ebitmap_destroy(&role->cache);
- 	if (type_set_expand(&role->types, &role->cache, p, 1)) {
- 		return -1;
- 	}
-@@ -444,6 +445,7 @@ int policydb_user_cache(hashtab_key_t ke
- 	user = (user_datum_t *)datum;
- 	p = (policydb_t *)arg;
- 
-+	ebitmap_destroy(&user->cache);
- 	if (role_set_expand(&user->roles, &user->cache, p)) {
- 		return -1;
- 	}
-Index: libsepol/src/expand.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/expand.c,v
-retrieving revision 1.5
-diff -u -p -r1.5 expand.c
---- libsepol/src/expand.c	11 Aug 2005 15:43:14 -0000	1.5
-+++ libsepol/src/expand.c	15 Aug 2005 15:56:04 -0000
-@@ -1433,6 +1433,13 @@ static int type_attr_map(hashtab_key_t k
- 	return 0;
+RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/module_compiler.c,v
+retrieving revision 1.4
+diff -u -p -r1.4 module_compiler.c
+--- checkpolicy/module_compiler.c	12 Aug 2005 21:10:38 -0000	1.4
++++ checkpolicy/module_compiler.c	15 Aug 2005 16:07:30 -0000
+@@ -447,7 +447,9 @@ type_datum_t *get_local_type(char *id, u
+                         return NULL;
+                 }
+   
+-        }
++        } else {
++		free(id);
++	}
+         return dest_typdatum;
  }
  
-+static void type_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p __attribute__ ((unused)))
-+{
-+	free(key);
-+	type_datum_destroy((type_datum_t*) datum);
-+	free(datum);
-+}
-+
- static int type_attr_remove(hashtab_key_t key __attribute__ ((unused)), hashtab_datum_t datum, void *p __attribute__ ((unused)))
- {
- 	type_datum_t *typdatum;
-@@ -1886,7 +1893,7 @@ int expand_module(policydb_t *base, poli
- 			&state))
- 		goto cleanup;
- 	hashtab_map_remove_on_error(state.out->p_types.table, 
--				    type_attr_remove, 0, 0);
-+				    type_attr_remove, type_destroy, 0);
- 	
-         retval = 0;
+Index: checkpolicy/policy_parse.y
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/policy_parse.y,v
+retrieving revision 1.40
+diff -u -p -r1.40 policy_parse.y
+--- checkpolicy/policy_parse.y	12 Aug 2005 21:10:38 -0000	1.40
++++ checkpolicy/policy_parse.y	15 Aug 2005 15:44:50 -0000
+@@ -2830,6 +2830,7 @@ static int define_constraint(constraint_
+ 	constraint_expr_t *e;
+ 	unsigned int i;
+ 	int depth;
++	unsigned char useexpr = 1;
  
+ 	if (pass == 1) {
+ 		while ((id = queue_remove(id_queue))) 
+@@ -2906,7 +2907,12 @@ static int define_constraint(constraint_
+ 			return -1;
+ 		}
+ 		memset(node, 0, sizeof(constraint_node_t));
+-		node->expr = constraint_expr_clone(expr);
++		if (useexpr) {
++			node->expr = expr;
++			useexpr = 0;
++		} else {
++			node->expr = constraint_expr_clone(expr);
++		}
+ 		if (!node->expr) {
+ 			yyerror("out of memory");
+ 			return -1;
 
 -- 
 Stephen Smalley
