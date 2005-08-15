@@ -1,80 +1,33 @@
-Subject: Re: [patch 2/2] Fix memory leaks in libsepol/checkpolicy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1123879848.23483.124.camel@moss-spartans.epoch.ncsc.mil>
-References: <1123879137.23483.117.camel@moss-spartans.epoch.ncsc.mil>
-	 <1123879848.23483.124.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7FJa8Ob007206
+	for <selinux@tycho.nsa.gov>; Mon, 15 Aug 2005 15:36:08 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7FJRFdf025042
+	for <selinux@tycho.nsa.gov>; Mon, 15 Aug 2005 19:27:16 GMT
+Subject: pty / idr_remove problem persists
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 15 Aug 2005 12:51:49 -0400
-Message-Id: <1124124709.15009.97.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 15 Aug 2005 15:27:34 -0400
+Message-Id: <1124134054.6379.53.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Additional memory leak fixes.  This patch for checkpolicy fixes leakage
-of the id by get_local_type when the type has already been defined, and
-leakage of constraint expressions (caused by my prior patch that cloned
-constraint expressions to avoid pointer aliasing, so that we can use
-policydb_destroy on the parse policy).
+Is anyone currently working on the pty/idr_remove problem?  The problem
+been around for a while, and it seems that more people may be hitting it
+lately, from what I've seen in the IRC channels.  Steve, you said here
 
----
+http://marc.theaimsgroup.com/?l=selinux&m=111589787131836&w=2
 
- module_compiler.c |    4 +++-
- policy_parse.y    |    8 +++++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
-
-Index: checkpolicy/module_compiler.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/module_compiler.c,v
-retrieving revision 1.4
-diff -u -p -r1.4 module_compiler.c
---- checkpolicy/module_compiler.c	12 Aug 2005 21:10:38 -0000	1.4
-+++ checkpolicy/module_compiler.c	15 Aug 2005 16:07:30 -0000
-@@ -447,7 +447,9 @@ type_datum_t *get_local_type(char *id, u
-                         return NULL;
-                 }
-   
--        }
-+        } else {
-+		free(id);
-+	}
-         return dest_typdatum;
- }
- 
-Index: checkpolicy/policy_parse.y
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/policy_parse.y,v
-retrieving revision 1.40
-diff -u -p -r1.40 policy_parse.y
---- checkpolicy/policy_parse.y	12 Aug 2005 21:10:38 -0000	1.40
-+++ checkpolicy/policy_parse.y	15 Aug 2005 15:44:50 -0000
-@@ -2830,6 +2830,7 @@ static int define_constraint(constraint_
- 	constraint_expr_t *e;
- 	unsigned int i;
- 	int depth;
-+	unsigned char useexpr = 1;
- 
- 	if (pass == 1) {
- 		while ((id = queue_remove(id_queue))) 
-@@ -2906,7 +2907,12 @@ static int define_constraint(constraint_
- 			return -1;
- 		}
- 		memset(node, 0, sizeof(constraint_node_t));
--		node->expr = constraint_expr_clone(expr);
-+		if (useexpr) {
-+			node->expr = expr;
-+			useexpr = 0;
-+		} else {
-+			node->expr = constraint_expr_clone(expr);
-+		}
- 		if (!node->expr) {
- 			yyerror("out of memory");
- 			return -1;
+that you weren't yet convinced that it was SELinux's fault.  Is this
+still the case?  From my experience, it seems to only be hit in
+enforcing, which really makes it sound like a SELinux problem.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
