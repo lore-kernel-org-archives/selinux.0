@@ -1,72 +1,33 @@
-Subject: Re: kernel Oops from policy
+Subject: Re: avtab reduction, binary policy format version change
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: James Morris <jmorris@namei.org>, SE-Linux <selinux@tycho.nsa.gov>,
-   Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200508191925.55561.russell@coker.com.au>
-References: <200508191925.55561.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1123780887.7810.78.camel@moss-spartans.epoch.ncsc.mil>
+References: <1123780887.7810.78.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 19 Aug 2005 08:38:49 -0400
-Message-Id: <1124455129.32663.32.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 19 Aug 2005 09:12:00 -0400
+Message-Id: <1124457120.32663.51.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-08-19 at 19:25 +1000, Russell Coker wrote:
-> r_dir_file(insmod_t, debugfs_t)
+On Thu, 2005-08-11 at 13:21 -0400, Stephen Smalley wrote:
+> The patches to libsepol and checkpolicy for reducing the size and number
+> of avtab nodes have been committed to the sourceforge CVS tree as of
+> libsepol 1.7.13 and checkpolicy 1.25.8.  The kernel patch is going to be
+> submitted soon for -mm, but will not go into mainline until 2.6.14.  The
+> binary policy format version has been incremented to version 20.  To
+> build a policy for older kernels, you will need to use the -c 19 option
+> to checkpolicy.  The patches for the kernel, libsepol, and checkpolicy
+> are also available from http://www.flux.utah.edu/~sds/, as are complete
+> patched tarballs of libsepol and checkpolicy.
 > 
-> The above needs to be added to the strict policy to prevent a kernel Oops on 
-> boot with the usb_uhci driver.  Below is the kernel message log from before I 
-> added the above to one of my systems.  I only really needed to allow search 
-> access to the directory, but I decided to allow full read access to the 
-> directory and any files under it just in case.
-> 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=166327
-> 
-> Above is a bugzilla entry.
-> 
-> 
-> USB Universal Host Controller Interface driver v2.2
-> SELinux: initialized (dev debugfs, type debugfs), uses genfs_contexts
-> audit(1124441960.362:2): avc:  denied  { search } for  pid=958 comm="modprobe" 
-> n
-> ame="/" dev=debugfs ino=3962 scontext=system_u:system_r:insmod_t 
-> tcontext=system_u:object_r:debugfs_t tclass=dir
-> Unable to handle kernel NULL pointer dereference at virtual address 00000013
->  printing eip:
-> c01e1d48
-> *pde = 00000000
-> Oops: 0000 [#1]
-> Modules linked in: uhci_hcd i2c_i801 i2c_core snd_intel8x0 snd_ac97_codec 
-> snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device 
-> snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc e100 
-> mii flo
-> ppy dm_snapshot dm_zero dm_mirror ext3 jbd dm_mod
-> CPU:    0
-> EIP:    0060:[<c01e1d48>]    Not tainted VLI
-> EFLAGS: 00010286   (2.6.12-1.1398_FC4)
-> EIP is at debugfs_mknod+0x1b/0x47
-> eax: ffffffef   ebx: fffffff3   ecx: 00006468   edx: d72ac578
-> esi: d591ecb0   edi: d6939f6c   ebp: d89e6aca   esp: d6939f3c
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 958, threadinfo=d6939000 task=d6cf4000)
-> Stack: d72ac71c c01e1d8f 00000000 d72ac71c c01e1ecf 41ed001c 00000000 000041ed
->        00000000 d89e6aca c01e1f4c d6939f6c fffffff3 ffffffed c0000000 d89e9700
->        d6939000 c01e1fc4 00000000 00000000 d883603c d89e7108 d6939000 c0000000
-> Call Trace:
->  [<c01e1d8f>] debugfs_mkdir+0x1b/0x28
->  [<c01e1ecf>] debugfs_create_by_name+0x91/0xbe
->  [<c01e1f4c>] debugfs_create_file+0x50/0xaa
->  [<c01e1fc4>] debugfs_create_dir+0x1e/0x22
->  [<d883603c>] uhci_hcd_init+0x3c/0xea [uhci_hcd]
->  [<c014844c>] sys_init_module+0xca/0x1c4
->  [<c0103a51>] syscall_call+0x7/0xb
-> Code: 00 00 60 12 3d c0 89 d8 83 c4 08 5b 5e 5f 5d c3 53 89 d3 89 ca 8b 4c 24 
-> 08 8b 80 dc 00 00 00 e8 2f ff ff ff 89 c2 b8 ef ff ff ff <8b> 4b 20 85 c9 74 
-> 02 5b c3 b0 ff 85 d2 74 f8 89 d8 e8 a7 84 fb
->  <6>ACPI: Power Button (FF) [PWRF]
+> The policy Makefile will likely need to be adjusted again to generate
+> both version 19 and version 20 policies during the transition, and to
+> load the appropriate one based on the kernel policy version.
 
-Seems like a bug that it leads to an Oops, even with the denial.
+FYI:  The kernel patch for these changes is now included in
+2.6.13-rc6-mm1.  Also, the libsepol/checkpolicy changes are in rawhide.
 
 -- 
 Stephen Smalley
