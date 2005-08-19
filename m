@@ -1,30 +1,29 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7JG3EOb007832
-	for <selinux@tycho.nsa.gov>; Fri, 19 Aug 2005 12:03:14 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7JFqe5A029572
-	for <selinux@tycho.nsa.gov>; Fri, 19 Aug 2005 15:52:40 GMT
-Subject: object classes and permissions list updated
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 19 Aug 2005 11:53:57 -0400
-Message-Id: <1124466837.6403.21.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-Id: <200508191842.j7JIgsss003461@gotham.columbia.tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'James Morris'" <jmorris@namei.org>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Steve G'" <linux_4ever@yahoo.com>, <SELinux-dev@tresys.com>
+Subject: RE: [RFC] Checking the loaded policy against a policy on disk
+Date: Fri, 19 Aug 2005 14:42:54 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <Pine.LNX.4.63.0508191105290.24678@excalibur.intercode>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There were some questions as to the meaning of some of the newer
-permissions not too long ago.  I've updated the overview of SELinux
-object classes and permissions, available here:
-http://www.tresys.com/selinux.  It contains all of the classes and
-permissions, including the netlink_kobject_uevent_socket class and
-execstack and execheap process permissions added in 2.6.12.
+> Can you point me to the LSPP requirement which states that we need to
+> do this? 
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I was wondering that myself. I don't recall any such requirement. As long as
+the policy files are protected against unauthorized access and procedures
+for start up/initialization are documented in appropriate manual, we
+shouldn't be "required" to have a demonstrable association (thought
+something like this might be otherwise useful). I believe the requirements
+are for TCB/TSF protection, not periodic guarantee checks (except for
+FPT_AMT which explicitly only applies to hardware). Frank
+
 
 
 --
