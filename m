@@ -1,53 +1,28 @@
-Subject: [RFC] Checking the loaded policy against a policy on disk
+Subject: Re: info on Security enhanced X server
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Steve G <linux_4ever@yahoo.com>,
-   SELinux-dev@tresys.com, James Morris <jmorris@namei.org>
+To: Prakash Saivasan <helloprak@yahoo.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050819111115.59790.qmail@web54401.mail.yahoo.com>
+References: <20050819111115.59790.qmail@web54401.mail.yahoo.com>
 Content-Type: text/plain
-Date: Fri, 19 Aug 2005 08:32:17 -0400
-Message-Id: <1124454737.32663.27.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 19 Aug 2005 08:37:44 -0400
+Message-Id: <1124455064.32663.30.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Fri, 2005-08-19 at 12:11 +0100, Prakash Saivasan wrote:
+> Hi,
+>     Can anyone let me know where I can find source
+> code that enhances X
+> windows security ( changes to X-Server that implements
+> enforcement of
+> SE-Policy ) ?
 
-For the LSPP work, it has been requested that we provide a way to
-perform a consistency check between the policy in memory and the policy
-on disk.  We could change the SELinux module to compute a checksum over
-the binary policy image when it is loaded and to export that checksum
-via a new selinuxfs node.  One complicating factor is that at
-present, /sbin/init and load_policy mutate the binary policy image in
-memory prior to loading it in order to customize the vendor-shipped
-policy with local boolean settings and user definitions, so the
-checksums would not match at present for the on-disk file and the
-in-memory image unless the verification tool applies the same transforms
-prior to computing the checksums.  Tresys has previously suggested
-shifting to a model where we regenerate the on-disk policy file for each
-change to any local setting, with the generated policy file to be loaded
-into the kernel stored separately from the policy file managed by rpm to
-avoid creating problems for updates, which would eliminate that problem
-altogether.
+Snapshots of the patches are available from 
+http://home.insightbb.com/~dgoeddel/
+But I'm not sure whether they are the latest.
 
-Any comments on this request?  Any particular preference as to the
-particular checksum algorithm?  Does the algorithm need to be
-configurable?
-
-A related idea would be to also extend the binary policy format to
-include a field for an arbitrary text string label that could be set
-when the policy is generated, and have the kernel save that string and
-export it via another new selinuxfs node.  This would allow an
-identifier string to be associated with the policy image, such as the
-policy package's name and version (e.g.
-selinux-policy-targeted-1.17.25-3), and extracted later by userspace to
-determine which particular policy the one in memory is supposed to
-match.  This wouldn't replace the need for the checksum, but would
-provide additional information that might be helpful to userspace.
-However, this change would require a change in binary policy format,
-unlike the first change.  
-
-Any comments on this related idea?
-  
 -- 
 Stephen Smalley
 National Security Agency
