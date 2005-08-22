@@ -1,59 +1,41 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7LLMaOb016651
-	for <selinux@tycho.nsa.gov>; Sun, 21 Aug 2005 17:22:36 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7LLCeqV001127
-	for <selinux@tycho.nsa.gov>; Sun, 21 Aug 2005 21:12:41 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 21 Aug 2005 23:12:40 +0200
-Date: Sun, 21 Aug 2005 23:12:39 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: SuSE 10.0 packages
-Message-Id: <20050821211238.GA7955@thorium.jmh.mhn.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7M7npOb018421
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 03:49:51 -0400 (EDT)
+Received: from mail.enyo.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7M7dquD008911
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 07:39:53 GMT
+Received: from deneb.vpn.enyo.de ([212.9.189.177] helo=deneb.enyo.de)
+	by albireo.enyo.de with esmtp id 1E76uN-0002oB-S7
+	for selinux@tycho.nsa.gov; Mon, 22 Aug 2005 09:39:51 +0200
+Received: from fw by deneb.enyo.de with local (Exim 4.52)
+	id 1E76uI-0002eZ-4V
+	for selinux@tycho.nsa.gov; Mon, 22 Aug 2005 09:39:46 +0200
+From: Florian Weimer <fw@deneb.enyo.de>
+To: selinux@tycho.nsa.gov
+Subject: Re: libselinux does not compile on ia64
+References: <877jez41lm.fsf@glaurung.internal.golden-gryphon.com>
+Date: Mon, 22 Aug 2005 09:39:46 +0200
+In-Reply-To: <877jez41lm.fsf@glaurung.internal.golden-gryphon.com> (Manoj
+	Srivastava's message of "Sat, 06 Aug 2005 08:49:25 -0500")
+Message-ID: <87br3qs9ml.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+* Manoj Srivastava:
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 	The latest libselinux fails to compile on IA64 with the
+>  following error:
+>  cc -Wall -I../include -D_GNU_SOURCE    setupns.c  -L../src -lselinux  -o setupn
+>  setupns.c:17: error: syntax error before "clone"
+>  setupns.c:22: warning: return type defaults to `int'
+>
+>         Apparently, there is no clone on IA64.
 
-New SELinux packages for SuSE are available.
-I was working on packages for 9.3, but after SuSE opened their
-repositories in the form of opensuse.org I decided to rebase my work.
-The packages are built against SUSE Linux 10.0 OSS Beta 2.
-Only the most important packages are patched and I only tested in
-permissive mode so far but it should be possible to get a functioning
-SELinux system with these packages.
-The packages are available on
-http://www.cip.ifi.lmu.de/~bleher/selinux/suse/rpm-10.0/
-If you look around you will also find packages for older versions of
-SuSE.
-
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---6c2NcOVqGQ03X4Wi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFDCO5GxWIrrrL0q+cRAs3JAJ4lZGZjC/LIFxZN/q8/5m2Mlubc4ACfZy3d
-xYA5xyigrBqdQBgd8OtcaYU=
-=QcCe
------END PGP SIGNATURE-----
-
---6c2NcOVqGQ03X4Wi--
+There are no _syscallN macros on IA64 and probably others.  Ulrich
+Drepper kindly informed me that you should use the syscall function
+instead.  I don't know how I missed it while preparing the patch.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
