@@ -1,83 +1,109 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7MKw1Ob023299
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 16:58:01 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7ML65Ob023407
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 17:06:05 -0400 (EDT)
 Received: from e31.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7MKkqo5019187
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 20:46:52 GMT
-Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
-	by e31.co.us.ibm.com (8.12.10/8.12.9) with ESMTP id j7MKluF3196096
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 16:47:56 -0400
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7MKsto5019815
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 20:54:56 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e31.co.us.ibm.com (8.12.10/8.12.9) with ESMTP id j7MKu0F3193428
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 16:56:00 -0400
 Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by westrelay02.boulder.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id j7MKlRcX546982
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 14:47:27 -0600
+	by d03relay04.boulder.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id j7MKu4h5311380
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 14:56:04 -0600
 Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id j7MKluHt013076
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 14:47:56 -0600
+	by d03av02.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id j7MKtteA007935
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 14:55:55 -0600
 Received: from sergelap.austin.ibm.com (sig-9-65-117-45.mts.ibm.com [9.65.117.45])
-	by d03av02.boulder.ibm.com (8.12.11/8.12.11) with ESMTP id j7MKltg1012997
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 14:47:55 -0600
+	by d03av02.boulder.ibm.com (8.12.11/8.12.11) with ESMTP id j7MKtrMB007882
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 14:55:54 -0600
 Received: from sergelap.austin.ibm.com (localhost [127.0.0.1])
-	by sergelap.austin.ibm.com (8.13.3/8.13.1) with ESMTP id j7MG2cER004445
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 11:02:39 -0500
+	by sergelap.austin.ibm.com (8.13.3/8.13.1) with ESMTP id j7MGAchG004815
+	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 11:10:38 -0500
 Received: (from hallyn@localhost)
-	by sergelap.austin.ibm.com (8.13.4/8.13.3/Submit) id j7MG2cpE004444
-	for selinux@tycho.nsa.gov; Mon, 22 Aug 2005 11:02:38 -0500
-Date: Mon, 22 Aug 2005 11:02:38 -0500
+	by sergelap.austin.ibm.com (8.13.4/8.13.3/Submit) id j7MGAbDV004814
+	for selinux@tycho.nsa.gov; Mon, 22 Aug 2005 11:10:37 -0500
+Date: Mon, 22 Aug 2005 11:10:37 -0500
 From: serue@us.ibm.com
 To: SELinux <selinux@tycho.nsa.gov>
-Subject: [PATCH 3/6] libsepol: resource leaks in policydb.c
-Message-ID: <20050822160238.GC4191@sergelap.austin.ibm.com>
+Subject: [PATCH 4/6] libsepol: expand.c resource leaks
+Message-ID: <20050822161037.GD4191@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes 2 resource leaks found by Coverity in policydb.c.
+This patch fixes two resource leaks found by Coverity:
 
-	1. in avrule_read(), the 'cur' element has been malloc'ed
-	but not yet added to the avrule->perms list at one point
-	whene we jump to bad:
+	1. constrant_node_clone: new_con is not freed on error.  There
+	is no case where we goto out_of_mem after new_con has been
+	appended to *dst, so I believe this patch is safe.
 
-	2. 'key' is not freed in one case in scope_read().
-
-The second point makes me wonder - is scope_destroy() fully
-implemented?  It takes 'key' as an argument, but does nothing with
-it.  Same with its third arg.  Of course, they both have attribute
-unused...
-
-Hmm, I see now my formatting is not matching what's in the original
-file...  I'll fix them by hand as I'm mailing them, and try to get
-it right next time.
+	2. copy_neverallow: avrule is not freed on error path.
 
 thanks,
 -serge
 
-Index: src/policydb.c
+Index: src/expand.c
 ===================================================================
---- src.orig/policydb.c
-+++ src/policydb.c
-@@ -2027,8 +2027,10 @@ static avrule_t *avrule_read(policydb_t 
-                 class_perm_node_init(cur);
+--- src.orig/expand.c
++++ src/expand.c
+@@ -254,7 +254,7 @@ static int common_copy_callback(hashtab_
  
-                 buf = next_entry(fp, sizeof(uint32_t) * 2);
--                if (!buf)
-+                if (!buf) {
-+                        free(cur);
-                         goto bad;
-+       }
+ static int constraint_node_clone(constraint_node_t **dst, constraint_node_t *src, expand_state_t *state)
+ {
+-        constraint_node_t *new_con, *last_new_con = NULL;
++        constraint_node_t *new_con = NULL, *last_new_con = NULL;
+         constraint_expr_t *new_expr = NULL;
+         *dst = NULL;
+         while (src != NULL) {
+@@ -313,6 +313,8 @@ static int constraint_node_clone(constra
+         return 0;
+  out_of_mem:
+         write_error(state, "Out of memory!");
++	if (new_con)
++		free(new_con);
+         constraint_expr_destroy(new_expr);
+         return -1;
+ }
+@@ -1660,17 +1662,17 @@ static int copy_neverallow (policydb_t *
+         avrule->flags = source_rule->flags;
  
-                 cur->class = le32_to_cpu(buf[0]);
-                 cur->data = le32_to_cpu(buf[1]);
-@@ -2363,7 +2365,8 @@ static int scope_read(policydb_t * p, ha
+ 	if (ebitmap_cpy(&avrule->stypes.types, &stypes))
+-		return -1;
++		goto err;
  
-         if (strcmp(key, "object_r") == 0 && h == p->p_roles_scope.table) {
-                 /* object_r was already added to this table in roles_init() */
--                scope_destroy(key, scope, NULL);
-+                free(key);
-+                scope_destroy(NULL, scope, NULL);
-         }
-         else {
-                 if (hashtab_insert(h, key, scope)) {
+ 	if (ebitmap_cpy(&avrule->ttypes.types, &ttypes))
+-		return -1;
++		goto err;
+ 
+ 	cur_perm = source_rule->perms;
+ 	tail_perm = NULL;
+ 	while (cur_perm) {
+ 		new_perm = (class_perm_node_t*)malloc(sizeof(class_perm_node_t));
+ 		if (!new_perm)
+-			return -1;
++			goto err;
+ 		class_perm_node_init(new_perm);
+ 		new_perm->class = cur_perm->class;
+ 		assert(new_perm->class);
+@@ -1700,6 +1702,17 @@ static int copy_neverallow (policydb_t *
+ 	ebitmap_destroy(&ttypes);
+ 
+ 	return 0;
++
++err:
++	ebitmap_destroy(&avrule->stypes.types);
++	ebitmap_destroy(&avrule->ttypes.types);
++	cur_perm = avrule->perms;
++	while (cur_perm) {
++		tail_perm = cur_perm->next;
++		free(cur_perm);
++		cur_perm = tail_perm;
++	}
++	free(avrule);
+ }
+ 
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
