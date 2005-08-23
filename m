@@ -1,48 +1,43 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7NF2tOb028840
-	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2005 11:02:55 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7NFBCOb028914
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2005 11:11:12 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7NF0wcX026604
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2005 15:01:00 GMT
+Message-ID: <430B3A7B.6020208@redhat.com>
+Date: Tue, 23 Aug 2005 11:02:19 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Darrel Goeddel <dgoeddel@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: libselinux category patch
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <430B3049.5070402@redhat.com>
-References: <430A33E5.1030100@redhat.com> <430B2D6A.5010105@tresys.com>
-	 <430B3049.5070402@redhat.com>
-Content-Type: text/plain
-Date: Tue, 23 Aug 2005 10:50:34 -0400
-Message-Id: <1124808634.7874.72.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <430A33E5.1030100@redhat.com> <1124807226.7874.52.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1124807226.7874.52.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-08-23 at 10:18 -0400, Daniel J Walsh wrote:
-> This code is not part of libselinux,  it is a library that SELinux calls 
-> out to that will be specific to the vendor that ships it.
-> I see this library being different between our version of MCS/MLS and 
-> other third party versions of MLS, IE one that translates using the 
-> Mitre Libraries.
-> 
-> MCS version of libtrans.so translates s0->"".
-> 
-> MLS policy can do what ever it wants with this part of the range.
+Stephen Smalley wrote:
 
-While it is true that systems with a real MLS policy will likely have
-their own libsetrans implementation, I think it would make sense to have
-your default libsetrans implementation at least provide a way to map
-sensitivity names as well as category names via the config file,
-including a way to specify that they should just be dropped (e.g.
-s0="").  Whether or not you should further allow mapping of entire
-combinations, like s0:c0,c127=puritycontrol, via the config in your
-default libsetrans implementation is more open to debate.
-
-Also, how do you intend to deal with multiple libsetrans
-implementations?  Symlink to the real translation library?  Managed via
-the alternatives system?
+>On Mon, 2005-08-22 at 16:21 -0400, Daniel J Walsh wrote:
+>  
+>
+>>libselinux-rhat.patch is mainly tcs's patch with a couple of changes. 
+>>    
+>>
+>
+>Do we truly need to allow whitespace in the (translated) MLS field?
+>That change to context_new originated in the TCS patch, but I'd prefer
+>to avoid it if possible.
+>  
+>  
+>
+I have no problem with not allowing spaces in translated name.  We could 
+come up with a third field, in the translation, Printable Name or some 
+such, but that could come later...
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
