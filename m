@@ -1,37 +1,50 @@
-Subject: Re: [PATCH] XATTR issues on JFFS2
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-In-Reply-To: <430B260F.1070007@ak.jp.nec.com>
-References: <430AF95F.1050704@ak.jp.nec.com>
-	 <430B0FED.9070307@ak.jp.nec.com>
-	 <1124800206.7874.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <430B260F.1070007@ak.jp.nec.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7NDwJOb028114
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2005 09:58:19 -0400 (EDT)
+Subject: Re: libselinux category patch
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <430A33E5.1030100@redhat.com>
+References: <430A33E5.1030100@redhat.com>
 Content-Type: text/plain
-Date: Tue, 23 Aug 2005 09:44:49 -0400
-Message-Id: <1124804689.7874.44.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 23 Aug 2005 09:45:58 -0400
+Message-Id: <1124804758.7874.46.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-08-23 at 22:35 +0900, KaiGai Kohei wrote:
-> The original reason not to use generic XATTR methods is that {get|set|list}_xattr
-> methods are called with XATTR-name which prefix is omitted.
-> e.g, sys_getxattr("security.selinux", ...)
->       -> generic_getxattr("security.selinux", ...)
->         -> jffs2_security_getxattr("selinux", ...)
->                                     ~~~~~~~<- "security." was omitted.
-> In my implementation, the full-name is used to identify XATTR-entry.
+On Mon, 2005-08-22 at 16:21 -0400, Daniel J Walsh wrote:
+> libselinux-rhat.patch is mainly tcs's patch with a couple of changes. 
+> 
+> One eliminate MLS from the checking.  No reason why this has to be MLS 
+> specific.
+> Change mlstrans.c to trans.c.  See above.
+> Allow context functions to handle null range.
+>     In MCS I want to translate X:Y:Z:s0 to X:Y:Z, That way we can 
+> introduce MCS policy to targeted without the user
+> seeing any change.
+> A couple of minor changes.
+> 
+> setrans.c is the library code
+> 
+> I am attaching the translation library code I am going to throw in for 
+> MCS handling.  Basically translates
+> c1=PatientRecord
+> I have called the file /etc/secat.conf, tried to put it in 
+> /etc/selinux/secat.conf, but suddenly lots of domains wanted to read 
+> selinux_config_t files.
 
-reiserfs has the same issue, so they are proposing changing the generic
-functions to pass the entire name down to the fs code.  See
-http://marc.theaimsgroup.com/?l=linux-fsdevel&m=112448411323801&w=2
-
-> But I noticed that we can use a combination of integer index number
-> (such as EXT2_XATTR_INDEX_SECURITY) and omitted XATTR-name for
-> the replacement of full-XATTR-name, and can use generic_xxxx().
-
-Yes, that is an option as well.
+- Putting it directly under /etc makes it harder to protect differently
+than any other top-level /etc file.  On the other hand, it is very much
+like a passwd file lookup for mapping uids to usernames for e.g. ls, ps,
+and friends.
+- Placing it outside of /etc/selinux makes sense if it is not considered
+part of the SELinux policy, and is consistent with the ultimate goal of
+being able to manage it via LDAP or similar means.  But it does raise
+the question of what owns this file, and how it gets set up initially,
+e.g. one might want different default for MCS vs. MLS.
 
 -- 
 Stephen Smalley
