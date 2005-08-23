@@ -1,57 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7MLGTOb023559
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 17:16:30 -0400 (EDT)
-Received: from e31.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7ML6OuD002799
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 21:06:24 GMT
-Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
-	by e31.co.us.ibm.com (8.12.10/8.12.9) with ESMTP id j7ML6GF3195592
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 17:06:16 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by westrelay02.boulder.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id j7ML5kcX352284
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 15:05:46 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id j7ML6FAK007641
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 15:06:15 -0600
-Received: from sergelap.austin.ibm.com (sig-9-65-117-45.mts.ibm.com [9.65.117.45])
-	by d03av02.boulder.ibm.com (8.12.11/8.12.11) with ESMTP id j7ML6FkS007594
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 15:06:15 -0600
-Received: from sergelap.austin.ibm.com (localhost [127.0.0.1])
-	by sergelap.austin.ibm.com (8.13.3/8.13.1) with ESMTP id j7MGKx0T005106
-	for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2005 11:20:59 -0500
-Received: (from hallyn@localhost)
-	by sergelap.austin.ibm.com (8.13.4/8.13.3/Submit) id j7MGKxLw005105
-	for selinux@tycho.nsa.gov; Mon, 22 Aug 2005 11:20:59 -0500
-Date: Mon, 22 Aug 2005 11:20:59 -0500
-From: serue@us.ibm.com
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: [PATCH 6/6] libsepol: resource leak in avrule_decl_create
-Message-ID: <20050822162059.GF4191@sergelap.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7NC9jOb027162
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2005 08:09:46 -0400 (EDT)
+Received: from mail.asahi-net.or.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7NBwToM022835
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2005 11:58:29 GMT
+Received: from [192.168.11.3] (j069218.ppp.asahi-net.or.jp [61.213.69.218])
+	by mail.asahi-net.or.jp (Postfix) with ESMTP id 6193F1C441
+	for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2005 20:59:23 +0900 (JST)
+Message-ID: <430B0FED.9070307@ak.jp.nec.com>
+Date: Tue, 23 Aug 2005 21:00:45 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] XATTR issues on JFFS2
+References: <430AF95F.1050704@ak.jp.nec.com>
+In-Reply-To: <430AF95F.1050704@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes a resource leak found by Coverity:
+Hello,
 
-	avrule_decl_destroy(decl) does not free decl itself.
-	Must do so manually on after avrule_decl_destroy().
+In recent days, I'm interrested in XATTR support in JFFS2.
 
-thanks,
--serge
+I have started a discussion about it on MTD-ML.
+http://lists.infradead.org/pipermail/linux-mtd/2005-August/013415.html
 
-Index: src/avrule_block.c
-===================================================================
---- src.orig/avrule_block.c
-+++ src/avrule_block.c
-@@ -49,6 +49,7 @@ avrule_decl_t *avrule_decl_create(uint32
-         for (i = 0; i < SYM_NUM; i++) {
-                 if (symtab_init(&decl->symtab[i], symtab_sizes[i])) {
-                         avrule_decl_destroy(decl);
-+                        free(decl);
-                         return NULL;
-                 }
-         }
+By ML-archive, an implementation use hidden-file to store XATTR was
+rejected finally. Thus, I adopted different approach.
+This implementation added two new node types JFFS2_NODETYPE_XATTR
+and JFFS2_NODETYPE_XREF for XATTR representation.
+
+If your comment can be gotten, I'm so glad.
+
+# I think it's not appropriate to discuss JFFS2 at SELinux-ML.
+# Please comment it on MTD-ML, if possible.
+
+Thanks,
+
+*---- Example of use ------------
+
+In my desktop PC, "fs_use_xattr jffs2 system_u:object_r:fs_t;"
+was configured. :)
+
+[root@saba ~]# dd if=jffs2.xattr.img of=/dev/mtdblock0
+8192+0 records in
+8192+0 records out
+[root@saba ~]# mount -t jffs2 /dev/mtdblock0 /mnt/0
+[root@saba ~]# ls -lZ /mnt/0
+drwxr-xr-x  root     root     system_u:object_r:bin_t          bin/
+drwxr-xr-x  root     root     system_u:object_r:mnt_t          dev/
+drwxr-xr-x  root     root     system_u:object_r:etc_t          etc/
+-rw-r--r--  root     root     system_u:object_r:mnt_t          hoge
+-rwxr-xr-x  root     root     system_u:object_r:mnt_t          init*
+drwxr-xr-x  root     root     system_u:object_r:lib_t          lib/
+drwxr-xr-x  root     root     system_u:object_r:mnt_t          loopfs/
+drwxr-xr-x  root     root     system_u:object_r:mnt_t          proc/
+lrwxrwxrwx  root     root     system_u:object_r:bin_t          sbin
+drwxr-xr-x  root     root     system_u:object_r:mnt_t          sys/
+drwxr-xr-x  root     root     system_u:object_r:mnt_t          sysroot/
+[root@saba ~]#
+
+-- 
+Linux Promotion Center, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
