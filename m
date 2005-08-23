@@ -1,75 +1,92 @@
-Subject: Re: [PATCH] XATTR issues on JFFS2
+Subject: Re: [PATCH 4/6] libsepol: expand.c resource leaks
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-In-Reply-To: <430B0FED.9070307@ak.jp.nec.com>
-References: <430AF95F.1050704@ak.jp.nec.com>
-	 <430B0FED.9070307@ak.jp.nec.com>
+To: serue@us.ibm.com
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050822161037.GD4191@sergelap.austin.ibm.com>
+References: <20050822161037.GD4191@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Date: Tue, 23 Aug 2005 08:30:06 -0400
-Message-Id: <1124800206.7874.17.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 23 Aug 2005 09:16:49 -0400
+Message-Id: <1124803009.7874.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-08-23 at 21:00 +0900, KaiGai Kohei wrote:
-> Hello,
+On Mon, 2005-08-22 at 11:10 -0500, serue@us.ibm.com wrote:
+> This patch fixes two resource leaks found by Coverity:
 > 
-> In recent days, I'm interrested in XATTR support in JFFS2.
+> 	1. constrant_node_clone: new_con is not freed on error.  There
+> 	is no case where we goto out_of_mem after new_con has been
+> 	appended to *dst, so I believe this patch is safe.
 > 
-> I have started a discussion about it on MTD-ML.
-> http://lists.infradead.org/pipermail/linux-mtd/2005-August/013415.html
+> 	2. copy_neverallow: avrule is not freed on error path.
 > 
-> By ML-archive, an implementation use hidden-file to store XATTR was
-> rejected finally. Thus, I adopted different approach.
-> This implementation added two new node types JFFS2_NODETYPE_XATTR
-> and JFFS2_NODETYPE_XREF for XATTR representation.
+> thanks,
+> -serge
 > 
-> If your comment can be gotten, I'm so glad.
-> 
-> # I think it's not appropriate to discuss JFFS2 at SELinux-ML.
-> # Please comment it on MTD-ML, if possible.
-> 
-> Thanks,
-> 
-> *---- Example of use ------------
-> 
-> In my desktop PC, "fs_use_xattr jffs2 system_u:object_r:fs_t;"
-> was configured. :)
-> 
-> [root@saba ~]# dd if=jffs2.xattr.img of=/dev/mtdblock0
-> 8192+0 records in
-> 8192+0 records out
-> [root@saba ~]# mount -t jffs2 /dev/mtdblock0 /mnt/0
-> [root@saba ~]# ls -lZ /mnt/0
-> drwxr-xr-x  root     root     system_u:object_r:bin_t          bin/
-> drwxr-xr-x  root     root     system_u:object_r:mnt_t          dev/
-> drwxr-xr-x  root     root     system_u:object_r:etc_t          etc/
-> -rw-r--r--  root     root     system_u:object_r:mnt_t          hoge
-> -rwxr-xr-x  root     root     system_u:object_r:mnt_t          init*
-> drwxr-xr-x  root     root     system_u:object_r:lib_t          lib/
-> drwxr-xr-x  root     root     system_u:object_r:mnt_t          loopfs/
-> drwxr-xr-x  root     root     system_u:object_r:mnt_t          proc/
-> lrwxrwxrwx  root     root     system_u:object_r:bin_t          sbin
-> drwxr-xr-x  root     root     system_u:object_r:mnt_t          sys/
-> drwxr-xr-x  root     root     system_u:object_r:mnt_t          sysroot/
-> [root@saba ~]#
+> Index: src/expand.c
+> ===================================================================
+> --- src.orig/expand.c
+> +++ src/expand.c
+> @@ -254,7 +254,7 @@ static int common_copy_callback(hashtab_
+>  
+>  static int constraint_node_clone(constraint_node_t **dst, constraint_node_t *src, expand_state_t *state)
+>  {
+> -        constraint_node_t *new_con, *last_new_con = NULL;
+> +        constraint_node_t *new_con = NULL, *last_new_con = NULL;
+>          constraint_expr_t *new_expr = NULL;
+>          *dst = NULL;
+>          while (src != NULL) {
+> @@ -313,6 +313,8 @@ static int constraint_node_clone(constra
+>          return 0;
+>   out_of_mem:
+>          write_error(state, "Out of memory!");
+> +	if (new_con)
+> +		free(new_con);
+>          constraint_expr_destroy(new_expr);
+>          return -1;
+>  }
+> @@ -1660,17 +1662,17 @@ static int copy_neverallow (policydb_t *
+>          avrule->flags = source_rule->flags;
+>  
+>  	if (ebitmap_cpy(&avrule->stypes.types, &stypes))
+> -		return -1;
+> +		goto err;
+>  
+>  	if (ebitmap_cpy(&avrule->ttypes.types, &ttypes))
+> -		return -1;
+> +		goto err;
+>  
+>  	cur_perm = source_rule->perms;
+>  	tail_perm = NULL;
+>  	while (cur_perm) {
+>  		new_perm = (class_perm_node_t*)malloc(sizeof(class_perm_node_t));
+>  		if (!new_perm)
+> -			return -1;
+> +			goto err;
+>  		class_perm_node_init(new_perm);
+>  		new_perm->class = cur_perm->class;
+>  		assert(new_perm->class);
+> @@ -1700,6 +1702,17 @@ static int copy_neverallow (policydb_t *
+>  	ebitmap_destroy(&ttypes);
+>  
+>  	return 0;
+> +
+> +err:
+> +	ebitmap_destroy(&avrule->stypes.types);
+> +	ebitmap_destroy(&avrule->ttypes.types);
+> +	cur_perm = avrule->perms;
+> +	while (cur_perm) {
+> +		tail_perm = cur_perm->next;
+> +		free(cur_perm);
+> +		cur_perm = tail_perm;
+> +	}
+> +	free(avrule);
+>  }
 
-Thanks for working on this functionality.  From a very brief look at the
-patch, one question I had was whether you could be using the generic
-xattr methods introduced by James Morris' earlier xattr code
-consolidation patches that are now in the mainline kernel.  See the
-generic_* functions in fs/xattr.c and how they are used by the fs code
-(e.g. look at the ext3 xattr implementation).  Per recent discussions on
-linux-fsdevel, using those helpers is the preferred approach for the
-future.  You can then just set sb->s_xattr for the specific handlers in
-jffs2, e.g. see the ext3 code for an example.
-
-Might be worth mentioning this work on acl-devel as well, although you
-don't yet support ACLs or other xattrs.  But I'm sure Andreas
-Gruenbacher would be interested, as he did the original xattr and ACL
-development work for ext[23], and he may be able to give feedback on
-your approach to various aspects like the attribute caching.
+Hmm...I also added:
+	ebitmap_destroy(&stypes);
+        ebitmap_destroy(&ttypes);
+	return -1;
 
 -- 
 Stephen Smalley
