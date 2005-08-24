@@ -1,17 +1,35 @@
-Message-ID: <430CD868.2070900@redhat.com>
-Date: Wed, 24 Aug 2005 16:28:24 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <36282A1733C57546BE392885C06185920572F8@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: "'Daniel J Walsh '" <dwalsh@redhat.com>,
+   Chad Hanson
+	 <chanson@TrustedCS.com>
+Cc: "''Stephen Smalley ' '" <sds@tycho.nsa.gov>,
+   Darrel Goeddel
+	 <DGoeddel@TrustedCS.com>,
+   "'''SE Linux ' ' '" <selinux@tycho.nsa.gov>
+Subject: RE: Ok I plead ignorance to the way MLS works.
+Date: Wed, 24 Aug 2005 17:45:45 -0400
 MIME-Version: 1.0
-To: Chad Hanson <chanson@TrustedCS.com>
-CC: "'Stephen Smalley '" <sds@tycho.nsa.gov>,
-   Darrel Goeddel <DGoeddel@TrustedCS.com>,
-   "''SE Linux ' '" <selinux@tycho.nsa.gov>
-Subject: Re: Ok I plead ignorance to the way MLS works.
-References: <36282A1733C57546BE392885C06185920572F7@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C06185920572F7@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+ 
+
+This would be case. They would have an effective label of system low, which
+is used for labeling and access purposes, and a clearance of system high.
+The only processes not at system low would be those spawned by the kernel
+itself instead of init. 
+
+-Chad
+
+-----Original Message-----
+From: Daniel J Walsh
+To: Chad Hanson
+Cc: 'Stephen Smalley '; Darrel Goeddel; ''SE Linux ' '
+Sent: 8/24/2005 4:28 PM
+Subject: Re: Ok I plead ignorance to the way MLS works.
 
 Chad Hanson wrote:
 
@@ -30,7 +48,8 @@ Chad Hanson wrote:
 >
 >  
 >
->>>So you'd prefer transitioning to system low upon executing /sbin/init?
+>>>So you'd prefer transitioning to system low upon executing
+/sbin/init?
 >>>init will still need MLS privileges so that it can kill and reap all
 >>>processes.
 >>>      
@@ -42,7 +61,8 @@ Chad Hanson wrote:
 >
 >  
 >
->>>And we still have to transition login to a range so that users can login
+>>>And we still have to transition login to a range so that users can
+login
 >>>with their clearance set to their highest authorized level.
 >>>      
 >>>
@@ -59,7 +79,6 @@ higher the system low for MCS.
 Dan
 
 -- 
-
 
 
 --
