@@ -1,35 +1,46 @@
-Message-ID: <430C8944.6090306@redhat.com>
-Date: Wed, 24 Aug 2005 10:50:44 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Darrel Goeddel <dgoeddel@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Ok I plead ignorance to the way MLS works.
-References: <430A33E5.1030100@redhat.com>	 <1124815922.7874.124.camel@moss-spartans.epoch.ncsc.mil>	 <1124817712.7874.138.camel@moss-spartans.epoch.ncsc.mil>	 <1124820200.7874.163.camel@moss-spartans.epoch.ncsc.mil>	 <430C75B4.3020008@redhat.com> <1124892792.11553.26.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1124892792.11553.26.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7OF1wOb007500
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 11:01:58 -0400 (EDT)
+Subject: Re: libselinux category patch
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <430C88C5.5050306@trustedcs.com>
+References: <430A33E5.1030100@redhat.com>
+	 <1124807226.7874.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <430B3A7B.6020208@redhat.com>
+	 <1124809493.7874.75.camel@moss-spartans.epoch.ncsc.mil>
+	 <430C88C5.5050306@trustedcs.com>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 10:49:24 -0400
+Message-Id: <1124894964.11553.50.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Playing around with MCS, I see the following problems.
+On Wed, 2005-08-24 at 09:48 -0500, Darrel Goeddel wrote:
+> Our MITRE based translator really like the whitespace...  I agree that the
+> whitespace is a pain, but we have been using this for quite a while and have
+> not run into problems with any utilities that I am aware of.  My biggest gripe
+> is having to quote arguments to commands when a context has whitespace...
+> How about we allow for it, and let those who choose to use whitespace
+> (unfortunately our translation scheme) deal with the repercussions :)
 
-Should the initialsid of kernel be
+I'm still concerned about the implications for utilities that display
+the contexts, and particularly for any scripts that filter output of
+such utilities and expect to be able to extract context fields.  It
+seems like we'd need to quote the context strings in the output always
+to ensure that scripts won't break when someone switches from the
+default libsetrans to the MITRE-based one.
 
-sid kernel     system_u:system_r:kernel_t:s0:c0.c127
-or
-sid kernel     system_u:system_r:kernel_t:s0 - s0:c0.c127
-
-I would like all the daemon processes in the system to run as "s0", Ie 
-by default not have access to any labeled
-data.  How do I do this?   Am I supposed to use something like:
-range_transition initrc_t httpd_exec_t s0 - s0;
-
-Trying to use this is giving me a compilation error.
-
-
+Alternatively, your MITRE-based translator could wrap the MITRE
+translation with a converter to eliminate whitespace (dropping it or
+replacing it with e.g. underscores), so that libselinux and the
+utilities (and users) would never have to deal with them.
 
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
