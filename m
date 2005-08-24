@@ -1,43 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7OJP3Ob010341
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 15:25:03 -0400 (EDT)
-Received: from mail22.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7OJEbDh000551
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 19:14:38 GMT
-Date: Wed, 24 Aug 2005 15:14:34 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>,
-   Darrel Goeddel <dgoeddel@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Ok I plead ignorance to the way MLS works.
-In-Reply-To: <430CAE01.70405@redhat.com>
-Message-ID: <Pine.LNX.4.63.0508241513540.12556@excalibur.intercode>
-References: <430A33E5.1030100@redhat.com>  <1124815922.7874.124.camel@moss-spartans.epoch.ncsc.mil>
-  <1124817712.7874.138.camel@moss-spartans.epoch.ncsc.mil>
- <1124820200.7874.163.camel@moss-spartans.epoch.ncsc.mil>  <430C75B4.3020008@redhat.com>
-  <1124892792.11553.26.camel@moss-spartans.epoch.ncsc.mil>  <430C8944.6090306@redhat.com>
-  <430CA3EC.8080102@trustedcs.com> <1124902596.11553.66.camel@moss-spartans.epoch.ncsc.mil>
- <430CAE01.70405@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: RE: Ok I plead ignorance to the way MLS works.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chad Hanson <chanson@TrustedCS.com>
+Cc: Darrel Goeddel <DGoeddel@TrustedCS.com>,
+   "'Daniel J Walsh '" <dwalsh@redhat.com>,
+   "'SE Linux '" <selinux@tycho.nsa.gov>
+In-Reply-To: <36282A1733C57546BE392885C06185920572F2@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C06185920572F2@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 15:29:30 -0400
+Message-Id: <1124911770.11553.114.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 24 Aug 2005, Daniel J Walsh wrote:
+On Wed, 2005-08-24 at 15:11 -0400, Chad Hanson wrote:
+>  The kernel should be treated as a system high process and everything it does
+> as system high. I think making the kernel system low is bad because the
+> kernel shouldn't need overrides to access data and objects it has direct
+> access to.
 
-> Ok, I changed the kernel to s0, and now all domains run in s0.  Problem is I
-> want root to login as
-> s0:c0.c127
-> 
+System high or ranged from system low to system high?  It still needs
+MLS privileges to act at any level, right?
 
-This will cause all of the files created by root to be labeled with all 
-categories.
+So you'd prefer transitioning to system low upon executing /sbin/init?
+init will still need MLS privileges so that it can kill and reap all
+processes.
 
+And we still have to transition login to a range so that users can login
+with their clearance set to their highest authorized level.
 
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
