@@ -1,65 +1,32 @@
-Message-ID: <430B6AE9.6010505@redhat.com>
-Date: Tue, 23 Aug 2005 14:28:57 -0400
+Message-ID: <430C776B.4060309@redhat.com>
+Date: Wed, 24 Aug 2005 09:34:35 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Policycoreutils fixes for fixfiles
-Content-Type: multipart/mixed;
- boundary="------------050108010509040100080505"
+To: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Problems with MCS/Targeted policy update.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050108010509040100080505
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I would like to be able to upgrade rawhide with a new targeted policy 
+containing MCS.   I see a couple of problems when I do this.
 
-Basically a couple of fixes for rpm updates.
+The number one problem, it that it still requires an relable.  Even 
+though the latest kernel defaults everything to level of "sid file"
+getfilecon or the kernel is is still reading the file context off disks 
+without the "s0" so the kernel is reporting hundreds of invalid 
+contexts, need to figure a way to fix this or we will need a relabel.  
+(Relabeling when upgrading from FC4-FC5 will not be pretty).
+
+Certain applications like chcon, might need to change to use _raw 
+functions, _raw function/options would be nice to add to certain 
+coreutils, at least for debugging purposes.
+
 
 -- 
 
 
-
---------------050108010509040100080505
-Content-Type: text/x-patch;
- name="policycoreutils-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.25.5/scripts/fixfiles
---- nsapolicycoreutils/scripts/fixfiles	2005-05-20 13:15:12.000000000 -0400
-+++ policycoreutils-1.25.5/scripts/fixfiles	2005-08-22 17:25:15.000000000 -0400
-@@ -62,6 +62,7 @@
- 	TEMPFILE=`mktemp ${FC}.XXXXXXXXXX`
- 	test -z "$TEMPFILE" && exit
- 	/usr/bin/diff $PREFC $FC | grep '^[<>]'|cut -c3-| grep ^/ | \
-+	    egrep -v '(^/home|^/root|^/tmp|^/dev)' |\
- 	sed -r -e 's,[[:blank:]].*,,g' \
-                -e 's|\(([/[:alnum:]]+)\)\?|{\1,}|g' \
- 	       -e 's|([/[:alnum:]])\?|{\1,}|g' \
-@@ -70,7 +71,9 @@
- 	       -e 's|\[.*|*|g' \
-                -e 's|\.\*.*|*|g' \
-                -e 's|\.\+.*|*|g' | \
--	sort -d -u | \
-+	    # These two sorts need to be separate commands \
-+	sort -u | \
-+	sort -d | \
-         while read pattern ; \
- 	    do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null; then \
-                   echo "$pattern"; \
-@@ -80,7 +83,7 @@
-                fi; \
-             done | \
- 	while read pattern ; do find $pattern \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -print; done 2> /dev/null | \
--	 ${RESTORECON} $2 -v -e /root -e /home -e /tmp -e /var/tmp -e /dev -f - 
-+	 ${RESTORECON} $2 -v -f - 
- 	rm -f ${TEMPFILE}
- fi
- }
-
---------------050108010509040100080505--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
