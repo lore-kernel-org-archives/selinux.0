@@ -1,61 +1,46 @@
-Message-ID: <430C8EB8.80906@redhat.com>
-Date: Wed, 24 Aug 2005 11:14:00 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <430CA3EC.8080102@trustedcs.com>
+Date: Wed, 24 Aug 2005 11:44:28 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Problems with MCS/Targeted policy update.
-References: <430C776B.4060309@redhat.com> <1124893226.11553.32.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1124893226.11553.32.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Ok I plead ignorance to the way MLS works.
+References: <430A33E5.1030100@redhat.com>	 <1124815922.7874.124.camel@moss-spartans.epoch.ncsc.mil>	 <1124817712.7874.138.camel@moss-spartans.epoch.ncsc.mil>	 <1124820200.7874.163.camel@moss-spartans.epoch.ncsc.mil>	 <430C75B4.3020008@redhat.com> <1124892792.11553.26.camel@moss-spartans.epoch.ncsc.mil> <430C8944.6090306@redhat.com>
+In-Reply-To: <430C8944.6090306@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+Daniel J Walsh wrote:
+> Playing around with MCS, I see the following problems.
+> 
+> Should the initialsid of kernel be
+> 
+> sid kernel     system_u:system_r:kernel_t:s0:c0.c127
+> or
+> sid kernel     system_u:system_r:kernel_t:s0 - s0:c0.c127
+> 
+> I would like all the daemon processes in the system to run as "s0", Ie 
+> by default not have access to any labeled
+> data.  How do I do this?   Am I supposed to use something like:
+> range_transition initrc_t httpd_exec_t s0 - s0;
+> 
+> Trying to use this is giving me a compilation error.
 
->On Wed, 2005-08-24 at 09:34 -0400, Daniel J Walsh wrote:
->  
->
->>I would like to be able to upgrade rawhide with a new targeted policy 
->>containing MCS.   I see a couple of problems when I do this.
->>
->>The number one problem, it that it still requires an relable.  Even 
->>though the latest kernel defaults everything to level of "sid file"
->>getfilecon or the kernel is is still reading the file context off disks 
->>without the "s0" so the kernel is reporting hundreds of invalid 
->>contexts, need to figure a way to fix this or we will need a relabel.  
->>(Relabeling when upgrading from FC4-FC5 will not be pretty).
->>    
->>
->
->What is the exact error message?  Given the change made by James, the
->kernel shouldn't be getting any error from
->security_context_to_sid_default and thus shouldn't be logging a warning
->about the contexts.  What kernel are you running?
->
->  
->
-Must have been a older kernel.   Just tried it again with 
-2.6.12-1.1505_FC5 and it seems to work. 
-chcon is broken though, ls and other commands are not getting the :s0 
-since it is not there, so there might be other problems,
+I think you would want to run the kernel would at s0:c0.c127.
+Then, do a "range_transition kernel_t init_exec_t s0" to get the whole
+of userspace started off with no categories present.  This is a change
+from the range_transition that is ifdef'd currently for mls in kernel.te.
+Are you going to have "ifdef mcs_policy" like the current
+"ifdef mls_policy"?
 
->>Certain applications like chcon, might need to change to use _raw 
->>functions, _raw function/options would be nice to add to certain 
->>coreutils, at least for debugging purposes.
->>    
->>
->
->You certainly don't want them to use the raw functions by default, but
->having it as an option might be useful.
->
->  
->
-
+I'm sure about the compilation error, I did a similar statement with a
+toolchain that is are pre-modules - that worked.  I'm updating an FC4 box
+now so I at least have something up-to-date.
 
 -- 
 
-
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
