@@ -1,60 +1,49 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7OEoNOb007263
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 10:50:23 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7OEcv88025676
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 14:38:57 GMT
-Message-ID: <430C86AC.9000202@tresys.com>
-Date: Wed, 24 Aug 2005 10:39:40 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7OEv3Ob007361
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 10:57:03 -0400 (EDT)
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7OEkJDj023648
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 14:46:41 GMT
+Message-ID: <430C88C5.5050306@trustedcs.com>
+Date: Wed, 24 Aug 2005 09:48:37 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-CC: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>,
-   SE Linux <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: libselinux category patch
-References: <430A33E5.1030100@redhat.com> <430B2D6A.5010105@tresys.com> <430B3049.5070402@redhat.com> <1124808634.7874.72.camel@moss-spartans.epoch.ncsc.mil> <430B3C86.60802@redhat.com> <1124813721.7874.104.camel@moss-spartans.epoch.ncsc.mil> <430C8560.7090400@trustedcs.com>
-In-Reply-To: <430C8560.7090400@trustedcs.com>
+References: <430A33E5.1030100@redhat.com>	 <1124807226.7874.52.camel@moss-spartans.epoch.ncsc.mil>	 <430B3A7B.6020208@redhat.com> <1124809493.7874.75.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1124809493.7874.75.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Darrel Goeddel wrote:
+Stephen Smalley wrote:
+> On Tue, 2005-08-23 at 11:02 -0400, Daniel J Walsh wrote:
+>>>Do we truly need to allow whitespace in the (translated) MLS field?
+>>>That change to context_new originated in the TCS patch, but I'd prefer
+>>>to avoid it if possible.
+>>> 
+>>
+>>I have no problem with not allowing spaces in translated name.  We could 
+>>come up with a third field, in the translation, Printable Name or some 
+>>such, but that could come later...
+> 
+> I'm just concerned about parsing code having to distinguish normal
+> whitespace field separators (e.g. in ps or ls output) from internal
+> separators within a label.  If we allow whitespace within the context,
+> we essentially have to start printing them all as quoted strings in all
+> the utilities, as well as passing them that way as arguments.
 
-> Stephen Smalley wrote:
->
->>> I was thinking conflicting rpm packages.  So You can not install MCS 
->>> and MLS translation libaries at the same time.
->>
->>
->>
->> Hmmm...I recall that you didn't want to take that approach for multiple
->> policies, but in that case, you were providing multiple policies in the
->> distribution itself.  As long as you don't think you will ever need to
->> support multiple translation libraries in the base distribution, then
->> conflicting packages may be ok.  Darrel, what do you think?
->
->
-> I personally like just managing the symlink /lib/libsetrans.so.0 to point
-> to whatever translation lib should be used.  This allows for multiple
-> variations to be installed.  As pointed out earlier, the alternatives
-> system could be used here.  There should be no need to have more than one
-> translation scheme installed on a running system, but it may prove easier
-> to allow for that case.  I think the question comes down to what is 
-> easier
-> for installing a system such as RHEL that may support multiple schemes 
-> such as MCS and MLS.  Installing multiple policy types and switching 
-> between
-> them is a nice feature.  If the policies would want differing translation
-> schemes, I think it should be just as easy to switch - no rpm removal 
-> and installation.
->
-I don't know, it seems like you will potentially have a different 
-translation lib for different policies. The policy knows which it wants 
-(MCS knows it'll want libsetrans-mls.so or whatever). If you have an MCS 
-and an MLS policy on the same system part of the conversion shouldn't be 
-changing a symlink, that is fairly hacky. This sounds like a per policy 
-configuration to me. That way custom translation libs can be installed 
-with the policy and the policy will use it by default.
+Our MITRE based translator really like the whitespace...  I agree that the
+whitespace is a pain, but we have been using this for quite a while and have
+not run into problems with any utilities that I am aware of.  My biggest gripe
+is having to quote arguments to commands when a context has whitespace...
+How about we allow for it, and let those who choose to use whitespace
+(unfortunately our translation scheme) deal with the repercussions :)
+
+-- 
+
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
