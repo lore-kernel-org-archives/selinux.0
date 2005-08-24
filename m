@@ -1,54 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7OKQWOb010901
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 16:26:32 -0400 (EDT)
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7OKFrDj009958
-	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 20:16:06 GMT
-Message-ID: <36282A1733C57546BE392885C06185920572F6@chaos.tcs.tcs-sec.com>
+Message-ID: <36282A1733C57546BE392885C06185920572F7@chaos.tcs.tcs-sec.com>
 From: Chad Hanson <chanson@TrustedCS.com>
-To: Darrel Goeddel <DGoeddel@TrustedCS.com>,
-   "'Stephen Smalley '"
-	 <sds@epoch.ncsc.mil>
-Cc: "'Daniel J Walsh '" <dwalsh@redhat.com>,
-   "'SE Linux '"
-	 <selinux@tycho.nsa.gov>
-Subject: RE: libselinux category patch
-Date: Wed, 24 Aug 2005 16:18:10 -0400
+To: "'Stephen Smalley '" <sds@tycho.nsa.gov>,
+   Chad Hanson
+	 <chanson@TrustedCS.com>
+Cc: Darrel Goeddel <DGoeddel@TrustedCS.com>,
+   "''Daniel J Walsh ' '"
+	 <dwalsh@redhat.com>,
+   "''SE Linux ' '" <selinux@tycho.nsa.gov>
+Subject: RE: Ok I plead ignorance to the way MLS works.
+Date: Wed, 24 Aug 2005 16:26:34 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+ 
 
-We definitely need to allow whitespace in the translated context.
+>>System high or ranged from system low to system high?  It still needs
+>>MLS privileges to act at any level, right?
 
--Chad 
+System High would be preferred.  kernel_t does need MLS attributes to
+override the MLS policy.
 
-Stephen Smalley wrote:
-> On Tue, 2005-08-23 at 11:02 -0400, Daniel J Walsh wrote:
->>>Do we truly need to allow whitespace in the (translated) MLS field?
->>>That change to context_new originated in the TCS patch, but I'd prefer
->>>to avoid it if possible.
->>> 
->>
->>I have no problem with not allowing spaces in translated name.  We could 
->>come up with a third field, in the translation, Printable Name or some
->>such, but that could come later...
-> 
-> I'm just concerned about parsing code having to distinguish normal
-> whitespace field separators (e.g. in ps or ls output) from internal
-> separators within a label.  If we allow whitespace within the context,
-> we essentially have to start printing them all as quoted strings inall
-> the utilities, as well as passing them that way as arguments.
 
-Our MITRE based translator really like the whitespace...  I agree thatthe
-whitespace is a pain, but we have been using this for quite a while andhave
-not run into problems with any utilities that I am aware of.  My biggest
-gripe is having to quote arguments to commands when a context has
-whitespace...
-How about we allow for it, and let those who choose to use whitespace
-(unfortunately our translation scheme) deal with the repercussions :)
+>>So you'd prefer transitioning to system low upon executing /sbin/init?
+>>init will still need MLS privileges so that it can kill and reap all
+>>processes.
+
+I'd prefer the transition to run init at system low with a clearance of
+system high.
+
+
+>>And we still have to transition login to a range so that users can login
+>>with their clearance set to their highest authorized level.
+
+With init at system low to system high, login would handle setting the
+labels.
+
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
