@@ -1,51 +1,42 @@
-Message-ID: <430C8309.9090507@redhat.com>
-Date: Wed, 24 Aug 2005 10:24:09 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Darrel Goeddel <dgoeddel@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: libselinux category patch
-References: <430A33E5.1030100@redhat.com>	 <1124815922.7874.124.camel@moss-spartans.epoch.ncsc.mil>	 <1124817712.7874.138.camel@moss-spartans.epoch.ncsc.mil>	 <1124820200.7874.163.camel@moss-spartans.epoch.ncsc.mil>	 <430C75B4.3020008@redhat.com> <1124892792.11553.26.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1124892792.11553.26.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Problems with MCS/Targeted policy update.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <430C776B.4060309@redhat.com>
+References: <430C776B.4060309@redhat.com>
+Content-Type: text/plain
+Date: Wed, 24 Aug 2005 10:20:26 -0400
+Message-Id: <1124893226.11553.32.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Wed, 2005-08-24 at 09:34 -0400, Daniel J Walsh wrote:
+> I would like to be able to upgrade rawhide with a new targeted policy 
+> containing MCS.   I see a couple of problems when I do this.
+> 
+> The number one problem, it that it still requires an relable.  Even 
+> though the latest kernel defaults everything to level of "sid file"
+> getfilecon or the kernel is is still reading the file context off disks 
+> without the "s0" so the kernel is reporting hundreds of invalid 
+> contexts, need to figure a way to fix this or we will need a relabel.  
+> (Relabeling when upgrading from FC4-FC5 will not be pretty).
 
->On Wed, 2005-08-24 at 09:27 -0400, Daniel J Walsh wrote:
->  
->
->>I still want at least the set_comp diff to allow me to set level to 
->>NULL, so it does not show up.
->>    
->>
->
->Hmm...I dropped the set_comp diff entirely from the original patch
->because I didn't want the change to allow whitespace in the context, as
->per our earlier discussion on the list.  I didn't notice that you were
->also changing it to allow NULL.  Potential issue there is that your
->change would allow setting a NULL for any field, whereas context_str
->won't handle a NULL gracefully in any field other than the last.
->
->  
->
-Which is too bad since object_r is totally useless in ls output :^).    
-Well we can either make sure it is that last field or not allow it.  As 
-I play with MCS, I am not sure whether we want this info or not, my 
-problem with this field and object_r is that they give no info and take 
-up a lot of screen space.  (Although, probably an Engineer problem and 
-not a real world problem.)
+What is the exact error message?  Given the change made by James, the
+kernel shouldn't be getting any error from
+security_context_to_sid_default and thus shouldn't be logging a warning
+about the contexts.  What kernel are you running?
 
->With regard to clearing the context pointers on entry to the raw
->functions, I don't see why it is necessary given my earlier patch.
->
->  
->
-Ok, you can forget about them.
+> Certain applications like chcon, might need to change to use _raw 
+> functions, _raw function/options would be nice to add to certain 
+> coreutils, at least for debugging purposes.
+
+You certainly don't want them to use the raw functions by default, but
+having it as an option might be useful.
 
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
