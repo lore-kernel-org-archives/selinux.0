@@ -1,100 +1,54 @@
-Subject: Re: libselinux category patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <430C75B4.3020008@redhat.com>
-References: <430A33E5.1030100@redhat.com>
-	 <1124815922.7874.124.camel@moss-spartans.epoch.ncsc.mil>
-	 <1124817712.7874.138.camel@moss-spartans.epoch.ncsc.mil>
-	 <1124820200.7874.163.camel@moss-spartans.epoch.ncsc.mil>
-	 <430C75B4.3020008@redhat.com>
-Content-Type: text/plain
-Date: Wed, 24 Aug 2005 15:36:24 -0400
-Message-Id: <1124912184.11553.120.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7OKQWOb010901
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 16:26:32 -0400 (EDT)
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7OKFrDj009958
+	for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2005 20:16:06 GMT
+Message-ID: <36282A1733C57546BE392885C06185920572F6@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Darrel Goeddel <DGoeddel@TrustedCS.com>,
+   "'Stephen Smalley '"
+	 <sds@epoch.ncsc.mil>
+Cc: "'Daniel J Walsh '" <dwalsh@redhat.com>,
+   "'SE Linux '"
+	 <selinux@tycho.nsa.gov>
+Subject: RE: libselinux category patch
+Date: Wed, 24 Aug 2005 16:18:10 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-08-24 at 09:27 -0400, Daniel J Walsh wrote:
-> I still want at least the set_comp diff to allow me to set level to 
-> NULL, so it does not show up.
 
-How about this patch?  Changes set_comp to allow setting to NULL,
-but doesn't allow whitespace in the context.  Also changes context_str
-to be somewhat more general, but context_new is still not going to like
-a context that lacks any field other than the level, and the kernel
-won't take a partial one.
+We definitely need to allow whitespace in the translated context.
 
-Index: libselinux/src/context.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/context.c,v
-retrieving revision 1.10
-diff -u -p -r1.10 context.c
---- libselinux/src/context.c	11 Aug 2005 13:58:28 -0000	1.10
-+++ libselinux/src/context.c	24 Aug 2005 19:14:59 -0000
-@@ -119,15 +119,15 @@ context_str(context_t context)
-         }
-         n->current_str = malloc(total);
-         if ( n->current_str != 0 ) {
--                char *cp = stpcpy(n->current_str,n->component[0]);
--                *cp++ = ':';
--                cp = stpcpy(cp,n->component[1]);
--                *cp++ = ':';
--                cp = stpcpy(cp,n->component[2]);
--                if ( n->component[3] ) {
--                        *cp++ = ':';
--                        strcpy(cp,n->component[3]);
--                }
-+                char *cp = n->current_str;
-+
-+		cp = stpcpy(cp, n->component[0]);
-+		for (i = 1; i < 4; i++) {
-+			if (n->component[i]) {
-+				*cp++ = ':';
-+				cp = stpcpy(cp, n->component[i]);
-+			}
-+		}
-         }
-         return n->current_str;
- }
-@@ -137,19 +137,22 @@ hidden_def(context_str)
- 
- static int set_comp(context_private_t* n,int index, const char *str)
- {
--        char *t = (char*) malloc(strlen(str)+1);
-+	char *t = NULL;
-         const char *p;
--        if ( !t ) { return 1; }
--        for ( p = str; *p; p++ ) {
--                if ( *p == '\t' || *p == ' ' || *p == '\n' || *p == '\r' ||
--                     (*p == ':' && index != COMP_RANGE) ) {
--                        free(t);
--                        return 1;
--                }
--        }
-+	if (str) {
-+		t = (char*) malloc(strlen(str)+1);
-+		if ( !t ) { return 1; }
-+		for ( p = str; *p; p++ ) {
-+			if ( *p == '\t' || *p == ' ' || *p == '\n' || *p == '\r' ||
-+			     (*p == ':' && index != COMP_RANGE) ) {
-+				free(t);
-+				return 1;
-+			}
-+		}
-+		strcpy(t,str);
-+	}
-         conditional_free(&n->component[index]);
-         n->component[index] = t;
--        strcpy(t,str);
-         return 0;
- }
- 
+-Chad 
 
--- 
-Stephen Smalley
-National Security Agency
+Stephen Smalley wrote:
+> On Tue, 2005-08-23 at 11:02 -0400, Daniel J Walsh wrote:
+>>>Do we truly need to allow whitespace in the (translated) MLS field?
+>>>That change to context_new originated in the TCS patch, but I'd prefer
+>>>to avoid it if possible.
+>>> 
+>>
+>>I have no problem with not allowing spaces in translated name.  We could 
+>>come up with a third field, in the translation, Printable Name or some
+>>such, but that could come later...
+> 
+> I'm just concerned about parsing code having to distinguish normal
+> whitespace field separators (e.g. in ps or ls output) from internal
+> separators within a label.  If we allow whitespace within the context,
+> we essentially have to start printing them all as quoted strings inall
+> the utilities, as well as passing them that way as arguments.
 
+Our MITRE based translator really like the whitespace...  I agree thatthe
+whitespace is a pain, but we have been using this for quite a while andhave
+not run into problems with any utilities that I am aware of.  My biggest
+gripe is having to quote arguments to commands when a context has
+whitespace...
+How about we allow for it, and let those who choose to use whitespace
+(unfortunately our translation scheme) deal with the repercussions :)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
