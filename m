@@ -1,85 +1,72 @@
-Message-ID: <36282A1733C57546BE392885C06185920572F8@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: "'Daniel J Walsh '" <dwalsh@redhat.com>,
-   Chad Hanson
-	 <chanson@TrustedCS.com>
-Cc: "''Stephen Smalley ' '" <sds@tycho.nsa.gov>,
-   Darrel Goeddel
-	 <DGoeddel@TrustedCS.com>,
-   "'''SE Linux ' ' '" <selinux@tycho.nsa.gov>
-Subject: RE: Ok I plead ignorance to the way MLS works.
-Date: Wed, 24 Aug 2005 17:45:45 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Date: Wed, 24 Aug 2005 13:08:30 -0500
+From: serue@us.ibm.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: serue@us.ibm.com, Jason Tang <jtang@tresys.com>,
+   Joshua Brindle <jbrindle@tresys.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libsemanage: fix resource leaks
+Message-ID: <20050824180830.GA7291@sergelap.austin.ibm.com>
+References: <20050822114602.GC24949@sergelap.austin.ibm.com> <1124729771.3025.75.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1124729771.3025.75.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Mon, 2005-08-22 at 06:46 -0500, serue@us.ibm.com wrote:
+> Looks like we need to free the individual elements as well.  Any reason
+> this isn't handled internally by semod_build_modules_list upon an error?
+
+How about the following patch?
+
+thanks,
+-serge
+
+--- src/module_store.c.orig	2005-08-24 17:02:10.056307256 -0500
++++ src/module_store.c	2005-08-24 17:13:23.351950760 -0500
+@@ -721,13 +721,15 @@ static int semod_build_modules_list (con
+         }	
+ 	if ((*names = (char **) calloc (*len, sizeof (**names))) == NULL ||
+             (*versions = (char **) calloc (*len, sizeof (**versions))) == NULL) {
+-                return -1;
++                goto err;
+ 	}
++	memset(names, 0, *len * sizeof(**names));
++	memset(versions, 0, *len * sizeof(**versions));
+ 	for (i = 0; i < *len; i++) {
+                 char *filename, *name, *version;
+                 int type;
+                 if (asprintf (&filename, "%s/%s", path, namelist[i]->d_name) == -1) {
+-                        return -1;
++                        goto err;
+                 }
+ 		if ((pf.fp = fopen (filename, "r")) == NULL) {
+                         free (filename);
+@@ -748,6 +750,24 @@ static int semod_build_modules_list (con
+ 	}
+         free(namelist);
+         return 0;
++
++err:
++	if (*names) {
++		for (i=0; i< *len; i++) {
++			if ((*names)[i])
++				free((*names)[i]);
++		}
++		free(*names);
++	}
++	if (*versions) {
++		for (i=0; i< *len; i++) {
++			if ((*versions)[i])
++				free((*versions)[i]);
++		}
++		free(*versions);
++	}
++
++	return -1;
+ }
  
-
-This would be case. They would have an effective label of system low, which
-is used for labeling and access purposes, and a clearance of system high.
-The only processes not at system low would be those spawned by the kernel
-itself instead of init. 
-
--Chad
-
------Original Message-----
-From: Daniel J Walsh
-To: Chad Hanson
-Cc: 'Stephen Smalley '; Darrel Goeddel; ''SE Linux ' '
-Sent: 8/24/2005 4:28 PM
-Subject: Re: Ok I plead ignorance to the way MLS works.
-
-Chad Hanson wrote:
-
-> 
->
->  
->
->>>System high or ranged from system low to system high?  It still needs
->>>MLS privileges to act at any level, right?
->>>      
->>>
->
->System High would be preferred.  kernel_t does need MLS attributes to
->override the MLS policy.
->
->
->  
->
->>>So you'd prefer transitioning to system low upon executing
-/sbin/init?
->>>init will still need MLS privileges so that it can kill and reap all
->>>processes.
->>>      
->>>
->
->I'd prefer the transition to run init at system low with a clearance of
->system high.
->
->
->  
->
->>>And we still have to transition login to a range so that users can
-login
->>>with their clearance set to their highest authorized level.
->>>      
->>>
->
->With init at system low to system high, login would handle setting the
->labels.
->
->-Chad
->  
->
-Except I don't want all the other apps started by init at anything 
-higher the system low for MCS.
-
-Dan
-
--- 
-
+ /********************* accessor functions below *********************/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
