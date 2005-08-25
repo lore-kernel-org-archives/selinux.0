@@ -1,84 +1,55 @@
-Subject: Re: Problems with MCS/Targeted policy update.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux-dev@tresys.com, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1124981047.3873.64.camel@moss-spartans.epoch.ncsc.mil>
-References: <430C776B.4060309@redhat.com>
-	 <1124893226.11553.32.camel@moss-spartans.epoch.ncsc.mil>
-	 <430C8EB8.80906@redhat.com>
-	 <1124981047.3873.64.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 11:12:41 -0400
-Message-Id: <1124982761.3873.76.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 25 Aug 2005 10:18:03 -0500
+From: serue@us.ibm.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: serue@us.ibm.com, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: avoid NULL deref
+Message-ID: <20050825151803.GA16541@sergelap.austin.ibm.com>
+References: <20050824182822.GB7291@sergelap.austin.ibm.com> <1124982509.3873.74.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1124982509.3873.74.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-08-25 at 10:44 -0400, Stephen Smalley wrote:
-> Ok, Dan pointed out another issue with cleanly upgrading from targeted
-> to MCS:  although the SELinux module now defaults the MLS level for
-> inodes that lack one (based on the default file SID associated with the
-> superblock, typically the 'file' initial SID unless one uses a
-> defcontext= mount option), userspace still sees the real xattr value,
-> and this leads to problems, e.g. userspace can take a context obtained
-> via getfilecon and later try to pass it to an interface like setfilecon
-> or setfscreatecon or security_compute_create, and the SELinux module
-> will then reject the context as invalid (because the defaulting logic
-> only applies when mapping inode contexts to incore inode SIDs, not for
-> contexts supplied by userspace).  Options are:
-> - Change the SELinux module to reset the on-disk xattr when it defaults
-> the MLS level so that userspace will see the same context, or
-> - Have the MCS libsetrans insert a default level (s0) into the context
-> if it lacks one for trans_to_raw conversion.  However, the latter would
-> also require libselinux to invoke the translation functions in some
-> additional cases where it does not presently need to, e.g. rpm_execcon
-> currently works entirely with raw contexts, but would need to go through
-> libsetrans in order to gain the benefit of such corrections on the
-> result of the getfilecon.
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Wed, 2005-08-24 at 13:28 -0500, serue@us.ibm.com wrote:
+> > This patch fixes a bug found by Coverity in setsetbool.c.
+> > 
+> > After these two patches I sent today, the only bugs I'm finding are
+> > 1 false positive in libsemanage, and 22 unchecked in libsepol.
+> > 
+> > thanks,
+> > -serge
+> > 
+> > --- utils/setsebool.c.orig	2005-08-24 17:24:32.278258504 -0500
+> > +++ utils/setsebool.c	2005-08-24 17:30:37.914673320 -0500
+> > @@ -154,6 +154,13 @@ int setbool(char **list, size_t start, s
+> >  		   this above and aborted if something went wrong. */
+> >  		name = list[i];
+> >  		value_ptr = strchr(name, '=');
+> > +		if (!value_ptr) {
+> > +			syslog(LOG_NOTICE,
+> > +				"Malformed entry for boolean %s\n",
+> > +				name);
+> > +			i++;
+> > +			continue;
+> > +		}
+> >  		*value_ptr = 0;
+> >  		value_ptr++;
+> >  		if (pwd && pwd->pw_name)
+> 
+> The immediately preceding comment says:
+>        /* Error checking shouldn't be needed since we just did
+>           this above and aborted if something went wrong. */
+> And looking at the code flow, it would have bailed prior to reaching
+> this code if the strchr had failed at all on the first pass, right?
 
-Here is the workaround patch for rpm_execcon until the kernel is fixed.
+Oh, that's right.  That's why I had ignored it in previous runs!
 
-Index: libselinux/src/rpm.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/rpm.c,v
-retrieving revision 1.5
-diff -u -p -r1.5 rpm.c
---- libselinux/src/rpm.c	23 Aug 2005 16:46:41 -0000	1.5
-+++ libselinux/src/rpm.c	25 Aug 2005 14:52:49 -0000
-@@ -16,15 +16,15 @@ int rpm_execcon(unsigned int verified __
- 	if (is_selinux_enabled() < 1)
- 		return execve(filename, argv, envp);
- 
--	rc = getcon_raw(&mycon);
-+	rc = getcon(&mycon);
- 	if (rc < 0)
- 		goto out;
- 
--	rc = getfilecon_raw(filename, &fcon);
-+	rc = getfilecon(filename, &fcon);
- 	if (rc < 0)
- 		goto out;
- 
--	rc = security_compute_create_raw(mycon, fcon, SECCLASS_PROCESS, &newcon);
-+	rc = security_compute_create(mycon, fcon, SECCLASS_PROCESS, &newcon);
- 	if (rc < 0)
- 		goto out;
- 
-@@ -41,7 +41,7 @@ int rpm_execcon(unsigned int verified __
- 			goto out;
- 	}
- 
--	rc = setexeccon_raw(newcon);
-+	rc = setexeccon(newcon);
- 	if (rc < 0) 
- 		goto out;
- 	rc = execve(filename, argv, envp);
+Please disregard...
 
--- 
-Stephen Smalley
-National Security Agency
-
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
