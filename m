@@ -1,76 +1,72 @@
-Subject: Re: [PATCH 3/6] libsepol: resource leaks in policydb.c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: serue@us.ibm.com, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <430B5AC3.1090200@tresys.com>
-References: <20050822160238.GC4191@sergelap.austin.ibm.com>
-	 <1124802949.7874.23.camel@moss-spartans.epoch.ncsc.mil>
-	 <430B5AC3.1090200@tresys.com>
-Content-Type: text/plain
-Date: Thu, 25 Aug 2005 13:02:10 -0400
-Message-Id: <1124989330.3873.113.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200508251813.j7PIDJss010091@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, <SELinux-dev@tresys.com>,
+   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>,
+   "'James Morris'" <jmorris@redhat.com>, "'SELinux'" <SELinux@tycho.nsa.gov>
+Subject: RE: Problems with MCS/Targeted policy update.
+Date: Thu, 25 Aug 2005 14:13:19 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1124986480.3873.102.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-08-23 at 13:20 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Thursday, August 25, 2005 12:15 PM
+> To: Karl MacMillan
+> Cc: 'Daniel J Walsh'; SELinux-dev@tresys.com; 'Darrel Goeddel'; 'James
+> Morris'; 'SELinux'
+> Subject: RE: Problems with MCS/Targeted policy update.
 > 
-> >On Mon, 2005-08-22 at 11:02 -0500, serue@us.ibm.com wrote:
-> >>The second point makes me wonder - is scope_destroy() fully
-> >>implemented?  It takes 'key' as an argument, but does nothing with
-> >>it.  Same with its third arg.  Of course, they both have attribute
-> >>unused...
-> >>    
-> >>
-> >
-> >I'm merging this patch at present, but I think you are correct about
-> >scope_destroy being ambiguous in its usage - either it shouldn't take
-> >the key as an argument at all, or it should free it.  Given that
-> >scope_destroy is also being used in a hashtab_map call by
-> >policydb_destroy to free the scope, I'd think we would want it to free
-> >the key.  Joshua?
-> >
-> >  
-> >
-> You are right, I'm currently testing this patch but I think it's
-> correct (this is before Serge's patch).
+> On Thu, 2005-08-25 at 11:19 -0400, Karl MacMillan wrote:
+> > This is a problem in other places as well - particularly when the on-disk
+> > contexts are invalid. It would be ideal to have interfaces to retrieve both
+> the
+> > on-disk label (for relabeling based on old, possibly invalid contexts) and
+> the
+> > label being used by the kernel.
+> 
+> Yes, that has been discussed in the past, but no real consensus on the
+> right approach.  The generic VFS fallback for security xattrs patch
+> seems to be going forward, so that at least allows us to get the incore
+> inode security label for filesystems that do not support xattrs, but it
+> doesn't help with the inconsistent xattr/label problem on filesystems
+> that do support xattrs.
+> 
+> In general we don't want applications to have to deal with the notion
+> that there are two distinct labels at all, so we'd just like to ensure
+> consistency whenever possible.  We could possibly export a selinuxfs
+> interface for querying the incore inode security label of a given file,
+> but it seems rather ugly, and most applications are just going to call
+> getfilecon/getxattr for normal work.
+>
 
-Yielded a double free in /sbin/init, load_policy, and checkpolicy due to
-pointer aliasing in symtab_insert.  Patch below should fix.
+I agree that most apps only want to know about one label, but it seems like most
+applications want the incore inode security label. Only maintenance tools like
+restorecon or replcon would want access to the actual on-disk labels. I would
+think that updating the on-disk label to be consistent with the incore labels
+would be the best default. As you say, consistency is the best default.
 
-Index: libsepol/src/util.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/util.c,v
-retrieving revision 1.3
-diff -u -p -r1.3 util.c
---- libsepol/src/util.c	2 Aug 2005 18:32:15 -0000	1.3
-+++ libsepol/src/util.c	25 Aug 2005 16:40:14 -0000
-@@ -186,13 +186,18 @@ int symtab_insert(policydb_t *pol, uint3
-          * create it */
-         scope_datum = (scope_datum_t *) hashtab_search(pol->scope[sym].table, key);
-         if (scope_datum == NULL) {
-+		hashtab_key_t key2 = strdup((char*)key);
-+		if (!key2)
-+			return -ENOMEM;
-                 if ((scope_datum = malloc(sizeof(*scope_datum))) == NULL) {
-+			free(key2);
-                         return -ENOMEM;
-                 }
-                 scope_datum->scope = scope;
-                 scope_datum->decl_ids = NULL;
-                 scope_datum->decl_ids_len = 0;
--                if ((rc = hashtab_insert(pol->scope[sym].table, key, scope_datum)) != 0) {
-+                if ((rc = hashtab_insert(pol->scope[sym].table, key2, scope_datum)) != 0) {	
-+			free(key2);
- 			free(scope_datum);
-                         return rc;
-                 }
+Karl 
 
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134
+ 
+> >  Resetting the on-disk xattr seems like the
+> > better choice of the two you gave to me because it could be generalized to
+> > handle the invalid context case, but we would lose the ability to change the
+> > label based on the previous label.
+> 
+> --
+> Stephen Smalley
+> National Security Agency
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
