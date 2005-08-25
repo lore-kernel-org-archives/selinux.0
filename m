@@ -1,53 +1,52 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7PKq3Ob019976
-	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2005 16:52:03 -0400 (EDT)
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7PKeN2f002675
-	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2005 20:40:23 GMT
-Message-ID: <36282A1733C57546BE392885C06185920572FA@chaos.tcs.tcs-sec.com>
+Message-ID: <36282A1733C57546BE392885C06185920572FD@chaos.tcs.tcs-sec.com>
 From: Chad Hanson <chanson@TrustedCS.com>
-To: "'Stephen Smalley '" <sds@epoch.ncsc.mil>,
+To: "'Stephen Smalley '" <sds@tycho.nsa.gov>,
    Chad Hanson
 	 <chanson@TrustedCS.com>
-Cc: "'SELinux-dev@tresys.com '" <SELinux-dev@tresys.com>,
+Cc: "''Daniel J Walsh ' '" <dwalsh@redhat.com>,
    Darrel Goeddel
 	 <DGoeddel@TrustedCS.com>,
-   "''Daniel J Walsh ' '" <dwalsh@redhat.com>,
-   "''SE Linux ' '" <selinux@tycho.nsa.gov>
-Subject: RE: libselinux category patch
-Date: Thu, 25 Aug 2005 16:43:09 -0400
+   "''''SE Linux ' ' ' '" <selinux@tycho.nsa.gov>
+Subject: RE: Ok I plead ignorance to the way MLS works.
+Date: Thu, 25 Aug 2005 17:04:13 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
-Upon further discussion, we could probably live without whitespace in the
-MLS field. We can perform yet another stripping of the contexts in our own
-applications that would desire to show whitespace instead of a
-non-whitespace character such as '_'.
 
--Chad 
+Ok, I'll plead MCS ignorance :) I understand the clearance will be used for
+read/write access. Should all system services have access to all files? If
+not a runcon or range transition would need to occur before the service
+starts. For a particular desktop/user session pam should reduce the
+clearance to the desired value/range. How far off am I here?
 
->On Wed, 2005-08-24 at 16:18 -0400, Chad Hanson wrote:
->> We definitely need to allow whitespace in the translated context.
+-Chad  
 
->Hmm...translated context is beginning to sound like it has a different
->format than the raw context, which means that it needs to be handled via
->different manipulation functions than the raw context.  Differences that
->seem to be getting proposed include:
->- Dan wants to strip the sensitivity entirely from the translated
->context in the MCS libsetrans because MCS only uses categories,
->- Dan would ideally like to strip object_r from the translated context
->since it takes up display space and seemingly provides no useful
->information,
->- You would like the MLS field to include whitespace in the translated
->context.
->
->Do we need a separate set of context* functions for raw vs. translated?
->Do we need a separate data type?
+-----Original Message-----
+From: Stephen Smalley
+To: Chad Hanson
+Cc: 'Daniel J Walsh '; Darrel Goeddel; '''SE Linux ' ' '
+Sent: 8/25/2005 8:53 AM
+Subject: RE: Ok I plead ignorance to the way MLS works.
 
+On Wed, 2005-08-24 at 17:45 -0400, Chad Hanson wrote: 
+> This would be case. They would have an effective label of system low,
+which
+> is used for labeling and access purposes, and a clearance of system
+high.
+> The only processes not at system low would be those spawned by the
+kernel
+> itself instead of init. 
+
+Understood for the real MLS policy, but under MCS, processes are allowed
+to act based on their clearance, not their current level.  So Dan is
+correct.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
