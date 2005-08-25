@@ -1,72 +1,52 @@
-Message-Id: <200508251813.j7PIDJss010091@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, <SELinux-dev@tresys.com>,
-   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>,
-   "'James Morris'" <jmorris@redhat.com>, "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: Problems with MCS/Targeted policy update.
-Date: Thu, 25 Aug 2005 14:13:19 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7PKq3Ob019976
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2005 16:52:03 -0400 (EDT)
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7PKeN2f002675
+	for <selinux@tycho.nsa.gov>; Thu, 25 Aug 2005 20:40:23 GMT
+Message-ID: <36282A1733C57546BE392885C06185920572FA@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: "'Stephen Smalley '" <sds@epoch.ncsc.mil>,
+   Chad Hanson
+	 <chanson@TrustedCS.com>
+Cc: "'SELinux-dev@tresys.com '" <SELinux-dev@tresys.com>,
+   Darrel Goeddel
+	 <DGoeddel@TrustedCS.com>,
+   "''Daniel J Walsh ' '" <dwalsh@redhat.com>,
+   "''SE Linux ' '" <selinux@tycho.nsa.gov>
+Subject: RE: libselinux category patch
+Date: Thu, 25 Aug 2005 16:43:09 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1124986480.3873.102.camel@moss-spartans.epoch.ncsc.mil>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Thursday, August 25, 2005 12:15 PM
-> To: Karl MacMillan
-> Cc: 'Daniel J Walsh'; SELinux-dev@tresys.com; 'Darrel Goeddel'; 'James
-> Morris'; 'SELinux'
-> Subject: RE: Problems with MCS/Targeted policy update.
-> 
-> On Thu, 2005-08-25 at 11:19 -0400, Karl MacMillan wrote:
-> > This is a problem in other places as well - particularly when the on-disk
-> > contexts are invalid. It would be ideal to have interfaces to retrieve both
-> the
-> > on-disk label (for relabeling based on old, possibly invalid contexts) and
-> the
-> > label being used by the kernel.
-> 
-> Yes, that has been discussed in the past, but no real consensus on the
-> right approach.  The generic VFS fallback for security xattrs patch
-> seems to be going forward, so that at least allows us to get the incore
-> inode security label for filesystems that do not support xattrs, but it
-> doesn't help with the inconsistent xattr/label problem on filesystems
-> that do support xattrs.
-> 
-> In general we don't want applications to have to deal with the notion
-> that there are two distinct labels at all, so we'd just like to ensure
-> consistency whenever possible.  We could possibly export a selinuxfs
-> interface for querying the incore inode security label of a given file,
-> but it seems rather ugly, and most applications are just going to call
-> getfilecon/getxattr for normal work.
->
-
-I agree that most apps only want to know about one label, but it seems like most
-applications want the incore inode security label. Only maintenance tools like
-restorecon or replcon would want access to the actual on-disk labels. I would
-think that updating the on-disk label to be consistent with the incore labels
-would be the best default. As you say, consistency is the best default.
-
-Karl 
-
----
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410) 290-1411 ext 134
  
-> >  Resetting the on-disk xattr seems like the
-> > better choice of the two you gave to me because it could be generalized to
-> > handle the invalid context case, but we would lose the ability to change the
-> > label based on the previous label.
-> 
-> --
-> Stephen Smalley
-> National Security Agency
+Upon further discussion, we could probably live without whitespace in the
+MLS field. We can perform yet another stripping of the contexts in our own
+applications that would desire to show whitespace instead of a
+non-whitespace character such as '_'.
 
+-Chad 
+
+>On Wed, 2005-08-24 at 16:18 -0400, Chad Hanson wrote:
+>> We definitely need to allow whitespace in the translated context.
+
+>Hmm...translated context is beginning to sound like it has a different
+>format than the raw context, which means that it needs to be handled via
+>different manipulation functions than the raw context.  Differences that
+>seem to be getting proposed include:
+>- Dan wants to strip the sensitivity entirely from the translated
+>context in the MCS libsetrans because MCS only uses categories,
+>- Dan would ideally like to strip object_r from the translated context
+>since it takes up display space and seemingly provides no useful
+>information,
+>- You would like the MLS field to include whitespace in the translated
+>context.
+>
+>Do we need a separate set of context* functions for raw vs. translated?
+>Do we need a separate data type?
 
 
 --
