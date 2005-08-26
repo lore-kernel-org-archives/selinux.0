@@ -1,5 +1,5 @@
-Message-ID: <430F6494.8000209@redhat.com>
-Date: Fri, 26 Aug 2005 14:51:00 -0400
+Message-ID: <430F6474.1040802@redhat.com>
+Date: Fri, 26 Aug 2005 14:50:28 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -39,7 +39,10 @@ Stephen Smalley wrote:
 >
 >  
 >
-Yup, your right, I have a bad policy file, forget it.
+Ok then I think the security_context_to_sid functions in the kernel need 
+to change to do the translation.
+
+Dan
 
 -- 
 
