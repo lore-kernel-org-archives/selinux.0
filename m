@@ -1,29 +1,31 @@
-Subject: Re: [PATCH] remove selinux stacked ops
+Subject: RE: Ok I plead ignorance to the way MLS works.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chris Wright <chrisw@osdl.org>
-Cc: selinux@tycho.nsa.gov, linux-security-module@wirex.com
-In-Reply-To: <1125057491.5812.38.camel@moss-spartans.epoch.ncsc.mil>
-References: <20050825221732.GR7991@shell0.pdx.osdl.net>
-	 <20050825225104.GC7762@shell0.pdx.osdl.net>
-	 <1125056906.5812.32.camel@moss-spartans.epoch.ncsc.mil>
-	 <1125057491.5812.38.camel@moss-spartans.epoch.ncsc.mil>
+To: Chad Hanson <chanson@TrustedCS.com>
+Cc: "''Daniel J Walsh ' '" <dwalsh@redhat.com>,
+   Darrel Goeddel <DGoeddel@TrustedCS.com>,
+   "''''SE Linux ' ' ' '" <selinux@tycho.nsa.gov>
+In-Reply-To: <36282A1733C57546BE392885C06185920572FD@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C06185920572FD@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Fri, 26 Aug 2005 08:29:58 -0400
-Message-Id: <1125059398.5812.53.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 26 Aug 2005 08:37:48 -0400
+Message-Id: <1125059868.5812.58.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-08-26 at 07:58 -0400, Stephen Smalley wrote:
-> Ok, as with my prior comment, this one is also invalidated by the fact
-> that the static inlines fall back to the cap_ functions if the operation
-> is NULL.  So I suppose this would work.
+On Thu, 2005-08-25 at 17:04 -0400, Chad Hanson wrote:
+> Ok, I'll plead MCS ignorance :) I understand the clearance will be used for
+> read/write access. Should all system services have access to all files? If
+> not a runcon or range transition would need to occur before the service
+> starts. For a particular desktop/user session pam should reduce the
+> clearance to the desired value/range. How far off am I here?
 
-Given these changes, what purpose does the capability module and the
-CONFIG_SECURITY_CAPABILITIES option serve anymore?  Should capability.c
-be removed entirely?
-
-Also seems to obsolete the cap_stack module in the stacking patch set.
+As I understand it, most system services should not have access to all
+categories in MCS, although some services (cups?) may require such
+access.   Hence, either starting kernel_t with a clearance that has no
+categories or shedding them upon init seemed preferable, then using a
+range_transition to regain them for specific services and login
+processes.  
 
 -- 
 Stephen Smalley
