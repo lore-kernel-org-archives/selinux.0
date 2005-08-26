@@ -1,56 +1,42 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7QHDpOb026409
-	for <selinux@tycho.nsa.gov>; Fri, 26 Aug 2005 13:13:51 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7QHDlLr012413
-	for <selinux@tycho.nsa.gov>; Fri, 26 Aug 2005 17:13:47 GMT
-Subject: memory leak in services.c
-From: Jason Tang <jtang@tresys.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-1Ps3ZZPdnR5MvndrjiOb"
-Date: Fri, 26 Aug 2005 13:13:47 -0400
-Message-Id: <1125076427.5306.19.camel@localhost.localdomain>
+Subject: Re: corrected sidtab locking patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jason Tang <jtang@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1125076450.5306.20.camel@localhost.localdomain>
+References: <1125074025.5306.9.camel@localhost.localdomain>
+	 <430F4824.4090802@tresys.com>
+	 <1125076450.5306.20.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 26 Aug 2005 13:38:57 -0400
+Message-Id: <1125077937.8692.46.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2005-08-26 at 13:14 -0400, Jason Tang wrote:
+> The following patch allows a program to enable locking in
+> libsepol/sidtab.c.  By default sidtab.c does not lock the sidtab when
+> adding and removing entries; this causes problems for multi-threaded
+> programs using it.  Programs may set up function pointers to perform
+> locking as they see fit.
+  
+- Patch doesn't remove the legacy #define's for the old locking macros.
+In fact, it would be better to name the static functions differently and
+change the #define's to expand to the new functions instead of just
+directly defining the functions with those names.
 
---=-1Ps3ZZPdnR5MvndrjiOb
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+- Are you sure that this is now thread-safe?  Kernel-side code was also
+relying on other aspects, e.g. use of wmb() during sidtab_insert to
+ensure that we can safely walk the lists lock-free in sidtab_search, and
+also used atomic (non-blocking) allocation when holding the lock.
 
-The following patch corrects a memory leak in sepol_context_to_sid()
-within libsepol/services.c.  The context was malloc()ed but never
-free()ed afterwards.
+- There are certainly other aspects of libsepol that are not presently
+thread-safe.  One obvious example is its copy of services.c, which lacks
+the locking present in the kernel version.  Do you allow policy reloads?
 
 -- 
-Jason Tang / jtang@tresys.com
-
---=-1Ps3ZZPdnR5MvndrjiOb
-Content-Disposition: attachment; filename=patch-memleak
-Content-Type: text/plain; name=patch-memleak; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- services.c-old	2005-08-26 12:19:01.000000000 -0400
-+++ services.c	2005-08-26 12:18:18.000000000 -0400
-@@ -548,11 +548,14 @@ int sepol_context_to_sid(sepol_security_
- 		goto err;		
- 
- 	context_destroy(context);
-+        free(context);
- 	return STATUS_SUCCESS;
- 
- 	err:
--	if (context)
-+	if (context) {
- 		context_destroy(context);
-+                free(context);
-+        }
- 	DEBUG(__FUNCTION__, "could not convert %s to sid\n", scontext);
- 	return STATUS_ERR;
- }
-
---=-1Ps3ZZPdnR5MvndrjiOb--
+Stephen Smalley
+National Security Agency
 
 
 --
