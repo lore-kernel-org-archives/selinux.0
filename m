@@ -1,71 +1,37 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7QFuaOb025503
-	for <selinux@tycho.nsa.gov>; Fri, 26 Aug 2005 11:56:36 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7QFuWLr005498
-	for <selinux@tycho.nsa.gov>; Fri, 26 Aug 2005 15:56:32 GMT
-Subject: ANN: Reference Policy Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 26 Aug 2005 11:57:40 -0400
-Message-Id: <1125071860.18700.22.camel@sgc.columbia.tresys.com>
+Date: Fri, 26 Aug 2005 09:22:41 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Chris Wright <chrisw@osdl.org>, selinux@tycho.nsa.gov,
+   linux-security-module@wirex.com
+Subject: Re: [PATCH] remove selinux stacked ops
+Message-ID: <20050826162241.GG7762@shell0.pdx.osdl.net>
+References: <20050825221732.GR7991@shell0.pdx.osdl.net> <20050825225104.GC7762@shell0.pdx.osdl.net> <1125056906.5812.32.camel@moss-spartans.epoch.ncsc.mil> <1125057491.5812.38.camel@moss-spartans.epoch.ncsc.mil> <1125059398.5812.53.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1125059398.5812.53.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of the SELinux Reference Policy is now available on
-Sourceforge from http://serefpolicy.sourceforge.net.  The change log
-follows at the bottom of the email.  In particular, Makefile support for
-building loadable policy modules has been added, in addition to several
-policies.
+* Stephen Smalley (sds@tycho.nsa.gov) wrote:
+> On Fri, 2005-08-26 at 07:58 -0400, Stephen Smalley wrote:
+> > Ok, as with my prior comment, this one is also invalidated by the fact
+> > that the static inlines fall back to the cap_ functions if the operation
+> > is NULL.  So I suppose this would work.
+> 
+> Given these changes, what purpose does the capability module and the
+> CONFIG_SECURITY_CAPABILITIES option serve anymore?  Should capability.c
+> be removed entirely?
 
-Again, for those that are interesting in contributing, right now the
-best help would be to convert existing policies over to reference
-policy; there is a list of modules on the status page on Sourceforge.
-We are using the NSA example policy 1.23.2 as a baseline for the
-policies (also available on the download page), and we ask that these
-policies are used when converting modules.  After all of the policies
-are converted over, then we will update reference policy to the current
-NSA CVS policy.
+I left it for two reasons.  Making it built-in will mean you can't
+load another security module.  Some distros use the module already, so
+it's compatibility.  These aren't the best reasons to keep it long term.
 
-- Add Makefile support for building loadable modules.
-- Add genclassperms.py tool to add require blocks
-  for loadable modules.
-- Change sedoctool to make required modules part of base
-  by default, otherwise make as modules, in modules.conf.
-- Fix segenxml to handle modules with no interfaces.
-- Rename ipsec connect interface for consistency.
-- Add missing parts of unix stream socket connect interface
-  of ipsec.
-- Rename inetd connect interface for consistency.
-- Rename interface for purging contents of tmp, for clarity,
-  since it allows deletion of classes other than file.
-- Misc. cleanups.
-- Added policies:
-	acct
-	bind
-	firstboot
-	gpm
-	howl
-	ldap
-	loadkeys
-	mysql
-	privoxy
-	quota
-	rshd
-	rsync
-	su
-	sudo
-	tcpd
-	tmpreaper
-	updfstab
+> Also seems to obsolete the cap_stack module in the stacking patch set.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I believe so.
 
+thanks,
+-chris
 
 --
 This message was distributed to subscribers of the selinux mailing list.
