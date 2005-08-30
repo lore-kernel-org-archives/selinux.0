@@ -1,45 +1,33 @@
-Subject: Re: conditional name_bind permission check
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Spencer Shimko <sshimko@tresys.com>
-Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200508261430.03861.sshimko@tresys.com>
-References: <200508261430.03861.sshimko@tresys.com>
-Content-Type: text/plain
-Date: Mon, 29 Aug 2005 09:23:56 -0400
-Message-Id: <1125321836.2179.41.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <43148322.5030201@redhat.com>
+Date: Tue, 30 Aug 2005 12:02:42 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Another place where policy blows up because of translations in MCS.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-08-26 at 14:30 -0400, Spencer Shimko wrote:
-> While developing policy for an application we expected to see a 
-> name_bind denial message at a certain point.  The message was not
-> appearing in the audit logs.  Further exploration showed the avc_has_perm
-> call was wrapped in a conditional that excluded the port range in question.  
-> In security/selinux/hooks.c the avc_has_perm is only called if the
-> following condition is met:
-> 
-> if (snum&&(snum < max(PROT_SOCK,ip_local_port_range_0) ||
->         snum > ip_local_port_range_1))
-> 
-> PROT_SOCK is defined as 1024 in the kernel.  ip_local_port_range_0
-> and ip_local_port_range_1 are macros that expand to the port range
-> specified in the /proc/sys/net/ipv4/ip_local_port_range sysctl interface.
-> So this prevents the name_bind permission from being checked on those 
-> ports reserved for local use.  What is the reason for not checking this 
-> range?
-
-Those port numbers are used to automatically bind.  Hence, while we
-_could_ technically prevent their use on an explicit bind(2) call (but
-writing policy governing such usage would be insane as any and every
-application may try using such ports), we wouldn't be able to prevent
-their use internally by the kernel for auto-binding of unbound sockets
-upon other operations.  It would only offer illusory control to control
-that port range upon bind(2).
+/usr/bin/checkpolicy -M -o policy.20 policy.conf
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+/usr/bin/checkpolicy:  policy configuration loaded
+/usr/bin/checkpolicy:  writing binary representation (version 20) to 
+policy.20
+Validating file contexts files ...
+/usr/sbin/setfiles -q -c policy.20 file_contexts/file_contexts
+libsepol.sepol_ctx_struct_create: mls is enabled, but no mls context found
+libsepol.sepol_ctx_struct_create: error creating context structure
+libsepol.sepol_ctx_struct_from_string: unable to create context structure
+libsepol.sepol_context_to_sid: could not convert 
+system_u:object_r:default_t to sid
+file_contexts/file_contexts:  line 155 has invalid context 
+system_u:object_r:default_t
+make: *** [policy.20] Error 1
+error: Bad exit status from /var/tmp/rpm-tmp.74451 (%build)
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
