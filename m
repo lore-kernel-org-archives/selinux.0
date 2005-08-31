@@ -1,67 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7VHiIOb001376
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2005 13:44:18 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7VHgCI9016233
-	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2005 17:42:13 GMT
-Subject: [PATCH] show correct error message when a policy has duplicate
+Subject: Re: [PATCH] show correct error message when a policy has duplicate
 	declarations
-From: Jason Tang <jtang@tresys.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-O90BuyeQFYk3p3JVi/fz"
-Date: Wed, 31 Aug 2005 13:43:19 -0400
-Message-Id: <1125510199.5306.59.camel@localhost.localdomain>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jason Tang <jtang@tresys.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1125510199.5306.59.camel@localhost.localdomain>
+References: <1125510199.5306.59.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 31 Aug 2005 14:09:42 -0400
+Message-Id: <1125511782.18888.347.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-08-31 at 13:43 -0400, Jason Tang wrote:
+> Although checkpolicy/checkmodule catch duplicate declarations, the
+> compiler prints the wrong message.  This patch alters the program so that it
+> shows the correct message.
 
---=-O90BuyeQFYk3p3JVi/fz
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hmm...interesting.  Adding a duplicate type declaration for device_t, I
+see the following behaviors before and after this patch:
 
-Although checkpolicy/checkmodule catch duplicate declarations, the
-compiler prints the wrong message.  This patch alters the program so that it
-shows the correct message.
+Before:
+checkpolicy: module_compiler.c:318: declare_type: Assertion `0' failed.
+
+After:
+types/device.te:16:ERROR 'Out of memory!' at token ';' on line 3855:
+
+type device_t;
+checkpolicy:  error(s) encountered while parsing configuration
+
+Somewhat improved, but still not what we want.
 
 -- 
-Jason Tang / jtang@tresys.com
-
---=-O90BuyeQFYk3p3JVi/fz
-Content-Disposition: attachment; filename=module_compiler-patch
-Content-Type: text/plain; name=module_compiler-patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- checkpolicy.old/module_compiler.c	2005-08-22 15:16:41.000000000 -0400
-+++ checkpolicy/module_compiler.c	2005-08-31 13:25:25.000000000 -0400
-@@ -145,9 +145,11 @@ int declare_symbol(uint32_t symbol_type,
-         else if (retval == -2) {
-                 return -2;
-         }
--        else if (retval == -1 || retval == -ENOMEM) {
-+        else if (retval < 0) {
-                 return -3;
-         }
-+        else {  /* fall through possible if retval is 0 */
-+        }
-         if (datum_value != NULL) {
-                 if (ebitmap_set_bit(decl->declared.scope + symbol_type,
-                                     *datum_value - 1,
-@@ -497,9 +499,11 @@ int require_symbol(uint32_t symbol_type,
-         else if (retval == -2) {
-                 return -2;
-         }
--        else if (retval == -1 || retval == -ENOMEM) {
-+        else if (retval < 0) {
-                 return -3;
-         }
-+        else {  /* fall through possible if retval is 0 */
-+        }
-         if (datum_value != NULL) {
-                 if (ebitmap_set_bit(decl->required.scope + symbol_type,
-                                     *datum_value - 1,
-
---=-O90BuyeQFYk3p3JVi/fz--
+Stephen Smalley
+National Security Agency
 
 
 --
