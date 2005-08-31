@@ -1,47 +1,68 @@
-Message-ID: <4315C560.6070100@trustedcs.com>
-Date: Wed, 31 Aug 2005 09:57:36 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@redhat.com>,
-   SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Another place where policy blows up because of translations in
- MCS.
-References: <43148322.5030201@redhat.com>	 <1125418171.18888.138.camel@moss-spartans.epoch.ncsc.mil>	 <4314958B.5000602@redhat.com>	 <1125493031.18888.238.camel@moss-spartans.epoch.ncsc.mil>	 <1125497296.18888.287.camel@moss-spartans.epoch.ncsc.mil> <1125498135.18888.291.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1125498135.18888.291.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j7VHiIOb001376
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2005 13:44:18 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j7VHgCI9016233
+	for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2005 17:42:13 GMT
+Subject: [PATCH] show correct error message when a policy has duplicate
+	declarations
+From: Jason Tang <jtang@tresys.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary="=-O90BuyeQFYk3p3JVi/fz"
+Date: Wed, 31 Aug 2005 13:43:19 -0400
+Message-Id: <1125510199.5306.59.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2005-08-31 at 10:08 -0400, Stephen Smalley wrote:
-> 
->>Note that we wouldn't want to require setfiles to link against
->>libsetrans, as there is no upstream libsetrans and it is optional.
->>Hence, either setfiles would need to dlopen libsetrans in the same
->>manner as libselinux to access the translation functions or libselinux
->>needs to export wrapper functions for the translation functions it has
->>already looked up from libsetrans.  The latter seems simpler, but
->>requires that we add such functions to libselinux that are exported and
->>have proper namespace prefixes, unlike the hidden
->>trans_to_raw_context/raw_to_trans_context functions.  The exported
->>functions would also need to internally check the context_translations
->>flag unlike the current trans_to_raw_context/raw_to_trans_context
->>functions.
-> 
-> 
-> See the attached patches for libselinux and setfiles.  Does this address
-> the issue?  Is it the right approach (i.e. keeping libsepol
-> translation-unaware and handling this in setfiles)?
 
-This seems to be the proper approach.  We should keep the concept of
-translated contexts at the higher levels (libselinux and applications) to
-keep things as simple as possible.  The patches look good from here.  I
-just wonder how I've never seen the problem.
+--=-O90BuyeQFYk3p3JVi/fz
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Although checkpolicy/checkmodule catch duplicate declarations, the
+compiler prints the wrong message.  This patch alters the program so that it
+shows the correct message.
 
 -- 
+Jason Tang / jtang@tresys.com
 
-Darrel
+--=-O90BuyeQFYk3p3JVi/fz
+Content-Disposition: attachment; filename=module_compiler-patch
+Content-Type: text/plain; name=module_compiler-patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- checkpolicy.old/module_compiler.c	2005-08-22 15:16:41.000000000 -0400
++++ checkpolicy/module_compiler.c	2005-08-31 13:25:25.000000000 -0400
+@@ -145,9 +145,11 @@ int declare_symbol(uint32_t symbol_type,
+         else if (retval == -2) {
+                 return -2;
+         }
+-        else if (retval == -1 || retval == -ENOMEM) {
++        else if (retval < 0) {
+                 return -3;
+         }
++        else {  /* fall through possible if retval is 0 */
++        }
+         if (datum_value != NULL) {
+                 if (ebitmap_set_bit(decl->declared.scope + symbol_type,
+                                     *datum_value - 1,
+@@ -497,9 +499,11 @@ int require_symbol(uint32_t symbol_type,
+         else if (retval == -2) {
+                 return -2;
+         }
+-        else if (retval == -1 || retval == -ENOMEM) {
++        else if (retval < 0) {
+                 return -3;
+         }
++        else {  /* fall through possible if retval is 0 */
++        }
+         if (datum_value != NULL) {
+                 if (ebitmap_set_bit(decl->required.scope + symbol_type,
+                                     *datum_value - 1,
+
+--=-O90BuyeQFYk3p3JVi/fz--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
