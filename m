@@ -1,567 +1,253 @@
-Date: Thu, 1 Sep 2005 13:56:31 -0500
-From: ltcgcw@us.ibm.com
-To: SELinux <SELinux@tycho.nsa.gov>
-Cc: redhat-lspp <redhat-lspp@redhat.com>
-Subject: [RFC][PATCH] killall context regex and userid matching
-Message-ID: <20050901185631.GA22593@us.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j81K47Ob013852
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2005 16:04:07 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j81K2xa1028860
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2005 20:03:00 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j81K32Ou017592
+	for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2005 16:03:02 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j81K32AD017591
+	for selinux@tycho.nsa.gov; Thu, 1 Sep 2005 16:03:02 -0400
+Subject: Some policy files
+From: Erich Schubert <erich@debian.org>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary="=-QnUZcMD1SIL5xq7dQ5W+"
+Date: Thu, 01 Sep 2005 18:31:12 +0200
+Message-Id: <1125592273.13489.36.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="U+BazGySraz5kW0T"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---U+BazGySraz5kW0T
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--=-QnUZcMD1SIL5xq7dQ5W+
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Please find a patch to psmisc attached.  It adds these features to killall:
-  - regular expression SELinux context matching
-  - userid matching
-  - process names now optional when matching by either context or userid
-  - most fprintf() strings now gettext-ized
-  - help text no longer split up by #ifdef; missing newline added
-  - manpage updates
+Hi,
+attached are some policy files for SELinux.
+Munin replaced LRRD, which is currently in the selinux "unused" folder.
+But I still have one issue with munin - it creates zombies, but no audit
+messages... any hints which "allow" rule could be needed to let munin
+collect it's children? I already tried adding "sigchld", but that didn't
+to the trick.
 
-The patch applies to the psmisc CVS tree, current as of today.  I will
-submit it to the psmisc maintainer once I incorporate comments received on
-this list.  It might be useful to add something similar to skill and snice.
+Heartbeat isn't yet fully tested. It seems to be able to do IP takeover
+though.
 
---=20
-George Wilson <ltcgcw@us.ibm.com>
-IBM Linux Technology Center
+best regards,
+Erich Schubert
+-- 
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+       The best things in life are free: Friendship and Love.       //\
+       Es gibt kein idiotensicheres Programm, weil Idioten so       V_/_
+                     genial sind. -- E. Murphy
 
---U+BazGySraz5kW0T
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="psmisc-16.patch"
-Content-Transfer-Encoding: quoted-printable
+--=-QnUZcMD1SIL5xq7dQ5W+
+Content-Disposition: attachment; filename=heartbeat.te
+Content-Type: text/plain; name=heartbeat.te; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-diff -Naurp psmisc.orig/doc/killall.1 psmisc.comp/doc/killall.1
---- psmisc.orig/doc/killall.1	2005-03-20 18:02:44.000000000 -0600
-+++ psmisc.comp/doc/killall.1	2005-08-28 16:17:58.000000000 -0500
-@@ -4,13 +4,16 @@ killall \- kill processes by name
- .SH SYNOPSIS
- .ad l
- .B killall
--.RB [ \-Z , \-\-context ]
-+.RB [ \-Z , \-\-context
-+.IR regex ]
- .RB [ \-e , \-\-exact ]
- .RB [ \-g , \-\-process\-group ]
- .RB [ \-i , \-\-interactive ]
- .RB [ \-q , \-\-quiet ]
- .RB [ \-s , \-\-signal
- .IR signal ]
-+.RB [ \-u , \-\-user
-+.IR user ]
- .RB [ \-v , \-\-verbose ]
- .RB [ \-w , \-\-wait ]
- .RB [ \-I , \-\-ignore-case ]
-@@ -36,7 +39,9 @@ If the command name contains a slash (\f
- particular file will be selected for killing, independent of their name.
- .PP
- \fBkillall\fP returns a zero return code if at least one process has been
--killed for each listed command. \fBkillall\fP returns non-zero otherwise.
-+killed for each listed command, or no commands were listed and at least
-+one process matched the -u and -Z search criteria. \fBkillall\fP returns
-+non-zero otherwise.
- .PP
- A \fBkillall\fP process never kills itself (but may kill other \fBkillall\=
-fP
- processes).
-@@ -60,6 +65,8 @@ Interactively ask for confirmation befor
- List all known signal names.
- .IP "\fB\-q\fP, \fB\-\-quiet\fP"
- Do not complain if no processes were killed.
-+.IP "\fB\-u\fP, \fB\-\-user\fP"
-+Kill only processes the specified user owns.  Command names are optional.
- .IP "\fB\-v\fP, \fB\-\-verbose\fP"
- Report if the signal was successfully sent.
- .IP "\fB\-V\fP, \fB\-\-version\fP"
-@@ -69,9 +76,9 @@ Wait for all killed processes to die. \f
- any of the killed processes still exist and only returns if none are left.
- Note that \fBkillall\fP may wait forever if the signal was ignored, had no
- effect, or if the process stays in zombie state.
--.IP \fB\-Z\fP
--(SELinux Only) Specify security context: kill only processes with given se=
-curity context.
--Must precede other arguments on the command line.
-+.IP "\fB\-Z\fP, \fB\-\-context\fP"
-+(SELinux Only) Kill only processes having a security context that matches =
-the
-+given extended regular expression.  Command names are optional.
- .SH FILES
- .nf
- /proc	location of the proc file system
-diff -Naurp psmisc.orig/src/killall.c psmisc.comp/src/killall.c
---- psmisc.orig/src/killall.c	2005-03-23 16:38:00.000000000 -0600
-+++ psmisc.comp/src/killall.c	2005-08-29 07:33:39.000000000 -0500
-@@ -39,15 +39,16 @@
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <getopt.h>
--
--#ifdef WITH_SELINUX
--#include <selinux/selinux.h>
--#endif /*WITH_SELINUX*/
-+#include <pwd.h>
-=20
- #include "i18n.h"
- #include "comm.h"
- #include "signals.h"
-=20
-+#ifdef WITH_SELINUX
-+#include <regex.h>
-+#include <selinux/selinux.h>
-+#endif /*WITH_SELINUX*/
-=20
- #define PROC_BASE "/proc"
- #define MAX_NAMES (int)(sizeof(unsigned long)*8)
-@@ -55,7 +56,7 @@
-=20
- static int verbose =3D 0, exact =3D 0, interactive =3D 0,
-            quiet =3D 0, wait_until_dead =3D 0, process_group =3D 0,
--           ignore_case =3D 0, pidof;
-+           ignore_case =3D 0, byuser =3D 0, pidof;
-=20
- static int
- ask (char *name, pid_t pid)
-@@ -90,10 +91,10 @@ ask (char *name, pid_t pid)
-=20
- #ifdef WITH_SELINUX
- static int
--kill_all(int signal, int names, char **namelist, security_context_t sconte=
-xt )
-+kill_all(int signal, int names, char **namelist, uid_t *uid, regex_t *cont=
-ext_regex)
- #else  /*WITH_SELINUX*/
- static int
--kill_all (int signal, int names, char **namelist)
-+kill_all (int signal, int names, char **namelist, uid_t *uid)
- #endif /*WITH_SELINUX*/
- {
-   DIR *dir;
-@@ -109,28 +110,41 @@ kill_all (int signal, int names, char **
-   int empty, i, j, okay, length, got_long, error;
-   int pids, max_pids, pids_killed;
-   unsigned long found;
-+  uid_t ps_uid =3D 0;
-+  const int ps_buffer_size =3D 80;
-+  char ps_buffer[ps_buffer_size];
-+  int rc =3D 0;
- #ifdef WITH_SELINUX
--  security_context_t lcontext=3DNULL;
--
--  if ( names =3D=3D 0 || ! namelist ) exit( 1 ); /* do the obvious thing..=
-=2E*/
-+  int nameless =3D ((names =3D=3D 0) && ((uid !=3D NULL) || (context_regex=
- !=3D NULL)));
-+  security_context_t ps_context =3D NULL;
-+#else
-+  int nameless =3D (names =3D=3D 0) && (uid !=3D NULL);
- #endif /*WITH_SELINUX*/
-=20
--  if (!(name_len =3D malloc (sizeof (int) * names)))
-+  if (!nameless)
-     {
--      perror ("malloc");
--      exit (1);
-+      if (!(name_len =3D malloc (sizeof (int) * names)))
-+	{
-+	  perror ("malloc");
-+	  exit (1);
-+	}
-+      for (i =3D 0; i < names; i++)
-+	{
-+	  if (!strchr (namelist[i], '/'))
-+	    {
-+	      sts[i].st_dev =3D 0;
-+	      name_len[i] =3D strlen (namelist[i]);
-+	    }
-+	  else if (stat (namelist[i], &sts[i]) < 0)
-+	    {
-+	      perror (namelist[i]);
-+	      exit (1);
-+	    }
-+	}
-     }
--  for (i =3D 0; i < names; i++) {
--    if (!strchr (namelist[i], '/'))
--      {
--	sts[i].st_dev =3D 0;
--	name_len[i] =3D strlen (namelist[i]);
--      }
--    else if (stat (namelist[i], &sts[i]) < 0)
--      {
--	perror (namelist[i]);
--	exit (1);
--      }
-+  else
-+   {
-+     names =3D 1;		/* But loop once through names */
-    }=20
-   self =3D getpid ();
-   found =3D 0;
-@@ -184,6 +198,54 @@ kill_all (int signal, int names, char **
-     }
-   for (i =3D 0; i < pids; i++)
-     {
-+      /* Match by UID */
-+      if (uid !=3D NULL)
-+	{
-+	  if (asprintf (&path, PROC_BASE "/%d/status", pid_table[i]) < 0)
-+	    {
-+	      continue;
-+	    }
-+	  if (!(file =3D fopen (path, "r")))
-+ 	    {
-+ 	      free (path);
-+ 	      continue;
-+ 	    }
-+	  free (path);
-+	  rc =3D 0;
-+	  while (rc =3D=3D 0)
-+	    {
-+	      if ((rc =3D (int)fgets(ps_buffer, ps_buffer_size, file)) !=3D EOF)
-+		{
-+		  rc =3D sscanf (ps_buffer, "Uid:\t%d", &ps_uid);
-+		}
-+  	    }
-+	  (void) fclose(file);
-+ 	  if (rc =3D=3D EOF)
-+	    {
-+	      fprintf(stderr, _("Cannot get UID from process status\n"));
-+	      exit (1);
-+            }
-+          if (*uid !=3D ps_uid)
-+            {
-+              continue;
-+            }
-+        }
-+#ifdef WITH_SELINUX
-+      /* Match by context */
-+      if (context_regex !=3D NULL)
-+	{
-+	  if (getpidcon(pid_table[i], &ps_context) < 0)
-+	    {
-+	      continue;
-+	    }
-+	  if (regexec (context_regex, (const char *)ps_context, 0, NULL, 0) !=3D =
-0)
-+	    {
-+	      freecon(ps_context);
-+	      continue;
-+	    }
-+	  freecon(ps_context);
-+	}
-+#endif /*WITH_SELINUX*/
-       if (asprintf (&path, PROC_BASE "/%d/stat", pid_table[i]) < 0)
- 	continue;
-       if (!(file =3D fopen (path, "r")))=20
-@@ -262,60 +324,40 @@ kill_all (int signal, int names, char **
-       for (j =3D 0; j < names; j++)
- 	{
- 	  pid_t id;
--
--	  if (!sts[j].st_dev)
-+	  if (!nameless)
- 	    {
--	      if (length !=3D COMM_LEN - 1 || name_len[j] < COMM_LEN - 1)
--		{
--		  if (ignore_case =3D=3D 1)
--		  {
--		    if (strcasecmp (namelist[j], comm))
-+	      if (!sts[j].st_dev)
-+	        {
-+	          if (length !=3D COMM_LEN - 1 || name_len[j] < COMM_LEN - 1)
-+		    {
-+		      if (ignore_case =3D=3D 1)
-+		      {
-+		        if (strcasecmp (namelist[j], comm))
-+		        continue;
-+		      }
-+		      else
-+		      {
-+		        if (strcmp(namelist[j], comm))
-+		        continue;
-+		      }
-+		    }
-+	          else if (got_long ? strcmp (namelist[j], command) :
-+		           strncmp (namelist[j], comm, COMM_LEN - 1))
- 		    continue;
--		  }
--		  else
--		  {
--		    if (strcmp(namelist[j], comm))
-+	        }
-+	      else
-+	        {
-+	          if (asprintf (&path, PROC_BASE "/%d/exe", pid_table[i]) < 0)
- 		    continue;
--		  }
--		}
--	      else if (got_long ? strcmp (namelist[j], command) :
--		       strncmp (namelist[j], comm, COMM_LEN - 1))
--		continue;
--#ifdef WITH_SELINUX
--              if ( scontext !=3D NULL ) {
--                if ( getpidcon(pid_table[i], &lcontext) < 0 )
--                  continue;
--                if (strcmp(lcontext,scontext)!=3D0) {
--		  freecon(lcontext);
--                  continue;
--		}
--		freecon(lcontext);
--              }
--#endif /*WITH_SELINUX*/
--	    }
--	  else
--	    {
--	      if (asprintf (&path, PROC_BASE "/%d/exe", pid_table[i]) < 0)
--		continue;
-=20
--	      if (stat (path, &st) < 0) {
--		    free (path);
-+	          if (stat (path, &st) < 0) {
-+		        free (path);
-+		        continue;
-+	          }
-+	          free (path);
-+	          if (sts[j].st_dev !=3D st.st_dev || sts[j].st_ino !=3D st.st_in=
-o)
- 		    continue;
--	      }
--	      free (path);
--#ifdef WITH_SELINUX
--              if ( scontext !=3D NULL ) {
--                if ( getpidcon(pid_table[i], &lcontext) < 0 )
--                  continue;
--                if (strcmp(lcontext,scontext)!=3D0) {
--		  freecon(lcontext);
--                  continue;
--		}
--		freecon(lcontext);
--              }
--#endif /*WITH_SELINUX*/
--	      if (sts[j].st_dev !=3D st.st_dev || sts[j].st_ino !=3D st.st_ino)
--		continue;
-+	        }
- 	    }
- 	  if (!process_group)
- 	    id =3D pid_table[i];
-@@ -360,16 +402,25 @@ kill_all (int signal, int names, char **
-     }
-   if (empty)
-     {
--      fprintf (stderr, _("%s is empty (not mounted ?)\n"), PROC_BASE);
--      exit (1);
-+      if (pids =3D=3D 0)
-+        {
-+          fprintf (stderr, _("%s is empty (not mounted ?)\n"), PROC_BASE);
-+          exit (1);
-+        }
-+      else
-+        {
-+          fprintf (stderr, _("Warning: No processes matched search criteri=
-a\n"));
-+          exit(1);
-+        }
-     }
--  if (!quiet && !pidof)
-+  if (!quiet && !pidof && !nameless)
-     for (i =3D 0; i < names; i++)
-       if (!(found & (1 << i)))
- 	fprintf (stderr, _("%s: no process killed\n"), namelist[i]);
-   if (pidof)
-     putchar ('\n');
--  error =3D found =3D=3D ((1 << (names - 1)) | ((1 << (names - 1)) - 1)) ?=
- 0 : 1;
-+  /* If it gets this far and is nameless, at least one process matched. */
-+  error =3D found =3D=3D (((1 << (names - 1)) | ((1 << (names - 1)) - 1)) =
-|| nameless) ? 0 : 1;
-   /*
-    * We scan all (supposedly) killed processes every second to detect dead
-    * processes as soon as possible in order to limit problems of race with
-@@ -410,12 +461,26 @@ static void
- usage_killall (void)
- {
- #ifdef WITH_SELINUX
--   fprintf(stderr, _(
--     "Usage: killall [-Z CONTEXT] [ -egiqvw ] [ -SIGNAL ] NAME...\n"));
-+  fprintf(stderr, _(
-+    "Usage: killall [-Z CONTEXT] [-u USERID] [-egiqvw] [-SIGNAL] NAME...\n=
-"));
-+  fprintf(stderr, _(
-+    "       killall -l, --list\n"
-+    "       killall -V, --version\n\n"
-+    "  -e,--exact          require exact match for very long names\n"
-+    "  -I,--ignore-case    case insensitive process name match\n"
-+    "  -g,--process-group  kill process group instead of process\n"
-+    "  -i,--interactive    ask for confirmation before killing\n"
-+    "  -l,--list           list all known signal names\n"
-+    "  -q,--quiet          don't print complaints\n"
-+    "  -s,--signal SIGNAL  send this signal instead of SIGTERM\n"
-+    "  -u,--user USER      kill only process(es) running as USER\n"
-+    "  -v,--verbose        report if the signal was successfully sent\n"
-+    "  -V,--version        display version information\n"
-+    "  -w,--wait           wait for processes to die\n"
-+    "  -Z,--context REGEX  kill only process(es) whose SELinux context mat=
-ches REGEX\n\n"));
- #else  /*WITH_SELINUX*/
-   fprintf(stderr, _(
-     "Usage: killall [OPTIONS]... [--] NAME...\n"));
--#endif /*WITH_SELINUX*/
-   fprintf(stderr, _(
-     "       killall -l, --list\n"
-     "       killall -V, --version\n\n"
-@@ -426,13 +491,10 @@ usage_killall (void)
-     "  -l,--list           list all known signal names\n"
-     "  -q,--quiet          don't print complaints\n"
-     "  -s,--signal SIGNAL  send this signal instead of SIGTERM\n"
-+    "  -u,--user USER      kill only process(es) running as USER\n"
-     "  -v,--verbose        report if the signal was successfully sent\n"
-     "  -V,--version        display version information\n"
-     "  -w,--wait           wait for processes to die\n\n"));
--#ifdef WITH_SELINUX
--  fprintf(stderr, _(
--    "  -Z,--context CONTEXT kill only process(es) having context\n"
--    "                      (must precede other arguments)"));
- #endif /*WITH_SELINUX*/
- }
-=20
-@@ -466,7 +528,13 @@ main (int argc, char **argv)
-   int sig_num;
-   int optc;
-   int myoptind;
-+  uid_t uid;
-+  struct passwd *pwent;
-   //int optsig =3D 0;
-+#ifdef WITH_SELINUX
-+  int rc;
-+  regex_t context_regex;
-+#endif /*WITH_SELINUX*/
-=20
-   struct option options[] =3D {
-     {"exact", 0, NULL, 'e'},
-@@ -476,6 +544,7 @@ main (int argc, char **argv)
-     {"list-signals", 0, NULL, 'l'},
-     {"quiet", 0, NULL, 'q'},
-     {"signal", 1, NULL, 's'},
-+    {"user", 1, NULL, 'u'},
-     {"verbose", 0, NULL, 'v'},
-     {"wait", 0, NULL, 'w'},
- #ifdef WITH_SELINUX
-@@ -486,8 +555,6 @@ main (int argc, char **argv)
-=20
- #ifdef WITH_SELINUX
-   security_context_t scontext =3D NULL;
--
--  if ( argc < 2 ) usage(); /* do the obvious thing... */
- #endif /*WITH_SELINUX*/
-=20
-   name =3D strrchr (*argv, '/');
-@@ -507,9 +574,9 @@ main (int argc, char **argv)
-=20
-   opterr =3D 0;
- #ifdef WITH_SELINUX
--  while ( (optc =3D getopt_long_only(argc,argv,"egilqs:vwZ:VI",options,NUL=
-L)) !=3D EOF) {
-+  while ( (optc =3D getopt_long_only(argc,argv,"egilqs:u:vwZ:VI",options,N=
-ULL)) !=3D EOF) {
- #else
--  while ( (optc =3D getopt_long_only(argc,argv,"egilqs:vwVI",options,NULL)=
-) !=3D EOF) {
-+  while ( (optc =3D getopt_long_only(argc,argv,"egilqs:u:vwVI",options,NUL=
-L)) !=3D EOF) {
- #endif
-     switch (optc) {
-       case 'e':
-@@ -537,6 +604,16 @@ main (int argc, char **argv)
-       case 's':
- 	sig_num =3D get_signal (optarg, "killall");
-         break;
-+      case 'u':
-+        pwent =3D getpwnam(optarg);
-+        if (pwent !=3D NULL) {
-+          uid =3D pwent->pw_uid;
-+          byuser =3D 1;
-+        } else {
-+          fprintf (stderr, _("Cannot find user\n"));
-+          exit (1);
-+        }
-+        break;
-       case 'v':
-         if (pidof)
-           usage();
-@@ -556,13 +633,25 @@ main (int argc, char **argv)
-         break;
- #ifdef WITH_SELINUX
-       case 'Z':=20
--        if (is_selinux_enabled()>0)=20
--           scontext=3Doptarg;
--        else=20
--           fprintf(stderr, "Warning: -Z (--context) ignored. Requires an S=
-ELinux enabled kernel\n");
-+        if (is_selinux_enabled() > 0) {
-+           scontext =3D optarg;
-+           if (regcomp(&context_regex, scontext, REG_EXTENDED|REG_NOSUB) !=
-=3D 0) {
-+             fprintf(stderr, _("Bad regular expression\n"));
-+             exit (1);
-+           }
-+        } else {
-+           fprintf(stderr, _("Warning: -Z (--context) ignored. Requires an=
- SELinux enabled kernel\n"));
-+        }
-         break;
- #endif /*WITH_SELINUX*/
-       case '?':
-+#ifdef WITH_SELINUX
-+        /* Special case the 'Z' option--it's the only uppercase opt with=
-=20
-+         * an optarg. Otherwise, code below confuses it with a signal. */
-+        if (strncmp(argv[optind-1], "-Z", 32) =3D=3D 0) {
-+          usage();
-+        }
-+#endif /*WITH_SELINUX*/
-         /* Signal names are in uppercase, so check to see if the argv
-          * is upper case */
-         if (argv[optind-1][1] >=3D 'A' && argv[optind-1][1] <=3D 'Z') {
-@@ -579,7 +668,11 @@ main (int argc, char **argv)
-     }
-   }
-   myoptind =3D optind;
--  if (argc - myoptind < 1)=20
-+#ifdef WITH_SELINUX
-+  if ((argc - myoptind < 1) && (byuser =3D=3D 0) && (scontext =3D=3D NULL))
-+#else
-+  if ((argc - myoptind < 1) && (byuser =3D=3D 0))
-+#endif /*WITH_SELINUX*/
-     usage();
-=20
-   if (argc - myoptind > MAX_NAMES + 1)
-@@ -590,8 +683,16 @@ main (int argc, char **argv)
-   argv =3D argv + myoptind;
-   /*printf("sending signal %d to procs\n", sig_num);*/
- #ifdef WITH_SELINUX
--  return kill_all(sig_num,argc - myoptind, argv, scontext);
-+  rc =3D kill_all(sig_num,
-+		argc - myoptind,
-+		argv,
-+		((byuser =3D=3D 0) ? NULL : &uid),
-+		((scontext =3D=3D NULL) ? NULL : &context_regex));
-+  if (scontext !=3D NULL) {
-+    regfree(&context_regex);
-+  }
-+  return rc;
- #else  /*WITH_SELINUX*/
--  return kill_all(sig_num,argc - myoptind, argv );
-+  return kill_all(sig_num, argc - myoptind, argv, ((byuser =3D=3D 0) ? NUL=
-L : &uid));
- #endif /*WITH_SELINUX*/
- }
+#DESC HEARTBEAT - high availability failover
+#
+# Author:  Erich Schubert <erich@debian.org>
+# X-Debian-Packages: heartbeat
+#
 
---U+BazGySraz5kW0T--
+#################################
+#
+# Rules for the heartbeat_t domain.
+#
+# heartbeat_exec_t is the type of the heartbeat executable.
+#
+daemon_domain(heartbeat, `, privlog')
+etcdir_domain(heartbeat)
+var_lib_domain(heartbeat)
+uses_shlib(heartbeat_t)
+# Heartbeat uses Shared Memory
+allow heartbeat_t self:shm create_shm_perms;
+tmpfs_domain(heartbeat)
+
+# can execute all kind of stuff...
+allow heartbeat_t { bin_t sbin_t }:dir r_dir_perms;
+allow heartbeat_t { bin_t sbin_t }:lnk_file r_file_perms;
+can_exec(heartbeat_t, { bin_t sbin_t heartbeat_exec_t shell_exec_t })
+can_network(heartbeat_t)
+
+# heartbeat needs some information
+allow heartbeat_t etc_t:file r_file_perms;
+
+allow heartbeat_t self:fifo_file rw_file_perms;
+allow heartbeat_t heartbeat_var_lib_t:fifo_file create_file_perms;
+allow heartbeat_t heartbeat_var_lib_t:sock_file create_file_perms;
+allow heartbeat_t heartbeat_var_lib_t:dir { create_file_perms rmdir };
+
+# heartbeat needs to run ifconfig
+domain_auto_trans(heartbeat_t, ifconfig_exec_t, ifconfig_t)
+
+# initrc needs to read config
+r_dir_file(initrc_t, heartbeat_etc_t)
+
+# and unix dgram sockets
+allow heartbeat_t self:packet_socket { create_socket_perms };
+allow heartbeat_t self:unix_dgram_socket { create_socket_perms listen };
+allow heartbeat_t self:unix_stream_socket { create_socket_perms listen connectto accept };
+
+# Heartbeat uses currently unnamed "reserved" ports
+allow heartbeat_t reserved_port_t:udp_socket { name_bind create_socket_perms };
+# to ping
+allow heartbeat_t self:rawip_socket { create ioctl read write bind getopt setopt };
+allow heartbeat_t netif_type:netif { rawip_send rawip_recv };
+allow heartbeat_t node_type:node { rawip_send rawip_recv };
+
+allow heartbeat_t self:capability { net_raw net_bind_service setgid setuid sys_nice ipc_lock dac_override };
+allow heartbeat_t proc_t:file read;
+allow heartbeat_t self:process { getsched setsched setpgid sigchld };
+
+--=-QnUZcMD1SIL5xq7dQ5W+
+Content-Disposition: attachment; filename=munin.te
+Content-Type: text/plain; name=munin.te; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+#DESC MUNIN - network-wide load graphing
+#
+# Author:  Erich Schubert <erich@debian.org>
+# X-Debian-Packages: munin, munin-node
+#
+
+#################################
+#
+# Rules for the munin_t domain.
+#
+# munin_exec_t is the type of the munin executable.
+#
+daemon_domain(munin, `, privmail')
+
+allow munin_t munin_var_run_t:sock_file create_file_perms;
+
+etcdir_domain(munin)
+type munin_port_t, port_type;
+
+log_domain(munin)
+tmp_domain(munin)
+var_lib_domain(munin)
+
+# perl
+allow munin_t { sbin_t bin_t }:dir { search getattr };
+allow munin_t { bin_t }:lnk_file read;
+
+# for helper apps
+can_exec_any(munin_t)
+read_locale(munin_t)
+
+# has cron jobs
+system_crond_entry(munin_exec_t, munin_t)
+allow crond_t munin_var_lib_t:dir search;
+
+# init script
+allow initrc_t munin_log_t:file { write append setattr ioctl };
+
+# allow to drop privileges and renice
+allow munin_t self:capability { setgid setuid dac_override dac_read_search };
+allow munin_t self:process { getsched setsched };
+
+allow munin_t urandom_device_t:chr_file { getattr read };
+allow munin_t usr_t:file { read ioctl };
+
+can_exec(munin_t, munin_exec_t)
+can_exec(munin_t, bin_t)
+allow munin_t bin_t:dir { search };
+allow munin_t usr_t:lnk_file { read };
+allow munin_t self:fifo_file rw_file_perms;
+
+# Allow access to the munin databases
+create_dir_file(munin_t, munin_var_lib_t)
+allow munin_t var_lib_t:dir search;
+
+# write log files
+allow munin_t munin_log_t:dir rw_dir_perms;
+allow munin_t munin_log_t:file create_file_perms;
+
+# read config files
+r_dir_file(initrc_t, munin_etc_t)
+allow munin_t { etc_t etc_runtime_t }:{ file lnk_file } { read getattr };
+# for accessing the output directory
+#ifdef(`apache.te', `
+allow munin_t httpd_sys_content_t:dir { search };
+#')
+
+allow munin_t etc_t:dir search;
+
+can_unix_connect(sysadm_t, munin_t)
+can_unix_connect(munin_t, munin_t)
+can_unix_send(munin_t, munin_t)
+can_network_server(munin_t)
+allow munin_t munin_t:tcp_socket connect;
+allow munin_t munin_port_t:tcp_socket { name_connect name_bind };
+
+allow munin_t self:unix_stream_socket { create_socket_perms listen accept ioctl };
+
+ifdef(`logrotate.te', `
+r_dir_file(logrotate_t, munin_etc_t)
+allow logrotate_t munin_var_lib_t:dir search;
+allow logrotate_t munin_var_run_t:dir search;
+allow logrotate_t munin_var_run_t:sock_file write;
+can_unix_connect(logrotate_t, munin_t)
+')
+
+ifdef(`fnord-tcpsvd.te',`
+# web server may read output files
+allow http_request_t munin_var_lib_t:dir r_dir_perms;
+allow http_request_t { munin_var_lib_t munin_etc_t }:file r_file_perms;
+')
+
+# get info from /proc
+allow munin_t { proc_t proc_net_t sysctl_kernel_t sysctl_t sysctl_fs_t sysctl_rpc_t }:dir r_dir_perms;
+allow munin_t { proc_t proc_net_t sysctl_kernel_t sysctl_t sysctl_fs_t sysctl_rpc_t }:file { read getattr };
+allow munin_t { proc_t proc_net_t sysctl_t }:file ioctl;
+
+allow munin_t { var_spool_t postfix_spool_t postfix_spool_maildrop_t }:dir r_dir_perms;
+allow munin_t { var_spool_t postfix_spool_t postfix_spool_maildrop_t }:file { getattr };
+
+# get info from self (WHY?)
+allow munin_t self:file { read ioctl };
+
+# let it check the mail logs
+r_dir_file(munin_t, var_log_t)
+
+--=-QnUZcMD1SIL5xq7dQ5W+
+Content-Disposition: attachment; filename=heartbeat.fc
+Content-Type: text/plain; name=heartbeat.fc; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+# heartbeat
+/usr/lib/heartbeat/.*		--	system_u:object_r:heartbeat_exec_t
+/usr/bin/cl_status		--	system_u:object_r:heartbeat_exec_t
+/var/lib/heartbeat(/.*)?		system_u:object_r:heartbeat_var_lib_t
+/var/run/heartbeat.*		--	system_u:object_r:heartbeat_var_run_t
+/etc/ha.d(/.*)?				system_u:object_r:heartbeat_etc_t
+/etc/ha.d/resource.d/.*		--	system_u:object_r:heartbeat_exec_t
+/etc/ha.d/rc.d/.*		--	system_u:object_r:heartbeat_exec_t
+/etc/ha.d/harc			--	system_u:object_r:heartbeat_exec_t
+
+--=-QnUZcMD1SIL5xq7dQ5W+
+Content-Disposition: attachment; filename=munin.fc
+Content-Type: text/plain; name=munin.fc; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+# munin
+/usr/bin/munin-.*		--	system_u:object_r:munin_exec_t
+/usr/sbin/munin-.*		--	system_u:object_r:munin_exec_t
+/usr/share/munin/munin-.*	--	system_u:object_r:munin_exec_t
+/usr/share/munin/plugins/.*	--	system_u:object_r:munin_exec_t
+/var/run/munin(/.*)?			system_u:object_r:munin_var_run_t
+/var/log/munin(/.*)?			system_u:object_r:munin_log_t
+/var/lib/munin(/.*)?			system_u:object_r:munin_var_lib_t
+/var/www/munin(/.*)?			system_u:object_r:munin_var_lib_t
+/etc/munin(/.*)?			system_u:object_r:munin_etc_t
+
+--=-QnUZcMD1SIL5xq7dQ5W+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
