@@ -1,37 +1,33 @@
-Subject: Re: quotaon
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <200509021632.j82GWrss022126@gotham.columbia.tresys.com>
-References: <200509021632.j82GWrss022126@gotham.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j82Id5Ob023431
+	for <selinux@tycho.nsa.gov>; Fri, 2 Sep 2005 14:39:05 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j82IbhoJ013081
+	for <selinux@tycho.nsa.gov>; Fri, 2 Sep 2005 18:37:48 GMT
+Subject: squid policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 02 Sep 2005 13:48:32 -0400
-Message-Id: <1125683312.21817.132.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 02 Sep 2005 14:39:44 -0400
+Message-Id: <1125686384.16388.66.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-09-02 at 12:32 -0400, Karl MacMillan wrote:
-> Under what conditions is quotaon checked for files? After some looking I
-> found that you can mount a file on another file using bind mount - which I
-> was not previously aware of - which would trigger the mounton check. It is
-> not clear to me, though, when quotaon would be checked and whether it is
-> related to the bind mount of a file on another file.
+While converting over the squid policy to a reference policy module, I
+noticed this:
 
-mount -o remount,quota /boot
-/sbin/quotacheck /boot
-/sbin/quotaon /boot
+#squid requires the following when run in diskd mode, the recommended setting
+allow squid_t tmpfs_t:file { read write };
 
-type=AVC msg=audit(1125682618.727:11233081): avc:  denied  { quotaon } for  pid=24938 comm="quotaon" name="aquota.user" dev=hda1 ino=18119 scontext=root:system_r:quota_t tcontext=root:object_r:boot_t tclass=file
-
-It has no connection to mounton, not sure what you are asking.
-It effectively controls what files can be used as quota files based on
-their type, e.g. so that a maliciously constructed quota file won't be
-used by the kernel.  Whether or not it matters in practice...
+I'm confused on how this can happen.  As far as I know, there shouldn't
+be no tmpfs_t files; everything should fall into a derived tmpfs domain,
+usually provided by tmpfs_domain().  Can someone clarify this?
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
