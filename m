@@ -1,39 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j82CYiOb019655
-	for <selinux@tycho.nsa.gov>; Fri, 2 Sep 2005 08:34:44 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j82CWJnp007753
-	for <selinux@tycho.nsa.gov>; Fri, 2 Sep 2005 12:32:19 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j82CXWi9027022
-	for <selinux@tycho.nsa.gov>; Fri, 2 Sep 2005 08:33:32 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j82CXWIe027021
-	for selinux@tycho.nsa.gov; Fri, 2 Sep 2005 08:33:32 -0400
-Subject: Re: Some policy files
-From: Erich Schubert <erich@debian.org>
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <1125592273.13489.36.camel@wintermute.xmldesign.de>
-References: <1125592273.13489.36.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Thu, 01 Sep 2005 23:08:29 +0200
-Message-Id: <1125608909.13489.50.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Message-ID: <43185553.3010903@tresys.com>
+Date: Fri, 02 Sep 2005 09:36:20 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Jason Tang <jtang@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] show correct error message when a policy has duplicate
+ declarations
+References: <1125510199.5306.59.camel@localhost.localdomain>	 <1125511782.18888.347.camel@moss-spartans.epoch.ncsc.mil> <1125512582.18888.349.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1125512582.18888.349.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-One followup to the munin rules:
-I've recently been running only the munin-node "client" on my SELinux
-boxes, so all the cgi stuff and such is not up to date.
+Stephen Smalley wrote:
 
-best regards,
-Erich Schubert
--- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
- A man doesn't know what he knows until he knows what he doesn't know. //\
-     Mathematik: Das Alphabet, mit dessen Hilfe Gott das Universum     V_/_
-                  beschrieben hat. --- Galileo Galilei
+>On Wed, 2005-08-31 at 14:09 -0400, Stephen Smalley wrote:
+>  
+>
+>>On Wed, 2005-08-31 at 13:43 -0400, Jason Tang wrote:
+>>    
+>>
+>>>Although checkpolicy/checkmodule catch duplicate declarations, the
+>>>compiler prints the wrong message.  This patch alters the program so that it
+>>>shows the correct message.
+>>>      
+>>>
+>>Hmm...interesting.  Adding a duplicate type declaration for device_t, I
+>>see the following behaviors before and after this patch:
+>>
+>>Before:
+>>checkpolicy: module_compiler.c:318: declare_type: Assertion `0' failed.
+>>
+>>After:
+>>types/device.te:16:ERROR 'Out of memory!' at token ';' on line 3855:
+>>
+>>type device_t;
+>>checkpolicy:  error(s) encountered while parsing configuration
+>>
+>>Somewhat improved, but still not what we want.
+>>    
+>>
+>
+>Looks like the real bug is in libsepol, i.e.
+>
+>Index: libsepol/src/util.c
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/util.c,v
+>retrieving revision 1.4
+>diff -u -p -r1.4 util.c
+>--- libsepol/src/util.c	25 Aug 2005 17:00:49 -0000	1.4
+>+++ libsepol/src/util.c	31 Aug 2005 18:11:01 -0000
+>@@ -175,7 +175,7 @@ int symtab_insert(policydb_t *pol, uint3
+>                 }
+>                 else {
+>                         /* duplicate declarations not allowed for all else */
+>-                        return rc;
+>+                        return -2;
+>                 }
+>         }
+>         else {
+>
+>Not clear whether your patch is needed or not at that point.
+>  
+>
+Probably not but it would be a good idea to audit all the error handling 
+so that this sort of thing doesn't happen in the future.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
