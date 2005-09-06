@@ -1,58 +1,61 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j85E77Ob012398
-	for <selinux@tycho.nsa.gov>; Mon, 5 Sep 2005 10:07:08 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j85E5MFn008507
-	for <selinux@tycho.nsa.gov>; Mon, 5 Sep 2005 14:05:22 GMT
-Subject: ntp policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Mon, 05 Sep 2005 10:07:46 -0400
-Message-Id: <1125929266.16388.85.camel@sgc>
-Mime-Version: 1.0
+Message-Id: <200509061252.j86CqbUO002501@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>
+Subject: RE: quotaon
+Date: Tue, 6 Sep 2005 08:52:37 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1125683312.21817.132.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-While converting the ntpd policy over to a reference policy module, I
-came across a few lines which bring up questions.
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Friday, September 02, 2005 1:49 PM
+> To: Karl MacMillan
+> Cc: SELinux List
+> Subject: Re: quotaon
+> 
+> On Fri, 2005-09-02 at 12:32 -0400, Karl MacMillan wrote:
+> > Under what conditions is quotaon checked for files? After some looking I
+> > found that you can mount a file on another file using bind mount - which
+> I
+> > was not previously aware of - which would trigger the mounton check. It
+> is
+> > not clear to me, though, when quotaon would be checked and whether it is
+> > related to the bind mount of a file on another file.
+> 
+> mount -o remount,quota /boot
+> /sbin/quotacheck /boot
+> /sbin/quotaon /boot
+> 
+> type=AVC msg=audit(1125682618.727:11233081): avc:  denied  { quotaon } for
+> pid=24938 comm="quotaon" name="aquota.user" dev=hda1 ino=18119
+> scontext=root:system_r:quota_t tcontext=root:object_r:boot_t tclass=file
+> 
+> It has no connection to mounton, not sure what you are asking.
+> It effectively controls what files can be used as quota files based on
+> their type, e.g. so that a maliciously constructed quota file won't be
+> used by the kernel.  Whether or not it matters in practice...
+> 
 
-	# so the start script can change firewall entries
-	allow initrc_t net_conf_t:file { getattr read ioctl };
+Interesting - not at all what I was thinking. I can imagine scenarios where
+this enforcement might be in important, but seems like a stretch. I was
+thinking that this permission had something to do with the filesystem rather
+than the quota file - which was why I was thinking about interaction with
+mounton. Of course, this doesn't really make sense after thinking about it.
 
-This looks like a distro-specific access, or perhaps it just made its
-way in by accident?
+Thanks,
 
-	# for cron jobs
-	# system_crond_t is not right, cron is not doing what it should
-	ifdef(`crond.te', `
-	system_crond_entry(ntpd_exec_t, ntpd_t)
-	')
+Karl
 
-It is unclear to me what the comment means.  Also, shouldn't this be
-ntpdate_exec_t instead of ntpd_exec_t?
 
-	can_udp_send(ntpd_t, sysadm_t)
-	can_udp_send(sysadm_t, ntpd_t)
+> --
+> Stephen Smalley
+> National Security Agency
 
-There is no comment for these.  Are they needed for sysadm to run
-ntpdate?
-
-	ifdef(`winbind.te', `
-	allow ntpd_t winbind_var_run_t:dir r_dir_perms;
-	allow ntpd_t winbind_var_run_t:sock_file rw_file_perms;
-	')
-
-Generally when using a sock_file, a domain is connecting/sending to
-another domain over a unix domain socket; however, after doing a few
-rule searches in apol, I find no evidence that ntpd_t connects/sends to
-winbind_t.  Is there some other purpose for these rules, or am I missing
-something?
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
