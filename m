@@ -1,62 +1,54 @@
-Message-Id: <200509061252.j86CqbUO002501@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>
-Subject: RE: quotaon
-Date: Tue, 6 Sep 2005 08:52:37 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j86ICxOb022507
+	for <selinux@tycho.nsa.gov>; Tue, 6 Sep 2005 14:12:59 -0400 (EDT)
+Received: from iron1-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j86IB0cC023998
+	for <selinux@tycho.nsa.gov>; Tue, 6 Sep 2005 18:11:01 GMT
+Message-Id: <4bk2k6$54al2s@iron1-mx.tops.gwu.edu>
+Date: Tue, 06 Sep 2005 14:10:48 -0400
+From: Yuichi Nakamura <ynakam@gwu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1125683312.21817.132.camel@moss-spartans.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: ynakam@gwu.edu
+Subject: ANN: SELinux Policy Editor 1.2
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Friday, September 02, 2005 1:49 PM
-> To: Karl MacMillan
-> Cc: SELinux List
-> Subject: Re: quotaon
-> 
-> On Fri, 2005-09-02 at 12:32 -0400, Karl MacMillan wrote:
-> > Under what conditions is quotaon checked for files? After some looking I
-> > found that you can mount a file on another file using bind mount - which
-> I
-> > was not previously aware of - which would trigger the mounton check. It
-> is
-> > not clear to me, though, when quotaon would be checked and whether it is
-> > related to the bind mount of a file on another file.
-> 
-> mount -o remount,quota /boot
-> /sbin/quotacheck /boot
-> /sbin/quotaon /boot
-> 
-> type=AVC msg=audit(1125682618.727:11233081): avc:  denied  { quotaon } for
-> pid=24938 comm="quotaon" name="aquota.user" dev=hda1 ino=18119
-> scontext=root:system_r:quota_t tcontext=root:object_r:boot_t tclass=file
-> 
-> It has no connection to mounton, not sure what you are asking.
-> It effectively controls what files can be used as quota files based on
-> their type, e.g. so that a maliciously constructed quota file won't be
-> used by the kernel.  Whether or not it matters in practice...
-> 
+Hi. 
 
-Interesting - not at all what I was thinking. I can imagine scenarios where
-this enforcement might be in important, but seems like a stretch. I was
-thinking that this permission had something to do with the filesystem rather
-than the quota file - which was why I was thinking about interaction with
-mounton. Of course, this doesn't really make sense after thinking about it.
+We've released SELinux Policy Editor 1.2.0.
+How to download and install, see 
+http://seedit.sourceforge.net/doc/install/INSTALL.html
 
-Thanks,
+Documents are updated at 
+http://seedit.sourceforge.net/documents.html
 
-Karl
+Major Changes from 1.0 
+(1) Improved implementation to support different distributions 
+Now supports Fedora Core4, Turbo Linux 10 Server, Asianux 2.0.
+(2) Added more sample policy
+(3) Improved Simplified Policy Description language
+See http://seedit.sourceforge.net/documents.html for 
+updated simplified policy description language.
+(4) Developer's policy
+For developers, simplified policy that uses macros are prepared 
+in seedit-policy-devel package.
+# Documentations for developer's policy is not prepared yet. 
+# Be careful to use it.
+(5) policy without RBAC
+Policy without RBAC(like targeted policy) can be installed 
+when installing from source.
 
 
-> --
-> Stephen Smalley
-> National Security Agency
+For feedback, e-mail to seedit-admin@lists.sourceforge.net .
 
-
+---
+Yuichi Nakamura
+Hitachi Software, The George Washington University
+Japan SELinux Users Group(JSELUG)
+Japan Open Source Advocacy Organization(JOSAO)
+SELinux Policy Editor:  http://seedit.sourceforge.net/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
