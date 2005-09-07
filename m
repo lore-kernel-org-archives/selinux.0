@@ -1,54 +1,75 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j86ICxOb022507
-	for <selinux@tycho.nsa.gov>; Tue, 6 Sep 2005 14:12:59 -0400 (EDT)
-Received: from iron1-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j86IB0cC023998
-	for <selinux@tycho.nsa.gov>; Tue, 6 Sep 2005 18:11:01 GMT
-Message-Id: <4bk2k6$54al2s@iron1-mx.tops.gwu.edu>
-Date: Tue, 06 Sep 2005 14:10:48 -0400
-From: Yuichi Nakamura <ynakam@gwu.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j87CGqOb027705
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2005 08:16:53 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j87CDZfE018333
+	for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2005 12:13:35 GMT
+Message-ID: <431EDA31.9030502@redhat.com>
+Date: Wed, 07 Sep 2005 08:16:49 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Cc: ynakam@gwu.edu
-Subject: ANN: SELinux Policy Editor 1.2
-Content-Type: text/plain; charset=US-ASCII
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: ntp policy
+References: <1125929266.16388.85.camel@sgc>
+In-Reply-To: <1125929266.16388.85.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi. 
+Christopher J. PeBenito wrote:
 
-We've released SELinux Policy Editor 1.2.0.
-How to download and install, see 
-http://seedit.sourceforge.net/doc/install/INSTALL.html
+>While converting the ntpd policy over to a reference policy module, I
+>came across a few lines which bring up questions.
+>
+>	# so the start script can change firewall entries
+>	allow initrc_t net_conf_t:file { getattr read ioctl };
+>
+>This looks like a distro-specific access, or perhaps it just made its
+>way in by accident?
+>  
+>
+No idea.  You get these from the can_network call anyways.
 
-Documents are updated at 
-http://seedit.sourceforge.net/documents.html
+>	# for cron jobs
+>	# system_crond_t is not right, cron is not doing what it should
+>	ifdef(`crond.te', `
+>	system_crond_entry(ntpd_exec_t, ntpd_t)
+>	')
+>
+>It is unclear to me what the comment means.  Also, shouldn't this be
+>ntpdate_exec_t instead of ntpd_exec_t?
+>  
+>
+Yes, I am sure this rule went in before there was an ntpdate_exec_t, 
+although I do not see a cron job that runs it.
 
-Major Changes from 1.0 
-(1) Improved implementation to support different distributions 
-Now supports Fedora Core4, Turbo Linux 10 Server, Asianux 2.0.
-(2) Added more sample policy
-(3) Improved Simplified Policy Description language
-See http://seedit.sourceforge.net/documents.html for 
-updated simplified policy description language.
-(4) Developer's policy
-For developers, simplified policy that uses macros are prepared 
-in seedit-policy-devel package.
-# Documentations for developer's policy is not prepared yet. 
-# Be careful to use it.
-(5) policy without RBAC
-Policy without RBAC(like targeted policy) can be installed 
-when installing from source.
+>	can_udp_send(ntpd_t, sysadm_t)
+>	can_udp_send(sysadm_t, ntpd_t)
+>
+>There is no comment for these.  Are they needed for sysadm to run
+>ntpdate?
+>  
+>
+>	ifdef(`winbind.te', `
+>	allow ntpd_t winbind_var_run_t:dir r_dir_perms;
+>	allow ntpd_t winbind_var_run_t:sock_file rw_file_perms;
+>	')
+>
+>Generally when using a sock_file, a domain is connecting/sending to
+>another domain over a unix domain socket; however, after doing a few
+>rule searches in apol, I find no evidence that ntpd_t connects/sends to
+>winbind_t.  Is there some other purpose for these rules, or am I missing
+>something?
+>
+>  
+>
+Must be from nscd.
 
 
-For feedback, e-mail to seedit-admin@lists.sourceforge.net .
+-- 
 
----
-Yuichi Nakamura
-Hitachi Software, The George Washington University
-Japan SELinux Users Group(JSELUG)
-Japan Open Source Advocacy Organization(JOSAO)
-SELinux Policy Editor:  http://seedit.sourceforge.net/
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
