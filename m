@@ -1,73 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j88KftOb013219
-	for <selinux@tycho.nsa.gov>; Thu, 8 Sep 2005 16:41:55 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j88KdYAI001176
-	for <selinux@tycho.nsa.gov>; Thu, 8 Sep 2005 20:39:34 GMT
-Date: Thu, 8 Sep 2005 21:39:29 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Cc: pere@hungry.com
-Subject: [pere@hungry.com: Bug#270919: Can you test a new version of sysvinit?]
-Message-ID: <20050908203929.GE8960@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SELinux List <SELinux@tycho.nsa.gov>
+Subject: dhcpc.te patch
+Date: Fri, 9 Sep 2005 20:50:20 +1000
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_xjWIDjpkUmwvaP3"
+Message-Id: <200509092050.25353.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-fyi esp. to manoj.
+--Boundary-00=_xjWIDjpkUmwvaP3
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-this fixes the problem of initrc_t attempting to write to /etc (it's
-just a "touch /etc/" which fails).
-
-the daft test concludes "oops, /etc isn't writeable, therefore /etc/mtab
-must not be writeable, therefore we must not be able to delete
-/etc/mtab, so we won't.  therefore on the previous shutdown, there must
-have been partitions that weren't shut down properly, therefore we won't
-mount them now"
-
-basically this simple fix - attempting "touch /etc/mtab" as a
-test instead of "touch /etc" - stops a debian/selinux system
-getting into deeper and deeper shit :)
-
-l.
-
------ Forwarded message from Petter Reinholdtsen <pere@hungry.com> -----
-
-Resent-From: Debian BTS <debbugs@bugs.debian.org>
-
-Hello
-
-I'm preparing an NMU of sysvinit, to fix a few bugs.  Your bug report
-is one of these bugs.  To reduce the possibility of messing up, I want
-to ask if you can test the packages I have prepared and verify that it
-work for you and solve your problem.
-
-The test packages are available from
-<URL:http://developer.skolelinux.no/~pere/debian/packages/>.  To test,
-download them like this, and install them.
-
-  for f in initscripts_2.86.ds1-1.1.pere.7_i386.deb \
-           sysv-rc_2.86.ds1-1.1.pere.7_all.deb \
-           sysvinit_2.86.ds1-1.1.pere.7_i386.deb ; do \
-      wget http://developer.skolelinux.no/~pere/debian/packages/$f ; \
-  done
-
-This is the current changelog:
-
-sysvinit (2.86.ds1-1.1.pere.7) UNRELEASED; urgency=low
-
-  * Rewrote /etc/mtab handling in mountvirtfs to work with
-    SELinux. (Closes: #270919)
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
------ End forwarded message -----
+The attached patch is to allow policy compilation without unconfined.te.
 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_xjWIDjpkUmwvaP3
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="dhcpc.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="dhcpc.diff"
+
+--- domains/program/dhcpc.te.orig	2005-09-09 20:46:11.000000000 +1000
++++ domains/program/dhcpc.te	2005-09-09 20:48:09.000000000 +1000
+@@ -155,6 +155,10 @@
+ domain_auto_trans(system_dbusd_t, dhcpc_exec_t, dhcpc_t)
+ allow dhcpc_t system_dbusd_t:dbus { acquire_svc send_msg };
+ allow dhcpc_t self:dbus send_msg;
+-allow { unconfined_t NetworkManager_t initrc_t } dhcpc_t:dbus send_msg;
+-allow dhcpc_t { unconfined_t NetworkManager_t initrc_t }:dbus send_msg;
++allow { NetworkManager_t initrc_t } dhcpc_t:dbus send_msg;
++allow dhcpc_t { NetworkManager_t initrc_t }:dbus send_msg;
++ifdef(`unconfined.te', `
++allow unconfined_t dhcpc_t:dbus send_msg;
++allow dhcpc_t unconfined_t:dbus send_msg;
++')dnl end ifdef unconfined.te
+ ')
+
+--Boundary-00=_xjWIDjpkUmwvaP3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
