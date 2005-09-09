@@ -1,22 +1,21 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SELinux List <SELinux@tycho.nsa.gov>
-Subject: dhcpc.te patch
-Date: Fri, 9 Sep 2005 20:50:20 +1000
+Subject: fix for typo in setfiles.te
+Date: Fri, 9 Sep 2005 21:20:29 +1000
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_xjWIDjpkUmwvaP3"
-Message-Id: <200509092050.25353.russell@coker.com.au>
+  boundary="Boundary-00=_DAXIDHWz8xvU9Hr"
+Message-Id: <200509092120.35063.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_xjWIDjpkUmwvaP3
+--Boundary-00=_DAXIDHWz8xvU9Hr
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-The attached patch is to allow policy compilation without unconfined.te.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -24,31 +23,27 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_xjWIDjpkUmwvaP3
+--Boundary-00=_DAXIDHWz8xvU9Hr
 Content-Type: text/x-diff;
   charset="us-ascii";
-  name="dhcpc.diff"
+  name="diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="dhcpc.diff"
+	filename="diff"
 
---- domains/program/dhcpc.te.orig	2005-09-09 20:46:11.000000000 +1000
-+++ domains/program/dhcpc.te	2005-09-09 20:48:09.000000000 +1000
-@@ -155,6 +155,10 @@
- domain_auto_trans(system_dbusd_t, dhcpc_exec_t, dhcpc_t)
- allow dhcpc_t system_dbusd_t:dbus { acquire_svc send_msg };
- allow dhcpc_t self:dbus send_msg;
--allow { unconfined_t NetworkManager_t initrc_t } dhcpc_t:dbus send_msg;
--allow dhcpc_t { unconfined_t NetworkManager_t initrc_t }:dbus send_msg;
-+allow { NetworkManager_t initrc_t } dhcpc_t:dbus send_msg;
-+allow dhcpc_t { NetworkManager_t initrc_t }:dbus send_msg;
-+ifdef(`unconfined.te', `
-+allow unconfined_t dhcpc_t:dbus send_msg;
-+allow dhcpc_t unconfined_t:dbus send_msg;
-+')dnl end ifdef unconfined.te
+--- domains/program/setfiles.te.orig	2005-09-09 21:18:38.000000000 +1000
++++ domains/program/setfiles.te	2005-09-09 21:18:47.000000000 +1000
+@@ -22,7 +22,7 @@
+ ifdef(`distro_redhat', `
+ domain_auto_trans(initrc_t, setfiles_exec_t, setfiles_t)
  ')
+-can_access_pty(hostname_t, initrc)
++can_access_pty(setfiles_t, initrc)
+ allow setfiles_t { ttyfile ptyfile tty_device_t admin_tty_type devtty_t }:chr_file { read write ioctl };
+ 
+ allow setfiles_t self:unix_dgram_socket create_socket_perms;
 
---Boundary-00=_xjWIDjpkUmwvaP3--
+--Boundary-00=_DAXIDHWz8xvU9Hr--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
