@@ -1,43 +1,32 @@
-Subject: Re: After talking to some people at Red Hat, they feal the
-	translation library should be plugable
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-   SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1126542118.2999.153.camel@moss-spartans.epoch.ncsc.mil>
-References: <4325A695.8050802@redhat.com>
-	 <1126542118.2999.153.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8CH9BNs014420
+	for <selinux@tycho.nsa.gov>; Mon, 12 Sep 2005 13:09:11 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8CH6R7C005447
+	for <selinux@tycho.nsa.gov>; Mon, 12 Sep 2005 17:06:27 GMT
+Subject: Refpolicy loadable modules
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 12 Sep 2005 12:46:08 -0400
-Message-Id: <1126543568.2999.162.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Sep 2005 13:09:47 -0400
+Message-Id: <1126544987.18007.9.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-09-12 at 12:21 -0400, Stephen Smalley wrote:
-> I thought we were going to introduce a Linux user -> { SELinux user,
-> <context data> } mapping and deal with the mapping outside of libselinux
-> entirely, in pam_selinux or wherever appropriate.  So pam_selinux would
-> perform the lookup and pass the resulting pair to an extended version of
-> get_default_context, which would generate the final context based on the
-> inputs and the policy.  The <context data> could include a default role
-> and a MLS range, but would just be an opaque string as far as
-> pam_selinux is concerned.
-
-Correction:  We agreed to put the lookup support for the new mapping
-into libselinux (because we lost the argument about glibc nss/nscd
-service for SELinux), but I think we still wanted to maintain a
-separation between the lookup function that deals with the Linux user
-and the extended get_default_context function that deals with the
-SELinux user and auxiliary context data, with pam_selinux (and similar
-code, like the openssh selinux patch and cron selinux patch) calling the
-lookup function first and then passing its results to the extended
-get_default_context function.  Yes?
+I've committed the support for building loadable modules to reference
+policy sourceforge cvs.  Refpolicy can now build build a base module,
+and some of the remaining modules can be built.  However, there are
+still a few issues to be worked out with some of the modules.  For
+example, require blocks cannot be in conditions yet, so any module that
+has conditional policy will most likely not compile right now.
+Otherwise, anyone looking to work with loadable modules now has a policy
+to work with.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
