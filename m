@@ -1,39 +1,39 @@
-Subject: Re: disable setenforce
+Subject: xfs and reiserfs broken for SELinux in latest -git (and likely
+	2.6.14)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: fedora-selinux-list@redhat.com, SELinux List <SELinux@tycho.nsa.gov>,
-   Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200509121652.59242.russell@coker.com.au>
-References: <1126283594.20003.17.camel@hive.ccit.arizona.edu>
-	 <200509121652.59242.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@namei.org>
 Content-Type: text/plain
-Date: Mon, 12 Sep 2005 11:00:35 -0400
-Message-Id: <1126537235.2999.88.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Sep 2005 11:36:56 -0400
+Message-Id: <1126539416.2999.116.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-09-12 at 16:52 +1000, Russell Coker wrote:
-> I've attached a patch against the latest rawhide policy (which should also 
-> work against the latest FC4 policy).
-> 
-> This patch adds a new boolean named secure_mode_policyload to cover loading 
-> policy, setting boolean states, and setting enforcing mode.  It also adds a 
-> new boolean named secure_mode_insmod to control module loading.
-> 
-> NB  Setting secure_mode_policyload to default to 1 at boot time will work, but 
-> that means policy can only be loaded once at boot (should be able to install 
-> new policy and reboot the machine though).  Setting secure_mode_insmod at 
-> boot will probably make the boot process fail for all non-trivial machines, 
-> the initial values of booleans are set before modules for devices such as 
-> Ethernet cards.  Setting secure_mode_insmod after the boot process is 
-> completed might be a good idea if you have no plans to use USB or 
-> Cardbus/PCMCIA, there have been exploits which relied on the ability to trick 
-> the system into loading modules (EG the ptrace exploit).
+Hi,
 
-Did you attach the wrong patch?  The one you sent doesn't define new
-booleans; it just wraps additional rules with the existing secure_mode
-boolean.
+If anyone is using xfs or reiserfs with SELinux, be aware that the
+recently upstreamed patch series related to enabling atomic inode
+security labeling will break the use of those filesystems with SELinux
+because they have not yet been converted to the new scheme.  The changes
+are in 2.6.13-git10 and later.  If this concerns you, please:
+a) let us know, and
+b) let the relevant maintainers of the filesystem know, encouraging them
+to convert their filesystems.
+
+I had actually suggested that the patch removing the old post hooks from
+the VFS be deferred until after 2.6.14 to avoid breaking the unconverted
+filesystems while still allowing the converted ones to use the new
+support, but it seems my request was misunderstood.  We could possibly
+ask to have the removal patch reverted, but it would be better to just
+encourage the maintainers of the other filesystems to convert their code
+ASAP.  We converted ext2, ext3, and tmpfs, and the jfs maintainers
+converted their code in response to the original discussion on
+linux-fsdevel.
+
+See
+http://marc.theaimsgroup.com/?l=linux-fsdevel&m=112082926515920&w=2
+and the subsequent discussion for background on the patches.
 
 -- 
 Stephen Smalley
