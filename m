@@ -1,246 +1,167 @@
-Message-ID: <43256F48.7060909@cornell.edu>
-Date: Mon, 12 Sep 2005 08:06:32 -0400
+Message-ID: <43258D48.80702@cornell.edu>
+Date: Mon, 12 Sep 2005 10:14:32 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: SELinux List <SELinux@tycho.nsa.gov>
 CC: dwalsh@redhat.com, jbrindle@tresys.com
-Subject: [ SEMANAGE ] Stub out user/port functionality
+Subject: Re: [ SEMANAGE ] Introduce record table
+References: <43256F48.7060909@cornell.edu>
+In-Reply-To: <43256F48.7060909@cornell.edu>
 Content-Type: multipart/mixed;
- boundary="------------000307030703050302020401"
+ boundary="------------080006040403030406000300"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000307030703050302020401
+--------------080006040403030406000300
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The attached patch for libsemanage stubs out the functionality for managing
-user and port records. This means simply editing the config files...
-As discussed with Joshua, loading the users and ports into policy needs
-to be accomplished at commit time, after linking in modules.
+The attached patch applies on top of the other one.
+It introduces the record table as the first thing
+which will be stored in the database config (a database config
+stores parameters specific to a database (a.k.a. file))
 
-I'm still not entirely clear how all the pieces will fit together, but
-I think it would be good to merge a stubbed-out skeleton...later we could
-change it to make use of the planned semanage_handle_t.
+To clarify how this works - there's two sets of files here - one
+that works with generic record_t/record_key_t objects (treated as void*),
+and one that works with specific types that replace record_t/record_key_t.
+This essentially implements inheritance, which allows sharing of a lot of
+code (not yet merged). It's also a bit tricky to get it working, because we
+must keep track of where the specific types are defined.
 
-The second patch fixes sepol headers to include stddef.h whenever size_t 
-is used.
+The record table stores a set of functions which correspond
+to the record headers previously merged. It defines how certain
+operations are done for each particular type of record. In addition, it 
+provides
+some functions specific to the FILE backend. This table will
+be used by the file engine for polymorphism - it will work with
+the generic record types, but will be invoking the specific functions for
+each record based on what the table says.
 
+Regarding database_init/close - those need to be integrated somewhere.. 
+likely
+on CONNECT/DISCONNECT...but I haven't done that yet..and it might change
+once semanage_handle_t appears.
 
---------------000307030703050302020401
+--------------080006040403030406000300
 Content-Type: text/x-patch;
- name="libsemanage.stub.diff"
+ name="libsemanage.rtable.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.stub.diff"
+ filename="libsemanage.rtable.diff"
 
-diff -Naur libsemanage/include/semanage/ports.h libsemanage.new/include/semanage/ports.h
---- libsemanage/include/semanage/ports.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/include/semanage/ports.h	2005-09-12 07:58:00.000000000 -0400
-@@ -0,0 +1,40 @@
-+#ifndef _SEMANAGE_PORTS_H_
-+#define _SEMANAGE_PORTS_H_
+diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
+--- libsemanage/src/database_file.c	2005-09-12 09:56:33.000000000 -0400
++++ libsemanage.new/src/database_file.c	2005-09-12 09:49:33.000000000 -0400
+@@ -1,13 +1,41 @@
+ #include <stdlib.h>
+ #include <stddef.h>
+ #include "database.h"
++#include "record_file.h"
++#include "users_file.h"
++#include "ports_file.h"
+ 
+ struct dbase_config {
+-	/* Stub */
++	record_table_t* rtable;
+ };
+ 
+ dbase_config_t* dbase[DBASE_COUNT];
+ 
++int dbase_init() {
++	int i;
++	for (i = 0; i < DBASE_COUNT; i++) {
++		dbase[i] = (dbase_config_t*) malloc(sizeof(dbase_config_t));
++		if (dbase[i] == NULL) 
++			goto err;
++	}
 +
-+#include <stddef.h>
++	dbase[DBASE_USERS]->rtable = &RTABLE_USER;
++	dbase[DBASE_PORTS]->rtable = &RTABLE_PORT; 	
++
++	return 0;
++	
++	err:
++	for (i--; i >= 0; i--) 
++		free(dbase[i]);
++	return -1;
++}	
++
++void dbase_close() {
++	int i;
++	for (i = 0; i < DBASE_COUNT; i++)
++		free(dbase[i]);
++}
++
+ int dbase_add(
+ 	dbase_config_t* dconfig,
+ 	record_key_t key,
+diff -Naur libsemanage/src/ports_file.c libsemanage.new/src/ports_file.c
+--- libsemanage/src/ports_file.c	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/src/ports_file.c	2005-09-12 09:51:39.000000000 -0400
+@@ -0,0 +1,42 @@
++#include <stdlib.h>
++#include <stdio.h>
 +#include <semanage/port_record.h>
 +
-+extern int semanage_port_add(
-+	semanage_port_key_t key,
-+	semanage_port_t data);
++typedef semanage_port_t record_t;
++typedef semanage_port_key_t record_key_t;
++#define RECORD_DEFINED
++#include "record_file.h"
 +
-+extern int semanage_port_modify(
-+	semanage_port_key_t key,
-+	semanage_port_t data);
++static int semanage_port_print(
++	semanage_port_t port, 
++	FILE* str) {
 +
-+extern int semanage_port_del(
-+	semanage_port_key_t key);
-+
-+extern int semanage_port_query(
-+	semanage_port_key_t key,
-+	semanage_port_t* response);
-+
-+extern int semanage_port_exists(
-+	semanage_port_key_t key,
-+	int* response);
-+
-+extern int semanage_port_count(
-+	int* response);
-+
-+extern int semanage_port_iterate(
-+	int (*handler) (semanage_port_key_t key,
-+	                semanage_port_t record,
-+	                void* varg),
-+	void* handler_arg);
-+
-+extern int semanage_port_list(
-+	semanage_port_key_t** keyset,
-+	semanage_port_t** dataset,
-+	size_t* count);
-+
-+#endif 
-diff -Naur libsemanage/include/semanage/users.h libsemanage.new/include/semanage/users.h
---- libsemanage/include/semanage/users.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/include/semanage/users.h	2005-09-12 07:57:40.000000000 -0400
-@@ -0,0 +1,40 @@
-+#ifndef _SEMANAGE_USERS_H_
-+#define _SEMANAGE_USERS_H_
-+
-+#include <stddef.h>
-+#include <semanage/user_record.h>
-+
-+extern int semanage_user_add(
-+	semanage_user_key_t key,
-+	semanage_user_t data);
-+
-+extern int semanage_user_modify(
-+	semanage_user_key_t key,
-+	semanage_user_t data);
-+
-+extern int semanage_user_del(
-+	semanage_user_key_t key);
-+
-+extern int semanage_user_query(
-+	semanage_user_key_t key,
-+	semanage_user_t* response);
-+
-+extern int semanage_user_exists(
-+	semanage_user_key_t key,
-+	int* response);
-+
-+extern int semanage_user_count(
-+	int* response);
-+
-+extern int semanage_user_iterate(
-+	int (*handler) (semanage_user_key_t key,
-+	                semanage_user_t record,
-+	                void* varg),
-+	void* handler_arg);
-+
-+extern int semanage_user_list(
-+	semanage_user_key_t** keyset,
-+	semanage_user_t** dataset,
-+	size_t* count);
-+
-+#endif 
-diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
---- libsemanage/src/database_file.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/database_file.c	2005-09-12 07:59:48.000000000 -0400
-@@ -0,0 +1,106 @@
-+#include <stdlib.h>
-+#include <stddef.h>
-+#include "database.h"
-+
-+struct dbase_config {
 +	/* Stub */
++	port = NULL;
++	str = NULL;
++	return -1;
++}
++
++static int semanage_port_parse(
++	parse_info_t* info, 
++	semanage_port_t port) {
++
++	/* Stub */
++	info = NULL;
++	port = NULL;
++	return -1;	
++}
++
++record_table_t RTABLE_PORT = {
++	/* Record base functions */
++	.create      = semanage_port_create,
++	.key_extract = semanage_port_key_extract,
++	.key_free    = semanage_port_key_free,
++	.clone       = semanage_port_clone,
++	.compare     = semanage_port_compare,
++	.free        = semanage_port_free,
++
++	/* Record functions for FILE backend */
++	.parse       = semanage_port_parse,
++	.print       = semanage_port_print,
 +};
+diff -Naur libsemanage/src/ports_file.h libsemanage.new/src/ports_file.h
+--- libsemanage/src/ports_file.h	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/src/ports_file.h	2005-09-12 09:51:10.000000000 -0400
+@@ -0,0 +1,8 @@
++#ifndef _SEMANAGE_PORTS_FILE_H_
++#define _SEMANAGE_PORTS_FILE_H_
 +
-+dbase_config_t* dbase[DBASE_COUNT];
++#include "record_file.h"
 +
-+int dbase_add(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	record_t data) {
++extern record_table_t RTABLE_PORT;
 +
-+	/* Stub */
-+	dconfig = NULL;
-+	key = NULL;
-+	data = NULL;
-+	return -1;
-+}
++#endif 
+diff -Naur libsemanage/src/record_file.h libsemanage.new/src/record_file.h
+--- libsemanage/src/record_file.h	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/src/record_file.h	2005-09-12 09:38:06.000000000 -0400
+@@ -0,0 +1,47 @@
++#ifndef _SEMANAGE_RECORD_FILE_H_
++#define _SEMANAGE_RECORD_FILE_H_
 +
-+int dbase_modify(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	record_t data) {
-+
-+	/* Stub */
-+	dconfig = NULL;
-+	key = NULL;
-+	data = NULL;
-+	return -1;
-+}
-+
-+int dbase_del(
-+	dbase_config_t* dconfig,
-+	record_key_t key) {
-+	
-+	/* Stub */
-+	dconfig = NULL;
-+	key = NULL;
-+	return -1;
-+}
-+
-+int dbase_query(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	record_t* response) {
-+	
-+	/* Stub */
-+	dconfig = NULL;
-+	key = NULL;
-+	response = NULL;
-+	return -1;
-+}
-+
-+int dbase_exists(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	int* response) {
-+	
-+	/* Stub */
-+	dconfig = NULL;
-+	key = NULL;
-+	response = NULL;
-+	return -1;
-+}
-+
-+int dbase_count(
-+	dbase_config_t* dconfig,
-+	int* response) {
-+	
-+	/* Stub */
-+	dconfig = NULL;
-+	response = NULL;
-+	return -1;
-+}
-+
-+int dbase_iterate(
-+	dbase_config_t* dconfig,
-+	int (*handler) (record_key_t key,
-+	                record_t record,
-+	                void* varg),
-+	void* handler_arg) {
-+
-+	/* Stub */
-+	dconfig = NULL;
-+	handler = NULL;
-+	handler_arg = NULL;
-+	return -1;
-+}
-+
-+int dbase_list(
-+	dbase_config_t* dconfig,
-+	record_key_t** keyset,
-+	record_t** dataset,	
-+	size_t* count) {
-+
-+	
-+	/* Stub */
-+	dconfig = NULL;
-+	keyset = NULL;
-+	dataset = NULL;
-+	count = NULL;
-+	return -1;
-+}
-diff -Naur libsemanage/src/database.h libsemanage.new/src/database.h
---- libsemanage/src/database.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/database.h	2005-09-12 07:58:35.000000000 -0400
-@@ -0,0 +1,61 @@
-+#ifndef _SEMANAGE_DATABASE_H_
-+#define _SEMANAGE_DATABASE_H_
-+
-+#include <stddef.h>
++#include <stdio.h>
 +
 +#ifndef RECORD_DEFINED
 +typedef void* record_t;
@@ -248,327 +169,102 @@ diff -Naur libsemanage/src/database.h libsemanage.new/src/database.h
 +#define RECORD_DEFINED
 +#endif
 +
-+struct dbase_config;
-+typedef struct dbase_config dbase_config_t;
++/* Structure available during parsing (created internally) */
++typedef struct parse_info {
++	/* Stub */	
++} parse_info_t;
 +
-+#define DBASE_COUNT 2
-+#define DBASE_USERS 0
-+#define DBASE_PORTS 1
-+extern dbase_config_t* dbase[DBASE_COUNT];
++/* Record table format - necessary during processing */
++typedef struct record_table {
 +
-+extern int dbase_add(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	record_t data);
++	/* Create a record */
++	int (*create) (record_t* rec);
 +
-+extern int dbase_modify(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	record_t data);
++	/* Extract key from record */
++	int (*key_extract) (record_t rec, record_key_t* key);
++	
++	/* Free record key */
++	int (*key_free) (record_key_t key);
 +
-+extern int dbase_del(
-+	dbase_config_t* dconfig,
-+	record_key_t key);
++	/* Return 0 if record can be matched against key,
++	 * and 1 otherwise */
++	int (*compare) (record_t rec, record_key_t key);
 +
-+extern int dbase_query(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	record_t* response);
++	/* Deep-copy clone of this record */
++	int (*clone) (record_t rec, record_t* new_rec);
 +
-+extern int dbase_exists(
-+	dbase_config_t* dconfig,
-+	record_key_t key,
-+	int* response);
++	/* Fill record structuure based on supplied parse info */
++	int (*parse) (parse_info_t* info, record_t record);
 +
-+extern int dbase_count(
-+	dbase_config_t* dconfig,
-+	int* response);
++	/* Print record to stream */
++	int (*print) (record_t record, FILE* str);
 +
-+extern int dbase_iterate(
-+	dbase_config_t* dconfig,
-+	int (*handler) (record_key_t key,
-+	                record_t record,
-+	                void* varg),
-+	void* handler_arg);
-+
-+extern int dbase_list(
-+	dbase_config_t* dconfig,
-+	record_key_t** keyset,
-+	record_t** dataset,	
-+	size_t* count);
++	/* Deallocate record resources. Must
++	 * sucessfully handle NULL. */
++	void (*free) (record_t rec);
++} record_table_t;
 +
 +#endif 
-diff -Naur libsemanage/src/ports.c libsemanage.new/src/ports.c
---- libsemanage/src/ports.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/ports.c	2005-09-12 07:59:27.000000000 -0400
-@@ -0,0 +1,65 @@
-+#include <stddef.h>
-+#include <semanage/port_record.h>
-+#include <semanage/ports.h>
-+
-+typedef semanage_port_key_t record_key_t;
-+typedef semanage_port_t record_t;
-+#define RECORD_DEFINED
-+#include "database.h"
-+
-+int semanage_port_add(
-+	semanage_port_key_t key,
-+	semanage_port_t data) {
-+	
-+	return dbase_add(dbase[DBASE_PORTS], key, data);
-+}
-+
-+int semanage_port_modify(
-+	semanage_port_key_t key,
-+	semanage_port_t data) {
-+	
-+	return dbase_modify(dbase[DBASE_PORTS], key, data);
-+}
-+
-+int semanage_port_del(
-+	semanage_port_key_t key) {
-+
-+	return dbase_del(dbase[DBASE_PORTS], key);
-+}
-+
-+int semanage_port_query(
-+	semanage_port_key_t key,
-+	semanage_port_t* response) {
-+
-+	return dbase_query(dbase[DBASE_PORTS], key, response);
-+}
-+
-+int semanage_port_exists(
-+	semanage_port_key_t key,
-+	int* response) {
-+
-+	return dbase_exists(dbase[DBASE_PORTS], key, response);
-+}
-+
-+int semanage_port_count(
-+	int* response) {
-+
-+	return dbase_count(dbase[DBASE_PORTS], response);
-+}
-+
-+int semanage_port_iterate(
-+	int (*handler) (semanage_port_key_t key,
-+	                semanage_port_t record,
-+	                void* varg),
-+	void* handler_arg) {
-+
-+	return dbase_iterate(dbase[DBASE_PORTS], handler, handler_arg);
-+}
-+
-+int semanage_port_list(
-+	semanage_port_key_t** keyset,
-+	semanage_port_t** dataset,
-+	size_t* count) {
-+
-+	return dbase_list(dbase[DBASE_PORTS], keyset, dataset, count);
-+}
-diff -Naur libsemanage/src/users.c libsemanage.new/src/users.c
---- libsemanage/src/users.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/users.c	2005-09-12 07:59:04.000000000 -0400
-@@ -0,0 +1,65 @@
-+#include <stddef.h>
+diff -Naur libsemanage/src/users_file.c libsemanage.new/src/users_file.c
+--- libsemanage/src/users_file.c	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/src/users_file.c	2005-09-12 09:51:52.000000000 -0400
+@@ -0,0 +1,42 @@
++#include <stdlib.h>
++#include <stdio.h>
 +#include <semanage/user_record.h>
-+#include <semanage/users.h>
 +
-+typedef semanage_user_key_t record_key_t;
 +typedef semanage_user_t record_t;
++typedef semanage_user_key_t record_key_t;
 +#define RECORD_DEFINED
-+#include "database.h"
++#include "record_file.h"
 +
-+int semanage_user_add(
-+	semanage_user_key_t key,
-+	semanage_user_t data) {
-+	
-+	return dbase_add(dbase[DBASE_USERS], key, data);
++static int semanage_user_print(
++	semanage_user_t user, 
++	FILE* str) {
++
++	/* Stub */
++	user = NULL;
++	str = NULL;
++	return -1;
 +}
 +
-+int semanage_user_modify(
-+	semanage_user_key_t key,
-+	semanage_user_t data) {
-+	
-+	return dbase_modify(dbase[DBASE_USERS], key, data);
++static int semanage_user_parse(
++	parse_info_t* info, 
++	semanage_user_t user) {
++
++	/* Stub */
++	info = NULL;
++	user = NULL;
++	return -1;	
 +}
 +
-+int semanage_user_del(
-+	semanage_user_key_t key) {
++record_table_t RTABLE_USER = {
++	/* Record base functions */
++	.create      = semanage_user_create,
++	.key_extract = semanage_user_key_extract,
++	.key_free    = semanage_user_key_free,
++	.clone       = semanage_user_clone,
++	.compare     = semanage_user_compare,
++	.free        = semanage_user_free,
 +
-+	return dbase_del(dbase[DBASE_USERS], key);
-+}
++	/* Record functions for FILE backend */
++	.parse       = semanage_user_parse,
++	.print       = semanage_user_print,
++};
+diff -Naur libsemanage/src/users_file.h libsemanage.new/src/users_file.h
+--- libsemanage/src/users_file.h	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/src/users_file.h	2005-09-12 09:49:53.000000000 -0400
+@@ -0,0 +1,8 @@
++#ifndef _SEMANAGE_USERS_FILE_H_
++#define _SEMANAGE_USERS_FILE_H_
 +
-+int semanage_user_query(
-+	semanage_user_key_t key,
-+	semanage_user_t* response) {
++#include "record_file.h"
 +
-+	return dbase_query(dbase[DBASE_USERS], key, response);
-+}
++extern record_table_t RTABLE_USER;
 +
-+int semanage_user_exists(
-+	semanage_user_key_t key,
-+	int* response) {
-+
-+	return dbase_exists(dbase[DBASE_USERS], key, response);
-+}
-+
-+int semanage_user_count(
-+	int* response) {
-+
-+	return dbase_count(dbase[DBASE_USERS], response);
-+}
-+
-+int semanage_user_iterate(
-+	int (*handler) (semanage_user_key_t key,
-+	                semanage_user_t record,
-+	                void* varg),
-+	void* handler_arg) {
-+
-+	return dbase_iterate(dbase[DBASE_USERS], handler, handler_arg);
-+}
-+
-+int semanage_user_list(
-+	semanage_user_key_t** keyset,
-+	semanage_user_t** dataset,
-+	size_t* count) {
-+
-+	return dbase_list(dbase[DBASE_USERS], keyset, dataset, count);
-+}
++#endif 
 
---------------000307030703050302020401
-Content-Type: text/x-patch;
- name="libsepol.stddef.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsepol.stddef.diff"
-
-diff -Naur libsepol/include/sepol/context.h libsepol.new/include/sepol/context.h
---- libsepol/include/sepol/context.h	2005-08-21 12:56:15.000000000 -0400
-+++ libsepol.new/include/sepol/context.h	2005-09-12 07:40:39.000000000 -0400
-@@ -19,6 +19,7 @@
- #ifndef _SEPOL_CONTEXT_H_
- #define _SEPOL_CONTEXT_H_
- 
-+#include <stddef.h>
- #include <sepol/ebitmap.h>
- #include <sepol/mls_types.h>
- #include <sepol/context_record.h>
-diff -Naur libsepol/include/sepol/expand.h libsepol.new/include/sepol/expand.h
---- libsepol/include/sepol/expand.h	2005-08-21 12:56:16.000000000 -0400
-+++ libsepol.new/include/sepol/expand.h	2005-09-12 07:40:34.000000000 -0400
-@@ -22,6 +22,7 @@
-  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
- 
-+#include <stddef.h>
- #include <sepol/conditional.h>
- 
- #ifndef _SEPOL_EXPAND_H
-diff -Naur libsepol/include/sepol/interfaces.h libsepol.new/include/sepol/interfaces.h
---- libsepol/include/sepol/interfaces.h	2005-08-21 12:56:16.000000000 -0400
-+++ libsepol.new/include/sepol/interfaces.h	2005-09-12 07:40:13.000000000 -0400
-@@ -1,5 +1,6 @@
- #include <sepol/policydb.h>
- #include <sepol/context_record.h>
-+#include <stddef.h>
- 
- /* High level representation of an interface */
- typedef struct sepol_iface {
-diff -Naur libsepol/include/sepol/link.h libsepol.new/include/sepol/link.h
---- libsepol/include/sepol/link.h	2005-07-13 15:42:37.000000000 -0400
-+++ libsepol.new/include/sepol/link.h	2005-09-12 07:40:23.000000000 -0400
-@@ -23,6 +23,7 @@
-  */
- 
- #include <sepol/policydb.h>
-+#include <stddef.h>
- 
- #ifndef _SEPOL_LINK_H
- #define _SEPOL_LINK_H
-diff -Naur libsepol/include/sepol/module.h libsepol.new/include/sepol/module.h
---- libsepol/include/sepol/module.h	2005-08-02 15:41:19.000000000 -0400
-+++ libsepol.new/include/sepol/module.h	2005-09-12 07:40:19.000000000 -0400
-@@ -21,6 +21,7 @@
- #define _SEPOL_MODULE_H_
- 
- #include <stdlib.h>
-+#include <stddef.h>
- 
- #include <sepol/policydb.h>
- #include <sepol/conditional.h>
-diff -Naur libsepol/include/sepol/policydb.h libsepol.new/include/sepol/policydb.h
---- libsepol/include/sepol/policydb.h	2005-08-21 12:56:16.000000000 -0400
-+++ libsepol.new/include/sepol/policydb.h	2005-09-12 07:39:43.000000000 -0400
-@@ -52,6 +52,7 @@
- #define _POLICYDB_H_
- 
- #include <stdio.h>
-+#include <stddef.h>
- 
- #include <sepol/flask_types.h>
- #include <sepol/symtab.h>
-diff -Naur libsepol/include/sepol/ports.h libsepol.new/include/sepol/ports.h
---- libsepol/include/sepol/ports.h	2005-08-21 12:56:16.000000000 -0400
-+++ libsepol.new/include/sepol/ports.h	2005-09-12 07:39:29.000000000 -0400
-@@ -3,6 +3,7 @@
- 
- #include <sepol/policydb.h>
- #include <sepol/port_record.h>
-+#include <stddef.h>
- 
- /* Create a port structure from high level representation */
- extern int sepol_port_struct_create(
-diff -Naur libsepol/include/sepol/sepol.h libsepol.new/include/sepol/sepol.h
---- libsepol/include/sepol/sepol.h	2005-04-13 10:56:10.000000000 -0400
-+++ libsepol.new/include/sepol/sepol.h	2005-09-12 07:39:15.000000000 -0400
-@@ -1,7 +1,7 @@
- #ifndef _SEPOL_H_
- #define _SEPOL_H_
- 
--#include <sys/types.h>
-+#include <stddef.h>
- #include <stdio.h>
- 
- /* Given an existing binary policy (starting at 'data', with length 'len')
-diff -Naur libsepol/include/sepol/services.h libsepol.new/include/sepol/services.h
---- libsepol/include/sepol/services.h	2005-07-13 15:42:37.000000000 -0400
-+++ libsepol.new/include/sepol/services.h	2005-09-12 07:37:54.000000000 -0400
-@@ -14,6 +14,7 @@
- 
- #include <sepol/flask_types.h>
- #include <sepol/policydb.h>
-+#include <stddef.h>
- 
- /* Set the policydb and sidtab structures to be used by
-    the service functions.  If not set, then these default
-diff -Naur libsepol/include/sepol/user_record.h libsepol.new/include/sepol/user_record.h
---- libsepol/include/sepol/user_record.h	2005-08-02 09:16:53.000000000 -0400
-+++ libsepol.new/include/sepol/user_record.h	2005-09-12 07:36:40.000000000 -0400
-@@ -1,6 +1,8 @@
- #ifndef _SEPOL_USER_RECORD_H_
- #define _SEPOL_USER_RECORD_H_
- 
-+#include <stddef.h>
-+
- struct sepol_user;
- struct sepol_user_key;
- typedef struct sepol_user* sepol_user_t;
-diff -Naur libsepol/include/sepol/users.h libsepol.new/include/sepol/users.h
---- libsepol/include/sepol/users.h	2005-08-21 12:56:16.000000000 -0400
-+++ libsepol.new/include/sepol/users.h	2005-09-12 07:36:45.000000000 -0400
-@@ -3,7 +3,7 @@
- 
- #include <sepol/policydb.h>
- #include <sepol/user_record.h>
--#include <sys/types.h>
-+#include <stddef.h>
- 
- /* Clear unused users */
- extern void sepol_clear_unused_users(
-
---------------000307030703050302020401--
+--------------080006040403030406000300--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
