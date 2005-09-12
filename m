@@ -5,57 +5,35 @@ To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: Joshua Brindle <jbrindle@tresys.com>,
    Karl MacMillan <kmacmillan@tresys.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
    SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <4325A695.8050802@redhat.com>
+In-Reply-To: <1126542118.2999.153.camel@moss-spartans.epoch.ncsc.mil>
 References: <4325A695.8050802@redhat.com>
+	 <1126542118.2999.153.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 12 Sep 2005 12:21:58 -0400
-Message-Id: <1126542118.2999.153.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Sep 2005 12:46:08 -0400
+Message-Id: <1126543568.2999.162.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-09-12 at 12:02 -0400, Daniel J Walsh wrote:
-> Also it should be based off policy.  So this patch to libselinux will 
-> use the policy type to find the translation library.  Also libsetrans 
-> will now be in /lib/selinux.
-> 
-> I have modified the libsetrans library to link libtargeted.so.0 and 
-> libstrict.so.0 to libsetrans.so.0.   MLS Policy would obviously install 
-> their own policy for MITRE Librarie or whatever.
+On Mon, 2005-09-12 at 12:21 -0400, Stephen Smalley wrote:
+> I thought we were going to introduce a Linux user -> { SELinux user,
+> <context data> } mapping and deal with the mapping outside of libselinux
+> entirely, in pam_selinux or wherever appropriate.  So pam_selinux would
+> perform the lookup and pass the resulting pair to an extended version of
+> get_default_context, which would generate the final context based on the
+> inputs and the policy.  The <context data> could include a default role
+> and a MLS range, but would just be an opaque string as far as
+> pam_selinux is concerned.
 
-- If we go down this route, we should allow for other per-policy
-libraries, and have a /lib/selinux/$SELINUXTYPE directory.  The library
-should still be named libsetrans.so.* under it.
-
-- Is there any issue with emulation support, e.g. on x86_64?
-
-- Normally, shared library goes in /lib and symlink goes in /usr/lib,
-and dlopen should actually occur on the symlink I would think to avoid
-version-specificity?
-
-- Is this preferable to using the alternatives mechanism?
-
-- IMHO, "type" is too overloaded a term (e.g. Type Enforcement types),
-so selinux_gettype seems rather ambiguous.  selinux_getpolicytype?
-
-- The usual hidden declarations are needed for the new function as we
-don't need to allow interposition on it within the library itself.
-
-> Next step to get MCS will be to change libselinux get_default_context to 
-> use pluggable module to get categories for a user.  Should we use same 
-> library?
-> 
-> Currenly MCS policy defaults all users to s0-s0:c0.c127, we need to 
-> allow admin to specify users categories.
-
-I thought we were going to introduce a Linux user -> { SELinux user,
-<context data> } mapping and deal with the mapping outside of libselinux
-entirely, in pam_selinux or wherever appropriate.  So pam_selinux would
-perform the lookup and pass the resulting pair to an extended version of
-get_default_context, which would generate the final context based on the
-inputs and the policy.  The <context data> could include a default role
-and a MLS range, but would just be an opaque string as far as
-pam_selinux is concerned.
+Correction:  We agreed to put the lookup support for the new mapping
+into libselinux (because we lost the argument about glibc nss/nscd
+service for SELinux), but I think we still wanted to maintain a
+separation between the lookup function that deals with the Linux user
+and the extended get_default_context function that deals with the
+SELinux user and auxiliary context data, with pam_selinux (and similar
+code, like the openssh selinux patch and cron selinux patch) calling the
+lookup function first and then passing its results to the extended
+get_default_context function.  Yes?
 
 -- 
 Stephen Smalley
