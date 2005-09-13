@@ -1,72 +1,91 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8DLPlNs028628
-	for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2005 17:25:47 -0400 (EDT)
-Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8DLModV022980
-	for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2005 21:22:50 GMT
-Date: Tue, 13 Sep 2005 22:22:36 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: New ideas on implementation on libsetrans.
-Message-ID: <20050913212236.GA540@lkcl.net>
-References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com> <43272E92.4060400@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8DLXMNs028734
+	for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2005 17:33:22 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8DLURMg009901
+	for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2005 21:30:27 GMT
+Subject: Re: error building file_contexts
+From: antoine <antoine@nagafix.co.uk>
+To: Eric Paris <eparis@parisplace.org>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1126623363.6074.7.camel@localhost.localdomain>
+References: <1126563533.13869.5.camel@localhost>
+	 <1126617433.29303.25.camel@moss-spartans.epoch.ncsc.mil>
+	 <1126618085.4218.14.camel@localhost.localdomain>
+	 <1126623363.6074.7.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 13 Sep 2005 22:44:58 +0100
+Message-Id: <1126647898.3769.19.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <43272E92.4060400@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Sep 13, 2005 at 03:54:58PM -0400, Daniel J Walsh wrote:
-> >Have you put any thought into the language that libselinux and the 
-> >daemons
-> >would speak over the socket?
-> >
-> I like ASCII... Of course if someone wants to take the ball and run with 
-> it, it would be great.
- 
- before making a decision: what level of complexity are we looking at?
+> The way I found the bug in the rpc_pipefs context when I wrote that
+> regex ugliness in genhomedircon was by just adding a
+> 
+> sys.stderr.write("%s\n" % regex)
+> sys.stderr.flush()
+> 
+> Right after the 
+> 
+> for regex in prefix_regex:
+> (around line 190 of genhomedircon for me)
+I tried that (also dumped the 'potential' string) and got some output,
+but I can't see anything wrong with it:
+(...)
+-/home/rsyslog
+-/emul/lib(64)?/*$
+-/home/rsyslog
+-/emul/lib(64)?/.*\.so(\.[^/]*)*/*$
+-/home/rsyslog
+-/emul/lib(64)?/ld-[^/]*\.so(\.[^/]*)*/*$
+-/home/rsyslog
+-/usr/sbin/amavisd(.*)?/*$
+-/home/rsyslog
+Traceback (most recent call last):
+  File "/usr/sbin/genhomedircon", line 475, in ?
+    oldgenhomedircon(cmds[0], cmds[1])
+  File "/usr/sbin/genhomedircon", line 190, in oldgenhomedircon
+    if re.search(regex, potential, 0):
+  File "/usr/lib/python2.3/sre.py", line 137, in search
+    return _compile(pattern, flags).search(string)
+  File "/usr/lib/python2.3/sre.py", line 230, in _compile
+    raise error, v # invalid expression
+sre_constants.error: nothing to repeat
+make: *** [file_contexts/file_contexts] Error 1
 
- if you're looking at a horrendous set of interlinked structs, combining
- variable-length arrays of unions containing further variable-length
- arrays of structs, such as this:
+Any ideas?
 
- http://cvs.sourceforge.net/viewcvs.py/oser/exchange5.5/exploration/test/emsabp/emsabp.idl?rev=1.1&view=markup
-
- then you would be completely and utterly insane to do this by hand.
-
- if, however, on the other hand, you are looking at a simple "gimme one
- bit of data" "here you go" then yeh, ascii would be fine (and, to be
- honest, infinitely preferable).
-
-
- winbindd needs to handle binary data structures, and _fortunately_ it
- has access to a whole boat-load of MSRPC infrastructure / pickling
- code.
-
- so even though it's handling data structures such as NET_USER_INFO_3
- variable-length optional-extras nightmares, the code already exists
- (which was created by hand, and NET_USER_INFO_3 on its own took several
- hours to do) so we use it.
-
- 
- one technique deployed by winbindd is to have a "fixed size" data blob
- and an optional "variable length" data blob.
-
- the "fixed size" one is the union of a whole stack of structs,
- with an integer "info level" which is the "command", and that
- info level specifies which of the structs in the union is actually
- contained in the fixed-size data blob.
-
- it's a technique known as "encapsulated unions".
+Thanks
+Antoine
 
 
- so.
+For reference, here is the updated code snippet:
+(...)
+	for potential in potential_prefixes.keys():
+                addme = 1
+                for regex in prefix_regex:
+                        #match a trailing (/*)? which is actually a bug
+in rpc_pipefs
+                        regex = re.sub("\(/\*\)\?$", "", regex)
+                        #match a trailing .+
+                        regex = re.sub("\.+$", "", regex)
+                        #match a trailing .*
+                        regex = re.sub("\.\*$", "", regex)
+                        #strip a (/.*)? which matches anything trailing
+to a /*$ which matches trailing /'s
+                        regex = re.sub("\(\/\.\*\)\?", "", regex)
+                        regex = regex + "/*$"
+                        sys.stderr.write("-%s\n" % regex)
+                        sys.stderr.write("-%s\n" % potential)
+                        sys.stderr.flush()
+                        if re.search(regex, potential, 0):
+                                addme = 0
 
- what do the data structures look like?
-
- tell me they're nice and simple...
+                if addme == 1:
+                        if not prefixes.has_key(potential):
+                                prefixes[potential] = ""
+(...)
 
 
 --
