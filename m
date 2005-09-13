@@ -1,33 +1,58 @@
-Subject: Re: Problem compiling libselinux 1.26
+Subject: Re: error building file_contexts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Pierre <pierre42d@9online.fr>
-Cc: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <4325DE1A.2000408@9online.fr>
-References: <4325DE1A.2000408@9online.fr>
+To: antoine <antoine@nagafix.co.uk>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1126563533.13869.5.camel@localhost>
+References: <1126563533.13869.5.camel@localhost>
 Content-Type: text/plain
-Date: Tue, 13 Sep 2005 08:58:26 -0400
-Message-Id: <1126616306.29303.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 13 Sep 2005 09:17:13 -0400
+Message-Id: <1126617433.29303.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-09-12 at 21:59 +0200, Pierre wrote:
+On Mon, 2005-09-12 at 23:18 +0100, antoine wrote:
+> Hi list,
+> 
+> Anyone knows how to figure out where this error is coming from:
 > # make
-> make -C src
-> make[1]: Entering directory `/tmp/libselinux-1.26/src'
-> gcc -s -O3 -march=i686 -I../include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 
-> -c -o fgetfilecon.o fgetfilecon.c
-> fgetfilecon.c:6:23: sys/xattr.h: No such file or directory
-> make[1]: *** [fgetfilecon.o] Error 1
-> make[1]: Leaving directory `/tmp/libselinux-1.26/src'
-> make: *** [all] Error 2
+>  * Creating policy.conf
+>  * Policy version: 19
+>  * Kernel version: 19
+>  * Compiling and installing policy.19
+> /usr/bin/checkpolicy:  loading policy configuration
+> from /etc/security/selinux/src/policy.conf
+> security:  3 users, 5 roles, 658 types, 3 bools
+> security:  55 classes, 57721 rules
+> /usr/bin/checkpolicy:  policy configuration loaded
+> /usr/bin/checkpolicy:  writing binary representation (version 19)
+> to /etc/security/selinux/policy.19
+>  * Building file_contexts
+> Traceback (most recent call last):
+>   File "/usr/sbin/genhomedircon", line 468, in ?
+>     oldgenhomedircon(cmds[0], cmds[1])
+>   File "/usr/sbin/genhomedircon", line 187, in oldgenhomedircon
+>     if re.search(regex, potential, 0):
+>   File "/usr/lib/python2.3/sre.py", line 137, in search
+>     return _compile(pattern, flags).search(string)
+>   File "/usr/lib/python2.3/sre.py", line 230, in _compile
+>     raise error, v # invalid expression
+> sre_constants.error: nothing to repeat
+> make: *** [file_contexts/file_contexts] Error 1
+> 
+> (non-enforcing mode makes no difference)
+> * kernel 2.6.13.1
+> * libselinux 1.24
+> * libsepol 1.6
 
-If you have a modern glibc (>= 2.3) built against modern kernel headers
-(>= 2.4.20, or any 2.6 kernel), then getxattr/setxattr and sys/xattr.h
-should be provided by glibc.  Previously, they were provided by libattr,
-with its header in attr/xattr.h, but since the xattr system calls were
-mainstreamed, glibc has been supporting them directly.
+You didn't mention the particular policycoreutils version (which
+provides /usr/sbin/genhomedircon) or policy version (although I suppose
+that is specific to Gentoo).  It looks like your policy Makefile is
+still invoking genhomedircon using the old syntax (hence the call to
+oldgenhomedircon), which is deprecated, although it should still work.
+>From the error message, I assume that regex is not a legal regex at that
+point.
 
 -- 
 Stephen Smalley
