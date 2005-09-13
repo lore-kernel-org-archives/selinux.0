@@ -1,14 +1,13 @@
 Subject: Re: error building file_contexts
-From: Antoine Martin <antoine@nagafix.co.uk>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SELinux <selinux@tycho.nsa.gov>
+Cc: antoine <antoine@nagafix.co.uk>, SELinux <selinux@tycho.nsa.gov>
 In-Reply-To: <1126617433.29303.25.camel@moss-spartans.epoch.ncsc.mil>
 References: <1126563533.13869.5.camel@localhost>
 	 <1126617433.29303.25.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 13 Sep 2005 14:28:05 +0100
-Message-Id: <1126618085.4218.14.camel@localhost.localdomain>
+Date: Tue, 13 Sep 2005 09:48:09 -0400
+Message-Id: <1126619290.18007.22.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -49,18 +48,25 @@ On Tue, 2005-09-13 at 09:17 -0400, Stephen Smalley wrote:
 > > * libsepol 1.6
 > 
 > You didn't mention the particular policycoreutils version (which
-sys-apps/policycoreutils 1.24-r1
 > provides /usr/sbin/genhomedircon) or policy version (although I suppose
 > that is specific to Gentoo).  It looks like your policy Makefile is
 > still invoking genhomedircon using the old syntax (hence the call to
 > oldgenhomedircon), which is deprecated, although it should still work.
 > >From the error message, I assume that regex is not a legal regex at that
 > point.
-Where is this regex coming from? Is there any way to figure out which .fc
-it is coming from? Is there a tool to validate .fc files individually?
 
-Thanks
-Antoine
+I've heard one other report of this error.  It was reported to only when
+running genhomedircon as a regular user.  I haven't had a chance to look
+into this.
+
+As for genhomedircon, yes, Gentoo still uses the old syntax, as we still
+use a single file_contexts file, not the separate files used in Fedora,
+and also still use /etc/security.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
