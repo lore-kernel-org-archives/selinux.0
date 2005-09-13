@@ -1,44 +1,51 @@
-Message-ID: <432730B2.8090005@redhat.com>
-Date: Tue, 13 Sep 2005 16:04:02 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: Darrel Goeddel <dgoeddel@TrustedCS.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: New ideas on implementation on libsetrans.
-References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com>	 <43272E92.4060400@redhat.com> <1126641222.29303.235.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1126641222.29303.235.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43264DAD.5090903@cornell.edu>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
+Content-Type: text/plain
+Date: Tue, 13 Sep 2005 15:59:28 -0400
+Message-Id: <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Mon, 2005-09-12 at 23:55 -0400, Ivan Gyurdiev wrote:
+> The attached patch changes printf/fprintf usage in policydb.c, and
+> avtab.c to the new debug system. This allows the user to set the print 
+> function.
+> It also writes to stderr by default, as opposed to stdout (which is 
+> wrong, imho).
+> As a side effect, this will append a more verbose prefix everywhere
+> that gives the exact function name, rather than "security : mls" or 
+> whatever.
+> 
+> This also removes the __sepol_debug_printf debug system from
+> gen*, and changes genbools and genusers to use the newer system.
+> 
+> I haven't really tested this, but it's fairly straightforward, and I don't
+> see what can break - it compiles without warnings.
+> 
+> ============
+> We need to reduce the number of debug systems in the selinux libraries.
+> printf's should be eradicated. There's also the alternative system that 
+> semanage
+> uses, based on buffering the errors - I'm not clear how that will
+> be made to work in concert with sepol debugging.
 
->On Tue, 2005-09-13 at 15:54 -0400, Daniel J Walsh wrote:
->  
->
->>Yes we are having problems with linking against the library and having 
->>different plugins to the library just doesnot feel right.
->>    
->>
->
->I'm still not sure what the problem is with dlopen'ing libsetrans, and
->letting it take care of the communication (and caching) _if_ any
->translation is desired at all.  Why bloat libselinux with that
->infrastructure for people who don't want any label translation?
->
->I understand that the attempt to dlopen a per-policytype libsetrans was
->getting complicated, although I'm not sure why you couldn't just
->dlopen /usr/lib/libsetrans.so symlink and use alternatives to manage
->what that references outside of libselinux.
->
->  
->
-Most of the people I talk to in Red Hat don't like alternatives.    We 
-can change to just use libsetrans and implement to communication in this 
-library, but I don't see that as adding much value.
-
+We likely want to distinguish between debugging output (that should be
+off by default) and error reporting output (that should always be
+enabled).  Tresys had some concerns with the DEBUG() interface for
+multi-threaded servers iirc; I've noted some concerns with their
+write_error() interface in regards to have a uniform interface and
+shared implementation and with the level of detail presently provided
+via write_error().
+  
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
