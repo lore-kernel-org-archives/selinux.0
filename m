@@ -1,43 +1,78 @@
-Message-ID: <432756AD.5060202@cornell.edu>
-Date: Tue, 13 Sep 2005 18:46:05 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+From: Joshua Brindle <jbrindle@tresys.com>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <SELinux@tycho.nsa.gov>,
-   dwalsh@redhat.com, jbrindle@tresys.com
-Subject: Re: [ SEMANAGE ] Introduce record table
-References: <43256F48.7060909@cornell.edu>  <43258D48.80702@cornell.edu> <1126640602.29303.224.camel@moss-spartans.epoch.ncsc.mil> <43274F67.9010808@cornell.edu>
-In-Reply-To: <43274F67.9010808@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <4327521D.5020605@cornell.edu>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
+	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <4327521D.5020605@cornell.edu>
+Content-Type: text/plain
+Date: Tue, 13 Sep 2005 19:03:57 -0400
+Message-Id: <1126652637.30915.18.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2005-09-13 at 18:26 -0400, Ivan Gyurdiev wrote:
+> >We likely want to distinguish between debugging output (that should be
+> >off by default) and error reporting output (that should always be
+> >enabled).  
+> >
+> Yes, we don't make that distiction currently. My patch treats all output 
+> as debugging. On the other hand, however, it leaves debugging as 
+> on-by-default for compatibility. I think we might not want any error 
+> reporting output in library code - libraries should use status codes to 
+> report the problem
+> 
+> >Tresys had some concerns with the DEBUG() interface for
+> >multi-threaded servers iirc.
+> >
+> >I've noted some concerns with their
+> >write_error() interface in regards to have a uniform interface and
+> >shared implementation and with the level of detail presently provided
+> >via write_error().
+> >  
+> >
+> I think there needs to be consistency across the library, whether it's 
+> DEBUG or write_error. The problem is that write_error requires 
+> significant modifications to APIs (user needs to pass error buffer to 
+> the library), whereas DEBUG does not, since it maintains the 
+> library-wide debugging. This is going to be a problem for the new 
+> semanage code I plan to put in as well...which currently uses DEBUG, 
+> which does not exist in semanage. If error buffers are required, I 
+> should alter the API to new functionality to support those. In any case, 
+> I think printfs are the wrong thing to do, and should be eliminated from 
+> sepol.
+> 
 
->> Is there any concern about future namespace collision for the
->> dbase*/record* types, even though they are private to the library?  What
->> about when you start providing real implementations that have to bring
->> in external headers that may have conflicts?
->>  
->>
-> Yes, I am concerned about namespace collision, since I run into it all 
-> the time. However, I think it should be possible to eliminate it 
-> completely. In particular, specific record types should *never* be 
-> defined in headers. They're to be used in implementations only, and 
-> only in files that manipulate one type of record.
+Yes, libraries should not be outputting error conditions to the stdout
+or stderr. They should pass error strings and values to the frontend
+apps. 
 
-Actually I misunderstood what you were saying....you're concerned about 
-the dbase_* record_* prefix?
-That's easy enough to change, if it's a problem, but I don't plan on 
-bringing in any extrnal headers other than the standard C library. 
-Besides, they're internal, so they can always be changed if a problem 
-comes up. Suggest another prefix, and I'll get it changed...
+The write_error is to pass an _error condition_ to the front end, this
+has nothing to do with debugging. Personally, I don't know what the
+value of a specialized debugging system in the library is when gdb and
+integrated debuggers are so good, but clearly handling errors and
+passing descriptive error messages to the frontend are necessary.
 
-I was talking about collision between specific record types and void* 
-record_t above. Essentially you can't use both..ever. Either you're 
-going to do polymorphism, and not consider specific types equivalent to 
-record_t... or you're doing implementation of a single record (and you 
-can't mix different types as record_t). That's a bit ugly, but I don't 
-think it will be a problem...
+If you have debug on-by-default it seems like you are really doing error
+handling. If this is the case we may need to consolidate these systems
+but error handling and debugging are hardly the same things.
+
+iirc, as Steve mentioned, there are some thread safety issues with DEBUG
+and since both the userspace security server and the policy management
+server are threaded this could be problematic. 
+
+DEBUG also passes the function name, which may be useful for debugging,
+but is hardly useful for error reporting. 
+
+The error system should be about passing descriptive messages to the
+caller and this needs to be done by passing a buffer to the functions
+that may return an error, not be setting a function pointer to an
+arbitrary function in the frontend to handle error conditions.
+
+Joshua
 
 
 --
