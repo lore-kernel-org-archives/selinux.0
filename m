@@ -1,47 +1,28 @@
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <4327521D.5020605@cornell.edu>
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
-	 <43264DAD.5090903@cornell.edu>
-	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
-	 <4327521D.5020605@cornell.edu>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 08:35:39 -0400
-Message-Id: <1126701339.12299.17.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <20050914130323.29097.qmail@web51502.mail.yahoo.com>
+Date: Wed, 14 Sep 2005 06:03:23 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: New ideas on implementation on libsetrans.
+To: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1126641983.29303.249.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-13 at 18:26 -0400, Ivan Gyurdiev wrote:
-> Yes, we don't make that distiction currently. My patch treats all output 
-> as debugging. On the other hand, however, it leaves debugging as 
-> on-by-default for compatibility. I think we might not want any error 
-> reporting output in library code - libraries should use status codes to 
-> report the problem
 
-Status codes aren't sufficiently informative.  
+>Am I missing other disadvantages?
 
-> I think there needs to be consistency across the library, whether it's 
-> DEBUG or write_error. The problem is that write_error requires 
-> significant modifications to APIs (user needs to pass error buffer to 
-> the library), whereas DEBUG does not, since it maintains the 
-> library-wide debugging. This is going to be a problem for the new 
-> semanage code I plan to put in as well...which currently uses DEBUG, 
-> which does not exist in semanage. If error buffers are required, I 
-> should alter the API to new functionality to support those. In any case, 
-> I think printfs are the wrong thing to do, and should be eliminated from 
-> sepol.
+How often would this library be called? Is it a performance hit for programs to
+parse the flat file everytime they run? I'm thinking mostly of coreutils style
+programs that would be in shell scripts. What program would be the heaviest user
+of the translation library? Is anything other than translation being considered? 
 
-Yes, the printfs are just a legacy of its origins from checkpolicy (and
-in fact, from its origins as shared code with the kernel security
-server, where printf was remapped to printk(KERN_WARNING...)).
+-Steve
 
--- 
-Stephen Smalley
-National Security Agency
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
