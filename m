@@ -1,37 +1,47 @@
-Subject: Re: New ideas on implementation on libsetrans.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Nalin Dahyabhai <nalin@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmillan@tresys.com>,
-   Darrel Goeddel <dgoeddel@TrustedCS.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050914192343.GA30138@redhat.com>
-References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com>
-	 <43272E92.4060400@redhat.com>
-	 <1126641222.29303.235.camel@moss-spartans.epoch.ncsc.mil>
-	 <432730B2.8090005@redhat.com>
-	 <1126641983.29303.249.camel@moss-spartans.epoch.ncsc.mil>
-	 <43273782.7070600@redhat.com>
-	 <1126643563.2940.6.camel@moss-spartans.epoch.ncsc.mil>
-	 <4327425F.8050805@redhat.com>
-	 <1126705174.12299.64.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050914192343.GA30138@redhat.com>
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1126727413.12299.208.camel@moss-spartans.epoch.ncsc.mil>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
+	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <4327521D.5020605@cornell.edu>
+	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
+	 <432799F0.7060706@cornell.edu>
+	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <432823F0.3030803@tresys.com>
+	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <43283772.7070603@tresys.com>
+	 <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>
+	 <432842D4.3070905@tresys.com>
+	 <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil>
+	 <43284A6B.8080507@tresys.com>  <43287BDC.1090004@cornell.edu>
+	 <1126727413.12299.208.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 14 Sep 2005 15:51:03 -0400
-Message-Id: <1126727463.12299.209.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Sep 2005 16:01:34 -0400
+Message-Id: <1126728094.12299.219.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-09-14 at 15:23 -0400, Nalin Dahyabhai wrote:
-> I would disagree with that.  In giving the setrans library a soname,
-> you've provided some means of making sure that you don't load an
-> incompatible version of the library if the interface which that library
-> provides ever differs from what libselinux expects.
+On Wed, 2005-09-14 at 15:50 -0400, Stephen Smalley wrote:
+> On Wed, 2005-09-14 at 15:37 -0400, Ivan Gyurdiev wrote:
+> >  In 
+> > fact,
+> > the distinction is still a bit lost to me - it seems as if all current 
+> > uses of DEBUG
+> > are for error handling, and none are for debugging. Perhaps you could 
+> > give an
+> > example to clarify the situation...
 > 
-> If libselinux is changed to dlopen() it using a symlink which points to
-> whichever version is current, then that benefit is gone.
+> Offhand, I don't know of an actual debugging user of DEBUG() yet,
 
-Ok, fair point.  We'll leave it alone then (have to go and revert that
-patch now...).
+Ah, sorry.  I think Joshua wanted to omit the function name and
+traceback info from the error message saved in the buffer for return to
+the client/user.  Which would mean that only the deepest level DEBUG()
+calls would qualify as "errors" in his thinking.  But you just noted in
+your other reply that this doesn't work very well.
 
 -- 
 Stephen Smalley
