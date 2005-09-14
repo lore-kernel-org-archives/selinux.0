@@ -1,52 +1,52 @@
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <43283772.7070603@tresys.com>
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
-	 <43264DAD.5090903@cornell.edu>
-	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
-	 <4327521D.5020605@cornell.edu>
-	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
-	 <432799F0.7060706@cornell.edu>
-	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <432823F0.3030803@tresys.com>
-	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
-	 <43283772.7070603@tresys.com>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 11:04:36 -0400
-Message-Id: <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <20050914152648.73447.qmail@web54406.mail.yahoo.com>
+Date: Wed, 14 Sep 2005 16:26:48 +0100 (BST)
+From: Prakash Saivasan <helloprak@yahoo.com>
+Subject: info on SELinux support for IPSEC
+To: SELinux@tycho.nsa.gov
+In-Reply-To: <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1081620506-1126711608=:72414"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-09-14 at 10:45 -0400, Joshua Brindle wrote:
-> What I mean is, if there are multiple calls to DEBUG prior to returning 
-> to the originating function then there are multiple error messages of 
-> varying specificity sitting around somewhere, assuming we even store 
-> them all and not just the last one. This isn't ideal for error 
-> reporting, but it is for debugging.
+--0-1081620506-1126711608=:72414
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Even in the error reporting case, allowing for multiple messages (e.g.
-for multiple assertion failures, hierarchy failures, etc) is useful.
-Those would be of comparable specificity rather than varying degrees.
 
-If omitting the traceback data is your primary concern, possibly it
-could be explicitly identified in some manner in the DEBUG() interface
-so that the callback can easily drop it for error reporting purposes.
+Hi All,
 
->  Personally, again, I feel that gdb 
-> is far superior to any kind of debug system you can put in a library so 
-> I'd rather focus on proper error reporting, which DEBUG doesn't do in a 
-> reasonable way.
+    Can anyone provide me with information on SELinux support/integration with IPSEC ? Is there any document that talks about the implementation details policy et al.,
 
-Requiring people to re-run the offending code through a debugger
-significantly reduces your ability to get useful bug reports...
+ 
 
--- 
-Stephen Smalley
-National Security Agency
+Thanking you
 
+Prakash S
+
+
+
+It may be bad manners to talk with your mouth full, but it isn't too good either if you speak when your head is empty.
+                                                                   !!!!Jaihind !!!!
+
+ 
+
+
+ 
+
+Send instant messages to your online friends http://in.messenger.yahoo.com 
+--0-1081620506-1126711608=:72414
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+<P>Hi All,</P>
+<P>&nbsp;&nbsp;&nbsp; Can anyone provide me with information on SELinux support/integration with IPSEC ? Is there any document that talks about the implementation details policy et al.,</P>
+<P>&nbsp;</P>
+<P>Thanking you</P>
+<P>Prakash S</P><BR><BR><P>It may be bad manners to talk with your mouth full, but it isn't too good either if you speak when your head is empty.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; !!!!Jaihind !!!!</P>
+<P>&nbsp;</P>
+<P><BR>&nbsp;</P><p>Send instant messages to your online friends http://in.messenger.yahoo.com 
+--0-1081620506-1126711608=:72414--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
