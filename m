@@ -1,47 +1,40 @@
 Subject: Re: New ideas on implementation on libsetrans.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050914130323.29097.qmail@web51502.mail.yahoo.com>
-References: <20050914130323.29097.qmail@web51502.mail.yahoo.com>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>, SELinux <SELinux@tycho.nsa.gov>,
+   Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <4327425F.8050805@redhat.com>
+References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com>
+	 <43272E92.4060400@redhat.com>
+	 <1126641222.29303.235.camel@moss-spartans.epoch.ncsc.mil>
+	 <432730B2.8090005@redhat.com>
+	 <1126641983.29303.249.camel@moss-spartans.epoch.ncsc.mil>
+	 <43273782.7070600@redhat.com>
+	 <1126643563.2940.6.camel@moss-spartans.epoch.ncsc.mil>
+	 <4327425F.8050805@redhat.com>
 Content-Type: text/plain
-Date: Wed, 14 Sep 2005 09:33:10 -0400
-Message-Id: <1126704790.12299.60.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Sep 2005 09:39:34 -0400
+Message-Id: <1126705174.12299.64.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-09-14 at 06:03 -0700, Steve G wrote:
-> >Am I missing other disadvantages?
+On Tue, 2005-09-13 at 17:19 -0400, Daniel J Walsh wrote:
+> Ok I succumb, but we will go back to original implementation of 
+> libsetrans for now, and require anyone wishing to change the behaviour 
+> to replace our version with their own.  so dlopen(libsetrans.so.1) will 
+> work.
 > 
-> How often would this library be called? Is it a performance hit for programs to
-> parse the flat file everytime they run? I'm thinking mostly of coreutils style
-> programs that would be in shell scripts. What program would be the heaviest user
-> of the translation library? Is anything other than translation being considered? 
+> Eventually our version of libsetrans will use a UDS interface to talk to 
+> a long running daemon.
 
-The issue being discussed was if we changed the existing libsetrans in
-Fedora to obtain context translations from a separate daemon (as
-proposed by Dan, and also the way in which TCS handles it) rather than
-directly performing translation itself, should we fold the libsetrans
-code (which would then consist of just the client-side communication and
-caching code) into libselinux or keep it as a separate optional library
-that is dlopen'd by libselinux during library initialization.  I favored
-keeping it separate so that one still has the options of no libsetrans
-at all or a libsetrans that performs direct translation as alternatives.
-
-The context translation functions are called all the time by libselinux
-functions if context translation is enabled (which is determined by
-libselinux during initialization based on whether the dlopen and dlsym
-lookups succeed), so any program that gets or sets a context would
-exercise them.  A simple ls -Z would exercise them.  But the mapping
-file itself is typically only loaded once, during library initialization
-for the direct libsetrans or upon daemon start or SIGHUP for the
-daemon-based one, and the actual context translation functions are just
-performing lookups on in-memory data structures.  When using the daemon,
-you have the overhead of the communication with the daemon, so you would
-likely want libsetrans to cache the results in memory (but you then have
-the issue of flushing the cache on the client side when there is a
-change on the server side).
+Ok.  Do you agree that libselinux should be dlopen'ing libsetrans.so
+(and thus using the symlink that already exists under /usr/lib to
+whatever the latest version is under /lib) rather than specifically
+dlopen'ing libsetrans.so.0 as it does now?  Of course, it may not matter
+in practice as I can't see the interface ever changing (at least in a
+way that requires bumping the .so version), but it seems cleaner.  
 
 -- 
 Stephen Smalley
