@@ -1,56 +1,47 @@
-Date: Wed, 14 Sep 2005 15:05:11 +0100
-From: Dale Amon <amon@vnl.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Joshua Brindle <jbrindle@tresys.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-Message-ID: <20050914140508.GC27187@vnl.com>
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu> <43264DAD.5090903@cornell.edu> <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil> <4327521D.5020605@cornell.edu> <1126652637.30915.18.camel@twoface.columbia.tresys.com> <432799F0.7060706@cornell.edu> <43279AED.7040605@cornell.edu> <1126703779.12299.43.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GpGaEY17fSl8rd50"
-In-Reply-To: <1126703779.12299.43.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <43283066.1000004@redhat.com>
+Date: Wed, 14 Sep 2005 10:15:02 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Karl MacMillan <kmacmillan@tresys.com>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>, SELinux <SELinux@tycho.nsa.gov>,
+   Nalin Dahyabhai <nalin@redhat.com>
+Subject: Re: New ideas on implementation on libsetrans.
+References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com>	 <43272E92.4060400@redhat.com>	 <1126641222.29303.235.camel@moss-spartans.epoch.ncsc.mil>	 <432730B2.8090005@redhat.com>	 <1126641983.29303.249.camel@moss-spartans.epoch.ncsc.mil>	 <43273782.7070600@redhat.com>	 <1126643563.2940.6.camel@moss-spartans.epoch.ncsc.mil>	 <4327425F.8050805@redhat.com> <1126705174.12299.64.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1126705174.12299.64.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
 
---GpGaEY17fSl8rd50
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>On Tue, 2005-09-13 at 17:19 -0400, Daniel J Walsh wrote:
+>  
+>
+>>Ok I succumb, but we will go back to original implementation of 
+>>libsetrans for now, and require anyone wishing to change the behaviour 
+>>to replace our version with their own.  so dlopen(libsetrans.so.1) will 
+>>work.
+>>
+>>Eventually our version of libsetrans will use a UDS interface to talk to 
+>>a long running daemon.
+>>    
+>>
+>
+>Ok.  Do you agree that libselinux should be dlopen'ing libsetrans.so
+>(and thus using the symlink that already exists under /usr/lib to
+>whatever the latest version is under /lib) rather than specifically
+>dlopen'ing libsetrans.so.0 as it does now?  Of course, it may not matter
+>in practice as I can't see the interface ever changing (at least in a
+>way that requires bumping the .so version), but it seems cleaner.  
+>
+>  
+>
+I agree.  Open /usr/lib/libsetrans.so
 
-On Wed, Sep 14, 2005 at 09:16:19AM -0400, Stephen Smalley wrote:
-> As for threads, Alan Cox said it best:  "A computer is a state machine.
-> Threads are for people who cant program state machines.".
+-- 
 
-A true statement, but... complexity explosion makes
-it useful to move to techniques which make 'what is
-happening' clearer and easier to understand and to
-verify.
 
---=20
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
-
---GpGaEY17fSl8rd50
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDKC4TZHES7UL0zXERAglaAJwJw9J3ht1SfLMd+Roz337uX3547gCdE5+g
-7mooKliwVdKO3ydnwjDNEnk=
-=v0yw
------END PGP SIGNATURE-----
-
---GpGaEY17fSl8rd50--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
