@@ -1,59 +1,51 @@
-Message-ID: <43283772.7070603@tresys.com>
-Date: Wed, 14 Sep 2005 10:45:06 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>
 Subject: Re: [ SEPOL ] Move more things to newer debug system
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>	<43264DAD.5090903@cornell.edu>	<1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>	<4327521D.5020605@cornell.edu>	<1126652637.30915.18.camel@twoface.columbia.tresys.com>	<432799F0.7060706@cornell.edu>	<1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>	<432823F0.3030803@tresys.com> <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43283772.7070603@tresys.com>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
+	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <4327521D.5020605@cornell.edu>
+	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
+	 <432799F0.7060706@cornell.edu>
+	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <432823F0.3030803@tresys.com>
+	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <43283772.7070603@tresys.com>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 11:04:36 -0400
+Message-Id: <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Wed, 2005-09-14 at 10:45 -0400, Joshua Brindle wrote:
+> What I mean is, if there are multiple calls to DEBUG prior to returning 
+> to the originating function then there are multiple error messages of 
+> varying specificity sitting around somewhere, assuming we even store 
+> them all and not just the last one. This isn't ideal for error 
+> reporting, but it is for debugging.
 
->On Wed, 2005-09-14 at 09:21 -0400, Joshua Brindle wrote:
->  
->
->>Fair enough, for things like assertion and hierarchy checking we can 
->>pass a function pointer in and use the same basic system without the 
->>global DEBUG function pointer and still get what we want there. If we 
->>tried to use DEBUG for error reporting (as I think Ivan is suggesting) 
->>the calling function wouldn't get an error code, and thus check it's own 
->>error state until the first call in the chain and could potentially lose 
->>information. Having the specific error from the lowest point of failure 
->>seems much more useful than getting a less and less specific error from 
->>each funtion while propagating error codes.
->>    
->>
->
->I'm not sure I follow.  As currently used, I think a call to DEBUG() is
->always followed by returning an error code (although there might
->possibly be multiple calls to DEBUG() prior to returning, e.g. if we use
->it in the assertion checking code in place of the fprintf), although
->those error codes need to be more specific as well.
->
->  
->
-What I mean is, if there are multiple calls to DEBUG prior to returning 
-to the originating function then there are multiple error messages of 
-varying specificity sitting around somewhere, assuming we even store 
-them all and not just the last one. This isn't ideal for error 
-reporting, but it is for debugging. Personally, again, I feel that gdb 
-is far superior to any kind of debug system you can put in a library so 
-I'd rather focus on proper error reporting, which DEBUG doesn't do in a 
-reasonable way.
+Even in the error reporting case, allowing for multiple messages (e.g.
+for multiple assertion failures, hierarchy failures, etc) is useful.
+Those would be of comparable specificity rather than varying degrees.
 
->>I know modifying every function in sepol to use a write_error like 
->>system is undesirable but libsemanage already has write_error used 
->>exclusively so going to DEBUG with it also seems undesirable. 
->>libsemanage already passes a handle which contains an error buffer which 
->>gives us thread safety and the ability to easily return errors in a way 
->>the client app can use them (semodule will probably just print them out, 
->>whereas the policy server will have to do more).
->>    
->>
+If omitting the traceback data is your primary concern, possibly it
+could be explicitly identified in some manner in the DEBUG() interface
+so that the callback can easily drop it for error reporting purposes.
+
+>  Personally, again, I feel that gdb 
+> is far superior to any kind of debug system you can put in a library so 
+> I'd rather focus on proper error reporting, which DEBUG doesn't do in a 
+> reasonable way.
+
+Requiring people to re-run the offending code through a debugger
+significantly reduces your ability to get useful bug reports...
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
