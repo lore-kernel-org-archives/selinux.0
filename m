@@ -1,59 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8EJ1WNs007737
-	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2005 15:01:33 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8EIwS9v016459
-	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2005 18:58:29 GMT
-Received: from [192.168.2.105] (cpe-24-59-125-231.twcny.res.rr.com [24.59.125.231])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j8EIwUSI024741
-	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2005 14:58:30 -0400 (EDT)
-Message-ID: <4328745F.9060702@cornell.edu>
-Date: Wed, 14 Sep 2005 15:05:03 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [ SEPOL ] Detach old debug system from new
-Content-Type: multipart/mixed;
- boundary="------------000200010505050001060004"
+Subject: Re: [ SEPOL ] Detach old debug system from new
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4328745F.9060702@cornell.edu>
+References: <4328745F.9060702@cornell.edu>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 15:03:57 -0400
+Message-Id: <1126724637.12299.187.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000200010505050001060004
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 2005-09-14 at 15:05 -0400, Ivan Gyurdiev wrote:
+> Fixes DEBUG.
 
-Fixes DEBUG.
+Thanks, applied.
 
---------------000200010505050001060004
-Content-Type: text/x-patch;
- name="libsepol.fix.debug.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsepol.fix.debug.diff"
+Also applied this one:
 
-diff -Naur libsepol/src/debug.c libsepol.new/src/debug.c
---- libsepol/src/debug.c	2005-09-14 11:44:44.000000000 -0400
-+++ libsepol.new/src/debug.c	2005-09-14 14:59:59.000000000 -0400
-@@ -42,16 +42,9 @@
+Index: libsepol/src/policydb.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/policydb.c,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -u -p -r1.29 -r1.30
+--- libsepol/src/policydb.c	14 Sep 2005 15:18:56 -0000	1.29
++++ libsepol/src/policydb.c	14 Sep 2005 19:01:36 -0000	1.30
+@@ -51,6 +51,7 @@
+ #include <sepol/avrule_block.h>
  
- void sepol_enable_debug(
- 	void (*fn)(const char* fname, const char *fmt, ...)) {
--
- 	DEBUG = (fn)? fn: default_printf;	
--
--	/* Compatibility  - old debug system */
--	sepol_debug(1);
- }
+ #include "private.h"
++#include "debug.h"
  
- void sepol_disable_debug() {
- 	DEBUG = suppress_printf;
--
--	/* Compatibility - old debug system */
--	sepol_debug(0);
- }
+ /* These need to be updated if SYM_NUM or OCON_NUM changes */
+ static struct policydb_compat_info policydb_compat[] = {
 
---------------000200010505050001060004--
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
