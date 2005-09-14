@@ -1,29 +1,32 @@
-Subject: Re: [ SEMANAGE ] Stub out user/port functionality
+Subject: Re: [ SEPOL ] Move more things to newer debug system
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, dwalsh@redhat.com,
-   jbrindle@tresys.com
-In-Reply-To: <43256F48.7060909@cornell.edu>
-References: <43256F48.7060909@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43264DAD.5090903@cornell.edu>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 14 Sep 2005 11:45:29 -0400
-Message-Id: <1126712729.12299.97.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Sep 2005 11:51:02 -0400
+Message-Id: <1126713062.12299.101.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-09-12 at 08:06 -0400, Ivan Gyurdiev wrote:
-> The attached patch for libsemanage stubs out the functionality for managing
-> user and port records. This means simply editing the config files...
-> As discussed with Joshua, loading the users and ports into policy needs
-> to be accomplished at commit time, after linking in modules.
+On Mon, 2005-09-12 at 23:55 -0400, Ivan Gyurdiev wrote:
+> The attached patch changes printf/fprintf usage in policydb.c, and
+> avtab.c to the new debug system. This allows the user to set the print 
+> function.
+> It also writes to stderr by default, as opposed to stdout (which is 
+> wrong, imho).
+> As a side effect, this will append a more verbose prefix everywhere
+> that gives the exact function name, rather than "security : mls" or 
+> whatever.
 > 
-> I'm still not entirely clear how all the pieces will fit together, but
-> I think it would be good to merge a stubbed-out skeleton...later we could
-> change it to make use of the planned semanage_handle_t.
+> This also removes the __sepol_debug_printf debug system from
+> gen*, and changes genbools and genusers to use the newer system.
 > 
-> The second patch fixes sepol headers to include stddef.h whenever size_t 
-> is used.
+> I haven't really tested this, but it's fairly straightforward, and I don't
+> see what can break - it compiles without warnings.
 
 Thanks, merged upstream.
 
