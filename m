@@ -1,41 +1,47 @@
-Subject: Re: New ideas on implementation on libsetrans.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   Darrel Goeddel <dgoeddel@TrustedCS.com>, SELinux <SELinux@tycho.nsa.gov>,
-   Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <4327425F.8050805@redhat.com>
-References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com>
-	 <43272E92.4060400@redhat.com>
-	 <1126641222.29303.235.camel@moss-spartans.epoch.ncsc.mil>
-	 <432730B2.8090005@redhat.com>
-	 <1126641983.29303.249.camel@moss-spartans.epoch.ncsc.mil>
-	 <43273782.7070600@redhat.com>
-	 <1126643563.2940.6.camel@moss-spartans.epoch.ncsc.mil>
-	 <4327425F.8050805@redhat.com>
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <432823F0.3030803@tresys.com>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
+	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <4327521D.5020605@cornell.edu>
+	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
+	 <432799F0.7060706@cornell.edu>
+	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <432823F0.3030803@tresys.com>
 Content-Type: text/plain
-Date: Wed, 14 Sep 2005 09:39:34 -0400
-Message-Id: <1126705174.12299.64.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Sep 2005 09:51:08 -0400
+Message-Id: <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-13 at 17:19 -0400, Daniel J Walsh wrote:
-> Ok I succumb, but we will go back to original implementation of 
-> libsetrans for now, and require anyone wishing to change the behaviour 
-> to replace our version with their own.  so dlopen(libsetrans.so.1) will 
-> work.
-> 
-> Eventually our version of libsetrans will use a UDS interface to talk to 
-> a long running daemon.
+On Wed, 2005-09-14 at 09:21 -0400, Joshua Brindle wrote:
+> Fair enough, for things like assertion and hierarchy checking we can 
+> pass a function pointer in and use the same basic system without the 
+> global DEBUG function pointer and still get what we want there. If we 
+> tried to use DEBUG for error reporting (as I think Ivan is suggesting) 
+> the calling function wouldn't get an error code, and thus check it's own 
+> error state until the first call in the chain and could potentially lose 
+> information. Having the specific error from the lowest point of failure 
+> seems much more useful than getting a less and less specific error from 
+> each funtion while propagating error codes.
 
-Ok.  Do you agree that libselinux should be dlopen'ing libsetrans.so
-(and thus using the symlink that already exists under /usr/lib to
-whatever the latest version is under /lib) rather than specifically
-dlopen'ing libsetrans.so.0 as it does now?  Of course, it may not matter
-in practice as I can't see the interface ever changing (at least in a
-way that requires bumping the .so version), but it seems cleaner.  
+I'm not sure I follow.  As currently used, I think a call to DEBUG() is
+always followed by returning an error code (although there might
+possibly be multiple calls to DEBUG() prior to returning, e.g. if we use
+it in the assertion checking code in place of the fprintf), although
+those error codes need to be more specific as well.
 
+> I know modifying every function in sepol to use a write_error like 
+> system is undesirable but libsemanage already has write_error used 
+> exclusively so going to DEBUG with it also seems undesirable. 
+> libsemanage already passes a handle which contains an error buffer which 
+> gives us thread safety and the ability to easily return errors in a way 
+> the client app can use them (semodule will probably just print them out, 
+> whereas the policy server will have to do more).
 -- 
 Stephen Smalley
 National Security Agency
