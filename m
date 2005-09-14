@@ -1,237 +1,60 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8EEIdNs004650
-	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2005 10:18:39 -0400 (EDT)
-Received: from mail26.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8EEFb9v003731
-	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2005 14:15:37 GMT
-Received: from megaweapon.nightmoose.net (HELO excalibur.intercode) ([66.92.66.197])
-          (envelope-sender <jmorris@namei.org>)
-          by mail26.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
-          for <selinux@tycho.nsa.gov>; 14 Sep 2005 14:15:37 -0000
-Date: Wed, 14 Sep 2005 10:15:36 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] SELinux - canonicalize getxattr() (fwd)
-Message-ID: <Pine.LNX.4.63.0509141014520.7898@excalibur.intercode>
+Message-ID: <43283772.7070603@tresys.com>
+Date: Wed, 14 Sep 2005 10:45:06 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>	<43264DAD.5090903@cornell.edu>	<1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>	<4327521D.5020605@cornell.edu>	<1126652637.30915.18.camel@twoface.columbia.tresys.com>	<432799F0.7060706@cornell.edu>	<1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>	<432823F0.3030803@tresys.com> <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch has been added to Andrew Morton's tree and is a candidate for 
-the 2.6.15 kernel.
+Stephen Smalley wrote:
 
----------- Forwarded message ----------
-Date: Tue, 13 Sep 2005 16:08:08 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
-    Chris Wright <chrisw@osdl.org>
-Subject: [PATCH] SELinux - canonicalize getxattr()
+>On Wed, 2005-09-14 at 09:21 -0400, Joshua Brindle wrote:
+>  
+>
+>>Fair enough, for things like assertion and hierarchy checking we can 
+>>pass a function pointer in and use the same basic system without the 
+>>global DEBUG function pointer and still get what we want there. If we 
+>>tried to use DEBUG for error reporting (as I think Ivan is suggesting) 
+>>the calling function wouldn't get an error code, and thus check it's own 
+>>error state until the first call in the chain and could potentially lose 
+>>information. Having the specific error from the lowest point of failure 
+>>seems much more useful than getting a less and less specific error from 
+>>each funtion while propagating error codes.
+>>    
+>>
+>
+>I'm not sure I follow.  As currently used, I think a call to DEBUG() is
+>always followed by returning an error code (although there might
+>possibly be multiple calls to DEBUG() prior to returning, e.g. if we use
+>it in the assertion checking code in place of the fprintf), although
+>those error codes need to be more specific as well.
+>
+>  
+>
+What I mean is, if there are multiple calls to DEBUG prior to returning 
+to the originating function then there are multiple error messages of 
+varying specificity sitting around somewhere, assuming we even store 
+them all and not just the last one. This isn't ideal for error 
+reporting, but it is for debugging. Personally, again, I feel that gdb 
+is far superior to any kind of debug system you can put in a library so 
+I'd rather focus on proper error reporting, which DEBUG doesn't do in a 
+reasonable way.
 
-This patch allows SELinux to canonicalize the value returned from 
-getxattr() via  the security_inode_getsecurity() hook, which is called 
-after the fs level getxattr() function.
+>>I know modifying every function in sepol to use a write_error like 
+>>system is undesirable but libsemanage already has write_error used 
+>>exclusively so going to DEBUG with it also seems undesirable. 
+>>libsemanage already passes a handle which contains an error buffer which 
+>>gives us thread safety and the ability to easily return errors in a way 
+>>the client app can use them (semodule will probably just print them out, 
+>>whereas the policy server will have to do more).
+>>    
+>>
 
-The purpose of this is to allow the in-core security context for an inode 
-to override the on-disk value.  This could happen in cases such as 
-upgrading a system to a different labeling form (e.g. standard SELinux to 
-MLS) without needing to do a full relabel of the filesystem.
-
-In such cases, we want getxattr() to return the canonical security context 
-that the kernel is using rather than what is stored on disk.
-
-The implementation hooks into the inode_getsecurity(), adding another 
-parameter to indicate the result of the preceding fs-level getxattr() 
-call, so that SELinux knows whether to compare a value obtained from disk 
-with the kernel value.
-
-We also now allow getxattr() to work for mountpoint labeled filesystems 
-(i.e. mount with option context=foo_t), as we are able to return the 
-kernel value to the user.
-
-Please apply.
-
-Signed-off-by: James Morris <jmorris@namei.org>
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
----
-
- fs/xattr.c               |   14 +++++++++-----
- include/linux/security.h |   11 +++++++----
- security/dummy.c         |    2 +-
- security/selinux/hooks.c |   46 ++++++++++++++++++++++++++++++++--------------
- 4 files changed, 49 insertions(+), 24 deletions(-)
-
-
-diff -purN -X dontdiff linux-2.6.13-mm2.o/fs/xattr.c linux-2.6.13-mm2.w/fs/xattr.c
---- linux-2.6.13-mm2.o/fs/xattr.c	2005-09-12 11:28:55.000000000 -0400
-+++ linux-2.6.13-mm2.w/fs/xattr.c	2005-09-12 22:31:32.000000000 -0400
-@@ -143,7 +143,7 @@ getxattr(struct dentry *d, char __user *
- 	if (size) {
- 		if (size > XATTR_SIZE_MAX)
- 			size = XATTR_SIZE_MAX;
--		kvalue = kmalloc(size, GFP_KERNEL);
-+		kvalue = kzalloc(size, GFP_KERNEL);
- 		if (!kvalue)
- 			return -ENOMEM;
- 	}
-@@ -154,11 +154,15 @@ getxattr(struct dentry *d, char __user *
- 	error = -EOPNOTSUPP;
- 	if (d->d_inode->i_op && d->d_inode->i_op->getxattr)
- 		error = d->d_inode->i_op->getxattr(d, kname, kvalue, size);
--	else if (!strncmp(kname, XATTR_SECURITY_PREFIX,
--			  sizeof XATTR_SECURITY_PREFIX - 1)) {
-+		
-+	if (!strncmp(kname, XATTR_SECURITY_PREFIX,
-+		     sizeof XATTR_SECURITY_PREFIX - 1)) {
- 		const char *suffix = kname + sizeof XATTR_SECURITY_PREFIX - 1;
--		error = security_inode_getsecurity(d->d_inode, suffix, kvalue,
--						   size);
-+		int rv = security_inode_getsecurity(d->d_inode, suffix, kvalue,
-+						    size, error);
-+		/* Security module active: overwrite error value */
-+		if (rv != -EOPNOTSUPP)
-+			error = rv;
- 	}
- 	if (error > 0) {
- 		if (size && copy_to_user(value, kvalue, error))
-diff -purN -X dontdiff linux-2.6.13-mm2.o/include/linux/security.h linux-2.6.13-mm2.w/include/linux/security.h
---- linux-2.6.13-mm2.o/include/linux/security.h	2005-09-12 11:28:56.000000000 -0400
-+++ linux-2.6.13-mm2.w/include/linux/security.h	2005-09-12 21:00:25.000000000 -0400
-@@ -385,6 +385,9 @@ struct swap_info_struct;
-  *	NULL to request the size of the buffer required.  @size indicates
-  *	the size of @buffer in bytes.  Note that @name is the remainder
-  *	of the attribute name after the security. prefix has been removed.
-+ *	@err is the return value from the preceding fs getxattr call,
-+ *	and can be used by the security module to determine whether it
-+ *	should try and canonicalize the attribute value.
-  *	Return number of bytes used/required on success.
-  * @inode_setsecurity:
-  *	Set the security label associated with @name for @inode from the
-@@ -1091,7 +1094,7 @@ struct security_operations {
- 	int (*inode_getxattr) (struct dentry *dentry, char *name);
- 	int (*inode_listxattr) (struct dentry *dentry);
- 	int (*inode_removexattr) (struct dentry *dentry, char *name);
--  	int (*inode_getsecurity)(struct inode *inode, const char *name, void *buffer, size_t size);
-+  	int (*inode_getsecurity)(struct inode *inode, const char *name, void *buffer, size_t size, int err);
-   	int (*inode_setsecurity)(struct inode *inode, const char *name, const void *value, size_t size, int flags);
-   	int (*inode_listsecurity)(struct inode *inode, char *buffer, size_t buffer_size);
- 
-@@ -1580,11 +1583,11 @@ static inline int security_inode_removex
- 	return security_ops->inode_removexattr (dentry, name);
- }
- 
--static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
-+static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size, int err)
- {
- 	if (unlikely (IS_PRIVATE (inode)))
- 		return 0;
--	return security_ops->inode_getsecurity(inode, name, buffer, size);
-+	return security_ops->inode_getsecurity(inode, name, buffer, size, err);
- }
- 
- static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
-@@ -2222,7 +2225,7 @@ static inline int security_inode_removex
- 	return cap_inode_removexattr(dentry, name);
- }
- 
--static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
-+static inline int security_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size, int err)
- {
- 	return -EOPNOTSUPP;
- }
-diff -purN -X dontdiff linux-2.6.13-mm2.o/security/dummy.c linux-2.6.13-mm2.w/security/dummy.c
---- linux-2.6.13-mm2.o/security/dummy.c	2005-09-12 11:28:57.000000000 -0400
-+++ linux-2.6.13-mm2.w/security/dummy.c	2005-09-12 12:28:47.000000000 -0400
-@@ -377,7 +377,7 @@ static int dummy_inode_removexattr (stru
- 	return 0;
- }
- 
--static int dummy_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
-+static int dummy_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size, int err)
- {
- 	return -EOPNOTSUPP;
- }
-diff -purN -X dontdiff linux-2.6.13-mm2.o/security/selinux/hooks.c linux-2.6.13-mm2.w/security/selinux/hooks.c
---- linux-2.6.13-mm2.o/security/selinux/hooks.c	2005-09-12 11:28:57.000000000 -0400
-+++ linux-2.6.13-mm2.w/security/selinux/hooks.c	2005-09-13 14:45:18.000000000 -0400
-@@ -2198,9 +2198,6 @@ static int selinux_inode_getxattr (struc
- 	struct inode *inode = dentry->d_inode;
- 	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
- 
--	if (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
--		return -EOPNOTSUPP;
--
- 	return dentry_has_perm(current, NULL, dentry, FILE__GETATTR);
- }
- 
-@@ -2231,33 +2228,54 @@ static int selinux_inode_removexattr (st
- 	return -EACCES;
- }
- 
--static int selinux_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
-+/*
-+ * Copy the in-core inode security context value to the user.  If the
-+ * getxattr() prior to this succeeded, check to see if we need to
-+ * canonicalize the value to be finally returned to the user.
-+ *
-+ * Permission check is handled by selinux_inode_getxattr hook.
-+ */
-+static int selinux_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size, int err)
- {
- 	struct inode_security_struct *isec = inode->i_security;
- 	char *context;
- 	unsigned len;
- 	int rc;
- 
--	/* Permission check handled by selinux_inode_getxattr hook.*/
--
--	if (strcmp(name, XATTR_SELINUX_SUFFIX))
--		return -EOPNOTSUPP;
-+	if (strcmp(name, XATTR_SELINUX_SUFFIX)) {
-+		rc = -EOPNOTSUPP;
-+		goto out;
-+	}
- 
- 	rc = security_sid_to_context(isec->sid, &context, &len);
- 	if (rc)
--		return rc;
-+		goto out;
- 
-+	/* Probe for required buffer size */
- 	if (!buffer || !size) {
--		kfree(context);
--		return len;
-+		rc = len;
-+		goto out_free;
- 	}
-+
- 	if (size < len) {
--		kfree(context);
--		return -ERANGE;
-+		rc = -ERANGE;
-+		goto out_free;
-+	}
-+	
-+	if (err > 0) {
-+		if ((len == err) && !(memcmp(context, buffer, len))) {
-+			/* Don't need to canonicalize value */
-+			rc = err;
-+			goto out_free;
-+		}
-+		memset(buffer, 0, size);
- 	}
- 	memcpy(buffer, context, len);
-+	rc = len;
-+out_free:	
- 	kfree(context);
--	return len;
-+out:
-+	return rc;
- }
- 
- static int selinux_inode_setsecurity(struct inode *inode, const char *name,
 
 --
 This message was distributed to subscribers of the selinux mailing list.
