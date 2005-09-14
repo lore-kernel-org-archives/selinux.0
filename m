@@ -1,25 +1,41 @@
-Subject: Re: New ideas on implementation on libsetrans.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-   Darrel Goeddel <dgoeddel@TrustedCS.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050913212236.GA540@lkcl.net>
-References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com>
-	 <43272E92.4060400@redhat.com>  <20050913212236.GA540@lkcl.net>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Joshua Brindle <jbrindle@tresys.com>,
+   SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <20050914070022.GD1257@lkcl.net>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
+	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <4327521D.5020605@cornell.edu>
+	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
+	 <432799F0.7060706@cornell.edu>  <20050914070022.GD1257@lkcl.net>
 Content-Type: text/plain
-Date: Wed, 14 Sep 2005 07:58:57 -0400
-Message-Id: <1126699137.12299.3.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Sep 2005 08:11:04 -0400
+Message-Id: <1126699864.12299.10.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-13 at 22:22 +0100, Luke Kenneth Casson Leighton wrote:
->  what do the data structures look like?
-> 
->  tell me they're nice and simple...
+On Wed, 2005-09-14 at 08:00 +0100, Luke Kenneth Casson Leighton wrote:
+>  given that there have now been at least three messages bouncing
+>  back-and-forth indicating that there have been some quite
+>  serious basic design mistakes (global variables, printfs for debug
+>  reporting etc.), i thought it best to chip in.
 
-All we are talking about is "here is a raw context string, please give
-me a human-readable one" and vice versa.
+Hi,
+
+Point of clarification:  libsepol was originally just pulled out of the
+checkpolicy program, so these characteristics reflect its origins as a
+single monolithic program.   
+
+>  design the library properly.
+
+By all means, do things right going forward, but don't overengineer a
+library that was only ever intended to share some implementation details
+previously hidden within checkpolicy with some other users, and that is
+going back toward being a static library only for a very small set of
+users.
 
 -- 
 Stephen Smalley
