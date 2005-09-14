@@ -1,45 +1,117 @@
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Joshua Brindle <jbrindle@tresys.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050914070022.GD1257@lkcl.net>
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
-	 <43264DAD.5090903@cornell.edu>
-	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
-	 <4327521D.5020605@cornell.edu>
-	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
-	 <432799F0.7060706@cornell.edu>  <20050914070022.GD1257@lkcl.net>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 08:11:04 -0400
-Message-Id: <1126699864.12299.10.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8ECUcNs003424
+	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2005 08:30:38 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8ECRZfL002662
+	for <selinux@tycho.nsa.gov>; Wed, 14 Sep 2005 12:27:35 GMT
+Message-ID: <432817CD.5090103@redhat.com>
+Date: Wed, 14 Sep 2005 08:30:05 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Eric Paris <eparis@parisplace.org>
+CC: antoine <antoine@nagafix.co.uk>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: error building file_contexts
+References: <1126563533.13869.5.camel@localhost>	 <1126617433.29303.25.camel@moss-spartans.epoch.ncsc.mil>	 <1126618085.4218.14.camel@localhost.localdomain>	 <1126623363.6074.7.camel@localhost.localdomain>	 <1126647898.3769.19.camel@localhost> <1126649233.6074.14.camel@localhost.localdomain>
+In-Reply-To: <1126649233.6074.14.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-09-14 at 08:00 +0100, Luke Kenneth Casson Leighton wrote:
->  given that there have now been at least three messages bouncing
->  back-and-forth indicating that there have been some quite
->  serious basic design mistakes (global variables, printfs for debug
->  reporting etc.), i thought it best to chip in.
+Eric Paris wrote:
 
-Hi,
+>>(...)
+>>-/home/rsyslog
+>>-/emul/lib(64)?/*$
+>>-/home/rsyslog
+>>-/emul/lib(64)?/.*\.so(\.[^/]*)*/*$
+>>-/home/rsyslog
+>>-/emul/lib(64)?/ld-[^/]*\.so(\.[^/]*)*/*$
+>>-/home/rsyslog
+>>-/usr/sbin/amavisd(.*)?/*$
+>>-/home/rsyslog
+>>Traceback (most recent call last):
+>>  File "/usr/sbin/genhomedircon", line 475, in ?
+>>    oldgenhomedircon(cmds[0], cmds[1])
+>>  File "/usr/sbin/genhomedircon", line 190, in oldgenhomedircon
+>>    if re.search(regex, potential, 0):
+>>  File "/usr/lib/python2.3/sre.py", line 137, in search
+>>    return _compile(pattern, flags).search(string)
+>>  File "/usr/lib/python2.3/sre.py", line 230, in _compile
+>>    raise error, v # invalid expression
+>>sre_constants.error: nothing to repeat
+>>make: *** [file_contexts/file_contexts] Error 1
+>>
+>>Any ideas?
+>>
+>>Thanks
+>>Antoine
+>>
+>>
+>>For reference, here is the updated code snippet:
+>>(...)
+>>	for potential in potential_prefixes.keys():
+>>                addme = 1
+>>                for regex in prefix_regex:
+>>                        #match a trailing (/*)? which is actually a bug
+>>in rpc_pipefs
+>>                        regex = re.sub("\(/\*\)\?$", "", regex)
+>>                        #match a trailing .+
+>>                        regex = re.sub("\.+$", "", regex)
+>>                        #match a trailing .*
+>>                        regex = re.sub("\.\*$", "", regex)
+>>                        #strip a (/.*)? which matches anything trailing
+>>to a /*$ which matches trailing /'s
+>>                        regex = re.sub("\(\/\.\*\)\?", "", regex)
+>>                        regex = regex + "/*$"
+>>                        sys.stderr.write("-%s\n" % regex)
+>>                        sys.stderr.write("-%s\n" % potential)
+>>                        sys.stderr.flush()
+>>                        if re.search(regex, potential, 0):
+>>                                addme = 0
+>>
+>>                if addme == 1:
+>>                        if not prefixes.has_key(potential):
+>>                                prefixes[potential] = ""
+>>(...)
+>>    
+>>
+>
+>
+>So I simplified the problem.  Maybe someone with more regex or python
+>foo can help us out.  Python refuses to use (.*)? as a valid regular
+>expression.  Seems like we want to say match anything 0 or more times.
+>Why is this invalid and what would be valid?
+>
+>  
+>
+>>>>import re
+>>>>test = re.sub("(.*)?", "", "hello")
+>>>>        
+>>>>
+>Traceback (most recent call last):
+>  File "<stdin>", line 1, in ?
+>  File "/usr/lib/python2.3/sre.py", line 143, in sub
+>    return _compile(pattern, 0).sub(repl, string, count)
+>  File "/usr/lib/python2.3/sre.py", line 230, in _compile
+>    raise error, v # invalid expression
+>sre_constants.error: nothing to repeat
+>
+>
+>
+>--
+>This message was distributed to subscribers of the selinux mailing list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
+>  
+>
+Why not just .*
 
-Point of clarification:  libsepol was originally just pulled out of the
-checkpolicy program, so these characteristics reflect its origins as a
-single monolithic program.   
+test=re.sub(".*","","hello")
 
->  design the library properly.
 
-By all means, do things right going forward, but don't overengineer a
-library that was only ever intended to share some implementation details
-previously hidden within checkpolicy with some other users, and that is
-going back toward being a static library only for a very small set of
-users.
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
