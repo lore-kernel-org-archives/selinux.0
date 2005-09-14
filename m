@@ -1,34 +1,50 @@
-Message-ID: <43285C08.5020806@cornell.edu>
-Date: Wed, 14 Sep 2005 13:21:12 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <20050914172547.14693.qmail@web51506.mail.yahoo.com>
+Date: Wed, 14 Sep 2005 10:25:47 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: New ideas on implementation on libsetrans.
+To: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1126704790.12299.60.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>	 <43264DAD.5090903@cornell.edu>	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>	 <4327521D.5020605@cornell.edu>	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>	 <432799F0.7060706@cornell.edu>	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>	 <432823F0.3030803@tresys.com>	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>	 <43283772.7070603@tresys.com>	 <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>	 <432842D4.3070905@tresys.com>	 <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil>	 <43284A6B.8080507@tresys.com> <1126715064.12299.126.camel@moss-spartans.epoch.ncsc.mil> <43285B07.2070402@cornell.edu>
-In-Reply-To: <43285B07.2070402@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+>> >Am I missing other disadvantages?
+>> 
+>> How often would this library be called? Is it a performance hit for programs
+to
+>> parse the flat file everytime they run? I'm thinking mostly of coreutils style
+>> programs that would be in shell scripts. What program would be the heaviest
+>> user of the translation library? Is anything other than translation being 
+>> considered? 
+>
+>so any program that gets or sets a context would exercise them.
 
->
->> BTW, I just noticed - aren't the calls to sepol_debug() by
->> sepol_enable/disable_debug() broken?  If you just set the function
->> pointer, you don't want to clobber it using the old interface.
->>
->>  
->>
-> The old interface is supposed to go away, but until it does, the new 
-> interface must provide the same functionality, which is why it 
-> maintains printing to stdout using the old system. By the way, this is 
-> *yet another* debug system - __sepol_debug_printf...
->
-> I'll respond to the rest of the discussion later tonight...
->
-Actually you're right - the compat call should be removed...
+My concern which lead to consideration of the daemon approach is the performance
+penalty imposed by dlopen & dlsym as well as parsing the configuration each time
+a program starts up. dlopen is a heavy function call. Communication across a
+af_unix socket is likely to be faster since there are fewer syscalls. The
+question is are there enough programs that would suffer a performance hit that we
+should look at making a daemon. Admittedly the daemon would be simple and it
+would load the plugin. I also was thinking about doing the config from shared
+memory to avoid all the parsing on startup. Yes, there would need to be a cache
+scrubber that times out the cache entries - which could be coordinated with
+inotify. (If inotify never says the config changed, no need to timeout the
+cache.)
+
+> A simple ls -Z would exercise them. But the mapping file itself is typically
+> only loaded once
+
+Are there any other common utilities that would cause a performance hit? pam
+modules for example. If its just ls -Z, I'm not too worried. I do worry if it
+gets into something that is performance sensitive like dbus, nscd, etc.
+
+-Steve
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
