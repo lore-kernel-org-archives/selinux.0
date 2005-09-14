@@ -5,19 +5,20 @@ Cc: SELinux <SELinux@tycho.nsa.gov>
 In-Reply-To: <20050914172547.14693.qmail@web51506.mail.yahoo.com>
 References: <20050914172547.14693.qmail@web51506.mail.yahoo.com>
 Content-Type: text/plain
-Date: Wed, 14 Sep 2005 13:52:13 -0400
-Message-Id: <1126720333.12299.133.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Sep 2005 14:01:51 -0400
+Message-Id: <1126720911.12299.142.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Wed, 2005-09-14 at 10:25 -0700, Steve G wrote:
-> Are there any other common utilities that would cause a performance hit? pam
-> modules for example. If its just ls -Z, I'm not too worried. I do worry if it
-> gets into something that is performance sensitive like dbus, nscd, etc.
+> My concern which lead to consideration of the daemon approach is the performance
+> penalty imposed by dlopen & dlsym as well as parsing the configuration each time
+> a program starts up. dlopen is a heavy function call. Communication across a
+> af_unix socket is likely to be faster since there are fewer syscalls.
 
-Anything that gets a context from libselinux or passes a context to it.
-That would include pam_selinux, dbusd, nscd, ...
+BTW, I'd want to see measurements there before jumping to that
+assumption.  Don't forget the socket setup and context switch overhead.
 
 -- 
 Stephen Smalley
