@@ -1,9 +1,8 @@
 Subject: Re: [ SEPOL ] Move more things to newer debug system
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <4329235B.6030109@cornell.edu>
+Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43287BDC.1090004@cornell.edu>
 References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
 	 <43264DAD.5090903@cornell.edu>
 	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
@@ -18,26 +17,43 @@ References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
 	 <432842D4.3070905@tresys.com>
 	 <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil>
 	 <43284A6B.8080507@tresys.com>  <43287BDC.1090004@cornell.edu>
-	 <1126727413.12299.208.camel@moss-spartans.epoch.ncsc.mil>
-	 <432888C8.3090700@cornell.edu>  <4329235B.6030109@cornell.edu>
 Content-Type: text/plain
-Date: Thu, 15 Sep 2005 09:01:18 -0400
-Message-Id: <1126789278.10727.64.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Sep 2005 11:17:09 -0400
+Message-Id: <1126797429.10727.95.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-09-15 at 03:31 -0400, Ivan Gyurdiev wrote:
-> So, if you deprecate the shared sepol_gen*, you're left 
-> with...sepol_check_context (which makes use of sepol_context_to_sid, and 
-> sepol_ctx_*)... and also sepol_set_policydb_from_file (which I think 
-> should also be deprecated, along with the global policydb).
+On Wed, 2005-09-14 at 15:37 -0400, Ivan Gyurdiev wrote:
+> So, I'm not clear on the exact migration steps that need to be taken here.
+> I've just changed a lot of printfs to DEBUG calls. I'm not entirely sure 
+> whether
+> they qualify as error reporting or debugging (probably the former). In 
+> fact,
+> the distinction is still a bit lost to me - it seems as if all current 
+> uses of DEBUG
+> are for error handling, and none are for debugging. Perhaps you could 
+> give an
+> example to clarify the situation...
+> 
+> Next, what to do we do with all those printf calls that remain, and the ones
+> that are now DEBUG calls.... if they are in fact error-reporting statements,
+> then I understand you want them written in an error buffer. Where does
+> the buffer come from, given the current API?
+> 
+> I am in favor of moving all messaging systems into one .c and .h file,
+> and making things more consistent.  I also like the idea of output
+> levels for debugging and error-messaging, although I'm not entirely sure
+> where I would use which.
 
-BTW, keep in mind that most programs that want to check context validity
-are going to use security_check_context() from libselinux, which has no
-threading issues.  It is only specialized cases where you specifically
-want to check against a binary policy rather than the active kernel
-policy that you need the libsepol functions.
+Ok, suggestion:
+- Leave write_error() and DEBUG() separate,
+- Move write_error() to a unified interface and shared implementation,
+and have it internally call DEBUG() as well as saving the message in the
+buffer,
+- Convert remaining printf/fprintf occurrences to DEBUG(),
+- Convert direct snprintf calls into error buffers to use the shared
+write_error() interface.
 
 -- 
 Stephen Smalley
