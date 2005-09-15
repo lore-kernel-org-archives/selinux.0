@@ -1,33 +1,33 @@
-Message-ID: <43299B5D.7070000@cornell.edu>
-Date: Thu, 15 Sep 2005 12:03:41 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>	 <43264DAD.5090903@cornell.edu>	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>	 <4327521D.5020605@cornell.edu>	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>	 <432799F0.7060706@cornell.edu>	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>	 <432823F0.3030803@tresys.com>	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>	 <43283772.7070603@tresys.com>	 <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>	 <432842D4.3070905@tresys.com>	 <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil>	 <43284A6B.8080507@tresys.com>  <43287BDC.1090004@cornell.edu> <1126797429.10727.95.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1126797429.10727.95.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8FHeJNs018139
+	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2005 13:40:19 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8FHb6rW000035
+	for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2005 17:37:06 GMT
+Subject: mqueue labeling
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Thu, 15 Sep 2005 13:40:46 -0400
+Message-Id: <1126806046.18007.133.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+While updating reference policy baseline to NSA CVS, I noticed that the
+mqueue filesystem has two labeling rules:
 
->Ok, suggestion:
->- Leave write_error() and DEBUG() separate,
->- Move write_error() to a unified interface and shared implementation,
->and have it internally call DEBUG() as well as saving the message in the
->buffer,
->- Convert remaining printf/fprintf occurrences to DEBUG(),
->- Convert direct snprintf calls into error buffers to use the shared
->write_error() interface.
->  
->
-Do you see DEBUG as being off by default or on by default?
-I'm trying to understand what the role of DEBUG is here... currently it 
-handles
-important printfs that will disappear if turned off.
+genfscon mqueue / system_u:object_r:mqueue_t
 
-Also, should write_error be paying attention to security_debug() ?
+fs_use_trans mqueue system_u:object_r:tmpfs_t;
+
+Which is the correct one?
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
