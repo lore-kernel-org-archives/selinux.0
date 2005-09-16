@@ -1,45 +1,32 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8GK6NNs000656
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 16:06:23 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8GK2xvo008005
-	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 20:02:59 GMT
-Subject: Re: error building file_contexts
-From: Antoine Martin <antoine@nagafix.co.uk>
-To: Eric Paris <eparis@parisplace.org>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1126647898.3769.19.camel@localhost>
-References: <1126563533.13869.5.camel@localhost>
-	 <1126617433.29303.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <1126618085.4218.14.camel@localhost.localdomain>
-	 <1126623363.6074.7.camel@localhost.localdomain>
-	 <1126647898.3769.19.camel@localhost>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8GKECNs000741
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 16:14:12 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8GKAgPO008351
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 20:10:43 GMT
+Subject: ping broken symptoms
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 16 Sep 2005 21:32:40 +0100
-Message-Id: <1126902760.17715.16.camel@localhost>
+Date: Fri, 16 Sep 2005 16:14:39 -0400
+Message-Id: <1126901679.18007.138.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -/usr/sbin/amavisd(.*)?/*$
-For reference, this should have been (...)amavisd.*
-(I had plenty of similar mistakes in my fc files)
+At the bottom of the ping policy, there is this ifdef:
 
-Not sure why this has only surfaced now, I am pretty sure this mistake
-has been in my *.fc files for a while.
+ifdef(`hide_broken_symptoms', `
+allow ping_t init_t:fd use;
+')
 
-The changes to the script were really helpful, maybe it would be helpful
-to have a debug option to enable this output? (or somehow make it part
-of the backtrace) - sorry I can't hack python to that extent.
->                         regex = regex + "/*$"
->                         sys.stderr.write("-%s\n" % regex)
->                         sys.stderr.write("-%s\n" % potential)
->                         sys.stderr.flush()
->                         if re.search(regex, potential, 0):
->                                 addme = 0
-> 
+Isn't the purpose of the hide_broken_symptoms m4 tunable to dontaudit
+broken code that can work without these accesses, not allow them?
 
-Antoine
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
