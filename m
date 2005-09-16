@@ -1,79 +1,45 @@
-Subject: Re: Doing testing with MCS looks like we get initial roles/levels
-	by using fromcon.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <432B1BAC.9000800@redhat.com>
-References: <4329DF91.2060208@redhat.com>
-	 <1126873821.25919.20.camel@moss-spartans.epoch.ncsc.mil>
-	 <432AFFE4.3010001@redhat.com>
-	 <1126894521.27393.81.camel@moss-spartans.epoch.ncsc.mil>
-	 <432B1157.8070703@redhat.com>
-	 <1126896683.27393.100.camel@moss-spartans.epoch.ncsc.mil>
-	 <432B1BAC.9000800@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8GK6NNs000656
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 16:06:23 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8GK2xvo008005
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 20:02:59 GMT
+Subject: Re: error building file_contexts
+From: Antoine Martin <antoine@nagafix.co.uk>
+To: Eric Paris <eparis@parisplace.org>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1126647898.3769.19.camel@localhost>
+References: <1126563533.13869.5.camel@localhost>
+	 <1126617433.29303.25.camel@moss-spartans.epoch.ncsc.mil>
+	 <1126618085.4218.14.camel@localhost.localdomain>
+	 <1126623363.6074.7.camel@localhost.localdomain>
+	 <1126647898.3769.19.camel@localhost>
 Content-Type: text/plain
-Date: Fri, 16 Sep 2005 15:34:45 -0400
-Message-Id: <1126899285.27393.129.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 16 Sep 2005 21:32:40 +0100
+Message-Id: <1126902760.17715.16.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-09-16 at 15:23 -0400, Daniel J Walsh wrote:
-> Ok do you want a function like the following
-> 
-> int get_ordered_context_list_with_level (const char *user,
->                      security_context_t fromcon,     
->                      const char *level,
->                      security_context_t **list)
-> {
->     int rc;
->     int freefrom = 0;
->     security_context_t newcon=NULL;
->     context_t con;
-> 
->     if (!fromcon) {
->     rc = getcon(&fromcon);
->     if (rc < 0)
->         return rc;
->     freefrom = 1;
->     }
->     con=context_new(fromcon);
->     context_range_set(con, level);
->     newcon=strdup(context_str(con));
->     context_free(con);
-> 
->     rc = get_ordered_context_list (user, newcon, list);
->     freecon(newcon);
->     if (freefrom)
->         freecon(fromcon);
->     return rc;
-> }
+> -/usr/sbin/amavisd(.*)?/*$
+For reference, this should have been (...)amavisd.*
+(I had plenty of similar mistakes in my fc files)
 
-Yes, but with more error checking (context_range_set, context_str, and
-strdup could all fail above).  You could also avoid the extra memory
-allocation/copy for newcon by just deferring the context_free until
-after the get_ordered_context_list call.
+Not sure why this has only surfaced now, I am pretty sure this mistake
+has been in my *.fc files for a while.
 
-> Then we defined a functions
+The changes to the script were really helpful, maybe it would be helpful
+to have a debug option to enable this output? (or somehow make it part
+of the backtrace) - sorry I can't hack python to that extent.
+>                         regex = regex + "/*$"
+>                         sys.stderr.write("-%s\n" % regex)
+>                         sys.stderr.write("-%s\n" % potential)
+>                         sys.stderr.flush()
+>                         if re.search(regex, potential, 0):
+>                                 addme = 0
 > 
-> getseuserinfo(const char *username,  char **seusername,  char **selevel)
-> 
-> 
-> so pam calls
-> getseuserinfo(dwalsh, &sename, &selevel);
-> get_ordered_context_list_with_level(sename, 0, selevel, &conlist);
 
-Right.
-
-Note btw that putting getseuserinfo into libsetrans doesn't help with
-avoiding the whole ldap dependency for libselinux users since libselinux
-dlopen's libsetrans, so you might as well just put it into libselinux
-unless you are going to create yet another library for it.
-  
--- 
-Stephen Smalley
-National Security Agency
+Antoine
 
 
 --
