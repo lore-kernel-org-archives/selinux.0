@@ -1,24 +1,29 @@
-Subject: Re: New ideas on implementation on libsetrans.
+Subject: Re: [PATCH] fix checkpolicy segfaults when using role dominance
+	statements
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20050916171806.23315.qmail@web51501.mail.yahoo.com>
-References: <20050916171806.23315.qmail@web51501.mail.yahoo.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <4329ED38.1030400@trustedcs.com>
+References: <4329ED38.1030400@trustedcs.com>
 Content-Type: text/plain
-Date: Fri, 16 Sep 2005 13:28:53 -0400
-Message-Id: <1126891733.27393.40.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 16 Sep 2005 13:36:39 -0400
+Message-Id: <1126892199.27393.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-09-16 at 10:18 -0700, Steve G wrote:
-> > pffh, lots of fuss then :)  ascii it is!
+On Thu, 2005-09-15 at 16:52 -0500, Darrel Goeddel wrote:
+> This patch fixes two segfaults in the code path handling a
+> role dominance statement such as:
 > 
-> I think people that speak different languages than english may want to use their
-> word for "confidential" to be more meaningful to the users. I hope we are taking
-> utf8 into account.
+> dominance { role big_r { role little_r; } }
+> 
+> Look correct?
 
-Not presently.  Patches welcome ;)
+Thanks, merged.  It would likely help if there was a real user of role
+dominance in the example policy (and reference policy) so that this code
+path is exercised on a regular basis.
 
 -- 
 Stephen Smalley
