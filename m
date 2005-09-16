@@ -1,112 +1,63 @@
-Message-ID: <4329ED38.1030400@trustedcs.com>
-Date: Thu, 15 Sep 2005 16:52:56 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: [PATCH] fix checkpolicy segfaults when using role dominance statements
-Content-Type: multipart/mixed;
- boundary="------------060708040009090404070402"
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43299B5D.7070000@cornell.edu>
+References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
+	 <43264DAD.5090903@cornell.edu>
+	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <4327521D.5020605@cornell.edu>
+	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
+	 <432799F0.7060706@cornell.edu>
+	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <432823F0.3030803@tresys.com>
+	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <43283772.7070603@tresys.com>
+	 <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>
+	 <432842D4.3070905@tresys.com>
+	 <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil>
+	 <43284A6B.8080507@tresys.com>  <43287BDC.1090004@cornell.edu>
+	 <1126797429.10727.95.camel@moss-spartans.epoch.ncsc.mil>
+	 <43299B5D.7070000@cornell.edu>
+Content-Type: text/plain
+Date: Fri, 16 Sep 2005 08:19:55 -0400
+Message-Id: <1126873195.25919.11.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060708040009090404070402
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-09-15 at 12:03 -0400, Ivan Gyurdiev wrote:
+> >Ok, suggestion:
+> >- Leave write_error() and DEBUG() separate,
+> >- Move write_error() to a unified interface and shared implementation,
+> >and have it internally call DEBUG() as well as saving the message in the
+> >buffer,
+> >- Convert remaining printf/fprintf occurrences to DEBUG(),
+> >- Convert direct snprintf calls into error buffers to use the shared
+> >write_error() interface.
+> >  
+> >
+> Do you see DEBUG as being off by default or on by default?
+> I'm trying to understand what the role of DEBUG is here... currently it 
+> handles
+> important printfs that will disappear if turned off.
 
-This patch fixes two segfaults in the code path handling a
-role dominance statement such as:
+I think on by default, but still with the ability for explicit disable,
+which will likely be used by the policy server.
 
-dominance { role big_r { role little_r; } }
+> Also, should write_error be paying attention to security_debug() ?
 
-Look correct?
+No, I think write_error should always write the formatted message to the
+error buffer, regardless of debug settings.  Then it calls DEBUG(),
+which does its thing.  Hence, all error messages find their way to DEBUG
+eventually (which may then discard them based on its setting), whereas
+write_error is called more selectively and only when the calling
+interface has error buffer arguments available.
 
 -- 
+Stephen Smalley
+National Security Agency
 
-Darrel
-
---------------060708040009090404070402
-Content-Type: text/x-patch;
- name="role_dominance.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="role_dominance.patch"
-
-Index: policy_parse.y
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux-usr/checkpolicy/policy_parse.y,v
-retrieving revision 1.37
-diff -u -p -r1.37 policy_parse.y
---- policy_parse.y	22 Aug 2005 18:06:49 -0000	1.37
-+++ policy_parse.y	15 Sep 2005 20:23:51 -0000
-@@ -2478,7 +2478,6 @@ static int dominate_role_recheck(hashtab
- {
- 	role_datum_t *rdp = (role_datum_t *) arg;
- 	role_datum_t *rdatum = (role_datum_t *) datum;
--	ebitmap_t *types = NULL;
- 	ebitmap_node_t *node;
- 	int i;
- 
-@@ -2489,17 +2488,22 @@ static int dominate_role_recheck(hashtab
- 	/* If a dominating role found */
- 	if (ebitmap_get_bit(&(rdatum->dominates), rdp->value - 1))
- 	{
--		if (type_set_expand(&rdp->types, types, policydbp, 1)) 
-+		ebitmap_t types;
-+		ebitmap_init(&types);
-+		if (type_set_expand(&rdp->types, &types, policydbp, 1)) {
-+			ebitmap_destroy(&types);
- 			return -1;
-+		}
- 		/* raise types and dominates from dominated role */
- 		ebitmap_for_each_bit(&rdp->dominates, node, i) {
- 			if (ebitmap_node_get_bit(node, i))
- 				ebitmap_set_bit(&rdatum->dominates, i, TRUE);
- 		}
--		ebitmap_for_each_bit(types, node, i) {
-+		ebitmap_for_each_bit(&types, node, i) {
- 			if (ebitmap_node_get_bit(node, i))
- 				ebitmap_set_bit(&rdatum->types.types, i, TRUE);
- 		}		
-+		ebitmap_destroy(&types);
- 	}
- 
- 	/* go through all the roles */
-@@ -2511,7 +2515,6 @@ static role_datum_t *
- {
- 	role_datum_t *role;
- 	char *role_id;
--	ebitmap_t *types = NULL;
- 	ebitmap_node_t *node;
- 	unsigned int i;
- 	int ret;
-@@ -2563,16 +2566,21 @@ static role_datum_t *
-                 }
- 	}
- 	if (r) {
-+		ebitmap_t types;
-+		ebitmap_init(&types);
- 		ebitmap_for_each_bit(&r->dominates, node, i) {
- 			if (ebitmap_node_get_bit(node, i))
- 				ebitmap_set_bit(&role->dominates, i, TRUE);
- 		}
--		if (type_set_expand(&r->types, types, policydbp, 1)) 
-+		if (type_set_expand(&r->types, &types, policydbp, 1)) {
-+			ebitmap_destroy(&types);
- 			return NULL;
--		ebitmap_for_each_bit(types, node, i) {
-+		}
-+		ebitmap_for_each_bit(&types, node, i) {
- 			if (ebitmap_node_get_bit(node, i))
- 				ebitmap_set_bit(&role->types.types, i, TRUE);
- 		}
-+		ebitmap_destroy(&types);
- 		if (!r->value) {
- 			/* free intermediate result */
- 			type_set_destroy(&r->types);
-
---------------060708040009090404070402--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
