@@ -1,33 +1,33 @@
-Date: Fri, 16 Sep 2005 14:45:32 +0100
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8GGlcNs026897
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 12:47:38 -0400 (EDT)
+Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8GGiFvo025604
+	for <selinux@tycho.nsa.gov>; Fri, 16 Sep 2005 16:44:15 GMT
+Date: Fri, 16 Sep 2005 14:59:13 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-   SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-Message-ID: <20050916134532.GA9092@lkcl.net>
-References: <432799F0.7060706@cornell.edu> <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil> <432823F0.3030803@tresys.com> <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil> <43283772.7070603@tresys.com> <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil> <432842D4.3070905@tresys.com> <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil> <43284A6B.8080507@tresys.com> <43287BDC.1090004@cornell.edu>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: New ideas on implementation on libsetrans.
+Message-ID: <20050916135913.GG9092@lkcl.net>
+References: <43271BDA.3060403@redhat.com> <43272C09.3050105@trustedcs.com> <43272E92.4060400@redhat.com> <20050913212236.GA540@lkcl.net> <1126699137.12299.3.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <43287BDC.1090004@cornell.edu>
+In-Reply-To: <1126699137.12299.3.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 14, 2005 at 03:37:00PM -0400, Ivan Gyurdiev wrote:
+On Wed, Sep 14, 2005 at 07:58:57AM -0400, Stephen Smalley wrote:
+> On Tue, 2005-09-13 at 22:22 +0100, Luke Kenneth Casson Leighton wrote:
+> >  what do the data structures look like?
+> > 
+> >  tell me they're nice and simple...
 > 
-> >So, do you mean taking write_error, optionally passing in a string and 
-> >size, having it write to the string if it's present and then calling 
-> >the debug function pointer if it is present? That way we'll get the 
-> >error in the handle so that the caller can deal with it and the debug 
-> >function would also be called. Then the caller could choose to use 
-> >debug by setting the pointer and other apps that need an error in the 
-> >handle could use that?
-> >
-> >This seems reasonable to me.. Ivan?
+> All we are talking about is "here is a raw context string, please give
+> me a human-readable one" and vice versa.
 
- can i make a suggestion, namely that an old-looking api be written
- in terms of the "new" api?
-
- l.
+ pffh, lots of fuss then :)  ascii it is!
 
 
 --
