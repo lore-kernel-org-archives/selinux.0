@@ -1,39 +1,37 @@
-Date: Fri, 16 Sep 2005 14:47:38 +0100
+Date: Fri, 16 Sep 2005 14:48:59 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Steve G <linux_4ever@yahoo.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: New ideas on implementation on libsetrans.
-Message-ID: <20050916134738.GB9092@lkcl.net>
-References: <20050914172547.14693.qmail@web51506.mail.yahoo.com> <1126720911.12299.142.camel@moss-spartans.epoch.ncsc.mil>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+   SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: [ SEPOL ] Move more things to newer debug system
+Message-ID: <20050916134859.GC9092@lkcl.net>
+References: <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil> <432823F0.3030803@tresys.com> <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil> <43283772.7070603@tresys.com> <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil> <432842D4.3070905@tresys.com> <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil> <43284A6B.8080507@tresys.com> <1126715064.12299.126.camel@moss-spartans.epoch.ncsc.mil> <43285B07.2070402@cornell.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1126720911.12299.142.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <43285B07.2070402@cornell.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 14, 2005 at 02:01:51PM -0400, Stephen Smalley wrote:
-> On Wed, 2005-09-14 at 10:25 -0700, Steve G wrote:
-> > My concern which lead to consideration of the daemon approach is the performance
-> > penalty imposed by dlopen & dlsym as well as parsing the configuration each time
-> > a program starts up. dlopen is a heavy function call. Communication across a
-> > af_unix socket is likely to be faster since there are fewer syscalls.
+On Wed, Sep 14, 2005 at 01:16:55PM -0400, Ivan Gyurdiev wrote:
 > 
-> BTW, I'd want to see measurements there before jumping to that
-> assumption.  Don't forget the socket setup 
+> >BTW, I just noticed - aren't the calls to sepol_debug() by
+> >sepol_enable/disable_debug() broken?  If you just set the function
+> >pointer, you don't want to clobber it using the old interface.
+> >
+> > 
+> >
+> The old interface is supposed to go away, but until it does, the new 
+> interface must provide the same functionality, which is why it maintains 
+> printing to stdout using the old system. 
 
- there are other ways: shared memory.
+ define old interface in terms of new one - including providing a debug
+ function that writes to stdout.
 
- samba contains _stacks_ of uses of shared memory, plus if you use the
- right google search keywords it's possible to find a library with a
- unix-domain-socket-like-looking-interface that actually uses shared
- memory behind it.
+ not only will this maintain a legacy api but also it will give
+ people some example code to cut/paste into their updated app
+ that uses the new api.
 
- it's a library written by sun, iirc.
-
-> and context switch overhead.
- 
- oops :)
-
+ l.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
