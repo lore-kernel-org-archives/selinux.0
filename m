@@ -2,43 +2,40 @@ From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: disable setenforce
-Date: Sat, 17 Sep 2005 22:35:29 +1000
+Date: Sat, 17 Sep 2005 22:53:05 +1000
 Cc: fedora-selinux-list@redhat.com, SELinux List <SELinux@tycho.nsa.gov>,
    Daniel J Walsh <dwalsh@redhat.com>
-References: <1126283594.20003.17.camel@hive.ccit.arizona.edu> <200509121652.59242.russell@coker.com.au> <1126537235.2999.88.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1126537235.2999.88.camel@moss-spartans.epoch.ncsc.mil>
+References: <1126283594.20003.17.camel@hive.ccit.arizona.edu> <1126537235.2999.88.camel@moss-spartans.epoch.ncsc.mil> <200509172235.40550.russell@coker.com.au>
+In-Reply-To: <200509172235.40550.russell@coker.com.au>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_c2ALDeq7e4LQfs1"
-Message-Id: <200509172235.40550.russell@coker.com.au>
+  boundary="Boundary-00=_8GBLD4zyUcjIgg5"
+Message-Id: <200509172253.16022.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_c2ALDeq7e4LQfs1
+--Boundary-00=_8GBLD4zyUcjIgg5
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-On Tuesday 13 September 2005 01:00, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > NB  Setting secure_mode_policyload to default to 1 at boot time will
-> > work, but that means policy can only be loaded once at boot (should be
-> > able to install new policy and reboot the machine though).  Setting
-> > secure_mode_insmod at boot will probably make the boot process fail for
-> > all non-trivial machines, the initial values of booleans are set before
-> > modules for devices such as Ethernet cards.  Setting secure_mode_insmod
-> > after the boot process is completed might be a good idea if you have no
-> > plans to use USB or Cardbus/PCMCIA, there have been exploits which relied
-> > on the ability to trick the system into loading modules (EG the ptrace
-> > exploit).
+On Saturday 17 September 2005 22:35, Russell Coker <russell@coker.com.au> 
+wrote:
+> > Did you attach the wrong patch?  The one you sent doesn't define new
+> > booleans; it just wraps additional rules with the existing secure_mode
+> > boolean.
 >
-> Did you attach the wrong patch?  The one you sent doesn't define new
-> booleans; it just wraps additional rules with the existing secure_mode
-> boolean.
+> I attached the patch, re-worked it, and then forgot to attach the new
+> patch.
+>
+> The correct patch is attached to this message.
 
-I attached the patch, re-worked it, and then forgot to attach the new patch.
+I hate doing this.
 
-The correct patch is attached to this message.
+Just after I sent the previous patch I discovered a minor bug.  When building 
+a policy with ypbind.te included the nested booleans break the compile.  The 
+attached patch fixes this.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -46,7 +43,7 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_c2ALDeq7e4LQfs1
+--Boundary-00=_8GBLD4zyUcjIgg5
 Content-Type: text/x-diff;
   charset="utf-8";
   name="diff"
@@ -116,8 +113,8 @@ Content-Disposition: attachment;
  type load_policy_t, domain;
  role sysadm_r types load_policy_t;
 --- domains/program/modutil.te.orig	2005-09-12 16:41:56.000000000 +1000
-+++ domains/program/modutil.te	2005-09-12 16:46:07.000000000 +1000
-@@ -77,6 +77,11 @@
++++ domains/program/modutil.te	2005-09-17 22:45:03.000000000 +1000
+@@ -77,11 +77,16 @@
  ;
  role system_r types insmod_t;
  role sysadm_r types insmod_t;
@@ -125,10 +122,16 @@ Content-Disposition: attachment;
 +
 +bool secure_mode_insmod false;
 +
++can_ypbind(insmod_t)
 +if (!secure_mode_insmod) {
  
  ifdef(`unlimitedUtils', `
  unconfined_domain(insmod_t) 
+ ')
+-can_ypbind(insmod_t)
+ uses_shlib(insmod_t)
+ read_locale(insmod_t)
+ 
 @@ -161,7 +166,6 @@
  allow insmod_t device_t:dir read;
  allow insmod_t devpts_t:dir { getattr search };
@@ -146,7 +149,7 @@ Content-Disposition: attachment;
  ifdef(`crond.te', `
  rw_dir_create_file(system_crond_t, var_log_ksyms_t)
 
---Boundary-00=_c2ALDeq7e4LQfs1--
+--Boundary-00=_8GBLD4zyUcjIgg5--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
