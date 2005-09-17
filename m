@@ -1,279 +1,152 @@
-Message-ID: <432B2B68.5030006@redhat.com>
-Date: Fri, 16 Sep 2005 16:30:32 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg2@cornell.edu>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Doing testing with MCS looks like we get initial roles/levels
- by using fromcon.
-References: <4329DF91.2060208@redhat.com>	 <1126873821.25919.20.camel@moss-spartans.epoch.ncsc.mil>	 <432AFFE4.3010001@redhat.com>	 <1126894521.27393.81.camel@moss-spartans.epoch.ncsc.mil>	 <432B1157.8070703@redhat.com>	 <1126896683.27393.100.camel@moss-spartans.epoch.ncsc.mil>	 <432B1BAC.9000800@redhat.com> <1126899285.27393.129.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1126899285.27393.129.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------060705000505080404030004"
+Subject: Re: disable setenforce
+Date: Sat, 17 Sep 2005 22:35:29 +1000
+Cc: fedora-selinux-list@redhat.com, SELinux List <SELinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>
+References: <1126283594.20003.17.camel@hive.ccit.arizona.edu> <200509121652.59242.russell@coker.com.au> <1126537235.2999.88.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1126537235.2999.88.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_c2ALDeq7e4LQfs1"
+Message-Id: <200509172235.40550.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060705000505080404030004
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--Boundary-00=_c2ALDeq7e4LQfs1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Ok how about this patch for libselinux.
+On Tuesday 13 September 2005 01:00, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > NB  Setting secure_mode_policyload to default to 1 at boot time will
+> > work, but that means policy can only be loaded once at boot (should be
+> > able to install new policy and reboot the machine though).  Setting
+> > secure_mode_insmod at boot will probably make the boot process fail for
+> > all non-trivial machines, the initial values of booleans are set before
+> > modules for devices such as Ethernet cards.  Setting secure_mode_insmod
+> > after the boot process is completed might be a good idea if you have no
+> > plans to use USB or Cardbus/PCMCIA, there have been exploits which relied
+> > on the ability to trick the system into loading modules (EG the ptrace
+> > exploit).
+>
+> Did you attach the wrong patch?  The one you sent doesn't define new
+> booleans; it just wraps additional rules with the existing secure_mode
+> boolean.
 
-Includes STRIP_LEVEL for removing :s0* from matchpathcon if non MLS 
-system.   This is needed for upgrading machines to MCS/MLS
+I attached the patch, re-worked it, and then forgot to attach the new patch.
 
-Added selinux_getpolicytype(), even though not used yet by external 
-apps, it could be used in the future.
-
-Added  int get_ordered_context_list_with_level (const char *user,
-                                        const char *level,
-                                        security_context_t fromcon,
-                                        security_context_t **list)
+The correct patch is attached to this message.
 
 -- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-
-
---------------060705000505080404030004
-Content-Type: text/plain;
- name="diff"
+--Boundary-00=_c2ALDeq7e4LQfs1
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="diff"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
+Content-Disposition: attachment;
+	filename="diff"
 
-diff --exclude-from=exclude -N -u -r nsalibselinux/include/selinux/selinux.h libselinux-1.26/include/selinux/selinux.h
---- nsalibselinux/include/selinux/selinux.h	2005-09-01 11:17:40.000000000 -0400
-+++ libselinux-1.26/include/selinux/selinux.h	2005-09-16 14:16:26.000000000 -0400
-@@ -304,6 +304,12 @@
- extern int selinux_getenforcemode(int *enforce);
+--- macros/global_macros.te.orig	2005-09-12 16:22:12.000000000 +1000
++++ macros/global_macros.te	2005-09-12 16:23:37.000000000 +1000
+@@ -699,8 +699,10 @@
+ allow $1 domain:msg  { send receive };
  
- /*
-+  selinux_getpolicytype reads the /etc/selinux/config file and determines 
-+  whether the policy tyep for this machine, type must be freed.
-+ */
-+extern void selinux_getpolicytype(char **type);
+ # Access the security API.
++if (!secure_mode_policyload) {
+ allow $1 security_t:security *;
+ auditallow $1 security_t:security { load_policy setenforce setbool };
++}dnl end if !secure_mode_policyload
+ 
+ # Perform certain system operations that lacked individual capabilities.
+ allow $1 kernel_t:system *;
+--- macros/core_macros.te.orig	2005-09-12 16:14:59.000000000 +1000
++++ macros/core_macros.te	2005-09-12 16:33:15.000000000 +1000
+@@ -306,8 +306,10 @@
+ # Access selinuxfs.
+ allow $1 security_t:dir { read search getattr };
+ allow $1 security_t:file { getattr read write };
++if (!secure_mode_policyload) {
+ allow $1 security_t:security setenforce;
+ auditallow $1 security_t:security setenforce;
++}dnl end if !secure_mode_policyload
+ ')
+ 
+ ##################################
+@@ -326,8 +328,10 @@
+ # Access selinuxfs.
+ allow $1 security_t:dir { read search getattr };
+ allow $1 security_t:file { getattr read write };
++if (!secure_mode_policyload) {
+ allow $1 security_t:security setbool;
+ auditallow $1 security_t:security setbool;
++}dnl end if !secure_mode_policyload
+ ')
+ 
+ ##################################
+@@ -367,8 +371,10 @@
+ # Access selinuxfs.
+ allow $1 security_t:dir { read search getattr };
+ allow $1 security_t:file { getattr read write };
++if (!secure_mode_policyload) {
+ allow $1 security_t:security load_policy;
+ auditallow $1 security_t:security load_policy;
++}dnl end if !secure_mode_policyload
+ ')
+ 
+ #################################
+--- domains/program/load_policy.te.orig	2005-09-12 16:38:10.000000000 +1000
++++ domains/program/load_policy.te	2005-09-12 16:39:59.000000000 +1000
+@@ -8,6 +8,10 @@
+ # load_policy_t is the domain type for load_policy 
+ # load_policy_exec_t is the file type for the executable
+ 
++# boolean to determine whether the system permits loading policy, setting
++# enforcing mode, and changing boolean values.  Set this to true and you
++# have to reboot to set it back
++bool secure_mode_policyload false;
+ 
+ type load_policy_t, domain;
+ role sysadm_r types load_policy_t;
+--- domains/program/modutil.te.orig	2005-09-12 16:41:56.000000000 +1000
++++ domains/program/modutil.te	2005-09-12 16:46:07.000000000 +1000
+@@ -77,6 +77,11 @@
+ ;
+ role system_r types insmod_t;
+ role sysadm_r types insmod_t;
++type insmod_exec_t, file_type, exec_type, sysadmfile;
 +
-+/*
-   selinux_policy_root reads the /etc/selinux/config file and returns 
-   the directory path under which the compiled policy file and context 
-   configuration files exist.
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/get_context_list.c libselinux-1.26/src/get_context_list.c
---- nsalibselinux/src/get_context_list.c	2005-08-11 22:41:15.000000000 -0400
-+++ libselinux-1.26/src/get_context_list.c	2005-09-16 16:22:03.000000000 -0400
-@@ -288,6 +288,40 @@
- 	return strcmp(c1->con, c2->con);
- }
- 
-+int get_ordered_context_list_with_level (const char *user, 
-+					 const char *level, 
-+					 security_context_t fromcon, 
-+					 security_context_t **list)
-+{
-+    int rc;
-+    int freefrom = 0;
-+    context_t con;
++bool secure_mode_insmod false;
 +
-+    if (!level) 
-+	    return get_ordered_context_list (user, fromcon, list);
-+
-+    if (!fromcon) {
-+	rc = getcon(&fromcon);
-+	if (rc < 0)
-+		return rc;
-+	freefrom = 1;
-+    }
-+
-+    con=context_new(fromcon);
-+    if (con) {
-+	    context_range_set(con, level);
-+	    rc = get_ordered_context_list (user, context_str(con), list);
-+	    context_free(con);
-+    } 
-+    else
-+	    rc=-1;
-+
-+    if (freefrom) 
-+	    freecon(fromcon);
-+
-+    return rc;
-+}
-+
- int get_ordered_context_list (const char *user, 
- 			      security_context_t fromcon, 
- 			      security_context_t **list)
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/matchpathcon.c libselinux-1.26/src/matchpathcon.c
---- nsalibselinux/src/matchpathcon.c	2005-08-24 09:07:11.000000000 -0400
-+++ libselinux-1.26/src/matchpathcon.c	2005-09-16 15:54:01.000000000 -0400
-@@ -12,6 +12,7 @@
- #include <regex.h>
- #include <stdarg.h>
- #include "policy.h"
-+#include <selinux/context.h>
++if (!secure_mode_insmod) {
  
- static void 
- #ifdef __GNUC__
-@@ -25,6 +26,19 @@
- 	va_end(ap);
- }
+ ifdef(`unlimitedUtils', `
+ unconfined_domain(insmod_t) 
+@@ -161,7 +166,6 @@
+ allow insmod_t device_t:dir read;
+ allow insmod_t devpts_t:dir { getattr search };
  
-+#define STRIP_LEVEL(CON)      \
-+		if (! mls_enabled) { \
-+			security_context_t newcon;	\
-+			context_t con=context_new(CON); \
-+			if (con) {			\
-+			context_range_set(con,NULL);	\
-+			newcon=strdup(context_str(con));\
-+			context_free(con);		\
-+			freecon(CON);			\
-+			CON=newcon;			\
-+			}				\
-+		}
-+
- static void (*myprintf)(const char *fmt, ...) = &default_printf;
+-type insmod_exec_t, file_type, exec_type, sysadmfile;
+ domain_auto_trans(privmodule, insmod_exec_t, insmod_t)
+ can_exec(insmod_t, { insmod_exec_t shell_exec_t bin_t sbin_t etc_t })
+ allow insmod_t devtty_t:chr_file rw_file_perms;
+@@ -177,6 +181,7 @@
  
- void set_matchpathcon_printf(void (*f)(const char *fmt, ...))
-@@ -415,7 +429,7 @@
- 	}
- 	return;
- }
--static int process_line( const char *path, char *line_buf, int pass, unsigned lineno) {
-+static int process_line( const char *path, char *line_buf, int pass, unsigned lineno, int mls_enabled) {
- 	int items, len, regerr;
- 	char *buf_p;
- 	char *regex, *type, *context;
-@@ -438,6 +452,7 @@
- 	} else if (items == 2) {
- 		/* The type field is optional. */
- 		free(context);
-+		STRIP_LEVEL(type)
- 		context = type;
- 		type = 0;
- 	}
-@@ -510,7 +525,7 @@
- 		}
- 		
- 	skip_type:
--		
-+		STRIP_LEVEL(context)
- 		spec_arr[nspec].context = context;
- 		
- 		if (strcmp(context, "<<none>>")) {
-@@ -557,6 +572,7 @@
- 	unsigned int lineno, pass, i, j, maxnspec;
- 	spec_t *spec_copy=NULL;
- 	int status=-1;
-+	int mls_enabled=is_selinux_mls_enabled();
+ # for nscd
+ dontaudit insmod_t var_run_t:dir search;
++}dnl end if !secure_mode_insmod
  
- 	/* Open the specification file. */
- 	if (!path)
-@@ -590,20 +606,20 @@
- 		lineno = 0;
- 		nspec = 0;
- 		while (getline(&line_buf, &line_len, fp) > 0 && nspec < maxnspec) {
--			if (process_line(path, line_buf, pass, ++lineno) != 0)
-+			if (process_line(path, line_buf, pass, ++lineno, mls_enabled) != 0)
- 				goto finish;
- 		}
- 		lineno = 0;
- 		if (homedirfp) 
- 			while (getline(&line_buf, &line_len, homedirfp) > 0 && nspec < maxnspec) {
--				if (process_line(homedir_path, line_buf, pass, ++lineno) != 0)
-+				if (process_line(homedir_path, line_buf, pass, ++lineno, mls_enabled) != 0)
- 					goto finish;
- 			}
- 
- 		lineno = 0;
- 		if (localfp) 
- 			while (getline(&line_buf, &line_len, localfp) > 0 && nspec < maxnspec) {
--				if (process_line(local_path, line_buf, pass, ++lineno) != 0)
-+				if (process_line(local_path, line_buf, pass, ++lineno, mls_enabled) != 0)
- 					goto finish;
- 			}
- 
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinux_config.c libselinux-1.26/src/selinux_config.c
---- nsalibselinux/src/selinux_config.c	2005-03-17 14:56:21.000000000 -0500
-+++ libselinux-1.26/src/selinux_config.c	2005-09-16 14:16:26.000000000 -0400
-@@ -85,6 +85,29 @@
- 
- static int use_compat_file_path;
- 
-+void selinux_getpolicytype(char **rtype) {
-+	char *type=SELINUXDEFAULT;
-+	char buf[4097];
-+	int i=0;
-+	int len=sizeof(SELINUXTYPETAG)-1;
-+	FILE *cfg = fopen(SELINUXCONFIG,"r");
-+	if (cfg) {
-+		while (fgets_unlocked(buf, 4096, cfg)) {
-+			if (strncmp(buf,SELINUXTYPETAG,len)==0) {
-+				type=buf+len;
-+				break;
-+			}
-+		}
-+		fclose(cfg);
-+	}
-+	i=strlen(type)-1;
-+	while ((i>=0) && 
-+	       (isspace(type[i]) || iscntrl(type[i]))) {
-+		type[i]=0;
-+		i--;
-+	}
-+	*rtype=strdup(type);
-+}
- int selinux_getenforcemode(int *enforce) {
-   int ret=-1;
-   FILE *cfg = fopen(SELINUXCONFIG,"r");
-@@ -122,38 +145,24 @@
- 
- static void init_selinux_policyroot(void)
- {
--  char *type=SELINUXDEFAULT;
--  int i=0, len=sizeof(SELINUXTYPETAG)-1, len2;
--  char buf[4097];
--  FILE *cfg;
-+  char *type=NULL;
-+  int i=0, len, len2;
-   if (selinux_policyroot) return;
-   if (access(SELINUXDIR, F_OK) != 0) {
- 	  selinux_policyroot = SECURITYDIR;
- 	  use_compat_file_path = 1;
- 	  return;
-   }
--  cfg = fopen(SELINUXCONFIG,"r");
--  if (cfg) {
--    while (fgets_unlocked(buf, 4096, cfg)) {
--      if (strncmp(buf,SELINUXTYPETAG,len)==0) {
--	type=buf+len;
--	break;
--      }
--    }
--    fclose(cfg);
--  }
--  i=strlen(type)-1;
--  while ((i>=0) && 
--	 (isspace(type[i]) || iscntrl(type[i]))) {
--    type[i]=0;
--    i--;
--  }
-+  selinux_getpolicytype(&type);
-+  if (!type) return;
-   len=sizeof(SELINUXDIR) + strlen(type);
-   selinux_policyroot=malloc(len);
--  if (!selinux_policyroot)
-+  if (!selinux_policyroot) {
-+	  free(type);
- 	  return;
-+  }
-   snprintf(selinux_policyroot,len, "%s%s", SELINUXDIR, type);
--  
-+  free(type);
-   for (i = 0; i < NEL; i++) {
- 	  len2 = len + strlen(file_path_suffixes_data.str
- 			      + file_path_suffixes_idx[i])+1;
+ ifdef(`crond.te', `
+ rw_dir_create_file(system_crond_t, var_log_ksyms_t)
 
---------------060705000505080404030004--
+--Boundary-00=_c2ALDeq7e4LQfs1--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
