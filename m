@@ -1,88 +1,81 @@
-Message-ID: <432CE470.1020400@cornell.edu>
-Date: Sat, 17 Sep 2005 23:52:16 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>	 <43264DAD.5090903@cornell.edu>	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>	 <4327521D.5020605@cornell.edu>	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>	 <432799F0.7060706@cornell.edu>	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>	 <432823F0.3030803@tresys.com>	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>	 <43283772.7070603@tresys.com>	 <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>	 <432842D4.3070905@tresys.com> <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil> <432CDC23.4010907@cornell.edu>
-In-Reply-To: <432CDC23.4010907@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8I9pnNs009776
+	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 05:51:49 -0400 (EDT)
+Received: from crisium.vnl.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8I9m31I027548
+	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 09:48:03 GMT
+Date: Sun, 18 Sep 2005 10:47:59 +0100
+From: Dale Amon <amon@vnl.com>
+To: Jiann-Ming Su <sujiannming@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: State of Debian SELinux
+Message-ID: <20050918094759.GB25649@vnl.com>
+References: <20050917233111.GA17916@vnl.com> <561dc326050917171050554c9a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
+In-Reply-To: <561dc326050917171050554c9a@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
 
->
->> I was thinking that unifying them would be ideal, and the callbacks can
->> decide how they want to filter the results.  Just requires that the
->> callbacks be provided with a level indicator in addition to the other
->> arguments that indicates whether it is debug info only or error info.
->> Not unlike syslog(3) or printk(9).
->>  
->>
-> Which messages would be marked at what levels?
-> Example?
+--O5XBE6gyVG5Rl6Rj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sat, Sep 17, 2005 at 08:10:58PM -0400, Jiann-Ming Su wrote:
+> On 9/17/05, Dale Amon <amon@vnl.com> wrote:
+> > So far Debian SELinux is looking pretty grim, and I'd
+> > like feedback on whether there really is a straight
+> > forward path to install it. By that I mean one with
+> > out a lot of kludges and pain as in the long
+> > (and already obsolete) description of the Debian
+> > install in McCarty's O'Reilly book.
+> >=20
+>=20
+> In case you haven't seen these:
+>=20
+> https://sourceforge.net/docman/display_doc.php?docid=3D20372&group_id=3D2=
+1266
+> https://sourceforge.net/docman/display_doc.php?docid=3D21959&group_id=3D2=
+1266
 
-Never mind, you already answered that question.
+I'd forgotten about Faye's excellent writing. But
+it unfortuneately describes (somewhat) the process
+I went through, which was=20
 
-> Offhand, I don't know of an actual debugging user of DEBUG() yet,
-> although it seems that the if (state->verbose) printf statements in the
-> Tresys code would qualify as potential debugging users.  There are also
-> "informational" cases, like the printfs in policydb_index_others.
-> syslog(3) does have distinct notions of debug, info, warning, error,
-> critical, alert, and emergency as its priority values.
+	* install base debian
+	* add Russ's repository to sources.list
+	* update
 
-I'm not sure we need both a filtering mechanism, and two systems - one 
-for debugging and one for error reporting.  That looks like redundancy 
-to me. I think we need to choose one debug system, add a filtering 
-mechanism to it, and convert everything to use it. The filtering 
-mechanism would then determine what's done with the different types of 
-messages (which are not too clear at the moment).
+I shouldn't think any of the debian package mods
+would come into play at this point as it is prior
+to fs labeling that things are bombing out.
 
-There's the issue of global vs per-function-state. I think the second 
-one wins here, and we'll just have to adjust the shared APIs. We could 
-create something similar to the semanage handle, which encompasses a 
-policydb, as well as error handling. I think libsepol should be the 
-library that manages the policydb object.
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
-There's the issue of multiple errors - I think any error system needs to 
-support multiple error messages.
+--O5XBE6gyVG5Rl6Rj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Then there's the issue of buffer vs callback. I think callback wins 
-here. Provided function-local state, there's no reason not to have a 
-callback. If you want buffering services, you can arrange for that in 
-the callback. We should add a void* argument to the callback, and keep 
-that in the state object, passing it at every invocation.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-The function name.... is irrelevant if we go with the callback system - 
-callback can drop the name. I think it's useful, and it should stay.
+iD8DBQFDLTfPZHES7UL0zXERArkKAJ9szdeu9ylWri1aV/JusPZ7Cm7uwACdF/Yw
+j7Doil1dlWP77vAiIN/OWRs=
+=T7+s
+-----END PGP SIGNATURE-----
 
-Callback should look something like this, maybe ?
-We can write macros to reduce arguments...
-
-int (*DEBUG_v2) (
-    void* arg,               /* Caller supplied argument */
-    int level,                 /* WARN, ERROR, DEBUG ...kind of like MLS 
-level - notion of rank */
-    int channel,            /* Wine has this...not sure we need it... 
-similar to MLS category - area of debugging */
-    const char* fname,  /* Function name */
-    const char* fmt,      /* Format string */
-    ...)                         /* Format arguments */
-   
-   
-
-
-
-
-
-
-
-
-
+--O5XBE6gyVG5Rl6Rj--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
