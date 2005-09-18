@@ -1,37 +1,166 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8IHSuNs011646
-	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 13:28:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8IHPPNs011609
+	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 13:25:25 -0400 (EDT)
 Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8IHP61I001173
-	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 17:25:07 GMT
-Message-ID: <432DA4A1.5090409@cornell.edu>
-Date: Sun, 18 Sep 2005 13:32:17 -0400
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8IHLZ1I000748
+	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 17:21:35 GMT
+Message-ID: <432DA3D5.3000304@cornell.edu>
+Date: Sun, 18 Sep 2005 13:28:53 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 CC: dwalsh@redhat.com
-Subject: Re: [ SEPOL/SEMANAGE ] Interface record
-References: <432DA3D5.3000304@cornell.edu>
-In-Reply-To: <432DA3D5.3000304@cornell.edu>
+Subject: [ SEPOL/SEMANAGE ] Interface record
 Content-Type: multipart/mixed;
- boundary="------------010400010503050208000102"
+ boundary="------------040908000309080504080704"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010400010503050208000102
+--------------040908000309080504080704
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The sepol patch is damaged - reattached.
+The attached patches add the interface record to libsepol and libsemanage,
+which replaces the current sepol_iface_t structure. They also fix a minor
+namespace issue, and add include guards to sepol/interfaces.h.
 
---------------010400010503050208000102
+
+--------------040908000309080504080704
+Content-Type: text/x-patch;
+ name="libsemanage.iface.record.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.iface.record.diff"
+
+diff -Naur libsemanage.new/include/semanage/iface_record.h libsemanage/include/semanage/iface_record.h
+--- libsemanage.new/include/semanage/iface_record.h	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage/include/semanage/iface_record.h	2005-09-18 13:25:40.000000000 -0400
+@@ -0,0 +1,83 @@
++#ifndef _SEMANAGE_IFACE_RECORD_H_
++#define _SEMANAGE_IFACE_RECORD_H_ 
++
++#include <semanage/context_record.h>
++
++/* Implentation via sepol */
++#include <sepol/iface_record.h>
++typedef sepol_iface_t semanage_iface_t;
++typedef sepol_iface_key_t semanage_iface_key_t;
++
++/* Key */
++static inline
++int semanage_iface_compare(semanage_iface_t iface, semanage_iface_key_t key) {
++	return sepol_iface_compare(iface, key);
++}
++
++static inline
++int semanage_iface_key_create(
++	const char* name,
++	semanage_iface_key_t* key_ptr) {
++	return sepol_iface_key_create(name, key_ptr);
++}
++
++static inline
++int semanage_iface_key_extract(
++	semanage_iface_t iface,
++	semanage_iface_key_t* key_ptr) {
++	return sepol_iface_key_extract(iface, key_ptr);
++}
++
++static inline
++void semanage_iface_key_free(semanage_iface_key_t key) {
++	sepol_iface_key_free(key);
++}
++
++/* Name */
++static inline
++const char* semanage_iface_get_name(semanage_iface_t iface) {
++        return sepol_iface_get_name(iface);
++}
++
++static inline
++int semanage_iface_set_name(semanage_user_t iface, const char* name) {
++        return sepol_iface_set_name(iface, name);
++}
++	
++/* Context */
++static inline
++semanage_context_t semanage_iface_get_ifcon(semanage_iface_t iface) {
++	return sepol_iface_get_ifcon(iface);
++}
++
++static inline
++int semanage_iface_set_ifcon(semanage_iface_t iface, semanage_context_t con) {
++	return sepol_iface_set_ifcon(iface, con);
++}
++
++static inline
++semanage_context_t semanage_iface_get_msgcon(semanage_iface_t iface) {
++	return sepol_iface_get_msgcon(iface);	
++}
++
++static inline
++int semanage_iface_set_msgcon(semanage_iface_t iface, semanage_context_t con) {
++	return sepol_iface_set_msgcon(iface, con);
++}
++
++/* Create/Clone/Destroy */
++static inline
++int semanage_iface_create(semanage_iface_t* iface_ptr) {
++	return sepol_iface_create(iface_ptr);
++}
++
++static inline
++int semanage_iface_clone(semanage_iface_t iface, semanage_iface_t* iface_ptr) {
++	return sepol_iface_clone(iface, iface_ptr);
++}
++
++static inline
++void semanage_iface_free(semanage_iface_t iface) {
++	sepol_iface_free(iface);
++}
++#endif
+
+--------------040908000309080504080704
 Content-Type: text/x-patch;
  name="libsepol.iface.record.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
  filename="libsepol.iface.record.diff"
 
+diff -Naur libsepol.new/ChangeLog libsepol/ChangeLog
+--- libsepol.new/ChangeLog	2005-09-14 14:57:30.000000000 -0400
++++ libsepol/ChangeLog	2005-09-17 23:02:56.000000000 -0400
+@@ -1,3 +1,7 @@
++1.9.3 2005-09-14
++	* Merged fix for sepol_enable/disable_debug from Ivan
++	Gyurdiev.
++
+ 1.9.2 2005-09-14
+ 	* Merged stddef.h patch and debug conversion patch from 
+ 	Ivan Gyurdiev.
+diff -Naur libsepol.new/CVS/Entries libsepol/CVS/Entries
+--- libsepol.new/CVS/Entries	2005-09-14 14:57:30.000000000 -0400
++++ libsepol/CVS/Entries	2005-09-17 23:02:56.000000000 -0400
+@@ -1,8 +1,8 @@
+ /COPYING/1.2/Fri May 20 15:43:20 2005//
+ /Makefile/1.3/Wed Feb  9 22:04:52 2005/-ko/
+-D/include////
+ D/man////
+-D/src////
+ D/utils////
+-/ChangeLog/1.58/Wed Sep 14 18:57:30 2005//
+-/VERSION/1.56/Wed Sep 14 18:57:30 2005/-ko/
++D/include////
++D/src////
++/ChangeLog/1.59/Sun Sep 18 03:02:56 2005//
++/VERSION/1.57/Sun Sep 18 03:02:56 2005/-ko/
+diff -Naur libsepol.new/CVS/Entries.Log libsepol/CVS/Entries.Log
+--- libsepol.new/CVS/Entries.Log	2005-09-14 14:58:05.000000000 -0400
++++ libsepol/CVS/Entries.Log	1969-12-31 19:00:00.000000000 -0500
+@@ -1,2 +0,0 @@
+-A D/include////
+-A D/src////
 diff -Naur libsepol.new/include/sepol/iface_record.h libsepol/include/sepol/iface_record.h
 --- libsepol.new/include/sepol/iface_record.h	1969-12-31 19:00:00.000000000 -0500
 +++ libsepol/include/sepol/iface_record.h	2005-09-18 13:15:33.000000000 -0400
@@ -122,6 +251,32 @@ diff -Naur libsepol.new/include/sepol/interfaces.h libsepol/include/sepol/interf
 +	sepol_iface_t data);
 +
 +#endif
+diff -Naur libsepol.new/src/CVS/Entries libsepol/src/CVS/Entries
+--- libsepol.new/src/CVS/Entries	2005-09-14 14:58:07.000000000 -0400
++++ libsepol/src/CVS/Entries	2005-09-17 23:02:56.000000000 -0400
+@@ -8,7 +8,6 @@
+ /constraint.c/1.4/Wed Aug 10 17:39:31 2005//
+ /context.c/1.3/Tue Aug  2 13:17:09 2005//
+ /context_record.c/1.2/Thu Aug 18 20:42:25 2005//
+-/debug.c/1.2/Wed Sep 14 15:44:44 2005//
+ /debug.h/1.1/Mon Jul 18 14:28:43 2005//
+ /ebitmap.c/1.4/Wed Jul  6 17:45:07 2005/-ko/
+ /expand.c/1.10/Fri Sep  9 15:42:25 2005//
+@@ -21,7 +20,6 @@
+ /link.c/1.5/Wed Aug 31 16:31:31 2005//
+ /mls.c/1.9/Thu Aug 11 16:57:51 2005//
+ /module.c/1.1/Tue Aug  2 19:41:19 2005//
+-/policydb.c/1.24/Wed Sep 14 15:44:44 2005/-ko/
+ /policydb_convert.c/1.2/Tue Jul 26 18:43:30 2005//
+ /port_record.c/1.1/Tue Aug  2 13:17:09 2005//
+ /ports.c/1.2/Tue Aug  2 13:17:09 2005//
+@@ -33,4 +31,6 @@
+ /users.c/1.4/Thu Aug 11 16:57:51 2005//
+ /util.c/1.5/Wed Aug 31 20:19:30 2005//
+ /write.c/1.14/Fri Aug 12 19:05:25 2005/-ko/
++/debug.c/1.3/Sun Sep 18 03:02:56 2005//
++/policydb.c/1.25/Sun Sep 18 03:02:56 2005/-ko/
+ D
 diff -Naur libsepol.new/src/iface_record.c libsepol/src/iface_record.c
 --- libsepol.new/src/iface_record.c	1969-12-31 19:00:00.000000000 -0500
 +++ libsepol/src/iface_record.c	2005-09-18 13:14:45.000000000 -0400
@@ -395,8 +550,25 @@ diff -Naur libsepol.new/src/interfaces.c libsepol/src/interfaces.c
  	free(iface);
  	return STATUS_ERR;
  }
+diff -Naur libsepol.new/src/policydb.c libsepol/src/policydb.c
+--- libsepol.new/src/policydb.c	2005-09-14 11:44:44.000000000 -0400
++++ libsepol/src/policydb.c	2005-09-17 23:02:56.000000000 -0400
+@@ -51,6 +51,7 @@
+ #include <sepol/avrule_block.h>
+ 
+ #include "private.h"
++#include "debug.h"
+ 
+ /* These need to be updated if SYM_NUM or OCON_NUM changes */
+ static struct policydb_compat_info policydb_compat[] = {
+diff -Naur libsepol.new/VERSION libsepol/VERSION
+--- libsepol.new/VERSION	2005-09-14 14:57:30.000000000 -0400
++++ libsepol/VERSION	2005-09-17 23:02:56.000000000 -0400
+@@ -1 +1 @@
+-1.9.2
++1.9.3
 
---------------010400010503050208000102--
+--------------040908000309080504080704--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
