@@ -1,77 +1,236 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8I0J5Ns007736
-	for <selinux@tycho.nsa.gov>; Sat, 17 Sep 2005 20:19:05 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8I0FRXP012330
-	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 00:15:28 GMT
-Date: Sun, 18 Sep 2005 01:15:12 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Dale Amon <amon@vnl.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: State of Debian SELinux
-Message-ID: <20050918001512.GR9092@lkcl.net>
-References: <20050917233111.GA17916@vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050917233111.GA17916@vnl.com>
+Message-ID: <432CC1A1.2090503@cornell.edu>
+Date: Sat, 17 Sep 2005 21:23:45 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: dwalsh@redhat.com
+Subject: [ SEMANAGE ] Stub iterate
+Content-Type: multipart/mixed;
+ boundary="------------080901010709050708080504"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-dale, hi,
+This is a multi-part message in MIME format.
+--------------080901010709050708080504
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-i did manage to set up debian/selinux - back when 2.6.6 -> 2.6.9 was in
-"unstable".
+The attached patch adds the file iterator config structure, and stubs 
+iterate().
+I actually have a lot of code written, but I can't merge any of it 
+before figuring out
+what to do with respect to debugging.
 
-it was painful, took about four to five months, and it worked.
+Anyway, in the mean time I can stub things out, and describe design.
 
-the reason why it took so long was because i set an extremely high entry
-requirement: a _useful_ kde system.  i.e. not one where you have to run
-some stupid command in order to get your usb devices back, undamaged.
-that meant using hal, which meant using udev, which meant using shmfs
-which meant a kernel patch to provide xattrs.
+The dbase_* functions will each fill out the iterator structure,
+and invoke iterate(). On a different backend, those functions
+wouldn't iterate, but would perform O(1) operations. The add()
+function doesn't actually need to iterate - I have an alternative
+implementation which seeks to the end of file, but it is not atomic.
+I haven't decided which to use - given the sandbox, the non-atomic
+implementation might be preferable.
 
-most of the stuff i did or highlighted is slowly filtering its way in,
-mostly post-sarge-release as that held everything up and i mean
-everything (libselinux was "optional" package and you cannot have
-coreutils - a required package depends on an "optional" package.
-therefore the maintainer of coreutils refused to even look at selinux
-patches until post-sarge.).
+The flat file engine will work by iterating over "records".
+Those records are each described by the record table merged last week.
+In particular, the table describes how to input (parse) and output (print)
+such records. That's how we keep the engine generic by polymorphism.
 
-you will NOT get sarge to work [as-is].
+The iterator will parse each record using the provided function.
+It will then pass this record to a processing handler function, which can do
+whatever it wants with it, and can send back signals to communicate with
+the engine. Do not confuse this processing function with the one
+supplied in dbase_iterate - the engine handler has specialized format
+and return codes, and I'll be providing those.
+ 
+If config->modify is set to true, a second file is opened, and
+each record is printed to it as the original file is parsed. On SIGDEL,
+the record is skipped. On SIGADD, the engine reads a feedback record
+from the processing handler, and writes that out.  On SIGEXIT or SIGERR
+processing is terminated with the appropriate status code (it has to be 
+explicit,
+otherwise it keeps calling the handler with NULL argument). On SIGOK,
+processing continues. If config->merr_fatal is on, and SIGMATCH
+was never received by the engine, an error is reported.
 
-you WILL need libselinux1 for a start and because of the freeze
-some 18 months ago libselinux1 did NOT make it into sarge.
 
-manoj is the best person to speak to as he has defacto taken over
-coordination of the patches etc. required.
 
-you _will_ need the patched version of dpkg - the one that
-sets selinux file contexts on files as it unpacks them - just
-like rpm does.
+--------------080901010709050708080504
+Content-Type: text/x-patch;
+ name="libsemanage.iterate.stub.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.iterate.stub.diff"
 
-you _will_ need to add /.dev to the list of files on which selinux
-contexts are set, because if /.dev ever gets damaged (on the "original"
-filesystem before udev is mounted and the "original" /dev moved to
-/.dev) you WILL not be able to boot because /sbin/init relies on
-/dev/stuff BEFORE udev runs.
+diff -Nrua libsemanage/src/database_file.c libsemanage.new/src/database_file.c
+--- libsemanage/src/database_file.c	2005-09-14 11:44:44.000000000 -0400
++++ libsemanage.new/src/database_file.c	2005-09-17 21:00:24.000000000 -0400
+@@ -41,8 +41,10 @@
+ 	record_key_t key,
+ 	record_t data) {
+ 
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
++
+ 	/* Stub */
+-	dconfig = NULL;
+ 	key = NULL;
+ 	data = NULL;
+ 	return -1;
+@@ -53,8 +55,10 @@
+ 	record_key_t key,
+ 	record_t data) {
+ 
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
++
+ 	/* Stub */
+-	dconfig = NULL;
+ 	key = NULL;
+ 	data = NULL;
+ 	return -1;
+@@ -63,9 +67,11 @@
+ int dbase_del(
+ 	dbase_config_t* dconfig,
+ 	record_key_t key) {
++
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
+ 	
+ 	/* Stub */
+-	dconfig = NULL;
+ 	key = NULL;
+ 	return -1;
+ }
+@@ -74,9 +80,11 @@
+ 	dbase_config_t* dconfig,
+ 	record_key_t key,
+ 	record_t* response) {
++
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
+ 	
+ 	/* Stub */
+-	dconfig = NULL;
+ 	key = NULL;
+ 	response = NULL;
+ 	return -1;
+@@ -86,9 +94,11 @@
+ 	dbase_config_t* dconfig,
+ 	record_key_t key,
+ 	int* response) {
++
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
+ 	
+ 	/* Stub */
+-	dconfig = NULL;
+ 	key = NULL;
+ 	response = NULL;
+ 	return -1;
+@@ -98,8 +108,10 @@
+ 	dbase_config_t* dconfig,
+ 	int* response) {
+ 	
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
++
+ 	/* Stub */
+-	dconfig = NULL;
+ 	response = NULL;
+ 	return -1;
+ }
+@@ -111,8 +123,10 @@
+ 	                void* varg),
+ 	void* handler_arg) {
+ 
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
++
+ 	/* Stub */
+-	dconfig = NULL;
+ 	handler = NULL;
+ 	handler_arg = NULL;
+ 	return -1;
+@@ -124,9 +138,10 @@
+ 	record_t** dataset,	
+ 	size_t* count) {
+ 
+-	
++	iterate_config_t config;
++	config.rtable = dconfig->rtable;
++
+ 	/* Stub */
+-	dconfig = NULL;
+ 	keyset = NULL;
+ 	dataset = NULL;
+ 	count = NULL;
+diff -Nrua libsemanage/src/record_file.c libsemanage.new/src/record_file.c
+--- libsemanage/src/record_file.c	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/src/record_file.c	2005-09-17 20:50:42.000000000 -0400
+@@ -0,0 +1,8 @@
++#include "record_file.h"
++
++int record_iterate_file(iterate_config_t* config) {
++
++	/* Stub */
++	config = NULL;
++	return 0;
++}
+diff -Nrua libsemanage/src/record_file.h libsemanage.new/src/record_file.h
+--- libsemanage/src/record_file.h	2005-09-14 11:44:44.000000000 -0400
++++ libsemanage.new/src/record_file.h	2005-09-17 20:50:46.000000000 -0400
+@@ -9,6 +9,14 @@
+ #define RECORD_DEFINED
+ #endif
+ 
++/* Signals available to handlers during processing. */
++#define RECORD_HANDLER_SIGOK    0x00000001 /* Continue */
++#define RECORD_HANDLER_SIGERR   0x00000002 /* Exit with error */
++#define RECORD_HANDLER_SIGMATCH 0x00000004 /* Match is found */
++#define RECORD_HANDLER_SIGDEL   0x00000008 /* Delete current record */
++#define RECORD_HANDLER_SIGADD   0x00000010 /* Add feedback record */
++#define RECORD_HANDLER_SIGEXIT  0x00000020 /* Exit successfully */
++
+ /* Structure available during parsing (created internally) */
+ typedef struct parse_info {
+ 	/* Stub */	
+@@ -44,4 +52,33 @@
+ 	void (*free) (record_t rec);
+ } record_table_t;
+ 
++/* Structure to configure iterate */
++typedef struct iterate_config {
++
++	/* What and How? */
++	const char* filename;            /* Filename to process */
++	record_table_t* rtable;		 /* Table that describes how to do that */
++
++	/* Parsing stage */
++	void* parse_arg;                 /* Argument to pass to parser */
++	int perr_fatal;                  /* Is parse error fatal ? */
++
++	/* Processing stage */
++	int (*handler) (                  /* Processing handler */
++		record_t process_record,      /* Current record, or NULL */
++		record_t* feedback_record,    /* Record for SIGADD */
++		void* arg);                   /* Caller supplied argument */
++	void* handler_arg;                /* Argument to pass to handler */
++	int modify;                       /* Will the handler issue 
++					   * modification signals */
++	/* Post-processing */
++	int merr_fatal;                   /* Is lack of SIGMATCH fatal? */
++} iterate_config_t;
++
++/*
++ * Iterate over all records in the given file,
++ * subject to the provided parse and processing config.
++ */
++extern int record_iterate_file(iterate_config_t* config);
++
+ #endif 
 
-basically to solve this one (properly) udev needs to be
-integrated into debian's initrd (just like it is in redhat's
-kernels) - or you simply need to run with a kernel that doesn't
-use an initrd (just like you do with gentoo) which means not use
-the standard debian kernels because of the risk of non-boot on file
-system corruption, mkfs.ext2 removing xattrs on /dev/*.
-
-sorry that's a bit long-winded and probably difficult to
-understand but i'm trying to pack stuff in quickly as i remember it -
-from several months ago - without time for review of what i've written.
-
-l.
-
-On Sun, Sep 18, 2005 at 12:31:11AM +0100, Dale Amon wrote:
-> I've set aside the next week to come back to SELinux
-> and evaluate if it's reached the point where I could
-> recommmend it for customer sites.
+--------------080901010709050708080504--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
