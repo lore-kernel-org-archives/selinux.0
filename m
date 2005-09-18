@@ -1,57 +1,70 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8I9pnNs009776
-	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 05:51:49 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8IA1lNs009826
+	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 06:01:47 -0400 (EDT)
 Received: from crisium.vnl.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8I9m31I027548
-	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 09:48:03 GMT
-Date: Sun, 18 Sep 2005 10:47:59 +0100
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8I9w01I028038
+	for <selinux@tycho.nsa.gov>; Sun, 18 Sep 2005 09:58:01 GMT
+Date: Sun, 18 Sep 2005 10:58:07 +0100
 From: Dale Amon <amon@vnl.com>
-To: Jiann-Ming Su <sujiannming@gmail.com>
-Cc: selinux@tycho.nsa.gov
+To: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
 Subject: Re: State of Debian SELinux
-Message-ID: <20050918094759.GB25649@vnl.com>
-References: <20050917233111.GA17916@vnl.com> <561dc326050917171050554c9a@mail.gmail.com>
+Message-ID: <20050918095806.GC25649@vnl.com>
+References: <20050917233111.GA17916@vnl.com> <20050918001512.GR9092@lkcl.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
-In-Reply-To: <561dc326050917171050554c9a@mail.gmail.com>
+	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
+In-Reply-To: <20050918001512.GR9092@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---O5XBE6gyVG5Rl6Rj
+--m51xatjYGsM+13rf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Sep 17, 2005 at 08:10:58PM -0400, Jiann-Ming Su wrote:
-> On 9/17/05, Dale Amon <amon@vnl.com> wrote:
-> > So far Debian SELinux is looking pretty grim, and I'd
-> > like feedback on whether there really is a straight
-> > forward path to install it. By that I mean one with
-> > out a lot of kludges and pain as in the long
-> > (and already obsolete) description of the Debian
-> > install in McCarty's O'Reilly book.
-> >=20
->=20
-> In case you haven't seen these:
->=20
-> https://sourceforge.net/docman/display_doc.php?docid=3D20372&group_id=3D2=
-1266
-> https://sourceforge.net/docman/display_doc.php?docid=3D21959&group_id=3D2=
-1266
+On Sun, Sep 18, 2005 at 01:15:12AM +0100, Luke Kenneth Casson Leighton wrot=
+e:
+> dale, hi,
 
-I'd forgotten about Faye's excellent writing. But
-it unfortuneately describes (somewhat) the process
-I went through, which was=20
+And hello yourself. I've been a bit scarce on this list lately.
+Business has been good for a change... so no playtime. :-)
+=20
+> i did manage to set up debian/selinux - back when 2.6.6 -> 2.6.9 was in
+> "unstable".
+> it was painful, took about four to five months, and it worked.
 
-	* install base debian
-	* add Russ's repository to sources.list
-	* update
+Ouch. Well, I'm only interested in getting it up on rack mount
+server class machines with no fancy workstation apps on them.=20
+Nothing but LAMP's.
+=20
+> you will NOT get sarge to work [as-is].
 
-I shouldn't think any of the debian package mods
-would come into play at this point as it is prior
-to fs labeling that things are bombing out.
+But can you start from the sarge iso and upgrade? Or should I look
+at whatever they have as the latest and most bleeding edge "don't
+look at me crosseyed or I'll fall over" sid iso?
+=20
+> you WILL need libselinux1 for a start and because of the freeze
+> some 18 months ago libselinux1 did NOT make it into sarge.
+
+I'm picking that up from Russel's repository during the upgrade
+and it does install okay.
+=20
+> you _will_ need the patched version of dpkg - the one that
+> sets selinux file contexts on files as it unpacks them - just
+> like rpm does.
+
+Yeah, but that shouldn't matter yet: the problems are in the
+initial upgrade to SELinux packages so the file system isn't
+labeled yet and the kernel is still the base debian one.=20
+=20
+> sorry that's a bit long-winded and probably difficult to
+> understand but i'm trying to pack stuff in quickly as i remember it -
+> from several months ago - without time for review of what i've written.
+
+Oh, that's fine. Many of the items you note will
+be time savers. Once I get the initial selinux package
+install to work that is...
 
 --=20
 ------------------------------------------------------
@@ -62,7 +75,7 @@ to fs labeling that things are bombing out.
 	      "Have Laptop, Will Travel"
 ------------------------------------------------------
 
---O5XBE6gyVG5Rl6Rj
+--m51xatjYGsM+13rf
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -70,12 +83,12 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFDLTfPZHES7UL0zXERArkKAJ9szdeu9ylWri1aV/JusPZ7Cm7uwACdF/Yw
-j7Doil1dlWP77vAiIN/OWRs=
-=T7+s
+iD8DBQFDLTouZHES7UL0zXERAv3xAJsGdeM6gwGJuCbqQPKgdvASorMneQCfYEQE
+MhBgGxC4xqOsHaGDR8EMsbI=
+=CFoA
 -----END PGP SIGNATURE-----
 
---O5XBE6gyVG5Rl6Rj--
+--m51xatjYGsM+13rf--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
