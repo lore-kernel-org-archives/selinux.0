@@ -1,22 +1,24 @@
-Subject: Re: [ SEPOL/SEMANAGE ] Interface record
+Subject: Re: [ SEMANAGE ] Stub iterate
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <432DA3D5.3000304@cornell.edu>
-References: <432DA3D5.3000304@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, dwalsh@redhat.com
+In-Reply-To: <432CC1A1.2090503@cornell.edu>
+References: <432CC1A1.2090503@cornell.edu>
 Content-Type: text/plain
-Date: Mon, 19 Sep 2005 15:52:11 -0400
-Message-Id: <1127159531.29404.159.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 19 Sep 2005 15:51:23 -0400
+Message-Id: <1127159483.29404.157.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-09-18 at 13:28 -0400, Ivan Gyurdiev wrote:
-> The attached patches add the interface record to libsepol and libsemanage,
-> which replaces the current sepol_iface_t structure. They also fix a minor
-> namespace issue, and add include guards to sepol/interfaces.h.
+On Sat, 2005-09-17 at 21:23 -0400, Ivan Gyurdiev wrote:
+> The attached patch adds the file iterator config structure, and stubs 
+> iterate().
+> I actually have a lot of code written, but I can't merge any of it 
+> before figuring out
+> what to do with respect to debugging.
 
-Thanks, merged (with the corrected patch).
+Thanks, merged.  
 
 -- 
 Stephen Smalley
