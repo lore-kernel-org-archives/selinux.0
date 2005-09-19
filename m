@@ -1,65 +1,191 @@
-Subject: Re: [ SEPOL ] Move more things to newer debug system
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <432EF286.7030101@cornell.edu>
-References: <43256F48.7060909@cornell.edu> <43258D48.80702@cornell.edu>
-	 <43264DAD.5090903@cornell.edu>
-	 <1126641568.29303.241.camel@moss-spartans.epoch.ncsc.mil>
-	 <4327521D.5020605@cornell.edu>
-	 <1126652637.30915.18.camel@twoface.columbia.tresys.com>
-	 <432799F0.7060706@cornell.edu>
-	 <1126702811.12299.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <432823F0.3030803@tresys.com>
-	 <1126705868.12299.71.camel@moss-spartans.epoch.ncsc.mil>
-	 <43283772.7070603@tresys.com>
-	 <1126710276.12299.85.camel@moss-spartans.epoch.ncsc.mil>
-	 <432842D4.3070905@tresys.com>
-	 <1126712325.12299.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <432CDC23.4010907@cornell.edu>  <432CE470.1020400@cornell.edu>
-	 <1127134177.29404.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <432EC5BD.2090203@cornell.edu>
-	 <1127141128.29404.73.camel@moss-spartans.epoch.ncsc.mil>
-	 <432EE64C.60408@cornell.edu>
-	 <1127148559.29404.140.camel@moss-spartans.epoch.ncsc.mil>
-	 <432EF286.7030101@cornell.edu>
-Content-Type: text/plain
-Date: Mon, 19 Sep 2005 14:26:49 -0400
-Message-Id: <1127154409.29404.148.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8JJwxNs021864
+	for <selinux@tycho.nsa.gov>; Mon, 19 Sep 2005 15:58:59 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8JJsxh5013835
+	for <selinux@tycho.nsa.gov>; Mon, 19 Sep 2005 19:54:59 GMT
+Message-ID: <432F1834.8080809@redhat.com>
+Date: Mon, 19 Sep 2005 15:57:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: misc policy patches
+References: <200509192101.04722.russell@coker.com.au>
+In-Reply-To: <200509192101.04722.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-09-19 at 13:16 -0400, Ivan Gyurdiev wrote:
-> Well, perhaps I should make an effort to generate errors in a different 
-> pattern, so the end result is more user friendly (possibly pass down 
-> more information to the leaf, so it can generate a single error report).
+Russell Coker wrote:
 
-I think your later idea is better (passing up just error code from the
-low level primitives, constructing the single error report in the higher
-level).
- 
-> Yes, you would still need the state object at the leaf node. 
-> Alternatively you could make use of more informative error codes in the 
-> leaf node, and print errors higher up. You need the state object at the 
-> point where the error is printed.
+>The attached patch has a bunch of small changes that are fairly obvious (and 
+>the less obvious ones have comments).
+>  
+>
+What is this for?
++allow mount_t named_conf_t:dir mounton;
 
-Yes, this approach seems preferable.  Then the call chain info can
-become just debug-level info, and omitted from error reports to users /
-clients.
 
-> I think if we should wrap policydb into this so-called "state object" 
-> for the added benefit of eliminating the global policydb.
+>  
+>
+>------------------------------------------------------------------------
+>
+>diff -ru /tmp/t/domains/program/fsadm.te ./domains/program/fsadm.te
+>--- /tmp/t/domains/program/fsadm.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/fsadm.te	2005-08-29 14:44:56.000000000 +1000
+>@@ -118,3 +118,6 @@
+> allow fsadm_t usbfs_t:dir { getattr search };
+> allow fsadm_t ramfs_t:fifo_file rw_file_perms;
+> allow fsadm_t device_type:chr_file getattr;
+>+
+>+# for tune2fs
+>+allow fsadm_t file_type:dir { getattr search };
+>diff -ru /tmp/t/domains/program/load_policy.te ./domains/program/load_policy.te
+>--- /tmp/t/domains/program/load_policy.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/load_policy.te	2005-09-18 09:17:32.000000000 +1000
+>@@ -45,6 +49,9 @@
+> allow load_policy_t root_t:dir search;
+> allow load_policy_t etc_t:dir search;
+> 
+>+# for mcs.conf
+>+allow load_policy_t etc_t:file { getattr read };
+>+
+> # Other access
+> can_access_pty(load_policy_t, initrc)
+> allow load_policy_t { admin_tty_type devtty_t }:chr_file { read write ioctl getattr };
+>diff -ru /tmp/t/domains/program/mount.te ./domains/program/mount.te
+>--- /tmp/t/domains/program/mount.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/mount.te	2005-09-18 09:03:58.000000000 +1000
+>@@ -23,7 +23,7 @@
+> allow mount_t init_t:fd use;
+> allow mount_t privfd:fd use;
+> 
+>-allow mount_t self:capability { ipc_lock dac_override };
+>+allow mount_t self:capability { dac_override ipc_lock sys_tty_config };
+> allow mount_t self:process { fork signal_perms };
+> 
+> allow mount_t file_type:dir search;
+>diff -ru /tmp/t/domains/program/named.te ./domains/program/named.te
+>--- /tmp/t/domains/program/named.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/named.te	2005-08-08 13:54:06.000000000 +1000
+>@@ -113,13 +113,19 @@
+> read_locale(ndc_t)
+> can_tcp_connect(ndc_t, named_t)
+> 
+>-# for /etc/rndc.key
+> ifdef(`distro_redhat', `
+>+# for /etc/rndc.key
+> allow { ndc_t initrc_t } named_conf_t:dir search;
+> # Allow init script to cp localtime to named_conf_t
+> allow initrc_t named_conf_t:file { setattr write };
+> allow initrc_t named_conf_t:dir create_dir_perms;
+>-')
+>+allow initrc_t var_run_t:lnk_file create_file_perms;
+>+ifdef(`automount.te', `
+>+# automount has no need to search the /proc file system for the named chroot
+>+dontaudit automount_t named_zone_t:dir search;
+>+')dnl end ifdef automount.te
+>+')dnl end ifdef distro_redhat
+>+
+> allow { ndc_t initrc_t } named_conf_t:file { getattr read };
+> 
+> allow ndc_t etc_t:dir r_dir_perms;
+>@@ -161,3 +167,5 @@
+> ')
+> allow ndc_t self:netlink_route_socket r_netlink_socket_perms;
+> dontaudit ndc_t sysadm_tty_device_t:chr_file { ioctl };
+>+
+>+allow mount_t named_conf_t:dir mounton;
+>diff -ru /tmp/t/domains/program/ntpd.te ./domains/program/ntpd.te
+>--- /tmp/t/domains/program/ntpd.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/ntpd.te	2005-09-18 09:05:14.000000000 +1000
+>@@ -26,9 +26,10 @@
+> # for SSP
+> allow ntpd_t urandom_device_t:chr_file { getattr read };
+> 
+>-allow ntpd_t self:capability { chown dac_override kill setgid setuid sys_time net_bind_service ipc_lock sys_chroot };
+>+# sys_resource and setrlimit is for locking memory
+>+allow ntpd_t self:capability { chown dac_override kill setgid setuid sys_time net_bind_service ipc_lock sys_chroot sys_resource };
+> dontaudit ntpd_t self:capability { net_admin };
+>-allow ntpd_t self:process { setcap setsched };
+>+allow ntpd_t self:process { setcap setsched setrlimit };
+> # ntpdate wants sys_nice
+> dontaudit ntpd_t self:capability { fsetid sys_nice };
+> 
+>diff -ru /tmp/t/domains/program/rlogind.te ./domains/program/rlogind.te
+>--- /tmp/t/domains/program/rlogind.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/rlogind.te	2005-07-19 16:50:09.000000000 +1000
+>@@ -35,4 +35,6 @@
+> allow rlogind_t default_t:dir search;
+> typealias rlogind_port_t alias rlogin_port_t;
+> read_sysctl(rlogind_t);
+>-allow rlogind_t krb5_keytab_t:file r_file_perms;
+>+ifdef(`kerberos.te', `
+>+allow rlogind_t krb5_keytab_t:file { getattr read };
+>+')
+>diff -ru /tmp/t/domains/program/useradd.te ./domains/program/useradd.te
+>--- /tmp/t/domains/program/useradd.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/useradd.te	2005-09-18 20:51:38.000000000 +1000
+>@@ -55,7 +55,6 @@
+> # useradd/userdel request read/write for /var/log/lastlog, and read of /dev, 
+> # but will operate without them.
+> dontaudit $1_t { device_t var_t var_log_t }:dir search;
+>-allow useradd_t lastlog_t:file { read write };
+> 
+> # For userdel and groupadd
+> allow $1_t fs_t:filesystem getattr;
+>@@ -68,8 +67,11 @@
+> # for when /root is the cwd
+> dontaudit $1_t sysadm_home_dir_t:dir search;
+> nsswitch_domain($1_t)
+>+
+>+allow $1_t self:netlink_audit_socket { create_socket_perms nlmsg_relay };
+> ')
+> user_group_add_program(useradd)
+>+allow useradd_t lastlog_t:file { getattr read write };
+> 
+> # for getting the number of groups
+> read_sysctl(useradd_t)
+>diff -ru /tmp/t/domains/program/utempter.te ./domains/program/utempter.te
+>--- /tmp/t/domains/program/utempter.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./domains/program/utempter.te	2005-07-20 17:25:24.000000000 +1000
+>@@ -19,6 +19,8 @@
+> type utempter_exec_t, file_type, sysadmfile, exec_type;
+> domain_auto_trans(userdomain, utempter_exec_t, utempter_t)
+> 
+>+allow utempter_t urandom_device_t:chr_file { getattr read };
+>+
+> # Use capabilities.
+> allow utempter_t self:capability setgid;
+> 
+>diff -ru /tmp/t/file_contexts/program/backup.fc ./file_contexts/program/backup.fc
+>--- /tmp/t/file_contexts/program/backup.fc	2005-09-19 14:54:58.000000000 +1000
+>+++ ./file_contexts/program/backup.fc	2005-09-18 08:05:57.000000000 +1000
+>@@ -3,4 +3,4 @@
+> # calls tar) in backup_exec_t and label the directory for storing them as
+> # backup_store_t, Debian uses /var/backups
+> #/usr/local/bin/backup-script -- system_u:object_r:backup_exec_t
+>-/var/backups(/.*)?		system_u:object_r:backup_store_t
+>+/var/backups(/.*)?		system_u:object_r:backup_store_t:s0
+>diff -ru /tmp/t/macros/program/newrole_macros.te ./macros/program/newrole_macros.te
+>--- /tmp/t/macros/program/newrole_macros.te	2005-09-19 14:54:58.000000000 +1000
+>+++ ./macros/program/newrole_macros.te	2005-04-16 14:35:04.000000000 +1000
+>@@ -20,6 +20,8 @@
+> read_locale($1_t)
+> read_sysctl($1_t)
+> 
+>+allow $1_t self:netlink_audit_socket { create bind write nlmsg_read read };
+>+
+> # for when the user types "exec newrole" at the command line
+> allow $1_t privfd:process sigchld;
+> 
+>  
+>
 
-As long as you can separately create the policydb, populate it, and
-associate it with these state objects, so that the program can still use
-a single shared policydb if desired, this is fine.  Userspace security
-server shouldn't have a per-thread policydb any more than the kernel
-security server does.
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
