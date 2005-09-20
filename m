@@ -1,5 +1,5 @@
-Message-ID: <43307A1D.3070806@cornell.edu>
-Date: Tue, 20 Sep 2005 17:07:41 -0400
+Message-ID: <43308255.6080007@cornell.edu>
+Date: Tue, 20 Sep 2005 17:42:45 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: Karl MacMillan <kmacmillan@tresys.com>
@@ -13,40 +13,39 @@ Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
->I agree that the duplication is strange, but I think that we should move all
->of these into libsemanage - I'm looking through them now and I don't see
->much reason for them to be in libsepol. This will only manage the files that
->store the users, right? Is the only goal a shared parser for the files? Same
->thing for ports.
->  
->
-No - the semanage functionality is to extract data from a backend or 
-write data to a backend, and to relay the corresponding objects to sepol 
-to load (loading it itself breaks the encapsulation that I've been 
-trying to create for sepol). The sepol functionality will be to actually 
-load the data. Currently we're discussing the same data, hence the 
-shared data structures, without modification. However, I'm not sure 
-whether this will stay like that in the future - maybe we'll decide to 
-store extra data in semanage that doesn't get passed down to the sepol 
-layer. That's why I'm hesitant to use sepol data structures in semanage 
-function headers.
-
->The inlined functions definitely don't make sense - the goals as I see them
->are:
->
->1) API/ABI stability
 >2) The ability to move between straight modules and the policy server.
 >
 >The inlined functions don't meet this goal and moving things to libsepol
 >will make 2 impossible.
 >  
 >
-Can you clarify that point - I'm not sure I understand the problem. 
-Perhaps it's an issue with inlined
-functions that I'm not understanding - they're currently inlined for 
-speed only, and that can easily be changed.
-The point is to share the data structures with sepol, so the code 
-doesn't have to be written twice.
+I don't understand what's preventing you from reimplementing those 
+functions at any point in time, as long as the data structures are 
+opaque (which they are). Yes, the functions are inlined, and the callers 
+may decide that they'll always be equivalent to the sepol ones, but I 
+think at that point the caller is not using the interface properly, and 
+we shouldn't care.
+
+Since there is no policy server right now, and there is a policydb, 
+where the same data structures are already implemented, serving pretty 
+much the same purpose (encapsulation), it seems easy to just make use of 
+those functions. It also seems like you'll need to link to libsepol for 
+a long time, to handle the policydb case even after the policy server is 
+created.
+
+Regardless, I don't care anymore - if you guys want to duplicate all the 
+records into semanage, then that's fine with me - I can write a patch 
+for it, if that is your decision. I think Steven's arguing for the exact 
+opposite of that (unless I misunderstood) - use of sepol records 
+directly. I just want some data structure that I can use in my record 
+engine, regardless of where it came from - all I need for it is to fill 
+out the record_table found in record_file.h.
+
+Other issues: will you be merging the handle stuff soon? I need the 
+handle to implement any kind of error reporting in my code (because 
+otherwise I'd just be changing interfaces later). I think I'll likely 
+submit a patch with the record engine stuff, and comment out all the 
+DEBUG calls to be fixed later.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
