@@ -1,42 +1,39 @@
+Message-ID: <43306E1D.2070508@cornell.edu>
+Date: Tue, 20 Sep 2005 16:16:29 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, jbrindle@tresys.com
 Subject: Re: [ SEPOL/SEMANAGE ] Boolean record
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4330648F.7040609@cornell.edu>
-References: <432FBD08.2050903@cornell.edu>
-	 <1127243186.14569.135.camel@moss-spartans.epoch.ncsc.mil>
-	 <4330648F.7040609@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 20 Sep 2005 15:56:18 -0400
-Message-Id: <1127246178.14569.143.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <432FBD08.2050903@cornell.edu>	 <1127243186.14569.135.camel@moss-spartans.epoch.ncsc.mil>	 <4330648F.7040609@cornell.edu> <1127246178.14569.143.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1127246178.14569.143.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-20 at 15:35 -0400, Ivan Gyurdiev wrote:
-> >How useful is it to wrap these libsepol interfaces with libsemanage?
-> >  
-> >
-> What do you mean?
-> 
-> The alternative is to either:
-> - implement the same interfaces in both places (which is worse), or
-> - have semanage functions take sepol data stuctures as arguments (which 
-> is bad design practice).
 
-- keep the shared libsepol, and have applications use its interfaces
-directly.
+>- keep the shared libsepol, and have applications use its interfaces
+>directly.
+>
+To clarify, are you saying that we should have?
 
-> I don't think the current scheme is too bad - esp. because the wrap 
-> functions are inlined.
+semanage_user_add(semanage_handle_t handle, sepol_user_key_t key, 
+sepol_user_t data)
+semanage_user_del(semanage_handle_t handle, sepol_user_key_t key)
+semanage_user_modify(semanage_handle_t handle, sepol_user_t key, 
+sepol_user_t data)
 
-That's what makes it seem so pointless.  If the wrap functions weren't
-inlined and actually added some semantics around the libsepol
-implementation, then they might make sense.
+The sepol and semanage functionality is different - it's just the data 
+structure that's shared.
 
--- 
-Stephen Smalley
-National Security Agency
+>That's what makes it seem so pointless.  If the wrap functions weren't
+>inlined and actually added some semantics around the libsepol
+>implementation, then they might make sense
+>  
+>
+I don't know - it's just a design thing to allow future change - Joshua?
+I'm not sure if the wrap functions add value, but at least they don't 
+cause any harm.
 
 
 --
