@@ -1,31 +1,47 @@
-Subject: Re: State of Debian SELinux
+Subject: Re: [ SEPOL/SEMANAGE ] Boolean record
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dale Amon <amon@vnl.com>
-Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
-   Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-In-Reply-To: <20050920181039.GL16888@vnl.com>
-References: <20050917233111.GA17916@vnl.com>
-	 <1127132870.29404.14.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050920181039.GL16888@vnl.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com
+In-Reply-To: <43306E1D.2070508@cornell.edu>
+References: <432FBD08.2050903@cornell.edu>
+	 <1127243186.14569.135.camel@moss-spartans.epoch.ncsc.mil>
+	 <4330648F.7040609@cornell.edu>
+	 <1127246178.14569.143.camel@moss-spartans.epoch.ncsc.mil>
+	 <43306E1D.2070508@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 20 Sep 2005 16:14:40 -0400
-Message-Id: <1127247281.14569.150.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 20 Sep 2005 16:22:41 -0400
+Message-Id: <1127247761.14569.159.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-20 at 19:10 +0100, Dale Amon wrote:
-> Setting up selinux-policy-default (1.18-1) ...
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> libsepol.expand_avtab_insert: Type conflict!
-> Out of memory - unable to check assertions
-> Check assertions failed.
-> make: *** [/etc/selinux/policy/policy.20] Error 255
-<snip>
-> Suggestions?
+On Tue, 2005-09-20 at 16:16 -0400, Ivan Gyurdiev wrote:
+> >- keep the shared libsepol, and have applications use its interfaces
+> >directly.
+> >
+> To clarify, are you saying that we should have?
+> 
+> semanage_user_add(semanage_handle_t handle, sepol_user_key_t key, 
+> sepol_user_t data)
+> semanage_user_del(semanage_handle_t handle, sepol_user_key_t key)
+> semanage_user_modify(semanage_handle_t handle, sepol_user_t key, 
+> sepol_user_t data)
+> 
+> The sepol and semanage functionality is different - it's just the data 
+> structure that's shared.
 
-Yes, send me (privately) a copy of the policy.conf file.
-  
+If the data structures and interfaces are truly identical, then I see no
+value in relaying them in this manner from libsepol to libsemanage.  I
+understand wrapping them if we are going to add further state to the
+equivalent libsemanage data structures and provide further processing in
+the equivalent libsemanage interfaces, but not otherwise.  Especially as
+the types are just pointers to opaque structures anyway and always
+manipulated via get/set methods.
+
+> I don't know - it's just a design thing to allow future change - Joshua?
+> I'm not sure if the wrap functions add value, but at least they don't 
+> cause any harm.
+
 -- 
 Stephen Smalley
 National Security Agency
