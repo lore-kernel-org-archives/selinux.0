@@ -1,29 +1,29 @@
+Message-ID: <4330648F.7040609@cornell.edu>
+Date: Tue, 20 Sep 2005 15:35:43 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
 Subject: Re: [ SEPOL/SEMANAGE ] Boolean record
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <432FBD08.2050903@cornell.edu>
-References: <432FBD08.2050903@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 20 Sep 2005 15:06:26 -0400
-Message-Id: <1127243186.14569.135.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <432FBD08.2050903@cornell.edu> <1127243186.14569.135.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1127243186.14569.135.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-20 at 03:40 -0400, Ivan Gyurdiev wrote:
-> The attached patches replace the boolinfo structure with a record.
-> They also fix improper use of DEBUG, which would cause corrupt error 
-> messages.
 
-Hi,
+>How useful is it to wrap these libsepol interfaces with libsemanage?
+>  
+>
+What do you mean?
 
-How useful is it to wrap these libsepol interfaces with libsemanage?
+The alternative is to either:
+- implement the same interfaces in both places (which is worse), or
+- have semanage functions take sepol data stuctures as arguments (which 
+is bad design practice).
 
--- 
-Stephen Smalley
-National Security Agency
-
+I don't think the current scheme is too bad - esp. because the wrap 
+functions are inlined.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
