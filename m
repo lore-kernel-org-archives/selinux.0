@@ -1,411 +1,221 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8K8uXNs026814
-	for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2005 04:56:33 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8K9IwNs027001
+	for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2005 05:18:59 -0400 (EDT)
 Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8K8qXZQ006304
-	for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2005 08:52:33 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8K9EwZQ007663
+	for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2005 09:14:58 GMT
 Received: from [192.168.2.105] (cpe-24-59-125-231.twcny.res.rr.com [24.59.125.231])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j8K8qXxU009885
-	for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2005 04:52:33 -0400 (EDT)
-Message-ID: <432FCF8F.8070909@cornell.edu>
-Date: Tue, 20 Sep 2005 04:59:59 -0400
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j8K9EvxU017413
+	for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2005 05:14:57 -0400 (EDT)
+Message-ID: <432FD4D1.5000604@cornell.edu>
+Date: Tue, 20 Sep 2005 05:22:25 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: [ SEMANAGE ] Stub record handlers
+Subject: Re: [ SEMANAGE ] Fix record handlers, add status codes
+References: <432FCF8F.8070909@cornell.edu>
+In-Reply-To: <432FCF8F.8070909@cornell.edu>
 Content-Type: multipart/mixed;
- boundary="------------010401060107080505080204"
+ boundary="------------080003020503060201050300"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010401060107080505080204
+--------------080003020503060201050300
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The attached patch stubs out most of the record handlers, and has the 
-dbase_* routines fill out parts of the config structure.
+The attached patch applies on top of the previous one, and fixes
+several bugs. It also adds a header with status codes which I need...
+the debug system should go into this header IMHO, once we decide
+what the debug system should be.
 
---------------010401060107080505080204
+
+
+--------------080003020503060201050300
 Content-Type: text/x-patch;
- name="libsemanage.record_handlers.stub.diff"
+ name="libsemanage.fixup.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.record_handlers.stub.diff"
+ filename="libsemanage.fixup.diff"
 
 diff -Naur libsemanage.new/src/database_file.c libsemanage/src/database_file.c
---- libsemanage.new/src/database_file.c	2005-09-20 02:55:29.000000000 -0400
-+++ libsemanage/src/database_file.c	2005-09-20 04:51:20.000000000 -0400
-@@ -2,6 +2,7 @@
+--- libsemanage.new/src/database_file.c	2005-09-20 05:11:44.000000000 -0400
++++ libsemanage/src/database_file.c	2005-09-20 05:18:12.000000000 -0400
+@@ -1,5 +1,6 @@
+ #include <stdlib.h>
  #include <stddef.h>
++#include "debug.h"
  #include "database.h"
  #include "record_file.h"
-+#include "record_file_handlers.h"
- #include "users_file.h"
- #include "ports_file.h"
+ #include "record_file_handlers.h"
+@@ -23,12 +24,12 @@
+ 	dbase[DBASE_USERS]->rtable = &RTABLE_USER;
+ 	dbase[DBASE_PORTS]->rtable = &RTABLE_PORT; 	
  
-@@ -42,11 +43,23 @@
- 	record_t data) {
- 
- 	iterate_config_t config;
-+	record_add_arg_t handler_arg;
-+
-+	handler_arg.rtable = dconfig->rtable;
-+	handler_arg.key = key;
-+	handler_arg.data = data;
-+	/* handler_arg.derr_fatal =  */
-+
- 	config.rtable = dconfig->rtable;
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 1;
-+	config.handler = record_add;
-+	config.handler_arg = &handler_arg;
-+	/* config.merr_fatal = */
- 
- 	/* Stub */
--	key = NULL;
--	data = NULL;
- 	return -1;
- }
- 
-@@ -56,11 +69,23 @@
- 	record_t data) {
- 
- 	iterate_config_t config;
-+	record_modify_arg_t handler_arg;
-+
-+	handler_arg.rtable = dconfig->rtable;
-+	handler_arg.key = key;
-+	handler_arg.data = data;
-+	/* handler_arg.merr_fatal = */
-+	
- 	config.rtable = dconfig->rtable;
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 1;
-+	config.handler = record_modify;
-+	config.handler_arg = &handler_arg;
-+	/* config.merr_fatal = */
- 
- 	/* Stub */
--	key = NULL;
--	data = NULL;
- 	return -1;
- }
- 
-@@ -69,10 +94,21 @@
- 	record_key_t key) {
- 
- 	iterate_config_t config;
-+	record_del_arg_t handler_arg;
-+
-+	handler_arg.rtable = dconfig->rtable;
-+	handler_arg.key = key;
-+
- 	config.rtable = dconfig->rtable;
--	
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 1;
-+	config.handler = record_add;
-+	config.handler_arg = &handler_arg;
-+	/* config.merr_fatal = */
-+
- 	/* Stub */
--	key = NULL;
- 	return -1;
- }
- 
-@@ -82,11 +118,22 @@
- 	record_t* response) {
- 
- 	iterate_config_t config;
-+	record_query_arg_t handler_arg;
-+
-+	handler_arg.rtable = dconfig->rtable;
-+	handler_arg.key = key;
-+	handler_arg.response = response;
-+
- 	config.rtable = dconfig->rtable;
--	
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 0;
-+	config.handler = record_add;
-+	config.handler_arg = &handler_arg;
-+	/* config.merr_fatal = */	
-+
- 	/* Stub */
--	key = NULL;
--	response = NULL;
- 	return -1;
- }
- 
-@@ -96,11 +143,22 @@
- 	int* response) {
- 
- 	iterate_config_t config;
-+	record_exists_arg_t handler_arg;
-+
-+	handler_arg.rtable = dconfig->rtable;
-+	handler_arg.key = key;
-+	handler_arg.response = response;
-+
- 	config.rtable = dconfig->rtable;
--	
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 0;
-+	config.handler = record_exists;
-+	config.handler_arg = &handler_arg;
-+	/* config.merr_fatal = */	
-+
- 	/* Stub */
--	key = NULL;
--	response = NULL;
- 	return -1;
- }
- 
-@@ -109,26 +167,48 @@
- 	int* response) {
+-	return 0;
++	return STATUS_SUCCESS;
  	
- 	iterate_config_t config;
-+	record_count_arg_t handler_arg;
-+
-+	handler_arg.rtable = dconfig->rtable;
-+	handler_arg.response = response;
-+
- 	config.rtable = dconfig->rtable;
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 0;
-+	config.handler = record_count;
-+	config.handler_arg = &handler_arg;
-+	/* config.merr_fatal = */
+ 	err:
+ 	for (i--; i >= 0; i--) 
+ 		free(dbase[i]);
+-	return -1;
++	return STATUS_ERR;
+ }	
+ 
+ void dbase_close() {
+@@ -60,7 +61,7 @@
+ 	/* config.merr_fatal = */
  
  	/* Stub */
--	response = NULL;
- 	return -1;
+-	return -1;
++	return STATUS_SUCCESS;
+ }
+ 
+ int dbase_modify(
+@@ -86,7 +87,7 @@
+ 	/* config.merr_fatal = */
+ 
+ 	/* Stub */
+-	return -1;
++	return STATUS_SUCCESS;
+ }
+ 
+ int dbase_del(
+@@ -104,12 +105,12 @@
+ 	/* config.parse_arg = */
+ 	/* config.perr_fatal = */
+ 	config.modify = 1;
+-	config.handler = record_add;
++	config.handler = record_del;
+ 	config.handler_arg = &handler_arg;
+ 	/* config.merr_fatal = */
+ 
+ 	/* Stub */
+-	return -1;
++	return STATUS_SUCCESS;
+ }
+ 
+ int dbase_query(
+@@ -129,12 +130,12 @@
+ 	/* config.parse_arg = */
+ 	/* config.perr_fatal = */
+ 	config.modify = 0;
+-	config.handler = record_add;
++	config.handler = record_query;
+ 	config.handler_arg = &handler_arg;
+ 	/* config.merr_fatal = */	
+ 
+ 	/* Stub */
+-	return -1;
++	return STATUS_SUCCESS;
+ }
+ 
+ int dbase_exists(
+@@ -159,7 +160,7 @@
+ 	/* config.merr_fatal = */	
+ 
+ 	/* Stub */
+-	return -1;
++	return STATUS_SUCCESS;
+ }
+ 
+ int dbase_count(
+@@ -182,7 +183,7 @@
+ 	/* config.merr_fatal = */
+ 
+ 	/* Stub */
+-	return -1;
++	return STATUS_SUCCESS;
  }
  
  int dbase_iterate(
- 	dbase_config_t* dconfig,
--	int (*handler) (record_key_t key,
--	                record_t record,
--	                void* varg),
--	void* handler_arg) {
--
--	iterate_config_t config;
--	config.rtable = dconfig->rtable;
-+	int (*fn) (record_key_t key,
-+	           record_t record,
-+	           void* varg),
-+	void* fn_arg) {
-+
-+	iterate_config_t config;
-+	record_iterate_arg_t handler_arg;
-+
-+	handler_arg.rtable = dconfig->rtable;
-+	handler_arg.fn = fn;
-+	handler_arg.fn_arg = fn_arg;
-+
-+	config.rtable = dconfig->rtable;
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 0;
-+	config.handler = record_iterate;
-+	config.handler_arg = &handler_arg;
-+	/* config.merr_fatal = */
+@@ -209,7 +210,7 @@
+ 	/* config.merr_fatal = */
  
  	/* Stub */
--	handler = NULL;
--	handler_arg = NULL;
- 	return -1;
+-	return -1;
++	return STATUS_SUCCESS;
  }
  
-@@ -140,6 +220,13 @@
+ int dbase_list(
+@@ -232,5 +233,5 @@
+ 	keyset = NULL;
+ 	dataset = NULL;
+ 	count = NULL;
+-	return -1;
++	return STATUS_SUCCESS;
+ }
+diff -Naur libsemanage.new/src/debug.h libsemanage/src/debug.h
+--- libsemanage.new/src/debug.h	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage/src/debug.h	2005-09-20 05:08:22.000000000 -0400
+@@ -0,0 +1,10 @@
++#ifndef _SEPOL_INTERNAL_DEBUG_H_
++#define _SEPOL_INTERNAL_DEBUG_H_
++
++#define STATUS_SUCCESS 0
++#define STATUS_ERR -1
++#define STATUS_NODATA 1
++
++/* Define debug system in this header */
++
++#endif 
+diff -Naur libsemanage.new/src/record_file.c libsemanage/src/record_file.c
+--- libsemanage.new/src/record_file.c	2005-09-19 15:31:28.000000000 -0400
++++ libsemanage/src/record_file.c	2005-09-20 05:14:24.000000000 -0400
+@@ -1,8 +1,9 @@
++#include "debug.h"
+ #include "record_file.h"
  
- 	iterate_config_t config;
- 	config.rtable = dconfig->rtable;
-+	/* config.filename = */
-+	/* config.parse_arg = */
-+	/* config.perr_fatal = */
-+	config.modify = 0;
-+	/* config.handler = */
-+	/* config.handler_arg = */
-+	/* config.merr_fatal = */
+ int record_iterate_file(iterate_config_t* config) {
  
  	/* Stub */
- 	keyset = NULL;
-diff -Naur libsemanage.new/src/database.h libsemanage/src/database.h
---- libsemanage.new/src/database.h	2005-09-14 11:44:44.000000000 -0400
-+++ libsemanage/src/database.h	2005-09-20 04:49:25.000000000 -0400
-@@ -47,10 +47,10 @@
- 
- extern int dbase_iterate(
- 	dbase_config_t* dconfig,
--	int (*handler) (record_key_t key,
--	                record_t record,
--	                void* varg),
--	void* handler_arg);
-+	int (*fn) (record_key_t key,
-+	           record_t record,
-+	           void* varg),
-+	void* fn_arg);
- 
- extern int dbase_list(
- 	dbase_config_t* dconfig,
+ 	config = NULL;
+-	return 0;
++	return STATUS_SUCCESS;
+ }
 diff -Naur libsemanage.new/src/record_file_handlers.c libsemanage/src/record_file_handlers.c
---- libsemanage.new/src/record_file_handlers.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage/src/record_file_handlers.c	2005-09-20 04:54:00.000000000 -0400
-@@ -0,0 +1,71 @@
-+#include "record_file.h"
-+#include "record_file_handlers.h"
-+
-+#ifndef RECORD_DEFINED
-+typedef void* record_t;
-+typedef void* record_key_t;
-+#define RECORD_DEFINED
-+#endif
-+
-+int record_query(record_t process_rec, record_t unused, void* varg) {
-+
-+	/* Stub */
-+	process_rec = NULL;
-+	unused = NULL;
-+	varg = NULL;
-+	return RECORD_HANDLER_SIGEXIT;
-+}
-+
-+int record_exists(record_t process_rec, record_t unused, void* varg) {
-+
-+	/* Stub */
-+	process_rec = NULL;
-+	unused = NULL;
-+	varg = NULL;
-+	return RECORD_HANDLER_SIGEXIT;
-+}
-+
-+int record_add(record_t process_rec, record_t* new_rec, void* varg) {
-+	
-+	/* Stub */
-+	process_rec = NULL;
-+	new_rec = NULL;
-+	varg = NULL;
-+	return RECORD_HANDLER_SIGEXIT;
-+}
-+
-+int record_modify (record_t process_rec, record_t* new_rec, void* varg) {
-+
-+	/* Stub */
-+	process_rec = NULL;
-+	new_rec = NULL;
-+	varg = NULL;
-+	return RECORD_HANDLER_SIGEXIT;
-+}
-+
-+int record_del(record_t process_rec, record_t* unused, void* varg) {
-+
-+	/* Stub */
-+	process_rec = NULL;
-+	unused = NULL;
-+	varg = NULL;
-+	return RECORD_HANDLER_SIGEXIT;
-+}
-+
-+int record_count(record_t process_rec, record_t* unused, void* varg) {
-+
-+	/* Stub */
-+	process_rec = NULL;
-+	unused = NULL;
-+	varg = NULL;
-+	return RECORD_HANDLER_SIGEXIT;
-+}
-+
-+int record_iterate(record_t process_rec, record_t* unused, void* varg) {
-+
-+	/* Stub */
-+	process_rec = NULL;
-+	unused = NULL;
-+	varg = NULL;
-+	return RECORD_HANDLER_SIGEXIT;
-+}
+--- libsemanage.new/src/record_file_handlers.c	2005-09-20 05:11:44.000000000 -0400
++++ libsemanage/src/record_file_handlers.c	2005-09-20 05:18:40.000000000 -0400
+@@ -1,3 +1,4 @@
++#include "debug.h"
+ #include "record_file.h"
+ #include "record_file_handlers.h"
+ 
+@@ -7,7 +8,7 @@
+ #define RECORD_DEFINED
+ #endif
+ 
+-int record_query(record_t process_rec, record_t unused, void* varg) {
++int record_query(record_t process_rec, record_t* unused, void* varg) {
+ 
+ 	/* Stub */
+ 	process_rec = NULL;
+@@ -16,7 +17,7 @@
+ 	return RECORD_HANDLER_SIGEXIT;
+ }
+ 
+-int record_exists(record_t process_rec, record_t unused, void* varg) {
++int record_exists(record_t process_rec, record_t* unused, void* varg) {
+ 
+ 	/* Stub */
+ 	process_rec = NULL;
 diff -Naur libsemanage.new/src/record_file_handlers.h libsemanage/src/record_file_handlers.h
---- libsemanage.new/src/record_file_handlers.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage/src/record_file_handlers.h	2005-09-20 04:53:26.000000000 -0400
-@@ -0,0 +1,62 @@
-+#ifndef _SEMANAGE_RECORD_FILE_HANDLERS_H_
-+#define _SEMANAGE_RECORD_FILE_HANDLERS_H_
-+
-+#include "record_file.h"
-+
-+#ifndef RECORD_DEFINED
-+typedef void* record_t;
-+typedef void* record_key_t;
-+#define RECORD_DEFINED
-+#endif
-+
-+typedef struct record_query_arg {
-+	record_table_t* rtable;
-+	record_key_t key;
-+	record_t* response;
-+} record_query_arg_t;
-+
-+typedef struct record_del_arg {
-+	record_table_t* rtable;
-+	record_key_t key;
-+} record_del_arg_t;
-+
-+typedef struct record_exists_arg {
-+	record_table_t* rtable;
-+	record_key_t key;
-+	int* response;
-+} record_exists_arg_t;
-+
-+typedef struct record_add_arg {
-+	record_table_t* rtable;
-+	record_key_t key;
-+	record_t data;
-+	int derr_fatal;
-+} record_add_arg_t;
-+
-+typedef struct record_modify_arg {
-+	record_table_t* rtable;
-+	record_key_t key;
-+	record_t data;
-+	int merr_fatal;
-+} record_modify_arg_t;
-+
-+typedef struct record_count_arg {
-+	record_table_t* rtable;
-+	int* response;
-+} record_count_arg_t;
-+
-+typedef struct record_iterate_arg {
-+	record_table_t* rtable;
-+	int (*fn) (record_key_t key, record_t rec, void* varg);
-+	void* fn_arg;
-+} record_iterate_arg_t;
-+
-+extern int record_query(record_t rec, record_t unused, void* varg);
-+extern int record_exists(record_t rec, record_t unused, void* varg);
-+extern int record_add(record_t rec, record_t* new_rec, void* varg);
-+extern int record_modify (record_t rec, record_t* new_rec, void* varg);
-+extern int record_del(record_t rec, record_t* unused, void* varg);
-+extern int record_count(record_t rec, record_t* unused, void* varg);
-+extern int record_iterate(record_t rec, record_t* unused, void* varg);
-+
-+#endif
+--- libsemanage.new/src/record_file_handlers.h	2005-09-20 05:11:44.000000000 -0400
++++ libsemanage/src/record_file_handlers.h	2005-09-20 05:17:31.000000000 -0400
+@@ -51,8 +51,8 @@
+ 	void* fn_arg;
+ } record_iterate_arg_t;
+ 
+-extern int record_query(record_t rec, record_t unused, void* varg);
+-extern int record_exists(record_t rec, record_t unused, void* varg);
++extern int record_query(record_t rec, record_t* unused, void* varg);
++extern int record_exists(record_t rec, record_t* unused, void* varg);
+ extern int record_add(record_t rec, record_t* new_rec, void* varg);
+ extern int record_modify (record_t rec, record_t* new_rec, void* varg);
+ extern int record_del(record_t rec, record_t* unused, void* varg);
 
---------------010401060107080505080204--
+--------------080003020503060201050300--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
