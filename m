@@ -1,26 +1,24 @@
 Subject: Re: [ SEPOL/SEMANAGE ] Boolean record
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
-   jbrindle@tresys.com
-In-Reply-To: <43308255.6080007@cornell.edu>
-References: <200509202048.j8KKm4Ys001478@gotham.columbia.tresys.com>
-	 <43308255.6080007@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <432FBD08.2050903@cornell.edu>
+References: <432FBD08.2050903@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 21 Sep 2005 10:35:32 -0400
-Message-Id: <1127313332.2550.22.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Sep 2005 10:41:08 -0400
+Message-Id: <1127313668.2550.24.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-20 at 17:42 -0400, Ivan Gyurdiev wrote:
-> Other issues: will you be merging the handle stuff soon? I need the 
-> handle to implement any kind of error reporting in my code (because 
-> otherwise I'd just be changing interfaces later). I think I'll likely 
-> submit a patch with the record engine stuff, and comment out all the 
-> DEBUG calls to be fixed later.
+On Tue, 2005-09-20 at 03:40 -0400, Ivan Gyurdiev wrote:
+> The attached patches replace the boolinfo structure with a record.
+> They also fix improper use of DEBUG, which would cause corrupt error 
+> messages.
 
-Changing interfaces later isn't a problem (yet).
+I've merged these patches for now, although I'm still not clear yet on
+whether the relaying of records/interfaces from libsepol to libsemanage
+is desirable/necessary.
 
 -- 
 Stephen Smalley
