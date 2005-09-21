@@ -1,51 +1,42 @@
-Message-ID: <43308255.6080007@cornell.edu>
-Date: Tue, 20 Sep 2005 17:42:45 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@tresys.com>
-CC: "'Stephen Smalley'" <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-   jbrindle@tresys.com
 Subject: Re: [ SEPOL/SEMANAGE ] Boolean record
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   jbrindle@tresys.com
+In-Reply-To: <43307A1D.3070806@cornell.edu>
 References: <200509202048.j8KKm4Ys001478@gotham.columbia.tresys.com>
-In-Reply-To: <200509202048.j8KKm4Ys001478@gotham.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	 <43307A1D.3070806@cornell.edu>
+Content-Type: text/plain
+Date: Wed, 21 Sep 2005 10:21:24 -0400
+Message-Id: <1127312484.2550.16.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2005-09-20 at 17:07 -0400, Ivan Gyurdiev wrote:
+> No - the semanage functionality is to extract data from a backend or 
+> write data to a backend, and to relay the corresponding objects to sepol 
+> to load (loading it itself breaks the encapsulation that I've been 
+> trying to create for sepol). The sepol functionality will be to actually 
+> load the data. Currently we're discussing the same data, hence the 
+> shared data structures, without modification. However, I'm not sure 
+> whether this will stay like that in the future - maybe we'll decide to 
+> store extra data in semanage that doesn't get passed down to the sepol 
+> layer. That's why I'm hesitant to use sepol data structures in semanage 
+> function headers.
 
->2) The ability to move between straight modules and the policy server.
->
->The inlined functions don't meet this goal and moving things to libsepol
->will make 2 impossible.
->  
->
-I don't understand what's preventing you from reimplementing those 
-functions at any point in time, as long as the data structures are 
-opaque (which they are). Yes, the functions are inlined, and the callers 
-may decide that they'll always be equivalent to the sepol ones, but I 
-think at that point the caller is not using the interface properly, and 
-we shouldn't care.
+Then I think you need to hide this type aliasing and interface aliasing
+within libsemanage, and not make it visible in its public headers.  And
+I'm still not clear whether libsemanage should be exporting these
+particular interfaces directly to its users, versus higher level
+interfaces that are internally implemented in terms of the libsepol
+primitives.  Do you expect libsemanage clients to be directly doing
+things like semanage_port_compare?
 
-Since there is no policy server right now, and there is a policydb, 
-where the same data structures are already implemented, serving pretty 
-much the same purpose (encapsulation), it seems easy to just make use of 
-those functions. It also seems like you'll need to link to libsepol for 
-a long time, to handle the policydb case even after the policy server is 
-created.
+-- 
+Stephen Smalley
+National Security Agency
 
-Regardless, I don't care anymore - if you guys want to duplicate all the 
-records into semanage, then that's fine with me - I can write a patch 
-for it, if that is your decision. I think Steven's arguing for the exact 
-opposite of that (unless I misunderstood) - use of sepol records 
-directly. I just want some data structure that I can use in my record 
-engine, regardless of where it came from - all I need for it is to fill 
-out the record_table found in record_file.h.
-
-Other issues: will you be merging the handle stuff soon? I need the 
-handle to implement any kind of error reporting in my code (because 
-otherwise I'd just be changing interfaces later). I think I'll likely 
-submit a patch with the record engine stuff, and comment out all the 
-DEBUG calls to be fixed later.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
