@@ -6,8 +6,8 @@ Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, selinux@tycho.nsa.gov,
 In-Reply-To: <200509211748.j8LHmnYs012526@gotham.columbia.tresys.com>
 References: <200509211748.j8LHmnYs012526@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Wed, 21 Sep 2005 13:51:01 -0400
-Message-Id: <1127325061.2550.85.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Sep 2005 13:53:33 -0400
+Message-Id: <1127325213.2550.87.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -19,8 +19,7 @@ On Wed, 2005-09-21 at 13:48 -0400, Karl MacMillan wrote:
 > semanage_handle_t function pointers so different versions can be plugged in
 > for the remote implementation.
 
-Where is semanage_handle_t defined?  Or better yet, submit a patch
-adding the definition to libsemanage now.
+Last release there that I see was April.  And the CVS looks dead.
 
 -- 
 Stephen Smalley
