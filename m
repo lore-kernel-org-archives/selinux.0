@@ -1,25 +1,24 @@
-Subject: Re: [ SEMANAGE ] Fix record handlers, add status codes
+Subject: Re: [ SEPOL ] Fix memory leaks
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <432FD4D1.5000604@cornell.edu>
-References: <432FCF8F.8070909@cornell.edu>  <432FD4D1.5000604@cornell.edu>
+In-Reply-To: <433074D8.3030507@cornell.edu>
+References: <432FBD08.2050903@cornell.edu>  <433074D8.3030507@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 21 Sep 2005 10:42:48 -0400
-Message-Id: <1127313768.2550.29.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Sep 2005 10:44:04 -0400
+Message-Id: <1127313844.2550.31.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-20 at 05:22 -0400, Ivan Gyurdiev wrote:
-> The attached patch applies on top of the previous one, and fixes
-> several bugs. It also adds a header with status codes which I need...
-> the debug system should go into this header IMHO, once we decide
-> what the debug system should be.
+On Tue, 2005-09-20 at 16:45 -0400, Ivan Gyurdiev wrote:
+> The attached patch applies on top of the sepol patch (or at least..I 
+> hope it does - might complain about whitespace). It fixes memory leaks 
+> noticed by Steven Smalley, and removes the prototypes of two functions 
+> that are only used internally (there's a lot more, but this gets rid of 
+> two of them).
 
 Thanks, merged.
-
-What do you view as still undecided for the debug system?
 
 -- 
 Stephen Smalley
