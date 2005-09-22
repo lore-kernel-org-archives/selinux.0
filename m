@@ -1,81 +1,65 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8MChkNs018945
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 08:43:47 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8MChmNs018952
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 08:43:49 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8MCdO6p018777
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 12:39:24 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8MCdP6p018780
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 12:39:26 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j8MCdF2C026175
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 08:39:15 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j8MCdHah026180
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 08:39:17 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j8MCdFg2026174
-	for selinux@tycho.nsa.gov; Thu, 22 Sep 2005 08:39:15 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j8MCdHXK026179
+	for selinux@tycho.nsa.gov; Thu, 22 Sep 2005 08:39:17 -0400
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8M1ViNs015315
-	for <selinux@tycho.nsa.gov>; Wed, 21 Sep 2005 21:31:44 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8M5GZNs016476
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 01:16:35 -0400 (EDT)
 Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8M1RPEp029178
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 01:27:25 GMT
-Message-ID: <43320A2E.5000906@cornell.edu>
-Date: Wed, 21 Sep 2005 21:34:38 -0400
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8M5CG6p016174
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 05:12:16 GMT
+Message-ID: <43323EF2.20201@cornell.edu>
+Date: Thu, 22 Sep 2005 01:19:46 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 CC: kmacmillan@tresys.com, dwalsh@redhat.com
-Subject: [ SEMANAGE ] Redesign dbase
+Subject: Re: [ SEMANAGE ] Redesign dbase
+References: <43320A2E.5000906@cornell.edu> <4332121F.2010904@cornell.edu>
+In-Reply-To: <4332121F.2010904@cornell.edu>
 Content-Type: multipart/mixed;
- boundary="------------030800090606030608070206"
+ boundary="------------040700020407080901060906"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030800090606030608070206
+--------------040700020407080901060906
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The attached patch fixes the design flaws in the previously submitted 
-semanage functionality.
+Allright, here's the same patch again, with the query issue fixed.
+Also, I've implemented the function which creates the cache (main 
+processing loop),
+and renamed some things. I've clarified the specification for
+record.parse(), and added some things to parse_info structure.
 
-Namely:
+----
 
-1) All records have been un-inlined as requested.
+This can become functional as soon as I implement the record parse/print 
+functions,
+and put the database_config array into the semanage handle.
 
-2) After talking to Karl, I've decided that modifying the files on disk 
-in the record engine is a stupid idea, which results in unnecessary, 
-complicated code, that has wasted lots of my time. It's a neat thing in 
-principle, if you have tons of data that you don't want loaded in 
-memory, but for small databases, like the ones we use, we should load 
-all the data in memory, and operate on it there (in nicer formats). The 
-drawback of this is that now we can't preserve comments in files...which 
-is not important.
+Then a function to write the cache on commit (which is trivial)...
+and handlers to load things into policy, based on dbase_iterate().
 
-As a result, I've removed the record handler functions, and the iterator 
-config I previously added. Instead, I've introduced a linked list 
-(cache) of record objects. I've implemented all the dbase functions on 
-top of that. This cache will be created the first time a  function of 
-that database is invoked.  It will be stored in the database config 
-(I've removed the global database config array temporarily - those need 
-to be kept in the semanage handle). After that, functions will work 
-directly w/ that. On commit, the cache will be written to disk,  and 
-loaded into the policydb at expansion time.
 
-The function that creates the cache is currently stubbed, but all the 
-dbase_* functions are implemented. Error-reporting is commented out for now.
 
-3) Role of the key - I've decided to limit the visibility of the key in 
-records - you can now only pass keys in, but you can't extract them 
-back. (i.e. I've removed the key from the list() and iterate() 
-functions). I think other things may be broken or badly designed w/ 
-regard to the key - I will take a look in this area.
-
---------------030800090606030608070206
+--------------040700020407080901060906
 Content-Type: text/x-patch;
- name="libsemanage.redesign.diff"
+ name="libsemanage.redesign2.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.redesign.diff"
+ filename="libsemanage.redesign2.diff"
 
-diff -Naur libsemanage/include/semanage/boolean_record.h libsemanage.new/include/semanage/boolean_record.h
+diff -Naru libsemanage/include/semanage/boolean_record.h libsemanage.new/include/semanage/boolean_record.h
 --- libsemanage/include/semanage/boolean_record.h	2005-09-21 10:42:24.000000000 -0400
 +++ libsemanage.new/include/semanage/boolean_record.h	2005-09-21 20:47:18.000000000 -0400
 @@ -1,67 +1,52 @@
@@ -186,7 +170,7 @@ diff -Naur libsemanage/include/semanage/boolean_record.h libsemanage.new/include
 +	semanage_bool_t boolean);
 +
  #endif
-diff -Naur libsemanage/include/semanage/context_record.h libsemanage.new/include/semanage/context_record.h
+diff -Naru libsemanage/include/semanage/context_record.h libsemanage.new/include/semanage/context_record.h
 --- libsemanage/include/semanage/context_record.h	2005-08-02 09:18:47.000000000 -0400
 +++ libsemanage.new/include/semanage/context_record.h	2005-09-21 20:44:37.000000000 -0400
 @@ -1,78 +1,58 @@
@@ -310,7 +294,7 @@ diff -Naur libsemanage/include/semanage/context_record.h libsemanage.new/include
 +	semanage_context_t con);
 +
  #endif 
-diff -Naur libsemanage/include/semanage/iface_record.h libsemanage.new/include/semanage/iface_record.h
+diff -Naru libsemanage/include/semanage/iface_record.h libsemanage.new/include/semanage/iface_record.h
 --- libsemanage/include/semanage/iface_record.h	2005-09-19 15:31:27.000000000 -0400
 +++ libsemanage.new/include/semanage/iface_record.h	2005-09-21 20:44:40.000000000 -0400
 @@ -3,81 +3,59 @@
@@ -439,7 +423,7 @@ diff -Naur libsemanage/include/semanage/iface_record.h libsemanage.new/include/s
 +	semanage_iface_t iface);
 +
  #endif
-diff -Naur libsemanage/include/semanage/port_record.h libsemanage.new/include/semanage/port_record.h
+diff -Naru libsemanage/include/semanage/port_record.h libsemanage.new/include/semanage/port_record.h
 --- libsemanage/include/semanage/port_record.h	2005-08-02 09:18:47.000000000 -0400
 +++ libsemanage.new/include/semanage/port_record.h	2005-09-21 20:46:12.000000000 -0400
 @@ -3,100 +3,74 @@
@@ -598,7 +582,7 @@ diff -Naur libsemanage/include/semanage/port_record.h libsemanage.new/include/se
 +	semanage_port_t port);
 +
  #endif
-diff -Naur libsemanage/include/semanage/ports.h libsemanage.new/include/semanage/ports.h
+diff -Naru libsemanage/include/semanage/ports.h libsemanage.new/include/semanage/ports.h
 --- libsemanage/include/semanage/ports.h	2005-09-14 11:44:43.000000000 -0400
 +++ libsemanage.new/include/semanage/ports.h	2005-09-21 18:35:15.000000000 -0400
 @@ -27,14 +27,12 @@
@@ -618,7 +602,7 @@ diff -Naur libsemanage/include/semanage/ports.h libsemanage.new/include/semanage
  	size_t* count);
  
  #endif 
-diff -Naur libsemanage/include/semanage/user_record.h libsemanage.new/include/semanage/user_record.h
+diff -Naru libsemanage/include/semanage/user_record.h libsemanage.new/include/semanage/user_record.h
 --- libsemanage/include/semanage/user_record.h	2005-08-02 09:18:47.000000000 -0400
 +++ libsemanage.new/include/semanage/user_record.h	2005-09-21 20:55:32.000000000 -0400
 @@ -1,124 +1,91 @@
@@ -817,7 +801,7 @@ diff -Naur libsemanage/include/semanage/user_record.h libsemanage.new/include/se
 +extern void semanage_user_free(
 +	semanage_user_t user);
  #endif
-diff -Naur libsemanage/include/semanage/users.h libsemanage.new/include/semanage/users.h
+diff -Naru libsemanage/include/semanage/users.h libsemanage.new/include/semanage/users.h
 --- libsemanage/include/semanage/users.h	2005-09-14 11:44:43.000000000 -0400
 +++ libsemanage.new/include/semanage/users.h	2005-09-21 18:35:39.000000000 -0400
 @@ -27,14 +27,12 @@
@@ -837,7 +821,7 @@ diff -Naur libsemanage/include/semanage/users.h libsemanage.new/include/semanage
  	size_t* count);
  
  #endif 
-diff -Naur libsemanage/src/boolean_record.c libsemanage.new/src/boolean_record.c
+diff -Naru libsemanage/src/boolean_record.c libsemanage.new/src/boolean_record.c
 --- libsemanage/src/boolean_record.c	1969-12-31 19:00:00.000000000 -0500
 +++ libsemanage.new/src/boolean_record.c	2005-09-21 20:53:17.000000000 -0400
 @@ -0,0 +1,52 @@
@@ -893,7 +877,7 @@ diff -Naur libsemanage/src/boolean_record.c libsemanage.new/src/boolean_record.c
 +void semanage_bool_free(semanage_bool_t boolean) {
 +	sepol_bool_free(boolean);
 +}
-diff -Naur libsemanage/src/context_record.c libsemanage.new/src/context_record.c
+diff -Naru libsemanage/src/context_record.c libsemanage.new/src/context_record.c
 --- libsemanage/src/context_record.c	1969-12-31 19:00:00.000000000 -0500
 +++ libsemanage.new/src/context_record.c	2005-09-21 20:53:27.000000000 -0400
 @@ -0,0 +1,61 @@
@@ -958,10 +942,15 @@ diff -Naur libsemanage/src/context_record.c libsemanage.new/src/context_record.c
 +char* semanage_context_to_string(semanage_context_t con) {
 +	return sepol_context_to_string(con);
 +}
-diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
+diff -Naru libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 --- libsemanage/src/database_file.c	2005-09-21 10:42:25.000000000 -0400
-+++ libsemanage.new/src/database_file.c	2005-09-21 20:19:04.000000000 -0400
-@@ -3,39 +3,67 @@
++++ libsemanage.new/src/database_file.c	2005-09-22 01:10:19.000000000 -0400
+@@ -1,41 +1,150 @@
+ #include <stdlib.h>
+ #include <stddef.h>
++#include <stdio.h>
++#include <stdio_ext.h>
++#include <errno.h>
  #include "debug.h"
  #include "database.h"
  #include "record_file.h"
@@ -969,12 +958,14 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
  #include "users_file.h"
  #include "ports_file.h"
  
++/* Representation of the database once loaded in memory */
 +typedef struct cache_entry {
 +	record_t data;
 +	struct cache_entry* prev;
 +	struct cache_entry* next;
 +} cache_entry_t;
 +
++/* Database-specific configuration */
  struct dbase_config {
 +
 +	/* What's the format of this database */
@@ -989,8 +980,9 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
  };
  
 -dbase_config_t* dbase[DBASE_COUNT];
-+static int dbase_cache(
-+	dbase_config_t* dconfig) {
++static int dbase_cache_add(
++	dbase_config_t* dconfig,
++	record_t data) {
  
 -int dbase_init() {
 -	int i;
@@ -998,34 +990,116 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -		dbase[i] = (dbase_config_t*) malloc(sizeof(dbase_config_t));
 -		if (dbase[i] == NULL) 
 -			goto err;
--	}
-+	/* Already cached */
++	cache_entry_t* entry = 
++		(cache_entry_t*) malloc(sizeof (cache_entry_t));
++	if (entry == NULL)
++		goto omem;
++	entry->data = data;
++	entry->prev = NULL;
++	entry->next = dconfig->cache;
 +	if (dconfig->cache != NULL)
-+		return STATUS_SUCCESS;
++		dconfig->cache->prev = entry;
++	dconfig->cache = entry;
++	dconfig->cache_sz++;
++
++	return STATUS_SUCCESS;
++	omem:
++	/* FIXME: handle error condition */
++	return STATUS_ERR;
++}
++
++static int dbase_open_file(parse_info_t* info) {
++
++	info->file_stream = fopen(info->filename, "r");
++	if (!info->file_stream && (errno != ENOENT)) {
++		/* FIXME: handle error condition */
++		return STATUS_ERR;
+ 	}
++	if (info->file_stream)
++		__fsetlocking(info->file_stream, FSETLOCKING_BYCALLER);
++
++        return STATUS_SUCCESS;
++}
++
++static void dbase_close_file(parse_info_t* info) {
++	if (info->file_stream && (fclose(info->file_stream) < 0))
++		/* FIXME: handle error condition */
++	info->file_stream = NULL;
++}
  
 -	dbase[DBASE_USERS]->rtable = &RTABLE_USER;
 -	dbase[DBASE_PORTS]->rtable = &RTABLE_PORT; 	
-+	/* Stub */
-+	/*  {
-+		Create cache from file.
-+	} */
++static int dbase_cache_fill(
++	dbase_config_t* dconfig) {
++
++	/* Already cached */
++	if (dconfig->cache != NULL)
++		return STATUS_SUCCESS;
++
++	int perr_fatal = 0;
++	/* FIXME: pass from caller? */
++
++	record_t process_record = NULL;
++	int pstatus = STATUS_SUCCESS;
++	parse_info_t parse_info;
++	parse_info.filename = dconfig->filename;
++	parse_info.parse_arg = NULL;
++	/* FIXME: pass from caller? */
++
++	if (dbase_open_file(&parse_info) < 0)
++		goto err;
++
++	/* Main processing loop */
++	do {
++		/* Create record */
++		if (dconfig->rtable->create(&process_record) < 0)
++			goto err;
++
++		/* Parse record */
++		pstatus = dconfig->rtable->parse(&parse_info, process_record);
++
++		/* Parse error is fatal, exit */
++		if (perr_fatal && (pstatus < 0))
++			goto err;
  
++		/* Parse error is not fatal */
++		else if (pstatus < 0)
++			continue;
++
++		/* Add record to list */
++		if (dbase_cache_add(dconfig, process_record) < 0)
++			goto err;
++
++        } while (pstatus != STATUS_NODATA);
++
++	dbase_close_file(&parse_info);
  	return STATUS_SUCCESS;
-+	//err:
-+	/* FIXME: handle error condition */
-+	//return STATUS_ERR;
+-	
++
+ 	err:
+-	for (i--; i >= 0; i--) 
+-		free(dbase[i]);
++	/* FIXME: handle failure */
++	dconfig->rtable->free(process_record);
++	dbase_close_file(&parse_info);
+ 	return STATUS_ERR;
+-}	
 +}
 +
-+static int dbase_locate(
++static int dbase_cache_locate(
 +	dbase_config_t* dconfig,
 +	record_key_t key, 
 +	cache_entry_t** entry) {
- 	
++	
 +	cache_entry_t* ptr;
 +
-+	if (dbase_cache(dconfig) < 0)
++	if (dbase_cache_fill(dconfig) < 0)
 +		goto err;
-+
+ 
+-void dbase_close() {
+-	int i;
+-	for (i = 0; i < DBASE_COUNT; i++)
+-		free(dbase[i]);
 +	for (ptr = dconfig->cache; ptr != NULL; ptr = ptr->next) { 
 +		if (! dconfig->rtable->compare(ptr->data, key)) {
 +			*entry = ptr;	
@@ -1034,28 +1108,22 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 +	}
 +
 +	return STATUS_NODATA;	
- 	err:
--	for (i--; i >= 0; i--) 
--		free(dbase[i]);
++	err:
 +	/* FIXME: handle error condition */
- 	return STATUS_ERR;
--}	
--
--void dbase_close() {
--	int i;
--	for (i = 0; i < DBASE_COUNT; i++)
--		free(dbase[i]);
++	return STATUS_ERR;
  }
  
  int dbase_add(
-@@ -43,25 +71,38 @@
+@@ -43,25 +152,27 @@
  	record_key_t key,
  	record_t data) {
  
 -	iterate_config_t config;
 -	record_add_arg_t handler_arg;
 +	int exists;
-+	cache_entry_t* entry;
++
++	if (dbase_cache_fill(dconfig) < 0)
++		goto err;
  
 -	handler_arg.rtable = dconfig->rtable;
 -	handler_arg.key = key;
@@ -1070,9 +1138,6 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	config.handler = record_add;
 -	config.handler_arg = &handler_arg;
 -	/* config.merr_fatal = */
-+	if (dbase_cache(dconfig) < 0)
-+		goto err;
-+
 +	if (dbase_exists(dconfig, key, &exists) < 0)
 +		goto err;
 +
@@ -1081,29 +1146,19 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 +		goto err;
 +	}
 +
-+	entry = (cache_entry_t*) malloc(sizeof (cache_entry_t));
-+	if (entry == NULL)
-+		goto omem;
-+	entry->data = data;
-+        entry->prev = NULL;
-+        entry->next = dconfig->cache;
-+	if (dconfig->cache != NULL)
-+		dconfig->cache->prev = entry;
-+        dconfig->cache = entry;
-+        dconfig->cache_sz++;
++	if (dbase_cache_add(dconfig, data) < 0)
++		goto err;
  
 -	/* Stub */
  	return STATUS_SUCCESS;
 +
-+	omem:
-+	/* FIXME: handle error condition */
 +	err:
 +	/* FIXME: handle error condition */
 +	return STATUS_ERR;
  }
  
  int dbase_modify(
-@@ -69,48 +110,60 @@
+@@ -69,48 +180,60 @@
  	record_key_t key,
  	record_t data) {
  
@@ -1111,6 +1166,9 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	record_modify_arg_t handler_arg;
 +	cache_entry_t* entry;
 +	int status;
++
++	if (dbase_cache_fill(dconfig) < 0)
++		goto err;
  
 -	handler_arg.rtable = dconfig->rtable;
 -	handler_arg.key = key;
@@ -1125,10 +1183,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	config.handler = record_modify;
 -	config.handler_arg = &handler_arg;
 -	/* config.merr_fatal = */
-+	if (dbase_cache(dconfig) < 0)
-+		goto err;
-+
-+	status = dbase_locate(dconfig, key, &entry);
++	status = dbase_cache_locate(dconfig, key, &entry);
 +	if (status < 0)
 +		goto err;
 +	if (status == STATUS_NODATA)
@@ -1156,7 +1211,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
  
 -	handler_arg.rtable = dconfig->rtable;
 -	handler_arg.key = key;
-+	if (dbase_cache(dconfig) < 0)
++	if (dbase_cache_fill(dconfig) < 0)
 +		goto err;
  
 -	config.rtable = dconfig->rtable;
@@ -1167,7 +1222,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	config.handler = record_del;
 -	config.handler_arg = &handler_arg;
 -	/* config.merr_fatal = */
-+	status = dbase_locate(dconfig, key, &entry);
++	status = dbase_cache_locate(dconfig, key, &entry);
 +	if (status < 0)
 +		goto err;
 +	
@@ -1193,7 +1248,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
  }
  
  int dbase_query(
-@@ -118,24 +171,22 @@
+@@ -118,24 +241,23 @@
  	record_key_t key,
  	record_t* response) {
  
@@ -1201,6 +1256,9 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	record_query_arg_t handler_arg;
 +	cache_entry_t* entry;
 +	int status;
++
++	if (dbase_cache_fill(dconfig) < 0)
++		goto err;
  
 -	handler_arg.rtable = dconfig->rtable;
 -	handler_arg.key = key;
@@ -1214,14 +1272,12 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	config.handler = record_query;
 -	config.handler_arg = &handler_arg;
 -	/* config.merr_fatal = */	
-+	if (dbase_cache(dconfig) < 0)
-+		goto err;
-+
-+	status = dbase_locate(dconfig, key, &entry);
++	status = dbase_cache_locate(dconfig, key, &entry);
 +	if (status < 0 || status == STATUS_NODATA)
 +		goto err;
-+	else
-+		*response = entry->data;
++
++	if (dconfig->rtable->clone(entry->data, *response) < 0)
++		goto err;
  
 -	/* Stub */
  	return STATUS_SUCCESS;
@@ -1231,7 +1287,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
  }
  
  int dbase_exists(
-@@ -143,95 +194,103 @@
+@@ -143,95 +265,103 @@
  	record_key_t key,
  	int* response) {
  
@@ -1252,11 +1308,11 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	config.handler = record_exists;
 -	config.handler_arg = &handler_arg;
 -	/* config.merr_fatal = */	
-+	if (dbase_cache(dconfig) < 0)
++	if (dbase_cache_fill(dconfig) < 0)
 +		goto err;
  
 -	/* Stub */
-+	status = dbase_locate(dconfig, key, &entry);
++	status = dbase_cache_locate(dconfig, key, &entry);
 +	if (status < 0)
 +		goto err;
 +
@@ -1277,7 +1333,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
  
 -	handler_arg.rtable = dconfig->rtable;
 -	handler_arg.response = response;
-+	if (dbase_cache(dconfig) < 0)
++	if (dbase_cache_fill(dconfig) < 0)
 +		goto err;
  
 -	config.rtable = dconfig->rtable;
@@ -1311,7 +1367,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 +	int status;	
 +	cache_entry_t* ptr;
 +	
-+	if (dbase_cache(dconfig) < 0)
++	if (dbase_cache_fill(dconfig) < 0)
 +		goto err;
  
 -	handler_arg.rtable = dconfig->rtable;
@@ -1359,19 +1415,20 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 -	/* config.handler = */
 -	/* config.handler_arg = */
 -	/* config.merr_fatal = */
-+	cache_entry_t* ptr;
-+	record_t* tmp_records = NULL;
-+	size_t tmp_count;
-+	int i = 0;
-+	
-+	if (dbase_cache(dconfig) < 0)
-+		goto err;
- 
+-
 -	/* Stub */
 -	keyset = NULL;
 -	dataset = NULL;
 -	count = NULL;
 -	return STATUS_SUCCESS;
++	cache_entry_t* ptr;
++	record_t* tmp_records = NULL;
++	size_t tmp_count;
++	int i = 0;
++	
++	if (dbase_cache_fill(dconfig) < 0)
++		goto err;
++
 +	tmp_count = dconfig->cache_sz;
 +
 +	if (tmp_count > 0) {
@@ -1399,7 +1456,7 @@ diff -Naur libsemanage/src/database_file.c libsemanage.new/src/database_file.c
 +	/* FIXME: handle error condition */
 +	return STATUS_ERR;
  }
-diff -Naur libsemanage/src/database.h libsemanage.new/src/database.h
+diff -Naru libsemanage/src/database.h libsemanage.new/src/database.h
 --- libsemanage/src/database.h	2005-09-21 10:42:25.000000000 -0400
 +++ libsemanage.new/src/database.h	2005-09-21 18:31:37.000000000 -0400
 @@ -12,11 +12,6 @@
@@ -1432,7 +1489,7 @@ diff -Naur libsemanage/src/database.h libsemanage.new/src/database.h
  	size_t* count);
  
  #endif 
-diff -Naur libsemanage/src/iface_record.c libsemanage.new/src/iface_record.c
+diff -Naru libsemanage/src/iface_record.c libsemanage.new/src/iface_record.c
 --- libsemanage/src/iface_record.c	1969-12-31 19:00:00.000000000 -0500
 +++ libsemanage.new/src/iface_record.c	2005-09-21 20:57:09.000000000 -0400
 @@ -0,0 +1,65 @@
@@ -1501,7 +1558,7 @@ diff -Naur libsemanage/src/iface_record.c libsemanage.new/src/iface_record.c
 +void semanage_iface_free(semanage_iface_t iface) {
 +	sepol_iface_free(iface);
 +}
-diff -Naur libsemanage/src/port_record.c libsemanage.new/src/port_record.c
+diff -Naru libsemanage/src/port_record.c libsemanage.new/src/port_record.c
 --- libsemanage/src/port_record.c	1969-12-31 19:00:00.000000000 -0500
 +++ libsemanage.new/src/port_record.c	2005-09-21 20:57:27.000000000 -0400
 @@ -0,0 +1,78 @@
@@ -1583,7 +1640,7 @@ diff -Naur libsemanage/src/port_record.c libsemanage.new/src/port_record.c
 +void semanage_port_free(semanage_port_t port) {
 +	sepol_port_free(port);
 +}
-diff -Naur libsemanage/src/ports.c libsemanage.new/src/ports.c
+diff -Naru libsemanage/src/ports.c libsemanage.new/src/ports.c
 --- libsemanage/src/ports.c	2005-09-14 11:44:44.000000000 -0400
 +++ libsemanage.new/src/ports.c	2005-09-21 19:17:03.000000000 -0400
 @@ -1,4 +1,5 @@
@@ -1658,7 +1715,7 @@ diff -Naur libsemanage/src/ports.c libsemanage.new/src/ports.c
 -	return dbase_list(dbase[DBASE_PORTS], keyset, dataset, count);
 +	return dbase_list(NULL /* FIXME */, records, count);
  }
-diff -Naur libsemanage/src/record_file.c libsemanage.new/src/record_file.c
+diff -Naru libsemanage/src/record_file.c libsemanage.new/src/record_file.c
 --- libsemanage/src/record_file.c	2005-09-21 10:42:25.000000000 -0400
 +++ libsemanage.new/src/record_file.c	1969-12-31 19:00:00.000000000 -0500
 @@ -1,9 +0,0 @@
@@ -1671,10 +1728,10 @@ diff -Naur libsemanage/src/record_file.c libsemanage.new/src/record_file.c
 -	config = NULL;
 -	return STATUS_SUCCESS;
 -}
-diff -Naur libsemanage/src/record_file.h libsemanage.new/src/record_file.h
+diff -Naru libsemanage/src/record_file.h libsemanage.new/src/record_file.h
 --- libsemanage/src/record_file.h	2005-09-19 15:30:24.000000000 -0400
-+++ libsemanage.new/src/record_file.h	2005-09-21 18:26:38.000000000 -0400
-@@ -9,14 +9,6 @@
++++ libsemanage.new/src/record_file.h	2005-09-22 00:44:49.000000000 -0400
+@@ -9,17 +9,17 @@
  #define RECORD_DEFINED
  #endif
  
@@ -1688,8 +1745,31 @@ diff -Naur libsemanage/src/record_file.h libsemanage.new/src/record_file.h
 -
  /* Structure available during parsing (created internally) */
  typedef struct parse_info {
- 	/* Stub */	
-@@ -52,33 +44,4 @@
+-	/* Stub */	
++	/* Parser controlled */
++	/* Stub */
++
++	/* Engine-controlled */
++	const char* filename;   /* Input stream file name */
++	FILE* file_stream;      /* Input stream handle */
++
++	/* Caller supplied */
++	void* parse_arg;
+ } parse_info_t;
+ 
+ /* Record table format - necessary during processing */
+@@ -41,7 +41,9 @@
+ 	/* Deep-copy clone of this record */
+ 	int (*clone) (record_t rec, record_t* new_rec);
+ 
+-	/* Fill record structuure based on supplied parse info */
++	/* Fill record structuure based on supplied parse info.
++	 * Parser must return STATUS_NODATA when EOF is encountered.
++	 * Parser must handle NULL file stream correctly */
+ 	int (*parse) (parse_info_t* info, record_t record);
+ 
+ 	/* Print record to stream */
+@@ -52,33 +54,4 @@
  	void (*free) (record_t rec);
  } record_table_t;
  
@@ -1723,7 +1803,7 @@ diff -Naur libsemanage/src/record_file.h libsemanage.new/src/record_file.h
 -extern int record_iterate_file(iterate_config_t* config);
 -
  #endif 
-diff -Naur libsemanage/src/record_file_handlers.c libsemanage.new/src/record_file_handlers.c
+diff -Naru libsemanage/src/record_file_handlers.c libsemanage.new/src/record_file_handlers.c
 --- libsemanage/src/record_file_handlers.c	2005-09-21 10:42:25.000000000 -0400
 +++ libsemanage.new/src/record_file_handlers.c	1969-12-31 19:00:00.000000000 -0500
 @@ -1,72 +0,0 @@
@@ -1799,7 +1879,7 @@ diff -Naur libsemanage/src/record_file_handlers.c libsemanage.new/src/record_fil
 -	varg = NULL;
 -	return RECORD_HANDLER_SIGEXIT;
 -}
-diff -Naur libsemanage/src/record_file_handlers.h libsemanage.new/src/record_file_handlers.h
+diff -Naru libsemanage/src/record_file_handlers.h libsemanage.new/src/record_file_handlers.h
 --- libsemanage/src/record_file_handlers.h	2005-09-21 10:42:25.000000000 -0400
 +++ libsemanage.new/src/record_file_handlers.h	1969-12-31 19:00:00.000000000 -0500
 @@ -1,62 +0,0 @@
@@ -1865,7 +1945,7 @@ diff -Naur libsemanage/src/record_file_handlers.h libsemanage.new/src/record_fil
 -extern int record_iterate(record_t rec, record_t* unused, void* varg);
 -
 -#endif
-diff -Naur libsemanage/src/user_record.c libsemanage.new/src/user_record.c
+diff -Naru libsemanage/src/user_record.c libsemanage.new/src/user_record.c
 --- libsemanage/src/user_record.c	1969-12-31 19:00:00.000000000 -0500
 +++ libsemanage.new/src/user_record.c	2005-09-21 20:54:36.000000000 -0400
 @@ -0,0 +1,99 @@
@@ -1968,7 +2048,7 @@ diff -Naur libsemanage/src/user_record.c libsemanage.new/src/user_record.c
 +void semanage_user_free(semanage_user_t user) {
 +	sepol_user_free(user);
 +}
-diff -Naur libsemanage/src/users.c libsemanage.new/src/users.c
+diff -Naru libsemanage/src/users.c libsemanage.new/src/users.c
 --- libsemanage/src/users.c	2005-09-14 11:44:44.000000000 -0400
 +++ libsemanage.new/src/users.c	2005-09-21 18:43:24.000000000 -0400
 @@ -1,4 +1,5 @@
@@ -2044,7 +2124,7 @@ diff -Naur libsemanage/src/users.c libsemanage.new/src/users.c
 +	return dbase_list(NULL /* FIXME */, records, count);
  }
 
---------------030800090606030608070206--
+--------------040700020407080901060906--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
