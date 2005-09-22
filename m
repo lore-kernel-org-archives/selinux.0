@@ -1,58 +1,95 @@
-Subject: Re: State of Debian SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dale Amon <amon@vnl.com>
-Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
-   Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-In-Reply-To: <1127247281.14569.150.camel@moss-spartans.epoch.ncsc.mil>
-References: <20050917233111.GA17916@vnl.com>
-	 <1127132870.29404.14.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050920181039.GL16888@vnl.com>
-	 <1127247281.14569.150.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 22 Sep 2005 15:41:26 -0400
-Message-Id: <1127418086.19487.171.camel@moss-spartans.epoch.ncsc.mil>
+Subject: [PATCH] checkpolicy policy version warnings
+From: Joshua Brindle <jbrindle@tresys.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-bqbzpEd5gAEwoVHjwRrP"
+Date: Thu, 22 Sep 2005 16:49:50 -0400
+Message-Id: <1127422190.21806.34.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-20 at 16:14 -0400, Stephen Smalley wrote:
-> On Tue, 2005-09-20 at 19:10 +0100, Dale Amon wrote:
-> > Setting up selinux-policy-default (1.18-1) ...
-> > /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> > libsepol.expand_avtab_insert: Type conflict!
-> > Out of memory - unable to check assertions
-> > Check assertions failed.
-> > make: *** [/etc/selinux/policy/policy.20] Error 255
-> <snip>
-> > Suggestions?
-> 
-> Yes, send me (privately) a copy of the policy.conf file.
 
-Just to follow-up on list, after receiving the policy.conf file in
-question, I found that:
+--=-bqbzpEd5gAEwoVHjwRrP
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-1) The erroneous output from checkpolicy above is corrected by the diff
-I posted for libsepol (1.8->1.9.1) that was already in sourceforge CVS.
-Note that checkpolicy has to be rebuilt to pick up the patched libsepol,
-as it uses the static library.
+These patches add a global is_building_modules variable to checkmodule,
+checkpolicy and the parser. It is used to determine whether a kernel
+policy is being built so that NETLINK class warnings are only caused
+when building a kernel policy. This will also be necessary to know whether
+policycon statements are allowed (for the policy server).
 
-2) With the libsepol fix applied and checkpolicy rebuilt, checkpolicy
-then reports legitimate assertion failures on some conditional rules in
-the policy.conf.  These particular assertion failures were due to the
-etc_writer attribute on the kernel_t type being wrapped by an obsolete
-ifdef leftover from when we were using compile-time tunables rather than
-runtime policy booleans for nfs exports.  Older versions of checkpolicy
-weren't checking the conditional rules against the assertions, so they
-wouldn't report this failure.  The policy fix is to add the etc_writer
-attribute unconditionally to the kernel_t type, and was already in
-sourceforge CVS.
+Joshua Brindle
 
-3) With the policy fix applied, checkpolicy successfully compiles the
-policy.conf file.
-  
--- 
-Stephen Smalley
-National Security Agency
+--=-bqbzpEd5gAEwoVHjwRrP
+Content-Disposition: attachment; filename=1-checkmodule-policyver.patch
+Content-Type: text/x-patch; name=1-checkmodule-policyver.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+--- checkpolicy/checkmodule.c	2005-09-22 09:41:18.000000000 -0400
++++ checkpolicy/checkmodule.c	2005-09-21 11:27:28.000000000 -0400
+@@ -49,8 +49,10 @@ static char *txtfile = "policy.conf";
+ static char *binfile = "policy";
+ 
+ unsigned int policy_type = POLICY_BASE;
+-unsigned int policyvers = POLICYDB_VERSION_MAX;
++unsigned int policyvers = MOD_POLICYDB_VERSION_MAX;
+ unsigned int mlspol = 0;
++/* always set to 0 for checkpolicy, set to 1 for checkmodule */
++unsigned int is_building_modules = 1;
+ 
+ static int read_binary_policy(policydb_t *p, char *file, char *progname)
+ {
+--- checkpolicy/checkpolicy.c	2005-09-22 09:41:18.000000000 -0400
++++ checkpolicy/checkpolicy.c	2005-09-21 11:27:28.000000000 -0400
+@@ -103,6 +103,9 @@ static char *binfile = "policy";
+ unsigned int policyvers = POLICYDB_VERSION_MAX;
+ unsigned int mlspol = 0;
+ 
++/* always set to 0 for checkpolicy, set to 1 for checkmodule */
++unsigned int is_building_modules = 0;
++
+ void usage(char *progname)
+ {
+ 	printf("usage:  %s [-b] [-d] [-M] [-c policyvers (%d-%d)] [-o output_file] [input_file]\n",
+
+--=-bqbzpEd5gAEwoVHjwRrP
+Content-Disposition: attachment; filename=2-parse-modulever.patch
+Content-Type: text/x-patch; name=2-parse-modulever.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+--- checkpolicy/policy_parse.y	2005-09-22 09:41:18.000000000 -0400
++++ checkpolicy/policy_parse.y	2005-09-22 10:10:37.000000000 -0400
+@@ -70,6 +70,7 @@ extern unsigned long policydb_lineno;
+ extern unsigned long source_lineno;
+ extern unsigned int policydb_errors;
+ extern unsigned int policyvers;
++extern int is_building_modules;
+ 
+ extern char yytext[];
+ extern int yylex(void);
+@@ -2006,7 +2007,8 @@ static int define_compute_type_helper(in
+ 			yyerror(errormsg);
+ 			goto bad;
+ 		}
+-                if (policyvers < POLICYDB_VERSION_NLCLASS &&
++                if (!is_building_modules &&
++                    policyvers < POLICYDB_VERSION_NLCLASS &&
+ 		    (cladatum->value >= SECCLASS_NETLINK_ROUTE_SOCKET &&
+ 		     cladatum->value <= SECCLASS_NETLINK_DNRT_SOCKET)) {
+ 			sprintf(errormsg, "remapping class %s to netlink_socket "
+@@ -2270,7 +2272,8 @@ static int define_te_avtab_helper(int wh
+ 			ret = -1;
+ 			goto out;
+ 		}
+-                if (policyvers < POLICYDB_VERSION_NLCLASS &&
++                if (!is_building_modules &&
++                    policyvers < POLICYDB_VERSION_NLCLASS &&
+ 		    (cladatum->value >= SECCLASS_NETLINK_ROUTE_SOCKET &&
+ 		     cladatum->value <= SECCLASS_NETLINK_DNRT_SOCKET)) {
+ 			sprintf(errormsg, "remapping class %s to netlink_socket "
+
+--=-bqbzpEd5gAEwoVHjwRrP--
 
 
 --
