@@ -1,36 +1,39 @@
-Message-ID: <43320DE5.9080802@cornell.edu>
-Date: Wed, 21 Sep 2005 21:50:29 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8M25PNs015483
+	for <selinux@tycho.nsa.gov>; Wed, 21 Sep 2005 22:05:25 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8M215Ep001786
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 02:01:05 GMT
+Message-ID: <4332121F.2010904@cornell.edu>
+Date: Wed, 21 Sep 2005 22:08:31 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@tresys.com>
-CC: "'Stephen Smalley'" <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-   jbrindle@tresys.com
-Subject: Re: [ SEPOL/SEMANAGE ] Boolean record
-References: <200509211833.j8LIXGYs013694@gotham.columbia.tresys.com>
-In-Reply-To: <200509211833.j8LIXGYs013694@gotham.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+CC: kmacmillan@tresys.com, dwalsh@redhat.com
+Subject: Re: [ SEMANAGE ] Redesign dbase
+References: <43320A2E.5000906@cornell.edu>
+In-Reply-To: <43320A2E.5000906@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Arr...I see a bug... query() needs to clone the record:
 
->Not certain what you mean - in the case of the policy server, the client
->might be running on a different machine than the server. That means that
->these functions would have to do some form of RPC using a wire protocol. You
->can look at the old policy server snapshot to see this.
->  
->
-I mean... the functions in *_record.h pack and unpack records, and don't 
-do anything else of significance - they don't retrieve the record, or 
-parse the record, or anything. As such, I don't see why you'd be using 
-RPC on them - there's no reason for a client to be invoking those 
-functions on a different machine.
+s/..................
+                 else
+                                *response = entry->data;
 
+ 	return STATUS_SUCCESS;
 
- 
+.........
 
+	if (dconfig->rtable->clone(entry->data, *response) < 0)
+		goto err;
+	
+	return STATUS_SUCCESS;
 
 
-
+Also, that list could probably be singly-linked...I can fix this later...
 
 
 --
