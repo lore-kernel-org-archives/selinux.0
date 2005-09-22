@@ -1,76 +1,59 @@
-Message-ID: <4332F1B5.2010704@diyab.net>
-Date: Thu, 22 Sep 2005 14:02:29 -0400
-From: Timothy <timothy@diyab.net>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Lee Lowder <friedbob@sbcglobal.net>, selinux@tycho.nsa.gov
-Subject: Re: Getting started with SELinux and Slackware
-References: <43325C75.3060405@sbcglobal.net> <1127392107.19487.23.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1127392107.19487.23.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: State of Debian SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Dale Amon <amon@vnl.com>
+Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
+   Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+In-Reply-To: <1127247281.14569.150.camel@moss-spartans.epoch.ncsc.mil>
+References: <20050917233111.GA17916@vnl.com>
+	 <1127132870.29404.14.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050920181039.GL16888@vnl.com>
+	 <1127247281.14569.150.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 22 Sep 2005 15:41:26 -0400
+Message-Id: <1127418086.19487.171.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2005-09-20 at 16:14 -0400, Stephen Smalley wrote:
+> On Tue, 2005-09-20 at 19:10 +0100, Dale Amon wrote:
+> > Setting up selinux-policy-default (1.18-1) ...
+> > /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+> > libsepol.expand_avtab_insert: Type conflict!
+> > Out of memory - unable to check assertions
+> > Check assertions failed.
+> > make: *** [/etc/selinux/policy/policy.20] Error 255
+> <snip>
+> > Suggestions?
+> 
+> Yes, send me (privately) a copy of the policy.conf file.
 
-All of the modified slackware sources that I used to build that old
-release are available on that ftp site (ftp.diyab.net/selinux).  I
-haven't had time to update any of it in a while but it generally just
-requires checking the newer patches and rebuilding the tgz from the
-slackbuild script.
+Just to follow-up on list, after receiving the policy.conf file in
+question, I found that:
 
-I included PAM because I think it has good advantages so all of the
-packages I built include PAM support.  Not sure what would be involved
-in building without PAM.  Most likely it just requires removing the
-configure flags to enable PAM from the build scripts.
+1) The erroneous output from checkpolicy above is corrected by the diff
+I posted for libsepol (1.8->1.9.1) that was already in sourceforge CVS.
+Note that checkpolicy has to be rebuilt to pick up the patched libsepol,
+as it uses the static library.
 
-I'll be more than happy to help you out if you want.
+2) With the libsepol fix applied and checkpolicy rebuilt, checkpolicy
+then reports legitimate assertion failures on some conditional rules in
+the policy.conf.  These particular assertion failures were due to the
+etc_writer attribute on the kernel_t type being wrapped by an obsolete
+ifdef leftover from when we were using compile-time tunables rather than
+runtime policy booleans for nfs exports.  Older versions of checkpolicy
+weren't checking the conditional rules against the assertions, so they
+wouldn't report this failure.  The policy fix is to add the etc_writer
+attribute unconditionally to the kernel_t type, and was already in
+sourceforge CVS.
 
-Timothy,
+3) With the policy fix applied, checkpolicy successfully compiles the
+policy.conf file.
+  
+-- 
+Stephen Smalley
+National Security Agency
 
-Stephen Smalley wrote:
-> On Thu, 2005-09-22 at 02:25 -0500, Lee Lowder wrote:
-> 
->>I am using Slackware 10.2 with kernel 2.6.13.2, and am wanting to get 
->>going with SELinux.  I know that Timothy Wood had made some packages in 
->>the past, but his site (as listed on the SELinux for Distrubtions page) 
->>gives a 403 error.
-> 
-> 
-> Yes, looks like the old URL is dead.  But looking at his top-level site
-> (which redirects to his blog now), I see a reference to
-> ftp://ftp.diyab.net/selinux/ as the new location for his Slackware
-> selinux packages.  Looks a little dated (based off the 9 March 2005
-> release of SELinux).
-> 
-> 
->>I don't mind installing it all myself, but I am not sure where to start. 
->>  I do know I will need PAM, as Slackware does not include it by default.
-> 
-> 
-> SELinux doesn't strictly require the use of PAM; you can port it to
-> Slackware without necessarily converting to PAM.  Using SELinux without
-> PAM (and pam_selinux) just requires policy modifications to allow direct
-> program reading of /etc/shadow and direct patching of login.
-> pam_selinux was actually introduced by Red Hat when they integrated
-> SELinux into Fedora Core; prior to that, login was directly patched for
-> SELinux.  So an alternative path is to resurrect the old login patch for
-> SELinux and adjust policy accordingly.
-> 
-> 
->>If someone could point me to some info to help guide me through this, or 
->>provide such info, I would greatly appreciate it.  Thank you.
-> 
-> 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFDMvG1SYq2KfPEK/gRAmhZAJwL2uR8LksFu8GvUPm7Xm11N5itqgCfZ1Lc
-MI5lEc0AbeHraiwh7BB+hFM=
-=2pzw
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
