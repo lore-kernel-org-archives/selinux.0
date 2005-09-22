@@ -1,51 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8M9eFNs017807
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 05:40:15 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8M9ZjUn023079
-	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 09:35:46 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Lee Lowder <friedbob@sbcglobal.net>
 Subject: Re: Getting started with SELinux and Slackware
-Date: Thu, 22 Sep 2005 19:34:58 +1000
-Cc: selinux@tycho.nsa.gov
-References: <43325C75.3060405@sbcglobal.net>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Lee Lowder <friedbob@sbcglobal.net>
+Cc: Timothy Wood <timothy@diyab.net>, selinux@tycho.nsa.gov
 In-Reply-To: <43325C75.3060405@sbcglobal.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200509221935.06357.russell@coker.com.au>
+References: <43325C75.3060405@sbcglobal.net>
+Content-Type: text/plain
+Date: Thu, 22 Sep 2005 08:28:27 -0400
+Message-Id: <1127392107.19487.23.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 22 September 2005 17:25, Lee Lowder <friedbob@sbcglobal.net> 
-wrote:
-> I don't mind installing it all myself, but I am not sure where to start.
+On Thu, 2005-09-22 at 02:25 -0500, Lee Lowder wrote:
+> I am using Slackware 10.2 with kernel 2.6.13.2, and am wanting to get 
+> going with SELinux.  I know that Timothy Wood had made some packages in 
+> the past, but his site (as listed on the SELinux for Distrubtions page) 
+> gives a 403 error.
+
+Yes, looks like the old URL is dead.  But looking at his top-level site
+(which redirects to his blog now), I see a reference to
+ftp://ftp.diyab.net/selinux/ as the new location for his Slackware
+selinux packages.  Looks a little dated (based off the 9 March 2005
+release of SELinux).
+
+> I don't mind installing it all myself, but I am not sure where to start. 
 >   I do know I will need PAM, as Slackware does not include it by default.
 
-If Slackware doesn't include PAM then it will be quite a lot of work to add 
-PAM support to all necessary applications.
+SELinux doesn't strictly require the use of PAM; you can port it to
+Slackware without necessarily converting to PAM.  Using SELinux without
+PAM (and pam_selinux) just requires policy modifications to allow direct
+program reading of /etc/shadow and direct patching of login.
+pam_selinux was actually introduced by Red Hat when they integrated
+SELinux into Fedora Core; prior to that, login was directly patched for
+SELinux.  So an alternative path is to resurrect the old login patch for
+SELinux and adjust policy accordingly.
 
-It would probably be easier to modify the policy to remove *_chkpwd_t and 
-grant every daemon that needs to verify a password read access to 
-shadow_t:file.
-
-Why do you want to work on Slackware?  It seems to be a regular occurrance 
-that someone starts work on Slackware SE Linux support, their work doesn't 
-get merged into the Slackware distribution, and then it gets discarded.
-
-While Debian SE Linux support isn't in the greatest shape at the moment the 
-changes are getting merged into the main packages so any work you do won't 
-get wasted.
-
-Of course you could just use Fedora and have it all work.
+> If someone could point me to some info to help guide me through this, or 
+> provide such info, I would greatly appreciate it.  Thank you.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
