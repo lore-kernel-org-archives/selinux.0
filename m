@@ -1,47 +1,44 @@
-Subject: [PATCH] sepol, write.c policy version
-From: Joshua Brindle <jbrindle@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-dhI66z5XMBnemhDkeo6K"
-Date: Thu, 22 Sep 2005 16:56:47 -0400
-Message-Id: <1127422608.21806.49.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8MLRNNs024009
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 17:27:24 -0400 (EDT)
+Received: from smtp-send.myrealbox.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8MLMu4o024787
+	for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2005 21:22:57 GMT
+From: Lyle Sigurdson <lyle_s@myrealbox.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: Getting started with SELinux and Slackware
+Date: Thu, 22 Sep 2005 16:22:45 -0500
+References: <43325C75.3060405@sbcglobal.net> <200509221935.06357.russell@coker.com.au> <4332D995.1060200@sbcglobal.net>
+In-Reply-To: <4332D995.1060200@sbcglobal.net>
+MIME-Version: 1.0
+Message-Id: <200509221622.46111.lyle_s@myrealbox.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I've been working on getting SELinux to work on Slackware 
+without PAM and with just one patch per package (that is, not 
+relying on all the patches that are applied before the SELinux 
+patch.)  I've got a bunch of packages made but not a working 
+system yet.
 
---=-dhI66z5XMBnemhDkeo6K
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I'm still in the early learning phases with regards to SELinux, 
+but here a few thoughts:
 
-Make version comparisons correctly compare kernel policies with kernel
-versions and module policies with module versions.
+- SELinux is one of the most important things to ever hit Linux
+  (in my opinion.)  It would be unfortunate if Slackware never
+  gets in on it.
 
-Joshua Brindle
+- I doubt SELinux will be merged into the distribution if PAM is
+  part of it, because the Slackware folks are pretty anti-PAM.
 
---=-dhI66z5XMBnemhDkeo6K
-Content-Disposition: attachment; filename=12-sepol-write-version.patch
-Content-Type: text/x-patch; name=12-sepol-write-version.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+- I doubt SELinux will be merged into the distribution if it 
+  requires a lot of patches, because Slackware's packages are
+  built mostly straight from the tarballs without patching (a
+  whole bunch of ./configure --with-selinux would be fine.)
 
---- libsepol/src/write.c	2005-09-22 09:41:17.000000000 -0400
-+++ libsepol/src/write.c	2005-09-21 11:27:28.000000000 -0400
-@@ -51,11 +51,11 @@ static int avrule_write_list(avrule_t *a
- 
- int sepol_set_policyvers(unsigned int type, unsigned int version)
- {
--	if (type == POLICY_KERN || type == POLICY_BASE) {
-+        if (type == POLICY_KERN) {
- 		if (version < POLICYDB_VERSION_MIN || version > POLICYDB_VERSION_MAX)
- 			return -EINVAL;
- 	}
--        else if (type == POLICY_MOD) {
-+        else if (type == POLICY_BASE || type == POLICY_MOD) {
-                 if (version < MOD_POLICYDB_VERSION_MIN ||
-                     version > MOD_POLICYDB_VERSION_MAX) {
-                         return -EINVAL;
-
---=-dhI66z5XMBnemhDkeo6K--
-
+   Lyle Sigurdson.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
