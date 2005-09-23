@@ -1,31 +1,57 @@
-Subject: Re: Getting started with SELinux and Slackware
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Lyle Sigurdson <lyle_s@myrealbox.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Russell Coker <russell@coker.com.au>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <200509221622.46111.lyle_s@myrealbox.com>
-References: <43325C75.3060405@sbcglobal.net>
-	 <200509221935.06357.russell@coker.com.au> <4332D995.1060200@sbcglobal.net>
-	 <200509221622.46111.lyle_s@myrealbox.com>
-Content-Type: text/plain
-Date: Fri, 23 Sep 2005 13:03:17 -0400
-Message-Id: <1127494997.27851.36.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <43344661.4070209@redhat.com>
+Date: Fri, 23 Sep 2005 14:16:01 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Russell Coker <rcoker@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Why do we have dhcp_state_t, dhcpc_state_t and dhcpd_state_t?
+References: <43343670.9060708@redhat.com> <1127496706.3275.32.camel@aeon>
+In-Reply-To: <1127496706.3275.32.camel@aeon>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-09-22 at 16:22 -0500, Lyle Sigurdson wrote:
-> - I doubt SELinux will be merged into the distribution if it 
->   requires a lot of patches, because Slackware's packages are
->   built mostly straight from the tarballs without patching (a
->   whole bunch of ./configure --with-selinux would be fine.)
+Russell Coker wrote:
 
-We'd be glad to see the SELinux userland patches get upstreamed rather
-than just staying as patches in the individual distro packages. 
+>On Fri, 2005-09-23 at 13:08 -0400, Daniel J Walsh wrote:
+>  
+>
+>>Is it really valuable to isolate this data? 
+>>
+>>I have a bug where a dhclient program can not read its lease file 
+>>because it is labeled dhcp_state_t (The same as the directory).
+>>Anyone have any recollection of why it is setup this way, and any real 
+>>reason I should not just make
+>>dhcpc_state_t and dhcpd_state_t alias dhcp_state_t?
+>>    
+>>
+>
+>If you don't have such isolation then on a machine which runs both DHCP
+>client and server (typical of a firewall) then the DHCP client (which
+>will be attacked from the Internet - mine is regularly) will have the
+>ability to indirectly control the DHCP server.
+>
+>DHCP servers which have the most hostile DHCP clients will probably not
+>be running DHCP client programs on other interfaces.
+>
+>If we are going to merge those two types then perhaps the right thing to
+>do would be to merge dhcpd_t and dhcpc_t and have a boolean to determine
+>whether DHCP client functionality should be permitted.
+>  
+>
+Ok I have talked to the dhcp maintainer hear and he is looking into 
+moving the lease files into their own
+directory, to eliminate this problem.  So if we end up with
+
+/var/lib/dhclient/
+and
+/var/lib/dhcpd/
+
+Then we can label the directories correctly and eliminate the overlap.
+
+
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
