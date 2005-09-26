@@ -1,140 +1,44 @@
-Message-Id: <200509261807.j8QI79Ys022306@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'SELinux List'" <SELinux@tycho.nsa.gov>
-Cc: <russell@coker.com.au>
-Subject: RE: Fix for segfault on duplicate role transitions
-Date: Mon, 26 Sep 2005 14:07:09 -0400
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0080_01C5C2A3.95C85880"
-In-reply-to: 
+Subject: Re: reserved_port_type attribute
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1127757038.32172.22.camel@sgc.columbia.tresys.com>
+References: <1127757038.32172.22.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 26 Sep 2005 14:20:42 -0400
+Message-Id: <1127758842.19016.163.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Mon, 2005-09-26 at 13:50 -0400, Christopher J. PeBenito wrote:
+> According to attrib.te, reserved_port_type is supposed to be for ports
+> that are less than 1024.  Why is reserved_port_t not included?
 
-------=_NextPart_000_0080_01C5C2A3.95C85880
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+As I recall, reserved_port_type was introduced for dontaudit rules to
+suppress noise when userspace scans for an available reserved port (in
+particular, when libc sunrpc client code calls bindresvport(3)).  So in
+these cases, I think that the domain was already being allowed name_bind
+to the reserved_port_t type, and only needed dontaudit for the specific
+port types.
 
-> -----Original Message-----
-> From: Karl MacMillan [mailto:kmacmillan@tresys.com]
-> Sent: Monday, September 26, 2005 2:05 PM
-> To: 'SELinux List'
-> Cc: 'russell@coker.com.au'
-> Subject: Fix for segfault on duplicate role transitions
-> 
-> Attached is a patch to fix a segfault on defining duplicate role
-> transitions. It also fixes an off-by-one error in the duplicate
-> range_transition code path. Russell Coker reported the bug.
-> 
-> The patch is against CVS as of Friday evening - sourceforge anonymous cvs
-> seems to be having issues and I can't update.
-> 
-> Karl
-> 
+If checkpolicy were enhanced to prune unnecessary auditallow and
+dontaudit rules after collecting all allow rules, then it would do no
+harm to add reserved_port_t to the attribute.  At present, you'll bloat
+the policy slightly by doing it because checkpolicy isn't smart enough
+to drop the extraneous dontaudit rule for the allowed case.
 
-Sorry - the previous patch was old and incorrect. Correct patch attached.
+>   Also,
+> http_cache_port_t, ptal_port_t, clamd_port_t, pyzor_port_t, and
+> dbskkd_port_t aren't labeling any ports below 1024 (dbskkd_port_t
+> doesn't even have a portcon), so why have they been given this
+> attribute?
 
-Karl
+Likely shouldn't have it.
 
-------
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-
-> ------
-> Karl MacMillan
-> Tresys Technology
-> http://www.tresys.com
-
-
-------=_NextPart_000_0080_01C5C2A3.95C85880
-Content-Type: application/octet-stream;
-	name="1-role-trans-index-error.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="1-role-trans-index-error.patch"
-
---- checkpolicy/policy_parse.y	2005-09-23 15:04:06.000000000 -0400=0A=
-+++ checkpolicy/policy_parse.y	2005-09-26 12:21:22.000000000 -0400=0A=
-@@ -1899,6 +1899,11 @@ static int define_type(int alias)=0A=
- 	return 0;=0A=
- }=0A=
- =0A=
-+struct val_to_name {=0A=
-+	unsigned int val;=0A=
-+	char *name;=0A=
-+};=0A=
-+=0A=
- /* Adds a type, given by its textual name, to a typeset.  If *add is=0A=
-    0, then add the type to the negative set; otherwise if *add is 1=0A=
-    then add it to the positive side. */=0A=
-@@ -2605,6 +2610,35 @@ static role_datum_t *=0A=
-         return NULL;=0A=
- }=0A=
- =0A=
-+static int role_val_to_name_helper(hashtab_key_t key, hashtab_datum_t =
-datum, void *p)=0A=
-+{=0A=
-+	struct val_to_name *v =3D p;=0A=
-+	role_datum_t *roldatum;=0A=
-+=0A=
-+	roldatum =3D (role_datum_t *) datum;=0A=
-+=0A=
-+	if (v->val =3D=3D roldatum->value) {=0A=
-+		v->name =3D key;=0A=
-+		return 1;=0A=
-+	}=0A=
-+=0A=
-+	return 0;=0A=
-+}=0A=
-+=0A=
-+=0A=
-+static char *role_val_to_name(unsigned int val) =0A=
-+{=0A=
-+	struct val_to_name v;=0A=
-+	int rc;=0A=
-+=0A=
-+	v.val =3D val;=0A=
-+	rc =3D hashtab_map(policydbp->p_roles.table, =0A=
-+			 role_val_to_name_helper, &v);=0A=
-+	if (rc)=0A=
-+		return v.name;=0A=
-+	return NULL;=0A=
-+}=0A=
-+=0A=
- static int set_roles(role_set_t *set,=0A=
- 		     char *id)=0A=
- {=0A=
-@@ -2710,8 +2744,8 @@ static int define_role_trans(void)=0A=
- =0A=
- 			for (tr =3D policydbp->role_tr; tr; tr =3D tr->next) {=0A=
- 				if (tr->role =3D=3D (i+1) && tr->type =3D=3D (j+1)) {=0A=
--					sprintf(errormsg, "duplicate role transition defined for (%s,%s)", =0A=
--						policydbp->p_role_val_to_name[i], =
-policydbp->p_type_val_to_name[j]);=0A=
-+					sprintf(errormsg, "duplicate role transition for (%s,%s)",=0A=
-+						role_val_to_name(i + 1), policydbp->p_type_val_to_name[j]);=0A=
- 					yyerror(errormsg);=0A=
- 					goto bad;=0A=
- 				}=0A=
-@@ -4530,8 +4564,7 @@ static int define_range_trans(void)=0A=
- 			for (rt =3D policydbp->range_tr; rt; rt =3D rt->next) {=0A=
- 				if (rt->dom =3D=3D (i + 1) && rt->type =3D=3D (j + 1)) {=0A=
- 					sprintf(errormsg, "duplicate range_transition defined for (%s,%s)",=0A=
--					        policydbp->p_type_val_to_name[i + 1],=0A=
--                                                =
-policydbp->p_type_val_to_name[j + 1]);=0A=
-+					        policydbp->p_type_val_to_name[i], =
-policydbp->p_type_val_to_name[j]);=0A=
- 					yyerror(errormsg);=0A=
- 					return -1;=0A=
- 				}=0A=
-
-------=_NextPart_000_0080_01C5C2A3.95C85880--
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
