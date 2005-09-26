@@ -1,23 +1,23 @@
-Message-Id: <200509262347.j8QNlEYs018823@gotham.columbia.tresys.com>
+Message-Id: <200509262348.j8QNm8Ys018839@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
 To: "'SELinux List'" <SELinux@tycho.nsa.gov>
-Subject: [PATCH] libsemanage-reorg 2/7 
-Date: Mon, 26 Sep 2005 19:47:14 -0400
+Subject: [PATCH] libsemanage-reorg 5/7 
+Date: Mon, 26 Sep 2005 19:48:08 -0400
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_009B_01C5C2D3.17D3C650"
+	boundary="----=_NextPart_000_00A4_01C5C2D3.38081930"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_009B_01C5C2D3.17D3C650
+------=_NextPart_000_00A4_01C5C2D3.38081930
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-This patch removes commit_api.c. The bulk of the code in this file is
-modified and moved into module_store.c in the next patch set.
+This patch removes module_direct_api.c. Most of this code is changed and
+moved to direct_api.c in the next patch set.
 
 ------
 Karl MacMillan
@@ -25,16 +25,18 @@ Tresys Technology
 http://www.tresys.com 
 
 
-------=_NextPart_000_009B_01C5C2D3.17D3C650
+------=_NextPart_000_00A4_01C5C2D3.38081930
 Content-Type: application/octet-stream;
-	name="2-remove-commit_api.diff"
+	name="5-remove-module_direct_api.diff"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="2-remove-commit_api.diff"
+	filename="5-remove-module_direct_api.diff"
 
---- libsemanage/src/commit_api.c	2005-09-19 09:03:15.000000000 -0400=0A=
-+++ libsemanage/src/commit_api.c	1969-12-31 19:00:00.000000000 -0500=0A=
-@@ -1,756 +0,0 @@=0A=
+--- libsemanage/src/module_direct_api.c	2005-09-19 09:03:15.000000000 =
+-0400=0A=
++++ libsemanage/src/module_direct_api.c	1969-12-31 19:00:00.000000000 =
+-0500=0A=
+@@ -1,536 +0,0 @@=0A=
 -/* Author: Jason Tang     <jtang@tresys.com>=0A=
 - *=0A=
 - * Copyright (C) 2004-2005 Tresys Technology, LLC=0A=
@@ -63,31 +65,28 @@ Content-Disposition: attachment;
 -#include "semanage/module_store.h"=0A=
 -#include "semanage/semod_conf.h"=0A=
 -=0A=
--#include <assert.h>=0A=
--#include <ctype.h>=0A=
+-#include <sepol/module.h>=0A=
+-=0A=
 -#include <fcntl.h>=0A=
 -#include <stdarg.h>=0A=
--#include <stdlib.h>=0A=
+-#include <string.h>=0A=
 -#include <unistd.h>=0A=
--#include <sys/mman.h>=0A=
--#include <sys/stat.h>=0A=
--#include <sys/types.h>=0A=
--#include <sys/wait.h>=0A=
 -=0A=
--#include <sepol/sepol.h>=0A=
--#include <sepol/link.h>=0A=
--#include <sepol/expand.h>=0A=
--#include <sepol/module.h>=0A=
--#include <selinux/selinux.h>=0A=
+-#include <sepol/policydb.h>=0A=
 -=0A=
--static int exec_prog (external_prog_t *v, char *new_name, char =
-*old_name);=0A=
--static char **split_args (char *arg0, char *arg_string,=0A=
--                          char *new_name, char *old_name);=0A=
--static char *append (char *s, char c);=0A=
--static char *append_str (char *s, char *t);=0A=
--static char **append_arg (char **argv, int *num_args, char *arg);=0A=
--static void free_argv (char **argv);=0A=
+-static void write_error(char *error_buf, size_t error_buf_size, char =
+*fmt, ...);=0A=
+-static int parse_module_headers (char *sandbox, char *module_data,=0A=
+-                                 size_t data_len, char **module_name,=0A=
+-                                 char **version, char **filename,=0A=
+-                                 char *error_buf, size_t =
+error_buf_size);=0A=
+-static int parse_base_headers (char *sandbox, char *module_data,=0A=
+-                               size_t data_len,=0A=
+-                               char *error_buf, size_t error_buf_size);=0A=
+-static int write_file (char *filename, char *data, size_t num_bytes);=0A=
+-static int list_modules_common (char **results,=0A=
+-                                char **names, char **versions, int len);=0A=
 -=0A=
 -/* Write an error message to the current error buffer, up to the=0A=
 - * buffer's specified size. */=0A=
@@ -105,50 +104,75 @@ Content-Disposition: attachment;
 -        va_end(ap);=0A=
 -}=0A=
 -=0A=
--/* Links all of the modules within the sandbox into the base module.=0A=
-- * '*base' will point to the module package that contains everything=0A=
-- * linked together (caller must call semod_module_package_destroy() on=0A=
-- * it afterwards).  '*mods' will be a list of module packages and=0A=
-- * '*num_modules' will be the number of elements within '*mods'=0A=
-- * (caller must destroy each element as well as the pointer itself.)=0A=
-- * Both '*base' and '*mods' will be set to NULL upon entering this=0A=
-- * function.  If 'error_buf' is not NULL then any error messages=0A=
-- * that arise during the link (e.g., a required type not found) will=0A=
-- * be written to the buffer; 'error_buf_size' specifies how many bytes=0A=
-- * are in the error buffer.  Returns 0 on success, -1 if out of=0A=
-- * memory, -2 if base module does not exist or could not be read, -3=0A=
-- * if a module does not exist or could not be read, -4 if modules=0A=
-- * could not be linked (and error_buf will contain details).=0A=
-- */=0A=
--int semod_link_sandbox(char *sandbox,=0A=
--                       sepol_module_package_t **base,=0A=
--                       sepol_module_package_t ***mods, int *num_modules,=0A=
--                       char *error_buf, size_t error_buf_size) {=0A=
--        char *base_filename =3D NULL, **module_filenames =3D NULL;=0A=
--        int retval, i;=0A=
--        *base =3D NULL;=0A=
--        *mods =3D NULL;=0A=
--        *num_modules =3D 0;=0A=
--=0A=
--        /* first make sure that base module is readable */=0A=
--        if ((base_filename =3D semod_sandbox_base_name (sandbox)) =
-=3D=3D NULL) {=0A=
--                write_error (error_buf, error_buf_size, "Out of =
-memory!");=0A=
--                retval =3D -1;=0A=
+-/* Writes a module to the sandbox's module directory, overwriting any=0A=
+- * previous module stored within.  The module name will be stored in=0A=
+- * '*modname' if it is not NULL (caller is responsible for free()ing=0A=
+- * it afterwards).  Note that 'module_data' is not free()d by this=0A=
+- * function; caller is responsible for deallocating it if necessary.=0A=
+- * Returns 0 on success, -1 if out of memory, -2 if the data does not=0A=
+- * represent a valid module file, -3 if error while writing file. */=0A=
+-int semod_direct_install_module(char *sandbox, char *module_data,=0A=
+-                                size_t data_len, char **modname,=0A=
+-                                char *error_buf, size_t error_buf_size) =
+{=0A=
+-        int retval;=0A=
+-        char *module_name, *version, *filename;=0A=
+-        if ((retval =3D parse_module_headers (sandbox, module_data, =
+data_len,=0A=
+-                                            &module_name, &version, =
+&filename,=0A=
+-                                            error_buf, error_buf_size)) =
+!=3D 0) {=0A=
 -                goto cleanup;=0A=
 -        }=0A=
--        if (access (base_filename, R_OK) =3D=3D -1) {=0A=
+-        if (write_file (filename, module_data, data_len) =3D=3D -1) {=0A=
 -                write_error (error_buf, error_buf_size, "Could not =
-access sandbox.");=0A=
--                retval =3D -2;=0A=
+write module.");=0A=
+-                retval =3D -3;=0A=
+-        }=0A=
+-        else {=0A=
+-                retval =3D 0;=0A=
+-        }=0A=
+- cleanup:=0A=
+-        free (version);=0A=
+-        free (filename);=0A=
+-        if (modname =3D=3D NULL) {=0A=
+-                free (module_name);=0A=
+-        }=0A=
+-        else {=0A=
+-                *modname =3D module_name;=0A=
+-        }=0A=
+-        return retval;=0A=
+-}=0A=
+-=0A=
+-/* Similar to semod_install_module(), except that it checks that there=0A=
+- * already exists a module with the same name and that the module is=0A=
+- * an older version then the one in 'module_data'.  Caller is=0A=
+- * responsible for free()ing '*modname' afterwards, if 'modname' is=0A=
+- * not NULL.  Returns 0 on success, -1 if out of memory, -2 if the=0A=
+- * data does not represent a valid module file, -3 if error while=0A=
+- * writing file or reading modules directory, -4 if there does not=0A=
+- * exist an older module, or -5 if the previous module is same or=0A=
+- * newer than 'module_data'.=0A=
+- */=0A=
+-int semod_direct_upgrade_module(char *sandbox, char *module_data,=0A=
+-                                size_t data_len, char **modname,=0A=
+-                                char *error_buf, size_t error_buf_size) =
+{=0A=
+-        int retval, num_old =3D 0, i;=0A=
+-        char *module_name, *version, *filename;=0A=
+-        char **old_names =3D NULL, **old_versions =3D NULL;=0A=
+-        if ((retval =3D parse_module_headers (sandbox, module_data, =
+data_len,=0A=
+-                                            &module_name, &version, =
+&filename,=0A=
+-                                            error_buf, error_buf_size)) =
+!=3D 0) {=0A=
 -                goto cleanup;=0A=
 -        }=0A=
--=0A=
--        /* get list of modules and load them */=0A=
--        switch (semod_get_sandbox_modules_names (sandbox, =
-&module_filenames,=0A=
--                                                 num_modules)) {=0A=
+-        switch (semod_get_sandbox_modules_list (sandbox, &old_names,=0A=
+-                                                &old_versions, =
+&num_old)) {=0A=
 -        case -1: {=0A=
 -                write_error (error_buf, error_buf_size, "Out of =
 memory!");=0A=
@@ -162,700 +186,469 @@ sandbox modules.");=0A=
 -                goto cleanup;=0A=
 -        }=0A=
 -        }=0A=
--        switch (semod_load_module (base_filename, base)) {=0A=
--        case -1: {=0A=
--                write_error (error_buf, error_buf_size, "Out of =
-memory!");=0A=
--                retval =3D -1;=0A=
+-        retval =3D -4;=0A=
+-        for (i =3D 0; i < num_old; i++) {=0A=
+-                if (strcmp (old_names [i], module_name) =3D=3D 0) {=0A=
+-                        if (strverscmp (version, old_versions [i]) > 0) =
+{=0A=
+-                                retval =3D 0;=0A=
+-                                break;=0A=
+-                        }=0A=
+-                        else {=0A=
+-                                write_error (error_buf, error_buf_size, =
+"Previous module %s is same or newer.", module_name);=0A=
+-                                retval =3D -5;=0A=
+-                                goto cleanup;=0A=
+-                        }=0A=
+-                }=0A=
+-        }=0A=
+-        if (retval =3D=3D -4) {=0A=
+-                write_error (error_buf, error_buf_size, "There does not =
+already exist a module named %s.", module_name);=0A=
+-        }=0A=
+-        else {=0A=
+-                if (write_file (filename, module_data, data_len) =3D=3D =
+-1) {=0A=
+-                        write_error (error_buf, error_buf_size, "Could =
+not write module.");=0A=
+-                        retval =3D -3;=0A=
+-                }=0A=
+-        }=0A=
+- cleanup:=0A=
+-        free (version);=0A=
+-        free (filename);=0A=
+-        for (i =3D 0; i < num_old; i++) {=0A=
+-                free (old_names [i]);=0A=
+-                free (old_versions [i]);=0A=
+-        }=0A=
+-        free (old_names);=0A=
+-        free (old_versions);=0A=
+-        if (modname =3D=3D NULL) {=0A=
+-                free (module_name);=0A=
+-        }=0A=
+-        else {=0A=
+-                *modname =3D module_name;=0A=
+-        }=0A=
+-        return retval;=0A=
+-}=0A=
+-=0A=
+-/* Writes a base module into a sandbox, overwriting any previous base=0A=
+- * module.  The fully qualified filename for the module will be stored=0A=
+- * in 'filename' if it is not NULL (caller is responsible for=0A=
+- * free()ing it afterwards).  Note that 'module_data' is not free()d=0A=
+- * by this function; caller is responsible for deallocating it if=0A=
+- * necessary.  Returns 0 on success, -1 if out of memory, -2 if the=0A=
+- * data does not represent a valid module file, -3 if error while=0A=
+- * writing file.=0A=
+- */=0A=
+-int semod_direct_install_base_module(char *sandbox, char *module_data,=0A=
+-                                     size_t data_len,=0A=
+-                                     char *error_buf, size_t =
+error_buf_size) {=0A=
+-        int retval;=0A=
+-        char *filename =3D NULL;=0A=
+-        if ((retval =3D parse_base_headers (sandbox, module_data, =
+data_len,=0A=
+-                                          error_buf, error_buf_size)) =
+!=3D 0) {=0A=
 -                goto cleanup;=0A=
 -        }=0A=
--        case -2: {=0A=
--                write_error (error_buf, error_buf_size, "Could not read =
-sandbox base module.");=0A=
--                retval =3D -2;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        }=0A=
--        if (*num_modules =3D=3D 0) {=0A=
--                /* no modules, so skip over the rest of this function */=0A=
--                retval =3D 0;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if ((*mods =3D calloc (*num_modules, sizeof (**mods))) =3D=3D =
+-        if ((filename =3D semod_sandbox_base_name (sandbox)) =3D=3D =
 NULL) {=0A=
 -                write_error (error_buf, error_buf_size, "Out of =
 memory!");=0A=
 -                retval =3D -1;=0A=
 -                goto cleanup;=0A=
 -        }=0A=
--        for (i =3D 0; i < *num_modules; i++) {=0A=
--                switch (semod_load_module (module_filenames [i], =
-(*mods) + i)) {=0A=
--                case -1: {=0A=
--                        write_error (error_buf, error_buf_size, "Out of =
-memory!");=0A=
--                        retval =3D -1;=0A=
--                        goto cleanup;=0A=
--                }=0A=
--                case -2: {=0A=
--                        write_error (error_buf, error_buf_size, "Could =
-not read sandbox modules.");=0A=
--                        retval =3D -3;=0A=
--                        goto cleanup;=0A=
--                }=0A=
--                }=0A=
--        }=0A=
--        =0A=
--        if (sepol_link_packages(*base, *mods, *num_modules, 0, =
-error_buf,=0A=
--                                error_buf_size) !=3D 0) {=0A=
--                retval =3D -4;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        retval =3D 0;=0A=
--        =0A=
-- cleanup:=0A=
--        free (base_filename);=0A=
--        for (i =3D 0; module_filenames !=3D NULL && i < *num_modules; =
-i++) {=0A=
--                free (module_filenames [i]);=0A=
--        }=0A=
--        free (module_filenames);=0A=
--        return retval;=0A=
--}=0A=
--=0A=
--/* Expands the policy contained within *base and write the final=0A=
-- * policy to the sandbox's kernel policy.  If 'error_buf' is=0A=
-- * not NULL then any error message that arise during expansion will be=0A=
-- * written to the buffer; 'error_buf_size' specifies how many bytes=0A=
-- * are in the error buffer.  Returns 0 on success, -1 if out of=0A=
-- * memory, -2 if could not expand (and error_buf will contain=0A=
-- * details), or -3 if could not write expanded policy.=0A=
-- */=0A=
--int semod_expand_sandbox(char *sandbox, sepol_module_package_t *base,=0A=
--                         uint32_t policyvers,=0A=
--                         char *error_buf, size_t error_buf_size) {=0A=
--        policydb_t out;=0A=
--        int retval;=0A=
--        char *kernel_filename =3D NULL;=0A=
--        sidtab_t sidtab;=0A=
--        struct policy_file pf;=0A=
--        FILE *outfile =3D NULL;=0A=
--        if (policydb_init (&out, POLICY_KERN) =3D=3D -1) {=0A=
--                write_error (error_buf, error_buf_size, "Out of =
-memory!");=0A=
--                retval =3D -1;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        /* activate the global branch before expansion */=0A=
--        base->policy->global->branch_list->enabled =3D 1;=0A=
--        base->policy->global->enabled =3D =
-base->policy->global->branch_list;=0A=
--        if (expand_module (base->policy, &out, 0,=0A=
--                           error_buf, error_buf_size) =3D=3D -1) {=0A=
--                retval =3D -2;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if (policydb_load_isids (&out, &sidtab) =3D=3D -1) {=0A=
--                write_error (error_buf, error_buf_size, "Error while =
-loading initial SIDs.");=0A=
--                retval =3D -1;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if (policydb_index_others (&out, 0) =3D=3D -1) {=0A=
--                write_error (error_buf, error_buf_size, "Out of =
-memory!");=0A=
--                retval =3D -1;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if (sepol_set_policyvers (POLICY_KERN, policyvers)) {=0A=
--                write_error (error_buf, error_buf_size, "Incompatible =
-policy version %d.", policyvers);=0A=
--                retval =3D -1;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if ((kernel_filename =3D semod_sandbox_kernel_name (sandbox)) =
-=3D=3D NULL) {=0A=
--                write_error (error_buf, error_buf_size, "Out of =
-memory!");=0A=
--                retval =3D -1;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if ((outfile =3D fopen (kernel_filename, "wb")) =3D=3D NULL) {=0A=
--                write_error (error_buf, error_buf_size, "Could not open =
-kernel policy for writing.");=0A=
--                retval =3D -3;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        pf.type =3D PF_USE_STDIO;=0A=
--        pf.fp =3D outfile;=0A=
--        if (policydb_write (&out, &pf) =3D=3D -1) {=0A=
--                write_error (error_buf, error_buf_size, "Error while =
-writing kernel policy.");=0A=
+-        if (write_file (filename, module_data, data_len) =3D=3D -1) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not =
+write base module.");=0A=
 -                retval =3D -3;=0A=
 -        }=0A=
 -        else {=0A=
 -                retval =3D 0;=0A=
 -        }=0A=
 - cleanup:=0A=
--        free (kernel_filename);=0A=
--        if (outfile !=3D NULL) {=0A=
--                (void) fclose (outfile);=0A=
--        }=0A=
--        policydb_destroy (&out);=0A=
+-        free (filename);=0A=
 -        return retval;=0A=
 -}=0A=
 -=0A=
--/* Takes the kernel policy in a sandbox, move it to the active=0A=
-- * directory, copy it to the binary policy path, then load it.  Upon=0A=
-- * error move the active directory back to the sandbox.  This function=0A=
-- * should be placed within a mutex lock to ensure that it runs=0A=
-- * atomically.  Returns 0 on success, -1 if out of memory, -2 if could=0A=
-- * not copy a file or move sandbox, -3 if could not load policy into=0A=
-- * kernel.=0A=
+-/* Remove (unlink(2)) a module from the sandbox.  Returns 0 on=0A=
+- * success, -1 if out of memory, -2 if could not read module store, -3=0A=
+- * if module could not be removed, or -4 if module not found.=0A=
 - */=0A=
--int semod_install_sandbox (char *sandbox,=0A=
--                           char *error_buf, size_t error_buf_size) {=0A=
--        char *running_policy =3D NULL;=0A=
--        const char *active_kernel =3D semod_active_kernel_name ();=0A=
--        const char *active_kernel_backup =3D =
-semod_active_kernel_backup_name ();=0A=
--        const char *running_fc =3D selinux_file_context_path ();=0A=
--        const char *active_fc =3D semod_active_fc_name ();=0A=
--        const char *active_fc_backup =3D semod_active_fc_backup_name ();=0A=
--        int retval;=0A=
--        semod_conf_t *conf =3D semod_get_current_conf ();=0A=
--        if (conf->load_policy =3D=3D NULL) {=0A=
--                write_error (error_buf, error_buf_size, "No load_policy =
-program specified in configuration file.");=0A=
--                retval =3D -3;=0A=
+-int semod_direct_remove_module(char *sandbox, char *module_name,=0A=
+-                               char *error_buf, size_t error_buf_size) {=0A=
+-        char **module_names;=0A=
+-        int num_modules =3D 0, i, retval;=0A=
+-        size_t name_len =3D strlen (module_name);=0A=
+-        if ((retval =3D semod_get_sandbox_modules_names (sandbox, =
+&module_names,=0A=
+-                                                       &num_modules)) =
+!=3D 0) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not read =
+module names.");=0A=
 -                goto cleanup;=0A=
 -        }=0A=
--        if (conf->setfiles =3D=3D NULL) {=0A=
--                write_error (error_buf, error_buf_size, "No set_files =
-program specified in configuration file.");=0A=
--                retval =3D -3;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if (semod_commit_sandbox (sandbox) !=3D 0) {=0A=
--                write_error (error_buf, error_buf_size, "Could not =
-commit sandbox.");=0A=
--                retval =3D -2;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if (asprintf (&running_policy, "%s.%d", =
-selinux_binary_policy_path (), security_policyvers ()) =3D=3D -1) {=0A=
--                write_error (error_buf, error_buf_size, "Out of =
-memory!");=0A=
--                retval =3D -1;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        if (semod_copy_file (running_policy, active_kernel_backup) =
-=3D=3D -1 ||=0A=
--            semod_copy_file (active_kernel, running_policy) =3D=3D -1) {=0A=
--                write_error (error_buf, error_buf_size, "Could not copy =
-policy to sandbox.");=0A=
--                retval =3D -2;=0A=
--                goto cleanup;=0A=
--        }=0A=
--        =0A=
--        if (semod_copy_file (running_fc, active_fc_backup) =3D=3D -1 ||=0A=
--            semod_copy_file (active_fc, running_fc) =3D=3D -1) {=0A=
--                write_error (error_buf, error_buf_size, "Could not copy =
-file contexts.");=0A=
--                retval =3D -2;=0A=
--                goto cleanup;=0A=
--        }=0A=
--=0A=
--        if (exec_prog (conf->load_policy, running_policy, "") !=3D 0) {=0A=
--                write_error (error_buf, error_buf_size, "Could not load =
-newly expanded policy.");=0A=
--                retval =3D -3;=0A=
--                goto revert;=0A=
--        }=0A=
--        =0A=
--        if (exec_prog (conf->setfiles, running_policy, (char *) =
-running_fc) !=3D 0) {=0A=
--                write_error (error_buf, error_buf_size, "Could not =
-validate file contexts.");=0A=
--                retval =3D -3;=0A=
--                goto revert;=0A=
--        }=0A=
--        =0A=
--        retval =3D 0;=0A=
--        goto cleanup;=0A=
--=0A=
-- revert:=0A=
--        /* revert to backup */=0A=
--        (void) semod_copy_file (active_kernel_backup, running_policy);=0A=
--        (void) semod_copy_file (active_fc_backup, running_fc);=0A=
--        =0A=
-- cleanup:=0A=
--        free (running_policy);=0A=
--        if (retval !=3D 0) {=0A=
--                (void) semod_undo_commit_sandbox (sandbox);=0A=
--        }=0A=
--        return retval;=0A=
--}=0A=
--=0A=
--/* Execute the module verification programs for each source module.=0A=
-- * Returns 0 if every verifier returned success, -1 if out of memory,=0A=
-- * -2 if verifier could not execute, or -3 if one of the verifiers did=0A=
-- * not exit successfully.=0A=
-- */=0A=
--int semod_verify_modules (char *sandbox, char **module_filenames,=0A=
--                         int num_modules) {=0A=
--        int i, retval;=0A=
--        size_t sandbox_len;=0A=
--        semod_conf_t *conf =3D semod_get_current_conf ();=0A=
--        if (conf->mod_prog =3D=3D NULL) {=0A=
--                return 0;=0A=
--        }=0A=
--        sandbox_len =3D strlen (sandbox);=0A=
 -        for (i =3D 0; i < num_modules; i++) {=0A=
--                char *module =3D module_filenames [i];=0A=
--                external_prog_t *e;=0A=
--                char *old_name =3D semod_get_active_filename (module + =
-sandbox_len + 1);=0A=
--                for (e =3D conf->mod_prog; e !=3D NULL; e =3D e->next) {=0A=
--                        if ((retval =3D exec_prog (e, module, =
-old_name)) !=3D 0) {=0A=
--                                free (old_name);=0A=
--                                if (retval > 0) {=0A=
--                                        return -3;=0A=
--                                }=0A=
--                                else {=0A=
--                                        return retval;=0A=
--                                }=0A=
+-                char *base =3D strrchr (module_names[i], '/');=0A=
+-                if (base =3D=3D NULL) {=0A=
+-                        write_error (error_buf, error_buf_size, "Could =
+not read module names.");=0A=
+-                        retval =3D -2;=0A=
+-                        goto cleanup;=0A=
+-                }=0A=
+-                base++;=0A=
+-                if (memcmp (module_name, base, name_len) =3D=3D 0 &&=0A=
+-                    strcmp (base + name_len, ".pp") =3D=3D 0) {=0A=
+-                        if (unlink (module_names[i]) =3D=3D -1) {=0A=
+-                                write_error (error_buf, error_buf_size, =
+"Could not remove module.");=0A=
+-                                retval =3D -3;=0A=
 -                        }=0A=
--                }=0A=
--                free (old_name);=0A=
--        }=0A=
--        return 0;=0A=
--}=0A=
--=0A=
--/* Execute the linker verification programs for the linked (but not=0A=
-- * expanded) base.  Returns 0 if every verifier returned success, -1=0A=
-- * if out of memory, -2 if verifier could not execute, or -3 if one of=0A=
-- * the verifiers did not exit successfully.=0A=
-- */=0A=
--int semod_verify_linked (char *sandbox) {=0A=
--        size_t sandbox_len; =0A=
--        external_prog_t *e;=0A=
--        semod_conf_t *conf =3D semod_get_current_conf ();=0A=
--        char *linked_filename =3D NULL, *old_name =3D NULL;=0A=
--        int retval;=0A=
--        if (conf->linked_prog =3D=3D NULL) {=0A=
--                return 0;=0A=
--        }=0A=
--        if ((linked_filename =3D semod_sandbox_linked_name (sandbox)) =
-=3D=3D NULL) {=0A=
--                return -1;=0A=
--        }=0A=
--        sandbox_len =3D strlen (sandbox);=0A=
--        old_name =3D semod_get_active_filename (linked_filename + =
-sandbox_len + 1);=0A=
--        for (e =3D conf->linked_prog; e !=3D NULL; e =3D e->next) {=0A=
--                retval =3D exec_prog (e, linked_filename, old_name);=0A=
--                if (retval =3D=3D -1 || retval =3D=3D -2) {=0A=
--                        goto cleanup;=0A=
--                }=0A=
--                else if (retval > 0) {=0A=
--                        retval =3D -3;=0A=
+-                        else {=0A=
+-                                retval =3D 0;=0A=
+-                        }=0A=
 -                        goto cleanup;=0A=
 -                }=0A=
 -        }=0A=
--        retval =3D 0;=0A=
+-        write_error (error_buf, error_buf_size, "Module %s was not =
+found.", module_name);=0A=
+-        retval =3D -4;                               /* module not =
+found */=0A=
 - cleanup:=0A=
--        free (linked_filename);=0A=
--        free (old_name);=0A=
+-        for (i =3D 0; i < num_modules; i++) {=0A=
+-                free (module_names[i]);=0A=
+-        }=0A=
+-        free (module_names);=0A=
 -        return retval;=0A=
 -}=0A=
 -=0A=
--/* Execute each of the kernel verification programs.  Returns 0 if=0A=
-- * every verifier returned success, -1 if out of memory, -2 if=0A=
-- * verifier could not execute, or -3 if one of the verifiers did not=0A=
-- * exit successfully.=0A=
+-/* Obtains a list of modules in the currently active kernel.  Write a=0A=
+- * newline separated list to '*results', which will be dynamically=0A=
+- * allocated.  The caller is responsible for free()ing '*results'=0A=
+- * afterwards.  Returns 0 on success, -1 if out of memory, or -2 a=0A=
+- * module could not be read.  Note that if there are no modules then=0A=
+- * *results will point to a newly allocated empty string.=0A=
 - */=0A=
--int semod_verify_kernel (char *sandbox) {=0A=
--        int retval;=0A=
--        size_t sandbox_len;=0A=
--        char *old_name =3D NULL, *kernel_filename =3D NULL;;=0A=
--        semod_conf_t *conf =3D semod_get_current_conf ();=0A=
--        external_prog_t *e;=0A=
--        if (conf->kernel_prog =3D=3D NULL) {=0A=
--                return 0;=0A=
+-int semod_direct_list_modules(char **results) {=0A=
+-        int len, retval;=0A=
+-        char **names, **versions;=0A=
+-        *results =3D NULL;=0A=
+-        if ((retval =3D semod_get_active_modules_list (&names, =
+&versions, &len)) < 0) {=0A=
+-                return retval;=0A=
 -        }=0A=
--        sandbox_len =3D strlen (sandbox);=0A=
--        if ((kernel_filename =3D semod_sandbox_kernel_name (sandbox)) =
-=3D=3D NULL) {=0A=
+-        return list_modules_common (results, names, versions, len);=0A=
+-}=0A=
+-=0A=
+-/* Obtains a list of modules in the current sandbox.  Write a newline=0A=
+- * separated list to '*results', which will be dynamically allocated.=0A=
+- * The caller is responsible for free()ing '*results' afterwards.=0A=
+- * Returns 0 on success, -1 if out of memory, or -2 a module could not=0A=
+- * be read.  Note that if there are no modules then *results will will=0A=
+- * point to a newly allocated empty string.=0A=
+- */=0A=
+-int semod_direct_list_sandbox(char *sandbox, char **results) {=0A=
+-        int len, retval;=0A=
+-        char **names, **versions;=0A=
+-        *results =3D NULL;=0A=
+-        if ((retval =3D semod_get_sandbox_modules_list (sandbox,=0A=
+-                                                      &names, =
+&versions, &len)) < 0) {=0A=
+-                return retval;=0A=
+-        }=0A=
+-        return list_modules_common (results, names, versions, len);=0A=
+-}=0A=
+-=0A=
+-/* Commits all changes in sandbox to the actual kernel policy.=0A=
+- * 'policyvers' gives the version number for the final policy;=0A=
+- * POLICYDB_VERSION_MAX is recommended.  Returns 0 on success, -1 if=0A=
+- * the module link failed, -2 if module expand failed, or -3 if=0A=
+- * loading of final policy failed.  If there were no errors (i.e.,=0A=
+- * return value of 0, then the sandbox directory shall no longer=0A=
+- * exist).  (If the 'sandbox' variable was dynamically allocated the=0A=
+- * caller is still responsible for free()ing its memory.)=0A=
+- */=0A=
+-int semod_direct_commit(char *sandbox, unsigned int policyvers,=0A=
+-                        char *error_buf, size_t error_buf_size) {=0A=
+-        char **mod_filenames =3D NULL, *linked_filename =3D NULL, =
+*fc_filename =3D NULL;=0A=
+-        sepol_module_package_t *base =3D NULL, **mods =3D NULL;=0A=
+-        int retval, num_modfiles =3D 0, num_modules =3D 0, i;=0A=
+-=0A=
+-        if (semod_get_sandbox_modules_names (sandbox, &mod_filenames, =
+&num_modfiles) !=3D 0 ||=0A=
+-            semod_verify_modules (sandbox, mod_filenames, num_modfiles) =
+!=3D 0) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not =
+verify modules.");=0A=
 -                retval =3D -1;=0A=
 -                goto cleanup;=0A=
 -        }=0A=
--        old_name =3D semod_get_active_filename (kernel_filename + =
-sandbox_len + 1);=0A=
--        for (e =3D conf->kernel_prog; e !=3D NULL; e =3D e->next) {=0A=
--                retval =3D exec_prog (e, kernel_filename, old_name);=0A=
--                if (retval =3D=3D -1 || retval =3D=3D -2) {=0A=
--                        goto cleanup;=0A=
--                }=0A=
--                else if (retval > 0) {=0A=
--                        retval =3D -3;=0A=
--                        goto cleanup;=0A=
--                }=0A=
--        }=0A=
--        retval =3D 0;=0A=
-- cleanup:=0A=
--        free (old_name);=0A=
--        free (kernel_filename);=0A=
--        return retval;=0A=
--}=0A=
--=0A=
--/* Loads a module (or a base) from a fully-qualified 'filename' into a=0A=
-- * newly allocated semod_module_package_t structure and returns it in=0A=
-- * '*package'.  Caller is responsible for destroying it afterwards via=0A=
-- * module_package_destroy().  Returns 0 on success, -1 if out of=0A=
-- * memory, or -2 if the module could not be loaded.=0A=
-- */=0A=
--int semod_load_module(char *filename, sepol_module_package_t **package) =
-{=0A=
--	int retval =3D 0;=0A=
--	struct policy_file pf;=0A=
--=0A=
--	if ((*package =3D (sepol_module_package_t*) malloc(sizeof(**package))) =
-=3D=3D NULL) {=0A=
--                return -1;=0A=
--	}=0A=
--	if (sepol_module_package_init(*package) =3D=3D -1) {=0A=
--                return -1;=0A=
+-        if (semod_link_sandbox (sandbox, &base, &mods, &num_modules, =
+error_buf, error_buf_size) < 0) {=0A=
+-                retval =3D -1;=0A=
+-                goto cleanup;=0A=
 -        }=0A=
 -=0A=
--	if ((pf.fp =3D fopen (filename, "rb")) =3D=3D NULL) {=0A=
--                return -2;=0A=
--	}=0A=
--	pf.type =3D PF_USE_STDIO;=0A=
--	if (sepol_module_package_read(*package, &pf, 0) =3D=3D -1) {=0A=
+-        /* write the linked base */=0A=
+-        if ((linked_filename =3D semod_sandbox_linked_name (sandbox)) =
+=3D=3D NULL ||=0A=
+-            semod_write_module (linked_filename, base, POLICY_BASE, =
+POLICYDB_VERSION_MAX) =3D=3D -1 ||=0A=
+-            semod_verify_linked (sandbox) !=3D 0) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not =
+verify linked module.");=0A=
+-                retval =3D -1;=0A=
+-                goto cleanup;=0A=
+-        }=0A=
+-=0A=
+-        /* write the linked file contexts */=0A=
+-        if ((fc_filename =3D semod_sandbox_fc_name (sandbox)) =3D=3D =
+NULL ||=0A=
+-            write_file (fc_filename, base->file_contexts, =
+base->file_contexts_len) =3D=3D -1) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not =
+write file contexts.");=0A=
+-                retval =3D -1;=0A=
+-                goto cleanup;=0A=
+-        }=0A=
+-        =0A=
+-        if (semod_expand_sandbox (sandbox, base, policyvers, error_buf, =
+error_buf_size) < 0) {=0A=
 -                retval =3D -2;=0A=
+-                goto cleanup;=0A=
 -        }=0A=
--	(void) fclose (pf.fp);=0A=
--	if (retval =3D=3D 0 &&=0A=
--            (*package)->policy->policy_type =3D=3D POLICY_MOD) {=0A=
--		if (policydb_index_classes ((*package)->policy) ||=0A=
--                    policydb_index_others ((*package)->policy, 0)) {=0A=
--                        retval =3D -2;=0A=
--                }=0A=
--	}=0A=
+-=0A=
+-        if (semod_verify_kernel (sandbox) !=3D 0) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not =
+verify expanded module.");=0A=
+-                retval =3D -2;=0A=
+-                goto cleanup;=0A=
+-        }=0A=
+-        if (semod_install_sandbox (sandbox, error_buf, error_buf_size) =
+< 0) {=0A=
+-                retval =3D -3;=0A=
+-        }=0A=
+-        else {=0A=
+-                retval =3D 0;=0A=
+-        }=0A=
+- cleanup:=0A=
+-        for (i =3D 0; mod_filenames !=3D NULL && i < num_modfiles; i++) =
+{=0A=
+-                free (mod_filenames[i]);=0A=
+-        }=0A=
+-        free (mod_filenames);=0A=
+-        free (linked_filename);=0A=
+-        free (fc_filename);=0A=
+-        sepol_module_package_destroy(base);=0A=
+-        for (i =3D 0; mods !=3D NULL && i < num_modules; i++) {=0A=
+-                sepol_module_package_destroy(mods[i]);=0A=
+-        }=0A=
+-        free (mods);=0A=
 -        return retval;=0A=
 -}=0A=
 -=0A=
--/* Writes a module (or a base) to the file given by a fully-qualified=0A=
-- * 'filename'.  Returns 0 on success, -1 if file could not be written.=0A=
+-=0A=
+-/* Check that the module store exists and then create a lock on the=0A=
+- * module store.  Next create a sandbox.  Returns a pointer to the=0A=
+- * sandbox or NULL on error.  The caller is responsible for free()ing=0A=
+- * the pointer afterwards.=0A=
 - */=0A=
--int semod_write_module(char *filename, sepol_module_package_t *package,=0A=
--                       uint32_t policy_type, int policyvers) {=0A=
--        struct policy_file pf;=0A=
--        FILE *outfile;=0A=
--        int retval;=0A=
--        if (sepol_set_policyvers (policy_type, policyvers) !=3D 0 ||=0A=
--            (outfile =3D fopen (filename, "wb")) =3D=3D NULL) {=0A=
--                return -1;=0A=
+-char *semod_direct_connect (char *error_buf, size_t error_buf_size) {=0A=
+-        char *sandbox;=0A=
+-        if (semod_create_module_store (0, error_buf, error_buf_size) < =
+0 ||=0A=
+-            semod_create_store_lock (0, error_buf, error_buf_size) < 0) =
+{=0A=
+-                return NULL;=0A=
 -        }=0A=
--        pf.type =3D PF_USE_STDIO;=0A=
--        pf.fp =3D outfile;=0A=
--        retval =3D sepol_module_package_write(package, &pf);=0A=
--        fclose(outfile);=0A=
--        if (retval =3D=3D -1) {=0A=
--                return -1;=0A=
+-        sandbox =3D semod_make_sandbox ("-libsemod", error_buf, =
+error_buf_size);=0A=
+-        return sandbox;=0A=
+-}=0A=
+-=0A=
+-/* If 'commit' is non-zero, attempt to commit the sandbox.  If the=0A=
+- * commit failed then destroy the sandbox.  Regardless if there was a=0A=
+- * commit or not, remove the store lock and free() 'sandbox'.  Returns=0A=
+- * 0 on success, negative value on error.=0A=
+- */=0A=
+-int semod_direct_disconnect (char *sandbox, int commit,=0A=
+-                             char *error_buf, size_t error_buf_size) {=0A=
+-        int retval =3D 0;=0A=
+-        if (commit) {=0A=
+-                retval =3D semod_direct_commit (sandbox, =
+semod_get_current_conf ()->policyvers,=0A=
+-                                              error_buf, =
+error_buf_size);=0A=
+-                if (retval < 0) {=0A=
+-                        (void) semod_remove_directory (sandbox);=0A=
+-                }=0A=
 -        }=0A=
--        return 0;=0A=
+-        else {=0A=
+-                (void) semod_remove_directory (sandbox);=0A=
+-        }=0A=
+-        semod_remove_store_lock ();=0A=
+-        free (sandbox);=0A=
+-        return retval;=0A=
 -}=0A=
 -=0A=
 -/********************* private stuff below *********************/=0A=
 -=0A=
--/* Take the arguments given in v->args and expand any $ macros within.=0A=
-- * Split the arguments into different strings (argv).  Next fork and=0A=
-- * execute the process.  BE SURE THAT ALL FILE DESCRIPTORS ARE SET TO=0A=
-- * CLOSE-ON-EXEC.  Take the return value of the child process and=0A=
-- * return it, -1 if out of memory, -2 if could not fork/exec.=0A=
+-/* Takes a module stored in 'module_data' and parses its headers.=0A=
+- * Sets reference variables 'filename' to module's fully qualified=0A=
+- * path name into the sandbox, 'module_name' to module's name, and=0A=
+- * 'version' to module's version.  The caller is responsible for=0A=
+- * free()ing 'filename', 'module_name', and 'version'; they will be=0A=
+- * set to NULL upon entering this function.  Returns 0 on success, -1=0A=
+- * if out of memory, or -2 if data did not represent a module.=0A=
 - */=0A=
--static int exec_prog (external_prog_t *e, char *new_name, char =
-*old_name) {=0A=
--        char *arg0, **argv;=0A=
--        pid_t forkval;=0A=
--=0A=
--        if ((arg0 =3D strdup (e->path)) =3D=3D NULL) {=0A=
--                return -1;=0A=
--        }=0A=
--        if ((argv =3D split_args (arg0, e->args, new_name, old_name)) =
-=3D=3D NULL) {=0A=
--                return -1;=0A=
--        }=0A=
--        =0A=
--        /* no need to use pthread_atfork() -- child will not be using=0A=
--         * any mutexes. */=0A=
--        if ((forkval =3D fork ()) =3D=3D -1) {=0A=
+-static int parse_module_headers (char *sandbox, char *module_data,=0A=
+-                                 size_t data_len, char **module_name,=0A=
+-                                 char **version, char **filename,=0A=
+-                                 char *error_buf, size_t =
+error_buf_size) {=0A=
+-        struct policy_file pf;=0A=
+-        int file_type;=0A=
+-        char *module_path;=0A=
+-        *module_name =3D *version =3D *filename =3D NULL;=0A=
+-        pf.type =3D PF_USE_MEMORY;=0A=
+-        pf.data =3D module_data;=0A=
+-        pf.len =3D data_len;=0A=
+-        pf.fp =3D NULL;=0A=
+-        if (module_data =3D=3D NULL ||=0A=
+-            data_len <=3D 0 ||=0A=
+-            sepol_module_package_info(&pf, &file_type, module_name,=0A=
+-                                      version) =3D=3D -1) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not read =
+module file.");=0A=
 -                return -2;=0A=
 -        }=0A=
--        else if (forkval =3D=3D 0) {=0A=
--                /* child process.  file descriptors will be closed=0A=
--                 * because they were set as close-on-exec. */=0A=
--                (void) execve (e->path, argv, NULL);=0A=
--                exit (EXIT_FAILURE);             /* if execve() failed =
-*/=0A=
+-        if (file_type !=3D POLICY_MOD) {=0A=
+-                write_error (error_buf, error_buf_size, "Read policy =
+was not a module.");=0A=
+-                return -2;=0A=
 -        }=0A=
--        else {=0A=
--                /* parent process.  wait for child to finish */=0A=
--                int status;=0A=
--                free_argv (argv);=0A=
--                if (waitpid (forkval, &status, 0) =3D=3D -1 ||=0A=
--                    !WIFEXITED (status)) {=0A=
--                        return -2;=0A=
--                }=0A=
--                return WEXITSTATUS (status);=0A=
+-        if ((module_path =3D semod_sandbox_modules_path (sandbox)) =
+=3D=3D NULL) {=0A=
+-                write_error (error_buf, error_buf_size, "Out of =
+memory!");=0A=
+-                return -1;=0A=
 -        }=0A=
--        assert(0);=0A=
--        return 0;        /* never reached, but here to satisfy lint */=0A=
+-        if (asprintf (filename, "%s/%s.pp", module_path, *module_name) =
+=3D=3D -1) {=0A=
+-                write_error (error_buf, error_buf_size, "Out of =
+memory!");=0A=
+-                free (module_path);=0A=
+-                return -1;=0A=
+-        }=0A=
+-        free (module_path);=0A=
+-        return 0;=0A=
 -}=0A=
 -=0A=
--/* Take an argument string and split and place into an argument=0A=
-- * vector.  Respect normal quoting, double-quoting, and backslash=0A=
-- * conventions.  Perform substitutions on $@ and $< symbols.  Returns=0A=
-- * a NULL-terminated argument vector; caller is responsible for=0A=
-- * free()ing the vector and its elements. */=0A=
--static char **split_args (char *arg0, char *arg_string,=0A=
--                          char *new_name, char *old_name) {=0A=
--        char **argv =3D NULL, **tv, *s, *arg =3D NULL, *targ;=0A=
--        int num_args =3D 0, in_quote =3D 0, in_dquote =3D 0;=0A=
--=0A=
--        if ((tv =3D append_arg (argv, &num_args, arg0)) =3D=3D NULL) {=0A=
--                goto cleanup;=0A=
--        }=0A=
--        else {=0A=
--                argv =3D tv;=0A=
--        }=0A=
--        s =3D arg_string;=0A=
--        /* parse the argument string one character at a time,=0A=
--         * repsecting quotes and other special characters */=0A=
--        while (s !=3D NULL && *s !=3D '\0') {=0A=
--                switch (*s) {=0A=
--                case '\\': {=0A=
--                        if (*(s + 1) =3D=3D '\0') {=0A=
--                                if ((targ =3D append (arg, '\\')) =
-=3D=3D NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                        }=0A=
--                        else {=0A=
--                                if ((targ =3D append (arg, *(s + 1))) =
-=3D=3D NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                                s++;=0A=
--                        }=0A=
--                        break;=0A=
--                }=0A=
--                case '\'': {=0A=
--                        if (in_dquote) {=0A=
--                                if ((targ =3D append (arg, *s)) =3D=3D =
-NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                        }=0A=
--                        else if (in_quote) {=0A=
--                                in_quote =3D 0;=0A=
--                        }=0A=
--                        else {=0A=
--                                in_quote =3D 1;=0A=
--                                if ((targ =3D append (arg, '\0')) =
-=3D=3D NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                        }=0A=
--                        break;=0A=
--                }=0A=
--                case '\"': {=0A=
--                        if (in_quote) {=0A=
--                                if ((targ =3D append (arg, *s)) =3D=3D =
-NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                        }=0A=
--                        else if (in_dquote) {=0A=
--                                in_dquote =3D 0;=0A=
--                        }=0A=
--                        else {=0A=
--                                in_dquote =3D 1;=0A=
--                                if ((targ =3D append (arg, '\0')) =
-=3D=3D NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                        }=0A=
--                        break;=0A=
--                }=0A=
--                case '$': {=0A=
--                        switch (*(s + 1)) {=0A=
--                        case '@': {=0A=
--                                if ((targ =3D append_str (arg, =
-new_name)) =3D=3D NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                                s++;=0A=
--                                break;=0A=
--                        }=0A=
--                        case '<': {=0A=
--                                if ((targ =3D append_str (arg, =
-old_name)) =3D=3D NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                                s++;=0A=
--                                break;=0A=
--                        }=0A=
--                        default: {=0A=
--                                if ((targ =3D append (arg, *s)) =3D=3D =
-NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                        }=0A=
--                        }=0A=
--                        break;=0A=
--                }=0A=
--                default: {=0A=
--                        if (isspace (*s) && !in_quote && !in_dquote) {=0A=
--                                if (arg !=3D NULL) {=0A=
--                                        if ((tv =3D append_arg (argv, =
-&num_args, arg)) =3D=3D NULL) {=0A=
--                                                goto cleanup;=0A=
--                                        }=0A=
--                                        else {=0A=
--                                                argv =3D tv;=0A=
--                                        }=0A=
--                                        arg =3D NULL;=0A=
--                                }=0A=
--                        }=0A=
--                        else {=0A=
--                                if ((targ =3D append (arg, *s)) =3D=3D =
-NULL) {=0A=
--                                        goto cleanup;=0A=
--                                }=0A=
--                                else {=0A=
--                                        arg =3D targ;=0A=
--                                }=0A=
--                        }=0A=
--                }=0A=
--                }=0A=
--                s++;=0A=
--        }=0A=
--        if (arg !=3D NULL) {=0A=
--                if ((tv =3D append_arg (argv, &num_args, arg)) =3D=3D =
-NULL) {=0A=
--                        goto cleanup;=0A=
--                }=0A=
--                else {=0A=
--                        argv =3D tv;=0A=
--                }=0A=
--                arg =3D NULL;=0A=
--        }=0A=
--        /* explicitly add a NULL at the end */=0A=
--        if ((tv =3D append_arg (argv, &num_args, NULL)) !=3D NULL) {=0A=
--                return tv;=0A=
--        }=0A=
-- cleanup:=0A=
--        free_argv (argv);=0A=
--        free (arg);=0A=
--        return NULL;=0A=
--}=0A=
--=0A=
--/* Appends a single character to a string.  Returns a pointer to the=0A=
-- * realloc()ated string.  If out of memory return NULL; original=0A=
-- * string will remain untouched.=0A=
+-/* Takes a base module stored in 'module_data' and parse its headers.=0A=
+- * Returns 0 on success, -1 if out of memory, or -2 if data did not=0A=
+- * represent a module.=0A=
 - */=0A=
--static char *append (char *s, char c) {=0A=
--        size_t len =3D (s =3D=3D NULL ? 0 : strlen (s));=0A=
--        char *new_s =3D realloc (s, len + 2);=0A=
--        if (new_s =3D=3D NULL) {=0A=
--                return NULL;=0A=
+-static int parse_base_headers (char *sandbox __attribute__ ((unused)), =0A=
+-			       char *module_data,=0A=
+-                               size_t data_len,=0A=
+-                               char *error_buf, size_t error_buf_size) {=0A=
+-        struct policy_file pf;=0A=
+-        char *module_name =3D NULL, *version =3D NULL;=0A=
+-        int file_type;=0A=
+-        pf.type =3D PF_USE_MEMORY;=0A=
+-        pf.data =3D module_data;=0A=
+-        pf.len =3D data_len;=0A=
+-        pf.fp =3D NULL;=0A=
+-        if (module_data =3D=3D NULL ||=0A=
+-            data_len <=3D 0 ||=0A=
+-            sepol_module_package_info(&pf, &file_type, &module_name, =
+&version) =3D=3D -1) {=0A=
+-                write_error (error_buf, error_buf_size, "Could not read =
+base policy file.");=0A=
+-                return -2;=0A=
 -        }=0A=
--        s =3D new_s;=0A=
--        s [len] =3D c;=0A=
--        s [len + 1] =3D '\0';=0A=
--        return s;=0A=
+-        free (module_name);=0A=
+-        free (version);=0A=
+-        if (file_type !=3D POLICY_BASE) {=0A=
+-                write_error (error_buf, error_buf_size, "Read policy =
+was not a base module.");=0A=
+-                return -2;=0A=
+-        }=0A=
+-        return 0;=0A=
 -}=0A=
 -=0A=
--/* Append string 't' to string 's', realloc()ating 's' as needed.  't'=0A=
-- * may be safely free()d afterwards.  Returns a pointer to the=0A=
-- * realloc()ated 's'.  If out of memory return NULL; original strings=0A=
-- * will remain untouched.=0A=
+-/* Writes a block of data to a file.  Returns 0 on success, -1 on=0A=
+- * error.=0A=
 - */=0A=
--static char *append_str (char *s, char *t) {=0A=
--        size_t s_len =3D (s =3D=3D NULL ? 0 : strlen (s));=0A=
--        size_t t_len =3D (t =3D=3D NULL ? 0 : strlen (t));=0A=
--        char *new_s =3D realloc (s, s_len + t_len + 1);=0A=
--        if (new_s =3D=3D NULL) {=0A=
--                return NULL;=0A=
+-static int write_file (char *filename, char *data, size_t num_bytes) {=0A=
+-        int out;=0A=
+-        if ((out =3D open (filename, O_WRONLY | O_CREAT, S_IRUSR | =
+S_IWUSR)) =3D=3D -1) {=0A=
+-                return -1;=0A=
 -        }=0A=
--        s =3D new_s;=0A=
--        (void) memcpy (s + s_len, t, t_len);=0A=
--        s [s_len + t_len] =3D '\0';=0A=
--        return s;=0A=
+-        if (write (out, data, num_bytes) !=3D (ssize_t) num_bytes) {=0A=
+-                (void) close (out);=0A=
+-                return -1;=0A=
+-        }=0A=
+-        (void) close (out);=0A=
+-        return 0;=0A=
 -}=0A=
 -=0A=
--/* Append an argument string to an argument vector, returning a=0A=
-- * pointer to the realloc()ated argument vector.  Also increments=0A=
-- * 'num_args'.  DO NOT FREE arg afterwards if function is successful.=0A=
-- * If out of memory return NULL; original strings will remain=0A=
-- * untouched.=0A=
+-/* Write to '*results' a string listing all modules and their=0A=
+- * versions.  '*results' will be dyanmically allocated; caller is=0A=
+- * responsible for free()ing it afterwards.  A tab character separates=0A=
+- * a module name from its version; newlines separate between modules.=0A=
+- * The arrays 'names' and 'versions' will be free()ed by this function=0A=
+- * regardless if there is an error or not.  Returns 0 on success, or=0A=
+- * -1 if out of memory.=0A=
 - */=0A=
--static char **append_arg (char **argv, int *num_args, char *arg) {=0A=
--        char **a;=0A=
--        if ((a =3D realloc (argv, sizeof (*argv) * (*num_args + 1))) =
-=3D=3D NULL) {=0A=
--                return NULL;=0A=
+-static int list_modules_common (char **results,=0A=
+-                                char **names, char **versions, int len) =
+{=0A=
+-        int i, retval =3D 0;=0A=
+-        char *t =3D NULL;=0A=
+-        size_t result_len =3D 0;=0A=
+-        if ((*results =3D strdup ("")) =3D=3D NULL) {=0A=
+-                return -1;=0A=
 -        }=0A=
--        argv =3D a;=0A=
--        argv [*num_args] =3D arg;=0A=
--        (*num_args)++;=0A=
--        return argv;=0A=
--}=0A=
--=0A=
--=0A=
--/* free()s all strings within a null-terminated argument vector, as=0A=
-- * well as the pointer itself. */=0A=
--static void free_argv (char **argv) {=0A=
--        int i;=0A=
--        for (i =3D 0; argv !=3D NULL && argv [i] !=3D NULL; i++) {=0A=
--                free (argv [i]);=0A=
+-        /* collate names and versions into a single string */=0A=
+-        for (i =3D 0; i < len; i++) {=0A=
+-                if (retval =3D=3D 0 && names[i] !=3D NULL && =
+versions[i] !=3D NULL) {=0A=
+-                        size_t name_len =3D strlen(names [i]);=0A=
+-                        size_t vers_len =3D strlen(versions [i]);=0A=
+-                        t =3D realloc(*results, result_len + name_len + =
+vers_len + 3);=0A=
+-                        if (t =3D=3D NULL) {=0A=
+-                                retval =3D -1;=0A=
+-                        }=0A=
+-                        else {=0A=
+-                                *results =3D t;=0A=
+-                                (void) memcpy(*results + result_len, =
+names [i], name_len);=0A=
+-                                (*results)[result_len + name_len] =3D =
+'\t';=0A=
+-                                result_len +=3D name_len + 1;=0A=
+-                                (void) memcpy(*results + result_len, =
+versions [i], vers_len);=0A=
+-                                (*results)[result_len + vers_len] =3D =
+'\n';=0A=
+-                                result_len +=3D vers_len + 1;=0A=
+-                                (*results)[result_len] =3D '\0';=0A=
+-                        }=0A=
+-                }=0A=
+-                free(names[i]);=0A=
+-                free(versions[i]);=0A=
 -        }=0A=
--        free (argv);=0A=
+-        free(names);=0A=
+-        free(versions);=0A=
+-        return retval;=0A=
 -}=0A=
 
-------=_NextPart_000_009B_01C5C2D3.17D3C650--
+------=_NextPart_000_00A4_01C5C2D3.38081930--
 
 
 
