@@ -1,26 +1,68 @@
-Subject: Re: reserved_port_type attribute
+Subject: Re: [ SEPOL ] Extract user records from binary policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1127758842.19016.163.camel@moss-spartans.epoch.ncsc.mil>
-References: <1127757038.32172.22.camel@sgc.columbia.tresys.com>
-	 <1127758842.19016.163.camel@moss-spartans.epoch.ncsc.mil>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <4334E4C8.8050206@cornell.edu>
+References: <4334E273.9070703@cornell.edu>  <4334E4C8.8050206@cornell.edu>
 Content-Type: text/plain
-Date: Mon, 26 Sep 2005 14:28:56 -0400
-Message-Id: <1127759336.19016.167.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 26 Sep 2005 15:19:02 -0400
+Message-Id: <1127762342.19016.186.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-09-26 at 14:20 -0400, Stephen Smalley wrote:
-> If checkpolicy were enhanced to prune unnecessary auditallow and
-> dontaudit rules after collecting all allow rules, then it would do no
-> harm to add reserved_port_t to the attribute.  At present, you'll bloat
-> the policy slightly by doing it because checkpolicy isn't smart enough
-> to drop the extraneous dontaudit rule for the allowed case.
+On Sat, 2005-09-24 at 01:31 -0400, Ivan Gyurdiev wrote:
+> ...and here's the same patch, with the obvious malloc bug fixed...tsk
 
-Except that in this case, since the rules are in terms of an attribute,
-it shouldn't matter much in policy.20.  
+diff -Nrua libsepol.new/src/users.c libsepol/src/users.c
+--- libsepol.new/src/users.c	2005-09-21 10:42:24.000000000 -0400
++++ libsepol/src/users.c	2005-09-24 01:28:27.000000000 -0400
++		/* Extract MLS info */
++		if (mls_enabled) {
++			context_struct_t context;
++			char *str;
++			int len;
++
++			context_init(&context);
++			memcpy(&context.range.level[0], 
++				&usrdatum->dfltlevel, sizeof(mls_level_t));
++			memcpy(&context.range.level[1],
++				&usrdatum->dfltlevel, sizeof(mls_level_t));	
++			len = mls_compute_context_len(policydb, &context);
++			str = (char*) malloc(len);
++			if (str == NULL)
++				goto omem;
++			mls_sid_to_context(policydb, &context, &str);				
++			str -= len;
++			
++			if ( sepol_user_set_mlslevel(tmp_users[i], str + 1) < 0 ) {
++				free(str);
++				goto err;
++			}
++			free(str);			
++
++			context_init(&context);
++			memcpy(&context.range, &usrdatum->range, sizeof(mls_range_t));
++			len = mls_compute_context_len(policydb, &context);
++			str = (char*) malloc(len);
++			if (str == NULL)
++				goto omem;
++			mls_sid_to_context(policydb, &context, &str);
++			str -= len;
++	
++			if ( sepol_user_set_mlsrange(tmp_users[i], str + 1) < 0) {
++				free(str);
++				goto err;
++			}
++			free(str);
++		}
+ 	}
+
+I understand that you are trying to just re-use the existing mls_
+functions here, but I think it would be better to alter them or add new
+ones that provide a saner interface for this kind of manipulation.  In
+particular, the manipulation of str above makes me nervous, even if it
+is technically correct.
 
 -- 
 Stephen Smalley
