@@ -1,30 +1,122 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8QHtiNs015755
-	for <selinux@tycho.nsa.gov>; Mon, 26 Sep 2005 13:55:44 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8QHoRuQ017940
-	for <selinux@tycho.nsa.gov>; Mon, 26 Sep 2005 17:50:27 GMT
-Subject: reserved_port_type attribute
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Mon, 26 Sep 2005 13:50:38 -0400
-Message-Id: <1127757038.32172.22.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-Id: <200509261805.j8QI5SYs022283@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'SELinux List'" <SELinux@tycho.nsa.gov>
+Cc: <russell@coker.com.au>
+Subject: Fix for segfault on duplicate role transitions
+Date: Mon, 26 Sep 2005 14:05:28 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_007D_01C5C2A3.5B041860"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-According to attrib.te, reserved_port_type is supposed to be for ports
-that are less than 1024.  Why is reserved_port_t not included?  Also,
-http_cache_port_t, ptal_port_t, clamd_port_t, pyzor_port_t, and
-dbskkd_port_t aren't labeling any ports below 1024 (dbskkd_port_t
-doesn't even have a portcon), so why have they been given this
-attribute?
+This is a multi-part message in MIME format.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+------=_NextPart_000_007D_01C5C2A3.5B041860
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Attached is a patch to fix a segfault on defining duplicate role
+transitions. It also fixes an off-by-one error in the duplicate
+range_transition code path. Russell Coker reported the bug.
+
+The patch is against CVS as of Friday evening - sourceforge anonymous cvs
+seems to be having issues and I can't update.
+
+Karl
+
+------
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com 
+
+
+------=_NextPart_000_007D_01C5C2A3.5B041860
+Content-Type: application/octet-stream;
+	name="1-role-trans-index-error.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="1-role-trans-index-error.patch"
+
+--- checkpolicy/policy_parse.y	2005-09-23 15:04:06.000000000 -0400=0A=
++++ checkpolicy/policy_parse.y	2005-09-26 11:01:03.000000000 -0400=0A=
+@@ -1899,6 +1899,11 @@ static int define_type(int alias)=0A=
+ 	return 0;=0A=
+ }=0A=
+ =0A=
++struct val_to_name {=0A=
++	unsigned int val;=0A=
++	char *name;=0A=
++};=0A=
++=0A=
+ /* Adds a type, given by its textual name, to a typeset.  If *add is=0A=
+    0, then add the type to the negative set; otherwise if *add is 1=0A=
+    then add it to the positive side. */=0A=
+@@ -2605,6 +2610,35 @@ static role_datum_t *=0A=
+         return NULL;=0A=
+ }=0A=
+ =0A=
++static int role_val_to_name_helper(hashtab_key_t key, hashtab_datum_t =
+datum, void *p)=0A=
++{=0A=
++	struct val_to_name *v =3D p;=0A=
++	role_datum_t *roldatum;=0A=
++=0A=
++	roldatum =3D (role_datum_t *) datum;=0A=
++=0A=
++	if (v->val =3D=3D roldatum->value) {=0A=
++		v->name =3D key;=0A=
++		return 1;=0A=
++	}=0A=
++=0A=
++	return 0;=0A=
++}=0A=
++=0A=
++=0A=
++static char *role_val_to_name(unsigned int val) =0A=
++{=0A=
++	struct val_to_name v;=0A=
++	int rc;=0A=
++=0A=
++	v.val =3D val;=0A=
++	rc =3D hashtab_map(policydbp->p_roles.table, =0A=
++			 role_val_to_name_helper, &v);=0A=
++	if (rc)=0A=
++		return v.name;=0A=
++	return NULL;=0A=
++}=0A=
++=0A=
+ static int set_roles(role_set_t *set,=0A=
+ 		     char *id)=0A=
+ {=0A=
+@@ -2710,8 +2744,8 @@ static int define_role_trans(void)=0A=
+ =0A=
+ 			for (tr =3D policydbp->role_tr; tr; tr =3D tr->next) {=0A=
+ 				if (tr->role =3D=3D (i+1) && tr->type =3D=3D (j+1)) {=0A=
+-					sprintf(errormsg, "duplicate role transition defined for (%s,%s)", =0A=
+-						policydbp->p_role_val_to_name[i], =
+policydbp->p_type_val_to_name[j]);=0A=
++					sprintf(errormsg, "duplicate role transition for (%s,%s)",=0A=
++						role_val_to_name(i), policydbp->p_type_val_to_name[j]);=0A=
+ 					yyerror(errormsg);=0A=
+ 					goto bad;=0A=
+ 				}=0A=
+@@ -4530,8 +4564,7 @@ static int define_range_trans(void)=0A=
+ 			for (rt =3D policydbp->range_tr; rt; rt =3D rt->next) {=0A=
+ 				if (rt->dom =3D=3D (i + 1) && rt->type =3D=3D (j + 1)) {=0A=
+ 					sprintf(errormsg, "duplicate range_transition defined for (%s,%s)",=0A=
+-					        policydbp->p_type_val_to_name[i + 1],=0A=
+-                                                =
+policydbp->p_type_val_to_name[j + 1]);=0A=
++					        policydbp->p_type_val_to_name[i], =
+policydbp->p_type_val_to_name[j]);=0A=
+ 					yyerror(errormsg);=0A=
+ 					return -1;=0A=
+ 				}=0A=
+
+------=_NextPart_000_007D_01C5C2A3.5B041860--
+
 
 
 --
