@@ -1,38 +1,56 @@
-Message-Id: <200509261805.j8QI5SYs022283@gotham.columbia.tresys.com>
+Message-Id: <200509261807.j8QI79Ys022306@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
 To: "'SELinux List'" <SELinux@tycho.nsa.gov>
 Cc: <russell@coker.com.au>
-Subject: Fix for segfault on duplicate role transitions
-Date: Mon, 26 Sep 2005 14:05:28 -0400
+Subject: RE: Fix for segfault on duplicate role transitions
+Date: Mon, 26 Sep 2005 14:07:09 -0400
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_007D_01C5C2A3.5B041860"
+	boundary="----=_NextPart_000_0080_01C5C2A3.95C85880"
+In-reply-to: 
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_007D_01C5C2A3.5B041860
+------=_NextPart_000_0080_01C5C2A3.95C85880
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-Attached is a patch to fix a segfault on defining duplicate role
-transitions. It also fixes an off-by-one error in the duplicate
-range_transition code path. Russell Coker reported the bug.
+> -----Original Message-----
+> From: Karl MacMillan [mailto:kmacmillan@tresys.com]
+> Sent: Monday, September 26, 2005 2:05 PM
+> To: 'SELinux List'
+> Cc: 'russell@coker.com.au'
+> Subject: Fix for segfault on duplicate role transitions
+> 
+> Attached is a patch to fix a segfault on defining duplicate role
+> transitions. It also fixes an off-by-one error in the duplicate
+> range_transition code path. Russell Coker reported the bug.
+> 
+> The patch is against CVS as of Friday evening - sourceforge anonymous cvs
+> seems to be having issues and I can't update.
+> 
+> Karl
+> 
 
-The patch is against CVS as of Friday evening - sourceforge anonymous cvs
-seems to be having issues and I can't update.
+Sorry - the previous patch was old and incorrect. Correct patch attached.
 
 Karl
 
 ------
 Karl MacMillan
 Tresys Technology
-http://www.tresys.com 
+http://www.tresys.com
+
+> ------
+> Karl MacMillan
+> Tresys Technology
+> http://www.tresys.com
 
 
-------=_NextPart_000_007D_01C5C2A3.5B041860
+------=_NextPart_000_0080_01C5C2A3.95C85880
 Content-Type: application/octet-stream;
 	name="1-role-trans-index-error.patch"
 Content-Transfer-Encoding: quoted-printable
@@ -40,7 +58,7 @@ Content-Disposition: attachment;
 	filename="1-role-trans-index-error.patch"
 
 --- checkpolicy/policy_parse.y	2005-09-23 15:04:06.000000000 -0400=0A=
-+++ checkpolicy/policy_parse.y	2005-09-26 11:01:03.000000000 -0400=0A=
++++ checkpolicy/policy_parse.y	2005-09-26 12:21:22.000000000 -0400=0A=
 @@ -1899,6 +1899,11 @@ static int define_type(int alias)=0A=
  	return 0;=0A=
  }=0A=
@@ -98,7 +116,7 @@ datum, void *p)=0A=
 -						policydbp->p_role_val_to_name[i], =
 policydbp->p_type_val_to_name[j]);=0A=
 +					sprintf(errormsg, "duplicate role transition for (%s,%s)",=0A=
-+						role_val_to_name(i), policydbp->p_type_val_to_name[j]);=0A=
++						role_val_to_name(i + 1), policydbp->p_type_val_to_name[j]);=0A=
  					yyerror(errormsg);=0A=
  					goto bad;=0A=
  				}=0A=
@@ -115,7 +133,7 @@ policydbp->p_type_val_to_name[j]);=0A=
  					return -1;=0A=
  				}=0A=
 
-------=_NextPart_000_007D_01C5C2A3.5B041860--
+------=_NextPart_000_0080_01C5C2A3.95C85880--
 
 
 
