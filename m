@@ -1,42 +1,39 @@
-Subject: Re: [PATCH] semanage-functionality 4/17
+Subject: RE: [PATCH] semanage-functionality 4/17
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, selinux@tycho.nsa.gov,
    "'Joshua Brindle'" <jbrindle@tresys.com>
-In-Reply-To: <4339B036.5090900@cornell.edu>
-References: <200509271246.j8RCkcYs026042@gotham.columbia.tresys.com>
-	 <43397960.5070905@cornell.edu>
-	 <1127851738.21671.147.camel@moss-spartans.epoch.ncsc.mil>
-	 <4339B036.5090900@cornell.edu>
+In-Reply-To: <200509272038.j8RKcKYs000732@gotham.columbia.tresys.com>
+References: <200509272038.j8RKcKYs000732@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Tue, 27 Sep 2005 16:57:27 -0400
-Message-Id: <1127854647.21671.194.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 27 Sep 2005 17:10:18 -0400
+Message-Id: <1127855418.21671.203.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-27 at 16:48 -0400, Ivan Gyurdiev wrote:
-> Most likely my fault - I introduced the pointer ones for records - that 
-> can be changed if necessary. The nice thing about pointer typedefs is 
-> that the pointer is hidden within the data type, which makes it possible 
-> to eliminate, if necessary - type can be replaced with a primitive 
-> without changing any of the functions to get rid of the star.... not 
-> that we're ever going to use primitive types for any of those things.
+On Tue, 2005-09-27 at 16:38 -0400, Karl MacMillan wrote:
+> These are the stubs that we put in a while ago - we will send a patch to
+> remove those. I would prefer that everything be in semanage.h, however. I
+> don't think that it will make the header too long and it will make it
+> clearer I believe. 
 
-Yes, and I'm dubious that such elimination is practically useful; you
-still have to audit the code for correct usage and in any case where it
-affects an exposed interface, you have the whole stable API/ABI issue to
-deal with.
+Clearer in what sense?  Logically, the module interfaces are distinct
+from the user interfaces, and they will have different clients
+(programs) typically.  
 
-> Then we'll have to type struct everywhere...
+> These also need to be routed through the handle function pointers so that
+> alternative implementations for the policy server can be provided.
 
-Yes, I see it as a benefit to be able to easily see from the code
-whether a function (and the code) is dealing with a pointer or a struct
-without needing to look up a separate type definition.  Think in terms
-of long term code maintainability / readability, particularly for
-patches.  Besides, typing "struct foobahblaz" isn't so much worse than
-typing "foobahblaz_t".  The kernel maintainers are right on the issue of
-typedefs...
+Right, the handles have to be common to all, but that can certainly be
+done by a handle.h that is included by the other headers.
+
+> As above - I disagree. I would prefer a single header for everything that
+> works with the transactions. The header will not be that large and it makes
+> it easier to see the API as a whole.
+
+But if the API consists of logically separable components, with
+different clients/users, then why do you want that?
 
 -- 
 Stephen Smalley
