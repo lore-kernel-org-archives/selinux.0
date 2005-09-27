@@ -1,44 +1,43 @@
-Subject: Re: [owner@bugs.debian.org: Bug#249499 acknowledged by developer
-	(Bug#249499: fixed in pam 0.79-1)]
+Subject: Re: [ SEPOL ] Extract user records from binary policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050927101848.GF11050@lkcl.net>
-References: <20050927101848.GF11050@lkcl.net>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <4338A1BD.9050204@cornell.edu>
+References: <4334E273.9070703@cornell.edu>  <4334E4C8.8050206@cornell.edu>
+	 <1127762342.19016.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <4338A1BD.9050204@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 27 Sep 2005 14:30:49 -0400
-Message-Id: <1127845849.21671.73.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 27 Sep 2005 14:58:26 -0400
+Message-Id: <1127847506.21671.96.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-09-27 at 11:18 +0100, Luke Kenneth Casson Leighton wrote:
-> heya folks,
+On Mon, 2005-09-26 at 21:34 -0400, Ivan Gyurdiev wrote:
+> >I understand that you are trying to just re-use the existing mls_
+> >functions here, but I think it would be better to alter them or add new
+> >ones that provide a saner interface for this kind of manipulation.  In
+> >particular, the manipulation of str above makes me nervous, even if it
+> >is technically correct.
+> >  
+> >
+> Yes, I agree the mls interface should be improved... so I don't have to 
+> write things like:
 > 
-> is this the right thing to have been done?
-<snip>
->    * Patch 057: SELinux support:
->      - add support to pam_unix for copying SELinux security contexts when
->        writing out new passwd/shadow files and creating lockfiles
->      - support calling unix_chkpwd if opening /etc/shadow fails due to
->        SELinux permissions
->      - allow unix_chkpwd to authenticate for any user when in an SELinux
->        context (hurray!); we depend on SELinux policies to prevent the
->        helper's use as a brute force tool
->      - also support querying user expiration info via unix_chkpwd
->      - misc cleanup: clean up file descriptors when invoking unix_chkpwd
->        (closes: #248310)
->      - make pam_rootok check the SELinux passwd class permissions, not just
->        the uid
->      - add new pam_selinux module (closes: #249499)
-<snip>
+>                 if (mls_context_to_sid(policydb, '$', &mls_level, 
+> &context)) {
+>                         DEBUG(__FUNCTION__, "invalid level %s for user 
+> %s\n",
+>                                 mls_level, name);
+>                         goto err;
+>                 }
 
-That summary looks consistent with the SELinux-related changes in the
-Fedora pam package, although one would naturally need to check the code
-for consistency.  Looking at the Fedora public CVS tree's pam package, I
-see that the main pam selinux patch was upstreamed into pam 0.80.  But
-pam-pwdbselinux.patch and pam-0.80-selinux-nofail.patch are separate
-patches in the Fedora pam package that don't appear to be upstream yet.
+Yes.  The interface did make sense for its original usage, but not for
+the way in which it is being used here. 
+
+> Is this patch vetoed for now?
+
+Yes.
 
 -- 
 Stephen Smalley
