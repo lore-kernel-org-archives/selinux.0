@@ -1,37 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8RGbUNs026406
-	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 12:37:30 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8RGW9cJ021293
-	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 16:32:09 GMT
-Message-ID: <4339760A.9080300@cornell.edu>
-Date: Tue, 27 Sep 2005 12:40:42 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8RGpWNs026570
+	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 12:51:32 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8RGk6pk026887
+	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 16:46:06 GMT
+Message-ID: <43397960.5070905@cornell.edu>
+Date: Tue, 27 Sep 2005 12:54:56 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: Karl MacMillan <kmacmillan@tresys.com>
-CC: selinux@tycho.nsa.gov, dwalsh@redhat.com, jbrindle@tresys.com
-Subject: Re: [ SEMANAGE ] dbase initialization/semanage_handle stub/fixes
-References: <200509271224.j8RCOaYs025773@gotham.columbia.tresys.com>
-In-Reply-To: <200509271224.j8RCOaYs025773@gotham.columbia.tresys.com>
+CC: selinux@tycho.nsa.gov, "'Joshua Brindle'" <jbrindle@tresys.com>
+Subject: Re: [PATCH] semanage-functionality 4/17
+References: <200509271246.j8RCkcYs026042@gotham.columbia.tresys.com>
+In-Reply-To: <200509271246.j8RCkcYs026042@gotham.columbia.tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+\Karl MacMillan wrote:
 
->The patches that I sent out yesterday were not on top of these patches. I
->would be happy to either rebase your patches or give you a hand rebasing
->them. 
->
-I will take care of that..
-
->It looks, however, that you can probably just drop handle.[c,h] in
->favor of semanage.[c,h] and things should work. Let me know.
+>This patch adds semanage.h - this is the new public interface for
+>libsemanage.
 >  
 >
-Or...you could drop semanage.[c,h]'s handle functionality in favor of 
-handle.[c,h]. I personally like smaller headers, intended to contain one 
-thing. Then you can still write the big  umbrella header by including 
-others.
+Why is it that you have to keep re-adding the components that I'm 
+currently working on. Please leave those out of the semanage.h header 
+for now. If you don't approve of my APIs, then you should submit patches 
+on top of them, instead of introducing duplicate work. Anything that 
+says semanage_mls_* semanage_user_*, semanage_boolean_*, and 
+semanage_homedir_* should be left out for now.
+
+1) Users - those will be handled via the user_record data structure, 
+which is already in CVS. The implementation is in sepol, but I've 
+uninlined the data structure, so the API is now opaque.
+
+2) Booleans - those will be handle via the boolean_record data 
+structure. I have no included that in semanage yet, because I'm still 
+testing how other records (like the user record) will work, but you can 
+look at the data structure in sepol.
+
+3) Homedirs - this part of the API is too unclear to add at this point 
+(at least, it's not clear to me yet, and I'll probably be implementing it..)
+
+P.S. Your semanage header should likely draw in my user/port/record 
+headers, but please don't do this yet, as those interfaces are in flux. 
+Also, I think the handle stuff and the module stuff should go into 
+separate headers, and you should include those into semanage.h.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
