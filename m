@@ -1,30 +1,29 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8RCroNs021682
-	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 08:53:50 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8RCmPpk004015
-	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 12:48:26 GMT
-Message-Id: <200509271248.j8RCmXYs026073@gotham.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8RCsfNs021707
+	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 08:54:41 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8RCnLcJ006359
+	for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2005 12:49:21 GMT
+Message-Id: <200509271249.j8RCnKYs026085@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
 To: <selinux@tycho.nsa.gov>
 Cc: "'Joshua Brindle'" <jbrindle@tresys.com>
-Subject: [PATCH] semanage-functionality 9/17
-Date: Tue, 27 Sep 2005 08:48:33 -0400
+Subject: [PATCH] semanage-functionality 10/17
+Date: Tue, 27 Sep 2005 08:49:20 -0400
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0028_01C5C340.3DFD4960"
+	boundary="----=_NextPart_000_002B_01C5C340.5A035BE0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0028_01C5C340.3DFD4960
+------=_NextPart_000_002B_01C5C340.5A035BE0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-This patch adds the private portion of semanage.h for use by implementations
-of the public api. In particular it adds the semanage_handle_t struct.
+This patch adds the private header for the semanage transactional store.
 
 ------
 Karl MacMillan
@@ -32,24 +31,25 @@ Tresys Technology
 http://www.tresys.com 
 
 
-------=_NextPart_000_0028_01C5C340.3DFD4960
+------=_NextPart_000_002B_01C5C340.5A035BE0
 Content-Type: application/octet-stream;
-	name="libsemanage_src_include_semanage_private.h.diff"
+	name="libsemanage_src_include_semanage_store.h.diff"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="libsemanage_src_include_semanage_private.h.diff"
+	filename="libsemanage_src_include_semanage_store.h.diff"
 
-diff -purN -x .svn libsemanage/src/include/semanage_private.h =
-libsemanage/src/include/semanage_private.h=0A=
---- libsemanage/src/include/semanage_private.h	1969-12-31 =
+diff -purN -x .svn libsemanage/src/include/semanage_store.h =
+libsemanage/src/include/semanage_store.h=0A=
+--- libsemanage/src/include/semanage_store.h	1969-12-31 =
 19:00:00.000000000 -0500=0A=
-+++ libsemanage/src/include/semanage_private.h	2005-09-26 =
-11:36:19.000000000 -0400=0A=
-@@ -0,0 +1,119 @@=0A=
-+/* Author: Joshua Brindle <jbrindle@tresys.com>=0A=
-+ *	   Jason Tang	  <jtang@tresys.com>=0A=
++++ libsemanage/src/include/semanage_store.h	2005-09-26 =
+12:21:22.000000000 -0400=0A=
+@@ -0,0 +1,104 @@=0A=
++/* Authors: Karl MacMillan <kmacmillan@tresys.com>=0A=
++ *	    Joshua Brindle <jbrindle@tresys.com>=0A=
++ *	    Jason Tang <jtang@tresys.com>=0A=
 + *=0A=
-+ * Copyright (C) 2005 Tresys Technology, LLC=0A=
++ * Copyright (C) 2004-2005 Tresys Technology, LLC=0A=
 + *=0A=
 + *  This library is free software; you can redistribute it and/or=0A=
 + *  modify it under the terms of the GNU Lesser General Public=0A=
@@ -67,107 +67,94 @@ libsemanage/src/include/semanage_private.h=0A=
 02110-1301  USA=0A=
 + */=0A=
 +=0A=
-+#ifndef SEMANAGE_PRIVATE_H=0A=
-+#define SEMANAGE_PRIVATE_H=0A=
++#ifndef SEMANAGE_MODULE_STORE_H=0A=
++#define SEMANAGE_MODULE_STORE_H=0A=
 +=0A=
-+#include <semanage/semanage.h>=0A=
-+=0A=
-+#include "semanage_conf.h"=0A=
++#include "semanage_private.h"=0A=
 +#include "dso.h"=0A=
 +=0A=
-+#include <stdlib.h>=0A=
-+#include <sys/time.h> =0A=
++#include <sys/time.h>=0A=
 +=0A=
-+struct semanage_module_conn {=0A=
-+	int translock_file_fd;=0A=
-+	int readlock_file_fd;=0A=
++#include <sepol/module.h>=0A=
++=0A=
++enum semanage_store_defs {=0A=
++	SEMANAGE_ACTIVE,=0A=
++	SEMANAGE_PREVIOUS,=0A=
++	SEMANAGE_TMP,=0A=
++	SEMANAGE_NUM_STORES=0A=
 +};=0A=
 +=0A=
-+struct semanage_func_table {=0A=
-+	void (*destroy)(semanage_handle_t *);=0A=
-+	int (*disconnect)(semanage_handle_t *);=0A=
-+	int (*begin_trans)(semanage_handle_t *); =0A=
-+	int (*commit)(semanage_handle_t *);=0A=
-+	int (*install)(semanage_handle_t *, char *, size_t);=0A=
-+	int (*upgrade)(semanage_handle_t *, char *, size_t);=0A=
-+	int (*install_base)(semanage_handle_t *, char *, size_t);=0A=
-+	int (*remove)(semanage_handle_t *, char *);=0A=
-+	int (*list)(semanage_handle_t *, semanage_module_info_t **, int *);=0A=
++/* sandbox filenames and paths */=0A=
++enum semanage_sandbox_defs {=0A=
++	SEMANAGE_TOPLEVEL,=0A=
++	SEMANAGE_MODULES, =0A=
++	SEMANAGE_KERNEL,=0A=
++	SEMANAGE_BASE, =0A=
++	SEMANAGE_LINKED, =0A=
++	SEMANAGE_FC,=0A=
++	SEMANAGE_COMMIT_NUM_FILE,=0A=
++	SEMANAGE_STORE_NUM_PATHS=0A=
 +};=0A=
 +=0A=
-+#define SEMANAGE_ERRBUFSZ 1024=0A=
++/* FIXME: this needs to be made a module store specific init and the=0A=
++ * global configuration moved to another file.=0A=
++ */=0A=
++const char *semanage_conf_path(void);=0A=
++int semanage_check_init(const char *root);=0A=
++const char *semanage_path(enum semanage_store_defs store, enum =
+semanage_sandbox_defs file);=0A=
 +=0A=
-+struct semanage_handle {=0A=
-+	int con_id;		/* Connection ID */=0A=
-+	int policy_serial;	/* Policy serial number at connect time */=0A=
-+	char err_buf[SEMANAGE_ERRBUFSZ];=0A=
++int semanage_create_store(semanage_handle_t *sh, int create);=0A=
++hidden_proto(semanage_create_store)=0A=
 +=0A=
-+	/* one of these connections will actually be used while=0A=
-+	 * working with the module store -- the particular one is=0A=
-+	 * given by conf->store_type */=0A=
-+	semanage_conf_t *conf;=0A=
-+	union {=0A=
-+		struct semanage_module_conn module;=0A=
-+	} conn;=0A=
-+	int is_connected;=0A=
-+	int is_in_transaction;=0A=
++int semanage_remove_directory(const char *path);=0A=
++hidden_proto(semanage_remove_directory)=0A=
 +=0A=
-+	/* these function pointers will point to the appropriate=0A=
-+	 * routine given the connection type.  think of these as=0A=
-+	 * simulating polymorphism for non-OO languages. */=0A=
-+	struct semanage_func_table *funcs;=0A=
++int semanage_make_sandbox(semanage_handle_t *sh);=0A=
++int semanage_get_modules_names(semanage_handle_t *sh,=0A=
++			       char ***filenames, int *len);=0A=
++int semanage_install_sandbox(semanage_handle_t *sh);=0A=
++hidden_proto(semanage_make_sandbox)=0A=
++hidden_proto(semanage_get_modules_names)=0A=
++hidden_proto(semanage_install_sandbox)=0A=
 +=0A=
-+	/* This timeout is used for transactions and waiting for locks =0A=
-+	   -1 means wait indefinetely=0A=
-+	    0 means return immediately =0A=
-+	   >0 means wait that many seconds */=0A=
-+	int timeout;=0A=
-+};=0A=
++/* lock file routines */=0A=
++int semanage_get_trans_lock(semanage_handle_t *sh);=0A=
++int semanage_get_read_lock(semanage_handle_t *sh);=0A=
++void semanage_release_trans_lock(semanage_handle_t *sh);=0A=
++void semanage_release_read_lock(semanage_handle_t *sh);=0A=
++int semanage_get_commit_number(semanage_handle_t *sh);=0A=
++hidden_proto(semanage_get_trans_lock)=0A=
++hidden_proto(semanage_get_read_lock)=0A=
++hidden_proto(semanage_release_trans_lock)=0A=
++hidden_proto(semanage_release_read_lock)=0A=
++hidden_proto(semanage_get_commit_number)=0A=
 +=0A=
-+struct semanage_module_info {=0A=
-+	char *name;		/* Key */=0A=
-+	char *version;=0A=
-+};=0A=
 +=0A=
-+struct semanage_role {=0A=
-+	char *name;		/* Key */=0A=
-+};=0A=
++int semanage_link_sandbox(semanage_handle_t *sh, sepol_module_package_t =
+**base);=0A=
++int semanage_expand_sandbox(semanage_handle_t *sh, =
+sepol_module_package_t *base);=0A=
++int semanage_install_sandbox(semanage_handle_t *sh);=0A=
 +=0A=
-+struct semanage_mls {=0A=
-+	char *level;=0A=
-+	char *range;=0A=
-+};=0A=
++int semanage_verify_modules(semanage_handle_t *sh,=0A=
++			    char **module_filenames, int num_modules);=0A=
++int semanage_verify_linked(semanage_handle_t *sh);=0A=
++int semanage_verify_kernel(semanage_handle_t *sh);=0A=
 +=0A=
-+struct semanage_user {=0A=
-+	char *name;		/* Key */=0A=
-+	struct semanage_role **roles;=0A=
-+	int num_roles;=0A=
-+	struct semanage_mls *mls;=0A=
-+};=0A=
++hidden_proto(semanage_conf_path)=0A=
++hidden_proto(semanage_check_init)=0A=
++hidden_proto(semanage_path)=0A=
 +=0A=
-+struct semanage_homedir {=0A=
-+	char *user;=0A=
-+	char *path;		/* Key */=0A=
-+};=0A=
-+=0A=
-+struct semanage_boolean {=0A=
-+	char *name;		/* Key */=0A=
-+	char default_state;=0A=
-+};=0A=
-+=0A=
-+semanage_handle_t *semanage_handle_create(void);=0A=
-+=0A=
-+#ifdef __GNUC__=0A=
-+__attribute__ ((format (printf, 2, 3)))=0A=
-+#endif=0A=
-+void semanage_write_error(semanage_handle_t *sh, char *fmt, ...);=0A=
-+=0A=
-+hidden_proto(semanage_handle_create)=0A=
-+hidden_proto(semanage_write_error)=0A=
-+=0A=
++hidden_proto(semanage_link_sandbox)=0A=
++hidden_proto(semanage_expand_sandbox)=0A=
++hidden_proto(semanage_install_sandbox)=0A=
++hidden_proto(semanage_verify_modules)=0A=
++hidden_proto(semanage_verify_linked)=0A=
++hidden_proto(semanage_verify_kernel)=0A=
 +#endif=0A=
 
-------=_NextPart_000_0028_01C5C340.3DFD4960--
+------=_NextPart_000_002B_01C5C340.5A035BE0--
 
 
 
