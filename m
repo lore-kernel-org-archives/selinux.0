@@ -1,123 +1,98 @@
-Message-Id: <200509281624.j8SGOpYs011239@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>
-Subject: RE: [PATCH] semanage-functionality 4/17
-Date: Wed, 28 Sep 2005 12:24:51 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1127923146.25945.90.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: getseuserbyname patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <43398EB2.1050100@redhat.com>
+References: <43398EB2.1050100@redhat.com>
+Content-Type: text/plain
+Date: Wed, 28 Sep 2005 12:39:52 -0400
+Message-Id: <1127925593.25945.130.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Wednesday, September 28, 2005 11:59 AM
-> To: Karl MacMillan
-> Cc: 'Ivan Gyurdiev'; selinux@tycho.nsa.gov; 'Joshua Brindle'
-> Subject: RE: [PATCH] semanage-functionality 4/17
+On Tue, 2005-09-27 at 14:25 -0400, Daniel J Walsh wrote:
+> Currently applied to libsetrans, since we have come to no conclusion on 
+> where this should go.
+
+I still view that as a mistake; libsetrans is about translating between
+kernel security contexts and human-readable security labels,
+particularly for MCS/MLS where we expect them to differ, is completely
+unnecessary in the non-MCS/MLS case, and is brought in by all libselinux
+users when context translations are enabled.  Mapping Linux users to
+SELinux users (and, in the MCS/MLS case, a MLS range) is something we
+want regardless of whether context translations are performed, and needs
+to be done by login-type apps only.
+
+> Currently takes a file of the format
+> cat /etc/selinux/seusers.conf
+> dwalsh:staff_u:s0-s0:c1,c5
+> pwalsh:user_u::   #This is an error
+> rwalsh:user_u:s4
+> root:staff_u:s0-s0-s0:c0,c127
+
+Isn't this an error too?
+
+> default:user_u:s0
 > 
-> On Wed, 2005-09-28 at 11:31 -0400, Karl MacMillan wrote:
-> > Go ahead and drop, but I would like to add it back in the future. I'm
-> not a
-> > big fan of library constructors, but we can do it that way if you would
-> > prefer (partially, it makes it harder to use this as a static library I
-> > believe).
-> >
-> > Part of this is that config scheme currently doesn't make sense (this
-> was
-> > discussed in the past). The current config has 3 things:
-> >
-> > 1) Information on how to connect, etc.
-> >
-> > 2) Verification programs to run on commit.
-> >
-> > 3) Information on the location and commandline args to programs like
-> > load_policy.
-> >
-> > I think that 1 should move to /etc/selinux/config. This will require
-> changes
-> > to libselinux. Objections?
+> Currently I placed the flat file in /etc/selinux/ directory, but might 
+> be better off in the policy directory, since s4 or staff_u might not be 
+> defined for MCS policy.
+
+Right, it contains policy-specific data.  On the other hand, we expect
+to offload it to an LDAP directory, so it will ultimately live entirely
+outside of the policy-specific directory.
+
+> Eventually this function will call out to LDAP also, so not a good 
+> candidate for libselinux, unless we want the ls command linking against 
+> LDAP.
+
+Putting it into libsetrans yields the same effect, because ls depends on
+libselinux which dlopen's libsetrans whenever it exists, right?  The
+best option would be to create yet another library for it.  However, if
+that is strongly disliked, I'd say just put it directly into libselinux.
+libselinux can certainly defer dlopen/dlsym of ldap or any other backend
+library until it actually needs the backend, so that we don't pick them
+up for ls.
+
+> I want to add this function to login programs (Pam, gdm) in order to 
+> limit MCS users.
+
+More generally, to let us authorize Linux users for SELinux role sets
+(via the indirection of SELinux users) and (in the MCS/MLS case)
+particular ranges without needing to add them individually to the
+policy.
+
+> Need to figure out what to do if no entries are returned.  (I guess 
+> allow policy to decide.)  Maybe we should eliminate default entry?
+
+The issue there is that if your config provides no default user and
+range, and you pass the Linux username along to libselinux, it will try
+that user but then fallback internally to user_u and whatever the kernel
+provides for a range.  And user_u will likely be authorized for the full
+range in the kernel policy since you are now using this new
+configuration to restrict what categories are accessible to individual
+Linux users.
+
+> Function returns structure containing
 > 
-> Hmmm...that seems specific to libsemanage, although I agree it is
-> unlikely to be policy-specific.  Not sure it necessarily requires
-> changes to libselinux, unless you want libselinux to handle parsing and
-> extraction of the value.  I think libselinux just ignores any content
-> in /etc/selinux/config other than its own variables (SELINUX=,
-> SELINUXTYPE=), so you could introduce new tags there and have
-> libsemanage interpret them directly.  system-config-securitylevel just
-> needs to know not to clobber them.
+> username
+> seusername
+> sensitivity (Could be a range)
+> Categories.(Can be null).
 > 
+> When you call selinux functions you will need to create a level by 
+> appending Sensitivity + ":" + Categories
 
-That sounds fine. We could also just have a separate config file (see
-below).
+No, you just want to take the Linux username as the input parameter, and
+return the SELinux username and the entire range string as a whole, then
+pass that to libselinux.  The low level can have a category set too,
+e.g. s0:c1-s0:c1,c2.
 
-> > 2 should be part of each policy, e.g.,
-> /etc/selinux/targeted/semanage.conf.
-> > This is really the current config file.
-> 
-> Not sure about this one in practice, as a single verifier program could
-> certainly load policy-specific settings itself based on $SELINUXTYPE
-> without requiring the verifier program and args to be
-> policy-specific.
-> 
-
-We don't really have examples of this yet, so I would argue for the simple
-approach and do something more complex later. That means, I think, that we
-should move the current config to /etc/selinux/semanage.conf, simplify it a
-bit, and allow the verification programes (when they appear) to load
-settings based on $SELINUXTYPE.
-
-> > 3 should be dropped in favor of Makefile variables or moved to
-> > /etc/selinux/config. I can't imagine a different load_policy per policy.
-> 
-> Yes, I agree.
-> 
-> > Why not just handle.h for connections and transactions instead of the a
-> > separate transaction.h and handle.h?
-> 
-> It is unclear to me as to whether we need connections and transactions
-> for all uses of libsemanage.  If we do, then I'd agree that putting them
-> all into handle.h is correct, but it does raise the question again of
-> why we have separate connect/create and disconnect/destroy (well, you
-> only had the latter, but it yields an inconsistent interface).
-> 
-
-I think that we always need a connection - which is why the separate create
-was not provided. The separate destroy was required, however, to:
-
-a) allow extraction of errors from the handle after disconnect and
-b) permit a handle to be destroyed without disconnecting. This is required
-when a client forks I believe. One of the processes will have a handle that
-needs to be destroyed without disconnecting.
-
-I think that we need to have a create to allow:
-
-1) create a handle
-2) set connection options (timeout, where to connect - remote policy server,
-local policy server, direct, etc.).
-3) connect.
-4) etc., etc.
-
-> > Agreed. Are you making these changes, or do you want an updated patch?
-> 
-> I'm already on it.
-> 
-
-Ok - after you commit your changes we will sync and get you a patch for the
-other issues.
-
-------
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-
-> --
-> Stephen Smalley
-> National Security Agency
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
