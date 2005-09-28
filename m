@@ -1,63 +1,48 @@
-Message-Id: <200509281515.j8SFFZYs010016@gotham.columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8SFLgNs005961
+	for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2005 11:21:42 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8SFGGor009915
+	for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2005 15:16:16 GMT
+Message-Id: <200509281516.j8SFFwYs010019@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>,
-   "'Joshua Brindle'" <jbrindle@tresys.com>
-Subject: RE: [PATCH] semanage-functionality 4/17
-Date: Wed, 28 Sep 2005 11:15:35 -0400
+To: "'Ivan Gyurdiev'" <ivg2@cornell.edu>
+Cc: <selinux@tycho.nsa.gov>, <dwalsh@redhat.com>, <jbrindle@tresys.com>
+Subject: RE: [ SEMANAGE ] dbase initialization/semanage_handle stub/fixes
+Date: Wed, 28 Sep 2005 11:15:58 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-Reply-To: <1127855418.21671.203.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <4339760A.9080300@cornell.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 > -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Tuesday, September 27, 2005 5:10 PM
+> From: Ivan Gyurdiev [mailto:ivg2@cornell.edu]
+> Sent: Tuesday, September 27, 2005 12:41 PM
 > To: Karl MacMillan
-> Cc: 'Ivan Gyurdiev'; selinux@tycho.nsa.gov; 'Joshua Brindle'
-> Subject: RE: [PATCH] semanage-functionality 4/17
+> Cc: selinux@tycho.nsa.gov; dwalsh@redhat.com; jbrindle@tresys.com
+> Subject: Re: [ SEMANAGE ] dbase initialization/semanage_handle stub/fixes
 > 
-> On Tue, 2005-09-27 at 16:38 -0400, Karl MacMillan wrote:
-> > These are the stubs that we put in a while ago - we will send a patch to
-> > remove those. I would prefer that everything be in semanage.h, however.
-> I
-> > don't think that it will make the header too long and it will make it
-> > clearer I believe.
 > 
-> Clearer in what sense?  Logically, the module interfaces are distinct
-> from the user interfaces, and they will have different clients
-> (programs) typically.
+> >The patches that I sent out yesterday were not on top of these patches. I
+> >would be happy to either rebase your patches or give you a hand rebasing
+> >them.
+> >
+> I will take care of that..
 > 
+> >It looks, however, that you can probably just drop handle.[c,h] in
+> >favor of semanage.[c,h] and things should work. Let me know.
+> >
+> >
+> Or...you could drop semanage.[c,h]'s handle functionality in favor of
+> handle.[c,h]. I personally like smaller headers, intended to contain one
+> thing. Then you can still write the big  umbrella header by including
+> others.
 
-Clearer in that the whole API is visible in a single file. I don't feel
-strongly about this - it is a matter of preference. I'm in the minority
-here, I guess, so I'll go with the separate headers. I would also like to
-separate out semanage.c in that case - I do have a preference for c and h
-files matching closely unless there is a reason not to.
+This seems to be what Steve will do.
 
 Karl
-
-> > These also need to be routed through the handle function pointers so
-> that
-> > alternative implementations for the policy server can be provided.
-> 
-> Right, the handles have to be common to all, but that can certainly be
-> done by a handle.h that is included by the other headers.
-> 
-> > As above - I disagree. I would prefer a single header for everything
-> that
-> > works with the transactions. The header will not be that large and it
-> makes
-> > it easier to see the API as a whole.
-> 
-> But if the API consists of logically separable components, with
-> different clients/users, then why do you want that?
-> 
-> --
-> Stephen Smalley
-> National Security Agency
 
 ------
 Karl MacMillan
