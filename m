@@ -1,63 +1,43 @@
-Message-ID: <433BED90.50205@redhat.com>
-Date: Thu, 29 Sep 2005 09:35:12 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Fix to stop traversing nfs file systems in fixfiles
-Content-Type: multipart/mixed;
- boundary="------------080100030002010304080302"
+Subject: Re: getseuserbyname patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <433BEB18.7000703@redhat.com>
+References: <43398EB2.1050100@redhat.com>
+	 <1127925593.25945.130.camel@moss-spartans.epoch.ncsc.mil>
+	 <433BEB18.7000703@redhat.com>
+Content-Type: text/plain
+Date: Thu, 29 Sep 2005 09:35:16 -0400
+Message-Id: <1128000916.27495.27.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080100030002010304080302
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-09-29 at 09:24 -0400, Daniel J Walsh wrote:
+> Is s0:c1-s0:c2  a valid range?  Is s0:c1-s0:c1,c2 implied or required?
 
-Did not know about the -prune qualifier on find.
+No, the first one is not valid.  You have to explicitly specify the
+latter (s0:c1-s0:c1,c2) or the kernel will reject it because the high
+won't dominate the low and the high does not implicitly inherit
+categories from the low.
 
-Dan
+> Can this range read/write s0 files in MCS?  MLS?
+
+>From the constraint definitions in the MCS policy, it appears that MCS
+would allow such a process to read/write s0 files, because its high
+level dominates the file level.  But I would never expect such a process
+to exist under MCS, as MCS wants processes to run with a low level of s0
+at all times so that any files they create default to s0 as well.
+
+For MLS, such a process could read a s0 file (since it dominates the
+file level), but could not write a s0 file (because of the "no write
+down" restriction, to prevent leaking the category data to s0).
 
 -- 
+Stephen Smalley
+National Security Agency
 
-
-
---------------080100030002010304080302
-Content-Type: text/x-patch;
- name="policycoreutils-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.27.2/scripts/fixfiles
---- nsapolicycoreutils/scripts/fixfiles	2005-09-20 21:21:07.000000000 -0400
-+++ policycoreutils-1.27.2/scripts/fixfiles	2005-09-28 10:41:52.000000000 -0400
-@@ -62,8 +62,8 @@
- 	TEMPFILE=`mktemp ${FC}.XXXXXXXXXX`
- 	test -z "$TEMPFILE" && exit
- 	PREFCTEMPFILE=`mktemp ${PREFC}.XXXXXXXXXX`
--	sed -r -e 's,:s0[[:space:]], ,g' $PREFC > ${PREFCTEMPFILE}
--	sed -r -e 's,:s0[[:space:]], ,g' $FC | \
-+	sed -r -e 's,:s0, ,g' $PREFC > ${PREFCTEMPFILE}
-+	sed -r -e 's,:s0, ,g' $FC | \
- 	/usr/bin/diff -b ${PREFCTEMPFILE} - | \
- 	    grep '^[<>]'|cut -c3-| grep ^/ | \
- 	    egrep -v '(^/home|^/root|^/tmp|^/dev)' |\
-@@ -86,8 +86,10 @@
-                   esac; \
-                fi; \
-             done | \
--	while read pattern ; do find $pattern \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -print; done 2> /dev/null | \
--	    egrep -v '(^/home|^/root|^/tmp|^/dev)' |\
-+	while read pattern ; do find $pattern \
-+		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o \
-+		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print; \
-+		      done 2> /dev/null | \
- 	 ${RESTORECON} $2 -v -f - 
- 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
- fi
-
---------------080100030002010304080302--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
