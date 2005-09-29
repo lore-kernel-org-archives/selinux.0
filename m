@@ -1,43 +1,32 @@
-Subject: Re: getseuserbyname patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <433C06F0.3020804@redhat.com>
-References: <43398EB2.1050100@redhat.com>
-	 <1127925593.25945.130.camel@moss-spartans.epoch.ncsc.mil>
-	 <433BEB18.7000703@redhat.com>
-	 <1128006623.27495.70.camel@moss-spartans.epoch.ncsc.mil>
-	 <433C06F0.3020804@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8TIK0Ns019176
+	for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2005 14:20:01 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8TIEMA9022497
+	for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2005 18:14:23 GMT
+Subject: apache tunable expression
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 29 Sep 2005 11:20:58 -0400
-Message-Id: <1128007258.27495.77.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 29 Sep 2005 14:13:39 -0400
+Message-Id: <1128017619.12449.10.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-09-29 at 11:23 -0400, Daniel J Walsh wrote:
-> I was mimicking getpwdbyname.  Also this allows the user to see if he 
-> got default instead of username.
+In the apache policy, there is this conditional expression:
 
-getpwnam returns a lot more information, so it makes more sense there.
-I'm not sure how the caller would make use of knowing that he matched
-the default record rather than a specific record.
+if (httpd_enable_cgi && httpd_unified && httpd_builtin_scripting
+    ifdef(`targeted_policy', ` && ! httpd_disable_trans')) {
 
-> Finally we have the ability to add additional fields in the future, if 
-> we ever need them without breaking API.
-
-Changing an exported structure still breaks the _ABI_, which is just as
-important for a shared library.  So it doesn't buy you anything unless
-you hide the struct definition and force them to use get/set methods to
-get and set the individual fields (see Ivan's patches for examples).  At
-which point you have to ask whether it is worth the more complicated
-interface in this case versus just providing the strings directly, since
-you never pass this struct back into libselinux anywhere.
+Why is the httpd_disable_trans boolean checked?  If the transition to
+httpd_t is disabled, why does it matter if these rules are enabled or
+not?
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
