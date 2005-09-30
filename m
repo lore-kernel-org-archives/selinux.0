@@ -1,170 +1,50 @@
-Message-ID: <433DA069.3090208@cornell.edu>
-Date: Fri, 30 Sep 2005 16:30:33 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <433D9F63.1080101@redhat.com>
+Date: Fri, 30 Sep 2005 16:26:11 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-   Karl MacMillan <kmacmillan@tresys.com>
-Subject: [10 / 9] [ SEMANAGE ] FIx placement of function table
-Content-Type: multipart/mixed;
- boundary="------------080603020004080906080500"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, Karl MacMillan <kmacmillan@tresys.com>,
+   selinux@tycho.nsa.gov, SELinux-dev@tresys.com
+Subject: Re: [RFC][PATCH] New interface for loading policy
+References: <1128028816.27495.182.camel@moss-spartans.epoch.ncsc.mil>	 <433CB578.6070303@cornell.edu>	 <1128082909.12459.14.camel@moss-spartans.epoch.ncsc.mil> <1128100586.12459.178.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1128100586.12459.178.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080603020004080906080500
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Stephen Smalley wrote:
+> On Fri, 2005-09-30 at 08:21 -0400, Stephen Smalley wrote:
+>   
+>> BTW, one thing that I'm not clear on is how the preservebools case (the
+>> default behavior for load_policy) will be handled in the future.  The
+>> idea is that if a boolean has been toggled at runtime without altering
+>> its saved value (e.g. manually by an admin, or by a cron job that
+>> toggles a boolean to enforce different day/night policies, or by an IDS
+>> in response to an event), we don't want a subsequent policy reload (e.g.
+>> from an update) to reset that boolean value to the saved settings.  At
+>> present, load_policy (and thus selinux_mkload_policy) grab the active
+>> boolean settings from selinuxfs and patch them into the binary policy
+>> image via sepol_genbools_array() by default (preservebools=1).
+>>     
+>
+> We seem to have agreed to drop the optional path argument entirely from
+> selinux_mkload_policy().  But we still need to decide whether the
+> preservebools argument is going to make sense going forward.  This is
+> for preserving temporary boolean values across a policy reload rather
+> than resetting them to the policy settings and is the default behavior
+> for load_policy (in the absence of the -b option), as noted above.  As
+> with the path argument, this argument is not needed for the initial
+> policy load by init, but is only relevant for policy reloads.
+>
+>   
+I think you need this behavior for reloads.  Or default to always saving 
+the previous state, and
+forcing me to use setsebool to change particular defaults.
 
-In one of my patches I broke up semanage_private.h into pieces.  
-However, I've placed things incorrectly, because I misunderstood what 
-things were supposed to do.
-
-This corrects one of the problems - it moves the function table into a 
-new file called policy_connection.h. It also renames that structure, 
-because I use at least 3 or 4 different types of func_tables in my 
-code.  For consistency this should go into interfaces.h, but perhaps I 
-should split up interfaces.h into several headers instead (?)
-
-The other problem is the connection object - module_conn_t. I put that 
-in modules.h, because it said "module", but it doesn't look like it 
-belongs there. Karl, where should I move this? Should it go into 
-direct_api.h ? I see the semanage_store makes use of that... is the 
-semanage_store specific to the direct API?
-
-On a related note, where can I put policydb pointers - I need two of 
-them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects 
-will be created on demand (say when the user decides to query 
-something), or when commit decides to re-create the active policy from 
-scratch, but I need the pointers to them in a data structure linked into 
-the handle (that's specific to direct api?) Should this go into 
-conn.module (renaming that to conn.direct ?)
+Dan
+-- 
 
 
---------------080603020004080906080500
-Content-Type: text/x-patch;
- name="libsemanage.policy.poly.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.policy.poly.diff"
-
-diff -Naur libsemanage/src/direct_api.c libsemanage.new/src/direct_api.c
---- libsemanage/src/direct_api.c	2005-09-29 17:54:40.000000000 -0400
-+++ libsemanage.new/src/direct_api.c	2005-09-30 16:10:57.000000000 -0400
-@@ -31,6 +31,7 @@
- #include "modules.h"
- #include "direct_api.h"
- #include "semanage_store.h"
-+#include "policy_connection.h"
- 
- static void semanage_direct_destroy(semanage_handle_t *sh);
- static int semanage_direct_disconnect(semanage_handle_t *sh);
-@@ -46,7 +47,7 @@
- static int semanage_direct_list(semanage_handle_t *sh,
- 				semanage_module_info_t **modinfo, int *num_modules);
- 
--static struct semanage_func_table direct_funcs = {
-+static struct semanage_policy_table direct_funcs = {
- 	.destroy = semanage_direct_destroy,
- 	.disconnect = semanage_direct_disconnect,
- 	.begin_trans = semanage_direct_begintrans,
-diff -Naur libsemanage/src/handle.h libsemanage.new/src/handle.h
---- libsemanage/src/handle.h	2005-09-29 17:54:40.000000000 -0400
-+++ libsemanage.new/src/handle.h	2005-09-30 16:19:10.000000000 -0400
-@@ -27,23 +27,11 @@
- #include <semanage/handle.h>
- #include "modules.h"
- #include "semanage_conf.h"
-+#include "policy_connection.h"
- 
- /* Can't include - circular dependency */
- struct dbase;
- 
--/* FIXME: Some of this needs to go into modules.h */
--struct semanage_func_table {
--	void (*destroy)(semanage_handle_t *);
--	int (*disconnect)(semanage_handle_t *);
--	int (*begin_trans)(semanage_handle_t *);
--	int (*commit)(semanage_handle_t *);
--	int (*install)(semanage_handle_t *, char *, size_t);
--	int (*upgrade)(semanage_handle_t *, char *, size_t);
--	int (*install_base)(semanage_handle_t *, char *, size_t);
--	int (*remove)(semanage_handle_t *, char *);
--	int (*list)(semanage_handle_t *, semanage_module_info_t **, int *);
--};
--
- struct semanage_handle {
- 	int con_id;             /* Connection ID */
- 	int policy_serial;      /* Policy serial number at connect time */
-@@ -72,7 +60,7 @@
- 	/* these function pointers will point to the appropriate
- 	 * routine given the connection type.  think of these as
- 	 * simulating polymorphism for non-OO languages. */
--	struct semanage_func_table *funcs;
-+	struct semanage_policy_table* funcs;
- 
- 	/* Object databases */
- #define DBASE_COUNT 2
-diff -Naur libsemanage/src/policy_connection.h libsemanage.new/src/policy_connection.h
---- libsemanage/src/policy_connection.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/policy_connection.h	2005-09-30 16:19:53.000000000 -0400
-@@ -0,0 +1,55 @@
-+/* Author: Joshua Brindle <jbrindle@tresys.com>
-+ *         Jason Tang     <jtang@tresys.com>
-+ *
-+ * Copyright (C) 2005 Tresys Technology, LLC
-+ * Copyright (C) 2005 Red Hat Inc.
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef _SEMANAGE_POLICY_CONNECTION_INTERNAL_H_
-+#define _SEMANAGE_POLICY_CONNECTION_INTERNAL_H_
-+
-+struct semanage_policy_table {
-+
-+	/* Destroy a connection */	
-+        void (*destroy)(semanage_handle_t *);
-+
-+	/* Disconnect from policy */
-+        int (*disconnect)(semanage_handle_t *);
-+
-+	/* Begin a policy transaction */
-+        int (*begin_trans)(semanage_handle_t *);
-+
-+	/* Commit a policy transaction */
-+        int (*commit)(semanage_handle_t *);
-+
-+	/* Install a policy module */
-+        int (*install)(semanage_handle_t *, char *, size_t);
-+
-+	/* Upgrade a policy module */
-+        int (*upgrade)(semanage_handle_t *, char *, size_t);
-+
-+	/* Remove a policy module */
-+	int (*remove)(semanage_handle_t *, char *);
-+
-+	/* List policy modules */
-+	int (*list)(semanage_handle_t *, semanage_module_info_t **, int *);
-+
-+	/* Install base policy */
-+        int (*install_base)(semanage_handle_t *, char *, size_t);
-+};
-+
-+#endif
-
---------------080603020004080906080500--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
