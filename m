@@ -1,49 +1,52 @@
-Message-ID: <433D9F63.1080101@redhat.com>
-Date: Fri, 30 Sep 2005 16:26:11 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg2@cornell.edu>, Karl MacMillan <kmacmillan@tresys.com>,
-   selinux@tycho.nsa.gov, SELinux-dev@tresys.com
-Subject: Re: [RFC][PATCH] New interface for loading policy
-References: <1128028816.27495.182.camel@moss-spartans.epoch.ncsc.mil>	 <433CB578.6070303@cornell.edu>	 <1128082909.12459.14.camel@moss-spartans.epoch.ncsc.mil> <1128100586.12459.178.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1128100586.12459.178.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [10 / 9] [ SEMANAGE ] FIx placement of function table
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <433DA069.3090208@cornell.edu>
+References: <433DA069.3090208@cornell.edu>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 16:28:29 -0400
+Message-Id: <1128112109.12459.216.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2005-09-30 at 08:21 -0400, Stephen Smalley wrote:
->   
->> BTW, one thing that I'm not clear on is how the preservebools case (the
->> default behavior for load_policy) will be handled in the future.  The
->> idea is that if a boolean has been toggled at runtime without altering
->> its saved value (e.g. manually by an admin, or by a cron job that
->> toggles a boolean to enforce different day/night policies, or by an IDS
->> in response to an event), we don't want a subsequent policy reload (e.g.
->> from an update) to reset that boolean value to the saved settings.  At
->> present, load_policy (and thus selinux_mkload_policy) grab the active
->> boolean settings from selinuxfs and patch them into the binary policy
->> image via sepol_genbools_array() by default (preservebools=1).
->>     
->
-> We seem to have agreed to drop the optional path argument entirely from
-> selinux_mkload_policy().  But we still need to decide whether the
-> preservebools argument is going to make sense going forward.  This is
-> for preserving temporary boolean values across a policy reload rather
-> than resetting them to the policy settings and is the default behavior
-> for load_policy (in the absence of the -b option), as noted above.  As
-> with the path argument, this argument is not needed for the initial
-> policy load by init, but is only relevant for policy reloads.
->
->   
-I think you need this behavior for reloads.  Or default to always saving 
-the previous state, and
-forcing me to use setsebool to change particular defaults.
+On Fri, 2005-09-30 at 16:30 -0400, Ivan Gyurdiev wrote:
+> In one of my patches I broke up semanage_private.h into pieces.  
+> However, I've placed things incorrectly, because I misunderstood what 
+> things were supposed to do.
+> 
+> This corrects one of the problems - it moves the function table into a 
+> new file called policy_connection.h. It also renames that structure, 
+> because I use at least 3 or 4 different types of func_tables in my 
+> code.  For consistency this should go into interfaces.h, but perhaps I 
+> should split up interfaces.h into several headers instead (?)
+> 
+> The other problem is the connection object - module_conn_t. I put that 
+> in modules.h, because it said "module", but it doesn't look like it 
+> belongs there. Karl, where should I move this? Should it go into 
+> direct_api.h ? I see the semanage_store makes use of that... is the 
+> semanage_store specific to the direct API?
+> 
+> On a related note, where can I put policydb pointers - I need two of 
+> them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects 
+> will be created on demand (say when the user decides to query 
+> something), or when commit decides to re-create the active policy from 
+> scratch, but I need the pointers to them in a data structure linked into 
+> the handle (that's specific to direct api?) Should this go into 
+> conn.module (renaming that to conn.direct ?)
 
-Dan
+Hmmm...I just got done merging the others (available in the sourceforge
+CVS), although naturally all of this is still open to debate and can be
+reverted at any time.
+
+I think at this point I'll wait for clarification from Karl et al on
+whether this patch (and the prior ones as well) are consistent with
+their plans for libsemanage.
+
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
