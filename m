@@ -1,1421 +1,1788 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8UEF2Ns028816
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 10:15:02 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8UEFBNs028843
+	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 10:15:11 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8UE9HDY006047
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 14:09:17 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8UE9QDY006050
+	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 14:09:26 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j8UE93jP023760
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 10:09:03 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j8UE9DcT023767
+	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 10:09:13 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j8UE933u023759
-	for selinux@tycho.nsa.gov; Fri, 30 Sep 2005 10:09:03 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j8UE9DfM023766
+	for selinux@tycho.nsa.gov; Fri, 30 Sep 2005 10:09:13 -0400
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8U2kfNs023508
-	for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2005 22:46:41 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8U3DSNs023875
+	for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2005 23:13:28 -0400 (EDT)
 Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8U2epS2015404
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 02:40:51 GMT
-Message-ID: <433CA7CA.6000207@cornell.edu>
-Date: Thu, 29 Sep 2005 22:49:46 -0400
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8U37bS2017547
+	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 03:07:37 GMT
+Message-ID: <433CAE0B.4010701@cornell.edu>
+Date: Thu, 29 Sep 2005 23:16:27 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 CC: dwalsh@redhat.com
-Subject: [ 1/9 ] [ SEPOL ] Eliminate struct pointer typedefs
+Subject: Re: [ 8/9 ] [ SEMANAGE ] Eliminate struct pointer typedefs
+References: <433CA7CA.6000207@cornell.edu>
+In-Reply-To: <433CA7CA.6000207@cornell.edu>
 Content-Type: multipart/mixed;
- boundary="------------060904080806060009060604"
+ boundary="------------040806030104090501000205"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------060904080806060009060604
+--------------040806030104090501000205
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The attached patch changes record structure typedefs in libsepol
-from struct pointer to struct alias. Also adds size_t in a few places.
+This is the SEMANAGE equivalent to the first patch I sent for SEPOL.
+It replaces struct pointer typedefs with struct alias for consistency.
 
-
-
---------------060904080806060009060604
+--------------040806030104090501000205
 Content-Type: text/x-patch;
- name="libsepol.00.consistency.typedefs.diff"
+ name="libsemanage.07.consistency.typedefs.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsepol.00.consistency.typedefs.diff"
+ filename="libsemanage.07.consistency.typedefs.diff"
 
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/boolean_record.h libsepol.new/include/sepol/boolean_record.h
---- libsepol/include/sepol/boolean_record.h	2005-09-21 10:42:24.000000000 -0400
-+++ libsepol.new/include/sepol/boolean_record.h	2005-09-29 16:30:48.000000000 -0400
-@@ -5,36 +5,50 @@
+diff -Naru --exclude CVS libsemanage/include/semanage/boolean_record.h libsemanage.new/include/semanage/boolean_record.h
+--- libsemanage/include/semanage/boolean_record.h	2005-09-23 10:37:40.000000000 -0400
++++ libsemanage.new/include/semanage/boolean_record.h	2005-09-29 19:50:05.000000000 -0400
+@@ -3,50 +3,50 @@
  
- struct sepol_bool;
- struct sepol_bool_key;
--typedef struct sepol_bool* sepol_bool_t;
--typedef struct sepol_bool_key* sepol_bool_key_t;
-+typedef struct sepol_bool sepol_bool_t;
-+typedef struct sepol_bool_key sepol_bool_key_t;
+ struct semanage_bool; 
+ struct semanage_bool_key;
+-typedef struct semanage_bool* semanage_bool_t;
+-typedef struct semanage_bool_key* semanage_bool_key_t;
++typedef struct semanage_bool semanage_bool_t;
++typedef struct semanage_bool_key semanage_bool_key_t;
  
  /* Key */
- extern int sepol_bool_key_create(
- 	const char* name,
--	sepol_bool_key_t* key);
-+	sepol_bool_key_t** key);
+ extern int semanage_bool_key_create(
+ 	const char* name, 
+-	semanage_bool_key_t* key);
++	semanage_bool_key_t** key);
  
- extern int sepol_bool_key_extract(
--	sepol_bool_t boolean,
--	sepol_bool_key_t* key_ptr);
-+	sepol_bool_t* boolean,
-+	sepol_bool_key_t** key_ptr);
+ extern int semanage_bool_key_extract(
+-	semanage_bool_t boolean, 
+-	semanage_bool_key_t* key);
++	semanage_bool_t* boolean, 
++	semanage_bool_key_t** key);
  
- extern void sepol_bool_key_free(
--	sepol_bool_key_t key);
-+	sepol_bool_key_t* key);
+ extern void semanage_bool_key_free(
+-	semanage_bool_key_t key);
++	semanage_bool_key_t* key);
  
- extern int sepol_bool_compare(
--	sepol_bool_t boolean,
--	sepol_bool_key_t key);
-+	sepol_bool_t* boolean,
-+	sepol_bool_key_t* key);
+ extern int semanage_bool_compare(
+-	semanage_bool_t boolean, 
+-	semanage_bool_key_t key);
++	semanage_bool_t* boolean, 
++	semanage_bool_key_t* key);
  	
  /* Name */
--extern const char* sepol_bool_get_name(sepol_bool_t boolean);
--extern int sepol_bool_set_name(sepol_bool_t boolean, const char* name);
-+extern const char* sepol_bool_get_name(
-+	sepol_bool_t* boolean);
-+
-+extern int sepol_bool_set_name(
-+	sepol_bool_t* boolean, 
-+	const char* name);
+ extern const char* semanage_bool_get_name(
+-	semanage_bool_t boolean);
++	semanage_bool_t* boolean);
+ 
+ extern int semanage_bool_set_name(
+-	semanage_bool_t boolean, 
++	semanage_bool_t* boolean, 
+ 	const char* name);
  
  /* Value */
--extern int sepol_bool_get_value(sepol_bool_t boolean);
--extern void sepol_bool_set_value(sepol_bool_t boolean, int value);
-+extern int sepol_bool_get_value(
-+	sepol_bool_t* boolean);
-+
-+extern void sepol_bool_set_value(
-+	sepol_bool_t* boolean, 
-+	int value);
+ extern int semanage_bool_get_value(
+-	semanage_bool_t boolean);
++	semanage_bool_t* boolean);
+ 
+ extern void semanage_bool_set_value(
+-	semanage_bool_t boolean, 
++	semanage_bool_t* boolean, 
+ 	int value);
  
  /* Create/Clone/Destroy */
--extern int sepol_bool_create(sepol_bool_t* bool_ptr);
--extern int sepol_bool_clone(sepol_bool_t boolean, sepol_bool_t* bool_ptr);
--extern void sepol_bool_free(sepol_bool_t boolean);
-+extern int sepol_bool_create(
-+	sepol_bool_t** bool_ptr);
-+
-+extern int sepol_bool_clone(
-+	sepol_bool_t* boolean, 
-+	sepol_bool_t** bool_ptr);
-+
-+extern void sepol_bool_free(
-+	sepol_bool_t* boolean);
+ extern int semanage_bool_create(
+-	semanage_bool_t* bool_ptr);
++	semanage_bool_t** bool_ptr);
+ 
+ extern int semanage_bool_clone(
+-	semanage_bool_t boolean, 
+-	semanage_bool_t* bool_ptr);
++	semanage_bool_t* boolean, 
++	semanage_bool_t** bool_ptr);
+ 
+ extern void semanage_bool_free(
+-	semanage_bool_t boolean);
++	semanage_bool_t* boolean);
  
  #endif
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/booleans.h libsepol.new/include/sepol/booleans.h
---- libsepol/include/sepol/booleans.h	2005-09-21 10:42:24.000000000 -0400
-+++ libsepol.new/include/sepol/booleans.h	2005-09-29 16:31:14.000000000 -0400
-@@ -1,18 +1,19 @@
- #ifndef _SEPOL_BOOLEANS_H_
- #define _SEPOL_BOOLEANS_H_
+diff -Naru --exclude CVS libsemanage/include/semanage/context_record.h libsemanage.new/include/semanage/context_record.h
+--- libsemanage/include/semanage/context_record.h	2005-09-23 10:37:40.000000000 -0400
++++ libsemanage.new/include/semanage/context_record.h	2005-09-29 19:50:02.000000000 -0400
+@@ -2,57 +2,57 @@
+ #define _SEMANAGE_CONTEXT_RECORD_H_ 
  
-+#include <stddef.h>
- #include <sepol/policydb.h>
- #include <sepol/boolean_record.h>
- 
- /* Load a boolean into the policy */
- extern int sepol_bool_load (
- 	policydb_t* policydb, 
--	sepol_bool_t boolean);
-+	sepol_bool_t* boolean);
- 
- /* Load a boolean array into the policy */
- extern int sepol_bool_load_array(
- 	policydb_t* policydb,
--	sepol_bool_t* bool_arr,
--	int bool_arr_len);
-+	sepol_bool_t** bool_arr,
-+	size_t bool_arr_len);
- 
- #endif
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/context.h libsepol.new/include/sepol/context.h
---- libsepol/include/sepol/context.h	2005-09-14 11:44:44.000000000 -0400
-+++ libsepol.new/include/sepol/context.h	2005-09-29 16:34:01.000000000 -0400
-@@ -118,7 +118,7 @@
- extern int sepol_ctx_struct_create(
- 	struct policydb *policydb,
- 	context_struct_t** cptr,
--	sepol_context_t data);
-+	sepol_context_t* data);
- 
- /* Create a context structure from string representation */
- extern int sepol_ctx_struct_from_string(
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/context_record.h libsepol.new/include/sepol/context_record.h
---- libsepol/include/sepol/context_record.h	2005-08-02 09:16:52.000000000 -0400
-+++ libsepol.new/include/sepol/context_record.h	2005-09-29 16:33:11.000000000 -0400
-@@ -2,34 +2,60 @@
- #define _SEPOL_CONTEXT_RECORD_H_ 
- 
- struct sepol_context;
--typedef struct sepol_context* sepol_context_t;
-+typedef struct sepol_context sepol_context_t;
- 
- /* We don't need a key, because the context is never stored
-  * in a data collection by itself */
+ struct semanage_context;
+-typedef struct semanage_context* semanage_context_t;
++typedef struct semanage_context semanage_context_t;
  
  /* User */
--extern const char* sepol_context_get_user(sepol_context_t con);
--extern int sepol_context_set_user(sepol_context_t con, const char* user);
-+extern const char* sepol_context_get_user(
-+	sepol_context_t* con);
-+
-+extern int sepol_context_set_user(
-+	sepol_context_t* con, 
-+	const char* user);
+ extern const char* semanage_context_get_user(
+-	semanage_context_t con);
++	semanage_context_t* con);
+ 
+ extern int semanage_context_set_user(
+-	semanage_context_t con, 
++	semanage_context_t* con, 
+ 	const char* user);
  
  /* Role */
--extern const char* sepol_context_get_role(sepol_context_t con);
--extern int sepol_context_set_role(sepol_context_t con, const char* role);
-+extern const char* sepol_context_get_role(
-+	sepol_context_t* con);
-+
-+extern int sepol_context_set_role(
-+	sepol_context_t* con, 
-+	const char* role);
+ extern const char* semanage_context_get_role(
+-	semanage_context_t con);
++	semanage_context_t* con);
+ 
+ extern int semanage_context_set_role(
+-	semanage_context_t con, 
++	semanage_context_t* con, 
+ 	const char* role);
  
  /* Type */
--extern const char* sepol_context_get_type(sepol_context_t con);
--extern int sepol_context_set_type(sepol_context_t con, const char* type);
-+extern const char* sepol_context_get_type(
-+	sepol_context_t* con);
-+
-+extern int sepol_context_set_type(
-+	sepol_context_t* con, 
-+	const char* type);
+ extern const char* semanage_context_get_type(
+-	semanage_context_t con);
++	semanage_context_t* con);
+ 
+ extern int semanage_context_set_type(
+-	semanage_context_t con, 
++	semanage_context_t* con, 
+ 	const char* type);
  
  /* MLS */
--extern const char* sepol_context_get_mls(sepol_context_t con);
--extern int sepol_context_set_mls(sepol_context_t con, const char* mls_range);
-+extern const char* sepol_context_get_mls(
-+	sepol_context_t* con);
-+
-+extern int sepol_context_set_mls(
-+	sepol_context_t* con,
-+	const char* mls_range);
+ extern const char* semanage_context_get_mls(
+-	semanage_context_t con);
++	semanage_context_t* con);
+ 
+ extern int semanage_context_set_mls(
+-	semanage_context_t con, 
++	semanage_context_t* con, 
+ 	const char* mls_range);
  
  /* Create/Clone/Destroy */
--extern int sepol_context_create(sepol_context_t* con_ptr);
--extern int sepol_context_clone(sepol_context_t con, sepol_context_t* con_ptr);
--extern void sepol_context_free(sepol_context_t con);
-+extern int sepol_context_create(
-+	sepol_context_t** con_ptr);
-+
-+extern int sepol_context_clone(
-+	sepol_context_t* con, 
-+	sepol_context_t** con_ptr);
-+
-+extern void sepol_context_free(
-+	sepol_context_t* con);
+ extern int semanage_context_create(
+-	semanage_context_t* con_ptr);
++	semanage_context_t** con_ptr);
  
+ extern int semanage_context_clone(
+-	semanage_context_t con, 
+-	semanage_context_t* con_ptr);
++	semanage_context_t* con, 
++	semanage_context_t** con_ptr);
+ 
+ extern void semanage_context_free(
+-	semanage_context_t con);
++	semanage_context_t* con);
+ 	
  /* Parse to/from string */
--extern int sepol_context_from_string(const char* str, sepol_context_t* con);
--extern char* sepol_context_to_string(sepol_context_t con);
-+extern int sepol_context_from_string(
-+	const char* str, 
-+	sepol_context_t** con);
-+
-+extern char* sepol_context_to_string(
-+	sepol_context_t* con);
+ extern int semanage_context_from_string(
+ 	const char* str, 
+-	semanage_context_t* con);
++	semanage_context_t** con);
+ 
+ extern char* semanage_context_to_string(
+-	semanage_context_t con);
++	semanage_context_t* con);
  
  #endif 
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/iface_record.h libsepol.new/include/sepol/iface_record.h
---- libsepol/include/sepol/iface_record.h	2005-09-19 15:31:28.000000000 -0400
-+++ libsepol.new/include/sepol/iface_record.h	2005-09-29 16:33:39.000000000 -0400
-@@ -5,39 +5,57 @@
+diff -Naru --exclude CVS libsemanage/include/semanage/iface_record.h libsemanage.new/include/semanage/iface_record.h
+--- libsemanage/include/semanage/iface_record.h	2005-09-23 10:37:40.000000000 -0400
++++ libsemanage.new/include/semanage/iface_record.h	2005-09-29 19:52:17.000000000 -0400
+@@ -5,57 +5,57 @@
  
- struct sepol_iface;
- struct sepol_iface_key;
--typedef struct sepol_iface* sepol_iface_t;
--typedef struct sepol_iface_key* sepol_iface_key_t;
-+typedef struct sepol_iface sepol_iface_t;
-+typedef struct sepol_iface_key sepol_iface_key_t;
+ struct semanage_iface;
+ struct semanage_iface_key;
+-typedef struct semanage_iface* semanage_iface_t;
+-typedef struct semanage_iface_key* semanage_iface_key_t;
++typedef struct semanage_iface semanage_iface_t;
++typedef struct semanage_iface_key semanage_iface_key_t;
  
  /* Key */
- extern int sepol_iface_compare(
--	sepol_iface_t iface, 
--	sepol_iface_key_t key);
-+	sepol_iface_t* iface, 
-+	sepol_iface_key_t* key);
+ extern int semanage_iface_compare(
+-	semanage_iface_t iface, 
+-	semanage_iface_key_t key);
++	semanage_iface_t* iface, 
++	semanage_iface_key_t* key);
  
- extern int sepol_iface_key_create(
+ extern int semanage_iface_key_create(
  	const char* name,
--	sepol_iface_key_t* key_ptr);
-+	sepol_iface_key_t** key_ptr);
+-	semanage_iface_key_t* key_ptr);
++	semanage_iface_key_t** key_ptr);
  
- extern int sepol_iface_key_extract(
--	sepol_iface_t iface, 
--	sepol_iface_key_t* key_ptr);
-+	sepol_iface_t* iface, 
-+	sepol_iface_key_t** key_ptr);
+ extern int semanage_iface_key_extract(
+-	semanage_iface_t iface,
+-	semanage_iface_key_t* key_ptr);
++	semanage_iface_t* iface,
++	semanage_iface_key_t** key_ptr);
  
- extern void sepol_iface_key_free(
--	sepol_iface_key_t key);
-+	sepol_iface_key_t* key);
+ extern void semanage_iface_key_free(
+-	semanage_iface_key_t key);
++	semanage_iface_key_t* key);
  
  /* Name */
--extern const char* sepol_iface_get_name(sepol_iface_t iface);
--extern int sepol_iface_set_name(sepol_iface_t iface, const char* name);
-+extern const char* sepol_iface_get_name(
-+	sepol_iface_t* iface);
-+
-+extern int sepol_iface_set_name(
-+	sepol_iface_t* iface, 
-+	const char* name);
+ extern const char* semanage_iface_get_name(
+-	semanage_iface_t iface);
++	semanage_iface_t* iface);
+ 
+ extern int semanage_iface_set_name(
+ 	semanage_user_t iface, 
+ 	const char* name);
  
  /* Context */
--extern sepol_context_t sepol_iface_get_ifcon(sepol_iface_t iface);
--extern int sepol_iface_set_ifcon(sepol_iface_t iface, sepol_context_t con);
-+extern sepol_context_t* sepol_iface_get_ifcon(
-+	sepol_iface_t* iface);
+-extern semanage_context_t semanage_iface_get_ifcon(
+-	semanage_iface_t iface);
++extern semanage_context_t* semanage_iface_get_ifcon(
++	semanage_iface_t* iface);
  
--extern sepol_context_t sepol_iface_get_msgcon(sepol_iface_t iface);
--extern int sepol_iface_set_msgcon(sepol_iface_t iface, sepol_context_t con);
-+extern int sepol_iface_set_ifcon(
-+	sepol_iface_t* iface, 
-+	sepol_context_t* con);
-+
-+extern sepol_context_t* sepol_iface_get_msgcon(
-+	sepol_iface_t* iface);
-+
-+extern int sepol_iface_set_msgcon(
-+	sepol_iface_t* iface, 
-+	sepol_context_t* con);
+ extern int semanage_iface_set_ifcon(
+-	semanage_iface_t iface, 
+-	semanage_context_t con);
++	semanage_iface_t* iface, 
++	semanage_context_t* con);
+ 
+-extern semanage_context_t semanage_iface_get_msgcon(
+-	semanage_iface_t iface);
++extern semanage_context_t* semanage_iface_get_msgcon(
++	semanage_iface_t* iface);
+ 
+ extern int semanage_iface_set_msgcon(
+-	semanage_iface_t iface, 
+-	semanage_context_t con);
++	semanage_iface_t* iface, 
++	semanage_context_t* con);
  
  /* Create/Clone/Destroy */
--extern int sepol_iface_create(sepol_iface_t* iface_ptr);
--extern int sepol_iface_clone(sepol_iface_t iface, sepol_iface_t* iface_ptr);
--extern void sepol_iface_free(sepol_iface_t iface);
-+extern int sepol_iface_create(
-+	sepol_iface_t** iface_ptr);
-+
-+extern int sepol_iface_clone(
-+	sepol_iface_t* iface, 
-+	sepol_iface_t** iface_ptr);
-+
-+extern void sepol_iface_free(
-+	sepol_iface_t* iface);
+ extern int semanage_iface_create(
+-	semanage_iface_t* iface_ptr);
++	semanage_iface_t** iface_ptr);
+ 
+ extern int semanage_iface_clone(
+-	semanage_iface_t iface, 
+-	semanage_iface_t* iface_ptr);
++	semanage_iface_t* iface, 
++	semanage_iface_t** iface_ptr);
+ 
+ extern void semanage_iface_free(
+-	semanage_iface_t iface);
++	semanage_iface_t* iface);
  
  #endif
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/interfaces.h libsepol.new/include/sepol/interfaces.h
---- libsepol/include/sepol/interfaces.h	2005-09-21 10:42:24.000000000 -0400
-+++ libsepol.new/include/sepol/interfaces.h	2005-09-29 16:29:25.000000000 -0400
-@@ -8,13 +8,13 @@
- /* Get the current context mapping for this interface */
- extern int sepol_iface_get_context(
- 	policydb_t* policydb,
--	sepol_iface_t data,
-+	sepol_iface_t* data,
- 	char** ifcon_str, size_t* ifcon_str_len,
- 	char** msgcon_str, size_t* msgcon_str_len);
+diff -Naru --exclude CVS libsemanage/include/semanage/port_record.h libsemanage.new/include/semanage/port_record.h
+--- libsemanage/include/semanage/port_record.h	2005-09-23 10:37:40.000000000 -0400
++++ libsemanage.new/include/semanage/port_record.h	2005-09-29 19:56:21.000000000 -0400
+@@ -5,72 +5,72 @@
  
- /* Load an interface into policy */
- extern int sepol_iface_load(
- 	policydb_t* policydb,
--	sepol_iface_t data);
-+	sepol_iface_t* data);
+ struct semanage_port;
+ struct semanage_port_key;
+-typedef struct semanage_port* semanage_port_t;
+-typedef struct semanage_port_key* semanage_port_key_t;
++typedef struct semanage_port semanage_port_t;
++typedef struct semanage_port_key semanage_port_key_t;
  
- #endif
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/port_record.h libsepol.new/include/sepol/port_record.h
---- libsepol/include/sepol/port_record.h	2005-08-02 09:16:53.000000000 -0400
-+++ libsepol.new/include/sepol/port_record.h	2005-09-29 16:33:22.000000000 -0400
-@@ -5,46 +5,71 @@
- 
- struct sepol_port;
- struct sepol_port_key;
--typedef struct sepol_port* sepol_port_t;
--typedef struct sepol_port_key* sepol_port_key_t;
-+typedef struct sepol_port sepol_port_t;
-+typedef struct sepol_port_key sepol_port_key_t;
- 
- #define SEPOL_PROTO_UDP 0
- #define SEPOL_PROTO_TCP 1
+-#define SEMANAGE_PROTO_UDP SEPOL_PROTO_UDP
+-#define SEMANAGE_PROTO_TCP SEPOL_PROTO_TCP
++#define SEMANAGE_PROTO_UDP 0 
++#define SEMANAGE_PROTO_TCP 1
  
  /* Key */
- extern int sepol_port_compare(
--	sepol_port_t port, 
--	sepol_port_key_t key);
-+	sepol_port_t* port, 
-+	sepol_port_key_t* key);
+ extern int semanage_port_compare(
+-	semanage_port_t port, 
+-	semanage_port_key_t key);
++	semanage_port_t* port, 
++	semanage_port_key_t* key);
  
- extern int sepol_port_key_create(
- 	int low, int high, int proto,
--	sepol_port_key_t* key_ptr);
-+	sepol_port_key_t** key_ptr);
+ extern int semanage_port_key_create(
+ 	int low, int high, 
+ 	int proto, 
+-	semanage_port_key_t* key_ptr);
++	semanage_port_key_t** key_ptr);
  
- extern int sepol_port_key_extract(
--	sepol_port_t port, 
--	sepol_port_key_t* key_ptr);
-+	sepol_port_t* port, 
-+	sepol_port_key_t** key_ptr);
+ extern int semanage_port_key_extract(
+-	semanage_port_t port,
+-	semanage_port_key_t* key_ptr);
++	semanage_port_t* port,
++	semanage_port_key_t** key_ptr);
  
- extern void sepol_port_key_free(
--	sepol_port_key_t key);
-+	sepol_port_key_t* key);
+ extern void semanage_port_key_free(
+-	semanage_port_key_t key);
++	semanage_port_key_t* key);
  
  /* Protocol */
--extern int sepol_port_get_proto(sepol_port_t port);
--extern int sepol_port_set_proto(sepol_port_t port, int proto);
--extern const char* sepol_port_get_proto_str(sepol_port_t port);
-+extern int sepol_port_get_proto(
-+	sepol_port_t* port);
-+
-+extern int sepol_port_set_proto(
-+	sepol_port_t* port, 
-+	int proto);
-+
-+extern const char* sepol_port_get_proto_str(
-+	sepol_port_t* port);
+ extern int semanage_port_get_proto(
+-	semanage_port_t port);
++	semanage_port_t* port);
+ 
+ extern int semanage_port_set_proto(
+-	semanage_port_t port, 
++	semanage_port_t* port, 
+ 	int proto);
+ 
+ extern const char* semanage_port_get_proto_str(
+-	semanage_port_t port);
++	semanage_port_t* port);
  
  /* Port */
--extern int sepol_port_get_low(sepol_port_t port);
--extern int sepol_port_get_high(sepol_port_t port);
--extern int sepol_port_set_port(sepol_port_t port, int port_num);
--extern int sepol_port_set_range(sepol_port_t port, int low, int high);
-+extern int sepol_port_get_low(
-+	sepol_port_t* port);
-+
-+extern int sepol_port_get_high(
-+	sepol_port_t* port);
-+
-+extern int sepol_port_set_port(
-+	sepol_port_t* port, 
-+	int port_num);
-+
-+extern int sepol_port_set_range(
-+	sepol_port_t* port, 
-+	int low, int high);
+ extern int semanage_port_get_low(
+-	semanage_port_t port);
++	semanage_port_t* port);
+ 
+ extern int semanage_port_get_high(
+-	semanage_port_t port);
++	semanage_port_t* port);
+ 
+ extern int semanage_port_set_port(
+-	semanage_port_t port, 
++	semanage_port_t* port, 
+ 	int port_num);
+ 
+ extern int semanage_port_set_range(
+-	semanage_port_t port, 
++	semanage_port_t* port, 
+ 	int low, int high);
  
  /* Context */
--extern sepol_context_t sepol_port_get_con(sepol_port_t port);
--extern int sepol_port_set_con(sepol_port_t port, sepol_context_t con);
-+extern sepol_context_t* sepol_port_get_con(
-+	sepol_port_t* port);
-+
-+extern int sepol_port_set_con(
-+	sepol_port_t* port, 
-+	sepol_context_t* con);
+-extern semanage_context_t semanage_port_get_con(
+-	semanage_port_t port);
++extern semanage_context_t* semanage_port_get_con(
++	semanage_port_t* port);
+ 
+ extern int semanage_port_set_con(
+-	semanage_port_t port, 
+-	semanage_context_t con);
++	semanage_port_t* port, 
++	semanage_context_t* con);
  
  /* Create/Clone/Destroy */
--extern int sepol_port_create(sepol_port_t* port_ptr);
--extern int sepol_port_clone(sepol_port_t port, sepol_port_t* port_ptr);
--extern void sepol_port_free(sepol_port_t port);
-+extern int sepol_port_create(
-+	sepol_port_t** port_ptr);
-+
-+extern int sepol_port_clone(
-+	sepol_port_t* port, 
-+	sepol_port_t** port_ptr);
-+
-+extern void sepol_port_free(
-+	sepol_port_t* port);
+ extern int semanage_port_create(
+-	semanage_port_t* port_ptr);
++	semanage_port_t** port_ptr);
+ 
+ extern int semanage_port_clone(
+-	semanage_port_t port, 
+-	semanage_port_t* port_ptr);
++	semanage_port_t* port, 
++	semanage_port_t** port_ptr);
+ 
+ extern void semanage_port_free(
+-	semanage_port_t port);
++	semanage_port_t* port);
  
  #endif
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/ports.h libsepol.new/include/sepol/ports.h
---- libsepol/include/sepol/ports.h	2005-09-21 10:42:24.000000000 -0400
-+++ libsepol.new/include/sepol/ports.h	2005-09-29 16:26:10.000000000 -0400
-@@ -10,13 +10,13 @@
-  * success. The returned data is allocated on the heap */
- int sepol_port_get_context(
- 	policydb_t* policydb,
--	sepol_port_t data,
-+	sepol_port_t* data,
- 	char** con_str,
- 	size_t* con_str_len);
+diff -Naru --exclude CVS libsemanage/include/semanage/ports.h libsemanage.new/include/semanage/ports.h
+--- libsemanage/include/semanage/ports.h	2005-09-29 18:34:10.000000000 -0400
++++ libsemanage.new/include/semanage/ports.h	2005-09-29 19:55:09.000000000 -0400
+@@ -7,26 +7,26 @@
  
- /* Load the given port into policy. No shadowing is allowed. */
- extern int sepol_port_load(
- 	policydb_t* policydb, 
--	sepol_port_t data);
-+	sepol_port_t* data);
+ extern int semanage_port_add(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
+-	semanage_port_t data);
++	semanage_port_key_t* key,
++	semanage_port_t* data);
  
- #endif
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/user_record.h libsepol.new/include/sepol/user_record.h
---- libsepol/include/sepol/user_record.h	2005-09-14 11:44:44.000000000 -0400
-+++ libsepol.new/include/sepol/user_record.h	2005-09-29 16:23:35.000000000 -0400
-@@ -5,63 +5,90 @@
+ extern int semanage_port_modify(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
+-	semanage_port_t data);
++	semanage_port_key_t* key,
++	semanage_port_t* data);
  
- struct sepol_user;
- struct sepol_user_key;
--typedef struct sepol_user* sepol_user_t;
--typedef struct sepol_user_key* sepol_user_key_t;
-+typedef struct sepol_user sepol_user_t;
-+typedef struct sepol_user_key sepol_user_key_t;
+ extern int semanage_port_del(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key);
++	semanage_port_key_t* key);
+ 
+ extern int semanage_port_query(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
+-	semanage_port_t* response);
++	semanage_port_key_t* key,
++	semanage_port_t** response);
+ 
+ extern int semanage_port_exists(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
++	semanage_port_key_t* key,
+ 	int* response);
+ 
+ extern int semanage_port_count(
+@@ -35,13 +35,13 @@
+ 
+ extern int semanage_port_iterate(
+ 	semanage_handle_t* handle,
+-	int (*handler) (semanage_port_t record,
++	int (*handler) (semanage_port_t* record,
+ 	                void* varg),
+ 	void* handler_arg);
+ 
+ extern int semanage_port_list(
+ 	semanage_handle_t* handle,
+-	semanage_port_t** records,
++	semanage_port_t*** records,
+ 	size_t* count);
+ 
+ #endif 
+diff -Naru --exclude CVS libsemanage/include/semanage/user_record.h libsemanage.new/include/semanage/user_record.h
+--- libsemanage/include/semanage/user_record.h	2005-09-29 16:59:38.000000000 -0400
++++ libsemanage.new/include/semanage/user_record.h	2005-09-29 19:53:37.000000000 -0400
+@@ -5,89 +5,89 @@
+ 
+ struct semanage_user;
+ struct semanage_user_key;
+-typedef struct semanage_user* semanage_user_t;
+-typedef struct semanage_user_key* semanage_user_key_t;
++typedef struct semanage_user semanage_user_t;
++typedef struct semanage_user_key semanage_user_key_t;
  
  /* Key */
- extern int sepol_user_key_create(
- 	const char* name,
--	sepol_user_key_t* key);
-+	sepol_user_key_t** key);
+ extern int semanage_user_key_create(
+ 	const char* name, 
+-	semanage_user_key_t* key);
++	semanage_user_key_t** key);
  
- extern int sepol_user_key_extract(
--	sepol_user_t user,
--	sepol_user_key_t* key_ptr);
-+	sepol_user_t* user,
-+	sepol_user_key_t** key_ptr);
+ extern int semanage_user_key_extract(
+-	semanage_user_t user, 
+-	semanage_user_key_t* key);
++	semanage_user_t* user, 
++	semanage_user_key_t** key);
  
- extern void sepol_user_key_free(
--	sepol_user_key_t key);
-+	sepol_user_key_t* key);
+ extern void semanage_user_key_free(
+-	semanage_user_key_t key);
++	semanage_user_key_t* key);
  
- extern int sepol_user_compare(
--	sepol_user_t user,
--	sepol_user_key_t key);
-+	sepol_user_t* user,
-+	sepol_user_key_t* key);
+ extern int semanage_user_compare(
+-	semanage_user_t user, 
+-	semanage_user_key_t key);
++	semanage_user_t* user, 
++	semanage_user_key_t* key);
  	
  /* Name */
--extern const char* sepol_user_get_name(sepol_user_t user);
--extern int sepol_user_set_name(sepol_user_t user, const char* name);
-+extern const char* sepol_user_get_name(
-+	sepol_user_t* user);
-+
-+extern int sepol_user_set_name(
-+	sepol_user_t* user, 
-+	const char* name);
+ extern const char* semanage_user_get_name(
+-	semanage_user_t user);
++	semanage_user_t* user);
+ 
+ extern int semanage_user_set_name(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
+ 	const char* name);
  
  /* MLS */
- extern const char* sepol_user_get_mlslevel(
--	sepol_user_t user);
-+	sepol_user_t* user);
+ extern const char* semanage_user_get_mlslevel(
+-	semanage_user_t user);
++	semanage_user_t* user);
  
- extern int sepol_user_set_mlslevel(
--	sepol_user_t user, 
-+	sepol_user_t* user, 
+ extern int semanage_user_set_mlslevel(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
  	const char* mls_level);
  
- extern const char* sepol_user_get_mlsrange(
--	sepol_user_t user);
-+	sepol_user_t* user);
+ extern const char* semanage_user_get_mlsrange(
+-	semanage_user_t user);
++	semanage_user_t* user);
  
- extern int sepol_user_set_mlsrange(
--	sepol_user_t user, 
-+	sepol_user_t* user, 
+ extern int semanage_user_set_mlsrange(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
  	const char* mls_range);
  
  /* Role management */
--extern int sepol_user_get_num_roles(sepol_user_t user);
--extern const char* sepol_user_get_defrole(sepol_user_t user);
--extern int sepol_user_add_role(sepol_user_t user, const char* role);
--extern int sepol_user_del_role(sepol_user_t user, const char* role);
--extern int sepol_user_has_role(sepol_user_t user, const char* role);
--extern int sepol_user_set_defrole(sepol_user_t user, const char* role);
-+extern int sepol_user_get_num_roles(
-+	sepol_user_t* user);
-+
-+extern const char* sepol_user_get_defrole(
-+	sepol_user_t* user);
-+
-+extern int sepol_user_add_role(
-+	sepol_user_t* user, 
-+	const char* role);
-+
-+extern int sepol_user_del_role(
-+	sepol_user_t* user, 
-+	const char* role);
-+
-+extern int sepol_user_has_role(
-+	sepol_user_t* user, 
-+	const char* role);
-+
-+extern int sepol_user_set_defrole(
-+	sepol_user_t* user, 
-+	const char* role);
-+
- extern int sepol_user_get_roles(
--	sepol_user_t user,
-+	sepol_user_t* user,
+ extern int semanage_user_get_num_roles(
+-	semanage_user_t user);
++	semanage_user_t* user);
+ 
+ extern const char* semanage_user_get_defrole(
+-	semanage_user_t user);
++	semanage_user_t* user);
+ 
+ extern int semanage_user_add_role(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
+ 	const char* role);
+ 
+ extern int semanage_user_del_role(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
+ 	const char* role);
+ 
+ extern int semanage_user_has_role(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
+ 	const char* role);
+ 
+ extern int semanage_user_set_defrole(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
+ 	const char* role);
+ 
+ extern int semanage_user_get_roles(
+-	semanage_user_t user,
++	semanage_user_t* user,
  	const char*** roles_arr, 
  	size_t* num_roles);
-+
- extern int sepol_user_set_roles(
--	sepol_user_t user,
-+	sepol_user_t* user,
+ 
+ extern int semanage_user_set_roles(
+-	semanage_user_t user,
++	semanage_user_t* user,
  	const char** roles_arr,
  	size_t num_roles);
  
  /* Create/Clone/Destroy */
--extern int sepol_user_create(sepol_user_t* user_ptr);
--extern int sepol_user_clone(sepol_user_t user, sepol_user_t* user_ptr);
--extern void sepol_user_free(sepol_user_t user);
-+extern int sepol_user_create(
-+	sepol_user_t** user_ptr);
-+
-+extern int sepol_user_clone(
-+	sepol_user_t* user, 
-+	sepol_user_t** user_ptr);
-+
-+extern void sepol_user_free(
-+	sepol_user_t* user);
+ extern int semanage_user_create(
+-	semanage_user_t* user_ptr);
++	semanage_user_t** user_ptr);
  
+ extern int semanage_user_clone(
+-	semanage_user_t user, 
+-	semanage_user_t* user_ptr);
++	semanage_user_t* user, 
++	semanage_user_t** user_ptr);
+ 
+ extern void semanage_user_free(
+-	semanage_user_t user);
++	semanage_user_t* user);
  #endif
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/include/sepol/users.h libsepol.new/include/sepol/users.h
---- libsepol/include/sepol/users.h	2005-09-29 16:39:40.000000000 -0400
-+++ libsepol.new/include/sepol/users.h	2005-09-29 16:23:20.000000000 -0400
-@@ -13,7 +13,7 @@
-    Load allows duplicates, but add does not. */
- extern int sepol_user_add(
- 	policydb_t* policydb,
--	sepol_user_t user); 
-+	sepol_user_t* user); 
+diff -Naru --exclude CVS libsemanage/include/semanage/users.h libsemanage.new/include/semanage/users.h
+--- libsemanage/include/semanage/users.h	2005-09-29 18:34:10.000000000 -0400
++++ libsemanage.new/include/semanage/users.h	2005-09-29 19:54:22.000000000 -0400
+@@ -7,26 +7,26 @@
  
- extern int sepol_user_del(
- 	policydb_t* policydb, 
-@@ -21,7 +21,7 @@
+ extern int semanage_user_add(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
+-	semanage_user_t data);
++	semanage_user_key_t* key,
++	semanage_user_t* data);
  
- extern int sepol_user_load(
- 	policydb_t* policydb, 
--	sepol_user_t user);
-+	sepol_user_t* user);
+ extern int semanage_user_modify(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
+-	semanage_user_t data);
++	semanage_user_key_t* key,
++	semanage_user_t* data);
  
- /* Check if users or roles are valid */
- extern int sepol_user_is_valid(
-@@ -43,4 +43,4 @@
- 	char*** roles, 
- 	size_t* nroles);
+ extern int semanage_user_del(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key);
++	semanage_user_key_t* key);
  
--#endif /* _SEPOL_USERS_H_ */
-+#endif 
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/boolean_record.c libsepol.new/src/boolean_record.c
---- libsepol/src/boolean_record.c	2005-09-21 10:42:24.000000000 -0400
-+++ libsepol.new/src/boolean_record.c	2005-09-29 16:12:50.000000000 -0400
-@@ -20,10 +20,10 @@
+ extern int semanage_user_query(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
+-	semanage_user_t* response);
++	semanage_user_key_t* key,
++	semanage_user_t** response);
  
- int sepol_bool_key_create(
- 	const char* name,
--	sepol_bool_key_t* key_ptr) {
-+	sepol_bool_key_t** key_ptr) {
+ extern int semanage_user_exists(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
++	semanage_user_key_t* key,
+ 	int* response);
  
--	sepol_bool_key_t tmp_key = 
--		(sepol_bool_key_t) malloc(sizeof (struct sepol_bool_key));
-+	sepol_bool_key_t* tmp_key = 
-+		(sepol_bool_key_t*) malloc(sizeof (struct sepol_bool_key));
+ extern int semanage_user_count(
+@@ -35,13 +35,13 @@
  
- 	if (!tmp_key) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -37,7 +37,7 @@
- 	return STATUS_SUCCESS;
+ extern int semanage_user_iterate(
+ 	semanage_handle_t* handle,
+-	int (*handler) (semanage_user_t record,
++	int (*handler) (semanage_user_t* record,
+ 	                void* varg),
+ 	void* handler_arg);
+ 
+ extern int semanage_user_list(
+ 	semanage_handle_t* handle,
+-	semanage_user_t** records,
++	semanage_user_t*** records,
+ 	size_t* count);
+ 
+ #endif 
+diff -Naru --exclude CVS libsemanage/src/boolean_record.c libsemanage.new/src/boolean_record.c
+--- libsemanage/src/boolean_record.c	2005-09-29 16:59:38.000000000 -0400
++++ libsemanage.new/src/boolean_record.c	2005-09-29 19:34:45.000000000 -0400
+@@ -1,52 +1,78 @@
+ #include <sepol/boolean_record.h>
+ 
+-typedef sepol_bool_t* semanage_bool_t;
+-typedef sepol_bool_key_t* semanage_bool_key_t;
++typedef sepol_bool_t semanage_bool_t;
++typedef sepol_bool_key_t semanage_bool_key_t;
+ 
+ /* Key */
+-int semanage_bool_key_create(const char* name, semanage_bool_key_t* key) {
++int semanage_bool_key_create(
++	const char* name, 
++	semanage_bool_key_t** key) {
++
+ 	return sepol_bool_key_create(name, key);
  }
  
--int sepol_bool_key_extract(sepol_bool_t boolean, sepol_bool_key_t* key_ptr) {
-+int sepol_bool_key_extract(sepol_bool_t* boolean, sepol_bool_key_t** key_ptr) {
- 	if (sepol_bool_key_create(boolean->name, key_ptr) < 0) {
- 		DEBUG(__FUNCTION__, "could not extract key from boolean %s\n",
- 			boolean->name);
-@@ -47,13 +47,13 @@
- 	return STATUS_SUCCESS;
- }	
- 
--void sepol_bool_key_free(sepol_bool_key_t key) {
-+void sepol_bool_key_free(sepol_bool_key_t* key) {
- 	free(key);
+-int semanage_bool_key_extract(semanage_bool_t boolean, semanage_bool_key_t* key) {
++int semanage_bool_key_extract(
++	semanage_bool_t* boolean, 
++	semanage_bool_key_t** key) {
++
+ 	return sepol_bool_key_extract(boolean, key);
  }
  
- int sepol_bool_compare(
--	sepol_bool_t boolean,
--	sepol_bool_key_t key) {
-+	sepol_bool_t* boolean,
-+	sepol_bool_key_t* key) {
+-void semanage_bool_key_free(semanage_bool_key_t key) {
++void semanage_bool_key_free(semanage_bool_key_t* key) {
+ 	sepol_bool_key_free(key);
+ }
+ 
+-int semanage_bool_compare(semanage_bool_t boolean, semanage_bool_key_t key) {
++int semanage_bool_compare(
++	semanage_bool_t* boolean, 
++	semanage_bool_key_t* key) {
++
+ 	return sepol_bool_compare(boolean, key);
+ }
  	
- 	if (!strcmp(boolean->name, key->name))
- 		return 0;
-@@ -61,11 +61,11 @@
- }
- 
  /* Name */
--const char* sepol_bool_get_name(sepol_bool_t boolean) {
-+const char* sepol_bool_get_name(sepol_bool_t* boolean) {
- 	return boolean->name;
+-const char* semanage_bool_get_name(semanage_bool_t boolean) {
++const char* semanage_bool_get_name(
++	semanage_bool_t* boolean) {
++
+ 	return sepol_bool_get_name(boolean);
  }
  
--int sepol_bool_set_name(sepol_bool_t boolean, const char* name) {
-+int sepol_bool_set_name(sepol_bool_t* boolean, const char* name) {
- 	boolean->name = strdup(name);
- 	if (!boolean->name) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -76,18 +76,17 @@
+-int semanage_bool_set_name(semanage_bool_t boolean, const char* name) {
++int semanage_bool_set_name(
++	semanage_bool_t* boolean, 
++	const char* name) {
++
+ 	return sepol_bool_set_name(boolean, name);
  }
  
  /* Value */
--int sepol_bool_get_value(sepol_bool_t boolean) {
-+int sepol_bool_get_value(sepol_bool_t* boolean) {
- 	return boolean->value;
+-int semanage_bool_get_value(semanage_bool_t boolean) {
++int semanage_bool_get_value(
++	semanage_bool_t* boolean) {
++
+ 	return sepol_bool_get_value(boolean);
  }
  
--void sepol_bool_set_value(sepol_bool_t boolean, int value) {
-+void sepol_bool_set_value(sepol_bool_t* boolean, int value) {
- 	boolean->value = value;
+-void semanage_bool_set_value(semanage_bool_t boolean, int value) {
++void semanage_bool_set_value(
++	semanage_bool_t* boolean, 
++	int value) {
++
+ 	sepol_bool_set_value(boolean, value);
  }
  
- /* Create */
--int sepol_bool_create(sepol_bool_t* bool_ptr) {
--	sepol_bool_t boolean = (sepol_bool_t) 
--		malloc(sizeof (struct sepol_bool));
-+int sepol_bool_create(sepol_bool_t** bool_ptr) {
-+	sepol_bool_t* boolean = (sepol_bool_t*) malloc(sizeof (sepol_bool_t));
- 
-         if (!boolean) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -103,8 +102,8 @@
+ /* Create/Clone/Destroy */
+-int semanage_bool_create(semanage_bool_t* bool_ptr) {
++int semanage_bool_create(
++	semanage_bool_t** bool_ptr) {
++
+ 	return sepol_bool_create(bool_ptr);
  }
  
- /* Deep copy clone */
--int sepol_bool_clone(sepol_bool_t boolean, sepol_bool_t* bool_ptr) {
--	sepol_bool_t new_bool = NULL;
-+int sepol_bool_clone(sepol_bool_t* boolean, sepol_bool_t** bool_ptr) {
-+	sepol_bool_t* new_bool = NULL;
- 
- 	if (sepol_bool_create(&new_bool) < 0)
- 		goto err;
-@@ -124,7 +123,7 @@
+-int semanage_bool_clone(semanage_bool_t boolean, semanage_bool_t* bool_ptr) {
++int semanage_bool_clone(
++	semanage_bool_t* boolean, 
++	semanage_bool_t** bool_ptr) {
++
+ 	return sepol_bool_clone(boolean, bool_ptr);
  }
  
- /* Destroy */
--void sepol_bool_free(sepol_bool_t boolean) {
-+void sepol_bool_free(sepol_bool_t* boolean) {
- 	if (!boolean)
- 		return;
- 	
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/booleans.c libsepol.new/src/booleans.c
---- libsepol/src/booleans.c	2005-09-23 20:42:45.000000000 -0400
-+++ libsepol.new/src/booleans.c	2005-09-29 16:45:58.000000000 -0400
-@@ -1,5 +1,6 @@
- #include <stdio.h>
- #include <stdlib.h>
-+#include <stddef.h>
- #include <errno.h>
- 
- #include "private.h"
-@@ -11,9 +12,9 @@
- #include <sepol/conditional.h>
- #include <sepol/boolean_record.h>
- 
--static int bool_update (
-+static inline int bool_update (
- 	policydb_t* policydb,
--	sepol_bool_t boolean) {
-+	sepol_bool_t* boolean) {
- 
- 	char* name = strdup(sepol_bool_get_name(boolean));
- 	int value = sepol_bool_get_value(boolean);
-@@ -46,7 +47,7 @@
+-void semanage_bool_free(semanage_bool_t boolean) {
++void semanage_bool_free(
++	semanage_bool_t* boolean) {
++
+ 	sepol_bool_free(boolean);
  }
+diff -Naru --exclude CVS libsemanage/src/context_record.c libsemanage.new/src/context_record.c
+--- libsemanage/src/context_record.c	2005-09-29 16:59:38.000000000 -0400
++++ libsemanage.new/src/context_record.c	2005-09-29 19:27:31.000000000 -0400
+@@ -1,61 +1,61 @@
+ #include <sepol/context_record.h>
  
- int sepol_bool_load (
--	policydb_t* policydb, sepol_bool_t boolean) {
-+	policydb_t* policydb, sepol_bool_t* boolean) {
- 
- 	if (bool_update(policydb, boolean) < 0)
- 		goto err;	
-@@ -67,10 +68,10 @@
- 
- int sepol_bool_load_array(
- 	policydb_t* policydb,
--	sepol_bool_t* bool_arr,
--	int bool_arr_len) {	
-+	sepol_bool_t** bool_arr,
-+	size_t bool_arr_len) {	
- 
--	int i, errors = 0;
-+	unsigned int i, errors = 0;
- 
- 	for (i = 0; i < bool_arr_len; i++)
- 		if (bool_update(policydb, bool_arr[i]) < 0) {
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/context.c libsepol.new/src/context.c
---- libsepol/src/context.c	2005-08-02 09:17:09.000000000 -0400
-+++ libsepol.new/src/context.c	2005-09-29 16:20:11.000000000 -0400
-@@ -122,7 +122,7 @@
- int sepol_ctx_struct_create(
- 	policydb_t* policydb, 
- 	context_struct_t** cptr, 
--	sepol_context_t data) {
-+	sepol_context_t* data) {
- 
- 	context_struct_t* scontext = NULL;
- 	user_datum_t* usrdatum;
-@@ -232,7 +232,7 @@
- 	size_t con_str_len) { 
- 
- 	char* con_cpy = NULL;
--	sepol_context_t ctx_info = NULL;
-+	sepol_context_t* ctx_info = NULL;
- 
- 	/* sepol_context_from_string expects a NULL-terminated string */
- 	con_cpy = malloc(con_str_len + 1);
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/context_record.c libsepol.new/src/context_record.c
---- libsepol/src/context_record.c	2005-08-18 16:42:25.000000000 -0400
-+++ libsepol.new/src/context_record.c	2005-09-29 16:17:55.000000000 -0400
-@@ -21,11 +21,11 @@
- };
+-typedef sepol_context_t* semanage_context_t;
++typedef sepol_context_t semanage_context_t;
  
  /* User */
--const char* sepol_context_get_user(sepol_context_t con) {
-+const char* sepol_context_get_user(sepol_context_t* con) {
- 	return con->user;
+-const char* semanage_context_get_user(semanage_context_t con) {
++const char* semanage_context_get_user(semanage_context_t* con) {
+ 	return sepol_context_get_user(con);
  }
  
--int sepol_context_set_user(sepol_context_t con, const char* user) {
-+int sepol_context_set_user(sepol_context_t* con, const char* user) {
- 	con->user = strdup(user);
- 	if (!con->user) { 
- 		DEBUG(__FUNCTION__, "out of memory, could not set "
-@@ -36,11 +36,11 @@
+-int semanage_context_set_user(semanage_context_t con, const char* user) {
++int semanage_context_set_user(semanage_context_t* con, const char* user) {
+ 	return sepol_context_set_user(con, user);
  }
  
  /* Role */
--const char* sepol_context_get_role(sepol_context_t con) {
-+const char* sepol_context_get_role(sepol_context_t* con) {
- 	return con->role;
+-const char* semanage_context_get_role(semanage_context_t con) {
++const char* semanage_context_get_role(semanage_context_t* con) {
+ 	return sepol_context_get_role(con);
  }
  
--int sepol_context_set_role(sepol_context_t con, const char* role) {
-+int sepol_context_set_role(sepol_context_t* con, const char* role) {
- 	con->role = strdup(role);
- 	if (!con->role) {
- 		DEBUG(__FUNCTION__, "out of memory, could not set "
-@@ -51,11 +51,11 @@
+-int semanage_context_set_role(semanage_context_t con, const char* role) {
++int semanage_context_set_role(semanage_context_t* con, const char* role) {
+ 	return sepol_context_set_role(con, role);
  }
  
  /* Type */
--const char* sepol_context_get_type(sepol_context_t con) {
-+const char* sepol_context_get_type(sepol_context_t* con) {
- 	return con->type;
+-const char* semanage_context_get_type(semanage_context_t con) {
++const char* semanage_context_get_type(semanage_context_t* con) {
+ 	return sepol_context_get_type(con);
  }
  
--int sepol_context_set_type(sepol_context_t con, const char* type) {
-+int sepol_context_set_type(sepol_context_t* con, const char* type) {
- 	con->type = strdup(type);
- 	if (!con->role) {
- 		DEBUG(__FUNCTION__, "out of memory, could not set "
-@@ -66,11 +66,11 @@
+-int semanage_context_set_type(semanage_context_t con, const char* type) {
++int semanage_context_set_type(semanage_context_t* con, const char* type) {
+ 	return sepol_context_set_type(con, type);
  }
  
  /* MLS */
--const char* sepol_context_get_mls(sepol_context_t con) {
-+const char* sepol_context_get_mls(sepol_context_t* con) {
- 	return con->mls;
+-const char* semanage_context_get_mls(semanage_context_t con) {
++const char* semanage_context_get_mls(semanage_context_t* con) {
+ 	return sepol_context_get_mls(con);
  }
  
--int sepol_context_set_mls(sepol_context_t con, const char* mls) {
-+int sepol_context_set_mls(sepol_context_t* con, const char* mls) {
- 	con->mls = strdup(mls);
- 	if (!con->mls) {
- 		DEBUG(__FUNCTION__, "out of memory, could not set "
-@@ -81,9 +81,9 @@
+-int semanage_context_set_mls(semanage_context_t con, const char* mls_range) {
++int semanage_context_set_mls(semanage_context_t* con, const char* mls_range) {
+ 	return sepol_context_set_mls(con, mls_range);
  }
  
- /* Create */
--int sepol_context_create(sepol_context_t* con_ptr) {
--	sepol_context_t con =
--                (sepol_context_t) malloc(sizeof(struct sepol_context));
-+int sepol_context_create(sepol_context_t** con_ptr) {
-+	sepol_context_t* con =
-+                (sepol_context_t*) malloc(sizeof(sepol_context_t));
+ /* Create/Clone/Destroy */
+-int semanage_context_create(semanage_context_t* con_ptr) {
++int semanage_context_create(semanage_context_t** con_ptr) {
+ 	return sepol_context_create(con_ptr);
+ }
  
-         if (!con) {
- 		DEBUG(__FUNCTION__, "out of memory, could not "
-@@ -101,10 +101,10 @@
+-int semanage_context_clone(semanage_context_t con, semanage_context_t* con_ptr) {
++int semanage_context_clone(semanage_context_t* con, semanage_context_t** con_ptr) {
+ 	return sepol_context_clone(con, con_ptr);
+ }
  
- /* Deep copy clone */
- int sepol_context_clone(
--	sepol_context_t con,
--	sepol_context_t* con_ptr) {
-+	sepol_context_t* con,
-+	sepol_context_t** con_ptr) {
+-void semanage_context_free(semanage_context_t con) {
++void semanage_context_free(semanage_context_t* con) {
+ 	sepol_context_free(con);
+ }
+ 	
+ /* Parse to/from string */
+-int semanage_context_from_string(const char* str, semanage_context_t* con) {
++int semanage_context_from_string(const char* str, semanage_context_t** con) {
+ 	return sepol_context_from_string(str, con);
+ }
  
--	sepol_context_t new_con = NULL;	
-+	sepol_context_t* new_con = NULL;	
- 	if (sepol_context_create(&new_con) < 0)
+-char* semanage_context_to_string(semanage_context_t con) {
++char* semanage_context_to_string(semanage_context_t* con) {
+ 	return sepol_context_to_string(con);
+ }
+diff -Naru --exclude CVS libsemanage/src/database.c libsemanage.new/src/database.c
+--- libsemanage/src/database.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/database.c	2005-09-29 19:59:38.000000000 -0400
+@@ -69,7 +69,7 @@
+ 
+ int dbase_cache_add(
+ 	dbase_t* dbase,
+-	record_t data) {
++	record_t* data) {
+ 
+ 	cache_entry_t* entry = 
+ 		(cache_entry_t*) malloc(sizeof (cache_entry_t));
+@@ -88,7 +88,7 @@
+ 
+ static int dbase_cache_locate(
+ 	dbase_t* dbase,
+-	record_key_t key,
++	record_key_t* key,
+ 	cache_entry_t** entry) {
+ 	
+ 	cache_entry_t* ptr;
+@@ -112,8 +112,8 @@
+ int dbase_add(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
+-	record_t data) {
++	record_key_t* key,
++	record_t* data) {
+ 
+ 	int exists;
+ 
+@@ -142,8 +142,8 @@
+ int dbase_modify(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
+-	record_t data) {
++	record_key_t* key,
++	record_t* data) {
+ 
+ 	cache_entry_t* entry;
+ 	int status;
+@@ -170,7 +170,7 @@
+ int dbase_del(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key) {
++	record_key_t* key) {
+ 
+ 	cache_entry_t *ptr, *prev = NULL;
+ 
+@@ -203,8 +203,8 @@
+ int dbase_query(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
+-	record_t* response) {
++	record_key_t* key,
++	record_t** response) {
+ 
+ 	cache_entry_t* entry;
+ 	int status;
+@@ -216,7 +216,7 @@
+ 	if (status < 0 || status == STATUS_NODATA)
  		goto err;
  
-@@ -133,7 +133,7 @@
- }
+-	if (dbase->rtable->clone(entry->data, *response) < 0)
++	if (dbase->rtable->clone(entry->data, response) < 0)
+ 		goto err;
  
- /* Destroy */
--void sepol_context_free(sepol_context_t con) {
-+void sepol_context_free(sepol_context_t* con) {
- 	if (!con)
- 		return;
- 
-@@ -144,10 +144,10 @@
- 	free(con);
- }
- 
--int sepol_context_from_string(const char* str, sepol_context_t* con) {
-+int sepol_context_from_string(const char* str, sepol_context_t** con) {
- 
- 	char *tmp = NULL, *low, *high;
--	sepol_context_t tmp_con = NULL;
-+	sepol_context_t* tmp_con = NULL;
- 
- 	if (!strcmp(str, "<<none>>")) {
- 		*con = NULL;
-@@ -214,7 +214,7 @@
- 	return STATUS_ERR;
- }
- 
--char* sepol_context_to_string(sepol_context_t con) {
-+char* sepol_context_to_string(sepol_context_t* con) {
- 
- 	const int user_sz = strlen(con->user);
- 	const int role_sz = strlen(con->role);
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/iface_record.c libsepol.new/src/iface_record.c
---- libsepol/src/iface_record.c	2005-09-19 15:31:28.000000000 -0400
-+++ libsepol.new/src/iface_record.c	2005-09-29 16:18:17.000000000 -0400
-@@ -11,10 +11,10 @@
- 	char* name;
- 
- 	/* Interface context */
--	sepol_context_t netif_con;
-+	sepol_context_t* netif_con;
- 
- 	/* Message context */
--	sepol_context_t netmsg_con;
-+	sepol_context_t* netmsg_con;
- };
- 
- struct sepol_iface_key {
-@@ -26,10 +26,10 @@
- /* Key */
- int sepol_iface_key_create(
- 	const char* name,
--	sepol_iface_key_t* key_ptr) {
-+	sepol_iface_key_t** key_ptr) {
- 
--	sepol_iface_key_t tmp_key = 
--		(sepol_iface_key_t) malloc(sizeof(struct sepol_iface_key));
-+	sepol_iface_key_t* tmp_key = 
-+		(sepol_iface_key_t*) malloc(sizeof(sepol_iface_key_t));
- 
- 	if (!tmp_key) {
- 		DEBUG(__FUNCTION__, "out of memory, could not create "
-@@ -43,7 +43,7 @@
  	return STATUS_SUCCESS;
- }
+@@ -229,7 +229,7 @@
+ int dbase_exists(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
++	record_key_t* key,
+ 	int* response) {
  
--int sepol_iface_key_extract(sepol_iface_t iface, sepol_iface_key_t* key_ptr) {
-+int sepol_iface_key_extract(sepol_iface_t* iface, sepol_iface_key_t** key_ptr) {
- 	if (sepol_iface_key_create(iface->name, key_ptr) < 0) {
- 		DEBUG(__FUNCTION__, "could not extract key from "
- 			"interface %s\n", iface->name);
-@@ -53,13 +53,13 @@
- 	return STATUS_SUCCESS;
- }
+ 	cache_entry_t* entry;
+@@ -271,7 +271,7 @@
+ int dbase_iterate(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	int (*fn) (record_t record, void* varg),
++	int (*fn) (record_t* record, void* varg),
+ 	void* fn_arg) {
  
--void sepol_iface_key_free(sepol_iface_key_t key) {
-+void sepol_iface_key_free(sepol_iface_key_t* key) {
- 	free(key);
- }
+ 	int status;	
+@@ -300,11 +300,11 @@
+ int dbase_list(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_t** records,	
++	record_t*** records,	
+ 	size_t* count) {
  
- int sepol_iface_compare(
--	sepol_iface_t iface, 
--	sepol_iface_key_t key) {
-+	sepol_iface_t* iface, 
-+	sepol_iface_key_t* key) {
+ 	cache_entry_t* ptr;
+-	record_t* tmp_records = NULL;
++	record_t** tmp_records = NULL;
+ 	size_t tmp_count;
+ 	int i = 0;
  	
- 	if (!strcmp(iface->name, key->name)) 
- 		return 0;
-@@ -67,9 +67,9 @@
+@@ -314,7 +314,8 @@
+ 	tmp_count = dbase->cache_sz;
+ 
+ 	if (tmp_count > 0) {
+-		tmp_records = (record_t*) calloc(tmp_count, sizeof (record_t));
++		tmp_records = (record_t**) 
++			calloc(tmp_count, sizeof (record_t*));
+ 		if (tmp_records == NULL) 
+ 			goto omem;			
+ 	
+diff -Naru --exclude CVS libsemanage/src/database_file.c libsemanage.new/src/database_file.c
+--- libsemanage/src/database_file.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/database_file.c	2005-09-29 19:58:50.000000000 -0400
+@@ -50,7 +50,7 @@
+ 	int perr_fatal = 0;
+ 	/* FIXME: pass from caller? */
+ 
+-	record_t process_record = NULL;
++	record_t* process_record = NULL;
+ 	int pstatus = STATUS_SUCCESS;
+ 	parse_info_t parse_info;
+ 	parse_info.filename = backend->filename;
+diff -Naru --exclude CVS libsemanage/src/database.h libsemanage.new/src/database.h
+--- libsemanage/src/database.h	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/database.h	2005-09-29 19:57:21.000000000 -0400
+@@ -23,7 +23,7 @@
+ 
+ /* Representation of the database once loaded in memory */
+ typedef struct cache_entry {
+-        record_t data;
++        record_t* data;
+         struct cache_entry* next;
+ } cache_entry_t;
+ 
+@@ -49,7 +49,7 @@
+ /* Add a record to the database cache */
+ extern int dbase_cache_add(
+ 	dbase_t* dbase,
+-	record_t data);
++	record_t* data);
+ 
+ /* ======================================
+    API for use elsewhere:
+@@ -84,30 +84,30 @@
+ extern int dbase_add(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
+-	record_t data);
++	record_key_t* key,
++	record_t* data);
+ 
+ extern int dbase_modify(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
+-	record_t data);
++	record_key_t* key,
++	record_t* data);
+ 
+ extern int dbase_del(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key);
++	record_key_t* key);
+ 
+ extern int dbase_query(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
+-	record_t* response);
++	record_key_t* key,
++	record_t** response);
+ 
+ extern int dbase_exists(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_key_t key,
++	record_key_t* key,
+ 	int* response);
+ 
+ extern int dbase_count(
+@@ -118,14 +118,14 @@
+ extern int dbase_iterate(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	int (*fn) (record_t record,
++	int (*fn) (record_t* record,
+ 	           void* varg),
+ 	void* fn_arg);
+ 
+ extern int dbase_list(
+ 	semanage_handle_t* handle,
+ 	dbase_t* dbase,
+-	record_t** records,	
++	record_t*** records,	
+ 	size_t* count);
+ 
+ #endif 
+diff -Naru --exclude CVS libsemanage/src/iface_record.c libsemanage.new/src/iface_record.c
+--- libsemanage/src/iface_record.c	2005-09-29 16:59:38.000000000 -0400
++++ libsemanage.new/src/iface_record.c	2005-09-29 19:38:07.000000000 -0400
+@@ -1,65 +1,92 @@
+ #include <sepol/iface_record.h>
+ 
+-typedef sepol_context_t* semanage_context_t;
+-typedef sepol_iface_t* semanage_iface_t;
+-typedef sepol_iface_key_t* semanage_iface_key_t;
++typedef sepol_context_t semanage_context_t;
++typedef sepol_iface_t semanage_iface_t;
++typedef sepol_iface_key_t semanage_iface_key_t;
+ 
+ /* Key */
+-int semanage_iface_compare(semanage_iface_t iface, semanage_iface_key_t key) {
++int semanage_iface_compare(
++	semanage_iface_t* iface, 
++	semanage_iface_key_t* key) {
++
+ 	return sepol_iface_compare(iface, key);
  }
  
- /* Create */
--int sepol_iface_create(sepol_iface_t* iface) {
--	sepol_iface_t tmp_iface = 
--		(sepol_iface_t) malloc(sizeof(struct sepol_iface));
-+int sepol_iface_create(sepol_iface_t** iface) {
-+	sepol_iface_t* tmp_iface = 
-+		(sepol_iface_t*) malloc(sizeof(sepol_iface_t));
+ int semanage_iface_key_create(
+ 	const char* name,
+-	semanage_iface_key_t* key_ptr) {
++	semanage_iface_key_t** key_ptr) {
++
+ 	return sepol_iface_key_create(name, key_ptr);
+ }
  
-         if (!tmp_iface) {
- 		DEBUG(__FUNCTION__, "out of memory, could not create "
-@@ -86,11 +86,11 @@
+ int semanage_iface_key_extract(
+-	semanage_iface_t iface,
+-	semanage_iface_key_t* key_ptr) {
++	semanage_iface_t* iface,
++	semanage_iface_key_t** key_ptr) {
++
+ 	return sepol_iface_key_extract(iface, key_ptr);
+ }
+ 
+-void semanage_iface_key_free(semanage_iface_key_t key) {
++void semanage_iface_key_free(
++	semanage_iface_key_t* key) {
+ 	sepol_iface_key_free(key);
  }
  
  /* Name */
--const char* sepol_iface_get_name(sepol_iface_t iface) {
-+const char* sepol_iface_get_name(sepol_iface_t* iface) {
- 	return iface->name;
+-const char* semanage_iface_get_name(semanage_iface_t iface) {
++const char* semanage_iface_get_name(
++	semanage_iface_t* iface) {
++
+         return sepol_iface_get_name(iface);
  }
  
--int sepol_iface_set_name(sepol_iface_t iface, const char* name) {
-+int sepol_iface_set_name(sepol_iface_t* iface, const char* name) {
-         iface->name = strdup(name);
-         if (!iface->name) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -101,29 +101,29 @@
+-int semanage_iface_set_name(semanage_iface_t iface, const char* name) {
++int semanage_iface_set_name(
++	semanage_iface_t* iface, 
++	const char* name) {
++
+         return sepol_iface_set_name(iface, name);
+ }
+ 	
+ /* Context */
+-semanage_context_t semanage_iface_get_ifcon(semanage_iface_t iface) {
++semanage_context_t* semanage_iface_get_ifcon(
++	semanage_iface_t* iface) {
++
+ 	return sepol_iface_get_ifcon(iface);
  }
  
- /* Interface Context */
--sepol_context_t sepol_iface_get_ifcon(sepol_iface_t iface) {
-+sepol_context_t* sepol_iface_get_ifcon(sepol_iface_t* iface) {
- 	return iface->netif_con;
+-int semanage_iface_set_ifcon(semanage_iface_t iface, semanage_context_t con) {
++int semanage_iface_set_ifcon(
++	semanage_iface_t* iface, 
++	semanage_context_t* con) {
++
+ 	return sepol_iface_set_ifcon(iface, con);
  }
  
--int sepol_iface_set_ifcon(sepol_iface_t iface, sepol_context_t con) {
-+int sepol_iface_set_ifcon(sepol_iface_t* iface, sepol_context_t* con) {
- 	iface->netif_con = con;
- 	return STATUS_SUCCESS;
+-semanage_context_t semanage_iface_get_msgcon(semanage_iface_t iface) {
++semanage_context_t* semanage_iface_get_msgcon(
++	semanage_iface_t* iface) {
++
+ 	return sepol_iface_get_msgcon(iface);	
  }
  
- /* Message Context */
--sepol_context_t sepol_iface_get_msgcon(sepol_iface_t iface) {
-+sepol_context_t* sepol_iface_get_msgcon(sepol_iface_t* iface) {
- 	return iface->netmsg_con;
+-int semanage_iface_set_msgcon(semanage_iface_t iface, semanage_context_t con) {
++int semanage_iface_set_msgcon(
++	semanage_iface_t* iface, semanage_context_t* con) {
++
+ 	return sepol_iface_set_msgcon(iface, con);
  }
  
--int sepol_iface_set_msgcon(sepol_iface_t iface, sepol_context_t con) {
-+int sepol_iface_set_msgcon(sepol_iface_t* iface, sepol_context_t* con) {
- 	iface->netmsg_con = con;
- 	return STATUS_SUCCESS;
+ /* Create/Clone/Destroy */
+-int semanage_iface_create(semanage_iface_t* iface_ptr) {
++int semanage_iface_create(
++	semanage_iface_t** iface_ptr) {
++
+ 	return sepol_iface_create(iface_ptr);
  }
  
- /* Deep copy clone */
--int sepol_iface_clone(sepol_iface_t iface, sepol_iface_t* iface_ptr) {
-+int sepol_iface_clone(sepol_iface_t* iface, sepol_iface_t** iface_ptr) {
- 
--	sepol_iface_t new_iface = NULL;
-+	sepol_iface_t* new_iface = NULL;
- 	if (sepol_iface_create(&new_iface) < 0)
- 		goto err;
- 
-@@ -148,7 +148,7 @@
+-int semanage_iface_clone(semanage_iface_t iface, semanage_iface_t* iface_ptr) {
++int semanage_iface_clone(
++	semanage_iface_t* iface, 
++	semanage_iface_t** iface_ptr) {
++
+ 	return sepol_iface_clone(iface, iface_ptr);
  }
  
- /* Destroy */
--void sepol_iface_free(sepol_iface_t iface) {
-+void sepol_iface_free(sepol_iface_t* iface) {
- 	if (!iface)
- 		return;
+-void semanage_iface_free(semanage_iface_t iface) {
++void semanage_iface_free(
++	semanage_iface_t* iface) {
++
+ 	sepol_iface_free(iface);
+ }
+diff -Naru --exclude CVS libsemanage/src/interfaces.h libsemanage.new/src/interfaces.h
+--- libsemanage/src/interfaces.h	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/interfaces.h	2005-09-29 18:58:45.000000000 -0400
+@@ -37,24 +37,24 @@
+ typedef struct record_table {
  
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/interfaces.c libsepol.new/src/interfaces.c
---- libsepol/src/interfaces.c	2005-09-23 20:43:05.000000000 -0400
-+++ libsepol.new/src/interfaces.c	2005-09-29 16:15:41.000000000 -0400
-@@ -12,10 +12,10 @@
+ 	/* Create a record */
+-	int (*create) (record_t* rec);
++	int (*create) (record_t** rec);
  
- /* Create a low level interface structure from
-  * a high level representation */
--static int sepol_iface_struct_create(
-+int sepol_iface_struct_create(
- 	policydb_t* policydb,
- 	ocontext_t** iface,
--	sepol_iface_t data) {
-+	sepol_iface_t* data) {
+ 	/* Extract key from record */
+-	int (*key_extract) (record_t rec, record_key_t* key);
++	int (*key_extract) (record_t* rec, record_key_t** key);
+ 	
+ 	/* Free record key */
+-	void (*key_free) (record_key_t key);
++	void (*key_free) (record_key_t* key);
  
- 	ocontext_t* tmp_iface = NULL;
- 	context_struct_t* tmp_ifcon = NULL;
-@@ -60,7 +60,7 @@
- /* Get the current context mapping for this interface */
- int sepol_iface_get_context(
- 	policydb_t* policydb,
--	sepol_iface_t data,
-+	sepol_iface_t* data,
- 	char** ifcon_str, size_t* ifcon_str_len,	
- 	char** msgcon_str, size_t* msgcon_str_len) {
+ 	/* Return 0 if record can be matched against key,
+ 	 * and 1 otherwise */
+-	int (*compare) (record_t rec, record_key_t key);
++	int (*compare) (record_t* rec, record_key_t* key);
  
-@@ -93,7 +93,7 @@
- /* Load an interface into policy */
- int sepol_iface_load(
- 	policydb_t* policydb, 
--	sepol_iface_t data) {
-+	sepol_iface_t* data) {
+ 	/* Deep-copy clone of this record */
+-	int (*clone) (record_t rec, record_t* new_rec);
++	int (*clone) (record_t* rec, record_t** new_rec);
  
- 	ocontext_t* iface = NULL;
- 	char *ifcon_str, *msgcon_str;
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/port_record.c libsepol.new/src/port_record.c
---- libsepol/src/port_record.c	2005-08-02 09:17:09.000000000 -0400
-+++ libsepol.new/src/port_record.c	2005-09-29 16:18:31.000000000 -0400
-@@ -13,7 +13,7 @@
- 	int proto;
+ 	/* Deallocate record resources. Must
+ 	 * sucessfully handle NULL. */
+-	void (*free) (record_t rec);
++	void (*free) (record_t* rec);
  
- 	/* Context */
--	sepol_context_t con;
-+	sepol_context_t* con;
- };
+ } record_table_t;
  
- struct sepol_port_key {
-@@ -27,10 +27,10 @@
+@@ -64,10 +64,10 @@
+ 	/* Fill record structuure based on supplied parse info.
+ 	 * Parser must return STATUS_NODATA when EOF is encountered.
+ 	 * Parser must handle NULL file stream correctly */
+-	int (*parse) (parse_info_t* info, record_t record);
++	int (*parse) (parse_info_t* info, record_t* record);
+ 
+ 	/* Print record to stream */
+-	int (*print) (record_t record, FILE* str);
++	int (*print) (record_t* record, FILE* str);
+ 
+ } record_file_table_t;
+ 
+@@ -75,10 +75,10 @@
+ typedef struct record_direct_table {
+ 
+ 	/* Load record into policy store */
+-	int (*load) (policydb_t* policy, record_t record); 
++	int (*load) (policydb_t* policy, record_t* record); 
+ 
+ 	/* Extract records from policy store */
+-	int (*list) (policydb_t* policy, record_t** records, size_t* nrecords);
++	int (*list) (policydb_t* policy, record_t*** records, size_t* nrecords);
+ 
+ } record_direct_table_t;
+ 
+diff -Naru --exclude CVS libsemanage/src/port_record.c libsemanage.new/src/port_record.c
+--- libsemanage/src/port_record.c	2005-09-29 16:59:38.000000000 -0400
++++ libsemanage.new/src/port_record.c	2005-09-29 19:37:50.000000000 -0400
+@@ -1,78 +1,114 @@
+ #include <sepol/port_record.h>
+ 
+-typedef sepol_context_t* semanage_context_t;
+-typedef sepol_port_t* semanage_port_t;
+-typedef sepol_port_key_t* semanage_port_key_t;
++typedef sepol_context_t semanage_context_t;
++typedef sepol_port_t semanage_port_t;
++typedef sepol_port_key_t semanage_port_key_t;
+ 
  /* Key */
- int sepol_port_key_create(
+-int semanage_port_compare(semanage_port_t port, semanage_port_key_t key) {
++int semanage_port_compare(
++	semanage_port_t* port, 
++	semanage_port_key_t* key) {
++
+ 	return sepol_port_compare(port, key);
+ }
+ 
+ int semanage_port_key_create(
  	int low, int high, int proto, 
--	sepol_port_key_t* key_ptr) {
-+	sepol_port_key_t** key_ptr) {
- 
--	sepol_port_key_t tmp_key = 
--		(sepol_port_key_t) malloc(sizeof(struct sepol_port_key));
-+	sepol_port_key_t* tmp_key = 
-+		(sepol_port_key_t*) malloc(sizeof(sepol_port_key_t));
- 
- 	if (!tmp_key) {
- 		DEBUG(__FUNCTION__, "out of memory, could not create "
-@@ -46,7 +46,7 @@
- 	return STATUS_SUCCESS;
+-	semanage_port_key_t* key_ptr) {
++	semanage_port_key_t** key_ptr) {
++
+ 	return sepol_port_key_create(low, high, proto, key_ptr);
  }
  
--int sepol_port_key_extract(sepol_port_t port, sepol_port_key_t* key_ptr) {
-+int sepol_port_key_extract(sepol_port_t* port, sepol_port_key_t** key_ptr) {
- 	if (sepol_port_key_create(
- 		port->low, port->high, port->proto, key_ptr) < 0) {
- 		DEBUG(__FUNCTION__, "could not extract key from "
-@@ -58,13 +58,13 @@
- 	return STATUS_SUCCESS;
+ int semanage_port_key_extract(
+-	semanage_port_t port,
+-	semanage_port_key_t* key_ptr) {
++	semanage_port_t* port,
++	semanage_port_key_t** key_ptr) {
++
+ 	return sepol_port_key_extract(port, key_ptr);
  }
  
--void sepol_port_key_free(sepol_port_key_t key) {
-+void sepol_port_key_free(sepol_port_key_t* key) {
- 	free(key);
+-void semanage_port_key_free(semanage_port_key_t key) {
++void semanage_port_key_free(
++	semanage_port_key_t* key) {
++
+ 	sepol_port_key_free(key);
+ }	
+ 
+ /* Protocol */
+-int semanage_port_get_proto(semanage_port_t port) {
++int semanage_port_get_proto(
++	semanage_port_t* port) {
++
+ 	return sepol_port_get_proto(port);
  }
  
- int sepol_port_compare(
--	sepol_port_t port, 
--	sepol_port_key_t key) {
-+	sepol_port_t* port, 
-+	sepol_port_key_t* key) {
+-int semanage_port_set_proto(semanage_port_t port, int proto) {
++int semanage_port_set_proto(
++	semanage_port_t* port, 
++	int proto) {
++
+ 	return sepol_port_set_proto(port, proto);
+ }
  
- 	if ((port->low <= key->low) && 
- 	    (port->high >= key->high) &&
-@@ -75,32 +75,32 @@
+-const char* semanage_port_get_proto_str(semanage_port_t port) {
++const char* semanage_port_get_proto_str(
++	semanage_port_t* port) {
++
+ 	return sepol_port_get_proto_str(port);
  }
  
  /* Port */
--int sepol_port_get_low(sepol_port_t port) {
-+int sepol_port_get_low(sepol_port_t* port) {
- 	return port->low;
+-int semanage_port_get_low(semanage_port_t port) {
++int semanage_port_get_low(
++	semanage_port_t* port) {
++
+ 	return sepol_port_get_low(port);
  }
  
--int sepol_port_get_high(sepol_port_t port) {
-+int sepol_port_get_high(sepol_port_t* port) {
- 	return port->high;
+-int semanage_port_get_high(semanage_port_t port) {
++int semanage_port_get_high(
++	semanage_port_t* port) {
++
+ 	return sepol_port_get_high(port);
  }
  
--int sepol_port_set_port(sepol_port_t port, int port_num) {
-+int sepol_port_set_port(sepol_port_t* port, int port_num) {
- 	port->low = port_num;
- 	port->high = port_num;
- 	return STATUS_SUCCESS;
+-int semanage_port_set_port(semanage_port_t port, int port_num) {
++int semanage_port_set_port(
++	semanage_port_t* port, 
++	int port_num) {
++
+ 	return sepol_port_set_port(port, port_num);
  }
  
--int sepol_port_set_range(sepol_port_t port, int low, int high) {
-+int sepol_port_set_range(sepol_port_t* port, int low, int high) {
- 	port->low = low;
- 	port->high = high;
- 	return STATUS_SUCCESS;
- }
- 
- /* Protocol */
--int sepol_port_get_proto(sepol_port_t port) {
-+int sepol_port_get_proto(sepol_port_t* port) {
- 	return port->proto;
- }
- 
--const char* sepol_port_get_proto_str(sepol_port_t port) {
-+const char* sepol_port_get_proto_str(sepol_port_t* port) {
- 	switch (port->proto) {
- 		case SEPOL_PROTO_UDP:
- 			return "udp";
-@@ -111,15 +111,15 @@
- 	}	
- }
- 
--int sepol_port_set_proto(sepol_port_t port, int proto) {
-+int sepol_port_set_proto(sepol_port_t* port, int proto) {
- 	port->proto = proto;
- 	return STATUS_SUCCESS;
- }
- 
- /* Create */
--int sepol_port_create(sepol_port_t* port) {
--	sepol_port_t tmp_port = 
--		(sepol_port_t) malloc(sizeof(struct sepol_port));
-+int sepol_port_create(sepol_port_t** port) {
-+	sepol_port_t* tmp_port = 
-+		(sepol_port_t*) malloc(sizeof(sepol_port_t));
- 
-         if (!tmp_port) {
- 		DEBUG(__FUNCTION__, "out of memory, could not create "
-@@ -137,9 +137,9 @@
- }
- 
- /* Deep copy clone */
--int sepol_port_clone(sepol_port_t port, sepol_port_t* port_ptr) {
-+int sepol_port_clone(sepol_port_t* port, sepol_port_t** port_ptr) {
- 
--	sepol_port_t new_port = NULL;
-+	sepol_port_t* new_port = NULL;
- 	if (sepol_port_create(&new_port) < 0)
- 		goto err;
- 
-@@ -161,7 +161,7 @@
- }
- 
- /* Destroy */
--void sepol_port_free(sepol_port_t port) {
-+void sepol_port_free(sepol_port_t* port) {
- 	if (!port)
- 		return;
- 	
-@@ -170,11 +170,11 @@
+-int semanage_port_set_range(semanage_port_t port, int low, int high) {
++int semanage_port_set_range(
++	semanage_port_t* port, 
++	int low, int high) {
++
+ 	return sepol_port_set_range(port, low, high);
  }
  
  /* Context */
--sepol_context_t sepol_port_get_con(sepol_port_t port) {
-+sepol_context_t* sepol_port_get_con(sepol_port_t* port) {
- 	return port->con;
+-semanage_context_t semanage_port_get_con(semanage_port_t port) {
++semanage_context_t* semanage_port_get_con(
++	semanage_port_t* port) {
++
+ 	return sepol_port_get_con(port);	
  }
  
--int sepol_port_set_con(sepol_port_t port, sepol_context_t con) {
-+int sepol_port_set_con(sepol_port_t* port, sepol_context_t* con) {
- 	port->con = con;
- 	return STATUS_SUCCESS;
- }
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/ports.c libsepol.new/src/ports.c
---- libsepol/src/ports.c	2005-09-23 20:42:12.000000000 -0400
-+++ libsepol.new/src/ports.c	2005-09-29 16:08:34.000000000 -0400
-@@ -25,10 +25,10 @@
- 
- /* Create a low level port structure from
-  * a high level representation */
--static int sepol_port_struct_create(
-+int sepol_port_struct_create(
- 	policydb_t* policydb,
- 	ocontext_t** port,
--	sepol_port_t data) {
-+	sepol_port_t* data) {
- 
- 	ocontext_t* tmp_port = NULL;
- 	context_struct_t* tmp_con = NULL;
-@@ -75,7 +75,7 @@
- /* Get the current context mapping for this port */
- int sepol_port_get_context(
- 	policydb_t* policydb,
--	sepol_port_t data,
-+	sepol_port_t* data,
- 	char** con_str,	
- 	size_t* con_str_len) {
- 
-@@ -121,7 +121,7 @@
- /* Load a port into policy */
- int sepol_port_load(
- 	policydb_t* policydb, 
--	sepol_port_t data) {
-+	sepol_port_t* data) {
- 
- 	ocontext_t* port = NULL;
- 	char* dup_match;
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/user_record.c libsepol.new/src/user_record.c
---- libsepol/src/user_record.c	2005-09-28 22:50:57.000000000 -0400
-+++ libsepol.new/src/user_record.c	2005-09-29 16:38:32.000000000 -0400
-@@ -32,10 +32,10 @@
- 
- int sepol_user_key_create(
- 	const char* name,
--	sepol_user_key_t* key_ptr) {
-+	sepol_user_key_t** key_ptr) {
- 
--	sepol_user_key_t tmp_key = 
--		(sepol_user_key_t) malloc(sizeof (struct sepol_user_key));
-+	sepol_user_key_t* tmp_key = 
-+		(sepol_user_key_t*) malloc(sizeof (sepol_user_key_t));
- 
- 	if (!tmp_key) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -49,7 +49,7 @@
- 	return STATUS_SUCCESS;
+-int semanage_port_set_con(semanage_port_t port, semanage_context_t con) {
++int semanage_port_set_con(
++	semanage_port_t* port, 
++	semanage_context_t* con) {
++
+ 	return sepol_port_set_con(port, con);
  }
  
--int sepol_user_key_extract(sepol_user_t user, sepol_user_key_t* key_ptr) {
-+int sepol_user_key_extract(sepol_user_t* user, sepol_user_key_t** key_ptr) {
- 	if (sepol_user_key_create(user->name, key_ptr) < 0) {
- 		DEBUG(__FUNCTION__, "could not extract key from user %s\n",
- 			user->name);
-@@ -59,13 +59,13 @@
- 	return STATUS_SUCCESS;
- }	
- 
--void sepol_user_key_free(sepol_user_key_t key) {
-+void sepol_user_key_free(sepol_user_key_t* key) {
- 	free(key);
+ /* Create/Clone/Destroy */
+-int semanage_port_create(semanage_port_t* port_ptr) {
++int semanage_port_create(
++	semanage_port_t** port_ptr) {
++
+ 	return sepol_port_create(port_ptr);
  }
  
- int sepol_user_compare(
--	sepol_user_t user,
--	sepol_user_key_t key) {
-+	sepol_user_t* user,
-+	sepol_user_key_t* key) {
+-int semanage_port_clone(semanage_port_t port, semanage_port_t* port_ptr) {
++int semanage_port_clone(
++	semanage_port_t* port, 
++	semanage_port_t** port_ptr) {
++
+ 	return sepol_port_clone(port, port_ptr);
+ }
+ 
+-void semanage_port_free(semanage_port_t port) {
++void semanage_port_free(
++	semanage_port_t* port) {
++
+ 	sepol_port_free(port);
+ }
+diff -Naru --exclude CVS libsemanage/src/ports.c libsemanage.new/src/ports.c
+--- libsemanage/src/ports.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/ports.c	2005-09-29 19:39:02.000000000 -0400
+@@ -27,8 +27,8 @@
+ 
+ int semanage_port_add(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
+-	semanage_port_t data) {
++	semanage_port_key_t* key,
++	semanage_port_t* data) {
+ 
+ 	dbase_t* dbase = semanage_port_dbase(handle);	
+ 	return dbase_add(handle, dbase, key, data);
+@@ -36,8 +36,8 @@
+ 
+ int semanage_port_modify(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
+-	semanage_port_t data) {
++	semanage_port_key_t* key,
++	semanage_port_t* data) {
  	
- 	if (!strcmp(user->name, key->name))
- 		return 0;
-@@ -73,11 +73,11 @@
+ 	dbase_t* dbase = semanage_port_dbase(handle);
+ 	return dbase_modify(handle, dbase, key, data);
+@@ -45,7 +45,7 @@
+ 
+ int semanage_port_del(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key) {
++	semanage_port_key_t* key) {
+ 
+ 	dbase_t* dbase = semanage_port_dbase(handle);
+ 	return dbase_del(handle, dbase, key);
+@@ -53,8 +53,8 @@
+ 
+ int semanage_port_query(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
+-	semanage_port_t* response) {
++	semanage_port_key_t* key,
++	semanage_port_t** response) {
+ 
+ 	dbase_t* dbase = semanage_port_dbase(handle);
+ 	return dbase_query(handle, dbase, key, response);
+@@ -62,7 +62,7 @@
+ 
+ int semanage_port_exists(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
++	semanage_port_key_t* key,
+ 	int* response) {
+ 
+ 	dbase_t* dbase = semanage_port_dbase(handle);
+@@ -79,7 +79,7 @@
+ 
+ int semanage_port_iterate(
+ 	semanage_handle_t* handle,
+-	int (*handler) (semanage_port_t record,
++	int (*handler) (semanage_port_t* record,
+ 	                void* varg),
+ 	void* handler_arg) {
+ 
+@@ -89,7 +89,7 @@
+ 
+ int semanage_port_list(
+ 	semanage_handle_t* handle,
+-	semanage_port_t** records,
++	semanage_port_t*** records,
+ 	size_t* count) {
+ 
+ 	dbase_t* dbase = semanage_port_dbase(handle);
+diff -Naru --exclude CVS libsemanage/src/ports_direct.c libsemanage.new/src/ports_direct.c
+--- libsemanage/src/ports_direct.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/ports_direct.c	2005-09-29 19:57:57.000000000 -0400
+@@ -3,8 +3,8 @@
+  */
+ #include <sepol/port_record.h>
+ 
+-typedef sepol_port_t* record_t;
+-typedef sepol_port_key_t* record_key_t;
++typedef sepol_port_t record_t;
++typedef sepol_port_key_t record_key_t;
+ #define RECORD_DEFINED
+ 
+ struct dbase_direct_backend;
+diff -Naru --exclude CVS libsemanage/src/ports_file.c libsemanage.new/src/ports_file.c
+--- libsemanage/src/ports_file.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/ports_file.c	2005-09-29 19:40:14.000000000 -0400
+@@ -15,7 +15,7 @@
+ #include "debug.h"
+ 
+ static int port_print(
+-	semanage_port_t port, 
++	semanage_port_t* port, 
+ 	FILE* str) {
+ 
+ 	/* Stub */
+@@ -26,7 +26,7 @@
+ 
+ static int port_parse(
+ 	parse_info_t* info, 
+-	semanage_port_t port) {
++	semanage_port_t* port) {
+ 
+ 	/* Stub */
+ 	info = NULL;
+@@ -49,7 +49,8 @@
+ 
+ 	if (dbase_file_init(
+ 		NULL, /* FIXME */
+-		&SEMANAGE_PORT_FILE_RTABLE, &backend) < 0)
++		&SEMANAGE_PORT_FILE_RTABLE, 
++		&backend) < 0)
+ 		return STATUS_ERR;
+ 
+ 	return dbase_init(
+diff -Naru --exclude CVS libsemanage/src/ports_policy.c libsemanage.new/src/ports_policy.c
+--- libsemanage/src/ports_policy.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/ports_policy.c	2005-09-29 19:40:44.000000000 -0400
+@@ -4,8 +4,8 @@
+ 
+ #include <sepol/port_record.h>
+ 
+-typedef sepol_port_key_t* record_key_t;
+-typedef sepol_port_t* record_t;
++typedef sepol_port_key_t record_key_t;
++typedef sepol_port_t record_t;
+ #define RECORD_DEFINED
+ 
+ #include <semanage/port_record.h>
+@@ -18,8 +18,8 @@
+ #include "debug.h"
+ 
+ static inline int convert(
+-	semanage_port_key_t semanage_key,
+-	semanage_port_t semanage_port,
++	semanage_port_key_t* semanage_key,
++	semanage_port_t* semanage_port,
+ 	sepol_port_key_t** sepol_key,
+ 	sepol_port_t** sepol_port) {
+ 
+@@ -42,8 +42,8 @@
+ #if 0
+ int semanage_port_policy_load(
+ 	semanage_handle_t* handle,
+-	semanage_port_key_t key,
+-	semanage_port_t data) {
++	semanage_port_key_t* key,
++	semanage_port_t* data) {
+ 
+ 	sepol_port_t* sepol_data;
+ 	sepol_port_key_t* sepol_key;
+@@ -57,7 +57,7 @@
+ 
+ int semanage_port_policy_list(
+ 	semanage_handle_t* handle,
+-	semanage_port_t** records,
++	semanage_port_t*** records,
+ 	size_t* count) {
+ 
+ 	/* Stub */
+diff -Naru --exclude CVS libsemanage/src/user_record.c libsemanage.new/src/user_record.c
+--- libsemanage/src/user_record.c	2005-09-29 16:59:38.000000000 -0400
++++ libsemanage.new/src/user_record.c	2005-09-29 19:44:16.000000000 -0400
+@@ -1,100 +1,151 @@
+ #include <stddef.h>
+ #include <sepol/user_record.h>
+ 
+-typedef sepol_user_t* semanage_user_t;
+-typedef sepol_user_key_t* semanage_user_key_t;
++typedef sepol_user_t semanage_user_t;
++typedef sepol_user_key_t semanage_user_key_t;
+ 
+ /* Key */
+-int semanage_user_key_create(const char* name, semanage_user_key_t* key) {
++int semanage_user_key_create(
++	const char* name, 
++	semanage_user_key_t** key) {
++
+ 	return sepol_user_key_create(name, key);
  }
  
+-int semanage_user_key_extract(semanage_user_t user, semanage_user_key_t* key) {
++int semanage_user_key_extract(
++	semanage_user_t* user, 
++	semanage_user_key_t** key) {
++
+ 	return sepol_user_key_extract(user, key);
+ }
+ 
+-void semanage_user_key_free(semanage_user_key_t key) {
++void semanage_user_key_free(
++	semanage_user_key_t* key) {
++
+ 	sepol_user_key_free(key);
+ }
+ 
+-int semanage_user_compare(semanage_user_t user, semanage_user_key_t key) {
++int semanage_user_compare(
++	semanage_user_t* user, 
++	semanage_user_key_t* key) {
++
+ 	return sepol_user_compare(user, key);
+ }
+ 	
  /* Name */
--const char* sepol_user_get_name(sepol_user_t user) {
-+const char* sepol_user_get_name(sepol_user_t* user) {
- 	return user->name;
+-const char* semanage_user_get_name(semanage_user_t user) {
++const char* semanage_user_get_name(
++	semanage_user_t* user) {
++
+ 	return sepol_user_get_name(user);
  }
  
--int sepol_user_set_name(sepol_user_t user, const char* name) {
-+int sepol_user_set_name(sepol_user_t* user, const char* name) {
- 	user->name = strdup(name);
- 	if (!user->name) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -88,11 +88,11 @@
+-int semanage_user_set_name(semanage_user_t user, const char* name) {
++int semanage_user_set_name(
++	semanage_user_t* user, 
++	const char* name) {
++
+ 	return sepol_user_set_name(user, name);
  }
  
  /* MLS */
--const char* sepol_user_get_mlslevel(sepol_user_t user) {
-+const char* sepol_user_get_mlslevel(sepol_user_t* user) {
- 	return user->mls_level;
+-const char* semanage_user_get_mlslevel(semanage_user_t user) {
++const char* semanage_user_get_mlslevel(
++	semanage_user_t* user) {
++
+ 	return sepol_user_get_mlslevel(user);
  }
  
--int sepol_user_set_mlslevel(sepol_user_t user, const char* mls_level) {
-+int sepol_user_set_mlslevel(sepol_user_t* user, const char* mls_level) {
- 	user->mls_level = strdup(mls_level);
- 	if (!user->mls_level) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -102,11 +102,11 @@
- 	return STATUS_SUCCESS;
+-int semanage_user_set_mlslevel(semanage_user_t user, const char* mls_level) {
++int semanage_user_set_mlslevel(
++	semanage_user_t* user, 
++	const char* mls_level) {
++
+ 	return sepol_user_set_mlslevel(user, mls_level);
  }
  
--const char* sepol_user_get_mlsrange(sepol_user_t user) {
-+const char* sepol_user_get_mlsrange(sepol_user_t* user) {
- 	return user->mls_range;
+-const char* semanage_user_get_mlsrange(semanage_user_t user) {
++const char* semanage_user_get_mlsrange(
++	semanage_user_t* user) {
++
+ 	return sepol_user_get_mlsrange(user);
  }
  
--int sepol_user_set_mlsrange(sepol_user_t user, const char* mls_range) {
-+int sepol_user_set_mlsrange(sepol_user_t* user, const char* mls_range) {
- 	user->mls_range = strdup(mls_range);
- 	if (!user->mls_range) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -117,15 +117,15 @@
+-int semanage_user_set_mlsrange(semanage_user_t user, const char* mls_range) {
++int semanage_user_set_mlsrange(
++	semanage_user_t* user, 
++	const char* mls_range) {
++
+ 	return sepol_user_set_mlsrange(user, mls_range);
  }
  
- /* Roles */
--int sepol_user_get_num_roles(sepol_user_t user) {
-+int sepol_user_get_num_roles(sepol_user_t* user) {
- 	return user->num_roles;
+ /* Role management */
+-int semanage_user_get_num_roles(semanage_user_t user) {
++int semanage_user_get_num_roles(
++	semanage_user_t* user) {
++
+ 	return sepol_user_get_num_roles(user);
  }
  
--const char* sepol_user_get_defrole(sepol_user_t user) {
-+const char* sepol_user_get_defrole(sepol_user_t* user) {
- 	 return (user->def_role == NULL)? NULL : user->def_role;
+-const char* semanage_user_get_defrole(semanage_user_t user) {
++const char* semanage_user_get_defrole(
++	semanage_user_t* user) {
++
+ 	return sepol_user_get_defrole(user);
  }
  
--int sepol_user_add_role(sepol_user_t user, const char* role) {
-+int sepol_user_add_role(sepol_user_t* user, const char* role) {
- 
- 	char* role_cp = strdup(role);
- 	char* role_cp2 = strdup(role); 
-@@ -150,7 +150,7 @@
- 	return STATUS_ERR;
+-int semanage_user_add_role(semanage_user_t user, const char* role) {
++int semanage_user_add_role(
++	semanage_user_t* user, 
++	const char* role) {
++
+ 	return sepol_user_add_role(user, role);
  }
  
--int sepol_user_has_role(sepol_user_t user, const char* role) {
-+int sepol_user_has_role(sepol_user_t* user, const char* role) {
- 	unsigned int i;
- 
- 	for (i = 0; i < user->num_roles; i++)
-@@ -160,7 +160,7 @@
+-int semanage_user_del_role(semanage_user_t user, const char* role) {
++int semanage_user_del_role(
++	semanage_user_t* user, 
++	const char* role) {
++
+ 	return sepol_user_del_role(user, role);
  }
  
- int sepol_user_set_roles(
--	sepol_user_t user,
-+	sepol_user_t* user,
- 	const char** roles_arr,
- 	size_t num_roles) {
- 
-@@ -196,7 +196,7 @@
+-int semanage_user_has_role(semanage_user_t user, const char* role) {
++int semanage_user_has_role(
++	semanage_user_t* user, 
++	const char* role) {
++
+ 	return sepol_user_has_role(user, role);
  }
  
- int sepol_user_get_roles(
--	sepol_user_t user, 
-+	sepol_user_t* user, 
+-int semanage_user_set_defrole(semanage_user_t user, const char* role) {
++int semanage_user_set_defrole(
++	semanage_user_t* user, 
++	const char* role) {
++
+ 	return sepol_user_set_defrole(user, role);
+ }
+ 
+ int semanage_user_get_roles(
+-	semanage_user_t user,
++	semanage_user_t* user,
  	const char*** roles_arr, 
  	size_t* num_roles) {
- 
-@@ -220,7 +220,7 @@
- 	return STATUS_ERR;
++
+ 	return sepol_user_get_roles(user, roles_arr, num_roles);
  }
  
--int sepol_user_del_role(sepol_user_t user, const char* role) {
-+int sepol_user_del_role(sepol_user_t* user, const char* role) {
- 	unsigned int i;
- 	for (i = 0; i < user->num_roles; i++) {
- 		if (!strcmp(user->roles[i], role)) {
-@@ -254,7 +254,7 @@
- 	return STATUS_ERR;
+ int semanage_user_set_roles(
+-	semanage_user_t user,
++	semanage_user_t* user,
+ 	const char** roles_arr,
+ 	size_t num_roles) {
++
+ 	return sepol_user_set_roles(user, roles_arr, num_roles);
  }
  
--int sepol_user_set_defrole(sepol_user_t user, const char* role) {
-+int sepol_user_set_defrole(sepol_user_t* user, const char* role) {
- 
- 	/* First, add the role if we don't have it */
- 	if (!sepol_user_has_role(user, role)) {
-@@ -279,9 +279,8 @@
+ /* Create/Clone/Destroy */
+-int semanage_user_create(semanage_user_t* user_ptr) {
++int semanage_user_create(
++	semanage_user_t** user_ptr) {
++
+ 	return sepol_user_create(user_ptr);
  }
  
- /* Create */
--int sepol_user_create(sepol_user_t* user_ptr) {
--	sepol_user_t user = (sepol_user_t) 
--		malloc(sizeof (struct sepol_user));
-+int sepol_user_create(sepol_user_t** user_ptr) {
-+	sepol_user_t* user = (sepol_user_t*) malloc(sizeof (sepol_user_t));
- 
-         if (!user) {
- 		DEBUG(__FUNCTION__, "out of memory, "
-@@ -301,8 +300,8 @@
+-int semanage_user_clone(semanage_user_t user, semanage_user_t* user_ptr) {
++int semanage_user_clone(
++	semanage_user_t* user, 
++	semanage_user_t** user_ptr) {
++
+ 	return sepol_user_clone(user, user_ptr);
  }
  
- /* Deep copy clone */
--int sepol_user_clone(sepol_user_t user, sepol_user_t* user_ptr) {
--	sepol_user_t new_user = NULL;
-+int sepol_user_clone(sepol_user_t* user, sepol_user_t** user_ptr) {
-+	sepol_user_t* new_user = NULL;
- 	unsigned int i;
- 
- 	if (sepol_user_create(&new_user) < 0)
-@@ -337,7 +336,7 @@
+-void semanage_user_free(semanage_user_t user) {
++void semanage_user_free(
++	semanage_user_t* user) {
++
+ 	sepol_user_free(user);
  }
+diff -Naru --exclude CVS libsemanage/src/users.c libsemanage.new/src/users.c
+--- libsemanage/src/users.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/users.c	2005-09-29 19:45:08.000000000 -0400
+@@ -27,8 +27,8 @@
  
- /* Destroy */
--void sepol_user_free(sepol_user_t user) {
-+void sepol_user_free(sepol_user_t* user) {
- 	unsigned int i;
+ int semanage_user_add(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
+-	semanage_user_t data) {
++	semanage_user_key_t* key,
++	semanage_user_t* data) {
  
- 	if (!user)
-diff -Naur --exclude CVS --exclude 'users*new' --exclude VERSION --exclude ChangeLog libsepol/src/users.c libsepol.new/src/users.c
---- libsepol/src/users.c	2005-09-29 16:39:04.000000000 -0400
-+++ libsepol.new/src/users.c	2005-09-29 16:10:51.000000000 -0400
-@@ -81,7 +81,7 @@
+ 	dbase_t* dbase = semanage_user_dbase(handle);
+ 	return dbase_add(handle, dbase, key, data);
+@@ -36,8 +36,8 @@
  
- /* Add a user to the given policydb. The user may not exist already */
+ int semanage_user_modify(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
+-	semanage_user_t data) {
++	semanage_user_key_t* key,
++	semanage_user_t* data) {
  
--int sepol_user_add(policydb_t* policydb, sepol_user_t user) {
-+int sepol_user_add(policydb_t* policydb, sepol_user_t* user) {
+ 	dbase_t* dbase = semanage_user_dbase(handle);	
+ 	return dbase_modify(handle, dbase, key, data);
+@@ -45,7 +45,7 @@
  
- 	char* name = NULL;
- 	user_datum_t* usrdatum;
-@@ -157,7 +157,7 @@
-  * which case the supplied data replaces the existing data. Alternatively,
-  * the user could be new. */
+ int semanage_user_del(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key) {
++	semanage_user_key_t* key) {
  
--int sepol_user_load(policydb_t* policydb, sepol_user_t user) {
-+int sepol_user_load(policydb_t* policydb, sepol_user_t* user) {
+ 	dbase_t* dbase = semanage_user_dbase(handle);
+ 	return dbase_del(handle, dbase, key);
+@@ -53,8 +53,8 @@
  
- 	/* For user data */	
- 	const char *tmp_mlslevel, *tmp_mlsrange;
+ int semanage_user_query(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
+-	semanage_user_t* response) {
++	semanage_user_key_t* key,
++	semanage_user_t** response) {
+ 
+ 	dbase_t* dbase = semanage_user_dbase(handle);
+ 	return dbase_query(handle, dbase, key, response);
+@@ -62,7 +62,7 @@
+ 
+ int semanage_user_exists(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
++	semanage_user_key_t* key,
+ 	int* response) {
+ 
+ 	dbase_t* dbase = semanage_user_dbase(handle);
+@@ -79,7 +79,7 @@
+ 
+ int semanage_user_iterate(
+ 	semanage_handle_t* handle,
+-	int (*handler) (semanage_user_t record,
++	int (*handler) (semanage_user_t* record,
+ 	                void* varg),
+ 	void* handler_arg) {
+ 
+@@ -89,7 +89,7 @@
+ 
+ int semanage_user_list(
+ 	semanage_handle_t* handle,
+-	semanage_user_t** records,
++	semanage_user_t*** records,
+ 	size_t* count) {
+ 
+ 	dbase_t* dbase = semanage_user_dbase(handle);
+diff -Naru --exclude CVS libsemanage/src/users_direct.c libsemanage.new/src/users_direct.c
+--- libsemanage/src/users_direct.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/users_direct.c	2005-09-29 19:58:01.000000000 -0400
+@@ -3,8 +3,8 @@
+  */
+ #include <sepol/user_record.h>
+ 
+-typedef sepol_user_t* record_t;
+-typedef sepol_user_key_t* record_key_t;
++typedef sepol_user_t record_t;
++typedef sepol_user_key_t record_key_t;
+ #define RECORD_DEFINED
+ 
+ struct dbase_direct_backend;
+diff -Naru --exclude CVS libsemanage/src/users_file.c libsemanage.new/src/users_file.c
+--- libsemanage/src/users_file.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/users_file.c	2005-09-29 19:58:13.000000000 -0400
+@@ -15,7 +15,7 @@
+ #include "debug.h"
+ 
+ static int user_print(
+-	semanage_user_t user, 
++	semanage_user_t* user, 
+ 	FILE* str) {
+ 
+ 	/* Stub */
+@@ -26,7 +26,7 @@
+ 
+ static int user_parse(
+ 	parse_info_t* info, 
+-	semanage_user_t user) {
++	semanage_user_t* user) {
+ 
+ 	/* Stub */
+ 	info = NULL;
+diff -Naru --exclude CVS libsemanage/src/users_policy.c libsemanage.new/src/users_policy.c
+--- libsemanage/src/users_policy.c	2005-09-29 19:17:48.000000000 -0400
++++ libsemanage.new/src/users_policy.c	2005-09-29 19:46:17.000000000 -0400
+@@ -4,8 +4,8 @@
+ 
+ #include <sepol/user_record.h>
+ 
+-typedef sepol_user_key_t* record_key_t;
+-typedef sepol_user_t* record_t;
++typedef sepol_user_key_t record_key_t;
++typedef sepol_user_t record_t;
+ #define RECORD_DEFINED
+ 
+ #include <stddef.h>
+@@ -18,8 +18,8 @@
+ #include "debug.h"
+ 
+ static inline int convert(
+-	semanage_user_key_t semanage_key,
+-	semanage_user_t semanage_user,
++	semanage_user_key_t* semanage_key,
++	semanage_user_t* semanage_user,
+ 	sepol_user_key_t** sepol_key,
+ 	sepol_user_t** sepol_user) {
+ 
+@@ -42,8 +42,8 @@
+ #if 0
+ int semanage_user_policy_load(
+ 	semanage_handle_t* handle,
+-	semanage_user_key_t key,
+-	semanage_user_t data) {
++	semanage_user_key_t* key,
++	semanage_user_t* data) {
+ 
+ 	sepol_user_t* sepol_data;
+ 	sepol_user_key_t* sepol_key;
+@@ -57,7 +57,7 @@
+ 
+ int semanage_user_policy_list(
+ 	semanage_handle_t* handle,
+-	semanage_user_t** records,
++	semanage_user_t*** records,
+ 	size_t* count) {
+ 
+ 	/* Stub */
 
---------------060904080806060009060604--
+--------------040806030104090501000205--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
