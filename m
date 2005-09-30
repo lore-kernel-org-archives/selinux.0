@@ -1,41 +1,78 @@
-Subject: RE: seinfo and binary policy endianness
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Frank Mayer <mayerf@tresys.com>
-Cc: ltcgcw@us.ibm.com, "'SELinux'" <SELinux@tycho.nsa.gov>,
-   "'Karl MacMillan'" <kmacmillan@tresys.com>,
-   "'Emily Ratliff'" <ratliff@austin.ibm.com>
-In-Reply-To: <200509301443.j8UEhaYs008411@gotham.columbia.tresys.com>
-References: <200509301443.j8UEhaYs008411@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 30 Sep 2005 10:50:45 -0400
-Message-Id: <1128091845.12459.135.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200509301453.j8UEriYs008728@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Ivan Gyurdiev'" <ivg2@cornell.edu>, <SELinux-dev@tresys.com>
+Subject: RE: [RFC][PATCH] New interface for loading policy
+Date: Fri, 30 Sep 2005 10:53:44 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1128028816.27495.182.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-09-30 at 10:43 -0400, Frank Mayer wrote:
-> Three reasons why it currently does not:
-> 1. We have backwards compatibility in libapol, since we support analysis of
-> all sorts of versions of SELinux.
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Thursday, September 29, 2005 5:20 PM
+> To: selinux@tycho.nsa.gov
+> Cc: Daniel J Walsh; Ivan Gyurdiev; SELinux-dev@tresys.com
+> Subject: [RFC][PATCH] New interface for loading policy
+> 
+> Hi,
+> 
+> In the past, there have been discussions about the need to migrate more
+> of the policy loading logic that currently resides in init and
+> load_policy into a higher level libselinux function than the current
+> security_load_policy(3) interface.  This will allow us to evolve that
+> logic more easily, without needing to re-patch init each time (as was
+> done first for the booleans and then for local users) as well as
+> eliminating code duplication.
+> 
 
-Yes, known, but libsepol goes back to version 15, the first version
-supported in 2.6 kernels, and I'd be surprised if the policy.12 users
-aren't upgraded to 2.6 RSN.
+This will be an interface in addition to the current interface, correct?
 
-> 2. It's rather nice to have a separate code path to parse the policy for
-> testing purposes. We use it a lot in testing compiler changes, etc.
+> Below are sample patches for libselinux and policycoreutils to implement
+> a new selinux_mkload_policy(3) interface and to rewrite load_policy to
+> use it.  Since load_policy presently requires that you specify the
+> policy file path as an argument, I retained support for specifying the
+> path in the interface, without requiring it, with load_policy warning on
+> the old usage but continuing to accept it.  I did however drop the
+> support for specifying a booleans file other than the default location
+> entirely, as it was optional and doesn't seem to be used in practice.  I
+> also retained the ability to specify whether booleans should be
+> preserved across a load or reset to the policy settings in the interface
+> for use by load_policy (on policy updates, when you don't want to
+> disturb the active boolean settings).
+> 
+> However, at least the support for specifying the policy path doesn't
+> seem likely to survive when the policy server is introduced.  Hence, I
+> was wondering if I should just drop it now.  In that case, we need to
+> decide whether load_policy will just warn about the old usage but
+> proceed to load the active policy (so that current users aren't broken)
+> or warn and fail in that case.
+> 
 
-But it is also a major code duplication and potential source of subtle
-bugs in your analyses.
+It depends on whether the policy server will use this interface or the
+existing security_load_policy internally to load policy. If it will use
+selinux_mkload_policy then it will need to be able to specify the path I
+think. This is especially important if the policy server will be generating
+different policies for the kernel and one or more userspace security
+servers.
 
-> 3. (Most importantly) When I first wrote the binpol parser for libapol,
-> libsepol did not exist in any form like today :-)
+Karl 
 
-Yes, understood.   But going forward, I think it is the right path.
+------
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
 
--- 
-Stephen Smalley
-National Security Agency
+> Comments?
+> 
+> --
+> Stephen Smalley
+> National Security Agency
+
 
 
 --
