@@ -1,45 +1,46 @@
-Message-ID: <433DA664.6040600@cornell.edu>
-Date: Fri, 30 Sep 2005 16:56:04 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8UNmCNs003977
+	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 19:48:12 -0400 (EDT)
+Received: from mail27.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8UNgBbY003371
+	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 23:42:12 GMT
+Received: from megaweapon.nightmoose.net (HELO excalibur.intercode) ([66.92.66.197])
+          (envelope-sender <jmorris@namei.org>)
+          by mail27.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
+          for <selinux@tycho.nsa.gov>; 30 Sep 2005 23:42:23 -0000
+Date: Fri, 30 Sep 2005 19:42:22 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux - fix SCTP socket bug and general IP protocol
+ handling (fwd)
+Message-ID: <Pine.LNX.4.63.0509301941530.4468@excalibur.intercode>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
-Subject: Re: [10 / 9] [ SEMANAGE ] FIx placement of function table
-References: <433DA069.3090208@cornell.edu> <1128112109.12459.216.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1128112109.12459.216.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Also, correction to the patch explanation.
 
->Hmmm...I just got done merging the others (available in the sourceforge
->CVS), although naturally all of this is still open to debate and can be
->reverted at any time.
->
->I think at this point I'll wait for clarification from Karl et al on
->whether this patch (and the prior ones as well) are consistent with
->their plans for libsemanage.
->  
->
-Okay...
+---------- Forwarded message ----------
+Date: Fri, 30 Sep 2005 14:32:40 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Linus Torvalds <torvalds@osdl.org>, David S. Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] SELinux - fix SCTP socket bug and general IP protocol
+    handling
 
-It's just a question of where things are supposed to be placed. I think 
-Karl agreed earlier that headers should follow the code, and that's what 
-I was thinking about, but my first patch moved things to the wrong places.
+On Fri, 30 Sep 2005, James Morris wrote:
 
-----
-The policy function table being discussed is an interface (to be used 
-for the purposes of polymorphism). Because this is an interface, there 
-is no associated code - implementations use the specific type, and 
-include a header to fill the table . At the same time, 
-semanage_private.h was containing random things, so this is probably 
-better off on its own, which this patch sets up (or bundled with the 
-rest of interfaces.h, but handle.h is probably the wrong place for it).
+> This patch changes the SELinux IP socket classification logic, so that 
+> only an IPPROTO_IP protocol value passed to socket(2) classify the socket 
+> as TCP or UDP.
 
-The other thing I moved was handle code (that's fine IMHO), debug code 
-(fine), and a conn object. I can't figure out exactly what the conn 
-object is planned for, so that's why I asked... I suspect it's the 
-connection state object for direct API (so it goes in direct_api.h)
+note: in addition to IPPROTO_TCP and IPPROTO_UDP, as expected.
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
