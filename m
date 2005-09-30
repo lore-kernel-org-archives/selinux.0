@@ -1,39 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8U3UmNs024024
-	for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2005 23:30:48 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8U3P8A9015967
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 03:25:08 GMT
-Received: from [192.168.2.105] (cpe-24-59-125-231.twcny.res.rr.com [24.59.125.231])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j8U3P3wF027994
-	for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2005 23:25:08 -0400 (EDT)
-Message-ID: <433CB22C.20808@cornell.edu>
-Date: Thu, 29 Sep 2005 23:34:04 -0400
+Message-ID: <433CB578.6070303@cornell.edu>
+Date: Thu, 29 Sep 2005 23:48:08 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Linking to semanage
-References: <433CA7CA.6000207@cornell.edu>
-In-Reply-To: <433CA7CA.6000207@cornell.edu>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux-dev@tresys.com
+Subject: Re: [RFC][PATCH] New interface for loading policy
+References: <1128028816.27495.182.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1128028816.27495.182.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Okay, this test compiled a while ago... and now it won't link. I don't 
-understand why - can someone who knows something about linking give me a 
-hint? I hope I didn't break static linking with my patches somehow 
-(can't see how)...
 
-[phantom@cobra test5]$ ./compile
-test.c:(.text+0x1d): undefined reference to `semanage_handle_create'
-test.c:(.text+0x41): undefined reference to `semanage_handle_destroy'
-collect2: ld returned 1 exit status
-[phantom@cobra test5]$ cat compile
-gcc -static /usr/lib/libselinux.a /usr/lib/libsepol.a 
-/usr/lib/libsemanage.a test.c -o test
-[phantom@cobra test5]$ nm /usr/lib/libsemanage.a|grep semanage_handle
-00000000 T semanage_handle_create
-00000209 T semanage_handle_destroy
+>Comments?
+>
+>  
+>
+It doesn't belong in libselinux. I've had an implementation of this for 
+a long time, but I haven't submitted it, because we're changing the plan 
+(right). Boolean and user components will be handled by semanage, using 
+the dbase thing which I'm adding there. Genbools/genusers will be 
+deprecated. Semanage will compile a module, and put users/booleans into 
+that. Then it will re-link modules upon change, and load_policy will ... 
+load the policy.
+
+OTOH this may be a good way to get rid of this code from things like 
+init, which needs to happen anyway...
+
+P.S. Dan - please take a look at my mail that says that (1) gdm is 
+broken, because it doesn't pay attention to enforcing mode, and (2) MCS 
+is not transparent upon install if you have defined users in local.users 
+(those are rejected post-mcs). Combined those two things prevent you 
+from logging in in *permissive* mode.
+
 
 
 --
