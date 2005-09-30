@@ -1,48 +1,63 @@
-Message-ID: <433D377E.6090700@cornell.edu>
-Date: Fri, 30 Sep 2005 09:02:54 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
-   "'Joshua Brindle'" <jbrindle@tresys.com>
-Subject: Re: [PATCH] semanage-functionality 4/17
-References: <200509271246.j8RCkcYs026042@gotham.columbia.tresys.com>	 <43397960.5070905@cornell.edu>	 <1127851738.21671.147.camel@moss-spartans.epoch.ncsc.mil>	 <4339B036.5090900@cornell.edu> <1127854647.21671.194.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1127854647.21671.194.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: /proc and chcon
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: James Morris <jmorris@namei.org>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200509302147.14082.russell@coker.com.au>
+References: <200509302147.14082.russell@coker.com.au>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 08:54:49 -0400
+Message-Id: <1128084889.12459.42.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2005-09-30 at 21:47 +1000, Russell Coker wrote:
+> Was it the intention that some /proc objects can be relabeled now that the 
+> kernel supports exposing their context through the xattr interface?
+> 
+> It's impossible to change the context of /proc/PID entries, but files such 
+> as /proc/mtrr can be relabeled.
+> 
+> It seems to me that this functionality is undesirable.  Apart from /proc/PID 
+> entries everything under /proc has genfscon entries, I think it makes sense 
+> to have that as the only way of labeling /proc.
 
->Yes, and I'm dubious that such elimination is practically useful; you
->still have to audit the code for correct usage and in any case where it
->affects an exposed interface, you have the whole stable API/ABI issue to
->deal with.
->  
->
-Struct pointer typedefs eliminated in favor of consistency.  See patches.
+I did note that side effect as a potential concern when I posted the
+rfc/patch for the kernel changes.  People seemed to think that policy
+control was sufficient, e.g. under strict policy here:
+# chcon -t etc_t /proc/mtrr
+chcon: failed to change context of /proc/mtrr to system_u:object_r:etc_t: Permission denied
 
->  
->
->>Then we'll have to type struct everywhere...
->>    
->>
->
->Yes, I see it as a benefit to be able to easily see from the code
->whether a function (and the code) is dealing with a pointer or a struct
->without needing to look up a separate type definition.  Think in terms
->of long term code maintainability / readability, particularly for
->patches.  Besides, typing "struct foobahblaz" isn't so much worse than
->typing "foobahblaz_t".  The kernel maintainers are right on the issue of
->typedefs...
->  
->
-Todo. I am less excited about removing the _t types - I don't like 
-typing struct... You can now see whether you are dealing with a pointer 
-or struct...because there are no more pointer typedefs...so there's a 
-star everywhere, meaning pointer. I'm not sure that was a good idea, but 
-at least it's consistent, which is much better than being inconsistent 
-(of course, we could have tried to go the other way instead too...).
+I saw potential benefit in allowing the mechanism to relabel files that
+were normally handled via genfs_contexts, as that could enable
+finer-grained labeling of some pseudo filesystems (e.g. sysfs) from
+early userspace (although there might be an issue with them "losing"
+their label if the inode isn't pinned in memory and it is evicted and
+then later re-created again).
 
+We could possibly impose a special check for the proc case in the
+SELinux module, and prohibit relabeling from selinux_inode_setxattr in
+that case, but I don't think we want it to be a blanket prohibition on
+everything that uses genfs_contexts.
+
+> Also I imagine that the plan is to have the xattr interface also be used to 
+> display the context for a file system mounted with "-o context=...".
+
+Yes, that also works via James' subsequent patches (in -mm, queued for
+2.6.15 I think) to allow the security module to canonicalize the reply
+from getxattr.
+
+>   For 
+> that case I also think that it would be a bad idea to support changing the 
+> context via restorecon/chcon.
+
+selinux_inode_setxattr does prohibit relabeling of inodes in filesystems
+that have the "mountpoint labeling" behavior (i.e. the context= option
+at mount time).  So that is prohibited still.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
