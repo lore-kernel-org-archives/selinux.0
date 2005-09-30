@@ -1,95 +1,68 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8UCMZNs027453
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 08:22:36 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8UCGcmd019835
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 12:16:39 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 7260D61B01
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 22:16:49 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 15145-09 for <selinux@tycho.nsa.gov>;
-	Fri, 30 Sep 2005 22:16:49 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id F37D761AFB
-	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 22:16:48 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: postfix.te
-Date: Fri, 30 Sep 2005 22:16:41 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <200509301520.42488.russell@coker.com.au> <433D2520.90500@redhat.com>
-In-Reply-To: <433D2520.90500@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200509302216.47786.russell@coker.com.au>
+Subject: Re: [RFC][PATCH] New interface for loading policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux-dev@tresys.com
+In-Reply-To: <433CB578.6070303@cornell.edu>
+References: <1128028816.27495.182.camel@moss-spartans.epoch.ncsc.mil>
+	 <433CB578.6070303@cornell.edu>
+Content-Type: text/plain
+Date: Fri, 30 Sep 2005 08:21:49 -0400
+Message-Id: <1128082909.12459.14.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 30 September 2005 21:44, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >The above was added within the distro_redhat section.  Do we have a plan
-> > to change the way the aliases file is managed in FC5 or RHEL5?
-> >Currently /etc/aliases is read the /etc/postfix/aliases.db is produced as
-> > a result.  So the above line is not needed (and grants postfix_master_t
-> > write access to etc_t:dir which is not desired).
->
-> Not on the machine I was looking at (rawhide), /etc/aliases.db was being
-> created.
+On Thu, 2005-09-29 at 23:48 -0400, Ivan Gyurdiev wrote:
+> It doesn't belong in libselinux. I've had an implementation of this for 
+> a long time, but I haven't submitted it, because we're changing the plan 
+> (right). Boolean and user components will be handled by semanage, using 
+> the dbase thing which I'm adding there. Genbools/genusers will be 
+> deprecated. Semanage will compile a module, and put users/booleans into 
+> that. Then it will re-link modules upon change, and load_policy will ... 
+> load the policy.
+> 
+> OTOH this may be a good way to get rid of this code from things like 
+> init, which needs to happen anyway...
 
-OK, it looks like the default configuration of the Postfix package has been 
-made more similar to other distributions such as Debian in this regard.
+Yes, boolean and user components are expected to be handled by semanage
+in the future, regenerating the kernel binary policy file on each
+modification.  When that happens, selinux_mkload_policy() can drop out
+the calls to sepol_genusers and sepol_genbools, but will still
+encapsulate the logic for finding the right policy version, opening it
+and mmap'ing it, and loading it.  So this change will make it easier to
+make that transition - we won't need to re-patch sysvinit or
+load_policy, and will still encapsulate some higher level logic than the
+current security_load_policy().
 
-> >dontaudit postfix_smtpd_t { home_root_t boot_t }:dir getattr;
-> >
-> >The above line is added in the section with a comment referring to
-> > prng_exch. Why is that access needed and what does it have to do with
-> > prng_exch?
->
-> Because postfix_smtpd_t is trying to getattr on everying thing in / is
-> my guess.
+BTW, one thing that I'm not clear on is how the preservebools case (the
+default behavior for load_policy) will be handled in the future.  The
+idea is that if a boolean has been toggled at runtime without altering
+its saved value (e.g. manually by an admin, or by a cron job that
+toggles a boolean to enforce different day/night policies, or by an IDS
+in response to an event), we don't want a subsequent policy reload (e.g.
+from an update) to reset that boolean value to the saved settings.  At
+present, load_policy (and thus selinux_mkload_policy) grab the active
+boolean settings from selinuxfs and patch them into the binary policy
+image via sepol_genbools_array() by default (preservebools=1).
 
-Why would it be doing that?  For so long it's been not doing so on so many 
-machines with so many distributions.
-
-> >As for the reference to bin_t, I can only guess that it's to execute
-> >spamassasin when spamassasin.te is not installed (spamassasin has some
-> > files in /etc/mail).
-> >
-> >Is it possible to have the postfix "local" execute spamassasin directly or
-> >would that be from someone who has spamassasin running from procmail
-> > (which seems to be the most common way of running spamassasin on a
-> > server) and not having procmail.te installed?
-> >
-> >I suggest the attached patch to fix these issues.
->
-> Huh?  So we just allow spamassassin to fail if policy is not installed,
-> which it is not in targeted policy.
-
-We remove the bad policy until we can determine how to write good policy.
-
-Allowing everything is easy, but that diminishes the value of SE Linux.  
-Determining what we really need is the hard work.
-
-Who submitted the policy patch in regard to etc_mail_t and bin_t?  We need to 
-ask that person why they did it and find out what they were trying to do.  
-There is a better way of achieving the same result, but until we know what 
-they are trying to do it's not possible.  The questions we need to ask that 
-person are:
-1)  Are you using procmail for delivery?
-2)  If not how are you running spamassasin?
-
-The last thing I want to do is imagine how Postfix might be working, get it 
-wrong, and end up writing policy to permit Postfix to do things it can never 
-be configured to do!
+My earlier comment about the path needing to go away when the policy
+server is introduced was a mistake on my part, I think.  /sbin/init will
+still need to directly load a kernel binary policy file into the kernel,
+as the server won't be running yet, and load_policy will still be run
+from libsemanage in direct mode (and possibly from the policy server) to
+load policy files, although it should no longer be directly run by the %
+post scriptlet in the policy package for updates.  Hence, retaining the
+path as an optional argument isn't necessarily a problem (I think), but
+we should decide whether we want it.  It does offer the flexibility of
+loading a test policy without first installing it to the standard
+location, but we don't offer the same flexibility for the other files
+presently.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
