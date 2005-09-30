@@ -1,59 +1,67 @@
-Message-Id: <200509301347.j8UDlcYs007177@gotham.columbia.tresys.com>
+Message-Id: <200509301401.j8UE1QYs007476@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Ivan Gyurdiev'" <ivg2@cornell.edu>,
-   "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>, "'Joshua Brindle'" <jbrindle@tresys.com>
-Subject: RE: [PATCH] semanage-functionality 4/17
-Date: Fri, 30 Sep 2005 09:47:38 -0400
+To: "'George Wilson'" <ltcgcw@us.ibm.com>, "'SELinux'" <SELinux@tycho.nsa.gov>
+Cc: "'Emily Ratliff'" <ratliff@austin.ibm.com>
+Subject: RE: seinfo and binary policy endianness
+Date: Fri, 30 Sep 2005 10:01:26 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-reply-to: <433D377E.6090700@cornell.edu>
+In-reply-to: <20050929222619.GA21890@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Ivan Gyurdiev [mailto:ivg2@cornell.edu]
-> Sent: Friday, September 30, 2005 9:03 AM
-> To: Stephen Smalley
-> Cc: Karl MacMillan; selinux@tycho.nsa.gov; 'Joshua Brindle'
-> Subject: Re: [PATCH] semanage-functionality 4/17
-> 
-> 
-> >Yes, and I'm dubious that such elimination is practically useful; you
-> >still have to audit the code for correct usage and in any case where it
-> >affects an exposed interface, you have the whole stable API/ABI issue to
-> >deal with.
-> >
-> >
-> Struct pointer typedefs eliminated in favor of consistency.  See patches.
-> 
-> >
-> >
-> >>Then we'll have to type struct everywhere...
-> >>
-> >>
-> >
-> >Yes, I see it as a benefit to be able to easily see from the code
-> >whether a function (and the code) is dealing with a pointer or a struct
-> >without needing to look up a separate type definition.  Think in terms
-> >of long term code maintainability / readability, particularly for
-> >patches.  Besides, typing "struct foobahblaz" isn't so much worse than
-> >typing "foobahblaz_t".  The kernel maintainers are right on the issue of
-> >typedefs...
-> >
-> >
-> Todo. I am less excited about removing the _t types - I don't like
-> typing struct... You can now see whether you are dealing with a pointer
-> or struct...because there are no more pointer typedefs...so there's a
-> star everywhere, meaning pointer. I'm not sure that was a good idea, but
-> at least it's consistent, which is much better than being inconsistent
-> (of course, we could have tried to go the other way instead too...).
 
-I agree with Steve here - the more information the user of a type is aware
-of the better. In my experience, typedef pointers just become confusing and
-hard to maintain. Typedef's are useful when the type will change (e.g.,
-uint23_t) but not to simply obscure type information.
+> -----Original Message-----
+> From: George Wilson [mailto:ltcgcw@us.ibm.com]
+> Sent: Thursday, September 29, 2005 6:26 PM
+> To: SELinux
+> Cc: Karl MacMillan; Emily Ratliff
+> Subject: seinfo and binary policy endianness
+> 
+> Hello,
+> 
+> Our test team has run into a problem with seinfo on big endian platforms.
+> Seinfo compares the unswapped SELINUX_MAGIC defined in borrowed.h with
+> it's
+> little endian counterpart at the top of the binary policy.  So it doesn't
+> recognize binary policies.  It's easy enough to fix by #ifdef'ing swapped
+> and
+> unswapped definitions in borrrowed.h.  But shouldn't SELINUX_MAGIC be
+> defined
+> in a single place and used throughout to write and read the policy?
+> 
+
+Thanks for testing this - none of our powerbook owners seem to be loading
+binary policies I guess. Yes - there is only one SELINUX_MAGIC. Your other
+patch is correct.
+
+> So, as a side issue, should one expect policies to be portable across
+> platforms with differing endianness?  It may work--I haven't tried.
+> Portability
+> would be useful for cross-compile environments, for analysis when one has
+> no
+> access to the platform that generated the policy, and for cross-platform
+> deployment of a single binary policy.  It looks like binary policies are
+> always
+> little endian so portability may not be an issue.  I must test that.
+
+Policies should be portable - as you mention they are always stored little
+endian. I've not tried this much in practice, but that is the intention.
+
+> Also,
+> might it not be nice to have the policies in big endian (network byte
+> order)?
+> I know that would be busy work.  But big endian just feels right for
+> portable
+> files.
+> 
+
+Portable formats transferred over the network maybe, but I don't see why it
+matters for file formats. It is an arbitrary choice and it makes more sense
+to have the default be a no-op on 90% of the hardware for reading these
+policies. Feel free to submit a patch to Steve and the kernel maintainers
+though :)
 
 Karl
 
@@ -61,6 +69,10 @@ Karl
 Karl MacMillan
 Tresys Technology
 http://www.tresys.com
+
+> --
+> George Wilson <ltcgcw@us.ibm.com>
+> IBM Linux Technology Center
 
 
 
