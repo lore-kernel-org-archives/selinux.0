@@ -1,87 +1,122 @@
-Subject: Re: seinfo and binary policy endianness
-From: George Wilson <ltcgcw@us.ibm.com>
-Reply-To: ltcgcw@us.ibm.com
-To: SELinux <SELinux@tycho.nsa.gov>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   Emily Ratliff <ratliff@austin.ibm.com>
-In-Reply-To: <20050929222619.GA21890@us.ibm.com>
-References: <20050929222619.GA21890@us.ibm.com>
-Content-Type: multipart/mixed; boundary="=-5EDXw0o73CkzgELdQY++"
-Date: Thu, 29 Sep 2005 17:55:46 -0500
-Message-Id: <1128034546.6256.15.camel@ea.austin.ibm.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j8U2n2Ns023534
+	for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2005 22:49:02 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j8U2hCS2015600
+	for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2005 02:43:12 GMT
+Message-ID: <433CA85F.7010102@cornell.edu>
+Date: Thu, 29 Sep 2005 22:52:15 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: dwalsh@redhat.com
+Subject: Re: [ 2/9 ] [ SEMANAGE ] Restore sepol compatibility
+References: <433CA7CA.6000207@cornell.edu>
+In-Reply-To: <433CA7CA.6000207@cornell.edu>
+Content-Type: multipart/mixed;
+ boundary="------------040700070706010403040601"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---=-5EDXw0o73CkzgELdQY++
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------040700070706010403040601
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Thu, 2005-09-29 at 17:26 -0500, George Wilson wrote:
-> Hello,
-> 
-> Our test team has run into a problem with seinfo on big endian platforms.
-> Seinfo compares the unswapped SELINUX_MAGIC defined in borrowed.h with it's
-> little endian counterpart at the top of the binary policy.  So it doesn't
-> recognize binary policies.  It's easy enough to fix by #ifdef'ing swapped and
-> unswapped definitions in borrrowed.h.  But shouldn't SELINUX_MAGIC be defined
-> in a single place and used throughout to write and read the policy?
-> 
-> So, as a side issue, should one expect policies to be portable across
-> platforms with differing endianness?  It may work--I haven't tried.  Portability
-> would be useful for cross-compile environments, for analysis when one has no
-> access to the platform that generated the policy, and for cross-platform
-> deployment of a single binary policy.  It looks like binary policies are always
-> little endian so portability may not be an issue.  I must test that.  Also,
-> might it not be nice to have the policies in big endian (network byte order)?
-> I know that would be busy work.  But big endian just feels right for portable
-> files.
-> 
+The attached patch restores compatibility with sepol broken in the 
+previous patch. It also adds stddef.h in a few places. The idea here is 
+to keep things from breaking, not to replace typedefs in this library 
+(this is a later patch).
 
-Attached is Emily's patch, which is far more elegant than a borrowed.h
-hack.  It seems like borrowed.h should really go away.
-
--- 
-George Wilson
-IBM Linux Technology Center
-<ltcgcw@us.ibm.com>
-
---=-5EDXw0o73CkzgELdQY++
-Content-Disposition: attachment; filename=setools-endian.patch
-Content-Type: text/x-patch; name=setools-endian.patch; charset=us-ascii
+--------------040700070706010403040601
+Content-Type: text/x-patch;
+ name="libsemanage.01.sepol_compat.diff"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.01.sepol_compat.diff"
 
-diff -Naur setools-1.5.1/libapol/binpol/binpol.c setools-1.5.1-fix/libapol/binpol/binpol.c
---- setools-1.5.1/libapol/binpol/binpol.c	2004-11-04 14:48:20.000000000 -0600
-+++ setools-1.5.1-fix/libapol/binpol/binpol.c	2005-09-29 11:39:05.024200592 -0500
-@@ -1435,6 +1435,7 @@
- 	/* magic # and sz of policy string */
- 	buf = ap_read_fbuf(fb, sizeof(__u32)*2, fp);
- 	if(buf == NULL) { rt = fb->err; goto err_return; }
-+	buf[0] = le32_to_cpu(buf[0]);
- 	if (buf[0] != SELINUX_MAGIC) { rt = -2; goto err_return; }
- 	
- 	len = le32_to_cpu(buf[1]);
-@@ -1740,6 +1741,7 @@
- 	if(sz != 1)
- 		rt = FALSE; /* problem reading file */
+diff -Naur libsemanage/include/semanage/user_record.h libsemanage.new/include/semanage/user_record.h
+--- libsemanage/include/semanage/user_record.h	2005-09-23 10:37:40.000000000 -0400
++++ libsemanage.new/include/semanage/user_record.h	2005-09-27 23:49:10.000000000 -0400
+@@ -1,6 +1,8 @@
+ #ifndef _SEMANAGE_USER_RECORD_H_
+ #define _SEMANAGE_USER_RECORD_H_
  
-+	ubuf = le32_to_cpu(ubuf);
- 	if(ubuf == SELINUX_MAGIC) 
- 		rt = TRUE;
- 	else
-@@ -1773,6 +1775,7 @@
- 	/* magic # and sz of policy string */
- 	buf = ap_read_fbuf(fb, sizeof(__u32)*2, fp);
- 	if (buf == NULL) { rt = fb->err; goto err_return; }
-+	buf[0] = le32_to_cpu(buf[0]);
- 	if (buf[0] != SELINUX_MAGIC) { rt = -2; goto err_return; }
- 	
- 	len = le32_to_cpu(buf[1]);
++#include <stddef.h>
++
+ struct semanage_user;
+ struct semanage_user_key;
+ typedef struct semanage_user* semanage_user_t;
+diff -Naur libsemanage/src/boolean_record.c libsemanage.new/src/boolean_record.c
+--- libsemanage/src/boolean_record.c	2005-09-23 10:38:06.000000000 -0400
++++ libsemanage.new/src/boolean_record.c	2005-09-29 16:48:45.000000000 -0400
+@@ -1,7 +1,7 @@
+ #include <sepol/boolean_record.h>
+ 
+-typedef sepol_bool_t semanage_bool_t;
+-typedef sepol_bool_key_t semanage_bool_key_t;
++typedef sepol_bool_t* semanage_bool_t;
++typedef sepol_bool_key_t* semanage_bool_key_t;
+ 
+ /* Key */
+ int semanage_bool_key_create(const char* name, semanage_bool_key_t* key) {
+diff -Naur libsemanage/src/context_record.c libsemanage.new/src/context_record.c
+--- libsemanage/src/context_record.c	2005-09-23 10:38:06.000000000 -0400
++++ libsemanage.new/src/context_record.c	2005-09-29 16:49:13.000000000 -0400
+@@ -1,6 +1,6 @@
+ #include <sepol/context_record.h>
+ 
+-typedef sepol_context_t semanage_context_t;
++typedef sepol_context_t* semanage_context_t;
+ 
+ /* User */
+ const char* semanage_context_get_user(semanage_context_t con) {
+diff -Naur libsemanage/src/iface_record.c libsemanage.new/src/iface_record.c
+--- libsemanage/src/iface_record.c	2005-09-23 10:38:06.000000000 -0400
++++ libsemanage.new/src/iface_record.c	2005-09-29 16:48:32.000000000 -0400
+@@ -1,8 +1,8 @@
+ #include <sepol/iface_record.h>
+ 
+-typedef sepol_context_t semanage_context_t;
+-typedef sepol_iface_t semanage_iface_t;
+-typedef sepol_iface_key_t semanage_iface_key_t;
++typedef sepol_context_t* semanage_context_t;
++typedef sepol_iface_t* semanage_iface_t;
++typedef sepol_iface_key_t* semanage_iface_key_t;
+ 
+ /* Key */
+ int semanage_iface_compare(semanage_iface_t iface, semanage_iface_key_t key) {
+diff -Naur libsemanage/src/port_record.c libsemanage.new/src/port_record.c
+--- libsemanage/src/port_record.c	2005-09-23 10:38:06.000000000 -0400
++++ libsemanage.new/src/port_record.c	2005-09-29 16:49:05.000000000 -0400
+@@ -1,8 +1,8 @@
+ #include <sepol/port_record.h>
+ 
+-typedef sepol_context_t semanage_context_t;
+-typedef sepol_port_t semanage_port_t;
+-typedef sepol_port_key_t semanage_port_key_t;
++typedef sepol_context_t* semanage_context_t;
++typedef sepol_port_t* semanage_port_t;
++typedef sepol_port_key_t* semanage_port_key_t;
+ 
+ /* Key */
+ int semanage_port_compare(semanage_port_t port, semanage_port_key_t key) {
+diff -Naur libsemanage/src/user_record.c libsemanage.new/src/user_record.c
+--- libsemanage/src/user_record.c	2005-09-23 10:38:06.000000000 -0400
++++ libsemanage.new/src/user_record.c	2005-09-29 16:48:56.000000000 -0400
+@@ -1,7 +1,8 @@
++#include <stddef.h>
+ #include <sepol/user_record.h>
+ 
+-typedef sepol_user_t semanage_user_t;
+-typedef sepol_user_key_t semanage_user_key_t;
++typedef sepol_user_t* semanage_user_t;
++typedef sepol_user_key_t* semanage_user_key_t;
+ 
+ /* Key */
+ int semanage_user_key_create(const char* name, semanage_user_key_t* key) {
 
---=-5EDXw0o73CkzgELdQY++--
-
+--------------040700070706010403040601--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
