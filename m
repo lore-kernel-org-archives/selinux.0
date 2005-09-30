@@ -1,38 +1,62 @@
-Subject: RE: seinfo and binary policy endianness
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'George Wilson'" <ltcgcw@us.ibm.com>, "'SELinux'" <SELinux@tycho.nsa.gov>,
+Message-Id: <200509301434.j8UEYJYs008226@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>, <ltcgcw@us.ibm.com>
+Cc: "'SELinux'" <SELinux@tycho.nsa.gov>,
    "'Emily Ratliff'" <ratliff@austin.ibm.com>
-In-Reply-To: <200509301422.j8UELvYs008023@gotham.columbia.tresys.com>
-References: <200509301422.j8UELvYs008023@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 30 Sep 2005 10:27:37 -0400
-Message-Id: <1128090457.12459.123.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: RE: seinfo and binary policy endianness
+Date: Fri, 30 Sep 2005 10:34:19 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1128089521.12459.111.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-09-30 at 10:21 -0400, Karl MacMillan wrote:
-> This approach was discussed when we initially did this work. Again, the main
-> drawback is the possibility that libsepol would drop backwards compatibility
-> - which I think is a good idea for libsepol. There is no reason to maintain
-> the ability to read very old file formats in libsepol, but there is in
-> libapol.
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Friday, September 30, 2005 10:12 AM
+> To: ltcgcw@us.ibm.com
+> Cc: SELinux; Karl MacMillan; Emily Ratliff
+> Subject: Re: seinfo and binary policy endianness
+> 
+> On Thu, 2005-09-29 at 17:55 -0500, George Wilson wrote:
+> > Attached is Emily's patch, which is far more elegant than a borrowed.h
+> > hack.  It seems like borrowed.h should really go away.
+> 
+> Even better would be for setools to just use libsepol, which is _the_
+> library for manipulation of binary policies...
+> 
 
-I'd be surprised if we dropped support for old formats from libsepol.
-We have talked about dropping the backward compatibility code from the
-kernel, but that requires a much tighter binding between policies and
-kernels than currently exists.
+Again, I agree that only having one library for representing policies would
+be desirable in many ways. Not just for reading, but for all policy
+representation and analysis. What prevents me from making that choice is:
 
-> Other than that, using libsepol may have been easier. At this point, though,
-> maintaining our binary parser is a fairly low amount of effort and switching
-> would be a large effort.
+a) backwards compatibility - we _must_ be able to load and represent very
+old policies. We still have work analyzing pre-LSM policies, for example.
 
-You'll come around to our way of thinking eventually ;)
+I believe that libsepol's data structures can now represent everything from
+older policies with the exception of clone rules (which I am willing to
+drop). That leaves the parsers - which I guess we could have more than one
+source parser into the same data structures. So this is probably solvable, I
+would just need a commitment that backwards compatibility would be
+maintained.
 
--- 
-Stephen Smalley
-National Security Agency
+b) conversion cost - the cost of converting all of our analysis code over to
+use libsepol would, in my opinion, outweigh the benefit. It appears to me to
+be less work to continue to maintain the separate code base than to do the
+conversion. Unless the changes, I cannot justify the cost.
+
+Karl
+
+------
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+
+> --
+> Stephen Smalley
+> National Security Agency
+
 
 
 --
