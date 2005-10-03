@@ -1,57 +1,61 @@
-Message-Id: <200510031440.j93EebYs015780@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, <SELinux-dev@tresys.com>
-Subject: RE: [RFC][PATCH] New interface for loading policy
-Date: Mon, 3 Oct 2005 10:40:37 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1128349326.26285.62.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [PATCH] mls in modules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SELinux-dev@tresys.com, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1128112952.22583.25.camel@twoface.columbia.tresys.com>
+References: <1128112952.22583.25.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 03 Oct 2005 11:31:25 -0400
+Message-Id: <1128353485.26285.119.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Monday, October 03, 2005 10:22 AM
-> To: Karl MacMillan
-> Cc: 'Ivan Gyurdiev'; selinux@tycho.nsa.gov; 'Daniel J Walsh'; SELinux-
-> dev@tresys.com
-> Subject: RE: [RFC][PATCH] New interface for loading policy
+On Fri, 2005-09-30 at 16:42 -0400, Joshua Brindle wrote:
+> This patch allows both base modules and modules to be built with the -M
+> (MLS) flag. For base modules it adds all the MLS components that are in
+> the normal policy. For modules it sets the MLS flag. The following
+> restrictions are currently placed on the policy:
 > 
-> On Mon, 2005-10-03 at 09:48 -0400, Karl MacMillan wrote:
-> > Agreed. How can libselinux support module and non-module installs then,
-> > though? Seems like it needs to determine whether it is handling the
-> adding
-> > of users, etc or it has been handled already. If you make it an option
-> > passed in as an arg, libsemanage can just call it correctly (either
-> directly
-> > or through an option to load_policy).
-> 
-> I assumed that even with a non-module install, libsemanage (or policy
-> server) would handle regeneration of the kernel binary policy file with
-> all local settings (users, saved/persistent booleans) so that libselinux
-> can just load that file unmodified except possibly for preserving the
-> current boolean settings in the preservebools case.  So I didn't think
-> we needed to retain the sepol_genusers/sepol_genbools support in the
-> libselinux function at all once we have converted over to the new
-> approach.
-> 
+> - Users cannot be declared in MLS modules, because levels cannot be
+> 'required'
 
-I guess I meant backwards compatibility - are you suggesting to drop that?
+Will this be addressed soon?  Or are modules in Fedora going to be
+unable to declare users at all?
 
-Karl
+diff -purN -x .svn libsepol/include/sepol/context.h libsepol/include/sepol/context.h
+--- libsepol/include/sepol/context.h	2005-09-19 09:03:15.000000000 -0400
++++ libsepol/include/sepol/context.h	2005-09-30 11:16:30.000000000 -0400
+@@ -38,6 +38,10 @@ typedef struct context_struct {
+ static inline void mls_context_init(context_struct_t * c)
+ {
+ 	memset(&c->range, 0, sizeof(c->range));
++	memset(&c->range.level[0], 0, sizeof(c->range.level[0]));
++	memset(&c->range.level[1], 0, sizeof(c->range.level[1]));
++	ebitmap_init(&c->range.level[0].cat);
++	ebitmap_init(&c->range.level[1].cat);
+ }
 
-------
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
+Seems a bit redundant?
 
-> --
-> Stephen Smalley
-> National Security Agency
+@@ -75,12 +73,9 @@ static inline int mls_context_cmp(contex
+ 
+ static inline void mls_context_destroy(context_struct_t * c)
+ {
+-	if (!sepol_mls_enabled())
+-		return;
+-
+ 	ebitmap_destroy(&c->range.level[0].cat);
+ 	ebitmap_destroy(&c->range.level[1].cat);
+-	mls_context_init(c);
++	memset(&c->range, 0, sizeof(c->range));
+ }
 
+Seems equivalent.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
