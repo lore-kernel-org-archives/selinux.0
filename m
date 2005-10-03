@@ -1,59 +1,53 @@
-Message-Id: <200510031347.j93DlFYs014483@gotham.columbia.tresys.com>
+Message-Id: <200510031348.j93DmWYs014504@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
 To: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
    "'Ivan Gyurdiev'" <ivg2@cornell.edu>
-Cc: <selinux@tycho.nsa.gov>
-Subject: RE: [10 / 9] [ SEMANAGE ] FIx placement of function table
-Date: Mon, 3 Oct 2005 09:47:15 -0400
+Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   <SELinux-dev@tresys.com>
+Subject: RE: [RFC][PATCH] New interface for loading policy
+Date: Mon, 3 Oct 2005 09:48:32 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-reply-to: <1128112109.12459.216.camel@moss-spartans.epoch.ncsc.mil>
+In-reply-to: <1128082909.12459.14.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 > -----Original Message-----
 > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Friday, September 30, 2005 4:28 PM
+> Sent: Friday, September 30, 2005 8:22 AM
 > To: Ivan Gyurdiev
-> Cc: selinux@tycho.nsa.gov; Karl MacMillan
-> Subject: Re: [10 / 9] [ SEMANAGE ] FIx placement of function table
+> Cc: selinux@tycho.nsa.gov; Daniel J Walsh; SELinux-dev@tresys.com
+> Subject: Re: [RFC][PATCH] New interface for loading policy
 > 
-> On Fri, 2005-09-30 at 16:30 -0400, Ivan Gyurdiev wrote:
-> > In one of my patches I broke up semanage_private.h into pieces.
-> > However, I've placed things incorrectly, because I misunderstood what
-> > things were supposed to do.
+> On Thu, 2005-09-29 at 23:48 -0400, Ivan Gyurdiev wrote:
+> > It doesn't belong in libselinux. I've had an implementation of this for
+> > a long time, but I haven't submitted it, because we're changing the plan
+> > (right). Boolean and user components will be handled by semanage, using
+> > the dbase thing which I'm adding there. Genbools/genusers will be
+> > deprecated. Semanage will compile a module, and put users/booleans into
+> > that. Then it will re-link modules upon change, and load_policy will ...
+> > load the policy.
 > >
-> > This corrects one of the problems - it moves the function table into a
-> > new file called policy_connection.h. It also renames that structure,
-> > because I use at least 3 or 4 different types of func_tables in my
-> > code.  For consistency this should go into interfaces.h, but perhaps I
-> > should split up interfaces.h into several headers instead (?)
-> >
-> > The other problem is the connection object - module_conn_t. I put that
-> > in modules.h, because it said "module", but it doesn't look like it
-> > belongs there. Karl, where should I move this? Should it go into
-> > direct_api.h ? I see the semanage_store makes use of that... is the
-> > semanage_store specific to the direct API?
-> >
-> > On a related note, where can I put policydb pointers - I need two of
-> > them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects
-> > will be created on demand (say when the user decides to query
-> > something), or when commit decides to re-create the active policy from
-> > scratch, but I need the pointers to them in a data structure linked into
-> > the handle (that's specific to direct api?) Should this go into
-> > conn.module (renaming that to conn.direct ?)
+> > OTOH this may be a good way to get rid of this code from things like
+> > init, which needs to happen anyway...
 > 
-> Hmmm...I just got done merging the others (available in the sourceforge
-> CVS), although naturally all of this is still open to debate and can be
-> reverted at any time.
-> 
-> I think at this point I'll wait for clarification from Karl et al on
-> whether this patch (and the prior ones as well) are consistent with
-> their plans for libsemanage.
+> Yes, boolean and user components are expected to be handled by semanage
+> in the future, regenerating the kernel binary policy file on each
+> modification.  When that happens, selinux_mkload_policy() can drop out
+> the calls to sepol_genusers and sepol_genbools, but will still
+> encapsulate the logic for finding the right policy version, opening it
+> and mmap'ing it, and loading it.  So this change will make it easier to
+> make that transition - we won't need to re-patch sysvinit or
+> load_policy, and will still encapsulate some higher level logic than the
+> current security_load_policy().
 > 
 
-We're looking - should have some thoughts later today.
+Agreed. How can libselinux support module and non-module installs then,
+though? Seems like it needs to determine whether it is handling the adding
+of users, etc or it has been handled already. If you make it an option
+passed in as an arg, libsemanage can just call it correctly (either directly
+or through an option to load_policy).
 
 Karl
 
