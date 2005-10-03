@@ -3,30 +3,30 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Karl MacMillan <kmacmillan@tresys.com>
 Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, selinux@tycho.nsa.gov,
    "'Daniel J Walsh'" <dwalsh@redhat.com>, SELinux-dev@tresys.com
-In-Reply-To: <200510031256.j93CugYs013021@gotham.columbia.tresys.com>
-References: <200510031256.j93CugYs013021@gotham.columbia.tresys.com>
+In-Reply-To: <200510031348.j93DmWYs014504@gotham.columbia.tresys.com>
+References: <200510031348.j93DmWYs014504@gotham.columbia.tresys.com>
 Content-Type: text/plain
-Date: Mon, 03 Oct 2005 10:17:30 -0400
-Message-Id: <1128349050.26285.57.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 03 Oct 2005 10:22:06 -0400
+Message-Id: <1128349326.26285.62.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-03 at 08:56 -0400, Karl MacMillan wrote:
-> I think that it needs to remain. In the future all requests for changing
-> bools, either persistently or temporarily, should go through the policy
-> server so that it can a) notify all security servers and b) enforce access
-> control over the changes. It does not, however, make sense to save all
-> states to disk. This means that load_policy needs to take care of saving the
-> state on reload. I think this is significantly "safer" than the users case -
-> the fallback is the defaults in the on-disk policy.
+On Mon, 2005-10-03 at 09:48 -0400, Karl MacMillan wrote:
+> Agreed. How can libselinux support module and non-module installs then,
+> though? Seems like it needs to determine whether it is handling the adding
+> of users, etc or it has been handled already. If you make it an option
+> passed in as an arg, libsemanage can just call it correctly (either directly
+> or through an option to load_policy).
 
-True.  The only potential concern is that we are trying to preserve the
-active boolean values of the booleans that were defined in the previous
-policy in the new policy.  If the boolean is no longer defined at all,
-we just skip it.  But if a given boolean name has changed its semantic
-meaning between the policies, then preserving its value could have
-interesting effects.
+I assumed that even with a non-module install, libsemanage (or policy
+server) would handle regeneration of the kernel binary policy file with
+all local settings (users, saved/persistent booleans) so that libselinux
+can just load that file unmodified except possibly for preserving the
+current boolean settings in the preservebools case.  So I didn't think
+we needed to retain the sepol_genusers/sepol_genbools support in the
+libselinux function at all once we have converted over to the new
+approach.
 
 -- 
 Stephen Smalley
