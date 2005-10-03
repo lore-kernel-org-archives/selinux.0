@@ -1,55 +1,59 @@
-Message-Id: <200510031256.j93CugYs013021@gotham.columbia.tresys.com>
+Message-Id: <200510031347.j93DlFYs014483@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
 To: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
    "'Ivan Gyurdiev'" <ivg2@cornell.edu>
-Cc: <selinux@tycho.nsa.gov>, "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   <SELinux-dev@tresys.com>
-Subject: RE: [RFC][PATCH] New interface for loading policy
-Date: Mon, 3 Oct 2005 08:56:42 -0400
+Cc: <selinux@tycho.nsa.gov>
+Subject: RE: [10 / 9] [ SEMANAGE ] FIx placement of function table
+Date: Mon, 3 Oct 2005 09:47:15 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-reply-to: <1128100586.12459.178.camel@moss-spartans.epoch.ncsc.mil>
+In-reply-to: <1128112109.12459.216.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 > -----Original Message-----
 > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Friday, September 30, 2005 1:16 PM
+> Sent: Friday, September 30, 2005 4:28 PM
 > To: Ivan Gyurdiev
-> Cc: Karl MacMillan; selinux@tycho.nsa.gov; Daniel J Walsh; SELinux-
-> dev@tresys.com
-> Subject: Re: [RFC][PATCH] New interface for loading policy
+> Cc: selinux@tycho.nsa.gov; Karl MacMillan
+> Subject: Re: [10 / 9] [ SEMANAGE ] FIx placement of function table
 > 
-> On Fri, 2005-09-30 at 08:21 -0400, Stephen Smalley wrote:
-> > BTW, one thing that I'm not clear on is how the preservebools case (the
-> > default behavior for load_policy) will be handled in the future.  The
-> > idea is that if a boolean has been toggled at runtime without altering
-> > its saved value (e.g. manually by an admin, or by a cron job that
-> > toggles a boolean to enforce different day/night policies, or by an IDS
-> > in response to an event), we don't want a subsequent policy reload (e.g.
-> > from an update) to reset that boolean value to the saved settings.  At
-> > present, load_policy (and thus selinux_mkload_policy) grab the active
-> > boolean settings from selinuxfs and patch them into the binary policy
-> > image via sepol_genbools_array() by default (preservebools=1).
+> On Fri, 2005-09-30 at 16:30 -0400, Ivan Gyurdiev wrote:
+> > In one of my patches I broke up semanage_private.h into pieces.
+> > However, I've placed things incorrectly, because I misunderstood what
+> > things were supposed to do.
+> >
+> > This corrects one of the problems - it moves the function table into a
+> > new file called policy_connection.h. It also renames that structure,
+> > because I use at least 3 or 4 different types of func_tables in my
+> > code.  For consistency this should go into interfaces.h, but perhaps I
+> > should split up interfaces.h into several headers instead (?)
+> >
+> > The other problem is the connection object - module_conn_t. I put that
+> > in modules.h, because it said "module", but it doesn't look like it
+> > belongs there. Karl, where should I move this? Should it go into
+> > direct_api.h ? I see the semanage_store makes use of that... is the
+> > semanage_store specific to the direct API?
+> >
+> > On a related note, where can I put policydb pointers - I need two of
+> > them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects
+> > will be created on demand (say when the user decides to query
+> > something), or when commit decides to re-create the active policy from
+> > scratch, but I need the pointers to them in a data structure linked into
+> > the handle (that's specific to direct api?) Should this go into
+> > conn.module (renaming that to conn.direct ?)
 > 
-> We seem to have agreed to drop the optional path argument entirely from
-> selinux_mkload_policy().  But we still need to decide whether the
-> preservebools argument is going to make sense going forward.  This is
-> for preserving temporary boolean values across a policy reload rather
-> than resetting them to the policy settings and is the default behavior
-> for load_policy (in the absence of the -b option), as noted above.  As
-> with the path argument, this argument is not needed for the initial
-> policy load by init, but is only relevant for policy reloads.
+> Hmmm...I just got done merging the others (available in the sourceforge
+> CVS), although naturally all of this is still open to debate and can be
+> reverted at any time.
+> 
+> I think at this point I'll wait for clarification from Karl et al on
+> whether this patch (and the prior ones as well) are consistent with
+> their plans for libsemanage.
 > 
 
-I think that it needs to remain. In the future all requests for changing
-bools, either persistently or temporarily, should go through the policy
-server so that it can a) notify all security servers and b) enforce access
-control over the changes. It does not, however, make sense to save all
-states to disk. This means that load_policy needs to take care of saving the
-state on reload. I think this is significantly "safer" than the users case -
-the fallback is the defaults in the on-disk policy.
+We're looking - should have some thoughts later today.
 
 Karl
 
