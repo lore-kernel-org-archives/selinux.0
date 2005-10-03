@@ -7,22 +7,17 @@ References: <1128112952.22583.25.camel@twoface.columbia.tresys.com>
 	 <1128353485.26285.119.camel@moss-spartans.epoch.ncsc.mil>
 	 <434165E3.5050804@tresys.com>
 Content-Type: text/plain
-Date: Mon, 03 Oct 2005 15:32:21 -0400
-Message-Id: <1128367941.26285.237.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 03 Oct 2005 17:14:12 -0400
+Message-Id: <1128374052.26285.283.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Mon, 2005-10-03 at 13:09 -0400, Joshua Brindle wrote:
-> This is on the list to do but is currently low priority. There are no 
-> plans to add this for FC5. As long as all users are added through the 
-> user files (system.user and local.user), it should not be necessary to 
-> add users in modules. Note, users with levels can be in the base module 
-> so the failsafe users will still be in the policy. If you disagree with 
-> the need for this please let us know.
+> Yes, I got a little overzealous with the initialization, go ahead and 
+> remove these.
 
-This seems workable, but important to know for the corresponding
-libsemanage functionality for manipulating users.
+Ok, merged the rest of the patch.
 
 -- 
 Stephen Smalley
