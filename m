@@ -1,64 +1,47 @@
-Message-Id: <200510041241.j94CfGYs028157@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
-Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, <SELinux-dev@tresys.com>
-Subject: RE: [RFC][PATCH] New interface for loading policy
-Date: Tue, 4 Oct 2005 08:41:16 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-reply-to: <1128349050.26285.57.camel@moss-spartans.epoch.ncsc.mil>
+Subject: [PATCH] checkpolicy - no module version
+From: Joshua Brindle <jbrindle@tresys.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-gtgjZJX52FdjWSpMmJw7"
+Date: Tue, 04 Oct 2005 10:30:02 -0400
+Message-Id: <1128436202.28919.0.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Monday, October 03, 2005 10:18 AM
-> To: Karl MacMillan
-> Cc: 'Ivan Gyurdiev'; selinux@tycho.nsa.gov; 'Daniel J Walsh'; SELinux-
-> dev@tresys.com
-> Subject: RE: [RFC][PATCH] New interface for loading policy
-> 
-> On Mon, 2005-10-03 at 08:56 -0400, Karl MacMillan wrote:
-> > I think that it needs to remain. In the future all requests for changing
-> > bools, either persistently or temporarily, should go through the policy
-> > server so that it can a) notify all security servers and b) enforce
-> access
-> > control over the changes. It does not, however, make sense to save all
-> > states to disk. This means that load_policy needs to take care of saving
-> the
-> > state on reload. I think this is significantly "safer" than the users
-> case -
-> > the fallback is the defaults in the on-disk policy.
-> 
-> True.  The only potential concern is that we are trying to preserve the
-> active boolean values of the booleans that were defined in the previous
-> policy in the new policy.  If the boolean is no longer defined at all,
-> we just skip it.  But if a given boolean name has changed its semantic
-> meaning between the policies, then preserving its value could have
-> interesting effects.
-> 
 
-This is a general problem that we can't solve, though. What if role names
-suddenly change meaning - then my local.users file is probably very wrong.
-These kinds of large policy changes probably require careful upgrading,
-including things like taking the machine offline, changing customization
-files (user, Booleans, etc.), and a reboot. So, not really a worry for this
-case I think. And, of course, load_policy should take an option to not
-preserve the state. 
+--=-gtgjZJX52FdjWSpMmJw7
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Karl
+This patch corrects an old behavior where module versions could be NULL,
+this is no longer allowed per the grammar and therefore an error
+condition.
 
-------
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
 
-> --
-> Stephen Smalley
-> National Security Agency
 
+--=-gtgjZJX52FdjWSpMmJw7
+Content-Disposition: attachment; filename=1-checkpolicy-no-mod-ver.diff
+Content-Type: text/x-patch; name=1-checkpolicy-no-mod-ver.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -pur -x .svn checkpolicy/module_compiler.c checkpolicy/module_compiler.c
+--- checkpolicy/module_compiler.c	2005-09-29 09:10:43.000000000 -0400
++++ checkpolicy/module_compiler.c	2005-09-29 09:11:31.000000000 -0400
+@@ -70,10 +70,8 @@ int define_policy(int pass, int module_h
+                         }
+                         policydbp->name = id;
+                         if ((policydbp->version = queue_remove(id_queue)) == NULL) {
+-                                if ((policydbp->version = strdup("")) == NULL) {
+-                                        yyerror("Out of memory!");
+-                                        return -1;
+-                                }
++                                yyerror("Expected a module version but none was found.");
++                                return -1;
+                         }
+                 }
+                 /* the first declaration within the global avrule
+
+--=-gtgjZJX52FdjWSpMmJw7--
 
 
 --
