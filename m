@@ -1,92 +1,47 @@
-Subject: [PATCH] permission value inconsistency
+Subject: [PATCH] libsepol - assertion invalid destroy
 From: Joshua Brindle <jbrindle@tresys.com>
 To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-1SPQjHJvhrorIEEpCwdA"
-Date: Tue, 04 Oct 2005 10:31:01 -0400
-Message-Id: <1128436261.28919.6.camel@twoface.columbia.tresys.com>
+Content-Type: multipart/mixed; boundary="=-KSh7CABoxGZgHaA0ug/V"
+Date: Tue, 04 Oct 2005 10:32:56 -0400
+Message-Id: <1128436376.28919.10.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-1SPQjHJvhrorIEEpCwdA
+--=-KSh7CABoxGZgHaA0ug/V
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-These patches fix permission and common permission values being
-incremented before they were successfully added. This may cause an
-inconsistency in the policy in the error case.
+In the case when there were no assertions in the policy, the assertion
+checking function would attempt an invalid destroy of the ebitmaps that had
+not been initialized. Since assertions are stored in avrules, if there
+are no avrules it returns successfully.
 
-
---=-1SPQjHJvhrorIEEpCwdA
-Content-Disposition: attachment; filename=4-checkpolicy-perm-value.diff
-Content-Type: text/x-patch; name=4-checkpolicy-perm-value.diff; charset=UTF-8
+--=-KSh7CABoxGZgHaA0ug/V
+Content-Disposition: attachment; filename=8-libsepol-assertion-invalid-free.diff
+Content-Type: text/x-patch; name=8-libsepol-assertion-invalid-free.diff; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-diff -pur -x .svn checkpolicy/module_compiler.c checkpolicy/module_compiler.c
---- checkpolicy/module_compiler.c	2005-09-29 09:10:43.000000000 -0400
-+++ checkpolicy/module_compiler.c	2005-09-29 09:11:31.000000000 -0400
-@@ -639,7 +638,7 @@ int require_class(int pass)
-                         break;
-                 }
-                 case HASHTAB_SUCCESS: {
--                        perm->value = ++datum->permissions.nprim;
-+                        perm->value = datum->permissions.nprim + 1;
-                         break;
-                 }
-                 default: {
-@@ -655,6 +654,9 @@ int require_class(int pass)
-                         free(perm);
-                         goto cleanup;
-                 }
-+                if (ret2 == HASHTAB_SUCCESS) {
-+                        datum->permissions.nprim++;
-+                }
-         }
-         return 0;
-  cleanup:
-
---=-1SPQjHJvhrorIEEpCwdA
-Content-Disposition: attachment; filename=5-checkpolicy-common-perm-value.diff
-Content-Type: text/x-patch; name=5-checkpolicy-common-perm-value.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -pur -x .svn checkpolicy/policy_parse.y checkpolicy/policy_parse.y
---- checkpolicy/policy_parse.y	2005-09-26 17:27:11.000000000 -0400
-+++ checkpolicy/policy_parse.y	2005-10-03 09:25:06.000000000 -0400
-@@ -1127,11 +1127,12 @@ static int define_common_perms(void)
- 		yyerror("hash table overflow");
- 		goto bad;
- 	}
--        comdatum->value = ++policydbp->p_commons.nprim;
-+        comdatum->value = policydbp->p_commons.nprim + 1;
- 	if (symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE)) {
- 		yyerror("out of memory");
- 		goto bad;
- 	}
-+        policydbp->p_commons.nprim++;
- 	while ((perm = queue_remove(id_queue))) {
- 		perdatum = (perm_datum_t *) malloc(sizeof(perm_datum_t));
- 		if (!perdatum) {
-@@ -1139,7 +1140,7 @@ static int define_common_perms(void)
- 			goto bad_perm;
- 		}
- 		memset(perdatum, 0, sizeof(perm_datum_t));
--		perdatum->value = ++comdatum->permissions.nprim;
-+		perdatum->value = comdatum->permissions.nprim + 1;
+diff -pur -x .svn libsepol/src/assertion.c libsepol/src/assertion.c
+--- libsepol/src/assertion.c	2005-09-19 09:03:15.000000000 -0400
++++ libsepol/src/assertion.c	2005-10-03 09:16:11.000000000 -0400
+@@ -128,6 +128,13 @@ int check_assertions(policydb_t *p, avru
+         unsigned int i, j;
+ 	int errors = 0;
  
- 		if (perdatum->value > (sizeof(sepol_access_vector_t) * 8)) {
- 			yyerror("too many permissions to fit in an access vector");
-@@ -1159,6 +1160,7 @@ static int define_common_perms(void)
- 			yyerror("hash table overflow");
- 			goto bad_perm;
- 		}
-+                comdatum->permissions.nprim++;
- 	}
- 
- 	return 0;
++	if (!avrules) {
++		/* Since assertions are stored in avrules, if it is NULL
++		   there won't be any to check. This also prevents an invalid
++		   free if the avtabs are never initialized */
++		return 0;
++	}
++
+ 	if (avrules) {
+ 		if (avtab_init(&te_avtab))
+ 			goto oom;
 
---=-1SPQjHJvhrorIEEpCwdA--
+--=-KSh7CABoxGZgHaA0ug/V--
 
 
 --
