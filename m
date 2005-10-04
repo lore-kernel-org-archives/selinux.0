@@ -1,58 +1,46 @@
-Subject: [PATCH] checkpolicy - self leak
-From: Joshua Brindle <jbrindle@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-vZnIjT28E4xYmre7liMC"
-Date: Tue, 04 Oct 2005 10:30:22 -0400
-Message-Id: <1128436222.28919.2.camel@twoface.columbia.tresys.com>
+Subject: Re: [10 / 9] [ SEMANAGE ] FIx placement of function table
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <433DA069.3090208@cornell.edu>
+References: <433DA069.3090208@cornell.edu>
+Content-Type: text/plain
+Date: Tue, 04 Oct 2005 10:53:07 -0400
+Message-Id: <1128437587.26285.397.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2005-09-30 at 16:30 -0400, Ivan Gyurdiev wrote:
+> In one of my patches I broke up semanage_private.h into pieces.  
+> However, I've placed things incorrectly, because I misunderstood what 
+> things were supposed to do.
+> 
+> This corrects one of the problems - it moves the function table into a 
+> new file called policy_connection.h. It also renames that structure, 
+> because I use at least 3 or 4 different types of func_tables in my 
+> code.  For consistency this should go into interfaces.h, but perhaps I 
+> should split up interfaces.h into several headers instead (?)
+> 
+> The other problem is the connection object - module_conn_t. I put that 
+> in modules.h, because it said "module", but it doesn't look like it 
+> belongs there. Karl, where should I move this? Should it go into 
+> direct_api.h ? I see the semanage_store makes use of that... is the 
+> semanage_store specific to the direct API?
+> 
+> On a related note, where can I put policydb pointers - I need two of 
+> them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects 
+> will be created on demand (say when the user decides to query 
+> something), or when commit decides to re-create the active policy from 
+> scratch, but I need the pointers to them in a data structure linked into 
+> the handle (that's specific to direct api?) Should this go into 
+> conn.module (renaming that to conn.direct ?)
 
---=-vZnIjT28E4xYmre7liMC
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Merged.  Karl, did you have any opinions on the above questions?
 
-These patches fix leaks when self is the identifier, both when declared
-(in an error condition) and when used in an avrule.
-
-
-
---=-vZnIjT28E4xYmre7liMC
-Content-Disposition: attachment; filename=2-checkpolicy-self-leak.diff
-Content-Type: text/x-patch; name=2-checkpolicy-self-leak.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -pur -x .svn checkpolicy/module_compiler.c checkpolicy/module_compiler.c
---- checkpolicy/module_compiler.c	2005-09-29 09:10:43.000000000 -0400
-+++ checkpolicy/module_compiler.c	2005-09-29 09:11:31.000000000 -0400
-@@ -264,6 +262,7 @@ type_datum_t *declare_type(unsigned char
- 	}
-         if (strcmp(id, "self") == 0) {
-                 yyerror("'self' is a reserved type name and may not be declared.");
-+                free(id);
-                 return NULL;
-         }
- 
-
---=-vZnIjT28E4xYmre7liMC
-Content-Disposition: attachment; filename=6-checkpolicy-self-leak.diff
-Content-Type: text/x-patch; name=6-checkpolicy-self-leak.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -pur -x .svn checkpolicy/policy_parse.y checkpolicy/policy_parse.y
---- checkpolicy/policy_parse.y	2005-09-26 17:27:11.000000000 -0400
-+++ checkpolicy/policy_parse.y	2005-10-03 09:25:06.000000000 -0400
-@@ -2253,6 +2255,7 @@ static int define_te_avtab_helper(int wh
-         add = 1;
- 	while ((id = queue_remove(id_queue))) {
- 		if (strcmp(id, "self") == 0) {
-+			free(id);
- 			avrule->flags |= RULE_SELF;
- 			continue;
- 		}
-
---=-vZnIjT28E4xYmre7liMC--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
