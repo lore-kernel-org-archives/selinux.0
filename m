@@ -1,41 +1,64 @@
-Subject: Re: [PATCH] mls in modules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
-   SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <1128374052.26285.283.camel@moss-spartans.epoch.ncsc.mil>
-References: <1128112952.22583.25.camel@twoface.columbia.tresys.com>
-	 <1128353485.26285.119.camel@moss-spartans.epoch.ncsc.mil>
-	 <434165E3.5050804@tresys.com>
-	 <1128374052.26285.283.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 04 Oct 2005 07:56:54 -0400
-Message-Id: <1128427014.26285.315.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200510041241.j94CfGYs028157@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, <SELinux-dev@tresys.com>
+Subject: RE: [RFC][PATCH] New interface for loading policy
+Date: Tue, 4 Oct 2005 08:41:16 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <1128349050.26285.57.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-03 at 17:14 -0400, Stephen Smalley wrote:
-> On Mon, 2005-10-03 at 13:09 -0400, Joshua Brindle wrote:
-> > Yes, I got a little overzealous with the initialization, go ahead and 
-> > remove these.
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Monday, October 03, 2005 10:18 AM
+> To: Karl MacMillan
+> Cc: 'Ivan Gyurdiev'; selinux@tycho.nsa.gov; 'Daniel J Walsh'; SELinux-
+> dev@tresys.com
+> Subject: RE: [RFC][PATCH] New interface for loading policy
 > 
-> Ok, merged the rest of the patch.
+> On Mon, 2005-10-03 at 08:56 -0400, Karl MacMillan wrote:
+> > I think that it needs to remain. In the future all requests for changing
+> > bools, either persistently or temporarily, should go through the policy
+> > server so that it can a) notify all security servers and b) enforce
+> access
+> > control over the changes. It does not, however, make sense to save all
+> > states to disk. This means that load_policy needs to take care of saving
+> the
+> > state on reload. I think this is significantly "safer" than the users
+> case -
+> > the fallback is the defaults in the on-disk policy.
+> 
+> True.  The only potential concern is that we are trying to preserve the
+> active boolean values of the booleans that were defined in the previous
+> policy in the new policy.  If the boolean is no longer defined at all,
+> we just skip it.  But if a given boolean name has changed its semantic
+> meaning between the policies, then preserving its value could have
+> interesting effects.
+> 
 
-BTW, this brings up another issue on the MLS support in
-checkpolicy/checkmodule, namely whether we should obsolete the explicit
--M options (continue allowing them for compatibility, but no longer
-require them) and just have them implicitly enable MLS support when they
-find a MLS section in the policy.  At least for checkpolicy and the base
-module (default for checkmodule).  For non-base modules, I suppose that
-there is no way for checkmodule to infer whether it should enable MLS
-without having a copy of the base module readily available as well.
-Although MLS has no meaning for non-base modules presently, right, since
-they can't support MLS user records?
- 
--- 
-Stephen Smalley
-National Security Agency
+This is a general problem that we can't solve, though. What if role names
+suddenly change meaning - then my local.users file is probably very wrong.
+These kinds of large policy changes probably require careful upgrading,
+including things like taking the machine offline, changing customization
+files (user, Booleans, etc.), and a reboot. So, not really a worry for this
+case I think. And, of course, load_policy should take an option to not
+preserve the state. 
+
+Karl
+
+------
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+
+> --
+> Stephen Smalley
+> National Security Agency
+
 
 
 --
