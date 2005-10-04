@@ -1,42 +1,40 @@
-Subject: Re: [10 / 9] [ SEMANAGE ] FIx placement of function table
+Subject: Re: [ SEMANAGE ] [ SEPOL ] Backend iterate function
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <433DA069.3090208@cornell.edu>
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
+   Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <433DD618.1070508@cornell.edu>
 References: <433DA069.3090208@cornell.edu>
+	 <1128112109.12459.216.camel@moss-spartans.epoch.ncsc.mil>
+	 <433DA664.6040600@cornell.edu>  <433DD618.1070508@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 04 Oct 2005 10:53:07 -0400
-Message-Id: <1128437587.26285.397.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 04 Oct 2005 10:53:50 -0400
+Message-Id: <1128437630.26285.398.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-09-30 at 16:30 -0400, Ivan Gyurdiev wrote:
-> In one of my patches I broke up semanage_private.h into pieces.  
-> However, I've placed things incorrectly, because I misunderstood what 
-> things were supposed to do.
+On Fri, 2005-09-30 at 20:19 -0400, Ivan Gyurdiev wrote:
+> The first patch here replaces the user list() function which I just 
+> wrote with an iterate() one. This exercise wasn't useless - most of the 
+> code is exactly the same - we just don't put the users in an array, and 
+> we call a handler. List is removed, because it can be implemented on top 
+> of iterate. In fact, most of the other functions in the sepol 
+> users/interfaces/ports API should be removed once semanage is properly 
+> functioning. I've also added iterate() on interfaces, ports, and 
+> booleans. Tried this, and it seems to work fine - print handler prints 
+> out all the data.
 > 
-> This corrects one of the problems - it moves the function table into a 
-> new file called policy_connection.h. It also renames that structure, 
-> because I use at least 3 or 4 different types of func_tables in my 
-> code.  For consistency this should go into interfaces.h, but perhaps I 
-> should split up interfaces.h into several headers instead (?)
-> 
-> The other problem is the connection object - module_conn_t. I put that 
-> in modules.h, because it said "module", but it doesn't look like it 
-> belongs there. Karl, where should I move this? Should it go into 
-> direct_api.h ? I see the semanage_store makes use of that... is the 
-> semanage_store specific to the direct API?
-> 
-> On a related note, where can I put policydb pointers - I need two of 
-> them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects 
-> will be created on demand (say when the user decides to query 
-> something), or when commit decides to re-create the active policy from 
-> scratch, but I need the pointers to them in a data structure linked into 
-> the handle (that's specific to direct api?) Should this go into 
-> conn.module (renaming that to conn.direct ?)
+> The second patch corrects the corresponding table in semanage (the 
+> record_direct_table_t), and sets those functions in the tables for users 
+> and ports. It also adds an iterate() function to the backend table, and 
+> stubs for that. Finally, it adds cacheable parameter to each database, 
+> that will indicate whether the database should be cached. If it says 0, 
+> then .... it will fallback to implementation via iterate() in the 
+> backend (without making a list of records)) (I haven't set this up yet). 
+> Currently all databases are cacheable.
 
-Merged.  Karl, did you have any opinions on the above questions?
+Merged.
 
 -- 
 Stephen Smalley
