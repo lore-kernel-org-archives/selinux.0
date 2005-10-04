@@ -1,40 +1,40 @@
-Subject: [PATCH] checkpolicy - misleading error
+Subject: [PATCH] checkpolicy - constraint destroy
 From: Joshua Brindle <jbrindle@tresys.com>
 To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-+Ccz7nAaPjThlDdNx4s+"
-Date: Tue, 04 Oct 2005 10:30:35 -0400
-Message-Id: <1128436235.28919.4.camel@twoface.columbia.tresys.com>
+Content-Type: multipart/mixed; boundary="=-m5IRt+4lilP271EtR0K9"
+Date: Tue, 04 Oct 2005 10:32:08 -0400
+Message-Id: <1128436328.28919.9.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-+Ccz7nAaPjThlDdNx4s+
+--=-m5IRt+4lilP271EtR0K9
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This fixes a misleading error when a type or attribute could not be
-declared but the error only said attribute.
+On the constraint error path the constraint list cleanup was destroying
+the wrong node. 
 
---=-+Ccz7nAaPjThlDdNx4s+
-Content-Disposition: attachment; filename=3-checkpolicy-misleading-type-error.diff
-Content-Type: text/x-patch; name=3-checkpolicy-misleading-type-error.diff; charset=UTF-8
+--=-m5IRt+4lilP271EtR0K9
+Content-Disposition: attachment; filename=7-checkpolicy-constraint-destroy.diff
+Content-Type: text/x-patch; name=7-checkpolicy-constraint-destroy.diff; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-diff -pur -x .svn checkpolicy/module_compiler.c checkpolicy/module_compiler.c
---- checkpolicy/module_compiler.c	2005-09-29 09:10:43.000000000 -0400
-+++ checkpolicy/module_compiler.c	2005-09-29 09:11:31.000000000 -0400
-@@ -308,7 +307,7 @@ type_datum_t *declare_type(unsigned char
-                 return NULL;
-         }
-         case -1: {
--                yyerror("could not declare attribute here");
-+                yyerror("could not declare type/attribute here");
-                 return NULL;
-         }
-         case 0:
+diff -pur -x .svn checkpolicy/policy_parse.y checkpolicy/policy_parse.y
+--- checkpolicy/policy_parse.y	2005-09-26 17:27:11.000000000 -0400
++++ checkpolicy/policy_parse.y	2005-10-03 09:25:06.000000000 -0400
+@@ -2861,7 +2864,7 @@ oom:
+ 	while (e) {
+ 		l = e;
+ 		e = e->next;
+-		constraint_expr_destroy(e);
++		constraint_expr_destroy(l);
+ 	}
+ 	return NULL;
+ }
 
---=-+Ccz7nAaPjThlDdNx4s+--
+--=-m5IRt+4lilP271EtR0K9--
 
 
 --
