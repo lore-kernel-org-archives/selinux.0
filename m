@@ -1,38 +1,33 @@
-Subject: Re: [ SEMANAGE ] [ SEPOL ] Backend iterate function
+Subject: Re: [ SEMANAGE ] Break up interfaces.h, implement parsing helpers
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
    Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <433DD618.1070508@cornell.edu>
+In-Reply-To: <433DEB43.1020605@cornell.edu>
 References: <433DA069.3090208@cornell.edu>
 	 <1128112109.12459.216.camel@moss-spartans.epoch.ncsc.mil>
-	 <433DA664.6040600@cornell.edu>  <433DD618.1070508@cornell.edu>
+	 <433DA664.6040600@cornell.edu> <433DD618.1070508@cornell.edu>
+	 <433DEB43.1020605@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 04 Oct 2005 10:53:50 -0400
-Message-Id: <1128437630.26285.398.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 04 Oct 2005 10:54:10 -0400
+Message-Id: <1128437650.26285.400.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-09-30 at 20:19 -0400, Ivan Gyurdiev wrote:
-> The first patch here replaces the user list() function which I just 
-> wrote with an iterate() one. This exercise wasn't useless - most of the 
-> code is exactly the same - we just don't put the users in an array, and 
-> we call a handler. List is removed, because it can be implemented on top 
-> of iterate. In fact, most of the other functions in the sepol 
-> users/interfaces/ports API should be removed once semanage is properly 
-> functioning. I've also added iterate() on interfaces, ports, and 
-> booleans. Tried this, and it seems to work fine - print handler prints 
-> out all the data.
+On Fri, 2005-09-30 at 21:49 -0400, Ivan Gyurdiev wrote:
+> Patch redistributes interfaces.h back into database.h, database_file.h, 
+> database_direct.h.
+> I promise I'll stop moving functionality around now - I'm very happy 
+> with where it's at (for now :)
 > 
-> The second patch corrects the corresponding table in semanage (the 
-> record_direct_table_t), and sets those functions in the tables for users 
-> and ports. It also adds an iterate() function to the backend table, and 
-> stubs for that. Finally, it adds cacheable parameter to each database, 
-> that will indicate whether the database should be cached. If it says 0, 
-> then .... it will fallback to implementation via iterate() in the 
-> backend (without making a list of records)) (I haven't set this up yet). 
-> Currently all databases are cacheable.
+> Moves parse stuff into parse_utils.[c,h]. Implement parsing helpers that 
+> will be used for  the user parser (and others). Testing?
+> It used to work (and pass valgrind) back when I was implementing it for 
+> libselinux and libsepol. Haven't tested it since then, but nothing's 
+> changed. Since nothing's using this code, I thought it'd be okay to 
+> merge - even if it has bugs (which it shouldn't). I'll do more testing 
+> when I get the rest of the framework set up, so I can read the files.
 
 Merged.
 
