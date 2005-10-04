@@ -1,47 +1,54 @@
-Subject: Re: [ SEMANAGE ] Completely split database per backend
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, kmacmillan@tresys.com
-In-Reply-To: <4341B8B8.2040608@cornell.edu>
-References: <200510031420.j93EKZYs015323@gotham.columbia.tresys.com>
-	 <1128352181.26285.108.camel@moss-spartans.epoch.ncsc.mil>
-	 <43416D71.8030000@cornell.edu>
-	 <1128363102.26285.186.camel@moss-spartans.epoch.ncsc.mil>
-	 <43417C50.90306@cornell.edu>
-	 <1128367296.26285.224.camel@moss-spartans.epoch.ncsc.mil>
-	 <43418AFA.6070600@cornell.edu>  <4341B8B8.2040608@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 04 Oct 2005 10:57:52 -0400
-Message-Id: <1128437872.26285.404.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4342A537.7030300@cornell.edu>
+Date: Tue, 04 Oct 2005 11:52:23 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
+Subject: Synchronization/Caching
+References: <433DA069.3090208@cornell.edu> <1128437587.26285.397.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1128437587.26285.397.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-03 at 19:03 -0400, Ivan Gyurdiev wrote:
-> This patch, does what we discussed off list:
-> 
-> - completely separates database per backend (all the functions are to be 
-> implemented in the backend) - this involves pretty much all of 
-> database.c into database_file.c. Caching things are now into the file 
-> backend only, and I've dropped the cacheable stuff for simplicity.
-> 
-> - removes database.c. The backend now takes over the role of the 
-> database (and is renamed dbase_t). The thing that associates the 
-> database with its method table is still needed, but I've renamed it to 
-> dbase_config_t (I'm sorry I keep renaming things, but that's what 
-> happens when I need to redesign - hopefully there will be less need for 
-> that in the future). I've also dropped its init function, and I just 
-> store it as part of the handle (as opposed to storing a pointer), which 
-> is simpler.
-> 
-> - fixes some bugs
 
-Thanks, merged (along with the others as of libsemanage 1.3.8, depends
-on libsepol 1.9.10).
+>> The other problem is the connection object - module_conn_t. I put that 
+>> in modules.h, because it said "module", but it doesn't look like it 
+>> belongs there. Karl, where should I move this? Should it go into 
+>> direct_api.h ? I see the semanage_store makes use of that... is the 
+>> semanage_store specific to the direct API?
+>>
+>> On a related note, where can I put policydb pointers - I need two of 
+>> them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects 
+>> will be created on demand (say when the user decides to query 
+>> something), or when commit decides to re-create the active policy from 
+>> scratch, but I need the pointers to them in a data structure linked into 
+>> the handle (that's specific to direct api?) Should this go into 
+>> conn.module (renaming that to conn.direct ?)
+>>     
+>
+> Merged.  Karl, did you have any opinions on the above questions?
+>   
+I am still interested in the answer to the first question (where should 
+conn be placed?).
 
--- 
-Stephen Smalley
-National Security Agency
+The second question.... is a bit more complicated than I originally 
+thought, because having a policydb in memory (or a linked list in memory 
+for the contents of a file) is kind of a problem - it requires 
+synchronization. It brings up the issue of whether queries will be done 
+outside of transaction, on the active sandbox (and if so, what kind of 
+cache procedures will be implemented (none - drop the cache on function 
+exit?)), or inside of transaction, on the tmp sandbox, with the 
+transaction lock held. Also, I'm not sure when and where the read lock 
+is to be used.
+
+Also, I don't particularly like the way the current direct_databse takes 
+a pointer to a policydb elsewhere - that's kind of a hack, that's 
+intended to get multiple dbase views to share the same in-memory 
+policydb object, but I doubt it's going to work, so I think I'll get rid 
+of it for now, and figure out how to implement this properly - will we 
+even have a persistent cache of policy/files across functions outside of 
+transaction mode?
 
 
 --
