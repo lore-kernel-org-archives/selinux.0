@@ -1,51 +1,33 @@
-Subject: Re: I've written a shell script which turns log deny to allow.
+Subject: Re: matchpathcon regcomp return code
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>
-Cc: John Ramsdell <ramsdell@mitre.org>,
-   "Brian T. Sniffen" <bsniffen@mitre.org>,
-   selinux mailing list <selinux@tycho.nsa.gov>
-In-Reply-To: <002601c5c9b5$b7748ee0$0300a8c0@admin0>
-References: <002601c5c9b5$b7748ee0$0300a8c0@admin0>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Johan Fischer <jfischer@cmcrc.com>, SELinux-dev@tresys.com,
+   SELinux@tycho.nsa.gov
+In-Reply-To: <1128522566.22129.20.camel@sgc.columbia.tresys.com>
+References: <43436F35.4040204@cmcrc.com>
+	 <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128522566.22129.20.camel@sgc.columbia.tresys.com>
 Content-Type: text/plain
-Date: Wed, 05 Oct 2005 10:30:49 -0400
-Message-Id: <1128522649.24059.148.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 05 Oct 2005 10:34:57 -0400
+Message-Id: <1128522897.24059.152.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-05 at 23:04 +0900, shintarou_fujiwara wrote:
-> Hello, again from Japan .
-> 
-> The other day I've written a policy, noip but
-> today I've written a script , easy to use 
-> especially begginers, like me ...
-> 
-> Denied log is so annoying , so I've written down this 
-> small script named sepolf (selinux policy finder).
-> 
-> I really want it to display macro, but all I can do now
-> is to display allow... like audit2allow (I have never used,though).
-> 
-> Experts advice I really want to get ,to make it better.
+On Wed, 2005-10-05 at 10:29 -0400, Christopher J. PeBenito wrote:
+> We kept it separate because we were still working with the algorithm.
+> More importantly, we don't want to affect the example policy, since it
+> altered the order on at least one occasion, as discussed before.  If you
+> don't have a problem with this, we can certainly work on a patch for
+> matchpathcon.
 
-How does it differ from audit2allow?  If you think audit2allow lacks
-something, feel free to propose a patch to it.
-
-If you are interested in more sophisticated policy generation, I'd
-suggest that you take a look at polgen.  There should be an updated
-release of it soon, but you can look at the polgen 1.1 release from 
-http://www.mitre.org/tech/selinux/.  Unlike audit2allow, polgen can
-generate new domains and types, recognize patterns and suggest
-appropriate policy, and emit macro-based rules rather than just raw TE
-rules.  Note that polgen uses filtered strace output (extended to
-include security contexts) from running the program rather than audit
-messages as its input.  This has advantages (e.g. program-specific data,
-more detailed data than one can currently obtain from audit messages)
-and disadvantages (e.g. weak linkage with actual SELinux permission
-checks, lack of data on other processes interacting with the program,
-dependency on patched strace program - which is included in the polgen
-tarball).
-
+Yes, I think it would be preferable to have it directly in matchpathcon,
+and we can add further pathname regexes as needed to fix any undesired
+changes in the actual labeling.  I don't know if you've done anything
+further with respect to the idea floated earlier about (optional)
+explicit precedence/order specifiers in file contexts, but we might want
+to introduce those at the same time.
+ 
 -- 
 Stephen Smalley
 National Security Agency
