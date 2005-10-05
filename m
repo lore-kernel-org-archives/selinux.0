@@ -1,46 +1,54 @@
-Subject: Re: matchpathcon regcomp return code
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Johan Fischer <jfischer@cmcrc.com>, SELinux-dev@tresys.com,
-   SELinux@tycho.nsa.gov
-In-Reply-To: <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>
-References: <43436F35.4040204@cmcrc.com>
-	 <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: I've written a shell script which turns log deny to allow.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>
+Cc: John Ramsdell <ramsdell@mitre.org>,
+   "Brian T. Sniffen" <bsniffen@mitre.org>,
+   selinux mailing list <selinux@tycho.nsa.gov>
+In-Reply-To: <002601c5c9b5$b7748ee0$0300a8c0@admin0>
+References: <002601c5c9b5$b7748ee0$0300a8c0@admin0>
 Content-Type: text/plain
-Date: Wed, 05 Oct 2005 10:29:26 -0400
-Message-Id: <1128522566.22129.20.camel@sgc.columbia.tresys.com>
+Date: Wed, 05 Oct 2005 10:30:49 -0400
+Message-Id: <1128522649.24059.148.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-05 at 09:19 -0400, Stephen Smalley wrote:
-> On Wed, 2005-10-05 at 16:14 +1000, Johan Fischer wrote:
-> > Anyway, This configuration will not work as expected since the apache.fc
-> > file is concatened after the types.fc, the lost+found will get the
-> > httpd_sys_content_t type....
+On Wed, 2005-10-05 at 23:04 +0900, shintarou_fujiwara wrote:
+> Hello, again from Japan .
 > 
-> Yes, file contexts ordering/precedence is a known problem.  It is
-> exacerbated by the new policy module support, and Tresys has introduced
-> a sorting algorithm for their reference policy
-> (http://serefpolicy.sf.net) based on fixed string vs. regex (already
-> done by matchpathcon), stem length, string length, and presence of the
-> file type specifier.  Possibly we should incorporate that sort into
-> matchpathcon.  Chris, is there a reason you kept it as a separate helper
-> specific to reference policy versus submitting it as a patch to
-> matchpathcon itself?  I know that you mentioned that it does alter the
-> order in some cases from what we have now, but I think we agreed that we
-> can address those cases as needed.
+> The other day I've written a policy, noip but
+> today I've written a script , easy to use 
+> especially begginers, like me ...
+> 
+> Denied log is so annoying , so I've written down this 
+> small script named sepolf (selinux policy finder).
+> 
+> I really want it to display macro, but all I can do now
+> is to display allow... like audit2allow (I have never used,though).
+> 
+> Experts advice I really want to get ,to make it better.
 
-We kept it separate because we were still working with the algorithm.
-More importantly, we don't want to affect the example policy, since it
-altered the order on at least one occasion, as discussed before.  If you
-don't have a problem with this, we can certainly work on a patch for
-matchpathcon.
+How does it differ from audit2allow?  If you think audit2allow lacks
+something, feel free to propose a patch to it.
+
+If you are interested in more sophisticated policy generation, I'd
+suggest that you take a look at polgen.  There should be an updated
+release of it soon, but you can look at the polgen 1.1 release from 
+http://www.mitre.org/tech/selinux/.  Unlike audit2allow, polgen can
+generate new domains and types, recognize patterns and suggest
+appropriate policy, and emit macro-based rules rather than just raw TE
+rules.  Note that polgen uses filtered strace output (extended to
+include security contexts) from running the program rather than audit
+messages as its input.  This has advantages (e.g. program-specific data,
+more detailed data than one can currently obtain from audit messages)
+and disadvantages (e.g. weak linkage with actual SELinux permission
+checks, lack of data on other processes interacting with the program,
+dependency on patched strace program - which is included in the polgen
+tarball).
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
