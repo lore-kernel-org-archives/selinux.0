@@ -1,53 +1,52 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j95Bu6Ns004313
-	for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2005 07:56:06 -0400 (EDT)
-Subject: Re: seusers.conf file
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   selinux@tycho.nsa.gov
-In-Reply-To: <4342D741.7080006@redhat.com>
-References: <4342D741.7080006@redhat.com>
+Subject: Re: matchpathcon regcomp return code
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Johan Fischer <jfischer@cmcrc.com>
+Cc: SELinux-dev@tresys.com, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+   SELinux@tycho.nsa.gov
+In-Reply-To: <43436F35.4040204@cmcrc.com>
+References: <43436F35.4040204@cmcrc.com>
 Content-Type: text/plain
-Date: Wed, 05 Oct 2005 07:52:25 -0400
-Message-Id: <1128513145.24059.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 05 Oct 2005 09:19:39 -0400
+Message-Id: <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-04 at 15:25 -0400, Daniel J Walsh wrote:
-> I have created an seusers.conf file with the following contents
-> root:root:s0-s0:c0.c127
-> default:user_u:s0
-> 
-> 
-> Got a pam module that works with it, pretty well.  Problem is, which RPM 
-> should I include this in?
-> 
-> I could just add it to libselinux or put it in a policy file.  Problem 
-> with policy files is it would conflict.
-> This would probably conf file you would want for mls.
-> 
-> Ideas?
+On Wed, 2005-10-05 at 16:14 +1000, Johan Fischer wrote:
+> Anyway, This configuration will not work as expected since the apache.fc
+> file is concatened after the types.fc, the lost+found will get the
+> httpd_sys_content_t type....
 
-Taking your question to the list for wider discussion.
+Yes, file contexts ordering/precedence is a known problem.  It is
+exacerbated by the new policy module support, and Tresys has introduced
+a sorting algorithm for their reference policy
+(http://serefpolicy.sf.net) based on fixed string vs. regex (already
+done by matchpathcon), stem length, string length, and presence of the
+file type specifier.  Possibly we should incorporate that sort into
+matchpathcon.  Chris, is there a reason you kept it as a separate helper
+specific to reference policy versus submitting it as a patch to
+matchpathcon itself?  I know that you mentioned that it does alter the
+order in some cases from what we have now, but I think we agreed that we
+can address those cases as needed.
 
-So, to provide context for others, at present, seusers.conf (the file
-introduced by Dan that maps Linux users to SELinux users and, if MLS is
-enabled, MLS levels/ranges) lives directly in /etc/selinux rather
-than /etc/selinux/$SELINUXTYPE.  Whether or not that is the right
-location for the flat file backend was raised earlier on the list but
-there was no clear answer, since on the one hand, it does contain
-policy-specific information but on the other hand, other backends (e.g.
-LDAP database) are likely to be completely external to policy entirely.
-This file is only used by libselinux (getseuserbyname), so we can easily
-relocate it if desired.
+> So I tried to use a bit of regex and set up a look ahead assertion to
+> avoid the lost+found and use the following regex (tested with perl happily):
+> 
+> /var/lib/svn(?!(/.*)?/lost\\+found)(/.*)?
+> 
+> Now the problem is restorecon is crashing (segfault in matchpathcon)
+> 
+> About the crashing, it seems that the error code check of regcomp in
+> matchpathcon.c is wrong (see attached patch from CVS HEAD).
 
-Dan's question now is what package should own the file.
+Ah, thanks for the bug fix.  Should likely also call regerror there and
+report that error string.
 
-In a way, this seems similar to the passwd file, which seems to be owned
-by a generic package called "setup" that also owns many other /etc
-config files.
+> The second question is actually, is lookaround supported at all in posix
+> regex ?
+
+I don't know offhand, but if regcomp rejects it, then I suspect not.
+Possibly we could convert it over to using pcre.
 
 -- 
 Stephen Smalley
