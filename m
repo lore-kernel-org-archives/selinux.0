@@ -1,55 +1,89 @@
-Message-ID: <4342A537.7030300@cornell.edu>
-Date: Tue, 04 Oct 2005 11:52:23 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43436F35.4040204@cmcrc.com>
+Date: Wed, 05 Oct 2005 16:14:13 +1000
+From: Johan Fischer <jfischer@cmcrc.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
-Subject: Synchronization/Caching
-References: <433DA069.3090208@cornell.edu> <1128437587.26285.397.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1128437587.26285.397.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: SELinux@tycho.nsa.gov
+Subject: matchpathcon regcomp return code
+Content-Type: multipart/mixed;
+ boundary="------------010307050103040500040100"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------010307050103040500040100
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
->> The other problem is the connection object - module_conn_t. I put that 
->> in modules.h, because it said "module", but it doesn't look like it 
->> belongs there. Karl, where should I move this? Should it go into 
->> direct_api.h ? I see the semanage_store makes use of that... is the 
->> semanage_store specific to the direct API?
->>
->> On a related note, where can I put policydb pointers - I need two of 
->> them for starters - ACTIVE, and LOCAL_MOD... the actual policydb objects 
->> will be created on demand (say when the user decides to query 
->> something), or when commit decides to re-create the active policy from 
->> scratch, but I need the pointers to them in a data structure linked into 
->> the handle (that's specific to direct api?) Should this go into 
->> conn.module (renaming that to conn.direct ?)
->>     
->
-> Merged.  Karl, did you have any opinions on the above questions?
->   
-I am still interested in the answer to the first question (where should 
-conn be placed?).
+Hi list,
 
-The second question.... is a bit more complicated than I originally 
-thought, because having a policydb in memory (or a linked list in memory 
-for the contents of a file) is kind of a problem - it requires 
-synchronization. It brings up the issue of whether queries will be done 
-outside of transaction, on the active sandbox (and if so, what kind of 
-cache procedures will be implemented (none - drop the cache on function 
-exit?)), or inside of transaction, on the tmp sandbox, with the 
-transaction lock held. Also, I'm not sure when and where the read lock 
-is to be used.
+Well, first message here (yeah).
 
-Also, I don't particularly like the way the current direct_databse takes 
-a pointer to a policydb elsewhere - that's kind of a hack, that's 
-intended to get multiple dbase views to share the same in-memory 
-policydb object, but I doubt it's going to work, so I think I'll get rid 
-of it for now, and figure out how to implement this properly - will we 
-even have a persistent cache of policy/files across functions outside of 
-transaction mode?
+I have a double problem with restorecon crashing with a segfault.
 
+Some background of the situation:
+using centos4 with a cutsomized (not much) targeted selinux policy.
+Trying to make the httpd server access /var/lib/svn (svn repositories)
+which is a separate ext3 fs.
+
+so basically, I changed the src/policy/file_contexts/types.fc and added
+'/var/lib/svn/lost\+found(/.*)?  system_u:object_r:lost_found_t'
+to keep my lost+found dir secured.
+
+and changed my apache.fc file to add /var/lib/svn(/.*) to another type
+accessible by apache (let's say system_u:object_r:httpd_sys_content_t
+but could be anything else...)
+
+Anyway, This configuration will not work as expected since the apache.fc
+file is concatened after the types.fc, the lost+found will get the
+httpd_sys_content_t type....
+
+So I tried to use a bit of regex and set up a look ahead assertion to
+avoid the lost+found and use the following regex (tested with perl happily):
+
+/var/lib/svn(?!(/.*)?/lost\\+found)(/.*)?
+
+Now the problem is restorecon is crashing (segfault in matchpathcon)
+
+About the crashing, it seems that the error code check of regcomp in
+matchpathcon.c is wrong (see attached patch from CVS HEAD).
+
+The second question is actually, is lookaround supported at all in posix
+regex ?
+
+Cheers.
+J.
+
+-- 
+Johan Fischer
+Capital Markets CRC Limited
+Level 2, 9 Castlereagh Street, Sydney NSW 2000
+Tel: +61 2 9233 7999   Direct: +61 2 9236 9150
+Fax: +61 2 9236 9177   http://www.cmcrc.com
+
+Capital Markets CRC Ltd (CMCRC) - Confidential Communication
+The information contained in this e-mail is confidential.  It is intended solely for the addressee. If you receive this e-mail by mistake please promptly inform us by reply e-mail and then delete the e-mail and destroy any printed copy. You must not disclose or use in any way the information in the e-mail. There is no warranty that this e-mail is error or virus free. It may be a private communication, and if so, does not represent the views of the CMCRC and its associates. If it is a private communication, care should be taken in opening it to ensure that undue offence is not given.
+
+
+--------------010307050103040500040100
+Content-Type: text/plain;
+ name="matchpathcon.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="matchpathcon.c.diff"
+
+--- matchpathcon.c	2005-10-05 15:33:38.000000000 +1000
++++ matchpathcon.c.new	2005-10-05 15:33:26.000000000 +1000
+@@ -501,7 +501,7 @@
+ 			regcomp(&spec_arr[nspec].regex,
+ 				anchored_regex,
+ 				REG_EXTENDED | REG_NOSUB);
+-		if (regerr < 0) {
++		if (regerr != 0) {
+ 			myprintf("%s:  line %d has invalid regex %s\n", path, lineno, anchored_regex); 
+ 			free(anchored_regex);
+ 			return 0;
+
+--------------010307050103040500040100--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
