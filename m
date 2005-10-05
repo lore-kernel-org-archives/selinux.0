@@ -1,33 +1,23 @@
-Subject: Re: matchpathcon regcomp return code
+Subject: Re: [PATCH] permission value inconsistency
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Johan Fischer <jfischer@cmcrc.com>, SELinux-dev@tresys.com,
-   SELinux@tycho.nsa.gov
-In-Reply-To: <1128522566.22129.20.camel@sgc.columbia.tresys.com>
-References: <43436F35.4040204@cmcrc.com>
-	 <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128522566.22129.20.camel@sgc.columbia.tresys.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1128436261.28919.6.camel@twoface.columbia.tresys.com>
+References: <1128436261.28919.6.camel@twoface.columbia.tresys.com>
 Content-Type: text/plain
-Date: Wed, 05 Oct 2005 10:34:57 -0400
-Message-Id: <1128522897.24059.152.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 05 Oct 2005 12:00:46 -0400
+Message-Id: <1128528046.24059.195.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-05 at 10:29 -0400, Christopher J. PeBenito wrote:
-> We kept it separate because we were still working with the algorithm.
-> More importantly, we don't want to affect the example policy, since it
-> altered the order on at least one occasion, as discussed before.  If you
-> don't have a problem with this, we can certainly work on a patch for
-> matchpathcon.
+On Tue, 2005-10-04 at 10:31 -0400, Joshua Brindle wrote:
+> These patches fix permission and common permission values being
+> incremented before they were successfully added. This may cause an
+> inconsistency in the policy in the error case.
 
-Yes, I think it would be preferable to have it directly in matchpathcon,
-and we can add further pathname regexes as needed to fix any undesired
-changes in the actual labeling.  I don't know if you've done anything
-further with respect to the idea floated earlier about (optional)
-explicit precedence/order specifiers in file contexts, but we might want
-to introduce those at the same time.
- 
+Isn't the error case fatal anyway?
+
 -- 
 Stephen Smalley
 National Security Agency
