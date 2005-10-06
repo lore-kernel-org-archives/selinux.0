@@ -1,70 +1,66 @@
-Message-ID: <43452647.4050205@redhat.com>
-Date: Thu, 06 Oct 2005 09:27:35 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Darrel Goeddel <dgoeddel@TrustedCS.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: getseuserbyname patch
-References: <43398EB2.1050100@redhat.com>	 <1127925593.25945.130.camel@moss-spartans.epoch.ncsc.mil>	 <433BEB18.7000703@redhat.com>	 <1128006623.27495.70.camel@moss-spartans.epoch.ncsc.mil>	 <433C06F0.3020804@redhat.com>  <433C3C5A.4000104@redhat.com>	 <1128028887.27495.184.camel@moss-spartans.epoch.ncsc.mil>	 <1128354729.26285.137.camel@moss-spartans.epoch.ncsc.mil>	 <1128356967.26285.154.camel@moss-spartans.epoch.ncsc.mil> <1128604584.15836.67.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1128604584.15836.67.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <43452647.4050205@redhat.com>
+References: <43398EB2.1050100@redhat.com>
+	 <1127925593.25945.130.camel@moss-spartans.epoch.ncsc.mil>
+	 <433BEB18.7000703@redhat.com>
+	 <1128006623.27495.70.camel@moss-spartans.epoch.ncsc.mil>
+	 <433C06F0.3020804@redhat.com>  <433C3C5A.4000104@redhat.com>
+	 <1128028887.27495.184.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128354729.26285.137.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128356967.26285.154.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128604584.15836.67.camel@moss-spartans.epoch.ncsc.mil>
+	 <43452647.4050205@redhat.com>
+Content-Type: text/plain
+Date: Thu, 06 Oct 2005 09:38:18 -0400
+Message-Id: <1128605898.15836.79.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2005-10-03 at 12:29 -0400, Stephen Smalley wrote:
->   
->> Next question is error handling in
->> either getseuserbyname() itself or in the caller, given that you are
->> converting pam_selinux and the SELinux patches to always call this
->> function.  If seusers.conf doesn't exist, getseuserbyname() could simply
->> set the *seuser to the linuxuser, set the *level to NULL and return
->> success to the caller, so that the caller would then call
->> get*_with_level with the Linux user and a NULL level, and that function
->> in turn would devolve to the normal get* call with the Linux user.  That
->> would provide equivalence to the current behavior if seusers.conf
->> doesn't exist on the system.  Downside is that if seusers.conf were
->> accidentally "lost", user might end up gaining greater access than
->> desired because user_u might be authorized for all categories in the
->> kernel policy.  Similar issue exists if seusers.conf exists but contains
->> no default entry and no matching entry for the Linux user, as you
->> mentioned earlier.  Possibly /etc/selinux/config should specify whether
->> user mapping is enabled or disabled explicitly?  Then getseuserbyname
->> could use that to determine whether it should just fall back to the
->> Linux user and NULL level always, or try accessing seusers.conf.
->> Thoughts?
->>     
->
-> Any thoughts on this issue?  I just added support for the optional
-> SETLOCALDEFS= definition (defaults to 1, preserving current logic for
-> setting local users and booleans) in /etc/selinux/config to libselinux
-> for the new load policy logic, so I could also add support for an
-> optional REQUIRESEUSERS= definition (defaulting to 0) to it.  Then, if
-> the definition is set to 1, and /etc/seusers.conf doesn't exist,
-> getseuserbyname will return an error as it currently does; otherwise, it
-> will just set *seuser to a copy of the linuxuser and set the level to
-> NULL so that we end up with no change in behavior when not using
-> seusers.conf.  Of course, someone will ultimately need to update
-> system-config-securitylevel to deal with these additional settings.
->
->   
-A couple of things I was thinking about.  
+On Thu, 2005-10-06 at 09:27 -0400, Daniel J Walsh wrote:
+> A couple of things I was thinking about.  
+> 
+> 1.  The call should be to just return the username and level "" if the 
+> file does not exist or if there is not default value and no match.  So 
+> the only time the call would return an error was if no memory.
 
-1.  The call should be to just return the username and level "" if the 
-file does not exist or if there is not default value and no match.  So 
-the only time the call would return an error was if no memory.
+The problem with always doing this is that it could lead to insecurity,
+e.g. accidental (or malicious) removal of seusers.conf or filesystem
+corruption could end up allowing the user to login with a much greater
+level of access than desired, because we will be using seusers.conf to
+control the authorized categories for individual Linux users rather than
+the kernel policy.  That's why I suggested making it a configurable
+setting in /etc/selinux/config, so that we have the option of treating
+it as an error condition that prevents login rather than falling back.
+For MCS or MLS, I think we would actually want to make it an error
+condition and require the presence of seusers.conf and a default entry.
+For existing systems (e.g. FC4) and any system that doesn't want/need a
+separate user mapping, we'd leave it as a non-error condition so that
+nothing breaks there.  Note btw that it is *level = NULL that we want,
+so that get_ordered_context_with_level and
+get_default_context_with_level fall back to the ordinary functions.
 
-2. The file should be put into a policy specific directories and be 
-shipped with the policy.  When we move to LDAP, we will require a policy 
-type in the key for retrieving users.  This way we can continue to allow 
-users to switch from one type of policy to another.
+> 2. The file should be put into a policy specific directories and be 
+> shipped with the policy.  When we move to LDAP, we will require a policy 
+> type in the key for retrieving users.  This way we can continue to allow 
+> users to switch from one type of policy to another.
 
-
-
+That's ok, as long as you are fine with the notion that some files in
+the policy package can be customized by the user.  If you want the
+policy package to ultimately become "pristine" files shipped by the
+distributor and keep all user customizations separate, then it seems
+like it needs to go in a separate package, much as /etc/passwd et al are
+in their own special setup package.  It would be nice if ultimately rpm
+-V selinux-policy-targeted (or strict) would report no changes from mere
+local customizations.
 
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
