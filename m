@@ -1,8 +1,8 @@
-Date: Thu, 6 Oct 2005 14:12:07 -0400 (EDT)
+Date: Thu, 6 Oct 2005 14:17:23 -0400 (EDT)
 From: Gaurav Poothia <gpoothia@cs.sunysb.edu>
 To: SELinux@tycho.nsa.gov
 Subject: Newbie questions
-Message-ID: <Pine.GSO.4.53.0510061348510.10856@compserv1>
+Message-ID: <Pine.GSO.4.53.0510061416520.10856@compserv1>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -31,11 +31,13 @@ If yes would xpdf then run inside the prefix_mozilla_t domain (since
 SELinux seems be xpdf unaware)
 
 I am sorry I pbbly could answer some of these questions empirically but I
-haven't installed the policy. Btw is there a play machine out there with 1.26
+haven't installed the policy. Btw is there a play machine out there with
+1.26
 installed?
 
 Thanks
 -Gaurav
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
