@@ -1,32 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j96BFhNs015456
-	for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2005 07:15:43 -0400 (EDT)
-Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j96BEwV7024097
-	for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2005 11:14:58 GMT
-Received: from lkcl.net (unknown [87.82.24.192])
-	by free.hands.com (Postfix) with ESMTP id 76002BF8A
-	for <selinux@tycho.nsa.gov>; Thu,  6 Oct 2005 12:15:04 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1ENTiM-00014l-Qa
-	for selinux@tycho.nsa.gov; Thu, 06 Oct 2005 12:15:06 +0100
-Date: Thu, 6 Oct 2005 12:15:06 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: http://packages.debian.org/unstable/admin/libpam-tmpdir
-Message-ID: <20051006111506.GM10538@lkcl.net>
+Subject: Re: getseuserbyname patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   Karl MacMillan <kmacmillan@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1128356967.26285.154.camel@moss-spartans.epoch.ncsc.mil>
+References: <43398EB2.1050100@redhat.com>
+	 <1127925593.25945.130.camel@moss-spartans.epoch.ncsc.mil>
+	 <433BEB18.7000703@redhat.com>
+	 <1128006623.27495.70.camel@moss-spartans.epoch.ncsc.mil>
+	 <433C06F0.3020804@redhat.com>  <433C3C5A.4000104@redhat.com>
+	 <1128028887.27495.184.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128354729.26285.137.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128356967.26285.154.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 06 Oct 2005 09:16:24 -0400
+Message-Id: <1128604584.15836.67.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-regarding the issue of /tmp/.X11-unix and /tmp/.font-unix etc. - what
-about this (above subject line)?
+On Mon, 2005-10-03 at 12:29 -0400, Stephen Smalley wrote:
+> Next question is error handling in
+> either getseuserbyname() itself or in the caller, given that you are
+> converting pam_selinux and the SELinux patches to always call this
+> function.  If seusers.conf doesn't exist, getseuserbyname() could simply
+> set the *seuser to the linuxuser, set the *level to NULL and return
+> success to the caller, so that the caller would then call
+> get*_with_level with the Linux user and a NULL level, and that function
+> in turn would devolve to the normal get* call with the Linux user.  That
+> would provide equivalence to the current behavior if seusers.conf
+> doesn't exist on the system.  Downside is that if seusers.conf were
+> accidentally "lost", user might end up gaining greater access than
+> desired because user_u might be authorized for all categories in the
+> kernel policy.  Similar issue exists if seusers.conf exists but contains
+> no default entry and no matching entry for the Linux user, as you
+> mentioned earlier.  Possibly /etc/selinux/config should specify whether
+> user mapping is enabled or disabled explicitly?  Then getseuserbyname
+> could use that to determine whether it should just fall back to the
+> Linux user and NULL level always, or try accessing seusers.conf.
+> Thoughts?
+
+Any thoughts on this issue?  I just added support for the optional
+SETLOCALDEFS= definition (defaults to 1, preserving current logic for
+setting local users and booleans) in /etc/selinux/config to libselinux
+for the new load policy logic, so I could also add support for an
+optional REQUIRESEUSERS= definition (defaulting to 0) to it.  Then, if
+the definition is set to 1, and /etc/seusers.conf doesn't exist,
+getseuserbyname will return an error as it currently does; otherwise, it
+will just set *seuser to a copy of the linuxuser and set the level to
+NULL so that we end up with no change in behavior when not using
+seusers.conf.  Of course, someone will ultimately need to update
+system-config-securitylevel to deal with these additional settings.
 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
