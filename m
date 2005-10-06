@@ -1,48 +1,41 @@
-Subject: Re: matchpathcon regcomp return code
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Johan Fischer <jfischer@cmcrc.com>, SELinux-dev@tresys.com,
-   SELinux@tycho.nsa.gov
-In-Reply-To: <1128522897.24059.152.camel@moss-spartans.epoch.ncsc.mil>
-References: <43436F35.4040204@cmcrc.com>
-	 <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128522566.22129.20.camel@sgc.columbia.tresys.com>
-	 <1128522897.24059.152.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 06 Oct 2005 13:38:50 -0400
-Message-Id: <1128620330.22129.76.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Date: Thu, 6 Oct 2005 14:12:07 -0400 (EDT)
+From: Gaurav Poothia <gpoothia@cs.sunysb.edu>
+To: SELinux@tycho.nsa.gov
+Subject: Newbie questions
+Message-ID: <Pine.GSO.4.53.0510061348510.10856@compserv1>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-05 at 10:34 -0400, Stephen Smalley wrote:
-> On Wed, 2005-10-05 at 10:29 -0400, Christopher J. PeBenito wrote:
-> > We kept it separate because we were still working with the algorithm.
-> > More importantly, we don't want to affect the example policy, since it
-> > altered the order on at least one occasion, as discussed before.  If you
-> > don't have a problem with this, we can certainly work on a patch for
-> > matchpathcon.
-> 
-> Yes, I think it would be preferable to have it directly in matchpathcon,
-> and we can add further pathname regexes as needed to fix any undesired
-> changes in the actual labeling.  I don't know if you've done anything
-> further with respect to the idea floated earlier about (optional)
-> explicit precedence/order specifiers in file contexts, but we might want
-> to introduce those at the same time.
+Hello!
+I have been looking at macros/program/mozilla_macros.te in file (ver 1.26)
 
-We haven't added any precedence/order specifiers in the file contexts,
-since, the previous problem I mentioned was fixed by adding another more
-specific regex.  If we do want to add the optional specifiers, the
-question becomes how we want to use it for comparison?  Should it be
-used as the last comparison, like a tie-breaker, or as the first
-comparison, which would group regexes of the same priority?  Also, what
-happens if one regex has a precedence and the other doesn't?
+Mozilla seems to run in its own derived domain(based on the user
+running it). It then seems to create these domain transitions for many
+execs such as:
+-> To a derived domain on calling a java program
+-> To specialized domains on exec of mplayer, lpr etc
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Q1. Is the idea here for SELinux to create specialized domains for all
+possible desktop apps (on the server side it seems the plan is to
+eventually confine all daemons)?  If not then any SELinux unaware app on
+exec will run within  Mozilla domain if called form within the browser
+(viewers/players/editors)?
+What about invocation from shell...will it then run within user_t domain?
 
+Q2 When I ran an strace on mozilla opening a document using xpdf it seemed
+to call a clone() which then exec to xpdf rather than call fork().
+Are both fork and clone treated identically by the SELinux?
+If yes would xpdf then run inside the prefix_mozilla_t domain (since
+SELinux seems be xpdf unaware)
+
+I am sorry I pbbly could answer some of these questions empirically but I
+haven't installed the policy. Btw is there a play machine out there with 1.26
+installed?
+
+Thanks
+-Gaurav
 
 --
 This message was distributed to subscribers of the selinux mailing list.
