@@ -1,26 +1,32 @@
-Message-ID: <43454B30.2040005@cornell.edu>
-Date: Thu, 06 Oct 2005 12:05:04 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43454D9F.7000109@tresys.com>
+Date: Thu, 06 Oct 2005 12:15:27 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: dwalsh@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-References: <43454A61.8010907@cornell.edu>
-In-Reply-To: <43454A61.8010907@cornell.edu>
+CC: SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: [PATCH] permission value inconsistency
+References: <1128436261.28919.6.camel@twoface.columbia.tresys.com> <1128528046.24059.195.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1128528046.24059.195.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Tue, 2005-10-04 at 10:31 -0400, Joshua Brindle wrote:
+> 
+>>These patches fix permission and common permission values being
+>>incremented before they were successfully added. This may cause an
+>>inconsistency in the policy in the error case.
+> 
+> 
+> Isn't the error case fatal anyway?
+> 
 
-> The purpose of this patch is to resync against what I have here,
-The next patch will focus on:
+Yes, the error case is fatal but there may be a possibility of an 
+invalid free when destroying the policydb and it certainly doesn't hurt 
+anything to keep the policydb consistent an an error case.
 
-- adding a new debug system to semanage
-- testing and debugging the file database code path
-- some commit() integration (I want changes and saving to files to work 
-perfectly - then I'll worry about the policy).
-
-
+Joshua
 
 --
 This message was distributed to subscribers of the selinux mailing list.
