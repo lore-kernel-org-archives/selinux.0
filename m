@@ -1,83 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j96M73Ns022556
-	for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2005 18:07:03 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j96M6SUc025156
-	for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2005 22:06:28 GMT
-Date: Thu, 6 Oct 2005 23:05:23 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Gaurav Poothia <gpoothia@cs.sunysb.edu>, SELinux@tycho.nsa.gov
-Subject: Re: Newbie questions
-Message-ID: <20051006220523.GD10538@lkcl.net>
-References: <Pine.GSO.4.53.0510061416520.10856@compserv1> <4345915C.7050305@cornell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4345915C.7050305@cornell.edu>
+Message-ID: <4345D717.4000404@cmcrc.com>
+Date: Fri, 07 Oct 2005 12:01:59 +1000
+From: Johan Fischer <jfischer@cmcrc.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux-dev@tresys.com,
+   SELinux@tycho.nsa.gov
+Subject: Re: matchpathcon regcomp return code
+References: <43436F35.4040204@cmcrc.com>	 <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>	 <1128522566.22129.20.camel@sgc.columbia.tresys.com>	 <1128522897.24059.152.camel@moss-spartans.epoch.ncsc.mil> <1128620330.22129.76.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1128620330.22129.76.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Oct 06, 2005 at 05:04:28PM -0400, Ivan Gyurdiev wrote:
-> 
-> >Q1. Is the idea here for SELinux to create specialized domains for all
-> >possible desktop apps (on the server side it seems the plan is to
-> >eventually confine all daemons)?
-> I think that's what the plan is/was...whether this is actually possible 
-> remains to be discovered. Desktop apps are very difficult to deal with, 
-> since they tend to be highly complex, and interact in complicated ways.
+Just proposing an idea (possibly stupid or out of focus compare to the
+new algorithm which I don't know about yet)....
 
- one of those complexities is well illustrated by KDE's
- favourite game: doing an optimisation job which should
- otherwise really be done by the kernel, the compiler or
- the linker.
+What happens if you have a sort of headers .fc file for suggested
+replaceable types (like the / and subtree context) and a trailer .fc to
+override important context in any case ( the lost+context and subdir) ?
 
- for example, prior to the existence of prelink, a tool for prelinking
- dynamically linked libraries and preallocating fixed locations right
- across the board of all .sos and their references in all programs that
- use them - yes it takes about an hour to run prelink on a desktop
- system - the kde team came up with "kdeinit".
 
- kdeinit is a program that preloads virtually every component of the kde
- system instead of as independent executables as .so libraries.
+Christopher J. PeBenito wrote:
 
- then, instead of exec()ing new programs, a fork() is performed instead
- and the alternative .so called.  so, you run kdesktop - actually it's
- kdeinit loading the kde_kdesktop.so - and that runs the kde start menu
- program - and actually it's kdeinit loading the kde_kstartmenu.so.
+>On Wed, 2005-10-05 at 10:34 -0400, Stephen Smalley wrote:
+>  
+>
+>>On Wed, 2005-10-05 at 10:29 -0400, Christopher J. PeBenito wrote:
+>>    
+>>
+>>>We kept it separate because we were still working with the algorithm.
+>>>More importantly, we don't want to affect the example policy, since it
+>>>altered the order on at least one occasion, as discussed before.  If you
+>>>don't have a problem with this, we can certainly work on a patch for
+>>>matchpathcon.
+>>>      
+>>>
+>>Yes, I think it would be preferable to have it directly in matchpathcon,
+>>and we can add further pathname regexes as needed to fix any undesired
+>>changes in the actual labeling.  I don't know if you've done anything
+>>further with respect to the idea floated earlier about (optional)
+>>explicit precedence/order specifiers in file contexts, but we might want
+>>to introduce those at the same time.
+>>    
+>>
+>
+>We haven't added any precedence/order specifiers in the file contexts,
+>since, the previous problem I mentioned was fixed by adding another more
+>specific regex.  If we do want to add the optional specifiers, the
+>question becomes how we want to use it for comparison?  Should it be
+>used as the last comparison, like a tie-breaker, or as the first
+>comparison, which would group regexes of the same priority?  Also, what
+>happens if one regex has a precedence and the other doesn't?
+>
+>  
+>
 
- the fork()ed process has all of the previously called dynamically
- allocated library functions already sorted.
+-- 
+Johan Fischer
+Capital Markets CRC Limited
+Level 2, 9 Castlereagh Street, Sydney NSW 2000
+Tel: +61 2 9233 7999   Direct: +61 2 9236 9150
+Fax: +61 2 9236 9177   http://www.cmcrc.com
 
- 
- a similar thing was done with the networking: one program, the kde io
- handler, will fork() and maintain a cache of outgoing connections,
- whereby you will be presented with access to those network connections
- via the kde io handler, which performs proxying on your behalf via unix
- domain sockets.
-
- the idea is to have the kde io handler "cache" connections
- such as authenticated IMAP, POP3, SSL connections, HTTP
- connections which required a password - that sort of thing.
-
- fortunately, the KDE team saw fit to do away with both these things if
- you set some environment variables, one of which is only active in KDE
- 3.4 and above.
-
- export KDE_IS_PRELINKED="1" will stop the kdeinit silliness and
-
- export KDE_EXECS_SLAVES="1" will stop the io slave silliness.
-
- i pointed out to the kde development team that their cacheing
- of network connections presents quite a serious security risk,
- namely that any one program (e.g. irc) could be compromised
- and end up hacking in to _all_ outgoing network connections.
-
- they were quite good about it and did actually acknowledge that there
- was a potential problem.
-
- i don't know if anything came of my pointing it out, though.
-
- l.
+Capital Markets CRC Ltd (CMCRC) - Confidential Communication
+The information contained in this e-mail is confidential.  It is intended solely for the addressee. If you receive this e-mail by mistake please promptly inform us by reply e-mail and then delete the e-mail and destroy any printed copy. You must not disclose or use in any way the information in the e-mail. There is no warranty that this e-mail is error or virus free. It may be a private communication, and if so, does not represent the views of the CMCRC and its associates. If it is a private communication, care should be taken in opening it to ensure that undue offence is not given.
 
 
 --
