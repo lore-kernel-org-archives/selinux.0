@@ -1,44 +1,32 @@
-Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux-dev@tresys.com, dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
-References: <43454A61.8010907@cornell.edu>
-	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 15:37:52 -0400
-Message-Id: <1128713872.1450.81.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j97JjONs002291
+	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2005 15:45:25 -0400 (EDT)
+Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j97JidgG006626
+	for <selinux@tycho.nsa.gov>; Fri, 7 Oct 2005 19:44:39 GMT
+Received: from lkcl.net (unknown [87.82.24.192])
+	by free.hands.com (Postfix) with ESMTP id ED4DABEF7
+	for <selinux@tycho.nsa.gov>; Fri,  7 Oct 2005 20:44:16 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1ENy8f-00089x-DF
+	for selinux@tycho.nsa.gov; Fri, 07 Oct 2005 20:44:17 +0100
+Date: Fri, 7 Oct 2005 20:44:17 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: KDE_IS_PRELINKED and KDE_FORK_SLAVES
+Message-ID: <20051007194417.GN18797@lkcl.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-10-07 at 14:30 -0400, Stephen Smalley wrote:
-> - expand_module already set the output type, so we only need to adjust
-> the version here (and I changed it to use the kernel's policyvers if
-> available instead of the config, as that is what will be loaded by
-> load_policy now).
-
-Ok, I've added sepol_policy_kern_vers_min/max() functions to libsepol so
-that libsemanage can determine the range of versions supported by the
-shared libsepol.  This is now used by conf-parse to set the default to
-the max and to check the config value against the range. I also revised
-semanage_expand_sandbox() to check the kernel version against that range
-and fall back to the conf policyvers if the kernel version is outside of
-that range, so that if the kernel version is higher than the one
-supported by libsepol, we can still fall back to the older version
-supported by libsepol.
-
-load_policy functions in libselinux should likely do something similar
-when deciding what version to load, at least as long as it continues to
-use sepol* functions to manipulate boolean settings et al.
+it's KDE_FORK_SLAVES not KDE_EXEC_SLAVES.  no idea where i got that one
+from.  *shrug* :)
 
 -- 
-Stephen Smalley
-National Security Agency
-
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
