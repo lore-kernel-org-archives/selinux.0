@@ -1,60 +1,61 @@
-Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
-References: <43454A61.8010907@cornell.edu>
-	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
-	 <4346CE4C.1030201@tresys.com>
-	 <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Loadable Modules and RPM
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux-dev@tresys.com, James Morris <jmorris@redhat.com>,
+   Jeremy Katz <katzj@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <4346D351.3070202@redhat.com>
+References: <4346D351.3070202@redhat.com>
 Content-Type: text/plain
-Date: Fri, 07 Oct 2005 17:17:42 -0400
-Message-Id: <1128719862.1450.119.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 07 Oct 2005 17:30:32 -0400
+Message-Id: <1128720632.1450.130.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-10-07 at 15:54 -0400, Stephen Smalley wrote:
-> BTW, I now have everything building again (except semodule_link/expand,
-> which I disabled for now), with semodule and semodule_package both using
-> only shared libs, and trivial tests of semodule/semodule_package seem to
-> be working as expected.
+On Fri, 2005-10-07 at 15:58 -0400, Daniel J Walsh wrote:
+> Two problems have always existed with this:
+> First it eliminates the possibility of having different policies for 
+> different policy types.  IE it makes it harder to have a apache_targeted 
+> policy or apache_mls policy.  In practice this is not such a big thing 
+> since the "Targeted" or server based
+> policies are mostly common across the currently defined policies.  We 
+> have one apache policy for Targeted, Strict and MLS with minor tweaks.  
+> The new policy language has the ability to divine optional sections to 
+> take care of these differences.
 
-I've committed what I have so far to sourceforge (libsepol 1.9.14 which
-contains a bug fix for my first commit, checkpolicy 1.27.8, libsemanage
-1.3.10, policycoreutils 1.27.6), so you can grab it from there, but keep
-in mind that this is work in progress, interfaces may yet change, may
-cause your computer to explode, etc.
+What about introducing a level of indirection by having apache (httpd)
+depend on a separate httpd-policy package, and likewise for other
+packages that have associated policy modules?  I think Hardened Gentoo
+did something along those lines.
 
-The old policydb internal headers are under include/sepol/policydb/.
-New sepol/policydb.h and sepol/module.h headers contain the new (or
-converted) public types and interfaces for the shared libsepol.  These
-functions plus Ivan's functions have been added to libsepol.map so that
-I can link semodule against the shared libsepol, although I may have
-gone overboard in that list (and yes, the interfaces can still change;
-this is just a snapshot).
+> The Second problem involves file context.  Basically the kernel has to 
+> know the file_context before rpm lays the files down on disk.  Because 
+> it verifies that system_u:object_r:httpd_exec_t exists.  So applications 
+> need to install/reload policy before the files get put on disk.  What 
+> would happen if we changed the kernel to allow certain privileged 
+> applications to write security context onto disk, which the kernel does 
+> not understand.  The kernel could just treat these files as 
+> unlabeled_t.  Then the RPM package could contain the file_context to 
+> place on disk, install the files with the correct context.  In the post 
+> install script it could add its policy  and load it into the kernel.  At 
+> which point the kernel would understand the file context.
 
-I left struct sepol_module_package publically defined, just wrapping its
-policydb pointer, since it didn't seem to expose any internals
-otherwise, so libsemanage and others users can still directly reference
-p->policy, p->file_contexts, and p->file_contexts_len (but not anything
-within p->policy).  Let me know if you think it should be made
-completely opaque (or send a patch); if so, we'll have to update its
-users to use get/set methods any time they directly reference the
-fields.  Note that the create method allocates the struct and creates
-its policydb for it.  
+That makes it more difficult to ever confine rpm in any way.  It also is
+problematic on the kernel side even if we wanted this behavior; the
+kernel doesn't presently recheck the security contexts of already incore
+inodes upon a policy reload.  If they have a SID that is invalidated by
+the policy load, then they will subsequently be treated as unlabeled,
+but if they start as unlabeled and then you add the type via a policy
+reload, the incore inode label won't be reset until they are evicted
+from memory and re-acquired by a lookup.
 
-I didn't do anything about handles yet.  Note that the interfaces vary
-quite a bit in what they take, with some taking sepol_policydb's, others
-taking sepol_policy_file's, and others taking sepol_module_package's,
-and some taking a combination.  Plus Ivan's interfaces, some of which
-take sepol_policydb's but others just taking his new record structures.
-So it seems like a handle would have to be separated if it is going to
-be universal to all of the interfaces.
+I think you need to reload policy first, and it will be easier to do so
+if you separate out the policy into its own package, just one per
+application package, ala httpd-policy.  Ideally, you'd allow a way for
+httpd-policy to be provided by multiple packages, so we could have
+httpd-mls-policy, httpd-targeted-policy, httpd-strict-policy.  I'm not
+sure that the module ifopt support is going to be enough for those kinds
+of differences.
 
 -- 
 Stephen Smalley
