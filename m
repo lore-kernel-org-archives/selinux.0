@@ -1,74 +1,50 @@
-Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <4346CE4C.1030201@tresys.com>
-References: <43454A61.8010907@cornell.edu>
-	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
-	 <4346CE4C.1030201@tresys.com>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 15:54:12 -0400
-Message-Id: <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4346D351.3070202@redhat.com>
+Date: Fri, 07 Oct 2005 15:58:09 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>, Jeremy Katz <katzj@redhat.com>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Loadable Modules and RPM
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-10-07 at 15:36 -0400, Joshua Brindle wrote:
-> I don't know of any reason to selectively enable the global branch, it 
-> should always be enabled or else there won't be any rules in the 
-> expanded policy.
+Jeremy and I were talking yesterday about how we could/should package 
+the new loadable policy.  
+He restated again that policy should be with the RPM package.  So apache 
+should contain it's own policy.  
 
-So what is the purpose of the current code in checkpolicy and
-libsemanage (prior to my changes) to enable the branch?  Should
-expand_module unconditionally enable this?
+Two problems have always existed with this:
+First it eliminates the possibility of having different policies for 
+different policy types.  IE it makes it harder to have a apache_targeted 
+policy or apache_mls policy.  In practice this is not such a big thing 
+since the "Targeted" or server based
+policies are mostly common across the currently defined policies.  We 
+have one apache policy for Targeted, Strict and MLS with minor tweaks.  
+The new policy language has the ability to divine optional sections to 
+take care of these differences.
 
-> Hrm... Would it be better to always expand it to the latest format we 
-> know about and handle downgrading at write time? What if the kernel 
-> policyvery is lower than the requested write version? There is a 
-> possibility of lost information.
+The Second problem involves file context.  Basically the kernel has to 
+know the file_context before rpm lays the files down on disk.  Because 
+it verifies that system_u:object_r:httpd_exec_t exists.  So applications 
+need to install/reload policy before the files get put on disk.  What 
+would happen if we changed the kernel to allow certain privileged 
+applications to write security context onto disk, which the kernel does 
+not understand.  The kernel could just treat these files as 
+unlabeled_t.  Then the RPM package could contain the file_context to 
+place on disk, install the files with the correct context.  In the post 
+install script it could add its policy  and load it into the kernel.  At 
+which point the kernel would understand the file context.  
 
-policydb representation is always the "latest"; version only matters at
-read/write time.  So this setting of the version is just to decide how
-it is written to the kernel policy file.  If we can write the kernel's
-version, then we want to do that.  If not, then we want to write the
-closest version to the kernel's version, so we'll go with the conf
-version which will default to the max version supported by libsepol.  I
-revised that logic after sending the diff.
+Having policy with the package would then allow us to just update 
+individual packages rather then the entire policy package.
 
-> <snip>
-> > @@ -1165,7 +1157,7 @@ int semanage_link_sandbox(semanage_handl
-> >  	}
-> >  	free(module_filenames);
-> >  	for (i = 0; mods != NULL && i < num_modules; i++) {
-> > -		sepol_module_package_destroy(mods[i]);
-> > +		sepol_module_package_free(mods[i]);
-> >  	}
-> >  	free(mods);
-> >  	return retval;
-> 
-> What is this?
+Thoughts?
 
-I changed the interfaces on the libsepol side to be consistent with the
-other public ones, so init/destroy -> create/free.  I don't personally
-care about it, of course.
-
-> Only if the kernel policyvers lookup fails we use the config file?
-
-I revised this to use the conf setting (or default max) if the kernel
-policy version falls outside the range supported by the shared libsepol.
-
-BTW, I now have everything building again (except semodule_link/expand,
-which I disabled for now), with semodule and semodule_package both using
-only shared libs, and trivial tests of semodule/semodule_package seem to
-be working as expected.
+Dan
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
