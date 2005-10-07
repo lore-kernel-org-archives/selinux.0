@@ -1,45 +1,35 @@
-Subject: Re: Loadable Modules and RPM
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Jeremy Katz <katzj@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
-   James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1128721870.8393.33.camel@bree.local.net>
-References: <4346D351.3070202@redhat.com>
-	 <1128720632.1450.130.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128721870.8393.33.camel@bree.local.net>
-Content-Type: text/plain
-Date: Fri, 07 Oct 2005 18:04:21 -0400
-Message-Id: <1128722661.1450.141.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4346FB32.6020805@cornell.edu>
+Date: Fri, 07 Oct 2005 18:48:18 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, SELinux-dev@tresys.com,
+   dwalsh@redhat.com, selinux@tycho.nsa.gov
+Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
+References: <43454A61.8010907@cornell.edu>	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>	 <4346CE4C.1030201@tresys.com>	 <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil> <1128719862.1450.119.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1128719862.1450.119.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-10-07 at 17:51 -0400, Jeremy Katz wrote:
-> And then you end up with separate packages with the policy for every
-> package shipped in the distribution.  Which is just absurd.  The
-> problems with keeping things in sync get massively more complicated in
-> addition to the cost of adding lots of packages
 
-Hmmm...I thought someone had mentioned that a similar system is used for
-translation strings, but possibly not (or possibly you don't want to
-make it worse).
+> (and yes, the interfaces can still change;
+> this is just a snapshot).
+>   
+I think this is important, in particular with respect to my functions - 
+I may still change those. I haven't decided if the key structure should 
+play a role in sepol. Some of the user functions may not be needed.
+> I didn't do anything about handles yet.  Note that the interfaces vary
+> quite a bit in what they take, with some taking sepol_policydb's, others
+> taking sepol_policy_file's, and others taking sepol_module_package's,
+> and some taking a combination.  Plus Ivan's interfaces, some of which
+> take sepol_policydb's but others just taking his new record structures.
+> So it seems like a handle would have to be separated if it is going to
+> be universal to all of the interfaces.
+>   
+Hmm, that's true... we should separate the handle.
+Are there any other uses for a handle, besides debugging settings?
 
-> When you put it like that, it sounds more and more like a bug which
-> should be fixed.  If you load a new policy, then I'd think that anything
-> which was unlabeled should definitely be re-evaluated.  Otherwise, you
-> have a large potential for problems if you boot with a "wrong" policy
-> and try to fix without a reboot.
-
-You can still fix from userspace by relabeling the affected files
-(although in the past, userspace has gotten confused about what the
-actual label is on the file, but James' recent patch queued up for
-2.6.15 addresses that issue).  Having the kernel walk the incore inode
-lists on every policy reload seems fairly painful for what is
-essentially a policy mistake.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
