@@ -1,39 +1,41 @@
-Message-ID: <43469CF1.80408@tresys.com>
-Date: Fri, 07 Oct 2005 12:06:09 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux-dev@tresys.com,
-   dwalsh@redhat.com, selinux@tycho.nsa.gov
 Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-References: <43454A61.8010907@cornell.edu> <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil> <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil> <434699D7.9040307@cornell.edu>
-In-Reply-To: <434699D7.9040307@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux-dev@tresys.com, dwalsh@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <1128700907.1450.50.camel@moss-spartans.epoch.ncsc.mil>
+References: <43454A61.8010907@cornell.edu>
+	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
+	 <434699D7.9040307@cornell.edu>
+	 <1128700907.1450.50.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 07 Oct 2005 12:05:53 -0400
+Message-Id: <1128701153.1450.54.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> 
->> Ok, I've made a first cut at the changes to libsepol and updated it and
->> checkpolicy to build again, and am starting to work through libsemanage.
->> As an example of what to expect, the diff below to database_direct.[ch]
->> was needed to get it to compile again.
->>   
-> 
-> Ok...
-> 
-> On second thought that code was likely wrong to begin with, since Tresys 
-> put their modules in a special package container, and mark everything 
-> with a special magic, and use special functions to read everything.... 
-> I'll get it fixed later... not testing the direct case yet.
+On Fri, 2005-10-07 at 12:01 -0400, Stephen Smalley wrote:
+> checkpolicy doesn't require changes, other than the updating of the
+> header file locations to continue using the include/sepol/policydb/*.h
+> ones (already done in my working copy), and adjusting for the
+> elimination of a global sepol_set_policyvers() (also already done in my
+> working copy).  I'm not trying to enable checkpolicy to use the static
+> libsepol.  
 
-It isn't just a special package container. The actual policy format for 
-modules is different because it retains more information than the binary 
-format. The 'package' format is the module with the file contexts 
-prepended to it. The module format and the file contexts are needed to 
-properly link and expand a policy.
+Sorry, s/static/shared/ above.
 
-Joshua
+> I only want to allow libsemanage (and thus its users) to use
+> the shared libsepol, so that semodule* no longer require the static
+> libsepol and any new libsemanage-based programs likewise don't require
+> it.  Fairly pointless to make libsemanage a shared lib if it depends on
+> a static lib as a backend.  I might also convert audit2why.  Nothing in
+> policycoreutils should really depend on the static libsepol, IMHO.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
