@@ -1,41 +1,40 @@
-Subject: Re: [ SEMANAGE ] Replace semanage debugging system
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+Message-ID: <434BD63B.7020003@cornell.edu>
+Date: Tue, 11 Oct 2005 11:11:55 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
    Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <434BD2CB.8050007@cornell.edu>
-References: <434B62B8.4080309@cornell.edu>
-	 <1129037671.3308.84.camel@moss-spartans.epoch.ncsc.mil>
-	 <1129039592.3308.110.camel@moss-spartans.epoch.ncsc.mil>
-	 <434BCC58.7030509@cornell.edu>
-	 <1129041009.3308.125.camel@moss-spartans.epoch.ncsc.mil>
-	 <434BD2CB.8050007@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 11 Oct 2005 10:46:52 -0400
-Message-Id: <1129042012.3308.139.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [ SEPOL ] Another debugging system
+References: <434B62B8.4080309@cornell.edu>  <434B7FF2.2090306@cornell.edu> <1129041930.3308.137.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1129041930.3308.137.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-11 at 10:57 -0400, Ivan Gyurdiev wrote:
-> Okay, so it sounds like the optimal setup is:
-> - pass variadic list to callback
-> - remove msg field from message structure (rename?)
-> - embed message structure into handle to avoid allocation
-> 
-> Then handler takes four arguments instead of the current two:
-> 
-> - void* arg
-> - message structure (rename?)
-> - fmt
-> - variadic list
 
-Why not just use the handle directly, and drop the separate message
-structure entirely?
+> - Same comments apply as for the semanage patch.
+>   
+Allright, I'll redo both of those patches for tomorrow (no time today).
+Thanks for the comments.
+> - Yes, sepol.h should likely include all external API sepol headers, and
+> the current interfaces in sepol.h should likely be moved to separate
+> headers that are then included.
+>   
+Will change that in a later patch..
 
--- 
-Stephen Smalley
-National Security Agency
+> - We'll need to preserve versions of the old sepol.h interfaces without
+> handles for backward compatibility, since there have been official
+> releases with those interfaces.  Some of those interfaces will be
+> obsoleted (genusers/genbools) but others will continue to be used
+> (genbools_array for load_policy, set_policydb_from_file and
+> check_context for setfiles -c).
+>   
+I'm confused - what's the difference between an "old" interface that has 
+a corresponding "new" interface... and an obsoleted interface. Seems 
+like the same thing to me. Yes, we'll need need to preserve 
+compatibility until all users are fixed, and then we can get rid of the 
+old interfaces..right?
 
 
 --
