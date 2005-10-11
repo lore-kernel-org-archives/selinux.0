@@ -1,29 +1,66 @@
-Message-ID: <434BC8F2.8040502@cornell.edu>
-Date: Tue, 11 Oct 2005 10:15:14 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-   Karl MacMillan <kmacmillan@tresys.com>
 Subject: Re: [ SEMANAGE ] Replace semanage debugging system
-References: <434B62B8.4080309@cornell.edu> <1129037671.3308.84.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+   Karl MacMillan <kmacmillan@tresys.com>
 In-Reply-To: <1129037671.3308.84.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <434B62B8.4080309@cornell.edu>
+	 <1129037671.3308.84.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 11 Oct 2005 10:06:32 -0400
+Message-Id: <1129039592.3308.110.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> OTOH, __func__ is not known to older versions of gcc, and we already
-> build with -D_GNU_SOURCE.  
->   
-How much older? From the gcc webpage, I see it supported for 3.0+.
-IMHO we should compile against a standard, not against a compiler..
+On Tue, 2005-10-11 at 09:34 -0400, Stephen Smalley wrote:
 > An obvious concern about the new msg_write function is that it requires
 > memory allocation itself.  Thus, on a memory allocation failure in the
 > caller, we might easily end up dropping the out of memory error message
 > due to lack of available memory at this point.
->   
-By the way, does the printf family require such a memory allocation?
+
+More generally, I'm not sure why msg_write writes the formatted string
+to a private buffer and passes the new msg type to the callback,
+requiring the callback to call *_get methods, versus just having the
+callback be a stdarg function that takes all of the arguments (plus
+auxiliary data) directly.
+
+Other comments:
+
+diff -Naur --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libselinux --exclude policy_components.c old/libsemanage/src/direct_api.c exp/libsemanage/src/direct_api.c
+--- old/libsemanage/src/direct_api.c	2005-10-07 18:37:59.000000000 -0400
++++ exp/libsemanage/src/direct_api.c	2005-10-11 02:34:29.000000000 -0400
+@@ -268,11 +268,23 @@
+ 		goto cleanup;
+ 	}
+ 
+-	/* expand and verify the resulting policy */
+-	if (semanage_expand_sandbox(sh, base) < 0 ||
+-	    semanage_verify_kernel(sh) != 0) {
++	/* Expand the resulting policy */
++	if (semanage_expand_sandbox(sh, base) < 0)
++		goto cleanup;
++
++#if 0
++	/* Link components into base policy */
++	if (semanage_base_merge_components(sh, NULL /* FIXME */) < 0)
++		goto cleanup;
++
++	/* Commit changes to components */
++	if (semanage_commit_components(sh) < 0)
++		goto cleanup;
++#endif
++
++	/* Verify policy */
++	if (semanage_verify_kernel(sh) != 0)
+ 		goto cleanup;
+-	}
+
+Why wouldn't the above steps occur as part of semanage_expand_sandbox()?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
