@@ -1,38 +1,39 @@
-Subject: Re: [ SEPOL ] Another debugging system
+Subject: Re: [ SEMANAGE ] Replace semanage debugging system
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
    Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <434BD63B.7020003@cornell.edu>
-References: <434B62B8.4080309@cornell.edu>  <434B7FF2.2090306@cornell.edu>
-	 <1129041930.3308.137.camel@moss-spartans.epoch.ncsc.mil>
-	 <434BD63B.7020003@cornell.edu>
+In-Reply-To: <434BD7DE.3080206@cornell.edu>
+References: <434B62B8.4080309@cornell.edu>
+	 <1129037671.3308.84.camel@moss-spartans.epoch.ncsc.mil>
+	 <1129039592.3308.110.camel@moss-spartans.epoch.ncsc.mil>
+	 <434BCC58.7030509@cornell.edu>
+	 <1129041009.3308.125.camel@moss-spartans.epoch.ncsc.mil>
+	 <434BD2CB.8050007@cornell.edu>
+	 <1129042012.3308.139.camel@moss-spartans.epoch.ncsc.mil>
+	 <434BD7DE.3080206@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 11 Oct 2005 11:15:25 -0400
-Message-Id: <1129043725.3308.157.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Oct 2005 11:19:03 -0400
+Message-Id: <1129043943.3308.162.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-11 at 11:11 -0400, Ivan Gyurdiev wrote:
-> I'm confused - what's the difference between an "old" interface that has 
-> a corresponding "new" interface... and an obsoleted interface. Seems 
-> like the same thing to me. Yes, we'll need need to preserve 
-> compatibility until all users are fixed, and then we can get rid of the 
-> old interfaces..right?
+On Tue, 2005-10-11 at 11:18 -0400, Ivan Gyurdiev wrote:
+> > Why not just use the handle directly, and drop the separate message
+> > structure entirely?
+> >   
+> It's disorganized... the handle contains all kinds of things - I don't 
+> like adding random fields to it. It'd be more orderly to add a 
+> structure, and functions to work with it, in a separate file. I would 
+> think that nested structs have no runtime overhead...
 
-No, we should provide ABI stability, as discussed in section 3 of
-http://people.redhat.com/drepper/dsohowto.pdf
-
-Updated users can be limited to the new interfaces, but old binaries
-should continue to work even with the new libsepol, i.e. the libsepol
-DSO must continue to provide versions of those interfaces that are
-consistent with its previously exported ABI.
-
-Since some interfaces will be obsoleted by the transition to
-regenerating policy on all local customizations, it won't be necessary
-to provide new versions of those interfaces at all.
-
+Hmmm...well, I thought that one of the purposes of the handle was for
+error handling, and you are adding the callback and callback arg there
+in place of the old error buffer.  More generally, I was wondering if
+the callback might want the handle without needing to explicitly specify
+it as part of the callback arg.
+  
 -- 
 Stephen Smalley
 National Security Agency
