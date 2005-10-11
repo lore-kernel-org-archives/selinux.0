@@ -1,39 +1,32 @@
-Subject: Re: System hang during boot on Debian Sid
+Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dave Patterson <sdpatt2@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20051009083426.GA10995@localhost.localdomain>
-References: <20051009083426.GA10995@localhost.localdomain>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux-dev@tresys.com,
+   dwalsh@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <4346FB32.6020805@cornell.edu>
+References: <43454A61.8010907@cornell.edu>
+	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
+	 <4346CE4C.1030201@tresys.com>
+	 <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128719862.1450.119.camel@moss-spartans.epoch.ncsc.mil>
+	 <4346FB32.6020805@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 11 Oct 2005 08:27:38 -0400
-Message-Id: <1129033658.3308.48.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Oct 2005 08:32:17 -0400
+Message-Id: <1129033937.3308.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-10-09 at 15:34 +0700, Dave Patterson wrote:
-> With kernel 2.6.13.3 with NSA patch applied the options
-> CONFIG_DEVPTS_FS_XATTR and CONFIG_DEVPTS_FS_SECURITY disappear.  Or
-> have gone somewhere...
-> 
-> Compiling while ignoring these two options and booting selinux=1 in
-> grub I get ...
-> 
-> SELinux initialized (dev sysfs type sysfs) uses genfs contexts
-> 
-> and the system hangs.  Any suggestions?
+On Fri, 2005-10-07 at 18:48 -0400, Ivan Gyurdiev wrote:
+> Hmm, that's true... we should separate the handle.
+> Are there any other uses for a handle, besides debugging settings?
 
-Those options were obsoleted by the generic VFS fallback for security
-xattrs (attempts to get/set security xattrs now fall back automatically
-to the security module if the filesystem doesn't support xattrs
-natively, so devpts and tmpfs no longer require their own handlers).
-That change was included in the 2.6.13-selinux1.patch and is going to be
-part of 2.6.14 upstream (already in 2.6.14-rcX, and has been in Fedora
-rawhide kernels for a while).
-
-I don't know about the state of SELinux in Debian sid, but Russell's
-message indicated that udev doesn't work well with SELinux in Debian
-yet.  
+Not for libsepol, I think.  So it likely could replace the verbose,
+error_buf, and error_buf_size arguments for the sepol_link_packages,
+sepol_link_modules, and sepol_expand_module interfaces.
 
 -- 
 Stephen Smalley
