@@ -3,45 +3,32 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
    Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <434BC8F2.8040502@cornell.edu>
+In-Reply-To: <434BCC58.7030509@cornell.edu>
 References: <434B62B8.4080309@cornell.edu>
 	 <1129037671.3308.84.camel@moss-spartans.epoch.ncsc.mil>
-	 <434BC8F2.8040502@cornell.edu>
+	 <1129039592.3308.110.camel@moss-spartans.epoch.ncsc.mil>
+	 <434BCC58.7030509@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 11 Oct 2005 10:24:50 -0400
-Message-Id: <1129040690.3308.118.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Oct 2005 10:30:09 -0400
+Message-Id: <1129041009.3308.125.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-11 at 10:15 -0400, Ivan Gyurdiev wrote:
-> > OTOH, __func__ is not known to older versions of gcc, and we already
-> > build with -D_GNU_SOURCE.  
-> >   
-> How much older? From the gcc webpage, I see it supported for 3.0+.
-> IMHO we should compile against a standard, not against a compiler..
+On Tue, 2005-10-11 at 10:29 -0400, Ivan Gyurdiev wrote:
+> Taking all of the arguments directly is bad - does not respond well to 
+> change, and I've already changed this at least 3 times. However, we 
+> could take 1) the void* arg, 2) the message structure (auxilary data) 2) 
+> the fmt, and 3) the variadic list..and I think that would be flexible 
+> enough. I changed it, because I thought this would be a simpler, and 
+> more intuitive interface, but I can change it back..
 
-info gcc says:
-
-`__FUNCTION__' is another name for `__func__'.  Older versions of GCC
-recognize only this name.  However, it is not standardized.  For
-maximum portability, we recommend you use `__func__', but provide a
-fallback definition with the preprocessor:
-
-     #if __STDC_VERSION__ < 199901L
-     # if __GNUC__ >= 2
-     #  define __func__ __FUNCTION__
-     # else
-     #  define __func__ "<unknown>"
-     # endif
-     #endif
-
-In any event, we have been using gcc and glibc specific extensions in
-our code for some time, and I don't expect that to change.
-
-> By the way, does the printf family require such a memory allocation?
-
-I don't believe so, at least not in the common case.
+The auxiliary data could be directly embedded in the handle, avoiding
+any need to introduce a new structure (or allocation), with the get
+methods operating directly on the handle much like the old strerror
+interface.  I don't think you want msg_write needing to allocate any
+memory or performing any formatting string writing, as that should all
+be done in the callback if desired.
 
 -- 
 Stephen Smalley
