@@ -1,41 +1,39 @@
-Subject: Re: matchpathcon regcomp return code
+Subject: Re: System hang during boot on Debian Sid
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Johan Fischer <jfischer@cmcrc.com>, SELinux-dev@tresys.com,
-   SELinux@tycho.nsa.gov
-In-Reply-To: <1128952985.22129.131.camel@sgc.columbia.tresys.com>
-References: <43436F35.4040204@cmcrc.com>
-	 <1128518379.24059.80.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128952985.22129.131.camel@sgc.columbia.tresys.com>
+To: Dave Patterson <sdpatt2@gmail.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20051009083426.GA10995@localhost.localdomain>
+References: <20051009083426.GA10995@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 11 Oct 2005 08:07:05 -0400
-Message-Id: <1129032425.3308.27.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Oct 2005 08:27:38 -0400
+Message-Id: <1129033658.3308.48.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-10 at 10:03 -0400, Christopher J. PeBenito wrote:
-> We were thinking about this a little more.  Since sorting the file
-> contexts is a relatively expensive operation, wouldn't it be better to
-> just sort the file contexts once on install, rather than redoing it on
-> every matchpathcon/setfiles/restorecon?  Source policies that need more
-> than the simple sort already done in matchpathcon_init can sort the file
-> contexts on install, and the loadable modules infrastructure can sort
-> for loadable modules.  This has the advantage of not disturbing the
-> example policy.  Then the sorting would be added to libselinux as a
-> library function, along with a util program for source policies to use
-> for sorting.
+On Sun, 2005-10-09 at 15:34 +0700, Dave Patterson wrote:
+> With kernel 2.6.13.3 with NSA patch applied the options
+> CONFIG_DEVPTS_FS_XATTR and CONFIG_DEVPTS_FS_SECURITY disappear.  Or
+> have gone somewhere...
+> 
+> Compiling while ignoring these two options and booting selinux=1 in
+> grub I get ...
+> 
+> SELinux initialized (dev sysfs type sysfs) uses genfs contexts
+> 
+> and the system hangs.  Any suggestions?
 
-I'm uneasy about leaving this to policy (re)generation; I would prefer
-that matchpathcon apply a well-defined ordering/precedence to file
-contexts (including file_contexts.homedirs and file_contexts.local,
-which at least presently can be changed without going through a policy
-build).  Note that this only occurs during initialization
-(matchpathcon_init), not on every matchpathcon call by an application.
-I'm also unclear on whether the overhead from sorting the entries in
-memory is actually substantial compared to the rest of what
-matchpathcon/matchpathcon_init does already.  The regex compilation and
-matching seems more costly.
+Those options were obsoleted by the generic VFS fallback for security
+xattrs (attempts to get/set security xattrs now fall back automatically
+to the security module if the filesystem doesn't support xattrs
+natively, so devpts and tmpfs no longer require their own handlers).
+That change was included in the 2.6.13-selinux1.patch and is going to be
+part of 2.6.14 upstream (already in 2.6.14-rcX, and has been in Fedora
+rawhide kernels for a while).
+
+I don't know about the state of SELinux in Debian sid, but Russell's
+message indicated that udev doesn't work well with SELinux in Debian
+yet.  
 
 -- 
 Stephen Smalley
