@@ -3,7 +3,7 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Joshua Brindle <jbrindle@tresys.com>
 Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
    dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <4346DD70.1070806@tresys.com>
+In-Reply-To: <1129058140.3308.213.camel@moss-spartans.epoch.ncsc.mil>
 References: <43454A61.8010907@cornell.edu>
 	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
 	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
@@ -14,104 +14,123 @@ References: <43454A61.8010907@cornell.edu>
 	 <4346D745.6080203@tresys.com>
 	 <1128716625.1450.96.camel@moss-spartans.epoch.ncsc.mil>
 	 <4346DD70.1070806@tresys.com>
-Content-Type: multipart/mixed; boundary="=-Vs1OCopGz5pmWtjmol0z"
-Date: Tue, 11 Oct 2005 15:15:40 -0400
-Message-Id: <1129058140.3308.213.camel@moss-spartans.epoch.ncsc.mil>
+	 <1129058140.3308.213.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-/QU4RXT5iaV5PCAIhmm/"
+Date: Tue, 11 Oct 2005 16:05:17 -0400
+Message-Id: <1129061117.3308.227.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Vs1OCopGz5pmWtjmol0z
+--=-/QU4RXT5iaV5PCAIhmm/
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Fri, 2005-10-07 at 16:41 -0400, Joshua Brindle wrote:
-> Sure, setting the policy version is probably not useful for most users, 
-> it's more of a development/debugging option than anything.
-> 
-> What if the user wants to build a policy for the new kernel he just 
-> installed? I guess a rebuild/reload after booting the kernel isn't bad, 
-> although we don't provide a way to do that without starting a 
-> transaction in the store.
+On Tue, 2005-10-11 at 15:15 -0400, Stephen Smalley wrote:
+> Patch below fixes this logic to make (1) consistent with the version
+> selection in semanage_expand_sandbox (i.e. use security_policyvers() if
+> it is in the range supported by the shared libsepol, otherwise use the
+> sh->conf->policyvers, which will be sepol_policy_kern_vers_max() by
+> default), and drops the dead code from (2).  But note that in the case
+> where semanage.conf sets the policy version to anything other than the
+> default, load_policy won't know about it, and no longer honors the path
+> argument, so it won't load that policy.  I think I'll change
+> selinux_mkload_policy to also check whether security_policyvers() falls
+> outside of the libsepol supported range and fall back to
+> sepol_policy_kern_vers_max() in that case.  But the policy version
+> setting in semanage.conf is still useless.
 
-libsemanage doesn't appear to support just building a policy without
-loading it AFAICS.  And load_policy no longer honors the path argument,
-so it will always load a version <= security_policyvers() for the
-current kernel.
-
-Also, I just noticed that:
-1) semanage_install_active() blindly uses security_policyvers() as the
-version suffix for the running policy path even prior to my changes,
-without considering sh->conf->policyvers at all, and
-2) semanage_install_sandbox() similarly constructs a running policy path
-based solely on security_policyvers(), but never uses it.
-
-Patch below fixes this logic to make (1) consistent with the version
-selection in semanage_expand_sandbox (i.e. use security_policyvers() if
-it is in the range supported by the shared libsepol, otherwise use the
-sh->conf->policyvers, which will be sepol_policy_kern_vers_max() by
-default), and drops the dead code from (2).  But note that in the case
-where semanage.conf sets the policy version to anything other than the
-default, load_policy won't know about it, and no longer honors the path
-argument, so it won't load that policy.  I think I'll change
-selinux_mkload_policy to also check whether security_policyvers() falls
-outside of the libsepol supported range and fall back to
-sepol_policy_kern_vers_max() in that case.  But the policy version
-setting in semanage.conf is still useless.
-
+Patch for libselinux is below.  The real cases are:
+1) kernel policyvers falls within the libsepol supported range, in which
+case libsemanage and libselinux will use the kernel policyvers for
+generation and loading, or
+2) kernel policyvers is higher than libsepol max, in which case
+libsemanage and libselinux will use the libsepol max for generation and
+loading (which the kernel will still accept),
+3) kernel policyvers is less than libsepol min.  If this truly happens,
+it is fatal, as it means that we cannot generate policy for the kernel.
+However, it should never happen as libsepol provides backward
+compatibility starting with the first policyvers ever supported by a 2.6
+kernel.  At present, this also falls back to the libsepol max for
+generation and loading as in (2); I suppose it should be altered to just
+fail immediately.  I was originally thinking that we should still try
+the libsepol max as a fallback in this case, as security_policyvers()
+might return -1 due to a permission denial on /selinux/policyvers, but
+immediate failure likely is more sensible.
+ 
 -- 
 Stephen Smalley
 National Security Agency
 
---=-Vs1OCopGz5pmWtjmol0z
-Content-Disposition: attachment; filename=libsemanage-fixvers.patch
-Content-Type: text/x-patch; name=libsemanage-fixvers.patch; charset=utf-8
+--=-/QU4RXT5iaV5PCAIhmm/
+Content-Disposition: attachment; filename=libselinux-1.27.8.diff
+Content-Type: text/x-patch; name=libselinux-1.27.8.diff; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-Index: libsemanage/src/semanage_store.c
+Index: libselinux/ChangeLog
 ===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/src/semanage_store.c,v
-retrieving revision 1.4
-diff -u -p -r1.4 semanage_store.c
---- libsemanage/src/semanage_store.c	7 Oct 2005 20:22:39 -0000	1.4
-+++ libsemanage/src/semanage_store.c	11 Oct 2005 18:51:09 -0000
-@@ -826,8 +826,14 @@ static int semanage_install_active(seman
- 	const char *active_fc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC);
- 	const char *running_fc = selinux_file_context_path();
- 	int retval = -3, r;
-+	int policyvers = security_policyvers();
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/ChangeLog,v
+retrieving revision 1.149
+retrieving revision 1.150
+diff -u -p -r1.149 -r1.150
+--- libselinux/ChangeLog	6 Oct 2005 18:19:32 -0000	1.149
++++ libselinux/ChangeLog	11 Oct 2005 19:38:16 -0000	1.150
+@@ -1,3 +1,8 @@
++1.27.8 2005-10-11
++	* Changed selinux_mkload_policy to fall back to the maximum
++	policy version supported by libsepol if the kernel policy version
++	falls outside of the supported range.
 +
-+	if (policyvers < sepol_policy_kern_vers_min() || 
-+	    policyvers > sepol_policy_kern_vers_max())
-+		policyvers = sh->conf->policyvers;
-+
- 	snprintf(running_policy, PATH_MAX, "%s.%d",
--		 selinux_binary_policy_path(), security_policyvers());
-+		 selinux_binary_policy_path(), policyvers);
- 	if (semanage_copy_file(active_kernel, running_policy) == -1) {
- 		semanage_write_error(sh, "Could not copy %s to %s.", active_kernel, running_policy);
- 		goto cleanup;
-@@ -857,7 +863,6 @@ static int semanage_install_active(seman
-  * atomically.	Returns 0 on success, -1 on error.
-  */
- int semanage_install_sandbox(semanage_handle_t *sh) {
--	char running_policy[PATH_MAX];
- 	int retval = -1, new_commit_number;
+ 1.27.7 2005-10-06
+ 	* Changed getseuserbyname to fall back to the Linux username and
+ 	NULL level if seusers config file doesn't exist unless 
+Index: libselinux/VERSION
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/VERSION,v
+retrieving revision 1.67
+retrieving revision 1.68
+diff -u -p -r1.67 -r1.68
+--- libselinux/VERSION	6 Oct 2005 18:19:32 -0000	1.67
++++ libselinux/VERSION	11 Oct 2005 19:38:16 -0000	1.68
+@@ -1 +1 @@
+-1.27.7
++1.27.8
+Index: libselinux/src/load_policy.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/load_policy.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -u -p -r1.8 -r1.9
+--- libselinux/src/load_policy.c	6 Oct 2005 16:18:13 -0000	1.8
++++ libselinux/src/load_policy.c	11 Oct 2005 19:38:17 -0000	1.9
+@@ -11,6 +11,7 @@
+ #include <errno.h>
+ #include "selinux_internal.h"
+ #include <sepol/sepol.h>
++#include <sepol/policydb.h>
+ #include "policy.h"
+ #include <limits.h>
  
- 	if (sh->conf->load_policy == NULL) {
-@@ -869,9 +874,6 @@ int semanage_install_sandbox(semanage_ha
- 		goto cleanup;
- 	}
+@@ -43,13 +44,13 @@ int selinux_mkload_policy(int preservebo
+ 	void *map, *data;
+ 	int fd, rc = -1, *values, len, i, prot;
  
--	snprintf(running_policy, PATH_MAX, "%s.%d",
--		 selinux_binary_policy_path(), security_policyvers());
--
- 	if ((new_commit_number = semanage_commit_sandbox(sh)) < 0) {
- 		goto cleanup;
- 	}
+-	if (vers < 0)
+-		return -1;
++	if (vers < sepol_policy_kern_vers_min() || vers > sepol_policy_kern_vers_max())
++		vers = sepol_policy_kern_vers_max();
+ 
+ 	snprintf(path, sizeof(path), "%s.%d", 
+ 		 selinux_binary_policy_path(), vers);
+ 	fd = open(path, O_RDONLY);
+-	while (fd < 0 && errno == ENOENT && --vers > 0) {
++	while (fd < 0 && errno == ENOENT && --vers >= sepol_policy_kern_vers_min()) {
+ 		/* Check prior versions to see if old policy is available */
+ 		snprintf(path, sizeof(path), "%s.%d", 
+ 			 selinux_binary_policy_path(), vers);
 
---=-Vs1OCopGz5pmWtjmol0z--
+--=-/QU4RXT5iaV5PCAIhmm/--
 
 
 --
