@@ -1,60 +1,85 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9CJm4Ns016881
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2005 15:48:05 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9CJk9xN020218
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2005 19:46:09 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id j9CJk7bI008748
-	for <selinux@tycho.nsa.gov>; Wed, 12 Oct 2005 15:46:07 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id j9CJk7tj008747
-	for selinux@tycho.nsa.gov; Wed, 12 Oct 2005 15:46:07 -0400
-Date: Wed, 12 Oct 2005 15:31:37 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: SELinux@tycho.nsa.gov
-Subject: [ANN] SELinux Symposium Delegate Program
-Message-ID: <Lynx.SEL.4.62.0510121529050.3009@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, SELinux-dev@tresys.com,
+   Ivan Gyurdiev <ivg2@cornell.edu>
+In-Reply-To: <434D5097.5060007@tresys.com>
+References: <43454A61.8010907@cornell.edu>
+	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
+	 <4346CE4C.1030201@tresys.com>
+	 <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
+	 <4346D745.6080203@tresys.com>
+	 <1128716625.1450.96.camel@moss-spartans.epoch.ncsc.mil>
+	 <4346DD70.1070806@tresys.com>
+	 <1129058140.3308.213.camel@moss-spartans.epoch.ncsc.mil>
+	 <434C41D9.7010206@tresys.com>
+	 <1129129084.3308.255.camel@moss-spartans.epoch.ncsc.mil>
+	 <434D2CFB.5040208@tresys.com>
+	 <1129131866.3308.282.camel@moss-spartans.epoch.ncsc.mil>
+	 <434D3792.7020606@tresys.com>
+	 <1129134362.3308.316.camel@moss-spartans.epoch.ncsc.mil>
+	 <434D5097.5060007@tresys.com>
+Content-Type: text/plain
+Date: Wed, 12 Oct 2005 15:52:07 -0400
+Message-Id: <1129146727.26188.77.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-HP and Red Hat are pleased to sponsor the SELinux Symposium Community 
-Delegate program. The Program sponsors community-based delegates to the 
-Second Annual SELinux Symposium held February 28 to March 2, 2006 at the 
-Wyndham Hotel in Baltimore Maryland. This program is designed to encourage 
-and recognize outstanding community contributors of the SELinux project.
+On Wed, 2005-10-12 at 14:06 -0400, Joshua Brindle wrote: 
+> Another idea, instead of downgrading the binary (because of the 
+> possibility of an incompatible downgrade in the future) what about using 
+> the expander in libsepol to build a kernel image from the linked module? 
+> This is basically the same as the libsemanage suggestion but without 
+> using libsemanage.
 
-The program will select and sponsor up to three community delegates to 
-attend the Symposium, covering the costs of:
+"Downgrading" just means setting the desired policy version for the
+binary policy image (via sepol_policydb_set_vers) and then calling
+sepol_policydb_write to write the image to memory or a file.  That is
+what libsemanage already does for expansion after calling
+sepol_expand_module (which merely expands to a policydb, not a binary
+policy image).  The policydb is not versioned in its memory
+representation; it merely carries around a version reflecting its source
+for use in subsequent generation of an image - either the version of the
+original policy image loaded into the policydb via a policydb_read or
+the latest version supported by libsepol when creating a new image via
+expand_module.  So if libsepol doesn't support a "downgrade" of a binary
+policy image to an older version due to incompatibility, it isn't going
+to support expanding to that version either.  It ultimately all comes
+through policydb_write.
 
-    * Travel to and from the Symposium
-    * Hotel accommodations
-    * Professional registration
+Also, libselinux shouldn't be pulling directly from the module store, so
+it would still have some dependency on libsemanage to find that linked
+module file.  At present, libsemanage depends on libselinux and
+libsepol, libselinux depends on libsepol (for load_policy only), and
+libsepol depends on nothing (other than libc, of course).   
 
-Nominations for delegates (including self-nominations) should be sent to 
-selinux-delegate-program@redhat.com by November 30, 2005. HP and Red Hat 
-will announce the names of the chosen delegates December 15, 2005.
+> I think downgrading is probably 
+> the best way to do it now.
 
-Nomination emails must include:
+I was thinking that the policy pathname could then become versionless,
+but it occurs to me that the version suffix is still useful in allowing
+libselinux to determine the policy version of the file (to decide
+whether a downgrade is required) without needing to parse it, and
+preserving the suffix also lets us unify the loading logic.  So, the
+behavior of libsemanage and libselinux would be as follows:
+- libsemanage always generates the latest policy version supported by
+libsepol (the default), writing it to a versioned policy pathname with
+that version number.  It doesn't use the kernel's policy version at all.
 
-    * Up to 200 words describing the contributions of the nominee to the 
-SELinux project and any related noteworthy Linux community achievements.
+- libselinux always searches for a versioned filename with the highest
+version <= the sepol max, opens and mmaps that file, uses the version
+suffix to determine whether a downgrade is required, and downgrades if
+necessary to the kernel's version.  This same logic applies both for the
+managed case and the unmanaged case.
 
-Nominations are not limited to developers and open to all SELinux 
-community members worldwide who are not employees of SELinux Symposium 
-sponsors.
-
-See:
-<http://www.redhat.com/promo/selinux/>
-
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
