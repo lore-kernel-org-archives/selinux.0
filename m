@@ -1,41 +1,43 @@
-Subject: Re: [ RESEND ] [ SEMANAGE ] Debugging system
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <434D35B1.7060409@cornell.edu>
-References: <434CC592.70001@cornell.edu>
-	 <1129132332.3308.288.camel@moss-spartans.epoch.ncsc.mil>
-	 <434D35B1.7060409@cornell.edu>
-Content-Type: text/plain
-Date: Wed, 12 Oct 2005 12:04:40 -0400
-Message-Id: <1129133080.3308.294.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <200510121607.j9CG7wVb017607@turing-police.cc.vt.edu>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: System hang during boot on Debian Sid 
+In-Reply-To: Your message of "Wed, 12 Oct 2005 10:34:30 +0200."
+             <20051012083430.GA8035@thorium.jmh.mhn.de>
+From: Valdis.Kletnieks@vt.edu
+References: <20051009083426.GA10995@localhost.localdomain> <1129033658.3308.48.camel@moss-spartans.epoch.ncsc.mil> <20051011132002.GA6249@localhost.localdomain> <20051011170544.GE8829@lkcl.net>
+            <20051012083430.GA8035@thorium.jmh.mhn.de>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1129133278_16609P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Wed, 12 Oct 2005 12:07:58 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-12 at 12:11 -0400, Ivan Gyurdiev wrote:
-> It looks more complicated now.... and more disorganized.
-> I guess it's fine, as long as it's easy to use.
+--==_Exmh_1129133278_16609P
+Content-Type: text/plain; charset=us-ascii
 
-Ok, from my POV, it is nicer, because:
-a) No extraneous abstractions introduced, just using the handle as
-designed,
-b) Direct pass through to the callback with no internal buffering and no
-new failure cases (memory allocation) introduced.
+On Wed, 12 Oct 2005 10:34:30 +0200, Thomas Bleher said:
 
-> The newline is part of the message - it's not a good idea to push it 
-> into the messaging system. Eventually we will run into a case where we 
-> don't want a newline printed, and the messaging system wouldn't be able 
-> to handle that....happens every time I try to do this.
+> special modifications or patches (at least for normal user logins). If
+> kdm should be able to shutdown the system it needs to have some access
+> to lilo, but I don't remember completely (could dig it up if you want).
 
-Hmm...I was thinking that the callback could add it as desired.  Each
-invocation of the callback constitutes a separate message, and the
-callback is free to introduce message separators as desired.
+lilo? To shutdown the system?  That doesn't sound right...
 
--- 
-Stephen Smalley
-National Security Agency
+--==_Exmh_1129133278_16609P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDTTTecC3lWbTT17ARAu2zAKDt+kde3ex88wPa5MNRToRuB6WJhwCfdXGJ
+9xsy/PDqaQsnUP/menkNCPc=
+=Irlx
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1129133278_16609P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
