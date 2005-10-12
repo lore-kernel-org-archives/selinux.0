@@ -1,110 +1,72 @@
-Message-ID: <434D5097.5060007@tresys.com>
-Date: Wed, 12 Oct 2005 14:06:15 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   dwalsh@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-References: <43454A61.8010907@cornell.edu>	<1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>	<1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>	<1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>	<1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>	<4346CE4C.1030201@tresys.com>	<1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>	<4346D745.6080203@tresys.com>	<1128716625.1450.96.camel@moss-spartans.epoch.ncsc.mil>	<4346DD70.1070806@tresys.com>	<1129058140.3308.213.camel@moss-spartans.epoch.ncsc.mil>	<434C41D9.7010206@tresys.com>	<1129129084.3308.255.camel@moss-spartans.epoch.ncsc.mil>	<434D2CFB.5040208@tresys.com>	<1129131866.3308.282.camel@moss-spartans.epoch.ncsc.mil>	<434D3792.7020606@tresys.com> <1129134362.3308.316.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1129134362.3308.316.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Wed, 12 Oct 2005 20:24:04 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Valdis.Kletnieks@vt.edu
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: System hang during boot on Debian Sid
+Message-Id: <20051012182404.GA7754@thorium.jmh.mhn.de>
+References: <20051009083426.GA10995@localhost.localdomain> <1129033658.3308.48.camel@moss-spartans.epoch.ncsc.mil> <20051011132002.GA6249@localhost.localdomain> <20051011170544.GE8829@lkcl.net> <20051012083430.GA8035@thorium.jmh.mhn.de> <200510121607.j9CG7wVb017607@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+In-Reply-To: <200510121607.j9CG7wVb017607@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2005-10-12 at 12:19 -0400, Joshua Brindle wrote:
-> 
->>Now that I think of it this can still lead to a stale policy if one was 
->>previously generated but the linked policy was since updated.
->>
->>I think that we need to make libsemanage remove all binary policies in 
->>the binary policy directory when a new policy is install.
-> 
-> 
-> No, we would just be changing the libsemanage and libselinux to generate
-> and load a binary policy path without any version suffix if we have the
-> load policy logic automatically downgrade the policy to the kernel
-> version (whether via libsemanage or via libsepol directly).  The load
-> policy logic would check first for the versionless file and use it if it
-> exists (which would indicate use of libsemanage on the system);
-> otherwise, it would fall through to the existing search for the
-> versioned file for backward compatibility with non-libsemanage'd
-> systems.
-> 
-Another idea, instead of downgrading the binary (because of the 
-possibility of an incompatible downgrade in the future) what about using 
-the expander in libsepol to build a kernel image from the linked module? 
-This is basically the same as the libsemanage suggestion but without 
-using libsemanage.
 
-This seems to be getting fairly complicated, expanding a module 
-(possibly) at boot time but stale or no policy, again, seems worse.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This also introduces more error conditions and something else would have 
-to be done for unmanaged systems but in the long run this should 
-guarantee that the policy is current and the kernel gets the version it 
-needs, whether it was previously built or not.
+* Valdis.Kletnieks@vt.edu [2005-10-12 18:27]:
+> On Wed, 12 Oct 2005 10:34:30 +0200, Thomas Bleher said:
+>=20
+> > special modifications or patches (at least for normal user logins). If
+> > kdm should be able to shutdown the system it needs to have some access
+> > to lilo, but I don't remember completely (could dig it up if you want).
+>=20
+> lilo? To shutdown the system?  That doesn't sound right...
 
-OTOH, downgrading will probably work fine for now since there is 
-compatibility and since the loading (and thus downgrading) will be 
-encapsulated if there is ever a non-compatible policy version it can be 
-switched to expanding the linked module. I think downgrading is probably 
-the best way to do it now.
+Lilo has a nice feature in that it let's you set the target for the next
+boot (lilo -R). Very handy if you want to boot an install kernel or
+something like that. KDM supports this interface, so if you have the
+appropriate permissions you can select which target to boot via a drop
+down menu.
+Of course, it gets a bit scary when you look at the needed permissions.
+I have this snippet in policy:
 
-> 
->>The boolean preservation case is a special case, I think we should try 
->>to limit binary image mutating as much as possible though.
-> 
-> 
-> Boolean preservation requires a policydb_read/write sequence already, so
-> it only requires setting the policyvers explicitly prior to the
-> policydb_write to simultaneously downgrade the policy.  Regardless I
-> think we have to do it in memory at init time, as we shouldn't be
-> writing to the filesystem at that point (fs is read-only then, right?).
-> 
-Right, and in the init case it would have to expand the module in memory 
-and use that without writing to disk, this causes the situation where 
-the latest policy version is never written to disk and the policy is 
-re-expanded on every boot, which is not desirable.
+# kdm_greet wants this - determine which systems can be booted
+allow xdm_t boot_t:dir search;
+type xdm_lilo_t, domain, fs_domain, privmem;
+domain_auto_trans(xdm_t, bootloader_exec_t, xdm_lilo_t)
+role system_r types xdm_lilo_t;
+uses_shlib(xdm_lilo_t)
+allow xdm_lilo_t boot_t:dir search;
+allow xdm_lilo_t { bootloader_etc_t boot_t etc_t }:file { getattr read };
+allow xdm_lilo_t boot_t:file write;
+allow xdm_lilo_t device_t:dir { getattr search };
+allow xdm_lilo_t fixed_disk_device_t:blk_file { getattr read write ioctl };
+allow xdm_lilo_t xdm_t:unix_stream_socket { getattr read write };
+allow xdm_lilo_t fs_t:filesystem getattr;
+allow xdm_lilo_t memory_device_t:chr_file read;
+allow xdm_lilo_t self:capability sys_rawio;
 
-Also, in the downgrade case, since init does not preserve booleans it 
-doesn't have a need to read/write the image and could get away with 
-loading the image straight off disk if an appropriate one is found, 
-otherwise it will have to downgrade in memory.
+Thomas
 
-> 
->>hrm, should the logic in checkpolicy be moved to libsepol/write.c so 
->>that it will always be consistent?
-> 
-> 
-> Possibly, but may be irrelevant at this point.
-> 
-> 
->>I know the current versions allow downgrading that shouldn't affect the 
->>security properties of the policy but I don't see how it can be 
->>guaranteed that this is the case for every future version.
-> 
-> 
-> That's a case for keeping the version suffixes and just using the
-> possibly stale file instead, so that you at least have an internally
-> consistent policy at every point in time, even if it isn't fully
-> up-to-date.
-> 
-Expanding the linked policy could address this, ideally the module 
-format should be able to support any binary version supported by libsepol.
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
->>From a compatibility POV, one could argue that booting an old kernel
-> should use that old policy in order to ensure that the kernel continues
-> to allow precisely what it used to allow (although that is an argument
-> for binding policies to kernel versions ala kernel modules and
-> rebuilding them on every kernel update, dropping the compatibility
-> support entirely from the kernel as suggested by James a while ago, but
-> no one seemed to want to bind kernel versions to policy versions).
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-If policy updates have occured it is possible that the filesystem is not 
-  labeled the same way, and could have invalid labels.
+iD8DBQFDTVTED9qpeVMU938RAmvQAKCfEDt7QMtjPQz1e+hbNfwf1xQIfACgj1Zi
+SuxNK6iH8opSQIYaUbPHCTg=
+=/TnY
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
