@@ -1,60 +1,37 @@
-Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <434C41D9.7010206@tresys.com>
-References: <43454A61.8010907@cornell.edu>
-	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
-	 <4346CE4C.1030201@tresys.com>
-	 <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
-	 <4346D745.6080203@tresys.com>
-	 <1128716625.1450.96.camel@moss-spartans.epoch.ncsc.mil>
-	 <4346DD70.1070806@tresys.com>
-	 <1129058140.3308.213.camel@moss-spartans.epoch.ncsc.mil>
-	 <434C41D9.7010206@tresys.com>
-Content-Type: text/plain
-Date: Wed, 12 Oct 2005 10:58:04 -0400
-Message-Id: <1129129084.3308.255.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200510121511.j9CFBqMr011443@mms-r00.iijmio.jp>
+Date: Wed, 12 Oct 2005 11:11:49 -0400
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+Cc: himainu-ynakam@miomio.jp
+Subject: Re: swapon unsuppoted?
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1129031794.3308.22.camel@moss-spartans.epoch.ncsc.mil>
+References: <1129031794.3308.22.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-11 at 18:51 -0400, Joshua Brindle wrote:
-> Why are we still adding the policy version if we aren't going to support 
-> building different versions anyway.
 
-As you know, the policy version suffix allows multiple policies to exist
-simultaneously on the disk for multiple kernels that support different
-versions, and allows userspace to select the appropriate policy to load
-based on the suffix without having to parse the policy itself.
+Stephen Smalley wrote:
+> > When I used swapon command, 
+> > access vector "swapon" was not checked, 
+> > only capability sys_admin was checked.
+> > It seems that FILE__SWAPON does not exist in hooks.c
+> > 
+> > Is swapon unsupported in current version?
+> Yes, the corresponding LSM hook was never merged upstream.  There was
+> never a strong justification for it in the first place. 
+I see, I found when swapon is used, getattr ,read and write are also checked.
+swapon access vector may not be useful.
 
-> In the case of multiple kernels with different supported versions this 
-> could be detrimental in the case that, for example, a version 18 policy 
-> is built, the kernel is upgraded, a version 20 policy is built, the 
-> policy is changed, modules/users/whatever added. Then an older kernel is 
-> booted and loads the stale version 18 policy..
+So, why it still exists in access_vectors file?
+I think it is confusing, 
+it should be removed or comment should be described.
 
-Certainly not ideal, but better than not having a policy that can be
-loaded at all, thereby causing init to halt the system.
-
-> I'm not exactly sure how to handle this situation but this scenerio 
-> seems undesirable.
-
-You've previously suggested having init/load_policy automatically
-downgrade the binary policy image to the kernel's version (via
-libsepol), but I had some concerns with that idea at the time.  I
-suppose it could be looked at again.  Having libsemanage generate
-multiple binary policies (as has been done in Fedora during transition
-periods between kernels) doesn't seem to generalize well and would be
-costly.
-
--- 
-Stephen Smalley
-National Security Agency
+---
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+SELinux Policy Editor:  http://seedit.sourceforge.net/
 
 
 --
