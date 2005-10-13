@@ -1,43 +1,43 @@
-Subject: Re: [ SEPOL ] [ SEMANAGE ] Debug v3, some database things
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <434E3D75.8060009@cornell.edu>
-References: <434CC592.70001@cornell.edu>
-	 <1129132332.3308.288.camel@moss-spartans.epoch.ncsc.mil>
-	 <434D35B1.7060409@cornell.edu>
-	 <1129133080.3308.294.camel@moss-spartans.epoch.ncsc.mil>
-	 <434D3D33.90104@cornell.edu> <434E38C2.9030602@cornell.edu>
-	 <434E3D75.8060009@cornell.edu>
-Content-Type: text/plain
-Date: Thu, 13 Oct 2005 08:34:33 -0400
-Message-Id: <1129206873.26188.99.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9DDZ2Ns024003
+	for <selinux@tycho.nsa.gov>; Thu, 13 Oct 2005 09:35:03 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9DDX2gQ007510
+	for <selinux@tycho.nsa.gov>; Thu, 13 Oct 2005 13:33:02 GMT
+Message-ID: <434E6217.2080003@redhat.com>
+Date: Thu, 13 Oct 2005 09:33:11 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: MLS policy
+References: <200510131632.25597.russell@coker.com.au>
+In-Reply-To: <200510131632.25597.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-10-13 at 06:56 -0400, Ivan Gyurdiev wrote:
-> Bugfix:
-> Can you please add ( ) around every dereference of handle_arg in 
-> msg_write (for both semanage and sepol)
-> I can send a followup patch if you prefer. Macros are evil...
-> 
-> Warning:
-> The following code is no longer valid - this is now a syntax error.
-> if (blah) DEBUG(a); else ..
+Russell Coker wrote:
+> Currently a default root login gets a default level of s2.  This means that 
+> daemons initially run with the range s0-s9 but run with the range s2-s9 after 
+> being restarted.  Should we have range-transition rules in the daemon_domain 
+> family of macros to deal with this?
+>
+> What is the benefit of assigning root the default level of s2 anyway?
+>
+> range_transition kernel_t init_exec_t s0 - s9:c0.c255;
+>
+>   
+Oversite
+> Currently we have the above in the MLS policy.  Is it desired that we only use 
+> up to s9 (highest level is s15)?  Or was it an oversight that the above line 
+> was not changed when the extra levels were added?
+>
+>   
 
-Wrap the definition with 
-do {
-
-} while (0)
-
-and you'll be fine.
-
-That's a widely used trick in the kernel.
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
