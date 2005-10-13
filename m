@@ -1,135 +1,62 @@
-Message-ID: <434EDB86.2050702@diyab.net>
-Date: Thu, 13 Oct 2005 18:11:18 -0400
-From: Timothy <timothy@diyab.net>
+Message-ID: <434EE146.3010804@tresys.com>
+Date: Thu, 13 Oct 2005 18:35:50 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Non-PAM Policycoreutils
-References: <434EA0C1.7050706@diyab.net>	 <1129227395.13490.8.camel@moss-spartans.epoch.ncsc.mil>	 <434EB30B.4080606@diyab.net>	 <1129232343.13490.35.camel@moss-spartans.epoch.ncsc.mil>	 <434EBBDD.6040503@diyab.net> <1129233760.13490.44.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1129233760.13490.44.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------020200050303000501090107"
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
+   dwalsh@redhat.com, selinux@tycho.nsa.gov
+Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
+References: <43454A61.8010907@cornell.edu>	<1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>	<1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>	<1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>	<1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>	<4346CE4C.1030201@tresys.com>	<1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>	<1128719862.1450.119.camel@moss-spartans.epoch.ncsc.mil>	<1129035115.3308.67.camel@moss-spartans.epoch.ncsc.mil> <1129231767.13490.31.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1129231767.13490.31.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020200050303000501090107
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
-
 Stephen Smalley wrote:
-> On Thu, 2005-10-13 at 15:56 -0400, Timothy wrote:
+> On Tue, 2005-10-11 at 08:51 -0400, Stephen Smalley wrote:
 > 
->>The crypt defined in unistd.h is only read if __USE_XOPEN is defined so
->>it's required or make will fail for non-pam builds because the function
->>authenticate_via_shadow_passwd uses crypt.  I tried to add that define
->>to the CFLAGS in the makefile but it does not see that it is defined for
->>some reason and still errors out.
+>>Any thoughts on the above question?  If we leave it publically defined,
+>>then users can still directly allocate/free sepol_module_package's
+>>rather than using the provided create/free interfaces and can directly
+>>access the policy, file_contexts, and file_context_len fields.  Do we
+>>anticipate sepol_module_package's including other information in the
+>>future?
+>>
+>>Also, I wanted to note that when I introduced create/free interfaces for
+>>sepol_module_package, I had to rename the existing interface named
+>>"sepol_module_package_create" to "sepol_module_package_create_file".
+>>That interface was for creating a package file from a policy file and a
+>>file contexts file, not for creating the struct itself.
 > 
 > 
-> Hmm...actually, since it is wrapped by the #else for USE_PAM, it isn't a
-> problem to have it in the .c file, but I noticed that the man page for
-> crypt(3) on my system says to define _XOPEN_SOURCE instead of directly
-> defining __USE_XOPEN (features.h enables the latter when the former is
-> enabled).  Note that the former only has a single leading underscore,
-> unlike the latter.  Does #define'ing _XOPEN_SOURCE work for you there
-> instead of __USE_XOPEN?
+> Patch below hides the sepol_module_package type definition within
+> libsepol, committed to cvs.
 > 
+> We still need to decide what to do about the
+> sepol_module_package_create_file interface to make it extensible; one
+> option is to discard it and require the caller to build up a
+> sepol_module_package struct via a create/set_xx/set_yy sequence and then
+> use the write interface to write the final package file.  It appears the
+> we would only need/want a set_file_contexts interface at present, as the
+> policydb is allocated by the create interface and can be extracted via
+> get and then populated using the other policydb interfaces (read,
+> expand_module, etc).  The only user of the create_file interface
+> presently is semodule_package.
+> 
+> Also need to deal with the package file format itself, i.e. versioning,
+> sections, etc. per the discussion on fedora-selinux-list.
+> 
+It also seems like the current CLI for semanage_package is insufficient. 
+If we are building support into the format and API for sections and 
+other data the semanage_package options should reflect what sections are 
+you are filling in with what data, something like
 
-Just _XOPEN_SOURCE caused new errors but _XOPEN_SOURCE defined to 500
-works.  New patch attached.
+-f file_contexts
+-m module data
 
-Timothy,
+and anything else added later would obviously get an argument.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFDTtuGSYq2KfPEK/gRA2etAJ43Z4KRzStnX5Z/CTd2q/VURf9PhgCffkGq
-yAzwBdfbzgKWH/3WAm6Kjww=
-=5PaU
------END PGP SIGNATURE-----
-
---------------020200050303000501090107
-Content-Type: text/plain;
- name="policycoreutils-nopam.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-nopam.patch"
-
---- policycoreutils/newrole/Makefile	2005-07-18 10:13:55.000000000 -0400
-+++ policycoreutils-1.26.slack/newrole/Makefile	2005-10-04 02:22:03.000000000 -0400
-@@ -4,10 +4,19 @@
- MANDIR ?= $(PREFIX)/share/man
- ETCDIR ?= $(DESTDIR)/etc
- LOCALEDIR = /usr/share/locale
-+PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
- 
- CFLAGS ?= -Werror -Wall -W
--override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DUSE_PAM -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
--LDLIBS += -lselinux -lpam -lpam_misc -L$(PREFIX)/lib
-+override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-+LDLIBS += -lselinux -L$(PREFIX)/lib
-+ifeq (${PAMH}, /usr/include/security/pam_appl.h)
-+	override CFLAGS += -DUSE_PAM
-+	LDLIBS += -lpam -lpam_misc
-+else
-+	override CFLAGS += -D_XOPEN_SOURCE=500
-+	LDLIBS += -lcrypt
-+endif
-+
- 
- TARGETS=$(patsubst %.c,%,$(wildcard *.c))
- 
-@@ -19,7 +28,10 @@
- 	test -d $(MANDIR)/man1 || install -m 755 -d $(MANDIR)/man1
- 	install -m 555 newrole $(BINDIR)
- 	install -m 644 newrole.1 $(MANDIR)/man1/
-+ifeq (${PAMH}, /usr/include/security/pam_appl.h)
-+	test -d $(ETCDIR)/pam.d || install -m 755 -d $(ETCDIR)/pam.d
- 	install -m 644 newrole.pamd $(ETCDIR)/pam.d/newrole
-+endif
- 
- clean:
- 	rm -f $(TARGETS) *.o 
---- policycoreutils/run_init/Makefile	2005-07-18 10:13:56.000000000 -0400
-+++ policycoreutils-1.26.slack/run_init/Makefile	2005-10-04 02:22:29.000000000 -0400
-@@ -5,10 +5,18 @@
- MANDIR ?= $(PREFIX)/share/man
- ETCDIR ?= $(DESTDIR)/etc
- LOCALEDIR ?= /usr/share/locale
-+PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
- 
- CFLAGS ?= -Werror -Wall -W
--override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DUSE_PAM -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
--LDLIBS += -lselinux -lpam -lpam_misc -L$(PREFIX)/lib
-+override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-+LDLIBS += -lselinux -L$(PREFIX)/lib
-+ifeq (${PAMH}, /usr/include/security/pam_appl.h)
-+	override CFLAGS += -DUSE_PAM
-+	LDLIBS += -lpam -lpam_misc
-+else
-+	override CFLAGS += -D_XOPEN_SOURCE=500
-+	LDLIBS += -lcrypt
-+endif
- 
- TARGETS=$(patsubst %.c,%,$(wildcard *.c))
- 
-@@ -25,7 +33,9 @@
- 	install -m 555 open_init_pty $(SBINDIR)
- 	install -m 644 run_init.8 $(MANDIR)/man8/
- 	install -m 644 open_init_pty.8 $(MANDIR)/man8/
-+ifeq (${PAMH}, /usr/include/security/pam_appl.h)
- 	install -m 644 run_init.pamd $(ETCDIR)/pam.d/run_init
-+endif
- 
- clean:
- 	-rm -f $(TARGETS) *.o 
-
---------------020200050303000501090107--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
