@@ -3,7 +3,7 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Joshua Brindle <jbrindle@tresys.com>
 Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, SELinux-dev@tresys.com,
    Ivan Gyurdiev <ivg2@cornell.edu>
-In-Reply-To: <1129221837.26188.232.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1129228997.13490.16.camel@moss-spartans.epoch.ncsc.mil>
 References: <43454A61.8010907@cornell.edu>
 	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
 	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
@@ -25,24 +25,33 @@ References: <43454A61.8010907@cornell.edu>
 	 <1129146727.26188.77.camel@moss-spartans.epoch.ncsc.mil>
 	 <1129147889.26188.84.camel@moss-spartans.epoch.ncsc.mil>
 	 <1129221837.26188.232.camel@moss-spartans.epoch.ncsc.mil>
+	 <1129228997.13490.16.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 13 Oct 2005 14:43:17 -0400
-Message-Id: <1129228997.13490.16.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 13 Oct 2005 14:54:06 -0400
+Message-Id: <1129229646.13490.22.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-10-13 at 12:43 -0400, Stephen Smalley wrote:
-> Patches below for libsemanage and libselinux (after merging Ivan's
-> diffs).  libsemanage goes back to always using sh->conf->policyvers,
-> which is initialized to sepol_policy_kern_vers_max() but can be changed
-> in the config file, and libselinux tries to automatically downgrade.
+On Thu, 2005-10-13 at 14:43 -0400, Stephen Smalley wrote:
+> On Thu, 2005-10-13 at 12:43 -0400, Stephen Smalley wrote:
+> > Patches below for libsemanage and libselinux (after merging Ivan's
+> > diffs).  libsemanage goes back to always using sh->conf->policyvers,
+> > which is initialized to sepol_policy_kern_vers_max() but can be changed
+> > in the config file, and libselinux tries to automatically downgrade.
+> 
+> Ok, updated the SELinux userland on a FC4 system to latest cvs with
+> these changes, built a policy.20 with the updated checkpolicy, moved
+> aside the existing policy.19 (kernel only supports 19), and tried out
+> load_policy.  Downgraded the policy.20 in memory to a version 19 image
+> and loaded it successfully into the kernel.
 
-Ok, updated the SELinux userland on a FC4 system to latest cvs with
-these changes, built a policy.20 with the updated checkpolicy, moved
-aside the existing policy.19 (kernel only supports 19), and tried out
-load_policy.  Downgraded the policy.20 in memory to a version 19 image
-and loaded it successfully into the kernel.
+Also, the following sequence worked as expected on the FC4 system, with
+libsemanage producing a new policy.20 file and load_policy downgrading
+it automatically for the kernel:
+checkmodule -o base.mod policy.conf
+semodule_package base.pp base.mod file_contexts
+semodule -b base.pp
 
 -- 
 Stephen Smalley
