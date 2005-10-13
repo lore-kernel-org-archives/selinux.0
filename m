@@ -1,23 +1,31 @@
-Subject: Re: [PATCH] require in conditional
+Subject: Re: [ SEPOL ] [ SEMANAGE ] Debug v3, some database things
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <1129128614.3504.13.camel@twoface.columbia.tresys.com>
-References: <1129128614.3504.13.camel@twoface.columbia.tresys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <434E38C2.9030602@cornell.edu>
+References: <434CC592.70001@cornell.edu>
+	 <1129132332.3308.288.camel@moss-spartans.epoch.ncsc.mil>
+	 <434D35B1.7060409@cornell.edu>
+	 <1129133080.3308.294.camel@moss-spartans.epoch.ncsc.mil>
+	 <434D3D33.90104@cornell.edu>  <434E38C2.9030602@cornell.edu>
 Content-Type: text/plain
-Date: Thu, 13 Oct 2005 12:46:46 -0400
-Message-Id: <1129222006.26188.235.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 13 Oct 2005 13:11:16 -0400
+Message-Id: <1129223476.26188.244.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-12 at 10:50 -0400, Joshua Brindle wrote:
-> This patch changes the parser to allow require blocks inside
-> conditionals . This is necessary for reference policy because interfaces
-> always add their dependencies in require blocks but won't know they are
-> in a conditional. For example:
+On Thu, 2005-10-13 at 06:36 -0400, Ivan Gyurdiev wrote:
+> ...resending patch again...
 
-Thanks, merged (libsepol 1.9.15, checkpolicy 1.27.9).
+Ok, merged along with fix patch and corresponding update to
+policycoreutils (semodule) for the removal of semanage_strerror.
+I left the remaining portion of the meta note comment in handle.h
+intact, only pruning the part about strerror.  There were two rejects
+against the current tree, but I merged by hand.
+
+Merged as of libsepol 1.9.16, libsemanage 1.3.12, policycoreutils
+1.27.8.
 
 -- 
 Stephen Smalley
