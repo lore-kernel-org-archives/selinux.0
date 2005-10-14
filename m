@@ -1,64 +1,43 @@
-Message-ID: <4350131E.8060708@tresys.com>
-Date: Fri, 14 Oct 2005 16:20:46 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <435017B2.7040107@cornell.edu>
+Date: Fri, 14 Oct 2005 16:40:18 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
+To: Joshua Brindle <jbrindle@tresys.com>
 CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: [ SEMANAGE ] Add a few direct dbases to handle
-References: <434FF612.8010708@cornell.edu>
-In-Reply-To: <434FF612.8010708@cornell.edu>
+References: <434FF612.8010708@cornell.edu> <4350131E.8060708@tresys.com>
+In-Reply-To: <4350131E.8060708@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> Adds a few direct databases to the handle.
-> There's still no dangerous code in the main commit path...
-> This is just the equivalent to file init.
-> 
-> diff -Naur libsemanage/src/handle.h libsemanage.new/src/handle.h
-> --- libsemanage/src/handle.h	2005-10-14 14:10:54.000000000 -0400
-> +++ libsemanage.new/src/handle.h	2005-10-14 14:07:46.000000000 -0400
-> @@ -71,12 +71,20 @@
->  	struct semanage_policy_table* funcs;
->  
->  	/* Object databases */
-> -#define DBASE_COUNT      5
-> +#define DBASE_COUNT      7
-> +
->  #define DBASE_USERS      0
->  #define DBASE_PORTS      1
->  #define DBASE_INTERFACES 2
->  #define DBASE_BOOLEANS   3
->  #define DBASE_SEUSERS    4
-> +
-> +#define DBASE_BASE_USERS      5
-> +#define DBASE_BASE_PORTS      6
-> +#if 0
-> +#define DBASE_BASE_INTERFACES 7
-> +#define DBASE_BASE_BOOLEANS   8
-> +#endif
->  	dbase_config_t dbase[DBASE_COUNT];
->  };
->  
-> @@ -105,5 +113,27 @@
->  	return &handle->dbase[DBASE_SEUSERS];
->  }
->  
 
-I thought we agreed to have a direct only accessible part of the handle, 
-  such as
+> I thought we agreed to have a direct only accessible part of the 
+> handle,  such as
+>
+> struct semanage_direct_handle {
+>     semanage_handle_t *handle;
+>     /* direct stuff goes here */
+> };
+I'm a little confused... 
+The dbase_config_t type is an a container for a database and its method 
+table, which together form an interface.
+The interface does not specify implementation, so you can implement this 
+database differently using the policy server.
 
-struct semanage_direct_handle {
-	semanage_handle_t *handle;
-	/* direct stuff goes here */
-};
+That patch also included code to init this database using the direct 
+"constructor" - when you call <something>_direct_dbase_init(). That part 
+was wrong, and if you look in the bugfix patch (#5), you will see that I 
+moved the direct-specific part into direct_api.h, to be invoked on 
+connect(), rather than create().
+> So that this stuff is only exposed to direct api functions? The policy 
+> server shouldn't be filling out databases that are accessible to the 
+> user since it needs to mediate access.
+I'm not sure I understand this.. s/"are"/"aren't"?
 
-So that this stuff is only exposed to direct api functions? The policy 
-server shouldn't be filling out databases that are accessible to the 
-user since it needs to mediate access.
+Note that those databases are needed regardless of backend - they're 
+specified using an interface.
 
-Joshua
 
 
 --
