@@ -1,392 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9E8jNNs004217
-	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 04:45:25 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9E8hBHa020625
-	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 08:43:12 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 35EF761B04
-	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 18:43:26 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 29436-06 for <selinux@tycho.nsa.gov>;
-	Fri, 14 Oct 2005 18:43:25 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 3D91E61B01
-	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 18:43:25 +1000 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id C80C958
-	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 18:43:22 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: trivial patch
-Date: Fri, 14 Oct 2005 18:43:16 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_q+2TDBHRNXgTLev"
-Message-Id: <200510141843.22595.russell@coker.com.au>
+Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
+   dwalsh@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <434EE146.3010804@tresys.com>
+References: <43454A61.8010907@cornell.edu>
+	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
+	 <4346CE4C.1030201@tresys.com>
+	 <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
+	 <1128719862.1450.119.camel@moss-spartans.epoch.ncsc.mil>
+	 <1129035115.3308.67.camel@moss-spartans.epoch.ncsc.mil>
+	 <1129231767.13490.31.camel@moss-spartans.epoch.ncsc.mil>
+	 <434EE146.3010804@tresys.com>
+Content-Type: text/plain
+Date: Fri, 14 Oct 2005 08:02:08 -0400
+Message-Id: <1129291328.15883.49.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_q+2TDBHRNXgTLev
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, 2005-10-13 at 18:35 -0400, Joshua Brindle wrote:
+> > We still need to decide what to do about the
+> > sepol_module_package_create_file interface to make it extensible; one
+> > option is to discard it and require the caller to build up a
+> > sepol_module_package struct via a create/set_xx/set_yy sequence and then
+> > use the write interface to write the final package file.  It appears the
+> > we would only need/want a set_file_contexts interface at present, as the
+> > policydb is allocated by the create interface and can be extracted via
+> > get and then populated using the other policydb interfaces (read,
+> > expand_module, etc).  The only user of the create_file interface
+> > presently is semodule_package.
+> > 
+> > Also need to deal with the package file format itself, i.e. versioning,
+> > sections, etc. per the discussion on fedora-selinux-list.
+> > 
+> It also seems like the current CLI for semanage_package is insufficient. 
+> If we are building support into the format and API for sections and 
+> other data the semanage_package options should reflect what sections are 
+> you are filling in with what data, something like
+> 
+> -f file_contexts
+> -m module data
+> 
+> and anything else added later would obviously get an argument.
 
-I believe that the attached patch should be applied to all MCS and MLS 
-versions of the policy.
-
-Currently viewing the "mls" and "mcs" files in "less" takes an unreasonably 
-large number of page-down operations.  This is annoying and the solution as 
-described in my patch has no down-side.
-
+Does it ever make sense to build a package without a module?  If not,
+then I think we can leave the module as a required argument, and only
+make things like file contexts and other components option-driven.  It
+might also help to in some way more clearly distinguish the output file
+from the input arguments to avoid accidentally clobbering a module (I've
+done that before) with semodule_package, either via explicit -o option
+like checkmodule/checkpolicy (with some default output filename) or have
+semodule_package refuse to clobber an existing file.
+.
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
 
---Boundary-00=_q+2TDBHRNXgTLev
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- mcs.orig	2005-10-14 17:50:55.000000000 +1000
-+++ mcs	2005-10-14 17:50:56.000000000 +1000
-@@ -18,262 +18,70 @@
- #
- # Each category has a name and zero or more aliases.
- #
--category c0;
--category c1;
--category c2;
--category c3;
--category c4;
--category c5;
--category c6;
--category c7;
--category c8;
--category c9;
--category c10;
--category c11;
--category c12;
--category c13;
--category c14;
--category c15;
--category c16;
--category c17;
--category c18;
--category c19;
--category c20;
--category c21;
--category c22;
--category c23;
--category c24;
--category c25;
--category c26;
--category c27;
--category c28;
--category c29;
--category c30;
--category c31;
--category c32;
--category c33;
--category c34;
--category c35;
--category c36;
--category c37;
--category c38;
--category c39;
--category c40;
--category c41;
--category c42;
--category c43;
--category c44;
--category c45;
--category c46;
--category c47;
--category c48;
--category c49;
--category c50;
--category c51;
--category c52;
--category c53;
--category c54;
--category c55;
--category c56;
--category c57;
--category c58;
--category c59;
--category c60;
--category c61;
--category c62;
--category c63;
--category c64;
--category c65;
--category c66;
--category c67;
--category c68;
--category c69;
--category c70;
--category c71;
--category c72;
--category c73;
--category c74;
--category c75;
--category c76;
--category c77;
--category c78;
--category c79;
--category c80;
--category c81;
--category c82;
--category c83;
--category c84;
--category c85;
--category c86;
--category c87;
--category c88;
--category c89;
--category c90;
--category c91;
--category c92;
--category c93;
--category c94;
--category c95;
--category c96;
--category c97;
--category c98;
--category c99;
--category c100;
--category c101;
--category c102;
--category c103;
--category c104;
--category c105;
--category c106;
--category c107;
--category c108;
--category c109;
--category c110;
--category c111;
--category c112;
--category c113;
--category c114;
--category c115;
--category c116;
--category c117;
--category c118;
--category c119;
--category c120;
--category c121;
--category c122;
--category c123;
--category c124;
--category c125;
--category c126;
--category c127;
--category c128;
--category c129;
--category c130;
--category c131;
--category c132;
--category c133;
--category c134;
--category c135;
--category c136;
--category c137;
--category c138;
--category c139;
--category c140;
--category c141;
--category c142;
--category c143;
--category c144;
--category c145;
--category c146;
--category c147;
--category c148;
--category c149;
--category c150;
--category c151;
--category c152;
--category c153;
--category c154;
--category c155;
--category c156;
--category c157;
--category c158;
--category c159;
--category c160;
--category c161;
--category c162;
--category c163;
--category c164;
--category c165;
--category c166;
--category c167;
--category c168;
--category c169;
--category c170;
--category c171;
--category c172;
--category c173;
--category c174;
--category c175;
--category c176;
--category c177;
--category c178;
--category c179;
--category c180;
--category c181;
--category c182;
--category c183;
--category c184;
--category c185;
--category c186;
--category c187;
--category c188;
--category c189;
--category c190;
--category c191;
--category c192;
--category c193;
--category c194;
--category c195;
--category c196;
--category c197;
--category c198;
--category c199;
--category c200;
--category c201;
--category c202;
--category c203;
--category c204;
--category c205;
--category c206;
--category c207;
--category c208;
--category c209;
--category c210;
--category c211;
--category c212;
--category c213;
--category c214;
--category c215;
--category c216;
--category c217;
--category c218;
--category c219;
--category c220;
--category c221;
--category c222;
--category c223;
--category c224;
--category c225;
--category c226;
--category c227;
--category c228;
--category c229;
--category c230;
--category c231;
--category c232;
--category c233;
--category c234;
--category c235;
--category c236;
--category c237;
--category c238;
--category c239;
--category c240;
--category c241;
--category c242;
--category c243;
--category c244;
--category c245;
--category c246;
--category c247;
--category c248;
--category c249;
--category c250;
--category c251;
--category c252;
--category c253;
--category c254;
--category c255;
-+category c0; category c1; category c2; category c3;
-+category c4; category c5; category c6; category c7;
-+category c8; category c9; category c10; category c11;
-+category c12; category c13; category c14; category c15;
-+category c16; category c17; category c18; category c19;
-+category c20; category c21; category c22; category c23;
-+category c24; category c25; category c26; category c27;
-+category c28; category c29; category c30; category c31;
-+category c32; category c33; category c34; category c35;
-+category c36; category c37; category c38; category c39;
-+category c40; category c41; category c42; category c43;
-+category c44; category c45; category c46; category c47;
-+category c48; category c49; category c50; category c51;
-+category c52; category c53; category c54; category c55;
-+category c56; category c57; category c58; category c59;
-+category c60; category c61; category c62; category c63;
-+category c64; category c65; category c66; category c67;
-+category c68; category c69; category c70; category c71;
-+category c72; category c73; category c74; category c75;
-+category c76; category c77; category c78; category c79;
-+category c80; category c81; category c82; category c83;
-+category c84; category c85; category c86; category c87;
-+category c88; category c89; category c90; category c91;
-+category c92; category c93; category c94; category c95;
-+category c96; category c97; category c98; category c99;
-+category c100; category c101; category c102; category c103;
-+category c104; category c105; category c106; category c107;
-+category c108; category c109; category c110; category c111;
-+category c112; category c113; category c114; category c115;
-+category c116; category c117; category c118; category c119;
-+category c120; category c121; category c122; category c123;
-+category c124; category c125; category c126; category c127;
-+category c128; category c129; category c130; category c131;
-+category c132; category c133; category c134; category c135;
-+category c136; category c137; category c138; category c139;
-+category c140; category c141; category c142; category c143;
-+category c144; category c145; category c146; category c147;
-+category c148; category c149; category c150; category c151;
-+category c152; category c153; category c154; category c155;
-+category c156; category c157; category c158; category c159;
-+category c160; category c161; category c162; category c163;
-+category c164; category c165; category c166; category c167;
-+category c168; category c169; category c170; category c171;
-+category c172; category c173; category c174; category c175;
-+category c176; category c177; category c178; category c179;
-+category c180; category c181; category c182; category c183;
-+category c184; category c185; category c186; category c187;
-+category c188; category c189; category c190; category c191;
-+category c192; category c193; category c194; category c195;
-+category c196; category c197; category c198; category c199;
-+category c200; category c201; category c202; category c203;
-+category c204; category c205; category c206; category c207;
-+category c208; category c209; category c210; category c211;
-+category c212; category c213; category c214; category c215;
-+category c216; category c217; category c218; category c219;
-+category c220; category c221; category c222; category c223;
-+category c224; category c225; category c226; category c227;
-+category c228; category c229; category c230; category c231;
-+category c232; category c233; category c234; category c235;
-+category c236; category c237; category c238; category c239;
-+category c240; category c241; category c242; category c243;
-+category c244; category c245; category c246; category c247;
-+category c248; category c249; category c250; category c251;
-+category c252; category c253; category c254; category c255;
- 
- 
- #
-
---Boundary-00=_q+2TDBHRNXgTLev--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
