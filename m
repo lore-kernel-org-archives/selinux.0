@@ -1,601 +1,312 @@
-Message-ID: <434FE2D1.5070505@cornell.edu>
-Date: Fri, 14 Oct 2005 12:54:41 -0400
+Message-ID: <434FEA78.3090406@cornell.edu>
+Date: Fri, 14 Oct 2005 13:27:20 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEMANAGE ] Add more databases - booleans and interfaces
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+   Karl MacMillan <kmacmillan@tresys.com>
+Subject: [ SEMANAGE ] Seuser record
 Content-Type: multipart/mixed;
- boundary="------------030500060704030501060908"
+ boundary="------------070209050300050705090506"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030500060704030501060908
+--------------070209050300050705090506
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-- Add more databases:
-boolean and interface APIs,
-boolean and interface file databases (parse/print stubbed)
+Add seuser record to semanage. A seuser record is a mapping from the 
+seusers file.
+I am still expecting objections from Tresys, based on previous 
+discussion of this,
+but if there are none, please merge.
 
-- Fix bug in iface_record.h
+This code was copied straight out of sepol/user_record.c.
+I deleted roles, mls_level, and added sename.
+Also modified to pass in the handle and use it, where failures occur.
 
---------------030500060704030501060908
+--------------070209050300050705090506
 Content-Type: text/x-patch;
- name="libsemanage.bool.iface.diff"
+ name="libsemanage.seuser_record.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.bool.iface.diff"
+ filename="libsemanage.seuser_record.diff"
 
-diff -Naur libsemanage/include/semanage/booleans.h libsemanage.new/include/semanage/booleans.h
---- libsemanage/include/semanage/booleans.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/include/semanage/booleans.h	2005-10-14 12:47:06.000000000 -0400
-@@ -0,0 +1,47 @@
-+#ifndef _SEMANAGE_BOOLEANS_H_
-+#define _SEMANAGE_BOOLEANS_H_
+diff -Naur libsemanage/include/semanage/seuser_record.h libsemanage.new/include/semanage/seuser_record.h
+--- libsemanage/include/semanage/seuser_record.h	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/include/semanage/seuser_record.h	2005-10-14 13:19:03.000000000 -0400
+@@ -0,0 +1,69 @@
++#ifndef _SEMANAGE_SEUSER_RECORD_H_
++#define _SEMANAGE_SEUSER_RECORD_H_
 +
 +#include <stddef.h>
-+#include <semanage/boolean_record.h>
 +#include <semanage/handle.h>
 +
-+extern int semanage_bool_add(
++struct semanage_seuser;
++struct semanage_seuser_key;
++typedef struct semanage_seuser semanage_seuser_t;
++typedef struct semanage_seuser_key semanage_seuser_key_t;
++
++/* Key */
++extern int semanage_seuser_key_create(
 +	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	semanage_bool_t* data);
++	const char* name, 
++	semanage_seuser_key_t** key);
 +
-+extern int semanage_bool_modify(
++extern int semanage_seuser_key_extract(
 +	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	semanage_bool_t* data);
++	semanage_seuser_t* seuser, 
++	semanage_seuser_key_t** key);
 +
-+extern int semanage_bool_del(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key);
++extern void semanage_seuser_key_free(
++	semanage_seuser_key_t* key);
 +
-+extern int semanage_bool_query(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	semanage_bool_t** response);
-+
-+extern int semanage_bool_exists(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	int* response);
-+
-+extern int semanage_bool_count(
-+	semanage_handle_t* handle,
-+	int* response);
-+
-+extern int semanage_bool_iterate(
-+	semanage_handle_t* handle,
-+	int (*handler) (semanage_bool_t* record,
-+	                void* varg),
-+	void* handler_arg);
-+
-+extern int semanage_bool_list(
-+	semanage_handle_t* handle,
-+	semanage_bool_t*** records,
-+	size_t* count);
-+
-+#endif 
-diff -Naur libsemanage/include/semanage/iface_record.h libsemanage.new/include/semanage/iface_record.h
---- libsemanage/include/semanage/iface_record.h	2005-09-30 16:18:58.000000000 -0400
-+++ libsemanage.new/include/semanage/iface_record.h	2005-10-14 12:48:47.000000000 -0400
-@@ -29,7 +29,7 @@
- 	semanage_iface_t* iface);
- 
- extern int semanage_iface_set_name(
--	semanage_user_t iface, 
-+	semanage_iface_t* iface, 
- 	const char* name);
- 
- /* Context */
-diff -Naur libsemanage/include/semanage/interfaces.h libsemanage.new/include/semanage/interfaces.h
---- libsemanage/include/semanage/interfaces.h	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/include/semanage/interfaces.h	2005-10-14 12:38:26.000000000 -0400
-@@ -0,0 +1,47 @@
-+#ifndef _SEMANAGE_INTERFACES_H_
-+#define _SEMANAGE_INTERFACES_H_
-+
-+#include <stddef.h>
-+#include <semanage/iface_record.h>
-+#include <semanage/handle.h>
-+
-+extern int semanage_iface_add(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	semanage_iface_t* data);
-+
-+extern int semanage_iface_modify(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	semanage_iface_t* data);
-+
-+extern int semanage_iface_del(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key);
-+
-+extern int semanage_iface_query(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	semanage_iface_t** response);
-+
-+extern int semanage_iface_exists(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	int* response);
-+
-+extern int semanage_iface_count(
-+	semanage_handle_t* handle,
-+	int* response);
-+
-+extern int semanage_iface_iterate(
-+	semanage_handle_t* handle,
-+	int (*handler) (semanage_iface_t* record,
-+	                void* varg),
-+	void* handler_arg);
-+
-+extern int semanage_iface_list(
-+	semanage_handle_t* handle,
-+	semanage_iface_t*** records,
-+	size_t* count);
-+
-+#endif 
-diff -Naur libsemanage/src/booleans.c libsemanage.new/src/booleans.c
---- libsemanage/src/booleans.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/booleans.c	2005-10-14 12:47:27.000000000 -0400
-@@ -0,0 +1,96 @@
-+#include <semanage/boolean_record.h>
-+
-+typedef semanage_bool_key_t record_key_t;
-+typedef semanage_bool_t record_t;
-+#define DBASE_RECORD_DEFINED
-+
-+struct dbase_file;
-+typedef struct dbase_file dbase_t;
-+#define DBASE_DEFINED
-+
-+#include <stddef.h>
-+#include <stdlib.h>
-+#include <semanage/booleans.h>
-+#include "handle.h"
-+#include "database.h"
-+
-+/* Record base functions */
-+record_table_t SEMANAGE_BOOL_RTABLE = {
-+	.create      = semanage_bool_create,
-+	.key_extract = semanage_bool_key_extract,
-+	.key_free    = semanage_bool_key_free,
-+	.clone       = semanage_bool_clone,
-+	.compare     = semanage_bool_compare,
-+	.free        = semanage_bool_free,
-+};
-+
-+int semanage_bool_add(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	semanage_bool_t* data) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);
-+	return dconfig->dtable->add(handle, dconfig->dbase, key, data);
-+}
-+
-+int semanage_bool_modify(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	semanage_bool_t* data) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);	
-+	return dconfig->dtable->modify(handle, dconfig->dbase, key, data);
-+}
-+
-+int semanage_bool_del(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);
-+	return dconfig->dtable->del(handle, dconfig->dbase, key);
-+}
-+
-+int semanage_bool_query(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	semanage_bool_t** response) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);
-+	return dconfig->dtable->query(handle, dconfig->dbase, key, response);
-+}
-+
-+int semanage_bool_exists(
-+	semanage_handle_t* handle,
-+	semanage_bool_key_t* key,
-+	int* response) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);
-+	return dconfig->dtable->exists(handle, dconfig->dbase, key, response);
-+}
-+
-+int semanage_bool_count(
-+	semanage_handle_t* handle,
-+	int* response) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);
-+	return dconfig->dtable->count(handle, dconfig->dbase, response);
-+}
-+
-+int semanage_bool_iterate(
-+	semanage_handle_t* handle,
-+	int (*handler) (semanage_bool_t* record,
-+	                void* varg),
-+	void* handler_arg) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);
-+	return dconfig->dtable->iterate(handle, dconfig->dbase, handler, handler_arg);
-+}
-+
-+int semanage_bool_list(
-+	semanage_handle_t* handle,
-+	semanage_bool_t*** records,
-+	size_t* count) {
-+
-+	dbase_config_t* dconfig = semanage_bool_dbase(handle);
-+	return dconfig->dtable->list(handle, dconfig->dbase, records, count);
-+}
-diff -Naur libsemanage/src/booleans_file.c libsemanage.new/src/booleans_file.c
---- libsemanage/src/booleans_file.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/booleans_file.c	2005-10-14 12:48:12.000000000 -0400
-@@ -0,0 +1,70 @@
-+#include <semanage/boolean_record.h>
-+
-+typedef semanage_bool_t record_t;
-+typedef semanage_bool_key_t record_key_t;
-+#define DBASE_RECORD_DEFINED
-+
-+struct dbase_file;
-+typedef struct dbase_file dbase_t;
-+#define DBASE_DEFINED 
-+
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <ctype.h>
-+#include <string.h>
-+#include <selinux/selinux.h>
-+#include "database_file.h"
-+#include "parse_utils.h"
-+#include "debug.h"
-+#include "semanage_store.h"
-+#include "handle.h"
-+
-+static int bool_print(
-+	semanage_bool_t* bool, 
-+	FILE* str) {
-+
-+	/* Stub */
-+	bool = NULL;
-+	str = NULL;
-+	return STATUS_SUCCESS;
-+}
-+
-+static int bool_parse(
-+	parse_info_t* info, 
-+	semanage_bool_t* bool) {
-+
-+	/* Stub */
-+	info = NULL;
-+	bool = NULL;
-+	return STATUS_SUCCESS;
-+
-+}
-+
-+/* BOOL RECORD: metod table (booleans.c) */
-+extern record_table_t SEMANAGE_BOOL_RTABLE;
-+
-+/* BOOL RECORD: FILE extension: method table */
-+record_file_table_t SEMANAGE_BOOL_FILE_RTABLE = {
-+	.parse       = bool_parse,
-+	.print       = bool_print,
-+};
-+
-+int bool_file_dbase_init(dbase_config_t* dconfig) {
++extern int semanage_seuser_compare(
++	semanage_seuser_t* seuser, 
++	semanage_seuser_key_t* key);
 +	
-+	if (dbase_file_init(
-+		"booleans",
-+		&SEMANAGE_BOOL_RTABLE,
-+		&SEMANAGE_BOOL_FILE_RTABLE, 
-+		&dconfig->dbase) < 0)
-+		return STATUS_ERR;
++/* Name */
++extern const char* semanage_seuser_get_name(
++	semanage_seuser_t* seuser);
 +
-+	dconfig->dtable = &SEMANAGE_FILE_DTABLE;
-+	return STATUS_SUCCESS;
-+}
-+
-+void bool_file_dbase_release(
++extern int semanage_seuser_set_name(
 +	semanage_handle_t* handle,
-+	dbase_config_t* dconfig) {
++	semanage_seuser_t* seuser, 
++	const char* name);
 +
-+	dbase_file_release(handle, dconfig->dbase);
-+}
-diff -Naur libsemanage/src/handle.h libsemanage.new/src/handle.h
---- libsemanage/src/handle.h	2005-10-13 13:08:35.000000000 -0400
-+++ libsemanage.new/src/handle.h	2005-10-14 12:42:30.000000000 -0400
-@@ -71,9 +71,11 @@
- 	struct semanage_policy_table* funcs;
- 
- 	/* Object databases */
--#define DBASE_COUNT 2
--#define DBASE_USERS 0
--#define DBASE_PORTS 1
-+#define DBASE_COUNT      4
-+#define DBASE_USERS      0
-+#define DBASE_PORTS      1
-+#define DBASE_INTERFACES 2
-+#define DBASE_BOOLEANS   3
- 	dbase_config_t dbase[DBASE_COUNT];
- };
- 
-@@ -87,5 +89,15 @@
-         return &handle->dbase[DBASE_PORTS];
- }
- 
-+static inline
-+dbase_config_t* semanage_iface_dbase(semanage_handle_t* handle) {
-+	return &handle->dbase[DBASE_INTERFACES];
-+}
++/* Selinux Name */
++extern const char* semanage_seuser_get_sename(
++	semanage_seuser_t* seuser);
 +
-+static inline
-+dbase_config_t* semanage_bool_dbase(semanage_handle_t* handle) {
-+	return &handle->dbase[DBASE_BOOLEANS];
-+}
++extern int semanage_seuser_set_sename(
++	semanage_handle_t* handle,
++	semanage_seuser_t* seuser,
++	const char* sename);
 +
- #endif
- 
-diff -Naur libsemanage/src/interfaces.c libsemanage.new/src/interfaces.c
---- libsemanage/src/interfaces.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/interfaces.c	2005-10-14 12:47:38.000000000 -0400
-@@ -0,0 +1,96 @@
-+#include <semanage/iface_record.h>
++/* MLS */
++extern const char* semanage_seuser_get_mlsrange(
++	semanage_seuser_t* seuser);
 +
-+typedef semanage_iface_key_t record_key_t;
-+typedef semanage_iface_t record_t;
-+#define DBASE_RECORD_DEFINED
++extern int semanage_seuser_set_mlsrange(
++	semanage_handle_t* handle,
++	semanage_seuser_t* seuser, 
++	const char* mls_range);
 +
-+struct dbase_file;
-+typedef struct dbase_file dbase_t;
-+#define DBASE_DEFINED
++/* Create/Clone/Destroy */
++extern int semanage_seuser_create(
++	semanage_handle_t* handle,
++	semanage_seuser_t** seuser_ptr);
 +
-+#include <stddef.h>
++extern int semanage_seuser_clone(
++	semanage_handle_t* handle,
++	semanage_seuser_t* seuser, 
++	semanage_seuser_t** seuser_ptr);
++
++extern void semanage_seuser_free(
++	semanage_seuser_t* seuser);
++#endif
+diff -Naur libsemanage/src/seuser_record.c libsemanage.new/src/seuser_record.c
+--- libsemanage/src/seuser_record.c	1969-12-31 19:00:00.000000000 -0500
++++ libsemanage.new/src/seuser_record.c	2005-10-14 13:19:26.000000000 -0400
+@@ -0,0 +1,195 @@
 +#include <stdlib.h>
-+#include <semanage/interfaces.h>
-+#include "handle.h"
-+#include "database.h"
-+
-+/* Record base functions */
-+record_table_t SEMANAGE_IFACE_RTABLE = {
-+	.create      = semanage_iface_create,
-+	.key_extract = semanage_iface_key_extract,
-+	.key_free    = semanage_iface_key_free,
-+	.clone       = semanage_iface_clone,
-+	.compare     = semanage_iface_compare,
-+	.free        = semanage_iface_free,
-+};
-+
-+int semanage_iface_add(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	semanage_iface_t* data) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);
-+	return dconfig->dtable->add(handle, dconfig->dbase, key, data);
-+}
-+
-+int semanage_iface_modify(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	semanage_iface_t* data) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);	
-+	return dconfig->dtable->modify(handle, dconfig->dbase, key, data);
-+}
-+
-+int semanage_iface_del(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);
-+	return dconfig->dtable->del(handle, dconfig->dbase, key);
-+}
-+
-+int semanage_iface_query(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	semanage_iface_t** response) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);
-+	return dconfig->dtable->query(handle, dconfig->dbase, key, response);
-+}
-+
-+int semanage_iface_exists(
-+	semanage_handle_t* handle,
-+	semanage_iface_key_t* key,
-+	int* response) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);
-+	return dconfig->dtable->exists(handle, dconfig->dbase, key, response);
-+}
-+
-+int semanage_iface_count(
-+	semanage_handle_t* handle,
-+	int* response) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);
-+	return dconfig->dtable->count(handle, dconfig->dbase, response);
-+}
-+
-+int semanage_iface_iterate(
-+	semanage_handle_t* handle,
-+	int (*handler) (semanage_iface_t* record,
-+	                void* varg),
-+	void* handler_arg) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);
-+	return dconfig->dtable->iterate(handle, dconfig->dbase, handler, handler_arg);
-+}
-+
-+int semanage_iface_list(
-+	semanage_handle_t* handle,
-+	semanage_iface_t*** records,
-+	size_t* count) {
-+
-+	dbase_config_t* dconfig = semanage_iface_dbase(handle);
-+	return dconfig->dtable->list(handle, dconfig->dbase, records, count);
-+}
-diff -Naur libsemanage/src/interfaces_file.c libsemanage.new/src/interfaces_file.c
---- libsemanage/src/interfaces_file.c	1969-12-31 19:00:00.000000000 -0500
-+++ libsemanage.new/src/interfaces_file.c	2005-10-14 12:48:23.000000000 -0400
-@@ -0,0 +1,70 @@
-+#include <semanage/iface_record.h>
-+
-+typedef semanage_iface_t record_t;
-+typedef semanage_iface_key_t record_key_t;
-+#define DBASE_RECORD_DEFINED
-+
-+struct dbase_file;
-+typedef struct dbase_file dbase_t;
-+#define DBASE_DEFINED 
-+
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <ctype.h>
 +#include <string.h>
-+#include <selinux/selinux.h>
-+#include "database_file.h"
-+#include "parse_utils.h"
++
++#include <semanage/seuser_record.h>
 +#include "debug.h"
-+#include "semanage_store.h"
 +#include "handle.h"
 +
-+static int iface_print(
-+	semanage_iface_t* iface, 
-+	FILE* str) {
++struct semanage_seuser {
++	/* This user's name */
++	char* name;
 +
-+	/* Stub */
-+	iface = NULL;
-+	str = NULL;
-+	return STATUS_SUCCESS;
-+}
++	/* This user's corresponding 
++	 * seuser ("role set") */
++	char* sename;
 +
-+static int iface_parse(
-+	parse_info_t* info, 
-+	semanage_iface_t* iface) {
-+
-+	/* Stub */
-+	info = NULL;
-+	iface = NULL;
-+	return STATUS_SUCCESS;
-+
-+}
-+
-+/* IFACE RECORD: metod table (interfaces.c) */
-+extern record_table_t SEMANAGE_IFACE_RTABLE;
-+
-+/* IFACE RECORD: FILE extension: method table */
-+record_file_table_t SEMANAGE_IFACE_FILE_RTABLE = {
-+	.parse       = iface_parse,
-+	.print       = iface_print,
++	/* This user's mls range (only required for mls) */
++	char* mls_range;
 +};
 +
-+int iface_file_dbase_init(dbase_config_t* dconfig) {
-+	
-+	if (dbase_file_init(
-+		NULL, /* FIXME */
-+		&SEMANAGE_IFACE_RTABLE,
-+		&SEMANAGE_IFACE_FILE_RTABLE, 
-+		&dconfig->dbase) < 0)
-+		return STATUS_ERR;
++struct semanage_seuser_key {
++	/* This user's name */
++	const char* name;
++};
 +
-+	dconfig->dtable = &SEMANAGE_FILE_DTABLE;
++int semanage_seuser_key_create(
++	semanage_handle_t* handle,
++	const char* name,
++	semanage_seuser_key_t** key_ptr) {
++
++	semanage_seuser_key_t* tmp_key = 
++		(semanage_seuser_key_t*) 
++		malloc(sizeof (semanage_seuser_key_t));
++
++	if (!tmp_key) {
++		ERR(handle, "out of memory, could not create seuser key");
++		return STATUS_ERR;
++	}
++	tmp_key->name = name;
++
++	*key_ptr = tmp_key;
 +	return STATUS_SUCCESS;
 +}
 +
-+void iface_file_dbase_release(
++int semanage_seuser_key_extract(
 +	semanage_handle_t* handle,
-+	dbase_config_t* dconfig) {
++	semanage_seuser_t* seuser, 
++	semanage_seuser_key_t** key_ptr) {
 +
-+	dbase_file_release(handle, dconfig->dbase);
++	if (semanage_seuser_key_create(handle, seuser->name, key_ptr) < 0) {
++		ERR(handle, "could not extract key from seuser %s",
++			seuser->name);
++		return STATUS_ERR;
++	}
++
++	return STATUS_SUCCESS;
++}	
++
++void semanage_seuser_key_free(semanage_seuser_key_t* key) {
++	free(key);
 +}
-diff -Naur libsemanage/src/policy_components.c libsemanage.new/src/policy_components.c
---- libsemanage/src/policy_components.c	2005-10-13 13:08:35.000000000 -0400
-+++ libsemanage.new/src/policy_components.c	2005-10-14 12:50:28.000000000 -0400
-@@ -9,8 +9,8 @@
- 	semanage_module_info_t* base) {
- 
- 	//dbase_config_t* modules = dbase_modules_dbase(handle);
--	//dbase_config_t* interfaces = semanage_iface_dbase(handle);
--	//dbase_config_t* booleans = semanage_bool_dbase(handle);
-+	dbase_config_t* interfaces = semanage_iface_dbase(handle);
-+	dbase_config_t* booleans = semanage_bool_dbase(handle);
- 	dbase_config_t* users = semanage_user_dbase(handle);
- 	dbase_config_t* ports = semanage_port_dbase(handle);
- 
-@@ -18,15 +18,15 @@
- 	if (modules->dtable->iterate(handle,
- 		modules->dbase, NULL, NULL, /* FIXME */) < 0)
- 		goto err;	
-+#endif
- 
- 	if (interfaces->dtable->iterate(handle,
--		interfaces->dbase, NULL, NULL, /* FIXME */) < 0)
-+		interfaces->dbase, NULL, NULL /* FIXME */) < 0)
- 		goto err;
- 
- 	if (booleans->dtable->iterate(handle,
--		booleans->dbase, NULL, NULL, /* FIXME */) < 0)
-+		booleans->dbase, NULL, NULL /* FIXME */) < 0)
- 		goto err;
--#endif
- 
- 	if (users->dtable->iterate(handle, 
- 		users->dbase, NULL, NULL /* FIXME */) < 0)
-@@ -48,21 +48,21 @@
- 	semanage_handle_t* handle) {
- 
- 	//dbase_config_t* modules = semanage_modules_dbase(handle);
--	//dbase_config_t* interfaces = semanage_iface_dbase(handle);
--	//dbase_config_t* booleans = semanage_bool_dbase(handle);
-+	dbase_config_t* interfaces = semanage_iface_dbase(handle);
-+	dbase_config_t* booleans = semanage_bool_dbase(handle);
- 	dbase_config_t* users = semanage_user_dbase(handle);
- 	dbase_config_t* ports = semanage_port_dbase(handle);
- 
- #if 0
-         if (modules->dtable->flush(handle, modules->dbase) < 0)
-                 goto err;
-+#endif
- 
-         if (interfaces->dtable->flush(handle, interfaces->dbase) < 0)
-                 goto err;
- 
-         if (booleans->dtable->flush(handle, booleans->dbase) < 0)
-                 goto err;
--#endif
- 
- 	if (users->dtable->flush(handle, users->dbase) < 0) 
- 		goto err;
-@@ -76,10 +76,9 @@
- 	/* FIXME: handle error */
- #if 0
- 	modules->dtable->drop_cache(handle, modules->dbase);
-+#endif
- 	interfaces->dtable->drop_cache(handle, interfaces->dbase);
- 	booleans->dtable->drop_cache(handle, booleans->dbase);
--#endif
--	
- 	users->dtable->drop_cache(handle, users->dbase);
- 	ports->dtable->drop_cache(handle, ports->dbase);
- 	return STATUS_ERR;
++
++int semanage_seuser_compare(
++	semanage_seuser_t* seuser,
++	semanage_seuser_key_t* key) {
++	
++	if (!strcmp(seuser->name, key->name))
++		return 0;
++	return 1;
++}
++
++/* Name */
++const char* semanage_seuser_get_name(
++	semanage_seuser_t* seuser) {
++
++	return seuser->name;
++}
++
++int semanage_seuser_set_name(
++	semanage_handle_t* handle, 
++	semanage_seuser_t* seuser, 
++	const char* name) {
++
++	seuser->name = strdup(name);
++	if (!seuser->name) {
++		ERR(handle,  "out of memory, could not set name");
++		return STATUS_ERR;
++	}
++	return STATUS_SUCCESS;
++}
++
++/* Selinux Name */
++const char* semanage_seuser_get_sename(
++	semanage_seuser_t* seuser) {
++
++	return seuser->sename;
++}
++
++int semanage_seuser_set_sename(
++	semanage_handle_t* handle,
++	semanage_seuser_t* seuser,
++	const char* sename) {
++
++	seuser->sename = strdup(sename);
++	if (!seuser->sename) {
++		ERR(handle,  "out of memory, could not set name");
++		return STATUS_ERR;
++	}
++	return STATUS_SUCCESS;
++}
++
++/* MLS Range */
++const char* semanage_seuser_get_mlsrange(
++	semanage_seuser_t* seuser) {
++
++	return seuser->mls_range;
++}
++
++int semanage_seuser_set_mlsrange(
++	semanage_handle_t* handle, 
++	semanage_seuser_t* seuser, 
++	const char* mls_range) {
++
++	seuser->mls_range = strdup(mls_range);
++	if (!seuser->mls_range) {
++		ERR(handle, "out of memory, could not set "
++			"MLS allowed range");
++		return STATUS_ERR;
++	}
++	return STATUS_SUCCESS;
++}
++
++/* Create */
++int semanage_seuser_create(
++	semanage_handle_t* handle,
++	semanage_seuser_t** seuser_ptr) {
++
++	semanage_seuser_t* seuser = 
++		(semanage_seuser_t*) malloc(sizeof (semanage_seuser_t));
++
++        if (!seuser) {
++		ERR(handle, "out of memory, "
++			"could not create seuser record"); 
++		return STATUS_ERR;
++	}
++
++        seuser->name = NULL;
++	seuser->sename = NULL;
++	seuser->mls_range = NULL;
++	
++	*seuser_ptr = seuser;
++	return STATUS_SUCCESS;
++}
++
++/* Deep copy clone */
++int semanage_seuser_clone(
++	semanage_handle_t* handle,
++	semanage_seuser_t* seuser, 
++	semanage_seuser_t** seuser_ptr) {
++
++	semanage_seuser_t* new_seuser = NULL;
++
++	if (semanage_seuser_create(handle, &new_seuser) < 0)
++		goto err;
++
++	if (semanage_seuser_set_name(handle, new_seuser, seuser->name) < 0)
++		goto err;
++
++	if (semanage_seuser_set_sename(handle, new_seuser, seuser->sename) < 0)
++		goto err;
++
++	if (seuser->mls_range &&
++	   (semanage_seuser_set_mlsrange(handle, new_seuser, seuser->mls_range) < 0))
++		goto err;
++
++	*seuser_ptr = new_seuser;
++	return STATUS_SUCCESS;
++
++	err:
++	ERR(handle, "could not clone seuser record");
++	semanage_seuser_free(new_seuser);
++	return STATUS_ERR;
++}
++
++/* Destroy */
++void semanage_seuser_free(
++	semanage_seuser_t* seuser) {
++
++	if (!seuser)
++		return;
++	
++	free(seuser->name);
++	free(seuser->sename);
++	free(seuser->mls_range);
++	free(seuser);
++}
 
---------------030500060704030501060908--
+--------------070209050300050705090506--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
