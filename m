@@ -1,93 +1,52 @@
-Message-ID: <435025EB.2060203@cornell.edu>
-Date: Fri, 14 Oct 2005 17:40:59 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9ELlONs011484
+	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 17:47:24 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9ELjPTX009049
+	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 21:45:26 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Chad Hanson <chanson@TrustedCS.com>
+Subject: Re: MLS policy
+Date: Sat, 15 Oct 2005 07:44:41 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <36282A1733C57546BE392885C0618592D3952A@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592D3952A@chaos.tcs.tcs-sec.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [ SEMANAGE ] Add a few direct dbases to handle
-References: <434FF612.8010708@cornell.edu> <4350131E.8060708@tresys.com> <435017B2.7040107@cornell.edu> <435018F7.6070706@cornell.edu> <4350177F.7010600@tresys.com> <43501C38.5040907@cornell.edu> <43501DD9.4010803@tresys.com>
-In-Reply-To: <43501DD9.4010803@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200510150744.49522.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
->>
->> You don't seem to realize that those databases need to exist, whether 
->> or not you're using the policy server, or the direct api.
->> This is just another way to switch between the two.
->>
-> The policy server can't fill in these databases since there are 
-> permission checks it would need to do for the queries.
-That sounds like an implementation detail, and I don't understand why 
-it's a problem. Maybe you can be more specific?
-
-I've defined a database-like interface for users and other objects for 
-files. You can look at users.h or ports.h, to see an example. I would 
-like to support the same interface for the same objects in policy. I 
-plan on exposing at least the query part of it to libsemanage clients. 
-I'm not sure whether the modification part of it should be exposed 
-(since you want modules only...no primitive changes), but I think it 
-should be implemented internally in any case.
-
-I can support the direct-case implementation. I am hoping you can 
-support the policy server case, because otherwise this interface will 
-not work for the server. If you dislike the interface, please give 
-concrete reasons why, and I'll try to correct it.
-
->>>>
->>>> In fact, I want to convert your modules functions into a database 
->>>> too, but
->>>> I haven't gotten to it yet, and this isn't high priority.
->>>>
->>> Why? This doesn't solve any problem.
->>
->> For consistency, if nothing else... I think there are benefits to 
->> hiding data collections under a uniform interface, but I don't want 
->> to get into that right now - I sent Karl a long email some time ago. 
->> I know he's not convinced, but it's just my pet project.
->>
-> this is a library being used by many people, I don't know that adding 
-> things for the sake of adding them is appropriate.
-I don't waste my time adding things "for the sake of adding them". I try 
-to design things so that they are extensible. For example, one concrete 
-reason why I want to see the modules look like a database, is that the 
-dbase interface has more functions than you currently provide, and 
-provides better encapsulation. I think that having a similar modules 
-interface could be beneficial.
-
-That said, Dan Walsh has not specified this as part of my current 
-project, so it's just something that I would like to do.
-The handle does not contain anything backend specific currently. Please 
-give an example of something backend specific.
-> The subject of this email is "Add a few direct dbases to handle". Does 
-> direct mean something different from a direct connection?
-You're right...the subject is misleading. It should say:
-"Add a few policy databases to the handle, and stub their direct 
-implementations".
-
-> Also:
+On Saturday 15 October 2005 00:23, Chad Hanson <chanson@trustedcs.com> wrote:
+> > Currently a default root login gets a default level of s2.  This means
+> > that daemons initially run with the range s0-s9 but run with the range
+> > s2-s9 after being restarted.  Should we have range-transition rules in the
+> > daemon_domain family of macros to deal with this?
 >
-> +
-> +#define DBASE_BASE_USERS      5
-> +#define DBASE_BASE_PORTS      6
-> +#if 0
-> +#define DBASE_BASE_INTERFACES 7
-> +#define DBASE_BASE_BOOLEANS   8
-> +#endif
->
-> What are these? How are they different from the other user, ports, 
-> interfaces, booleans. Why isn't this described in the code or even email?
-These are the users/ports/interfaces, and booleans that are currently 
-part of the binary policy.
-This was described in an email, to which you replied IIRC. It has also 
-been described multiple times when I submitted patches that talk about a 
-"direct database" to the list.
+> We do have range_transition policy to handle this. This will be included in
+> a MLS policy update we are working on.
 
-I agree that the code is not commented, but I've tried to at least name 
-things proplerly.
-I can add more comments later on, since a lot of this functionality 
-isn't quite working yet - this is work in-progress.
+OK.
+
+> > What is the benefit of assigning root the default level of s2 anyway?
+>
+> Historically on MLS users login in above the lowest level. Part of this
+> reason is for integrity, which is not necessary for on a system with TE.
+
+Does that mean we should have a default of s2 or s0 for root?
+
+> A last comment is that an MLS/RBAC/CAPP system should not allow direct root
+> logins, but instead just the ability to su.
+
+Why is that?
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
