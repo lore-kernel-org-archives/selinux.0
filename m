@@ -1,39 +1,43 @@
-Subject: Re: [ SEMANAGE ] [ SEPOL ] More database work
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <434FB38E.3000309@tresys.com>
-References: <43454A61.8010907@cornell.edu>
-	 <1128626875.15836.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128695426.1450.26.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128700358.1450.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128709856.1450.75.camel@moss-spartans.epoch.ncsc.mil>
-	 <4346CE4C.1030201@tresys.com>
-	 <1128714852.1450.90.camel@moss-spartans.epoch.ncsc.mil>
-	 <1128719862.1450.119.camel@moss-spartans.epoch.ncsc.mil>
-	 <1129035115.3308.67.camel@moss-spartans.epoch.ncsc.mil>
-	 <1129231767.13490.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <434EE146.3010804@tresys.com>
-	 <1129291328.15883.49.camel@moss-spartans.epoch.ncsc.mil>
-	 <434FB38E.3000309@tresys.com>
-Content-Type: text/plain
-Date: Fri, 14 Oct 2005 09:49:33 -0400
-Message-Id: <1129297773.15883.134.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9EENbNs006881
+	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 10:23:38 -0400 (EDT)
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9EELPHa000004
+	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 14:21:25 GMT
+Message-ID: <36282A1733C57546BE392885C0618592D3952A@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+Subject: RE: MLS policy
+Date: Fri, 14 Oct 2005 10:23:52 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-10-14 at 09:33 -0400, Joshua Brindle wrote:
-> Sure, I was expecting it to be required, but still use an argument, it 
-> doesn't matter to me though
+> 
+> Currently a default root login gets a default level of s2.  This means
+that 
+> daemons initially run with the range s0-s9 but run with the range s2-s9
+after 
+> being restarted.  Should we have range-transition rules in the
+daemon_domain 
+> family of macros to deal with this?
+> 
 
-Usually an option argument is optional ;)
+We do have range_transition policy to handle this. This will be included in
+a MLS policy update we are working on. 
 
--- 
-Stephen Smalley
-National Security Agency
+> What is the benefit of assigning root the default level of s2 anyway?
+> 
 
+Historically on MLS users login in above the lowest level. Part of this
+reason is for integrity, which is not necessary for on a system with TE.
+
+A last comment is that an MLS/RBAC/CAPP system should not allow direct root
+logins, but instead just the ability to su.
+
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
