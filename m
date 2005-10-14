@@ -1,225 +1,122 @@
-Message-ID: <434FFB5B.1090605@cornell.edu>
-Date: Fri, 14 Oct 2005 14:39:23 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [ SEMANAGE ] Bugfix previous patches
-References: <434FF612.8010708@cornell.edu>
-In-Reply-To: <434FF612.8010708@cornell.edu>
-Content-Type: multipart/mixed;
- boundary="------------060500010703080300030000"
+Subject: [PATCH] Conditional expression mapping fix
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <SELinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-DR6hQi9RV4PzuB4N9iVW"
+Date: Fri, 14 Oct 2005 15:28:23 -0400
+Message-Id: <1129318103.2958.5.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060500010703080300030000
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+
+--=-DR6hQi9RV4PzuB4N9iVW
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Ivan Gyurdiev wrote:
-> Adds a few direct databases to the handle.
-> There's still no dangerous code in the main commit path...
-> This is just the equivalent to file init.
-Attached patch includes bugfixes for previous submissions (applies on top).
-
-Specifically:
-- direct code should be in direct_api.c (connect/disconnect), not in the 
-create/destroy for the handle.
-- removes suffix parameter from direct init functions - I don't think 
-I'll be implementing per module
-databases at this time (maybe some other day)
-- set correct suffix to policy.kern, not base.pp - we want to operate on 
-the expanded policy, with the modules merged.
-Actually, with this fix, there's now a slight chance the dbase_direct 
-cache function might start to work (since we're no longer using the 
-policy package, so it's just a standard policy database, I think).... 
-but I'd need to test that further.
-- add release() calls for the boolean/interface/seuser databases.
+This patch fixes a condition where conditionals in modules did not have
+the boolean values in their expressions mapped correctly while linking.
+This would result in conditionals with incorrect expressions in the
+final policy.
 
 
-
---------------060500010703080300030000
-Content-Type: text/x-patch;
- name="libsemanage.direct.bugfixes.diff"
+--=-DR6hQi9RV4PzuB4N9iVW
+Content-Disposition: attachment; filename=1-cond-expr-mapping.diff
+Content-Type: text/x-patch; name=1-cond-expr-mapping.diff; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.direct.bugfixes.diff"
 
-diff -Naur libsemanage/src/direct_api.c libsemanage.new/src/direct_api.c
---- libsemanage/src/direct_api.c	2005-10-14 14:20:47.000000000 -0400
-+++ libsemanage.new/src/direct_api.c	2005-10-14 14:31:34.000000000 -0400
-@@ -28,6 +28,13 @@
- #include <sys/stat.h>
- #include <sys/types.h>
+diff -purN -x .svn libsepol/src/link.c libsepol/src/link.c
+--- libsepol/src/link.c	2005-10-14 11:58:15.000000000 -0400
++++ libsepol/src/link.c	2005-10-14 14:05:01.000000000 -0400
+@@ -1004,6 +1004,7 @@ static int copy_role_allow_list(role_all
+ static int copy_cond_list(cond_node_t *list, cond_node_t **dst,
+                           policy_module_t *module, link_state_t *state)
+ {
++        int i;
+         cond_node_t *cur, *new_node = NULL, *tail;
+         cond_expr_t *cur_expr;
+         tail = *dst;
+@@ -1027,6 +1028,13 @@ static int copy_cond_list(cond_node_t *l
+                         assert(module->map[SYM_BOOLS][cur_expr->bool - 1] != 0);
+                         cur_expr->bool = module->map[SYM_BOOLS][cur_expr->bool - 1];
+                 }
++                new_node->nbools = cur->nbools;
++                for (i = 0; i < cur->nbools; i++) {
++                        uint32_t remapped_id = module->map[SYM_BOOLS][cur->bool_ids[i] - 1];
++                        assert(remapped_id != 0);
++                        new_node->bool_ids[i] = remapped_id;
++                }
++                new_node->expr_pre_comp = cur->expr_pre_comp;
  
-+#include "users_direct.h"
-+#include "ports_direct.h"
-+#if 0
-+#include "interfaces_direct.h"
-+#include "booleans_direct.h"
-+#endif
-+
- #include "debug.h"
- #include "handle.h"
- #include "modules.h"
-@@ -64,9 +71,8 @@
- /* Check that the module store exists, creating it if necessary.
-  */
- int semanage_direct_connect(semanage_handle_t *sh) {
--	if (semanage_create_store(sh, 1) < 0) {
--		return -1;
--	}
-+	if (semanage_create_store(sh, 1) < 0) 
-+		goto err;
+                 if (copy_avrule_list(cur->avtrue_list, &new_node->avtrue_list, module, state) ||
+                     copy_avrule_list(cur->avfalse_list, &new_node->avfalse_list, module, state)) {
+@@ -1605,7 +1613,7 @@ static int merge_avrules(link_state_t *s
+                                 dest_cond->avtrue_list = src_cond->avtrue_list;
+                         }
+                         else {
+-                                tmp = src_cond->avtrue_list;
++                                tmp = dest_cond->avtrue_list;
+                                 while (tmp->next != NULL) {
+                                         tmp = tmp->next;
+                                 }
+@@ -1616,7 +1624,7 @@ static int merge_avrules(link_state_t *s
+                                 dest_cond->avfalse_list = src_cond->avfalse_list;
+                         }
+                         else {
+-                                tmp = src_cond->avfalse_list;
++                                tmp = dest_cond->avfalse_list;
+                                 while (tmp->next != NULL) {
+                                         tmp = tmp->next;
+                                 }
+@@ -1745,6 +1753,22 @@ static int strip_symbols(link_state_t *s
  
- 	sh->conn.module.translock_file_fd = -1;
- 	sh->conn.module.readlock_file_fd = -1;
-@@ -74,9 +80,25 @@
- 	/* set up function pointers */
- 	sh->funcs = &direct_funcs;
+ /*********** the main linking functions ***********/
  
--	/* FIXME: configure policy query databases */
-+	if (user_direct_dbase_init(&sh->dbase[DBASE_BASE_USERS]) < 0)
-+		goto err;
- 
--	return 0;
-+	if (port_direct_dbase_init(&sh->dbase[DBASE_BASE_PORTS]) < 0)
-+		goto err;
++/* Given a module's policy, normalize all conditional expressions
++ * within.  Return 0 on success, -1 on error. */
++static int cond_normalize(policydb_t *p) {
++        avrule_block_t *block;
++        for (block = p->global; block != NULL; block = block->next) {
++                avrule_decl_t *decl;
++                for (decl = block->branch_list; decl != NULL; decl = decl->next) {
++                        cond_list_t *cond = decl->cond_list;
++                        if (cond != NULL && cond_normalize_expr(p, cond) < 0) {
++                                return -1;
++                        }
++                }
++        }
++        return 0;
++}
 +
-+#if 0
-+	if (iface_direct_dbase_init(&sh->dbase[DBASE_BASE_INTERFACES]) < 0)
-+		goto err;
-+
-+	if (bool_direct_dbase_init(&sh->dbase[DBASE_BASE_BOOLEANS]) < 0)
-+		goto err;
-+#endif
-+
-+	return STATUS_SUCCESS;
-+
-+	err:
-+	/* FIXME: handle error */
-+	return STATUS_ERR;
+ /* Allocate space for the various remapping arrays. */
+ static int prepare_module(link_state_t *state, policy_module_t *module) {
+         int i;
+@@ -1787,6 +1811,11 @@ static int prepare_module(link_state_t *
+         }
+         module->num_decls = num_decls;
+         
++        /* normalize conditionals within */
++        if (cond_normalize(module->policy) < 0) {
++                write_error(state, "Error while normalizing conditionals within the module %s.", module->policy->name);
++                return -1;
++        }
+         return 0;
  }
  
- static void semanage_direct_destroy(semanage_handle_t *sh) {
-@@ -95,7 +117,13 @@
- 		semanage_release_trans_lock(sh);
- 	}
+@@ -1827,6 +1856,11 @@ static int prepare_base(link_state_t *st
+                 cur = cur->next;
+         }
  
--	/* FIXME: release policy query databases */
-+	/* Remove object databases */
-+	user_direct_dbase_release(sh, &sh->dbase[DBASE_BASE_USERS]);
-+	port_direct_dbase_release(sh, &sh->dbase[DBASE_BASE_PORTS]);
-+#if 0
-+	iface_direct_dbase_release(sh, &sh->dbase[DBASE_BASE_INTERFACES]);
-+	bool_direct_dbase_release(sh, &sh->dbase[DBASE_BASE_BOOLEANS]);
-+#endif
- 
- 	return 0;
++        /* normalize conditionals within */
++        if (cond_normalize(state->base) < 0) {
++                write_error(state, "Error while normalizing conditionals within the base module.");
++                return -1;
++        }
+         return 0;
  }
-diff -Naur libsemanage/src/handle.c libsemanage.new/src/handle.c
---- libsemanage/src/handle.c	2005-10-14 14:20:47.000000000 -0400
-+++ libsemanage.new/src/handle.c	2005-10-14 14:32:22.000000000 -0400
-@@ -29,9 +29,9 @@
- #include <stdio.h>
- #include <sys/time.h>
  
-+#include "direct_api.h"
- #include "handle.h"
- #include "debug.h"
--#include "direct_api.h"
- #include "semanage_conf.h"
- #include "semanage_store.h"
- #include "users_file.h"
-@@ -39,8 +39,6 @@
- #include "interfaces_file.h"
- #include "booleans_file.h"
- #include "seusers_file.h"
--#include "users_direct.h"
--#include "ports_direct.h"
- #include "database.h"
- 
- #define SEMANAGE_COMMIT_READ_WAIT 5
-@@ -92,12 +90,6 @@
- 	if (seuser_file_dbase_init(&sh->dbase[DBASE_SEUSERS]) < 0)
- 		goto err;
- 
--	if (user_direct_dbase_init("base.pp", &sh->dbase[DBASE_BASE_USERS]) < 0)
--		goto err;
--
--	if (port_direct_dbase_init("base.pp", &sh->dbase[DBASE_BASE_PORTS]) < 0)
--		goto err;
--
-         return sh;
- 
-  omem:
-@@ -150,6 +142,9 @@
- 	/* Free object databases */
- 	user_file_dbase_release(sh, &sh->dbase[DBASE_USERS]);
- 	port_file_dbase_release(sh, &sh->dbase[DBASE_PORTS]);
-+	iface_file_dbase_release(sh, &sh->dbase[DBASE_INTERFACES]);
-+	bool_file_dbase_release(sh, &sh->dbase[DBASE_BOOLEANS]);
-+	seuser_file_dbase_release(sh, &sh->dbase[DBASE_SEUSERS]);
- 
- 	free(sh);
- }
-diff -Naur libsemanage/src/ports_direct.c libsemanage.new/src/ports_direct.c
---- libsemanage/src/ports_direct.c	2005-10-06 15:22:48.000000000 -0400
-+++ libsemanage.new/src/ports_direct.c	2005-10-14 14:22:56.000000000 -0400
-@@ -28,11 +28,10 @@
- };
- 
- int port_direct_dbase_init(
--	const char* suffix,
- 	dbase_config_t* dconfig) {
- 
- 	if (dbase_direct_init(
--		suffix,
-+		"policy.kern",
- 		&SEPOL_PORT_RTABLE,
- 		&SEMANAGE_PORT_DIRECT_RTABLE, 
- 		&dconfig->dbase) < 0) 
-diff -Naur libsemanage/src/ports_direct.h libsemanage.new/src/ports_direct.h
---- libsemanage/src/ports_direct.h	2005-10-06 15:22:48.000000000 -0400
-+++ libsemanage.new/src/ports_direct.h	2005-10-14 14:29:37.000000000 -0400
-@@ -5,7 +5,6 @@
- #include "handle.h"
- 
- int port_direct_dbase_init(
--	const char* suffix,
- 	dbase_config_t* dconfig);
- 
- void port_direct_dbase_release(
-diff -Naur libsemanage/src/users_direct.c libsemanage.new/src/users_direct.c
---- libsemanage/src/users_direct.c	2005-10-06 15:22:48.000000000 -0400
-+++ libsemanage.new/src/users_direct.c	2005-10-14 14:23:00.000000000 -0400
-@@ -28,11 +28,10 @@
- };
- 
- int user_direct_dbase_init(
--	const char* suffix,
- 	dbase_config_t* dconfig) {
- 
- 	if (dbase_direct_init(
--		suffix,
-+		"policy.kern",
- 		&SEPOL_USER_RTABLE, 
- 		&SEMANAGE_USER_DIRECT_RTABLE, 
- 		&dconfig->dbase) < 0)
-diff -Naur libsemanage/src/users_direct.h libsemanage.new/src/users_direct.h
---- libsemanage/src/users_direct.h	2005-10-06 15:22:48.000000000 -0400
-+++ libsemanage.new/src/users_direct.h	2005-10-14 14:29:31.000000000 -0400
-@@ -5,7 +5,6 @@
- #include "handle.h"
- 
- int user_direct_dbase_init(
--	const char* suffix,
- 	dbase_config_t* dconfig);
- 
- void user_direct_dbase_release(
 
---------------060500010703080300030000--
+--=-DR6hQi9RV4PzuB4N9iVW--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
