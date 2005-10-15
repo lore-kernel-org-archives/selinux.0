@@ -1,52 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9ELlONs011484
-	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 17:47:24 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9ELjPTX009049
-	for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2005 21:45:26 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: MLS policy
-Date: Sat, 15 Oct 2005 07:44:41 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <36282A1733C57546BE392885C0618592D3952A@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592D3952A@chaos.tcs.tcs-sec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9F9PiNs014435
+	for <selinux@tycho.nsa.gov>; Sat, 15 Oct 2005 05:25:44 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9F9NN42021936
+	for <selinux@tycho.nsa.gov>; Sat, 15 Oct 2005 09:23:23 GMT
+Message-ID: <4350CCFC.80900@cornell.edu>
+Date: Sat, 15 Oct 2005 05:33:48 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200510150744.49522.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+CC: Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: Record keys
+References: <434F5E3A.5030003@cornell.edu> <434F5E8C.1050708@cornell.edu>
+In-Reply-To: <434F5E8C.1050708@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 15 October 2005 00:23, Chad Hanson <chanson@trustedcs.com> wrote:
-> > Currently a default root login gets a default level of s2.  This means
-> > that daemons initially run with the range s0-s9 but run with the range
-> > s2-s9 after being restarted.  Should we have range-transition rules in the
-> > daemon_domain family of macros to deal with this?
+
 >
-> We do have range_transition policy to handle this. This will be included in
-> a MLS policy update we are working on.
+>> Please help me decide what to do with the record key for the record 
+>> structures which I've added into libsepol and libsemanage. Stephen 
+>> has now exported those functions into the shared library, so after an 
+>> official release, it would be good not to be changing those APIs.
+Joshua? No comments?
+(see original message for details)
 
-OK.
+If nobody suggests anything, I am likely to leave the key in, and add a 
+key_unpack function, and pass the key down to the sepol level....
 
-> > What is the benefit of assigning root the default level of s2 anyway?
->
-> Historically on MLS users login in above the lowest level. Part of this
-> reason is for integrity, which is not necessary for on a system with TE.
-
-Does that mean we should have a default of s2 or s0 for root?
-
-> A last comment is that an MLS/RBAC/CAPP system should not allow direct root
-> logins, but instead just the ability to su.
-
-Why is that?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
