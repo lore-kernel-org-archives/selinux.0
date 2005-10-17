@@ -1,85 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9HEZHNs028437
-	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 10:35:17 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9HEWqup001780
-	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 14:32:53 GMT
-Message-ID: <4353B628.6090801@redhat.com>
-Date: Mon, 17 Oct 2005 10:33:12 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9HEjUNs028576
+	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 10:45:31 -0400 (EDT)
+Received: from mail25.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9HEgjSN004581
+	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 14:42:45 GMT
+Date: Mon, 17 Oct 2005 10:43:05 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: MLS context?
+In-Reply-To: <1129553314.26309.13.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.63.0510171039370.23131@excalibur.intercode>
+References: <200510152027.59150.russell@coker.com.au>
+ <1129553314.26309.13.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Unix Admin <unix@cobalt-financial.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Kernel woes
-References: <43537A09.5080005@cobalt-financial.com>
-In-Reply-To: <43537A09.5080005@cobalt-financial.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Unix Admin wrote:
-> Greetings all. After a recent reboot to one of my servers, the kernel 
-> began showing the following errors:
->
-> [root@odin logs]# uname -a
-> Linux odin 2.6.9-11.ELsmp #1 SMP Wed Jun 8 17:54:20 CDT 2005 i686 i686 
-> i386 GNU/Linux
->
-> Oct 17 09:01:05 odin kernel: post_create:  setxattr failed, rc=28 
-> (dev=sda1 ino=8339458)
-> Oct 17 09:05:33 odin kernel: post_create:  setxattr failed, rc=28 
-> (dev=sda1 ino=8339457)
-> Oct 17 09:05:33 odin kernel: post_create:  setxattr failed, rc=28 
-> (dev=sda1 ino=8339458)
-> Oct 17 09:06:57 odin kernel: post_create:  setxattr failed, rc=28 
-> (dev=sda1 ino=8339457)
-> Oct 17 09:06:57 odin kernel: post_create:  setxattr failed, rc=28 
-> (dev=sda1 ino=8339458)
->
-> Oct 17 09:01:05 odin kernel: audit(1129554065.524:0): avc:  denied  { 
-> write } for  pid=527 comm=httpd name=log dev=tmpfs ino=271982 
-> scontext=root:system_r:httpd_t tcontext=root:object_r:device_t 
-> tclass=sock_file
-> Oct 17 09:05:33 odin kernel: audit(1129554333.429:0): avc:  denied  { 
-> write } for  pid=522 comm=httpd name=log dev=tmpfs ino=271982 
-> scontext=root:system_r:httpd_t tcontext=root:object_r:device_t 
-> tclass=sock_file
-> Oct 17 09:06:21 odin kernel: audit(1129554381.723:0): avc:  denied  { 
-> write } for  pid=524 comm=httpd name=log dev=tmpfs ino=271982 
-> scontext=root:system_r:httpd_t tcontext=root:object_r:device_t 
-> tclass=sock_file
-> Oct 17 09:06:57 odin kernel: audit(1129554417.668:0): avc:  denied  { 
-> write } for  pid=527 comm=httpd name=log dev=tmpfs ino=271982 
-> scontext=root:system_r:httpd_t tcontext=root:object_r:device_t 
-> tclass=sock_file
-> Oct 17 09:17:10 odin kernel: audit(1129555030.530:0): avc:  denied  { 
-> write } for  pid=522 comm=httpd name=log dev=tmpfs ino=271982 
-> scontext=root:system_r:httpd_t tcontext=root:object_r:device_t 
-> tclass=sock_file
-> Oct 17 09:17:32 odin kernel: audit(1129555052.254:0): avc:  denied  { 
-> write } for  pid=525 comm=httpd name=log dev=tmpfs ino=271982 
-> scontext=root:system_r:httpd_t tcontext=root:object_r:device_t 
-> tclass=sock_file
->
-> No changes were made to anything but we had to recently reboot due to 
-> an IP collision. Any ideas on why this is happening, any pointers on 
-> where to check for perhaps permission errors?
->
->
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-restorecon  /dev/log
+On Mon, 17 Oct 2005, Stephen Smalley wrote:
 
-should fix this.  But how did it happen?  Are you using udev?
+> On Sat, 2005-10-15 at 20:27 +1000, Russell Coker wrote:
+> > What is the canonical term for the MLS part of the policy?  Currently I've 
+> > been using the term "MLS context" to refer to the combination of level (or 
+> > range of levels) and categories (if there are any).
+> > 
+> > Is this an OK term?  If not then what should I use?
+> 
+> The correct term would be the "MLS range", where:
+> a) the range includes a low level and a high level, with the high
+> defaulting to the low if unspecified,
+> b) each level consists of a sensitivity and an optional set of
+> categories, e.g. s0:c0,c3 is a level consisting of sensitivity s0 and
+> category set {c0, c3}.
 
-Dan
+I also simply use 'MLS field', as it's a field of the security context.
 
+> > Also what term should I use for the human-readable version of the above as 
+> > taken from /etc/mcs.conf?
+> 
+> For MCS, it could just be something like "Compartment name" or similar,
+> as it is a translation of the compartment set to a human-readable name.
+
+I've been using MCS category.
+
+There's another use of 'compartment' which is synonymous with 'security 
+level', so I avoid the term.
+
+(Where security level = sensitivity + categories).
+
+
+- James
 -- 
-
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
