@@ -1,36 +1,37 @@
-Subject: Re: Kernel woes
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Unix Admin <unix@cobalt-financial.com>
-Cc: James Morris <jmorris@namei.org>, Daniel J Walsh <dwalsh@redhat.com>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <43537A09.5080005@cobalt-financial.com>
-References: <43537A09.5080005@cobalt-financial.com>
-Content-Type: text/plain
-Date: Mon, 17 Oct 2005 10:45:12 -0400
-Message-Id: <1129560312.26309.97.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C0618592D396DB@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+Subject: RE: MLS context?
+Date: Mon, 17 Oct 2005 11:21:39 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-17 at 10:16 +0000, Unix Admin wrote:
-> Greetings all. After a recent reboot to one of my servers, the kernel 
-> began showing the following errors:
+
+
 > 
-> [root@odin logs]# uname -a
-> Linux odin 2.6.9-11.ELsmp #1 SMP Wed Jun 8 17:54:20 CDT 2005 i686 i686 
-> i386 GNU/Linux
+> There's another use of 'compartment' which is synonymous with 
+> 'security 
+> level', so I avoid the term.
 > 
-> Oct 17 09:01:05 odin kernel: post_create:  setxattr failed, rc=28 
-> (dev=sda1 ino=8339458)
+> (Where security level = sensitivity + categories).
+> 
 
-errno 28 is ENOSPC, i.e. the filesystem is out of space so it cannot set
-the extended attribute on the newly created file properly.  This means
-that sda1 is out of space.
+Another common naming is sensitivity label. I have some common terms below,
+these are often used interchangeably.
 
--- 
-Stephen Smalley
-National Security Agency
+The list of terms below 
 
+	sensitivity label, security level, security label
+
+are usually comprised of
+	
+	sensitivity + categories, classification + compartments
+
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
