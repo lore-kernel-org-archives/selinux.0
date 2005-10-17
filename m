@@ -1,46 +1,85 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9HFdtNs029244
-	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 11:39:55 -0400 (EDT)
-Received: from deep.phpwebhosting.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j9HFb9SN011994
-	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 15:37:10 GMT
-Message-ID: <43538CDF.9030208@cobalt-financial.com>
-Date: Mon, 17 Oct 2005 11:37:03 +0000
-From: Unix Admin <unix@cobalt-financial.com>
-MIME-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9HFp9Ns029382
+	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 11:51:09 -0400 (EDT)
+Received: from luminouswebdesign.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9HFmNSN013337
+	for <selinux@tycho.nsa.gov>; Mon, 17 Oct 2005 15:48:24 GMT
+Received: from schaufler-ca.com (luminouswebdesign.com. [216.117.155.141])
+	by luminouswebdesign.com (8.12.10/8.12.10) with SMTP id j9HFmj66016679
+	for selinux@tycho.nsa.gov; Mon, 17 Oct 2005 11:48:45 -0400
+Date: Mon, 17 Oct 2005 11:48:45 -0400
+From: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>
+Message-Id: <200510171548.j9HFmj66016679@luminouswebdesign.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: Kernel woes  (summary)
-References: <43537A09.5080005@cobalt-financial.com> <4353B628.6090801@redhat.com>
-In-Reply-To: <4353B628.6090801@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: 
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
 
-> restorecon  /dev/log
+--- Russell Coker <russell@coker.com.au> wrote:
+
+> From: Russell Coker <russell@coker.com.au>
+> To: "SE-Linux" <selinux@tycho.nsa.gov>
+> Subject: MLS context?
+> Date: Sat, 15 Oct 2005 20:27:54 +1000
 >
-> should fix this.  But how did it happen?  Are you using udev?
->
-> Dan
->
-restorecon didn't work.
+> What is the canonical term for the MLS part of the
+> policy? Currently I've
+> been using the term "MLS context" to refer to the
+> combination of level (or
+> range of levels) and categories (if there are any).
 
-Oct 17 10:40:31 odin kernel: post_create:  setxattr failed, rc=28 
-(dev=sda1 ino=8339468)
-Oct 17 10:40:31 odin kernel: audit(1129560031.871:0): avc:  denied  { 
-connectto } for  pid=3823 comm=httpd path=/dev/log 
-scontext=root:system_r:httpd_t tcontext=user_u:system_r:unconfined_t 
-tclass=unix_stream_socket
+Unix MLS systems use the term "Sensitivity Label"
+to describe this unit of data. Some of the less
+sophisticated systems also used the term
+"MAC Label", although I doubt that is what
+you would want on a system with the richer
+MAC policy of SELinux. Never ever call this the
+"MAC Level", "Sensitivity Level", or "Security
+Level". Level is the heiracrhical component.
+In the late 1980's and early 1990's the NSA
+evaluators would slap us silly anytime we
+tried to use any term other than "label". I
+know that the CC evaluators are cut from a
+different cloth, so maybe you can call it
+something else, but if you want to go with
+the "conventional" jargon, say "Sensitivity
+Label".
 
-I removed mod_security rules to minimize any potential security errors. 
-Checked my permissions for the apache directory, still no dice. Rebooted 
-forced fsck (reboot -F) ...
 
-Checked disk space and I notice two volumes were not mounted so I 
-mounted them, removed unecessary files
-and voila. Got it working. Thanks to Stephen Smalley at the National 
-Security Agency for pointing out simple error numbers ;)
+> I am NOT going to say "MLS
+> range and optional
+> categories" 100 times in the course of a talk.
+
+Whiner.
+
+> Two
+> words is the maximum, if
+> there is no canonical term for this then we need to
+> make something up.
+
+Sensitivity Label. Make up something else if
+you must distance yourself from prior art.
+
+> Also what term should I use for the human-readable
+> version of the above as
+> taken from /etc/mcs.conf?
+
+We always called it the Sensitivity Label, too
+avoid getting smacked.
+
+------------------------
+Casey Schaufler
+casey@schaufler-ca.com
+650.906.1780
+
+
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
