@@ -1,47 +1,49 @@
-Subject: Re: logging question
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Eric Moore <eemoore@fyndo.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <200510180752.34963.russell@coker.com.au>
-References: <m33bn0az4a.fsf@eemoore.bcluster.njit.edu>
-	 <1129567150.26309.154.camel@moss-spartans.epoch.ncsc.mil>
-	 <200510180752.34963.russell@coker.com.au>
-Content-Type: text/plain
-Date: Tue, 18 Oct 2005 07:56:06 -0400
-Message-Id: <1129636566.2375.3.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9IDFWNs008310
+	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2005 09:15:32 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9IDCbqp028896
+	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2005 13:12:37 GMT
+Message-ID: <4354F4DB.5000805@tresys.com>
+Date: Tue, 18 Oct 2005 09:12:59 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: James Morris <jmorris@namei.org>
+CC: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [RFC] Dynamic discover of object classes
+References: <200510171328.30452.csellers@tresys.com> <Pine.LNX.4.63.0510171649190.24028@excalibur.intercode>
+In-Reply-To: <Pine.LNX.4.63.0510171649190.24028@excalibur.intercode>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-18 at 07:52 +1000, Russell Coker wrote:
-> On Tuesday 18 October 2005 02:39, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > (In or out of enforcing mode).  What's the best way for me to get
-> > > the kernel to log the appropriate messages somewhere?
-> >
-> > In 2.6, SELinux was converted over to using the native kernel audit
-> > subsystem for logging its denials.  So:
-> > - Does your kernel have auditing enabled (CONFIG_AUDIT=y)?  If not, time
-> > to rebuild your kernel.
+James Morris wrote:
+> On Mon, 17 Oct 2005, Chad Sellers wrote:
 > 
-> The Debian kernel binary packages are built with SE Linux enabled but auditing 
-> disabled.  I have sent several messages to the relevant people about this 
-> matter and had no positive response.  Several 2.6.x kernels have been 
-> released in this state.
+> 
+>>We would like to begin implementing option 1, as this seems to be the 
+>>cleanest.  Any feedback would be appreciated.
+> 
+> 
+> selinuxfs sounds cleaner.  There's no guarantee that there will be a 
+> binary policy on disk.
+> 
+> Also, what about some form of namespace separation for different object 
+> managers?
+> 
+> 
+> - James
 
-They may be concerned about the performance overhead of the audit
-infrastructure, but most of that is from CONFIG_AUDIT_SYSCALL=y, not
-just CONFIG_AUDIT=y, and SELinux only requires the latter to perform
-basic auditing of permission denials (the former can be useful in
-getting more information about the syscalls and is needed by auditd, but
-not strictly by SELinux).
+The class namespace supports the dot notation, though there is no 
+hierarchy definition in that namespace. That would allow all the X 
+classes to be X.<something>. This would give the additional advantage of 
+being able to label all the X classes with the same type using policycon 
+(for the policy server).
 
-Other option is to make the #undef CONFIG_AUDIT case revert to using
-printks like the original SELinux code.
+The policy server already uses the dot notation to seperate all of its 
+object classes (policy.type, policy.user and so on).
 
--- 
-Stephen Smalley
-National Security Agency
-
+Joshua
 
 --
 This message was distributed to subscribers of the selinux mailing list.
