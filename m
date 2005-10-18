@@ -1,74 +1,60 @@
-Message-ID: <43552AD9.6020701@cornell.edu>
-Date: Tue, 18 Oct 2005 13:03:21 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: James Morris <jmorris@namei.org>
+Subject: Re: MLS context?
+Date: Tue, 18 Oct 2005 21:33:45 +1000
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
+References: <200510152027.59150.russell@coker.com.au> <1129553314.26309.13.camel@moss-spartans.epoch.ncsc.mil> <Pine.LNX.4.63.0510171039370.23131@excalibur.intercode>
+In-Reply-To: <Pine.LNX.4.63.0510171039370.23131@excalibur.intercode>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEMANAGE ] Remove connection requirement from POLICYDB backend
-Content-Type: multipart/mixed;
- boundary="------------090203020406050606010009"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200510182133.56086.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090203020406050606010009
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tuesday 18 October 2005 00:43, James Morris <jmorris@namei.org> wrote:
+> > > What is the canonical term for the MLS part of the policy?  Currently
+> > > I've been using the term "MLS context" to refer to the combination of
+> > > level (or range of levels) and categories (if there are any).
+> > >
+> > > Is this an OK term?  If not then what should I use?
+> >
+> > The correct term would be the "MLS range", where:
+> > a) the range includes a low level and a high level, with the high
+> > defaulting to the low if unspecified,
+> > b) each level consists of a sensitivity and an optional set of
+> > categories, e.g. s0:c0,c3 is a level consisting of sensitivity s0 and
+> > category set {c0, c3}.
+>
+> I also simply use 'MLS field', as it's a field of the security context.
 
-This patch removes the is_connected check from the POLICYDB backend, 
-because it doesn't accomplish anything. What we really want to check is 
-whether the function was initialized or not (which can't be done at this 
-point anyway, because we're _already_ executing this function - this is 
-handled by the default database which I added).
+However it is two fields, the level/range and the optional categories.
 
-Regarding is_connected.... we don't want to check that, because the 
-POLICYDB backend will only be used in the policy server itself, which is 
-exactly where we do not want a connection (server doesn't connect to 
-itself). In the clients using a policy server, we're not using the 
-POLICYDB backend - we're using the SERVER backend, where this parameter 
-will be checked.
+> > > Also what term should I use for the human-readable version of the above
+> > > as taken from /etc/mcs.conf?
+> >
+> > For MCS, it could just be something like "Compartment name" or similar,
+> > as it is a translation of the compartment set to a human-readable name.
+>
+> I've been using MCS category.
+>
+> There's another use of 'compartment' which is synonymous with 'security
+> level', so I avoid the term.
 
-Besides, as is... those databases aren't even initialized if you don't 
-call connect, so it's impossible to be executing that function while 
-disconnected (although in the future we could initialize a database 
-somewhere other than on connect).
+True, "compartment" is used in many different contexts so using category 
+instead makes sense.  Also you have defined "MCS" as "multi-category 
+security" not "multi-compartment security"...
 
---------------090203020406050606010009
-Content-Type: text/x-patch;
- name="libsemanage.remove_connect.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.remove_connect.diff"
+Of course "MCS categories" is probably better as there are usually more than 
+one.
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude 'semanage_store*' --exclude 'module_record*' --exclude 'database_directory*' old/libsemanage/src/database_policydb.c new/libsemanage/src/database_policydb.c
---- old/libsemanage/src/database_policydb.c	2005-10-18 10:53:30.000000000 -0400
-+++ new/libsemanage/src/database_policydb.c	2005-10-18 12:55:43.000000000 -0400
-@@ -155,11 +155,6 @@ static int enter_ro(
- 	semanage_handle_t* handle,
- 	dbase_policydb_t* dbase) {
- 
--	if (!handle->is_connected) {
--		/* FIXME: handle error */
--		return STATUS_ERR;
--	}
--	
- 	if (semanage_get_read_lock(handle) < 0) {
- 		/* FIXME: handle error */
- 		return STATUS_ERR;
-@@ -185,11 +180,6 @@ static int enter_rw(
- 	semanage_handle_t* handle,
- 	dbase_policydb_t* dbase) {
- 
--	if (!handle->is_connected) {
--		/* FIXME: handle error */
--		return STATUS_ERR;
--	}
--	
- 	if (!handle->is_in_transaction) {
- 		/* FIXME: handle error */
- 		return STATUS_ERR;
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---------------090203020406050606010009--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
