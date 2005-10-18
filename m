@@ -1,49 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9IDFWNs008310
-	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2005 09:15:32 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9IDCbqp028896
-	for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2005 13:12:37 GMT
-Message-ID: <4354F4DB.5000805@tresys.com>
-Date: Tue, 18 Oct 2005 09:12:59 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: Chad Sellers <csellers@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [RFC] Dynamic discover of object classes
-References: <200510171328.30452.csellers@tresys.com> <Pine.LNX.4.63.0510171649190.24028@excalibur.intercode>
-In-Reply-To: <Pine.LNX.4.63.0510171649190.24028@excalibur.intercode>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [ SEMANAGE ] Rename direct -> policydb as appropriate
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <435446B6.3090608@cornell.edu>
+References: <435446B6.3090608@cornell.edu>
+Content-Type: text/plain
+Date: Tue, 18 Oct 2005 10:53:37 -0400
+Message-Id: <1129647217.2375.101.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Mon, 17 Oct 2005, Chad Sellers wrote:
+On Mon, 2005-10-17 at 20:49 -0400, Ivan Gyurdiev wrote:
+> During an off-list discussion w/ Joshua, it became apparent that there's 
+> confusion with the current naming of things.
 > 
+> In particular Tresys appear to use "direct" to refer to the method of 
+> access - if something is not accessed over the policy server, it is 
+> accessed directly, regardless of how it's stored. I've been using 
+> "direct" to refer specifically to the policydb backend.
 > 
->>We would like to begin implementing option 1, as this seems to be the 
->>cleanest.  Any feedback would be appreciated.
+> The following patch rename direct -> policydb as appropriate to prevent 
+> further confusion. Note that both the FILE and POLICYDB database types 
+> are both considered "DIRECT," and are initialized in the direct_api.c 
+> connect() function.
 > 
-> 
-> selinuxfs sounds cleaner.  There's no guarantee that there will be a 
-> binary policy on disk.
-> 
-> Also, what about some form of namespace separation for different object 
-> managers?
-> 
-> 
-> - James
+> Applies on top of the other patches sent, and should contain no 
+> functional changes, other than renames.
 
-The class namespace supports the dot notation, though there is no 
-hierarchy definition in that namespace. That would allow all the X 
-classes to be X.<something>. This would give the additional advantage of 
-being able to label all the X classes with the same type using policycon 
-(for the policy server).
+Merged all 3 patches (dbase init, read lock, direct rename) as of
+libsemanage 1.3.22, after merging my own patches for adding handles to
+further sepol interfaces in 1.3.21.  I had to re-apply the change for
+the dbase code again after the rename.
 
-The policy server already uses the dot notation to seperate all of its 
-object classes (policy.type, policy.user and so on).
+-- 
+Stephen Smalley
+National Security Agency
 
-Joshua
 
 --
 This message was distributed to subscribers of the selinux mailing list.
