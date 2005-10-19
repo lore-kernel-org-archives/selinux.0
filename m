@@ -1,50 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9JGgbNs021283
-	for <selinux@tycho.nsa.gov>; Wed, 19 Oct 2005 12:42:37 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9JGdpjJ012127
-	for <selinux@tycho.nsa.gov>; Wed, 19 Oct 2005 16:39:51 GMT
-Message-ID: <43567968.6020803@cornell.edu>
-Date: Wed, 19 Oct 2005 12:50:48 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Record keys
-References: <434F5E3A.5030003@cornell.edu> <434F5E8C.1050708@cornell.edu> <4356520D.7050603@tresys.com>
-In-Reply-To: <4356520D.7050603@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Loading things into policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43559474.1080905@cornell.edu>
+References: <43559474.1080905@cornell.edu>
+Content-Type: text/plain
+Date: Wed, 19 Oct 2005 13:20:38 -0400
+Message-Id: <1129742438.2375.236.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2005-10-18 at 20:33 -0400, Ivan Gyurdiev wrote:
+> So, I have a question regarding customizations to policy.
+> 
+> I plan to support those functions in all databases:
+> add() - add a new thing, or fail if it exists
+>            (maybe add a configurable parameter saying whether we should 
+> fail, or only warn if it exists)
+> modify() - add a new thing, or modify it if it exists
+> 
+> In addition, I'm thinking of adding:
+> set() - modify a thing, but don't add it if it doesn't exist (for booleans).
 
-> I can't think of any time a key wouldn't be within the record. I don't 
-> know what the problem is though, the record will always be serialized 
-> some way into a flat text file
-You keep keep referring to the problem I'm trying to solve as 
-parsing/writing a flat text file. Please realize that records are 
-supposed to be backend-independent data structures. In particular, I 
-currently use them for transfer with a flat file, or a policydb object. 
-I am hoping you can use them over the wire for the policy server... 
-so..no, the record will not always go in a text file.
+add() and set() as described above seem to be fundamental primitives;
+modify() seems optional as it can be constructed by the caller from the
+other two, i.e. if (add() < 0 && errno == EEXIST) { set(); }.
 
-I understand the serialization argument...
-There's the same problem with policy - the key is a bunch of primitives 
-that need to be assembled together (and disassembled).
-> so you have to key_extract either way, if you keep a key around you do 
-> it once on read, if you don't you do it anytime there is a query, set, 
-> etc, it seems better to do it once.
-Sepol doesn't have much use for the key structure - it's mostly to 
-benefit semanage polymorphism. Sepol would just disassembles the key 
-back into its components to do a query. I need to add a function to do 
-that, since currently the key is opaque.
+> Which of those functions should be used to load things into policy?  
+> Should the load function be configurable per database? That way we can 
+> specify whether each database allows overrides of the in-policy 
+> defaults, or adding new things..etc.
+> 
+> For example, for ports only additive changes make sense to me, so we 
+> could make add() as the default load function. For booleans we want 
+> set() to be the default function...etc.. Maybe for users we want to 
+> allow overrides as well?
 
-Also, if the key is separate from the record, the user can do something 
-stupid, like add a record with a mismatch key.
-=======
+I'm not clear on why you wouldn't support overrides for ports,
+particularly as the base policy maps everything else left unspecified in
+the reserved port range to reserved_port_t.  You might argue that should
+be moved out of the base module and into the local file, but I expect
+some people will need to override the base module port contexts for
+specific needs no matter how much we prune it.  User overrides also can
+make sense, e.g. some people may want to strip root of sysadm_r
 
-Anyway, there's no significant problem here - either way is fine. I'm 
-just trying to finalize the API.
+> Should I even support all of them at the sepol layer? It might be 
+> simpler to just support the one that gets used for loading in sepol, 
+> since policy modifications will be done by rebuilding the policy anyway, 
+> so a single load function will be used for modifications. Then 
+> libsemanage could support the others on the flat file (but the 
+> modification gets applied to policy by rebuilding, and calling the 
+> default load function). Thoughts?
+
+libsemanage links and expands the modules yielding a policydb, and then
+libsemanage mutates the policydb via libsepol for local customizations,
+and then libsemanage writes out the final binary policy image via
+sepol_policydb_write.  So you still have to have the appropriate
+modifiers available via libsepol to manipulate the in-memory policydb.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
