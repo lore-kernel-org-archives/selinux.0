@@ -1,60 +1,26 @@
-Message-ID: <43569AB0.4010803@cornell.edu>
-Date: Wed, 19 Oct 2005 15:12:48 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-   Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: Loading things into policy
-References: <43559474.1080905@cornell.edu> <1129742438.2375.236.camel@moss-spartans.epoch.ncsc.mil> <43568C6E.5040106@cornell.edu> <4356905A.7010703@cornell.edu>
-In-Reply-To: <4356905A.7010703@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] stack overflow in module parser
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1129744223.15338.10.camel@twoface.columbia.tresys.com>
+References: <1129744223.15338.10.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Wed, 19 Oct 2005 15:35:10 -0400
+Message-Id: <1129750510.2375.292.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-10-19 at 13:50 -0400, Joshua Brindle wrote:
+> This patch fixes the recursion in avrule declarations and require
+> declarations which cause a stack overflow in the parser with very large
+> modules.
 
->> Now, you could say you want add(), modify(), and set() to work as 
->> I've described above with respect to policy, and not the local 
->> file... but that's not the way I've been thinking about it so far. 
->> That's a different kind of design - it would need to do an exists() 
->> test in both local files, and policy, before it took any action.
-> Actually that's fairly easy to implement, and I'd do it without caring 
-> what the backend is for various things (I can do this, because of the 
-> abstractions, which everyone dislikes so much).
->
-> Currently I am planning two separate interfaces - one for local 
-> objects, and one for in-policy objects. To implement an interface that 
-> integrates those two, I would:
-> 1) suffix the local objects functions with local (which is probably a 
-> good idea anyway, since their names are a bit misleading).
-> 2) write new functions that are written on top of the local/in-policy 
-> interfaces (not implementations).
-> They'd do a query in both databases for queries. For modifications, 
-> they'd do exist() test in both databases, and add stuff only in the 
-> local files database.
->
-> ...at this point Joshua's argument about why adding ports based on 
-> existence of other ports in global policy is bad...starts to make some 
-> sense to me. I did not understand his argument before, because it 
-> didn't make sense when you were checking existence in the local 
-> database only, and had a default handler to use on commit() for the 
-> in-policy objects.
+Ok, merged.
 
-Also, I'm forgetting that in-policy objects include local objects, since 
-I'm working on policy.kern, not base.pp.
-So, in short, I don't think I'll be writing such an interface at all - 
-no point discussing it.
-
-What I will do, however, is to:
-1) expose the in-policy queries to libsemanage clients
-2) rename the in-policy queries to  have no suffix (so instead of: 
-semanage_user_iterate_policy -> semanage_user_iterate).
-3) rename the local queries to have a suffix (so instead of: 
-semanage_user_add -> semanage_user_add_local) /
-                                                                (    
-instead of: semanage_user_iterate -> semanage_user_iterate_local).
-
-Does that seem like an improvement?
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
