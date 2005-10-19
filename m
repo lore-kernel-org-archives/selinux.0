@@ -1,31 +1,50 @@
-Subject: Re: Loading things into policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <435674F9.5070401@cornell.edu>
-References: <43559474.1080905@cornell.edu> <43564E03.70500@tresys.com>
-	 <435674F9.5070401@cornell.edu>
-Content-Type: text/plain
-Date: Wed, 19 Oct 2005 13:36:03 -0400
-Message-Id: <1129743363.2375.246.camel@moss-spartans.epoch.ncsc.mil>
+Subject: [PATCH] stack overflow in module parser
+From: Joshua Brindle <jbrindle@tresys.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-5kF9Xgo9e4fnTS82kljS"
+Date: Wed, 19 Oct 2005 13:50:22 -0400
+Message-Id: <1129744223.15338.10.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-19 at 12:31 -0400, Ivan Gyurdiev wrote:
-> I am saying... should I have a single function in sepol to load objects 
-> into policy...or multiple ones. Having a single function seems like the 
-> way to go, especially since, at the moment we'll only be using one 
-> function (since changes rebuild policy).
 
-Yes, this makes sense to me - ignore my first response.
-And I would tend to think that we would want the add-or-modify behavior
-in all cases other than booleans (interfaces, ports, users), with the
-modify-only-if-exists behavior for booleans.
+--=-5kF9Xgo9e4fnTS82kljS
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-Stephen Smalley
-National Security Agency
+This patch fixes the recursion in avrule declarations and require
+declarations which cause a stack overflow in the parser with very large
+modules.
+
+--=-5kF9Xgo9e4fnTS82kljS
+Content-Disposition: attachment; filename=1-parser-overflow.diff
+Content-Type: text/x-patch; name=1-parser-overflow.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -purN -x .svn checkpolicy/policy_parse.y checkpolicy/policy_parse.y
+--- checkpolicy/policy_parse.y	2005-10-18 11:05:12.000000000 -0400
++++ checkpolicy/policy_parse.y	2005-10-19 09:11:15.000000000 -0400
+@@ -803,7 +803,7 @@ version_identifier      : VERSION_IDENTI
+                         ;
+ avrules_block           : avrule_decls avrule_user_defs
+                         ;
+-avrule_decls            : avrule_decl avrule_decls
++avrule_decls            : avrule_decls avrule_decl
+                         | avrule_decl
+                         ;
+ avrule_decl             : rbac_decl
+@@ -815,7 +815,7 @@ avrule_decl             : rbac_decl
+                         ;
+ require_block           : REQUIRE '{' require_list '}'
+                         ;
+-require_list            : require_decl require_list
++require_list            : require_list require_decl
+                         | require_decl
+                         ;
+ require_decl            : require_class ';'
+
+--=-5kF9Xgo9e4fnTS82kljS--
 
 
 --
