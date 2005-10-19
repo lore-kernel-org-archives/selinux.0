@@ -1,134 +1,60 @@
-Subject: [RFC] sectioned package format
-From: Joshua Brindle <jbrindle@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Wed, 19 Oct 2005 14:59:41 -0400
-Message-Id: <1129748381.15338.20.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <43569AB0.4010803@cornell.edu>
+Date: Wed, 19 Oct 2005 15:12:48 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+   Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: Loading things into policy
+References: <43559474.1080905@cornell.edu> <1129742438.2375.236.camel@moss-spartans.epoch.ncsc.mil> <43568C6E.5040106@cornell.edu> <4356905A.7010703@cornell.edu>
+In-Reply-To: <4356905A.7010703@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-1. Introduction
 
-This is our proposal for sectioned package formats, it addresses the 
-issues brought up on the fedora-selinux list and the selinux list. It
-allows for forward/backward compatibility by being able to skip unknown 
-sections. It also allows for 'fat' packages, which may contain modules 
-for multiple distributions, targeted/strict/MLS, and so on within the 
-same package. We believe this format is extensible and fairly future
-proof, please give us feedback so that we can start implementing this.
+>> Now, you could say you want add(), modify(), and set() to work as 
+>> I've described above with respect to policy, and not the local 
+>> file... but that's not the way I've been thinking about it so far. 
+>> That's a different kind of design - it would need to do an exists() 
+>> test in both local files, and policy, before it took any action.
+> Actually that's fairly easy to implement, and I'd do it without caring 
+> what the backend is for various things (I can do this, because of the 
+> abstractions, which everyone dislikes so much).
+>
+> Currently I am planning two separate interfaces - one for local 
+> objects, and one for in-policy objects. To implement an interface that 
+> integrates those two, I would:
+> 1) suffix the local objects functions with local (which is probably a 
+> good idea anyway, since their names are a bit misleading).
+> 2) write new functions that are written on top of the local/in-policy 
+> interfaces (not implementations).
+> They'd do a query in both databases for queries. For modifications, 
+> they'd do exist() test in both databases, and add stuff only in the 
+> local files database.
+>
+> ...at this point Joshua's argument about why adding ports based on 
+> existence of other ports in global policy is bad...starts to make some 
+> sense to me. I did not understand his argument before, because it 
+> didn't make sense when you were checking existence in the local 
+> database only, and had a default handler to use on commit() for the 
+> in-policy objects.
 
-The policy package is designed similarly to the ELF file format.
-The package consists of a package header, section header, and section
-data.  Other than the package header, all others may appear in any
-order within the file.
+Also, I'm forgetting that in-policy objects include local objects, since 
+I'm working on policy.kern, not base.pp.
+So, in short, I don't think I'll be writing such an interface at all - 
+no point discussing it.
 
+What I will do, however, is to:
+1) expose the in-policy queries to libsemanage clients
+2) rename the in-policy queries to  have no suffix (so instead of: 
+semanage_user_iterate_policy -> semanage_user_iterate).
+3) rename the local queries to have a suffix (so instead of: 
+semanage_user_add -> semanage_user_add_local) /
+                                                                (    
+instead of: semanage_user_iterate -> semanage_user_iterate_local).
 
-2. Policy Package Header
-
-The first 32 bytes of a policy package consists of its header:
-
-  uint32_t magic_number;
-  char package_string[16];
-  uint32_t package_file_version;
-  uint32_t section_offset;
-  uint32_t num_sections;
-
-where uint32_t is a 4-byte datum stored in little-endian format.  The
-magic_number identifies this file as a loadable policy package; that
-value is 0xf97c668f.
-
-package_string is a string constant, padded with '\0' bytes at the end
-if the string is not 16 characters.  At present the package_string is
-"SE Linux Package".  Observe that there is no terminating '\0' here.
-
-package_file_version identifies which version of policy package this
-file is using.  The only supported version currently is 1.
-
-section_offset gives the file offset to the section header table,
-which is described next.  This value is in terms of bytes and is
-relative to the beginning of the file.  num_sections gives the total
-number of sections in this file.
-
-
-3. Section Header Table
-
-Each entry within the section header table consists of:
-
-  uint32_t name_length;
-  uint32_t offset;
-  uint32_t size;
-  uint32_t key;
-  uint32_t section_info[3];
-  char *section_name;
-
-Each sction has a name, and there may be more than one section witht he 
-same name. Although not enforced by the policy package format, certain 
-names have specific meanings by convention.  Section 4 describes those 
-special sections.  The name is stored within the section header table, 
-unlike the ELF format, at the end of each record.  name_length is the 
-number of characters in the section name, including the terminating 
-'\0'.  Section names can be any length, though for brevity they should 
-be kept under 32 characters.
-
-The offset gives the location for that section's data.  It is
-in terms of bytes from the beginning of the file.  The number of bytes
-for the section is kept in the size field.
-
-Often sections are interrelated.  The next 4 bytes, key, is a way to
-indicate relationships.  All sections with the same key value are to
-be handled together.  Exactly how is dependent upon the kinds of
-sections involved; for example, a module and file_contexts section will
-be related by having the same key. This is how a particular
-file_contexts section is associated with it's module in a package with
-multiple modules.
-
-The next 12 bytes of the section header record is reserved for that
-section's use.  For sections that do not need it they should be filled
-with zeroes.
-
-
-4. Kinds of Sections
-
-The following table lists common section types.  Recall that they
-may appear in any order within the file.  The policy package reader is
-to ignore unknown section names.
-
-section "module":
-
-This section contains a loadable module policy.  The first 4 bytes of
-its section_info field gives the policy kind; it is a series of bits
-logically or'ed together. For example:
-
-  section_info[0] := bitfield of
-    0x01 = targeted
-    0x02 = strict
-    0x04 = MLS
-    0x08 = MCS
-
-The next 4 bytes indicate for which Linux distributions this policy is
-meant. For example:
-
-  section_info[1] := bitfield of
-    0x01 = Red Hat / Fedora Core
-    0x02 = Gentoo
-    0x04 = Debian GNU/Linux
-
-The last 4 bytes gives the module format version.  At this time only
-version 5 is accepted.
-  section_info[2] := 5
-
-For example, a module written for FC5, strict, and MCS would be:
-  section_info[3] := {0x0a, 0x01, 0x05}
-
-section "file contexts":
-
-Listed here are a series of name-value pairs of filename regular
-expressions and their comments.  The contents are the same as that of
-/etc/selinux/strict/contexts/files/file_contexts.  There may be
-multiple file contexts stored within the package.  To determine which
-one to use select the appropriate module section, then select the file
-contexts that shares the same key value.
+Does that seem like an improvement?
 
 
 --
