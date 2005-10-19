@@ -1,382 +1,135 @@
-Message-ID: <36282A1733C57546BE392885C0618592D39AF8@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: Chad Hanson <chanson@TrustedCS.com>,
-   "SE Linux (E-mail)"
-	 <SELinux@tycho.nsa.gov>
-Cc: "Stephen Smalley (E-mail)" <sds@epoch.ncsc.mil>,
-   "Daniel J Walsh (E-mail)" <dwalsh@redhat.com>,
-   Darrel Goeddel
-	 <DGoeddel@TrustedCS.com>
-Subject: RE: [PATCH] MLS
-Date: Wed, 19 Oct 2005 14:49:03 -0400
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C5D4DD.C65D2060"
+Subject: [RFC] sectioned package format
+From: Joshua Brindle <jbrindle@tresys.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 19 Oct 2005 14:59:41 -0400
+Message-Id: <1129748381.15338.20.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+1. Introduction
 
-------_=_NextPart_000_01C5D4DD.C65D2060
-Content-Type: text/plain;
-	charset="iso-8859-1"
+This is our proposal for sectioned package formats, it addresses the 
+issues brought up on the fedora-selinux list and the selinux list. It
+allows for forward/backward compatibility by being able to skip unknown 
+sections. It also allows for 'fat' packages, which may contain modules 
+for multiple distributions, targeted/strict/MLS, and so on within the 
+same package. We believe this format is extensible and fairly future
+proof, please give us feedback so that we can start implementing this.
+
+The policy package is designed similarly to the ELF file format.
+The package consists of a package header, section header, and section
+data.  Other than the package header, all others may appear in any
+order within the file.
 
 
-> I have attached a patch which can be applied to Dan Walsh's 
-> current MLS source rpm to update the MLS constraints and 
-> provide comments for the MLS attributes.
+2. Policy Package Header
 
-I have fixed some incorrect comments missed in the initial reviews. The
-attached version policy-20051019a.patch should be used instead of the
-previous post
+The first 32 bytes of a policy package consists of its header:
 
-Thanks,
--Chad
+  uint32_t magic_number;
+  char package_string[16];
+  uint32_t package_file_version;
+  uint32_t section_offset;
+  uint32_t num_sections;
 
- <<policy-20051019a.patch>> 
+where uint32_t is a 4-byte datum stored in little-endian format.  The
+magic_number identifies this file as a loadable policy package; that
+value is 0xf97c668f.
 
-------_=_NextPart_000_01C5D4DD.C65D2060
-Content-Type: application/octet-stream;
-	name="policy-20051019a.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="policy-20051019a.patch"
+package_string is a string constant, padded with '\0' bytes at the end
+if the string is not 16 characters.  At present the package_string is
+"SE Linux Package".  Observe that there is no terminating '\0' here.
 
---- policy-1.27.1/attrib.te	2005-10-19 08:48:10.000000000 -0500=0A=
-+++ policy-mls/attrib.te	2005-10-19 13:42:34.274724274 -0500=0A=
-@@ -8,83 +8,125 @@=0A=
- # explicitly declared here, and can then be associated with =
-particular=0A=
- # types in type declarations.  Attribute names can then be used =
-throughout =0A=
- # the configuration to express the set of types that are associated =
-with =0A=
--# the attribute.  Except for the MLS attributes, attributes have no =
-implicit=0A=
--# meaning to SELinux.  The meaning of all other attributes are =
-completely =0A=
--# defined through their usage within the configuration, but should be =
-=0A=
--# documented here as comments preceding the attribute declaration.  =
-=0A=
-+# the attribute.  Attributes have no implicit meaning to SELinux.  =
-The=0A=
-+# meaning of all attributes are completely defined through their=0A=
-+# usage within the configuration, but should be documented here as=0A=
-+# comments preceding the attribute declaration.  =0A=
- =0A=
- #####################=0A=
- # Attributes for MLS:=0A=
- #=0A=
- =0A=
--# Read files and search directories that have a classification higher =
-than=0A=
--# subject clearance=0A=
--attribute mlsfileread;=0A=
-+# Common Terminology=0A=
-+# 	MLS Range: low-high=0A=
-+#		low referred to as "Effective Sensitivity Label (SL)"=0A=
-+#		high referred to as "Clearance SL"=0A=
- =0A=
--# Read files and search directories with a classification higher than =
-the=0A=
--# effective clearance but not higher than the clearance=0A=
--attribute mlsfilereadtoclr;=0A=
- =0A=
--# Write files and directories in situations where MLS normally denies =
-writes=0A=
-+#=0A=
-+# File System MLS attributes/privileges=0A=
-+#=0A=
-+# Grant MLS read access to files not dominated by the process =
-Effective SL=0A=
-+attribute mlsfileread;=0A=
-+# Grant MLS read access to files dominated by the process Clearance =
-SL=0A=
-+attribute mlsfilereadtoclr;=0A=
-+# Grant MLS write access to files not equal to the Effective SL=0A=
- attribute mlsfilewrite;=0A=
--=0A=
--# Write files and directories where clearance of the subject dominates =
-the=0A=
--# classification of the file/dir and the classification of the =
-file/dir=0A=
--# dominates the effective clearance of the subject.=0A=
-+# Grant MLS write access to files which dominate the process Effective =
-SL=0A=
-+# and are dominated by the process Clearance SL=0A=
- attribute mlsfilewritetoclr;=0A=
--=0A=
--# Increase the classification and/or effective classification of the =
-object=0A=
--# regardless of the clearance of the subject.=0A=
-+# Grant MLS ability to change file label to a new label which =
-dominates=0A=
-+# the old label  =0A=
- attribute mlsfileupgrade;=0A=
--=0A=
--# Decrease the classification and/or effective classification of the =
-object=0A=
--# regardless of the clearance of the subject.  NB An new label with =
-an=0A=
--# incomparable effective classification and an equal classification =
-is=0A=
--# considered a downgrade as is an incomparable classification=0A=
-+# Grant MLS ability to change file label to a new label which is=0A=
-+# dominated by or incomparable to the old label=0A=
- attribute mlsfiledowngrade;=0A=
- =0A=
--# Read network data with a lower effective classification than the =
-effective=0A=
--# clearance of the process=0A=
-+#=0A=
-+# Network MLS attributes/privileges=0A=
-+#=0A=
-+# Grant MLS read access to packets not dominated by the process =
-Effective SL=0A=
- attribute mlsnetread;=0A=
--=0A=
--# Read network data with a lower effective classification than the =
-effective=0A=
--# clearance of the process when the classification of the process is =
-higher=0A=
-+# Grant MLS read access to packets dominated by the process Clearance =
-SL=0A=
- attribute mlsnetreadtoclr;=0A=
--=0A=
--# Write network data with a higher effective classification or with =
-a=0A=
--# classification higher than the clearance of the subject=0A=
-+# Grant MLS write access to packets not equal to the Effective SL=0A=
- attribute mlsnetwrite;=0A=
--=0A=
--# Write network data where the clearance of the process dominates =
-the=0A=
--# effective classification of the data and the effective =
-classification of=0A=
--# the data dominates the effective clearance of the subject.=0A=
-+# Grant MLS write access to packets which dominate the Effective SL=0A=
-+# and are dominated by the process Clearance SL=0A=
- attribute mlsnetwritetoclr;=0A=
--=0A=
-+# Grant MLS read access to packets from hosts or interfaces which =
-dominate=0A=
-+# or incomparable to the process Effective SL=0A=
-+attribute mlsnetrecvall;=0A=
-+# Grant MLS ability to change socket label to a new label which =
-dominates=0A=
-+# the old label  =0A=
- attribute mlsnetupgrade;=0A=
-+# Grant MLS ability to change socket label to a new label which is=0A=
-+# dominated by or incomparable to the old label=0A=
- attribute mlsnetdowngrade;=0A=
--attribute mlsnetrecvall;=0A=
- =0A=
-+#=0A=
-+# IPC MLS attributes/privileges=0A=
-+#=0A=
-+# Grant MLS read access to IPC objects not dominated by the process =
-Effective SL=0A=
- attribute mlsipcread;=0A=
-+# Grant MLS read access to IPC objects dominated by the process =
-Clearance SL=0A=
- attribute mlsipcreadtoclr;=0A=
-+# Grant MLS write access to IPC objects not equal to the process =
-Effective SL=0A=
- attribute mlsipcwrite;=0A=
-+# Grant MLS write access to IPC objects which dominate the process =
-Effective SL=0A=
-+# and are dominated by the process Clearance SL=0A=
- attribute mlsipcwritetoclr;=0A=
- =0A=
-+#=0A=
-+# Process MLS attributes/privileges=0A=
-+#=0A=
-+# Grant MLS read access to processes not dominated by the process =
-Effective SL=0A=
- attribute mlsprocread;=0A=
-+# Grant MLS read access to processes dominated by the process =
-Clearance SL=0A=
- attribute mlsprocreadtoclr;=0A=
-+# Grant MLS write access to processes not equal to the Effective SL=0A=
- attribute mlsprocwrite;=0A=
-+# Grant MLS write access to processes which dominate the process =
-Effective SL=0A=
-+# and are dominated by the process Clearance SL=0A=
- attribute mlsprocwritetoclr;=0A=
-+# Grant MLS ability to change Effective SL or Clearance SL of process =
-to a=0A=
-+# label dominated by the Clearance SL=0A=
- attribute mlsprocsetsl;=0A=
- =0A=
-+#=0A=
-+# X Window MLS attributes/privileges=0A=
-+#=0A=
-+# Grant MLS read access to X objects not dominated by the process =
-Effective SL=0A=
- attribute mlsxwinread;=0A=
-+# Grant MLS read access to X objects dominated by the process =
-Clearance SL=0A=
- attribute mlsxwinreadtoclr;=0A=
-+# Grant MLS write access to X objects not equal to the process =
-Effective SL=0A=
- attribute mlsxwinwrite;=0A=
-+# Grant MLS write access to X objects which dominate the process =
-Effective SL=0A=
-+# and are dominated by the process Clearance SL=0A=
- attribute mlsxwinwritetoclr;=0A=
--attribute mlsxwinupgrade;=0A=
--attribute mlsxwindowngrade;=0A=
-+# Grant MLS read access to X properties not dominated by=0A=
-+# the process Effective SL=0A=
-+attribute mlsxwinreadproperty;=0A=
-+# Grant MLS write access to X properties not equal to the process =
-Effective SL=0A=
-+attribute mlsxwinwriteproperty;=0A=
-+# Grant MLS read access to X colormaps not dominated by=0A=
-+# the process Effective SL=0A=
-+attribute mlsxwinreadcolormap;=0A=
-+# Grant MLS write access to X colormaps not equal to the process =
-Effective SL=0A=
-+attribute mlsxwinwritecolormap;=0A=
-+# Grant MLS write access to X xinputs not equal to the process =
-Effective SL=0A=
-+attribute mlsxwinwritexinput;=0A=
- =0A=
-+# Grant MLS read/write access to objects which internally arbitrate =
-MLS=0A=
- attribute mlstrustedobject;=0A=
- =0A=
-+#=0A=
-+# Both of the following attributes are needed for a range transition =
-to succeed=0A=
-+#=0A=
-+# Grant ability for the current domain to change SL upon process =
-transition=0A=
- attribute privrangetrans;=0A=
-+# Grant ability for the new process domain to change SL upon process =
-transition=0A=
- attribute mlsrangetrans;=0A=
- =0A=
- #########################=0A=
---- policy-1.27.1/mls	2005-10-19 08:48:10.811313382 -0500=0A=
-+++ policy-mls/mls	2005-10-19 08:45:00.351868012 -0500=0A=
-@@ -492,7 +560,8 @@=0A=
- mlsconstrain window { addchild create destroy chstack chproplist =
-chprop setattr setfocus move chselection chparent ctrllife transparent =
-clientcomevent }=0A=
- 	(( l1 eq l2 ) or=0A=
- 	 (( t1 =3D=3D mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 =
-)) or=0A=
--	 ( t1 =3D=3D mlsxwinwrite ));=0A=
-+	 ( t1 =3D=3D mlsxwinwrite ) or=0A=
-+	 ( t2 =3D=3D mlstrustedobject ));=0A=
- =0A=
- # these access vectors have no MLS restrictions=0A=
- # window { map unmap }=0A=
-@@ -530,12 +599,14 @@=0A=
- mlsconstrain colormap { list read getattr }=0A=
- 	(( l1 dom l2 ) or=0A=
- 	 (( t1 =3D=3D mlsxwinreadtoclr ) and ( h1 dom l2 )) or=0A=
-+	 ( t1 =3D=3D mlsxwinreadcolormap ) or=0A=
- 	 ( t1 =3D=3D mlsxwinread ));=0A=
- =0A=
- # the colormap "write" ops (implicit single level)=0A=
- mlsconstrain colormap { create free install uninstall store setattr =
-}=0A=
- 	(( l1 eq l2 ) or=0A=
- 	 (( t1 =3D=3D mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 =
-)) or=0A=
-+	 ( t1 =3D=3D mlsxwinwritecolormap ) or=0A=
- 	 ( t1 =3D=3D mlsxwinwrite ));=0A=
- =0A=
- =0A=
-@@ -549,12 +620,14 @@=0A=
- mlsconstrain property { read }=0A=
- 	(( l1 dom l2 ) or=0A=
- 	 (( t1 =3D=3D mlsxwinreadtoclr ) and ( h1 dom l2 )) or=0A=
-+	 ( t1 =3D=3D mlsxwinreadproperty ) or=0A=
- 	 ( t1 =3D=3D mlsxwinread ));=0A=
- =0A=
- # the property "write" ops (implicit single level)=0A=
- mlsconstrain property { create free write }=0A=
- 	(( l1 eq l2 ) or=0A=
- 	 (( t1 =3D=3D mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 =
-)) or=0A=
-+	 ( t1 =3D=3D mlsxwinwriteproperty ) or=0A=
- 	 ( t1 =3D=3D mlsxwinwrite ));=0A=
- =0A=
- =0A=
-@@ -590,16 +663,14 @@=0A=
- # MLS policy for the xinput class=0A=
- #=0A=
- =0A=
--# the xinput "read" ops (implicit single level)=0A=
--mlsconstrain xinput { lookup getattr mousemotion }=0A=
--	(( l1 dom l2 ) or=0A=
--	 (( t1 =3D=3D mlsxwinreadtoclr ) and ( h1 dom l2 )) or=0A=
--	 ( t1 =3D=3D mlsxwinread ));=0A=
-+# these access vectors have no MLS restrictions=0A=
-+# xinput ~{ relabelinput setattr }=0A=
- =0A=
- # the xinput "write" ops (implicit single level)=0A=
--mlsconstrain xinput { setattr setfocus warppointer activegrab =
-passivegrab ungrab bell relabelinput }=0A=
-+mlsconstrain xinput { setattr relabelinput }=0A=
- 	(( l1 eq l2 ) or=0A=
- 	 (( t1 =3D=3D mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 =
-)) or=0A=
-+	 ( t1 =3D=3D mlsxwinwritexinput ) or=0A=
- 	 ( t1 =3D=3D mlsxwinwrite ));=0A=
- =0A=
- =0A=
-@@ -609,17 +680,8 @@=0A=
- # MLS policy for the xserver class=0A=
- #=0A=
- =0A=
--# the xserver "read" ops (implicit single level)=0A=
--mlsconstrain xserver { gethostlist getfontpath getattr screensaver =
-}=0A=
--	(( l1 dom l2 ) or=0A=
--	 (( t1 =3D=3D mlsxwinreadtoclr ) and ( h1 dom l2 )) or=0A=
--	 ( t1 =3D=3D mlsxwinread ));=0A=
--=0A=
--# the xserver "write" ops (implicit single level)=0A=
--mlsconstrain xserver { sethostlist setfontpath grab ungrab screensaver =
-}=0A=
--	(( l1 eq l2 ) or=0A=
--	 (( t1 =3D=3D mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 =
-)) or=0A=
--	 ( t1 =3D=3D mlsxwinwrite ));=0A=
-+# these access vectors have no MLS restrictions=0A=
-+# xserver *=0A=
- =0A=
- =0A=
- =0A=
-@@ -628,17 +690,8 @@=0A=
- # MLS policy for the xextension class=0A=
- #=0A=
- =0A=
--# the xextension "read" ops (implicit single level)=0A=
--mlsconstrain xextension query=0A=
--	(( l1 dom l2 ) or=0A=
--	 (( t1 =3D=3D mlsxwinreadtoclr ) and ( h1 dom l2 )) or=0A=
--	 ( t1 =3D=3D mlsxwinread ));=0A=
--=0A=
--# the xextension "write" ops (implicit single level)=0A=
--mlsconstrain xextension use=0A=
--	(( l1 eq l2 ) or=0A=
--	 (( t1 =3D=3D mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 =
-)) or=0A=
--	 ( t1 =3D=3D mlsxwinwrite ));=0A=
-+# these access vectors have no MLS restrictions=0A=
-+# xextension { query use }=0A=
- =0A=
- =0A=
- #=0A=
+package_file_version identifies which version of policy package this
+file is using.  The only supported version currently is 1.
 
-------_=_NextPart_000_01C5D4DD.C65D2060--
+section_offset gives the file offset to the section header table,
+which is described next.  This value is in terms of bytes and is
+relative to the beginning of the file.  num_sections gives the total
+number of sections in this file.
+
+
+3. Section Header Table
+
+Each entry within the section header table consists of:
+
+  uint32_t name_length;
+  uint32_t offset;
+  uint32_t size;
+  uint32_t key;
+  uint32_t section_info[3];
+  char *section_name;
+
+Each sction has a name, and there may be more than one section witht he 
+same name. Although not enforced by the policy package format, certain 
+names have specific meanings by convention.  Section 4 describes those 
+special sections.  The name is stored within the section header table, 
+unlike the ELF format, at the end of each record.  name_length is the 
+number of characters in the section name, including the terminating 
+'\0'.  Section names can be any length, though for brevity they should 
+be kept under 32 characters.
+
+The offset gives the location for that section's data.  It is
+in terms of bytes from the beginning of the file.  The number of bytes
+for the section is kept in the size field.
+
+Often sections are interrelated.  The next 4 bytes, key, is a way to
+indicate relationships.  All sections with the same key value are to
+be handled together.  Exactly how is dependent upon the kinds of
+sections involved; for example, a module and file_contexts section will
+be related by having the same key. This is how a particular
+file_contexts section is associated with it's module in a package with
+multiple modules.
+
+The next 12 bytes of the section header record is reserved for that
+section's use.  For sections that do not need it they should be filled
+with zeroes.
+
+
+4. Kinds of Sections
+
+The following table lists common section types.  Recall that they
+may appear in any order within the file.  The policy package reader is
+to ignore unknown section names.
+
+section "module":
+
+This section contains a loadable module policy.  The first 4 bytes of
+its section_info field gives the policy kind; it is a series of bits
+logically or'ed together. For example:
+
+  section_info[0] := bitfield of
+    0x01 = targeted
+    0x02 = strict
+    0x04 = MLS
+    0x08 = MCS
+
+The next 4 bytes indicate for which Linux distributions this policy is
+meant. For example:
+
+  section_info[1] := bitfield of
+    0x01 = Red Hat / Fedora Core
+    0x02 = Gentoo
+    0x04 = Debian GNU/Linux
+
+The last 4 bytes gives the module format version.  At this time only
+version 5 is accepted.
+  section_info[2] := 5
+
+For example, a module written for FC5, strict, and MCS would be:
+  section_info[3] := {0x0a, 0x01, 0x05}
+
+section "file contexts":
+
+Listed here are a series of name-value pairs of filename regular
+expressions and their comments.  The contents are the same as that of
+/etc/selinux/strict/contexts/files/file_contexts.  There may be
+multiple file contexts stored within the package.  To determine which
+one to use select the appropriate module section, then select the file
+contexts that shares the same key value.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
