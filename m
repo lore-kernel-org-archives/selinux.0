@@ -1,20 +1,26 @@
-Subject: Re: [PATCH] transaction rollback in lock
+Subject: Re: [ SEMANAGE ] Remove connection requirement from POLICYDB
+	backend
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <43564695.1050900@tresys.com>
-References: <43564695.1050900@tresys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43552AD9.6020701@cornell.edu>
+References: <43552AD9.6020701@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 19 Oct 2005 12:12:39 -0400
-Message-Id: <1129738359.2375.206.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 19 Oct 2005 12:13:33 -0400
+Message-Id: <1129738413.2375.208.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-19 at 09:13 -0400, Joshua Brindle wrote:
-> This patch moves the transaction rollback into the commit lock.
+On Tue, 2005-10-18 at 13:03 -0400, Ivan Gyurdiev wrote:
+> This patch removes the is_connected check from the POLICYDB backend, 
+> because it doesn't accomplish anything. What we really want to check is 
+> whether the function was initialized or not (which can't be done at this 
+> point anyway, because we're _already_ executing this function - this is 
+> handled by the default database which I added).
 
-Both locking patches merged as of libsemanage 1.3.24.
+Both patches (default dbase, remove connect) merged as of libsemanage
+1.3.24.
 
 -- 
 Stephen Smalley
