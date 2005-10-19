@@ -1,128 +1,39 @@
-Subject: [PATCH] makefile prefix fixes
-From: Joshua Brindle <jbrindle@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-DO5KGFRydh05R2OrQUw0"
-Date: Wed, 19 Oct 2005 13:50:55 -0400
-Message-Id: <1129744255.15338.11.camel@twoface.columbia.tresys.com>
+Subject: Re: Loading things into policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1129742438.2375.236.camel@moss-spartans.epoch.ncsc.mil>
+References: <43559474.1080905@cornell.edu>
+	 <1129742438.2375.236.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 19 Oct 2005 13:51:03 -0400
+Message-Id: <1129744263.2375.254.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-10-19 at 13:20 -0400, Stephen Smalley wrote:
+> I'm not clear on why you wouldn't support overrides for ports,
+> particularly as the base policy maps everything else left unspecified in
+> the reserved port range to reserved_port_t.  You might argue that should
+> be moved out of the base module and into the local file, but I expect
+> some people will need to override the base module port contexts for
+> specific needs no matter how much we prune it.  User overrides also can
+> make sense, e.g. some people may want to strip root of sysadm_r
 
---=-DO5KGFRydh05R2OrQUw0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+BTW, the ordering of the object context specifications matters for nodes
+(hosts) and ports.  See what checkpolicy does for nodes (hosts) in
+define_ipv4/ipv6_node_context and for ports in define_port_context.
 
-This patch fixes prefix in recently changed Makefiles so that make
-DESTDIR=somedir will work.
-
---=-DO5KGFRydh05R2OrQUw0
-Content-Disposition: attachment; filename=1-makefile-prefix-fix.diff
-Content-Type: text/x-patch; name=1-makefile-prefix-fix.diff; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-diff -purN -x .svn libselinux/src/Makefile /libselinux/src/Makefile
---- libselinux/src/Makefile	2005-10-13 13:33:20.000000000 -0400
-+++ libselinux/src/Makefile	2005-10-17 09:52:51.000000000 -0400
-@@ -23,7 +23,7 @@ $(LIBA):  $(OBJS)
- 	$(RANLIB) $@
- 
- $(LIBSO): $(LOBJS)
--	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -lsepol -Wl,-soname,$(LIBSO),-z,defs
-+	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -lsepol -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs
- 	ln -sf $@ $(TARGET) 
- 
- %.o:  %.c policy.h
-diff -purN -x .svn libselinux/utils/Makefile /libselinux/utils/Makefile
---- libselinux/utils/Makefile	2005-10-03 11:09:01.000000000 -0400
-+++ libselinux/utils/Makefile	2005-10-17 09:52:50.000000000 -0400
-@@ -1,10 +1,11 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
-+LIBDIR ?= $(PREFIX)/lib
- BINDIR ?= $(PREFIX)/sbin
- 
- CFLAGS ?= -Wall
- override CFLAGS += -I../include -D_GNU_SOURCE
--LDLIBS += -L../src -lselinux 
-+LDLIBS += -L../src -lselinux -lsepol -L$(LIBDIR)
- 
- TARGETS=$(patsubst %.c,%,$(wildcard *.c))
- 
-diff -purN -x .svn libsemanage/src/Makefile /libsemanage/src/Makefile
---- libsemanage/src/Makefile	2005-10-19 12:36:40.000000000 -0400
-+++ libsemanage/src/Makefile	2005-10-19 12:46:31.000000000 -0400
-@@ -35,7 +35,7 @@ $(LIBA): $(OBJS)
- 	ranlib $@
- 
- $(LIBSO): $(LOBJS)
--	$(CC) $(LDFLAGS) -shared -o $@ $^ -lsepol -lselinux -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
-+	$(CC) $(LDFLAGS) -shared -o $@ $^ -lsepol -lselinux -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
- 	ln -sf $@ $(TARGET)
- 
- conf-scan.c: conf-scan.l conf-parse.h
-diff -purN -x .svn policycoreutils/audit2why/Makefile /policycoreutils/audit2why/Makefile
---- policycoreutils/audit2why/Makefile	2005-10-03 11:09:00.000000000 -0400
-+++ policycoreutils/audit2why/Makefile	2005-10-17 09:52:50.000000000 -0400
-@@ -9,7 +9,7 @@ INCLUDEDIR ?= ${PREFIX}/include
- 
- CFLAGS ?= -Werror -Wall -W
- override CFLAGS += -I$(INCLUDEDIR)
--LDLIBS = ${LIBDIR}/libsepol.a -lselinux -L$(LIBDIR)
-+LDLIBS = ${LIBDIR}/libsepol.a -lselinux -lsepol -L$(LIBDIR)
- 
- TARGETS=audit2why
- 
-diff -purN -x .svn policycoreutils/newrole/Makefile /policycoreutils/newrole/Makefile
---- policycoreutils/newrole/Makefile	2005-10-14 11:58:21.000000000 -0400
-+++ policycoreutils/newrole/Makefile	2005-10-17 09:52:50.000000000 -0400
-@@ -8,7 +8,7 @@ PAMH = $(shell ls /usr/include/security/
- 
- CFLAGS ?= -Werror -Wall -W
- override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
--LDLIBS += -lselinux -L$(PREFIX)/lib
-+LDLIBS += -lselinux -lsepol -L$(PREFIX)/lib
- ifeq (${PAMH}, /usr/include/security/pam_appl.h)
- 	override CFLAGS += -DUSE_PAM
- 	LDLIBS += -lpam -lpam_misc
-diff -purN -x .svn policycoreutils/restorecon/Makefile /policycoreutils/restorecon/Makefile
---- policycoreutils/restorecon/Makefile	2005-10-03 11:09:00.000000000 -0400
-+++ policycoreutils/restorecon/Makefile	2005-10-17 09:52:50.000000000 -0400
-@@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
- 
- CFLAGS ?= -Werror -Wall -W
- override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
--LDLIBS += -lselinux -L$(PREFIX)/lib
-+LDLIBS += -lselinux -lsepol -L$(PREFIX)/lib
- 
- all: restorecon
- 
-diff -purN -x .svn policycoreutils/run_init/Makefile /policycoreutils/run_init/Makefile
---- policycoreutils/run_init/Makefile	2005-10-14 11:58:26.000000000 -0400
-+++ policycoreutils/run_init/Makefile	2005-10-17 09:52:50.000000000 -0400
-@@ -9,7 +9,7 @@ PAMH = $(shell ls /usr/include/security/
- 
- CFLAGS ?= -Werror -Wall -W
- override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
--LDLIBS += -lselinux -L$(PREFIX)/lib
-+LDLIBS += -lselinux -lsepol -L$(PREFIX)/lib
- ifeq (${PAMH}, /usr/include/security/pam_appl.h)
- 	override CFLAGS += -DUSE_PAM
- 	LDLIBS += -lpam -lpam_misc
-diff -purN -x .svn policycoreutils/sestatus/Makefile /policycoreutils/sestatus/Makefile
---- policycoreutils/sestatus/Makefile	2005-10-03 11:09:01.000000000 -0400
-+++ policycoreutils/sestatus/Makefile	2005-10-17 09:52:50.000000000 -0400
-@@ -7,7 +7,7 @@ LIBDIR ?= ${PREFIX}/lib
- 
- CFLAGS = -Werror -Wall -W
- override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
--LDLIBS = -lselinux -L$(LIBDIR)
-+LDLIBS = -lselinux -lsepol -L$(LIBDIR)
- 
- all: sestatus
- 
-
---=-DO5KGFRydh05R2OrQUw0--
+Given this, you can support selective overrides within the reserved port
+range just by inserting the individual port or more specific port range
+entry at the beginning of the list, so that they will be matched before
+reaching the general catch-all range for all reserved ports otherwise
+unspecified.
+  
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
