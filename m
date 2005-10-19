@@ -1,138 +1,128 @@
-Subject: [PATCH] declare then require
+Subject: [PATCH] makefile prefix fixes
 From: Joshua Brindle <jbrindle@tresys.com>
 To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-eTTaks38MT5RX88ESMqf"
-Date: Wed, 19 Oct 2005 13:51:28 -0400
-Message-Id: <1129744289.15338.13.camel@twoface.columbia.tresys.com>
+Content-Type: multipart/mixed; boundary="=-DO5KGFRydh05R2OrQUw0"
+Date: Wed, 19 Oct 2005 13:50:55 -0400
+Message-Id: <1129744255.15338.11.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-eTTaks38MT5RX88ESMqf
+--=-DO5KGFRydh05R2OrQUw0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This patch allows one to declare a symbol and subsequently require it.
-This is necessary for reference policy so that interfaces which require
-symbols don't cause errors if the symbol was declared in that module.
-This happens on modules that have interfaces that affect all domains,
-for example.
+This patch fixes prefix in recently changed Makefiles so that make
+DESTDIR=somedir will work.
 
-Note, the opposite, requiring and then declaring does not work, further
-the declaration must be 'in scope' when the require is called, if the
-declaration is not in scope this is an error because the symbol may not
-exist after linking, and it is not possible to tell at compile time.
-
-
-
---=-eTTaks38MT5RX88ESMqf
-Content-Disposition: attachment; filename=1-declare-then-require.diff
-Content-Type: text/x-patch; name=1-declare-then-require.diff; charset=UTF-8
+--=-DO5KGFRydh05R2OrQUw0
+Content-Disposition: attachment; filename=1-makefile-prefix-fix.diff
+Content-Type: text/x-patch; name=1-makefile-prefix-fix.diff; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-diff -purN -x .svn checkpolicy/module_compiler.c checkpolicy/module_compiler.c
---- checkpolicy/module_compiler.c	2005-10-18 11:01:57.000000000 -0400
-+++ checkpolicy/module_compiler.c	2005-10-18 11:37:33.000000000 -0400
-@@ -33,6 +33,7 @@ typedef struct scope_stack {
-                                * declaration is current */
-         avrule_t *last_avrule;
-         int in_else;          /* if in an avrule block, within ELSE branch */
-+        int require_given;    /* 1 if this block had at least one require */
-         struct scope_stack *parent, *child;
- } scope_stack_t;
+diff -purN -x .svn libselinux/src/Makefile /libselinux/src/Makefile
+--- libselinux/src/Makefile	2005-10-13 13:33:20.000000000 -0400
++++ libselinux/src/Makefile	2005-10-17 09:52:51.000000000 -0400
+@@ -23,7 +23,7 @@ $(LIBA):  $(OBJS)
+ 	$(RANLIB) $@
  
-@@ -497,12 +498,40 @@ int require_symbol(uint32_t symbol_type,
-                 *dest_value = *v;
-         }
-         else if (retval == -2) {
--                return -2;
-+                /* ignore require statements if that symbol was
-+                 * previously declared and is in current scope */
-+                int prev_declaration_ok = 0;
-+                if (is_id_in_scope(symbol_type, key)) {
-+                        if (symbol_type == SYM_TYPES) {
-+                                /* check that previous symbol has same
-+                                 * type/attribute-ness */
-+                                unsigned char new_isattr = ((type_datum_t *) datum)->isattr;
-+                                type_datum_t *old_datum = (type_datum_t *) hashtab_search(policydbp->symtab[SYM_TYPES].table, key);
-+                                assert(old_datum != NULL);
-+                                unsigned char old_isattr = old_datum->isattr;
-+                                prev_declaration_ok = (old_isattr == new_isattr ? 1 : 0);
-+                        }
-+                        else {
-+                                prev_declaration_ok = 1;
-+                        }
-+                }
-+                if (prev_declaration_ok) {
-+                        /* ignore this require statement because it
-+                         * was already declared within my scope */
-+                        stack_top->require_given = 1;
-+                        return 1;
-+                }
-+                else {
-+                        /* previous declaration was not in scope or
-+                         * had a mismatched type/attribute, so
-+                         * generate an error */
-+                        return -2;
-+                }
-         }
-         else if (retval < 0) {
-                 return -3;
-         }
--        else {  /* fall through possible if retval is 0 */
-+        else {  /* fall through possible if retval is 0 or 1 */
-         }
-         if (datum_value != NULL) {
-                 if (ebitmap_set_bit(decl->required.scope + symbol_type,
-@@ -511,6 +540,7 @@ int require_symbol(uint32_t symbol_type,
-                         return -3;
-                 }
-         }
-+        stack_top->require_given = 1;
-         return retval;
- }
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -lsepol -Wl,-soname,$(LIBSO),-z,defs
++	$(CC) $(LDFLAGS) -shared -o $@ $^ -ldl -lsepol -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs
+ 	ln -sf $@ $(TARGET) 
  
-@@ -1085,6 +1115,7 @@ int begin_optional_else(int pass) {
-         stack_top->in_else = 1;
-         stack_top->decl = decl;
-         stack_top->last_avrule = NULL;
-+        stack_top->require_given = 0;
-         next_decl_id++;
-         return 0;
- }
-@@ -1136,9 +1167,7 @@ static int copy_requirements(avrule_decl
-  * pass 2, have this block inherit its parents' requirements.  Return
-  * 0 on success, -1 on failure. */
- int end_avrule_block(int pass) {
--        int i, j;
-         avrule_decl_t *decl = stack_top->decl;
--	ebitmap_node_t *node;
-         assert(stack_top->type == 1);
-         if (pass == 2) {
-                 /* this avrule_decl inherits all of its parents'
-@@ -1148,18 +1177,8 @@ int end_avrule_block(int pass) {
-                 }
-                 return 0;
-         }
--        if (!stack_top->in_else) {
-+        if (!stack_top->in_else && !stack_top->require_given) {
-                 /* non-ELSE branches must have at least one thing required */
--                for (i = 0; i < SYM_NUM; i++) {
--                        ebitmap_t *bitmap = &decl->required.scope[i];
--			ebitmap_for_each_bit(bitmap, node, j) {
--				if (ebitmap_node_get_bit(node, j)) {
--                                        /* at least one thing was required */
--                                        return 0;
--                                }
--                        }
--                }
--                /* this av did not require anything, which is an error */
-                 yyerror("This block has no require section.");
-                 return -1;
-         }
+ %.o:  %.c policy.h
+diff -purN -x .svn libselinux/utils/Makefile /libselinux/utils/Makefile
+--- libselinux/utils/Makefile	2005-10-03 11:09:01.000000000 -0400
++++ libselinux/utils/Makefile	2005-10-17 09:52:50.000000000 -0400
+@@ -1,10 +1,11 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
++LIBDIR ?= $(PREFIX)/lib
+ BINDIR ?= $(PREFIX)/sbin
+ 
+ CFLAGS ?= -Wall
+ override CFLAGS += -I../include -D_GNU_SOURCE
+-LDLIBS += -L../src -lselinux 
++LDLIBS += -L../src -lselinux -lsepol -L$(LIBDIR)
+ 
+ TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+ 
+diff -purN -x .svn libsemanage/src/Makefile /libsemanage/src/Makefile
+--- libsemanage/src/Makefile	2005-10-19 12:36:40.000000000 -0400
++++ libsemanage/src/Makefile	2005-10-19 12:46:31.000000000 -0400
+@@ -35,7 +35,7 @@ $(LIBA): $(OBJS)
+ 	ranlib $@
+ 
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(LDFLAGS) -shared -o $@ $^ -lsepol -lselinux -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
++	$(CC) $(LDFLAGS) -shared -o $@ $^ -lsepol -lselinux -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
+ 	ln -sf $@ $(TARGET)
+ 
+ conf-scan.c: conf-scan.l conf-parse.h
+diff -purN -x .svn policycoreutils/audit2why/Makefile /policycoreutils/audit2why/Makefile
+--- policycoreutils/audit2why/Makefile	2005-10-03 11:09:00.000000000 -0400
++++ policycoreutils/audit2why/Makefile	2005-10-17 09:52:50.000000000 -0400
+@@ -9,7 +9,7 @@ INCLUDEDIR ?= ${PREFIX}/include
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -I$(INCLUDEDIR)
+-LDLIBS = ${LIBDIR}/libsepol.a -lselinux -L$(LIBDIR)
++LDLIBS = ${LIBDIR}/libsepol.a -lselinux -lsepol -L$(LIBDIR)
+ 
+ TARGETS=audit2why
+ 
+diff -purN -x .svn policycoreutils/newrole/Makefile /policycoreutils/newrole/Makefile
+--- policycoreutils/newrole/Makefile	2005-10-14 11:58:21.000000000 -0400
++++ policycoreutils/newrole/Makefile	2005-10-17 09:52:50.000000000 -0400
+@@ -8,7 +8,7 @@ PAMH = $(shell ls /usr/include/security/
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+-LDLIBS += -lselinux -L$(PREFIX)/lib
++LDLIBS += -lselinux -lsepol -L$(PREFIX)/lib
+ ifeq (${PAMH}, /usr/include/security/pam_appl.h)
+ 	override CFLAGS += -DUSE_PAM
+ 	LDLIBS += -lpam -lpam_misc
+diff -purN -x .svn policycoreutils/restorecon/Makefile /policycoreutils/restorecon/Makefile
+--- policycoreutils/restorecon/Makefile	2005-10-03 11:09:00.000000000 -0400
++++ policycoreutils/restorecon/Makefile	2005-10-17 09:52:50.000000000 -0400
+@@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
+-LDLIBS += -lselinux -L$(PREFIX)/lib
++LDLIBS += -lselinux -lsepol -L$(PREFIX)/lib
+ 
+ all: restorecon
+ 
+diff -purN -x .svn policycoreutils/run_init/Makefile /policycoreutils/run_init/Makefile
+--- policycoreutils/run_init/Makefile	2005-10-14 11:58:26.000000000 -0400
++++ policycoreutils/run_init/Makefile	2005-10-17 09:52:50.000000000 -0400
+@@ -9,7 +9,7 @@ PAMH = $(shell ls /usr/include/security/
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+-LDLIBS += -lselinux -L$(PREFIX)/lib
++LDLIBS += -lselinux -lsepol -L$(PREFIX)/lib
+ ifeq (${PAMH}, /usr/include/security/pam_appl.h)
+ 	override CFLAGS += -DUSE_PAM
+ 	LDLIBS += -lpam -lpam_misc
+diff -purN -x .svn policycoreutils/sestatus/Makefile /policycoreutils/sestatus/Makefile
+--- policycoreutils/sestatus/Makefile	2005-10-03 11:09:01.000000000 -0400
++++ policycoreutils/sestatus/Makefile	2005-10-17 09:52:50.000000000 -0400
+@@ -7,7 +7,7 @@ LIBDIR ?= ${PREFIX}/lib
+ 
+ CFLAGS = -Werror -Wall -W
+ override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
+-LDLIBS = -lselinux -L$(LIBDIR)
++LDLIBS = -lselinux -lsepol -L$(LIBDIR)
+ 
+ all: sestatus
+ 
 
---=-eTTaks38MT5RX88ESMqf--
+--=-DO5KGFRydh05R2OrQUw0--
 
 
 --
