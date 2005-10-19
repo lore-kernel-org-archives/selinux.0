@@ -1,36 +1,74 @@
-Subject: Re: [PATCH] declare then require
-From: Joshua Brindle <jbrindle@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <1129750586.2375.295.camel@moss-spartans.epoch.ncsc.mil>
-References: <1129744289.15338.13.camel@twoface.columbia.tresys.com>
-	 <1129750586.2375.295.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 19 Oct 2005 16:08:36 -0400
-Message-Id: <1129752516.15338.22.camel@twoface.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9JKKBNs024592
+	for <selinux@tycho.nsa.gov>; Wed, 19 Oct 2005 16:20:11 -0400 (EDT)
+Received: from mailrelay1.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9JKH1mU012633
+	for <selinux@tycho.nsa.gov>; Wed, 19 Oct 2005 20:17:02 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Wed, 19 Oct 2005 22:17:23 +0200
+Date: Wed, 19 Oct 2005 22:17:20 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Small patch for runuser: disallow suid operation
+Message-Id: <20051019201719.GA9176@thorium.jmh.mhn.de>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-10-19 at 15:36 -0400, Stephen Smalley wrote:
-> On Wed, 2005-10-19 at 13:51 -0400, Joshua Brindle wrote:
-> > This patch allows one to declare a symbol and subsequently require it.
-> > This is necessary for reference policy so that interfaces which require
-> > symbols don't cause errors if the symbol was declared in that module.
-> > This happens on modules that have interfaces that affect all domains,
-> > for example.
-> > 
-> > Note, the opposite, requiring and then declaring does not work, further
-> > the declaration must be 'in scope' when the require is called, if the
-> > declaration is not in scope this is an error because the symbol may not
-> > exist after linking, and it is not possible to tell at compile time.
-> 
-> Ok, merged.  Implies that declarations should always go first in a
-> module for safety, prior to using any external interfaces?
-> 
 
-Yes.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+I think the following small patch should be applied to the coreutils
+package, on top of the existing patch:
+
+--- runuser.c.orig	2005-10-19 22:01:57.000000000 +0200
++++ runuser.c	2005-10-19 22:00:53.000000000 +0200
+@@ -19,6 +19,8 @@
+ 	return PAM_SUCCESS;
+ }
+ int pam_open_session(pam_handle_t *pamh, int flags){
++	if (getuid() !=3D geteuid()) /* safety net: deny operation if we are suid=
+ by accident */
++		error(EXIT_FAIL, 1, "runuser may not be setuid");
+ 	return PAM_SUCCESS;
+ }
+ int pam_close_session(pam_handle_t *pamh, int flags){
+
+Rationale:
+There are still a lot of scripts that assume they can use "su" to switch
+uids. In some situations (eg mine :) it is simply too much work to audit
+them all and keep up with updates. Instead I intend to "mv su su2; ln
+runuser su" and teach the other admins to use su2 instead (users are not
+allowed to use su anyway). The only problem currently is that if the
+permissions on the new su are accidently set to the usual values (by
+admin error or a permission check script) there is a security hole
+immediately. This small patch prevents this problem; it should not
+interfere with normal operation in any way.
+
+Thomas
+
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDVqnPD9qpeVMU938RAgWXAJ0UlMIRKDomj9WdwEg9JhU7ecSprACgi1t7
+ft9TkQ4rBG23II6CdRT57Uo=
+=ah9i
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
