@@ -1,52 +1,36 @@
-Message-ID: <4357F5DF.30905@cornell.edu>
-Date: Thu, 20 Oct 2005 15:54:07 -0400
+Message-ID: <4357F76A.7040009@cornell.edu>
+Date: Thu, 20 Oct 2005 16:00:42 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEPOL ] Reorganize users.c
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [ SEPOL ] Reorganize users.c
+References: <4357F5DF.30905@cornell.edu>
+In-Reply-To: <4357F5DF.30905@cornell.edu>
 Content-Type: multipart/mixed;
- boundary="------------020709070905030404030004"
+ boundary="------------020108030007080206020202"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------020709070905030404030004
+--------------020108030007080206020202
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Okay, I need to clean up and stabilize my parts of the sepol API.
-This is a small patch that works toward that goal.
 
-Patch:
-- renames is_valid functions to exists name to match semanage
-- renames get_valid_xxx function to list to match semanage
-(I might still get rid of that function completely later by the way,
-and only implement it in semanage over sepol iterate - we'll see).
+> - makes is_valid/exists function update a parameter, rather than 
+> mixing response and return status code
+Oops...forgot to initialize status in the success path. Corrected patch 
+attach (gets rid of the variable).
 
-- makes is_valid/exists function update a parameter, rather than mixing 
-response and return status code
-- removes sepol_user_add (which we do not need at the sepol layer at 
-this time) - we'll use modify and exists
-- moves role-related functions into a file called roles.c, and a header 
-called roles.h. I see the necessity to add a role_record.h, but for now, 
-remove role-related functions from the map file.
 
-TODO:
-- figure out whether or not clean_unused_users actually works, how it 
-works (hey... I stole most of it from genusers - I'm still not clear on 
-how this "defined" stuff works entirely)...  and probably get rid of it.
-- pass handle down where needed
-- possibly pass key down where needed (or alternatively, pass the whole 
-record, but do _not_ use specific record fields in the API).
-- change ports and interfaces add() -> modify(), so overerides are allowed.
 
---------------020709070905030404030004
+--------------020108030007080206020202
 Content-Type: text/x-patch;
- name="libsepol.reorganise_users.diff"
+ name="libsepol.reorganize_users.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsepol.reorganise_users.diff"
+ filename="libsepol.reorganize_users.diff"
 
 diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsemanage/src/users_policydb.c new/libsemanage/src/users_policydb.c
 --- old/libsemanage/src/users_policydb.c	2005-10-18 10:53:30.000000000 -0400
@@ -147,8 +131,8 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
  };
 diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/roles.c new/libsepol/src/roles.c
 --- old/libsepol/src/roles.c	1969-12-31 19:00:00.000000000 -0500
-+++ new/libsepol/src/roles.c	2005-10-20 15:43:16.000000000 -0400
-@@ -0,0 +1,61 @@
++++ new/libsepol/src/roles.c	2005-10-20 15:57:44.000000000 -0400
+@@ -0,0 +1,60 @@
 +#include <stdlib.h>
 +#include <sepol/policydb/policydb.h>
 +#include "debug.h"
@@ -160,7 +144,6 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
 +	int* response) {
 +
 +  	policydb_t *policydb = &p->p;
-+	int status;
 +	char* role_copy = strdup(role);
 +	if (!role_copy) {
 +		DEBUG(__FUNCTION__, "out of memory, role check failed\n");
@@ -169,7 +152,7 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
 +
 +	*response = (hashtab_search(policydb->p_roles.table, role_copy) != NULL);
 +	free(role_copy);
-+	return status;
++	return STATUS_SUCCESS;
 +}
 +
 +
@@ -212,7 +195,7 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
 +
 diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/users.c new/libsepol/src/users.c
 --- old/libsepol/src/users.c	2005-10-07 16:45:46.000000000 -0400
-+++ new/libsepol/src/users.c	2005-10-20 15:42:28.000000000 -0400
++++ new/libsepol/src/users.c	2005-10-20 15:58:12.000000000 -0400
 @@ -79,43 +79,6 @@ void sepol_clear_unused_users(sepol_poli
          }
  }
@@ -257,7 +240,7 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
  /* Delete a user from the given policydb. This function will
   * fail if the user does not exist. */
  
-@@ -337,7 +300,11 @@ int sepol_user_modify(sepol_policydb_t* 
+@@ -337,34 +300,21 @@ int sepol_user_modify(sepol_policydb_t* 
  
  /* Check if a user is valid */
  
@@ -268,18 +251,19 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
 +	int* response) {
 +
  	policydb_t *policydb = &p->p;
- 	int status;	
+-	int status;	
  	char* user_copy = strdup(user);
-@@ -346,27 +313,11 @@ int sepol_user_is_valid(sepol_policydb_t
+ 	if (!user_copy) {
+ 		DEBUG(__FUNCTION__, "out of memory, user check failed\n");
  		return STATUS_ERR;
  	}
  	
 -	status = hashtab_search(policydb->p_users.table, user_copy) != NULL;
 +	*response = (hashtab_search(policydb->p_users.table, user_copy) != NULL);
  	free(user_copy);
- 	return status;
- }
- 
+-	return status;
+-}
+-
 -/* Check if a role is valid */
 -
 -int sepol_role_is_valid(sepol_policydb_t* p, const char* role) {
@@ -294,12 +278,11 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
 -	status = hashtab_search(policydb->p_roles.table, role_copy) != NULL;
 -	free(role_copy);
 -	return status;
--}
--
- /* Fill an array with all valid users */
++	return STATUS_SUCCESS;
+ }
  
- int sepol_user_iterate(
-@@ -458,36 +409,3 @@ int sepol_user_iterate(
+ /* Fill an array with all valid users */
+@@ -458,36 +408,3 @@ int sepol_user_iterate(
  	sepol_user_free(user);
  	return STATUS_ERR;
  }
@@ -337,7 +320,7 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsem
 -	return STATUS_ERR;
 -}
 
---------------020709070905030404030004--
+--------------020108030007080206020202--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
