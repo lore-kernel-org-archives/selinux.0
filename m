@@ -1,42 +1,50 @@
-Message-ID: <4357DB72.4090004@cornell.edu>
-Date: Thu, 20 Oct 2005 14:01:22 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEPOL ] Fix user record memory leak
-Content-Type: multipart/mixed;
- boundary="------------020100040508020608030904"
+Subject: Re: [ SEMANAGE ] More dbase things
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4357D018.1000306@cornell.edu>
+References: <4356F1B3.3060000@cornell.edu>
+	 <1129820743.2375.396.camel@moss-spartans.epoch.ncsc.mil>
+	 <4357D018.1000306@cornell.edu>
+Content-Type: text/plain
+Date: Thu, 20 Oct 2005 13:58:42 -0400
+Message-Id: <1129831122.2375.455.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020100040508020608030904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-10-20 at 13:12 -0400, Ivan Gyurdiev wrote:
+> > Let's get that theory turned into practice RSN...
+> >   
+> Allright, fine... let's add some more things.
+> 
+> Attach patch:
+> - stubs dbase function set()
+> - adds dbase function get_rtable(), and uses it to complete the merge 
+> function in policy components
+> - moves if0-ed code for merge and commit in the right place. and adds 
+> attach/detach
+> - adds error messages into dbase_policydb_cache
+> - changes error code for all stubs from STATUS_SUCCESS to STATUS_ERR, so 
+> that client won't crash, expecting that the function succeeded.
+> 
+> -----
+> I can now begin to test functionality, and fix bugs (and implement 
+> functions one by one, and add error messages).
 
-Patch fixes a memory leak discovered by valgrind.
+Ok, merged (libsemanage 1.3.30) along with a couple of fixes for leaks
+in the already existing libsemanage code (my fault).
 
---------------020100040508020608030904
-Content-Type: text/x-patch;
- name="libsepol.user_memleak.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsepol.user_memleak.diff"
+BTW, you could simplify your dbase_policydb_cache() function to use
+sepol_policydb_read() rather than sepol_policydb_from_image(); that
+avoids the need to mmap it.  You just fopen() the file and associate the
+FILE with a sepol_policy_file.  You can see similar policy file setup
+for reading module packages in semanage_load_module.
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/user_record.c new/libsepol/src/user_record.c
---- old/libsepol/src/user_record.c	2005-09-30 16:19:08.000000000 -0400
-+++ new/libsepol/src/user_record.c	2005-10-20 13:57:37.000000000 -0400
-@@ -361,6 +361,7 @@ void sepol_user_free(sepol_user_t* user)
- 	free(user->name);
- 	for (i = 0; i < user->num_roles; i++)
- 		free(user->roles[i]);
-+	free(user->def_role);
- 	free(user->roles);
- 	free(user->mls_level);
- 	free(user->mls_range);
+-- 
+Stephen Smalley
+National Security Agency
 
---------------020100040508020608030904--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
