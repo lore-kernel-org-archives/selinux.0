@@ -1,229 +1,73 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9K6RQNs027985
-	for <selinux@tycho.nsa.gov>; Thu, 20 Oct 2005 02:27:27 -0400 (EDT)
-Received: from smtp.hivsa.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9K6OVN7024008
-	for <selinux@tycho.nsa.gov>; Thu, 20 Oct 2005 06:24:33 GMT
-Received: from [10.38.244.66] (helo=[10.38.244.66])
-	by smtp.hivsa.com with esmtp (Exim 4.50)
-	id 1ESTmM-0000eZ-I9
-	for selinux@tycho.nsa.gov; Thu, 20 Oct 2005 08:20:00 +0200
-Message-ID: <4357372A.6070201@hivsa.com>
-Date: Thu, 20 Oct 2005 08:20:26 +0200
-From: Jayendren Anand Maduray <jayendren@hivsa.com>
-Reply-To: jayendren@hivsa.com
-MIME-Version: 1.0
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Audit errors
-References: <20051019223634.GC9176@thorium.jmh.mhn.de> <20051020032342.GA18453@vnl.com>
-In-Reply-To: <20051020032342.GA18453@vnl.com>
-Content-Type: multipart/alternative;
- boundary="------------070805050901000605060609"
+Subject: Re: [RFC] sectioned package format
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SELinux-dev@tresys.com, Russell Coker <russell@coker.com.au>,
+   Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmillan@tresys.com>,
+   SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1129748381.15338.20.camel@twoface.columbia.tresys.com>
+References: <1129748381.15338.20.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 20 Oct 2005 08:26:14 -0400
+Message-Id: <1129811174.2375.333.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070805050901000605060609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 2005-10-19 at 14:59 -0400, Joshua Brindle wrote:
+> This is our proposal for sectioned package formats, it addresses the 
+> issues brought up on the fedora-selinux list and the selinux list. It
+> allows for forward/backward compatibility by being able to skip unknown 
+> sections. It also allows for 'fat' packages, which may contain modules 
+> for multiple distributions, targeted/strict/MLS, and so on within the 
+> same package. We believe this format is extensible and fairly future
+> proof, please give us feedback so that we can start implementing this.
 
+Do we think that these "fat" module packages will actually be used in
+practice, or that people will just build separate module packages for
+the variants?   BTW, possible point of confusion due to overloaded
+terminology:  "module package" is not related to a traditional Linux
+"package" (i.e. something managed by rpm or dpkg), so a traditional
+"package" could contain multiple "module packages".
 
-Greetings fellow travellers.
+> This section contains a loadable module policy.  The first 4 bytes of
+> its section_info field gives the policy kind; it is a series of bits
+> logically or'ed together. For example:
+> 
+>   section_info[0] := bitfield of
+>     0x01 = targeted
+>     0x02 = strict
+>     0x04 = MLS
+>     0x08 = MCS
+> 
+> The next 4 bytes indicate for which Linux distributions this policy is
+> meant. For example:
+> 
+>   section_info[1] := bitfield of
+>     0x01 = Red Hat / Fedora Core
+>     0x02 = Gentoo
+>     0x04 = Debian GNU/Linux
 
+Not sure that we want this kind of information stored in the policy
+module packages themselves, again going back to the question of whether
+"fat" module packages are useful versus separate module packages.  What
+is going to interpret and use this information?
 
-Could someone please help me with the following errors:
+> section "file contexts":
+> 
+> Listed here are a series of name-value pairs of filename regular
+> expressions and their comments.  The contents are the same as that of
+> /etc/selinux/strict/contexts/files/file_contexts.
 
-*audit(1129788324.500:0): avc:  denied  { execute } for  pid=3105 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.501:0): avc:  denied  { execute } for  pid=3106 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.507:0): avc:  denied  { execute } for  pid=3107 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.510:0): avc:  denied  { execute } for  pid=3108 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.514:0): avc:  denied  { execute } for  pid=3109 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.517:0): avc:  denied  { execute } for  pid=3110 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.521:0): avc:  denied  { execute } for  pid=3111 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.522:0): avc:  denied  { execute } for  pid=3112 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.528:0): avc:  denied  { execute } for  pid=3113 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file
-audit(1129788324.529:0): avc:  denied  { execute } for  pid=3114 
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872 
-scontext=user_u:system_r:squid_t t
-context=root:object_r:usr_t tclass=file*
-
-
-These errors are from dmesg, and occured after compiling and installing 
-squidclam from source.
-
-Here is the output of selinuxconf:
-
-[*root@shiva jay]# selinuxconfig
-selinux state="enforcing"
-policypath="/etc/selinux/targeted"
-default_type_path="/etc/selinux/targeted/contexts/default_type"
-default_context_path="/etc/selinux/targeted/contexts/default_contexts"
-default_failsafe_context_path="/etc/selinux/targeted/contexts/failsafe_context"
-binary_policy_path="/etc/selinux/targeted/policy/policy"
-user_contexts_path="/etc/selinux/targeted/contexts/users/"
-contexts_path="/etc/selinux/targeted/contexts"*
-
-Output of uname -a:
-*[root@shiva jay]# uname -a
-Linux shiva 2.6.9-1.667smp #1 SMP Tue Nov 2 14:59:52 EST 2004 i686 i686 
-i386 GNU/Linux*
-
-Any help would be greatly appreciated.
-
-God bless.
+name-value pairs?  So semodule_package(1) (or
+sepol_module_package_set_file_contexts(3)) has to parse and convert a
+native file_contexts configuration file to a name-value pair
+specification rather than just treating it as a byte stream?  And the
+reverse translation has to be done when extracting it from the package? 
 
 -- 
-Jayendren Anand Maduray
-Microsoft Certified Professional
-Network Plus
-IT Administrator
+Stephen Smalley
+National Security Agency
 
-Perinatal HIV Research Unit
-Old Potch Road
-Chris Hani Baragwanath Hospital
-Soweto
-South Africa
-
-Tel: +27 11 989 9776
-Tel: +27 11 989 9999
-Fax: +27 11 938 3973
-Cel: 082 22 774 94
-
-Alternate email address: jayendren@mweb.co.za
-
-
---------------070805050901000605060609
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-  <title></title>
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<br>
-Greetings fellow travellers.<br>
-<br>
-<br>
-Could someone please help me with the following errors:<br>
-<br>
-<b>audit(1129788324.500:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3105
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.501:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3106
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.507:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3107
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.510:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3108
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.514:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3109
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.517:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3110
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.521:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3111
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.522:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3112
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.528:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3113
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file<br>
-audit(1129788324.529:0): avc:&nbsp; denied&nbsp; { execute } for&nbsp; pid=3114
-exe=/usr/sbin/squid name=squidclamav dev=hda8 ino=185872
-scontext=user_u:system_r:squid_t t<br>
-context=root:object_r:usr_t tclass=file</b><br>
-<br>
-<br>
-These errors are from dmesg, and occured after compiling and installing
-squidclam from source.<br>
-<br>
-Here is the output of selinuxconf:<br>
-<br>
-[<b>root@shiva jay]# selinuxconfig<br>
-selinux state="enforcing"<br>
-policypath="/etc/selinux/targeted"<br>
-default_type_path="/etc/selinux/targeted/contexts/default_type"<br>
-default_context_path="/etc/selinux/targeted/contexts/default_contexts"<br>
-default_failsafe_context_path="/etc/selinux/targeted/contexts/failsafe_context"<br>
-binary_policy_path="/etc/selinux/targeted/policy/policy"<br>
-user_contexts_path="/etc/selinux/targeted/contexts/users/"<br>
-contexts_path="/etc/selinux/targeted/contexts"</b><br>
-<br>
-Output of uname -a:<br>
-<b>[root@shiva jay]# uname -a<br>
-Linux shiva 2.6.9-1.667smp #1 SMP Tue Nov 2 14:59:52 EST 2004 i686 i686
-i386 GNU/Linux</b><br>
-<br>
-Any help would be greatly appreciated.<br>
-<br>
-God bless.<br>
-<pre class="moz-signature" cols="72">-- 
-Jayendren Anand Maduray
-Microsoft Certified Professional
-Network Plus
-IT Administrator
-
-Perinatal HIV Research Unit
-Old Potch Road
-Chris Hani Baragwanath Hospital
-Soweto
-South Africa
-
-Tel: +27 11 989 9776
-Tel: +27 11 989 9999
-Fax: +27 11 938 3973
-Cel: 082 22 774 94
-
-Alternate email address: <a class="moz-txt-link-abbreviated" href="mailto:jayendren@mweb.co.za">jayendren@mweb.co.za</a>
-</pre>
-</body>
-</html>
-
---------------070805050901000605060609--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
