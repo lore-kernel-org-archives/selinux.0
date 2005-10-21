@@ -1,23 +1,58 @@
-Message-ID: <4358E349.9070007@cornell.edu>
-Date: Fri, 21 Oct 2005 08:47:05 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [ SEPOL ] Reorganize users.c
-References: <4357F5DF.30905@cornell.edu>	 <1129839038.2375.507.camel@moss-spartans.epoch.ncsc.mil>	 <43580118.1060909@cornell.edu> <1129897447.2375.565.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1129897447.2375.565.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Other unused permissions(Re: swapon unsuppoted?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <200510201443.j9KEhRHp013290@mms-r00.iijmio.jp>
+References: <200510121517.j9CFHl11010821@mms-r01.iijmio.jp>
+	 <200510201443.j9KEhRHp013290@mms-r00.iijmio.jp>
+Content-Type: text/plain
+Date: Fri, 21 Oct 2005 08:52:52 -0400
+Message-Id: <1129899172.2375.577.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2005-10-20 at 10:43 -0400, Yuichi Nakamura wrote:
+> I also found following seem to be unused( in linux 2.6.12-1.1398_FC4).
+> 
+> * netif : enforce_dest 
 
-> I think we can remove delete support (and use of ->defined) from your
-> new functions, but I'd leave the field and the genusers code alone.  No
-> one is using it AFAIK, but sepol_set_delusers is part of the ABI of
-> prior releases of libsepol.
->   
-Ok agreed...
+Correct - that was specific to one of the extended socket calls in the
+original SELinux API.  Not sure it will ever be revived.
+
+> * socket common :ioctl, append, lock, relabelfrom, relabelto, recvfrom,setattr
+
+You need to be careful here; some of these permissions are inherited
+from file, so the file checks in the code may be applicable to a socket
+object as well.  A variety of calls act on file descriptors that might
+refer to a socket, such as ioctl, fcntl, flock, fchmod, etc, even though
+it may not make sense to use them on a socket in all cases.  Thus,
+ioctl, append, lock, and setattr are possible.  relabelfrom and
+relabelto should eventually be restored; it should be possible to
+implement relabeling support for sockets via fsetxattr (requires a
+kernel change, but not an interface change).  recvfrom is presently
+unused and its original meaning essentially subsumed by other network
+permission checks (*_recv on netif and node).
+
+> * unix_stream_socket: newconn, acceptfrom
+
+Since these are local sockets, the acceptfrom check was always
+extraneous here - the connectto check is sufficient.  newconn was
+related to the extended socket call API, not sure if it will ever be
+revived.
+
+> * tcp_socket: connectto, newconn, acceptfrom
+
+connectto/acceptfrom might be revived once the labeled networking
+support (via IPSEC) is mainstreamed.  newconn again was related to the
+extended socket API.
+
+> Some permissions seem to be defined for compatibility, 
+> will these be active again in the future?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
