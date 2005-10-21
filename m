@@ -1,58 +1,70 @@
-Subject: Re: Other unused permissions(Re: swapon unsuppoted?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200510201443.j9KEhRHp013290@mms-r00.iijmio.jp>
-References: <200510121517.j9CFHl11010821@mms-r01.iijmio.jp>
-	 <200510201443.j9KEhRHp013290@mms-r00.iijmio.jp>
-Content-Type: text/plain
-Date: Fri, 21 Oct 2005 08:52:52 -0400
-Message-Id: <1129899172.2375.577.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9LDAoNs013028
+	for <selinux@tycho.nsa.gov>; Fri, 21 Oct 2005 09:10:50 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9LD7jC7017272
+	for <selinux@tycho.nsa.gov>; Fri, 21 Oct 2005 13:07:45 GMT
+Date: Fri, 21 Oct 2005 09:07:25 -0400
+Subject: [RFC} sectioned package format
+From: Chad Sellers <csellers@tresys.com>
+To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
+Message-ID: <BF7E604D.7836%csellers@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-10-20 at 10:43 -0400, Yuichi Nakamura wrote:
-> I also found following seem to be unused( in linux 2.6.12-1.1398_FC4).
-> 
-> * netif : enforce_dest 
+Currently, module package files store policy modules and their corresponding
+file_contexts in a format that is not extensible.  Eventually, we would like
+to be able to add other components to the package (e.g. default_contexts),
+or modify the package file format.  This was discussed on
+fedora-selinux-list a few days ago.  To accomplish this, we are proposing
+the following simple module package file format.
 
-Correct - that was specific to one of the extended socket calls in the
-original SELinux API.  Not sure it will ever be revived.
+Policy Package Header
+The package begins with the package header.  This contains the following
+fields:
 
-> * socket common :ioctl, append, lock, relabelfrom, relabelto, recvfrom,setattr
+uint32_t magic_number;
+uint32_t package_file_version;
+uint32_t num_sections;
+uint32_t section_offset;
+... 
 
-You need to be careful here; some of these permissions are inherited
-from file, so the file checks in the code may be applicable to a socket
-object as well.  A variety of calls act on file descriptors that might
-refer to a socket, such as ioctl, fcntl, flock, fchmod, etc, even though
-it may not make sense to use them on a socket in all cases.  Thus,
-ioctl, append, lock, and setattr are possible.  relabelfrom and
-relabelto should eventually be restored; it should be possible to
-implement relabeling support for sockets via fsetxattr (requires a
-kernel change, but not an interface change).  recvfrom is presently
-unused and its original meaning essentially subsumed by other network
-permission checks (*_recv on netif and node).
+uint32_t is a 4-byte datum stored in little-endian format.  magic_number
+identifies the file as a module package, and has a value of 0xf97c668f.
+package_file_version identifies the version of the package file, and this
+first version will be 1.  num_sections gives the total number of sections in
+this file, which is also the number of section_offset entries that follow.
+section_offset identifies the offset in bytes from the beginning of the file
+to the beginning of the section.  These sections are always listed in
+sequence, so the length of a given section is the difference between its
+offset and the following offset, except the final section which ends with
+the end of the file.
 
-> * unix_stream_socket: newconn, acceptfrom
+Sections
+Sections are generic areas for data from the package perspective.  They are
+identified by a magic number at the beginning of the section, just as
+current policy modules begin with a magic number.  We will add a magic
+number to the top of the file_contexts section as well to identify it.
+Different kinds of sections can be added later simply by assigning them a
+new magic number.
 
-Since these are local sockets, the acceptfrom check was always
-extraneous here - the connectto check is sufficient.  newconn was
-related to the extended socket call API, not sure if it will ever be
-revived.
+Please let us know what you think of this format, and if you see any
+problems with it.
 
-> * tcp_socket: connectto, newconn, acceptfrom
+Thanks,
+Chad Sellers
 
-connectto/acceptfrom might be revived once the labeled networking
-support (via IPSEC) is mainstreamed.  newconn again was related to the
-extended socket API.
+----------------------
+Chad Sellers
+Tresys Technology, LLC
+csellers@tresys.com
+(410)290-1411 x117
+http://www.tresys.com
 
-> Some permissions seem to be defined for compatibility, 
-> will these be active again in the future?
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
