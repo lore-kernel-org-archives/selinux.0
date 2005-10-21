@@ -1,37 +1,25 @@
+Message-ID: <4359199A.40303@cornell.edu>
+Date: Fri, 21 Oct 2005 12:38:50 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
 Subject: Re: [ SEPOL ] Further users cleanup
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <435903C2.2050805@cornell.edu>
-References: <435903C2.2050805@cornell.edu>
-Content-Type: text/plain
-Date: Fri, 21 Oct 2005 11:26:19 -0400
-Message-Id: <1129908379.27663.59.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <435903C2.2050805@cornell.edu> <1129908379.27663.59.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1129908379.27663.59.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-10-21 at 11:05 -0400, Ivan Gyurdiev wrote:
-> - remove select/kill/clear_unused things (will only be used in genusers)
-> - remove delete (all changes will be additive for now, through semanage)
-> 
-> - move delusers things into genusers.c
-> - move genusers/genbools prototypes from sepol.h into their respective 
-> headers
-> 
-> - map: remove sepol_clear_unused_users
-> - map: remove duplicate sepol_set_delusers (it's in there twice)
 
-Ok.  Note that we'll likely want to remove all wildcards from the map
-files (for both libsepol and libsemanage) and explicitly list all
-interfaces we want exported to avoid surprises, or at least check that
-we aren't exporting anything accidentally.  
-nm src/libsepol.so.1 | grep ' T ' shows some interfaces that shouldn't
-really be public at present.
-
--- 
-Stephen Smalley
-National Security Agency
+> Ok.  Note that we'll likely want to remove all wildcards from the map
+> files (for both libsepol and libsemanage) and explicitly list all
+> interfaces we want exported to avoid surprises, or at least check that
+> we aren't exporting anything accidentally.  
+> nm src/libsepol.so.1 | grep ' T ' shows some interfaces that shouldn't
+> really be public at present.
+>   
+Which ones? I tend to not prefix local things with sepol...
 
 
 --
