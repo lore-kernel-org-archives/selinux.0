@@ -1,68 +1,50 @@
-Message-Id: <200510211644.j9LGiaen007329@mms-r01.iijmio.jp>
-Date: Fri, 21 Oct 2005 12:44:18 -0400
-From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov, himainu-ynakam@miomio.jp
-Subject: Re: capability audit_write, audit_control
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <1129896530.2375.556.camel@moss-spartans.epoch.ncsc.mil>
-References: <1129896530.2375.556.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [ SEPOL ] Further users cleanup
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4359199A.40303@cornell.edu>
+References: <435903C2.2050805@cornell.edu>
+	 <1129908379.27663.59.camel@moss-spartans.epoch.ncsc.mil>
+	 <4359199A.40303@cornell.edu>
+Content-Type: text/plain
+Date: Fri, 21 Oct 2005 13:38:07 -0400
+Message-Id: <1129916287.27663.94.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2005-10-21 at 12:38 -0400, Ivan Gyurdiev wrote:
+> > Ok.  Note that we'll likely want to remove all wildcards from the map
+> > files (for both libsepol and libsemanage) and explicitly list all
+> > interfaces we want exported to avoid surprises, or at least check that
+> > we aren't exporting anything accidentally.  
+> > nm src/libsepol.so.1 | grep ' T ' shows some interfaces that shouldn't
+> > really be public at present.
+> >   
+> Which ones? I tend to not prefix local things with sepol...
 
-Stephen Smalley  wrote:
-> The eff_cap is computed when the netlink message is sent by the
-> selinux_netlink_send() hook function.  That performs a complete
-> capability access vector computation based on the sender's context.  The
-> audit system then checks the appropriate capability bit in the eff_cap
-> when it processes the received message.  Since we must compute the
-> entire capability vector at send time without knowing which capability
-> (if any) will actually be required by the receive-side code, no auditing
-> is performed here.
-I understand, thank you!
-The capability set by selinux_netlink_send is checked in 
-audit_receive_msg -->audit_netlink_ok at audit.c.
+The services.c functions also had sepol_ prefixes added when audit2why
+was created (it uses the static libsepol, but also uses libselinux, and
+libselinux has similar functions that interact with the kernel policy
+rather than a policy file/image).  Hence, we get symbols like
+sepol_context_to_sid and sepol_port_sid exported by the wildcards.
+Also, one exported symbol that was pre-existing was
+sepol_genbools_policydb, which was likewise created for audit2why and
+accidentally exported by the wildcard there, but as there should be no
+other users and it was never put into the "public" header, it likely
+does no harm to correct it now to only export genbools and
+genbools_array.
 
-If a domain is not allowed capability:audit_write, 
-capability:audit_write and audit_control will be denied even in permissive mode, 
-and no log is outputted.
-In such case, How does user know he has to allow capability:audit_control ?
+Also need to fix this:
+$ relinfo.pl src/libsepol.so.1
+src/libsepol.so.1: 68 relocations, 61 relative (89%), 94 PLT entries, 60 for local syms (63%), 0 users
 
-> > In addition, I found strange behavior.
-> > I add following lines in strict policy.
-> > auditallow sshd_t self:capability { audit_control };
-> > neverallow sshd_t self:capability audit_control;
-> If I add the above to strict policy here, I get an assertion failure on
-> the neverallow rule when I try to rebuild policy.  What version of
-> checkpolicy are you using?  What version of policy?
-...
-> If I add the auditallow rule without the neverallow rule, I also see
-> this message, which just means that sshd (via pam) is setting the
-> loginuid via /proc/self/loginuid.  But it is allowed in my policy
-> (indirectly via an attribute), and I suspect it is allowed in your
-> policy too.  You might just have a checkpolicy with a broken assertion
-> (neverallow) checker.
+There shouldn't be any for local syms; need to bring over dso.h and
+hidden_def/hidden_proto stuff from libselinux.
 
-Before adding auditallow I modified following line in ssh.te
-* before
-allow $1_t self:capability {  audit_control kill sys_chroot sys_resource chown d
-ac_override fowner fsetid setgid setuid sys_tty_config };
-* after (audit_control is deleted)
-allow $1_t self:capability {  kill sys_chroot sys_resource chown d
-ac_override fowner fsetid setgid setuid sys_tty_config };
-
-And make reload was success, and I saw grant log of ssh_t's audit_control.
-Following is my strict policy and checkpolicy version.
-# rpm -q selinux-policy-strict checkpolicy
-selinux-policy-strict-1.23.16-6
-checkpolicy-1.23.1-1
-
----
-Yuichi Nakamura
-Japan SELinux Users Group(JSELUG)
-SELinux Policy Editor:  http://seedit.sourceforge.net/
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
