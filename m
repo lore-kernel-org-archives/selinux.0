@@ -1,46 +1,52 @@
-Subject: Re: [ SEPOL ] Further users cleanup
+Subject: Re: capability audit_write, audit_control
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4359199A.40303@cornell.edu>
-References: <435903C2.2050805@cornell.edu>
-	 <1129908379.27663.59.camel@moss-spartans.epoch.ncsc.mil>
-	 <4359199A.40303@cornell.edu>
+To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <200510211644.j9LGiaen007329@mms-r01.iijmio.jp>
+References: <1129896530.2375.556.camel@moss-spartans.epoch.ncsc.mil>
+	 <200510211644.j9LGiaen007329@mms-r01.iijmio.jp>
 Content-Type: text/plain
-Date: Fri, 21 Oct 2005 13:38:07 -0400
-Message-Id: <1129916287.27663.94.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 21 Oct 2005 14:04:54 -0400
+Message-Id: <1129917894.27663.114.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-10-21 at 12:38 -0400, Ivan Gyurdiev wrote:
-> > Ok.  Note that we'll likely want to remove all wildcards from the map
-> > files (for both libsepol and libsemanage) and explicitly list all
-> > interfaces we want exported to avoid surprises, or at least check that
-> > we aren't exporting anything accidentally.  
-> > nm src/libsepol.so.1 | grep ' T ' shows some interfaces that shouldn't
-> > really be public at present.
-> >   
-> Which ones? I tend to not prefix local things with sepol...
+On Fri, 2005-10-21 at 12:44 -0400, Yuichi Nakamura wrote:
+> If a domain is not allowed capability:audit_write, 
+> capability:audit_write and audit_control will be denied even in permissive mode, 
+> and no log is outputted.
+> In such case, How does user know he has to allow capability:audit_control ?
 
-The services.c functions also had sepol_ prefixes added when audit2why
-was created (it uses the static libsepol, but also uses libselinux, and
-libselinux has similar functions that interact with the kernel policy
-rather than a policy file/image).  Hence, we get symbols like
-sepol_context_to_sid and sepol_port_sid exported by the wildcards.
-Also, one exported symbol that was pre-existing was
-sepol_genbools_policydb, which was likewise created for audit2why and
-accidentally exported by the wildcard there, but as there should be no
-other users and it was never put into the "public" header, it likely
-does no harm to correct it now to only export genbools and
-genbools_array.
+Yes, that is a known problem.  There have been previous discussions
+about the issue, and there were even patches posted by Chris Wright that
+moved the checking from the receive-side code to a callback at send
+time, but it didn't seem to go anywhere upstream.  I'm not certain why.
 
-Also need to fix this:
-$ relinfo.pl src/libsepol.so.1
-src/libsepol.so.1: 68 relocations, 61 relative (89%), 94 PLT entries, 60 for local syms (63%), 0 users
+Of course, you typically should know what programs/code needs audit
+privileges in the system.
 
-There shouldn't be any for local syms; need to bring over dso.h and
-hidden_def/hidden_proto stuff from libselinux.
+> Before adding auditallow I modified following line in ssh.te
+> * before
+> allow $1_t self:capability {  audit_control kill sys_chroot sys_resource chown d
+> ac_override fowner fsetid setgid setuid sys_tty_config };
+> * after (audit_control is deleted)
+> allow $1_t self:capability {  kill sys_chroot sys_resource chown d
+> ac_override fowner fsetid setgid setuid sys_tty_config };
+
+That doesn't mean that the permission isn't granted via attribute
+elsewhere, e.g.
+	allow auth_chkpwd self:capability { audit_write audit_control };
+
+> And make reload was success, and I saw grant log of ssh_t's audit_control.
+> Following is my strict policy and checkpolicy version.
+> # rpm -q selinux-policy-strict checkpolicy
+> selinux-policy-strict-1.23.16-6
+> checkpolicy-1.23.1-1
+
+Hmm...I suspect a problem in the assertion checker in that version,
+although I'm not sure.  I get an assertion failure with the current
+checkpolicy if I add that neverallow rule to my policy.
 
 -- 
 Stephen Smalley
