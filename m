@@ -1,29 +1,36 @@
-Message-ID: <435AB140.4020001@cornell.edu>
-Date: Sat, 22 Oct 2005 17:38:08 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [ SEMANAGE ] Resync to sepol changes
-References: <435A8AE9.3020709@cornell.edu>
-In-Reply-To: <435A8AE9.3020709@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9MLleNs026034
+	for <selinux@tycho.nsa.gov>; Sat, 22 Oct 2005 17:47:40 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9MLiKK1028373
+	for <selinux@tycho.nsa.gov>; Sat, 22 Oct 2005 21:44:21 GMT
+Subject: pegasus
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Sat, 22 Oct 2005 17:45:23 -0400
+Message-Id: <1130017523.10739.83.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
-> It _should_ commit the users file successfully... but it doesn't yet - 
-> need to do some more investigation.
-> I'm pretty sure it's read successfully, updated successfully, and 
-> merged into policy... not sure why it doesn't commit.
+While converting the pegasus policy over to reference policy, I came
+across this peculiar use types and rules:
 
-I see what's wrong... my implementations of add() and modify() invoke 
-other functions of the database, but the enter_ro/exit_ro/enter_rw 
-functions are not reentrant. As a result, the read lock is dropped 
-early, and more importantly, the cache is dropped too (so all 
-modifications are lost every time).
+type pegasus_conf_exec_t, file_type, exec_type, sysadmfile;
 
-Hmm...
+rw_dir_create_file(pegasus_conf_exec_t, pegasus_conf_t)
+
+This is the only use of pegasus_conf_exec_t, and is obvious that it
+doesn't have an effect.  There is a pegasus_conf_t, but it also is a
+file_type, used for the configuration files.  My guess is that the
+original intention was to make a domain for pegasus configuration
+programs, but it went awry.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
