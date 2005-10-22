@@ -1,426 +1,346 @@
-Message-ID: <435A19EB.7080107@cornell.edu>
-Date: Sat, 22 Oct 2005 06:52:27 -0400
+Message-ID: <435A24EC.5040804@cornell.edu>
+Date: Sat, 22 Oct 2005 07:39:24 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEPOL 3 ] Interfaces, ports, booleans - record conversion fn
+Subject: [ SEPOL 4 ] user - to_record fn, mls cleanups
 Content-Type: multipart/mixed;
- boundary="------------050108030708080607090404"
+ boundary="------------070006000407020102070002"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050108030708080607090404
+--------------070006000407020102070002
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-- renames sepol_[iface/port]_struct_create functions to _from_record, 
-which reflects what they do better.
-- removes the sepol prefix from those functions - they are both 
-internal, and marked static (if this is a namespace problem - will 
-address in followup patch, along with the other patches that did the 
-same thing). This is now consistent w/ context_to/from record
-- moves code from iterate into _to_record() functions that will be 
-shared with query, and other things that need to make a record.
-- renames boolean _load() functions to _set().
+- moves code from user iterate() to user_to_record, like it was done for 
+other things (this code can now be shared for query).
+- renames mls_struct_* prefix to mls_* for consistency w/ other mls code
+- change context_from_string to use mls_from_string, which simplifies 
+this function (because that's a better interface that respects const 
+char*, for example)
 
-
-
---------------050108030708080607090404
+--------------070006000407020102070002
 Content-Type: text/x-patch;
- name="libsepol.record_conv2.diff"
+ name="libsepol.user_record_conv.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsepol.record_conv2.diff"
+ filename="libsepol.user_record_conv.diff"
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/include/sepol/booleans.h new/libsepol/include/sepol/booleans.h
---- old/libsepol/include/sepol/booleans.h	2005-10-21 16:17:46.000000000 -0400
-+++ new/libsepol/include/sepol/booleans.h	2005-10-22 06:42:07.000000000 -0400
-@@ -28,12 +28,12 @@ extern int sepol_genbools_array(
- /*---------------end compatbility------------*/
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/include/sepol/policydb/mls.h new/libsepol/include/sepol/policydb/mls.h
+--- old/libsepol/include/sepol/policydb/mls.h	2005-10-07 16:45:17.000000000 -0400
++++ new/libsepol/include/sepol/policydb/mls.h	2005-10-22 07:19:20.000000000 -0400
+@@ -34,12 +34,12 @@
+ #include <sepol/policydb/context.h>
+ #include <sepol/policydb/policydb.h>
  
- /* Load a boolean into the policy */
--extern int sepol_bool_load (
-+extern int sepol_bool_set (
- 	sepol_policydb_t* policydb, 
- 	sepol_bool_t* boolean);
+-extern int mls_struct_from_string(
++extern int mls_from_string(
+ 	policydb_t* policydb,
+ 	const char* str,
+ 	context_struct_t* mls);
  
- /* Load a boolean array into the policy */
--extern int sepol_bool_load_array(
-+extern int sepol_bool_set_array(
- 	sepol_policydb_t* policydb,
- 	sepol_bool_t** bool_arr,
- 	size_t bool_arr_len);
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/booleans.c new/libsepol/src/booleans.c
---- old/libsepol/src/booleans.c	2005-10-07 16:45:46.000000000 -0400
-+++ new/libsepol/src/booleans.c	2005-10-22 06:43:42.000000000 -0400
-@@ -46,8 +46,38 @@ static inline int bool_update (
- 	return STATUS_ERR;		
+-extern int mls_struct_to_string(
++extern int mls_to_string(
+ 	policydb_t* policydb,
+ 	context_struct_t* mls,
+ 	char** str);
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/context.c new/libsepol/src/context.c
+--- old/libsepol/src/context.c	2005-10-22 06:46:18.000000000 -0400
++++ new/libsepol/src/context.c	2005-10-22 07:18:28.000000000 -0400
+@@ -124,10 +124,9 @@ int context_to_string(
+ 	return STATUS_ERR;
  }
  
--int sepol_bool_load (
--	sepol_policydb_t* p, sepol_bool_t* boolean) {
-+static int bool_to_record (
+-
+-/* Create a policy-dependent context structure, corresponding
+- * to the provided high level representation */
+-
++/*
++ * Create a context structure from the given record
++ */
+ int context_from_record(
+ 	policydb_t* policydb, 
+ 	context_struct_t** cptr, 
+@@ -142,13 +141,10 @@ int context_from_record(
+ 	char* user = strdup(sepol_context_get_user(record)); 
+ 	char* role = strdup(sepol_context_get_role(record));
+ 	char* type = strdup(sepol_context_get_type(record));
+- 
+- 	const char* tmp = sepol_context_get_mls(record);
+- 	char* mls = tmp ? strdup(tmp): NULL;
+- 	char* mls_ptr = mls;
++	const char* mls = sepol_context_get_mls(record); 
+ 
+ 	scontext = (context_struct_t*) malloc(sizeof(context_struct_t));
+- 	if (!user || !role || !type || (tmp && !mls) || !scontext) {
++ 	if (!user || !role || !type || !mls || !scontext) {
+ 		DEBUG(__FUNCTION__, "out of memory\n"); 
+ 		goto err;
+ 	}
+@@ -185,7 +181,6 @@ int context_from_record(
+ 	if (mls && !policydb->mls) {
+  		DEBUG(__FUNCTION__, "Warning! mls context \"%s\" found, "
+  			"but mls is disabled\n", mls);
+- 		free(mls);
+ 		mls = NULL;
+ 	}
+ 	else if (!mls && policydb->mls) {
+@@ -193,7 +188,7 @@ int context_from_record(
+  			"mls context found\n");
+ 		goto err_destroy;
+ 	}
+- 	if (mls && (mls_context_to_sid(policydb, '$', &mls_ptr, scontext) < 0)) {
++	if (mls && (mls_from_string(policydb, mls, scontext) < 0)) {
+  		DEBUG(__FUNCTION__, "invalid mls context: %s\n", mls);
+ 		goto err_destroy;
+ 	}
+@@ -217,7 +212,6 @@ int context_from_record(
+ 	free(user);	
+ 	free(type);
+ 	free(role);
+-	free(mls);
+ 	return STATUS_SUCCESS;
+ 
+ 	err_destroy:
+@@ -228,13 +222,13 @@ int context_from_record(
+ 	free(user);
+ 	free(type);
+ 	free(role);
+-	free(mls);	
+ 	DEBUG(__FUNCTION__, "error creating context structure\n");
+ 	return STATUS_ERR;
+ }
+ 
+-/* Create a record from the context structure */
+-
++/*
++ * Create a record from the given context structure
++ */
+ int context_to_record(
+ 	policydb_t* policydb,
+ 	context_struct_t* context,
+@@ -259,7 +253,7 @@ int context_to_record(
+ 		goto err;
+ 
+ 	if (policydb->mls) {
+-		if (mls_struct_to_string(policydb, context, &mls) < 0)
++		if (mls_to_string(policydb, context, &mls) < 0)
+ 			goto err;
+ 
+ 		if (sepol_context_set_mls(tmp_record, mls) < 0)
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/mls.c new/libsepol/src/mls.c
+--- old/libsepol/src/mls.c	2005-10-07 16:45:46.000000000 -0400
++++ new/libsepol/src/mls.c	2005-10-22 07:11:08.000000000 -0400
+@@ -38,7 +38,7 @@
+ #include "debug.h"
+ #include "private.h"
+ 
+-int mls_struct_to_string(
++int mls_to_string(
+ 	policydb_t* policydb, 
+ 	context_struct_t* mls, 
+ 	char** str) {
+@@ -73,7 +73,7 @@ int mls_struct_to_string(
+ 
+ }
+ 
+-int mls_struct_from_string(
++int mls_from_string(
+ 	policydb_t* policydb, 
+ 	const char* str, 
+ 	context_struct_t* mls) {
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/users.c new/libsepol/src/users.c
+--- old/libsepol/src/users.c	2005-10-21 16:17:46.000000000 -0400
++++ new/libsepol/src/users.c	2005-10-22 07:26:46.000000000 -0400
+@@ -11,9 +11,75 @@
+ #include <sepol/users.h>
+ #include <sepol/user_record.h>
+ 
+-/* Load a user into policydb. The user may exist already, in
+- * which case the supplied data replaces the existing data. Alternatively,
+- * the user could be new. */
++static int user_to_record (
 +	policydb_t* policydb,
-+	int bool_idx,
-+	sepol_bool_t** record) {
++	int user_idx,
++	sepol_user_t** record) {
 +
-+	const char* name = policydb->p_bool_val_to_name[bool_idx];
-+	cond_bool_datum_t* booldatum = policydb->bool_val_to_struct[bool_idx];
-+	int value = booldatum->state;
++	const char* name = policydb->p_user_val_to_name[user_idx];
++	user_datum_t* usrdatum = policydb->user_val_to_struct[user_idx];
++	ebitmap_t* roles = &(usrdatum->roles.roles);
++	ebitmap_node_t* rnode;
++	unsigned bit;
 +
-+	sepol_bool_t* tmp_record = NULL;
++	sepol_user_t* tmp_record = NULL;
 +
-+	if (sepol_bool_create(&tmp_record) < 0)
++	if (sepol_user_create(&tmp_record) < 0)
 +		goto err;
 +
-+	if (sepol_bool_set_name(tmp_record, name) < 0)
++	if (sepol_user_set_name(tmp_record, name) < 0)
 +		goto err;
 +
-+	sepol_bool_set_value(tmp_record, value);
++	/* Extract roles */
++	ebitmap_for_each_bit(roles, rnode, bit) {
++		if (ebitmap_node_get_bit(rnode, bit)) {
++			char* role = policydb->p_role_val_to_name[bit];
++			if (sepol_user_add_role(tmp_record, role) < 0)
++				goto err;
++		}
++	}
++
++	/* Extract MLS info */
++	if (policydb->mls) {
++		context_struct_t context;
++		char *str;
++
++		context_init(&context);
++		memcpy(&context.range.level[0],
++			&usrdatum->dfltlevel, sizeof(mls_level_t));
++		memcpy(&context.range.level[1],
++			&usrdatum->dfltlevel, sizeof(mls_level_t));
++
++		if (mls_to_string(policydb, &context, &str) < 0)
++			goto err;
++
++		if (sepol_user_set_mlslevel(tmp_record, str) < 0 ) {
++			free(str);
++			goto err;
++		}
++		free(str);
++
++		context_init(&context);
++		memcpy(&context.range, &usrdatum->range, sizeof(mls_range_t));
++
++		if (mls_to_string(policydb, &context, &str) < 0)
++			goto err;
++
++		if (sepol_user_set_mlsrange(tmp_record, str) < 0) {
++			free(str);
++			goto err;
++		}
++		free(str);
++	}
 +
 +	*record = tmp_record;
 +	return STATUS_SUCCESS;
 +
 +	err:
 +	/* FIXME: handle error */
-+	sepol_bool_free(tmp_record);
++	sepol_user_free(tmp_record);
 +	return STATUS_ERR;
 +}
-+
-+int sepol_bool_set (
-+	sepol_policydb_t* p, 
-+	sepol_bool_t* boolean) {
-+
+ 
+ int sepol_user_modify(sepol_policydb_t* p, sepol_user_t* user) {
  	policydb_t *policydb = &p->p;
- 	if (bool_update(policydb, boolean) < 0)
- 		goto err;	
-@@ -66,10 +96,11 @@ int sepol_bool_load (
+@@ -108,7 +174,7 @@ int sepol_user_modify(sepol_policydb_t* 
+ 			goto err;
+ 		}
+ 		
+-		if (mls_struct_from_string(policydb, mls_level, &context) < 0) {
++		if (mls_from_string(policydb, mls_level, &context) < 0) {
+ 			DEBUG(__FUNCTION__, "invalid MLS default level %s for user %s\n", 
+ 				mls_level, name);
+ 			goto err;
+@@ -124,7 +190,7 @@ int sepol_user_modify(sepol_policydb_t* 
+ 			goto err;
+ 		}	
+ 
+-		if (mls_struct_from_string(policydb, mls_range, &context) < 0) {
++		if (mls_from_string(policydb, mls_range, &context) < 0) {
+ 			DEBUG(__FUNCTION__, "invalid MLS range %s for user %s\n", 
+ 				mls_range, name);
+ 			goto err;
+@@ -191,8 +257,6 @@ int sepol_user_modify(sepol_policydb_t* 
  	return STATUS_ERR;
  }
  
--int sepol_bool_load_array(
-+int sepol_bool_set_array(
- 	sepol_policydb_t* p,
- 	sepol_bool_t** bool_arr,
- 	size_t bool_arr_len) {	
-+
- 	policydb_t *policydb = &p->p;
- 	unsigned int i, errors = 0;
+-/* Check if a user is valid */
+-
+ int sepol_user_exists(
+ 	sepol_policydb_t* p, 
+ 	const char* user,
+@@ -210,14 +274,13 @@ int sepol_user_exists(
+ 	return STATUS_SUCCESS;
+ }
  
-@@ -100,6 +131,7 @@ int sepol_bool_iterate(
- 		sepol_bool_t* boolean,
+-/* Fill an array with all valid users */
+-
+ int sepol_user_iterate(
+ 	sepol_policydb_t* p, 
+ 	int (*fn)(
+ 		sepol_user_t* user,
  		void* fn_arg),
  	void* arg) {
 +
  	policydb_t *policydb = &p->p;
- 	size_t nbools = policydb->p_bools.nprim;
- 	sepol_bool_t* boolean = NULL;
-@@ -109,18 +141,10 @@ int sepol_bool_iterate(
- 	for (i = 0; i < nbools; i++) {
+ 	size_t nusers = policydb->p_users.nprim;
+ 	sepol_user_t* user = NULL;
+@@ -227,60 +290,10 @@ int sepol_user_iterate(
+ 	for (i = 0; i < nusers; i++) {
  
  		int status;
--		const char* name = policydb->p_bool_val_to_name[i];
--		cond_bool_datum_t* booldatum = policydb->bool_val_to_struct[i];
--		int value = booldatum->state;
--
--		if (sepol_bool_create(&boolean) < 0)
--			goto err;
+-		const char* name = policydb->p_user_val_to_name[i];
+-		user_datum_t* usrdatum = policydb->user_val_to_struct[i];
+-		ebitmap_t* roles = &(usrdatum->roles.roles);
+-		ebitmap_node_t* rnode;
+-		unsigned bit;
  
--		if (sepol_bool_set_name(boolean, name) < 0)
-+		if (bool_to_record(policydb, i, &boolean) < 0)
+-		if (sepol_user_create(&user) < 0)
++		if (user_to_record(policydb, i, &user) < 0)
  			goto err;
+ 
+-		if (sepol_user_set_name(user, name) < 0)
+-			goto err; 
 -
--		sepol_bool_set_value(boolean, value);
+-		/* Extract roles */
+-		ebitmap_for_each_bit(roles, rnode, bit) {
+-			if (ebitmap_node_get_bit(rnode, bit)) {
+-				char* role = policydb->p_role_val_to_name[bit];
+-				if (sepol_user_add_role(user, role) < 0)
+-					goto err;
+-			}
+-		}
 -
-+			
+-		/* Extract MLS info */
+-		if (policydb->mls) {
+-			context_struct_t context;
+-			char *str;
+-
+-			context_init(&context);
+-			memcpy(&context.range.level[0], 
+-				&usrdatum->dfltlevel, sizeof(mls_level_t));
+-			memcpy(&context.range.level[1],
+-				&usrdatum->dfltlevel, sizeof(mls_level_t));	
+-		
+-			if (mls_struct_to_string(policydb, &context, &str) < 0)
+-				goto err;
+-	
+-			if (sepol_user_set_mlslevel(user, str) < 0 ) {
+-				free(str);
+-				goto err;
+-			}
+-			free(str);			
+-
+-			context_init(&context);
+-			memcpy(&context.range, &usrdatum->range, sizeof(mls_range_t));
+-
+-			if (mls_struct_to_string(policydb, &context, &str) < 0)
+-				goto err;
+-
+-			if (sepol_user_set_mlsrange(user, str) < 0) {
+-				free(str);
+-				goto err;
+-			}
+-			free(str);
+-		}
+-
  		/* Invoke handler */
- 		status = fn(boolean, arg);
- 		if (status < 0)
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/interfaces.c new/libsepol/src/interfaces.c
---- old/libsepol/src/interfaces.c	2005-10-22 06:46:18.000000000 -0400
-+++ new/libsepol/src/interfaces.c	2005-10-22 06:43:59.000000000 -0400
-@@ -10,12 +10,11 @@
- #include <sepol/interfaces.h>
- #include <sepol/iface_record.h>
- 
--/* Create a low level interface structure from
-- * a high level representation */
--static int sepol_iface_struct_create (
-+/* Create a low level structure from record */
-+static int iface_from_record (
- 	policydb_t* policydb,
- 	ocontext_t** iface,
--	sepol_iface_t* data) {
-+	sepol_iface_t* record) {
- 
- 	ocontext_t* tmp_iface = NULL;
- 	context_struct_t* tmp_ifcon = NULL;
-@@ -26,20 +25,20 @@ static int sepol_iface_struct_create (
- 		goto omem;
- 
- 	/* Name */
--	tmp_iface->u.name = strdup(sepol_iface_get_name(data));
-+	tmp_iface->u.name = strdup(sepol_iface_get_name(record));
- 	if (!tmp_iface->u.name)
- 		goto omem;
- 
- 	/* Interface Context */
- 	if (context_from_record(policydb, 
--		&tmp_ifcon, sepol_iface_get_ifcon(data)) < 0)
-+		&tmp_ifcon, sepol_iface_get_ifcon(record)) < 0)
- 		goto err;
- 	context_cpy(&tmp_iface->context[0], tmp_ifcon);
- 	free(tmp_ifcon);
- 
- 	/* Message Context */
- 	if (context_from_record(policydb, 
--		&tmp_msgcon, sepol_iface_get_msgcon(data)) < 0)
-+		&tmp_msgcon, sepol_iface_get_msgcon(record)) < 0)
- 		goto err;
- 	context_cpy(&tmp_iface->context[1], tmp_msgcon);
- 	free(tmp_msgcon);
-@@ -57,12 +56,53 @@ static int sepol_iface_struct_create (
- 	return STATUS_ERR;
- }
- 
-+static int iface_to_record (
-+	policydb_t* policydb,
-+	ocontext_t* iface,
-+        sepol_iface_t** record) {
-+
-+	char* name = iface->u.name;
-+	context_struct_t* ifcon = &iface->context[0];
-+	context_struct_t* msgcon = &iface->context[1];
-+
-+	sepol_context_t* tmp_con = NULL;
-+	sepol_iface_t* tmp_record = NULL;
-+
-+	if (sepol_iface_create(&tmp_record) < 0)
-+		goto err;
-+
-+	if (sepol_iface_set_name(tmp_record, name) < 0)
-+		goto err;
-+
-+	if (context_to_record(policydb, ifcon, &tmp_con) < 0)
-+		goto err;
-+	if (sepol_iface_set_ifcon(tmp_record, tmp_con) < 0)
-+		goto err;
-+	tmp_con = NULL;
-+
-+	if (context_to_record(policydb, msgcon, &tmp_con) < 0)
-+		goto err;
-+	if (sepol_iface_set_msgcon(tmp_record, tmp_con) < 0)
-+		goto err;
-+	tmp_con = NULL;
-+
-+	*record = tmp_record;
-+	return STATUS_SUCCESS;
-+
-+	err:
-+	/* FIXME: handle error */
-+	sepol_context_free(tmp_con);
-+	sepol_iface_free(tmp_record);
-+	return STATUS_ERR;
-+}
-+
- /* Get the current context mapping for this interface */
- int sepol_iface_get_context(
- 	sepol_policydb_t* p,
- 	sepol_iface_t* data,
- 	char** ifcon_str, size_t* ifcon_str_len,	
- 	char** msgcon_str, size_t* msgcon_str_len) {
-+
- 	policydb_t *policydb = &p->p;
- 	ocontext_t *c, *head;
- 	const char* name = sepol_iface_get_name(data);
-@@ -94,6 +134,7 @@ int sepol_iface_get_context(
- int sepol_iface_add(
- 	sepol_policydb_t* p, 
- 	sepol_iface_t* data) {
-+
- 	policydb_t *policydb = &p->p;
- 	ocontext_t* iface = NULL;
- 	char *ifcon_str, *msgcon_str;
-@@ -102,7 +143,7 @@ int sepol_iface_add(
- 
- 	const char* name = sepol_iface_get_name(data);
- 
--	if (sepol_iface_struct_create(policydb, &iface, data) < 0)
-+	if (iface_from_record(policydb, &iface, data) < 0)
- 		goto err;
- 
- 	rc = sepol_iface_get_context(
-@@ -142,34 +183,14 @@ int sepol_iface_iterate(
- 	policydb_t *policydb = &p->p;
- 	ocontext_t *c, *l, *head;
- 	sepol_iface_t* iface = NULL;
--	sepol_context_t* tmp_con = NULL;
- 
- 	head = policydb->ocontexts[OCON_NETIF];
- 	for (l = NULL, c = head; c; l = c, c = c->next) {
--
- 		int status;
--		char* name = c->u.name;
--		context_struct_t* ifcon = &c->context[0];
--		context_struct_t* msgcon = &c->context[1];
--
--		if (sepol_iface_create(&iface) < 0)
--			goto err;
--	
--		if (sepol_iface_set_name(iface, name) < 0)
--			goto err;
- 
--		if (context_to_record(policydb, ifcon, &tmp_con) < 0)
-+		if (iface_to_record(policydb, c, &iface) < 0)
- 			goto err;
--		if (sepol_iface_set_ifcon(iface, tmp_con) < 0)
--			goto err;
--		tmp_con = NULL;
--
--		if (context_to_record(policydb, msgcon, &tmp_con) < 0)
--			goto err;
--		if (sepol_iface_set_msgcon(iface, tmp_con) < 0)
--			goto err;
--		tmp_con = NULL;
--
-+		
- 		/* Invoke handler */
- 		status = fn(iface, arg);
- 		if (status < 0)
-@@ -187,7 +208,6 @@ int sepol_iface_iterate(
- 
- 	err:
- 	DEBUG(__FUNCTION__, "could not iterate over interfaces\n");
--	sepol_context_free(tmp_con);
- 	sepol_iface_free(iface);
- 	return STATUS_ERR;
- }
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude policy_components.c --exclude '*_record.c' --exclude '*_record.h' --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' old/libsepol/src/ports.c new/libsepol/src/ports.c
---- old/libsepol/src/ports.c	2005-10-22 06:46:18.000000000 -0400
-+++ new/libsepol/src/ports.c	2005-10-22 06:45:05.000000000 -0400
-@@ -38,7 +38,7 @@ static int ipproto2sepol(int proto) {
- 
- /* Create a low level port structure from
-  * a high level representation */
--static int sepol_port_struct_create(
-+static int port_from_record(
- 	policydb_t* policydb,
- 	ocontext_t** port,
- 	sepol_port_t* data) {
-@@ -85,12 +85,52 @@ static int sepol_port_struct_create(
- 	return STATUS_ERR;
- }
- 
-+static int port_to_record (
-+	policydb_t* policydb,
-+	ocontext_t* port,
-+	sepol_port_t** record) {
-+
-+	int proto = port->u.port.protocol;
-+	int low = port->u.port.low_port;
-+	int high = port->u.port.high_port;
-+	context_struct_t* con = &port->context[0];
-+
-+	sepol_context_t* tmp_con = NULL;
-+	sepol_port_t* tmp_record = NULL;
-+
-+	if (sepol_port_create(&tmp_record) < 0)
-+		goto err;
-+
-+	if (sepol_port_set_proto(tmp_record, ipproto2sepol(proto)) < 0)
-+		goto err;
-+
-+	if (sepol_port_set_range(tmp_record, low, high) < 0)
-+		goto err;
-+
-+	if (context_to_record(policydb, con, &tmp_con) < 0)
-+		goto err;
-+
-+	if (sepol_port_set_con(tmp_record, tmp_con) < 0)
-+		goto err;
-+	tmp_con = NULL;
-+
-+	*record = tmp_record;
-+	return STATUS_SUCCESS;
-+
-+	err:
-+	/* FIXME: handle error */
-+	sepol_context_free(tmp_con);
-+	sepol_port_free(tmp_record);
-+	return STATUS_ERR;
-+}
-+
- /* Get the current context mapping for this port */
- int sepol_port_get_context(
- 	sepol_policydb_t* p,
- 	sepol_port_t* data,
- 	char** con_str,	
- 	size_t* con_str_len) {
-+
- 	policydb_t *policydb = &p->p;
- 	int low = sepol_port_get_low(data);	
- 	int high = sepol_port_get_high(data);
-@@ -141,7 +181,7 @@ int sepol_port_add(
- 	size_t dup_size; 
- 	int rc;
- 
--	if (sepol_port_struct_create(policydb, &port, data) < 0)
-+	if (port_from_record(policydb, &port, data) < 0)
- 		goto err;
- 
- 	rc = sepol_port_get_context(p, data, &dup_match, &dup_size);
-@@ -182,33 +222,14 @@ int sepol_port_iterate(
- 	policydb_t *policydb = &p->p;
- 	ocontext_t *c, *l, *head;
- 	sepol_port_t* port = NULL;	
--	sepol_context_t* tmp_con = NULL; 	
- 
- 	head = policydb->ocontexts[OCON_PORT];
- 	for (l = NULL, c = head; c; l = c, c = c->next) {
--
- 		int status;
--		int proto = c->u.port.protocol;
--		int low = c->u.port.low_port;
--		int high = c->u.port.high_port;
--		context_struct_t* con = &c->context[0];
--
--		if (sepol_port_create(&port) < 0)
--			goto err;
- 
--		if (sepol_port_set_proto(port, ipproto2sepol(proto)) < 0)
-+		if (port_to_record(policydb, c, &port) < 0)
- 			goto err;
- 
--		if (sepol_port_set_range(port, low, high) < 0)
--			goto err;
--	
--		if (context_to_record(policydb, con, &tmp_con) < 0)
--			goto err;
--	
--		if (sepol_port_set_con(port, tmp_con) < 0)
--			goto err;
--		tmp_con = NULL;
--	
- 		/* Invoke handler */	
- 		status = fn(port, arg);
- 		if (status < 0)
-@@ -222,12 +243,10 @@ int sepol_port_iterate(
- 			break;
- 	}
- 
--
- 	return STATUS_SUCCESS;
- 
- 	err:
- 	DEBUG(__FUNCTION__, "could not iterate over ports\n");
--	sepol_context_free(tmp_con);
- 	sepol_port_free(port);
- 	return STATUS_ERR;
- }
+ 		status = fn(user, arg);
+ 		if (status < 0) 
 
---------------050108030708080607090404--
+--------------070006000407020102070002--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
