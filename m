@@ -1,66 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9MExONs023651
-	for <selinux@tycho.nsa.gov>; Sat, 22 Oct 2005 10:59:24 -0400 (EDT)
-Received: from sccrmhc13.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9MEu7K1024993
-	for <selinux@tycho.nsa.gov>; Sat, 22 Oct 2005 14:56:08 GMT
-Subject: Re: run_init: Fork:: No such file or directory
-From: Chris PeBenito <pebenito@gentoo.org>
-To: Antoine Martin <antoine@nagafix.co.uk>
-Cc: SELinux <selinux@tycho.nsa.gov>, wsalamon@tislabs.com, dwalsh@redhat.com
-In-Reply-To: <1129985971.31615.31.camel@localhost.localdomain>
-References: <1129985971.31615.31.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5O1r7uxueKb4U26qHBqj"
-Date: Sat, 22 Oct 2005 10:55:47 -0400
-Message-Id: <1129992947.26999.10.camel@gorn.pebenito.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9MFn1Ns023929
+	for <selinux@tycho.nsa.gov>; Sat, 22 Oct 2005 11:49:01 -0400 (EDT)
+Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9MFjNM0017956
+	for <selinux@tycho.nsa.gov>; Sat, 22 Oct 2005 15:45:23 GMT
+Subject: Re: [gentoo-hardened] mysql 4.1 requires shlib_t:file execmod?
+From: Antoine Martin <antoine@nagafix.co.uk>
+To: gentoo-hardened@lists.gentoo.org
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <435A6E83.15754.A4A6C273@pageexec.freemail.hu>
+References: <435A6E83.15754.A4A6C273@pageexec.freemail.hu>
+Content-Type: text/plain
+Date: Sat, 22 Oct 2005 16:45:39 +0100
+Message-Id: <1129995939.31615.56.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 2005-10-22 at 16:53 +0200, pageexec@freemail.hu wrote:
+> On 22 Oct 2005 at 15:15, Antoine Martin wrote:
+> > I've upgraded a (gentoo x86 selinux) system from MySQL 4.0 to 4.1, and
+> > since then some of the software that uses mysql-libs refuse to run
+> > without 'shlib_t:file execmod'.
+> > 
+> > ie: when starting postfix (built and rebuilt with mysql support):
+> > postfix: error while loading shared
+> > libraries: /usr/lib/libmysqlclient.so.14: cannot restore segment prot
+> > after reloc: Permission denied
+> 
+> the reason might be text relocations, even though they should have
+> been fixed already upstream. see long story at
+> 
+>   http://bugs.gentoo.org/show_bug.cgi?id=42968
+>   http://bugs.mysql.com/bug.php?id=11642
+>From the two threads above it looks like the fix should have gone in
+4.1.14 (which is what I am running now)
 
---=-5O1r7uxueKb4U26qHBqj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> 
+> what does scanelf -T /usr/lib/libmysqlclient.so.14 report?
+> if it's not text relocs, then post an strace please.
+Is scanelf a PaX tool?
 
-On Sat, 2005-10-22 at 13:59 +0100, Antoine Martin wrote:
-> I've been running a system with SELinux enforcing mode for some time
-> (Gentoo x86), but since yesterday I can't seem to use run_init to start
-> daemons, it fails with:
-> Fork:: No such file or directory
+Antoine
 
-This problem should be fixed.  As far as I know, the pty/idr_remove
-problem was only being caused in modules in selinux-base-policy, so make
-sure you're at least on selinux-base-policy-20050821.
-
-More details:
-
-http://marc.theaimsgroup.com/?l=3Dselinux&m=3D112419712132326&w=3D2
-
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
-
---=-5O1r7uxueKb4U26qHBqj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDWlLyvI7kLeavkkMRAgswAKCiI4w6LQjffqGFyk5CSfw1q+7XoACeJ8H7
-arVKAEx+JmS8wJBjnQFLqbs=
-=2s86
------END PGP SIGNATURE-----
-
---=-5O1r7uxueKb4U26qHBqj--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
