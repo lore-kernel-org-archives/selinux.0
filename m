@@ -1,46 +1,47 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9O2n0Ns002263
-	for <selinux@tycho.nsa.gov>; Sun, 23 Oct 2005 22:49:01 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9O2jQ09009943
-	for <selinux@tycho.nsa.gov>; Mon, 24 Oct 2005 02:45:27 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Antoine Martin <antoine@nagafix.co.uk>
-Subject: Re: [gentoo-hardened] mysql 4.1 requires shlib_t:file execmod?
-Date: Mon, 24 Oct 2005 12:45:11 +1000
-Cc: gentoo-hardened@lists.gentoo.org, SELinux <selinux@tycho.nsa.gov>
-References: <435A7CA9.4596.A4DE07A0@pageexec.freemail.hu> <435A91E4.28438.A530F894@pageexec.freemail.hu> <1130002295.5415.1.camel@localhost.localdomain>
-In-Reply-To: <1130002295.5415.1.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200510241245.20120.russell@coker.com.au>
+Subject: Re: [ SEPOL ] Context interface cleanup
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4359547D.3050001@cornell.edu>
+References: <43595049.2@cornell.edu>  <4359547D.3050001@cornell.edu>
+Content-Type: text/plain
+Date: Mon, 24 Oct 2005 08:47:59 -0400
+Message-Id: <1130158079.17609.13.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 23 October 2005 03:31, Antoine Martin <antoine@nagafix.co.uk> wrote:
-> On Sat, 2005-10-22 at 19:24 +0200, pageexec@freemail.hu wrote:
-> > On 22 Oct 2005 at 17:37, Antoine Martin wrote:
-> > > scanelf -T /usr/lib/libmysqlclient.so.14
-> > > shows nothing at all.
-> > > (I also tried adding a -R, even -a shows nothing!)
-> >
-> > ok, so it's not textrels, can you post an strace output then?
->
-> Ah, I thought I could, but strace won't run in enforcing mode (which is
-> needed to make it break) strace: ptrace(PTRACE_TRACEME, ...): Permission
-> denied
+On Fri, 2005-10-21 at 16:50 -0400, Ivan Gyurdiev wrote:
+> > - removes the sepol_ prefix, which I use to indicate whether a 
+> > function is exported or not
+> Actually, can that still create a namespace conflict during static linking?
 
-It's easy to modify policy to allow this:
+Yes.  That is why I added sepol_ prefixes for functions used by
+audit2why, since it also needed to use libselinux and I wanted to avoid
+conflicts and confusion between the respective interfaces.
 
-can_ptrace(sysadm_t, mysqld_t)
+> Would it make a difference if it was marked 'static' ?
+
+It is good practice to use 'static' as widely as possible, but you
+obviously cannot use either for functions that are actually used by
+users of the static libsepol.  If they are only used internally by the
+library, you can make them static or (if not all users are within a
+single file) mark them "hidden".  Need to bring over dso.h and create a
+sepol_internal.h in libsepol ala libselinux.
+
+> What should I name all those things...
+> I want sepol_context_* to be reserved for the record that represents a 
+> context..
+> I wanted context_* for the internal structure, for consistency with 
+> other code (but the other code is static_inline...).
+
+Note that libselinux provides context_* interfaces for context string
+manipulation by security-aware applications (man context_new).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
