@@ -1,39 +1,27 @@
-Subject: Re: [ SEPOL ] Context interface cleanup
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <435CF3F5.9040504@cornell.edu>
-References: <43595049.2@cornell.edu>  <4359547D.3050001@cornell.edu>
-	 <1130158079.17609.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <435CF3F5.9040504@cornell.edu>
-Content-Type: text/plain
-Date: Mon, 24 Oct 2005 10:47:08 -0400
-Message-Id: <1130165228.17609.54.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <435CF981.7040700@cornell.edu>
+Date: Mon, 24 Oct 2005 11:10:57 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [ SEMANAGE ] Resync to sepol changes
+References: <435A8AE9.3020709@cornell.edu>
+In-Reply-To: <435A8AE9.3020709@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-24 at 10:47 -0400, Ivan Gyurdiev wrote:
-> >
-> > Note that libselinux provides context_* interfaces for context string
-> > manipulation by security-aware applications (man context_new).
-> >   
-> 
-> Hmm... so many ways to represent a context!
 
-Yes, the libselinux interfaces were the original ones (those interfaces
-even predate the SELinux API overhaul for Linux 2.6).  
+>
+> - change Stub status code of all print functions from STATUS_ERR to 
+> STATUS_NODATA, so that the flat file parser will exit and not get 
+> stuck in infinite loop recalling the stubs.
+s/print/parse/ here
 
-> Should I be going the other way instead (i.e., leave sepol_ctx_struct 
-> alone (but still do the other changes - move to internal header, 
-> etc..)). Then in the future move context_* -> sepol_ctx_struct ?
-
-No, I think what you have done is fine (well, still looking at the
-patches), as long as these are purely libsepol internal functions.
-
--- 
-Stephen Smalley
-National Security Agency
+My file parser loop hands all control over record parsing to the parse() 
+function, so it is dependent on it to tell it when the last record is 
+parsed (by signaling STATUS_NODATA), so that's the loop I got rid of for 
+stubs.
 
 
 --
