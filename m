@@ -1,63 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9NJADNs000630
-	for <selinux@tycho.nsa.gov>; Sun, 23 Oct 2005 15:10:14 -0400 (EDT)
-Received: from mail.nagafix.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9NJ6MGg025411
-	for <selinux@tycho.nsa.gov>; Sun, 23 Oct 2005 19:06:23 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9O2n0Ns002263
+	for <selinux@tycho.nsa.gov>; Sun, 23 Oct 2005 22:49:01 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9O2jQ09009943
+	for <selinux@tycho.nsa.gov>; Mon, 24 Oct 2005 02:45:27 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Antoine Martin <antoine@nagafix.co.uk>
 Subject: Re: [gentoo-hardened] mysql 4.1 requires shlib_t:file execmod?
-From: Antoine Martin <antoine@nagafix.co.uk>
-To: gentoo-hardened@lists.gentoo.org
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1130004616.8908.38.camel@alto>
-References: <435A6E83.15754.A4A6C273@pageexec.freemail.hu>
-	 <435A7CA9.4596.A4DE07A0@pageexec.freemail.hu>
-	 <1129999068.31615.69.camel@localhost.localdomain>
-	 <1130002276.8908.28.camel@alto>
-	 <1130002902.5415.5.camel@localhost.localdomain>
-	 <1130004616.8908.38.camel@alto>
-Content-Type: text/plain
-Date: Sun, 23 Oct 2005 20:06:39 +0100
-Message-Id: <1130094399.22489.9.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Mon, 24 Oct 2005 12:45:11 +1000
+Cc: gentoo-hardened@lists.gentoo.org, SELinux <selinux@tycho.nsa.gov>
+References: <435A7CA9.4596.A4DE07A0@pageexec.freemail.hu> <435A91E4.28438.A530F894@pageexec.freemail.hu> <1130002295.5415.1.camel@localhost.localdomain>
+In-Reply-To: <1130002295.5415.1.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200510241245.20120.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > > #1
-> > > qlist mysql | scanelf -qtf -
-> > TEXTREL  /usr/lib/mysql/libmysqlclient.so
-> > TEXTREL  /usr/lib/mysql/libmysqlclient_r.so
-> > TEXTREL  /usr/lib/libmysqlclient.so
-> > TEXTREL  /usr/lib/libmysqlclient.so.14.0.0
-> > TEXTREL  /usr/lib/libmysqlclient_r.so
-> > TEXTREL  /usr/lib/libmysqlclient_r.so.14.0.0
-> 
-> Looks like you do infact have textrels in your mysql. 
-> I've seen this happen before when linked with a miscompiled
-> libcrypto.so 
-I've rebuilt openssl, but this hasn't helped...
+On Sunday 23 October 2005 03:31, Antoine Martin <antoine@nagafix.co.uk> wrote:
+> On Sat, 2005-10-22 at 19:24 +0200, pageexec@freemail.hu wrote:
+> > On 22 Oct 2005 at 17:37, Antoine Martin wrote:
+> > > scanelf -T /usr/lib/libmysqlclient.so.14
+> > > shows nothing at all.
+> > > (I also tried adding a -R, even -a shows nothing!)
+> >
+> > ok, so it's not textrels, can you post an strace output then?
+>
+> Ah, I thought I could, but strace won't run in enforcing mode (which is
+> needed to make it break) strace: ptrace(PTRACE_TRACEME, ...): Permission
+> denied
 
-> > > #2 
-> > > scanelf -a /usr/lib/libmysqlclient.so.14
-> > Nothing here
-> 
-> If nothing here then chances are your running scanelf while trying to
-> enforce and no such policy exists for scanelf.
-I must have done it wrong (it works even in enforcing mode now):
+It's easy to modify policy to allow this:
 
- TYPE    PAX   STK/REL/PTL TEXTREL RPATH BIND FILE
-ET_DYN ---xe- RW- --- RW- TEXTREL   -
-LAZY /usr/lib/libmysqlclient.so.14
+can_ptrace(sysadm_t, mysqld_t)
 
-> > > 
-> > > #3 
- TYPE    PAX   STK/REL/PTL TEXTREL RPATH BIND FILE
-ET_DYN ---xe- RW- R-- RW-    -      -   LAZY /lib/libcrypt.so.1
-ET_DYN ---xe- RW- R-- RW-    -      -   LAZY /lib/libnsl.so.1
-ET_DYN ---xe- RW- R-- RW-    -      -   LAZY /lib/libm.so.6
-ET_DYN ---xe- RW- --- RW-    -      -   LAZY /lib/libz.so.1
-ET_DYN ---xe- RW- R-- RW-    -      -   NOW /lib/libc.so.6
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
