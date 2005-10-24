@@ -1,27 +1,27 @@
+Message-ID: <435D1A0A.7040004@cornell.edu>
+Date: Mon, 24 Oct 2005 13:29:46 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
 Subject: Re: [ SEMANAGE 2 ] Fix dbase transactions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <435AC7F5.7030602@cornell.edu>
-References: <435AC7F5.7030602@cornell.edu>
-Content-Type: text/plain
-Date: Mon, 24 Oct 2005 13:09:02 -0400
-Message-Id: <1130173742.17609.97.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <435AC7F5.7030602@cornell.edu> <1130173742.17609.97.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1130173742.17609.97.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-10-22 at 19:15 -0400, Ivan Gyurdiev wrote:
-> This patch fixes transactions (hopefully). After this patch (and the 
-> other 7 previously sent), I can successfully modify selinux users, and 
-> write the changes to local file, as well as load them in policy (with 
-> the if0-ed code)
+>
+> All 8 patches merged as of libsepol 1.9.26 and libsemanage 1.3.32.
+>   
 
-All 8 patches merged as of libsepol 1.9.26 and libsemanage 1.3.32.
+Okay... next TODO:
 
--- 
-Stephen Smalley
-National Security Agency
+- must fill in the blanks (user query, boolean query, boolean exists).
+- implement count function (easy)
+- pass the handle where appropriate
+- convert records to use status code on failure
+
 
 
 --
