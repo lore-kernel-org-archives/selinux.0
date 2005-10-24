@@ -1,27 +1,30 @@
-Message-ID: <435D1A0A.7040004@cornell.edu>
-Date: Mon, 24 Oct 2005 13:29:46 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [ SEMANAGE 2 ] Fix dbase transactions
-References: <435AC7F5.7030602@cornell.edu> <1130173742.17609.97.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1130173742.17609.97.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH 0/4] features/fixes for rawhide and refpolicy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1130173137.15661.26.camel@twoface.columbia.tresys.com>
+References: <1130173137.15661.26.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Mon, 24 Oct 2005 13:18:54 -0400
+Message-Id: <1130174334.17609.104.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
-> All 8 patches merged as of libsepol 1.9.26 and libsemanage 1.3.32.
->   
+On Mon, 2005-10-24 at 12:58 -0400, Joshua Brindle wrote:
+> NOTE: this will not read packages created with prior libsepols, you
+> should clear out old modules before using this.
 
-Okay... next TODO:
+If anyone has any problems with dropping compatibility with the old
+module package format, please speak up now.  It wouldn't be difficult to
+retain compatibility support for reading the old module package format
+in libsepol, but it doesn't seem justified given that module packages
+haven't been deployed in any distributions yet AFAIK.  Let us know if
+this matters to anyone.
 
-- must fill in the blanks (user query, boolean query, boolean exists).
-- implement count function (easy)
-- pass the handle where appropriate
-- convert records to use status code on failure
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
