@@ -1,36 +1,32 @@
-Subject: Re: [ SEPOL 6 ] Fix all the bugs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <435E5771.8000606@cornell.edu>
-References: <435A7614.8000706@cornell.edu>
-	 <1130243871.17609.269.camel@moss-spartans.epoch.ncsc.mil>
-	 <435E5771.8000606@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 25 Oct 2005 13:04:50 -0400
-Message-Id: <1130259890.17609.349.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <435E6AD9.2090105@cornell.edu>
+Date: Tue, 25 Oct 2005 13:26:49 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [ SEPOL ] Further users cleanup
+References: <435903C2.2050805@cornell.edu>	 <1129908379.27663.59.camel@moss-spartans.epoch.ncsc.mil>	 <4359199A.40303@cornell.edu>	 <1129916287.27663.94.camel@moss-spartans.epoch.ncsc.mil>	 <1130252431.17609.326.camel@moss-spartans.epoch.ncsc.mil>	 <435E56CD.9030003@cornell.edu> <1130259740.17609.345.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1130259740.17609.345.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-25 at 12:04 -0400, Ivan Gyurdiev wrote:
-> The same ordering approach may not be maintained in other backends. Even 
-> currently the file linked list is reversed every time the file is read, 
-> making this scheme not work for local files. I suppose I could change 
-> it, but I think there's better ways to solve the problem than rely on 
-> ordering - ordering is fragile.
 
-Manual ordering is fragile, but checkpolicy and libsemanage/libsepol
-could explicitly order the list by specificity, as checkpolicy already
-does for node contexts (that also originally relied on the specified
-order, but was later enhanced by TCS to explicitly order the entries by
-specificity).  In any event, putting a more specific range earlier in
-the list and letting it take precedence seems far cleaner to me than
-splitting the existing range.
+>> I'm confused, the bool_record is supposed to be exported out of sepol... 
+>> it's shared with semanage. That could change, based on the current 
+>> discussion of sharing records... but I wasn't sure if that's what you 
+>> intended.
+>>     
+>
+> hidden_def/hidden_proto isn't about hiding the symbol from users of the
+> shared library (that would be done by marking it "hidden", or in the
+> libsepol case, by omitting it from the map file).
+> hidden_def/hidden_proto creates an internal reference to the symbol for
+> use within the library so that intra-library use doesn't require a
+> relocation.
+>   
+You only need this for booleans?
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
