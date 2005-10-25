@@ -1,248 +1,381 @@
-Message-ID: <435D61E1.6040007@cornell.edu>
-Date: Mon, 24 Oct 2005 18:36:17 -0400
+Message-ID: <435D9456.9070502@cornell.edu>
+Date: Mon, 24 Oct 2005 22:11:34 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEMANAGE ] Resync to sepol changes (again)
+Subject: [ SEMANAGE 2 ] Booleans, parser fixes/improvements
 Content-Type: multipart/mixed;
- boundary="------------040403000405040007000900"
+ boundary="------------090805010709000707050104"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------040403000405040007000900
+--------------090805010709000707050104
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Changes:
+This patch gets booleans working - well... sort of. They still aren't 
+loaded right - I think it's because genbools goes and overrides them 
+after my changes, which is not very nice. I suspect the semanage loading 
+code is working just fine - I can see the file commit code working, at 
+least.
 
-- add count function to POLICYDB record extension
-- fill in all missing functions in the correct tables
-- implement stub: dbase_policydb_count
+Changes (2 stubs removed):
+- implement boolean parse() function
+- implement boolean print() function
 
-Bugfixes:
+Changes in the way booleans are parsed:
+- strtol is used instead of atoi, for improved error detection
+- boolean declaration can now be spread out on multiple lines and/or on 
+the same line (or any combination) - it doesn't matter at all - it was 
+just a lot easier to do it this way, because of the way my parser works.
 
-- set STATUS_SUCCESS, not ERR in policydb exists() on the success path
-- fix user parser bug, which did not allow multiple spaces between the 
-user name and the "roles"
-- replace an error-prone inplace parse helper (which was wrong, and 
-could crash), with a correct, and better one that uses malloc.
+Changes to the parser:
+- added function parse_fetch_string_until, which is useful
+- made all assert() functions eat the item that they assert on, which 
+makes sense, and matches the header comments - this makes the user 
+parser simpler, for example, and reduces possibility for error.
 
---------------040403000405040007000900
+-  dropped perr_fatal - this was supposed to be a flag to allow us to 
+skip records that do not parse. However, (1) it leaks the record 
+skipped, (2) it is currently not passed down through the call stack, and 
+most importantly, (3) I was assuming one record per line again, which is 
+just not the case - implementing this feature in the general case looks 
+really hard (if possible at all). So, all parse errors are fatal - this 
+is probably the safer choice too.
+
+======
+There's still a memory leak which I can't find... but I will track it 
+down eventually - I am now running all code through valgrind, and 
+auditing for leaks.
+
+
+--------------090805010709000707050104
 Content-Type: text/x-patch;
- name="libsemanage.resync.diff"
+ name="libsemanage.booleans.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.resync.diff"
+ filename="libsemanage.booleans.diff"
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/booleans_policydb.c new/libsemanage/src/booleans_policydb.c
---- old/libsemanage/src/booleans_policydb.c	2005-10-24 12:32:56.000000000 -0400
-+++ new/libsemanage/src/booleans_policydb.c	2005-10-24 17:30:44.000000000 -0400
-@@ -25,8 +25,9 @@ record_policydb_table_t SEMANAGE_BOOL_PO
- 	.add         = NULL, 
- 	.modify      = NULL,
- 	.set         = sepol_bool_set,
--	.query       = NULL, /* FIXME */
--	.exists      = NULL, /* FIXME */ 
-+	.query       = sepol_bool_query,
-+	.count       = sepol_bool_count,
-+	.exists      = sepol_bool_exists, 
- 	.iterate     = sepol_bool_iterate,
- };
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/booleans_file.c new/libsemanage/src/booleans_file.c
+--- old/libsemanage/src/booleans_file.c	2005-10-24 12:32:56.000000000 -0400
++++ new/libsemanage/src/booleans_file.c	2005-10-24 21:56:21.000000000 -0400
+@@ -20,24 +20,94 @@ typedef struct dbase_file dbase_t;
+ #include "handle.h"
  
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/database_policydb.c new/libsemanage/src/database_policydb.c
---- old/libsemanage/src/database_policydb.c	2005-10-24 12:32:56.000000000 -0400
-+++ new/libsemanage/src/database_policydb.c	2005-10-24 17:34:32.000000000 -0400
-@@ -379,7 +379,7 @@ static int dbase_policydb_exists (
- 		goto err;
- 
- 	exit_ro(handle, dbase);
--	return STATUS_ERR;
-+	return STATUS_SUCCESS;
- 
- 	err:
- 	/* FIXME: handle error */
-@@ -395,10 +395,11 @@ static int dbase_policydb_count (
- 	if (enter_ro(handle, dbase) < 0)
- 		goto err;
+ static int bool_print(
+-	semanage_bool_t* bool, 
++	semanage_bool_t* boolean, 
+ 	FILE* str) {
  
 -	/* Stub */
--	response = NULL;
-+	if (dbase->rptable->count(dbase->policydb, response) < 0)
+-	bool = NULL;
+-	str = NULL;
+-	return STATUS_ERR;
++	const char* name = semanage_bool_get_name(boolean);
++	int value = semanage_bool_get_value(boolean);
++
++	if (fprintf(str, "%s=%d\n", name, value) < 0) {
++		/* FIXME: handle error */
++		return STATUS_ERR;
++	}
++
++	return STATUS_SUCCESS;
+ }
+ 
+ static int bool_parse(
+ 	parse_info_t* info, 
+-	semanage_bool_t* bool) {
++	semanage_bool_t* boolean) {
++	
++	int value = 0;
++	char* str = NULL;
+ 
+-	/* Stub */
+-	info = NULL;
+-	bool = NULL;
++	if (parse_skip_space(info) < 0)
++		goto err;
++	if (!info->ptr)
++		goto last;
++
++	/* Extract name */
++	if (parse_fetch_string_until(info, &str, '=') < 0)
++		goto err;
++	
++	if (semanage_bool_set_name(boolean, str) < 0) 
++		goto err;
++	free(str);
++	str = NULL;
++
++	if (parse_skip_space(info) < 0)
++		goto err;
++	if (parse_assert_noeof(info) < 0)
++		goto err;
++	
++	if (parse_assert_ch(info, '=') < 0)
 +		goto err;
 +
- 	exit_ro(handle, dbase);
--	return STATUS_ERR;
-+	return STATUS_SUCCESS;
- 
- 	err:
- 	/* FIXME: handle error */
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/database_policydb.h new/libsemanage/src/database_policydb.h
---- old/libsemanage/src/database_policydb.h	2005-10-24 12:32:56.000000000 -0400
-+++ new/libsemanage/src/database_policydb.h	2005-10-24 17:29:20.000000000 -0400
-@@ -17,7 +17,8 @@ typedef struct record_policydb_table {
- 		record_key_t* rkey,
- 		record_t* record);
- 
--	/* Modify policy record */
-+	/* Modify policy record, or add if 
-+	 * the key isn't found */
- 	int (*modify) (
- 		sepol_policydb_t* policydb, 
- 		record_key_t* rkey,
-@@ -29,12 +30,18 @@ typedef struct record_policydb_table {
- 		record_key_t* rkey,
- 		record_t* record);
- 
--	/* Query policy record */
-+	/* Query policy record  - return the record
-+	 * or NULL if it isn't found */
- 	int (*query) (
- 		sepol_policydb_t* policydb,
- 		record_key_t* rkey,
- 		record_t** response);
- 
-+	/* Count records */
-+	int (*count) (
-+		sepol_policydb_t* policydb,
-+		int* response);
++	if (parse_skip_space(info) < 0) 
++		goto err;
++	if (parse_assert_noeof(info)  < 0)
++		goto err;
 +
- 	/* Check if a record exists */
- 	int (*exists) (
- 		sepol_policydb_t* policydb,
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/interfaces_policydb.c new/libsemanage/src/interfaces_policydb.c
---- old/libsemanage/src/interfaces_policydb.c	2005-10-24 12:32:56.000000000 -0400
-+++ new/libsemanage/src/interfaces_policydb.c	2005-10-24 17:30:19.000000000 -0400
-@@ -26,6 +26,7 @@ record_policydb_table_t SEMANAGE_IFACE_P
- 	.modify      = sepol_iface_modify,
- 	.set         = NULL,
- 	.query       = sepol_iface_query,
-+        .count       = sepol_iface_count,
- 	.exists      = sepol_iface_exists, 
- 	.iterate     = sepol_iface_iterate,
- };
++	/* Extract value */
++	if (parse_fetch_string(info, &str) < 0)
++		goto err;
++
++	if (isdigit(*str)) {
++		char* test = NULL;
++		value = strtol(str, &test, 10);
++
++		if (*test != '\0') {
++			/* FIXME: handle error */
++			goto err;
++		} 
++	}
++	else if (!strcasecmp(str, "true"))
++		value = 1;
++	else if (!strcasecmp(str, "false"))
++		value = 0;
++	else {
++		/* FIXME: handle error */
++		goto err;
++	}
++	free(str);
++	str = NULL;
++
++	if (value != 0 && value != 1) {
++		/* FIXME: handle error */
++		goto err;
++	}
++	semanage_bool_set_value(boolean, value);
++	return STATUS_SUCCESS;
++
++	last:
++	parse_dispose_line(info);
+ 	return STATUS_NODATA;
+ 
++        err:
++	/* FIXME: handle error */
++	free(str);
++	parse_dispose_line(info);
++	return STATUS_ERR;
+ }
+ 
+ /* BOOL RECORD: metod table (booleans_local.c) */
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/database_file.c new/libsemanage/src/database_file.c
+--- old/libsemanage/src/database_file.c	2005-10-24 12:32:56.000000000 -0400
++++ new/libsemanage/src/database_file.c	2005-10-24 21:56:02.000000000 -0400
+@@ -84,9 +84,6 @@ static int dbase_file_cache(
+ 	semanage_handle_t* handle,
+ 	dbase_file_t* dbase) {
+ 
+-	int perr_fatal = 0;
+-	/* FIXME: pass from caller? */
+-
+ 	record_t* process_record = NULL;
+ 	int pstatus = STATUS_SUCCESS;
+ 
+@@ -119,14 +116,10 @@ static int dbase_file_cache(
+ 		/* Parse record */
+ 		pstatus = dbase->rftable->parse(parse_info, process_record);
+ 
+-		/* Parse error is fatal, exit */
+-		if (perr_fatal && (pstatus < 0))
++		/* Parse error */
++		if (pstatus < 0)
+ 			goto err;
+ 
+-		/* Parse error is not fatal */
+-		else if (pstatus < 0)
+-			continue;
+-
+ 		/* End of file */
+ 		else if (pstatus == STATUS_NODATA) 
+ 			break;
 diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/parse_utils.c new/libsemanage/src/parse_utils.c
---- old/libsemanage/src/parse_utils.c	2005-10-04 10:51:22.000000000 -0400
-+++ new/libsemanage/src/parse_utils.c	2005-10-24 18:21:34.000000000 -0400
-@@ -256,13 +256,24 @@ char* parse_filter_space_until(parse_inf
+--- old/libsemanage/src/parse_utils.c	2005-10-24 18:50:44.000000000 -0400
++++ new/libsemanage/src/parse_utils.c	2005-10-24 21:42:01.000000000 -0400
+@@ -150,6 +150,10 @@ int parse_assert_space(parse_info_t* inf
+ 			info->lineno, info->filename, info->orig_line); */
+ 		return STATUS_ERR;
+ 	}
++
++	if (parse_skip_space(info) < 0)
++		return STATUS_ERR;
++
+ 	return STATUS_SUCCESS;
+ }
+ 
+@@ -167,6 +171,8 @@ int parse_assert_ch(parse_info_t* info, 
+ 		return STATUS_ERR;
+ 	}
+ 
++	info->ptr++;
++
+ 	return STATUS_SUCCESS;
+ }
+ 
+@@ -256,7 +262,10 @@ char* parse_filter_space_until(parse_inf
  	return NULL;
  }
  
--
--char* parse_fetch_string_inplace(parse_info_t* info) {
-+int parse_fetch_string(parse_info_t* info, char** str) {
+-int parse_fetch_string(parse_info_t* info, char** str) {
++int parse_fetch_string(
++	parse_info_t* info, 
++	char** str) {
++
  	char* start = info->ptr;
+ 	int len = 0;
+ 	char* tmp_str = NULL;
+@@ -276,4 +285,31 @@ int parse_fetch_string(parse_info_t* inf
+ 	*(tmp_str + len)= '\0';
+ 	*str = tmp_str;
+ 	return STATUS_SUCCESS;
++}
++
++int parse_fetch_string_until(
++	parse_info_t* info, 
++	char** str, 
++	char delim) {
++
++	char* start = info->ptr;
 +	int len = 0;
 +	char* tmp_str = NULL;
- 
--	while (*(info->ptr) && !isspace(*(info->ptr)))
-+	while (*(info->ptr) && !isspace(*(info->ptr))) {
- 		info->ptr++;
--	*(info->ptr)++ = '\0';
--
--	return start;
++
++	while (*(info->ptr) && !isspace(*(info->ptr)) &&
++	      (*(info->ptr) != delim)) {
++		info->ptr++;
 +		len ++;
-+	}
-+		
++        }
++
 +	tmp_str = (char*) malloc(len + 1);
 +	if (!tmp_str) {
 +		/* FIXME: handle error */
-+		return STATUS_ERR;	
++		return STATUS_ERR;
 +	}
-+	
++
 +	strncpy(tmp_str, start, len);
 +	*(tmp_str + len)= '\0';
 +	*str = tmp_str;
 +	return STATUS_SUCCESS;
  } 
 diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/parse_utils.h new/libsemanage/src/parse_utils.h
---- old/libsemanage/src/parse_utils.h	2005-10-04 10:51:22.000000000 -0400
-+++ new/libsemanage/src/parse_utils.h	2005-10-24 18:23:24.000000000 -0400
-@@ -81,10 +81,10 @@ extern char* parse_filter_space_until(
+--- old/libsemanage/src/parse_utils.h	2005-10-24 18:50:44.000000000 -0400
++++ new/libsemanage/src/parse_utils.h	2005-10-24 21:39:03.000000000 -0400
+@@ -45,18 +45,20 @@ extern int parse_skip_space(
+ extern int parse_assert_noeof(
+ 	parse_info_t* info);
+ 	
+-/* Throw an error if no whitespace follows */
++/* Throw an error if no whitespace follows,
++ * otherwise eat the whitespace */
+ extern int parse_assert_space(
+ 	parse_info_t* info);
+ 
+ /* Throw an error if the specified character 
+- * does not follow  */
++ * does not follow, otherwise eat that character */
+ extern int parse_assert_ch(
+ 	parse_info_t* info, 
+ 	const char ch);
+ 
+ /* Throw an error if the specified string 
+- * does not follow is not found */
++ * does not follow is not found, otherwise
++ * eat the string */
+ extern int parse_assert_str(
+ 	parse_info_t* info, 
+ 	const char* assert_str);
+@@ -75,16 +77,24 @@ extern int parse_optional_str(
+ 
+ /* Buffer a string, filtering all 
+  * whitespace, until substring is encountered,
+- * at which point return the buffered string */ 
++ * at which point return the buffered string.
++ * This function will work on multiple lines */
+ extern char* parse_filter_space_until(
+ 	parse_info_t* info,
  	const char* substr);
  
  /* Extract the next string (delimited by 
-- * whitespace), and move the read pointer past it. 
-- * This string is overwritten when the next line 
-- * is read (inplace storage) */
--extern char* parse_fetch_string_inplace(
--	parse_info_t* info);
-+ * whitespace), and move the read pointer past it. */
-+
-+extern int parse_fetch_string(
+- * whitespace), and move the read pointer past it. */
+-
++ * whitespace), and move the read pointer past it */
+ extern int parse_fetch_string(
+ 	parse_info_t* info,
+ 	char** str_ptr);
+ 
++/* Extract the next string (delimited by 
++ * the specified character, or whitespace), and move the 
++ * read pointer past it */
++extern int parse_fetch_string_until(
 +	parse_info_t* info,
-+	char** str_ptr);
- 
++	char** str_ptr,
++	char delim);
++
  #endif
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/ports_policydb.c new/libsemanage/src/ports_policydb.c
---- old/libsemanage/src/ports_policydb.c	2005-10-24 12:32:56.000000000 -0400
-+++ new/libsemanage/src/ports_policydb.c	2005-10-24 17:30:24.000000000 -0400
-@@ -26,6 +26,7 @@ record_policydb_table_t SEMANAGE_PORT_PO
- 	.modify      = sepol_port_modify,
- 	.set         = NULL, 
- 	.query       = sepol_port_query,
-+        .count       = sepol_port_count,
- 	.exists      = sepol_port_exists,
- 	.iterate     = sepol_port_iterate,
- };
 diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/users_file.c new/libsemanage/src/users_file.c
---- old/libsemanage/src/users_file.c	2005-10-24 12:32:56.000000000 -0400
-+++ new/libsemanage/src/users_file.c	2005-10-24 18:27:55.000000000 -0400
-@@ -70,13 +70,14 @@ static int user_parse(
- 	int islist = 0;
- 	char* mls = NULL;
- 	char* start;
-+	char* name_str = NULL;
+--- old/libsemanage/src/users_file.c	2005-10-24 18:50:44.000000000 -0400
++++ new/libsemanage/src/users_file.c	2005-10-24 21:45:55.000000000 -0400
+@@ -83,8 +83,6 @@ static int user_parse(
  
- 	if (parse_skip_space(info) < 0)
+ 	if (parse_assert_space(info) < 0)
  		goto err;
- 	if (!info->ptr)
- 		goto last;
- 
--	/* Parse user name */
-+	/* Parse user header */
- 	if (parse_assert_str(info, "user") < 0)
- 		goto err;
- 
-@@ -87,7 +88,21 @@ static int user_parse(
+-	if (parse_skip_space(info) < 0)
+-		goto err;
  	if (parse_assert_noeof(info) < 0)
  		goto err;
  
--	if (semanage_user_set_name(user, parse_fetch_string_inplace(info)) < 0)
-+	/* Parse user name */
-+	if (parse_fetch_string(info, &name_str) < 0)
-+		goto err;
-+
-+	if (semanage_user_set_name(user, name_str) < 0) {
-+		free(name_str);
-+                goto err;
-+	}
-+	free(name_str);
-+
-+	if (parse_assert_space(info) < 0)
-+		goto err;
-+	if (parse_skip_space(info) < 0)
-+		goto err;
-+	if (parse_assert_noeof(info) < 0)
+@@ -100,8 +98,6 @@ static int user_parse(
+ 
+ 	if (parse_assert_space(info) < 0)
+ 		goto err;
+-	if (parse_skip_space(info) < 0)
+-		goto err;
+ 	if (parse_assert_noeof(info) < 0)
                  goto err;
  
- 	/* Parse roles header */
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/users_policydb.c new/libsemanage/src/users_policydb.c
---- old/libsemanage/src/users_policydb.c	2005-10-24 12:32:56.000000000 -0400
-+++ new/libsemanage/src/users_policydb.c	2005-10-24 17:29:43.000000000 -0400
-@@ -25,7 +25,8 @@ record_policydb_table_t SEMANAGE_USER_PO
- 	.add         = NULL,
- 	.modify      = sepol_user_modify,
- 	.set         = NULL,
--	.query       = NULL, /* FIXME */
-+	.query       = sepol_user_query, 
-+	.count       = sepol_user_count,
- 	.exists      = sepol_user_exists,
- 	.iterate     = sepol_user_iterate,
- };
+@@ -111,8 +107,6 @@ static int user_parse(
+ 
+ 	if (parse_assert_space(info) < 0)
+ 		goto err;
+-	if (parse_skip_space(info) < 0)
+-		goto err;
+ 	if (parse_assert_noeof(info) < 0)
+ 		goto err;
+ 
+@@ -177,8 +171,6 @@ static int user_parse(
+ 
+ 		if (parse_assert_space(info) < 0)
+ 			goto err;
+-		if (parse_skip_space(info) < 0)
+-			goto err;
+ 		if (parse_assert_noeof(info) < 0)
+ 			goto err;
+ 
+@@ -195,8 +187,6 @@ static int user_parse(
+ 
+ 		if (parse_assert_space(info) < 0)
+ 			goto err;
+-		if (parse_skip_space(info) < 0)
+-			goto err;
+ 		if (parse_assert_noeof(info) < 0)
+ 			goto err;
+ 
+@@ -217,8 +207,6 @@ static int user_parse(
+ 	if (parse_assert_ch(info,';') < 0)
+ 		goto err;
+ 
+-	info->ptr++;
+-
+ 	skip_semicolon:
+ 	return STATUS_SUCCESS;
+ 
 
---------------040403000405040007000900--
+--------------090805010709000707050104--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
