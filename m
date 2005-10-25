@@ -1,43 +1,39 @@
-Subject: Re: [ SEPOL ] Further users cleanup
+Subject: Re: [PATCH] selinux_set_file_paths function
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <435E6AD9.2090105@cornell.edu>
-References: <435903C2.2050805@cornell.edu>
-	 <1129908379.27663.59.camel@moss-spartans.epoch.ncsc.mil>
-	 <4359199A.40303@cornell.edu>
-	 <1129916287.27663.94.camel@moss-spartans.epoch.ncsc.mil>
-	 <1130252431.17609.326.camel@moss-spartans.epoch.ncsc.mil>
-	 <435E56CD.9030003@cornell.edu>
-	 <1130259740.17609.345.camel@moss-spartans.epoch.ncsc.mil>
-	 <435E6AD9.2090105@cornell.edu>
+To: Chad Sellers <csellers@tresys.com>
+Cc: selinux@tycho.nsa.gov, selinux-dev@tresys.com
+In-Reply-To: <200510251258.34894.csellers@tresys.com>
+References: <200510251258.34894.csellers@tresys.com>
 Content-Type: text/plain
-Date: Tue, 25 Oct 2005 13:25:21 -0400
-Message-Id: <1130261121.17609.369.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 25 Oct 2005 13:59:00 -0400
+Message-Id: <1130263140.17609.388.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-10-25 at 13:26 -0400, Ivan Gyurdiev wrote:
-> >> I'm confused, the bool_record is supposed to be exported out of sepol... 
-> >> it's shared with semanage. That could change, based on the current 
-> >> discussion of sharing records... but I wasn't sure if that's what you 
-> >> intended.
-> >>     
-> >
-> > hidden_def/hidden_proto isn't about hiding the symbol from users of the
-> > shared library (that would be done by marking it "hidden", or in the
-> > libsepol case, by omitting it from the map file).
-> > hidden_def/hidden_proto creates an internal reference to the symbol for
-> > use within the library so that intra-library use doesn't require a
-> > relocation.
-> >   
-> You only need this for booleans?
+On Tue, 2005-10-25 at 12:58 -0400, Chad Sellers wrote:
+> Attached is a patch to libselinux that moves the setting of file_paths[] out 
+> of init_selinux_config and into its own exported function.  This allows a 
+> caller to reset those paths to an alternate policy type for getting paths of 
+> files in that alternate policy type.  The patch also includes a patch to 
+> semanage_install_active in libsemanage to use this function rather than 
+> hacking the strings returned by libselinux.
 
-No, I need it for all functions used within the library that are also
-exported to users of the shared library.  The patch was just to get you
-started.  Not a high priority, mind you, just something we want to do as
-a cleanup.
+I'm not sure about the approach.  Some thoughts:
+- You are changing the libselinux file paths _except_ for the policy
+root, which you preserve for restoring the original values.  This leaves
+the paths in an inconsistent state.  If the approach were retained, I'd
+suggest saving the original type for restoration purposes, but setting
+policy root consistent with the other paths.  In that case, setting of
+selinux_policyroot moves into your new function as well and the code is
+a bit simpler.
+- Since you are changing the paths, any libselinux function that
+internally opens one of these paths will use the new path after a set
+has been performed, so it has side effects beyond just the functions
+that get paths.  Not sure if that is a feature or a bug ;)
+- Since the paths are global state of libselinux, if the caller is
+multi-threaded, then all threads will be affected (and the transition
+period isn't safe).
 
 -- 
 Stephen Smalley
