@@ -1,224 +1,529 @@
-Subject: [PATCH] Sort file contexts
-From: Joshua Brindle <jbrindle@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-w1Odb3ntbSsLzRRkhYxB"
-Date: Wed, 26 Oct 2005 15:47:47 -0400
-Message-Id: <1130356067.7724.6.camel@twoface.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <435FF625.9030500@cornell.edu>
+Date: Wed, 26 Oct 2005 17:33:25 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [ SEMANAGE ] Complete query APIs for in-policy objects
+Content-Type: multipart/mixed;
+ boundary="------------010301040500030703010905"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---=-w1Odb3ntbSsLzRRkhYxB
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------010301040500030703010905
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This patch changes matchpathcon to sort the file contexts according to a previous email from
-Chris PeBenito:
+Changes:
+- drop convert functions for now - we will require binary compatibility 
+at least in the immediate future, as off-list discussion w/ Tresys 
+established. We might need to get back to this problem after FC5t1
+- implement all query APIs for in-policy objects, and simplify them.
 
----
-To try to fix this we looked for regular expression sorting algorithms,
-but pretty much came up empty.  So we wrote support/fc_sort.c to do a
-stable sort (merge sort) with this comparison function:
-
-1. does one have a meta chars and the other not
-2. length of the spec up to the first meta char
-3. length of the entire spec
-4. does one have a specific file type (--, -d, etc.) and the other not
----
+I've done minimal testing - the iterate() function works... (and I know 
+count() works from before). List is not going to work, because it's a 
+stub. Query... haven't tested it yet (but all sepol functions were 
+tested w/ respect to sepol, and worked).
 
 
 
 
---=-w1Odb3ntbSsLzRRkhYxB
-Content-Disposition: attachment; filename=1-fcsort-merge.diff
-Content-Type: text/x-patch; name=1-fcsort-merge.diff; charset=utf-8
+
+--------------010301040500030703010905
+Content-Type: text/x-patch;
+ name="libsemanage.policy_apis.diff"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.policy_apis.diff"
 
-diff -purN -x .svn libselinux/src/matchpathcon.c libselinux/src/matchpathcon.c
---- libselinux/src/matchpathcon.c	2005-10-11 13:50:00.000000000 -0400
-+++ libselinux/src/matchpathcon.c	2005-10-26 14:26:49.000000000 -0400
-@@ -110,7 +110,7 @@ typedef struct spec {
- 	int hasMetaChars; 	/* indicates whether the RE has 
- 				   any meta characters.  
- 				   0 = no meta chars 
--				   1 = has one or more meta chars */
-+				   Non 0 = has meta chars and is position of meta char */
- 	int stem_id;		/* indicates which of the stem-compression
- 				 * items it matches */
- } spec_t;
-@@ -438,7 +438,7 @@ static void spec_hasMetaChars(struct spe
- 			case '[':
- 			case '(':
- 			case '{':
--				spec->hasMetaChars = 1;
-+				spec->hasMetaChars = c - spec->regex_str;
- 				return;
- 			case '\\':		/* skip the next character */
- 				c++;
-@@ -593,6 +593,115 @@ static int process_line( const char *pat
- 	return 0;
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/booleans_policy.c new/libsemanage/src/booleans_policy.c
+--- old/libsemanage/src/booleans_policy.c	2005-10-21 09:54:25.000000000 -0400
++++ new/libsemanage/src/booleans_policy.c	2005-10-26 17:21:18.000000000 -0400
+@@ -16,23 +16,6 @@ typedef struct dbase_direct dbase_t;
+ #include "database.h"
+ #include "debug.h"
+ 
+-static inline int semanage2sepol_key(
+-	semanage_bool_key_t* semanage_key,
+-	sepol_bool_key_t** sepol_key) {
+-	
+-	*sepol_key = (sepol_bool_key_t*) semanage_key;
+-	return STATUS_SUCCESS;
+-}
+-
+-
+-static inline int semanage2sepol_data(
+-	semanage_bool_t* semanage_data,
+-	sepol_bool_t** sepol_data) {
+-
+-	*sepol_data = (sepol_bool_t*) semanage_data;
+-	return STATUS_SUCCESS;
+-}
+-
+ /* BOOLEAN RECORD (SEPOL): method table */
+ record_table_t SEPOL_BOOL_RTABLE = {
+ 	.create      = sepol_bool_create,
+@@ -48,11 +31,11 @@ int semanage_bool_query(
+ 	semanage_bool_key_t* key,
+ 	semanage_bool_t** response) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	key = NULL;
+-	response = NULL;
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_bool_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->query(handle, dconfig->dbase, 
++		(sepol_bool_key_t*) key, (sepol_bool_t**) response);
  }
  
-+/* Compares two spec regular expressions for specificity
-+ * Returns -1 if a < b, 0 if a == b, or 1 if a > b */
-+static int spec_compare(spec_t *a, spec_t *b)
-+{
-+	int a_len, b_len;
-+
-+	/* Check to see if either a or b have meta characters
-+	 * and the other does not */
-+	if(a->hasMetaChars && !b->hasMetaChars)
-+		return -1;
-+	if(b->hasMetaChars && !a->hasMetaChars)
-+		return 1;
-+
-+	/* Check to see if either a or b have a shorter stem
-+	 * length than the other, if they have meta characters */
-+	if (a->hasMetaChars < b->hasMetaChars)
-+		return -1;
-+	if (b->hasMetaChars < a->hasMetaChars)
-+		return 1;
-+
-+	/* Check to see if either a or b have a shorter string
-+	 * length than the other */
-+	a_len = strlen(a->regex_str);
-+	b_len = strlen(b->regex_str);
-+	if(a_len < b_len)
-+		return -1;
-+	if(b_len < a_len)
-+		return 1;
-+
-+	/* Check to see if either a or b has a specified type
-+	 * and the other does not */
-+	if(!a->type_str && b->type_str)
-+		return -1;
-+	if(!b->type_str && a->type_str)
-+		return 1;
-+
-+	/* If none of the above conditions were satisfied, 
-+	 * then a and b are equally specific. */
-+	return 0;
-+}
-+
-+/* Uses the compare function and merge sort to sort the list of file contexts */
-+static int spec_merge_sort(spec_t *start, spec_t *finish)
-+{
-+	spec_t *tmp;
-+	spec_t *tmp_finish;
-+	spec_t *center;
-+	spec_t *cur_left;
-+	spec_t *cur_right;
-+	spec_t *cur;
-+
-+	if(finish - start > 0) {
-+		/* Split the spec array into two pieces and merge sort them */
-+		center = (finish - start)/2 + start;
-+		if(spec_merge_sort(start, center) == -1 || 
-+			spec_merge_sort(center + 1, finish) == -1) {
-+			return -1;
-+		}
-+
-+		/* Generate a temporary array for the first half of the array */
-+		tmp = malloc((center - start + 1) * sizeof(spec_t));
-+		if(!tmp) {
-+			return -1;
-+		}
-+
-+		tmp_finish = tmp + (center - start);
-+		memcpy(tmp, start, (center - start + 1) * sizeof(spec_t));
-+
-+		/* cur will move along the original array */
-+		cur = start;
-+
-+		/* cur_left will move along the temporary array (left side) */
-+		cur_left = tmp;
-+
-+		/* cur_right will move along the right side of the original
-+		 * array */
-+		cur_right = center + 1;
-+
-+		/* Merge the temporary array and the right side of the
-+		 * original array into the original array */
-+		while(cur < cur_right && cur_right <= finish) {
-+			/* If cur_left's data is less than or equal to
-+			 * cur_right's then copy over the cur_left's data in the
-+			 * temporary array to cur's data in the original array */
-+			if(spec_compare(cur_left, cur_right) <= 0) {
-+				memcpy(cur, cur_left, sizeof(spec_t));
-+				cur_left++;
-+			}
-+			/* Otherwise, copy cur_right's data in the right side
-+			 * of the original array to cur's data in the original
-+			 * array */
-+			else {
-+				memcpy(cur, cur_right, sizeof(spec_t));
-+				cur_right++;
-+			}
-+			cur++;
-+		}
-+
-+		/* Copy over the leftovers in the temporary array */
-+		if(tmp_finish >= cur_left) {
-+			memcpy(cur, cur_left, (tmp_finish - cur_left + 1) * sizeof(spec_t));
-+		}
-+
-+		free(tmp);
-+	}
-+
-+	return 0;
-+}
-+
- int matchpathcon_init(const char *path)
- {
- 	FILE *fp;
-@@ -602,8 +711,7 @@ int matchpathcon_init(const char *path)
- 	char homedir_path[PATH_MAX + 1];
- 	char *line_buf = NULL;
- 	size_t line_len = 0;
--	unsigned int lineno, pass, i, j, maxnspec;
--	spec_t *spec_copy=NULL;
-+	unsigned int lineno, pass, maxnspec;
- 	int status=-1;
- 	int mls_enabled=is_selinux_mls_enabled();
+ int semanage_bool_exists(
+@@ -60,39 +43,19 @@ int semanage_bool_exists(
+ 	semanage_bool_key_t* key,
+ 	int* response) {
  
-@@ -673,28 +781,16 @@ int matchpathcon_init(const char *path)
- 	}
- 	free(line_buf);
- 
--	/* Move exact pathname specifications to the end. */
--	spec_copy = malloc(sizeof(spec_t) * nspec);
--	if (!spec_copy)
--		goto finish;
--	j = 0;
--	for (i = 0; i < nspec; i++) {
--		if (spec_arr[i].hasMetaChars)
--			memcpy(&spec_copy[j++], &spec_arr[i], sizeof(spec_t));
-+	/* Sort specifications */
-+	if( spec_merge_sort(spec_arr, spec_arr + nspec - 1) == -1){
-+		myprintf("%s:  out of memory during file context sort"); 
- 	}
--	for (i = 0; i < nspec; i++) {
--		if (!spec_arr[i].hasMetaChars)
--			memcpy(&spec_copy[j++], &spec_arr[i], sizeof(spec_t));
--	}
--	free(spec_arr);
--	spec_arr = spec_copy;
+-	dbase_config_t* dconfig = 
+-		semanage_bool_dbase_policy(handle);
+-	sepol_bool_key_t* sepol_key;
 -
-+	
- 	nodups_specs(path);
+-	if (semanage2sepol_key(key, &sepol_key) < 0)
+-		goto err;
+-
+-	if (dconfig->dtable->exists(handle, dconfig->dbase, 
+-			sepol_key, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_bool_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->exists(handle, dconfig->dbase,
++		(sepol_bool_key_t*) key, response);
+ }
  
- 	status = 0;
-  finish:
- 	fclose(fp);
--	if (spec_arr != spec_copy) free(spec_arr);
- 	if (homedirfp) fclose(homedirfp);
- 	if (localfp) fclose(localfp);
- 	return status;
+ int semanage_bool_count(
+ 	semanage_handle_t* handle,
+ 	int* response) {
+ 
+-	dbase_config_t* dconfig = 
+-		semanage_bool_dbase_policy(handle);
+-
+-	if (dconfig->dtable->count(handle, dconfig->dbase, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_bool_dbase_policy(handle);
++	return dconfig->dtable->count(handle, dconfig->dbase, response);
+ }
+ 
+ int semanage_bool_iterate(
+@@ -101,11 +64,11 @@ int semanage_bool_iterate(
+ 	                void* varg),
+ 	void* handler_arg) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	handler = NULL;
+-	handler_arg = NULL;
+-	return STATUS_ERR;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_bool_dbase_policy(handle);
++	return dconfig->dtable->iterate(handle, dconfig->dbase,
++			(int (*) (sepol_bool_t*, void*)) 
++			handler, handler_arg);	
+ }
+ 
+ int semanage_bool_list(
+@@ -113,9 +76,8 @@ int semanage_bool_list(
+ 	semanage_bool_t*** records,
+ 	size_t* count) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	records = NULL;
+-	count = NULL;
+-	return STATUS_ERR;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_bool_dbase_policy(handle);
++	return dconfig->dtable->list(handle, dconfig->dbase,
++		(sepol_bool_t***) records, count);
+ }
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/interfaces_policy.c new/libsemanage/src/interfaces_policy.c
+--- old/libsemanage/src/interfaces_policy.c	2005-10-21 09:54:25.000000000 -0400
++++ new/libsemanage/src/interfaces_policy.c	2005-10-26 17:21:26.000000000 -0400
+@@ -16,23 +16,6 @@ typedef struct dbase_direct dbase_t;
+ #include "database.h"
+ #include "debug.h"
+ 
+-static inline int semanage2sepol_key(
+-	semanage_iface_key_t* semanage_key,
+-	sepol_iface_key_t** sepol_key) {
+-	
+-	*sepol_key = (sepol_iface_key_t*) semanage_key;
+-	return STATUS_SUCCESS;
+-}
+-
+-
+-static inline int semanage2sepol_data(
+-	semanage_iface_t* semanage_data,
+-	sepol_iface_t** sepol_data) {
+-
+-	*sepol_data = (sepol_iface_t*) semanage_data;
+-	return STATUS_SUCCESS;
+-}
+-
+ /* INTERFACE RECORD (SEPOL): method table */
+ record_table_t SEPOL_IFACE_RTABLE = {
+ 	.create      = sepol_iface_create,
+@@ -48,11 +31,11 @@ int semanage_iface_query(
+ 	semanage_iface_key_t* key,
+ 	semanage_iface_t** response) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	key = NULL;
+-	response = NULL;
+-	return STATUS_SUCCESS;
++	dbase_config_t* dconfig = semanage_iface_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->query(handle, dconfig->dbase, 
++		(sepol_iface_key_t*) key, (sepol_iface_t**) response);
+ }
+ 
+ int semanage_iface_exists(
+@@ -60,39 +43,19 @@ int semanage_iface_exists(
+ 	semanage_iface_key_t* key,
+ 	int* response) {
+ 
+-	dbase_config_t* dconfig = 
+-		semanage_iface_dbase_policy(handle);
+-	sepol_iface_key_t* sepol_key;
+-
+-	if (semanage2sepol_key(key, &sepol_key) < 0)
+-		goto err;
+-
+-	if (dconfig->dtable->exists(handle, dconfig->dbase, 
+-			sepol_key, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_iface_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->exists(handle, dconfig->dbase,
++		(sepol_iface_key_t*) key, response);
+ }
+ 
+ int semanage_iface_count(
+ 	semanage_handle_t* handle,
+ 	int* response) {
+ 
+-	dbase_config_t* dconfig = 
+-		semanage_iface_dbase_policy(handle);
+-
+-	if (dconfig->dtable->count(handle, dconfig->dbase, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_iface_dbase_policy(handle);
++	return dconfig->dtable->count(handle, dconfig->dbase, response);
+ }
+ 
+ int semanage_iface_iterate(
+@@ -101,11 +64,10 @@ int semanage_iface_iterate(
+ 	                void* varg),
+ 	void* handler_arg) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	handler = NULL;
+-	handler_arg = NULL;
+-	return STATUS_SUCCESS;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_iface_dbase_policy(handle);
++	return dconfig->dtable->iterate(handle, dconfig->dbase,
++			(int (*) (sepol_iface_t*,void*)) handler, handler_arg);	
+ }
+ 
+ int semanage_iface_list(
+@@ -113,9 +75,8 @@ int semanage_iface_list(
+ 	semanage_iface_t*** records,
+ 	size_t* count) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	records = NULL;
+-	count = NULL;
+-	return STATUS_SUCCESS;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_iface_dbase_policy(handle);
++	return dconfig->dtable->list(handle, dconfig->dbase,
++		(sepol_iface_t***) records, count);
+ }
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/ports_policy.c new/libsemanage/src/ports_policy.c
+--- old/libsemanage/src/ports_policy.c	2005-10-21 09:54:25.000000000 -0400
++++ new/libsemanage/src/ports_policy.c	2005-10-26 17:21:35.000000000 -0400
+@@ -16,23 +16,6 @@ typedef struct dbase_direct dbase_t;
+ #include "database.h"
+ #include "debug.h"
+ 
+-static inline int semanage2sepol_key(
+-	semanage_port_key_t* semanage_key,
+-	sepol_port_key_t** sepol_key) {
+-	
+-	*sepol_key = (sepol_port_key_t*) semanage_key;
+-	return STATUS_SUCCESS;
+-}
+-
+-
+-static inline int semanage2sepol_data(
+-	semanage_port_t* semanage_data,
+-	sepol_port_t** sepol_data) {
+-
+-	*sepol_data = (sepol_port_t*) semanage_data;
+-	return STATUS_SUCCESS;
+-}
+-
+ /* PORT RECORD (SEPOL): method table */
+ record_table_t SEPOL_PORT_RTABLE = {
+ 	.create      = sepol_port_create,
+@@ -48,11 +31,11 @@ int semanage_port_query(
+ 	semanage_port_key_t* key,
+ 	semanage_port_t** response) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	key = NULL;
+-	response = NULL;
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_port_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->query(handle, dconfig->dbase, 
++		(sepol_port_key_t*) key, (sepol_port_t**) response);
+ }
+ 
+ int semanage_port_exists(
+@@ -60,39 +43,19 @@ int semanage_port_exists(
+ 	semanage_port_key_t* key,
+ 	int* response) {
+ 
+-	dbase_config_t* dconfig = 
+-		semanage_port_dbase_policy(handle);
+-	sepol_port_key_t* sepol_key;
+-
+-	if (semanage2sepol_key(key, &sepol_key) < 0)
+-		goto err;
+-
+-	if (dconfig->dtable->exists(handle, dconfig->dbase, 
+-			sepol_key, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_port_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->exists(handle, dconfig->dbase,
++		(sepol_port_key_t*) key, response);
+ }
+ 
+ int semanage_port_count(
+ 	semanage_handle_t* handle,
+ 	int* response) {
+ 
+-	dbase_config_t* dconfig = 
+-		semanage_port_dbase_policy(handle);
+-
+-	if (dconfig->dtable->count(handle, dconfig->dbase, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_port_dbase_policy(handle);
++	return dconfig->dtable->count(handle, dconfig->dbase, response);
+ }
+ 
+ int semanage_port_iterate(
+@@ -101,11 +64,10 @@ int semanage_port_iterate(
+ 	                void* varg),
+ 	void* handler_arg) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	handler = NULL;
+-	handler_arg = NULL;
+-	return STATUS_ERR;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_port_dbase_policy(handle);
++	return dconfig->dtable->iterate(handle, dconfig->dbase,
++			(int (*) (sepol_port_t*,void*)) handler, handler_arg);	
+ }
+ 
+ int semanage_port_list(
+@@ -113,9 +75,8 @@ int semanage_port_list(
+ 	semanage_port_t*** records,
+ 	size_t* count) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	records = NULL;
+-	count = NULL;
+-	return STATUS_ERR;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_port_dbase_policy(handle);
++	return dconfig->dtable->list(handle, dconfig->dbase,
++		(sepol_port_t***) records, count);
+ }
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/users_policy.c new/libsemanage/src/users_policy.c
+--- old/libsemanage/src/users_policy.c	2005-10-21 09:54:25.000000000 -0400
++++ new/libsemanage/src/users_policy.c	2005-10-26 17:21:44.000000000 -0400
+@@ -16,23 +16,6 @@ typedef struct dbase_direct dbase_t;
+ #include "database.h"
+ #include "debug.h"
+ 
+-static inline int semanage2sepol_key(
+-	semanage_user_key_t* semanage_key,
+-	sepol_user_key_t** sepol_key) {
+-	
+-	*sepol_key = (sepol_user_key_t*) semanage_key;
+-	return STATUS_SUCCESS;
+-}
+-
+-
+-static inline int semanage2sepol_data(
+-	semanage_user_t* semanage_data,
+-	sepol_user_t** sepol_data) {
+-
+-	*sepol_data = (sepol_user_t*) semanage_data;
+-	return STATUS_SUCCESS;
+-}
+-
+ /* USER RECORD (SEPOL): method table */
+ record_table_t SEPOL_USER_RTABLE = {
+ 	.create      = sepol_user_create,
+@@ -48,11 +31,11 @@ int semanage_user_query(
+ 	semanage_user_key_t* key,
+ 	semanage_user_t** response) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	key = NULL;
+-	response = NULL;
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_user_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->query(handle, dconfig->dbase, 
++		(sepol_user_key_t*) key, (sepol_user_t**) response);
+ }
+ 
+ int semanage_user_exists(
+@@ -60,39 +43,19 @@ int semanage_user_exists(
+ 	semanage_user_key_t* key,
+ 	int* response) {
+ 
+-	dbase_config_t* dconfig = 
+-		semanage_user_dbase_policy(handle);
+-	sepol_user_key_t* sepol_key;
+-
+-	if (semanage2sepol_key(key, &sepol_key) < 0)
+-		goto err;
+-
+-	if (dconfig->dtable->exists(handle, dconfig->dbase, 
+-			sepol_key, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_user_dbase_policy(handle);
++
++	/* Note: requires binary compatible sepol record */
++	return dconfig->dtable->exists(handle, dconfig->dbase,
++		(sepol_user_key_t*) key, response);
+ }
+ 
+ int semanage_user_count(
+ 	semanage_handle_t* handle,
+ 	int* response) {
+ 
+-	dbase_config_t* dconfig = 
+-		semanage_user_dbase_policy(handle);
+-
+-	if (dconfig->dtable->count(handle, dconfig->dbase, response) < 0)
+-		goto err;
+-
+-	return STATUS_SUCCESS;
+-
+-	err:
+-	/* FIXME: handle error */
+-	return STATUS_ERR;
++	dbase_config_t* dconfig = semanage_user_dbase_policy(handle);
++	return dconfig->dtable->count(handle, dconfig->dbase, response);
+ }
+ 
+ int semanage_user_iterate(
+@@ -101,11 +64,10 @@ int semanage_user_iterate(
+ 	                void* varg),
+ 	void* handler_arg) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	handler = NULL;
+-	handler_arg = NULL;
+-	return STATUS_ERR;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_user_dbase_policy(handle);
++	return dconfig->dtable->iterate(handle, dconfig->dbase,
++			(int (*) (sepol_user_t*,void*)) handler, handler_arg);	
+ }
+ 
+ int semanage_user_list(
+@@ -113,9 +75,8 @@ int semanage_user_list(
+ 	semanage_user_t*** records,
+ 	size_t* count) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	records = NULL;
+-	count = NULL;
+-	return STATUS_ERR;
++	/* Note: requires binary compatible sepol record */
++	dbase_config_t* dconfig = semanage_user_dbase_policy(handle);
++	return dconfig->dtable->list(handle, dconfig->dbase,
++		(sepol_user_t***) records, count);
+ }
 
---=-w1Odb3ntbSsLzRRkhYxB--
-
+--------------010301040500030703010905--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
