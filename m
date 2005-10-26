@@ -1,614 +1,498 @@
-Message-ID: <435ED081.7030306@cornell.edu>
-Date: Tue, 25 Oct 2005 20:40:33 -0400
+Message-ID: <435EE8CC.70709@cornell.edu>
+Date: Tue, 25 Oct 2005 22:24:12 -0400
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEPOL 2 ] More debug things
+Subject: [ SEMANAGE 2 ] Seusers
 Content-Type: multipart/mixed;
- boundary="------------020001080608090308080809"
+ boundary="------------020706090600060805000603"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------020001080608090308080809
+--------------020706090600060805000603
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-- add handle to mls to/from string
-- remove newline in a few places where missed
-- remove DEBUG from genbools
-- remove DEBUG from genusers
-- remove DEBUG from .... everywhere else
+This patch should get seusers working... maybe needs a bit more testing, 
+but this code's disabled anyway..
+I can tell the parser's working, but I need to get a new base.pp to test 
+the commit (module format changed..)
 
-...except for the records.
-Leave the records alone for now... TODO
+Changes:
+- drop handle from semanage record to match the other records for now
+- fill in the seuser record table
+- implement seuser_print, and seuser_parse
+
+Parser notes:
+- this parser allows multiline records, as the other ones - it does not 
+care how things are spaced at all (unlike the selinux parser)
+- However.... it does require a compressed MLS string, on a single line, 
+with no whitespace. This is consistent with the selinux seuser parser. 
+It is not consistent with the users parser (which allows whitespace and 
+multiline MLS). Note that the user parser uses a "range" substring to 
+delimit where it should stop reading categories (which seems like a 
+mistake, because the category name can contain that substring). Here, we 
+don't have such a substring following the MLS range, so we can't allow 
+spaces and multiline. Another note... "default" is a perfectly valid 
+user name...
+- also the
+
+Other changes:
+- booleans: rename boolean file from "booleans" to "booleans.local"
+- parser utils: make the fetch string functions fail on 0-length string, 
+instead of returning a '\0' - we really want nonzero strings
+- ports : remove misleading parse_dispose_line, which gives the wrong 
+idea about how to write a parser function
 
 
-
---------------020001080608090308080809
+--------------020706090600060805000603
 Content-Type: text/x-patch;
- name="libsepol.debug2.diff"
+ name="libsemanage.seusers.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsepol.debug2.diff"
+ filename="libsemanage.seusers.diff"
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/include/sepol/policydb/mls.h new/libsepol/include/sepol/policydb/mls.h
---- old/libsepol/include/sepol/policydb/mls.h	2005-10-24 12:30:39.000000000 -0400
-+++ new/libsepol/include/sepol/policydb/mls.h	2005-10-25 20:27:38.000000000 -0400
-@@ -31,15 +31,18 @@
- #ifndef _SEPOL_POLICYDB_MLS_H_
- #define _SEPOL_POLICYDB_MLS_H_
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/include/semanage/seuser_record.h new/libsemanage/include/semanage/seuser_record.h
+--- old/libsemanage/include/semanage/seuser_record.h	2005-10-18 10:53:30.000000000 -0400
++++ new/libsemanage/include/semanage/seuser_record.h	2005-10-25 21:37:55.000000000 -0400
+@@ -1,8 +1,6 @@
+ #ifndef _SEMANAGE_SEUSER_RECORD_H_
+ #define _SEMANAGE_SEUSER_RECORD_H_
  
-+#include <sepol/handle.h>
- #include <sepol/policydb/context.h>
- #include <sepol/policydb/policydb.h>
+-#include <semanage/handle.h>
+-
+ struct semanage_seuser;
+ struct semanage_seuser_key;
+ typedef struct semanage_seuser semanage_seuser_t;
+@@ -10,12 +8,10 @@ typedef struct semanage_seuser_key seman
  
- extern int mls_from_string(
-+	sepol_handle_t* handle,
- 	policydb_t* policydb,
- 	const char* str,
- 	context_struct_t* mls);
+ /* Key */
+ extern int semanage_seuser_key_create(
+-	semanage_handle_t* handle,
+ 	const char* name, 
+ 	semanage_seuser_key_t** key);
  
- extern int mls_to_string(
-+	sepol_handle_t* handle,
- 	policydb_t* policydb,
- 	context_struct_t* mls,
- 	char** str);
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/booleans.c new/libsepol/src/booleans.c
---- old/libsepol/src/booleans.c	2005-10-25 20:17:53.000000000 -0400
-+++ new/libsepol/src/booleans.c	2005-10-25 20:21:57.000000000 -0400
-@@ -49,7 +49,7 @@ static int bool_update (
+ extern int semanage_seuser_key_extract(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser, 
+ 	semanage_seuser_key_t** key);
  
- 	err:
- 	free(name);
--	ERR(handle, "could not update boolean %s\n",  cname);
-+	ERR(handle, "could not update boolean %s",  cname);
- 	return STATUS_ERR;		
- }
+@@ -31,7 +27,6 @@ extern const char* semanage_seuser_get_n
+ 	semanage_seuser_t* seuser);
  
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/context.c new/libsepol/src/context.c
---- old/libsepol/src/context.c	2005-10-25 20:17:53.000000000 -0400
-+++ new/libsepol/src/context.c	2005-10-25 20:34:11.000000000 -0400
-@@ -191,10 +191,8 @@ int context_from_record(
-  		ERR(handle, "mls is enabled, but no mls context found");
- 		goto err_destroy;
- 	}
--	if (mls && (mls_from_string(policydb, mls, scontext) < 0)) {
-- 		ERR(handle, "invalid mls context: \"%s\"", mls);
-+	if (mls && (mls_from_string(handle, policydb, mls, scontext) < 0)) 
- 		goto err_destroy;
--	}
+ extern int semanage_seuser_set_name(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser, 
+ 	const char* name);
  
- 	/* Validity check */
-  	if (!context_is_valid(policydb, scontext)) {
-@@ -257,7 +255,7 @@ int context_to_record(
+@@ -40,7 +35,6 @@ extern const char* semanage_seuser_get_s
+ 	semanage_seuser_t* seuser);
+ 
+ extern int semanage_seuser_set_sename(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser,
+ 	const char* sename);
+ 
+@@ -49,17 +43,14 @@ extern const char* semanage_seuser_get_m
+ 	semanage_seuser_t* seuser);
+ 
+ extern int semanage_seuser_set_mlsrange(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser, 
+ 	const char* mls_range);
+ 
+ /* Create/Clone/Destroy */
+ extern int semanage_seuser_create(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t** seuser_ptr);
+ 
+ extern int semanage_seuser_clone(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser, 
+ 	semanage_seuser_t** seuser_ptr);
+ 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/booleans_file.c new/libsemanage/src/booleans_file.c
+--- old/libsemanage/src/booleans_file.c	2005-10-25 09:06:53.000000000 -0400
++++ new/libsemanage/src/booleans_file.c	2005-10-25 21:24:11.000000000 -0400
+@@ -59,10 +59,8 @@ static int bool_parse(
  		goto err;
- 
- 	if (policydb->mls) {
--		if (mls_to_string(policydb, context, &mls) < 0)
-+		if (mls_to_string(handle, policydb, context, &mls) < 0)
- 			goto err;
- 
- 		if (sepol_context_set_mls(tmp_record, mls) < 0)
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/expand.c new/libsepol/src/expand.c
---- old/libsepol/src/expand.c	2005-10-25 10:17:32.000000000 -0400
-+++ new/libsepol/src/expand.c	2005-10-25 20:29:48.000000000 -0400
-@@ -1913,7 +1913,7 @@ static int expand_avtab_insert(avtab_t *
- 	if (!node) {
- 		rc = avtab_insert(a, k, d);
- 		if (rc)
--			DEBUG(__FUNCTION__, "Out of memory!");
-+			ERR(NULL, "Out of memory!");
- 		return rc;
- 	}
- 
-@@ -1921,7 +1921,7 @@ static int expand_avtab_insert(avtab_t *
- 	    (node->key.specified & AVTAB_ENABLED)) {
- 		node = avtab_insert_nonunique(a, k, d);
- 		if (!node) {
--			DEBUG(__FUNCTION__, "Out of memory!");
-+			ERR(NULL, "Out of memory!");
- 			return -1;
- 		}
- 		return 0;
-@@ -1937,7 +1937,7 @@ static int expand_avtab_insert(avtab_t *
- 		avd->data &= d->data;
- 		break;
- 	default:
--		DEBUG(__FUNCTION__, "Type conflict!");
-+		ERR(NULL, "Type conflict!");
- 		return -1;
- 	}
- 
-@@ -2040,13 +2040,13 @@ static int expand_cond_insert(cond_av_li
- 	    (k->specified & AVTAB_ENABLED) != (node->key.specified & AVTAB_ENABLED)) {
- 		node = avtab_insert_nonunique(expa, k, d);
- 		if (!node) {
--			DEBUG(__FUNCTION__, "Out of memory!");
-+			ERR(NULL, "Out of memory!");
- 			return -1;
- 		}
- 		node->parse_context = (void*)1;
- 		nl = (cond_av_list_t *) malloc(sizeof(*nl));
- 		if (!nl) {
--			DEBUG(__FUNCTION__, "Out of memory!");
-+			ERR(NULL, "Out of memory!");
- 			return -1;
- 		}
- 		memset(nl, 0, sizeof(*nl));
-@@ -2066,7 +2066,7 @@ static int expand_cond_insert(cond_av_li
- 		avd->data &= d->data;
- 		break;
- 	default:
--		DEBUG(__FUNCTION__, "Type conflict!");
-+		ERR(NULL, "Type conflict!");
- 		return -1;
- 	}
- 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/genbools.c new/libsepol/src/genbools.c
---- old/libsepol/src/genbools.c	2005-10-18 10:08:39.000000000 -0400
-+++ new/libsepol/src/genbools.c	2005-10-25 20:36:22.000000000 -0400
-@@ -44,8 +44,8 @@ static int process_boolean(char *buffer,
- 			else if (!strncasecmp(tok, "false", sizeof("false")-1))
- 				*val = 0;
- 			if (*val != 0 && *val != 1) {
--				DEBUG(__FUNCTION__, "illegal value for boolean "
--					"%s=%s\n", name, tok);
-+				ERR(NULL, "illegal value for boolean "
-+					"%s=%s", name, tok);
- 				return -1;
- 			}
- 			
-@@ -75,7 +75,7 @@ static int load_booleans(struct policydb
- 		if (ret==1) {
- 			datum = hashtab_search(policydb->p_bools.table, name);
- 			if (!datum) {
--				DEBUG(__FUNCTION__, "unknown boolean %s\n", name);
-+				ERR(NULL, "unknown boolean %s", name);
- 				errors++;
- 				continue;
- 			}
-@@ -94,7 +94,7 @@ localbool:
- 			if (ret==1) {
- 				datum = hashtab_search(policydb->p_bools.table, name);
- 				if (!datum) {
--					DEBUG(__FUNCTION__, "unknown boolean %s\n", name);
-+					ERR(NULL, "unknown boolean %s", name);
- 					errors++;
- 					continue;
- 				}
-@@ -122,12 +122,11 @@ int sepol_genbools(void *data, size_t le
+ 	if (parse_assert_noeof(info) < 0)
  		goto err;
- 
- 	if (load_booleans(&policydb, booleans) < 0) {
--		DEBUG(__FUNCTION__, "Warning! Error while reading %s\n",
--				     booleans);
-+		WARN(NULL, "error while reading %s", booleans);
- 	}
- 
- 	if (evaluate_conds(&policydb) < 0) {
--		DEBUG(__FUNCTION__, "error while re-evaluating conditionals\n");
-+		ERR(NULL, "error while re-evaluating conditionals");
- 		errno = EINVAL;
- 		goto err_destroy;
- 	}
-@@ -137,7 +136,7 @@ int sepol_genbools(void *data, size_t le
- 	pf.len = len;
- 	rc = policydb_write(&policydb, &pf);
- 	if (rc) {
--		DEBUG(__FUNCTION__, "unable to write new binary policy image\n");
-+		ERR(NULL, "unable to write new binary policy image");
- 		errno = EINVAL;
- 		goto err_destroy;
- 	}
-@@ -180,13 +179,12 @@ int sepol_genbools_array(void *data, siz
- 	for (i = 0; i < nel; i++) {
- 		datum = hashtab_search(policydb.p_bools.table, names[i]);
- 		if (!datum) {
--			DEBUG(__FUNCTION__, "boolean %s no longer in policy\n",
--				names[i]);
-+			ERR(NULL, "boolean %s no longer in policy", names[i]);
- 			errors++;
- 			continue;
- 		}
- 		if (values[i] != 0 && values[i] != 1) {
--			DEBUG(__FUNCTION__, "illegal value %d for boolean %s\n",
-+			ERR(NULL, "illegal value %d for boolean %s",
- 				values[i], names[i]);
- 			errors++;
- 			continue;
-@@ -195,7 +193,7 @@ int sepol_genbools_array(void *data, siz
- 	}
- 
- 	if (evaluate_conds(&policydb) < 0) {
--		DEBUG(__FUNCTION__, "error while re-evaluating conditionals\n");
-+		ERR(NULL, "error while re-evaluating conditionals");
- 		errno = EINVAL;
- 		goto err_destroy;
- 	}
-@@ -205,7 +203,7 @@ int sepol_genbools_array(void *data, siz
- 	pf.len = len;
- 	rc = policydb_write(&policydb, &pf);
- 	if (rc) {
--		DEBUG(__FUNCTION__, "unable to write binary policy\n");
-+		ERR(NULL, "unable to write binary policy");
- 		errno = EINVAL;
- 		goto err_destroy;
- 	}
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/genusers.c new/libsepol/src/genusers.c
---- old/libsepol/src/genusers.c	2005-10-25 10:17:32.000000000 -0400
-+++ new/libsepol/src/genusers.c	2005-10-25 20:31:51.000000000 -0400
-@@ -18,7 +18,7 @@ void sepol_set_delusers(int on __attribu
- 
- #undef BADLINE
- #define BADLINE() { \
--	DEBUG(__FUNCTION__, "invalid entry %s (%s:%u)\n", \
-+	ERR(NULL, "invalid entry %s (%s:%u)", \
- 		buffer, path, lineno); \
- 	continue; \
- }
-@@ -76,7 +76,7 @@ static int load_users(struct policydb *p
- 			/* Adding a new user definition. */
- 			usrdatum = (user_datum_t *) malloc(sizeof(user_datum_t));
- 			if (!id || !usrdatum) {
--				DEBUG(__FUNCTION__,"out of memory\n");
-+				ERR(NULL, "out of memory");
- 				errno = ENOMEM;
- 				free(buffer);
- 				fclose(fp);
-@@ -88,7 +88,7 @@ static int load_users(struct policydb *p
- 			rc = hashtab_insert(policydb->p_users.table,
- 					    id, (hashtab_datum_t) usrdatum);
- 			if (rc) {
--				DEBUG(__FUNCTION__, "out of memory\n");
-+				ERR(NULL, "out of memory");
- 				errno = ENOMEM;
- 				free(buffer);
- 				fclose(fp);
-@@ -135,7 +135,7 @@ static int load_users(struct policydb *p
- 
- 			roldatum = hashtab_search(policydb->p_roles.table, q);
- 			if (!roldatum) {
--				DEBUG(__FUNCTION__, "undefined role %s (%s:%u)\n",
-+				ERR(NULL, "undefined role %s (%s:%u)",
- 					q, path, lineno);
- 				continue;
- 			}
-@@ -143,7 +143,7 @@ static int load_users(struct policydb *p
- 			ebitmap_for_each_bit(&roldatum->dominates, rnode, bit) {
- 				if (ebitmap_node_get_bit(rnode, bit))
- 					if (ebitmap_set_bit(&usrdatum->roles.roles, bit, 1)) {
--						DEBUG(__FUNCTION__, "out of memory\n");
-+						ERR(NULL, "out of memory");
- 						errno = ENOMEM;
- 						free(buffer);
- 						fclose(fp);
-@@ -179,7 +179,7 @@ static int load_users(struct policydb *p
- 
- 			scontext = malloc(p - q);
- 			if (!scontext) {
--				DEBUG(__FUNCTION__, "out of memory\n");
-+				ERR(NULL, "out of memory");
- 				free(buffer);
- 				fclose(fp);
- 				return -1;
-@@ -197,7 +197,7 @@ static int load_users(struct policydb *p
- 			context_init(&context);
- 			rc = mls_context_to_sid(policydb, oldc, &r, &context);
- 			if (rc) {
--				DEBUG(__FUNCTION__, "invalid level %s (%s:%u)\n",
-+				ERR(NULL, "invalid level %s (%s:%u)",
- 					scontext, path, lineno);
- 				free(scontext);
- 				continue;
-@@ -224,7 +224,7 @@ static int load_users(struct policydb *p
- 
- 			scontext = malloc(p - q);
- 			if (!scontext) {
--				DEBUG(__FUNCTION__, "out of memory\n");
-+				ERR(NULL, "out of memory");
- 				errno = ENOMEM;
- 				free(buffer);
- 				fclose(fp);
-@@ -243,7 +243,7 @@ static int load_users(struct policydb *p
- 			context_init(&context);
- 			rc = mls_context_to_sid(policydb, oldc, &r, &context);
- 			if (rc) {
--				DEBUG(__FUNCTION__, "invalid range %s (%s:%u)\n",
-+				ERR(NULL, "invalid range %s (%s:%u)",
- 					scontext, path, lineno);
- 				free(scontext);
- 				continue;
-@@ -274,7 +274,7 @@ int sepol_genusers(void *data, size_t le
- 	/* Load locally defined users. */
- 	snprintf(path, sizeof path, "%s/local.users", usersdir);
- 	if (load_users(&policydb, path) < 0) {
--		DEBUG(__FUNCTION__, "unable to load local.users: %s\n",
-+		ERR(NULL, "unable to load local.users: %s",
- 				strerror(errno));
- 		goto err_destroy;
- 	}
-@@ -301,14 +301,13 @@ int sepol_genusers_policydb(policydb_t *
- 	/* Load locally defined users. */
- 	snprintf(path, sizeof path, "%s/local.users", usersdir);
- 	if (load_users(policydb, path) < 0) {
--		DEBUG(__FUNCTION__, "unable to load local.users: %s\n",
--				strerror(errno));
-+		ERR(NULL, "unable to load local.users: %s",
-+			strerror(errno));
- 		return -1;
- 	}
- 
- 	if (policydb_reindex_users(policydb) < 0) {
--		DEBUG(__FUNCTION__, "unable to reindex users: %s\n",
--				strerror(errno));
-+		ERR(NULL, "unable to reindex users: %s", strerror(errno));
- 		return -1;
- 
- 	}
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/mls.c new/libsepol/src/mls.c
---- old/libsepol/src/mls.c	2005-10-24 12:32:51.000000000 -0400
-+++ new/libsepol/src/mls.c	2005-10-25 20:38:18.000000000 -0400
-@@ -35,10 +35,12 @@
- 
- #include <stdlib.h>
- 
-+#include "handle.h"
- #include "debug.h"
- #include "private.h"
- 
- int mls_to_string(
-+	sepol_handle_t* handle,
- 	policydb_t* policydb, 
- 	context_struct_t* mls, 
- 	char** str) {
-@@ -66,7 +68,8 @@ int mls_to_string(
- 	return STATUS_SUCCESS;
- 
- 	omem:
--	DEBUG(__FUNCTION__, "out of memory\n");
-+	ERR(handle, "out of memory, could not convert mls context to string");
-+
- 	free(ptr);
- 	free(ptr2);
- 	return STATUS_ERR;
-@@ -74,25 +77,31 @@ int mls_to_string(
- }
- 
- int mls_from_string(
-+	sepol_handle_t* handle,
- 	policydb_t* policydb, 
- 	const char* str, 
- 	context_struct_t* mls) {
- 
- 	char* tmp = strdup(str);
- 	char* tmp_cp = tmp;
--	if (!tmp) {
--		DEBUG(__FUNCTION__, "out of memory\n");
--		return STATUS_ERR;
--	}
-+	if (!tmp) 
-+		goto omem;
- 
- 	if (mls_context_to_sid(policydb, '$', &tmp_cp, mls)) {
--		DEBUG(__FUNCTION__, "invalid MLS context %s\n", str);
-+		ERR(handle, "invalid MLS context %s", str);
- 		free(tmp);
--		return STATUS_ERR;
-+		goto err;
- 	}
+-	
+ 	if (parse_assert_ch(info, '=') < 0)
+ 		goto err;
+-
+ 	if (parse_skip_space(info) < 0) 
+ 		goto err;
+ 	if (parse_assert_noeof(info)  < 0)
+@@ -122,7 +120,7 @@ record_file_table_t SEMANAGE_BOOL_FILE_R
+ int bool_file_dbase_init(dbase_config_t* dconfig) {
  	
- 	free(tmp);
+ 	if (dbase_file_init(
+-		"booleans",
++		"booleans.local",
+ 		&SEMANAGE_BOOL_RTABLE,
+ 		&SEMANAGE_BOOL_FILE_RTABLE, 
+ 		&dconfig->dbase) < 0)
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/handle.c new/libsemanage/src/handle.c
+--- old/libsemanage/src/handle.c	2005-10-25 08:25:32.000000000 -0400
++++ new/libsemanage/src/handle.c	2005-10-25 21:44:50.000000000 -0400
+@@ -46,10 +46,10 @@ semanage_handle_t *semanage_handle_creat
+ 	if ((sh = calloc(1, sizeof(semanage_handle_t))) == NULL)
+ 		goto err;
+ 
+-	if ((conf_name = semanage_conf_path()) == NULL) 
++	if ((conf_name = semanage_conf_path()) == NULL)
+ 		goto err;
+ 
+-	if ((sh->conf = semanage_conf_parse(conf_name)) == NULL)
++	if ((sh->conf = semanage_conf_parse(conf_name)) == NULL) 
+ 		goto err;
+ 
+ 	/* By default always reload policy after commit */
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/parse_utils.c new/libsemanage/src/parse_utils.c
+--- old/libsemanage/src/parse_utils.c	2005-10-25 09:06:53.000000000 -0400
++++ new/libsemanage/src/parse_utils.c	2005-10-25 21:59:43.000000000 -0400
+@@ -274,6 +274,11 @@ int parse_fetch_string(
+ 		info->ptr++;
+ 		len ++;
+ 	}
++
++	if (len == 0) {
++		/* FIXME: handle error */
++		return STATUS_ERR;
++	}
+ 		
+ 	tmp_str = (char*) malloc(len + 1);
+ 	if (!tmp_str) {
+@@ -302,6 +307,11 @@ int parse_fetch_string_until(
+ 		len ++;
+         }
+ 
++	if (len == 0) {
++		/* FIXME: handle error */
++		return STATUS_ERR;
++	}
++
+ 	tmp_str = (char*) malloc(len + 1);
+ 	if (!tmp_str) {
+ 		/* FIXME: handle error */
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/ports_file.c new/libsemanage/src/ports_file.c
+--- old/libsemanage/src/ports_file.c	2005-10-20 10:40:46.000000000 -0400
++++ new/libsemanage/src/ports_file.c	2005-10-25 21:03:36.000000000 -0400
+@@ -108,7 +108,6 @@ static int port_parse(
+ 
+ 	free(proto);
+ 	free(context);
+-	parse_dispose_line(info);
  	return STATUS_SUCCESS;
-+
-+	omem:
-+	ERR(handle, "out of memory");
-+
-+	err:
-+	ERR(handle, "could not construct mls context structure");
-+	return STATUS_ERR;
+ 
+ 	last:
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/seuser_record.c new/libsemanage/src/seuser_record.c
+--- old/libsemanage/src/seuser_record.c	2005-10-14 13:26:14.000000000 -0400
++++ new/libsemanage/src/seuser_record.c	2005-10-25 21:37:44.000000000 -0400
+@@ -3,7 +3,6 @@
+ 
+ #include <semanage/seuser_record.h>
+ #include "debug.h"
+-#include "handle.h"
+ 
+ struct semanage_seuser {
+ 	/* This user's name */
+@@ -23,7 +22,6 @@ struct semanage_seuser_key {
+ };
+ 
+ int semanage_seuser_key_create(
+-	semanage_handle_t* handle,
+ 	const char* name,
+ 	semanage_seuser_key_t** key_ptr) {
+ 
+@@ -32,7 +30,7 @@ int semanage_seuser_key_create(
+ 		malloc(sizeof (semanage_seuser_key_t));
+ 
+ 	if (!tmp_key) {
+-		ERR(handle, "out of memory, could not create seuser key");
++		/* FIXME: handle error */
+ 		return STATUS_ERR;
+ 	}
+ 	tmp_key->name = name;
+@@ -42,13 +40,11 @@ int semanage_seuser_key_create(
  }
  
- /*
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/policydb.c new/libsepol/src/policydb.c
---- old/libsepol/src/policydb.c	2005-10-25 09:25:44.000000000 -0400
-+++ new/libsepol/src/policydb.c	2005-10-25 20:28:41.000000000 -0400
-@@ -1005,20 +1005,18 @@ int policydb_load_isids(policydb_t *p, s
- 	ocontext_t *head, *c;
+ int semanage_seuser_key_extract(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser, 
+ 	semanage_seuser_key_t** key_ptr) {
  
- 	if (sepol_sidtab_init(s)) {
--		DEBUG(__FUNCTION__, "out of memory on SID table init");
-+		ERR(NULL, "out of memory on SID table init");
- 		return -1;
- 	}
- 
- 	head = p->ocontexts[OCON_ISID];
- 	for (c = head; c; c = c->next) {
- 		if (!c->context[0].user) {
--			DEBUG(__FUNCTION__, "SID %s was never defined",
--				c->u.name);
-+			ERR(NULL, "SID %s was never defined", c->u.name);
- 			return -1;
- 		}
- 		if (sepol_sidtab_insert(s, c->sid[0], &c->context[0])) {
--			DEBUG(__FUNCTION__, "unable to load initial SID %s",
--				c->u.name);
-+			ERR(NULL, "unable to load initial SID %s", c->u.name);
- 			return -1;
- 		}
- 	}
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/ports.c new/libsepol/src/ports.c
---- old/libsepol/src/ports.c	2005-10-25 20:17:53.000000000 -0400
-+++ new/libsepol/src/ports.c	2005-10-25 20:22:21.000000000 -0400
-@@ -66,7 +66,7 @@ static int port_from_record(
- 	tmp_port->u.port.low_port = sepol_port_get_low(data);
- 	tmp_port->u.port.high_port = sepol_port_get_high(data);
- 	if (tmp_port->u.port.low_port > tmp_port->u.port.high_port) {
--		ERR(handle, "low port %d exceeds high port %d\n",
-+		ERR(handle, "low port %d exceeds high port %d",
- 			tmp_port->u.port.low_port, 
- 			tmp_port->u.port.high_port);
- 		goto err;
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/roles.c new/libsepol/src/roles.c
---- old/libsepol/src/roles.c	2005-10-21 09:54:25.000000000 -0400
-+++ new/libsepol/src/roles.c	2005-10-25 20:21:06.000000000 -0400
-@@ -1,9 +1,15 @@
- #include <stdlib.h>
-+#include <string.h>
-+#include <stddef.h>
-+
- #include <sepol/policydb/policydb.h>
-+
- #include "debug.h"
-+#include "handle.h"
- 
- /* Check if a role exists */
- int sepol_role_exists(
-+	sepol_handle_t* handle,
- 	sepol_policydb_t* p, 
- 	const char* role,
- 	int* response) {
-@@ -11,7 +17,7 @@ int sepol_role_exists(
-   	policydb_t *policydb = &p->p;
- 	char* role_copy = strdup(role);
- 	if (!role_copy) {
--		DEBUG(__FUNCTION__, "out of memory, role check failed\n");
-+		ERR(handle, "out of memory, role check failed");
+-	if (semanage_seuser_key_create(handle, seuser->name, key_ptr) < 0) {
+-		ERR(handle, "could not extract key from seuser %s",
+-			seuser->name);
++	if (semanage_seuser_key_create(seuser->name, key_ptr) < 0) {
++		/* FIXME: handle error */
  		return STATUS_ERR;
  	}
  
-@@ -23,6 +29,7 @@ int sepol_role_exists(
- 
- /* Fill an array with all valid roles */
- int sepol_role_list(
-+	sepol_handle_t* handle,
- 	sepol_policydb_t* p, 
- 	char*** roles, 
- 	size_t* nroles) {
-@@ -47,8 +54,7 @@ int sepol_role_list(
-         return STATUS_SUCCESS;
- 
- 	omem:
--	DEBUG(__FUNCTION__, "out of memory, could not "
--		"allocate list of valid roles\n");
-+	ERR(handle, "out of memory, could not list roles");
- 	
- 	ptr = tmp_roles;
- 	while (ptr && *ptr) 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/services.c new/libsepol/src/services.c
---- old/libsepol/src/services.c	2005-10-25 20:17:53.000000000 -0400
-+++ new/libsepol/src/services.c	2005-10-25 20:22:10.000000000 -0400
-@@ -917,7 +917,7 @@ static int convert_context(sepol_securit
-       bad:
- 	context_to_string(NULL, policydb, &oldc, &s, &len);
- 	context_destroy(&oldc);
--	ERR(NULL, "invalidating context %s\n", s);
-+	ERR(NULL, "invalidating context %s", s);
- 	free(s);
- 	return rc;
+@@ -76,13 +72,12 @@ const char* semanage_seuser_get_name(
  }
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/users.c new/libsepol/src/users.c
---- old/libsepol/src/users.c	2005-10-25 20:17:53.000000000 -0400
-+++ new/libsepol/src/users.c	2005-10-25 20:25:58.000000000 -0400
-@@ -13,6 +13,7 @@
- #include <sepol/user_record.h>
  
- static int user_to_record (
-+	sepol_handle_t* handle,
- 	policydb_t* policydb,
- 	int user_idx,
- 	sepol_user_t** record) {
-@@ -48,17 +49,17 @@ static int user_to_record (
- 		context_init(&context);
- 		if (mls_level_cpy(&context.range.level[0], 
- 			&usrdatum->dfltlevel) < 0) {
--			DEBUG(__FUNCTION__, "could not copy MLS level");
-+			ERR(handle, "could not copy MLS level");
- 			context_destroy(&context);
- 			goto err;
- 		}
- 		if (mls_level_cpy(&context.range.level[1],
- 			&usrdatum->dfltlevel) < 0) {
--			DEBUG(__FUNCTION__, "could not copy MLS level");
-+			ERR(handle, "could not copy MLS level");
- 			context_destroy(&context);
- 			goto err;
- 		}
--		if (mls_to_string(policydb, &context, &str) < 0) {
-+		if (mls_to_string(handle, policydb, &context, &str) < 0) {
- 			context_destroy(&context);
- 			goto err;
- 		}
-@@ -72,11 +73,11 @@ static int user_to_record (
+ int semanage_seuser_set_name(
+-	semanage_handle_t* handle, 
+ 	semanage_seuser_t* seuser, 
+ 	const char* name) {
  
- 		context_init(&context);
- 		if (mls_range_cpy(&context.range, &usrdatum->range) < 0) {
--			DEBUG(__FUNCTION__, "could not copy MLS range");
-+			ERR(handle, "could not copy MLS range");
- 			context_destroy(&context);
- 			goto err;
- 		}
--		if (mls_to_string(policydb, &context, &str) < 0) {
-+		if (mls_to_string(handle, policydb, &context, &str) < 0) {
- 			context_destroy(&context);
- 			goto err;
- 		}
-@@ -197,9 +198,7 @@ int sepol_user_modify(
- 		}
- 		
- 		context_init(&context);
--		if (mls_from_string(policydb, mls_level, &context) < 0) {
--			ERR(handle, "invalid MLS default level %s "
--				"for user %s", mls_level, name);
-+		if (mls_from_string(handle, policydb, mls_level, &context) < 0) {
- 			context_destroy(&context);
- 			goto err;
- 		}
-@@ -218,9 +217,7 @@ int sepol_user_modify(
- 		}	
- 		
- 		context_init(&context);
--		if (mls_from_string(policydb, mls_range, &context) < 0) {
--			ERR(handle, "invalid MLS range %s for user %s", 
--				mls_range, name);
-+		if (mls_from_string(handle, policydb, mls_range, &context) < 0) {
- 			context_destroy(&context);
- 			goto err;
- 		}
-@@ -352,7 +349,8 @@ int sepol_user_query(
- 		return STATUS_SUCCESS; 
+ 	seuser->name = strdup(name);
+ 	if (!seuser->name) {
+-		ERR(handle,  "out of memory, could not set name");
++		/* FIXME: handle error */
+ 		return STATUS_ERR;
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -96,13 +91,12 @@ const char* semanage_seuser_get_sename(
+ }
+ 
+ int semanage_seuser_set_sename(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser,
+ 	const char* sename) {
+ 
+ 	seuser->sename = strdup(sename);
+ 	if (!seuser->sename) {
+-		ERR(handle,  "out of memory, could not set name");
++		/* FIXME: handle error */
+ 		return STATUS_ERR;
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -116,14 +110,12 @@ const char* semanage_seuser_get_mlsrange
+ }
+ 
+ int semanage_seuser_set_mlsrange(
+-	semanage_handle_t* handle, 
+ 	semanage_seuser_t* seuser, 
+ 	const char* mls_range) {
+ 
+ 	seuser->mls_range = strdup(mls_range);
+ 	if (!seuser->mls_range) {
+-		ERR(handle, "out of memory, could not set "
+-			"MLS allowed range");
++		/* FIXME: handle error */
+ 		return STATUS_ERR;
+ 	}
+ 	return STATUS_SUCCESS;
+@@ -131,15 +123,13 @@ int semanage_seuser_set_mlsrange(
+ 
+ /* Create */
+ int semanage_seuser_create(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t** seuser_ptr) {
+ 
+ 	semanage_seuser_t* seuser = 
+ 		(semanage_seuser_t*) malloc(sizeof (semanage_seuser_t));
+ 
+         if (!seuser) {
+-		ERR(handle, "out of memory, "
+-			"could not create seuser record"); 
++		/* FIXME: handle error */
+ 		return STATUS_ERR;
  	}
  
--	if (user_to_record(policydb, usrdatum->value - 1, response) < 0)
-+	if (user_to_record(handle, policydb, 
-+		usrdatum->value - 1, response) < 0)
+@@ -153,30 +143,29 @@ int semanage_seuser_create(
+ 
+ /* Deep copy clone */
+ int semanage_seuser_clone(
+-	semanage_handle_t* handle,
+ 	semanage_seuser_t* seuser, 
+ 	semanage_seuser_t** seuser_ptr) {
+ 
+ 	semanage_seuser_t* new_seuser = NULL;
+ 
+-	if (semanage_seuser_create(handle, &new_seuser) < 0)
++	if (semanage_seuser_create(&new_seuser) < 0)
  		goto err;
  
+-	if (semanage_seuser_set_name(handle, new_seuser, seuser->name) < 0)
++	if (semanage_seuser_set_name(new_seuser, seuser->name) < 0)
+ 		goto err;
+ 
+-	if (semanage_seuser_set_sename(handle, new_seuser, seuser->sename) < 0)
++	if (semanage_seuser_set_sename(new_seuser, seuser->sename) < 0)
+ 		goto err;
+ 
+ 	if (seuser->mls_range &&
+-	   (semanage_seuser_set_mlsrange(handle, new_seuser, seuser->mls_range) < 0))
++	   (semanage_seuser_set_mlsrange(new_seuser, seuser->mls_range) < 0))
+ 		goto err;
+ 
+ 	*seuser_ptr = new_seuser;
  	return STATUS_SUCCESS;
-@@ -384,7 +382,7 @@ int sepol_user_iterate(
  
- 		int status;
+ 	err:
+-	ERR(handle, "could not clone seuser record");
++	/* FIXME: handle error */
+ 	semanage_seuser_free(new_seuser);
+ 	return STATUS_ERR;
+ }
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/seusers.c new/libsemanage/src/seusers.c
+--- old/libsemanage/src/seusers.c	2005-10-14 14:32:34.000000000 -0400
++++ new/libsemanage/src/seusers.c	2005-10-25 21:27:28.000000000 -0400
+@@ -16,10 +16,10 @@ typedef struct dbase_file dbase_t;
  
--		if (user_to_record(policydb, i, &user) < 0)
-+		if (user_to_record(handle, policydb, i, &user) < 0)
+ /* Record base functions */
+ record_table_t SEMANAGE_SEUSER_RTABLE = {
+-	.create      = NULL, /* FIXME: takes handle argument  */
+-	.key_extract = NULL, /* FIXME */
++	.create      = semanage_seuser_create, 
++	.key_extract = semanage_seuser_key_extract,
+ 	.key_free    = semanage_seuser_key_free,
+-	.clone       = NULL, /* FIXME */
++	.clone       = semanage_seuser_clone,
+ 	.compare     = semanage_seuser_compare,
+ 	.free        = semanage_seuser_free,
+ };
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/seusers_file.c new/libsemanage/src/seusers_file.c
+--- old/libsemanage/src/seusers_file.c	2005-10-24 12:32:56.000000000 -0400
++++ new/libsemanage/src/seusers_file.c	2005-10-25 21:56:33.000000000 -0400
+@@ -11,6 +11,8 @@ typedef struct dbase_file dbase_t;
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <strings.h>
++
++#include <selinux/selinux.h>
+ #include "database_file.h"
+ #include "parse_utils.h"
+ #include "debug.h"
+@@ -21,20 +23,95 @@ static int seuser_print(
+ 	semanage_seuser_t* seuser, 
+ 	FILE* str) {
+ 
+-	/* Stub */
+-	seuser = NULL;
+-	str = NULL;
++	const char* name = semanage_seuser_get_name(seuser);
++	const char* sename = semanage_seuser_get_sename(seuser);
++	const char* mls = semanage_seuser_get_mlsrange(seuser);
++
++	if (fprintf(str, "%s:%s", name, sename) < 0) 
++		goto err;
++	
++	if (mls != NULL && fprintf(str, ":%s", mls) <  0)
++		goto err;
++	
++	fprintf(str, "\n");
++	return STATUS_SUCCESS;
++
++	err:
++	/* FIXME: handle error */
+ 	return STATUS_ERR;
+ }
+ 
+ static int seuser_parse(
+ 	parse_info_t* info, 
+ 	semanage_seuser_t* seuser) {
+-	
+-	/* Stub */
+-	info = NULL;
+-	seuser = NULL;
++
++	char* str = NULL;
++
++	if (parse_skip_space(info) < 0)
++		goto err;
++	if (!info->ptr)
++		goto last;
++
++	/* Extract name */
++	if (parse_fetch_string_until(info, &str, ':') < 0)
++		goto err;
++	if (semanage_seuser_set_name(seuser, str) < 0)
++		goto err;
++	free(str);
++	str = NULL;
++
++	if (parse_skip_space(info) < 0)
++		goto err;
++	if (parse_assert_noeof(info) < 0)
++		goto err;
++	if (parse_assert_ch(info, ':') < 0)
++		goto err;
++	if (parse_skip_space(info) < 0)
++		goto err;
++	if (parse_assert_noeof(info)  < 0)
++		goto err;
++
++	/* Extract sename */
++	if (parse_fetch_string_until(info, &str, ':') < 0)
++		goto err;
++	if (semanage_seuser_set_sename(seuser, str) < 0)
++		goto err;
++	free(str);
++	str = NULL;
++
++	if (is_selinux_mls_enabled()) {
++		if (parse_skip_space(info) < 0)
++			goto err;
++		if (parse_assert_noeof(info) < 0)
++			goto err;
++		if (parse_assert_ch(info, ':') < 0)
++			goto err;
++		if (parse_skip_space(info) < 0)
++			goto err;
++		if (parse_assert_noeof(info)  < 0)
++			goto err;
++
++		/* NOTE: does not allow spaces/multiline */
++		if (parse_fetch_string(info, &str) < 0)
++			goto err;
++
++		if (semanage_seuser_set_mlsrange(seuser, str) <  0)
++			goto err;
++		free(str);
++		str = NULL;
++	} 
++
++	return STATUS_SUCCESS;
++
++	last:
++	parse_dispose_line(info);
+ 	return STATUS_NODATA;
++
++	err:
++	/* FIXME: handle error */
++	free(str);
++	parse_dispose_line(info);
++	return STATUS_ERR;
+ }
+ 
+ /* SEUSER RECORD: method table (seusers.c) */
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude direct_api.c --exclude semanage_store.c --exclude VERSION --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsemanage/src/users_file.c new/libsemanage/src/users_file.c
+--- old/libsemanage/src/users_file.c	2005-10-25 09:06:53.000000000 -0400
++++ new/libsemanage/src/users_file.c	2005-10-25 21:09:36.000000000 -0400
+@@ -100,11 +100,8 @@ static int user_parse(
+ 		goto err;
+ 	if (parse_assert_noeof(info) < 0)
+                 goto err;
+-
+-	/* Parse roles header */
+ 	if (parse_assert_str(info, "roles") < 0)
+ 		goto err;
+-
+ 	if (parse_assert_space(info) < 0)
+ 		goto err;
+ 	if (parse_assert_noeof(info) < 0)
+@@ -165,10 +162,8 @@ static int user_parse(
  			goto err;
- 
- 		/* Invoke handler */
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude direct_api.c --exclude semanage_store.c --exclude libsemanage.map --exclude 'module_record*' --exclude 'database_directory*' --exclude Makefile old/libsepol/src/write.c new/libsepol/src/write.c
---- old/libsepol/src/write.c	2005-10-18 10:08:39.000000000 -0400
-+++ new/libsepol/src/write.c	2005-10-25 20:36:01.000000000 -0400
-@@ -1488,7 +1488,7 @@ int policydb_write(policydb_t * p, struc
- 			return -1;
-                 if (p->policyvers < POLICYDB_VERSION_BOOL) {
-                         if (p->p_bools.nprim)
--				ERR(fp->handle, "Warning! Discarding "
-+				WARN(fp->handle, "Discarding "
- 					"booleans and conditional rules");
-                 }
-                 else {
+ 		if (parse_assert_noeof(info) < 0)
+ 			goto err;
+-
+ 		if (parse_optional_str(info, "level") != STATUS_NODATA)
+ 			goto semicolon;
+-
+ 		if (parse_assert_space(info) < 0)
+ 			goto err;
+ 		if (parse_assert_noeof(info) < 0)
 
---------------020001080608090308080809--
+--------------020706090600060805000603--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
