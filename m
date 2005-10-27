@@ -1,38 +1,43 @@
-Message-ID: <436091B9.7010604@cornell.edu>
-Date: Thu, 27 Oct 2005 04:37:13 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9RBQQMA009609
+	for <selinux@tycho.nsa.gov>; Thu, 27 Oct 2005 07:26:26 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9RBMJcv014166
+	for <selinux@tycho.nsa.gov>; Thu, 27 Oct 2005 11:22:20 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: squid policy
+Date: Thu, 27 Oct 2005 21:21:59 +1000
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+References: <1125686384.16388.66.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1125686384.16388.66.camel@sgc.columbia.tresys.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [ SEMANAGE ] Implement dbase_file_set, fix memleak
-References: <43601468.60508@cornell.edu>
-In-Reply-To: <43601468.60508@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200510272122.06929.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Saturday 03 September 2005 04:39, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> While converting over the squid policy to a reference policy module, I
+> noticed this:
 >
-> A short TODO:
-> - interface: pass handle into sepol records, or implement status codes
-> - stub: implement interface parse/print
-> - stub: implement dbase_policydb_list
-> - fix: fix port key handling of modify() [ do not replace an entire 
-> range on weak match (not exact) ]
-> - improvement: track when the policy is modified, and do not rebuild 
-> on commit if it wasn't modified
-> - add error messages everywhere (and further propagate handle), and 
-> make sure they're user-friendly
-> - uncomment if0-ed code, add new semanage interfaces to semanage.h, 
-> and the map file
+> #squid requires the following when run in diskd mode, the recommended
+> setting allow squid_t tmpfs_t:file { read write };
+>
+> I'm confused on how this can happen.  As far as I know, there shouldn't
+> be no tmpfs_t files; everything should fall into a derived tmpfs domain,
+> usually provided by tmpfs_domain().  Can someone clarify this?
 
-Another TODO:
-============
-- investigate whether database functions should be made reentrant, 
-exactly what kind of code can and cannot be executed in the iterate() 
-handler, and document that  - things like: are modify() functions 
-allowed on the same database in iterate()? Other databases? queries()? 
-Out-of-transaction vs in-transaction behavior?
+It seems to work OK without it, remove it.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
