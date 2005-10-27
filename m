@@ -1,49 +1,37 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9R2RjMA007281
-	for <selinux@tycho.nsa.gov>; Wed, 26 Oct 2005 22:27:45 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9R2NhxU028619
-	for <selinux@tycho.nsa.gov>; Thu, 27 Oct 2005 02:23:43 GMT
-Message-ID: <43603A62.1050907@redhat.com>
-Date: Wed, 26 Oct 2005 22:24:34 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <436091B9.7010604@cornell.edu>
+Date: Thu, 27 Oct 2005 04:37:13 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: "Stephen J. Smoogen" <smooge@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Red Hat Government Users Conference.
-References: <435FD070.10603@redhat.com> <80d7e4090510261609g566a3758g8a79b98529eb98fe@mail.gmail.com>
-In-Reply-To: <80d7e4090510261609g566a3758g8a79b98529eb98fe@mail.gmail.com>
+To: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [ SEMANAGE ] Implement dbase_file_set, fix memleak
+References: <43601468.60508@cornell.edu>
+In-Reply-To: <43601468.60508@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen J. Smoogen wrote:
-> On 10/26/05, Daniel J Walsh <dwalsh@redhat.com> wrote:
->   
->> FYI:  James and I will be speaking on SELinux next week at the Red Hat
->> Government Users Conference in Washington DC.
->>
->> http://www.dlt.com/rhguc/
->>
->> I will be giving an overview of SELinux talk and a James and I will be
->> running BOF on SELinux.
->>     
 >
-> Cool. You know this is the first I have heard about this (that I can
-> remember :)).. I wish I had known sooner.. I would have tried to make
-> it. Will there be minutes and such?
->   
-I think so.
->
->
-> --
-> Stephen J Smoogen.
-> CSIRT/Linux System Administrator
->   
+> A short TODO:
+> - interface: pass handle into sepol records, or implement status codes
+> - stub: implement interface parse/print
+> - stub: implement dbase_policydb_list
+> - fix: fix port key handling of modify() [ do not replace an entire 
+> range on weak match (not exact) ]
+> - improvement: track when the policy is modified, and do not rebuild 
+> on commit if it wasn't modified
+> - add error messages everywhere (and further propagate handle), and 
+> make sure they're user-friendly
+> - uncomment if0-ed code, add new semanage interfaces to semanage.h, 
+> and the map file
 
-
--- 
-
+Another TODO:
+============
+- investigate whether database functions should be made reentrant, 
+exactly what kind of code can and cannot be executed in the iterate() 
+handler, and document that  - things like: are modify() functions 
+allowed on the same database in iterate()? Other databases? queries()? 
+Out-of-transaction vs in-transaction behavior?
 
 
 --
