@@ -1,41 +1,29 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9RJSrMA014839
-	for <selinux@tycho.nsa.gov>; Thu, 27 Oct 2005 15:28:53 -0400 (EDT)
-Received: from mail22.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9RJOgcv029240
-	for <selinux@tycho.nsa.gov>; Thu, 27 Oct 2005 19:24:42 GMT
-Date: Thu, 27 Oct 2005 15:23:25 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, SELinux-dev@tresys.com,
-   Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH] SELinux - canonicalize getxattr() (fwd)
-In-Reply-To: <1130439786.18805.322.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.63.0510271520390.24160@excalibur.intercode>
-References: <Pine.LNX.4.63.0509141014520.7898@excalibur.intercode>
- <1130439786.18805.322.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [ SEMANAGE ] Enable things for testing, add missing set relay
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <4360F880.10605@cornell.edu>
+References: <4360F880.10605@cornell.edu>
+Content-Type: text/plain
+Date: Thu, 27 Oct 2005 15:42:55 -0400
+Message-Id: <1130442175.18805.344.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 27 Oct 2005, Stephen Smalley wrote:
+On Thu, 2005-10-27 at 11:55 -0400, Ivan Gyurdiev wrote:
+> Patch 1: (mistakenly sent off-list)  (enable_dbase1)
+> - enable users, seusers, and booleans for testing
+> 
+> Patch 2: (set_relay)
+> - add missing relay for set function
 
-> Thoughts?
+Thanks, merged as of libsemanage 1.3.37.
 
-It may be helpful to have type aliases, but are they truly necessary?  
-
-Seems like a lot of potential problems arise from them, including 
-confusing SELinux developers.
-
-Perhaps type aliasing would be better implemented as a higher level policy 
-construct?
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
