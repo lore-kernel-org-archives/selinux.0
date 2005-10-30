@@ -1,65 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9TGsgMA001420
-	for <selinux@tycho.nsa.gov>; Sat, 29 Oct 2005 12:54:44 -0400 (EDT)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9TGoDBP027169
-	for <selinux@tycho.nsa.gov>; Sat, 29 Oct 2005 16:50:14 GMT
-Date: Sat, 29 Oct 2005 17:50:04 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9UCs3MA005421
+	for <selinux@tycho.nsa.gov>; Sun, 30 Oct 2005 07:54:03 -0500 (EST)
+Received: from crisium.vnl.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9UCmwPc015640
+	for <selinux@tycho.nsa.gov>; Sun, 30 Oct 2005 12:48:58 GMT
+Date: Sun, 30 Oct 2005 12:49:22 +0000
+From: Dale Amon <amon@vnl.com>
 To: Manoj Srivastava <manoj.srivastava@stdc.com>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: logging question
-Message-ID: <20051029165004.GD13490@lkcl.net>
+Message-ID: <20051030124922.GA26698@vnl.com>
 References: <m33bn0az4a.fsf@eemoore.bcluster.njit.edu> <1129567150.26309.154.camel@moss-spartans.epoch.ncsc.mil> <200510180752.34963.russell@coker.com.au> <87ek64z52f.fsf@glaurung.internal.golden-gryphon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 In-Reply-To: <87ek64z52f.fsf@glaurung.internal.golden-gryphon.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hiya manoj,
 
-was wondering where you got to.  someone on the debian kernel team
-contacted me last month, wondering who the debian / selinux point of
-contact was.
-
-do you know the people to speak to such that a debian-selinux mailing
-list can be set up because that's the "natural" place people would
-expect to look for ... and it don't exist.
-
-l.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 On Sat, Oct 29, 2005 at 11:00:24AM -0500, Manoj Srivastava wrote:
-> On Tue, 18 Oct 2005 07:52:25 +1000, Russell Coker <russell@coker.com.au> said: 
-> 
-> > The Debian kernel binary packages are built with SE Linux enabled
-> > but auditing disabled.  I have sent several messages to the relevant
-> > people about this matter and had no positive response.  Several
-> > 2.6.x kernels have been released in this state.
-> 
->         The latest 2.6.14 kernels have CONFIG_AUDIT=y, as well as
->  CONFIG_AUDITSYSCALL=y
-> 
->         Is a new release of libsepol imminent, or should I go fetch
->  the 1.9.X release from CVS and upload that to Debian?
-> 
->         manoj
 > ps: Sorry for being tardy on the Debian SELinux front, but I am just
 > coming out of a health issue, and had been unable to spend time on SELINUX
-> -- 
-> Time is an illusion perpetrated by the manufacturers of space.
-> Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
-> 1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Manoj, glad to hear you are feeling better. I spent=20
+some time about a month ago trying to get Debian
+selinux running on a test system but had to give up
+for the time being when my window of unallocated
+time ran out.
+
+I have two projects coming up on which I would love
+to be able to deploy SELinux, but I would have to
+do it on Sarge dists since these will be real life
+critical services. I hope to get back to testing
+Debian SELinux in the coming month and I am sure
+your assistance will be invaluable.
+
+--=20
+------------------------------------------------------
+             Artemis Systems Development
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDZMFRZHES7UL0zXERAt82AKCCmwqzL+QHXmug10cdw5m+FY/mNwCfauZo
+m+kSkm0tlXSpwmpXwiJT8PA=
+=oBGR
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
