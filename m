@@ -1,57 +1,32 @@
-Subject: Re: audit logging & log callback for avc
+Subject: Re: Should this be a dontaudit or an allow in targeted.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20051031153235.87168.qmail@web51513.mail.yahoo.com>
-References: <20051031153235.87168.qmail@web51513.mail.yahoo.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Chad Hanson <chanson@TrustedCS.com>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43663282.8030707@redhat.com>
+References: <43663282.8030707@redhat.com>
 Content-Type: text/plain
-Date: Mon, 31 Oct 2005 10:52:11 -0500
-Message-Id: <1130773931.22731.108.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 31 Oct 2005 11:02:12 -0500
+Message-Id: <1130774532.22731.118.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-31 at 07:32 -0800, Steve G wrote:
-> I have run across a problem as perhaps the only user of the log callback for
-> avcs. I want to get the correct uid & loginuid of the user receiving the MAC
-> denial in the message. For example, in dbus, you could get this message:
+On Mon, 2005-10-31 at 10:04 -0500, Daniel J Walsh wrote:
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=172040
 > 
-> Oct 6 20:47:39 devsvr01 dbus: Can't send to audit system: USER_AVC
-> pid=2426 uid=81 loginuid=-1 message=avc: denied { send_msg } for
-> scontext=root:system_r:unconfined_t tcontext=user_u:system_r:initrc_t
-> tclass=dbus
-> 
-> loginuid is unset since dbus is a daemon started by init & uid is the dbus
-> daemon's uid. The log callback function signature is:
-> 
-> void log_callback (const char *fmt, ...);
-> 
-> So, either the callback needs to have the parameters passed for auid & uid or the
-> message being generated needs to include this info.
-> 
-> Which way is the best to handle this scenario?
+> Basically if a normal uses does a ps -ef on a system, his process will attempt to read the context of udev and friends that are running at a higher sensitivity level.  So apps like login, udev and others will generate 
+> AVC messages with MCS policy.
 
-Inserting this kind of object manager-specific information into an audit
-message is normally handled via the audit callback.  The caller (dbusd)
-registers such a callback upon avc_init, and then upon avc_has_perm
-calls, the caller (dbusd) passes a pointer to the supplemental data as
-the void* last argument to avc_has_perm().  If an audit message needs to
-be generated, the AVC then invokes the callback with a buffer to fill in
-with the supplemental data.  dbusd already uses this mechanism to fill
-in various auxiliary data such as service name and sender and target
-pids.  The supplemental data can be anything the object managers wants,
-e.g. the object manager can just pass a pointer to a struct and print to
-the buffer upon callback, or it can pre-generate the string and just
-copy it upon callback (the latter seems to be the approach of dbusd).
+We already have dontaudit rules for similar kinds of denials under
+strict policy when a user process does a ps -el.  Hence, dontaudit seems
+appropriate here.  The only case where an unconfined_t process would
+encounter such a denial would be due to MCS.
 
-Is the auid of the sender even available to dbusd?  SCM_CREDENTIALS
-provides the uid, but there isn't an augmented form that provides the
-auid AFAIK.  Hence, that would be the natural starting point, and you'd
-have to do it in a way that doesn't break compatibility.  Likely a topic
-for linux-audit or redhat-lspp, although I thought that they planned to
-disable dbusd for eval.  Once the information is available, you can then
-easily extend the existing code that is generating auxdata to also
-include the uid and auid.
+On a related note, it has been suggested (on lspp) that we might need
+dontaudit/auditallow rules based on MLS level.  Is that true, or can we
+just leverage the existing TE-based rules to control such auditing based
+on type (which typically gives us finer granularity anyway)?
 
 -- 
 Stephen Smalley
