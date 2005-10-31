@@ -1,46 +1,52 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9VGkmMA014674
+	for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2005 11:46:49 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9VGfxmc029635
+	for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2005 16:42:00 GMT
+Message-ID: <43664950.80600@redhat.com>
+Date: Mon, 31 Oct 2005 11:41:52 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Joe Nall <joe@nall.com>
+CC: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: unreasonably long SE Linux context display
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: James Morris <jmorris@namei.org>, Daniel J Walsh <dwalsh@redhat.com>,
-   SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200510311812.02462.russell@coker.com.au>
-References: <200510311812.02462.russell@coker.com.au>
-Content-Type: text/plain
-Date: Mon, 31 Oct 2005 11:33:58 -0500
-Message-Id: <1130776438.22731.142.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <200510311812.02462.russell@coker.com.au> <FE184DBF-12F5-4387-AC3E-71A2B64E69FA@nall.com>
+In-Reply-To: <FE184DBF-12F5-4387-AC3E-71A2B64E69FA@nall.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-31 at 18:11 +1100, Russell Coker wrote:
-> It seems to me that one way of improving the situation with ps might be to 
-> allow specifying a regex for the context to match in a similar manner to 
-> killall (could probably take the same code).  Another possibility is to allow 
-> displaying partial contexts.  For example I might want to see the domains 
-> used by system processes (role==system_r) but not have the role or identity 
-> displayed (because they are not relevant).  Of course we may have great 
-> trouble trying to get such changes accepted upstream.
-> 
-> For ls it would be good to be able to display part of the context.  For the 
-> vast majority of invocations of "ls -Z" on a SE Linux system the identity and 
-> role are not desired in the output.
+Joe Nall wrote:
+>
+> On Oct 31, 2005, at 1:11 AM, Russell Coker wrote:
+>
+>> Would it be possible to use shorter names in the setrans.conf file than
+>> SystemLog and SystemHigh?  For example could we have "Low-High" or
+>> "sLow-sHigh" instead?
+>
+> How about adding a capability to name ranges and shorten
+>  "SystemLow-SystemHigh"
+> to
+>  "all"
+> or even
+>  "*"
+setrans is under your control.  You can change SystemLow-SystemHigh to 
+anything you want.
 
-James previously suggested introducing environment variables to control
-the display of contexts, so that you could alter ls and ps -Z output
-simply by adjusting such variables.  This could be implemented in the
-utilities themselves (using the libselinux context_* functions to break
-down the context), but that would be a fairly extensive set of changes.
-It could also be implemented in libsetrans as part of the context
-translation support, but that could have interesting side effects, e.g.
-if one of these abbreviated contexts is then passed back into another
-libselinux function, we can't necessarily determine the right values for
-the omitted fields.
+Russell is suggesting we change the default.
+>
+> joe
+>
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
-In any event, patches speak louder than words here...  
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
