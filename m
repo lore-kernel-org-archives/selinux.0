@@ -1,79 +1,149 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j9V7GvMA009882
-	for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2005 02:16:58 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j9V7CBmc018499
-	for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2005 07:12:12 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id EB8B961B01
-	for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2005 18:12:05 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 15822-03 for <selinux@tycho.nsa.gov>;
-	Mon, 31 Oct 2005 18:12:05 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 633AD61B00
-	for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2005 18:12:05 +1100 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id B870727123
-	for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2005 18:12:03 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: unreasonably long SE Linux context display
-Date: Mon, 31 Oct 2005 18:11:56 +1100
+Message-ID: <4365D935.1070601@cornell.edu>
+Date: Mon, 31 Oct 2005 03:43:33 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200510311812.02462.russell@coker.com.au>
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [ SEMANAGE 3 ] Common database code
+Content-Type: multipart/mixed;
+ boundary="------------060706070209080904020108"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Would it be possible to use shorter names in the setrans.conf file than 
-SystemLog and SystemHigh?  For example could we have "Low-High" or 
-"sLow-sHigh" instead?
+This is a multi-part message in MIME format.
+--------------060706070209080904020108
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-An 80 column display is the Unix standard, it's what xterm type programs 
-default to, it's what generally works best with serial consoles, and it's the 
-only option for Braille displays.
+This patch merges the handling of the default database with transaction 
+management (enter_ro/exit_ro/exit_rw), and cache management, and puts 
+that in common (polymorphed) code - database.c. It changes relay 
+functions and internal invocation to use this code. In order to do that, 
+the cache() function was exposed in the database interface, and now it 
+must be called before other functionality dealing with records is used 
+(called internally, of course).
 
-Currently in Fedora and RHEL (and probably the default installs of most 
-distributions) the virtual consoles are 80 columns wide.  So anything that 
-requires more than 80 columns in a display will not work well with the 
-majority of Linux systems.
+Also, cleans up includes for relay functions (and removes unnecessary 
+and obsolete defines of database backend - those relays should be 
+backend independent).
 
-For "ps" output we have to fit 80 columns, everything else is truncated, this 
-means that the increasing width of SE Linux output from "ps axZ" is reducing 
-the amount of other data available.  Currently the sensitivity labels of 
-"s0-s0:c0.c255" take up a significant part of the screen space and adding an 
-extra 7 characters by translating it to "SystemLow-SystemHigh" will only make 
-things worse (it will then take up 25% of the screen giving a total of almost 
-75% of the screen for the SE Linux context).
+Benefits:
+- transaction enter/exit code is now shared for all databases, and can 
+be easily changed
+- this also removes duplicate code, and makes the per-backend database 
+code simpler
+- no need to write things like get_rtable/flush/drop_cache in the 
+default database, which make no sense
+- Note that the per-backend dbase functions are now reentrant-safe, 
+which means that I can layer one on top of another if I want to
+- this still doesn't let me call other database functions from an 
+iterate() handler, but I think it might get us closer to this goal.
 
-Also I think we should consider making the various utility programs display 
-part of the SE Linux context.  For example it's a common practice for an 
-administrator to search for a listing of processes in a particular domain or 
-role with commands such as the following:
-ps axZ|grep kernel_t
-ps axZ|grep system_r
 
-It seems to me that one way of improving the situation with ps might be to 
-allow specifying a regex for the context to match in a similar manner to 
-killall (could probably take the same code).  Another possibility is to allow 
-displaying partial contexts.  For example I might want to see the domains 
-used by system processes (role==system_r) but not have the role or identity 
-displayed (because they are not relevant).  Of course we may have great 
-trouble trying to get such changes accepted upstream.
+--------------060706070209080904020108
+Content-Type: application/x-bzip;
+ name="libsemanage.dbase_common.diff.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="libsemanage.dbase_common.diff.bz2"
 
-For ls it would be good to be able to display part of the context.  For the 
-vast majority of invocations of "ls -Z" on a SE Linux system the identity and 
-role are not desired in the output.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+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
+--------------060706070209080904020108--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
