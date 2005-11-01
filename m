@@ -1,45 +1,31 @@
 Subject: Re: [ SEMANAGE ] Install seusers, rename some files
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux-dev@tresys.com, SELinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <4367DA3C.3020308@cornell.edu>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+In-Reply-To: <4367D7DF.7080504@tresys.com>
 References: <4366C114.9080708@cornell.edu>
 	 <1130875837.22731.289.camel@moss-spartans.epoch.ncsc.mil>
-	 <4367D13A.1050305@cornell.edu>
-	 <1130877661.22731.308.camel@moss-spartans.epoch.ncsc.mil>
-	 <4367DA3C.3020308@cornell.edu>
+	 <4367D13A.1050305@cornell.edu> <4367D674.4060004@cornell.edu>
+	 <4367D7DF.7080504@tresys.com>
 Content-Type: text/plain
-Date: Tue, 01 Nov 2005 16:08:39 -0500
-Message-Id: <1130879319.22731.316.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 01 Nov 2005 16:10:05 -0500
+Message-Id: <1130879405.22731.319.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-01 at 16:12 -0500, Ivan Gyurdiev wrote:
-> Dan, can you add such a script?
-> 
-> - copy /etc/selinux/?/seusers into /etc/selinux/?/modules/active/seusers
-> - copy /etc/selinux/?/local.users into 
-> /etc/selinux/?/modules/active/users.local [ renamed ]
-> - copy /etc/selinux/?/booleans.local into 
-> /etc/selinux/?/modules/active/booleans.local
-> - install base module into /etc/selinux/?/modules/active/base.pp (is 
-> this managed by rpm?)
+On Tue, 2005-11-01 at 16:02 -0500, Joshua Brindle wrote:
+> This is a question we should be answering soon. There are a couple 
+> options but because of time constraints on FC5 test 1 it will probably 
+> be the base rpm putting stuff in there directly, at least for now. The 
+> ideal way would be to bootstrap the whole thing through libsemanage but 
+> there is bit of work to be done before this is possible.
 
-For the last one, you can just do a semodule -b base.pp, and let
-libsemanage handle it.  The module API already allows for such
-installation of the modules, unlike the local APIs.  And while we could
-add local APIs for installing an entire local file as a single
-operation, I don't see the point since this only needs to happen for
-migration purposes.
-
-> > Yes.  But we need to avoid breaking use of semodule -b now via this
-> > patch until such a time as the seusers support is in place, so possibly
-> > I should just change the error handling here to just WARN and proceed
-> > with the reload.
-> Hmm... that sounds reasonable... I think.
-
-Ok, that's what I will do for now.
+I don't really see the point in supporting it in the libsemanage API
+when it is purely a migration-time import of existing data.  The module
+case is different in that the API already has to support importing an
+entire module, but the local APIs are properly at the individual record
+level.
 
 -- 
 Stephen Smalley
