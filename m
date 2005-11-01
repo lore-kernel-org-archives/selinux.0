@@ -1,32 +1,48 @@
-Subject: Re: [ SEMANAGE ] Some seusers mapping validation
+Subject: Re: [ SEMANAGE ] Install seusers, rename some files
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4367044C.1000501@cornell.edu>
-References: <4366EE1B.1060303@cornell.edu> <4366F160.2070005@cornell.edu>
-	 <4367044C.1000501@cornell.edu>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <4366C114.9080708@cornell.edu>
+References: <4366C114.9080708@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 01 Nov 2005 14:50:24 -0500
-Message-Id: <1130874624.22731.280.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 01 Nov 2005 15:10:37 -0500
+Message-Id: <1130875837.22731.289.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-01 at 00:59 -0500, Ivan Gyurdiev wrote:
-> We might also want to validate the MLS range, and the Unix name. I am 
-> not clear on how to validate the MLS range - what's happening with the 
-> old (local.users) MLS range? Is it deprecated? Are they supposed to 
-> match? How to handle this?
+On Mon, 2005-10-31 at 20:12 -0500, Ivan Gyurdiev wrote:
+> Changes:
+> - adds seuser install code
+> - renames for consistency:
+>    port_contexts -> ports.local
+>    (empty)         -> interfaces.local
+>    local.users     -> users.local
+>    (and we have booleans.local)
 
-users.local allows you to define additional SELinux users and authorize
-them for role sets and ranges.  seusers allows you to map Linux users to
-SELinux users defined in either the policy modules or users.local, and
-to assign the Linux user a subset of the range authorized for the
-SELinux user.  Hence, validation of the MLS range in seusers would
-consist of:
-- validating the range by itself as usual,
-- validating that the range is a subset of the range authorized for the
-SELinux user.
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/semanage_store.c new/libsemanage/src/semanage_store.c
+--- old/libsemanage/src/semanage_store.c	2005-10-27 15:27:03.000000000 -0400
++++ new/libsemanage/src/semanage_store.c	2005-10-31 19:45:08.000000000 -0500
+@@ -894,6 +899,12 @@ static int semanage_install_active(seman
+ 		goto cleanup;
+ 	}
+ 
++	snprintf(store_seusers, PATH_MAX, "%s%s", storepath, running_seusers);
++	if (semanage_copy_file(active_seusers, store_seusers) == -1) {
++		ERR(sh, "Could not copy %s to %s.", active_seusers, store_seusers);
++		goto cleanup;
++	}
++
+ 	if (!sh->do_reload)
+ 		goto skip_reload;
+ 
+
+I'm not sure about this; at present, it has the side effect that a
+semodule -b base.pp will fail upon the attempt to copy seusers (because
+there isn't one in the sandbox presently, not even an empty stub).  We
+also have to be careful about not clobbering any existing seusers file
+during the migration, although I suppose that will be handled by moving
+it into the sandbox upon policy upgrade, as with booleans.local.
 
 -- 
 Stephen Smalley
