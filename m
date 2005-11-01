@@ -1,35 +1,37 @@
-Message-Id: <4gd3ok$5jmaq7@iron1-mx.tops.gwu.edu>
-Date: Tue, 01 Nov 2005 13:19:51 -0500
-From: Yuichi Nakamura <ynakam@gwu.edu>
-MIME-Version: 1.0
-To: Kaimal Biju-E11660 <biju@motorola.com>
-Cc: SELinux@tycho.nsa.gov, ynakam@gwu.edu
-Subject: Re: Policy specification for Netlink and domain sockets.
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <8F8CC84DFDDDDA44B0942D237E1D644C13511B@ct11exm60.ds.mot.com>
-References: <8F8CC84DFDDDDA44B0942D237E1D644C13511B@ct11exm60.ds.mot.com>
+Subject: Re: [ SEMANAGE ] Some seusers mapping validation
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <4367044C.1000501@cornell.edu>
+References: <4366EE1B.1060303@cornell.edu> <4366F160.2070005@cornell.edu>
+	 <4367044C.1000501@cornell.edu>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 14:50:24 -0500
+Message-Id: <1130874624.22731.280.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Kaimal Biju-E11660 wrote:
-> I tried searching for documentation for the policy language for specifying permissions for netlink and domain sockets ? If someone can point me in the right direction or give couple of examples of these, it will be greatly appreciated.
+On Tue, 2005-11-01 at 00:59 -0500, Ivan Gyurdiev wrote:
+> We might also want to validate the MLS range, and the Unix name. I am 
+> not clear on how to validate the MLS range - what's happening with the 
+> old (local.users) MLS range? Is it deprecated? Are they supposed to 
+> match? How to handle this?
 
-You can find the meaning of netlink-related access vectors by looking at the kernel source security/selinux/nlmsgtab.c. 
-"struct nlmsg_perm nlmsg_*_perms" defines relationship between netlink message 
-and access vectors.
+users.local allows you to define additional SELinux users and authorize
+them for role sets and ranges.  seusers allows you to map Linux users to
+SELinux users defined in either the policy modules or users.local, and
+to assign the Linux user a subset of the range authorized for the
+SELinux user.  Hence, validation of the MLS range in seusers would
+consist of:
+- validating the range by itself as usual,
+- validating that the range is a subset of the range authorized for the
+SELinux user.
 
-And I am reviewing all access vectors now.
-The draft of document about meaning of access vectors 
-is in http://seedit.sourceforge.net/doc/access_vectors.pdf .
-It might help you.
-However, this document is only a draft, it will contain errors.
-No review, no spell-check and no English correction.
-Be careful.
+-- 
+Stephen Smalley
+National Security Agency
 
----
-Yuichi Nakamura
-Japan SELinux Users Group(JSELUG)
-SELinux Policy Editor:  http://seedit.sourceforge.net/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
