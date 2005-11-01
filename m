@@ -1,30 +1,64 @@
-Message-ID: <4366C114.9080708@cornell.edu>
-Date: Mon, 31 Oct 2005 20:12:52 -0500
+Message-ID: <4366D804.7030301@cornell.edu>
+Date: Mon, 31 Oct 2005 21:50:44 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: SELinux@tycho.nsa.gov
 CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEMANAGE ] Install seusers, rename some files
+Subject: [ SEMANAGE ] Add parse/print error messages
 Content-Type: multipart/mixed;
- boundary="------------010404090202040208030506"
+ boundary="------------070008060203000605060105"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010404090202040208030506
+--------------070008060203000605060105
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Changes:
-- adds seuser install code
-- renames for consistency:
-   port_contexts -> ports.local
-   (empty)         -> interfaces.local
-   local.users     -> users.local
-   (and we have booleans.local)
+Add parse/print error messages, and pass handle down to parse_utils. 
+It's pretty verbose right now - I have to figure out a better way to do 
+error reporting... However, lots of messages is better than no messages, 
+so I suggest patch is merged - messages can be sorted out later.
+
+Hmm... I see the MLS user parser seems broken..
+
+[root@cobra test.seusers]# ./test
+
+There are 3 seusers before the transaction.
+
+Now testing list...
+Name: phantom, Seuser: phantom, MLS: s0
+Name: __default__, Seuser: user_u, MLS: s0
+Name: root, Seuser: root, MLS: s0
+
+Now testing iterate...
+Name: phantom, Seuser: phantom, MLS: s0
+Name: __default__, Seuser: user_u, MLS: s0
+Name: root, Seuser: root, MLS: s0
+
+In-Transaction pre-commit iterate (should show modifications)..
+Name: test_user, Seuser: test_seuser, MLS: s0:c5,c6-s2:c1,c3,c5
+Name: phantom, Seuser: phantom, MLS: s0
+Name: __default__, Seuser: user_u, MLS: s0
+Name: root, Seuser: root, MLS: s0
+libsemanage.parse_assert_ch: expected character ';', but found 's' 
+(/etc/selinux/strict/modules/tmp/users.local: 1):
+user Ivan roles { sysadm_r staff_r } level s0 range s0-s0:c1.c2,c3,c4,c55;
+libsemanage.user_parse: parse error 
+(/etc/selinux/strict/modules/tmp/users.local: 1):
+user Ivan roles { sysadm_r staff_r } level s0 range s0-s0:c1.c2,c3,c4,c55;
+libsemanage.dbase_file_cache: could not cache file database
+libsemanage.semanage_base_merge_components: could not merge local 
+modifications into policy
+libsemanage.semanage_expand_sandbox: Unable to merge local modifications 
+into policy.
+Error: commit failed
 
 
---------------010404090202040208030506
+
+
+
+--------------070008060203000605060105
 Content-Type: text/x-patch;
  name="libsemanage.install_seusers.diff"
 Content-Transfer-Encoding: 7bit
@@ -144,7 +178,7 @@ diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefi
  		&SEMANAGE_USER_FILE_RTABLE, 
  		&dconfig->dbase) < 0)
 
---------------010404090202040208030506--
+--------------070008060203000605060105--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
