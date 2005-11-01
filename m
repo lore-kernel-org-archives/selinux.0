@@ -1,46 +1,150 @@
-Message-ID: <8F8CC84DFDDDDA44B0942D237E1D644C13511B@ct11exm60.ds.mot.com>
-From: Kaimal Biju-E11660 <biju@motorola.com>
-To: SELinux@tycho.nsa.gov
-Subject: Policy specification for Netlink and domain sockets.
-Date: Mon, 31 Oct 2005 16:00:38 -0700
+Message-ID: <4366C114.9080708@cornell.edu>
+Date: Mon, 31 Oct 2005 20:12:52 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C5DE6E.E99D284C"
+To: SELinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [ SEMANAGE ] Install seusers, rename some files
+Content-Type: multipart/mixed;
+ boundary="------------010404090202040208030506"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+This is a multi-part message in MIME format.
+--------------010404090202040208030506
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-------_=_NextPart_001_01C5DE6E.E99D284C
-Content-Type: text/plain
+Changes:
+- adds seuser install code
+- renames for consistency:
+   port_contexts -> ports.local
+   (empty)         -> interfaces.local
+   local.users     -> users.local
+   (and we have booleans.local)
 
-I tried searching for documentation for the policy language for specifying permissions for netlink and domain sockets ? If someone can point me in the right direction or give couple of examples of these, it will be greatly appreciated.
+
+--------------010404090202040208030506
+Content-Type: text/x-patch;
+ name="libsemanage.install_seusers.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.install_seusers.diff"
+
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/database_policydb.c new/libsemanage/src/database_policydb.c
+--- old/libsemanage/src/database_policydb.c	2005-10-31 11:09:39.000000000 -0500
++++ new/libsemanage/src/database_policydb.c	2005-10-31 19:53:49.000000000 -0500
+@@ -106,7 +106,7 @@ static int dbase_policydb_cache(
+ 	free(fname);
+ 	dbase->cached = 1;
+ 	return STATUS_SUCCESS;
+-	
++
+ 	err:
+ 	ERR(handle, "unable to cache policy database from %s", fname);
  
-Thanks,
-Biju
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/interfaces_file.c new/libsemanage/src/interfaces_file.c
+--- old/libsemanage/src/interfaces_file.c	2005-10-31 11:09:39.000000000 -0500
++++ new/libsemanage/src/interfaces_file.c	2005-10-31 19:10:48.000000000 -0500
+@@ -54,7 +54,7 @@ record_file_table_t SEMANAGE_IFACE_FILE_
+ int iface_file_dbase_init(dbase_config_t* dconfig) {
+ 	
+ 	if (dbase_file_init(
+-		"", /* FIXME */	
++		"interfaces.local",	
+ 		&SEMANAGE_IFACE_RTABLE,
+ 		&SEMANAGE_IFACE_FILE_RTABLE, 
+ 		&dconfig->dbase) < 0)
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/ports_file.c new/libsemanage/src/ports_file.c
+--- old/libsemanage/src/ports_file.c	2005-10-31 11:09:39.000000000 -0500
++++ new/libsemanage/src/ports_file.c	2005-10-31 19:10:26.000000000 -0500
+@@ -135,7 +135,7 @@ record_file_table_t SEMANAGE_PORT_FILE_R
+ int port_file_dbase_init(dbase_config_t* dconfig) {
+ 
+ 	if (dbase_file_init(
+-		"port_contexts",
++		"ports.local",
+ 		&SEMANAGE_PORT_RTABLE,
+ 		&SEMANAGE_PORT_FILE_RTABLE,
+ 		&dconfig->dbase) < 0)
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/semanage_store.c new/libsemanage/src/semanage_store.c
+--- old/libsemanage/src/semanage_store.c	2005-10-27 15:27:03.000000000 -0400
++++ new/libsemanage/src/semanage_store.c	2005-10-31 19:45:08.000000000 -0500
+@@ -94,7 +94,8 @@ static const char *semanage_sandbox_path
+ 	"/file_contexts",
+ 	"/homedir_template",
+ 	"/file_contexts.template",
+-	"/commit_num"
++	"/commit_num",
++	"/seusers"
+ };
+ 
+ /* Initialize the paths to config file, lock files and store root.
+@@ -851,10 +852,12 @@ static int semanage_install_active(seman
+ 	const char *active_kernel = semanage_path(SEMANAGE_ACTIVE,SEMANAGE_KERNEL);
+ 	const char *active_fc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_FC);
+ 	const char *active_hd = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_HOMEDIR_TMPL);
++	const char *active_seusers = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS);
+ 
+ 	const char *running_fc = selinux_file_context_path();
+ 	const char *running_hd = selinux_homedir_context_path();
+ 	const char *running_policy = selinux_binary_policy_path();
++	const char *running_seusers = selinux_usersconf_path(); 
+ 	const char *really_active_store = selinux_policy_root();
+ 
+ 	/* This is very unelegant, the right thing to do is export the path 
+@@ -863,11 +866,13 @@ static int semanage_install_active(seman
+ 	char store_fc[PATH_MAX];
+ 	char store_hd[PATH_MAX];
+ 	char store_pol[PATH_MAX];
++	char store_seusers[PATH_MAX];
+ 	
+ 	len = strlen(really_active_store);
+ 	running_fc += len;
+ 	running_hd += len;
+ 	running_policy += len;
++	running_seusers += len;
+ 
+ 	len = strlen(selinux_path()) + strlen(sh->conf->store_path) + 1;
+ 	storepath = (char *)malloc(len);
+@@ -894,6 +899,12 @@ static int semanage_install_active(seman
+ 		goto cleanup;
+ 	}
+ 
++	snprintf(store_seusers, PATH_MAX, "%s%s", storepath, running_seusers);
++	if (semanage_copy_file(active_seusers, store_seusers) == -1) {
++		ERR(sh, "Could not copy %s to %s.", active_seusers, store_seusers);
++		goto cleanup;
++	}
++
+ 	if (!sh->do_reload)
+ 		goto skip_reload;
+ 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/semanage_store.h new/libsemanage/src/semanage_store.h
+--- old/libsemanage/src/semanage_store.h	2005-10-25 08:25:32.000000000 -0400
++++ new/libsemanage/src/semanage_store.h	2005-10-31 19:11:36.000000000 -0500
+@@ -44,6 +44,7 @@ enum semanage_sandbox_defs {
+ 	SEMANAGE_HOMEDIR_TMPL,
+ 	SEMANAGE_FC_TMPL,
+ 	SEMANAGE_COMMIT_NUM_FILE,
++	SEMANAGE_SEUSERS,
+ 	SEMANAGE_STORE_NUM_PATHS
+ };
+ 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/users_file.c new/libsemanage/src/users_file.c
+--- old/libsemanage/src/users_file.c	2005-10-31 11:09:39.000000000 -0500
++++ new/libsemanage/src/users_file.c	2005-10-31 19:10:00.000000000 -0500
+@@ -229,7 +229,7 @@ record_file_table_t SEMANAGE_USER_FILE_R
+ int user_file_dbase_init(dbase_config_t* dconfig) {
+ 	
+ 	if (dbase_file_init(
+-		"local.users",
++		"users.local",
+ 		&SEMANAGE_USER_RTABLE,
+ 		&SEMANAGE_USER_FILE_RTABLE, 
+ 		&dconfig->dbase) < 0)
 
-------_=_NextPart_001_01C5DE6E.E99D284C
-Content-Type: text/html
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgSFRUUC1FUVVJVj0iQ29udGVudC1UeXBlIiBDT05U
-RU5UPSJ0ZXh0L2h0bWw7IGNoYXJzZXQ9dXMtYXNjaWkiPg0KDQoNCjxNRVRBIGNvbnRlbnQ9Ik1T
-SFRNTCA2LjAwLjI4MDAuMTUyMiIgbmFtZT1HRU5FUkFUT1I+PC9IRUFEPg0KPEJPRFk+DQo8RElW
-PjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPjxTUEFOIGNsYXNzPTUwNDIyNTgyMi0zMTEwMjAwNT5J
-IHRyaWVkIHNlYXJjaGluZyANCmZvciBkb2N1bWVudGF0aW9uIGZvciB0aGUgcG9saWN5IGxhbmd1
-YWdlIGZvciBzcGVjaWZ5aW5nIHBlcm1pc3Npb25zIGZvciBuZXRsaW5rIA0KYW5kIGRvbWFpbiBz
-b2NrZXRzID8gSWYgc29tZW9uZSBjYW4gcG9pbnQgbWUgaW4gdGhlIHJpZ2h0IGRpcmVjdGlvbiBv
-ciBnaXZlIA0KY291cGxlIG9mIGV4YW1wbGVzIG9mIHRoZXNlLCBpdCB3aWxsIGJlIGdyZWF0bHkg
-YXBwcmVjaWF0ZWQuPC9TUEFOPjwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBz
-aXplPTI+PFNQQU4gDQpjbGFzcz01MDQyMjU4MjItMzExMDIwMDU+PC9TUEFOPjwvRk9OVD4mbmJz
-cDs8L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+PFNQQU4gDQpjbGFzcz01MDQy
-MjU4MjItMzExMDIwMDU+VGhhbmtzLDwvU1BBTj48L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZh
-Y2U9QXJpYWwgc2l6ZT0yPjxTUEFOIA0KY2xhc3M9NTA0MjI1ODIyLTMxMTAyMDA1PkJpanU8L1NQ
-QU4+PC9GT05UPjwvRElWPjwvQk9EWT48L0hUTUw+DQo=
-
-------_=_NextPart_001_01C5DE6E.E99D284C--
+--------------010404090202040208030506--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
