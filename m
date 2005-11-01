@@ -1,52 +1,139 @@
-Subject: Re: [ SEMANAGE ] Install seusers, rename some files
+Subject: [SEPOL] Add dso.h and _internal.h headers, apply hidden_def/hidden
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux-dev@tresys.com,
-   SELinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <4367E142.1030502@cornell.edu>
-References: <4366C114.9080708@cornell.edu>
-	 <1130875837.22731.289.camel@moss-spartans.epoch.ncsc.mil>
-	 <4367D13A.1050305@cornell.edu>
-	 <1130877661.22731.308.camel@moss-spartans.epoch.ncsc.mil>
-	 <4367DA3C.3020308@cornell.edu> <4367D88F.1080309@tresys.com>
-	 <4367E142.1030502@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 01 Nov 2005 16:40:45 -0500
-Message-Id: <1130881246.22731.333.camel@moss-spartans.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: SELinux-dev@tresys.com, Ivan Gyurdiev <ivg2@cornell.edu>
+Content-Type: multipart/mixed; boundary="=-hU7EX3jcQ+e5XASpAO3y"
+Date: Tue, 01 Nov 2005 17:27:19 -0500
+Message-Id: <1130884039.22731.342.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-01 at 16:42 -0500, Ivan Gyurdiev wrote:
-> >> - copy /etc/selinux/?/local.users into 
-> >> /etc/selinux/?/modules/active/users.local [ renamed ]
-> > this could potentially be done the same way as booleans below, except 
-> > that there isn't a user of the user api in libsemanage yet, so that 
-> > would be written; with seuser handling the vast majority of users now 
-> > this isn't very high priority.
-> >
-> >> - copy /etc/selinux/?/booleans.local into 
-> >> /etc/selinux/?/modules/active/booleans.local
-> > not sure about this. It would not be difficult to read the old 
-> > booleans file and pipe the info through setsebool -p.
-> setsebool -p does not go through libsemanage as of right now...
-> I haven't written any users of libsemanage - I've been focusing on the 
-> library so far..
 
-Yes, but the plan is to move setsebool from libselinux to
-libsemanage/utils or policycoreutils and rewrite it to use libsemanage.
-Nonetheless, I can't see running it all through setsebool as being
-particularly desirable.  Makes more sense to me to just move the files
-once for migration and be done with it.  That also simplifies the
-problem of atomically setting up the entire sandbox; we can move all of
-the local files first, then run semodule -b, and the final commit should
-just work since everything will be in place.  I suppose one could
-alternatively install the base module first via semodule -b (possibly
-with -n too to avoid immediate load), and then apply setsebool -P.
+--=-hU7EX3jcQ+e5XASpAO3y
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+The attached patch adds dso.h and the _internal.h headers to libsepol
+and applies hidden_def for exported symbols that are used within
+libsepol and applies hidden to several symbols with sepol_ prefixes that
+should not be exported.  Before the patch, we have:
+ 67 relocations, 60 relative (89%), 98 PLT entries, 62 for local syms (63%), 0 users
+After the patch, we have:
+ 66 relocations, 61 relative (92%), 36 PLT entries, 0 for local syms (0%), 0 users
+
+Also, diff of the exported symbols before and after shows removal of
+sepol_context_to_sid, sepol_port_sid, sepol_genbools_policydb (used only
+by audit2why, a static user), and sepol_msg_default_handler.
 
 -- 
 Stephen Smalley
 National Security Agency
+
+--=-hU7EX3jcQ+e5XASpAO3y
+Content-Disposition: attachment; filename=libsepol-1.9.35.diff.bz2
+Content-Type: application/x-bzip; name=libsepol-1.9.35.diff.bz2
+Content-Transfer-Encoding: base64
+
+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
+d4A+4h0kVA/+LuSKcKEhr7wN5g==
+
+
+--=-hU7EX3jcQ+e5XASpAO3y--
 
 
 --
