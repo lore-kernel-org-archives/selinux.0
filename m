@@ -1,39 +1,35 @@
-Subject: Re: [ SEMANAGE ] Fix MLS parsing of users
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4366F160.2070005@cornell.edu>
-References: <4366EE1B.1060303@cornell.edu>  <4366F160.2070005@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 01 Nov 2005 12:16:36 -0500
-Message-Id: <1130865396.22731.203.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <4gd3ok$5jmaq7@iron1-mx.tops.gwu.edu>
+Date: Tue, 01 Nov 2005 13:19:51 -0500
+From: Yuichi Nakamura <ynakam@gwu.edu>
+MIME-Version: 1.0
+To: Kaimal Biju-E11660 <biju@motorola.com>
+Cc: SELinux@tycho.nsa.gov, ynakam@gwu.edu
+Subject: Re: Policy specification for Netlink and domain sockets.
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <8F8CC84DFDDDDA44B0942D237E1D644C13511B@ct11exm60.ds.mot.com>
+References: <8F8CC84DFDDDDA44B0942D237E1D644C13511B@ct11exm60.ds.mot.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-10-31 at 23:38 -0500, Ivan Gyurdiev wrote:
-> By the way, expanding the module (sepol_expand_module) takes an 
-> unusually long time to run... commit is very slow (and this is on an 
-> Athlon3k computer)....
-> 
-> 1. Time to modify seuser things: 0.5 sec
-> 2. Time to call sepol_expand_module: 9 sec
-> 3. Time to merge and commit other policy components, and load the 
-> policy: 1 sec
-> 
-> You can see why I want (2), and most of (3) skipped in the case of 
-> seusers...need to add tracking of when the policy is modified.
+Kaimal Biju-E11660 wrote:
+> I tried searching for documentation for the policy language for specifying permissions for netlink and domain sockets ? If someone can point me in the right direction or give couple of examples of these, it will be greatly appreciated.
 
-If you pass a '0' check flag to sepol_expand_module to suppress
-assertion and hierarchy checking, it is much faster.   For development,
-you can just echo "expand-check = 0" >> /etc/selinux/semanage.conf to
-turn it off.  For production, you could make it a flag parameter to
-semanage_expand_sandbox rather than just a config setting.
+You can find the meaning of netlink-related access vectors by looking at the kernel source security/selinux/nlmsgtab.c. 
+"struct nlmsg_perm nlmsg_*_perms" defines relationship between netlink message 
+and access vectors.
 
--- 
-Stephen Smalley
-National Security Agency
+And I am reviewing all access vectors now.
+The draft of document about meaning of access vectors 
+is in http://seedit.sourceforge.net/doc/access_vectors.pdf .
+It might help you.
+However, this document is only a draft, it will contain errors.
+No review, no spell-check and no English correction.
+Be careful.
 
+---
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+SELinux Policy Editor:  http://seedit.sourceforge.net/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
