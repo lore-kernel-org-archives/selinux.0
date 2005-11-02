@@ -1,140 +1,625 @@
-Subject: [SEPOL] Add dso.h and _internal.h headers, apply hidden_def/hidden
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <436865AC.1010500@cornell.edu>
+Date: Wed, 02 Nov 2005 02:07:24 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Cc: SELinux-dev@tresys.com, Ivan Gyurdiev <ivg2@cornell.edu>
-Content-Type: multipart/mixed; boundary="=-hU7EX3jcQ+e5XASpAO3y"
-Date: Tue, 01 Nov 2005 17:27:19 -0500
-Message-Id: <1130884039.22731.342.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [ SEMANAGE ] Interfaces, more parser things
+Content-Type: multipart/mixed;
+ boundary="------------020008000809080809050709"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---=-hU7EX3jcQ+e5XASpAO3y
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------020008000809080809050709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The attached patch adds dso.h and the _internal.h headers to libsepol
-and applies hidden_def for exported symbols that are used within
-libsepol and applies hidden to several symbols with sepol_ prefixes that
-should not be exported.  Before the patch, we have:
- 67 relocations, 60 relative (89%), 98 PLT entries, 62 for local syms (63%), 0 users
-After the patch, we have:
- 66 relocations, 61 relative (92%), 36 PLT entries, 0 for local syms (0%), 0 users
+Changes:
 
-Also, diff of the exported symbols before and after shows removal of
-sepol_context_to_sid, sepol_port_sid, sepol_genbools_policydb (used only
-by audit2why, a static user), and sepol_msg_default_handler.
+- implement interface parse/print functions, and enable interfaces
+- rewrite sscanf port parser using parse_utils - better error reporting, 
+and now allows multiline
+- simplify boolean parser using new parse_fetch_int helper
 
--- 
-Stephen Smalley
-National Security Agency
+- Parser: remove parse_fetch_string.
+- Parser: make parse_fetch_string_until the default (rename to 
+parse_fetch_string). Pass ' ', when the delimiter shouldn't do anything.
+- Parser: implement new helper parse_fetch_int.
+- Parser: fix parse_assert_space to check for EOL (which is _not_ '\n' - 
+it's '\0', at the end of the buffer).
 
---=-hU7EX3jcQ+e5XASpAO3y
-Content-Disposition: attachment; filename=libsepol-1.9.35.diff.bz2
-Content-Type: application/x-bzip; name=libsepol-1.9.35.diff.bz2
-Content-Transfer-Encoding: base64
+Note: for some reason strtol doesn't seem to do what the manpage says, 
+and does not set *endptr correctly on a string that begins with a number 
+- need to investigate further.
 
-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
-d4A+4h0kVA/+LuSKcKEhr7wN5g==
+Note: haven't really tested ports yet - but they're disabled right now...
 
 
---=-hU7EX3jcQ+e5XASpAO3y--
+--------------020008000809080809050709
+Content-Type: text/x-patch;
+ name="libsemanage.more_parse.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.more_parse.diff"
 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/include/semanage/semanage.h new/libsemanage/include/semanage/semanage.h
+--- old/libsemanage/include/semanage/semanage.h	2005-10-27 15:27:03.000000000 -0400
++++ new/libsemanage/include/semanage/semanage.h	2005-11-02 01:38:21.000000000 -0500
+@@ -29,8 +29,9 @@
+ #include <semanage/boolean_record.h>
+ #include <semanage/user_record.h>
+ #include <semanage/seuser_record.h>
+-#if 0
++#include <semanage/context_record.h>
+ #include <semanage/iface_record.h>
++#if 0
+ #include <semanage/port_record.h>
+ #endif
+ 
+@@ -43,8 +44,8 @@
+ #if 0
+ #include <semanage/ports_local.h>
+ #include <semanage/ports_policy.h>
++#endif
+ #include <semanage/interfaces_local.h>
+ #include <semanage/interfaces_policy.h>
+-#endif
+ 
+ #endif
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/booleans_file.c new/libsemanage/src/booleans_file.c
+--- old/libsemanage/src/booleans_file.c	2005-11-01 16:25:47.000000000 -0500
++++ new/libsemanage/src/booleans_file.c	2005-11-02 01:10:55.000000000 -0500
+@@ -49,7 +49,7 @@ static int bool_parse(
+ 		goto last;
+ 
+ 	/* Extract name */
+-	if (parse_fetch_string_until(handle, info, &str, '=') < 0)
++	if (parse_fetch_string(handle, info, &str, '=') < 0)
+ 		goto err;
+ 	
+ 	if (semanage_bool_set_name(handle, boolean, str) < 0) 
+@@ -57,49 +57,38 @@ static int bool_parse(
+ 	free(str);
+ 	str = NULL;
+ 
++	/* Assert = */
+ 	if (parse_skip_space(handle, info) < 0)
+ 		goto err;
+ 	if (parse_assert_noeof(handle, info) < 0)
+ 		goto err;
+ 	if (parse_assert_ch(handle, info, '=') < 0)
+ 		goto err;
+-	if (parse_skip_space(handle, info) < 0) 
+-		goto err;
+-	if (parse_assert_noeof(handle, info)  < 0)
+-		goto err;
+ 
+ 	/* Extract value */
+-	if (parse_fetch_string(handle, info, &str) < 0)
++	if (parse_skip_space(handle, info) < 0)
+ 		goto err;
+-
+-	if (isdigit(*str)) {
+-		char* test = NULL;
+-		value = strtol(str, &test, 10);
+-
+-		if (*test != '\0') {
+-			ERR(handle, "could not parse numeric value for %s", 
+-				semanage_bool_get_name(boolean));
+-			goto err;
+-		} 
+-	}
+-	else if (!strcasecmp(str, "true"))
++	if (parse_assert_noeof(handle, info) < 0)
++		goto err;
++	if (parse_optional_str(info, "true") != STATUS_NODATA) 
++		value = 1;
++	else if (parse_optional_str(info, "TRUE") != STATUS_NODATA)
+ 		value = 1;
+-	else if (!strcasecmp(str, "false"))
++	else if (parse_optional_str(info, "false") != STATUS_NODATA)
+ 		value = 0;
+-	else {
+-		ERR(handle, "invalid boolean value for %s: %s", 
+-			semanage_bool_get_name(boolean), str);
++	else if (parse_optional_str(info, "FALSE") != STATUS_NODATA)
++		value = 0;
++	else if (parse_fetch_int(handle, info, &value, ' ') < 0)
+ 		goto err;
+-	}
+-	free(str);
+-	str = NULL;
+-
++	
+ 	if (value != 0 && value != 1) {
+-		ERR(handle, "invalid boolean value for %s: %u", 
+-			semanage_bool_get_name(boolean), value);
++		ERR(handle, "invalid boolean value for \"%s\": %u "
++			"(%s: %u)\n%s", semanage_bool_get_name(boolean),
++			value, info->filename, info->lineno, info->orig_line);
+ 		goto err;
+ 	}
+ 	semanage_bool_set_value(boolean, value);
++
+ 	return STATUS_SUCCESS;
+ 
+ 	last:
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/interfaces_file.c new/libsemanage/src/interfaces_file.c
+--- old/libsemanage/src/interfaces_file.c	2005-11-01 16:25:48.000000000 -0500
++++ new/libsemanage/src/interfaces_file.c	2005-11-02 01:56:27.000000000 -0500
+@@ -10,10 +10,9 @@ typedef struct dbase_file dbase_t;
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
+-#include <ctype.h>
+-#include <string.h>
+ #include <selinux/selinux.h>
+ #include <semanage/handle.h>
++#include <semanage/context_record.h>
+ #include "database_file.h"
+ #include "interfaces_file.h"
+ #include "parse_utils.h"
+@@ -24,10 +23,36 @@ static int iface_print(
+ 	semanage_iface_t* iface, 
+ 	FILE* str) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	iface = NULL;
+-	str = NULL;
++	char* con_str = NULL;
++
++	const char* name = semanage_iface_get_name(iface);
++	semanage_context_t* ifcon = semanage_iface_get_ifcon(iface);
++	semanage_context_t* msgcon = semanage_iface_get_msgcon(iface);
++
++	if (fprintf(str, "netifcon %s ", name) < 0)
++		goto err;
++
++	con_str = semanage_context_to_string(handle, ifcon);
++	if (!con_str)
++		goto err;
++	if (fprintf(str, "%s", con_str) < 0)
++		goto err;
++	free(con_str);
++	con_str = NULL;
++
++	con_str = semanage_context_to_string(handle, msgcon);
++	if (!con_str)
++		goto err;
++	if (fprintf(str, "%s\n", con_str) < 0)
++		goto err;
++	free(con_str);
++	con_str = NULL;
++	
++	return STATUS_SUCCESS;
++
++	err:
++	ERR(handle, "could not print interface %s to stream", name);
++	free(con_str);
+ 	return STATUS_ERR;
+ }
+ 
+@@ -36,11 +61,84 @@ static int iface_parse(
+ 	parse_info_t* info, 
+ 	semanage_iface_t* iface) {
+ 
+-	/* Stub */
+-	handle = NULL;
+-	info = NULL;
+-	iface = NULL;
++	char* str = NULL;
++	semanage_context_t* con = NULL;
++
++	if (parse_skip_space(handle, info) < 0)
++		goto err;
++	if (!info->ptr)
++		goto last;
++	
++	/* Header */
++	if (parse_assert_str(handle, info, "netifcon") < 0)
++		goto err;
++	if (parse_assert_space(handle, info) < 0)
++		goto err;
++	if (parse_assert_noeof(handle, info) < 0)
++		goto err;
++
++	/* Name */
++	if (parse_fetch_string(handle, info, &str, ' ') < 0)
++		goto err;		
++	if (semanage_iface_set_name(handle, iface, str)  < 0)
++		goto err;
++	free(str);
++	str = NULL;
++
++	/* Interface context */
++	if (parse_assert_space(handle, info) < 0)
++		goto err;
++	if (parse_assert_noeof(handle, info) < 0)
++		goto err;
++	if (parse_fetch_string(handle, info, &str, ' ') < 0)
++		goto err;
++	if (semanage_context_from_string(handle, str, &con) < 0)
++		goto err;
++	if (con == NULL) {
++		ERR(handle, "<<none>> context is not valid for "
++			"interfaces (%s: %u)\n%s", info->filename,
++			info->lineno, info->orig_line);
++		goto err;
++	}
++	free(str);
++	str = NULL;
++
++	semanage_iface_set_ifcon(iface, con);
++	con = NULL;	
++
++	/* Message context */
++	if (parse_assert_space(handle, info) < 0)
++		goto err;
++	if (parse_assert_noeof(handle, info) < 0)
++		goto err;
++	if (parse_fetch_string(handle, info, &str, ' ') < 0)
++		goto err;
++	if (semanage_context_from_string(handle, str, &con) < 0)
++		goto err;
++	if (con == NULL) {
++		ERR(handle, "<<none>> context is not valid for "
++			"interfaces (%s: %u)\n%s", info->filename, 
++			info->lineno, info->orig_line);
++		goto err;
++	}
++	free(str);
++	str = NULL;
++	
++	semanage_iface_set_msgcon(iface, con);
++	con = NULL;
++
++	return STATUS_SUCCESS;
++
++	last:
++	parse_dispose_line(info);
+ 	return STATUS_NODATA;
++
++	err:
++	ERR(handle, "could not parse interface record");
++	free(str);
++	semanage_context_free(con);
++	parse_dispose_line(info);
++	return STATUS_ERR;
+ }
+ 
+ /* IFACE RECORD: metod table (iface_record.c) */
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/libsemanage.map new/libsemanage/src/libsemanage.map
+--- old/libsemanage/src/libsemanage.map	2005-10-27 15:27:03.000000000 -0400
++++ new/libsemanage/src/libsemanage.map	2005-11-02 01:38:03.000000000 -0500
+@@ -10,5 +10,6 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_module_get_version; semanage_select_store;
+ 	  semanage_reload_policy; semanage_set_reload;
+ 	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
++	  semanage_iface_*; semanage_context_*;
+   local: *;
+ };
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/parse_utils.c new/libsemanage/src/parse_utils.c
+--- old/libsemanage/src/parse_utils.c	2005-11-01 16:25:48.000000000 -0500
++++ new/libsemanage/src/parse_utils.c	2005-11-02 01:49:26.000000000 -0500
+@@ -163,7 +163,7 @@ int parse_assert_space(
+ 	semanage_handle_t* handle, 
+ 	parse_info_t* info) {
+ 
+-	if (!isspace(*(info->ptr))) {
++	if (*(info->ptr) && !isspace(*(info->ptr))) {
+ 		ERR(handle, "missing whitespace (%s: %u):\n%s",
+ 			info->filename, info->lineno, info->orig_line);
+ 		return STATUS_ERR;
+@@ -234,40 +234,44 @@ int parse_optional_str(parse_info_t* inf
+ 	}
+ }
+ 
+-int parse_fetch_string(
++int parse_fetch_int(
+ 	semanage_handle_t* handle,
+-	parse_info_t* info, 
+-	char** str) {
++	parse_info_t* info,
++	int* num,
++	char delim) {
+ 
+-	char* start = info->ptr;
+-	int len = 0;
+-	char* tmp_str = NULL;
++	char* str = NULL;
++	char* test = NULL;
++	int value = 0;
+ 
+-	while (*(info->ptr) && !isspace(*(info->ptr))) {
+-		info->ptr++;
+-		len ++;
+-	}
++	if (parse_fetch_string(handle, info, &str, delim) < 0)
++		goto err;
+ 
+-	if (len == 0) {
+-		ERR(handle, "expected non-empty string, but did not "
+-			"find one (%s: %u):\n%s", info->filename, info->lineno,
+-			info->orig_line);
+-		return STATUS_ERR;
++	if (!isdigit((int) *str)) {
++		ERR(handle, "expected a numeric value: (%s: %u)\n%s",
++			info->filename, info->lineno, info->orig_line);
++		goto err;
+ 	}
+-		
+-	tmp_str = (char*) malloc(len + 1);
+-	if (!tmp_str) {
+-		ERR(handle, "out of memory, could not allocate string");
+-		return STATUS_ERR;	
++
++	value = strtol(info->ptr, &test, 10);
++	if (*test != '\0') {
++		ERR(handle, "could not parse numeric value: %s (%s: %u)\n%s",
++			strerror(errno), info->filename, 
++			info->lineno, info->orig_line);
++		goto err;
+ 	}
+-	
+-	strncpy(tmp_str, start, len);
+-	*(tmp_str + len)= '\0';
+-	*str = tmp_str;
++
++	*num = value;
++	free(str);
+ 	return STATUS_SUCCESS;
++
++	err:
++	ERR(handle, "could not fetch numeric value");
++	free(str);
++	return STATUS_ERR;
+ }
+ 
+-int parse_fetch_string_until(
++int parse_fetch_string(
+ 	semanage_handle_t* handle,
+ 	parse_info_t* info, 
+ 	char** str, 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/parse_utils.h new/libsemanage/src/parse_utils.h
+--- old/libsemanage/src/parse_utils.h	2005-11-01 16:25:48.000000000 -0500
++++ new/libsemanage/src/parse_utils.h	2005-11-02 01:01:16.000000000 -0500
+@@ -83,17 +83,22 @@ extern int parse_optional_str(
+ 	parse_info_t* info, 
+ 	const char* str);
+ 
+-/* Extract the next string (delimited by 
+- * whitespace), and move the read pointer past it */
+-extern int parse_fetch_string(
+-	semanage_handle_t* handle,
++/* Extract the next integer, and move
++ * the read pointer past it. Stop if
++ * the optional character delim is encountered,
++ * or if whitespace/eof is encountered */
++int parse_fetch_int(
++	semanage_handle_t* hgandle,
+ 	parse_info_t* info,
+-	char** str_ptr);
++	int* num,
++	char delim);
+ 
+ /* Extract the next string (delimited by 
+- * the specified character, or whitespace), and move the 
+- * read pointer past it */
+-extern int parse_fetch_string_until(
++ * whitespace), and move the read pointer past it.
++ * Stop of the optional character delim is encountered,
++ * or if whitespace/eof is encountered. Fail if the
++ * string is of length 0. */
++extern int parse_fetch_string(
+ 	semanage_handle_t* handle,
+ 	parse_info_t* info,
+ 	char** str_ptr,
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/ports_file.c new/libsemanage/src/ports_file.c
+--- old/libsemanage/src/ports_file.c	2005-11-01 16:25:48.000000000 -0500
++++ new/libsemanage/src/ports_file.c	2005-11-02 01:41:03.000000000 -0500
+@@ -1,5 +1,4 @@
+ #include <semanage/port_record.h>
+-#include <semanage/context_record.h>
+ 
+ typedef semanage_port_t record_t;
+ typedef semanage_port_key_t record_key_t;
+@@ -13,6 +12,7 @@ typedef struct dbase_file dbase_t;
+ #include <stdio.h>
+ #include <strings.h>
+ #include <semanage/handle.h>
++#include <semanage/context_record.h>
+ #include "database_file.h"
+ #include "ports_file.h"
+ #include "parse_utils.h"
+@@ -62,9 +62,8 @@ static int port_parse(
+ 	parse_info_t* info, 
+ 	semanage_port_t* port) {
+ 
+-	int low, high, items;
+-	char* proto = NULL;
+-	char* context = NULL;
++	int low, high;
++	char* str = NULL;
+ 	semanage_context_t* con = NULL;
+ 
+ 	if (parse_skip_space(handle, info) < 0)
+@@ -72,45 +71,75 @@ static int port_parse(
+ 	if (!info->ptr)
+ 		goto last;
+ 
+-	items = sscanf(info->ptr, "portcon %as %d - %d %as",
+-			&proto, &low, &high, &context);
+-	if (items != 4) {
+-		free(proto);
+-		free(context);
+-		items = sscanf(info->ptr, "portcon %as %d %as", &proto, &low, &context);
+-		if (items != 3) {
+-			ERR(handle, "too many items on the line (%s: %u):\n%s",
+-				info->filename, info->lineno, info->orig_line);
+-			goto err;
+-		}
+-		semanage_port_set_port(port, low);
+-	}
+-	else semanage_port_set_range(port, low, high);
++	/* Header */
++	if (parse_assert_str(handle, info, "portcon") < 0)
++		goto err;
++	if (parse_assert_space(handle, info) < 0)
++		goto err;
++	if (parse_assert_noeof(handle, info) < 0)
++		goto err;
+ 
+-	if (!strcasecmp(proto, "tcp"))
++	/* Protocol */
++	if (parse_fetch_string(handle, info, &str, ' ') < 0)
++		goto err;
++	if (!strcasecmp(str, "tcp"))
+ 		semanage_port_set_proto(port, SEMANAGE_PROTO_TCP);
+-
+-	else if (!strcasecmp(proto, "udp"))
++	else if (!strcasecmp(str, "udp"))
+ 		semanage_port_set_proto(port, SEMANAGE_PROTO_UDP);
+-
+ 	else {
+-		ERR(handle, "invalid protocol value for port range %u - %u: %s",
+-			low, high, proto); 
++		ERR(handle, "invalid protocol \"%s\" (%s: %u):\n%s", str,
++				info->filename, info->lineno, info->orig_line);
+ 		goto err;
+ 	}
++	free(str);
++	str = NULL;
++
++	/* Range/Port */
++	if (parse_assert_space(handle, info) < 0)
++		goto err;
++	if (parse_assert_noeof(handle, info) < 0)
++		goto err;
++	if (parse_fetch_int(handle, info, &low, '-') < 0)
++		goto err;
+ 
+-	if (semanage_context_from_string(handle, context, &con) < 0)
++	if (parse_skip_space(handle, info) < 0)
++		goto err;
++	if (parse_assert_noeof(handle, info) < 0)
+ 		goto err;
++	if (parse_optional_ch(info, '-') != STATUS_NODATA) {
+ 
+-	/* <<none>> is not allowed for ports */
+-	if (!con)
++		if (parse_skip_space(handle, info) < 0)
++			goto err;	
++		if (parse_assert_noeof(handle, info) < 0)
++			goto err;
++		if (parse_fetch_int(handle, info, &high, ' ') < 0)
++			goto err;
++		semanage_port_set_range(port, low, high);
++	}
++	else 
++		semanage_port_set_port(port, low);
++
++        /* Port context */
++	if (parse_assert_space(handle, info) < 0)
++		goto err;
++	if (parse_assert_noeof(handle, info) < 0)
++		goto err;
++	if (parse_fetch_string(handle, info, &str, ' ') < 0)
++		goto err;
++	if (semanage_context_from_string(handle, str, &con) < 0)
+ 		goto err;
++	if (con == NULL) {
++		ERR(handle, "<<none>> context is not valid "
++			"for ports (%s: %u):\n%s", info->filename, 
++			info->lineno, info->orig_line);
++		goto err;
++	}
++	free(str);
++	str = NULL;
+ 
+ 	semanage_port_set_con(port, con);
+ 	con = NULL;
+ 
+-	free(proto);
+-	free(context);
+ 	return STATUS_SUCCESS;
+ 
+ 	last:
+@@ -119,10 +148,8 @@ static int port_parse(
+ 
+ 	err:
+ 	ERR(handle, "could not parse port record");
+-	free(proto);
+-	free(context);
++	free(str);
+ 	semanage_context_free(con);
+-
+ 	parse_dispose_line(info);
+ 	return STATUS_ERR;
+ }
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/seusers_file.c new/libsemanage/src/seusers_file.c
+--- old/libsemanage/src/seusers_file.c	2005-11-01 16:25:48.000000000 -0500
++++ new/libsemanage/src/seusers_file.c	2005-11-02 00:45:47.000000000 -0500
+@@ -56,7 +56,7 @@ static int seuser_parse(
+ 		goto last;
+ 
+ 	/* Extract name */
+-	if (parse_fetch_string_until(handle, info, &str, ':') < 0)
++	if (parse_fetch_string(handle, info, &str, ':') < 0)
+ 		goto err;
+ 	if (semanage_seuser_set_name(handle, seuser, str) < 0)
+ 		goto err;
+@@ -75,7 +75,7 @@ static int seuser_parse(
+ 		goto err;
+ 
+ 	/* Extract sename */
+-	if (parse_fetch_string_until(handle, info, &str, ':') < 0)
++	if (parse_fetch_string(handle, info, &str, ':') < 0)
+ 		goto err;
+ 	if (semanage_seuser_set_sename(handle, seuser, str) < 0)
+ 		goto err;
+@@ -95,7 +95,7 @@ static int seuser_parse(
+ 			goto err;
+ 
+ 		/* NOTE: does not allow spaces/multiline */
+-		if (parse_fetch_string(handle, info, &str) < 0)
++		if (parse_fetch_string(handle, info, &str, ' ') < 0)
+ 			goto err;
+ 
+ 		if (semanage_seuser_set_mlsrange(handle, seuser, str) <  0)
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/users_file.c new/libsemanage/src/users_file.c
+--- old/libsemanage/src/users_file.c	2005-11-01 16:25:48.000000000 -0500
++++ new/libsemanage/src/users_file.c	2005-11-02 00:45:21.000000000 -0500
+@@ -89,7 +89,7 @@ static int user_parse(
+ 		goto err;
+ 
+ 	/* Parse user name */
+-	if (parse_fetch_string(handle, info, &name_str) < 0)
++	if (parse_fetch_string(handle, info, &name_str, ' ') < 0)
+ 		goto err;
+ 
+ 	if (semanage_user_set_name(handle, user, name_str) < 0) {
+@@ -172,7 +172,7 @@ static int user_parse(
+ 			goto err;
+ 
+ 		/* NOTE: does not allow spaces/multiline */
+-		if (parse_fetch_string(handle, info, &str) < 0)
++		if (parse_fetch_string(handle, info, &str, ' ') < 0)
+ 			goto err;
+ 		if (semanage_user_set_mlslevel(handle, user, str) < 0)
+ 			goto err;
+@@ -190,7 +190,7 @@ static int user_parse(
+ 			goto err;
+ 
+ 		/* NOTE: does not allow spaces/multiline */
+-		if (parse_fetch_string_until(handle, info, &str, ';') < 0)
++		if (parse_fetch_string(handle, info, &str, ';') < 0)
+ 			goto err;
+ 		if (semanage_user_set_mlsrange(handle, user, str) < 0)
+ 			goto err;
+
+--------------020008000809080809050709--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
