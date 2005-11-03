@@ -1,46 +1,112 @@
-Subject: Re: [PATCH] libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jonathan Kim <jkim@TrustedCS.com>
-Cc: SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <1131050021.23420.153.camel@moss-spartans.epoch.ncsc.mil>
-References: <36282A1733C57546BE392885C0618592D975CA@chaos.tcs.tcs-sec.com>
-	 <1131048615.23420.142.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131050021.23420.153.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 15:47:44 -0500
-Message-Id: <1131050864.23420.165.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <436A8156.5090003@cornell.edu>
+Date: Thu, 03 Nov 2005 16:29:58 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Jonathan Kim <jkim@TrustedCS.com>, SELinux@tycho.nsa.gov,
+   Chad Hanson <chanson@TrustedCS.com>
+Subject: [ SEMANAGE] Resync seuser parser
+References: <36282A1733C57546BE392885C0618592D975CA@chaos.tcs.tcs-sec.com>	 <1131048615.23420.142.camel@moss-spartans.epoch.ncsc.mil>	 <1131050021.23420.153.camel@moss-spartans.epoch.ncsc.mil> <1131050864.23420.165.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1131050864.23420.165.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------070407070601030105000503"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-11-03 at 15:33 -0500, Stephen Smalley wrote:
-> Just to note:  I'm not opposed to the patch per se (although it might be
-> better to treat this as an error condition rather than falling through
-> to the base user definitions, as they may give wider access then you
-> want since multiple Linux users may be mapped to a single SELinux user),
-> but I'm unclear about why one would use an empty level in this manner in
-> seusers versus just omitting the entry for the user altogether if you
-> want the fallback behavior.
+This is a multi-part message in MIME format.
+--------------070407070601030105000503
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The other point to keep in mind here is that there are plans to create
-management utilities for seusers (via libsemanage) and that those
-utilities are going to be instrumented for audit as part of the
-LSPP/RBAC effort, whereas local.users is largely unused except by
-SELinux developers even now and is even less likely to be used going
-forward now that seusers exists.  The expectation is that the base
-policy (module) will contain the base set of SELinux user identities
-(which will correspond to distinct role sets defined in the policy and
-typically be authorized for the full range), and seusers will handle
-mapping each Linux user to a role set (aka SELinux user identity) and to
-an authorized range.  The user ranges in the SELinux policy will then be
-largely unused (typically just the full range), as seusers will be what
-governs the clearance/high assigned to the user session based on the
-Linux user.
+Must keep the parsers in sync (or at least, the semanage parser should 
+supercede the other one). Patch attached.
 
--- 
-Stephen Smalley
-National Security Agency
+This is now perfectly valid on my machine (see below).
+Loaded correctly, modified correcly, written back out in the same order, 
+and straightened out into something sane.
 
+test_user:root
+                phantom:
+
+        phantom:s0
+
+__default__
+
+        :user_u root:   root       :
+
+
+s0
+
+
+Test output
+-----
+There are 4 seusers before the transaction.
+
+Now testing list...
+Name: root, Seuser: root, MLS: s0
+Name: __default__, Seuser: user_u, MLS: (null)
+Name: phantom, Seuser: phantom, MLS: s0
+Name: test_user, Seuser: root, MLS: (null)
+
+Now testing iterate...
+Name: root, Seuser: root, MLS: s0
+Name: __default__, Seuser: user_u, MLS: (null)
+Name: phantom, Seuser: phantom, MLS: s0
+Name: test_user, Seuser: root, MLS: (null)
+
+In-Transaction pre-commit iterate (should show modifications)..
+Name: root, Seuser: root, MLS: s0
+Name: __default__, Seuser: user_u, MLS: (null)
+Name: phantom, Seuser: phantom, MLS: s0
+Name: test_user, Seuser: root, MLS: s0:c5,c6-s2:c1,c3,c5
+
+There are 4 seusers after the transaction
+
+Now testing list
+Name: root, Seuser: root, MLS: s0
+Name: __default__, Seuser: user_u, MLS: (null)
+Name: phantom, Seuser: phantom, MLS: s0
+Name: test_user, Seuser: root, MLS: s0:c5,c6-s2:c1,c3,c5
+
+Now testing iterate...
+Name: root, Seuser: root, MLS: s0
+Name: __default__, Seuser: user_u, MLS: (null)
+Name: phantom, Seuser: phantom, MLS: s0
+Name: test_user, Seuser: root, MLS: s0:c5,c6-s2:c1,c3,c5
+
+--------------070407070601030105000503
+Content-Type: text/x-patch;
+ name="libsemanage.seuser_resync.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.seuser_resync.diff"
+
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/seusers_file.c new/libsemanage/src/seusers_file.c
+--- old/libsemanage/src/seusers_file.c	2005-11-03 12:48:03.000000000 -0500
++++ new/libsemanage/src/seusers_file.c	2005-11-03 16:21:49.000000000 -0500
+@@ -81,8 +81,8 @@ static int seuser_parse(
+ 	if (is_selinux_mls_enabled()) {
+ 		if (parse_skip_space(handle, info) < 0)
+ 			goto err;
+-		if (parse_assert_ch(handle, info, ':') < 0)
+-			goto err;
++		if (parse_optional_ch(info, ':') == STATUS_NODATA)
++			goto out;
+ 		if (parse_skip_space(handle, info) < 0)
+ 			goto err;
+ 
+@@ -95,7 +95,8 @@ static int seuser_parse(
+ 		free(str);
+ 		str = NULL;
+ 	} 
+-
++	
++	out:
+ 	return STATUS_SUCCESS;
+ 
+ 	last:
+
+--------------070407070601030105000503--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
