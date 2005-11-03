@@ -1,112 +1,79 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA3HDqMA017163
-	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 12:13:53 -0500 (EST)
-Received: from mx53.ms.so-net.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA3H8UhI023317
-	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 17:08:31 GMT
-Received: from admin0 (pd32f49.ykhmac00.ap.so-net.ne.jp [61.211.47.73])
-	by mx53.ms.so-net.ne.jp  with SMTP id jA3H8UUC012590
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 02:08:30 +0900 (JST)
-Message-ID: <004701c5e099$3777e6b0$0300a8c0@admin0>
-From: "shintarou_fujiwara" <shin216@xf7.so-net.ne.jp>
-To: "selinux mailing list" <selinux@tycho.nsa.gov>
-Subject: antivir policy
-Date: Fri, 4 Nov 2005 02:08:31 +0900
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0044_01C5E0E4.A72B1130"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA3InxMA018182
+	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 13:49:59 -0500 (EST)
+Received: from e6.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA3IichI010049
+	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 18:44:38 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e6.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id jA3IidKi017519
+	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 13:44:39 -0500
+Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
+	by d01relay04.pok.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id jA3Iibg6089020
+	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 13:44:39 -0500
+Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
+	by d01av04.pok.ibm.com (8.12.11/8.13.3) with ESMTP id jA3IibTC030593
+	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 13:44:37 -0500
+Subject: Re: A question on integrating IPSec to Selinux
+From: Joy Latten <latten@austin.ibm.com>
+To: Wei Shen <cquark@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <e12e59640511021904y1940f1a1i140aabff7f857f0b@mail.gmail.com>
+References: <e12e59640511020830q18817c3dsb01d3051970baf9f@mail.gmail.com>
+	 <WSNCEXC0010dSHpVyLr00001d77@wsncexc001.silkroadtech.com>
+	 <e12e59640511021904y1940f1a1i140aabff7f857f0b@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 03 Nov 2005 12:41:34 -0600
+Message-Id: <1131043294.2653.83.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+The current implementation does not accommodate for MLS, in regards to
+your example of different levels. But I do think someone is looking into
+it.
 
-------=_NextPart_000_0044_01C5E0E4.A72B1130
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-2022-jp";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Regards,
+Joy
 
-Hi, again from Japan.
-
-I've written down antivir policy for antivir users.
-
-Antivir is downloadable from here.
-http://www.free-av.com/
-
-
-shintarou_fujiwara
-------=_NextPart_000_0044_01C5E0E4.A72B1130
-Content-Type: application/octet-stream;
-	name="antivir.fc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="antivir.fc"
-
-####################for =
-antivir###########################################=0A=
-/usr/lib/AntiVir       -d   system_u:object_r:antivir_home_t=0A=
-/usr/lib/AntiVir/antivir    system_u:object_r:antivir_exec_t=0A=
-/usr/lib/AntiVir/antivir\.vdf    system_u:object_r:antivir_pattern_file_t=0A=
-/usr/lib/AntiVir/avupdater    system_u:object_r:antivir_bin_t=0A=
-/usr/lib/AntiVir/configantivir    system_u:object_r:antivir_bin_t=0A=
-/etc/antivir\.conf             system_u:object_r:antivir_conf_t=0A=
-/etc/avguard\.conf             system_u:object_r:antivir_conf_t=0A=
-=0A=
-
-------=_NextPart_000_0044_01C5E0E4.A72B1130
-Content-Type: application/octet-stream;
-	name="antivir.te"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="antivir.te"
-
-#############for antivir###############=0A=
-daemon_domain(antivir,`,auth_chkpwd')=0A=
-=0A=
-can_network(antivir_t)=0A=
-=0A=
-can_exec(antivir_t,bin_t)=0A=
-can_exec(antivir_t,sbin_t)=0A=
-can_exec(antivir_t,mount_exec_t)=0A=
-=0A=
-tmp_domain(antivir)=0A=
-lock_domain(antivir)=0A=
-=0A=
-###############types##############################=0A=
-type antivir_home_t, file_type, sysadmfile;=0A=
-type antivir_bin_t, file_type, sysadmfile, exec_type;=0A=
-type antivir_pattern_file_t, file_type, sysadmfile;=0A=
-type antivir_conf_t, file_type, sysadmfile;=0A=
-type antivir_var_log_t, file_type, sysadmfile;=0A=
-=0A=
-################basic policy############################=0A=
-allow antivir_t antivir_conf_t:file r_file_perms;=0A=
-allow antivir_t antivir_home_t:dir r_dir_perms;=0A=
-allow antivir_t antivir_pattern_file_t:file r_file_perms;=0A=
-allow antivir_t self:fifo_file rw_file_perms;=0A=
-allow antivir_t var_log_t:file ra_file_perms;=0A=
-=0A=
-###########so that antivir can check dir########################=0A=
-allow antivir_t boot_t:dir r_dir_perms;=0A=
-allow antivir_t bin_t:dir r_dir_perms;=0A=
-allow antivir_t sbin_t:dir r_dir_perms;=0A=
-allow antivir_t default_t:dir r_dir_perms;=0A=
-allow antivir_t home_root_t:dir r_dir_perms;=0A=
-allow antivir_t lost_found_t:dir r_dir_perms;=0A=
-allow antivir_t mnt_t:dir r_dir_perms;=0A=
-allow antivir_t security_t:dir r_dir_perms;=0A=
-allow antivir_t sysadm_home_dir_t:dir r_dir_perms;=0A=
-allow antivir_t var_log_t:dir r_dir_perms;=0A=
-=0A=
-#######################others################################=0A=
-allow antivir_t antivir_t:unix_dgram_socket  { connect write create };=0A=
-allow antivir_t etc_runtime_t:file r_file_perms;=0A=
-allow antivir_t etc_t:file r_file_perms;=0A=
-allow antivir_t proc_t:file r_file_perms;=0A=
-
-------=_NextPart_000_0044_01C5E0E4.A72B1130--
-
+On Thu, 2005-11-03 at 11:04 +0800, Wei Shen wrote:
+> Dear Remmolt,
+> 
+> I do not quite understand your reply. Do you mean the space in a
+> playload is too precious to insert in any other information?
+> 
+> I know the contents of a payload. Now that a local MAC label is
+> already added in current implementation, why will an "optional" remote
+> label cause significant problems? If one desires not to request a
+> expected label, the responder just chooses a default one for him as in
+> current way.
+> 
+> In fact, I think it's a cheap method comparing to in which a client
+> must prepare different payloads to meet the requirement of his
+> expected label in the server side (he then must know more details
+> about the IPSec policy configuration of the server), or modifying each
+> application protocol and server individually.
+> 
+> Thanks!
+> 
+> Wei
+> 
+> On 11/3/05, Remmolt Zwartsenberg <remmolt.zwartsenberg@silkroadtech.com> wrote:
+> >
+> > You need to backtrack to the bowels of the origin of the TCP/IP protocol!
+> >
+> > A payload inside an IP packet can get as small as a datagram...
+> >
+> > The datagram may be a very significant public or private key in a 2, 3 or 4
+> > way constellation.
+> >
+> > Of course the protocol is important, but equally so are the peers behind
+> > the  handshakes.
+> >
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
