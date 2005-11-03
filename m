@@ -1,24 +1,35 @@
-Subject: Re: [ SEMANAGE 4 ] Order-preserving file dbase
+Subject: Re: [PATCH] libselinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <43694616.3000002@cornell.edu>
-References: <43694616.3000002@cornell.edu>
+To: Jonathan Kim <jkim@TrustedCS.com>
+Cc: SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592D975CA@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C0618592D975CA@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Thu, 03 Nov 2005 14:58:15 -0500
-Message-Id: <1131047895.23420.131.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 03 Nov 2005 15:10:15 -0500
+Message-Id: <1131048615.23420.142.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-11-02 at 18:04 -0500, Ivan Gyurdiev wrote:
-> This patch restores the doubly-linked list that I got rid of earlier, 
-> and uses it to implement order-preserving flush() operation. The records 
-> are printed out in the order in which they're read in. Additions go at 
-> the end of the file, and queries are executed starting at the end of the 
-> file, and progressing up. This gets us closer to solving The Port Problem.
+On Thu, 2005-11-03 at 14:33 -0500, Jonathan Kim wrote:
+> This patch is for handling correctly when label portion is removed from
+> seusers file. 
+> Will refer to *.users file instead of asking role:type:level to user as
+> expected.
 
-All 4 patches merged as of libsepol 1.9.36 and libsemanage 1.3.41.
+I'm not sure that this is what you want.  Keep in mind that seusers is
+intended to allow you to assign ranges and role sets (aka SELinux users)
+to individual Linux users without requiring any modification to SELinux
+policy (even at policy load time, which is going away with the advent of
+libsemanage; SETLOCALDEFS=0 should become the norm
+for /etc/selinux/config soon).  If you don't want to use seusers at all,
+you can certainly omit it from your policy, in which case things will
+fall through to the usual logic, and you can even do that per-user by
+omitting an entry for that user entirely from seusers, but I'm not clear
+on why you would have an entry for the Linux user but no level there -
+that means that you still need per-Linux user entries in your policy for
+the range authorizations, which defeats the purpose of having the user
+in seusers at all.
 
 -- 
 Stephen Smalley
