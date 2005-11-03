@@ -1,25 +1,36 @@
-Message-ID: <436946FB.8060802@cornell.edu>
-Date: Wed, 02 Nov 2005 18:08:43 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43699220.1060100@anchor.com.au>
+Date: Thu, 03 Nov 2005 15:29:20 +1100
+From: Oliver Hookins <oliver.hookins@anchor.com.au>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [ SEMANAGE 4 ] Order-preserving file dbase
-References: <43694616.3000002@cornell.edu>
-In-Reply-To: <43694616.3000002@cornell.edu>
+To: SELinux@tycho.nsa.gov
+Subject: Transitions using su command
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> This patch restores the doubly-linked list that I got rid of earlier, 
-> and uses it to implement order-preserving flush() operation. The 
-> records are printed out in the order in which they're read in. 
-> Additions go at the end of the file, and queries are executed starting 
-> at the end of the file, and progressing up. This gets us closer to 
-> solving The Port Problem.
-Is the policydb order preserving? If I write a policydb, and read it 
-back in, is the linked list of port contexts ordered the same way?
+I'm having some funny behaviour from one of our init scripts. We're 
+running a multi-user tomcat environment, which as part of its init 
+script runs a command like the following:
+
+su - $USER -c "$TOMCAT_SCRIPT start < /dev/null >& /dev/null"
+
+If you run this as root, replacing the variables with the appropriate 
+values, the command runs as expected without any problems. If you run 
+the init script using the service command it prompts the following:
+
+Your default context is user_u:system_r:unconfined_t.
+
+Do you want to choose a different one? [n]
+
+If you just press enter here, it goes back to the bash prompt and seems 
+to succeed, however it worries me that when run automatically at startup 
+and shutdown it might fail. Is there some sort of transition 
+configuration I am missing, or something I can change to allow this 
+transition?
+
+-- 
+Thanks,
+Oliver
 
 --
 This message was distributed to subscribers of the selinux mailing list.
