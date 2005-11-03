@@ -1,44 +1,48 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA3LUWMA019946
-	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 16:30:32 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA3LOfp3023258
-	for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2005 21:24:42 GMT
-Message-Id: <200511032124.jA3LOqYs026202@gotham.columbia.tresys.com>
-From: "Kevin Carr" <kcarr@tresys.com>
-To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
-Subject: ANN: Setools-2.2
-Date: Thu, 3 Nov 2005 16:24:52 -0500
+Message-ID: <436AA434.6010003@anchor.com.au>
+Date: Fri, 04 Nov 2005 10:58:44 +1100
+From: Oliver Hookins <oliver.hookins@anchor.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Transitions using su command
+References: <43699220.1060100@anchor.com.au> <1131027701.23420.37.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1131027701.23420.37.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new version of setools is available for download on the Tresys Technology
-website.  http://www.tresys.com
+Stephen Smalley wrote:
+> On Thu, 2005-11-03 at 15:29 +1100, Oliver Hookins wrote:
+> 
+>>I'm having some funny behaviour from one of our init scripts. We're 
+>>running a multi-user tomcat environment, which as part of its init 
+>>script runs a command like the following:
+>>
+>>su - $USER -c "$TOMCAT_SCRIPT start < /dev/null >& /dev/null"
+>>
+>>If you run this as root, replacing the variables with the appropriate 
+>>values, the command runs as expected without any problems. If you run 
+>>the init script using the service command it prompts the following:
+>>
+>>Your default context is user_u:system_r:unconfined_t.
+>>
+>>Do you want to choose a different one? [n]
+>>
+>>If you just press enter here, it goes back to the bash prompt and seems 
+>>to succeed, however it worries me that when run automatically at startup 
+>>and shutdown it might fail. Is there some sort of transition 
+>>configuration I am missing, or something I can change to allow this 
+>>transition?
+> 
+> 
+> Using 'su' in this manner is a bad idea.  Use '/sbin/runuser' instead.
+> See /etc/init.d/functions for example usage.
 
-Included in this release is a new tool called sechecker.  This tool performs
-a number of checks on a SELinux policy and is designed to be modular so that
-it is easily extensible in the future.  We will be extending the capability
-of this tool in the next release.
+Thanks, that works brilliantly!
 
-Sediffx has an updated user interface that separates key elements of the
-policy difference for easier analysis (for example rules that were removed
-because a type was removed from the policy).  Also added was the ability to
-specify renamed types when computing a difference.
-
-Libapol now has support for storing some additional policy components such
-as MLS, and constraints.
-
-Various bug fixes are included in this release as well.
-
-Kevin Carr
-Tresys Technology
-410.290.1411 x137
-
-
-
+-- 
+Regards,
+Oliver
 
 --
 This message was distributed to subscribers of the selinux mailing list.
