@@ -1,24 +1,39 @@
-Subject: Re: [ SEMANAGE 4 ] Order-preserving file dbase
+Subject: Re: Transitions using su command
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <436946FB.8060802@cornell.edu>
-References: <43694616.3000002@cornell.edu>  <436946FB.8060802@cornell.edu>
+To: Oliver Hookins <oliver.hookins@anchor.com.au>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <43699220.1060100@anchor.com.au>
+References: <43699220.1060100@anchor.com.au>
 Content-Type: text/plain
-Date: Thu, 03 Nov 2005 08:32:35 -0500
-Message-Id: <1131024755.23420.2.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 03 Nov 2005 09:21:41 -0500
+Message-Id: <1131027701.23420.37.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-11-02 at 18:08 -0500, Ivan Gyurdiev wrote:
-> Is the policydb order preserving? If I write a policydb, and read it 
-> back in, is the linked list of port contexts ordered the same way?
+On Thu, 2005-11-03 at 15:29 +1100, Oliver Hookins wrote:
+> I'm having some funny behaviour from one of our init scripts. We're 
+> running a multi-user tomcat environment, which as part of its init 
+> script runs a command like the following:
+> 
+> su - $USER -c "$TOMCAT_SCRIPT start < /dev/null >& /dev/null"
+> 
+> If you run this as root, replacing the variables with the appropriate 
+> values, the command runs as expected without any problems. If you run 
+> the init script using the service command it prompts the following:
+> 
+> Your default context is user_u:system_r:unconfined_t.
+> 
+> Do you want to choose a different one? [n]
+> 
+> If you just press enter here, it goes back to the bash prompt and seems 
+> to succeed, however it worries me that when run automatically at startup 
+> and shutdown it might fail. Is there some sort of transition 
+> configuration I am missing, or something I can change to allow this 
+> transition?
 
-Yes.  More generally, policydb_read/write should be stable.
-
-checkpolicy -M -o policy.20.2 -b policy.20
-cmp policy.20 policy.20.2
+Using 'su' in this manner is a bad idea.  Use '/sbin/runuser' instead.
+See /etc/init.d/functions for example usage.
 
 -- 
 Stephen Smalley
