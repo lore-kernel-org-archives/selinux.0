@@ -1,73 +1,54 @@
-Subject: Re: [ SEMANAGE ] Assert whitespace between records
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <436BA8E6.8030508@cornell.edu>
-References: <436BA8E6.8030508@cornell.edu>
-Content-Type: text/plain
-Date: Fri, 04 Nov 2005 14:22:40 -0500
-Message-Id: <1131132160.23420.335.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <436BD878.1070300@cornell.edu>
+Date: Fri, 04 Nov 2005 16:54:00 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+   Joshua Brindle <jbrindle@tresys.com>,
+   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
+   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
+   Chad Sellers <csellers@tresys.com>
+Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P	to	use	libsemanage
+References: <436915FB.3040500@tresys.com>	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>	 <436B8185.4050508@cornell.edu>	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>	 <436B8771.60203@redhat.com>	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil> <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-11-04 at 13:31 -0500, Ivan Gyurdiev wrote:
-> This patch will assert there is whitespace between seuser, boolean, 
-> interface, and port records (assert whitespace after each record). This 
-> has no effect on ports and interfaces, because they already check for 
-> that when looking for where the context ends (added for clarity only). 
-> Users don't require a space, because they have a semicolon.
-> 
-> In the case of seusers, this prevents parser confusion when MLS is 
-> disabled, and we encounter an MLS context:
-> a:b:c - complain about lack of whitespace, rather than treating the ":" 
-> as the next seuser, and saying something like: nonempty string expected, 
-> or whatever...
-> 
-> In the case of booleans, this change will consider a=TRUEb=false or 
-> things like that as a parse error.
-> 
-> This change will succeed on the last record, and at the end of each 
-> line, because the terminating '\0' is considered whitespace - it's 
-> present on all lines, including the last one. It will not succeed if you 
-> called skip_space right before that, because that zeros the buffer on 
-> EOF (intentionally).
-
-Ok.  But I think we also want something like the patch below in the
-libselinux case to handle an empty seuser or level field as an error
-condition.
-
-Index: libselinux/src/seusers.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/seusers.c,v
-retrieving revision 1.9
-diff -u -p -r1.9 seusers.c
---- libselinux/src/seusers.c	4 Nov 2005 20:06:22 -0000	1.9
-+++ libselinux/src/seusers.c	4 Nov 2005 20:11:59 -0000
-@@ -54,6 +54,9 @@ static int process_seusers(const char *b
- 	seuser = strdup(start);
- 	if (!seuser)
- 		goto err;
-+
-+	if (!strcmp(seuser, ""))
-+		goto err;
- 	
- 	/* Skip MLS if disabled, or missing. */
- 	if (!mls_enabled || !mls_found)
-@@ -68,6 +71,9 @@ static int process_seusers(const char *b
- 	if (!level)
- 		goto err;
- 
-+	if (!strcmp(level, ""))
-+		goto err;
-+
- out:
- 	free(newbuf);
- 	*luserp = luser;
-
--- 
-Stephen Smalley
-National Security Agency
+Stephen Smalley wrote:
+> On Fri, 2005-11-04 at 11:12 -0500, Stephen Smalley wrote:
+>   
+>> Then the options would seem to be:
+>> 1) Have libsemanage internally detect whether the sandbox has been
+>> initialized, and if not, fall back to calling the libselinux function to
+>> manipulate booleans.local, or
+>> 2) Have libsemanage provide an interface (is_semanage_enabled?) to allow
+>> setsebool to detect whether the system is "managed" via libsemanage
+>> (i.e. has the sandbox been initialized via prior semodule -b), and have
+>> setsebool use that interface and fall back to calling the libselinux
+>> function if it is not enabled.
+>>
+>> Note that libsemanage (and thus semanage.conf) will be present on the
+>> system regardless of whether or not the system is "managed" using it
+>> since policycoreutils depends on it now.
+>>     
+>
+> I think I favor #1, as this is a legacy issue that is only going to
+> exist for booleans.  When someone creates a setseport or setseinterface
+> or ..., they are just going to use the semanage interfaces, and if the
+> system isn't managed via libsemanage, it simply isn't going to work
+> (i.e. there is no fallback mechanism, as such support didn't exist prior
+> to the introduction of libsemanage).  Thus, setsebool should likewise
+> unconditionally use the semanage interfaces, and libsemanage should
+> internally route the requests to the old libselinux interfaces if the
+> system isn't managed for legacy support.
+>   
+I'm not sure that this makes sense... let's get to back to the reason 
+_why_ the sandbox is uninitialized - it's because we haven't copied the 
+proper files into the sandbox yet. Falling back to other functions seems 
+equivalent to doing the initialization ourselves - copy the proper files 
+into the sandbox. We could just do that instead, but I'm not sure it's a 
+good idea. It would require the same privileges....
 
 
 --
