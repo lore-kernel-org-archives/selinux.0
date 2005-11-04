@@ -1,64 +1,34 @@
-Message-ID: <36282A1733C57546BE392885C0618592D97706@chaos.tcs.tcs-sec.com>
-From: Jonathan Kim <jkim@TrustedCS.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
-Subject: RE: [PATCH] libselinux
-Date: Fri, 4 Nov 2005 11:40:12 -0500 
+Message-ID: <436B9597.3060304@cornell.edu>
+Date: Fri, 04 Nov 2005 12:08:39 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+   Joshua Brindle <jbrindle@tresys.com>,
+   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
+   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
+   Chad Sellers <csellers@tresys.com>
+Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P	to	use	libsemanage
+References: <436915FB.3040500@tresys.com>	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>	 <436B8185.4050508@cornell.edu>	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>	 <436B8771.60203@redhat.com>	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil> <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Taking your guidance into consideration and examining the big picture of the
-architecture, we will take back the proposed patch and will be sending out a
-new MLS policy patch.
-Thanks for the responses!
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Thursday, November 03, 2005 2:48 PM
-> To: Jonathan Kim
-> Cc: SELinux@tycho.nsa.gov; Chad Hanson
-> Subject: Re: [PATCH] libselinux
-> 
-> 
-> On Thu, 2005-11-03 at 15:33 -0500, Stephen Smalley wrote:
-> > Just to note:  I'm not opposed to the patch per se 
-> (although it might be
-> > better to treat this as an error condition rather than 
-> falling through
-> > to the base user definitions, as they may give wider access then you
-> > want since multiple Linux users may be mapped to a single 
-> SELinux user),
-> > but I'm unclear about why one would use an empty level in 
-> this manner in
-> > seusers versus just omitting the entry for the user 
-> altogether if you
-> > want the fallback behavior.
-> 
-> The other point to keep in mind here is that there are plans to create
-> management utilities for seusers (via libsemanage) and that those
-> utilities are going to be instrumented for audit as part of the
-> LSPP/RBAC effort, whereas local.users is largely unused except by
-> SELinux developers even now and is even less likely to be used going
-> forward now that seusers exists.  The expectation is that the base
-> policy (module) will contain the base set of SELinux user identities
-> (which will correspond to distinct role sets defined in the policy and
-> typically be authorized for the full range), and seusers will handle
-> mapping each Linux user to a role set (aka SELinux user 
-> identity) and to
-> an authorized range.  The user ranges in the SELinux policy 
-> will then be
-> largely unused (typically just the full range), as seusers 
-> will be what
-> governs the clearance/high assigned to the user session based on the
-> Linux user.
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
+> Note btw that even the setsebool w/o -P case should eventually go
+> through libsemanage as well, IIUC, even though that will not regenerate
+> the binary policy file, but we don't have interfaces for that purpose
+> yet.  Likewise for togglesebool and getsebool.  But that isn't critical
+> right now.
+>   
+Can you explain why that is?  I'm trying to understand what kind of 
+interface is needed. Do you need a single function (set()), or do you 
+need a full backend implementing the entire dbase API? Specifically, do 
+you need queries in libsemanage? What's the justification for runtime 
+policy changes like that to go through libsemanage?
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
