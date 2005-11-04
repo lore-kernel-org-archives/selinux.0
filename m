@@ -1,32 +1,28 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA4F95MA026947
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 10:09:05 -0500 (EST)
-Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P to use
-	libsemanage
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [ SEMANAGE 4 ] Copyright
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   chris pebenito <cpebenito@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
-   James Morris <jmorris@redhat.com>, Chad Sellers <csellers@tresys.com>
-In-Reply-To: <436AF7BC.5000705@cornell.edu>
-References: <436915FB.3040500@tresys.com>
-	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
+Cc: SELinux-dev@tresys.com, selinux@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <436B0D46.9050102@cornell.edu>
+References: <436B0D46.9050102@cornell.edu>
 Content-Type: text/plain
-Date: Fri, 04 Nov 2005 09:59:50 -0500
-Message-Id: <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 04 Nov 2005 10:14:15 -0500
+Message-Id: <1131117255.23420.259.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-11-04 at 00:55 -0500, Ivan Gyurdiev wrote:
-> - cleanup warnings exposed by -Werror in new Makefile
+On Fri, 2005-11-04 at 02:27 -0500, Ivan Gyurdiev wrote:
+> Changes:
+> 
+> - Add Red Hat's copyright notice to all code that I've changed... (is 
+> this done properly?)
 
-Hmm...there was no Makefile in your patch for setsebool (previously
-covered by the generic utils Makefile in libselinux), so I adapted the
-one from semodule, and also added setsebool to the SUBDIRS list in the
-top-level policycoreutils Makefile.
+You likely want to note the license as well; see the other files.  You
+can also refer to the COPYING file that is included with the library,
+which contains the full text of the license.  I'm not sure it serves any
+purpose to put the copyright and/or license on the public headers of the
+library, as it is really only applicable to the implementation IIUC, but
+I'm not a lawyer ;)
 
 -- 
 Stephen Smalley
