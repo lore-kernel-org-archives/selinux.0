@@ -1,33 +1,33 @@
-Subject: Re: [ SEMANAGE] Resync seuser parser
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA4F6VMA026895
+	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 10:06:31 -0500 (EST)
+Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P to use
+	libsemanage
+From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Jonathan Kim <jkim@TrustedCS.com>, SELinux@tycho.nsa.gov,
-   Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <436B7564.7030506@cornell.edu>
-References: <36282A1733C57546BE392885C0618592D975CA@chaos.tcs.tcs-sec.com>
-	 <1131048615.23420.142.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131050021.23420.153.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131050864.23420.165.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A8156.5090003@cornell.edu> <436B14FD.8010708@cornell.edu>
-	 <436B188D.4050701@cornell.edu>
-	 <1131112032.23420.210.camel@moss-spartans.epoch.ncsc.mil>
-	 <436B71C7.700@cornell.edu>  <436B7564.7030506@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
+   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
+   chris pebenito <cpebenito@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
+   James Morris <jmorris@redhat.com>, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <436AF7BC.5000705@cornell.edu>
+References: <436915FB.3040500@tresys.com>
+	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
 Content-Type: text/plain
-Date: Fri, 04 Nov 2005 09:38:19 -0500
-Message-Id: <1131115099.23420.240.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 04 Nov 2005 09:57:12 -0500
+Message-Id: <1131116232.23420.245.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-11-04 at 09:51 -0500, Ivan Gyurdiev wrote:
-> Now I notice that the libsemanage parser will fail if mls_enabled=0, 
-> mls_found=1, while libselinux will accept that. Which should be fixed? 
-> For comparison, note genusers/checkpolicy (?)/libsemanage will all fail 
-> parsing users if mls_enabled=0, mls_found=1.
+On Fri, 2005-11-04 at 00:55 -0500, Ivan Gyurdiev wrote:
+> - separate code paths for error and success (don't like fallthrough - 
+> error-prone)
 
-In that case, libselinux should at least ignore the level (i.e. leave it
-NULL) even if specified, because otherwise, it will ultimately be used
-in a context which will then be invalid.
+On this point, please see "Chapter 6:  Centralized exiting of functions"
+in Documentation/CodingStyle in the kernel tree.  Note that in splitting
+the code paths, it looks like you have introduced a memory leak, as you
+no longer free the vallist on the success path?
 
 -- 
 Stephen Smalley
