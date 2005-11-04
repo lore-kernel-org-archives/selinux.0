@@ -1,6 +1,6 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA4F6VMA026895
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 10:06:31 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA4F95MA026947
+	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 10:09:05 -0500 (EST)
 Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P to use
 	libsemanage
 From: Stephen Smalley <sds@epoch.ncsc.mil>
@@ -14,20 +14,19 @@ References: <436915FB.3040500@tresys.com>
 	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
 	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
 Content-Type: text/plain
-Date: Fri, 04 Nov 2005 09:57:12 -0500
-Message-Id: <1131116232.23420.245.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 04 Nov 2005 09:59:50 -0500
+Message-Id: <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Fri, 2005-11-04 at 00:55 -0500, Ivan Gyurdiev wrote:
-> - separate code paths for error and success (don't like fallthrough - 
-> error-prone)
+> - cleanup warnings exposed by -Werror in new Makefile
 
-On this point, please see "Chapter 6:  Centralized exiting of functions"
-in Documentation/CodingStyle in the kernel tree.  Note that in splitting
-the code paths, it looks like you have introduced a memory leak, as you
-no longer free the vallist on the success path?
+Hmm...there was no Makefile in your patch for setsebool (previously
+covered by the generic utils Makefile in libselinux), so I adapted the
+one from semodule, and also added setsebool to the SUBDIRS list in the
+top-level policycoreutils Makefile.
 
 -- 
 Stephen Smalley
