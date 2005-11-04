@@ -1,58 +1,59 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA4EFaMA026262
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 09:15:36 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA4EA7Zc005293
-	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 14:10:07 GMT
-Message-ID: <436B6E9E.4050108@cornell.edu>
-Date: Fri, 04 Nov 2005 09:22:22 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA4EQ6MA026375
+	for <selinux@tycho.nsa.gov>; Fri, 4 Nov 2005 09:26:06 -0500 (EST)
+Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P to
+	use	libsemanage
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
    Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
    chris pebenito <cpebenito@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
    James Morris <jmorris@redhat.com>, Chad Sellers <csellers@tresys.com>
-Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P to use	libsemanage
-References: <436915FB.3040500@tresys.com>	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu> <1131110455.23420.187.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1131110455.23420.187.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <436B6E9E.4050108@cornell.edu>
+References: <436915FB.3040500@tresys.com>
+	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
+	 <1131110455.23420.187.camel@moss-spartans.epoch.ncsc.mil>
+	 <436B6E9E.4050108@cornell.edu>
+Content-Type: text/plain
+Date: Fri, 04 Nov 2005 09:16:52 -0500
+Message-Id: <1131113812.23420.236.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2005-11-04 at 09:22 -0500, Ivan Gyurdiev wrote:
+> So, how do I specify that this is not a transient change, and I want my 
+> booleans loaded into policy immediately?
 
-> I'm not sure I understand the question.  load_policy is supposed to
-> preserve current boolean settings across a reload so that a transient
-> boolean change isn't affected by a policy update.  Examples of transient
-> boolean changes might include setting of booleans from cron jobs for
-> time-of-day policies, manual setting of booleans without -P by an admin
-> to reflect some external event, setting of booleans by an IDS in
-> response to some detected attack, etc.  That behavior isn't supposed to
-> change even with the introduction of libsemanage and the use of
-> SETLOCALDEFS=0 (which only turns off setting the booleans from the
-> booleans* files upon initial policy load, as they are now set in the
-> generated kernel binary policy file by libsemanage).
->   
-So, how do I specify that this is not a transient change, and I want my 
-booleans loaded into policy immediately?
->> Note2: if I go and force libsemanage to pass -b flag, it works just 
->> fine, but takes forever (10sec) to complete. It's not my fault, the 
->> module expand function is just really really slow.
->>     
->
-> echo "expand-check = 0" >> /etc/selinux/semanage.conf, as I noted
-> earlier, for development/debugging purposes.  We may want to allow
-> setting the expand check state on a per-handle basis to disable for
-> certain kinds of transactions, just as one can presently disable
-> immediate reload for certain transactions.
->   
-I think I'll try to add all kinds of shortcuts by tracking exactly what 
-the user is trying to do...
-If there are no module changes, we can reuse the old "base.expanded" file.
-If there are no policy changes, we can skip rebuilding the policy. So, 
-if only seusers
-were changed, we only need to read the policy.kern, instead of 
-reconstructing it.
+Ah, I see - setsebool -P wants to both update the saved settings and
+load the result rather than preserving current settings.  So it wants
+libsemanage to call load_policy with -b, unlike semodule.  Options are:
+- add a semanage interface to set a property on the handle to control
+whether booleans are preserved or not (by altering the args to
+load_policy for that handle), similar to the existing interface for
+controlling whether reloads are performed, or
+- do that automatically within your boolean_local interfaces so that all
+boolean manipulations via libsemanage will trigger a load_policy -b upon
+commit.   
+
+> I think I'll try to add all kinds of shortcuts by tracking exactly what 
+> the user is trying to do...
+> If there are no module changes, we can reuse the old "base.expanded" file.
+> If there are no policy changes, we can skip rebuilding the policy. So, 
+> if only seusers
+> were changed, we only need to read the policy.kern, instead of 
+> reconstructing it.
+
+As a simpler first step, you can simply set sh->conf->expand_check = 0
+if there are no module changes, as the expand-time assertion and
+hierarchy checking should be unaffected by anything other than a module
+change, IIRC.  The heaviest operation is the expand time checking.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
