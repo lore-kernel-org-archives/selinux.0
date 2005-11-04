@@ -1,129 +1,39 @@
-Message-ID: <436BA8E6.8030508@cornell.edu>
-Date: Fri, 04 Nov 2005 13:31:02 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEMANAGE ] Assert whitespace between records
-Content-Type: multipart/mixed;
- boundary="------------090903020505040408070204"
+Date: Fri, 4 Nov 2005 19:35:51 +0100
+From: Erich Schubert <erich@debian.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
+   SELinux@tycho.nsa.gov
+Subject: Re: changes in ~2.6.13 break postfix policy?
+Message-ID: <20051104183551.GC2837@legolas.drinsama.de>
+References: <1131106145.28236.7.camel@wintermute.xmldesign.de> <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090903020505040408070204
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
+> between 2.6.12 and 2.6.13 AFAIK.   Do you see the behavior with a 2.6.12
+> kernel as well?
 
-This patch will assert there is whitespace between seuser, boolean, 
-interface, and port records (assert whitespace after each record). This 
-has no effect on ports and interfaces, because they already check for 
-that when looking for where the context ends (added for clarity only). 
-Users don't require a space, because they have a semicolon.
+I can't tell for sure where I see it. Actually I just noticed that I
+don't see it on the main mailserver, which is running 2.6.13 currently.
+So it must be related to something else on the systems... :-(
+But that might be due to that system running in enforcing mode.
 
-In the case of seusers, this prevents parser confusion when MLS is 
-disabled, and we encounter an MLS context:
-a:b:c - complain about lack of whitespace, rather than treating the ":" 
-as the next seuser, and saying something like: nonempty string expected, 
-or whatever...
+Postfix is that of debian stable. Init is that of debian unstable.
 
-In the case of booleans, this change will consider a=TRUEb=false or 
-things like that as a parse error.
+On the system where I can observe the problem for sure, I upgraded from
+a self-compiled 2.6.8 to 2.6.13 (as of debian experimental) then to 2.6.14
+(as of debian unstable). The problem appeared after 2.6.8
 
-This change will succeed on the last record, and at the end of each 
-line, because the terminating '\0' is considered whitespace - it's 
-present on all lines, including the last one. It will not succeed if you 
-called skip_space right before that, because that zeros the buffer on 
-EOF (intentionally).
+Regards,
+Erich
+-- 
+     erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C     (o_
+     Go away or i'll replace you with a very small shell script.      //\
+ Jemanden zu lieben heißt glücklich zu sein, ihn glücklich zu sehen.  V_/_
 
-
---------------090903020505040408070204
-Content-Type: text/x-patch;
- name="libsemanage.space_between_records.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.space_between_records.diff"
-
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libselinux/src/seusers.c new/libselinux/src/seusers.c
---- old/libselinux/src/seusers.c	2005-11-04 10:13:47.000000000 -0500
-+++ new/libselinux/src/seusers.c	2005-11-04 13:05:10.000000000 -0500
-@@ -45,7 +45,6 @@ static int process_seusers(const char *b
- 	if (!end) {
- 		mls_found = 0;
- 
--		/* MLS is disabled, so :level suffix not required. */
- 		end = start;
- 		while (*end && !isspace(*end))
- 			end++;
-@@ -55,9 +54,10 @@ static int process_seusers(const char *b
- 	seuser = strdup(start);
- 	if (!seuser)
- 		goto err;
--
-+	
-+	/* Skip MLS if disabled, or missing. */
- 	if (!mls_enabled || !mls_found)
--		goto out; /* skip any MLS level */
-+		goto out;
- 
- 	start = ++end;
- 	while (*end && !isspace(*end))
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/booleans_file.c new/libsemanage/src/booleans_file.c
---- old/libsemanage/src/booleans_file.c	2005-11-04 03:03:26.000000000 -0500
-+++ new/libsemanage/src/booleans_file.c	2005-11-04 13:14:51.000000000 -0500
-@@ -87,6 +87,9 @@ static int bool_parse(
- 	}
- 	semanage_bool_set_value(boolean, value);
- 
-+	if (parse_assert_space(handle, info) < 0)
-+		goto err;
-+
- 	return STATUS_SUCCESS;
- 
- 	last:
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/interfaces_file.c new/libsemanage/src/interfaces_file.c
---- old/libsemanage/src/interfaces_file.c	2005-11-04 03:03:26.000000000 -0500
-+++ new/libsemanage/src/interfaces_file.c	2005-11-04 13:22:57.000000000 -0500
-@@ -127,6 +127,9 @@ static int iface_parse(
- 	semanage_iface_set_msgcon(iface, con);
- 	con = NULL;
- 
-+	if (parse_assert_space(handle, info) < 0)
-+		goto err;
-+
- 	return STATUS_SUCCESS;
- 
- 	last:
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/ports_file.c new/libsemanage/src/ports_file.c
---- old/libsemanage/src/ports_file.c	2005-11-04 03:03:26.000000000 -0500
-+++ new/libsemanage/src/ports_file.c	2005-11-04 13:13:43.000000000 -0500
-@@ -134,6 +134,9 @@ static int port_parse(
- 	semanage_port_set_con(port, con);
- 	con = NULL;
- 
-+	if (parse_assert_space(handle, info) < 0)
-+		goto err;
-+
- 	return STATUS_SUCCESS;
- 
- 	last:
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/seusers_file.c new/libsemanage/src/seusers_file.c
---- old/libsemanage/src/seusers_file.c	2005-11-04 03:03:26.000000000 -0500
-+++ new/libsemanage/src/seusers_file.c	2005-11-04 13:12:33.000000000 -0500
-@@ -96,7 +96,10 @@ static int seuser_parse(
- 			goto err;
- 		free(str);
- 		str = NULL;
--	} 
-+	}
-+
-+	if (parse_assert_space(handle, info) < 0)
-+		goto err; 
- 	
- 	out:
- 	return STATUS_SUCCESS;
-
---------------090903020505040408070204--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
