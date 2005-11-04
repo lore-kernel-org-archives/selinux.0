@@ -1,46 +1,49 @@
-Message-ID: <436BE27A.9080906@redhat.com>
-Date: Fri, 04 Nov 2005 17:36:42 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Jonathan Kim <jkim@TrustedCS.com>
-CC: SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>,
-   Daniel Thayer <dthayer@TrustedCS.com>
-Subject: Re: [PATCH] MLS policy
-References: <36282A1733C57546BE392885C0618592D9770C@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592D9770C@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: changes in ~2.6.13 break postfix policy?
+From: Erich Schubert <erich@debian.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
+   SELinux@tycho.nsa.gov
+In-Reply-To: <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
+References: <1131106145.28236.7.camel@wintermute.xmldesign.de>
+	 <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
+	 <20051104183551.GC2837@legolas.drinsama.de>
+	 <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sat, 05 Nov 2005 00:53:26 +0100
+Message-Id: <1131148407.1355.21.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jonathan Kim wrote:
-> This patch sets the file context for the seusers file to be
-> SystemHigh (because the seusers file contains MLS labels and
-> these must be protected).  It also fixes some login-related
-> issues on MLS (allow login on a tty which is not at SystemLow,
-> and also allow reading of the seusers file).
->   
-Added to rev selinux-policy-targeted-1.27.2-15
+Hi,
+> Linus' -git tree for 2.6.15.  Where might one be able to obtain the
+> patches included in the Debian kernel?  Any direct use of sock_alloc()
 
->
->  <<mls-login.patch>> 
->
-> -----------------------------------
-> Jonghoon Jonathan
-> Secure Systems Engineer
->
-> Trusted Computer Solutions
-> 121 W Goose Alley
-> Urbana, IL  61801
->
-> http://www.TrustedCS.com
->
-> V:  217.384.0028  ext.16
-> F:  217.384.0288
->
->   
+http://packages.debian.org/linux-image-2.6.14-1-686-smp
+is the kernel I'm using. There is a link to the sourcecode.
+All the linux-2.6 packages are built from the same codebase, so the
+download for the source package is
+http://ftp.debian.org/debian/pool/main/l/linux-2.6/linux-2.6_2.6.14.orig.tar.gz
+http://ftp.debian.org/debian/pool/main/l/linux-2.6/linux-2.6_2.6.14-2.diff.gz
+(or any other debian mirror)
 
+With debian packages, the .orig.tar.gz file usually contains the
+upstream provided source code unmodified (if possible by licence
+restrictions, ocassionally single files have to be remove due to
+licencing issues)
+and the debian specific changes are in the .diff.gz file.
 
+I did a quick search in the .diff.gz for "sock_", 0 matches; but I
+didn't check the .orig.tar.gz file.
+
+best regards,
+Erich Schubert
 -- 
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+     You know we all became mathematicians for the same reason:     //\
+                  we were lazy. --- Max Rosenlicht                  V_/_
+   Jede Frau erwartet von einem Mann, dass er hält, was sie sich
+                         von ihm verspricht.
 
 
 
