@@ -1,24 +1,44 @@
-Message-ID: <436B188D.4050701@cornell.edu>
-Date: Fri, 04 Nov 2005 03:15:09 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Jonathan Kim <jkim@TrustedCS.com>,
-   SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
-Subject: Re: [ SEMANAGE] Resync seuser parser
-References: <36282A1733C57546BE392885C0618592D975CA@chaos.tcs.tcs-sec.com>	 <1131048615.23420.142.camel@moss-spartans.epoch.ncsc.mil>	 <1131050021.23420.153.camel@moss-spartans.epoch.ncsc.mil> <1131050864.23420.165.camel@moss-spartans.epoch.ncsc.mil> <436A8156.5090003@cornell.edu> <436B14FD.8010708@cornell.edu>
-In-Reply-To: <436B14FD.8010708@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: changes in ~2.6.13 break postfix policy?
+From: Erich Schubert <erich@debian.org>
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Fri, 04 Nov 2005 13:09:05 +0100
+Message-Id: <1131106145.28236.7.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> This patch is possibly wrong...  do you want the ':MLS' skipped, or 
-> only the 'MLS' (keeping the semicolon). If the second, then I need to 
-> change my patch a bit (but we still need to keep the parsers 
-> synchronized).
-Actually on second thought I can't handle the second case, and keep 
-multiline support at the same time...do you really need that?
+Hi,
+I'm running the same policy on a couple of similar systems.
+All of them run postfix, and logcheck (so they frequently do send
+emails)
+
+On the systems running 2.6.13 or 2.6.14 I get errors similar to the
+following:
+avc:  denied  { read } for  pid=3247 comm="pickup" name="[197650]"
+dev=sockfs ino=197650 scontext=system_u:system_r:postfix_pickup_t
+tcontext=system_u:system_r:postfix_pickup_t tclass=sock_file
+avc:  denied  { write } for  pid=3247 comm="pickup" name="[197650]"
+dev=sockfs ino=197650 scontext=system_u:system_r:postfix_pickup_t
+tcontext=system_u:system_r:postfix_pickup_t tclass=sock_file
+avc:  denied  { getattr } for  pid=14416 comm="qmgr" name="[197661]"
+dev=sockfs ino=197661 scontext=system_u:system_r:postfix_qmgr_t
+tcontext=system_u:system_r:postfix_qmgr_t tclass=sock_file
+for just about every socket postfix uses.
+
+The socket "files" all have system_u:object_r:postfix_private_t, though.
+
+I don't see the same errors on machines with an older selinux kernel.
+Any idea whats wrong?
+
+best regards,
+Erich Schubert
+-- 
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+   To understand recursion you first need to understand recursion.   //\
+   Nur der ist weise, der weiﬂ, dass er es nicht ist. --- Sokrates   V_/_
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
