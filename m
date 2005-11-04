@@ -1,37 +1,36 @@
-Subject: RE: [PATCH] libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jonathan Kim <jkim@TrustedCS.com>
+Message-ID: <36282A1733C57546BE392885C0618592D97717@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, Jonathan Kim <jkim@TrustedCS.com>
 Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov,
-   Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592D97706@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592D97706@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Date: Fri, 04 Nov 2005 12:15:20 -0500
-Message-Id: <1131124520.23420.308.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+   Chad Hanson
+	 <chanson@TrustedCS.com>
+Subject: RE: [PATCH] libselinux
+Date: Fri, 4 Nov 2005 12:32:02 -0500 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-11-04 at 11:40 -0500, Jonathan Kim wrote:
-> Taking your guidance into consideration and examining the big picture of the
-> architecture, we will take back the proposed patch and will be sending out a
-> new MLS policy patch.
-> Thanks for the responses!
 
-Hmm...well, I did merge the patch, as we should do something other than
-just propagating an empty level string back to the caller, and then Ivan
-followed up with a patch that effectively reverts your change but allows
-the entire :level suffix to be omitted regardless of whether MLS is
-enabled or disabled.  So at this point, you can omit the :level suffix
-entirely from a given user entry (in which case it will propagate a NULL
-level and thus fall back to policy users default level), but a :<empty>
-sequence is still going to yield problems.  We should likely handle it
-as an error case immediately.
+> 
+> Hmm...well, I did merge the patch, as we should do something other than
+> just propagating an empty level string back to the caller, and then Ivan
+> followed up with a patch that effectively reverts your change but allows
+> the entire :level suffix to be omitted regardless of whether MLS is
+> enabled or disabled.  So at this point, you can omit the :level suffix
+> entirely from a given user entry (in which case it will propagate a NULL
+> level and thus fall back to policy users default level), but a :<empty>
+> sequence is still going to yield problems.  We should likely handle it
+> as an error case immediately.
+>
 
--- 
-Stephen Smalley
-National Security Agency
+I agree the :<empty> should be handled as an error. Not having the MLS can
+be useful, although not the most likely given the framework which will be
+put in place, so Ivan's change to fall back if the MLS is not present sounds
+good.
 
+-Chad 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
