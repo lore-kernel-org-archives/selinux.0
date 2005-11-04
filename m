@@ -1,107 +1,55 @@
-Message-ID: <36282A1733C57546BE392885C0618592D9770C@chaos.tcs.tcs-sec.com>
-From: Jonathan Kim <jkim@TrustedCS.com>
-To: dwalsh@redhat.com
-Cc: SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>,
-   Daniel Thayer <dthayer@TrustedCS.com>
-Subject: [PATCH] MLS policy
-Date: Fri, 4 Nov 2005 12:00:21 -0500 
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C5E161.3DF30060"
+Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool
+	-P	to	use	libsemanage
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+   Joshua Brindle <jbrindle@tresys.com>,
+   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
+   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
+   Chad Sellers <csellers@tresys.com>
+In-Reply-To: <436B9597.3060304@cornell.edu>
+References: <436915FB.3040500@tresys.com>
+	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
+	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>
+	 <436B8185.4050508@cornell.edu>
+	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>
+	 <436B8771.60203@redhat.com>
+	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil>
+	 <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
+	 <436B9597.3060304@cornell.edu>
+Content-Type: text/plain
+Date: Fri, 04 Nov 2005 11:59:30 -0500
+Message-Id: <1131123570.23420.295.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+On Fri, 2005-11-04 at 12:08 -0500, Ivan Gyurdiev wrote:
+> > Note btw that even the setsebool w/o -P case should eventually go
+> > through libsemanage as well, IIUC, even though that will not regenerate
+> > the binary policy file, but we don't have interfaces for that purpose
+> > yet.  Likewise for togglesebool and getsebool.  But that isn't critical
+> > right now.
+> >   
+> Can you explain why that is?  I'm trying to understand what kind of 
+> interface is needed. Do you need a single function (set()), or do you 
+> need a full backend implementing the entire dbase API? Specifically, do 
+> you need queries in libsemanage? What's the justification for runtime 
+> policy changes like that to go through libsemanage?
 
-------_=_NextPart_000_01C5E161.3DF30060
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Partly access control (via the policy server), although the kernel can
+handle that directly for any boolean in the kernel policy by configuring
+individual types on the booleans in genfs_contexts and using the file
+access controls.  Partly to support userspace-only booleans, I suspect,
+for the policies for userspace object managers (e.g. X, dbusd) that
+don't need to be loaded into the kernel at all once you have a userspace
+security server.  So I think you'd need the full API.
 
-This patch sets the file context for the seusers file to be
-SystemHigh (because the seusers file contains MLS labels and
-these must be protected).  It also fixes some login-related
-issues on MLS (allow login on a tty which is not at SystemLow,
-and also allow reading of the seusers file).
+-- 
+Stephen Smalley
+National Security Agency
 
-
- <<mls-login.patch>> 
-
------------------------------------
-Jonghoon Jonathan
-Secure Systems Engineer
-
-Trusted Computer Solutions
-121 W Goose Alley
-Urbana, IL  61801
-
-http://www.TrustedCS.com
-
-V:  217.384.0028  ext.16
-F:  217.384.0288
-
-
-------_=_NextPart_000_01C5E161.3DF30060
-Content-Type: application/octet-stream;
-	name="mls-login.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="mls-login.patch"
-
-diff -Nur policy-1.27.2.orig/domains/program/getty.te =
-policy-1.27.2/domains/program/getty.te=0A=
---- policy-1.27.2.orig/domains/program/getty.te	2005-10-21 =
-15:56:50.000000000 +0000=0A=
-+++ policy-1.27.2/domains/program/getty.te	2005-11-04 =
-00:12:30.498842863 +0000=0A=
-@@ -8,7 +8,7 @@=0A=
- #=0A=
- # Rules for the getty_t domain.=0A=
- #=0A=
--init_service_domain(getty, `, privfd')=0A=
-+init_service_domain(getty, `, privfd, mlsfileread, mlsfilewrite')=0A=
- =0A=
- etcdir_domain(getty)=0A=
- =0A=
-diff -Nur policy-1.27.2.orig/domains/program/login.te =
-policy-1.27.2/domains/program/login.te=0A=
---- policy-1.27.2.orig/domains/program/login.te	2005-10-21 =
-15:56:50.000000000 +0000=0A=
-+++ policy-1.27.2/domains/program/login.te	2005-11-04 =
-00:11:29.743583172 +0000=0A=
-@@ -13,7 +13,7 @@=0A=
- =0A=
- # $1 is the name of the domain (local or remote)=0A=
- define(`login_domain', `=0A=
--type $1_login_t, domain, privuser, privrole, privlog, auth_chkpwd, =
-privowner, privfd, nscd_client_domain, mlsfilewrite, mlsprocsetsl, =
-mlsfileupgrade, mlsfiledowngrade;=0A=
-+type $1_login_t, domain, privuser, privrole, privlog, auth_chkpwd, =
-privowner, privfd, nscd_client_domain, mlsfileread, mlsfilewrite, =
-mlsprocsetsl, mlsfileupgrade, mlsfiledowngrade;=0A=
- role system_r types $1_login_t;=0A=
- =0A=
- dontaudit $1_login_t shadow_t:file { getattr read };=0A=
-diff -Nur policy-1.27.2.orig/file_contexts/types.fc =
-policy-1.27.2/file_contexts/types.fc=0A=
---- policy-1.27.2.orig/file_contexts/types.fc	2005-11-04 =
-00:07:02.691790026 +0000=0A=
-+++ policy-1.27.2/file_contexts/types.fc	2005-11-04 00:10:55.206530855 =
-+0000=0A=
-@@ -306,6 +306,7 @@=0A=
- /etc/resolv\.conf.*	--	system_u:object_r:net_conf_t:s0=0A=
- =0A=
- /etc/selinux(/.*)?		system_u:object_r:selinux_config_t:s0=0A=
-+/etc/selinux/([^/]*/)?seusers	--	=
-system_u:object_r:selinux_config_t:s15:c0.c255=0A=
- /etc/selinux/([^/]*/)?users(/.*)?	=
-system_u:object_r:selinux_config_t:s15:c0.c255=0A=
- /etc/selinux/([^/]*/)?policy(/.*)?	=
-system_u:object_r:policy_config_t:s15:c0.c255=0A=
- /etc/selinux/([^/]*/)?src(/.*)?	=
-system_u:object_r:policy_src_t:s15:c0.c255=0A=
-
-------_=_NextPart_000_01C5E161.3DF30060--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
