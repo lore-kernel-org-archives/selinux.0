@@ -1,58 +1,32 @@
-Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P
-	to	use	libsemanage
+Subject: RE: [PATCH] libselinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov,
-   Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
-   Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
-References: <436915FB.3040500@tresys.com>
-	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
-	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>
-	 <436B8185.4050508@cornell.edu>
-	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>
-	 <436B8771.60203@redhat.com>
-	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
+To: Jonathan Kim <jkim@TrustedCS.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov,
+   Chad Hanson <chanson@TrustedCS.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592D97706@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C0618592D97706@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Fri, 04 Nov 2005 12:11:37 -0500
-Message-Id: <1131124297.23420.303.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 04 Nov 2005 12:15:20 -0500
+Message-Id: <1131124520.23420.308.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-11-04 at 11:31 -0500, Stephen Smalley wrote:
-> On Fri, 2005-11-04 at 11:12 -0500, Stephen Smalley wrote:
-> > Then the options would seem to be:
-> > 1) Have libsemanage internally detect whether the sandbox has been
-> > initialized, and if not, fall back to calling the libselinux function to
-> > manipulate booleans.local, or
-> > 2) Have libsemanage provide an interface (is_semanage_enabled?) to allow
-> > setsebool to detect whether the system is "managed" via libsemanage
-> > (i.e. has the sandbox been initialized via prior semodule -b), and have
-> > setsebool use that interface and fall back to calling the libselinux
-> > function if it is not enabled.
-> > 
-> > Note that libsemanage (and thus semanage.conf) will be present on the
-> > system regardless of whether or not the system is "managed" using it
-> > since policycoreutils depends on it now.
-> 
-> I think I favor #1, as this is a legacy issue that is only going to
-> exist for booleans.  When someone creates a setseport or setseinterface
-> or ..., they are just going to use the semanage interfaces, and if the
-> system isn't managed via libsemanage, it simply isn't going to work
-> (i.e. there is no fallback mechanism, as such support didn't exist prior
-> to the introduction of libsemanage).  Thus, setsebool should likewise
-> unconditionally use the semanage interfaces, and libsemanage should
-> internally route the requests to the old libselinux interfaces if the
-> system isn't managed for legacy support.
+On Fri, 2005-11-04 at 11:40 -0500, Jonathan Kim wrote:
+> Taking your guidance into consideration and examining the big picture of the
+> architecture, we will take back the proposed patch and will be sending out a
+> new MLS policy patch.
+> Thanks for the responses!
 
-On the other hand, #2 looks a lot simpler to implement, as setsebool can
-then just call security_set_boolean_list() on the entire list when
-semanage is disabled.
+Hmm...well, I did merge the patch, as we should do something other than
+just propagating an empty level string back to the caller, and then Ivan
+followed up with a patch that effectively reverts your change but allows
+the entire :level suffix to be omitted regardless of whether MLS is
+enabled or disabled.  So at this point, you can omit the :level suffix
+entirely from a given user entry (in which case it will propagate a NULL
+level and thus fall back to policy users default level), but a :<empty>
+sequence is still going to yield problems.  We should likely handle it
+as an error case immediately.
 
 -- 
 Stephen Smalley
