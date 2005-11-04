@@ -1,63 +1,64 @@
-Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool -P
-	to	use	libsemanage
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov,
-   Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
-   Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil>
-References: <436915FB.3040500@tresys.com>
-	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
-	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>
-	 <436B8185.4050508@cornell.edu>
-	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>
-	 <436B8771.60203@redhat.com>
-	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 04 Nov 2005 11:31:40 -0500
-Message-Id: <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C0618592D97706@chaos.tcs.tcs-sec.com>
+From: Jonathan Kim <jkim@TrustedCS.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
+Subject: RE: [PATCH] libselinux
+Date: Fri, 4 Nov 2005 11:40:12 -0500 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-11-04 at 11:12 -0500, Stephen Smalley wrote:
-> Then the options would seem to be:
-> 1) Have libsemanage internally detect whether the sandbox has been
-> initialized, and if not, fall back to calling the libselinux function to
-> manipulate booleans.local, or
-> 2) Have libsemanage provide an interface (is_semanage_enabled?) to allow
-> setsebool to detect whether the system is "managed" via libsemanage
-> (i.e. has the sandbox been initialized via prior semodule -b), and have
-> setsebool use that interface and fall back to calling the libselinux
-> function if it is not enabled.
+Taking your guidance into consideration and examining the big picture of the
+architecture, we will take back the proposed patch and will be sending out a
+new MLS policy patch.
+Thanks for the responses!
+
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Thursday, November 03, 2005 2:48 PM
+> To: Jonathan Kim
+> Cc: SELinux@tycho.nsa.gov; Chad Hanson
+> Subject: Re: [PATCH] libselinux
 > 
-> Note that libsemanage (and thus semanage.conf) will be present on the
-> system regardless of whether or not the system is "managed" using it
-> since policycoreutils depends on it now.
-
-I think I favor #1, as this is a legacy issue that is only going to
-exist for booleans.  When someone creates a setseport or setseinterface
-or ..., they are just going to use the semanage interfaces, and if the
-system isn't managed via libsemanage, it simply isn't going to work
-(i.e. there is no fallback mechanism, as such support didn't exist prior
-to the introduction of libsemanage).  Thus, setsebool should likewise
-unconditionally use the semanage interfaces, and libsemanage should
-internally route the requests to the old libselinux interfaces if the
-system isn't managed for legacy support.
-
-Note btw that even the setsebool w/o -P case should eventually go
-through libsemanage as well, IIUC, even though that will not regenerate
-the binary policy file, but we don't have interfaces for that purpose
-yet.  Likewise for togglesebool and getsebool.  But that isn't critical
-right now.
-
--- 
-Stephen Smalley
-National Security Agency
-
+> 
+> On Thu, 2005-11-03 at 15:33 -0500, Stephen Smalley wrote:
+> > Just to note:  I'm not opposed to the patch per se 
+> (although it might be
+> > better to treat this as an error condition rather than 
+> falling through
+> > to the base user definitions, as they may give wider access then you
+> > want since multiple Linux users may be mapped to a single 
+> SELinux user),
+> > but I'm unclear about why one would use an empty level in 
+> this manner in
+> > seusers versus just omitting the entry for the user 
+> altogether if you
+> > want the fallback behavior.
+> 
+> The other point to keep in mind here is that there are plans to create
+> management utilities for seusers (via libsemanage) and that those
+> utilities are going to be instrumented for audit as part of the
+> LSPP/RBAC effort, whereas local.users is largely unused except by
+> SELinux developers even now and is even less likely to be used going
+> forward now that seusers exists.  The expectation is that the base
+> policy (module) will contain the base set of SELinux user identities
+> (which will correspond to distinct role sets defined in the policy and
+> typically be authorized for the full range), and seusers will handle
+> mapping each Linux user to a role set (aka SELinux user 
+> identity) and to
+> an authorized range.  The user ranges in the SELinux policy 
+> will then be
+> largely unused (typically just the full range), as seusers 
+> will be what
+> governs the clearance/high assigned to the user session based on the
+> Linux user.
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
