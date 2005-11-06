@@ -1,168 +1,253 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA56xNMA006045
-	for <selinux@tycho.nsa.gov>; Sat, 5 Nov 2005 01:59:23 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA56rId3001085
-	for <selinux@tycho.nsa.gov>; Sat, 5 Nov 2005 06:53:18 GMT
-Message-ID: <436C59DE.6050408@cornell.edu>
-Date: Sat, 05 Nov 2005 02:06:06 -0500
+Message-ID: <436DDB51.2080903@cornell.edu>
+Date: Sun, 06 Nov 2005 05:30:41 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   chris pebenito <cpebenito@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
-   James Morris <jmorris@redhat.com>, Chad Sellers <csellers@tresys.com>
-Subject: [ LIBSEMANAGE ] Runtime control over preservebools argument
-References: <436915FB.3040500@tresys.com>	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>	 <1131110455.23420.187.camel@moss-spartans.epoch.ncsc.mil>	 <436B6E9E.4050108@cornell.edu> <1131113812.23420.236.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1131113812.23420.236.camel@moss-spartans.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+Subject: [ SEMANAGE ] Cleanup : move some things around
 Content-Type: multipart/mixed;
- boundary="------------030001040500040909020303"
+ boundary="------------060001020104040203010807"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030001040500040909020303
+--------------060001020104040203010807
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Stephen Smalley wrote:
-> On Fri, 2005-11-04 at 09:22 -0500, Ivan Gyurdiev wrote:
->   
->> So, how do I specify that this is not a transient change, and I want my 
->> booleans loaded into policy immediately?
->>     
->
-> Ah, I see - setsebool -P wants to both update the saved settings and
-> load the result rather than preserving current settings.  So it wants
-> libsemanage to call load_policy with -b, unlike semodule.  Options are:
-> - add a semanage interface to set a property on the handle to control
-> whether booleans are preserved or not (by altering the args to
-> load_policy for that handle), similar to the existing interface for
-> controlling whether reloads are performed, or
->   
-Editing an argument string for programs in C is... probably one of the 
-most uncool patches I've ever written.
-I guess the end justifies the means...
+Changes (Joshua, please take a look - minor changes):
 
-Should pass valgrind, and work when called repeatedly with values 0 or 
-1. Maybe the reload=0 case is a bit wrong - argument string cannot 
-contain "-b" anywhere.
+- renames semanage_module_conn to semanage_direct_handle, and moves that 
+from the generic policy.h into direct_api.h. I think this is supposed to 
+differ for ps vs direct, otherwise I don't understand the union in the 
+handle. We should add future direct-handle specific fields into this 
+structure.
 
-I also fixed the memory leak in setsebool - see other patch (which 
-should be applied first).
+- moves sepol_handle initialization and cleanup code into handle.c (from 
+direct_api.c). You could argue that we should be making the _opposite_ 
+change, moving the handle field into the structure created above. 
+However, we can't do that, because we share records with sepol, whether 
+we're using direct or ps.
 
-Now booleans update correctly (minus migration issues - see other mail).
-Next: make them update in less than 10 seconds :)
-
-
---------------030001040500040909020303
+--------------060001020104040203010807
 Content-Type: text/x-patch;
- name="libsemanage.preserve_bools.diff"
+ name="libsemanage.cleanup.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.preserve_bools.diff"
+ filename="libsemanage.cleanup.diff"
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/include/semanage/handle.h new/libsemanage/include/semanage/handle.h
---- old/libsemanage/include/semanage/handle.h	2005-10-25 08:25:32.000000000 -0400
-+++ new/libsemanage/include/semanage/handle.h	2005-11-05 01:16:44.000000000 -0500
-@@ -59,6 +59,10 @@ int semanage_reload_policy(semanage_hand
-  * 1 for yes (default), 0 for no */
- void semanage_set_reload(semanage_handle_t *handle, int do_reload);
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/direct_api.c new/libsemanage/src/direct_api.c
+--- old/libsemanage/src/direct_api.c	2005-11-04 23:45:39.000000000 -0500
++++ new/libsemanage/src/direct_api.c	2005-11-06 05:04:23.000000000 -0500
+@@ -79,11 +79,6 @@ static struct semanage_policy_table dire
+ int semanage_direct_connect(semanage_handle_t *sh) {
+ 	char polpath[PATH_MAX];
  
-+/* set whether to reload the boolean settings after a commit,
-+ * 1 for yes, 0 for no (default */
-+int semanage_set_reload_bools(semanage_handle_t *sh, int do_reload);
-+
- /* "Connect" to a manager based on the configuration and 
-  * associate the provided handle with the connection.
-  * If the connect fails then this function returns a negative value, 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/handle.c new/libsemanage/src/handle.c
---- old/libsemanage/src/handle.c	2005-11-04 23:45:39.000000000 -0500
-+++ new/libsemanage/src/handle.c	2005-11-05 01:44:39.000000000 -0500
-@@ -25,6 +25,7 @@
- 
- #include <stdarg.h>
- #include <assert.h>
-+#include <string.h>
- #include <stdlib.h>
- #include <stdio.h>
- #include <sys/time.h>
-@@ -76,6 +77,38 @@ void semanage_set_reload(semanage_handle
- 	return;
- }
- 
-+int semanage_set_reload_bools(semanage_handle_t *sh, int do_reload) {
-+
-+	assert(sh != NULL);
-+
-+	semanage_conf_t* conf = sh->conf;
-+
-+	if (do_reload) {
-+		char* prev_args = conf->load_policy->args;
-+		int len = (prev_args == NULL)? 0: strlen(prev_args);
-+		char* ptr = (char*) realloc(prev_args, len + 4);
-+
-+		if (!ptr) {
-+			ERR(sh, "out of memory, could not configure "
-+				"boolean reload");
-+			return STATUS_ERR;
-+		}
-+		strcpy(ptr + len, " -b");
-+		conf->load_policy->args = ptr;
-+
-+	} else {
-+		char* ptr = conf->load_policy->args;
-+
-+		while(*ptr++) {
-+			if (!strcmp(ptr, "-b")) {
-+				*ptr++ = ' ';	
-+				*ptr++ = ' ';
-+			}
-+		}
-+	}
-+	return STATUS_SUCCESS;
-+}
-+
- void semanage_select_store(semanage_handle_t *sh, char *storename,
- 			  enum semanage_connect_type storetype) {
+-	sh->sepolh = sepol_handle_create();
+-	if (!sh->sepolh)
+-		goto err;
+-	sepol_msg_set_callback(sh->sepolh, semanage_msg_relay_handler, sh);
+-
+ 	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(), sh->conf->store_path);
  	
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/libsemanage.map new/libsemanage/src/libsemanage.map
---- old/libsemanage/src/libsemanage.map	2005-11-03 12:48:03.000000000 -0500
-+++ new/libsemanage/src/libsemanage.map	2005-11-05 01:21:21.000000000 -0500
-@@ -8,7 +8,7 @@ LIBSEMANAGE_1.0 {
- 	  semanage_module_list; semanage_module_info_datum_destroy;
- 	  semanage_module_list_nth; semanage_module_get_name;
- 	  semanage_module_get_version; semanage_select_store;
--	  semanage_reload_policy; semanage_set_reload;
-+	  semanage_reload_policy; semanage_set_reload; semanage_set_reload_bools;
- 	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
- 	  semanage_iface_*; semanage_context_*;
-   local: *;
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/policycoreutils/setsebool/setsebool.c new/policycoreutils/setsebool/setsebool.c
---- old/policycoreutils/setsebool/setsebool.c	2005-11-05 00:29:59.000000000 -0500
-+++ new/policycoreutils/setsebool/setsebool.c	2005-11-05 01:49:50.000000000 -0500
-@@ -10,6 +10,7 @@
- #include <selinux/selinux.h>
- #include <semanage/booleans_local.h>
- #include <semanage/boolean_record.h>
-+#include <semanage/handle.h>
- #include <errno.h>
- 
- int permanent = 0;
-@@ -113,6 +114,10 @@ int semanage_set_boolean_list(size_t boo
- 		boolean = NULL;
- 	}	
- 
-+	semanage_set_reload(handle, 1);
-+	if (semanage_set_reload_bools(handle, 1) < 0)
-+		goto err;
-+
- 	if (semanage_commit(handle) < 0)
+ 	if (semanage_check_init(polpath))
+@@ -92,8 +87,8 @@ int semanage_direct_connect(semanage_han
+ 	if (semanage_create_store(sh, 1) < 0) 
  		goto err;
  
+-	sh->conn.module.translock_file_fd = -1;
+-	sh->conn.module.activelock_file_fd = -1;
++	sh->u.direct.translock_file_fd = -1;
++	sh->u.direct.activelock_file_fd = -1;
+ 
+ 	/* set up function pointers */
+ 	sh->funcs = &direct_funcs;
+@@ -149,8 +144,6 @@ static int semanage_direct_disconnect(se
+ 		}
+ 		semanage_release_trans_lock(sh);
+ 	}
+-	sepol_handle_destroy(sh->sepolh);
+-	sh->sepolh = NULL;
+ 
+ 	/* Remove object databases */
+ 	user_file_dbase_release(semanage_user_dbase_local(sh));
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/direct_api.h new/libsemanage/src/direct_api.h
+--- old/libsemanage/src/direct_api.h	2005-09-30 16:19:07.000000000 -0400
++++ new/libsemanage/src/direct_api.h	2005-11-06 05:12:22.000000000 -0500
+@@ -20,8 +20,17 @@
+ #ifndef SEMANAGE_DIRECT_API_H
+ #define SEMANAGE_DIRECT_API_H
+ 
+-#include "handle.h"
++/* Circular dependency */
++struct semanage_handle;
+ 
+-int semanage_direct_connect(semanage_handle_t *sh);
++/* Direct component of handle */
++struct semanage_direct_handle {
++	
++	/* Locking */
++        int activelock_file_fd;
++	int translock_file_fd;
++};
++
++int semanage_direct_connect(struct semanage_handle* sh);
+ 
+ #endif
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/handle.c new/libsemanage/src/handle.c
+--- old/libsemanage/src/handle.c	2005-11-05 01:51:40.000000000 -0500
++++ new/libsemanage/src/handle.c	2005-11-06 05:04:14.000000000 -0500
+@@ -52,6 +52,12 @@ semanage_handle_t *semanage_handle_creat
+ 	if ((sh->conf = semanage_conf_parse(conf_name)) == NULL) 
+ 		goto err;
+ 
++	/* Link to sepol handle */
++	sh->sepolh = sepol_handle_create();
++	if (!sh->sepolh)
++		goto err;
++	sepol_msg_set_callback(sh->sepolh, semanage_msg_relay_handler, sh);
++
+ 	/* By default always reload policy after commit */
+ 	sh->do_reload = 1;
+ 
+@@ -160,7 +166,7 @@ void semanage_handle_destroy(semanage_ha
+ 	if (sh->funcs != NULL && sh->funcs->destroy != NULL)
+ 		sh->funcs->destroy(sh);
+ 	semanage_conf_destroy(sh->conf);
+-
++	sepol_handle_destroy(sh->sepolh);
+ 	free(sh);
+ }
+ 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/handle.h new/libsemanage/src/handle.h
+--- old/libsemanage/src/handle.h	2005-10-25 08:25:32.000000000 -0400
++++ new/libsemanage/src/handle.h	2005-11-06 05:13:48.000000000 -0500
+@@ -28,15 +28,15 @@
+ #include <sepol/handle.h>
+ #include "modules.h"
+ #include "semanage_conf.h"
+-#include "policy.h"
+ #include "database.h"
++#include "direct_api.h"
++#include "policy.h"
+ 
+ struct semanage_handle {
+ 	int con_id;             /* Connection ID */
+ 	int policy_serial;      /* Policy serial number at connect time */
+ 
+ 	/* Error handling */
+-	sepol_handle_t *sepolh;
+ 	int msg_level;
+ 	const char* msg_channel;
+ 	const char* msg_fname;
+@@ -49,15 +49,16 @@ struct semanage_handle {
+ 		const char* fmt,
+ 		...);
+ 	void* msg_callback_arg;
+-	/* ================ */
+ 
+-	/* one of these connections will actually be used while
+-	 * working with the module store -- the particular one if
+-	 * given by conf->store_type */
+-	semanage_conf_t *conf;
++	/* Direct vs Server specific handle */
+ 	union {
+-		struct semanage_module_conn module;
+-	} conn;
++		struct semanage_direct_handle direct;
++	} u;
++
++	/* Libsepol handle */
++	sepol_handle_t* sepolh;
++
++	semanage_conf_t *conf;
+ 	int is_connected;
+ 	int is_in_transaction;
+ 	int do_reload;		/* whether to reload policy after commit */
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/policy.h new/libsemanage/src/policy.h
+--- old/libsemanage/src/policy.h	2005-10-19 12:13:26.000000000 -0400
++++ new/libsemanage/src/policy.h	2005-11-06 04:52:46.000000000 -0500
+@@ -27,12 +27,6 @@
+ /* Circular dependency */
+ struct semanage_handle;
+ 
+-/* Connection Locking */
+-struct semanage_module_conn {
+-	int translock_file_fd;
+-	int activelock_file_fd;
+-};
+-
+ /* Backend dependent portion */
+ struct semanage_policy_table {
+ 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION --exclude Makefile old/libsemanage/src/semanage_store.c new/libsemanage/src/semanage_store.c
+--- old/libsemanage/src/semanage_store.c	2005-11-04 23:45:40.000000000 -0500
++++ new/libsemanage/src/semanage_store.c	2005-11-06 04:55:24.000000000 -0500
+@@ -406,8 +406,7 @@ int semanage_remove_directory(const char
+ /********************* sandbox management routines *********************/
+ 
+ /* Creates a sandbox for a single client. Returns 0 if a
+- * sandbox was created (and thus assigned to sh->conn.module.sandbox),
+- * -1 on error.
++ * sandbox was created, -1 on error.
+  */
+ int semanage_make_sandbox(semanage_handle_t *sh) {
+ 	const char *sandbox = semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL);
+@@ -1127,9 +1126,9 @@ static int semanage_get_lock(semanage_ha
+ int semanage_get_trans_lock(semanage_handle_t *sh) {
+ 	const char *lock_file = semanage_files[SEMANAGE_TRANS_LOCK];
+ 
+-	sh->conn.module.translock_file_fd =
++	sh->u.direct.translock_file_fd =
+ 	    semanage_get_lock(sh, "transaction lock", lock_file);
+-	if (sh->conn.module.translock_file_fd >= 0) {
++	if (sh->u.direct.translock_file_fd >= 0) {
+ 		return 0;
+ 	}
+ 	else {
+@@ -1147,9 +1146,9 @@ int semanage_get_trans_lock(semanage_han
+ int semanage_get_active_lock(semanage_handle_t *sh) {
+ 	const char *lock_file = semanage_files[SEMANAGE_READ_LOCK];
+ 
+-	sh->conn.module.activelock_file_fd =
++	sh->u.direct.activelock_file_fd =
+ 	    semanage_get_lock(sh, "read lock", lock_file);
+-	if (sh->conn.module.activelock_file_fd >= 0) {
++	if (sh->u.direct.activelock_file_fd >= 0) {
+ 		return 0;
+ 	}
+ 	else {
+@@ -1160,20 +1159,20 @@ int semanage_get_active_lock(semanage_ha
+ /* Releases the transaction lock.  Does nothing if there was not one already
+  * there. */
+ void semanage_release_trans_lock(semanage_handle_t *sh) {
+-	if (sh->conn.module.translock_file_fd >= 0) {
+-		lockf(sh->conn.module.translock_file_fd, F_ULOCK, 0);
+-		close(sh->conn.module.translock_file_fd);
+-		sh->conn.module.translock_file_fd = -1;
++	if (sh->u.direct.translock_file_fd >= 0) {
++		lockf(sh->u.direct.translock_file_fd, F_ULOCK, 0);
++		close(sh->u.direct.translock_file_fd);
++		sh->u.direct.translock_file_fd = -1;
+ 	}
+ }
+ 
+ /* Releases the read lock.  Does nothing if there was not one already
+  * there. */
+ void semanage_release_active_lock(semanage_handle_t *sh) {
+-	if (sh->conn.module.activelock_file_fd >= 0) {
+-		lockf(sh->conn.module.activelock_file_fd, F_ULOCK, 0);
+-		close(sh->conn.module.activelock_file_fd);
+-		sh->conn.module.activelock_file_fd = -1;
++	if (sh->u.direct.activelock_file_fd >= 0) {
++		lockf(sh->u.direct.activelock_file_fd, F_ULOCK, 0);
++		close(sh->u.direct.activelock_file_fd);
++		sh->u.direct.activelock_file_fd = -1;
+ 	}
+ }
+ 
 
---------------030001040500040909020303--
+--------------060001020104040203010807--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
