@@ -1,231 +1,110 @@
-Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool
-	-P	to	use	libsemanage
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-   Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
-   Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1131371323.20591.16.camel@moss-spartans.epoch.ncsc.mil>
-References: <436915FB.3040500@tresys.com>
-	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>
-	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>
-	 <436B8185.4050508@cornell.edu>
-	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>
-	 <436B8771.60203@redhat.com>
-	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>
-	 <436BD878.1070300@cornell.edu>  <436BD9DB.2050700@cornell.edu>
-	 <1131371323.20591.16.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed; boundary="=-avCQLuHWAneeUUZcvBgH"
-Date: Mon, 07 Nov 2005 09:56:36 -0500
-Message-Id: <1131375396.20591.20.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA7FJ0MA023638
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 10:19:01 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA7FCOKP002342
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 15:12:29 GMT
+Message-ID: <436F6EEF.50907@redhat.com>
+Date: Mon, 07 Nov 2005 10:12:47 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>,
+   Frank Mayer <mayerf@tresys.com>, chris pebenito <cpebenito@tresys.com>,
+   James Morris <jmorris@redhat.com>, Chad Sellers <csellers@tresys.com>
+Subject: Re: [ LIBSEMANAGE ] Runtime control over preservebools argument
+References: <436915FB.3040500@tresys.com> <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil> <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu> <1131110455.23420.187.camel@moss-spartans.epoch.ncsc.mil> <436B6E9E.4050108@cornell.edu> <1131113812.23420.236.camel@moss-spartans.epoch.ncsc.mil> <436C59DE.6050408@cornell.edu> <436F66C9.9020201@tresys.com>
+In-Reply-To: <436F66C9.9020201@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Joshua Brindle wrote:
+> Ivan Gyurdiev wrote:
+>> Stephen Smalley wrote:
+>>
+>>> On Fri, 2005-11-04 at 09:22 -0500, Ivan Gyurdiev wrote:
+>>>  
+>>>
+>>>> So, how do I specify that this is not a transient change, and I 
+>>>> want my booleans loaded into policy immediately?
+>>>>     
+>>>
+>>>
+>>> Ah, I see - setsebool -P wants to both update the saved settings and
+>>> load the result rather than preserving current settings.  So it wants
+>>> libsemanage to call load_policy with -b, unlike semodule.  Options are:
+>>> - add a semanage interface to set a property on the handle to control
+>>> whether booleans are preserved or not (by altering the args to
+>>> load_policy for that handle), similar to the existing interface for
+>>> controlling whether reloads are performed, or
+>>>   
+>>
+>> Editing an argument string for programs in C is... probably one of 
+>> the most uncool patches I've ever written.
+>> I guess the end justifies the means...
+>>
+>> Should pass valgrind, and work when called repeatedly with values 0 
+>> or 1. Maybe the reload=0 case is a bit wrong - argument string cannot 
+>> contain "-b" anywhere.
+>>
+>> I also fixed the memory leak in setsebool - see other patch (which 
+>> should be applied first).
+>>
+>> Now booleans update correctly (minus migration issues - see other mail).
+>> Next: make them update in less than 10 seconds :)
+>>
+>>
+> <snip>
+>
+>> +    if (do_reload) {
+>> +        char* prev_args = conf->load_policy->args;
+>> +        int len = (prev_args == NULL)? 0: strlen(prev_args);
+>> +        char* ptr = (char*) realloc(prev_args, len + 4);
+>> +
+>> +        if (!ptr) {
+>> +            ERR(sh, "out of memory, could not configure "
+>> +                "boolean reload");
+>> +            return STATUS_ERR;
+>> +        }
+>> +        strcpy(ptr + len, " -b");
+>> +        conf->load_policy->args = ptr;
+>> +
+>> +    } else {
+>> +        char* ptr = conf->load_policy->args;
+>> +
+>> +        while(*ptr++) {
+>> +            if (!strcmp(ptr, "-b")) {
+>> +                *ptr++ = ' ';   
+>> +                *ptr++ = ' ';
+>> +            }
+>> +        }
+>> +    }
+>> +    return STATUS_SUCCESS;
+>> +}
+>> +
+> I think you are doing this in the wrong place. Rather than mangling 
+> the argument string every time this function is called you should just 
+> add something to the handle that indicates whether or not to preserve 
+> booleans, and do this at load time.
+>
+> However, I don't know if this is the right approach anyway. If someone 
+> sets a boolean without -P , foo, and then sets another boolean with -P 
+> you will revert foo when loading the new policy.
+>
+> IMHO while we will need to regenerate the policy we should not load it 
+> and instead just set the runtime state. This will work for the common 
+> case but there is something of a corner case where the above scenerio 
+> happens and a module is also inserted in the same transaction, not 
+> sure how to handle that one.
+>
+> Joshua
 
---=-avCQLuHWAneeUUZcvBgH
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Mon, 2005-11-07 at 08:48 -0500, Stephen Smalley wrote:
-> Let me clarify:  setsebool needs to fall back to the original behavior
-> (i.e. direct call to security_set_boolean_list with permanent=1) if the
-> system policy is not managed via libsemanage.  So I'm not talking about
-> having libsemanage and/or setsebool automatically initialize the
-> sandbox; I'm just talking about having a fall back to the original
-> behavior for setting persistent boolean values on non-managed systems.
-> In order to do this, we need to be able to detect whether the system
-> policy is managed via libsemanage.  Which leads us to the next point...
-
-Something like the patch below (un-tested):
-
+I agree setsebool should not be loading policy.
 
 -- 
-Stephen Smalley
-National Security Agency
 
---=-avCQLuHWAneeUUZcvBgH
-Content-Disposition: attachment; filename=ismanaged.patch
-Content-Type: text/x-patch; name=ismanaged.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Index: libsemanage/include/semanage/handle.h
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/include/semanage/handle.h,v
-retrieving revision 1.4
-diff -u -p -r1.4 handle.h
---- libsemanage/include/semanage/handle.h	7 Nov 2005 15:12:44 -0000	1.4
-+++ libsemanage/include/semanage/handle.h	7 Nov 2005 15:38:01 -0000
-@@ -63,6 +63,13 @@ void semanage_set_reload(semanage_handle
-  * 1 for yes, 0 for no (default */
- int semanage_set_reload_bools(semanage_handle_t *sh, int do_reload);
- 
-+/* Check whether policy is managed via libsemanage on this system.
-+ * Must be called prior to trying to connect.
-+ * Return 1 if policy is managed via libsemanage on this system,
-+ * 0 if policy is not managed, or -1 on error.
-+ */
-+int semanage_is_managed(semanage_handle_t *);
-+
- /* "Connect" to a manager based on the configuration and 
-  * associate the provided handle with the connection.
-  * If the connect fails then this function returns a negative value, 
-Index: libsemanage/src/direct_api.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/src/direct_api.c,v
-retrieving revision 1.21
-diff -u -p -r1.21 direct_api.c
---- libsemanage/src/direct_api.c	4 Nov 2005 16:16:35 -0000	1.21
-+++ libsemanage/src/direct_api.c	7 Nov 2005 15:39:23 -0000
-@@ -74,6 +74,24 @@ static struct semanage_policy_table dire
- 	.list = semanage_direct_list
- };
- 
-+int semanage_direct_is_managed(semanage_handle_t *sh) {
-+	char polpath[PATH_MAX];
-+
-+	snprintf(polpath, PATH_MAX, "%s%s", selinux_path(), sh->conf->store_path);
-+	
-+	if (semanage_check_init(polpath))
-+		goto err;
-+
-+	if (semanage_create_store(sh, 0) < 0) 
-+		return 0;
-+
-+	return 1;
-+
-+	err:
-+	ERR(sh, "could not check whether policy is managed");
-+	return STATUS_ERR;	
-+}
-+
- /* Check that the module store exists, creating it if necessary.
-  */
- int semanage_direct_connect(semanage_handle_t *sh) {
-Index: libsemanage/src/direct_api.h
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/src/direct_api.h,v
-retrieving revision 1.2
-diff -u -p -r1.2 direct_api.h
---- libsemanage/src/direct_api.h	30 Sep 2005 19:23:36 -0000	1.2
-+++ libsemanage/src/direct_api.h	7 Nov 2005 15:24:08 -0000
-@@ -23,5 +23,6 @@
- #include "handle.h"
- 
- int semanage_direct_connect(semanage_handle_t *sh);
-+int semanage_direct_is_managed(semanage_handle_t *sh);
- 
- #endif
-Index: libsemanage/src/handle.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/src/handle.c,v
-retrieving revision 1.17
-diff -u -p -r1.17 handle.c
---- libsemanage/src/handle.c	7 Nov 2005 15:12:44 -0000	1.17
-+++ libsemanage/src/handle.c	7 Nov 2005 15:40:09 -0000
-@@ -122,6 +122,23 @@ void semanage_select_store(semanage_hand
- 	return;
- }
- 
-+int semanage_is_managed(semanage_handle_t *sh)
-+{
-+	assert(sh != NULL);
-+	if (sh->is_connected) {
-+		ERR(sh, "Already connected.");
-+		return -1;
-+	}
-+	switch (sh->conf->store_type) {
-+	case SEMANAGE_CON_DIRECT:
-+		return semanage_direct_is_managed(sh);
-+	default:
-+		ERR(sh, "The connection type specified within your semanage.conf file has not been implemented yet.");
-+		/* fall through */
-+	}
-+	return -1;
-+}
-+
- int semanage_connect(semanage_handle_t *sh) {
- 	assert(sh != NULL);
- 	switch (sh->conf->store_type) {
-@@ -132,8 +149,8 @@ int semanage_connect(semanage_handle_t *
- 		break;
- 	}
- 	default: {
--		fprintf(stderr, "The connection type specified within your semanage.conf file has not been implemented yet.\n");
--		exit(EXIT_FAILURE);
-+		ERR(sh, "The connection type specified within your semanage.conf file has not been implemented yet.");
-+		return -1;
- 	}
- 	}
- 	sh->is_connected = 1;
-Index: libsemanage/src/libsemanage.map
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/src/libsemanage.map,v
-retrieving revision 1.6
-diff -u -p -r1.6 libsemanage.map
---- libsemanage/src/libsemanage.map	7 Nov 2005 15:12:44 -0000	1.6
-+++ libsemanage/src/libsemanage.map	7 Nov 2005 15:41:50 -0000
-@@ -1,6 +1,6 @@
- LIBSEMANAGE_1.0 {
-   global: semanage_handle_create; semanage_handle_destroy; 
--          semanage_connect; semanage_disconnect; 
-+          semanage_is_managed; semanage_connect; semanage_disconnect; 
- 	  semanage_msg_*;
-           semanage_begin_transaction; semanage_commit;
-           semanage_module_install; semanage_module_upgrade;
-Index: policycoreutils/setsebool/setsebool.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/setsebool/setsebool.c,v
-retrieving revision 1.2
-diff -u -p -r1.2 setsebool.c
---- policycoreutils/setsebool/setsebool.c	7 Nov 2005 15:12:45 -0000	1.2
-+++ policycoreutils/setsebool/setsebool.c	7 Nov 2005 15:40:40 -0000
-@@ -80,6 +80,7 @@ int semanage_set_boolean_list(size_t boo
- 	semanage_handle_t* handle = NULL;
- 	semanage_bool_t* boolean = NULL;
- 	semanage_bool_key_t* bool_key = NULL;
-+	int managed;
- 
- 	handle = semanage_handle_create();
- 	if (handle == NULL) {
-@@ -87,6 +88,22 @@ int semanage_set_boolean_list(size_t boo
- 		goto err;
- 	}
- 
-+	managed = semanage_is_managed(handle);
-+	if (managed < 0) {
-+		fprintf(stderr, "Error when checking whether policy is managed\n"); 
-+		goto err;
-+	} else if (managed == 0) {
-+		if (security_set_boolean_list(boolcnt, boollist, 1)) {
-+			if (errno == ENOENT) 
-+				fprintf(stderr, "Error setting boolean: "
-+					"Invalid boolean\n");
-+			else if (errno)
-+				perror("Error setting booleans");
-+			goto err;
-+		}
-+		goto out;
-+	}
-+
- 	if (semanage_connect(handle) < 0)
- 		goto err;
- 
-@@ -122,6 +139,8 @@ int semanage_set_boolean_list(size_t boo
- 		goto err;
- 
- 	semanage_disconnect(handle);
-+
-+        out:
- 	semanage_handle_destroy(handle);
- 	return 0;
- 
-
---=-avCQLuHWAneeUUZcvBgH--
 
 
 --
