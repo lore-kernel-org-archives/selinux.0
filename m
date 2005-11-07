@@ -1,32 +1,46 @@
-Message-ID: <436F8383.9030909@cornell.edu>
-Date: Mon, 07 Nov 2005 11:40:35 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <436F811C.1010306@tresys.com>
+Date: Mon, 07 Nov 2005 11:30:20 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-   Joshua Brindle <jbrindle@tresys.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
-   Chad Sellers <csellers@tresys.com>
-Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool	-P	to	use	libsemanage
-References: <436915FB.3040500@tresys.com>	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>	 <436B8185.4050508@cornell.edu>	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>	 <436B8771.60203@redhat.com>	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil>	 <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>	 <436BD878.1070300@cornell.edu>  <436BD9DB.2050700@cornell.edu> <1131371323.20591.16.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1131371323.20591.16.camel@moss-spartans.epoch.ncsc.mil>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov
+Subject: Re: [ SEMANAGE ] Cleanup : move some things around
+References: <436DDB51.2080903@cornell.edu>	<1131377599.20591.32.camel@moss-spartans.epoch.ncsc.mil>	<436F7F36.5080308@cornell.edu> <1131379914.20591.70.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1131379914.20591.70.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Mon, 2005-11-07 at 11:22 -0500, Ivan Gyurdiev wrote:
+> 
+>>>I'd prefer to hold cleanups until we have stabilized the functionality
+>>>and interfaces as desired for test1.  I'm also not clear on why we want
+>>>a sepol handle in the ps case.  
+>>>  
+>>
+>>.. because we'll be using the sepol records either way, so we need the 
+>>sepol handle..
+>>Not using the sepol records requires copying them over into libsemanage.
+> 
+> 
+> Hmmm..well, let's take that up again later.  Right now we need to deal
+> with finalizing the boolean support (e.g. having libsemanage use
+> security_set_boolean_list with permanent=0 to set the runtime boolean
+> values upon commit rather than loading the generated binary policy
+> file), and getting the migration steps in place for test1.
+> 
+> I committed your semanage_set_reload_bools() patch and my
+> semanage_is_managed() patch to sourceforge cvs, but not the cleanup
+> patch.
+> 
 
-> No, the presence of libsemanage or even a particular version of
-> libsemanage doesn't tell us whether the system policy is managed via
-> libsemanage.  It only tells us that some code on the system is linked
-> against libsemanage.  Conversion of a system to being managed via
-> libsemanage is a change in the policy package, not a change in
-> libsemanage.  In particular, it involves converting the policy package
-> to using policy modules and using semodule.
->   
-Does the existance of some random file in /etc/selinux/?/modules/active 
-imply that libsemanage is managing the system. Shouldn't we be looking 
-at /etc/selinux/config instead?
+Please see my other email about the semanage_set_reload_bools() patch, I 
+  believe it is flawed in a couple ways and should be reverted.
+
+Joshua
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
