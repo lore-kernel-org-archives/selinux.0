@@ -1,46 +1,60 @@
-Subject: Re: multiple avcs in 1 audit event
+Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA7IA3MA025961
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 13:10:03 -0500 (EST)
+Subject: [Fwd: [patch 1/1] selinux:  MLS compatibility]
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20051106150512.8941.qmail@web51510.mail.yahoo.com>
-References: <20051106150512.8941.qmail@web51510.mail.yahoo.com>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Mon, 07 Nov 2005 12:06:17 -0500
-Message-Id: <1131383177.20591.111.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 07 Nov 2005 13:00:13 -0500
+Message-Id: <1131386413.20591.121.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-11-06 at 07:05 -0800, Steve G wrote:
-> Hi,
-> 
-> I was running some leaks checks of aureport and found something strange. I have
-> places where there are 2 avc denials for the same audit event. I am wondering if
-> this is really the correct action? Why was the syscall allowed to proceed to
-> where a second problem was encountered (this is using the audit.88 kernel)?
-> Here's the audit event, basically. I have a shared /opt via samba and accessed it
-> without disabling se linux - I have to disable se linux or it just doesn't work
-> right.
-> 
-> ----
-> type=PATH msg=audit(10/21/05 09:09:06.571:618) :
-> name=policycoreutils-1.27.14/newrole/newrole.c flags=follow inode=1280463
-> dev=03:05 mode=file,644 ouid=sgrubb ogid=sgrubb rdev=00:00
-> type=CWD msg=audit(10/21/05 09:09:06.571:618) :  cwd=/opt
-> type=AVC_PATH msg=audit(10/21/05 09:09:06.571:618) : 
-> path=/opt/policycoreutils-1.27.14/newrole/newrole.c
-> type=SYSCALL msg=audit(10/21/05 09:09:06.571:618) : arch=i386 syscall=stat64
-> success=yes exit=0 a0=bff74df0 a1=bff74870 a2=570ff4 a3=bff74870 items=1 pid=3010
-> auid=sgrubb uid=nobody gid=root euid=nobody suid=root fsuid=nobody egid=nobody
-> sgid=nobody fsgid=nobody comm=smbd exe=/usr/sbin/smbd
-> type=AVC msg=audit(10/21/05 09:09:06.571:618) : avc:  denied  { getattr } for 
-> pid=3010 comm=smbd name=newrole.c dev=hda5 ino=1280463
-> scontext=root:system_r:smbd_t tcontext=user_u:object_r:user_home_t tclass=file
-> type=AVC msg=audit(10/21/05 09:09:06.571:618) : avc:  denied  { search } for 
-> pid=3010 comm=smbd name=policycoreutils-1.27.14 dev=hda5 ino=1280454
-> scontext=root:system_r:smbd_t tcontext=user_u:object_r:user_home_t tclass=dir
+FYI, this patch has been submitted upstream to address a previously
+raised concern about on-disk compatibility between MLS and non-MLS
+SELinux systems (particularly for MCS).
 
-System was in permissive mode?
+-------- Forwarded Message --------
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: lkml <linux-kernel@vger.kernel.org>, James Morris
+<jmorris@namei.org>, Andrew Morton <akpm@osdl.org>
+Subject: [patch 1/1] selinux: MLS compatibility
+Date: Mon, 07 Nov 2005 11:09:01 -0500
+
+This patch enables files created on a MLS-enabled SELinux system to be
+accessible on a non-MLS SELinux system, by skipping the MLS component of
+the security context in the non-MLS case.  Please apply, for 2.6.15 if
+possible.
+
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by:  James Morris <jmorris@namei.org>
+
+---
+
+ security/selinux/ss/mls.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
+
+Index: linux-2.6/security/selinux/ss/mls.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/mls.c,v
+retrieving revision 1.26
+diff -u -p -r1.26 mls.c
+--- linux-2.6/security/selinux/ss/mls.c	29 Aug 2005 14:13:22 -0000	1.26
++++ linux-2.6/security/selinux/ss/mls.c	4 Nov 2005 19:26:47 -0000
+@@ -262,8 +262,11 @@ int mls_context_to_sid(char oldc,
+ 	struct cat_datum *catdatum, *rngdatum;
+ 	int l, rc = -EINVAL;
+ 
+-	if (!selinux_mls_enabled)
++	if (!selinux_mls_enabled) {
++		if (def_sid != SECSID_NULL && oldc)
++			*scontext += strlen(*scontext);
+ 		return 0;
++	}
+ 
+ 	/*
+ 	 * No MLS component to the security context, try and map to
 
 -- 
 Stephen Smalley
