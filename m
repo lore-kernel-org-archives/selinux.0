@@ -1,34 +1,32 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA7GVvMA024659
-	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 11:31:57 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA7GPteE008216
-	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 16:25:57 GMT
-Message-Id: <200511071625.jA7GPqYs014058@gotham.columbia.tresys.com>
-From: "Kevin Carr" <kcarr@tresys.com>
-To: "James Carter" <jwcart2@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
-Cc: "Karl MacMillan" <kmacmillan@tresys.com>
-Subject: seuser policy
-Date: Mon, 7 Nov 2005 11:25:52 -0500
+Message-ID: <436F8383.9030909@cornell.edu>
+Date: Mon, 07 Nov 2005 11:40:35 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+   Joshua Brindle <jbrindle@tresys.com>,
+   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
+   chris pebenito <cpebenito@tresys.com>, James Morris <jmorris@redhat.com>,
+   Chad Sellers <csellers@tresys.com>
+Subject: Re: [ SELINUX ] [ POLICYCOREUTILS ] Convert setsebool	-P	to	use	libsemanage
+References: <436915FB.3040500@tresys.com>	 <1131027033.23420.30.camel@moss-spartans.epoch.ncsc.mil>	 <436A86E6.4040205@cornell.edu>  <436AF7BC.5000705@cornell.edu>	 <1131116390.23420.247.camel@moss-spartans.epoch.ncsc.mil>	 <436B8185.4050508@cornell.edu>	 <1131118424.23420.265.camel@moss-spartans.epoch.ncsc.mil>	 <436B8771.60203@redhat.com>	 <1131120757.23420.279.camel@moss-spartans.epoch.ncsc.mil>	 <1131121900.23420.288.camel@moss-spartans.epoch.ncsc.mil>	 <436BD878.1070300@cornell.edu>  <436BD9DB.2050700@cornell.edu> <1131371323.20591.16.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1131371323.20591.16.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Given that seuser is no longer being supported as part of the setools
-package, it might be a good idea to remove the relevant files in the
-upstream NSA policy.
 
-Domains/program/unused/seuser.te
-File_contexts/program/seuser.fc
-
-Kevin Carr
-Tresys Technology
-410.290.1411 x137
-
-
-
+> No, the presence of libsemanage or even a particular version of
+> libsemanage doesn't tell us whether the system policy is managed via
+> libsemanage.  It only tells us that some code on the system is linked
+> against libsemanage.  Conversion of a system to being managed via
+> libsemanage is a change in the policy package, not a change in
+> libsemanage.  In particular, it involves converting the policy package
+> to using policy modules and using semodule.
+>   
+Does the existance of some random file in /etc/selinux/?/modules/active 
+imply that libsemanage is managing the system. Shouldn't we be looking 
+at /etc/selinux/config instead?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
