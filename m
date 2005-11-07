@@ -1,40 +1,41 @@
-Message-ID: <436F84C9.4050606@cornell.edu>
-Date: Mon, 07 Nov 2005 11:46:01 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
 Subject: Re: [ SEMANAGE ] Cleanup : move some things around
-References: <436DDB51.2080903@cornell.edu>	 <1131377599.20591.32.camel@moss-spartans.epoch.ncsc.mil>	 <436F7F36.5080308@cornell.edu> <1131379914.20591.70.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1131379914.20591.70.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov
+In-Reply-To: <436F811C.1010306@tresys.com>
+References: <436DDB51.2080903@cornell.edu>
+	 <1131377599.20591.32.camel@moss-spartans.epoch.ncsc.mil>
+	 <436F7F36.5080308@cornell.edu>
+	 <1131379914.20591.70.camel@moss-spartans.epoch.ncsc.mil>
+	 <436F811C.1010306@tresys.com>
+Content-Type: text/plain
+Date: Mon, 07 Nov 2005 11:31:29 -0500
+Message-Id: <1131381089.20591.85.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2005-11-07 at 11:30 -0500, Joshua Brindle wrote:
+> Please see my other email about the semanage_set_reload_bools() patch, I 
+>   believe it is flawed in a couple ways and should be reverted.
 
->>> I'd prefer to hold cleanups until we have stabilized the functionality
->>> and interfaces as desired for test1.  I'm also not clear on why we want
->>> a sepol handle in the ps case.  
->>>   
->>>       
->> .. because we'll be using the sepol records either way, so we need the 
->> sepol handle..
->> Not using the sepol records requires copying them over into libsemanage.
->>     
->
-> Hmmm..well, let's take that up again later.  Right now we need to deal
-> with finalizing the boolean support (e.g. having libsemanage use
-> security_set_boolean_list with permanent=0 to set the runtime boolean
-> values upon commit rather than loading the generated binary policy
-> file), and getting the migration steps in place for test1.
->
-> I committed your semanage_set_reload_bools() patch and my
-> semanage_is_managed() patch to sourceforge cvs, but not the cleanup
-> patch.
->   
-That's fine, but consider that when you call semanage records function 
-before connect, or after disconnect with the semanage handle, your 
-messages will go to stdout (since sepolh is NULL).
+I saw it, but:
+a) it is functional, and we do need this functionality for using
+setsebool with libsemanage, so until I have an alternate implementation,
+I'm not likely to discard it, and
+b) it isn't clear why one wants to be generating the argument array at
+load time (with the potential for failure there) rather than when the
+caller sets the desired property.
+
+I viewed the question of whether we should be loading policy or using
+security_set_boolean_list as orthogonal to how one goes about setting
+the -b argument; the former can be addressed by a separate patch (hint,
+hint).
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
