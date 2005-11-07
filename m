@@ -1,53 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA6FBKMA014995
-	for <selinux@tycho.nsa.gov>; Sun, 6 Nov 2005 10:11:20 -0500 (EST)
-Received: from web51510.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id jA6F5Vcn002553
-	for <selinux@tycho.nsa.gov>; Sun, 6 Nov 2005 15:05:31 GMT
-Message-ID: <20051106150512.8941.qmail@web51510.mail.yahoo.com>
-Date: Sun, 6 Nov 2005 07:05:12 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: multiple avcs in 1 audit event
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA78sfMA020273
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 03:54:42 -0500 (EST)
+Received: from smtpscan-nl2.aots.nl (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA78lsQF015386
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 08:48:05 GMT
+Received: from smtpscan-nl2.aots.nl (localhost [127.0.0.1])
+	by localhost.aots.nl (Postfix) with ESMTP id A5676F2D
+	for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2005 09:30:32 +0100 (MET)
+Received: from sat-relay2.telecom.ptt.nl (relay4.kpn-telecom.nl [145.7.200.30])
+	by smtpscan-nl2.aots.nl (Postfix) with ESMTP id 778C6D67
+	for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2005 09:30:32 +0100 (MET)
+Received: from tmail001s.telecom.ptt.nl (tmail001s.pc.telecom.ptt.nl [10.1.88.44])
+	by sat-relay2.telecom.ptt.nl (8.11.6p2-20030924/8.11.6) with ESMTP id jA78UTG22746
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 09:30:29 +0100
+Message-ID: <04B7A8D2D61A4E4A8EBE8BF45D4C52AC82F390@pb05.mobilan.mobidata>
+From: b.c.jansen@kpn.com
 To: selinux@tycho.nsa.gov
+Subject: Question about selinux
+Date: Mon, 7 Nov 2005 09:30:19 +0100 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Hello everyone,
 
-I was running some leaks checks of aureport and found something strange. I have
-places where there are 2 avc denials for the same audit event. I am wondering if
-this is really the correct action? Why was the syscall allowed to proceed to
-where a second problem was encountered (this is using the audit.88 kernel)?
-Here's the audit event, basically. I have a shared /opt via samba and accessed it
-without disabling se linux - I have to disable se linux or it just doesn't work
-right.
+I was wondering if anyone is interested in helping me out with a certain
+situation. My company wants to start doing backup straight to disk and
+skipping the entire tape phase and they asked me to do it. Now i have
+decided to go for a rsync push from several servers on different times via
+cron to the disk array (actual backup server).
 
-----
-type=PATH msg=audit(10/21/05 09:09:06.571:618) :
-name=policycoreutils-1.27.14/newrole/newrole.c flags=follow inode=1280463
-dev=03:05 mode=file,644 ouid=sgrubb ogid=sgrubb rdev=00:00
-type=CWD msg=audit(10/21/05 09:09:06.571:618) :  cwd=/opt
-type=AVC_PATH msg=audit(10/21/05 09:09:06.571:618) : 
-path=/opt/policycoreutils-1.27.14/newrole/newrole.c
-type=SYSCALL msg=audit(10/21/05 09:09:06.571:618) : arch=i386 syscall=stat64
-success=yes exit=0 a0=bff74df0 a1=bff74870 a2=570ff4 a3=bff74870 items=1 pid=3010
-auid=sgrubb uid=nobody gid=root euid=nobody suid=root fsuid=nobody egid=nobody
-sgid=nobody fsgid=nobody comm=smbd exe=/usr/sbin/smbd
-type=AVC msg=audit(10/21/05 09:09:06.571:618) : avc:  denied  { getattr } for 
-pid=3010 comm=smbd name=newrole.c dev=hda5 ino=1280463
-scontext=root:system_r:smbd_t tcontext=user_u:object_r:user_home_t tclass=file
-type=AVC msg=audit(10/21/05 09:09:06.571:618) : avc:  denied  { search } for 
-pid=3010 comm=smbd name=policycoreutils-1.27.14 dev=hda5 ino=1280454
-scontext=root:system_r:smbd_t tcontext=user_u:object_r:user_home_t tclass=dir
+For security reasons i wanted each client to have it's own host where it
+couldn't do any damage, the problem here is that the user that rsync uses
+has to have near equal rights (or basically the same) as the root user
+because it has to keep the file ownerships and similair. I thought about
+using chroot for this problem but well.... Chroot is quite breachable and as
+such i was trying to do it with selinux.
 
+For that i have been fiddling in the src files i downloaded from the nsa
+site but have been unable to get a satisfactionary policy made, and there is
+my question :P
 
+Is anyone here willign to help me out with this situation? It would involve
+making a policy that prevents the user from doing anything (on a system call
+level) other then creating/changing and deleting directories, files and
+links (rsync's incremental option). If so just mail me at b.c.jansen@kpn.com
 
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+Best Regards,
+Bas Jansen
+Student
 
 --
 This message was distributed to subscribers of the selinux mailing list.
