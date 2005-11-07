@@ -1,40 +1,33 @@
-Subject: Re: [ SEMANAGE ] Cleanup : move some things around
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <436F7F36.5080308@cornell.edu>
-References: <436DDB51.2080903@cornell.edu>
-	 <1131377599.20591.32.camel@moss-spartans.epoch.ncsc.mil>
-	 <436F7F36.5080308@cornell.edu>
-Content-Type: text/plain
-Date: Mon, 07 Nov 2005 11:11:54 -0500
-Message-Id: <1131379914.20591.70.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA7GVvMA024659
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 11:31:57 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA7GPteE008216
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 16:25:57 GMT
+Message-Id: <200511071625.jA7GPqYs014058@gotham.columbia.tresys.com>
+From: "Kevin Carr" <kcarr@tresys.com>
+To: "James Carter" <jwcart2@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
+Cc: "Karl MacMillan" <kmacmillan@tresys.com>
+Subject: seuser policy
+Date: Mon, 7 Nov 2005 11:25:52 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-11-07 at 11:22 -0500, Ivan Gyurdiev wrote:
-> > I'd prefer to hold cleanups until we have stabilized the functionality
-> > and interfaces as desired for test1.  I'm also not clear on why we want
-> > a sepol handle in the ps case.  
-> >   
-> .. because we'll be using the sepol records either way, so we need the 
-> sepol handle..
-> Not using the sepol records requires copying them over into libsemanage.
+Given that seuser is no longer being supported as part of the setools
+package, it might be a good idea to remove the relevant files in the
+upstream NSA policy.
 
-Hmmm..well, let's take that up again later.  Right now we need to deal
-with finalizing the boolean support (e.g. having libsemanage use
-security_set_boolean_list with permanent=0 to set the runtime boolean
-values upon commit rather than loading the generated binary policy
-file), and getting the migration steps in place for test1.
+Domains/program/unused/seuser.te
+File_contexts/program/seuser.fc
 
-I committed your semanage_set_reload_bools() patch and my
-semanage_is_managed() patch to sourceforge cvs, but not the cleanup
-patch.
+Kevin Carr
+Tresys Technology
+410.290.1411 x137
 
--- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
