@@ -1,60 +1,61 @@
 Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA7IA3MA025961
-	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 13:10:03 -0500 (EST)
-Subject: [Fwd: [patch 1/1] selinux:  MLS compatibility]
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA7IHXMA026060
+	for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2005 13:17:33 -0500 (EST)
+Subject: [Fwd: [patch 1/1] selinux:  Disable setxattr on mountpoint labeled
+	filesystems]
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Mon, 07 Nov 2005 13:00:13 -0500
-Message-Id: <1131386413.20591.121.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 07 Nov 2005 13:07:43 -0500
+Message-Id: <1131386863.20591.130.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FYI, this patch has been submitted upstream to address a previously
-raised concern about on-disk compatibility between MLS and non-MLS
-SELinux systems (particularly for MCS).
+FYI, this patch has been submitted upstream in response to a previously
+raised issue with exchanging media between non-MLS and MLS SELinux
+systems, although the patch is more general than just that particular
+case.
 
 -------- Forwarded Message --------
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: lkml <linux-kernel@vger.kernel.org>, James Morris
 <jmorris@namei.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 1/1] selinux: MLS compatibility
-Date: Mon, 07 Nov 2005 11:09:01 -0500
+Subject: [patch 1/1] selinux: Disable setxattr on mountpoint labeled
+filesystems
+Date: Mon, 07 Nov 2005 11:20:43 -0500
 
-This patch enables files created on a MLS-enabled SELinux system to be
-accessible on a non-MLS SELinux system, by skipping the MLS component of
-the security context in the non-MLS case.  Please apply, for 2.6.15 if
-possible.
+This patch disables the setting of SELinux xattrs on files created in
+filesystems labeled via mountpoint labeling (mounted with the context=
+option).  selinux_inode_setxattr already prevents explicit setxattr from
+userspace on such filesystems, so this provides consistent behavior for
+file creation.  Please apply, for 2.6.15 if possible.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by:  James Morris <jmorris@namei.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: James Morris <jmorris@namei.org>
 
 ---
 
- security/selinux/ss/mls.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+ security/selinux/hooks.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
-Index: linux-2.6/security/selinux/ss/mls.c
+Index: linux-2.6/security/selinux/hooks.c
 ===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/mls.c,v
-retrieving revision 1.26
-diff -u -p -r1.26 mls.c
---- linux-2.6/security/selinux/ss/mls.c	29 Aug 2005 14:13:22 -0000	1.26
-+++ linux-2.6/security/selinux/ss/mls.c	4 Nov 2005 19:26:47 -0000
-@@ -262,8 +262,11 @@ int mls_context_to_sid(char oldc,
- 	struct cat_datum *catdatum, *rngdatum;
- 	int l, rc = -EINVAL;
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
+retrieving revision 1.173
+diff -u -p -r1.173 hooks.c
+--- linux-2.6/security/selinux/hooks.c	31 Oct 2005 15:36:30 -0000	1.173
++++ linux-2.6/security/selinux/hooks.c	4 Nov 2005 20:55:20 -0000
+@@ -1986,6 +1986,9 @@ static int selinux_inode_init_security(s
  
--	if (!selinux_mls_enabled)
-+	if (!selinux_mls_enabled) {
-+		if (def_sid != SECSID_NULL && oldc)
-+			*scontext += strlen(*scontext);
- 		return 0;
-+	}
+ 	inode_security_set_sid(inode, newsid);
  
- 	/*
- 	 * No MLS component to the security context, try and map to
++	if (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
++		return -EOPNOTSUPP;
++
+ 	if (name) {
+ 		namep = kstrdup(XATTR_SELINUX_SUFFIX, GFP_KERNEL);
+ 		if (!namep)
 
 -- 
 Stephen Smalley
