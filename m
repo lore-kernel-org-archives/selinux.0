@@ -1,95 +1,90 @@
-Message-ID: <4372824F.7050904@cornell.edu>
-Date: Wed, 09 Nov 2005 18:12:15 -0500
+Message-ID: <43728384.3020508@cornell.edu>
+Date: Wed, 09 Nov 2005 18:17:24 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SEMANAGE ] Move seuser validation to proper place
+Subject: [ SEMANAGE ] Fix hidden declarations
 Content-Type: multipart/mixed;
- boundary="------------010309040508030101020900"
+ boundary="------------010206080207010103010207"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010309040508030101020900
+--------------010206080207010103010207
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Moves seuser validation from commit_components into merge_components.
-This is the logical place for it - it's:
+The hidden declarations are still a mystery to me. They are present in 
+half the functions, and missing in the other half. I'm sure there's a 
+reason for this, but since I don't quite understand the pattern, I'll 
+leave them alone. There's no hidden declarations for _local.c, and 
+_policy.c, and they are missing for some of the functions in _record.c.
 
-1) after modules are loaded and all components merged
-2) inside the attach-detach section where policy has not been written 
-back to disk
-3) still in policy_components.c, which is supposedly backend-independent 
-code.
+This patch:
 
-This should result in a speedup, because the policy does not need to be 
-re-read in for the sake of seuser validation, which was occuring in 
-commit(). Note that seuser validation is incomplete at this point, since 
-MLS checks are not done.
+- removes the hidden proto for sepol_user_exists(), and 
+sepol_seuser_iterate(), which make those functions invisible (no 
+hidden_def, not sure if one should be added).
+
+- changes two cases of hidden_proto in iface_record.c to hidden_def, 
+because that just looks wrong.
 
 
---------------010309040508030101020900
+
+
+
+--------------010206080207010103010207
 Content-Type: text/x-patch;
- name="libsemanage.move_seuser_vcheck.diff"
+ name="libsemanage.hidden_fix.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.move_seuser_vcheck.diff"
+ filename="libsemanage.hidden_fix.diff"
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libsemanage/src/policy_components.c new/libsemanage/src/policy_components.c
---- old/libsemanage/src/policy_components.c	2005-11-08 12:10:26.000000000 -0500
-+++ new/libsemanage/src/policy_components.c	2005-11-09 17:48:32.000000000 -0500
-@@ -63,6 +63,9 @@ typedef struct load_table {
- 	int mode;
- } load_table_t;
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libsemanage/src/iface_record.c new/libsemanage/src/iface_record.c
+--- old/libsemanage/src/iface_record.c	2005-11-08 09:32:57.000000000 -0500
++++ new/libsemanage/src/iface_record.c	2005-11-09 18:05:51.000000000 -0500
+@@ -115,14 +115,14 @@ int semanage_iface_clone(
  
-+/* This function must be called AFTER all modules are loaded.
-+ * Modules could be represented as a database, in which case
-+ * they should be loaded first, before the other components. */
- int semanage_base_merge_components(
- 	semanage_handle_t* handle) {
+ 	return sepol_iface_clone(handle->sepolh, iface, iface_ptr);
+ }
+-hidden_proto(semanage_iface_clone)
++hidden_def(semanage_iface_clone)
  
-@@ -88,6 +91,7 @@ int semanage_base_merge_components(
- 	load_handler_arg_t load_arg;
- 	load_arg.handle = handle;
+ void semanage_iface_free(
+ 	semanage_iface_t* iface) {
  
-+	/* Merge components into policy (and validate) */
- 	for (i = 0; i < CCOUNT; i++) {
- 		dbase_config_t* from = components[i].from;
- 		dbase_config_t* to = components[i].to;
-@@ -106,6 +110,10 @@ int semanage_base_merge_components(
- 			handle, from->dbase, load_handler, &load_arg) < 0) 
- 			goto err;
- 	}	
-+
-+	/* Validate seusers against policy */
-+	if (semanage_seuser_validate(handle) < 0)
-+		goto err;
- 	
- 	return STATUS_SUCCESS;
+ 	sepol_iface_free(iface);
+ }
+-hidden_proto(semanage_iface_free)
++hidden_def(semanage_iface_free)
  
-@@ -128,10 +136,6 @@ int semanage_commit_components(
- 	};
- 	const int CCOUNT = sizeof(components)/sizeof(components[0]);
- 
--	/* Validate seusers */
--	if (semanage_seuser_validate(handle) < 0)
--		goto err;
--
- 	for (i = 0; i < CCOUNT; i++) {
- 		/* Flush to disk */
- 		if (components[i]->dtable->flush(
-@@ -139,7 +143,6 @@ int semanage_commit_components(
- 			goto err;
- 	}
- 
--
- 	/* Drop cache, because we're leaving transaction soon */
- 	for (i=0; i < CCOUNT; i++)
- 		components[i]->dtable->drop_cache(components[i]->dbase);
+ /* Record base functions */
+ record_table_t SEMANAGE_IFACE_RTABLE = {
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libsemanage/src/seuser_internal.h new/libsemanage/src/seuser_internal.h
+--- old/libsemanage/src/seuser_internal.h	2005-11-08 09:32:57.000000000 -0500
++++ new/libsemanage/src/seuser_internal.h	2005-11-09 18:04:27.000000000 -0500
+@@ -9,7 +9,6 @@ hidden_proto(semanage_seuser_free)
+ hidden_proto(semanage_seuser_get_mlsrange)
+ hidden_proto(semanage_seuser_get_name)
+ hidden_proto(semanage_seuser_get_sename)
+-hidden_proto(semanage_seuser_iterate)
+ hidden_proto(semanage_seuser_key_create)
+ hidden_proto(semanage_seuser_key_extract)
+ hidden_proto(semanage_seuser_key_free)
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libsemanage/src/user_internal.h new/libsemanage/src/user_internal.h
+--- old/libsemanage/src/user_internal.h	2005-11-08 09:32:57.000000000 -0500
++++ new/libsemanage/src/user_internal.h	2005-11-09 18:04:11.000000000 -0500
+@@ -7,7 +7,6 @@ hidden_proto(semanage_user_add_role)
+ hidden_proto(semanage_user_clone)
+ hidden_proto(semanage_user_compare)
+ hidden_proto(semanage_user_create)
+-hidden_proto(semanage_user_exists)
+ hidden_proto(semanage_user_free)
+ hidden_proto(semanage_user_get_defrole)
+ hidden_proto(semanage_user_get_mlslevel)
 
---------------010309040508030101020900--
+--------------010206080207010103010207--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
