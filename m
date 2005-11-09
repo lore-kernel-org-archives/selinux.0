@@ -1,37 +1,34 @@
-Subject: Re: changes in ~2.6.13 break postfix policy?
+Subject: Re: Using SElinux on OS X tiger
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Erich Schubert <erich@debian.org>
-Cc: Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
-   SELinux@tycho.nsa.gov
-In-Reply-To: <1131478271.17745.6.camel@wintermute.xmldesign.de>
-References: <1131106145.28236.7.camel@wintermute.xmldesign.de>
-	 <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
-	 <20051104183551.GC2837@legolas.drinsama.de>
-	 <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131148407.1355.21.camel@wintermute.xmldesign.de>
-	 <1131382681.20591.102.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131478271.17745.6.camel@wintermute.xmldesign.de>
+To: Walter Steenvoorden <walter.steenvoorden@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <E9BEDFF7-8CC3-4EAA-A08E-D138498855F7@gmail.com>
+References: <E9BEDFF7-8CC3-4EAA-A08E-D138498855F7@gmail.com>
 Content-Type: text/plain
-Date: Wed, 09 Nov 2005 08:36:11 -0500
-Message-Id: <1131543371.20591.460.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 09 Nov 2005 08:44:42 -0500
+Message-Id: <1131543882.20591.471.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-08 at 20:31 +0100, Erich Schubert wrote:
-> Hi,
-> > Hmmm...can you supply any more info to help reproduce the bug?
+On Sun, 2005-11-06 at 13:28 +0100, Walter Steenvoorden wrote:
+> Hi everyone,
 > 
-> I've upgraded a box of mine running a self-compiled 2.6.14-rc3 to
-> debians 2.6.14 - and the error has appeared on it, too.
-> So it's not caused by the policy, but either by some .config thing or a
-> patch in the debian kernel. I doubt that there has happened anything
-> relevant between rc3 and final...
-> I'm going to build a 2.6.14 from vanilla sources with the .config of my
-> installed debian kernel to narrow down.
+> I've been using SELinux on my redhat server for some time now, and i  
+> wonder how are the expierences implementing it into a distribution of  
+> the Mac OS X? I run 10.4.3 on a G4 iBook and i want to know if its  
+> possible to use SEPOL on the following
+> - SSL keychain managment
+> - Apple filevault
+> - system prefs
+> 
+> Any expierences shared would be greatly apprieciated
 
-Thanks.  Could you also send me a copy of that .config file for
-reference?
+There is a port of SELinux to FreeBSD (SE-BSD) and ongoing work to port
+it to Darwin and MacOS X, but it isn't included in the mainline Mac OS
+X.  See
+http://www.trustedbsd.org/sebsd.html
+http://www.trustedbsd.org/sedarwin.html
 
 -- 
 Stephen Smalley
