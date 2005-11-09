@@ -1,39 +1,32 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jA9JksMA022362
-	for <selinux@tycho.nsa.gov>; Wed, 9 Nov 2005 14:46:55 -0500 (EST)
-Received: from e3.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jA9JdufN021467
-	for <selinux@tycho.nsa.gov>; Wed, 9 Nov 2005 19:39:59 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e3.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id jA9JeUdQ026329
-	for <selinux@tycho.nsa.gov>; Wed, 9 Nov 2005 14:40:30 -0500
-Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
-	by d01relay02.pok.ibm.com (8.12.10/NCO/VERS6.7) with ESMTP id jA9JeUCV122006
-	for <selinux@tycho.nsa.gov>; Wed, 9 Nov 2005 14:40:30 -0500
-Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
-	by d01av04.pok.ibm.com (8.12.11/8.13.3) with ESMTP id jA9JeUKn021313
-	for <selinux@tycho.nsa.gov>; Wed, 9 Nov 2005 14:40:30 -0500
-Subject: Selinux-testsuite updated in LTP
-From: Joy Latten <latten@austin.ibm.com>
-To: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+Subject: Re: FIrst pass at genhomedircon patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43724F25.1000502@redhat.com>
+References: <43724F25.1000502@redhat.com>
 Content-Type: text/plain
-Date: Wed, 09 Nov 2005 13:37:12 -0600
-Message-Id: <1131565032.2653.165.camel@faith.austin.ibm.com>
+Date: Wed, 09 Nov 2005 15:31:48 -0500
+Message-Id: <1131568308.20591.591.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Wed, 2005-11-09 at 14:33 -0500, Daniel J Walsh wrote:
+> This is just using the seusers file and will use the python bindings 
+> when they are available.
+> Just truncating off the _u and using this as the role, for now
+> 
+> No longer using users.local, system.users and also removed backwards 
+> compatibility with FC3.
 
-The SELinux-testsuite within the LTP has been updated with the 
-option to run testcases individually without using LTP's test harness.
-Some bugfixes were also included. Please see the README and the
-ChangeLog within the selinux-testsuite directory for more info. These
-changes will be in the next LTP release. For now they are in the LTP's
-CVS tree. Let me know if there are any questions, comments or problems.
+It ends up not including anything for /root, so /root is then reset to
+default_t.  Naturally, you can't just use the same approach for root
+since he is mapped to SELinux user root in the policy, so you need
+special handling there.
 
-Regards,
-Joy Latten
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
