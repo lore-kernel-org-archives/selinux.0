@@ -1,34 +1,27 @@
-Subject: Re: Using SElinux on OS X tiger
+Subject: Re: Stability of libsepol and libsemanage?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Walter Steenvoorden <walter.steenvoorden@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <E9BEDFF7-8CC3-4EAA-A08E-D138498855F7@gmail.com>
-References: <E9BEDFF7-8CC3-4EAA-A08E-D138498855F7@gmail.com>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20051109134021.GA27310@europium.cip.ifi.lmu.de>
+References: <20051109134021.GA27310@europium.cip.ifi.lmu.de>
 Content-Type: text/plain
-Date: Wed, 09 Nov 2005 08:44:42 -0500
-Message-Id: <1131543882.20591.471.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 09 Nov 2005 08:52:07 -0500
+Message-Id: <1131544327.20591.474.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-11-06 at 13:28 +0100, Walter Steenvoorden wrote:
-> Hi everyone,
-> 
-> I've been using SELinux on my redhat server for some time now, and i  
-> wonder how are the expierences implementing it into a distribution of  
-> the Mac OS X? I run 10.4.3 on a G4 iBook and i want to know if its  
-> possible to use SEPOL on the following
-> - SSL keychain managment
-> - Apple filevault
-> - system prefs
-> 
-> Any expierences shared would be greatly apprieciated
+On Wed, 2005-11-09 at 14:40 +0100, Thomas Bleher wrote:
+> I'm currently filing wishlist bugs in the SUSE bugzilla against various
+> packages regarding SELinux support. SUSE is currently missing libsepol
+> and libsemanage, so I wondered if it is safe to add the development
+> versions now, considering the many patches that are applied now.
+> Are the libraries as they are now safe to be used in a release or will
+> there be incompatible changes so it would be better to wait for a while?
 
-There is a port of SELinux to FreeBSD (SE-BSD) and ongoing work to port
-it to Darwin and MacOS X, but it isn't included in the mainline Mac OS
-X.  See
-http://www.trustedbsd.org/sebsd.html
-http://www.trustedbsd.org/sedarwin.html
+We only guarantee ABI stability for nsa.gov releases, not sourceforge
+CVS snapshots.  So, if you want such a guarantee, you should wait.
+It likely won't be long now until we make an updated release.
 
 -- 
 Stephen Smalley
