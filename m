@@ -1,43 +1,80 @@
-Message-ID: <437278BB.1000607@cornell.edu>
-Date: Wed, 09 Nov 2005 17:31:23 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43727C4D.1070100@redhat.com>
+Date: Wed, 09 Nov 2005 17:46:37 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: dwalsh@redhat.com, selinux@tycho.nsa.gov, SELinux-dev@tresys.com
-Subject: MLS translations for libsemanage and libsepol
-References: <20051109134021.GA27310@europium.cip.ifi.lmu.de>	 <1131544327.20591.474.camel@moss-spartans.epoch.ncsc.mil>	 <1131545169.20591.483.camel@moss-spartans.epoch.ncsc.mil>	 <43721FCE.8050308@cornell.edu> <1131552597.20591.554.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1131552597.20591.554.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Chad Sellers <csellers@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+   selinux@tycho.nsa.gov, SELinux-dev@tresys.com
+Subject: Re: [PATCH] SELinux - canonicalize getxattr() (fwd)
+References: <Pine.LNX.4.63.0509141014520.7898@excalibur.intercode> <Pine.LNX.4.63.0510271520390.24160@excalibur.intercode> <1130443338.18805.364.camel@moss-spartans.epoch.ncsc.mil> <200511091630.53757.csellers@tresys.com>
+In-Reply-To: <200511091630.53757.csellers@tresys.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
->
-> seusers is a little unclear; it presently has to use the raw definitions
-> because it is only a partial context (just the range), so it isn't going
-> through conversion.  GUI for seusers modification would likely apply
-> translation itself for presentation to admins.
+Chad Sellers wrote:
+> On Thursday 27 October 2005 16:02, Stephen Smalley wrote:
 >   
+>> On Thu, 2005-10-27 at 15:23 -0400, James Morris wrote:
+>>     
+>>> On Thu, 27 Oct 2005, Stephen Smalley wrote:
+>>>       
+>>>> Thoughts?
+>>>>         
+>>> It may be helpful to have type aliases, but are they truly necessary?
+>>>
+>>> Seems like a lot of potential problems arise from them, including
+>>> confusing SELinux developers.
+>>>
+>>> Perhaps type aliasing would be better implemented as a higher level
+>>> policy construct?
+>>>       
+>> There seem to be three uses of the aliases:
+>> 1) compatibility across policy changes, e.g. when a type is removed or
+>> renamed, an alias can be defined so that any existing processes or
+>> objects with the type aren't rendered unlabeled upon the policy reload,
+>> 2) on-disk compatibility between policies, so that a filesystem
+>> initially labeled for targeted policy is still fairly useable for
+>> bootstrapping a strict policy system even though the latter has
+>> finer-grained types,
+>> 3) sharing among policies, both at a source level (macros, .te
+>> files, .fc files) and for binary policy modules, so that policy modules
+>> (source or binary) can refer to types that may then be coalesced or kept
+>> separate as appropriate for a given base policy.
+>>
+>> #3 could be done entirely via a higher level construct, but we don't
+>> have such a higher level construct yet and are relying on the ability to
+>> share among policies in this manner.  #2 may not be critical.  #1 seems
+>> to require that the kernel retain a notion of the aliases.
+>>
+>> If #2 is not critical, then changing matchpathcon_init in the proposed
+>> manner may be sufficient (whether using sepol or selinuxfs as the
+>> backend).  With that change, upgraded systems that have existing uses of
+>> alias names in on-disk xattrs won't cause spurious complaints by
+>> setfiles/restorecon, and a clean install should yield a system with no
+>> alias names stored in the on-disk xattrs since rpm will get canonical
+>> names.  We could instrument the setfilecon functions in libselinux to
+>> also canonicalize the context prior to calling setxattr.  On second
+>> thought, it seems overkill to do it on context translations, as this is
+>> only an issue for file contexts and is already covered for getxattr, so
+>> we are primarily concerned with matchpathcon and setfilecon.
+>>     
+>
+> Did this ever get resolved?  I see that this patch has made it into the 
+> rawhide kernel.  This means that when installing a new policy rpm, my screen 
+> is flooded with fixfiles relabeling lib_t to shlib_t, due to shlib_t being a 
+> typealias of lib_t in targeted.  Are we worried about this right now, or are 
+> these messages ok?
+>
+>   
+We are supposed to be patching restorecon/chcon/setfiles to make these 
+go away or at most warn.  These tools should be asking the kernel for 
+the correct context for a file  IE shlib_t -> lib_t in targeted policy 
+and then says it is ok.
 
-What's the justification for doing translations in libselinux (the 
-library), while placing that responsibility on the caller for 
-libsemanage, and sepol. Maybe we should be doing translations for:
 
-- policydb_context_isvalid
-- any new functions added to libsepol to check validity and dominance of 
-mls ranges (for seusers)
-- se[pol/manage]_context_from_string
-- se[pol/manage]_context_to_string
-- se[pol/manage]_context_get_mls
-- se[pol/manage]_context_set_mls
-- se[pol/manage]_user_get_mlslevel (?? - are categories supposed to be 
-rejected here)
-- se[pol/manage]_user_set_mlslevel (?? - are they actually rejected, or 
-just ignored..hmm)
-- se[pol/manage]_user_get_mlsrange
-- se[pol/manage]_user_set_mlsrange
-- se[pol/manage]_seuser_get_mlsrange
-- se[pol/manage]_seuser_set_mlsrange
+-- 
+
 
 
 --
