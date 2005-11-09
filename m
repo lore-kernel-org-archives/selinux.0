@@ -1,81 +1,95 @@
-Message-ID: <43727C4D.1070100@redhat.com>
-Date: Wed, 09 Nov 2005 17:46:37 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <4372824F.7050904@cornell.edu>
+Date: Wed, 09 Nov 2005 18:12:15 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-   selinux@tycho.nsa.gov, SELinux-dev@tresys.com
-Subject: Re: [PATCH] SELinux - canonicalize getxattr() (fwd)
-References: <Pine.LNX.4.63.0509141014520.7898@excalibur.intercode> <Pine.LNX.4.63.0510271520390.24160@excalibur.intercode> <1130443338.18805.364.camel@moss-spartans.epoch.ncsc.mil> <200511091630.53757.csellers@tresys.com>
-In-Reply-To: <200511091630.53757.csellers@tresys.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [ SEMANAGE ] Move seuser validation to proper place
+Content-Type: multipart/mixed;
+ boundary="------------010309040508030101020900"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chad Sellers wrote:
-> On Thursday 27 October 2005 16:02, Stephen Smalley wrote:
->   
->> On Thu, 2005-10-27 at 15:23 -0400, James Morris wrote:
->>     
->>> On Thu, 27 Oct 2005, Stephen Smalley wrote:
->>>       
->>>> Thoughts?
->>>>         
->>> It may be helpful to have type aliases, but are they truly necessary?
->>>
->>> Seems like a lot of potential problems arise from them, including
->>> confusing SELinux developers.
->>>
->>> Perhaps type aliasing would be better implemented as a higher level
->>> policy construct?
->>>       
->> There seem to be three uses of the aliases:
->> 1) compatibility across policy changes, e.g. when a type is removed or
->> renamed, an alias can be defined so that any existing processes or
->> objects with the type aren't rendered unlabeled upon the policy reload,
->> 2) on-disk compatibility between policies, so that a filesystem
->> initially labeled for targeted policy is still fairly useable for
->> bootstrapping a strict policy system even though the latter has
->> finer-grained types,
->> 3) sharing among policies, both at a source level (macros, .te
->> files, .fc files) and for binary policy modules, so that policy modules
->> (source or binary) can refer to types that may then be coalesced or kept
->> separate as appropriate for a given base policy.
->>
->> #3 could be done entirely via a higher level construct, but we don't
->> have such a higher level construct yet and are relying on the ability to
->> share among policies in this manner.  #2 may not be critical.  #1 seems
->> to require that the kernel retain a notion of the aliases.
->>
->> If #2 is not critical, then changing matchpathcon_init in the proposed
->> manner may be sufficient (whether using sepol or selinuxfs as the
->> backend).  With that change, upgraded systems that have existing uses of
->> alias names in on-disk xattrs won't cause spurious complaints by
->> setfiles/restorecon, and a clean install should yield a system with no
->> alias names stored in the on-disk xattrs since rpm will get canonical
->> names.  We could instrument the setfilecon functions in libselinux to
->> also canonicalize the context prior to calling setxattr.  On second
->> thought, it seems overkill to do it on context translations, as this is
->> only an issue for file contexts and is already covered for getxattr, so
->> we are primarily concerned with matchpathcon and setfilecon.
->>     
->
-> Did this ever get resolved?  I see that this patch has made it into the 
-> rawhide kernel.  This means that when installing a new policy rpm, my screen 
-> is flooded with fixfiles relabeling lib_t to shlib_t, due to shlib_t being a 
-> typealias of lib_t in targeted.  Are we worried about this right now, or are 
-> these messages ok?
->
->   
-We are supposed to be patching restorecon/chcon/setfiles to make these 
-go away or at most warn.  These tools should be asking the kernel for 
-the correct context for a file  IE shlib_t -> lib_t in targeted policy 
-and then says it is ok.
+This is a multi-part message in MIME format.
+--------------010309040508030101020900
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Moves seuser validation from commit_components into merge_components.
+This is the logical place for it - it's:
+
+1) after modules are loaded and all components merged
+2) inside the attach-detach section where policy has not been written 
+back to disk
+3) still in policy_components.c, which is supposedly backend-independent 
+code.
+
+This should result in a speedup, because the policy does not need to be 
+re-read in for the sake of seuser validation, which was occuring in 
+commit(). Note that seuser validation is incomplete at this point, since 
+MLS checks are not done.
 
 
--- 
+--------------010309040508030101020900
+Content-Type: text/x-patch;
+ name="libsemanage.move_seuser_vcheck.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.move_seuser_vcheck.diff"
 
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libsemanage/src/policy_components.c new/libsemanage/src/policy_components.c
+--- old/libsemanage/src/policy_components.c	2005-11-08 12:10:26.000000000 -0500
++++ new/libsemanage/src/policy_components.c	2005-11-09 17:48:32.000000000 -0500
+@@ -63,6 +63,9 @@ typedef struct load_table {
+ 	int mode;
+ } load_table_t;
+ 
++/* This function must be called AFTER all modules are loaded.
++ * Modules could be represented as a database, in which case
++ * they should be loaded first, before the other components. */
+ int semanage_base_merge_components(
+ 	semanage_handle_t* handle) {
+ 
+@@ -88,6 +91,7 @@ int semanage_base_merge_components(
+ 	load_handler_arg_t load_arg;
+ 	load_arg.handle = handle;
+ 
++	/* Merge components into policy (and validate) */
+ 	for (i = 0; i < CCOUNT; i++) {
+ 		dbase_config_t* from = components[i].from;
+ 		dbase_config_t* to = components[i].to;
+@@ -106,6 +110,10 @@ int semanage_base_merge_components(
+ 			handle, from->dbase, load_handler, &load_arg) < 0) 
+ 			goto err;
+ 	}	
++
++	/* Validate seusers against policy */
++	if (semanage_seuser_validate(handle) < 0)
++		goto err;
+ 	
+ 	return STATUS_SUCCESS;
+ 
+@@ -128,10 +136,6 @@ int semanage_commit_components(
+ 	};
+ 	const int CCOUNT = sizeof(components)/sizeof(components[0]);
+ 
+-	/* Validate seusers */
+-	if (semanage_seuser_validate(handle) < 0)
+-		goto err;
+-
+ 	for (i = 0; i < CCOUNT; i++) {
+ 		/* Flush to disk */
+ 		if (components[i]->dtable->flush(
+@@ -139,7 +143,6 @@ int semanage_commit_components(
+ 			goto err;
+ 	}
+ 
+-
+ 	/* Drop cache, because we're leaving transaction soon */
+ 	for (i=0; i < CCOUNT; i++)
+ 		components[i]->dtable->drop_cache(components[i]->dbase);
 
+--------------010309040508030101020900--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
