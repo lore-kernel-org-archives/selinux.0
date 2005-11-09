@@ -1,23 +1,27 @@
-Subject: Re: [ SETSEBOOL ] Cleanup patch
+Subject: Re: [ LIBSEMANAGE ] Cleanup patch (resync-ed)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <437181BA.6000806@cornell.edu>
-References: <437181BA.6000806@cornell.edu>
+Cc: SELinux-dev@tresys.com, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43718447.30709@cornell.edu>
+References: <43718447.30709@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 09 Nov 2005 08:53:23 -0500
-Message-Id: <1131544403.20591.476.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 09 Nov 2005 08:54:24 -0500
+Message-Id: <1131544464.20591.478.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-08 at 23:57 -0500, Ivan Gyurdiev wrote:
-> Error handling is different for libselinux interaction depending on -P. 
-> Fix that by adding a new helper function. Also add a newline and change 
-> some error messages. Recover the handle.h header #include (I don't think 
-> we should rely on the boolean headers to include it).
+On Wed, 2005-11-09 at 00:08 -0500, Ivan Gyurdiev wrote:
+> Same cleanup patch as before, resync-ed against latest changes.
+> 
+> Changes:
+> - fold semanage_module_conn into semanage_direct_handle
+> - move sepol handle initialization and destruction into 
+> semanage_handle_create/destroy, to allow use of the handle when 
+> disconnected, which is consistent with current record interfaces (they 
+> do not require a connection).
 
-thanks, merged.
+Seems sane, but I'd like an ack from Tresys.
 
 -- 
 Stephen Smalley
