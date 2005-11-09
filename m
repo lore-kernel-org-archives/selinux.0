@@ -1,37 +1,31 @@
-Message-ID: <36282A1733C57546BE392885C0618592E1C2F2@chaos.tcs.tcs-sec.com>
+Message-ID: <36282A1733C57546BE392885C0618592E1C2F6@chaos.tcs.tcs-sec.com>
 From: Jonathan Kim <jkim@TrustedCS.com>
-To: dwalsh@redhat.com
-Cc: SELinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
-Subject: [PATCH] MLS Policy 
-Date: Wed, 9 Nov 2005 11:04:21 -0500 
+To: dwalsh@redhat.com, SELinux@tycho.nsa.gov
+Cc: Chad Hanson <chanson@TrustedCS.com>
+Subject: [Patch] policy - passwd error
+Date: Wed, 9 Nov 2005 11:08:29 -0500 
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C5E547.3F029620"
+	boundary="----_=_NextPart_000_01C5E547.D2EE79D0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This message is in MIME format. Since your mail reader does not understand
 this format, some or all of this message may not be legible.
 
-------_=_NextPart_000_01C5E547.3F029620
+------_=_NextPart_000_01C5E547.D2EE79D0
 Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C5E547.3F029620"
+	boundary="----_=_NextPart_001_01C5E547.D2EE79D0"
 
 
-------_=_NextPart_001_01C5E547.3F029620
+------_=_NextPart_001_01C5E547.D2EE79D0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 
-The attached patch corrects an apparent typo in the base_can_network macro. 
-With the patch applied, it will be possible to do "ssh or ping localhost",
-for example.
+The attached patch allows the passwd command to generate audit records.
+I diffed with MLS policy, but this also fix Strict policy as well.
  
-Also, the NSA policy already contains the correct comments for all of the
-MLS attributes in the file attrib.te, but the 'policy-20051021.patch' is
-patching over these comments with older comments. 
-The fix is to not patch that portion of the attrib.te file
- 
-Thank you
+Thanks.
 
 ----------------------------------- 
 Jonghoon Jonathan 
@@ -48,7 +42,7 @@ F:  217.384.0288
 
  
 
-------_=_NextPart_001_01C5E547.3F029620
+------_=_NextPart_001_01C5E547.D2EE79D0
 Content-Type: text/html;
 	charset="iso-8859-1"
 
@@ -59,20 +53,14 @@ Content-Type: text/html;
 
 <META content="MSHTML 6.00.2800.1479" name=GENERATOR></HEAD>
 <BODY>
-<DIV><FONT face=Arial size=2>The attached patch corrects an apparent typo in the 
-base_can_network<SPAN class=047084815-09112005> </SPAN>macro. </FONT></DIV>
-<DIV><FONT face=Arial size=2>With the patch applied, it will be possible to do 
-"ssh or ping localhost", for example.</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><FONT face=Arial size=2>Also, the NSA policy already contains the correct 
-comments for all of the MLS attributes in the file attrib.te, but the 
-'policy-20051021.patch' is patching over these comments with older comments. 
-</FONT></DIV>
-<DIV><FONT face=Arial size=2>The fix is to not patch that portion of the 
-attrib.te file</FONT></DIV>
-<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>
-<DIV><SPAN class=047084815-09112005><FONT face=Arial size=2>Thank 
-you</FONT></SPAN></DIV>
+<DIV><FONT face=Arial size=2>The attached patch allows the passwd command to 
+generate audit<SPAN class=030535415-09112005> </SPAN>records.</FONT></DIV>
+<DIV><FONT face=Arial size=2>I diffed with MLS policy, but this also 
+fix&nbsp;<SPAN class=030535415-09112005>S</SPAN>trict policy as 
+well.</FONT></DIV>
+<DIV><FONT face=Arial><FONT size=2></FONT></FONT>&nbsp;</DIV>
+<DIV><FONT face=Arial><FONT size=2>Thanks<SPAN 
+class=030535415-09112005>.</SPAN></FONT></FONT></DIV>
 <P><FONT face="Courier New" size=2>-----------------------------------</FONT> 
 <BR><B><FONT face=Arial size=2>Jonghoon Jonathan</FONT></B> <BR><FONT face=Arial 
 size=2>Secure Systems Engineer</FONT> </P>
@@ -86,33 +74,34 @@ target=_blank>http://www.TrustedCS.com</A></FONT> </P>
 size=2>F:&nbsp;</FONT></B> <FONT face=Arial size=2>217.384.0288</FONT> </P>
 <DIV>&nbsp;</DIV></BODY></HTML>
 
-------_=_NextPart_001_01C5E547.3F029620--
+------_=_NextPart_001_01C5E547.D2EE79D0--
 
-------_=_NextPart_000_01C5E547.3F029620
+------_=_NextPart_000_01C5E547.D2EE79D0
 Content-Type: application/octet-stream;
-	name="policy-mls-1.27.2.patch.netif"
+	name="policy-1.27.2.patch.passwd"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="policy-mls-1.27.2.patch.netif"
+	filename="policy-1.27.2.patch.passwd"
 
-diff -Nur policy-1.27.2.orig/macros/network_macros.te =
-policy-1.27.2/macros/network_macros.te=0A=
---- policy-1.27.2.orig/macros/network_macros.te	2005-11-08 =
+diff -Nur policy-1.27.2.orig/domains/program/passwd.te =
+policy-1.27.2/domains/program/passwd.te=0A=
+--- policy-1.27.2.orig/domains/program/passwd.te	2005-11-08 =
 15:07:10.000000000 -0600=0A=
-+++ policy-1.27.2/macros/network_macros.te	2005-11-08 =
-15:33:23.000000000 -0600=0A=
-@@ -16,7 +16,7 @@=0A=
- # Allow the domain to send or receive using any network interface.=0A=
- # netif_type is a type attribute for all network interface types.=0A=
- #=0A=
--allow $1 netif_t:netif { $2_recv $2_send rawip_send rawip_recv };=0A=
-+allow $1 netif_type:netif { $2_recv $2_send rawip_send rawip_recv =
-};=0A=
- #=0A=
- # Allow the domain to send to or receive from any node.=0A=
- # node_type is a type attribute for all node types.=0A=
++++ policy-1.27.2/domains/program/passwd.te	2005-11-08 =
+15:30:16.000000000 -0600=0A=
+@@ -42,7 +42,7 @@=0A=
+ allow $1_t etc_t:lnk_file read;=0A=
+ =0A=
+ # Use capabilities.=0A=
+-allow $1_t self:capability { chown dac_override fsetid setuid setgid =
+sys_resource };=0A=
++allow $1_t self:capability { chown dac_override fsetid setuid setgid =
+sys_resource audit_control audit_write };=0A=
+ =0A=
+ # Access terminals.=0A=
+ allow $1_t { ttyfile ptyfile }:chr_file rw_file_perms;=0A=
 
-------_=_NextPart_000_01C5E547.3F029620--
+------_=_NextPart_000_01C5E547.D2EE79D0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
