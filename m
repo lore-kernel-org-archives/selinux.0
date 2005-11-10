@@ -1,42 +1,49 @@
-Subject: Re: [PATCH] SELinux - canonicalize getxattr() (fwd)
+Subject: Re: Problems with policy-1.26
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Chad Sellers <csellers@tresys.com>, James Morris <jmorris@namei.org>,
-   selinux@tycho.nsa.gov, SELinux-dev@tresys.com
-In-Reply-To: <1131625910.20591.607.camel@moss-spartans.epoch.ncsc.mil>
-References: <Pine.LNX.4.63.0509141014520.7898@excalibur.intercode>
-	 <Pine.LNX.4.63.0510271520390.24160@excalibur.intercode>
-	 <1130443338.18805.364.camel@moss-spartans.epoch.ncsc.mil>
-	 <200511091630.53757.csellers@tresys.com>  <43727C4D.1070100@redhat.com>
-	 <1131625910.20591.607.camel@moss-spartans.epoch.ncsc.mil>
+To: Goo GGooo <googgooo@gmail.com>
+Cc: selinux@tycho.nsa.gov, Thomas Bleher <bleher@informatik.uni-muenchen.de>
+In-Reply-To: <ef5305790511091413m61a0dc45w23847388910ca32f@mail.gmail.com>
+References: <ef5305790511060406x26fb2221mff3168b980b68f27@mail.gmail.com>
+	 <1131543572.20591.464.camel@moss-spartans.epoch.ncsc.mil>
+	 <ef5305790511091413m61a0dc45w23847388910ca32f@mail.gmail.com>
 Content-Type: text/plain
-Date: Thu, 10 Nov 2005 07:45:07 -0500
-Message-Id: <1131626707.20591.615.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 10 Nov 2005 08:09:04 -0500
+Message-Id: <1131628144.19626.5.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-11-10 at 07:31 -0500, Stephen Smalley wrote:
-> On Wed, 2005-11-09 at 17:46 -0500, Daniel J Walsh wrote:
-> > We are supposed to be patching restorecon/chcon/setfiles to make these 
-> > go away or at most warn.  These tools should be asking the kernel for 
-> > the correct context for a file  IE shlib_t -> lib_t in targeted policy 
-> > and then says it is ok.
-> 
-> I already took care of restorecon (via the modified matchpathcon logic)
-> and setfiles (which has its own callback).  But they need a kernel that
-> has the new support for canonicalizing the contexts, and that only just
-> showed up in 2.6.14-git13.  Not in rawhide yet AFAIK.
+On Thu, 2005-11-10 at 11:13 +1300, Goo GGooo wrote:
+> It's OpenSUSE 10.0 which comes only with libselinux-1.23.11 and
+> noother SElinux related packages. So I downloaded the rest of them
+> fromhttp://www.cip.ifi.lmu.de/~bleher/selinux/suse/ and tried to
+> configureit with the policies provided on that website as well as
+> withpolicy-1.26. Failing that I deinstalled all the RPMs again
+> andcompiled SElinux from sources from nsa.gov. However still having
+> theproblems described above.
+> All I want to achieve for now is permitting everything for
+> everyone(even in enforcing mode) and then harden some network-facing
+> daemonslike Apache or Bind, i.e. use the targeted policy. But I can't
+> evenstart playing with that as I can't load the sample policy :-(
+> Any other ideas on how to continue? Using something else than
+> OpenSUSE10.0 isn't unfortunately possible.
 
-BTW, in addition to altering matchpatchcon for this purpose, I added
-security_canonicalize_context interfaces to libselinux to allow other
-applications to also obtain canonical contexts.  So chcon could call
-that interface to get the canonical context and compare the result with
-the user-supplied context.  The implementation provides a fallback for
-kernels that do not yet support the new functionality, simply returning
-the provided context in that case, so that nothing breaks (you just
-don't get the benefit of the canonicalization until the kernel includes
-the patch).
+Newlines are helpful when reading emails ;)
+
+I'd encourage you to work with Thomas Bleher to get his packages working
+for you, as he has been packaging SELinux for SuSE for his own use for
+some time, as well as contributing to the upstream SELinux.
+
+That said, I don't know if he has ever created a targeted policy for
+SuSE.  Note that although the Fedora targeted policy is built from the
+same source tree, the build sequence for it isn't part of the upstream
+policy Makefile - the targeted policy spec file applies a
+targeted-specific policy patch, selectively enables and disables
+particular .te files, and overwrites certain files with the contents of
+the policy/targeted subdirectory (as well as applying MCS conversion now
+in rawhide, but that likely isn't relevant to you).  So you would want
+to look at what the spec file does (available from the public Fedora CVS
+tree), or even grab a copy of the Fedora targeted policy SRPM.
 
 -- 
 Stephen Smalley
