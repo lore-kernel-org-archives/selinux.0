@@ -1,36 +1,33 @@
-Subject: Re: [ SEMANAGE ] Move seuser validation to proper place
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4372824F.7050904@cornell.edu>
-References: <4372824F.7050904@cornell.edu>
-Content-Type: text/plain
-Date: Thu, 10 Nov 2005 08:43:04 -0500
-Message-Id: <1131630184.19626.16.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAAEN1MA000690
+	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:23:01 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAAEGU7H024629
+	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 14:16:30 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id jAAEGVVj027278
+	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:16:31 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id jAAEGVV07047
+	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:16:31 -0500
+Received: from [172.16.83.104] (dhcp83-104.boston.redhat.com [172.16.83.104])
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id jAAEGV2s016692
+	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:16:31 -0500
+Message-ID: <4373563F.1080200@redhat.com>
+Date: Thu, 10 Nov 2005 09:16:31 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: New version of Targeted Reference policy is available to play with.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-11-09 at 18:12 -0500, Ivan Gyurdiev wrote:
-> Moves seuser validation from commit_components into merge_components.
-> This is the logical place for it - it's:
-> 
-> 1) after modules are loaded and all components merged
-> 2) inside the attach-detach section where policy has not been written 
-> back to disk
-> 3) still in policy_components.c, which is supposedly backend-independent 
-> code.
-> 
-> This should result in a speedup, because the policy does not need to be 
-> re-read in for the sake of seuser validation, which was occuring in 
-> commit(). Note that seuser validation is incomplete at this point, since 
-> MLS checks are not done.
+ftp://people.redhat.com/dwalsh/SELinux/refpolicy/selinux-policy-2.0.0-0.3.src.rpm
 
-Thanks, merged.
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
