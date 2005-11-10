@@ -1,37 +1,32 @@
-Subject: Re: [ SEMANAGE ] Fix hidden declarations
+Subject: Re: [ SEMANAGE ] Move seuser validation to proper place
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1131628976.19626.15.camel@moss-spartans.epoch.ncsc.mil>
-References: <43728384.3020508@cornell.edu>
-	 <1131628976.19626.15.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <4372824F.7050904@cornell.edu>
+References: <4372824F.7050904@cornell.edu>
 Content-Type: text/plain
-Date: Thu, 10 Nov 2005 08:43:31 -0500
-Message-Id: <1131630211.19626.18.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 10 Nov 2005 08:43:04 -0500
+Message-Id: <1131630184.19626.16.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-11-10 at 08:22 -0500, Stephen Smalley wrote:
-> > This patch:
-> > 
-> > - removes the hidden proto for sepol_user_exists(), and 
-> > sepol_seuser_iterate(), which make those functions invisible (no 
-> > hidden_def, not sure if one should be added).
+On Wed, 2005-11-09 at 18:12 -0500, Ivan Gyurdiev wrote:
+> Moves seuser validation from commit_components into merge_components.
+> This is the logical place for it - it's:
 > 
-> No, this re-introduces relocations on those symbols (actually semanage_,
-> not sepol_).  Correct fix is to add hidden_defs for these symbols, not
-> to remove the hidden_protos.  If you had run relinfo.pl (attached) on
-> the .so file after applying your patch, you would have seen that it
-> yielded relocations on local syms.  Or you could just run readelf -r on
-> the .so file and grep for semanage_ prefix.
+> 1) after modules are loaded and all components merged
+> 2) inside the attach-detach section where policy has not been written 
+> back to disk
+> 3) still in policy_components.c, which is supposedly backend-independent 
+> code.
 > 
-> > - changes two cases of hidden_proto in iface_record.c to hidden_def, 
-> > because that just looks wrong.
-> 
-> Yes, that was a bug.
+> This should result in a speedup, because the policy does not need to be 
+> re-read in for the sake of seuser validation, which was occuring in 
+> commit(). Note that seuser validation is incomplete at this point, since 
+> MLS checks are not done.
 
-Merged with the above issue corrected.
+Thanks, merged.
 
 -- 
 Stephen Smalley
