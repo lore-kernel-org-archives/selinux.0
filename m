@@ -1,43 +1,32 @@
-Subject: Re: [PATCH] SELinux - canonicalize getxattr() (fwd)
+Subject: Re: New version of Targeted Reference policy is available to play
+	with.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chad Sellers <csellers@tresys.com>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-   SELinux-dev@tresys.com, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1131636784.19626.58.camel@moss-spartans.epoch.ncsc.mil>
-References: <Pine.LNX.4.63.0509141014520.7898@excalibur.intercode>
-	 <200511091630.53757.csellers@tresys.com>
-	 <1131635584.19626.43.camel@moss-spartans.epoch.ncsc.mil>
-	 <200511101022.12631.csellers@tresys.com>
-	 <1131636784.19626.58.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4373563F.1080200@redhat.com>
+References: <4373563F.1080200@redhat.com>
 Content-Type: text/plain
-Date: Thu, 10 Nov 2005 10:45:40 -0500
-Message-Id: <1131637540.19626.69.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 10 Nov 2005 10:50:36 -0500
+Message-Id: <1131637836.19626.73.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-11-10 at 10:33 -0500, Stephen Smalley wrote:
-> I'm doing the following:
-> - updating to the latest rawhide targeted policy first (or rolling back
-> to it from prior attempted install of the refpolicy),
+On Thu, 2005-11-10 at 09:16 -0500, Daniel J Walsh wrote:
+> ftp://people.redhat.com/dwalsh/SELinux/refpolicy/selinux-policy-2.0.0-0.3.src.rpm
 
-And also updating to latest rawhide libse* and policycoreutils packages.
+Caveat:  I tried updating to this policy from the current rawhide
+targeted policy, and while it appeared to do the right things (modulo
+some relabeling, see my other posting for the log file), when it
+finished, rpm seems to have removed the generated policy files
+(policy.20, file_contexts, seusers) that are now managed via
+libsemanage.  Thus, a reboot immediately fails with no policy.
 
-> - running fixfiles restorecon to ensure that files are labeled
-> consistently with that policy (should already be handled upon the
-> update, but just wanted to be sure),
-> - running rpm -Uvh on the new policy rpm, redirecting stdout and stderr
-> to a log file.
-> 
-> The restorecon is still running, but so far I have the following output
-> excluding the lib_t->shlib_t noise:
-> $ grep -v 'lib_t.*shlib_t' log
-
-Ok, rpm finished running, and there was no further output from
-restorecon.  But there is also no installed policy on the system
-(outside of the sandbox).  Hmmm...did rpm remove the installed files
-because they are no longer owned by the policy package itself, whereas
-they used to be?
+I think that what is happening is that rpm sees that these files _were_
+owned by the previous targeted policy package and are no longer provided
+by this new policy package (since they are now generated via
+libsemanage), so rpm cheerfully deletes them as no longer being needed.
+Can we suppress that removal in some way?
 
 -- 
 Stephen Smalley
