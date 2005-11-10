@@ -1,33 +1,35 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAAEN1MA000690
-	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:23:01 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAAEGU7H024629
-	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 14:16:30 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id jAAEGVVj027278
-	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:16:31 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id jAAEGVV07047
-	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:16:31 -0500
-Received: from [172.16.83.104] (dhcp83-104.boston.redhat.com [172.16.83.104])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id jAAEGV2s016692
-	for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2005 09:16:31 -0500
-Message-ID: <4373563F.1080200@redhat.com>
-Date: Thu, 10 Nov 2005 09:16:31 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: New version of Targeted Reference policy is available to play with.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] SELinux - canonicalize getxattr() (fwd)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chad Sellers <csellers@tresys.com>
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+   SELinux-dev@tresys.com, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200511091630.53757.csellers@tresys.com>
+References: <Pine.LNX.4.63.0509141014520.7898@excalibur.intercode>
+	 <Pine.LNX.4.63.0510271520390.24160@excalibur.intercode>
+	 <1130443338.18805.364.camel@moss-spartans.epoch.ncsc.mil>
+	 <200511091630.53757.csellers@tresys.com>
+Content-Type: text/plain
+Date: Thu, 10 Nov 2005 10:13:04 -0500
+Message-Id: <1131635584.19626.43.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ftp://people.redhat.com/dwalsh/SELinux/refpolicy/selinux-policy-2.0.0-0.3.src.rpm
+On Wed, 2005-11-09 at 16:30 -0500, Chad Sellers wrote:
+> Did this ever get resolved?  I see that this patch has made it into the 
+> rawhide kernel.  This means that when installing a new policy rpm, my screen 
+> is flooded with fixfiles relabeling lib_t to shlib_t, due to shlib_t being a 
+> typealias of lib_t in targeted.  Are we worried about this right now, or are 
+> these messages ok?
 
+So the short answer is to not worry about these messages, as they do not
+reflect actual changes in labels (and are an issue already with existing
+targeted policy updates, not just refpolicy), and they will cease when
+the rawhide kernel picks up the latest -git snapshot.
 
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
