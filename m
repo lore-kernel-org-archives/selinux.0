@@ -1,53 +1,145 @@
-Subject: Re: Problems with policy-1.26
+Subject: Re: [ SEMANAGE ] Fix hidden declarations
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Goo GGooo <googgooo@gmail.com>
-Cc: selinux@tycho.nsa.gov, Thomas Bleher <bleher@informatik.uni-muenchen.de>
-In-Reply-To: <ef5305790511091413m61a0dc45w23847388910ca32f@mail.gmail.com>
-References: <ef5305790511060406x26fb2221mff3168b980b68f27@mail.gmail.com>
-	 <1131543572.20591.464.camel@moss-spartans.epoch.ncsc.mil>
-	 <ef5305790511091413m61a0dc45w23847388910ca32f@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 10 Nov 2005 08:09:04 -0500
-Message-Id: <1131628144.19626.5.camel@moss-spartans.epoch.ncsc.mil>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <43728384.3020508@cornell.edu>
+References: <43728384.3020508@cornell.edu>
+Content-Type: multipart/mixed; boundary="=-KyksD48aoKDI2svnMZer"
+Date: Thu, 10 Nov 2005 08:22:56 -0500
+Message-Id: <1131628976.19626.15.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-11-10 at 11:13 +1300, Goo GGooo wrote:
-> It's OpenSUSE 10.0 which comes only with libselinux-1.23.11 and
-> noother SElinux related packages. So I downloaded the rest of them
-> fromhttp://www.cip.ifi.lmu.de/~bleher/selinux/suse/ and tried to
-> configureit with the policies provided on that website as well as
-> withpolicy-1.26. Failing that I deinstalled all the RPMs again
-> andcompiled SElinux from sources from nsa.gov. However still having
-> theproblems described above.
-> All I want to achieve for now is permitting everything for
-> everyone(even in enforcing mode) and then harden some network-facing
-> daemonslike Apache or Bind, i.e. use the targeted policy. But I can't
-> evenstart playing with that as I can't load the sample policy :-(
-> Any other ideas on how to continue? Using something else than
-> OpenSUSE10.0 isn't unfortunately possible.
 
-Newlines are helpful when reading emails ;)
+--=-KyksD48aoKDI2svnMZer
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I'd encourage you to work with Thomas Bleher to get his packages working
-for you, as he has been packaging SELinux for SuSE for his own use for
-some time, as well as contributing to the upstream SELinux.
+On Wed, 2005-11-09 at 18:17 -0500, Ivan Gyurdiev wrote:
+> The hidden declarations are still a mystery to me. They are present in 
+> half the functions, and missing in the other half. I'm sure there's a 
+> reason for this, but since I don't quite understand the pattern, I'll 
+> leave them alone. There's no hidden declarations for _local.c, and 
+> _policy.c, and they are missing for some of the functions in _record.c.
 
-That said, I don't know if he has ever created a targeted policy for
-SuSE.  Note that although the Fedora targeted policy is built from the
-same source tree, the build sequence for it isn't part of the upstream
-policy Makefile - the targeted policy spec file applies a
-targeted-specific policy patch, selectively enables and disables
-particular .te files, and overwrites certain files with the contents of
-the policy/targeted subdirectory (as well as applying MCS conversion now
-in rawhide, but that likely isn't relevant to you).  So you would want
-to look at what the spec file does (available from the public Fedora CVS
-tree), or even grab a copy of the Fedora targeted policy SRPM.
+Explanation:  Whenever you use an exported symbol from within the DSO,
+by default, interposition on the symbol is possible even for the
+references within the DSO, i.e. you can override the internal definition
+via another DSO.  Therefore, a relocation is required for the local
+symbol reference.  This has a cost and is rarely what you want.  Thus,
+by introducing hidden_proto()/hidden_def(), you create an internal
+definition for all internal references that is not interposable and does
+not require relocations.  This only affects exported symbols you are
+calling from within the DSO itself.
+
+> This patch:
+> 
+> - removes the hidden proto for sepol_user_exists(), and 
+> sepol_seuser_iterate(), which make those functions invisible (no 
+> hidden_def, not sure if one should be added).
+
+No, this re-introduces relocations on those symbols (actually semanage_,
+not sepol_).  Correct fix is to add hidden_defs for these symbols, not
+to remove the hidden_protos.  If you had run relinfo.pl (attached) on
+the .so file after applying your patch, you would have seen that it
+yielded relocations on local syms.  Or you could just run readelf -r on
+the .so file and grep for semanage_ prefix.
+
+> - changes two cases of hidden_proto in iface_record.c to hidden_def, 
+> because that just looks wrong.
+
+Yes, that was a bug.
 
 -- 
 Stephen Smalley
 National Security Agency
+
+--=-KyksD48aoKDI2svnMZer
+Content-Disposition: attachment; filename=relinfo.pl
+Content-Type: application/x-perl; name=relinfo.pl
+Content-Transfer-Encoding: 7bit
+
+#! /usr/bin/perl
+eval "exec /usr/bin/perl -S $0 $*"
+    if 0;
+# Copyright (C) 2000, 2001, 2002, 2003, 2004 Red Hat, Inc.
+# Written by Ulrich Drepper <drepper@redhat.com>, 2000.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+
+for ($cnt = 0; $cnt <= $#ARGV; ++$cnt) {
+  $relent = 0;
+  $relsz = 0;
+  $relcount = 0;
+  $pltrelsz = 0;
+  $extplt = 0;
+  $users = 0;
+
+  open (READLINK, "readlink -f $ARGV[$cnt] |") || die "cannot open readlink";
+  while (<READLINK>) {
+        chop;
+        $fullpath = $_;
+  }
+  close (READLINK);
+
+  open (READELF, "eu-readelf -d $ARGV[$cnt] |") || die "cannot open $ARGV[$cnt]";
+  while (<READELF>) {
+    chop;
+    if (/.* RELA?ENT *([0-9]*).*/) {
+      $relent = $1 + 0;
+    } elsif (/.* RELA?SZ *([0-9]*).*/) {
+      $relsz = $1 + 0;
+    } elsif (/.* RELA?COUNT *([0-9]*).*/) {
+      $relcount = $1 + 0;
+    } elsif (/.* PLTRELSZ *([0-9]*).*/) {
+      $pltrelsz = $1 + 0;
+    }
+  }
+  close (READELF);
+
+  open (READELF, "eu-readelf -r $ARGV[$cnt] |") || die "cannot open $ARGV[$cnt]";
+  while (<READELF>) {
+    chop;
+    if (/.*JU?MP_SLOT *0+ .*/) {
+      ++$extplt;
+    }
+  }
+  close (READELF);
+
+  if (open (PRELINK, "/usr/sbin/prelink -p 2>/dev/null | fgrep \"$fullpath\" |")) {
+    while (<PRELINK>) {
+      ++$users;
+    }
+    close(PRELINK);
+  } else {
+    $users = -1;
+  }
+
+  printf ("%s: %d relocations, %d relative (%d%%), %d PLT entries, %d for local syms (%d%%)",
+	  $ARGV[$cnt], $relent == 0 ? 0 : $relsz / $relent, $relcount,
+	  $relent == 0 ? 0 : ($relcount * 100) / ($relsz / $relent),
+	  $relent == 0 ? 0 : $pltrelsz / $relent,
+	  $relent == 0 ? 0 : $pltrelsz / $relent - $extplt,
+	  $relent == 0 ? 0 : (($pltrelsz / $relent - $extplt) * 100) / ($pltrelsz / $relent));
+  if ($users >= 0) {
+    printf(", %d users", $users);
+  }
+  printf("\n");
+}
+
+--=-KyksD48aoKDI2svnMZer--
 
 
 --
