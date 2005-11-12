@@ -1,41 +1,36 @@
-Date: Fri, 11 Nov 2005 12:05:11 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Erich Schubert <erich@debian.org>, Chris Wright <chrisw@osdl.org>,
-   Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
-   SELinux@tycho.nsa.gov
-Subject: Re: changes in ~2.6.13 break postfix policy?
-Message-ID: <20051111120511.GC9115@lkcl.net>
-References: <1131106145.28236.7.camel@wintermute.xmldesign.de> <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil> <20051104183551.GC2837@legolas.drinsama.de> <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil> <1131148407.1355.21.camel@wintermute.xmldesign.de> <1131382681.20591.102.camel@moss-spartans.epoch.ncsc.mil> <1131478271.17745.6.camel@wintermute.xmldesign.de> <1131543371.20591.460.camel@moss-spartans.epoch.ncsc.mil> <1131648624.19626.122.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1131648624.19626.122.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Should this be a dontaudit or an allow in targeted.
+Date: Sat, 12 Nov 2005 20:49:29 +1100
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Chad Hanson <chanson@TrustedCS.com>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <43663282.8030707@redhat.com> <1130774532.22731.118.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1130774532.22731.118.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200511122049.40859.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-raised as 338543@bugs.debian.org.
+On Tuesday 01 November 2005 03:02, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On a related note, it has been suggested (on lspp) that we might need
+> dontaudit/auditallow rules based on MLS level.  Is that true, or can we
+> just leverage the existing TE-based rules to control such auditing based
+> on type (which typically gives us finer granularity anyway)?
 
-On Thu, Nov 10, 2005 at 01:50:24PM -0500, Stephen Smalley wrote:
+It seems sensible to have audit controlled on the same basis as access.  So 
+for any criteria on which access can be allowed/denied it should be possible 
+to base audit decisions on the same criteria.
 
-> On Wed, 2005-11-09 at 08:36 -0500, Stephen Smalley wrote:
+auditconstrain/mlsauditconstrain?
 
-> > On Tue, 2005-11-08 at 20:31 +0100, Erich Schubert wrote:
-> > > Hi,
-> > > > Hmmm...can you supply any more info to help reproduce the bug?
-> > > 
-> > > I've upgraded a box of mine running a self-compiled 2.6.14-rc3 to
-> > > debians 2.6.14 - and the error has appeared on it, too.
-> > > [...]
- 
-> Ok, I've tracked down the cause of this problem in the Debian kernels:
-> they are disabling CONFIG_SECURITY_NETWORK, which disables all of the
-> LSM socket hooks.  Thus, SELinux never gets a chance to classify the
-
-> [...]
-
-> I'd suggest asking the Debian kernel maintainers to entertain the notion
-> of enabling CONFIG_SECURITY_NETWORK.  If they are being driven by
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
