@@ -1,42 +1,41 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: unreasonably long SE Linux context display
-Date: Sat, 12 Nov 2005 21:29:21 +1100
-Cc: James Morris <jmorris@namei.org>, Daniel J Walsh <dwalsh@redhat.com>,
-   SE-Linux <selinux@tycho.nsa.gov>
-References: <200510311812.02462.russell@coker.com.au> <1130776438.22731.142.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1130776438.22731.142.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <43764DDE.1060503@cornell.edu>
+Date: Sat, 12 Nov 2005 15:17:34 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200511122129.30879.russell@coker.com.au>
+To: SELinux List <SELinux@tycho.nsa.gov>, SELinux-dev@tresys.com
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Mls data structure, Seusers...
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 01 November 2005 03:33, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > For ls it would be good to be able to display part of the context.  For
-> > the vast majority of invocations of "ls -Z" on a SE Linux system the
-> > identity and role are not desired in the output.
->
-> James previously suggested introducing environment variables to control
-> the display of contexts, so that you could alter ls and ps -Z output
-> simply by adjusting such variables.
+Okay, I think sepol is moving on the right track to becoming a properly 
+encapsulated library. Opaque structures are being used in interfaces, 
+which is important to maintain stability in the future. There has been 
+disagreement in the past as to whether separate data structures 
+(records) should be created to manage various objects, or whether the 
+existing structures should be used. I think that issue's less important 
+than using opaque structures in the interface - if the interface is set 
+up correctly, the internals can be easily changed. I still favor 
+separate data structures, because they are independent from policy (so 
+can be serialized and passed to the client by the policy server, without 
+needing the policy after the initial query), and because they're higher 
+level, and easier to work with from the client's perspective.
 
-I don't think that's such a good idea.  As the output of such programs will be 
-used by shell scripts it will have some interesting possibilities for 
-breaking such scripts.
+Anyway, to get to the point of this email... I originally chose to 
+represent MLS data in user/seuser/context objects as a string, rather 
+than a structure. That might have been a mistake, so I raise this issue 
+again - is a string acceptable? It's important to clarify this, because 
+it affects the interface, and also matters for future functions which I 
+plan to write that allow libsemanage to validate seuser mls fields.
 
-> In any event, patches speak louder than words here...
-
-OK, as no-one seems to have a great objection I'll write some patches when I 
-find time.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+By the way, I am assuming that the way this will be done is by 
+introducing (shared) interfaces to deal with mls ranges/levels. An 
+alternative approach is to make sepol learn about seusers (by moving the 
+seuser record into sepol), and dealing with this higher-level object, 
+rather than the mls range directly. However, there's no reason to move 
+the seuser record into sepol, other than for validation - seusers are 
+not loaded into policy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
