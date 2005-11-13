@@ -1,67 +1,58 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jADIrgMA026430
-	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 13:53:42 -0500 (EST)
-Received: from mx4.informatik.uni-tuebingen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jADIkcQ8027368
-	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 18:46:38 GMT
-Date: Sun, 13 Nov 2005 19:46:15 +0100
-From: Andreas Bernauer <andreas.bernauer@gmx.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jADJVoMA026653
+	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 14:31:50 -0500 (EST)
+Received: from www.gornall.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jADJOkQ8003340
+	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 19:24:46 GMT
+Received: from [192.168.1.100] (c-67-169-147-12.hsd1.ca.comcast.net [67.169.147.12])
+	by www.gornall.net (Postfix) with ESMTP id 1D3BD1C4E4
+	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 19:47:31 +0000 (GMT)
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Message-Id: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
 To: selinux@tycho.nsa.gov
-Subject: (new?) problems installing with checkinstall
-Message-ID: <20051113184615.GB3618@tierbergli.Informatik.Uni-Tuebingen.De>
-Reply-To: Andreas Bernauer <andreas.bernauer@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+From: Simon Gornall <simon@gornall.net>
+Subject: Running programs from a PHP script under SELinux
+Date: Sun, 13 Nov 2005 11:24:35 -0800
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Hi all,
 
-First, I must admit I am new to SELinux.  I hope, this is the right
-place to ask my question.  I could not find an answer in the mailing
-list archives, the web or the UnOfficial FAQ.  If this is the wrong
-place, please be so kind and point me to the right place.
+This is very much a newbie question I'm afraid - if there's a more- 
+appropriate forum, I'll be glad to be pointed in their general  
+direction :-) I can't see anything in the FAQ (though I guess I may  
+not have recognised the solution) or after having googled...
 
-I'm running Fedora Core 4 (2.6.13-1.1526_FC4smp) with SELinux in
-permissive mode (and coreutils-5.2.1-48.1,
-policycoreutils-1.27.2-1.2).  I want to install software using
-checkinstall, which monitors the installation process and builds an
-RPM out of it.  [ http://asic-linux.com.mx/~izto/checkinstall/ ]
+I've set up RHEL-4 on a webserver machine that is going to ultimately  
+replace my current one, and I've meddled with the .fc and .te files  
+to successfully run mysql with its databases in /opt/mysql (large  
+RAID) and have the webserver directories in /opt/www... I've made  
+diffs so that if the 'official' targetted policies change I can  
+easily recover my settings. So far, so good.
 
-When I do a `make install`, everything runs fine.  However, when I use
-checkinstall (which creates a temporary script which in turn calls
-`make install`), I get error messages like the following:
+When  I call 'exec("/path/to/program") from within a PHP script, it  
+does actually work, but I get a message in the 'dmesg' output like:
 
-----------------------
-/usr/bin/install: warning: failed to change context of /usr/doc/mutt/samples/gpg
-.rc to system_u:object_r:usr_t: No such file or directory
-/usr/bin/install: setting permissions for `/usr/doc/mutt/samples/pgp2.rc': No su
-ch file or directory
-[...]
-  /usr/bin/install -c 'pgpewrap' '/usr/bin/pgpewrap'
-/usr/bin/install: setting permissions for `/usr/bin/pgpewrap': No such file or d
-irectory
-/usr/bin/install: warning: failed to change context of /usr/bin/pgpewrap to syst
-em_u:object_r:bin_t: No such file or directory
-----------------------
+audit(1131753033.872:49): avc:  denied  { execute } for  pid=15678  
+comm="fortune" name="ld.so.cache" dev=md2 ino=132328  
+scontext=root:system_r:httpd_sys_script_t  
+tcontext=root:object_r:ld_so_cache_t tclass=file
 
-Obviously, /usr/bin/install has problems changing the context.
-However, I don't see why.  The files do exist after the installation
-process, despite the error messages indicating the opposite.
+... so, ok, this is only 'fortune' that's running on the login  
+screen, but there will be more-useful programs as well :-) The  
+machine in question is on the other side of the world, so I thought  
+I'd ask what to do before meddling with access to /etc/ld.so.cache in  
+case the whole thing breaks...
 
-My questions:  What is the reason for the error messages and how to I
-stop the error from occuring?  (It also seems to slow down the
-installation process)
-Do I have to fix the contexts after the installation?  If yes, is
-restorecon doing the job?
+Like I say, it does work, but I like to keep the message-logs as  
+clear as possible so real problems can be more-easily tracked...
 
-I would like to post some error log messages, but I could not find
-any.  Neither /var/log/{messages,secure,audit} contain error messages
-related to the problem.
+Any help appreciated :-)
 
-Thank you very much in advance for any hints.
+ATB,
+	Simon
 
-Andreas.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
