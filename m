@@ -1,33 +1,39 @@
-Message-ID: <437918BA.7050701@cornell.edu>
-Date: Mon, 14 Nov 2005 18:07:38 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Date: Mon, 14 Nov 2005 18:07:13 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Erich Schubert <erich@debian.org>, Chris Wright <chrisw@osdl.org>,
+   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
+Subject: Re: changes in ~2.6.13 break postfix policy?
+In-Reply-To: <1131979585.5415.86.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.63.0511141806340.30284@excalibur.intercode>
+References: <1131106145.28236.7.camel@wintermute.xmldesign.de>
+ <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
+ <20051104183551.GC2837@legolas.drinsama.de>  <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
+  <1131148407.1355.21.camel@wintermute.xmldesign.de>
+ <1131382681.20591.102.camel@moss-spartans.epoch.ncsc.mil>
+ <1131478271.17745.6.camel@wintermute.xmldesign.de>
+ <1131543371.20591.460.camel@moss-spartans.epoch.ncsc.mil>
+ <1131648624.19626.122.camel@moss-spartans.epoch.ncsc.mil>
+ <20051111120511.GC9115@lkcl.net> <1131979585.5415.86.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Chad Sellers <csellers@tresys.com>, "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   selinux-dev@tresys.com, Stephen Smalley <sds@tycho.nsa.gov>,
-   selinux@tycho.nsa.gov
-Subject: Re: [PATCH] move genhomedircon call out of transaction
-References: <200511141709.43445.csellers@tresys.com> <4379179A.3090501@cornell.edu>
-In-Reply-To: <4379179A.3090501@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 14 Nov 2005, Stephen Smalley wrote:
 
->> Attached is a patch that moves the genhomedircon patch out of the 
->> libsemanage transaction.  This is necessary since genhomedircon now 
->> uses libsemanage, and enters a transaction itself.
->>   
-> I don't think genhomedircon enters a transaction... nor should it - 
-> it's a read-only operation with respect to the objects that we manage 
-> (currently). I could be wrong, but I can't find where it enters a 
-> transaction in the patch.
-Note: calling multiple semanage query functions outside a transaction is 
-a bad idea, because a policy is object is created and destroyed per call 
-(while it is cached when in-transaction). However, here only the list() 
-function is called (once?), so that seems fine. The active lock guards 
-against modification during list().
+> We should likely make SELinux depend on SECURITY_NETWORK in its Kconfig
+> since this is now necessary, and drop the #if's from hooks.c for it.
 
+Ok.  I also wonder how whether we still need CONFIG_SECURITY_NETWORK at 
+all.
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
