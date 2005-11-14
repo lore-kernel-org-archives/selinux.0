@@ -1,39 +1,21 @@
-Message-ID: <4378C936.60401@cornell.edu>
-Date: Mon, 14 Nov 2005 12:28:22 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <4378D2F6.8030709@redhat.com>
+Date: Mon, 14 Nov 2005 13:09:58 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-   Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: rawhide targeted vs. refpolicy rpm
-References: <BF9A263D.7FFA%csellers@tresys.com>	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>	 <200511141041.49643.csellers@tresys.com> <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil> <4378B88B.6040003@redhat.com>
-In-Reply-To: <4378B88B.6040003@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Chad Sellers <csellers@tresys.com>, Joshua Brindle <jbrindle@tresys.com>,
+   SE Linux <selinux@tycho.nsa.gov>
+Subject: I have modified Joshua's libsemanage-swigify patch to work better
+ in my spec file
+References: <BF9A263D.7FFA%csellers@tresys.com>	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>	 <200511141041.49643.csellers@tresys.com> <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
+swigify patch
 
- > This adds wrappers for some functions in libsemanage. The only wrapped
- > interfaces at this point are query functions for modules, seuser, and
- > user's. These should be sufficient for genhomedircon, and we can add
- > more wrapped interfaces as necessary.
-
-Daniel J Walsh wrote:
-> policycoreutils patch to genhomedircon to use libsemanage to read 
-> seusers file.
-This is awesome - the library has users!
-I guess that means I should stop changing the API now :)
-
-Genhomedircon dependency on file backend will be gone. It will no longer 
-knows about the format of the files (or whether they are files at 
-all)... or about the first role being the default role (now libsemanage 
-decides that, and if you call set_defrole it makes sure that one is 
-written first in the file).
-
-
-
-
+ftp://people.redhat.com/dwalsh/SELinux/libsemanage-swigify.patch
 
 --
 This message was distributed to subscribers of the selinux mailing list.
