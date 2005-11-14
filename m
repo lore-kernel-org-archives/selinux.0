@@ -1,58 +1,158 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAELPtMA006693
-	for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2005 16:25:55 -0500 (EST)
-Received: from free.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAELIetR022911
-	for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2005 21:18:40 GMT
-Received: from lkcl.net (bb-87-82-6-113.ukonline.co.uk [87.82.6.113])
-	by free.hands.com (Postfix) with ESMTP id 75AA4C1B3
-	for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2005 21:16:55 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Eblh2-00008V-H2
-	for selinux@tycho.nsa.gov; Mon, 14 Nov 2005 21:16:48 +0000
-Date: Mon, 14 Nov 2005 21:16:48 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: [owner@bugs.debian.org: Bug#338543 acknowledged by developer (Bug#338543: fixed in linux-2.6 2.6.14-3)]
-Message-ID: <20051114211648.GL8699@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <437903B8.4040701@cornell.edu>
+Date: Mon, 14 Nov 2005 16:38:00 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [ SEMANAGE ] Stub kernel booleans API
+Content-Type: multipart/mixed;
+ boundary="------------000002010708010302090302"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hurrah.  much info cut from the original (very long) message.
-highlights below.
+This is a multi-part message in MIME format.
+--------------000002010708010302090302
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
------ Forwarded message from Debian Bug Tracking System <owner@bugs.debian.org> -----
+I'm not sure if I'll be layering those on top of dbase... maybe..
+ 
 
-This is an automatic notification regarding your Bug report
-#338543: linux-image-2.6.14-1-686: CONFIG_SECURITY_NETWORK is disabled which totally breaks SE/Linux,
-which was filed against the linux-image-2.6.14-1-686 package.
+--------------000002010708010302090302
+Content-Type: text/x-patch;
+ name="libsemanage.stub_kernel_booleans.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.stub_kernel_booleans.diff"
 
-It has been closed by one of the developers, namely
-Norbert Tretkowski <nobse@debian.org>.
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libsemanage/include/semanage/booleans_kernel.h new/libsemanage/include/semanage/booleans_kernel.h
+--- old/libsemanage/include/semanage/booleans_kernel.h	1969-12-31 19:00:00.000000000 -0500
++++ new/libsemanage/include/semanage/booleans_kernel.h	2005-11-14 16:24:18.000000000 -0500
+@@ -0,0 +1,40 @@
++/* Copyright (C) 2005 Red Hat, Inc. */
++
++#ifndef _SEMANAGE_BOOLEANS_KERNEL_H_
++#define _SEMANAGE_BOOLEANS_KERNEL_H_
++
++#include <stddef.h>
++#include <semanage/handle.h> 
++#include <semanage/boolean_record.h>
++
++extern int semanage_bool_set_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_key_t* key,
++	semanage_bool_t* data);
++
++extern int semanage_bool_query_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_key_t* key,
++	semanage_bool_t** response);
++
++extern int semanage_bool_exists_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_key_t* key,
++	int* response);
++
++extern int semanage_bool_count_kernel(
++	semanage_handle_t* handle,
++	unsigned int* response);
++
++extern int semanage_bool_iterate_kernel(
++	semanage_handle_t* handle,
++	int (*handler) (semanage_bool_t* record,
++	                void* varg),
++	void* handler_arg);
++
++extern int semanage_bool_list_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_t*** records,
++	size_t* size);
++
++#endif
+diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libsemanage/src/booleans_kernel.c new/libsemanage/src/booleans_kernel.c
+--- old/libsemanage/src/booleans_kernel.c	1969-12-31 19:00:00.000000000 -0500
++++ new/libsemanage/src/booleans_kernel.c	2005-11-14 16:28:22.000000000 -0500
+@@ -0,0 +1,78 @@
++/* Copyright (C) 2005 Red Hat, Inc. */
++
++#include "boolean_internal.h"
++
++#include <stddef.h>
++#include <semanage/booleans_kernel.h>
++#include "debug.h"
++#include "handle.h"
++
++int semanage_bool_set_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_key_t* key,
++	semanage_bool_t* data) {
++
++	/* Stub */
++	handle = NULL;
++	key = NULL;
++	data = NULL;
++	return STATUS_ERR;
++}
++
++int semanage_bool_query_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_key_t* key,
++	semanage_bool_t** response) {
++	
++	/* Stub */
++	handle = NULL;
++	key = NULL;
++	response = NULL;
++	return STATUS_ERR;
++}
++
++int semanage_bool_exists_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_key_t* key,
++	int* response) {
++
++	/* Stub */
++	handle = NULL;
++	key = NULL;
++	response = NULL;
++	return STATUS_ERR;
++}
++
++int semanage_bool_count_kernel(
++	semanage_handle_t* handle,
++	unsigned int* response) {
++
++	/* Stub */
++	handle = NULL;
++	response = NULL;
++	return STATUS_ERR;
++}
++
++int semanage_bool_iterate_kernel(
++	semanage_handle_t* handle,
++	int (*handler) (semanage_bool_t* record,
++	                void* varg),
++	void* handler_arg) {
++
++	/* Stub */
++	handle = NULL;
++	handler = NULL;
++	handler_arg = NULL;
++	return STATUS_ERR;
++}
++
++int semanage_bool_list_kernel(
++	semanage_handle_t* handle,
++	semanage_bool_t*** records,
++	size_t* count) {
++
++	handle = NULL;
++	records = NULL;
++	count = NULL;
++	return STATUS_ERR;
++}
 
-Architecture: source i386 all
-Version: 2.6.14-3
-Distribution: unstable
-Urgency: low
-Maintainer: Debian Kernel Team <debian-kernel@lists.debian.org>
-Changed-By: Norbert Tretkowski <nobse@debian.org>
- linux-headers-2.6.14 - All header files for Linux kernel 2.6.14
- linux-image-2.6.14-2-686 - Linux kernel 2.6.14 image on PPro/Celeron/PII/PIII/P4 machines
- linux-tree-2.6.14 - Linux kernel source tree for building Debian kernel images
-Closes: 267600 321200 336424 336431 336450 337072 337089 337713 338543 338911
-Changes: 
- linux-2.6 (2.6.14-3) unstable; urgency=low
- .
-   [ Frederik Sch??ler ]
-   * activate CONFIG_SECURITY_NETWORK to fix SElinux operation.
-     (Closes: #338543)
-
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+--------------000002010708010302090302--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
