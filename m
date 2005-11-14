@@ -1,48 +1,37 @@
-Subject: Re: (new?) problems installing with checkinstall
+Subject: Re: Running programs from a PHP script under SELinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andreas Bernauer <andreas.bernauer@gmx.de>
+To: Simon Gornall <simon@gornall.net>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20051113184615.GB3618@tierbergli.Informatik.Uni-Tuebingen.De>
-References: <20051113184615.GB3618@tierbergli.Informatik.Uni-Tuebingen.De>
+In-Reply-To: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net>
+References: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net>
 Content-Type: text/plain
-Date: Mon, 14 Nov 2005 09:50:09 -0500
-Message-Id: <1131979809.5415.90.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 14 Nov 2005 10:10:45 -0500
+Message-Id: <1131981045.5415.103.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-11-13 at 19:46 +0100, Andreas Bernauer wrote:
-> Hi,
-> 
-> First, I must admit I am new to SELinux.  I hope, this is the right
-> place to ask my question.  I could not find an answer in the mailing
-> list archives, the web or the UnOfficial FAQ.  If this is the wrong
-> place, please be so kind and point me to the right place.
-> 
-> I'm running Fedora Core 4 (2.6.13-1.1526_FC4smp) with SELinux in
-> permissive mode (and coreutils-5.2.1-48.1,
-> policycoreutils-1.27.2-1.2).  I want to install software using
-> checkinstall, which monitors the installation process and builds an
-> RPM out of it.  [ http://asic-linux.com.mx/~izto/checkinstall/ ]
-> 
-> When I do a `make install`, everything runs fine.  However, when I use
-> checkinstall (which creates a temporary script which in turn calls
-> `make install`), I get error messages like the following:
-> 
-> ----------------------
-> /usr/bin/install: warning: failed to change context of /usr/doc/mutt/samples/gpg
-> .rc to system_u:object_r:usr_t: No such file or directory
-> /usr/bin/install: setting permissions for `/usr/doc/mutt/samples/pgp2.rc': No su
-> ch file or directory
-> [...]
->   /usr/bin/install -c 'pgpewrap' '/usr/bin/pgpewrap'
-> /usr/bin/install: setting permissions for `/usr/bin/pgpewrap': No such file or d
-> irectory
-> /usr/bin/install: warning: failed to change context of /usr/bin/pgpewrap to syst
-> em_u:object_r:bin_t: No such file or directory
+On Sun, 2005-11-13 at 11:24 -0800, Simon Gornall wrote:
+> This is very much a newbie question I'm afraid - if there's a more- 
+> appropriate forum, I'll be glad to be pointed in their general  
+> direction :-) I can't see anything in the FAQ (though I guess I may  
+> not have recognised the solution) or after having googled...
 
-Can you run checkinstall under strace or autrace and identify the
-specific failing syscall and its arguments?
+Just FYI, some other information resources about SELinux are listed in
+http://selinux.sourceforge.net/resources.php3
+
+> When  I call 'exec("/path/to/program") from within a PHP script, it  
+> does actually work, but I get a message in the 'dmesg' output like:
+> 
+> audit(1131753033.872:49): avc:  denied  { execute } for  pid=15678  
+> comm="fortune" name="ld.so.cache" dev=md2 ino=132328  
+> scontext=root:system_r:httpd_sys_script_t  
+> tcontext=root:object_r:ld_so_cache_t tclass=file
+
+What does execstack -q `which fortune` show?  Typically, that audit
+message suggests that kernel is translating PROT_READ requests by that
+binary to PROT_READ|PROT_EXECUTE in order to provide compatibility with
+"legacy" binaries that presumed read-implies-exec logic.
 
 -- 
 Stephen Smalley
