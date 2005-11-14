@@ -1,58 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jADJVoMA026653
-	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 14:31:50 -0500 (EST)
-Received: from www.gornall.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jADJOkQ8003340
-	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 19:24:46 GMT
-Received: from [192.168.1.100] (c-67-169-147-12.hsd1.ca.comcast.net [67.169.147.12])
-	by www.gornall.net (Postfix) with ESMTP id 1D3BD1C4E4
-	for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2005 19:47:31 +0000 (GMT)
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Message-Id: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: selinux@tycho.nsa.gov
-From: Simon Gornall <simon@gornall.net>
-Subject: Running programs from a PHP script under SELinux
-Date: Sun, 13 Nov 2005 11:24:35 -0800
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAE9QLMA000125
+	for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2005 04:26:21 -0500 (EST)
+Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAE9Ibff007861
+	for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2005 09:18:37 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Mon, 14 Nov 2005 10:19:09 +0100
+Date: Mon, 14 Nov 2005 10:19:08 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: Small patch for runuser: disallow suid operation
+Message-Id: <20051114091908.GD7828@thorium.jmh.mhn.de>
+References: <20051019201719.GA9176@thorium.jmh.mhn.de> <200511122102.18638.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <200511122102.18638.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
+* Russell Coker <russell@coker.com.au> [2005-11-12 11:12]:
+> On Thursday 20 October 2005 06:17, Thomas Bleher 
+> <bleher@informatik.uni-muenchen.de> wrote:
+> > I think the following small patch should be applied to the coreutils
+> > package, on top of the existing patch:
+> 
+> Sounds reasonable to me.  Have you filed a bugzilla?
 
-This is very much a newbie question I'm afraid - if there's a more- 
-appropriate forum, I'll be glad to be pointed in their general  
-direction :-) I can't see anything in the FAQ (though I guess I may  
-not have recognised the solution) or after having googled...
+Just filed as
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=173113
 
-I've set up RHEL-4 on a webserver machine that is going to ultimately  
-replace my current one, and I've meddled with the .fc and .te files  
-to successfully run mysql with its databases in /opt/mysql (large  
-RAID) and have the webserver directories in /opt/www... I've made  
-diffs so that if the 'official' targetted policies change I can  
-easily recover my settings. So far, so good.
+> > --- runuser.c.orig	2005-10-19 22:01:57.000000000 +0200
+> > +++ runuser.c	2005-10-19 22:00:53.000000000 +0200
+> > @@ -19,6 +19,8 @@
+> >  	return PAM_SUCCESS;
+> >  }
+> >  int pam_open_session(pam_handle_t *pamh, int flags){
+> > +	if (getuid() != geteuid()) /* safety net: deny operation if we are suid
+> > by accident */ +		error(EXIT_FAIL, 1, "runuser may not be setuid");
+> >  	return PAM_SUCCESS;
+> >  }
+> >  int pam_close_session(pam_handle_t *pamh, int flags){
+> 
 
-When  I call 'exec("/path/to/program") from within a PHP script, it  
-does actually work, but I get a message in the 'dmesg' output like:
-
-audit(1131753033.872:49): avc:  denied  { execute } for  pid=15678  
-comm="fortune" name="ld.so.cache" dev=md2 ino=132328  
-scontext=root:system_r:httpd_sys_script_t  
-tcontext=root:object_r:ld_so_cache_t tclass=file
-
-... so, ok, this is only 'fortune' that's running on the login  
-screen, but there will be more-useful programs as well :-) The  
-machine in question is on the other side of the world, so I thought  
-I'd ask what to do before meddling with access to /etc/ld.so.cache in  
-case the whole thing breaks...
-
-Like I say, it does work, but I like to keep the message-logs as  
-clear as possible so real problems can be more-easily tracked...
-
-Any help appreciated :-)
-
-ATB,
-	Simon
-
+-- 
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
 --
 This message was distributed to subscribers of the selinux mailing list.
