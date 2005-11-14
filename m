@@ -1,37 +1,32 @@
-Subject: Re: Mls data structure, Seusers...
+Subject: Re: [ SEPOL ] Add sepol_policydb_mls_enabled, organize map file
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, SELinux-dev@tresys.com
-In-Reply-To: <43764DDE.1060503@cornell.edu>
-References: <43764DDE.1060503@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43765F0C.7020805@cornell.edu>
+References: <43765D20.9070200@cornell.edu>  <43765F0C.7020805@cornell.edu>
 Content-Type: text/plain
-Date: Mon, 14 Nov 2005 08:58:48 -0500
-Message-Id: <1131976728.5415.49.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 14 Nov 2005 09:00:46 -0500
+Message-Id: <1131976846.5415.51.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-11-12 at 15:17 -0500, Ivan Gyurdiev wrote:
-> Anyway, to get to the point of this email... I originally chose to 
-> represent MLS data in user/seuser/context objects as a string, rather 
-> than a structure. That might have been a mistake, so I raise this issue 
-> again - is a string acceptable? It's important to clarify this, because 
-> it affects the interface, and also matters for future functions which I 
-> plan to write that allow libsemanage to validate seuser mls fields.
+On Sat, 2005-11-12 at 16:30 -0500, Ivan Gyurdiev wrote:
+> Ivan Gyurdiev wrote:
+> > Changes:
+> >
+> > - adds new function to check if policydb is mls enabled (target is 
+> > libsemanage: user/seuser/context parsers)
+> ...but see... this isn't as trivial as it looks, because those parsers 
+> don't have access to a policydb currently. There is no policydb object 
+> available until commit time, where one is created.
 
-I think using a string for the MLS data is fine.  I see no gain from
-further data hiding beyond that level.
-
-> By the way, I am assuming that the way this will be done is by 
-> introducing (shared) interfaces to deal with mls ranges/levels. An 
-> alternative approach is to make sepol learn about seusers (by moving the 
-> seuser record into sepol), and dealing with this higher-level object, 
-> rather than the mls range directly. However, there's no reason to move 
-> the seuser record into sepol, other than for validation - seusers are 
-> not loaded into policy.
-
-I don't think we want to move in that direction; seuser records should
-not be a sepol abstraction at all.
+Yes, I noticed that as well when I looked at this issue last week.  Note
+however that we don't need an expanded policy for this test; we can
+simply check the MLS-enabled status of the base module.  So possibly an
+interface similar to sepol_module_package_info() could be added to
+obtain the MLS-enabled status from the base module package, and then
+that flag could be passed along to those parsers.
 
 -- 
 Stephen Smalley
