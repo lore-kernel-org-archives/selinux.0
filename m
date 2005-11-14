@@ -1,51 +1,42 @@
-Subject: Re: [ SEPOL ] Add sepol_policydb_mls_enabled, organize map file
+Subject: Re: rawhide targeted vs. refpolicy rpm
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <43765D20.9070200@cornell.edu>
-References: <43765D20.9070200@cornell.edu>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4378B88B.6040003@redhat.com>
+References: <BF9A263D.7FFA%csellers@tresys.com>
+	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>
+	 <200511141041.49643.csellers@tresys.com>
+	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
+	 <4378B88B.6040003@redhat.com>
 Content-Type: text/plain
-Date: Mon, 14 Nov 2005 11:37:13 -0500
-Message-Id: <1131986233.5415.166.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 14 Nov 2005 11:51:31 -0500
+Message-Id: <1131987091.5415.180.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-11-12 at 16:22 -0500, Ivan Gyurdiev wrote:
-> - marks sepol_module_package_init static (not used outside that file/not 
-> exported)
-> - removes sepol_ prefix on two module functions that are not exported 
-> (init, read_offsets)
-> 
-> - use wildcards in more places in the map file, to make it a bit more 
-> organized. Enforce "_" after suffix, and organize things by the objects 
-> being managed.
-> 
-> I like that the change makes it easy to see which functions are not 
-> following proper namespace/convention. Also, it's easy to see when API's 
-> being chaged (marked with sepol_). Also, makes names shorter (but if not 
-> marked static, this could be a namespace problem for static linking). 
-> Also, allows grep for exported functions for each object.
+On Mon, 2005-11-14 at 11:17 -0500, Daniel J Walsh wrote:
+> policycoreutils patch to genhomedircon to use libsemanage to read 
+> seusers file.
 
-Removing the sepol_ prefix on those module functions and making the init
-function static is likely fine; that was leftover from the original
-module code prior to encapsulation of the module interfaces (when there
-was no create function at all, and users of the static libsepol were
-using the init function).
+A couple of concerns about upstreaming this patch as is:
+1) Compatibility.  In addition to dropping compatibility with the older
+usage of genhomedircon from FC3, the patch also doesn't provide any
+backward compatibility for the older system.users/local.users-based
+generation, and requires that the new seusers file be present.  Is that
+ok?  I suppose that genhomedircon is somewhat of an SELinux-internal
+helper at this point (only used by other core SELinux components like
+the policy Makefile and libsemanage), so as long as people don't try to
+install the latest policycoreutils on earlier systems without also
+updating their policy to a corresponding version, they shouldn't have a
+problem.
 
-> On the other hand, with wildcards things can be exported by mistake in 
-> the future - not sure if that's a significant problem. You could argue 
-> against this change, but then I don't understand why many functions were 
-> marked hidden in services.c. Either we should or should not use 
-> wildcards - I don't care which, but it should be consistent.
-
-On the service functions, they originally had security_ prefixes
-(derived from the security server code), but this conflicted with the
-libselinux APIs for interacting with the kernel security server on a
-SELinux system, so they were changed to have sepol_ prefixes.  They are
-only exported by the static libsepol, not the shared libsepol, which is
-why they are marked hidden.  The namespace prefix allows audit2why to
-use the static libsepol and libselinux without conflict.
+2) Targeted policy specialization.  defaultrole() has a hack for
+targeted policy to remap system_r to user_r as the default role for a
+user when system_r is returned by semanage, and getUsers() has a
+targeted policy-specific hack to handle the root entry in seusers when
+not using semanage.  The latter will break anyone with strict policy
+that isn't converted to using semanage.
 
 -- 
 Stephen Smalley
