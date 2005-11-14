@@ -1,40 +1,34 @@
-Subject: Re: changes in ~2.6.13 break postfix policy?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Erich Schubert <erich@debian.org>, Chris Wright <chrisw@osdl.org>,
-   Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
-   SELinux@tycho.nsa.gov
-In-Reply-To: <20051111120511.GC9115@lkcl.net>
-References: <1131106145.28236.7.camel@wintermute.xmldesign.de>
-	 <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
-	 <20051104183551.GC2837@legolas.drinsama.de>
-	 <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131148407.1355.21.camel@wintermute.xmldesign.de>
-	 <1131382681.20591.102.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131478271.17745.6.camel@wintermute.xmldesign.de>
-	 <1131543371.20591.460.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131648624.19626.122.camel@moss-spartans.epoch.ncsc.mil>
-	 <20051111120511.GC9115@lkcl.net>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 09:46:25 -0500
-Message-Id: <1131979585.5415.86.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <43789D88.2070005@tresys.com>
+Date: Mon, 14 Nov 2005 09:22:00 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] Add swig wrappers for libsemanage
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-11-11 at 12:05 +0000, Luke Kenneth Casson Leighton wrote:
-> raised as 338543@bugs.debian.org.
+This adds wrappers for some functions in libsemanage. The only wrapped
+interfaces at this point are query functions for modules, seuser, and
+user's. These should be sufficient for genhomedircon, and we can add
+more wrapped interfaces as necessary.
 
-Erich also posted the issue to the debian-kernel mailing list, and Jurij
-Smakov responded that CONFIG_SECURITY_NETWORK will be enabled in the
-2.6.14-3 Debian kernel.
+There is a test script that shows how the functions work in
+libsemanage/src/pywrap-test.py
 
-We should likely make SELinux depend on SECURITY_NETWORK in its Kconfig
-since this is now necessary, and drop the #if's from hooks.c for it.
+This patch also includes the generated files so that swig isn't required
+to build the repository. However, if the libsemanage interfaces change,
+or more interfaces are added to the swig interface file you must make
+swigify in the libsemanage/src directory to regenerate the files, and
+include them in any patch.
 
--- 
-Stephen Smalley
-National Security Agency
+To build the wrappers you can use make install-pywrap from the root
+directory, this behavior can be changed to be default, however, if these
+wrappers are required for most systems.
+
+The patch is rather large due to the generated file so here is a link:
+http://sepolicy-server.sourceforge.net/1-swigify-libsemanage.diff
 
 
 --
