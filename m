@@ -1,46 +1,90 @@
-Subject: Re: rawhide targeted vs. refpolicy rpm
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <4378C285.3080005@tresys.com>
+Date: Mon, 14 Nov 2005 11:59:49 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: rawhide targeted vs. refpolicy rpm
+References: <BF9A263D.7FFA%csellers@tresys.com>	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>	 <200511141041.49643.csellers@tresys.com> <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil> <4378B88B.6040003@redhat.com>
 In-Reply-To: <4378B88B.6040003@redhat.com>
-References: <BF9A263D.7FFA%csellers@tresys.com>
-	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>
-	 <200511141041.49643.csellers@tresys.com>
-	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
-	 <4378B88B.6040003@redhat.com>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 11:51:31 -0500
-Message-Id: <1131987091.5415.180.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-11-14 at 11:17 -0500, Daniel J Walsh wrote:
+Daniel J Walsh wrote:
 > policycoreutils patch to genhomedircon to use libsemanage to read 
 > seusers file.
+> 
+> 
+<snip>
+>  
+>  class selinuxConfig:
+>  	def __init__(self, selinuxdir="/etc/selinux", type="targeted", usepwd=1):
+> +		self.semanageHandle=semanage_handle_create()
+> +		self.semanaged=semanage_is_managed(self.semanageHandle)
+> +		if self.semanaged:
+> +			semanage_connect(self.semanageHandle)
+> +			(status, self.ulist, self.usize) = semanage_user_list(self.semanageHandle)
+>  		self.type=type
+>  		self.selinuxdir=selinuxdir +"/"
+>  		self.contextdir="/contexts"
+> @@ -313,47 +142,72 @@
+>  			errorExit(string.join("sed error ", rc[1]))
+>  
+>  	def getUsersFile(self):
+> -		return self.selinuxdir+self.type+"/users/local.users"
+> +		if self.semanaged:
+> +			return self.selinuxdir+self.type+"module/active/seusers"
+Why should this return a path at all in the managed case? genhomedircon 
+(or any semanage user) can't make an assumption that a particular path 
+is used, accessible or even on the same computer.
 
-A couple of concerns about upstreaming this patch as is:
-1) Compatibility.  In addition to dropping compatibility with the older
-usage of genhomedircon from FC3, the patch also doesn't provide any
-backward compatibility for the older system.users/local.users-based
-generation, and requires that the new seusers file be present.  Is that
-ok?  I suppose that genhomedircon is somewhat of an SELinux-internal
-helper at this point (only used by other core SELinux components like
-the policy Makefile and libsemanage), so as long as people don't try to
-install the latest policycoreutils on earlier systems without also
-updating their policy to a corresponding version, they shouldn't have a
-problem.
+> +		else:
+> +			return self.selinuxdir+self.type+"/seusers"
+>  
+> -	def getSystemUsersFile(self):
+> -		return self.selinuxdir+self.type+"/users/system.users"
+> -		
+>  	def heading(self):
+>  		ret = "\n#\n#\n# User-specific file contexts, generated via %s\n" % sys.argv[0]
+>  		ret += "# edit %s to change file_context\n#\n#\n" % self.getUsersFile()
+>  		return ret
+>  
+> +
+> +	def defaultrole(self, name):
+> +		for idx in range(self.usize):
+> +			user = semanage_user_by_idx(self.ulist, idx)
+> +			if semanage_user_get_name(user) == name:
+> +				role=semanage_user_get_defrole(user)
+> +				if role=="system_r":
+> +					# targeted policy
+> +					return "user_r"
+I don't understand this case. Why wouldn't user_get_defrole return 
+user_r in the targeted case?
 
-2) Targeted policy specialization.  defaultrole() has a hack for
-targeted policy to remap system_r to user_r as the default role for a
-user when system_r is returned by semanage, and getUsers() has a
-targeted policy-specific hack to handle the root entry in seusers when
-not using semanage.  The latter will break anyone with strict policy
-that isn't converted to using semanage.
+> +				else:
+> +					return  role
+> +		return name
+> +	def adduser(self, udict, user, seuser, role):
+> +		try:
+> +			if seuser == "user_u" or user == "__default__":
+> +				return
+> +			# !!! chooses first role in the list to use in the file context !!!
+or what semanage considers the default role, right?
 
--- 
-Stephen Smalley
-National Security Agency
+> +			if role[-2:] == "_r" or role[-2:] == "_u":
+> +				role = role[:-2]
+> +			home = pwd.getpwnam(user)[5]
+> +			if home == "/":
+> +				return
+> +			prefs = {}
+> +			prefs["role"] = role
+> +			prefs["home"] = home
+> +			udict[seuser] = prefs
+> +		except KeyError:
+> +			sys.stderr.write("The user \"%s\" is not present in the passwd file, skipping...\n" % user)
+> +
+<snip>
 
 
 --
