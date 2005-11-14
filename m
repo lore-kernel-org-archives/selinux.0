@@ -1,42 +1,59 @@
-Subject: Re: Running programs from a PHP script under SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Simon Gornall <simon@gornall.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net>
-References: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 10:10:45 -0500
-Message-Id: <1131981045.5415.103.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C0618592E1C64F@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>,
+   SELinux-dev@tresys.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: RE: Mls data structure, Seusers...
+Date: Mon, 14 Nov 2005 10:11:30 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-11-13 at 11:24 -0800, Simon Gornall wrote:
-> This is very much a newbie question I'm afraid - if there's a more- 
-> appropriate forum, I'll be glad to be pointed in their general  
-> direction :-) I can't see anything in the FAQ (though I guess I may  
-> not have recognised the solution) or after having googled...
 
-Just FYI, some other information resources about SELinux are listed in
-http://selinux.sourceforge.net/resources.php3
+The two pieces of MLS data associated with a user are the default level and
+range. I am not really up to date with library development, but these two
+items are both strings in the untranslated policy format.
 
-> When  I call 'exec("/path/to/program") from within a PHP script, it  
-> does actually work, but I get a message in the 'dmesg' output like:
+-Chad
+
+> -----Original Message-----
+> From: Ivan Gyurdiev [mailto:ivg2@cornell.edu]
+> Sent: Saturday, November 12, 2005 2:18 PM
+> To: SELinux List; SELinux-dev@tresys.com
+> Cc: Stephen Smalley
+> Subject: Mls data structure, Seusers...
 > 
-> audit(1131753033.872:49): avc:  denied  { execute } for  pid=15678  
-> comm="fortune" name="ld.so.cache" dev=md2 ino=132328  
-> scontext=root:system_r:httpd_sys_script_t  
-> tcontext=root:object_r:ld_so_cache_t tclass=file
-
-What does execstack -q `which fortune` show?  Typically, that audit
-message suggests that kernel is translating PROT_READ requests by that
-binary to PROT_READ|PROT_EXECUTE in order to provide compatibility with
-"legacy" binaries that presumed read-implies-exec logic.
-
--- 
-Stephen Smalley
-National Security Agency
-
+> 
+> Okay, I think sepol is moving on the right track to becoming a properly 
+> encapsulated library. Opaque structures are being used in interfaces, 
+> which is important to maintain stability in the future. There has been 
+> disagreement in the past as to whether separate data structures 
+> (records) should be created to manage various objects, or whether the 
+> existing structures should be used. I think that issue's less important 
+> than using opaque structures in the interface - if the interface is set 
+> up correctly, the internals can be easily changed. I still favor 
+> separate data structures, because they are independent from policy (so 
+> can be serialized and passed to the client by the policy server, without 
+> needing the policy after the initial query), and because they're higher 
+> level, and easier to work with from the client's perspective.
+> 
+> Anyway, to get to the point of this email... I originally chose to 
+> represent MLS data in user/seuser/context objects as a string, rather 
+> than a structure. That might have been a mistake, so I raise this issue 
+> again - is a string acceptable? It's important to clarify this, because 
+> it affects the interface, and also matters for future functions which I 
+> plan to write that allow libsemanage to validate seuser mls fields.
+> 
+> By the way, I am assuming that the way this will be done is by 
+> introducing (shared) interfaces to deal with mls ranges/levels. An 
+> alternative approach is to make sepol learn about seusers (by moving the 
+> seuser record into sepol), and dealing with this higher-level object, 
+> rather than the mls range directly. However, there's no reason to move 
+> the seuser record into sepol, other than for validation - seusers are 
+> not loaded into policy.
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
