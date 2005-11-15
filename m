@@ -1,23 +1,32 @@
-Subject: Re: [ SEMANAGE ] Stub kernel booleans API
+Subject: Re: [ SEMANAGE ] Stub pserver backend
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: SELinux-dev@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <437903B8.4040701@cornell.edu>
-References: <437903B8.4040701@cornell.edu>
+In-Reply-To: <437907D7.8090002@cornell.edu>
+References: <437907D7.8090002@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 06:25:42 -0500
-Message-Id: <1132053942.5415.277.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 15 Nov 2005 06:29:19 -0500
+Message-Id: <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-11-14 at 16:38 -0500, Ivan Gyurdiev wrote:
-> I'm not sure if I'll be layering those on top of dbase... maybe..
+On Mon, 2005-11-14 at 16:55 -0500, Ivan Gyurdiev wrote:
+> The purpose of stubs is to reduce size of future patches, and to point 
+> to the right place to add functionality (if people want to help 
+> implement it).
+> 
+> Changes: stub the pserver dbase backend.
 
-I don't think "kernel" is what you want here, as the real distinction is
-between persistent local modifications to booleans and
-runtime/active/current modifications to booleans.  The booleans
-themselves may be kernel or userspace policy constructs in either case.
+I'd prefer to wait until we have a basic working implementation and a
+user ready for merging.  Posting stubs or function prototypes to the
+list as examples is fine, but I don't see much value in merging them.
+It was ok for early development of libsemanage in order to build up
+infrastructure and allow early collaboration/feedback, but I'd prefer to
+move to merging actual implementations now.  I'd especially like to see
+sample users (even just dummy test programs) that allow the code to be
+trivially exercised along with the submissions to help put it in
+context.
 
 -- 
 Stephen Smalley
