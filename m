@@ -1,48 +1,50 @@
-Subject: Re: [ SEMANAGE ] Stub pserver backend
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
-   selinux@tycho.nsa.gov
-In-Reply-To: <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil>
-References: <437907D7.8090002@cornell.edu>
-	 <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil>
-	 <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 08:47:03 -0500
-Message-Id: <1132062423.5415.354.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Tue, 15 Nov 2005 08:58:14 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Erich Schubert <erich@debian.org>, Chris Wright <chrisw@osdl.org>,
+   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
+Subject: Re: changes in ~2.6.13 break postfix policy?
+In-Reply-To: <1132060768.5415.330.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.63.0511150857070.614@excalibur.intercode>
+References: <1131106145.28236.7.camel@wintermute.xmldesign.de>
+ <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
+ <20051104183551.GC2837@legolas.drinsama.de>  <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
+  <1131148407.1355.21.camel@wintermute.xmldesign.de>
+ <1131382681.20591.102.camel@moss-spartans.epoch.ncsc.mil>
+ <1131478271.17745.6.camel@wintermute.xmldesign.de>
+ <1131543371.20591.460.camel@moss-spartans.epoch.ncsc.mil>
+ <1131648624.19626.122.camel@moss-spartans.epoch.ncsc.mil>
+ <20051111120511.GC9115@lkcl.net>  <1131979585.5415.86.camel@moss-spartans.epoch.ncsc.mil>
+  <Pine.LNX.4.63.0511141806340.30284@excalibur.intercode>
+ <1132057609.5415.317.camel@moss-spartans.epoch.ncsc.mil>
+ <Pine.LNX.4.63.0511150757250.422@excalibur.intercode>
+ <1132060768.5415.330.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-15 at 06:58 -0500, Stephen Smalley wrote:
-> Also, I think we need to think about priorities of tasks; policy server
-> backend and runtime boolean manipulation via libsemanage seem fairly low
-> to me right now.  Of greater importance would be:
-> - Finalizing the refpolicy-based targeted policy package and getting it
-> into rawhide,
+On Tue, 15 Nov 2005, Stephen Smalley wrote:
 
-Ok, I see that the new selinux-policy has appeared in rawhide.
+> True.  However, I can envision people who want to apply SELinux for
+> local confinement of processes without necessarily caring about the
+> network controls, and I can further envision them not wanting the
+> performance overhead on the network path created by e.g. the
+> sock_rcv_skb hook and the netfilter hooks.  So that seems like a
+> reasonable configuration option.  The current CONFIG_SECURITY_NETWORK
+> isn't very useful in that respect because it covers not only those
+> networking checks but also the socket hooks, including the checking for
+> Unix/local sockets.
 
-> - Solving the default role problem in semanage/sepol,
-> - Finalizing the genhomedircon rewrite and getting it upstreamed
-> (depends on prior item),
-> - Adding options to audit2allow to allow it to generate well-formed
-> source policy modules (including module statement and all necessary
-> required statements) so that users can continue using audit2allow on
-> managed systems for local additions to rules.  Likely separate options
-> to allow generation of a complete module versus generation of additional
-> require and allow rules to append to an existing module.
-> - Creating a utility for managing seusers via libsemanage so that users
-> don't need to directly edit the sandbox copy and then run semodule -B to
-> force a rebuild,
-> - Finishing the ports functionality and exporting those interfaces,
-> - Creating utilities for managing the other policy components via
-> libsemanage.
+Well, we could add an SELinux-only config option for local confinement 
+if someone asks for it.
 
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
