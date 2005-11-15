@@ -1,34 +1,23 @@
-Subject: Re: [ SEPOL ] Add sepol_policydb_mls_enabled, organize map file
+Subject: Re: [ SEMANAGE ] Stub kernel booleans API
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <437909EC.9080600@cornell.edu>
-References: <43765D20.9070200@cornell.edu>  <43765F0C.7020805@cornell.edu>
-	 <1131976846.5415.51.camel@moss-spartans.epoch.ncsc.mil>
-	 <437909EC.9080600@cornell.edu>
+Cc: SELinux-dev@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <437903B8.4040701@cornell.edu>
+References: <437903B8.4040701@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 06:24:13 -0500
-Message-Id: <1132053853.5415.274.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 15 Nov 2005 06:25:42 -0500
+Message-Id: <1132053942.5415.277.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-11-14 at 17:04 -0500, Ivan Gyurdiev wrote:
-> > Yes, I noticed that as well when I looked at this issue last week.  Note
-> > however that we don't need an expanded policy for this test; we can
-> > simply check the MLS-enabled status of the base module.  So possibly an
-> > interface similar to sepol_module_package_info() could be added to
-> > obtain the MLS-enabled status from the base module package, and then
-> > that flag could be passed along to those parsers.
-> >   
-> Ok, so what about this patch? Is it merged or rejected?
-> I can write another one to query the mls field without reading the whole 
-> policy...
+On Mon, 2005-11-14 at 16:38 -0500, Ivan Gyurdiev wrote:
+> I'm not sure if I'll be layering those on top of dbase... maybe..
 
-I didn't merge it because the new interface didn't seem to fit the need
-for libsemanage.  I suppose I can separate out the module function and
-map file cleanups and apply them, verifying that the public symbols
-exported by the shared library don't change.
+I don't think "kernel" is what you want here, as the real distinction is
+between persistent local modifications to booleans and
+runtime/active/current modifications to booleans.  The booleans
+themselves may be kernel or userspace policy constructs in either case.
 
 -- 
 Stephen Smalley
