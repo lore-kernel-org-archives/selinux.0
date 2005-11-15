@@ -1,31 +1,55 @@
-Subject: Re: [ SEPOL ] Mls cleanups (2)
+Subject: Re: [ SELINUX ] Make rpm_execcon failure non-fatal in permissive
+	mode.
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <43799085.4000608@cornell.edu>
-References: <437931EA.8080605@cornell.edu>  <43799085.4000608@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1132059242.5415.324.camel@moss-spartans.epoch.ncsc.mil>
+References: <437974B6.7020203@cornell.edu>
+	 <1132059242.5415.324.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 08:26:07 -0500
-Message-Id: <1132061167.5415.342.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 15 Nov 2005 08:26:50 -0500
+Message-Id: <1132061210.5415.344.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-15 at 02:38 -0500, Ivan Gyurdiev wrote:
-> >
-> > - Hide functions mls_to_string and mls_from string into internal 
-> > header, since they have no user in the static lib. I introduced those 
-> > functions, and we should not be adding any functions to the static lib 
-> > - we should be removing them.
-> > - Hide functions mls_sid_to_context, mls_context_to_sid, and 
-> > mls_compute_context_len in the internal header, since they have no 
-> > user in the static lib *and* are deprecated (though I still use them 
-> > in a few places)
-> On second thought, this whole header is not used outside of libsepol (no 
-> in-tree users).
-> Move the rest of it into src/mls.h. Applies on top of the other patch.
+On Tue, 2005-11-15 at 07:54 -0500, Stephen Smalley wrote:
+> On Tue, 2005-11-15 at 00:40 -0500, Ivan Gyurdiev wrote:
+> > Changelog: Makes failure in rpm_execcon non-fatal in permissive mode.
+> > See: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=173094
+> > 
+> > P.S. I'm not sure why an rpm-specific function is in the shared library 
+> > - seems strange to me.
+> 
+> Needs the following diff on top of your diff in order to correctly
+> handle failures while setting up the context.  Second hunk isn't
+> strictly needed but seems desirable for cleanliness.
+> 
+> Index: libselinux/src/rpm.c
+> ===================================================================
+> RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/rpm.c,v
+> retrieving revision 1.7
+> diff -u -p -r1.7 rpm.c
+> --- libselinux/src/rpm.c	15 Nov 2005 12:49:52 -0000	1.7
+> +++ libselinux/src/rpm.c	15 Nov 2005 12:50:11 -0000
+> @@ -30,6 +30,7 @@ int rpm_execcon(unsigned int verified __
+>  
+>  	if (!strcmp(mycon, newcon)) {
+>  		/* No default transition, use rpm_script_t for now. */
+> +		rc = -1;
+>  		con = context_new(mycon);
+>  		if (!con)
+>  			goto out;
+> @@ -39,6 +40,7 @@ int rpm_execcon(unsigned int verified __
+>  		newcon = strdup(context_str(con));
+>  		if (!newcon)
+>  			goto out;
+> +		rc = 0;
+>  	}
+>  
+>  	rc = setexeccon(newcon);
 
-Thanks, both merged as of libsepol 1.9.40.
+Both diffs merged as of libselinux 1.27.22.
 
 -- 
 Stephen Smalley
