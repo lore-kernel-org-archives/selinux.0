@@ -1,27 +1,42 @@
-Subject: Re: Running programs from a PHP script under SELinux
+Subject: Re: changes in ~2.6.13 break postfix policy?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Simon Gornall <simon@gornall.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <F2C51318-DBA7-49F0-BE5F-7A591238ADD8@gornall.net>
-References: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net>
-	 <1131981045.5415.103.camel@moss-spartans.epoch.ncsc.mil>
-	 <F2C51318-DBA7-49F0-BE5F-7A591238ADD8@gornall.net>
+To: James Morris <jmorris@namei.org>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Erich Schubert <erich@debian.org>, Chris Wright <chrisw@osdl.org>,
+   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
+In-Reply-To: <Pine.LNX.4.63.0511141806340.30284@excalibur.intercode>
+References: <1131106145.28236.7.camel@wintermute.xmldesign.de>
+	 <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
+	 <20051104183551.GC2837@legolas.drinsama.de>
+	 <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
+	 <1131148407.1355.21.camel@wintermute.xmldesign.de>
+	 <1131382681.20591.102.camel@moss-spartans.epoch.ncsc.mil>
+	 <1131478271.17745.6.camel@wintermute.xmldesign.de>
+	 <1131543371.20591.460.camel@moss-spartans.epoch.ncsc.mil>
+	 <1131648624.19626.122.camel@moss-spartans.epoch.ncsc.mil>
+	 <20051111120511.GC9115@lkcl.net>
+	 <1131979585.5415.86.camel@moss-spartans.epoch.ncsc.mil>
+	 <Pine.LNX.4.63.0511141806340.30284@excalibur.intercode>
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 07:16:54 -0500
-Message-Id: <1132057014.5415.309.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 15 Nov 2005 07:26:49 -0500
+Message-Id: <1132057609.5415.317.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-11-14 at 21:44 -0800, Simon Gornall wrote:
-> Hmm - in this case it reports '-', which would seem to suggest the  
-> stack isn't executable...
+On Mon, 2005-11-14 at 18:07 -0500, James Morris wrote:
+> On Mon, 14 Nov 2005, Stephen Smalley wrote:
 > 
-> # execstack -q `which fortune`
-> - /usr/bin/fortune
+> > We should likely make SELinux depend on SECURITY_NETWORK in its Kconfig
+> > since this is now necessary, and drop the #if's from hooks.c for it.
+> 
+> Ok.  I also wonder how whether we still need CONFIG_SECURITY_NETWORK at 
+> all.
 
-Hmm...how about ldd /usr/bin/fortune?  And then apply execstack -q on
-each of the listed .so files.
+Possibly not.  Might be worth running network benchmarks with it
+disabled and enabled, with selinux=0 in both cases, just to see what
+overhead the LSM hooks impose (if any).  sock_rcv_skb is likely the only
+real concern.
 
 -- 
 Stephen Smalley
