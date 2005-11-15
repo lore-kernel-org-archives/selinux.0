@@ -1,65 +1,65 @@
-Message-ID: <20051115155448.17522.qmail@web51512.mail.yahoo.com>
-Date: Tue, 15 Nov 2005 07:54:48 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: sewatch (small script tracking audit.log)
-To: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>,
-   SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <1132067932.2179.34.camel@papa.intrajp-yokosuka.co.jp>
+Message-ID: <437A050E.70703@tresys.com>
+Date: Tue, 15 Nov 2005 10:55:58 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux-dev@tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [ SEMANAGE ] Stub pserver backend
+References: <437907D7.8090002@cornell.edu> <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil> <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil> <437A04A5.10000@cornell.edu>
+In-Reply-To: <437A04A5.10000@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
+>>
+>>> I'd prefer to wait until we have a basic working implementation and a
+>>> user ready for merging.  Posting stubs or function prototypes to the
+>>> list as examples is fine, but I don't see much value in merging them.
+>>> It was ok for early development of libsemanage in order to build up
+>>> infrastructure and allow early collaboration/feedback, but I'd prefer to
+>>> move to merging actual implementations now.  I'd especially like to see
+>>> sample users (even just dummy test programs) that allow the code to be
+>>> trivially exercised along with the submissions to help put it in
+>>> context.
+>>>     
+> 
+> Ok, in that case disregard the last two patches - I will resend those 
+> with implementation.
+> 
+>>
+>> Also, I think we need to think about priorities of tasks; policy server
+>> backend and runtime boolean manipulation via libsemanage seem fairly low
+>> to me right now.  Of greater importance would be:
+>>   
+> 
+> Sure, but stubs are easy to write - just wanted to point to where the 
+> functionality should go into.
+> The rest of the things you specified are important, but a bit harder to 
+> do... not disregarding the issues.
+> 
+>> - Finishing the ports functionality and exporting those interfaces,
+>>   
+> 
+> I think this is of particularly high importance to Dan - I'll have to 
+> work on that soon.
 
->I've written down another script
->which tracks audit.log.
+Are you going to do this in python? If so we'll need to wrap all the 
+port types and also implement the write/transaction functionality, all 
+that has been done so far is querying of seusers, users, modules.
 
->From the script:
-less /var/log/audit/audit.log|grep denied > $err_newfile
-
-This is likely to be slow if you really do a lot of auditing. It is faster to do
-this:
-
-ausearch -m AVC | grep denied > $err_newfile
-
-But, following this farther...ausearch has a -ts and -te parameter to set a start
-time and an end time. ausearch also returns 0 for a hit and 1 for no hits on the
-search, so you could theoretically do this:
-
-export LC_ALL="C"
-dn=`date "+%x"`
-tn=`date "+%X"
-ld=`cat /etc/lasttime | awk '{ print %1 }'`
-lt=`cat /etc/lasttime | awk '{ print %2 }'`
-
-ausearch -ts $ld $lt -te $dn %tn -m AVC >/dev/null
-if [ $? -eq 0 ] then
-# re-run and send email
-fi
-echo "$dn %tn" > /etc/lasttime
-
-You can experiment with this approach.
-
-It should also be noted that the audit system is in the process of new
-development to avoid this kind of issue. In rawhide, the latest audit daemon has
-a program /sbin/audisp, which will be a realtime audit event dispatcher. The
-audit deamon has a new config parameter "dispatcher" that can be pointed to any
-program, even a script. It sends the events via a pipe to that application. At
-the moment, a simple program is distributed that only writes to syslog just to
-demonstrate the concept.
-
-If anyone writes a dispatcher that you want to share, please send it to me or the
-linux-audit mail list. We are currently working on a full featured dispatcher
-that should be out in a week or two. But that doesn't preclude people from doing
-their own thing. Choices are good. :)
-
--Steve
-
-
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+Have you looked at the swig wrappers? Do you feel comfortable wrapping 
+additional types?
+> 
+>> - Creating utilities for managing the other policy components via
+>> libsemanage.
+>>   
+> 
+> What would all those utilities look like - shell? python with GUI? 
+> should I be working on those - Dan?
+> 
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
