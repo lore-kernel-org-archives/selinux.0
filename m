@@ -1,65 +1,51 @@
-Message-ID: <437A050E.70703@tresys.com>
-Date: Tue, 15 Nov 2005 10:55:58 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux-dev@tresys.com, selinux@tycho.nsa.gov
 Subject: Re: [ SEMANAGE ] Stub pserver backend
-References: <437907D7.8090002@cornell.edu> <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil> <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil> <437A04A5.10000@cornell.edu>
-In-Reply-To: <437A04A5.10000@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+   selinux@tycho.nsa.gov
+In-Reply-To: <437A0749.5060407@cornell.edu>
+References: <437907D7.8090002@cornell.edu>
+	 <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil>
+	 <4379E4D1.2010900@redhat.com>  <437A0749.5060407@cornell.edu>
+Content-Type: text/plain
+Date: Tue, 15 Nov 2005 11:05:14 -0500
+Message-Id: <1132070714.5415.404.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
->>
->>> I'd prefer to wait until we have a basic working implementation and a
->>> user ready for merging.  Posting stubs or function prototypes to the
->>> list as examples is fine, but I don't see much value in merging them.
->>> It was ok for early development of libsemanage in order to build up
->>> infrastructure and allow early collaboration/feedback, but I'd prefer to
->>> move to merging actual implementations now.  I'd especially like to see
->>> sample users (even just dummy test programs) that allow the code to be
->>> trivially exercised along with the submissions to help put it in
->>> context.
->>>     
+On Tue, 2005-11-15 at 11:05 -0500, Ivan Gyurdiev wrote:
+> > Giving me the tools in libsemanage to build the manipulation of ports, 
+> Okay, will work on that..
 > 
-> Ok, in that case disregard the last two patches - I will resend those 
-> with implementation.
-> 
->>
->> Also, I think we need to think about priorities of tasks; policy server
->> backend and runtime boolean manipulation via libsemanage seem fairly low
->> to me right now.  Of greater importance would be:
->>   
-> 
-> Sure, but stubs are easy to write - just wanted to point to where the 
-> functionality should go into.
-> The rest of the things you specified are important, but a bit harder to 
-> do... not disregarding the issues.
-> 
->> - Finishing the ports functionality and exporting those interfaces,
->>   
-> 
-> I think this is of particularly high importance to Dan - I'll have to 
-> work on that soon.
+> > seusers 
+> The seuser APIs are already available, and should work in libsemanage.
+> Although MLS validation is not happening, the modification should work, 
+> and should verify that the SElinux user exists.
+> Not sure if python bindings are currently available.
+> > and potentially
+> > user modules (local.pp) from python.
+> Same for user APIs. Those things do not go into modules currently - 
+> they're written back out into flat files. Why do we want those into a 
+> module? I think Stephen also mentioned a while ago that modules cannot 
+> yet support all of the objects that we are managing. Is this still the case?
 
-Are you going to do this in python? If so we'll need to wrap all the 
-port types and also implement the write/transaction functionality, all 
-that has been done so far is querying of seusers, users, modules.
+In this context, "user modules" == "local modules" == module equivalent
+to a local.te file in the old policy source-based approach.  Not related
+to Linux or SELinux users, just user-supplied.  We want users to still
+be able to run audit2allow (with additional flags), dump the output to a
+file, run it through checkmodule -m and then install it with semodule.
 
-Have you looked at the swig wrappers? Do you feel comfortable wrapping 
-additional types?
-> 
->> - Creating utilities for managing the other policy components via
->> libsemanage.
->>   
-> 
-> What would all those utilities look like - shell? python with GUI? 
-> should I be working on those - Dan?
-> 
-> 
+Yes, non-base modules don't support SELinux user definitions when MLS is
+enabled presently, so you have to put all SELinux user definitions into
+the base module, and only the base module supports the object context
+definitions that are part of policy (versus file contexts).
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
