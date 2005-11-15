@@ -1,55 +1,61 @@
-Subject: Re: [ SELINUX ] Make rpm_execcon failure non-fatal in permissive
-	mode.
+Subject: Re: rawhide targeted vs. refpolicy rpm
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <1132059242.5415.324.camel@moss-spartans.epoch.ncsc.mil>
-References: <437974B6.7020203@cornell.edu>
-	 <1132059242.5415.324.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
+   Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>
+References: <BF9A263D.7FFA%csellers@tresys.com>
+	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>
+	 <200511141041.49643.csellers@tresys.com>
+	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
+	 <4378B88B.6040003@redhat.com> <4378C285.3080005@tresys.com>
+	 <4378D6F9.5070301@redhat.com>
+	 <1131997064.5415.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 08:26:50 -0500
-Message-Id: <1132061210.5415.344.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 15 Nov 2005 08:40:02 -0500
+Message-Id: <1132062002.5415.350.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-15 at 07:54 -0500, Stephen Smalley wrote:
-> On Tue, 2005-11-15 at 00:40 -0500, Ivan Gyurdiev wrote:
-> > Changelog: Makes failure in rpm_execcon non-fatal in permissive mode.
-> > See: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=173094
-> > 
-> > P.S. I'm not sure why an rpm-specific function is in the shared library 
-> > - seems strange to me.
+On Tue, 2005-11-15 at 06:17 -0500, Stephen Smalley wrote:
+> Actually, on second thought, this reflects a bug and possibly design
+> flaw in semanage/sepol, IIUC.  Previously, genhomedircon was using the
+> first role listed in the users files as the "default role" for purposes
+> of labeling the home directory, but that was purely a convention; the
+> kernel policy has no concept of a default role for a user, only a list
+> of authorized roles.  Role and domain selection at login time (or
+> similar events, like su) is performed by dynamically computing the set
+> of contexts reachable for the user from the security context of the
+> entrypoint process (e.g. local login, gdm, sshd, crond, etc) based on
+> policy and then ordering them based on the default_contexts
+> configuration file (which is not part of the kernel policy).
 > 
-> Needs the following diff on top of your diff in order to correctly
-> handle failures while setting up the context.  Second hunk isn't
-> strictly needed but seems desirable for cleanliness.
-> 
-> Index: libselinux/src/rpm.c
-> ===================================================================
-> RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/rpm.c,v
-> retrieving revision 1.7
-> diff -u -p -r1.7 rpm.c
-> --- libselinux/src/rpm.c	15 Nov 2005 12:49:52 -0000	1.7
-> +++ libselinux/src/rpm.c	15 Nov 2005 12:50:11 -0000
-> @@ -30,6 +30,7 @@ int rpm_execcon(unsigned int verified __
->  
->  	if (!strcmp(mycon, newcon)) {
->  		/* No default transition, use rpm_script_t for now. */
-> +		rc = -1;
->  		con = context_new(mycon);
->  		if (!con)
->  			goto out;
-> @@ -39,6 +40,7 @@ int rpm_execcon(unsigned int verified __
->  		newcon = strdup(context_str(con));
->  		if (!newcon)
->  			goto out;
-> +		rc = 0;
->  	}
->  
->  	rc = setexeccon(newcon);
+> Since the kernel policy has no concept of a default role for the user,
+> the user_datum in libsepol merely stores an unordered set of authorized
+> roles; it doesn't preserve the ordering information from the users file
+> at all presently.  The user_to_record() converter function in libsepol
+> merely processes the roles in the order in which they happen to be
+> stored in the ebitmap, which is just a reflection of the bit value
+> ordering of the roles.  Thus, we are returning system_r rather than
+> user_r from sepol to semanage, and propagating that information to
+> genhomedircon.  This is what led Dan to remapping system_r to user_r in
+> his genhomedircon patch.
 
-Both diffs merged as of libselinux 1.27.22.
+So our options would seem to be:
+- Make a change to the module format to explicitly record the "default"
+role when a module is compiled from policy sources, so that libsepol can
+correctly extract the defrole for the user and return it to libsemanage.
+No need to change the kernel format AFAICS, as we only need this support
+for modules, not the expanded policy. -or-
+- Drop the notion of a defrole entirely from the sepol interface and
+code, and handle determination of the default role for users defined in
+the policy in semanage in some manner (possibly paralleling the logic
+used by libselinux to compute the default context, but using the policy
+object rather than the kernel to query reachable contexts, which
+requires encapsulating and exporting the corresponding libsepol
+interface).
 
 -- 
 Stephen Smalley
