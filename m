@@ -1,65 +1,80 @@
-Subject: Re: rawhide targeted vs. refpolicy rpm
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>
-References: <BF9A263D.7FFA%csellers@tresys.com>
-	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>
-	 <200511141041.49643.csellers@tresys.com>
-	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
-	 <4378B88B.6040003@redhat.com> <4378C285.3080005@tresys.com>
-	 <4378D6F9.5070301@redhat.com>
-	 <1131997064.5415.241.camel@moss-spartans.epoch.ncsc.mil>
-	 <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 08:40:02 -0500
-Message-Id: <1132062002.5415.350.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4379E4D1.2010900@redhat.com>
+Date: Tue, 15 Nov 2005 08:38:25 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
+   selinux@tycho.nsa.gov
+Subject: Re: [ SEMANAGE ] Stub pserver backend
+References: <437907D7.8090002@cornell.edu>	 <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil> <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-15 at 06:17 -0500, Stephen Smalley wrote:
-> Actually, on second thought, this reflects a bug and possibly design
-> flaw in semanage/sepol, IIUC.  Previously, genhomedircon was using the
-> first role listed in the users files as the "default role" for purposes
-> of labeling the home directory, but that was purely a convention; the
-> kernel policy has no concept of a default role for a user, only a list
-> of authorized roles.  Role and domain selection at login time (or
-> similar events, like su) is performed by dynamically computing the set
-> of contexts reachable for the user from the security context of the
-> entrypoint process (e.g. local login, gdm, sshd, crond, etc) based on
-> policy and then ordering them based on the default_contexts
-> configuration file (which is not part of the kernel policy).
-> 
-> Since the kernel policy has no concept of a default role for the user,
-> the user_datum in libsepol merely stores an unordered set of authorized
-> roles; it doesn't preserve the ordering information from the users file
-> at all presently.  The user_to_record() converter function in libsepol
-> merely processes the roles in the order in which they happen to be
-> stored in the ebitmap, which is just a reflection of the bit value
-> ordering of the roles.  Thus, we are returning system_r rather than
-> user_r from sepol to semanage, and propagating that information to
-> genhomedircon.  This is what led Dan to remapping system_r to user_r in
-> his genhomedircon patch.
+Stephen Smalley wrote:
+> On Tue, 2005-11-15 at 06:29 -0500, Stephen Smalley wrote:
+>   
+>> On Mon, 2005-11-14 at 16:55 -0500, Ivan Gyurdiev wrote:
+>>     
+>>> The purpose of stubs is to reduce size of future patches, and to point 
+>>> to the right place to add functionality (if people want to help 
+>>> implement it).
+>>>
+>>> Changes: stub the pserver dbase backend.
+>>>       
+>> I'd prefer to wait until we have a basic working implementation and a
+>> user ready for merging.  Posting stubs or function prototypes to the
+>> list as examples is fine, but I don't see much value in merging them.
+>> It was ok for early development of libsemanage in order to build up
+>> infrastructure and allow early collaboration/feedback, but I'd prefer to
+>> move to merging actual implementations now.  I'd especially like to see
+>> sample users (even just dummy test programs) that allow the code to be
+>> trivially exercised along with the submissions to help put it in
+>> context.
+>>     
+>
+> Also, I think we need to think about priorities of tasks; policy server
+> backend and runtime boolean manipulation via libsemanage seem fairly low
+> to me right now.  Of greater importance would be:
+> - Finalizing the refpolicy-based targeted policy package and getting it
+> into rawhide,
+>   
+refpolicy went in last night.   Now we need to get strict/mls working.  
+As well as clean up the bugs that
+refpolicy will cause.
+> - Solving the default role problem in semanage/sepol,
+> - Finalizing the genhomedircon rewrite and getting it upstreamed
+> (depends on prior item),
+> - Adding options to audit2allow to allow it to generate well-formed
+> source policy modules (including module statement and all necessary
+> required statements) so that users can continue using audit2allow on
+> managed systems for local additions to rules.  Likely separate options
+> to allow generation of a complete module versus generation of additional
+> require and allow rules to append to an existing module.
+>   
+I have begun working on this as well as porting it to python.
+> - Creating a utility for managing seusers via libsemanage so that users
+> don't need to directly edit the sandbox copy and then run semodule -B to
+> force a rebuild,
+>   
+Ditto
+> - Finishing the ports functionality and exporting those interfaces,
+>   
+> - Creating utilities for managing the other policy components via
+> libsemanage.
+>
+>   
+Giving me the tools in libsemanage to build the manipulation of ports, 
+seusers and potentially
+user modules (local.pp) from python.
 
-So our options would seem to be:
-- Make a change to the module format to explicitly record the "default"
-role when a module is compiled from policy sources, so that libsepol can
-correctly extract the defrole for the user and return it to libsemanage.
-No need to change the kernel format AFAICS, as we only need this support
-for modules, not the expanded policy. -or-
-- Drop the notion of a defrole entirely from the sepol interface and
-code, and handle determination of the default role for users defined in
-the policy in semanage in some manner (possibly paralleling the logic
-used by libselinux to compute the default context, but using the policy
-object rather than the kernel to query reachable contexts, which
-requires encapsulating and exporting the corresponding libsepol
-interface).
+
+
+
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
