@@ -1,172 +1,45 @@
-Message-ID: <437A0930.80906@redhat.com>
-Date: Tue, 15 Nov 2005 11:13:36 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <437A09A4.4060103@tresys.com>
+Date: Tue, 15 Nov 2005 11:15:32 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Port of audit2allow to python
-Content-Type: multipart/mixed;
- boundary="------------090800090004020302020403"
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+   SELinux-dev@tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [ SEMANAGE ] Stub pserver backend
+References: <437907D7.8090002@cornell.edu> <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil> <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil> <4379E4D1.2010900@redhat.com> <437A0749.5060407@cornell.edu> <437A05C5.4080505@tresys.com> <437A0BED.1060102@cornell.edu>
+In-Reply-To: <437A0BED.1060102@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090800090004020302020403
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Ivan Gyurdiev wrote:
+> 
+>>
+>> the swig wrappers don't currently have any write (transaction) 
+>> functionality, nor are the seuser keys and create functions wrapped, 
+>> these will need to be done.
+> 
+> Speaking of transactions, I see the "moving genhomedircon patch outside 
+> the active-lock section" patch has been merged. That's fine, but I also 
+> pointed out why genhomedircon should be using transactions in read-only 
+> mode as well - please see the relevant thread. Using transactions there 
+> eliminates an unnecessary policy rebuild, and a race condition (but on 
+> the other hand then you have another deadlock to deal with, because 
+> you're calling it with the transaction lock held).
+> 
+> 
+There is no race condition on reads. Every query returns the transaction 
+number and the client should check the transaction numbers for consistency.
 
-Next step add reference policy generation.
+The policy rebuild is an implementation issue, as little or as much of 
+the cache can be filled at any time, and the transaction number can 
+always be polled to ensure its up to date.
 
--- 
-
-
-
---------------090800090004020302020403
-Content-Type: text/x-python;
- name="audit2allow.py"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audit2allow.py"
-
-#! /usr/bin/env python
-# Copyright (C) 2005 Red Hat 
-# see file 'COPYING' for use and warranty information
-#
-# Audit2allow is a rewrite of prior perl script.
-#
-# Based off original audit2allow perl script: which credits
-#    newrules.pl, Copyright (C) 2001 Justin R. Smith (jsmith@mcs.drexel.edu)
-#    2003 Oct 11: Add -l option by Yuichi Nakamura(ynakam@users.sourceforge.jp)
-#
-#
-#  
-import commands, sys, os, pwd, string, getopt, re
-class allow:
-	def __init__(self, source, target, seclass, access):
-		self.source=source
-		self.target=target
-		self.seclass=seclass
-		self.access=[]
-		self.add(access)
-	def add(self, access):
-		for i in access:
-			if i not in self.access:
-				self.access.append(i)
-	def getAccess(self):
-		if len(self.access) == 1:
-			return self.access[0]
-		else:
-			self.access.sort()
-			ret="{"
-			for i in self.access:
-				ret=ret + " " + i
-				
-			ret=ret+" }"
-			return ret
-	def out(self):
-		ret="allow %s %s:%s %s;" % (self.source, self.gettarget(), self.seclass, self.getAccess())
-		return ret
-	def gettarget(self):
-		if self.source == self.target:
-			return "self"
-		else:
-			return self.target
-	
-class allowRecords:
-	def __init__(self, input, last_reload=0):
-		self.last_reload=last_reload
-		self.allowRules={}
-		line = input.read()
-		avc=[]
-		while line:
-			rec=line.split()
-			for i in rec:
-				if i=="avc:" :
-					self.add(avc)
-					avc=[i]
-				else:
-					avc.append(i)
-				
-			line = input.read()
-	def add(self,avc):
-		scon=""
-		tcon=""
-		seclass=""
-		access=[]
-		if "granted" in avc and "load_policy" in avc:
-			if self.last_reload:
-				self.allowRules={}
-			return
-		for i in range (0, len(avc)):
-			t=avc[i].split('=')
-			if t[0]=="scontext":
-				scon=t[1].split(":")[2]
-				continue
-			if t[0]=="tcontext":
-				tcon=t[1].split(":")[2]
-				continue
-			if t[0]=="tclass":
-				seclass=t[1]
-				continue
-			if avc[i]=="{":
-				i=i+1
-				while i<len(avc) and avc[i] != "}":
-					access.append(avc[i])
-					i=i+1
-					
-		if scon=="" or tcon =="" or seclass=="":
-			return
-		if (scon, tcon, seclass) in self.allowRules.keys():
-			self.allowRules[(scon, tcon, seclass)].add(access)
-		else:
-			self.allowRules[(scon, tcon, seclass)]=allow(scon, tcon, seclass, access)
-
-	def out(self):
-		rec=""
-		for i in self.allowRules.keys():
-			rec=rec+self.allowRules[i].out()+"\n"
-		return rec
-def usage():
-	print 'audit2allow [-d] [-v] [-l] [-i <inputfile> ] [-o <outputfile>]\n\
-        -d      read input from output of /bin/dmesg\n\
-        -v      verbose output\n\
-        -l      read input only after last \"load_policy\"\n\
-        -i      read input from <inputfile>\n\
-        -o      append output to <outputfile>\n'
-	sys.exit(1)
-#
-# This script will generate home dir file context
-# based off the homedir_template file, entries in the password file, and
-#
-try:
-	last_reload=0
-	input=sys.stdin
-	output=sys.stdout
-	gopts, cmds = getopt.getopt(sys.argv[1:], 'do:hli:', ['help',
-						'last_reload='])
-	for o,a in gopts:
-		if o == '--last_reload' or o == "-l":
-			last_reload=1
-		if o == "-i":
-			input=open(a, "r")
-		if o == '--help':
-			usage()
-		if o == "-d":
-			input=os.popen("/bin/dmesg", "r")
-		if o == "-o":
-			output=open(a, "a")
-	if len(cmds) != 0:
-		usage()
-	out=allowRecords(input, last_reload)
-	output.write(out.out())
-
-except getopt.error, error:
-	errorExit(string.join("Options Error ", error))
-except ValueError, error:
-	errorExit(string.join("ValueError ", error))
-except IndexError, error:
-	errorExit("IndexError")
-
---------------090800090004020302020403--
+That said, genhomedircon may be placed inside the transaction at some 
+point in the future when the whole policy directory is inside the 
+sandbox, but until then there is no need for this, and it causes tons of 
+extra copying of files, filling of unused databases, parsing of policydb 
+and a possible policy rebuild/reload.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
