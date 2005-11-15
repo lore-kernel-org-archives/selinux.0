@@ -1,55 +1,28 @@
-Subject: Re: changes in ~2.6.13 break postfix policy?
+Subject: Re: I have modified Joshua's libsemanage-swigify patch to work
+	better in my spec file
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   Erich Schubert <erich@debian.org>, Chris Wright <chrisw@osdl.org>,
-   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
-In-Reply-To: <Pine.LNX.4.63.0511150757250.422@excalibur.intercode>
-References: <1131106145.28236.7.camel@wintermute.xmldesign.de>
-	 <1131111969.23420.208.camel@moss-spartans.epoch.ncsc.mil>
-	 <20051104183551.GC2837@legolas.drinsama.de>
-	 <1131130924.23420.326.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131148407.1355.21.camel@wintermute.xmldesign.de>
-	 <1131382681.20591.102.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131478271.17745.6.camel@wintermute.xmldesign.de>
-	 <1131543371.20591.460.camel@moss-spartans.epoch.ncsc.mil>
-	 <1131648624.19626.122.camel@moss-spartans.epoch.ncsc.mil>
-	 <20051111120511.GC9115@lkcl.net>
-	 <1131979585.5415.86.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.63.0511141806340.30284@excalibur.intercode>
-	 <1132057609.5415.317.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.63.0511150757250.422@excalibur.intercode>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Chad Sellers <csellers@tresys.com>, Joshua Brindle <jbrindle@tresys.com>,
+   SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4378D2F6.8030709@redhat.com>
+References: <BF9A263D.7FFA%csellers@tresys.com>
+	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>
+	 <200511141041.49643.csellers@tresys.com>
+	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
+	 <4378D2F6.8030709@redhat.com>
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 08:19:28 -0500
-Message-Id: <1132060768.5415.330.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 15 Nov 2005 08:21:30 -0500
+Message-Id: <1132060890.5415.333.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-15 at 07:59 -0500, James Morris wrote:
-> On Tue, 15 Nov 2005, Stephen Smalley wrote:
+On Mon, 2005-11-14 at 13:09 -0500, Daniel J Walsh wrote:
+> swigify patch
 > 
-> > On Mon, 2005-11-14 at 18:07 -0500, James Morris wrote:
-> > > Ok.  I also wonder how whether we still need CONFIG_SECURITY_NETWORK at 
-> > > all.
-> > 
-> > Possibly not.  Might be worth running network benchmarks with it
-> > disabled and enabled, with selinux=0 in both cases, just to see what
-> > overhead the LSM hooks impose (if any).  sock_rcv_skb is likely the only
-> > real concern.
-> 
-> Even if it does impose an overhead, I don't see that it's useful as an 
-> option.  People generally either enable LSM for SELinux or not.
+> ftp://people.redhat.com/dwalsh/SELinux/libsemanage-swigify.patch
 
-True.  However, I can envision people who want to apply SELinux for
-local confinement of processes without necessarily caring about the
-network controls, and I can further envision them not wanting the
-performance overhead on the network path created by e.g. the
-sock_rcv_skb hook and the netfilter hooks.  So that seems like a
-reasonable configuration option.  The current CONFIG_SECURITY_NETWORK
-isn't very useful in that respect because it covers not only those
-networking checks but also the socket hooks, including the checking for
-Unix/local sockets.
+Thanks, merged into libsemanage as of 1.3.54.
 
 -- 
 Stephen Smalley
