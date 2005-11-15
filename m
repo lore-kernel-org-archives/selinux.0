@@ -1,60 +1,70 @@
-Message-ID: <437974B6.7020203@cornell.edu>
-Date: Tue, 15 Nov 2005 00:40:06 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [ SELINUX ] Make rpm_execcon failure non-fatal in permissive mode.
-Content-Type: multipart/mixed;
- boundary="------------000603050405000603060505"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAF5pYMA010853
+	for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2005 00:51:34 -0500 (EST)
+Received: from www.gornall.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAF5iG5T028174
+	for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2005 05:44:17 GMT
+Received: from [192.168.1.100] (c-67-169-147-12.hsd1.ca.comcast.net [67.169.147.12])
+	by www.gornall.net (Postfix) with ESMTP id BA1AE1A24A
+	for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2005 06:06:43 +0000 (GMT)
+Mime-Version: 1.0 (Apple Message framework v746.2)
+In-Reply-To: <1131981045.5415.103.camel@moss-spartans.epoch.ncsc.mil>
+References: <840CEAA7-85D1-4C5B-8B8D-B8E55AB217A7@gornall.net> <1131981045.5415.103.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F2C51318-DBA7-49F0-BE5F-7A591238ADD8@gornall.net>
+From: Simon Gornall <simon@gornall.net>
+Subject: Re: Running programs from a PHP script under SELinux
+Date: Mon, 14 Nov 2005 21:44:11 -0800
+To: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000603050405000603060505
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Changelog: Makes failure in rpm_execcon non-fatal in permissive mode.
-See: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=173094
+On Nov 14, 2005, at 7:10 AM, Stephen Smalley wrote:
 
-P.S. I'm not sure why an rpm-specific function is in the shared library 
-- seems strange to me.
+> On Sun, 2005-11-13 at 11:24 -0800, Simon Gornall wrote:
+>> This is very much a newbie question I'm afraid - if there's a more-
+>> appropriate forum, I'll be glad to be pointed in their general
+>> direction :-) I can't see anything in the FAQ (though I guess I may
+>> not have recognised the solution) or after having googled...
+>
+> Just FYI, some other information resources about SELinux are listed in
+> http://selinux.sourceforge.net/resources.php3
 
---------------000603050405000603060505
-Content-Type: text/x-patch;
- name="libselinux.rpm_respect_mode.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux.rpm_respect_mode.diff"
+Cheers :-)
 
-diff -Naurp --exclude CVS --exclude ChangeLog --exclude VERSION old/libselinux/src/rpm.c new/libselinux/src/rpm.c
---- old/libselinux/src/rpm.c	2005-08-25 11:32:02.000000000 -0400
-+++ new/libselinux/src/rpm.c	2005-11-15 00:27:14.000000000 -0500
-@@ -11,7 +11,7 @@ int rpm_execcon(unsigned int verified __
- {
- 	security_context_t mycon = NULL, fcon = NULL, newcon = NULL;
- 	context_t con = NULL;
--	int rc;
-+	int rc = 0;
- 
- 	if (is_selinux_enabled() < 1)
- 		return execve(filename, argv, envp);
-@@ -44,8 +44,11 @@ int rpm_execcon(unsigned int verified __
- 	rc = setexeccon(newcon);
- 	if (rc < 0) 
- 		goto out;
--	rc = execve(filename, argv, envp);
- out:
-+
-+	if (rc >= 0 || !security_getenforce())
-+		rc = execve(filename, argv, envp); 
-+
- 	context_free(con);
- 	freecon(newcon);
- 	freecon(fcon);
+>> When  I call 'exec("/path/to/program") from within a PHP script, it
+>> does actually work, but I get a message in the 'dmesg' output like:
+>>
+>> audit(1131753033.872:49): avc:  denied  { execute } for  pid=15678
+>> comm="fortune" name="ld.so.cache" dev=md2 ino=132328
+>> scontext=root:system_r:httpd_sys_script_t
+>> tcontext=root:object_r:ld_so_cache_t tclass=file
+>
+> What does execstack -q `which fortune` show?  Typically, that audit
+> message suggests that kernel is translating PROT_READ requests by that
+> binary to PROT_READ|PROT_EXECUTE in order to provide compatibility  
+> with
+> "legacy" binaries that presumed read-implies-exec logic.
 
---------------000603050405000603060505--
+Hmm - in this case it reports '-', which would seem to suggest the  
+stack isn't executable...
+
+# execstack -q `which fortune`
+- /usr/bin/fortune
+
+in case it's any use:
+
+# ls -lZ `which fortune`
+-rwxr-xr-x  root     root     system_u:object_r:bin_t          /usr/ 
+bin/fortune
+
+I guess I can live with it if it's only the 'fortune' binary (this  
+isn't crucial to end-user operations :-). I'll investigate other  
+binaries and see if I get the same thing...
+
+ATB,
+	Simon
 
 --
 This message was distributed to subscribers of the selinux mailing list.
