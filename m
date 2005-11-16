@@ -1,240 +1,73 @@
-Message-ID: <437ACC47.8000509@redhat.com>
-Date: Wed, 16 Nov 2005 01:05:59 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Port of audit2allow to python
-References: <437A0930.80906@redhat.com>	 <1132080405.28124.70.camel@moss-spartans.epoch.ncsc.mil> <1132081042.28124.75.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1132081042.28124.75.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------090709040906030801030904"
+Subject: Re: rawhide targeted vs. refpolicy rpm
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+   Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <437A3BFA.1080901@cornell.edu>
+References: <BF9A263D.7FFA%csellers@tresys.com>
+	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>
+	 <200511141041.49643.csellers@tresys.com>
+	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>
+	 <4378B88B.6040003@redhat.com> <4378C285.3080005@tresys.com>
+	 <4378D6F9.5070301@redhat.com>
+	 <1131997064.5415.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132062002.5415.350.camel@moss-spartans.epoch.ncsc.mil>
+	 <4379F431.1070908@redhat.com>
+	 <1132066658.5415.379.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132067431.5415.383.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132067881.5415.391.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132081420.28124.80.camel@moss-spartans.epoch.ncsc.mil>
+	 <437A3BFA.1080901@cornell.edu>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 08:11:15 -0500
+Message-Id: <1132146675.12540.16.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090709040906030801030904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2005-11-15 at 14:50 -0500, Ivan Gyurdiev wrote:
+> >
+> >> Ok, so perhaps what we need is a new semanage policy component that
+> >> provides libsemanage with:
+> >> a) default role (or use default_contexts to determine), and
+> >> b) home directory type prefix for that role, which can be different from
+> >> the role prefix itself.
+> >>
+> >> And then have libsemanage export an interface to genhomedircon to obtain
+> >> the home directory type prefix for use in generating the file contexts
+> >> rather than using the role prefix itself.
+> >>     
+> >
+> > Is there agreement on this direction?  Is anyone working on this issue
+> > yet?
+> >   
+> 
+> I am very confused..
+> 
+> 1. The reason we designate a role as a "default" role is to get the 
+> labeling prefix. If we already have the labeling prefix, why do we still 
+> want to keep a "default" role around?
+> 
+> 2. The labeling prefix has so far been tied to the user (map is 
+> seuser->user->(fixed) role -> labeing prefix). Now you're saying the 
+> login context should play a role in determining the labeling prefix? How 
+> would this work? Which login context from default_contexts should be used?
 
-Stephen Smalley wrote:
-> On Tue, 2005-11-15 at 13:46 -0500, Stephen Smalley wrote:
->   
->> On Tue, 2005-11-15 at 11:13 -0500, Daniel J Walsh wrote:
->>     
->>> Next step add reference policy generation.
->>>       
->> Doesn't yield the same output as the old perl script, even after sorting
->> both outputs to avoid ordering issues.
->>
->> Looks like the new script is incorrectly adding allow rules for:
->> - security_compute_sid errors, and
->> - avc:  granted messages
->>     
->
-> Also, the new script doesn't appear to support the -v option yet
-> (collects up the auxiliary audit information like the comm= and name=
-> information and saves it in comment lines after each allow rule). Not
-> sure how crucial that is, or whether we should be saving the audit event
-> id instead so that people can use ausearch to query the corresponding
-> system call audit record easily.
->
->   
-Another pass. 
+Good point.   Let's just add a user->labelingprefix mapping and drop out
+defrole altogether then.  
+
+> 3. Is there documentation on default_contexts, and how to work with it?
+
+I suppose this becomes irrelevant given the above.  I think it is
+described in brief in the policy tech report, but not in great detail.
+libselinux get_ordered_context_list is the "documentation" for how to
+work with it.
 
 -- 
+Stephen Smalley
+National Security Agency
 
-
-
---------------090709040906030801030904
-Content-Type: text/x-python;
- name="audit2allow.py"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audit2allow.py"
-
-#! /usr/bin/env python
-# Copyright (C) 2005 Red Hat 
-# see file 'COPYING' for use and warranty information
-#
-# Audit2allow is a rewrite of prior perl script.
-#
-# Based off original audit2allow perl script: which credits
-#    newrules.pl, Copyright (C) 2001 Justin R. Smith (jsmith@mcs.drexel.edu)
-#    2003 Oct 11: Add -l option by Yuichi Nakamura(ynakam@users.sourceforge.jp)
-#
-#
-#  
-import commands, sys, os, pwd, string, getopt, re
-class allow:
-	def __init__(self, source, target, seclass):
-		self.source=source
-		self.target=target
-		self.seclass=seclass
-		self.avcinfo={}
-		
-	def add(self, avc):
-		for a in avc[0]:
-			if a not in self.avcinfo.keys():
-				self.avcinfo[a]=[]
-
-			self.avcinfo[a].append(avc[1:])
-
-	def getAccess(self):
-		if len(self.avcinfo.keys()) == 1:
-			for i in self.avcinfo.keys():
-				return i
-		else:
-			keys=self.avcinfo.keys()
-			keys.sort()
-			ret="{"
-			for i in keys:
-				ret=ret + " " + i				
-			ret=ret+" }"
-			return ret
-	def out(self, verbose=0):
-		ret=""
-		ret=ret+"allow %s %s:%s %s;" % (self.source, self.gettarget(), self.seclass, self.getAccess())
-		if verbose:
-			keys=self.avcinfo.keys()
-			keys.sort()
-			for i in keys:
-				for x in self.avcinfo[i]:
-					ret=ret+"\n#TYPE=AVC MSG=%s COMM=%s NAME=%s\t: " % x
-					ret=ret + i
-		return ret
-	def gettarget(self):
-		if self.source == self.target:
-			return "self"
-		else:
-			return self.target
-	
-class allowRecords:
-	def __init__(self, input, last_reload=0, verbose=0):
-		self.last_reload=last_reload
-		self.allowRules={}
-		line = input.read()
-		avc=[]
-		while line:
-			rec=line.split()
-			for i in rec:
-				if i=="avc:" or i=="message=avc:":
-					self.add(avc)
-					avc=[i]
-				else:
-					avc.append(i)
-				
-			line = input.read()
-	def add(self,avc):
-		scon=""
-		tcon=""
-		seclass=""
-		comm=""
-		name=""
-		msg=""
-		access=[]
-		if "security_compute_sid" in avc:
-			return
-		
-		if "granted" in avc:
-			if "load_policy" in avc and self.last_reload:
-				self.allowRules={}
-			return
-		for i in range (0, len(avc)):
-			t=avc[i].split('=')
-			if t[0]=="scontext":
-				scon=t[1].split(":")[2]
-				continue
-			if t[0]=="tcontext":
-				tcon=t[1].split(":")[2]
-				continue
-			if t[0]=="tclass":
-				seclass=t[1]
-				continue
-			if t[0]=="comm":
-				comm=t[1]
-				continue
-			if t[0]=="name":
-				name=t[1]
-				continue
-			if t[0]=="msg":
-				msg=t[1]
-				continue
-			if avc[i]=="{":
-				i=i+1
-				while i<len(avc) and avc[i] != "}":
-					access.append(avc[i])
-					i=i+1
-					
-		if scon=="" or tcon =="" or seclass=="":
-			return
-
-		if (scon, tcon, seclass) not in self.allowRules.keys():
-			self.allowRules[(scon, tcon, seclass)]=allow(scon, tcon, seclass)
-		self.allowRules[(scon, tcon, seclass)].add((access, msg, comm, name ))
-
-	def outModule(self):
-		contexts=[]
-		class=[]
-		for i in self.allowRules.keys():
-			if i[0] not in contexts:
-				contexts.append(i[0])
-			if i[1] not in contexts:
-				contexts.append(i[1])
-			if i[2] not in class:
-				class.append(i[1])
-			
-	def out(self):
-		rec=""
-		for i in self.allowRules.keys():
-			rec=rec+self.allowRules[i].out(verbose)+"\n"
-		return rec
-
-def usage():
-	print 'audit2allow [-d] [-v] [-l] [-i <inputfile> ] [-o <outputfile>]\n\
-        -d      read input from output of /bin/dmesg\n\
-        -v      verbose output\n\
-        -l      read input only after last \"load_policy\"\n\
-        -i      read input from <inputfile>\n\
-        -o      append output to <outputfile>\n'
-	sys.exit(1)
-#
-# This script will generate home dir file context
-# based off the homedir_template file, entries in the password file, and
-#
-try:
-	last_reload=0
-	input=sys.stdin
-	output=sys.stdout
-	verbose=0
-	gopts, cmds = getopt.getopt(sys.argv[1:], 'vdo:hli:', ['help',
-						'last_reload='])
-	for o,a in gopts:
-		if o == '--last_reload' or o == "-l":
-			last_reload=1
-		if o == "-v":
-			verbose=1
-		if o == "-i":
-			input=open(a, "r")
-		if o == '--help':
-			usage()
-		if o == "-d":
-			input=os.popen("/bin/dmesg", "r")
-		if o == "-o":
-			output=open(a, "a")
-	if len(cmds) != 0:
-		usage()
-	out=allowRecords(input, last_reload, verbose)
-	output.write(out.out())
-
-except getopt.error, error:
-	errorExit(string.join("Options Error ", error))
-except ValueError, error:
-	errorExit(string.join("ValueError ", error))
-except IndexError, error:
-	errorExit("IndexError")
-
---------------090709040906030801030904--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
