@@ -1,55 +1,43 @@
-Subject: Re: [ SEMANAGE ] Clear obsoleted objects
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <437B42A9.7010407@cornell.edu>
-References: <437A7AD5.6040500@cornell.edu>
-	 <1132150739.3425.16.camel@moss-spartans.epoch.ncsc.mil>
-	 <437B42A9.7010407@cornell.edu>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 09:39:23 -0500
-Message-Id: <1132151963.3901.1.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <437B4674.9050405@cornell.edu>
+Date: Wed, 16 Nov 2005 09:47:16 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+   Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: rawhide targeted vs. refpolicy rpm
+References: <BF9A263D.7FFA%csellers@tresys.com>	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>	 <4378B88B.6040003@redhat.com> <4378C285.3080005@tresys.com>	 <4378D6F9.5070301@redhat.com>	 <1131997064.5415.241.camel@moss-spartans.epoch.ncsc.mil>	 <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>	 <1132062002.5415.350.camel@moss-spartans.epoch.ncsc.mil>	 <4379F431.1070908@redhat.com>	 <1132066658.5415.379.camel@moss-spartans.epoch.ncsc.mil>	 <1132067431.5415.383.camel@moss-spartans.epoch.ncsc.mil>	 <1132067881.5415.391.camel@moss-spartans.epoch.ncsc.mil>	 <1132081420.28124.80.camel@moss-spartans.epoch.ncsc.mil>	 <437A3BFA.1080901@cornell.edu>	 <1132146675.12540.16.camel@moss-spartans.epoch.ncsc.mil>	 <437B374B.8040401@cornell.edu>	 <1132148567.12540.28.camel@moss-spartans.epoch.ncsc.mil>	 <437B3D53.1090401@cornell.edu>	 <1132150483.3425.9.camel@moss-spartans.epoch.ncsc.mil>	 <437B41BF.7030002@cornell.edu> <1132151186.3425.21.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1132151186.3425.21.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-11-16 at 09:31 -0500, Ivan Gyurdiev wrote:
-> >
-> > Thanks, merged as of libsemanage 1.3.55.
-> >   
-> I just found a bug ... should be using rtable->key_free(key), not free(key).
+Stephen Smalley wrote:
+> On Wed, 2005-11-16 at 09:27 -0500, Ivan Gyurdiev wrote:
+>   
+>> Well, okay... I guess it's about as easy to add an arbitrary prefix than 
+>> to use the current defrole functions.
+>> It's probably easier, actually...
+>>
+>> So, should this go into a separate file? If it's key-ed on the user, why 
+>> shouldn't it go into the user file?
+>> Also, there's the issue of local vs policy. In-policy users that are not 
+>> in the local file also require a labeling prefix.
+>>     
+>
+> For local users, it could go into the users.local file managed by
+> libsemanage.  For in-policy users, the policy package needs to provide a
+> new file that assigns them a labeling prefix for use by libsemanage.
+>   
+Too complicated...fewer files is better. It seems better to call a 
+utility in the %post script that will do if (!exists_local(root)) 
+add_local(root, (root's data)). That also allows users to see that data 
+if they choose to modify the file by hand.
 
-Ok.
+.. unfortunately now I'll have to modify in-policy queries in semanage 
+to also query the local file, and fetch the prefix from there.
 
-Index: libsemanage/src/policy_components.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsemanage/src/policy_components.c,v
-retrieving revision 1.14
-diff -u -p -r1.14 policy_components.c
---- libsemanage/src/policy_components.c	16 Nov 2005 13:49:15 -0000	1.14
-+++ libsemanage/src/policy_components.c	16 Nov 2005 14:36:06 -0000
-@@ -49,7 +49,7 @@ static int clear_obsolete(
- 	for (i=0; i < nrecords; i++)	
- 		rtable->free(records[i]);
- 	free(records);
--	free(key);
-+	rtable->key_free(key);
- 	return STATUS_SUCCESS;
- 
- 	err:
-@@ -57,7 +57,7 @@ static int clear_obsolete(
- 	for (i=0; i < nrecords; i++)
- 		rtable->free(records[i]);
- 	free(records);
--	free(key);
-+	rtable->key_free(key);
- 	return STATUS_ERR;
- }
- 
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
