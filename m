@@ -1,45 +1,72 @@
-Message-ID: <437B47FE.3030404@cornell.edu>
-Date: Wed, 16 Nov 2005 09:53:50 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux-dev@tresys.com, Joshua Brindle <jbrindle@tresys.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: rawhide targeted vs. refpolicy rpm
-References: <BF9A263D.7FFA%csellers@tresys.com>	 <4378B88B.6040003@redhat.com> <4378C285.3080005@tresys.com>	 <4378D6F9.5070301@redhat.com>	 <1131997064.5415.241.camel@moss-spartans.epoch.ncsc.mil>	 <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>	 <1132062002.5415.350.camel@moss-spartans.epoch.ncsc.mil>	 <4379F431.1070908@redhat.com>	 <1132066658.5415.379.camel@moss-spartans.epoch.ncsc.mil>	 <1132067431.5415.383.camel@moss-spartans.epoch.ncsc.mil>	 <1132067881.5415.391.camel@moss-spartans.epoch.ncsc.mil>	 <1132081420.28124.80.camel@moss-spartans.epoch.ncsc.mil>	 <437A3BFA.1080901@cornell.edu>	 <1132146675.12540.16.camel@moss-spartans.epoch.ncsc.mil>	 <437B374B.8040401@cornell.edu>	 <1132148567.12540.28.camel@moss-spartans.epoch.ncsc.mil>	 <437B3D53.1090401@cornell.edu>	 <1132150483.3425.9.camel@moss-spartans.epoch.ncsc.mil>	 <437B41BF.7030002@cornell.edu> <1132151186.3425.21.camel@moss-spartans.epoch.ncsc.mil> <437B4674.9050405@cornell.edu>
-In-Reply-To: <437B4674.9050405@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Policy mods in last nights refpolicy
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
+   SELinux-dev@tresys.com, Ivan Gyurdiev <ivg2@cornell.edu>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1132150703.3425.14.camel@moss-spartans.epoch.ncsc.mil>
+References: <437907D7.8090002@cornell.edu>
+	 <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil>
+	 <4379E4D1.2010900@redhat.com>
+	 <1132063930.5415.364.camel@moss-spartans.epoch.ncsc.mil>
+	 <4379EFBE.8070202@redhat.com>  <1132069967.24234.159.camel@sgc>
+	 <1132148928.12540.33.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132150703.3425.14.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 09:46:37 -0500
+Message-Id: <1132152397.26982.1.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
->>> Well, okay... I guess it's about as easy to add an arbitrary prefix 
->>> than to use the current defrole functions.
->>> It's probably easier, actually...
->>>
->>> So, should this go into a separate file? If it's key-ed on the user, 
->>> why shouldn't it go into the user file?
->>> Also, there's the issue of local vs policy. In-policy users that are 
->>> not in the local file also require a labeling prefix.
->>>     
->>
->> For local users, it could go into the users.local file managed by
->> libsemanage.  For in-policy users, the policy package needs to provide a
->> new file that assigns them a labeling prefix for use by libsemanage.
->>   
-> Too complicated...fewer files is better. It seems better to call a 
-> utility in the %post script that will do if (!exists_local(root)) 
-> add_local(root, (root's data)). That also allows users to see that 
-> data if they choose to modify the file by hand.
-Actually, no this is a very stupid idea, because:
+On Wed, 2005-11-16 at 09:18 -0500, Stephen Smalley wrote:
+> On Wed, 2005-11-16 at 08:48 -0500, Stephen Smalley wrote: 
+> > On Tue, 2005-11-15 at 10:52 -0500, Christopher J. PeBenito wrote:
+> > > Also, now that people are going to be using refpolicy, we're going to
+> > > have to start bumping the module versions in the policy_module()
+> > > statements when changes are made, so that modules can be upgraded
+> > > correctly.  Currently the modules are set to 1.0.  After a little
+> > > thought, it seems like it would be better if we go to x.y.z for
+> > > versioning: bump z for each changed module when committing to
+> > > sourceforge; bump y for each changed module when releasing; bump x for
+> > > major design changes to the module.  Does this seem like a reasonable
+> > > versioning scheme?
+> > 
+> > To what extent are the module-internal version numbers useful?
+> > Versus the usual versioning of the policy packages (in which case you
+> > have a single version for the base policy package plus independent
+> > versions for any policy modules packaged separately).  Why can't the
+> > versioning just be handled via rpm in the usual manner - why does
+> > libsemanage need to deal with ensuring that we don't upgrade to an
+> > "older" module version?
+> 
+> Just to note:  I understand the notion of having per-module version
+> numbers for modules that are built separately, but I'm not clear on
+> whether it is useful to have those version numbers as part of the module
+> state and checked by libsemanage versus just having them used as the
+> basis for the version number for the rpm package containing the module.
+> For example, if I build the httpd policy module as a separate package
+> and it has a module version of 1.1, I'd expect to use that version for
+> the package version (plus a release number, so httpd-policy-1.1-1), just
+> as we currently use the policy version number for the corresponding
+> policy package today.  But the policy version number (or likewise for
+> any other component, like the libsemanage version number) is not part of
+> the policy's state and is only used by the package management software.
+> It seems like there is potential for conflict here between libsemanage
+> and rpm, e.g. user runs rpm --oldpackage -Uvh httpd-policy-1.0-1, but
+> semodule fails due to the libsemanage checking (perhaps not if we always
+> do semodule -i, but you get the idea).
+> 
 
-1) it implies prefixes for users only found in policy are local 
-modifications, and
-2) updates will not override previous value, because they'll think it 
-was locally modified.
+This is assuming that there will never be a module not managed by a
+package manager. While this certainly isn't the primary target it would
+at least be nice for people to be able to semodule -l and see the
+version of the module. Third party modules that may/may not distribute
+in rpm form also makes this useful. The spec file already uses -i so the
+downgrade/upgrade isn't an issue with that, the only problem is managing
+the version, which shouldn't be much of a hassle.
 
-... another file is the right way to do this.
 
 
 --
