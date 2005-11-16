@@ -1,45 +1,94 @@
-Message-ID: <437A3BFA.1080901@cornell.edu>
-Date: Tue, 15 Nov 2005 14:50:18 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <437A8394.9030507@redhat.com>
+Date: Tue, 15 Nov 2005 19:55:48 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
-   Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: rawhide targeted vs. refpolicy rpm
-References: <BF9A263D.7FFA%csellers@tresys.com>	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>	 <200511141041.49643.csellers@tresys.com>	 <1131983537.5415.137.camel@moss-spartans.epoch.ncsc.mil>	 <4378B88B.6040003@redhat.com> <4378C285.3080005@tresys.com>	 <4378D6F9.5070301@redhat.com>	 <1131997064.5415.241.camel@moss-spartans.epoch.ncsc.mil>	 <1132053434.5415.269.camel@moss-spartans.epoch.ncsc.mil>	 <1132062002.5415.350.camel@moss-spartans.epoch.ncsc.mil>	 <4379F431.1070908@redhat.com>	 <1132066658.5415.379.camel@moss-spartans.epoch.ncsc.mil>	 <1132067431.5415.383.camel@moss-spartans.epoch.ncsc.mil>	 <1132067881.5415.391.camel@moss-spartans.epoch.ncsc.mil> <1132081420.28124.80.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1132081420.28124.80.camel@moss-spartans.epoch.ncsc.mil>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   SELinux-dev@tresys.com, selinux@tycho.nsa.gov
+Subject: Re: Policy mods in last nights refpolicy
+References: <437907D7.8090002@cornell.edu>	 <1132054159.5415.282.camel@moss-spartans.epoch.ncsc.mil>	 <1132055891.5415.305.camel@moss-spartans.epoch.ncsc.mil>	 <4379E4D1.2010900@redhat.com>	 <1132063930.5415.364.camel@moss-spartans.epoch.ncsc.mil>	 <4379EFBE.8070202@redhat.com> <1132069967.24234.159.camel@sgc>
+In-Reply-To: <1132069967.24234.159.camel@sgc>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
->> Ok, so perhaps what we need is a new semanage policy component that
->> provides libsemanage with:
->> a) default role (or use default_contexts to determine), and
->> b) home directory type prefix for that role, which can be different from
->> the role prefix itself.
->>
->> And then have libsemanage export an interface to genhomedircon to obtain
->> the home directory type prefix for use in generating the file contexts
->> rather than using the role prefix itself.
+Christopher J. PeBenito wrote:
+> On Tue, 2005-11-15 at 09:25 -0500, Daniel J Walsh wrote:
+>   
+>> diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/files.fc serefpolicy-2.0.1/policy/modules/system/files.fc
+>> --- nsaserefpolicy/policy/modules/system/files.fc	2005-11-14 18:24:06.000000000 -0500
+>> +++ serefpolicy-2.0.1/policy/modules/system/files.fc	2005-11-15 09:19:21.000000000 -0500
+>> @@ -214,3 +214,4 @@
+>>  /var/tmp/lost\+found	-d	gen_context(system_u:object_r:lost_found_t,s0)
+>>  /var/tmp/lost\+found/.*		<<none>>
+>>  /var/tmp/vi\.recover	-d	gen_context(system_u:object_r:tmp_t,s0)
+>> +/var/lib/abl(/.*)?		gen_context(system_u:object_r:var_auth_t,s0)
+>> diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/files.te serefpolicy-2.0.1/policy/modules/system/files.te
+>> --- nsaserefpolicy/policy/modules/system/files.te	2005-11-14 18:24:06.000000000 -0500
+>> +++ serefpolicy-2.0.1/policy/modules/system/files.te	2005-11-15 09:19:21.000000000 -0500
+>> @@ -167,3 +167,12 @@
+>>  #
+>>  type var_spool_t;
+>>  files_tmp_file(var_spool_t)
+>> +
+>> +#
+>> +# var_auth_t is the type of /var/lib/auth, usually
+>> +# used for auth data in pam_able
+>> +#
+>> +type var_auth_t, file_type;
+>> +fs_associate(var_auth_t)
+>> +fs_associate_noxattr(var_auth_t)
 >>     
 >
-> Is there agreement on this direction?  Is anyone working on this issue
-> yet?
+> A couple notes.  It seems more logical for var_auth_t to be in authlogin
+> along with the rest of the pam types.  Also, if its not moved, then
+> encapsulation is broken since an interface in authlogin refers to types
+> not in that module.
+>
 >   
+Ok fine
+> I'll move var_auth_t to authlogin, but I'm not clear on the rules you
+> added to auth_use_nsswitch():
+>
+>   
+>> --- nsaserefpolicy/policy/modules/system/authlogin.if	2005-11-14 18:24:06.000000000 -0500
+>> +++ serefpolicy-2.0.1/policy/modules/system/authlogin.if	2005-11-15 09:19:21.000000000 -0500
+>> @@ -931,6 +931,9 @@
+>>  	optional_policy(`samba.te',`
+>>  		samba_connect_winbind($1)
+>>  	')
+>> +	allow $1 var_auth_t:dir r_dir_perms;
+>> +	allow $1 var_auth_t:file create_file_perms;
+>> +
+>>  ')
+>>  
+>>  ########################################
+>>     
+>
+> Is this really supposed to be create_file_perms?  It seems like it
+> should just be r_file_perms since the dir access is r_dir_perms.  The
+> interface also needs a gen_require() since it not explicitly refers to
+> types.
+>   
+No apps need to be able to create and delete files in this directory.  
+This pam applet keeps track
+of failed logins or something like that.
+> Also, now that people are going to be using refpolicy, we're going to
+> have to start bumping the module versions in the policy_module()
+> statements when changes are made, so that modules can be upgraded
+> correctly.  Currently the modules are set to 1.0.  After a little
+> thought, it seems like it would be better if we go to x.y.z for
+> versioning: bump z for each changed module when committing to
+> sourceforge; bump y for each changed module when releasing; bump x for
+> major design changes to the module.  Does this seem like a reasonable
+> versioning scheme?
+>
+>   
+Yes.  Why not start out at 2.0.1 though since this is a major step 
+forward in policy.
 
-I am very confused..
+-- 
 
-1. The reason we designate a role as a "default" role is to get the 
-labeling prefix. If we already have the labeling prefix, why do we still 
-want to keep a "default" role around?
-
-2. The labeling prefix has so far been tied to the user (map is 
-seuser->user->(fixed) role -> labeing prefix). Now you're saying the 
-login context should play a role in determining the labeling prefix? How 
-would this work? Which login context from default_contexts should be used?
-
-3. Is there documentation on default_contexts, and how to work with it?
 
 
 --
