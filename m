@@ -1,9 +1,9 @@
 Subject: Re: rawhide targeted vs. refpolicy rpm
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
-   Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <437A3BFA.1080901@cornell.edu>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <437A36EB.4000206@tresys.com>
 References: <BF9A263D.7FFA%csellers@tresys.com>
 	 <4374BDEC.4050600@redhat.com> <200511111717.16542.csellers@tresys.com>
 	 <200511141041.49643.csellers@tresys.com>
@@ -18,51 +18,26 @@ References: <BF9A263D.7FFA%csellers@tresys.com>
 	 <1132067431.5415.383.camel@moss-spartans.epoch.ncsc.mil>
 	 <1132067881.5415.391.camel@moss-spartans.epoch.ncsc.mil>
 	 <1132081420.28124.80.camel@moss-spartans.epoch.ncsc.mil>
-	 <437A3BFA.1080901@cornell.edu>
+	 <437A36EB.4000206@tresys.com>
 Content-Type: text/plain
-Date: Wed, 16 Nov 2005 08:11:15 -0500
-Message-Id: <1132146675.12540.16.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 16 Nov 2005 08:12:12 -0500
+Message-Id: <1132146732.12540.18.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-11-15 at 14:50 -0500, Ivan Gyurdiev wrote:
-> >
-> >> Ok, so perhaps what we need is a new semanage policy component that
-> >> provides libsemanage with:
-> >> a) default role (or use default_contexts to determine), and
-> >> b) home directory type prefix for that role, which can be different from
-> >> the role prefix itself.
-> >>
-> >> And then have libsemanage export an interface to genhomedircon to obtain
-> >> the home directory type prefix for use in generating the file contexts
-> >> rather than using the role prefix itself.
-> >>     
-> >
-> > Is there agreement on this direction?  Is anyone working on this issue
-> > yet?
-> >   
-> 
-> I am very confused..
-> 
-> 1. The reason we designate a role as a "default" role is to get the 
-> labeling prefix. If we already have the labeling prefix, why do we still 
-> want to keep a "default" role around?
-> 
-> 2. The labeling prefix has so far been tied to the user (map is 
-> seuser->user->(fixed) role -> labeing prefix). Now you're saying the 
-> login context should play a role in determining the labeling prefix? How 
-> would this work? Which login context from default_contexts should be used?
+On Tue, 2005-11-15 at 14:28 -0500, Joshua Brindle wrote:
+> I agree, default role was always a loose concept. One question is how 
+> the defaults are filled in, is this adding a new file to targeted/strict 
+> that have default home directory prefixes?
 
-Good point.   Let's just add a user->labelingprefix mapping and drop out
-defrole altogether then.  
+Yes, I think so.
 
-> 3. Is there documentation on default_contexts, and how to work with it?
+> This could just be implemented as another database type keyed on the 
+> user, so that the sepol user records don't have to be modified.
 
-I suppose this becomes irrelevant given the above.  I think it is
-described in brief in the policy tech report, but not in great detail.
-libselinux get_ordered_context_list is the "documentation" for how to
-work with it.
+Yes, good point.  So we just drop defrole out of semanage and sepol user
+interfaces altogether.
 
 -- 
 Stephen Smalley
