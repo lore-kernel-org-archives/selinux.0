@@ -1,37 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAHDPIMA009184
-	for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2005 08:25:18 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAHDHawh017778
-	for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2005 13:17:36 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id jAHDHbOZ006744
-	for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2005 08:17:37 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id jAHDHaV29168
-	for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2005 08:17:36 -0500
-Received: from [172.16.50.51] (vpn50-51.rdu.redhat.com [172.16.50.51])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id jAHDHaUq004762
-	for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2005 08:17:36 -0500
-Message-ID: <437C82F4.2050204@redhat.com>
-Date: Thu, 17 Nov 2005 08:17:40 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: New version of reference policy on people.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Audit2allow in python generates module code.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <437C0256.509@redhat.com>
+References: <437C0256.509@redhat.com>
+Content-Type: text/plain
+Date: Thu, 17 Nov 2005 08:58:06 -0500
+Message-Id: <1132235886.17726.13.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ftp://people.redhat.com/dwalsh/SELinux/Fedora/selinux-policy-targeted-2.0.1-2.noarch.rpm
+On Wed, 2005-11-16 at 23:08 -0500, Daniel J Walsh wrote:
+> Added -m <modulename> to output module syntax.
 
-Fixes gdm problems and eliminates the the transition from 
-unconfined_t->shell_exec_t->rpm_script_t.
+Ok, so I tried:
+	audit2allow -a -m local -o local.te
+	checkmodule -M -m -o local.mod local.te
+	semodule_package -o local.pp -m local.mod
+	semodule -i local.pp
+which appears to have worked, although I think we want a shorthand way
+of doing the latter steps after the audit2allow.
 
-Dan
+A couple of questions/suggestions:
+- What if I want to append further rules later to my local.te file and
+rebuild that module?  That still needs to turn on the generation of
+require statements, but not add another module statement.  That is why I
+suggested having two separate options, one to turn on require statements
+and one to turn on module statements (the latter could imply the former
+as well).  Possibly a -r option to just generate require statements w/o
+adding another module statement?
+
+- What about versioning of local.te (or do we not care)?  Should
+audit2allow check whether the output file already exists and if so, read
+the current module statement from it and increment the version?  Or
+leave that to the user to do manually if they want versioning? 
+
+Minor nit:  There is a cut-and-paste leftover in the audit2allow python
+script from genhomedircon (a comment about home dir file context,
+homedir_template, etc).
 
 -- 
-
+Stephen Smalley
+National Security Agency
 
 
 --
