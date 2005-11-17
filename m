@@ -1,61 +1,75 @@
-Subject: Re: Audit2allow in python generates module code.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1132235886.17726.13.camel@moss-spartans.epoch.ncsc.mil>
-References: <437C0256.509@redhat.com>
-	 <1132235886.17726.13.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 17 Nov 2005 09:06:39 -0500
-Message-Id: <1132236399.17726.22.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAHEJIMA009755
+	for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2005 09:19:18 -0500 (EST)
+Received: from free.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAHEAxLH001007
+	for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2005 14:11:00 GMT
+Date: Thu, 17 Nov 2005 14:11:18 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Erich Schubert <erich@debian.org>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Debian SELinux backports project
+Message-ID: <20051117141118.GR3082@lkcl.net>
+References: <1132232710.16126.6.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1132232710.16126.6.camel@wintermute.xmldesign.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-11-17 at 08:58 -0500, Stephen Smalley wrote:
-> On Wed, 2005-11-16 at 23:08 -0500, Daniel J Walsh wrote:
-> > Added -m <modulename> to output module syntax.
-> 
-> Ok, so I tried:
-> 	audit2allow -a -m local -o local.te
-> 	checkmodule -M -m -o local.mod local.te
-> 	semodule_package -o local.pp -m local.mod
-> 	semodule -i local.pp
-> which appears to have worked, although I think we want a shorthand way
-> of doing the latter steps after the audit2allow.
-> 
-> A couple of questions/suggestions:
-> - What if I want to append further rules later to my local.te file and
-> rebuild that module?  That still needs to turn on the generation of
-> require statements, but not add another module statement.  That is why I
-> suggested having two separate options, one to turn on require statements
-> and one to turn on module statements (the latter could imply the former
-> as well).  Possibly a -r option to just generate require statements w/o
-> adding another module statement?
-> 
-> - What about versioning of local.te (or do we not care)?  Should
-> audit2allow check whether the output file already exists and if so, read
-> the current module statement from it and increment the version?  Or
-> leave that to the user to do manually if they want versioning? 
-> 
-> Minor nit:  There is a cut-and-paste leftover in the audit2allow python
-> script from genhomedircon (a comment about home dir file context,
-> homedir_template, etc).
+erich, hi,
 
-BTW, error handling seems broken, e.g.:
-	audit2allow -m # forgot to include a module name
-yields:
-Traceback (most recent call last):
-  File "./audit2allow", line 268, in ?
-    errorExit(string.join("Options Error ", error))
-  File "/usr/lib/python2.4/string.py", line 318, in join
-    return sep.join(words)
-AttributeError: GetoptError instance has no attribute 'join'
+the joyous sticking point: what to do about the kernel?
+
+do you intend to:
+
+a) stick with a 2.6.8 kernel, unmodified
+b) require a 2.6.14+ (whatever)
+c) stick with a 2.6.8 kernel, backporting all the selinux
+   kernel modifications to date _back_ into 2.6.8
+
+b) _would_ be the simplest - let's hope gcc 4.0 doesn't get in the way,
+or more specifically, let's hope that the unmodified 2.6.14+ debian
+kernels will work as-is.
+
+l.
+
+On Thu, Nov 17, 2005 at 02:05:10PM +0100, Erich Schubert wrote:
+> Hi,
+> I've started a SELinux project on Alioth, with the goal of providing
+> backports of all SELinux related packages for Debian *stable*.
+> Since all the up-to-date SELinux stuff is only in unstable.
+> I'm running a couple of servers on stable with backports, so I can as
+> well upload them.
+> 
+> If you are interested in joining this effort, please contact me. I also
+> want to collect installation information and similar stuff for Debian
+> stable, I guess the best place to put them is the Debian Wiki.
+> 
+> I've already setup some pages there:
+> http://wiki.debian.org/SELinux
+> http://wiki.debian.org/SELinuxStatus
+> the latter is especially useful, since it contains a list of bug reports
+> related to SELinux on Debian.
+> 
+> best regards,
+> Erich Schubert
+> -- 
+>     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
+>    There was never a good war or a bad peace. - Benjamin Franklin   //\
+>             Es ist besser, geliebt und verloren zu haben,           V_/_
+>                     als niemals geliebt zu haben.
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
