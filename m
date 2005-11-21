@@ -1,51 +1,58 @@
-Subject: Threaded applications and "execmem" privilege
-From: Erich Schubert <erich@debian.org>
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sun, 20 Nov 2005 17:35:28 +0100
-Message-Id: <1132504528.12651.21.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAL8MoMA009121
+	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 03:22:51 -0500 (EST)
+Received: from lon-del-02.spheriq.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAL8LGj2027739
+	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:17 GMT
+Received: from lon-out-01.spheriq.net ([195.46.50.129])
+        by lon-del-02.spheriq.net with ESMTP id jAL8LjeI023886
+        for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:45 GMT
+Received: from lon-cus-01.spheriq.net (lon-cus-01.spheriq.net [195.46.50.37])
+        by lon-out-01.spheriq.net with ESMTP id jAL8Libj023168
+        for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:44 GMT
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by lon-cus-01.spheriq.net with ESMTP id jAL8Legg000861
+        (version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=OK)
+        for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:44 GMT
+Received: from zeta.dmz-eu.st.com (ns2.st.com [164.129.230.9])
+	by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 899E7DA52
+	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:33 +0000 (GMT)
+Received: from zeta.dmz-eu.st.com (localhost [127.0.0.1])
+	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id F325E759B2
+	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:24:33 +0000 (UTC)
+Received: from mail2.rou.st.com (mail2.rou.st.com [164.129.206.171])
+	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id C241A471EC
+	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:24:32 +0000 (GMT)
+Message-ID: <438183C1.5070403@st.com>
+Date: Mon, 21 Nov 2005 09:22:25 +0100
+From: Guillaume PETITJEAN <guillaume.petitjean@st.com>
+MIME-Version: 1.0
+To: selinux <selinux@tycho.nsa.gov>
+Subject: link between roles and domains
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-I've been trying to find out how to avoid the "execmem" errors you e.g.
-get in "host" (from the bind package, using the resolver library from
-bind...), "dig" and "bind" itself.
+Hello,
 
-Apaprently this is due to using threads - as far as I can tell, any
-application using threads on Linux will do a mmap with "PROT_READ |
-PROT_WRITE | PROT_EXEC",
-which will trigger the execmem hook of SELinux.
+I'm new to SELinux.
 
-Now that is really annyoing: either I need to enable "execmem" for most
-domains, or write new domains for stuff like "host" and "dig" and add
-appropriate execute transitions to tons of domains. :-(
+I have a question regarding the management of users and roles.
 
-It would probably be possible to remove PROT_EXEC from the mmap in the
-threads library, but I bet there are some applications relying on
-it... :-(
-Another option would be to modify the threads library to try with
-PROT_EXEC first, then retry without. Then a "dontaudit" rule for some
-applications should be fine as well...
+I understood that a user is associated with a role (or several roles) 
+and that each role is allowed to enter a set of domain. I understood  
+how access control permissions are defined on couple of domains and the 
+process of domain transitions. But I didn't understand which domain 
+(among the set of domains allowed for a role) is selected at any time.
 
-Anyone here deep enough in the thread libraries to know whether
-PROT_EXEC is actually needed and/or what it's going to break?
+In other terms let's say you have a process foo belonging to the role 
+user_r and suppose user_r is allowed for (domain1_t, domain2_t, 
+domain3_t), how does the policy decides to which domain will belong the 
+process in practice in order to compute security decisions ?
 
-Can some people try to run "dig" or the "host" command from bind (NOT
-the dnsutils version, which probably doesn't use libpthread) and check
-wheter they need the execmem permission for it, too?
-And otherwise maybe find out how their thread library avoids using both
-PROT_WRITE and PROT_EXEC on the same mmap...
+Thanks
 
-best regards,
-Erich Schubert
--- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
-   There was never a good war or a bad peace. - Benjamin Franklin   //\
-               Für jedes Problem gibt es eine Lösung,               V_/_
-                  die einfach, klar und falsch ist.
-
+Guillaume Petitjean
 
 
 --
