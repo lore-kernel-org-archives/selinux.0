@@ -1,59 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAL8MoMA009121
-	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 03:22:51 -0500 (EST)
-Received: from lon-del-02.spheriq.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAL8LGj2027739
-	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:17 GMT
-Received: from lon-out-01.spheriq.net ([195.46.50.129])
-        by lon-del-02.spheriq.net with ESMTP id jAL8LjeI023886
-        for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:45 GMT
-Received: from lon-cus-01.spheriq.net (lon-cus-01.spheriq.net [195.46.50.37])
-        by lon-out-01.spheriq.net with ESMTP id jAL8Libj023168
-        for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:44 GMT
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by lon-cus-01.spheriq.net with ESMTP id jAL8Legg000861
-        (version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=OK)
-        for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:44 GMT
-Received: from zeta.dmz-eu.st.com (ns2.st.com [164.129.230.9])
-	by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 899E7DA52
-	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:21:33 +0000 (GMT)
-Received: from zeta.dmz-eu.st.com (localhost [127.0.0.1])
-	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id F325E759B2
-	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:24:33 +0000 (UTC)
-Received: from mail2.rou.st.com (mail2.rou.st.com [164.129.206.171])
-	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id C241A471EC
-	for <selinux@tycho.nsa.gov>; Mon, 21 Nov 2005 08:24:32 +0000 (GMT)
-Message-ID: <438183C1.5070403@st.com>
-Date: Mon, 21 Nov 2005 09:22:25 +0100
-From: Guillaume PETITJEAN <guillaume.petitjean@st.com>
+Message-ID: <4381BF81.4090906@cornell.edu>
+Date: Mon, 21 Nov 2005 07:37:21 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
-Subject: link between roles and domains
+To: selinux@tycho.nsa.gov
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [SEPOL] Remove defrole from sepol
+References: <437EBD3A.7090606@cornell.edu>
+In-Reply-To: <437EBD3A.7090606@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-I'm new to SELinux.
+> Now we need to add the labeling prefix back into semanage somehow.
+What APIs are needed here?
 
-I have a question regarding the management of users and roles.
+I have a patch that adds another record called semanage_user_aux_t (User 
+Auxiliary Data), defined as data keyed on the user that stays out of 
+sepol. It currently provides a method to get the defrole. It's backed by 
+a flat file formatted: (name:defrole name:defrole ...)
 
-I understood that a user is associated with a role (or several roles) 
-and that each role is allowed to enter a set of domain. I understood  
-how access control permissions are defined on couple of domains and the 
-process of domain transitions. But I didn't understand which domain 
-(among the set of domains allowed for a role) is selected at any time.
+If we have user_aux.local, and user_aux.system, how does the policy rpm 
+install the system users - does it need modification APIs for that? Is 
+there a third file that combines the local and system one 
+(rebuild-from-scratch equivalent for flat files), or do I need to 
+implement combined query/exists/iterate/..* operations (with list() and 
+iterate() checking for duplicates, and giving preference to a local entry).
 
-In other terms let's say you have a process foo belonging to the role 
-user_r and suppose user_r is allowed for (domain1_t, domain2_t, 
-domain3_t), how does the policy decides to which domain will belong the 
-process in practice in order to compute security decisions ?
+=========
 
-Thanks
-
-Guillaume Petitjean
-
+P.S. I am suspicious that too many record/dbase functions are currently 
+exposed in sepol or semanage - will have to take a look again to make 
+sure they're all needed (and none are missing... because I see some that 
+aren't there, like the clone function (which likely should likely stay 
+hidden)).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
