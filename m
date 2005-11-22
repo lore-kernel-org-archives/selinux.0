@@ -1,39 +1,51 @@
-Message-ID: <4381BF81.4090906@cornell.edu>
-Date: Mon, 21 Nov 2005 07:37:21 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEPOL] Remove defrole from sepol
-References: <437EBD3A.7090606@cornell.edu>
-In-Reply-To: <437EBD3A.7090606@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Threaded applications and "execmem" privilege
+From: Erich Schubert <erich@debian.org>
+To: SELinux@tycho.nsa.gov
+In-Reply-To: <1132504528.12651.21.camel@wintermute.xmldesign.de>
+References: <1132504528.12651.21.camel@wintermute.xmldesign.de>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 22 Nov 2005 16:17:33 +0100
+Message-Id: <1132672653.28079.10.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
+I've built debian stable libc6 package which do not use PROT_EXEC for
+the stack, meaning they do not require the execmem privilege. executable
+stacks are a bad idea anyway, aren't they?
+This is not heavily tested... I've just installed it on one machine, and
+can now run "dig" in enforcing mode. ;-)
+I'm trying to upload them to alioth right now.
 
-> Now we need to add the labeling prefix back into semanage somehow.
-What APIs are needed here?
+Here's the patch I used:
+--- nptl/allocatestack.c.orig   2005-11-21 01:18:07.000000000 +0100
++++ nptl/allocatestack.c        2005-11-21 01:18:17.000000000 +0100
+@@ -392,7 +392,7 @@
+            size += pagesize_m1 + 1;
+ #endif
 
-I have a patch that adds another record called semanage_user_aux_t (User 
-Auxiliary Data), defined as data keyed on the user that stays out of 
-sepol. It currently provides a method to get the defrole. It's backed by 
-a flat file formatted: (name:defrole name:defrole ...)
+-         mem = mmap (NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC,
++         mem = mmap (NULL, size, PROT_READ | PROT_WRITE,
+                      MAP_PRIVATE | MAP_ANONYMOUS | ARCH_MAP_FLAGS, -1,
+0);
 
-If we have user_aux.local, and user_aux.system, how does the policy rpm 
-install the system users - does it need modification APIs for that? Is 
-there a third file that combines the local and system one 
-(rebuild-from-scratch equivalent for flat files), or do I need to 
-implement combined query/exists/iterate/..* operations (with list() and 
-iterate() checking for duplicates, and giving preference to a local entry).
+          if (__builtin_expect (mem == MAP_FAILED, 0))
 
-=========
+>From a quick scan of the "Debian unstable" source I'd expect a similar
+patch is needed there, too... but maybe one of the debian-patches
+already does a similar change.
 
-P.S. I am suspicious that too many record/dbase functions are currently 
-exposed in sepol or semanage - will have to take a look again to make 
-sure they're all needed (and none are missing... because I see some that 
-aren't there, like the clone function (which likely should likely stay 
-hidden)).
+best regards,
+Erich Schubert
+-- 
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+                 Friends are those who reach out for                 //\
+                   your hand but touch your heart.                   V_/_
+   Wo befreundete Wege zusammenlaufen, da sieht die ganze Welt für
+         eine Stunde wie eine Heimat aus. --- Herrmann Hesse
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
