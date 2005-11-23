@@ -1,58 +1,63 @@
-Message-ID: <4384E278.3020200@tresys.com>
-Date: Wed, 23 Nov 2005 16:43:20 -0500
+Message-ID: <4384E5F6.5000208@tresys.com>
+Date: Wed, 23 Nov 2005 16:58:14 -0500
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] wrappers for writing users and seusers
-References: <1132763281.3714.3.camel@twoface.columbia.tresys.com> <4384CCC7.5090605@cornell.edu>
-In-Reply-To: <4384CCC7.5090605@cornell.edu>
+CC: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [SEPOL] Remove defrole from sepol
+References: <437EBD3A.7090606@cornell.edu> <43848B72.1010603@cornell.edu> <43849B20.3090500@tresys.com> <4384C873.20904@cornell.edu>
+In-Reply-To: <4384C873.20904@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Ivan Gyurdiev wrote:
-> Joshua Brindle wrote:
 > 
->> This patch adds wrappers necessary to write users and seusers using
->> libsemanage. It also includes the wrappers for ports, but they are
->> commented out since the port functions are not exported via
->> libsemanage.map. Examples of how to write users and seusers (and tests)
->> are in pywrap-test.py as usual. Let me know if there are any problems
->> with this patch.
+>>> I'm starting to question the need for this interface at all... it's 
+>>> an interface for a very narrow user base - genhomedircon... which is 
+>>> probably a mistake. I would prefer genhomedircon to find its way into 
+>>> libsemanage, which is its only user (does it have another one?). 
 >>
->>   
+>> the semanage tool Dan is writing could use it, to determine if a level 
+>> should be set, or it could just rely on getting an error back if you 
+>> try to set a level and it is a non mls system.
 > 
-> Writers should probably be using modify_local, instead of add_local? 
-> Actually now's as good a time as any to re-examine whether we want to 
-> keep all of those (both internally, and in the interface).
->
-doesn't matter, either function works, i just used add for the test 
-script, all of the functions are exported however, and Dan can use 
-modify in the semanage tool for convenience if he'd like.
+> I'm confused... it needs genhomedircon, and not the library?
+> 
+>>> there would be no reason for an external interface for default roles 
+>>> and hacks to move genhomedircon before one lock is released, and 
+>>> after the other is released, and things like that would not be 
+>>> necessary. 
+>>
+>> genhomedircon is a reader, it is using resources outside of the module 
+>> store and is not confined to the sandbox. I don't know that it should 
+>> be inside the transaction.
+> 
+> Readers should be inside the transaction to guard against race 
+> condition. You mentioned commit numbers, and I pointed out I don't use 
+> them yet - and I don't see how they're a win over using a transaction.
+> 
+Copying the whole store to read a boolean is pretty bad. If the user 
+(app) intends to make a modification they can start a transaction before 
+  querying, to ensure consistency but a standard reader should not need 
+to do this. Why copy a whole directory over to do 2 queries when 
+genhomedircon can just compare 2 numbers?
 
-> add -> add new object, fail if it exists (should not be used to test 
-> existence)
-> set -> modify old object, fail if it does not exist (should not be used 
-> to text existence)
-> modify -> add or modify new object, depending on whether it exists
+>>> Genhomedircon encapsulates an implementation detail of user/seuser 
+>>> updates. Is there another reason for it being outside libsemanage, 
+>>> other than python being easy to work with?
+>>>
+>> Mainly that its already done and works. We really do have higher 
+>> priority things than reimplementing genhomedircon in C to put in 
+>> libsemanage.
 > 
-> Yes, modify() can be implemented in terms of exists(), add(), and set(), 
-> but I don't want to see all of those called outside a transaction with 
-> no lock held. Similarly, set() can be implemented in terms of exists() 
-> and modify(). add can be implemented in terms of exists() and modify().
-None of this must be done outside a transaction, I did the test that way 
-to hold the lock the shortest amount of time possible but it's certainly 
-possible and appropriate to start a transaction before modifying 
-anything in memory.
+> Maybe... unless it results in libsemanage APIs that are going to be 
+> removed later.  What's your opinion of what this API should look like - 
+> opaque object that can be expanded for other data (aux_info), or prefix 
+> only? How would system vs local work - see other questions in the thread.
+> 
+> 
 
-> 
-> The existence test is with respect to local modifications only. The way 
-> the objects are eventually loaded into policy is fixed, and right now 
-> it's (set) for booleans, and (modify) for everything else. Actually, 
-> those are the only ones implemented..
-> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
