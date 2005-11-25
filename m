@@ -1,107 +1,69 @@
-Subject: NSA SELinux on embedded devices: surveillance-oriented applications
-Reply-To: lorenzo@gnu.org
-To: NSA SELinux Mailing-List <SELinux@tycho.nsa.gov>
-Cc: Craig Hughes <craig@gumstix.com>, Russell Coker <rcoker@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2Ep831b50vih5bCYmzru"
-Date: Thu, 24 Nov 2005 17:35:38 +0000
-Message-Id: <1132853738.13301.69.camel@localhost>
-Mime-Version: 1.0
-From: Lorenzo Hernandez Garcia-Hierro <lorenzohgh@gmail.com>
+Message-ID: <438656CE.6030804@cmcrc.com>
+Date: Fri, 25 Nov 2005 11:11:58 +1100
+From: Johan Fischer <jfischer@cmcrc.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: [refpolicy][PATCH] fix Makefile BASE_MODS and MOD_MODS	detection
+References: <43715253.2070108@cmcrc.com> <1131546156.24234.58.camel@sgc>
+In-Reply-To: <1131546156.24234.58.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+FYI,
 
---=-2Ep831b50vih5bCYmzru
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+the solution to the problem....
 
-Hi,
+make sure that you're using gawk and not mawk as the default awk on your
+system.
 
-Time ago I started working on SEGumstix, a fork of the Gumstix
-distribution based on the uClibc buildroot which provides a reliable and
-versatile development environment for embedded devices platforms. For
-those who don't know about the Gumstix, it's a SBC (Single Board
-Computer) ARMv5-based platform (Intel XScale PXA255, future boards with
-PXA27X) providing serial output and input, GPIOs, bluetooth, etc.
+possibly the gawk and mawk way of adding extra anchors might be
+different making it fail on my installation ( I don't how when I
+installed mawk or why, but anyway....)
 
-SEGumstix would help to deploy low-cost (well, relatively "low" cost)
-devices using well known technologies, including SELinux, the IBM
-SSP/ProPolice, etc (see http://wiki.tuxedo-es.org/SEGumstix).
-
-It's not really a project by itself, but more an independent effort
-(with support from Craig at Gumstix Inc. who provides SVN and valuable
-guidance) to know the possible applications of SELinux in embedded
-devices.
-
-I had difficulties for deploying it in a real world application that
-could show the benefits of SELinux. Then started reading on UAVs
-(Unmanned Air Vehicle, some variants and their acronym like URAV, TUAV,
-etc).
-
-After gathering some experience with embedded platforms and electronics
-I started to work on a surveillance device, small and low-cost that
-could be attached to an {U,TU,UR}AV for controlling and storing securely
-the positioning/tracking information and any other sensors data. Using
-polyinstantiation and roles, in couple with ciphered storage,
-information could be contained in different levels and depending on it's
-source.
-
-Right now I have a prototype but not working yet (not yet developed
-software, still finishing and assembling hardware). Photos at:
-
- http://pearls.tuxedo-es.org/photos/sdp-1/
-
-Note that the Gumstix platform is missing, and the GPS unit is a
-Motorola Oncore with RS232 interface. It's a prototype, don't expect it
-to be as small as the final version nor using anything really
-exceptional. Final version will probably make use of a Lassen IQ module
-(http://www.trimble.com/lasseniq.html). The Oncore is a power
-consumption beast. In any case I'll to have to look at industrial usage
-rated devices rather than end-user ones. That will come hopefully after
-the business. To see how the final version could look like, check photos
-41, 42 and 45 (GSM/GPRS CF connected).
-
-I can't give any further details now until I finish it as I'm planning
-to patent the design of the whole system and try to find investors for
-funding. The main reason is for being able to afford my relocation to US
-in a near future (hopefully next year, that is, 2006). I would prefer to
-work this on non-private-industry, as the main goal of this is to
-provide confinement of data gathered by sensors driven platforms used in
-military and intelligence-related operations, rather than end-user and
-commercial usage.
-
-Once it gets stable I'll start publishing information about how it
-works, etc.
-
-Anyways, SELinux development for this will be open and released to the
-community (ie. buildroot integration, etc).
-
-I'm interested on getting in touch with the guy who developed the JFFS2
-xattr patch. If you're reading this, please drop me a line.
-
-I'm CC'ing Craig (from Gumstix Inc.) and Russell, as he worked with
-iPAQs and SELinux and more concretely the buildroot integration.
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+Cheers.
+J.
 
 
---=-2Ep831b50vih5bCYmzru
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
+Christopher J. PeBenito wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+>On Wed, 2005-11-09 at 12:35 +1100, Johan Fischer wrote:
+>  
+>
+>>quick patch to fix the modules detection from the modules.conf file...
+>>
+>>before:
+>>$ awk '/^[[:blank:]]*[[:alpha:]]/{ if ($3 == "module") print $1 }'
+>>policy/modules.conf
+>>(no result)
+>>
+>>after:
+>>$ awk '/^[[:blank:]]*[[:alpha:]]*/{ if ($3 == "module") print $1 }'
+>>policy/modules.conf
+>>apm
+>>apache
+>>bluetooth
+>>    
+>>
+>
+>I can't reproduce this behavior.  I don't believe this patch is correct,
+>as it makes the regex too inspecific.  With the change, the regex
+>matches all lines, so if the second word in a comment was "module", it
+>would print out "#", causing errors.
+> 
+>  
+>
 
-iD8DBQBDhfnpDcEopW8rLewRAl4mAKCxeJrHlQa1B7mzJLCqxHZCReQutACgw5wK
-iy2hQIo3RzNkEat6YSptv+M=
-=p6tO
------END PGP SIGNATURE-----
+-- 
+Johan Fischer
+Capital Markets CRC Limited
+Level 2, 9 Castlereagh Street, Sydney NSW 2000
+Tel: +61 2 9233 7999   Direct: +61 2 9236 9150
+Fax: +61 2 9236 9177   http://www.cmcrc.com
 
---=-2Ep831b50vih5bCYmzru--
+Capital Markets CRC Ltd (CMCRC) - Confidential Communication
+The information contained in this e-mail is confidential.  It is intended solely for the addressee. If you receive this e-mail by mistake please promptly inform us by reply e-mail and then delete the e-mail and destroy any printed copy. You must not disclose or use in any way the information in the e-mail. There is no warranty that this e-mail is error or virus free. It may be a private communication, and if so, does not represent the views of the CMCRC and its associates. If it is a private communication, care should be taken in opening it to ensure that undue offence is not given.
 
 
 --
