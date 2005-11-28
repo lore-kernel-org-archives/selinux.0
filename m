@@ -1,17 +1,68 @@
-Subject: [PATCH] wrap char*** for user_get_roles()
-From: Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: Audit2allow in python generates module code.
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <SELinux@tycho.nsa.gov>
+Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1132243707.17726.95.camel@moss-spartans.epoch.ncsc.mil>
+References: <437C0256.509@redhat.com>
+	 <1132235886.17726.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <1132236399.17726.22.camel@moss-spartans.epoch.ncsc.mil>
+	 <437CA2F6.4070603@redhat.com>
+	 <1132243707.17726.95.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 28 Nov 2005 14:13:12 -0500
-Message-Id: <1133205192.17541.1.camel@twoface.columbia.tresys.com>
+Date: Mon, 28 Nov 2005 14:25:42 -0500
+Message-Id: <1133205942.348.217.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This adds wrappers for char*** so that semanage_user_get_roles will
-work. I added the test to the user test (-u), please let me know if
-there are any issues with this.
+On Thu, 2005-11-17 at 11:08 -0500, Stephen Smalley wrote:
+> On Thu, 2005-11-17 at 10:34 -0500, Daniel J Walsh wrote:
+> > Added -M which does
+> > 
+> > audit2allow -a -m local -o local.te
+> > checkmodule -M -m -o local.mod local.te
+> > semodule_package -o local.pp -m local.mod
+> > 
+> > And tells the user to do:
+> > semodule -i local.pp
+> 
+> # ./audit2allow -a -M local
+> Generating type enforcment file: local.te
+> Compiling policy: checkmodule -M -m -o local.mod local.te
+> ./audit2allow: (unknown source)::ERROR 'syntax error' at token '' on line 235:
+> allow test_create_no_t self:process fork;
+> allow test_noioctl_t test_ioctl_file_t:file { getattr ioctl seta
+> checkmodule:  error(s) encountered while parsing configuration
+> checkmodule:  loading policy configuration from local.te
+> 
+> Line 235 of local.te is:
+> allow test_noioctl_t test_ioctl_file_t:file { getattr ioctl setattr };
+> 
+> Running checkmodule by hand yields:
+> # checkmodule -M -m -o local.mod local.te
+> checkmodule:  loading policy configuration from local.te
+> checkmodule:  policy configuration loaded
+> checkmodule:  writing binary representation (version 5) to local.mod
+> 
+> So I'm not clear on why it fails from audit2allow.
+> 
+> audit2allow -a -m local -o local.te no longer appears to be accepted:
+> # ./audit2allow -a -m local -o local.te
+> audit2allow [-adhilrv] [-i <inputfile> ] [[-m|-M] <modulename> ] [-o <outputfile>]
+> ...
+> 
+> One other observation:  Use of -M by checkmodule needs to be selectable
+> in some manner, as not everyone will have a MLS-enabled policy (outside
+> of Fedora).  Ideally, audit2allow could just query whether MLS is
+> enabled via libsemanage.  
+
+I merged the new audit2allow python script as of policycoreutils
+1.27.29, but we still need to address the issues above.  Also merged the
+genhomedircon fixes and the semodule quieting patch.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
