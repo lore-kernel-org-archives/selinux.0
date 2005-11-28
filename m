@@ -1,64 +1,32 @@
-Subject: Re: Audit2allow in python generates module code.
+Subject: Re: [SEPOL] Remove defrole from sepol
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1132243707.17726.95.camel@moss-spartans.epoch.ncsc.mil>
-References: <437C0256.509@redhat.com>
-	 <1132235886.17726.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <1132236399.17726.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <437CA2F6.4070603@redhat.com>
-	 <1132243707.17726.95.camel@moss-spartans.epoch.ncsc.mil>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <437EBD3A.7090606@cornell.edu>
+References: <437EBD3A.7090606@cornell.edu>
 Content-Type: text/plain
-Date: Mon, 28 Nov 2005 14:25:42 -0500
-Message-Id: <1133205942.348.217.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 28 Nov 2005 14:27:36 -0500
+Message-Id: <1133206056.348.220.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-11-17 at 11:08 -0500, Stephen Smalley wrote:
-> On Thu, 2005-11-17 at 10:34 -0500, Daniel J Walsh wrote:
-> > Added -M which does
-> > 
-> > audit2allow -a -m local -o local.te
-> > checkmodule -M -m -o local.mod local.te
-> > semodule_package -o local.pp -m local.mod
-> > 
-> > And tells the user to do:
-> > semodule -i local.pp
+On Sat, 2005-11-19 at 00:50 -0500, Ivan Gyurdiev wrote:
+> This patch removes defrole from sepol, because it does not belong there, 
+> and it's just plain wrong. The default role is not preserved in the 
+> binary policy - therefore it can only exist in semanage (unless we 
+> change the policy format to contain it). This simplifies user_record.c.
 > 
-> # ./audit2allow -a -M local
-> Generating type enforcment file: local.te
-> Compiling policy: checkmodule -M -m -o local.mod local.te
-> ./audit2allow: (unknown source)::ERROR 'syntax error' at token '' on line 235:
-> allow test_create_no_t self:process fork;
-> allow test_noioctl_t test_ioctl_file_t:file { getattr ioctl seta
-> checkmodule:  error(s) encountered while parsing configuration
-> checkmodule:  loading policy configuration from local.te
+> It also updates del_role to have a void return type, as it can no longer 
+> fail.
 > 
-> Line 235 of local.te is:
-> allow test_noioctl_t test_ioctl_file_t:file { getattr ioctl setattr };
-> 
-> Running checkmodule by hand yields:
-> # checkmodule -M -m -o local.mod local.te
-> checkmodule:  loading policy configuration from local.te
-> checkmodule:  policy configuration loaded
-> checkmodule:  writing binary representation (version 5) to local.mod
-> 
-> So I'm not clear on why it fails from audit2allow.
-> 
-> audit2allow -a -m local -o local.te no longer appears to be accepted:
-> # ./audit2allow -a -m local -o local.te
-> audit2allow [-adhilrv] [-i <inputfile> ] [[-m|-M] <modulename> ] [-o <outputfile>]
-> ...
-> 
-> One other observation:  Use of -M by checkmodule needs to be selectable
-> in some manner, as not everyone will have a MLS-enabled policy (outside
-> of Fedora).  Ideally, audit2allow could just query whether MLS is
-> enabled via libsemanage.  
+> Now we need to add the labeling prefix back into semanage somehow.
 
-I merged the new audit2allow python script as of policycoreutils
-1.27.29, but we still need to address the issues above.  Also merged the
-genhomedircon fixes and the semodule quieting patch.
+Merged as of libsepol 1.9.41 and libsemanage 1.3.58.
+
+handle is still present in def_role interface.  Not sure whether you
+want it dropped from both sepol and semanage interfaces or just the
+sepol interface, even though it is void in both (non-error reporting?).
 
 -- 
 Stephen Smalley
