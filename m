@@ -1,24 +1,17 @@
-Subject: Re: Swigify libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] wrap char*** for user_get_roles()
+From: Joshua Brindle <jbrindle@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <437CBA8D.8050103@redhat.com>
-References: <437CBA8D.8050103@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <SELinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 28 Nov 2005 14:22:50 -0500
-Message-Id: <1133205770.348.215.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 28 Nov 2005 14:13:12 -0500
+Message-Id: <1133205192.17541.1.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok, merged as of libselinux 1.27.23.  Also added the generated files as
-in the libsemanage case to avoid requiring swig for building, IIUC.
-
-I am a little concerned about the consistency issue, as noted by Joshua.
-
--- 
-Stephen Smalley
-National Security Agency
+This adds wrappers for char*** so that semanage_user_get_roles will
+work. I added the test to the user test (-u), please let me know if
+there are any issues with this.
 
 
 --
