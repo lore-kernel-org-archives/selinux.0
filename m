@@ -1,45 +1,74 @@
-Subject: Re: [ SEPOL ] Check if policy file is MLS enabled
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <438B7549.6000600@cornell.edu>
-References: <438452BD.30101@cornell.edu> <43846B71.6000806@tresys.com>
-	 <4384732F.90808@cornell.edu>
-	 <1133206135.348.222.camel@moss-spartans.epoch.ncsc.mil>
-	 <438B7549.6000600@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 09:41:20 -0500
-Message-Id: <1133275280.26593.92.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jATEj7MA015057
+	for <selinux@tycho.nsa.gov>; Tue, 29 Nov 2005 09:45:07 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jATEfMPZ023509
+	for <selinux@tycho.nsa.gov>; Tue, 29 Nov 2005 14:41:22 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id jATEfMKB019903
+	for <selinux@tycho.nsa.gov>; Tue, 29 Nov 2005 09:41:22 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id jATEfMV25038
+	for <selinux@tycho.nsa.gov>; Tue, 29 Nov 2005 09:41:22 -0500
+Message-ID: <438C689B.2040900@redhat.com>
+Date: Tue, 29 Nov 2005 09:41:31 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>, redhat-lspp <redhat-lspp@redhat.com>
+Subject: semanage utiliy is in policycoreutils.  login (selinux user mappings)
+ and user is working somewhat.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-11-28 at 16:23 -0500, Ivan Gyurdiev wrote:
-> >>> A much better way to do this would be to extract the header reading 
-> >>> from policydb_read and make a helper function that does it. You will 
-> >>> still be able to do a partial parse of the binary but only 1 function 
-> >>> will have to be changed when a format change happens.
-> >>>       
-> >> That's true.. will fix.
-> >>     
-> >
-> > Other issue here (as noted off-list) is whether this should be acting on
-> > a module/policy file directly or on a module package file.  The latter
-> > seems more suitable for use by libsemanage, like the existing _info
-> > interface.
-> >
-> >   
-> We could put the fields that get_package_info returns into a structure, 
-> and add the mls status to those?
+semanage(8)                                                        
+semanage(8)
 
-Actually, given that the MLS-enabled code in libsemanage already
-gracefully handles the case where the MLS range is omitted, why not just
-remove the conditional altogether and avoid the need for this interface
-in sepol?
+NAME
+       semanage - SELinux Policy Management tool
+
+SYNOPSIS
+       semanage   OBJECTTYPE   [-admsrh]   OBJECT 
+       semanage  login  [-admsrh]  login_name
+       semanage user [-admsrh] selinux_name
+       semanage port [-admth] port_number
+
+       This tool is used to manage configuration of the SELinux policy
+
+DESCRIPTION
+       This manual page describes the semanage program.
+       This tool is used to manage configuration of SELinux Policy.   
+You  can
+       configure  SELinux User Mappings, SELinux Port Mappings, SELinux 
+Users.
+
+OPTIONS
+                       -a, --add
+
+       Add a OBJECT record NAME -d, --delete
+
+       Delete a OBJECT record NAME -h, --help
+
+       display this message -l, --list
+
+       List the OBJECTS -m, --modify
+
+       Modify a OBJECT record NAME -r, --range
+
+       MLS/MCS Security Range -s, --seuser
+
+       SELinux user name -t, --type
+
+       SELinux Type for the object -v, --verbose
+
+       verbose output
+
+AUTHOR
+       This man page was written by Daniel Walsh <dwalsh@redhat.com>.
+
 
 -- 
-Stephen Smalley
-National Security Agency
+
 
 
 --
