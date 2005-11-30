@@ -1,45 +1,35 @@
-Subject: Re: Bug (?) in cvs selinux policy
+Subject: NTP log rotation on debian [policy addition]
 From: Erich Schubert <erich@debian.org>
-To: Antoine Martin <antoine@nagafix.co.uk>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov,
-   Jason Vas Dias <jvdias@redhat.com>
-In-Reply-To: <1133306986.13162.45.camel@localhost.localdomain>
-References: <1132968448.701.1.camel@wintermute.xmldesign.de>
-	 <438C8A3C.5070904@redhat.com>
-	 <1133305918.20990.5.camel@wintermute.xmldesign.de>
-	 <1133306986.13162.45.camel@localhost.localdomain>
+To: SELinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Wed, 30 Nov 2005 01:38:17 +0100
-Message-Id: <1133311097.20990.21.camel@wintermute.xmldesign.de>
+Date: Wed, 30 Nov 2005 14:22:58 +0100
+Message-Id: <1133356978.8467.25.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Hi,
-> I personally like to have the option of using both, for peace of mind.
-> I am not good enough to run my systems in full enforcing mode constantly
-> (there are still some maintenance tasks that I do which are much easier
-> to handle by switching to permissive mode) and so I like to have the
-> ability to cumulate the security measures.
+Debian needs the following addition to the NTP policy:
 
-This should then be handled by a central "setup_chroot" utility with
-it's own domain and the ability to copy over files (with proper security
-checking, of course)
-It would be helpful for most applications anyway to have a central tool
-for that, instead of each app writing it's own in its initscript.
+ifdef(`distro_debian', `
+# cronjob to rotate ntp statistic files
+create_dir_file(system_crond_t, ntpd_log_t)
+')
 
-The other issue remains, that the chroot most likely is setup by your
-initscript, i.e. with initrc_t permissions, not dhcpc_t.
-Btw, I never heard of dhcpC (= client) running chroot. Seems kind of
-hard, since most likely you'll want it to update your real resolv.conf,
-maybe reload your mail server etc.
+Since the ntp package contains a cronjob to rotate the ntp stats file,
+which are created by default. ntpd doesn't have security critical logs,
+so I think it's okay to have the cronjob do that directly. I've filed a
+bug report with debian
+(http://bugs.debian.org/340781 ) to request they use logrotate... (but
+I'm not sure if logrotate currently can handle the timestamped file
+naming they use)
 
 best regards,
 Erich Schubert
 -- 
      erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
-  Nothing prevents happiness like the memory of happiness. --- A. Gide //\
- Mancher findet sein Herz nicht eher, als bis er seinen Kopf verliert. V_/_
+ A man doesn't know what he knows until he knows what he doesn't know. //\
+   In unseren Freunden suchen wir, was uns fehlt. --- Thornton Wilder  V_/_
 
 
 --
