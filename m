@@ -1,31 +1,37 @@
-Subject: Another small issue on Debian
-From: Erich Schubert <erich@debian.org>
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Wed, 30 Nov 2005 16:52:51 +0100
-Message-Id: <1133365971.8467.39.camel@wintermute.xmldesign.de>
+Subject: Re: Another small issue on Debian
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Erich Schubert <erich@debian.org>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1133365971.8467.39.camel@wintermute.xmldesign.de>
+References: <1133365971.8467.39.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 11:06:56 -0500
+Message-Id: <1133366816.26593.348.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-Debian currently uses a "strict" policy, but uses "SELINUXTYPE=." and
-has the sources in /etc/selinux/src, not /etc/selinux/strict/src
-Since the Makefile I got has "strict" somewhere hardcoded in there, I
-set up a symlink "strict -> ." causing the following violation:
-avc:  denied  { read } for  pid=8075 comm="checkpolicy" name="strict"
-dev=ida/c0d0p5 ino=49769 scontext=root:sysadm_r:checkpolicy_t
-tcontext=system_u:object_r:selinux_config_t tclass=lnk_file
+On Wed, 2005-11-30 at 16:52 +0100, Erich Schubert wrote:
+> Hi,
+> Debian currently uses a "strict" policy, but uses "SELINUXTYPE=." and
+> has the sources in /etc/selinux/src, not /etc/selinux/strict/src
+> Since the Makefile I got has "strict" somewhere hardcoded in there, I
+> set up a symlink "strict -> ." causing the following violation:
+> avc:  denied  { read } for  pid=8075 comm="checkpolicy" name="strict"
+> dev=ida/c0d0p5 ino=49769 scontext=root:sysadm_r:checkpolicy_t
+> tcontext=system_u:object_r:selinux_config_t tclass=lnk_file
+> 
+> Any objections to allowing this?
 
-Any objections to allowing this?
+The "hardcoded" strict is a definition, so you should be able to do:
+	make TYPE=. [all|install|load|relabel]
 
-best regards,
-Erich Schubert
+But allowing the reading of a selinux_config_t:lnk_file is likely
+harmless too.
+
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-        The best things in life are free: Friendship and Love.       //\
-  Wie kann ich wissen, was ich denke, bevor ich höre, was ich sage.  V_/_
-
+Stephen Smalley
+National Security Agency
 
 
 --
