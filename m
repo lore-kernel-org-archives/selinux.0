@@ -1,44 +1,34 @@
-Subject: Re: Linux 2.6.13.4 --> 2.6.14.3 & security contexts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sami Farin <safari-selinux@safari.iki.fi>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1133366596.26593.345.camel@moss-spartans.epoch.ncsc.mil>
-References: <20051129204523.GA29885@m.safari.iki.fi>
-	 <1133365920.26593.338.camel@moss-spartans.epoch.ncsc.mil>
-	 <20051130154955.GE29869@m.safari.iki.fi>
-	 <1133366596.26593.345.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 30 Nov 2005 11:09:23 -0500
-Message-Id: <1133366963.26593.352.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 30 Nov 2005 19:04:32 +0100
+From: Erich Schubert <erich@debian.org>
+To: SELinux@tycho.nsa.gov
+Subject: Another thing... console logins
+Message-ID: <20051130180432.GA15661@legolas.drinsama.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-11-30 at 11:03 -0500, Stephen Smalley wrote:
-> On Wed, 2005-11-30 at 17:49 +0200, Sami Farin wrote:
-> > All are XFS.
-> > 
-> > /dev/root / xfs rw,noatime 0 0
-> > /dev/hdc7 /var xfs rw,noatime 0 0
-> > /dev/hdc8 /usr xfs rw,noatime 0 0
-> > /dev/hdc9 /wrk xfs rw,noatime 0 0
-> > /dev/loop0 /mnt/aes xfs rw,noatime,nosuid,nodev 0 0
-> 
-> Therein lies the problem.  As of 2.6.14, xfs is not supported with
-> SELinux until such a time as the xfs developers update their filesystem
-> to call the security_inode_init_security() hook and set the attribute on
-> newly created inodes.  Please nag the xfs developers about this.  See:
-> http://marc.theaimsgroup.com/?l=selinux&m=112653995
+Hi again,
+I just tried a console login while in enforcing mode...
+avc:  denied  { use } for  pid=15513 comm="bash" name="tty1" dev=md1
+ino=118355 scontext=root:sysadm_r:sysadm_t
+tcontext=system_u:system_r:getty_t tclass=fd
 
-Re-sending with the list cc'd this time, as you dropped the list from
-your reply and thus my reply also didn't include the list.  I think this
-is of general interest; we are likely to receive more such reports in
-the future, so I wanted it archived.
+(the only error during login when in permissive mode, apart from some
+staff_t accessing sysadm_home_t)
 
+and my iptables seems to need to be able to read etc_runtime_t:
+avc:  denied  { read } for  pid=28226 comm="iptables" name="mtab"
+dev=ida/c0d0p5 ino=102335 scontext=root:system_r:iptables_t
+tcontext=system_u:object_r:etc_runtime_t tclass=file
+
+Regards,
+Erich Schubert
 -- 
-Stephen Smalley
-National Security Agency
-
+    erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C     (o_
+   There was never a good war or a bad peace. - Benjamin Franklin    //\
+  Wenn zwei gute Freunde sind, die einander kennen, Sonn' und Mond   V_/_
+    begegnen sich, ehe sie sich trennen. --- Clemens von Brentano
 
 --
 This message was distributed to subscribers of the selinux mailing list.
