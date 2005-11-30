@@ -1,34 +1,39 @@
-Date: Wed, 30 Nov 2005 19:04:32 +0100
-From: Erich Schubert <erich@debian.org>
-To: SELinux@tycho.nsa.gov
-Subject: Another thing... console logins
-Message-ID: <20051130180432.GA15661@legolas.drinsama.de>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jAUIfJMA028886
+	for <selinux@tycho.nsa.gov>; Wed, 30 Nov 2005 13:41:19 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jAUIaQlQ012104
+	for <selinux@tycho.nsa.gov>; Wed, 30 Nov 2005 18:36:26 GMT
+Subject: spamassasin_domain()
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 13:38:14 -0500
+Message-Id: <1133375895.7775.69.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi again,
-I just tried a console login while in enforcing mode...
-avc:  denied  { use } for  pid=15513 comm="bash" name="tty1" dev=md1
-ino=118355 scontext=root:sysadm_r:sysadm_t
-tcontext=system_u:system_r:getty_t tclass=fd
+In the spamassassin_domain() macro, there is the following block of
+rules:
 
-(the only error during login when in permissive mode, apart from some
-staff_t accessing sysadm_home_t)
+can_resolve($1_spamassassin_t)
+# set tunable if you have spamassassin do DNS lookups
+if (spamassasin_can_network) {
+can_network($1_spamassassin_t)
+allow $1_spamassassin_t port_type:tcp_socket name_connect;
+} 
 
-and my iptables seems to need to be able to read etc_runtime_t:
-avc:  denied  { read } for  pid=28226 comm="iptables" name="mtab"
-dev=ida/c0d0p5 ino=102335 scontext=root:system_r:iptables_t
-tcontext=system_u:object_r:etc_runtime_t tclass=file
+This is confusing as the comment says the conditional toggles ability to
+do DNS lookups, but right outside it has can_resolve().  It seems to me
+that the can_resolve() should be inside the conditional, instead of what
+is there.  Does this seem reasonable?
 
-Regards,
-Erich Schubert
 -- 
-    erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C     (o_
-   There was never a good war or a bad peace. - Benjamin Franklin    //\
-  Wenn zwei gute Freunde sind, die einander kennen, Sonn' und Mond   V_/_
-    begegnen sich, ehe sie sich trennen. --- Clemens von Brentano
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
