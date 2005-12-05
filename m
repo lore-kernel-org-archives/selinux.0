@@ -1,35 +1,27 @@
-Subject: Impact of IPSEC integration on policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Trent Jaeger <tjaeger@cse.psu.edu>, James Morris <jmorris@namei.org>,
-   Russell Coker <russell@coker.com.au>,
-   "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   Daniel J Walsh <dwalsh@redhat.com>
+Subject: slapd on debian stable
+From: Erich Schubert <erich@debian.org>
+To: SELinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Mon, 05 Dec 2005 09:17:36 -0500
-Message-Id: <1133792256.20862.57.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 05 Dec 2005 18:46:03 +0100
+Message-Id: <1133804764.15188.21.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Hi,
+at least on debian stable (didn't check unstable), the debian slapd
+binary is located in /usr/lib/slapd (and thus not
+system_u:object_r:slapd_exec_t)
+Should we add a conditional or an unconditional statement for this to
+the ldap policy files?
 
-As a heads-up, the LSM-IPSEC network hooks patches by Trent that are
-queued up for 2.6.16 (and already in -mm) have an impact on policy
-(assuming people enable CONFIG_SECURITY_NETWORK_XFRM) even if not using
-IPSEC.  We need to add rules to policy on the 'association' class to
-allow sending and receiving of non-IPSEC protected packets (aka
-unlabeled packets); otherwise, network traffic is going to be dropped.
-The checks are between the socket SID and the unlabeled SID when no
-association is used.  So I think it would look like:
-
-allow $1 unlabeled_t:association { sendto recvfrom };
-
-in the networking macros and in the unconfined macro.
-
+best regards,
+Erich Schubert
 -- 
-Stephen Smalley
-National Security Agency
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+      To be trusted is a greater complement than to be loved.       //\
+   Unter Freunden ist guter Rat nicht teuer, aber wie alles, was    V_/_
+       nichts kostet, nur wenig gefragt. --- Robert Muthmann
 
 
 --
