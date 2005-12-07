@@ -1,803 +1,409 @@
-Message-ID: <43971BE2.5050004@redhat.com>
-Date: Wed, 07 Dec 2005 12:29:06 -0500
+Message-ID: <43971BB4.6020408@redhat.com>
+Date: Wed, 07 Dec 2005 12:28:20 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Patch to fix some of the swig objects.  Now using them in chcat.
+Subject: Re: audit2allow long options
+References: <1133971559.2366.40.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1133971559.2366.40.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: multipart/mixed;
- boundary="------------090407090605040702030100"
+ boundary="------------020904030107040901010901"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090407090605040702030100
+--------------020904030107040901010901
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+
+Stephen Smalley wrote:
+> I'm not sure how one does long options in python, but the current
+> audit2allow script doesn't actually support the ones you've defined
+> (e.g. --requires does NOT work, whereas -r does).
+>
+> audit2allow -a -r => generates requires and allow statements
+> audit2allow -a --requires => generates only allow statements
+>
+> And audit2allow --tefile complains that the option is unrecognized.
+>
+>   
+Missing comma caused the problem.
+
+Update patch for policycoreutils to fix the problem as well as add an 
+enhanced version of chcat to allows manipulation of
+file categories.
 
 
 -- 
 
 
 
---------------090407090605040702030100
+--------------020904030107040901010901
 Content-Type: text/x-patch;
- name="libselinux-rhat.patch"
+ name="policycoreutils-rhat.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libselinux-rhat.patch"
+ filename="policycoreutils-rhat.patch"
 
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinux.py libselinux-1.27.28/src/selinux.py
---- nsalibselinux/src/selinux.py	2005-11-28 14:10:10.000000000 -0500
-+++ libselinux-1.27.28/src/selinux.py	2005-12-07 09:00:01.000000000 -0500
-@@ -87,8 +87,6 @@
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/audit2allow/audit2allow policycoreutils-1.27.37/audit2allow/audit2allow
+--- nsapolicycoreutils/audit2allow/audit2allow	2005-12-01 10:11:27.000000000 -0500
++++ policycoreutils-1.27.37/audit2allow/audit2allow	2005-12-07 12:26:00.000000000 -0500
+@@ -355,7 +355,7 @@
+ 					     'lastreload',
+ 					     'module=',
+ 					     'output=',
+-					     'requires'
++					     'requires',
+ 					     'tefile',
+ 					     'verbose'
+ 					     ])
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/debugfiles.list policycoreutils-1.27.37/debugfiles.list
+--- nsapolicycoreutils/debugfiles.list	1969-12-31 19:00:00.000000000 -0500
++++ policycoreutils-1.27.37/debugfiles.list	2005-12-07 11:56:28.000000000 -0500
+@@ -0,0 +1,14 @@
++/usr/lib/debug/usr/bin/newrole.debug
++/usr/lib/debug/usr/bin/semodule_link.debug
++/usr/lib/debug/usr/bin/semodule_expand.debug
++/usr/lib/debug/usr/bin/semodule_package.debug
++/usr/lib/debug/usr/sbin/sestatus.debug
++/usr/lib/debug/usr/sbin/setfiles.debug
++/usr/lib/debug/usr/sbin/open_init_pty.debug
++/usr/lib/debug/usr/sbin/run_init.debug
++/usr/lib/debug/usr/sbin/load_policy.debug
++/usr/lib/debug/usr/sbin/semodule.debug
++/usr/lib/debug/usr/sbin/audit2why.debug
++/usr/lib/debug/usr/sbin/setsebool.debug
++/usr/lib/debug/sbin/restorecon.debug
++/usr/src/debug/policycoreutils-1.27.37
+Binary files nsapolicycoreutils/debugsources.list and policycoreutils-1.27.37/debugsources.list differ
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/policycoreutils.lang policycoreutils-1.27.37/policycoreutils.lang
+--- nsapolicycoreutils/policycoreutils.lang	1969-12-31 19:00:00.000000000 -0500
++++ policycoreutils-1.27.37/policycoreutils.lang	2005-12-07 11:56:27.000000000 -0500
+@@ -0,0 +1,80 @@
++%defattr (644, root, root, 755)
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++%lang(sv) /usr/share/locale/sv/LC_MESSAGES/policycoreutils.mo
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/chcat policycoreutils-1.27.37/scripts/chcat
+--- nsapolicycoreutils/scripts/chcat	1969-12-31 19:00:00.000000000 -0500
++++ policycoreutils-1.27.37/scripts/chcat	2005-12-07 11:56:20.000000000 -0500
+@@ -0,0 +1,175 @@
++#! /usr/bin/env python
++# Copyright (C) 2005 Red Hat 
++# see file 'COPYING' for use and warranty information
++#
++#    chcat is a script that allows you modify the Security label on a file
++#
++#`   Author: Daniel Walsh <dwalsh@redhat.com>
++#
++#    This program is free software; you can redistribute it and/or
++#    modify it under the terms of the GNU General Public License as
++#    published by the Free Software Foundation; either version 2 of
++#    the License, or (at your option) any later version.
++#
++#    This program is distributed in the hope that it will be useful,
++#    but WITHOUT ANY WARRANTY; without even the implied warranty of
++#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++#    GNU General Public License for more details.
++#
++#    You should have received a copy of the GNU General Public License
++#    along with this program; if not, write to the Free Software
++#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA     
++#                                        02111-1307  USA
++#
++#  
++import commands, sys, os, pwd, string, getopt, re, selinux
++
++def chcat_add(orig, newcat, files):
++    errors=0
++    cmd='chcon -l '
++    sensitivity=newcat[0]
++    cat=newcat[1]
++    for f in files:
++        (rc, con) = selinux.getfilecon(f)
++        (rc, raw) = selinux.selinux_trans_to_raw_context(con)
++        clist=raw.split(":")[3:]
++        if len(clist) > 1:
++            if clist[0] != sensitivity:
++                print("Can not modify sensitivity levels using '+' on %s" % f)
++                continue
++            cats=clist[1].split(",")
++            if newcat[1] in cats:
++                print "%s is already in %s" % (f, orig)
++                continue
++            cats.append(newcat[1])
++            cats.sort()
++            cat=cats[0]
++            for c in cats[1:]:
++                cat="%s,%s" % (cat, c)
++        cmd='chcon -l %s:%s %s' % (sensitivity, cat, f)
++        rc=commands.getstatusoutput(cmd)
++        if rc[0] != 0:
++            errors+=1
++    return errors
++
++def chcat_remove(orig, newcat, files):
++    errors=0
++    sensitivity=newcat[0]
++    cat=newcat[1]
++    for f in files:
++        (rc, con) = selinux.getfilecon(f)
++        (rc, raw) = selinux.selinux_trans_to_raw_context(con)
++        clist=raw.split(":")[3:]
++        if len(clist) > 1:
++            if clist[0] != sensitivity:
++                print("Can not modify sensitivity levels using '+' on %s" % f)
++                continue
++            cats=clist[1].split(",")
++            if newcat[1] not in cats:
++                print "%s is not in %s" % (f, orig)
++                continue
++            cats.remove(newcat[1])
++            if len(cats) > 0:
++                cat=cats[0]
++                for c in cats[1:]:
++                    cat="%s,%s" % (cat, c)
++            else:
++                cat=""
++        else:
++                print "%s is not in %s" % (f, orig)
++                continue
++        
++        if len(cat) == 0: 
++            cmd='chcon -l %s %s' % (sensitivity, f)
++        else:
++            cmd='chcon -l %s:%s %s' % (sensitivity, cat, f)
++        rc=commands.getstatusoutput(cmd)
++        if rc[0] != 0:
++            errors+=1
++    return errors
++
++def chcat(context, files):
++    errors=0
++    for c in context:
++        if len(c) > 0 and c[0] == "+":
++            (rc, raw) = selinux.selinux_trans_to_raw_context("a:b:c:%s" % c[1:])
++            rlist=raw.split(":")
++            if len(rlist) < 5:
++                print "%s must have a sensitivity and at least one category" % c[1:]
++                continue
++            errors += chcat_add(c[1:], rlist[3:], files)
++            continue
++        if len(c) > 0 and c[0] == "-":
++            (rc, raw) = selinux.selinux_trans_to_raw_context("a:b:c:%s" % c[1:])
++            rlist=raw.split(":")
++            if len(rlist) < 5:
++                print "%s must have a sensitivity and at least one category" % c[1:]
++                continue
++            errors += chcat_remove(c[1:], rlist[3:], files)
++            continue
++
++        cmd='chcon -l "%s"' % c
++        for f in files:
++            cmd = "%s %s" % (cmd, f)
++            
++        rc=commands.getstatusoutput(cmd)
++        if rc[0] != 0:
++            print rc[1]
++            errors += 1
++    return errors
++    
++def usage():
++	print "Usage %s CATEGORY File ..." % sys.argv[0]
++	print "Usage %s [[+|-]CATEGORY],...]q File ..." % sys.argv[0]
++	print "Usage %s -d File ..." % sys.argv[0]
++	sys.exit(1)
++
++def error(msg):
++    print "%s: %s" % (sys.argv[0], msg)
++    sys.exit(1)
++    
++if __name__ == '__main__':
++    if selinux.is_selinux_mls_enabled() != 1:
++        error("Requires a mls enabled system")
++        
++    if selinux.is_selinux_enabled() != 1:
++        error("Requires an SELinux enabled system")
++        
++    delete_ind=0
++    gopts, cmds = getopt.getopt(sys.argv[1:],
++	'dh',
++	['help',
++	    'delete'])
++
++    for o,a in gopts:
++        if o == "-h" or o == "--help":
++            usage()
++        if o == "-d" or o == "--delete":
++            delete_ind=1
++
++    if len(cmds) < 1:
++        usage()
++
++    if delete_ind:
++        sys.exit(chcat([""], cmds))
++
++    if len(cmds) < 2:
++        usage()
++    
++    cats=cmds[0].split(",")
++    set_ind=0
++    mod_ind=0
++    for i in cats:
++        if i[0]=='+' or i[0]=="-":
++            mod_ind=1
++            if set_ind == 1:
++                error("You can not use '%s' with previous categories" % i)
++        else:
++            if mod_ind == 1 or set_ind==1:
++                error("You can not use '%s' with previous categories" % i)
++            set_ind=1
++
++    files=cmds[1:]
++    sys.exit(chcat(cats, files))
++
++
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/chcat.8 policycoreutils-1.27.37/scripts/chcat.8
+--- nsapolicycoreutils/scripts/chcat.8	1969-12-31 19:00:00.000000000 -0500
++++ policycoreutils-1.27.37/scripts/chcat.8	2005-12-07 11:56:20.000000000 -0500
+@@ -0,0 +1,29 @@
++.TH CHCAT "8" "September 2005" "chcat" "User Commands"
++.SH NAME
++chcat \- change file security category
++.SH SYNOPSIS
++.B chcat
++\fICATEGORY FILE\fR...
++.br
++.B chcat
++\fI[[+|-]CATEGORY],...]  FILE\fR...
++.br
++.B chcat
++[\fI-d\fR] \fIFILE\fR...
++.br
++.PP
++Change/Remove the security CATEGORY for each FILE.
++.PP
++Use +/- to add/remove categories from a FILE.
++.TP
++\fB\-d\fR
++delete the category from each file.
++.SH "SEE ALSO"
++.TP
++chcon(1), selinux(8)
++.PP
++.br
++This script wraps the chcon command.
++.SH "FILES"
++/etc/selinux/{SELINUXTYPE}/setrans.conf 
++
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/Makefile policycoreutils-1.27.37/scripts/Makefile
+--- nsapolicycoreutils/scripts/Makefile	2005-01-28 15:24:12.000000000 -0500
++++ policycoreutils-1.27.37/scripts/Makefile	2005-12-07 11:56:20.000000000 -0500
+@@ -1,20 +1,23 @@
+ # Installation directories.
+ PREFIX ?= ${DESTDIR}/usr
+-BINDIR ?= $(PREFIX)/sbin
++BINDIR ?= $(PREFIX)/bin
++SBINDIR ?= $(PREFIX)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= /usr/share/locale
  
- security_setenforce = _selinux.security_setenforce
+-TARGETS=genhomedircon
++TARGETS=genhomedircon 
  
--security_disable = _selinux.security_disable
--
- security_policyvers = _selinux.security_policyvers
+ all: $(TARGETS) fixfiles
  
- security_get_boolean_names = _selinux.security_get_boolean_names
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-1.27.28/src/selinuxswig.i
---- nsalibselinux/src/selinuxswig.i	2005-11-28 14:10:10.000000000 -0500
-+++ libselinux-1.27.28/src/selinuxswig.i	2005-12-07 08:59:48.000000000 -0500
-@@ -22,6 +22,15 @@
- %{
- 	#include "selinux/selinux.h"
- %}
-+%apply int *OUTPUT { int * };
-+%apply int *OUTPUT { size_t * };
-+
-+%typemap(in, numinputs=0) security_context_t *(security_context_t temp) {
-+	$1 = &temp;
-+}
-+%typemap(argout) security_context_t * {
-+	$result = t_output_helper($result, PyString_FromString(*$1));
-+}
+ install: all
+ 	-mkdir -p $(BINDIR)
+-	install -m 755 $(TARGETS) $(BINDIR)
++	install -m 755 $(TARGETS) $(SBINDIR)
++	install -m 755 chcat $(BINDIR)
+ 	install -m 755 fixfiles $(DESTDIR)/sbin
+ 	-mkdir -p $(MANDIR)/man8
+ 	install -m 644 fixfiles.8 $(MANDIR)/man8/
+ 	install -m 644 genhomedircon.8 $(MANDIR)/man8/
++	install -m 644 chcat.8 $(MANDIR)/man8/
  
- extern int is_selinux_enabled(void);
- extern int is_selinux_mls_enabled(void);
-@@ -51,7 +60,6 @@
- 					 security_context_t *canoncon);
- extern int security_getenforce(void);
- extern int security_setenforce(int value);
--extern int security_disable(void);
- extern int security_policyvers(void);
- extern int security_get_boolean_names(char ***names, int *len);
- extern int security_get_boolean_pending(const char *name);
-@@ -96,10 +104,16 @@
+ clean:
  
- extern int is_context_customizable (security_context_t scontext);
- 
--extern int selinux_trans_to_raw_context(security_context_t trans, 
-+extern int selinux_trans_to_raw_context(char *trans, 
- 					security_context_t *rawp);
--extern int selinux_raw_to_trans_context(security_context_t raw, 
-+extern int selinux_raw_to_trans_context(char *raw, 
- 					security_context_t *transp);
- 
-+%typemap(in, numinputs=0) char **(char *temp) {
-+	$1 = &temp;
-+}
-+
-+%typemap(argout) char ** {
-+	$result = t_output_helper($result, PyString_FromString(*$1));
-+}
- extern int getseuserbyname(const char *linuxuser, char **seuser, char **level);
--
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_wrap.c libselinux-1.27.28/src/selinuxswig_wrap.c
---- nsalibselinux/src/selinuxswig_wrap.c	2005-11-28 14:10:10.000000000 -0500
-+++ libselinux-1.27.28/src/selinuxswig_wrap.c	2005-12-07 09:00:01.000000000 -0500
-@@ -1515,6 +1515,26 @@
- int getpeercon(int,security_context_t *);
- int selinux_mkload_policy(int);
- int selinux_init_load_policy(int *);
-+
-+SWIGINTERN PyObject*
-+t_output_helper(PyObject* target, PyObject* o) {
-+  if (!target) {
-+    target = o;
-+  } else if (target == Py_None) {  
-+    Py_DECREF(target);
-+    target = o;
-+  } else {
-+    if (!PyList_Check(target)) {
-+      PyObject *o2 = target;
-+      target = PyList_New(1);
-+      PyList_SetItem(target, 0, o2);
-+    }
-+    PyList_Append(target,o);
-+    }
-+  return target;
-+}
-+
-+
- int security_set_boolean_list(size_t,SELboolean *,int);
- 
- SWIGINTERN int
-@@ -1569,7 +1589,6 @@
- int security_canonicalize_context(security_context_t,security_context_t *);
- int security_getenforce(void);
- int security_setenforce(int);
--int security_disable(void);
- int security_policyvers(void);
- int security_get_boolean_names(char ***,int *);
- int security_get_boolean_pending(char const *);
-@@ -1688,8 +1707,8 @@
- int checkPasswdAccess(access_vector_t);
- int rpm_execcon(unsigned int,char const *,char *const [],char *const []);
- int is_context_customizable(security_context_t);
--int selinux_trans_to_raw_context(security_context_t,security_context_t *);
--int selinux_raw_to_trans_context(security_context_t,security_context_t *);
-+int selinux_trans_to_raw_context(char *,security_context_t *);
-+int selinux_raw_to_trans_context(char *,security_context_t *);
- int getseuserbyname(char const *,char **,char **);
- #ifdef __cplusplus
- extern "C" {
-@@ -1730,16 +1749,20 @@
-     PyObject *resultobj;
-     security_context_t *arg1 = (security_context_t *) 0 ;
-     int result;
--    PyObject * obj0 = 0 ;
-+    security_context_t temp1 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"O:getcon",&obj0)) goto fail;
--    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(1)) SWIG_fail;
-+    {
-+        arg1 = &temp1;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)":getcon")) goto fail;
-     result = (int)getcon(arg1);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg1));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -1779,10 +1802,13 @@
-     pid_t arg1 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:getpidcon",&obj0,&obj1)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:getpidcon",&obj0)) goto fail;
-     {
-         pid_t * argp;
-         SWIG_Python_ConvertPtr(obj0, (void **)&argp, SWIGTYPE_p_pid_t, SWIG_POINTER_EXCEPTION);
-@@ -1793,13 +1819,14 @@
-         if (SWIG_arg_fail(1)) SWIG_fail;
-         arg1 = *argp;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)getpidcon(arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -1810,16 +1837,20 @@
-     PyObject *resultobj;
-     security_context_t *arg1 = (security_context_t *) 0 ;
-     int result;
--    PyObject * obj0 = 0 ;
-+    security_context_t temp1 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"O:getprevcon",&obj0)) goto fail;
--    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(1)) SWIG_fail;
-+    {
-+        arg1 = &temp1;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)":getprevcon")) goto fail;
-     result = (int)getprevcon(arg1);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg1));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -1830,16 +1861,20 @@
-     PyObject *resultobj;
-     security_context_t *arg1 = (security_context_t *) 0 ;
-     int result;
--    PyObject * obj0 = 0 ;
-+    security_context_t temp1 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"O:getexeccon",&obj0)) goto fail;
--    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(1)) SWIG_fail;
-+    {
-+        arg1 = &temp1;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)":getexeccon")) goto fail;
-     result = (int)getexeccon(arg1);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg1));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -1878,16 +1913,20 @@
-     PyObject *resultobj;
-     security_context_t *arg1 = (security_context_t *) 0 ;
-     int result;
--    PyObject * obj0 = 0 ;
-+    security_context_t temp1 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"O:getfscreatecon",&obj0)) goto fail;
--    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(1)) SWIG_fail;
-+    {
-+        arg1 = &temp1;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)":getfscreatecon")) goto fail;
-     result = (int)getfscreatecon(arg1);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg1));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -1927,20 +1966,24 @@
-     char *arg1 = (char *) 0 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:getfilecon",&obj0,&obj1)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:getfilecon",&obj0)) goto fail;
-     if (!SWIG_AsCharPtr(obj0, (char**)&arg1)) {
-         SWIG_arg_fail(1);SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)getfilecon((char const *)arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -1952,20 +1995,24 @@
-     char *arg1 = (char *) 0 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:lgetfilecon",&obj0,&obj1)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:lgetfilecon",&obj0)) goto fail;
-     if (!SWIG_AsCharPtr(obj0, (char**)&arg1)) {
-         SWIG_arg_fail(1);SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)lgetfilecon((char const *)arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -1977,21 +2024,25 @@
-     int arg1 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:fgetfilecon",&obj0,&obj1)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:fgetfilecon",&obj0)) goto fail;
-     {
-         arg1 = (int)(SWIG_As_int(obj0)); 
-         if (SWIG_arg_fail(1)) SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)fgetfilecon(arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2103,21 +2154,25 @@
-     int arg1 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:getpeercon",&obj0,&obj1)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:getpeercon",&obj0)) goto fail;
-     {
-         arg1 = (int)(SWIG_As_int(obj0)); 
-         if (SWIG_arg_fail(1)) SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)getpeercon(arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2150,16 +2205,18 @@
-     PyObject *resultobj;
-     int *arg1 = (int *) 0 ;
-     int result;
--    PyObject * obj0 = 0 ;
-+    int temp1 ;
-+    int res1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"O:selinux_init_load_policy",&obj0)) goto fail;
--    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_int, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(1)) SWIG_fail;
-+    arg1 = &temp1; res1 = SWIG_NEWOBJ;
-+    if(!PyArg_ParseTuple(args,(char *)":selinux_init_load_policy")) goto fail;
-     result = (int)selinux_init_load_policy(arg1);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    resultobj = t_output_helper(resultobj, ((res1 == SWIG_NEWOBJ) ?
-+    SWIG_From_int((*arg1)) : SWIG_NewPointerObj((void*)(arg1), SWIGTYPE_p_int, 0)));
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2252,10 +2309,13 @@
-     security_context_t arg1 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:security_canonicalize_context",&obj0,&obj1)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:security_canonicalize_context",&obj0)) goto fail;
-     {
-         security_context_t * argp;
-         SWIG_Python_ConvertPtr(obj0, (void **)&argp, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION);
-@@ -2266,13 +2326,14 @@
-         if (SWIG_arg_fail(1)) SWIG_fail;
-         arg1 = *argp;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)security_canonicalize_context(arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2317,22 +2378,6 @@
- }
- 
- 
--static PyObject *_wrap_security_disable(PyObject *self, PyObject *args) {
--    PyObject *resultobj;
--    int result;
--    
--    if(!PyArg_ParseTuple(args,(char *)":security_disable")) goto fail;
--    result = (int)security_disable();
--    
--    {
--        resultobj = SWIG_From_int((int)(result)); 
--    }
--    return resultobj;
--    fail:
--    return NULL;
--}
--
--
- static PyObject *_wrap_security_policyvers(PyObject *self, PyObject *args) {
-     PyObject *resultobj;
-     int result;
-@@ -2354,19 +2399,21 @@
-     char ***arg1 = (char ***) 0 ;
-     int *arg2 = (int *) 0 ;
-     int result;
-+    int temp2 ;
-+    int res2 = 0 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:security_get_boolean_names",&obj0,&obj1)) goto fail;
-+    arg2 = &temp2; res2 = SWIG_NEWOBJ;
-+    if(!PyArg_ParseTuple(args,(char *)"O:security_get_boolean_names",&obj0)) goto fail;
-     SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_p_p_char, SWIG_POINTER_EXCEPTION | 0);
-     if (SWIG_arg_fail(1)) SWIG_fail;
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_int, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)security_get_boolean_names(arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    resultobj = t_output_helper(resultobj, ((res2 == SWIG_NEWOBJ) ?
-+    SWIG_From_int((*arg2)) : SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, 0)));
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2504,11 +2551,14 @@
-     mode_t arg2 ;
-     security_context_t *arg3 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp3 ;
-     PyObject * obj0 = 0 ;
-     PyObject * obj1 = 0 ;
--    PyObject * obj2 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OOO:matchpathcon",&obj0,&obj1,&obj2)) goto fail;
-+    {
-+        arg3 = &temp3;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"OO:matchpathcon",&obj0,&obj1)) goto fail;
-     if (!SWIG_AsCharPtr(obj0, (char**)&arg1)) {
-         SWIG_arg_fail(1);SWIG_fail;
-     }
-@@ -2522,13 +2572,14 @@
-         if (SWIG_arg_fail(2)) SWIG_fail;
-         arg2 = *argp;
-     }
--    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(3)) SWIG_fail;
-     result = (int)matchpathcon((char const *)arg1,arg2,arg3);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg3));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2540,20 +2591,24 @@
-     char *arg1 = (char *) 0 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:matchmediacon",&obj0,&obj1)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:matchmediacon",&obj0)) goto fail;
-     if (!SWIG_AsCharPtr(obj0, (char**)&arg1)) {
-         SWIG_arg_fail(1);SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)matchmediacon((char const *)arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2564,16 +2619,18 @@
-     PyObject *resultobj;
-     int *arg1 = (int *) 0 ;
-     int result;
--    PyObject * obj0 = 0 ;
-+    int temp1 ;
-+    int res1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"O:selinux_getenforcemode",&obj0)) goto fail;
--    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_int, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(1)) SWIG_fail;
-+    arg1 = &temp1; res1 = SWIG_NEWOBJ;
-+    if(!PyArg_ParseTuple(args,(char *)":selinux_getenforcemode")) goto fail;
-     result = (int)selinux_getenforcemode(arg1);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    resultobj = t_output_helper(resultobj, ((res1 == SWIG_NEWOBJ) ?
-+    SWIG_From_int((*arg1)) : SWIG_NewPointerObj((void*)(arg1), SWIGTYPE_p_int, 0)));
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2925,30 +2982,27 @@
- 
- static PyObject *_wrap_selinux_trans_to_raw_context(PyObject *self, PyObject *args) {
-     PyObject *resultobj;
--    security_context_t arg1 ;
-+    char *arg1 = (char *) 0 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:selinux_trans_to_raw_context",&obj0,&obj1)) goto fail;
-     {
--        security_context_t * argp;
--        SWIG_Python_ConvertPtr(obj0, (void **)&argp, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION);
--        if (SWIG_arg_fail(1)) SWIG_fail;
--        if (argp == NULL) {
--            SWIG_null_ref("security_context_t");
--        }
--        if (SWIG_arg_fail(1)) SWIG_fail;
--        arg1 = *argp;
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:selinux_trans_to_raw_context",&obj0)) goto fail;
-+    if (!SWIG_AsCharPtr(obj0, (char**)&arg1)) {
-+        SWIG_arg_fail(1);SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)selinux_trans_to_raw_context(arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2957,30 +3011,27 @@
- 
- static PyObject *_wrap_selinux_raw_to_trans_context(PyObject *self, PyObject *args) {
-     PyObject *resultobj;
--    security_context_t arg1 ;
-+    char *arg1 = (char *) 0 ;
-     security_context_t *arg2 = (security_context_t *) 0 ;
-     int result;
-+    security_context_t temp2 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OO:selinux_raw_to_trans_context",&obj0,&obj1)) goto fail;
-     {
--        security_context_t * argp;
--        SWIG_Python_ConvertPtr(obj0, (void **)&argp, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION);
--        if (SWIG_arg_fail(1)) SWIG_fail;
--        if (argp == NULL) {
--            SWIG_null_ref("security_context_t");
--        }
--        if (SWIG_arg_fail(1)) SWIG_fail;
--        arg1 = *argp;
-+        arg2 = &temp2;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:selinux_raw_to_trans_context",&obj0)) goto fail;
-+    if (!SWIG_AsCharPtr(obj0, (char**)&arg1)) {
-+        SWIG_arg_fail(1);SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_security_context_t, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
-     result = (int)selinux_raw_to_trans_context(arg1,arg2);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -2993,23 +3044,31 @@
-     char **arg2 = (char **) 0 ;
-     char **arg3 = (char **) 0 ;
-     int result;
-+    char *temp2 ;
-+    char *temp3 ;
-     PyObject * obj0 = 0 ;
--    PyObject * obj1 = 0 ;
--    PyObject * obj2 = 0 ;
-     
--    if(!PyArg_ParseTuple(args,(char *)"OOO:getseuserbyname",&obj0,&obj1,&obj2)) goto fail;
-+    {
-+        arg2 = &temp2;
-+    }
-+    {
-+        arg3 = &temp3;
-+    }
-+    if(!PyArg_ParseTuple(args,(char *)"O:getseuserbyname",&obj0)) goto fail;
-     if (!SWIG_AsCharPtr(obj0, (char**)&arg1)) {
-         SWIG_arg_fail(1);SWIG_fail;
-     }
--    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_p_char, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(2)) SWIG_fail;
--    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_p_char, SWIG_POINTER_EXCEPTION | 0);
--    if (SWIG_arg_fail(3)) SWIG_fail;
-     result = (int)getseuserbyname((char const *)arg1,arg2,arg3);
-     
-     {
-         resultobj = SWIG_From_int((int)(result)); 
-     }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg2));
-+    }
-+    {
-+        resultobj = t_output_helper(resultobj, PyString_FromString(*arg3));
-+    }
-     return resultobj;
-     fail:
-     return NULL;
-@@ -3042,7 +3101,6 @@
- 	 { (char *)"security_canonicalize_context", _wrap_security_canonicalize_context, METH_VARARGS, NULL},
- 	 { (char *)"security_getenforce", _wrap_security_getenforce, METH_VARARGS, NULL},
- 	 { (char *)"security_setenforce", _wrap_security_setenforce, METH_VARARGS, NULL},
--	 { (char *)"security_disable", _wrap_security_disable, METH_VARARGS, NULL},
- 	 { (char *)"security_policyvers", _wrap_security_policyvers, METH_VARARGS, NULL},
- 	 { (char *)"security_get_boolean_names", _wrap_security_get_boolean_names, METH_VARARGS, NULL},
- 	 { (char *)"security_get_boolean_pending", _wrap_security_get_boolean_pending, METH_VARARGS, NULL},
-diff --exclude-from=exclude -N -u -r nsalibselinux/utils/getseuser.c libselinux-1.27.28/utils/getseuser.c
---- nsalibselinux/utils/getseuser.c	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-1.27.28/utils/getseuser.c	2005-12-07 08:58:59.000000000 -0500
-@@ -0,0 +1,27 @@
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv) 
-+{
-+	char *seuser, *range;
-+	int rc, i;
-+
-+	if (argc < 2) {
-+		fprintf(stderr, "usage:  %s path...\n", argv[0]);
-+		exit(1);
-+	}
-+
-+	for (i = 1; i < argc; i++) {
-+		rc = getseuserbyname(argv[i], &seuser, &range);
-+		if (rc < 0) {
-+			fprintf(stderr, "%s:  getseuserbyname(%s) failed\n", argv[0], argv[i]);
-+			exit(2);
-+		}
-+		printf("%s\t%s\t%s\n", argv[i], seuser, range);
-+		freecon(seuser);
-+		freecon(range);
-+	}
-+	exit(0);
-+}
-diff --exclude-from=exclude -N -u -r nsalibselinux/utils/setrans.c libselinux-1.27.28/utils/setrans.c
---- nsalibselinux/utils/setrans.c	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-1.27.28/utils/setrans.c	2005-12-07 08:58:59.000000000 -0500
-@@ -0,0 +1,26 @@
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv) 
-+{
-+	char *buf;
-+	int rc, i;
-+
-+	if (argc < 2) {
-+		fprintf(stderr, "usage:  %s context...\n", argv[0]);
-+		exit(1);
-+	}
-+
-+	for (i = 1; i < argc; i++) {
-+		rc = selinux_raw_to_trans_context(argv[i], &buf);
-+		if (rc < 0) {
-+			fprintf(stderr, "%s:  selinux_raw_to_trans_context(%s) failed\n", argv[0], argv[i]);
-+			exit(2);
-+		}
-+		printf("%s\t%s\t%s\n", argv[i], buf);
-+		freecon(buf);
-+	}
-+	exit(0);
-+}
-diff --exclude-from=exclude -N -u -r nsalibselinux/utils/seuntrans.c libselinux-1.27.28/utils/seuntrans.c
---- nsalibselinux/utils/seuntrans.c	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-1.27.28/utils/seuntrans.c	2005-12-07 08:58:59.000000000 -0500
-@@ -0,0 +1,26 @@
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv) 
-+{
-+	char *buf;
-+	int rc, i;
-+
-+	if (argc < 2) {
-+		fprintf(stderr, "usage:  %s path...\n", argv[0]);
-+		exit(1);
-+	}
-+
-+	for (i = 1; i < argc; i++) {
-+		rc = selinux_trans_to_raw_context(argv[i], &buf);
-+		if (rc < 0) {
-+			fprintf(stderr, "%s:  selinux_trans_to_raw_context(%s) failed\n", argv[0], argv[i]);
-+			exit(2);
-+		}
-+		printf("%s\t%s\t%s\n", argv[i], buf);
-+		freecon(buf);
-+	}
-+	exit(0);
-+}
 
---------------090407090605040702030100--
+--------------020904030107040901010901--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
