@@ -1,75 +1,61 @@
-Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB7KSfMA003090
-	for <selinux@tycho.nsa.gov>; Wed, 7 Dec 2005 15:28:41 -0500 (EST)
-Subject: ANN: Updated SELinux Release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1126110201.14896.80.camel@moss-spartans.epoch.ncsc.mil>
-References: <1110402140.6299.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <1119466630.13181.175.camel@moss-spartans.epoch.ncsc.mil>
-	 <1126110201.14896.80.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 15:28:41 -0500
-Message-Id: <1133987321.2366.124.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'SELinux'" <SELinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
+Subject: SELinux Symposium Agenda released
+Date: Wed, 7 Dec 2005 15:57:34 -0500
+Message-ID: <014901c5fb70$d95c9740$220d010a@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated SELinux release is available from the NSA SELinux web site;
-see
-http://www.nsa.gov/selinux/news.cfm#R051207
+All, FYI, the agenda for the 2nd SELinux Symposium has been released. Below
+is a copy of the press release. Frank
 
-This release is based on Linux 2.6.14.  The SELinux kernel patch for
-2.6.14 includes support for canonicalization of getxattr results by
-SELinux, support for userspace to obtain canonical contexts via
-selinuxfs, a compatibility fix for MLS file contexts on non-MLS systems,
-and a fix to prevent setting SELinux attributes on inodes created in
-mountpoint labeled filesystems.  All of these changes have already been
-upstreamed into Linus' git tree for inclusion in 2.6.15.
 
-In userspace, a number of enhancements to the libraries and utilities
-have been merged.  These enhancements include support for mapping Linux
-users to SELinux users and ranges via seusers without requiring policy
-modifications, a major reworking of the policy management and policy
-module support including major updates to libsepol, checkpolicy,
-libsemanage and policycoreutils, and centralization of and improvements
-to the policy loading logic.
+Speakers Confirmed for the Second 
+Security-Enhanced Linux Symposium and Developer Summit
 
-Note that pam_selinux and SELinux userland patches for programs such as
-gdm, sshd, and crond have been modified in order to take advantage of
-the seusers mechanism for mapping Linux users to SELinux users and
-ranges. Similarly, the SELinux patch for SysVinit has been modified in
-order to use the new policy loading logic provided by libselinux.
-Please refer to the Fedora Core public CVS tree for updated SELinux
-userland patches in order to port these updates to other distributions
-as appropriate.
+Baltimore, Md. - (December 7, 2005) - The Security-Enhanced Linux (SELinux)
+Symposium announces papers and speakers for its second annual symposium.
+Experts from business, government, and academia will share and discuss the
+latest SELinux research and development results, application experience, and
+product plans. The event explores the emerging SELinux technology and the
+power of flexible mandatory access control in Linux. Registration for the
+SELinux Symposium, scheduled for February 27-March 3, 2006 in Baltimore,
+Maryland, will open soon at www.selinux-symposium.org.
 
-With regard to the policy management and module support, this release
-introduces the first version of libsemanage to provide a shared library
-and that includes support for managing some (but not yet all) non-module
-policy components.  Note that the policy module package format has
-changed incompatibly since the prior nsa.gov SELinux release, as
-discussed on the list, but any future changes will provide proper
-compatibility support.  The module utilities have been significantly
-overhauled and manual pages have been created for them.  setsebool has
-been reworked to include support for the policy management
-infrastructure.  audit2allow has been rewritten in python and extended
-to support generation of policy modules. genhomedircon has been partly
-converted to support the policy management infrastructure; there is
-still a lingering issue with expanding the ROLE macro in
-homedir_template for users, so manual updating of file_contexts.homedirs
-is necessary for non-user_r users if using policy managed via
-libsemanage.
+The Second SELinux Symposium features two full days of SELinux-related
+tutorials followed by a two-day technical agenda that includes papers,
+presentations, and case studies by experts and practitioners with SELinux.
+Topics for the symposium include in-depth discussions of the core SELinux
+technology, emerging SELinux policy management and development tools,
+experiences using SELinux to build secure system solutions, and the status
+of SELinux within Linux. New this year is an invitation-only SELinux
+developer summit, where the core developers and contributors of SELinux
+discuss upcoming technology changes, requirements, and plans. 
 
-Although this release includes an updated copy of the example policy,
-this will likely be the last such release before a final snapshot of the
-example policy is archived to the historical versions page.  Further
-work on this policy has been superseded by the SELinux reference policy
-project, see http://serefpolicy.sourceforge.net.
+Papers for the symposium were selected via a community review process, and
+include authors from several organizations including IBM, MITRE Corporation,
+Pennsylvania State University, Purdue University, Red Hat, Tresys
+Technology, Trusted Computer Solutions, University of Illinois, University
+of Tulsa, University of Wisconsin, and the U.S. National Security Agency.
+The full agenda for the symposium is available at www.selinux-symposium.org.
 
--- 
-Stephen Smalley
-National Security Agency
+About the SELinux Symposium
+The Security-Enhanced Linux (SELinux) Symposium is an annual exchange of
+ideas, technology, and research involving SELinux. SELinux is technology
+that adds flexible, strong mandatory access control security to Linux. The
+Second Symposium is scheduled for February 27-March 3, 2006 in Baltimore,
+Maryland and is sponsored by Hewlett-Packard, IBM, Red Hat, Tresys
+Technology, and Trusted Computer Solutions. The event brings together
+experts from business, government, and academia to share research,
+development, and application experiences using SELinux. For information on
+registration and sponsorship opportunities, see www.selinux-symposium.org or
+info@selinux-symposium.org.
+
+
+
 
 
 --
