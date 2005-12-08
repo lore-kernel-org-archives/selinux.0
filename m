@@ -1,139 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB89nwMA007902
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 04:49:59 -0500 (EST)
-Received: from mx07.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB89gOYY013327
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 09:42:25 GMT
-Received: from papa.intrajp-yokosuka.co.jp (pdd5cb4.ykhmac00.ap.so-net.ne.jp [218.221.92.180])
-	by mx07.ms.so-net.ne.jp  with SMTP id jB89hACG022360
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 18:43:10 +0900 (JST)
-Date: Thu, 8 Dec 2005 18:47:31 +0900
-From: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>
-To: selinux@tycho.nsa.gov
-Subject: small c++ program which allows denied log (segate)
-Message-Id: <20051208184731.49a799ca.shin216@xf7.so-net.ne.jp>
+Subject: Re: libsemanage patch to make seusers world readable.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux-dev@tresys.com,
+   selinux@tycho.nsa.gov
+In-Reply-To: <1133977698.2366.81.camel@moss-spartans.epoch.ncsc.mil>
+References: <43971CDB.1070507@redhat.com>
+	 <1133977698.2366.81.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 08:07:40 -0500
+Message-Id: <1134047260.2366.149.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-This is Shintarou from Japan again.
+On Wed, 2005-12-07 at 12:48 -0500, Stephen Smalley wrote:
+> On Wed, 2005-12-07 at 12:33 -0500, Daniel J Walsh wrote:
+> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.c libsemanage-1.3.64/src/semanage_store.c
+> --- nsalibsemanage/src/semanage_store.c	2005-11-16 08:44:47.000000000 -0500
+> +++ libsemanage-1.3.64/src/semanage_store.c	2005-12-07 08:07:02.000000000 -0500
+> @@ -917,6 +917,7 @@
+>  		INFO(sh, "Non-fatal error:  Could not copy %s to %s.", active_seusers, store_seusers);
+>  		/* Non-fatal; fall through */
+>  	}
+> +	chmod(store_seusers, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+>  
+>  	if (!sh->do_reload)
+>  		goto skip_reload;
+> 
+> Why does seusers need to be world readable?  Also, I think we would want
+> to solve this more generally, e.g. file_contexts has a similar issue if
+> you want it to remain useable by ordinary users for restorecon.
 
-This time I've written down on c++.
-Several people in JSELUG advised me how to write on c++.
-c++ has a library called BOOST and
-with REGEX, you can use regular expression.
-Please compile with -lboost_regex .
-It's faster than script.
+libsemanage needs a saner way of setting the modes on the files it
+installs.  The installed files presently include the kernel policy file,
+the file_contexts file, the homedir_template file, and the seusers file.
+Options are:
+- Create them world readable as far as DAC mode is concerned, but
+restrict access via SELinux policy based on file contexts as desired.
+That seems to be the situation prior to libsemanage, with targeted
+policy allowing users to access them.
+- Make the DAC mode configurable via semanage.conf.  In this case, we
+need to decide whether a single mode is sufficient for all of the files
+or if we want separate modes for different files (e.g.
+kernel-policy=0600, file-contexts=0644, seusers=0644).
 
-Hope seeing you people at symposium.
+Also, it occurs to me that libsemanage doesn't presently do anything
+about setting file contexts for these files, so they always just inherit
+the default (parent directory type or transition type if one is defined
+in policy).  I think that is currently ok since that is the current
+labeling anyway for these files, but it could be a problem if we later
+introduce distinct types for e.g. seusers.  Likely should be doing a
+matchpathcon() and setfscreatecon() when creating the new file (or
+setfilecon prior to renaming it into place, as long as it is adequately
+protected while within the sandbox).
 
-Thanks.
+Thoughts?
 
+-- 
+Stephen Smalley
+National Security Agency
 
-/*************
-segate written by shintarou fujiwara
-**************/
-#include <iostream>
-#include <fstream>
-#include <string.h>
-#include <vector>
-#include <algorithm>
-#include <boost/regex.hpp>
-using namespace std;
-using namespace boost;
-
-int main()
-{
-	#define MAX_LOG 8460
-	const char* filename="/var/log/audit/audit.log";
-	const char* filename_new="./segate_audit_denied.log";
-	
-	ifstream is;
-	is.open(filename);
-	if(is)
-	{
-		vector<string> v2;
-		vector<string>::iterator p2, p2_end;
-
-		ofstream os;
-		os.open(filename_new);
-		if(os)
-		{
-			char buffer[MAX_LOG];
-			const char* words="denied";
-			vector<string> v;
-			vector<string>::iterator p, p_end;
-   
-	 		while(is.getline(buffer, sizeof buffer))
-			{
-				if(strstr(buffer,words)){
-					os << buffer << endl;
-					v.push_back(buffer);
-				}
-				if(!os)
-					break;
-			}
-			os.close();
-
-			const char* den = "denied";
-			const char* dom = "r:([^[:space:]]*)([:space:])?";
-			const char* res = "object_r([^[:space:]]*)([:space:])?";
-			const char* objc = "tclass(.*)";
-			const char* acc = "\\{(.*)\\}";
-			regex denied_exp(den);
-			regex domain_exp(dom);
-			regex resource_exp(res);
-			regex object_class_exp(objc);
-			regex access_vector_exp(acc);
-
-			string policy_selinux = "";
-			string allow_pre = "allow";
-			string blank_w = " ";
-			string colon = ":";
-			string semicolon = ";";
-			string domain = "";
-			string resource = "";
-			string object_class = "";
-			string access_vector = "";
-			
-			for(p=v.begin(); p<v.end();p++){
-				string source_ready = *p;
-				const char* source = source_ready.c_str();
-				cmatch what;
-				if(regex_search(source,what,denied_exp)){
-					if(regex_search(source,what,domain_exp)){
-						domain = what[0];
-						domain = domain.substr(2);
-					}
-					if(regex_search(source,what,resource_exp)){
-						resource = what[0];
-						resource = resource.substr(9);
-					}
-					if(regex_search(source,what,object_class_exp)){
-						object_class = what[0];
-						object_class = object_class.substr(7);
-					}
-					if(regex_search(source,what,access_vector_exp)){
-						access_vector = what[0];
-					}
-					policy_selinux = allow_pre + blank_w + 
-						domain + blank_w + resource + colon + 
-						object_class + blank_w + access_vector + semicolon;
-					v2.push_back(policy_selinux);
-				}
-			}
-			sort(v2.begin(),v2.end());
-			p2_end = unique(v2.begin(),v2.end());
-			for(p2=v2.begin();p2<p2_end;p2++){	
-				cout << *p2 << endl;
-			}	
-		is.close();
-		}
-	}
-	return 0;
-}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
