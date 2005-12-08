@@ -1,62 +1,139 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB85oDMA006709
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 00:50:13 -0500 (EST)
-Received: from smtp-bedford-dr.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB85hW5Y008548
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 05:43:32 GMT
-Received: from smtp-bedford-dr.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford-dr.mitre.org (8.11.6/8.11.6) with SMTP id jB85hXA27786
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 00:43:33 -0500
-Received: from smtp-bedford-dr.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford-dr.mitre.org (Postfix) with ESMTP id D906A4F8D8
-	for <selinux@tycho.nsa.gov>; Thu,  8 Dec 2005 00:43:32 -0500 (EST)
-Received: from imcfe2.MITRE.ORG (imcfe2.mitre.org [129.83.29.4])
-	by smtp-bedford-dr.mitre.org (8.11.6/8.11.6) with ESMTP id jB85hWi27770
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 00:43:32 -0500
-From: Brian Sniffen <bsniffen@mitre.org>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB89nwMA007902
+	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 04:49:59 -0500 (EST)
+Received: from mx07.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB89gOYY013327
+	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 09:42:25 GMT
+Received: from papa.intrajp-yokosuka.co.jp (pdd5cb4.ykhmac00.ap.so-net.ne.jp [218.221.92.180])
+	by mx07.ms.so-net.ne.jp  with SMTP id jB89hACG022360
+	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 18:43:10 +0900 (JST)
+Date: Thu, 8 Dec 2005 18:47:31 +0900
+From: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>
 To: selinux@tycho.nsa.gov
-Subject: ANN: Polgen 1.2 released
-Date: Thu, 08 Dec 2005 00:42:56 -0500
-Message-ID: <m2acfcf8kf.fsf@raven-king.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: small c++ program which allows denied log (segate)
+Message-Id: <20051208184731.49a799ca.shin216@xf7.so-net.ne.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new version of MITRE's "Polgen" tool for guided automated policy
-generation is now available from <http://www.mitre.org/tech/selinux/>.
+Hi,
+This is Shintarou from Japan again.
 
-The new version comes precompiled for either Fedora Core 4 or Red Hat
-Rawhide.  Prominent changes:
+This time I've written down on c++.
+Several people in JSELUG advised me how to write on c++.
+c++ has a library called BOOST and
+with REGEX, you can use regular expression.
+Please compile with -lboost_regex .
+It's faster than script.
 
-* Several new pages in the web interface present significant
-  additional information.  For example, Polgen now collects deviations
-  from permissions (while studying an application run in permissive
-  mode) and shows those that will persist even after patterns are
-  applied.
+Hope seeing you people at symposium.
 
-* We've added a "CGI" pattern, providing a more flexible alternative
-  to the Boolean settings for web apps that don't closely fit the
-  available models
+Thanks.
 
-* The SE Linux-modified strace binary is now installed as 'stracesc',
-  to avoid conflicts with standard strace.  Upstream strace 4.5.13 has
-  been merged in.
 
-* The conflict-reduction algorithm has been overhauled.  Polgen is now
-  very conservative about overriding existing types or type
-  transitions *other* than those pertaining to the application under
-  study.
+/*************
+segate written by shintarou fujiwara
+**************/
+#include <iostream>
+#include <fstream>
+#include <string.h>
+#include <vector>
+#include <algorithm>
+#include <boost/regex.hpp>
+using namespace std;
+using namespace boost;
 
-* New UI elements allow configuration for strict, targeted, and other
-  policies (e.g., use of user_t or unconfined_t as the generic
-  launching user)
+int main()
+{
+	#define MAX_LOG 8460
+	const char* filename="/var/log/audit/audit.log";
+	const char* filename_new="./segate_audit_denied.log";
+	
+	ifstream is;
+	is.open(filename);
+	if(is)
+	{
+		vector<string> v2;
+		vector<string>::iterator p2, p2_end;
 
-Coming soon: generation of modular policy.
+		ofstream os;
+		os.open(filename_new);
+		if(os)
+		{
+			char buffer[MAX_LOG];
+			const char* words="denied";
+			vector<string> v;
+			vector<string>::iterator p, p_end;
+   
+	 		while(is.getline(buffer, sizeof buffer))
+			{
+				if(strstr(buffer,words)){
+					os << buffer << endl;
+					v.push_back(buffer);
+				}
+				if(!os)
+					break;
+			}
+			os.close();
 
--- 
-Brian T. Sniffen                                      bsniffen@mitre.org
-The MITRE Corporation                                       781-271-2904
+			const char* den = "denied";
+			const char* dom = "r:([^[:space:]]*)([:space:])?";
+			const char* res = "object_r([^[:space:]]*)([:space:])?";
+			const char* objc = "tclass(.*)";
+			const char* acc = "\\{(.*)\\}";
+			regex denied_exp(den);
+			regex domain_exp(dom);
+			regex resource_exp(res);
+			regex object_class_exp(objc);
+			regex access_vector_exp(acc);
+
+			string policy_selinux = "";
+			string allow_pre = "allow";
+			string blank_w = " ";
+			string colon = ":";
+			string semicolon = ";";
+			string domain = "";
+			string resource = "";
+			string object_class = "";
+			string access_vector = "";
+			
+			for(p=v.begin(); p<v.end();p++){
+				string source_ready = *p;
+				const char* source = source_ready.c_str();
+				cmatch what;
+				if(regex_search(source,what,denied_exp)){
+					if(regex_search(source,what,domain_exp)){
+						domain = what[0];
+						domain = domain.substr(2);
+					}
+					if(regex_search(source,what,resource_exp)){
+						resource = what[0];
+						resource = resource.substr(9);
+					}
+					if(regex_search(source,what,object_class_exp)){
+						object_class = what[0];
+						object_class = object_class.substr(7);
+					}
+					if(regex_search(source,what,access_vector_exp)){
+						access_vector = what[0];
+					}
+					policy_selinux = allow_pre + blank_w + 
+						domain + blank_w + resource + colon + 
+						object_class + blank_w + access_vector + semicolon;
+					v2.push_back(policy_selinux);
+				}
+			}
+			sort(v2.begin(),v2.end());
+			p2_end = unique(v2.begin(),v2.end());
+			for(p2=v2.begin();p2<p2_end;p2++){	
+				cout << *p2 << endl;
+			}	
+		is.close();
+		}
+	}
+	return 0;
+}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
