@@ -1,62 +1,62 @@
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'SELinux'" <SELinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
-Subject: SELinux Symposium Agenda released
-Date: Wed, 7 Dec 2005 15:57:34 -0500
-Message-ID: <014901c5fb70$d95c9740$220d010a@columbia.tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB85oDMA006709
+	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 00:50:13 -0500 (EST)
+Received: from smtp-bedford-dr.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB85hW5Y008548
+	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 05:43:32 GMT
+Received: from smtp-bedford-dr.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford-dr.mitre.org (8.11.6/8.11.6) with SMTP id jB85hXA27786
+	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 00:43:33 -0500
+Received: from smtp-bedford-dr.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford-dr.mitre.org (Postfix) with ESMTP id D906A4F8D8
+	for <selinux@tycho.nsa.gov>; Thu,  8 Dec 2005 00:43:32 -0500 (EST)
+Received: from imcfe2.MITRE.ORG (imcfe2.mitre.org [129.83.29.4])
+	by smtp-bedford-dr.mitre.org (8.11.6/8.11.6) with ESMTP id jB85hWi27770
+	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 00:43:32 -0500
+From: Brian Sniffen <bsniffen@mitre.org>
+To: selinux@tycho.nsa.gov
+Subject: ANN: Polgen 1.2 released
+Date: Thu, 08 Dec 2005 00:42:56 -0500
+Message-ID: <m2acfcf8kf.fsf@raven-king.mitre.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-All, FYI, the agenda for the 2nd SELinux Symposium has been released. Below
-is a copy of the press release. Frank
+A new version of MITRE's "Polgen" tool for guided automated policy
+generation is now available from <http://www.mitre.org/tech/selinux/>.
 
+The new version comes precompiled for either Fedora Core 4 or Red Hat
+Rawhide.  Prominent changes:
 
-Speakers Confirmed for the Second 
-Security-Enhanced Linux Symposium and Developer Summit
+* Several new pages in the web interface present significant
+  additional information.  For example, Polgen now collects deviations
+  from permissions (while studying an application run in permissive
+  mode) and shows those that will persist even after patterns are
+  applied.
 
-Baltimore, Md. - (December 7, 2005) - The Security-Enhanced Linux (SELinux)
-Symposium announces papers and speakers for its second annual symposium.
-Experts from business, government, and academia will share and discuss the
-latest SELinux research and development results, application experience, and
-product plans. The event explores the emerging SELinux technology and the
-power of flexible mandatory access control in Linux. Registration for the
-SELinux Symposium, scheduled for February 27-March 3, 2006 in Baltimore,
-Maryland, will open soon at www.selinux-symposium.org.
+* We've added a "CGI" pattern, providing a more flexible alternative
+  to the Boolean settings for web apps that don't closely fit the
+  available models
 
-The Second SELinux Symposium features two full days of SELinux-related
-tutorials followed by a two-day technical agenda that includes papers,
-presentations, and case studies by experts and practitioners with SELinux.
-Topics for the symposium include in-depth discussions of the core SELinux
-technology, emerging SELinux policy management and development tools,
-experiences using SELinux to build secure system solutions, and the status
-of SELinux within Linux. New this year is an invitation-only SELinux
-developer summit, where the core developers and contributors of SELinux
-discuss upcoming technology changes, requirements, and plans. 
+* The SE Linux-modified strace binary is now installed as 'stracesc',
+  to avoid conflicts with standard strace.  Upstream strace 4.5.13 has
+  been merged in.
 
-Papers for the symposium were selected via a community review process, and
-include authors from several organizations including IBM, MITRE Corporation,
-Pennsylvania State University, Purdue University, Red Hat, Tresys
-Technology, Trusted Computer Solutions, University of Illinois, University
-of Tulsa, University of Wisconsin, and the U.S. National Security Agency.
-The full agenda for the symposium is available at www.selinux-symposium.org.
+* The conflict-reduction algorithm has been overhauled.  Polgen is now
+  very conservative about overriding existing types or type
+  transitions *other* than those pertaining to the application under
+  study.
 
-About the SELinux Symposium
-The Security-Enhanced Linux (SELinux) Symposium is an annual exchange of
-ideas, technology, and research involving SELinux. SELinux is technology
-that adds flexible, strong mandatory access control security to Linux. The
-Second Symposium is scheduled for February 27-March 3, 2006 in Baltimore,
-Maryland and is sponsored by Hewlett-Packard, IBM, Red Hat, Tresys
-Technology, and Trusted Computer Solutions. The event brings together
-experts from business, government, and academia to share research,
-development, and application experiences using SELinux. For information on
-registration and sponsorship opportunities, see www.selinux-symposium.org or
-info@selinux-symposium.org.
+* New UI elements allow configuration for strict, targeted, and other
+  policies (e.g., use of user_t or unconfined_t as the generic
+  launching user)
 
+Coming soon: generation of modular policy.
 
-
-
+-- 
+Brian T. Sniffen                                      bsniffen@mitre.org
+The MITRE Corporation                                       781-271-2904
 
 --
 This message was distributed to subscribers of the selinux mailing list.
