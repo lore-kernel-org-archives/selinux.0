@@ -1,45 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB8LaBMA013838
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 16:36:11 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB8LTF5Y014204
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 21:29:15 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id jB8LTGn5013024
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 16:29:16 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id jB8LTGV21315
-	for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2005 16:29:16 -0500
-Message-ID: <4398A5AD.2010701@redhat.com>
-Date: Thu, 08 Dec 2005 16:29:17 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>,
-   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
-Subject: Interesting reading on exec* access checks.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB9EQrMA019645
+	for <selinux@tycho.nsa.gov>; Fri, 9 Dec 2005 09:26:53 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB9EIupK001942
+	for <selinux@tycho.nsa.gov>; Fri, 9 Dec 2005 14:18:56 GMT
+Subject: Re: Latest Ref Policy Diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4398A239.1080005@redhat.com>
+References: <4398A239.1080005@redhat.com>
+Content-Type: text/plain
+Date: Fri, 09 Dec 2005 09:21:48 -0500
+Message-Id: <1134138108.8185.39.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://people.redhat.com/drepper/selinux-mem.html
+On Thu, 2005-12-08 at 16:14 -0500, Daniel J Walsh wrote:
+> Major change in targeted policy is about to hit.  Basically we are going 
+> to turn off allow_execmod, allow_execmem, and allow_execstack by default 
+> for unconfined_t programs.
 
-We are planning on turning off allow_execmem, allow_execmod, 
-allow_execheap for unconfined_t in targeted policy.  We are working to 
-clean up any problems this might cause.  This will add additional 
-security features to Userspace, but might cause headaches.
+I just have a question about this hunk:
 
-If you have the latest policy installed on Rawhide
+> @@ -79,6 +75,8 @@
+>  
+>  ifdef(`targeted_policy',`
+>         unconfined_domain_template(xdm_t)
+> +       allow xdm_t self:process execmem;
+> +        unconfined_domtrans(xdm_t)
+>  ',`
+>         allow xdm_t xdm_lock_t:file create_file_perms;
+>         files_create_lock(xdm_t,xdm_lock_t)
 
-selinux-policy-targeted-2.1.0-3 or later you can try it out by running
-
-setsebool -P allow_execmem=0 allow_execmod=0 allow_execheap=0
-
-You might need to relabel /usr/lib and /lib.
-
-Any help would be appreciated.  :^)
+Shouldn't the execmem be outside of the ifdef, since if it needs this,
+it will need it regardless of the policy type?
 
 -- 
-
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
