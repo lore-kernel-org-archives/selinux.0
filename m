@@ -1,44 +1,54 @@
-Message-ID: <4399F00C.7040106@tresys.com>
-Date: Fri, 09 Dec 2005 15:58:52 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB9L5RMA022997
+	for <selinux@tycho.nsa.gov>; Fri, 9 Dec 2005 16:05:27 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB9KvOpK018792
+	for <selinux@tycho.nsa.gov>; Fri, 9 Dec 2005 20:57:24 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id jB9KwC2B020491
+	for <selinux@tycho.nsa.gov>; Fri, 9 Dec 2005 15:58:12 -0500
+Message-ID: <4399EFE6.5040206@redhat.com>
+Date: Fri, 09 Dec 2005 15:58:14 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-CC: SELinux-dev@tresys.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: ANN: userspace security server prototype
+To: SE Linux <selinux@tycho.nsa.gov>, Joe Orton <jorton@redhat.com>,
+   Mark J Cox <mjc@redhat.com>,
+   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   Nalin Dahyabhai <nalin@redhat.com>
+Subject: Adding two new booleans to httpd to tighten it's security.
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A prototype of the SELinux userspace security server has been released.
-The userspace security server provides access decisions to userspace
-object managers, rather than forcing them to use the kernel for access
-control decisions. This version has several limitations and should not
-be considered for production use. Those issues include:
-- mls issues in the libsepol security server
-- no setbool support (need to figure out access control on booleans)
-- no load policy support (policy loaded at startup)
-- no enforcement on setenforce
-- no routing is done, all userspace requests go to the USS if it is 
-enabled, unless the USS cannot be contacted, this is to allow a system 
-to boot up properly and will be addressed
 
-To test the uss check out the cvs module with:
+Currently policy allows httpd to connect to relay ports and to 
+mysql/postgres ports.
 
-cvs -z3
--d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/sepolicy-server co -P uss
+Adding these booleans
+    * httpd_can_network_relay
+    * httpd_can_network_connect_db
 
-make and install the tree (it was synchronized with the nsa tree on
-2005-12-08). Then add the following to /etc/selinux/config
+And turning this feature off by default.  This is going into tonights 
+reference policy and into FC4 test release.
+If we had these turned off we would have prevented the last apache worm 
+virus. 
 
-[ss]
-name=uss
-location=/var/run/uss
-update=/var/run/uss-update
+This could cause problems for people who run httpd relays or have their 
+apache databases talking to mysql and postgres databases over the network.
 
-and copy the uss.conf from the uss directory to /etc/selinux (and change
-any options you want)
+You can turn the features back on by executing:
+setsebool -P httpd_can_network_relay=1
+or
+setsebool -P httpd_can_network_connect_db=1
 
-finally, run ./uss and use any userspace object manager to see the results.
+Will consider adding this feature to RHEL in a future update.
+
+Comments?
+
+Dan
+
+-- 
+
 
 
 --
