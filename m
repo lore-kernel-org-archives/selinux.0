@@ -1,57 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jB9EqtMA019894
-	for <selinux@tycho.nsa.gov>; Fri, 9 Dec 2005 09:52:55 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jB9Ejjur027877
-	for <selinux@tycho.nsa.gov>; Fri, 9 Dec 2005 14:45:45 GMT
-Subject: Re: Latest Ref Policy Diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43999777.1020509@redhat.com>
-References: <4398A239.1080005@redhat.com> <1134138108.8185.39.camel@sgc>
-	 <43999777.1020509@redhat.com>
-Content-Type: text/plain
-Date: Fri, 09 Dec 2005 09:47:56 -0500
-Message-Id: <1134139676.8185.40.camel@sgc>
-Mime-Version: 1.0
+Message-ID: <4399F00C.7040106@tresys.com>
+Date: Fri, 09 Dec 2005 15:58:52 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>
+CC: SELinux-dev@tresys.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: ANN: userspace security server prototype
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-12-09 at 09:40 -0500, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Thu, 2005-12-08 at 16:14 -0500, Daniel J Walsh wrote:
-> >   
-> >> Major change in targeted policy is about to hit.  Basically we are going 
-> >> to turn off allow_execmod, allow_execmem, and allow_execstack by default 
-> >> for unconfined_t programs.
-> >>
-> > I just have a question about this hunk:
-> >   
-> >> @@ -79,6 +75,8 @@
-> >>  
-> >>  ifdef(`targeted_policy',`
-> >>         unconfined_domain_template(xdm_t)
-> >> +       allow xdm_t self:process execmem;
-> >> +        unconfined_domtrans(xdm_t)
-> >>  ',`
-> >>         allow xdm_t xdm_lock_t:file create_file_perms;
-> >>         files_create_lock(xdm_t,xdm_lock_t)
-> >>     
-> >
-> > Shouldn't the execmem be outside of the ifdef, since if it needs this,
-> > it will need it regardless of the policy type?
-> >
-> I think in a strict policy machine, the xserver will need this not xdm?
-> 
-> Since we are not using xserver policy, The xserver is running as xdm.
+A prototype of the SELinux userspace security server has been released.
+The userspace security server provides access decisions to userspace
+object managers, rather than forcing them to use the kernel for access
+control decisions. This version has several limitations and should not
+be considered for production use. Those issues include:
+- mls issues in the libsepol security server
+- no setbool support (need to figure out access control on booleans)
+- no load policy support (policy loaded at startup)
+- no enforcement on setenforce
+- no routing is done, all userspace requests go to the USS if it is 
+enabled, unless the USS cannot be contacted, this is to allow a system 
+to boot up properly and will be addressed
 
-Ok, that makes sense.
+To test the uss check out the cvs module with:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+cvs -z3
+-d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/sepolicy-server co -P uss
+
+make and install the tree (it was synchronized with the nsa tree on
+2005-12-08). Then add the following to /etc/selinux/config
+
+[ss]
+name=uss
+location=/var/run/uss
+update=/var/run/uss-update
+
+and copy the uss.conf from the uss directory to /etc/selinux (and change
+any options you want)
+
+finally, run ./uss and use any userspace object manager to see the results.
 
 
 --
