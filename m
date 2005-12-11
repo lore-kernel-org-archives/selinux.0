@@ -1,83 +1,88 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBDEtTMA026463
-	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 09:55:29 -0500 (EST)
-Received: from wproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBDEk6nv026588
-	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 14:46:06 GMT
-Received: by wproxy.gmail.com with SMTP id i3so137226wra
-        for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 06:46:55 -0800 (PST)
-Message-ID: <4c4ba1530512130646i3a9b0dd7v5935599dbdd43111@mail.gmail.com>
-Date: Tue, 13 Dec 2005 06:46:55 -0800
-From: Tom London <selinux@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Adding two new booleans to httpd to tighten it's security.
-Cc: Robert L Cochran <cochranb@speakeasy.net>, Joe Orton <jorton@redhat.com>,
-   Mark J Cox <mjc@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
-   Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <439E4AF6.40403@redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBDFBfMA026702
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 10:11:41 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBDF2Knv000145
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 15:02:20 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id jBDF2PWR021156
+	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 10:02:25 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id jBDF2PDx021155
+	for selinux@tycho.nsa.gov; Tue, 13 Dec 2005 10:02:25 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBBKFGMA007643
+	for <selinux@tycho.nsa.gov>; Sun, 11 Dec 2005 15:15:18 -0500 (EST)
+Received: from zproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBBK6W9M023311
+	for <selinux@tycho.nsa.gov>; Sun, 11 Dec 2005 20:06:32 GMT
+Received: by zproxy.gmail.com with SMTP id r28so1247948nza
+        for <selinux@tycho.nsa.gov>; Sun, 11 Dec 2005 12:07:22 -0800 (PST)
+Message-ID: <9a8748490512111207g15d107f5mf40c4fe696bfe978@mail.gmail.com>
+Date: Sun, 11 Dec 2005 21:07:21 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 5/6] selinux: Remove unneeded k[cm]alloc() return value casts
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
+   selinux@tycho.nsa.gov, Andrew Morton <akpm@osdl.org>,
+   Jesper Juhl <jesper.juhl@gmail.com>
+In-Reply-To: <200512112035.02729.jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-References: <4399EFE6.5040206@redhat.com> <20051212110247.GA25100@redhat.com>
-	 <439E23F3.7090709@speakeasy.net> <439E4AF6.40403@redhat.com>
+References: <200512112035.02729.jesper.juhl@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-VMWare has problems with execmem as previously reported:
-type=AVC msg=audit(1134338328.000:56): avc: denied { execmem } for
-pid=5215 comm="ld-linux.so.2"
-scontext=root:system_r:unconfined_t:s0-s0:c0.c255
-tcontext=root:system_r:unconfined_t:s0-s0:c0.c255 tclass=process
-type=SYSCALL msg=audit(1134338328.000:56): arch=40000003 syscall=125
-success=no exit=-13 a0=bfc78000 a1=1000 a2=1000007 a3=98b6e0 items=0
-pid=5215 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0
-sgid=0 fsgid=0 comm="ld-linux.so.2" exe="/lib/ld-2.3.90.so"
-
-and
-time->Sun Dec 11 13:05:51 2005
-type=AVC_PATH msg=audit(1134335151.660:39):
-path="/usr/lib/vmware/lib/libgdk-x11-2.0.so.0/libgdk-x11-2.0.so.0"
-type=SYSCALL msg=audit(1134335151.660:39): arch=40000003 syscall=125 per=400000
-success=no exit=-13 a0=b7c99000 a1=7b000 a2=5 a3=bfc5a1e0 items=0
-pid=4418 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0
-sgid=0 fsgid=0 comm="vmware" exe="/usr/lib/vmware/bin/vmware"
-type=AVC msg=audit(1134335151.660:39): avc:  denied  { execmod } for
-pid=4418 comm="vmware" name="libgdk-x11-2.0.so.0" dev=dm-0 ino=343461
-scontext=root:system_r:unconfined_t:s0-s0:c0.c255
-tcontext=system_u:object_r:lib_t:s0 tclass=file
+[resending this as it didn't seem to reach LKML on the first try -
+sorry if you recieve it twice]
 
 
-Reply from VMware on my complaint about execmem issues:
+Remove redundant casts of k*alloc() return values in
+security/selinux/ss/services.c
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ security/selinux/ss/services.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+--- linux-2.6.15-rc5-git1-orig/security/selinux/ss/services.c  
+2005-12-04 18:49:02.000000000 +0100
++++ linux-2.6.15-rc5-git1/security/selinux/ss/services.c       
+2005-12-11 19:46:39.000000000 +0100
+@@ -1712,11 +1712,11 @@ int security_get_bools(int *len, char **
+                goto out;
+        }
+
+-       *names = (char**)kcalloc(*len, sizeof(char*), GFP_ATOMIC);
++       *names = kcalloc(*len, sizeof(char*), GFP_ATOMIC);
+        if (!*names)
+                goto err;
+
+-       *values = (int*)kcalloc(*len, sizeof(int), GFP_ATOMIC);
++       *values = kcalloc(*len, sizeof(int), GFP_ATOMIC);
+        if (!*values)
+                goto err;
+
+@@ -1724,7 +1724,7 @@ int security_get_bools(int *len, char **
+                size_t name_len;
+                (*values)[i] = policydb.bool_val_to_struct[i]->state;
+                name_len = strlen(policydb.p_bool_val_to_name[i]) + 1;
+-               (*names)[i] = (char*)kmalloc(sizeof(char) * name_len,
+GFP_ATOMIC);
++               (*names)[i] = kmalloc(sizeof(char) * name_len, GFP_ATOMIC);
+                if (!(*names)[i])
+                        goto err;
+                strncpy((*names)[i], policydb.p_bool_val_to_name[i], name_len);
 
 
-As your system refuses to execute even /lib/ld-2.3.90.so (if I
-understand it correctly), you seems to have some problem...
-
-None of VMware parts (at least I believe) require executable stack or
-heap. Applications which need it explicitly call mmap with PROT_EXEC.
-Another question is whether libraries we ship are correctly tagged to
-signal this - but it should not be problem as you can install all
-libraries VMware needs from your distribution, VMware just ships
-libraries it was linked with as it is simpler for us to ship you
-libgdk-whatever than (finding and) explaining that you must to install
-some-strange-package-with-no-gdk-in-filename to get VMware to work. On
-"correct" system with all libraries you should be able to run vmware
-directly by /usr/lib/vmware/bin/vmware. Apparently your system is
-missing at least openssl097...
---------------------------------------------
 
 
-My understanding from this thread on how execmem works is that calling
-mmap with PROT_EXEC can (will?) still trigger execmem.  Right?
 
-Here is the link to the discussion thread: Please hop on to help/clarify!
-http://www.vmware.com/community/thread.jspa?messageID=320149&#320149
-
-thanks,
-   tom
 --
-Tom London
-
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
