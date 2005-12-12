@@ -1,60 +1,51 @@
-Subject: Re: Latest Ref Policy Diffs
+Subject: Re: Interesting reading on exec* access checks.
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: James Morris <jmorris@namei.org>,
-   "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4398A239.1080005@redhat.com>
-References: <4398A239.1080005@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
+In-Reply-To: <4398A5AD.2010701@redhat.com>
+References: <4398A5AD.2010701@redhat.com>
 Content-Type: text/plain
-Date: Mon, 12 Dec 2005 09:54:46 -0500
-Message-Id: <1134399286.7305.49.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Dec 2005 10:22:15 -0500
+Message-Id: <1134400935.7305.64.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-12-08 at 16:14 -0500, Daniel J Walsh wrote:
-> Major change in targeted policy is about to hit.  Basically we are going 
-> to turn off allow_execmod, allow_execmem, and allow_execstack by default 
-> for unconfined_t programs.
+On Thu, 2005-12-08 at 16:29 -0500, Daniel J Walsh wrote:
+> http://people.redhat.com/drepper/selinux-mem.html
+
+The description of execmem says:
+"The solution for the anonymous case is to create the memory region
+without execution permission and then, when the wanted content is
+created, change the permission to include PROT_EXEC but not PROT_WRITE."
+
+But this will still trigger an execmem check, as the check is applied
+upon mmap or mprotect for anonymous mappings with PROT_EXEC,
+irrespective of PROT_WRITE, in order to control the ability to execute
+arbitrary memory (not just to control the ability to execute currently
+writable memory).  In the case of private file mappings, it is handled
+differently, with execmem only applied upon mmap or mprotect with
+PROT_EXEC and PROT_WRITE simultaneously, and execmod applied upon
+PROT_EXEC by itself after a prior modification.
+
+> We are planning on turning off allow_execmem, allow_execmod, 
+> allow_execheap for unconfined_t in targeted policy.  We are working to 
+> clean up any problems this might cause.  This will add additional 
+> security features to Userspace, but might cause headaches.
 > 
-> So several of these patches are to allow that to happen.  Including 
-> turning on a real xdm policy.  Getting rid of the alias of 
-> texrel_shlib_t to shlib_t.  Mozilla libraries all marked 
-> texrel_shlib_t.  ( A bug has been reported on this and hopefully a fix will
-> be added.)
+> If you have the latest policy installed on Rawhide
 > 
-> So far I see hal and Xorg as needing execmem.
+> selinux-policy-targeted-2.1.0-3 or later you can try it out by running
+> 
+> setsebool -P allow_execmem=0 allow_execmod=0 allow_execheap=0
 
-As I recall, targeted policy was _very_ permissive in its granting of
-execmod and execmem due to the early breakage problems when kernels with
-those checks were shipped as updates to older Fedora releases
-(particularly due to the ppc kernel problems).  From a quick look at
-reference policy, it looks like this has been preserved in its
-files_unconfined(), domain_base_type(), and unconfined_domain_template()
-interfaces.  I'm also not sure that all occurrences of execmem et al are
-wrapped with the booleans (execmod to texrel_shlib_t should remain
-outside of the boolean, as that is the purpose of texrel_shlib_t, but
-any other occurrences should be wrapped).
-
-Nit:  It is more difficult to search through reference policy for
-occurrences of execmem et al due to the inlining of
-general_domain_access() everywhere (which happens to include it in an
-exclusion list of permissions to not allow to self:process).  It will
-also be harder to add further excluded permissions to that list in the
-future due to such inlining.  Rationale for such inlining in the
-reference policy?
-
-> gfs support is added
-
-I don't think gfs supports security xattrs yet, so I don't think you
-want it to use fs_use_xattr as its labeling mechanism.  Even if it did
-support security xattrs, we are going to run into a problem with
-performing the inode security initialization on d_instantiate for remote
-(or userspace) filesystems, because we cannot propagate ERESTARTSYS from
-d_instantiate up the call chain presently, and such filesystems may need
-to return that when they have to wait on a reply from the peer.  We'll
-have the same issue for NFSv4.
+There is no allow_execheap, but there is an allow_execstack.  Note that
+turning off allow_execmem should also disable execstack; execmem covers
+a superset of what execstack covers.  If you need runtime code
+generation, you can enable execmem while disabling execstack to retain
+protection of the stack while permitting generation of code to other
+anonymous memory.
 
 -- 
 Stephen Smalley
