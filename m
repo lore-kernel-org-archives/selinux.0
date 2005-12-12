@@ -1,49 +1,37 @@
-Subject: Re: Latest Ref Policy Diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@namei.org>,
-   SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1134399286.7305.49.camel@moss-spartans.epoch.ncsc.mil>
-References: <4398A239.1080005@redhat.com>
-	 <1134399286.7305.49.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 12 Dec 2005 11:41:38 -0500
-Message-Id: <1134405698.16519.40.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBCHC0MA015587
+	for <selinux@tycho.nsa.gov>; Mon, 12 Dec 2005 12:12:00 -0500 (EST)
+Received: from mbox-o00.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBCH3jGr013457
+	for <selinux@tycho.nsa.gov>; Mon, 12 Dec 2005 17:03:46 GMT
+Message-Id: <200512121703.jBCH3eEg017497@mms-r00.iijmio.jp>
+Date: Mon, 12 Dec 2005 12:03:37 -0500
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+MIME-Version: 1.0
+To: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+Cc: himainu-ynakam@miomio.jp
+Subject: Re: Interesting reading on exec* access checks.
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <4398A5AD.2010701@redhat.com>
+References: <4398A5AD.2010701@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-12-12 at 09:54 -0500, Stephen Smalley wrote:
-> On Thu, 2005-12-08 at 16:14 -0500, Daniel J Walsh wrote:
-> Nit:  It is more difficult to search through reference policy for
-> occurrences of execmem et al due to the inlining of
-> general_domain_access() everywhere (which happens to include it in an
-> exclusion list of permissions to not allow to self:process).  It will
-> also be harder to add further excluded permissions to that list in the
-> future due to such inlining.  Rationale for such inlining in the
-> reference policy?
+Daniel J Walsh wrote:
+> http://people.redhat.com/drepper/selinux-mem.html
+I have basic question about these permissions.
+Fedora Core already have "Exec Shield" to prevent execution of malicious code on memory.
+I can not understand relationship between exec shield and these permissions.
+What is good point of these permissions?
+In other words, 
+I would like to know 
+"Attack that can not be prevented  by exec shield, 
+ but can be prevented by these permissions(exec* permissions)".
 
-The rationale is the same for all of the example policy macros, save
-obvious ones like domain_auto_trans(), can_exec(), object class set, and
-permission set macros.  We wanted to expand all of the macros so that we
-could see all the rules for each domain.  After all the modules have
-been ported over, we can more easily see the common policy patterns.
-Then we can reevaluate the old macros and decide what to do with them.
-We do intend to add support macros and templates to cover common policy
-patterns, but we just haven't gotten to this part yet, since we're still
-porting modules over from the example policy.
+Does anyone know ?
 
-> > gfs support is added
-> 
-> I don't think gfs supports security xattrs yet, so I don't think you
-> want it to use fs_use_xattr as its labeling mechanism.
+Yuichi Nakamura
 
-Ok, I can reverse this change.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
