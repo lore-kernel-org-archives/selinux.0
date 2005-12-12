@@ -1,69 +1,37 @@
-Subject: Re: Interesting reading on exec* access checks.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-Cc: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <200512121703.jBCH3eEg017497@mms-r00.iijmio.jp>
-References: <4398A5AD.2010701@redhat.com>
-	 <200512121703.jBCH3eEg017497@mms-r00.iijmio.jp>
+Subject: Re: Latest Ref Policy Diffs
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@namei.org>,
+   SE Linux <selinux@tycho.nsa.gov>, rohara@redhat.com
+In-Reply-To: <1134399286.7305.49.camel@moss-spartans.epoch.ncsc.mil>
+References: <4398A239.1080005@redhat.com>
+	 <1134399286.7305.49.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 12 Dec 2005 12:27:07 -0500
-Message-Id: <1134408427.7305.123.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Dec 2005 13:31:47 -0500
+Message-Id: <1134412307.13662.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-12-12 at 12:03 -0500, Yuichi Nakamura wrote:
-> Daniel J Walsh wrote:
-> > http://people.redhat.com/drepper/selinux-mem.html
-> I have basic question about these permissions.
-> Fedora Core already have "Exec Shield" to prevent execution of malicious code on memory.
-> I can not understand relationship between exec shield and these permissions.
-> What is good point of these permissions?
-> In other words, 
-> I would like to know 
-> "Attack that can not be prevented  by exec shield, 
->  but can be prevented by these permissions(exec* permissions)".
+> > gfs support is added
 > 
-> Does anyone know ?
+> I don't think gfs supports security xattrs yet, so I don't think you
+> want it to use fs_use_xattr as its labeling mechanism.  Even if it did
+> support security xattrs, we are going to run into a problem with
+> performing the inode security initialization on d_instantiate for remote
+> (or userspace) filesystems, because we cannot propagate ERESTARTSYS from
+> d_instantiate up the call chain presently, and such filesystems may need
+> to return that when they have to wait on a reply from the peer.  We'll
+> have the same issue for NFSv4.
+> 
 
-exec-shield is a mechanism that approximates NX support, but does not
-define policy, so it cannot differentiate between a legitimate
-application request for executable memory from the same request induced
-by malicious code.  The SELinux exec* checks provide a way to apply
-policy control over what processes can mmap/mprotect memory with
-PROT_EXEC.  With just exec-shield, you lack protection against explicit
-PROT_EXEC mmap/mprotect requests induced by malicious code; with just
-SELinux exec* checking, you lack a mechanism to enforce NX (unless you
-have hardware NX support), so the SELinux checking by itself is not very
-useful.  exec-shield by itself provides some useful protection; coupled
-with the SELinux checks, you get stronger protection.  Example of the
-difference in paxtest output (with dummy function moved to outer scope)
-before and after turning of the SELinux booleans for exec*:
+I know Red Hat engineering has added support for security xattrs to GFS
+and has it working.  I think this is why Dan pushed this upstream.  I
+don't know if this GFS code is released or anything like that, so I'm
+copying the engineer working an it.  Hopefully he can also comment on
+your other point.
 
- Executable data                          : Killed
- Executable heap                          : Killed
- Executable stack                         : Killed
--Executable anonymous mapping (mprotect)  : Vulnerable
--Executable bss (mprotect)                : Vulnerable
--Executable data (mprotect)               : Vulnerable
--Executable heap (mprotect)               : Vulnerable
--Executable shared library bss (mprotect) : Vulnerable
--Executable shared library data (mprotect): Vulnerable
--Executable stack (mprotect)              : Vulnerable
-+Executable anonymous mapping (mprotect)  : Killed
-+Executable bss (mprotect)                : Killed
-+Executable data (mprotect)               : Killed
-+Executable heap (mprotect)               : Killed
-+Executable shared library bss (mprotect) : Killed
-+Executable shared library data (mprotect): Killed
-+Executable stack (mprotect)              : Killed
-<snip>
--Writable text segments                   : Vulnerable
-+Writable text segments                   : Killed
-
--- 
-Stephen Smalley
-National Security Agency
+-Eric
 
 
 --
