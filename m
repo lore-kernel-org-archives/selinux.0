@@ -1,46 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBDK0EMA000809
-	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 15:00:14 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBDJpbN7002705
-	for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2005 19:51:37 GMT
-Subject: Re: Updated policy
+Subject: Re: Latest diffs.
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <439A671E.8040804@redhat.com>
-References: <439A671E.8040804@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <439EED4B.4070701@redhat.com>
+References: <439EED4B.4070701@redhat.com>
 Content-Type: text/plain
-Date: Tue, 13 Dec 2005 14:51:30 -0500
-Message-Id: <1134503490.4936.19.camel@sgc>
+Date: Tue, 13 Dec 2005 15:43:47 -0500
+Message-Id: <1134506627.4936.23.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-12-10 at 00:26 -0500, Daniel J Walsh wrote:
-> Added booleans to turn on httpd connecting to mysql/postgres as well as 
-> relay.
+On Tue, 2005-12-13 at 10:48 -0500, Daniel J Walsh wrote:
+> Add crond range_transition to run at SystemHigh for MCS policy
+> Added transition from unconfined_t to run ping at s0.
+> Which brings up a point, when a transition happens should the 
+> application continue to run at the same security level that the prev 
+> context ran at?  Or should all domains start with a default security 
+> level. 
+> 
+> In current MCS policy if unconfined_t started ping, it would run at the 
+> with the same mls range as unconfined_t.
+
+The cron part makes sense, but I don't understand why this would be
+needed for ping.
+
+> Beginning to fix up automouter.  Wants to read sysctl_fs_t.  Also seems 
+> to exec showmount which requires additional privs.
+> 
+> allow automount_t self:capability net_bind_service;
+> allow automount_t portmap_port_t:tcp_socket name_connect;
+> allow automount_t reserved_port_t:tcp_socket name_connect;
+> allow automount_t sbin_t:file read;
+> 
+> We probably need a policy for the showmount command, rather then adding 
+> these rules to automount.  Anyone want to write some policy?
+> 
+> Rules to make dovecot work better.
+> 
+> /var/log/proftpd/ should be marked xferlog
+> 
+> gpm wants to communicate using unix_stream_socket.
+> 
+> More fixes for hal.  Seems hal is now tied into powersaver and needs 
+> some addtional privs.
+> Needs to be able to start init scripts.
+> Added new policy for vbetool, to be execed from hal.
+
+all merged.  I removed the execmem from hal, since it transitions to
+vbetool, and the comment said it was required for vbetool.
+
+> If you need to signal nis, you need to read the pid file.  This is what 
+> dhcpd does.
+
+See my previous email.
+
+> spamassassin needs to write to users homedirs in targeted policy.  I 
+> hate it but, it has to work.
+> 
+> unconfined_t was not able to read textrel_shlib_t.
+> Added auditallow to show when unconfined_t is running a program that 
+> requires execmem
 
 merged.
-
-> nis_signal_ypbind requires you to be able to read pidfile.
-
-Not going to merge this, for a couple reasons.  First, it would still be
-good to have an interface that allows just the signal, for the case that
-the signaler already knows the PID.  Second, it introduces a large info
-flow backchannel, since ypbid can write it's pid file.  This is a
-candidate for a more abstract interface whose implementation would be to
-call the signal interface and the read pid interface.
-
-> mount command wants access to tty
-
-This sounds specific to targeted since its devpts_t, shouldn't it be in
-a ifdef(`targeted_policy' ?
-
->  needs to be able to search rpc_pipefs 
-> in Fedora.
-
-Added an interface to handle this, rather than the raw rule.
 
 -- 
 Chris PeBenito
