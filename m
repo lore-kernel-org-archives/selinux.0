@@ -1,35 +1,28 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBEFZmMA010029
-	for <selinux@tycho.nsa.gov>; Wed, 14 Dec 2005 10:35:48 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBEFYvW7011760
-	for <selinux@tycho.nsa.gov>; Wed, 14 Dec 2005 15:34:57 GMT
-Subject: Re: Latest Diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <439F4626.4000408@redhat.com>
-References: <439F4626.4000408@redhat.com>
+Subject: SELinux performance
+From: Joy Latten <latten@austin.ibm.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Wed, 14 Dec 2005 10:35:40 -0500
-Message-Id: <1134574541.4936.31.camel@sgc.columbia.tresys.com>
+Date: Wed, 14 Dec 2005 14:08:54 -0600
+Message-Id: <1134590934.2630.207.camel@faith.austin.ibm.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-12-13 at 17:07 -0500, Daniel J Walsh wrote:
-> Certain applications linked with rpmlibes call the rpm_script_t so 
-> unconfined_t needs to transition.
-> 
-> rpmbuild policy should be dropped.
+A while back I took up some SELinux performance work that a colleague of
+mine, Kylie Hall had done. The patch added ipv4 address, ipv6 address
+and port caches to SELinux. I believe I sent the patch a while back
+also, but can do so again if anyone is interested. The caches are
+exercised in such SELinux hooks as socket_bind(), socket_connect() and
+socket_sock_rcv_skb(). Bandwidth has allowed me some time to work on
+this. Can anyone recommend a benchmark that will exercise this code?  I
+figured something that utilized many ip addresses or ports. 
 
-Merged.
+I will be on vacation starting tomorrow, but will be reading email from
+time to time as I would like to complete this work.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Regards,
+Joy Latten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
