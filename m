@@ -1,36 +1,34 @@
-Subject: Re: Error while trying to copy /proc files
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: rachita@in.ibm.com
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20051214111921.GA439@in.ibm.com>
-References: <20051214111921.GA439@in.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBEFZmMA010029
+	for <selinux@tycho.nsa.gov>; Wed, 14 Dec 2005 10:35:48 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBEFYvW7011760
+	for <selinux@tycho.nsa.gov>; Wed, 14 Dec 2005 15:34:57 GMT
+Subject: Re: Latest Diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <439F4626.4000408@redhat.com>
+References: <439F4626.4000408@redhat.com>
 Content-Type: text/plain
-Date: Wed, 14 Dec 2005 10:43:29 -0500
-Message-Id: <1134575010.3421.226.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Dec 2005 10:35:40 -0500
+Message-Id: <1134574541.4936.31.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-12-14 at 16:49 +0530, Rachita Kothiyal wrote:
-> Hi
+On Tue, 2005-12-13 at 17:07 -0500, Daniel J Walsh wrote:
+> Certain applications linked with rpmlibes call the rpm_script_t so 
+> unconfined_t needs to transition.
 > 
-> I am running a 2.6.15-rc1-mm2 kernel, with CONFIG_SECURITY_SELINUX=y
-> in the config. When i try to copy a file from the /proc directory,
-> I get the following error message:
-> 
-> cp: listing attributes of '/proc/cmdline': Numerical result out of range
-> 
-> But this error seems to go away when I boot with 'selinux=0' in
-> the commandline.
-> 
-> Any thoughts on what could be going wrong?
+> rpmbuild policy should be dropped.
 
-Already fixed in
-http://marc.theaimsgroup.com/?l=git-commits-head&m=113441088019750&w=2
+Merged.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
