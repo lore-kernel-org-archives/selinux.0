@@ -1,55 +1,33 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBFGIvMA022521
-	for <selinux@tycho.nsa.gov>; Thu, 15 Dec 2005 11:18:59 -0500 (EST)
-Received: from e1.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBFGIssl005353
-	for <selinux@tycho.nsa.gov>; Thu, 15 Dec 2005 16:18:54 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e1.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id jBFGIltP023498
-	for <selinux@tycho.nsa.gov>; Thu, 15 Dec 2005 11:18:47 -0500
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay04.pok.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id jBFGIlbF117546
-	for <selinux@tycho.nsa.gov>; Thu, 15 Dec 2005 11:18:47 -0500
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11/8.13.3) with ESMTP id jBFGIj21026096
-	for <selinux@tycho.nsa.gov>; Thu, 15 Dec 2005 11:18:46 -0500
-Message-ID: <43A1975B.5080702@us.ibm.com>
-Date: Thu, 15 Dec 2005 10:18:35 -0600
-From: "Daniel H. Jones" <hotrats@us.ibm.com>
+Message-ID: <6c18a4f0512151401p3948e810g5bec34eabbce522c@mail.gmail.com>
+Date: Thu, 15 Dec 2005 23:01:08 +0100
+From: Bernd Bartmann <bernd.bartmann@gmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: RHES4, Subversion, Apache and SElinux
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: ANN: Virgil 0.1 released
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ANNOUNCEMENT
+Hi,
 
-Virgil 0.1 has been released and may be downloaded from:
-http://sourceforge.net/projects/sepolicy-virgil/
+I try to setup some Subversion repositories using Apache on a RHES4
+server. Now I'm running into a problem with Apache and SElinux.
 
-About Virgil
-Virgil is a utility for generating SELinux policy for user domains not 
-covered by the distributed policy packages. The Virgil GUI allows a 
-policy creator to select options and identify file system resources, 
-then generate the desired source policy files.
+My SVNParentPath is set to /data/Devel/SVN/repos. /data is on
+/dev/md5. I already followed the "How do I set repository permissions
+correctly?" FAQ from http://subversion.tigris.org/faq.html and issued
+a "chcon -R -h -t httpd_sys_content_t /data/Devel/SVN/repos/", but
+whenever I try to access the contents of my Subversion repo I this in
+/var/log/messages:
 
-Purpose
-The goal is Virgil is to encourage adoption of SELinux by providing a 
-relatively simple mechanism for creating policy. In order to achieve 
-that goal, Virgil hides much of the complexity, and therefore 
-flexibility, of SELinux. This trade-off makes Virgil unsuitable for 
-creating "least privilege" policies. Nevertheless, Virgil is capable of 
-creating useful SELinux policy that will enhance the security of 
-programs for which no policy currently exists.
+avc:  denied  { search } for  pid=10337 comm="httpd" name="/" dev=md5
+ino=2 scontext=root:system_r:httpd_t tcontext=system_u:object_r:file_t
+tclass=dir
 
-For feedback please e-mail sepolicy-virgil-list@lists.sourceforge.net
+Any ideas?
 
--- 
-Thanks,
-Dan Jones
-IBM Linux Technology Center, Security
-hotrats@us.ibm.com
+Thanks in advance,
+Bernd.
 
 
 --
