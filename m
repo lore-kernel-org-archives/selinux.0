@@ -1,42 +1,51 @@
+Message-ID: <43A1F9DC.3010205@redhat.com>
+Date: Thu, 15 Dec 2005 18:18:52 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Bernd Bartmann <bernd.bartmann@gmail.com>
+CC: SELinux@tycho.nsa.gov
 Subject: Re: RHES4, Subversion, Apache and SElinux
-From: Tobias Nijweide <tobias@neatech.nl>
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <6c18a4f0512151401p3948e810g5bec34eabbce522c@mail.gmail.com>
 References: <6c18a4f0512151401p3948e810g5bec34eabbce522c@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 23:57:09 +0100
-Message-Id: <1134687429.15362.16.camel@nachtwacht>
-Mime-Version: 1.0
+In-Reply-To: <6c18a4f0512151401p3948e810g5bec34eabbce522c@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-12-15 at 23:01 +0100, Bernd Bartmann wrote:
+Bernd Bartmann wrote:
+> Hi,
+>
+> I try to setup some Subversion repositories using Apache on a RHES4
+> server. Now I'm running into a problem with Apache and SElinux.
+>
 > My SVNParentPath is set to /data/Devel/SVN/repos. /data is on
 > /dev/md5. I already followed the "How do I set repository permissions
 > correctly?" FAQ from http://subversion.tigris.org/faq.html and issued
 > a "chcon -R -h -t httpd_sys_content_t /data/Devel/SVN/repos/", but
 > whenever I try to access the contents of my Subversion repo I this in
 > /var/log/messages:
-> 
+>
 > avc:  denied  { search } for  pid=10337 comm="httpd" name="/" dev=md5
 > ino=2 scontext=root:system_r:httpd_t tcontext=system_u:object_r:file_t
 > tclass=dir
+>
+> Any ideas?
+>
+> Thanks in advance,
+> Bernd.
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>   
+file_t indicates that the file system was never labeled.
 
-Apparently '/data' is of type system_u:object_r:file_t. Before httpd can
-access any of the repository files it has to read /, /data, /data/Devel
-and /data/Devel/SVN. 3 options:
-- Make those dirs of types that httpd_t can search as well.
-- Add permission for httpd_t to search directories of type file_t.
-- Create a new type, and add permission for httpd_t to search that type.
+try chcon -R -t httpd_sys_content_t /data
 
-When changing default policy, it can help a lot to put all of it in a
-source repository (SVN? :) because otherwise it's too easy to lose track
-of what you changed, and to add your changes back in after you install
-the next RH policy.
+to label the entire tree.
 
-Good luck,
-Tobias Nijweide
-
+-- 
 
 
 
