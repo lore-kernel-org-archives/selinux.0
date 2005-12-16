@@ -1,60 +1,60 @@
-Subject: [patch] libsepol:  bug fix for mls_range_cpy, affects MLS-enabled
-	policies
+Subject: Re: ANN: Virgil 0.1 released
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Chad Hanson <chanson@TrustedCS.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-   Daniel J Walsh <dwalsh@redhat.com>
-Content-Type: multipart/mixed; boundary="=-Jhi4ciGHOPYH805yeQLr"
-Date: Fri, 16 Dec 2005 08:46:51 -0500
-Message-Id: <1134740811.3421.489.camel@moss-spartans.epoch.ncsc.mil>
+To: "Daniel H. Jones" <hotrats@us.ibm.com>
+Cc: Yuichi Nakamura <himainu-ynakam@miomio.jp>,
+   "Brian T. Sniffen" <bsniffen@mitre.org>, SELinux-dev@tresys.com,
+   selinux@tycho.nsa.gov
+In-Reply-To: <43A1975B.5080702@us.ibm.com>
+References: <43A1975B.5080702@us.ibm.com>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 09:56:36 -0500
+Message-Id: <1134744996.3421.534.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2005-12-15 at 10:18 -0600, Daniel H. Jones wrote:
+> ANNOUNCEMENT
+> 
+> Virgil 0.1 has been released and may be downloaded from:
+> http://sourceforge.net/projects/sepolicy-virgil/
+> 
+> About Virgil
+> Virgil is a utility for generating SELinux policy for user domains not 
+> covered by the distributed policy packages. The Virgil GUI allows a 
+> policy creator to select options and identify file system resources, 
+> then generate the desired source policy files.
+> 
+> Purpose
+> The goal is Virgil is to encourage adoption of SELinux by providing a 
+> relatively simple mechanism for creating policy. In order to achieve 
+> that goal, Virgil hides much of the complexity, and therefore 
+> flexibility, of SELinux. This trade-off makes Virgil unsuitable for 
+> creating "least privilege" policies. Nevertheless, Virgil is capable of 
+> creating useful SELinux policy that will enhance the security of 
+> programs for which no policy currently exists.
+> 
+> For feedback please e-mail sepolicy-virgil-list@lists.sourceforge.net
 
---=-Jhi4ciGHOPYH805yeQLr
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Dan reported a problem with audit2why reporting that an avc denial under
-MLS policy (due to a MLS constraint) should have been allowed, and in
-looking into it, I discovered a bug in mls_range_cpy that was causing
-the high level of MLS ranges to be replaced with the low level upon
-context copies, thereby causing ranged contexts to become single-level.
-This also affects checkpolicy.  Patch for libsepol is below.  In
-addition to rebuilding libsepol, you need to rebuild users of the static
-libsepol (i.e. checkpolicy and audit2why) with the new libsepol and then
-rebuild any MLS-enabled policies (or at least any with ranged contexts
-in them) with the new checkpolicy.
+Could you briefly summarize how you view this tool and work as differing
+from:
+- the SELinux Policy Editor project (http://seedit.sf.net),
+- the MITRE polgen tool (http://www.mitre.org/tech/selinux/),
+- the Tresys SEFramework (not yet publically released, but briefly
+described in http://tresys.com/selinux/sedev.shtml and presented at last
+year's SELinux Symposium
+
+It would be nice to have more synergy among policy
+generation/development efforts.
+
+Naturally, your tool will need to deal with the transition to reference
+policy and the use of binary/loadable policy modules.
 
 -- 
 Stephen Smalley
 National Security Agency
-
---=-Jhi4ciGHOPYH805yeQLr
-Content-Disposition: attachment; filename=libsepol-rangefix.patch
-Content-Type: text/x-patch; name=libsepol-rangefix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: libsepol/include/sepol/policydb/mls_types.h
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/include/sepol/policydb/mls_types.h,v
-retrieving revision 1.3
-diff -u -p -r1.3 mls_types.h
---- libsepol/include/sepol/policydb/mls_types.h	4 Nov 2005 16:12:15 -0000	1.3
-+++ libsepol/include/sepol/policydb/mls_types.h	15 Dec 2005 19:41:56 -0000
-@@ -99,7 +99,7 @@ static inline int mls_range_cpy(
- 	if (mls_level_cpy(&dst->level[0], &src->level[0]) < 0)
- 		goto err;
- 
--	if (mls_level_cpy(&dst->level[1], &src->level[0]) < 0)
-+	if (mls_level_cpy(&dst->level[1], &src->level[1]) < 0)
- 		goto err_destroy;
- 
- 	return 0;
-
---=-Jhi4ciGHOPYH805yeQLr--
 
 
 --
