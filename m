@@ -1,127 +1,108 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBGI12Xf002530
-	for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2005 13:01:02 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBGI0xoA027502
-	for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2005 18:01:00 GMT
-Message-ID: <43A30097.2020701@redhat.com>
-Date: Fri, 16 Dec 2005 12:59:51 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <43A3043E.60207@us.ibm.com>
+Date: Fri, 16 Dec 2005 12:15:26 -0600
+From: "Daniel H. Jones" <hotrats@us.ibm.com>
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: ANN: Reference Policy Release
-References: <1133973607.8185.10.camel@sgc.columbia.tresys.com> <20051215222809.GA17384@sergelap.austin.ibm.com>
-In-Reply-To: <20051215222809.GA17384@sergelap.austin.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: ANN: Virgil 0.1 released
+References: <43A1975B.5080702@us.ibm.com> <1134744996.3421.534.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1134744996.3421.534.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn wrote:
-> Hmm, I'm trying to compile this as a modular policy.  I've selected
-> "nis = off" in my modules.conf.  But I get
->
-> 	policy/modules/admin/netutils.te:88:ERROR 'syntax error' at token
-> 	'nis_use_ypbind' on line 33005:
-> 	#line 88
-> 		nis_use_ypbind(netutils_t)
->
-> when I try 'make load'.
->
-> Is this me misunderstanding how I can use modules.conf, or is
-> the module policy mostly unsupported?  (I'm happy to help get it
-> working, just am not sure how it's supposed to work now :)  My first
-> instinct of course is that the "optional_policy" macro in
-> policy/support/loadable_module.spt would need to be more complicated
-> to handle using modules.conf...  But man that's one ugly macro.
->   
-Looks like this should be optional.
-> thanks,
-> -serge
->
-> Quoting Christopher J. PeBenito (cpebenito@tresys.com):
->   
->> A new release of the SELinux Reference Policy is now available on
->> SourceForge from http://serefpolicy.sourceforge.net.  The primary
->> activity for this release has been preparing and testing Reference
->> Policy for inclusion in Fedora Core 5 as it's targeted policy.  In
->> addition, several build issues have been fixed.  The change log follows
->> at the bottom of the email.
+Stephen Smalley wrote:
+> On Thu, 2005-12-15 at 10:18 -0600, Daniel H. Jones wrote:
+> 
+>>ANNOUNCEMENT
 >>
->> Again, for those that are interesting in contributing, right now the
->> best help would be to convert existing policies over to reference
->> policy; there is a list of modules on the reference policy status page
->> on SourceForge.
+>>Virgil 0.1 has been released and may be downloaded from:
+>>http://sourceforge.net/projects/sepolicy-virgil/
 >>
->> * Wed Dec 07 2005 Chris PeBenito <selinux@tresys.com> - 20051207
->> - Add unlabeled IPSEC association rule to domains with
->>   networking permissions.
->> - Merge systemuser back in to users, as these files
->>   do not need to be split.
->> - Add check for duplicate interface/template definitions.
->> - Move domain, files, and corecommands modules to kernel
->>   layer to resolve some layering inconsistencies.
->> - Move policy build options out of Makefile into build.conf.
->> - Add yppasswd to nis module.
->> - Change optional_policy() to refer to the module name
->>   rather than modulename.te.
->> - Fix labeling targets to use installed file_contexts rather
->>   than partial file_contexts in the policy source directory.
->> - Fix build process to use make's internal vpath functions
->>   to detect modules rather than using subshells and find.
->> - Add install target for modular policy.
->> - Add load target for modular policy.
->> - Add appconfig dependency to the load target.
->> - Miscellaneous fixes from Dan Walsh.
->> - Fix corenetwork gen_context()'s to expand during the policy
->>   build phase instead of during the generation phase.  
->> - Added policies:
->> 	amanda
->> 	avahi
->> 	canna
->> 	cyrus
->> 	dbskk
->> 	dovecot
->> 	distcc
->> 	i18n_input
->> 	irqbalance
->> 	lpd
->> 	networkmanager
->> 	pegasus
->> 	postfix
->> 	procmail
->> 	radius
->> 	rdisc
->> 	rpc
->> 	spamassassin
->> 	timidity
->> 	xdm
->> 	xfs
+>>About Virgil
+>>Virgil is a utility for generating SELinux policy for user domains not 
+>>covered by the distributed policy packages. The Virgil GUI allows a 
+>>policy creator to select options and identify file system resources, 
+>>then generate the desired source policy files.
 >>
+>>Purpose
+>>The goal is Virgil is to encourage adoption of SELinux by providing a 
+>>relatively simple mechanism for creating policy. In order to achieve 
+>>that goal, Virgil hides much of the complexity, and therefore 
+>>flexibility, of SELinux. This trade-off makes Virgil unsuitable for 
+>>creating "least privilege" policies. Nevertheless, Virgil is capable of 
+>>creating useful SELinux policy that will enhance the security of 
+>>programs for which no policy currently exists.
 >>
->> -- 
->> Chris PeBenito
->> Tresys Technology, LLC
->> (410) 290-1411 x150
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>
->>     
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->   
+>>For feedback please e-mail sepolicy-virgil-list@lists.sourceforge.net
+> 
+> 
+> Hi,
+> 
+> Could you briefly summarize how you view this tool and work as differing
+> from:
+> - the SELinux Policy Editor project (http://seedit.sf.net),
+> - the MITRE polgen tool (http://www.mitre.org/tech/selinux/),
+> - the Tresys SEFramework (not yet publically released, but briefly
+> described in http://tresys.com/selinux/sedev.shtml and presented at last
+> year's SELinux Symposium
+> 
+> It would be nice to have more synergy among policy
+> generation/development efforts.
+> 
+> Naturally, your tool will need to deal with the transition to reference
+> policy and the use of binary/loadable policy modules.
+> 
 
+Hello,
+If I were to create a mission statement for Virgil it would be:
+* Provide SELinux policy for user domains that will coexist with 
+existing shipped policy.
+
+If it helps, I will make some comparisons to the policy tools mentioned 
+above, but my comments should in no way be taken to imply the existing 
+tools are deficient. I simply have a different user in mind. My target 
+user is looking to include their custom domain to the shipped policy, 
+and do it today.
+
+SELinux Policy Editor (seedit)
+This one comes closest to Virgil as far as I could tell from the 
+documentation. However, this tool seems more suitable for replacement of 
+the shipped policy, rather than integration. It looks to me like adding 
+a "deny /blah/blah/blah" in the global domain could cause files to be 
+relabeled in such a way that the shipped policy is affected.
+
+By contrast, Virgil has the concept of "private" resources. Virgil only 
+labels/relabels private file system objects which, by definition, are 
+exclusive to the domain. Access to system (or non-private) resources is 
+achieved by obtaining the label from the object.
+
+Mitre polgen
+The difference here is the top-down versus bottom-up approach. Virgil 
+(as well as seedit) generate policy based on user specified criteria. 
+Polgen generates policy based on program behavior (and some 
+interaction). These are philosophically different approaches.
+
+Tresys SEFramework
+The most notable difference here is that Virgil is available as of 
+yesterday. The SEFramework will no doubt be an industrial strength 
+solution once it is released. The Tresys efforts are very forward 
+looking and will change the SELinux policy development/management 
+landscape. That's a good thing. In the meantime, however, a practical 
+tool that can extend existing policy and be accessible to Joe Fedora is 
+good for early SELinux adoption. It should not be construed as a 
+competing technology.
+
+The reference policy and loadable modules will need to be dealt with ... 
+naturally.
+
+As always, thanks for your constructive observations and comments.
 
 -- 
-
+Thanks,
+Dan Jones
+IBM Linux Technology Center, Security
+512-838-1794 (T/L 678-1794)
+hotrats@us.ibm.com
 
 
 --
