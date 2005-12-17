@@ -1,65 +1,46 @@
-Message-ID: <43A30560.60605@us.ibm.com>
-Date: Fri, 16 Dec 2005 12:20:16 -0600
-From: "Daniel H. Jones" <hotrats@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBHDqhXf010293
+	for <selinux@tycho.nsa.gov>; Sat, 17 Dec 2005 08:52:43 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBHDpo0i007762
+	for <selinux@tycho.nsa.gov>; Sat, 17 Dec 2005 13:51:50 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id jBHDqgHR008695
+	for <selinux@tycho.nsa.gov>; Sat, 17 Dec 2005 08:52:42 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id jBHDqf114615
+	for <selinux@tycho.nsa.gov>; Sat, 17 Dec 2005 08:52:41 -0500
+Received: from [172.16.50.33] (vpn50-33.rdu.redhat.com [172.16.50.33])
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id jBHDqfa3027554
+	for <selinux@tycho.nsa.gov>; Sat, 17 Dec 2005 08:52:41 -0500
+Message-ID: <43A4182B.9000402@redhat.com>
+Date: Sat, 17 Dec 2005 08:52:43 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-   "Brian T. Sniffen" <bsniffen@mitre.org>, SELinux-dev@tresys.com,
-   selinux@tycho.nsa.gov
-Subject: Re: ANN: Virgil 0.1 released
-References: <1134744996.3421.534.camel@moss-spartans.epoch.ncsc.mil> <200512161745.jBGHjDBn004256@mms-r00.iijmio.jp>
-In-Reply-To: <200512161745.jBGHjDBn004256@mms-r00.iijmio.jp>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: New strategy for enableaudit.
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yuichi Nakamura wrote:
-> Stephen Smalley  wrote:
-> 
->>Could you briefly summarize how you view this tool and work as differing
->>from:
->>- the SELinux Policy Editor project (http://seedit.sf.net),
-> 
-> 
-> I've tried virgil 0.1 and found difference.
-> 
-> Our tool(SELinux Policy Editor) is intended to simplify entire policy, 
-> and its Simplified Poilcy Description(SPDL) language can describe 
-> full policy that works.
-> However, policy converted from SPDL can not be appended to 
-> existing policy(sample policy, reference policy), because name of types 
-> are completely different.
-> 
-> On the other hand, 
-> It seems that Virgil is intended to generate policy piece, appendable to existing policy.
-> 
-> 
->>Naturally, your tool will need to deal with the transition to reference
->>policy and the use of binary/loadable policy modules.
-> 
-> I thinks so too.
-> The tool will be more useful if it could generate policy module package
-> directly appendable to existing policy.
-> 
-> ---
-> Yuichi Nakamura
-> Japan SELinux Users Group(JSELUG)
-> SELinux Policy Editor:  http://seedit.sourceforge.net/
-> 
-> 
+I have added enableaudit to Rules.modular to create a base.conf without 
+audit rules.
 
-Yes. Thank you Yuichi. I think you have it exactly right. One of the 
-primary goals of Virgil was to integrate new policy with existing 
-policy. While the example conf files include policy for httpd, it is not 
-my intent to replace the shipped policy. Web servers just make very 
-useful examples.
+Then in the Fedora spec file I create a regulare base.pp and a 
+enableaudit.pp. 
+
+I ship both in the RPM.
+
+Now the user can execute
+
+semodule -b /usr/share/selinux/targeted/enableaudit.pp
+
+To turn off the dontaudit rules.
+
+Dan
 
 -- 
-Thanks,
-Dan Jones
-IBM Linux Technology Center, Security
-512-838-1794 (T/L 678-1794)
-hotrats@us.ibm.com
+
 
 
 --
