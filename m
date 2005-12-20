@@ -1,151 +1,42 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBKMFdXf010488
-	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2005 17:15:40 -0500 (EST)
-Received: from web51505.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id jBKMFbul003495
-	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2005 22:15:37 GMT
-Message-ID: <20051220221439.16245.qmail@web51505.mail.yahoo.com>
-Date: Tue, 20 Dec 2005 14:14:39 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Adding audit messge to newrole
-To: SE-Linux <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBKMlvXf010773
+	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2005 17:48:01 -0500 (EST)
+Received: from e33.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBKMlsul008348
+	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2005 22:47:55 GMT
+Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
+	by e33.co.us.ibm.com (8.12.11/8.12.11) with ESMTP id jBKMilaR029472
+	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2005 17:44:47 -0500
+Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
+	by westrelay02.boulder.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id jBKMhmfc118796
+	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2005 15:43:48 -0700
+Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av04.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id jBKMilOF013550
+	for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2005 15:44:47 -0700
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: Steve G <linux_4ever@yahoo.com>
+Subject: Re: Adding audit messge to newrole
+Date: Tue, 20 Dec 2005 16:39:17 -0600
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20051220221439.16245.qmail@web51505.mail.yahoo.com>
+In-Reply-To: <20051220221439.16245.qmail@web51505.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-2045792763-1135116879=:16234"
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Message-Id: <200512201639.18074.tinytim@us.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-2045792763-1135116879=:16234
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+On Tuesday 20 December 2005 16:14, Steve G wrote:
+> Hi,
+> 
+> I am attaching a patch that lets newrole send messages to the audit system. This
+> patch needs review as it changes newrole to be setuid root. The patch drops
+> capabilities very soon after startup. 
 
-Hi,
+I'm lazy and would prefer something inline.  Oh and the patch seems to be empty... hrm.
 
-I am attaching a patch that lets newrole send messages to the audit system. This
-patch needs review as it changes newrole to be setuid root. The patch drops
-capabilities very soon after startup. 
-
-You will need recent audit package in order to compile newrole since it uses the
-USER_ROLE_CHANGE message type. It is available in version 1.1.2.
-
-Thanks,
--Steve
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-2045792763-1135116879=:16234
-Content-Type: application/octet-stream; name="policycoreutils-1.29.2-newrole-audit.patch"
-Content-Transfer-Encoding: base64
-Content-Description: 4077945729-policycoreutils-1.29.2-newrole-audit.patch
-Content-Disposition: attachment; filename="policycoreutils-1.29.2-newrole-audit.patch"
-
-ZGlmZiAtdXJwIHBvbGljeWNvcmV1dGlscy0xLjI5LjIub3JpZy9uZXdyb2xl
-L01ha2VmaWxlIHBvbGljeWNvcmV1dGlscy0xLjI5LjIvbmV3cm9sZS9NYWtl
-ZmlsZQotLS0gcG9saWN5Y29yZXV0aWxzLTEuMjkuMi5vcmlnL25ld3JvbGUv
-TWFrZWZpbGUJMjAwNS0xMi0yMCAxMDo1MTo0Mi4wMDAwMDAwMDAgLTA1MDAK
-KysrIHBvbGljeWNvcmV1dGlscy0xLjI5LjIvbmV3cm9sZS9NYWtlZmlsZQky
-MDA1LTEyLTIwIDE2OjU4OjUwLjAwMDAwMDAwMCAtMDUwMApAQCAtOCw3ICs4
-LDcgQEAgUEFNSCA9ICQoc2hlbGwgbHMgL3Vzci9pbmNsdWRlL3NlY3VyaXR5
-LwogCiBDRkxBR1MgPz0gLVdlcnJvciAtV2FsbCAtVwogb3ZlcnJpZGUgQ0ZM
-QUdTICs9ICQoTERGTEFHUykgLUkkKFBSRUZJWCkvaW5jbHVkZSAtRFVTRV9O
-TFMgLURMT0NBTEVESVI9IlwiJChMT0NBTEVESVIpXCIiIC1EUEFDS0FHRT0i
-XCJwb2xpY3ljb3JldXRpbHNcIiIKLUxETElCUyArPSAtbHNlbGludXggLWxz
-ZXBvbCAtTCQoUFJFRklYKS9saWIKK0xETElCUyArPSAtbHNlbGludXggLWxz
-ZXBvbCAtTCQoUFJFRklYKS9saWIgLWxjYXAgLWxhdWRpdAogaWZlcSAoJHtQ
-QU1IfSwgL3Vzci9pbmNsdWRlL3NlY3VyaXR5L3BhbV9hcHBsLmgpCiAJb3Zl
-cnJpZGUgQ0ZMQUdTICs9IC1EVVNFX1BBTQogCUxETElCUyArPSAtbHBhbSAt
-bHBhbV9taXNjCkBAIC0yNiw3ICsyNiw3IEBAIGluc3RhbGw6IGFsbAogCXRl
-c3QgLWQgJChCSU5ESVIpICAgICAgfHwgaW5zdGFsbCAtbSA3NTUgLWQgJChC
-SU5ESVIpCiAJdGVzdCAtZCAkKEVUQ0RJUikvcGFtLmQgfHwgaW5zdGFsbCAt
-bSA3NTUgLWQgJChFVENESVIpL3BhbS5kCiAJdGVzdCAtZCAkKE1BTkRJUikv
-bWFuMSB8fCBpbnN0YWxsIC1tIDc1NSAtZCAkKE1BTkRJUikvbWFuMQotCWlu
-c3RhbGwgLW0gNTU1IG5ld3JvbGUgJChCSU5ESVIpCisJaW5zdGFsbCAtbSA0
-NTU1IG5ld3JvbGUgJChCSU5ESVIpCiAJaW5zdGFsbCAtbSA2NDQgbmV3cm9s
-ZS4xICQoTUFORElSKS9tYW4xLwogaWZlcSAoJHtQQU1IfSwgL3Vzci9pbmNs
-dWRlL3NlY3VyaXR5L3BhbV9hcHBsLmgpCiAJdGVzdCAtZCAkKEVUQ0RJUikv
-cGFtLmQgfHwgaW5zdGFsbCAtbSA3NTUgLWQgJChFVENESVIpL3BhbS5kCmRp
-ZmYgLXVycCBwb2xpY3ljb3JldXRpbHMtMS4yOS4yLm9yaWcvbmV3cm9sZS9u
-ZXdyb2xlLmMgcG9saWN5Y29yZXV0aWxzLTEuMjkuMi9uZXdyb2xlL25ld3Jv
-bGUuYwotLS0gcG9saWN5Y29yZXV0aWxzLTEuMjkuMi5vcmlnL25ld3JvbGUv
-bmV3cm9sZS5jCTIwMDUtMTItMjAgMTU6Mjk6NDQuMDAwMDAwMDAwIC0wNTAw
-CisrKyBwb2xpY3ljb3JldXRpbHMtMS4yOS4yL25ld3JvbGUvbmV3cm9sZS5j
-CTIwMDUtMTItMjAgMTc6MDY6MTIuMDAwMDAwMDAwIC0wNTAwCkBAIC02Miw2
-ICs2Miw5IEBACiAjaW5jbHVkZSA8c2VsaW51eC9nZXRfZGVmYXVsdF90eXBl
-Lmg+CiAjaW5jbHVkZSA8c2VsaW51eC9nZXRfY29udGV4dF9saXN0Lmg+IC8q
-IGZvciBTRUxJTlVYX0RFRkFVTFRVU0VSICovCiAjaW5jbHVkZSA8c2lnbmFs
-Lmg+CisjaW5jbHVkZSA8c3lzL3ByY3RsLmg+CisjaW5jbHVkZSA8c3lzL2Nh
-cGFiaWxpdHkuaD4KKyNpbmNsdWRlIDxsaWJhdWRpdC5oPgogI2lmZGVmIFVT
-RV9OTFMKICNpbmNsdWRlIDxsb2NhbGUuaD4JCQkgICAgLyogZm9yIHNldGxv
-Y2FsZSgpICovCiAjaW5jbHVkZSA8bGliaW50bC5oPgkJCSAgICAvKiBmb3Ig
-Z2V0dGV4dCgpICovCkBAIC0zMzIsNiArMzM1LDQ4IEBAIHN0YXRpYyBpbnQg
-dmVyaWZ5X3NoZWxsKGNvbnN0IGNoYXIgKnNoZWwKICAgcmV0dXJuIGZvdW5k
-OwogfQogCisvKgorICogVGhpcyBmdW5jdGlvbiB3aWxsIGRyb3AgdGhlIGNh
-cGFiaWxpdGllcyBzbyB0aGF0IHdlIGFyZSBsZWZ0CisgKiBvbmx5IHdpdGgg
-YWNjZXNzIHRvIHRoZSBhdWRpdCBzeXN0ZW0uIElmIHRoZSB1c2VyIGlzIHJv
-b3QsIHdlIGxlYXZlCisgKiB0aGUgY2FwYWJpbGl0aWVzIGFsb25lIHNpbmNl
-IHRoZXkgYWxyZWFkeSBzaG91bGQgaGF2ZSBhY2Nlc3MgdG8gdGhlCisgKiBh
-dWRpdCBuZXRsaW5rIHNvY2tldC4KKyAqLworc3RhdGljIHZvaWQgZHJvcF9j
-YXBhYmlsaXRpZXModm9pZCkKK3sKKyAgdWlkX3QgdWlkID0gZ2V0dWlkKCk7
-CisKKyAgaWYgKHVpZCkgeyAvKiBOb24tcm9vdCBwYXRoICovCisgICAgY2Fw
-X3QgbmV3X2NhcHM7CisgICAgY2FwX3ZhbHVlX3QgY2FwX2xpc3RbXSA9IHsg
-Q0FQX0FVRElUX1dSSVRFIH07CisKKyAgICAvKiBLZWVwIGNhcGFiaWxpdGll
-cyBhY3Jvc3MgdWlkIGNoYW5nZSAqLworICAgIHByY3RsKFBSX1NFVF9LRUVQ
-Q0FQUywgMSwgMCwgMCwgMCk7CisKKyAgICAvKiBDaGFuZ2UgdWlkICovCisg
-ICAgaWYgKHNldHVpZCh1aWQpKSB7CisgICAgICBmcHJpbnRmKHN0ZGVyciwg
-XygiRXJyb3IgY2hhbmdpbmcgdWlkLCBhYm9ydGluZy5cbiIpKTsKKyAgICAg
-IGV4aXQoLTEpOworICAgIH0KKworICAgIC8qIE5vdyBnZXQgcmlkIG9mIHRo
-aXMgYWJpbGl0eSAqLworICAgIHByY3RsKFBSX1NFVF9LRUVQQ0FQUywgMCwg
-MCwgMCwgMCk7CisKKyAgICAvKiBXZSBzaG91bGQgc3RpbGwgaGF2ZSByb290
-J3MgY2Fwcywgc28gbGV0IGRyb3AgdGhlbS4gKi8KKyAgICBuZXdfY2FwcyA9
-IGNhcF9pbml0KCk7CisgICAgaWYgKCFuZXdfY2FwcykgeworICAgICAgZnBy
-aW50ZihzdGRlcnIsIF8oIkVycm9yIGluaXRpbmcgY2FwYWJpbGl0aWVzLCBh
-Ym9ydGluZy5cbiIpKTsKKyAgICAgIGV4aXQoLTEpOworICAgIH0KKyAgICBj
-YXBfc2V0X2ZsYWcobmV3X2NhcHMsIENBUF9QRVJNSVRURUQsIDEsIGNhcF9s
-aXN0LCBDQVBfU0VUKTsKKyAgICBjYXBfc2V0X2ZsYWcobmV3X2NhcHMsIENB
-UF9FRkZFQ1RJVkUsIDEsIGNhcF9saXN0LCBDQVBfU0VUKTsKKyAgICBpZiAo
-Y2FwX3NldF9wcm9jKG5ld19jYXBzKSkgeworICAgICAgZnByaW50ZihzdGRl
-cnIsIF8oIkVycm9yIGRyb3BwaW5nIGNhcGFiaWxpdGllcywgYWJvcnRpbmci
-KSk7CisgICAgICBleGl0KC0xKTsKKyAgICB9CisgICAgY2FwX2ZyZWUobmV3
-X2NhcHMpOworICB9Cit9CisKIC8qKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioKICAqCiAgKiBBbGwgY29kZSB1c2VkIGZvciBib3RoIFBBTSBhbmQgc2hh
-ZG93IHBhc3N3ZCBnb2VzIGluIHRoaXMgc2VjdGlvbi4KQEAgLTQwMSw2ICs0
-NDYsOCBAQCBpbnQgbWFpbiggaW50IGFyZ2MsIGNoYXIgKmFyZ3ZbXSApIHsK
-ICAgICBleGl0KC0xKTsKICAgfQogCisgIGRyb3BfY2FwYWJpbGl0aWVzKCk7
-CisKICAgd2hpbGUgKDEpIHsKICAgICBjbGZsYWc9Z2V0b3B0X2xvbmcoYXJn
-Yyxhcmd2LCJyOnQ6bDoiLGxvbmdfb3B0aW9ucywmZmxhZ19pbmRleCk7CiAg
-ICAgaWYgKGNsZmxhZyA9PSAtMSkKQEAgLTQ5Niw3ICs1NDMsNiBAQCBpbnQg
-bWFpbiggaW50IGFyZ2MsIGNoYXIgKmFyZ3ZbXSApIHsKICAgICBleGl0KC0x
-KTsKICAgfQogCi0gIGZyZWVjb24ob2xkX2NvbnRleHQpOwogICAvKiBNYWtl
-IGBwdycgcG9pbnQgdG8gYSBzdHJ1Y3R1cmUgY29udGFpbmluZyB0aGUgZGF0
-YSAgICAgICAgICAgICAgKgogICAgKiBmcm9tIG91ciB1c2VyJ3MgbGluZSBp
-biB0aGUgcGFzc3dkIGZpbGUuICBJZiB0aGUgY3VycmVudCB1c2VyJ3MKICAg
-ICogU0VMaW51eCB1c2VyIGlkZW50aXR5IGlzIHRoZSBkZWZhdWx0IChTRUxJ
-TlVYX0RFRkFVTFRVU0VSKSwgdGhlbgpAQCAtNzUzLDYgKzc5OSwyMyBAQCBp
-bnQgbWFpbiggaW50IGFyZ2MsIGNoYXIgKmFyZ3ZbXSApIHsKICAgICAgICBm
-cHJpbnRmKHN0ZGVyciwgXygiQ291bGQgbm90IHNldCBleGVjIGNvbnRleHQg
-dG8gJXMuXG4iKSwgbmV3X2NvbnRleHQpOwogICAgICAgIGV4aXQoLTEpOwog
-ICB9CisgIC8qIFNlbmQgYXVkaXQgbWVzc2FnZSAqLworICB7CisgICAgY2hh
-ciBtc2dbMTI4XTsgIC8qIFRoaXMgbnVtYmVyIGlzIGEgZ3Vlc3MgKi8KKyAg
-ICBpbnQgYXVkaXRfZmQgPSBhdWRpdF9vcGVuKCk7CisgICAgaWYgKGF1ZGl0
-X2ZkIDwgMCkgeworICAgICAgIGZwcmludGYoc3RkZXJyLCBfKCJFcnJvciBj
-b25uZWN0aW5nIHRvIGF1ZGl0IHN5c3RlbS5cbiIpKTsKKyAgICAgICBleGl0
-KC0xKTsKKyAgICB9CisgICAgc25wcmludGYobXNnLCBzaXplb2YobXNnKSwg
-Im5ld3JvbGU6IG9sZC1jb250ZXh0PSVzIG5ldy1jb250ZXh0PSVzIiwKKyAg
-ICAgICAgICAgICBvbGRfY29udGV4dCwgbmV3X2NvbnRleHQpOworICAgIGlm
-IChhdWRpdF9sb2dfdXNlcl9tZXNzYWdlKGF1ZGl0X2ZkLCBBVURJVF9VU0VS
-X1JPTEVfQ0hBTkdFLAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IG1zZywgTlVMTCwgTlVMTCwgdHR5biwgMSkgPD0gMCkgeworICAgICAgIGZw
-cmludGYoc3RkZXJyLCBfKCJFcnJvciBzZW5kaW5nIGF1ZGl0IG1lc3NhZ2Uu
-XG4iKSk7CisgICAgICAgZXhpdCgtMSk7CisgICAgfQorICAgIGNsb3NlKGF1
-ZGl0X2ZkKTsKKyAgfQogICBleGVjdihhcmd2W29wdGluZC0xXSxhcmd2K29w
-dGluZC0xKTsKIAogICAvKiBJZiB3ZSByZWFjaCBoZXJlLCB0aGVuIHdlIGZh
-aWxlZCB0byBleGVjIHRoZSBuZXcgc2hlbGwuICovCg==
-
---0-2045792763-1135116879=:16234--
+-tim
 
 --
 This message was distributed to subscribers of the selinux mailing list.
