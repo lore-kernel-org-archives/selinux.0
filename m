@@ -1,38 +1,29 @@
 Subject: Re: Adding audit messge to newrole
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Steve G <linux_4ever@yahoo.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20051220221439.16245.qmail@web51505.mail.yahoo.com>
+Cc: Chris Wright <chrisw@osdl.org>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1135181425.18223.72.camel@moss-spartans.epoch.ncsc.mil>
 References: <20051220221439.16245.qmail@web51505.mail.yahoo.com>
+	 <1135181425.18223.72.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 21 Dec 2005 11:19:06 -0500
-Message-Id: <1135181946.18223.78.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Dec 2005 11:42:55 -0500
+Message-Id: <1135183375.18223.85.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-12-20 at 14:14 -0800, Steve G wrote:
-> Hi,
-> 
-> I am attaching a patch that lets newrole send messages to the audit system. This
-> patch needs review as it changes newrole to be setuid root. The patch drops
-> capabilities very soon after startup. 
-> 
-> You will need recent audit package in order to compile newrole since it uses the
-> USER_ROLE_CHANGE message type. It is available in version 1.1.2.
+On Wed, 2005-12-21 at 11:10 -0500, Stephen Smalley wrote:
+> Why don't you drop capabilities first, then switch to the real uid?
+> Otherwise, you have a task with the caller's uid and full capabilities
+> for an interval of time, right?
 
-In addition to the comments on the patch, it doesn't seem to work for me
-on rawhide, either as root or a non-root user:
+Hmm...I see - you need CAP_SETUID around still in the effective set to
+perform the setuid() call to the real uid.  Looking about for how others
+handle this same logic, I did see:
+http://lists.samba.org/archive/rsync/2004-January/008403.html
 
-# /usr/bin/newrole -r sysadm_r -t sysadm_t
-Authenticating root.
-Password:
-Error sending audit message.
-
-$ newrole -r sysadm_r -t sysadm_t
-Authenticating sds.
-Password:
-Error sending audit message.
+Looks like they shed the capabilities in the permitted and inheritable
+sets before the setuid(), then drop from the effective set afterward.
 
 -- 
 Stephen Smalley
