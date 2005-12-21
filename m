@@ -1,38 +1,57 @@
-Date: Wed, 21 Dec 2005 16:39:33 -0600
+Date: Wed, 21 Dec 2005 16:47:21 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Subject: [trivial patch] semanage: pwd.getpwname does not exist
-Message-ID: <20051221223933.GA6431@sergelap.austin.ibm.com>
+To: NSA SELinux Mailing-List <SELinux@tycho.nsa.gov>
+Subject: [patch] sereference: permit reiserfs
+Message-ID: <20051221224720.GA6885@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Needed the following trivial patch to fix "semanage user -a hallyn"
-reporting that the "Linux User does not exist".
+Oops, I forgot about this one...
 
-It doesn't help me to be able to log in in enforcing mode, but since
-I'm running gentoo hardened with cvs selinux-usr and cvs sereference,
-I assume I'm probably on my own.  Still I'm open to any suggestions for
-how to get more debugging info.  I guess I'll try to tweak the policy
-to let sysadm_t ptrace getty_t, login_t, and sshd_t.
+Is there still a good reason to not support labeling reiserfs?  If not,
+the following trivial patch was needed for me to 'make relabel' out of
+the reference policy.
 
 thanks,
 -serge
 
-Index: policycoreutils/semanage/semanage
+Index: refpolicy/Rules.monolithic
 ===================================================================
---- policycoreutils.orig/semanage/semanage	2005-12-21 16:25:15.000000000 -0600
-+++ policycoreutils/semanage/semanage	2005-12-21 16:25:32.000000000 -0600
-@@ -35,7 +35,7 @@ class loginRecords:
- 		if exists:
- 			raise ValueError("SELinux User %s mapping already defined" % name)
- 		try:
--			pwd.getpwname(name)
-+			pwd.getpwnam(name)
- 		except:
- 			raise ValueError("Linux User %s does not exist" % name)
- 			
+--- refpolicy.orig/Rules.monolithic
++++ refpolicy/Rules.monolithic
+@@ -190,10 +190,10 @@ $(FCPATH): $(FC) $(LOADPATH) $(USERPATH)
+ #
+ # Filesystem labeling
+ #
+-FILESYSTEMS := `mount | grep -v "context=" | egrep -v '\((|.*,)bind(,.*|)\)' | awk '/(ext[23]| xfs| jfs).*rw/{print $$3}';`
++FILESYSTEMS := `mount | grep -v "context=" | egrep -v '\((|.*,)bind(,.*|)\)' | awk '/(ext[23]| xfs| jfs| reiserfs).*rw/{print $$3}';`
+ 
+ checklabels: $(FCPATH) $(SETFILES)
+-	@echo "Checking labels on filesystem types: ext2 ext3 xfs jfs"
++	@echo "Checking labels on filesystem types: ext2 ext3 xfs jfs reiser"
+ 	@if test -z "$(FILESYSTEMS)"; then \
+ 		echo "No filesystems with extended attributes found!" ;\
+ 		false ;\
+@@ -201,7 +201,7 @@ checklabels: $(FCPATH) $(SETFILES)
+ 	$(QUIET) $(SETFILES) -v -n $(FCPATH) $(FILESYSTEMS)
+ 
+ restorelabels: $(FCPATH) $(SETFILES)
+-	@echo "Restoring labels on filesystem types: ext2 ext3 xfs jfs"
++	@echo "Restoring labels on filesystem types: ext2 ext3 xfs jfs reiser"
+ 	@if test -z "$(FILESYSTEMS)"; then \
+ 		echo "No filesystems with extended attributes found!" ;\
+ 		false ;\
+@@ -209,7 +209,7 @@ restorelabels: $(FCPATH) $(SETFILES)
+ 	$(QUIET) $(SETFILES) -v $(FCPATH) $(FILESYSTEMS)
+ 
+ relabel:  $(FCPATH) $(SETFILES)
+-	@echo "Relabeling filesystem types: ext2 ext3 xfs jfs"
++	@echo "Relabeling filesystem types: ext2 ext3 xfs jfs reiser"
+ 	@if test -z "$(FILESYSTEMS)"; then \
+ 		echo "No filesystems with extended attributes found!" ;\
+ 		false ;\
 
 --
 This message was distributed to subscribers of the selinux mailing list.
