@@ -1,133 +1,64 @@
-Subject: [RFC] SELinux file_ioctl hook permission checks changes
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: NSA SELinux Mailing-List <SELinux@tycho.nsa.gov>
+Subject: Re: [RFC] SELinux file_ioctl hook permission checks changes
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: NSA SELinux Mailing-List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1135190595.8583.5.camel@estila>
+References: <1135190595.8583.5.camel@estila>
 Content-Type: text/plain; charset=UTF-8
-Date: Wed, 21 Dec 2005 19:43:15 +0100
-Message-Id: <1135190595.8583.5.camel@estila>
+Date: Wed, 21 Dec 2005 14:51:03 -0500
+Message-Id: <1135194663.18223.156.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We've been considering the implementation of certain changes to the permission checks applied
-to ioctl(2) calls via the selinux_file_ioctl hook.
+On Wed, 2005-12-21 at 19:43 +0100, Lorenzo Hernández García-Hierro
+wrote:
+> We've been considering the implementation of certain changes to the permission checks applied
+> to ioctl(2) calls via the selinux_file_ioctl hook.
+> 
+> The objective is to remove hard coded ioctl commands inside the mentioned hook and use
+> "generalized" checks instead.
 
-The objective is to remove hard coded ioctl commands inside the mentioned hook and use
-"generalized" checks instead.
+Note that this patch would also obsolete the SELinux 'ioctl' permission
+altogether; it would no longer be used by the SELinux module at all.
+Which might be no real loss because we end up having to allow it
+whenever we allow read or write permission to the file due to pervasive
+probing via ioctl.
 
-Previous work has been done in order to implement this. The patch at [1] implements general
-ioctl permissions defined by LSM that can be mapped by individual security modules like SELinux
-to their own module-specific permission checks. Filesystem-specific ioctl commands are
-mapped to generic ioctl permissions through a table defined in each driver or proper fs code
-(ie. fs/ext2/ioctl.c for ext2) as well as capability that can be checked within the selinux_file_ioctl
-when the ioctl command is issued. The patch was sent to the linux-security-module mailing list for
-review [2] and Chris Wright replied suggesting a completely different (and much more simple)
-approach based on IOC_DIR checks for read/write operations distinction.
+Instead, every ioctl command would trigger a more specific permission
+check based on its _IOC_DIR (unless its _IOC_DIR is none, in which case
+it would only check access to the open file, not the inode).
 
-This approach was also much less intrusive as in maintenance terms as it didn't require changes
-within drivers or fs-specific code, nor the implementation of any mapping tables.
+> A patch based upon Chris' comments was developed ([3]). It basically performs a check for distinction
+> of a read/write ioctl command and constructs an access vector with the getattr/setattr permissions.
+> Although, this approach has a potential concern. setattr permission also covers chown/chmod and other
+> cases. This is the desired behavior for certain ioctl commands (ie. EXT3_IOC_SETFLAGS) but other
+> ones that perform data write (write permission) may not be suitable for setattr permission
+> (set attributes). One example of conflict is ssh performing an ioctl on /dev/ptmx to allocate the
+> pty, triggering a setattr denial since it gets _IOC_WRITE back from the _IOC_DIR checks in
+> selinux_file_ioctl hook.
 
-A patch based upon Chris' comments was developed ([3]). It basically performs a check for distinction
-of a read/write ioctl command and constructs an access vector with the getattr/setattr permissions.
-Although, this approach has a potential concern. setattr permission also covers chown/chmod and other
-cases. This is the desired behavior for certain ioctl commands (ie. EXT3_IOC_SETFLAGS) but other
-ones that perform data write (write permission) may not be suitable for setattr permission
-(set attributes). One example of conflict is ssh performing an ioctl on /dev/ptmx to allocate the
-pty, triggering a setattr denial since it gets _IOC_WRITE back from the _IOC_DIR checks in
-selinux_file_ioctl hook.
+Right, so if we stay with getattr/setattr as the ioctl permission
+checks, then we may need to allow setattr permission more widely than
+presently, which would also permit use of chown/chmod on the file.  sshd
+has a legitimate need to write to ptmx; it doesn't need to chown/chmod
+it.
 
-The dilemma is that we could map _IOC_READ/WRITE to read/write permissions respectively, solving the
-ssh case but we would have still no distinction between EXT3_IOC_SETFLAGS/SETVERSION ioctl commands
-and a data write to the file.
+> The dilemma is that we could map _IOC_READ/WRITE to read/write permissions respectively, solving the
+> ssh case but we would have still no distinction between EXT3_IOC_SETFLAGS/SETVERSION ioctl commands
+> and a data write to the file.
 
-Feedback will be appreciated, regarding this issue as well as suggestions, comments and possible
-solutions regarding it's implementation and impact on the policy.
+Right, so if we switch to checking read/write permissions on ioctl based
+on _IOC_DIR, then for example, chattr(1) may suddenly require write
+permission to the file in order to set the ext2/3-specific attributes
+via ioctl.
 
+> Feedback will be appreciated, regarding this issue as well as suggestions, comments and possible
+> solutions regarding it's implementation and impact on the policy.
 
-	[1]: http://pearls.tuxedo-es.org/selinux/patches/lsm-checkioctl-hook.patch
-	[2]: http://marc.theaimsgroup.com/?l=linux-security-module&m=113155354300994&w=2
-	[3]: http://pearls.tuxedo-es.org/selinux/patches/selinux-file_ioctl-iocdir-checks.patch
-
-
-Signed-off-by: <Lorenzo Hernández García-Hierro <lorenzo@gnu.org>>
----
-
- security/selinux/hooks.c |   48 ++++++-----------------------------------------
- 1 files changed, 7 insertions(+), 41 deletions(-)
-
-diff -puN security/selinux/hooks.c~selinux-file_ioctl-iocdir-checks security/selinux/hooks.c
---- linux-2.6.14-mm2/security/selinux/hooks.c~selinux-file_ioctl-iocdir-checks	2005-12-20 20:23:07.000000000 +0100
-+++ linux-2.6.14-mm2-lorenzo/security/selinux/hooks.c	2005-12-20 20:23:07.000000000 +0100
-@@ -40,9 +40,7 @@
- #include <linux/file.h>
- #include <linux/namei.h>
- #include <linux/mount.h>
--#include <linux/ext2_fs.h>
- #include <linux/proc_fs.h>
--#include <linux/kd.h>
- #include <linux/netfilter_ipv4.h>
- #include <linux/netfilter_ipv6.h>
- #include <linux/tty.h>
-@@ -2349,47 +2347,15 @@ static void selinux_file_free_security(s
- static int selinux_file_ioctl(struct file *file, unsigned int cmd,
- 			      unsigned long arg)
- {
--	int error = 0;
--
--	switch (cmd) {
--		case FIONREAD:
--		/* fall through */
--		case FIBMAP:
--		/* fall through */
--		case FIGETBSZ:
--		/* fall through */
--		case EXT2_IOC_GETFLAGS:
--		/* fall through */
--		case EXT2_IOC_GETVERSION:
--			error = file_has_perm(current, file, FILE__GETATTR);
--			break;
--
--		case EXT2_IOC_SETFLAGS:
--		/* fall through */
--		case EXT2_IOC_SETVERSION:
--			error = file_has_perm(current, file, FILE__SETATTR);
--			break;
--
--		/* sys_ioctl() checks */
--		case FIONBIO:
--		/* fall through */
--		case FIOASYNC:
--			error = file_has_perm(current, file, 0);
--			break;
-+       u32 av = 0;
-+       int dir = _IOC_DIR(cmd);
- 
--	        case KDSKBENT:
--	        case KDSKBSENT:
--			error = task_has_capability(current,CAP_SYS_TTY_CONFIG);
--			break;
-+       if (dir & _IOC_READ || cmd == FIONREAD || cmd == FIBMAP || cmd == FIGETBSZ)
-+               av |= FILE__GETATTR;
-+       if (dir & _IOC_WRITE)
-+               av |= FILE__SETATTR;
- 
--		/* default case assumes that the command will go
--		 * to the file's ioctl() function.
--		 */
--		default:
--			error = file_has_perm(current, file, FILE__IOCTL);
--
--	}
--	return error;
-+       return file_has_perm(current, file, av);
- }
- 
- static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
-_
-
-Cheers.
 -- 
-Lorenzo Hernández García-Hierro <lorenzo@gnu.org> 
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+Stephen Smalley
+National Security Agency
 
 
 --
