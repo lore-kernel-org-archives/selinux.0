@@ -1,30 +1,30 @@
 Subject: Re: diffs + additions to NSA cvs policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Erich Schubert <erich@debian.org>
-Cc: SELinux@tycho.nsa.gov
+From: Erich Schubert <erich@debian.org>
+To: SELinux@tycho.nsa.gov
 In-Reply-To: <1135132579.5408.33.camel@wintermute.xmldesign.de>
 References: <1135132579.5408.33.camel@wintermute.xmldesign.de>
 Content-Type: text/plain
-Date: Wed, 21 Dec 2005 09:40:31 -0500
-Message-Id: <1135176031.18223.38.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Dec 2005 15:43:55 +0100
+Message-Id: <1135176236.23898.2.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-12-21 at 03:36 +0100, Erich Schubert wrote:
-> Hi,
-> attached are some diffs to NSA cvs policy (I'm not using refpolicy, and
-> if you really want to win my for a new policy, make one without M4...)
+Hi,
+one more thing missing in the SELinux policy:
+  portcon udp 1194 system_u:object_r:openvpn_port_t
 
-Hmm...well, as noted previously, further work on the NSA example policy
-has been superseded by the reference policy project,
-http://serefpolicy.sf.net.  And m4 is very useful, despite its
-shortcomings.  But there is ongoing work on higher level policy
-languages and frameworks.
+1194 is the current default port for openvpn (official IANA assignment)
+port 5000 is an old value, when it didn't have an IANA port yet.
 
+best regards,
+Erich Schubert
 -- 
-Stephen Smalley
-National Security Agency
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+                 Friends are those who reach out for                 //\
+                   your hand but touch your heart.                   V_/_
+  Wer keine Zeit mehr mit echten Freunden verbringt, der wird bald
+          sein Gleichgewicht verlieren. --- Michael Levine
 
 
 --
