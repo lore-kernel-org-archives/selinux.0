@@ -1,47 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBLHu3Xf019290
-	for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2005 12:56:03 -0500 (EST)
-Received: from web51515.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id jBLHu1Ue006070
-	for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2005 17:56:01 GMT
-Message-ID: <20051221175602.98478.qmail@web51515.mail.yahoo.com>
-Date: Wed, 21 Dec 2005 09:56:02 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: Adding audit messge to newrole
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1135181946.18223.78.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Chris Wright <chrisw@osdl.org>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20051221174113.9362.qmail@web51510.mail.yahoo.com>
+References: <20051221174113.9362.qmail@web51510.mail.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 21 Dec 2005 13:09:15 -0500
+Message-Id: <1135188555.18223.104.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2005-12-21 at 09:41 -0800, Steve G wrote:
+> >Why don't you drop capabilities first, then switch to the real uid?
+> 
+> You answered yourself. Need setuid capabilities.
 
->In addition to the comments on the patch, it doesn't seem to work for me
->on rawhide, either as root or a non-root user:
+Yes, but I'm still not sure about the implications.  Not all kernel
+operations compare capability sets, e.g. signals only compare the uids
+of the relevant tasks.  So if you switch to the caller's uid while still
+possessing all capabilities, you may be opening yourself to manipulation
+by the caller.  ptrace does compare the permitted sets for a subset
+relationship.  Might still be safer to shed everything you can first,
+and then drop CAP_SETUID last after the setuid.
 
-You may need an appropriately patched kernel. I am testing on the lspp.4 kernel
-from:  http://david.woodhou.se/lspp/kernel/
+> Any reason we can't move this up earlier in main()?
+> 
+> I suppose we could move it above the selinux enabled call.
+> 
+> >Ideally, it should be the first thing in main() to ensure that everything 
+> >else runs under the caller's uid as before.
+> 
+> But after the bindtext call for localization?
 
-this is what I get:
+I would assume before, as you otherwise risk still having uid 0 and
+capabilities at that point if there is some locale-related exploit.
+Purging the environment on entry to main() wouldn't hurt either.
+http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/
 
-[root@localhost ~]# newrole -r system_r -t unconfined_t
-Authenticating root.
-Password:
-[root@localhost ~]# ausearch -ts 12:44:00 -m USER_ROLE_CHANGE
-----
-time->Wed Dec 21 12:45:08 2005
-type=USER_ROLE_CHANGE msg=audit(1135187108.964:67): user pid=2549 uid=0 auid=0
-msg='newrole: old context=root:system_r:unconfined_t:SystemLow-SystemHigh new
-context=root:system_r:unconfined_t:SystemLow-SystemHig: exe="/usr/bin/newrole"
-(hostname=?, addr=?, terminal=/dev/tty1 res=success)'
+> I generally prefer to use the stack on small programs. Its less complicated and
+> runs faster. We aren't short for stack space in this program. My comment may be
+> misleading you. i wanted to say that its an arbitrary number and can be changed
+> if someone decideds its safe to make it bigger or smaller. Is there a define that
+> has the maximum string representation of a context?
 
--Steve
+No, there is no maximum imposed by SELinux itself.  Certain kernel
+interfaces (/proc/pid/attr, selinuxfs) presently limit them to no more
+than PAGE_SIZE, but the core SELinux code doesn't bound them.  xattrs
+are only "limited" to 64K.  In any event, with the fixed value, you risk
+truncation of the audit message (especially the new context). 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
