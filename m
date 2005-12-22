@@ -1,50 +1,39 @@
-Date: Thu, 22 Dec 2005 17:06:37 -0600
+Date: Thu, 22 Dec 2005 17:07:43 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: NSA SELinux Mailing-List <SELinux@tycho.nsa.gov>
-Subject: Re: [patch] sereference: permit reiserfs
-Message-ID: <20051222230637.GA11462@sergelap.austin.ibm.com>
-References: <20051221224720.GA6885@sergelap.austin.ibm.com> <1135259800.951.20.camel@moss-spartans.epoch.ncsc.mil>
+To: NSA SELinux Mailing-List <SELinux@tycho.nsa.gov>
+Subject: [patch] sereference: add requires to ppp policy
+Message-ID: <20051222230743.GB11462@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1135259800.951.20.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hah!  I should have remembered that...  so that's likely why I can't log
-in using enforcing mode.
+The following allows ppp to compile as a module on my system, where I
+also have postfix as a module.
 
-Thanks.  Converting the fs is probably not possible right now, so I'll
-need a new plan...
+This block also raises the question - is there intended to be a
+difference between an ifdef block and a optional_policy block?  It seems
+to me the intent is probably to use ifdef for actual defines (like
+targeted_policy), and all checks for 'module.te' should be done using
+optional_policy.  Is that the case?
 
+(If so, then the below patch should also change the ifdef)
+
+thanks,
 -serge
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Wed, 2005-12-21 at 16:47 -0600, Serge E. Hallyn wrote:
-> > Oops, I forgot about this one...
-> > 
-> > Is there still a good reason to not support labeling reiserfs?  If not,
-> > the following trivial patch was needed for me to 'make relabel' out of
-> > the reference policy.
-> 
-> The status of reiserfs and SELinux has always been up in the air; SuSE
-> did some work that went into 2.6.12 that allegedly solved the deadlock
-> and permission problems, but I don't have any actual reports that anyone
-> has ever been able to get reiserfs working properly in Fedora with
-> SELinux enabled, and support for reiserfs would have been broken again
-> by the removal of the post_create hooks in 2.6.14, see
-> http://marc.theaimsgroup.com/?l=selinux&m=112653995009765&w=2
-> 
-> Note that since I posted the above referenced message, the xfs
-> maintainers have implemented a workaround in xfs that should go into
-> 2.6.16.  So only reiserfs will remain broken at that point (unless the
-> reiserfs maintainers fix it).
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
+Index: refpolicy/policy/modules/services/ppp.te
+===================================================================
+--- refpolicy.orig/policy/modules/services/ppp.te	2005-12-22 16:11:45.000000000 -0600
++++ refpolicy/policy/modules/services/ppp.te	2005-12-22 16:13:09.000000000 -0600
+@@ -319,6 +319,7 @@ optional_policy(`udev',`
+ ')
+ 
+ ifdef(`postfix.te', `
++	require { type postfix_etc_t; type postfix_master_exec_t; }
+ 	allow pppd_t postfix_etc_t:dir search;
+ 	allow pppd_t postfix_etc_t:file r_file_perms;
+ 	allow pppd_t postfix_master_exec_t:file { getattr read };
 
 --
 This message was distributed to subscribers of the selinux mailing list.
