@@ -1,122 +1,62 @@
-Message-ID: <43ADBD89.9080900@cornell.edu>
-Date: Sat, 24 Dec 2005 16:28:41 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBP9tJXf025643
+	for <selinux@tycho.nsa.gov>; Sun, 25 Dec 2005 04:55:19 -0500 (EST)
+Received: from nproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBP9sM3T016366
+	for <selinux@tycho.nsa.gov>; Sun, 25 Dec 2005 09:54:23 GMT
+Received: by nproxy.gmail.com with SMTP id b2so328370nfe
+        for <selinux@tycho.nsa.gov>; Sun, 25 Dec 2005 01:55:18 -0800 (PST)
+Message-ID: <4c2efa540512250155p3789d9eeg87e1241ed33d2b32@mail.gmail.com>
+Date: Sun, 25 Dec 2005 03:55:18 -0600
+From: L L <her.drinne@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: errors compiling policycoreutils-1.28
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: [SEMANAGE(tool)] Further exists/query bugfixes
-Content-Type: multipart/mixed;
- boundary="------------020301080501040806040609"
+Content-Type: multipart/alternative;
+	boundary="----=_Part_5101_28442192.1135504518269"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020301080501040806040609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+------=_Part_5101_28442192.1135504518269
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Changes:
+I'm in the process of a source SELinux install, and have compiled and
+installed libsepol, libselinux and checkpolicy successflly, but when I try
+to compile policycoreutils, it complains that semanage/modules.h can not be
+found. and the build fails.  I cannot find a "module.h" within the tree I
+have all my SELinux files in, but I do have a modules.h as part of
+libsepol.  Not sure if these are related, but I do recall seeing a post in
+the archives about  the read/write for the module sbeing moved from semanag=
+e
+to sepol, but I do not know if this is related or not.
 
-- do not rely on query failure to check if a user exists - should use 
-exist function instead
-(especially since the rc value is now not 0, and returns commit numbers 
-on success).
+Any help would be greatly appreciated.  Thanks
 
-- Initialize level/range to "", not s0, in order for modify() to 
-correctly detect that the user didn't enter anything
-(because it tests if serange == "", which it doesn't)
+Lee
 
-Note: I notice the rc value isn't checked in 95% of the semanage 
-functions being called.
-Note2: The list function needs to be re-written somehow... not entirely 
-sure how. Delete function needs more work.
+------=_Part_5101_28442192.1135504518269
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-First, there should be an indication somewhere whether a record is build 
-into policy, or locally added, so the user will realize what he/she can 
-do with the record. Second, consider the following scenario, which 
-causes total confusion: (1) call list users, (2) call modify on root 
-(built-in), (3) call list users, (4) call delete root, (5) call list users.
+I'm in the process of a source SELinux install, and have compiled and
+installed libsepol, libselinux and checkpolicy successflly, but when I
+try to compile policycoreutils, it complains that semanage/modules.h
+can not be found. and the build fails.&nbsp; I cannot find a &quot;module.h=
+&quot;
+within the tree I have all my SELinux files in, but I do have a
+modules.h as part of libsepol.&nbsp; Not sure if these are related, but
+I do recall seeing a post in the archives about&nbsp; the read/write
+for the module sbeing moved from semanage to sepol, but I do not know
+if this is related or not.<br>
+<br>
+Any help would be greatly appreciated.&nbsp; Thanks<br>
+<br>
+Lee<br>
 
-Here's what happens:
-1) lists all local users + builtin users (like root)
-2) modify will succeed, because you can modify in-policy records by 
-writing a local record that overrides them
-3) list will now show the modifications (and not show the original)
-4) delete WILL succeed. Consider the checks I put in:
-    Does the user exist: yes
-    Does the user exist locally: yes
-    In this case, the effect of delete is to delete the local 
-modifications to the root user, but the in-policy copy remains behind.
-5) now list shows the original root user
-
-All of those problems are related to the fact that we're stacking local 
-modifications on top of policy. Libsemanage provides info about the 
-local data, and the end result (does not provide info about policy 
-alone). Semnage (the tool) provides info only about the end result, and 
-shows neither policy alone, nor local modifications alone.
-
---------------020301080501040806040609
-Content-Type: text/x-patch;
- name="semanage2.query_exists_bugfixes.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="semanage2.query_exists_bugfixes.diff"
-
-diff -Naurp --exclude-from excludes old/policycoreutils/semanage/semanage new/policycoreutils/semanage/semanage
---- old/policycoreutils/semanage/semanage	2005-12-24 15:24:02.000000000 -0500
-+++ new/policycoreutils/semanage/semanage	2005-12-24 15:58:45.000000000 -0500
-@@ -50,9 +50,10 @@ class loginRecords:
- 
- 	def modify(self, name, sename="", serange=""):
- 		(rc,k)=semanage_seuser_key_create(self.sh, name)
--		(rc,u)= semanage_seuser_query(self.sh, k)
--		if rc !=0 :
-+		(rc,exists) = semanage_seuser_exists(self.sh, k)
-+		if not exists:
- 			raise ValueError("SELinux user %s mapping is not defined." % name)
-+		(rc,u)= semanage_seuser_query(self.sh, k)
- 		if sename == "" and serange=="":
- 			raise ValueError("Requires, seuser or serange")
- 		if serange != "":
-@@ -68,7 +69,7 @@ class loginRecords:
- 	def delete(self, name):
- 		(rc,k)=semanage_seuser_key_create(self.sh, name)
- 		(rc,exists)= semanage_seuser_exists(self.sh, k)
--		if rc !=0 :
-+		if not exists:
- 			raise ValueError("SELinux user %s mapping is not defined." % name)
- 		semanage_begin_transaction(self.sh)
- 		semanage_seuser_del(self.sh, k)
-@@ -117,8 +118,6 @@ class seluserRecords:
- 		if not exists:
- 			raise ValueError("user %s is not defined" % name)
- 		(rc,u)= semanage_user_query(self.sh, k)
--		if rc !=0 :
--			raise ValueError("User %s is not defined." % name)
- 		if len(roles) == 0  and serange=="" and selevel=="":
- 			raise ValueError("Requires, roles, level  or range")
- 		if serange != "":
-@@ -133,7 +132,6 @@ class seluserRecords:
- 		semanage_user_modify_local(self.sh, k, u)
- 		if semanage_commit(self.sh) != 0:
- 			raise ValueError("Failed to modify SELinux user")
--
- 		
- 	def delete(self, name):
- 		(rc,k)=semanage_user_key_create(self.sh, name)
-@@ -251,8 +249,8 @@ semanage port [-admth] SELINUX_PORT_NAME
- 		objectlist=("login", "user", "port")
- 		input=sys.stdin
- 		output=sys.stdout
--		serange="s0"
--		selevel="s0"
-+		serange=""
-+		selevel=""
- 		roles=""
- 		seuser=""
- 		type=""
-
---------------020301080501040806040609--
+------=_Part_5101_28442192.1135504518269--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
