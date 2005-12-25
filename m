@@ -1,62 +1,147 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBP9tJXf025643
-	for <selinux@tycho.nsa.gov>; Sun, 25 Dec 2005 04:55:19 -0500 (EST)
-Received: from nproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBP9sM3T016366
-	for <selinux@tycho.nsa.gov>; Sun, 25 Dec 2005 09:54:23 GMT
-Received: by nproxy.gmail.com with SMTP id b2so328370nfe
-        for <selinux@tycho.nsa.gov>; Sun, 25 Dec 2005 01:55:18 -0800 (PST)
-Message-ID: <4c2efa540512250155p3789d9eeg87e1241ed33d2b32@mail.gmail.com>
-Date: Sun, 25 Dec 2005 03:55:18 -0600
-From: L L <her.drinne@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: errors compiling policycoreutils-1.28
+Message-ID: <43AF074E.6040301@cornell.edu>
+Date: Sun, 25 Dec 2005 15:55:42 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_5101_28442192.1135504518269"
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+Subject: [SEMANAGE] Swig update: typemaps
+Content-Type: multipart/mixed;
+ boundary="------------080009060103040804080203"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_5101_28442192.1135504518269
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This is a multi-part message in MIME format.
+--------------080009060103040804080203
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I'm in the process of a source SELinux install, and have compiled and
-installed libsepol, libselinux and checkpolicy successflly, but when I try
-to compile policycoreutils, it complains that semanage/modules.h can not be
-found. and the build fails.  I cannot find a "module.h" within the tree I
-have all my SELinux files in, but I do have a modules.h as part of
-libsepol.  Not sure if these are related, but I do recall seeing a post in
-the archives about  the read/write for the module sbeing moved from semanag=
-e
-to sepol, but I do not know if this is related or not.
+Merry Christmas everyone!
 
-Any help would be greatly appreciated.  Thanks
+This patch updates the typemaps to add booleans, interfaces, context, 
+and char** (for context_to_string). I really don't know what I'm doing 
+here with those typemaps, so I would appreciate if someone (Joshua?) can 
+look over. I was just following the pattern, with minor changes, and it 
+seems to work for a port list function that I wrote for the semanage tool.
 
-Lee
 
-------=_Part_5101_28442192.1135504518269
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-I'm in the process of a source SELinux install, and have compiled and
-installed libsepol, libselinux and checkpolicy successflly, but when I
-try to compile policycoreutils, it complains that semanage/modules.h
-can not be found. and the build fails.&nbsp; I cannot find a &quot;module.h=
-&quot;
-within the tree I have all my SELinux files in, but I do have a
-modules.h as part of libsepol.&nbsp; Not sure if these are related, but
-I do recall seeing a post in the archives about&nbsp; the read/write
-for the module sbeing moved from semanage to sepol, but I do not know
-if this is related or not.<br>
-<br>
-Any help would be greatly appreciated.&nbsp; Thanks<br>
-<br>
-Lee<br>
+--------------080009060103040804080203
+Content-Type: text/x-patch;
+ name="libsemanage10.swig_update_typemaps.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage10.swig_update_typemaps.diff"
 
-------=_Part_5101_28442192.1135504518269--
+diff -Naurp --exclude-from excludes old/libsemanage/src/semanageswig.i new/libsemanage/src/semanageswig.i
+--- old/libsemanage/src/semanageswig.i	2005-12-25 15:50:26.000000000 -0500
++++ new/libsemanage/src/semanageswig.i	2005-12-25 15:48:13.000000000 -0500
+@@ -51,7 +51,13 @@
+ 	}	
+ 	semanage_port_t *semanage_port_by_idx(semanage_port_t **list, int n) {
+ 		return list[n];
+-	}	
++	}
++	semanage_iface_t *semanage_iface_by_idx(semanage_iface_t **list, int n) {
++		return list[n];
++	}
++	semanage_bool_t *semanage_bool_by_idx(semanage_bool_t **list, int n) {
++		return list[n];
++	}
+ 	char *char_by_idx(char **list, int n) {
+ 		return list[n];
+ 	}
+@@ -67,6 +73,14 @@
+ %apply int *OUTPUT { int * };
+ %apply int *OUTPUT { size_t * };
+ 
++%typemap(in, numinputs=0) char **(char *temp) {
++	$1 = &temp;
++}
++
++%typemap(argout) char** {
++	$result = t_output_helper($result, SWIG_FromCharPtr(*$1));
++}
++
+ %typemap(in, numinputs=0) char ***(char **temp) {
+ 	$1 = &temp;
+ }
+@@ -87,6 +101,74 @@
+ 	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_semanage_module_info, 0));
+ }
+ 
++/** context typemaps **/
++
++/* the wrapper will setup this parameter for passing... the resulting python functions
++   will not take the semanage_context_t ** parameter */
++%typemap(in, numinputs=0) semanage_context_t **(semanage_context_t *temp) {
++	$1 = &temp;
++}
++
++%typemap(argout) semanage_context_t** {
++	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_semanage_context, 0));
++}
++
++/** boolean typemaps **/
++
++/* the wrapper will setup this parameter for passing... the resulting python functions
++   will not take the semanage_bool_t *** parameter */
++%typemap(in, numinputs=0) semanage_bool_t ***(semanage_bool_t **temp) {
++	$1 = &temp;
++}
++
++%typemap(argout) semanage_bool_t *** {
++	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_p_semanage_bool, 0));
++}
++
++%typemap(in, numinputs=0) semanage_bool_t **(semanage_bool_t *temp) {
++	$1 = &temp;
++}
++
++%typemap(argout) semanage_bool_t ** {
++	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_semanage_bool, 0));
++}
++
++%typemap(argout) semanage_bool_key_t ** {
++	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_semanage_bool_key, 0));
++}
++
++%typemap(in, numinputs=0) semanage_bool_key_t **(semanage_bool_key_t *temp) {
++	$1 = &temp;
++}
++
++/** interface typemaps **/
++
++/* the wrapper will setup this parameter for passing... the resulting python functions
++   will not take the semanage_iface_t *** parameter */
++%typemap(in, numinputs=0) semanage_iface_t ***(semanage_iface_t **temp) {
++	$1 = &temp;
++}
++
++%typemap(argout) semanage_iface_t *** {
++	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_p_semanage_iface, 0));
++}
++
++%typemap(in, numinputs=0) semanage_iface_t **(semanage_iface_t *temp) {
++	$1 = &temp;
++}
++
++%typemap(argout) semanage_iface_t ** {
++	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_semanage_iface, 0));
++}
++
++%typemap(argout) semanage_iface_key_t ** {
++	$result = t_output_helper($result, SWIG_NewPointerObj(*$1, SWIGTYPE_p_semanage_iface_key, 0));
++}
++
++%typemap(in, numinputs=0) semanage_iface_key_t **(semanage_iface_key_t *temp) {
++	$1 = &temp;
++}
++
+ /** seuser typemaps **/
+ 
+ /* the wrapper will setup this parameter for passing... the resulting python functions
+
+--------------080009060103040804080203--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
