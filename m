@@ -1,70 +1,88 @@
-Message-ID: <43B0AADA.5090300@cornell.edu>
-Date: Mon, 26 Dec 2005 21:45:46 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id jBR7bFXf009766
+	for <selinux@tycho.nsa.gov>; Tue, 27 Dec 2005 02:37:15 -0500 (EST)
+Received: from nproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id jBR7aHr9009509
+	for <selinux@tycho.nsa.gov>; Tue, 27 Dec 2005 07:36:17 GMT
+Received: by nproxy.gmail.com with SMTP id y38so456389nfb
+        for <selinux@tycho.nsa.gov>; Mon, 26 Dec 2005 23:37:11 -0800 (PST)
+Message-ID: <4c2efa540512262337p6a2ec5d0n6ab17ee2302ae623@mail.gmail.com>
+Date: Tue, 27 Dec 2005 01:37:10 -0600
+From: L L <her.drinne@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: errors compiling policycoreutils-1.28
+In-Reply-To: <4c2efa540512250155p3789d9eeg87e1241ed33d2b32@mail.gmail.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [SEMANAGE] Flip traversal order for llist iterate/list operations
-Content-Type: multipart/mixed;
- boundary="------------070104070201060601050100"
+Content-Type: multipart/alternative;
+	boundary="----=_Part_28389_25621455.1135669030923"
+References: <4c2efa540512250155p3789d9eeg87e1241ed33d2b32@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070104070201060601050100
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+------=_Part_28389_25621455.1135669030923
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This patch flips the order for the linked list traversal in 
-iterate()/list().
-This is an implementation fix, which makes ports added later take 
-precedence over ports added earlier.
-That's because ports are added to the policydb in the iterate() order.
-
-I'm not quite happy with this - I want the property above to be 
-guaranteed in the specification of add() - things added later should 
-take precedence over things added earlier (if ordering is a factor). To 
-do that, I want the specification for iterate()/list() to guarantee 
-traversal in the order things were added in (which is something that 
-you'd usually expect iterate() to do). This is now true for anything 
-backed in a file. It's also true for libsepol users. It's true trivially 
-for libsepol booleans, because you can't add new libsepol booleans. 
-However, it is *not* true for libsepol interfaces, and ports, where the 
-list is traversed backwards. There iterate() works exactly the opposite 
-way. It's a singly linked list, unfortunately. (the ocontext list..)
-
+On 12/25/05, L L <her.drinne@gmail.com> wrote:
+>
+> I'm in the process of a source SELinux install, and have compiled and
+> installed libsepol, libselinux and checkpolicy successflly, but when I tr=
+y
+> to compile policycoreutils, it complains that semanage/modules.h can not =
+be
+> found. and the build fails.  I cannot find a "module.h" within the tree I
+> have all my SELinux files in, but I do have a modules.h as part of
+> libsepol.  Not sure if these are related, but I do recall seeing a post i=
+n
+> the archives about  the read/write for the module sbeing moved from seman=
+age
+> to sepol, but I do not know if this is related or not.
+>
+> Any help would be greatly appreciated.  Thanks
 
 
 
---------------070104070201060601050100
-Content-Type: text/x-patch;
- name="libsemanage12.llist_traversal_order.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage12.llist_traversal_order.diff"
+I found the problem, sorry to bother everyone.  I had missed libsemanage on
+my list of things to install first.  It's working now, and I am on to the
+fun bits, like PAM.
 
-diff -Naurp --exclude-from excludes old/libsemanage/src/database_llist.c new/libsemanage/src/database_llist.c
---- old/libsemanage/src/database_llist.c	2005-12-23 01:01:49.000000000 -0500
-+++ new/libsemanage/src/database_llist.c	2005-12-26 19:35:16.000000000 -0500
-@@ -237,7 +237,7 @@ hidden int dbase_llist_iterate(
- 	int rc;
- 	cache_entry_t* ptr;
- 
--	for (ptr = dbase->cache; ptr != NULL; ptr = ptr->next) {
-+	for (ptr = dbase->cache_tail; ptr != NULL; ptr = ptr->prev) {
- 
- 		rc = fn(ptr->data, arg);
- 		if (rc < 0) 
-@@ -307,7 +307,7 @@ hidden int dbase_llist_list(
- 		if (tmp_records == NULL)
- 			goto omem;
- 
--		for (ptr = dbase->cache; ptr != NULL; ptr = ptr->next) {
-+		for (ptr = dbase->cache_tail; ptr != NULL; ptr = ptr->prev) {
- 			if (dbase->rtable->clone(handle, 
- 				ptr->data, &tmp_records[i]) < 0)
- 				goto err;
+Lee
+>
 
---------------070104070201060601050100--
+------=_Part_28389_25621455.1135669030923
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+On 12/25/05, <b class=3D"gmail_sendername">L L</b> &lt;<a href=3D"mailto:he=
+r.drinne@gmail.com">her.drinne@gmail.com</a>&gt; wrote:<div><span class=3D"=
+gmail_quote"></span><blockquote class=3D"gmail_quote" style=3D"border-left:=
+ 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex=
+;">
+I'm in the process of a source SELinux install, and have compiled and
+installed libsepol, libselinux and checkpolicy successflly, but when I
+try to compile policycoreutils, it complains that semanage/modules.h
+can not be found. and the build fails.&nbsp; I cannot find a &quot;module.h=
+&quot;
+within the tree I have all my SELinux files in, but I do have a
+modules.h as part of libsepol.&nbsp; Not sure if these are related, but
+I do recall seeing a post in the archives about&nbsp; the read/write
+for the module sbeing moved from semanage to sepol, but I do not know
+if this is related or not.<br>
+<br>
+Any help would be greatly appreciated.&nbsp; Thanks</blockquote><div><br>
+<br>
+I found the problem, sorry to bother everyone.&nbsp; I had missed
+libsemanage on my list of things to install first.&nbsp; It's working
+now, and I am on to the fun bits, like PAM.<br>
+</div><br><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid=
+ rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+Lee<br>
+
+</blockquote></div><br>
+
+------=_Part_28389_25621455.1135669030923--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
