@@ -1,81 +1,56 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k01FcxXf029983
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 10:38:59 -0500 (EST)
-Received: from e32.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k01Fcv1Z022091
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 15:38:57 GMT
-Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
-	by e32.co.us.ibm.com (8.12.11/8.12.11) with ESMTP id k01FcwiN026199
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 10:38:58 -0500
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by westrelay02.boulder.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k01FbhSr237562
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 08:37:43 -0700
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k01Fcv67010623
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 08:38:57 -0700
-Date: Sun, 1 Jan 2006 09:38:56 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: linux-security-module@wirex.com, "SELinux(NSA)" <selinux@tycho.nsa.gov>
-Subject: Re: SELinux metadata protection
-Message-ID: <20060101153856.GA15767@sergelap.austin.ibm.com>
-References: <43B6C9E3.8020406@kaigai.gr.jp>
+Subject: Documentation, anyone?
+From: Erich Schubert <erich@debian.org>
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sun, 01 Jan 2006 17:37:16 +0100
+Message-Id: <1136133436.27906.56.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <43B6C9E3.8020406@kaigai.gr.jp>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting KaiGai Kohei (kaigai@kaigai.gr.jp):
-> It seems a bit curious behavior for me. Why can an unauthorized process
-> be allowed to know whether the file exists or not ?
-> I think it's worthwhile to conceal the existence of files from unauthorized
-> processes.
+Hi,
+Recent changes broke lots of stuff on my system.
+For example, genhomedircon no longer reads my local.users file...
+It seems that this is somehow related to semanage changes...
+Which doesn't work for me, and I can't find *any* documentation on it.
+So the current SELinux shape is IMHO really bad... no current
+documentation, and even those who have working installations (like me)
+have no idea how to get the latest stuff working... :-(
 
-This behavior is also necessary for meeting the new medium robustness
-protection profiles.
+I have a user role "netuser" who is allowed to use the network to a
+larger extend (e.g. bind to port_t). I'd like to make that the default
+role for certain unix accounts...
 
-> Thanks, any comments please, and have a good year :)
+$ semanage user --add -s netuser_u -R netuser_r erich
+['netuser_r']
+libsemanage.assert_init: A direct or server connection is needed to use
+this function - please call the corresponding connect() method
+libsemanage.enter_ro: could not enter read-only section
+/usr/sbin/semanage: Seuser lerich already defined
 
-Haven't looked at the patch in detail, but the following stood out to me:
+I couldn't find an example for /etc/selinux/seusers, I guessed it looks
+like
+"lerich:netuser_u" but that didn't work either...
 
-> --- linux-2.6.14.5-selinux/fs/readdir.c	2005-12-26 19:26:33.000000000 -0500
-> +++ linux-2.6.14.5-selinux.mp/fs/readdir.c	2005-12-29 20:26:55.000000000 -0500
-> @@ -33,7 +33,11 @@ int vfs_readdir(struct file *file, filld
->  	down(&inode->i_sem);
->  	res = -ENOENT;
->  	if (!IS_DEADDIR(inode)) {
-> -		res = file->f_op->readdir(file, buf, filler);
-> +		/* NOTE:
-> +		   When LSM was not enable, security_file_readdir()
-> +		   is same as 'file->f_op->readdir()'. 
-> +		*/
-> +		res = security_file_readdir(file, buf, filler);
->  		file_accessed(file);
+I've also investigated "genhomedircon", and what strikes me as really
+bad code is that it keeps on calling an external "grep" on just about
+everything.
+Loading a file and applying a regexp is really easy in Python, you
+know...
 
-I don't like this - the dir->f_op->readdir should not be done inside
-a function which claims to be a security check.  Plus the added code
-doesn't have a return value of it's own.  So why not stay closer to usual
-linux code and do something like
+To all users of my Debian repository or Debian unstable:
+Avoid upgrading for now if you are using extra user roles...
 
-	security_prep_readdir();
-	res = file->f_op->readdir(file, buf, filler);
+best regards,
+Erich Schubert
+-- 
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+     We can debug relationships, but it's always good policy to     //\
+     consider the people themselves to be features. People get      V_/_
+         annoyed when you try to debug them. -- Larry Wall
+      Alles verändert sich, sobald man sich selber verändert.
 
-inside vfs_readdir(), where security_prep_readdir() is defined away
-in the non-LSM case, and is 
 
-> +static inline void security_file_readdir (struct file *dir, void *buffer, filldir_t filler)
-> +{
-> +	security_filldir_t private;
-> +
-> +	private.dir = dir;
-> +	private.buffer = buffer;
-> +	private.filler = filler;
-
-in the LSM case?
-
-thanks,
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
