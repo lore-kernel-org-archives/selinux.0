@@ -1,35 +1,38 @@
-Subject: more genhomedircon badness...
+Subject: Re: Documentation, anyone?
 From: Erich Schubert <erich@debian.org>
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <1136133436.27906.56.camel@wintermute.xmldesign.de>
-References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux@tycho.nsa.gov
 Content-Type: text/plain; charset=ISO-8859-15
-Date: Sun, 01 Jan 2006 21:19:48 +0100
-Message-Id: <1136146788.27906.65.camel@wintermute.xmldesign.de>
+Date: Sun, 01 Jan 2006 21:33:41 +0100
+Message-Id: <1136147621.27906.74.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've now created /etc/selinux/modules/active/modules
-and /etc/selinux/modules/active/seusers...
+Hello Ivan,
+[sorry for not having the in-reply-to header, I'm not subscribed to the
+list]
+I'm not running Fedora.
+The reason why I'd like to find out more on the seusers file is because
+the latest genhomedircon "depends" on this file. But I couldn't find one
+anywhere.
+Obviously, I don't have your <type>/modules/active directory either...
+And none of this was included with the semanage source I have, nor is it
+explained in the manpages or a "doc" subdir in the source...
 
-genhomedircon:  Warning!  No support yet for expanding ROLE macros in
-the /etc/selinux/./contexts/files/homedir_template file when using
-libsemanage.
-genhomedircon:  You must manually update file_contexts.homedirs for any
-non-user_r users (including root).
-zsh: 19705 segmentation fault  genhomedircon
+Yes, I'm running a "plain old" strict policy...
 
-Ouch, a segfault!
+Oh, and in genhomedircon, the third component is not entirely optional:
+probably line 201, "if len(user) < 3:" should be < 2 then... ;-)
+(in the non-semanaged case)
 
 best regards,
 Erich Schubert
 -- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-          There are only 10 types of people in the world:           //\
-          Those who understand binary and those who don't           V_/_
-     Mathematik ist die Kunst, verschiedene Dinge mit demselben
-                Namen zu belegen. --- Henri Poincaré
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+           There are only 10 types of people in the world:           //\
+           Those who understand binary and those who don't           V_/_
+   Die kürzeste Verbindung zwischen zwei Menschen ist ein Lächeln.
 
 
 
