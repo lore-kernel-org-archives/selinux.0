@@ -1,73 +1,92 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k01HmvXf000934
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 12:48:57 -0500 (EST)
-Received: from e34.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k01Hms1Z025351
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 17:48:54 GMT
-Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
-	by e34.co.us.ibm.com (8.12.11/8.12.11) with ESMTP id k01HmtS0005627
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 12:48:55 -0500
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by westrelay02.boulder.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k01HlfSr184158
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 10:47:41 -0700
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k01Hmtuv006015
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 10:48:55 -0700
-Date: Sun, 1 Jan 2006 11:48:54 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: linux-security-module@wirex.com, "SELinux(NSA)" <selinux@tycho.nsa.gov>
-Subject: Re: SELinux metadata protection
-Message-ID: <20060101174854.GB16971@sergelap.austin.ibm.com>
-References: <43B6C9E3.8020406@kaigai.gr.jp> <20060101153856.GA15767@sergelap.austin.ibm.com> <43B811E9.9000907@kaigai.gr.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <43B811E9.9000907@kaigai.gr.jp>
+Message-ID: <43B7FB1D.3010807@cornell.edu>
+Date: Sun, 01 Jan 2006 10:54:05 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Erich Schubert <erich@debian.org>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Documentation, anyone?
+References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+In-Reply-To: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting KaiGai Kohei (kaigai@kaigai.gr.jp):
-> Hmm... I'm not so familiar with ISO-15408.
-> Do you know previous discussions about such behavior on filename resolving 
-> or readdir ?
 
-I can look around later in the week for past discussions (not sure
-whether there have been any), but at least here is the protection
-profile I'm talking about:
-http://niap.nist.gov/cc-scheme/pp/PP_MLOSPP-MR_V1.22.html
+> Hi,
+> Recent changes broke lots of stuff on my system.
+> For example, genhomedircon no longer reads my local.users file...
+> It seems that this is somehow related to semanage changes...
+>   
+More detail please..
+> Which doesn't work for me, and I can't find *any* documentation on it.
+> So the current SELinux shape is IMHO really bad... no current
+> documentation, and even those who have working installations (like me)
+> have no idea how to get the latest stuff working... :-(
+>   
+I didn't realize that there's been a stable release - if so, I will 
+agree with you.
+If not, please consider that this is software in development - code 
+takes priority to documentation.
+Also, I do see manpages for the utilities semanage, and semodule, which 
+would be most relevant to you.
+> I have a user role "netuser" who is allowed to use the network to a
+> larger extend (e.g. bind to port_t). I'd like to make that the default
+> role for certain unix accounts...
+>
+> $ semanage user --add -s netuser_u -R netuser_r erich
+> ['netuser_r']
+> libsemanage.assert_init: A direct or server connection is needed to use
+> this function - please call the corresponding connect() method
+> libsemanage.enter_ro: could not enter read-only section
+> /usr/sbin/semanage: Seuser lerich already defined
+>   
+The semanage tool in particular was only created recently. I would 
+qualify it as alpha at this point, since I can find tons of bugs without 
+trying very hard. The situation above would occur if you ran it as 
+non-root user. The semanage connection failed, but the python tool 
+doesn't check the rc value for most of the libsemanage calls it makes, 
+so it continues on, instead of reporting the error, and tries to call 
+functions that require a connection. It should likely make sure you have 
+proper access rights on startup.
+> I couldn't find an example for /etc/selinux/seusers, I guessed it looks
+> like
+> "lerich:netuser_u" but that didn't work either...
+>   
+You should not edit /etc/selinux/seusers directly. On a "managed" 
+system, which I assume yours is, the master copies of all such files are 
+located in a sandbox at /etc/selinux/<type>/modules/active. If you want 
+to edit them manually (which is probably recommended at this point, you 
+need sufficient access, then you can edit, and run "semodule -B", which 
+rebuilds and reinstalls the sandbox).
 
-> Pay attention to what 'filler' was overwritten in this patch.
-> When LSM is enable, FS's readdir method (dir->f_op->readdir) always calls 
-> 'security_file_filldir'
-> for each directory entry instead of original 'filler' given by arguments.
+An example does not exist, because you're really *not* supposed to be 
+editing the files manually - hopefully the semanage utility will get 
+into shape soon, so you won't have to edit config files by hand. The 
+format is:
+linux user:selinux_user[:mls], where the mls part is optional. The 
+selinux_user must be listed in your users.local file at 
+/etc/selinux/<type>/modules/active/users.local. The format for that is 
+backwards compatible with the previous one, except that MLS contexts 
+must be on one line with no spaces. You do not have to put user_u, root, 
+system_u and the like in that file, since they are build into policy, 
+depending on which policy type you use. You can use semanage user -l to 
+see the combination of local and in-policy users.
 
-Yes, I see, and I was being dense and misread it.  So forget what I said
-before.  But please add a good comment above the security_file_filldir
-definition.  Also, the kernel community doesn't like typedefs, so please
-change
-
-+typedef struct {
-+       struct file *dir;
-+       void *buffer;
-+       filldir_t filler;
-+} security_filldir_t;
-
-to something like
-
-+struct security_filldir_info {
-+       struct file *dir;
-+       void *buffer;
-+       filldir_t filler;
-+};
+> I've also investigated "genhomedircon", and what strikes me as really
+> bad code is that it keeps on calling an external "grep" on just about
+> everything.
+> Loading a file and applying a regexp is really easy in Python, you
+> know...
+>   
+I can't comment on that. The genhomedircon utility (which is really an 
+internal tool, not to be called manually anymore, that will hopefully go 
+away in the future), should mostly work. It has one major bug - it can't 
+expand ROLE macros for non user_r users at this point - this is relevant 
+for users of mls and strict policy, not targeted. I am hoping to fix 
+that by the time FC 5 is released.
 
 
-Do you have any performance measurements, say with selinux and with only
-capabilities compiled in, with and without this patch?  I suspect that will
-be one of the most important points of contention if this goes to the
-linux-kernel list.
 
-thanks,
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
