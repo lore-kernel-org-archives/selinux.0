@@ -1,114 +1,73 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k01HVPXf000800
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 12:31:25 -0500 (EST)
-Received: from www346.sakura.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k01HUNbK015234
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 17:30:24 GMT
-Message-ID: <43B811E9.9000907@kaigai.gr.jp>
-Date: Mon, 02 Jan 2006 02:31:21 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: linux-security-module@wirex.com, "SELinux(NSA)" <selinux@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k01HmvXf000934
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 12:48:57 -0500 (EST)
+Received: from e34.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k01Hms1Z025351
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 17:48:54 GMT
+Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
+	by e34.co.us.ibm.com (8.12.11/8.12.11) with ESMTP id k01HmtS0005627
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 12:48:55 -0500
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by westrelay02.boulder.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k01HlfSr184158
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 10:47:41 -0700
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k01Hmtuv006015
+	for <selinux@tycho.nsa.gov>; Sun, 1 Jan 2006 10:48:55 -0700
+Date: Sun, 1 Jan 2006 11:48:54 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: linux-security-module@wirex.com, "SELinux(NSA)" <selinux@tycho.nsa.gov>
 Subject: Re: SELinux metadata protection
-References: <43B6C9E3.8020406@kaigai.gr.jp> <20060101153856.GA15767@sergelap.austin.ibm.com>
-In-Reply-To: <20060101153856.GA15767@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <20060101174854.GB16971@sergelap.austin.ibm.com>
+References: <43B6C9E3.8020406@kaigai.gr.jp> <20060101153856.GA15767@sergelap.austin.ibm.com> <43B811E9.9000907@kaigai.gr.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <43B811E9.9000907@kaigai.gr.jp>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, thanks for your comments.
+Quoting KaiGai Kohei (kaigai@kaigai.gr.jp):
+> Hmm... I'm not so familiar with ISO-15408.
+> Do you know previous discussions about such behavior on filename resolving 
+> or readdir ?
 
-Serge E. Hallyn wrote:
-> Quoting KaiGai Kohei (kaigai@kaigai.gr.jp):
-> 
->>It seems a bit curious behavior for me. Why can an unauthorized process
->>be allowed to know whether the file exists or not ?
->>I think it's worthwhile to conceal the existence of files from unauthorized
->>processes.
-> 
-> 
-> This behavior is also necessary for meeting the new medium robustness
-> protection profiles.
+I can look around later in the week for past discussions (not sure
+whether there have been any), but at least here is the protection
+profile I'm talking about:
+http://niap.nist.gov/cc-scheme/pp/PP_MLOSPP-MR_V1.22.html
 
-Hmm... I'm not so familiar with ISO-15408.
-Do you know previous discussions about such behavior on filename resolving or readdir ?
+> Pay attention to what 'filler' was overwritten in this patch.
+> When LSM is enable, FS's readdir method (dir->f_op->readdir) always calls 
+> 'security_file_filldir'
+> for each directory entry instead of original 'filler' given by arguments.
 
->>--- linux-2.6.14.5-selinux/fs/readdir.c	2005-12-26 19:26:33.000000000 -0500
->>+++ linux-2.6.14.5-selinux.mp/fs/readdir.c	2005-12-29 20:26:55.000000000 -0500
->>@@ -33,7 +33,11 @@ int vfs_readdir(struct file *file, filld
->> 	down(&inode->i_sem);
->> 	res = -ENOENT;
->> 	if (!IS_DEADDIR(inode)) {
->>-		res = file->f_op->readdir(file, buf, filler);
->>+		/* NOTE:
->>+		   When LSM was not enable, security_file_readdir()
->>+		   is same as 'file->f_op->readdir()'. 
->>+		*/
->>+		res = security_file_readdir(file, buf, filler);
->> 		file_accessed(file);
-> 
-> 
-> I don't like this - the dir->f_op->readdir should not be done inside
-> a function which claims to be a security check.  Plus the added code
-> doesn't have a return value of it's own.  So why not stay closer to usual
-> linux code and do something like
-> 
-> 	security_prep_readdir();
-> 	res = file->f_op->readdir(file, buf, filler);
-> 
-> inside vfs_readdir(), where security_prep_readdir() is defined away
-> in the non-LSM case, and is 
-> 
-> 
->>+static inline void security_file_readdir (struct file *dir, void *buffer, filldir_t filler)
->>+{
->>+	security_filldir_t private;
->>+
->>+	private.dir = dir;
->>+	private.buffer = buffer;
->>+	private.filler = filler;
-> 
-> 
-> in the LSM case?
+Yes, I see, and I was being dense and misread it.  So forget what I said
+before.  But please add a good comment above the security_file_filldir
+definition.  Also, the kernel community doesn't like typedefs, so please
+change
 
-Indeed, file->f_op->readdir() need not necessary to be called inside LSM function.
-But overwriting 'filler' is necessary to check permission for each directory entry.
-I agree your suggestion if security_prep_readdir() is defined as macro, and
-this can overwrite 'filler' and 'buf'.
++typedef struct {
++       struct file *dir;
++       void *buffer;
++       filldir_t filler;
++} security_filldir_t;
 
-Pay attention to what 'filler' was overwritten in this patch.
-When LSM is enable, FS's readdir method (dir->f_op->readdir) always calls 'security_file_filldir'
-for each directory entry instead of original 'filler' given by arguments.
-When 'security_file_filldir' is called for authorized directory entry, it calls original 'filler'
-for writing the entry into userspace. But 'security_file_filldir' is called for unauthorized
-directory entry, it skips to call original 'filler'.
-In the result, only authorized directory entries are returned to userspace.
-The above code is necessary to implement such behavior.
+to something like
 
-* in normal case
-vfs_readdir()
-  -> FS's readdir method
-     - entry-1  -> filldir("entry-1")
-     - entry-2  -> filldir("entry-2")
-          :
-     - entry-N  -> filldir("entry-N")
-RESULT: all entries are returned to userspace.
++struct security_filldir_info {
++       struct file *dir;
++       void *buffer;
++       filldir_t filler;
++};
 
-* in metadata protection case
-vfs_readdir()
-  -> FS's readdir method
-     - entry-1  -> security_file_filldir("entry-1") -> filldir("entry-1), if permitted
-     - entry-2  -> security_file_filldir("entry-2") -> filldir("entry-2), if permitted
-          :
-     - entry-N  -> security_file_filldir("entry-N") -> filldir("entry-N), if permitted
-RESULT: only authorized entries are returned to userspace.
 
-Thanks,
+Do you have any performance measurements, say with selinux and with only
+capabilities compiled in, with and without this patch?  I suspect that will
+be one of the most important points of contention if this goes to the
+linux-kernel list.
 
-# BTW, why doesn't deliver the first mail of this thread I posted in SELinux-list?
---
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
