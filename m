@@ -1,62 +1,70 @@
-Message-ID: <43B95D95.4080509@cornell.edu>
-Date: Mon, 02 Jan 2006 12:06:29 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43B979B6.8090201@tresys.com>
+Date: Mon, 02 Jan 2006 14:06:30 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
 CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Optional rebuild
-References: <43AC5726.8090102@cornell.edu> <43B975B3.4000103@tresys.com>
-In-Reply-To: <43B975B3.4000103@tresys.com>
+Subject: Re: [SEMANAGE] Swig update: typemaps
+References: <43AF074E.6040301@cornell.edu>
+In-Reply-To: <43AF074E.6040301@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
+> Merry Christmas everyone!
+> 
+> This patch updates the typemaps to add booleans, interfaces, context, 
+> and char** (for context_to_string). I really don't know what I'm doing 
+> here with those typemaps, so I would appreciate if someone (Joshua?) can 
+> look over. I was just following the pattern, with minor changes, and it 
+> seems to work for a port list function that I wrote for the semanage tool.
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -Naurp --exclude-from excludes old/libsemanage/src/semanageswig.i new/libsemanage/src/semanageswig.i
+> --- old/libsemanage/src/semanageswig.i	2005-12-25 15:50:26.000000000 -0500
+> +++ new/libsemanage/src/semanageswig.i	2005-12-25 15:48:13.000000000 -0500
+> @@ -51,7 +51,13 @@
+>  	}	
+>  	semanage_port_t *semanage_port_by_idx(semanage_port_t **list, int n) {
+>  		return list[n];
+> -	}	
+> +	}
+> +	semanage_iface_t *semanage_iface_by_idx(semanage_iface_t **list, int n) {
+> +		return list[n];
+> +	}
+> +	semanage_bool_t *semanage_bool_by_idx(semanage_bool_t **list, int n) {
+> +		return list[n];
+> +	}
+>  	char *char_by_idx(char **list, int n) {
+>  		return list[n];
+>  	}
+Man.. adding that first semanage_*_by_idx was just a quick hack to get 
+something working, we should probably move those into the proper 
+libsemanage API instead of just adding them to the wrapper (they are 
+clearly useful)
 
->> This patch uses the modified flags to skip a rebuild whenever possible.
->> It also adds the active boolean header to semanage.h (which I missed 
->> because of diff excludes).
->> It will now commit changes to the active booleans, so if no policy 
->> changes are done (modified = 0), or
->> changes are done, but preservebools is enabled (which it is, by 
->> default), then changes to active
->> booleans in the transaction will work as expected, and will not be 
->> overwritten by policy booleans.
->
-> I'm not sure I understand this. If preservebools is enabled the policy 
-> must be rebuilt. Looking at the patch it looks like you do rebuild 
-> when persistent booleans are changed though.
-I'm confused. Here's what the patch does - normally if you commit, you 
-will always rebuild policy, and in certain cases, depending on 
-preservebools that will cause any changes to active booleans to be 
-overwritten (by the booleans in policy). So, if you want to change 
-active booleans in a transaction, they might get overwritten for no 
-reason. After the patch, if you commit you will only rebuild if 
-necessary (if something affectng policy was changed). This means that 
-you can have a transaction that changes a bunch of (active) booleans, 
-then does a commit, and everything works as expected.
+> @@ -67,6 +73,14 @@
+>  %apply int *OUTPUT { int * };
+>  %apply int *OUTPUT { size_t * };
+>  
+> +%typemap(in, numinputs=0) char **(char *temp) {
+> +	$1 = &temp;
+> +}
+> +
+> +%typemap(argout) char** {
+> +	$result = t_output_helper($result, SWIG_FromCharPtr(*$1));
+> +}
+> +
 
-I guess that if you decide to add a bunch of users, and preservebools = 
-0, and then add some active booleans, and then commit that still 
-wouldn't work, because a rebuild would be forced, and policy booleans 
-would take precedence to active boolean changes.
->>
->> This is also an optimization - allows running commit without 
->> rebuilding the policy, which could be beneficial for read-only 
->> operations using a transaction - it also seems more correct, because 
->> a read-only operation should not alter the state of the system - 
->> commit should not apply any changes that weren't explicit.
->
-> A commit is by definition a write operation. The user is responsible 
-> for  not committing if there aren't any changes.
-I disagree - I think it's the other way around. If there aren't any 
-changes, then commit should have no effect. If you do writes on commit 
-that the user didn't request, that seems broken to me - all changes 
-should be initiated by the user. A commit flushes those changes, and 
-should have as few side effects as possible. Anyway, I don't see why we 
-shouldn't make things a bit faster if we can.
+Have to be careful with this one, you don't want it messing with other 
+char**. Did you run all the tests in pywrap-test after rebuilding this 
+to make sure it didn't interrupt anything else?
 
-
-
+The rest look fine.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
