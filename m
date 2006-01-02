@@ -1,56 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k02J5AXf010150
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jan 2006 14:05:10 -0500 (EST)
-Received: from luminouswebdesign.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k02J4AYl026471
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jan 2006 19:04:11 GMT
-Date: Mon, 2 Jan 2006 14:06:17 -0500
-From: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>
-Message-Id: <200601021906.k02J6HmB009362@luminouswebdesign.com>
-To: linux-security-module@wirex.com
-CC: selinux@tycho.nsa.gov
-Subject: Re: SELinux metadata protection
+Message-ID: <43B95D95.4080509@cornell.edu>
+Date: Mon, 02 Jan 2006 12:06:29 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [SEMANAGE] Optional rebuild
+References: <43AC5726.8090102@cornell.edu> <43B975B3.4000103@tresys.com>
+In-Reply-To: <43B975B3.4000103@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------------------------
-Casey Schaufler
-casey@schaufler-ca.com
-650.906.1780
 
-
-
-
---- KaiGai Kohei <kaigai@kaigai.gr.jp> wrote:
-
-> Date: Sun, 01 Jan 2006 03:11:47 +0900
-> From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-> To: linux-security-module@wirex.com, "SELinux(NSA)"
-> <selinux@tycho.nsa.gov>
-> Subject: SELinux metadata protection
+>> This patch uses the modified flags to skip a rebuild whenever possible.
+>> It also adds the active boolean header to semanage.h (which I missed 
+>> because of diff excludes).
+>> It will now commit changes to the active booleans, so if no policy 
+>> changes are done (modified = 0), or
+>> changes are done, but preservebools is enabled (which it is, by 
+>> default), then changes to active
+>> booleans in the transaction will work as expected, and will not be 
+>> overwritten by policy booleans.
 >
-> Hello
+> I'm not sure I understand this. If preservebools is enabled the policy 
+> must be rebuilt. Looking at the patch it looks like you do rebuild 
+> when persistent booleans are changed though.
+I'm confused. Here's what the patch does - normally if you commit, you 
+will always rebuild policy, and in certain cases, depending on 
+preservebools that will cause any changes to active booleans to be 
+overwritten (by the booleans in policy). So, if you want to change 
+active booleans in a transaction, they might get overwritten for no 
+reason. After the patch, if you commit you will only rebuild if 
+necessary (if something affectng policy was changed). This means that 
+you can have a transaction that changes a bunch of (active) booleans, 
+then does a commit, and everything works as expected.
+
+I guess that if you decide to add a bunch of users, and preservebools = 
+0, and then add some active booleans, and then commit that still 
+wouldn't work, because a rebuild would be forced, and policy booleans 
+would take precedence to active boolean changes.
+>>
+>> This is also an optimization - allows running commit without 
+>> rebuilding the policy, which could be beneficial for read-only 
+>> operations using a transaction - it also seems more correct, because 
+>> a read-only operation should not alter the state of the system - 
+>> commit should not apply any changes that weren't explicit.
 >
->
-> Nowaday, I´m considering about a philosophical
-> theme.
->
-> In my understanding, file-metadata includes
-> _filename_ similar to filesize
-> update-timestamp, and so on.
-
-Casey takes a deep breath...
-
-The filename is not an attribute of the file.
-The pathname components are data contained
-in directory entries. The association of path name
-to inode number is one way. There is no association
-of path name from file. Really. This is the thing
-that make audit hard.
-
-Yes, I know "It's obvious". It's just not true.
-
+> A commit is by definition a write operation. The user is responsible 
+> for  not committing if there aren't any changes.
+I disagree - I think it's the other way around. If there aren't any 
+changes, then commit should have no effect. If you do writes on commit 
+that the user didn't request, that seems broken to me - all changes 
+should be initiated by the user. A commit flushes those changes, and 
+should have as few side effects as possible. Anyway, I don't see why we 
+shouldn't make things a bit faster if we can.
 
 
 
