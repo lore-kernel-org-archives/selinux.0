@@ -1,39 +1,49 @@
-Message-ID: <43B98E04.1060609@tresys.com>
-Date: Mon, 02 Jan 2006 15:33:08 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <43B9761A.3070504@cornell.edu>
+Date: Mon, 02 Jan 2006 13:51:06 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Swig update: typemaps
-References: <43AF074E.6040301@cornell.edu> <43B979B6.8090201@tresys.com> <43B985EA.2040704@tresys.com> <43B9712C.1080402@cornell.edu>
-In-Reply-To: <43B9712C.1080402@cornell.edu>
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+   dwalsh@redhat.com
+Subject: Re: [SEMANAGE][SEPOL] Enable ports
+References: <43ACADB3.7070509@cornell.edu> <43B97823.3080201@tresys.com>
+In-Reply-To: <43B97823.3080201@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+>
 >>
->>>
->>>
->>> Have to be careful with this one, you don't want it messing with 
->>> other char**. Did you run all the tests in pywrap-test after 
->>> rebuilding this to make sure it didn't interrupt anything else?
->>>
->>> The rest look fine.
->>>
+>> This brings up an interesting point - if ordering of records matters, 
+>> then some thought should go into which way iterate() loops over the 
+>> records... (and what order list() returns). Currently for files, the 
+>> ordering is backwards to what appears in the file (not sure what 
+>> policydb does).
 >>
->> Speaking of which. Anytime you add anything to the wrapper please add 
->> the corresponding tests to pywrap-test. I'd like it if there was 
->> always a test for anything in mainline (I think Steve would too)
-> 
-> 
-> I have my own set of tests in C that I run (with valgrind). They're 
-> probably more detailed than what you have, but in terms of code are an 
-> awful mess, so I can't really submit them to use.
-> 
+>
+> This should be fixed. the policy parser (policy_parse.y) currently 
+> preserves the order exactly as specified, with errors in the case of 
+> duplicate or shadowed entries.
 
-That is fine but there should be tests for the wrappers upstream. I 
-consider this a requirement for adding wrappers.
+I think the order in policy should be correct after my list reversal 
+patch (see other patches).
+The order in the on-disk file is irrelevant for ports - it's just an 
+implementation detail of the library.
+More detail on this in my other message in response to File Contexts APIs.
+
+>
+> I think a good workaround for now is to only expose exact port 
+> labeling via libsemanage, that way you can prepend them to the 
+> policydb list and not worry about sorting, etc. If the user needs to 
+> set multiple ports the client can expose that functionality, and 
+> limited intelligence can be added there (error checking and such). the 
+> policydb portcons would still have ranges so the fallbacks (1-1024, 
+> etc) would still be there.
+I think sorting should work after the list reversal patch. It has some 
+drawbacks as I've pointed out there, but should work. Adding the 
+"limited intelligence" with respect to error checking is much more 
+difficult in libsemanage, and I've wasted lots of time on this. It's 
+easier to do in the client.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
