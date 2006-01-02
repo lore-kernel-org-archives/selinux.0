@@ -1,44 +1,68 @@
-Message-ID: <43B97CF7.9070501@tresys.com>
-Date: Mon, 02 Jan 2006 14:20:23 -0500
+Message-ID: <43B97E72.3070306@tresys.com>
+Date: Mon, 02 Jan 2006 14:26:42 -0500
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Commit numbers for ro database calls
-References: <43ABDF45.7020900@cornell.edu> <43B97479.90101@tresys.com> <43B95B30.4040108@cornell.edu> <43B97ACC.5080203@tresys.com> <43B9603F.7060202@cornell.edu>
-In-Reply-To: <43B9603F.7060202@cornell.edu>
+Subject: Re: [SEMANAGE] File Contexts APIs (part 1)
+References: <43B086A1.2030007@cornell.edu>
+In-Reply-To: <43B086A1.2030007@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Ivan Gyurdiev wrote:
+> Hi, this patch implemens an API for working with file_contexts.local.
 > 
->>>
->>> How is it broken? How should it read the data?
->>>
->> It should request the data from semanage_store if it is being stored 
->> in the store, just like you'd request the data from an LDAP server, 
->> etc. Right now the database is sneaking into the store without going 
->> through the store API, which is broken but like I said, probably not 
->> worth the time to fix.
+> A file context record is represented as a (regexp, type, context) triple.
+> A key is (regexp, type), and matches only if regexp and type match exactly.
+> type is block, char, pipe, regular file, all files, etc..
 > 
-> I didn't realize there was an API for reading things from the store.\
-There isn't exactly, but the dependance on semanage_store that you 
-commented on is a symptom of this. You wouldn't put ldap locking in a 
-database, for example, likewise with semanage_store.
-
-> I guess what you're asking me to do is to move code for read/write into 
-> the semanage_store,
-> which I could do, but I'm not sure I see the benefit of that - it will 
-> just complicate things and make
-> the store dependent on polymorphism, which I'm guessing you wouldn't like.
+> This key scheme might be too simple, but (as in ports), it seems like more
+> complex operations with the key should be pushed into the client.
 > 
-
-Right, these are within the same library so it isn't an issue at all 
-(except maybe stylism) and the current stuff work so I'd rather not 
-touch it. One could always view the _file backends as an extension of 
-semanage_store, which makes them unconditionally depenadant on it, which 
-  I'm fine with.
+> The parser is compatible with the current file_contexts format.
+> It also allows multi-line records, like all other semanage parsers.
+> 
+> Note:
+>        Unlike ports and interfaces, semanage_fcontext_get_con() can and 
+> will
+>        return NULL on file specifications without a context (<<none>>).
+>        Interfaces and ports do not support <<none>>.
+> 
+> Note2:
+>        Like in ports, I am concerned here about the order of 
+> iterate()/list()
+>        traversal - I will likely have to reverse it in the dbase code, 
+> because it
+>        seems backwards.
+Matchpathcon already re-sorts contexts (based on exact/inexact matches 
+now, and stem specificity once we get some issues resolved). That said, 
+the sorts we do are stable, which means if 2 keys have the exact same 
+specificity they'll stay in order. This would be an issue with your 
+reversal. Just out of curiosity, why not prepend entries to the linked 
+list so that they are always in the order of the file (likewise for 
+every other record type). It seems strange that the list could 
+potentially get reversed on every write (reads in reverse and writes in 
+order?)
+> 
+> Caveats:
+>        - there's currently no support for working with the overall
+>        file_contexts file, this is just the .local file
+> 
+>        - validation is missing - needs additional sepol functionality, just
+>        like seuser validation
+> 
+>        - .local file is not installed yet, it stays in the sandbox - 
+> needs code to merge
+>        .local into the other file_contexts file somehow (or 
+> alternatively, the file_contexts.local path
+>        should be exposed by libselinux)
+> 
+we already have a little infrastructure for dealing with file_contexts 
+files in libsemanage, however matchpathcon is currently looking for a 
+.local file in POLICYTYPE/contexts/files/file_contexts.local so you 
+should probably install it there.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
