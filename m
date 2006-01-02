@@ -1,57 +1,95 @@
-Message-ID: <43B96EF5.4080906@cornell.edu>
-Date: Mon, 02 Jan 2006 13:20:37 -0500
+Message-ID: <43B9712C.1080402@cornell.edu>
+Date: Mon, 02 Jan 2006 13:30:04 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
 To: Joshua Brindle <jbrindle@tresys.com>
 CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Reorganize sandbox_expand
-References: <43B7C440.3060205@cornell.edu> <43B981DE.6080403@tresys.com>
-In-Reply-To: <43B981DE.6080403@tresys.com>
+Subject: Re: [SEMANAGE] Swig update: typemaps
+References: <43AF074E.6040301@cornell.edu> <43B979B6.8090201@tresys.com> <43B985EA.2040704@tresys.com>
+In-Reply-To: <43B985EA.2040704@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
 >
-> It looks like the tmp store is going to be written back to active even 
-> if nothing is written, is this intentional? (it looks like that is 
-> also the case with the optional rebuild patch, as it only makes a 
-> policydb rebuild optional). In that case the commit number is probably 
-> going to be incremented.
-That's because policy_components.c is a misnomer, and those functions 
-contain things that aren't really policy components, like active 
-booleans, file_contexts, and seusers. Specifically, file_contexts and 
-seusers get written to disk (in 
-policy_components.c:semanage_commit_components()), so yes, an install is 
-needed that will increment the commit number.
+>>
+>>
+>> Have to be careful with this one, you don't want it messing with 
+>> other char**. Did you run all the tests in pywrap-test after 
+>> rebuilding this to make sure it didn't interrupt anything else?
+>>
+>> The rest look fine.
+>>
+>
+> Speaking of which. Anytime you add anything to the wrapper please add 
+> the corresponding tests to pywrap-test. I'd like it if there was 
+> always a test for anything in mainline (I think Steve would too)
 
-I probably need to move things around and re-organize them to allow 
-future optimizations.
-> direct_api is a user of the store. everything in libsemanage does not 
-> necessarilly use the store, when we add policy server api it will not 
-> use the store at all. 
-That's what concerns me with *database.c* depending on semanage_store.c. 
-The other thread was talking about *database_file.c*, which is something 
-different. The way I see the server working is as another backend of 
-database.c, so it still goes through that code. Database.c is supposed 
-to be backend-independent, generic entrypoint for dbase calls.
+I have my own set of tests in C that I run (with valgrind). They're 
+probably more detailed than what you have, but in terms of code are an 
+awful mess, so I can't really submit them to use.
 
-...but, it uses store locking, and store commit numbers, and relies on 
-those functions, which will probably need to change for the server. The 
-server api wouldn't need locking (because locking should be done done 
-server-side, not client-side). It would need commit numbers, but we'd 
-have to get those in some other kind of way, not by calling the store - 
-will need to probably put the function that gets commit numbers in a 
-table and initialize it differently for pserver vs direct.
+No, I didn't run pywrap-test. Does this work:
 
-> direct_api necessarilly depends on the store (all of its data is 
-> stored there), this is not wrong.
-Yes, but I didn't understand what's the criterion for splitting things 
-stylistically between direct_api and semanage_store. I'd put 
-expand_sandbox and things like that into direct_api.c
+Testing users...
+Query status (0 is good):  124
+User list size:  4
+User name:  system_u
+   User mls level:  s0
+   User mls range:  s0-s0:c0.c255
+   User number of roles:  1
+   User roles:
+       system_r
+User name:  user_u
+   User mls level:  s0
+   User mls range:  s0-s0:c0.c255
+   User number of roles:  3
+   User roles:
+       system_r
+       sysadm_r
+       user_r
+User name:  root
+   User mls level:  s0
+   User mls range:  s0-s0:c0.c255
+   User number of roles:  3
+   User roles:
+       system_r
+       sysadm_r
+       user_r
+User name:  Ivan
+   User mls level:  s0
+   User mls range:  s0-s0:c1.c4,c55
+   User number of roles:  1
+   User roles:
+       staff_r
 
-> What name system are you refering to?
-The thing with semanage_path() and the prefixes...
+Testing seusers...
+Query status (0 is good):  124
+SEUser list size:  2
+seuser name:  root
+   seuser mls range:  s0
+   seuser sename:  root
+seuser name:  default
+   seuser mls range:  s0
+   seuser sename:  user_u
+
+Testing modules...
+Transaction number:  124
+Module list size:  0
+No modules installed!
+This is not necessarily a test failure.
+
+Testing user write...
+Starting transaction...
+Commit status (transaction number):  0
+Removing user...
+Commit status (transaction number):  0
+
+Testing seuser write...
+Starting transaction...
+Commit status (transaction number):  0
+Removing seuser...
+Commit status (transaction number):  0
 
 
 --
