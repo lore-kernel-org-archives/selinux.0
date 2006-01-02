@@ -1,62 +1,60 @@
-Message-ID: <43B981DE.6080403@tresys.com>
-Date: Mon, 02 Jan 2006 14:41:18 -0500
+Message-ID: <43B98298.4020106@tresys.com>
+Date: Mon, 02 Jan 2006 14:44:24 -0500
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Reorganize sandbox_expand
-References: <43B7C440.3060205@cornell.edu>
-In-Reply-To: <43B7C440.3060205@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Erich Schubert <erich@debian.org>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Documentation, anyone?
+References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+In-Reply-To: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> Happy New Year to everybody...
-> My new year's resolution is to spent less time writing patches, and more 
-> time having fun..
-> Like all such resolutions, it's probably wishful thinking.
+Erich Schubert wrote:
+> Hi,
+> Recent changes broke lots of stuff on my system.
+> For example, genhomedircon no longer reads my local.users file...
+> It seems that this is somehow related to semanage changes...
+> Which doesn't work for me, and I can't find *any* documentation on it.
+> So the current SELinux shape is IMHO really bad... no current
+> documentation, and even those who have working installations (like me)
+> have no idea how to get the latest stuff working... :-(
 > 
-shocker :)
-
-> ==========
-> This patch splits semanage_sandbox_install into 3 functions - one that 
-> expands, one that merges local stuff, and one that writes.
+> I have a user role "netuser" who is allowed to use the network to a
+> larger extend (e.g. bind to port_t). I'd like to make that the default
+> role for certain unix accounts...
 > 
-> This is more flexible, because I can skip the parts I don't like. For 
-> example I can skip link/expand/write if modules_modified=0, and I just 
-> want to validate a seuser change (needs a few more changes to do that). 
-> I can keep the policydb around for a while if I want to - maybe for some 
-> kind of caching scheme w/ commit numbers. I can choose to grab a 
-> different policydb - maybe we have it cached, or maybe no modules were 
-> changed, and we can reuse an existing expanded policy. The point is - do 
-> one thing per function. The policydb is valuable and should not be 
-> discarded so easily.
+> $ semanage user --add -s netuser_u -R netuser_r erich
+> ['netuser_r']
+> libsemanage.assert_init: A direct or server connection is needed to use
+> this function - please call the corresponding connect() method
+> libsemanage.enter_ro: could not enter read-only section
+> /usr/sbin/semanage: Seuser lerich already defined
 > 
-I think this is fine. Personally I don't split things out until I need 
-to, else the code becomes much harder to debug, but this seems like a 
-good reason to do so.
+> I couldn't find an example for /etc/selinux/seusers, I guessed it looks
+> like
+> "lerich:netuser_u" but that didn't work either...
+> 
+> I've also investigated "genhomedircon", and what strikes me as really
+> bad code is that it keeps on calling an external "grep" on just about
+> everything.
+> Loading a file and applying a regexp is really easy in Python, you
+> know...
+> 
+> To all users of my Debian repository or Debian unstable:
+> Avoid upgrading for now if you are using extra user roles...
+> 
+> best regards,
+> Erich Schubert
 
-It looks like the tmp store is going to be written back to active even 
-if nothing is written, is this intentional? (it looks like that is also 
-the case with the optional rebuild patch, as it only makes a policydb 
-rebuild optional). In that case the commit number is probably going to 
-be incremented.
-
-> By the way, I don't understand the separation between semanage_store.c 
-> and direct_api.c anymore.
-> Expanding things, applying local changes, and writing the policy don't 
-> seem related to the store IMHO - they work on things stored in the 
-> store... but so does all the rest of libsemanage. On the other hand, the 
-> name system (which I still don't use, because it's not flexible enough), 
-> and locking seem more related to the store.
-direct_api is a user of the store. everything in libsemanage does not 
-necessarilly use the store, when we add policy server api it will not 
-use the store at all. direct_api necessarilly depends on the store (all 
-of its data is stored there), this is not wrong.
-
-What name system are you refering to?
-
+We've been putting a ton of effort into making the upgrade path to a 
+managed system pretty painless but it isn't exactly transparent. Have 
+you been watching all the traffic here? I know we addressed some of the 
+issues you are having. The srpm that upgrades to a modular policy has 
+all the migration logic, debian should probably consider converting to 
+modular and releasing a migration package since almost all the 
+functionality we are now adding depends on having a managed system.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
