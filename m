@@ -1,58 +1,72 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k03FucXf019896
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 10:56:38 -0500 (EST)
-Received: from web51507.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k03FuUah001497
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 15:56:30 GMT
-Message-ID: <20060103155531.9154.qmail@web51507.mail.yahoo.com>
-Date: Tue, 3 Jan 2006 07:55:31 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: setfiles and restorecon performance patch
-To: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>,
-   Daniel Walsh <dwalsh@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>
-In-Reply-To: <200601031959.34132.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k03GLCXf020204
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 11:21:13 -0500 (EST)
+Received: from keep.cflynt.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k03GL8ah006272
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 16:21:09 GMT
+Received: from clif.cflynt.com (clif.cflynt.com [192.168.9.2])
+	by keep.cflynt.com (8.12.10/8.12.10) with ESMTP id k03EQVOM025991
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 09:26:51 -0500
+Received: from clif.cflynt.com (localhost.localdomain [127.0.0.1])
+	by clif.cflynt.com (8.12.11/8.12.11) with ESMTP id k03EQNwa029463
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 09:26:25 -0500
+Received: (from clif@localhost)
+	by clif.cflynt.com (8.12.11/8.12.11/Submit) id k03EQMfo029462
+	for selinux@tycho.nsa.gov; Tue, 3 Jan 2006 09:26:22 -0500
+Date: Tue, 3 Jan 2006 09:26:22 -0500
+From: Clif Flynt <clif@cflynt.com>
+To: selinux@tycho.nsa.gov
+Subject: SELinux & SuSE
+Message-ID: <20060103142622.GA29438@clif.cflynt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Hi,
+I need to configure a SuSE workstation to meet NISPOM security standards.
 
-Just a couple comments:
+A previous incarnation of this used SNARE, SuSE 9.1, a munged
+Fedora core and a lot of luck.  I'm hoping to do something more
+out-of-the-box this time.
 
->@@ -143,7 +141,7 @@ int restore(char *filename) {
->     if (verbose>1)
->       fprintf(stderr,"Warning! %s refers to a symbolic link, not
-> following last component.\n", filename);
->     char *p = NULL, *file_sep;
->-    char *tmp_path = strdup(filename);
->+    char *tmp_path = strdupa(filename);
->     if (!tmp_path) {
->       fprintf(stderr,"strdup on %s failed:  %s\n", >filename,strerror(errno));
+My belief is that the basics for SELinux are compiled into SuSE.
+I could be wrong.
 
-Do you need to check for NULL on strdupa calls? If so, the error message needs to
-have the function updated, too. Otherwise this can be deleted.
+Here's what I've done to bring SELinux up on my test system:
 
+Edited /boot/grub/menu.lst
+Changed selinux=0 to selinux=1
 
->@@ -155,14 +153,16 @@ int restore(char *filename) {
->       file_sep++;
->       p = realpath(tmp_path, path);
->     }
->-    if (!p || strlen(path) + strlen(file_sep) + 1 > PATH_MAX) {
->+    size_t len = strlen(p);
->+    if (!p || len + strlen(file_sep) + 2 > PATH_MAX) {
+Downloaded rpms for SuSE from:
 
-What if realpath returned NULL? strlen is using a NULL pointer and then p is
-checked in the second line to see if its NULL.
+http://www.cip.ifi.lmu.de/~bleher/selinux/suse/rpm-10.0/
+rrrr
+Installed with:
+rpm -Uv --force  *rpm
 
--Steve
+Got base security policy from:
+http://www.cip.ifi.lmu.de/~bleher/arch/selinux/policy/policy--snapshot/policy--
 
+unpacked, did make.
+Fails for lack of new netlink class, but installed *something*.
 
-		
-__________________________________________ 
-Yahoo! DSL – Something to write home about. 
-Just $16.99/mo. or less. 
-dsl.yahoo.com 
+rebooted.
+sestatus still returns disabled.
+There is no /selinux pseudodirectory
+
+Obviously I'm missing something.  Can someone point me to a simple
+How-To for SuSE, or mention what I'm stupidly missing?
+  
+  Thanks,
+  Clif
+
+-- 
+.... Clif Flynt ... http://www.cflynt.com ... clif@cflynt.com ...
+.. Tcl/Tk: A Developer's Guide (2nd edition) - Morgan Kauffman ..
+.....13th Annual Tcl/Tk Conference:  Oct, 2006,  Chicago, IL.....
+.............  http://www.tcl.tk/community/tcl2005/  ............
+
 
 
 --
