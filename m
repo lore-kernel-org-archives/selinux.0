@@ -1,49 +1,71 @@
-Message-ID: <43B9761A.3070504@cornell.edu>
-Date: Mon, 02 Jan 2006 13:51:06 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-   dwalsh@redhat.com
-Subject: Re: [SEMANAGE][SEPOL] Enable ports
-References: <43ACADB3.7070509@cornell.edu> <43B97823.3080201@tresys.com>
-In-Reply-To: <43B97823.3080201@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k030YvXf012834
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jan 2006 19:34:57 -0500 (EST)
+Received: from keep.cflynt.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k030YqMQ024762
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 00:34:53 GMT
+Received: from clif.cflynt.com (clif.cflynt.com [192.168.9.2])
+	by keep.cflynt.com (8.12.10/8.12.10) with ESMTP id k030YlOM019040
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jan 2006 19:34:48 -0500
+Date: Mon, 2 Jan 2006 19:34:46 -0500
+From: Clif Flynt <clif@cflynt.com>
+To: selinux@tycho.nsa.gov
+Subject: SELinux novice and SuSE
+Message-ID: <20060103003446.GA21959@clif.cflynt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
->>
->> This brings up an interesting point - if ordering of records matters, 
->> then some thought should go into which way iterate() loops over the 
->> records... (and what order list() returns). Currently for files, the 
->> ordering is backwards to what appears in the file (not sure what 
->> policydb does).
->>
->
-> This should be fixed. the policy parser (policy_parse.y) currently 
-> preserves the order exactly as specified, with errors in the case of 
-> duplicate or shadowed entries.
+Hi,
 
-I think the order in policy should be correct after my list reversal 
-patch (see other patches).
-The order in the on-disk file is irrelevant for ports - it's just an 
-implementation detail of the library.
-More detail on this in my other message in response to File Contexts APIs.
+I need to configure a SuSE workstation to meet NISPOM security
+standards.
 
->
-> I think a good workaround for now is to only expose exact port 
-> labeling via libsemanage, that way you can prepend them to the 
-> policydb list and not worry about sorting, etc. If the user needs to 
-> set multiple ports the client can expose that functionality, and 
-> limited intelligence can be added there (error checking and such). the 
-> policydb portcons would still have ranges so the fallbacks (1-1024, 
-> etc) would still be there.
-I think sorting should work after the list reversal patch. It has some 
-drawbacks as I've pointed out there, but should work. Adding the 
-"limited intelligence" with respect to error checking is much more 
-difficult in libsemanage, and I've wasted lots of time on this. It's 
-easier to do in the client.
+A previous incarnation of this used SNARE, SuSE 9.1, a modified
+Fedora core and a lot of luck.  I'm hoping to do something more
+out-of-the-box this time.
+
+My belief is that the basics for SELinux are compiled into SuSE 10.0. I
+could be wrong.
+
+Here's what I've done to bring SELinux up on my test system:
+
+Edited /boot/grub/menu.lst
+Changed selinux=0 to selinux=1
+
+Downloaded rpms for SuSE from:
+
+http://www.cip.ifi.lmu.de/~bleher/selinux/suse/rpm-10.0/
+
+Installed with:
+rpm -Uv --force  *rpm
+
+Got base security policy from:
+http://www.cip.ifi.lmu.de/~bleher/arch/selinux/policy/policy--snapshot/policy--$
+
+unpacked, did make.
+Fails for lack of new netlink class, but installed something.
+
+rebooted.
+sestatus still returns disabled.
+There is no /selinux pseudodirectory
+
+Obviously I'm missing something.  Can someone point me to a simple
+How-To for SuSE, or mention what I'm stupidly missing?
+  
+  Thanks,
+  Clif
+  
+
+
+-- 
+.... Clif Flynt ... http://www.cflynt.com ... clif@cflynt.com ...
+.. Tcl/Tk: A Developer's Guide (2nd edition) - Morgan Kauffman ..
+.....13th Annual Tcl/Tk Conference:  Oct, 2006,  Chicago, IL.....
+.............  http://www.tcl.tk/community/tcl2005/  ............
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
