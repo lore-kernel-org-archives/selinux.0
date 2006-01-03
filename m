@@ -1,71 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k030YvXf012834
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jan 2006 19:34:57 -0500 (EST)
-Received: from keep.cflynt.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k030YqMQ024762
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 00:34:53 GMT
-Received: from clif.cflynt.com (clif.cflynt.com [192.168.9.2])
-	by keep.cflynt.com (8.12.10/8.12.10) with ESMTP id k030YlOM019040
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jan 2006 19:34:48 -0500
-Date: Mon, 2 Jan 2006 19:34:46 -0500
-From: Clif Flynt <clif@cflynt.com>
-To: selinux@tycho.nsa.gov
-Subject: SELinux novice and SuSE
-Message-ID: <20060103003446.GA21959@clif.cflynt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k033BMXf013708
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jan 2006 22:11:23 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k033ALYl013452
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 03:10:22 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 7FB8F61B0E
+	for <selinux@tycho.nsa.gov>; Tue,  3 Jan 2006 14:11:17 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 25978-02 for <selinux@tycho.nsa.gov>;
+	Tue, 3 Jan 2006 14:11:17 +1100 (EST)
+Received: from temp.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 1D7B961B04
+	for <selinux@tycho.nsa.gov>; Tue,  3 Jan 2006 14:11:17 +1100 (EST)
+Received: from temp (temp [127.0.0.1])
+	by temp.coker.com.au (Postfix) with ESMTP id E6E22C7E5D
+	for <selinux@tycho.nsa.gov>; Tue,  3 Jan 2006 14:11:15 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: libsetrans and libselinux
+Date: Tue, 3 Jan 2006 14:11:01 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200601031411.13500.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Does it make sense to have two separate libraries for these functions?
 
-I need to configure a SuSE workstation to meet NISPOM security
-standards.
+It seems that they are both maintained by much the same group of people, will 
+in many cases need updating at the same time, and will mostly be linked to by 
+all the same programs, very few programs need libselinux but not libsetrans 
+and that number is constantly decreasing and it's impossible to use 
+libsetrans without using libselinux.
 
-A previous incarnation of this used SNARE, SuSE 9.1, a modified
-Fedora core and a lot of luck.  I'm hoping to do something more
-out-of-the-box this time.
-
-My belief is that the basics for SELinux are compiled into SuSE 10.0. I
-could be wrong.
-
-Here's what I've done to bring SELinux up on my test system:
-
-Edited /boot/grub/menu.lst
-Changed selinux=0 to selinux=1
-
-Downloaded rpms for SuSE from:
-
-http://www.cip.ifi.lmu.de/~bleher/selinux/suse/rpm-10.0/
-
-Installed with:
-rpm -Uv --force  *rpm
-
-Got base security policy from:
-http://www.cip.ifi.lmu.de/~bleher/arch/selinux/policy/policy--snapshot/policy--$
-
-unpacked, did make.
-Fails for lack of new netlink class, but installed something.
-
-rebooted.
-sestatus still returns disabled.
-There is no /selinux pseudodirectory
-
-Obviously I'm missing something.  Can someone point me to a simple
-How-To for SuSE, or mention what I'm stupidly missing?
-  
-  Thanks,
-  Clif
-  
-
+If we have a single library then there are some small optimisations that will 
+occur, reducing load time and reducing the resident set size by a couple of 
+pages.
 
 -- 
-.... Clif Flynt ... http://www.cflynt.com ... clif@cflynt.com ...
-.. Tcl/Tk: A Developer's Guide (2nd edition) - Morgan Kauffman ..
-.....13th Annual Tcl/Tk Conference:  Oct, 2006,  Chicago, IL.....
-.............  http://www.tcl.tk/community/tcl2005/  ............
-
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
