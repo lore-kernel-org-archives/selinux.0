@@ -1,68 +1,45 @@
-Subject: Re: Documentation, anyone?
+Subject: Re: Debian users: don't upgrade for now
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Erich Schubert <erich@debian.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
-   Ivan Gyurdiev <ivg2@cornell.edu>,
-   Manoj Srivastava <manoj.srivastava@stdc.com>,
+Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
    Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
-In-Reply-To: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+In-Reply-To: <1136133684.27906.59.camel@wintermute.xmldesign.de>
 References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+	 <1136133684.27906.59.camel@wintermute.xmldesign.de>
 Content-Type: text/plain
-Date: Tue, 03 Jan 2006 11:47:40 -0500
-Message-Id: <1136306860.27632.102.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 03 Jan 2006 11:52:19 -0500
+Message-Id: <1136307139.27632.107.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-01-01 at 17:37 +0100, Erich Schubert wrote:
-> Hi,
-> Recent changes broke lots of stuff on my system.
-> For example, genhomedircon no longer reads my local.users file...
-> It seems that this is somehow related to semanage changes...
-> Which doesn't work for me, and I can't find *any* documentation on it.
-> So the current SELinux shape is IMHO really bad... no current
-> documentation, and even those who have working installations (like me)
-> have no idea how to get the latest stuff working... :-(
-
-Hmmm....details?  genhomedircon is supposed to fall back to the original
-behavior as long as policy is not managed via libsemanage (i.e. policy
-is still built as a monolithic policy and not as a module), so I
-wouldn't have expected any breakage in Debian unless the Debian policy
-package has been converted to modular policy.  I didn't expect that to
-happen yet because Debian policy tracks strict policy only, and
-refpolicy development has focused on getting targeted policy working
-first since it is the default in Fedora.  genhomedircon is known to not
-yet support ROLE expansion when using managed policy, and this has been
-noted on the list previously.  But it should work fine for monolithic
-policies.
-
-> I have a user role "netuser" who is allowed to use the network to a
-> larger extend (e.g. bind to port_t). I'd like to make that the default
-> role for certain unix accounts...
+On Sun, 2006-01-01 at 17:41 +0100, Erich Schubert wrote:
+> Hello again:
+> to all Debian users of SELinux:
+> Avoid upgrading to either unstable or my backports.
 > 
-> $ semanage user --add -s netuser_u -R netuser_r erich
-> ['netuser_r']
-> libsemanage.assert_init: A direct or server connection is needed to use
-> this function - please call the corresponding connect() method
-> libsemanage.enter_ro: could not enter read-only section
-> /usr/sbin/semanage: Seuser lerich already defined
+> This is not good:
+> system_u:object_r:default_t      root
 > 
-> I couldn't find an example for /etc/selinux/seusers, I guessed it looks
-> like
-> "lerich:netuser_u" but that didn't work either...
+> But I don't know how to get genhomedircon working properly any more.
 
-seusers is only meaningful if your userland has been updated to the
-latest SELinux patches present in Fedora development.  Otherwise, it
-won't be used; it requires changes to pam_selinux and others as I noted
-in the release announcement.  
+As noted in the release announcement, genhomedircon does not yet support
+ROLE expansion in homedir_template for managed policies (i.e. policies
+built as modules and installed via semodule -> libsemanage).  But it
+should fall back to the old behavior for monolithic policies.  Debian
+policy package shouldn't be converted over to modular form until a)
+refpolicy covers everything from strict policy and b) genhomedircon is
+updated to deal with ROLE expansion in the managed case.
 
-> I've also investigated "genhomedircon", and what strikes me as really
-> bad code is that it keeps on calling an external "grep" on just about
-> everything.
-> Loading a file and applying a regexp is really easy in Python, you
-> know...
+> Oh, and does anyone have a hint for me how to get /dev/log
+> and /dev/initctl labeled properly with udev? Udev with SELinux is
+> serious pain...
 
-Patches accepted ;)  genhomedircon was contributed by Red Hat.
+Fedora does a restorecon -R /dev from rc.sysinit to fix up the security
+contexts on /dev, and then everything just works (assuming your udev has
+SELinux support enabled).  There is a further SELinux patch to udev in
+Fedora's CVS tree presently, but that is just an optimization; the basic
+SELinux support should be in the upstream udev.
 
 -- 
 Stephen Smalley
