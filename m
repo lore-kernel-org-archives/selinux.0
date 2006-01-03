@@ -1,45 +1,34 @@
-Subject: Re: Debian users: don't upgrade for now
+Subject: Re: more genhomedircon badness...
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Erich Schubert <erich@debian.org>
-Cc: Manoj Srivastava <manoj.srivastava@stdc.com>,
-   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
-In-Reply-To: <1136133684.27906.59.camel@wintermute.xmldesign.de>
+Cc: Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
+In-Reply-To: <1136146788.27906.65.camel@wintermute.xmldesign.de>
 References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
-	 <1136133684.27906.59.camel@wintermute.xmldesign.de>
+	 <1136146788.27906.65.camel@wintermute.xmldesign.de>
 Content-Type: text/plain
-Date: Tue, 03 Jan 2006 11:52:19 -0500
-Message-Id: <1136307139.27632.107.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 03 Jan 2006 11:56:33 -0500
+Message-Id: <1136307393.27632.110.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-01-01 at 17:41 +0100, Erich Schubert wrote:
-> Hello again:
-> to all Debian users of SELinux:
-> Avoid upgrading to either unstable or my backports.
+On Sun, 2006-01-01 at 21:19 +0100, Erich Schubert wrote:
+> I've now created /etc/selinux/modules/active/modules
+> and /etc/selinux/modules/active/seusers...
 > 
-> This is not good:
-> system_u:object_r:default_t      root
+> genhomedircon:  Warning!  No support yet for expanding ROLE macros in
+> the /etc/selinux/./contexts/files/homedir_template file when using
+> libsemanage.
+> genhomedircon:  You must manually update file_contexts.homedirs for any
+> non-user_r users (including root).
+> zsh: 19705 segmentation fault  genhomedircon
 > 
-> But I don't know how to get genhomedircon working properly any more.
+> Ouch, a segfault!
 
-As noted in the release announcement, genhomedircon does not yet support
-ROLE expansion in homedir_template for managed policies (i.e. policies
-built as modules and installed via semodule -> libsemanage).  But it
-should fall back to the old behavior for monolithic policies.  Debian
-policy package shouldn't be converted over to modular form until a)
-refpolicy covers everything from strict policy and b) genhomedircon is
-updated to deal with ROLE expansion in the managed case.
-
-> Oh, and does anyone have a hint for me how to get /dev/log
-> and /dev/initctl labeled properly with udev? Udev with SELinux is
-> serious pain...
-
-Fedora does a restorecon -R /dev from rc.sysinit to fix up the security
-contexts on /dev, and then everything just works (assuming your udev has
-SELinux support enabled).  There is a further SELinux patch to udev in
-Fedora's CVS tree presently, but that is just an optimization; the basic
-SELinux support should be in the upstream udev.
+The warning is correct, and that limitation was noted in the release
+announcement.  Should only affect Debian if using modular/managed
+policy, which I wouldn't expect since refpolicy doesn't cover all of
+strict policy yet.  segfault is odd, and doesn't occur here.
 
 -- 
 Stephen Smalley
