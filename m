@@ -1,73 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k03GLCXf020204
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 11:21:13 -0500 (EST)
-Received: from keep.cflynt.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k03GL8ah006272
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 16:21:09 GMT
-Received: from clif.cflynt.com (clif.cflynt.com [192.168.9.2])
-	by keep.cflynt.com (8.12.10/8.12.10) with ESMTP id k03EQVOM025991
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 09:26:51 -0500
-Received: from clif.cflynt.com (localhost.localdomain [127.0.0.1])
-	by clif.cflynt.com (8.12.11/8.12.11) with ESMTP id k03EQNwa029463
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jan 2006 09:26:25 -0500
-Received: (from clif@localhost)
-	by clif.cflynt.com (8.12.11/8.12.11/Submit) id k03EQMfo029462
-	for selinux@tycho.nsa.gov; Tue, 3 Jan 2006 09:26:22 -0500
-Date: Tue, 3 Jan 2006 09:26:22 -0500
-From: Clif Flynt <clif@cflynt.com>
-To: selinux@tycho.nsa.gov
-Subject: SELinux & SuSE
-Message-ID: <20060103142622.GA29438@clif.cflynt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <43BAA615.9000605@tresys.com>
+Date: Tue, 03 Jan 2006 11:28:05 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+   dwalsh@redhat.com
+Subject: Re: [SEMANAGE][SEPOL] Enable ports
+References: <43ACADB3.7070509@cornell.edu> <43B97823.3080201@tresys.com> <43B9761A.3070504@cornell.edu> <43BA267D.2010905@cornell.edu>
+In-Reply-To: <43BA267D.2010905@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-I need to configure a SuSE workstation to meet NISPOM security standards.
+Ivan Gyurdiev wrote:
+>> . Adding the "limited intelligence" with respect to error checking is 
+>> much more difficult in libsemanage, and I've wasted lots of time on 
+>> this. It's easier to do in the client.
+> 
+> 
+> Actually.... not true. It's difficult to add at the key level, but error 
+> checks and warnings and things like that will easily go into a verify 
+> run on commit (or possibly in sepol). So, now I think I'll focus on:
+> 
+Must do it within semanage since sepol won't know where they came from 
+and if they are allowed to shadow entries.
 
-A previous incarnation of this used SNARE, SuSE 9.1, a munged
-Fedora core and a lot of luck.  I'm hoping to do something more
-out-of-the-box this time.
+> - seuser validation (mls range valid, mls range subset of selinux user, 
+> possibly move Unix user check into lib?)
+> - file context validation (context valid, maybe regexp valid?)
+>    It should be possible to do those two now, after new additions to 
+> libsepol interface.
+> 
+> - ports error checking (warn on shadowing, things like that)
+> - also, did you know that if you originally put a file with duplicate 
+> records in semanage, it would stay that way, and semanage wouldn't 
+> complain (it does no duplicate checking when reading in the file - not 
+> sure if that's a problem).
+> 
+Any local should shadow/override something in the policy without a 
+warning, that is the whole point to local settings, particularly with 
+ports and interfaces. Any service port (1-1024) will be 'shadowed' by 
+something in the policy but should be able to be overridden by ports.local.
 
-My belief is that the basics for SELinux are compiled into SuSE.
-I could be wrong.
-
-Here's what I've done to bring SELinux up on my test system:
-
-Edited /boot/grub/menu.lst
-Changed selinux=0 to selinux=1
-
-Downloaded rpms for SuSE from:
-
-http://www.cip.ifi.lmu.de/~bleher/selinux/suse/rpm-10.0/
-rrrr
-Installed with:
-rpm -Uv --force  *rpm
-
-Got base security policy from:
-http://www.cip.ifi.lmu.de/~bleher/arch/selinux/policy/policy--snapshot/policy--
-
-unpacked, did make.
-Fails for lack of new netlink class, but installed *something*.
-
-rebooted.
-sestatus still returns disabled.
-There is no /selinux pseudodirectory
-
-Obviously I'm missing something.  Can someone point me to a simple
-How-To for SuSE, or mention what I'm stupidly missing?
-  
-  Thanks,
-  Clif
-
--- 
-.... Clif Flynt ... http://www.cflynt.com ... clif@cflynt.com ...
-.. Tcl/Tk: A Developer's Guide (2nd edition) - Morgan Kauffman ..
-.....13th Annual Tcl/Tk Conference:  Oct, 2006,  Chicago, IL.....
-.............  http://www.tcl.tk/community/tcl2005/  ............
-
-
+> Also, there's issues with the API, which I posted about on 
+> SELinux-dev@tresys - if API changes are still allowed I'm considering 
+> removing the set function, changing the behavior of add, and compare for 
+> each record. See "API message still ok" for details.
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
