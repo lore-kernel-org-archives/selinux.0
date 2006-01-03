@@ -1,49 +1,72 @@
-Message-ID: <43BA8B98.5020502@cornell.edu>
-Date: Tue, 03 Jan 2006 09:35:04 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-   dwalsh@redhat.com
-Subject: Re: [SEMANAGE][SEPOL] Enable ports
-References: <43ACADB3.7070509@cornell.edu> <43B97823.3080201@tresys.com> <43B9761A.3070504@cornell.edu> <43BA267D.2010905@cornell.edu> <43BAA615.9000605@tresys.com>
-In-Reply-To: <43BAA615.9000605@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Documentation, anyone?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Erich Schubert <erich@debian.org>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
+   Ivan Gyurdiev <ivg2@cornell.edu>,
+   Manoj Srivastava <manoj.srivastava@stdc.com>,
+   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
+In-Reply-To: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Tue, 03 Jan 2006 11:47:40 -0500
+Message-Id: <1136306860.27632.102.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 2006-01-01 at 17:37 +0100, Erich Schubert wrote:
+> Hi,
+> Recent changes broke lots of stuff on my system.
+> For example, genhomedircon no longer reads my local.users file...
+> It seems that this is somehow related to semanage changes...
+> Which doesn't work for me, and I can't find *any* documentation on it.
+> So the current SELinux shape is IMHO really bad... no current
+> documentation, and even those who have working installations (like me)
+> have no idea how to get the latest stuff working... :-(
 
->>
->> Actually.... not true. It's difficult to add at the key level, but 
->> error checks and warnings and things like that will easily go into a 
->> verify run on commit (or possibly in sepol). So, now I think I'll 
->> focus on:
->>
-> Must do it within semanage since sepol won't know where they came from 
-> and if they are allowed to shadow entries.
-Hmm, yes that is true, I'll think about this some more...
-It seems like a verify run of some kind on commit is best.
+Hmmm....details?  genhomedircon is supposed to fall back to the original
+behavior as long as policy is not managed via libsemanage (i.e. policy
+is still built as a monolithic policy and not as a module), so I
+wouldn't have expected any breakage in Debian unless the Debian policy
+package has been converted to modular policy.  I didn't expect that to
+happen yet because Debian policy tracks strict policy only, and
+refpolicy development has focused on getting targeted policy working
+first since it is the default in Fedora.  genhomedircon is known to not
+yet support ROLE expansion when using managed policy, and this has been
+noted on the list previously.  But it should work fine for monolithic
+policies.
 
->> - also, did you know that if you originally put a file with duplicate 
->> records in semanage, it would stay that way, and semanage wouldn't 
->> complain (it does no duplicate checking when reading in the file - 
->> not sure if that's a problem).
->>
-> Any local should shadow/override something in the policy without a 
-> warning, that is the whole point to local settings, particularly with 
-> ports and interfaces. Any service port (1-1024) will be 'shadowed' by 
-> something in the policy but should be able to be overridden by 
-> ports.local.
-Yes, I was referring to having multiple entries for the same thing in 
-the .local file. In addition to not checking for shadowing of ports, 
-semanage won't check for duplicates every time - it will only check for 
-duplicates when you add things with API. If the initial file was 
-corrupted somehow (i.e. contained two identical keys), it won't complain 
-about it. Not sure if that's a problem.
+> I have a user role "netuser" who is allowed to use the network to a
+> larger extend (e.g. bind to port_t). I'd like to make that the default
+> role for certain unix accounts...
+> 
+> $ semanage user --add -s netuser_u -R netuser_r erich
+> ['netuser_r']
+> libsemanage.assert_init: A direct or server connection is needed to use
+> this function - please call the corresponding connect() method
+> libsemanage.enter_ro: could not enter read-only section
+> /usr/sbin/semanage: Seuser lerich already defined
+> 
+> I couldn't find an example for /etc/selinux/seusers, I guessed it looks
+> like
+> "lerich:netuser_u" but that didn't work either...
 
+seusers is only meaningful if your userland has been updated to the
+latest SELinux patches present in Fedora development.  Otherwise, it
+won't be used; it requires changes to pam_selinux and others as I noted
+in the release announcement.  
 
+> I've also investigated "genhomedircon", and what strikes me as really
+> bad code is that it keeps on calling an external "grep" on just about
+> everything.
+> Loading a file and applying a regexp is really easy in Python, you
+> know...
 
+Patches accepted ;)  genhomedircon was contributed by Red Hat.
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
