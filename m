@@ -1,27 +1,71 @@
-Message-ID: <43BC0832.4050108@cornell.edu>
-Date: Wed, 04 Jan 2006 12:38:58 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43BC237D.4040606@tresys.com>
+Date: Wed, 04 Jan 2006 14:35:25 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
 CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
    SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: Policycoreutils latest diffs.
-References: <43BAC4EA.8020106@redhat.com> <43BAB2D6.4030103@cornell.edu> <43BBF8C6.1070109@cornell.edu> <43BBFA8A.2040601@cornell.edu> <43BC1ECA.1070806@redhat.com> <43BC0681.2090403@cornell.edu> <43BC237D.4040606@tresys.com>
-In-Reply-To: <43BC237D.4040606@tresys.com>
+References: <43BAC4EA.8020106@redhat.com> <43BAB2D6.4030103@cornell.edu> <43BBF8C6.1070109@cornell.edu> <43BBFA8A.2040601@cornell.edu> <43BC1ECA.1070806@redhat.com> <43BC0681.2090403@cornell.edu>
+In-Reply-To: <43BC0681.2090403@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
+> 
+>> delete
+>> if does not exist local; error since you can not delete an object from 
+>> the server?
+>> Prevent the user from deleting SELinux User "root"
+> 
+> Right.. I would two tests, and then if exists fails say: object does not 
+> exist
+> if exists_local fails say: object is built into policy and can't be 
+> deleted.
+> 
+> There's still the issue of how the user would know that at all, since 
+> list does not indicate
+> what's local and what isn't, but it's a good point to start at.
+> 
+>>
+>> Add
+>> if does exist: error
+> 
+> yes, that should be sufficient.
+> 
+>>
+>> Modify:
+>> If does not exist local; you are not allowed to modify, see above.
+> 
+> That's tricky. That depends on what you want modify to do.
+> The libsemanage modify_local function is with respect to the local 
+> store, but
+> anything you write in the store at all will modify policy, so you can go 
+> either way
+> with your higher level modify. The question is what you're modifying, 
+> and does
+> the user understand that.
 
->
-> No, I think this is a bad idea, the purpose of local files is to 
-> override policy defaults. The base policy package should stay the same 
-> so that upgrades via RPM do not smash changes. Using an alternate base 
-> if it exists and the base.pp otherwise adds unnecessary complexity.
-I meant a read-only API.
+even if something does not exist locally a 'modify' of an existing 
+object would involve using local settings to override what is in the 
+policy. AFAIK all the current stuff should support overriding the 
+policydb so you can modify any policy resource whether it is local or not.
+> 
+> I think to be consistent with add(), you should modify with respect to 
+> policy, and not do any checks here.
+> 
+> ====
+> Btw, if there's interest in writing an API that works on policy alone, 
+> minus local modifications, that can be done - it just requires writing 
+> down another policy after expand, and before any local things are 
+> written down.
+> 
 
-
-
+No, I think this is a bad idea, the purpose of local files is to 
+override policy defaults. The base policy package should stay the same 
+so that upgrades via RPM do not smash changes. Using an alternate base 
+if it exists and the base.pp otherwise adds unnecessary complexity.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
