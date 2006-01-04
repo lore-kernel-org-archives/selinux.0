@@ -1,85 +1,74 @@
-Message-ID: <43BC2916.4000909@cornell.edu>
-Date: Wed, 04 Jan 2006 14:59:18 -0500
+Message-ID: <43BC39C7.9030805@cornell.edu>
+Date: Wed, 04 Jan 2006 16:10:31 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Also libsemanage does not seem to work when adding.
-References: <43BC37D9.5010201@redhat.com> <43BC1DFA.5020106@cornell.edu> <43BC3BFA.4020606@redhat.com>
-In-Reply-To: <43BC3BFA.4020606@redhat.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [SEPOL] Ordering of ports in compare fn
 Content-Type: multipart/mixed;
- boundary="------------040307000700070208010703"
+ boundary="------------010204010009050804080809"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------040307000700070208010703
+--------------010204010009050804080809
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
+That's strange - I clearly remember writing this patch before, and 
+somehow it got lost.
+Anyway, it implements an ordered compare function for ports.
 
-> libsemanage.parse_assert_space: missing whitespace 
-> (/etc/selinux/targeted/modules/active/ports.local: 1):
-> portcon tcp 123456 system_u:object_r:http_port_t:s0
-> libsemanage.port_parse: could not parse port record
-> libsemanage.dbase_file_cache: could not cache file database
-> libsemanage.enter_ro: could not enter read-only section
-> Segmentation fault
-Fix for single ports parser attached - I had only tried ranges.
-Not sure what's going on with this segfault - try to reproduce again, 
-and make sure
-that all rc values are checked before proceeding to the next semanage call.
+Please don't miss the other patches in the two threads above, namely:
+- fix for single ports parser (whitespace assert issue)
+- fix for the dbase add function (toggle modified flag)
+- reorder swig included headers and add missing booleans_active.h
 
 
-
-
-
---------------040307000700070208010703
+--------------010204010009050804080809
 Content-Type: text/x-patch;
- name="libsemanage.fix_ports_parser.diff"
+ name="libsepol.ports_ordering.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.fix_ports_parser.diff"
+ filename="libsepol.ports_ordering.diff"
 
-diff -Naurp --exclude man --exclude-from excludes old/libsemanage/src/ports_file.c new/libsemanage/src/ports_file.c
---- old/libsemanage/src/ports_file.c	2006-01-04 10:47:45.000000000 -0500
-+++ new/libsemanage/src/ports_file.c	2006-01-04 14:49:19.000000000 -0500
-@@ -99,22 +99,29 @@ static int port_parse(
- 	if (parse_fetch_int(handle, info, &low, '-') < 0)
- 		goto err;
+diff -Naurp --exclude man --exclude-from excludes old/libsepol/src/port_record.c new/libsepol/src/port_record.c
+--- old/libsepol/src/port_record.c	2006-01-04 10:47:46.000000000 -0500
++++ new/libsepol/src/port_record.c	2006-01-04 16:05:31.000000000 -0500
+@@ -84,14 +84,28 @@ int sepol_port_compare(
+ 	sepol_port_t* port, 
+ 	sepol_port_key_t* key) {
  
--	if (parse_skip_space(handle, info) < 0)
--		goto err;
-+	/* If range (-) does not follow immediately, require a space 
-+	 * In other words, the space here is optional, but only
-+	 * in the ranged case, not in the single port case,
-+	 * so do a custom test */
-+	if (*(info->ptr) && *(info->ptr) != '-') {
-+		if (parse_assert_space(handle, info) < 0)
-+			goto err;
-+	}
+-	/* FIXME: needs to support ordering of ports (-1, 0, 1) */
+-
+ 	if ((port->low == key->low) && 
+ 	    (port->high == key->high) &&
+ 	    (port->proto == key->proto))
+ 		return 0;
+ 
+-	return 1;
++	if (port->low < key->low) 
++		return -1;
 +
- 	if (parse_optional_ch(info, '-') != STATUS_NODATA) {
++	else if (key->low < port->low)
++		return 1;
++
++	else if (port->high < key->high)
++		return -1;
++
++	else if (key->high < port->high)
++		return 1;
++
++	else if (port->proto < key->proto)
++		return -1;
++	
++	else
++		return 1;
+ }
  
- 		if (parse_skip_space(handle, info) < 0)
- 			goto err;	
- 		if (parse_fetch_int(handle, info, &high, ' ') < 0)
- 			goto err;
-+		if (parse_assert_space(handle, info) < 0)
-+			goto err;
- 		semanage_port_set_range(port, low, high);
- 	}
- 	else 
- 		semanage_port_set_port(port, low);
- 
-         /* Port context */
--	if (parse_assert_space(handle, info) < 0)
--		goto err;
- 	if (parse_fetch_string(handle, info, &str, ' ') < 0)
- 		goto err;
- 	if (semanage_context_from_string(handle, str, &con) < 0) {
+ /* Port */
 
---------------040307000700070208010703--
+--------------010204010009050804080809--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
