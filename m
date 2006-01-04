@@ -1,55 +1,85 @@
-Message-ID: <43BC208E.7020905@cornell.edu>
-Date: Wed, 04 Jan 2006 14:22:54 -0500
+Message-ID: <43BC2916.4000909@cornell.edu>
+Date: Wed, 04 Jan 2006 14:59:18 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] [SETSEBOOL] Clone record on set/add/modify
-References: <43BBD6C0.6020108@cornell.edu>	 <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil>	 <43BBF408.7030701@cornell.edu> <1136399098.27632.284.camel@moss-spartans.epoch.ncsc.mil> <43BBFCB2.8@cornell.edu> <43BC3715.7030803@redhat.com> <43BC1EE4.3040603@cornell.edu>
-In-Reply-To: <43BC1EE4.3040603@cornell.edu>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Also libsemanage does not seem to work when adding.
+References: <43BC37D9.5010201@redhat.com> <43BC1DFA.5020106@cornell.edu> <43BC3BFA.4020606@redhat.com>
+In-Reply-To: <43BC3BFA.4020606@redhat.com>
 Content-Type: multipart/mixed;
- boundary="------------010204030407060304020907"
+ boundary="------------040307000700070208010703"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010204030407060304020907
+--------------040307000700070208010703
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
-> Well, the add function is broken, as you noted in your other mail, but 
-> why it crashes I have no idea.
-Here's a patch to fix the add function. Typically I test modify and 
-assume add/set work - they're mostly the same.
-I guess assumptions are a bad thing. Before Joshua says "I told you so" 
-- I will update pywrap-test.py by tomorrow.
+> libsemanage.parse_assert_space: missing whitespace 
+> (/etc/selinux/targeted/modules/active/ports.local: 1):
+> portcon tcp 123456 system_u:object_r:http_port_t:s0
+> libsemanage.port_parse: could not parse port record
+> libsemanage.dbase_file_cache: could not cache file database
+> libsemanage.enter_ro: could not enter read-only section
+> Segmentation fault
+Fix for single ports parser attached - I had only tried ranges.
+Not sure what's going on with this segfault - try to reproduce again, 
+and make sure
+that all rc values are checked before proceeding to the next semanage call.
 
-Now I'm curious to investigate the segfault - that should most 
-definitely *not* happen.
 
 
---------------010204030407060304020907
+
+
+--------------040307000700070208010703
 Content-Type: text/x-patch;
- name="libsemanage.toggle_modify.diff"
+ name="libsemanage.fix_ports_parser.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libsemanage.toggle_modify.diff"
+ filename="libsemanage.fix_ports_parser.diff"
 
-diff -Naurp --exclude man --exclude-from excludes old/libsemanage/src/database_llist.c new/libsemanage/src/database_llist.c
---- old/libsemanage/src/database_llist.c	2006-01-04 12:18:17.000000000 -0500
-+++ new/libsemanage/src/database_llist.c	2006-01-04 14:16:49.000000000 -0500
-@@ -136,6 +136,7 @@ hidden int dbase_llist_add(
- 	if (dbase_llist_cache_prepend(handle, dbase, data) < 0)
+diff -Naurp --exclude man --exclude-from excludes old/libsemanage/src/ports_file.c new/libsemanage/src/ports_file.c
+--- old/libsemanage/src/ports_file.c	2006-01-04 10:47:45.000000000 -0500
++++ new/libsemanage/src/ports_file.c	2006-01-04 14:49:19.000000000 -0500
+@@ -99,22 +99,29 @@ static int port_parse(
+ 	if (parse_fetch_int(handle, info, &low, '-') < 0)
  		goto err;
  
-+	dbase->modified = 1;
- 	return STATUS_SUCCESS;
+-	if (parse_skip_space(handle, info) < 0)
+-		goto err;
++	/* If range (-) does not follow immediately, require a space 
++	 * In other words, the space here is optional, but only
++	 * in the ranged case, not in the single port case,
++	 * so do a custom test */
++	if (*(info->ptr) && *(info->ptr) != '-') {
++		if (parse_assert_space(handle, info) < 0)
++			goto err;
++	}
++
+ 	if (parse_optional_ch(info, '-') != STATUS_NODATA) {
  
- 	err:
+ 		if (parse_skip_space(handle, info) < 0)
+ 			goto err;	
+ 		if (parse_fetch_int(handle, info, &high, ' ') < 0)
+ 			goto err;
++		if (parse_assert_space(handle, info) < 0)
++			goto err;
+ 		semanage_port_set_range(port, low, high);
+ 	}
+ 	else 
+ 		semanage_port_set_port(port, low);
+ 
+         /* Port context */
+-	if (parse_assert_space(handle, info) < 0)
+-		goto err;
+ 	if (parse_fetch_string(handle, info, &str, ' ') < 0)
+ 		goto err;
+ 	if (semanage_context_from_string(handle, str, &con) < 0) {
 
---------------010204030407060304020907--
+--------------040307000700070208010703--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
