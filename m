@@ -1,33 +1,35 @@
-Message-ID: <43BBD715.8070603@cornell.edu>
-Date: Wed, 04 Jan 2006 09:09:25 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k04GXKXf004983
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2006 11:33:21 -0500 (EST)
+Received: from web51514.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k04GOmKt008767
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2006 16:24:48 GMT
+Message-ID: <20060104162257.8468.qmail@web51514.mail.yahoo.com>
+Date: Wed, 4 Jan 2006 08:22:57 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: SELinux & SuSE
+To: Clif Flynt <clif@cflynt.com>, selinux@tycho.nsa.gov
+In-Reply-To: <20060103142622.GA29438@clif.cflynt.com>
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] [SETSEBOOL] Clone record on set/add/modify
-References: <43BBD6C0.6020108@cornell.edu>
-In-Reply-To: <43BBD6C0.6020108@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> Hi, Steven pointed out (off-list) that libsemanage vs libsepol 
-> behavior is inconsistent with respect to set/add/modify.
-> In libsemanage, the object being added becomes "managed" by the 
-> library, while this is not true in libsepol. We decided it was better 
-> to have the client control the object passed in, and be responsible 
-> for freeing it.
->
-> This patch makes the appropriate changes (which include reversal of 
-> some of the code from the other patches) to implement that.
-> It also includes a bugfix for the error path of 
-> database_policydb.c:list, pointed out by Russel Coker.
->
-By the way, how does python handle this - does it manage memory 
-management automatically, or do we still need to call the free 
-functions.... because.. I don't see any free functions being called in 
-the semanage tool - not even for the key.
+
+>I need to configure a SuSE workstation to meet NISPOM security standards.
+
+You can meet NISPOM without SE Linux. NISPOM has a lot of auditing requirements
+mostly centered around logging in and out of machines, automated audit reporting,
+and automated blacklisting (pam_tally). FWIW, you can meet it with FC4.
+
+-Steve
+
+
+		
+__________________________________________ 
+Yahoo! DSL – Something to write home about. 
+Just $16.99/mo. or less. 
+dsl.yahoo.com 
 
 
 --
