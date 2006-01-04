@@ -1,22 +1,37 @@
-Subject: Re: libselinux patch to add getpidcon python wrapper.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43BADD2A.1060903@redhat.com>
-References: <43BADD2A.1060903@redhat.com>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 12:37:19 -0500
-Message-Id: <1136396239.27632.282.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <43BC0D12.1020000@tresys.com>
+Date: Wed, 04 Jan 2006 12:59:46 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: [SEMANAGE] [SETSEBOOL] Clone record on set/add/modify
+References: <43BBD6C0.6020108@cornell.edu> <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged along with Ulrich's patch in libselinux 1.29.3.
+Stephen Smalley wrote:
+> On Wed, 2006-01-04 at 09:08 -0500, Ivan Gyurdiev wrote:
+> 
+>>Hi, Steven pointed out (off-list) that libsemanage vs libsepol behavior 
+>>is inconsistent with respect to set/add/modify.
+>>In libsemanage, the object being added becomes "managed" by the library, 
+>>while this is not true in libsepol. We decided it was better to have the 
+>>client control the object passed in, and be responsible for freeing it.
+>>
+>>This patch makes the appropriate changes (which include reversal of some 
+>>of the code from the other patches) to implement that.
+>>It also includes a bugfix for the error path of 
+>>database_policydb.c:list, pointed out by Russel Coker.
+> 
+> 
+> Thanks, your entire patch series has been merged as of libsepol 1.11.2,
+> libsemanage 1.5.4, and policycoreutils 1.29.3.
+> 
 
--- 
-Stephen Smalley
-National Security Agency
-
+Ivan, were you going to add tests for the wrappers to pywrap-test?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
