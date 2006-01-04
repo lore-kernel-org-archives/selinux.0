@@ -1,58 +1,74 @@
-Subject: Re: Documentation, anyone?
+Subject: Re: [SEMANAGE] Seuser mls validation
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Erich Schubert <erich@debian.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
-   Ivan Gyurdiev <ivg2@cornell.edu>,
-   Manoj Srivastava <manoj.srivastava@stdc.com>,
-   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
-In-Reply-To: <1136327471.1340.8.camel@wintermute.xmldesign.de>
-References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
-	 <1136306860.27632.102.camel@moss-spartans.epoch.ncsc.mil>
-	 <1136327471.1340.8.camel@wintermute.xmldesign.de>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, dwalsh@redhat.com
+In-Reply-To: <43BA498C.60102@cornell.edu>
+References: <43BA42A6.5020609@cornell.edu>  <43BA498C.60102@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 04 Jan 2006 08:09:14 -0500
-Message-Id: <1136380154.27632.218.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 04 Jan 2006 08:48:38 -0500
+Message-Id: <1136382518.27632.221.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-01-03 at 23:31 +0100, Erich Schubert wrote:
-> genhomedircon doesn't fall back on the "old" behaviour as I had it on
-> Debian up to now. When libsemanage fails (I guess when the "modular" dir
-> doesn't exist), it tries to load /etc/selinux/seusers instead; the old
-> genhomedircon I had was apparently parsing the local.users and users
-> files directly;
-> the current fallback is to load seusers and then parse these files for
-> any user found in this seusers file (which also must have three
-> components per line).
-
-Ah, sorry - my mistake.
-
-> So I managed to get sufficient fallback now by writing an appropriate
-> seusers file; I think I got an example from one of the fedora packages.
+On Tue, 2006-01-03 at 04:53 -0500, Ivan Gyurdiev wrote:
+> > diff -Naurp --exclude-from excludes old/policycoreutils/semanage/semanage new/policycoreutils/semanage/semanage
+> > --- old/policycoreutils/semanage/semanage	2006-01-01 06:17:40.000000000 -0500
+> > +++ new/policycoreutils/semanage/semanage	2005-12-26 21:50:33.000000000 -0500
+> > @@ -109,8 +109,6 @@ class seluserRecords:
+> >  		semanage_user_add_local(self.sh, k, u)
+> >  		if semanage_commit(self.sh) != 0:
+> >  			raise ValueError("Failed to add SELinux user")
+> > -
+> > -		self.dict[name]=seluser(name, roles, selevel, serange)
+> >  		
+> >  	def modify(self, name, roles=[], selevel="", serange=""):
+> >  		(rc,k)=semanage_user_key_create(self.sh, name)
+> > @@ -164,7 +162,6 @@ class seluserRecords:
+> >  
+> >  class portRecords:
+> >  	def __init__(self):
+> > -		self.dict={}
+> >  		self.sh=semanage_handle_create()
+> >  		self.semanaged=semanage_is_managed(self.sh)
+> >  		if self.semanaged:
+> > @@ -209,11 +206,19 @@ class portRecords:
+> >  		
+> >  	def list(self):
+> >  		(status, self.plist, self.psize) = semanage_port_list(self.sh)
+> > -		print "%-25s %s\n" % ("SELinux Port Name", "Port Number")
+> > +		print "%-15s %-25s\n" % ("Port Range", "Context")
+> >  		for idx in range(self.psize):
+> > -			u=semanage_port_by_idx(self.plist, idx)
+> > -			name=semanage_port_get_name(u)
+> > -			print "%20s %d" % ( name, semanage_port_get_number(u))
+> > +			p=semanage_port_by_idx(self.plist, idx)
+> > +			low = semanage_port_get_low(p)
+> > +			high = semanage_port_get_high(p)
+> > +			proto_str = semanage_port_get_proto_str(p)
+> > +			if low == high:
+> > +				range_str = str(low)
+> > +			else:
+> > +				range_str = str(low) + ":" + str(high)
+> > +			con = semanage_port_get_con(p)
+> > +			(rc,con_str) = semanage_context_to_string(self.sh, con)
+> > +			print "%-10s%-5s %-25s" % (range_str, proto_str, con_str)
+> >  			
+> >  if __name__ == '__main__':
+> >  
+> >   
+> Okay, that last part snuck in by accident, I had been deleting it from 
+> the patch for a while, and I finally missed it. Let me know if you want 
+> a new patch - this shouldn't do any harm with the ports merged, I think 
+> it's correct. Does not check the rc values, but neither does the rest of 
+> that tool. At least it doesn't run user code for ports, like the current 
+> implementation does.
 > 
-> For debian users, I've created two new mailing lists; as noted on
-> http://blog.drinsama.de/erich/en/linux/selinux/2006010201-debian-selinux-lists.html
-> The first mail on the selinux-users debian list gives details on the
-> seusers workaround to get a working genhomedircon again.
+> ...or just delete it if you want, Dan might have an alternative 
+> implementation.
 
-What I find curious is that these same issues weren't encountered when
-Russell and/or Manoj created and tested updated packages from the newer
-upstream tarballs.  Or were they?
-
-> Thanks for your udev feedback; I'm not entirely happy with the
-> restorecon approach (e.g. what will happen on a syslog restart, which
-> might recreate the /dev/log device with incorrect permissions?) but it
-> will do for now.
-
-Runtime creation of the file after initial policy load is handled by the
-type_transition rules in the policy (typically encapsulated within
-file_type_auto_trans macro in the example policy or within higher level
-interfaces in the reference policy).  Hence, we only need to be
-concerned with fixing up labels on /dev nodes created prior to the
-initial policy load by /sbin/init, which is what the restorecon does.
-Also, for anything created by udev itself, that is handled by the
-SELinux support in udev (once policy has been loaded).
+Is the semanage diff here obsoleted by Dan's latest policycoreutils
+patch?  Also, the first hunk looks odd to me - what is it doing?
 
 -- 
 Stephen Smalley
