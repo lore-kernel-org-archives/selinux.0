@@ -1,36 +1,30 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k04GXKXf004983
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2006 11:33:21 -0500 (EST)
-Received: from web51514.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k04GOmKt008767
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2006 16:24:48 GMT
-Message-ID: <20060104162257.8468.qmail@web51514.mail.yahoo.com>
-Date: Wed, 4 Jan 2006 08:22:57 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: SELinux & SuSE
-To: Clif Flynt <clif@cflynt.com>, selinux@tycho.nsa.gov
-In-Reply-To: <20060103142622.GA29438@clif.cflynt.com>
+Message-ID: <43BBFEB1.4000903@redhat.com>
+Date: Wed, 04 Jan 2006 11:58:25 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: [SEMANAGE] Seuser mls validation
+References: <43BA42A6.5020609@cornell.edu>  <43BA498C.60102@cornell.edu> <1136382518.27632.221.camel@moss-spartans.epoch.ncsc.mil> <43BBBB8E.8030208@cornell.edu>
+In-Reply-To: <43BBBB8E.8030208@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ivan Gyurdiev wrote:
+>
+>> Is the semanage diff here obsoleted by Dan's latest policycoreutils
+>> patch?  
+> Yes, just use Dan's copy...
+>> Also, the first hunk looks odd to me - what is it doing?
+>>   
+> No clue - that's why I was deleting it :)
+> It just caused python interpreter errors.
+>
+Yes use mine.  The self.dict stuff was an original implementation that 
+didn't get fully removed.
 
->I need to configure a SuSE workstation to meet NISPOM security standards.
-
-You can meet NISPOM without SE Linux. NISPOM has a lot of auditing requirements
-mostly centered around logging in and out of machines, automated audit reporting,
-and automated blacklisting (pam_tally). FWIW, you can meet it with FC4.
-
--Steve
-
-
-		
-__________________________________________ 
-Yahoo! DSL – Something to write home about. 
-Just $16.99/mo. or less. 
-dsl.yahoo.com 
-
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
