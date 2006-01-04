@@ -1,36 +1,67 @@
-Subject: Re: [SEMANAGE] [SETSEBOOL] Clone record on set/add/modify
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <43BBF408.7030701@cornell.edu>
-References: <43BBD6C0.6020108@cornell.edu>
-	 <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil>
-	 <43BBF408.7030701@cornell.edu>
-Content-Type: text/plain
-Date: Wed, 04 Jan 2006 13:24:58 -0500
-Message-Id: <1136399098.27632.284.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <43BBF8C6.1070109@cornell.edu>
+Date: Wed, 04 Jan 2006 11:33:10 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Policycoreutils latest diffs.
+References: <43BAC4EA.8020106@redhat.com> <43BAB2D6.4030103@cornell.edu>
+In-Reply-To: <43BAB2D6.4030103@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-04 at 11:12 -0500, Ivan Gyurdiev wrote:
-> > Thanks, your entire patch series has been merged as of libsepol 1.11.2,
-> > libsemanage 1.5.4, and policycoreutils 1.29.3.
-> >   
-> Question - I did some reordering of the headers in semanageswig.i (at 
-> the beginning).
-> I see you haven't merged that part, but you're missing a header that I 
-> added - booleans_active.h (which is why I did the reordering actually - 
-> not to miss any headers). Of course, semanage.h includes all of those 
-> headers, so I'm not sure whether or not any of them are needed in the 
-> first place, given that semanage.h is included.
 
-Ah, I had some rejects on that file, and tried resolving them manually,
-but I missed that.
+> Please use < 0 to check for error everywhere.
+Another issue is that I'm rather confused by some of the current 
+semanage code w' respect to local vs in-policy, so I'll try to explain 
+again . All functions ending in _local (and the seusers one) act with 
+respect to the local store. All functions not ending in _local act with 
+respect to the final result (which includes local modifications stacked 
+on top of policy). They do not act on policy alone.
 
--- 
-Stephen Smalley
-National Security Agency
+Let's look at two cases of code that I don't understand:
+This is from port.modify. The libsemanage meaning of modify includes 
+adding things if they don't exist, but I understand this is not the case 
+in the tool, so that explains all the exists checks...  However:
+
+                (rc,exists) = semanage_port_exists_local(self.sh, k)
+                if exists:
+                        (rc,p) = semanage_port_query_local(self.sh, k)
+                        (rc,exists) = semanage_port_exists(self.sh, k)
+                        if exists:
+                                (rc,p) = semanage_port_query(self.sh, k)
+                        else:
+                                raise ValueError("port %s/%s is not 
+defined." % (proto,port))
+
+                if rc != 0:
+                        raise ValueError("Could not query port for 
+%s/%s" % (proto, port))
+
+This doesn't make sense, because of something exists locally, and your 
+query succeeded, it will always exists in the final result, and the 
+second query will return the exact same thing, so you already know the 
+result to both of those function calls.
+
+This is from the port add function:
+                (rc,exists) = semanage_port_exists(self.sh, k)
+                if exists:
+                        raise ValueError("Port %s/%s already defined" % 
+(proto, port))
+
+                (rc,exists) = semanage_port_exists_local(self.sh, k)
+                if exists:
+                        raise ValueError("Port %s/%s already defined 
+locally" % (proto, port))
+
+Here, the second exception will never occur, because if the port exists 
+locally, then it exists in-policy as well, and the first value error 
+will be thrown.
+
+
+
+
 
 
 --
