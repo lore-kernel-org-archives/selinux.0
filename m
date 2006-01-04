@@ -1,53 +1,96 @@
-Subject: Re: Documentation, anyone?
-From: Erich Schubert <erich@debian.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
-   Ivan Gyurdiev <ivg2@cornell.edu>,
-   Manoj Srivastava <manoj.srivastava@stdc.com>,
-   Russell Coker <russell@coker.com.au>, SELinux@tycho.nsa.gov
-In-Reply-To: <1136306860.27632.102.camel@moss-spartans.epoch.ncsc.mil>
-References: <1136133436.27906.56.camel@wintermute.xmldesign.de>
-	 <1136306860.27632.102.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 03 Jan 2006 23:31:11 +0100
-Message-Id: <1136327471.1340.8.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k048c9Xf000072
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2006 03:38:13 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k048bwRe019309
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jan 2006 08:38:06 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: libsetrans performance patch
+Date: Wed, 4 Jan 2006 19:37:20 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200601040555.08511.russell@coker.com.au> <43BAD760.3060802@redhat.com>
+In-Reply-To: <43BAD760.3060802@redhat.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Vl4uD12P4nnYfic"
+Message-Id: <200601041937.41623.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen,
-Thanks for your replies.
+--Boundary-00=_Vl4uD12P4nnYfic
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-genhomedircon doesn't fall back on the "old" behaviour as I had it on
-Debian up to now. When libsemanage fails (I guess when the "modular" dir
-doesn't exist), it tries to load /etc/selinux/seusers instead; the old
-genhomedircon I had was apparently parsing the local.users and users
-files directly;
-the current fallback is to load seusers and then parse these files for
-any user found in this seusers file (which also must have three
-components per line).
-So I managed to get sufficient fallback now by writing an appropriate
-seusers file; I think I got an example from one of the fedora packages.
+On Wednesday 04 January 2006 06:58, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Russell Coker wrote:
+> > I have optimised the libsetrans library a bit.  Changed locking of a FILE
+> > *, removed some needless strdup/strlen operations, and fixed a bug
+> > whereby strtrim could potentially copy random data from the heap (ended
+> > up removing strtrim).
+>
+> I have added most of your previous patch to libsetrans-0.1.14-1  Please
+> check to make sure I got everything.  There was one problem in your
+> patch that caused untranslate to fail  a:b:c->a:b:c:s0
 
-For debian users, I've created two new mailing lists; as noted on
-http://blog.drinsama.de/erich/en/linux/selinux/2006010201-debian-selinux-lists.html
-The first mail on the selinux-users debian list gives details on the
-seusers workaround to get a working genhomedircon again.
+It seems to have got everything.
 
-Thanks for your udev feedback; I'm not entirely happy with the
-restorecon approach (e.g. what will happen on a syslog restart, which
-might recreate the /dev/log device with incorrect permissions?) but it
-will do for now.
+setrans.c: In function 'translate_context':
+setrans.c:381: warning: control may reach end of non-void function 'translate' 
+being inlined
 
-best regards,
-Erich Schubert
+I've attached a patch which fixes the above bug, removed a needless check for 
+the return value of strdupa(), and includes the fix for the problem you 
+mention above (pity I didn't test rpm's use of libsetrans before sending the 
+previous patch).
+
 -- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-  There is no branch of mathematics, however abstract, which may not  //\
- some day be applied to phenomena of the real world. --- Lobatchevsky V_/_
-      Die Mathematik muss man schon deswegen studieren, weil sie
-      die Gedanken ordnet. --- Michail Wassiljewitsch Lomonossow
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+--Boundary-00=_Vl4uD12P4nnYfic
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="trans.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="trans.diff"
+
+diff -rup libsetrans-0.1.13.orig/src/setrans.c libsetrans-0.1.13/src/setrans.c
+--- libsetrans-0.1.13.orig/src/setrans.c	2006-01-03 01:12:20.000000000 +1100
++++ libsetrans-0.1.13/src/setrans.c	2006-01-04 19:33:30.000000000 +1100
+@@ -62,7 +62,6 @@ static int process_label(char *buffer, l
+ 		name_end--;
+ 	}
+ 	while (isspace(*tok)) tok++;
+-	if(!*tok) return 0;
+ 
+ 	next=(labels_t *) calloc(1, sizeof(labels_t));
+ 	if (!next) { 
+@@ -142,7 +141,6 @@ static char *translate_categories(const 
+ 	char *ptr;
+ 	int error=0;
+ 	char *categories=strdupa(cat);
+-	if (!categories) return NULL;
+ 	char *tok=strtok_r(categories,",",&ptr);
+ 
+ 	while (tok) {
+@@ -251,6 +249,8 @@ static const char *translate(const char 
+ 		free((char *) l1);
+ 		free((char *) l2);
+ 		if (error==0) return ptr;
++		free(ptr);
++		return NULL;
+ 	} 
+ 	else
+ 		return translate_label(labels);
+
+--Boundary-00=_Vl4uD12P4nnYfic--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
