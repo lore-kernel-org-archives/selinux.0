@@ -1,37 +1,23 @@
-Message-ID: <43BC0D12.1020000@tresys.com>
-Date: Wed, 04 Jan 2006 12:59:46 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <43BBF27E.5020306@cornell.edu>
+Date: Wed, 04 Jan 2006 11:06:22 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg2@cornell.edu>, Daniel J Walsh <dwalsh@redhat.com>,
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
    SELinux List <SELinux@tycho.nsa.gov>
 Subject: Re: [SEMANAGE] [SETSEBOOL] Clone record on set/add/modify
-References: <43BBD6C0.6020108@cornell.edu> <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil>
+References: <43BBD6C0.6020108@cornell.edu> <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil> <43BC0D12.1020000@tresys.com>
+In-Reply-To: <43BC0D12.1020000@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2006-01-04 at 09:08 -0500, Ivan Gyurdiev wrote:
-> 
->>Hi, Steven pointed out (off-list) that libsemanage vs libsepol behavior 
->>is inconsistent with respect to set/add/modify.
->>In libsemanage, the object being added becomes "managed" by the library, 
->>while this is not true in libsepol. We decided it was better to have the 
->>client control the object passed in, and be responsible for freeing it.
->>
->>This patch makes the appropriate changes (which include reversal of some 
->>of the code from the other patches) to implement that.
->>It also includes a bugfix for the error path of 
->>database_policydb.c:list, pointed out by Russel Coker.
-> 
-> 
-> Thanks, your entire patch series has been merged as of libsepol 1.11.2,
-> libsemanage 1.5.4, and policycoreutils 1.29.3.
-> 
 
-Ivan, were you going to add tests for the wrappers to pywrap-test?
+> Ivan, were you going to add tests for the wrappers to pywrap-test?
+...eventually. Right now I'm writing manpages,  and looking of the 
+semanage(tool) diff.
+I promise it works :)
+(and if it doesn't, I'll get it fixed).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
