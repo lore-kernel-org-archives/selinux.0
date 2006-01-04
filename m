@@ -1,30 +1,48 @@
-Subject: Re: [SEMANAGE] [SETSEBOOL] Clone record on set/add/modify
+Subject: Re: Policycoreutils latest diffs.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <43BBD6C0.6020108@cornell.edu>
-References: <43BBD6C0.6020108@cornell.edu>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43BAC4EA.8020106@redhat.com>
+References: <43BAC4EA.8020106@redhat.com>
 Content-Type: text/plain
-Date: Wed, 04 Jan 2006 12:29:45 -0500
-Message-Id: <1136395785.27632.272.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 04 Jan 2006 12:36:47 -0500
+Message-Id: <1136396207.27632.280.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-04 at 09:08 -0500, Ivan Gyurdiev wrote:
-> Hi, Steven pointed out (off-list) that libsemanage vs libsepol behavior 
-> is inconsistent with respect to set/add/modify.
-> In libsemanage, the object being added becomes "managed" by the library, 
-> while this is not true in libsepol. We decided it was better to have the 
-> client control the object passed in, and be responsible for freeing it.
+On Tue, 2006-01-03 at 13:39 -0500, Daniel J Walsh wrote:
+> Fixes to restorecon to handle user_only_changed even in the -vv case.
 > 
-> This patch makes the appropriate changes (which include reversal of some 
-> of the code from the other patches) to implement that.
-> It also includes a bugfix for the error path of 
-> database_policydb.c:list, pointed out by Russel Coker.
+> 
+> Many fixes to chcat to get it working in the hundreds of different ways 
+> it can be used...
+> 
+> Changed fixfiles to sort before doing the diff.  New way of handling 
+> file_context seems to change the file_context sort order on every update 
+> causing fixfiles to falsely think things have changed.  This might not 
+> be ideal since ordering could cause problems.
+> 
+> genhomedircon fixes to make it work within anaconda.  Eliminated all 
+> calls to getstatusoutput.
+> 
+> Added test files to be run to make sure there are no regressions on 
+> updates.  Probably should get these to run automatically some how.
+> 
+> semanage modified to handle ports.  Currenly does not work because of 
+> some of Ivan's changes to libsepol, libsemanage and libselinux have not 
+> been added.
 
-Thanks, your entire patch series has been merged as of libsepol 1.11.2,
-libsemanage 1.5.4, and policycoreutils 1.29.3.
+I merged the diffs to existing files as of policycoreutils 1.29.3.
+However, I didn't add the new files yet, namely selisteners and the test
+files.  selisteners likely needs more polishing to be generally useful.
+For the test scripts, I think we need them to be in a form more amenable
+to automated testing (i.e. checking the return values and/or output
+themselves against expected values), and possibly they should be added
+to the selinux testsuite in the ltp instead of included in
+policycoreutils itself (especially since you have to install a custom
+setrans.conf for your chcat tests, and semanage may be manipulating the
+active policy).
 
 -- 
 Stephen Smalley
