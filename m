@@ -1,24 +1,38 @@
-Subject: Re: [SEMANAGE] Add more tests
+Subject: Re: libsepol
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <43BC9227.1020405@cornell.edu>
-References: <43BC9227.1020405@cornell.edu>
+Cc: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43BAB5C7.5080904@cornell.edu>
+References: <200601040559.04895.russell@coker.com.au>
+	 <43BAB5C7.5080904@cornell.edu>
 Content-Type: text/plain
-Date: Thu, 05 Jan 2006 08:37:14 -0500
-Message-Id: <1136468234.27632.366.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 05 Jan 2006 08:51:05 -0500
+Message-Id: <1136469065.27632.377.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-04 at 22:27 -0500, Ivan Gyurdiev wrote:
-> Hi, this patch adds tests for booleans, active booleans, interfaces, 
-> ports, and file contexts.
-> It adds a pair of tests for each - write and list, and follows the exact 
-> same pattern as the other tests.
+On Tue, 2006-01-03 at 12:35 -0500, Ivan Gyurdiev wrote:
+> 
+> > -		context_destroy(&c->context[0]);
+> > -		context_destroy(&c->context[1]);
+> > +		if(con)
+> > +		{
+> > +			context_destroy(&con->context[0]);
+> > +			context_destroy(&con->context[1]);
+> > +		}
+> >   
+> This is actually wrong, the bug is that con should be iface, as we're 
+> freeing the interface's context.
+> The variable c was correctly left uninitialized in the code - it was 
+> just used where it's not supposed to.
 
-Thanks, all 7 libsemanage patches and the 1 libsepol patch merged as of
-libsemanage 1.5.5 and libsepol 1.11.3.
+I fixed the bug in the sepol_iface_modify error path, also included in
+libsepol 1.11.3.  I have not yet merged Russell's patch for libsepol, as
+I am still examining it.  Note that we should avoid expending effort on
+optimizing code that is obsolete (e.g. genbools other than
+genbools_array for preservebools=1, all of genusers) or not performance
+critical.
 
 -- 
 Stephen Smalley
