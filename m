@@ -1,65 +1,57 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k05EbHXf017260
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jan 2006 09:37:17 -0500 (EST)
-Received: from e5.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k05EbFWJ017054
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jan 2006 14:37:15 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e5.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id k05EbFbV021435
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jan 2006 09:37:15 -0500
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay02.pok.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k05EbEbC103430
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jan 2006 09:37:14 -0500
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11/8.13.3) with ESMTP id k05EbEb6018714
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jan 2006 09:37:14 -0500
-Date: Thu, 5 Jan 2006 08:37:13 -0600
+Date: Thu, 5 Jan 2006 08:56:36 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Crispin Cowan <crispin@novell.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
-   linux-security-module@wirex.com, "SELinux(NSA)" <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>,
+   linux-security-module@wirex.com, selinux@tycho.nsa.gov
 Subject: Re: SELinux metadata protection
-Message-ID: <20060105143713.GA23146@sergelap.austin.ibm.com>
-References: <43B6C9E3.8020406@kaigai.gr.jp> <20060101192707.GA19487@sergelap.austin.ibm.com> <43BC6E97.4000209@novell.com>
+Message-ID: <20060105145636.GB23146@sergelap.austin.ibm.com>
+References: <200601021906.k02J6HmB009362@luminouswebdesign.com> <1136303210.27632.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <43BC6E97.4000209@novell.com>
+In-Reply-To: <1136303210.27632.65.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Crispin Cowan (crispin@novell.com):
-> Serge E. Hallyn wrote:
-> > Hmm, a question on behavior.
-> >
-> > Let's say hallyn_t is allowed to write /var (var_t), but not to do
-> > getattr on /var/secret_process_is_running (secret_t).  If hallyn_t
-> > does ls /var/secret_process_is_running, he gets -ENOENT, but what
-> > should he get if he does 'touch /var/secret_process_is_running'?
-> > -EPERM obviously leaks information...
-> >   
-> If you create a file whose existence is supposed to be secret, and you
-> put it in a public directory, then you have made a mistake, because the
-> file's existence is always detectable.
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Mon, 2006-01-02 at 14:06 -0500, schaufler-ca.com - Casey Schaufler
+> wrote:
+> > Casey takes a deep breath...
+> > 
+> > The filename is not an attribute of the file.
+> > The pathname components are data contained
+> > in directory entries. The association of path name
+> > to inode number is one way. There is no association
+> > of path name from file. Really. This is the thing
+> > that make audit hard.
+> > 
+> > Yes, I know "It's obvious". It's just not true.
 > 
-> Suppose we create file in /var/nothingtoseehere. The adversary can
-> create any file they want, *except* for /var/nothingtoseehere, which
-> will return some kind of error message (doesn't matter which error).
-> From this, the attacker can infer the existence of the file, and its name.
+> The world is ending because I agree with Casey on this one...
+> The filename is not an attribute of the file, and we do not want this
+> type of filtering on directory reads.  Use the permissions on the
+> directory itself to control who can see the names it contains.  It is
+> the data container for the filenames.
+> 
+> Use polyinstantiation aka Multi-Level Directories aka moldy directories
+> for shared directories like /tmp.
 
-Right.  Of course we could solve this with a custom polyinstantiated
-filesystem, which might even be pretty simple to do as either a
-stackable fs around a real one, or a userspace filesystem.  It would
-simply create a new entry for /var/nothingtoseehere with the creator's
-context, so that when a process in that context did ls /var, it would
-see the new file.  I was wondering whether there are any other tricks
-we could play.
+Looking at the second "application note" for 5.3.4.1 of PP_MLOSPP_MR
+(from http://niap.nist.gov/cc-scheme/pp/PP_MLOSPP-MR_V1.22.html), it
+says:
 
-Sounds like no  :)
+"The MAC policy covers all subjects and all objects.  The list of
+objects must include object attributes that are themselves objects
+(such as filenames) because they can be manipulated by a user."
 
-And as you point out, if we don't solve this, there's no point returning
--ENOENT on ls /var.
+So it sounds like to meet this profile, we'd have to either have
+separate controls on the filename, or extend a file's read/write
+access rights to any dentry pointing to the inode.
 
-thanks,
+Of course I'd resigned myself long ago to not being able to meet this
+application note :)  Particularly due to the aforementioned hard-to-
+handle information leak on touch(/var/somefilename).  So I'm not
+arguing with the decision to abort this patch.
+
 -serge
 
 --
