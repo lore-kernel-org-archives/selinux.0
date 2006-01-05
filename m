@@ -1,47 +1,73 @@
-Subject: Re: SELinux metadata protection
+Subject: Re: libsepol
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>,
-   linux-security-module@wirex.com, selinux@tycho.nsa.gov
-In-Reply-To: <20060105145636.GB23146@sergelap.austin.ibm.com>
-References: <200601021906.k02J6HmB009362@luminouswebdesign.com>
-	 <1136303210.27632.65.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060105145636.GB23146@sergelap.austin.ibm.com>
+To: russell@coker.com.au
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
+   SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200601040559.04895.russell@coker.com.au>
+References: <200601040559.04895.russell@coker.com.au>
 Content-Type: text/plain
-Date: Thu, 05 Jan 2006 10:10:56 -0500
-Message-Id: <1136473856.27632.399.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 05 Jan 2006 12:10:21 -0500
+Message-Id: <1136481021.27632.444.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-01-05 at 08:56 -0600, Serge E. Hallyn wrote:
-> Looking at the second "application note" for 5.3.4.1 of PP_MLOSPP_MR
-> (from http://niap.nist.gov/cc-scheme/pp/PP_MLOSPP-MR_V1.22.html), it
-> says:
+On Wed, 2006-01-04 at 05:58 +1100, Russell Coker wrote:
+> policydb.c:2280: warning: 'last_block' may be used uninitialized in this
+> function
+> policydb.c:2289: warning: 'last_decl' may be used uninitialized in this
+> function
 > 
-> "The MAC policy covers all subjects and all objects.  The list of
-> objects must include object attributes that are themselves objects
-> (such as filenames) because they can be manipulated by a user."
-> 
-> So it sounds like to meet this profile, we'd have to either have
-> separate controls on the filename, or extend a file's read/write
-> access rights to any dentry pointing to the inode.
+> It wasn't immediately clear to me what the correct solution to the above
+> warnings is.
 
-I don't think so.  You would just argue that filenames are not separable
-objects in Unix/Linux, that they are part of the content of directory
-objects in Unix/Linux, and that MAC policy does control the ability to
-read directories based on their label.  Further, MAC policy does already
-control the ability to modify directories not only based on checks on
-the directory label but also based on per-file checks (e.g. SELinux
-checks rename, unlink, and link permissions on the inode in addition to
-add_name/remove_name on the directory).  The unlink/link checks are
-justified since they alter inode state (link count).  The rename check
-is more of an integrity-oriented control.
- 
-> Of course I'd resigned myself long ago to not being able to meet this
-> application note :)  Particularly due to the aforementioned hard-to-
-> handle information leak on touch(/var/somefilename).  So I'm not
-> arguing with the decision to abort this patch.
+Per Joshua, we can just initialize these to NULL to silence the warnings
+as they won't be used until after the first pass through has set them.
+
+> In av_to_string() in assertion.c I added some code to handle the case of
+> an error >1024 characters.  I don't think it's possible to have such a
+> long error or likely to be possible in the future.  But I think it's
+> best to have the code not crash on such a condition anyway.  I've made
+> it just return nothing in the case of such an overflow, would truncation
+> be better?
+
+You weren't updating avlen; I fixed it.  I chose to have it return NULL
+rather than an empty string; the error message will then be generated
+with a "null" string in it, indicating that we ran out of space.
+
+> In sepol_context_to_string() I fixed the error handling for the case
+> where the overflow occurs by more than one byte.
+
+Applied.
+
+> In sepol_set_delusers() I initialised oldc to 0 to avoid a GCC warning.
+> I checked the code and it seems that it performs correctly.
+
+Doesn't seem necessary AFAICS, and this code is deprecated.  I've put in
+comments into genusers.c and genbools.c bracketing the deprecated code
+(all of genusers, and all of genbools except genbools_array used for
+preservebools=1 upon policy reload).
+
+> In hierarchy.c I fixed a couple of memory leaks and changed a comment to
+> hopefully make it easier for others who work on this to avoid such
+> leaks.  Also I changed the code in find_parent() to be a little more
+> efficient.
+
+Applied, with a bug fix to your patch.  *parent[len] doesn't do what you
+think it does ;)
+
+> In sepol_iface_modify() I renamed the variable "c" to "con".  I hate
+> one-letter variable names because I can't easily search for them in my
+> editor.  It turned out that a GCC warning was correct about that
+> variable being possibly used without being initialised, so I initialise
+> it to NULL and check it's value before freeing it's members.
+
+Dropped, as I applied a fix for the real bug there based on Ivan's
+observation, and don't care about short names.
+
+> Also added some __fsetlocking() stuff.
+
+Dropped, as the affected code is deprecated or test utility.
 
 -- 
 Stephen Smalley
