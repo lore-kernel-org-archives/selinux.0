@@ -1,20 +1,24 @@
-Subject: Re: libsemanage performance patch
+Subject: Re: [SEMANAGE] Add more tests
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200601040557.32435.russell@coker.com.au>
-References: <200601040557.32435.russell@coker.com.au>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43BC9227.1020405@cornell.edu>
+References: <43BC9227.1020405@cornell.edu>
 Content-Type: text/plain
-Date: Thu, 05 Jan 2006 08:34:26 -0500
-Message-Id: <1136468066.27632.363.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 05 Jan 2006 08:37:14 -0500
+Message-Id: <1136468234.27632.366.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-04 at 05:57 +1100, Russell Coker wrote:
-> Optimised string and FILE * operations in libsemanage.
+On Wed, 2006-01-04 at 22:27 -0500, Ivan Gyurdiev wrote:
+> Hi, this patch adds tests for booleans, active booleans, interfaces, 
+> ports, and file contexts.
+> It adds a pair of tests for each - write and list, and follows the exact 
+> same pattern as the other tests.
 
-Thanks, merged as of libsemanage 1.5.5.
+Thanks, all 7 libsemanage patches and the 1 libsepol patch merged as of
+libsemanage 1.5.5 and libsepol 1.11.3.
 
 -- 
 Stephen Smalley
