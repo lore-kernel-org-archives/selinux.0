@@ -1,88 +1,45 @@
-Date: Sat, 7 Jan 2006 10:19:16 +0900
-From: shintarou_fujiwara <shin216@xf7.so-net.ne.jp>
-To: "R. Steven Rainwater" <srainwater@ncc.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: selinux/PostgreSQL problems with RHEL 4.2
-Message-Id: <20060107101916.03f09968.shin216@xf7.so-net.ne.jp>
-In-Reply-To: <1136592010.17167.58.camel@rodan.ncc.com>
-References: <1136592010.17167.58.camel@rodan.ncc.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k071JWXf008649
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jan 2006 20:19:32 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k071JTfk004193
+	for <selinux@tycho.nsa.gov>; Sat, 7 Jan 2006 01:19:30 GMT
+Subject: Re: setfiles and restorecon performance patch
+From: Stephen Tweedie <sct@redhat.com>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <200601031959.34132.russell@coker.com.au>
+References: <200601031959.34132.russell@coker.com.au>
+Content-Type: text/plain
+Date: Fri, 06 Jan 2006 20:19:22 -0500
+Message-Id: <1136596762.4478.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,from Japan.
+Hi,
 
-If you are not familiar with SELinux,
-it is difficult to set SELinux settings,so
-why don't you try this.
+On Tue, 2006-01-03 at 19:59 +1100, Russell Coker wrote:
 
-mv /var/lib/pgsql /var/lib/pgsql_old
+> Stephen, please let me know what your instinct is regarding cache sizes for 
+> this.
 
-and,PGDATA should be ordinary path. 
-initialize postgresql as usual.
+8192 sounds a bit large; 1024 sounds better.  In fact, to be honest, a
+lookahead of a dozen or so would probably be fine in this particular
+scenario --- the child process doing the stat()s is still going to be
+fully serialised on its IO, so there's no opportunity to reorder IOs and
+so no opportunity to schedule disk IO better by giving the kernel a
+larger pool of IOs to work on.
 
-Your old data are saved in pgsql_old,so it's safe.
+But you're unlikely to exhaust the cache and so evict things during this
+scan; at least not at 1000 entries.  dcache sizes are often in the tens
+if not hundreds of thousands.
 
-Shintaro
+Cheers,
+ Stephen
 
 
-On Fri, 06 Jan 2006 18:00:10 -0600
-"R. Steven Rainwater" <srainwater@ncc.com> wrote:
-
-> I've got a new RHEL4.2 install and I wanted to do something I thought
-> would be simple based on prior experience on non-selinux boxes. I wanted
-> to change the default data directory used by PostgreSQL. Normally it
-> uses /var/lib/pgsql. I want it to use /drive2/pgsql. I created the new
-> directory, set the permissions on it the same as the original directory,
-> added a one line /etc/sysconfig/pgsql/postgresql file with a PGDATA
-> directive pointing to the new directory. I started the PostgreSQL
-> service for the first time which should initialize everything. It failed
-> and dumped this string of cryptic selinux errors to the message log:
-> 
-> Jan  6 17:18:07 z2 kernel: audit(1136589487.378:9): avc:  denied  {
-> search } for  pid=20130 comm="ls" name="/" dev=sdb1 ino=2
-> scontext=root:system_r:postgresql_t tcontext=system_u:object_r:file_t
-> tclass=dir
-> Jan  6 17:18:07 z2 kernel: audit(1136589487.379:10): avc:  denied  {
-> search } for  pid=19969 comm="initdb" name="/" dev=sdb1 ino=2
-> scontext=root:system_r:postgresql_t tcontext=system_u:object_r:file_t
-> tclass=dir
-> Jan  6 17:18:07 z2 kernel: audit(1136589487.380:11): avc:  denied  {
-> search } for  pid=20131 comm="mkdir" name="/" dev=sdb1 ino=2
-> scontext=root:system_r:postgresql_t tcontext=system_u:object_r:file_t
-> tclass=dir
-> Jan  6 17:18:07 z2 kernel: audit(1136589487.381:12): avc:  denied  {
-> getattr } for  pid=20131 comm="mkdir" name="/" dev=sdb1 ino=2
-> scontext=root:system_r:postgresql_t tcontext=system_u:object_r:file_t
-> tclass=dir
-> Jan  6 17:18:07 z2 kernel: audit(1136589487.382:13): avc:  denied  {
-> search } for  pid=20132 comm="mkdir" name="/" dev=sdb1 ino=2
-> scontext=root:system_r:postgresql_t tcontext=system_u:object_r:file_t
-> tclass=dir
-> Jan  6 17:18:07 z2 kernel: audit(1136589487.382:14): avc:  denied  {
-> search } for  pid=20132 comm="mkdir" name="/" dev=sdb1 ino=2
-> scontext=root:system_r:postgresql_t tcontext=system_u:object_r:file_t
-> tclass=dir
-> Jan  6 17:18:07 z2 kernel: audit(1136589487.418:15): avc:  denied  {
-> search } for  pid=20155 comm="postmaster" name="/" dev=sdb1 ino=2
-> scontext=root:system_r:postgresql_t tcontext=system_u:object_r:file_t
-> tclass=dir
-> Jan  6 17:18:09 z2 postgresql: Starting postgresql service:  failed
-> 
-> I still haven't quite been able to wrap my head around what this selinux
-> thing is supposed to do aside from preventing me from getting anything
-> done :)  but I was hoping someone here could interpret the above string
-> of errors and tell me if there's any reasonable hope that I can do what
-> I originally wanted to do. Thanks...
-> 
-> -Steve
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
