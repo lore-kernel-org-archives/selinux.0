@@ -1,50 +1,29 @@
-Message-ID: <43C28A9F.2070600@redhat.com>
-Date: Mon, 09 Jan 2006 11:09:03 -0500
+Message-ID: <43C28BB0.1070601@redhat.com>
+Date: Mon, 09 Jan 2006 11:13:36 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Auditallow execmem
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: MLS/MCS Constraints causing problems for unconfined_t.
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Currently unconfined_t can not read the pid of certain domains in 
+targeted policy that are running at s0-s0:c0.c255
+For instance audit2allow will give the following after a reboot. since 
+the shutdown process tries to killall processes and reads these.
 
+allow unconfined_t auditd_t:file read;
+allow unconfined_t crond_t:file read;
+allow unconfined_t cupsd_t:file read;
+allow unconfined_t hald_t:file read;
+allow unconfined_t udev_t:file read;
+allow unconfined_t self:file read;
+allow unconfined_t xdm_t:file read;
 
-Currently there are too many applications that need execmem, to turn off 
-allow_execmem by default.  So I changed the policy
-to auditallow execmem if there allow_execmem is set.  This allows us to 
-at least discover applications in targeted policy that need
-this priv, and then submit bugzillas for those apps, or fix policy to 
-allow them if it really is needed.   The problem is that these messages 
-are not rate limited so you can end up with hundreds or thousands of 
-these messages in the log file.  What do you think about limiting 
-auditallow message to once similar to the way we do in permissive mode?  
-Since this is by it's nature permissive.  IE One pessage per PID.
-
-
-type=AVC msg=audit(1136817016.558:1419): avc:  granted  { execmem } for  
-pid=2774 comm="firefox-bin" scontext=user_u:system_r:unconfined_t:s0 
-tcontext=user_u:system_r:unconfined_t:s0 tclass=process
-type=AVC msg=audit(1136817512.277:1420): avc:  granted  { execmem } for  
-pid=3208 comm="soffice.bin" scontext=user_u:system_r:unconfined_t:s0 
-tcontext=user_u:system_r:unconfined_t:s0 tclass=process
-type=AVC msg=audit(1136818328.051:1421): avc:  granted  { execmem } for  
-pid=3208 comm="soffice.bin" scontext=user_u:system_r:unconfined_t:s0 
-tcontext=user_u:system_r:unconfined_t:s0 tclass=process
-type=AVC msg=audit(1136819443.464:1428): avc:  granted  { execmem } for  
-pid=3208 comm="soffice.bin" scontext=user_u:system_r:unconfined_t:s0 
-tcontext=user_u:system_r:unconfined_t:s0 tclass=process
-type=AVC msg=audit(1136820377.510:1429): avc:  granted  { execmem } for  
-pid=3208 comm="soffice.bin" scontext=user_u:system_r:unconfined_t:s0 
-tcontext=user_u:system_r:unconfined_t:s0 tclass=process
-type=AVC msg=audit(1136821309.091:1435): avc:  granted  { execmem } for  
-pid=3208 comm="soffice.bin" scontext=user_u:system_r:unconfined_t:s0 
-tcontext=user_u:system_r:unconfined_t:s0 tclass=process
-type=AVC msg=audit(1136822165.482:1438): avc:  granted  { execmem } for  
-pid=3208 comm="soffice.bin" scontext=user_u:system_r:unconfined_t:s0 
-tcontext=user_u:system_r:unconfined_t:s0 tclass=process
-...
+Also if a sysadm run top it will generate this kind of AVC messages.  
+These are somewhat expected, should we dontaudit these?  Will dontaudit 
+work on an MLS Constraint failure?
 
 Dan
 
