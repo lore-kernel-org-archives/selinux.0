@@ -1,22 +1,26 @@
-Subject: Re: [SEMANAGE] Fix fcontext comparator
+Subject: Re: [SEPOL] Const in APIs (2)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <43BE9B0D.409@cornell.edu>
-References: <43BE9B0D.409@cornell.edu>
+In-Reply-To: <43BE8C6C.7080803@cornell.edu>
+References: <43BE8C6C.7080803@cornell.edu>
 Content-Type: text/plain
-Date: Mon, 09 Jan 2006 09:12:06 -0500
-Message-Id: <1136815926.19934.26.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 09 Jan 2006 09:11:39 -0500
+Message-Id: <1136815899.19934.24.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-01-06 at 11:30 -0500, Ivan Gyurdiev wrote:
-> The comparator for fcontext is wrong.
-> This should fix the problem Dan is having with the fcontext exists 
-> function - let me know if it works.
+On Fri, 2006-01-06 at 10:27 -0500, Ivan Gyurdiev wrote:
+> Remove malloc nonsense due to non-const hashtab keys.
+> 
+> Note: I don't understand how symtab_init can get away with initializing 
+> a comparator/hasher with non-const keys. I specifically marked those 
+> const in hashtab_init, but that doesn't seem to cause any warnings.
 
-Merged as of libsemanage 1.5.11.
+Merged as of libsepol 1.11.8.
+
+"Strong typing is for weak minds"
 
 -- 
 Stephen Smalley
