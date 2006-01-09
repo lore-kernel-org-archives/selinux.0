@@ -1,364 +1,57 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k09LI4Xf003917
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jan 2006 16:18:04 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k09LGxHd011198
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jan 2006 21:16:59 GMT
-Message-ID: <43C2D2FF.8050104@redhat.com>
-Date: Mon, 09 Jan 2006 16:17:51 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SE-Linux <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k09MtPXf004748
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jan 2006 17:55:25 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k09MsIHd023192
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jan 2006 22:54:19 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
 Subject: Re: file contexts patch for performance
-References: <200601082141.14437.russell@coker.com.au>
-In-Reply-To: <200601082141.14437.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Tue, 10 Jan 2006 09:55:00 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200601082141.14437.russell@coker.com.au> <43C2D2FF.8050104@redhat.com>
+In-Reply-To: <43C2D2FF.8050104@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200601100955.16641.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> The attached patch applies against selinux-policy-targeted-2.1.7-3.  The main 
-> part of the patch is to change "/foo(/.*)?/whatever" to "/foo/(.*/)?whatever" 
->   
-
-"/foo(/.*)?/whatever" does not match  "/foo/(.*/)?
-Naimly /foo will not be labeled.
-
-
-
-> and "/foo(/.*)?" to "/foo -d" and "/foo/.*", the second part is to replace 
-> "/lib(64?)/" with separate entries for "/lib/" and "/lib64/".  These changes 
-> allow more effective use of stem compression.  Before this change on my test 
-> machine an average of 81.49 seconds of user CPU time was taken for an 
-> autorelabel operation with a minimal install of rawhide, afterwards the 
-> average was 79.28 which gives an average of 2.21 seconds of time saved (or 
-> 2.7% performance increase).
+On Tuesday 10 January 2006 08:17, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Russell Coker wrote:
+> > The attached patch applies against selinux-policy-targeted-2.1.7-3.  The
+> > main part of the patch is to change "/foo(/.*)?/whatever" to
+> > "/foo/(.*/)?whatever"
 >
-> This is only a small increase.  My next attempt at improving performance of 
-> setfiles/restorecon will be to try two levels of stem compression in 
-> matchpathcon etc.  I believe that this change will provide more benefit when 
-> combined with two level stem compression than it currently does.  In any case 
-> it's a simple change and also serves as an example to other people writing 
-> policy so I believe it's worth including.
->
-> At some future time I plan to make setfiles/restorecon take advantage of 
-> multiple CPUs on SMP machines.  As Intel has announced plans to make all CPUs 
-> multi-core and appear to be focussing on multi-core and hypter-threading 
-> rather than clock speed it seems that SMP aware versions of these utilities 
-> will be needed to take advantage of future hardware.  But I don't plan on 
-> working on that for a while, among other things my only SMP machine won't 
-> boot a Fedora kernel.
->
->   
-> ------------------------------------------------------------------------
->
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/kernel/bootloader.fc serefpolicy-2.1.7/policy/modules/kernel/bootloader.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/kernel/bootloader.fc	2006-01-06 03:12:16.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/kernel/bootloader.fc	2006-01-08 15:55:11.000000000 +1100
-> @@ -1,8 +1,11 @@
-> -
-> +ifdef(`distro_debian', `
->  /vmlinuz.*		-l	gen_context(system_u:object_r:boot_t,s0)
->  /initrd\.img.*		-l	gen_context(system_u:object_r:boot_t,s0)
-> +/usr/sbin/mkinitramfs	--	gen_context(system_u:object_r:bootloader_exec_t,s0)
-> +')
->  
-> -/boot(/.*)?			gen_context(system_u:object_r:boot_t,s0)
-> +/boot			-d	gen_context(system_u:object_r:boot_t,s0)
-> +/boot/.*			gen_context(system_u:object_r:boot_t,s0)
->  /boot/System\.map(-.*)?	--	gen_context(system_u:object_r:system_map_t,s0)
->  
->  /etc/lilo\.conf.*	--	gen_context(system_u:object_r:bootloader_etc_t,s0)
-> @@ -10,7 +13,8 @@
->  
->  /etc/mkinitrd/scripts/.* --	gen_context(system_u:object_r:bootloader_exec_t,s0)
->  
-> -/lib(64)?/modules(/.*)?		gen_context(system_u:object_r:modules_object_t,s0)
-> +/lib/modules(/.*)?		gen_context(system_u:object_r:modules_object_t,s0)
-> +/lib64/modules(/.*)?		gen_context(system_u:object_r:modules_object_t,s0)
->  
->  /usr/sbin/mkinitrd	--	gen_context(system_u:object_r:bootloader_exec_t,s0)
->  
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/kernel/corecommands.fc serefpolicy-2.1.7/policy/modules/kernel/corecommands.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/kernel/corecommands.fc	2006-01-06 03:12:16.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/kernel/corecommands.fc	2006-01-08 15:57:58.000000000 +1100
-> @@ -2,7 +2,8 @@
->  #
->  # /bin
->  #
-> -/bin(/.*)?				gen_context(system_u:object_r:bin_t,s0)
-> +/bin				-d	gen_context(system_u:object_r:bin_t,s0)
-> +/bin/.*					gen_context(system_u:object_r:bin_t,s0)
->  /bin/d?ash			--	gen_context(system_u:object_r:shell_exec_t,s0)
->  /bin/bash			--	gen_context(system_u:object_r:shell_exec_t,s0)
->  /bin/bash2			--	gen_context(system_u:object_r:shell_exec_t,s0)
-> @@ -71,27 +72,28 @@
->  #
->  # /sbin
->  #
-> -/sbin(/.*)?				gen_context(system_u:object_r:sbin_t,s0)
-> +/sbin				-d	gen_context(system_u:object_r:sbin_t,s0)
-> +/sbin/.*				gen_context(system_u:object_r:sbin_t,s0)
->  /sbin/mkfs\.cramfs		--	gen_context(system_u:object_r:sbin_t,s0)
->  /sbin/insmod_ksymoops_clean	--	gen_context(system_u:object_r:sbin_t,s0)
->  
->  #
->  # /opt
->  #
-> -/opt(/.*)?/bin(/.*)?			gen_context(system_u:object_r:bin_t,s0)
-> +/opt/(.*/)?bin(/.*)?			gen_context(system_u:object_r:bin_t,s0)
->  
-> -/opt(/.*)?/libexec(/.*)?		gen_context(system_u:object_r:bin_t,s0)
-> +/opt/(.*/)?libexec(/.*)?		gen_context(system_u:object_r:bin_t,s0)
->  
-> -/opt(/.*)?/sbin(/.*)?			gen_context(system_u:object_r:sbin_t,s0)
-> +/opt/(.*/)?sbin(/.*)?			gen_context(system_u:object_r:sbin_t,s0)
->  
->  #
->  # /usr
->  #
-> -/usr(/.*)?/Bin(/.*)?			gen_context(system_u:object_r:bin_t,s0)
-> +/usr/(.*/)?Bin(/.*)?			gen_context(system_u:object_r:bin_t,s0)
->  
-> -/usr(/.*)?/bin(/.*)?			gen_context(system_u:object_r:bin_t,s0)
-> +/usr/(.*/)?bin(/.*)?			gen_context(system_u:object_r:bin_t,s0)
->  
-> -/usr(/.*)?/sbin(/.*)?			gen_context(system_u:object_r:sbin_t,s0)
-> +/usr/(.*/)?sbin(/.*)?			gen_context(system_u:object_r:sbin_t,s0)
->  
->  /usr/lib/ccache/bin(/.*)?		gen_context(system_u:object_r:bin_t,s0)
->  /usr/lib/pgsql/test/regress/.*\.sh --	gen_context(system_u:object_r:bin_t,s0)
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/kernel/devices.fc serefpolicy-2.1.7/policy/modules/kernel/devices.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/kernel/devices.fc	2006-01-08 16:27:56.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/kernel/devices.fc	2006-01-08 16:27:18.000000000 +1100
-> @@ -1,5 +1,6 @@
->  
-> -/dev(/.*)?			gen_context(system_u:object_r:device_t,s0)
-> +/dev			-d	gen_context(system_u:object_r:device_t,s0)
-> +/dev/.*				gen_context(system_u:object_r:device_t,s0)
->  
->  /dev/.*mouse.*		-c	gen_context(system_u:object_r:mouse_device_t,s0)
->  /dev/adsp		-c	gen_context(system_u:object_r:sound_device_t,s0)
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/kernel/files.fc serefpolicy-2.1.7/policy/modules/kernel/files.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/kernel/files.fc	2006-01-08 16:27:56.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/kernel/files.fc	2006-01-08 16:27:18.000000000 +1100
-> @@ -32,13 +32,15 @@
->  #
->  
->  ifdef(`distro_redhat',`
-> -/emul(/.*)?			gen_context(system_u:object_r:usr_t,s0)
-> +/emul			-d	gen_context(system_u:object_r:usr_t,s0)
-> +/emul/.*			gen_context(system_u:object_r:usr_t,s0)
->  ')
->  
->  #
->  # /etc
->  #
-> -/etc(/.*)?			gen_context(system_u:object_r:etc_t,s0)
-> +/etc			-d	gen_context(system_u:object_r:etc_t,s0)
-> +/etc/.*				gen_context(system_u:object_r:etc_t,s0)
->  /etc/\.fstab\.hal\..+	--	gen_context(system_u:object_r:etc_runtime_t,s0)
->  /etc/asound\.state	--	gen_context(system_u:object_r:etc_runtime_t,s0)
->  /etc/blkid\.tab.*	--	gen_context(system_u:object_r:etc_runtime_t,s0)
-> @@ -123,29 +125,34 @@
->  #
->  # /opt
->  #
-> -/opt(/.*)?			gen_context(system_u:object_r:usr_t,s0)
-> +/opt			-d	gen_context(system_u:object_r:usr_t,s0)
-> +/opt/.*				gen_context(system_u:object_r:usr_t,s0)
->  
-> -/opt(/.*)?/var/lib(64)?(/.*)?	gen_context(system_u:object_r:var_lib_t,s0)
-> +/opt/(.*/)?var/lib(64)?(/.*)?	gen_context(system_u:object_r:var_lib_t,s0)
->  
->  #
->  # /proc
->  #
-> -/proc(/.*)?                     <<none>>
-> +/proc			-d	<<none>>
-> +/proc/.*			<<none>>
->  
->  #
->  # /selinux
->  #
-> -/selinux(/.*)?                  <<none>>
-> +/selinux		-d	<<none>>
-> +/selinux/.*			<<none>>
->  
->  #
->  # /srv
->  #
-> -/srv(/.*)?			gen_context(system_u:object_r:var_t,s0)
-> +/srv			-d	gen_context(system_u:object_r:var_t,s0)
-> +/srv/.*				gen_context(system_u:object_r:var_t,s0)
->  
->  #
->  # /sys
->  #
-> -/sys(/.*)?                      <<none>>
-> +/sys			-d	<<none>>
-> +/sys/.*				<<none>>
->  
->  #
->  # /tmp
-> @@ -160,7 +167,8 @@
->  #
->  # /usr
->  #
-> -/usr(/.*)?			gen_context(system_u:object_r:usr_t,s0)
-> +/usr			-d	gen_context(system_u:object_r:usr_t,s0)
-> +/usr/.*				gen_context(system_u:object_r:usr_t,s0)
->  /usr/\.journal			<<none>>
->  
->  /usr/etc(/.*)?			gen_context(system_u:object_r:etc_t,s0)
-> @@ -189,7 +197,8 @@
->  #
->  # /var
->  #
-> -/var(/.*)?			gen_context(system_u:object_r:var_t,s0)
-> +/var			-d	gen_context(system_u:object_r:var_t,s0)
-> +/var/.*				gen_context(system_u:object_r:var_t,s0)
->  /var/\.journal			<<none>>
->  
->  /var/db/.*\.db		--	gen_context(system_u:object_r:etc_t,s0)
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/services/tftp.fc serefpolicy-2.1.7/policy/modules/services/tftp.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/services/tftp.fc	2006-01-06 03:12:16.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/services/tftp.fc	2006-01-08 16:22:29.000000000 +1100
-> @@ -2,4 +2,5 @@
->  /usr/sbin/atftpd	--	gen_context(system_u:object_r:tftpd_exec_t,s0)
->  /usr/sbin/in\.tftpd	--	gen_context(system_u:object_r:tftpd_exec_t,s0)
->  
-> -/tftpboot(/.*)?			gen_context(system_u:object_r:tftpdir_t,s0)
-> +/tftpboot		-d	gen_context(system_u:object_r:tftpdir_t,s0)
-> +/tftpboot/.*			gen_context(system_u:object_r:tftpdir_t,s0)
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/system/authlogin.fc serefpolicy-2.1.7/policy/modules/system/authlogin.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/system/authlogin.fc	2006-01-06 03:12:15.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/system/authlogin.fc	2006-01-08 16:24:49.000000000 +1100
-> @@ -7,7 +7,8 @@
->  /etc/passwd\.lock	--	gen_context(system_u:object_r:shadow_t,s0)
->  /etc/shadow.*		--	gen_context(system_u:object_r:shadow_t,s0)
->  
-> -/lib(64)?/security/pam_krb5/pam_krb5_storetmp -- gen_context(system_u:object_r:pam_exec_t,s0)
-> +/lib/security/pam_krb5/pam_krb5_storetmp -- gen_context(system_u:object_r:pam_exec_t,s0)
-> +/lib64/security/pam_krb5/pam_krb5_storetmp -- gen_context(system_u:object_r:pam_exec_t,s0)
->  
->  /sbin/pam_console_apply	 --	gen_context(system_u:object_r:pam_console_exec_t,s0)
->  /sbin/pam_timestamp_check --	gen_context(system_u:object_r:pam_exec_t,s0)
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/system/libraries.fc serefpolicy-2.1.7/policy/modules/system/libraries.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/system/libraries.fc	2006-01-08 16:27:56.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/system/libraries.fc	2006-01-08 16:34:24.000000000 +1100
-> @@ -25,17 +25,22 @@
->  /etc/ppp/plugins/rp-pppoe\.so 		--	gen_context(system_u:object_r:shlib_t,s0)
->  
->  #
-> -# /lib(64)?
-> +# /lib and /lib64
->  #
-> -/lib(64)?(/.*)?					gen_context(system_u:object_r:lib_t,s0)
-> -/lib(64)?/.*\.so(\.[^/]*)*		--	gen_context(system_u:object_r:shlib_t,s0)
-> -/lib(64)?(/.*)?/ld-[^/]*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:ld_so_t,s0)
-> +/lib				-d	gen_context(system_u:object_r:lib_t,s0)
-> +/lib/.*					gen_context(system_u:object_r:lib_t,s0)
-> +/lib64				-d	gen_context(system_u:object_r:lib_t,s0)
-> +/lib64/.*				gen_context(system_u:object_r:lib_t,s0)
-> +/lib/.*\.so(\.[^/]*)*		--	gen_context(system_u:object_r:shlib_t,s0)
-> +/lib64/.*\.so(\.[^/]*)*		--	gen_context(system_u:object_r:shlib_t,s0)
-> +/lib/(.*/)?ld-[^/]*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:ld_so_t,s0)
-> +/lib64/(.*/)?ld-[^/]*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:ld_so_t,s0)
->  
->  #
->  # /opt
->  #
-> -/opt(/.*)?/lib(64)?(/.*)?			gen_context(system_u:object_r:lib_t,s0)
-> -/opt(/.*)?/lib(64)?/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:shlib_t,s0)
-> +/opt/(.*/)?lib(64)?(/.*)?			gen_context(system_u:object_r:lib_t,s0)
-> +/opt/(.*/)?lib(64)?/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:shlib_t,s0)
->  
->  #
->  # /sbin
-> @@ -45,18 +50,18 @@
->  #
->  # /usr
->  #
-> -/usr(/.*)?/HelixPlayer/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:textrel_shlib_t,s0)
-> +/usr/(.*/)?HelixPlayer/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:textrel_shlib_t,s0)
->  
-> -/usr(/.*)?/java/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:textrel_shlib_t,s0)
-> -/usr(/.*)?/java/.*\.jar			--	gen_context(system_u:object_r:shlib_t,s0)
-> -/usr(/.*)?/java/.*\.jsa			--	gen_context(system_u:object_r:shlib_t,s0)
-> +/usr/(.*/)?java/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:textrel_shlib_t,s0)
-> +/usr/(.*/)?java/.*\.jar			--	gen_context(system_u:object_r:shlib_t,s0)
-> +/usr/(.*/)?java/.*\.jsa			--	gen_context(system_u:object_r:shlib_t,s0)
->  
-> -/usr(/.*)?/lib(64)?(/.*)?			gen_context(system_u:object_r:lib_t,s0)
-> -/usr(/.*)?/lib(64)?/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:shlib_t,s0)
-> +/usr/(.*/)?lib(64)?(/.*)?			gen_context(system_u:object_r:lib_t,s0)
-> +/usr/(.*/)?lib(64)?/.*\.so(\.[^/]*)*	--	gen_context(system_u:object_r:shlib_t,s0)
->  
-> -/usr(/.*)?/lib(64)?(/.*)?/ld-[^/]*\.so(\.[^/]*)* gen_context(system_u:object_r:ld_so_t,s0)
-> +/usr/(.*/)?lib(64)?(/.*)?/ld-[^/]*\.so(\.[^/]*)* gen_context(system_u:object_r:ld_so_t,s0)
->  
-> -/usr(/.*)?/nvidia/.*\.so(\..*)?		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
-> +/usr/(.*/)?nvidia/.*\.so(\..*)?		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
->  
->  /usr/lib(64)?/pgsql/test/regress/.*\.so 	--	gen_context(system_u:object_r:shlib_t,s0)
->  
-> @@ -117,7 +122,7 @@
->  /usr/lib(64)?/.*/program/libsvx680li\.so --	gen_context(system_u:object_r:textrel_shlib_t,s0)
->  /usr/lib(64)?/.*/program/libcomphelp4gcc3\.so -- gen_context(system_u:object_r:textrel_shlib_t,s0)
->  /usr/lib(64)?/.*/program/libsoffice\.so  --	gen_context(system_u:object_r:textrel_shlib_t,s0)
-> -/usr(/.*)?/pcsc/drivers(/.*)?/lib(cm2020|cm4000|SCR24x)\.so(\.[^/]*)*  		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
-> +/usr/(.*/)?pcsc/drivers(/.*)?/lib(cm2020|cm4000|SCR24x)\.so(\.[^/]*)*  		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
->  
->  /usr/lib(64)?/firefox.*\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
->  /usr/lib(64)?/mozilla.*\.so		--	gen_context(system_u:object_r:textrel_shlib_t,s0)
-> @@ -171,10 +176,10 @@
->  # Java, Sun Microsystems (JPackage SRPM)
->  /usr/.*/jre/lib/i386/libdeploy.so	--	gen_context(system_u:object_r:textrel_shlib_t,s0)
->  
-> -/usr(/.*)?/Reader/intellinux/plug_ins/.*\.api -- gen_context(system_u:object_r:shlib_t,s0)
-> -/usr(/.*)?/Reader/intellinux/plug_ins/AcroForm\.api -- gen_context(system_u:object_r:textrel_shlib_t,s0)
-> -/usr(/.*)?/Reader/intellinux/plug_ins/EScript\.api -- gen_context(system_u:object_r:textrel_shlib_t,s0)
-> -/usr(/.*)?/Reader/intellinux/SPPlugins/ADMPlugin\.apl -- gen_context(system_u:object_r:textrel_shlib_t,s0)
-> +/usr/(.*/)?Reader/intellinux/plug_ins/.*\.api -- gen_context(system_u:object_r:shlib_t,s0)
-> +/usr/(.*/)?Reader/intellinux/plug_ins/AcroForm\.api -- gen_context(system_u:object_r:textrel_shlib_t,s0)
-> +/usr/(.*/)?Reader/intellinux/plug_ins/EScript\.api -- gen_context(system_u:object_r:textrel_shlib_t,s0)
-> +/usr/(.*/)?Reader/intellinux/SPPlugins/ADMPlugin\.apl -- gen_context(system_u:object_r:textrel_shlib_t,s0)
->  ') dnl end distro_redhat
->  
->  ifdef(`distro_suse',`
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/system/miscfiles.fc serefpolicy-2.1.7/policy/modules/system/miscfiles.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/system/miscfiles.fc	2006-01-06 03:12:16.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/system/miscfiles.fc	2006-01-08 16:12:42.000000000 +1100
-> @@ -7,7 +7,7 @@
->  #
->  # /opt
->  #
-> -/opt(/.*)?/man(/.*)?		gen_context(system_u:object_r:man_t,s0)
-> +/opt/(.*/)?man(/.*)?		gen_context(system_u:object_r:man_t,s0)
->  
->  #
->  # /srv
-> diff -ru serefpolicy-2.1.7.orig/policy/modules/system/modutils.fc serefpolicy-2.1.7/policy/modules/system/modutils.fc
-> --- serefpolicy-2.1.7.orig/policy/modules/system/modutils.fc	2006-01-06 03:12:15.000000000 +1100
-> +++ serefpolicy-2.1.7/policy/modules/system/modutils.fc	2006-01-08 16:24:34.000000000 +1100
-> @@ -2,9 +2,11 @@
->  /etc/modules\.conf.*	--	gen_context(system_u:object_r:modules_conf_t,s0)
->  /etc/modprobe\.conf.*	--	gen_context(system_u:object_r:modules_conf_t,s0)
->  
-> -/lib(64)?/modules/[^/]+/modules\..+ -- gen_context(system_u:object_r:modules_dep_t,s0)
-> +/lib/modules/[^/]+/modules\..+ -- gen_context(system_u:object_r:modules_dep_t,s0)
-> +/lib64/modules/[^/]+/modules\..+ -- gen_context(system_u:object_r:modules_dep_t,s0)
->  
-> -/lib(64)?/modules/modprobe\.conf -- gen_context(system_u:object_r:modules_conf_t,s0)
-> +/lib/modules/modprobe\.conf -- gen_context(system_u:object_r:modules_conf_t,s0)
-> +/lib64/modules/modprobe\.conf -- gen_context(system_u:object_r:modules_conf_t,s0)
->  
->  /sbin/depmod.*		--	gen_context(system_u:object_r:depmod_exec_t,s0)
->  /sbin/generate-modprobe\.conf -- gen_context(system_u:object_r:update_modules_exec_t,s0)
->   
+> "/foo(/.*)?/whatever" does not match  "/foo/(.*/)?
+> Naimly /foo will not be labeled.
 
+"/foo(/.*)?/whatever" is exactly equivalent to "/foo/(.*/)?whatever" and 
+neither of them labels /foo!
+
+I changed "/foo(/.*)?" to a pair of specifications "/foo -d" and "/foo/.*".  
+This does not exactly match by regex terms but does give the same result 
+based on our assumed knowledge of the SE Linux system (IE that the regex 
+"/usr(/.*)?" is used to label a directory named "/usr" and all files and 
+directories underneath it).  If someone's system had /usr being a sym-link to 
+somewhere else then the result would be different, however a system with /usr 
+being a sym-link of type usr_t would not work very well as many domains would 
+be denied usr_t:lnk_file access and there's also the issue of correctly 
+labelling the actual location of the files.
+
+This problem of /usr being a symlink is why I advocate LVM for use on SE Linux 
+systems.  When using LVM you tend to resize file systems rather than doing 
+crazy things with sym-links when you run out of space.  Resized file systems 
+work well with SE Linux while sym-linking trees of files around the place 
+does not.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
