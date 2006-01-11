@@ -1,44 +1,56 @@
-Message-ID: <43C59613.4010206@cornell.edu>
-Date: Wed, 11 Jan 2006 16:34:43 -0700
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: [SEMANAGE] Fix calloc check in semanage_store:115
-Content-Type: multipart/mixed;
- boundary="------------010101060304000800080305"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0BNlDXf002264
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jan 2006 18:47:13 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0BNlBca029509
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jan 2006 23:47:11 GMT
+Subject: Re: Latest policy diffs, very large
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43C58596.90900@redhat.com>
+References: <43BAD603.5060209@redhat.com> <1136829416.29815.97.camel@sgc>
+	 <43C58596.90900@redhat.com>
+Content-Type: text/plain
+Date: Wed, 11 Jan 2006 18:47:52 -0500
+Message-Id: <1137023272.29815.172.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010101060304000800080305
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I already have mered a large portion of the previous iteration, can you
+rebase this patch, excluding alsa and locate (I have copies of them
+now)?
 
-This fixes an omem check bug noticed by Steve Grubb.
+On Wed, 2006-01-11 at 17:24 -0500, Daniel J Walsh wrote:
+> Whats up with prelink?
 
+Sorry, have been clearing up some backlog.  This is committed; I moved
+it to admin, since its not really a service.
 
---------------010101060304000800080305
-Content-Type: text/x-patch;
- name="libsemanage.calloc_store.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.calloc_store.diff"
+> What's up with locate?
 
-diff -Naurp --exclude ports_local.c --exclude-from excludes old/libsemanage/src/semanage_store.c new/libsemanage/src/semanage_store.c
---- old/libsemanage/src/semanage_store.c	2006-01-06 08:41:43.000000000 -0700
-+++ new/libsemanage/src/semanage_store.c	2006-01-11 16:27:15.000000000 -0700
-@@ -114,7 +114,7 @@ static int semanage_init_paths(const cha
- 	for (i = 0; i < SEMANAGE_NUM_FILES; i++) {
- 		len = (strlen(semanage_relative_files[i]) + prefix_len);
- 		semanage_files[i] = calloc(len + 1, sizeof(char));
--		if (!semanage_files[SEMANAGE_ROOT])
-+		if (!semanage_files[i])
- 			return -1;
- 		sprintf(semanage_files[i], "%s%s%s", root, SEMANAGE_MOD_DIR,
- 				  semanage_relative_files[i]); 
+I'm merging it with the version one of the guys here did while I was
+away during the holidays (as I was also doing with prelink),
 
---------------010101060304000800080305--
+> Added alsa policy
+
+same with this, now.
+
+I made sure the status page on sourceforge is up to date, please make
+sure to check this, so we don't duplicate effort, and let me know when
+you start working on one of the modules so I can mark it on that page
+too.
+
+> We need a semodule policy...
+
+Yes.  Does that mean you volunteer?
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
