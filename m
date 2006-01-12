@@ -1,37 +1,35 @@
-Subject: Re: Document about object classes and permissions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <ynakam@gwu.edu>
-Cc: James Morris <jmorris@namei.org>, SELinux@tycho.nsa.gov
-In-Reply-To: <20060112110424.18f8203d.ynakam@gwu.edu>
-References: <7ed98a07edb73e.7edb73e7ed98a0@gwu.edu>
-	 <Pine.LNX.4.63.0601081001440.31099@excalibur.intercode>
-	 <20060112110424.18f8203d.ynakam@gwu.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0CGcXXf011142
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2006 11:38:33 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0CGbR5L017071
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2006 16:37:27 GMT
+Subject: dropping pppd_script_exec_t
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 12 Jan 2006 11:27:05 -0500
-Message-Id: <1137083225.3445.30.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 12 Jan 2006 11:39:27 -0500
+Message-Id: <1137083967.29815.205.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-01-12 at 11:04 -0500, Yuichi Nakamura wrote:
-> On Sun, 08 Jan 2006 10:02:17 -0500 (EST)
-> James Morris wrote:
-> > > I've finished writing document about meaning of permissions.
-> > The audit permissions are for the mainline CAPP audit system, not Laus.
-> Thank you for comment. fixed.
-> 
-> But I am not understanding relationship between CAPP audit system and LauS.
-> LauS is component of CAPP audit system?
+In the ppp module there is a type pppd_script_exec_t and its only used
+in one rule:
 
-No, there were two independent audit implementations for Linux; LAuS was
-the first, but was not suitable for the mainline kernel and was never
-upstreamed.  The mainline Linux 2.6 kernel audit system was created
-later and used a different approach.  The SELinux controls are only for
-the mainline kernel's audit system.
+domain_auto_trans(pppd_t, pppd_script_exec_t, initrc_t)
+
+Looking at the actual scripts, they seem similar to regular init scripts
+for configuring network devices.  Since the scripts transition to
+initrc_t already, it seems like they should instead be labeled
+initrc_exec_t and the regular interface call for transitioning to initrc
+can be used.  Then pppd_script_exec_t would be dropped (made an alias of
+initrc_exec_t for compatibility).  Is there any problem with doing this?
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
