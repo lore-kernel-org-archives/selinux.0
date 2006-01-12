@@ -1,35 +1,23 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0CErUXf009833
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2006 09:53:30 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0CEqN5L002824
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2006 14:52:24 GMT
-Subject: Re: [PATCH] sereference: enable local login
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0CFWDXf010221
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2006 10:32:13 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0CFWBDu019817
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2006 15:32:12 GMT
+Subject: sound policy (aumix-minimal)
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20060111220713.GA30908@sergelap.austin.ibm.com>
-References: <20060111213646.GA30428@sergelap.austin.ibm.com>
-	 <20060111220713.GA30908@sergelap.austin.ibm.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 12 Jan 2006 09:54:22 -0500
-Message-Id: <1137077663.29815.187.camel@sgc.columbia.tresys.com>
+Date: Thu, 12 Jan 2006 10:33:06 -0500
+Message-Id: <1137079986.29815.196.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-11 at 16:07 -0600, Serge E. Hallyn wrote:
-> Quoting Serge E. Hallyn (serue@us.ibm.com):
-> > Following is a patch which allows me to log in locally on a gentoo
-> > system with the reference policy.
-> 
-> Well ok, I lied, I do seem to also have to play games with a
-> custom homedir_template, but I assume that's something that
-> will be eventually fixed independent of me?   :)
-
-If you're referring to genhomedircon not being able to determine the
-ROLE, then yes it will be fixed.  Otherwise, you'll have to be more
-specific.
+Is the sound policy (sound.te) actually needed?  It is meant
+for /bin/aumix-minimal to set alsa mixer settings when booting.  Looking
+at the permissions, initrc_t already has sufficient permissions to do
+this.  I believe we can drop this module.  Thoughts?
 
 -- 
 Chris PeBenito
