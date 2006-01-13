@@ -1,24 +1,35 @@
-Subject: Re: setfiles and restorecon performance patch
+Subject: Re: [PATCH] newrole cleanup
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>,
-   "Stephen C. Tweedie" <sct@redhat.com>
-In-Reply-To: <200601031959.34132.russell@coker.com.au>
-References: <200601031959.34132.russell@coker.com.au>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20060110223808.66858.qmail@web51501.mail.yahoo.com>
+References: <20060110223808.66858.qmail@web51501.mail.yahoo.com>
 Content-Type: text/plain
-Date: Fri, 13 Jan 2006 08:55:13 -0500
-Message-Id: <1137160513.3445.131.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 Jan 2006 08:55:47 -0500
+Message-Id: <1137160547.3445.133.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-01-03 at 19:59 +1100, Russell Coker wrote:
-> The attached patch (against policycoreutils-1.29.2-8 from rawhide) makes 
-> setfiles and restorecon fork off a child process to stat the files before the 
-> main process gets to them.
+On Tue, 2006-01-10 at 14:38 -0800, Steve G wrote:
+> Hi,
+> 
+> I've been reviewing newrole in preparation for another patch to add auditing to
+> it. The patch is fairly self-explanatory. Some highlights:
+> 
+> - little const cleanup
+> - pass tty to pam
+> - add a function to verify the shell is in fact known to /etc/shells
+> - make sure no signals are blocked
+> - If in enforcing mode and error: getting tty context, computing new context, or
+> setting new context  then exit with -1.
+> - Loop the wait call to handle EINTR
+> - open the tty read only or write only depending on stdin, stdout, stderr.
+> - pass return from pam_* functions to pam_end
+> 
+> The patch is attached.
 
-Merged as of policycoreutils 1.29.7, with the change to STAT_BLOCK_SIZE
-that we discussed off-list.
+Merged the updated patch as of policycoreutils 1.29.7.
 
 -- 
 Stephen Smalley
