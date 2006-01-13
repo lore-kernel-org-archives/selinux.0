@@ -1,37 +1,27 @@
-Subject: Re: [SEMANAGE] Bugfixes
+Subject: Re: [SEMANAGE] Disallow overlap of local port ranges
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <43C64D9E.4080009@cornell.edu>
-References: <43C64D9E.4080009@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43C785BE.10300@cornell.edu>
+References: <43C785BE.10300@cornell.edu>
 Content-Type: text/plain
-Date: Fri, 13 Jan 2006 08:53:28 -0500
-Message-Id: <1137160408.3445.127.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 Jan 2006 08:53:50 -0500
+Message-Id: <1137160430.3445.129.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-01-12 at 05:37 -0700, Ivan Gyurdiev wrote:
-> Various bugfixes and improvements for recent code:
-> 
-> - rename del_all -> clear, since I like that better
-> - remove requirement to run cache() prior to clear (change spec, and 
-> implementation)
->   (and stop running it in join, that's ridiculous)
-> - BUGFIX: add clear pointer to activedb backend method table
-> 
-> - do not test for NULL record after record->split(), split is not 
-> allowed to return NULL
-> - remove old FIXME from fcontexts_local
-> 
-> - BUGFIX: clear user_extras (policy) dbase in apply_local_changes() 
-> function. Otherwise previous changes are left over, and that's not what 
-> we want - we want build from scratch. This is the equivalent of making a 
-> new policydb, or the direct_api.c processing that rebuilds the 
-> file_contexts file from the one in the package.
+On Fri, 2006-01-13 at 03:49 -0700, Ivan Gyurdiev wrote:
+> Hi, this patch disallows overlapping port ranges in the local store, in 
+> the form of a commit validate run, where the ports are sorted and tested 
+> for overlap. The patch will not allow any kind of overlap, not just 
+> complete shadow. This was a feature requested by Joshua, since relying 
+> on the add() order for precedence seemed non-intuitive. Also, I'm not 
+> sure how useful overlapping ranges are to the local store - they seem 
+> more useful in the base policy where you want to set a default range of 
+> ports.
 
-Merged the join prereq, implementation, user extra data part 2, and this
-patch as of libsemanage 1.5.13.
+Merged as of libsemanage 1.5.14.
 
 -- 
 Stephen Smalley
