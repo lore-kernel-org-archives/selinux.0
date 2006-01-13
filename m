@@ -1,54 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0DMMSXf029319
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2006 17:22:29 -0500 (EST)
-Received: from e5.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0DMMQpN026303
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2006 22:22:26 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e5.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id k0DMMRKN032084
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2006 17:22:27 -0500
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay02.pok.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k0DMMRpu129952
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2006 17:22:27 -0500
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11/8.13.3) with ESMTP id k0DMMRMd018415
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2006 17:22:27 -0500
-Date: Fri, 13 Jan 2006 16:22:26 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: sereference: screen policy
-Message-ID: <20060113222226.GD26911@sergelap.austin.ibm.com>
-References: <20060112214819.GA8013@sergelap.austin.ibm.com> <1137168771.29815.211.camel@sgc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1137168771.29815.211.camel@sgc>
+Message-ID: <43C82889.7020901@cornell.edu>
+Date: Fri, 13 Jan 2006 15:24:09 -0700
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [SEMANAGE(lib/tool)] Remove add_local/set_local
+References: <43C2C414.9070503@cornell.edu> <1137160220.3445.116.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1137160220.3445.116.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Christopher J. PeBenito (cpebenito@tresys.com):
-> On Thu, 2006-01-12 at 15:48 -0600, Serge E. Hallyn wrote:
-> > Still getting the hang of the various existing interfaces, but this
-> > policy at least lets me run screen as sysadm_u and user_u.  This
-> > likely shouldn't go in as is since I doubt it's minimal due to clumsy
-> > use of wrong interfaces, but I won't be looking at this again until
-> > next week at earliest, so meanwhile here's what I've got.
-> 
-> A screen policy was committed two days ago, can you try that one?  I
-> tested it and it seemed to work ok for me.
+Stephen Smalley wrote:
+> On Mon, 2006-01-09 at 13:14 -0700, Ivan Gyurdiev wrote:
+>   
+>> Hi, this patch removes add_local and set_local functions from the dbase 
+>> API, since they duplicate other functionality.
+>>     
+>
+> Merged as of libsemanage 1.5.12 and policycoreutils 1.29.6.
+> I then later had to move the semanage tool diffs over to the new
+> seobject.py introduced by Dan in a later policycoreutils.
+>   
+Steven, will you be increasing the major number with the next official 
+release? Some of the changes made are suspect API changes (size_t 
+conversion in sepol/semanage, commit numbers in semanage, compare 
+behavior in sepol/semanage), and this one is a clear change... What 
+about sepol?
 
-Almost but not quite for me.  I needed the following lines added to the
-template:
+If the number will be increased, I'll change some other not-so-smart 
+APIs, like port_get_proto_str, and fcontext_get_proto_str, which should 
+take an integer, and return a string, instead of taking a port or 
+context. We could also deprecate some things in sepol, or add more 
+handles here and there.
 
-	allow $1_screen_t $1_t:process sigchld;
-	allow $1_screen_t $1_t:fd use;
-	term_setattr_all_user_ptys($1_screen_t)
-	term_use_all_terms($1_screen_t)
-	allow $1_screen_t tty_device_t:lnk_file read;
-
-Note that I also still need my other patch for local logins from Jan 11.
-
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
