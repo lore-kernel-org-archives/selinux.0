@@ -1,39 +1,36 @@
-Subject: Re: [PATCH] newrole cleanup
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20060110223808.66858.qmail@web51501.mail.yahoo.com>
-References: <20060110223808.66858.qmail@web51501.mail.yahoo.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0DGCpXf024617
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2006 11:12:51 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0DGCnpN010605
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2006 16:12:49 GMT
+Subject: Re: sereference: screen policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20060112214819.GA8013@sergelap.austin.ibm.com>
+References: <20060112214819.GA8013@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Date: Fri, 13 Jan 2006 08:55:47 -0500
-Message-Id: <1137160547.3445.133.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 Jan 2006 11:12:51 -0500
+Message-Id: <1137168771.29815.211.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-01-10 at 14:38 -0800, Steve G wrote:
-> Hi,
-> 
-> I've been reviewing newrole in preparation for another patch to add auditing to
-> it. The patch is fairly self-explanatory. Some highlights:
-> 
-> - little const cleanup
-> - pass tty to pam
-> - add a function to verify the shell is in fact known to /etc/shells
-> - make sure no signals are blocked
-> - If in enforcing mode and error: getting tty context, computing new context, or
-> setting new context  then exit with -1.
-> - Loop the wait call to handle EINTR
-> - open the tty read only or write only depending on stdin, stdout, stderr.
-> - pass return from pam_* functions to pam_end
-> 
-> The patch is attached.
+On Thu, 2006-01-12 at 15:48 -0600, Serge E. Hallyn wrote:
+> Still getting the hang of the various existing interfaces, but this
+> policy at least lets me run screen as sysadm_u and user_u.  This
+> likely shouldn't go in as is since I doubt it's minimal due to clumsy
+> use of wrong interfaces, but I won't be looking at this again until
+> next week at earliest, so meanwhile here's what I've got.
 
-Merged the updated patch as of policycoreutils 1.29.7.
+A screen policy was committed two days ago, can you try that one?  I
+tested it and it seemed to work ok for me.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
