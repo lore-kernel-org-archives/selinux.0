@@ -1,20 +1,37 @@
-Subject: Re: [SEMANAGE] Fix calloc check in semanage_store:115
+Subject: Re: [SEMANAGE] Bugfixes
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <43C59613.4010206@cornell.edu>
-References: <43C59613.4010206@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <43C64D9E.4080009@cornell.edu>
+References: <43C64D9E.4080009@cornell.edu>
 Content-Type: text/plain
-Date: Fri, 13 Jan 2006 08:52:04 -0500
-Message-Id: <1137160324.3445.122.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 Jan 2006 08:53:28 -0500
+Message-Id: <1137160408.3445.127.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-11 at 16:34 -0700, Ivan Gyurdiev wrote:
-> This fixes an omem check bug noticed by Steve Grubb.
+On Thu, 2006-01-12 at 05:37 -0700, Ivan Gyurdiev wrote:
+> Various bugfixes and improvements for recent code:
+> 
+> - rename del_all -> clear, since I like that better
+> - remove requirement to run cache() prior to clear (change spec, and 
+> implementation)
+>   (and stop running it in join, that's ridiculous)
+> - BUGFIX: add clear pointer to activedb backend method table
+> 
+> - do not test for NULL record after record->split(), split is not 
+> allowed to return NULL
+> - remove old FIXME from fcontexts_local
+> 
+> - BUGFIX: clear user_extras (policy) dbase in apply_local_changes() 
+> function. Otherwise previous changes are left over, and that's not what 
+> we want - we want build from scratch. This is the equivalent of making a 
+> new policydb, or the direct_api.c processing that rebuilds the 
+> file_contexts file from the one in the package.
 
-Merged as of libsemanage 1.5.12.
+Merged the join prereq, implementation, user extra data part 2, and this
+patch as of libsemanage 1.5.13.
 
 -- 
 Stephen Smalley
