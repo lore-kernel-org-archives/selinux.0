@@ -1,39 +1,41 @@
-Message-ID: <43C82889.7020901@cornell.edu>
-Date: Fri, 13 Jan 2006 15:24:09 -0700
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43C88B94.8030804@redhat.com>
+Date: Sat, 14 Jan 2006 00:26:44 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [SEMANAGE(lib/tool)] Remove add_local/set_local
-References: <43C2C414.9070503@cornell.edu> <1137160220.3445.116.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1137160220.3445.116.camel@moss-spartans.epoch.ncsc.mil>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
+   Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [SEMANAGE] User extra data (part 1)
+References: <43C33ECB.2020608@cornell.edu> <43C3D4AE.8070403@tresys.com> <43C6DF28.2080500@cornell.edu>
+In-Reply-To: <43C6DF28.2080500@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2006-01-09 at 13:14 -0700, Ivan Gyurdiev wrote:
->   
->> Hi, this patch removes add_local and set_local functions from the dbase 
->> API, since they duplicate other functionality.
->>     
+Ivan Gyurdiev wrote:
 >
-> Merged as of libsemanage 1.5.12 and policycoreutils 1.29.6.
-> I then later had to move the semanage tool diffs over to the new
-> seobject.py introduced by Dan in a later policycoreutils.
->   
-Steven, will you be increasing the major number with the next official 
-release? Some of the changes made are suspect API changes (size_t 
-conversion in sepol/semanage, commit numbers in semanage, compare 
-behavior in sepol/semanage), and this one is a clear change... What 
-about sepol?
+>>
+>> I really don't want to export a whole slew of extra interfaces for 
+>> dealing with system level stuff so some of the options are
+>>
+>> 1) letting rpm/whatever be trusted to smash things in the store 
+>> (non-ideal)
+>>
+>> 2) Write an 'import' interface that tells semanage to grab all the 
+>> system files from somewhere and smash the ones in the store (sort of 
+>> hackish)
+>>
+>> 3) add user_extra.system to the policy package and smash it on base 
+>> policy upgrade (this is my favorite)
+> I have no preference... Dan?
+>
+I really don't understand what you are trying to do here. 
 
-If the number will be increased, I'll change some other not-so-smart 
-APIs, like port_get_proto_str, and fcontext_get_proto_str, which should 
-take an integer, and return a string, instead of taking a port or 
-context. We could also deprecate some things in sepol, or add more 
-handles here and there.
-
+We are trying to build a mapping between SELinux User and default login 
+type?  Correct?  But there is a relationship between the default login 
+role and the type.  SO I guess I have no preference.  The current 
+policycoreutils is hacked to select user for user_u and staff for root 
+or staff_u in non targeted policy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
