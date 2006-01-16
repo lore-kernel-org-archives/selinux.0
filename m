@@ -1,62 +1,72 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0GJ4eXf024035
-	for <selinux@tycho.nsa.gov>; Mon, 16 Jan 2006 14:04:40 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0GJ3Wlk019930
-	for <selinux@tycho.nsa.gov>; Mon, 16 Jan 2006 19:03:33 GMT
-Subject: Re: [PATCH] sereference: Makefile changes
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Spencer Shimko <sshimko@tresys.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0GJmAXf024377
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jan 2006 14:48:11 -0500 (EST)
+Received: from e6.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0GJl3lk024150
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jan 2006 19:47:03 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e6.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id k0GJmABM032442
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jan 2006 14:48:10 -0500
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay04.pok.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k0GJmAmA119818
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jan 2006 14:48:10 -0500
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.12.11/8.13.3) with ESMTP id k0GJm9Tr018980
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jan 2006 14:48:09 -0500
+Date: Mon, 16 Jan 2006 13:48:09 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200601121423.31372.sshimko@tresys.com>
-References: <200601121423.31372.sshimko@tresys.com>
-Content-Type: text/plain
-Date: Mon, 16 Jan 2006 14:06:05 -0500
-Message-Id: <1137438365.29815.246.camel@sgc>
+Subject: Re: sereference: screen policy
+Message-ID: <20060116194809.GD15246@sergelap.austin.ibm.com>
+References: <20060112214819.GA8013@sergelap.austin.ibm.com> <1137168771.29815.211.camel@sgc> <20060113222226.GD26911@sergelap.austin.ibm.com> <1137427147.29815.232.camel@sgc>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1137427147.29815.232.camel@sgc>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-01-12 at 14:23 -0500, Spencer Shimko wrote:
-> The attached patch makes it possible to change the on-off-module state of 
-> policy from the command line at build time.  Rather then maintaining 
-> separate modules.conf for various similar builds, one can maintain a 
-> common modules.conf and tweak it when running make.
-
-> diff -urN refpolicy-old/Makefile refpolicy-new/Makefile
-> --- refpolicy-old/Makefile      2006-01-12 11:07:59.000000000 -0500
-> +++ refpolicy-new/Makefile      2006-01-12 14:10:03.000000000 -0500
-> @@ -165,9 +165,17 @@
->  # modules.conf setting for unused module
->  MODUNUSED := off
->  
-> +# test for additional module configuration information from command line and check for confusing input
-> +MOD_TEST = $(foreach var, $(APPS_OFF), $(findstring $(var), $(APPS_ON) $(APPS_MODS)))
-> +MOD_TEST += $(foreach var, $(APPS_MODS), $(findstring $(var), $(APPS_ON)))
-> +ifneq ($(strip $(MOD_TEST)),)
-> +        $(error Applications must be on, module, or off, and not in more than one list! $(strip $(MOD_TEST)) found in multiple lists!)
-> +endif
-
-I believe using filter instead of foreach+findstring will simplify the
-above part, since it returns the words in the text (APPS_ON and
-APPS_MODS) that match any of the words in the pattern (APPS_OFF).
-
->  # extract settings from modules.conf
-> -BASE_MODS := $(addsuffix .te,$(shell awk '/^[[:blank:]]*[[:alpha:]]/{ if ($$3 == "$(MODBASE)") print $$1 }' $(MOD_CONF) 2> /dev/null))
-> -MOD_MODS := $(addsuffix .te,$(shell awk '/^[[:blank:]]*[[:alpha:]]/{ if ($$3 == "$(MODMOD)") print $$1 }' $(MOD_CONF) 2> /dev/null))
-> +# strip out all additional module configuration information from command line, then add back in to avoid dupes
-> +BASE_MODS := $(strip $(filter-out $(strip $(APPS_OFF) $(APPS_MODS) $(APPS_ON)), $(addsuffix .te,$(shell awk '/^[[:blank:]]*[[:alpha:]]/{ if ($$3 == "$(MODBASE)") print $$1 }' $(MOD_CONF) 2> /dev/null)))) $(addsuffix .te,$(APPS_ON))
-> +MOD_MODS := $(strip $(addsuffix .te, $(filter-out $(strip $(APPS_OFF) $(APPS_MODS) $(APPS_ON)), $(shell awk '/^[[:blank:]]*[[:alpha:]]/{ if ($$3 == "$(MODMOD)") print $$1 }' $(MOD_CONF) 2> /dev/null)))) $(addsuffix .te,$(APPS_MODS))
->  OFF_MODS := $(addsuffix .te,$(shell awk '/^[[:blank:]]*[[:alpha:]]/{ if ($$3 == "$(MODUNUSED)") print $$1 }' $(MOD_CONF) 2> /dev/null))
+Quoting Christopher J. PeBenito (cpebenito@tresys.com):
+> On Fri, 2006-01-13 at 16:22 -0600, Serge E. Hallyn wrote:
+> > Quoting Christopher J. PeBenito (cpebenito@tresys.com):
+> > > On Thu, 2006-01-12 at 15:48 -0600, Serge E. Hallyn wrote:
+> > > > Still getting the hang of the various existing interfaces, but this
+> > > > policy at least lets me run screen as sysadm_u and user_u.  This
+> > > > likely shouldn't go in as is since I doubt it's minimal due to clumsy
+> > > > use of wrong interfaces, but I won't be looking at this again until
+> > > > next week at earliest, so meanwhile here's what I've got.
+> > > 
+> > > A screen policy was committed two days ago, can you try that one?  I
+> > > tested it and it seemed to work ok for me.
+> > 
+> > Almost but not quite for me.  I needed the following lines added to the
+> > template:
+> > 
+> > 	allow $1_screen_t $1_t:process sigchld;
+> > 	allow $1_screen_t $1_t:fd use;
 > 
-Using sort might simplify this, as it removes duplicates, in addition to
-sorting the list.
+> Ok, well these should be in there already ($2 == the old $1_t in the
+> template).
+> 
+> > 	term_setattr_all_user_ptys($1_screen_t)
+> > 	term_use_all_terms($1_screen_t)
+> 
+> The rule for the user's own terminal should be in.  I don't know if we
+> should trust screen to use all terminals.
+> 
+> > 	allow $1_screen_t tty_device_t:lnk_file read;
+> 
+> Looks like a mislabeled symlink.  Currently the symlinks in /dev are all
+> device_t, as far as I know.  Looking at terminal.fc, everything is
+> marked -c (with the exception of /dev/pts directory which is -d), so I'm
+> not sure how this would happen.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Yup, with /dev/ttyS1 correctly labeled, the existing screen policy works.
 
+(But I still need the rest of my login fix)
+
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
