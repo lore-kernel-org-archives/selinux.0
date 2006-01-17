@@ -1,54 +1,29 @@
-Message-ID: <43CD3CF8.8010408@cornell.edu>
-Date: Tue, 17 Jan 2006 11:52:40 -0700
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0HJ2MXf007357
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 14:02:22 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0HJ2KRq016994
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 19:02:20 GMT
+Message-ID: <43CD3F39.8000208@cornell.edu>
+Date: Tue, 17 Jan 2006 12:02:17 -0700
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Improve cache management
-References: <43CD16C3.60603@cornell.edu>
-In-Reply-To: <43CD16C3.60603@cornell.edu>
-Content-Type: multipart/mixed;
- boundary="------------050706060503030906020802"
+To: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Why are we managing seusers file via libsemanage?
+References: <200601171656.k0HGubQp006859@luminouswebdesign.com>
+In-Reply-To: <200601171656.k0HGubQp006859@luminouswebdesign.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050706060503030906020802
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This is a bugfix for the last patch ...
-clear must set/update the serial number.
+>
+> Image a universe with no Internet.
+... you mean back when people used to read books and stuff, and go out 
+of the house to shop!?
+Fortunately I can't remember those dark ages....
 
-
---------------050706060503030906020802
-Content-Type: text/x-patch;
- name="libsemanage.clear_set_serial.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.clear_set_serial.diff"
-
-diff -Naurp --exclude-from excludes old/libsemanage/src/database_llist.c new/libsemanage/src/database_llist.c
---- old/libsemanage/src/database_llist.c	2006-01-17 09:11:06.000000000 -0700
-+++ new/libsemanage/src/database_llist.c	2006-01-17 11:50:46.000000000 -0700
-@@ -327,7 +327,14 @@ int dbase_llist_clear(
- 	semanage_handle_t* handle,
- 	dbase_llist_t* dbase) {
- 
--	if (dbase->cache_serial >= 0) {
-+	int old_serial = dbase->cache_serial;
-+
-+	if (dbase_llist_set_serial(handle, dbase) < 0) {
-+		ERR(handle, "could not set serial of cleared dbase");
-+		return STATUS_ERR;
-+	}
-+
-+	if (old_serial >= 0) {
- 		cache_entry_t *prev, *ptr = dbase->cache;
- 		while (ptr != NULL) {
- 			prev = ptr;
-
---------------050706060503030906020802--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
