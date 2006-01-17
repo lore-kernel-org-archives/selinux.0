@@ -1,74 +1,59 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0HGudXf005395
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 11:56:40 -0500 (EST)
-Received: from luminouswebdesign.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0HGtVP2025370
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 16:55:31 GMT
-Received: from schaufler-ca.com (luminouswebdesign.com. [216.117.155.141])
-	by luminouswebdesign.com (8.12.10/8.12.10) with SMTP id k0HGubQp006859
-	for selinux@tycho.nsa.gov; Tue, 17 Jan 2006 11:56:37 -0500
-Date: Tue, 17 Jan 2006 11:56:37 -0500
-From: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>
-Message-Id: <200601171656.k0HGubQp006859@luminouswebdesign.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Why are we managing seusers file via libsemanage?
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0HI2RXf006370
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 13:02:27 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0HI2PRq000029
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 18:02:25 GMT
+Message-ID: <43CD3129.6060405@redhat.com>
+Date: Tue, 17 Jan 2006 13:02:17 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Why are we managing seusers file via libsemanage?
+References: <43CC6953.4060901@redhat.com> <43CCA359.8030109@cornell.edu>
+In-Reply-To: <43CCA359.8030109@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-
 Ivan Gyurdiev wrote:
+> Daniel J Walsh wrote:
+>> I don't recall why we did this?
+>>
+>> I am now thinking this is not a good idea.  People were told to edit 
+>> the /etc/selinux/POLICYTYPE/seusers file to change the default level 
+>> at login, now we do this via libsemanage.  But doing this via 
+>> libsemanage eliminates us from being able to distribute this 
+>> information via say LDAP.
+> I think the issue of management and of distribution are completely 
+> independent from each other (or if not, they should be made so). 
+> Distribution gets the data from A to B. Management interprets the 
+> data, and decides what to do with it.
+>
+> I don't understand the way Unix updates the password for example - it 
+> doesn't make sense to me, I would appreciate an explanation from 
+> someone who knows better. It provides a shared read interface on the 
+> passwd file (with backend switching via nss). It doesn't provide a 
+> shared write interface - why? That seems to me like a design mistake, 
+> where distribution/backend is tied to management. Why should I care 
+> where the password is kept if all I want to do is update it. I don't 
+> think we should replicate that behavior, and copy the read/write code 
+> in 10 places, like it's done for passwd - not until it's clear why 
+> this is the correct way to go.
+>
+>
+Ok well the seusers file should indicate that it is machine generated 
+and should not be edited then, or can it be eliminated all together.  
+Users will edit this file...
 
-> I don't understand the way Unix updates
-> the password for example - it  doesn't make
-> sense to me, I would appreciate an explanation
-> from  someone who knows better.
-
-
-Image a universe with no Internet. A universe
-in which DES is sufficiently strong encryption for
-any purpose, including DoD classified material.
-A universe in which 16bit computing is hot stuff,
-where computers store passwords in clear text,
-and Gigabyte describes the storage capacity of
-the United States.
-
-In that universe storing user ID and password
-information in an unstructured flat file, with the
-password stored as a one-way DES hash not
-only makes sense, it's Brilliant! (Wow, I want a
-Guiness now!) The administrator can update
-the user information using normal tools like ed,
-or even exotic ones like sed, grep, and ex.
-Heck, there's even an API for reading the file
-(getpwent()) that parses the file for you if you
-need to translate uid numbers to user names.
-What's more, there's a program (passwd(1))
-that carefully allows a user to change her
-password -get this- without bothering the
-administrator. Incredible.
-
-Unix password management was magical in
-its day. It's still good enough to fight off the
-dozens of attempts that have been made to
-replace it with something "better".
-
-Sigh. You just made me feel old. I'll go back
-to my corner now.
+We still need a mechanism for managing setrans.conf but I understand why 
+that is separate from libsemanage currently.  I also think we need to 
+look into a  semachine type interface that indicates that maximum 
+security level for a particular machine.
 
 
-------------------------
-Casey Schaufler
-casey@schaufler-ca.com
-650.906.1780
-
-
-
-
-
-
-
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
