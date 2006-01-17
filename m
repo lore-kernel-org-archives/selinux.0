@@ -1,69 +1,63 @@
-Message-ID: <43CD6266.9060709@cornell.edu>
-Date: Tue, 17 Jan 2006 14:32:22 -0700
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [SEMANAGE] Only do read locking in direct case
-Content-Type: multipart/mixed;
- boundary="------------030505000100060407030709"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0HMSXXf010212
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 17:28:33 -0500 (EST)
+Received: from iron1-mx.tops.gwu.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0HMRPP2019959
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 22:27:26 GMT
+Date: Tue, 17 Jan 2006 17:22:51 -0500
+From: Yuichi Nakamura <ynakam@gwu.edu>
+To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
+Cc: ynakam@gwu.edu
+Subject: [ANN] SELinux Policy Editor 1.3.1
+Message-Id: <20060117172251.22f6d601.ynakam@gwu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030505000100060407030709
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi.
 
-Pserver shouldn't do locking, and it will go through those same 
-functions....
-Pserver does locking on the server side, where the resource to be locked 
-is located, not on the client side.
+SELinux Policy Editor 1.3.1 has been released.
+About SELinux Policy Editor, visit http://seedit.sourceforge.net/
 
+(1) Notice
+This release includes Simplified Policy only. 
+GUI is not included, it will be re-developped.
+It is development version, may be unstable.
+And tested only in Fedora Core4.
 
+(2) Changes
+* audit2spdl utility
+ It works like audit2allow, generates simplified policy from log.
+ You do not have to remember detail of simplified policy syntax.
+* Detailed permission for files support
+ For users who want more security, new permission a(Append),t(seTattr), 
+ c(Create), e(Erace),o(Overwrite) can be used.
+* Documentation 
+ Documentation about what permissions are integrated, unsupported by simplified policy is prepared.
+ Verifying security of Simplified Policy has become easier.
+ See http://seedit.sourceforge.net/doc/permission_integrate/
+* Generation of above document using XML/Python
 
+(3) How to use
+First get seedit-converter-1.3.1-1.i386.rpm and seedit-policy-1.3.1-FC4.noarch.rpm from 
+http://sourceforge.net/project/showfiles.php?group_id=135756
+How to install is the same as 1.2, 
+see http://seedit.sourceforge.net/doc/install/INSTALL.html
+For detail, see manual at http://seedit.sourceforge.net/doc_devel/simplified_policy_manual/
 
---------------030505000100060407030709
-Content-Type: text/x-patch;
- name="libsemanage.no_pserver_locking.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.no_pserver_locking.diff"
+(4) Plan
+- XML support to be handled easily by UI tools
+- New GUI 
+- Review security of simplified policy, prepare document 
 
-diff -Naurp --exclude-from excludes old/libsemanage/src/database.c new/libsemanage/src/database.c
---- old/libsemanage/src/database.c	2006-01-17 09:11:06.000000000 -0700
-+++ new/libsemanage/src/database.c	2006-01-17 14:28:26.000000000 -0700
-@@ -2,6 +2,7 @@
- 
- #include <semanage/handle.h>
- #include "semanage_store.h"
-+#include "semanage_conf.h"
- #include "database.h"
- #include "debug.h"
- 
-@@ -28,7 +29,9 @@ static int enter_ro(
- 	if (assert_init(handle, dconfig) < 0)
- 		goto err;
- 
--	if (!handle->is_in_transaction) {
-+	if (!handle->is_in_transaction &&
-+	     handle->conf->store_type == SEMANAGE_CON_DIRECT) {
-+
- 		if (semanage_get_active_lock(handle) < 0) {
- 			ERR(handle, "could not get the active lock");
- 			goto err;
-@@ -51,7 +54,8 @@ static inline int exit_ro(
- 
- 	int commit_num = handle->funcs->get_serial(handle); 
- 
--	if (!handle->is_in_transaction) 
-+	if (!handle->is_in_transaction && 
-+	     handle->conf->store_type == SEMANAGE_CON_DIRECT) 
- 		semanage_release_active_lock(handle);
- 
- 	return commit_num;
+If you have question, comment, suggestion and others, 
+please feel free to send me e-mail(ynakam@gwu.edu).
 
---------------030505000100060407030709--
+-----
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+SELinux Policy Editor: http://seedit.sourceforge.net/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
