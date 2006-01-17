@@ -1,95 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0H88FXf029600
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 03:08:16 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0H875P2010044
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 08:07:06 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [PATCH] sereference: enable local login
-Date: Tue, 17 Jan 2006 19:07:45 +1100
-Cc: SELinux <selinux@tycho.nsa.gov>
-References: <20060111213646.GA30428@sergelap.austin.ibm.com>
-In-Reply-To: <20060111213646.GA30428@sergelap.austin.ibm.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0H8AbXf029631
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 03:10:37 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0H8AZRq000768
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 08:10:35 GMT
+Message-ID: <43CCA675.3000508@cornell.edu>
+Date: Tue, 17 Jan 2006 01:10:29 -0700
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200601171908.04196.russell@coker.com.au>
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Why are we managing seusers file via libsemanage?
+References: <43CC6953.4060901@redhat.com> <43CC8040.1060704@tresys.com> <43CC81C2.5010104@tresys.com> <43CC9E6D.9090509@cornell.edu>
+In-Reply-To: <43CC9E6D.9090509@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 12 January 2006 08:36, "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> Following is a patch which allows me to log in locally on a gentoo
-> system with the reference policy.
+Ivan Gyurdiev wrote:
+>>
+>> To clarify: The library needs to do the validation no matter what. 
+>> The policy isn't exposed to any userland tools so semanage can't do 
+>> checking itself. 
 >
-> Index: refpolicy/policy/modules/system/authlogin.if
-> ===================================================================
-> --- refpolicy.orig/policy/modules/system/authlogin.if
-> +++ refpolicy/policy/modules/system/authlogin.if
-> @@ -115,6 +115,8 @@ template(`authlogin_per_userdomain_templ
->  	allow $2 self:netlink_audit_socket { create_netlink_socket_perms
-> nlmsg_relay };
+> Not entirely true - the client could query the necessary information 
+> via semanage, and do validation itself. You can take the entire 
+> seuser_validate function, take it out of semanage, change it a little 
+> bit, and put put in a transaction, and it would work just fine.
 >
->  	dontaudit $2 shadow_t:file { getattr read };
-> +	typeattribute $2 can_read_shadow_passwords;
-> +	allow $2 shadow_t:file { getattr read };
->
->  	# Transition from the user domain to this domain.
->  	domain_auto_trans($2,chkpwd_exec_t,$1_chkpwd_t)
-> @@ -253,6 +255,8 @@ interface(`auth_domtrans_chk_passwd',`
->  	allow system_chkpwd_t $1:process sigchld;
->
->  	dontaudit $1 shadow_t:file { getattr read };
-> +	typeattribute $1 can_read_shadow_passwords;
-> +	allow $1 shadow_t:file { getattr read };
->
->  	dev_read_rand($1)
->  	dev_read_urand($1)
+Well, allright... that used to be true before I put in the MLS checks. 
+Now seuser validation would require a backend-neutral way to check mls 
+dominance and mls validity, which libsemanage does not provide at the 
+current time (we could add it, but it doesn't exist right now, client 
+has to assume direct backend, no policy server).
 
-This is bad.  We don't want to allow such domains access to shadow_t, a 
-significant aim of SE Linux is to restrict access to shadow_t.  If your PAM 
-system is correctly patched then it will try to access /etc/shadow directly 
-and then run a helper program which is both SETUID and has a 
-domain_auto_trans() to give it the access it needs.
-
-> Index: refpolicy/policy/modules/kernel/terminal.fc
-> ===================================================================
-> --- refpolicy.orig/policy/modules/kernel/terminal.fc
-> +++ refpolicy/policy/modules/kernel/terminal.fc
-> @@ -1,5 +1,6 @@
->
->  /dev/.*tty[^/]*		-c	gen_context(system_u:object_r:tty_device_t,s0)
-> +/dev/.*tty[^/]*		-l	gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/[pt]ty[abcdepqrstuvwxyz][0-9a-f]	-c
-> gen_context(system_u:object_r:bsdpty_device_t,s0)
-> /dev/adb.*		-c	gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/capi.*		-c	gen_context(system_u:object_r:tty_device_t,s0)
-
-Best to leave the symlinks as type device_t.  I don't think that there's any 
-benefit in having different types for different symlinks, and it just means 
-that more access has to be granted.  It can take ages to fix all domains that 
-access certain device nodes and this alone is a good reason to minimise 
-changes.
-
-> @@ -14,6 +15,7 @@
->  /dev/rfcomm[0-9]+	-c	gen_context(system_u:object_r:tty_device_t,s0)
->  /dev/tty		-c	gen_context(system_u:object_r:devtty_t,s0)
->  /dev/ttySG.*		-c	gen_context(system_u:object_r:tty_device_t,s0)
-> +/dev/tts/[0-9]		-c	gen_context(system_u:object_r:tty_device_t,s0)
->
->  /dev/pty/.*		-c	gen_context(system_u:object_r:bsdpty_device_t,s0)
-
-Is Gentoo still using devfs device names?  If so you might want to make it 
-work for more than 10 serial ports.
-
-Also Gentoo specific changes should have ifdef(`distro_gentoo' around them.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
