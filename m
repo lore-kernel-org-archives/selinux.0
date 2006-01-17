@@ -1,77 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0HLTrXf009527
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 16:29:53 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0HLTmRq010985
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 21:29:49 GMT
-Subject: ANN: Reference Policy Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 16:31:06 -0500
-Message-Id: <1137533466.29815.299.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <43CD6266.9060709@cornell.edu>
+Date: Tue, 17 Jan 2006 14:32:22 -0700
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [SEMANAGE] Only do read locking in direct case
+Content-Type: multipart/mixed;
+ boundary="------------030505000100060407030709"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of the SELinux Reference Policy is now available on
-SourceForge from http://serefpolicy.sourceforge.net.  The primary
-activity for this release has been converting modules needed for Fedora
-Core 5's MLS policy.  The change log follows at the bottom of the email.
+This is a multi-part message in MIME format.
+--------------030505000100060407030709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Again, for those that are interesting in contributing, right now the
-best help would be to convert existing policies over to reference
-policy; there is a list of modules on the reference policy status page
-on SourceForge.
+Pserver shouldn't do locking, and it will go through those same 
+functions....
+Pserver does locking on the server side, where the resource to be locked 
+is located, not on the client side.
 
-* Tue Jan 17 2006 Chris PeBenito <selinux@tresys.com> - 20060117
-- Adds support for generating corenetwork interfaces based on attributes 
-  in addition to types.
-- Permit the listing of multiple nodes in a network_node() that will be
-  given the same type.
-- Add two new permission sets for stream sockets.
-- Rename file type transition interfaces verb from create to
-  filetrans to differentiate it from create interfaces without
-  type transitions.
-- Fix expansion of interfaces from disabled modules.
-- Rsync can be long running from init, added rules to allow this.
-- Add polyinstantiation build option.
-- Add setcontext to the association object class.
-- Add apache relay and db connect tunables.
-- Rename texrel_shlib_t to textrel_shlib_t.
-- Add swat to samba module.
-- Numerous miscellaneous fixes from Dan Walsh.
-- Added modules:
-	alsa
-	automount
-	cdrecord
-	daemontools (Petre Rodan)
-	ddcprobe
-	djbdns (Petre Rodan)
-	fetchmail
-	irc
-	java
-	lockdev
-	logwatch (Dan Walsh)
-	openct
-	prelink (Dan Walsh)
-	publicfile (Petre Rodan)
-	readahead
-	roundup
-	screen
-	slocate (Dan Walsh)
-	slrnpull
-	smartmon
-	sysstat
-	ucspitcp (Petre Rodan)
-	usbmodules
-	vbetool (Dan Walsh)
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
+
+--------------030505000100060407030709
+Content-Type: text/x-patch;
+ name="libsemanage.no_pserver_locking.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.no_pserver_locking.diff"
+
+diff -Naurp --exclude-from excludes old/libsemanage/src/database.c new/libsemanage/src/database.c
+--- old/libsemanage/src/database.c	2006-01-17 09:11:06.000000000 -0700
++++ new/libsemanage/src/database.c	2006-01-17 14:28:26.000000000 -0700
+@@ -2,6 +2,7 @@
+ 
+ #include <semanage/handle.h>
+ #include "semanage_store.h"
++#include "semanage_conf.h"
+ #include "database.h"
+ #include "debug.h"
+ 
+@@ -28,7 +29,9 @@ static int enter_ro(
+ 	if (assert_init(handle, dconfig) < 0)
+ 		goto err;
+ 
+-	if (!handle->is_in_transaction) {
++	if (!handle->is_in_transaction &&
++	     handle->conf->store_type == SEMANAGE_CON_DIRECT) {
++
+ 		if (semanage_get_active_lock(handle) < 0) {
+ 			ERR(handle, "could not get the active lock");
+ 			goto err;
+@@ -51,7 +54,8 @@ static inline int exit_ro(
+ 
+ 	int commit_num = handle->funcs->get_serial(handle); 
+ 
+-	if (!handle->is_in_transaction) 
++	if (!handle->is_in_transaction && 
++	     handle->conf->store_type == SEMANAGE_CON_DIRECT) 
+ 		semanage_release_active_lock(handle);
+ 
+ 	return commit_num;
+
+--------------030505000100060407030709--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
