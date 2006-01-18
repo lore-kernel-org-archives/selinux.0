@@ -1,5 +1,5 @@
-Message-ID: <43CD9BAE.40006@tresys.com>
-Date: Tue, 17 Jan 2006 20:36:46 -0500
+Message-ID: <43CD9BDE.8010005@tresys.com>
+Date: Tue, 17 Jan 2006 20:37:34 -0500
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
@@ -17,8 +17,9 @@ Daniel J Walsh wrote:
 > Now checks to make sure run as root.
 
 while it's probably true that most 'direct' libsemanage sessions need 
-root that is not true for policy server so I don't think there should be 
-a hard coded root check (aren't we trying to rely on MAC here?)
+root that is not necessarily true for policy server so I don't think 
+there should be a hard coded root check in semanage (aren't we trying to 
+rely on MAC here anyway?)
 > 
 > Also chcat can now manipulate categories of users as well as files.
 > 
