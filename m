@@ -1,44 +1,47 @@
-Message-ID: <43CDB8DF.9070100@tresys.com>
-Date: Tue, 17 Jan 2006 22:41:19 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <43CDBA95.8020308@redhat.com>
+Date: Tue, 17 Jan 2006 22:48:37 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: Joshua Brindle <jbrindle@tresys.com>
 CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: Latest policycoreutils patch
-References: <43CD54B9.4030307@redhat.com> <43CD9BDE.8010005@tresys.com> <43CDB89C.4030608@redhat.com>
-In-Reply-To: <43CDB89C.4030608@redhat.com>
+References: <43CD54B9.4030307@redhat.com> <43CD9BDE.8010005@tresys.com> <43CDB89C.4030608@redhat.com> <43CDB8DF.9070100@tresys.com>
+In-Reply-To: <43CDB8DF.9070100@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Joshua Brindle wrote:
-> 
->> Daniel J Walsh wrote:
+Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+>> Joshua Brindle wrote:
 >>
->>> Includes Ivan and Russells changes
+>>> Daniel J Walsh wrote:
 >>>
->>> Now checks to make sure run as root.
+>>>> Includes Ivan and Russells changes
+>>>>
+>>>> Now checks to make sure run as root.
+>>>
+>>>
+>>> while it's probably true that most 'direct' libsemanage sessions 
+>>> need root that is not necessarily true for policy server so I don't 
+>>> think there should be a hard coded root check in semanage (aren't we 
+>>> trying to rely on MAC here anyway?)
 >>
+>> The checks are for genhomedircon and semanage both of which will be 
+>> prevented from running because of DAC control.
 >>
->> while it's probably true that most 'direct' libsemanage sessions need 
->> root that is not necessarily true for policy server so I don't think 
->> there should be a hard coded root check in semanage (aren't we trying 
->> to rely on MAC here anyway?)
-> 
-> The checks are for genhomedircon and semanage both of which will be 
-> prevented from running because of DAC control.
 >
-
-why not correctly handle the permission failure instead of hardcoding a 
-root check? semanage going through the policy server will not be 
-affected by DAC(uid) aside from the permissions on the sock file.
-
->>>
->>> Also chcat can now manipulate categories of users as well as files.
->>>
-> 
-> 
+> why not correctly handle the permission failure instead of hardcoding 
+> a root check? semanage going through the policy server will not be 
+> affected by DAC(uid) aside from the permissions on the sock file.
+>
+So we have nasty failures until the policy server shows up?
+>>>>
+>>>> Also chcat can now manipulate categories of users as well as files.
+>>>>
+>>
+>>
+>
 
 
 --
