@@ -1,24 +1,25 @@
-Subject: Re: Latest policycoreutils patch
+Subject: Re: [SEMANAGE] Fix up hidden definitions again...
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43CD54B9.4030307@redhat.com>
-References: <43CD54B9.4030307@redhat.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43CE2D21.4050409@cornell.edu>
+References: <43CE2D21.4050409@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 18 Jan 2006 11:13:48 -0500
-Message-Id: <1137600828.8926.158.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 18 Jan 2006 11:15:37 -0500
+Message-Id: <1137600937.8926.161.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-01-17 at 15:34 -0500, Daniel J Walsh wrote:
-> Includes Ivan and Russells changes
-> 
-> Now checks to make sure run as root.
-> 
-> Also chcat can now manipulate categories of users as well as files.
-
-Merged as of policycoreutils 1.29.8.
+Merged 8 patches as of libsemanage 1.5.15:
+cache management
+bugfix for clear
+remove apply_local
+only do read locking in direct case
+cache error path memory leak fix
+auto-generated file header
+pywrap test update
+hidden defs update
 
 -- 
 Stephen Smalley
