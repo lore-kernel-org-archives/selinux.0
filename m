@@ -1,32 +1,27 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0HMo5Xf010439
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 17:50:06 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0HMo3Rq024810
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2006 22:50:03 GMT
-Message-ID: <43CD749E.4000101@redhat.com>
-Date: Tue, 17 Jan 2006 17:50:06 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <43CD9BAE.40006@tresys.com>
+Date: Tue, 17 Jan 2006 20:36:46 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Latest diffs
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest policycoreutils patch
+References: <43CD54B9.4030307@redhat.com>
+In-Reply-To: <43CD54B9.4030307@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ignore repeats from previous for now.
+Daniel J Walsh wrote:
+> Includes Ivan and Russells changes
+> 
+> Now checks to make sure run as root.
 
-Changes for fetchmail
-
-sendrecv_unlabeled_association needs to be added to unconfined_t and rpcd_t
-
-Procmail execs spamc which tries to talk to spamd_port_t
-
-Is this done some other way, that I am missing?
-
-+    domain_auto_trans(run_init_t,initrc_exec_t,initrc_t)
-
+while it's probably true that most 'direct' libsemanage sessions need 
+root that is not true for policy server so I don't think there should be 
+a hard coded root check (aren't we trying to rely on MAC here?)
+> 
+> Also chcat can now manipulate categories of users as well as files.
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
