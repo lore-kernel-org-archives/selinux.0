@@ -1,52 +1,44 @@
-Message-ID: <43D04896.4090404@tresys.com>
-Date: Thu, 19 Jan 2006 21:19:02 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <43D0A4C6.9060406@cornell.edu>
+Date: Fri, 20 Jan 2006 01:52:22 -0700
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: SELinux List <SELinux@tycho.nsa.gov>, selinuxdev <selinux-dev@tresys.com>,
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <SELinux@tycho.nsa.gov>,
    Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] libsemanage/semanage - permission check for semanage
-References: <1137707155.17672.2.camel@twoface.columbia.tresys.com> <43D016A1.6010004@cornell.edu> <43D03F2F.6060204@tresys.com> <43D046C0.1050400@cornell.edu>
-In-Reply-To: <43D046C0.1050400@cornell.edu>
+Subject: Re: Seusers vs ldap
+References: <43CE880B.3020908@cornell.edu> <43CE8AD6.7050109@redhat.com> <43CEAF5E.5020503@tresys.com>
+In-Reply-To: <43CEAF5E.5020503@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> 
->>> How does the lack of access mean that the store isn't managed?
->>
->>
->> for all intents and purposes yes, since you can't query or write to it.
-> 
-> I still think that you shouldn't draw conclusions about what the user 
-> will be doing with the store in a function that answers the question "Is 
-> the store managed?" Maybe I'll switch to a more privileged user when I 
-> decide to query or write to the store.
-> 
-I guess I can use access R_OK | X_OK to see if it's managed but 
-ultimately the user won't be able to do anything if they can't write.
 
->>> I see in seobject, both is_managed, and can_write are called now, 
->>> meaning two access checks
->>> (and shouldn't they be in the opposite order).
+>>> How would we go about implementing LDAP support for seusers in 
+>>> libsemanage?
+>>> I asked Joshua about this on IRC, but I think we to plan this on list.
 >>>
+>>> I think the most important question to be decided is whether we'll 
+>>> use libldap directly, or execute external programs to work with 
+>>> LDAP? The first option makes libsemanage always linked to libldap.
 >>
->> I'd like to bail as soon as possible if you aren't going to be able to 
->> write. Since they both do essentially the same checks but can_write is 
->> silent it should be first so that the user doesn't see the debug errors.
-> 
-> This doesn't make sense to me, is_managed() should also be silent in the 
-> success path (meaning, if it can successfully check if the store is 
-> managed or not).
-> 
-the reason Dan put in the UID == 0 check that I was trying to get rid of 
-was because failure to read/write to the store spammed the user with 
-error messages that don't make any sense to a user. Checking if they can 
-  write before attempting to do so is all that makes sense, which is 
-what I did. is_managed was always silent in the success path, it was not 
-in the failure path which is why i switched it to use can_write instead 
-of create_store, which has ERR() in all failure paths.
+>> Why not loadable module?
+>>
+> it's a possibility. there is no kind of dynamic library loading 
+> infrastructure in libsemanage though, and we should really figure out 
+> which is the best way to do it before proceeding on any of these routes.
+Well, what's your justification for using external programs in 
+libsemanage - for verify operations, and for loading the policy (I'm not 
+sure if there's any justification for genhomedircon, it should be 
+absorbed by libsemanage eventually). I thought there were security 
+issues involved - maybe confine the load_policy or verifier program 
+differently from the libsemanage client. Are any such issues applicable 
+in the ldap case?
+
+With regard to loadable module - what kind of infrastructure is needed - 
+do we use dlopen()?
+What resources are there to learn about this kind of thing...
+Can you think of other uses of loadable modules in libsemanage?
+Stephen, do you have an opinion on what should be done?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
