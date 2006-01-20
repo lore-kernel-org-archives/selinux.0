@@ -1,29 +1,47 @@
-Message-ID: <43D0EECB.4060703@cornell.edu>
-Date: Fri, 20 Jan 2006 07:08:11 -0700
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: russell@coker.com.au, SELinux List <SELinux@tycho.nsa.gov>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Further bugfixes
-References: <43D0383C.8010404@cornell.edu> <200601202321.07517.russell@coker.com.au> <43D0D8E2.2020304@cornell.edu> <43D0EDA1.5070002@redhat.com>
-In-Reply-To: <43D0EDA1.5070002@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH] libsemanage/semanage - permission check for semanage
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>,
+   selinuxdev <selinux-dev@tresys.com>
+In-Reply-To: <43D0ECF2.9090104@tresys.com>
+References: <1137707155.17672.2.camel@twoface.columbia.tresys.com>
+	 <1137765246.3648.118.camel@moss-spartans.epoch.ncsc.mil>
+	 <43D0ECF2.9090104@tresys.com>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 09:24:26 -0500
+Message-Id: <1137767066.3648.137.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2006-01-20 at 09:00 -0500, Joshua Brindle wrote:
+> semanage_can_write can be called separately. See the seobject.py patch 
+> which calls it before anything that calls semanage_check_init. I suppose 
+> I can move it to the direct_can_write but it is an semanage_store 
+> function and this will only be called by direct_can_hook, not by ps or 
+> any other api
 
-> -R "user_r sysadm_t secadm_r"
-> works or at least should work.
-That doesn't match the Usage()... didn't know about it.
-Also, try this:
+Right, I was just looking for consistency in where check_init is called,
+and presently it seems to always be done by the direct "layer" rather
+than the store "layer".  
 
-[root@cobra ~]# /usr/sbin/semanage user -a -R "secadm_r sysadm_r" Ivan
-[root@cobra ~]# /usr/sbin/semanage user -m -R "user_r system_r" Ivan
-[root@cobra ~]# /usr/sbin/semanage user -l
+> hrm, at some point we need to test the writability of the binary policy 
+> dir. If the whole commit goes through and then the policy can't be 
+> written there is a consistency issue on the system
 
-Ivan            s0         s0                             system_r 
-sysadm_r user_r secadm_r
+You already have rollback code, so the store should be rolled back to
+the previous state which would already be consistent with the installed
+policy.  You'd get two failure messages on both attempts to install the
+binary policy file (first the new one, then the rolled back one), but
+since it should already match the one from the previous sandbox, it
+should be consistent nonetheless.
+
+In any event, we shouldn't require write access to the policy directory
+for all libsemanage operations.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
