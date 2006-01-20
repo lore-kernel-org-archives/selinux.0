@@ -1,36 +1,30 @@
-Message-ID: <43D0EDD6.9070501@tresys.com>
-Date: Fri, 20 Jan 2006 09:04:06 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <43D0EECB.4060703@cornell.edu>
+Date: Fri, 20 Jan 2006 07:08:11 -0700
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>,
-   selinuxdev <selinux-dev@tresys.com>
-Subject: Re: [PATCH] libsemanage/semanage - permission check for semanage
-References: <1137707155.17672.2.camel@twoface.columbia.tresys.com> <1137766150.3648.125.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1137766150.3648.125.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: russell@coker.com.au, SELinux List <SELinux@tycho.nsa.gov>,
+   Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [SEMANAGE] Further bugfixes
+References: <43D0383C.8010404@cornell.edu> <200601202321.07517.russell@coker.com.au> <43D0D8E2.2020304@cornell.edu> <43D0EDA1.5070002@redhat.com>
+In-Reply-To: <43D0EDA1.5070002@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-01-19 at 16:45 -0500, Joshua Brindle wrote:
-> 
->>- add semanage_can_write to libsemanage which does a silent check for
->>access on the active store, modules directory and binary policy
->>directory
->>- chance semanage_is_managed to use can_write instead of create_store
->>for access check
->>- add access check to seobject.py, in semanageRecord init
-> 
-> 
-> Also, how do you envision implementing this interface for the policy
-> server backend?  Same question exists for semanage_is_managed I suppose,
-> but that interface seems a little more general in concept.
->   
 
-I wasn't at first but one could always ask the server if my context has 
-write permission to the policy, which is a slightly different concept 
-but from a user perspective probably means the same thing.
+> -R "user_r sysadm_t secadm_r"
+> works or at least should work.
+That doesn't match the Usage()... didn't know about it.
+Also, try this:
+
+[root@cobra ~]# /usr/sbin/semanage user -a -R "secadm_r sysadm_r" Ivan
+[root@cobra ~]# /usr/sbin/semanage user -m -R "user_r system_r" Ivan
+[root@cobra ~]# /usr/sbin/semanage user -l
+
+Ivan            s0         s0                             system_r 
+sysadm_r user_r secadm_r
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
