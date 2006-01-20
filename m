@@ -1,27 +1,35 @@
-Subject: Re: [PATCH] libsemanage/semanage - permission check for semanage
+Subject: Re: [SEMANAGE] Further bugfixes
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, selinuxdev <selinux-dev@tresys.com>
-In-Reply-To: <1137707155.17672.2.camel@twoface.columbia.tresys.com>
-References: <1137707155.17672.2.camel@twoface.columbia.tresys.com>
+To: russell@coker.com.au
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <200601210139.53555.russell@coker.com.au>
+References: <43D0383C.8010404@cornell.edu> <43D0D8E2.2020304@cornell.edu>
+	 <43D0EDA1.5070002@redhat.com>  <200601210139.53555.russell@coker.com.au>
 Content-Type: text/plain
-Date: Fri, 20 Jan 2006 10:20:13 -0500
-Message-Id: <1137770413.3648.140.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 20 Jan 2006 10:28:13 -0500
+Message-Id: <1137770893.3648.150.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-01-19 at 16:45 -0500, Joshua Brindle wrote:
-> - make the bottom level Makefile propagate install-pywrap target
-> - make install-pywrap target in libselinux depend on pywrap
+On Sat, 2006-01-21 at 01:39 +1100, Russell Coker wrote:
+> On Saturday 21 January 2006 01:03, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > -R "user_r sysadm_t secadm_r"
+> >
+> > works or at least should work.
 > 
+> The attached patch does everything my last patch does but also adds support 
+> for multiple -R options.
 > 
-> It appears that the last commit didn't have make swigify run in
-> libsemanage so the generated swig wrappers were out of date, the ones in
-> this patch include my changes as well as the last ones.
+> A more sensible (IMHO) and more script-friendly way of doing this is to 
+> support -R user_r -R sysadm_r -R secadm_r.  Naturally my patch doesn't break 
+> the existing functionality, just allows doing it either way.
 
-Merged the pywrap Makefile changes and regenerated the wrappers for the
-prior changes.
+Merged along with Ivan's patch.  They conflicted on the usage changes,
+but I went with Russell's version for now, as they synchronized with the
+man page.  Feel free to suggest further modifications (e.g. file_spec
+isn't very clear, but neither was context_expression).
 
 -- 
 Stephen Smalley
