@@ -1,67 +1,36 @@
-Message-ID: <43D0EDA1.5070002@redhat.com>
-Date: Fri, 20 Jan 2006 09:03:13 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <43D0EDD6.9070501@tresys.com>
+Date: Fri, 20 Jan 2006 09:04:06 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: russell@coker.com.au, SELinux List <SELinux@tycho.nsa.gov>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [SEMANAGE] Further bugfixes
-References: <43D0383C.8010404@cornell.edu> <200601202321.07517.russell@coker.com.au> <43D0D8E2.2020304@cornell.edu>
-In-Reply-To: <43D0D8E2.2020304@cornell.edu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux List <SELinux@tycho.nsa.gov>,
+   selinuxdev <selinux-dev@tresys.com>
+Subject: Re: [PATCH] libsemanage/semanage - permission check for semanage
+References: <1137707155.17672.2.camel@twoface.columbia.tresys.com> <1137766150.3648.125.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1137766150.3648.125.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
->
->> I think that all of these should be changed similar to my revised man 
->> page (which I posted under the subject "semanage patch" on the 14th 
->> of Jan).
->>
->> semanage fcontext -{a|d|m} [-hfrst] CONTEXT_EXPRESSION\n\
->> semanage interface -{a|d|m} [-tr] INTERFACE_NAME\n\
->> semanage login -{a|d|m} [-sr] LOGIN_NAME\n\
->> semanage port -{a|d|m} [-tpr] PORT | PORT_RANGE\n\
->>
-I like this format
->> The convention is that anything within [] is optional, however it is 
->> not optional to have one of 'a', 'd', or 'm', it is required to have 
->> exactly one of them.
->>   
-> Technically -p is required for ports, since it is part of the port key.
-> Also, there's required parameters on add that you must enter (but I 
-> guess this is better left out of the manpage).
->> Also there should be a line such as the following to indicate the 
->> ways in which the "-l" option can be used (it can't be used in 
->> conjunction with any other option):
->> semanage {login|user|port} -l
->>
->> Do "interface" and "fcontext" support the "-l" option?
->>   
-> Sure.. try it..
->> I would offer a patch for this, but I think we have enough unmerged 
->> patches for the semanage utility floating around at the moment.  Once 
->> we get the current patches sorted out I'll be happy to write a patch 
->> for this.
->>   
-> I think most of them have been merged, but I'm not sure which ones 
-> you're referring to.
->> Finally, when semanage development slows down a bit we will have to 
->> put in some decent error checking for command-line parameters.  
->> Currently you can pass in parameters that are not used to a command 
->> without an error or warning message.  For example the following 
->> command will work even though -R is not a valid option to the login 
->> management interface.
->>
->> semanage login -a -s user_u -r s0 -R sysadm_r john
->>   
-> -R doesn't actually work. It can't handle more than one role, and it 
-> handles that one role incorrectly.
-> I agree with what you're saying though...
->
--R "user_r sysadm_t secadm_r" 
+Stephen Smalley wrote:
+> On Thu, 2006-01-19 at 16:45 -0500, Joshua Brindle wrote:
+> 
+>>- add semanage_can_write to libsemanage which does a silent check for
+>>access on the active store, modules directory and binary policy
+>>directory
+>>- chance semanage_is_managed to use can_write instead of create_store
+>>for access check
+>>- add access check to seobject.py, in semanageRecord init
+> 
+> 
+> Also, how do you envision implementing this interface for the policy
+> server backend?  Same question exists for semanage_is_managed I suppose,
+> but that interface seems a little more general in concept.
+>   
 
-works or at least should work.
+I wasn't at first but one could always ask the server if my context has 
+write permission to the policy, which is a slightly different concept 
+but from a user perspective probably means the same thing.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
