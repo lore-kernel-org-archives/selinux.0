@@ -1,44 +1,46 @@
-Message-ID: <43D0A4C6.9060406@cornell.edu>
-Date: Fri, 20 Jan 2006 01:52:22 -0700
+Message-ID: <43D0D0C0.7030603@cornell.edu>
+Date: Fri, 20 Jan 2006 05:00:00 -0700
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <SELinux@tycho.nsa.gov>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Seusers vs ldap
-References: <43CE880B.3020908@cornell.edu> <43CE8AD6.7050109@redhat.com> <43CEAF5E.5020503@tresys.com>
-In-Reply-To: <43CEAF5E.5020503@tresys.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: LDAP vs Dbase semantics
+References: <43CE880B.3020908@cornell.edu>
+In-Reply-To: <43CE880B.3020908@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I am looking at LDAP, and I don't like it so far...
 
->>> How would we go about implementing LDAP support for seusers in 
->>> libsemanage?
->>> I asked Joshua about this on IRC, but I think we to plan this on list.
->>>
->>> I think the most important question to be decided is whether we'll 
->>> use libldap directly, or execute external programs to work with 
->>> LDAP? The first option makes libsemanage always linked to libldap.
->>
->> Why not loadable module?
->>
-> it's a possibility. there is no kind of dynamic library loading 
-> infrastructure in libsemanage though, and we should really figure out 
-> which is the best way to do it before proceeding on any of these routes.
-Well, what's your justification for using external programs in 
-libsemanage - for verify operations, and for loading the policy (I'm not 
-sure if there's any justification for genhomedircon, it should be 
-absorbed by libsemanage eventually). I thought there were security 
-issues involved - maybe confine the load_policy or verifier program 
-differently from the libsemanage client. Are any such issues applicable 
-in the ldap case?
+Apparently it doesn't support transactions, one of the things expected 
+and assumed of a semanage dbase backend. According to the OpenLDAP 
+roadmap, they will support LDAPv3 extensions, including "LDAP 
+transactions" in 2006 Q1. Please correct me if this is wrong, and I've 
+missed transactions somewhere...
 
-With regard to loadable module - what kind of infrastructure is needed - 
-do we use dlopen()?
-What resources are there to learn about this kind of thing...
-Can you think of other uses of loadable modules in libsemanage?
-Stephen, do you have an opinion on what should be done?
+So.... that creates lots of problems. How do we handle modifications?
+We can fetch all the data in a local copy, work on it, then send it back 
+(ignoring the fact that the flush() operation might fail in an 
+irreversable way). That seems like a bad idea, because it eliminates our 
+ability to use the LDAP read optimizations. We're replacing a server 
+with some dumb local-store solution, like the linked list thing, which 
+is the worst data structure possible.
+
+Alternatively we can store deltas (user requests for change), and then 
+on flush() we can try to apply them all. That creates its own set of 
+problems, because current semantics are that semanage changes are 
+immediately visible in the dbase they're applied to (not so in the case 
+of storing deltas, not unless we apply them on every read request). 
+Furthermore, this increases the possibility of failure, since the client 
+can easily generate an invalid sequence of requests, and none of them 
+will get verified until flush(), not even something simple like "does 
+the user exist"). I.E. rquests 1-55 passed, 56 failed, because the 
+client did something wrong, now we have to _try_ to reverse the other 55 
+(if we have enough info to do so).
+
+Hmm....
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
