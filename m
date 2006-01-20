@@ -1,48 +1,27 @@
-Subject: Re: [SEMANAGE] Further bugfixes
+Subject: Re: [PATCH] libsemanage/semanage - permission check for semanage
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <43D0383C.8010404@cornell.edu>
-References: <43D0383C.8010404@cornell.edu>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, selinuxdev <selinux-dev@tresys.com>
+In-Reply-To: <1137707155.17672.2.camel@twoface.columbia.tresys.com>
+References: <1137707155.17672.2.camel@twoface.columbia.tresys.com>
 Content-Type: text/plain
-Date: Fri, 20 Jan 2006 10:21:25 -0500
-Message-Id: <1137770485.3648.142.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 20 Jan 2006 10:20:13 -0500
+Message-Id: <1137770413.3648.140.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-01-19 at 18:09 -0700, Ivan Gyurdiev wrote:
-> Changelog:
+On Thu, 2006-01-19 at 16:45 -0500, Joshua Brindle wrote:
+> - make the bottom level Makefile propagate install-pywrap target
+> - make install-pywrap target in libselinux depend on pywrap
 > 
-> - UI:
->       - fix Usage() for file contexts, rename some other things
->       - document -P --proto option
->       - "Failed to" -> "Could not" for consistency in error messages
 > 
-> - CLEANUP:
->        - remove statement with no effect in validate_level(), and some 
-> unused variables
->        - make pychecker happy - don't shadow "dict", "type", and "range"
->        - rename p variable according to the object - only use p for ports
-> 
-> - IMPROVEMENTS:
->        - audit rc value for exists funtions, semanage_connect()
->        - free key and object on add/modify/delete
-> 
-> - BUGFIX:
->         - fix delete if/else bug I introduced with my last patch
-> 
-> Notes:
-> - there's more memory management to be added, particularly disconnect() 
-> and handle_destroy() need to be called as Joshua noted, list() probably 
-> leaks lots of memory
-> - role modifications still don't clear the previous roles
-> - -R with multiple roles does not work
-> - port ranges do not work
+> It appears that the last commit didn't have make swigify run in
+> libsemanage so the generated swig wrappers were out of date, the ones in
+> this patch include my changes as well as the last ones.
 
-Thanks, merged along with Russell's patch and a separate patch from
-Fedora Core CVS tree (which didn't touch semanage, just chcat.8 and
-genhomedircon).
+Merged the pywrap Makefile changes and regenerated the wrappers for the
+prior changes.
 
 -- 
 Stephen Smalley
