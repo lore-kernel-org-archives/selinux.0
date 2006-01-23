@@ -1,64 +1,34 @@
-Message-ID: <43D186F5.3060703@linuon.com>
-Date: Sat, 21 Jan 2006 09:57:25 +0900
-From: Junji Kanemaru <linux@linuon.com>
-MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: [ANN] Linux Event Dispatcher
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [SEMANAGE] Rename seuser -> seuser_local
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43D1737F.6010002@cornell.edu>
+References: <43D1737F.6010002@cornell.edu>
+Content-Type: text/plain
+Date: Mon, 23 Jan 2006 07:52:26 -0500
+Message-Id: <1138020746.20815.21.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Fri, 2006-01-20 at 16:34 -0700, Ivan Gyurdiev wrote:
+> Seuser functions and dbase have incorrect names, since originally I did 
+> not think we'd have seusers.system. I must have asked about this, but 
+> regardless, I now think that a systems file will likely be necessary, so 
+> this patch renames all seuser-related things to _local, which leaves 
+> space for a _policy set of functions. It updates dependencies and 
+> manpages. This is an API change.
+> 
+> I think we should add users_extra.system and seusers.system into the 
+> package format.
 
-I'm pleased to introduce Linux Event Dispatcher version 1.0 beta is
-now ready for download. 
-I thought some people on this list might be interested in this so I'm
-posting this. It would be multi-posting. It so, I'm very sorry for bandwidth.
+Sorry, what is the motivation for this change, i.e. what is the system
+seusers file for?
 
-Led is realtime event filtering framework for Linux system that handles any
-system events on the fly. 
-You can register actions to particular events such as access violation and
-login failures at realtime with led. The events can be fed from, via syslogd.
-auditd, ulogd of netfilter and any other sources too. 
-
-This is preliminary release to have people review. The base framework is
-pretty much done but plugins. I'd need some help from people out there
-to write more plugins.  
-Any comments and requests are welcome   :)  
-
-You can download led from: http://www.linuon.com/
-
-[Brief Introduction]
-
-First of all Linux Event Dispatcher, or led for short, is NOT a replacement 
-for other traditional logging and filtering system. Instead led gets fed events
-from them.
-The main goal of led is to handle system events realtime and do action for
-the events on the fly.
-
-For example you can have filters for critical events from kernel audit system
-and setup detailed actions for each event such as avc violation and
-unexpected write operation on /var/www/html/index.hml. 
-You may pick action for each event either shutdown system immediately or
-block http port temporarily and recover whole web contents etc. And same
-time you can check who did it and ban him/her from host if he/she is on
-localhost and report it to you right away... 
-You would be able to do such things with led.
-
-Normally most of administrators won't realize attack until they get some
-error or look into logwatch report email carefully. It might be too late.
-You could have restricted setting to take the risk minimum but you can't block
-port entirely.  As long as you are opening ports to public there's risk so how
-fast you can notice error and recover from compromise is the key...
-
-For more info please go to http://www.linuon.com/
-
-Thanks,
---  Junji Kanemaru
 -- 
-Junji Kanemaru
-Linuon Inc.
-Tokyo Japan
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
