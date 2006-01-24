@@ -1,53 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0O3gQXf022581
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jan 2006 22:42:26 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0O3gNnm019180
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2006 03:42:24 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 2715061B07
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2006 14:42:23 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 27261-04 for <selinux@tycho.nsa.gov>;
-	Tue, 24 Jan 2006 14:42:22 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id B38CE61B02
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2006 14:42:22 +1100 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 22EB3A80A6
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jan 2006 14:42:24 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: apparent bug in setrans
-Date: Tue, 24 Jan 2006 14:42:18 +1100
-References: <200601241431.25155.russell@coker.com.au>
-In-Reply-To: <200601241431.25155.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200601241442.23964.russell@coker.com.au>
+Subject: API for getting loginuid, for use by newrole and run_init
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+   LSPP <redhat-lspp@redhat.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 24 Jan 2006 08:30:51 -0500
+Message-Id: <1138109451.20815.205.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 24 January 2006 14:31, Russell Coker <russell@coker.com.au> wrote:
-> $ runcon -l s0:c1.c3 id
-> uid=500(rjc) gid=500(rjc) groups=500(rjc) context=rjc:system_r:unconfined_t
->
-> Above is the result of running id on a fairly recent rawhide machine.  It
-> appears that there's a bug in setrans which maps everything to "" if it
-> can't find a name.
+Hi,
 
-An apparently related bug is that the command "newrole -l s3-s15:c0.c255" will 
-fail because it tries to label the terminal device with no sensitivity level.  
-Adding "s3=TopSecret" in the setrans.conf file makes it work correctly.
+Are there plans to add an API for getting the loginuid of the current
+process (e.g. getluid() or getloginuid()) either to glibc or in a
+separate library so that we can easily create and/or modify programs to
+get and use the loginuid without needing to directly replicate the code
+to read and parse /proc/self/loginuid each time?  In particular, I'd
+like to modify newrole and run_init to use the loginuid for the
+re-authentication phase rather than the SELinux username, as the latter
+is no longer a Linux username at all due to the use of seusers.  newrole
+already has a fallback case where if the SELinux username is user_u, it
+falls back to the Linux uid, but this isn't sufficiently general, since
+we now have other generic SELinux users (e.g. staff_u, sysadm_u), and
+the Linux uid isn't as reliable as the loginuid as the fallback case.
+
+Given that other distributions likely aren't using pam_loginuid yet to
+set the loginuid at login time, we'll need to still be able to build
+versions of newrole and run_init that don't depend on the loginuid, but
+when it is supported by the distribution, we should likely just use it
+exclusively as the basis for identifying the user to re-authenticate
+(which is purely a confirmation of user intent to help counter the risk
+of invocation by a trojan, ultimately to be replaced by use of a real
+trusted path mechanism when one exists for Linux).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
