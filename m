@@ -1,78 +1,40 @@
-Subject: Re: policycoreutils 1.29.10
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43D7A46C.7020605@redhat.com>
-References: <1138044857.20815.142.camel@moss-spartans.epoch.ncsc.mil>
-	 <1138193526.20815.309.camel@moss-spartans.epoch.ncsc.mil>
-	 <43D7A46C.7020605@redhat.com>
-Content-Type: text/plain
-Date: Wed, 25 Jan 2006 13:26:34 -0500
-Message-Id: <1138213595.13075.42.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C0618592FD502E@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, JANAK DESAI <janak@us.ibm.com>
+Cc: selinux@tycho.nsa.gov
+Subject: RE: password policy question
+Date: Wed, 25 Jan 2006 13:35:36 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-25 at 11:16 -0500, Daniel J Walsh wrote:
-> Here is my latest diff also, mainly  adding translation support to 
-> semanage and cleaning up some of the error reporting.
 
-> diff --exclude-from=exclude -N -u -r nsapolicycoreutils/semanage/semanage policycoreutils-1.29.10/semanage/semanage
-> --- nsapolicycoreutils/semanage/semanage	2006-01-20 10:37:37.000000000 -0500
-> +++ policycoreutils-1.29.10/semanage/semanage	2006-01-20 15:17:56.000000000 -0500
-> -	-v, --verbose    verbose output\n\
+MLS attributes of mlsfilewrite and mlsfiledowngrade should be on passwd_t
 
-The code still checks for -v and --verbose later and sets verbose = 1,
-so that likely should be dropped too.
+> 
+> On Wed, 2006-01-25 at 13:00 -0500, JANAK DESAI wrote:
+> > What happens if you have user that is defined with mls range of
+> > s3 to s9. How would this user change their password? Looking at
+> > the password policy, I couldn't figure out how that would work.
+> 
 
-> +	def get_options():
-> +		valid_option={}
-> +		valid_everyone=[ '-a', '--add', '-d', '--delete', '-m', '--modify', '-l', '--list', '-h', '--help', '-n', '--noheading' ]
-> +		valid_option["login"] = []
-> +		valid_option["login"] += valid_everyone + [ '-s', '--seuser', '-r', '--range']
-> +		valid_option["user"] = []
-> +		valid_option["user"] += valid_everyone + [ '-L', '--level', '-r', '--range', '-R', '--roles' ] 
-> +		valid_option["port"] = []
-> +		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range'] 
-> +		valid_option["port"] = []
-> +		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range', '-p', '--protocol' ] 
-
-Cut-and-paste error - multiple definitions for "port"
-
-> +		valid_option["interface"] = []
-> +		valid_option["interface"] += valid_everyone + [ '-t', '--type', '-r', '--range'] 
-> +		valid_option["fcontext"] = []
-> +		valid_option["fcontext"] += valid_everyone + [ '-f', '--ftype', '-s', '--seuser',  '-t', '--type', '-r', '--range'] 
-> +		valid_option["translation"] = []
-> +		valid_option["fcontext"] += valid_everyone + [ '-T', '--trans' ]
-
-Cut-and-paste error - last one should be for "translation", right?
-
->  		gopts, cmds = getopt.getopt(args,
-> -					    'adf:lhmnp:P:s:R:L:r:t:vT:',
-> +					    'adf:lhmnp:s:R:L:r:t:vT:',
-
--v still listed here.
+That is correct, these attributes need to be used for password changing.
 
 
->  			if o == "-R" or o == '--roles':
-> -				roles = roles + " " + a
-> +				roles = a
+> In that case, if the passwd file was labeled s0, they wouldn't - they
+> would have to ask an admin to do it for them.  Otherwise, you are
+> allowing an arbitrary user process to downgrade info through 
+> the passwd file, as I said.
+> 
 
-Why?  Aggregating multiple role specs seemed nice.  Implementation
-problem?
+This isn't an arbitrary process, this is the passwd program running in the
+passwd_t domain. The only thing the "trusted" program does is alter password
+data. The password data itself isn't classified so downgrading is allowed in
+this controlled instance.
 
-> +.I                \-R, \-\-role
-> +SELinux Roles.  You must inclose multiple roles within quotes, separate by spaces.
-> +.TP
-
-Reverts Russell's change, which as he said seems more script-friendly
-and user-friendly (aggregate multiple -R options together).
-
--- 
-Stephen Smalley
-National Security Agency
-
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
