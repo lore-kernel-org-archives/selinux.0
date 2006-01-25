@@ -1,35 +1,45 @@
-Subject: Re: password policy question
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: JANAK DESAI <janak@us.ibm.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <43D7939B.3010701@us.ibm.com>
-References: <43D7939B.3010701@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 25 Jan 2006 11:40:13 -0500
-Message-Id: <1138207213.13075.20.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0PGjEXf011604
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2006 11:45:14 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0PGjCvt022384
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2006 16:45:12 GMT
+Message-ID: <43D7AB15.8020204@redhat.com>
+Date: Wed, 25 Jan 2006 11:45:09 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: apparent bug in setrans
+References: <200601241431.25155.russell@coker.com.au>
+In-Reply-To: <200601241431.25155.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-25 at 10:04 -0500, JANAK DESAI wrote:
-> Hello,
-> 
-> I am looking at the serefpolicy-2.2.2 (downloaded this morning from 
-> fedora core
-> development SRPMS) and am trying to figure out how, in an mls 
-> environment, a
-> user logged in at anything other s0 would be able to change his/her 
-> password. I
-> expected to see a "typeattribute passwd_t mlsfilewrite" in the 
-> monolithic policy.conf
-> file that I generated. What am I missing?
+Russell Coker wrote:
+> $ runcon -l s0:c1.c3 id
+> uid=500(rjc) gid=500(rjc) groups=500(rjc) context=rjc:system_r:unconfined_t
+>
+>   
+I am getting
+ runcon -l s0:c1.c7 id
+uid=0(root) gid=0(root) 
+groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel) 
+context=user_u:system_r:unconfined_t:s0:c1.c7
+ rpm -q libsetrans
+libsetrans-0.1.18-1
 
-Is that really what you want?  It would allow a high process to
-downgrade information via the passwd file.
 
--- 
-Stephen Smalley
-National Security Agency
+> Above is the result of running id on a fairly recent rawhide machine.  It 
+> appears that there's a bug in setrans which maps everything to "" if it can't 
+> find a name.
+>
+> I'm currently finishing my paper for the SE Linux Symposium and then I've got 
+> to work on a tutorial for LCA in a few days.  I'll schedule fixing this bug 
+> for the weekend if no-one else beats me to it.
+>
+>   
 
 
 --
