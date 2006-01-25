@@ -1,66 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0PId4Xf013359
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2006 13:39:04 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0PId0vt017344
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2006 18:39:01 GMT
-Subject: Re: Latest  Diff
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43D6A307.4060801@redhat.com>
-References: <43D6A307.4060801@redhat.com>
+Subject: RE: password policy question
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chad Hanson <chanson@TrustedCS.com>
+Cc: JANAK DESAI <janak@us.ibm.com>, selinux@tycho.nsa.gov
+In-Reply-To: <36282A1733C57546BE392885C0618592FD502E@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C0618592FD502E@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Wed, 25 Jan 2006 13:41:22 -0500
-Message-Id: <1138214482.9344.93.camel@sgc.columbia.tresys.com>
+Date: Wed, 25 Jan 2006 13:49:11 -0500
+Message-Id: <1138214951.13075.50.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-01-24 at 16:58 -0500, Daniel J Walsh wrote:
-> Alsa wants access to tty.
-> Also need to transiton from locallogin not pam_console.
-> 
-> kudzu wants to look at removable devices
-> 
-> prelink is writing files to /var/lib/misc
-> Also wants to read etc_t
-> 
-> readahead wants to read kcore and is not allowed to on MLS machine
-> 
-> lvm is putting up a symlink in tmpfs_t which a few domains want to read.
-> 
-> tmpreaper wants to look in the print spooler
-> 
-> slocate needs access to shared libraries, and localization files
-> 
-> automount wants to mount on /misc
-> 
-> cups seems to be looking for serial printers ???
-> 
-> dbus moved
-> 
-> I put some fixes in in order to build a default modules.conf file for 
-> strict policy.  Still needs lots of loving...
-> 
-> sulogin needs nscd
-> 
-> fixes for syslogd to work over the network
-> 
-> insmod needs to read file_context in order to setup removable_t
-> 
-> I want to eliminate sysadm_t from running "entry_point" applications.  
-> If a sysadm accidently starts a daemon, it will run under sysadm_t which 
-> could have dire ramifications in MLS/Strict policy
-> 
-> Fixes for users file for strict policy
+On Wed, 2006-01-25 at 13:35 -0500, Chad Hanson wrote:
+> This isn't an arbitrary process, this is the passwd program running in the
+> passwd_t domain. The only thing the "trusted" program does is alter password
+> data. The password data itself isn't classified so downgrading is allowed in
+> this controlled instance.
 
-Merged.
+Yes, but it is the caller that provides the input data (the new
+password), which could be used to leak arbitrary data through the passwd
+file.  In the case of the password itself, the channel is constrained by
+the fact that the plaintext is not saved to the file, but there is still
+a channel under the control of the caller.  In the case of other passwd
+file fields settable via chfn/chsh and some forms of the passwd program
+(not sure about the RH one), you can leak arbitrary plaintext (subject
+only to length limitations).
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
