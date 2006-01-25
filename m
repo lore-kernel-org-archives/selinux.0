@@ -1,93 +1,62 @@
-Message-ID: <43D7E5F5.6050809@redhat.com>
-Date: Wed, 25 Jan 2006 15:56:21 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <1697.24.59.125.231.1138223115.squirrel@webmail.cornell.edu>
+In-Reply-To: <43D7BB74.30300@redhat.com>
+References: <43D1737F.6010002@cornell.edu>    
+    <1138020746.20815.21.camel@moss-spartans.epoch.ncsc.mil>    
+    <1338.128.253.53.144.1138205270.squirrel@webmail.cornell.edu>   
+    <1138206508.13075.9.camel@moss-spartans.epoch.ncsc.mil>
+    <3595.128.253.53.165.1138210295.squirrel@webmail.cornell.edu>
+    <43D7BB74.30300@redhat.com>
+Date: Wed, 25 Jan 2006 16:05:15 -0500 (EST)
+Subject: Re: [SEMANAGE] Rename seuser -> seuser_local
+From: "Ivan Valeriev Gyurdiev" <ivg2@cornell.edu>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
+   "SELinux List" <selinux@tycho.nsa.gov>,
+   "Joshua Brindle" <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: policycoreutils 1.29.10
-References: <1138044857.20815.142.camel@moss-spartans.epoch.ncsc.mil>	 <1138193526.20815.309.camel@moss-spartans.epoch.ncsc.mil>	 <43D7A46C.7020605@redhat.com> <1138213595.13075.42.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1138213595.13075.42.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2006-01-25 at 11:16 -0500, Daniel J Walsh wrote:
->   
->> Here is my latest diff also, mainly  adding translation support to 
->> semanage and cleaning up some of the error reporting.
->>     
->
->   
->> diff --exclude-from=exclude -N -u -r nsapolicycoreutils/semanage/semanage policycoreutils-1.29.10/semanage/semanage
->> --- nsapolicycoreutils/semanage/semanage	2006-01-20 10:37:37.000000000 -0500
->> +++ policycoreutils-1.29.10/semanage/semanage	2006-01-20 15:17:56.000000000 -0500
->> -	-v, --verbose    verbose output\n\
->>     
-Yes get rid of all -v and verbose stuff.
->> +	def get_options():
->> +		valid_option={}
->> +		valid_everyone=[ '-a', '--add', '-d', '--delete', '-m', '--modify', '-l', '--list', '-h', '--help', '-n', '--noheading' ]
->> +		valid_option["login"] = []
->> +		valid_option["login"] += valid_everyone + [ '-s', '--seuser', '-r', '--range']
->> +		valid_option["user"] = []
->> +		valid_option["user"] += valid_everyone + [ '-L', '--level', '-r', '--range', '-R', '--roles' ] 
->> +		valid_option["port"] = []
->> +		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range'] 
->> +		valid_option["port"] = []
->> +		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range', '-p', '--protocol' ] 
->>     
->
-> Cut-and-paste error - multiple definitions for "port"
->
->   
->> +		valid_option["interface"] = []
->> +		valid_option["interface"] += valid_everyone + [ '-t', '--type', '-r', '--range'] 
->> +		valid_option["fcontext"] = []
->> +		valid_option["fcontext"] += valid_everyone + [ '-f', '--ftype', '-s', '--seuser',  '-t', '--type', '-r', '--range'] 
->> +		valid_option["translation"] = []
->> +		valid_option["fcontext"] += valid_everyone + [ '-T', '--trans' ]
->>     
->
-> Cut-and-paste error - last one should be for "translation", right?
->
->   
->>  		gopts, cmds = getopt.getopt(args,
->> -					    'adf:lhmnp:P:s:R:L:r:t:vT:',
->> +					    'adf:lhmnp:s:R:L:r:t:vT:',
->>     
->
-> -v still listed here.
->
->
->   
->>  			if o == "-R" or o == '--roles':
->> -				roles = roles + " " + a
->> +				roles = a
->>     
->
-> Why?  Aggregating multiple role specs seemed nice.  Implementation
-> problem?
->   
-How do I do a modify?
 
-As a user I might be confused by the semantic
-Does
--m -R user_r
-add user_r or
-replace all existing roles with user_r?
+>>> That doesn't really seem consistent with the intended usage of seusers,
+>>> IIUC.  The policy package just needs to set up the initial state for
+>>> seusers upon the initial install (which it does from %post presently,
+>>> installing a seusers file from the policy package into the store, with
+>>> separate ones for targeted, mls, and strict), and then all subsequent
+>>> changes should occur via semanage.  Do we expect updated policy
+>>> packages
+>>> to ship updates to that initial state that should take precedence over
+>>> local configuration done via semanage?
+>>>
+>>>
+>>
+>> Well, I guess Dan would be the one to ask that question.
+>>
+> No, and if they did we could do it via semanage.
 
->   
->> +.I                \-R, \-\-role
->> +SELinux Roles.  You must inclose multiple roles within quotes, separate by spaces.
->> +.TP
->>     
->
-> Reverts Russell's change, which as he said seems more script-friendly
-> and user-friendly (aggregate multiple -R options together).
->
->   
-I can be shouted down on this one.
+Actually, I don't think we could - we have no way of distinguishing a
+"local" update, initiated by the user, from a policy package update. They
+are different in that system updates should override previous
+system-installed settings, but not any "local" settings. Local updates on
+the other hand should override everything. This is why we have two sets of
+functions (and two data sources) for everything else, and part of the
+reason why I'd like seusers to work the same way.
+
+>> It seems to me that this could be a desirable capability in the future.
+>> Also, remember that this means that the user can apply non-additive
+>> changes to the seuser file - in other words, the delete function will
+>> clear not only local changes, but will completely remove the
+>> __default__,
+>> or root user if requested, reverting back to libselinux defaults (not
+>> post-script defaults). Not sure if this is a good idea...
+>>
+>>
+> Yes this would be bad.
+
+Well, to avoid this kind of thing we could ship seusers.system. Right now
+semanage will delete __default__ or root - you can try it yourself...
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
