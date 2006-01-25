@@ -1,30 +1,31 @@
-Subject: Re: sudo selinux patch has been removed.
+Subject: Re: password policy question
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43D79DF0.2010506@redhat.com>
-References: <43D79DF0.2010506@redhat.com>
+To: JANAK DESAI <janak@us.ibm.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <43D7939B.3010701@us.ibm.com>
+References: <43D7939B.3010701@us.ibm.com>
 Content-Type: text/plain
-Date: Wed, 25 Jan 2006 11:39:26 -0500
-Message-Id: <1138207166.13075.18.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 25 Jan 2006 11:40:13 -0500
+Message-Id: <1138207213.13075.20.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-25 at 10:49 -0500, Daniel J Walsh wrote:
-> This means that for mls/strict policy you need to newrole before 
-> executing sudo.
+On Wed, 2006-01-25 at 10:04 -0500, JANAK DESAI wrote:
+> Hello,
 > 
-> Sudo policy needs to be written to handle the transition from
-> 
-> staff_t -> staff_sudo_t -> staff_t
-> or
-> sysadm_t->sysadm_sudo_t->sysadm_t
+> I am looking at the serefpolicy-2.2.2 (downloaded this morning from 
+> fedora core
+> development SRPMS) and am trying to figure out how, in an mls 
+> environment, a
+> user logged in at anything other s0 would be able to change his/her 
+> password. I
+> expected to see a "typeattribute passwd_t mlsfilewrite" in the 
+> monolithic policy.conf
+> file that I generated. What am I missing?
 
-Should be covered by:
-# By default, revert to the calling domain when a shell is executed.
-corecmd_shell_domtrans($1_sudo_t,$2)
-which is already in sudo.if.
+Is that really what you want?  It would allow a high process to
+downgrade information via the passwd file.
 
 -- 
 Stephen Smalley
