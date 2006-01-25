@@ -1,27 +1,30 @@
-Subject: Re: policycoreutils 1.29.10
+Subject: Re: sudo selinux patch has been removed.
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux-dev@tresys.com,
-   SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43D7A46C.7020605@redhat.com>
-References: <1138044857.20815.142.camel@moss-spartans.epoch.ncsc.mil>
-	 <1138193526.20815.309.camel@moss-spartans.epoch.ncsc.mil>
-	 <43D7A46C.7020605@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43D79DF0.2010506@redhat.com>
+References: <43D79DF0.2010506@redhat.com>
 Content-Type: text/plain
-Date: Wed, 25 Jan 2006 11:29:37 -0500
-Message-Id: <1138206577.13075.11.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 25 Jan 2006 11:39:26 -0500
+Message-Id: <1138207166.13075.18.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-25 at 11:16 -0500, Daniel J Walsh wrote:
-> I just built 1.29.11.  I was waiting for some mods to libsemanage to 
-> handle semanage_user_set_roles
+On Wed, 2006-01-25 at 10:49 -0500, Daniel J Walsh wrote:
+> This means that for mls/strict policy you need to newrole before 
+> executing sudo.
 > 
-> but I build it anyways.  Modify of users does not work, until this 
-> swigify is fixed.
+> Sudo policy needs to be written to handle the transition from
+> 
+> staff_t -> staff_sudo_t -> staff_t
+> or
+> sysadm_t->sysadm_sudo_t->sysadm_t
 
-Sorry, can you clarify what the issue is there?
+Should be covered by:
+# By default, revert to the calling domain when a shell is executed.
+corecmd_shell_domtrans($1_sudo_t,$2)
+which is already in sudo.if.
 
 -- 
 Stephen Smalley
