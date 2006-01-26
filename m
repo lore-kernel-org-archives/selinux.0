@@ -1,61 +1,49 @@
-Message-ID: <1697.24.59.125.231.1138223115.squirrel@webmail.cornell.edu>
-In-Reply-To: <43D7BB74.30300@redhat.com>
-References: <43D1737F.6010002@cornell.edu>    
-    <1138020746.20815.21.camel@moss-spartans.epoch.ncsc.mil>    
-    <1338.128.253.53.144.1138205270.squirrel@webmail.cornell.edu>   
-    <1138206508.13075.9.camel@moss-spartans.epoch.ncsc.mil>
-    <3595.128.253.53.165.1138210295.squirrel@webmail.cornell.edu>
-    <43D7BB74.30300@redhat.com>
-Date: Wed, 25 Jan 2006 16:05:15 -0500 (EST)
-Subject: Re: [SEMANAGE] Rename seuser -> seuser_local
-From: "Ivan Valeriev Gyurdiev" <ivg2@cornell.edu>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
-   "SELinux List" <selinux@tycho.nsa.gov>,
-   "Joshua Brindle" <jbrindle@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Subject: Re: API for getting loginuid, for use by newrole and run_init
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve Grubb <sgrubb@redhat.com>
+Cc: redhat-lspp@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux-dev@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1138195675.20815.318.camel@moss-spartans.epoch.ncsc.mil>
+References: <1138109451.20815.205.camel@moss-spartans.epoch.ncsc.mil>
+	 <200601241004.37638.sgrubb@redhat.com>
+	 <1138195675.20815.318.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Thu, 26 Jan 2006 09:18:04 -0500
+Message-Id: <1138285084.13075.127.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2006-01-25 at 08:27 -0500, Stephen Smalley wrote:
+> First cut at patches below.  The Makefile diffs use the same approach
+> that was used for the conditional pam support, as policycoreutils
+> doesn't use auto* and I'm not inclined to change that.  With these
+> patches applied, I can use newrole -r sysadm_r when my Linux user is
+> mapped to staff_u via seusers; it properly re-authenticates me as sds.
+> Look sane?
 
->>> That doesn't really seem consistent with the intended usage of seusers,
->>> IIUC.  The policy package just needs to set up the initial state for
->>> seusers upon the initial install (which it does from %post presently,
->>> installing a seusers file from the policy package into the store, with
->>> separate ones for targeted, mls, and strict), and then all subsequent
->>> changes should occur via semanage.  Do we expect updated policy
->>> packages
->>> to ship updates to that initial state that should take precedence over
->>> local configuration done via semanage?
->>>
->>>
->>
->> Well, I guess Dan would be the one to ask that question.
->>
-> No, and if they did we could do it via semanage.
+These patches went into policycoreutils 1.29.11, which is now in rawhide
+as well.  Hence, newrole and run_init in rawhide now re-authenticate
+based on the loginuid.
 
-Actually, I don't think we could - we have no way of distinguishing a
-"local" update, initiated by the user, from a policy package update. They
-are different in that system updates should override previous
-system-installed settings, but not any "local" settings. Local updates on
-the other hand should override everything. This is why we have two sets of
-functions (and two data sources) for everything else, and part of the
-reason why I'd like seusers to work the same way.
+Need to add audit-libs to Requires and audit-libs-devel to BuildRequires
+for policycoreutils in the spec file.
 
->> It seems to me that this could be a desirable capability in the future.
->> Also, remember that this means that the user can apply non-additive
->> changes to the seuser file - in other words, the delete function will
->> clear not only local changes, but will completely remove the
->> __default__,
->> or root user if requested, reverting back to libselinux defaults (not
->> post-script defaults). Not sure if this is a good idea...
->>
->>
-> Yes this would be bad.
+I'm not sure whether you can just re-use the USE_AUDIT support I
+introduced as part of this patch for your code that adds an audit
+message to newrole, or whether you need a separate #ifdef for your
+patch.  The issue is that whereas my patch works fine on vanilla
+rawhide, I think your patch still depends on patches that are only in
+the LSPP kernel.  So either your patch needs to gracefully recover if it
+cannot generate an audit message due to an unpatched kernel (so rawhide
+users can still use newrole) or we can't build your patch into the
+rawhide version of newrole and will need a separately built version for
+LSPP testing until the kernel patches go upstream and are included in
+rawhide.
 
-Well, to avoid this kind of thing we could ship seusers.system. Right now
-semanage will delete __default__ or root - you can try it yourself...
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
