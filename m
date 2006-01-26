@@ -1,9 +1,9 @@
-Date: Thu, 26 Jan 2006 16:26:37 -0600
+Date: Thu, 26 Jan 2006 16:14:08 -0600
 From: Chad Hanson <chanson@TrustedCS.com>
 To: SELinux List <selinux@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] mls passwd policy
-Message-ID: <20060126222637.GB13279@dhcp-236.il.tcs-sec.com>
+Subject: [PATCH] mls password policy
+Message-ID: <20060126221408.GB13211@dhcp-236.il.tcs-sec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
