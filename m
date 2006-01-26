@@ -1,50 +1,36 @@
-Subject: Re: API for getting loginuid, for use by newrole and run_init
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: redhat-lspp@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux-dev@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <1138195675.20815.318.camel@moss-spartans.epoch.ncsc.mil>
-References: <1138109451.20815.205.camel@moss-spartans.epoch.ncsc.mil>
-	 <200601241004.37638.sgrubb@redhat.com>
-	 <1138195675.20815.318.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 26 Jan 2006 09:18:04 -0500
-Message-Id: <1138285084.13075.127.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0QEWUXf023647
+	for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2006 09:32:30 -0500 (EST)
+Received: from web51510.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k0QEVIZV018793
+	for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2006 14:31:18 GMT
+Message-ID: <20060126143159.68774.qmail@web51510.mail.yahoo.com>
+Date: Thu, 26 Jan 2006 06:31:59 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: RE: password policy question
+To: Stephen Smalley <sds@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1138214951.13075.50.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-01-25 at 08:27 -0500, Stephen Smalley wrote:
-> First cut at patches below.  The Makefile diffs use the same approach
-> that was used for the conditional pam support, as policycoreutils
-> doesn't use auto* and I'm not inclined to change that.  With these
-> patches applied, I can use newrole -r sysadm_r when my Linux user is
-> mapped to staff_u via seusers; it properly re-authenticates me as sds.
-> Look sane?
 
-These patches went into policycoreutils 1.29.11, which is now in rawhide
-as well.  Hence, newrole and run_init in rawhide now re-authenticate
-based on the loginuid.
+>In the case of other passwd file fields settable via chfn/chsh and some 
+>forms of the passwd program (not sure about the RH one), you can leak
+>arbitrary plaintext (subject only to length limitations).
 
-Need to add audit-libs to Requires and audit-libs-devel to BuildRequires
-for policycoreutils in the spec file.
+Out of curiosity...is anyone doing any covert channel analysis? Even if no one
+is, we should start collecting this information as a starting point for people
+that will ultimately do this.
 
-I'm not sure whether you can just re-use the USE_AUDIT support I
-introduced as part of this patch for your code that adds an audit
-message to newrole, or whether you need a separate #ifdef for your
-patch.  The issue is that whereas my patch works fine on vanilla
-rawhide, I think your patch still depends on patches that are only in
-the LSPP kernel.  So either your patch needs to gracefully recover if it
-cannot generate an audit message due to an unpatched kernel (so rawhide
-users can still use newrole) or we can't build your patch into the
-rawhide version of newrole and will need a separately built version for
-LSPP testing until the kernel patches go upstream and are included in
-rawhide.
+-Steve
 
--- 
-Stephen Smalley
-National Security Agency
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
