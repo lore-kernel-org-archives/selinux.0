@@ -1,29 +1,41 @@
-Subject: Re: [SEMANAGE] Rename seuser -> seuser_local
+Subject: Re: Adding audit message to newrole
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <SELinux@tycho.nsa.gov>,
-   Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <43D1737F.6010002@cornell.edu>
-References: <43D1737F.6010002@cornell.edu>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20060127140942.4140.qmail@web51503.mail.yahoo.com>
+References: <20060127140942.4140.qmail@web51503.mail.yahoo.com>
 Content-Type: text/plain
-Date: Fri, 27 Jan 2006 15:52:55 -0500
-Message-Id: <1138395175.13075.407.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 27 Jan 2006 15:55:09 -0500
+Message-Id: <1138395309.13075.410.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-01-20 at 16:34 -0700, Ivan Gyurdiev wrote:
-> Seuser functions and dbase have incorrect names, since originally I did 
-> not think we'd have seusers.system. I must have asked about this, but 
-> regardless, I now think that a systems file will likely be necessary, so 
-> this patch renames all seuser-related things to _local, which leaves 
-> space for a _policy set of functions. It updates dependencies and 
-> manpages. This is an API change.
+On Fri, 2006-01-27 at 06:09 -0800, Steve G wrote:
+> Hi,
+> 
+> I am attaching a patch that lets newrole send messages to the audit system. This
+> patch needs review as it changes newrole to be setuid root. The patch drops
+> capabilities immediately after startup.
+> 
+> To enable the patch, you would change the make commands to the following:
+> 
+> make LOG_AUDIT_PRIV="y"
+> make LOG_AUDIT_PRIV="y" install
+> 
+> You will need recent audit package in order to compile newrole since it uses the
+> USER_ROLE_CHANGE message type. It is available in version 1.1.2 and later. There
+> is also a dependency on a kernel patch that is not upstream yet that can be found
+> here:
+> 
+> https://www.redhat.com/archives/linux-audit/2005-October/msg00059.html
+> 
+> This patch is in the lspp test kernels.
 
-Merged as of libsemanage 1.5.18 and policycoreutils 1.29.14.
-
-> I think we should add users_extra.system and seusers.system into the 
-> package format.
+Thanks, merged as of policycoreutils 1.29.15.
+Note:  Do not build with LOG_AUDIT_PRIV=y unless the kernel includes the
+necessary patch (which is not in the Fedora kernel yet, only in the LSPP
+kernel).  This is disabled by default (LOG_AUDIT_PRIV=n).
 
 -- 
 Stephen Smalley
