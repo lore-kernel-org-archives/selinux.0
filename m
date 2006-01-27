@@ -1,45 +1,60 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0RK50Xf010071
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 15:05:00 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0RK4vC1011534
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 20:04:58 GMT
-Subject: Re: Latest diff
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43D9BF9F.2010601@redhat.com>
-References: <43D9BF9F.2010601@redhat.com>
+Subject: Re: Best method for obtaining the 'sid' of a task?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Timothy R. Chavez" <tinytim@us.ibm.com>
+Cc: James Morris <jmorris@namei.org>, SE-Linux <selinux@tycho.nsa.gov>,
+   Linux Audit Discussion <linux-audit@redhat.com>
+In-Reply-To: <1138390724.7916.21.camel@localhost>
+References: <1138390724.7916.21.camel@localhost>
 Content-Type: text/plain
-Date: Fri, 27 Jan 2006 15:07:50 -0500
-Message-Id: <1138392470.9344.150.camel@sgc>
+Date: Fri, 27 Jan 2006 15:23:17 -0500
+Message-Id: <1138393397.13075.394.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-01-27 at 01:37 -0500, Daniel J Walsh wrote:
-> Want to drop sensitivity level on rpm and lvm when run by kernel or 
-> sysadm_t at SystemHigh.
+On Fri, 2006-01-27 at 13:38 -0600, Timothy R. Chavez wrote:
+> sending the correct sid.  Once the kernel receives this packet, it can
+> then resolve the sid to the correct security label.  One of the pitfalls
+> of this approach may be that the sid disappears because policy is
+> reloaded while the packet is in transit.  Is this correct?
 
-This seems to contradict what you have in the patch:
+Yes, the SID could be invalidated by a policy reload, in which case
+subsequent attempts to ask for its context will return the context of
+the unlabeled SID.  Naturally, policy reload is a privileged operation.
 
-> @@ -86,7 +86,8 @@
->  ')
->  
->  ifdef(`enable_mls',`
-> -# run init with maximum MLS range
->  range_transition kernel_t init_exec_t s0 - s15:c0.c255;
-> +range_transition kernel_t lvm_exec_t s0 - s15:c0.c255;
->  range_transition initrc_t auditd_exec_t s15:c0.c255;
-> +range_transition sysadm_t rpm_exec_t s0 - s15:c0.c255;
->  ')
+> "What is the best way to do this?"
+> 
+> Because I am not exposed to: task_security_struct in net/af_netlink.c, I
+> cannot simply do a:
+> 
+> if (current->security)
+> 	NETLINK_CB(skb).selinux_sid = current->security->sid;
+> 
+> So I did a little digging and I thought perhaps the security hook,
+> selinux_getprocattr(), could be modified such that I can pass into it
+> &NETLINK_CB(skb).selinux_sid and obtain the 'sid' in addition to the
+> context since we're already obtaining the sid there.  The disadvantage I
+> see here, is that it changes the interface.  I'm not sure how sensitive
+> people are to this.  Are there any alternative (possibly better)
+> suggestions?
 
-Also, why are these needed instead of just using the MLS interfaces?
+I'd tend to suggest a new interface for getting the current task SID and
+an interface for mapping it to a context, and I'm not sure it even needs
+to be LSM-based, given its specifity to SELinux for LSPP.  I wouldn't
+call the field 'selinux_sid' however, and even sid may be confusing
+(unfortunate overlap with session id).  secid may be better.
+
+There are a couple of examples of SELinux exporting SID and context
+information to other parts of the kernel.  One example is the ctx_sid
+and ctx_str fields of xfrm_sec_ctx for the IPSEC work by Trent for the
+SIDs associated with IPSEC SAs.  That does use LSM interfaces for its
+purposes.  Another example are some experimental patches by James Morris
+for iptables integration, which provide direct interfaces from SELinux
+for getting socket SIDs and mapping between them and contexts.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
