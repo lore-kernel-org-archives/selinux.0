@@ -1,375 +1,232 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0R6b7Xf002708
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 01:37:07 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0R6b5C1012114
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 06:37:05 GMT
-Message-ID: <43D9BF9F.2010601@redhat.com>
-Date: Fri, 27 Jan 2006 01:37:19 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0REAwXf006188
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 09:10:58 -0500 (EST)
+Received: from web51503.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k0REAuC1015495
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 14:10:56 GMT
+Message-ID: <20060127140942.4140.qmail@web51503.mail.yahoo.com>
+Date: Fri, 27 Jan 2006 06:09:42 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Adding audit message to newrole
+To: SE-Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Latest diff
-Content-Type: multipart/mixed;
- boundary="------------010407090007080402000208"
+Content-Type: multipart/mixed; boundary="0-305620949-1138370982=:87388"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010407090007080402000208
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--0-305620949-1138370982=:87388
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-Mainly this patch splits secadm_r from sysadm_r.  Still have some 
-problems.  (rpm_script_t executing load_policy is failing and I don't 
-know why.  No AVC messages)
+Hi,
 
-Add rpm definitions for pub and pirut.
+I am attaching a patch that lets newrole send messages to the audit system. This
+patch needs review as it changes newrole to be setuid root. The patch drops
+capabilities immediately after startup.
 
-Need to run load_policy from rpm_script in the correct role.  So added 
-seutil_run_loadpol to rpm.if
+To enable the patch, you would change the make commands to the following:
 
-rpm_script wants to output to the terminal.
+make LOG_AUDIT_PRIV="y"
+make LOG_AUDIT_PRIV="y" install
 
-Mono needs execmem.
+You will need recent audit package in order to compile newrole since it uses the
+USER_ROLE_CHANGE message type. It is available in version 1.1.2 and later. There
+is also a dependency on a kernel patch that is not upstream yet that can be found
+here:
 
-Error in the files.if file.
+https://www.redhat.com/archives/linux-audit/2005-October/msg00059.html
 
-inotify and udev caused audit to go nuts on MLS platform.  Wants to 
-search the inotifyfs_t dir
+This patch is in the lspp test kernels.
 
-Want to drop sensitivity level on rpm and lvm when run by kernel or 
-sysadm_t at SystemHigh.
+Thanks,
+-Steve
 
-Add +/dev/xvd for Zen machines
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-305620949-1138370982=:87388
+Content-Type: text/x-patch; name="policycoreutils-1.29.11-newrole-audit.patch"
+Content-Description: 3826731321-policycoreutils-1.29.11-newrole-audit.patch
+Content-Disposition: inline; filename="policycoreutils-1.29.11-newrole-audit.patch"
 
-Cups looks like it is probing all ttydevices for serial printers I guess.
-
-Hal wants to communicate with initctl and read utmp
-
-sulogin wants to use a tmpfs_t:chr_file if udev has not started.
-
-Insmod reads /etc/selinux/targeted/contexts/files/media file.
-
-Fix run_init to use netlink_audit_t
-
-Stop auditing denials to execstack.  Too many files ask for it and it 
-does not seem to break anything.  Log files are filling up with denials.
-
-On mls machines, secadm can only run SELinux utilities and read the 
-auditfiles, and is not allowed to do most of what sysadm_t can.  
-Sysadm_t is not allowed to run most  SELinux utilities or read the 
-auditfiles.
-
-
-
-
-
---------------010407090007080402000208
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/rpm.fc serefpolicy-2.2.7/policy/modules/admin/rpm.fc
---- nsaserefpolicy/policy/modules/admin/rpm.fc	2006-01-13 09:48:26.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/admin/rpm.fc	2006-01-26 17:01:26.000000000 -0500
-@@ -16,6 +16,8 @@
- /usr/bin/fedora-rmdevelrpms	--	gen_context(system_u:object_r:rpm_exec_t,s0)
- /usr/sbin/up2date		--	gen_context(system_u:object_r:rpm_exec_t,s0)
- /usr/sbin/rhn_check		--	gen_context(system_u:object_r:rpm_exec_t,s0)
-+/usr/sbin/pup			--	gen_context(system_u:object_r:rpm_exec_t,s0)
-+/usr/sbin/pirut			--	gen_context(system_u:object_r:rpm_exec_t,s0)
- ')
+diff -ur policycoreutils-1.29.11.orig/newrole/Makefile policycoreutils-1.29.11/newrole/Makefile
+--- policycoreutils-1.29.11.orig/newrole/Makefile	2006-01-26 09:36:02.000000000 -0500
++++ policycoreutils-1.29.11/newrole/Makefile	2006-01-27 08:59:49.000000000 -0500
+@@ -6,6 +6,10 @@
+ LOCALEDIR = /usr/share/locale
+ PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
+ AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
++# If LOG_AUDIT_PRIV is y, then newrole will be made into setuid root program.
++# This is so that we have the CAP_AUDIT_WRITE capability. newrole will
++# shed all privileges and change to the user's uid.
++LOG_AUDIT_PRIV ?= n
  
- /var/lib/alternatives(/.*)?		gen_context(system_u:object_r:rpm_var_lib_t,s0)
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/rpm.if serefpolicy-2.2.7/policy/modules/admin/rpm.if
---- nsaserefpolicy/policy/modules/admin/rpm.if	2006-01-04 17:28:52.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/admin/rpm.if	2006-01-26 17:01:26.000000000 -0500
-@@ -71,6 +71,7 @@
- 	rpm_domtrans($1)
- 	role $2 types rpm_t;
- 	role $2 types rpm_script_t;
-+	seutil_run_loadpol(rpm_script_t,$2,$3)
- 	allow rpm_t $3:chr_file rw_term_perms;
- ')
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+@@ -21,6 +25,13 @@
+ 	override CFLAGS += -DUSE_AUDIT
+ 	LDLIBS += -laudit
+ endif
++ifeq (${LOG_AUDIT_PRIV},y)
++	override CFLAGS += -DLOG_AUDIT_PRIV -D_GNU_SOURCE
++	LDLIBS += -lcap
++	MODE := 4555
++else
++	MODE := 555
++endif
  
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/rpm.te serefpolicy-2.2.7/policy/modules/admin/rpm.te
---- nsaserefpolicy/policy/modules/admin/rpm.te	2006-01-17 17:08:52.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/admin/rpm.te	2006-01-26 17:01:26.000000000 -0500
-@@ -288,6 +288,7 @@
+ TARGETS=$(patsubst %.c,%,$(wildcard *.c))
  
- term_getattr_unallocated_ttys(rpm_script_t)
- term_list_ptys(rpm_script_t)
-+term_use_all_terms(rpm_script_t)
- 
- auth_dontaudit_getattr_shadow(rpm_script_t)
- # ideally we would not need this
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/apps/mono.te serefpolicy-2.2.7/policy/modules/apps/mono.te
---- nsaserefpolicy/policy/modules/apps/mono.te	2006-01-19 18:02:04.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/apps/mono.te	2006-01-26 17:01:26.000000000 -0500
-@@ -18,7 +18,7 @@
- #
- 
- ifdef(`targeted_policy',`
--	allow mono_t self:process execheap;
-+	allow mono_t self:process { execheap execmem };
- 	unconfined_domain_template(mono_t)
- 	role system_r types mono_t;
- ')
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/files.fc serefpolicy-2.2.7/policy/modules/kernel/files.fc
---- nsaserefpolicy/policy/modules/kernel/files.fc	2006-01-25 15:58:58.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/kernel/files.fc	2006-01-26 17:01:26.000000000 -0500
-@@ -126,6 +126,11 @@
- /mnt/[^/]*/.*			<<none>>
- 
- #
-+# /net
-+#
-+/net			-d	gen_context(system_u:object_r:mnt_t,s0)
-+
-+#
- # /opt
- #
- /opt(/.*)?			gen_context(system_u:object_r:usr_t,s0)
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/files.if serefpolicy-2.2.7/policy/modules/kernel/files.if
---- nsaserefpolicy/policy/modules/kernel/files.if	2006-01-25 15:58:59.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/kernel/files.if	2006-01-26 17:01:26.000000000 -0500
-@@ -321,7 +321,7 @@
- 		attribute file_type, security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:dir r_dir_perms;
-+	allow $1 { file_type -security_file_type }:dir r_dir_perms;
- ')
- 
- ########################################
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/filesystem.if serefpolicy-2.2.7/policy/modules/kernel/filesystem.if
---- nsaserefpolicy/policy/modules/kernel/filesystem.if	2006-01-25 15:58:59.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/kernel/filesystem.if	2006-01-26 17:01:26.000000000 -0500
-@@ -2855,3 +2855,22 @@
- 	# and its files.
- 	allow $1 filesystem_type:{ dir file lnk_file sock_file fifo_file chr_file blk_file } *;
- ')
-+
-+
-+########################################
-+## <summary>
-+##	Search inotifyfs_t filesystem 
-+## </summary>
-+## <param name="domain">
-+##	The type of the domain performing this action.
-+## </param>
-+#
-+interface(`fs_search_inotifyfs',`
-+	gen_require(`
-+		type inotifyfs_t;
-+		class dir search_dir_perms;
-+	')
-+
-+	allow $1 inotifyfs_t:dir search_dir_perms;
-+')
-+
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/mls.te serefpolicy-2.2.7/policy/modules/kernel/mls.te
---- nsaserefpolicy/policy/modules/kernel/mls.te	2006-01-17 17:08:52.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/kernel/mls.te	2006-01-26 17:01:26.000000000 -0500
-@@ -86,7 +86,8 @@
- ')
- 
- ifdef(`enable_mls',`
--# run init with maximum MLS range
- range_transition kernel_t init_exec_t s0 - s15:c0.c255;
-+range_transition kernel_t lvm_exec_t s0 - s15:c0.c255;
- range_transition initrc_t auditd_exec_t s15:c0.c255;
-+range_transition sysadm_t rpm_exec_t s0 - s15:c0.c255;
- ')
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/storage.fc serefpolicy-2.2.7/policy/modules/kernel/storage.fc
---- nsaserefpolicy/policy/modules/kernel/storage.fc	2006-01-09 11:32:53.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/kernel/storage.fc	2006-01-26 17:01:26.000000000 -0500
-@@ -12,6 +12,7 @@
- /dev/cm20.*		-b	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/dasd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,s15:c0.c255)
- /dev/dm-[0-9]+		-b	gen_context(system_u:object_r:fixed_disk_device_t,s15:c0.c255)
-+/dev/xvd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,s15:c0.c255)
- /dev/fd[^/]+		-b	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/flash[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,s15:c0.c255)
- /dev/gscd		-b	gen_context(system_u:object_r:removable_device_t,s0)
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/cups.te serefpolicy-2.2.7/policy/modules/services/cups.te
---- nsaserefpolicy/policy/modules/services/cups.te	2006-01-17 17:08:53.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/services/cups.te	2006-01-26 17:01:26.000000000 -0500
-@@ -148,6 +148,7 @@
- fs_search_auto_mountpoints(cupsd_t)
- 
- term_dontaudit_use_console(cupsd_t)
-+term_write_unallocated_ttys(cupsd_t)
- 
- auth_domtrans_chk_passwd(cupsd_t)
- auth_dontaudit_read_pam_pid(cupsd_t)
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/hal.te serefpolicy-2.2.7/policy/modules/services/hal.te
---- nsaserefpolicy/policy/modules/services/hal.te	2006-01-19 10:00:41.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/services/hal.te	2006-01-26 17:01:26.000000000 -0500
-@@ -116,6 +116,8 @@
- init_use_fd(hald_t)
- init_use_script_pty(hald_t)
- init_domtrans_script(hald_t)
-+init_write_initctl(hald_t)
-+init_read_utmp(hald_t)
- 
- libs_use_ld_so(hald_t)
- libs_use_shared_libs(hald_t)
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/locallogin.te serefpolicy-2.2.7/policy/modules/system/locallogin.te
---- nsaserefpolicy/policy/modules/system/locallogin.te	2006-01-25 15:59:01.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/system/locallogin.te	2006-01-26 17:01:26.000000000 -0500
-@@ -27,6 +27,8 @@
- domain_subj_id_change_exempt(sulogin_t)
- domain_role_change_exempt(sulogin_t)
- domain_wide_inherit_fd(sulogin_t)
-+fs_use_tmpfs_chr_dev(sulogin_t)
-+
- init_domain(sulogin_t,sulogin_exec_t)
- init_system_domain(sulogin_t,sulogin_exec_t)
- role system_r types sulogin_t;
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/modutils.te serefpolicy-2.2.7/policy/modules/system/modutils.te
---- nsaserefpolicy/policy/modules/system/modutils.te	2006-01-13 17:06:08.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/system/modutils.te	2006-01-26 17:01:26.000000000 -0500
-@@ -113,6 +113,8 @@
- 
- miscfiles_read_localization(insmod_t)
- 
-+seutil_read_file_contexts(insmod_t)
-+
- if( ! secure_mode_insmod ) {
- 	kernel_userland_entry(insmod_t,insmod_exec_t)
+@@ -30,7 +41,7 @@
+ 	test -d $(BINDIR)      || install -m 755 -d $(BINDIR)
+ 	test -d $(ETCDIR)/pam.d || install -m 755 -d $(ETCDIR)/pam.d
+ 	test -d $(MANDIR)/man1 || install -m 755 -d $(MANDIR)/man1
+-	install -m 555 newrole $(BINDIR)
++	install -m $(MODE) newrole $(BINDIR)
+ 	install -m 644 newrole.1 $(MANDIR)/man1/
+ ifeq (${PAMH}, /usr/include/security/pam_appl.h)
+ 	test -d $(ETCDIR)/pam.d || install -m 755 -d $(ETCDIR)/pam.d
+diff -ur policycoreutils-1.29.11.orig/newrole/newrole.c policycoreutils-1.29.11/newrole/newrole.c
+--- policycoreutils-1.29.11.orig/newrole/newrole.c	2006-01-26 09:36:02.000000000 -0500
++++ policycoreutils-1.29.11/newrole/newrole.c	2006-01-27 09:00:30.000000000 -0500
+@@ -65,6 +65,13 @@
+ #ifdef USE_AUDIT
+ #include <libaudit.h>
+ #endif
++#ifdef LOG_AUDIT_PRIV
++#ifndef USE_AUDIT
++#error LOG_AUDIT_PRIV needs the USE_AUDIT option
++#endif
++#include <sys/prctl.h>
++#include <sys/capability.h>
++#endif
+ #ifdef USE_NLS
+ #include <locale.h>			    /* for setlocale() */
+ #include <libintl.h>			    /* for gettext() */
+@@ -325,6 +332,65 @@
+   return found;
  }
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/selinuxutil.te serefpolicy-2.2.7/policy/modules/system/selinuxutil.te
---- nsaserefpolicy/policy/modules/system/selinuxutil.te	2006-01-19 10:00:41.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/system/selinuxutil.te	2006-01-26 17:01:26.000000000 -0500
-@@ -414,7 +414,7 @@
- 	allow run_init_t self:process setexec;
- 	allow run_init_t self:capability setuid;
- 	allow run_init_t self:fifo_file rw_file_perms;
--	allow run_init_t self:netlink_audit_socket { create bind write nlmsg_read read };
-+	allow run_init_t self:netlink_audit_socket { create_netlink_socket_perms nlmsg_relay };
  
- 	# often the administrator runs such programs from a directory that is owned
- 	# by a different user or has restrictive SE permissions, do not want to audit
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/udev.te serefpolicy-2.2.7/policy/modules/system/udev.te
---- nsaserefpolicy/policy/modules/system/udev.te	2006-01-19 10:00:41.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/system/udev.te	2006-01-26 17:01:26.000000000 -0500
-@@ -90,6 +90,7 @@
- dev_delete_generic_file(udev_t)
- 
- fs_getattr_all_fs(udev_t)
-+fs_search_inotifyfs(udev_t)
- 
- selinux_get_fs_mount(udev_t)
- selinux_validate_context(udev_t)
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/unconfined.if serefpolicy-2.2.7/policy/modules/system/unconfined.if
---- nsaserefpolicy/policy/modules/system/unconfined.if	2006-01-20 10:02:33.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/system/unconfined.if	2006-01-26 17:01:26.000000000 -0500
-@@ -54,8 +54,13 @@
- 	tunable_policy(`allow_execmem && allow_execstack',`
- 		# Allow making the stack executable via mprotect.
- 		allow $1 self:process execstack;
-+	', `
-+		# These are fairly common but seem to be harmless
-+		# caused by using shared libraries built with old tool chains
-+		dontaudit $1 self:process execstack;
- 	')
- 
++/*
++ * This function will drop the capabilities so that we are left
++ * only with access to the audit system. If the user is root, we leave
++ * the capabilities alone since they already should have access to the
++ * audit netlink socket.
++ */
++#ifdef LOG_AUDIT_PRIV
++static void drop_capabilities(void)
++{
++  uid_t uid = getuid();
 +
- 	optional_policy(`authlogin',`
- 		auth_unconfined($1)
- 	')
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/userdomain.if serefpolicy-2.2.7/policy/modules/system/userdomain.if
---- nsaserefpolicy/policy/modules/system/userdomain.if	2006-01-26 16:54:28.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/system/userdomain.if	2006-01-26 17:01:26.000000000 -0500
-@@ -848,9 +848,6 @@
- 	fs_set_all_quotas($1_t)
- 	fs_exec_noxattr($1_t)
++  if (uid) { /* Non-root path */
++    cap_t new_caps, tmp_caps;
++    cap_value_t cap_list[] = { CAP_AUDIT_WRITE };
++    cap_value_t tmp_cap_list[] = { CAP_AUDIT_WRITE, CAP_SETUID };
++
++    new_caps = cap_init();
++    tmp_caps = cap_init();
++    if (!new_caps || !tmp_caps) {
++      fprintf(stderr, _("Error initing capabilities, aborting.\n"));
++      exit(-1);
++    }
++    cap_set_flag(new_caps, CAP_PERMITTED, 1, cap_list, CAP_SET);
++    cap_set_flag(new_caps, CAP_EFFECTIVE, 1, cap_list, CAP_SET);
++    cap_set_flag(tmp_caps, CAP_PERMITTED, 2, tmp_cap_list, CAP_SET);
++    cap_set_flag(tmp_caps, CAP_EFFECTIVE, 2, tmp_cap_list, CAP_SET);
++
++    /* Keep capabilities across uid change */
++    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
++
++    /* We should still have root's caps, so drop most capabilities now */
++    if (cap_set_proc(tmp_caps)) {
++      fprintf(stderr, _("Error dropping capabilities, aborting\n"));
++      exit(-1);
++    }
++    cap_free(tmp_caps);
++
++    /* Change uid */
++    if (setresuid(uid, uid, uid)) {
++      fprintf(stderr, _("Error changing uid, aborting.\n"));
++      exit(-1);
++    }
++
++    /* Now get rid of this ability */
++    if (prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0) {
++      fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
++      exit(-1);
++    }
++
++    /* Finish dropping capabilities. */
++    if (cap_set_proc(new_caps)) {
++      fprintf(stderr, _("Error dropping SETUID capability, aborting\n"));
++      exit(-1);
++    }
++    cap_free(new_caps);
++  }
++}
++#endif
++
+ /************************************************************************
+  *
+  * All code used for both PAM and shadow passwd goes in this section.
+@@ -363,6 +429,10 @@
+   int enforcing;
+   sigset_t empty;
  
--	selinux_set_enforce_mode($1_t)
--	selinux_set_boolean($1_t)
--	selinux_set_parameters($1_t)
- 	# Get security policy decisions:
- 	selinux_get_fs_mount($1_t)
- 	selinux_validate_context($1_t)
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/userdomain.te serefpolicy-2.2.7/policy/modules/system/userdomain.te
---- nsaserefpolicy/policy/modules/system/userdomain.te	2006-01-26 16:54:28.000000000 -0500
-+++ serefpolicy-2.2.7/policy/modules/system/userdomain.te	2006-01-26 17:12:42.000000000 -0500
-@@ -154,10 +154,16 @@
++#ifdef LOG_AUDIT_PRIV
++  drop_capabilities();
++#endif
++
+   /* Empty the signal mask in case someone is blocking a signal */
+   sigemptyset( &empty );
+   (void) sigprocmask( SIG_SETMASK, &empty, NULL );
+@@ -489,8 +559,6 @@
+     exit(-1);
+   }
  
- 	corecmd_exec_shell(sysadm_t)
- 
--	mls_process_read_up(sysadm_t)
+-  freecon(old_context);
 -
--	logging_read_audit_log(sysadm_t)
-+	ifdef(`enable_mls',`
-+		logging_read_audit_log(secadm_t)
-+		logging_domtrans_auditctl(secadm_t)
-+		mls_process_read_up(secadm_t)
-+	', `
-+		logging_domtrans_auditctl(sysadm_t)
-+		logging_read_audit_log(sysadm_t)
-+	')
+   /*
+    * Determine the Linux user identity to re-authenticate.
+    * If supported and set, use the login uid, as this should be more stable.
+@@ -759,6 +827,32 @@
+        fprintf(stderr, _("Could not set exec context to %s.\n"), new_context);
+        exit(-1);
+   }
++#ifdef LOG_AUDIT_PRIV
++  /* Send audit message */
++  {
++    char *msg;
++    int rc;
++    int audit_fd = audit_open();
++    if (audit_fd < 0) {
++       fprintf(stderr, _("Error connecting to audit system.\n"));
++       exit(-1);
++    }
++    if (asprintf(&msg, "newrole: old-context=%s new-context=%s",
++             old_context, new_context) < 0) {
++       fprintf(stderr, _("Error allocating memory.\n"));
++       exit(-1);
++    }
++    rc = audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
++                               msg, NULL, NULL, ttyn, 1);
++    if (rc <= 0) {
++       fprintf(stderr, _("Error sending audit message.\n"));
++       exit(-1);
++    }
++    free(msg);
++    close(audit_fd);
++  }
++#endif
++  freecon(old_context);
+   execv(argv[optind-1],argv+optind-1);
  
-+	mls_process_read_up(sysadm_t)
- 	ifdef(`direct_sysadm_daemon',`
- 		optional_policy(`init',`
- 			init_run_daemon(sysadm_t,sysadm_r,admin_terminal)
-@@ -168,6 +174,10 @@
- 		domain_ptrace_all_domains(sysadm_t)
- 	')
- 
-+	optional_policy(`dmesg',`
-+		dmesg_exec(sysadm_t)
-+	')
-+
- 	optional_policy(`amanda',`
- 		amanda_run_recover(sysadm_t,sysadm_r,admin_terminal)
- 	')
-@@ -205,6 +215,9 @@
- 
- 	optional_policy(`consoletype',`
- 		consoletype_exec(sysadm_t)
-+		ifdef(`enable_mls',`
-+			consoletype_exec(secadm_t)
-+		')
- 	')
- 
- 	optional_policy(`ddcprobe',`
-@@ -320,10 +333,24 @@
- 	')
- 
- 	optional_policy(`selinuxutil',`
--		seutil_run_checkpol(sysadm_t,sysadm_r,admin_terminal)
--		seutil_run_loadpol(sysadm_t,sysadm_r,admin_terminal)
-+		ifdef(`enable_mls',`
-+			seutil_manage_binary_pol(secadm_t)
-+			seutil_run_checkpol(secadm_t,secadm_r,admin_terminal)
-+			seutil_run_loadpol(secadm_t,secadm_r,admin_terminal)
-+			seutil_run_setfiles(secadm_t,secadm_r,admin_terminal)
-+			selinux_set_enforce_mode(secadm_t)
-+			selinux_set_boolean(secadm_t)
-+			selinux_set_parameters(secadm_t)
-+		', `
-+			seutil_manage_binary_pol(sysadm_t)
-+			seutil_run_checkpol(sysadm_t,sysadm_r,admin_terminal)
-+			seutil_run_loadpol(sysadm_t,sysadm_r,admin_terminal)
-+			seutil_run_setfiles(sysadm_t,sysadm_r,admin_terminal)
-+			selinux_set_enforce_mode(sysadm_t)
-+			selinux_set_boolean(sysadm_t)
-+			selinux_set_parameters(sysadm_t)
-+		')
- 		seutil_run_restorecon(sysadm_t,sysadm_r,admin_terminal)
--		seutil_run_setfiles(sysadm_t,sysadm_r,admin_terminal)
- 
- 		ifdef(`targeted_policy',`',`
- 			seutil_run_runinit(sysadm_t,sysadm_r,admin_terminal)
+   /* If we reach here, then we failed to exec the new shell. */
 
---------------010407090007080402000208--
+--0-305620949-1138370982=:87388--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
