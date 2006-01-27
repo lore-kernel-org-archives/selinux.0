@@ -1,62 +1,49 @@
-Message-ID: <36282A1733C57546BE392885C0618592FD532D@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: Chad Sellers <csellers@tresys.com>, Chad Hanson
-	 <chanson@TrustedCS.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-   Stephen Smalley
-	 <sds@tycho.nsa.gov>
-Subject: RE: [PATCH] mls passwd policy
-Date: Fri, 27 Jan 2006 11:46:59 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0RHAZXf008197
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 12:10:35 -0500 (EST)
+Received: from e32.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0RHAWC1002552
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 17:10:33 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e32.co.us.ibm.com (8.12.11/8.12.11) with ESMTP id k0RHAXG4014541
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 12:10:33 -0500
+Received: from d03av04.boulder.ibm.com (d03av04.boulder.ibm.com [9.17.195.170])
+	by d03relay04.boulder.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k0RHCnJZ147766
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 10:12:49 -0700
+Received: from d03av04.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av04.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k0RHAWab014185
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 10:10:32 -0700
+Received: from austin.ibm.com (netmail2.austin.ibm.com [9.41.248.176])
+	by d03av04.boulder.ibm.com (8.12.11/8.12.11) with ESMTP id k0RHAWAW014165
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 10:10:32 -0700
+Received: from faith.austin.ibm.com (faith.austin.ibm.com [9.53.40.35])
+	by austin.ibm.com (8.12.10/8.12.10) with ESMTP id k0RHAVsR032914
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 11:10:31 -0600
+Received: from faith.austin.ibm.com (localhost.localdomain [127.0.0.1])
+	by faith.austin.ibm.com (8.13.4/8.12.8) with ESMTP id k0RH4pZF004936
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jan 2006 11:04:51 -0600
+Received: (from jml@localhost)
+	by faith.austin.ibm.com (8.13.4/8.13.4/Submit) id k0RH4ZdB004932
+	for selinux@tycho.nsa.gov; Fri, 27 Jan 2006 11:04:35 -0600
+Subject: macros in old policy?
+From: Joy Latten <latten@austin.ibm.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Fri, 27 Jan 2006 11:04:35 -0600
+Message-Id: <1138381475.29650.20.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I am converting the selinux testsuite policy to reference policy.
+The old test policy used the macros, can_setcon, can_setexec,
+can_setfscreate. These macros are not existent in the source for 
+current refpolicy. Will these macros be included in refpolicy or
+obsolete, or do I write them myself in the test module, or do they map
+to something else now? Just wondering what is the correct thing to do?
 
-
-> Chad Hanson wrote:
-> > Below is a patch to enable generic user password changing 
-> > at labels above s0. The passwd command only changes the 
-> > shadow file and does not touch the password file. The 
-> > chfn/chsh commands do not have MLS privileges, so there
-> > is not a downgrade channel at the current time.
-> 
-> At first look, chage is labeled passwd_exec_t as well, so 
-> that's a bigger downgrade channel. So, if we want to make 
-> passwd a trusted program, we have to split out chage into 
-> a separate domain, and make sure nothing else can get into 
-> passwd_t.
-
-
-I didn't notice that at first. I think the proposed policy will
-work fine, just we need to address the chage issues.
-
-First, chage is a security relevant action and should have a 
-permission in the passwd class. From the current strict policy
-it would appear to me a root user in the user_t domain could
-change password aging. This functionality should restricted
-to the sysadm/secadm similar to other actions
-such as the passwd permission. With this restriction in place,
-the existing passwd policy will suffice as the administrator
-will need to be at s0 to change the aging information.
-
-Thoughts? We can work on a patch if this seems to be the
-correct path.
- 
-> That said, as Steve S. pointed out, passwd is still a 
-> downgrade channel. It may be somewhat limited in bandwidth, 
-> but it's available to all users of the system. So, we need to 
-> at least document these channels, as Steve G. pointed out.
-> 
-> Chad Sellers
-> 
-
-Agree... it is limited in bandwidth and functionality since
-most processes don't have read access to the shadow file and
-the content is hashed.
-
--Chad
+Regards,
+Joy Latten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
