@@ -1,20 +1,30 @@
-Subject: Re: [SEMANAGE] Fix more size_t warnings
+Subject: Re: [SEMANAGE,SEPOL,UTILS] Improve port/fcontext type string API
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <43DBB694.2010600@cornell.edu>
-References: <43DBB694.2010600@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43DBDBE7.2030405@cornell.edu>
+References: <43DBDBE7.2030405@cornell.edu>
 Content-Type: text/plain
-Date: Mon, 30 Jan 2006 15:16:53 -0500
-Message-Id: <1138652213.7076.177.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 30 Jan 2006 15:18:30 -0500
+Message-Id: <1138652310.7076.181.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-01-28 at 11:23 -0700, Ivan Gyurdiev wrote:
-> Fix size_t warnings which show up on a 64-bit machine.
+On Sat, 2006-01-28 at 14:02 -0700, Ivan Gyurdiev wrote:
+> Improve:
+> 
+> [semanage/sepol]_port_get_proto_str
+> [semanage/sepol]_fcontext_get_type_str
+> 
+> to take the integer code, and not the record as an argument.
+> This makes more sense, as the removal of several sepol FIXMEs 
+> demonstrate (we can get the type code from places other than the 
+> record... from its key, or from sepol structures). This is an API 
+> change, dependencies fixed in the patch.
 
-Merged as of libsemanage 1.5.19.
+Merged as of libsepol 1.11.10, libsemanage 1.5.19, and policycoreutils
+1.29.16.
 
 -- 
 Stephen Smalley
