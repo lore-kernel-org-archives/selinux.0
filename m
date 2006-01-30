@@ -1,51 +1,37 @@
-Message-ID: <43DE8153.10400@cornell.edu>
-Date: Mon, 30 Jan 2006 16:12:51 -0500
+Message-ID: <43DE893A.7030203@cornell.edu>
+Date: Mon, 30 Jan 2006 16:46:34 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [SEPOL] Fix overflow bugs on athlon 64
-References: <43DC0E2E.7030804@cornell.edu>	 <1138650105.7076.167.camel@moss-spartans.epoch.ncsc.mil> <1138652517.7076.185.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1138652517.7076.185.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: Desktop integration
+References: <43DE6244.5010100@cornell.edu> <43DE6578.9050302@redhat.com>
+In-Reply-To: <43DE6578.9050302@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
->>> Also, someone should take a look into this:
->>>
->>> ==31626== Syscall param write(buf) points to uninitialised byte(s)
->>> ==31626==    at 0x37E2EBBC60: __write_nocancel (in /lib64/libc-2.3.90.so)
->>> ==31626==    by 0x37E2E66812: _IO_file_write@@GLIBC_2.2.5 (in 
->>> /lib64/libc-2.3.90.so)
->>> ==31626==    by 0x37E2E66725: _IO_do_write@@GLIBC_2.2.5 (in 
->>> /lib64/libc-2.3.90.so)
->>> ==31626==    by 0x37E2E67B48: _IO_file_xsputn@@GLIBC_2.2.5 (in 
->>> /lib64/libc-2.3.90.so)
->>> ==31626==    by 0x37E2E5DB59: fwrite (in /lib64/libc-2.3.90.so)
->>> ==31626==    by 0x4A913D0: put_entry (private.h:69)
->>> ==31626==    by 0x4A93088: class_write (write.c:816)
->>> ==31626==    by 0x4A747D4: hashtab_map (hashtab.c:236)
->>> ==31626==    by 0x4A950EE: policydb_write (write.c:1483)
->>> ==31626==    by 0x4A81713: sepol_module_package_write (module.c:573)
->>> ==31626==    by 0x4BBD39F: semanage_write_module (in 
->>> /lib64/libsemanage.so.1)
->>> ==31626==    by 0x4BBD76C: semanage_direct_commit (in 
->>> /lib64/libsemanage.so.1)
->>>
->>> One suspicious thing is passing the 8-byte size_t values len/len2 into 
->>> cpu_to_le32, but I couldn't completely track this down, so I leave it to 
->>> someone else for now :)
->>>       
+>>
+>> The read interface will be easy (hopefully), but the write interface 
+>> is not clear. I think we want to aim for user-friendly selinux. For 
+>> categories, one possibility is to enumerate the translation strings 
+>> from setrans.conf, and have checkboxes for each that the user can 
+>> click (I like this idea). Another way to deal with this is a text 
+>> box, where we can enter translated or untranslated categories and/or 
+>> ranges.
+> seobject.py currently does this, but of course it is written in python.
 >
-> Any other occurrences beyond the one from class_write?
->   
-No, that's the only trace I got from valgrind /usr/sbin/semanage -B.
-
-It'd be useful to be able to valgrind over some of the python code (like 
-pywrap-test.py),
-but that seems to be a hopeless task. I tried installing a suppressions 
-file for python, which did not work for me..
+> It basically does a getcon on the process and then takes it MLSRange 
+> potion and translates it into reachable contexts
+>
+> s0-s0:c1.c5  = s0. s0:c1, s0:c2, s0:c3, s0:c4, s0:c5.
+> It then attempts to translate each one of these to show the user which 
+> categories he can create files in.
+You're right, I'm not making any sense.. was confused, thinking of a 
+different issue.
+Should we add a utility function in libselinux that does this kind of 
+expand/translate processing?
 
 
 --
