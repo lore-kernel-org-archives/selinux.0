@@ -1,82 +1,230 @@
-Subject: Re: labeling of compilers etc
+Subject: Re: [PATCH] libsepol - cond_expr mapping and package num_sections
+	bugs
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SELinux-dev@tresys.com, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <200601291156.13076.russell@coker.com.au>
-References: <200601291156.13076.russell@coker.com.au>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1138396578.3728.6.camel@moss-spartans.epoch.ncsc.mil>
+References: <43DA88D1.5000408@tresys.com>
+	 <1138396578.3728.6.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 30 Jan 2006 09:29:07 -0500
-Message-Id: <1138631347.7076.32.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 30 Jan 2006 13:51:07 -0500
+Message-Id: <1138647067.7076.160.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-01-29 at 11:56 +1100, Russell Coker wrote:
-> In many discussions about hardening systems the idea is suggested that 
-> machines should not have compilers unless they are development machines.
+On Fri, 2006-01-27 at 16:16 -0500, Stephen Smalley wrote:
+> This seems prone to similar bugs later.  Suppose I call
+> sepol_module_package_set_file_contexts multiple times; each time it
+> frees the old one and replaces it, so I shouldn't be incrementing the
+> number of sections here.
 > 
-> It would not be difficult to label compilers as compiler_exec_t and only 
-> permit user domains the ability to execute files of such type (daemons don't 
-> need to compile software).  What do you think of this idea?  Maybe we would 
-> want to have a more generic type such as devel_exec_t and label programs such 
-> as gdb with it as well.
+> Possibly num_sections shouldn't be part of the state of the struct at
+> all; it should just be a local variable.  In the read case, we pull it
+> from the image/file and use it locally (just need to pass it back from
+> read_offsets to the caller).  For write, we always start with a count of
+> 1 and increment it if we have a p->file_contexts.
 
-The other option would be to instead only label files that you want to
-be executable by such users with a distinct type (e.g.
-user_executable_t), and then remove access to the other types (bin_t,
-sbin_t, *_exec_t, ...) from the user domains for such systems.  I
-suspect that in such environments, you not only want to prohibit use of
-the development toolchain, but also want to limit users to only
-executing a specific set of approved programs.
+How about the patch below instead?
 
-> Also interpreters could be modified to provide similar benefits.  Currently 
-> many (most?) shell interpreters try to detect and prevent setuid operation 
-> with code roughly equivalent to if(getuid() != geteuid()) seteuid(getuid).  
-> Bash currently has such code (just done a quick test) and other shells had 
-> such cost in place last time I tested them.  I believe that this establishes 
-> a precedent for shell interpreters to check for and prevent insecure modes of 
-> operation.
-> 
-> A logical extension of this precedent to SE Linux would be to have it check 
-> the type of a file to be executed and confirm that the current domain is 
-> permitted to execute scripts of the type in question, for a regular file it 
-> would get the context (after opening it) and ask SE Linux whether the current 
-> context has execute access for the file class.
-
-This is a policy issue at the kernel level, not something the shell
-should get involved in.  If the policy author has decided to allow a
-domain transition and to mark a script with an entrypoint type, then
-that is their choice, and it may be a perfectly valid choice in specific
-cases (e.g. shedding of permissions where subversion by the caller would
-not yield any security risk since the caller already has more
-permissions than the callee or where the caller is trusted).  The
-current policy does make use of such transitions (e.g. init_t ->
-initrc_t), so we certainly do not want to break them.  It would make
-sense for a policy lint/checker tool (like sechecker) to check the
-file_contexts configuration or filesystem state for scripts that have
-entrypoint types and report on such transitions, flagging in particular
-cases where the calling domain is not already more privileged than the
-new domain for review by the policy writer or admin.  But I don't think
-we want a blanket prohibition enforced by the shell.
-
->   For a character device node 
-> (IE stdin but let's not assume that's the only device to be used) it would 
-> check for execute access of class chr_file for the context in question.  Does 
-> it even make sense to execute a block device node as a shell script?
-
-No.  open_exec() in the kernel rejects anything that isn't a regular
-file.
-
-> In some mailing lists related to SE Linux it's been mentioned that people 
-> desire these features.  I believe that I have come up with a reasonable 
-> design to solve the problems in question.  If it's considered worth-while 
-> then I'm willing to write a policy patch for the first one and a bash patch 
-> for the second one.
-> 
-> Also it should be noted that if the perl interpreter is setuid then it'll 
-> happily do things as the EUID, this means that we have no good precedent to 
-> rely on in this case.  This doesn't stop us, just means that the chance of 
-> getting code accepted upstream is dramatically reduced.
+Index: libsepol/include/sepol/policydb/module.h
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/include/sepol/policydb/module.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 module.h
+--- libsepol/include/sepol/policydb/module.h	25 Oct 2005 12:09:09 -0000	1.4
++++ libsepol/include/sepol/policydb/module.h	30 Jan 2006 18:22:46 -0000
+@@ -33,7 +33,6 @@
+ struct sepol_module_package {
+ 	sepol_policydb_t *policy;
+ 	uint32_t	 version;
+-	uint32_t	 num_sections;
+ 	char 		 *file_contexts;
+ 	size_t	         file_contexts_len;
+ };
+Index: libsepol/src/link.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/link.c,v
+retrieving revision 1.13
+diff -u -p -r1.13 link.c
+--- libsepol/src/link.c	18 Oct 2005 13:28:24 -0000	1.13
++++ libsepol/src/link.c	30 Jan 2006 18:22:22 -0000
+@@ -1010,6 +1010,9 @@ static int copy_cond_list(cond_node_t *l
+                         goto cleanup;
+                 /* go back through and remap the expression */
+                 for (cur_expr = new_node->expr; cur_expr != NULL; cur_expr = cur_expr->next) {
++			/* expression nodes don't have a bool value of 0 - don't map them */
++			if (cur_expr->expr_type != COND_BOOL)
++				continue;
+                         assert(module->map[SYM_BOOLS][cur_expr->bool - 1] != 0);
+                         cur_expr->bool = module->map[SYM_BOOLS][cur_expr->bool - 1];
+                 }
+Index: libsepol/src/module.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/module.c,v
+retrieving revision 1.14
+diff -u -p -r1.14 module.c
+--- libsepol/src/module.c	15 Nov 2005 12:58:29 -0000	1.14
++++ libsepol/src/module.c	30 Jan 2006 18:27:21 -0000
+@@ -78,7 +78,6 @@ static int module_package_init(sepol_mod
+ 	if (sepol_policydb_create(&p->policy))
+ 		return -1;
+ 
+-	p->num_sections = 0;
+ 	p->version = 1;
+ 	return 0;
+ }
+@@ -235,10 +234,12 @@ static int read_helper(char *buf, struct
+ 
+ /* Get the section offsets from a package file, offsets will be malloc'd to
+  * the appropriate size and the caller must free() them */
+-static int module_package_read_offsets(sepol_module_package_t *mod, 
+-				struct policy_file *file, size_t **offsets)
++static int module_package_read_offsets(sepol_module_package_t *mod,
++				       struct policy_file *file,
++				       size_t **offsets,
++				       uint32_t *sections)
+ {
+-	uint32_t *buf;
++	uint32_t *buf, nsec;
+ 	unsigned i;
+ 
+ 	buf = next_entry(file, sizeof(uint32_t) * 3);
+@@ -252,26 +253,26 @@ static int module_package_read_offsets(s
+ 	}
+ 	
+ 	mod->version = le32_to_cpu(buf[1]);
+-	mod->num_sections = le32_to_cpu(buf[2]);
++	nsec = *sections = le32_to_cpu(buf[2]);
+ 
+-	if (mod->num_sections > MAXSECTIONS) {
+-		ERR(file->handle, "too many sections (%u) in module package", mod->num_sections);
++	if (nsec > MAXSECTIONS) {
++		ERR(file->handle, "too many sections (%u) in module package", nsec);
+ 		return -1;
+ 	}
+ 
+-	*offsets = (size_t *)malloc((mod->num_sections + 1) * sizeof(size_t));
++	*offsets = (size_t *)malloc((nsec + 1) * sizeof(size_t));
+ 	if (!*offsets) {
+ 		ERR(file->handle, "out of memory");
+ 		return -1;
+ 	}
+ 
+-	buf = next_entry(file, sizeof(uint32_t) * mod->num_sections);
++	buf = next_entry(file, sizeof(uint32_t) * nsec);
+ 	if (!buf) {
+ 		ERR(file->handle, "module package offset array truncated");
+ 		return -1;
+ 	}
+ 
+-	for (i = 0; i < mod->num_sections; i++) {
++	for (i = 0; i < nsec; i++) {
+ 		(*offsets)[i] = le32_to_cpu(buf[i]);
+ 		if (i && (*offsets)[i] < (*offsets)[i - 1]) {
+ 			ERR(file->handle, "offsets are not increasing (at %u, offset %u->%u)", i, (*offsets)[i-1], (*offsets)[i]);
+@@ -279,7 +280,7 @@ static int module_package_read_offsets(s
+ 		}
+ 	}
+ 
+-	(*offsets)[mod->num_sections] = policy_file_length(file);
++	(*offsets)[nsec] = policy_file_length(file);
+ 	return 0;
+ }
+ 
+@@ -291,17 +292,17 @@ int sepol_module_package_read(sepol_modu
+ 			      struct sepol_policy_file *spf, int verbose)
+ {
+ 	struct policy_file *file= &spf->pf;
+-	uint32_t *buf;
++	uint32_t *buf, nsec;
+ 	size_t *offsets, len;
+         int retval = -1;
+ 	unsigned i, seen = 0;
+ 
+-	if (module_package_read_offsets(mod, file, &offsets))
++	if (module_package_read_offsets(mod, file, &offsets, &nsec))
+ 		return -1;
+ 
+ 	/* we know the section offsets, seek to them and read in the data */
+ 
+-	for (i = 0; i < mod->num_sections; i++ ) {
++	for (i = 0; i < nsec; i++ ) {
+ 	
+ 		if (policy_file_seek(file, offsets[i])) {
+ 			ERR(file->handle, "error seeking to offset %u for module package section %u", offsets[i], i);
+@@ -383,18 +384,18 @@ int sepol_module_package_info(struct sep
+ {
+ 	struct policy_file *file = &spf->pf;
+ 	sepol_module_package_t *mod = NULL;
+-	uint32_t *buf, len;
++	uint32_t *buf, len, nsec;
+ 	size_t *offsets = NULL;
+ 	unsigned i, seen = 0;
+ 
+ 	if (sepol_module_package_create(&mod))
+ 		return -1;
+ 
+-	if (module_package_read_offsets(mod, file, &offsets)) {
++	if (module_package_read_offsets(mod, file, &offsets, &nsec)) {
+ 		goto cleanup;
+ 	}
+ 
+-	for (i = 0; i < mod->num_sections; i++ ) {
++	for (i = 0; i < nsec; i++ ) {
+ 	
+ 		if (policy_file_seek(file, offsets[i])) {
+ 			ERR(file->handle, "error seeking to offset %u for module package section %u", offsets[i], i);
+@@ -525,7 +526,7 @@ int sepol_module_package_write(sepol_mod
+ {
+ 	struct policy_file *file = &spf->pf;
+ 	policy_file_t polfile;
+-	uint32_t buf[3], offsets[2], len, len2, idx;
++	uint32_t buf[3], offsets[2], len, len2, idx, nsec = 0;
+ 
+ 	if (p->policy) {
+ 		/* compute policy length */
+@@ -536,10 +537,9 @@ int sepol_module_package_write(sepol_mod
+ 		if (policydb_write(&p->policy->p, &polfile))
+ 			return -1;
+ 		len = polfile.len;
+-		if (polfile.len)
+-			p->num_sections++;
+-		else 
++		if (!polfile.len)
+ 			return -1;
++		nsec++;
+ 		
+ 	} else {
+ 		/* We don't support writing a package without a module at this point */
+@@ -547,23 +547,23 @@ int sepol_module_package_write(sepol_mod
+ 	}
+ 
+ 	if (p->file_contexts)
+-		p->num_sections++;
++		nsec++;
+ 
+ 	buf[0] = cpu_to_le32(SEPOL_MODULE_PACKAGE_MAGIC);
+ 	buf[1] = cpu_to_le32(p->version);
+-	buf[2] = cpu_to_le32(p->num_sections);
++	buf[2] = cpu_to_le32(nsec);
+ 	if (put_entry(buf, sizeof(uint32_t), 3, file) != 3)
+ 		return -1;
+ 
+ 	/* first section offset */
+-	offsets[0] = (p->num_sections + 3) * sizeof(uint32_t);
++	offsets[0] = (nsec + 3) * sizeof(uint32_t);
+ 	buf[0] = cpu_to_le32(offsets[0]);
+ 	if (p->file_contexts) {
+ 		/* second section offset is offset[0] +  module length  */	
+ 		offsets[1] = offsets[0] + len;
+ 		buf[1] = cpu_to_le32(offsets[1]);
+ 	}
+-	if (put_entry(buf, sizeof(uint32_t), p->num_sections, file) != p->num_sections)
++	if (put_entry(buf, sizeof(uint32_t), nsec, file) != nsec)
+ 		return -1;
+ 
+ 	if (policydb_write(&p->policy->p, file))
 
 -- 
 Stephen Smalley
