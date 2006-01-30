@@ -1,86 +1,39 @@
-Message-ID: <43DE6578.9050302@redhat.com>
-Date: Mon, 30 Jan 2006 14:14:00 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <43DE68BF.5060201@tresys.com>
+Date: Mon, 30 Jan 2006 14:27:59 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: Desktop integration
-References: <43DE6244.5010100@cornell.edu>
-In-Reply-To: <43DE6244.5010100@cornell.edu>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libsepol - cond_expr mapping and package num_sections
+ bugs
+References: <43DA88D1.5000408@tresys.com>	<1138396578.3728.6.camel@moss-spartans.epoch.ncsc.mil> <1138647067.7076.160.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1138647067.7076.160.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
-> Hi, my new project (part of it anyway) is to work on desktop 
-> integration, particularly nautilus and openoffice. We want to display 
-> (parts of) the security context, and make them configurable by the 
-> user. Specifically, we're thinking about exposing the type field, and 
-> the MCS field.
->
-> However I am still not happy with the infrastructure we have to 
-> support that kind of thing, so I wanted to see what others think about 
-> this.
->
-> The read interface will be easy (hopefully), but the write interface 
-> is not clear. I think we want to aim for user-friendly selinux. For 
-> categories, one possibility is to enumerate the translation strings 
-> from setrans.conf, and have checkboxes for each that the user can 
-> click (I like this idea). Another way to deal with this is a text box, 
-> where we can enter translated or untranslated categories and/or ranges.
-seobject.py currently does this, but of course it is written in python.
+Stephen Smalley wrote:
+> On Fri, 2006-01-27 at 16:16 -0500, Stephen Smalley wrote:
+> 
+>>This seems prone to similar bugs later.  Suppose I call
+>>sepol_module_package_set_file_contexts multiple times; each time it
+>>frees the old one and replaces it, so I shouldn't be incrementing the
+>>number of sections here.
+>>
+>>Possibly num_sections shouldn't be part of the state of the struct at
+>>all; it should just be a local variable.  In the read case, we pull it
+>>from the image/file and use it locally (just need to pass it back from
+>>read_offsets to the caller).  For write, we always start with a count of
+>>1 and increment it if we have a p->file_contexts.
+> 
+> 
+> How about the patch below instead?
 
-It basically does a getcon on the process and then takes it MLSRange 
-potion and translates it into reachable contexts
+ah! this is very close to a patch I was getting ready to send you, looks 
+good to me, should solve the problem.
 
-s0-s0:c1.c5  = s0. s0:c1, s0:c2, s0:c3, s0:c4, s0:c5. 
-
-It then attempts to translate each one of these to show the user which 
-categories he can create files in.
->
-> For the type field, it makes sense to me to have a drop-down box with 
-> the customizable types in there (as the user shouldn't relabeling to 
-> any other types). I also think we should translate those types into 
-> something more user friendly, possibly in multiple languages. I 
-> imagine a box that you can choose from "Office Document", "Music 
-> File", "Image FIle", "Sensitive Data", "Untrusted Content", things 
-> like that. Any other suggestions?
-
->
-> Maybe the nautilus/GNOME list would be a better place to discuss some 
-> of those things, but I am also interested in the infrastructure that 
-> we'll need. What needs to be added, and which libraries should it go 
-> to? I like the idea of making enhancements to libsetrans. Why doesn't 
-> this library have a clear API with namespace and headers? Will I need 
-> to replicate my database_file.c code in there? I think we need a way 
-> to enumerate setrans entires (other than the python semanage utility), 
-> enumerate customizable types, and translate customizable types.
-
-
-Changing types is a tougher problem.  First you are making two bad 
-assumptions.
-
-1. That a user can relabel to all of the customizable types.  In most 
-policies he will not be allowed to .
-
-2. That the only types he can relabel to are customizable.
-
-For  example user_home_t is not necessarily customizable but a user 
-could change a context to it.
-
-Until we get a better interface I think you have at best the option to 
-allow the user to
-
-Restore System Defaults on a file (Restorecon)
-
-Or prompt them for the context they want to change to.
-
-We could make an assumption that httpd_user_* are available options 
-since this would seem to be the most likely context a user would want to 
-set.
-
-
-
+Btw, also getting ready to send a patch that adds 2 new sections to the 
+package format so we'll see how flexible this really is then.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
