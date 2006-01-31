@@ -1,46 +1,26 @@
-Message-ID: <43DFBDB6.1040601@tresys.com>
-Date: Tue, 31 Jan 2006 14:42:46 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <43DFC40C.3040207@redhat.com>
+Date: Tue, 31 Jan 2006 15:09:48 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 1/2] libsepol - fix assertion copying
-Content-Type: multipart/mixed;
- boundary="------------040606090605090608030101"
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   Karsten Wade <kwade@redhat.com>
+Subject: SELinux Wiki is open for business...
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040606090605090608030101
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+ www.fedoraproject.org/wiki/SELinux is open.  If you want to make 
+changes to these pages and add your own content you
+need to make a new account and to send kwade@redhat.com a request to get 
+added to EditGroup or ask on on #fedora-websites on freenode, if they 
+want faster service
 
-currently permission maps for assertions are not being copied correctly 
-during linking. This patch addresses that issue.
+I am  attempting to dump some information there, also.
 
+Any input is appreciated.
 
---------------040606090605090608030101
-Content-Type: text/x-patch;
- name="1-assertion-perm-map.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="1-assertion-perm-map.diff"
-
-diff -purN -x.svn libsepol/src/link.c libsepol/src/link.c
---- libsepol/src/link.c	2006-01-30 23:42:08.000000000 -0500
-+++ libsepol/src/link.c	2006-01-31 16:30:03.000000000 -0500
-@@ -869,7 +869,7 @@ static int copy_avrule_list(avrule_t *li
-                         new_perm->class = module->map[SYM_CLASSES][cur_perm->class - 1];
-                         assert(new_perm->class);
- 
--                        if (new_rule->specified & AVRULE_AV) {
-+                        if (new_rule->specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
-                                 for (i = 0; i < 32; i++) {
-                                         if (!(cur_perm->data & (1U << i)))
-                                                 continue;
-
-
---------------040606090605090608030101--
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
