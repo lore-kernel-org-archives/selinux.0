@@ -1,71 +1,64 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0V8P5Xf013118
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2006 03:25:05 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0V8NlAa027527
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2006 08:23:48 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 207A761B01
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2006 19:25:02 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 23865-06 for <selinux@tycho.nsa.gov>;
-	Tue, 31 Jan 2006 19:25:01 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id AB65261AF8
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2006 19:25:01 +1100 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 790DDA81CE
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2006 19:25:00 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: LCA
-Date: Tue, 31 Jan 2006 19:24:54 +1100
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k0VIWAXf018789
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2006 13:32:12 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k0VIUsAa018375
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2006 18:30:54 GMT
+Message-Id: <200601311831.k0VIVcNq002297@gotham.columbia.tresys.com>
+From: "Kevin Carr" <kcarr@tresys.com>
+To: <fedora-selinux-list@redhat.com>, <selinux@tycho.nsa.gov>
+Cc: "Selinux-Dev" <selinux-dev@tresys.com>
+Subject: ANN: Setools-2.3 release
+Date: Tue, 31 Jan 2006 13:31:38 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200601311925.00303.russell@coker.com.au>
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://www.linux.conf.au/
+Setools-2.3 is now available on the Tresys Technology website.
 
-Last week I attended Linux Conf Au.  I gave a talk on the status of SE Linux 
-in Debian for the Debian mini-conf which was received in a very positive way.  
-Most of the audience (which included a number of Debian Developers) indicated 
-that they believe that SE Linux should be included in the default install in 
-the same way as Fedora.  However no-one there is actually working on the 
-installer so this may not mean much.
+http://tresys.com/selinux/selinux_policy_tools.shtml
 
-I gave a set of four tutorial sessions on SE Linux in the main conference 
-track.  First was a tutorial covering the base technology of SE Linux and the 
-Domain-Type model.  Then a tutorial covering MLS/MCS, a tutorial on writing 
-policy (mostly focused on the policy that ships with RHEL4 and Fedora Core 4) 
-and finally a hands-on tutorial.  The first three parts all went over time 
-but fortunately the delegates had already started playing with the machines 
-and covering some of the hands-on materiel during my earlier talks.  At least 
-5 delegates burned CDs of Fedora Core 5 test 2 so that they could play with 
-MLS or MCS at home.
+This version adds MLS and OCONS to apol and seinfo as well as some other
+smaller changes throughout the tools.  
 
-http://www.coker.com.au/selinux/talks/rh-2006/mls.png
-During the part on MLS some of the students believed that there was an error 
-in one of my diagrams.  The URL for the diagram is above, the ellipses 
-represent processes, the rectangles represent files, and the arrows indicate 
-the direction of data flow.  Reviewing the diagram afterwards I couldn't see 
-any error and conclude that I made a mistake in thinking that my diagram was 
-buggy.  But I would appreciate some commentary from the members of this list.
+Here is the detailed changelog.
 
-http://www.coker.com.au/selinux/talks/rh-2006/
+apol:
+	added new MLS components tab for sensitivities, 
+	levels, and categories.
+	Changed users tab to support ranges and default 
+	levels.
+	added range transition tab for searching range
+	Transition rules.
+	added new tab for network context components.
+	added new tab for file system context components.
+libapol:
+	added binpol support for MLS, network contexts, 
+	and file system contexts.
+seinfo:
+	added command line options for MLS components.
+	added command line options for network contexts
+	and file system contexts.
+sesearch:
+	added command line option for searching for rules
+	by conditional boolean name.
+seaudit:
+	added new column in the log view for the 'comm' 
+	field found in auditd log files.
+	added filters for the 'comm' field and 'message'
+	field.
+manpages:
+	added manpages for all tools.	
 
-The above URL has all the slides etc from my tutorials at LCA 2006.  You may 
-use them freely as long as I am given suitable credit.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Kevin Carr
+Tresys Technology
+410.290.1411 x137
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
