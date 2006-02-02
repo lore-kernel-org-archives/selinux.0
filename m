@@ -1,49 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k120VwXf010385
-	for <selinux@tycho.nsa.gov>; Wed, 1 Feb 2006 19:31:58 -0500 (EST)
-Received: from mail18.bigmailbox.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k120UfdS017150
-	for <selinux@tycho.nsa.gov>; Thu, 2 Feb 2006 00:30:41 GMT
-Received: from mail18.bigmailbox.com (dhcp-mail18.bigmailbox.com [127.0.0.1])
-	by mail18.bigmailbox.com (8.12.11/8.12.10) with ESMTP id k121I0oA013486
-	for <selinux@tycho.nsa.gov>; Wed, 1 Feb 2006 17:18:00 -0800
-Date: Wed, 1 Feb 2006 17:18:00 -0800
-Message-Id: <200602020118.k121I0Xf013485@mail18.bigmailbox.com>
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="YqaMXn4ceiXY2UQ31FOdmXbXe"
-From: "shih lin" <shlinlin@37.com>
-To: selinux@tycho.nsa.gov
-Subject: is there possibility to access xterm from client of selinux?
+Subject: Re: labeling of compilers etc
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: James Morris <jmorris@namei.org>, SELinux-dev@tresys.com,
+   SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <200602021027.16336.russell@coker.com.au>
+References: <200601291156.13076.russell@coker.com.au>
+	 <200601311847.56015.russell@coker.com.au>
+	 <1138801545.18268.32.camel@moss-spartans.epoch.ncsc.mil>
+	 <200602021027.16336.russell@coker.com.au>
+Content-Type: text/plain
+Date: Thu, 02 Feb 2006 07:32:32 -0500
+Message-Id: <1138883552.18268.114.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format...
+On Thu, 2006-02-02 at 10:27 +1100, Russell Coker wrote:
+> I probably should have split this discussion into two messages.  There are two 
+> issues here, that of domain_auto_trans() on shell scripts and that of general 
+> execution of shell code.
+> 
+> You are correct that there is no domain transition related to the script when 
+> the shell is executed directly.  However it's still desirable to enforce 
+> access control over which files can be executed.
 
---YqaMXn4ceiXY2UQ31FOdmXbXe
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+True.  But it isn't clear what you gain from shell-enforced access
+control when the shell is running in the caller's domain, because the
+caller can then easily influence and control the shell in order to
+bypass its checking (e.g. using LD_* variables, running the shell under
+a debugger, etc).  This might require first importing precompiled code
+into the target system from an external site, but that likely isn't
+difficult if one gained access in the first place.
 
-dear selinux users:
+Stephen Smalley wrote:
+> > Also, it should be possible
+> > to eliminate the kernel race condition on interpreted scripts; Solaris
+> > does this by pre-opening the script file and passing /dev/fd/<n> to the
+> > interpreter so that there is no second lookup of the script file.  This
+> > still wouldn't make setuid/setgid bash scripts a good idea, but other
+> > scripting languages may be more resilient to caller influence.
 
-  I am very new for security linux, (no mind againt its creator or any 
-department's administrator).  Would I ask anyone advancer, can I access xterm 
-from client of selinux?
+Russell Coker wrote:
+> That is a really good idea.  You are correct that setuid and 
+> domain_auto_trans() shell scripts are still a really bad idea (the shell is 
+> far too dependent on environment variables etc).  But anything that makes 
+> hostile action more difficult is a good thing.
 
-   I can 
-find "command Prompt" icon  from /usr/share/applications, but I double 
-click it, 
-it response nothing.
+Yes.  If I recall correctly, one stumbling block in making the above
+change in Linux is that in Linux, the /dev/fd/<n> links
+-> /proc/self/fd/<n> links become inaccessible under setuid/setgid
+(except for setuid to root, of course).  So one would have to alter that
+restriction while still dealing with the potential leak issue there.  
 
-  please help
-eric(shlinlin@37.com)
+-- 
+Stephen Smalley
+National Security Agency
 
-
-------------------------------------------------------------
-http://Game.37.com/  <--- Free Games
-http://newJoke.com/   <---  J O K E S  ! ! !
-
---YqaMXn4ceiXY2UQ31FOdmXbXe--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
