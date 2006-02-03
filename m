@@ -1,40 +1,51 @@
-Subject: Re: labeling of compilers etc
+Subject: Re: [SEMANAGE][UTILS] Use PyList in bindings
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: James Morris <jmorris@namei.org>, SELinux-dev@tresys.com,
-   SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <200602032215.44188.russell@coker.com.au>
-References: <200601291156.13076.russell@coker.com.au>
-	 <200602021027.16336.russell@coker.com.au>
-	 <1138883552.18268.114.camel@moss-spartans.epoch.ncsc.mil>
-	 <200602032215.44188.russell@coker.com.au>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43E26F62.7010400@cornell.edu>
+References: <43E26F62.7010400@cornell.edu>
 Content-Type: text/plain
-Date: Fri, 03 Feb 2006 08:26:12 -0500
-Message-Id: <1138973172.18268.332.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 03 Feb 2006 09:00:32 -0500
+Message-Id: <1138975232.18268.362.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-02-03 at 22:15 +1100, Russell Coker wrote:
-> How would they get that precompiled code to be executed?  We want to make such 
-> things as difficult as possible.  One of the first aims of such work is to 
-> make all debuggers etc unavailable to such processes.
+On Thu, 2006-02-02 at 15:45 -0500, Ivan Gyurdiev wrote:
+> Okay, this patch is being the subject of controversy on IRC, so I wanted 
+> to continue discussion on-list.
+> 
+> It's an API change in the python bindings only, which converts out-bound 
+> arrays of objects (port, iface, boolean, etc..) to a PyList, which makes 
+> them easier to work with, and better integrated with the target 
+> language. Also, it fixes memory leak of the list structure (otherwise we 
+> have to expose free() to address that). It eliminates the need for 
+> get_by_idx functions, which are not really part of the libsemanage API.
+> 
+> Some problems w/ patch - it relies on some internal swig things - like 
+> the output variable being called result (swig provides $result, but 
+> that's in python, and I don't want to unpack it). Not sure if that's a 
+> problem, I'm not sure this t_output_helper business is part of the 
+> official API either. Also, swig is not very intelligent, and wants all 
+> the argument names to match (despite the docs saying otherwise).
+> 
+> Joshua doesn't like it..says semanage.i should be portable to other 
+> languages. However, I like better integration w/ python, so I think in 
+> that case maybe it makes sense to have several .i files. Also, I'm not 
+> sure the .i file is language portable right now - what will happen in a 
+> language that doesn't support an output vector, so adding things to 
+> result w/ t_output_helper doesn't necessarily make sense?
+> 
+> Also, how do I implement a binding for set_roles()? I want to unpack a 
+> PyList into a char** array - requires understanding of python in the .i 
+> file.
 
-LD_PRELOAD=evil.so bash
-
-Now, I suppose that would fail if you are truly restricting execute
-access for the user to a minimal set of programs and not giving them
-execute to anything they can write (which btw eliminates the concern
-about compilers, because they can then generate all the code they want
-but they can't get it to execute, nor should any other domain be allowed
-to execute anything they can write).
-
-> The shell is no easier to control via debuggers etc than any other process.
-
-My point was simply that if you are running the shell in the same domain
-as other user processes, you have no isolation/protection guarantees for
-the shell, and thus it can't truly be trusted to enforce any access
-controls on the user.
+Abstractly (while confessing total ignorance of swig), I would agree
+that we shouldn't cripple the python bindings for libsemanage just to
+allow a single interface file to be re-useable for other bindings.  That
+said, I'm a little hesitant to merge without greater consensus and FC5
+is very close to devel freeze.  Not sure what expectations are for
+stability of python bindings API...
 
 -- 
 Stephen Smalley
