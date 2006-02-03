@@ -1,120 +1,70 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k13AAgXf029493
-	for <selinux@tycho.nsa.gov>; Fri, 3 Feb 2006 05:10:42 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k13A9Fnm023068
-	for <selinux@tycho.nsa.gov>; Fri, 3 Feb 2006 10:09:18 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 7BDD961B03
-	for <selinux@tycho.nsa.gov>; Fri,  3 Feb 2006 21:10:25 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 15273-01 for <selinux@tycho.nsa.gov>;
-	Fri, 3 Feb 2006 21:10:25 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id EB84A61AE3
-	for <selinux@tycho.nsa.gov>; Fri,  3 Feb 2006 21:10:24 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: SELinux List <selinux@tycho.nsa.gov>, Tung U <tungu@redhat.com>
-Subject: RHEL4 and module loading
-Date: Fri, 3 Feb 2006 21:10:17 +1100
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: labeling of compilers etc
+Date: Fri, 3 Feb 2006 22:15:32 +1100
+Cc: James Morris <jmorris@namei.org>, SELinux-dev@tresys.com,
+   SELinux List <selinux@tycho.nsa.gov>
+References: <200601291156.13076.russell@coker.com.au> <200602021027.16336.russell@coker.com.au> <1138883552.18268.114.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1138883552.18268.114.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Pwy4DMuUcWzLH0x"
-Message-Id: <200602032110.23156.russell@coker.com.au>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200602032215.44188.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_Pwy4DMuUcWzLH0x
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thursday 02 February 2006 23:32, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > You are correct that there is no domain transition related to the script
+> > when the shell is executed directly.  However it's still desirable to
+> > enforce access control over which files can be executed.
+>
+> True.  But it isn't clear what you gain from shell-enforced access
+> control when the shell is running in the caller's domain, because the
+> caller can then easily influence and control the shell in order to
+> bypass its checking (e.g. using LD_* variables, running the shell under
+> a debugger, etc).  This might require first importing precompiled code
+> into the target system from an external site, but that likely isn't
+> difficult if one gained access in the first place.
 
-The attached patch against the policy source for RHEL4 adds two new booleans, 
-secure_mode_insmod and secure_mode_policyload.
+How would they get that precompiled code to be executed?  We want to make such 
+things as difficult as possible.  One of the first aims of such work is to 
+make all debuggers etc unavailable to such processes.
 
-secure_mode_insmod prevents loading kernel modules if it is set to the value 
-1, the command "setsebool -P secure_mode_insmod 1" does this.
+The shell is no easier to control via debuggers etc than any other process.
 
-secure_mode_policyload prevents loading a new policy and changing the values 
-of booleans (can't escape this without a reboot), the command 
-"setsebool -P secure_mode_policyload 1" does this.
+Also in regard to precompiled code the person writing such code must either 
+know in advance what type of system is being targeted or send several 
+sections of code for different systems.  The former requires more knowledge 
+of the target than is often available and the latter requires bigger payloads 
+and more attempts which increase the risk of detection.  People who are 
+launching attacks on Linux systems now are using shell scripts and compiling 
+source on the target machine because such methods provide them some benefits.  
+So it seems worth-while to deny them such benefits.
 
-These booleans are a standard feature in recent versions of the policy, I just 
-back-ported them to RHEL4.
+> Russell Coker wrote:
+> > That is a really good idea.  You are correct that setuid and
+> > domain_auto_trans() shell scripts are still a really bad idea (the shell
+> > is far too dependent on environment variables etc).  But anything that
+> > makes hostile action more difficult is a good thing.
+>
+> Yes.  If I recall correctly, one stumbling block in making the above
+> change in Linux is that in Linux, the /dev/fd/<n> links
+> -> /proc/self/fd/<n> links become inaccessible under setuid/setgid
+> (except for setuid to root, of course).  So one would have to alter that
+> restriction while still dealing with the potential leak issue there.
 
-Note that if you have secure_mode_insmod enabled then you need to have ALL 
-modules that you will use configured in the initrd.  The command mkinitrd has 
-the --with=module option for this, you may need 20 or more --with= options to 
-get all the modules.
-
-Some customers apparently want to compile their own kernels to prevent loading 
-modules and other things.  A custom kernel can not be supported by GSS, but a 
-standard Red Hat kernel with some custom SE Linux policy will get a degree of 
-support (the amount of support is determined by the problem in question and 
-the significance of the policy changes).
+Given that setuid/setgid scripts aren't supported anyway this shouldn't be an 
+issue.  Any system that implements such setuid/setgid scripts (IE the 
+perl-suidperl package) will also solve this problem because the script 
+interpreter is not setuid/setgid and is run with the euid==uid and the 
+egid==gid.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_Pwy4DMuUcWzLH0x
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
-diff -ru policy.orig/domains/unconfined.te policy/domains/unconfined.te
---- policy.orig/domains/unconfined.te	2005-11-10 02:28:52.000000000 +1100
-+++ policy/domains/unconfined.te	2006-02-03 20:18:01.000000000 +1100
-@@ -42,6 +42,13 @@
- allow unconfined_t unlabeled_t:filesystem *;
- allow unlabeled_t unlabeled_t:filesystem associate;
- 
-+# Disable loading modules
-+bool secure_mode_insmod false;
-+
-+# Disable loading policy, putting the machine in permissive mode, or
-+# setting booleans
-+bool secure_mode_policyload false;
-+
- # Support NFS home directories
- bool use_nfs_home_dirs false;
- 
-diff -ru policy.orig/macros/global_macros.te policy/macros/global_macros.te
---- policy.orig/macros/global_macros.te	2005-11-10 02:28:52.000000000 +1100
-+++ policy/macros/global_macros.te	2006-02-03 20:15:57.000000000 +1100
-@@ -594,14 +594,22 @@
- allow $1 domain:msg  { send receive };
- 
- # Access the security API.
-+if (secure_mode_policyload) {
-+allow $1 security_t:security ~{ load_policy setenforce setbool };
-+} else {
- allow $1 security_t:security *;
-+}
- auditallow $1 security_t:security { load_policy setenforce setbool };
- 
- # Perform certain system operations that lacked individual capabilities.
- allow $1 kernel_t:system *;
- 
- # Use any Linux capability.
-+if (secure_mode_insmod) {
-+allow $1 self:capability ~sys_module;
-+} else {
- allow $1 self:capability *;
-+}
- 
- # Set user information and skip authentication.
- allow $1 self:passwd *;
-
---Boundary-00=_Pwy4DMuUcWzLH0x--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
