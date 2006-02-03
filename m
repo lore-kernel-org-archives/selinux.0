@@ -1,62 +1,62 @@
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'SELinux'" <SELinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
-Subject: SELinux Symposium: Second Keynote Speaker announced
-Date: Fri, 3 Feb 2006 15:30:29 -0500
-Message-ID: <012001c62900$ad379e40$8c0d010a@columbia.tresys.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: James Morris <jmorris@namei.org>
+Subject: Re: MCS policy patch
+Date: Sat, 4 Feb 2006 10:10:22 +1100
+Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>,
+   Stephen Smalley <sds@tycho.nsa.gov>
+References: <200602040118.10784.russell@coker.com.au> <Pine.LNX.4.64.0602031422070.4965@excalibur.intercode>
+In-Reply-To: <Pine.LNX.4.64.0602031422070.4965@excalibur.intercode>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
+Message-Id: <200602041010.36001.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For those planning to go the SELinux Symposium, a second keynote speaker has
-just been announced. The press release is below. The agenda for the
-technical session has also been updated; see the symposium's web site
-(www.selinux-symposium.org). Frank
+On Saturday 04 February 2006 06:31, James Morris <jmorris@namei.org> wrote:
+> Also, do we need dynamic transitions at all in MCS?
 
--=-=-=-=-=-=-
-Second Keynote Speaker Announced for the 
-Second Security-Enhanced Linux Symposium and Developer Summit
-Event slated for February 27-March 3, 2006 in Baltimore, Maryland, USA
+We aren't using them yet in any other policy, but it seemed correct to add the 
+constraint as I did.  Of course we could just force the dynamic transition to 
+stay at the same level.
 
-Baltimore, MD - (February, 02 2006) - Dr. Steve Marsh, Director of the
-Central Sponsor for Information Assurance unit in the UK Cabinet Office,
-will be a keynote speaker for the second annual Security-Enhanced Linux
-(SELinux) Symposium scheduled for February 27-March 3, 2006 in Baltimore,
-Maryland.
-The Central Sponsor for Information Assurance unit was formed in October
-2002 to provide assurance to government that the risks to the UK national
-information infrastructure are appropriately managed. Prior to this
-assignment, Dr. Marsh was Director of Security Policy in the Office of the
-e-Envoy, responsible for establishing a common framework for the security of
-electronic government systems. This included the ways by which individuals
-and business users authenticate themselves when using electronic government
-services. He has over 15 years experience in security and IT within the
-public sector.
+> > Also the same restriction is placed on creation and relabelto for files,
+> > directories etc.
+>
+> I thought we already had this.
 
-Dr. Marsh will present a keynote address entitled "UK e-Government: Security
-Challenges and Solutions for Innovative Service Delivery."  In this address,
-Dr. Marsh will share some of the security challenges facing e-Government
-services in the UK, as well as some of the solutions being explored to
-address these challenges. SELinux is being explored as one of a number of
-aids to securing UK e-government services. SELinux has the ability to
-provide enhanced information assurance for key infrastructure components and
-applications. A separate case study to be presented during the symposium
-will discuss the planned use of SELinux in an UK e-Government pilot program.
+For relabelto yes, but not for creation.  Therefore it was possible to create 
+objects that you could not relabel.
 
-About the SELinux Symposium
-The Security-Enhanced Linux (SELinux) Symposium is an annual exchange of
-ideas, technology, and research involving SELinux. SELinux is technology
-that adds flexible, strong mandatory access control security to Linux. The
-Second Symposium is scheduled for February 27-March 3, 2006 in Baltimore,
-Maryland and is sponsored by Hewlett-Packard, IBM, Red Hat, Tresys
-Technology, and Trusted Computer Solutions. The event brings together
-experts from business, government, and academia to share research,
-development, and application experiences using SELinux. For information on
-registration and sponsorship opportunities, see www.selinux-symposium.org or
-info@selinux-symposium.org.
+> > It still doesn't place any MCS restrictions on read/write for file system
+> > objects other than files, but allowing for example a process to create a
+> > directory in a context that it could not relabel a directory to or from
+> > is bogus.
+>
+> I'm still not sure what the best model is for directories.  I've had a
+> couple of people email and say they want files created under an MCS
+> labeled directory to inherit the label.
 
+Is it even possible to do that without kernel code changes?  Currently it 
+seems that the limit in this regard is the low level of the process.
 
+Also I think we want to go slowly on this and preserve the "targeted" design 
+goal of breaking as few things as possible.  We can (and will) add further 
+constraints at later times.
+
+> I like the idea of keeping things as absolutely as simple as possible, and
+> leaving MCS as a user-oriented discretionary tool, where the end user (and
+> not the admin) is responsible for labeling all of their own files
+> indivdually.
+
+I agree.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
