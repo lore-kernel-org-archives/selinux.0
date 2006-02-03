@@ -1,72 +1,62 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k13JcmXf003784
-	for <selinux@tycho.nsa.gov>; Fri, 3 Feb 2006 14:38:48 -0500 (EST)
-Received: from mail6.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k13JcZt5001937
-	for <selinux@tycho.nsa.gov>; Fri, 3 Feb 2006 19:38:36 GMT
-Date: Fri, 3 Feb 2006 14:31:43 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: Russell Coker <russell@coker.com.au>
-cc: SELinux List <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: MCS policy patch
-In-Reply-To: <200602040118.10784.russell@coker.com.au>
-Message-ID: <Pine.LNX.4.64.0602031422070.4965@excalibur.intercode>
-References: <200602040118.10784.russell@coker.com.au>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'SELinux'" <SELinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
+Subject: SELinux Symposium: Second Keynote Speaker announced
+Date: Fri, 3 Feb 2006 15:30:29 -0500
+Message-ID: <012001c62900$ad379e40$8c0d010a@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 4 Feb 2006, Russell Coker wrote:
+For those planning to go the SELinux Symposium, a second keynote speaker has
+just been announced. The press release is below. The agenda for the
+technical session has also been updated; see the symposium's web site
+(www.selinux-symposium.org). Frank
 
-> The attached patch makes MCS a discretionary policy instead of being an 
-> advisory policy as it is at the moment.  This denies a process the ability to 
-> launch, kill, or ptrace a process unless it's level dominates that of the 
-> target process.  
+-=-=-=-=-=-=-
+Second Keynote Speaker Announced for the 
+Second Security-Enhanced Linux Symposium and Developer Summit
+Event slated for February 27-March 3, 2006 in Baltimore, Maryland, USA
 
-Ok, I think this makes sense, to stop a malicious process from launching a 
-program at a higher level to bypass the category restrictions.  However, 
-it raises the question of whether we have all such channels locked down.
+Baltimore, MD - (February, 02 2006) - Dr. Steve Marsh, Director of the
+Central Sponsor for Information Assurance unit in the UK Cabinet Office,
+will be a keynote speaker for the second annual Security-Enhanced Linux
+(SELinux) Symposium scheduled for February 27-March 3, 2006 in Baltimore,
+Maryland.
+The Central Sponsor for Information Assurance unit was formed in October
+2002 to provide assurance to government that the risks to the UK national
+information infrastructure are appropriately managed. Prior to this
+assignment, Dr. Marsh was Director of Security Policy in the Office of the
+e-Envoy, responsible for establishing a common framework for the security of
+electronic government systems. This included the ways by which individuals
+and business users authenticate themselves when using electronic government
+services. He has over 15 years experience in security and IT within the
+public sector.
 
-Also, do we need dynamic transitions at all in MCS?
+Dr. Marsh will present a keynote address entitled "UK e-Government: Security
+Challenges and Solutions for Innovative Service Delivery."  In this address,
+Dr. Marsh will share some of the security challenges facing e-Government
+services in the UK, as well as some of the solutions being explored to
+address these challenges. SELinux is being explored as one of a number of
+aids to securing UK e-government services. SELinux has the ability to
+provide enhanced information assurance for key infrastructure components and
+applications. A separate case study to be presented during the symposium
+will discuss the planned use of SELinux in an UK e-Government pilot program.
 
-> Also the same restriction is placed on creation and relabelto for files, 
-> directories etc.
-
-I thought we already had this.
-
-> It still doesn't place any MCS restrictions on read/write for file system 
-> objects other than files, but allowing for example a process to create a 
-> directory in a context that it could not relabel a directory to or from is 
-> bogus.
-
-I'm still not sure what the best model is for directories.  I've had a 
-couple of people email and say they want files created under an MCS 
-labeled directory to inherit the label.
-
-I like the idea of keeping things as absolutely as simple as possible, and 
-leaving MCS as a user-oriented discretionary tool, where the end user (and 
-not the admin) is responsible for labeling all of their own files 
-indivdually.
-
-> Also my patch denies the ability to create file system objects with ranges.  
-> We have no way of using such ranges so I believe that we don't want them 
-> created.
-
-Yep, they are pointless in MCS.
-
-> Dan, is it too late for this to be in FC5T3?  I've intentionally removed all 
-> the bits that are complex or likely to cause breakage from this patch to 
-> allow it to be included...
-
-It looks ok to me, but I'd appreciate any further review.
+About the SELinux Symposium
+The Security-Enhanced Linux (SELinux) Symposium is an annual exchange of
+ideas, technology, and research involving SELinux. SELinux is technology
+that adds flexible, strong mandatory access control security to Linux. The
+Second Symposium is scheduled for February 27-March 3, 2006 in Baltimore,
+Maryland and is sponsored by Hewlett-Packard, IBM, Red Hat, Tresys
+Technology, and Trusted Computer Solutions. The event brings together
+experts from business, government, and academia to share research,
+development, and application experiences using SELinux. For information on
+registration and sponsorship opportunities, see www.selinux-symposium.org or
+info@selinux-symposium.org.
 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
