@@ -1,62 +1,30 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: James Morris <jmorris@namei.org>
-Subject: Re: MCS policy patch
-Date: Sat, 4 Feb 2006 10:10:22 +1100
-Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-References: <200602040118.10784.russell@coker.com.au> <Pine.LNX.4.64.0602031422070.4965@excalibur.intercode>
-In-Reply-To: <Pine.LNX.4.64.0602031422070.4965@excalibur.intercode>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k140FOXf009525
+	for <selinux@tycho.nsa.gov>; Fri, 3 Feb 2006 19:15:24 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k140FLt5028741
+	for <selinux@tycho.nsa.gov>; Sat, 4 Feb 2006 00:15:21 GMT
+Message-ID: <43E3F227.1010006@redhat.com>
+Date: Fri, 03 Feb 2006 19:15:35 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200602041010.36001.russell@coker.com.au>
+To: russell@coker.com.au
+CC: SELinux List <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
+Subject: Re: MCS policy patch
+References: <200602040118.10784.russell@coker.com.au>
+In-Reply-To: <200602040118.10784.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 04 February 2006 06:31, James Morris <jmorris@namei.org> wrote:
-> Also, do we need dynamic transitions at all in MCS?
++
++mlsconstrain process { transition dyntransition } (( h1 dom h2 ) or
++		( t1 == getty_t ) or ( t1 == init_t ) or ( t1 == initrc_t ) or
++		( t1 == kernel_t ));
++
 
-We aren't using them yet in any other policy, but it seemed correct to add the 
-constraint as I did.  Of course we could just force the dynamic transition to 
-stay at the same level.
+This does not work currently because it will not allow unconfined_t to run /bin/su if unconfined_t is not set to SystemLow->SystemHigh.
 
-> > Also the same restriction is placed on creation and relabelto for files,
-> > directories etc.
->
-> I thought we already had this.
-
-For relabelto yes, but not for creation.  Therefore it was possible to create 
-objects that you could not relabel.
-
-> > It still doesn't place any MCS restrictions on read/write for file system
-> > objects other than files, but allowing for example a process to create a
-> > directory in a context that it could not relabel a directory to or from
-> > is bogus.
->
-> I'm still not sure what the best model is for directories.  I've had a
-> couple of people email and say they want files created under an MCS
-> labeled directory to inherit the label.
-
-Is it even possible to do that without kernel code changes?  Currently it 
-seems that the limit in this regard is the low level of the process.
-
-Also I think we want to go slowly on this and preserve the "targeted" design 
-goal of breaking as few things as possible.  We can (and will) add further 
-constraints at later times.
-
-> I like the idea of keeping things as absolutely as simple as possible, and
-> leaving MCS as a user-oriented discretionary tool, where the end user (and
-> not the admin) is responsible for labeling all of their own files
-> indivdually.
-
-I agree.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
