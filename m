@@ -1,39 +1,57 @@
-Subject: Re: [PATCH] fix PPC compile issues
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1139172035.8084.34.camel@gorn.pebenito.net>
-References: <1139172035.8084.34.camel@gorn.pebenito.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k16IFMXf010635
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 13:15:22 -0500 (EST)
+Received: from e1.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k16IFKhQ018182
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 18:15:20 GMT
+Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
+	by e1.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id k16IFL82003997
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 13:15:21 -0500
+Received: from d01av04.pok.ibm.com (d01av04.pok.ibm.com [9.56.224.64])
+	by d01relay02.pok.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k16IFLWC212446
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 13:15:21 -0500
+Received: from d01av04.pok.ibm.com (loopback [127.0.0.1])
+	by d01av04.pok.ibm.com (8.12.11/8.13.3) with ESMTP id k16IFLNM007503
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 13:15:21 -0500
+Subject: writing refpolicy modules...
+From: Joy Latten <latten@austin.ibm.com>
+To: selinux@tycho.nsa.gov
+Cc: dvelarde@us.ibm.com, selinux-dev@tresys.com
 Content-Type: text/plain
-Date: Mon, 06 Feb 2006 09:44:20 -0500
-Message-Id: <1139237060.31135.58.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 06 Feb 2006 12:09:18 -0600
+Message-Id: <1139249359.3137.53.camel@faith.austin.ibm.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-02-05 at 15:40 -0500, Chris PeBenito wrote:
-> The attached patch changes variables used to store results of getopt()
-> from char to int, as int is the return of getopt(), and char is unsigned
-> by default on PPC, making tests like if (opt == -1) always false:
-> 
-> cc -Werror -Wall -W -I/usr/include   -c -o semodule_link.o
-> semodule_link.c
-> semodule_link.c: In function `main':
-> semodule_link.c:84: warning: comparison is always true due to limited
-> range of data type
-> 
-> 
->  semodule_expand/semodule_expand.c |    4 ++--
->  semodule_link/semodule_link.c     |    4 ++--
->  sestatus/sestatus.c               |    3 +--
->  3 files changed, 5 insertions(+), 6 deletions(-)
+We (Deb and I) have a few questions in regards to creating new modules
+within refpolicy architecture. We have installed FC5-Test2 and we
+are converting old policy to the new refpolicy format.
 
-Thanks, merged.
+Is it ok to use the selinux-policy source rpm from rawhide as
+a source tree to build a refpolicy module? I understand that the
+necessary headers to build independent of source are not yet available.
 
--- 
-Stephen Smalley
-National Security Agency
+Do all refpolicy modules need a require and/or optional statement when
+using types/attributes from other modules? I ask this because I had
+downloaded the rawhide selinux-policy source rpm and had been using the
+modules' code as a guideline for writing a refpolicy module. I noticed
+that none of the modules used the require/optional statement, but then
+they are all compiled as part of the base policy. So, does this mean any
+modules written outside of the base module, must use the require or
+optional statements if they want to use attributes or types in the base
+module? Because my module is not part of the base module.
+
+Also, if I am using interfaces from the base module, are there any
+requirements my module must meet? For example, the type domain is now
+used as domain_type(), an interface. So, is my policy ok by just
+referring to this interface or must I do something else?
+
+Thanks!
+
+Regards,
+Joy and Deb
+
 
 
 --
