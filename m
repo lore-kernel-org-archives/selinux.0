@@ -1,40 +1,34 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k16Mo5Xf014589
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 17:50:05 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k16N3vXf014764
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 18:03:57 -0500 (EST)
 Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k16Mo2hQ001263
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 22:50:02 GMT
-Subject: Re: Latest Diffs
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k16N3shQ003513
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 23:03:54 GMT
+Subject: Re: MCS policy patch
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43E0B8AA.6060407@redhat.com>
-References: <43E0B8AA.6060407@redhat.com>
+To: russell@coker.com.au
+Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>
+In-Reply-To: <200602040118.10784.russell@coker.com.au>
+References: <200602040118.10784.russell@coker.com.au>
 Content-Type: text/plain
-Date: Mon, 06 Feb 2006 17:50:46 -0500
-Message-Id: <1139266246.13925.16.camel@sgc>
+Date: Mon, 06 Feb 2006 18:04:27 -0500
+Message-Id: <1139267067.13925.27.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-02-01 at 08:33 -0500, Daniel J Walsh wrote:
-> I added a noaudit flag to unconfined_domain_template to stop mono/wine 
-> from spewing execmem messages to the auditlog.
+On Sat, 2006-02-04 at 01:18 +1100, Russell Coker wrote:
+> +mlsconstrain process { transition dyntransition } (( h1 dom h2 ) or
+> +               ( t1 == getty_t ) or ( t1 == init_t ) or ( t1 == initrc_t ) or
+> +               ( t1 == kernel_t ));
+> +
+> +mlsconstrain process { sigkill sigstop signal } ( h1 dom h2 ) or
+> +               ( t1 == init_t ) or ( t1 == initrc_t );
 
-I changed the implementation a little to use different interfaces rather
-than using .
-
-> Add file_context for initng
-
-Dropped this pending resolution of the bug [1] in redhat bugzilla.
-
-I merged the lvm range transition, but I still feel that the sysadm/rpm
-one is wrong.  Sysadm should be running and system low, and the specific
-MLS permissions should be given instead.
-
-The remainder is merged.
-
-[1] https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=179761
+We can't have these hardcoded types.  What we need is similar to how the
+mls constraints are handled.  Attributes and interfaces need to be added
+to the mls module, then the above domains would use the interfaces to
+gain these attributes.
 
 -- 
 Chris PeBenito
