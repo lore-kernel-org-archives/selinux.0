@@ -1,53 +1,85 @@
-Subject: Re: initrc_t has no execmod in targeted policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vladimir Simonov <Vladimir.Simonov@acronis.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <43E7A4F1.4010005@acronis.com>
-References: <43E6FBD2.5040207@acronis.com>
-	 <1139235066.31135.49.camel@moss-spartans.epoch.ncsc.mil>
-	 <43E7A4F1.4010005@acronis.com>
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 15:18:49 -0500
-Message-Id: <1139257129.31135.158.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'Joy Latten'" <latten@austin.ibm.com>, <selinux@tycho.nsa.gov>,
+   <dvelarde@us.ibm.com>, <selinux-dev@tresys.com>
+Subject: RE: writing refpolicy modules...
+Date: Mon, 6 Feb 2006 16:35:16 -0500
+Message-ID: <099701c62b65$395a0550$6c0d010a@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-reply-to: <43E7A17C.4050708@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-02-06 at 22:35 +0300, Vladimir Simonov wrote:
-> Really dlopen-ed shared libs are quite typical -
-> created with --shared, -fpic, etc. They (and daemon itself)
-> do not use direct mmap/mprotect syscalls (just libc calls).
-> Daemon is called from simple bash init script located in
-> /etc/init.d. And I don't put bash script/demon/libs
-> into initrc_t domain directly. I suspect they are in initrc_t
-> by selinux magic.
+> -----Original Message-----
+> From: Daniel J Walsh [mailto:dwalsh@redhat.com]
+> Sent: Monday, February 06, 2006 2:20 PM
+> To: Stephen Smalley
+> Cc: Joy Latten; selinux@tycho.nsa.gov; dvelarde@us.ibm.com; selinux-
+> dev@tresys.com
+> Subject: Re: writing refpolicy modules...
+> 
+> Stephen Smalley wrote:
+> > On Mon, 2006-02-06 at 13:49 -0500, Stephen Smalley wrote:
+> >
+> >> On Mon, 2006-02-06 at 12:09 -0600, Joy Latten wrote:
+> >>
+> >>> We (Deb and I) have a few questions in regards to creating new modules
+> >>> within refpolicy architecture. We have installed FC5-Test2 and we
+> >>> are converting old policy to the new refpolicy format.
+> >>>
+> >>> Is it ok to use the selinux-policy source rpm from rawhide as
+> >>> a source tree to build a refpolicy module? I understand that the
+> >>> necessary headers to build independent of source are not yet
+> available.
+> >>>
+> >> Looks like there is a selinux-policy-devel in rawhide.  Installs
+> >> under /usr/share/selinux/refpolicy.  So it might be worth updating to
+> >> the rawhide selinux-policy and installing selinux-policy-devel to try
+> it
+> >> out.
+> >>
+> >
+> > Looks like there is a simple policygentool script
+> > under /usr/share/selinux/refpolicy that can be used to generate a
+> > stub .te, .fc, and .if file for a new module/domain (although I assume
+> > that it is a mistake that the module name is left as TEMPLATE in the
+> > generated file), and then you can run make on the Makefile in that
+> > directory to generate a policy module package.  At which point you can
+> > insert it via semodule -i.
+> >
+> >
+> http://fedoraproject.org/wiki/SELinux/FAQ/ProposedAdditions
+> 
+> Has a description of how to use selinux-policy-devel  The TEMPLATE
+> should be TEMPLATETYPE,
+> which will be in RawHide tonight.
+> 
+> Now I would like to write a audit2allow extension to look for matches in
+> /usr/share/selinux/refpolicy and use these macros rather then straight
+> audit rules.
+> 
 
-dlopen doesn't normally require text relocations - that reflects a
-defect in how the DSO was built usually.  See the URLs I referenced for
-more info.
+We are working on this (sort of like audit2interface) for setools. It turns
+out to be a _very_ hard problem if you want to propose a minimal set of
+interfaces to cover a set of audit messages (it is similar to many packing
+problems). We have a solution using some simple heuristics that keeps the
+problem from exploding computational. Should be available in some future
+setools release, but probably not for a while.
 
-Programs stay in the caller's domain unless a domain transition is
-defined.  So your daemon stays in initrc_t unless you put it into its
-own domain.
+Karl
 
-> So some question remains:
-> Does selinux (on FC4) permit dlopen call from initrc_t domain?
-> If not, then why?
+------
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
 
-See above.  The question is what DSO has text relocations, and why.
+> 
+> Dan
 
-> I'm afraid even if I put all above staff into separate domain
-> (but start daemon from init scripts) the daemon will be moved
-> to initrc_t domain by selinux. Am I correct?
 
-No, if you define a domain for the daemon and label its executable with
-the corresponding entrypoint type, then executing it (directly or via
-the init script) will transition into the daemon's domain when the
-executable is run.  
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
