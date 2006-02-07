@@ -1,40 +1,61 @@
-Subject: Re: [PATCH] Add seuser and user_extra to package format
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Chad Hanson <chanson@TrustedCS.com>, Daniel J Walsh <dwalsh@redhat.com>,
-   Joshua Brindle <jbrindle@tresys.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <43E80E52.6090503@cornell.edu>
-References: <43E7D03D.4090909@tresys.com>  <43E80E52.6090503@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 07 Feb 2006 09:34:26 -0500
-Message-Id: <1139322866.2872.44.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <43E8B013.8000000@redhat.com>
+Date: Tue, 07 Feb 2006 09:34:59 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Ivan Gyurdiev <ivg2@cornell.edu>, Stephen Smalley <sds@tycho.nsa.gov>,
+   SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Why cron doesn't work in strict policy
+References: <43E7C52E.601@cornell.edu> <43E7C804.3040507@cornell.edu>
+In-Reply-To: <43E7C804.3040507@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-02-06 at 22:04 -0500, Ivan Gyurdiev wrote:
-> Please try with the following patch on top:
-> 
-> - removes system databases, which are unnecessary, write directly to the 
-> final file
-> - fix 64-bit bugs Joshua's introducing :)
+Ivan Gyurdiev wrote:
+>
+>>
+>> cron ---> getseuserbyname(system_u)
+>> selinux <--- (user_u, s0)
+>> cron ---> get_default_context_with_level(user_u, s0)
+>> selinux <--- (user_u:user_r:user_xserver_t) (????)
+>> cron ---> security_compute_av(user_u:user_r:user_xserver_t, 
+>> system_u:object_r:system_cron_spool_t)
+>> selinux <-- not allowed
+>>
+>> The problem comes from system_u being mapped to __default__ in the 
+>> seusers file, although I have no idea why (user_u, s0) would return 
+>> default context of user_xserver_t either.
+> So for using system cronfiles, the getseuserbyname() call needs to be 
+> skilled (since you've already decided on the user - system_u, user.c: 
+> line 87). Not sure about level. Alternatively you can query using root.
+Seems to me we have two choices.  One is to change cron to default to 
+"root" when there is no username or to add system_u to the seusers file.
 
-Merged both patches.
+Right now cron has the following code in it.
 
-> I will resync my nodecon patch tomorrow - let me know if anything's 
-> wrong with it, otherwise will submit as is (ordering pending in a later 
-> patch).
+    if (get_security_context(pw == NULL ? "system_u" : uname,
+                 crontab_fd,
+                 &u->scontext, tabname) != 0) {
+        free_user(u);
+        u = NULL;
+        goto done;
+    }
+   
 
-I still wasn't clear on the disposition of the pylist patch.
 
-For the nodecon patch, I wasn't sure if we were sufficiently confident
-in the ABI/API stability to include it for FC5 or if it should wait on
-FC6 devel.  It would likely help to have feedback from potential users
-of the nodecon API.
+get_security_context()
+...
+    if (getseuserbyname(name, &seuser, &level) == 0) {
+        retval=get_default_context_with_level(seuser, level, NULL, 
+&scontext);
+        free(seuser);
+        free(level);
+        if (retval) {
+...
 
--- 
-Stephen Smalley
-National Security Agency
+Which causes cron jobs on strict policy and I would guess MLS to run at 
+user_u since system_u is not defined and would run at level s0. 
+
 
 
 --
