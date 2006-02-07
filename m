@@ -1,75 +1,41 @@
-Message-ID: <43E9079B.9020600@tresys.com>
-Date: Tue, 07 Feb 2006 15:48:27 -0500
-From: Chad Sellers <csellers@tresys.com>
+Message-ID: <43E90FEB.6010503@tresys.com>
+Date: Tue, 07 Feb 2006 16:23:55 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-CC: selinux-dev@tresys.com
-Subject: [Patch] Refpolicy constraints patch for hierarchy
-Content-Type: multipart/mixed;
- boundary="------------060306010800010708070300"
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Add seuser and user_extra to package format
+References: <43E7D03D.4090909@tresys.com>  <43E80E52.6090503@cornell.edu> <1139322866.2872.44.camel@moss-spartans.epoch.ncsc.mil> <43E8DE4F.1040203@tresys.com> <43E8FD98.20202@cornell.edu>
+In-Reply-To: <43E8FD98.20202@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060306010800010708070300
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Ivan Gyurdiev wrote:
+> 
+>>
+>> IMO we should leave the semanageswig.i as the language neutral 
+>> interface file (and not remove the _by_idx functions) and make 
+>> language specific files include it. Then all the common parts are in 
+>> semanageswig.i and python specific ones are in another file. That way 
+>> we are free to use better features for python without eliminating the 
+>> possibility of building the wrappers for another language and it 
+>> shouldn't make maintenance any harder.
+> Have you tried to see if the current typemaps work on any other language?
+> I don't think the t_output_helper function you're using is defined in 
+> any other language except for python.
+> 
 
-This is a patch to reference policy that modifies constraints to allow
-using type hierarchy (as provided through "dot" notation) in a certain
-way with reference policy. This way corresponds to that used in the
-Framework which we've been working on at Tresys, in which we use
-hierarchical types to create boundaries which domains cannot escape
-from. For example, I create outside_t, outside_t.inside_one_t, and
-outside_t.inside_two_t, where inside_one_t and inside_two_t are
-constrained by the permissions allowed to outside_t. All 3 of these are
-given the domain attribute.
+Ok, it looks like you are right, I just tried it on perl and 
+t_output_helper was undefined. So aside from the #includes and the 
+*_by_idx pretty much everything in the current .i file is python specific.
 
-The problem arises when you want to place files inside the outside_t
-security boundary. To do this, we must give the file_type attribute to
-outside_t. Currently in reference policy, this is not possible because
-of a constraint which prevents process permissions on anything with a
-file_type attribute. We modify this to prevent process permissions on
-anything that's not a domain, so parent types can have both the domain
-and the file_type attribute. As an additional side effect, this prevents
-granting process permissions to types that aren't domains or file_types,
-such as network types, thereby making this constraint more precise in
-what it's trying to do.
+It looks like this library is sufficiently complex that there will need 
+to be a .i file for each language supported, unfortunately.
 
-Thanks,
-Chad
--- 
-
-----------------------
-Chad Sellers
-Tresys Technology, LLC
-http://www.tresys.com
-
-
---------------060306010800010708070300
-Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
- name="hierarchy.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hierarchy.diff"
-
-Index: policy/modules/kernel/domain.te
-===================================================================
---- policy/modules/kernel/domain.te	(revision 1472)
-+++ policy/modules/kernel/domain.te	(working copy)
-@@ -63,7 +63,5 @@
- # SELinux identity and role change constraints
- attribute process_uncond_exempt;	# add userhelperdomain to this one
- 
--# TODO:
--# cjp: also need to except correctly for SEFramework
--neverallow { domain unlabeled_t } file_type:process *;
-+neverallow { domain unlabeled_t } ~{ domain unlabeled_t }:process *;
- neverallow ~{ domain unlabeled_t } *:process *;
-
-
-
---------------060306010800010708070300--
+We can still use the semanageswig.i to pull in all the headers that we 
+are wrapping and put language specific things in their own .i file.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
