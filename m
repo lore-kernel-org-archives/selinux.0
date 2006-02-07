@@ -1,61 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k173JKXf017086
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 22:19:21 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k173Hxnx011737
-	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2006 03:18:00 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: MCS policy patch
-Date: Tue, 7 Feb 2006 14:19:04 +1100
-Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>
-References: <200602040118.10784.russell@coker.com.au> <1139267067.13925.27.camel@sgc>
-In-Reply-To: <1139267067.13925.27.camel@sgc>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200602071419.13087.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k174VJXf017600
+	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 23:31:19 -0500 (EST)
+Received: from h80ad24e1.async.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k174VFkS013163
+	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2006 04:31:17 GMT
+Message-Id: <200602070431.k174V6oe010791@turing-police.cc.vt.edu>
+To: Goo GGooo <googgooo@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SElinux from scratch 
+In-Reply-To: Your message of "Tue, 07 Feb 2006 14:29:55 +1300."
+             <ef5305790602061729o5b8e0a02p12215cb731e00bd5@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <ef5305790602061729o5b8e0a02p12215cb731e00bd5@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1139286665_3075P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Mon, 06 Feb 2006 23:31:05 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 07 February 2006 10:04, "Christopher J. PeBenito" 
-<cpebenito@tresys.com> wrote:
-> On Sat, 2006-02-04 at 01:18 +1100, Russell Coker wrote:
-> > +mlsconstrain process { transition dyntransition } (( h1 dom h2 ) or
-> > +               ( t1 == getty_t ) or ( t1 == init_t ) or ( t1 == initrc_t
-> > ) or +               ( t1 == kernel_t ));
-> > +
-> > +mlsconstrain process { sigkill sigstop signal } ( h1 dom h2 ) or
-> > +               ( t1 == init_t ) or ( t1 == initrc_t );
->
-> We can't have these hardcoded types.  What we need is similar to how the
-> mls constraints are handled.  Attributes and interfaces need to be added
-> to the mls module, then the above domains would use the interfaces to
-> gain these attributes.
+--==_Exmh_1139286665_3075P
+Content-Type: text/plain; charset=us-ascii
 
-Actually I never planned to have it like that.  But the lack of support for 
-range transition statements outside the base module prevents me from doing 
-what I want.
+On Tue, 07 Feb 2006 14:29:55 +1300, Goo GGooo said:
 
-I believe that the correct thing to do is to have kernel processes run with 
-context s0:c0.c255, and have init scripts or daemons transition to 
-s0-s0:c0.c255 or s0 as appropriate.  Therefore neither of the above 
-statements would have any of the exceptions that are listed.
+> For now my intent is to harden Apache httpd, prevent it from executing
+> all but permitted binaries, restrict access to some filesystem areas,
+> etc. I'm running OpenSUSE 10.0 and have found the SElinux-related
 
-Adding attributes for things that we plan to remove is not desirable IMHO.  
-Although I admit that it's likely that we won't get it all working the way we 
-like before FC5 release and having the policy you quote above in FC5 would 
-suck a little.
+You probably want to look at the httpd work already done, which probably
+already does most (or maybe all) of that already...
 
-RHEL5 can't be released with the above policy, not because it's an enterprise 
-product, but because it'll be around for 7 years...
+> packages (sysvinit, pam, ...) and basically I'm ready to create
+> whatever files in /etc, compile them, load in permissive mode, watch
+> the syslog, fix the policies, etc. I just don't know where to start...
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Take *careful* note - watch the syslog and fix the policy isn't necessarily
+the right way to go about it, and shouldn't be considered a replacement
+for actually *thinking* about the design of the policy.
+
+In particular, you are *highly* unlikely to do a good job of testing the error
+paths - as a result, in production use the policy will stomp on any attempts at
+error recovery.  And trying to debug things at that point is really a hassle -
+when it actually hits 6 or 8 months from now, you're unlikely to think that the
+second error is an SELinux refusal, and think it's a result of random wreckage
+left by whatever caused the *actual* error...
+
+
+--==_Exmh_1139286665_3075P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFD6CKJcC3lWbTT17ARAn7UAKDpImirPc19Y1CScsv9v/jM1n+U1wCgyuQ0
+tYzVozdNVdH+HliOuQIgFb8=
+=2lcQ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1139286665_3075P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
