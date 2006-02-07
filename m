@@ -1,34 +1,50 @@
-Subject: Re: [redhat-lspp] Re: problem changing role.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Rodrigo Vivi <vivijim@br.ibm.com>
-Cc: Kris Wilson <krisw@us.ibm.com>, glommer@br.ibm.com, redhat-lspp@redhat.com,
-   dwalsh@redhat.com, Janak Desai <jdesai@us.ibm.com>, gcwilson@us.ibm.com,
-   SELinux@tycho.nsa.gov, sgrubb@redhat.com
-In-Reply-To: <200602071518.08728.vivijim@br.ibm.com>
-References: <200602071452.18452.glommer@br.ibm.com>
-	 <1139332211.2872.78.camel@moss-spartans.epoch.ncsc.mil>
-	 <200602071518.08728.vivijim@br.ibm.com>
-Content-Type: text/plain
-Date: Tue, 07 Feb 2006 12:31:34 -0500
-Message-Id: <1139333494.2872.82.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <43E8DE4F.1040203@tresys.com>
+Date: Tue, 07 Feb 2006 12:52:15 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, Chad Hanson <chanson@TrustedCS.com>,
+   Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Add seuser and user_extra to package format
+References: <43E7D03D.4090909@tresys.com>  <43E80E52.6090503@cornell.edu> <1139322866.2872.44.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1139322866.2872.44.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-02-07 at 15:18 -0200, Rodrigo Vivi wrote:
-> 2.6.15-1.1826.2.10_FC5
+Stephen Smalley wrote:
+> On Mon, 2006-02-06 at 22:04 -0500, Ivan Gyurdiev wrote:
+>> Please try with the following patch on top:
+>>
+>> - removes system databases, which are unnecessary, write directly to the 
+>> final file
+>> - fix 64-bit bugs Joshua's introducing :)
 > 
-> This is a FC5 test2 !
+> Merged both patches.
+> 
+>> I will resync my nodecon patch tomorrow - let me know if anything's 
+>> wrong with it, otherwise will submit as is (ordering pending in a later 
+>> patch).
+> 
+> I still wasn't clear on the disposition of the pylist patch.
 
-test2 was released 16 January, so it is unlikely to have this patch.
-The current rawhide kernel (which will be in test3) does have it, but
-you should really be using the LSPP kernel if you are doing LSPP-related
-development and testing; it has a number of patches that are not in the
-rawhide kernel because they are not upstream.
+IMO we should leave the semanageswig.i as the language neutral interface 
+file (and not remove the _by_idx functions) and make language specific 
+files include it. Then all the common parts are in semanageswig.i and 
+python specific ones are in another file. That way we are free to use 
+better features for python without eliminating the possibility of 
+building the wrappers for another language and it shouldn't make 
+maintenance any harder.
 
--- 
-Stephen Smalley
-National Security Agency
+
+
+
+> 
+> For the nodecon patch, I wasn't sure if we were sufficiently confident
+> in the ABI/API stability to include it for FC5 or if it should wait on
+> FC6 devel.  It would likely help to have feedback from potential users
+> of the nodecon API.
+> 
 
 
 --
