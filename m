@@ -1,64 +1,48 @@
-Message-ID: <43E85213.9020605@acronis.com>
-Date: Tue, 07 Feb 2006 10:53:55 +0300
-From: Vladimir Simonov <Vladimir.Simonov@acronis.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k179BrXf019854
+	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2006 04:11:54 -0500 (EST)
+Received: from uproxy.gmail.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k179BqkS011780
+	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2006 09:11:52 GMT
+Received: by uproxy.gmail.com with SMTP id a2so236277ugf
+        for <selinux@tycho.nsa.gov>; Tue, 07 Feb 2006 01:11:52 -0800 (PST)
+Message-ID: <ef5305790602070111j11ace845h20a21c5b89a7b939@mail.gmail.com>
+Date: Tue, 7 Feb 2006 22:11:52 +1300
+From: Goo GGooo <googgooo@gmail.com>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: SElinux from scratch
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200602070431.k174V6oe010791@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
-Subject: Re: initrc_t has no execmod in targeted policy
-References: <43E6FBD2.5040207@acronis.com>	 <1139235066.31135.49.camel@moss-spartans.epoch.ncsc.mil>	 <43E7A4F1.4010005@acronis.com> <1139257129.31135.158.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1139257129.31135.158.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+References: <ef5305790602061729o5b8e0a02p12215cb731e00bd5@mail.gmail.com>
+	 <200602070431.k174V6oe010791@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On 2/7/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> On Tue, 07 Feb 2006 14:29:55 +1300, Goo GGooo said:
+>
+> > For now my intent is to harden Apache httpd, prevent it from executing
+> > all but permitted binaries, restrict access to some filesystem areas,
+> > etc. I'm running OpenSUSE 10.0 and have found the SElinux-related
+>
+> You probably want to look at the httpd work already done, which probably
+> already does most (or maybe all) of that already...
 
-Ok. Thank you a lot.
-I'll investigate deeper which code triggers
-relocation.
+Actually my goal isn't the apache hardening itself. I just want to
+learn more about SElinux configuration. Starting from scratch with a
+single program (forget httpd, call it /opt/xyz/bin/abc), configuring
+access to its required resources, observing how any changes affect its
+operation, etc. I'm not going to use Fedora and simply "switch SElinux
+on".
 
-Best regards
-Vladimir Simonov
+Have you got any pointers?
 
-Stephen Smalley wrote:
-> On Mon, 2006-02-06 at 22:35 +0300, Vladimir Simonov wrote:
-> 
->>Really dlopen-ed shared libs are quite typical -
->>created with --shared, -fpic, etc. They (and daemon itself)
->>do not use direct mmap/mprotect syscalls (just libc calls).
->>Daemon is called from simple bash init script located in
->>/etc/init.d. And I don't put bash script/demon/libs
->>into initrc_t domain directly. I suspect they are in initrc_t
->>by selinux magic.
-> 
-> 
-> dlopen doesn't normally require text relocations - that reflects a
-> defect in how the DSO was built usually.  See the URLs I referenced for
-> more info.
-> 
-> Programs stay in the caller's domain unless a domain transition is
-> defined.  So your daemon stays in initrc_t unless you put it into its
-> own domain.
-> 
-> 
->>So some question remains:
->>Does selinux (on FC4) permit dlopen call from initrc_t domain?
->>If not, then why?
-> 
-> 
-> See above.  The question is what DSO has text relocations, and why.
-> 
-> 
->>I'm afraid even if I put all above staff into separate domain
->>(but start daemon from init scripts) the daemon will be moved
->>to initrc_t domain by selinux. Am I correct?
-> 
-> 
-> No, if you define a domain for the daemon and label its executable with
-> the corresponding entrypoint type, then executing it (directly or via
-> the init script) will transition into the daemon's domain when the
-> executable is run.  
-> 
+Thanks!
+
+Goo
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
