@@ -1,28 +1,36 @@
-Subject: Re: [PATCH 2/3] libsepol - fix aliased sensitivities
+Subject: Re: SElinux from scratch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kevin Carr <kcarr@tresys.com>
-Cc: selinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <200602062234.k16MYuNq012281@gotham.columbia.tresys.com>
-References: <200602062234.k16MYuNq012281@gotham.columbia.tresys.com>
+To: Goo GGooo <googgooo@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <ef5305790602061729o5b8e0a02p12215cb731e00bd5@mail.gmail.com>
+References: <ef5305790602061729o5b8e0a02p12215cb731e00bd5@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 07 Feb 2006 08:21:31 -0500
-Message-Id: <1139318491.2872.18.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 07 Feb 2006 08:37:19 -0500
+Message-Id: <1139319439.2872.36.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-02-06 at 17:34 -0500, Kevin Carr wrote:
-> This second patch fixes reading sensitivities from disk.  Basically we want
-> the aliased sens to have to the same cat bitmap instance as the
-> corresponding primary sens.
+On Tue, 2006-02-07 at 14:29 +1300, Goo GGooo wrote:
+> For now my intent is to harden Apache httpd, prevent it from executing
+> all but permitted binaries, restrict access to some filesystem areas,
+> etc. I'm running OpenSUSE 10.0 and have found the SElinux-related
+> packages (sysvinit, pam, ...) and basically I'm ready to create
+> whatever files in /etc, compile them, load in permissive mode, watch
+> the syslog, fix the policies, etc. I just don't know where to start...
+> 
+> Can someone point me to such an introduction?
 
-Seems a lot more painful than just cloning the levels in the checkpolicy
-code in the first place, to provide consistency with the existing
-libsepol policydb_read and kernel policydb_read code.
+There are some old HOWTOs and FAQs over at the sourceforge site,
+http://sourceforge.net/docman/?group_id=21266
 
-We already changed checkpolicy earlier to clone things like constraints
-when I added policydb_destroy calls to checkpolicy so that we could
-detect memory leaks a while ago.
+Various information resources are listed at
+http://selinux.sourceforge.net/resources.php3
+
+However, as I understand it, OpenSuSE does not have a complete set of
+patched userland packages for SELinux, and they are phasing out their
+SELinux support altogether.  See 
+http://marc.theaimsgroup.com/?l=selinux&m=113628380004182&w=2
 
 -- 
 Stephen Smalley
