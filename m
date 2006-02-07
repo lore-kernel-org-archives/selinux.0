@@ -1,28 +1,75 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k17KS2Xf028946
-	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2006 15:28:03 -0500 (EST)
-Received: from repulse.cnchost.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k17KS0kS010793
-	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2006 20:28:00 GMT
-Message-ID: <43E9024D.9030304@hypertechsystems.com>
-Date: Tue, 07 Feb 2006 12:25:49 -0800
-From: David Slater <ds@hypertechsystems.com>
+Message-ID: <43E9079B.9020600@tresys.com>
+Date: Tue, 07 Feb 2006 15:48:27 -0500
+From: Chad Sellers <csellers@tresys.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: auditctl examples?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: SELinux@tycho.nsa.gov
+CC: selinux-dev@tresys.com
+Subject: [Patch] Refpolicy constraints patch for hierarchy
+Content-Type: multipart/mixed;
+ boundary="------------060306010800010708070300"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am interested in using auditctl, but am having trouble understanding 
-how to do so using the man page.  I apologize if this is not the 
-appropriate forum for this question, but it appears to be the logical 
-path thus far.  Specifically, I would like to understand the concept of 
-adding a watch to a filesystem
-object.  I would like to generate an audit entry in 
-/var/log/audit/audit.log each time a restricted directory is accessed.  
-It would be greatly appreciated if anyone could forward examples of 
-doing so.
+This is a multi-part message in MIME format.
+--------------060306010800010708070300
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+This is a patch to reference policy that modifies constraints to allow
+using type hierarchy (as provided through "dot" notation) in a certain
+way with reference policy. This way corresponds to that used in the
+Framework which we've been working on at Tresys, in which we use
+hierarchical types to create boundaries which domains cannot escape
+from. For example, I create outside_t, outside_t.inside_one_t, and
+outside_t.inside_two_t, where inside_one_t and inside_two_t are
+constrained by the permissions allowed to outside_t. All 3 of these are
+given the domain attribute.
+
+The problem arises when you want to place files inside the outside_t
+security boundary. To do this, we must give the file_type attribute to
+outside_t. Currently in reference policy, this is not possible because
+of a constraint which prevents process permissions on anything with a
+file_type attribute. We modify this to prevent process permissions on
+anything that's not a domain, so parent types can have both the domain
+and the file_type attribute. As an additional side effect, this prevents
+granting process permissions to types that aren't domains or file_types,
+such as network types, thereby making this constraint more precise in
+what it's trying to do.
+
+Thanks,
+Chad
+-- 
+
+----------------------
+Chad Sellers
+Tresys Technology, LLC
+http://www.tresys.com
+
+
+--------------060306010800010708070300
+Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
+ name="hierarchy.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hierarchy.diff"
+
+Index: policy/modules/kernel/domain.te
+===================================================================
+--- policy/modules/kernel/domain.te	(revision 1472)
++++ policy/modules/kernel/domain.te	(working copy)
+@@ -63,7 +63,5 @@
+ # SELinux identity and role change constraints
+ attribute process_uncond_exempt;	# add userhelperdomain to this one
+ 
+-# TODO:
+-# cjp: also need to except correctly for SEFramework
+-neverallow { domain unlabeled_t } file_type:process *;
++neverallow { domain unlabeled_t } ~{ domain unlabeled_t }:process *;
+ neverallow ~{ domain unlabeled_t } *:process *;
+
+
+
+--------------060306010800010708070300--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
