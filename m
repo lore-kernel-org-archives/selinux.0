@@ -1,65 +1,64 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k174VJXf017600
-	for <selinux@tycho.nsa.gov>; Mon, 6 Feb 2006 23:31:19 -0500 (EST)
-Received: from h80ad24e1.async.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k174VFkS013163
-	for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2006 04:31:17 GMT
-Message-Id: <200602070431.k174V6oe010791@turing-police.cc.vt.edu>
-To: Goo GGooo <googgooo@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: SElinux from scratch 
-In-Reply-To: Your message of "Tue, 07 Feb 2006 14:29:55 +1300."
-             <ef5305790602061729o5b8e0a02p12215cb731e00bd5@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <ef5305790602061729o5b8e0a02p12215cb731e00bd5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1139286665_3075P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 06 Feb 2006 23:31:05 -0500
+Message-ID: <43E85213.9020605@acronis.com>
+Date: Tue, 07 Feb 2006 10:53:55 +0300
+From: Vladimir Simonov <Vladimir.Simonov@acronis.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: initrc_t has no execmod in targeted policy
+References: <43E6FBD2.5040207@acronis.com>	 <1139235066.31135.49.camel@moss-spartans.epoch.ncsc.mil>	 <43E7A4F1.4010005@acronis.com> <1139257129.31135.158.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1139257129.31135.158.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1139286665_3075P
-Content-Type: text/plain; charset=us-ascii
+Hi,
 
-On Tue, 07 Feb 2006 14:29:55 +1300, Goo GGooo said:
+Ok. Thank you a lot.
+I'll investigate deeper which code triggers
+relocation.
 
-> For now my intent is to harden Apache httpd, prevent it from executing
-> all but permitted binaries, restrict access to some filesystem areas,
-> etc. I'm running OpenSUSE 10.0 and have found the SElinux-related
+Best regards
+Vladimir Simonov
 
-You probably want to look at the httpd work already done, which probably
-already does most (or maybe all) of that already...
-
-> packages (sysvinit, pam, ...) and basically I'm ready to create
-> whatever files in /etc, compile them, load in permissive mode, watch
-> the syslog, fix the policies, etc. I just don't know where to start...
-
-Take *careful* note - watch the syslog and fix the policy isn't necessarily
-the right way to go about it, and shouldn't be considered a replacement
-for actually *thinking* about the design of the policy.
-
-In particular, you are *highly* unlikely to do a good job of testing the error
-paths - as a result, in production use the policy will stomp on any attempts at
-error recovery.  And trying to debug things at that point is really a hassle -
-when it actually hits 6 or 8 months from now, you're unlikely to think that the
-second error is an SELinux refusal, and think it's a result of random wreckage
-left by whatever caused the *actual* error...
-
-
---==_Exmh_1139286665_3075P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFD6CKJcC3lWbTT17ARAn7UAKDpImirPc19Y1CScsv9v/jM1n+U1wCgyuQ0
-tYzVozdNVdH+HliOuQIgFb8=
-=2lcQ
------END PGP SIGNATURE-----
-
---==_Exmh_1139286665_3075P--
+Stephen Smalley wrote:
+> On Mon, 2006-02-06 at 22:35 +0300, Vladimir Simonov wrote:
+> 
+>>Really dlopen-ed shared libs are quite typical -
+>>created with --shared, -fpic, etc. They (and daemon itself)
+>>do not use direct mmap/mprotect syscalls (just libc calls).
+>>Daemon is called from simple bash init script located in
+>>/etc/init.d. And I don't put bash script/demon/libs
+>>into initrc_t domain directly. I suspect they are in initrc_t
+>>by selinux magic.
+> 
+> 
+> dlopen doesn't normally require text relocations - that reflects a
+> defect in how the DSO was built usually.  See the URLs I referenced for
+> more info.
+> 
+> Programs stay in the caller's domain unless a domain transition is
+> defined.  So your daemon stays in initrc_t unless you put it into its
+> own domain.
+> 
+> 
+>>So some question remains:
+>>Does selinux (on FC4) permit dlopen call from initrc_t domain?
+>>If not, then why?
+> 
+> 
+> See above.  The question is what DSO has text relocations, and why.
+> 
+> 
+>>I'm afraid even if I put all above staff into separate domain
+>>(but start daemon from init scripts) the daemon will be moved
+>>to initrc_t domain by selinux. Am I correct?
+> 
+> 
+> No, if you define a domain for the daemon and label its executable with
+> the corresponding entrypoint type, then executing it (directly or via
+> the init script) will transition into the daemon's domain when the
+> executable is run.  
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
