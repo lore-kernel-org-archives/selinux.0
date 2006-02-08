@@ -1,32 +1,35 @@
+Message-ID: <20060208171037.31031.qmail@web51504.mail.yahoo.com>
+Date: Wed, 8 Feb 2006 09:10:36 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: [PATCH] Add version option to newrole
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Glauber de Oliveira Costa <glommer@br.ibm.com>
-Cc: Selinux@tycho.nsa.gov, Steve G <linux_4ever@yahoo.com>
+To: Glauber de Oliveira Costa <glommer@br.ibm.com>, Selinux@tycho.nsa.gov,
+   Stephen Smalley <sds@tycho.nsa.gov>
 In-Reply-To: <200602081445.14747.glommer@br.ibm.com>
-References: <200602081445.14747.glommer@br.ibm.com>
-Content-Type: text/plain
-Date: Wed, 08 Feb 2006 11:54:53 -0500
-Message-Id: <1139417693.2872.196.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-02-08 at 14:45 -0200, Glauber de Oliveira Costa wrote:
-> Here's a new version that incorporates your suggestions. I moved the constant 
-> definition to the makefile, and also, I'm gathering the data from the version 
-> file. Also, Steve, I would like to hear from you why do you think the -v 
-> option is not that descriptive.
-> 
-> If you guys accept this patch, my obvious next step would be adding it to the 
-> manpage. 
 
-I think his complaint was with our existing usage message (the args
-part), not your change.
+>I moved the constant definition to the makefile, and also, I'm gathering the
+data
+>from the version file.
 
--- 
-Stephen Smalley
-National Security Agency
+Thanks. That should be easier to maintain.
 
+>Also, Steve, I would like to hear from you why do you think the -v
+>option is not that descriptive.
+
+OK my bad. I though the -- ARGS was added. -v is fine.
+
+But waht about the other programs? load_policy, restorecon, run_init, etc...
+
+-Steve
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
