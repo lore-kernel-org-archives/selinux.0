@@ -1,150 +1,100 @@
-Message-ID: <43E9AAC1.804@cornell.edu>
-Date: Wed, 08 Feb 2006 03:24:33 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+From: Glauber de Oliveira Costa <glommer@br.ibm.com>
+To: Selinux@tycho.nsa.gov
+Subject: [PATCH] add version option to newrole
+Date: Wed, 8 Feb 2006 09:34:33 -0200
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [SEMANAGE][SEPOL] Minor cleanups
-Content-Type: multipart/mixed;
- boundary="------------030703010208070802000107"
+Message-Id: <200602080934.33613.glommer@br.ibm.com>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Jdd6DXiwCWFclRH"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030703010208070802000107
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--Boundary-00=_Jdd6DXiwCWFclRH
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This is left over after my other patches are applied...
-- port and interface list traversals are confusing because of unneded 
-variable
-- increase verbosity in some error messages
-- semanage: don't shadow type_str the function to keep gcc happy
+When trying to isolate a problem today, I missed a lot an version option (-v 
+or such). This simple patch adds such an option.
+
+If it's of interest, such an option may be added to whole policycoreutils 
+package. (IMHO, it would be useful). With this possibility in mind, I decided 
+to  implement the version string in a separate version.h file, that could be 
+included by other packages too. 
+
+Patch follows.
 
 
 
 
-
-
---------------030703010208070802000107
-Content-Type: text/x-patch;
- name="libsemanage.sepol.cleanups.diff"
+--Boundary-00=_Jdd6DXiwCWFclRH
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-newrole"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage.sepol.cleanups.diff"
+Content-Disposition: attachment;
+	filename="patch-newrole"
 
-diff -Naurp --exclude-from excludes old/libsemanage/src/fcontexts_file.c new/libsemanage/src/fcontexts_file.c
---- old/libsemanage/src/fcontexts_file.c	2006-02-08 03:13:23.000000000 -0500
-+++ new/libsemanage/src/fcontexts_file.c	2006-02-04 02:05:59.000000000 -0500
-@@ -52,7 +52,7 @@ static int fcontext_print(
- 	const char* expr = semanage_fcontext_get_expr(fcontext);
- 	int type = semanage_fcontext_get_type(fcontext);
- 	const char* print_str = type_str(type);
--	const char* type_str = semanage_fcontext_get_type_str(type);
-+	const char* tstr = semanage_fcontext_get_type_str(type);
- 	semanage_context_t* con = semanage_fcontext_get_con(fcontext);
+diff -upNr policycoreutils-1.29.18/newrole/newrole.c policycoreutils-1.29.18.mine/newrole/newrole.c
+--- policycoreutils-1.29.18/newrole/newrole.c	2006-02-02 15:08:13.000000000 -0200
++++ policycoreutils-1.29.18.mine/newrole/newrole.c	2006-02-07 16:16:23.000000000 -0200
+@@ -10,7 +10,7 @@
+  *
+  * USAGE:
+  *
+- * newrole [ -r role ] [ -t type ] [ -l level ] [ -- args ]
++ * newrole [ -r role ] [ -t type ] [ -l level ] [ -v ] [ -- args ]
+  *
+  * BUILD OPTIONS:
+  *
+@@ -82,9 +82,10 @@
+ #ifndef PACKAGE
+ #define PACKAGE "policycoreutils"   /* the name of this package lang translation */
+ #endif
++#include "version.h"
  
- 	if (fprintf(str, "%s %s ", expr, print_str) < 0)
-@@ -73,7 +73,7 @@ static int fcontext_print(
+ /* USAGE_STRING describes the command-line args of this program. */
+-#define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -- args ]"
++#define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l level ] [ -v ] [ -- args ]"
  
- 	err:
- 	ERR(handle, "could not print file context for "
--		"%s (%s) to stream", expr, type_str);
-+		"%s (%s) to stream", expr, tstr);
- 	free(con_str);
- 	return STATUS_ERR;
- }
-diff -Naurp --exclude-from excludes old/libsepol/src/interfaces.c new/libsepol/src/interfaces.c
---- old/libsepol/src/interfaces.c	2006-02-08 03:13:24.000000000 -0500
-+++ new/libsepol/src/interfaces.c	2006-02-03 19:34:08.000000000 -0500
-@@ -248,11 +248,11 @@ int sepol_iface_iterate(
- 	void* arg) {
+ #define DEFAULT_CONTEXT_SIZE 255  /* first guess at context size */
  
- 	const policydb_t *policydb = &p->p;
--	ocontext_t *c, *l, *head;
-+	ocontext_t *c, *head;
- 	sepol_iface_t* iface = NULL;
+@@ -417,6 +418,7 @@ int main( int argc, char *argv[] ) {
+     { "role", 1, 0, 'r' },
+     { "type", 1, 0, 't' },
+     { "level", 1, 0, 'l' },
++    { "version", 0, 0, 'v' },
+     { NULL, 0, 0, 0 }
+   };
+   char *role_s = NULL;               /* role spec'd by user in argv[] */
+@@ -465,11 +467,15 @@ int main( int argc, char *argv[] ) {
+   }
  
- 	head = policydb->ocontexts[OCON_NETIF];
--	for (l = NULL, c = head; c; l = c, c = c->next) {
-+	for (c = head; c; c = c->next) {
- 		int status;
- 
- 		if (iface_to_record(handle, policydb, c, &iface) < 0)
-diff -Naurp --exclude-from excludes old/libsepol/src/ports.c new/libsepol/src/ports.c
---- old/libsepol/src/ports.c	2006-02-08 03:13:24.000000000 -0500
-+++ new/libsepol/src/ports.c	2006-02-03 20:25:06.000000000 -0500
-@@ -51,19 +51,23 @@ static int port_from_record(
- 	context_struct_t* tmp_con = NULL;
- 	int tmp_proto;
- 
-+	int low = sepol_port_get_low(data);
-+	int high = sepol_port_get_high(data);
-+	int proto = sepol_port_get_proto(data);
+   while (1) {
+-    clflag=getopt_long(argc,argv,"r:t:l:",long_options,&flag_index);
++    clflag=getopt_long(argc,argv,"r:t:l:v",long_options,&flag_index);
+     if (clflag == -1)
+ 	break;
+     
+     switch( clflag ) {
++    case 'v':
++	printf("newrole version %s\n",VERSION);
++	exit(0);
++	break;
+     case 'r':
+       /* If role_s is already set, the user spec'd multiple roles - bad. */
+       if( role_s ) {
+diff -upNr policycoreutils-1.29.18/newrole/version.h policycoreutils-1.29.18.mine/newrole/version.h
+--- policycoreutils-1.29.18/newrole/version.h	1969-12-31 21:00:00.000000000 -0300
++++ policycoreutils-1.29.18.mine/newrole/version.h	2006-02-07 16:15:47.000000000 -0200
+@@ -0,0 +1,4 @@
 +
- 	tmp_port = (ocontext_t *) calloc(1, sizeof(ocontext_t));
- 	if (!tmp_port) 
- 		goto omem;
- 	
- 	/* Process protocol */
--	tmp_proto = sepol2ipproto(handle, sepol_port_get_proto(data));
-+	tmp_proto = sepol2ipproto(handle, proto);
- 	if (tmp_proto < 0)
- 		goto err;
- 	tmp_port->u.port.protocol = tmp_proto;
- 
- 	/* Port range */
--	tmp_port->u.port.low_port = sepol_port_get_low(data);
--	tmp_port->u.port.high_port = sepol_port_get_high(data);
-+	tmp_port->u.port.low_port = low;
-+	tmp_port->u.port.high_port = high;
- 	if (tmp_port->u.port.low_port > tmp_port->u.port.high_port) {
- 		ERR(handle, "low port %d exceeds high port %d",
- 			tmp_port->u.port.low_port, 
-@@ -93,7 +97,8 @@ static int port_from_record(
-         }
- 	context_destroy(tmp_con);
- 	free(tmp_con);
--	ERR(handle, "error creating port structure");
-+	ERR(handle, "could not create port structure for range %u:%u (%s)",
-+		low, high, sepol_port_get_proto_str(proto));
- 	return STATUS_ERR;
- }
- 
-@@ -207,7 +212,7 @@ int sepol_port_query(
- 	sepol_port_t** response) {
- 
- 	const policydb_t *policydb = &p->p;
--	ocontext_t *c, *l, *head;
-+	ocontext_t *c, *head;
- 
- 	int low, high, proto;
- 	const char* proto_str;
-@@ -218,7 +223,7 @@ int sepol_port_query(
- 		goto err;
- 
- 	head = policydb->ocontexts[OCON_PORT];
--	for (l = NULL, c = head; c; l = c, c = c->next) {
-+	for (c = head; c; c = c->next) {
- 		int proto2 = c->u.port.protocol;
- 		int low2 = c->u.port.low_port;
- 		int high2 = c->u.port.high_port;
-@@ -309,11 +314,11 @@ int sepol_port_iterate(
- 	void* arg) {
- 
- 	const policydb_t *policydb = &p->p;
--	ocontext_t *c, *l, *head;
-+	ocontext_t *c, *head;
- 	sepol_port_t* port = NULL;	
- 
- 	head = policydb->ocontexts[OCON_PORT];
--	for (l = NULL, c = head; c; l = c, c = c->next) {
-+	for (c = head; c; c = c->next) {
- 		int status;
- 
- 		if (port_to_record(handle, policydb, c, &port) < 0)
++#ifndef VERSION
++#define VERSION "1.29.18"
++#endif
 
---------------030703010208070802000107--
+--Boundary-00=_Jdd6DXiwCWFclRH--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
