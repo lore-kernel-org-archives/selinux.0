@@ -1,90 +1,65 @@
-Subject: Re: [RFC][PATCH] collect security labels on user processes
-	generating audit messages
-From: "Timothy R. Chavez" <tinytim@us.ibm.com>
-To: James Morris <jmorris@redhat.com>
-Cc: selinux@tycho.nsa.gov, Linux Audit Discussion <linux-audit@redhat.com>,
-   James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
-References: 
-	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
-Content-Type: text/plain
-Date: Thu, 09 Feb 2006 10:13:56 -0600
-Message-Id: <1139501636.10222.11.camel@localhost>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k19H3xXf026242
+	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 12:03:59 -0500 (EST)
+Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k19H2H7q000434
+	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 17:02:18 GMT
+Date: Thu, 9 Feb 2006 12:03:10 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+To: "Timothy R. Chavez" <tinytim@us.ibm.com>
+cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
+   Linux Audit Discussion <linux-audit@redhat.com>,
+   Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC][PATCH] collect security labels on user processes generating
+ audit messages
+In-Reply-To: <1139501636.10222.11.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0602091155340.780@excalibur.intercode>
+References: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+ <1139501636.10222.11.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi James,
+On Thu, 9 Feb 2006, Timothy R. Chavez wrote:
 
-Thank you for the response (and putting Stephen on the CC list,
-evolution flubbered my original CC list, hrm).  My response below.
-
-On Thu, 2006-02-09 at 09:58 -0500, James Morris wrote:
-> On Wed, 8 Feb 2006, Timothy R. Chavez wrote:
+> > Please look at the way I intend to export SELinux APIs in:
+> > http://people.redhat.com/jmorris/selinux/skfilter/kernel/12-skfilter-selinux-exports.patch
 > 
-> > 1) A new SELinux interface was introduced to give other parts of the
-> > kernel the ability to resolve 'sids' into security labels.  
-> 
-> Please look at the way I intend to export SELinux APIs in:
-> http://people.redhat.com/jmorris/selinux/skfilter/kernel/12-skfilter-selinux-exports.patch
+> This looks good.  Do you have a schedule for releasing this?
 
-This looks good.  Do you have a schedule for releasing this?  I could
-probably wait until it becomes available in -mm before changing out the
-API plumbing.
+No, it's blocked on some core netfilter changes.  I suggest following its 
+format, though, if needed.
 
+> > I wonder if it might be better to use the security context directly.
+> >
 > 
-> > +++ b/include/linux/netlink.h
-> > @@ -143,6 +143,7 @@ struct netlink_skb_parms
-> >  	__u32			dst_group;
-> >  	kernel_cap_t		eff_cap;
-> >  	__u32			loginuid;	/* Login (audit) uid */
-> > +	__u32			secid;		/* SELinux security id */
-> >  };
-> 
-> You also need to verify the policy serial number.
+> I think it'd be the simplest solution, but I was a bit weary about
+> adding a string param... I thought using an integer might be the path of
+> least resistance :)
 
-Ah, thanks.
+As previousl mentioned, also consider adding a security blob to the 
+netlink params.
 
+> > security_task_getsid() doesn't exist.
+> > 
+> > You created security_task_getsecurity(), which retrieves the security
+> > context.
 > 
-> I wonder if it might be better to use the security context directly.
->
+> Actually, security_task_getsid() does exist (or did exist last time I
+> updated the viro/audit-2.6 git tree).
+> 
+> http://www.promethos.org/lxr/http/ident?i=security_task_getsid
 
-I think it'd be the simplest solution, but I was a bit weary about
-adding a string param... I thought using an integer might be the path of
-least resistance :)
+Oh, ok.
 
-> 
-> > @@ -460,11 +464,26 @@ static int audit_receive_msg(struct sk_b
-> >  			err = 0;
-> >  			ab = audit_log_start(NULL, GFP_KERNEL, msg_type);
-> >  			if (ab) {
-> > +				len = selinux_sid_to_context(sid, NULL, 0);
-> 
-> This is embedding SELinux specific code into the audit code.  I think you 
-> need to add some audit/SELinux glue code which disappears if SELinux is 
-> not enabled.
-> 
-> > +	NETLINK_CB(skb).secid = security_task_getsid(current);
-> 
-> security_task_getsid() doesn't exist.
-> 
-> You created security_task_getsecurity(), which retrieves the security
-> context.
-> 
-> 
-> 
-> - James
-
-Actually, security_task_getsid() does exist (or did exist last time I
-updated the viro/audit-2.6 git tree).
-
-http://www.promethos.org/lxr/http/ident?i=security_task_getsid
+Where is security_task_getsecurity() used, then?
 
 
-Thanks again for the feedback James.
-
--tim
-
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
