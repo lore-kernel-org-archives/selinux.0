@@ -1,40 +1,28 @@
-Subject: Re: [PATCH] Add version option to newrole
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Glauber de Oliveira Costa <glommer@br.ibm.com>
-Cc: Selinux@tycho.nsa.gov, Steve G <linux_4ever@yahoo.com>
-In-Reply-To: <1139515788.3452.37.camel@moss-spartans.epoch.ncsc.mil>
-References: <200602081445.14747.glommer@br.ibm.com>
-	 <1139515788.3452.37.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 09 Feb 2006 15:12:54 -0500
-Message-Id: <1139515974.3452.41.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k19KCbXf029377
+	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 15:12:37 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k19KBI7q029227
+	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 20:11:18 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id k19KCaCY014059
+	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 15:12:36 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id k19KCZ131131
+	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 15:12:35 -0500
+Message-ID: <43EBA24D.9000503@redhat.com>
+Date: Thu, 09 Feb 2006 15:13:01 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>,
+   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   redhat-lspp <redhat-lspp@redhat.com>
+Subject: My thoughts on SELinux and AppArmor
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-02-09 at 15:09 -0500, Stephen Smalley wrote:
-> At present, your patch causes newrole to display the version number of
-> the entire collection (policycoreutils), not an individual version tied
-> to the newrole program itself.  Thus, I think it should display the
-> PACKAGE string as well (already defined) as part of the message, e.g.:
-> 	printf("%s:  %s version %s\n", argv[0], PACKAGE, VERSION);
-> yielding output like:
-> 	newrole:  policycoreutils version 1.29.20
-> 
-> Otherwise, the patch seems sane and suitable for the other utilities as
-> well.  A few of the utilities appear to have their own version string at
-> present, but I think you can just drop that as no one is maintaining
-> that - only the top-level VERSION for the entire collection is
-> meaningful.
-
-Also, using -v is ambiguous, as it often means to run a program under a
-verbose mode (extra output), and several utilities are using -v in that
-way, so use -V and/or --version instead.
-
--- 
-Stephen Smalley
-National Security Agency
-
+http://danwalsh.livejournal.com/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
