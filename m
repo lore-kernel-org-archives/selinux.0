@@ -1,49 +1,49 @@
 Subject: Re: [RFC][PATCH] collect security labels on user processes
 	generating audit messages
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Timothy R. Chavez" <tinytim@us.ibm.com>
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: James Morris <jmorris@namei.org>
 Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
    Linux Audit Discussion <linux-audit@redhat.com>,
-   James Morris <jmorris@namei.org>
-In-Reply-To: <1139501636.10222.11.camel@localhost>
+   Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <Pine.LNX.4.64.0602091155340.780@excalibur.intercode>
 References: 
 	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
 	 <1139501636.10222.11.camel@localhost>
+	 <Pine.LNX.4.64.0602091155340.780@excalibur.intercode>
 Content-Type: text/plain
-Date: Thu, 09 Feb 2006 12:29:46 -0500
-Message-Id: <1139506186.2872.211.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 09 Feb 2006 11:39:47 -0600
+Message-Id: <1139506788.10222.29.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-02-09 at 10:13 -0600, Timothy R. Chavez wrote:
-> > You also need to verify the policy serial number.
+On Thu, 2006-02-09 at 12:03 -0500, James Morris wrote:
+<snip>
+> > > security_task_getsid() doesn't exist.
+> > > 
+> > > You created security_task_getsecurity(), which retrieves the security
+> > > context.
+> > 
+> > Actually, security_task_getsid() does exist (or did exist last time I
+> > updated the viro/audit-2.6 git tree).
+> > 
+> > http://www.promethos.org/lxr/http/ident?i=security_task_getsid
 > 
-> Ah, thanks.
+> Oh, ok.
+> 
+> Where is security_task_getsecurity() used, then?
+> 
+> 
+> - James
 
-Not clear actually - the context structs and integer index values for
-the components need to be tagged with a policy serial number if exported
-outside of the security server, but the SID itself remains stable across
-policy reloads; only the context struct contents are remapped.  If
-invalidated, subsequent lookup of the SID will be remapped to the
-unlabeled SID's context.
+Hm... :) I made it at first because I was just going to extract the
+context directly and store it with the skb_params, but then decided to
+go the 'sid' route.  I left it in to expand the LSM API a little, but if
+it's not being used currently, it probably shouldn't be included, eh?
 
-> I think it'd be the simplest solution, but I was a bit weary about
-> adding a string param... I thought using an integer might be the path of
-> least resistance :)
+Thanks.
 
-Yes, a SID makes sense here and avoids the allocation/lifecycle pain of
-strings or generic security blobs.
-
-> Actually, security_task_getsid() does exist (or did exist last time I
-> updated the viro/audit-2.6 git tree).
-
-It doesn't do what you think it does.   Look at the inline documentation
-for it in security.h.
-
--- 
-Stephen Smalley
-National Security Agency
+-tim
 
 
 --
