@@ -1,52 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k19JgcXf028837
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 14:42:39 -0500 (EST)
-Received: from e6.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k19JgZL4026125
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 19:42:35 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e6.ny.us.ibm.com (8.12.11/8.12.11) with ESMTP id k19Jgbl8015237
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 14:42:37 -0500
-Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
-	by d01relay02.pok.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k19JgbN6205678
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 14:42:37 -0500
-Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
-	by d01av02.pok.ibm.com (8.12.11/8.13.3) with ESMTP id k19JgbOa013110
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 14:42:37 -0500
-Received: from sergelap.hallyn.com (sig-9-76-3-182.mts.ibm.com [9.76.3.182])
-	by d01av02.pok.ibm.com (8.12.11/8.12.11) with ESMTP id k19Jgasl013097
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 14:42:37 -0500
-Date: Thu, 9 Feb 2006 13:42:36 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: seref: trivial patch:
-Message-ID: <20060209194236.GF10534@sergelap.austin.ibm.com>
+Subject: Re: [PATCH] Add version option to newrole
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Glauber de Oliveira Costa <glommer@br.ibm.com>
+Cc: Selinux@tycho.nsa.gov, Steve G <linux_4ever@yahoo.com>
+In-Reply-To: <200602081445.14747.glommer@br.ibm.com>
+References: <200602081445.14747.glommer@br.ibm.com>
+Content-Type: text/plain
+Date: Thu, 09 Feb 2006 15:09:48 -0500
+Message-Id: <1139515788.3452.37.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix compilation failure for cron with apache=off.
+On Wed, 2006-02-08 at 14:45 -0200, Glauber de Oliveira Costa wrote:
+> Here's a new version that incorporates your suggestions. I moved the constant 
+> definition to the makefile, and also, I'm gathering the data from the version 
+> file. Also, Steve, I would like to hear from you why do you think the -v 
+> option is not that descriptive.
+> 
+> If you guys accept this patch, my obvious next step would be adding it to the 
+> manpage. 
 
-Now maybe cron as a policy module doesn't make sense anyway...  but
-I'd say the below was wrong regardless.
+At present, your patch causes newrole to display the version number of
+the entire collection (policycoreutils), not an individual version tied
+to the newrole program itself.  Thus, I think it should display the
+PACKAGE string as well (already defined) as part of the message, e.g.:
+	printf("%s:  %s version %s\n", argv[0], PACKAGE, VERSION);
+yielding output like:
+	newrole:  policycoreutils version 1.29.20
 
-thanks,
--serge
+Otherwise, the patch seems sane and suitable for the other utilities as
+well.  A few of the utilities appear to have their own version string at
+present, but I think you can just drop that as no one is maintaining
+that - only the top-level VERSION for the entire collection is
+meaningful.
 
-Index: refpolicy/policy/modules/services/cron.te
-===================================================================
---- refpolicy.orig/policy/modules/services/cron.te
-+++ refpolicy/policy/modules/services/cron.te
-@@ -208,7 +208,7 @@ ifdef(`TODO',`
- # crond tries to search /root.  Not sure why.
- allow crond_t sysadm_home_dir_t:dir r_dir_perms;
- 
--ifdef(`apache.te',`
-+optional_policy(`apache',`
- allow system_crond_t httpd_modules_t:lnk_file read;
- # Needed for certwatch
- can_exec(system_crond_t, httpd_modules_t)
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
