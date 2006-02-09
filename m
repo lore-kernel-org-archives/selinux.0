@@ -1,65 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k19H3xXf026242
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 12:03:59 -0500 (EST)
-Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k19H2H7q000434
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 17:02:18 GMT
-Date: Thu, 9 Feb 2006 12:03:10 -0500 (EST)
-From: James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH] collect security labels on user processes
+	generating audit messages
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Timothy R. Chavez" <tinytim@us.ibm.com>
-cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
+Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
    Linux Audit Discussion <linux-audit@redhat.com>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC][PATCH] collect security labels on user processes generating
- audit messages
+   James Morris <jmorris@namei.org>
 In-Reply-To: <1139501636.10222.11.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0602091155340.780@excalibur.intercode>
-References: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
- <1139501636.10222.11.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: 
+	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+	 <1139501636.10222.11.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 09 Feb 2006 12:29:46 -0500
+Message-Id: <1139506186.2872.211.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 9 Feb 2006, Timothy R. Chavez wrote:
-
-> > Please look at the way I intend to export SELinux APIs in:
-> > http://people.redhat.com/jmorris/selinux/skfilter/kernel/12-skfilter-selinux-exports.patch
+On Thu, 2006-02-09 at 10:13 -0600, Timothy R. Chavez wrote:
+> > You also need to verify the policy serial number.
 > 
-> This looks good.  Do you have a schedule for releasing this?
+> Ah, thanks.
 
-No, it's blocked on some core netfilter changes.  I suggest following its 
-format, though, if needed.
+Not clear actually - the context structs and integer index values for
+the components need to be tagged with a policy serial number if exported
+outside of the security server, but the SID itself remains stable across
+policy reloads; only the context struct contents are remapped.  If
+invalidated, subsequent lookup of the SID will be remapped to the
+unlabeled SID's context.
 
-> > I wonder if it might be better to use the security context directly.
-> >
-> 
 > I think it'd be the simplest solution, but I was a bit weary about
 > adding a string param... I thought using an integer might be the path of
 > least resistance :)
 
-As previousl mentioned, also consider adding a security blob to the 
-netlink params.
+Yes, a SID makes sense here and avoids the allocation/lifecycle pain of
+strings or generic security blobs.
 
-> > security_task_getsid() doesn't exist.
-> > 
-> > You created security_task_getsecurity(), which retrieves the security
-> > context.
-> 
 > Actually, security_task_getsid() does exist (or did exist last time I
 > updated the viro/audit-2.6 git tree).
-> 
-> http://www.promethos.org/lxr/http/ident?i=security_task_getsid
 
-Oh, ok.
+It doesn't do what you think it does.   Look at the inline documentation
+for it in security.h.
 
-Where is security_task_getsecurity() used, then?
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
