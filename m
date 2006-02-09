@@ -1,49 +1,42 @@
 Subject: Re: [RFC][PATCH] collect security labels on user processes
 	generating audit messages
-From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: James Morris <jmorris@namei.org>
-Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-   Linux Audit Discussion <linux-audit@redhat.com>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <Pine.LNX.4.64.0602091155340.780@excalibur.intercode>
+Cc: James Morris <jmorris@redhat.com>,
+   "Timothy R. Chavez" <tinytim@us.ibm.com>, selinux@tycho.nsa.gov,
+   Linux Audit Discussion <linux-audit@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0602091013450.388@excalibur.intercode>
 References: 
 	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
-	 <1139501636.10222.11.camel@localhost>
-	 <Pine.LNX.4.64.0602091155340.780@excalibur.intercode>
+	 <Pine.LNX.4.64.0602091013450.388@excalibur.intercode>
 Content-Type: text/plain
-Date: Thu, 09 Feb 2006 11:39:47 -0600
-Message-Id: <1139506788.10222.29.camel@localhost>
+Date: Thu, 09 Feb 2006 12:43:55 -0500
+Message-Id: <1139507035.2872.214.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-02-09 at 12:03 -0500, James Morris wrote:
-<snip>
-> > > security_task_getsid() doesn't exist.
-> > > 
-> > > You created security_task_getsecurity(), which retrieves the security
-> > > context.
+On Thu, 2006-02-09 at 10:15 -0500, James Morris wrote:
+> On Thu, 9 Feb 2006, James Morris wrote:
+> 
+> > You also need to verify the policy serial number.
 > > 
-> > Actually, security_task_getsid() does exist (or did exist last time I
-> > updated the viro/audit-2.6 git tree).
-> > 
-> > http://www.promethos.org/lxr/http/ident?i=security_task_getsid
+> > I wonder if it might be better to use the security context directly.
 > 
-> Oh, ok.
-> 
-> Where is security_task_getsecurity() used, then?
-> 
-> 
-> - James
+> Also consider adding a security field to netlink messages, to managed by 
+> the LSM.
 
-Hm... :) I made it at first because I was just going to extract the
-context directly and store it with the skb_params, but then decided to
-go the 'sid' route.  I left it in to expand the LSM API a little, but if
-it's not being used currently, it probably shouldn't be included, eh?
+A generic security blob would require full lifecycle maintenance,
+including the old sk hooks that were rejected for 2.5.  I also think it
+is a mistake to generalize the audit system's use of SELinux, as I don't
+think that any other LSM is likely to provide LSPP functionality, so we
+might as well just convert all of these audit-SELinux interfaces into
+direct SELinux calls IMHO.  At least in the long term if not
+immediately.
 
-Thanks.
-
--tim
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
