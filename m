@@ -1,392 +1,134 @@
-Subject: Re: [RFC][PATCH] collect security labels on user processes
-	generating audit messages
-From: "Timothy R. Chavez" <tinytim@us.ibm.com>
-To: James Morris <jmorris@redhat.com>
-Cc: selinux@tycho.nsa.gov, Linux Audit Discussion <linux-audit@redhat.com>,
-   James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
-References: 
-	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
-Content-Type: text/plain
-Date: Thu, 09 Feb 2006 18:14:10 -0600
-Message-Id: <1139530450.12638.7.camel@localhost>
-Mime-Version: 1.0
+Message-ID: <43EBDC77.5000503@cornell.edu>
+Date: Thu, 09 Feb 2006 19:21:11 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: SELinux List <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Semanage/libsemanage seems to be broken.
+References: <43EBCED7.3040305@redhat.com> <43EBD634.1000708@cornell.edu>
+In-Reply-To: <43EBD634.1000708@cornell.edu>
+Content-Type: multipart/mixed;
+ boundary="------------010403070404080404010802"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+This is a multi-part message in MIME format.
+--------------010403070404080404010802
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This is an updated patch to collect the SID of a user process sending
-audit messages while running in its context and then converting it into
-the corresponding security label once the audit message is received in a
-kernel context for logging purposes.
+Ivan Gyurdiev wrote:
+>
+>> # semanage user -a -rSystemLow-SystemHigh -R user_r -R sysadm_r walsh_u
+>> # semaage user -d walsh_u
+> I assume this was misspelled in the email only.
+>> # semanage user -l
+>>                MLS/       MLS/
+>> SELinux User    MCS Level  MCS Range                      SELinux Roles
+>>
+>> lwalsh          None       None
+>> root            s0         SystemLow-SystemHigh           system_r 
+>> sysadm_r user_r
+>> rwalsh          s0         s0                             system_r 
+>> sysadm_r user_r
+>> system_u        s0         SystemLow-SystemHigh           system_r
+>> twalsh          s0         s0                             user_r
+>> user_u          s0         SystemLow-SystemHigh           system_r 
+>> sysadm_r user_r
+>> walsh_u         None       None
+>>
+>>
+>> #semanage user -d walsh_u
+>> /usr/sbin/semanage: SELinux user walsh_u is defined in policy, cannot 
+>> be deleted
+>>
+>> #semanage user -a -rSystemLow-SystemHigh -R user_r -R sysadm_r walsh_u
+>> /usr/sbin/semanage: SELinux user walsh_u is already defined
+> Hmm.... are you shipping the prefix file for genhomedircon yet?
+>
+> This appears to be caused by the users_extra file not getting cleared 
+> on policy rebuild.
+> I used to always clear this file. However, after Joshua's patch to 
+> support the users extra file in the package format, this was changed 
+> to not clear the file. The idea was that on commit(), that file would 
+> get overwritten by the users_extra settings from the policy package.
+>
+> However, I expected this to be a required file. Is this not the case?
+> If the users_extra is not a required section of the module package, 
+> then perhaps we should explicitly clear that file on rebuild.
+> The same argument applies to the seusers file, and the file contexts 
+> file. Are those sections optional?
+The attached patch should fix the problem - it treats seusers and 
+users_extra as optional sections. If they are not present, the 
+corresponding dbase is cleared. File contexts appear to be requred (no 
+len == 0 check).
 
-This patch: 
+--------------010403070404080404010802
+Content-Type: text/x-patch;
+ name="libsemanage.opt_seusers_extra.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libsemanage.opt_seusers_extra.diff"
 
-1) Augments the LSM interface to retrieve a task's SID and scraps the
-incorrect usage of security_task_getsid (Thanks Stephen ;)).
-
-2) Uses a portion of the James Morris' SELinux API to give the ability
-to easily convert a SID into a security label / SELinux context. 
-
-http://people.redhat.com/jmorris/selinux/skfilter/kernel/12-skfilter-selinux-exports.patch
-
-
-Thanks.  Comments and feedback welcome.
-
-diff --git a/include/linux/netlink.h b/include/linux/netlink.h
-index 6a2ccf7..ccd5905 100644
---- a/include/linux/netlink.h
-+++ b/include/linux/netlink.h
-@@ -143,6 +143,7 @@ struct netlink_skb_parms
- 	__u32			dst_group;
- 	kernel_cap_t		eff_cap;
- 	__u32			loginuid;	/* Login (audit) uid */
-+	__u32			secid;		/* SELinux security id */
- };
+diff -Naurp --exclude-from excludes old/libsemanage/src/direct_api.c new/libsemanage/src/direct_api.c
+--- old/libsemanage/src/direct_api.c	2006-02-08 03:20:08.000000000 -0500
++++ new/libsemanage/src/direct_api.c	2006-02-09 19:14:15.000000000 -0500
+@@ -475,7 +475,7 @@ static int semanage_direct_commit(semana
  
- #define NETLINK_CB(skb)		(*(struct netlink_skb_parms*)&((skb)->cb))
-diff --git a/include/linux/security.h b/include/linux/security.h
-index b4fe8aa..bed528c 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -625,6 +625,11 @@ struct swap_info_struct;
-  *	@p contains the task_struct for the task.
-  *	@inode contains the inode structure for the inode.
-  *
-+ * @task_getsecid:
-+ * 	Get the SID (security id) of a task.
-+ *	@tsk contains the task_struct for the task
-+ *	@sid is storage for task SID
-+ *
-  * Security hooks for Netlink messaging.
-  *
-  * @netlink_send:
-@@ -1169,6 +1174,7 @@ struct security_operations {
- 			   unsigned long arg5);
- 	void (*task_reparent_to_init) (struct task_struct * p);
- 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
-+	int (*task_getsecid)(struct task_struct *tsk, __u32 *sid);
+ 		/* ==================== File-backed ================== */
  
- 	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
- 	int (*ipc_getsecurity)(struct kern_ipc_perm *ipcp, void *buffer, size_t size);
-@@ -1817,6 +1823,11 @@ static inline void security_task_to_inod
- 	security_ops->task_to_inode(p, inode);
- }
+-		/* write the linked file contexts template */
++		/* File Contexts */
+ 		if ((ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL)) == NULL ||
+ 		    write_file(sh, ofilename, sepol_module_package_get_file_contexts(base), 
+ 				sepol_module_package_get_file_contexts_len(base)) == -1) {
+@@ -484,29 +484,36 @@ static int semanage_direct_commit(semana
  
-+static inline int security_task_getsecid(struct task_struct *tsk, __u32 *sid)
-+{
-+	return security_ops->task_getsecid(tsk, sid);
-+}
+ 		if (semanage_split_fc(sh)) 
+ 			goto cleanup;
+-	
 +
- static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
- 					   short flag)
- {
-@@ -2457,6 +2468,11 @@ static inline void security_task_reparen
- static inline void security_task_to_inode(struct task_struct *p, struct inode *inode)
- { }
- 
-+static inline int security_task_getsecid(struct task_struct *tsk, __u32 *sid)
-+{
-+	return -EOPNOTSUPP;
-+}
++		pfcontexts->dtable->drop_cache(pfcontexts->dbase);
 +
- static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
- 					   short flag)
- {
-diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-new file mode 100644
-index 0000000..7da2da3
---- /dev/null
-+++ b/include/linux/selinux.h
-@@ -0,0 +1,70 @@
-+/*
-+ * SELinux services exported to the rest of the kernel.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#ifndef _LINUX_SELINUX_H
-+#define _LINUX_SELINUX_H
-+
-+#ifdef CONFIG_SECURITY_SELINUX
-+
-+struct sock;
-+
-+/**
-+ *	selinux_available - check if SELinux is available for use.
-+ *
-+ *	Returns true if configured, enabled, not disabled and policy loaded.
-+ */
-+int selinux_available(void);
-+
-+/**
-+ *	selinux_ctx_to_id - map a security context string to an ID
-+ *	@ctx: the security context string to be mapped
-+ *	@ctxid: ID value returned via this.
-+ *
-+ *	Returns 0 if successful, with the ID stored in ctxid.  A value
-+ *	of zero for the ctxid indicates no ID could be determined (but
-+ *	no error occurred).  Otherwise, this value should only be used
-+ *	opaquely (e.g. compare with value from selinux_sk_ctxid())
-+ */
-+int selinux_ctx_to_id(const char *ctx, u32 *ctxid);
-+
-+/**
-+ *	selinux_id_to_ctx - map a security context ID to a string
-+ *	@ctxid: security context ID to be converted.
-+ *	@ctx: address of context string to be returned
-+ *	@ctxlen: length of returned context string.
-+ *
-+ *	Returns 0 if successful, -errno if not.  On success, the context
-+ *	string will be allocated internally, and the caller must call
-+ *	kfree() on it after use.
-+ */
-+int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen);
-+
-+#else
-+
-+static inline int selinux_available(void)
-+{
-+	return 0;
-+}
-+
-+static inline int selinux_ctx_to_id(const char *ctx, u32 *ctxid)
-+{
-+	*ctxid = 0;
-+	return 0;
-+}
-+
-+static inline int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen)
-+{
-+	return 0;
-+}
-+
-+#endif /* CONFIG_SECURITY_SELINUX */
-+
-+#endif /* _LINUX_SELINUX_H */
-diff --git a/kernel/audit.c b/kernel/audit.c
-index d95efd6..129b3da 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -50,6 +50,7 @@
- #include <linux/kthread.h>
- 
- #include <linux/audit.h>
-+#include <linux/selinux.h>
- 
- #include <net/sock.h>
- #include <linux/skbuff.h>
-@@ -383,7 +384,7 @@ static int audit_netlink_ok(kernel_cap_t
- 
- static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
- {
--	u32			uid, pid, seq;
-+	u32			uid, pid, sid, seq;
- 	void			*data;
- 	struct audit_status	*status_get, status_set;
- 	int			err;
-@@ -391,6 +392,8 @@ static int audit_receive_msg(struct sk_b
- 	u16			msg_type = nlh->nlmsg_type;
- 	uid_t			loginuid; /* loginuid of sender */
- 	struct audit_sig_info   sig_data;
-+	char *			ctx = NULL;
-+	u32			len;
- 
- 	err = audit_netlink_ok(NETLINK_CB(skb).eff_cap, msg_type);
- 	if (err)
-@@ -409,6 +412,7 @@ static int audit_receive_msg(struct sk_b
- 	pid  = NETLINK_CREDS(skb)->pid;
- 	uid  = NETLINK_CREDS(skb)->uid;
- 	loginuid = NETLINK_CB(skb).loginuid;
-+	sid = NETLINK_CB(skb).secid;
- 	seq  = nlh->nlmsg_seq;
- 	data = NLMSG_DATA(nlh);
- 
-@@ -460,11 +464,17 @@ static int audit_receive_msg(struct sk_b
- 			err = 0;
- 			ab = audit_log_start(NULL, GFP_KERNEL, msg_type);
- 			if (ab) {
-+				if (selinux_available()) {
-+					err = selinux_id_to_ctx(sid, &ctx, &len);
-+					if (err < 0)
-+						return err;
-+				}
- 				audit_log_format(ab,
--						 "user pid=%d uid=%u auid=%u msg='%.1024s'",
--						 pid, uid, loginuid, (char *)data);
-+						 "user pid=%d uid=%u auid=%u subj=%s msg='%.1024s'",
-+						 pid, uid, loginuid, ctx ? ctx : "null", (char *)data);
- 				audit_set_pid(ab, pid);
- 				audit_log_end(ab);
-+				kfree(ctx);
++		/* Seusers */
+ 		if (sepol_module_package_get_seusers_len(base)) {
+ 			if ((ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS)) == NULL ||
+ 			    write_file(sh, ofilename, sepol_module_package_get_seusers(base), 
+ 					sepol_module_package_get_seusers_len(base)) == -1) {
+ 				goto cleanup;
  			}
++			pseusers->dtable->drop_cache(pseusers->dbase);
++
++		} else {
++			if (pseusers->dtable->clear(sh, pseusers->dbase) < 0)
++				goto cleanup;
  		}
- 		break;
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 96020d7..8b9eff4 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1120,6 +1120,9 @@ static int netlink_sendmsg(struct kiocb 
- 	NETLINK_CB(skb).dst_pid = dst_pid;
- 	NETLINK_CB(skb).dst_group = dst_group;
- 	NETLINK_CB(skb).loginuid = audit_get_loginuid(current->audit_context);
-+	err = security_task_getsecid(current, &NETLINK_CB(skb).secid);
-+	if (err < 0 && err != -EOPNOTSUPP)
-+		goto out;
- 	memcpy(NETLINK_CREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
  
- 	/* What can I do? Netlink is asynchronous, so that
-diff --git a/security/dummy.c b/security/dummy.c
-index 75e7c4a..ef32c87 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -557,6 +557,11 @@ static void dummy_task_reparent_to_init 
- static void dummy_task_to_inode(struct task_struct *p, struct inode *inode)
- { }
++		/* Users_extra */
+ 		if (sepol_module_package_get_user_extra_len(base)) {
+ 			if ((ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_USER_EXTRA)) == NULL ||
+ 			    write_file(sh, ofilename, sepol_module_package_get_user_extra(base), 
+ 					sepol_module_package_get_user_extra_len(base)) == -1) {
+ 				goto cleanup;
+ 			}
+-		}
++			pusers_extra->dtable->drop_cache(pusers_extra->dbase);
  
-+static int dummy_task_getsecid(struct task_struct *tsk, __u32 *sid)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static int dummy_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
- {
- 	return 0;
-@@ -934,6 +939,7 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, task_prctl);
- 	set_to_dummy_if_null(ops, task_reparent_to_init);
-  	set_to_dummy_if_null(ops, task_to_inode);
-+	set_to_dummy_if_null(ops, task_getsecid);
- 	set_to_dummy_if_null(ops, ipc_permission);
- 	set_to_dummy_if_null(ops, ipc_getsecurity);
- 	set_to_dummy_if_null(ops, msg_msg_alloc_security);
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index b038cd0..3e3d4eb 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -4,7 +4,7 @@
+-		/* Drop any cached content for file_contexts, seusers, or users_extra,
+-	 	 * since it is now superceded by the files just written, and needs to be
+-		 * re-cached */
+-		pfcontexts->dtable->drop_cache(pfcontexts->dbase);
+-		pseusers->dtable->drop_cache(pseusers->dbase);
+-		pusers_extra->dtable->drop_cache(pusers_extra->dbase);
++		} else {
++			if (pusers_extra->dtable->clear(sh, pusers_extra->dbase) < 0)
++				goto cleanup;
++		}
  
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
+ 		/* ==================== Policydb-backed ================ */
  
--selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o
-+selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o exports.o
- 
- selinux-$(CONFIG_SECURITY_NETWORK) += netif.o
- 
-diff --git a/security/selinux/exports.c b/security/selinux/exports.c
-new file mode 100644
-index 0000000..4dc7405
---- /dev/null
-+++ b/security/selinux/exports.c
-@@ -0,0 +1,38 @@
-+/*
-+ * SELinux services exported to the rest of the kernel.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/selinux.h>
-+
-+#include "security.h"
-+
-+extern int ss_initialized;
-+
-+int selinux_available(void)
-+{
-+	return ss_initialized;
-+}
-+
-+int selinux_ctx_to_id(const char *ctx, u32 *ctxid)
-+{
-+	return security_context_to_sid(ctx, strlen(ctx), ctxid);
-+}
-+
-+int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen)
-+{
-+	return security_sid_to_context(ctxid, ctx, ctxlen);
-+}
-+
-+EXPORT_SYMBOL_GPL(selinux_available);
-+EXPORT_SYMBOL_GPL(selinux_ctx_to_id);
-+EXPORT_SYMBOL_GPL(selinux_id_to_ctx); 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 21c8aa6..ae9b097 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2769,6 +2769,13 @@ static void selinux_task_to_inode(struct
- 	return;
- }
- 
-+static int selinux_task_getsecid(struct task_struct *tsk)
-+{
-+	struct task_security_struct *tsec = tsk->security;
-+	
-+	return tsec->sid;
-+}
-+
- #ifdef CONFIG_SECURITY_NETWORK
- 
- /* Returns error only if unable to parse addresses */
-@@ -4319,6 +4326,7 @@ static struct security_operations selinu
- 	.task_prctl =			selinux_task_prctl,
- 	.task_reparent_to_init =	selinux_task_reparent_to_init,
- 	.task_to_inode =                selinux_task_to_inode,
-+	.task_getsecid =		selinux_task_getsecid,
- 
- 	.ipc_permission =		selinux_ipc_permission,
- 	.ipc_getsecurity =		selinux_ipc_getsecurity,
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 5f016c9..a2e5bb0 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -63,7 +63,7 @@ int security_change_sid(u32 ssid, u32 ts
- int security_sid_to_context(u32 sid, char **scontext,
- 	u32 *scontext_len);
- 
--int security_context_to_sid(char *scontext, u32 scontext_len,
-+int security_context_to_sid(const char *scontext, u32 scontext_len,
- 	u32 *out_sid);
- 
- int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *out_sid, u32 def_sid);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 2311255..c66f765 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -617,7 +617,7 @@ out:
- 
- }
- 
--static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
-+static int security_context_to_sid_core(const char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
- {
- 	char *scontext2;
- 	struct context context;
-@@ -743,7 +743,7 @@ out:
-  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
-  * memory is available, or 0 on success.
-  */
--int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
-+int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
- {
- 	return security_context_to_sid_core(scontext, scontext_len,
- 	                                    sid, SECSID_NULL);
 
-
-
+--------------010403070404080404010802--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
