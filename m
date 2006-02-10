@@ -1,194 +1,94 @@
-Message-ID: <43ED0594.6010605@tresys.com>
-Date: Fri, 10 Feb 2006 16:28:52 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <43ED0824.4020104@cornell.edu>
+Date: Fri, 10 Feb 2006 16:39:48 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] optionals in base
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+Subject: [SEMANAGE] Fix parse_optional_ch
 Content-Type: multipart/mixed;
- boundary="------------020606050504020502010807"
+ boundary="------------030106080701030608000208"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------020606050504020502010807
+--------------030106080701030608000208
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This patch adds support for optionals in base policy. This is necessary 
-because currently optional policy in base is handled with m4 ifdefs 
-which make the rules disappear if the corresponding module isn't 
-present. This means that if the module is inserted at a later time the 
-rules will not be enabled.
+ > Method ivg2: it appears that an seuser with no mls field causes a 
+segfault
+ > ivg2 how so?
+ > ivg2 trace?
+ > ivg2 should not happen
+ > Method #0  0x00379ad9 in parse_skip_space (handle=0x99336c0, 
+info=0xa0526b0) at parse_utils.c:96
+ > Method #1  0x00380abd in seuser_parse (handle=0x99336c0, 
+info=0xa0526b0, seuser=0xa052638) at seusers_file.c:84
+ > Method #2  0x00371d22 in dbase_file_cache (handle=0x99336c0, 
+dbase=0x9938198) at database_file.c:101
+ > Method #3  0x0037aa6e in semanage_base_merge_components 
+(handle=0x99336c0) at policy_components.c:164
+ > Method #4  0x00375df9 in semanage_direct_commit (sh=0x99336c0) at 
+direct_api.c:512
+ > Method #5  0x00378424 in semanage_commit (sh=0x99336c0) at handle.c:227
+ > Method #6  0x08049b13 in main (argc=6, argv=0xbff199d4) at semodule.c:361
 
-Since we didn't want to diverge the base policy and monolithic policy 
-grammar monolithic policies also support optionals.
+Joshua please try to reproduce with the following patch applied.
+Changelog:
+- handle NULL as no match in parse_optional_ch
+- do not advance a NULL pointer in parse_optional_ch - that breaks NULL 
+check later
+- remove NULL check in parse_optional_str - doesn't seem necessary.
 
-The link step resolves all optional dependancies and therefore all base 
-modules (including ones which are being written to a kernel policy) must 
-call link prior to calling expand. This was added to checkpolicy and to 
-semodule_expand, as well as removing a check for 0 modules in 
-semanage_store.c
 
---------------020606050504020502010807
+
+--------------030106080701030608000208
 Content-Type: text/x-patch;
- name="1-optional-in-base.diff"
+ name="libsemanage.parse_optional_fix.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="1-optional-in-base.diff"
+ filename="libsemanage.parse_optional_fix.diff"
 
-diff -pruN -x .svn checkpolicy/checkpolicy.c checkpolicy/checkpolicy.c
---- checkpolicy/checkpolicy.c	2005-12-08 10:42:22.000000000 -0500
-+++ checkpolicy/checkpolicy.c	2006-02-10 11:35:13.000000000 -0500
-@@ -76,6 +76,7 @@
- #include <sepol/policydb/hierarchy.h>
- #include <sepol/policydb/flask.h>
- #include <sepol/policydb/expand.h>
-+#include <sepol/policydb/link.h>
- 
- #include "queue.h"
- #include "checkpolicy.h"
-@@ -530,6 +531,12 @@ int main(int argc, char **argv)
- 			exit(1);
- 		}
- 
-+		/* Linking takes care of optional avrule blocks */
-+        	if (link_modules(NULL, &parse_policy, NULL, 0, 0)) {
-+			fprintf(stderr, "Error while resolving optionals\n");
-+			exit(1);
-+		}
-+
- 		if (expand_module(NULL, &parse_policy, &policydb, 0, 1)) {
-                         fprintf(stderr, "Error while expanding policy\n");
- 			exit(1);
-diff -pruN -x .svn checkpolicy/module_compiler.c checkpolicy/module_compiler.c
---- checkpolicy/module_compiler.c	2005-12-08 10:42:22.000000000 -0500
-+++ checkpolicy/module_compiler.c	2006-02-10 15:05:13.000000000 -0500
-@@ -75,9 +75,6 @@ int define_policy(int pass, int module_h
-                                 return -1;
-                         }
-                 }
--                /* the first declaration within the global avrule
--                   block will always have an id of 1 */
--                next_decl_id = 2;
-         }
-         else {
-                 if (policydbp->policy_type == POLICY_MOD) {
-@@ -85,6 +82,9 @@ int define_policy(int pass, int module_h
-                         return -1;
-                 }
-         }
-+	/* the first declaration within the global avrule
-+	  block will always have an id of 1 */
-+	next_decl_id = 2;
- 
-         /* reset the scoping stack */
-         while (stack_top != NULL) {
-@@ -462,9 +462,7 @@ type_datum_t *get_local_type(char *id, u
-  * have its own requirements.
-  */
- static int is_require_allowed(void) {
--        if (policydbp->policy_type == POLICY_MOD &&
--	    stack_top->type == 1 &&
--            !stack_top->in_else) {
-+        if (stack_top->type == 1 && !stack_top->in_else) {
-                 return 1;
-         }
-         return 0;
-@@ -1184,9 +1182,14 @@ int end_avrule_block(int pass) {
-                 return 0;
-         }
-         if (!stack_top->in_else && !stack_top->require_given) {
--                /* non-ELSE branches must have at least one thing required */
--                yyerror("This block has no require section.");
--                return -1;
-+		if (policydbp->policy_type == POLICY_BASE && stack_top->parent != NULL) {
-+			/* if this is base no require should be in the global block */
-+			return 0;
-+		} else {
-+	                /* non-ELSE branches must have at least one thing required */
-+        	        yyerror("This block has no require section.");
-+                	return -1;
-+		}
-         }
-         return 0;
+diff -Naurp --exclude-from excludes old/libsemanage/src/parse_utils.c new/libsemanage/src/parse_utils.c
+--- old/libsemanage/src/parse_utils.c	2006-01-05 12:49:15.000000000 -0500
++++ new/libsemanage/src/parse_utils.c	2006-02-10 16:33:29.000000000 -0500
+@@ -217,23 +217,24 @@ int parse_assert_str(
  }
-diff -pruN -x .svn checkpolicy/policy_parse.y checkpolicy/policy_parse.y
---- checkpolicy/policy_parse.y	2006-02-01 08:37:57.000000000 -0500
-+++ checkpolicy/policy_parse.y	2006-02-10 15:05:29.000000000 -0500
-@@ -305,6 +305,7 @@ te_rbac			: te_rbac_decl
- te_rbac_decl		: te_decl
- 			| rbac_decl
-                         | cond_stmt_def
-+			| optional_block
- 			| ';'
-                         ;
- rbac_decl		: role_type_def
-diff -pruN -x .svn libsemanage/src/semanage_store.c libsemanage/src/semanage_store.c
---- libsemanage/src/semanage_store.c	2006-02-10 13:41:04.000000000 -0500
-+++ libsemanage/src/semanage_store.c	2006-02-10 14:18:39.000000000 -0500
-@@ -1371,11 +1371,6 @@ int semanage_link_sandbox(semanage_handl
- 	    semanage_load_module(sh, base_filename, base) == -1) {
- 		goto cleanup;
- 	}
--	if (num_modules == 0) {
--		/* no modules, so skip over the rest of this function */
--		retval = 0;
--		goto cleanup;
+ 
+ int parse_optional_ch(parse_info_t* info, const char ch) {
+-	if (info->ptr && (*(info->ptr) != ch))
++
++	if (!info->ptr)
+ 		return STATUS_NODATA;
+-	else {
+-		info->ptr++;
+-		return STATUS_SUCCESS;
 -	}
- 	if ((mods = calloc(num_modules, sizeof(*mods))) == NULL) {
- 		ERR(sh, "Out of memory!");
- 		num_modules  = 0;
-diff -pruN -x .svn libsepol/src/expand.c libsepol/src/expand.c
---- libsepol/src/expand.c	2006-01-06 10:02:02.000000000 -0500
-+++ libsepol/src/expand.c	2006-02-10 16:00:51.000000000 -0500
-@@ -1700,7 +1700,9 @@ err:
- 	return -1;
++	if (*(info->ptr) != ch)
++		return STATUS_NODATA;
++		
++	info->ptr++;
++	return STATUS_SUCCESS;
  }
  
--
-+/* Linking should always be done before calling expand, even if
-+ * there is only a base since all optionals are dealt with at link time
-+ */
- int expand_module(sepol_handle_t *handle,
- 		  policydb_t *base, policydb_t *out,
- 		  int verbose, int check)
-diff -pruN -x .svn policycoreutils/semodule_expand/semodule_expand.c policycoreutils/semodule_expand/semodule_expand.c
---- policycoreutils/semodule_expand/semodule_expand.c	2006-02-06 17:23:54.000000000 -0500
-+++ policycoreutils/semodule_expand/semodule_expand.c	2006-02-10 16:08:55.000000000 -0500
-@@ -40,7 +40,7 @@ int main(int argc, char **argv)
- 	int ch, ret, show_version = 0, verbose = 0;
- 	struct sepol_policy_file *pf;
- 	sepol_module_package_t *base;
--	sepol_policydb_t *out;
-+	sepol_policydb_t *out, *p;
- 	FILE *fp, *outfile;
+ int parse_optional_str(parse_info_t* info, const char* str) {
+ 	size_t len = strlen(str);
  
- 	while ((ch = getopt(argc, argv, "c:Vv")) != EOF) {
-@@ -115,6 +115,13 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 	fclose(fp);
+-	if (info->ptr && strncmp(info->ptr, str, len))
++	if (strncmp(info->ptr, str, len))
+ 		return STATUS_NODATA;
+-	else {
+-		info->ptr += len;
+-		return STATUS_SUCCESS;
+-	}
 +
-+	/* linking the base takes care of enabling optional avrules */
-+	p = sepol_module_package_get_policy(base);
-+	if (sepol_link_modules(NULL, p, NULL, 0, 0)) {
-+		fprintf(stderr, "%s:  Error while enabling avrules\n", argv[0]);
-+		exit(1);
-+	}
- 	
- 	/* create the output policy */
++	info->ptr += len;
++	return STATUS_SUCCESS;
+ }
  
-@@ -123,7 +130,7 @@ int main(int argc, char **argv)
-                 exit(1);
-         }
- 
--        if (sepol_expand_module(NULL, sepol_module_package_get_policy(base), out, verbose, 1)) {
-+        if (sepol_expand_module(NULL, p, out, verbose, 1)) {
-         	fprintf(stderr, "%s:  Error while expanding policy\n", argv[0]);
-         	exit(1);
-         }
+ int parse_fetch_int(
 
---------------020606050504020502010807--
+--------------030106080701030608000208--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
