@@ -1,206 +1,392 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k19KhkXf029720
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 15:43:46 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k19KgR7q003192
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 20:42:27 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id k19Khjsm028078
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 15:43:45 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id k19KhZ111622
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 15:43:35 -0500
-Received: from [172.16.50.2] (vpn50-2.rdu.redhat.com [172.16.50.2])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id k19KhYQo013165
-	for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2006 15:43:34 -0500
-Message-ID: <43EBA990.50900@redhat.com>
-Date: Thu, 09 Feb 2006 15:44:00 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: audit2ref helpful tool for writing some reference policy
-Content-Type: multipart/mixed;
- boundary="------------070107020308080203000804"
+Subject: Re: [RFC][PATCH] collect security labels on user processes
+	generating audit messages
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: James Morris <jmorris@redhat.com>
+Cc: selinux@tycho.nsa.gov, Linux Audit Discussion <linux-audit@redhat.com>,
+   James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+References: 
+	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+Content-Type: text/plain
+Date: Thu, 09 Feb 2006 18:14:10 -0600
+Message-Id: <1139530450.12638.7.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070107020308080203000804
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello,
 
-Little tool to search reference policy to match audit2allow rule
+This is an updated patch to collect the SID of a user process sending
+audit messages while running in its context and then converting it into
+the corresponding security label once the audit message is received in a
+kernel context for logging purposes.
 
-Reads stdin and attempts to find matches in reference policy for allow 
-rules.
+This patch: 
 
-audit2allow -i /var/log/audit/audit.log | python audit2ref
+1) Augments the LSM interface to retrieve a task's SID and scraps the
+incorrect usage of security_task_getsid (Thanks Stephen ;)).
 
-Problem right now is it comes up with two many matches, sometimes misses 
-altogether.
+2) Uses a portion of the James Morris' SELinux API to give the ability
+to easily convert a SID into a security label / SELinux context. 
 
-Useful experiment with Awk and regular expressions.
-
- echo "allow abx_t httpd_log_t:file read;" | python audit2ref
-# Replace next allow rule with one of the following
-# allow abx_t httpd_log_t:file read
-
-gen_require(`apache', `
-        apache_read_log(abx_t)
-')
-
-echo "allow abx_t var_log_t:file read;" | python audit2ref
-# Replace next allow rule with one of the following
-# allow abx_t var_log_t:file read
-
-gen_require(`logging', `
-        logging_read_generic_logs(abx_t)
-        logging_write_generic_logs(abx_t)
-        logging_rw_generic_logs(abx_t)
-        logging_manage_generic_logs(abx_t)
-')
-
- echo "allow abx_t avahi_exec_t:file execute;" | python audit2ref
-allow abx_t avahi_exec_t:file execute
+http://people.redhat.com/jmorris/selinux/skfilter/kernel/12-skfilter-selinux-exports.patch
 
 
---------------070107020308080203000804
-Content-Type: text/plain;
- name="audit2ref"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audit2ref"
+Thanks.  Comments and feedback welcome.
 
-import sys, commands, os, re
+diff --git a/include/linux/netlink.h b/include/linux/netlink.h
+index 6a2ccf7..ccd5905 100644
+--- a/include/linux/netlink.h
++++ b/include/linux/netlink.h
+@@ -143,6 +143,7 @@ struct netlink_skb_parms
+ 	__u32			dst_group;
+ 	kernel_cap_t		eff_cap;
+ 	__u32			loginuid;	/* Login (audit) uid */
++	__u32			secid;		/* SELinux security id */
+ };
+ 
+ #define NETLINK_CB(skb)		(*(struct netlink_skb_parms*)&((skb)->cb))
+diff --git a/include/linux/security.h b/include/linux/security.h
+index b4fe8aa..bed528c 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -625,6 +625,11 @@ struct swap_info_struct;
+  *	@p contains the task_struct for the task.
+  *	@inode contains the inode structure for the inode.
+  *
++ * @task_getsecid:
++ * 	Get the SID (security id) of a task.
++ *	@tsk contains the task_struct for the task
++ *	@sid is storage for task SID
++ *
+  * Security hooks for Netlink messaging.
+  *
+  * @netlink_send:
+@@ -1169,6 +1174,7 @@ struct security_operations {
+ 			   unsigned long arg5);
+ 	void (*task_reparent_to_init) (struct task_struct * p);
+ 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
++	int (*task_getsecid)(struct task_struct *tsk, __u32 *sid);
+ 
+ 	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
+ 	int (*ipc_getsecurity)(struct kern_ipc_perm *ipcp, void *buffer, size_t size);
+@@ -1817,6 +1823,11 @@ static inline void security_task_to_inod
+ 	security_ops->task_to_inode(p, inode);
+ }
+ 
++static inline int security_task_getsecid(struct task_struct *tsk, __u32 *sid)
++{
++	return security_ops->task_getsecid(tsk, sid);
++}
++
+ static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
+ 					   short flag)
+ {
+@@ -2457,6 +2468,11 @@ static inline void security_task_reparen
+ static inline void security_task_to_inode(struct task_struct *p, struct inode *inode)
+ { }
+ 
++static inline int security_task_getsecid(struct task_struct *tsk, __u32 *sid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline int security_ipc_permission (struct kern_ipc_perm *ipcp,
+ 					   short flag)
+ {
+diff --git a/include/linux/selinux.h b/include/linux/selinux.h
+new file mode 100644
+index 0000000..7da2da3
+--- /dev/null
++++ b/include/linux/selinux.h
+@@ -0,0 +1,70 @@
++/*
++ * SELinux services exported to the rest of the kernel.
++ *
++ * Author: James Morris <jmorris@redhat.com>
++ *
++ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2,
++ * as published by the Free Software Foundation.
++ */
++#ifndef _LINUX_SELINUX_H
++#define _LINUX_SELINUX_H
++
++#ifdef CONFIG_SECURITY_SELINUX
++
++struct sock;
++
++/**
++ *	selinux_available - check if SELinux is available for use.
++ *
++ *	Returns true if configured, enabled, not disabled and policy loaded.
++ */
++int selinux_available(void);
++
++/**
++ *	selinux_ctx_to_id - map a security context string to an ID
++ *	@ctx: the security context string to be mapped
++ *	@ctxid: ID value returned via this.
++ *
++ *	Returns 0 if successful, with the ID stored in ctxid.  A value
++ *	of zero for the ctxid indicates no ID could be determined (but
++ *	no error occurred).  Otherwise, this value should only be used
++ *	opaquely (e.g. compare with value from selinux_sk_ctxid())
++ */
++int selinux_ctx_to_id(const char *ctx, u32 *ctxid);
++
++/**
++ *	selinux_id_to_ctx - map a security context ID to a string
++ *	@ctxid: security context ID to be converted.
++ *	@ctx: address of context string to be returned
++ *	@ctxlen: length of returned context string.
++ *
++ *	Returns 0 if successful, -errno if not.  On success, the context
++ *	string will be allocated internally, and the caller must call
++ *	kfree() on it after use.
++ */
++int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen);
++
++#else
++
++static inline int selinux_available(void)
++{
++	return 0;
++}
++
++static inline int selinux_ctx_to_id(const char *ctx, u32 *ctxid)
++{
++	*ctxid = 0;
++	return 0;
++}
++
++static inline int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen)
++{
++	return 0;
++}
++
++#endif /* CONFIG_SECURITY_SELINUX */
++
++#endif /* _LINUX_SELINUX_H */
+diff --git a/kernel/audit.c b/kernel/audit.c
+index d95efd6..129b3da 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -50,6 +50,7 @@
+ #include <linux/kthread.h>
+ 
+ #include <linux/audit.h>
++#include <linux/selinux.h>
+ 
+ #include <net/sock.h>
+ #include <linux/skbuff.h>
+@@ -383,7 +384,7 @@ static int audit_netlink_ok(kernel_cap_t
+ 
+ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ {
+-	u32			uid, pid, seq;
++	u32			uid, pid, sid, seq;
+ 	void			*data;
+ 	struct audit_status	*status_get, status_set;
+ 	int			err;
+@@ -391,6 +392,8 @@ static int audit_receive_msg(struct sk_b
+ 	u16			msg_type = nlh->nlmsg_type;
+ 	uid_t			loginuid; /* loginuid of sender */
+ 	struct audit_sig_info   sig_data;
++	char *			ctx = NULL;
++	u32			len;
+ 
+ 	err = audit_netlink_ok(NETLINK_CB(skb).eff_cap, msg_type);
+ 	if (err)
+@@ -409,6 +412,7 @@ static int audit_receive_msg(struct sk_b
+ 	pid  = NETLINK_CREDS(skb)->pid;
+ 	uid  = NETLINK_CREDS(skb)->uid;
+ 	loginuid = NETLINK_CB(skb).loginuid;
++	sid = NETLINK_CB(skb).secid;
+ 	seq  = nlh->nlmsg_seq;
+ 	data = NLMSG_DATA(nlh);
+ 
+@@ -460,11 +464,17 @@ static int audit_receive_msg(struct sk_b
+ 			err = 0;
+ 			ab = audit_log_start(NULL, GFP_KERNEL, msg_type);
+ 			if (ab) {
++				if (selinux_available()) {
++					err = selinux_id_to_ctx(sid, &ctx, &len);
++					if (err < 0)
++						return err;
++				}
+ 				audit_log_format(ab,
+-						 "user pid=%d uid=%u auid=%u msg='%.1024s'",
+-						 pid, uid, loginuid, (char *)data);
++						 "user pid=%d uid=%u auid=%u subj=%s msg='%.1024s'",
++						 pid, uid, loginuid, ctx ? ctx : "null", (char *)data);
+ 				audit_set_pid(ab, pid);
+ 				audit_log_end(ab);
++				kfree(ctx);
+ 			}
+ 		}
+ 		break;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 96020d7..8b9eff4 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1120,6 +1120,9 @@ static int netlink_sendmsg(struct kiocb 
+ 	NETLINK_CB(skb).dst_pid = dst_pid;
+ 	NETLINK_CB(skb).dst_group = dst_group;
+ 	NETLINK_CB(skb).loginuid = audit_get_loginuid(current->audit_context);
++	err = security_task_getsecid(current, &NETLINK_CB(skb).secid);
++	if (err < 0 && err != -EOPNOTSUPP)
++		goto out;
+ 	memcpy(NETLINK_CREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
+ 
+ 	/* What can I do? Netlink is asynchronous, so that
+diff --git a/security/dummy.c b/security/dummy.c
+index 75e7c4a..ef32c87 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -557,6 +557,11 @@ static void dummy_task_reparent_to_init 
+ static void dummy_task_to_inode(struct task_struct *p, struct inode *inode)
+ { }
+ 
++static int dummy_task_getsecid(struct task_struct *tsk, __u32 *sid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static int dummy_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
+ {
+ 	return 0;
+@@ -934,6 +939,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, task_prctl);
+ 	set_to_dummy_if_null(ops, task_reparent_to_init);
+  	set_to_dummy_if_null(ops, task_to_inode);
++	set_to_dummy_if_null(ops, task_getsecid);
+ 	set_to_dummy_if_null(ops, ipc_permission);
+ 	set_to_dummy_if_null(ops, ipc_getsecurity);
+ 	set_to_dummy_if_null(ops, msg_msg_alloc_security);
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index b038cd0..3e3d4eb 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -4,7 +4,7 @@
+ 
+ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
+ 
+-selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o
++selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o exports.o
+ 
+ selinux-$(CONFIG_SECURITY_NETWORK) += netif.o
+ 
+diff --git a/security/selinux/exports.c b/security/selinux/exports.c
+new file mode 100644
+index 0000000..4dc7405
+--- /dev/null
++++ b/security/selinux/exports.c
+@@ -0,0 +1,38 @@
++/*
++ * SELinux services exported to the rest of the kernel.
++ *
++ * Author: James Morris <jmorris@redhat.com>
++ *
++ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2,
++ * as published by the Free Software Foundation.
++ */
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/selinux.h>
++
++#include "security.h"
++
++extern int ss_initialized;
++
++int selinux_available(void)
++{
++	return ss_initialized;
++}
++
++int selinux_ctx_to_id(const char *ctx, u32 *ctxid)
++{
++	return security_context_to_sid(ctx, strlen(ctx), ctxid);
++}
++
++int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen)
++{
++	return security_sid_to_context(ctxid, ctx, ctxlen);
++}
++
++EXPORT_SYMBOL_GPL(selinux_available);
++EXPORT_SYMBOL_GPL(selinux_ctx_to_id);
++EXPORT_SYMBOL_GPL(selinux_id_to_ctx); 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 21c8aa6..ae9b097 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2769,6 +2769,13 @@ static void selinux_task_to_inode(struct
+ 	return;
+ }
+ 
++static int selinux_task_getsecid(struct task_struct *tsk)
++{
++	struct task_security_struct *tsec = tsk->security;
++	
++	return tsec->sid;
++}
++
+ #ifdef CONFIG_SECURITY_NETWORK
+ 
+ /* Returns error only if unable to parse addresses */
+@@ -4319,6 +4326,7 @@ static struct security_operations selinu
+ 	.task_prctl =			selinux_task_prctl,
+ 	.task_reparent_to_init =	selinux_task_reparent_to_init,
+ 	.task_to_inode =                selinux_task_to_inode,
++	.task_getsecid =		selinux_task_getsecid,
+ 
+ 	.ipc_permission =		selinux_ipc_permission,
+ 	.ipc_getsecurity =		selinux_ipc_getsecurity,
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 5f016c9..a2e5bb0 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -63,7 +63,7 @@ int security_change_sid(u32 ssid, u32 ts
+ int security_sid_to_context(u32 sid, char **scontext,
+ 	u32 *scontext_len);
+ 
+-int security_context_to_sid(char *scontext, u32 scontext_len,
++int security_context_to_sid(const char *scontext, u32 scontext_len,
+ 	u32 *out_sid);
+ 
+ int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *out_sid, u32 def_sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 2311255..c66f765 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -617,7 +617,7 @@ out:
+ 
+ }
+ 
+-static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
++static int security_context_to_sid_core(const char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
+ {
+ 	char *scontext2;
+ 	struct context context;
+@@ -743,7 +743,7 @@ out:
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+-int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
++int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+ 	                                    sid, SECSID_NULL);
 
-obj="(\{[^\}]*\}|[^ \t:]*)"
-allow_regexp="allow[ \t]+%s[ \t]*%s[ \t]*:[ \t]*%s[ \t]*%s" % (obj, obj, obj, obj)
-
-class accessTrans:
-    def __init__(self):
-        self.dict={}
-        fd=open("/usr/share/selinux/refpolicy/include/obj_perm_sets.spt")
-        records=fd.read().split("\n")
-        regexp="^define *\(`([^']*)' *, *` *\{([^}]*)}'"
-        for r in records:
-            m=re.match(regexp,r)
-            if m!=None:
-                self.dict[m.groups()[0]] = m.groups()[1].split()
-        fd.close()
-    def get(self, var):
-        l=[]
-        for v in var:
-            if v in self.dict.keys():
-                l += self.dict[v]
-            else:
-                if v not in ("{", "}"):
-                    l.append(v)
-        return l
-
-class interfaces:
-    def __init__(self):
-        self.dict={}
-        trans=accessTrans()
-        awk_file="extract-interface.awk"
-        if os.path.exists(awk_file):
-            rc=commands.getstatusoutput("awk -f %s /usr/share/selinux/refpolicy/include/*.if" % awk_file) 
-        else:
-            rc=commands.getstatusoutput("awk -f /usr/share/selinux/refpolicy/%s /usr/share/selinux/refpolicy/include/*.if" % awk_file)
-        if rc[0] == 0:
-            regexp="([^ \t]*)[ \t]+([^ \t]*)[ \t]+%s" % allow_regexp
-            records=rc[1].split("\n")
-            for r in records:
-                m=re.match(regexp,r)
-                if m==None:
-                    continue
-                else:
-                    val=m.groups()
-                file=os.path.basename(val[0]).split(".")[0]
-                iface=val[1]
-                Scon=val[2].split()
-                Tcon=val[3].split()
-                Class=val[4].split()
-                Access=trans.get(val[5].split())
-                for s in Scon:
-                    for t in Tcon:
-                        for c in Class:
-                            if (s, t, c) not in self.dict.keys():
-                                self.dict[(s, t, c)]=[]
-                            self.dict[(s, t, c)].append((Access, file, iface))
-    def out(self):
-        keys=self.dict.keys()
-        keys.sort()
-        for k in keys:
-            print k
-            for i in self.dict[k]:
-                print "\t", i
-                
-    def match(self, Scon, Tcon, Class, Access):
-        keys=self.dict.keys()
-        if (Scon, Tcon, Class) in keys:
-            return self.dict[(Scon, Tcon, Class)]
-        if ("$1", Tcon, Class) in keys:
-            return self.dict[("$1", Tcon, Class)]
-        if (Scon, "$1", Class) in keys:
-            return self.dict[("$1", Tcon, Class)]
-        else:
-            return None
-        
-iface=interfaces()
-dict={}
-dict["__allow_rules__"]=[]
-rec=sys.stdin.readline()
-while len(rec):
-	r=rec.strip(";\n")
-        m=re.match(allow_regexp,r)
-        if m==None:
-            continue
-        else:
-            val=m.groups()
-        Scon=val[0]
-        Tcon=val[1]
-        Class=val[2]
-        Access=val[3]
-        m=iface.match(Scon,Tcon,Class,Access)
-        if m == None:
-            print  r
-        else:
-            file=m[0][1]
-            print"# Replace next allow rule with one of the following\n# %s "% r
-            print "\ngen_require(`%s', `" % m[0][1]
-            for i in m:
-                if file != i[1]:
-                    print "')\ngen_require(`%s', `" % i[1]
-                    file = i[1]
-                print "\t%s(%s)" % (i[2], Scon)
-            print "')"
-
-	rec=sys.stdin.readline()
 
 
---------------070107020308080203000804
-Content-Type: text/plain;
- name="extract-interface.awk"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="extract-interface.awk"
-
-/^[[:blank:]]*interface[[:blank:]]*\(/ {
-        IFACEFILE=FILENAME
-	IFACENAME = gensub("^[[:blank:]]*interface[[:blank:]]*\\(`?","","g",$0);
-	IFACENAME = gensub("'?,.*$","","g",IFACENAME);
-}
-
-/^[[:blank:]]*allow[[:blank:]]+.*;[[:blank:]]*$/ {
-
-  if ((length(IFACENAME) > 0) && (IFACEFILE == FILENAME)){
-		ALLOW = gensub("^[[:blank:]]*","","g",$0)
-		ALLOW = gensub(";[[:blank:]]*$","","g",$0)
-		print FILENAME "\t" IFACENAME "\t" ALLOW;
-	}
-}
-
---------------070107020308080203000804--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
