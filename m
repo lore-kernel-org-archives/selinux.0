@@ -1,37 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1A50FXf003524
-	for <selinux@tycho.nsa.gov>; Fri, 10 Feb 2006 00:00:15 -0500 (EST)
-Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1A50BTR006195
-	for <selinux@tycho.nsa.gov>; Fri, 10 Feb 2006 05:00:12 GMT
-Date: Thu, 9 Feb 2006 23:00:11 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-To: "Timothy R. Chavez" <tinytim@us.ibm.com>
-cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-   Linux Audit Discussion <linux-audit@redhat.com>,
-   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC][PATCH] collect security labels on user processes generating
- audit messages
-In-Reply-To: <1139530450.12638.7.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0602092258310.2570@excalibur.intercode>
-References: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
- <1139530450.12638.7.camel@localhost>
+From: Glauber de Oliveira Costa <glommer@br.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] Add version option to newrole
+Date: Fri, 10 Feb 2006 11:51:17 -0200
+Cc: Selinux@tycho.nsa.gov, Steve G <linux_4ever@yahoo.com>
+References: <200602081445.14747.glommer@br.ibm.com> <1139515788.3452.37.camel@moss-spartans.epoch.ncsc.mil> <1139515974.3452.41.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1139515974.3452.41.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200602101151.17945.glommer@br.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 9 Feb 2006, Timothy R. Chavez wrote:
+Em Quinta 09 Fevereiro 2006 18:12, Stephen Smalley escreveu:
+> On Thu, 2006-02-09 at 15:09 -0500, Stephen Smalley wrote:
+> > At present, your patch causes newrole to display the version number of
+> > the entire collection (policycoreutils), not an individual version tied
+> > to the newrole program itself.  Thus, I think it should display the
+> > PACKAGE string as well (already defined) as part of the message, e.g.:
+> > 	printf("%s:  %s version %s\n", argv[0], PACKAGE, VERSION);
+> > yielding output like:
+> > 	newrole:  policycoreutils version 1.29.20
 
-> +int selinux_ctx_to_id(const char *ctx, u32 *ctxid);
+argv[0] will display the complete path of the command being called. I think 
+this is not what we want. 
 
-You're not using this function, so don't include it for upstream.
+> > Otherwise, the patch seems sane and suitable for the other utilities as
+> > well.  A few of the utilities appear to have their own version string at
+> > present, but I think you can just drop that as no one is maintaining
+> > that - only the top-level VERSION for the entire collection is
+> > meaningful.
+>
+> Also, using -v is ambiguous, as it often means to run a program under a
+> verbose mode (extra output), and several utilities are using -v in that
+> way, so use -V and/or --version instead.
 
+Sure this is confusing. A lot of programs use -v for version (see GNU 
+Binutils), some don't use a shortopt at all (see GNU coreutils), and some use 
+the suggested -V (see GNU zip). I'll cope with your suggestion and use -V 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+I'll send a new version of newrole's implementation together with the manpage 
+patch soon, and patches for the other programs as soon as I can too.
+
+glauber.
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
