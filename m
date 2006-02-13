@@ -1,108 +1,79 @@
-Subject: Re: [RFC][PATCH] collect security labels on user processes
-	generating audit messages
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Timothy R. Chavez" <tinytim@us.ibm.com>
-Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-   Linux Audit Discussion <linux-audit@redhat.com>,
-   James Morris <jmorris@namei.org>
-In-Reply-To: <1139530450.12638.7.camel@localhost>
-References: 
-	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
-	 <1139530450.12638.7.camel@localhost>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1DM6MXf016961
+	for <selinux@tycho.nsa.gov>; Mon, 13 Feb 2006 17:06:23 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1DM6KHG004416
+	for <selinux@tycho.nsa.gov>; Mon, 13 Feb 2006 22:06:20 GMT
+Subject: Re: Latest diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43EB8C6D.7060809@redhat.com>
+References: <43EB8C6D.7060809@redhat.com>
 Content-Type: text/plain
-Date: Mon, 13 Feb 2006 14:12:25 -0500
-Message-Id: <1139857945.14253.112.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 13 Feb 2006 17:08:04 -0500
+Message-Id: <1139868484.13925.134.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-02-09 at 18:14 -0600, Timothy R. Chavez wrote:
-> Thanks.  Comments and feedback welcome.
+On Thu, 2006-02-09 at 13:39 -0500, Daniel J Walsh wrote:
+> Update build.conf to match what I believe should be the defaults.
 
-> diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-> new file mode 100644
-> index 0000000..7da2da3
-> --- /dev/null
-> +++ b/include/linux/selinux.h
-> @@ -0,0 +1,70 @@
-> +/*
-> + * SELinux services exported to the rest of the kernel.
-> + *
-> + * Author: James Morris <jmorris@redhat.com>
-> + *
-> + * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2,
-> + * as published by the Free Software Foundation.
-> + */
-> +#ifndef _LINUX_SELINUX_H
-> +#define _LINUX_SELINUX_H
-> +
-> +#ifdef CONFIG_SECURITY_SELINUX
-> +
-> +struct sock;
+I don't see a compelling need to make MCS default for the upstream
+policy.  As for the MONOLITHIC=n, I'd prefer to wait until FC5 comes out
+so that there is a final release with loadable modules.
 
-You can omit the above struct declaration for your purposes, since you
-aren't upstreaming the socket-related interfaces.
+> Add some of Russell's mcs changes
 
-> +static inline int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen)
-> +{
-> +	return 0;
-> +}
+I dropped the mcs file change.  We can't have hard-coded types.
 
-I'd be inclined to return an error here; otherwise, the caller may
-proceed to use *ctx and *ctxlen.  Or, if you want this to return 0 for a
-graceful degenerate case (e.g. so that you don't need to check
-selinux_available separately each time), I think you need to initialize
-*ctx and *ctxlen as well to sane values.
+> Prelink needs to execute_no_trans ld_so_t
 
-BTW, traditionally, SELinux has viewed the terminating NUL as part of
-the context string and thus as part of its length in bytes.  A
-concession was made in the security server code to allow context strings
-that lacked the terminating NUL when we migrated to xattrs because the
-existing attr package did not include the terminating NUL (e.g. for
-setfattr).
+Fixed to use the already existing interface.
 
-> diff --git a/kernel/audit.c b/kernel/audit.c
-> index d95efd6..129b3da 100644
-> --- a/kernel/audit.c
-> +++ b/kernel/audit.c
-> @@ -460,11 +464,17 @@ static int audit_receive_msg(struct sk_b
->  			err = 0;
->  			ab = audit_log_start(NULL, GFP_KERNEL, msg_type);
->  			if (ab) {
-> +				if (selinux_available()) {
-> +					err = selinux_id_to_ctx(sid, &ctx, &len);
-> +					if (err < 0)
-> +						return err;
-> +				}
+> hal continuously wants more privs...
 
-Is simply returning an error sufficient here?  What about the ab that
-has already been allocated?
+Do we really want to make the insmod transition unconditional?
 
-> diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-> index 96020d7..8b9eff4 100644
-> --- a/net/netlink/af_netlink.c
-> +++ b/net/netlink/af_netlink.c
-> @@ -1120,6 +1120,9 @@ static int netlink_sendmsg(struct kiocb 
->  	NETLINK_CB(skb).dst_pid = dst_pid;
->  	NETLINK_CB(skb).dst_group = dst_group;
->  	NETLINK_CB(skb).loginuid = audit_get_loginuid(current->audit_context);
-> +	err = security_task_getsecid(current, &NETLINK_CB(skb).secid);
-> +	if (err < 0 && err != -EOPNOTSUPP)
-> +		goto out;
+> mta/sendmail wants to read postfix config and spools.
 
-Don't you need to kfree_skb(skb) too?  And perhaps the dummy function
-should just set the sid to 0 and return 0 to avoid the extra test here
-for -EOPNOTSUPP?  In fact, perhaps this hook should just return void,
-thereby avoiding any need for error handling here?  In what case could
-this fail, as no allocation is happening and no permission check occurs
-from that hook (happens from security_netlink_send instead)?
+I don't understand why this change is needed for mta_send_mail().  It
+makes sendmail_exec_t an entrypoint for the domain that wants to send
+mail:
+
+@@ -434,6 +434,7 @@
+>  
+>  	allow $1 sendmail_exec_t:lnk_file r_file_perms;
+>  	domain_auto_trans($1, sendmail_exec_t, system_mail_t)
+> +	domain_entry_file($1,sendmail_exec_t)
+>  
+>  	allow $1 system_mail_t:fd use;
+>  	allow system_mail_t $1:fd use;
+
+
+> Spamd wants to talk to razor and ldap.
+
+Moved the ldap part down with the other sysnet stuff.
+
+> auditctl needs to output to  terminals.
+
+I merged this, but I'm curious why this is needed.
+
+Theres also a couple where you added bootloader_getattr_boot_dirs()
+where there already was a bootloader_search_boot().  I dropped these
+since the latter was upgraded to have search_dir_perms, which has
+getattr.
+
+I moved the udev addition down, and found a dontaudit that could be
+removed (read_all_domains_state vs dontaudit_list_all_domains_state).
+
+The remainder is merged.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
