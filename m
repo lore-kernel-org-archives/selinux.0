@@ -1,34 +1,25 @@
-Subject: Re: [PATCH] optionals in base
+Subject: Re: Semanage/libsemanage seems to be broken.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <43ED0594.6010605@tresys.com>
-References: <43ED0594.6010605@tresys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+   Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43EBDC77.5000503@cornell.edu>
+References: <43EBCED7.3040305@redhat.com> <43EBD634.1000708@cornell.edu>
+	 <43EBDC77.5000503@cornell.edu>
 Content-Type: text/plain
-Date: Mon, 13 Feb 2006 10:34:51 -0500
-Message-Id: <1139844891.14253.47.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 13 Feb 2006 10:33:05 -0500
+Message-Id: <1139844785.14253.43.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-02-10 at 16:28 -0500, Joshua Brindle wrote:
-> This patch adds support for optionals in base policy. This is necessary 
-> because currently optional policy in base is handled with m4 ifdefs 
-> which make the rules disappear if the corresponding module isn't 
-> present. This means that if the module is inserted at a later time the 
-> rules will not be enabled.
-> 
-> Since we didn't want to diverge the base policy and monolithic policy 
-> grammar monolithic policies also support optionals.
-> 
-> The link step resolves all optional dependancies and therefore all base 
-> modules (including ones which are being written to a kernel policy) must 
-> call link prior to calling expand. This was added to checkpolicy and to 
-> semodule_expand, as well as removing a check for 0 modules in 
-> semanage_store.c
+On Thu, 2006-02-09 at 19:21 -0500, Ivan Gyurdiev wrote:
+> The attached patch should fix the problem - it treats seusers and 
+> users_extra as optional sections. If they are not present, the 
+> corresponding dbase is cleared. File contexts appear to be requred (no 
+> len == 0 check).
 
-Merged as of checkpolicy 1.29.2, libsepol 1.11.14, libsemanage 1.5.23,
-and policycoreutils 1.29.21.
+Merged as of libsemanage 1.5.22.
 
 -- 
 Stephen Smalley
