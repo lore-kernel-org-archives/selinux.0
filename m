@@ -1,38 +1,105 @@
-Subject: RE: [PATCH 1/3] libsepol - fix aliased sensitivities
+Subject: Re: [RFC][PATCH] collect security labels on user processes
+	generating audit messages
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kevin Carr <kcarr@tresys.com>
-Cc: selinux@tycho.nsa.gov, "'Chad Hanson'" <chanson@TrustedCS.com>,
-   "'Jason Tang'" <jtang@tresys.com>
-In-Reply-To: <200602131712.k1DHBuNq002624@gotham.columbia.tresys.com>
-References: <200602131712.k1DHBuNq002624@gotham.columbia.tresys.com>
+To: "Timothy R. Chavez" <tinytim@us.ibm.com>
+Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
+   Linux Audit Discussion <linux-audit@redhat.com>,
+   James Morris <jmorris@namei.org>
+In-Reply-To: <1139530450.12638.7.camel@localhost>
+References: 
+	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+	 <1139530450.12638.7.camel@localhost>
 Content-Type: text/plain
-Date: Mon, 13 Feb 2006 12:25:03 -0500
-Message-Id: <1139851503.14253.66.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 13 Feb 2006 14:12:25 -0500
+Message-Id: <1139857945.14253.112.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-02-13 at 12:11 -0500, Kevin Carr wrote:
-> > > > sensitivities in libsepol.  This first patch fixes a double free in
-> > > > sens_destroy().
-> > >
-> > > No, the correct solution is to avoid the aliasing in the checkpolicy
-> > > code.  That is what we have been doing for other similar cases;
-> > > policydb_read in libsepol and the kernel doesn't do any such aliasing,
-> > > and neither should checkpolicy.
-> > 
-> > So I think the patch below should solve the problem for checkpolicy,
-> > while leaving libsepol's behavior unmodified and consistent with the
-> > kernel's behavior (i.e. no pointer aliasing).  Look sane?
-> 
-> If an aliased sensitivity is never used in a level definition there will
-> still be problems since the hashtab_map() is being done over levels in
-> define_level().  So we are still able to produce a segfault in that case.  
+On Thu, 2006-02-09 at 18:14 -0600, Timothy R. Chavez wrote:
+> Thanks.  Comments and feedback welcome.
 
-Failure to define a level for each sensitivity would be a bug in the
-policy; checkpolicy should likely check for that case and treat it as a
-fatal error.
- 
+> diff --git a/include/linux/selinux.h b/include/linux/selinux.h
+> new file mode 100644
+> index 0000000..7da2da3
+> --- /dev/null
+> +++ b/include/linux/selinux.h
+> @@ -0,0 +1,70 @@
+> +/*
+> + * SELinux services exported to the rest of the kernel.
+> + *
+> + * Author: James Morris <jmorris@redhat.com>
+> + *
+> + * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2,
+> + * as published by the Free Software Foundation.
+> + */
+> +#ifndef _LINUX_SELINUX_H
+> +#define _LINUX_SELINUX_H
+> +
+> +#ifdef CONFIG_SECURITY_SELINUX
+> +
+> +struct sock;
+
+You can omit the above struct declaration for your purposes, since you
+aren't upstreaming the socket-related interfaces.
+
+> +static inline int selinux_id_to_ctx(u32 ctxid, char **ctx, u32 *ctxlen)
+> +{
+> +	return 0;
+> +}
+
+I'd be inclined to return an error here; otherwise, the caller may
+proceed to use *ctx and *ctxlen.  Or, if you want this to return 0 for a
+graceful degenerate case (e.g. so that you don't need to check
+selinux_available separately each time), I think you need to initialize
+*ctx and *ctxlen as well to sane values.
+
+BTW, traditionally, SELinux has viewed the terminating NUL as part of
+the context string and thus as part of its length in bytes.  A
+concession was made in the security server code to allow context strings
+that lacked the terminating NUL when we migrated to xattrs because the
+existing attr package did not include the terminating NUL (e.g. for
+setfattr).
+
+> diff --git a/kernel/audit.c b/kernel/audit.c
+> index d95efd6..129b3da 100644
+> --- a/kernel/audit.c
+> +++ b/kernel/audit.c
+> @@ -460,11 +464,17 @@ static int audit_receive_msg(struct sk_b
+>  			err = 0;
+>  			ab = audit_log_start(NULL, GFP_KERNEL, msg_type);
+>  			if (ab) {
+> +				if (selinux_available()) {
+> +					err = selinux_id_to_ctx(sid, &ctx, &len);
+> +					if (err < 0)
+> +						return err;
+> +				}
+
+Is simply returning an error sufficient here?  What about the ab that
+has already been allocated?
+
+> diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+> index 96020d7..8b9eff4 100644
+> --- a/net/netlink/af_netlink.c
+> +++ b/net/netlink/af_netlink.c
+> @@ -1120,6 +1120,9 @@ static int netlink_sendmsg(struct kiocb 
+>  	NETLINK_CB(skb).dst_pid = dst_pid;
+>  	NETLINK_CB(skb).dst_group = dst_group;
+>  	NETLINK_CB(skb).loginuid = audit_get_loginuid(current->audit_context);
+> +	err = security_task_getsecid(current, &NETLINK_CB(skb).secid);
+> +	if (err < 0 && err != -EOPNOTSUPP)
+> +		goto out;
+
+Don't you need to kfree_skb(skb) too?  And perhaps the dummy function
+should just set the sid to 0 and return 0 to avoid the extra test here
+for -EOPNOTSUPP?  In fact, perhaps this hook should just return void,
+thereby avoiding any need for error handling here?  In what case could
+this fail, as no allocation is happening and no permission check occurs
+from that hook (happens from security_netlink_send instead)?
+
 -- 
 Stephen Smalley
 National Security Agency
