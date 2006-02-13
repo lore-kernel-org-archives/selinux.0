@@ -1,34 +1,29 @@
-Message-ID: <43ED5B3C.9090406@cornell.edu>
-Date: Fri, 10 Feb 2006 22:34:20 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Chad Hanson <chanson@TrustedCS.com>
-CC: "'SELinux List '" <SELinux@tycho.nsa.gov>,
-   "'Stephen Smalley '" <sds@tycho.nsa.gov>,
-   "'Joshua Brindle '" <jbrindle@tresys.com>
-Subject: Re: [SEPOL][SEMANAGE] Nodecon Support: Try 1
-References: <36282A1733C57546BE392885C061859205735A@chaos.tcs.tcs-sec.com>
-In-Reply-To: <36282A1733C57546BE392885C061859205735A@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [SEMANAGE] Fix parse_optional_ch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <43ED0824.4020104@cornell.edu>
+References: <43ED0824.4020104@cornell.edu>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 10:33:27 -0500
+Message-Id: <1139844807.14253.45.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2006-02-10 at 16:39 -0500, Ivan Gyurdiev wrote:
+> Joshua please try to reproduce with the following patch applied.
+> Changelog:
+> - handle NULL as no match in parse_optional_ch
+> - do not advance a NULL pointer in parse_optional_ch - that breaks NULL 
+> check later
+> - remove NULL check in parse_optional_str - doesn't seem necessary.
 
-> I guess I need to correct myself, that checkpolicy, not the kernel orders
-> the nodecon rules.
->
-> http://marc.theaimsgroup.com/?l=selinux&m=109906728301734&w=2
-> http://marc.theaimsgroup.com/?l=selinux&m=109968743026327&w=2
-> http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/checkpolicy/po
-> licy_parse.y?r1=1.24&r2=1.25
->   
-Ah, this makes all the difference... then the original plan makes sense, 
-and the patch should work, once ordering is added in the local case. I 
-should be able to make a nodecon spec take precedence by placing it in 
-front of the ocontext_t list, correct?
+Merged as of libsemanage 1.5.22.
 
-The ports issue I described stands anyway, list() and iterate() show 
-overlapping ranges, and that will be an issue for nodes as well.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
