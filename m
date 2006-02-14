@@ -1,41 +1,91 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1E7HMXf021388
-	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2006 02:17:24 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1E7HIUM005403
-	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2006 07:17:20 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Congratulations Steve!
-Date: Tue, 14 Feb 2006 18:17:08 +1100
+Message-ID: <43F1B708.3030205@cornell.edu>
+Date: Tue, 14 Feb 2006 05:55:04 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200602141817.14798.russell@coker.com.au>
+To: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+   Russell Coker <russell@coker.com.au>
+Subject: [SEMANAGE/utility] Improve usage()
+Content-Type: multipart/mixed;
+ boundary="------------030508000905010909080004"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://www.dni.gov/release_letter_021006.html
+This is a multi-part message in MIME format.
+--------------030508000905010909080004
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Director of National Intelligence Fellows Award Winners Announced
->
-> Director of National Intelligence, John D. Negroponte, presented the first
-> DNI Fellows Awards to nine renowned members of the Intelligence Community at
-> a ceremony today in the Eisenhower Executive Office Building. The DNI
-> Fellows Awards program recognizes and rewards outstanding technical
-> achievement within the Intelligence Community.
->
-> "These distinguished experts are the best of the best -- professionals in
-> whom we have enormous trust and confidence," said John D. Negroponte,
-> Director of National Intelligence. "As globalization spreads technology to
-> the far corners of the globe, the Intelligence Community's S&T leaders must
-> devise ways to maintain our competitive advantage."    
+Maybe it's just me, but the semanage usage() is still not making sense...
+Please apply if you consider this an improvement.
 
-We all know you deserve it!
+1) Document arguments to -ftype
+2) Give example of a list of multiple roles (space separated, quoted)
+3) Specify which protocols are allowed for ports
+4) Abandon alphabetical ordering for more logical ordering.
+Specifically, group primary options (-a/d/m/l) together, and then have a 
+section for object-specific options below.
 
 
-Russell Coker
+
+--------------030508000905010909080004
+Content-Type: text/x-patch;
+ name="semanage.usage_patch.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="semanage.usage_patch.diff"
+
+diff -Naurp --exclude-from excludes old/policycoreutils/semanage/semanage new/policycoreutils/semanage/semanage
+--- old/policycoreutils/semanage/semanage	2006-01-27 10:00:54.000000000 -0500
++++ new/policycoreutils/semanage/semanage	2006-02-14 05:29:20.000000000 -0500
+@@ -33,21 +33,36 @@ semanage user -{a|d|m} [-LrR] selinux_na
+ semanage port -{a|d|m} [-tr] [ -p protocol ] port | port_range\n\
+ semanage interface -{a|d|m} [-tr] interface_spec\n\
+ semanage fcontext -{a|d|m} [-frst] file_spec\n\
+-semanage translation -{a|d|m} [-T] level\n\
++semanage translation -{a|d|m} [-T] level\n\n\
++\
++Primary Options:\n\
++\
+ 	-a, --add        Add a OBJECT record NAME\n\
+ 	-d, --delete     Delete a OBJECT record NAME\n\
++	-m, --modify     Modify a OBJECT record NAME\n\
++	-l, --list       List the OBJECTS\n\n\
++	-h, --help       Display this message\n\
++	-n, --noheading  Do not print heading when listing OBJECTS\n\n\
++\
++Object-specific Options (see above):\n\
+ 	-f, --ftype      File Type of OBJECT \n\
+-	-h, --help       display this message\n\
+-	-l, --list       List the OBJECTS\n\
++		"" (all files) \n\
++		-- (regular file) \n\
++		-d (directory) \n\
++		-c (character device) \n\
++		-b (block device) \n\
++		-d (directory) \n\
++		-s (socket) \n\
++		-p (named pipe) \n\n\
++\
++	-p, --proto      Port protocol (tcp or udp)\n\
+ 	-L, --level      Default SELinux Level\n\
+-	-m, --modify     Modify a OBJECT record NAME\n\
+-	-n, --noheading  Do not print heading when listing OBJECTS\n\
+-	-p, --proto      Port protocol\n\
+-	-r, --range      MLS/MCS Security Range\n\
+-	-R, --roles      SELinux Roles (Separate by spaces)\n\
+-	-s, --seuser     SELinux user name\n\
++	-R, --roles      SELinux Roles (ex: "sysadm_r staff_r")\n\
++	-T, --trans      SELinux Level Translation\n\n\
++\
++	-s, --seuser     SELinux User Name\n\
+ 	-t, --type       SELinux Type for the object\n\
+-	-T, --trans      SELinux Level Translation\n\
++	-r, --range      MLS/MCS Security Range\n\
+ '
+ 		print message
+ 		sys.exit(1)
+
+--------------030508000905010909080004--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
