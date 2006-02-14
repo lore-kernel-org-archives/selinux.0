@@ -1,53 +1,121 @@
-Subject: Re: Improve bindings, add PyList(String) for roles array
+Subject: RE: [PATCH 1/3] libsepol - fix aliased sensitivities
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <43F226B5.6020603@cornell.edu>
-References: <43E26F62.7010400@cornell.edu> <43F1B827.401@cornell.edu>
-	 <43F1C84C.5030800@cornell.edu>  <43F226B5.6020603@cornell.edu>
+To: Kevin Carr <kcarr@tresys.com>
+Cc: selinux@tycho.nsa.gov, "'Chad Hanson'" <chanson@TrustedCS.com>,
+   "'Jason Tang'" <jtang@tresys.com>
+In-Reply-To: <1139851503.14253.66.camel@moss-spartans.epoch.ncsc.mil>
+References: <200602131712.k1DHBuNq002624@gotham.columbia.tresys.com>
+	 <1139851503.14253.66.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 14 Feb 2006 15:12:36 -0500
-Message-Id: <1139947956.14253.313.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 14 Feb 2006 15:41:18 -0500
+Message-Id: <1139949678.14253.317.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-02-14 at 13:51 -0500, Ivan Gyurdiev wrote:
-> ChangeLog:
+On Mon, 2006-02-13 at 12:25 -0500, Stephen Smalley wrote:
+> On Mon, 2006-02-13 at 12:11 -0500, Kevin Carr wrote:
+> > > > > sensitivities in libsepol.  This first patch fixes a double free in
+> > > > > sens_destroy().
+> > > >
+> > > > No, the correct solution is to avoid the aliasing in the checkpolicy
+> > > > code.  That is what we have been doing for other similar cases;
+> > > > policydb_read in libsepol and the kernel doesn't do any such aliasing,
+> > > > and neither should checkpolicy.
+> > > 
+> > > So I think the patch below should solve the problem for checkpolicy,
+> > > while leaving libsepol's behavior unmodified and consistent with the
+> > > kernel's behavior (i.e. no pointer aliasing).  Look sane?
+> > 
+> > If an aliased sensitivity is never used in a level definition there will
+> > still be problems since the hashtab_map() is being done over levels in
+> > define_level().  So we are still able to produce a segfault in that case.  
 > 
-> - Split out PyList building code and put it in a common function. In 
-> that function:
->    - audit failure in PyNew
->    - audit failure in PyAppend (used to be SetItem)
->    - audit failure in SWIG_NewPointerObj
->    - on failure, call the object destructor function on the entire list, 
-> and return STATUS_ERR.
-> 
->    I'm not sure if that accomplishes much. I suspect the swig wrappers 
-> have a million ways in which they can fail internally. Yet, I feel like 
-> it is wrong to not audit errors in code that I write, so this corrects 
-> that mistake. I also like the idea of the list building code being in a 
-> common function.
-> 
-> - Add more PyLists..... convert semanage_user_get_roles() to using 
-> PyList, instead of character arrays.
->     - Remove char_by_idx.
->     - fix dependency in seobject.py
->     - unlike other wrappers, this one also converts the string itself, 
-> from char* to a python string
->       (see semanage2plist, which can be called in two ways)
-> 
-> - Use fewer SWIG internal conventions
->      - don't use the result variable - use the $result python variable, 
-> which is documented. Use SWIG_As_int to get the integer out of it.
->      - do not use SWIGTYPE_...* where possible. Use special variables 
-> that provide access to the descriptor without writing out the type.
+> Failure to define a level for each sensitivity would be a bug in the
+> policy; checkpolicy should likely check for that case and treat it as a
+> fatal error.
 
-Merged as of libsemanage 1.5.25 and policycoreutils 1.29.25.
+Patch below, relative to the prior one (which was already merged), adds
+such checking.
 
-> Next:
-> - make the opposite conversion, and make set_roles() work properly
-> - try to get rid of usage of t_output_helper()
+Index: libsepol/include/sepol/policydb/policydb.h
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/include/sepol/policydb/policydb.h,v
+retrieving revision 1.8
+diff -u -p -r1.8 policydb.h
+--- libsepol/include/sepol/policydb/policydb.h	1 Feb 2006 13:59:19 -0000	1.8
++++ libsepol/include/sepol/policydb/policydb.h	14 Feb 2006 20:02:19 -0000
+@@ -152,6 +152,7 @@ typedef struct user_datum {
+ typedef struct level_datum {
+ 	mls_level_t *level;	/* sensitivity and associated categories */
+ 	unsigned char isalias;  /* is this sensitivity an alias for another? */
++	unsigned char defined;
+ } level_datum_t;
+ 
+ /* Category attributes */
+Index: checkpolicy/checkpolicy.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/checkpolicy.c,v
+retrieving revision 1.45
+diff -u -p -r1.45 checkpolicy.c
+--- checkpolicy/checkpolicy.c	13 Feb 2006 13:59:53 -0000	1.45
++++ checkpolicy/checkpolicy.c	14 Feb 2006 20:22:10 -0000
+@@ -355,6 +355,17 @@ int change_bool(char *name, int state)
+ 	return 0;
+ }
+ 
++static int check_level(hashtab_key_t key, hashtab_datum_t datum, void *arg)
++{
++	level_datum_t *levdatum = (level_datum_t *) datum;
++
++	if (!levdatum->isalias && !levdatum->defined) {
++		fprintf(stderr, "Error:  sensitivity %s was not used in a level definition!\n", key);
++		return -1;
++	}
++	return 0;
++}
++
+ int main(int argc, char **argv)
+ {
+ 	sepol_security_class_t tclass;
+@@ -526,6 +537,9 @@ int main(int argc, char **argv)
+ 		if (policydb_errors) 
+ 			exit(1);
+ 
++		if (hashtab_map(policydbp->p_levels.table, check_level, NULL))
++			exit(1);
++
+ 		if (policydb_init(&policydb)) {
+ 			fprintf(stderr, "%s:  policydb_init failed\n", argv[0]);
+ 			exit(1);
+Index: checkpolicy/policy_parse.y
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/policy_parse.y,v
+retrieving revision 1.58
+diff -u -p -r1.58 policy_parse.y
+--- checkpolicy/policy_parse.y	13 Feb 2006 16:30:34 -0000	1.58
++++ checkpolicy/policy_parse.y	14 Feb 2006 20:20:59 -0000
+@@ -1569,7 +1569,10 @@ static int clone_level(hashtab_key_t key
+ 	level_datum_t *levdatum = (level_datum_t *) datum;
+ 	mls_level_t *level = (mls_level_t *) arg, *newlevel;
+ 
+-	if (levdatum->isalias && levdatum->level == level) {
++	if (levdatum->level == level) {
++		levdatum->defined = 1;
++		if (!levdatum->isalias)
++			return 0;
+ 		newlevel = (mls_level_t *) malloc(sizeof(mls_level_t));
+ 		if (!newlevel)
+ 			return -1;
+@@ -1619,6 +1622,8 @@ static int define_level(void)
+ 	}
+ 	free(id);
+ 
++	levdatum->defined = 1;
++
+ 	while ((id = queue_remove(id_queue))) {
+ 		cat_datum_t *cdatum;
+ 		int range_start, range_end, i;
 
 -- 
 Stephen Smalley
