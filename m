@@ -1,46 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1EJ3DXf029698
-	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2006 14:03:14 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1EJ1n3j010711
-	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2006 19:01:49 GMT
-Message-ID: <43F22966.5020907@tresys.com>
-Date: Tue, 14 Feb 2006 14:03:02 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latest diffs
-References: <43EB8C6D.7060809@redhat.com> <1139868484.13925.134.camel@sgc> <43F1E2AC.40603@redhat.com>
-In-Reply-To: <43F1E2AC.40603@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Improve bindings, add PyList(String) for roles array
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <43F226B5.6020603@cornell.edu>
+References: <43E26F62.7010400@cornell.edu> <43F1B827.401@cornell.edu>
+	 <43F1C84C.5030800@cornell.edu>  <43F226B5.6020603@cornell.edu>
+Content-Type: text/plain
+Date: Tue, 14 Feb 2006 15:12:36 -0500
+Message-Id: <1139947956.14253.313.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2006-02-14 at 13:51 -0500, Ivan Gyurdiev wrote:
+> ChangeLog:
+> 
+> - Split out PyList building code and put it in a common function. In 
+> that function:
+>    - audit failure in PyNew
+>    - audit failure in PyAppend (used to be SetItem)
+>    - audit failure in SWIG_NewPointerObj
+>    - on failure, call the object destructor function on the entire list, 
+> and return STATUS_ERR.
+> 
+>    I'm not sure if that accomplishes much. I suspect the swig wrappers 
+> have a million ways in which they can fail internally. Yet, I feel like 
+> it is wrong to not audit errors in code that I write, so this corrects 
+> that mistake. I also like the idea of the list building code being in a 
+> common function.
+> 
+> - Add more PyLists..... convert semanage_user_get_roles() to using 
+> PyList, instead of character arrays.
+>     - Remove char_by_idx.
+>     - fix dependency in seobject.py
+>     - unlike other wrappers, this one also converts the string itself, 
+> from char* to a python string
+>       (see semanage2plist, which can be called in two ways)
+> 
+> - Use fewer SWIG internal conventions
+>      - don't use the result variable - use the $result python variable, 
+> which is documented. Use SWIG_As_int to get the integer out of it.
+>      - do not use SWIGTYPE_...* where possible. Use special variables 
+> that provide access to the descriptor without writing out the type.
 
->
-> Added semodule policy.  This still needs work.  semodule now wants to 
-> create lock files in /etc/selinux/TYPE/modules sub directory.  I would 
-> like to label this policy_config_t, problem is that all tools 
-> (setfiles, restorecon ...) need write access in order
-> to create the lock file.  This is a serious problem.  I think we also 
-> need to label /usr/share/selinux/TYPE/*.pp files as policy_config_t.
->
-setfiles nor restorecon link against libsemanage so they should not be 
-touching the store at all, the store is a private resource of libsemanage.
+Merged as of libsemanage 1.5.25 and policycoreutils 1.29.25.
 
-The module store labeling strategy should reflect what I did with the 
-access_check function, eg., making module/{active,previous} totally 
-inaccessible to anything except semodule_t, giving 
-module/semodule.read.LOCK and module/semodule.trans.LOCK different 
-labels so we can have legitimate "read only" domains.
+> Next:
+> - make the opposite conversion, and make set_roles() work properly
+> - try to get rid of usage of t_output_helper()
 
-Then, TYPE/contexts and TYPE/policy can have whatever labels they have 
-now with whatever access they have now and it should be fine. 
-Unfortunatly having the 'active' binary policy out of the store 
-eliminates some ability to encapsulate access to it but I suppose that 
-can be addressed some other time.
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
