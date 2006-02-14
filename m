@@ -1,80 +1,41 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1DM6MXf016961
-	for <selinux@tycho.nsa.gov>; Mon, 13 Feb 2006 17:06:23 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1DM6KHG004416
-	for <selinux@tycho.nsa.gov>; Mon, 13 Feb 2006 22:06:20 GMT
-Subject: Re: Latest diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43EB8C6D.7060809@redhat.com>
-References: <43EB8C6D.7060809@redhat.com>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 17:08:04 -0500
-Message-Id: <1139868484.13925.134.camel@sgc>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1E7HMXf021388
+	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2006 02:17:24 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1E7HIUM005403
+	for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2006 07:17:20 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Congratulations Steve!
+Date: Tue, 14 Feb 2006 18:17:08 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200602141817.14798.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-02-09 at 13:39 -0500, Daniel J Walsh wrote:
-> Update build.conf to match what I believe should be the defaults.
+http://www.dni.gov/release_letter_021006.html
 
-I don't see a compelling need to make MCS default for the upstream
-policy.  As for the MONOLITHIC=n, I'd prefer to wait until FC5 comes out
-so that there is a final release with loadable modules.
+> Director of National Intelligence Fellows Award Winners Announced
+>
+> Director of National Intelligence, John D. Negroponte, presented the first
+> DNI Fellows Awards to nine renowned members of the Intelligence Community at
+> a ceremony today in the Eisenhower Executive Office Building. The DNI
+> Fellows Awards program recognizes and rewards outstanding technical
+> achievement within the Intelligence Community.
+>
+> "These distinguished experts are the best of the best -- professionals in
+> whom we have enormous trust and confidence," said John D. Negroponte,
+> Director of National Intelligence. "As globalization spreads technology to
+> the far corners of the globe, the Intelligence Community's S&T leaders must
+> devise ways to maintain our competitive advantage."    
 
-> Add some of Russell's mcs changes
-
-I dropped the mcs file change.  We can't have hard-coded types.
-
-> Prelink needs to execute_no_trans ld_so_t
-
-Fixed to use the already existing interface.
-
-> hal continuously wants more privs...
-
-Do we really want to make the insmod transition unconditional?
-
-> mta/sendmail wants to read postfix config and spools.
-
-I don't understand why this change is needed for mta_send_mail().  It
-makes sendmail_exec_t an entrypoint for the domain that wants to send
-mail:
-
-@@ -434,6 +434,7 @@
->  
->  	allow $1 sendmail_exec_t:lnk_file r_file_perms;
->  	domain_auto_trans($1, sendmail_exec_t, system_mail_t)
-> +	domain_entry_file($1,sendmail_exec_t)
->  
->  	allow $1 system_mail_t:fd use;
->  	allow system_mail_t $1:fd use;
+We all know you deserve it!
 
 
-> Spamd wants to talk to razor and ldap.
-
-Moved the ldap part down with the other sysnet stuff.
-
-> auditctl needs to output to  terminals.
-
-I merged this, but I'm curious why this is needed.
-
-Theres also a couple where you added bootloader_getattr_boot_dirs()
-where there already was a bootloader_search_boot().  I dropped these
-since the latter was upgraded to have search_dir_perms, which has
-getattr.
-
-I moved the udev addition down, and found a dontaudit that could be
-removed (read_all_domains_state vs dontaudit_list_all_domains_state).
-
-The remainder is merged.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Russell Coker
 
 --
 This message was distributed to subscribers of the selinux mailing list.
