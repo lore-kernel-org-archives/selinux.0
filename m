@@ -1,104 +1,45 @@
-Message-ID: <43F354A3.6000203@cornell.edu>
-Date: Wed, 15 Feb 2006 11:19:47 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Bugfix patch
-Content-Type: multipart/mixed;
- boundary="------------080506080406000703020304"
+Subject: Re: [RFC][PATCH] collect security labels on user processes
+	generating audit messages
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
+   Linux Audit Discussion <linux-audit@redhat.com>,
+   James Morris <jmorris@namei.org>
+In-Reply-To: <1140020238.14253.404.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+	 <1139530450.12638.7.camel@localhost>
+	 <1139857945.14253.112.camel@moss-spartans.epoch.ncsc.mil>
+	 <1139960902.326.5.camel@localhost>
+	 <1140011251.14253.346.camel@moss-spartans.epoch.ncsc.mil>
+	 <1140018578.11792.23.camel@localhost>
+	 <1140020238.14253.404.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 10:41:13 -0600
+Message-Id: <1140021673.11805.39.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080506080406000703020304
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 2006-02-15 at 11:17 -0500, Stephen Smalley wrote:
+> On Wed, 2006-02-15 at 09:49 -0600, Timothy R. Chavez wrote:
+> > This makes sense to me.  I'll go ahead and make the change.  I wouldn't
+> > even technically need the function or function call in my patch since
+> > selinux_available() simply returns ss_initialized.
+> 
+> Well, I think we want to keep that variable private to the SELinux
+> "module".  In the future, we'll likely add proper namespace prefixes to
+> all non-static SELinux symbols to avoid polluting the kernel namespace.
+>  
 
-Fix bugs in recent patches (and some additional ones).
-I need to be more careful.... the tests will pass usually, since I don't 
-have any local customizations.
+I think maybe I miscommunicated my intentions.  If I move the check to
+determine whether or not SELinux is enabled into selinux_id_to_ctx(),
+then I can simply use ss_initialized directly rather then calling
+selinux_available(), as I'll be making the check within the SELinux
+"module" (selinux/exports.c).
 
+-tim
 
-
---------------080506080406000703020304
-Content-Type: text/x-patch;
- name="semanage.sepol.utils.bugfix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="semanage.sepol.utils.bugfix.diff"
-
-diff -Naurp --exclude-from excludes old/libsemanage/src/semanage_store.c new/libsemanage/src/semanage_store.c
---- old/libsemanage/src/semanage_store.c	2006-02-14 23:07:09.000000000 -0500
-+++ new/libsemanage/src/semanage_store.c	2006-02-15 11:10:23.000000000 -0500
-@@ -102,8 +102,8 @@ static const char *semanage_sandbox_path
- 	"/booleans.local",
- 	"/file_contexts.local",
- 	"/seusers",
--	"/users_extra.local",
- 	"/users.local",
-+	"/users_extra.local",
- 	"/seusers.final",
- 	"/users_extra",
- };
-diff -Naurp --exclude-from excludes old/libsepol/src/nodes.c new/libsepol/src/nodes.c
---- old/libsepol/src/nodes.c	2006-02-14 23:07:16.000000000 -0500
-+++ new/libsepol/src/nodes.c	2006-02-15 11:13:01.000000000 -0500
-@@ -300,7 +300,7 @@ int sepol_node_modify(
- 	const sepol_node_t* data) {
- 
- 	policydb_t *policydb = &p->p;
--	ocontext_t *c, *head, *prev = NULL, *node = NULL;
-+	ocontext_t *node = NULL;
- 
- 	int proto;
- 	const char *addr, *mask;
-diff -Naurp --exclude-from excludes old/libsepol/src/ports.c new/libsepol/src/ports.c
---- old/libsepol/src/ports.c	2006-02-14 23:07:16.000000000 -0500
-+++ new/libsepol/src/ports.c	2006-02-15 11:12:36.000000000 -0500
-@@ -253,7 +253,7 @@ int sepol_port_modify(
- 	const sepol_port_t* data) {
- 
- 	policydb_t *policydb = &p->p;
--	ocontext_t *c, *head, *prev = NULL, *port = NULL;
-+	ocontext_t *port = NULL;
- 
- 	int low, high, proto;
- 	const char* proto_str;
-diff -Naurp --exclude-from excludes old/policycoreutils/semanage/semanage new/policycoreutils/semanage/semanage
---- old/policycoreutils/semanage/semanage	2006-02-14 13:48:16.000000000 -0500
-+++ new/policycoreutils/semanage/semanage	2006-02-15 11:15:44.000000000 -0500
-@@ -41,6 +41,7 @@ Primary Options:\n\
- 	-d, --delete     Delete a OBJECT record NAME\n\
- 	-m, --modify     Modify a OBJECT record NAME\n\
- 	-l, --list       List the OBJECTS\n\n\
-+\
- 	-h, --help       Display this message\n\
- 	-n, --noheading  Do not print heading when listing OBJECTS\n\n\
- \
-@@ -51,8 +52,8 @@ Object-specific Options (see above):\n\
- 		-d (directory) \n\
- 		-c (character device) \n\
- 		-b (block device) \n\
--		-d (directory) \n\
- 		-s (socket) \n\
-+		-l (symbolic link) \n\
- 		-p (named pipe) \n\n\
- \
- 	-p, --proto      Port protocol (tcp or udp)\n\
-diff -Naurp --exclude-from excludes old/policycoreutils/semanage/seobject.py new/policycoreutils/semanage/seobject.py
---- old/policycoreutils/semanage/seobject.py	2006-02-14 15:03:55.000000000 -0500
-+++ new/policycoreutils/semanage/seobject.py	2006-02-15 11:15:17.000000000 -0500
-@@ -863,6 +863,7 @@ class fcontextRecords(semanageRecords):
- 		self.file_types["block device"] = SEMANAGE_FCONTEXT_BLOCK;
- 		self.file_types["-s"] = SEMANAGE_FCONTEXT_SOCK;
- 		self.file_types["socket"] = SEMANAGE_FCONTEXT_SOCK;
-+		self.file_types["-l"] = SEMANAGE_FCONTEXT_LINK;
- 		self.file_types["symbolic link"] = SEMANAGE_FCONTEXT_LINK;
- 		self.file_types["-p"] = SEMANAGE_FCONTEXT_PIPE;
- 		self.file_types["named pipe"] = SEMANAGE_FCONTEXT_PIPE;
-
---------------080506080406000703020304--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
