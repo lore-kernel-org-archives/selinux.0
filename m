@@ -1,52 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1FI24Xf014991
-	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2006 13:02:04 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1FI0cxb005066
-	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2006 18:00:40 GMT
-Subject: Re: [PATCH] refpolicy: external modules
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Spencer Shimko <sshimko@tresys.com>
-Cc: SELinux <selinux@tycho.nsa.gov>,
-   Christopher Ashworth <cashworth@tresys.com>
-In-Reply-To: <200602101629.58281.sshimko@tresys.com>
-References: <200602101629.58281.sshimko@tresys.com>
+Subject: Re: [RFC][PATCH] collect security labels on user
+	processes	generating audit messages
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Steve Grubb <sgrubb@redhat.com>, linux-audit@redhat.com,
+   James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+In-Reply-To: <1140021440.14253.411.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+	 <1140018578.11792.23.camel@localhost> <43F35354.2090108@hp.com>
+	 <200602151122.37945.sgrubb@redhat.com>
+	 <1140021440.14253.411.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 15 Feb 2006 13:04:02 -0500
-Message-Id: <1140026642.13925.144.camel@sgc.columbia.tresys.com>
+Date: Wed, 15 Feb 2006 12:33:06 -0600
+Message-Id: <1140028386.12579.23.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-02-10 at 16:29 -0500, Spencer Shimko wrote:
-> Attached is a patch to Makefile, Rules.monolithic, and Rules.modular in 
-> reference policy that does two things:
-
-Merged, with a few tweaks.
-
-> 1. It contains an update version of the patch submitted to the list on 
-> 1/12/2006 to change policy module state from the command line at build 
-> time.  The three variables used are APPS_OFF (disable a policy module 
-> off), APPS_ON (enable a policy module and include it in the base module), 
-> and APPS_MODS (enable a policy module and build it as a module).  Example 
-> usage:
-> $make clean
-> $make APPS_OFF="gpg" 
+On Wed, 2006-02-15 at 11:37 -0500, Stephen Smalley wrote:
+> On Wed, 2006-02-15 at 11:22 -0500, Steve Grubb wrote:
+> > This should be a separate thread since the topic is different.
+> > 
+> > On Wednesday 15 February 2006 11:14, Linda Knippers wrote:
+> > > Amy submitted a patch a while back to eliminate the "name=" field
+> > > to avoid "name=(null)" from the audit records if there was no name
+> > > but I don't think the patch went anywhere.
+> > 
+> > Right. I want all audit fields to have name=value. If we have %s in the 
+> > message and pass NULL to it, snprintf is already going to put "(null)" so 
+> > what's wrong with just using this precedent?
 > 
-> 2. It includes a patch from Chris Ashworth that allows external policy 
-> trees to be used when building policy.  The idea for this is two fold: 
-> first it allows someone to build a module without having write access to 
-> the reference policy directory, second it allows someone to maintain an 
-> out-of-tree "third-party" module with little effort.  It expects a 
-> similar filesystem layout including layers in the policy/modules 
-> directory and support macros (if any) in the policy/support directory.  
-> Example usage:
-> $make LOCAL_ROOT="/home/spencer/mypolicy"
+> In that case, Tim doesn't need a special check for !ctx in his code at
+> all.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+FYI, if I just pass NULL to audit_log_format(), then <NULL> is printed
+to the log, not (null).  I just tried this.
+
+-tim
 
 
 --
