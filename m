@@ -1,43 +1,43 @@
-Subject: Re: [RFC][PATCH] collect security labels on user
-	processes	generating audit messages
-From: "Timothy R. Chavez" <tinytim@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Steve Grubb <sgrubb@redhat.com>, linux-audit@redhat.com,
+Message-ID: <43F39797.1050602@trustedcs.com>
+Date: Wed, 15 Feb 2006 15:05:27 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: "Timothy R. Chavez" <tinytim@us.ibm.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+   Linux Audit Discussion <linux-audit@redhat.com>,
    James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-In-Reply-To: <1140021440.14253.411.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
-	 <1140018578.11792.23.camel@localhost> <43F35354.2090108@hp.com>
-	 <200602151122.37945.sgrubb@redhat.com>
-	 <1140021440.14253.411.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 15 Feb 2006 12:33:06 -0600
-Message-Id: <1140028386.12579.23.camel@localhost>
-Mime-Version: 1.0
+Subject: Re: [RFC][PATCH] collect security labels on user processes	generating
+ audit messages
+References: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>	<1139530450.12638.7.camel@localhost>	<1139857945.14253.112.camel@moss-spartans.epoch.ncsc.mil> <1139960902.326.5.camel@localhost>
+In-Reply-To: <1139960902.326.5.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-02-15 at 11:37 -0500, Stephen Smalley wrote:
-> On Wed, 2006-02-15 at 11:22 -0500, Steve Grubb wrote:
-> > This should be a separate thread since the topic is different.
-> > 
-> > On Wednesday 15 February 2006 11:14, Linda Knippers wrote:
-> > > Amy submitted a patch a while back to eliminate the "name=" field
-> > > to avoid "name=(null)" from the audit records if there was no name
-> > > but I don't think the patch went anywhere.
-> > 
-> > Right. I want all audit fields to have name=value. If we have %s in the 
-> > message and pass NULL to it, snprintf is already going to put "(null)" so 
-> > what's wrong with just using this precedent?
+Timothy R. Chavez wrote:
+> James & Stephen,
 > 
-> In that case, Tim doesn't need a special check for !ctx in his code at
-> all.
+> Thank you for the comments.  While implementing your feedback I came
+> across a pretty severe bug.  I was basically obtaining the sid and then
+> throwing it away (I was returning it from the function, but not actually
+> assigning it to anything).  New patch below.  I still need to test this
+> a little more.  Thanks!
+> 
+> -tim
 
-FYI, if I just pass NULL to audit_log_format(), then <NULL> is printed
-to the log, not (null).  I just tried this.
+Should you really be using an lsm interface for getting the sid?  The
+patch is currently allowing any security module to put a secid (whose
+comment says SELinux security id) into the netlink_skb_params struct.
+This generic item is then only used in SELinux specific calls.  It
+seems that the getsecid functionality could just fit into an SELinux
+specific API just like selinux_id_to_ctx and friends.  That would also
+avoid the overhead of lsm and all of the associated code changes.  Of
+course this is probably moot if there are other planned uses for
+security_task_getsecid().
 
--tim
+-- 
 
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
