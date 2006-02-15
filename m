@@ -1,63 +1,40 @@
-Subject: Re: [SEMANAGE] Use the paths array
+Subject: Re: [SEPOL] Nodes, Ports: always prepend
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <43F24788.6060601@cornell.edu>
-References: <43F24788.6060601@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <jbrindle@tresys.com>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <43F24C42.1010407@cornell.edu>
+References: <43F24C42.1010407@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 15 Feb 2006 09:42:25 -0500
-Message-Id: <1140014545.14253.373.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 15 Feb 2006 10:02:55 -0500
+Message-Id: <1140015775.14253.379.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-02-14 at 16:11 -0500, Ivan Gyurdiev wrote:
-> Joshua's complained about my non-use of the store path array.
-> Correct this issue.
+On Tue, 2006-02-14 at 16:31 -0500, Ivan Gyurdiev wrote:
+> The current algorithm for modifcation of nodes and ports is:
+> - look for an exact match, if one is found, replace
+> - otherwise prepend to ocontext list.
+> 
+> This approach can (and will) cause problems if ordering is significant 
+> for the modify() requests.
+> Two overlapping port ranges or network nodes, one that overrides policy, 
+> and one that is new, added in the wrong order can be caused to shadow 
+> each other. This can happen regardless of what order they were added in 
+> - either request can have a match within policy, and be pushed behind 
+> the other one, invalidating the ordering.
+> 
+> This will be an issue for ordering, so change the algorithm to always 
+> prefix there.
+> For ports, we've banned overlapping port ranges from libsemanage, so 
+> this isn't an issue. However, with respect to libsepol this is an 
+> unnecessary limitation, so this patch also changes the algorithm to 
+> always prefix ports as well, which will allow an addition of an ordered 
+> set of ports, if the caller requires that.
 
-It appears that users.local and users_extra.local are in the wrong order
-in the path array, or in the enumerated type - take your pick.
-
-diff -Naurp --exclude-from excludes old/libsemanage/src/semanage_store.c new/libsemanage/src/semanage_store.c
---- old/libsemanage/src/semanage_store.c	2006-02-13 10:13:22.000000000 -0500
-+++ new/libsemanage/src/semanage_store.c	2006-02-14 15:51:01.000000000 -0500
-@@ -96,6 +96,14 @@ static const char *semanage_sandbox_path
- 	"/homedir_template",
- 	"/file_contexts.template",
- 	"/commit_num",
-+	"/ports.local",
-+	"/interfaces.local",
-+	"/nodes.local",
-+	"/booleans.local",
-+	"/file_contexts.local",
-+	"/seusers",
-+	"/users_extra.local",
-+	"/users.local",
- 	"/seusers.final",
- 	"/users_extra",
- };
-
-diff -Naurp --exclude-from excludes old/libsemanage/src/semanage_store.h new/libsemanage/src/semanage_store.h
---- old/libsemanage/src/semanage_store.h	2006-02-07 09:20:42.000000000 -0500
-+++ new/libsemanage/src/semanage_store.h	2006-02-14 15:06:19.000000000 -0500
-@@ -45,8 +45,16 @@ enum semanage_sandbox_defs {
- 	SEMANAGE_HOMEDIR_TMPL,
- 	SEMANAGE_FC_TMPL,
- 	SEMANAGE_COMMIT_NUM_FILE,
-+	SEMANAGE_PORTS_LOCAL,
-+	SEMANAGE_INTERFACES_LOCAL,
-+	SEMANAGE_NODES_LOCAL,
-+	SEMANAGE_BOOLEANS_LOCAL,
-+	SEMANAGE_FC_LOCAL,
-+	SEMANAGE_SEUSERS_LOCAL,
-+	SEMANAGE_USERS_BASE_LOCAL,
-+	SEMANAGE_USERS_EXTRA_LOCAL,
- 	SEMANAGE_SEUSERS,
--	SEMANAGE_USER_EXTRA,
-+	SEMANAGE_USERS_EXTRA,
- 	SEMANAGE_STORE_NUM_PATHS
- };
- 
+Looks ok, but we can then also purge those local variables that are no
+longer being used (prev, head, c).
 
 -- 
 Stephen Smalley
