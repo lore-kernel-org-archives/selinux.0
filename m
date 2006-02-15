@@ -1,59 +1,47 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1GDxgXf026698
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 08:59:43 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1GDxgXf026699
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 08:59:42 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1GDxd8P006145
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 13:59:39 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1GDxe8P006147
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 13:59:40 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id k1GDwZUW016698
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 08:58:35 -0500
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id k1GDwb5f016710
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 08:58:37 -0500
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id k1GDwZL6016697
-	for selinux@tycho.nsa.gov; Thu, 16 Feb 2006 08:58:35 -0500
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id k1GDwb1g016709
+	for selinux@tycho.nsa.gov; Thu, 16 Feb 2006 08:58:37 -0500
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1FGNDXf013286
-	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2006 11:23:13 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1FIKLXf015280
+	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2006 13:20:21 -0500 (EST)
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1FGNAtx021216
-	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2006 16:23:11 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1FIKItx009096
+	for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2006 18:20:18 GMT
 From: Steve Grubb <sgrubb@redhat.com>
-To: linux-audit@redhat.com
-Subject: Re: [RFC][PATCH] collect security labels on user =?iso-8859-1?q?processes=09generating_audit?= messages
-Date: Wed, 15 Feb 2006 11:22:37 -0500
-Cc: Linda Knippers <linda.knippers@hp.com>,
-   "Timothy R. Chavez" <tinytim@us.ibm.com>, James Morris <jmorris@namei.org>,
-   selinux@tycho.nsa.gov
-References: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com> <1140018578.11792.23.camel@localhost> <43F35354.2090108@hp.com>
-In-Reply-To: <43F35354.2090108@hp.com>
+To: Linda Knippers <linda.knippers@hp.com>
+Subject: Re: [RFC][PATCH] collect security labels on user processes generating audit messages
+Date: Wed, 15 Feb 2006 13:20:50 -0500
+Cc: linux-audit@redhat.com, "Timothy R. Chavez" <tinytim@us.ibm.com>,
+   James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+References: <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com> <200602151122.37945.sgrubb@redhat.com> <43F36244.7040000@hp.com>
+In-Reply-To: <43F36244.7040000@hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200602151122.37945.sgrubb@redhat.com>
+Message-Id: <200602151320.51016.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This should be a separate thread since the topic is different.
+On Wednesday 15 February 2006 12:17, Linda Knippers wrote:
+> type=PATH msg=audit(1140192875.311:3789): name="(null)" flags=1
+> inode=6537222 dev=fd:01 mode=0100664 ouid=501 ogid=501 rdev=00:00
 
-On Wednesday 15 February 2006 11:14, Linda Knippers wrote:
-> Amy submitted a patch a while back to eliminate the "name=" field
-> to avoid "name=(null)" from the audit records if there was no name
-> but I don't think the patch went anywhere.
+Wait a second...notice the quote marks around (null). When you have a genuine 
+(null) they are not there.
 
-Right. I want all audit fields to have name=value. If we have %s in the 
-message and pass NULL to it, snprintf is already going to put "(null)" so 
-what's wrong with just using this precedent?
+type=PATH msg=audit(02/14/2006 08:54:27.096:24) : item=1 name=(null) 
+inode=34681 dev=03:06 mode=dir,700 ouid=root ogid=root rdev=00:00 
+obj=system_u:object_r:automount_tmp_t:s0
 
-> It looks like there's a new case (for tty) where "(none)" is used.
-
-Yes for the same reason.
-
-
-> It would be nice to avoid having this in the audit records, especially
-> in this case where the value might never be set on a particular system.
-
-It creates parsing problems without a value. If I saw "tty="  and that's all, 
-I'd think the audit system malfunctioned and file a bugzilla. I don't want 
-that.
 
 -Steve
 
