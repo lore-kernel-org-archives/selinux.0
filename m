@@ -1,65 +1,91 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1GJQZXf001614
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 14:26:37 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1GJSoXf001666
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 14:28:51 -0500 (EST)
 Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1GJPBTW025655
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 19:25:11 GMT
-Subject: [RFC] semodule policy
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1GJRRTW026056
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 19:27:27 GMT
+Subject: Re: Latest diffs
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43F1E2AC.40603@redhat.com>
+References: <43EB8C6D.7060809@redhat.com> <1139868484.13925.134.camel@sgc>
+	 <43F1E2AC.40603@redhat.com>
 Content-Type: text/plain
-Date: Thu, 16 Feb 2006 14:28:46 -0500
-Message-Id: <1140118126.13925.211.camel@sgc.columbia.tresys.com>
+Date: Thu, 16 Feb 2006 14:30:57 -0500
+Message-Id: <1140118257.13925.213.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So we have the start of a semodule policy [1] that needs some discussion
-on its design.  Here are the relevant parts of the discussion:
-
 On Tue, 2006-02-14 at 09:01 -0500, Daniel J Walsh wrote:
-> Added semodule policy.  This still needs work.  semodule now wants to
-> create lock files in /etc/selinux/TYPE/modules sub directory.  I would
-> like to label this policy_config_t, problem is that all tools
-> (setfiles, restorecon ...) need write access in order to create the
-> lock file.  This is a serious problem.  I think we also need to
-> label /usr/share/selinux/TYPE/*.pp files as policy_config_t.
+> Christopher J. PeBenito wrote:
+> > On Thu, 2006-02-09 at 13:39 -0500, Daniel J Walsh wrote:
+> >   
+> >> Update build.conf to match what I believe should be the defaults.
+> >
+> > I don't see a compelling need to make MCS default for the upstream
+> > policy.  As for the MONOLITHIC=n, I'd prefer to wait until FC5 comes out
+> > so that there is a final release with loadable modules.
+> >   
+> I was looking to make these changes, back when I thought this was the 
+> Makefile for users to build reference policy.  I have made some changes 
+> to Makefile.devel instead.
 
-On Tue, 2006-02-14 at 14:03 -0500, Joshua Brindle wrote: 
-> setfiles nor restorecon link against libsemanage so they should not be 
-> touching the store at all, the store is a private resource of libsemanage.
-> 
-> The module store labeling strategy should reflect what I did with the 
-> access_check function, eg., making module/{active,previous} totally 
-> inaccessible to anything except semodule_t, giving 
-> module/semodule.read.LOCK and module/semodule.trans.LOCK different 
-> labels so we can have legitimate "read only" domains.
-> 
-> Then, TYPE/contexts and TYPE/policy can have whatever labels they have 
-> now with whatever access they have now and it should be fine. 
-> Unfortunatly having the 'active' binary policy out of the store 
-> eliminates some ability to encapsulate access to it but I suppose that 
-> can be addressed some other time.
+If you use the same settings (TYPE=.. NAME=..,etc.) when you run the
+headers-install target, the settings will be preserved in the build.conf
+that gets installed, so this change shouldn't be needed.
 
-I agree with Joshua, my current idea would be a .fc like (abbreviated):
+> >> Add some of Russell's mcs changes
+> >
+> > I dropped the mcs file change.  We can't have hard-coded types.
+> >   
+> Added a typealias mlskillall.  Does this look better?
 
-modules				-d	selinux_config_t
-modules/(active|previous|tmp)(/.*)? 	semodule_store_t
-modules/semanage.read.LOCK	--	semodule_read_lock_t
-modules/semanage.trans.LOCK	--	semodule_trans_lock_t
+Yes, that looks fine, but I renamed it to mcskillall, and created a mcs
+module for greater clarity.
 
-Then semodule_t would have a dir type_transition on selinux_config_t.
-Then the rest of semodule_t policy should hopefully fall in place.
+> >> mta/sendmail wants to read postfix config and spools.
+> >>     
+> >
+> > I don't understand why this change is needed for mta_send_mail().  It
+> > makes sendmail_exec_t an entrypoint for the domain that wants to send
+> > mail:
+> >   
+> Ok, where should I move it.
 
-As for /usr/share/selinux/$NAME/*.pp, I agree that they should have a
-different label, but I'm not sure they should be policy_config_t.
+Well it adds the rule:
 
-[1] http://marc.theaimsgroup.com/?l=selinux&m=113992576831596&w=2
+allow $1 sendmail_exec_t:file entrypoint;
+
+which doesn't make sense, why would sendmail_exec_t be an entrypoint for
+the domain sending the mail?
+
+> More fixes for postfix.
+
+I removed the sysnet_dontaudit_read_config(postfix_postdrop_t), since
+its redundant.  The DNS resolve rule right above it allows this access.
+
+> spamd needs ldap
+
+Already in there, but down by the other sysnet calls.
+
+> prelink needs to unlink lib_t lnk_files when managing them.
+
+I switched this over to a separate interface.
+
+> More privs for secadm
+
+Changed the corecmd_exec_shell(sysadm_t) to secadm_t.
+
+I didn't commit the semodule policy yet, pending discussion on its
+design.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
+
 
 
 --
