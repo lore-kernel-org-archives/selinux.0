@@ -1,92 +1,218 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id k1GJSoXf001666
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 14:28:51 -0500 (EST)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1GJRRTW026056
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 19:27:27 GMT
-Subject: Re: Latest diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43F1E2AC.40603@redhat.com>
-References: <43EB8C6D.7060809@redhat.com> <1139868484.13925.134.camel@sgc>
-	 <43F1E2AC.40603@redhat.com>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 14:30:57 -0500
-Message-Id: <1140118257.13925.213.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <43F4DBE0.3060204@trustedcs.com>
+Date: Thu, 16 Feb 2006 14:09:04 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Linux Audit Discussion <linux-audit@redhat.com>,
+   James Morris <jmorris@namei.org>
+Subject: Re: [RFC] [PATCH]
+References: <43F49805.2000109@trustedcs.com> <1140113563.12655.140.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1140113563.12655.140.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-02-14 at 09:01 -0500, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Thu, 2006-02-09 at 13:39 -0500, Daniel J Walsh wrote:
-> >   
-> >> Update build.conf to match what I believe should be the defaults.
-> >
-> > I don't see a compelling need to make MCS default for the upstream
-> > policy.  As for the MONOLITHIC=n, I'd prefer to wait until FC5 comes out
-> > so that there is a final release with loadable modules.
-> >   
-> I was looking to make these changes, back when I thought this was the 
-> Makefile for users to build reference policy.  I have made some changes 
-> to Makefile.devel instead.
+Stephen Smalley wrote:
+> On Thu, 2006-02-16 at 09:19 -0600, Darrel Goeddel wrote:
+> 
+>>This is still a work in progress (I'm guessing that the conversion of Dustin's
+>>earlier work will point out some improvements to these interfaces).  I also
+>>need to check the context of memory allocations.
+> 
+> 
+> Needs to be GFP_ATOMIC when the policy rdlock is held.
 
-If you use the same settings (TYPE=.. NAME=..,etc.) when you run the
-headers-install target, the settings will be preserved in the build.conf
-that gets installed, so this change shouldn't be needed.
+Thanks.  Now I have to figure out how to propogate ENOMEM...
 
-> >> Add some of Russell's mcs changes
-> >
-> > I dropped the mcs file change.  We can't have hard-coded types.
-> >   
-> Added a typealias mlskillall.  Does this look better?
+> 
+>>I'm only allow == and != for type, role, and user because they seemed to be
+>>the only ones that make sense, is that OK, or should I take them all even
+>>though they may not do anything useful?  Does the general approach seem acceptable?
+> 
+> 
+> Role dominance is another possibility, although I don't know if it would
+> be used in practice.  Did you consider trying to leverage or factor
+> common code with constraint_expr_eval?
 
-Yes, that looks fine, but I renamed it to mcskillall, and created a mcs
-module for greater clarity.
+True on role dominance.  No on constraint_expr_eval - I'll give it a look.
 
-> >> mta/sendmail wants to read postfix config and spools.
-> >>     
-> >
-> > I don't understand why this change is needed for mta_send_mail().  It
-> > makes sendmail_exec_t an entrypoint for the domain that wants to send
-> > mail:
-> >   
-> Ok, where should I move it.
+> 
+>>+int selinux_audit_rule_init(u32 field, u32 op, const char *rulestr,
+>>+                            void **rule);
+> 
+> 
+> We could alternatively define an opaque struct type for the rule, and
+> just keep the definition private to SELinux.  That allows proper type
+> checking in the audit code when they are passed around and stored.
+> 
+> 
+>>+int selinux_task_getsecid(struct task_struct *tsk);
+> 
+> 
+> SID is an unsigned 32-bit quantity, but you return a signed int.  And
+> typically it seems that it is preferred to return-by-argument and leave
+> the return value as either an integer error status (0 or -errno) or void
+> if no errors are possible.
 
-Well it adds the rule:
+I'll change to:
 
-allow $1 sendmail_exec_t:file entrypoint;
+void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid)
 
-which doesn't make sense, why would sendmail_exec_t be an entrypoint for
-the domain sending the mail?
+Thats in-line with James' selinux_sk_ctxid
 
-> More fixes for postfix.
+> 
+>>diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+>>index d877cd1..480df81 100644
+>>--- a/security/selinux/ss/services.c
+>>+++ b/security/selinux/ss/services.c
+>>@@ -1810,3 +1810,250 @@ out:
+>> 	POLICY_RDUNLOCK;
+>> 	return rc;
+>> }
+>>+
+>>+struct selinux_audit_rule {
+>>+	u32 au_skip;
+> 
+> 
+> Not sure I understand when skipped rules get re-processed.
 
-I removed the sysnet_dontaudit_read_config(postfix_postdrop_t), since
-its redundant.  The DNS resolve rule right above it allows this access.
+I'll add some comments for that.  A rule will get reprocessed when a new
+policy is loaded (triggered by the seqno check in security_aurule_match).
+That will then reset the au_skip field appropriately.  The idea behind this
+is to allow a rule to be present for a type, role, etc. that does not exist
+in the current policy, but they are never processed.  If the item is included
+in a policy that is loaded later, the rule will be setup completely and
+activated (au_skip = 0).  Conversely, if an item disappears, the rule is
+just inactivated.
 
-> spamd needs ldap
+This give the same behavior as the other audit rule fields.  For example, a
+rule can be there for a uid that is not used on the system and it will simply
+never match.  If that uid is later used on the system, the rule will then be
+used.  Same goes for inums that aren't used and probably most other fields...
 
-Already in there, but down by the other sysnet calls.
+> 
+>>+static void aurule_init_context(struct selinux_audit_rule *aurule)
+> 
+> <snip>
+> 
+>>+	if (rc) {
+>>+		aurule->au_skip = 1;
+>>+		context_destroy(&aurule->au_ctxt);
+>>+	} else {
+>>+		/* we merely flags this rule to not be processed - the role,
+>>+		   user, type, or level of the rule may not be valid now, but
+>>+		   may be after a future policy reload. */
+>>+		aurule->au_skip = 0;
+>>+	}
+> 
+> 
+> Hmm..seems like you'd want an error status returned all the way to
+> userspace (auditctl) so that the user knows it isn't active.
 
-> prelink needs to unlink lib_t lnk_files when managing them.
+The above comment hopefully explains my thinking on this one.  Steve Grubb had
+the same question and seemed to buy into my explanation.
 
-I switched this over to a separate interface.
+> 
+>>+	if (!ss_initialized) {
+>>+		tmprule->au_seqno = latest_granting;
+>>+		tmprule->au_skip = 1;
+>>+		*rule = tmprule;
+>>+		return 0;
+>>+	}
+> 
+> 
+> I think we should just reject audit filters on contexts until policy is
+> loaded, and not try to defer them.
 
-> More privs for secadm
+True.  My previous "testing" did add rules before policy load with an __initcall in
+the audit module - but I somehow don't think that will be standard practice...
 
-Changed the corecmd_exec_shell(sysadm_t) to secadm_t.
+> 
+>>+int security_aurule_match(u32 ctxid, void *rule)
+>>+{
+> 
+> <snip>
+> 
+>>+	POLICY_RDLOCK;
+>>+
+>>+	if (aurule->au_seqno < latest_granting) {
+>>+		context_destroy(&aurule->au_ctxt);
+>>+		aurule->au_seqno = latest_granting;
+>>+		aurule_init_context(aurule);
+>>+	}
+> 
+> 
+> Interesting approach; I was expecting to have the audit system register
+> an AVC callback for reloads (similar to netif table) and initiate the
+> re-processing of its audit rules at that time.  And simply fail on
+> filters with stale seqnos if there happened to be an interleaving with
+> the policy reload.  I suppose that this is more robust.
 
-I didn't commit the semodule policy yet, pending discussion on its
-design.
+I was hoping you'd agree on this one.  This idea seemed much simpler to me and
+I think it avoids quite a bit of extra code for the rule rebuilding.
+
+> 
+>>+	if (aurule->au_skip)
+>>+		goto out;
+> 
+> 
+> Ok, but when does the skip flag ever get cleared?
+
+See above comment on rule re-processing.
+
+>>+	ctxt = sidtab_search(&sidtab, ctxid);
+>>+	if (!ctxt) {
+>>+		/* TODO: what to do? */
+>>+		printk(KERN_ERR "security_aurule_match: unrecognized SID %d\n",
+>>+		       ctxid);
+>>+		match = -EINVAL;
+>>+		goto out;
+>>+	}
+> 
+> 
+> Unlikely since sidtab_search remaps invalid SIDs to unlabeled to deal
+> with invalidated SIDs due to reloads.
+
+True.  I'm thinking this is a pretty bad one since it really shouldn't happen.
+I'll have to see how the user intends to handle the return of this function
+before a final patch will be ready.
+
+> 
+>>+		case AUDIT_LESS_THAN_OR_EQUAL:
+>>+			match = (mls_level_eq(&aurule->au_ctxt.range.level[0],
+>>+			                      level) ||
+>>+			         mls_level_dom(&aurule->au_ctxt.range.level[0],
+>>+			                       level));
+>>+			break;
+> 
+> 
+> Isn't checking both redundant?  Did you mean to force !mls_level_eq in
+> the LESS_THAN case?
+> 
+> 
+>>+		case AUDIT_GREATER_THAN:
+>>+			match = mls_level_dom(level,
+>>+			                      &aurule->au_ctxt.range.level[0]);
+>>+			break;
+>>+		case AUDIT_GREATER_THAN_OR_EQUAL:
+>>+			match = (mls_level_eq(&aurule->au_ctxt.range.level[0],
+>>+			                      level) ||
+>>+			         mls_level_dom(level,
+>>+			                      &aurule->au_ctxt.range.level[0]));
+>>+			break;
+> 
+> 
+> Ditto.
+
+Yep to both.  I was thinking of the old mls_level_realtion function that would return
+EQ before DOM...  You think I'd know better on that one ;)
+
+Thanks for the feedback.  Next version will incorporate the changes.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
-
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
