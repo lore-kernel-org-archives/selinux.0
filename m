@@ -1,74 +1,70 @@
-Message-ID: <43F4E9F4.7030106@tresys.com>
-Date: Thu, 16 Feb 2006 16:09:08 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [RFC] semodule policy
-References: <1140118126.13925.211.camel@sgc.columbia.tresys.com> <1140123490.12655.183.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1140123490.12655.183.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Sender: owner-selinux@tycho.nsa.gov
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by localhost.localdomain (8.13.1/8.13.1) with ESMTP id k1H4OLJP006857
+	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 23:24:21 -0500
+Received: from rwcrmhc14.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1H4OJPl015244
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 04:24:20 GMT
+Subject: semanage non MLS breakage
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AKmgKeATGqJYu6Jsw29P"
+Date: Thu, 16 Feb 2006 23:24:18 -0500
+Message-Id: <1140150258.13377.15.camel@gorn.pebenito.net>
+Mime-Version: 1.0
+Sender: owner-selinux@tycho.ncsc.mil
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-02-16 at 14:28 -0500, Christopher J. PeBenito wrote:
->> I agree with Joshua, my current idea would be a .fc like (abbreviated):
->>
->> modules				-d	selinux_config_t
->> modules/(active|previous|tmp)(/.*)? 	semodule_store_t
->> modules/semanage.read.LOCK	--	semodule_read_lock_t
->> modules/semanage.trans.LOCK	--	semodule_trans_lock_t
-> 
-> Will libsemanage be modified to set and preserve the type on the lock
-> files? 
 
-Assuming that the semodule policy isn't present at initialization time 
-(bootstrap) the module store will have to be relabeled anyway. I could 
-add matchpathcon requests to create_store but I'm unsure if it will be 
-helpful.
+--=-AKmgKeATGqJYu6Jsw29P
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> How will it obtain the correct type for the lock files in the
-> bootstrap case where there is no file_contexts yet? 
+With the current sourceforge CVS, non MLS usage is broken with semanage:
 
-right, the problem I'm avoiding by not handling it in libsemanage :)
+# semanage login -l
 
-> It would be easier
-> if they lived in separate subdirectories so that we could just use
-> directory inheritance, as with the installed kernel binary policy file
-> and the installed file_contexts file. 
+Login Name                SELinux User              MLS/MCS Range
 
-the locks aren't ever deleted after creation (although if they are 
-deleted it shouldn't cause problems), a single file per directory is 
-kind of broken but I see why it might be helpful
+root                      root                      __default__:user_u
 
-> Top-level files
-> in /etc/selinux/$SELINUXTYPE have the same issue, like seusers and
-> setrans.conf, if we ever want them individually typed.  selinux_config_t
-> tends to be widely readable.
-> 
->> Then semodule_t would have a dir type_transition on selinux_config_t.
->> Then the rest of semodule_t policy should hopefully fall in place.
-> 
-> Should the domain be semanage_t to reflect use of libsemanage, and put
-> all three of semodule, setsebool, and semanage into it?
+# semanage login -a -s staff_u pebenito
+Segmentation fault
 
-probably. The other issue is that semanage/semodule/setsebool needs to 
-run in the user context in the policy server case so that policy access 
-control is done against their domain. I guess this will be a boolean/tunable
 
-> 
->> As for /usr/share/selinux/$NAME/*.pp, I agree that they should have a
->> different label, but I'm not sure they should be policy_config_t.
->>
->> [1] http://marc.theaimsgroup.com/?l=selinux&m=113992576831596&w=2
-> 
-> Likely should add a new type for them.  Then we can possibly create
-> pipelines from their type to the store files via the approved programs.
-> 
+The seusers file installed from refpolicy, in the base module looks
+like:
 
-sure.
+root:root:
+__default__:user_u:
+
+It doesn't work with or without the last colon.
+
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+
+--=-AKmgKeATGqJYu6Jsw29P
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBD9U/yvI7kLeavkkMRAnpfAKCSPBb4SezbVRz5mcCuJa8SZtbDrwCfeq65
+TnQP6ARizfS0rk9BVVdWFNM=
+=J8Zb
+-----END PGP SIGNATURE-----
+
+--=-AKmgKeATGqJYu6Jsw29P--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
