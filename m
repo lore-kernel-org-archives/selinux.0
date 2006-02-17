@@ -1,43 +1,53 @@
-Subject: Re: [RFC] [PATCH]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: dustin.kirkland@us.ibm.com
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        Linux Audit Discussion <linux-audit@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <1140192267.3083.119.camel@kirkland1.austin.ibm.com>
-References: <43F49805.2000109@trustedcs.com>
-	 <1140113563.12655.140.camel@moss-spartans.epoch.ncsc.mil>
-	 <43F4DBE0.3060204@trustedcs.com>
-	 <1140122205.12655.171.camel@moss-spartans.epoch.ncsc.mil>
-	 <43F5E12E.70003@trustedcs.com>
-	 <1140192267.3083.119.camel@kirkland1.austin.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1HJQWZB031646
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 14:26:36 -0500
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1HJP7UT023836
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 19:25:07 GMT
+Subject: Re: ipsec in reference policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Joy Latten <latten@austin.ibm.com>
+Cc: selinux@tycho.nsa.gov, selinux-dev@tresys.com
+In-Reply-To: <1140190343.3137.189.camel@faith.austin.ibm.com>
+References: <1140190343.3137.189.camel@faith.austin.ibm.com>
 Content-Type: text/plain
-Date: Fri, 17 Feb 2006 13:26:29 -0500
-Message-Id: <1140200789.29938.14.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 17 Feb 2006 14:28:46 -0500
+Message-Id: <1140204526.13925.274.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-02-17 at 10:04 -0600, Dustin Kirkland wrote:
-> On Fri, 2006-02-17 at 08:43 -0600, Darrel Goeddel wrote:
-> > It would seem to me that we need the current functionality of keeping all rules
-> > that are set up and revalidating them upon policy loads.  If we don't do it here,
-> > it would need to be done at the audit layer - it might not be as pretty there.
-> 
-> 
-> I don't know...  My first thoughts are that it seems like the audit
-> layer should be ignorant of policy loads/reloads--that's not really it's
-> business.
+On Fri, 2006-02-17 at 09:32 -0600, Joy Latten wrote:
+> I would like to stress test ipsec and nethooks. setkey utility complains
+> about permissions when I try to install policy though. I noticed that
+> there is an ipsec.if in /usr/share/selinux/refpolicy/include. I noticed
+> an ipsec module in the source. However, none of my ipsec utilities or
+> config files appear to be labeled according to .fc so I am thinking
+> ipsec module itself has not been installed in base policy?? Since I
+> would like to stress test ipsec nethooks, I can somewhat test this
+> module and make any corrections. But first I would like to verify that
+> it has not been installed as base policy but future plan is to do so. If
+> I am misunderstanding it all, please correct me so I can proceed in
+> right direction.
 
-Disagree - it is caching policy information, and thus should register a
-callback for notification of reloads so that it can re-process its audit
-rules at that time, similar to the netif table.  That would presumably
-address the locking concern as well.
+>From what I see in Fedora CVS [1], ipsec is in the base module for the
+MLS policy, a loadable module for strict, and not included in the
+targeted policy.  If the policy is in there, and tools aren't labeled
+correctly, and restorecon didn't fix the labels, my guess would be that
+we need to update the file contexts.
+
+> Also, is there a way to see which modules are in base policy?
+> I saw the semodule -l, but it is for non-base modules...
+
+At the moment, I believe all you can do is to look at the modules.conf
+used to build the policy.
+
+[1] http://cvs.fedora.redhat.com/viewcvs/devel/selinux-policy/
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
