@@ -1,70 +1,35 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by localhost.localdomain (8.13.1/8.13.1) with ESMTP id k1H4OLJP006857
-	for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2006 23:24:21 -0500
-Received: from rwcrmhc14.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1H4OJPl015244
-	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 04:24:20 GMT
-Subject: semanage non MLS breakage
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AKmgKeATGqJYu6Jsw29P"
-Date: Thu, 16 Feb 2006 23:24:18 -0500
-Message-Id: <1140150258.13377.15.camel@gorn.pebenito.net>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by localhost.localdomain (8.13.1/8.13.1) with ESMTP id k1H5fSP9007842
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 00:41:28 -0500
+Received: from authusersmtp.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1H5e31d015895
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 05:40:03 GMT
+Message-ID: <43F561F3.4080200@cornell.edu>
+Date: Fri, 17 Feb 2006 00:41:07 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Chris PeBenito <pebenito@gentoo.org>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: semanage non MLS breakage
+References: <1140150258.13377.15.camel@gorn.pebenito.net>
+In-Reply-To: <1140150258.13377.15.camel@gorn.pebenito.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.ncsc.mil
 List-Id: selinux@tycho.nsa.gov
 
 
---=-AKmgKeATGqJYu6Jsw29P
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-With the current sourceforge CVS, non MLS usage is broken with semanage:
-
-# semanage login -l
-
-Login Name                SELinux User              MLS/MCS Range
-
-root                      root                      __default__:user_u
-
-# semanage login -a -s staff_u pebenito
-Segmentation fault
-
-
-The seusers file installed from refpolicy, in the base module looks
-like:
-
-root:root:
-__default__:user_u:
-
-It doesn't work with or without the last colon.
-
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
-
---=-AKmgKeATGqJYu6Jsw29P
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBD9U/yvI7kLeavkkMRAnpfAKCSPBb4SezbVRz5mcCuJa8SZtbDrwCfeq65
-TnQP6ARizfS0rk9BVVdWFNM=
-=J8Zb
------END PGP SIGNATURE-----
-
---=-AKmgKeATGqJYu6Jsw29P--
-
+> # semanage login -l
+>
+> Login Name                SELinux User              MLS/MCS Range
+>
+> root                      root                      __default__:user_u
+>
+> # semanage login -a -s staff_u pebenito
+> Segmentation fault
+>
+>   
+PeBenito, can you provide a trace with line numbers (i.e. 
+libsemanage-debuginfo, and libsepol-debuginfo installed)?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
