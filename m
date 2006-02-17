@@ -1,50 +1,57 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1HFAE3V021038
-	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 10:10:16 -0500
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1HFABPl001067
-	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 15:10:11 GMT
-Message-ID: <43F5E74C.7050904@gentoo.org>
-Date: Fri, 17 Feb 2006 10:10:04 -0500
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: Chris PeBenito <pebenito@gentoo.org>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: semanage non MLS breakage
-References: <1140150258.13377.15.camel@gorn.pebenito.net> <43F561F3.4080200@cornell.edu> <43F5DC70.3070103@gentoo.org> <43F5E618.4010001@cornell.edu>
-In-Reply-To: <43F5E618.4010001@cornell.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1HG8sHF023340
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 11:08:54 -0500
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1HG8pPl014475
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 16:08:51 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4) with ESMTP id k1HG7mb8024926
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 11:07:48 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.4/8.13.4/Submit) id k1HG7mbA024925
+	for selinux@tycho.nsa.gov; Fri, 17 Feb 2006 11:07:48 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1HFhIK2022225
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 10:43:18 -0500
+Received: from e36.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1HFfU1d022702
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 15:41:31 GMT
+Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
+	by e36.co.us.ibm.com (8.12.11/8.12.11) with ESMTP id k1HFdqRU001471
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 10:39:52 -0500
+Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
+	by westrelay02.boulder.ibm.com (8.12.10/NCO/VERS6.8) with ESMTP id k1HFbUXP252346
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 08:37:34 -0700
+Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av03.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k1HFdlT1023441
+	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 08:39:47 -0700
+Subject: ipsec in reference policy
+From: Joy Latten <latten@austin.ibm.com>
+To: selinux@tycho.nsa.gov
+Cc: cpebenito@tresys.com, selinux-dev@tresys.com
+Content-Type: text/plain
+Date: Fri, 17 Feb 2006 09:32:22 -0600
+Message-Id: <1140190343.3137.189.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
->
->>>> # semanage login -l
->>>>
->>>> Login Name                SELinux User              MLS/MCS Range
->>>>
->>>> root                      root                      __default__:user_u
-> That doesn't look like a valid MLS range.
-> What exactly is in your seusers file?
->>
->> #2  0x00476143 in sepol_mls_contains (handle=0x8b06b70, 
->> policydb=0x8b30a78, mls1=0x0, mls2=0x8b2fd98 "s0", response=0xbfdc7068)
-> This indicates the seuser has an mls range s0, but the user does not. 
-> The mls check is conditional on the seuser's mls range, which is why 
-> it proceeds.  I can add a check that makes sure neither exists, but it 
-> shouldn't be necessary - on a non-MLS system the seuser should not 
-> have an mls range.
->
-if it has s0 then semanage is dreaming it up because the policy has no 
-mls whatsoever and none was specified on the command line.
-> I'm not sure how a situation would occur where the seuser has an mls 
-> range on a non-mls system. I guess seuser_print will write out an mls 
-> field if it finds one, so maybe that's how this happens...it gets an 
-> mls field from the policy package, and fails to ignore it. Need more 
-> info.
+I would like to stress test ipsec and nethooks. setkey utility complains
+about permissions when I try to install policy though. I noticed that
+there is an ipsec.if in /usr/share/selinux/refpolicy/include. I noticed
+an ipsec module in the source. However, none of my ipsec utilities or
+config files appear to be labeled according to .fc so I am thinking
+ipsec module itself has not been installed in base policy?? Since I
+would like to stress test ipsec nethooks, I can somewhat test this
+module and make any corrections. But first I would like to verify that
+it has not been installed as base policy but future plan is to do so. If
+I am misunderstanding it all, please correct me so I can proceed in
+right direction.
 
-what info? it isn't hard to reproduce.
+Also, is there a way to see which modules are in base policy?
+I saw the semodule -l, but it is for non-base modules...
+
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
