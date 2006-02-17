@@ -1,57 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1HFjJIT022485
-	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 10:45:19 -0500
-Received: from authusersmtp.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1HFhk1d022926
-	for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2006 15:43:46 GMT
-Message-ID: <43F5EE32.5080101@cornell.edu>
-Date: Fri, 17 Feb 2006 10:39:30 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43F5F88A.8040702@trustedcs.com>
+Date: Fri, 17 Feb 2006 10:23:38 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@gentoo.org>
-CC: Chris PeBenito <pebenito@gentoo.org>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: semanage non MLS breakage
-References: <1140150258.13377.15.camel@gorn.pebenito.net> <43F561F3.4080200@cornell.edu> <43F5DC70.3070103@gentoo.org> <43F5E618.4010001@cornell.edu> <43F5E74C.7050904@gentoo.org> <43F5E97B.8060102@cornell.edu> <43F5EB83.30402@gentoo.org>
-In-Reply-To: <43F5EB83.30402@gentoo.org>
+To: dustin.kirkland@us.ibm.com
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux Audit Discussion <linux-audit@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: [RFC] [PATCH]
+References: <43F49805.2000109@trustedcs.com>	 <1140113563.12655.140.camel@moss-spartans.epoch.ncsc.mil>	 <43F4DBE0.3060204@trustedcs.com>	 <1140122205.12655.171.camel@moss-spartans.epoch.ncsc.mil>	 <43F5E12E.70003@trustedcs.com> <1140192267.3083.119.camel@kirkland1.austin.ibm.com>
+In-Reply-To: <1140192267.3083.119.camel@kirkland1.austin.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Dustin Kirkland wrote:
+> On Fri, 2006-02-17 at 08:43 -0600, Darrel Goeddel wrote:
+> 
+>>It would seem to me that we need the current functionality of keeping all rules
+>>that are set up and revalidating them upon policy loads.  If we don't do it here,
+>>it would need to be done at the audit layer - it might not be as pretty there.
+> 
+> 
+> 
+> I don't know...  My first thoughts are that it seems like the audit
+> layer should be ignorant of policy loads/reloads--that's not really it's
+> business.
 
->
-> # cat /etc/selinux/test-nomcs/modules/active/seusers.final
-> root:root:
-> __default__:user_u:
->
-Ok, let's see... that semicolon shouldn't be there at the end.
-It causes the parser to look for an mls range.
-This is parsed as:
-user = root, seuser = root, mls_range = "__default__:user_u:"
+I was trying to avoid knowledge of policy reloads (and really policy in general)
+with the rule skipping piece and the sequo checking when the rule is used.  As
+far as the audit system is concerned, SELinux could be rolling dice to determine
+matches.
 
-That explains the output out of semanage, which doesn't make any sense 
-otherwise.
-Not sure why the end colon of the range is removed, but it seems 
-plausible during translation and all that.
-======================
-So, your seuser has an mls range, which causes a crash, because 
-libsemanage doesn't handle that case very well.
-I will patch the library to prevent that crash, but for the moment I 
-suggest you get rid of the end colon.
-=======================
-As far as "s0" is concerned - I have no idea where that's coming from - 
-did you possibly give me a trace that doesn't match those files (you 
-said you'd seen it before, not sure if you pasted old or new trace).
+As for the big picture.  Steve Grubb suggested a compromise of keeping the current
+methodology and enhancing it with KERN_INFO messages.  I'd suggest message for the
+following:
 
+- a rule that is inactive is inserted
+- a rule that was active becomes inactive
+- a rule that was inactive becomes active
 
+Does that fit the bill?
 
+-- 
 
-
-
-
-
-
-
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
