@@ -1,43 +1,36 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1KHQYUs017807
-	for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2006 12:26:34 -0500
-Received: from authusersmtp.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1KHQVQp020555
-	for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2006 17:26:31 GMT
-Message-ID: <43F9FBC4.5040505@cornell.edu>
-Date: Mon, 20 Feb 2006 12:26:28 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Message-ID: <43FA11E1.7070003@redhat.com>
+Date: Mon, 20 Feb 2006 14:00:49 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Latesr diffs
-References: <43F86FA2.8010505@redhat.com> <1140452650.30819.6.camel@sgc>
-In-Reply-To: <1140452650.30819.6.camel@sgc>
+To: Ivan Gyurdiev <ivg2@cornell.edu>, Joshua Brindle <jbrindle@tresys.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Audit log denials for strict policy
+References: <43F88282.5070404@cornell.edu> <43F9F986.5050604@redhat.com> <43F9FD5E.1040302@cornell.edu> <43FA0CB2.4000507@redhat.com> <43FA101E.8020206@cornell.edu>
+In-Reply-To: <43FA101E.8020206@cornell.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> I put the implementation of the interface in a ifdef(`targeted_policy'
-> since its not valid for strict.
+Ivan Gyurdiev wrote:
 >
-> Dropped the semodule policy, see the semodule policy thread.
+>> No I think this is a sorting problem in file_contexts file.
+>>
+>> Does var_log_t come after wtmp_t?
+>>
+> Yes, but that shouldn't mean anything, this file should get sorted in 
+> matchpathcon (so I've been told..)
 >
-> The remainder should be merged.
->   
-I wanted to comment on ... the nvidia drivers.
+> The two specs are:
+>
+> /var/log/wtmp.*         --      system_u:object_r:wtmp_t:s0
+> /var/log/.*                     system_u:object_r:var_log_t:s0
+We seem to have a sorting problem within matchpathcon on strict policy.
 
-As a person that uses Nvidia drivers, I'd still argue that 
-nvidia-related execstack things should have their own boolean that's 
-disabled by default. Not everyone uses accelerated nvidia drivers, so 
-not everyone would need this.
+Strict policy labels wtmp file in a loadable module, but the sorting 
+algorithm is using var_log_t????
 
-That said, I am not convinced that at the moment the Mesa drivers don't 
-suffer from the same problem - I see the library is marked GNU_STACK 
-RWE. I guess more testing is necessary with Mesa. All I can say at the 
-moment is that I get { execstack execmem } and execute /dev/zero denials 
-with the nvidia libGL.
-
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
