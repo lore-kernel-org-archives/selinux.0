@@ -1,35 +1,36 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1K7MuWS008428
-	for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2006 02:22:56 -0500
-Received: from authusersmtp.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1K7LWLI029940
-	for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2006 07:21:32 GMT
-Message-ID: <43F96E4E.6020704@cornell.edu>
-Date: Mon, 20 Feb 2006 02:22:54 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Chris PeBenito <pebenito@gentoo.org>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: libselinux swig wrapper breakage
-References: <1140408745.8756.31.camel@gorn.pebenito.net>
-In-Reply-To: <1140408745.8756.31.camel@gorn.pebenito.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1KGLYZS016260
+	for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2006 11:21:38 -0500
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1KGK9LI027583
+	for <selinux@tycho.nsa.gov>; Mon, 20 Feb 2006 16:20:09 GMT
+Subject: Re: Latesr diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43F86FA2.8010505@redhat.com>
+References: <43F86FA2.8010505@redhat.com>
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 11:24:10 -0500
+Message-Id: <1140452650.30819.6.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 2006-02-19 at 08:16 -0500, Daniel J Walsh wrote:
+> Add java_domtrans to eliminate some exec* messages in log files
 
-> Traceback (most recent call last):
->   File "<stdin>", line 1, in ?
-> TypeError: argument number 1: a 'security_context_t *' is expected, 'str(user_u:user_r:user_spamassassin_t)' is received
->   
-You're passing a string into something that expects a security_context_t.
+I put the implementation of the interface in a ifdef(`targeted_policy'
+since its not valid for strict.
 
-That won't work - it fails, because security_context_t is an opaque 
-type, and swig has no idea that it represents a char*. It would know 
-that if selinux.h was included in the interface file. However, the swig 
-bindings for selinux take the approach of listing all the functions 
-manually (and omitting the public definition of security_context_t as a 
-char*).
+Dropped the semodule policy, see the semodule policy thread.
+
+The remainder should be merged.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
