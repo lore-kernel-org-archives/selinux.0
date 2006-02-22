@@ -1,40 +1,38 @@
-Subject: Re: semanage non MLS breakage
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Chris PeBenito <pebenito@gentoo.org>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <43F8A847.8010709@cornell.edu>
-References: <1140150258.13377.15.camel@gorn.pebenito.net>
-	 <43F561F3.4080200@cornell.edu> <43F5DC70.3070103@gentoo.org>
-	 <43F5E618.4010001@cornell.edu> <43F5E74C.7050904@gentoo.org>
-	 <43F5E97B.8060102@cornell.edu> <43F5EB83.30402@gentoo.org>
-	 <43F5EE32.5080101@cornell.edu>  <43F64063.4040601@cornell.edu>
-	 <1140288277.18548.28.camel@gorn.pebenito.net>
-	 <43F77E2B.3050108@cornell.edu> <43F86035.1010401@cornell.edu>
-	 <43F8A2AC.9070601@tresys.com>  <43F8A847.8010709@cornell.edu>
+Subject: Re: [RFC][PATCH] collect security labels on user
+	processes	generating audit messages
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Linux Audit Discussion <linux-audit@redhat.com>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+In-Reply-To: <1140618378.31467.199.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <Pine.LNX.4.44.0602090950470.21925-100000@redline.boston.redhat.com>
+	 <1139530450.12638.7.camel@localhost>
+	 <1139857945.14253.112.camel@moss-spartans.epoch.ncsc.mil>
+	 <1139960902.326.5.camel@localhost>  <43F39797.1050602@trustedcs.com>
+	 <1140209880.752.12.camel@localhost>
+	 <1140618378.31467.199.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 22 Feb 2006 10:49:25 -0500
-Message-Id: <1140623365.31467.244.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 22 Feb 2006 11:13:24 -0600
+Message-Id: <1140628404.9332.1.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-02-19 at 12:17 -0500, Ivan Gyurdiev wrote:
-> > It's an invalid context, I don't think there is anything you *can* do 
-> > except fatally error. Consider what would happen if there was a proper 
-> > MLS context with multiple levels on an MCS policy...
-> Well, in that case, patch attached. Also fixes printing of mls_range in 
-> the error case for seuser_validate.
-> Applies on top of the previous one.
+On Wed, 2006-02-22 at 09:26 -0500, Stephen Smalley wrote:
+> On Fri, 2006-02-17 at 14:58 -0600, Timothy R. Chavez wrote:
+> > Thanks Darrel!  New patch attached... so... assuming this is good... how
+> > are we going to do this API merger :] ?
 > 
-> That leaves the semanage tool to audit and fix for non-MLS issues.
+> Looks like your selinux_task_getsecid could be dropped in favor of
+> Darrel's selinux_task_ctxid.
+> 
 
-Merged both patches (libsepol 1.11.19, libsemanage 1.5.29).  As noted by
-Ivan, semanage still needs to be modified to not presume MLS.
+Yeah.  I'll post an updated patch against his work when it goes
+upstream.  That seems to be the easiest solution.  Thanks.
 
--- 
-Stephen Smalley
-National Security Agency
+-tim
 
 
 --
