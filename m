@@ -1,34 +1,72 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1MF420I026613
-	for <selinux@tycho.nsa.gov>; Wed, 22 Feb 2006 10:04:02 -0500
 Subject: Re: [PATCH] context based audit filtering (take 3)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Dustin Kirkland <dustin.kirkland@gmail.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, James Morris <jmorris@namei.org>,
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
         Linux Audit Discussion <linux-audit@redhat.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <d9c105ea0602212217g2f255fd8gbf6ac190d7ccd751@mail.gmail.com>
+        Dustin Kirkland <dustin.kirkland@us.ibm.com>,
+        Amy Griffis <amy.griffis@hp.com>, James Morris <jmorris@namei.org>
+In-Reply-To: <1140620842.31467.234.camel@moss-spartans.epoch.ncsc.mil>
 References: <43F49805.2000109@trustedcs.com>
-	 <43FB86DD.2020708@trustedcs.com> <43FBA962.5090904@trustedcs.com>
-	 <d9c105ea0602212217g2f255fd8gbf6ac190d7ccd751@mail.gmail.com>
+	 <43FB86DD.2020708@trustedcs.com>  <43FBA962.5090904@trustedcs.com>
+	 <1140620842.31467.234.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 22 Feb 2006 10:09:27 -0500
-Message-Id: <1140620967.31467.236.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 22 Feb 2006 10:24:00 -0500
+Message-Id: <1140621840.31467.242.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-02-22 at 00:17 -0600, Dustin Kirkland wrote:
-> > - printk a warning and ignore invalid selinux rules (but still hang on to them
-> >   so they may be activated with a later policy reload).
+On Wed, 2006-02-22 at 10:07 -0500, Stephen Smalley wrote:
+> On Tue, 2006-02-21 at 17:59 -0600, Darrel Goeddel wrote:
+> > - Add a selinux callback for re-initializing the se_rule field when there is
+> >   a policy reload.  THIS NEEDS WORK - It doesn't obey proper locking yet, but
+> >   it is functional.  I need to get my head around the locking of the audit
+> >   structures a little better - I'll also take suggestions ;)
+> <snip>
+> > @@ -726,3 +777,45 @@ unlock_and_return:
+> >  	rcu_read_unlock();
+> >  	return result;
+> >  }
+> > +
+> > +static int selinux_callback(void)
+> > +{
+> > +	struct audit_entry *entry;
+> > +	int i, j, err = 0;
+> > +
+> > +	/* TODO: add proper locking. */
+> > +	for (i = 0; i < AUDIT_NR_FILTERS; i++) {
+> > +		list_for_each_entry(entry, &audit_filter_list[i], list) {
+> > +			for (j = 0; j < entry->rule.field_count; j++) {
+> > +				struct audit_field *f = &entry->rule.fields[j];
+> > +				switch (f->type) {
+> > +				case AUDIT_SE_USER:
+> > +				case AUDIT_SE_ROLE:
+> > +				case AUDIT_SE_TYPE:
+> > +				case AUDIT_SE_SEN:
+> > +				case AUDIT_SE_CLR:
+> > +					selinux_audit_rule_free(f->se_rule);
+> > +					err = selinux_audit_rule_init(f->type,
+> > +					         f->op, f->se_str, &f->se_rule);
+> > +					if (err == -EINVAL) {
+> > +						printk(KERN_WARNING "selinux audit rule for item %s is invalid\n", f->se_str);
+> > +						err = 0;
+> > +					}
+> > +					if (err)
+> > +						goto out;
+> > +				}
+> > +			}
+> > +		}
+> > +	}
 > 
-> Interesting...  Is this the recommended approach by the SELinux folks?
+> For RCU, you need to make a new copy of the entry, mutate the copy (not
+> the original), list_replace_rcu the old original with the modified copy,
+> and call_rcu to drop the original when it is safe to do so.  Look at the
+> SELinux AVC code for an example (avc_update_node).
 
-Not by me, but Darrel thought it would be important to allowing audit
-filters to survive across policy reloads and later revived as
-appropriate without needing to reload the audit filters as well.  I'm
-not clear that it matters in production environments (versus just policy
-development boxes).
+Oh, and it looks like you should be holding the audit_netlink_mutex as
+well to synchronize with adding, removing and listing of rules.  That is
+easy though - the harder part is grasping the RCU model.
+Documentation/RCU is very helpful.
 
 -- 
 Stephen Smalley
