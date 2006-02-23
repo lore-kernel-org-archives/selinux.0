@@ -1,695 +1,398 @@
-Message-ID: <43FDF3EC.7000303@trustedcs.com>
-Date: Thu, 23 Feb 2006 11:42:04 -0600
-From: Darrel Goeddel <dgoeddel@trustedcs.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1NJQ9pF020235
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:26:09 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1NJOfAM025214
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 19:24:41 GMT
+Message-ID: <43FE0C4D.1000003@redhat.com>
+Date: Thu, 23 Feb 2006 14:26:05 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Linux Audit Discussion <linux-audit@redhat.com>,
-        Dustin Kirkland <dustin.kirkland@us.ibm.com>,
-        Amy Griffis <amy.griffis@hp.com>, James Morris <jmorris@namei.org>
-Subject: Re: [PATCH] context based audit filtering (take 4)
-References: <43F49805.2000109@trustedcs.com>	 <43FB86DD.2020708@trustedcs.com> <1140619592.31467.218.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1140619592.31467.218.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Latest changes to policy
+Content-Type: multipart/mixed;
+ boundary="------------090204000707080107050701"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-02-21 at 15:32 -0600, Darrel Goeddel wrote:
-> 
->>diff --git a/security/selinux/exports.c b/security/selinux/exports.c
->>new file mode 100644
->>index 0000000..5129add
->>--- /dev/null
->>+++ b/security/selinux/exports.c
->>+int selinux_audit_rule_init(u32 field, u32 op, char *rulestr,
->>+                            struct selinux_audit_rule **rule)
->>+{
->>+	return security_aurule_init(field, op, rulestr, rule);
->>+}
-> 
-> 
-> I'd drop these wrapper functions, and just name the underlying functions
-> in services.c with the exported names (i.e. selinux_ prefix).  The use
-> of security_ prefix in the SELinux code should likely be converted in
-> general to selinux_ (via separate patch) along with other namespace
-> cleanups; it is a legacy of when SELinux was a kernel patch and there
-> was no LSM.
+This is a multi-part message in MIME format.
+--------------090204000707080107050701
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Done.
+Change build.conf to
+TYPE ?= $(TYPE)
 
->>diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
->>index d877cd1..5e05c5a 100644
->>--- a/security/selinux/ss/services.c
->>+++ b/security/selinux/ss/services.c
-> 
-> <snip>
-> 
->>+int security_aurule_init(u32 field, u32 op, char *rulestr,
->>+                         struct selinux_audit_rule **rule)
->>+{
-> 
-> <snip>
-> 
->>+	case AUDIT_SE_SEN:
->>+	case AUDIT_SE_CLR:
->>+		/* we need freestr because mls_context_to_sid will change
->>+		   the value of tmpstr */
->>+		tmpstr = freestr = kstrdup(rulestr, GFP_ATOMIC);
->>+		if (!tmpstr) {
->>+			rc = -ENOMEM;
->>+		} else {
->>+			rc = mls_context_to_sid(':', &tmpstr, &tmprule->au_ctxt,
->>+			                        NULL, SECSID_NULL);
->>+			kfree(freestr);
->>+		}
-> 
-> 
-> Let's move this into a helper in mls.c with a nicer interface, similar
-> to what Ivan has done in libsepol (mls_from_string).
+to allow overriding at the command line
 
-Done.
+Logwatch needs to resolve
 
->>+int security_aurule_match(u32 ctxid, u32 field, u32 op,
->>+                          struct selinux_audit_rule *rule)
->>+{
->>+	struct context *ctxt;
->>+	struct mls_level *level;
->>+	int match = 0;
->>+
->>+	if (!rule)
->>+		return 0;
-> 
-> 
-> Should this be an error?
+VPNc needs to be able to talk to the FD of locallogin
 
-I'll treat this as an error here.  If we decide to go with allowing invalid
-to hang around waiting to become valid, we can conditionally call
-selinux_audit_rule_match.
+Make vpnc work with NetworkManager
 
-> 
->>+	ctxt = sidtab_search(&sidtab, ctxid);
->>+	if (!ctxt) {
->>+		printk(KERN_ERR "security_aurule_match: unrecognized SID %d\n",
->>+		       ctxid);
-> 
-> 
-> Should we be using printk(KERN_ERR...) or
-> audit_log(...AUDIT_SELINUX_ERR) for SELinux errors for all new code?
+Java always needs execmem so give it to it by default
 
-Switched to audit log.  I also now pass in the audit_context to
-selinux_audit_rule_match so it gets used for the logging.
+File context for policygentool
 
->>+		case AUDIT_LESS_THAN:
->>+			match = (mls_level_dom(&rule->au_ctxt.range.level[0],
->>+			                       level) &&
->>+			         !mls_level_eq(&rule->au_ctxt.range.level[0],
->>+			                       level));
->>+			break;
->>+		case AUDIT_LESS_THAN_OR_EQUAL:
->>+			match = mls_level_dom(&rule->au_ctxt.range.level[0],
->>+			                      level);
->>+			break;
-> 
-> 
-> I'm not clear as to why we truly need both sets of operators in the
-> audit filters (<= n versus just < (n+1)), but that is unrelated to
-> SELinux per se.
-> 
-> I take it that you either decided against leveraging the constraint code
-> or haven't looked at that option yet?  IOW, convert an audit filter to a
-> constraint expression when the rule is initialized, and later just call
-> a common helper shared with constraint_expr_eval?
+file context for /dev/efirtc
 
-I have briefly look into it.  No huge benefit jumped out at me right away,
-but it is something I'll look into more later.
+Make polyinstantiation work for /tmp
 
->>+static int (*aurule_callback)(void) = NULL;
->>+
->>+static int aurule_avc_callback(u32 event, u32 ssid, u32 tsid,
->>+                               u16 class, u32 perms, u32 *retained)
->>+{
->>+	int err = 0;
->>+
->>+	if (event == AVC_CALLBACK_RESET && aurule_callback)
->>+		err = aurule_callback();
->>+	return err;
->>+}
-> 
-> 
-> Hmm...on an error return, we will stop walking the callback list
-> presently on avc_ss_reset, which could prevent other callbacks (like the
-> netif one) from occurring.  Likely should change that.  
-> 
+Fix cacti file_context
 
-Done.
+allow httpd to transition to httpd_sys_script_t when running a shell
 
-Here is a new one:
+Allow scripts to read eventpollfs
+
+Allow cron to look at httpd_sys_content_t
+
+New version of automount needs sys_resource
+
+Allow automount to run showmount
+
+Automount now needs to getattr on all directories.
+
+crond needs to look at a lot of apache stuff.
+
+Mount and Hal now needs to read autofs_t directories
+
+dontaudit execmem for xserver, we know it needs it.
+
+Make swapon work.
+
+load_policy mls needs to be able to read up
 
 
-Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
 
 
-diff --git a/include/linux/audit.h b/include/linux/audit.h
-index 4bb4b9f..dd4f759 100644
---- a/include/linux/audit.h
-+++ b/include/linux/audit.h
-@@ -140,6 +140,11 @@
- #define AUDIT_PERS	10
- #define AUDIT_ARCH	11
- #define AUDIT_MSGTYPE	12
-+#define AUDIT_SE_USER	13	/* security label user */
-+#define AUDIT_SE_ROLE	14	/* security label role */
-+#define AUDIT_SE_TYPE	15	/* security label type */
-+#define AUDIT_SE_SEN	16	/* security label sensitivity label */
-+#define AUDIT_SE_CLR	17	/* security label clearance label */
+
+
+
+
+
+
+
+--------------090204000707080107050701
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/Makefile serefpolicy-2.2.21/Makefile
+--- nsaserefpolicy/Makefile	2006-02-17 14:46:10.000000000 -0500
++++ serefpolicy-2.2.21/Makefile	2006-02-23 12:35:04.000000000 -0500
+@@ -446,14 +446,14 @@
+ 			$(MODDIR)/$$i/metadata.xml \
+ 			$(HEADERDIR)/$$i ;\
+ 	done
+-	$(verbose) echo "TYPE=$(TYPE)" > $(HEADERDIR)/build.conf
+-	$(verbose) echo "NAME=$(NAME)" >> $(HEADERDIR)/build.conf
++	$(verbose) echo "TYPE ?= $(TYPE)" > $(HEADERDIR)/build.conf
++	$(verbose) echo "NAME ?= $(NAME)" >> $(HEADERDIR)/build.conf
+ ifneq "$(DISTRO)" ""
+-	$(verbose) echo "DISTRO=$(DISTRO)" >> $(HEADERDIR)/build.conf
++	$(verbose) echo "DISTRO ?= $(DISTRO)" >> $(HEADERDIR)/build.conf
+ endif
+-	$(verbose) echo "MONOLITHIC=n" >> $(HEADERDIR)/build.conf
+-	$(verbose) echo "DIRECT_INITRC=$(DIRECT_INITRC)" >> $(HEADERDIR)/build.conf
+-	$(verbose) echo "POLY=$(POLY)" >> $(HEADERDIR)/build.conf
++	$(verbose) echo "MONOLITHIC ?= n" >> $(HEADERDIR)/build.conf
++	$(verbose) echo "DIRECT_INITRC ?= $(DIRECT_INITRC)" >> $(HEADERDIR)/build.conf
++	$(verbose) echo "POLY ?= $(POLY)" >> $(HEADERDIR)/build.conf
+ 	$(verbose) install -m 644 $(SUPPORT)/Makefile.devel $(HEADERDIR)/Makefile
  
- 				/* These are ONLY useful when checking
- 				 * at syscall exit time (AUDIT_AT_EXIT). */
-diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-new file mode 100644
-index 0000000..5abe524
---- /dev/null
-+++ b/include/linux/selinux.h
-@@ -0,0 +1,112 @@
-+/*
-+ * SELinux services exported to the rest of the kernel.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#ifndef _LINUX_SELINUX_H
-+#define _LINUX_SELINUX_H
-+
-+#ifdef CONFIG_SECURITY_SELINUX
-+
-+struct selinux_audit_rule;
-+struct audit_context;
-+
-+/**
-+ *	selinux_audit_rule_init - alloc/init an selinux audit rule structure.
-+ *	@field: the field this rule refers to
-+ *	@op: the operater the rule uses
-+ *	@rulestr: the text "target" of the rule
-+ *	@rule: pointer to the new rule structure returned via this
-+ *
-+ *	Returns 0 if successful, -errno if not.  On success, the rule structure
-+ *	will be allocated internally.  The caller must free this structure with
-+ *	selinux_audit_rule_free() after use.
-+ */
-+int selinux_audit_rule_init(u32 field, u32 op, char *rulestr,
-+                            struct selinux_audit_rule **rule);
-+
-+/**
-+ *	selinux_audit_rule_free - free an selinux audit rule structure.
-+ *	@rule: pointer to the audit rule to be freed
-+ *
-+ *	This will free all memory associated with the given rule.
-+ *	If @rule is NULL, no operation is performed.
-+ */
-+void selinux_audit_rule_free(struct selinux_audit_rule *rule);
-+
-+/**
-+ *	selinux_audit_rule_match - determine if a context ID matches a rule.
-+ *	@ctxid: the context ID to check
-+ *	@field: the field this rule refers to
-+ *	@op: the operater the rule uses
-+ *	@rule: pointer to the audit rule to check against
-+ *	@actx: the audit context (can be NULL) associated with the check
-+ *
-+ *	Returns 1 if the context id matches the rule, 0 if it does not, and
-+ *	-errno on failure.
-+ */
-+int selinux_audit_rule_match(u32 ctxid, u32 field, u32 op,
-+                             struct selinux_audit_rule *rule,
-+                             struct audit_context *actx);
-+
-+/**
-+ *	selinux_audit_set_callback - set the callback for policy reloads.
-+ *	@callback: the function to call when the policy is reloaded
-+ *
-+ *	This sets the function callback function that will update the rules
-+ *	upon policy reloads.  This callback should rebuild all existing rules
-+ *	using selinux_audit_rule_init().
-+ */
-+void selinux_audit_set_callback(int (*callback)(void));
-+
-+/**
-+ *	selinux_task_ctxid - determine a context ID for a process.
-+ *	@tsk: the task object
-+ *	@ctxid: ID value returned via this
-+ *
-+ *	On return, ctxid will contain an ID for the context.  This value
-+ *	should only be used opaquely.
-+ */
-+void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid);
-+
-+#else
-+
-+static inline int selinux_audit_rule_init(u32 field, u32 op,
-+                                          char *rulestr,
-+                                          struct selinux_audit_rule **rule)
-+{
-+	return -ENOTSUPP;
-+}
-+
-+static inline void selinux_audit_rule_free(struct selinux_audit_rule *rule)
-+{
-+	return;
-+}
-+
-+static inline int selinux_audit_rule_match(u32 ctxid, u32 field, u32 op,
-+                                           struct selinux_audit_rule *rule,
-+                                           struct audit_context *actx)
-+{
-+	return 0;
-+}
-+
-+static inline void selinux_audit_set_callback(int (*callback)(void))
-+{
-+	return;
-+}
-+
-+static inline void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid)
-+{
-+	*ctxid = 0;
-+}
-+
-+#endif	/* CONFIG_SECURITY_SELINUX */
-+
-+#endif /* _LINUX_SELINUX_H */
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 688c0a2..faf2e02 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -4,7 +4,7 @@
+ ########################################
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/logwatch.te serefpolicy-2.2.21/policy/modules/admin/logwatch.te
+--- nsaserefpolicy/policy/modules/admin/logwatch.te	2006-02-21 14:40:22.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/admin/logwatch.te	2006-02-23 09:41:46.000000000 -0500
+@@ -71,6 +71,8 @@
  
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
+ selinux_dontaudit_getattr_dir(logwatch_t)
  
--selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o
-+selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o exports.o
++sysnet_dns_name_resolve(logwatch_t)
++
+ userdom_dontaudit_search_sysadm_home_dirs(logwatch_t)
+ userdom_dontaudit_getattr_sysadm_home_dirs(logwatch_t)
  
- selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/vpn.te serefpolicy-2.2.21/policy/modules/admin/vpn.te
+--- nsaserefpolicy/policy/modules/admin/vpn.te	2006-02-21 14:40:23.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/admin/vpn.te	2006-02-23 12:21:59.000000000 -0500
+@@ -91,6 +91,8 @@
+ libs_use_ld_so(vpnc_t)
+ libs_use_shared_libs(vpnc_t)
  
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index ac5d69b..a300702 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -800,7 +800,7 @@ out:
- int avc_ss_reset(u32 seqno)
- {
- 	struct avc_callback_node *c;
--	int i, rc = 0;
-+	int i, rc = 0, tmprc;
- 	unsigned long flag;
- 	struct avc_node *node;
++locallogin_use_fd(vpnc_t)
++
+ logging_send_syslog_msg(vpnc_t)
  
-@@ -813,15 +813,16 @@ int avc_ss_reset(u32 seqno)
+ miscfiles_read_localization(vpnc_t)
+@@ -106,6 +108,10 @@
  
- 	for (c = avc_callbacks; c; c = c->next) {
- 		if (c->events & AVC_CALLBACK_RESET) {
--			rc = c->callback(AVC_CALLBACK_RESET,
--					 0, 0, 0, 0, NULL);
--			if (rc)
--				goto out;
-+			tmprc = c->callback(AVC_CALLBACK_RESET,
-+			                    0, 0, 0, 0, NULL);
-+			/* save the first error encountered for the return
-+			   value and continue processing the callbacks */
-+			if (!rc)
-+				rc = tmprc;
- 		}
- 	}
+ optional_policy(`dbus',`
+ 	dbus_system_bus_client_template(vpnc,vpnc_t)
++	dbus_send_system_bus(vpnc_t)
++	optional_policy(`networkmanager',`
++		networkmanager_dbus_chat(vpnc_t)
++	')
+ ')
  
- 	avc_latest_notif_update(seqno, 0);
--out:
- 	return rc;
- }
+ optional_policy(`mount',`
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/apps/java.if serefpolicy-2.2.21/policy/modules/apps/java.if
+--- nsaserefpolicy/policy/modules/apps/java.if	2006-02-21 14:40:23.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/apps/java.if	2006-02-23 09:41:46.000000000 -0500
+@@ -149,13 +149,9 @@
+ 	userdom_manage_user_home_content_sockets($1,$1_javaplugin_t)
+ 	userdom_user_home_dir_filetrans_user_home_content($1,$1_javaplugin_t,{ file lnk_file sock_file fifo_file })
  
-diff --git a/security/selinux/exports.c b/security/selinux/exports.c
-new file mode 100644
-index 0000000..26ff66d
---- /dev/null
-+++ b/security/selinux/exports.c
-@@ -0,0 +1,25 @@
-+/*
-+ * SELinux services exported to the rest of the kernel.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/selinux.h>
-+
-+#include "security.h"
-+#include "objsec.h"
-+
-+void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid)
-+{
-+	struct task_security_struct *tsec = tsk->security;
-+	*ctxid = tsec->sid;
-+}
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index 640d0bf..df358be 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -8,7 +8,7 @@
-  *
-  *	Support for enhanced MLS infrastructure.
-  *
-- * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-+ * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
+-	# libdeploy.so legacy
+-	tunable_policy(`allow_execmem',`
+-		allow $1_javaplugin_t self:process execmem;
+-	')
+-	
++	allow $1_javaplugin_t self:process execmem;
+ 	tunable_policy(`allow_java_execstack',`
+-		allow $1_javaplugin_t self:process { execmem execstack };
++		allow $1_javaplugin_t self:process execstack;
  
- #include <linux/kernel.h>
-@@ -385,6 +385,31 @@ out:
- }
+ 		allow $1_javaplugin_t $1_javaplugin_tmp_t:file execute;
  
- /*
-+ * Set the MLS fields in the security context structure
-+ * `context' based on the string representation in
-+ * the string `str'.  This function will allocate temporary memory with the
-+ * given constraints of gfp_mask.
-+ */
-+int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
-+{
-+	char *tmpstr, *freestr;
-+	int rc;
-+
-+	/* we need freestr because mls_context_to_sid will change
-+	   the value of tmpstr */
-+	tmpstr = freestr = kstrdup(str, gfp_mask);
-+	if (!tmpstr) {
-+		rc = -ENOMEM;
-+	} else {
-+		rc = mls_context_to_sid(':', &tmpstr, context,
-+		                        NULL, SECSID_NULL);
-+		kfree(freestr);
-+	}
-+
-+	return rc;
-+}
-+
-+/*
-  * Copies the effective MLS range from `src' into `dst'.
-  */
- static inline int mls_scopy_context(struct context *dst,
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 03de697..fbb42f0 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -8,7 +8,7 @@
-  *
-  *	Support for enhanced MLS infrastructure.
-  *
-- * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-+ * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/corecommands.fc serefpolicy-2.2.21/policy/modules/kernel/corecommands.fc
+--- nsaserefpolicy/policy/modules/kernel/corecommands.fc	2006-01-19 16:02:10.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/kernel/corecommands.fc	2006-02-23 13:32:13.000000000 -0500
+@@ -135,6 +135,7 @@
  
- #ifndef _SS_MLS_H_
-@@ -27,6 +27,8 @@ int mls_context_to_sid(char oldc,
- 		       struct sidtab *s,
- 		       u32 def_sid);
+ /usr/share/gnucash/finance-quote-check -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/gnucash/finance-quote-helper -- gen_context(system_u:object_r:bin_t,s0)
++/usr/share/selinux/devel/policygentool -- gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/hal/scripts(/.*)?		gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/mc/extfs/.*		--	gen_context(system_u:object_r:bin_t,s0)
+ /usr/share/printconf/util/print\.py --	gen_context(system_u:object_r:bin_t,s0)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/devices.fc serefpolicy-2.2.21/policy/modules/kernel/devices.fc
+--- nsaserefpolicy/policy/modules/kernel/devices.fc	2006-02-14 07:20:25.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/kernel/devices.fc	2006-02-23 10:01:17.000000000 -0500
+@@ -39,6 +39,7 @@
+ /dev/radio.*		-c	gen_context(system_u:object_r:v4l_device_t,s0)
+ /dev/random		-c	gen_context(system_u:object_r:random_device_t,s0)
+ /dev/(misc/)?rtc		-c	gen_context(system_u:object_r:clock_device_t,s0)
++/dev/efirtc		-c	gen_context(system_u:object_r:clock_device_t,s0)
+ /dev/sequencer		-c	gen_context(system_u:object_r:sound_device_t,s0)
+ /dev/sequencer2		-c	gen_context(system_u:object_r:sound_device_t,s0)
+ /dev/smpte.*		-c	gen_context(system_u:object_r:sound_device_t,s0)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/files.if serefpolicy-2.2.21/policy/modules/kernel/files.if
+--- nsaserefpolicy/policy/modules/kernel/files.if	2006-02-21 14:40:23.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/kernel/files.if	2006-02-23 09:41:46.000000000 -0500
+@@ -3358,10 +3358,11 @@
+ 	allow $1 self:process setfscreate;
+ 	allow $1 polymember: dir { create setattr };
+ 	allow $1 polydir: dir { write add_name };
+-	allow $1 polyparent:dir { write add_name };
++	allow $1 polyparent:dir { write add_name relabelfrom relabelto };
  
-+int mls_from_string(char *str, struct context *context, gfp_t gfp_mask);
+ 	# Default type for mountpoints
+ 	allow $1 poly_t:dir { create mounton };
++	fs_unmount_xattr_fs($1)
+ ')
+ 
+ ########################################
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/files.te serefpolicy-2.2.21/policy/modules/kernel/files.te
+--- nsaserefpolicy/policy/modules/kernel/files.te	2006-02-14 07:20:25.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/kernel/files.te	2006-02-23 09:41:46.000000000 -0500
+@@ -125,6 +125,7 @@
+ #
+ type tmp_t, mountpoint; #, polydir
+ files_tmp_file(tmp_t)
++files_poly_parent(tmp_t)
+ 
+ #
+ # usr_t is the type for /usr.
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/apache.fc serefpolicy-2.2.21/policy/modules/services/apache.fc
+--- nsaserefpolicy/policy/modules/services/apache.fc	2006-02-14 07:20:25.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/services/apache.fc	2006-02-23 09:41:46.000000000 -0500
+@@ -45,7 +45,7 @@
+ /var/cache/rt3(/.*)?			gen_context(system_u:object_r:httpd_cache_t,s0)
+ /var/cache/ssl.*\.sem		--	gen_context(system_u:object_r:httpd_cache_t,s0)
+ 
+-/var/lib/cacti(/.*)?			gen_context(system_u:object_r:httpd_var_lib_t,s0)
++/var/lib/cacti/rra(/.*)?		gen_context(system_u:object_r:httpd_sys_content_t,s0)
+ /var/lib/dav(/.*)?			gen_context(system_u:object_r:httpd_var_lib_t,s0)
+ /var/lib/htdig(/.*)?			gen_context(system_u:object_r:httpd_sys_content_t,s0)
+ /var/lib/httpd(/.*)?			gen_context(system_u:object_r:httpd_var_lib_t,s0)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/apache.if serefpolicy-2.2.21/policy/modules/services/apache.if
+--- nsaserefpolicy/policy/modules/services/apache.if	2006-02-21 14:40:23.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/services/apache.if	2006-02-23 09:41:46.000000000 -0500
+@@ -94,6 +94,7 @@
+ 
+ 	corecmd_exec_bin(httpd_$1_script_t)
+ 	corecmd_exec_sbin(httpd_$1_script_t)
++	corecmd_shell_entry_type(httpd_$1_script_t)
+ 
+ 	domain_exec_all_entry_files(httpd_$1_script_t)
+ 
+@@ -174,6 +175,7 @@
+ 		dev_read_urand(httpd_$1_script_t)
+ 
+ 		fs_getattr_xattr_fs(httpd_$1_script_t)
++		fs_read_eventpollfs(httpd_$1_script_t)
+ 
+ 		files_read_etc_runtime_files(httpd_$1_script_t)
+ 		files_read_usr_files(httpd_$1_script_t)
+@@ -798,3 +800,22 @@
+ 
+ 	allow $1 httpd_sys_script_t:dir search;
+ ')
 +
- int mls_convert_context(struct policydb *oldp,
- 			struct policydb *newp,
- 			struct context *context);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d877cd1..a2ad2cd 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -7,12 +7,13 @@
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-  *
-  *	Support for enhanced MLS infrastructure.
-+ *	Support for context based audit filters.
-  *
-  * Updated: Frank Mayer <mayerf@tresys.com> and Karl MacMillan <kmacmillan@tresys.com>
-  *
-  * 	Added conditional policy language extensions
-  *
-- * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-+ * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-  *	This program is free software; you can redistribute it and/or modify
-@@ -1810,3 +1811,235 @@ out:
- 	POLICY_RDUNLOCK;
- 	return rc;
- }
 +
-+struct selinux_audit_rule {
-+	u32 au_seqno;
-+	struct context au_ctxt;
-+};
-+
-+void selinux_audit_rule_free(struct selinux_audit_rule *rule)
-+{
-+	if (rule) {
-+		context_destroy(&rule->au_ctxt);
-+		kfree(rule);
-+	}
-+}
-+
-+int selinux_audit_rule_init(u32 field, u32 op, char *rulestr,
-+                            struct selinux_audit_rule **rule)
-+{
-+	struct selinux_audit_rule *tmprule;
-+	struct role_datum *roledatum;
-+	struct type_datum *typedatum;
-+	struct user_datum *userdatum;
-+	int rc = 0;
-+
-+	*rule = NULL;
-+
-+	if (!ss_initialized)
-+		return -ENOTSUPP;
-+
-+	switch (field) {
-+	case AUDIT_SE_USER:
-+	case AUDIT_SE_ROLE:
-+	case AUDIT_SE_TYPE:
-+		/* only 'equals' and 'not equals' fit user, role, and type */
-+		if (op != AUDIT_EQUAL && op != AUDIT_NOT_EQUAL)
-+			return -EINVAL;
-+		break;
-+	case AUDIT_SE_SEN:
-+	case AUDIT_SE_CLR:
-+		/* we do not allow a range, indicated by the presense of '-' */
-+		if (strchr(rulestr, '-'))
-+			return -EINVAL;
-+		break;
-+	default:
-+		/* only the above fileds are valid */
-+		return -EINVAL;
-+	}
-+
-+	tmprule = kzalloc(sizeof(struct selinux_audit_rule), GFP_KERNEL);
-+	if (!tmprule)
-+		return -ENOMEM;
-+
-+	context_init(&tmprule->au_ctxt);
-+
-+	POLICY_RDLOCK;
-+
-+	tmprule->au_seqno = latest_granting;
-+
-+	switch (field) {
-+	case AUDIT_SE_USER:
-+		userdatum = hashtab_search(policydb.p_users.table, rulestr);
-+		if (!userdatum)
-+			rc = -EINVAL;
-+		else
-+			tmprule->au_ctxt.user = userdatum->value;
-+		break;
-+	case AUDIT_SE_ROLE:
-+		roledatum = hashtab_search(policydb.p_roles.table, rulestr);
-+		if (!roledatum)
-+			rc = -EINVAL;
-+		else
-+			tmprule->au_ctxt.role = roledatum->value;
-+		break;
-+	case AUDIT_SE_TYPE:
-+		typedatum = hashtab_search(policydb.p_types.table, rulestr);
-+		if (!typedatum)
-+			rc = -EINVAL;
-+		else
-+			tmprule->au_ctxt.type = typedatum->value;
-+		break;
-+	case AUDIT_SE_SEN:
-+	case AUDIT_SE_CLR:
-+		rc = mls_from_string(rulestr, &tmprule->au_ctxt, GFP_ATOMIC);
-+		break;
-+	}
-+
-+	POLICY_RDUNLOCK;
-+
-+	if (rc) {
-+		selinux_audit_rule_free(tmprule);
-+		tmprule = NULL;
-+	}
-+
-+	*rule = tmprule;
-+
-+	return rc;
-+}
-+
-+int selinux_audit_rule_match(u32 ctxid, u32 field, u32 op,
-+                             struct selinux_audit_rule *rule,
-+                             struct audit_context *actx)
-+{
-+	struct context *ctxt;
-+	struct mls_level *level;
-+	int match = 0;
-+
-+	if (!rule) {
-+		audit_log(actx, GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+		          "selinux_audit_rule_match: missing rule\n");
-+		return -ENOENT;
-+	}
-+
-+	POLICY_RDLOCK;
-+
-+	if (rule->au_seqno < latest_granting) {
-+		audit_log(actx, GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+		          "selinux_audit_rule_match: stale rule\n");
-+		match = -ESTALE;
-+		goto out;
-+	}
-+
-+	ctxt = sidtab_search(&sidtab, ctxid);
-+	if (!ctxt) {
-+		audit_log(actx, GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+		          "selinux_audit_rule_match: unrecognized SID %d\n",
-+		          ctxid);
-+		match = -ENOENT;
-+		goto out;
-+	}
-+
-+	/* a field/op pair that is not caught here will simply fall through
-+	   without a match */
-+	switch (field) {
-+	case AUDIT_SE_USER:
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = (ctxt->user == rule->au_ctxt.user);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = (ctxt->user != rule->au_ctxt.user);
-+			break;
-+		}
-+		break;
-+	case AUDIT_SE_ROLE:
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = (ctxt->role == rule->au_ctxt.role);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = (ctxt->role != rule->au_ctxt.role);
-+			break;
-+		}
-+		break;
-+	case AUDIT_SE_TYPE:
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = (ctxt->type == rule->au_ctxt.type);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = (ctxt->type != rule->au_ctxt.type);
-+			break;
-+		}
-+		break;
-+	case AUDIT_SE_SEN:
-+	case AUDIT_SE_CLR:
-+		level = (op == AUDIT_SE_SEN ?
-+		         &ctxt->range.level[0] : &ctxt->range.level[1]);
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = mls_level_eq(&rule->au_ctxt.range.level[0],
-+			                     level);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = !mls_level_eq(&rule->au_ctxt.range.level[0],
-+			                      level);
-+			break;
-+		case AUDIT_LESS_THAN:
-+			match = (mls_level_dom(&rule->au_ctxt.range.level[0],
-+			                       level) &&
-+			         !mls_level_eq(&rule->au_ctxt.range.level[0],
-+			                       level));
-+			break;
-+		case AUDIT_LESS_THAN_OR_EQUAL:
-+			match = mls_level_dom(&rule->au_ctxt.range.level[0],
-+			                      level);
-+			break;
-+		case AUDIT_GREATER_THAN:
-+			match = (mls_level_dom(level,
-+			                      &rule->au_ctxt.range.level[0]) &&
-+			         !mls_level_eq(level,
-+			                       &rule->au_ctxt.range.level[0]));
-+			break;
-+		case AUDIT_GREATER_THAN_OR_EQUAL:
-+			match = mls_level_dom(level,
-+			                      &rule->au_ctxt.range.level[0]);
-+			break;
-+		}
-+	}
-+
-+out:
-+	POLICY_RDUNLOCK;
-+	return match;
-+}
-+
-+static int (*aurule_callback)(void) = NULL;
-+
-+static int aurule_avc_callback(u32 event, u32 ssid, u32 tsid,
-+                               u16 class, u32 perms, u32 *retained)
-+{
-+	int err = 0;
-+
-+	if (event == AVC_CALLBACK_RESET && aurule_callback)
-+		err = aurule_callback();
-+	return err;
-+}
-+
-+static int __init aurule_init(void)
-+{
-+	int err;
-+
-+	err = avc_add_callback(aurule_avc_callback, AVC_CALLBACK_RESET,
-+	                       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
-+	if (err)
-+		panic("avc_add_callback() failed, error %d\n", err);
-+
-+	return err;
-+}
-+__initcall(aurule_init);
-+
-+void selinux_audit_set_callback(int (*callback)(void))
-+{
-+	aurule_callback = callback;
-+}
++########################################
++## <summary>
++##	Read apache system content
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`apache_read_sys_content',`
++	gen_require(`
++		type httpd_sys_content_t;
++	')
++	allow $1 httpd_sys_content_t:dir r_dir_perms;
++	allow $1 httpd_sys_content_t:file { getattr read };
++')
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/automount.te serefpolicy-2.2.21/policy/modules/services/automount.te
+--- nsaserefpolicy/policy/modules/services/automount.te	2006-02-21 14:40:23.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/services/automount.te	2006-02-23 10:09:09.000000000 -0500
+@@ -28,7 +28,7 @@
+ # Local policy
+ #
+ 
+-allow automount_t self:capability { net_bind_service sys_nice dac_override };
++allow automount_t self:capability { net_bind_service sys_nice sys_resource dac_override };
+ dontaudit automount_t self:capability sys_tty_config;
+ allow automount_t self:process { signal_perms getpgid setpgid setsched };
+ allow automount_t self:fifo_file rw_file_perms;
+@@ -83,6 +83,9 @@
+ corenet_tcp_connect_portmap_port(automount_t)
+ corenet_tcp_connect_all_ports(automount_t)
+ corenet_dontaudit_tcp_connect_all_reserved_ports(automount_t)
++# Automount execs showmount when you browse /net.  This is required until
++# Someone writes a showmount policy
++corenet_tcp_bind_reserved_port(automount_t)
+ 
+ dev_read_sysfs(automount_t)
+ # for SSP
+@@ -91,7 +94,7 @@
+ domain_use_interactive_fds(automount_t)
+ 
+ files_dontaudit_write_var_dirs(automount_t)
+-files_search_var_lib(automount_t)
++files_getattr_all_dirs(automount_t)
+ files_list_mnt(automount_t)
+ files_getattr_home_dir(automount_t)
+ files_read_etc_files(automount_t)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/cron.te serefpolicy-2.2.21/policy/modules/services/cron.te
+--- nsaserefpolicy/policy/modules/services/cron.te	2006-02-23 09:25:09.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/services/cron.te	2006-02-23 09:41:46.000000000 -0500
+@@ -360,6 +360,9 @@
+ 	optional_policy(`apache',`
+ 		# Needed	 for certwatch
+ 		apache_exec_modules(system_crond_t)
++		apache_read_config(system_crond_t)
++		apache_read_log(system_crond_t)
++		apache_read_sys_content(system_crond_t)
+ 	')
+ 
+ 	optional_policy(`cyrus',`
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/hal.te serefpolicy-2.2.21/policy/modules/services/hal.te
+--- nsaserefpolicy/policy/modules/services/hal.te	2006-02-21 14:40:23.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/services/hal.te	2006-02-23 10:11:00.000000000 -0500
+@@ -93,7 +93,7 @@
+ 
+ fs_getattr_all_fs(hald_t)
+ fs_search_all(hald_t)
+-fs_search_auto_mountpoints(hald_t)
++fs_list_auto_mountpoints(hald_t)
+ 
+ mls_file_read_up(hald_t)
+ 
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/xserver.te serefpolicy-2.2.21/policy/modules/services/xserver.te
+--- nsaserefpolicy/policy/modules/services/xserver.te	2006-02-21 14:40:25.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/services/xserver.te	2006-02-23 14:10:50.000000000 -0500
+@@ -425,7 +425,7 @@
+ ifdef(`targeted_policy',`
+ 	allow xdm_xserver_t self:process { execheap execmem };
+ 
+-	unconfined_domain(xdm_xserver_t)
++	unconfined_domain_noaudit(xdm_xserver_t)
+ 	unconfined_domtrans(xdm_xserver_t)
+ ')
+ 
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/fstools.te serefpolicy-2.2.21/policy/modules/system/fstools.te
+--- nsaserefpolicy/policy/modules/system/fstools.te	2006-02-21 14:40:25.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/system/fstools.te	2006-02-23 09:41:46.000000000 -0500
+@@ -45,7 +45,7 @@
+ files_tmp_filetrans(fsadm_t, fsadm_tmp_t, { file dir })
+ 
+ # Enable swapping to files
+-allow fsadm_t swapfile_t:file { getattr swapon };
++allow fsadm_t swapfile_t:file { read write getattr swapon };
+ 
+ kernel_read_system_state(fsadm_t)
+ kernel_read_kernel_sysctls(fsadm_t)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/mount.te serefpolicy-2.2.21/policy/modules/system/mount.te
+--- nsaserefpolicy/policy/modules/system/mount.te	2006-02-21 14:40:25.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/system/mount.te	2006-02-23 10:11:48.000000000 -0500
+@@ -46,7 +46,7 @@
+ fs_unmount_all_fs(mount_t)
+ fs_remount_all_fs(mount_t)
+ fs_relabelfrom_all_fs(mount_t)
+-fs_search_auto_mountpoints(mount_t)
++fs_list_auto_mountpoints(mount_t)
+ fs_rw_tmpfs_chr_files(mount_t)
+ fs_read_tmpfs_symlinks(mount_t)
+ 
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/selinuxutil.te serefpolicy-2.2.21/policy/modules/system/selinuxutil.te
+--- nsaserefpolicy/policy/modules/system/selinuxutil.te	2006-02-23 09:25:09.000000000 -0500
++++ serefpolicy-2.2.21/policy/modules/system/selinuxutil.te	2006-02-23 09:41:46.000000000 -0500
+@@ -199,6 +199,7 @@
+ libs_use_ld_so(load_policy_t)
+ libs_use_shared_libs(load_policy_t)
+ 
++mls_file_read_up(load_policy_t)
+ miscfiles_read_localization(load_policy_t)
+ 
+ userdom_use_all_users_fds(load_policy_t)
+@@ -319,10 +320,6 @@
+ 	nscd_socket_use(newrole_t)
+ ')
+ 
+-ifdef(`TODO',`
+-ifdef(`gnome-pty-helper.te', `allow newrole_t gphdomain:fd use;')
+-') dnl ifdef TODO
+-
+ ########################################
+ #
+ # Restorecon local policy
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/support/Makefile.devel serefpolicy-2.2.21/support/Makefile.devel
+--- nsaserefpolicy/support/Makefile.devel	2006-02-22 14:09:04.000000000 -0500
++++ serefpolicy-2.2.21/support/Makefile.devel	2006-02-23 12:38:25.000000000 -0500
+@@ -6,10 +6,7 @@
+ SED ?= sed
+ EINFO ?= echo
+ PYTHON ?= python
+-
+-NAME ?= $(shell $(AWK) -F= '/^SELINUXTYPE/{ print $$2 }' /etc/selinux/config)
+-SHAREDIR ?= /usr/share/selinux
+-HEADERDIR ?= $(SHAREDIR)/$(NAME)/include
++HEADERDIR ?= .
+ 
+ include $(HEADERDIR)/build.conf
+ 
 
-
--- 
-
-Darrel
+--------------090204000707080107050701--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
