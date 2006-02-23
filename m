@@ -1,74 +1,91 @@
-Subject: Re: policycoreutils latest diffs.
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1NEFqHi010091
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 09:15:52 -0500
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1NEFoOb027810
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:15:50 GMT
+Subject: Re: Latest diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Joshua Brindle <jbrindle@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43FCAC3F.3010202@redhat.com>
-References: <43FCAC3F.3010202@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43FA4076.5020908@redhat.com>
+References: <43FA4076.5020908@redhat.com>
 Content-Type: text/plain
-Date: Thu, 23 Feb 2006 09:02:14 -0500
-Message-Id: <1140703334.21179.38.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 23 Feb 2006 09:18:53 -0500
+Message-Id: <1140704334.30819.89.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-02-22 at 13:23 -0500, Daniel J Walsh wrote:
-> audit2allow -
-> 
-> Added (-R/--reference) to audit2allow.  This basically greps through 
-> reference policy and finds all  matches for a particular
-> access.  Then outputs them.  It attempts to find the best match.  This 
-> makes updating reference policy a lot easier.
-> 
-> Changed load_policy to be looked at regardless of the granted flag.
+On Mon, 2006-02-20 at 17:19 -0500, Daniel J Walsh wrote:
+> Fixed up semodule policy; although matchpathcon does not seem to be 
+> returning the correct labels
 
-Is this to catch reloads that occur in permissive mode?
-Going forward, you should be able to key off the new audit messages
-added by Steve Grubb for policy reloads, as they will indicate when a
-reload actually occurred (vs. just a permission check for them).
+Renamed semodule to semanage per the semodule policy discussion.
 
-> Add some checks to semanage and seobject.py to turn off processing on 
-> non MLS/MCS machines.
-> (These are untested on a Non MLS/MCS machine, since I do not have access.) 
+> plain text document attachment (diff)
+> diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/spamassassin.te serefpolicy-2.2.17/policy/modules/services/spamassassin.te
+> --- nsaserefpolicy/policy/modules/services/spamassassin.te	2006-02-20 14:07:37.000000000 -0500
+> +++ serefpolicy-2.2.17/policy/modules/services/spamassassin.te	2006-02-20 16:22:06.000000000 -0500
+> @@ -124,6 +124,7 @@
+>  	term_dontaudit_use_generic_ptys(spamd_t)
+>  	files_dontaudit_read_root_files(spamd_t)
+>  	tunable_policy(`spamd_enable_home_dirs',`
+> +		userdom_search_unpriv_user_home_dirs(spamd_t)
+>  		userdom_manage_generic_user_home_dirs(spamd_t)
+>  		userdom_manage_generic_user_home_files(spamd_t)
+>  		userdom_manage_generic_user_home_symlinks(spamd_t)
 
-Doesn't quite work yet.
+Fixed the userdom_manage_* interfaces to provide search on
+user_home_dir_t instead.
 
-# semanage login -l
-Login Name                SELinux User
+> @@ -137,6 +137,8 @@
+>  	samba_domtrans_smbmount(mount_t)
+>  ')
+>  
+> +userdom_mounton_generic_user_home_dir(mount_t)
+> +
+>  ifdef(`TODO',`
+>  # TODO: Need to examine this further. Not sure how to handle this
+>  #type sysadm_mount_source_t, file_type, sysadmfile, $1_file_type;
 
-Traceback (most recent call last):
-  File "/usr/sbin/semanage", line 219, in ?
-    OBJECT.list(heading)
-  File "/usr/lib/python2.4/site-packages/seobject.py", line 375, in list
-    print "%-25s %-25s %-25s" % (k, ddict[k][0])
-TypeError: not enough arguments for format string
+Made user_home_dir_t and user_home_t mount points with
+files_mountpoint() instead.
 
-That one is easy to fix:
---- seobject.py.0	2006-02-23 08:54:12.000000000 -0500
-+++ seobject.py	2006-02-23 08:54:16.000000000 -0500
-@@ -372,7 +372,7 @@ class loginRecords(semanageRecords):
- 			if heading:
- 				print "\n%-25s %-25s\n" % ("Login Name", "SELinux User")
- 			for k in keys:
--				print "%-25s %-25s %-25s" % (k, ddict[k][0])
-+				print "%-25s %-25s" % (k, ddict[k][0])
- 
- class seluserRecords(semanageRecords):
- 	def __init__(self):
+> @@ -526,12 +526,74 @@
+>  
+>  miscfiles_read_localization(setfiles_t)
+>  
+> +seutil_module_get_trans_lock(setfiles_t)
+> +seutil_module_get_read_lock(setfiles_t)
+> +
+>  userdom_use_all_users_fd(setfiles_t)
+>  # for config files in a home directory
+>  userdom_read_all_user_files(setfiles_t)
 
-Then login -l works, but:
-# semanage login -a sds
-libsemanage.validate_handler: MLS is disabled, but MLS range  was found for Unix user sds
-libsemanage.validate_handler: seuser mapping [sds -> (user_u, )] is invalid
-libsemanage.dbase_llist_iterate: could not iterate over records
-/usr/sbin/semanage: Could not add login mapping for sds
+I dropped the trans lock for now, I don't see setfiles getting a trans
+lock in the code.
 
-So it looks like semanage (util) is passing libsemanage an empty string
-rather than a NULL?
+> diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/userdomain.te serefpolicy-2.2.17/policy/modules/system/userdomain.te
+> --- nsaserefpolicy/policy/modules/system/userdomain.te	2006-02-16 14:46:56.000000000 -0500
+> +++ serefpolicy-2.2.17/policy/modules/system/userdomain.te	2006-02-20 16:22:06.000000000 -0500
+> @@ -358,6 +358,8 @@
+>  			seutil_run_checkpolicy(secadm_t,secadm_r,admin_terminal)
+>  			seutil_run_loadpolicy(secadm_t,secadm_r,admin_terminal)
+>  			seutil_run_setfiles(secadm_t,secadm_r,admin_terminal)
+> +			semodule_domtrans(secadm_t)
+> +			role secadm_r types semodule_t;
+>  			seutil_run_restorecon(secadm_t,secadm_r,admin_terminal)
+>  		', `
+>  			selinux_set_enforce_mode(sysadm_t)
+
+Changed this to a run interface.  Added a call for sysadm_t if mls is
+disabled.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
