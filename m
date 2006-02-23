@@ -1,51 +1,74 @@
-Subject: Re: libselinux CVS doesn't honor DESTDIR
-From: Erich Schubert <erich@debian.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1140701707.21179.25.camel@moss-spartans.epoch.ncsc.mil>
-References: <1140700506.10547.6.camel@wintermute.xmldesign.de>
-	 <1140701707.21179.25.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: policycoreutils latest diffs.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Joshua Brindle <jbrindle@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <43FCAC3F.3010202@redhat.com>
+References: <43FCAC3F.3010202@redhat.com>
 Content-Type: text/plain
-Date: Thu, 23 Feb 2006 14:52:30 +0100
-Message-Id: <1140702750.10547.13.camel@wintermute.xmldesign.de>
+Date: Thu, 23 Feb 2006 09:02:14 -0500
+Message-Id: <1140703334.21179.38.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen,
-Sorry, my bad. I just verified that it was somehow in the Debian diff,
-albeit I couldn't build the debian package with that change... I thought
-the Debian diffs here only consisted of a debian/ dir, but apparently
-libselinux was an exception. Seems like this was introduced when adding
-support for the pkgconfig file requested by some debian packagers (to
-aid the building of statically linked support utilities for
-bootstrapping I think)
+On Wed, 2006-02-22 at 13:23 -0500, Daniel J Walsh wrote:
+> audit2allow -
+> 
+> Added (-R/--reference) to audit2allow.  This basically greps through 
+> reference policy and finds all  matches for a particular
+> access.  Then outputs them.  It attempts to find the best match.  This 
+> makes updating reference policy a lot easier.
+> 
+> Changed load_policy to be looked at regardless of the granted flag.
 
-But - yay - I finally have:
-# semanage user -l
-                MLS/       MLS/
-SELinux User    MCS Level  MCS Range                      SELinux Roles
+Is this to catch reloads that occur in permissive mode?
+Going forward, you should be able to key off the new audit messages
+added by Steve Grubb for policy reloads, as they will indicate when a
+reload actually occurred (vs. just a permission check for them).
 
-root            s0         s0-s0:c0.c255                  system_r
-sysadm_r staff_r
-staff_u         s0         s0-s0:c0.c255                  sysadm_r
-staff_r
-sysadm_u        s0         s0-s0:c0.c255                  sysadm_r
-system_u        s0         s0-s0:c0.c255                  system_r
-user_u          s0         s0                             user_r
+> Add some checks to semanage and seobject.py to turn off processing on 
+> non MLS/MCS machines.
+> (These are untested on a Non MLS/MCS machine, since I do not have access.) 
 
-On Debian stable! ;-)
+Doesn't quite work yet.
 
-Now I only need to write and fix tons of policy...
-E.g. amavis, courier, drac, tor
+# semanage login -l
+Login Name                SELinux User
 
-best regards,
-Erich Schubert
+Traceback (most recent call last):
+  File "/usr/sbin/semanage", line 219, in ?
+    OBJECT.list(heading)
+  File "/usr/lib/python2.4/site-packages/seobject.py", line 375, in list
+    print "%-25s %-25s %-25s" % (k, ddict[k][0])
+TypeError: not enough arguments for format string
+
+That one is easy to fix:
+--- seobject.py.0	2006-02-23 08:54:12.000000000 -0500
++++ seobject.py	2006-02-23 08:54:16.000000000 -0500
+@@ -372,7 +372,7 @@ class loginRecords(semanageRecords):
+ 			if heading:
+ 				print "\n%-25s %-25s\n" % ("Login Name", "SELinux User")
+ 			for k in keys:
+-				print "%-25s %-25s %-25s" % (k, ddict[k][0])
++				print "%-25s %-25s" % (k, ddict[k][0])
+ 
+ class seluserRecords(semanageRecords):
+ 	def __init__(self):
+
+Then login -l works, but:
+# semanage login -a sds
+libsemanage.validate_handler: MLS is disabled, but MLS range  was found for Unix user sds
+libsemanage.validate_handler: seuser mapping [sds -> (user_u, )] is invalid
+libsemanage.dbase_llist_iterate: could not iterate over records
+/usr/sbin/semanage: Could not add login mapping for sds
+
+So it looks like semanage (util) is passing libsemanage an empty string
+rather than a NULL?
+
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-  A polar bear is a rectangular bear after a coordinate transform.   //\
-             Es lohnt sich nicht, die Augen aufzumachen,             V_/_
-                    wenn der Kopf im Sand steckt.
+Stephen Smalley
+National Security Agency
 
 
 --
