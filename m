@@ -1,82 +1,100 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1N0fDsr008245
-	for <selinux@tycho.nsa.gov>; Wed, 22 Feb 2006 19:41:14 -0500
-Received: from arc.nasa.gov (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1N0fBHJ023524
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 00:41:12 GMT
-Received: from [128.102.103.36] (HELO imtserv1)
-  by pony1pub.arc.nasa.gov (CommuniGate Pro SMTP 4.3.7)
-  with SMTP id 24980292 for selinux@tycho.nsa.gov; Wed, 22 Feb 2006 16:41:11 -0800
-From: "Andrew JH Ring" <aring@mail.arc.nasa.gov>
-To: <selinux@tycho.nsa.gov>
-Subject: Apache/PHP module boot restriction?
-Date: Wed, 22 Feb 2006 16:41:10 -0800
-Message-ID: <NPENJIPGPDNEOOPGDIFGCEEICBAA.aring@mail.arc.nasa.gov>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0000_01C637CE.C91E13A0"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1NCC6nW003742
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 07:15:02 -0500
+Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1NA7DAM002125
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 10:07:14 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 23 Feb 2006 11:08:37 +0100
+Date: Thu, 23 Feb 2006 11:08:36 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Fwd: Refpolicy: Small fix to make refpolicy compile with make from CVS
+Message-Id: <20060223100835.GA7967@thorium.jmh.mhn.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0000_01C637CE.C91E13A0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-I've recently set up a Fedora Core 4 web server running Apache 2.2.0 with
-PHP 5.1.2.  I've managed to get Apache loading the module, after setting
-libphp5.so to shlib_t, however Apache seems to still be unable to access the
-module during boot.  I'm getting a Cannot load libphp5 cannot restore
-segment prot after reloc.  Is this a known problem, and if so, how is it
-fixed?
+Hmm, it seems like my last message didn't make it to the list.
+Try again...
 
-Thanks for the help.
-----------------------------------------
+(Sorry if anyone receives this message twice)
 
-Andrew J H Ring
-Engineer/System Administrator
-Code TI
-NASA Ames Research Center
+Thomas
 
 
+--jRHKVT23PllUwdXP
+Content-Type: message/rfc822
+Content-Disposition: inline
 
-------=_NextPart_000_0000_01C637CE.C91E13A0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Date: Tue, 21 Feb 2006 14:49:58 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Refpolicy: Small fix to make refpolicy compile with make from CVS
+Message-ID: <20060221134958.GB7338@thorium.jmh.mhn.de>
+Mail-Followup-To: SELinux ML <selinux@tycho.nsa.gov>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+Content-Disposition: inline
+X-Accept-Language: de, en
+X-Operating-System: Linux 2.6.12-10-386 i686
+User-Agent: Mutt/1.5.9i
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.3790.2577" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV><SPAN class=3D066523200-23022006><FONT face=3DArial size=3D2>I've =
-recently set up=20
-a Fedora Core 4 web server running Apache 2.2.0 with PHP 5.1.2.&nbsp; =
-I've=20
-managed to get Apache loading the module, after setting libphp5.so to =
-shlib_t,=20
-however Apache seems to still be unable to access the module during =
-boot.&nbsp;=20
-I'm getting a Cannot load libphp5 cannot restore segment prot after =
-reloc.&nbsp;=20
-Is this a known problem, and if so, how is it fixed?</FONT></SPAN></DIV>
-<DIV><SPAN class=3D066523200-23022006></SPAN>&nbsp;</DIV>
-<DIV><SPAN class=3D066523200-23022006><FONT face=3DArial size=3D2>Thanks =
-for the=20
-help.</FONT></SPAN></DIV>
-<P align=3Dleft><FONT=20
-size=3D2>----------------------------------------<BR></FONT><FONT=20
-size=3D2><BR>Andrew J H Ring<BR>Engineer/System Administrator<BR>Code =
-TI<BR>NASA=20
-Ames Research Center<BR></P></FONT>
-<DIV>&nbsp;</DIV></BODY></HTML>
 
-------=_NextPart_000_0000_01C637CE.C91E13A0--
+--IrhDeMKUP4DT/M7F
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
+With the make shipped with Debian and Ubuntu (and also the current CVS
+version) it is impossible to build the reference policy because make
+always complains about "make: Circular tmp/all_te_files.conf <-
+corenetwork.te dependency dropped." and produces incorrect output.
+
+I'm not sure if this is a bug in make (see
+https://savannah.gnu.org/bugs/index.php?func=detailitem&item_id=13529 ,
+it seems like vpath and .SECONDARY interact badly here);
+this small patch fixes the problem by not using .SECONDARY.
+I think it doesn't have any negative consequences, but I don't know all
+the make black magic, so maybe one of the make gurus can comment.
+
+Thomas
+
+--- Rules.modular.old   2006-02-18 00:49:29.000000000 +0000
++++ Rules.modular       2006-02-21 12:44:54.000000000 +0000
+@@ -31,8 +31,6 @@
+ vpath %.if $(ALL_LAYERS)
+ vpath %.fc $(ALL_LAYERS)
+
+-.SECONDARY:
+-
+ ########################################
+ #
+ # default action: create all module packages
+
+
+
+--IrhDeMKUP4DT/M7F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFD+xqGD9qpeVMU938RAvwuAJ9FQs+tU8IULCrttjUWhI0tdUlkHQCdFLGr
+y1019SC3cGvPNFaaSIh75LM=
+=LhxV
+-----END PGP SIGNATURE-----
+
+--IrhDeMKUP4DT/M7F--
+
+--jRHKVT23PllUwdXP--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
