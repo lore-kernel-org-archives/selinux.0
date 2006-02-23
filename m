@@ -1,100 +1,63 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1NCC6nW003742
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 07:15:02 -0500
-Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1NA7DAM002125
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 10:07:14 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 23 Feb 2006 11:08:37 +0100
-Date: Thu, 23 Feb 2006 11:08:36 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Fwd: Refpolicy: Small fix to make refpolicy compile with make from CVS
-Message-Id: <20060223100835.GA7967@thorium.jmh.mhn.de>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1NDFejI008718
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 08:15:41 -0500
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1NDE7AM022721
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 13:14:11 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id 2E0F5C4C097
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:15:27 +0100 (CET)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 02109-04-3 for <selinux@tycho.nsa.gov>;
+	Thu, 23 Feb 2006 14:15:23 +0100 (CET)
+Received: from wintermute.xmldesign.de (p549A434B.dip0.t-ipconnect.de [84.154.67.75])
+	by legolas.drinsama.de (Postfix) with ESMTP id 06AC3C4C08E
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:15:09 +0100 (CET)
+Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
+	by wintermute.xmldesign.de (Postfix) with ESMTP id 3CF932343D8
+	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:15:08 +0100 (CET)
+Subject: libselinux CVS doesn't honor DESTDIR
+From: Erich Schubert <erich@debian.org>
+To: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Thu, 23 Feb 2006 14:15:06 +0100
+Message-Id: <1140700506.10547.6.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello Stephen,
+libselinux CVS doesn't honor $(DESTDIR). Here's the patch
+(I'm not sure it's perfect, but thats how the makefile of libsemanage
+looks like. ;-) )
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+--- src/Makefile~	2006-02-23 04:24:45.000000000 +0100
++++ src/Makefile	2006-02-23 14:04:30.000000000 +0100
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-PREFIX ?= /usr
++PREFIX ?= $(DESTDIR)/usr
+ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
 
-Hmm, it seems like my last message didn't make it to the list.
-Try again...
+Thanks.
 
-(Sorry if anyone receives this message twice)
+On a side note: libselinux CVS is required for current semanage, due to
+the fix in the swig interface in
+http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/libselinux/src/selinuxswig.i?r1=1.1&r2=1.2
+Which is not in the latest libselinux release.
 
-Thomas
-
-
---jRHKVT23PllUwdXP
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-Date: Tue, 21 Feb 2006 14:49:58 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Refpolicy: Small fix to make refpolicy compile with make from CVS
-Message-ID: <20060221134958.GB7338@thorium.jmh.mhn.de>
-Mail-Followup-To: SELinux ML <selinux@tycho.nsa.gov>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
-Content-Disposition: inline
-X-Accept-Language: de, en
-X-Operating-System: Linux 2.6.12-10-386 i686
-User-Agent: Mutt/1.5.9i
-
-
---IrhDeMKUP4DT/M7F
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-
-With the make shipped with Debian and Ubuntu (and also the current CVS
-version) it is impossible to build the reference policy because make
-always complains about "make: Circular tmp/all_te_files.conf <-
-corenetwork.te dependency dropped." and produces incorrect output.
-
-I'm not sure if this is a bug in make (see
-https://savannah.gnu.org/bugs/index.php?func=detailitem&item_id=13529 ,
-it seems like vpath and .SECONDARY interact badly here);
-this small patch fixes the problem by not using .SECONDARY.
-I think it doesn't have any negative consequences, but I don't know all
-the make black magic, so maybe one of the make gurus can comment.
-
-Thomas
-
---- Rules.modular.old   2006-02-18 00:49:29.000000000 +0000
-+++ Rules.modular       2006-02-21 12:44:54.000000000 +0000
-@@ -31,8 +31,6 @@
- vpath %.if $(ALL_LAYERS)
- vpath %.fc $(ALL_LAYERS)
-
--.SECONDARY:
--
- ########################################
- #
- # default action: create all module packages
+best regards,
+Erich Schubert
+-- 
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+ Nothing prevents happiness like the memory of happiness. --- A. Gide //\
+     Das größte Hindernis beim Erkennen der Wahrheit ist nicht die    V_/_
+        Falschheit, sondern die Halbwahrheit. --- L. N. Tolstoi
 
 
-
---IrhDeMKUP4DT/M7F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFD+xqGD9qpeVMU938RAvwuAJ9FQs+tU8IULCrttjUWhI0tdUlkHQCdFLGr
-y1019SC3cGvPNFaaSIh75LM=
-=LhxV
------END PGP SIGNATURE-----
-
---IrhDeMKUP4DT/M7F--
-
---jRHKVT23PllUwdXP--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
