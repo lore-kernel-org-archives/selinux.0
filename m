@@ -1,62 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1NDFejI008718
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 08:15:41 -0500
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1NDE7AM022721
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 13:14:11 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 2E0F5C4C097
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:15:27 +0100 (CET)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 02109-04-3 for <selinux@tycho.nsa.gov>;
-	Thu, 23 Feb 2006 14:15:23 +0100 (CET)
-Received: from wintermute.xmldesign.de (p549A434B.dip0.t-ipconnect.de [84.154.67.75])
-	by legolas.drinsama.de (Postfix) with ESMTP id 06AC3C4C08E
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:15:09 +0100 (CET)
-Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id 3CF932343D8
-	for <selinux@tycho.nsa.gov>; Thu, 23 Feb 2006 14:15:08 +0100 (CET)
-Subject: libselinux CVS doesn't honor DESTDIR
-From: Erich Schubert <erich@debian.org>
-To: SELinux List <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 23 Feb 2006 14:15:06 +0100
-Message-Id: <1140700506.10547.6.camel@wintermute.xmldesign.de>
+Subject: Re: Apache/PHP module boot restriction?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andrew JH Ring <aring@mail.arc.nasa.gov>
+Cc: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+In-Reply-To: <NPENJIPGPDNEOOPGDIFGCEEICBAA.aring@mail.arc.nasa.gov>
+References: <NPENJIPGPDNEOOPGDIFGCEEICBAA.aring@mail.arc.nasa.gov>
+Content-Type: text/plain
+Date: Thu, 23 Feb 2006 08:22:57 -0500
+Message-Id: <1140700977.21179.12.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen,
-libselinux CVS doesn't honor $(DESTDIR). Here's the patch
-(I'm not sure it's perfect, but thats how the makefile of libsemanage
-looks like. ;-) )
+On Wed, 2006-02-22 at 16:41 -0800, Andrew JH Ring wrote:
+> I've recently set up a Fedora Core 4 web server running Apache 2.2.0
+> with PHP 5.1.2.  I've managed to get Apache loading the module, after
+> setting libphp5.so to shlib_t, however Apache seems to still be unable
+> to access the module during boot.  I'm getting a Cannot load libphp5
+> cannot restore segment prot after reloc.  Is this a known problem, and
+> if so, how is it fixed?
 
---- src/Makefile~	2006-02-23 04:24:45.000000000 +0100
-+++ src/Makefile	2006-02-23 14:04:30.000000000 +0100
-@@ -1,5 +1,5 @@
- # Installation directories.
--PREFIX ?= /usr
-+PREFIX ?= $(DESTDIR)/usr
- LIBDIR ?= $(PREFIX)/lib
- SHLIBDIR ?= $(DESTDIR)/lib
- INCLUDEDIR ?= $(PREFIX)/include
+cc'd fedora-selinux-list as well above, since you mentioned you were
+using FC4.
 
-Thanks.
+This usually indicates a text relocation, which is undesirable if it can
+be avoided.  The stock FC4 php doesn't appear to have any text
+relocations in its libphp (readelf -d libphp5.so.1 |  grep TEXTREL).
+Possibly it has a patch to avoid the problem.
 
-On a side note: libselinux CVS is required for current semanage, due to
-the fix in the swig interface in
-http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/libselinux/src/selinuxswig.i?r1=1.1&r2=1.2
-Which is not in the latest libselinux release.
+Ideally, it would be best if you could similarly patch or fix the build
+for PHP 5.1.2.  If you truly need to allow it, then you can label
+the .so file with the texrel_shlib_t type (since you are using FC4, I
+used the old type name).
 
-best regards,
-Erich Schubert
+Some discussion of the SELinux memory protection tests can be found in:
+http://people.redhat.com/drepper/selinux-mem.html
+
 -- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
- Nothing prevents happiness like the memory of happiness. --- A. Gide //\
-     Das größte Hindernis beim Erkennen der Wahrheit ist nicht die    V_/_
-        Falschheit, sondern die Halbwahrheit. --- L. N. Tolstoi
-
+Stephen Smalley
+National Security Agency
 
 
 --
