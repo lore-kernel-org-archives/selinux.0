@@ -1,49 +1,29 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] context based audit filtering (take 3)
-Date: Fri, 24 Feb 2006 10:08:33 -0500
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, James Morris <jmorris@namei.org>,
-        Amy Griffis <amy.griffis@hp.com>,
-        Dustin Kirkland <dustin.kirkland@us.ibm.com>,
-        Linux Audit Discussion <linux-audit@redhat.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <43F49805.2000109@trustedcs.com> <43FE45DE.1060503@trustedcs.com> <1140787945.21179.149.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1140787945.21179.149.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1OL19Sk016590
+	for <selinux@tycho.nsa.gov>; Fri, 24 Feb 2006 16:01:09 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1OL17QG002549
+	for <selinux@tycho.nsa.gov>; Fri, 24 Feb 2006 21:01:08 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id k1OL18II022133
+	for <selinux@tycho.nsa.gov>; Fri, 24 Feb 2006 16:01:08 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id k1OL18116534
+	for <selinux@tycho.nsa.gov>; Fri, 24 Feb 2006 16:01:08 -0500
+Received: from [172.16.83.52] (dhcp83-52.boston.redhat.com [172.16.83.52])
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id k1OL17G2030352
+	for <selinux@tycho.nsa.gov>; Fri, 24 Feb 2006 16:01:07 -0500
+Message-ID: <43FF7418.90205@redhat.com>
+Date: Fri, 24 Feb 2006 16:01:12 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200602241008.33479.sgrubb@redhat.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: FYI SELinux/AppArmor press
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 24 February 2006 08:32, Stephen Smalley wrote:
-> > > Should this be a printk or an audit_log call?
-> >
-> > Steve G had suggested syslogging it, so I went with the printk.  What
-> > would be more noticeable?
-
-Yes I did. The reasoning is that the rule is still there and waiting to become 
-valid. I believe there was also some conversation about making a retry 
-whenever policy was reloaded. So, in effect, I think this is something worthy 
-of a syslog and not an audit event. I think it falls into the same category 
-as doing an audit on an inode that doesn't exist.
-
-> Anything user-triggerable should likely be using audit_log.
-
-Its not really user triggerable. You have to be capable of loading audit 
-rules....which is an auditable event.
-
-> Internal kernel errors reflecting a bug within the kernel might still use
-> printk(KERN_ERR...).
-
-> But I think we want to migrate SELinux and audit over to using audit_log
-> whenever possible, only using printk as the fallback for things like
-> audit_panic, no audit daemon, etc. 
-
-This should be the current state right now. If we have a place where something 
-auditable does not create an event, please point it out.
-
--Steve
+http://www.gcn.com/vol1_no1/daily-updates/38330-1.html
 
 
 --
