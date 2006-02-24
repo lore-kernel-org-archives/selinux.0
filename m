@@ -1,622 +1,388 @@
-Message-ID: <43FF7E25.5040002@trustedcs.com>
-Date: Fri, 24 Feb 2006 15:44:05 -0600
+Message-ID: <43FF8805.2050606@trustedcs.com>
+Date: Fri, 24 Feb 2006 16:26:13 -0600
 From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@namei.org>, "'SELinux List'" <SELinux@tycho.nsa.gov>,
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+CC: Dustin Kirkland <dustin.kirkland@us.ibm.com>,
+        Amy Griffis <amy.griffis@hp.com>, Steve Grubb <sgrubb@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
         Linux Audit Discussion <linux-audit@redhat.com>
-Subject: [PATCH] support for context based audit filtering
-References: <43F49805.2000109@trustedcs.com>	 <43FB86DD.2020708@trustedcs.com>	 <1140619592.31467.218.camel@moss-spartans.epoch.ncsc.mil>	 <43FDF3EC.7000303@trustedcs.com> <1140787657.21179.143.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1140787657.21179.143.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [PATCH] support for context based audit filtering
+References: <43F49805.2000109@trustedcs.com>	 <43FB86DD.2020708@trustedcs.com>		<1140619592.31467.218.camel@moss-spartans.epoch.ncsc.mil>		<43FDF3EC.7000303@trustedcs.com>	<1140787657.21179.143.camel@moss-spartans.epoch.ncsc.mil> <43FF7E25.5040002@trustedcs.com>
+In-Reply-To: <43FF7E25.5040002@trustedcs.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2006-02-23 at 11:42 -0600, Darrel Goeddel wrote:
+Darrel Goeddel wrote:
+<snip>
+> The following patch provides selinux interfaces that will allow the audit
+> system to perform filtering based on the process context (user, role, type,
+> sensitivity, and clearance).  These interfaces will allow the selinux
+> module to perform efficient matches based on lower level selinux 
+> constructs,
+> rather than relying on context retrievals and string comparisons within
+> the audit module.  It also allows for dominance checks on the mls portion
+> of the contexts that are impossible with only string comparisons.
 > 
->>diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
->>index 640d0bf..df358be 100644
->>--- a/security/selinux/ss/mls.c
->>+++ b/security/selinux/ss/mls.c
->>@@ -385,6 +385,31 @@ out:
->> }
->> 
->> /*
->>+ * Set the MLS fields in the security context structure
->>+ * `context' based on the string representation in
->>+ * the string `str'.  This function will allocate temporary memory with the
->>+ * given constraints of gfp_mask.
->>+ */
->>+int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
->>+{
->>+	char *tmpstr, *freestr;
->>+	int rc;
-> 
-> 
-> Likely should be checking selinux_mls_enabled on entry and returning an
-> error in that case (mls_context_to_sid will just return 0 in that case).
-> 
-> 
->>diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
->>index d877cd1..a2ad2cd 100644
->>--- a/security/selinux/ss/services.c
->>+++ b/security/selinux/ss/services.c
-> 
-> 
-> Need to #include <linux/selinux.h> now to pick up the function
-> prototypes for the selinux_audit_ functions to ensure that they are
-> checked against the real functions.
-> 
-> 
->>+	default:
->>+		/* only the above fileds are valid */
-> 
-> 
-> Nit:  Typo in comment.
-> 
-> Otherwise, looks good.
 
-Fixed up those two issues.  I also fixed a compilation problem when selinux
-support is not compiled in, and a possible oops when selinux is compiled in
-but not initialized (including being disabled at runtime).  The final
-version is below.
+I have updated the audit portion of the patch to match up with this latest selinux
+patch.
+
+The last update to that patch was here:
+http://marc.theaimsgroup.com/?l=selinux&m=114056729028852&w=2
+
+I have also reworked the update procedure of the se_rule fields to hopefully be
+in line with the requirement of RCU.  Consider this portion of the patch for
+*testing only*.  The other portions of the patch seem good to me so far.
 
 --
 
-The following patch provides selinux interfaces that will allow the audit
-system to perform filtering based on the process context (user, role, type,
-sensitivity, and clearance).  These interfaces will allow the selinux
-module to perform efficient matches based on lower level selinux constructs,
-rather than relying on context retrievals and string comparisons within
-the audit module.  It also allows for dominance checks on the mls portion
-of the contexts that are impossible with only string comparisons.
-
-
-Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
-
-
-diff --git a/include/linux/audit.h b/include/linux/audit.h
-index 4bb4b9f..dd4f759 100644
---- a/include/linux/audit.h
-+++ b/include/linux/audit.h
-@@ -140,6 +140,11 @@
- #define AUDIT_PERS	10
- #define AUDIT_ARCH	11
- #define AUDIT_MSGTYPE	12
-+#define AUDIT_SE_USER	13	/* security label user */
-+#define AUDIT_SE_ROLE	14	/* security label role */
-+#define AUDIT_SE_TYPE	15	/* security label type */
-+#define AUDIT_SE_SEN	16	/* security label sensitivity label */
-+#define AUDIT_SE_CLR	17	/* security label clearance label */
+diff --git a/kernel/audit.h b/kernel/audit.h
+index eb33354..3ffc70a 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -59,9 +59,11 @@ struct audit_watch {
+ };
  
- 				/* These are ONLY useful when checking
- 				 * at syscall exit time (AUDIT_AT_EXIT). */
-diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-new file mode 100644
-index 0000000..9d684b1
---- /dev/null
-+++ b/include/linux/selinux.h
-@@ -0,0 +1,112 @@
-+/*
-+ * SELinux services exported to the rest of the kernel.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#ifndef _LINUX_SELINUX_H
-+#define _LINUX_SELINUX_H
+ struct audit_field {
+-	u32			type;
+-	u32			val;
+-	u32			op;
++	u32				type;
++	u32				val;
++	u32				op;
++	char				*se_str;
++	struct selinux_audit_rule	*se_rule;
+ };
+ 
+ struct audit_krule {
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index 3712295..752e2bb 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -25,6 +25,7 @@
+ #include <linux/fs.h>
+ #include <linux/namei.h>
+ #include <linux/netlink.h>
++#include <linux/selinux.h>
+ #include "audit.h"
+ 
+ /* There are three lists of rules -- one to search at task creation
+@@ -50,6 +51,13 @@ static inline void audit_free_watch(stru
+ 
+ static inline void audit_free_rule(struct audit_entry *e)
+ {
++	int i;
++	if (e->rule.fields)
++		for (i = 0; i < e->rule.field_count; i++) {
++			struct audit_field *f = &e->rule.fields[i];
++			kfree(f->se_str);
++			selinux_audit_rule_free(f->se_rule);
++		}
+ 	kfree(e->rule.fields);
+ 	kfree(e);
+ }
+@@ -192,7 +200,12 @@ static struct audit_entry *audit_rule_to
+ 		f->val = rule->values[i];
+ 
+ 		if (f->type & AUDIT_UNUSED_BITS ||
+-		    f->type == AUDIT_WATCH) {
++		    f->type == AUDIT_WATCH ||
++		    f->type == AUDIT_SE_USER ||
++		    f->type == AUDIT_SE_ROLE ||
++		    f->type == AUDIT_SE_TYPE ||
++		    f->type == AUDIT_SE_SEN ||
++		    f->type == AUDIT_SE_CLR) {
+ 			err = -EINVAL;
+ 			goto exit_free;
+ 		}
+@@ -222,7 +235,7 @@ static struct audit_entry *audit_data_to
+ 	void *bufp;
+ 	size_t remain = datasz - sizeof(struct audit_rule_data);
+ 	int i;
+-	char *path;
++	char *str;
+ 
+ 	entry = audit_to_entry_common((struct audit_rule *)data);
+ 	if (IS_ERR(entry))
+@@ -241,16 +254,42 @@ static struct audit_entry *audit_data_to
+ 		f->op = data->fieldflags[i] & AUDIT_OPERATORS;
+ 		f->type = data->fields[i];
+ 		f->val = data->values[i];
++		f->se_str = NULL;
++		f->se_rule = NULL;
+ 		switch(f->type) {
++		case AUDIT_SE_USER:
++		case AUDIT_SE_ROLE:
++		case AUDIT_SE_TYPE:
++		case AUDIT_SE_SEN:
++		case AUDIT_SE_CLR:
++			str = audit_unpack_string(&bufp, &remain, f->val);
++			if (IS_ERR(str))
++				goto exit_free;
++			entry->rule.buflen += f->val;
 +
-+struct selinux_audit_rule;
-+struct audit_context;
++			err = selinux_audit_rule_init(f->type, f->op, str,
++			                              &f->se_rule);
++			/* Keep currently invalid fields around in case they
++			   become valid after a policy reload. */
++			if (err == -EINVAL) {
++				printk(KERN_WARNING "selinux audit rule for item %s is invalid\n", str);
++				err = 0;
++			}
++			if (err) {
++				kfree(str);
++				goto exit_free;
++			} else
++				f->se_str = str;
++			break;
+ 		case AUDIT_WATCH:
+-			path = audit_unpack_string(&bufp, &remain, f->val);
+-			if (IS_ERR(path))
++			str = audit_unpack_string(&bufp, &remain, f->val);
++			if (IS_ERR(str))
+ 				goto exit_free;
+ 			entry->rule.buflen += f->val;
+ 
+-			err = audit_to_watch(path, &entry->rule, i);
++			err = audit_to_watch(str, &entry->rule, i);
+ 			if (err) {
+-				kfree(path);
++				kfree(str);
+ 				goto exit_free;
+ 			}
+ 			break;
+@@ -333,6 +372,14 @@ static struct audit_rule_data *audit_kru
+ 			data->buflen += data->values[i] =
+ 				audit_pack_string(&bufp, krule->watch->path);
+ 			break;
++		case AUDIT_SE_USER:
++		case AUDIT_SE_ROLE:
++		case AUDIT_SE_TYPE:
++		case AUDIT_SE_SEN:
++		case AUDIT_SE_CLR:
++			data->buflen += data->values[i] =
++				audit_pack_string(&bufp, f->se_str);
++			break;
+ 		default:
+ 			data->values[i] = f->val;
+ 		}
+@@ -370,6 +417,14 @@ static int audit_compare_rule(struct aud
+ 			if (audit_compare_watch(a->watch, b->watch))
+ 				return 1;
+ 			break;
++		case AUDIT_SE_USER:
++		case AUDIT_SE_ROLE:
++		case AUDIT_SE_TYPE:
++		case AUDIT_SE_SEN:
++		case AUDIT_SE_CLR:
++			if (strcmp(a->fields[i].se_str, b->fields[i].se_str))
++				return 1;
++			break;
+ 		default:
+ 			if (a->fields[i].val != b->fields[i].val)
+ 				return 1;
+@@ -640,6 +695,9 @@ int audit_comparator(const u32 left, con
+ 	default:
+ 		return -EINVAL;
+ 	}
++	/* should NEVER get here */
++	BUG();
++	return 0;
+ }
+ 
+ 
+@@ -726,3 +784,143 @@ unlock_and_return:
+ 	rcu_read_unlock();
+ 	return result;
+ }
 +
-+#ifdef CONFIG_SECURITY_SELINUX
-+
-+/**
-+ *	selinux_audit_rule_init - alloc/init an selinux audit rule structure.
-+ *	@field: the field this rule refers to
-+ *	@op: the operater the rule uses
-+ *	@rulestr: the text "target" of the rule
-+ *	@rule: pointer to the new rule structure returned via this
-+ *
-+ *	Returns 0 if successful, -errno if not.  On success, the rule structure
-+ *	will be allocated internally.  The caller must free this structure with
-+ *	selinux_audit_rule_free() after use.
-+ */
-+int selinux_audit_rule_init(u32 field, u32 op, char *rulestr,
-+                            struct selinux_audit_rule **rule);
-+
-+/**
-+ *	selinux_audit_rule_free - free an selinux audit rule structure.
-+ *	@rule: pointer to the audit rule to be freed
-+ *
-+ *	This will free all memory associated with the given rule.
-+ *	If @rule is NULL, no operation is performed.
-+ */
-+void selinux_audit_rule_free(struct selinux_audit_rule *rule);
-+
-+/**
-+ *	selinux_audit_rule_match - determine if a context ID matches a rule.
-+ *	@ctxid: the context ID to check
-+ *	@field: the field this rule refers to
-+ *	@op: the operater the rule uses
-+ *	@rule: pointer to the audit rule to check against
-+ *	@actx: the audit context (can be NULL) associated with the check
-+ *
-+ *	Returns 1 if the context id matches the rule, 0 if it does not, and
-+ *	-errno on failure.
-+ */
-+int selinux_audit_rule_match(u32 ctxid, u32 field, u32 op,
-+                             struct selinux_audit_rule *rule,
-+                             struct audit_context *actx);
-+
-+/**
-+ *	selinux_audit_set_callback - set the callback for policy reloads.
-+ *	@callback: the function to call when the policy is reloaded
-+ *
-+ *	This sets the function callback function that will update the rules
-+ *	upon policy reloads.  This callback should rebuild all existing rules
-+ *	using selinux_audit_rule_init().
-+ */
-+void selinux_audit_set_callback(int (*callback)(void));
-+
-+/**
-+ *	selinux_task_ctxid - determine a context ID for a process.
-+ *	@tsk: the task object
-+ *	@ctxid: ID value returned via this
-+ *
-+ *	On return, ctxid will contain an ID for the context.  This value
-+ *	should only be used opaquely.
-+ */
-+void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid);
-+
-+#else
-+
-+static inline int selinux_audit_rule_init(u32 field, u32 op,
-+                                          char *rulestr,
-+                                          struct selinux_audit_rule **rule)
++/* Check to see if the rule contains any selinux fields.  Returns 1 if there
++   are selinux fields specified in the rule, 0 otherwise. */
++static inline int audit_rule_has_selinux(struct audit_krule *rule)
 +{
-+	return -ENOTSUPP;
-+}
++	int i;
 +
-+static inline void selinux_audit_rule_free(struct selinux_audit_rule *rule)
-+{
-+	return;
-+}
++	for (i = 0; i < rule->field_count; i++) {
++		struct audit_field *f = &rule->fields[i];
++		switch (f->type) {
++		case AUDIT_SE_USER:
++		case AUDIT_SE_ROLE:
++		case AUDIT_SE_TYPE:
++		case AUDIT_SE_SEN:
++		case AUDIT_SE_CLR:
++			return 1;
++		}
++	}
 +
-+static inline int selinux_audit_rule_match(u32 ctxid, u32 field, u32 op,
-+                                           struct selinux_audit_rule *rule,
-+                                           struct audit_context *actx)
-+{
 +	return 0;
 +}
 +
-+static inline void selinux_audit_set_callback(int (*callback)(void))
++/* Make a copy of src in dest.  This will be a deep copy with the exception
++   of the watch - that pointer is carried over.  The selinux specific fields
++   will be updated in the copy.  The point is to be able to replace the src
++   rule with the dest rule in the list, then free the dest rule. */
++static inline int selinux_audit_rule_update_helper(struct audit_krule *dest,
++                                                   struct audit_krule *src)
 +{
-+	return;
-+}
++	int i, err = 0;
 +
-+static inline void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid)
-+{
-+	*ctxid = 0;
-+}
++	dest->vers_ops = src->vers_ops;
++	dest->flags = src->flags;
++	dest->listnr = src->listnr;
++	dest->action = src->action;
++	for (i = 0; i < AUDIT_BITMASK_SIZE; i++)
++		dest->mask[i] = src->mask[i];
++	dest->buflen = src->buflen;
++	dest->field_count = src->field_count;
 +
-+#endif	/* CONFIG_SECURITY_SELINUX */
-+
-+#endif /* _LINUX_SELINUX_H */
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 688c0a2..faf2e02 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
- 
--selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o
-+selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o exports.o
- 
- selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
- 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index ac5d69b..a300702 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -800,7 +800,7 @@ out:
- int avc_ss_reset(u32 seqno)
- {
- 	struct avc_callback_node *c;
--	int i, rc = 0;
-+	int i, rc = 0, tmprc;
- 	unsigned long flag;
- 	struct avc_node *node;
- 
-@@ -813,15 +813,16 @@ int avc_ss_reset(u32 seqno)
- 
- 	for (c = avc_callbacks; c; c = c->next) {
- 		if (c->events & AVC_CALLBACK_RESET) {
--			rc = c->callback(AVC_CALLBACK_RESET,
--					 0, 0, 0, 0, NULL);
--			if (rc)
--				goto out;
-+			tmprc = c->callback(AVC_CALLBACK_RESET,
-+			                    0, 0, 0, 0, NULL);
-+			/* save the first error encountered for the return
-+			   value and continue processing the callbacks */
-+			if (!rc)
-+				rc = tmprc;
- 		}
- 	}
- 
- 	avc_latest_notif_update(seqno, 0);
--out:
- 	return rc;
- }
- 
-diff --git a/security/selinux/exports.c b/security/selinux/exports.c
-new file mode 100644
-index 0000000..333c4c7
---- /dev/null
-+++ b/security/selinux/exports.c
-@@ -0,0 +1,28 @@
-+/*
-+ * SELinux services exported to the rest of the kernel.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/selinux.h>
-+
-+#include "security.h"
-+#include "objsec.h"
-+
-+void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid)
-+{
-+	struct task_security_struct *tsec = tsk->security;
-+	if (selinux_enabled)
-+		*ctxid = tsec->sid;
-+	else
-+		*ctxid = 0;
-+}
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index 640d0bf..fc34f87 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -8,7 +8,7 @@
-  *
-  *	Support for enhanced MLS infrastructure.
-  *
-- * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-+ * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
- 
- #include <linux/kernel.h>
-@@ -385,6 +385,34 @@ out:
- }
- 
- /*
-+ * Set the MLS fields in the security context structure
-+ * `context' based on the string representation in
-+ * the string `str'.  This function will allocate temporary memory with the
-+ * given constraints of gfp_mask.
-+ */
-+int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
-+{
-+	char *tmpstr, *freestr;
-+	int rc;
-+
-+	if (!selinux_mls_enabled)
-+		return -EINVAL;
-+
-+	/* we need freestr because mls_context_to_sid will change
-+	   the value of tmpstr */
-+	tmpstr = freestr = kstrdup(str, gfp_mask);
-+	if (!tmpstr) {
-+		rc = -ENOMEM;
-+	} else {
-+		rc = mls_context_to_sid(':', &tmpstr, context,
-+		                        NULL, SECSID_NULL);
-+		kfree(freestr);
-+	}
-+
-+	return rc;
-+}
-+
-+/*
-  * Copies the effective MLS range from `src' into `dst'.
-  */
- static inline int mls_scopy_context(struct context *dst,
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 03de697..fbb42f0 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -8,7 +8,7 @@
-  *
-  *	Support for enhanced MLS infrastructure.
-  *
-- * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-+ * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
- 
- #ifndef _SS_MLS_H_
-@@ -27,6 +27,8 @@ int mls_context_to_sid(char oldc,
- 		       struct sidtab *s,
- 		       u32 def_sid);
- 
-+int mls_from_string(char *str, struct context *context, gfp_t gfp_mask);
-+
- int mls_convert_context(struct policydb *oldp,
- 			struct policydb *newp,
- 			struct context *context);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d877cd1..ce9378e 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -7,12 +7,13 @@
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-  *
-  *	Support for enhanced MLS infrastructure.
-+ *	Support for context based audit filters.
-  *
-  * Updated: Frank Mayer <mayerf@tresys.com> and Karl MacMillan <kmacmillan@tresys.com>
-  *
-  * 	Added conditional policy language extensions
-  *
-- * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-+ * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-  *	This program is free software; you can redistribute it and/or modify
-@@ -1810,3 +1811,235 @@ out:
- 	POLICY_RDUNLOCK;
- 	return rc;
- }
-+
-+struct selinux_audit_rule {
-+	u32 au_seqno;
-+	struct context au_ctxt;
-+};
-+
-+void selinux_audit_rule_free(struct selinux_audit_rule *rule)
-+{
-+	if (rule) {
-+		context_destroy(&rule->au_ctxt);
-+		kfree(rule);
-+	}
-+}
-+
-+int selinux_audit_rule_init(u32 field, u32 op, char *rulestr,
-+                            struct selinux_audit_rule **rule)
-+{
-+	struct selinux_audit_rule *tmprule;
-+	struct role_datum *roledatum;
-+	struct type_datum *typedatum;
-+	struct user_datum *userdatum;
-+	int rc = 0;
-+
-+	*rule = NULL;
-+
-+	if (!ss_initialized)
-+		return -ENOTSUPP;
-+
-+	switch (field) {
-+	case AUDIT_SE_USER:
-+	case AUDIT_SE_ROLE:
-+	case AUDIT_SE_TYPE:
-+		/* only 'equals' and 'not equals' fit user, role, and type */
-+		if (op != AUDIT_EQUAL && op != AUDIT_NOT_EQUAL)
-+			return -EINVAL;
-+		break;
-+	case AUDIT_SE_SEN:
-+	case AUDIT_SE_CLR:
-+		/* we do not allow a range, indicated by the presense of '-' */
-+		if (strchr(rulestr, '-'))
-+			return -EINVAL;
-+		break;
-+	default:
-+		/* only the above fields are valid */
-+		return -EINVAL;
-+	}
-+
-+	tmprule = kzalloc(sizeof(struct selinux_audit_rule), GFP_KERNEL);
-+	if (!tmprule)
++	/* deep copy this information, updating the se_rule fields, because
++	   the originals will all be freed when the old rule is freed. */
++	dest->fields = kzalloc(sizeof(struct audit_field) * dest->field_count,
++	                       GFP_ATOMIC);
++	if (!dest->fields)
 +		return -ENOMEM;
-+
-+	context_init(&tmprule->au_ctxt);
-+
-+	POLICY_RDLOCK;
-+
-+	tmprule->au_seqno = latest_granting;
-+
-+	switch (field) {
-+	case AUDIT_SE_USER:
-+		userdatum = hashtab_search(policydb.p_users.table, rulestr);
-+		if (!userdatum)
-+			rc = -EINVAL;
-+		else
-+			tmprule->au_ctxt.user = userdatum->value;
-+		break;
-+	case AUDIT_SE_ROLE:
-+		roledatum = hashtab_search(policydb.p_roles.table, rulestr);
-+		if (!roledatum)
-+			rc = -EINVAL;
-+		else
-+			tmprule->au_ctxt.role = roledatum->value;
-+		break;
-+	case AUDIT_SE_TYPE:
-+		typedatum = hashtab_search(policydb.p_types.table, rulestr);
-+		if (!typedatum)
-+			rc = -EINVAL;
-+		else
-+			tmprule->au_ctxt.type = typedatum->value;
-+		break;
-+	case AUDIT_SE_SEN:
-+	case AUDIT_SE_CLR:
-+		rc = mls_from_string(rulestr, &tmprule->au_ctxt, GFP_ATOMIC);
-+		break;
++	memcpy(dest->fields, src->fields,
++	       sizeof(struct audit_field) * dest->field_count);
++	for (i = 0; i < dest->field_count; i++) {
++		struct audit_field *df = &dest->fields[i];
++		struct audit_field *sf = &src->fields[i];
++		switch (df->type) {
++		case AUDIT_SE_USER:
++		case AUDIT_SE_ROLE:
++		case AUDIT_SE_TYPE:
++		case AUDIT_SE_SEN:
++		case AUDIT_SE_CLR:
++			/* our own copy of se_str */
++			df->se_str = kstrdup(sf->se_str, GFP_ATOMIC);
++			/* our own (refreshed) copy of se_rule */
++			err = selinux_audit_rule_init(df->type, df->op,
++			                              df->se_str, &df->se_rule);
++			/* Keep currently invalid fields around in case they
++			   become valid after a policy reload. */
++			if (err == -EINVAL) {
++				printk(KERN_WARNING "selinux audit rule for item %s is invalid\n", df->se_str);
++				err = 0;
++			}
++			if (err)
++				return err;
++		}
 +	}
 +
-+	POLICY_RDUNLOCK;
++	/* we can shallow copy the watch because we will not be freeing it via
++	   selinux_audit_rule_update (and we do nto modify it) */
++	dest->watch = src->watch;
++	dest->rlist = src->rlist;
 +
-+	if (rc) {
-+		selinux_audit_rule_free(tmprule);
-+		tmprule = NULL;
-+	}
-+
-+	*rule = tmprule;
-+
-+	return rc;
++	return 0;
 +}
 +
-+int selinux_audit_rule_match(u32 ctxid, u32 field, u32 op,
-+                             struct selinux_audit_rule *rule,
-+                             struct audit_context *actx)
++/* This function will re-initialize the se_rule field of all applicable rules.
++   It will traverse the filter lists serarching for rules that contain selinux
++   specific filter fields.  When such a rule is found, it is copied, the
++   selinux field is re-initialized, and the old rule is replaced with the
++   updated rule. */
++/* XXX: is the error handling below appropriate */
++static int selinux_audit_rule_update(void)
 +{
-+	struct context *ctxt;
-+	struct mls_level *level;
-+	int match = 0;
++	struct audit_entry *entry, *nentry;
++	int i, err = 0, tmperr;
 +
-+	if (!rule) {
-+		audit_log(actx, GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+		          "selinux_audit_rule_match: missing rule\n");
-+		return -ENOENT;
-+	}
++	/* audit_netlink_sem synchronizes the writers */
++	down(&audit_netlink_sem);
 +
-+	POLICY_RDLOCK;
++	for (i = 0; i < AUDIT_NR_FILTERS; i++) {
++		list_for_each_entry(entry, &audit_filter_list[i], list) {
++			if (!audit_rule_has_selinux(&entry->rule))
++				continue;
 +
-+	if (rule->au_seqno < latest_granting) {
-+		audit_log(actx, GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+		          "selinux_audit_rule_match: stale rule\n");
-+		match = -ESTALE;
-+		goto out;
-+	}
++			nentry = kmalloc(sizeof(*entry), GFP_ATOMIC);
++			if (!nentry) {
++				/* save the first error encountered for the
++				   return value */
++				if (!err)
++					err = -ENOMEM;
++				audit_panic("error updating selinux filters");
++				continue;
++			}
 +
-+	ctxt = sidtab_search(&sidtab, ctxid);
-+	if (!ctxt) {
-+		audit_log(actx, GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+		          "selinux_audit_rule_match: unrecognized SID %d\n",
-+		          ctxid);
-+		match = -ENOENT;
-+		goto out;
-+	}
-+
-+	/* a field/op pair that is not caught here will simply fall through
-+	   without a match */
-+	switch (field) {
-+	case AUDIT_SE_USER:
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = (ctxt->user == rule->au_ctxt.user);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = (ctxt->user != rule->au_ctxt.user);
-+			break;
-+		}
-+		break;
-+	case AUDIT_SE_ROLE:
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = (ctxt->role == rule->au_ctxt.role);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = (ctxt->role != rule->au_ctxt.role);
-+			break;
-+		}
-+		break;
-+	case AUDIT_SE_TYPE:
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = (ctxt->type == rule->au_ctxt.type);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = (ctxt->type != rule->au_ctxt.type);
-+			break;
-+		}
-+		break;
-+	case AUDIT_SE_SEN:
-+	case AUDIT_SE_CLR:
-+		level = (op == AUDIT_SE_SEN ?
-+		         &ctxt->range.level[0] : &ctxt->range.level[1]);
-+		switch (op) {
-+		case AUDIT_EQUAL:
-+			match = mls_level_eq(&rule->au_ctxt.range.level[0],
-+			                     level);
-+			break;
-+		case AUDIT_NOT_EQUAL:
-+			match = !mls_level_eq(&rule->au_ctxt.range.level[0],
-+			                      level);
-+			break;
-+		case AUDIT_LESS_THAN:
-+			match = (mls_level_dom(&rule->au_ctxt.range.level[0],
-+			                       level) &&
-+			         !mls_level_eq(&rule->au_ctxt.range.level[0],
-+			                       level));
-+			break;
-+		case AUDIT_LESS_THAN_OR_EQUAL:
-+			match = mls_level_dom(&rule->au_ctxt.range.level[0],
-+			                      level);
-+			break;
-+		case AUDIT_GREATER_THAN:
-+			match = (mls_level_dom(level,
-+			                      &rule->au_ctxt.range.level[0]) &&
-+			         !mls_level_eq(level,
-+			                       &rule->au_ctxt.range.level[0]));
-+			break;
-+		case AUDIT_GREATER_THAN_OR_EQUAL:
-+			match = mls_level_dom(level,
-+			                      &rule->au_ctxt.range.level[0]);
-+			break;
++			tmperr = selinux_audit_rule_update_helper(&nentry->rule,
++			                                          &entry->rule);
++			if (!nentry) {
++				/* save the first error encountered for the
++				   return value */
++				if (!err)
++					err = -ENOMEM;
++				audit_free_rule(nentry);
++				audit_panic("error updating selinux filters");
++				continue;
++			}
++			list_replace_rcu(&entry->list, &nentry->list);
++			call_rcu(&entry->rcu, audit_free_rule_rcu);
 +		}
 +	}
 +
-+out:
-+	POLICY_RDUNLOCK;
-+	return match;
-+}
++	up(&audit_netlink_sem);
 +
-+static int (*aurule_callback)(void) = NULL;
-+
-+static int aurule_avc_callback(u32 event, u32 ssid, u32 tsid,
-+                               u16 class, u32 perms, u32 *retained)
-+{
-+	int err = 0;
-+
-+	if (event == AVC_CALLBACK_RESET && aurule_callback)
-+		err = aurule_callback();
 +	return err;
 +}
 +
-+static int __init aurule_init(void)
++/* Register the callback with selinux.  This callback will be invoked when a
++   new policy is loaded. */
++static int __init register_selinux_update_callback(void)
 +{
-+	int err;
-+
-+	err = avc_add_callback(aurule_avc_callback, AVC_CALLBACK_RESET,
-+	                       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
-+	if (err)
-+		panic("avc_add_callback() failed, error %d\n", err);
-+
-+	return err;
++	selinux_audit_set_callback(&selinux_audit_rule_update);
++	return 0;
 +}
-+__initcall(aurule_init);
++__initcall(register_selinux_update_callback);
 +
-+void selinux_audit_set_callback(int (*callback)(void))
-+{
-+	aurule_callback = callback;
-+}
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index cd83289..f117563 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -58,6 +58,7 @@
+ #include <linux/security.h>
+ #include <linux/list.h>
+ #include <linux/tty.h>
++#include <linux/selinux.h>
+ 
+ #include "audit.h"
+ 
+@@ -168,6 +169,9 @@ static int audit_filter_rules(struct tas
+ 			      enum audit_state *state)
+ {
+ 	int i, j;
++	u32 sid;
++
++	selinux_task_ctxid(tsk, &sid);
+ 
+ 	for (i = 0; i < rule->field_count; i++) {
+ 		struct audit_field *f = &rule->fields[i];
+@@ -258,6 +262,22 @@ static int audit_filter_rules(struct tas
+ 			if (ctx)
+ 				result = audit_comparator(ctx->loginuid, f->op, f->val);
+ 			break;
++		case AUDIT_SE_USER:
++		case AUDIT_SE_ROLE:
++		case AUDIT_SE_TYPE:
++		case AUDIT_SE_SEN:
++		case AUDIT_SE_CLR:
++			/* NOTE: this may return negative values indicating
++			   a temporary error.  We simply treat this as a
++			   match for now to avoid losing information that
++			   may be wanted.   An error message will also be
++			   logged upon error */
++			if (f->se_rule)
++				result = selinux_audit_rule_match(sid, f->type,
++				                                  f->op,
++				                                  f->se_rule,
++				                                  ctx);
++			break;
+ 		case AUDIT_ARG0:
+ 		case AUDIT_ARG1:
+ 		case AUDIT_ARG2:
 
 
 -- 
