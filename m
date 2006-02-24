@@ -1,63 +1,49 @@
-Subject: Re: [PATCH] context based audit filtering (take 4)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Linux Audit Discussion <linux-audit@redhat.com>,
+From: Steve Grubb <sgrubb@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] context based audit filtering (take 3)
+Date: Fri, 24 Feb 2006 10:08:33 -0500
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, James Morris <jmorris@namei.org>,
+        Amy Griffis <amy.griffis@hp.com>,
         Dustin Kirkland <dustin.kirkland@us.ibm.com>,
-        Amy Griffis <amy.griffis@hp.com>, James Morris <jmorris@namei.org>
-In-Reply-To: <43FDF3EC.7000303@trustedcs.com>
-References: <43F49805.2000109@trustedcs.com>
-	 <43FB86DD.2020708@trustedcs.com>
-	 <1140619592.31467.218.camel@moss-spartans.epoch.ncsc.mil>
-	 <43FDF3EC.7000303@trustedcs.com>
-Content-Type: text/plain
-Date: Fri, 24 Feb 2006 08:27:37 -0500
-Message-Id: <1140787657.21179.143.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+        Linux Audit Discussion <linux-audit@redhat.com>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+References: <43F49805.2000109@trustedcs.com> <43FE45DE.1060503@trustedcs.com> <1140787945.21179.149.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1140787945.21179.149.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200602241008.33479.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-02-23 at 11:42 -0600, Darrel Goeddel wrote:
-> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-> index 640d0bf..df358be 100644
-> --- a/security/selinux/ss/mls.c
-> +++ b/security/selinux/ss/mls.c
-> @@ -385,6 +385,31 @@ out:
->  }
->  
->  /*
-> + * Set the MLS fields in the security context structure
-> + * `context' based on the string representation in
-> + * the string `str'.  This function will allocate temporary memory with the
-> + * given constraints of gfp_mask.
-> + */
-> +int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
-> +{
-> +	char *tmpstr, *freestr;
-> +	int rc;
+On Friday 24 February 2006 08:32, Stephen Smalley wrote:
+> > > Should this be a printk or an audit_log call?
+> >
+> > Steve G had suggested syslogging it, so I went with the printk.  What
+> > would be more noticeable?
 
-Likely should be checking selinux_mls_enabled on entry and returning an
-error in that case (mls_context_to_sid will just return 0 in that case).
+Yes I did. The reasoning is that the rule is still there and waiting to become 
+valid. I believe there was also some conversation about making a retry 
+whenever policy was reloaded. So, in effect, I think this is something worthy 
+of a syslog and not an audit event. I think it falls into the same category 
+as doing an audit on an inode that doesn't exist.
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index d877cd1..a2ad2cd 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
+> Anything user-triggerable should likely be using audit_log.
 
-Need to #include <linux/selinux.h> now to pick up the function
-prototypes for the selinux_audit_ functions to ensure that they are
-checked against the real functions.
+Its not really user triggerable. You have to be capable of loading audit 
+rules....which is an auditable event.
 
-> +	default:
-> +		/* only the above fileds are valid */
+> Internal kernel errors reflecting a bug within the kernel might still use
+> printk(KERN_ERR...).
 
-Nit:  Typo in comment.
+> But I think we want to migrate SELinux and audit over to using audit_log
+> whenever possible, only using printk as the fallback for things like
+> audit_panic, no audit daemon, etc. 
 
-Otherwise, looks good.
+This should be the current state right now. If we have a place where something 
+auditable does not create an event, please point it out.
 
--- 
-Stephen Smalley
-National Security Agency
+-Steve
 
 
 --
