@@ -1,58 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1P5dgrU021576
-	for <selinux@tycho.nsa.gov>; Sat, 25 Feb 2006 00:39:46 -0500
-Received: from sccrmhc13.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1P5cEol002636
-	for <selinux@tycho.nsa.gov>; Sat, 25 Feb 2006 05:38:15 GMT
-Message-ID: <43FFED9D.3080302@procyonlabs.com>
-Date: Sat, 25 Feb 2006 00:39:41 -0500
-From: "Randal T. Rioux" <randy@procyonlabs.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: FYI SELinux/AppArmor press
-References: <43FF7418.90205@redhat.com>
-In-Reply-To: <43FF7418.90205@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1PH1V5v028810
+	for <selinux@tycho.nsa.gov>; Sat, 25 Feb 2006 12:01:33 -0500
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1PH1T5J002081
+	for <selinux@tycho.nsa.gov>; Sat, 25 Feb 2006 17:01:30 GMT
+Subject: Wishlist: services/httpd.* module, module meta information,
+	conflicts
+From: Erich Schubert <erich@debian.org>
+To: SE Linux <selinux@tycho.nsa.gov>, cpebenito@tresys.com
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sat, 25 Feb 2006 18:01:29 +0100
+Message-Id: <1140886889.20168.32.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Hi,
+I'd strongly prefer to abstract the apache module from apache to a
+generic httpd module and an apache specialization. I'll be running
+lighttpd and similar on my selinux boxes I guess. Or maybe continue
+using fnord.
 
-Daniel J Walsh wrote:
-> http://www.gcn.com/vol1_no1/daily-updates/38330-1.html
-> 
+A similar thing was already done for sendmail and postfix:
+services/mta.*
+The same thing is needed for apt-get on rpm and on dpkg.
 
-Thanks for the link, and for publicizing your position.
+Is there an easy way to extract dependency information from modules, to
+build a dependency satisfaction graph? For automatic (initial) module
+installation.
 
-- From your blog: "Novell claims that AppArmor is easier to use for third
-parties."
+Also I'd like to be able to add meta information (read: old
+X-Debian-Packages) to the modules. Is there something in place for them,
+or should this be done by
+e.g. module.meta files to go along with each module.pp file?
+This would probably be the easiest, having such information in there,
+eg.
+---[ postfix.pp ]--
+Description: Postfix policy module
+Depends: mta
+Conflicts: sendmail
+X-Debian-Packages: postfix
+---[]---
 
-Didn't Bill Gates use the same logic? I shudder when I hear statements
-like that. Yes, it takes more effort and time to implement better
-security. Writing your password on a Post-It and slapping it on your
-monitor is easy too, but wouldn't a little creativity and effort to
-memorize your access codes be better?!
-
-Uggh. Back to lurking.
-
-- --
-Randal T. Rioux | Procyon Labs
-IT Security R&D and Consulting
-Virtual: www.procyonlabs.com
-Physical: DC / Baltimore
-PGP: gpg --keyserver pgp.mit.edu --recv-keys 0xD08D1941
+best regards,
+Erich Schubert
+-- 
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
+ A man doesn't know what he knows until he knows what he doesn't know. //\
+     Während das Glück dir lacht, wirst Freunde du zählen in Menge;    V_/_
+       wenn sich der Himmel bewölkt, findest du dich bald allein.
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFD/+2ERrGMQdCNGUERA0o+AJ45D12GvaTJ8N+1qpz5p6VC9XDHcQCeLPgJ
-q64Q6Rk3MyUa0bEBgyQOO8w=
-=9wbL
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
