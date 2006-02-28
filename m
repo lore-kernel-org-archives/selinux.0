@@ -1,43 +1,36 @@
-Message-ID: <4404BA44.8000503@cornell.edu>
-Date: Tue, 28 Feb 2006 16:01:56 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1SN1j4b001596
+	for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2006 18:01:49 -0500
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1SN0Fpu028885
+	for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2006 23:00:15 GMT
+Message-Id: <200602282301.k1SN1ONq024854@gotham.columbia.tresys.com>
+From: "Kevin Carr" <kcarr@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Cc: <selinux-dev@tresys.com>, <fedora-selinux-list@redhat.com>
+Subject: ANN: SELinux Policy IDE (SLIDE)
+Date: Tue, 28 Feb 2006 18:01:24 -0500
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Desktop Integration Take 2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Okay, after discussing various obstacles, I think it's time to come up 
-with a new plan for integrating selinux w/ nautilus.
-How about the following:
+The first release of the SELinux Policy IDE (called SLIDE) from Tresys is
+available for download on the Tresys website.  Also, there is a sourceforge
+project site with screenshots and some documentation.
 
-- Have a file controlled by libsetrans which maps customizable types to 
-(unicode?) translated strings
-- Have a file controlled by libsetrans which maps mls ranges to 
-(unicode?) translated strings
-     (setrans.conf)
+http://tresys.com/selinux/index.shtml
 
-- Require the mappings above to be 1:1.
+http://selinux-ide.sourceforge.net/index.php
 
-- Have two functions (with better names):
-get_customizable_types_by_user()
-get_mls_labels_by_user()
+The tool is an eclipse plug-in that integrates with reference policy and
+should hopefully be found useful.  It is still under development as this is
+just an initial release.
 
-The first takes a [Unix] user, and returns the translated labels of all 
-customizable types accessible { relabelto } from that user.
-The second takes a [Unix] user, and returns the translated labels of all 
-mls ranges accessible from that user, [ only the labeled ones ].
-
-===========
-Make nautilus link to libsetrans.
-
-Then on startup, nautilus calls both of those functions exactly once.
-Then it has an enumeration to work with in set interfaces - have a 
-drop-down box for the type, and drop-down box for the mls range.
-To label a file to a non-customizable context, add a "Restore Context" 
-button, which runs restorecon.
+Kevin Carr
+Tresys Technology
+410.290.1411 x137
 
 
 
