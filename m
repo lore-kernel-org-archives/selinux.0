@@ -1,40 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1RGQHKF030709
-	for <selinux@tycho.nsa.gov>; Mon, 27 Feb 2006 11:26:17 -0500
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1RGQFku001534
-	for <selinux@tycho.nsa.gov>; Mon, 27 Feb 2006 16:26:15 GMT
-Subject: Re: Latest changes to policy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <4403E64B.6010804@cornell.edu>
+Date: Tue, 28 Feb 2006 00:57:31 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43FE0C4D.1000003@redhat.com>
-References: <43FE0C4D.1000003@redhat.com>
-Content-Type: text/plain
-Date: Mon, 27 Feb 2006 11:29:51 -0500
-Message-Id: <1141057791.30819.111.camel@sgc>
-Mime-Version: 1.0
+CC: SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: Desktop integration
+References: <43DE6244.5010100@cornell.edu> <43DE6578.9050302@redhat.com>
+In-Reply-To: <43DE6578.9050302@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-02-23 at 14:26 -0500, Daniel J Walsh wrote:
-> Make polyinstantiation work for /tmp
 
-Why does the files_polyinstantiate_all() need the relabeling?
+>
+>
+> 1. That a user can relabel to all of the customizable types.  In most 
+> policies he will not be allowed to .
+That's fair enough, but it can be checked...
+>
+> 2. That the only types he can relabel to are customizable.
+> For  example user_home_t is not necessarily customizable but a user 
+> could change a context to it.
+>
+I don't understand this one. Why is the user allowed to relabel to a 
+non-customizable type.
 
-> Automount now needs to getattr on all directories.
-
-I'd be interested to find out why, this seems like an odd behavior to
-me.
-
-The remainder is merged, except the Makefile.devel change; with the
-symlink setup you have in FC, it seems like it should work as is.
- 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Something's wrong with this - it appears to carry a risk that the file 
+will be automatically relabeled later, even after the user has made an 
+explicit request that it must be labeled user_home_t - that certainly 
+seems like a bad thing.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
