@@ -1,42 +1,47 @@
-Message-ID: <44047CFC.3040009@cornell.edu>
-Date: Tue, 28 Feb 2006 11:40:28 -0500
+Message-ID: <44048377.2010707@cornell.edu>
+Date: Tue, 28 Feb 2006 12:08:07 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: Desktop integration
-References: <43DE6244.5010100@cornell.edu> <43DE6578.9050302@redhat.com> <4403E64B.6010804@cornell.edu> <4404309B.9020001@redhat.com>
-In-Reply-To: <4404309B.9020001@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Chad Hanson <chanson@TrustedCS.com>, joe@nall.com,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        SELinux List <SELinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Context translation and MLS categories
+References: <4403E1A0.8030704@cornell.edu>	 <1141132115.22297.158.camel@moss-spartans.epoch.ncsc.mil>	 <44047455.4010601@cornell.edu> <1141144322.22297.267.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1141144322.22297.267.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
->>>
->>> 2. That the only types he can relabel to are customizable.
->>> For  example user_home_t is not necessarily customizable but a user 
->>> could change a context to it.
->>>
->> I don't understand this one. Why is the user allowed to relabel to a 
->> non-customizable type.
->>
->> Something's wrong with this - it appears to carry a risk that the 
->> file will be automatically relabeled later, even after the user has 
->> made an explicit request that it must be labeled user_home_t - that 
->> certainly seems like a bad thing.
-> Usually the user would be changing a badly labeled file back to 
-> user_home_t in his home directory.  So if a user changes a context to 
-> a customizable type, he might want to later change the context back.   
-Customizable types won't prevent you from changing the context back - 
-they'll just prevent restorecon from changing its type.
-> user_home_t should not be a customizable type, because a user could 
-> create a file in his home dir and then mv it to /var/www/html for 
-> example.  We would not want that context to remain user_home_t.
-Why not? I don't like it when restorecon tries to be extra smart.
-The user should make an explicit request to expose his files to the web 
-(via chcon), rather than  relying on automated relabeling with 
-restorecon, which seems like it should be used for a completely 
-different purpose.
+>> What do I present to the user if they want their file accessible by 
+>> s0:c0, and s0:c3, but not the other two.
+>>     
+>
+> It doesn't work that way - it isn't an ACL.  s0:c0,c3 means that the
+> file can only be accessed by processes with both c0 and c3 in its
+> low/sensitivity level (or high/clearance level in the MCS case).  Adding
+> a category to a file further restricts who can access it - it isn't
+> additive.
+>   
+Okay... so I am completely misunderstanding this.
+That's good to know, before I make critical design mistakes.
+
+I blame James Morris' howto :)
+It has no examples with more than one category marked on a file.
+============
+
+Okay, how about....
+
+1) We translate the entire range when displaying
+2) When modifying the range, we unroll the user's range as (s,c) pairs, 
+then translate each of them, and present them as required clearances to 
+be added or removed
+3) When the range is displayed again, re-translate the whole thing.
+============
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
