@@ -1,34 +1,40 @@
-Message-ID: <4403E64B.6010804@cornell.edu>
-Date: Tue, 28 Feb 2006 00:57:31 -0500
+Message-ID: <4403E1A0.8030704@cornell.edu>
+Date: Tue, 28 Feb 2006 00:37:36 -0500
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: Desktop integration
-References: <43DE6244.5010100@cornell.edu> <43DE6578.9050302@redhat.com>
-In-Reply-To: <43DE6578.9050302@redhat.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Context translation and MLS categories
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+To integrate selinux with nautilus, I'd like to have a function which 
+provides me with a list of translated (sensitivity, category) pairs, as 
+setrans.conf specifies. Then I can present a list of those strings to 
+the user.
 
->
->
-> 1. That a user can relabel to all of the customizable types.  In most 
-> policies he will not be allowed to .
-That's fair enough, but it can be checked...
->
-> 2. That the only types he can relabel to are customizable.
-> For  example user_home_t is not necessarily customizable but a user 
-> could change a context to it.
->
-I don't understand this one. Why is the user allowed to relabel to a 
-non-customizable type.
+The question is...where should this function be located, and what kind 
+of API will it have?
 
-Something's wrong with this - it appears to carry a risk that the file 
-will be automatically relabeled later, even after the user has made an 
-explicit request that it must be labeled user_home_t - that certainly 
-seems like a bad thing.
+Currently I have a raw context that is supplied by gnome-vfs. Clearly I 
+need to break that down into fields. I want the user to configure the 
+individual fields, not have a box to type in the context. This breakdown 
+seems like it should be internal to selinux libraries. A good place to 
+do it is in the sepol context record. However, currently libsepol is 
+completely unaware of translations - all it can do is supply the raw mls 
+range, or possibly expand the mls range into some other format - like a 
+list of (sens, cat) pairs.
+
+That still leaves translation to be done... but libselinux does not 
+provide any API for doing translation at the level of an mls range, or 
+even an individual (sensitivty, category) pair. It only allows 
+translation at the context level. Why is translation done at the context 
+level, and can I add additional APIs to translate at mls_range, or 
+individual sensitivity/category level. How does this affect the MITRE 
+translation library that I've been hearing about?
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
