@@ -1,38 +1,60 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k1SF2HN1021813
-	for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2006 10:02:17 -0500
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k1SF0lpu010885
-	for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2006 15:00:48 GMT
-Subject: Re: FYI SELinux/AppArmor press
-From: Erich Schubert <erich@debian.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <43FF7418.90205@redhat.com>
-References: <43FF7418.90205@redhat.com>
-Content-Type: text/plain
-Date: Tue, 28 Feb 2006 16:02:14 +0100
-Message-Id: <1141138934.29803.2.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Message-ID: <44047455.4010601@cornell.edu>
+Date: Tue, 28 Feb 2006 11:03:33 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Chad Hanson <chanson@TrustedCS.com>, joe@nall.com,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        SELinux List <SELinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Context translation and MLS categories
+References: <4403E1A0.8030704@cornell.edu> <1141132115.22297.158.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1141132115.22297.158.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Daniel, Hello SELinux list,
-I've posted a rather critical reply to the "AppArmor vs. SELinux"
-discussion to my blog at http://blog.drinsama.de/erich/en/linux/selinux
 
-In my opinion, AppArmor can indeed kill SELinux, even when it provides
-much lesser security - by just incorporating the community better than
-SELinux does.
+>>
+>> That still leaves translation to be done... but libselinux does not 
+>> provide any API for doing translation at the level of an mls range, or 
+>> even an individual (sensitivty, category) pair. It only allows 
+>> translation at the context level. Why is translation done at the context 
+>> level, and can I add additional APIs to translate at mls_range, or 
+>> individual sensitivity/category level. How does this affect the MITRE 
+>> translation library that I've been hearing about?
+>>     
+>
+> Translation at the entire context level was just for maximal generality
+> (and consistent with the general goal of encapsulating the context as
+> much as possible), but in practice, only the MLS component is being
+> translated presently.  Exporting APIs from libsetrans
+Should I be exporting APIs from libsetrans... or from libselinux using 
+libsetrans?
 
-best regards,
-Erich Schubert
--- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
- Nothing prevents happiness like the memory of happiness. --- A. Gide //\
-     Unter Freunden ist guter Rat nicht teuer, aber wie alles, was    V_/_
-         nichts kostet, nur wenig gefragt. --- Robert Muthmann
+>  for translation of
+> the range should be fine, IMHO.  Be careful to not misunderstand the
+> structure of a MLS range/level though, e.g. s0:c0,c1,c3,c7 has to be
+> interpreted as a whole, not as a list of pairs, for the full encoding
+> scheme used by the MITRE library, 
+Translation aside, this is a list of pairs from an enforcement 
+perspective, is it not?
+Maybe I'm confused about this, I haven't looked at MLS in detail yet...
 
+=====
+How do I tell if s0:c0,c1,c3,c7 is translated as a whole or a list of 
+parts. If it's translated as a list of parts, which libsetrans later 
+concats using some kind of separator (but are logically independent), I 
+want to know what those parts are, and I want them each on a separate 
+like in nautilus. If it's interpreted as a whole, then I only want the 
+final result. How can I tell? Should I be editing the resultant string? 
+What do I present to the user if they want their file accessible by 
+s0:c0, and s0:c3, but not the other two.
+
+Also, it seems like the translation is possibly non-unique. If there are 
+translation strings for s0:c0,c1, and s0:c3,c7, why are those overridden 
+to give precedence to s0:c0,c1,c3,c7. What kind of sorting is applied to 
+setrans.conf? Does this make sense in the nautilus case?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
