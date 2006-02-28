@@ -1,79 +1,54 @@
-Subject: Re: Deprecate freecon and freeconary
+Subject: Re: Context translation and MLS categories
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <44037A30.2040406@cornell.edu>
-References: <44037A30.2040406@cornell.edu>
+Cc: Chad Hanson <chanson@TrustedCS.com>, joe@nall.com,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        SELinux List <SELinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <4403E1A0.8030704@cornell.edu>
+References: <4403E1A0.8030704@cornell.edu>
 Content-Type: text/plain
-Date: Tue, 28 Feb 2006 08:00:54 -0500
-Message-Id: <1141131654.22297.150.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 28 Feb 2006 08:08:35 -0500
+Message-Id: <1141132115.22297.158.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-02-27 at 17:16 -0500, Ivan Gyurdiev wrote:
-> This patch marks freecon and freeconary as deprecated.
-> All uses of freecon() are changed to free().
-> Uses of freeconary() remain within the library, since this is a useful 
-> function.
-
-Given that freeconary() is a useful helper, should we retain it in the
-non-deprecated API but just convert its argument to char** going
-forward?
- 
-> stdlib.h has been included where appropriate.
-> stddef.h has been included where size_t was needed
-> Manpages and comments have been edited appropriately.
+On Tue, 2006-02-28 at 00:37 -0500, Ivan Gyurdiev wrote:
+> To integrate selinux with nautilus, I'd like to have a function which 
+> provides me with a list of translated (sensitivity, category) pairs, as 
+> setrans.conf specifies. Then I can present a list of those strings to 
+> the user.
 > 
-> The next logical patch is to remove security_context_t, and replace it 
-> with char*, although I'm not sure whether that should be done throughout 
-> the library, or just in the API.
-
-We'll likely need to retain the type definition in the API for
-compatibility with externally maintained code (e.g. SELinux userland
-patches that have migrated into other distributions and in some cases
-into the upstream packages).  We will also need to introduce a map file
-for libselinux, version it, and provide backward compatibility for
-freecon/freeconary APIs in the "old" version, only dropping them as
-exported symbols for code linked against the latest version. 
-
-> 1. Freecon and freeconary are not in a proper namespace. All such 
-> functions should be deprecated and replaced in general.
-
-Not sure if this is truly justified for all such functions, e.g.
-getfilecon, setfilecon, setexeccon, etc are basic primitives that could
-easily have been implemented as system calls (and were originally) if
-that had been an option.  The core API (wrappers of kernel APIs) can
-likely be left alone aside from security_context_t -> char* conversion.
-
-> 2. The security_context_t type has the wrong namespace, which should be 
-> replaced with selinux.
-
-As above, not sure if this is truly justified, as long as we have some
-reasonably distinguishing prefix (security_, avc_), unless we know of a
-real conflict.
-
-> 3. The security_context_t type is not opaque - it is externally defined 
-> as a char*. This means it provides no encapsulation of any kind. A 
-> context can be treated as a char*. Therefore freecon() offers no 
-> benefits over free(), and just adds an additional layer of overhead. It 
-> was pointed out that the string might not be allocated with malloc() [ 
-> in the future ], so freecon() might need to do special handling on it. 
-> This scenario doesn't seem probable at all. Also, such a string would 
-> most likely be cloned by the client immediately into a regular string, 
-> since we don't have a proper API for working with security_context_t - 
-> how do I clone one into another for example?
->
-> 4. The security_context_t type has a drawback over char*. Since selinux 
-> is an optional integration feature in most other code, 
-> security_context_t must be placed in an ifdef block. char* doesn't 
-> require that, so it is easier to use.
+> The question is...where should this function be located, and what kind 
+> of API will it have?
 > 
-> 5. security_context_t is unclear... since the pointer is hidden, it is 
-> not immediately obvious what its data size is when looking at the code.
+> Currently I have a raw context that is supplied by gnome-vfs. Clearly I 
+> need to break that down into fields. I want the user to configure the 
+> individual fields, not have a box to type in the context. This breakdown 
+> seems like it should be internal to selinux libraries. A good place to 
+> do it is in the sepol context record. However, currently libsepol is 
+> completely unaware of translations - all it can do is supply the raw mls 
+> range, or possibly expand the mls range into some other format - like a 
+> list of (sens, cat) pairs.
+> 
+> That still leaves translation to be done... but libselinux does not 
+> provide any API for doing translation at the level of an mls range, or 
+> even an individual (sensitivty, category) pair. It only allows 
+> translation at the context level. Why is translation done at the context 
+> level, and can I add additional APIs to translate at mls_range, or 
+> individual sensitivity/category level. How does this affect the MITRE 
+> translation library that I've been hearing about?
 
-These latter three reasons are the real justification for this change,
-IMHO.
+Translation at the entire context level was just for maximal generality
+(and consistent with the general goal of encapsulating the context as
+much as possible), but in practice, only the MLS component is being
+translated presently.  Exporting APIs from libsetrans for translation of
+the range should be fine, IMHO.  Be careful to not misunderstand the
+structure of a MLS range/level though, e.g. s0:c0,c1,c3,c7 has to be
+interpreted as a whole, not as a list of pairs, for the full encoding
+scheme used by the MITRE library, IIUC.  Joe Nall also recently asked
+about extending libsetrans to support inverse bit encodings.
 
 -- 
 Stephen Smalley
