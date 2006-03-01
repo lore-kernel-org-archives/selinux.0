@@ -1,100 +1,61 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k219WOb5010505
-	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 04:32:24 -0500
-Received: from xproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k219Us1o004283
-	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 09:30:54 GMT
-Received: by xproxy.gmail.com with SMTP id s14so56890wxc
-        for <selinux@tycho.nsa.gov>; Wed, 01 Mar 2006 01:32:23 -0800 (PST)
-Message-ID: <4ef5fec60603010132t62429e2eqf0339774b7fc6d2d@mail.gmail.com>
-Date: Wed, 1 Mar 2006 01:32:23 -0800
-From: coderman <coderman@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: virtual SELinux appliances, automated test suites
-In-Reply-To: <4ef5fec60602281726j2895cdcfwdc10696c1c081560@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <4ef5fec60602281726j2895cdcfwdc10696c1c081560@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k21ECJfk015246
+	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 09:12:19 -0500
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k21EAm1o009767
+	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 14:10:49 GMT
+Subject: Re: FYI SELinux/AppArmor press
+From: Erich Schubert <erich@debian.org>
+To: cwarner <cwarner@kernelcode.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1141183226.8475.22.camel@localhost.localdomain>
+References: <43FF7418.90205@redhat.com>
+	 <1141138934.29803.2.camel@wintermute.xmldesign.de>
+	 <1141183226.8475.22.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Wed, 01 Mar 2006 15:12:17 +0100
+Message-Id: <1141222338.2834.33.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 2/28/06, coderman <coderman@gmail.com> wrote:
-> ...
-> the way in which we are using virtual appliances requires the OS
-> images be pre-populated with all necessary keys, configuration, and
-> application data.  this places an emphasis on testing to ensure
-> mastered os instances / appliances function as desired standalone or
-> within a network.  information related to automated regression
-> testing, learning modes for SELinux policy definition/refinement, and
-> other relevant resources would be greatly appreciated.
+Hello Christopher,
+Well, I'm still not running SELinux reference policy successfully.
+So anything that actually works is easier to use...
+E.g. if the reference policy would include a users_extra file that
+labels /root
+with sysadm prefix... and if that were documented anywhere and wouldn't
+have required me to dive through the source of three packages.
+Now if ssh login as sysadm_r would work, I'd be mostly done.
 
-it might be helpful to mention existing systems for policy generation
-and testing, and OS/application testing with these policies. 
-comparisons and commentary regarding real world use, lessons learned,
-etc is solicited.
+Albeit the documented interfaces of current RefPolicy are an
+improvement, I don't think that policy writing has become much easier.
+The M4 syntax is still very awkward (backticks, no semicolons), and
+unless you've read all the policy thoroughly (e.g. because you've
+written it), you'll have a hard time finding the right macros to call.
+It's also very unintuitive when to use a macro/call an interface and
+when not.
+The current policy language is still very much "bottom up", i.e. "these
+is our output, how can we generate it a bit easier", and not "top down",
+i.e. "this is how we want to write the policy, how do we get a useful
+output".
 
-relevant conversations and details from the symposium would also be appreciated.
+> How is AppArmor easier to use? Negating the fact that I would have to
+> learn something new.
 
-policy management/generation:
-- reference policy (everyone knows about it; listed for completeness)
- [ http://serefpolicy.sourceforge.net/api-docs/ ]
-
-- setools, policycoreutils, audit2allow, audit2ref, apol
-  [ http://selinux.sourceforge.net/devel/userland.php3
-   http://www.tresys.com/selinux/selinux_policy_tools.shtml ]
-
-- slat, polgen
-  [ http://www.mitre.org/tech/selinux/ ]
-
-- selinux policy editor (and accompanying simplified policy language)
- [ http://seedit.sourceforge.net/ ]
-
-- selpec, sellog, selchk
-  [ http://www.selinux.hitachi-sk.co.jp/en/tool/selaid/selaid-top.html ]
-
-- SLIDE (eclipse plugin, not useful standalone / console?)
-  [ http://selinux-ide.sourceforge.net/index.php ]
-
-- CDS Framework IDE (no standalone/console mode?)
-  [ http://tresys.com/selinux/cds_framework.shtml ]
-
-- SELinux Policy Server
-  [ http://tresys.com/selinux/selinux_policy_server.shtml ]
-
-- conditional policy extension
- [ http://tresys.com/files/docs/cond-readme.txt ]
-
-- Lopol: A Deductive Database Approach to Policy Analysis and Rewriting
- [ nothing public at this time? ]
-
-- CIPSO / IPsec policy hooks / SELinux Protected Paths
- [ nothing public at this time? ]
-
-- SENG: An Enhanced Policy Language for SELinux
- [ nothing public at this time? ]
-
-
-
-OS/Application level testing / automation:
-- Linux Test Project / selinux-testsuite
- [ http://ltp.sourceforge.net/
-   limited mainly to testing selinux kernel capabilities? ]
-
-- Towards Automated Authorization Policy Enforcement
- [ nothing public at this time? ]
-
-- Software Testing Automation Framework / STAX
- [ http://staf.sourceforge.net/index.php ]
-
-- Other test tools?
- [ http://ltp.sourceforge.net/tooltable.php ]
-
-
-regarding SELinux within or hosting virtual OS instances i am still
-interested in any projects / experiences using the xen hypervisor
-specifically: http://www.xensource.com/
+I've never looked at AppArmor, I've been using "old" strict SELinux for
+some time, so I'd prefer to get the "new" modular SELinux work... I had
+experimented with grctl1 ACL some time, which I guess are similar to
+what AppArmor does. And I've seen the benefits of labeled processes and
+transitions, so I'd like to stick with them.
 
 best regards,
+Erich Schubert
+-- 
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
+   There was never a good war or a bad peace. - Benjamin Franklin   //\
+           Ein schöner Moment leuchtet das Leben hindurch.          V_/_
+
 
 
 --
