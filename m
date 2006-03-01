@@ -1,99 +1,87 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k21KxYwA024952
-	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 15:59:34 -0500
-Received: from nproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k21Kw31o024067
-	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 20:58:03 GMT
-Received: by nproxy.gmail.com with SMTP id k27so164702nfc
-        for <selinux@tycho.nsa.gov>; Wed, 01 Mar 2006 12:59:32 -0800 (PST)
-Message-ID: <d82d6db50603011259s3fe0e80duca501a9c7925c661@mail.gmail.com>
-Date: Wed, 1 Mar 2006 15:59:32 -0500
-From: "Benjy Grogan" <benjy.grogan@gmail.com>
-To: "Erich Schubert" <erich@debian.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k21M0iaL026389
+	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 17:00:44 -0500
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k21LxD1o004961
+	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 21:59:14 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id 2F543C4C084
+	for <selinux@tycho.nsa.gov>; Wed,  1 Mar 2006 23:00:42 +0100 (CET)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 16812-01 for <selinux@tycho.nsa.gov>;
+	Wed, 1 Mar 2006 23:00:40 +0100 (CET)
+Received: from wintermute.xmldesign.de (p549A4023.dip0.t-ipconnect.de [84.154.64.35])
+	by legolas.drinsama.de (Postfix) with ESMTP id BA570C4C083
+	for <selinux@tycho.nsa.gov>; Wed,  1 Mar 2006 23:00:40 +0100 (CET)
+Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
+	by wintermute.xmldesign.de (Postfix) with ESMTP id C729123439F
+	for <selinux@tycho.nsa.gov>; Wed,  1 Mar 2006 23:00:42 +0100 (CET)
 Subject: Re: FYI SELinux/AppArmor press
-Cc: cwarner <cwarner@kernelcode.com>, "SE Linux" <selinux@tycho.nsa.gov>
-In-Reply-To: <1141222338.2834.33.camel@wintermute.xmldesign.de>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_4515_14306931.1141246772242"
+From: Erich Schubert <erich@debian.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <d82d6db50603011259s3fe0e80duca501a9c7925c661@mail.gmail.com>
 References: <43FF7418.90205@redhat.com>
 	 <1141138934.29803.2.camel@wintermute.xmldesign.de>
 	 <1141183226.8475.22.camel@localhost.localdomain>
 	 <1141222338.2834.33.camel@wintermute.xmldesign.de>
+	 <d82d6db50603011259s3fe0e80duca501a9c7925c661@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 01 Mar 2006 23:00:41 +0100
+Message-Id: <1141250441.2834.62.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_4515_14306931.1141246772242
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi Benjy,
+> How do these new IDEs that Tresys put out in the last week or so fit
+> into the picture?  Haven't used them, but they appear to be the start
+> of a higher-level approach to developing policy and perhaps more
+> intuitive.  I'm talking about SLIDE (SELinux policy IDE) and the CDS
+> framework IDE tool. 
 
-On 3/1/06, Erich Schubert <erich@debian.org> wrote:
->
-> Hello Christopher,
-> Well, I'm still not running SELinux reference policy successfully.
-> So anything that actually works is easier to use...
-> E.g. if the reference policy would include a users_extra file that
-> labels /root
-> with sysadm prefix... and if that were documented anywhere and wouldn't
-> have required me to dive through the source of three packages.
-> Now if ssh login as sysadm_r would work, I'd be mostly done.
->
-> Albeit the documented interfaces of current RefPolicy are an
-> improvement, I don't think that policy writing has become much easier.
-> The M4 syntax is still very awkward (backticks, no semicolons), and
-> unless you've read all the policy thoroughly (e.g. because you've
-> written it), you'll have a hard time finding the right macros to call.
-> It's also very unintuitive when to use a macro/call an interface and
-> when not.
-> The current policy language is still very much "bottom up", i.e. "these
-> is our output, how can we generate it a bit easier", and not "top down",
-> i.e. "this is how we want to write the policy, how do we get a useful
-> output".
+They replace vim, if you are developing your policy on a system with
+eclipse installed...
 
+SLIDE IMHO does not address the issues with the policy language, but it
+just tries to make it a little bit less painful, by basically giving you
+tab completion, reference (like the website did) and a couple of
+templates (like policygentool did). So it likely is a nice tool for
+people who _already_ know how to write policy by heart.
 
-How do these new IDEs that Tresys put out in the last week or so fit into
-the picture?  Haven't used them, but they appear to be the start of a
-higher-level approach to developing policy and perhaps more intuitive.  I'm
-talking about SLIDE (SELinux policy IDE) and the CDS framework IDE tool.
+Have a look for example at
+http://selinux-ide.sourceforge.net/images/screenshots/completion.png
+well, it's nice syntax highlighting, and you have a dropdown to select
+the macros. But that doesn't really help you finding the appropriate
+macros, or explain what ever "generic files in library directories"
+might be. Or help you finding out whether you might need it.
+There are approximately 1600 interfaces, not counting the generated
+network port and interface macros. Even given the hierarchy represented
+by {admin,services,...} and convetions like files_ etc. names this is
+probably more than most people can handle.
 
-Benji
+I can't say much about CDS: the website gives so few details, you can
+barely tell what it is _meant_ to be, not to say what it's capable of. I
+just don't have the time to download the sourcecode and try it. The
+screenshot appears pretty at first sight, but there is nothing on it how
+this interfaces with other parts of the system and other services -
+which is exactly where it gets messy and complicated... Stuff like
+allowing DNS usage, access to locales. Using the perl interpreter, or
+python. Reading /etc/resolv.conf. Some of this has matching interfaces
+already, some has not.
+I guess you could even autodetect some of these things. A smart
+policygen tool should be able to detect whether it needs
+perl/python/java/mono, maybe locales, maybe you could just grep for
+"ifconfig" in the binary, too...
 
-------=_Part_4515_14306931.1141246772242
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+best regards,
+Erich Schubert
+-- 
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+      To be trusted is a greater complement than to be loved.       //\
+   Mathematik: Das Alphabet, mit dessen Hilfe Gott das Universum    V_/_
+                beschrieben hat. --- Galileo Galilei
 
-<br><br><div><span class=3D"gmail_quote">On 3/1/06, <b class=3D"gmail_sende=
-rname">Erich Schubert</b> &lt;<a href=3D"mailto:erich@debian.org">erich@deb=
-ian.org</a>&gt; wrote:</span><blockquote class=3D"gmail_quote" style=3D"bor=
-der-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-=
-left: 1ex;">
-Hello Christopher,<br>Well, I'm still not running SELinux reference policy =
-successfully.<br>So anything that actually works is easier to use...<br>E.g=
-. if the reference policy would include a users_extra file that<br>labels /=
-root
-<br>with sysadm prefix... and if that were documented anywhere and wouldn't=
-<br>have required me to dive through the source of three packages.<br>Now i=
-f ssh login as sysadm_r would work, I'd be mostly done.<br><br>Albeit the d=
-ocumented interfaces of current RefPolicy are an
-<br>improvement, I don't think that policy writing has become much easier.<=
-br>The M4 syntax is still very awkward (backticks, no semicolons), and<br>u=
-nless you've read all the policy thoroughly (e.g. because you've<br>written=
- it), you'll have a hard time finding the right macros to call.
-<br>It's also very unintuitive when to use a macro/call an interface and<br=
->when not.<br>The current policy language is still very much &quot;bottom u=
-p&quot;, i.e. &quot;these<br>is our output, how can we generate it a bit ea=
-sier&quot;, and not &quot;top down&quot;,
-<br>i.e. &quot;this is how we want to write the policy, how do we get a use=
-ful<br>output&quot;.</blockquote><div><br>How do these new IDEs that Tresys=
- put out in the last week or so fit into the picture?&nbsp; Haven't used th=
-em, but they appear to be the start of a higher-level approach to developin=
-g policy and perhaps more intuitive.&nbsp; I'm talking about SLIDE (SELinux=
- policy IDE) and the CDS framework IDE tool.
-<br><br>Benji</div></div>
-
-------=_Part_4515_14306931.1141246772242--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
