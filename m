@@ -1,105 +1,84 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k222m2sq031359
-	for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2006 21:48:02 -0500
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k222kW1o011215
-	for <selinux@tycho.nsa.gov>; Thu, 2 Mar 2006 02:46:32 GMT
-Message-ID: <44065CB2.5080500@tresys.com>
-Date: Wed, 01 Mar 2006 21:47:14 -0500
-From: Chad Sellers <csellers@tresys.com>
-MIME-Version: 1.0
-To: Erich Schubert <erich@debian.org>
-CC: SE Linux <selinux@tycho.nsa.gov>, Kevin Carr <kcarr@tresys.com>,
-        selinux-dev@tresys.com
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k22AhSCb006693
+	for <selinux@tycho.nsa.gov>; Thu, 2 Mar 2006 05:43:31 -0500
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k22Afwd7002443
+	for <selinux@tycho.nsa.gov>; Thu, 2 Mar 2006 10:41:58 GMT
 Subject: Re: FYI SELinux/AppArmor press
-References: <43FF7418.90205@redhat.com>	 <1141138934.29803.2.camel@wintermute.xmldesign.de>	 <1141183226.8475.22.camel@localhost.localdomain>	 <1141222338.2834.33.camel@wintermute.xmldesign.de>	 <d82d6db50603011259s3fe0e80duca501a9c7925c661@mail.gmail.com> <1141250441.2834.62.camel@wintermute.xmldesign.de>
-In-Reply-To: <1141250441.2834.62.camel@wintermute.xmldesign.de>
-Content-Type: text/plain; charset=ISO-8859-1
+From: Erich Schubert <erich@debian.org>
+To: Chad Sellers <csellers@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Kevin Carr <kcarr@tresys.com>,
+        selinux-dev@tresys.com
+In-Reply-To: <44065CB2.5080500@tresys.com>
+References: <43FF7418.90205@redhat.com>
+	 <1141138934.29803.2.camel@wintermute.xmldesign.de>
+	 <1141183226.8475.22.camel@localhost.localdomain>
+	 <1141222338.2834.33.camel@wintermute.xmldesign.de>
+	 <d82d6db50603011259s3fe0e80duca501a9c7925c661@mail.gmail.com>
+	 <1141250441.2834.62.camel@wintermute.xmldesign.de>
+	 <44065CB2.5080500@tresys.com>
+Content-Type: text/plain
+Date: Thu, 02 Mar 2006 11:43:27 +0100
+Message-Id: <1141296207.17082.12.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Erich Schubert wrote:
-> Hi Benjy,
-> 
->>How do these new IDEs that Tresys put out in the last week or so fit
->>into the picture?  Haven't used them, but they appear to be the start
->>of a higher-level approach to developing policy and perhaps more
->>intuitive.  I'm talking about SLIDE (SELinux policy IDE) and the CDS
->>framework IDE tool. 
-> 
-> 
-Erich,
+Hello Chad,
+In my opinion, the SELinux security policy should be done using a real
+OOP paradigma, not this "imperative" like set of rules we have right now
+(M4 is imperative...)
+In an ideal case, people could write SELinux policies using UML
+modelers.
+I'm not a big fan of Java and UML, but I think it helps people a lot.
 
-I'm sorry you're having trouble with reference policy and libsemanage.
-They're still a work in progress, and will continue to improve in the
-near future. We definitely appreciate your efforts to get this working
-on Debian, as we want to see this used in as many distributions as
-possible. Fedora and Gentoo are a good start, but we'd like to see it
-keep spreading.
+We had some OOP-like elements alaredy - "sysadmfile" and similar type
+flags we had in the old nsa policy.
 
-> They replace vim, if you are developing your policy on a system with
-> eclipse installed...
-> 
-> SLIDE IMHO does not address the issues with the policy language, but it
-> just tries to make it a little bit less painful, by basically giving you
-> tab completion, reference (like the website did) and a couple of
-> templates (like policygentool did). So it likely is a nice tool for
-> people who _already_ know how to write policy by heart.
-> 
-> Have a look for example at
-> http://selinux-ide.sourceforge.net/images/screenshots/completion.png
-> well, it's nice syntax highlighting, and you have a dropdown to select
-> the macros. But that doesn't really help you finding the appropriate
-> macros, or explain what ever "generic files in library directories"
-> might be. Or help you finding out whether you might need it.
-> There are approximately 1600 interfaces, not counting the generated
-> network port and interface macros. Even given the hierarchy represented
-> by {admin,services,...} and convetions like files_ etc. names this is
-> probably more than most people can handle.
-> 
-Reference policy is less painful, but the mechanisms it provides are the
-real power that will allow us to make things easier. We've been trying
-to make policy development easier for some time, and we eventually
-realized that we couldn't do it without better structure in the policy.
-Now that we're starting to have that structure, we can use that to build
-higher-level abstractions. These can be as simple as more abstract
-interfaces or as complex as higher-level languages and tools. The CDS
-Framework is one early example of this which is fairly specific to a
-given environment.
+I'd imagine a good policy language to be like this:
+---
+type system_logfile : public system_file {
+	public interface read { ... }
+	public interface write { ... }
+	public interface append { ... }
+	public interface manage { ... }
+}
 
-SLIDE is a very early version of a reference policy IDE (that's why it's
-version 0.1). We're hoping to make it much easier to use over time, but
-we wanted to develop it in the open-source so that we could at least get
-continuous feedback on it. Even at 0.1, we've gotten some very positive
-feedback regarding the features that it does provide.
+type amavis_logfile : public system_logfile {
+	match "/var/log/amavis.*"
+	/* will inherit interfaces by system_logfile */
+}
 
-> I can't say much about CDS: the website gives so few details, you can
-> barely tell what it is _meant_ to be, not to say what it's capable of. I
-> just don't have the time to download the sourcecode and try it. The
-> screenshot appears pretty at first sight, but there is nothing on it how
-> this interfaces with other parts of the system and other services -
-> which is exactly where it gets messy and complicated... Stuff like
-> allowing DNS usage, access to locales. Using the perl interpreter, or
-> python. Reading /etc/resolv.conf. Some of this has matching interfaces
-> already, some has not.
-> 
-Just to fill in some of the details here, CDS Framework does have
-provisions for linking to the base system. I'm sorry that it is
-currently not very well documented. There is actually a paper being
-presented at the SELinux Symposium tomorrow on our experiences
-implementing the CDS Framework language, including the difficulties with
-linking to a base system. I'll make sure at least the presentation makes
-it to the web.
+type amavisd_exec : public system_executable_file {
+	match "/usr/sbin/amavisd.*"
 
-Thanks,
-Chad
+	interface execTransition { ... }
+}
 
+type amavisd : public network_daemon {
+	interface sendTo { ... }
+}
+
+rules amavisd {
+	allow appendTo amavis_logfile
+}
+
+rules initrc {
+	allow execTransition amavisd_exec
+}
+---
+
+I'm no language designer, and no usability expert... but I think the
+policy language should avoid unnecessary repetition as far as possible
+and follow modelling paradigmas people already know such as inheritance.
+
+best regards,
+Erich Schubert
 -- 
-
-----------------------
-Chad Sellers
-Tresys Technology, LLC
-http://www.tresys.com
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+ Why waste time learning, when ignorance is instantaneous? --- Calvin //\
+              Es lohnt sich nicht, die Augen aufzumachen,             V_/_
+                     wenn der Kopf im Sand steckt.
 
 
 --
