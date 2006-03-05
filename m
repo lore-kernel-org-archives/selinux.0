@@ -1,62 +1,49 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k240vnX2020292
-	for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2006 19:57:49 -0500
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k240uH8d006950
-	for <selinux@tycho.nsa.gov>; Sat, 4 Mar 2006 00:56:18 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 714E2C4C084
-	for <selinux@tycho.nsa.gov>; Sat,  4 Mar 2006 01:57:47 +0100 (CET)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 01683-04 for <selinux@tycho.nsa.gov>;
-	Sat, 4 Mar 2006 01:57:46 +0100 (CET)
-Received: from wintermute.xmldesign.de (p549A0455.dip0.t-ipconnect.de [84.154.4.85])
-	by legolas.drinsama.de (Postfix) with ESMTP id 6FFDDC4C083
-	for <selinux@tycho.nsa.gov>; Sat,  4 Mar 2006 01:57:46 +0100 (CET)
-Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id BE0BD23439D
-	for <selinux@tycho.nsa.gov>; Sat,  4 Mar 2006 01:57:49 +0100 (CET)
-Subject: Re: Refpolicy: Small fix to make refpolicy compile with make from
-	CVS
-From: Erich Schubert <erich@debian.org>
-To: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <20060221134958.GB7338@thorium.jmh.mhn.de>
-References: <20060221134958.GB7338@thorium.jmh.mhn.de>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sat, 04 Mar 2006 01:57:49 +0100
-Message-Id: <1141433869.18820.52.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k25Ig7cW016147
+	for <selinux@tycho.nsa.gov>; Sun, 5 Mar 2006 13:42:11 -0500
+Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k25Ig32O023865
+	for <selinux@tycho.nsa.gov>; Sun, 5 Mar 2006 18:42:04 GMT
+Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
+	by glaurung.internal.golden-gryphon.com (8.13.5/8.13.5/Debian-3) with ESMTP id k25IXAPp024002
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Sun, 5 Mar 2006 12:33:10 -0600
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+To: selinux@tycho.nsa.gov
+Subject: selinux.org domain
+Date: Sun, 05 Mar 2006 12:33:09 -0600
+Message-ID: <873bhwvj16.fsf@glaurung.internal.golden-gryphon.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello SELinux list,
-> With the make shipped with Debian and Ubuntu (and also the current CVS
-> version) it is impossible to build the reference policy because make
-> always complains about "make: Circular tmp/all_te_files.conf <-
-> corenetwork.te dependency dropped." and produces incorrect output.
+Hi,
 
-Note that with make 3.81.rc1 this sometimes even causes a segfault in
-make.
-Some more details in
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=354673
-It looks very much like a make bug to me, a downgrade of make to 3.80
-resolves these build issues. The proposed workaround by Thomas no longer
-helped suddenly.
-(It did help some time, but it seems there are quantity effects
-involved, and by adding new modules, the error came back again... so
-maybe the .SECONDARY target was just a success by chance...)
+        I had taken an action item at the developers summit to look
+ into the status of the domain. Bastian Blank had registered the
+ domain, and had control over it until January 27th, when it lapsed
+ (apparently he did not get a notice from his registrar).
 
-best regards,
-Erich Schubert
+        Unfortunately, the domain was snapped up by domibot,
+ some kind of automated domain squatter. Their web page states:
+,----[ http://www.domibot.com/ ]
+| Domibot registers expiring and previously registered domains using
+| an automated process. No humans are involved in selecting domains. 
+|
+| If you feel a domain we have registered affects you or your company,
+| please contact us at: domains@domibot.com
+|
+| We respect all trademarks and transfer domains to the corresponding
+| party upon request. 
+`----
+
+        manoj
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-   To understand recursion you first need to understand recursion.   //\
-   Freund in der Not will nicht viel heißen; hilfreich möchte sich   V_/_
-    mancher erweisen. Aber die neidlos dein Glück dir gönnen, die
-        darfst du wahrlich Freunde nennen. --- Paul von Heyse
-
-
+Anyone who goes to a psychiatrist ought to have his head
+examined. Samuel Goldwyn
+Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
