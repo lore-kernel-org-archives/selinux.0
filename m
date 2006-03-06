@@ -1,50 +1,54 @@
-Subject: Re: Desktop integration
-From: Erich Schubert <erich@debian.org>
-To: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <440C6DE2.1070705@redhat.com>
-References: <43DE6244.5010100@cornell.edu> <43DE6578.9050302@redhat.com>
-	 <4403E64B.6010804@cornell.edu> <4404309B.9020001@redhat.com>
-	 <44047CFC.3040009@cornell.edu>  <440C6DE2.1070705@redhat.com>
-Content-Type: text/plain
-Date: Mon, 06 Mar 2006 22:58:34 +0100
-Message-Id: <1141682314.32760.58.camel@wintermute.xmldesign.de>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k26MFMdW013579
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 17:15:22 -0500
+Received: from e35.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k26MFJuY027279
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 22:15:20 GMT
+Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
+	by e35.co.us.ibm.com (8.12.11/8.12.11) with ESMTP id k26MFLJw007220
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 17:15:21 -0500
+Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
+	by westrelay02.boulder.ibm.com (8.12.10/NCO/VER6.8) with ESMTP id k26MCeTY184722
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 15:12:40 -0700
+Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av02.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k26MFLae015101
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 15:15:21 -0700
+Received: from sergelap.hallyn.com (sig-9-65-85-1.mts.ibm.com [9.65.85.1])
+	by d03av02.boulder.ibm.com (8.12.11/8.12.11) with ESMTP id k26MFKJY015076
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 15:15:20 -0700
+Date: Mon, 6 Mar 2006 16:15:19 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: libsemanage/src/semanage_store.c:semanage_split_fc
+Message-ID: <20060306221519.GA25033@sergelap.austin.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-> Because the user does not understand.  He creates a cgi script in his 
-> home directory or /tmp and then mv's it to /var/www/cgi-bin or 
-> /var/www/html.  In his mind the act of moving it to /var/www/html is the 
-> act of sharing it.  So
+In semanage_split_fc(), linex 887 and 893, the file_con fd is not closed
+on error.  Trivial patch follows.
 
-I agree here a lot. We need to think more of the user, too. Security is
-worthless when people don't understand it and then just disable it,
-because they don't get how to properly use it.
+-serge
 
-A somewhat related question: Does SELinux have a measure to _prohibit_
-certain "file type nestings"?
-Right now I think you can basically label any file with any file label;
-you'll probably break apps and such, but that is up to you.
-But for example, why should files outside of /var be allowed to have any
-var_*_t file type? or even bin_t - right now you can label a file
-in /var/tmp bin_t, which I really do not want to allow... But it's also
-a question at how expensive it is to prohibit.
-But I guess the kernel could be equipped with a set of rules that
-basically say inode foo maybe labeled bar only if it's parent inodes
-have label quux. Gets very complicated however with hard links...
-
-But we could use this at least to prevent the just described problem of
-introducing mislabeled files by editing files in a different dir and
-then copying them over...
-
-best regards,
-Erich Schubert
--- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-   To understand recursion you first need to understand recursion.   //\
-  Wer nicht zuweilen zuviel empfindet, der empfindet immer zuwenig.  V_/_
-
+Index: libsemanage/src/semanage_store.c
+===================================================================
+--- libsemanage.orig/src/semanage_store.c	2006-02-15 10:47:23.000000000 -0600
++++ libsemanage/src/semanage_store.c	2006-03-06 16:14:48.000000000 -0600
+@@ -885,11 +885,13 @@ int semanage_split_fc(semanage_handle_t 
+ 	fc = open(semanage_path(SEMANAGE_TMP, SEMANAGE_FC), O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
+ 	if (!fc) {
+ 		ERR(sh, "Could not open %s for writing.", semanage_path(SEMANAGE_TMP, SEMANAGE_FC));
++		fclose(file_con);
+ 		return -1;
+ 	}
+ 	hd = open(semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL), O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
+ 	if (!hd) {
+ 		ERR(sh, "Could not open %s for writing.", semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL));
++		fclose(file_con);
+ 		close(fc);
+ 		return -1;
+ 	}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
