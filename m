@@ -1,65 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k25MPJ3I018526
-	for <selinux@tycho.nsa.gov>; Sun, 5 Mar 2006 17:25:23 -0500
-Received: from mail2506.carrierzone.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k25MNkg7000058
-	for <selinux@tycho.nsa.gov>; Sun, 5 Mar 2006 22:23:47 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Manoj Srivastava'" <manoj.srivastava@stdc.com>, <selinux@tycho.nsa.gov>
-Subject: RE: selinux.org domain
-Date: Sun, 5 Mar 2006 17:25:08 -0500
-Message-ID: <030601c640a3$a97805a0$e0ed4a41@columbia.tresys.com>
+Message-ID: <440C6DE2.1070705@redhat.com>
+Date: Mon, 06 Mar 2006 12:14:10 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <873bhwvj16.fsf@glaurung.internal.golden-gryphon.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+CC: SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: Desktop integration
+References: <43DE6244.5010100@cornell.edu> <43DE6578.9050302@redhat.com> <4403E64B.6010804@cornell.edu> <4404309B.9020001@redhat.com> <44047CFC.3040009@cornell.edu>
+In-Reply-To: <44047CFC.3040009@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It might be easier to pick another name, like open-selinux.org or something
-similar. Frank 
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Manoj Srivastava
-Sent: Sunday, March 05, 2006 1:33 PM
-To: selinux@tycho.nsa.gov
-Subject: selinux.org domain
-
-Hi,
-
-        I had taken an action item at the developers summit to look  into
-the status of the domain. Bastian Blank had registered the  domain, and had
-control over it until January 27th, when it lapsed  (apparently he did not
-get a notice from his registrar).
-
-        Unfortunately, the domain was snapped up by domibot,  some kind of
-automated domain squatter. Their web page states:
-,----[ http://www.domibot.com/ ]
-| Domibot registers expiring and previously registered domains using an 
-| automated process. No humans are involved in selecting domains.
-|
-| If you feel a domain we have registered affects you or your company, 
-| please contact us at: domains@domibot.com
-|
-| We respect all trademarks and transfer domains to the corresponding 
-| party upon request.
-`----
-
-        manoj
---
-Anyone who goes to a psychiatrist ought to have his head examined. Samuel
-Goldwyn
-Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with the words "unsubscribe selinux" without quotes as the message.
+Ivan Gyurdiev wrote:
+>
+>>>>
+>>>> 2. That the only types he can relabel to are customizable.
+>>>> For  example user_home_t is not necessarily customizable but a user 
+>>>> could change a context to it.
+>>>>
+>>> I don't understand this one. Why is the user allowed to relabel to a 
+>>> non-customizable type.
+>>>
+>>> Something's wrong with this - it appears to carry a risk that the 
+>>> file will be automatically relabeled later, even after the user has 
+>>> made an explicit request that it must be labeled user_home_t - that 
+>>> certainly seems like a bad thing.
+>> Usually the user would be changing a badly labeled file back to 
+>> user_home_t in his home directory.  So if a user changes a context to 
+>> a customizable type, he might want to later change the context back.   
+> Customizable types won't prevent you from changing the context back - 
+> they'll just prevent restorecon from changing its type.
+>> user_home_t should not be a customizable type, because a user could 
+>> create a file in his home dir and then mv it to /var/www/html for 
+>> example.  We would not want that context to remain user_home_t.
+> Why not? I don't like it when restorecon tries to be extra smart.
+> The user should make an explicit request to expose his files to the 
+> web (via chcon), rather than  relying on automated relabeling with 
+> restorecon, which seems like it should be used for a completely 
+> different purpose.
+Because the user does not understand.  He creates a cgi script in his 
+home directory or /tmp and then mv's it to /var/www/cgi-bin or 
+/var/www/html.  In his mind the act of moving it to /var/www/html is the 
+act of sharing it.  So
+having him figure out that the context should be httpd_sys_content_t is 
+just a burden.  Similarly if he moves a local copy of
+resolv.conf from his homedir to /etc. and runs restorecon it will not work.
 
 
+I guess having the list of customizable types plus "Default" would 
+work.  Default running or executing the equivalent of restorecon.
 
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
