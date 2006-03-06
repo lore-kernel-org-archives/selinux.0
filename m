@@ -1,56 +1,89 @@
-Message-ID: <440C6DE2.1070705@redhat.com>
-Date: Mon, 06 Mar 2006 12:14:10 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k26HdFQh004591
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 12:39:15 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k26HdDuY008244
+	for <selinux@tycho.nsa.gov>; Mon, 6 Mar 2006 17:39:13 GMT
+Message-ID: <440C73BA.4050503@redhat.com>
+Date: Mon, 06 Mar 2006 12:39:06 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-CC: SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: Desktop integration
-References: <43DE6244.5010100@cornell.edu> <43DE6578.9050302@redhat.com> <4403E64B.6010804@cornell.edu> <4404309B.9020001@redhat.com> <44047CFC.3040009@cornell.edu>
-In-Reply-To: <44047CFC.3040009@cornell.edu>
+To: jvdias@redhat.com, Ivan Gyurdiev <ivg2@cornell.edu>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: named SELinux policy
+References: <200603061121.49118.jvdias@redhat.com>
+In-Reply-To: <200603061121.49118.jvdias@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+Jason Vas Dias wrote:
+> Hi Dan -
 >
->>>>
->>>> 2. That the only types he can relabel to are customizable.
->>>> For  example user_home_t is not necessarily customizable but a user 
->>>> could change a context to it.
->>>>
->>> I don't understand this one. Why is the user allowed to relabel to a 
->>> non-customizable type.
->>>
->>> Something's wrong with this - it appears to carry a risk that the 
->>> file will be automatically relabeled later, even after the user has 
->>> made an explicit request that it must be labeled user_home_t - that 
->>> certainly seems like a bad thing.
->> Usually the user would be changing a badly labeled file back to 
->> user_home_t in his home directory.  So if a user changes a context to 
->> a customizable type, he might want to later change the context back.   
-> Customizable types won't prevent you from changing the context back - 
-> they'll just prevent restorecon from changing its type.
->> user_home_t should not be a customizable type, because a user could 
->> create a file in his home dir and then mv it to /var/www/html for 
->> example.  We would not want that context to remain user_home_t.
-> Why not? I don't like it when restorecon tries to be extra smart.
-> The user should make an explicit request to expose his files to the 
-> web (via chcon), rather than  relying on automated relabeling with 
-> restorecon, which seems like it should be used for a completely 
-> different purpose.
-Because the user does not understand.  He creates a cgi script in his 
-home directory or /tmp and then mv's it to /var/www/cgi-bin or 
-/var/www/html.  In his mind the act of moving it to /var/www/html is the 
-act of sharing it.  So
-having him figure out that the context should be httpd_sys_content_t is 
-just a burden.  Similarly if he moves a local copy of
-resolv.conf from his homedir to /etc. and runs restorecon it will not work.
+> Ivan raised a good point about the named SELinux policy:
+> On Saturday 04 March 2006 14:49, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+>   
+>>  files_read_etc_files(named_t) allows named to read all files marked 
+>>  etc_t. Those are usually configuration files, shouldn't be any secrets 
+>>  there.... What if it turns out there is a secret file mislabeled by 
+>>  mistake? Why is named interested in configuration of other programs anyway?
+>>     
+> On Saturday 04 March 2006 15:14, Jason Vas Dias <jvdias@redhat.com> wrote:
+>   
+>>  This is because named.conf can 'include "...";' other files, which are in $ROOTDIR/etc
+>>  and not labelled as named_conf_t by default - unless in the chroot, where 
+>>  /var/named/chroot/etc/* is labelled as named_conf_t. I think probably this should be
+>>  changed to label  /etc/named.* or /etc/bind/* as named_conf_t and disallow named etc_t 
+>>  read privilege. But this is mitigated by the fact that named runs as the 'named:named' user, 
+>>  and most /etc/* files should be -rw------- .
+>>     
+>
+> The named process does not read any /etc/ files that are not named_conf_t . 
+> The initscript, which has context initrc_exec_t, may need to read /etc/ files 
+> or invoke other programs which do so. 
+> The rndc process should ONLY need to read $ROOTDIR/etc/rndc.* files, which
+> should all have context named_conf_t . (Currently, $ROOTDIR/etc/rndc.* only
+> gets labelled as named_conf_t if $ROOTDIR is /var/named - this seems odd).
+>
+> Please can we remove these lines from the bind.te devel policy:
+>
+> files_read_etc_files(named_t)
+> files_read_etc_runtime_files(named_t)
+> files_read_etc_files(ndc_t)
+>
+> And replace this line in bind.fc :
+> /etc/named\.conf  -- gen_context(system_u:object_r:named_conf_t,s0)
+> with
+> /etc/{named,rndc}.*      gen_context(system_u:object_r:named_conf_t,s0)
+>
+> With the next version of bind, I'm going to be replacing the named.conf
+> Provide-d by caching-nameserver with :
+>  $ROOTDIR/etc/named.caching-nameserver.conf , which will include:
+>  $ROOTDIR/etc/named.rfc1912.zones.conf
+>
+> And I think we need a better way of labelling named configuration files
+> as named_conf_t rather than just letting named read etc_t* .
+>
+> Please let me know your opinion on the above and whether these changes
+> can go in to FC-5.
+>
+> Thanks & Regards,
+> Jason
+>   
+I am not a big fan of labeling files in /etc as something other than 
+etc_t.  If these files get created by another tool (sed, emacs, ed, cp, 
+system-config-bind ...) that does not maintain security context all of a 
+sudden named will mysteriously stop working.  Named starts blowing up, 
+User blames SELinux, turns SELinux off.
 
+File context that differs from parent directory is especially hard to 
+maintain and can give the impression that SELinux is difficult.  We can 
+not predict which tools a user will use to maintain the named.conf file 
+so leaving it etc_t is better in my opinion.  If you want to prevent 
+secret data then you should not store a file in /etc with default 
+context (etc_t, etc_runtime_t).  (You probably should not store the file 
+there in the  first place.)
 
-I guess having the list of customizable types plus "Default" would 
-work.  Default running or executing the equivalent of restorecon.
-
-Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
