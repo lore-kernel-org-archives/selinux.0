@@ -1,59 +1,83 @@
-Subject: Re: SEL+RHEL4+Amanda, targeted policy 18, enforcing
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: bradw@genetests.org
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <440D21C1.30401@u.washington.edu>
-References: <440D21C1.30401@u.washington.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k27FNw1V029804
+	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 10:23:58 -0500
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k27FMNVk012036
+	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 15:22:24 GMT
+Subject: ANN: Reference Policy Release
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 07 Mar 2006 08:18:26 -0500
-Message-Id: <1141737506.19447.214.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 07 Mar 2006 10:28:36 -0500
+Message-Id: <1141745316.30819.129.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-03-06 at 22:01 -0800, Brad Willson wrote:
-> Running SELinux enforcing mode does not allow amanda to connect and do
-> backups.
-> 
-> I'm a newbie at SELinux in dire need of some straightforward answers.
+A new release of the SELinux Reference Policy is now available on
+SourceForge from http://serefpolicy.sourceforge.net.  The primary
+activity for this release has been renaming interfaces to improve the
+naming consistency, in an effort to stabilize the API.  The change log
+follows at the bottom of the email.
 
-What 'avc:  denied' messages are you getting in /var/log/messages
-or /var/log/audit/audit.log?
+Again, for those that are interesting in contributing, right now the
+best help would be to either test the policy or convert remaining
+modules from the example policy over to Reference Policy; there is a
+list of modules on the Reference Policy status page on SourceForge.
 
-> Following the logic that named.fc needs a companion named.te, the first
-> thing I have noticed is the lack of an amanda.te file in this particular
-> distribution.  What I find odd is there are several diffs on this list
-> specifically for amanda.te.  I have located what appears to be a
-> complete amanda.te file from another distribution, but when I try to
-> recompile the policy, it spews errors then fails, e.g.
-
-RHEL4 targeted policy didn't include the amanda policy.  Targeted policy
-started as a very small subset of the overall example policy, but has
-grown significantly since RHEL4 was released (but those changes are
-feeding into Fedora and should be included in future RHEL releases, not
-RHEL4 updates, IIUC).  See 
-http://fedoraproject.org/wiki/SELinux/
-
-> Building file_contexts ...
-> /usr/bin/checkpolicy -o policy.18 policy.conf
-> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> domains/program/amanda.te:143:ERROR 'syntax error' at token
-> 'can_network_server' on line 4181:
-
-This reflects the fact that the amanda.te file you grabbed uses a macro
-(can_network_server) that didn't exist in the policy at the time RHEL4
-was created.
-
-> Since the first send bounced back, I also tried strict/enforcing and 
-> found myself in even deeper trouble, but still without a successful 
-> backup.  My next test is to relax targeted policy to permissive so I can 
-> audit the errors for clues.
-
-Just check for avc denied messages in your logs and report them.
+* Tue Mar 07 2006 Chris PeBenito <selinux@tresys.com> - 20060307
+- Make all interface parameters required.
+- Move boot_t, system_map_t, and modules_object_t to files module,
+  and move bootloader to admin layer.
+- Add semanage policy for semodule from Dan Walsh.
+- Remove allow_execmem from targeted policy domain_base_type().
+- Add users_extra and seusers support.
+- Postfix fixes from Serge Hallyn.
+- Run python and shell directly to interpret scripts so policy
+  sources need not be executable.
+- Add desc tag XML to booleans and tunables, and add summary
+  to param XML tag, to make future translations possible.
+- Remove unused lvm_vg_t.
+- Many interface renames to improve naming consistency.
+- Merge xdm into xserver.
+- Remove kernel module reversed interfaces.
+- Add filename attribute to module XML tag and lineno attribute to
+  interface XML tag.
+- Changed QUIET build option to a yes or no option.
+- Add a Makefile used for compiling loadable modules in a
+  user's development environment, building against policy headers.
+- Add Make target for installing policy headers.
+- Separate per-userdomain template expansion from the userdomain
+  module and add infrastructure to expand templates in the modules
+  that own the template.
+- Enable secadm only for MLS policies.
+- Remove role change rules in su and sudo since this functionality has been
+  removed from these programs.
+- Add ctags Make target from Thomas Bleher.
+- Collapse commands with grep piped to sed into one sed command.
+- Fix type_change bug in term_user_pty().
+- Move ice_tmp_t from miscfiles to xserver.
+- Login fixes from Serge Hallyn.
+- Move xserver_log_t from xdm to xserver.
+- Add lpr per-userdomain policy to lpd.
+- Miscellaneous fixes from Dan Walsh.
+- Change initrc_var_run_t interface noun from script_pid to utmp,
+  for greater clarity.
+- Added modules:
+        certwatch
+        mono (Dan Walsh)
+        mrtg
+        portage
+        tvtime
+        userhelper
+        usernetctl
+        wine (Dan Walsh)
+        xserver
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
