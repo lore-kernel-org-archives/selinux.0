@@ -1,63 +1,75 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k27JDp2I003585
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 14:13:51 -0500
-Received: from mxout2.cac.washington.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k27JDmRX027315
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 19:13:48 GMT
-Message-ID: <440DDB64.8090109@u.washington.edu>
-Date: Tue, 07 Mar 2006 11:13:40 -0800
-From: Brad Willson <bwil150n@u.washington.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-CC: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: SEL+RHEL4+Amanda, targeted policy 18, enforcing
-References: <440D21C1.30401@u.washington.edu>	 <1141737506.19447.214.camel@moss-spartans.epoch.ncsc.mil>	 <440DC850.8070105@u.washington.edu> <1141757023.19447.267.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1141757023.19447.267.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k27LIkbi006803
+	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 16:18:50 -0500
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k27LIiRX017796
+	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 21:18:44 GMT
+Subject: Re: refpoliy additions: amavis, clamd
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Erich Schubert <erich@debian.org>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1140910677.1392.20.camel@wintermute.xmldesign.de>
+References: <1140910677.1392.20.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 16:23:04 -0500
+Message-Id: <1141766584.30819.165.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 2006-02-26 at 00:37 +0100, Erich Schubert wrote:
+> Hi,
+> attached are first versions of policies for amavis and clamd, along with
+> a slightly updated tor policy (which needs tor ports defined in
+> corenetwork!)
+> 
+> Looks like I might actually be arriving at a point where I can switch
+> into enforcing mode... ;-)
 
-Stephen Smalley wrote:
+Merged, with some notes:
 
->That's fine; you only need the avc messages from /var/log/messages then.
->If you had been running auditd, then they would have gone to audit.log
->instead, and possibly been supplemented with syscall audit records, but
->that isn't required.
->
->  
->
-Starting up auditd just solved another issue, thanks!  I'm tailing both 
-/var/log/messages and /var/log/audit/audit.log to see what happens.
+Renamed the clamd module to clamav.
 
->Ultimately you want to resolve all of the avc messages, but possibly you
->should just start by posting the first few or the ones that seem most
->relevant to amanda itself (but try to avoid duplicates).
->
->  
->
-A slice at a time is fine with me.  There seems to be a quantum leap 
-between targeted and strict. 
+I dropped the clamscan_exec_t type.  Looking at the example policy, it
+doesn't look like this was completed, as the per-user domains can't even
+read the user's files.  It seems to me that this was over-engineered
+before, it would probably be better for the user domains just to be
+allowed to connect to clamd, and they'll already have access to their
+files to send over the unix domain socket.
 
->Note that since you are using RHEL, you should also be reporting this to
->Red Hat so that any ultimate fix can be included in a RHEL update;
->otherwise you may end up hitting the problem repeatedly.  Filed a
->bugzilla there yet? 
->
->  
->
-I've not submitted a report yet; I try to gather as much information 
-about a bug as I can before I send a report. 
+Clamd_sock_t should probably be folded in to clamd_var_run_t, as there
+doesn't seem to be a need for them to be separate, like in daemons such
+as mysql.
 
-Meanwhile I wait for my SELinux book from O'Reilly...due in tomorrow!
+Please put informative summaries for the modules.  "Policy for clamd"
+does not tell you anything if you don't know what clamd is, and it
+should be obvious that it is policy. :)
+
+I did some reordering of the rules to be consistent with the rest of
+refpolicy.
+
+There were a few instances of types being explicitly referenced though
+they are not owned by the module (e.g., initrc_t in clamav); this is not
+allowed.
+
+Comments like these:
+
+	# use random
+	dev_read_rand(amavis_t)
+	dev_read_urand(amavis_t)
+
+	# use ldap
+	ldap_use(amavis_t)
+
+aren't really needed, since they don't tell you anything more than the
+interface names already do.
+
+I need a corenetwork patch for the tor port.
 
 -- 
-Brad Willson
-Sr. Computer Specialist
-UW GeneTests, http://www.genetests.org
-EM: bwil150n@u.washington.edu
-W: 206.221.4674, C: 425.891.2732
-
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
