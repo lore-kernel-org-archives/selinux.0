@@ -1,46 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k27IA5A6001734
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 13:10:05 -0500
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k27IA3RX012321
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 18:10:03 GMT
-Subject: Re: Tor module for refpolicy
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1140829878.8976.22.camel@wintermute.xmldesign.de>
-References: <1140829878.8976.22.camel@wintermute.xmldesign.de>
+Subject: Re: SEL+RHEL4+Amanda, targeted policy 18, enforcing
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Brad Willson <bwil150n@u.washington.edu>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <440DC850.8070105@u.washington.edu>
+References: <440D21C1.30401@u.washington.edu>
+	 <1141737506.19447.214.camel@moss-spartans.epoch.ncsc.mil>
+	 <440DC850.8070105@u.washington.edu>
 Content-Type: text/plain
-Date: Tue, 07 Mar 2006 13:14:21 -0500
-Message-Id: <1141755261.30819.141.camel@sgc>
+Date: Tue, 07 Mar 2006 13:43:43 -0500
+Message-Id: <1141757023.19447.267.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-02-25 at 02:11 +0100, Erich Schubert wrote:
-> Hello fellow SELinux users,
-> attached is a refpolicy module for tor, "the onion router".
-> http://tor.eff.org/
+On Tue, 2006-03-07 at 09:52 -0800, Brad Willson wrote:
+> That depends on the machine.  One box reports no 'avc:  denied' messages 
+> whatsoever while on another there are over 4000 entries, both using 
+> policy.18.  Is there a quick and dirty way of turning on auditing?  
+> Neither machine has an audit.log.
 
-Merged, with a few tweaks.
+That's fine; you only need the avc messages from /var/log/messages then.
+If you had been running auditd, then they would have gone to audit.log
+instead, and possibly been supplemented with syscall audit records, but
+that isn't required.
 
-> While looking at the other modules in refpolicy for examples I came
-> across the following line:
-> dev_associate_usbfs(zebra_var_run_t)
-> this line can't be right, can it? I mean, zebra_var_run_t is a file
-> domain...
-> shouldn't this throw some assertion error?
+Ultimately you want to resolve all of the avc messages, but possibly you
+should just start by posting the first few or the ones that seem most
+relevant to amanda itself (but try to avoid duplicates).
 
-No, this rule exists in the example policy, which is why it is in
-reference policy.  We haven't begun efforts to try to eliminate rules
-like this since not all modules from the example policy have been
-converted to refpolicy.  When all modules are converted, it will be much
-simpler to see questionable rules, as you saw.
+Note that since you are using RHEL, you should also be reporting this to
+Red Hat so that any ultimate fix can be included in a RHEL update;
+otherwise you may end up hitting the problem repeatedly.  Filed a
+bugzilla there yet? 
+
+> Strict/enforcing has the amanda policy, but it locked root out of bash 
+> (not a happy situation) so that's not an option on the remote machines.  
+> The other edge of the sword is targeted/enforcing is running on a 
+> firewall; I don't want to drop guard on that one albeit relaxed from 
+> strict.  I have to resolve backup, monitoring, public services, and 
+> remote access issues before I unleash this on the firewalls.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
