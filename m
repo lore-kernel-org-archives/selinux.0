@@ -1,75 +1,141 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k27LIkbi006803
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 16:18:50 -0500
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k27LIiRX017796
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 21:18:44 GMT
-Subject: Re: refpoliy additions: amavis, clamd
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1140910677.1392.20.camel@wintermute.xmldesign.de>
-References: <1140910677.1392.20.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Tue, 07 Mar 2006 16:23:04 -0500
-Message-Id: <1141766584.30819.165.camel@sgc.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k27NDBkD009418
+	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 18:13:11 -0500
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k27NBbVk028124
+	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 23:11:38 GMT
+Subject: Patch to add a "netuser" role and user
+From: Erich Schubert <erich@debian.org>
+To: SE Linux <selinux@tycho.nsa.gov>, cpebenito@tresys.com
+Content-Type: multipart/mixed; boundary="=-7hJwGkk6hFwzKbTQ1K+b"
+Date: Wed, 08 Mar 2006 00:13:09 +0100
+Message-Id: <1141773189.5082.39.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-02-26 at 00:37 +0100, Erich Schubert wrote:
-> Hi,
-> attached are first versions of policies for amavis and clamd, along with
-> a slightly updated tor policy (which needs tor ports defined in
-> corenetwork!)
-> 
-> Looks like I might actually be arriving at a point where I can switch
-> into enforcing mode... ;-)
 
-Merged, with some notes:
+--=-7hJwGkk6hFwzKbTQ1K+b
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Renamed the clamd module to clamav.
+Hi,
+the following patch adds a "netuser" user and role.
+This is pretty much the same to user_u/user_r/user_t
+except that these users can bind non-privileged tcp ports
+(like user_u with the user_tcp_server boolean, no ssh port forwarding
+though)
 
-I dropped the clamscan_exec_t type.  Looking at the example policy, it
-doesn't look like this was completed, as the per-user domains can't even
-read the user's files.  It seems to me that this was over-engineered
-before, it would probably be better for the user domains just to be
-allowed to connect to clamd, and they'll already have access to their
-files to send over the unix domain socket.
+Maybe this patch (when reviewed) could serve as an example on how to add
+new user roles?
 
-Clamd_sock_t should probably be folded in to clamd_var_run_t, as there
-doesn't seem to be a need for them to be separate, like in daemons such
-as mysql.
+best regards,
+Erich Schubert
+--=20
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+     This one's tricky. You have to use imaginary numbers, like     //\
+                      eleventeen... --- Hobbes                      V_/_
+   Jede Frau erwartet von einem Mann, dass er h=E4lt, was sie sich
+                         von ihm verspricht.
 
-Please put informative summaries for the modules.  "Policy for clamd"
-does not tell you anything if you don't know what clamd is, and it
-should be obvious that it is policy. :)
+--=-7hJwGkk6hFwzKbTQ1K+b
+Content-Disposition: attachment; filename=netuser-diff
+Content-Type: text/x-patch; name=netuser-diff; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-I did some reordering of the rules to be consistent with the rest of
-refpolicy.
+Index: policy/rolemap
+===================================================================
+--- policy/rolemap	(Revision 26)
++++ policy/rolemap	(Arbeitskopie)
+@@ -12,6 +12,7 @@
+ 	user_r user user_t
+ 	staff_r staff staff_t
+ 	sysadm_r sysadm sysadm_t
++	netuser_r netuser netuser_t
+ 
+ 	ifdef(`enable_mls',`
+ 		secadm_r secadm secadm_t
+Index: policy/users
+===================================================================
+--- policy/users	(Revision 26)
++++ policy/users	(Arbeitskopie)
+@@ -29,6 +29,7 @@
+ gen_user(user_u, user, user_r sysadm_r system_r, s0, s0 - s15:c0.c255, c0.c255)
+ ',`
+ gen_user(user_u, user, user_r, s0, s0)
++gen_user(netuser_u, netuser, netuser_r, s0, s0)
+ gen_user(staff_u, staff, staff_r sysadm_r ifdef(`enable_mls',`secadm_r'), s0, s0 - s15:c0.c255, c0.c255)
+ gen_user(sysadm_u, sysadm, sysadm_r, s0, s0 - s15:c0.c255, c0.c255)
+ ')
+Index: policy/modules/system/userdomain.te
+===================================================================
+--- policy/modules/system/userdomain.te	(Revision 41)
++++ policy/modules/system/userdomain.te	(Arbeitskopie)
+@@ -117,12 +117,19 @@
+ 	admin_user_template(sysadm)
+ 	unpriv_user_template(staff)
+ 	unpriv_user_template(user)
++	network_user_template(netuser)
+ 
+ 	# user role change rules:
+ 	# sysadm_r can change to user roles
+ 	role_change(sysadm, user)
+ 	role_change(sysadm, staff)
+ 
++	# netuser is rather flexible
++	role_change(sysadm, netuser)
++	role_change(staff, netuser)
++	role_change(netuser, user)
++	role_change(user, netuser)
++
+ 	# only staff_r can change to sysadm_r
+ 	role_change(staff, sysadm)
+ 
+Index: policy/modules/system/userdomain.if
+===================================================================
+--- policy/modules/system/userdomain.if	(Revision 41)
++++ policy/modules/system/userdomain.if	(Arbeitskopie)
+@@ -725,6 +725,38 @@
+ 
+ #######################################
+ ## <summary>
++##	The template for creating a user with network access.
++## </summary>
++## <desc>
++##	<p>
++##	This template creates a user domain, types, and
++##	rules for the user's tty, pty, home directories,
++##	tmp, and tmpfs files.
++##	</p>
++##	<p>
++##	This differs from the unpriv_user_template by allowing non-privileged network access.
++##	</p>
++## </desc>
++## <param name="userdomain_prefix">
++##	<summary>
++##	The prefix of the user domain (e.g., sysadm
++##	is the prefix for sysadm_t).
++##	</summary>
++## </param>
++#
++template(`network_user_template',`
++	##############################
++	#
++	# Declarations
++	#
++
++	# Inherit rules for ordinary users.
++	unpriv_user_template($1)
++	# like user_tcp_server
++	corenet_tcp_bind_generic_port($1_t)
++')
++#######################################
++## <summary>
+ ##	The template for creating an administrative user.
+ ## </summary>
+ ## <desc>
 
-There were a few instances of types being explicitly referenced though
-they are not owned by the module (e.g., initrc_t in clamav); this is not
-allowed.
-
-Comments like these:
-
-	# use random
-	dev_read_rand(amavis_t)
-	dev_read_urand(amavis_t)
-
-	# use ldap
-	ldap_use(amavis_t)
-
-aren't really needed, since they don't tell you anything more than the
-interface names already do.
-
-I need a corenetwork patch for the tor port.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+--=-7hJwGkk6hFwzKbTQ1K+b--
 
 
 --
