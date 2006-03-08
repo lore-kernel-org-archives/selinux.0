@@ -1,141 +1,85 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k27NDBkD009418
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 18:13:11 -0500
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k27NBbVk028124
-	for <selinux@tycho.nsa.gov>; Tue, 7 Mar 2006 23:11:38 GMT
-Subject: Patch to add a "netuser" role and user
-From: Erich Schubert <erich@debian.org>
-To: SE Linux <selinux@tycho.nsa.gov>, cpebenito@tresys.com
-Content-Type: multipart/mixed; boundary="=-7hJwGkk6hFwzKbTQ1K+b"
-Date: Wed, 08 Mar 2006 00:13:09 +0100
-Message-Id: <1141773189.5082.39.camel@wintermute.xmldesign.de>
+Subject: Re: libsepol/src/link.c:copy_avrule_list( )
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, SELinux <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <440CE892.2060601@cornell.edu>
+References: <20060306214139.GA7960@sergelap.austin.ibm.com>
+	 <440CE892.2060601@cornell.edu>
+Content-Type: text/plain
+Date: Wed, 08 Mar 2006 09:05:01 -0500
+Message-Id: <1141826701.6157.51.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2006-03-06 at 20:57 -0500, Ivan Gyurdiev wrote:
+> That reminds me...
+> This is a bug I sent to Joshua.
+> 
+> ==10331== Invalid read of size 4
+> ==10331==    at 0x4B3D12C: copy_avrule_list (link.c:876)
+> ==10331==    by 0x4B3E061: copy_avrule_decl (link.c:1173)
+> ==10331==    by 0x4B3E356: copy_avrule_block (link.c:1220)
+> ==10331==    by 0x4B3E8FE: copy_module (link.c:1345)
+> ==10331==    by 0x4B4073C: link_modules (link.c:1977)
+> ==10331==    by 0x4B42F8D: sepol_link_packages (module.c:242)
+> ==10331==    by 0x4C91D21: semanage_link_sandbox (in 
+> /lib64/libsemanage.so.1)
+> ==10331==    by 0x4C86BC1: semanage_direct_commit (in 
+> /lib64/libsemanage.so.1)
+> ==10331==    by 0x4C893A9: semanage_commit (in /lib64/libsemanage.so.1)
+> ==10331==    by 0x401ACB: (within /usr/sbin/semodule)
+> ==10331==    by 0x4DBE023: __libc_start_main (in /lib64/libc-2.3.90.so)
+> ==10331==  Address 0xEC11728 is 0 bytes after a block of size 8 alloc'd
+> ==10331==    at 0x4A1DA18: calloc (vg_replace_malloc.c:279)
+> ==10331==    by 0x4B3A8D7: permission_copy_callback (link.c:157)
+> ==10331==    by 0x4B37FAA: hashtab_map (hashtab.c:236)
+> ==10331==    by 0x4B3AB96: class_copy_callback (link.c:189)
+> ==10331==    by 0x4B37FAA: hashtab_map (hashtab.c:236)
+> ==10331==    by 0x4B3D9C8: copy_identifiers (link.c:1057)
+> ==10331==    by 0x4B3DC79: copy_module_identifiers (link.c:1102)
+> ==10331==    by 0x4B3E84E: copy_module (link.c:1332)
+> ==10331==    by 0x4B4073C: link_modules (link.c:1977)
+> ==10331==    by 0x4B42F8D: sepol_link_packages (module.c:242)
+> ==10331==    by 0x4C91D21: semanage_link_sandbox (in 
+> /lib64/libsemanage.so.1)
+> ==10331==    by 0x4C86BC1: semanage_direct_commit (in 
+> /lib64/libsemanage.so.1)
 
---=-7hJwGkk6hFwzKbTQ1K+b
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+What is your test case (i.e. what policy)?
+The (i < 32) looks suspicious to me there; should it be (i <
+module->perm_map_len[cur_perm->class - 1]), e.g.:
 
-Hi,
-the following patch adds a "netuser" user and role.
-This is pretty much the same to user_u/user_r/user_t
-except that these users can bind non-privileged tcp ports
-(like user_u with the user_tcp_server boolean, no ssh port forwarding
-though)
-
-Maybe this patch (when reviewed) could serve as an example on how to add
-new user roles?
-
-best regards,
-Erich Schubert
---=20
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     This one's tricky. You have to use imaginary numbers, like     //\
-                      eleventeen... --- Hobbes                      V_/_
-   Jede Frau erwartet von einem Mann, dass er h=E4lt, was sie sich
-                         von ihm verspricht.
-
---=-7hJwGkk6hFwzKbTQ1K+b
-Content-Disposition: attachment; filename=netuser-diff
-Content-Type: text/x-patch; name=netuser-diff; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-
-Index: policy/rolemap
+Index: libsepol/src/link.c
 ===================================================================
---- policy/rolemap	(Revision 26)
-+++ policy/rolemap	(Arbeitskopie)
-@@ -12,6 +12,7 @@
- 	user_r user user_t
- 	staff_r staff staff_t
- 	sysadm_r sysadm sysadm_t
-+	netuser_r netuser netuser_t
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/link.c,v
+retrieving revision 1.16
+diff -u -p -r1.16 link.c
+--- libsepol/src/link.c	1 Feb 2006 13:59:19 -0000	1.16
++++ libsepol/src/link.c	8 Mar 2006 13:41:33 -0000
+@@ -835,7 +835,7 @@ static int (*merge_callback_f[SYM_NUM]) 
+ static int copy_avrule_list(avrule_t *list, avrule_t **dst,
+                             policy_module_t *module, link_state_t *state)
+ {
+-        int i;
++        unsigned int i;
+         avrule_t *cur, *new_rule = NULL, *tail;
+         class_perm_node_t *cur_perm, *new_perm, *tail_perm = NULL;
  
- 	ifdef(`enable_mls',`
- 		secadm_r secadm secadm_t
-Index: policy/users
-===================================================================
---- policy/users	(Revision 26)
-+++ policy/users	(Arbeitskopie)
-@@ -29,6 +29,7 @@
- gen_user(user_u, user, user_r sysadm_r system_r, s0, s0 - s15:c0.c255, c0.c255)
- ',`
- gen_user(user_u, user, user_r, s0, s0)
-+gen_user(netuser_u, netuser, netuser_r, s0, s0)
- gen_user(staff_u, staff, staff_r sysadm_r ifdef(`enable_mls',`secadm_r'), s0, s0 - s15:c0.c255, c0.c255)
- gen_user(sysadm_u, sysadm, sysadm_r, s0, s0 - s15:c0.c255, c0.c255)
- ')
-Index: policy/modules/system/userdomain.te
-===================================================================
---- policy/modules/system/userdomain.te	(Revision 41)
-+++ policy/modules/system/userdomain.te	(Arbeitskopie)
-@@ -117,12 +117,19 @@
- 	admin_user_template(sysadm)
- 	unpriv_user_template(staff)
- 	unpriv_user_template(user)
-+	network_user_template(netuser)
+@@ -870,7 +870,7 @@ static int copy_avrule_list(avrule_t *li
+                         assert(new_perm->class);
  
- 	# user role change rules:
- 	# sysadm_r can change to user roles
- 	role_change(sysadm, user)
- 	role_change(sysadm, staff)
- 
-+	# netuser is rather flexible
-+	role_change(sysadm, netuser)
-+	role_change(staff, netuser)
-+	role_change(netuser, user)
-+	role_change(user, netuser)
-+
- 	# only staff_r can change to sysadm_r
- 	role_change(staff, sysadm)
- 
-Index: policy/modules/system/userdomain.if
-===================================================================
---- policy/modules/system/userdomain.if	(Revision 41)
-+++ policy/modules/system/userdomain.if	(Arbeitskopie)
-@@ -725,6 +725,38 @@
- 
- #######################################
- ## <summary>
-+##	The template for creating a user with network access.
-+## </summary>
-+## <desc>
-+##	<p>
-+##	This template creates a user domain, types, and
-+##	rules for the user's tty, pty, home directories,
-+##	tmp, and tmpfs files.
-+##	</p>
-+##	<p>
-+##	This differs from the unpriv_user_template by allowing non-privileged network access.
-+##	</p>
-+## </desc>
-+## <param name="userdomain_prefix">
-+##	<summary>
-+##	The prefix of the user domain (e.g., sysadm
-+##	is the prefix for sysadm_t).
-+##	</summary>
-+## </param>
-+#
-+template(`network_user_template',`
-+	##############################
-+	#
-+	# Declarations
-+	#
-+
-+	# Inherit rules for ordinary users.
-+	unpriv_user_template($1)
-+	# like user_tcp_server
-+	corenet_tcp_bind_generic_port($1_t)
-+')
-+#######################################
-+## <summary>
- ##	The template for creating an administrative user.
- ## </summary>
- ## <desc>
+                         if (new_rule->specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
+-                                for (i = 0; i < 32; i++) {
++                                for (i = 0; i < module->perm_map_len[cur_perm->class - 1]; i++) {
+                                         if (!(cur_perm->data & (1U << i)))
+                                                 continue;
+ 					new_perm->data |=
 
---=-7hJwGkk6hFwzKbTQ1K+b--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
