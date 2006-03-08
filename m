@@ -1,30 +1,27 @@
-Subject: Re: libsepol/src/conditional.c:cond_evaluate_expr()
+Subject: Re: libsepol/src/link.c:copy_avrule_list( )
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20060306214139.GA7960@sergelap.austin.ibm.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, SELinux <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <440EE4A8.2070700@cornell.edu>
 References: <20060306214139.GA7960@sergelap.austin.ibm.com>
+	 <440CE892.2060601@cornell.edu>
+	 <1141826701.6157.51.camel@moss-spartans.epoch.ncsc.mil>
+	 <440EE4A8.2070700@cornell.edu>
 Content-Type: text/plain
-Date: Wed, 08 Mar 2006 09:02:11 -0500
-Message-Id: <1141826531.6157.47.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 08 Mar 2006 09:40:14 -0500
+Message-Id: <1141828815.6157.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-03-06 at 15:41 -0600, Serge E. Hallyn wrote:
-> Hi,
-> 
-> just doing a quick update static analysis scan of the nsa/selinux-usr
-> sources.  Most of the output in libsepol seems like the same false
-> positives it used to get, but I'm worried about cond_evaluate_expr.
-> 
-> It is supposed to return -1 on error, but as is, if the second arg
-> (expr) is passed in NULL, the value returned is truly undefined -
-> it is just taken off the stack.
-> 
-> Patch appended, in case this is deemed to really be a danger.
+On Wed, 2006-03-08 at 09:05 -0500, Ivan Gyurdiev wrote:
+> > What is your test case (i.e. what policy)?
+> >   
+> Fedora strict. I don't remember this happening under targeted.
 
-Looks sane, applied.
+Ok, reproduced it, and it seems to be resolved by the patch I posted.
+Joshua, do you concur with the patch?
 
 -- 
 Stephen Smalley
