@@ -1,51 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k28Iiitw030332
-	for <selinux@tycho.nsa.gov>; Wed, 8 Mar 2006 13:44:44 -0500
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k28Iigbn013924
-	for <selinux@tycho.nsa.gov>; Wed, 8 Mar 2006 18:44:42 GMT
-Subject: Re: Current diff from debian svn
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1141767635.5082.36.camel@wintermute.xmldesign.de>
-References: <1141767635.5082.36.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 13:44:13 -0500
-Message-Id: <1141843453.30819.184.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <440F2E61.4070905@cornell.edu>
+Date: Wed, 08 Mar 2006 14:20:01 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+CC: SELinux List <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Desktop Integration Take 2
+References: <4404BA44.8000503@cornell.edu>
+In-Reply-To: <4404BA44.8000503@cornell.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-03-07 at 22:40 +0100, Erich Schubert wrote:
-> Attached is the current diff from debian refpolicy SVN to yours, updated
-> to match the 20060307-2 cvs dump.
+Ivan Gyurdiev wrote:
+> Okay, after discussing various obstacles, I think it's time to come up 
+> with a new plan for integrating selinux w/ nautilus.
+> How about the following:
+>
+> - Have a file controlled by libsetrans which maps customizable types 
+> to (unicode?) translated strings
+> - Have a file controlled by libsetrans which maps mls ranges to 
+> (unicode?) translated strings
+>     (setrans.conf)
+>
+> - Require the mappings above to be 1:1.
+>
+> - Have two functions (with better names):
+> get_customizable_types_by_user()
+> get_mls_labels_by_user()
+>
+> The first takes a [Unix] user, and returns the translated labels of 
+> all customizable types accessible { relabelto } from that user.
+> The second takes a [Unix] user, and returns the translated labels of 
+> all mls ranges accessible from that user, [ only the labeled ones ].
+>
+> ===========
+> Make nautilus link to libsetrans.
+>
+> Then on startup, nautilus calls both of those functions exactly once.
+> Then it has an enumeration to work with in set interfaces - have a 
+> drop-down box for the type, and drop-down box for the mls range.
+> To label a file to a non-customizable context, add a "Restore Context" 
+> button, which runs restorecon.
+>
+Any feedback on this plan?  I can write patches against libsetrans if 
+there's agreement. Also, I think we should move libsetrans into this 
+planned future repository that I hear about for selinux components.
 
-> - small tweak to logrotate to support logcheck
-
-Dropped this since it uses cron_t in the logrotate module.  Cron needs
-to use a logrotate interface.
-
-> - amavis policy
-> - clamd policy
-
-These were already added.
-
-> - dpkg/apt-get policy
-
-Some reordering done.
-
-> - some tweaks for rpm/userdomain/usermanage for dpkg/apt
->   (the rpm one needs to be reviewed seriously)
-
-I dropped the rpm_manage_db(apt_t) until its clear that its needed
-
-The remainder should be merged.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
