@@ -1,44 +1,70 @@
-Subject: Re: [redhat-lspp] How to build test policy now?
+Subject: Re: Deprecate freecon and freeconary
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Michael C Thompson <mcthomps@us.ibm.com>
-In-Reply-To: <44104A9D.6080308@redhat.com>
-References: 
-	 <OFA90E9CB1.2C1B7BDC-ON87257125.006DE3FA-86257125.006DC18C@us.ibm.com>
-	 <44104A9D.6080308@redhat.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <44048927.6090506@cornell.edu>
+References: <44037A30.2040406@cornell.edu>
+	 <1141131654.22297.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <44048927.6090506@cornell.edu>
 Content-Type: text/plain
-Date: Thu, 09 Mar 2006 10:51:42 -0500
-Message-Id: <1141919502.6157.286.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 09 Mar 2006 12:44:00 -0500
+Message-Id: <1141926240.6157.312.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-03-09 at 10:32 -0500, Daniel J Walsh wrote:
-> Does anyone have a good explanation of the relabelto/relabelfrom 
-> permissions?
+On Tue, 2006-02-28 at 12:32 -0500, Ivan Gyurdiev wrote:
+> >> This patch marks freecon and freeconary as deprecated.
+> >> All uses of freecon() are changed to free().
+> >> Uses of freeconary() remain within the library, since this is a useful 
+> >> function.
+> >>     
+> >
+> > Given that freeconary() is a useful helper, should we retain it in the
+> > non-deprecated API but just convert its argument to char** going
+> > forward?
+> >   
+> It's not in the selinux_* namespace, and it's trivial to rewrite...
+> I'm not sure we should expose a function which frees an array of strings.
+> This isn't related to selinux, it's a string utility function.
+> 
+> >> stdlib.h has been included where appropriate.
+> >> stddef.h has been included where size_t was needed
+> >> Manpages and comments have been edited appropriately.
+> >>
+> >> The next logical patch is to remove security_context_t, and replace it 
+> >> with char*, although I'm not sure whether that should be done throughout 
+> >> the library, or just in the API.
+> >>     
+> >
+> > We'll likely need to retain the type definition in the API for
+> > compatibility with externally maintained code (e.g. SELinux userland
+> > patches that have migrated into other distributions and in some cases
+> > into the upstream packages). 
+> Right, I didn't mean to remove the typedef statement. I was wondering 
+> whether we should re-write the function prototypes and manpages not to 
+> mention it.
+> 
+> >> 1. Freecon and freeconary are not in a proper namespace. All such 
+> >> functions should be deprecated and replaced in general.
+> >>     
+> >
+> > Not sure if this is truly justified for all such functions, e.g.
+> > getfilecon, setfilecon, setexeccon, etc are basic primitives that could
+> > easily have been implemented as system calls (and were originally) if
+> > that had been an option.  The core API (wrappers of kernel APIs) can
+> > likely be left alone aside from security_context_t -> char* conversion.
+> >   
+> ...if they're not syscalls anymore, then I don't see why they shouldn't 
+> follow the naming rules as all other functions. Anyway, I won't send any 
+> patches to rename things right now - there were reasons other than the 
+> naming to look at deprecating freecon* and context_*.
 
-For which object class?  For files, relabelfrom means "Can domain D
-relabel a file from (i.e. currently in) type T1?" and relabelto means
-"Can domain D relabel a file to type T2?", so both checks are applied
-upon a file relabeling, where T1 is the original type of the type and T2
-is the new type specified by the program.  
-
-Useful documents to look at:
-1) Object class and permission summary by Tresys 
-http://tresys.com/selinux/obj_perms_help.shtml
-
-2) Implementing SELinux as a LSM tech report
-(describes permission checks on a per-hook basis)
-http://www.nsa.gov/selinux/papers/module-abs.cfm
-Also available in the selinux-doc package (and more
-up-to-date there).
-
-3) Integrating Flexible Support... tech report
-(describes original design and implementation, including summary tables
-of classes, permissions, and what permission checks are applied to what
-system calls - not entirely up-to-date with current implementation, but
-a good resource nonetheless)
-http://www.nsa.gov/selinux/papers/slinux-abs.cfm
+Just to note:  I haven't forgotten about this patch, but I plan to wait
+until we make another release of the libraries before we start
+deprecating these interfaces, and then do it for real (i.e. version the
+libselinux interface via a map file).
 
 -- 
 Stephen Smalley
