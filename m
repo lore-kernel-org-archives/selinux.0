@@ -1,74 +1,35 @@
-Subject: Re: Deprecate freecon and freeconary
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <44048927.6090506@cornell.edu>
-References: <44037A30.2040406@cornell.edu>
-	 <1141131654.22297.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <44048927.6090506@cornell.edu>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 12:44:00 -0500
-Message-Id: <1141926240.6157.312.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k29Kg2Xh027424
+	for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2006 15:42:02 -0500
+Received: from mail2516.carrierzone.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k29Kg0Ga006920
+	for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2006 20:42:00 GMT
+Received: from FLM800 (stanford.columbia.tresys.com [209.60.7.66])
+	by mail2516.carrierzone.com (8.13.1/8.13.1) with ESMTP id k29Kfrc3022562
+	for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2006 20:42:00 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Subject: SELinux symposium materials
+Date: Thu, 9 Mar 2006 15:41:53 -0500
+Message-ID: <018d01c643b9$e82afd20$0202fea9@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-02-28 at 12:32 -0500, Ivan Gyurdiev wrote:
-> >> This patch marks freecon and freeconary as deprecated.
-> >> All uses of freecon() are changed to free().
-> >> Uses of freeconary() remain within the library, since this is a useful 
-> >> function.
-> >>     
-> >
-> > Given that freeconary() is a useful helper, should we retain it in the
-> > non-deprecated API but just convert its argument to char** going
-> > forward?
-> >   
-> It's not in the selinux_* namespace, and it's trivial to rewrite...
-> I'm not sure we should expose a function which frees an array of strings.
-> This isn't related to selinux, it's a string utility function.
-> 
-> >> stdlib.h has been included where appropriate.
-> >> stddef.h has been included where size_t was needed
-> >> Manpages and comments have been edited appropriately.
-> >>
-> >> The next logical patch is to remove security_context_t, and replace it 
-> >> with char*, although I'm not sure whether that should be done throughout 
-> >> the library, or just in the API.
-> >>     
-> >
-> > We'll likely need to retain the type definition in the API for
-> > compatibility with externally maintained code (e.g. SELinux userland
-> > patches that have migrated into other distributions and in some cases
-> > into the upstream packages). 
-> Right, I didn't mean to remove the typedef statement. I was wondering 
-> whether we should re-write the function prototypes and manpages not to 
-> mention it.
-> 
-> >> 1. Freecon and freeconary are not in a proper namespace. All such 
-> >> functions should be deprecated and replaced in general.
-> >>     
-> >
-> > Not sure if this is truly justified for all such functions, e.g.
-> > getfilecon, setfilecon, setexeccon, etc are basic primitives that could
-> > easily have been implemented as system calls (and were originally) if
-> > that had been an option.  The core API (wrappers of kernel APIs) can
-> > likely be left alone aside from security_context_t -> char* conversion.
-> >   
-> ...if they're not syscalls anymore, then I don't see why they shouldn't 
-> follow the naming rules as all other functions. Anyway, I won't send any 
-> patches to rename things right now - there were reasons other than the 
-> naming to look at deprecating freecon* and context_*.
+FYI, all papers and presentations from the recent SELinux symposium are now
+posted on the symposium web site (www.selinux-symposium.org). In addition,
+notes from the developers summit on Friday are also posted on this site
+(thanks to Steve Smalley for putting the summit notes together). 
 
-Just to note:  I haven't forgotten about this patch, but I plan to wait
-until we make another release of the libraries before we start
-deprecating these interfaces, and then do it for real (i.e. version the
-libselinux interface via a map file).
+For those who were not there, the symposium went well, even better than last
+year. The presentations and papers were very good. I posted them on the site
+to make it easier to get for those who did not attend and therefore didn't
+get copies of the proceedings. Thanks to all who participated. 
 
--- 
-Stephen Smalley
-National Security Agency
+Frank
+
 
 
 --
