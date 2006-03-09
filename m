@@ -1,42 +1,40 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k29ElTRc018769
-	for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2006 09:47:29 -0500
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k29Ejsba005848
-	for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2006 14:45:55 GMT
-Subject: Re: Patch to add a "netuser" role and user
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1141845239.8134.8.camel@wintermute.xmldesign.de>
-References: <1141773189.5082.39.camel@wintermute.xmldesign.de>
-	 <1141842611.30819.182.camel@sgc.columbia.tresys.com>
-	 <1141845239.8134.8.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 09:46:57 -0500
-Message-Id: <1141915618.30819.202.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k29FX1nX019770
+	for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2006 10:33:01 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k29FWwGa007023
+	for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2006 15:32:59 GMT
+Message-ID: <44104A9D.6080308@redhat.com>
+Date: Thu, 09 Mar 2006 10:32:45 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Michael C Thompson <mcthomps@us.ibm.com>
+Subject: Re: [redhat-lspp] How to build test policy now?
+References: <OFA90E9CB1.2C1B7BDC-ON87257125.006DE3FA-86257125.006DC18C@us.ibm.com>
+In-Reply-To: <OFA90E9CB1.2C1B7BDC-ON87257125.006DE3FA-86257125.006DC18C@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-03-08 at 20:13 +0100, Erich Schubert wrote:
-> > The patch is a reasonable example for adding roles, but I'm not sure
-> > that it should be added.  I can't think of a compelling need for it,
-> > especially since its basically user_r with user_tcp_server enabled, as
-> > you mention above.
-> 
-> Except that you might not want to allow user_tcp_server for all users,
-> and with netuser you can give this permission easily to individual users
-> on a per-user basis.
+Does anyone have a good explanation of the relabelto/relabelfrom 
+permissions?
 
-That is true, but I don't find binding to generic ports to be a
-compelling reason to add another role to the upstream policy.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Michael C Thompson wrote:
+>
+> Hi Dan,
+>
+> I'm working on the policy tests for our LSPP effort, and i'm wondering 
+> if you can either a) explain or b) point me to some documentation 
+> (which would be ideal) that explains what the permissions: relabelto, 
+> relabelfrom mean. Like I said, if you have a link to some sort of 
+> documentation, I'm sure I'll come up with more questions and I 
+> wouldn't have to bother you again :)
+>
+> Thanks,
+> Mike 
+I don't think I can give you a good explanation.  I have copied this 
+Email to the larger list, to get an authoritative description.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
