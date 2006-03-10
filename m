@@ -1,36 +1,33 @@
 Subject: Re: Query MLS info outside of SELinux/LSM?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: James Morris <jmorris@namei.org>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <4411B9A9.5020102@hp.com>
+To: Joe Nall <joe@nall.com>
+Cc: Paul Moore <paul.moore@hp.com>, James Morris <jmorris@namei.org>,
+        SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <BDEE5CBC-F62F-4B14-BCD3-42B7215987DD@nall.com>
 References: <4411AFCB.60401@hp.com>
 	 <1142010664.25454.128.camel@moss-spartans.epoch.ncsc.mil>
 	 <4411B5F2.6060702@hp.com>
 	 <1142012234.25454.139.camel@moss-spartans.epoch.ncsc.mil>
 	 <4411B9A9.5020102@hp.com>
+	 <1142013189.25454.152.camel@moss-spartans.epoch.ncsc.mil>
+	 <BDEE5CBC-F62F-4B14-BCD3-42B7215987DD@nall.com>
 Content-Type: text/plain
-Date: Fri, 10 Mar 2006 12:53:09 -0500
-Message-Id: <1142013189.25454.152.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 10 Mar 2006 14:15:32 -0500
+Message-Id: <1142018132.25454.190.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-03-10 at 12:38 -0500, Paul Moore wrote:
-> Agreed.  Although for most cases in SELinux there are no practical upper 
-> bounds so such logic (that I am thinking of anyway) doesn't make sense. 
->     I was just looking for something to tell me the number of MLS levels 
-> and categories in the current instantiated policy so I could do some 
-> optimizations in the CIPSO/NetLabel code.
-> 
-> It's not a big deal, there is always another solution.
+On Fri, 2006-03-10 at 13:03 -0600, Joe Nall wrote:
+> If there is a naming convention for system high you can ask for a  
+> translation of SystemHigh and look the the level and categories  
+> returned. Use of CIPSO could be dependent on certain names or aliases  
+> being available in setrans.conf.
 
-For experimental patches, you are certainly welcome to add an interface
-to the security server to expose such information, and export it to the
-rest of the kernel (see some of the recent audit-related patches and
-James' skfilter patches for other examples where security server
-interfaces are being exported to other kernel subsystems).  We just
-don't want the MLS limitation to be the ultimate solution upstream.
- 
+I think he means his NetLabel kernel component, not a userspace
+component, so he isn't dealing with translations at all there.  Just the
+raw kernel representation.
+
 -- 
 Stephen Smalley
 National Security Agency
