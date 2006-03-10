@@ -1,74 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2AGKhkg017784
-	for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2006 11:20:43 -0500
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2AGKf59007095
-	for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2006 16:20:42 GMT
-Received: (from smmsp@localhost)
-	by tcsfw4.tcs-sec.com (8.12.2/8.12.2) id k2AGKgtO017133
-	for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2006 11:20:42 -0500 (EST)
-Date: Fri, 10 Mar 2006 10:20:33 -0600
-From: Chad Hanson <chanson@TrustedCS.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2AGujRQ018667
+	for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2006 11:56:45 -0500
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2AGtBkb002160
+	for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2006 16:55:11 GMT
+Received: from smtp2.fc.hp.com (smtp.fc.hp.com [15.11.136.114])
+	by atlrel9.hp.com (Postfix) with ESMTP id 9E5CD38C79
+	for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2006 11:56:44 -0500 (EST)
+Received: from [16.116.100.149] (unknown [16.116.100.149])
+	by smtp2.fc.hp.com (Postfix) with ESMTP id 318B418A0
+	for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2006 16:56:44 +0000 (UTC)
+Message-ID: <4411AFCB.60401@hp.com>
+Date: Fri, 10 Mar 2006 11:56:43 -0500
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
 To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] MLS policy comment update
-Message-ID: <20060310162033.GB2949@dhcp-225.il.tcs-sec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Query MLS info outside of SELinux/LSM?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Is there a way to query the number of MLS sensitivity levels and 
+categories outside of the SELinux LSM?  I haven't seen anything, but 
+thought I would ask before I started looking at alternatives ... which 
+brings me to my next question - would anyone have an objection to adding 
+this functionality?
 
-This patch adds some of the newer classes and permissions to the MLS Policy.
-These are listed to show that there no MLS contraints on these actions.
-
--Chad
-
-
-diff -Nur serefpolicy-2.2.23.orig/policy/mls serefpolicy-2.2.23/policy/mls
---- serefpolicy-2.2.23.orig/policy/mls	2006-03-04 05:06:49.000000000 +0000
-+++ serefpolicy-2.2.23/policy/mls	2006-03-09 23:09:02.000000000 +0000
-@@ -293,8 +293,14 @@
- #
- # { tcp_socket unix_stream_socket } { connectto newconn acceptfrom }
- #
-+# tcp_socket name_connect
-+#
- # { netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_xfrm_socket netlink_audit_socket netlink_ip6fw_socket } nlmsg_write
- #
-+# netlink_audit_socket { nlmsg_relay nlmsg_readpriv }
-+#
-+# netlink_kobject_uevent_socket *
-+#
- 
- 
- 
-@@ -365,7 +371,7 @@
- 	(( l1 dom l2 ) and ( l1 domby h2 ));
- 
- # these access vectors have no MLS restrictions
--# { netif node } { enforce_dest }
-+# node enforce_dest
- 
- 
- 
-@@ -397,7 +403,7 @@
- 	 ( t1 == mlsprocwrite ));
- 
- # these access vectors have no MLS restrictions
--# process { fork sigchld signull noatsecure siginh setrlimit rlimitinh execmem }
-+# process { fork sigchld signull noatsecure siginh setrlimit rlimitinh execmem execstack execheap }
- 
- 
- 
-@@ -663,6 +669,6 @@
- #
- 
- # these access vectors have no MLS restrictions
--# association { sendto recvfrom }
-+# association *
- 
- ') dnl end enable_mls
-
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
