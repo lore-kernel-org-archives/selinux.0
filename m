@@ -1,46 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2DECsiX008155
-	for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2006 09:12:58 -0500
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2DEBHoC003849
-	for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2006 14:11:18 GMT
-Subject: Re: Patch to add a "netuser" role and user
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1141927510.5348.5.camel@wintermute.xmldesign.de>
-References: <1141773189.5082.39.camel@wintermute.xmldesign.de>
-	 <1141842611.30819.182.camel@sgc.columbia.tresys.com>
-	 <1141845239.8134.8.camel@wintermute.xmldesign.de>
-	 <1141915618.30819.202.camel@sgc.columbia.tresys.com>
-	 <1141927510.5348.5.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Mon, 13 Mar 2006 09:12:58 -0500
-Message-Id: <1142259178.30819.206.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2DF74HY009201
+	for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2006 10:07:04 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2DF722b004211
+	for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2006 15:07:02 GMT
+Message-ID: <44158A89.7040004@redhat.com>
+Date: Mon, 13 Mar 2006 10:06:49 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: We need a tool to extract the file context contents out of a
+ policy package.
+References: <4412C109.1040906@redhat.com> <4412E7CB.4040300@tresys.com>
+In-Reply-To: <4412E7CB.4040300@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-03-09 at 19:05 +0100, Erich Schubert wrote:
-> Hi Christopher,
-> > > Except that you might not want to allow user_tcp_server for all users,
-> > > and with netuser you can give this permission easily to individual users
-> > > on a per-user basis.
-> > 
-> > That is true, but I don't find binding to generic ports to be a
-> > compelling reason to add another role to the upstream policy.
-> 
-> So you want tons of admins to enable user_tcp_server (which apparently
-> currently doesn't give all the needed permissions to fullfil it's
-> promises) when they are running a user tcp service?
-
-If the user templates are missing rules, then they need to be fixed.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+>> If we had this we could do something like
+>>
+>> fixfiles -P mypolicy.pp
+>>
+>> And it would restorecon over the file context.
+>
+> the file contexts in any given package doesn't represent the file 
+> contexts on the system. Further, you'll lose the homedir and local 
+> entries (and if there are homedir entries present they'll lose their 
+> precedence)
+>
+> what is the problem you are trying to solve? I think we can do this a 
+> better way.
+If I install a package I need a way of relabeling the files that are 
+being installed.  Currently when the policy package gets updated, it 
+does a diff between previous file_context and new file_context and then 
+runs a restorecon on the diff.  We currently ignore homedirs.  Moving to 
+modules, we need similar capabilities.  Relabeling the entire system 
+ever time you update a policy module is not going to work.     The 
+current method is not full proof, but it has been fairly effective over 
+the last couple of years.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
