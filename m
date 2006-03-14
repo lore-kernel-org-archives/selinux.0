@@ -1,38 +1,32 @@
-Subject: Re: w3c.te module policy
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2EK5uHY009310
+	for <selinux@tycho.nsa.gov>; Tue, 14 Mar 2006 15:06:02 -0500
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2EK3nDI009602
+	for <selinux@tycho.nsa.gov>; Tue, 14 Mar 2006 20:03:51 GMT
+Subject: Re: policy support for SSP
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ville =?ISO-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>,
-        Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4412C1CD.6080808@redhat.com>
-References: <1140879631.15616.46.camel@bobcat.mine.nu>
-	 <4411F026.4070508@redhat.com> <1142072726.19009.30.camel@bobcat.mine.nu>
-	 <4412C1CD.6080808@redhat.com>
+To: Petre Rodan <kaiowas@gentoo.org>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <20060312211907.GA6359@peter.sunspire.org>
+References: <20060312211907.GA6359@peter.sunspire.org>
 Content-Type: text/plain
-Date: Tue, 14 Mar 2006 10:39:02 -0500
-Message-Id: <1142350742.4683.6.camel@sgc.columbia.tresys.com>
+Date: Tue, 14 Mar 2006 14:09:59 -0500
+Message-Id: <1142363399.20739.2.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-03-11 at 07:25 -0500, Daniel J Walsh wrote:
-> Ville has been trying to build a modular policy package for w3c.  He 
-> created te,fc,if files similar to the ones I have attached.  The problem 
-> is that when he compiles them he ends up with avc messages suggesting he 
-> needs these additional rules:
+On Sun, 2006-03-12 at 23:19 +0200, Petre Rodan wrote:
+> the Hardened Gentoo [1] and FC5? [2] projects use stack smash protection [3] in their systems.
+> this means that every binary compiled with a hardened toolchain will need access to /dev/urandom.
 > 
-> allow httpd_t httpd_w3c_script_exec_t:file { execute execute_no_trans 
-> getattr ioctl read };
-> 
-> I have duplicated this on my machine.
-> 
->  From my reading of the generated policy these should already exist.  
-> Examining the tmp/w3c.tmp file it looks like they are there (except for 
-> the execute_no_trans).  They are wrapped in a boolean though.  Is there 
-> something wrong in policy modules handling of booleans?
+> here is a small patch that has a tunable for allowing any domain access to urandom_device_t.
+> since now this was a gentoo-only tunable, but since others might need it, a distro_gentoo should not be wrapped around it.
 
-The transition from httpd_t to httpd_*_script_t is inside
-httpd_enable_cgi; if that is not enabled, then it makes sense that the
-perms listed above would be denied.
+Merged.  I moved the rule to the domain module.  I also changed the
+tunable name to global_ssp, to make it more clear that it is applied to
+all domains.
 
 -- 
 Chris PeBenito
