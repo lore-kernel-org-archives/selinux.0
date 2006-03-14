@@ -1,58 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2EEqaZQ002001
-	for <selinux@tycho.nsa.gov>; Tue, 14 Mar 2006 09:52:36 -0500
-Received: from mail2517.carrierzone.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2EEqKiw012894
-	for <selinux@tycho.nsa.gov>; Tue, 14 Mar 2006 14:52:35 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Chad Hanson'" <chanson@TrustedCS.com>,
-        "'Christopher J. PeBenito'" <cpebenito@tresys.com>,
-        "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
-        "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>
-Cc: "'SELinux List'" <selinux@tycho.nsa.gov>
-Subject: RE: [PATCH] MLS interface update
-Date: Tue, 14 Mar 2006 09:52:04 -0500
-Message-ID: <003301c64776$dd91f100$8c0d010a@columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <36282A1733C57546BE392885C0618592010BB70E@chaos.tcs.tcs-sec.com>
+Subject: Re: w3c.te module policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Ville =?ISO-8859-1?Q?Skytt=E4?= <ville.skytta@iki.fi>,
+        Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4412C1CD.6080808@redhat.com>
+References: <1140879631.15616.46.camel@bobcat.mine.nu>
+	 <4411F026.4070508@redhat.com> <1142072726.19009.30.camel@bobcat.mine.nu>
+	 <4412C1CD.6080808@redhat.com>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 10:39:02 -0500
+Message-Id: <1142350742.4683.6.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> The interface additions would be ok, but upon closer examination of
->> the constraints, why are the reads traditional BLP
->> (l1 dom l2), but the writes aren't (l1 eq l2 for { file lnk_file
->> fifo_file }, and (l1 dom l2 and l1 domby h2) for { dir chr_file
->> blk_file sock_file })?  In fact, the (l1 dom l2 and l1 domby h2)
->> doesn't look correct to me; (l1 domby l2) seems right.  It appears
->> the write constraints are being used for integrity (at least for
->> file, lnk_file and fifo_file), but we already have TE for this
->> purpose. 
+On Sat, 2006-03-11 at 07:25 -0500, Daniel J Walsh wrote:
+> Ville has been trying to build a modular policy package for w3c.  He 
+> created te,fc,if files similar to the ones I have attached.  The problem 
+> is that when he compiles them he ends up with avc messages suggesting he 
+> needs these additional rules:
 > 
-> The MLS BLP write policy has been modified to write equality, instead
-> of allowing unrestricted writeup. Unrestricted writeup is usually not
-> desired and is not even allowed by DCID 6/3. DCID 6/3 requires at
-> least write limitation to the user's clearance. We have the *toclr
-> attributes to achieve the clearance restrictions if desired. The {
-> dir chr_file blk_file sock_file } case is to handle ranged objects
-> whereas { file lnk_file fifo_file } have constraints to disallow them
-> from being ranged.       
+> allow httpd_t httpd_w3c_script_exec_t:file { execute execute_no_trans 
+> getattr ioctl read };
+> 
+> I have duplicated this on my machine.
+> 
+>  From my reading of the generated policy these should already exist.  
+> Examining the tmp/w3c.tmp file it looks like they are there (except for 
+> the execute_no_trans).  They are wrapped in a boolean though.  Is there 
+> something wrong in policy modules handling of booleans?
 
-I don't want to re-open my debate from a year ago about the value and
-desirability of write up in MLS systems and the ability to have untrusted
-MLS aware applications (i.e., I disagree with Chad's comment above :-)
-Perhaps the correct answer is to have primitive interfaces that implement
-the true BLP "no write down, no read up" rules and an added interface that
-encapsulates "no write down" with "only write equal" so that if others want
-to use the (IMHO highly desirable) write up ability, they can do so within
-the reference policy framework. 
+The transition from httpd_t to httpd_*_script_t is inside
+httpd_enable_cgi; if that is not enabled, then it makes sense that the
+perms listed above would be denied.
 
-To be honest I'm not even sure how interfaces work for constraints, but I
-would still suggest using lower level primitive interfaces and build up to
-"write equal only". Too bad constraints don't work inside of conditional
-policies! Frank
-
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
