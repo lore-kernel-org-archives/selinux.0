@@ -1,53 +1,44 @@
-Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2FKsCJG000832
-	for <selinux@tycho.nsa.gov>; Wed, 15 Mar 2006 15:54:12 -0500
-Subject: ANN:  Updated SELinux Release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Wed, 15 Mar 2006 15:59:14 -0500
-Message-Id: <1142456354.4933.121.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44188541.9030809@redhat.com>
+Date: Wed, 15 Mar 2006 16:21:05 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Russell Coker <rcoker@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Problem with semodule mls policy
+References: <44182410.1030003@redhat.com>	 <1142434901.29737.63.camel@moss-spartans.epoch.ncsc.mil>	 <44183A48.7010005@tresys.com>	 <1142440539.4933.6.camel@moss-spartans.epoch.ncsc.mil>	 <441842C2.8070706@tresys.com>	 <1142441886.4933.13.camel@moss-spartans.epoch.ncsc.mil>	 <44185659.3050403@tresys.com> <1142446762.4933.51.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1142446762.4933.51.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated SELinux release is available from the NSA SELinux web site;
-see:
-http://www.nsa.gov/selinux/news.cfm#R060315
-
-This release is based on Linux 2.6.16-rc6, which already includes a
-number of changes to SELinux that have been upstreamed, such as the
-ptrace bug fix, an inode security structure memory leak, the IPSEC hooks
-for implicit packet labeling, an XFS workaround to restore support for
-labeling of new inodes, and several cleanups.  The SELinux patch for
-2.6.16-rc6 includes several minor fixes and cleanups that will likely go
-into 2.6.17; most of these changes are already in -mm.  The patch does
-not include other enhancements such as the peersec work that is already
-queued in the netdev tree for 2.6.17.
-
-In userspace, a number of enhancements and fixes to the libraries and
-utilities have been merged.  The enhancements include audit
-functionality for newrole and semanage, support for manipulation of
-active booleans, ports, nodes, and file contexts via libsemanage,
-support for including seusers and users_extra information in policy
-packages, and support for optionals in the base policy module.  Role
-dominance support has also been fixed in checkpolicy.  A number of
-optimizations to the libraries and to the file labeling utilities
-(setfiles, restorecon) have been merged.
-
-The example policy has been archived to the historical versions page and
-is no longer being maintained.  It has been superseded by the reference
-policy project.
-
-The Implementing SELinux as a Linux Security Module technical report has
-been updated a little to reflect some of the more recent changes to
-SELinux, but no major content has been added.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Stephen Smalley wrote:
+> On Wed, 2006-03-15 at 13:00 -0500, Joshua Brindle wrote:
+>   
+>> I can buy this, as well as nodecons having different levels. The strange 
+>> thing is that you don't know what the levels are exactly, you just know 
+>> their relationships to each other. ie: eth0 is s1 and eth1 is s5 so eth1 
+>> is higher sensitivity even though I don't know what that sensitivity 
+>> means. How big of an issue is this? Chad?
+>>
+>> writing down files of different levels from within libsemanage means any 
+>> libsemanage client must be mls trusted, which may or may not be an 
+>> issue, I'm not sure.
+>>
+>> So, if this is an issue then both seusers and policy.20 need to be 
+>> labeled differently.. should this be done through libsemanage config or 
+>> some appconfig in the policy?
+>>     
+>
+> libsemanage could call matchpathcon and just use the returned context,
+> as long as we guarantee an initial installed file_contexts file for
+> bootstrapping.  semanage.conf is not an option I suppose since it now
+> lives directly in /etc/selinux and is policy-independent.  
+>
+>   
+If you don't have an initial file_contexts file at install time,  you 
+are going to have a lot more problems than this.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
