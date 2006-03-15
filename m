@@ -1,37 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2FGbwal027321
-	for <selinux@tycho.nsa.gov>; Wed, 15 Mar 2006 11:37:58 -0500
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2FGaI1r009974
-	for <selinux@tycho.nsa.gov>; Wed, 15 Mar 2006 16:36:20 GMT
-Subject: Re: [PATCH] MLS interface update
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <20060310162359.GC2949@dhcp-225.il.tcs-sec.com>
-References: <20060310162359.GC2949@dhcp-225.il.tcs-sec.com>
+Subject: Re: Problem with semodule mls policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Russell Coker <rcoker@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <441842C2.8070706@tresys.com>
+References: <44182410.1030003@redhat.com>
+	 <1142434901.29737.63.camel@moss-spartans.epoch.ncsc.mil>
+	 <44183A48.7010005@tresys.com>
+	 <1142440539.4933.6.camel@moss-spartans.epoch.ncsc.mil>
+	 <441842C2.8070706@tresys.com>
 Content-Type: text/plain
-Date: Wed, 15 Mar 2006 11:37:53 -0500
-Message-Id: <1142440673.20739.8.camel@sgc.columbia.tresys.com>
+Date: Wed, 15 Mar 2006 11:58:06 -0500
+Message-Id: <1142441886.4933.13.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-03-10 at 10:23 -0600, Chad Hanson wrote:
-> This patch updates existing mls interfaces and summaries to reflect the
-> current mls constraints.  Also, there are also new interface definitions
-> for some mls attributes which were lacking interfaces.
+On Wed, 2006-03-15 at 11:37 -0500, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > Possibly local customizations are in view here, e.g. the contents of
+> > interfaces.local, that are then fed into the final policy.20 emitted by
+> > libsemanage?  seusers is the more likely concern, as you note, and it is
+> > harder to transparently label it separately since it doesn't live in its
+> > own dedicated subdirectory (so range_transition wouldn't help with it;
+> > you'd need libsemanage code modification).
+> >  
+> The entire module store (/etc/selinux/<type>/modules/*) should be 
+> entirely inaccessible except by an semanage_t domain (and policy server 
+> later) via type enforcement, so those shouldn't be a concern. The 
+> policy.20 shouldn't really contain any sensitive information so I think 
+> the only necessary modification is to label seusers differently, correct?
 
-Merged the new interfaces, with some changes.  I added 'all_levels' to
-the interface names to make it clear that they allow all levels, changed
-the socket-related interfaces from "net" to "socket" in the interface
-name, and changed "ipc" to "sysvipc" in the interface name to make it
-clear its only SysV IPC, not pipes, etc.
+I wasn't sure whether the fact that e.g. netif eth0 is assigned
+SystemHigh and netif eth1 is assigned SystemLow in interfaces.local
+(which is then compiled into policy.20) might be considered sensitive.
+If so, that would make the final policy.20 sensitive as well.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
