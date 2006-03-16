@@ -1,63 +1,77 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2GKjGs3024785
-	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 15:45:17 -0500
-Received: from kokytos.rz.ifi.lmu.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2GKhc3h002897
-	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 20:43:39 GMT
-Received: from hydrogenium.cip.ifi.lmu.de (hydrogenium.cip.ifi.lmu.de [141.84.214.74])
-	by kokytos.rz.ifi.lmu.de (Postfix) with ESMTP id 811344367F
-	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 21:45:12 +0100 (CET)
-Date: Thu, 16 Mar 2006 21:45:12 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2GM2m4a026510
+	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 17:02:49 -0500
+Received: from authusersmtp.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2GM1A3h013833
+	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 22:01:10 GMT
+Message-ID: <4419E07F.4090508@cornell.edu>
+Date: Thu, 16 Mar 2006 17:02:39 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Bug in the semanage user management code or genhomedircon?
-Message-ID: <20060316204512.GB30979@hydrogenium.cip.ifi.lmu.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+CC: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Bug in the semanage user management code or genhomedircon?
+References: <20060316204512.GB30979@hydrogenium.cip.ifi.lmu.de>
+In-Reply-To: <20060316204512.GB30979@hydrogenium.cip.ifi.lmu.de>
+Content-Type: multipart/mixed;
+ boundary="------------090909030406000106040709"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm trying to set up an Ubuntu SELinux system and have a problem I don't
-really understand. The system is up-to-date (just compiled all the
-libraries from the new release, the policy is two days old).
+This is a multi-part message in MIME format.
+--------------090909030406000106040709
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I think the following command sequence illustrates my problem:
-# ls -dZ /root
-drwxr-xr-x  root     root     system_u:object_r:default_t:s0   /root
-# semanage login -l
 
-Login Name                SELinux User              MLS/MCS Range
+> What am I doing wrong?
+>   
+Can you let me know what you see with the following policycoreutils 
+patch, when you try the same thing (do semanage user -l, should show the 
+labeling prefix for each user). Dan, you can merge if you want to - I 
+don't know if the alignment is ok - are you trying to fit within 
+80-columns or something like that?
 
-# semanage user -l
+P.S. I see those get_all() functions being used outside seobject.py (in 
+chcat), which doesn't seem like a good idea - breaks encapsulation, and 
+adding things like I just did will cause damage.
 
-                MLS/       MLS/
-SELinux User    MCS Level  MCS Range                      SELinux Roles
 
-root            s0         s0-s0:c0.c255                  system_r sysadm_r staff_r
-staff_u         s0         s0-s0:c0.c255                  sysadm_r staff_r
-sysadm_u        s0         s0-s0:c0.c255                  sysadm_r
-system_u        s0         s0-s0:c0.c255                  system_r
-user_u          s0         s0                             user_r
-# semanage login -a -s sysadm_u root
-root@warschau:~/debian# semanage login -l
+--------------090909030406000106040709
+Content-Type: text/x-patch;
+ name="semanage.prefix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="semanage.prefix.diff"
 
-Login Name                SELinux User              MLS/MCS Range
+diff -Naurp --exclude-from excludes old/policycoreutils/semanage/seobject.py new/policycoreutils/semanage/seobject.py
+--- old/policycoreutils/semanage/seobject.py	2006-03-08 12:16:06.000000000 -0500
++++ new/policycoreutils/semanage/seobject.py	2006-03-16 16:56:37.000000000 -0500
+@@ -549,7 +549,7 @@ class seluserRecords(semanageRecords):
+ 				raise ValueError("Could not list roles for user %s" % name)
+ 
+ 			roles = string.join(rlist, ' ');
+-			ddict[semanage_user_get_name(u)] = (semanage_user_get_mlslevel(u), semanage_user_get_mlsrange(u), roles)
++			ddict[semanage_user_get_name(u)] = (semanage_user_get_prefix(u), semanage_user_get_mlslevel(u), semanage_user_get_mlsrange(u), roles)
+ 
+ 		return ddict
+ 
+@@ -559,10 +559,10 @@ class seluserRecords(semanageRecords):
+ 		keys.sort()
+ 		if is_mls_enabled == 1:
+ 			if heading:
+-				print "\n%-15s %-10s %-30s" % ("", "MLS/", "MLS/")
+-				print "%-15s %-10s %-30s %s\n" % ("SELinux User", "MCS Level", "MCS Range", "SELinux Roles")
++				print "\n%-15s %-10s %-10s %-30s" % ("", "Labeling", "MLS/", "MLS/")
++				print "%-15s %-10s %-10s %-30s %s\n" % ("SELinux User", "Prefix", "MCS Level", "MCS Range", "SELinux Roles")
+ 			for k in keys:
+-				print "%-15s %-10s %-30s %s" % (k, translate(ddict[k][0]), translate(ddict[k][1]), ddict[k][2])
++				print "%-15s %-10s %-10s %-30s %s" % (k, ddict[k][0], translate(ddict[k][1]), translate(ddict[k][2]), ddict[k][3])
+ 		else:
+ 			if heading:
+ 				print "%-15s %s\n" % ("SELinux User", "SELinux Roles")
 
-root                      sysadm_u                  s0
-# restorecon -v /root/
-restorecon reset /root context system_u:object_r:default_t:s0->sysadm_u:object_r:user_home_dir_t:s0
-
-Notice the last line. I cannot get /root to be of type
-sysadm_home_dir_t (It doesn't change if I do "semanage login -a -s
-root root" instead).
-
-What am I doing wrong?
-
-Thomas
-
-PS: The semanage manpage really needs some examples. Now if I understood
-the program I could write some :-(
-
+--------------090909030406000106040709--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
