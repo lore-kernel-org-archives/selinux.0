@@ -1,199 +1,61 @@
-Message-ID: <441974D8.7030706@cornell.edu>
-Date: Thu, 16 Mar 2006 09:23:20 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2GElkkt016183
+	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 09:47:46 -0500
+Received: from smtp-mclean.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2GElh6o015058
+	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 14:47:43 GMT
+Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-mclean.mitre.org (8.11.6/8.11.6) with SMTP id k2GElie27772
+	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 09:47:44 -0500
+Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-mclean.mitre.org (Postfix) with ESMTP id 8F44857939
+	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 09:47:11 -0500 (EST)
+Received: from IMCFE1.MITRE.ORG (imcfe1.mitre.org [129.83.29.3])
+	by smtp-mclean.mitre.org (8.11.6/8.11.6) with ESMTP id k2GEl7R27126
+	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 09:47:07 -0500
+From: Brian Sniffen <bsniffen@mitre.org>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: ANN: Polgen 1.3, now with PSL
+Date: Thu, 16 Mar 2006 09:46:51 -0500
+Message-ID: <m2ek12a1lw.fsf@raven-king.mitre.org>
 MIME-Version: 1.0
-To: SELinux List <SELinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: [SEMANAGE] Manpage reorganization
-Content-Type: multipart/mixed;
- boundary="------------000204080702020709030503"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000204080702020709030503
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+MITRE's SE Linux team is pleased to announce the latest release of our
+tool suite for Guided Automated policy generation.  Polgen 1.3 is now
+available at
 
-Hi, this patch does the following:
+    http://www.mitre.org/tech/selinux/
 
-Existing manpages:
-===============
-- remove listing of objects in each dbase function - this doesn't scale, 
-I have to change it in 10+ places to add a new object, and it's really 
-annoying. Just present the function template, and then we'll have 
-per-object overview pages that link to that template, so the user won't 
-be confused [ see new pages added below ].
+Our principal new feature is Polgen Specification Language (PSL),
+an architecture description language that allows application authors
+to leverage their knowledge of application's designs.  They can use PSL
+and Polgen to easily produce high-quality SE Linux policy.  Much
+information on using PSL can be found in the included manual, with
+additional background available in our recent paper, "Guided Policy
+Generation for Application Authors," published at the 2006 SE Linux
+Symposium:
 
-- move the controlling page from *_user_local.3 to an object-neutral page:
-semanage_add.3, semanage_modify.3, semanage_list.3 ... etc
+    http://www.selinux-symposium.org/
 
-- fix some allignment issues
-- add "(3)" to references to other manpages so man2html makes links
+We're also excited about our new development environment at
+Sourceforge.  Polgen development will now be conducted in the open.
+We are hopeful that this will improve both the quality of the
+Polgen code and the visibility to and involvement of the SE Linux
+community.  You can see our freshly uploaded source tree, or
+a copy of the recent paper, at
 
-New manpages:
-============
-- add an overview page for each object type, which gives all the 
-functions for that object: semanage_fcontext.3 semanage_user.3, 
-semanage_seuser.3, semanage_bool.3..etc. This page becomes more valuable 
-when the functions listed there are also hyperlinks.
+    http://polgen.sf.net/
 
-========
-We should run man2html over all those pages, and host the result 
-somewhere, once it's more complete.
-Russell suggested James Morris' page (selinuxnews.org?)
-
-I also plan to write a semanage.3 page.
+By all means, stop by and subscribe to the polgen-user or 
+polgen-devel mailing lists.
 
 
---------------000204080702020709030503
-Content-Type: application/x-bzip;
- name="libsemanage.doc.diff.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="libsemanage.doc.diff.bz2"
-
-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
-yRThQkHFyyDI
---------------000204080702020709030503--
+-- 
+Brian T. Sniffen                                      bsniffen@mitre.org
+The MITRE Corporation                                       781-271-2904
 
 --
 This message was distributed to subscribers of the selinux mailing list.
