@@ -1,41 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2H2Ek99030016
-	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 21:14:46 -0500
-Received: from authusersmtp.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2H2D83h012705
-	for <selinux@tycho.nsa.gov>; Fri, 17 Mar 2006 02:13:08 GMT
-Received: from [192.168.2.105] (cpe-24-59-125-231.twcny.res.rr.com [24.59.125.231])
-	(authenticated bits=0)
-	by authusersmtp.mail.cornell.edu (8.13.1/8.12.10) with ESMTP id k2H2Ee8Q026045
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2006 21:14:45 -0500 (EST)
-Message-ID: <441A1B8E.8040807@cornell.edu>
-Date: Thu, 16 Mar 2006 21:14:38 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2H7BRkd000680
+	for <selinux@tycho.nsa.gov>; Fri, 17 Mar 2006 02:11:28 -0500
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2H7BP1O014370
+	for <selinux@tycho.nsa.gov>; Fri, 17 Mar 2006 07:11:26 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Fri, 17 Mar 2006 08:11:15 +0100
+Date: Fri, 17 Mar 2006 08:11:14 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: semodule dumps core
-References: <20060316224834.GA8552@thorium.jmh.mhn.de>
-In-Reply-To: <20060316224834.GA8552@thorium.jmh.mhn.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Bug in the semanage user management code or genhomedircon?
+Message-Id: <20060317071114.GA7357@thorium.jmh.mhn.de>
+References: <20060316204512.GB30979@hydrogenium.cip.ifi.lmu.de> <4419E07F.4090508@cornell.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <4419E07F.4090508@cornell.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thomas Bleher wrote:
-> Seems like semodule doesn't like me. I just recompiled my policy with
-> the new versions of the tools and now semodule dumps core when I do a 
-> "semodule -b base.pp".
->
-> The backtrace from gdb looks like this:
-> (gdb) backtrace
-> #0  0x37ec2f5c in fclose@plt () from /lib/libsemanage.so.1
-> #1  0x37ec8950 in semanage_direct_commit (sh=0x804c4a8) at direct_api.c:401
-> #2  0x37eca3fe in semanage_commit (sh=0x804c4a8) at handle.c:227
-> #3  0x08049507 in main (argc=3, argv=0x3fc5db44) at semodule.c:361
->
->   
-Hmm? line 401 in direct_api.c is not in semanage_direct_commit()
-in the version of libsemanage you specified (1.6?)...
+* Ivan Gyurdiev <ivg2@cornell.edu> [2006-03-16 23:53]:
+> 
+> >What am I doing wrong?
+> >  
+> Can you let me know what you see with the following policycoreutils 
+> patch, when you try the same thing (do semanage user -l, should show the 
+> labeling prefix for each user).
+
+OK, this seems to show the problem:
+# semanage user -l
+
+                Labeling   MLS/       MLS/
+SELinux User    Prefix     MCS Level  MCS Range                      SELinux Roles
+
+root            user       s0         s0-s0:c0.c255                  system_r sysadm_r staff_r
+staff_u         user       s0         s0-s0:c0.c255                  sysadm_r staff_r
+sysadm_u        user       s0         s0-s0:c0.c255                  sysadm_r
+system_u        user       s0         s0-s0:c0.c255                  system_r
+user_u          user       s0         s0                             user_r
+
+Where is the labeling prefix set? Or better, where can I change it?
+
+Thanks,
+Thomas
 
 
 --
