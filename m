@@ -1,54 +1,49 @@
-Message-ID: <441C3B52.7060702@redhat.com>
-Date: Sat, 18 Mar 2006 11:54:42 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2JKlfO3013823
+	for <selinux@tycho.nsa.gov>; Sun, 19 Mar 2006 15:47:41 -0500
+Received: from luminouswebdesign.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2JKk1YY010751
+	for <selinux@tycho.nsa.gov>; Sun, 19 Mar 2006 20:46:02 GMT
+Received: from schaufler-ca.com (luminouswebdesign.com. [216.117.155.141])
+	by luminouswebdesign.com (8.12.10/8.12.10) with SMTP id k2JKlcdd011624
+	for selinux@tycho.nsa.gov; Sun, 19 Mar 2006 15:47:39 -0500
+Date: Sun, 19 Mar 2006 15:47:39 -0500
+From: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>
+Message-Id: <200603192047.k2JKlcdd011624@luminouswebdesign.com>
+To: selinux@tycho.nsa.gov
+Subject: RE: [PATCH] MLS interface update
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Changes to policycoreutils.
-References: <441B2C7B.7050307@redhat.com> <200603180532.k2I5Wuhe004158@turing-police.cc.vt.edu>
-In-Reply-To: <200603180532.k2I5Wuhe004158@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 17 Mar 2006 16:39:07 EST, Daniel J Walsh said:
->
->   
->> This will give us the ability of instantly labeling the ~/public_html 
->> directory.  So if a user logs in and does a
->> mkdir ~/public_html to tool will label the file correctly.
->>     
->
-> Do you have an estimate on how fast "instantly" is?  A few second's delay in
-> relabelling ~/public_html is probably not a big thing, but a delay in
-> relabelling a just-created file to a more restrictive context may be opening a
-> timing hole (for instance, allowing the grabbing of a just-created GPG or SSH
-> key before the door is closed).
->
-> I'm suspecting the answer is "there's a small hard-to-hit hole" that people
-> find acceptable risk (which I'm OK on, as long as we're honest about the size
-> of the risk and how it works....)
->
->   
-The answer is that is, if the file is created by a confined domain it 
-will be instantly.  SELinux
-aware application also create it instantly.  This is more for the non 
-SELinux aware applicaitons. 
-So the example of the user creating the public_html directory. 
+> --- Thomas Bleher <bleher@informatik.uni-muenchen.de>
+> wrote:
 
-It happens very fast, as a matter of fact you can try this command to see it
+> Is there some paper or reference on the pros and
+> cons of "write up" versus
+> "write equal"? I´m trying to gain a better
+> understanding of MLS and how it
+> is implemented in different systems.
+> Any pointers would be greatly appreciated!
 
-rmdir public_html; mkdir public_html; ls -ldZ public_html
-drwxrwxr-x  dwalsh   dwalsh   user_u:object_r:httpd_sys_content_t 
-public_html
+The Final Evaluation Reports (FERs) for many
+of the TCSEC (Orange Book) evaluations may
+be found at:
 
-This should not be considered a failsafe security measure, but more of a 
-usability issue.
-If you have an file that is of critical secuirty you might not want to 
-use this tool on it.
+    http://www.radium.ncsc.mil/tpep/library/fers/tcsec_fers.html
 
-Dan
+These are likely to be you best resources
+on the topic short of buying old guys beer.
+
+------------------------
+Casey Schaufler
+casey@schaufler-ca.com
+650.906.1780
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
