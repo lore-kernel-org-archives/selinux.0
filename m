@@ -2,60 +2,77 @@ Subject: Re: Changes to policycoreutils.
 From: Stephen Smalley <sds@tycho.nsa.gov>
 Reply-To: sds@tycho.nsa.gov
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
-        Valdis.Kletnieks@vt.edu, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1142869863.16487.57.camel@moss-spartans.epoch.ncsc.mil>
+Cc: James Morris <jmorris@namei.org>, Russell Coker <russell@coker.com.au>,
+        Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <441B2C7B.7050307@redhat.com>
 References: <441B2C7B.7050307@redhat.com>
-	 <200603180532.k2I5Wuhe004158@turing-police.cc.vt.edu>
-	 <441C3B52.7060702@redhat.com>
-	 <1142862355.16487.7.camel@moss-spartans.epoch.ncsc.mil>
-	 <441EC183.6000404@redhat.com>
-	 <1142869863.16487.57.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 20 Mar 2006 12:25:31 -0500
-Message-Id: <1142875531.16487.93.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 20 Mar 2006 15:11:01 -0500
+Message-Id: <1142885461.16487.196.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-03-20 at 10:51 -0500, Stephen Smalley wrote:
-> restorecond, restorecon, and setfiles could benefit from a rewrite to
-> follow the more paranoid conventions of other programs that walk the
-> file tree (e.g. look at coreutils programs like rm -r logic, which has
-> been modified a number of times in response to security-related issues).
-> To date, restorecon and setfiles have simply relied on policy to
-> prevent:
-> - untrustworthy domains from creating hard links to files that they
-> shouldn't be able to access in the first place, and
-> - restorecon/setfiles from following untrustworthy symlinks.
-> 
-> And we originally only expected setfiles to be applied upon
-> installation, not for normal runtime operation.
-> 
-> But the code itself could provide stronger safeguards against the
-> threat, particularly now that you are automating the invocation of
-> restorecon-like functionality in response to user events.  Again, look
-> to what has been done already in coreutils and elsewhere.  There are
-> also recently added new syscalls to help reduce races in walking the
-> file tree (i.e. openat and friends) - possibly there should be some for
-> lsetxattr as well so that lsetfileconat() could be implemented?
-> 
-> Under strict policy, the policy restrictions over creating hard links
-> and over following sym links help counter the risk.  Under targeted
-> policy, users are unconfined by TE, so there is no direct benefit to a
-> malicious user in tricking restorecond into relabeling a file to a
-> different type.  But now that users are supposed to be limited by MCS
-> restrictions in -targeted, you have to consider the risk that a
-> malicious user might try to use this avenue to get MCS categories
-> dropped from some target file so that he can access it.
+On Fri, 2006-03-17 at 16:39 -0500, Daniel J Walsh wrote:
+> diff --exclude-from=exclude -N -u -r nsapolicycoreutils/restorecond/restorecond.c policycoreutils-1.30/restorecond/restorecond.c
+> --- nsapolicycoreutils/restorecond/restorecond.c	1969-12-31 19:00:00.000000000 -0500
+> +++ policycoreutils-1.30/restorecond/restorecond.c	2006-03-17 15:43:36.000000000 -0500
+> +	if (S_ISLNK(st.st_mode)) {
 
-BTW, on the FreeBSD side, they appear to have ported/rewritten the
-setfiles logic in their setfmac utility,
-http://www.freebsd.org/cgi/cvsweb.cgi/src/usr.sbin/setfmac/setfmac.c
+For the daemon, I don't think you want this symlink realpath logic
+inherited from restorecon.  The admin should just specify the real path
+in the config file unless he wants the symlink itself to be restored.
 
-They chose to use fts(3) rather than nftw(3) to walk the file tree, and
-use fts_accpath to access the file from the current directory.
+> +	retcontext=lgetfilecon(filename,&prev_context);
+> +	
+> +	if (retcontext >= 0 || errno == ENODATA) {
+<snip>
+> +			if (lsetfilecon(filename,scontext) < 0) {
 
+Need to counter the risks I noted earlier for files in user-writable
+directories.  There is both a DAC concern (user should only be able to
+relabel files he owns) and a MAC concern here (user should only be able
+to relabel files to which he has suitable permission), and the inode
+referenced by filename can change between these two calls.
+
+> diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.30/scripts/fixfiles
+> --- nsapolicycoreutils/scripts/fixfiles	2006-01-04 13:07:46.000000000 -0500
+> +++ policycoreutils-1.30/scripts/fixfiles	2006-03-17 16:26:25.000000000 -0500
+> @@ -124,7 +124,15 @@
+>      exit $?
+>  fi
+>  if [ ! -z "$DIRS" ]; then
+> -    ${RESTORECON} ${OUTFILES} ${FORCEFLAG} -R $1 -v $DIRS 2>&1 >> $LOGFILE
+> +    if [ -x /usr/bin/find ]; then
+> +	for d in ${DIRS} ; do find $d \
+> +	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o -print; \
+> +	    ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $1 -v -f - 2>&1 >> $LOGFILE
+> +	done
+
+Am I reading this incorrectly, or does the find command just generate
+output to the stdout stream above, not piped into restorecon?  I think I
+saw this diff earlier and dropped it because it doesn't work.
+
+> diff --exclude-from=exclude -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-1.30/semanage/seobject.py
+> --- nsapolicycoreutils/semanage/seobject.py	2006-03-10 09:48:05.000000000 -0500
+> +++ policycoreutils-1.30/semanage/seobject.py	2006-03-17 15:37:21.000000000 -0500
+> @@ -229,10 +229,9 @@
+>  			if rc < 0:
+>  				raise ValueError("Could not set name for %s" % name)
+>  
+> -			if serange != "":
+> -				rc = semanage_seuser_set_mlsrange(self.sh, u, serange)
+> -				if rc < 0:
+> -					raise ValueError("Could not set MLS range for %s" % name)
+> +			rc = semanage_seuser_set_mlsrange(self.sh, u, serange)
+> +			if rc < 0:
+> +				raise ValueError("Could not set MLS range for %s" % name)
+
+This looks like a reversion of a change I made to get semanage working
+on non-MLS/MCS systems - calling semanage_seuser_set_mlsrange with an
+empty string yields trouble later.
+ 
 -- 
 Stephen Smalley
 National Security Agency
