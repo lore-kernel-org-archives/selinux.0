@@ -1,52 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2KFPUvR027124
-	for <selinux@tycho.nsa.gov>; Mon, 20 Mar 2006 10:25:30 -0500
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2KFPPpF025130
-	for <selinux@tycho.nsa.gov>; Mon, 20 Mar 2006 15:25:27 GMT
-Subject: Re: How can modular policy ever have worked? [patch]
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1142691657.4017.23.camel@wintermute.xmldesign.de>
-References: <1142691657.4017.23.camel@wintermute.xmldesign.de>
+Subject: Re: Changes to policycoreutils.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
+        Valdis.Kletnieks@vt.edu, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <441EC183.6000404@redhat.com>
+References: <441B2C7B.7050307@redhat.com>
+	 <200603180532.k2I5Wuhe004158@turing-police.cc.vt.edu>
+	 <441C3B52.7060702@redhat.com>
+	 <1142862355.16487.7.camel@moss-spartans.epoch.ncsc.mil>
+	 <441EC183.6000404@redhat.com>
 Content-Type: text/plain
-Date: Mon, 20 Mar 2006 10:25:38 -0500
-Message-Id: <1142868338.20739.39.camel@sgc>
+Date: Mon, 20 Mar 2006 10:51:03 -0500
+Message-Id: <1142869863.16487.57.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-03-18 at 15:20 +0100, Erich Schubert wrote:
-> Fact (look at the source):
-> optional(`whatever',`...')
-> gets reduced to nothing when building base.pp and whatever as module.
-> That way base.pp doesn't contain any optional statements, because the
-> compiler used to not support that yet. (Method says he added this
-> support)
-> When building a module, it is expanded to a proper optional {}
-> statement.
-> 
-> I discovered this after investigating why building mta into base and
-> policy as module didn't work right - the optional(`postfix',`...') part
-> gets lost, so /usr/lib/sendmail can't transition into postdrop_t, so it
-> can't write mails to the postfix queues.
-> When I build mta as module this worked just fine.
+On Mon, 2006-03-20 at 09:51 -0500, Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+> > It shouldn't be applied to any directory writable by an untrusted entity
+> > (e.g. ~/public_html) unless you are taking some kind of safeguards to
+> > prevent it from being used as a way to relabel files outside the user's
+> > control via links.
+> >
+> >   
+> Not sure what you mean.  It is taking into account the users homedir.  
+> And the file.  If public_html was not a directory it would be labeled 
+> user_home_t.  I don't know how someone could cause the relabel to be a 
+> problem.   I guess if the administrator was to start to add files in 
+> /tmp or ~/subdir/subdir/SecretFile.  This could be a problem. 
 
-Yes, this type of thing is what prompted the patch that allowed
-optionals in base module which Joshua was referring to.
+restorecond, restorecon, and setfiles could benefit from a rewrite to
+follow the more paranoid conventions of other programs that walk the
+file tree (e.g. look at coreutils programs like rm -r logic, which has
+been modified a number of times in response to security-related issues).
+To date, restorecon and setfiles have simply relied on policy to
+prevent:
+- untrustworthy domains from creating hard links to files that they
+shouldn't be able to access in the first place, and
+- restorecon/setfiles from following untrustworthy symlinks.
 
-> Attached patch will write appropriate optional {} statements to the base
-> policy.
+And we originally only expected setfiles to be applied upon
+installation, not for normal runtime operation.
 
-The base module check is not needed.  Since optionals are now allowed in
-the base module they also work in monolithic policies (a base module is
-basically an unexpanded monolithic policy).
+But the code itself could provide stronger safeguards against the
+threat, particularly now that you are automating the invocation of
+restorecon-like functionality in response to user events.  Again, look
+to what has been done already in coreutils and elsewhere.  There are
+also recently added new syscalls to help reduce races in walking the
+file tree (i.e. openat and friends) - possibly there should be some for
+lsetxattr as well so that lsetfileconat() could be implemented?
+
+Under strict policy, the policy restrictions over creating hard links
+and over following sym links help counter the risk.  Under targeted
+policy, users are unconfined by TE, so there is no direct benefit to a
+malicious user in tricking restorecond into relabeling a file to a
+different type.  But now that users are supposed to be limited by MCS
+restrictions in -targeted, you have to consider the risk that a
+malicious user might try to use this avenue to get MCS categories
+dropped from some target file so that he can access it.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
