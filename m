@@ -1,48 +1,52 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2KFPUvR027124
+	for <selinux@tycho.nsa.gov>; Mon, 20 Mar 2006 10:25:30 -0500
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2KFPPpF025130
+	for <selinux@tycho.nsa.gov>; Mon, 20 Mar 2006 15:25:27 GMT
 Subject: Re: How can modular policy ever have worked? [patch]
-From: Erich Schubert <erich@debian.org>
-To: sds@tycho.nsa.gov
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1142865553.16487.21.camel@moss-spartans.epoch.ncsc.mil>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Erich Schubert <erich@debian.org>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1142691657.4017.23.camel@wintermute.xmldesign.de>
 References: <1142691657.4017.23.camel@wintermute.xmldesign.de>
-	 <1142865553.16487.21.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 20 Mar 2006 16:16:26 +0100
-Message-Id: <1142867787.6145.18.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Mon, 20 Mar 2006 10:25:38 -0500
+Message-Id: <1142868338.20739.39.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen,
-> > Committing changes:
-> > /usr/sbin/load_policy:  Can't load policy:  Invalid argument
-> Any "security:" messages from the kernel in /var/log/messages upon the
-> attempted policy load?
+On Sat, 2006-03-18 at 15:20 +0100, Erich Schubert wrote:
+> Fact (look at the source):
+> optional(`whatever',`...')
+> gets reduced to nothing when building base.pp and whatever as module.
+> That way base.pp doesn't contain any optional statements, because the
+> compiler used to not support that yet. (Method says he added this
+> support)
+> When building a module, it is expanded to a proper optional {}
+> statement.
+> 
+> I discovered this after investigating why building mta into base and
+> policy as module didn't work right - the optional(`postfix',`...') part
+> gets lost, so /usr/lib/sendmail can't transition into postdrop_t, so it
+> can't write mails to the postfix queues.
+> When I build mta as module this worked just fine.
 
-No. A strace shows that load_policy is writing data to the load
-interface,
-which results in this invalid argument error:
-open("/selinux/load", O_RDWR|O_LARGEFILE) = 4
-write(4, "\214\377|\371\10\0\0\0SE Linux\24\0\0\0\1\0\0\0\10\0\0"...,
-592395) = -1 EINVAL (Invalid argument)
+Yes, this type of thing is what prompted the patch that allowed
+optionals in base module which Joshua was referring to.
 
-Any progress on the optional{} in base.pp issues?
-I have the impression that type attributes are broken; for example
-almost all (I can't say for sure, apol doesn't work for me; is there any
-other "policy decompiler"?) the restorecon_t relabelto rules are
-missing, which are defined for file_type.
-So I have the impression that when linking the base policy with
-optionals, these attributes are messed up.
+> Attached patch will write appropriate optional {} statements to the base
+> policy.
 
-best regards,
-Erich Schubert
+The base module check is not needed.  Since optionals are now allowed in
+the base module they also work in monolithic policies (a base module is
+basically an unexpanded monolithic policy).
+
 -- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-  There is no branch of mathematics, however abstract, which may not  //\
- some day be applied to phenomena of the real world. --- Lobatchevsky V_/_
-       Nichts l‰ﬂt die Erde so ger‰umig erscheinen, als wenn man
-           Freunde in der Ferne hat. --- Henry David Thoreau
-
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
