@@ -1,40 +1,50 @@
 Subject: Re: Changes to policycoreutils.
 From: Stephen Smalley <sds@tycho.nsa.gov>
 Reply-To: sds@tycho.nsa.gov
-To: russell@coker.com.au
-Cc: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@namei.org>,
-        Valdis.Kletnieks@vt.edu, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200603210727.47903.russell@coker.com.au>
-References: <441B2C7B.7050307@redhat.com> <441EC183.6000404@redhat.com>
-	 <1142869863.16487.57.camel@moss-spartans.epoch.ncsc.mil>
-	 <200603210727.47903.russell@coker.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <441B2C7B.7050307@redhat.com>
+References: <441B2C7B.7050307@redhat.com>
 Content-Type: text/plain
-Date: Mon, 20 Mar 2006 15:47:15 -0500
-Message-Id: <1142887635.16487.205.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 20 Mar 2006 16:26:53 -0500
+Message-Id: <1142890013.16487.209.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-03-21 at 07:27 +1100, Russell Coker wrote:
-> On Tuesday 21 March 2006 02:51, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > There are
-> > also recently added new syscalls to help reduce races in walking the
-> > file tree (i.e. openat and friends) - possibly there should be some for
-> > lsetxattr as well so that lsetfileconat() could be implemented?
-> 
-> Yes, I think a lsetxattrat() syscall is necessary, and I agree that we need 
-> better code to deal with race conditions in the library.
-> 
-> Incidentally it's the first time I've heard of coreutils being cited as a good 
-> example in this regard.
+On Fri, 2006-03-17 at 16:39 -0500, Daniel J Walsh wrote:
+> diff --exclude-from=exclude -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-1.30/semanage/seobject.py
+> --- nsapolicycoreutils/semanage/seobject.py	2006-03-10 09:48:05.000000000 -0500
+> +++ policycoreutils-1.30/semanage/seobject.py	2006-03-17 15:37:21.000000000 -0500
+> @@ -549,7 +548,7 @@
+>  				raise ValueError("Could not list roles for user %s" % name)
+>  
+>  			roles = string.join(rlist, ' ');
+> -			ddict[semanage_user_get_name(u)] = (semanage_user_get_mlslevel(u), semanage_user_get_mlsrange(u), roles)
+> +			ddict[semanage_user_get_name(u)] = (semanage_user_get_prefix(u), semanage_user_get_mlslevel(u), semanage_user_get_mlsrange(u), roles)
+>  
+>  		return ddict
+>  
+> @@ -559,10 +558,10 @@
+>  		keys.sort()
+>  		if is_mls_enabled == 1:
+>  			if heading:
+> -				print "\n%-15s %-10s %-30s" % ("", "MLS/", "MLS/")
+> -				print "%-15s %-10s %-30s %s\n" % ("SELinux User", "MCS Level", "MCS Range", "SELinux Roles")
+> +				print "\n%-15s %-10s %-10s %-30s" % ("", "Labeling", "MLS/", "MLS/")
+> +				print "%-15s %-10s %-10s %-30s %s\n" % ("SELinux User", "Prefix", "MCS Level", "MCS Range", "SELinux Roles")
+>  			for k in keys:
+> -				print "%-15s %-10s %-30s %s" % (k, translate(ddict[k][0]), translate(ddict[k][1]), ddict[k][2])
+> +				print "%-15s %-10s %-10s %-30s %s" % (k, ddict[k][0], translate(ddict[k][1]), translate(ddict[k][2]), ddict[k][3])
+>  		else:
+>  			if heading:
+>  				print "%-15s %s\n" % ("SELinux User", "SELinux Roles")
 
-Not saying that they necessarily have it right, but they have dealt with
-a number of security bug reports over time in this space (particularly
-for rm -rf behavior), so it wouldn't hurt to look at their approach.
-Likewise for findutils.  Unfortunately, they each seem to have their own
-specialized logic.  Converting setfiles and restorecon over to using
-fts(3) ala the parallel setfmac utility in FreeBSD might help.
-
+Merged this part of the diff (Ivan's earlier patch for semanage user -l
+to display labeling prefixes).  However, he noted two concerns with it:
+1) very long lines in the display, and 2) use of get_all by chcat could
+be broken by this kind of change within seobject.py.
+ 
 -- 
 Stephen Smalley
 National Security Agency
