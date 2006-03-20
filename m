@@ -1,65 +1,46 @@
-Subject: Re: Changes to policycoreutils.
+Subject: Re: How can modular policy ever have worked? [patch]
 From: Stephen Smalley <sds@tycho.nsa.gov>
 Reply-To: sds@tycho.nsa.gov
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
-        Valdis.Kletnieks@vt.edu, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <441EC183.6000404@redhat.com>
-References: <441B2C7B.7050307@redhat.com>
-	 <200603180532.k2I5Wuhe004158@turing-police.cc.vt.edu>
-	 <441C3B52.7060702@redhat.com>
-	 <1142862355.16487.7.camel@moss-spartans.epoch.ncsc.mil>
-	 <441EC183.6000404@redhat.com>
+To: Erich Schubert <erich@debian.org>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1142867787.6145.18.camel@wintermute.xmldesign.de>
+References: <1142691657.4017.23.camel@wintermute.xmldesign.de>
+	 <1142865553.16487.21.camel@moss-spartans.epoch.ncsc.mil>
+	 <1142867787.6145.18.camel@wintermute.xmldesign.de>
 Content-Type: text/plain
-Date: Mon, 20 Mar 2006 10:51:03 -0500
-Message-Id: <1142869863.16487.57.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 20 Mar 2006 11:00:55 -0500
+Message-Id: <1142870455.16487.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-03-20 at 09:51 -0500, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
-> > It shouldn't be applied to any directory writable by an untrusted entity
-> > (e.g. ~/public_html) unless you are taking some kind of safeguards to
-> > prevent it from being used as a way to relabel files outside the user's
-> > control via links.
-> >
-> >   
-> Not sure what you mean.  It is taking into account the users homedir.  
-> And the file.  If public_html was not a directory it would be labeled 
-> user_home_t.  I don't know how someone could cause the relabel to be a 
-> problem.   I guess if the administrator was to start to add files in 
-> /tmp or ~/subdir/subdir/SecretFile.  This could be a problem. 
+On Mon, 2006-03-20 at 16:16 +0100, Erich Schubert wrote:
+> No. A strace shows that load_policy is writing data to the load
+> interface,
+> which results in this invalid argument error:
+> open("/selinux/load", O_RDWR|O_LARGEFILE) = 4
+> write(4, "\214\377|\371\10\0\0\0SE Linux\24\0\0\0\1\0\0\0\10\0\0"...,
+> 592395) = -1 EINVAL (Invalid argument)
 
-restorecond, restorecon, and setfiles could benefit from a rewrite to
-follow the more paranoid conventions of other programs that walk the
-file tree (e.g. look at coreutils programs like rm -r logic, which has
-been modified a number of times in response to security-related issues).
-To date, restorecon and setfiles have simply relied on policy to
-prevent:
-- untrustworthy domains from creating hard links to files that they
-shouldn't be able to access in the first place, and
-- restorecon/setfiles from following untrustworthy symlinks.
+Odd.  Send me a copy of the generated policy.20 file privately or put it
+up on a public site where it can be downloaded, please.
 
-And we originally only expected setfiles to be applied upon
-installation, not for normal runtime operation.
+> Any progress on the optional{} in base.pp issues?
+> I have the impression that type attributes are broken; for example
+> almost all (I can't say for sure, apol doesn't work for me; is there any
+> other "policy decompiler"?)
 
-But the code itself could provide stronger safeguards against the
-threat, particularly now that you are automating the invocation of
-restorecon-like functionality in response to user events.  Again, look
-to what has been done already in coreutils and elsewhere.  There are
-also recently added new syscalls to help reduce races in walking the
-file tree (i.e. openat and friends) - possibly there should be some for
-lsetxattr as well so that lsetfileconat() could be implemented?
+Hmmm...I thought optionals in base was fixed in the current version.
+checkpolicy/test has a crude dispol program for dumping a binary policy.
+Reported your problem with apol yet?  sediff is useful for comparing two
+policies, e.g. a monolithic build against a linked one from a modular
+build.
 
-Under strict policy, the policy restrictions over creating hard links
-and over following sym links help counter the risk.  Under targeted
-policy, users are unconfined by TE, so there is no direct benefit to a
-malicious user in tricking restorecond into relabeling a file to a
-different type.  But now that users are supposed to be limited by MCS
-restrictions in -targeted, you have to consider the risk that a
-malicious user might try to use this avenue to get MCS categories
-dropped from some target file so that he can access it.
+>  the restorecon_t relabelto rules are
+> missing, which are defined for file_type.
+> So I have the impression that when linking the base policy with
+> optionals, these attributes are messed up.
 
 -- 
 Stephen Smalley
