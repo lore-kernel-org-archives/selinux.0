@@ -1,48 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2JKlfO3013823
-	for <selinux@tycho.nsa.gov>; Sun, 19 Mar 2006 15:47:41 -0500
-Received: from luminouswebdesign.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2JKk1YY010751
-	for <selinux@tycho.nsa.gov>; Sun, 19 Mar 2006 20:46:02 GMT
-Received: from schaufler-ca.com (luminouswebdesign.com. [216.117.155.141])
-	by luminouswebdesign.com (8.12.10/8.12.10) with SMTP id k2JKlcdd011624
-	for selinux@tycho.nsa.gov; Sun, 19 Mar 2006 15:47:39 -0500
-Date: Sun, 19 Mar 2006 15:47:39 -0500
-From: "schaufler-ca.com - Casey Schaufler" <casey@schaufler-ca.com>
-Message-Id: <200603192047.k2JKlcdd011624@luminouswebdesign.com>
-To: selinux@tycho.nsa.gov
-Subject: RE: [PATCH] MLS interface update
-MIME-Version: 1.0
+Subject: Re: Changes to policycoreutils.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Valdis.Kletnieks@vt.edu, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <441C3B52.7060702@redhat.com>
+References: <441B2C7B.7050307@redhat.com>
+	 <200603180532.k2I5Wuhe004158@turing-police.cc.vt.edu>
+	 <441C3B52.7060702@redhat.com>
+Content-Type: text/plain
+Date: Mon, 20 Mar 2006 08:45:55 -0500
+Message-Id: <1142862355.16487.7.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> --- Thomas Bleher <bleher@informatik.uni-muenchen.de>
-> wrote:
+On Sat, 2006-03-18 at 11:54 -0500, Daniel J Walsh wrote:
+> The answer is that is, if the file is created by a confined domain it 
+> will be instantly.  SELinux
+> aware application also create it instantly.  This is more for the non 
+> SELinux aware applicaitons. 
+> So the example of the user creating the public_html directory. 
+> 
+> It happens very fast, as a matter of fact you can try this command to see it
+> 
+> rmdir public_html; mkdir public_html; ls -ldZ public_html
+> drwxrwxr-x  dwalsh   dwalsh   user_u:object_r:httpd_sys_content_t 
+> public_html
+> 
+> This should not be considered a failsafe security measure, but more of a 
+> usability issue.
+> If you have an file that is of critical secuirty you might not want to 
+> use this tool on it.
 
-> Is there some paper or reference on the pros and
-> cons of "write up" versus
-> "write equal"? I´m trying to gain a better
-> understanding of MLS and how it
-> is implemented in different systems.
-> Any pointers would be greatly appreciated!
+It shouldn't be applied to any directory writable by an untrusted entity
+(e.g. ~/public_html) unless you are taking some kind of safeguards to
+prevent it from being used as a way to relabel files outside the user's
+control via links.
 
-The Final Evaluation Reports (FERs) for many
-of the TCSEC (Orange Book) evaluations may
-be found at:
-
-    http://www.radium.ncsc.mil/tpep/library/fers/tcsec_fers.html
-
-These are likely to be you best resources
-on the topic short of buying old guys beer.
-
-------------------------
-Casey Schaufler
-casey@schaufler-ca.com
-650.906.1780
-
-
-
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
