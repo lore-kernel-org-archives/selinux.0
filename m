@@ -1,99 +1,63 @@
-Subject: Re: How can modular policy ever have worked? [patch]
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: sds@tycho.nsa.gov, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1142873874.20739.54.camel@sgc>
-References: <1142691657.4017.23.camel@wintermute.xmldesign.de>
-	 <1142865553.16487.21.camel@moss-spartans.epoch.ncsc.mil>
-	 <1142867787.6145.18.camel@wintermute.xmldesign.de>
-	 <1142873874.20739.54.camel@sgc>
-Content-Type: multipart/mixed; boundary="=-feAho3YnKmjwYQkI+DCN"
-Date: Tue, 21 Mar 2006 11:21:24 -0500
-Message-Id: <1142958084.28649.14.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <4420500D.1040106@redhat.com>
+Date: Tue, 21 Mar 2006 14:12:13 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: sds@tycho.nsa.gov
+CC: Russell Coker <russell@coker.com.au>, James Morris <jmorris@namei.org>,
+        Valdis.Kletnieks@vt.edu, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Changes to policycoreutils.
+References: <441B2C7B.7050307@redhat.com>	 <200603180532.k2I5Wuhe004158@turing-police.cc.vt.edu>	 <441C3B52.7060702@redhat.com>	 <1142862355.16487.7.camel@moss-spartans.epoch.ncsc.mil>	 <441EC183.6000404@redhat.com>	 <1142869863.16487.57.camel@moss-spartans.epoch.ncsc.mil> <1142875531.16487.93.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1142875531.16487.93.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Mon, 2006-03-20 at 10:51 -0500, Stephen Smalley wrote:
+>   
+>> restorecond, restorecon, and setfiles could benefit from a rewrite to
+>> follow the more paranoid conventions of other programs that walk the
+>> file tree (e.g. look at coreutils programs like rm -r logic, which has
+>> been modified a number of times in response to security-related issues).
+>> To date, restorecon and setfiles have simply relied on policy to
+>> prevent:
+>> - untrustworthy domains from creating hard links to files that they
+>> shouldn't be able to access in the first place, and
+>> - restorecon/setfiles from following untrustworthy symlinks.
+>>
+>> And we originally only expected setfiles to be applied upon
+>> installation, not for normal runtime operation.
+>>
+>> But the code itself could provide stronger safeguards against the
+>> threat, particularly now that you are automating the invocation of
+>> restorecon-like functionality in response to user events.  Again, look
+>> to what has been done already in coreutils and elsewhere.  There are
+>> also recently added new syscalls to help reduce races in walking the
+>> file tree (i.e. openat and friends) - possibly there should be some for
+>> lsetxattr as well so that lsetfileconat() could be implemented?
+>>
+>> Under strict policy, the policy restrictions over creating hard links
+>> and over following sym links help counter the risk.  Under targeted
+>> policy, users are unconfined by TE, so there is no direct benefit to a
+>> malicious user in tricking restorecond into relabeling a file to a
+>> different type.  But now that users are supposed to be limited by MCS
+>> restrictions in -targeted, you have to consider the risk that a
+>> malicious user might try to use this avenue to get MCS categories
+>> dropped from some target file so that he can access it.
+>>     
+>
+> BTW, on the FreeBSD side, they appear to have ported/rewritten the
+> setfiles logic in their setfmac utility,
+> http://www.freebsd.org/cgi/cvsweb.cgi/src/usr.sbin/setfmac/setfmac.c
+>
+> They chose to use fts(3) rather than nftw(3) to walk the file tree, and
+> use fts_accpath to access the file from the current directory.
+>
+>   
+Yes this would be a good idea, since we could do the equivalent of find 
+-prune, when we encounter a file system that does not support extended 
+attributes.
 
---=-feAho3YnKmjwYQkI+DCN
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Mon, 2006-03-20 at 11:57 -0500, Christopher J. PeBenito wrote:
-> On Mon, 2006-03-20 at 16:16 +0100, Erich Schubert wrote:
-> > Any progress on the optional{} in base.pp issues?
-
-> I'm working on it right now.  It requires other changes, as you get
-> situations like this:
-> 
-> optional {
-> 	require {
-> 		type foo_t;
-> 	}
-> 	...
-> }
-> 
-> 	type foo_t;
-> 
-> which results in an duplicate declaration (if this should be considered
-> a duplicate declaration is a different discussion).  There is some
-> sed'ing to move type declarations above, but it doesn't catch
-> declarations that don't start at the beginning of the line (like types
-> declared by templates), but if we allow whitespace before the type
-> declaration, we need a smarter sed script to skip over the ones in
-> require blocks (already written).  But the gen_require() isn't expanded
-> until m4 is run (current sed'ing happens before m4), so we have to push
-> the m4 to before the sed.  So the build has to be changed to run m4 on
-> the individual modules, which should have the added effect of making
-> compiler errors useful again.
-
-I've committed all of the prerequisite changes.  The patch to enable
-optionals in base is attached; when I apply it, I get:
-
-Compiling refpolicy policy.20
-/usr/bin/checkpolicy policy.conf -o policy.20
-/usr/bin/checkpolicy:  loading policy configuration from policy.conf
-libsepol.expand_module: Error while indexing out symbols
-Error while expanding policy
-make: *** [policy.20] Error 1
-
-when compiling monolithic.  This is on last week's release versions of
-the toolchain.  It doesn't happen with the default base module from make
-conf, but if you add enough modules to base, it will also hit this
-error.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
---=-feAho3YnKmjwYQkI+DCN
-Content-Disposition: attachment; filename=opt_in_base.diff
-Content-Type: text/x-patch; name=opt_in_base.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IHBvbGljeS9zdXBwb3J0L2xvYWRhYmxlX21vZHVsZS5zcHQNCj09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0t
-LSBwb2xpY3kvc3VwcG9ydC9sb2FkYWJsZV9tb2R1bGUuc3B0CShyZXZpc2lvbiAxNjI4KQ0KKysr
-IHBvbGljeS9zdXBwb3J0L2xvYWRhYmxlX21vZHVsZS5zcHQJKHdvcmtpbmcgY29weSkNCkBAIC0y
-NCwxMCArMjQsMTYgQEANCiAjIEZvciB1c2UgaW4gaW50ZXJmYWNlcywgdG8gb3B0aW9uYWxseSBp
-bnNlcnQgYSByZXF1aXJlIGJsb2NrDQogIw0KIGRlZmluZShgZ2VuX3JlcXVpcmUnLGANCi0JaWZk
-ZWYoYHNlbGZfY29udGFpbmVkX3BvbGljeScsYCcsYA0KKwlpZmRlZihgc2VsZl9jb250YWluZWRf
-cG9saWN5JyxgDQorCQlpZmRlZihgX19pbl9vcHRpb25hbF9wb2xpY3knLGANCisJCQlyZXF1aXJl
-IHsNCisJCQkJJDENCisJCQl9ICMgZW5kIHJlcXVpcmUNCisJCScpDQorCScsYA0KIAkJcmVxdWly
-ZSB7DQogCQkJJDENCi0JCX0NCisJCX0gIyBlbmQgcmVxdWlyZQ0KIAknKQ0KICcpDQogDQpAQCAt
-ODYsMTcgKzkyLDE1IEBADQogIyBPcHRpb25hbCBwb2xpY3kgaGFuZGxpbmcNCiAjDQogZGVmaW5l
-KGBvcHRpb25hbF9wb2xpY3knLGANCi0JaWZkZWYoYHNlbGZfY29udGFpbmVkX3BvbGljeScsYA0K
-LQkJaWZkZWYoYCQxLnRlJyxgJDInLGAkMycpDQotCScsYA0KLQkJb3B0aW9uYWwgew0KLQkJCSQy
-DQotCQlpZmVsc2UoYCQzJyxgJyxgJyxgDQotCQl9IGVsc2Ugew0KLQkJCSQzDQotCQknKQ0KLQkJ
-fQ0KKwlvcHRpb25hbCB7DQorCQlwdXNoZGVmKGBfX2luX29wdGlvbmFsX3BvbGljeScpIGRubA0K
-KwkJJDINCisJCXBvcGRlZihgX19pbl9vcHRpb25hbF9wb2xpY3knKSBkbmwNCisJaWZlbHNlKGAk
-MycsYCcsYCcsYA0KKwl9IGVsc2Ugew0KKwkJJDMNCiAJJykNCisJfQ0KICcpDQogDQogIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQo=
-
-
---=-feAho3YnKmjwYQkI+DCN--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
