@@ -1,64 +1,141 @@
-Subject: Re: [RFC][PATCH] extending the libsepol API
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: Kevin Carr <kcarr@tresys.com>
-Cc: selinux@tycho.nsa.gov, Selinux-Dev <selinux-dev@tresys.com>
-In-Reply-To: <200603212246.k2LMkRNq028071@gotham.columbia.tresys.com>
-References: <200603212246.k2LMkRNq028071@gotham.columbia.tresys.com>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 15:41:22 -0500
-Message-Id: <1143146482.28120.439.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2NLVADn028896
+	for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2006 16:31:10 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2NLV8on006069
+	for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2006 21:31:09 GMT
+Message-ID: <4423138D.7050007@redhat.com>
+Date: Thu, 23 Mar 2006 16:30:53 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest Diffs.  This is a big one because we were frozen for so
+ long.
+References: <441B1A9D.7090903@redhat.com> <1143142519.3962.29.camel@sgc>
+In-Reply-To: <1143142519.3962.29.camel@sgc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-03-21 at 17:46 -0500, Kevin Carr wrote:
-> To make our changes we have been working on some API additions for libsepol.
-> The attached diff adds some header files that represent how we plan to
-> export a new shared API for accessing types/attribs.  The patch is the first
-> of many aimed at fleshing out the shared API.  The diff contains just the
-> headers as we would like to get some feedback from the community at this
-> point.
-> 
-> The patch adds two files: "include/iterator.h" and "include/type_query.h".  
+Christopher J. PeBenito wrote:
+> Merged most of it, with some reordering.  Some notes:
+>
+> Moved fc regexes that changed from etc_t to bin_t to corecommands.
+>
+> Why does apmd_t need to transition to xdm_xserver_t?
+>   
+I think is how it tells the system to wake up, As I recall a lot of 
+these fixes came about because of sleep/resume.
+> Dropped change that added rules to seutil_rw_file_contexts() that would
+> allow it to create and delete file contexts:
+>
+> @@ -675,8 +675,8 @@
+>  
+>         files_search_etc($1)
+>         allow $1 selinux_config_t:dir search;
+> -       allow $1 file_context_t:dir r_dir_perms;
+> -       allow $1 file_context_t:file rw_file_perms;
+> +       allow $1 file_context_t:dir rw_dir_perms;
+> +       allow $1 file_context_t:file create_file_perms;
+>         allow $1 file_context_t:lnk_file { getattr read };
+>  ')
+>
+>   
+OK I will drop and try on MLS machine again.
+> Dropped change that added rules to seutil_manage_module_store() that
+> allows it to create and delete create and delete selinux_config_t
+> directories:
+>
+> @@ -853,7 +853,7 @@
+>         ')
+>  
+>         files_search_etc($1)
+> -       allow $1 selinux_config_t:dir rw_dir_perms;
+> +       allow $1 selinux_config_t:dir create_dir_perms;
+>         type_transition $1 selinux_config_t:dir semanage_store_t;
+>  
+>         allow $1 semanage_store_t:dir create_dir_perms;
+>
+>
+> Why is this needed? load policy isn't even linked against libsemanage:
+>
+> @@ -192,6 +192,9 @@
+>  selinux_load_policy(load_policy_t)
+>  selinux_set_boolean(load_policy_t)
+>  
+> +seutil_get_semanage_trans_lock(load_policy_t)
+> +seutil_get_semanage_read_lock(load_policy_t)
+> +
+>  term_use_console(load_policy_t)
+>  term_list_ptys(load_policy_t)
+>
+>   
+OK I will drop, but this might have been a leaked file descriptor????
 
-Aside from concerns about not introducing an orthogonal set of APIs into
-libsepol, other comments:
+> On Fri, 2006-03-17 at 15:22 -0500, Daniel J Walsh wrote:
+>   
+>> Add Xen policy
+>>     
+>
+> moved xen_device_t to devices.
+>
+>   
+>> Several commands search the /dev/ directory for fixed disk.  Need to 
+>> dontaudit avcs
+>>     
+>
+> trimmed this use back to chr_file and blk_file (interfaces already
+> exist) since device_node types only should have these classes.
+>
+>   
+I am not sure this covers all the avc's though.  What about the 
+directories, files, links, pipes, sockets...
+>> init needs to be able to unlink /.** files
+>>     
+>
+> The files_unlink_boot_flag interface you added is confusing, those are
+> supposed to be etc_runtime_t files, but you have root_t.
+>   
+Not if they are created by an unconfined domain.
+>   
+>> Add support for hfsplus Named it NFS????
+>>     
+>
+> I've merged it for now and added a line for hfs, but perhaps we should
+> make a new type, maybe macosfs_t?
+>
+>   
+Sounds good but I think we would need to add a lot of allow rules...
+>> Fix some kernel interfaces.  Add xen kernel interfaces
+>>     
+>
+> This addition to kernel_rw_vm_sysctls() doesn't make sense to me:
+>
+> @@ -1044,6 +1044,7 @@
+>  
+>         allow $1 proc_t:dir search;
+>         allow $1 sysctl_t:dir r_dir_perms;
+> +       allow $1 sysctl_vm_t:dir rw_dir_perms;
+>         allow $1 sysctl_vm_t:file rw_file_perms;
+>  ')
+>
+> why isn't it just r_dir_perms?  Same with this change to
+> kernel_rw_kernel_sysctls():
+>
+> @@ -1328,7 +1329,7 @@
+>
+>         allow $1 proc_t:dir search;
+>         allow $1 sysctl_t:dir r_dir_perms;
+> -       allow $1 sysctl_kernel_t:dir r_dir_perms;
+> +       allow $1 sysctl_kernel_t:dir rw_dir_perms;
+>         allow $1 sysctl_kernel_t:file rw_file_perms;
+>  ')
+>
+>   
+I guess they are creating new files in these directories or at least 
+opening the dir file for write.  I think these came for suspend/resume.
 
-diff -purN --exclude=.svn trunk/libsepol/include/sepol/type_query.h branch/setools_export-types/libsepol/include/sepol/type_query.h
---- trunk/libsepol/include/sepol/type_query.h	1969-12-31 19:00:00.000000000 -0500
-+++ branch/setools_export-types/libsepol/include/sepol/type_query.h	2006-03-12 04:31:39.000000000 -0500
-@@ -0,0 +1,159 @@
-<snip>
-+#include <stddef.h>
-+#include <stdint.h>
-+#include <sepol/handle.h>
-+#include <sepol/policydb.h>
-+#include <sepol/iterator.h>
-+
-+typedef struct sepol_type_datum sepol_type_datum_t;
-
-Just struct sepol_type / sepol_type_t would seem sufficient.
-datum doesn't add anything here; an unfortunate choice in the internal
-headers that we don't to export to the stable interface.
-
-+extern int sepol_policydb_get_type_by_name(sepol_handle_t *handle, sepol_policydb_t *policy, const char *name, sepol_type_datum_t **datum);
-
-Rather verbose.  How about sepol_type_query() instead, like the existing
-APIs.  And mark the policydb arguments as const for the read-only
-interfaces.
-
-+extern int sepol_type_datum_get_value(sepol_handle_t *handle, sepol_policydb_t *policy, sepol_type_datum_t *datum, uint32_t *value);
-
-Likewise => sepol_type_get_value().  Ditto for other interfaces.
-
-+extern int sepol_type_datum_get_name(sepol_handle_t *handle, sepol_policydb_t *policy, sepol_type_datum_t *datum, char **name);
-
-Seems strange to query the datum for the name.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
