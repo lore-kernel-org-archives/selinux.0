@@ -1,119 +1,95 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2NJZAZM025856
-	for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2006 14:35:10 -0500
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2NJZ8on015159
-	for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2006 19:35:09 GMT
-Subject: Re: Latest Diffs.  This is a big one because we were frozen for so
-	long.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <441B1A9D.7090903@redhat.com>
-References: <441B1A9D.7090903@redhat.com>
-Content-Type: text/plain
-Date: Thu, 23 Mar 2006 14:35:19 -0500
-Message-Id: <1143142519.3962.29.camel@sgc>
-Mime-Version: 1.0
+Message-Id: <200603231923.k2NJNMNq014574@gotham.columbia.tresys.com>
+From: "Kevin Carr" <kcarr@tresys.com>
+To: <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Cc: <SELinux-dev@tresys.com>
+Subject: RE: [RFC][PATCH] extending the libsepol API
+Date: Thu, 23 Mar 2006 14:23:22 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <1143123154.28120.300.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged most of it, with some reordering.  Some notes:
+I am bringing this discussion back on list so Ivan can join in when he
+returns.
 
-Moved fc regexes that changed from etc_t to bin_t to corecommands.
+> On Thu, 2006-03-23 at 08:52 -0500, Kevin Carr wrote:
+> > We can't use the key model elsewhere in the library, so moving forward
+> it
+> > can no longer be something that is consistent across the entire API.
+> 
+> It isn't clear to me that the key model can't be used, just that you
+> don't want to use it.  In any event, that discussion should go back on
+> list.  I took my reply off list since I don't think we'll make much
+> headway here until Ivan returns.
 
-Why does apmd_t need to transition to xdm_xserver_t?
+Keys are not sufficient to help us with rule searches.  Imagine that we want
+to find all the rules that have a certain subset of permissions.  The key
+would have the source, target, and class right?  Thus we cannot construct a
+key for what we want.  What we really need is a way to access all the rules
+independent of some search criteria so that we can do complex rule matching
+outside of libsepol.
 
-Dropped change that added rules to seutil_rw_file_contexts() that would
-allow it to create and delete file contexts:
+> 
+> > Also iterators can be used consistently across the
+> > entire API and every usage is the same as far as the user is concerned.
+> 
+> You still have to know what kind of object you are processing, so what
+> does this buy you?
 
-@@ -675,8 +675,8 @@
- 
-        files_search_etc($1)
-        allow $1 selinux_config_t:dir search;
--       allow $1 file_context_t:dir r_dir_perms;
--       allow $1 file_context_t:file rw_file_perms;
-+       allow $1 file_context_t:dir rw_dir_perms;
-+       allow $1 file_context_t:file create_file_perms;
-        allow $1 file_context_t:lnk_file { getattr read };
- ')
+Yes, of course the user will have to know what type of object he's
+accessing, this is the only thing that's ever different when using
+iterators.
 
-Dropped change that added rules to seutil_manage_module_store() that
-allows it to create and delete create and delete selinux_config_t
-directories:
+> > I understand this has been discussed in the past but I think it needs to
+> be
+> > discussed again as we are talking about building a much more extensive
+> API.
+> > We need to add a lot in order to integrate with setools and this is the
+> best
+> > time to fix things that were done incorrectly in the past especially
+> because
+> > we are talking about a relatively small amount of code to replace.  We
+> are
+> > prepared to make the appropriate changes.
+> 
+> It is much easier to invent your own API than to try to work within the
+> constraints of the existing one - I understand that.  But it isn't good
+> practice, and it creates a not-inaccurate perception that SELinux is
+> never stabilizing, always in flux, never presenting a stable interface
+> for users and application developers.  Constant churn.
 
-@@ -853,7 +853,7 @@
-        ')
- 
-        files_search_etc($1)
--       allow $1 selinux_config_t:dir rw_dir_perms;
-+       allow $1 selinux_config_t:dir create_dir_perms;
-        type_transition $1 selinux_config_t:dir semanage_store_t;
- 
-        allow $1 semanage_store_t:dir create_dir_perms;
+I agree that SELinux needs to become more stable and I believe that is what
+we are trying to do right now.
 
+> > We agree 100% that tools compiled for the old functions need to continue
+> > working correctly.  We want to replace the current functions with
+> something
+> > better but leave the old ones around for compatibility and leave them in
+> the
+> > ABI.
+> 
+> Which becomes a) a maintenance nightmare - keeping the old functions
+> working forever even as we rework the internals over time and stop using
+> them in our own code, b) a source of bloat in the library, and c) a
+> source of confusion to users who are presented with a confusing array of
+> different APIs.  Much better if we can just avoid the need to deprecate
+> the existing functions in the first place.
 
-Why is this needed? load policy isn't even linked against libsemanage:
+a) I think the maintenance will be minimal.  An option might be to
+re-implement the existing functions, by using the new ones.  Then just
+maintaining the new ones would suffice indefinitely.  b) I don't think that
+there is ever a reason to keep the functions in the library if no one is
+using them, in that long-term case, they should be removed.  c) I don't
+think this will cause any confusion to developers as anything that is
+deprecated should be clearly marked as such, either in the documentation or
+with attributes in the source.
 
-@@ -192,6 +192,9 @@
- selinux_load_policy(load_policy_t)
- selinux_set_boolean(load_policy_t)
- 
-+seutil_get_semanage_trans_lock(load_policy_t)
-+seutil_get_semanage_read_lock(load_policy_t)
-+
- term_use_console(load_policy_t)
- term_list_ptys(load_policy_t)
+Kevin Carr
+Tresys Technology
+410.290.1411 x137
 
-On Fri, 2006-03-17 at 15:22 -0500, Daniel J Walsh wrote:
-> Add Xen policy
-
-moved xen_device_t to devices.
-
-> Several commands search the /dev/ directory for fixed disk.  Need to 
-> dontaudit avcs
-
-trimmed this use back to chr_file and blk_file (interfaces already
-exist) since device_node types only should have these classes.
-
-> init needs to be able to unlink /.** files
-
-The files_unlink_boot_flag interface you added is confusing, those are
-supposed to be etc_runtime_t files, but you have root_t.
-
-> Add support for hfsplus Named it NFS????
-
-I've merged it for now and added a line for hfs, but perhaps we should
-make a new type, maybe macosfs_t?
-
-> Fix some kernel interfaces.  Add xen kernel interfaces
-
-This addition to kernel_rw_vm_sysctls() doesn't make sense to me:
-
-@@ -1044,6 +1044,7 @@
- 
-        allow $1 proc_t:dir search;
-        allow $1 sysctl_t:dir r_dir_perms;
-+       allow $1 sysctl_vm_t:dir rw_dir_perms;
-        allow $1 sysctl_vm_t:file rw_file_perms;
- ')
-
-why isn't it just r_dir_perms?  Same with this change to
-kernel_rw_kernel_sysctls():
-
-@@ -1328,7 +1329,7 @@
-
-        allow $1 proc_t:dir search;
-        allow $1 sysctl_t:dir r_dir_perms;
--       allow $1 sysctl_kernel_t:dir r_dir_perms;
-+       allow $1 sysctl_kernel_t:dir rw_dir_perms;
-        allow $1 sysctl_kernel_t:file rw_file_perms;
- ')
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
