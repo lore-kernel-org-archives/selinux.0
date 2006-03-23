@@ -1,51 +1,64 @@
-Message-Id: <200603221555.k2MFtoNq001984@gotham.columbia.tresys.com>
-From: "Kevin Carr" <kcarr@tresys.com>
-To: <sds@tycho.nsa.gov>
-Cc: "'Ivan Gyurdiev'" <ivg2@cornell.edu>, <selinux@tycho.nsa.gov>,
-        "'Selinux-Dev'" <selinux-dev@tresys.com>
 Subject: RE: [RFC][PATCH] extending the libsepol API
-Date: Wed, 22 Mar 2006 10:55:50 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1143031866.28120.140.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: Kevin Carr <kcarr@tresys.com>
+Cc: selinux@tycho.nsa.gov, SELinux-dev@tresys.com
+In-Reply-To: <200603231923.k2NJNMNq014574@gotham.columbia.tresys.com>
+References: <200603231923.k2NJNMNq014574@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 23 Mar 2006 14:58:14 -0500
+Message-Id: <1143143894.28120.416.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > As for the limited number of accessor functions that currently exist,
-> > (users, booleans, etc.) we feel that the current design metaphors don't
-> fit
-> > well with our requirements and we are not sure what to do about them
-> long
-> > term as we are presenting something very different, and as I said we are
-> > concerned about consistency.  There are several long-term options: 1.
-> > Deprecate them in source and keep them for ABI stability, 2. Don't do
-> number
-> > 1 ;)
-> 
-> Can you clarify why you feel that the current APIs don't meet your
-> requirements?
+On Thu, 2006-03-23 at 14:23 -0500, Kevin Carr wrote:
+> Keys are not sufficient to help us with rule searches.  Imagine that we want
+> to find all the rules that have a certain subset of permissions.  The key
+> would have the source, target, and class right?  Thus we cannot construct a
+> key for what we want.  What we really need is a way to access all the rules
+> independent of some search criteria so that we can do complex rule matching
+> outside of libsepol.
 
-We originally started with the current way of creating opaque keys from
-string values and found that the key concept did not scale very well when we
-get to accessing rules.  For example, if a type is subtracted in a rule,
-does that type appear in the key?  One of our main goals is to make the API
-as consistent as possible so we didn't want to try and force the key concept
-across the rest of the API as it didn't seem to fit.
+For which you can use the sepol_<record>_iterate() interfaces, right?
+But that doesn't mean that no user of the library will want to use
+key-based interfaces for lookups, ala an encapsulated form of the
+avtab_search interface, or that we shouldn't provide such interfaces.
 
-In the current implementation there is an issue of who owns the memory in a
-key.  The key_create() functions just copy the pointer and not the contents
-of the string, so a key 'object' can live longer than the string used to
-create it and thus is easily misused by users of the library.  Additionally,
-we thought the memory and programming overhead involved in creating, and
-destroying the keys was undesirable and not necessary.  For example when we
-start iterating over all the types in all the rules of the policy, using
-keys can get expensive.  
+> Yes, of course the user will have to know what type of object he's
+> accessing, this is the only thing that's ever different when using
+> iterators.
 
-Kevin Carr
-Tresys Technology
-410.290.1411 x137
+The actual processing that is occurring during the iteration is
+object-specific, so why is it a problem to have object-specific iterate
+APIs?
 
+> I agree that SELinux needs to become more stable and I believe that is what
+> we are trying to do right now.
+
+No, you don't understand.  There is a stable ABI for libsepol right now.
+You are suggesting deprecating a large chunk of it in favor of your own
+model.  The burden of proof that such deprecation is justified is on
+you, and it needs to be more than just "our proposed API is better
+suited to our particular needs".
+
+> a) I think the maintenance will be minimal.  An option might be to
+> re-implement the existing functions, by using the new ones.  Then just
+> maintaining the new ones would suffice indefinitely.  b) I don't think that
+> there is ever a reason to keep the functions in the library if no one is
+> using them, in that long-term case, they should be removed.  c) I don't
+> think this will cause any confusion to developers as anything that is
+> deprecated should be clearly marked as such, either in the documentation or
+> with attributes in the source.
+
+Removing the interface once it has gone into a stable OS release (e.g.
+FC5) is very bad form.  And we have to plan that people developing for
+the next generation of distribution releases are looking at the current
+APIs as their basis.  
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
