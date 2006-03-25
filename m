@@ -1,43 +1,101 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2P2Daao029925
-	for <selinux@tycho.nsa.gov>; Fri, 24 Mar 2006 21:13:36 -0500
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2P2DXah024627
-	for <selinux@tycho.nsa.gov>; Sat, 25 Mar 2006 02:13:33 GMT
-Subject: mta=module not working, make 3.81-rc2 issues
+Subject: Re: How can modular policy ever have worked? [patch]
 From: Erich Schubert <erich@debian.org>
-To: selinux@tycho.nsa.gov
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sat, 25 Mar 2006 03:13:26 +0100
-Message-Id: <1143252807.9540.3.camel@wintermute.xmldesign.de>
+To: sds@tycho.nsa.gov
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1142870455.16487.68.camel@moss-spartans.epoch.ncsc.mil>
+References: <1142691657.4017.23.camel@wintermute.xmldesign.de>
+	 <1142865553.16487.21.camel@moss-spartans.epoch.ncsc.mil>
+	 <1142867787.6145.18.camel@wintermute.xmldesign.de>
+	 <1142870455.16487.68.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9XWvZDxILL9aaputvAl0"
+Date: Sun, 26 Mar 2006 00:57:19 +0100
+Message-Id: <1143331040.6084.15.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-first of all, mta=module does currently not work. A couple of modules
-(e.g. cron) call mta_something interfaces without an optional_policy()
-wrap around it.
-Maybe we should put that optional_policy statement _into_ the interface
-def?
 
-Secondly, make 3.81-rc2 still doesn't build refpolicy correctly.
-I'm seeing some odd behaviour again, namely when building
-tmp/all_te_files.conf,
-it's missing corenetwork.te from the $^ variable _despite_ being in
-$(BASE_TE_FILES); again a downgrade to make 3.80 resolved these issues.
+--=-9XWvZDxILL9aaputvAl0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+Hello Stephen,
+> > Any progress on the optional{} in base.pp issues?
+> Hmmm...I thought optionals in base was fixed in the current version.
+
+No, they are not. Since I added the patch I posted earlier - which is
+now in the refpolicy cvs for some time - I only obtain corrupt policies.
+
+Today a user on IRC running Fedora had the very same problem:
+<rsc> Since upgrading to latest SELinux stuff from Fedora Core Rawhide,
+I'm getting tons of avc denied messages in syslog (serefpolicy targeted)
+<rsc> unfortunately, I can't downgrade selinux-policy for testing
+purposes
+<rsc> nearly every action is commented with avc denied
+<rsc> btw. /usr/sbin/load_policy:  Can't load policy:  Invalid argument
+<rsc> libsemanage.semanage_reload_policy: load_policy returned error
+code 2.
+<rsc> while trying to switch one selinux-policy back
+
+Well, this sounds _exactly_ like what I'm seeing. Tons of missing
+statements (because type attributes are not working anymore) and no way
+to load a different policy despite rebooting.
+
+Anyone running the _current_ CVS refpolicy _successfully_?
+
+> checkpolicy/test has a crude dispol program for dumping a binary policy.
+
+With the dispol tool (menu choice 1) I get the following result:
+# grep "restorecon_t .* : file .* relabelto" dispol-result-1
+allow restorecon_t policy_config_t : file { relabelto read getattr lock
+ioctl };
+allow restorecon_t shadow_t : file { relabelto };
+
+Just these two lines. When I do the same on my last working refpolicy
+build (without the optionals in base patch), I get 448 rules.
+
+That's why I think the following line is not working properly anymore:
+allow restorecon_t { file_type  }:file { getattr relabelfrom
+relabelto };
+
+> Reported your problem with apol yet?  sediff is useful for comparing two
+> policies, e.g. a monolithic build against a linked one from a modular
+> build.
+
+Monolithic builds are broken AFAICT now, by the removal of the module
+name from the optional_policy statement... that way, the only optional
+policy you could maybe still build is the one containing all modules.
+When I downgrade policy/support/loadable_module.spt to the version with
+my original patch only, and downgrade to my latest version prior to the
+optional_policy $1 removal, I can build a monolithic policy.
+The dump 1 then contains 1090 "restorecon_t .* : file .* relabelto"
+lines.
+
+So the type attributes are definitely broken somehow.
 
 best regards,
 Erich Schubert
--- 
+--=20
    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     We can debug relationships, but it's always good policy to     //\
-     consider the people themselves to be features. People get      V_/_
-         annoyed when you try to debug them. -- Larry Wall
-               Für jedes Problem gibt es eine Lösung,
-                 die einfach, klar und falsch ist.
+    Go away or i'll replace you with a very small shell script.     //\
+     Nichts l=E4=DFt die Erde so ger=E4umig erscheinen, als wenn man      V=
+_/_
+         Freunde in der Ferne hat. --- Henry David Thoreau
 
+--=-9XWvZDxILL9aaputvAl0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEJdjfntB470s6E1wRAstyAJ9LwPw6OiZS3nxeFgeB+RDbV/C2FQCePc++
+e0Q8zWWhWyCHIPpEYnC+ZEo=
+=jHtQ
+-----END PGP SIGNATURE-----
+
+--=-9XWvZDxILL9aaputvAl0--
 
 
 --
