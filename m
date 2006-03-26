@@ -1,47 +1,49 @@
-Message-ID: <BAY22-F25ADF3AA0F5941B05A0CA3C0DD0@phx.gbl>
-From: "Rongdong Lu" <qdmudong@hotmail.com>
+Date: Sat, 25 Mar 2006 21:29:11 -0500 (EST)
+From: Gaurav Poothia <gpoothia@cs.sunysb.edu>
 To: SELinux@tycho.nsa.gov
-Subject: I am add a custom rule, know how 2 do te file, what about fc file, please help
-Date: Sun, 26 Mar 2006 01:38:13 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
+Subject: Query about desktop apps.
+Message-ID: <Pine.GSO.4.53.0603252027240.10215@compserv1>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, List,
+Hi I am wondering how SELinux intends to handle desktop apps.
+With daemons I understand SELinux restricts access to parts of the
+filesystem which the application (almost always running as root) needs to
+performs its job.
 
-Selinux has been driving me real crazy for the last serveral weeks, now 
-finally I'am getting some clue.
+With a desktop app which is an editor (of any type, text/images
+etc), its not clear how SELinux intends to restrict access to some
+"safe" part of the filesystem.
 
-Here's a problem i am having now. I have a centos4 server, with selinux 
-turned on, I can't use php to send out mail. I am using 
-selinux-policy-targeted-1.17.30-2.126. I am trying to add a custom rule the 
-first time.
+Consider this problem: Superuser runs vi and decides to look at the
+contents of the shadow file versus regular user decides to try his luck
+and open it using vi.
+MAC will allow former and deny latter.
+To do this we are gonna need 2 different vi domains one belonging to the
+role system_r and the other belonging to role user_r each with their own
+policies.
 
-here is the error messge in messages log:
+Q1. Is the there a need for 2 different policies for an app like vi or is
+there something I am missing?
 
-Mar 25 20:19:14 example kernel: audit(1143335954.882:36): avc:  denied  { 
-execute } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853 
-scontext=root:system_r:httpd_sys_script_t tcontext=system_u:object_r:var_t 
-tclass=file
-Mar 25 20:19:14 example kernel: audit(1143335954.882:37): avc:  denied  { 
-getattr } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853 
-scontext=root:system_r:httpd_sys_script_t tcontext=system_u:object_r:var_t 
-tclass=file
 
-I know I can use audit2allow to get the rule to add in to a te file, but 
-what do I add to the fc file? I couldn't find which is the command trys to 
-access sendmail, a process with that pid one didn't exist after the error 
-message is generated.
+Additionally it seems to me that we need a way for the regular users vi
+policy to prevent him from overwriting other user's data (that probably
+a solvable problem given the constructs,)
 
-any advice is appeciated, thanks in advance, guys
+Q2. How do you make an app like vi when invoked by a regular user stick to
+that particualar user's data?
 
-Ron
+Q3More importantly how do you prevent a malicious vi binary from modifying
+any of the users own file on the sly (afterall the user can use vi to
+modify ANY of his files, so no
+policy should really stop vi from doing so)
 
-_________________________________________________________________
-Is your PC infected? Get a FREE online computer virus scan from McAfee® 
-Security. http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 
+Thanks in advance,
+Gaurav
 
 --
 This message was distributed to subscribers of the selinux mailing list.
