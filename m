@@ -1,101 +1,46 @@
-Subject: Re: How can modular policy ever have worked? [patch]
-From: Erich Schubert <erich@debian.org>
-To: sds@tycho.nsa.gov
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1142870455.16487.68.camel@moss-spartans.epoch.ncsc.mil>
-References: <1142691657.4017.23.camel@wintermute.xmldesign.de>
-	 <1142865553.16487.21.camel@moss-spartans.epoch.ncsc.mil>
-	 <1142867787.6145.18.camel@wintermute.xmldesign.de>
-	 <1142870455.16487.68.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9XWvZDxILL9aaputvAl0"
-Date: Sun, 26 Mar 2006 00:57:19 +0100
-Message-Id: <1143331040.6084.15.camel@wintermute.xmldesign.de>
+Message-ID: <BAY22-F25ADF3AA0F5941B05A0CA3C0DD0@phx.gbl>
+From: "Rongdong Lu" <qdmudong@hotmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: I am add a custom rule, know how 2 do te file, what about fc file, please help
+Date: Sun, 26 Mar 2006 01:38:13 +0000
 Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi, List,
 
---=-9XWvZDxILL9aaputvAl0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Selinux has been driving me real crazy for the last serveral weeks, now 
+finally I'am getting some clue.
 
-Hello Stephen,
-> > Any progress on the optional{} in base.pp issues?
-> Hmmm...I thought optionals in base was fixed in the current version.
+Here's a problem i am having now. I have a centos4 server, with selinux 
+turned on, I can't use php to send out mail. I am using 
+selinux-policy-targeted-1.17.30-2.126. I am trying to add a custom rule the 
+first time.
 
-No, they are not. Since I added the patch I posted earlier - which is
-now in the refpolicy cvs for some time - I only obtain corrupt policies.
+here is the error messge in messages log:
 
-Today a user on IRC running Fedora had the very same problem:
-<rsc> Since upgrading to latest SELinux stuff from Fedora Core Rawhide,
-I'm getting tons of avc denied messages in syslog (serefpolicy targeted)
-<rsc> unfortunately, I can't downgrade selinux-policy for testing
-purposes
-<rsc> nearly every action is commented with avc denied
-<rsc> btw. /usr/sbin/load_policy:  Can't load policy:  Invalid argument
-<rsc> libsemanage.semanage_reload_policy: load_policy returned error
-code 2.
-<rsc> while trying to switch one selinux-policy back
+Mar 25 20:19:14 example kernel: audit(1143335954.882:36): avc:  denied  { 
+execute } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853 
+scontext=root:system_r:httpd_sys_script_t tcontext=system_u:object_r:var_t 
+tclass=file
+Mar 25 20:19:14 example kernel: audit(1143335954.882:37): avc:  denied  { 
+getattr } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853 
+scontext=root:system_r:httpd_sys_script_t tcontext=system_u:object_r:var_t 
+tclass=file
 
-Well, this sounds _exactly_ like what I'm seeing. Tons of missing
-statements (because type attributes are not working anymore) and no way
-to load a different policy despite rebooting.
+I know I can use audit2allow to get the rule to add in to a te file, but 
+what do I add to the fc file? I couldn't find which is the command trys to 
+access sendmail, a process with that pid one didn't exist after the error 
+message is generated.
 
-Anyone running the _current_ CVS refpolicy _successfully_?
+any advice is appeciated, thanks in advance, guys
 
-> checkpolicy/test has a crude dispol program for dumping a binary policy.
+Ron
 
-With the dispol tool (menu choice 1) I get the following result:
-# grep "restorecon_t .* : file .* relabelto" dispol-result-1
-allow restorecon_t policy_config_t : file { relabelto read getattr lock
-ioctl };
-allow restorecon_t shadow_t : file { relabelto };
-
-Just these two lines. When I do the same on my last working refpolicy
-build (without the optionals in base patch), I get 448 rules.
-
-That's why I think the following line is not working properly anymore:
-allow restorecon_t { file_type  }:file { getattr relabelfrom
-relabelto };
-
-> Reported your problem with apol yet?  sediff is useful for comparing two
-> policies, e.g. a monolithic build against a linked one from a modular
-> build.
-
-Monolithic builds are broken AFAICT now, by the removal of the module
-name from the optional_policy statement... that way, the only optional
-policy you could maybe still build is the one containing all modules.
-When I downgrade policy/support/loadable_module.spt to the version with
-my original patch only, and downgrade to my latest version prior to the
-optional_policy $1 removal, I can build a monolithic policy.
-The dump 1 then contains 1090 "restorecon_t .* : file .* relabelto"
-lines.
-
-So the type attributes are definitely broken somehow.
-
-best regards,
-Erich Schubert
---=20
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-    Go away or i'll replace you with a very small shell script.     //\
-     Nichts l=E4=DFt die Erde so ger=E4umig erscheinen, als wenn man      V=
-_/_
-         Freunde in der Ferne hat. --- Henry David Thoreau
-
---=-9XWvZDxILL9aaputvAl0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEJdjfntB470s6E1wRAstyAJ9LwPw6OiZS3nxeFgeB+RDbV/C2FQCePc++
-e0Q8zWWhWyCHIPpEYnC+ZEo=
-=jHtQ
------END PGP SIGNATURE-----
-
---=-9XWvZDxILL9aaputvAl0--
+_________________________________________________________________
+Is your PC infected? Get a FREE online computer virus scan from McAfee® 
+Security. http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 
 
 --
