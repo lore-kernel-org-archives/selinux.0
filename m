@@ -1,56 +1,45 @@
-Subject: Re: Query about desktop apps.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: Gaurav Poothia <gpoothia@cs.sunysb.edu>
-Cc: Valdis.Kletnieks@vt.edu, SELinux@tycho.nsa.gov
-In-Reply-To: <Pine.GSO.4.53.0603262138250.5076@compserv1>
-References: <Pine.GSO.4.53.0603252027240.10215@compserv1>
-	 <200603260351.k2Q3paAS022578@turing-police.cc.vt.edu>
-	 <Pine.GSO.4.53.0603262138250.5076@compserv1>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2RFGM6Z014570
+	for <selinux@tycho.nsa.gov>; Mon, 27 Mar 2006 10:16:22 -0500
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2RFEZ3e013886
+	for <selinux@tycho.nsa.gov>; Mon, 27 Mar 2006 15:14:38 GMT
+Subject: Re: mta=module not working, make 3.81-rc2 issues
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Erich Schubert <erich@debian.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1143252807.9540.3.camel@wintermute.xmldesign.de>
+References: <1143252807.9540.3.camel@wintermute.xmldesign.de>
 Content-Type: text/plain
-Date: Mon, 27 Mar 2006 09:25:41 -0500
-Message-Id: <1143469541.22696.35.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 27 Mar 2006 10:16:18 -0500
+Message-Id: <1143472578.3962.105.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-03-26 at 22:14 -0500, Gaurav Poothia wrote:
-> I still dont see it. I assume that there is a vi specific domain to which
-> both both sys admin and regular user will have to transition. In which
-> case there should be 2 vi domains one for admin and other for regular
-> users and thus 2 policies. Please remember my question is about ANY
-> desktop app and vi is just an example.
+On Sat, 2006-03-25 at 03:13 +0100, Erich Schubert wrote:
+> first of all, mta=module does currently not work. A couple of modules
+> (e.g. cron) call mta_something interfaces without an optional_policy()
+> wrap around it.
 
-A few quick points:
-- SELinux already supports and includes "derived domains", where you
-instantiate a separate domain for the program per caller domain, e.g.
-user_mozilla_t vs. staff_mozilla_t, so that you can allow each instance
-appropriate permissions to e.g. home directory files, tty/pty, etc. of
-the right type without allowing the ordinary user's browser to interfere
-with the staff user's browser.
-- vi is a bad example here, as it lacks a well-defined purpose (and
-hence set of permissions) and it ultimately can do everything (e.g. run
-commands in sub-shells), so it is difficult to write a meaningful policy
-just for it.  Hence, it presently just runs in the caller's domain, as
-Valdis noted.  However, one could create various domains for
-well-defined purposes, and the user could invoke vi via a suitable
-wrapper or via runcon -t to force it into an appropriate domain for a
-given purpose (e.g. editing system config files vs. personal files).
-There is already precedent for such wrappers in e.g. vipw, vigr.
-- Ultimately, we would like to devolve many of the permissions currently
-granted directly to the base user domain into more specific program
-domains.   But this will require time and always requires acceptance by
-users.
+This sounds like expected behavior to me.  We can't make everything
+optional; cron emails output from the cron jobs to the user.  If you
+feel some of these can be made optional, please let me know.
 
-> Yes I dont want the regular permission model, I wanted MAC.
-> I do agree that solution will work.Although it seems to me that the
-> policy needs to be aware of the users. Thats not very scalable.
+> Maybe we should put that optional_policy statement _into_ the interface
+> def?
 
-It needs to be aware of user roles, but not per-Linux user.  
+In general, putting optionals in interfaces should be avoided (there are
+a few interfaces that do have optionals).  When users have an interface
+call outside of an optional, the expected behavior is unconditional
+dependency, but making an interface completely optional in the interface
+definition would break this expectation.  The few interfaces currently
+in refpolicy that do have optionals still have unconditional parts.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
