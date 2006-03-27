@@ -1,32 +1,33 @@
-Subject: Selinux Testsuite changes
-From: Joy Latten <latten@austin.ibm.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov
-Content-Type: text/plain
-Date: Mon, 27 Mar 2006 13:30:04 -0600
-Message-Id: <1143487805.2462.274.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+Message-ID: <44287C5E.3030307@cornell.edu>
+Date: Mon, 27 Mar 2006 18:59:26 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+To: Kevin Carr <kcarr@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Selinux-Dev <selinux-dev@tresys.com>
+Subject: Re: [RFC][PATCH] extending the libsepol API
+References: <200603212246.k2LMkRNq028071@gotham.columbia.tresys.com>
+In-Reply-To: <200603212246.k2LMkRNq028071@gotham.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The Selinux testsuite policy has been converted to use refpolicy.
-You can download the converted policy and test suite from LTP's CVS tree
-on sourceforge.
- 
-I left the old-style policy just in case, and put the new policy in 
-testcases/kernel/security/selinux-testsuite/refpolicy directory.
-The test_selinux.sh script will only work with the refpolicy for now.
-Also, in the refpolicy directory I created a "TODO" file which lists
-a few tests that fail because they require additional policy work.
-Please feel free to help out or post a solution.
+> the caller is 
+> + *  responsible for safely casting this pointer. 
 
-You will also need interface patches I sent out last week to modify base
-policy. Chris PeBenito has merged them. 
+Do you plan to iterate over opaque objects, such as the current record 
+implementations?
 
-Let me know if there are any problems.
+ > + *  errno will be set and *item will be NULL.
 
-Regards,
-Joy Latten
+Elsewhere we use a callback to communicate an error condition with the 
+caller.
+What's the advantage of errno over pre-defined return codes?
+
++extern int sepol_iterator_get_size(sepol_iterator_t *iter, size_t *size);
+
+Shouldn't this be "unsigned int" instead?
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
