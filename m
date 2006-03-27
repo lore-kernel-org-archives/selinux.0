@@ -1,121 +1,73 @@
-Message-ID: <dbf07f2b0603262130l4900214fgec6cc64b1ca73933@mail.gmail.com>
-Date: Mon, 27 Mar 2006 16:30:15 +1100
-From: "Mark Ennis" <mark.ennis@acm.org>
-To: "Gaurav Poothia" <gpoothia@cs.sunysb.edu>
-Subject: Re: Query about desktop apps.
+Message-Id: <200603270754.k2R7s4Zv023257@turing-police.cc.vt.edu>
+To: Gaurav Poothia <gpoothia@cs.sunysb.edu>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <Pine.GSO.4.53.0603262138250.5076@compserv1>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <Pine.GSO.4.53.0603252027240.10215@compserv1>
-	 <200603260351.k2Q3paAS022578@turing-police.cc.vt.edu>
-	 <Pine.GSO.4.53.0603262138250.5076@compserv1>
+Subject: Re: Query about desktop apps. 
+In-Reply-To: Your message of "Sun, 26 Mar 2006 22:14:59 EST."
+             <Pine.GSO.4.53.0603262138250.5076@compserv1>
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.GSO.4.53.0603252027240.10215@compserv1> <200603260351.k2Q3paAS022578@turing-police.cc.vt.edu>
+            <Pine.GSO.4.53.0603262138250.5076@compserv1>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1143446044_18690P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Mon, 27 Mar 2006 02:54:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The default "targeted" policy only provides specific MAC restrictions
-for a defined set of daemons which usually run with root privilege and
-for which it is desirable to provide greater restriction. The user is
-not restricted (or only minimally restricted in Fedora Core 5) by the
-targeted policy and, therefore, any application run by the user is not
-restricted. This includes desktop applications such as vi, KDE, GNOME,
-Firefox, etc.
+--==_Exmh_1143446044_18690P
+Content-Type: text/plain; charset=us-ascii
 
-Under the other policies provided in the SELinux reference policy,
-such as strict and MLS, the intent is to restrict everything unless
-explicit policy is defined to permit it. This requires users of this
-policy to define their own policy extensions to meet the requirements
-of their systems. How you choose to handle desktop applications
-becomes a local security policy issue. My impression is that generally
-the intent is not to attempt to define policy related to each
-individual application run in user space. Instead, roles are defined
-with desired privileges, users are assigned to these roles and
-applications run in user space are confined by the roles of the user
-running the application.
+On Sun, 26 Mar 2006 22:14:59 EST, Gaurav Poothia said:
 
-So the answer to your question of "what is the mandatory policy for
-desktop applications?" is "the mandatory policy which applies to the
-user of the applications". Under targeted policy, that means minimal
-policy restrictions.
-
-Disclaimer: the above is just the impression formed by a lurker. I
-don't claim to be an expert in SELinux. More informed opinions are
-surely available, e.g.
-http://www.fedoraproject.org/wiki/SELinux/Policies.
-
-- Mark.
-
-On 3/27/06, Gaurav Poothia <gpoothia@cs.sunysb.edu> wrote:
->
->
-> On Sat, 25 Mar 2006 Valdis.Kletnieks@vt.edu wrote:
->
-> > On Sat, 25 Mar 2006 21:29:11 EST, Gaurav Poothia said:
-> >
-> > > Q1. Is the there a need for 2 different policies for an app like vi or is
-> > > there something I am missing?
-> >
-> > You're missing something.
-> >
-> > > Additionally it seems to me that we need a way for the regular users vi
-> > > policy to prevent him from overwriting other user's data (that probably
-> > > a solvable problem given the constructs,)
-> >
-> > The sysadmin invokes vi while already in a sysadm_t or similar context that
-> > is allowed to poke at the files in question.  The user is invoking it
-> > in user_t or similar..
->
 > I still dont see it. I assume that there is a vi specific domain to which
-> both both sys admin and regular user will have to transition. In which
-> case there should be 2 vi domains one for admin and other for regular
-> users and thus 2 policies. Please remember my question is about ANY
-> desktop app and vi is just an example.
->
-> >
-> > And remember - if the *regular* file permissions don't allow it, the SELinux
-> > ones won't matter.  So as long as userA doesn't chmod 777 the file, userB
-> > still can't get at it..
->
-> > > Q2. How do you make an app like vi when invoked by a regular user stick to
-> > > that particualar user's data?
-> >
-> > File permissions still work.
-> >
-> > And if you're *really* paranoid, you can always define separate SELinux
-> > identities  usera:user_r:user_t and userb:user_r:user_t and add rules that
-> > prohibit a usera process from using userb files and vice versa.
->
-> Yes I dont want the regular permission model, I wanted MAC.
-> I do agree that solution will work.Although it seems to me that the
-> policy needs to be aware of the users. Thats not very scalable.
->
-> > Or use the MCS stuff to add categories, and define userA and userB with
-> > separate default categories that each other can't read (this doesn't scale
-> > well past 256 users, however).
-> >
-> > > Q3More importantly how do you prevent a malicious vi binary from modifying
-> > > any of the users own file on the sly (afterall the user can use vi to
-> > > modify ANY of his files, so no
-> > > policy should really stop vi from doing so)
-> >
-> > Fix the system so a malicious vi binary can't be installed in the first place.
->
-> Again (and this is the crux) please consider ANY desktop app. How can we
-> enforce MAC on any app?
->
->
->
->
-> I am trying to solve the general problem of WHAT IS the Mandatory policy
-> for desktop apps. Any comments will be appreciated.Thanks!
-> -Gaurav
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+> both both sys admin and regular user will have to transition.
 
+No.. the point is that as far as a *security* model goes, what you really care
+about is:
+
+1) What is the sysadmin allowed to do?
+2) What is the regular user allowed to do?
+
+The obvious answer is "put the sysadmin and all programs he runs in a domain
+that has certain access rights", and "put the user and all his programs in a
+different domain with different rights".
+
+You see, you don't really need a 'vi' policy, because the policy basically is
+"vi can read the files the user can read, and write the files the user can
+write".  In other words, no separate policy is needed - unless you *really*
+feel like wasting your time and creating a vi policy that says the above, and
+then a policy for /bin/sed that says the same thing, and for cp, and for cat,
+and for dd, and for perl, and for all the other myriad ways there are to read
+and/or write a file on a Linux box - all things that are just better off run in
+the invoking user's domain and not worry.  If the user is allowed to do it,
+the program is, and if the user isn't, the program usually isn't either.  So
+the vast majority of binaries can just be flagged as "this is a bin_t that
+should be run under the user's access domain".  Makes things a *lot* easier..
+
+When it gets interesting is when the invoked binary needs access to something
+that the calling user *doesn't* already have access to - for instance, if you
+change your password, the program will at some point need to have access to the
+/etc/shadow file even though the invoking user *doesn't* have that access.
+*THIS* is when you need a separate security domain for that program - because
+the list of what that program should be allowed is *different* than what the
+invoking user is allowed (in particular, the program to change your password
+can probably do *without* access to 95% of the things the invoking user *does*
+have access to...)
+
+
+--==_Exmh_1143446044_18690P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEJ5occC3lWbTT17ARAhbVAKCCgDyqVcyHpal3EATjQEuhhMJJRwCgu774
+l23svblb9JCRFqPxirWeAtY=
+=K566
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1143446044_18690P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
