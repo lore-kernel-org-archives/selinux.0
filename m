@@ -1,44 +1,61 @@
-Message-ID: <44288916.9080804@cornell.edu>
-Date: Mon, 27 Mar 2006 19:53:42 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-MIME-Version: 1.0
-To: Kevin Carr <kcarr@tresys.com>
-CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
-        "'Selinux-Dev'" <selinux-dev@tresys.com>
-Subject: Re: [RFC][PATCH] extending the libsepol API
-References: <200603221555.k2MFtoNq001984@gotham.columbia.tresys.com>
-In-Reply-To: <200603221555.k2MFtoNq001984@gotham.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Mon, 27 Mar 2006 08:56:56 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Rongdong Lu <qdmudong@hotmail.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: I am add a custom rule, know how 2 do te file, what about fc file, please help
+Message-ID: <20060327145656.GB31654@sergelap.austin.ibm.com>
+References: <BAY22-F25ADF3AA0F5941B05A0CA3C0DD0@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <BAY22-F25ADF3AA0F5941B05A0CA3C0DD0@phx.gbl>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Quoting Rongdong Lu (qdmudong@hotmail.com):
+> Hi, List,
+> 
+> Selinux has been driving me real crazy for the last serveral weeks, now 
+> finally I'am getting some clue.
+> 
+> Here's a problem i am having now. I have a centos4 server, with selinux 
+> turned on, I can't use php to send out mail. I am using 
+> selinux-policy-targeted-1.17.30-2.126. I am trying to add a custom rule the 
+> first time.
+> 
+> here is the error messge in messages log:
+> 
+> Mar 25 20:19:14 example kernel: audit(1143335954.882:36): avc:  denied  { 
+> execute } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853 
+> scontext=root:system_r:httpd_sys_script_t tcontext=system_u:object_r:var_t 
+> tclass=file
 
-> In the current implementation there is an issue of who owns the memory in a
-> key.  The key_create() functions just copy the pointer and not the contents
-> of the string, so a key 'object' can live longer than the string used to
-> create it and thus is easily misused by users of the library.  
-Yes, that was probably a design mistake... anyway, the keys are 
-record-specific, so I'm not sure it's necessary to follow the same 
-pattern for future keys [ except maybe for consistency ].
+You need to allow domain transitions from httpd_sys_script_t to
+sendmail_t.  Haven't used the old targeted in quite some time, but I
+think
 
-> Additionally,
-> we thought the memory and programming overhead involved in creating, and
-> destroying the keys was undesirable and not necessary.  For example when we
-> start iterating over all the types in all the rules of the policy, using
-> keys can get expensive.  
->   
-A key is used to locate data. Iteration does not involve locating data [ 
-at least the current implementation loops over all the data in order ], 
-so no keys are used anywhere. There is overhead involved in converting 
-from base representation to an opaque record, and that's the price for 
-encapsulation / policy independence. You can probably get rid of the 
-overhead while keeping encapsulation [ with smarter record 
-implementation]... but independence of the record from policy seems to 
-require copying/expanding the data.
+	file_type_auto_trans(httpd_sys_script_t, sendmail_exec_t, sendmail_t)
 
-I think the existing records would best stay independent from policy, 
-esp. if they'll be serialized to go over the wire for the policy server. 
-New records could work differently...
+should work.
+
+Except, looking at the old sources, that may not be right - sendmail_t
+is only for the daemon?
+
+Regardless, that's the sort of thing you need to fix - looks like no file
+contexts need to be changed.
+
+> Mar 25 20:19:14 example kernel: audit(1143335954.882:37): avc:  denied  { 
+> getattr } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853 
+> scontext=root:system_r:httpd_sys_script_t tcontext=system_u:object_r:var_t 
+> tclass=file
+> 
+> I know I can use audit2allow to get the rule to add in to a te file, but 
+> what do I add to the fc file? I couldn't find which is the command trys to 
+> access sendmail, a process with that pid one didn't exist after the error 
+> message is generated.
+> 
+> any advice is appeciated, thanks in advance, guys
+
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
