@@ -1,73 +1,57 @@
-Message-Id: <200603270754.k2R7s4Zv023257@turing-police.cc.vt.edu>
+Subject: Re: Query about desktop apps.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
 To: Gaurav Poothia <gpoothia@cs.sunysb.edu>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: Query about desktop apps. 
-In-Reply-To: Your message of "Sun, 26 Mar 2006 22:14:59 EST."
-             <Pine.GSO.4.53.0603262138250.5076@compserv1>
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.GSO.4.53.0603252027240.10215@compserv1> <200603260351.k2Q3paAS022578@turing-police.cc.vt.edu>
-            <Pine.GSO.4.53.0603262138250.5076@compserv1>
+Cc: Valdis.Kletnieks@vt.edu, SELinux@tycho.nsa.gov
+In-Reply-To: <Pine.GSO.4.53.0603262138250.5076@compserv1>
+References: <Pine.GSO.4.53.0603252027240.10215@compserv1>
+	 <200603260351.k2Q3paAS022578@turing-police.cc.vt.edu>
+	 <Pine.GSO.4.53.0603262138250.5076@compserv1>
+Content-Type: text/plain
+Date: Mon, 27 Mar 2006 09:25:41 -0500
+Message-Id: <1143469541.22696.35.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1143446044_18690P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 27 Mar 2006 02:54:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1143446044_18690P
-Content-Type: text/plain; charset=us-ascii
-
-On Sun, 26 Mar 2006 22:14:59 EST, Gaurav Poothia said:
-
+On Sun, 2006-03-26 at 22:14 -0500, Gaurav Poothia wrote:
 > I still dont see it. I assume that there is a vi specific domain to which
-> both both sys admin and regular user will have to transition.
+> both both sys admin and regular user will have to transition. In which
+> case there should be 2 vi domains one for admin and other for regular
+> users and thus 2 policies. Please remember my question is about ANY
+> desktop app and vi is just an example.
 
-No.. the point is that as far as a *security* model goes, what you really care
-about is:
+A few quick points:
+- SELinux already supports and includes "derived domains", where you
+instantiate a separate domain for the program per caller domain, e.g.
+user_mozilla_t vs. staff_mozilla_t, so that you can allow each instance
+appropriate permissions to e.g. home directory files, tty/pty, etc. of
+the right type without allowing the ordinary user's browser to interfere
+with the staff user's browser.
+- vi is a bad example here, as it lacks a well-defined purpose (and
+hence set of permissions) and it ultimately can do everything (e.g. run
+commands in sub-shells), so it is difficult to write a meaningful policy
+just for it.  Hence, it presently just runs in the caller's domain, as
+Valdis noted.  However, one could create various domains for
+well-defined purposes, and the user could invoke vi via a suitable
+wrapper or via runcon -t to force it into an appropriate domain for a
+given purpose (e.g. editing system config files vs. personal files).
+There is already precedent for such wrappers in e.g. vipw, vigr.
+- Ultimately, we would like to devolve many of the permissions currently
+granted directly to the base user domain into more specific program
+domains.   But this will require time and always requires acceptance by
+users.
 
-1) What is the sysadmin allowed to do?
-2) What is the regular user allowed to do?
+> Yes I dont want the regular permission model, I wanted MAC.
+> I do agree that solution will work.Although it seems to me that the
+> policy needs to be aware of the users. Thats not very scalable.
 
-The obvious answer is "put the sysadmin and all programs he runs in a domain
-that has certain access rights", and "put the user and all his programs in a
-different domain with different rights".
+It needs to be aware of user roles, but not per-Linux user.  
 
-You see, you don't really need a 'vi' policy, because the policy basically is
-"vi can read the files the user can read, and write the files the user can
-write".  In other words, no separate policy is needed - unless you *really*
-feel like wasting your time and creating a vi policy that says the above, and
-then a policy for /bin/sed that says the same thing, and for cp, and for cat,
-and for dd, and for perl, and for all the other myriad ways there are to read
-and/or write a file on a Linux box - all things that are just better off run in
-the invoking user's domain and not worry.  If the user is allowed to do it,
-the program is, and if the user isn't, the program usually isn't either.  So
-the vast majority of binaries can just be flagged as "this is a bin_t that
-should be run under the user's access domain".  Makes things a *lot* easier..
+-- 
+Stephen Smalley
+National Security Agency
 
-When it gets interesting is when the invoked binary needs access to something
-that the calling user *doesn't* already have access to - for instance, if you
-change your password, the program will at some point need to have access to the
-/etc/shadow file even though the invoking user *doesn't* have that access.
-*THIS* is when you need a separate security domain for that program - because
-the list of what that program should be allowed is *different* than what the
-invoking user is allowed (in particular, the program to change your password
-can probably do *without* access to 95% of the things the invoking user *does*
-have access to...)
-
-
---==_Exmh_1143446044_18690P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEJ5occC3lWbTT17ARAhbVAKCCgDyqVcyHpal3EATjQEuhhMJJRwCgu774
-l23svblb9JCRFqPxirWeAtY=
-=K566
------END PGP SIGNATURE-----
-
---==_Exmh_1143446044_18690P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
