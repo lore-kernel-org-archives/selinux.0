@@ -1,93 +1,79 @@
-Message-ID: <BAY22-F129FD32CC36DBE38C3B48BC0D30@phx.gbl>
-In-Reply-To: <20060327145656.GB31654@sergelap.austin.ibm.com>
-From: "Rongdong Lu" <qdmudong@hotmail.com>
-To: SELinux@tycho.nsa.gov
-Subject: Re: I am add a custom rule, know how 2 do te file, what about fc file, please he
-Date: Tue, 28 Mar 2006 12:15:05 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2SD1dOW007537
+	for <selinux@tycho.nsa.gov>; Tue, 28 Mar 2006 08:01:39 -0500
+Received: from www346.sakura.ne.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2SD1a5d007387
+	for <selinux@tycho.nsa.gov>; Tue, 28 Mar 2006 13:01:37 GMT
+Received: from [127.0.0.1] (j069218.ppp.asahi-net.or.jp [61.213.69.218])
+	by www346.sakura.ne.jp (8.12.11-p1/8.12.11) with ESMTP id k2SD1ZCu060918
+	for <selinux@tycho.nsa.gov>; Tue, 28 Mar 2006 22:01:37 +0900 (JST)
+	(envelope-from kaigai@kaigai.gr.jp)
+Message-ID: <442933AD.3040208@kaigai.gr.jp>
+Date: Tue, 28 Mar 2006 22:01:33 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: MCS and unconfined_t
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for the help,
+Hello,
 
-Serge, Daniel and Stephen, it just became too complicated for me to handle, 
-I finally disabled selinux.  It's such a waste of time in terms of 
-progress(I am 2, 3 weeks behind my schedule because of selinux), but I did 
-learn a lot about it.
+Today, I'm considering an configuration for Fedora core 5 using MCS.
 
-Guess I will wait until a well tuned selinux comes out.
+Some users are associated with restricted category 'c0,c1' at most.
+If user field in security context would not change, they cannot
+transit to wider range of categories.
 
-best,
+But they can login with unconfined_t domain in default.
+Because unconfined_t domain has 'execcon' permission, they can
+transit to discretional range of categories by re-writing the
+user field in security context.
 
-Ron
+Is it possible to control the unconfined_t processes by MCS ?
+It seems a bit difficult.
+Please notice me, if I have misunderstanding or misconfiguration.
 
+Thanks,
 
+---- current configuration ----
+'ymj' logins with 'officer:system_r:unconfined_t:President'.
+He can transit to 'user_t:system_t:unconfined_t:God' via an evil
+program calls setexeccon().
+It makes all MCS configuration nonsense.
 
->From: "Serge E. Hallyn" <serue@us.ibm.com>
->To: Rongdong Lu <qdmudong@hotmail.com>
->CC: SELinux@tycho.nsa.gov
->Subject: Re: I am add a custom rule, know how 2 do te file, what about fc 
->file, please help
->Date: Mon, 27 Mar 2006 08:56:56 -0600
->
->Quoting Rongdong Lu (qdmudong@hotmail.com):
-> > Hi, List,
-> >
-> > Selinux has been driving me real crazy for the last serveral weeks, now
-> > finally I'am getting some clue.
-> >
-> > Here's a problem i am having now. I have a centos4 server, with selinux
-> > turned on, I can't use php to send out mail. I am using
-> > selinux-policy-targeted-1.17.30-2.126. I am trying to add a custom rule 
->the
-> > first time.
-> >
-> > here is the error messge in messages log:
-> >
-> > Mar 25 20:19:14 example kernel: audit(1143335954.882:36): avc:  denied  
->{
-> > execute } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853
-> > scontext=root:system_r:httpd_sys_script_t 
->tcontext=system_u:object_r:var_t
-> > tclass=file
->
->You need to allow domain transitions from httpd_sys_script_t to
->sendmail_t.  Haven't used the old targeted in quite some time, but I
->think
->
->	file_type_auto_trans(httpd_sys_script_t, sendmail_exec_t, sendmail_t)
->
->should work.
->
->Except, looking at the old sources, that may not be right - sendmail_t
->is only for the daemon?
->
->Regardless, that's the sort of thing you need to fix - looks like no file
->contexts need to be changed.
->
-> > Mar 25 20:19:14 example kernel: audit(1143335954.882:37): avc:  denied  
->{
-> > getattr } for  pid=10036 comm="sh" name="sendmail" dev=sda5 ino=1228853
-> > scontext=root:system_r:httpd_sys_script_t 
->tcontext=system_u:object_r:var_t
-> > tclass=file
-> >
-> > I know I can use audit2allow to get the rule to add in to a te file, but
-> > what do I add to the fc file? I couldn't find which is the command trys 
->to
-> > access sendmail, a process with that pid one didn't exist after the 
->error
-> > message is generated.
-> >
-> > any advice is appeciated, thanks in advance, guys
->
->-serge
+[root@ayu ~]# semanage translation -l
 
-_________________________________________________________________
-On the road to retirement? Check out MSN Life Events for advice on how to 
-get there! http://lifeevents.msn.com/category.aspx?cid=Retirement
+Level                     Translation
 
+s0
+s0-s0:c0                  Executive
+s0-s0:c0,c1               President
+s0-s0:c0.c255             God
+s0:c0                     Secret
+s0:c0,c1                  TopSecret
+[root@ayu ~]# semanage user -l
+
+                MLS/       MLS/
+SELinux User    MCS Level  MCS Range        SELinux Roles
+
+officer         s0         President        system_r
+root            s0         God              sysadm_r user_r system_r
+system_u        s0         God              system_r
+user_u          s0         God              sysadm_r user_r system_r
+[root@ayu ~]# semanage login -l
+
+Login Name                SELinux User              MLS/MCS Range
+
+__default__               user_u                    s0
+root                      root                      God
+tak                       officer                   Executive
+ymj                       officer                   President
+[root@ayu ~]#
+
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
