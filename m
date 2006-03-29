@@ -1,39 +1,29 @@
-Subject: Re: MCS and unconfined_t
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: russell@coker.com.au
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <200603291136.58087.russell@coker.com.au>
-References: <442933AD.3040208@kaigai.gr.jp>
-	 <1143581268.3037.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <200603291136.58087.russell@coker.com.au>
-Content-Type: text/plain
-Date: Wed, 29 Mar 2006 07:35:44 -0500
-Message-Id: <1143635744.20394.19.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2TEroia003681
+	for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2006 09:53:50 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2TErm77029676
+	for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2006 14:53:48 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k2TErnWs002408
+	for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2006 09:53:49 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.11.6) with ESMTP id k2TErhV6019858
+	for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2006 09:53:44 -0500
+Message-ID: <442A9F79.6010309@redhat.com>
+Date: Wed, 29 Mar 2006 09:53:45 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>,
+        "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
+Subject: SELinux overview on line.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-03-29 at 11:36 +1100, Russell Coker wrote:
-> The problem we have is that we want su(1) to allow changing to the SE Linux 
-> context of the new user with the appropriate MCS categories.  To do this we 
-> need to have su run in it's own domain so that it is permitted to increase 
-> the categories while the unconfined_t domain isn't.  I plan to release this 
-> as an FC5 update.
-> 
-> For the moment KaiGai Kohei is correct and there is no way to effectively 
-> constrain unconfined_t.
+http://www.redhat.com/v/swf/SELinux/
 
-Hmm...but su no longer uses pam_selinux, so it isn't supposed to change
-SELinux context (aside from automatic transitions).
-
--- 
-Stephen Smalley
-National Security Agency
-
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
