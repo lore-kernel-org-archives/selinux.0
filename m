@@ -1,33 +1,46 @@
-Subject: Re: MCS and unconfined_t
+Subject: Re: ANN: Fedora Core 5 SELinux FAQ
 From: Stephen Smalley <sds@tycho.nsa.gov>
 Reply-To: sds@tycho.nsa.gov
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, Russell Coker <russell@coker.com.au>,
-        James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1143649773.13732.30.camel@sgc.columbia.tresys.com>
-References: <442933AD.3040208@kaigai.gr.jp>
-	 <1143581268.3037.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <1143649773.13732.30.camel@sgc.columbia.tresys.com>
+To: "Stephen J. Smoogen" <smooge@gmail.com>
+Cc: Chad Sellers <csellers@tresys.com>, fedora-selinux-list@redhat.com,
+        SELinux@tycho.nsa.gov, selinuxdev <selinux-dev@tresys.com>
+In-Reply-To: <80d7e4090603290919j7fbe917ctb8e0fbd1e83a02d8@mail.gmail.com>
+References: <4429E6B6.7040108@tresys.com>
+	 <80d7e4090603290919j7fbe917ctb8e0fbd1e83a02d8@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 29 Mar 2006 11:45:40 -0500
-Message-Id: <1143650740.24555.5.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 29 Mar 2006 12:53:34 -0500
+Message-Id: <1143654814.24555.21.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-03-29 at 11:29 -0500, Christopher J. PeBenito wrote:
-> My issue with that patch was that it had types hardcoded into the
-> constraints, violating encapsulation.  In the interim other parts of the
-> patch were fixed and resubmitted, but this piece got lost along the way.
-> I've committed it, using an attribute and an interface.
+On Wed, 2006-03-29 at 10:19 -0700, Stephen J. Smoogen wrote:
+> I am trying to go over the questions in here one by one.. as I need to
+> work out what could be done for some systems where I work. I have one
+> question so far:
+> 
+> Q: What about the strict policy? Does it even work?
+>    [From the list at release time.. I thought strict policy was broken
+> for Core.]
 
-Ok, but it seems like something still isn't quite conceptually here in
-MCS - pam_selinux was removed from su, so su isn't supposed to switch
-levels, yet running su on FC5 does change to a fully ranged context,
-presumably via range_transition.  Which makes no sense to me at all
-given the intent of MCS.
+Yes, -strict in FC5 is broken at the moment, although there is ongoing
+work to resolve the issues needed to get it working.  The breakage isn't
+really anything to do with -strict per se, just fully modularized policy
+(breaking down even the base policy into lots of individual modules).
 
+> Q: What is the Reference Policy?
+> 
+>   [I found I am really confused by this answer.. if my muddled brain
+> is getting this correct.. the Reference Policy is the base policy that
+> the Fedora Core 5 targeted, strict, mls policies are based off of the
+> Reference Policy.. or are there 2 sets of policies shipped with Fedora
+> Core 5 some of which are based off of the old set and the others by
+> the new set.]
+
+Reference policy is the new source policy tree from which all policy
+types (-strict, -targeted, -mls) are being built.  Previously, they were
+being built from the NSA example policy source tree.
+ 
 -- 
 Stephen Smalley
 National Security Agency
