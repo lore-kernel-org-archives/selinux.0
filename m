@@ -1,60 +1,36 @@
-From: James Athey <jathey@tresys.com>
-To: SELinux@tycho.nsa.gov
-Subject: [PATCH] typo fix for corenetwork.if.m4
-Date: Thu, 30 Mar 2006 13:31:18 -0500
+Message-ID: <442C277C.6010906@redhat.com>
+Date: Thu, 30 Mar 2006 13:46:20 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_2PCLEq8uK3pi3Du"
-Message-Id: <200603301331.18106.jathey@tresys.com>
+To: sds@tycho.nsa.gov
+CC: James Morris <jmorris@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fix file descriptor leak
+References: <442AEF1E.9020503@redhat.com> <1143738031.24555.222.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1143738031.24555.222.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_2PCLEq8uK3pi3Du
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-The generated interfaces for netifs in corenetwork.if.m4 have a typo in 
-corenet_raw_sendrecv_$1_if, where
-
-corenet_raw_send_$1(dollarsone)
-corenet_raw_receive_$1(dollarsone)
-
-should read
-
-corenet_raw_send_$1_if(dollarsone)
-corenet_raw_receive_$1_if(dollarsone)
-
-A patch is attached.
-
-~James Athey
-
-
---Boundary-00=_2PCLEq8uK3pi3Du
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="corenetwork.if.m4.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="corenetwork.if.m4.patch"
-
-Index: policy/modules/kernel/corenetwork.if.m4
-===================================================================
---- policy/modules/kernel/corenetwork.if.m4	(revision 1654)
-+++ policy/modules/kernel/corenetwork.if.m4	(working copy)
-@@ -139,8 +139,8 @@
- ## <infoflow type="both" weight="10"/>
- #
- interface(`corenet_raw_sendrecv_$1_if',`
--	corenet_raw_send_$1(dollarsone)
--	corenet_raw_receive_$1(dollarsone)
-+	corenet_raw_send_$1_if(dollarsone)
-+	corenet_raw_receive_$1_if(dollarsone)
- ')
- '') dnl end create_netif_interfaces
-
---Boundary-00=_2PCLEq8uK3pi3Du--
+Stephen Smalley wrote:
+> On Wed, 2006-03-29 at 15:33 -0500, Daniel J Walsh wrote:
+> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.c libsemanage-1.6.2/src/semanage_store.c
+> --- nsalibsemanage/src/semanage_store.c	2006-03-10 09:48:01.000000000 -0500
+> +++ libsemanage-1.6.2/src/semanage_store.c	2006-03-29 14:20:16.000000000 -0500
+> @@ -1159,6 +1159,8 @@
+>  		ERR(sh, "Could not open direct %s at %s.", lock_name, lock_file);
+>  		return -1;
+>  	}
+> +	fcntl(fd, FD_CLOEXEC, 0);
+> +
+>  	if (sh->timeout == 0) {
+>  		/* return immediately */
+>  		origtime.tv_sec = 0;
+>
+> Shouldn't that be:
+> 	fcntl(fd, F_SETFD, FD_CLOEXEC)?
+>
+>   
+yes
 
 --
 This message was distributed to subscribers of the selinux mailing list.
