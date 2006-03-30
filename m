@@ -1,50 +1,66 @@
-Subject: Re: MCS and unconfined_t
+Subject: Re: Need testers for Modules policicy on RHEL4
 From: Stephen Smalley <sds@tycho.nsa.gov>
 Reply-To: sds@tycho.nsa.gov
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Russell Coker <russell@coker.com.au>,
-        James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <442B5714.9080100@kaigai.gr.jp>
-References: <442933AD.3040208@kaigai.gr.jp>
-	 <1143581268.3037.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <1143649773.13732.30.camel@sgc.columbia.tresys.com>
-	 <1143650740.24555.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <1143655164.13732.36.camel@sgc.columbia.tresys.com>
-	 <442B5714.9080100@kaigai.gr.jp>
+To: selinux@tycho.nsa.gov
+Cc: Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <442B7848.8060406@hotmail.com>
+References: <442B182D.9060104@redhat.com>  <442B7848.8060406@hotmail.com>
 Content-Type: text/plain
-Date: Thu, 30 Mar 2006 07:31:57 -0500
-Message-Id: <1143721917.24555.77.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Mar 2006 08:20:06 -0500
+Message-Id: <1143724806.24555.121.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-03-30 at 12:57 +0900, KaiGai Kohei wrote:
-> +mlsconstrain process { transition dyntransition } (( h1 dom h2 ) or
-> +		( t1 == getty_t ) or ( t1 == init_t ) or ( t1 == initrc_t ) or
-> +		( t1 == kernel_t ));
+On Thu, 2006-03-30 at 07:18 +0100, James de Lurker wrote:
+> I'll likely become an active and thorough tester again on a community basis
+> when the selinux project decides to base its work on a genuine community
+> based Linux distro that would also be treated seriously in the enterprise
+> by commercial entities. With FC the poor relation.
 > 
-> It says an process can transit to more restricted categories only
-> by (h1 dom h2). I felt it's over restriction.
-> For example, a user login with 's0' cannot transit to any wider range
-> categories, even if he would be allowed to belong 's0-s0:c0.c2' at most.
+> I already find it distasteful that Redhat are effectively gaining
+> commercial advantage from a project support by a US government body.
 > 
-> I modified my desktop environment (FC5). At a moment, the following
-> configuration seems to me working fine.
-> Do you think it's a reasonable solution ?
+> The separation of FC and RHEL is mere sophistry IMHO.
 
-The reason that we need the stronger restriction above is that there is
-not a one-to-one mapping from Linux users to SELinux users, and we are
-now relying on the seusers mapping and initial setup by login to bound
-what is reachable by a given Linux user.  For example, two different
-Linux users might be mapped to user_u but with different category sets
-by seusers, and the underlying policy will authorize user_u for the
-combination of those category sets so that both security contexts are
-valid.  Thus, if we allow the process to later escalate its categories
-to anything permitted in the security context by policy, it can escape
-the per-Linux-user restrictions.
+I think you are confused.  Red Hat trail-blazed the path of integrating
+SELinux into a full distribution and enabling it by default for all
+users.  Their work yielded major improvements in SELinux, including:
+- significant expansion of the userland modifications,
+- expansion and refinement of the policy,
+- maturing of the SELinux kernel and userland code,
+- getting SELinux into a state where it could be enabled by default for
+typical users.
 
+They did a lot of hard work, and they made all of their enhancements
+open source, contributing them to the upstream SELinux where there is an
+upstream component and otherwise making them available in the Fedora
+Core tree for reference by other distros.
+
+Meanwhile, the Debian and Gentoo SELinux folks have been hard at work
+likewise integrating SELinux into their respective distros, and they
+have leveraged the contributions made by Red Hat while making
+contributions of their own.  And people have been packaging SELinux on
+the side for SuSE and Slackware among others for quite some time,
+although sadly the SuSE-related efforts have been stalled by Novell's
+choice.
+
+Also, if you look at the minutes from the SELinux developer summit,
+you'll see that there are plans to improve pan-distribution support and
+create a more viable upstream SELinux development community that is not
+so closely coupled to Fedora, see:
+http://www.selinux-symposium.org/2006/summit.php
+
+> Novell are struggling as competitors to RedHat to gain certifications for
+> enterprise level products, and I dont see the US Govt offering them the
+> equivalent assistance for community based projects.
+
+We would have been glad to have worked with Novell/SuSE on SELinux
+integration (and did talk with them), and still would be glad to do so
+in the future if the opportunity presents itself.  Our goal has always
+been the mainstreaming of the technology.  But Novell/SuSE chose to not
+pursue it.  Their choice.
+ 
 -- 
 Stephen Smalley
 National Security Agency
