@@ -1,69 +1,53 @@
-Subject: Re: Need testers for Modules policicy on RHEL4
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: selinux@tycho.nsa.gov
-Cc: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <442B7848.8060406@hotmail.com>
-References: <442B182D.9060104@redhat.com>  <442B7848.8060406@hotmail.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2UG06YE028512
+	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 11:00:06 -0500
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2UFwLwL009661
+	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 15:58:21 GMT
+Subject: Re: Latest policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <442AEEF3.70406@redhat.com>
+References: <442AEEF3.70406@redhat.com>
 Content-Type: text/plain
-Date: Thu, 30 Mar 2006 08:20:06 -0500
-Message-Id: <1143724806.24555.121.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 30 Mar 2006 11:00:15 -0500
+Message-Id: <1143734415.13732.51.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-03-30 at 07:18 +0100, James de Lurker wrote:
-> I'll likely become an active and thorough tester again on a community basis
-> when the selinux project decides to base its work on a genuine community
-> based Linux distro that would also be treated seriously in the enterprise
-> by commercial entities. With FC the poor relation.
-> 
-> I already find it distasteful that Redhat are effectively gaining
-> commercial advantage from a project support by a US government body.
-> 
-> The separation of FC and RHEL is mere sophistry IMHO.
+On Wed, 2006-03-29 at 15:32 -0500, Daniel J Walsh wrote:
+> Added restorecond policy
+> fixed samba_selinux man page
+> logwatch looks for mounted files system on /mnt
+> file context for yumex
+> groupadd and useradd need to read nsswitch
+> hplib_port_t needed for 9100
+> add 6000 as valid xserver port
+> pam console needs to getattr/setattr usb_dev
+> bluetooth tools want to read resolver
+> hplib_t fixes to work with additional devices (Usb  printers
+> dovecot wants to talk to postgresql and use inotify
+> hal needs to comunicate with ntp
+> pegasus needs to connect to random non reserved ports
+> privoxy wants to use nscd and communicate with tor
+> xfs needs to read fonts in usr_t
+> fstools need to be able to work with blk devices.  (fsck)
+> libmpg123 is moving
+> mount using some certificates stored in usr_t
 
-I think you are confused.  Red Hat trail-blazed the path of integrating
-SELinux into a full distribution and enabling it by default for all
-users.  Their work yielded major improvements in SELinux, including:
-- significant expansion of the userland modifications,
-- expansion and refinement of the policy,
-- maturing of the SELinux kernel and userland code,
-- getting SELinux into a state where it could be enabled by default for
-typical users.
+Merged.
 
-They did a lot of hard work, and they made all of their enhancements
-open source, contributing them to the upstream SELinux where there is an
-upstream component and otherwise making them available in the Fedora
-Core tree for reference by other distros.
+> setfiles needs trans_lock
 
-Meanwhile, the Debian and Gentoo SELinux folks have been hard at work
-likewise integrating SELinux into their respective distros, and they
-have leveraged the contributions made by Red Hat while making
-contributions of their own.  And people have been packaging SELinux on
-the side for SuSE and Slackware among others for quite some time,
-although sadly the SuSE-related efforts have been stalled by Novell's
-choice.
+I dropped this; I'm pretty sure its related to the leaked file
+descriptors in semodule too.
 
-Also, if you look at the minutes from the SELinux developer summit,
-you'll see that there are plans to improve pan-distribution support and
-create a more viable upstream SELinux development community that is not
-so closely coupled to Fedora, see:
-http://www.selinux-symposium.org/2006/summit.php
-
-> Novell are struggling as competitors to RedHat to gain certifications for
-> enterprise level products, and I dont see the US Govt offering them the
-> equivalent assistance for community based projects.
-
-We would have been glad to have worked with Novell/SuSE on SELinux
-integration (and did talk with them), and still would be glad to do so
-in the future if the opportunity presents itself.  Our goal has always
-been the mainstreaming of the technology.  But Novell/SuSE chose to not
-pursue it.  Their choice.
- 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
