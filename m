@@ -1,79 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2UK0GT1001048
-	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 15:00:16 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2UK0Fc9021166
-	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 20:00:15 GMT
-Message-ID: <442C38CD.2000305@redhat.com>
-Date: Thu, 30 Mar 2006 15:00:13 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Stephen J. Smoogen" <smooge@gmail.com>
-CC: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Need testers for Modules policicy on RHEL4
-References: <442B182D.9060104@redhat.com> <80d7e4090603291544m3096f484he2c4552cd6ec66a8@mail.gmail.com>
-In-Reply-To: <80d7e4090603291544m3096f484he2c4552cd6ec66a8@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] typo fix for corenetwork.if.m4
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: James Athey <jathey@tresys.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <200603301331.18106.jathey@tresys.com>
+References: <200603301331.18106.jathey@tresys.com>
+Content-Type: text/plain
+Date: Thu, 30 Mar 2006 16:04:37 -0500
+Message-Id: <1143752677.13732.64.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen J. Smoogen wrote:
-> On 3/29/06, Daniel J Walsh <dwalsh@redhat.com> wrote:
->   
->> I have back ported the entire selinux tool chain to RHEL4.  I have also
->> attempted to create a modular policy to match RHEL4 policy as closely as
->> possible.
->>
->> These packages are out on
->>
->> ftp://people.redhat.com/dwalsh/SELinux/RHEL4_MODULAR
->>
->> If anyone wants to play with these and do some testing that would be great.
->>     
->
-> Cool. I realize there is no promise but I will try them on a test box.
-> What should I look for in a test plan? Also what is the difference
-> between selinux-policy-2.2.28-1.rhel4.noarch.rpm and
-> selinux-policy-targeted-2.2.28-1.rhel4.noarch.rpm?
->
->   
-Look for regressions.  Want to make sure RHEL4 works the same under 
-both.  The new policy has some added allows but should not have any ones 
-missing.  There are some types that have been eliminated but they were 
-not used.
+On Thu, 2006-03-30 at 13:31 -0500, James Athey wrote:
+> The generated interfaces for netifs in corenetwork.if.m4 have a typo in 
+> corenet_raw_sendrecv_$1_if, where
+> 
+> corenet_raw_send_$1(dollarsone)
+> corenet_raw_receive_$1(dollarsone)
+> 
+> should read
+> 
+> corenet_raw_send_$1_if(dollarsone)
+> corenet_raw_receive_$1_if(dollarsone)
 
+Merged.
 
->   
->> There is no commitment from Red Hat to ever ship this.  But if it is
->> ever going to ship,
->> we need to find problems with it now.
->>
->> So if you have a spare RHEL4 box and want to play with modular policy,
->> this is your chance.
->>
->> Thanks,
->>
->>
->> Dan
->>
->> --
->> fedora-selinux-list mailing list
->> fedora-selinux-list@redhat.com
->> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
->>
->>     
->
->
-> --
-> Stephen J Smoogen.
-> CSIRT/Linux System Administrator
->
-> --
-> fedora-selinux-list mailing list
-> fedora-selinux-list@redhat.com
-> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
->   
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
