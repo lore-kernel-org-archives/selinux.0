@@ -1,41 +1,80 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2UJpEFb000886
-	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 14:51:14 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2UJnTwL018086
-	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 19:49:29 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k2UJpDcj005275
-	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 14:51:13 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.12.11.20060308/8.11.6) with ESMTP id k2UJpCNU004477
-	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 14:51:12 -0500
-Message-ID: <442C36AF.4090001@redhat.com>
-Date: Thu, 30 Mar 2006 14:51:11 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2UK0GT1001048
+	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 15:00:16 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2UK0Fc9021166
+	for <selinux@tycho.nsa.gov>; Thu, 30 Mar 2006 20:00:15 GMT
+Message-ID: <442C38CD.2000305@redhat.com>
+Date: Thu, 30 Mar 2006 15:00:13 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>,
-        "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
-Subject: AVC Decision Tree.
+To: "Stephen J. Smoogen" <smooge@gmail.com>
+CC: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Need testers for Modules policicy on RHEL4
+References: <442B182D.9060104@redhat.com> <80d7e4090603291544m3096f484he2c4552cd6ec66a8@mail.gmail.com>
+In-Reply-To: <80d7e4090603291544m3096f484he2c4552cd6ec66a8@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://fedoraproject.org/wiki/SELinux/Troubleshooting/AVCDecisions#preview
+Stephen J. Smoogen wrote:
+> On 3/29/06, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>   
+>> I have back ported the entire selinux tool chain to RHEL4.  I have also
+>> attempted to create a modular policy to match RHEL4 policy as closely as
+>> possible.
+>>
+>> These packages are out on
+>>
+>> ftp://people.redhat.com/dwalsh/SELinux/RHEL4_MODULAR
+>>
+>> If anyone wants to play with these and do some testing that would be great.
+>>     
+>
+> Cool. I realize there is no promise but I will try them on a test box.
+> What should I look for in a test plan? Also what is the difference
+> between selinux-policy-2.2.28-1.rhel4.noarch.rpm and
+> selinux-policy-targeted-2.2.28-1.rhel4.noarch.rpm?
+>
+>   
+Look for regressions.  Want to make sure RHEL4 works the same under 
+both.  The new policy has some added allows but should not have any ones 
+missing.  There are some types that have been eliminated but they were 
+not used.
 
-Trying to build a analysys tool to be able to translate avc messages 
-into possible boolean/file_context solutions.
 
-The idea is that we can look at the AVC messages that are generated and 
-figure out what the servers were trying to do.  Then we can give some 
-advise to the administrator on the corrective measures.  So what we are 
-looking for are expected code paths where there is a file context of 
-boolean available.
+>   
+>> There is no commitment from Red Hat to ever ship this.  But if it is
+>> ever going to ship,
+>> we need to find problems with it now.
+>>
+>> So if you have a spare RHEL4 box and want to play with modular policy,
+>> this is your chance.
+>>
+>> Thanks,
+>>
+>>
+>> Dan
+>>
+>> --
+>> fedora-selinux-list mailing list
+>> fedora-selinux-list@redhat.com
+>> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+>>
+>>     
+>
+>
+> --
+> Stephen J Smoogen.
+> CSIRT/Linux System Administrator
+>
+> --
+> fedora-selinux-list mailing list
+> fedora-selinux-list@redhat.com
+> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+>   
 
-Additional suggestions are welcome. 
-
-
-Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
