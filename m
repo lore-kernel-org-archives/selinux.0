@@ -1,33 +1,60 @@
-Subject: Re: Latest policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <442C0940.5050800@redhat.com>
-References: <442AEEF3.70406@redhat.com> <1143734415.13732.51.camel@sgc>
-	 <442C0940.5050800@redhat.com>
-Content-Type: text/plain
-Date: Thu, 30 Mar 2006 12:04:21 -0500
-Message-Id: <1143738261.24555.226.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: James Athey <jathey@tresys.com>
+To: SELinux@tycho.nsa.gov
+Subject: [PATCH] typo fix for corenetwork.if.m4
+Date: Thu, 30 Mar 2006 13:31:18 -0500
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_2PCLEq8uK3pi3Du"
+Message-Id: <200603301331.18106.jathey@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-03-30 at 11:37 -0500, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > I dropped this; I'm pretty sure its related to the leaked file
-> > descriptors in semodule t
-> >   
-> I have the leak code fixed, but am still seeing this.  I will try it 
-> again without this code.
+--Boundary-00=_2PCLEq8uK3pi3Du
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-libsemanage patch wasn't right, so it is still leaking the descriptor.
+The generated interfaces for netifs in corenetwork.if.m4 have a typo in 
+corenet_raw_sendrecv_$1_if, where
 
--- 
-Stephen Smalley
-National Security Agency
+corenet_raw_send_$1(dollarsone)
+corenet_raw_receive_$1(dollarsone)
 
+should read
+
+corenet_raw_send_$1_if(dollarsone)
+corenet_raw_receive_$1_if(dollarsone)
+
+A patch is attached.
+
+~James Athey
+
+
+--Boundary-00=_2PCLEq8uK3pi3Du
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="corenetwork.if.m4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="corenetwork.if.m4.patch"
+
+Index: policy/modules/kernel/corenetwork.if.m4
+===================================================================
+--- policy/modules/kernel/corenetwork.if.m4	(revision 1654)
++++ policy/modules/kernel/corenetwork.if.m4	(working copy)
+@@ -139,8 +139,8 @@
+ ## <infoflow type="both" weight="10"/>
+ #
+ interface(`corenet_raw_sendrecv_$1_if',`
+-	corenet_raw_send_$1(dollarsone)
+-	corenet_raw_receive_$1(dollarsone)
++	corenet_raw_send_$1_if(dollarsone)
++	corenet_raw_receive_$1_if(dollarsone)
+ ')
+ '') dnl end create_netif_interfaces
+
+--Boundary-00=_2PCLEq8uK3pi3Du--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
