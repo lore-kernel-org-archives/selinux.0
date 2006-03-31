@@ -1,79 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k2VISE5U021427
-	for <selinux@tycho.nsa.gov>; Fri, 31 Mar 2006 13:28:14 -0500
-Received: from mtaout02-winn.ispmail.ntl.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k2VIQTeG007011
-	for <selinux@tycho.nsa.gov>; Fri, 31 Mar 2006 18:26:29 GMT
-Message-ID: <442D74B8.7060601@hotmail.com>
-Date: Fri, 31 Mar 2006 19:28:08 +0100
-From: James de Lurker <jtl2nospamMUNGIEjump@hotmail.com>
-Reply-To: see.the.sig.2.reply.by.email.offlist@hotmail.com
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Need testers for Modules policicy on RHEL4
-References: <442B182D.9060104@redhat.com>  <442B7848.8060406@hotmail.com> <1143724806.24555.121.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1143724806.24555.121.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: The sort algorithm is broken by the second rule,  We need
+	a	way to pin these rules to the top.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <442D5A3F.9090409@cornell.edu>
+References: <442D41CA.8070702@redhat.com>  <442D436A.1010805@tresys.com>
+	 <1143817846.24555.329.camel@moss-spartans.epoch.ncsc.mil>
+	 <442D5A3F.9090409@cornell.edu>
+Content-Type: text/plain
+Date: Fri, 31 Mar 2006 13:52:31 -0500
+Message-Id: <1143831151.17469.13.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Apologies to any on the list that I may have offended with a distraction.
-(readers focussed only upon RHEL rpm testing can safely skip this subthread)
+On Fri, 2006-03-31 at 11:35 -0500, Ivan Gyurdiev wrote:
+> >
+> > At present, you can force the nvidia entry to win by adding it as a
+> > local fcontext via semanage or file_contexts.local.  But if we add the
+> > sort to libsemanage, we'll lose the ability to give precedence to local
+> > fcontexts added by semanage unless we exclude the local ones from the
+> > sort, right?
+> >   
+> Hmm, I think we actually don't have this capability as of right now - my 
+> fault, as I didn't get around to addressing this issue, which would 
+> consist of either not merging the .local file into the other one (as we 
+> do now), or moving the sort algorithm into libsemanage, where it would 
+> sort the local things separately from the module things.
 
-On Thu, 30 Mar 2006 08:20:06 -0500  Stephen Smalley wrote:
-> On Thu, 2006-03-30 at 07:18 +0100, James de Lurker wrote:
-> I think you are confused.
-Confusion is likely, even to many looking closely at the project.
-As it was re-based upon FC Following EOL of RedHat Linux products.
-FC is the community supported openly available non-profit distro.
+Not sure we are all on the same page here.  At present, one can add
+fcontext entries via semanage fcontext -a (which are then merged to the
+end of the generated file_contexts file that is installed) or by
+manually adding
+to /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts.local, which
+is not managed presently but is still read by libselinux
+matchpathcon(3).  Either approach will ensure that the entry you added
+takes precedence over any existing ones.  Sorting is presently only
+happening in the policy build process via the
+refpolicy/support/fc_sort.c helper program, so it is only applied to the
+file_context file provided by the policy itself, not to any local
+entries (whether created via semanage or not).
 
-Thank you for addressing the points seriously with quality
-replies, both on-list and off, in private email. The time that you
-took to do that is appreciated, and the spirit that you did it in
-is commendable.
-
-
-> Also, if you look at the minutes from the SELinux developer summit,
-> you'll see that there are plans to improve pan-distribution support and
-> create a more viable upstream SELinux development community that is not
-> so closely coupled to Fedora, see:
-> http://www.selinux-symposium.org/2006/summit.php
-
-Thanks!
-I will indeed do that. Skimming this list as a non-participant since the
-EOL of the last mainstream enterprise distro selinux was based upon is
-clearly insufficient. The experimental gentoo LiveCD selinux distros
-are of some interest. Its less painful to learn or demonstrate by breaking
-things in ramdisk ( or virtual machine hosted filesystems, come to that )
-
-Should the project core return to a neutral base that also has enterprise
-credibility, I'll be back, with personal contribution, testing, even if no
-longer as competent at the developer / packager leading edge.
-
-Constructive points outstanding on competition issues are OT, and I will
-not pollute this list with them. (Followups later by private email).
-
-The hard work that many here have put in since the projects inception, as
-an invasive kernel patch to an already heavily vendor patched kernel, is
-quite remarkable. For those that care to pause, look back, and compare.
-
-Now, there is the world of LSM.
-A summary on progress of convergence of LSM and the selinux LSM
-could be valuable for readers that deal with kernel issues besides
-selinux but might benefit from knowledge of the most crucial
-differences. Other LSM projects that perhaps ought to be designed to
-co-exist with selinux LSM come to mind here. The LSM developers list
-seems a bit indefinate in this area.
+If/when the sort logic is moved into libsemanage, we can still ensure
+that it is only applied to the policy file contexts.  Why do we need to
+refrain from merging the local file contexts into the final file?
 
 -- 
-
-  -- James
-
->From and Reply To are INVALID.
-
-All public postings use munged headers[1]- To contact me off list:
-  1) Remove "M U N G I E j u m p" ONLY: leave that "nospam" in there!
-  2) change "hotmail" 2 "myrealbox" after the @
+Stephen Smalley
+National Security Agency
 
 
 --
