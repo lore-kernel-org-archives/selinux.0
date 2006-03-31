@@ -1,57 +1,63 @@
-Message-ID: <442D47ED.6040007@tresys.com>
-Date: Fri, 31 Mar 2006 10:17:01 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
+From: Christopher Ashworth <cashworth@tresys.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: The sort algorithm is broken by the second rule,  We need a way to pin these rules to the top.
+Date: Fri, 31 Mar 2006 11:01:43 -0500
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        SE Linux <selinux@tycho.nsa.gov>
+References: <442D41CA.8070702@redhat.com> <442D4448.2090700@redhat.com> <442D47ED.6040007@tresys.com>
+In-Reply-To: <442D47ED.6040007@tresys.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: The sort algorithm is broken by the second rule,  We need a way
- to pin these rules to the top.
-References: <442D41CA.8070702@redhat.com> <442D436A.1010805@tresys.com> <442D4448.2090700@redhat.com>
-In-Reply-To: <442D4448.2090700@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200603311101.44534.cashworth@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> /usr(/.*)?/lib(64)?(/.*)?            
->>> gen_context(system_u:object_r:lib_t,s0)
->>> /usr(/.*)?/lib(64)?/.*\.so(\.[^/]*)*    --    
->>> gen_context(system_u:object_r:shlib_t,s0)
->>>
->>> The following has to follow the one above.
->>>
->>> /usr/lib(64)?/libglide3\.so.*         --    
->>> gen_context(system_u:object_r:textrel_shlib_t,s0)
->>>
->>>
->>> It did in FC4, now it does not.  This is the second bug I have seen 
->>> caused by the sort algoritm.  We need a way to secify a primary File 
->>> Context file that will not be sorted but will always be at the top.  
->>> Then the rest can be sorted.
->>>
->>> Maybe we do not sort files within a particular fc file.  I do not 
->>> know. but this is broken.
->>>
->>
->> We are preparing to send up a patch that adds file context ordering to 
->> libsemanage ala the algorithm in fc_sort.c in refpolicy/support. The 
->> sort algorithm should put the 3rd entry below the top two because the 
->> stem length is greater. Are you seeing this with strict (and hightly 
->> modular policy?) the large base.pp from targeted will already have its 
->> file context entries sorted by fc_sort.c and should handle this case.
-> I am only looking at targeted and MLS right now.   As soon as we get 
-> this fix we need to get it out.
-> 
-hrm, the libsemanage fix shouldn't affect targeted since it is merely 
-replicating the algorithm already used when the base.pp is built by 
-refpolicy. The longer stem (of the 3rd entry) should win.
+On Friday 31 March 2006 10:17 am, Joshua Brindle wrote:
+> Please note that the sorting algorithm is very much heuristic and not
+> perfect. In the discussions we've had around here about this we
+> determined that the correct solution is to make the regexes more
+> specific where possible.
 
-Please note that the sorting algorithm is very much heuristic and not 
-perfect. In the discussions we've had around here about this we 
-determined that the correct solution is to make the regexes more 
-specific where possible.
+Indeed.  Strictly speaking, to properly order based on specificity we need to 
+be able to solve the decision problem of whether one regular expression is a 
+subset of another.  As such, until we have an implementation based on this 
+method file contexts must be written with the limitations of our heuristics 
+in mind.
+
+In the following example:
+
+> Running fc_sort from refpolicy on the following input:
+> /usr(/.*)?/lib(64)?(/.*)?        gen_context(system_u:object_r:lib_t,s0)
+> /usr(/.*)?/lib(64)?/.*\.so(\[^/]*)*    --  gen_context(system_u:object_r:shlib_t,s0)
+> /usr(/.*)?/nvidia/.*\.so(\..*)?        --  gen_context(system_u:object_r:textrel_shlib_t,s0)
+> /usr/lib(64)?/libglide3\.so.*      --    gen_context(system_u:object_r:textrel_shlib_t,s0)
+> 
+> yields the following output:
+> /usr(/.*)?/lib(64)?(/.*)?       gen_context(system_u:object_r:lib_t,s0)
+> /usr(/.*)?/nvidia/.*\.so(\..*)?        --      gen_context(system_u:object_r:textrel_shlib_t,s0)
+> /usr(/.*)?/lib(64)?/.*\.so(\[^/]*)*   --    gen_context(system_u:object_r:shlib_t,s0)
+> /usr/lib(64)?/libglide3\.so.*    --    gen_context(system_u:object_r:textrel_shlib_t,s0)
+
+the nvidia entry "loses" because the stem matches the stem of the following 
+line, and the overall length of the nvidia line is shorter.  With a 
+subset-based approach we would be able to recognize that neither is a subset 
+of the other, and so the original order could be preserved.  (The 
+implementation of the sort is stable, but that doesn't really help us much 
+seeing as our comparison operator is based on heuristics, so the definition 
+of "stability" has become only as good as our heuristics.)
+
+Christopher
+
+
+Reference:  
+
+http://www.cs.may.ie/~jpower/Courses/parsing/node14.html
+
+-- 
+Christopher Ashworth
+Tresys Technology, LLC
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
