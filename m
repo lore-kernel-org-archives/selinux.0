@@ -1,37 +1,49 @@
-Subject: Re: The sort algorithm is broken by the second rule,  We need a
-	way to pin these rules to the top.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1143818241.24555.335.camel@moss-spartans.epoch.ncsc.mil>
-References: <442D41CA.8070702@redhat.com> <442D436A.1010805@tresys.com>
-	 <442D4448.2090700@redhat.com>
-	 <1143818241.24555.335.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 31 Mar 2006 10:20:18 -0500
-Message-Id: <1143818418.24555.336.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: MCS and unconfined_t
+Date: Sat, 1 Apr 2006 01:55:16 +1100
+Cc: sds@tycho.nsa.gov, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+        James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov
+References: <442933AD.3040208@kaigai.gr.jp> <1143581268.3037.149.camel@moss-spartans.epoch.ncsc.mil> <1143649773.13732.30.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1143649773.13732.30.camel@sgc.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200604010155.22827.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-03-31 at 10:17 -0500, Stephen Smalley wrote:
-> If it isn't working in targeted presently (using the refpolicy's fc_sort
-> helper at build time), then putting the logic in libsemanage won't help
-> either.  The question is why doesn't it work now for the libglide entry?
-> fc_sort appears to do the right thing for it.
+On Thursday 30 March 2006 03:29, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> > Hmmm...I had thought that Russell had introduced a mlsconstraint on
+> > process transition and dyntransition permissions in policy/mcs, see the
+> > earlier discussion on list in Feb.  But it appears to be missing from
+> > the current policy, which does mean that an unconfined process can
+> > easily escape its restrictions via runcon or newrole -l.  Seems to be
+> > missing in FC5 too.
+>
+> My issue with that patch was that it had types hardcoded into the
+> constraints, violating encapsulation.  In the interim other parts of the
+> patch were fixed and resubmitted, but this piece got lost along the way.
+> I've committed it, using an attribute and an interface.
 
-On FC5:
-$ matchpathcon /usr/lib/libglide3.so.3
-/usr/lib/libglide3.so.3 system_u:object_r:textrel_shlib_t
+http://people.redhat.com/rcoker/pol/
 
-Of course, I just made that path up, as I don't have it installed - what
-is the actual path in question?
+At the above URL I've put some packages for rawhide that fix this issue and a 
+few other things.
+
+Among the changes is the change to file contexts to separate /usr(/.*)? 
+into /usr -d and /usr/.* etc.  This causes a relabel of most of the system on 
+package install (so I'm not planning to put it in FC5), but gives a small 
+performance increase on setfiles/restorecon etc once it's in place.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
