@@ -1,49 +1,57 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: MCS and unconfined_t
-Date: Sat, 1 Apr 2006 01:55:16 +1100
-Cc: sds@tycho.nsa.gov, KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-References: <442933AD.3040208@kaigai.gr.jp> <1143581268.3037.149.camel@moss-spartans.epoch.ncsc.mil> <1143649773.13732.30.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1143649773.13732.30.camel@sgc.columbia.tresys.com>
+Message-ID: <442D47ED.6040007@tresys.com>
+Date: Fri, 31 Mar 2006 10:17:01 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200604010155.22827.russell@coker.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: The sort algorithm is broken by the second rule,  We need a way
+ to pin these rules to the top.
+References: <442D41CA.8070702@redhat.com> <442D436A.1010805@tresys.com> <442D4448.2090700@redhat.com>
+In-Reply-To: <442D4448.2090700@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 30 March 2006 03:29, "Christopher J. PeBenito" 
-<cpebenito@tresys.com> wrote:
-> > Hmmm...I had thought that Russell had introduced a mlsconstraint on
-> > process transition and dyntransition permissions in policy/mcs, see the
-> > earlier discussion on list in Feb.  But it appears to be missing from
-> > the current policy, which does mean that an unconfined process can
-> > easily escape its restrictions via runcon or newrole -l.  Seems to be
-> > missing in FC5 too.
->
-> My issue with that patch was that it had types hardcoded into the
-> constraints, violating encapsulation.  In the interim other parts of the
-> patch were fixed and resubmitted, but this piece got lost along the way.
-> I've committed it, using an attribute and an interface.
+Daniel J Walsh wrote:
+> Joshua Brindle wrote:
+>> Daniel J Walsh wrote:
+>>> /usr(/.*)?/lib(64)?(/.*)?            
+>>> gen_context(system_u:object_r:lib_t,s0)
+>>> /usr(/.*)?/lib(64)?/.*\.so(\.[^/]*)*    --    
+>>> gen_context(system_u:object_r:shlib_t,s0)
+>>>
+>>> The following has to follow the one above.
+>>>
+>>> /usr/lib(64)?/libglide3\.so.*         --    
+>>> gen_context(system_u:object_r:textrel_shlib_t,s0)
+>>>
+>>>
+>>> It did in FC4, now it does not.  This is the second bug I have seen 
+>>> caused by the sort algoritm.  We need a way to secify a primary File 
+>>> Context file that will not be sorted but will always be at the top.  
+>>> Then the rest can be sorted.
+>>>
+>>> Maybe we do not sort files within a particular fc file.  I do not 
+>>> know. but this is broken.
+>>>
+>>
+>> We are preparing to send up a patch that adds file context ordering to 
+>> libsemanage ala the algorithm in fc_sort.c in refpolicy/support. The 
+>> sort algorithm should put the 3rd entry below the top two because the 
+>> stem length is greater. Are you seeing this with strict (and hightly 
+>> modular policy?) the large base.pp from targeted will already have its 
+>> file context entries sorted by fc_sort.c and should handle this case.
+> I am only looking at targeted and MLS right now.   As soon as we get 
+> this fix we need to get it out.
+> 
+hrm, the libsemanage fix shouldn't affect targeted since it is merely 
+replicating the algorithm already used when the base.pp is built by 
+refpolicy. The longer stem (of the 3rd entry) should win.
 
-http://people.redhat.com/rcoker/pol/
-
-At the above URL I've put some packages for rawhide that fix this issue and a 
-few other things.
-
-Among the changes is the change to file contexts to separate /usr(/.*)? 
-into /usr -d and /usr/.* etc.  This causes a relabel of most of the system on 
-package install (so I'm not planning to put it in FC5), but gives a small 
-performance increase on setfiles/restorecon etc once it's in place.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Please note that the sorting algorithm is very much heuristic and not 
+perfect. In the discussions we've had around here about this we 
+determined that the correct solution is to make the regexes more 
+specific where possible.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
