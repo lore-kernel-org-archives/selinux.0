@@ -1,37 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k33CX5V7003525
-	for <selinux@tycho.nsa.gov>; Mon, 3 Apr 2006 08:33:05 -0400
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k33CX3VS027214
-	for <selinux@tycho.nsa.gov>; Mon, 3 Apr 2006 12:33:03 GMT
 Subject: Re: End User Mailing List / Group
-From: Erich Schubert <erich@debian.org>
-To: "Randal T. Rioux" <randy@procyonlabs.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4430AABF.5000301@procyonlabs.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: Erich Schubert <erich@debian.org>
+Cc: James Morris <jmorris@namei.org>,
+        "Randal T. Rioux" <randy@procyonlabs.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1144067579.22768.3.camel@wintermute.xmldesign.de>
 References: <442B182D.9060104@redhat.com> <442B7848.8060406@hotmail.com>
 	 <4430AABF.5000301@procyonlabs.com>
+	 <1144067579.22768.3.camel@wintermute.xmldesign.de>
 Content-Type: text/plain
-Date: Mon, 03 Apr 2006 14:32:58 +0200
-Message-Id: <1144067579.22768.3.camel@wintermute.xmldesign.de>
+Date: Mon, 03 Apr 2006 09:52:28 -0400
+Message-Id: <1144072348.9028.47.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-I've done that split for the Debian SELinux lists, but these are pretty
-much no-traffic lists so far.
-In my personal opinion, SELinux isn't end-user ready yet (or not
-anymore, it was when we were still using the old policy). Too many
-pitfalls (module linking not yet working entirely right, so you need to
-put everything in base you want) and way too little documentation.
+On Mon, 2006-04-03 at 14:32 +0200, Erich Schubert wrote:
+> Hi,
+> I've done that split for the Debian SELinux lists, but these are pretty
+> much no-traffic lists so far.
+> In my personal opinion, SELinux isn't end-user ready yet (or not
+> anymore, it was when we were still using the old policy). Too many
+> pitfalls (module linking not yet working entirely right, so you need to
+> put everything in base you want) and way too little documentation.
 
-best regards,
-Erich Schubert
+Support for a modular base policy didn't exist at all in old policy - it
+hadn't been invented yet ;)  So no regression there.  And the breakage
+in the modular policy support is only for optionals-in-base, which
+wasn't part of the original design and implementation.  Documentation
+for the new support is improving, contributions welcome.
+
+On the end user mailing list question, I'm not sure it would have much
+life isolated from the distribution-focused lists and from the upstream
+developers list.  Most end users will deal with SELinux through their
+particular distributions, as integrating SELinux does take work and is
+difficult to maintain long term outside of the main packages of a
+distribution.  If there is a real demand for such a list, possibly it
+could be created on a community site like selinuxnews.org.   But I'm not
+sure if there is a such demand presently.
+
 -- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-       The best things in life are free: Friendship and Love.       //\
-    Der Anfang aller Erkenntnis ist das Staunen. --- Aristoteles    V_/_
+Stephen Smalley
+National Security Agency
 
 
 --
