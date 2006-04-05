@@ -1,45 +1,84 @@
-Subject: Re: rsync resetting contexts in /var/www
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: "J. Simonetti" <jsimonetti@denit.net>
-Cc: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
-In-Reply-To: <1144234218.7521.70.camel@jeroen.office.denit.net>
-References: <1144234218.7521.70.camel@jeroen.office.denit.net>
-Content-Type: text/plain
-Date: Wed, 05 Apr 2006 13:56:13 -0400
-Message-Id: <1144259773.25790.102.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44341AE0.9040201@redhat.com>
+Date: Wed, 05 Apr 2006 15:30:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Steve Grubb <sgrubb@redhat.com>, John Dennis <jdennis@redhat.com>,
+        Jonathan Blandford <jrb@redhat.com>
+Subject: AVC to Usable messages
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-04-05 at 12:50 +0200, J. Simonetti wrote:
-> Hello list,
-> 
-> I'm running into a problem with selinux on FC4
-> (selinux-policy-targeted-1.27.1-2.22).
-> 
-> I'm using rsync to build a local fedora mirror. I'm rsyncing
-> to /var/www/mirror with has a context of
-> root:object_r:httpd_sys_content_t
-> 
-> However rsync seems to insist on writing the files synched in this
-> directory as root:object_r:var_t.
-> This results in a 403 error when trying to access the files via the web
-> because apache can't read the files.
-> 
-> Is there a way for me to force rsync to create files in a certain
-> context other then running chcon -R everytime rsync finishes?
+I am adding the capability to analyze AVC messages and allow policy 
+developers to write a few lines of python that would then "translate" 
+AVC messages into a human readable sentences.  The end goal would be then to
+Alert users either through Email for servers or a bugbuddy type 
+application on the desktop when an AVC message gets delivered.
 
-rsync -X should preserve extended attributes, including the SELinux
-attribute, from the original files.  Not sure if that addresses your
-issue or not.  In the absence of -X, rsync should just be creating the
-new files with the default behavior, i.e. they should just inherit from
-the parent directory.
+Each plugin will get called with a list of AVC messages,  When it finds 
+one that it matches, it will strip off the AVC message and return the 
+translated string.  Eventually the second parameter returned by the 
+plugin, might be a script that the user could then push to rectify the 
+situation.  So we notice that a zone transfer is being attempted to the 
+system but SELinux is blocking it.  Does the user want to allow the zone 
+transfer?  If yes then the "BugBuddy" application will set the boolean 
+to allow this. (Of course this would all need to authorized).
 
--- 
-Stephen Smalley
-National Security Agency
+Example:
 
+time->Wed Apr  5 14:38:38 2006
+type=AVC_PATH msg=audit(1144262318.922:237):  
+path="/usr/lib/flash-plugin/libflashplayer.so"
+type=SYSCALL msg=audit(1144262318.922:237): arch=40000003 syscall=125 
+success=no exit=-13 a0=20f0000 a1=1fd000 a2=5 a3=bfca1260 items=0 
+pid=2714 auid=3267 uid=3267 gid=3267 euid=3267 suid=3267 fsuid=3267 
+egid=3267 sgid=3267 fsgid=3267 tty=(none) comm="firefox-bin" 
+exe="/usr/lib/firefox-1.5.0.1/firefox-bin" 
+subj=user_u:system_r:unconfined_t:s0-s0:c0.c255
+type=AVC msg=audit(1144262318.922:237): avc:  denied  { execmod } for  
+pid=2714 comm="firefox-bin" name="libflashplayer.so" dev=dm-0 
+ino=2803062 scontext=user_u:system_r:unconfined_t:s0-s0:c0.c255 
+tcontext=system_u:object_r:lib_t:s0 tclass=file
+
+more /usr/share/selinux/plugins/execmod.py
+from avc import *
+from rhpl.translate import _
+
+def analyze(AVCS):
+    ret = []
+    for i in  AVCS:
+        if "execmod" in i["access"]:
+            if "path" in i:
+                path=i["path"].strip('"')
+            else:
+                path=i["name"].strip('"')
+
+            action=(_('An application %s on your system attempted to 
+load a library %s that needs execmod access. This is a potential 
+security problem that should be reported as a bugzilla.  Most libraries 
+should not need this access. Somtimes libraries are coded incorrectly 
+and request this access.  You change SELinux to allow the application 
+this access by executing the following command, "chcon -t 
+textrel_shlib_t %s"' % (i["comm"], i["name"], path)), "");
+            ret.append(action)
+            AVCS.remove(i)
+    return (ret, AVCS)
+
+audit2allow --analyze  -i /var/log/audit/audit.log
+An application "firefox-bin" on your system attempted to load a library 
+"libflashplayer.so" that needs execmod access. This is a potential 
+security problem that should be reported as a bugzilla.  Most libraries 
+should not need this access. Somtimes libraries are coded incorrectly 
+and request this access.  You change SELinux to allow the application 
+this access by executing the following command, "chcon -t 
+textrel_shlib_t /usr/lib/flash-plugin/libflashplayer.so"
+
+
+
+Thoughts?
+
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
