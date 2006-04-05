@@ -1,48 +1,44 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k35G9cb1026179
-	for <selinux@tycho.nsa.gov>; Wed, 5 Apr 2006 12:09:38 -0400
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k35G7oua005818
-	for <selinux@tycho.nsa.gov>; Wed, 5 Apr 2006 16:07:51 GMT
-Subject: Re: VPN module
-From: Erich Schubert <erich@debian.org>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4433DC6D.9020209@tresys.com>
-References: <1144238374.19128.11.camel@wintermute.xmldesign.de>
-	 <1144248600.12875.2.camel@sgc.columbia.tresys.com>
-	 <4433DC6D.9020209@tresys.com>
+Subject: Re: rsync resetting contexts in /var/www
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: sds@tycho.nsa.gov
+To: "J. Simonetti" <jsimonetti@denit.net>
+Cc: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+In-Reply-To: <1144234218.7521.70.camel@jeroen.office.denit.net>
+References: <1144234218.7521.70.camel@jeroen.office.denit.net>
 Content-Type: text/plain
-Date: Wed, 05 Apr 2006 18:09:35 +0200
-Message-Id: <1144253375.19128.56.camel@wintermute.xmldesign.de>
+Date: Wed, 05 Apr 2006 13:56:13 -0400
+Message-Id: <1144259773.25790.102.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-> > Creating openvpn will be fine, but the vpn module has to stay as is,
-> > because we can't rename modules, because it causes upgrade issues.  For
+On Wed, 2006-04-05 at 12:50 +0200, J. Simonetti wrote:
+> Hello list,
+> 
+> I'm running into a problem with selinux on FC4
+> (selinux-policy-targeted-1.27.1-2.22).
+> 
+> I'm using rsync to build a local fedora mirror. I'm rsyncing
+> to /var/www/mirror with has a context of
+> root:object_r:httpd_sys_content_t
+> 
+> However rsync seems to insist on writing the files synched in this
+> directory as root:object_r:var_t.
+> This results in a 403 error when trying to access the files via the web
+> because apache can't read the files.
+> 
+> Is there a way for me to force rsync to create files in a certain
+> context other then running chcon -R everytime rsync finishes?
 
-I think we'll hit that problem sooner or later, and in order to do some
-automatic module loading we'll need much more magic anyway. Apart from
-that I don't think we need to be very careful with upgrading policy
-anyway, because the admin might have customized it.
-So on the one hand, I'd try to change such obvious things like this as
-early as possible (the module is badly named, it should be called vpnc!)
-so it will effect as few people as possible, on the other hand we'll
-probably need all this sooner or later anyway. So we should start
-planning tools for that.
-(e.g. how to extract dependency / conflict information from modules, how
-to map packages to modules that should be loaded)
+rsync -X should preserve extended attributes, including the SELinux
+attribute, from the original files.  Not sure if that addresses your
+issue or not.  In the absence of -X, rsync should just be creating the
+new files with the default behavior, i.e. they should just inherit from
+the parent directory.
 
-best regards,
-Erich Schubert
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-   To understand recursion you first need to understand recursion.   //\
-    Wirklich gute Freunde machen sich erst aus dem Staub, wenn man   V_/_
-            sie braucht. --- Charles Maurice de Tayllerand
+Stephen Smalley
+National Security Agency
 
 
 --
