@@ -1,57 +1,41 @@
-Message-ID: <44333C9E.4050508@procyonlabs.com>
-Date: Tue, 04 Apr 2006 23:42:22 -0400
-From: "Randal T. Rioux" <randy@procyonlabs.com>
-MIME-Version: 1.0
-To: sds@tycho.nsa.gov
-CC: Erich Schubert <erich@debian.org>, James Morris <jmorris@namei.org>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: End User Mailing List / Group / Policy Made Easy
-References: <442B182D.9060104@redhat.com> <442B7848.8060406@hotmail.com>	 <4430AABF.5000301@procyonlabs.com>	 <1144067579.22768.3.camel@wintermute.xmldesign.de> <1144072348.9028.47.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1144072348.9028.47.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: rsync resetting contexts in /var/www
+From: "J. Simonetti" <jsimonetti@denit.net>
+To: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 05 Apr 2006 12:50:18 +0200
+Message-Id: <1144234218.7521.70.camel@jeroen.office.denit.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Hello list,
 
-Stephen Smalley wrote:
-> On Mon, 2006-04-03 at 14:32 +0200, Erich Schubert wrote:
-<snip>
->>In my personal opinion, SELinux isn't end-user ready yet (or not
->>anymore, it was when we were still using the old policy). Too many
->>pitfalls (module linking not yet working entirely right, so you need to
->>put everything in base you want) and way too little documentation.
-<snip>
-> On the end user mailing list question, I'm not sure it would have much
-> life isolated from the distribution-focused lists and from the upstream
-> developers list.  Most end users will deal with SELinux through their
-> particular distributions, as integrating SELinux does take work and is
-> difficult to maintain long term outside of the main packages of a
-> distribution.   
+I'm running into a problem with selinux on FC4
+(selinux-policy-targeted-1.27.1-2.22).
 
-In reference to user interfacing, I was considering developing an
-ncurses based editor. I generally don't install X libraries on servers
-(wish Solaris made that an easy process), so I wanted something terminal
-friendly. I have noticed a couple really good projects (such as SELinux
-Policy Editor), but they are based on X. I will kick that idea around
-further, but please let me know if something already exists or if you
-have any design suggestions.
+I'm using rsync to build a local fedora mirror. I'm rsyncing
+to /var/www/mirror with has a context of
+root:object_r:httpd_sys_content_t
 
-> But I'm not sure if there is a such demand presently.
+However rsync seems to insist on writing the files synched in this
+directory as root:object_r:var_t.
+This results in a 403 error when trying to access the files via the web
+because apache can't read the files.
 
-We must create it! :-)
+Is there a way for me to force rsync to create files in a certain
+context other then running chcon -R everytime rsync finishes?
 
-Thanks,
-Randy
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFEMzydRrGMQdCNGUERAyX1AJ4rt16P9Er3tSPrtTCjbuo0PhegVACfXtA2
-+YPZ/FXupUCLR1FCOCBDtXE=
-=wAAx
------END PGP SIGNATURE-----
+-- 
+Kind regards,
+ 
+Jeroen Simonetti
+Network Manager
+ 
+Denit Internet Services BV
+Contactweg 131
+1014 BJ  Amsterdam
+Tel: +31 (0)20 337 2560
+Fax: +31 (0)20 337 1802
 
 --
 This message was distributed to subscribers of the selinux mailing list.
