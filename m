@@ -1,104 +1,52 @@
-Subject: Re: AVC to Usable messages
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Reply-To: sds@tycho.nsa.gov
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Steve Grubb <sgrubb@redhat.com>,
-        John Dennis <jdennis@redhat.com>, Jonathan Blandford <jrb@redhat.com>
-In-Reply-To: <44341AE0.9040201@redhat.com>
-References: <44341AE0.9040201@redhat.com>
-Content-Type: text/plain
-Date: Thu, 06 Apr 2006 07:52:03 -0400
-Message-Id: <1144324323.6176.16.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44350058.7080505@seb.ee>
+Date: Thu, 06 Apr 2006 14:49:44 +0300
+From: Tanel Kokk <tanel.kokk@seb.ee>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+Subject: Re: Sendmail & SELinux policies
+References: <4434DAC4.6090006@seb.ee> <1144323640.6176.5.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1144323640.6176.5.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-04-05 at 15:30 -0400, Daniel J Walsh wrote:
-> I am adding the capability to analyze AVC messages and allow policy 
-> developers to write a few lines of python that would then "translate" 
-> AVC messages into a human readable sentences.  The end goal would be then to
-> Alert users either through Email for servers or a bugbuddy type 
-> application on the desktop when an AVC message gets delivered.
-> 
-> Each plugin will get called with a list of AVC messages,  When it finds 
-> one that it matches, it will strip off the AVC message and return the 
-> translated string.  Eventually the second parameter returned by the 
-> plugin, might be a script that the user could then push to rectify the 
-> situation.  So we notice that a zone transfer is being attempted to the 
-> system but SELinux is blocking it.  Does the user want to allow the zone 
-> transfer?  If yes then the "BugBuddy" application will set the boolean 
-> to allow this. (Of course this would all need to authorized).
-> 
-> Example:
-> 
-> time->Wed Apr  5 14:38:38 2006
-> type=AVC_PATH msg=audit(1144262318.922:237):  
-> path="/usr/lib/flash-plugin/libflashplayer.so"
-> type=SYSCALL msg=audit(1144262318.922:237): arch=40000003 syscall=125 
-> success=no exit=-13 a0=20f0000 a1=1fd000 a2=5 a3=bfca1260 items=0 
-> pid=2714 auid=3267 uid=3267 gid=3267 euid=3267 suid=3267 fsuid=3267 
-> egid=3267 sgid=3267 fsgid=3267 tty=(none) comm="firefox-bin" 
-> exe="/usr/lib/firefox-1.5.0.1/firefox-bin" 
-> subj=user_u:system_r:unconfined_t:s0-s0:c0.c255
-> type=AVC msg=audit(1144262318.922:237): avc:  denied  { execmod } for  
-> pid=2714 comm="firefox-bin" name="libflashplayer.so" dev=dm-0 
-> ino=2803062 scontext=user_u:system_r:unconfined_t:s0-s0:c0.c255 
-> tcontext=system_u:object_r:lib_t:s0 tclass=file
-> 
-> more /usr/share/selinux/plugins/execmod.py
-> from avc import *
-> from rhpl.translate import _
-> 
-> def analyze(AVCS):
->     ret = []
->     for i in  AVCS:
->         if "execmod" in i["access"]:
->             if "path" in i:
->                 path=i["path"].strip('"')
->             else:
->                 path=i["name"].strip('"')
-> 
->             action=(_('An application %s on your system attempted to 
-> load a library %s that needs execmod access. This is a potential 
-> security problem that should be reported as a bugzilla.  Most libraries 
-> should not need this access. Somtimes libraries are coded incorrectly 
-> and request this access.  You change SELinux to allow the application 
-> this access by executing the following command, "chcon -t 
-> textrel_shlib_t %s"' % (i["comm"], i["name"], path)), "");
->             ret.append(action)
->             AVCS.remove(i)
->     return (ret, AVCS)
-> 
-> audit2allow --analyze  -i /var/log/audit/audit.log
-> An application "firefox-bin" on your system attempted to load a library 
-> "libflashplayer.so" that needs execmod access. This is a potential 
-> security problem that should be reported as a bugzilla.  Most libraries 
-> should not need this access. Somtimes libraries are coded incorrectly 
-> and request this access.  You change SELinux to allow the application 
-> this access by executing the following command, "chcon -t 
-> textrel_shlib_t /usr/lib/flash-plugin/libflashplayer.so"
-> 
-> 
-> 
-> Thoughts?
+Stephen Smalley wrote:
+> On Thu, 2006-04-06 at 12:09 +0300, Tanel Kokk wrote:
 
-I wouldn't bother referring to it as "needs execmod access" in the
-human-readable message, because that won't mean anything to users or
-(more importantly) to the application/library developers to whom the bug
-would ultimately be forwarded, and suggests that one just needs to allow
-a permission as opposed to altering the code.  "Requires text
-relocation" is more meaningful, and a link to Ulrich's papers might
-help.  You likely also want to note that the bugzilla should be filed
-against the package that owns the library, not selinux policy.  I'd make
-it something like "You can configure SELinux temporarily to allow this
-to happen as a workaround until the library is fixed but please file a
-bugzilla against package FOO to get the library corrected.", where your
-script can likely automatically determine the right package via rpm -q
--f on the library path and include that in the output.
+> This looks suspect, as the null device should be labeled null_device_t,
+> not just device_t.  ls -Z /dev/null
+
+Ouch! I have to note, that I have chrooted sendmail environment and 
+/sm_chroot/dev/null really has a label device_t. Now fixed to null_device_t.
+
+> 
+>> audit2allow get:
+>> allow sendmail_t device_t:chr_file { getattr ioctl };
+>>
+>> However I have this line in ./src/policy/domains/program/local.te:
+>> allow sendmail_t device_t:chr_file { read write getattr ioctl };
+>>
+>> As I understand I already have allowing policy record for this 
+>> situation. Why I still got this denied messages for sendmail_t?
+> 
+> First, I don't think you want to allow it (potential access to device
+> nodes that don't have a specific type).  You want to fix the label
+> on /dev/null instead.
+
+OK. I'll check my dev files and fix them to appropriate label.
+
+> Not sure why your local rule isn't applied though, unless you just
+> didn't do a make load after adding it.  You can try doing a make clean
+> load to be sure it was rebuilt.
+> 
+
+I allways did 'make relabel' and 'make reload'.
+
+Thanks! I'll look things over.
+
 
 -- 
-Stephen Smalley
-National Security Agency
+Tanel Kokk
 
 
 --
