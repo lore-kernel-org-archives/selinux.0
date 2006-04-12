@@ -1,15 +1,9 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3CJtO68021995
-	for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2006 15:55:24 -0400
-Received: from sbcs.cs.sunysb.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3CJtMSk008307
-	for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2006 19:55:22 GMT
-Date: Wed, 12 Apr 2006 15:55:21 -0400 (EDT)
+Date: Wed, 12 Apr 2006 15:57:53 -0400 (EDT)
 From: Gaurav Poothia <gpoothia@cs.sunysb.edu>
-To: sds@tycho.nsa.com
-cc: selinux@tycho.nsa.gov
+To: sds@tycho.nsa.gov
+cc: SELinux@tycho.nsa.gov
 Subject: Untrusted applications under SELinux
-Message-ID: <Pine.GSO.4.53.0604121416150.20146@compserv4>
+Message-ID: <Pine.GSO.4.53.0604121556280.20146@compserv4>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
