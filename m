@@ -1,70 +1,84 @@
-Message-ID: <443CB45E.5080400@seb.ee>
-Date: Wed, 12 Apr 2006 11:03:42 +0300
-From: Tanel Kokk <tanel.kokk@seb.ee>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3CA10FM009273
+	for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2006 06:01:00 -0400
+Received: from vance.state.gov (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3CA0wSk015925
+	for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2006 10:00:59 GMT
+Received: from iscan-a1.state.gov ([169.253.8.3])
+	by vance.state.gov (8.12.10/8.12.10) with ESMTP id k3C9tfMc004034
+	for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2006 05:55:41 -0400 (EDT)
+Message-ID: <9F70C34E8B4BD711A4A70002A53F8DAD06C216BF@londonsntsm.londondome1.state.sbu>
+From: "Morrison, Daniel C" <MorrisonDC@state.gov>
+To: "'sds@tycho.nsa.gov'" <sds@tycho.nsa.gov>, ivg2@cornell.edu
+Cc: jbrindle@tresys.com, cpebenito@tresys.com, dwalsh@redhat.com,
+        selinux@tycho.nsa.gov
+Subject: Please remove my e-mail address from your contact lists
+Date: Wed, 12 Apr 2006 10:56:48 +0100
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Sendmail & SELinux policies, again
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello
+Hello, My name is Dan Morrison and I continue to receive numerous e-mails
+from all of your chats sessions. Possibly the previous user of this e-mail
+was involved in your discussions, however, I am not a computer guy and would
+appreciate it if you all could figure out a way to remove my e-mail address
+from your address lists.  My e-mail address is morrisondc@state.gov.  I
+appreciate your help in significantly reducing the amount of e-mail I
+receive.
 
-Everything works fine with sendmail & SELinux most of time. However, 
-sometimes SELinux in our server rejects such activities:
+Thanks, Dan 
 
-Apr 12 03:40:08 mx.internal audit(1144802408.867:9): avc:  denied  { 
-recv_msg } for  saddr=201.37.237.52 src=5989 daddr=192.168.xxx.xxx 
-dest=8025 netif=eth0 scontext=user_u:system_r:sendmail_t 
-tcontext=system_u:object_r:pegasus_https_port_t tclass=tcp_socket
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:sds@tycho.nsa.gov] 
+Sent: Friday, March 31, 2006 8:12 PM
+To: Ivan Gyurdiev
+Cc: Joshua Brindle; Christopher J. PeBenito; Daniel J Walsh; SE Linux
+Subject: Re: The sort algorithm is broken by the second rule, Weneed a way
+to pin these rules to the top.
 
-Apr 12 03:40:11 mx.internal audit(1144802411.714:10): avc:  denied  { 
-recv_msg } for  saddr=201.37.237.52 src=5989 daddr=192.168.xxx.xxx 
-dest=8025 netif=eth0 scontext=user_u:system_r:sendmail_t 
-tcontext=system_u:object_r:pegasus_https_port_t tclass=tcp_socket
+On Fri, 2006-03-31 at 14:03 -0500, Ivan Gyurdiev wrote:
+> >   Sorting is presently only
+> > happening in the policy build process via the 
+> > refpolicy/support/fc_sort.c helper program, so it is only applied to 
+> > the file_context file provided by the policy itself, not to any 
+> > local entries (whether created via semanage or not).
+> >   
+> My mistake, I thought sorting was moved into matchpathcon at some point...
+> In that case the patch I sent shouldn't be necessary.
 
-Apr 12 03:40:17 mx.internal audit(1144802417.727:11): avc:  denied  { 
-recv_msg } for  saddr=201.37.237.52 src=5989 daddr=192.168.xxx.xxx 
-dest=8025 netif=eth0 scontext=user_u:system_r:sendmail_t 
-tcontext=system_u:object_r:pegasus_https_port_t tclass=tcp_socket
+Yes, Joshua had sent a patch to add the sorting logic to matchpathcon back
+in Oct '05, but I rejected it at the time because it needed to be
+coordinated with a policy update to ensure no actual change in filesystem
+labeling and because it sorted all of the file_contexts.* files together
+rather than retaining a prioritization among them.  And as we later agreed,
+it belongs in libsemanage at generation time rather than in libselinux.
 
-, where mx.internal [192.168.xxx.xxx] is our email gateway and dest=8025 
-is port, where sendmail actually listening from (iptables forwards port 
-25 to 8025 in transparent way).
+Current libselinux matchpathcon logic only moves exact specifications (no
+regex in the pathname) to the end so that they are never overridden by a
+pathname regex; otherwise, it just uses the provided ordering within each
+file and it uses a fixed ordering among the files (file_contexts.local takes
+precedence over file_contexts.homedirs which takes precedence over
+file_contexts).
 
-With audit2allow I get:
-allow sendmail_t pegasus_https_port_t:tcp_socket recv_msg;
+What is a little confusing right now is that there are potentially two
+"file_contexts.local" files; the one managed via semanage that only exists
+in the store and is merged to the end of the generated file_contexts file
+for installation and the one that can be manually created by the admin that
+is "merged" to the end of the in-memory table by matchpathcon.  I suppose we
+should consider the latter to be deprecated but libselinux will continue to
+look for it for legacy support.
 
-I found that there are some specific ports, which are defined as:
-portcon tcp 5989  system_u:object_r:pegasus_https_port_t
-portcon tcp 3306 system_u:object_r:mysqld_port_t
-portcon tcp 5432 system_u:object_r:postgresql_port_t
-portcon tcp 5988  system_u:object_r:pegasus_http_port_t
-portcon tcp 3128  system_u:object_r:http_cache_port_t
-portcon tcp 8080  system_u:object_r:http_cache_port_t
-portcon tcp 1-1023 system_u:object_r:reserved_port_t
-
-So as I understand, when source connection come from so called 
-"specific" port (for example 5989) and goes to port 25, then this 
-connection will be rejected by default. What is that good for?
-
-IMHO it is quite possible, that source port would be something like 
-3128, 5988 or 3306.
-
-I just thought to add such policies for sendmail_t:
-
-allow sendmail_t pegasus_https_port_t:tcp_socket recv_msg;
-allow sendmail_t mysqld_port_t:tcp_socket recv_msg;
-allow sendmail_t postgresql_port_t:tcp_socket recv_msg;
-allow sendmail_t pegasus_http_port_t:tcp_socket recv_msg;
-allow sendmail_t http_cache_port_t:tcp_socket recv_msg;
-
-Is it good solusion?
+--
+Stephen Smalley
+National Security Agency
 
 
--- 
-Tanel Kokk
-
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
