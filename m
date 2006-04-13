@@ -1,84 +1,43 @@
-Subject: Re: Untrusted applications under SELinux
-From: Erich Schubert <erich@debian.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Gaurav Poothia <gpoothia@cs.sunysb.edu>, SELinux@tycho.nsa.gov
-In-Reply-To: <200604122022.k3CKMJ6w013405@turing-police.cc.vt.edu>
-References: <Pine.GSO.4.53.0604121556280.20146@compserv4>
-	 <200604122022.k3CKMJ6w013405@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 13 Apr 2006 13:24:33 +0200
-Message-Id: <1144927474.30812.36.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3DJce2b012210
+	for <selinux@tycho.nsa.gov>; Thu, 13 Apr 2006 15:38:41 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3DJaWjf013252
+	for <selinux@tycho.nsa.gov>; Thu, 13 Apr 2006 19:36:35 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id CE25761B06
+	for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2006 05:38:20 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 04113-05 for <selinux@tycho.nsa.gov>;
+	Fri, 14 Apr 2006 05:38:20 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 7DE8661B02
+	for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2006 05:38:20 +1000 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 53AEBA7CE3
+	for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2006 05:38:19 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: Article about SE Linux on NetworkWorld
+Date: Fri, 14 Apr 2006 05:38:15 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200604140538.18644.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-> There is no reasonable way to keep a user from shooting themselves in the foot.
+http://www.networkworld.com/news/2006/041006-linuxworld.html?page=1
 
-I mostly agree here. There are some exceptions, though. But it all
-depends on how much the user is willing to give up in convenience stuff.
+Page 2 of the above article has a very positive review of SE Linux.
 
-For example, you might not want to allow "untrusted" apps (e.g.
-webbrowsers) to read personal data files. However, this basically breaks
-all webmail applications, flickr and so on. People will often want their
-webbrowser to be able to read their photo collection, for example.
-This also applies to untrusted applications downloaded from the
-internet, let's say a photo manager. That application is untrusted, yet
-it needs to be able to write to your photo collection to be of use.
-
-So it boils down to:
-If the user wants a high security system, he needs to accept that:
-- He sometimes needs to manually "transition" files from a "secured"
-part to an "unsecured" part (e.g. by copying files to a directory the
-browser can access before uploading them)
-- He sometimes needs to manually transition files from a "unsecured"
-part to a secure part (e.g. moving downloaded files from the download
-folder to his photo collection)
-- He can not just download and run applications that access his secured
-data.
-
-You can do some high-effort security measures. For example, you might
-not allow the user to execute any of his downloaded files, or write his
-own applications.
-But you can write an application that takes a downloaded file,
-virus-checks it and then puts it into a directory (read: relabel it)
-where he can execute it.
-But that is a) inconvenient for the user b) still not too secure due to
-VMs and scripting languages and other means to dynamically load code
-that the virus scanner can't check.
-
-> SELinux is designed to contain the damage and protect the *other* user's feet.
-
-Well, DAC does try to do that already. SELinux tries to do so for *one*
-user, mostly for root. It prevents bugs in e.g. bind to be able to
-damage your other processes, despite running as root.
-
-But deny-by-default (a key security concept) and unknown apps (security
-hell) basically boils down to "deny everything". (because "true" doesn't
-need any rights)
-This security concept just doesn't mix with completely unknown apps!
-
-You can however define a "confined_user_t" role that has only these
-access rights that you are willing to give to, well, applications you
-want to confine.
-But this "you are willing" is very unspecific. You need to find out what
-you are willing to allow. I wouldn't include read access to the users
-home directory. Nor to his mail. Just to maybe /tmp (rwc), ~/download
-(rwc) and ~/upload (r), maybe ro access to some config files (for visual
-integration, e.g. .gtkrc)
-and read access to common system libraries, but thats it.
-I don't think this will be very useful, though. I don't know any
-applications I would use this with.
-
-best regards,
-Erich Schubert
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-  A polar bear is a rectangular bear after a coordinate transform.   //\
-     Zwei Freunde müssen sich im Herzen ähneln, in allem anderen     V_/_
-        können sie grundverschieden sein. --- Sully Prudhomme
-
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
