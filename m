@@ -1,41 +1,38 @@
-Subject: Re: Selinux testsuite updated in latest LTP release
+Subject: Re: [PATCH] file context sort in libsemanage
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joy Latten <latten@austin.ibm.com>
-Cc: SELinux-dev@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <1144966405.2462.41.camel@faith.austin.ibm.com>
-References: <1144966405.2462.41.camel@faith.austin.ibm.com>
+To: Christopher Ashworth <cashworth@tresys.com>
+Cc: SELinux-dev@tresys.com, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1144959475.10749.12.camel@popeye>
+References: <1144685935.32555.32.camel@popeye.columbia.tresys.com>
+	 <1144765688.20422.9.camel@moss-spartans.epoch.ncsc.mil>
+	 <1144866072.27883.53.camel@popeye.columbia.tresys.com>
+	 <1144959475.10749.12.camel@popeye>
 Content-Type: text/plain
-Date: Fri, 14 Apr 2006 09:14:03 -0400
-Message-Id: <1145020443.11164.32.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 14 Apr 2006 09:46:14 -0400
+Message-Id: <1145022374.17185.4.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-04-13 at 17:13 -0500, Joy Latten wrote:
-> LTP has released ltp-20060411, their April release which contains
-> the selinux testsuite with refpolicy!
+On Thu, 2006-04-13 at 16:17 -0400, Christopher Ashworth wrote:
+> On Wed, 2006-04-12 at 14:21 -0400, Christopher Ashworth wrote:
+> > There was an error in my patch that handled the escape character '\'
+> > incorrectly.  The attached patch, modified to fix this bug, replaces the
+> > previous patch.
 > 
-> Is there an selinux command/flag in which I can determine whether
-> system is running refpolicy or old monolithic policy? 
-> If so, I can modify testsuite such that it can run either policy. I am
-> unable to determine this piece of info, so currently by default, the
-> refpolicy gets used when running the testsuite.
+> And, I managed to leave one last bug in there, for good measure.  Sigh.
+> 
+> Re-fixed version attached.
 
-There isn't a test for refpolicy vs. example policy per se, although
-there is a way to test for managed vs. non-managed policy.  Example
-policy would always fall into the non-managed category, whereas
-refpolicy can be built either way (monolithic or modular), although it
-is deployed in FC5 as modular/managed.
+Thanks, merged as libsemanage 1.6.6.
 
-libsemanage provides a semanage_is_managed() interface; this is called
-by semodule, setsebool, and semanage.  You could create a trivial python
-script or C program that calls it to test whether the policy is managed
-(if so, assume refpolicy; if not, assume example policy).  First you'd
-want to check whether libsemanage even exists on the system, as it won't
-in older releases (like FC4).  If it doesn't exist, then you can assume
-example policy.  If it does exist, then you should run your python
-script to call semanage_is_managed() to check whether policy is being
-managed via libsemanage.
+Dan - this means that libsemanage will be sorting the generated file
+contexts, so any changes in heuristics that you want would now go into
+the libsemanage sorting logic.  This should address the modular strict
+policy file contexts problem, but we still have the optionals-in-base
+issue to sort out there before modular strict policy can work correctly,
+IIUC.  
 
 -- 
 Stephen Smalley
