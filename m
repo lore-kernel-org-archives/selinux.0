@@ -1,37 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3ECKur4026340
-	for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2006 08:20:56 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3ECKtZb011766
-	for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2006 12:20:55 GMT
-Subject: Re: Latest patches.
-From: Russell Coker <rcoker@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <443F90CB.6080208@redhat.com>
-References: <443F90CB.6080208@redhat.com>
+Subject: Re: Selinux testsuite updated in latest LTP release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joy Latten <latten@austin.ibm.com>
+Cc: SELinux-dev@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1144966405.2462.41.camel@faith.austin.ibm.com>
+References: <1144966405.2462.41.camel@faith.austin.ibm.com>
 Content-Type: text/plain
-Date: Fri, 14 Apr 2006 22:20:46 +1000
-Message-Id: <1145017247.2840.173.camel@aeon>
+Date: Fri, 14 Apr 2006 09:14:03 -0400
+Message-Id: <1145020443.11164.32.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-04-14 at 08:08 -0400, Daniel J Walsh wrote:
-> mailman interaction with postfix
+On Thu, 2006-04-13 at 17:13 -0500, Joy Latten wrote:
+> LTP has released ltp-20060411, their April release which contains
+> the selinux testsuite with refpolicy!
+> 
+> Is there an selinux command/flag in which I can determine whether
+> system is running refpolicy or old monolithic policy? 
+> If so, I can modify testsuite such that it can run either policy. I am
+> unable to determine this piece of info, so currently by default, the
+> refpolicy gets used when running the testsuite.
 
-One thing to note is that I'm not certain that mailman will actually
-work with this policy.
+There isn't a test for refpolicy vs. example policy per se, although
+there is a way to test for managed vs. non-managed policy.  Example
+policy would always fall into the non-managed category, whereas
+refpolicy can be built either way (monolithic or modular), although it
+is deployed in FC5 as modular/managed.
 
-The suggested configuration (according to mailman documentation and
-default config files) fails to work correctly in some situations due to
-Unix permissions (can't deliver to the dead-mail store).  It is quite
-possible that if this Unix permission issue is solved then other SE
-Linux policy issues will be revealed.
+libsemanage provides a semanage_is_managed() interface; this is called
+by semodule, setsebool, and semanage.  You could create a trivial python
+script or C program that calls it to test whether the policy is managed
+(if so, assume refpolicy; if not, assume example policy).  First you'd
+want to check whether libsemanage even exists on the system, as it won't
+in older releases (like FC4).  If it doesn't exist, then you can assume
+example policy.  If it does exist, then you should run your python
+script to call semanage_is_managed() to check whether policy is being
+managed via libsemanage.
 
-But all the most obvious issues with Mailman and Postfix are fixed, it
-will probably work for many people now.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
