@@ -1,38 +1,40 @@
-Subject: Re: [PATCH] file context sort in libsemanage
+Subject: Re: semanage patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christopher Ashworth <cashworth@tresys.com>
-Cc: SELinux-dev@tresys.com, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1144959475.10749.12.camel@popeye>
-References: <1144685935.32555.32.camel@popeye.columbia.tresys.com>
-	 <1144765688.20422.9.camel@moss-spartans.epoch.ncsc.mil>
-	 <1144866072.27883.53.camel@popeye.columbia.tresys.com>
-	 <1144959475.10749.12.camel@popeye>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200604142108.28814.russell@coker.com.au>
+References: <200604142108.28814.russell@coker.com.au>
 Content-Type: text/plain
-Date: Fri, 14 Apr 2006 09:46:14 -0400
-Message-Id: <1145022374.17185.4.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 14 Apr 2006 13:08:56 -0400
+Message-Id: <1145034536.18244.22.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-04-13 at 16:17 -0400, Christopher Ashworth wrote:
-> On Wed, 2006-04-12 at 14:21 -0400, Christopher Ashworth wrote:
-> > There was an error in my patch that handled the escape character '\'
-> > incorrectly.  The attached patch, modified to fix this bug, replaces the
-> > previous patch.
-> 
-> And, I managed to leave one last bug in there, for good measure.  Sigh.
-> 
-> Re-fixed version attached.
+On Fri, 2006-04-14 at 21:08 +1000, Russell Coker wrote:
+> The attached patch against the semanage utility in rawhide allows it to create 
+> and modify prefixes.
 
-Thanks, merged as libsemanage 1.6.6.
+Thanks, merged as of policycoreutils 1.30.6.  Note that adding further
+examples in the man page to the EXAMPLES section introduced by Thomas
+Bleher would be helpful.
 
-Dan - this means that libsemanage will be sorting the generated file
-contexts, so any changes in heuristics that you want would now go into
-the libsemanage sorting logic.  This should address the modular strict
-policy file contexts problem, but we still have the optionals-in-base
-issue to sort out there before modular strict policy can work correctly,
-IIUC.  
+> Also when testing semanage I noticed that it let me remove a SE Linux user 
+> when a login still referred to it.  After doing so it then wouldn't let me 
+> recreate the user (with a confusing error message).  But as that bug didn't 
+> stop me from doing my work I haven't taken the time to fix it.
+> 
+> As the complexity of the semanage utility continues to increase I think that 
+> we need to split it into separate programs selogin, seuser, seport, 
+> seinterface, sefcontext, and setranslation.  This will make the man page 
+> easier to understand and generally increase ease of use.  It will also allow 
+> shell command-completion to do more of the work for the sysadmin.  What do 
+> you think?
+
+Not clear to me whether this will ultimately be helpful to users or more
+confusing.  iptables, auditctl, etc. don't split up the interface like
+this.  More useful to users would likely just be a more extensive
+description in the man page and more examples there.
 
 -- 
 Stephen Smalley
