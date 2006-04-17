@@ -1,31 +1,43 @@
-Subject: Re: modules.conf "stability" by sorting entries in "make conf"
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Erich Schubert <erich@debian.org>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1145295756.8014.35.camel@wintermute.xmldesign.de>
-References: <1145295756.8014.35.camel@wintermute.xmldesign.de>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3HMIWYn026445
+	for <selinux@tycho.nsa.gov>; Mon, 17 Apr 2006 18:18:32 -0400
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3HMIVND003100
+	for <selinux@tycho.nsa.gov>; Mon, 17 Apr 2006 22:18:31 GMT
+Subject: Re: VPN module
+From: Erich Schubert <erich@debian.org>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Petre Rodan <kaiowas@gentoo.org>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1145045255.8881.12.camel@sgc.columbia.tresys.com>
+References: <1144238374.19128.11.camel@wintermute.xmldesign.de>
+	 <1144248600.12875.2.camel@sgc.columbia.tresys.com>
+	 <20060414185125.GA7399@peter.sunspire.org>
+	 <1145045255.8881.12.camel@sgc.columbia.tresys.com>
 Content-Type: text/plain
-Date: Mon, 17 Apr 2006 14:08:54 -0400
-Message-Id: <1145297334.19561.2.camel@sgc>
+Date: Tue, 18 Apr 2006 00:18:31 +0200
+Message-Id: <1145312312.8014.67.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-04-17 at 19:42 +0200, Erich Schubert wrote:
-> Hi,
-> attached is a tiny patch to refpolicy/support/segenxml.py
-> which will sort module files before processing, so when you create a
-> "modules.conf" file via "make conf", the entries will be sorted.
-> 
-> Right now, the ordering depends on your filesystem, which makes diffs
-> (and especially merging) between modules.conf files unnecessary hard.
+Hello Christopher,
+> Merged.  One fix, I moved the initrc_t reading openvpn_etc_t to the init
+> module.
 
-Merged.
+policy/modules/kernel/corenetwork.te.in currently has port 5000 for
+OpenVPN.
 
+Port 1194 is the official IANA port for OpenVPN and should be added, too
+(or maybe even instead of port 5000, which is more likely to conflict
+with custom applications IMHO)
+
+best regards,
+Erich Schubert
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+ Why waste time learning, when ignorance is instantaneous? --- Calvin //\
+   Wenn zwei gute Freunde sind, die einander kennen, Sonn' und Mond   V_/_
+     begegnen sich, ehe sie sich trennen. --- Clemens von Brentano
 
 
 --
