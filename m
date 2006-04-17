@@ -1,69 +1,62 @@
-Subject: modules.conf "stability" by sorting entries in "make conf"
-From: Erich Schubert <erich@debian.org>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-pny2mqJ3egmlo6GPwyjK"
-Date: Mon, 17 Apr 2006 19:42:36 +0200
-Message-Id: <1145295756.8014.35.camel@wintermute.xmldesign.de>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3HHuOjH021774
+	for <selinux@tycho.nsa.gov>; Mon, 17 Apr 2006 13:56:24 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3HHuNND022399
+	for <selinux@tycho.nsa.gov>; Mon, 17 Apr 2006 17:56:23 GMT
+Subject: Re: Latest patches.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Russell Coker <rcoker@redhat.com>
+In-Reply-To: <443F90CB.6080208@redhat.com>
+References: <443F90CB.6080208@redhat.com>
+Content-Type: text/plain
+Date: Mon, 17 Apr 2006 13:56:56 -0400
+Message-Id: <1145296616.19561.0.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Merged.
 
---=-pny2mqJ3egmlo6GPwyjK
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Fri, 2006-04-14 at 08:08 -0400, Daniel J Walsh wrote:
+> This is a combination of a patch from Russell and Me.
+> 
+> Comments added to explain MCS constraint decisions
+> 
+> Fixes for amanda to run as tcp
+> 
+> bootloader needs to read SystemHigh
+> 
+> make system-install-packages run as rpm
+> 
+> Changes to make stem compression algorithm work better.  Also some 
+> changes to file_context to fix sort problems.  Mainly make sure 
+> textrel_shlib_t always comes after shlib_t definition.
+> 
+> Allow usermanage to create staff user accounts
+> 
+> defind java as a entry_point
+> 
+> allow mono and unconfined_t to dbus_chat with programs running as 
+> initrc_t/network_manager
+> 
+> Fixes to allow xen to work.
+> 
+> mailman interaction with postfix
+> 
+> Fix nfs booleans to actually work
+> 
+> fix samba to be able to create directories in users home dirs.
+> 
+> fix samba to work on nfs...
+> 
+> Allow usermanage to create the homedir
 
-Hi,
-attached is a tiny patch to refpolicy/support/segenxml.py
-which will sort module files before processing, so when you create a
-"modules.conf" file via "make conf", the entries will be sorted.
-
-Right now, the ordering depends on your filesystem, which makes diffs
-(and especially merging) between modules.conf files unnecessary hard.
-
-P.S.
-Since sourceforge anon CVS is still broken, you can grab the current CVS
-via Debians subversion (thanks to Christopher for giving me RO access to
-the 'real' sourceforge.net cvs via ssh), or browse it at
-http://svn.debian.org/wsvn/selinux/refpolicy/branches/upstream/
-The upstream branch is the unmodified checkout from CVS; the CVS dirs
-are there intentionally, but not up to date (since I want to keep them
-pointing to SF anon cvs, so anyone can update this branch). I guess CVS
-will be smart enough to merge identical changes once sourceforge anon
-cvs is updated again; so you should be able to run "cvs up" again
-afterwards.
-
-best regards,
-Erich Schubert
 -- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     Which is worse: ignorance or apathy? Who knows? Who cares?     //\
-            Es lohnt sich nicht, die Augen aufzumachen,             V_/_
-                   wenn der Kopf im Sand steckt.
-
---=-pny2mqJ3egmlo6GPwyjK
-Content-Disposition: attachment; filename=refpolicy-modules-sort.diff
-Content-Type: text/x-patch; name=refpolicy-modules-sort.diff; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-
-Index: support/segenxml.py
-===================================================================
---- support/segenxml.py	(Revision 87)
-+++ support/segenxml.py	(Arbeitskopie)
-@@ -214,7 +214,9 @@
- 	
- 	# For each module file in the layer, add its XML.
- 	for directory in directories:
--		for module in glob.glob("%s/*.if" % directory):
-+		modules = glob.glob("%s/*.if" % directory)
-+		modules.sort()
-+		for module in modules:
- 			layer_buf += getModuleXML(module)
- 
- 	layer_buf.append("</layer>\n")
-
---=-pny2mqJ3egmlo6GPwyjK--
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
