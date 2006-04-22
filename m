@@ -1,134 +1,73 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3LJo2wx030591
-	for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2006 15:50:02 -0400
-Received: from xcgca812.northgrum.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3LJo1r1011515
-	for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2006 19:50:01 GMT
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C6657C.C1CEEFFD"
-Subject: login error with strict modular ref pol in RHEL4
-Date: Fri, 21 Apr 2006 15:49:52 -0400
-Message-ID: <85A664F2F3F2D1409EE003C7D3D52EE40389FE8B@xcgoh901.northgrum.com>
-From: "Dinardo, Michael \(Xetron\)" <Michael.Dinardo@ngc.com>
-To: <selinux@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3MHEQ8c018838
+	for <selinux@tycho.nsa.gov>; Sat, 22 Apr 2006 13:14:26 -0400
+Received: from rwcrmhc14.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3MHEPbY025572
+	for <selinux@tycho.nsa.gov>; Sat, 22 Apr 2006 17:14:26 GMT
+Subject: textrel_shlib_t handling
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MxFWNNO6KE9F22gJDLkz"
+Date: Sat, 22 Apr 2006 13:14:18 -0400
+Message-Id: <1145726058.9106.70.camel@gorn.pebenito.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C6657C.C1CEEFFD
-Content-Type: text/plain;
-	charset="us-ascii"
+--=-MxFWNNO6KE9F22gJDLkz
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Hi list,
+I remember seeing some discussion about RPM being enhanced so that it
+detects libraries with text relocations, and labels them textrel_shlib_t
+when installing them onto the filesystem.  So I thought that it would be
+useful for Gentoo's Portage too.  The problem is that if a library isn't
+already textrel_shlib_t in the file contexts, a relabel will reset them
+back to shlib_t.  I came up with two possible solutions:
 
-I am having trouble logging in after building and loading strict modular
-reference policy in RHEL4.  Just wondering if anyone else has
-encountered this and might have a suggestion on how to fix.   =20
+1. the package manager adds file contexts using semanage fcontext, then
+the library will get the right label by default.  The problem with this
+is that this would need to be recorded somewhere (probably the package
+manager db) so the package manager removes this fcontext if the package
+is removed/upgraded.
 
-I cannot log in (even if I boot in permissive mode) once the system
-boots.  This is for both run level 3 and 5.  Run level 1 is fine.  My
-selinux toolchain and policy source are from
-ftp://people.redhat.com/dwalsh/SELinux-RHEL4_MODULAR.  The messages I am
-receiving when attempting graphical and console logins are as follows:
+2. textrel_shlib_t is made a customizable type.  The problem is that the
+libs can still get set back to shlib_t if using -F on
+restorecon/setfiles.
 
-GRAPHICAL LOGIN MESSAGE:=20
-Error! Unable to set executable context
+While #1 is the best solution, it may require significant changes in the
+package manager, and may not be acceptable to the upstream because of
+that.  #2 is a simpler solution, but has the -F problem.  My feeling is
+that the -F problem is not a significant problem, so we should go with
+#2.  Thoughts?
 
-CONSOLE LOGIN DIALOGS:
-login: root
-password: *******
-Would you like to enter a security context? [y] Y
-role: sysadm_r
-type: sysadm_t
-Not a valid security context.
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
-After telling me I have entered an invalid security context the system
-brings me back to the initial login screen.  I've tried many variations
-of role/type at the above login prompt to no avail.  Does this mean I
-just need to set up proper security contexts for my users?  Or, could it
-be that I am missing some type of user security context file?  Has
-anyone else encountered this type of error?
 
-Thanks,
-Mike.
+--=-MxFWNNO6KE9F22gJDLkz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-------_=_NextPart_001_01C6657C.C1CEEFFD
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
-6.5.7232.7">
-<TITLE>login error with strict modular ref pol in RHEL4</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/rtf format -->
+iD8DBQBESmRqvI7kLeavkkMRAl0PAJ0RS0k97LMN6eW1vPRsXuH3SxNZUACdEhVo
+ev9FsuAd3rcotPFRuqi2/1M=
+=tqbw
+-----END PGP SIGNATURE-----
 
-<P><FONT SIZE=3D2 FACE=3D"Courier New">Hi list,</FONT>
-</P>
+--=-MxFWNNO6KE9F22gJDLkz--
 
-<P><FONT SIZE=3D2 FACE=3D"Courier New">I am having trouble logging in =
-after building and loading strict modular reference policy in =
-RHEL4.&nbsp; Just wondering if anyone else has encountered this and =
-might have a suggestion on how to fix.&nbsp;&nbsp;&nbsp; </FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Courier New">I cannot log in (even if I boot =
-in permissive mode) once the system boots.&nbsp; This is for both run =
-level 3 and 5.&nbsp; Run level 1 is fine.&nbsp; My selinux toolchain and =
-policy source are from </FONT><A =
-HREF=3D"ftp://people.redhat.com/dwalsh/SELinux-RHEL4_MODULAR"><U><FONT =
-COLOR=3D"#0000FF" SIZE=3D2 FACE=3D"Courier =
-New">ftp://people.redhat.com/dwalsh/SELinux-RHEL4_MODULAR</FONT></U></A><=
-FONT SIZE=3D2 FACE=3D"Courier New">.&nbsp; The messages I am receiving =
-when attempting graphical and console logins are as follows:</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Courier New">GRAPHICAL LOGIN MESSAGE: </FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">Error! Unable to set executable =
-context</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Courier New">CONSOLE LOGIN DIALOGS:</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">login: root</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">password: *******</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">Would you like to enter a =
-security context? [y] Y</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">role: sysadm_r</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">type: sysadm_t</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">Not a valid security =
-context.</FONT>
-</P>
-
-<P><FONT SIZE=3D2 FACE=3D"Courier New">After telling me I have entered =
-an invalid security context the system brings me back to the initial =
-login screen.&nbsp; I've tried many variations of role/type at the above =
-login prompt to no avail.&nbsp; Does this mean I just need to set up =
-proper security contexts for my users?&nbsp; Or, could it be that I am =
-missing some type of user security context file?&nbsp; Has anyone else =
-encountered this type of error?</FONT></P>
-
-<P><FONT SIZE=3D2 FACE=3D"Courier New">Thanks,</FONT>
-
-<BR><FONT SIZE=3D2 FACE=3D"Courier New">Mike.</FONT>
-</P>
-
-</BODY>
-</HTML>
-------_=_NextPart_001_01C6657C.C1CEEFFD--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
