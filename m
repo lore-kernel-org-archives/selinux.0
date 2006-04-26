@@ -1,72 +1,126 @@
-Subject: Re: Labeling only policy and problems with booleans
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwin@gurde.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        selinux@tycho.nsa.gov, fireflier-devel@lists.sourceforge.net,
-        marius@cs.utt.ro
-In-Reply-To: <200604262118.21217.edwin@gurde.com>
-References: <200604021240.21290.edwin@gurde.com>
-	 <1146058670.28745.117.camel@moss-spartans.epoch.ncsc.mil>
-	 <1146060789.15625.20.camel@sgc>  <200604262118.21217.edwin@gurde.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 26 Apr 2006 15:23:20 -0400
-Message-Id: <1146079400.15625.45.camel@sgc>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3QJx99M025867
+	for <selinux@tycho.nsa.gov>; Wed, 26 Apr 2006 15:59:09 -0400
+Received: from xcgca812.northgrum.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3QJx7vp008909
+	for <selinux@tycho.nsa.gov>; Wed, 26 Apr 2006 19:59:08 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: login error with strict modular ref pol in RHEL4
+Date: Wed, 26 Apr 2006 15:58:55 -0400
+Message-ID: <85A664F2F3F2D1409EE003C7D3D52EE4038A01F0@xcgoh901.northgrum.com>
+From: "Dinardo, Michael \(Xetron\)" <Michael.Dinardo@ngc.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-04-26 at 21:18 +0300, Török Edwin wrote:
-> On Wednesday 26 April 2006 17:13, Christopher J. PeBenito wrote:
-> > On Wed, 2006-04-26 at 09:37 -0400, Stephen Smalley wrote:
-> > >
-> > > Should be some higher level interface for running a program as a user
-> > > app and as a daemon, right?  You don't want to make direct references to
-> > > other modules' types if it can be avoided.
-> >
-> > There isn't one currently for unconfined users, but that should be added
-> > for 3rd party use. 
-> What about interface(`unconfined_domain',  (in unconfined.fc)?
-> > There are two potentials for the initrc, 
-> > init_daemon_domain() and init_system_domain().  The first one is
-> > (obviously) for daemons, and the second one is for short running
-> > initialization-style processes such as mount and ifconfig; they both
-> > have the same parameters, for example:
-> >
-> > init_daemon_domain(myapp_t,myapp_exec_t)
-> I'll use this one and unconfined_domain.
-> 
-> Is using unconfined_domain enough, or should I also add init_daemon_domain? 
-> Does init_daemon_domain grant any privileges that unconfined domain doesn't 
-> have?
+Okay, some progress...
 
-unconfined_domain() only makes the specified domain unconfined, it
-doesn't make a transition from unconfined_t to the domain.
-init_daemon_domain() makes a transition from initrc_t to the specified
-domain.  Perhaps we should consider renaming the interfaces to clear up
-this confusion.
+I can log in as root from the console in permissive mode.  I am still
+prompted to enter a security context.  If I enter system_r for role and
+kernel_t for type, I am able to log in.  However, I still cannot log in
+through gdm in permissive mode and cannot log in at all in enforcing
+mode (through the console or gdm).  
 
-> I also need to remove the ability to load policy from an unconfined domain 
-> (see my previous mail), if I remove that from unconfined.te, build a base.pp, 
-> and distribute that along with fireflier, will that be ok? 
+What I did to get things working so far:
 
-If you want the fierflier policy to replace the distro's policy, that
-seems reasonable.
+1. Installed the following (along with all other tools at
+ftp://people.redhat.com/dwalsh/SELinux/RHEL4_MODULAR/i386/):
+	selinux-policy-2.2.28-1.rhel4.src.rpm
+	selinux-policy-2.2.28-1.rhel4.noarch.rpm
+	selinux-policy-targeted-2.2.28-1.rhel4.noarch.rpm
+2. Installed the source from /usr/src/redhat:
+	rpmbuild -bp /usr/src/redhat/SPECS/selinux-policy.spec
+	cd /usr/src/redhat/BUILD/serefpolicy-2.2.23
+	make install-src
+3. Moved the installed source files from /etc/selinux/refpolicy/src to
+/etc/selinux/targeted/src
+4. Renamed /etc/selinux/targeted to /etc/selinux/strict
+5. Fixed compile-time errors and compiled strict policy as described in
+my earlier email
+6. Relabeled and rebooted.  
 
-> Or will you consider including a boolean to disable policy loading for 
-> unconfined domains (separate from the boolean that restrict policy loading 
-> for the kernel), so that I can turn off policy loading for unconfined 
-> domains, but keep it for "privileged" domains?
+Am I setting up my environment correctly (steps 1-4 above)?  Is there a
+strict reference policy available for RHEL4 that I should install
+instead of targeted (selinux-policy-targeted-2.2.28-1.rhel4.noarch.rpm)
+in step 1?
 
-Right now in the upstream policy, unconfined_domain() means fully
-unconfined.  It might be more acceptable if we do a labeled boolean so
-only access to that boolean is disabled when secure mode is enabled,
-rather than disabling all boolean access.
+Thanks,
+Mike.	
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+On Behalf Of Dinardo, Michael (Xetron)
+Sent: Wednesday, April 26, 2006 11:19 AM
+To: Daniel J Walsh
+Cc: selinux@tycho.nsa.gov
+Subject: RE: login error with strict modular ref pol in RHEL4
+
+I tried relabeling the file system (as described) but am still receiving
+the same error.
+ 
+
+-----Original Message-----
+From: Daniel J Walsh [mailto:dwalsh@redhat.com]
+Sent: Wednesday, April 26, 2006 8:01 AM
+To: Dinardo, Michael (Xetron)
+Cc: selinux@tycho.nsa.gov
+Subject: Re: login error with strict modular ref pol in RHEL4
+
+Dinardo, Michael (Xetron) wrote:
+>
+> Hi list,
+>
+> I am having trouble logging in after building and loading strict 
+> modular reference policy in RHEL4.  Just wondering if anyone else has
+> encountered this and might have a suggestion on how to fix.   
+>
+> I cannot log in (even if I boot in permissive mode) once the system 
+> boots.  This is for both run level 3 and 5.  Run level 1 is fine.  My 
+> selinux toolchain and policy source are from 
+> _ftp://people.redhat.com/dwalsh/SELinux-RHEL4_MODULAR_.  The messages 
+> I am receiving when attempting graphical and console logins are as
+> follows:
+>
+> GRAPHICAL LOGIN MESSAGE:
+> Error! Unable to set executable context
+>
+> CONSOLE LOGIN DIALOGS:
+> login: root
+> password: *******
+> Would you like to enter a security context? [y] Y
+> role: sysadm_r
+> type: sysadm_t
+> Not a valid security context.
+>
+> After telling me I have entered an invalid security context the system
+
+> brings me back to the initial login screen.  I've tried many 
+> variations of role/type at the above login prompt to no avail.  Does 
+> this mean I just need to set up proper security contexts for my users?
+
+> Or, could it be that I am missing some type of user security context 
+> file?  Has anyone else encountered this type of error?
+>
+> Thanks,
+> Mike.
+>
+This looks more likely that you have a labeling problem.  If you boot
+with the kernel parameter "autorelabel", or if you log in in permissive
+mode and execute:
+
+touch /.autorelabel
+reboot
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with the words "unsubscribe selinux" without quotes as the message.
 
 
 --
