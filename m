@@ -1,76 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k3REpx1v012229
-	for <selinux@tycho.nsa.gov>; Thu, 27 Apr 2006 10:51:59 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k3REpwKk008079
-	for <selinux@tycho.nsa.gov>; Thu, 27 Apr 2006 14:51:58 GMT
-Message-ID: <4450DAAB.3030507@redhat.com>
-Date: Thu, 27 Apr 2006 10:52:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: =?utf-8?q?T=C3=B6r=C3=B6k_Edwin?= <edwin@gurde.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Labeling only policy and problems with booleans
+Date: Thu, 27 Apr 2006 22:17:54 +0300
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux@tycho.nsa.gov, fireflier-devel@lists.sourceforge.net
+References: <200604021240.21290.edwin@gurde.com> <200604262113.01211.edwin@gurde.com> <1146079604.28745.183.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1146079604.28745.183.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: "Dinardo, Michael \(Xetron\)" <Michael.Dinardo@ngc.com>
-CC: Valdis.Kletnieks@vt.edu, selinux@tycho.nsa.gov
-Subject: Re: login error with strict modular ref pol in RHEL4
-References: <85A664F2F3F2D1409EE003C7D3D52EE4038A0201@xcgoh901.northgrum.com>
-In-Reply-To: <85A664F2F3F2D1409EE003C7D3D52EE4038A0201@xcgoh901.northgrum.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200604272217.54944.edwin@gurde.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dinardo, Michael (Xetron) wrote:
->   
->> -----Original Message-----
->> From: Valdis.Kletnieks@vt.edu [mailto:Valdis.Kletnieks@vt.edu] 
->> Sent: Wednesday, April 26, 2006 4:19 PM
->> To: Dinardo, Michael (Xetron)
->> Cc: Daniel J Walsh; selinux@tycho.nsa.gov
->> Subject: Re: login error with strict modular ref pol in RHEL4 
->>
->> On Wed, 26 Apr 2006 15:58:55 EDT, "Dinardo, Michael (Xetron)" said:
->>
->>     
->>> 1. Installed the following (along with all other tools at
->>> ftp://people.redhat.com/dwalsh/SELinux/RHEL4_MODULAR/i386/):
->>> 	selinux-policy-2.2.28-1.rhel4.src.rpm
->>> 	selinux-policy-2.2.28-1.rhel4.noarch.rpm
->>> 	selinux-policy-targeted-2.2.28-1.rhel4.noarch.rpm
->>> 2. Installed the source from /usr/src/redhat:
->>> 	rpmbuild -bp /usr/src/redhat/SPECS/selinux-policy.spec
->>> 	cd /usr/src/redhat/BUILD/serefpolicy-2.2.23
->>> 	make install-src
->>>       
->> Umm.. why are you installing a 2.2.23 policy like this, when 
->> you just downloaded 2.2.28?  Why isn't the 2.2.28-1 RPM 
->> installable as is, and what problems are you setting yourself 
->> up for by doing this behind RPM's back?
->>     
+On Wednesday 26 April 2006 22:26, Stephen Smalley wrote:
+> sediff of these two policies shows a _lot_ of differences, including 107
+> added types in the "bad" policy.  Are you sure they are identical except
+> for linking unconfined?  What is in that module (source)?
 >
-> Nice catch.  My mistake.  I reinstalled using 2.2.28.  However, I can no
-> longer log in at all again. 
+> I do see an allow unconfined_t security_t:security load_policy under a
+> different boolean in the "bad" policy; looks like a boolean mapping
+> problem at link time.  We did see those when the optionals-in-base
+> support was first merged, so the Debian checkpolicy might have an issue
+> there, but that should have been resolved in 1.30.3 or newer, built
+> against libsepol 1.12.3 or newer.
 >
->   
->>> 4. Renamed /etc/selinux/targeted to /etc/selinux/strict
->>>       
->> No good can come from this.  Especially since rpm thinks the 
->> 2.2.28.1 strict policy is installed....
->>     
->
-> I have to agree.  However, when I install 2.2.28-1 source it gets
-> installed in /etc/selinux/refpolicy/src.  Nothing else is installed in
-> this directory.  In /etc/selinux/targeted there are subdirectories for
-> contexts, modules, policy, etc.  Since I don't have a strict policy I am
-> using targeted directory to get these other components.  I would
-> definitely prefer to have a strict policy directory to put the source
-> into as I believe this may be related to my current trouble.  Is there
-> an appropriate strict reference policy that I could install first?
->
->    
->
->   
-I am confused.  What are you trying to do?  Please join me on the 
-#selinux chat room and maybe we can work through this.
+I rebuilt the policy under FC5, with checkpolicy 1.30.3, and 
+libsepol-1.12.4-1.fc5, checkpolicy-1.30.3-1.fc5, here it is
+http://edwintorok.googlepages.com/policy.20.
+Using sediff shows almost no difference to the bad policy (some te rules I 
+removed, since they violated assertions), and the same 100+ differences to 
+the good policy.
+Looking at this line:
+F               + allow unconfined_t security_t : security { compute_member 
+compute_user compute_create setenforce check_context setcheckreqprot 
+compute_relabel setbool load_policy setsecparam compute_av }; [ allow_execmem 
+allow_execstack &&  ]
 
-Dan
+I tried setting allow_execmem and allow_execstack to true, and then I couldn't 
+load policy anymore. Clearly, at linktime secure_mode_policyload was mapped 
+to allow_execmem && allow_execstack. 
+And AFAICT this bug it is still present in the latest checkpolicy+libsepol.
+
+Is there a bugtracker for selinux?
+
+(you said that  a bug like this has been fixed, do you recall where that patch 
+is?, it might be a good starting point on fixing this issue)
+
+Edwin
 
 --
 This message was distributed to subscribers of the selinux mailing list.
