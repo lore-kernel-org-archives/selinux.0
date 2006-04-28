@@ -1,77 +1,44 @@
-Subject: Re: Labeling only policy and problems with booleans
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwin@gurde.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux@tycho.nsa.gov, fireflier-devel@lists.sourceforge.net
-In-Reply-To: <200604272217.54944.edwin@gurde.com>
-References: <200604021240.21290.edwin@gurde.com>
-	 <200604262113.01211.edwin@gurde.com>
-	 <1146079604.28745.183.camel@moss-spartans.epoch.ncsc.mil>
-	 <200604272217.54944.edwin@gurde.com>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 27 Apr 2006 15:53:15 -0400
-Message-Id: <1146167595.15747.6.camel@jackjack.columbia.tresys.com>
+Subject: [patch] libsepol: Fix conditional handling for modules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmillan@tresys.com>,
+        =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwin@gurde.com>
+Content-Type: text/plain
+Date: Fri, 28 Apr 2006 14:52:56 -0400
+Message-Id: <1146250376.11817.158.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-04-27 at 22:17 +0300, Török Edwin wrote:
-> On Wednesday 26 April 2006 22:26, Stephen Smalley wrote:
-> > sediff of these two policies shows a _lot_ of differences, including 107
-> > added types in the "bad" policy.  Are you sure they are identical except
-> > for linking unconfined?  What is in that module (source)?
-> >
-> > I do see an allow unconfined_t security_t:security load_policy under a
-> > different boolean in the "bad" policy; looks like a boolean mapping
-> > problem at link time.  We did see those when the optionals-in-base
-> > support was first merged, so the Debian checkpolicy might have an issue
-> > there, but that should have been resolved in 1.30.3 or newer, built
-> > against libsepol 1.12.3 or newer.
-> >
-> I rebuilt the policy under FC5, with checkpolicy 1.30.3, and 
-> libsepol-1.12.4-1.fc5, checkpolicy-1.30.3-1.fc5, here it is
-> http://edwintorok.googlepages.com/policy.20.
-> Using sediff shows almost no difference to the bad policy (some te rules I 
-> removed, since they violated assertions), and the same 100+ differences to 
-> the good policy.
-> Looking at this line:
-> F               + allow unconfined_t security_t : security { compute_member 
-> compute_user compute_create setenforce check_context setcheckreqprot 
-> compute_relabel setbool load_policy setsecparam compute_av }; [ allow_execmem 
-> allow_execstack &&  ]
-> 
-> I tried setting allow_execmem and allow_execstack to true, and then I couldn't 
-> load policy anymore. Clearly, at linktime secure_mode_policyload was mapped 
-> to allow_execmem && allow_execstack. 
-> And AFAICT this bug it is still present in the latest checkpolicy+libsepol.
-> 
-> Is there a bugtracker for selinux?
-> 
-> (you said that  a bug like this has been fixed, do you recall where that patch 
-> is?, it might be a good starting point on fixing this issue)
-> 
-> Edwin
-> 
+This patch fixes cond_normalize to process the entire conditional list
+at link time (rather than just the first node), which was resulting in
+mishandling of conditionals in non-base modules.  Committed to libsepol
+1.12.6.
 
-We have a patch that fixes this, but unfortunately it is part of a
-larger patch that fixes several bugs and introduces a minor policy
-module file format change. I'm trying to track down the exact part of
-the larger patch that fixes this bug now and will hopefully have a
-smaller patch soon.
-
-Karl
+Index: libsepol/src/link.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/link.c,v
+retrieving revision 1.17
+diff -u -p -r1.17 link.c
+--- libsepol/src/link.c	8 Mar 2006 14:42:57 -0000	1.17
++++ libsepol/src/link.c	28 Apr 2006 18:15:42 -0000
+@@ -1773,8 +1773,10 @@ static int cond_normalize(policydb_t *p)
+                 avrule_decl_t *decl;
+                 for (decl = block->branch_list; decl != NULL; decl = decl->next) {
+                         cond_list_t *cond = decl->cond_list;
+-                        if (cond != NULL && cond_normalize_expr(p, cond) < 0) {
+-                                return -1;
++			while (cond) {
++                        	if (cond_normalize_expr(p, cond) < 0)
++                                	return -1;
++				cond = cond->next; 
+                         }
+                 }
+         }
 
 -- 
-Karl MacMillan
-Tresys Technology
-www.tresys.com
-
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
+Stephen Smalley
+National Security Agency
 
 
 --
