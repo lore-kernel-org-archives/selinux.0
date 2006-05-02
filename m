@@ -1,57 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k42GE09L004960
-	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 12:14:00 -0400
-Received: from pop06.mail.atl.earthlink.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k42GDxUP002165
-	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 16:13:59 GMT
-Message-ID: <44578536.9060106@mindspring.com>
-Date: Tue, 02 May 2006 12:13:42 -0400
-From: Richard Hally <rhally@mindspring.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: We are attempting once again to split policy out into individual
- RPMS.
+Subject: Re: We are attempting once again to split policy out into
+	individual RPMS.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jeremy Katz <katzj@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@redhat.com>,
+        SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>,
+        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
+In-Reply-To: <1146583639.32102.20.camel@orodruin.boston.redhat.com>
 References: <44576B91.8060607@redhat.com>
-In-Reply-To: <44576B91.8060607@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	 <1146582758.13611.89.camel@moss-spartans.epoch.ncsc.mil>
+	 <1146583639.32102.20.camel@orodruin.boston.redhat.com>
+Content-Type: text/plain
+Date: Tue, 02 May 2006 12:26:15 -0400
+Message-Id: <1146587175.13611.145.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-<snip>
+On Tue, 2006-05-02 at 11:27 -0400, Jeremy Katz wrote:
+> Lots do.  On the order of as many packages as require users at least.
+> And I'd expect more over time (especially given policy around dbus and
+> the increasing reliance on dbus through the distribution).  Imagine a
+> world where every user you wanted to add had to have a separate package
+> to create the user first. 
 
-> 
-> We need the ability for RPM to be able to write a file context on disk 
-> without the kernel verifying it.  The kernel should treat this as an 
-> unlabeled_t file. the same way it would if I ran
-> 
-> semodule -i XYZ.pp
-> restorecon /usr/bin/XYZ
-> semoduel -e XYZ
-> 
-> I don't think this is an unreasonable request to allow rpm_t to have the 
-> privilege of writing the "invalid" context to disk.
-> 
-> Secondly the rpm team would like to be able to execute the equivalent of 
-> matchpathcon(XYZ.pp)  IE be able to extract the FC file mapping from the 
-> policy package and combine it with the on disk representation to 
-> determine the file context to associate with the new files being put on 
-> disk.
-> 
-> At the end of the rpm install, postinstall would do an semodule -i XYZ.pp.
-> 
-> We want to start out with just a couple of packages shipping policy to 
-> prove the technology and then to allow third parties to ship using this 
-> method.
-> 
-> Dan
+I'm not sure these all require separate policy.  Ideally, we'd like to
+see greater use of the equivalence class concepts to limit the explosion
+in policy and not require per-application/per-package policy in so many
+cases.  There is a tradeoff here in least privilege vs. manageability.
 
+> You _already_ have to handle this case.  Think about the case where I
+> load a policy with some file context.  Then, I create files labeled as
+> such.  Then I remove the policy.   Use the files.  Then load policy
+> again.  
 
-What if the files being installed were already labeled with the context?
-I.e after the files are built but before being packaged into the rpm, 
-the context is applied to the file.
+If you didn't remove the files when you removed the policy, and you
+didn't bother to relabel them, then they truly have become unlabeled.
+Arguing that they should auto-magically be converted back to the
+original types when those types re-appear in the policy (regardless of
+what they may mean) is not a clear cut case.  Consider an analogy:
+Admin creates some user accounts, those users create some files, admin
+deletes the user accounts but some files owned by those uids are left
+around the system, later the admin creates some other user accounts but
+reuses the same uids.  Now those leftover files will be accessible to
+the new users, but it is debatable as to whether that is a good thing.
 
-Richard
+> And to be fully up-front about it, if there is continued opposition to
+> being able to set things like this, then what's going to end up having
+> to happen is that we're going to have to generate some dummy policy
+> mapping new file contexts to unlabeled_t (or some such) and load it
+> before the files get put down and then load the real policy afterwards.
+> And you've now doubled the amount of time spent on policy loads[1] and
+> gaining nothing beyond having the kernel do the right thing.
+
+Ok, let's assume that we implement kernel mechanism for
+revalidating/updating the incore inode SIDs upon policy reload.  But
+where does this leave us with regard to being able to meaningfully
+confine rpm in the future, e.g. by moving the real processing into a
+helper and running it in different domains based on package
+trustworthiness and purpose?  If rpm (and potentially other programs, as
+this becomes a tempting way to deal with e.g. dump/restore) can set down
+arbitrary values as file contexts, then can they be meaningfully
+restricted in any way?  To me that is the larger concern.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
