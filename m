@@ -1,53 +1,50 @@
-Subject: RE: We are attempting once again to split policy outintoindividual
-	RPMS.
-From: Jeremy Katz <katzj@redhat.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        James Morris <jmorris@redhat.com>,
-        selinux-dev <selinux-dev@tresys.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158816FEDB@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158816FEDB@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Tue, 02 May 2006 15:15:15 -0400
-Message-Id: <1146597316.32102.125.camel@orodruin.boston.redhat.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k42JS650010359
+	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 15:28:06 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k42JS54f012540
+	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 19:28:05 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: [ANN] Setools-2.4
+Date: Tue, 2 May 2006 15:28:04 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158816FEE5@exchange.columbia.tresys.com>
+From: "Kevin Carr" <kcarr@tresys.com>
+To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-05-02 at 15:03 -0400, Joshua Brindle wrote:
-> > From: Jeremy Katz [mailto:katzj@redhat.com] 
-> <snip>
-> > 
-> > I don't take the former being controllable as a given, 
-> > though.  And if it _is_ controllable, I think similar sorts 
-> > of things could apply with just the files (eg, if we end up 
-> > adding stuff so that "untrusted"
-> > packages can't create policy, then similarly, "untrusted" 
-> > packages can't use undefined labels; this seems relatively 
-> > straight-forward)
-> 
-> I don't think this works. If "official" rpm's use this behavior for
-> labeling files I seriously doubt there will be significant restrictions
-> on third party rpm's not to do so. 
+A new version of setools is available on the Tresys website.
+http://www.tresys.com/selinux/
 
-Similarly, if official RPMs use the behavior of bundling policy that
-allows them to label files, I seriously doubt there will be significant
-restrictions on third party rpm's not to do so.
+Change-Log
+==========
+apol: File contexts tab now allows for MLS range searching if the loaded
+database is from a MLS filesystem.	Policy statistics dialog now
+shows MLS and ocontexts summaries.
 
-But somehow, I think we're talking past each other here and not
-understanding what the other is trying to get at.
+libapol: Added support for loading base policies containing optionals.
+Added support for searching range transitions containing attributes.
 
-> Further, Steves solution for checking files afterward doesn't work I
-> don't think. RPM scriptlets can write files that aren't in the package
-> (eg., echo "echo jbrindle:x:0::: >> /etc/passwd" >
-> /usr/bin/my-rogue-binary.sh) and therefore aren't verifiable by the rpm
-> process.
+libseaudit: Bugfix to support parsing FC5-style audit logs.
 
-But how does my-rogue-binary.sh end up something that it shouldn't be?
+seaudit: Added date filters.
 
-Jeremy
+secmds: Added support to indexcon and searchcon for MLS filesytems.
+Added support to findcon and replcon for MLS filesystems.
+	
+sechecker: Added incomplete network access (inc_net_access) module.
+Added unreachable domains (unreachable_doms) module.  Added impossible
+range transitions (imp_range_trans) module.
+
+sesearch: Allow user to search range transitions by attributes and
+indirect matching.  Added RBAC searching.
+
+Kevin Carr
+Tresys Technology
+410.290.1411 x137
+
 
 
 --
