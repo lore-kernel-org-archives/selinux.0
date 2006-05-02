@@ -1,68 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k42G5OH2004704
-	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 12:05:24 -0400
-Received: from mailgw3.br.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k42G5K4f015891
-	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 16:05:22 GMT
-Received: from mailhub1.br.ibm.com (mailhub1 [9.18.232.109])
-	by mailgw3.br.ibm.com (8.13.1/8.13.1) with ESMTP id k42G8PN42551870
-	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 13:08:25 -0300
-Received: from d24av01.br.ibm.com (d24av01.br.ibm.com [9.18.232.46])
-	by mailhub1.br.ibm.com (8.12.10/NCO/VER6.8) with ESMTP id k42G5Amk014040
-	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 13:05:10 -0300
-Received: from d24av01.br.ibm.com (loopback [127.0.0.1])
-	by d24av01.br.ibm.com (8.12.11/8.13.3) with ESMTP id k42G5Agg025504
-	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 13:05:10 -0300
-From: Glauber de Oliveira Costa <glommer@br.ibm.com>
-To: SE Linux <selinux@tycho.nsa.gov>, dwalsh@redhat.com,
-        Ivan Gyurdiev <ivg2@cornell.edu>
-Subject: [PATCH] Fix set* functions parameter
-Date: Tue, 2 May 2006 13:04:31 -0300
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k42GE09L004960
+	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 12:14:00 -0400
+Received: from pop06.mail.atl.earthlink.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k42GDxUP002165
+	for <selinux@tycho.nsa.gov>; Tue, 2 May 2006 16:13:59 GMT
+Message-ID: <44578536.9060106@mindspring.com>
+Date: Tue, 02 May 2006 12:13:42 -0400
+From: Richard Hally <rhally@mindspring.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_PM4VExsEis27MLR"
-Message-Id: <200605021304.31517.glommer@br.ibm.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: We are attempting once again to split policy out into individual
+ RPMS.
+References: <44576B91.8060607@redhat.com>
+In-Reply-To: <44576B91.8060607@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_PM4VExsEis27MLR
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Daniel J Walsh wrote:
+<snip>
 
-In general, functions in the set* family (like setcon and setfilecon) receives 
-a security_context_t as a parameter. This patch includes the correspondent 
-typemap for it, allowing those functions to be sucessfully called. 
+> 
+> We need the ability for RPM to be able to write a file context on disk 
+> without the kernel verifying it.  The kernel should treat this as an 
+> unlabeled_t file. the same way it would if I ran
+> 
+> semodule -i XYZ.pp
+> restorecon /usr/bin/XYZ
+> semoduel -e XYZ
+> 
+> I don't think this is an unreasonable request to allow rpm_t to have the 
+> privilege of writing the "invalid" context to disk.
+> 
+> Secondly the rpm team would like to be able to execute the equivalent of 
+> matchpathcon(XYZ.pp)  IE be able to extract the FC file mapping from the 
+> policy package and combine it with the on disk representation to 
+> determine the file context to associate with the new files being put on 
+> disk.
+> 
+> At the end of the rpm install, postinstall would do an semodule -i XYZ.pp.
+> 
+> We want to start out with just a couple of packages shipping policy to 
+> prove the technology and then to allow third parties to ship using this 
+> method.
+> 
+> Dan
 
---Boundary-00=_PM4VExsEis27MLR
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="type_fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="type_fix"
 
-Index: selinuxswig.i
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux-usr/libselinux/src/selinuxswig.i,v
-retrieving revision 1.3
-diff -u -p -r1.3 selinuxswig.i
---- selinuxswig.i	4 Jan 2006 15:32:42 -0000	1.3
-+++ selinuxswig.i	2 May 2006 15:22:22 -0000
-@@ -30,6 +30,10 @@
- }
- %typemap(argout) security_context_t * {
- 	$result = t_output_helper($result, PyString_FromString(*$1));
-+} 
-+
-+%typemap(in) security_context_t {
-+	$1 = (security_context_t)PyString_AsString($input);
- }
- 
- extern int is_selinux_enabled(void);
+What if the files being installed were already labeled with the context?
+I.e after the files are built but before being packaged into the rpm, 
+the context is applied to the file.
 
---Boundary-00=_PM4VExsEis27MLR--
+Richard
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
