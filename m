@@ -1,61 +1,180 @@
-Subject: RE: We are attempting once again to split policy outintoindividual
-	RPMS.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Jeremy Katz <katzj@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@redhat.com>,
-        selinux-dev <selinux-dev@tresys.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
-In-Reply-To: <1146670602.6723.33.camel@localhost.localdomain>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158816FEDB@exchange.columbia.tresys.com>
-	 <1146597202.13611.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <1146670602.6723.33.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 03 May 2006 11:51:19 -0400
-Message-Id: <1146671479.27735.85.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k43HKWR2002132
+	for <selinux@tycho.nsa.gov>; Wed, 3 May 2006 13:20:32 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k43HKVtb005075
+	for <selinux@tycho.nsa.gov>; Wed, 3 May 2006 17:20:31 GMT
+Subject: appletalk sockets
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-/TADQCk7bTNx9Akp8RCg"
+Date: Wed, 03 May 2006 13:23:14 -0400
+Message-Id: <1146676995.20331.113.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-03 at 11:36 -0400, Karl MacMillan wrote:
-> On Tue, 2006-05-02 at 15:13 -0400, Stephen Smalley wrote:
-> > I do think having rpm check the file contexts of the installed files
-> > after policy load would be good practice, both for robustness and
-> > security.  
-> >  
+
+--=-/TADQCk7bTNx9Akp8RCg
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 02 May 2006 at 13:57 -0400, Christopher J. PeBenito wrote:
+> On Tue, 2006-05-02 at 13:30 -0400, Daniel J Walsh wrote:
+> > Christopher J. PeBenito wrote:
+> > > On Tue, 2006-05-02 at 10:08 -0400, Daniel J Walsh wrote:
+> > >> cups needs to be able to create socket to itself.
+> > >
+> > > This needs more investigation; we need to find out more about this
+> > > generic socket so we can add a specific class for it.
+> > >
+> > >   
+> >
+> http://www.redhat.com/archives/fedora-selinux-list/2006-April/msg00216.html
 > 
-> I agree that this sounds like a good compromise - is there any chance
-> that this will happen?
+> So it appears that a class for appletalk sockets needs to be added.
 
-Jeremy followed up off list; his initial idea was to just validate the
-contexts in the header, but wasn't clear as to what rpm should then do
-if there is an error.  I suggested it should be actually checking the
-effective labels of the installed files via lgetxattr/lgetfilecon, which
-will return unlabeled_t if the attribute was never mapped to a valid
-label, but he had a concern with the performance overhead there.  Even
-in that case, he wasn't sure what rpm should then do, i.e. what is a
-sane label to assign to the mislabeled file at that point.  It could, of
-course, just set the xattr to truly be unlabeled_t on disk.
+How about the attached patches?
 
-> Maybe I missed it, but if this privilege is added, how will it be
-> granted. A permission on the filesystem object class?
-
-Not decided, but I was thinking just the security class, as it is
-effectively a security operation, similar to loading policy, and I would
-expect us to be generally more careful about the security permissions in
-the policy.  Applying it to the superblock/filesystem would be a bit
-more granular, although no one today is using the per-superblock labels
-for anything useful (except possibly in the MLS space).
-
-Still looking at the issues of having the kernel revalidate/update the
-inode SIDs from xattr upon policy reload - not very pleasant, of course,
-but no surprise there.
- 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
+
+--=-/TADQCk7bTNx9Akp8RCg
+Content-Disposition: attachment; filename=appletalk-kernel.diff
+Content-Type: text/x-patch; name=appletalk-kernel.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXJOcCBsaW51eC0yLjYuMTYuMTMub3JpZy9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMg
+bGludXgtMi42LjE2LjEzL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYw0KLS0tIGxpbnV4LTIuNi4x
+Ni4xMy5vcmlnL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYwkyMDA2LTA1LTAyIDE3OjM4OjQ0LjAw
+MDAwMDAwMCAtMDQwMA0KKysrIGxpbnV4LTIuNi4xNi4xMy9zZWN1cml0eS9zZWxpbnV4L2hvb2tz
+LmMJMjAwNi0wNS0wMyAxMjo0NTo0Mi45MTAyODU1MDAgLTA0MDANCkBAIC02NjUsNiArNjY1LDgg
+QEAgc3RhdGljIGlubGluZSB1MTYgc29ja2V0X3R5cGVfdG9fc2VjdXJpdA0KIAkJcmV0dXJuIFNF
+Q0NMQVNTX1BBQ0tFVF9TT0NLRVQ7DQogCWNhc2UgUEZfS0VZOg0KIAkJcmV0dXJuIFNFQ0NMQVNT
+X0tFWV9TT0NLRVQ7DQorCWNhc2UgUEZfQVBQTEVUQUxLOg0KKwkJcmV0dXJuIFNFQ0NMQVNTX0FQ
+UExFVEFMS19TT0NLRVQ7DQogCX0NCiANCiAJcmV0dXJuIFNFQ0NMQVNTX1NPQ0tFVDsNCmRpZmYg
+LXVyTnAgbGludXgtMi42LjE2LjEzLm9yaWcvc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2F2X2lu
+aGVyaXQuaCBsaW51eC0yLjYuMTYuMTMvc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2F2X2luaGVy
+aXQuaA0KLS0tIGxpbnV4LTIuNi4xNi4xMy5vcmlnL3NlY3VyaXR5L3NlbGludXgvaW5jbHVkZS9h
+dl9pbmhlcml0LmgJMjAwNi0wNS0wMiAxNzozODo0NC4wMDAwMDAwMDAgLTA0MDANCisrKyBsaW51
+eC0yLjYuMTYuMTMvc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2F2X2luaGVyaXQuaAkyMDA2LTA1
+LTAzIDEyOjQ0OjM1LjY2NjA4MzAwMCAtMDQwMA0KQEAgLTI5LDMgKzI5LDQgQEANCiAgICBTXyhT
+RUNDTEFTU19ORVRMSU5LX0lQNkZXX1NPQ0tFVCwgc29ja2V0LCAweDAwNDAwMDAwVUwpDQogICAg
+U18oU0VDQ0xBU1NfTkVUTElOS19ETlJUX1NPQ0tFVCwgc29ja2V0LCAweDAwNDAwMDAwVUwpDQog
+ICAgU18oU0VDQ0xBU1NfTkVUTElOS19LT0JKRUNUX1VFVkVOVF9TT0NLRVQsIHNvY2tldCwgMHgw
+MDQwMDAwMFVMKQ0KKyAgIFNfKFNFQ0NMQVNTX0FQUExFVEFMS19TT0NLRVQsIHNvY2tldCwgMHgw
+MDQwMDAwMFVMKQ0KZGlmZiAtdXJOcCBsaW51eC0yLjYuMTYuMTMub3JpZy9zZWN1cml0eS9zZWxp
+bnV4L2luY2x1ZGUvYXZfcGVybWlzc2lvbnMuaCBsaW51eC0yLjYuMTYuMTMvc2VjdXJpdHkvc2Vs
+aW51eC9pbmNsdWRlL2F2X3Blcm1pc3Npb25zLmgNCi0tLSBsaW51eC0yLjYuMTYuMTMub3JpZy9z
+ZWN1cml0eS9zZWxpbnV4L2luY2x1ZGUvYXZfcGVybWlzc2lvbnMuaAkyMDA2LTA1LTAyIDE3OjM4
+OjQ0LjAwMDAwMDAwMCAtMDQwMA0KKysrIGxpbnV4LTIuNi4xNi4xMy9zZWN1cml0eS9zZWxpbnV4
+L2luY2x1ZGUvYXZfcGVybWlzc2lvbnMuaAkyMDA2LTA1LTAzIDEyOjQ0OjM1LjY2NjA4MzAwMCAt
+MDQwMA0KQEAgLTkzMywzICs5MzMsMjYgQEANCiAjZGVmaW5lIE5FVExJTktfS09CSkVDVF9VRVZF
+TlRfU09DS0VUX19TRU5EX01TRyAgIDB4MDAxMDAwMDBVTA0KICNkZWZpbmUgTkVUTElOS19LT0JK
+RUNUX1VFVkVOVF9TT0NLRVRfX05BTUVfQklORCAgMHgwMDIwMDAwMFVMDQogDQorI2RlZmluZSBB
+UFBMRVRBTEtfU09DS0VUX19JT0NUTCAgICAgICAgICAgICAgICAgICAweDAwMDAwMDAxVUwNCisj
+ZGVmaW5lIEFQUExFVEFMS19TT0NLRVRfX1JFQUQgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAw
+MDJVTA0KKyNkZWZpbmUgQVBQTEVUQUxLX1NPQ0tFVF9fV1JJVEUgICAgICAgICAgICAgICAgICAg
+MHgwMDAwMDAwNFVMDQorI2RlZmluZSBBUFBMRVRBTEtfU09DS0VUX19DUkVBVEUgICAgICAgICAg
+ICAgICAgICAweDAwMDAwMDA4VUwNCisjZGVmaW5lIEFQUExFVEFMS19TT0NLRVRfX0dFVEFUVFIg
+ICAgICAgICAgICAgICAgIDB4MDAwMDAwMTBVTA0KKyNkZWZpbmUgQVBQTEVUQUxLX1NPQ0tFVF9f
+U0VUQVRUUiAgICAgICAgICAgICAgICAgMHgwMDAwMDAyMFVMDQorI2RlZmluZSBBUFBMRVRBTEtf
+U09DS0VUX19MT0NLICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDQwVUwNCisjZGVmaW5lIEFQ
+UExFVEFMS19TT0NLRVRfX1JFTEFCRUxGUk9NICAgICAgICAgICAgIDB4MDAwMDAwODBVTA0KKyNk
+ZWZpbmUgQVBQTEVUQUxLX1NPQ0tFVF9fUkVMQUJFTFRPICAgICAgICAgICAgICAgMHgwMDAwMDEw
+MFVMDQorI2RlZmluZSBBUFBMRVRBTEtfU09DS0VUX19BUFBFTkQgICAgICAgICAgICAgICAgICAw
+eDAwMDAwMjAwVUwNCisjZGVmaW5lIEFQUExFVEFMS19TT0NLRVRfX0JJTkQgICAgICAgICAgICAg
+ICAgICAgIDB4MDAwMDA0MDBVTA0KKyNkZWZpbmUgQVBQTEVUQUxLX1NPQ0tFVF9fQ09OTkVDVCAg
+ICAgICAgICAgICAgICAgMHgwMDAwMDgwMFVMDQorI2RlZmluZSBBUFBMRVRBTEtfU09DS0VUX19M
+SVNURU4gICAgICAgICAgICAgICAgICAweDAwMDAxMDAwVUwNCisjZGVmaW5lIEFQUExFVEFMS19T
+T0NLRVRfX0FDQ0VQVCAgICAgICAgICAgICAgICAgIDB4MDAwMDIwMDBVTA0KKyNkZWZpbmUgQVBQ
+TEVUQUxLX1NPQ0tFVF9fR0VUT1BUICAgICAgICAgICAgICAgICAgMHgwMDAwNDAwMFVMDQorI2Rl
+ZmluZSBBUFBMRVRBTEtfU09DS0VUX19TRVRPUFQgICAgICAgICAgICAgICAgICAweDAwMDA4MDAw
+VUwNCisjZGVmaW5lIEFQUExFVEFMS19TT0NLRVRfX1NIVVRET1dOICAgICAgICAgICAgICAgIDB4
+MDAwMTAwMDBVTA0KKyNkZWZpbmUgQVBQTEVUQUxLX1NPQ0tFVF9fUkVDVkZST00gICAgICAgICAg
+ICAgICAgMHgwMDAyMDAwMFVMDQorI2RlZmluZSBBUFBMRVRBTEtfU09DS0VUX19TRU5EVE8gICAg
+ICAgICAgICAgICAgICAweDAwMDQwMDAwVUwNCisjZGVmaW5lIEFQUExFVEFMS19TT0NLRVRfX1JF
+Q1ZfTVNHICAgICAgICAgICAgICAgIDB4MDAwODAwMDBVTA0KKyNkZWZpbmUgQVBQTEVUQUxLX1NP
+Q0tFVF9fU0VORF9NU0cgICAgICAgICAgICAgICAgMHgwMDEwMDAwMFVMDQorI2RlZmluZSBBUFBM
+RVRBTEtfU09DS0VUX19OQU1FX0JJTkQgICAgICAgICAgICAgICAweDAwMjAwMDAwVUwNCisNCmRp
+ZmYgLXVyTnAgbGludXgtMi42LjE2LjEzLm9yaWcvc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2Ns
+YXNzX3RvX3N0cmluZy5oIGxpbnV4LTIuNi4xNi4xMy9zZWN1cml0eS9zZWxpbnV4L2luY2x1ZGUv
+Y2xhc3NfdG9fc3RyaW5nLmgNCi0tLSBsaW51eC0yLjYuMTYuMTMub3JpZy9zZWN1cml0eS9zZWxp
+bnV4L2luY2x1ZGUvY2xhc3NfdG9fc3RyaW5nLmgJMjAwNi0wNS0wMiAxNzozODo0NC4wMDAwMDAw
+MDAgLTA0MDANCisrKyBsaW51eC0yLjYuMTYuMTMvc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2Ns
+YXNzX3RvX3N0cmluZy5oCTIwMDYtMDUtMDMgMTI6NDQ6MzUuNTE0MDczMDAwIC0wNDAwDQpAQCAt
+NTgsMyArNTgsNCBAQA0KICAgICBTXygibnNjZCIpDQogICAgIFNfKCJhc3NvY2lhdGlvbiIpDQog
+ICAgIFNfKCJuZXRsaW5rX2tvYmplY3RfdWV2ZW50X3NvY2tldCIpDQorICAgIFNfKCJhcHBsZXRh
+bGtfc29ja2V0IikNCmRpZmYgLXVyTnAgbGludXgtMi42LjE2LjEzLm9yaWcvc2VjdXJpdHkvc2Vs
+aW51eC9pbmNsdWRlL2ZsYXNrLmggbGludXgtMi42LjE2LjEzL3NlY3VyaXR5L3NlbGludXgvaW5j
+bHVkZS9mbGFzay5oDQotLS0gbGludXgtMi42LjE2LjEzLm9yaWcvc2VjdXJpdHkvc2VsaW51eC9p
+bmNsdWRlL2ZsYXNrLmgJMjAwNi0wNS0wMiAxNzozODo0NC4wMDAwMDAwMDAgLTA0MDANCisrKyBs
+aW51eC0yLjYuMTYuMTMvc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2ZsYXNrLmgJMjAwNi0wNS0w
+MyAxMjo0NDozNS41MTQwNzMwMDAgLTA0MDANCkBAIC02MCw2ICs2MCw3IEBADQogI2RlZmluZSBT
+RUNDTEFTU19OU0NEICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNTMNCiAjZGVm
+aW5lIFNFQ0NMQVNTX0FTU09DSUFUSU9OICAgICAgICAgICAgICAgICAgICAgICAgICAgICA1NA0K
+ICNkZWZpbmUgU0VDQ0xBU1NfTkVUTElOS19LT0JKRUNUX1VFVkVOVF9TT0NLRVQgICAgICAgICAg
+IDU1DQorI2RlZmluZSBTRUNDTEFTU19BUFBMRVRBTEtfU09DS0VUICAgICAgICAgICAgICAgICAg
+ICAgICAgNTYNCiANCiAvKg0KICAqIFNlY3VyaXR5IGlkZW50aWZpZXIgaW5kaWNlcyBmb3IgaW5p
+dGlhbCBlbnRpdGllcw0K
+
+
+--=-/TADQCk7bTNx9Akp8RCg
+Content-Disposition: attachment; filename=appletalk-refpolicy.diff
+Content-Type: text/x-patch; name=appletalk-refpolicy.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+
+SW5kZXg6IHBvbGljeS9mbGFzay9zZWN1cml0eV9jbGFzc2VzDQo9PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gcG9s
+aWN5L2ZsYXNrL3NlY3VyaXR5X2NsYXNzZXMJKHJldmlzaW9uIDE3NjQpDQorKysgcG9saWN5L2Zs
+YXNrL3NlY3VyaXR5X2NsYXNzZXMJKHdvcmtpbmcgY29weSkNCkBAIC04Niw0ICs4Niw2IEBADQog
+IyBVcGRhdGVkIE5ldGxpbmsgY2xhc3MgZm9yIEtPQkpFQ1RfVUVWRU5UIGZhbWlseS4NCiBjbGFz
+cyBuZXRsaW5rX2tvYmplY3RfdWV2ZW50X3NvY2tldA0KIA0KK2NsYXNzIGFwcGxldGFsa19zb2Nr
+ZXQNCisNCiAjIEZMQVNLDQpJbmRleDogcG9saWN5L2ZsYXNrL2FjY2Vzc192ZWN0b3JzDQo9PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09DQotLS0gcG9saWN5L2ZsYXNrL2FjY2Vzc192ZWN0b3JzCShyZXZpc2lvbiAxNzY0KQ0K
+KysrIHBvbGljeS9mbGFzay9hY2Nlc3NfdmVjdG9ycwkod29ya2luZyBjb3B5KQ0KQEAgLTYwNywz
+ICs2MDcsNiBAQA0KICMgVXBkYXRlZCBOZXRsaW5rIGNsYXNzIGZvciBLT0JKRUNUX1VFVkVOVCBm
+YW1pbHkuDQogY2xhc3MgbmV0bGlua19rb2JqZWN0X3VldmVudF9zb2NrZXQNCiBpbmhlcml0cyBz
+b2NrZXQNCisNCitjbGFzcyBhcHBsZXRhbGtfc29ja2V0DQoraW5oZXJpdHMgc29ja2V0DQpJbmRl
+eDogcG9saWN5L21vZHVsZXMvc2VydmljZXMvY3Vwcy50ZQ0KPT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIHBvbGlj
+eS9tb2R1bGVzL3NlcnZpY2VzL2N1cHMudGUJKHJldmlzaW9uIDE3NjQpDQorKysgcG9saWN5L21v
+ZHVsZXMvc2VydmljZXMvY3Vwcy50ZQkod29ya2luZyBjb3B5KQ0KQEAgLTg0LDYgKzg0LDkgQEAN
+CiBhbGxvdyBjdXBzZF90IHNlbGY6bmV0bGlua19yb3V0ZV9zb2NrZXQgeyByX25ldGxpbmtfc29j
+a2V0X3Blcm1zIH07DQogYWxsb3cgY3Vwc2RfdCBzZWxmOnRjcF9zb2NrZXQgeyBjcmVhdGVfc3Ry
+ZWFtX3NvY2tldF9wZXJtcyBjb25uZWN0dG8gYWNjZXB0ZnJvbSByZWN2ZnJvbSB9Ow0KIGFsbG93
+IGN1cHNkX3Qgc2VsZjp1ZHBfc29ja2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7DQorYWxsb3cgY3Vw
+c2RfdCBzZWxmOmFwcGxldGFsa19zb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsNCisjIGdlbmVy
+aWMgc29ja2V0IGhlcmUgdW50aWwgYXBwbGV0YWxrIHNvY2tldCBpcyBhdmFpbGFibGUgaW4ga2Vy
+bmVscw0KK2FsbG93IGN1cHNkX3Qgc2VsZjpzb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsNCiAN
+CiBhbGxvdyBjdXBzZF90IGN1cHNkX2V0Y190OmZpbGUgeyByX2ZpbGVfcGVybXMgc2V0YXR0ciB9
+Ow0KIGFsbG93IGN1cHNkX3QgY3Vwc2RfZXRjX3Q6ZGlyIHsgcndfZGlyX3Blcm1zIHNldGF0dHIg
+fTsNCkluZGV4OiBwb2xpY3kvc3VwcG9ydC9vYmpfcGVybV9zZXRzLnNwdA0KPT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0K
+LS0tIHBvbGljeS9zdXBwb3J0L29ial9wZXJtX3NldHMuc3B0CShyZXZpc2lvbiAxNzY0KQ0KKysr
+IHBvbGljeS9zdXBwb3J0L29ial9wZXJtX3NldHMuc3B0CSh3b3JraW5nIGNvcHkpDQpAQCAtMjgs
+NyArMjgsNyBAQA0KICMNCiAjIEFsbCBzb2NrZXQgY2xhc3Nlcy4NCiAjDQotZGVmaW5lKGBzb2Nr
+ZXRfY2xhc3Nfc2V0JywgYHsgdGNwX3NvY2tldCB1ZHBfc29ja2V0IHJhd2lwX3NvY2tldCBuZXRs
+aW5rX3NvY2tldCBwYWNrZXRfc29ja2V0IHVuaXhfc3RyZWFtX3NvY2tldCB1bml4X2RncmFtX3Nv
+Y2tldCBuZXRsaW5rX3JvdXRlX3NvY2tldCBuZXRsaW5rX2ZpcmV3YWxsX3NvY2tldCBuZXRsaW5r
+X3RjcGRpYWdfc29ja2V0IG5ldGxpbmtfbmZsb2dfc29ja2V0IG5ldGxpbmtfeGZybV9zb2NrZXQg
+bmV0bGlua19zZWxpbnV4X3NvY2tldCBuZXRsaW5rX2F1ZGl0X3NvY2tldCBuZXRsaW5rX2lwNmZ3
+X3NvY2tldCBuZXRsaW5rX2RucnRfc29ja2V0IG5ldGxpbmtfa29iamVjdF91ZXZlbnRfc29ja2V0
+IH0nKQ0KK2RlZmluZShgc29ja2V0X2NsYXNzX3NldCcsIGB7IHRjcF9zb2NrZXQgdWRwX3NvY2tl
+dCByYXdpcF9zb2NrZXQgbmV0bGlua19zb2NrZXQgcGFja2V0X3NvY2tldCB1bml4X3N0cmVhbV9z
+b2NrZXQgdW5peF9kZ3JhbV9zb2NrZXQgYXBwbGV0YWxrX3NvY2tldCBuZXRsaW5rX3JvdXRlX3Nv
+Y2tldCBuZXRsaW5rX2ZpcmV3YWxsX3NvY2tldCBuZXRsaW5rX3RjcGRpYWdfc29ja2V0IG5ldGxp
+bmtfbmZsb2dfc29ja2V0IG5ldGxpbmtfeGZybV9zb2NrZXQgbmV0bGlua19zZWxpbnV4X3NvY2tl
+dCBuZXRsaW5rX2F1ZGl0X3NvY2tldCBuZXRsaW5rX2lwNmZ3X3NvY2tldCBuZXRsaW5rX2RucnRf
+c29ja2V0IG5ldGxpbmtfa29iamVjdF91ZXZlbnRfc29ja2V0IH0nKQ0KIA0KIA0KICMNCg==
+
+
+--=-/TADQCk7bTNx9Akp8RCg--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
