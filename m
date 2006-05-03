@@ -1,54 +1,109 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k43ECgcu029436
-	for <selinux@tycho.nsa.gov>; Wed, 3 May 2006 10:12:42 -0400
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k43ECe5M020717
-	for <selinux@tycho.nsa.gov>; Wed, 3 May 2006 14:12:41 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 7E267C4C084
-	for <selinux@tycho.nsa.gov>; Wed,  3 May 2006 16:12:38 +0200 (CEST)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 32541-03 for <selinux@tycho.nsa.gov>;
-	Wed, 3 May 2006 16:12:37 +0200 (CEST)
-Received: from wintermute.xmldesign.de (p549A3FD6.dip0.t-ipconnect.de [84.154.63.214])
-	by legolas.drinsama.de (Postfix) with ESMTP id 292A0C4C083
-	for <selinux@tycho.nsa.gov>; Wed,  3 May 2006 16:12:37 +0200 (CEST)
-Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id 5DF1C234055
-	for <selinux@tycho.nsa.gov>; Wed,  3 May 2006 16:11:13 +0200 (CEST)
-Subject: Google Summer of Code SELinux projects
-From: Erich Schubert <erich@debian.org>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Wed, 03 May 2006 16:11:12 +0200
-Message-Id: <1146665473.634.73.camel@wintermute.xmldesign.de>
+Subject: Re: [2/4] Labeling only policy for fireflier (fireflier.pp)
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwin@gurde.com>
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        fireflier-devel@lists.sourceforge.net
+In-Reply-To: <200605011934.00791.edwin@gurde.com>
+References: <200604021240.21290.edwin@gurde.com>
+	 <1146079604.28745.183.camel@moss-spartans.epoch.ncsc.mil>
+	 <200605011917.54954.edwin@gurde.com>  <200605011934.00791.edwin@gurde.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 03 May 2006 10:35:21 -0400
+Message-Id: <1146666921.20331.104.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-I just wanted to point out that Debian is a registered mentor
-organization with Google for the Summer of Code. I'm currently signed up
-for mentoring, maybe Manoj or Russel will, too?
+On Mon, 2006-05-01 at 19:34 +0300, Török Edwin wrote:
+> [this policy (together with the base in mail [1/4]) is intended for systems 
+> where there is no selinux by default. for selinux enabled systems i'll create 
+> modules to be used with reference policy, i'll send that in a separate mail 
+> when it will be ready]
+> 
+> Still I want to provide "some" protection against changing labels (it would be 
+> just too easy to escape protection, but only for root, right?)
 
-Anyway, I'm also interested in mentoring SELinux projects, some are
-listed on the Debian SoC ideas page.
-http://wiki.debian.org/SummerOfCode2006
+Even if you can't relabel the file you could just delete it and recreate
+it with the new label using setfscreatecon, since it has all the other
+file perms.
 
-So if you are a student interested in SELinux, write a proposal and sign
-up with Google within the next few days (deadline May 8th I believe!) -
-you're welcome to pick Debian as Mentor for SELinux projects, and we'll
-see what we can do for you. Gentoo or Ubuntu might also be an option.
+> So I implemented something similar to what selinuxutil.te does to protect the 
+> module store, and also restricted policy loading to only a few domains.
+> Also restricted policy loading/setbool/setenforce with booleans. Also 
+> restricted module loading, and rawio.
+> 
+> I didn't use the unconfined interfaces from the reference policy, since they 
+> allowed too much rights to programs (IMHO). So I modified them to fit my 
+> needs, and put them in unconfined_norelabel.if.
+> 
+> So nobody besides a domain with policymanager attribute can load policy, and 
+> nobody besides them are allowed to change the module store. 
+> Any bypasses?
 
-best regards,
-Erich Schubert
+It looks like you have raw disk access, so thats at least one.  It may
+not allow you to load the policy, but it allows you to modify the policy
+on disk, and next time its loaded (e.g., reboot), you get the modified
+policy.
+
+> Of course if somebody replaces load_policy he can load any policy (but that 
+> isn't possible with this policy, right?).
+
+You have to have the load_policy permission or transition to a domain
+that has the permission.  If you have neither of these, then you should
+be ok.  The catch is if you can alter the policy (see above), then you
+could get someone else to load the policy (e.g., reboot).  If you can
+alter the load_policy binary or its libraries then you could make it do
+anything within limits of the domain it runs in.
+
+>  If load_policy & friends aren't 
+> statically linked, than someone can bypass it by changing libc, and 
+> protecting against that brings me very close to strict policy. So let's 
+> assume that load_policy would be statically linked, and it would get a 
+> sanitized environment.
+
+See above comment.
+
+> The module store is managed via semodule, so it has to have write access. The 
+> problem is whom I allow to execute semodule, because anybody doing that will 
+> override my policy. So I restricted transition to semanage_t only for 
+> policymanager domains.
+> 
+> Last I have a program named policymanager, that will generate the policy 
+> (doesn't exist yet). Obviously this will be the weakest link in the chain.
+> So in the end, I am not sure it is worth all this policy store protection, 
+> maybe I could do with a simpler policy.
+> 
+> Maybe just using auditallow&allow for loading policy protected with a boolean 
+> would be enough? (audit: so that the sysadmin thas the chance to know 
+> somebody changed the policy, if he uses remote logging, otherwise all is lost 
+> if somebody changes policy.) But then somebody could just replace the binary 
+> policy, and have it loaded automatically on next reboot?
+
+Right.
+
+> (why i don't want too much protection against root: 
+>  - if somebody didn't have selinux, with fireflier 1.1.x somebody could just 
+> have deleted the iptables rules to bypass fireflier's protection. You can't 
+> get real protection against this, unless you use a strict policy,right?
+
+So off the top of my head, it sounds like the policy should at least
+restrict net_admin capability, protect all the files that iptables_t
+accesses and its libraries, protect the policy, protect policy loading,
+protect load_policy and its libraries.  That affects a lot of files
+since it includes some generic types like etc_t, lib_t, and shlib_t.
+
+> Also I don't intend to make fireflier an selinux rule management tool,besides 
+> there are some nice tools from tresys that do that ;)
+> )
+
+You should try out apol from setools to help analyze your policy.
+
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-           There are only 10 types of people in the world:           //\
-           Those who understand binary and those who don't           V_/_
-  Es gibt wenig aufrichtige Freunde. Die Nachfrage ist auch gering.
-                    --- Marie von Ebner-Eschenbach
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
