@@ -1,8 +1,8 @@
 Subject: Re: We are attempting once again to split policy
 	out	into	individual RPMS.
-From: Jeremy Katz <katzj@redhat.com>
+From: Karl MacMillan <kmacmillan@tresys.com>
 To: Joshua Brindle <method@gentoo.org>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
+Cc: Jeremy Katz <katzj@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
         Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
         Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
 In-Reply-To: <4458FE33.80908@gentoo.org>
@@ -13,8 +13,8 @@ References: <44576B91.8060607@redhat.com>  <44577454.5040204@gentoo.org>
 	 <1146669307.6723.20.camel@localhost.localdomain>
 	 <4458FE33.80908@gentoo.org>
 Content-Type: text/plain
-Date: Wed, 03 May 2006 15:06:41 -0400
-Message-Id: <1146683202.27627.46.camel@orodruin.boston.redhat.com>
+Date: Wed, 03 May 2006 15:07:22 -0400
+Message-Id: <1146683243.2766.42.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -32,6 +32,8 @@ On Wed, 2006-05-03 at 15:02 -0400, Joshua Brindle wrote:
 > >> By moving the policy to being maintained by the package maintainer, it's
 > >> moving towards having the file context be unambiguous as well.
 > >> Otherwise, the packager really has no control.
+> >>
+> >>     
 > >
 > > Both of these seem like positive changes, particularly having the
 > > package maintainers take responsibility for the SELinux policy
@@ -56,14 +58,19 @@ On Wed, 2006-05-03 at 15:02 -0400, Joshua Brindle wrote:
 > not scale but it breaks encapsulation (why should a policy need to know 
 > that /bin is bin_t, we intentionally abstracted that away in policy, why 
 > regress in file contexts).
+> 
 
-But the only contexts which should be stored in the package are the ones
-relevant to the package-specific policy.  Otherwise, we fall back to the
-current behavior of doing matchpathcon() with the currently loaded
-policy and setting the label appropriately.
+Sure, but the common case is that the application specific file contexts
+can be combined with only the base policy file contexts to create the
+full labeling policy for that application.
 
-Jeremy
+Karl
 
+
+-- 
+Karl MacMillan
+kmacmillan@tresys.com
+http://www.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
