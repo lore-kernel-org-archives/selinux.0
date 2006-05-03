@@ -1,47 +1,57 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k43IZ83B004371
-	for <selinux@tycho.nsa.gov>; Wed, 3 May 2006 14:35:08 -0400
-Subject: Re: appletalk sockets
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: James Morris <jmorris@redhat.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1146680736.16160.4.camel@sgc>
-References: <1146676995.20331.113.camel@sgc>  <1146680736.16160.4.camel@sgc>
-Content-Type: text/plain
-Date: Wed, 03 May 2006 14:39:28 -0400
-Message-Id: <1146681568.27735.131.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4458FE33.80908@gentoo.org>
+Date: Wed, 03 May 2006 15:02:11 -0400
+From: Joshua Brindle <method@gentoo.org>
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmillan@tresys.com>
+CC: Jeremy Katz <katzj@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
+Subject: Re: We are attempting once again to split policy out	into	individual
+ RPMS.
+References: <44576B91.8060607@redhat.com>  <44577454.5040204@gentoo.org>	 <1146583000.32102.8.camel@orodruin.boston.redhat.com>	 <44577BC5.3050009@gentoo.org>	 <1146584925.32102.36.camel@orodruin.boston.redhat.com> <1146669307.6723.20.camel@localhost.localdomain>
+In-Reply-To: <1146669307.6723.20.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-03 at 14:25 -0400, Christopher J. PeBenito wrote:
-> On Wed, 2006-05-03 at 13:23 -0400, Christopher J. PeBenito wrote:
-> > On Tue, 02 May 2006 at 13:57 -0400, Christopher J. PeBenito wrote:
-> > > On Tue, 2006-05-02 at 13:30 -0400, Daniel J Walsh wrote:
-> > > > Christopher J. PeBenito wrote:
-> > > > > On Tue, 2006-05-02 at 10:08 -0400, Daniel J Walsh wrote:
-> > > > >> cups needs to be able to create socket to itself.
-> > > > >
-> > > > > This needs more investigation; we need to find out more about this
-> > > > > generic socket so we can add a specific class for it.
-> > > > >
-> > > > >   
-> > > >
-> > > http://www.redhat.com/archives/fedora-selinux-list/2006-April/msg00216.html
-> > > 
-> > > So it appears that a class for appletalk sockets needs to be added.
-> > 
-> > How about the attached patches?
-> 
-> Perhaps permissions should be added to netif for appletalk send/receive
-> too, so it doesn't fall through to rawip send/receive?
+Karl MacMillan wrote:
+>>> The comparison to uid/gid is bogus, uid/gid are unambiguous, file 
+>>> contexts are ordered by specificity because multiple regexes can match 
+>>> any given filename. The file_contexts *must* be combined and ordered 
+>>> prior to labeling, and if multiple policy packages are being installed 
+>>> within a set those must all be included as well. matchpathcon does not 
+>>> currently have the sorting mechanism that libsemanage does to properly 
+>>> combine policy package file contexts.
+>>>       
+>> By moving the policy to being maintained by the package maintainer, it's
+>> moving towards having the file context be unambiguous as well.
+>> Otherwise, the packager really has no control.
+>>
+>>     
+>
+> Both of these seem like positive changes, particularly having the
+> package maintainers take responsibility for the SELinux policy
+> associated with their package.
+>
+> Also, how ambiguous are the application file contexts now anyway? Josh,
+> you are claiming that the labeling requires all of the file contexts to
+> be combined, but for most applications that come with policy the file
+> contexts are already a) specific and b) cover the majority of the files
+> provided by that application. The more general file contexts are most
+> useful for applications without policy.
+>   
+Having unambiguous contexts for every package would not be scalable. 
+Most apps have some sort of fallback now (eg., mysql installs libraries 
+but doesn't label them, and shouldn't, the base library labeling should 
+take care of them). I imagine there are very few packages that have 
+entirely self contained file contexts files. Anything that installs 
+libraries, man pages, info pages, binaries without unique labels 
+(mysqladmin doesn't need its own label, only the daemon binary), etc.
 
-netif checks are going away altogether.
-
--- 
-Stephen Smalley
-National Security Agency
+Not only does adding specific entries for every file in every package 
+not scale but it breaks encapsulation (why should a policy need to know 
+that /bin is bin_t, we intentionally abstracted that away in policy, why 
+regress in file contexts).
 
 
 --
