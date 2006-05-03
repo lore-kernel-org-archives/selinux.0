@@ -1,57 +1,68 @@
-Message-ID: <4458FE33.80908@gentoo.org>
-Date: Wed, 03 May 2006 15:02:11 -0400
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@tresys.com>
-CC: Jeremy Katz <katzj@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+Subject: Re: We are attempting once again to split policy
+	out	into	individual RPMS.
+From: Jeremy Katz <katzj@redhat.com>
+To: Joshua Brindle <method@gentoo.org>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>,
         Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
         Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
-Subject: Re: We are attempting once again to split policy out	into	individual
- RPMS.
-References: <44576B91.8060607@redhat.com>  <44577454.5040204@gentoo.org>	 <1146583000.32102.8.camel@orodruin.boston.redhat.com>	 <44577BC5.3050009@gentoo.org>	 <1146584925.32102.36.camel@orodruin.boston.redhat.com> <1146669307.6723.20.camel@localhost.localdomain>
-In-Reply-To: <1146669307.6723.20.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <4458FE33.80908@gentoo.org>
+References: <44576B91.8060607@redhat.com>  <44577454.5040204@gentoo.org>
+	 <1146583000.32102.8.camel@orodruin.boston.redhat.com>
+	 <44577BC5.3050009@gentoo.org>
+	 <1146584925.32102.36.camel@orodruin.boston.redhat.com>
+	 <1146669307.6723.20.camel@localhost.localdomain>
+	 <4458FE33.80908@gentoo.org>
+Content-Type: text/plain
+Date: Wed, 03 May 2006 15:06:41 -0400
+Message-Id: <1146683202.27627.46.camel@orodruin.boston.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
->>> The comparison to uid/gid is bogus, uid/gid are unambiguous, file 
->>> contexts are ordered by specificity because multiple regexes can match 
->>> any given filename. The file_contexts *must* be combined and ordered 
->>> prior to labeling, and if multiple policy packages are being installed 
->>> within a set those must all be included as well. matchpathcon does not 
->>> currently have the sorting mechanism that libsemanage does to properly 
->>> combine policy package file contexts.
->>>       
->> By moving the policy to being maintained by the package maintainer, it's
->> moving towards having the file context be unambiguous as well.
->> Otherwise, the packager really has no control.
->>
->>     
->
-> Both of these seem like positive changes, particularly having the
-> package maintainers take responsibility for the SELinux policy
-> associated with their package.
->
-> Also, how ambiguous are the application file contexts now anyway? Josh,
-> you are claiming that the labeling requires all of the file contexts to
-> be combined, but for most applications that come with policy the file
-> contexts are already a) specific and b) cover the majority of the files
-> provided by that application. The more general file contexts are most
-> useful for applications without policy.
->   
-Having unambiguous contexts for every package would not be scalable. 
-Most apps have some sort of fallback now (eg., mysql installs libraries 
-but doesn't label them, and shouldn't, the base library labeling should 
-take care of them). I imagine there are very few packages that have 
-entirely self contained file contexts files. Anything that installs 
-libraries, man pages, info pages, binaries without unique labels 
-(mysqladmin doesn't need its own label, only the daemon binary), etc.
+On Wed, 2006-05-03 at 15:02 -0400, Joshua Brindle wrote:
+> Karl MacMillan wrote:
+> >>> The comparison to uid/gid is bogus, uid/gid are unambiguous, file 
+> >>> contexts are ordered by specificity because multiple regexes can match 
+> >>> any given filename. The file_contexts *must* be combined and ordered 
+> >>> prior to labeling, and if multiple policy packages are being installed 
+> >>> within a set those must all be included as well. matchpathcon does not 
+> >>> currently have the sorting mechanism that libsemanage does to properly 
+> >>> combine policy package file contexts.
+> >>>       
+> >> By moving the policy to being maintained by the package maintainer, it's
+> >> moving towards having the file context be unambiguous as well.
+> >> Otherwise, the packager really has no control.
+> >
+> > Both of these seem like positive changes, particularly having the
+> > package maintainers take responsibility for the SELinux policy
+> > associated with their package.
+> >
+> > Also, how ambiguous are the application file contexts now anyway? Josh,
+> > you are claiming that the labeling requires all of the file contexts to
+> > be combined, but for most applications that come with policy the file
+> > contexts are already a) specific and b) cover the majority of the files
+> > provided by that application. The more general file contexts are most
+> > useful for applications without policy.
+> >   
+> Having unambiguous contexts for every package would not be scalable. 
+> Most apps have some sort of fallback now (eg., mysql installs libraries 
+> but doesn't label them, and shouldn't, the base library labeling should 
+> take care of them). I imagine there are very few packages that have 
+> entirely self contained file contexts files. Anything that installs 
+> libraries, man pages, info pages, binaries without unique labels 
+> (mysqladmin doesn't need its own label, only the daemon binary), etc.
+> 
+> Not only does adding specific entries for every file in every package 
+> not scale but it breaks encapsulation (why should a policy need to know 
+> that /bin is bin_t, we intentionally abstracted that away in policy, why 
+> regress in file contexts).
 
-Not only does adding specific entries for every file in every package 
-not scale but it breaks encapsulation (why should a policy need to know 
-that /bin is bin_t, we intentionally abstracted that away in policy, why 
-regress in file contexts).
+But the only contexts which should be stored in the package are the ones
+relevant to the package-specific policy.  Otherwise, we fall back to the
+current behavior of doing matchpathcon() with the currently loaded
+policy and setting the label appropriately.
+
+Jeremy
 
 
 --
