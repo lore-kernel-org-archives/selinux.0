@@ -1,84 +1,62 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4491YkQ018395
-	for <selinux@tycho.nsa.gov>; Thu, 4 May 2006 05:01:35 -0400
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4491WDs011846
-	for <selinux@tycho.nsa.gov>; Thu, 4 May 2006 09:01:33 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 4 May 2006 11:01:29 +0200
-Date: Thu, 4 May 2006 11:01:28 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Joshua Brindle <method@gentoo.org>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, Jeremy Katz <katzj@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
-Subject: Re: We are attempting once again to split policy	out	into	individual RPMS.
-Message-Id: <20060504090128.GA7306@thorium.jmh.mhn.de>
-References: <44576B91.8060607@redhat.com> <44577454.5040204@gentoo.org> <1146583000.32102.8.camel@orodruin.boston.redhat.com> <44577BC5.3050009@gentoo.org> <1146584925.32102.36.camel@orodruin.boston.redhat.com> <1146669307.6723.20.camel@localhost.localdomain> <4458FE33.80908@gentoo.org> <1146683243.2766.42.camel@localhost.localdomain> <44591D4A.10005@gentoo.org>
+Subject: Re: [redhat-lspp] semanage login -a vs useradd
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Russell Coker <rcoker@redhat.com>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+In-Reply-To: <1146738735.2200.34.camel@ws>
+References: <1146738735.2200.34.camel@ws>
+Content-Type: text/plain
+Date: Thu, 04 May 2006 07:36:30 -0400
+Message-Id: <1146742590.15669.18.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
-In-Reply-To: <44591D4A.10005@gentoo.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2006-05-04 at 20:32 +1000, Russell Coker wrote:
+> Currently you must run useradd before you run "semanage login -a" to
+> create a SE Linux identity.  Does this make sense?
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Added selinux list to cc, as this is relevant to any use of SELinux, not
+just LSPP purposes.  Same applies to any other general discussion that
+impacts on general use of SELinux, like newrole changes.
 
-* Joshua Brindle <method@gentoo.org> [2006-05-03 23:24]:
-[Discussion about allowing rpm to write security labels to disk which
-are not in the policy]=20
-> I am baffled why the advocates of this believe making kernel tolerant of=
-=20
-> inconsistent filesystem labels and allowing strange policy interactions=
-=20
-> for the sake of bandaiding an inadequacy in RPM is better.. .*shrug*
+As to whether it or not it makes sense for semanage/seobject.py to
+validate the Unix user identity, I have no strong opinion, but it does
+mean that simple typos won't be caught at that point.  
 
-For the record, I'm also opposed to this change. It can be handled
-entirely in userspace, which IMHO is the proper place.
+> The SE Linux identity needs to be created first if we are to initially
+> label the home directory with the correct label (which I think is a good
+> thing).  Also if we have a source of user account information such as
+> LDAP being used then there is more possibility for a need to create
+> identities before creating matching Unix accounts.
+> 
+> Finally there is no real need to create the Unix account first.  There
+> is no harm done by creating the identity first, in fact if the Unix
+> account is created with an enabled password before the identity is
+> created then the user may login with inappropriate permissions.
+> 
+> The next issue that derives from this is the creation of Unix accounts.
+> I think it would be convenient to have a single program create Unix
+> accounts with the SE Linux data.  In fact having "semanage user -a",
+> "semanage login -a" and "useradd" all combined into the one program
+> seems beneficial to me.  Among other benefits this would aid scripting
+> by having only one error point and improve performance by having all SE
+> Linux operations proceed under the one transaction.
+> 
+> 
+> What do you think?
 
-I still think that separate policy packages would be the best solution.
-They're the standard way of doing what you want, people understand them,
-and they provide an easy way to look at policy for analysis. Another
-important point: They make it easy for people to supply alternative
-policy. Want to use strict instead of targeted? No need to replace every
-package containing policy, just create a new repository with policy
-packages in them, and give this repository a higher priority.
+Having a front-end helper program that invokes the underlying ones as
+appropriate may make sense, but combining them all into a single program
+likely isn't what you want, both because you do want to perform them
+independently at times and because they require different permissions
+and trust for what they do.  Also not clear on how you envision semanage
+user -a being used, as most people will only ever need to use semanage
+login.
 
-If you really don't want to use separate packages you could implement
-something like dpkg triggers[1]. Basically you could add a trigger
-"Reload SELinux policy", which would be run between preinst and actual
-installation if any policy was changed. Then you could add an option to
-semodule: "Store module and install it on next policy rebuild".
-I think that would solve your problems within the current framework,
-without requiring kernel changes.
-Another advantage: If a policy module is bad (symbol clashes, ...) you
-notice before installation.
+-- 
+Stephen Smalley
+National Security Agency
 
-Thomas
-
-[1]: See http://www.netsplit.com/blog/tech/debian/dpkg/where_next_for_dpkg_=
-=2Ehtml
-I don't think it has been implemented yet but the idea sounds very nice.
-
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEWcLoD9qpeVMU938RAozJAKCcCi6Z2GfjYcyXIIMII7ZSvOKQyQCgmR8L
-j5CIkxDQ2U8XO6FC7HA5J7A=
-=UDf/
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
