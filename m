@@ -1,52 +1,73 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4575QHn009997
-	for <selinux@tycho.nsa.gov>; Fri, 5 May 2006 03:05:26 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4575NU3008915
-	for <selinux@tycho.nsa.gov>; Fri, 5 May 2006 07:05:24 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 48CCA61B02
-	for <selinux@tycho.nsa.gov>; Fri,  5 May 2006 17:05:20 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 05369-03 for <selinux@tycho.nsa.gov>;
-	Fri, 5 May 2006 17:05:20 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id F1ECC61AF1
-	for <selinux@tycho.nsa.gov>; Fri,  5 May 2006 17:05:19 +1000 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 44EA3A7DE5
-	for <selinux@tycho.nsa.gov>; Fri,  5 May 2006 17:05:25 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: pam_namespace
-Date: Fri, 5 May 2006 16:23:22 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200605051623.25533.russell@coker.com.au>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k457ov1F010743
+	for <selinux@tycho.nsa.gov>; Fri, 5 May 2006 03:50:57 -0400
+Received: from h80ad24da.async.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k457osU3013199
+	for <selinux@tycho.nsa.gov>; Fri, 5 May 2006 07:50:55 GMT
+Message-Id: <200605050750.k457oPp6014607@turing-police.cc.vt.edu>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: pam_namespace 
+In-Reply-To: Your message of "Fri, 05 May 2006 16:23:22 +1000."
+             <200605051623.25533.russell@coker.com.au>
+From: Valdis.Kletnieks@vt.edu
+References: <200605051623.25533.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1146815424_2521P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 05 May 2006 03:50:24 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was just playing with pam_namespace.  It seems to me that the current setup 
-of having tmp/tmp.inst-$USER- does not provide adequate protection.  A 
-process that is hostile to the user and which runs in the system name space 
-(EG any cracked daemon) can access the user's instance of /tmp.
+--==_Exmh_1146815424_2521P
+Content-Type: text/plain; charset=us-ascii
 
-If we had tmp/tmp.inst-$USER-/tmp (or something similar) and 
-gave /tmp/tmp.inst-$USER- permission mode 000 (and something equivalent in 
-terms of SE Linux access) then processes in the global name space would not 
-be able to try anything.
+On Fri, 05 May 2006 16:23:22 +1000, Russell Coker said:
+> I was just playing with pam_namespace.  It seems to me that the current setup
+> of having tmp/tmp.inst-$USER- does not provide adequate protection.  A 
+> process that is hostile to the user and which runs in the system name space 
+> (EG any cracked daemon) can access the user's instance of /tmp.
 
+Not if /tmp/tmp.inst-$USER has an SELinux context on it that the daemon
+isn't able to read.  Of course, this has it's own issues, since the parent
+and instance directories have different SELinux contexts.
 
-PS  I am posting here because I am no longer subscribed to the LSPP list.
+I've been corresponding with Janak Desai about several issues related to this
+one - it turns out to be trickier than expected if you need any setup above
+and beyond what pam_namespace does.  If anybody has good ideas on how the
+namespace.init script should work, please let Janak know.  We already decided
+that where the Fedora RPM put the script was a Bad Idea - now it's in /etc/
+security where it's easier to protect.  Still an issue - I tried to get it to
+play nice with gdm, and discovered it didn't work when the X socket wasn't
+there. So I added to the script:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+case $1 in
+     /tmp)
+        if [ ! -d ${2}/.X11-unix ];
+        then
+                mkdir ${2}/.X11-unix
+                chcon --reference=${1}/.X11-unix  ${2}/.X11-unix
+        fi
+
+(and then hardlink the socket already open by GDM into that directory so
+the user's X session can find it).  This however still loses, because at
+this point we're already running in the user's SELinux context, so we
+probably can't do the chcon.  Janak was going to look at setexeccon() games
+so the script can do setup that the user can't....
+
+--==_Exmh_1146815424_2521P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEWwPAcC3lWbTT17ARAnXoAKCKrQMWWmc/ujsJUussOWKPK2vkPACcCRIq
+44718dytzAyQ9wHqO3ukKe4=
+=/spP
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1146815424_2521P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
