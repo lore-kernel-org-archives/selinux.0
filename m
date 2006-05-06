@@ -1,96 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k461O5oh030577
-	for <selinux@tycho.nsa.gov>; Fri, 5 May 2006 21:24:05 -0400
-Received: from mx52.ms.so-net.ne.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k461O3FK007835
-	for <selinux@tycho.nsa.gov>; Sat, 6 May 2006 01:24:04 GMT
-Received: from papa.intrajp-yokosuka.co.jp (pdd4eaf.ykhmac00.ap.so-net.ne.jp [218.221.78.175])
-	by mx52.ms.so-net.ne.jp  with SMTP id k461O2ov001667
-	for <selinux@tycho.nsa.gov>; Sat, 6 May 2006 10:24:02 +0900 (JST)
-Date: Sat, 6 May 2006 10:37:45 +0900
-From: Shintaro Fujiwara <shin216@xf7.so-net.ne.jp>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k46F0N2J008996
+	for <selinux@tycho.nsa.gov>; Sat, 6 May 2006 11:00:24 -0400
+Received: from mail8.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k46F0MV0020937
+	for <selinux@tycho.nsa.gov>; Sat, 6 May 2006 15:00:23 GMT
+Received: from megaweapon.nightmoose.net (HELO d.namei) ([66.92.66.197])
+          (envelope-sender <jmorris@namei.org>)
+          by mail8.sea5.speakeasy.net (qmail-ldap-1.03) with AES256-SHA encrypted SMTP
+          for <selinux@tycho.nsa.gov>; 6 May 2006 15:00:21 -0000
+Date: Sat, 6 May 2006 11:00:20 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
 To: selinux@tycho.nsa.gov
-Subject: Re: semodule fails in -i or -u (solved -u case)
-Message-Id: <20060506103745.27434199.shin216@xf7.so-net.ne.jp>
-In-Reply-To: <20060506101040.59fab6a3.shin216@xf7.so-net.ne.jp>
-References: <20060506044905.27fa8440.shin216@xf7.so-net.ne.jp>
-	<20060506101040.59fab6a3.shin216@xf7.so-net.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Reference policy documentation
+Message-ID: <Pine.LNX.4.64.0605061056310.13769@d.namei>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Is there some canonical documentation on reference policy and related 
+infrastructure?
 
- Solved -u case.
+Something which fully describes the format of the source policy modules, 
+for example, so I know what to do about:
 
-I deleted every line which declares class on apache.te
+  ERROR 'This block has no require section.' at token ''
 
-I can do it all over again.
-
-Thanks.
+I'm sure I saw something once, but can't remember where.
 
 
-On Sat, 6 May 2006 10:10:40 +0900
-Shintaro Fujiwara <shin216@xf7.so-net.ne.jp> wrote:
 
-> 
-> Solved -i case.
-> 
-> #semodule -b /usr/share/selinux/strict/base.pp
-> 
-> and, semodule -i worked fine.
-> Still I can't semodule -u.
-> 
-> 
-> 
-> On Sat, 6 May 2006 04:49:05 +0900
-> Shintaro Fujiwara <shin216@xf7.so-net.ne.jp> wrote:
-> 
-> > 
-> > Hello.
-> > Today, I yum updated evrything and I cannot 
-> > semodule -i or -u at all
-> > in strict policy.
-> > 
-> > 
-> > #cd /usr/share/selinux/devel
-> > # ./policygentool backup_new /etc/cron.backup/backup
-> > #make
-> > # semodule -i backup_new.pp
-> > libsepol.verify_module_requirements: Module backup_new's global requirements were not met: type/attribute exec_type
-> > libsemanage.semanage_link_sandbox: Link packages failed
-> > semodule:  Failed!
-> > 
-> > 
-> > And when I try to update module it also fails.
-> > 
-> > 
-> > # semodule -u apache.pp
-> > libsepol.permission_copy_callback: Module apache depends on permission search in class file, not satisfied
-> > libsemanage.semanage_link_sandbox: Link packages failed
-> > semodule:  Failed!
-> > 
-> > 
-> > Please tell me what is wrong and what should I do.
-> > Thank you.
-> > 
-> > ******************************
-> > libsepol-1.12.4-1.fc5
-> > selinux-policy-strict-2.2.34-3.fc5
-> > libselinux-1.30-1.fc5
-> > checkpolicy-1.30.3-1.fc5
-> > policycoreutils-1.30.1-3.fc5
-> > ******************************
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
