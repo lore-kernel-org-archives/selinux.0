@@ -1,252 +1,75 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k487Kfj0011861
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 03:20:41 -0400
-Received: from node19.avira.ro (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k487Kctw029574
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 07:20:40 GMT
-Date: Mon, 8 May 2006 10:20:34 +0300
-From: Petre Rodan <kaiowas@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Cc: Chris PeBenito <pebenito@gentoo.org>
-Subject: policy for clockspeed
-Message-ID: <20060508072034.GA6138@peter.avira.local>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k48CTDUV017184
+	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 08:29:13 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k48CT9tw000034
+	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 12:29:12 GMT
+Subject: Re: [PATCH] fix warnings in selinux-usr
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev <selinux-dev@tresys.com>
+In-Reply-To: <445CF147.1000300@cornell.edu>
+References: <1146845884.2208.15.camel@jackjack.columbia.tresys.com>
+	 <445CF147.1000300@cornell.edu>
+Content-Type: text/plain
+Date: Mon, 08 May 2006 08:26:34 -0400
+Message-Id: <1147091194.32719.4.camel@jackjack.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 2006-05-06 at 14:56 -0400, Ivan Gyurdiev wrote:
+> Karl MacMillan wrote:
+> > Steve,
+> >
+> > Attached is a patch that fixes many warnings that have crept into the
+> > selinux-usr code over time, making it difficult to ascertain whether
+> > code changes have introduced new warnings.
+> >   
+> record_policydb_table_t SEMANAGE_PORT_POLICYDB_RTABLE = {
+> 
+>  	.add         = NULL, 
+> -	.modify      = sepol_port_modify,
+> +	.modify      = (record_policydb_table_modify_t)sepol_port_modify,
+>  	.set         = NULL, 
+> -	.query       = sepol_port_query,
+> -        .count       = sepol_port_count,
+> -	.exists      = sepol_port_exists,
+> -	.iterate     = sepol_port_iterate,
+> +	.query       = (record_policydb_table_query_t)sepol_port_query,
+> +        .count       = (record_policydb_table_count_t)sepol_port_count,
+> +	.exists      = (record_policydb_table_exists_t)sepol_port_exists,
+> +	.iterate     = (record_policydb_table_iterate_t)sepol_port_iterate,
+>  };
+> 
+> 
+> The semanage <--> sepol record key/data are not necessarily identical, 
+> and that's why warnings occur on query, modify, etc... 
+> Changing the type to void* removes the warning, without fixing the 
+> potential problem. The cast is marked unsafe, because it is unsafe.
 
---5/uDoXvLw7AC5HRs
-Content-Type: multipart/mixed; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
+Not certain if you are objecting to adding the casts or would prefer a
+void* cast. I prefer the casts as the patch has them because it makes it
+clear in the source that something unsafe is being done without
+completely punting with void*.
 
+>  A 
+> better solution would be to add conversion functions from semanage 
+> key/record to sepol key/record and vice versa.
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure, conversions would solve the problem, though removing some of this
+duplication would be even better. Any chance you will have a chance to
+take care of this?
 
+Thanks,
 
-Hi,
-
-attached you'll find a clockspeed policy.
-
-'clockspeed uses a hardware tick counter to compensate for a persistently f=
-ast or slow system clock. given a few time measurements from a reliable sou=
-rce, it computes and then eliminates the clock skew.'
-http://cr.yp.to/clockspeed.html
-
-cheers,
-peter
-
---=20
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux=20
-
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="clockspeed.fc"
-
-
-#
-# /usr
-#
-/usr/bin/clockadd	--	gen_context(system_u:object_r:clockspeed_cli_exec_t,s0)
-/usr/bin/clockspeed	--	gen_context(system_u:object_r:clockspeed_srv_exec_t,s0)
-/usr/bin/sntpclock	--	gen_context(system_u:object_r:clockspeed_cli_exec_t,s0)
-/usr/bin/taiclock	--	gen_context(system_u:object_r:clockspeed_cli_exec_t,s0)
-/usr/bin/taiclockd	--	gen_context(system_u:object_r:clockspeed_srv_exec_t,s0)
-
-#
-# /var
-#
-/var/lib/clockspeed(/.*)?	gen_context(system_u:object_r:clockspeed_var_lib_t,s0)
-
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="clockspeed.if"
-
-## <summary>Clockspeed simple network time protocol client</summary>
+Karl
 
 
-########################################
-## <summary>
-##      Execute clockspeed utilities in the clockspeed_cli domain.
-## </summary>
-## <param name="domain">
-##      <summary>
-##      The type of the process performing this action.
-##      </summary>
-## </param>
-#
-interface(`clockspeed_domtrans_cli',`
-        gen_require(`
-                type clockspeed_cli_t, clocksped_cli_exec_t;
-        ')
-
-	domain_auto_trans($1, clockspeed_cli_exec_t, clockspeed_cli_t)
-	allow $1 clockspeed_cli_t:fd use;
-	allow clockspeed_cli_t $1:fd use;
-	allow clockspeed_cli_t $1:fifo_file { read write };
-	allow clockspeed_cli_t $1:process sigchld;
-
-')
-
-########################################
-## <summary>
-##	Allow the specified role the clockspeed_cli domain.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	The type of the process performing this action.
-##	</summary>
-## </param>
-## <param name="role">
-##	<summary>
-##	The role to be allowed the clockspeed_cli domain.
-##	</summary>
-## </param>
-## <param name="terminal">
-##	<summary>
-##	The type of the terminal allow the clockspeed_cli domain to use.
-##	</summary>
-## </param>
-#
-template(`clockspeed_run_cli',`
-
-	role $2 types clockspeed_cli_t;
-	clockspeed_domtrans_cli($1)
-	allow clockspeed_cli_t $3:chr_file { getattr read write ioctl };
-
-')
-
-
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="clockspeed.te"
-
-
-policy_module(clockspeed,1.0.0)
-
-
-########################################
-#
-# Declarations
-#
-
-type clockspeed_cli_t;
-type clockspeed_cli_exec_t;
-domain_type(clockspeed_cli_t)
-domain_entry_file(clockspeed_cli_t,clockspeed_cli_exec_t)
-
-type clockspeed_srv_t;
-type clockspeed_srv_exec_t;
-init_daemon_domain(clockspeed_srv_t, clockspeed_srv_exec_t)
-
-type clockspeed_var_lib_t;
-files_type(clockspeed_var_lib_t)
-
-
-########################################
-#
-# Local policy
-#
-
-# policy for ntp clients
-
-allow clockspeed_cli_t self:capability sys_time;
-allow clockspeed_cli_t self:udp_socket create_socket_perms;
-allow clockspeed_cli_t clockspeed_var_lib_t:dir search;
-allow clockspeed_cli_t clockspeed_var_lib_t:file { getattr read };
-
-corenet_non_ipsec_sendrecv(clockspeed_cli_t)
-corenet_udp_receive_ntp_port(clockspeed_cli_t)
-corenet_udp_send_ntp_port(clockspeed_cli_t)
-corenet_udp_sendrecv_generic_if(clockspeed_cli_t)
-corenet_udp_sendrecv_generic_node(clockspeed_cli_t)
-
-files_list_var_lib(clockspeed_cli_t)
-files_read_etc_files(clockspeed_cli_t)
-libs_use_ld_so(clockspeed_cli_t)
-libs_use_shared_libs(clockspeed_cli_t)
-miscfiles_read_localization(clockspeed_cli_t)
-
-
-# policy for clockspeed and taiclockd daemons
-
-allow clockspeed_srv_t self:capability { sys_time net_bind_service };
-allow clockspeed_srv_t self:udp_socket create_socket_perms;
-allow clockspeed_srv_t self:unix_dgram_socket create_socket_perms;
-allow clockspeed_srv_t self:unix_stream_socket create_socket_perms;
-
-allow clockspeed_srv_t clockspeed_var_lib_t:dir rw_dir_perms;
-allow clockspeed_srv_t clockspeed_var_lib_t:file create_file_perms;
-allow clockspeed_srv_t clockspeed_var_lib_t:fifo_file create_file_perms;
-
-corenet_non_ipsec_sendrecv(clockspeed_srv_t)
-corenet_udp_bind_clockspeed_port(clockspeed_srv_t)
-corenet_udp_bind_inaddr_any_node(clockspeed_srv_t)
-corenet_udp_receive_ntp_port(clockspeed_srv_t)
-corenet_udp_send_ntp_port(clockspeed_srv_t)
-corenet_udp_sendrecv_generic_if(clockspeed_srv_t)
-corenet_udp_sendrecv_generic_node(clockspeed_srv_t)
-
-files_read_etc_files(clockspeed_srv_t)
-files_list_var_lib(clockspeed_srv_t)
-libs_use_ld_so(clockspeed_srv_t)
-libs_use_shared_libs(clockspeed_srv_t)
-miscfiles_read_localization(clockspeed_srv_t)
-
-optional_policy(`
-	daemontools_service_domain(clockspeed_srv_t,clockspeed_srv_exec_t)
-')
-
-
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="userdomain.patch"
-Content-Transfer-Encoding: quoted-printable
-
-Index: policy/modules/system/userdomain.te
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /cvsroot/serefpolicy/refpolicy/policy/modules/system/userdomain.t=
-e,v
-retrieving revision 1.84
-diff -u -r1.84 userdomain.te
---- policy/modules/system/userdomain.te	4 May 2006 20:43:40 -0000	1.84
-+++ policy/modules/system/userdomain.te	7 May 2006 11:10:08 -0000
-@@ -228,6 +228,10 @@
- 	')
-=20
- 	optional_policy(`
-+		clockspeed_run_cli(sysadm_t,sysadm_r,admin_terminal)
-+	')
-+
-+	optional_policy(`
- 		clock_run(sysadm_t,sysadm_r,admin_terminal)
- 	')
-=20
-
---k+w/mQv8wyuph6w0--
-
---5/uDoXvLw7AC5HRs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3-ecc0.1.6 (GNU/Linux)
-
-iD8DBQFEXvFCGSBEIeh4AEYRAmPDAJ4g8QCiUXrhpjmJ/iKW2Ndar340mgCfdQe/
-ruH8r6q9KwhWirdWZZ6Jo5Q=
-=Ivnl
------END PGP SIGNATURE-----
-
---5/uDoXvLw7AC5HRs--
+-- 
+Karl MacMillan
+Tresys Technology
+www.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
