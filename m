@@ -1,47 +1,42 @@
-Subject: Re: [PATCH] Libsepol test framework
+Subject: Re: [PATCH] fix warnings in selinux-usr
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Karl MacMillan <kmacmillan@tresys.com>
 Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev <selinux-dev@tresys.com>
-In-Reply-To: <1146593621.15260.17.camel@jackjack.columbia.tresys.com>
-References: <1146593621.15260.17.camel@jackjack.columbia.tresys.com>
+In-Reply-To: <1146845884.2208.15.camel@jackjack.columbia.tresys.com>
+References: <1146845884.2208.15.camel@jackjack.columbia.tresys.com>
 Content-Type: text/plain
-Date: Mon, 08 May 2006 08:41:51 -0400
-Message-Id: <1147092111.23640.7.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 08 May 2006 08:49:40 -0400
+Message-Id: <1147092580.23640.15.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-05-02 at 14:13 -0400, Karl MacMillan wrote:
+On Fri, 2006-05-05 at 12:18 -0400, Karl MacMillan wrote:
 > Steve,
 > 
-> Attached are two patches to add a simple test framework to libsepol and,
-> in the future, to the other libraries. It depends CUnit
-> (http://cunit.sourceforge.net/), a workable if not exciting unit testing
-> framework for C.
+> Attached is a patch that fixes many warnings that have crept into the
+> selinux-usr code over time, making it difficult to ascertain whether
+> code changes have introduced new warnings.
 > 
-> The compiler-cleanup patch is needed to make it easier for the unit
-> tests to load source policies. I think that using source policies for
-> unit testing libsepol will be more maintainable over the long run. It
-> also removes some code duplication between checkpolicy.c and
-> checkmodule.c.
+> Fixing some of the warnings required the introduction of unsafe casts,
+> but those casts were occurring implicitly anyway (see
+> libsemanage/src/booleans_policydb.c for an example).
 > 
-> The test-framework patch, which depends upon the computer-cleanup patch,
-> adds a simple test to libsepol and the makefile changes
-> to introduce a top-level make target "test". Example output from running
-> the test target is included below.
-> 
-> The test policy is in a separate email to you because it is large (a
-> complete base policy.conf from reference policy).
-> 
-> More patches with additional tests will be submitted over time.
-> 
-> Please apply.
+> I fixed one of the long standing lex warnings that has always been
+> irritating, but I was unable to fix the warnings in the semanage
+> configuration file parser. That parser should not rewritten to remove
+> the lex dependency in the future anyway.
 
-Merged.  However, at present, this requires not only having a copy of
-checkpolicy sources but also having them prebuilt (make test in libsepol
-with checkpolicy sources present but not built will fail), which seems
-undesirable.  Actual output that I see has only 36 asserts vs the output
-you posted (19044?).
+Merged, although some of the changes seemed unnecessary to me (e.g. it
+is ok to name a variable 'index', and the compiler will let you know if
+you then try to use it as a function in the same scope), and leaving the
+libsemanage warnings was intentional by Ivan to flag the fact that we
+are making an assumption about the equivalence between the libsemanage
+and libsepol structs.  The patch also included some changes that
+appeared to be unrelated to fixing warnings, like moving code from
+util.c to policydb.c and upgrading the scope of role/user statements
+from SCOPE_REQ to SCOPE_DECL automatically, and adding the -a option to
+semodule_expand.
 
 -- 
 Stephen Smalley
