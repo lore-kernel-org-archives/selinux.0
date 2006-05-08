@@ -1,53 +1,137 @@
-Subject: Re: [RFC][SECMARK 05/08] Add new packet controls to SELinux
+Subject: Re: [RFC] SECMARK 1.0
 From: Karl MacMillan <kmacmillan@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+To: James Morris <jmorris@namei.org>
+Cc: Joshua Brindle <method@gentoo.org>, selinux@tycho.nsa.gov,
+        netdev@vger.kernel.org, netfilter-devel@lists.samba.org,
+        Stephen Smalley <sds@tycho.nsa.gov>,
         Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1147106449.23640.102.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <Pine.LNX.4.64.0605071323330.9423@d.namei>
 References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
-	 <Pine.LNX.4.64.0605071136100.8588@d.namei>
-	 <1147106449.23640.102.camel@moss-spartans.epoch.ncsc.mil>
+	 <445E288B.4040908@gentoo.org>  <Pine.LNX.4.64.0605071323330.9423@d.namei>
 Content-Type: text/plain
-Date: Mon, 08 May 2006 13:28:41 -0400
-Message-Id: <1147109322.32719.45.camel@jackjack.columbia.tresys.com>
+Date: Mon, 08 May 2006 13:41:28 -0400
+Message-Id: <1147110088.32719.56.camel@jackjack.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-05-08 at 12:40 -0400, Stephen Smalley wrote:
-> On Sun, 2006-05-07 at 11:37 -0400, James Morris wrote:
-> > This patch adds new per-packet access controls to SELinux, replacing the 
-> > old packet controls.
-> > 
-> > Packets are labeled with the iptables SECMARK target then security policy 
-> > for the packets is enforced with these controls.
-> > 
-> > To allow for a smooth transition to the new controls, the old code is 
-> > still present, but not active by default.  To restore previous behavior, 
-> > the old controls may be activated at runtime by writing a '1' to 
-> > /selinux/compat_net.  Switching between the network control models 
-> > requires the security load_policy permission.  The old controls will 
-> > probably eventually be removed.
+On Sun, 2006-05-07 at 13:43 -0400, James Morris wrote:
+> On Sun, 7 May 2006, Joshua Brindle wrote:
 > 
-> Should we provide alternative ways of specifying the initial value for
-> selinux_compat_net as well, as we do with checkreqprot (it can be
-> initialized via kernel config option or via boot parameter as well as
-> modified via selinuxfs)?  That way a distribution can choose to build
-> with compatibility enabled by default without patching, and users can
-> boot a kernel with a particular mode of operation if desired.
+> > It looks like you are labeling all packets on an established connection as
+> > tracked_packet_t. What is the rationale for not labeling all ftp traffic as
+> > ftpd_packet_t? Granted that its very unlikely for established connections to
+> > go to the wrong process but the SELinux policy should be able to clearly show
+> > that ftpd and sshd cannot see each others packets but these policies say that
+> > they can both send/receive tracked_packet_t.
+> 
+> Yes.  This is due to the way connection tracking works, there's no 
+> indication of which connection the packet belongs to, just its state.  We 
+> depend on conntrack to correctly determine the state of the packet, 
+> anyway, and we don't have real IP security without something like IPsec.
+> 
+> SELinux policy analysis will need to work on the assumption that conntrack 
+> is working correctly, and that a packet which is a valid part of an ftp 
+> connection won't end up delivering data to sshd.
+> 
+> We could look at something similar to the CONNMARK target, where 
+> connections are labeled, but it's very ugly and really not useful, as we 
+> assume that conntrack is working correctly.
 > 
 
-load_policy could check for the existence of the packet object class and
-by default set the flag if it is not found. A boot parameter to override
-the default would probably be helpful as well.
+Something like CONNMARK seems preferable to me (perhaps even allowing
+type_transition rules to give the related packets a unique type). This
+makes the labeling reflect the real security property of the packets.
+Yes, we are trusting the conntrack to mark the packets accurately, but
+it makes the policy match the intent. Otherwise it is not possible to
+reason about information flow using just the policy.
+
+Are there serious downsides to this approach?
+
+> You can always not use conntrack and emulate the existing controls, as 
+> well.
+> 
+
+Yes, but gaining connection tracking is a major advantage of this
+approach over the existing controls.
 
 Karl
-
 
 -- 
 Karl MacMillan
 Tresys Technology
 www.tresys.com
+> > Obviously these are just examples, I'm just curious if there was a reason to
+> > label established packets differently from the new connection packets (and the
+> > same as all the other established packets)
+> 
+> The label for the new connection packet is essential for ensuring that the 
+> connection being created is the right type.  We know that if a valid SYN 
+> arrives on port 22, that this is an attempt to establish a connection with 
+> sshd (assuming it's configured to listen on port 22).  Then, conntrack 
+> observes the TCP handshake, and creates connection state if successful.
+> 
+> Also, we only want sshd to receive new connections here, not create them.
+> 
+> > I imagine that, at least at first, it would be good to have allow domain
+> > unlabeled_t:packet { send recv }; in an (enabled) conditional so that the
+> > migration will be easier.
+> 
+> See 
+> 
+> http://people.redhat.com/jmorris/selinux/secmark/policy/packettest/packettest.te
+> 
+> # Totally insecure, for testing.
+> #
+> # Allow all unlabled packets to all domains.
+> #
+> allow domain unlabeled_t:packet { send recv };
+> 
+> As the policy is generated by macros, it should be very simple to change 
+> just a few of the macros to generate compatible policy rules for the new 
+> controls.
+> 
+> > Also, we need to come up with a mechanism for distributing default marking
+> > rules that can accompany a policy. The rules could go into a section in the
+> > .pp file but how does that integrate with various firewall systems that take
+> > control of the iptables rules?
+> 
+> I believe the way to handle this is to create SELinux input and output 
+> chains and then add all of the SELinux labeling rules via them, so the 
+> SELinux rules are at least partitioned off, and these tools will be able 
+> to treat them opaquely. Have a look at the example rulesets I posted on 
+> the web site.
+> 
+> > And finally, what happens if the labeling rule changes during an established
+> > connection? Do the packets related to that connection retain the original
+> > label or will they get the new label?
+> 
+> It depends on which rule is changed.  If it's for a NEW connection, only 
+> packets hitting that will get the new label.  For ESTABLISHED & RELATED, 
+> all packets on those rules will get the new label once the rule is 
+> updated.
+> 
+> > Thanks, this will be very beneficial to the SELinux community
+> 
+> I hope so, the SELinux policy should be pretty simple, and the iptables 
+> rules perhaps not so much, but they'll be generated by macros.
+> 
+> I've also seen some interesting performance improvements (especially if 
+> conntrack is not loaded), although we won't really know the overall 
+> picture until all of the current policy is converted over.  Then it'll be 
+> a case of how well iptables performs with lots of rules and chains.
+> 
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@namei.org>
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
