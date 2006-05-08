@@ -1,61 +1,97 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k48KWfxd030517
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 16:32:41 -0400
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k48KWetw002125
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 20:32:41 GMT
-Message-Id: <200605082032.k48KWXIl030673@turing-police.cc.vt.edu>
-To: Janak Desai <janak@us.ibm.com>
-Cc: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: pam_namespace
-In-Reply-To: Your message of "Mon, 08 May 2006 09:44:24 EDT."
-             <445F4B38.9080808@us.ibm.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200605051623.25533.russell@coker.com.au> <200605071928.22799.russell@coker.com.au> <200605080107.k4817awO007711@turing-police.cc.vt.edu> <200605081328.02493.russell@coker.com.au>
-            <445F4B38.9080808@us.ibm.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k48Kirb2030815
+	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 16:44:53 -0400
+Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k48Kiqtw003474
+	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 20:44:53 GMT
+Received: from localhost ([127.0.0.1] helo=localhost.localdomain)
+	by mail.and.org with esmtp (Exim 4.61)
+	(envelope-from <jantill@redhat.com>)
+	id 1FdCb6-0008Pa-Gh
+	for selinux@tycho.nsa.gov; Mon, 08 May 2006 16:44:52 -0400
+Subject: Re: secon (Was: Policycoreutils patch)
+From: James Antill <jantill@redhat.com>
+Reply-To: james.antill@redhat.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jzDwNAX1wj+x2Kc1S4QV"
+Date: Mon, 08 May 2006 16:44:52 -0400
+Message-Id: <1147121092.3469.24.camel@code.and.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1147120353_2623P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 08 May 2006 16:32:33 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1147120353_2623P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 08 May 2006 09:44:24 EDT, Janak Desai said:
-> >>The problem is that the pam_namespace is still running in a system context,
-> >>but since an earlier pam_selinux called setexeccon(), when namespace
-> >>does an exec, it gets parked in the user context that pam_selinux intended
-> >>to inflict on the actual user login...
-> >That's easy to solve, just call setexeccon(NULL) before doing the exec.  As a
-> >child process is used for this (if exec fails it calls exit(1)) there is not
-> >even any need to save the old value of the execcon.
-> Yes, that's exactly what I was going to do. Late last week, I was 
-> distracted by non pam_namespace
-> related tasks, but hopefully I can test and post an updated patch today.
+--=-jzDwNAX1wj+x2Kc1S4QV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I grabbed the updated patch, and tested.  The script now runs in local_login_t for logins from
-the console:
+On Mon, 2006-05-08 at 10:54 -0400, Stephen Smalley wrote:
+> What is the purpose of the secon utility added by this patch?
+> Assuming that it is useful, a few quick comments on the implementation:
+> - The my_getXcon_raw functions should be moved into libselinux (without
+> the my_ prefix, of course) so that we don't need any code outside of
+> libselinux directly reading /proc/pid/attr files.
 
-May  8 16:21:38 turing-police LOGIN[30328]: called with args /tmp /tmp/tmp.system_u:object_r:staff_tmp_t_valdis uid=0(root) gid=0(root) groups=10(wheel),967(valdis) context=system_u:system_r:local_login_t:SystemLow-SystemHigh
+ Yes, I'd known about that ... I'll be providing changes for libselinux
+in the next day or so.
+ The initial version with my_ functions was simply to make it easier for
+others to be able to compile the code.
 
-I still need to test my script with gdm - that was broken (my fault) last time
-I tried it...
 
---==_Exmh_1147120353_2623P
-Content-Type: application/pgp-signature
+> - Falling back to the current context when the exec or fscreate context
+> is not set is not correct.  Absence of exec or fscreate context just
+> means that the default policy behavior (e.g. type_transition or default
+> inheritance) will be applied.  While default inheritance would mean that
+> the current context is applied for exec, there could be a
+> type_transition, and it makes no sense at all for fscreate (where
+> default inheritance combines information from the current context with
+> the parent directory context).  I think you just want to report NULL /
+> none or similar to the user.
+
+ I was wary of reporting just a blank, but it's a simple change to fix
+that.
+
+
+> - The call to selinux_trans_to_raw_context() doesn't make sense since
+> you are already calling the _raw functions.  If opt->disp_raw is set,
+> then no further processing should be required, right?
+
+ If the context comes from the user (Ie. stdin or argument), we don't
+know if the context is raw or translated. So we always convert. This
+allows:
+
+id -Z | secon -R -
+
+...to output the right thing.
+ The other thing we are looking at is what the default should be, Steve
+Grubb suggested that reading from stdin should be it ... but I don't
+like that from a UI POV and that most cases are better handled otherwise
+(Ie. ls -Z is never going to be parsable, IMO, so secon -f is much
+better).
+
+--=20
+James Antill
+<james.antill@redhat.com>
+
+--=20
+James Antill
+<james.antill@redhat.com>
+
+
+--=-jzDwNAX1wj+x2Kc1S4QV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-iD8DBQFEX6rhcC3lWbTT17ARAlK1AJ0ZCr5TXxuEmq2e3wUzBAdc3bAL0ACdGQc4
-Ju35S3cRKaF2EiNnEJHLDW8=
-=OFWY
+iD8DBQBEX63E11eXTEMrxtQRAlT3AJwIS7a7k3iRdV+BeJgt7FxqhXL8DgCgllOQ
+rp46533pttLtQpu6t3PO/zI=
+=BvxE
 -----END PGP SIGNATURE-----
 
---==_Exmh_1147120353_2623P--
+--=-jzDwNAX1wj+x2Kc1S4QV--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
