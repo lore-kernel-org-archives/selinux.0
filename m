@@ -1,23 +1,36 @@
-Subject: Re: [PATCH] Fix set* functions parameter
+Subject: setrans client support in libselinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Glauber de Oliveira Costa <glommer@br.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, dwalsh@redhat.com,
-        Ivan Gyurdiev <ivg2@cornell.edu>
-In-Reply-To: <200605021304.31517.glommer@br.ibm.com>
-References: <200605021304.31517.glommer@br.ibm.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>, selinux@tycho.nsa.gov
+In-Reply-To: <4458D192.6060105@redhat.com>
+References: <4458D192.6060105@redhat.com>
 Content-Type: text/plain
-Date: Mon, 08 May 2006 08:50:55 -0400
-Message-Id: <1147092655.23640.19.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 08 May 2006 08:58:39 -0400
+Message-Id: <1147093119.23640.26.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-05-02 at 13:04 -0300, Glauber de Oliveira Costa wrote:
-> In general, functions in the set* family (like setcon and setfilecon) receives 
-> a security_context_t as a parameter. This patch includes the correspondent 
-> typemap for it, allowing those functions to be sucessfully called.
+On Wed, 2006-05-03 at 11:51 -0400, Daniel J Walsh wrote:
+> I am looking to remove libsetrans altogether and put the setrans_client 
+> into libselinux and then create a mcstrans package which would just me 
+> the mcs translation daemon.
+> 
+> This patch includes the last patch on libselinux.
+> 
+> These packages will need to be added/updated simultaneously.
 
-Thanks, merged as part of Dan's larger libselinux patch.
+Merged.  This moves the client-side support for a translation daemon
+directly into libselinux, eliminating the use of a separate libsetrans.
+However, we need to think about how to optimize to avoid the
+socket/connect/close overhead on every libselinux function, particularly
+when no daemon is present at all.  I experimented briefly with creating
+and connecting a socket during library initialization and re-using it
+for subsequent calls, with code to recreate it if the connection was
+reset, but this didn't seem to work well with sshd; likely it is closing
+descriptors during setup of the unprivileged child process for privilege
+separation, and the descriptor is being reused for some other purpose.
 
 -- 
 Stephen Smalley
