@@ -1,68 +1,36 @@
-Subject: Re: [RFC][SECMARK 08/08] Add selinux_relabel_packet_permission()
-	check to xt_SECMARK
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
-        netfilter-devel@lists.samba.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0605071139330.8588@d.namei>
-References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
-	 <Pine.LNX.4.64.0605071139330.8588@d.namei>
-Content-Type: text/plain
-Date: Mon, 08 May 2006 13:54:35 -0400
-Message-Id: <1147110876.32719.71.camel@jackjack.columbia.tresys.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [Fwd: Re: libsemanage swig problem]
+Date: Mon, 8 May 2006 14:11:15 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158817013D@exchange.columbia.tresys.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>,
+        "Karl MacMillan" <kmacmillan@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-05-07 at 11:40 -0400, James Morris wrote:
-> This patch adds the selinux_relabel_packet_permission() check to the 
-> SECMARK target, so that SELinux policy is consulted to ensure that the 
-> labeling operation is permitted by the current task.
+> > To: Joshua Brindle <method@gentoo.org>
+> > Hmmm...just tried doing a make distclean swigify pywrap here, and 
+> > had no problems (and nothing changed in the generated files).  
+> > Possibly tied to swig version?  swig 1.3.29 here.
 > 
-> 
-> Signed-off-by: James Morris <jmorris@namei.org>
-> 
-> ---
-> 
->  net/netfilter/xt_SECMARK.c |    6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff -purN -X dontdiff linux-2.6.17-rc3-git7.p/net/netfilter/xt_SECMARK.c linux-2.6.17-rc3-git7.w/net/netfilter/xt_SECMARK.c
-> --- linux-2.6.17-rc3-git7.p/net/netfilter/xt_SECMARK.c	2006-05-03 11:34:12.000000000 -0400
-> +++ linux-2.6.17-rc3-git7.w/net/netfilter/xt_SECMARK.c	2006-05-07 00:35:44.000000000 -0400
-> @@ -72,6 +72,12 @@ static int checkentry_selinux(struct xt_
->  		return 0;
->  	}
->  
-> +	err = selinux_relabel_packet_permission(sel->selsid);
-> +	if (err) {
-> +		printk(KERN_INFO PFX "unable to obtain relabeling permission\n");
-> +		return 0;
-> +	}
-> +
->  	return 1;
->  }
->  
+> Defined in /usr/share/swig/x.y.z/python/pyrun.swg.
+> It replaced t_output_helper, which is deprecated, in libsemanage 1.6.4
+
+> 2006-04-12.
 > 
 
-Glad that you added this. This only checks on the addition of rules,
-correct? Obviously changes that don't include an addition (e.g.,
-removal) could change the labeling behavior. Is it possible / needed to
-try to provide anything like the relabelto/relabelfrom pairing that is
-present for files?
+Hrm
+[root@joker-rawhide yum.repos.d]# grep SWIG_Python_AppendOutput
+/usr/share/swig/1.3.24/python/*
+[root@joker-rawhide yum.repos.d]# 
 
-Karl
+Interestingly my rawhide machine stopped using development repositories
+because all the development repos changed or something and rpm moved my
+-devel.repo files to .rpmsave
 
--- 
-Karl MacMillan
-Tresys Technology
-www.tresys.com
-
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+So I got this fixed and upgraded swig and now it works.. Fun.
 
 
 --
