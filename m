@@ -1,21 +1,21 @@
-Subject: Re: [PATCH] Check return value of getexeccon()
+Subject: Re: [PATCH] Fix set* functions parameter
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Glauber de Oliveira Costa <glommer@br.ibm.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+Cc: SE Linux <selinux@tycho.nsa.gov>, dwalsh@redhat.com,
         Ivan Gyurdiev <ivg2@cornell.edu>
-In-Reply-To: <200605021301.23810.glommer@br.ibm.com>
-References: <200605021301.23810.glommer@br.ibm.com>
+In-Reply-To: <200605021304.31517.glommer@br.ibm.com>
+References: <200605021304.31517.glommer@br.ibm.com>
 Content-Type: text/plain
-Date: Mon, 08 May 2006 08:50:39 -0400
-Message-Id: <1147092639.23640.17.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 08 May 2006 08:50:55 -0400
+Message-Id: <1147092655.23640.19.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-05-02 at 13:01 -0300, Glauber de Oliveira Costa wrote:
-> getexeccon() , (and probably some other), may return NULL in it's return 
-> argument. Currently, this is causing the interpreter to abort due to a failed 
-> assertion. This patch adds a test in the argout typemap to fix this.
+On Tue, 2006-05-02 at 13:04 -0300, Glauber de Oliveira Costa wrote:
+> In general, functions in the set* family (like setcon and setfilecon) receives 
+> a security_context_t as a parameter. This patch includes the correspondent 
+> typemap for it, allowing those functions to be sucessfully called.
 
 Thanks, merged as part of Dan's larger libselinux patch.
 
