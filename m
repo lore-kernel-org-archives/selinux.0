@@ -1,34 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k48EGbG6020080
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 10:16:37 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k48EGaEL008994
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 14:16:36 GMT
-Subject: Re: policy for clockspeed
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Petre Rodan <kaiowas@gentoo.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <20060508072034.GA6138@peter.avira.local>
-References: <20060508072034.GA6138@peter.avira.local>
+Subject: secon (Was: Policycoreutils patch)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <445BB803.4050409@redhat.com>
+References: <445BB803.4050409@redhat.com>
 Content-Type: text/plain
-Date: Mon, 08 May 2006 10:17:08 -0400
-Message-Id: <1147097828.21489.2.camel@sgc>
+Date: Mon, 08 May 2006 10:54:28 -0400
+Message-Id: <1147100068.23640.53.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-05-08 at 10:20 +0300, Petre Rodan wrote:
-> attached you'll find a clockspeed policy.
+On Fri, 2006-05-05 at 16:39 -0400, Daniel J Walsh wrote:
+> Broken audit2allow into two packages including avc.py so that other 
+> tools can use it.
 > 
-> 'clockspeed uses a hardware tick counter to compensate for a persistently fast or slow system clock. given a few time measurements from a reliable source, it computes and then eliminates the clock skew.'
-> http://cr.yp.to/clockspeed.html
+> Began adding code to allow it to analyze AVC message and use plugin 
+> architecture to translate avc messages.
+> 
+> Internationailization code added.
+> 
+> Some po files translated.
+> 
+> Fixes for semanage
+> 
+> Cleanup of code
 
-Merged.
+What is the purpose of the secon utility added by this patch?
+Assuming that it is useful, a few quick comments on the implementation:
+- The my_getXcon_raw functions should be moved into libselinux (without
+the my_ prefix, of course) so that we don't need any code outside of
+libselinux directly reading /proc/pid/attr files.
+- Falling back to the current context when the exec or fscreate context
+is not set is not correct.  Absence of exec or fscreate context just
+means that the default policy behavior (e.g. type_transition or default
+inheritance) will be applied.  While default inheritance would mean that
+the current context is applied for exec, there could be a
+type_transition, and it makes no sense at all for fscreate (where
+default inheritance combines information from the current context with
+the parent directory context).  I think you just want to report NULL /
+none or similar to the user.
+- The call to selinux_trans_to_raw_context() doesn't make sense since
+you are already calling the _raw functions.  If opt->disp_raw is set,
+then no further processing should be required, right?
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
