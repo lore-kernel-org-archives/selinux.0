@@ -1,60 +1,41 @@
-Message-ID: <445F6E38.7070707@redhat.com>
-Date: Mon, 08 May 2006 12:13:44 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: secon (Was: Policycoreutils patch)
-References: <445BB803.4050409@redhat.com> <1147100068.23640.53.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1147100068.23640.53.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC][SECMARK 05/08] Add new packet controls to SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0605071136100.8588@d.namei>
+References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
+	 <Pine.LNX.4.64.0605071136100.8588@d.namei>
+Content-Type: text/plain
+Date: Mon, 08 May 2006 12:40:49 -0400
+Message-Id: <1147106449.23640.102.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2006-05-05 at 16:39 -0400, Daniel J Walsh wrote:
->   
->> Broken audit2allow into two packages including avc.py so that other 
->> tools can use it.
->>
->> Began adding code to allow it to analyze AVC message and use plugin 
->> architecture to translate avc messages.
->>
->> Internationailization code added.
->>
->> Some po files translated.
->>
->> Fixes for semanage
->>
->> Cleanup of code
->>     
->
-> What is the purpose of the secon utility added by this patch?
->   
-The idea is to be able to use utility within bash to show what role/type 
-you are in at the prompt.
-James Antill built it and is experimenting with some other features.  We 
-could obviously do this with python bindings, but wanted something light 
-weight to handle MLS type situations.
-> Assuming that it is useful, a few quick comments on the implementation:
-> - The my_getXcon_raw functions should be moved into libselinux (without
-> the my_ prefix, of course) so that we don't need any code outside of
-> libselinux directly reading /proc/pid/attr files.
-> - Falling back to the current context when the exec or fscreate context
-> is not set is not correct.  Absence of exec or fscreate context just
-> means that the default policy behavior (e.g. type_transition or default
-> inheritance) will be applied.  While default inheritance would mean that
-> the current context is applied for exec, there could be a
-> type_transition, and it makes no sense at all for fscreate (where
-> default inheritance combines information from the current context with
-> the parent directory context).  I think you just want to report NULL /
-> none or similar to the user.
-> - The call to selinux_trans_to_raw_context() doesn't make sense since
-> you are already calling the _raw functions.  If opt->disp_raw is set,
-> then no further processing should be required, right?
->
->   
-I have passed on your comments and we will get out a patch.
+On Sun, 2006-05-07 at 11:37 -0400, James Morris wrote:
+> This patch adds new per-packet access controls to SELinux, replacing the 
+> old packet controls.
+> 
+> Packets are labeled with the iptables SECMARK target then security policy 
+> for the packets is enforced with these controls.
+> 
+> To allow for a smooth transition to the new controls, the old code is 
+> still present, but not active by default.  To restore previous behavior, 
+> the old controls may be activated at runtime by writing a '1' to 
+> /selinux/compat_net.  Switching between the network control models 
+> requires the security load_policy permission.  The old controls will 
+> probably eventually be removed.
+
+Should we provide alternative ways of specifying the initial value for
+selinux_compat_net as well, as we do with checkreqprot (it can be
+initialized via kernel config option or via boot parameter as well as
+modified via selinuxfs)?  That way a distribution can choose to build
+with compatibility enabled by default without patching, and users can
+boot a kernel with a particular mode of operation if desired.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
