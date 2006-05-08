@@ -1,97 +1,51 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k48Kirb2030815
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 16:44:53 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k48Kiqtw003474
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 20:44:53 GMT
-Received: from localhost ([127.0.0.1] helo=localhost.localdomain)
-	by mail.and.org with esmtp (Exim 4.61)
-	(envelope-from <jantill@redhat.com>)
-	id 1FdCb6-0008Pa-Gh
-	for selinux@tycho.nsa.gov; Mon, 08 May 2006 16:44:52 -0400
-Subject: Re: secon (Was: Policycoreutils patch)
-From: James Antill <jantill@redhat.com>
-Reply-To: james.antill@redhat.com
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jzDwNAX1wj+x2Kc1S4QV"
-Date: Mon, 08 May 2006 16:44:52 -0400
-Message-Id: <1147121092.3469.24.camel@code.and.org>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k48LJePh031513
+	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 17:19:40 -0400
+Received: from mail7.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k48LJcEL019800
+	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 21:19:39 GMT
+Date: Mon, 8 May 2006 17:19:35 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Karl MacMillan <kmacmillan@tresys.com>
+cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        netfilter-devel@lists.samba.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [RFC][SECMARK 08/08] Add selinux_relabel_packet_permission()
+ check to xt_SECMARK
+In-Reply-To: <1147110876.32719.71.camel@jackjack.columbia.tresys.com>
+Message-ID: <Pine.LNX.4.64.0605081713500.18947@d.namei>
+References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
+ <Pine.LNX.4.64.0605071139330.8588@d.namei> <1147110876.32719.71.camel@jackjack.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 8 May 2006, Karl MacMillan wrote:
 
---=-jzDwNAX1wj+x2Kc1S4QV
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Glad that you added this. This only checks on the addition of rules,
+> correct? Obviously changes that don't include an addition (e.g.,
+> removal) could change the labeling behavior. Is it possible / needed to
+> try to provide anything like the relabelto/relabelfrom pairing that is
+> present for files?
 
-On Mon, 2006-05-08 at 10:54 -0400, Stephen Smalley wrote:
-> What is the purpose of the secon utility added by this patch?
-> Assuming that it is useful, a few quick comments on the implementation:
-> - The my_getXcon_raw functions should be moved into libselinux (without
-> the my_ prefix, of course) so that we don't need any code outside of
-> libselinux directly reading /proc/pid/attr files.
+The xtables target knows nothing of rule deletion, so we can't detect 
+anything there.  All operations require cap_net_admin, though. so we do at 
+least have that.
 
- Yes, I'd known about that ... I'll be providing changes for libselinux
-in the next day or so.
- The initial version with my_ functions was simply to make it easier for
-others to be able to compile the code.
-
-
-> - Falling back to the current context when the exec or fscreate context
-> is not set is not correct.  Absence of exec or fscreate context just
-> means that the default policy behavior (e.g. type_transition or default
-> inheritance) will be applied.  While default inheritance would mean that
-> the current context is applied for exec, there could be a
-> type_transition, and it makes no sense at all for fscreate (where
-> default inheritance combines information from the current context with
-> the parent directory context).  I think you just want to report NULL /
-> none or similar to the user.
-
- I was wary of reporting just a blank, but it's a simple change to fix
-that.
+There's also no way to do relabelfrom, as a single rule update actually 
+causes the entire 'table' to be replaced, and we have no linkage between 
+old and new rules, or in fact, any way to look at the previous state.  It 
+turns out that we don't need a relabelfrom anyway, as packets which enter 
+the system are inherently unlabeled, and all that SECMARK does is add a 
+label, so we know implicitly that setting a label on a packet is always a 
+'relabelfrom unlabeled'.
 
 
-> - The call to selinux_trans_to_raw_context() doesn't make sense since
-> you are already calling the _raw functions.  If opt->disp_raw is set,
-> then no further processing should be required, right?
-
- If the context comes from the user (Ie. stdin or argument), we don't
-know if the context is raw or translated. So we always convert. This
-allows:
-
-id -Z | secon -R -
-
-...to output the right thing.
- The other thing we are looking at is what the default should be, Steve
-Grubb suggested that reading from stdin should be it ... but I don't
-like that from a UI POV and that most cases are better handled otherwise
-(Ie. ls -Z is never going to be parsable, IMO, so secon -f is much
-better).
-
---=20
-James Antill
-<james.antill@redhat.com>
-
---=20
-James Antill
-<james.antill@redhat.com>
-
-
---=-jzDwNAX1wj+x2Kc1S4QV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEX63E11eXTEMrxtQRAlT3AJwIS7a7k3iRdV+BeJgt7FxqhXL8DgCgllOQ
-rp46533pttLtQpu6t3PO/zI=
-=BvxE
------END PGP SIGNATURE-----
-
---=-jzDwNAX1wj+x2Kc1S4QV--
-
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
