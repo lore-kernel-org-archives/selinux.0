@@ -1,74 +1,66 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4832NAO008660
-	for <selinux@tycho.nsa.gov>; Sun, 7 May 2006 23:02:23 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k483GcWt008862
+	for <selinux@tycho.nsa.gov>; Sun, 7 May 2006 23:16:38 -0400
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4832KiA005673
-	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 03:02:21 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k483GaiA007331
+	for <selinux@tycho.nsa.gov>; Mon, 8 May 2006 03:16:36 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: Valdis.Kletnieks@vt.edu
-Subject: Re: /etc/mtab and namespaces
-Date: Mon, 8 May 2006 13:02:18 +1000
+Subject: Re: pam_namespace
+Date: Mon, 8 May 2006 11:37:38 +1000
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <200605072345.49483.russell@coker.com.au> <200605080101.k4811Gle007489@turing-police.cc.vt.edu>
-In-Reply-To: <200605080101.k4811Gle007489@turing-police.cc.vt.edu>
+References: <200605051623.25533.russell@coker.com.au> <200605051006.k45A6vNK024699@turing-police.cc.vt.edu> <200605071928.22799.russell@coker.com.au>
+In-Reply-To: <200605071928.22799.russell@coker.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <200605081302.22637.russell@coker.com.au>
+Message-Id: <200605081137.42066.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 08 May 2006 11:01, Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 07 May 2006 23:45:45 +1000, Russell Coker said:
-> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=190962
-> > I have filed a bugzilla entry requesting that /etc/mtab be made a
-> > sym-link to /proc/mounts to allow df(1) to work correctly when multiple
-> > name spaces are being used.
->
-> Not that simple - first all the code that uses /etc/mtab has to be fixed
-> to deal with the slight differences between mtab and /proc/mounts.
+On Sunday 07 May 2006 19:28, Russell Coker <russell@coker.com.au> wrote:
+> Of course there's nothing stopping us from modifying a program such as
+> runuser or run_init to set up a namespace for a daemon.  In fact we should
+> probably make the default behavior of run_init and runuser be the creation
+> of a namespace.  It would be easy to create a config file for runuser that
+> allows excluding daemons on the basis of executable name, UID, or other
+> factors.
 
-It's been done before.  The Familiar distribution had /etc/mtab as a sym-link 
-the last time I used it (which was a couple of years ago).  It's not a new 
-idea.
+One problem we have with separate name spaces is that when the administrator 
+mounts a file system the users won't see it.  When the mount point has 
+the "user" option in /etc/fstab that won't be such a problem, but for the 
+more common cases of autofs and the automatic mounting we have in Fedora 
+that's not going to work.
 
-> On my system at the moment:
->
-> /etc/mtab has:
->
-> none /proc proc rw 0 0
-> /dev/hda1 /boot ext3 ro,noexec,nosuid,nodev,noatime,nodiratime 0 0
-> none /tmp tmpfs
-> rw,noexec,nosuid,nodev,noatime,nodiratime,size=1532M,mode=1777 0 0
-> /dev/mapper/rootvg-var /var ext3
-> rw,noexec,nodev,noatime,nodiratime,usrquota,grpquota 0 0
->
-> and /proc/mounts says:
->
-> /proc /proc proc rw 0 0
-> /dev/hda1 /boot ext3 ro,nosuid,nodev,noexec,noatime,nodiratime,data=ordered
-> 0 0 none /tmp tmpfs rw,nosuid,nodev,noexec,noatime,nodiratime 0 0
-> /dev/rootvg/var /var ext3
-> rw,nodev,noexec,noatime,nodiratime,data=ordered,usrquota,grpquota 0 0
+As we want to provide as much protection as possible for as many users as 
+possible it seems to me that for a typical targeted-policy system we would 
+want to run daemons in their own name-space while leaving users in the system 
+name-space.  It would not be difficult to modify runuser such that it could 
+check for a domain_auto_trans() operation on launching a daemon (assuming 
+that the runuser command in question runs the daemon directly instead of 
+running a startup script) and then by default create a separate name space 
+for every daemon that is confined in the targeted policy (which is probably a 
+good list of daemons that may potentially become compromised and be used to 
+attack users).
 
-The difference seems to be some mount options related to journaling, size, and 
-permission mode.  I think that this should be regarded as a kernel bug in 
-that the kernel does not export such data.  There is no reason why the kernel 
-code could not export such data.
+Having such separate name-spaces for daemons that run as non-root allows 
+protecting users from attack while avoiding the usability issues of 
+namespaces for each user.  This is a good match the design philosophy of the 
+targeted policy.
 
-> If you're *positive* that nothing in userspace cares about the differences
-> noted, it might be doable...  Big "if" though...
-
-What do you believe will care about those differences?  df, mount, and the 
-quota utilities don't care, and I can't think of any other program that 
-uses /etc/mtab (apart from other programs that do df type operations).
+For daemons such as xfs, we could have runuser set up a bind mount of the 
+sub-directory of the /tmp directory that is used.  So /tmp/.font-unix could 
+be bind mounted into the name-space of the xfs daemon.  Incidentally at the 
+moment xfs is not started by runuser, so with my rough design outlined above 
+it would not get a separate name-space.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
