@@ -1,109 +1,100 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k49DCZHr014718
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 09:12:35 -0400
-Received: from e33.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k49DCYa2013064
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 13:12:34 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e33.co.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k49DCX92032099
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 09:12:33 -0400
-Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
-	by d03relay04.boulder.ibm.com (8.12.10/NCO/VER6.8) with ESMTP id k49DCX7r182904
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 07:12:33 -0600
-Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av03.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k49DCWKN014254
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 07:12:33 -0600
-Message-ID: <4460953B.5020609@us.ibm.com>
-Date: Tue, 09 May 2006 09:12:27 -0400
-From: Janak Desai <janak@us.ibm.com>
-MIME-Version: 1.0
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-CC: Russell Coker <russell@coker.com.au>, Valdis.Kletnieks@vt.edu,
-        SE-Linux <selinux@tycho.nsa.gov>, viro@zeniv.linux.org.uk
-Subject: Re: pam_namespace
-References: <200605051623.25533.russell@coker.com.au> <200605051006.k45A6vNK024699@turing-police.cc.vt.edu> <200605071928.22799.russell@coker.com.au> <200605081137.42066.russell@coker.com.au> <20060508223859.GA7479@thorium.jmh.mhn.de>
-In-Reply-To: <20060508223859.GA7479@thorium.jmh.mhn.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC] SECMARK 1.0
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: James Morris <jmorris@namei.org>
+Cc: Joshua Brindle <method@gentoo.org>, selinux@tycho.nsa.gov,
+        netdev@vger.kernel.org, netfilter-devel@lists.samba.org,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0605081719440.18947@d.namei>
+References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
+	 <445E288B.4040908@gentoo.org> <Pine.LNX.4.64.0605071323330.9423@d.namei>
+	 <1147110088.32719.56.camel@jackjack.columbia.tresys.com>
+	 <Pine.LNX.4.64.0605081719440.18947@d.namei>
+Content-Type: text/plain
+Date: Tue, 09 May 2006 09:24:45 -0400
+Message-Id: <1147181085.32719.105.camel@jackjack.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thomas Bleher wrote:
+On Mon, 2006-05-08 at 17:29 -0400, James Morris wrote:
+> On Mon, 8 May 2006, Karl MacMillan wrote:
+> 
+> > Something like CONNMARK seems preferable to me (perhaps even allowing
+> > type_transition rules to give the related packets a unique type). This
+> > makes the labeling reflect the real security property of the packets.
+> 
+> That's arguable.  The real security property afaict is that the packets 
+> are of some state (established or related to an existing connection).  It 
+> is implicit in the mechanism that they're tracked as part of an authorized 
+> connection.
+> 
 
->[CC'ing Al Viro because he surely knows this...]
->
->* Russell Coker <russell@coker.com.au> [2006-05-08 05:23]:
->  
->
->>On Sunday 07 May 2006 19:28, Russell Coker <russell@coker.com.au> wrote:
->>    
->>
->>>Of course there's nothing stopping us from modifying a program such as
->>>runuser or run_init to set up a namespace for a daemon.  In fact we should
->>>probably make the default behavior of run_init and runuser be the creation
->>>of a namespace.  It would be easy to create a config file for runuser that
->>>allows excluding daemons on the basis of executable name, UID, or other
->>>factors.
->>>      
->>>
->>One problem we have with separate name spaces is that when the administrator 
->>mounts a file system the users won't see it.
->>    
->>
->
->I thought shared subtrees were invented to solve this problem?
->I've read the documentation but never actually played with it, so I'd be
->interested to hear if it doesn't work.
->
->Thomas
->  
->
-Yes, shared tree will solve this problem. Ram Pai has been trying to 
-upstream the
-user level support for this feature (kernel portion is already upstream 
-since 2.6.15)
-but the maintainer hasn't been very responsive. I forwarded his patch to 
-redhat-lspp
-on the suggestion of Steve Grubb. We are planning on including it in our 
-lspp
-builds so folks can play with it. In the meantime, we will continue to 
-push the
-upstream maintainer of util-linux for including this patch to the mount 
-command.
+This loses how the connection was initiated, however. Packets that are
+part of a connection that was initiated on the ftp port are different
+from packets that are part of a connection initiated on the telnet port.
+Now, the name_bind permissions will limit which domains can initiate
+those connection, but my concern is that connection could, through error
+or exploit, be passed to another domain that should not receive packets
+from that type of connection (see below).
 
--Janak
+> > Yes, we are trusting the conntrack to mark the packets accurately, but
+> > it makes the policy match the intent. Otherwise it is not possible to
+> > reason about information flow using just the policy.
+> 
+> Why not?  You just state that all established and related packets reaching 
+> vsftpd are valid, and that no invalid packets can deliver data to the 
+> application.  You can play tricks and stick a label on a packet but that 
+> doesn't change what's actually happening or your ability to reason about 
+> it.  You assume conntrack works correctly (and if it doesn't, then 
+> labeling connections will break, too).
+> 
 
->  
->
->>When the mount point has 
->>the "user" option in /etc/fstab that won't be such a problem, but for the 
->>more common cases of autofs and the automatic mounting we have in Fedora 
->>that's not going to work.
->>
->>As we want to provide as much protection as possible for as many users as 
->>possible it seems to me that for a typical targeted-policy system we would 
->>want to run daemons in their own name-space while leaving users in the system 
->>name-space.  It would not be difficult to modify runuser such that it could 
->>check for a domain_auto_trans() operation on launching a daemon (assuming 
->>that the runuser command in question runs the daemon directly instead of 
->>running a startup script) and then by default create a separate name space 
->>for every daemon that is confined in the targeted policy (which is probably a 
->>good list of daemons that may potentially become compromised and be used to 
->>attack users).
->>
->>Having such separate name-spaces for daemons that run as non-root allows 
->>protecting users from attack while avoiding the usability issues of 
->>namespaces for each user.  This is a good match the design philosophy of the 
->>targeted policy.
->>
->>For daemons such as xfs, we could have runuser set up a bind mount of the 
->>sub-directory of the /tmp directory that is used.  So /tmp/.font-unix could 
->>be bind mounted into the name-space of the xfs daemon.  Incidentally at the 
->>moment xfs is not started by runuser, so with my rough design outlined above 
->>it would not get a separate name-space
->>
->.
->  
->
+The use of a single related packet type loses the strong binding between
+the connection type (determined on connection) and domains, most likely
+because an established connection is passed to another process.
+
+For example, for xinetd to work all of the xinetd children would be
+allowed to receive all related packets (i.e., tracked_packet_t). This
+means that if xinetd incorrectly passed, say, an ftp connection to
+telnet it would still be allowed to receive those packets because they
+would be of type tracked_packet_t. Labeling using something like
+connmark seems to solve this problem. There may be other examples
+relating to enforcing data separation based on other connection
+information, like the network interface, but I haven't had a chance to
+work through those scenarios.
+
+Now you may be saying that it is not possible to determine with any
+assurance that a related packet is related to, for example, a connection
+that was initiated on the ftp port (and therefore given a different type
+- related_ftp_packet_t - fixing my xinetd example). If this is the case,
+your argument makes more sense to me.
+
+Karl
+
+-- 
+Karl MacMillan
+Tresys Technology
+www.tresys.com
+
+> > Are there serious downsides to this approach?
+> 
+> Yes, it's an ugly hack which is not needed.
+> 
+> > > You can always not use conntrack and emulate the existing controls, as 
+> > > well.
+> > 
+> > Yes, but gaining connection tracking is a major advantage of this
+> > approach over the existing controls.
+> 
+> The point is to show that this scheme provides much stonger security 
+> assurrances, and that if you wished, you could easily rervert to stateless 
+> filtering and have the "correct" labels on the packets; which would be 
+> worse.
+> 
+> 
+> 
+> - James
 
 
 --
