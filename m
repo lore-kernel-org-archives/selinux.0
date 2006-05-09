@@ -1,159 +1,110 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k49Cw08D014337
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 08:58:00 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k49Cvsp8006178
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 12:57:55 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Janak Desai <janak@us.ibm.com>
-Subject: Re: pam_namespace
-Date: Tue, 9 May 2006 22:57:53 +1000
-Cc: Valdis.Kletnieks@vt.edu, SE-Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@epoch.ncsc.mil>
-References: <200605051623.25533.russell@coker.com.au> <200605081328.02493.russell@coker.com.au> <445F4B38.9080808@us.ibm.com>
-In-Reply-To: <445F4B38.9080808@us.ibm.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k49DCZHr014718
+	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 09:12:35 -0400
+Received: from e33.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k49DCYa2013064
+	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 13:12:34 GMT
+Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
+	by e33.co.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k49DCX92032099
+	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 09:12:33 -0400
+Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
+	by d03relay04.boulder.ibm.com (8.12.10/NCO/VER6.8) with ESMTP id k49DCX7r182904
+	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 07:12:33 -0600
+Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av03.boulder.ibm.com (8.12.11/8.13.3) with ESMTP id k49DCWKN014254
+	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 07:12:33 -0600
+Message-ID: <4460953B.5020609@us.ibm.com>
+Date: Tue, 09 May 2006 09:12:27 -0400
+From: Janak Desai <janak@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200605092257.59047.russell@coker.com.au>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+CC: Russell Coker <russell@coker.com.au>, Valdis.Kletnieks@vt.edu,
+        SE-Linux <selinux@tycho.nsa.gov>, viro@zeniv.linux.org.uk
+Subject: Re: pam_namespace
+References: <200605051623.25533.russell@coker.com.au> <200605051006.k45A6vNK024699@turing-police.cc.vt.edu> <200605071928.22799.russell@coker.com.au> <200605081137.42066.russell@coker.com.au> <20060508223859.GA7479@thorium.jmh.mhn.de>
+In-Reply-To: <20060508223859.GA7479@thorium.jmh.mhn.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 08 May 2006 23:44, Janak Desai <janak@us.ibm.com> wrote:
-> >>ignore_config_error is only sufficient if there is no possibility of
-> >>any option misbehaving - in particular, we can't have an option 'both'
-> >>that works in MCS/MLS environments as well - we'll need to have a
-> >> both_mcs if the mcs label is to be included, and a both_no_mcs if it
-> >> should behave in the same way as the non-mcs 'both'.
-> >
-> >Having "both" and "both_no_mcs" is confusing.  Maybe it would be best to
-> >have "user" and "context" as separate items to replace "both" and then
-> >support a fourth option as "range", "high" or "low".
+Thomas Bleher wrote:
+
+>[CC'ing Al Viro because he surely knows this...]
 >
-> I am not sure I understand. We have "user", "context" and "both", where
-> type in the context can be controlled through type-member policy rules and
-> the mls range is inherited from the process. Can you give an example of what
-> context the instance would have with "range" or "high" or "low"?
-
-My idea is that the range, high, and low values would be candidates for the 
-file name.
-
-The current code in rawhide does not inherit the range from the process, are 
-you referring to a newer version of pam_namespace.c?  If so where can I find 
-a copy?
-
-For inheriting the range to be viable then we need to support names for the 
-temporary directory based on the range so that different ranges for the 
-current user can be supported.  I am not sure whether we will support 
-choosing a range at login time, if we do then we must support this.  If we 
-will never support choosing the range at login time there is the case of su 
-which may be run after a newrole command and therefore be used to enter the 
-same user role in different contexts.  Another case is that of a user who has 
-their default range changed by the sys-admin while they are logged in (this 
-may be uncommon in the case of MLS use but for MCS I expect it to be regular 
-system use).
-
-Probably the easiest thing to do is to default to including the entire 
-security context of the process in the directory name.
-
-> In general I am not sure about the intermidiate directory itself. To me,
-> it complicates the mechanism and mixes it with policy. When using
-> polyinstantiation with SELinux, you can tighten up access to instances by
-> type-member rules and by inheriting mls label of the process.
-
-For the case of strict and mls policy, yes.  For targeted policy we don't have 
-such protections.
-
-> In non-SELinux use, an admin can seperate users from each
-> other by configuring the instance to be a subdirectory of the
-> polyinstantiated directory.
-> We can get additional protection from non-root daemons by creating an
-> intermdiate directory. However, is it really worth the trouble to protect a
-> user's instance of /tmp or /var/tmp beyond what will be protected by sticky
-> bits? Since instances inherit the polyinstantiated directory's mode, $HOME
-> etc are already protected from non-root daemons.
-
-$HOME is protected, but as $HOME will only be PI on a strict or MLS system 
-this isn't an issue.
-
-Sticky bits provide no protection, the entire purpose of PI for /tmp is that 
-the sticky bits don't do an adequate job!  Substituting a race condition 
-attack on /tmp for a race condition attack on /tmp/tmp.inst-user-user is no 
-gain!
-
-Also while we are on the topic, the namespace module needs to handle the case 
-of a directory existing with the wrong permissions or having a file with the 
-name existing.
-
-Currently with pam_namespace.so configured I can prevent a user from logging 
-in by creating a file named /tmp/tmp.inst-user-user.  I can create a 
-directory of that name as another user to take over ownership of another 
-user's instance of /tmp.  I can make /tmp/tmp.inst-user-user a sym-link 
-to /etc which then makes /tmp a copy of /etc for the user who logs in (I'm 
-sure that there is potential for an exploit here).
-
-There are two algorithms that occur to me to deal with these issues, one is 
-that if there is an existing directory of the name in question then we first 
-check the ownership, permissions, and context against what we would create, 
-if they don't match (or if the name is taken by something other than a 
-directory) then we append ".1" to the name and try again, we keep either 
-incrementing the number we append until we find a directory that has 
-appropriate perms or which does not exist.  The other algorithm is to have a 
-specific subdirectory created with a name such as /tmp/.inst that has 
-restrictive permissions under both Unix and SE Linux and then create all 
-directories under that.  This second algorithm also removes the need to 
-create two levels of directory each time a user logs in (saves 4K of disk 
-space per session and a tiny amount of CPU time).
-
-The first algorithm doesn't deal well with DOS attacks.  The second algorithm 
-has the creation of a permanent directory under /tmp with the need to create 
-the directory very early in the boot process for systems with tmpfs on /tmp 
-(not SE Linux as we don't have policy support for tmpfs on /tmp).  Creating a 
-directory in such a manner is messy, but there is precedent for it 
-in /tmp/.X11-unix, /tmp/.ICE-unix, and /tmp/.font-unix.
-
-> >>>On a non-SE system "0wned uid=0 daemon" is considered to be game-over.
-> >>
-> >>So you're saying that on a non-SE system, namespaces are *not* in the
-> >>least expected to slow down a rogue daemon.  OK, as long as we make a
-> >>note of that..
-> >
-> >Not at all!  I'm saying that on a non-SE system a uid=0 process can do
-> >anything it wants so there's no point even attempting to constrain such a
-> >process.  However nowadays most daemons never run as root, and the ones
-> > that do run as root drop their privs for as much code as possible.
-> >
-> >Attack by a non-root daemon on a non-SE system is something we want to
-> >prevent.
+>* Russell Coker <russell@coker.com.au> [2006-05-08 05:23]:
+>  
 >
-> Again, this attack, valid only on non-SELinux mode, would only
-> consititute the
-> daemon creating files in user's instance of /tmp or /var/tmp. Because of
-> the sticky bit,
-> the daemon will not be able delete any files there, right?
+>>On Sunday 07 May 2006 19:28, Russell Coker <russell@coker.com.au> wrote:
+>>    
+>>
+>>>Of course there's nothing stopping us from modifying a program such as
+>>>runuser or run_init to set up a namespace for a daemon.  In fact we should
+>>>probably make the default behavior of run_init and runuser be the creation
+>>>of a namespace.  It would be easy to create a config file for runuser that
+>>>allows excluding daemons on the basis of executable name, UID, or other
+>>>factors.
+>>>      
+>>>
+>>One problem we have with separate name spaces is that when the administrator 
+>>mounts a file system the users won't see it.
+>>    
+>>
+>
+>I thought shared subtrees were invented to solve this problem?
+>I've read the documentation but never actually played with it, so I'd be
+>interested to hear if it doesn't work.
+>
+>Thomas
+>  
+>
+Yes, shared tree will solve this problem. Ram Pai has been trying to 
+upstream the
+user level support for this feature (kernel portion is already upstream 
+since 2.6.15)
+but the maintainer hasn't been very responsive. I forwarded his patch to 
+redhat-lspp
+on the suggestion of Steve Grubb. We are planning on including it in our 
+lspp
+builds so folks can play with it. In the meantime, we will continue to 
+push the
+upstream maintainer of util-linux for including this patch to the mount 
+command.
 
-The attack is not only valid on non-SE Linux mode.  Such attacks that work on 
-non-SE Linux will also mostly work on targeted systems.  On strict systems 
-bugs and design flaws that permit integrity attacks on non-SE and targeted 
-systems will generally be expected to become DOS attacks.
+-Janak
 
-I think that generally deleting files is the last thing we are concerned 
-about.  Some systems use a ram disk for /tmp by default (Solaris), some 
-systems clean out /tmp on boot by default (Debian).  Generally /tmp should be 
-considered as transient.  The concerns for /tmp are race condition attacks on 
-system integrity (causing a process to expose or corrupt data when it is 
-operating on files other than the ones the programmer or the user intended it 
-to use) and exposing secret data through revealing sensitive file names.  The 
-current operation of the pam_namespace.so module fails on the issue of 
-protecting secret file names and doesn't do very well on the issue of 
-protecting integrity against race conditions.
+>  
+>
+>>When the mount point has 
+>>the "user" option in /etc/fstab that won't be such a problem, but for the 
+>>more common cases of autofs and the automatic mounting we have in Fedora 
+>>that's not going to work.
+>>
+>>As we want to provide as much protection as possible for as many users as 
+>>possible it seems to me that for a typical targeted-policy system we would 
+>>want to run daemons in their own name-space while leaving users in the system 
+>>name-space.  It would not be difficult to modify runuser such that it could 
+>>check for a domain_auto_trans() operation on launching a daemon (assuming 
+>>that the runuser command in question runs the daemon directly instead of 
+>>running a startup script) and then by default create a separate name space 
+>>for every daemon that is confined in the targeted policy (which is probably a 
+>>good list of daemons that may potentially become compromised and be used to 
+>>attack users).
+>>
+>>Having such separate name-spaces for daemons that run as non-root allows 
+>>protecting users from attack while avoiding the usability issues of 
+>>namespaces for each user.  This is a good match the design philosophy of the 
+>>targeted policy.
+>>
+>>For daemons such as xfs, we could have runuser set up a bind mount of the 
+>>sub-directory of the /tmp directory that is used.  So /tmp/.font-unix could 
+>>be bind mounted into the name-space of the xfs daemon.  Incidentally at the 
+>>moment xfs is not started by runuser, so with my rough design outlined above 
+>>it would not get a separate name-space
+>>
+>.
+>  
+>
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
