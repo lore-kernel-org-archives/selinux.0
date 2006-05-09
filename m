@@ -1,48 +1,21 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k49CZKMi013710
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 08:35:20 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k49CZHa2008222
-	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 12:35:19 GMT
-Subject: Re: [PATCH] fix warnings in selinux-usr
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev <selinux-dev@tresys.com>
-In-Reply-To: <445FC8F8.3090809@cornell.edu>
-References: <1146845884.2208.15.camel@jackjack.columbia.tresys.com>
-	 <445CF147.1000300@cornell.edu>
-	 <1147091194.32719.4.camel@jackjack.columbia.tresys.com>
-	 <445FC8F8.3090809@cornell.edu>
-Content-Type: text/plain
-Date: Tue, 09 May 2006 08:32:38 -0400
-Message-Id: <1147177959.32719.83.camel@jackjack.columbia.tresys.com>
-Mime-Version: 1.0
+Message-ID: <44608F34.3060907@gentoo.org>
+Date: Tue, 09 May 2006 08:46:44 -0400
+From: Joshua Brindle <method@gentoo.org>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: restorecond and security related files
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-05-08 at 18:40 -0400, Ivan Gyurdiev wrote:
-> Karl MacMillan wrote:
-> > Sure, conversions would solve the problem, though removing some of this
-> > duplication would be even better. Any chance you will have a chance to
-> > take care of this?
-> >   
-> I've stopped working on these things for the moment...
-
-That's too bad.
-
-> How are you suggesting we should get rid of the duplication - use sepol 
-> structures directly?
-
-Potentially or investigate whether the presence of the same APIs in both
-places exposes some deeper issues.
-
-Karl
-
-
--- 
-Karl MacMillan
-Tresys Technology
-www.tresys.com
+I noticed that /etc/samba/secrets.tdb was added to restorecond.conf. I 
+thought that restorecond was only going to be used for files of low 
+security relevancy? Are type transitions not sufficient in this case? if 
+not smbpasswd should use setfscreatecon() when writing it like passwd 
+does. Also, this doesn't seem to keep /etc/samba/smbpasswd correctly 
+typed or the /etc/samba/smbpasswd.<pid> temp file created when smbpasswd 
+is run.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
