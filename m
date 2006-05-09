@@ -1,41 +1,73 @@
-Subject: Re: restorecond and security related files
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@gentoo.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <44608F34.3060907@gentoo.org>
-References: <44608F34.3060907@gentoo.org>
-Content-Type: text/plain
-Date: Tue, 09 May 2006 10:47:49 -0400
-Message-Id: <1147186069.32651.83.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k49FA8N2018233
+	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 11:10:08 -0400
+Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k49FA7a2000114
+	for <selinux@tycho.nsa.gov>; Tue, 9 May 2006 15:10:07 GMT
+Message-ID: <4460B0CD.30500@hp.com>
+Date: Tue, 09 May 2006 11:10:05 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Brian Sniffen <bsniffen@mitre.org>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Network access controls (resolving xfrm, secmark, and NetLabel)
+References: <445B7CEC.1020106@hp.com> <m24pzz6zb1.fsf@raven-king.mitre.org>
+In-Reply-To: <m24pzz6zb1.fsf@raven-king.mitre.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-05-09 at 08:46 -0400, Joshua Brindle wrote:
-> I noticed that /etc/samba/secrets.tdb was added to restorecond.conf. I 
-> thought that restorecond was only going to be used for files of low 
-> security relevancy? Are type transitions not sufficient in this case? if 
-> not smbpasswd should use setfscreatecon() when writing it like passwd 
-> does. Also, this doesn't seem to keep /etc/samba/smbpasswd correctly 
-> typed or the /etc/samba/smbpasswd.<pid> temp file created when smbpasswd 
-> is run.
+Brian Sniffen wrote:
+> Paul Moore <paul.moore@hp.com> writes:
+> 
+>>The secmark approach requires the labeling mechanism to live inside
+>>the netfilter code (correct James?) while the NetLabel approach
+>>allows the labeling mechanism to happen anywhere it can, in the xfrm
+>>transforms, netfilter, you name it.
+> 
+> The sequencing of netfilter makes it very clear how to handle multiple
+> attempts to apply a label, and very easy to be sure which labels will
+> be applied to which packets.  With multiple NetLabel points of
+> contact, how much will you be able to tell statically about the labels
+> on various sorts of packet?  In how many places will an analyst need
+> to look?
+> 
 
-While I agree that whenever possible we should seek to get the proper
-type transitions in place and/or appropriate application modifications,
-that doesn't necessarily mean that we can't list such files in
-restorecond.conf in order to provide some degree of recovery (albeit
-belated) when something steps outside of those transitions or bypasses
-that modified code, which will always be possible as long as there are
-unconfined_t processes on the system.  Even /etc/shadow is a candidate
-there, because you can lose the type on it quite easily on a targeted
-policy system, and better to have restorecond at least notice and
-restore it belatedly than to never get it fixed at all (until some user
-happens to notice or run a relabel).
+If we could do everything in netfilter then I agree with you completely. 
+However, I'm not sure that forcing everything to use netfilter is really the 
+best solution.  Lets use CIPSO as an example ...
+
+On the incoming side it wouldn't be that difficult to use netfilter and the 
+secmark field.  Essentially we would just move the CIPSO IP option validation 
+and decoding from their current spots in the IP and socket layers into 
+netfilter.  We could argue the merits of such a decision but I believe it would 
+work.
+
+The outgoing side would be a bit more difficult.  We would need to create a 
+mechanism to set the secmark field on outgoing packets as they leave the 
+application (I didn't see this in James patches, please let me know if I missed 
+something) and then we would need to add the CIPSO IP option to the packet in 
+the netfilter layer, which is the problem.  Assuming it is okay to increase the 
+size of the packet in the netfilter layer (I have a nagging memory that I was 
+once told this is not allowed, but I can't remember where I heard that) so that 
+we could add the CIPSO IP option we are then faced with the following problems:
+
+  * the IP checksum now needs to be recalculated
+  * we might not have enough room in the IP header depending on other
+    IP options
+  * we will most likely run into PMTU problems
+  * the IPsec AH transform, if present, is now incorrect
+
+... there are most likely others, these are just the first few that popped into 
+my head while typing this.
+
+I think the netfilter/secmark approach is a great improvement for implicit, 
+host-generated packet labels but I'm still not convinced it is ideal for 
+explicit, dynamic packet labels such as CIPSO.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
