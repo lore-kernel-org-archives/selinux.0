@@ -1,94 +1,209 @@
-Subject: Re: [RFC][SECMARK 05/08] Add new packet controls to SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux-dev@tresys.com, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20060510221146.GG8937@thorium.jmh.mhn.de>
-References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
-	 <Pine.LNX.4.64.0605071136100.8588@d.namei>
-	 <1147106449.23640.102.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0605081947400.19850@d.namei>
-	 <1147174138.32651.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0605091146350.25693@d.namei>
-	 <20060510221146.GG8937@thorium.jmh.mhn.de>
-Content-Type: text/plain
-Date: Thu, 11 May 2006 08:52:25 -0400
-Message-Id: <1147351945.8341.114.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4BDStce009052
+	for <selinux@tycho.nsa.gov>; Thu, 11 May 2006 09:28:55 -0400
+Received: from e5.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4BDStcm002670
+	for <selinux@tycho.nsa.gov>; Thu, 11 May 2006 13:28:55 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e5.ny.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k4BDSpOb012352
+	for <selinux@tycho.nsa.gov>; Thu, 11 May 2006 09:28:51 -0400
+Received: from d01av02.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by d01relay04.pok.ibm.com (8.12.10/NCO/VER6.8) with ESMTP id k4BDSpNK235428
+	for <selinux@tycho.nsa.gov>; Thu, 11 May 2006 09:28:51 -0400
+Received: from d01av02.pok.ibm.com (loopback [127.0.0.1])
+	by d01av02.pok.ibm.com (8.12.11/8.13.3) with ESMTP id k4BDSooV012914
+	for <selinux@tycho.nsa.gov>; Thu, 11 May 2006 09:28:51 -0400
+Message-ID: <44633C0D.3060101@us.ibm.com>
+Date: Thu, 11 May 2006 09:28:45 -0400
+From: Janak Desai <janak@us.ibm.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: Valdis.Kletnieks@vt.edu, SE-Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: pam_namespace
+References: <200605051623.25533.russell@coker.com.au> <200605100853.31555.russell@coker.com.au> <4461F43A.2020004@us.ibm.com> <200605111004.14112.russell@coker.com.au>
+In-Reply-To: <200605111004.14112.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-05-11 at 00:11 +0200, Thomas Bleher wrote:
-> I'd prefer a config option because it makes it possible to load old
-> policy without changing things beyond the kernel. It also alerts people
-> that they will need to upgrade their userland before they switch to the
-> next kernel.
+Russell Coker wrote:
 
-I agree with the first point.  I'm not sure a config option helps much
-with the latter point - most people likely would just re-use an
-existing .config and not notice that introduction of a new option.
+>On Thursday 11 May 2006 00:10, Janak Desai <janak@us.ibm.com> wrote:
+>  
+>
+>>>>>>In general I am not sure about the intermidiate directory itself. To
+>>>>>>me, it complicates the mechanism and mixes it with policy. When using
+>>>>>>polyinstantiation with SELinux, you can tighten up access to instances
+>>>>>>by type-member rules and by inheriting mls label of the process.
+>>>>>>            
+>>>>>>
+>>>>>For the case of strict and mls policy, yes.  For targeted policy we
+>>>>>don't have such protections.
+>>>>>          
+>>>>>
+>>>>I am not sure I follow. Why can't you setup type member rules in
+>>>>targeted policy?
+>>>>        
+>>>>
+>>>Sure you can, but when all user logins have unconfined_t as the domain SE
+>>>Linux protections (other than MCS protections) won't apply.  MCS
+>>>protections are a long way from what is required in this regard.
+>>>      
+>>>
+>>Agreed. Although targeted policy does constrain many daemons (that's what
+>>we are concerned about, right?), I can see that there might be daemons that
+>>are running
+>>in unconfined_t whose vulnarabilities can be exploited to gain a
+>>non-root shell
+>>running in unconfined_t. Just wanted to point out that since we are
+>>concerned about
+>>non-root daemons, that targeted does constrain many of them.
+>>    
+>>
+>
+>1) Attack by user on user
+>2) Attack by user on daemon
+>3.1) Attack by non-root daemon on user
+>3.2) Attack by root daemon on user (will always succeed without SE Linux)
+>
+>I believe that the above are the attack scenarios we should consider and the 
+>below are the types of attack we should consider.
+>
+>A) Race-condition attacks on the integrity of processes and data (sym-link 
+>attacks, race conditions on renaming objects, or pre-creating a file to take 
+>ownership of data)
+>B) Leaks of confidential data via secrets in file names
+>C) Denial Of Service (DOS) attacks based on race conditions and pre-allocating 
+>file/directory names
+>
+>The current implementation of pam_namespace does not address attack scenario 
+>3.1 on non-SE systems and attack scenarios 3.1 and 3.2 on strict systems.  
+>Even on MLS systems there may be a vulnerability to attack C and possibly 
+>attack B as well.
+>
+>  
+>
+>>>>>Currently with pam_namespace.so configured I can prevent a user from
+>>>>>logging in by creating a file named /tmp/tmp.inst-user-user.  I can
+>>>>>create a directory of that name as another user to take over ownership
+>>>>>of another user's instance of /tmp.  I can make /tmp/tmp.inst-user-user
+>>>>>a sym-link to /etc which then makes /tmp a copy of /etc for the user
+>>>>>who logs in (I'm sure that there is potential for an exploit here).
+>>>>>          
+>>>>>
+>>>>yes, probably. However, remember, ordinary users will not see the "real"
+>>>>/tmp.
+>>>>        
+>>>>
+>>>Apart from users who are listed as exceptions in
+>>>/etc/security/namespace.conf.
+>>>
+>>>Also applying the "defense in depth" principle we want to make sure that
+>>>it offers protection even in the case of misconfiguration or other
+>>>situations that result in user sessions running in the global name space.
+>>>
+>>>Imagine that an administrator misconfigures the system such that crond
+>>>does not use unshared name spaces, that would then permit a hostile user
+>>>to attack other users and daemons via race conditions and DOS attacks.
+>>>      
+>>>
+>>Users listed as exceptions in namespace.conf is an intentional action of
+>>the admin.
+>>    
+>>
+>
+>Which does not mean that they are fully trusted users who should be permitted 
+>to override security measures that protect other users.
+>
+>  
+>
+>>I agree that we should try and limit the damage from misconfiguration.
+>>However, there
+>>is always a trade-off between how far you will go to protect against
+>>misconfiguration.
+>>IMHO adding .inst with a very restrictive mode of 000 in the polydir
+>>does not
+>>protect you a whole lot more against the type of attack that you are
+>>describing.
+>>If we assume that the user has managed to gain access to the original
+>>/tmp (by
+>>gaining unmount privs or by subverting an unconfined daemon running
+>>in system namespace) then they can still write in /tmp. They can just move
+>>.inst to junk.
+>>    
+>>
+>
+>If the user gains access to the real version of /tmp by calling umount() then 
+>you are probably correct.  If however the user gains access to the real 
+>version of /tmp by exploiting a buggy login program (maybe the login program 
+>has a bug that skips some PAM session modules), by being granted such access 
+>to the system by an intentional action of the sys-admin (just because the 
+>sys-admin gave them some privs that most users don't get that doesn't mean 
+>they are trusted), by remaining logged in since before the administrator 
+>enabled namespaces in the configuration, or any of the other possible methods 
+>then having a .inst directory with mode 000 will save you.
+>  
+>
+How? If an ordinary user is able to get access to real /tmp he or she 
+will be able rename
+the .inst directory that is owned by root (or anyone else for that 
+matter) even if it is 000.
+rename only checks the write persmission against the parent directory.
 
-> Remember: Not all people use distro kernels (or have selinux userland
-> provided by their distro). It's not nice to break compatibility without
-> a proper notice in advance.
-> 
-> I think there is a tendency here to break backwards compatibility[1]
-> because "RedHat will fix it". This gives SELinux a reputation of "breaks
-> regularly, maintainers don't care for their users". We should avoid this
-> if at all possible.
-
-In truth, the introduction of new checks and new policy binary formats
-has actually caused problems in Fedora as well, as the kernel, patched
-userland components, and core SELinux components are maintained by
-different people, so they aren't always properly synchronized.
-
-> (Possibly crazy idea: Would it be possible to change the module format
-> so that the kernel recognizes permissions which are not defined in the
-> loaded policy at all and automatically allows them? This would allow us
-> to define new permissions (e.g. for decomposing CAP_SYS_ADMIN) without
-> needing comlex compatibility code or breaking systems.)
-
-Changing the module format isn't sufficient for that, as the kernel
-doesn't see the module format.  You'd have to change the kernel binary
-policy format, if a format change is truly required.
-
-It isn't as simple as just allowing undefined permissions; there is the
-issue of how one maps the intent of a policy written against one set of
-permission checks into a different set of permission checks.  One
-example was the past introduction of fine-grained netlink classes and
-checks (which did bump the binary policy version, but that was a hack),
-where you needed to map the finer-grained netlink classes to the old
-single netlink class when using an older policy.  In the packet controls
-case, we have two different sets of per-packet permission checks, and
-automatically mapping the intent of a policy written in terms of one set
-to another is not really feasible, particularly as the newer checks rely
-on separate netfilter labeling of the packets based on iptables rules.
-
-I'm also a bit uneasy about the implications for reasoning about /
-making assurance arguments about the actual enforcement if we have such
-conditional checking and it becomes pervasive as we continue to add new
-checks / replace old checks.
-
-We further have to consider the implications for userspace.  At present,
-we always generate policy in the latest version supported by the
-toolchain (unless otherwise configured in semanage.conf), and then
-downgrade it at load time if necessary to the version supported by the
-kernel.  Introducing incompatible policy versions that cannot be
-downgraded will require some rethinking there.
-
-> [1]: "Breaking backwards compatibility" happened in the past when
-> name_connect and the various exec* checks were introduced, because after
-> updating the kernel the system didn't work anymore, because the new
-> permissions weren't granted in the policy.
-
-Yes, people have complained about that, but I'm not sure we can avoid
-the tight coupling between kernel and policy; it is inherent.  Possibly
-it would be better to just make it explicit; e.g. policy-2.6.16,
-policy-2.6.15.
-
--- 
-Stephen Smalley
-National Security Agency
+>Also I believe that pam_namespace should offer as many benefits as possible to 
+>non-SE systems.  With the current code there is no protection against attack 
+>scenario 3.1.
+>
+>  
+>
+>>True. I agree that managing .inst won't be too much of a trouble.
+>>    
+>>
+>
+>I believe that in many situations a .inst directory would be less trouble than 
+>the alternative.
+>
+>The current situation of having directories created for security purposes in a 
+>mode 1777 directory is far from optimal.  Having a .inst directory 
+>created/verified in single-user mode at boot time removes entire categories 
+>of race condition attacks from the threat list.
+>
+>  
+>
+>>>I'm not sure that you understood my previous messages.
+>>>
+>>>Root shell on non-SE system is game-over.  Root shell on SE system is a
+>>>situation we want to contain, and we can contain it.  In most cases with
+>>>the strict and MLS policies a root process will not have the ability to
+>>>umount anything and in some cases it won't have dac_override.
+>>>
+>>>We want to have very restrictive Unix permissions on accessing the PI
+>>>directories (I suggest making /tmp/.inst mode 000) so that a process must
+>>>have dac_override to even get started as well as having restrictive
+>>>permissions under the domain-type part of SE Linux.
+>>>
+>>>Incidentally we can probably reduce the number of daemons with
+>>>dac_override capability, in many cases such access was granted because
+>>>it's easier than redesigning the application in a better manner.
+>>>      
+>>>
+>>Yes, but as long as the original polydir (/tmp for example) is writable
+>>by the
+>>attacking process, they can move .inst aside.
+>>    
+>>
+>
+>/tmp is owned by root so a root process can rename any object under Unix 
+>permissions.  Root on a non-SE system or as unconfined_t on a targeted system 
+>is game-over.  Root on a SE system running strict or mls policy will not be 
+>able to rename the .inst directory if we give it a suitable type and only 
+>permit the administrator and the login programs to have any access to it.
+>
+>I think that this case is covered too.
+>
+>  
+>
 
 
 --
