@@ -1,51 +1,50 @@
-Subject: Re: Trouble with setexeccon/setcon
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: Mario Fanelli <mario.fanelli@gmail.com>,
-        SeLinux Mailing List <selinux@tycho.nsa.gov>
-In-Reply-To: <20060512101152.GA7473@thorium.jmh.mhn.de>
-References: <44643eb7.025ecbeb.7447.326d@mx.gmail.com>
-	 <20060512101152.GA7473@thorium.jmh.mhn.de>
-Content-Type: text/plain
-Date: Fri, 12 May 2006 08:38:00 -0400
-Message-Id: <1147437480.23563.32.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4CCaMJj006363
+	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 08:36:23 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4CCaK1i020843
+	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 12:36:21 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Janak Desai <janak@us.ibm.com>
+Subject: Re: [Fwd: [PATCH 1/1] mount: shared-subtree support for mount]
+Date: Fri, 12 May 2006 22:36:23 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <4460A6DA.1040407@us.ibm.com>
+In-Reply-To: <4460A6DA.1040407@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200605122236.27664.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-12 at 12:11 +0200, Thomas Bleher wrote:
-> * Mario Fanelli <mario.fanelli@gmail.com> [2006-05-12 10:10]:
-> > Hello, my name is Mario and I have a trouble with selinux's api. My goal is
-> > to modify the suPhp apache module, but the function setcon and function
-> > setexeccon don't work. 
-> > 
-> > My apache process runs in dummy_t domain and suPhp file has a security
-> > context "user_u:object_r:dummy_exec_t"; in the policy file I write:
-> > 
-> > "domain_trans(dummy_t,dummy_exec_t,dummy_change_context_t)"
-> > 
-> > "domain_trans(dummy_t,dummy_exec_t,dummy_change1_context_t)"
-> > 
-> > And before calling apr_create_process in mod_suphp, I use
-> > setexeccon("user_u:object_r:dummy_change_context_t") but the function return
->                      ^^^^^^^^
-> > always -1 
-> 
-> You need user_r instead of object_r. I've never used this api so I can't
-> comment further, but at least you need to change this.
+On Wednesday 10 May 2006 00:27, Janak Desai <janak@us.ibm.com> wrote:
+> As per Russell's request, I am posting this patch here as well, so
+> broader selinux
+> community can also play with the shared tree feature.
 
-Yes, and please don't hardcode security contexts in your program.  Make
-sure that they are configurable so that your code can adapt to other
-policies.  Note that you likely just want to configure the type, and let
-the rest be inherited from the caller's context.  See newrole (in
-policycoreutils) or runcon (in coreutils) for examples of how to
-construct a context by taking an existing context and then just mutating
-a particular field, like the type.
+Thanks for that.
+
+I just built mount with that patch and tried it out but it doesn't seem to 
+work.  I run the following command from root login:
+mount --make-private --bind /tmp/tmp.inst-user-user /tmp
+
+Then when I inspect /tmp from other sessions it seems that the change is 
+global.
+
+Does the rawhide kernel 2.6.16-1.2196_FC6 lack support for this or did I get 
+the command-line wrong?
+
+Also from the documentation it seems that such a private mount does all we 
+need without any need to call unshare().  Is my understanding of this 
+correct?
 
 -- 
-Stephen Smalley
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
