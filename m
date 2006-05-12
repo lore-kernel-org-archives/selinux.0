@@ -1,71 +1,137 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4C50bRx029746
-	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 01:00:37 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4C50Q6C016349
-	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 05:00:34 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Rogelio Serrano" <rogelio.serrano@gmail.com>
-Subject: Re: pam_namespace
-Date: Fri, 12 May 2006 15:00:28 +1000
-Cc: "Janak Desai" <janak@us.ibm.com>, Valdis.Kletnieks@vt.edu,
-        SE-Linux <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@epoch.ncsc.mil>
-References: <200605051623.25533.russell@coker.com.au> <44633C0D.3060101@us.ibm.com> <a9951d2a0605112114t6ae048f1l64a5a9b6768c6dc5@mail.gmail.com>
-In-Reply-To: <a9951d2a0605112114t6ae048f1l64a5a9b6768c6dc5@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4C7qPYg032610
+	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 03:52:25 -0400
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4C7qO6C002401
+	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 07:52:24 GMT
+Received: by ug-out-1314.google.com with SMTP id u2so294867uge
+        for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 00:52:23 -0700 (PDT)
+From: "Mario Fanelli" <mario.fanelli@gmail.com>
+To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
+Subject: Trouble with setexeccon/setcon
+Date: Fri, 12 May 2006 09:52:19 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200605121500.33442.russell@coker.com.au>
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0003_01C675A9.C35CF5D0"
+Message-ID: <44643eb7.025ecbeb.7447.326d@mx.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 12 May 2006 14:14, "Rogelio Serrano" <rogelio.serrano@gmail.com> 
-wrote:
-> > >If the user gains access to the real version of /tmp by calling umount()
-> > > then you are probably correct.  If however the user gains access to the
-> > > real version of /tmp by exploiting a buggy login program (maybe the
-> > > login program has a bug that skips some PAM session modules), by being
-> > > granted such access to the system by an intentional action of the
-> > > sys-admin (just because the sys-admin gave them some privs that most
-> > > users don't get that doesn't mean they are trusted), by remaining
-> > > logged in since before the administrator enabled namespaces in the
-> > > configuration, or any of the other possible methods then having a .inst
-> > > directory with mode 000 will save you.
-> >
-> > How? If an ordinary user is able to get access to real /tmp he or she
-> > will be able rename
->
-> How could ordinary user access real /tmp if /home/user/tmp is mounted
-> over the real /tmp and other entries of the /dev is also mounted over
-> by dummy entries and the user is not allowed to create new device
-> nodes?
+This is a multi-part message in MIME format.
 
-We are not planning to change /dev and other things, although I don't think it 
-makes much difference in this regard.  Without SE Linux the permission to 
-mount file systems goes along with the permission to create device nodes, and 
-with SE Linux the permission to umount file systems goes along with the 
-permission to mount file systems.
+------=_NextPart_000_0003_01C675A9.C35CF5D0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-As mentioned above users can access /tmp by possibly exploiting a bug in a 
-login program (note that not all security bugs grant ultimate access, 
-sometimes a series of bugs providing excessive privs may be used by an 
-attacker), by being granted non-PI access to /tmp by the sys-admin (either 
-mistakenly or intentionally), be keeping a login session open since before 
-the sys-admin enabled the use of namespaces, and probably other ways that I 
-didn't think of.
+Hello, my name is Mario and I have a trouble with selinux's api. My goal is
+to modify the suPhp apache module, but the function setcon and function
+setexeccon don't work. 
 
-Also note that renaming the /tmp/.inst directory requires dac_override 
-capability (root) as well as suitable SE Linux privs (which won't be granted 
-to user processes or daemons).  It has two layers of defense, just the way we 
-want it.
+My apache process runs in dummy_t domain and suPhp file has a security
+context "user_u:object_r:dummy_exec_t"; in the policy file I write:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+"domain_trans(dummy_t,dummy_exec_t,dummy_change_context_t)"
+
+"domain_trans(dummy_t,dummy_exec_t,dummy_change1_context_t)"
+
+And before calling apr_create_process in mod_suphp, I use
+setexeccon("user_u:object_r:dummy_change_context_t") but the function return
+always -1 
+
+
+------=_NextPart_000_0003_01C675A9.C35CF5D0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.StileMessaggioDiPostaElettronica17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
+style=3D'font-size:8.0pt;
+font-family:Arial'>Hello, my name is Mario and I have a trouble with =
+selinux&#8217;s
+api. My goal is to modify the suPhp apache module, but the function =
+setcon and function
+setexeccon don&#8217;t work. <o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
+style=3D'font-size:8.0pt;
+font-family:Arial'>My apache process runs in dummy_t domain and suPhp =
+file has
+a security context &#8220;user_u:object_r:dummy_exec_t&#8221;; in the =
+policy
+file I write:<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
+style=3D'font-size:8.0pt;
+font-family:Arial'>&#8220;domain_trans(dummy_t,dummy_exec_t,dummy_change_=
+context_t)&#8221;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
+style=3D'font-size:8.0pt;
+font-family:Arial'>&#8220;domain_trans(dummy_t,dummy_exec_t,dummy_change1=
+_context_t)&#8221;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
+style=3D'font-size:8.0pt;
+font-family:Arial'>And before calling apr_create_process in mod_suphp, I =
+use
+setexeccon(&#8220;user_u:object_r:dummy_change_context_t&#8221;) but the
+function return always -1 <o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0003_01C675A9.C35CF5D0--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
