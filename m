@@ -1,137 +1,69 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4C7qPYg032610
-	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 03:52:25 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4C7qO6C002401
-	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 07:52:24 GMT
-Received: by ug-out-1314.google.com with SMTP id u2so294867uge
-        for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 00:52:23 -0700 (PDT)
-From: "Mario Fanelli" <mario.fanelli@gmail.com>
-To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
-Subject: Trouble with setexeccon/setcon
-Date: Fri, 12 May 2006 09:52:19 +0200
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0003_01C675A9.C35CF5D0"
-Message-ID: <44643eb7.025ecbeb.7447.326d@mx.gmail.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4CABuFI003057
+	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 06:11:56 -0400
+Received: from mailrelay1.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4CABt1i001511
+	for <selinux@tycho.nsa.gov>; Fri, 12 May 2006 10:11:55 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Fri, 12 May 2006 12:11:53 +0200
+Date: Fri, 12 May 2006 12:11:53 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Mario Fanelli <mario.fanelli@gmail.com>
+Cc: SeLinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Re: Trouble with setexeccon/setcon
+Message-Id: <20060512101152.GA7473@thorium.jmh.mhn.de>
+References: <44643eb7.025ecbeb.7447.326d@mx.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
+In-Reply-To: <44643eb7.025ecbeb.7447.326d@mx.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0003_01C675A9.C35CF5D0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-Hello, my name is Mario and I have a trouble with selinux's api. My goal is
-to modify the suPhp apache module, but the function setcon and function
-setexeccon don't work. 
-
-My apache process runs in dummy_t domain and suPhp file has a security
-context "user_u:object_r:dummy_exec_t"; in the policy file I write:
-
-"domain_trans(dummy_t,dummy_exec_t,dummy_change_context_t)"
-
-"domain_trans(dummy_t,dummy_exec_t,dummy_change1_context_t)"
-
-And before calling apr_create_process in mod_suphp, I use
-setexeccon("user_u:object_r:dummy_change_context_t") but the function return
-always -1 
-
-
-------=_NextPart_000_0003_01C675A9.C35CF5D0
-Content-Type: text/html;
-	charset="us-ascii"
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
+* Mario Fanelli <mario.fanelli@gmail.com> [2006-05-12 10:10]:
+> Hello, my name is Mario and I have a trouble with selinux's api. My goal =
+is
+> to modify the suPhp apache module, but the function setcon and function
+> setexeccon don't work.=20
+>=20
+> My apache process runs in dummy_t domain and suPhp file has a security
+> context "user_u:object_r:dummy_exec_t"; in the policy file I write:
+>=20
+> "domain_trans(dummy_t,dummy_exec_t,dummy_change_context_t)"
+>=20
+> "domain_trans(dummy_t,dummy_exec_t,dummy_change1_context_t)"
+>=20
+> And before calling apr_create_process in mod_suphp, I use
+> setexeccon("user_u:object_r:dummy_change_context_t") but the function ret=
+urn
+                     ^^^^^^^^
+> always -1=20
 
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.StileMessaggioDiPostaElettronica17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-<!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <o:shapelayout v:ext=3D"edit">
-  <o:idmap v:ext=3D"edit" data=3D"1" />
- </o:shapelayout></xml><![endif]-->
-</head>
+You need user_r instead of object_r. I've never used this api so I can't
+comment further, but at least you need to change this.
 
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+Thomas
 
-<div class=3DSection1>
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
-style=3D'font-size:8.0pt;
-font-family:Arial'>Hello, my name is Mario and I have a trouble with =
-selinux&#8217;s
-api. My goal is to modify the suPhp apache module, but the function =
-setcon and function
-setexeccon don&#8217;t work. <o:p></o:p></span></font></p>
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
-style=3D'font-size:8.0pt;
-font-family:Arial'>My apache process runs in dummy_t domain and suPhp =
-file has
-a security context &#8220;user_u:object_r:dummy_exec_t&#8221;; in the =
-policy
-file I write:<o:p></o:p></span></font></p>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
-style=3D'font-size:8.0pt;
-font-family:Arial'>&#8220;domain_trans(dummy_t,dummy_exec_t,dummy_change_=
-context_t)&#8221;<o:p></o:p></span></font></p>
+iD8DBQFEZF9oD9qpeVMU938RAsrDAKCnqaYkaEBWowPYz1UV0/Ihnyzv7ACfQ63M
+fcuLRgrA+nFyGsg2AsETZNQ=
+=01Ea
+-----END PGP SIGNATURE-----
 
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
-style=3D'font-size:8.0pt;
-font-family:Arial'>&#8220;domain_trans(dummy_t,dummy_exec_t,dummy_change1=
-_context_t)&#8221;<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D1 face=3DArial><span =
-style=3D'font-size:8.0pt;
-font-family:Arial'>And before calling apr_create_process in mod_suphp, I =
-use
-setexeccon(&#8220;user_u:object_r:dummy_change_context_t&#8221;) but the
-function return always -1 <o:p></o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_0003_01C675A9.C35CF5D0--
-
+--sm4nu43k4a2Rpi4c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
