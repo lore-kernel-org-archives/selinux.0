@@ -1,49 +1,77 @@
-Subject: Re: [RFC][SECMARK 05/08] Add new packet controls to SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux-dev@tresys.com, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20060513200016.GE7481@thorium.jmh.mhn.de>
+Subject: Re: [RFC] SECMARK 1.1
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        netfilter-devel@lists.netfilter.org,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>, Patrick McHardy <kaber@trash.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Bleher <bleher@informatik.uni-muenchen.de>
+In-Reply-To: <Pine.LNX.4.64.0605140133560.5506@d.namei>
 References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
-	 <Pine.LNX.4.64.0605071136100.8588@d.namei>
-	 <1147106449.23640.102.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0605081947400.19850@d.namei>
-	 <1147174138.32651.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.64.0605091146350.25693@d.namei>
-	 <20060510221146.GG8937@thorium.jmh.mhn.de>
-	 <1147351945.8341.114.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060513200016.GE7481@thorium.jmh.mhn.de>
+	 <Pine.LNX.4.64.0605140133560.5506@d.namei>
 Content-Type: text/plain
-Date: Mon, 15 May 2006 08:32:28 -0400
-Message-Id: <1147696348.14426.31.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 15 May 2006 08:35:55 -0400
+Message-Id: <1147696556.22880.100.camel@jackjack.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-05-13 at 22:00 +0200, Thomas Bleher wrote:
-> How about the following idea:
-> On policy load time, the kernel compares the list of classes (file,
-> packet, ...) and permissions (read, write, ...) with the ones defined in
-> the policy. If something is missing, the kernel alerts the user on the
-> console and through the audit system that the system may be unusable
-> because of missing permissions and that he should update his SELinux
-> userspace.
+On Sun, 2006-05-14 at 02:03 -0400, James Morris wrote:
+> Included below is an incremental patch against the initial secmark posting 
+> last week: http://thread.gmane.org/gmane.linux.network/34927/focus=34927
 > 
-> I think this should solve the problem of how to inform the user without
-> compromising security and continually having to add cruft to the kernel
-> to support old policy.
+> This posting to gather feedback on changes made since then primarily to 
+> address concerns raised by Karl MacMillan on providing fine-grained 
+> assurances for network applications which pass connections (e.g. xinetd).
 > 
-> What do you think about this?
+> If all looks ok, I'll rebase the entire patchset (also merging elements 
+> from the patch below back into other patches), and submit it for inclusion 
+> in 2.6.18.  As it touches a bunch of networking code, it may be best to 
+> aim for Dave's tree, although it could also go into -mm.
+> 
+> Anyway, the way the issue has been addressed is to implement something 
+> similar to CONNMARK, but specific to this useage scenario and dealing with 
+> security markings instead of network markings.
+> 
+> In a nutshell:
+> 
+> 1. A --track option was added to the SECMARK target, which causes the 
+>    security mark being applied to the packet to also be applied to a new
+>    secmark field on the conntrack (only if it is unmarked).
+> 
+> 2. A new CONNSECMARK target was added which copies the secmark value to 
+>    packets.
+> 
+> This allows all packets on a connection (or related to it) to be marked 
+> with the same security label, so that they can be explicitly 
+> differentiated.
+> 
+> This also turns out to simplify the SELinux policy, while the xtables 
+> implementation has been designed to remain as simple as possible (e.g. it 
+> only copies lables to packets, and has no options).
+> 
+> So, here's an example of per-packet network policy for vsftpd with the new 
+> code:
+> 
+>   allow ftpd_t ftpd_packet_t:packet { recv send };
+> 
+> Assuming it doesn't do DNS lookups, that's it in terms of access control 
+> rules for packets.  This covers all established and related packets, 
+> including ICMP and the FTP data connetion.
+> 
 
-That could be done (by checking the contents of the string tables used
-by the AVC for displaying avc messages against the loaded policy),
-although it would only detect the case where you have a new kernel
-implementing new classes and/or permissions with an old policy that does
-not define them, not vice versa.
+James,
+
+This seems to address my concerns - thanks.
+
+Karl
 
 -- 
-Stephen Smalley
-National Security Agency
+Karl MacMillan
+Tresys Technology
+www.tresys.com
+
 
 
 --
