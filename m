@@ -1,44 +1,62 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4F6gxQU010896
-	for <selinux@tycho.nsa.gov>; Mon, 15 May 2006 02:42:59 -0400
-Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4F6gvEw028164
-	for <selinux@tycho.nsa.gov>; Mon, 15 May 2006 06:42:58 GMT
-Date: Mon, 15 May 2006 02:42:55 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Patrick McHardy <kaber@trash.net>
-cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
-        netfilter-devel@lists.netfilter.org,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Karl MacMillan <kmacmillan@tresys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: [RFC] SECMARK 1.1
-In-Reply-To: <Pine.LNX.4.64.0605150236270.1824@d.namei>
-Message-ID: <Pine.LNX.4.64.0605150242440.1900@d.namei>
-References: <Pine.LNX.4.64.0605071104590.8588@d.namei>
- <Pine.LNX.4.64.0605140133560.5506@d.namei> <446778F0.6000705@trash.net>
- <Pine.LNX.4.64.0605150004590.645@d.namei> <446811D3.5080905@trash.net>
- <Pine.LNX.4.64.0605150153590.1275@d.namei> <446819FE.8050300@trash.net>
- <Pine.LNX.4.64.0605150221000.1275@d.namei> <44681F0F.9030601@trash.net>
- <Pine.LNX.4.64.0605150236270.1824@d.namei>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Trouble with setexeccon/setcon
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Mario Fanelli <mario.fanelli@gmail.com>
+Cc: SeLinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <4465bac8.7f1514c3.12f8.57e6@mx.gmail.com>
+References: <4465bac8.7f1514c3.12f8.57e6@mx.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 15 May 2006 08:19:35 -0400
+Message-Id: <1147695575.14426.18.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 15 May 2006, James Morris wrote:
+On Sat, 2006-05-13 at 12:53 +0200, Mario Fanelli wrote:
 
-> 
-> Doh.  It should be try_module_get().  Sound ok?
+> I think that there is a problem with setcon/setexecon …. 
 
-Of course, I mean request_module().
+Please disable HTML mail in your mail client.
 
+> Perhaps now I try to write a wrapper program that execute the command
+> “runcon –t dummy_change_context_t  /path/of/suphp”..the program only
+> use an enviroment variable “SUPHP_SELINUX_DOMAIN” and call execve()
+> with same environment, but the result doesn’t change
+
+I'm not certain as to what you mean by the above statement.  Does it
+fail?   Does running that same command by hand succeed?  What is the
+output?  What is logged in /var/log/messages
+or /var/log/audit/audit.log?
+
+> Now I have written a policy for suPhp with a domain_auto_trans macro…
+> when apache executes suphp, the context changes…but if I use a
+> domain_trans and a setcon in suPhp, I obtain an error and I don’t find
+> any error message in /var/log/messages…I’m using a targetd policy and
+> I put apache2 in unconfined_t domain…
+
+Point of clarification:  domain_trans is for authorizing transitions via
+execve.  It does not authorize a dynamic context transition.  So if you
+want to transition upon execve (as in runcon), then you want to use
+setexeccon() prior to the execve, and you need to allow process setexec
+permission as well as the domain transition (in the example policy, this
+is done by the can_setexec() macro).  If you want to transition within
+the current process without performing an execve via setcon(), then you
+need to separately allow process dyntransition permission.
+
+Did you also check for a /var/log/audit/audit.log?  That is where
+messages are logged if running auditd (as in FC4).
+
+> Where can I find the runcon/newrole source code?
+
+runcon is part of coreutils, so it would be in the coreutils SRPM, or
+you can just grab coreutils-selinux.patch.
+
+newrole is part of policycoreutils, so you can grab that SRPM or
+upstream tar ball. 
 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
