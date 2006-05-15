@@ -1,49 +1,38 @@
-Subject: cvs repository at sourceforge (Was: Re: policycoreuitls patch)
+Subject: Re: cvs repository at sourceforge (Was: Re: policycoreuitls patch)
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SELinux-dev@tresys.com, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4465E732.4080607@redhat.com>
+In-Reply-To: <1147701621.14426.53.camel@moss-spartans.epoch.ncsc.mil>
 References: <4465E732.4080607@redhat.com>
+	 <1147701621.14426.53.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 15 May 2006 10:00:21 -0400
-Message-Id: <1147701621.14426.53.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 15 May 2006 10:30:18 -0400
+Message-Id: <1147703418.14426.58.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-05-13 at 10:03 -0400, Daniel J Walsh wrote:
-> More translations,
+On Mon, 2006-05-15 at 10:00 -0400, Stephen Smalley wrote:
+> In other words, sourceforge cvs has switched hostnames
+> (=>selinux.cvs.sourceforge.net), requiring a new checkout, and even
+> worse, has regressed to an older snapshot of the tree.
+
+I've re-updated the sourceforge cvs tree to the current version,
+although I'd still advise switching to subversion.  It does not include
+your latest patch, just the prior one.
+
+> I'd recommend just switching to using the subversion repository, and
+> re-base your patch against it (as it does indeed duplicate your prior
+> patch).
 > 
-> Change audit2allow to generate role XYZ_R typesABC_T; when discoving 
-> invalid_sids.
-> 
-> This patch might overlap with your current stuff, but I can't get an 
-> update from sourceforge.  Seems to have old stuff out there.
+> svn co https://svn.sourceforge.net/svnroot/selinux 
 
-Per http://sourceforge.net/docs/A04/ :
-"As of 2006-05-12 at 11:30 Pacific, the replacement CVS infrastructure
-has been enabled for use. Do note that there are a number of changes,
-including the hostname used for repository access. Also, of note is that
-the last sync between the current developer CVS repository and the
-previous CVS infrastructure will have been from days prior to the CVS
-outage on the 9th. We recommend that users check out a copy of their new
-repository, copy the files in their working copy on top of the newly
-checked out repository, and then check those changes in. Due to the disk
-failure on the primary CVS server, we didn't want to risk moving any
-possible data corruption to the new hosts given the previous CVS
-server's hardware problems. Refer to the site documentation for details
-(https://www.sf.net/docs/E04). Please report any problems you see
-immediately by submitting a Support Request."
+I suppose the proper form would actually be:
+svn co https://svn.sourceforge.net/svnroot/selinux/trunk selinux-usr
+if you want to just get the trunk and have it named selinux-usr.
 
-In other words, sourceforge cvs has switched hostnames
-(=>selinux.cvs.sourceforge.net), requiring a new checkout, and even
-worse, has regressed to an older snapshot of the tree.
-
-I'd recommend just switching to using the subversion repository, and
-re-base your patch against it (as it does indeed duplicate your prior
-patch).
-
-svn co https://svn.sourceforge.net/svnroot/selinux 
+There are presently empty directories for branches and tags for future
+use.
 
 -- 
 Stephen Smalley
