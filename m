@@ -1,73 +1,58 @@
-Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
-	of inode security contexts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-        Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
-        James Morris <jmorris@redhat.com>
-In-Reply-To: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
-References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 16 May 2006 08:15:43 -0400
-Message-Id: <1147781743.30789.55.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [RFC][PATCH] selinux:  introduce support for deferred mappingof inode security contexts
+Date: Tue, 16 May 2006 08:50:56 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588170599@exchange.columbia.tresys.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Cc: "Thomas Bleher" <bleher@informatik.uni-muenchen.de>,
+        "Daniel J Walsh" <dwalsh@redhat.com>,
+        "selinux-dev" <selinux-dev@tresys.com>,
+        "James Morris" <jmorris@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-05-15 at 12:35 -0400, Stephen Smalley wrote:
-> # touch foo
-> # chcon -t foo_exec_t foo
-> # ls -Z foo
-> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
-
-Note that an alternative would be to modify security_sid_to_context() to
-return the unmapped string representation if it exists rather than just
-falling through to the unlabeled SID's context.  In that case,
-getxattr() would return the unmapped string, and userspace would see
-user_u:object_r:foo_exec_t throughout the example even though the kernel
-would internally be applying access checks based on the unlabeled SID's
-context.  That seems useful for programs that want to check the
-attributes (e.g. restore), but prevents rpm from easily checking whether
-the attribute has been validated by a subsequent policy load (although
-it could use security_check_context(3) for that purpose).  Likewise, if
-an audit message is generated for a SID that has been invalidated,
-having security_sid_to_context() return the unmapped string
-representation would preserve the original string label in the audit
-message rather than degenerating to the unlabeled SID's context.
-Thoughts?
-
-> # semodule -i foo.pp # defines foo_exec_t
-> # ls -Z foo
-> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
-> # semodule -r foo
-> # ls -Z foo
-> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
-> # semodule -i foo.pp
-> # ls -Z foo
-> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> Sent: Tuesday, May 16, 2006 8:16 AM
 > 
-> Logically, there are two separate changes here.  The first logical
-> change is to support deferred mapping of security contexts in the SID
-> table, storing their string representations when they cannot be mapped
-> under the current policy, and treating them the same as the unlabeled
-> SID while they are in this state.  Upon policy reloads, if a valid
-> context becomes invalid under the new policy, rather than removing it
-> from the SID table, we convert it to its string representation under the
-> old policy and store that in the SID table until such a time as it
-> becomes valid again, and if an invalid context becomes valid, we map it
-> to its internal structure representation.  This change alone is
-> worthwhile irrespective of the second change, as it addresses the
-> longstanding issue with removing and re-adding types to policy when they
-> are assigned to inodes.  The second logical change introduces the
-> support for setting invalid contexts by privileged processes, both via
-> setxattr() and via /proc/self/attr/fscreate, which is the more
-> controversial aspect.  Note that contrary to my earlier expectations, no
-> walking of the inode security structs is required, as the SIDs
-> themselves remain invariant under such changes.
+> On Mon, 2006-05-15 at 12:35 -0400, Stephen Smalley wrote:
+> > # touch foo
+> > # chcon -t foo_exec_t foo
+> > # ls -Z foo
+> > -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
+> 
+> Note that an alternative would be to modify 
+> security_sid_to_context() to return the unmapped string 
+> representation if it exists rather than just falling through 
+> to the unlabeled SID's context.  In that case,
+> getxattr() would return the unmapped string, and userspace 
+> would see user_u:object_r:foo_exec_t throughout the example 
+> even though the kernel would internally be applying access 
+> checks based on the unlabeled SID's context.  That seems 
+> useful for programs that want to check the attributes (e.g. 
+> restore), but prevents rpm from easily checking whether the 
 
--- 
-Stephen Smalley
-National Security Agency
+In the restore case it is much more about what is on the physical disk
+than what the kernel sees and that information is easy to obtain. If
+this returns the unmapped string doesn't it make the canonicalization
+fairly useless?
+
+> attribute has been validated by a subsequent policy load 
+> (although it could use security_check_context(3) for that 
+> purpose).  Likewise, if an audit message is generated for a 
+> SID that has been invalidated, having 
+> security_sid_to_context() return the unmapped string 
+> representation would preserve the original string label in 
+> the audit message rather than degenerating to the unlabeled 
+> SID's context.
+
+I think it would be very confusing to have conflicting audit messages
+(eg., avc says one thing, audit message says another) however, it is
+probably very important to be able to audit privlabel events and be able
+to see the unmapped context in an audit message, is that possible?
+
+Joshua Brindle
 
 
 --
