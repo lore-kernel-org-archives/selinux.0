@@ -1,58 +1,49 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [RFC][PATCH] selinux:  introduce support for deferred mappingof inode security contexts
-Date: Tue, 16 May 2006 08:50:56 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588170599@exchange.columbia.tresys.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-Cc: "Thomas Bleher" <bleher@informatik.uni-muenchen.de>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "selinux-dev" <selinux-dev@tresys.com>,
-        "James Morris" <jmorris@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4GDXQUR016250
+	for <selinux@tycho.nsa.gov>; Tue, 16 May 2006 09:33:26 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4GDXPf8023480
+	for <selinux@tycho.nsa.gov>; Tue, 16 May 2006 13:33:25 GMT
+Subject: Re: Latest diffs in policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4468EA7C.5050708@redhat.com>
+References: <4468A509.50207@redhat.com> <1147719382.31984.11.camel@sgc>
+	 <4468EA7C.5050708@redhat.com>
+Content-Type: text/plain
+Date: Tue, 16 May 2006 09:35:02 -0400
+Message-Id: <1147786502.31984.22.camel@sgc>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> Sent: Tuesday, May 16, 2006 8:16 AM
-> 
-> On Mon, 2006-05-15 at 12:35 -0400, Stephen Smalley wrote:
-> > # touch foo
-> > # chcon -t foo_exec_t foo
-> > # ls -Z foo
-> > -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
-> 
-> Note that an alternative would be to modify 
-> security_sid_to_context() to return the unmapped string 
-> representation if it exists rather than just falling through 
-> to the unlabeled SID's context.  In that case,
-> getxattr() would return the unmapped string, and userspace 
-> would see user_u:object_r:foo_exec_t throughout the example 
-> even though the kernel would internally be applying access 
-> checks based on the unlabeled SID's context.  That seems 
-> useful for programs that want to check the attributes (e.g. 
-> restore), but prevents rpm from easily checking whether the 
+On Mon, 2006-05-15 at 16:54 -0400, Daniel J Walsh wrote:
+> Christopher J. PeBenito wrote:
+> >> Separation of the auditadm from secadm and sysadm changes for auditd files.
+> >>     
+> >
+> > Filesystem association is missing.  This also brings along more problems
+> > like labeling.  There isn't much real separation between auditadm from
+> > the other admin roles, so this doesn't seem to have real benefits.
+> >   
+> Required for LSPP.  auditadm is not allowed to do anything but manage 
+> audit subsystem.
+> secadmin can only manage selinux stuff.  sysadmin can only do everything 
+> not done by auditadm
+> and secadm.
 
-In the restore case it is much more about what is on the physical disk
-than what the kernel sees and that information is easy to obtain. If
-this returns the unmapped string doesn't it make the canonicalization
-fairly useless?
+I don't see how we're accomplishing this if secadm, auditadm, and sysadm
+are using the admin_user_template().  It gives a lot of access including
+raw disk access, signalling all domains, managing the source and binary
+policies (explicitly given), and managing all files in general except
+shadow, and running insmod.  The current implementation doesn't allow
+for fine grained role definition yet (it is a planned improvement).
 
-> attribute has been validated by a subsequent policy load 
-> (although it could use security_check_context(3) for that 
-> purpose).  Likewise, if an audit message is generated for a 
-> SID that has been invalidated, having 
-> security_sid_to_context() return the unmapped string 
-> representation would preserve the original string label in 
-> the audit message rather than degenerating to the unlabeled 
-> SID's context.
-
-I think it would be very confusing to have conflicting audit messages
-(eg., avc says one thing, audit message says another) however, it is
-probably very important to be able to audit privlabel events and be able
-to see the unmapped context in an audit message, is that possible?
-
-Joshua Brindle
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
