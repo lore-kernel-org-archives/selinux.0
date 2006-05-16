@@ -1,58 +1,52 @@
-Message-ID: <4469DB84.1080507@gentoo.org>
-Date: Tue, 16 May 2006 10:02:44 -0400
-From: Joshua Brindle <method@gentoo.org>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4GEik30018043
+	for <selinux@tycho.nsa.gov>; Tue, 16 May 2006 10:44:46 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4GEiif8005689
+	for <selinux@tycho.nsa.gov>; Tue, 16 May 2006 14:44:44 GMT
+Message-ID: <4469E561.9070306@redhat.com>
+Date: Tue, 16 May 2006 10:44:49 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        selinux-dev <selinux-dev@tresys.com>,
-        James Morris <jmorris@redhat.com>
-Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred	mappingof
- inode security contexts
-References: <6FE441CD9F0C0C479F2D88F959B01588170599@exchange.columbia.tresys.com> <1147786883.30789.104.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1147786883.30789.104.camel@moss-spartans.epoch.ncsc.mil>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest diffs in policy
+References: <4468A509.50207@redhat.com> <1147719382.31984.11.camel@sgc>	 <4468EA7C.5050708@redhat.com> <1147786502.31984.22.camel@sgc>
+In-Reply-To: <1147786502.31984.22.camel@sgc>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2006-05-16 at 08:50 -0400, Joshua Brindle wrote:
+Christopher J. PeBenito wrote:
+> On Mon, 2006-05-15 at 16:54 -0400, Daniel J Walsh wrote:
 >   
-> <snip>
-> IIUC, restore -C works by calling lgetxattr() on the files and comparing
-> the attribute returned by it against what is in the dump.  So if
-> lgetxattr() returns unlabeled_t rather than the unmapped string, the
-> compare will fail.  Likewise for verification of a successful restore
-> from a dump.  IIUC, the raw read of the device only occurs when dumping
-> the partition; restore itself operates via the normal system calls on
-> the fs.
+>> Christopher J. PeBenito wrote:
+>>     
+>>>> Separation of the auditadm from secadm and sysadm changes for auditd files.
+>>>>     
+>>>>         
+>>> Filesystem association is missing.  This also brings along more problems
+>>> like labeling.  There isn't much real separation between auditadm from
+>>> the other admin roles, so this doesn't seem to have real benefits.
+>>>   
+>>>       
+>> Required for LSPP.  auditadm is not allowed to do anything but manage 
+>> audit subsystem.
+>> secadmin can only manage selinux stuff.  sysadmin can only do everything 
+>> not done by auditadm
+>> and secadm.
+>>     
+>
+> I don't see how we're accomplishing this if secadm, auditadm, and sysadm
+> are using the admin_user_template().  It gives a lot of access including
+> raw disk access, signalling all domains, managing the source and binary
+> policies (explicitly given), and managing all files in general except
+> shadow, and running insmod.  The current implementation doesn't allow
+> for fine grained role definition yet (it is a planned improvement).
 >
 >   
-I'm not sure if this is the appropriate behavior. For example, restore 
-doesn't/can't verify that the UID/GID for the file being restored is 
-mapped the same as it was when the archive was created. IMHO restore's 
-job isn't to interpret the backup, its job is to write it out and let 
-the admin interpret it.
-
-> Canonicalization would still occur for contexts that are valid; the only
-> change here is in what we return to userspace (and in logs) for invalid
-> contexts.
->
->   
->> <snip>
->
-> At present, both the avc and audit will end up displaying the unlabeled
-> SID's context for all invalid contexts because that is what
-> security_sid_to_context() will return.  What I'm suggesting would change
-> that behavior so that they both will display the unmapped string
-> representation, thereby preserving the actual text label.
->   
-
-So the denial would have the unmapped context? I don't think I 
-understand that, it wouldn't be a denial that represents what actually 
-happened (not to mention the type wouldn't necessarilly be in the policy 
-so any attempt to audit2allow or similar will yield an 
-uncompilable/unlinkable policy)
+Yes I am about to remove secadm and auditadm from admin_user_template to 
+remove these privs.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
