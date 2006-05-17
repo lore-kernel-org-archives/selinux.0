@@ -1,261 +1,111 @@
-Subject: Re: [PATCH] initialize sym_val_to_name arrays
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kevin Carr <kcarr@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-dev@tresys.com
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015881706A0@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015881706A0@exchange.columbia.tresys.com>
+Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
+	of inode security contexts
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+        James Morris <jmorris@redhat.com>, Jeremy Katz <katzj@redhat.com>,
+        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
+In-Reply-To: <20060517075435.GB7665@thorium.jmh.mhn.de>
+References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060517075435.GB7665@thorium.jmh.mhn.de>
 Content-Type: text/plain
-Date: Wed, 17 May 2006 13:55:27 -0400
-Message-Id: <1147888527.30789.365.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 17 May 2006 13:52:16 -0400
+Message-Id: <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-17 at 10:13 -0400, Kevin Carr wrote:
-> The attached patch initializes the sym_val_to_name arrays to NULL on
-> creation. There are circumstances where a symbol name might not be
-> present (e.g., attributes lack names when loaded from kernel binary
-> policy). Without this patch the symbol name will be undefined rather
-> than NULL in those cases. Though it is possible to determine which names
-> are undefined based on the policy type and the symbol datum, this patch
-> helps avoid inadvertent mistakes.
+On Wed, 2006-05-17 at 09:54 +0200, Thomas Bleher wrote:
+> [Added CCs from earlier thread]
+> 
+> * Stephen Smalley <sds@tycho.nsa.gov> [2006-05-15 18:31]:
+> > During the earlier thread on splitting policy into individual packages
+> > (using policy modules), it was requested that SELinux provide a way for
+> > a privileged process (like a package manager) to label an inode with a
+> > not-yet-defined security context (treating it as having the unlabeled
+> > SID until defined in the policy) and then automatically update the
+> > in-memory state when a policy that defines the security context is
+> > loaded such that the inode immediately becomes accessible under the
+> > rules governing access to that context in the new policy.
+> [...]
+> > The second logical change introduces the
+> > support for setting invalid contexts by privileged processes, both via
+> > setxattr() and via /proc/self/attr/fscreate, which is the more
+> > controversial aspect.
+> 
+> I am still not convinced that we actually need this second change.
+> 
+> In http://marc.theaimsgroup.com/?l=selinux&m=114677075207486&w=2, I
+> outlined how rpm could work with the current kernel. I think this scheme
+> is preferable to changing the kernel, mainly because of two points:
+> 
+> * It makes it possible to later confine rpm more strictly:
+>   If you load policy before installing the package, you can use the
+>   policy server to prevent rpm from loading certain policies; rpm will
+>   only be able to put labels on disk it is allowed to by policy.
+>   If you load policy after package installation, rpm needs the labelpriv
+>   privilege, so you can't confine rpm in any meaningful sense.
+> 
+> * It allows rpm to know beforehand if the policy module will actually 
+>   apply on top of the current system policy (which is important if you 
+>   think of the differences between strict and targeted policy). It is
+>   better to abort install before than to have invalid labels on disk
+>   later.
+> 
+> As I didn't receive any response regarding my posting, I'd like to ask:
+> What prevents you from implementing it in a way similar to what I
+> described?
+> RPM already has trigger scripts so from the outside it looks like it
+> shouldn't be that hard to implement.
+> 
 
-Seems cleaner to then replace the malloc with a calloc, and to do
-likewise elsewhere.
+To get some realtime discussion going on this issue a telecon was held
+with Red Hat, Tresys, and Steve participating. I'll try to summarize the
+problems with the approaches that you, Josh, and I were pushing that
+came out during that telecom. This is in the context of rpm, but I
+believe that the problems are more general.
 
-Index: libsepol/src/policydb.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/policydb.c,v
-retrieving revision 1.40
-diff -u -p -r1.40 policydb.c
---- libsepol/src/policydb.c	8 May 2006 15:28:25 -0000	1.40
-+++ libsepol/src/policydb.c	17 May 2006 17:47:32 -0000
-@@ -337,12 +337,11 @@ static int roles_init(policydb_t *p)
- 	int rc;
- 	role_datum_t *role;
- 
--	role = malloc(sizeof(role_datum_t));
-+	role = calloc(1, sizeof(role_datum_t));
- 	if (!role) {
- 		rc = -ENOMEM;
- 		goto out;
- 	}	
--	memset(role, 0, sizeof(role_datum_t));
- 	key = malloc(strlen(OBJECT_R)+1);
- 	if (!key) {
- 		rc = -ENOMEM;
-@@ -695,11 +694,9 @@ int policydb_index_others(sepol_handle_t
-         
-         free(p->type_val_to_struct);
-         p->type_val_to_struct = (type_datum_t **)
--            malloc(p->p_types.nprim * sizeof(type_datum_t *));
-+		calloc(p->p_types.nprim, sizeof(type_datum_t *));
-         if (!p->type_val_to_struct)
-                 return -1;
--	memset(p->type_val_to_struct, 0, 
--	       p->p_types.nprim*sizeof(type_datum_t *));
- 
- 	cond_init_bool_indexes(p);
- 
-@@ -707,7 +704,7 @@ int policydb_index_others(sepol_handle_t
- 		if (p->sym_val_to_name[i])
- 			free(p->sym_val_to_name[i]);
- 		p->sym_val_to_name[i] = (char **)
--		    malloc(p->symtab[i].nprim * sizeof(char *));
-+			calloc(p->symtab[i].nprim, sizeof(char *));
- 		if (!p->sym_val_to_name[i])
- 			return -1;
- 		if (hashtab_map(p->symtab[i].table, index_f[i], p))
-@@ -1342,10 +1339,9 @@ static int perm_read(policydb_t * p __at
- 	uint32_t *buf;
- 	size_t len;
- 
--	perdatum = malloc(sizeof(perm_datum_t));
-+	perdatum = calloc(1, sizeof(perm_datum_t));
- 	if (!perdatum)
- 		return -1;
--	memset(perdatum, 0, sizeof(perm_datum_t));
- 
- 	buf = next_entry(fp, sizeof(uint32_t)*2);
- 	if (!buf)
-@@ -1382,10 +1378,9 @@ static int common_read(policydb_t * p, h
- 	size_t len, nel;
- 	unsigned int i;
- 
--	comdatum = malloc(sizeof(common_datum_t));
-+	comdatum = calloc(1, sizeof(common_datum_t));
- 	if (!comdatum)
- 		return -1;
--	memset(comdatum, 0, sizeof(common_datum_t));
- 
- 	buf = next_entry(fp, sizeof(uint32_t)*4);
- 	if (!buf)
-@@ -1436,10 +1431,9 @@ static int read_cons_helper(policydb_t *
- 
- 	lc = NULL;
- 	for (i = 0; i < ncons; i++) {
--		c = malloc(sizeof(constraint_node_t));
-+		c = calloc(1, sizeof(constraint_node_t));
- 		if (!c)
- 			return -1;
--		memset(c, 0, sizeof(constraint_node_t));
- 		buf = next_entry(fp, (sizeof(uint32_t) * 2));
- 		if (!buf)
- 			return -1;
-@@ -1539,10 +1533,9 @@ static int class_read(policydb_t * p, ha
- 	size_t len, len2, ncons, nel;
- 	unsigned int i;
- 
--	cladatum = (class_datum_t *) malloc(sizeof(class_datum_t));
-+	cladatum = (class_datum_t *) calloc(1, sizeof(class_datum_t));
- 	if (!cladatum)
- 		return -1;
--	memset(cladatum, 0, sizeof(class_datum_t));
- 
- 	buf = next_entry(fp, sizeof(uint32_t)*6);
- 	if (!buf)
-@@ -1623,10 +1616,9 @@ static int role_read(policydb_t * p __at
- 	uint32_t *buf;
- 	size_t len;
- 
--	role = malloc(sizeof(role_datum_t));
-+	role = calloc(1, sizeof(role_datum_t));
- 	if (!role)
- 		return -1;
--	memset(role, 0, sizeof(role_datum_t));
- 
- 	buf = next_entry(fp, sizeof(uint32_t)*2);
- 	if (!buf)
-@@ -1685,10 +1677,9 @@ static int type_read(policydb_t * p __at
- 	uint32_t *buf;
- 	size_t len;
- 
--	typdatum = malloc(sizeof(type_datum_t));
-+	typdatum = calloc(1, sizeof(type_datum_t));
- 	if (!typdatum)
- 		return -1;
--	memset(typdatum, 0, sizeof(type_datum_t));
- 
-         if (p->policy_type == POLICY_KERN) {
-                 buf = next_entry(fp, sizeof(uint32_t)*3);
-@@ -1739,11 +1730,10 @@ int role_trans_read(role_trans_t **t, st
-         nel = le32_to_cpu(buf[0]);
-         ltr = NULL;
-         for (i = 0; i < nel; i++) {
--                tr = malloc(sizeof(struct role_trans));
-+                tr = calloc(1, sizeof(struct role_trans));
-                 if (!tr) {
-                         return -1;
-                 }       
--                memset(tr, 0, sizeof(struct role_trans));
-                 if (ltr) {
-                         ltr->next = tr;
-                 } else {
-@@ -1772,11 +1762,10 @@ int role_allow_read(role_allow_t **r, st
-         nel = le32_to_cpu(buf[0]);
-         lra = NULL;
-         for (i = 0; i < nel; i++) {
--                ra = malloc(sizeof(struct role_allow));
-+                ra = calloc(1, sizeof(struct role_allow));
-                 if (!ra) {
-                         return -1;
-                 }
--                memset(ra, 0, sizeof(struct role_allow));
-                 if (lra) {
-                         lra->next = ra;
-                 } else {
-@@ -1805,11 +1794,10 @@ static int ocontext_read (struct policyd
-                 nel = le32_to_cpu(buf[0]);
-                 l = NULL;
-                 for (j = 0; j < nel; j++) {
--                        c = malloc(sizeof(ocontext_t));
-+			c = calloc(1, sizeof(ocontext_t));
-                         if (!c) {
-                                 return -1;
-                         }
--                        memset(c, 0, sizeof(ocontext_t));
-                         if (l) {
-                                 l->next = c;
-                         } else {
-@@ -1918,11 +1906,10 @@ static int genfs_read (policydb_t *p, st
-         nel = le32_to_cpu(buf[0]);
-         genfs_p = NULL;         
-         for (i = 0; i < nel; i++) {
--                newgenfs = malloc(sizeof(genfs_t));
-+                newgenfs = calloc(1, sizeof(genfs_t));
-                 if (!newgenfs) {        
-                         goto bad;
-                 }                       
--                memset(newgenfs, 0, sizeof(genfs_t));
-                 buf = next_entry(fp, sizeof(uint32_t));
-                 if (!buf)       
-                         goto bad;
-@@ -1956,11 +1943,10 @@ static int genfs_read (policydb_t *p, st
-                         goto bad;
-                 nel2 = le32_to_cpu(buf[0]);
-                 for (j = 0; j < nel2; j++) {
--                        newc = malloc(sizeof(ocontext_t));
-+                        newc = calloc(1, sizeof(ocontext_t));
-                         if (!newc) {
-                                 goto bad;
-                         }
--                        memset(newc, 0, sizeof(ocontext_t));
-                         buf = next_entry(fp, sizeof(uint32_t));
-                         if (!buf)
-                                 goto bad;
-@@ -2043,10 +2029,9 @@ static int user_read(policydb_t * p, has
- 	uint32_t *buf;
- 	size_t len;
- 
--	usrdatum = malloc(sizeof(user_datum_t));
-+	usrdatum = calloc(1, sizeof(user_datum_t));
- 	if (!usrdatum)
- 		return -1;
--	memset(usrdatum, 0, sizeof(user_datum_t));
- 
- 	buf = next_entry(fp, sizeof(uint32_t)*2);
- 	if (!buf)
-@@ -2096,10 +2081,9 @@ static int sens_read(policydb_t * p __at
- 	level_datum_t *levdatum;
- 	uint32_t *buf, len;
- 
--	levdatum = malloc(sizeof(level_datum_t));
-+	levdatum = calloc(1, sizeof(level_datum_t));
- 	if (!levdatum)
- 		return -1;
--	memset(levdatum, 0, sizeof(level_datum_t));
- 
- 	buf = next_entry(fp, (sizeof(uint32_t) * 2));
- 	if (!buf)
-@@ -2137,10 +2121,9 @@ static int cat_read(policydb_t * p __att
- 	cat_datum_t *catdatum;
- 	uint32_t *buf, len;
- 
--	catdatum = malloc(sizeof(cat_datum_t));
-+	catdatum = calloc(1, sizeof(cat_datum_t));
- 	if (!catdatum)
- 		return -1;
--	memset(catdatum, 0, sizeof(cat_datum_t));
- 
- 	buf = next_entry(fp, (sizeof(uint32_t) * 3));
- 	if (!buf)
-@@ -2259,10 +2242,9 @@ static int range_read(policydb_t *p, str
-         nel = le32_to_cpu(buf[0]);
-         lrt = NULL;
-         for (i = 0; i < nel; i++) {
--                rt = malloc(sizeof(range_trans_t));
-+                rt = calloc(1, sizeof(range_trans_t));
-                 if (!rt)
-                         return -1;
--                memset(rt, 0, sizeof(range_trans_t));
-                 if (lrt)
-                         lrt->next = rt;
-                 else
+There are two basic ways to ensure that the policy needed by an rpm is
+installed before that rpm: use package dependencies to make certain that
+separate policy rpms are installed before rpms that require them or, as
+you suggest, collect and install all of the policies from all of the
+rpms at the start of the transaction.
+
+The first solution does not work because it is not possible to order rpm
+installation within a transaction based on dependencies because of
+mutual and circular dependencies. There is _no_ general solution to
+sorting packages so that dependencies are met at every step of the
+transaction in the face of circular or mutual dependencies. Basically,
+topological sorting only works for directed _acyclic_ graphs (see
+http://en.wikipedia.org/wiki/Topological_sorting). Instead, rpm makes a
+more general guarantee that the dependencies will be met at the end of
+the transaction, which is not sufficient for our needs.
+
+The second solution, which you describe, has two problems. As rpm works
+now there are many circumstances, like network installations, where a
+transaction begins without all of the rpms. Changing this would not only
+be difficult, it is not clear that it would be desirable.
+
+Even if all of the rpms were available, there are many potential
+problems when a policy upgrade depends on a library or tool upgrade
+(e.g., libsepol or semodule). This leads directly back to the dependency
+problems.
+
+This leads me to conclude that package managers may need to be able to
+set raw contexts that are not currently valid. It is not a pleasant
+trade-off, but it does have potential side benefits for backup and
+restore tools.
+
+Karl
 
 -- 
-Stephen Smalley
-National Security Agency
+Karl MacMillan
+Tresys Technology
+www.tresys.com
+
+> Thomas
+> 
 
 
 --
