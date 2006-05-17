@@ -1,44 +1,68 @@
-Message-ID: <446B4D6C.3070605@redhat.com>
-Date: Wed, 17 May 2006 12:21:00 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joshua Brindle <method@gentoo.org>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Steve Grubb <sgrubb@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4HGubIo018205
+	for <selinux@tycho.nsa.gov>; Wed, 17 May 2006 12:56:37 -0400
+Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4HGuaju006664
+	for <selinux@tycho.nsa.gov>; Wed, 17 May 2006 16:56:36 GMT
 Subject: Re: Real simple cache that removes most of the lookups in mcstrans
-References: <446AFED3.9010800@redhat.com> <446B2A98.3090603@gentoo.org> <446B3B51.1060703@redhat.com> <446B3E11.6040302@gentoo.org>
-In-Reply-To: <446B3E11.6040302@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: James Antill <jantill@redhat.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <446B4D13.8080605@redhat.com>
+References: <446AFED3.9010800@redhat.com>
+	 <1147879972.3469.139.camel@code.and.org>  <446B4D13.8080605@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Tv9EcfOfMtoEbNB54fSs"
+Date: Wed, 17 May 2006 12:56:35 -0400
+Message-Id: <1147884995.3469.154.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> Joshua Brindle wrote:
->>> Daniel J Walsh wrote:
->>>> Basically check if the previous lookup was the same context, if yes 
->>>> return the same translation.   Otherwise do the lookup.
->>>>
->>>> Also included Russells patch for avcstat.
->>> Is this used on MLS? If so this cache needs to be cleared on policy 
->>> reload for proper revocation of translation access. Further, this 
->>> has no way of checking to see if the actual translations changed 
->>> between the last query and this one.
->> Yes, you mean translation change, I think.  Since I do not see where 
->> policy reload would effect this.  We could add some kind of timer to 
->> this, but refreshing the cache is a small problem, but this same 
->> problem existed with shared libraries.
->>
-> Because on an MLS system the server will be deciding whether or not 
-> you have permission to see a particular translation and a policy 
-> reload would affect that. The same problem did exist with the shared 
-> libraries but we aren't using them anymore :) the server should be 
-> smart enough to handle this. If client side caching is really desired 
-> it needs to work like an avc where you can get flush notifications 
-> from the server.
-One suggestion I have heard is to allow the administrator to turn off 
-the cache, perhaps via /etc/selinux/config???
 
+--=-Tv9EcfOfMtoEbNB54fSs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2006-05-17 at 12:19 -0400, Daniel J Walsh wrote:
+
+> Only reason strdup fails is ENOMEM.  With ENOMEM you are almost=20
+> garanteed you are going to crash anyways.  gstrdup does a exit when it=20
+> runs out of memory.
+> So we can messy up the code with a lot of checks that end up doing=20
+> little.  Your choice.
+
+ Well, it doesn't currently fail that way ... and it's relying on a side
+effect that sometimes happens.
+ Also the grep's I can see show the malloc/realloc/strdup failures being
+handled, so without bugs in the application layer ENOMEM doesn't
+currently mean a crash.
+
+ I'd be happy to do the diffs to add an internal
+xstrdup()/xmalloc()/etc. which calls abort(), if that's the route we
+want to go. As you say, this would significantly reduce the failure
+paths ... although it might get libselinux banned from some
+applications.
+ I'll also volunteer to do an audit and add the failure paths, if we
+want to handle ENOMEM.
+
+--=20
+James Antill
+<james.antill@redhat.com>
+
+
+--=-Tv9EcfOfMtoEbNB54fSs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEa1XC11eXTEMrxtQRAnDUAJ9RzwHTzHfHgRboVB0NSZ6apiLGSgCbBkjY
+wTV/lH9WRmykoRIvRtUJcJk=
+=z4K7
+-----END PGP SIGNATURE-----
+
+--=-Tv9EcfOfMtoEbNB54fSs--
 
 
 --
