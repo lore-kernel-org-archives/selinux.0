@@ -1,39 +1,44 @@
-Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
-	of inode security contexts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
-        James Morris <jmorris@redhat.com>, Jeremy Katz <katzj@redhat.com>,
-        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
-In-Reply-To: <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
-References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060517075435.GB7665@thorium.jmh.mhn.de>
-	 <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
-Content-Type: text/plain
-Date: Wed, 17 May 2006 15:01:14 -0400
-Message-Id: <1147892474.30789.398.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4I4A428031672
+	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 00:10:05 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4I4A0l2007780
+	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 04:10:03 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id A224461B06
+	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 14:09:58 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 27157-05 for <selinux@tycho.nsa.gov>;
+	Thu, 18 May 2006 14:09:58 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 4D2B461AF1
+	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 14:09:58 +1000 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 908D2A7D93
+	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 14:10:04 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux, " <selinux@tycho.nsa.gov>
+Subject: search trends for SELinux
+Date: Thu, 18 May 2006 14:10:00 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200605181410.04395.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-17 at 13:52 -0400, Karl MacMillan wrote:
-> This leads me to conclude that package managers may need to be able to
-> set raw contexts that are not currently valid. It is not a pleasant
-> trade-off, but it does have potential side benefits for backup and
-> restore tools.
+http://www.google.com/trends?q=seLinux%2C+apparmor&ctab=1&geo=all&date=2006
 
-I don't think it is useful for restore(8), as lgetxattr() will show it
-as unlabeled_t and compares will still fail.  Per the earlier discussion
-on this thread.
-
-It might have some utility in creating filesystems for a system running
-a different policy than the build/host system.
+Interesting to note what appears to be a steady increase of interest in SE 
+Linux.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
