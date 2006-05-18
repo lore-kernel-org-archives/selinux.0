@@ -1,280 +1,155 @@
-Message-ID: <446C9EF0.7040300@redhat.com>
-Date: Thu, 18 May 2006 12:21:04 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4IIEtk1015045
+	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 14:15:02 -0400
+Received: from mailrelay1.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4IIEr7v025087
+	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 18:14:54 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 18 May 2006 20:14:51 +0200
+Date: Thu, 18 May 2006 20:14:52 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+        James Morris <jmorris@redhat.com>, Jeremy Katz <katzj@redhat.com>,
+        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
+Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping of inode security contexts
+Message-Id: <20060518181452.GA4935@thorium2.jmh.mhn.de>
+References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil> <20060517075435.GB7665@thorium.jmh.mhn.de> <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Antill <jantill@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Real simple cache that removes most of the lookups in mcstrans
-References: <446AFED3.9010800@redhat.com>	 <1147879972.3469.139.camel@code.and.org>  <446B4D13.8080605@redhat.com>	 <1147884995.3469.154.camel@code.and.org> <1147885574.30789.358.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1147885574.30789.358.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------020707070505060707090707"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
+In-Reply-To: <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020707070505060707090707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Stephen Smalley wrote:
-> On Wed, 2006-05-17 at 12:56 -0400, James Antill wrote:
->   
->> On Wed, 2006-05-17 at 12:19 -0400, Daniel J Walsh wrote:
->>
->>     
->>> Only reason strdup fails is ENOMEM.  With ENOMEM you are almost 
->>> garanteed you are going to crash anyways.  gstrdup does a exit when it 
->>> runs out of memory.
->>> So we can messy up the code with a lot of checks that end up doing 
->>> little.  Your choice.
->>>       
->>  Well, it doesn't currently fail that way ... and it's relying on a side
->> effect that sometimes happens.
->>  Also the grep's I can see show the malloc/realloc/strdup failures being
->> handled, so without bugs in the application layer ENOMEM doesn't
->> currently mean a crash.
->>
->>  I'd be happy to do the diffs to add an internal
->> xstrdup()/xmalloc()/etc. which calls abort(), if that's the route we
->> want to go. As you say, this would significantly reduce the failure
->> paths ... although it might get libselinux banned from some
->> applications.
->>  I'll also volunteer to do an audit and add the failure paths, if we
->> want to handle ENOMEM.
->>     
->
-> libselinux functions shouldn't crash or abort on ENOMEM, so I'd want
-> them handled properly prior to merging this patch.  A more general cache
-> would be nice too ;)
->
->   
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+* Karl MacMillan <kmacmillan@tresys.com> [2006-05-17 19:55]:
+> On Wed, 2006-05-17 at 09:54 +0200, Thomas Bleher wrote:
+> > [Added CCs from earlier thread]
+> >=20
+> > * Stephen Smalley <sds@tycho.nsa.gov> [2006-05-15 18:31]:
+> > > During the earlier thread on splitting policy into individual packages
+> > > (using policy modules), it was requested that SELinux provide a way f=
+or
+> > > a privileged process (like a package manager) to label an inode with a
+> > > not-yet-defined security context (treating it as having the unlabeled
+> > > SID until defined in the policy) and then automatically update the
+> > > in-memory state when a policy that defines the security context is
+> > > loaded such that the inode immediately becomes accessible under the
+> > > rules governing access to that context in the new policy.
+> > [...]
+> > > The second logical change introduces the
+> > > support for setting invalid contexts by privileged processes, both via
+> > > setxattr() and via /proc/self/attr/fscreate, which is the more
+> > > controversial aspect.
+> >=20
+> > I am still not convinced that we actually need this second change.
+> >=20
+> > In http://marc.theaimsgroup.com/?l=3Dselinux&m=3D114677075207486&w=3D2,=
+ I
+> > outlined how rpm could work with the current kernel. I think this scheme
+> > is preferable to changing the kernel, mainly because of two points:
+> >=20
+> > * It makes it possible to later confine rpm more strictly:
+> >   If you load policy before installing the package, you can use the
+> >   policy server to prevent rpm from loading certain policies; rpm will
+> >   only be able to put labels on disk it is allowed to by policy.
+> >   If you load policy after package installation, rpm needs the labelpriv
+> >   privilege, so you can't confine rpm in any meaningful sense.
+> >=20
+> > * It allows rpm to know beforehand if the policy module will actually=
+=20
+> >   apply on top of the current system policy (which is important if you=
+=20
+> >   think of the differences between strict and targeted policy). It is
+> >   better to abort install before than to have invalid labels on disk
+> >   later.
+> >=20
+> > As I didn't receive any response regarding my posting, I'd like to ask:
+> > What prevents you from implementing it in a way similar to what I
+> > described?
+> > RPM already has trigger scripts so from the outside it looks like it
+> > shouldn't be that hard to implement.
+> >=20
+>=20
+> To get some realtime discussion going on this issue a telecon was held
+> with Red Hat, Tresys, and Steve participating. I'll try to summarize the
+> problems with the approaches that you, Josh, and I were pushing that
+> came out during that telecom. This is in the context of rpm, but I
+> believe that the problems are more general.
+>=20
+> There are two basic ways to ensure that the policy needed by an rpm is
+> installed before that rpm: use package dependencies to make certain that
+> separate policy rpms are installed before rpms that require them or, as
+> you suggest, collect and install all of the policies from all of the
+> rpms at the start of the transaction.
+>=20
+> The first solution does not work because it is not possible to order rpm
+> installation within a transaction based on dependencies because of
+> mutual and circular dependencies. There is _no_ general solution to
+> sorting packages so that dependencies are met at every step of the
+> transaction in the face of circular or mutual dependencies. Basically,
+> topological sorting only works for directed _acyclic_ graphs (see
+> http://en.wikipedia.org/wiki/Topological_sorting). Instead, rpm makes a
+> more general guarantee that the dependencies will be met at the end of
+> the transaction, which is not sufficient for our needs.
+>=20
+> The second solution, which you describe, has two problems. As rpm works
+> now there are many circumstances, like network installations, where a
+> transaction begins without all of the rpms. Changing this would not only
+> be difficult, it is not clear that it would be desirable.
+>=20
+> Even if all of the rpms were available, there are many potential
+> problems when a policy upgrade depends on a library or tool upgrade
+> (e.g., libsepol or semodule). This leads directly back to the dependency
+> problems.
+>=20
+> This leads me to conclude that package managers may need to be able to
+> set raw contexts that are not currently valid. It is not a pleasant
+> trade-off, but it does have potential side benefits for backup and
+> restore tools.
+
+Thank you for your explanation.
+I see that these are very difficult issues, but I must admit that I
+still feel very uneasy about the proposed changes.
+
+So let me suggest one more possibility:
+rpm installs the package, puts the labels on disk and afterwards
+installs the policy (like Dan proposed originally).=20
+EXCEPT: Whenever rpm finds that the label it wants to put on disk is not
+valid in the current policy, it labels the file as unlabeled_t (or some
+other special label). After rpm has installed the policy, it relabels
+the guilty files. This adds no overhead - rpm already knows the paths and
+the labels, and it would have had to visit the files anyway to verify
+their labels -, looks exactly the same from the outside, doesn't require
+kernel changes and makes it possible to later restrict rpm.
+
+Now, you can't decline such an offer, can you? ;-)
+
+Or am I missing something fundamental here?
+
+Thomas
 
 
-As for thread safe, I added
-+static __thread security_context_t prev_t2r_trans=NULL;
-+static __thread security_context_t prev_t2r_raw=NULL;
-+static __thread security_context_t prev_r2t_trans=NULL;
-+static __thread security_context_t prev_r2t_raw=NULL;
+--h31gzZEtNLTqOjlF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-After talking we James Antill we feel that we should enhance this a 
-little to allow a linked list of previous translated security context.
-ps,lsof, netstat all would benefit.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-But for  now this improves the ls -Z performance significantly.
+iD8DBQFEbLmcD9qpeVMU938RAn7DAJ995sSUB8zna4NxwbI3E1udp9Mf6wCfd3mv
+ru5EIJ+reaSX6WgcTeSfLfU=
+=Gw96
+-----END PGP SIGNATURE-----
 
-
---------------020707070505060707090707
-Content-Type: text/x-patch;
- name="libselinux-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/init.c libselinux-1.30.7/src/init.c
---- nsalibselinux/src/init.c	2006-05-15 09:43:24.000000000 -0400
-+++ libselinux-1.30.7/src/init.c	2006-05-17 13:57:29.000000000 -0400
-@@ -78,21 +78,17 @@
- }
- hidden_def(set_selinuxmnt)
-  
--static void init_translations(void)
--{
--	init_context_translations();
--}
--
- static void init_lib(void) __attribute__ ((constructor));
- static void init_lib(void)
- {
- 	selinux_page_size = sysconf(_SC_PAGE_SIZE);
- 	init_selinuxmnt();
--	init_translations();
-+	init_context_translations();
- }
- 
- static void fini_lib(void) __attribute__ ((destructor));
- static void fini_lib(void)
- {
- 	fini_selinuxmnt();
-+	fini_context_translations();
- }
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinux_config.c libselinux-1.30.7/src/selinux_config.c
---- nsalibselinux/src/selinux_config.c	2006-05-15 09:43:24.000000000 -0400
-+++ libselinux-1.30.7/src/selinux_config.c	2006-05-17 14:31:07.000000000 -0400
-@@ -17,6 +17,7 @@
- #define SELINUXTAG "SELINUX="
- #define SETLOCALDEFS "SETLOCALDEFS="
- #define REQUIRESEUSERS "REQUIRESEUSERS="
-+#define CACHETRANSTAG "CACHETRANS="
- 
- /* Indices for file paths arrays. */
- #define BINPOLICY         0
-@@ -175,6 +176,10 @@
- 				      sizeof(REQUIRESEUSERS)-1)) {
- 			  value = buf_p + sizeof(REQUIRESEUSERS)-1;
- 			  intptr = &require_seusers;
-+		  } else if (!strncmp(buf_p, CACHETRANSTAG, 
-+				      sizeof(CACHETRANSTAG)-1)) {
-+			  value = buf_p + sizeof(CACHETRANSTAG)-1;
-+			  intptr = &cache_trans;
- 		  } else {
- 			  continue;
- 		  }
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinux_internal.h libselinux-1.30.7/src/selinux_internal.h
---- nsalibselinux/src/selinux_internal.h	2006-05-15 09:43:24.000000000 -0400
-+++ libselinux-1.30.7/src/selinux_internal.h	2006-05-17 14:05:25.000000000 -0400
-@@ -70,3 +70,4 @@
- extern int load_setlocaldefs hidden;
- extern int require_seusers hidden;
- extern int selinux_page_size hidden;
-+extern int cache_trans hidden;
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/setrans_client.c libselinux-1.30.7/src/setrans_client.c
---- nsalibselinux/src/setrans_client.c	2006-05-16 20:43:27.000000000 -0400
-+++ libselinux-1.30.7/src/setrans_client.c	2006-05-17 18:17:41.000000000 -0400
-@@ -16,6 +16,13 @@
- #include "selinux_internal.h"
- #include "setrans_internal.h"
- 
-+// Simple cache
-+static	__thread security_context_t prev_t2r_trans=NULL;
-+static	__thread security_context_t prev_t2r_raw=NULL;
-+static	__thread security_context_t prev_r2t_trans=NULL;
-+static	__thread security_context_t prev_r2t_raw=NULL;
-+
-+int cache_trans hidden = 1;
- 
- /*
-  * setransd_open
-@@ -193,6 +200,17 @@
- }
- 
- 
-+hidden void
-+fini_context_translations(void)
-+{
-+	if (cache_trans) {
-+		free(prev_r2t_trans);
-+		free(prev_r2t_raw);
-+		free(prev_t2r_trans);
-+		free(prev_t2r_raw);
-+	}
-+}
-+
- hidden int
- init_context_translations(void)
- {
-@@ -225,9 +243,24 @@
- 		*rawp = NULL;
- 		return 0;
- 	}
-+	if (cache_trans) {
-+		if (prev_t2r_trans && strcmp(prev_t2r_trans, trans) == 0) {
-+			*rawp=strdup(prev_t2r_raw);
-+		} else {
-+			free(prev_t2r_trans); prev_t2r_trans = NULL;
-+			free(prev_t2r_raw); prev_t2r_raw = NULL;
-+			if (trans_to_raw_context(trans, rawp))
-+				*rawp = strdup(trans);
-+			if (*rawp) {
-+				prev_t2r_trans=strdup(trans);
-+				prev_t2r_raw=strdup(*rawp);
-+			}
-+		}
-+	}
-+	else 
-+		if (trans_to_raw_context(trans, rawp))
-+			*rawp = strdup(trans);
- 
--	if (trans_to_raw_context(trans, rawp))
--		*rawp = strdup(trans);
- 	return *rawp ? 0 : -1;
- }
- hidden_def(selinux_trans_to_raw_context)
-@@ -240,8 +273,23 @@
- 		return 0;
- 	}
- 
--	if (raw_to_trans_context(raw, transp)) 
--		*transp = strdup(raw);
-+	if (cache_trans) {
-+		if (prev_r2t_raw && strcmp(prev_r2t_raw, raw) == 0) {
-+			*transp=strdup(prev_r2t_trans);
-+		} else {
-+			free(prev_r2t_raw); prev_r2t_raw = NULL;
-+			free(prev_r2t_trans); prev_r2t_trans = NULL;
-+			if (raw_to_trans_context(raw, transp)) 
-+				*transp = strdup(raw);
-+			if (*transp) {
-+				prev_r2t_raw=strdup(raw);
-+				prev_r2t_trans=strdup(*transp);
-+			}
-+		}
-+	} 
-+	else 
-+		if (raw_to_trans_context(raw, transp)) 
-+			*transp = strdup(raw);
- 
- 	return *transp ? 0 : -1;
- }
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/setrans_internal.h libselinux-1.30.7/src/setrans_internal.h
---- nsalibselinux/src/setrans_internal.h	2006-05-16 20:43:27.000000000 -0400
-+++ libselinux-1.30.7/src/setrans_internal.h	2006-05-17 14:07:34.000000000 -0400
-@@ -8,3 +8,4 @@
- #define MAX_DATA_BUF			8192
- 
- extern int init_context_translations(void);
-+extern void fini_context_translations(void);
-diff --exclude-from=exclude -N -u -r nsalibselinux/utils/avcstat.c libselinux-1.30.7/utils/avcstat.c
---- nsalibselinux/utils/avcstat.c	2006-05-15 09:43:20.000000000 -0400
-+++ libselinux-1.30.7/utils/avcstat.c	2006-05-17 06:18:39.000000000 -0400
-@@ -27,12 +27,12 @@
- #define HEADERS		"lookups hits misses allocations reclaims frees"
- 
- struct avc_cache_stats {
--	unsigned int lookups;
--	unsigned int hits;
--	unsigned int misses;
--	unsigned int allocations;
--	unsigned int reclaims;
--	unsigned int frees;
-+	unsigned long long lookups;
-+	unsigned long long hits;
-+	unsigned long long misses;
-+	unsigned long long allocations;
-+	unsigned long long reclaims;
-+	unsigned long long frees;
- };
- 
- static int interval;
-@@ -172,7 +172,7 @@
- 		while ((line = strtok(NULL, "\n"))) {
- 			struct avc_cache_stats tmp;
- 			
--			ret = sscanf(line, "%u %u %u %u %u %u",
-+			ret = sscanf(line, "%Lu %Lu %Lu %Lu %Lu %Lu",
- 				     &tmp.lookups,
- 				     &tmp.hits,
- 				     &tmp.misses,
-@@ -195,7 +195,7 @@
- 			die("unable to parse \'%s\': no data", avcstatfile);
- 
- 		if (cumulative || (!cumulative && !i))
--			printf("%10u %10u %10u %10u %10u %10u\n",
-+			printf("%10Lu %10Lu %10Lu %10Lu %10Lu %10Lu\n",
- 			       tot.lookups, tot.hits, tot.misses,
- 			       tot.allocations, tot.reclaims, tot.frees);
- 		else {
-@@ -205,7 +205,7 @@
- 			rel.allocations = tot.allocations - last.allocations;
- 			rel.reclaims = tot.reclaims - last.reclaims;
- 			rel.frees = tot.frees - last.frees;
--			printf("%10u %10u %10u %10u %10u %10u\n",
-+			printf("%10Lu %10Lu %10Lu %10Lu %10Lu %10Lu\n",
- 			       rel.lookups, rel.hits, rel.misses,
- 			       rel.allocations, rel.reclaims, rel.frees);
- 		}
-
---------------020707070505060707090707--
+--h31gzZEtNLTqOjlF--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
