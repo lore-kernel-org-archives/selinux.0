@@ -1,52 +1,45 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JHdUE4012113
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:39:30 -0400
-Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JHdTfP010793
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 17:39:29 GMT
-Received: by wr-out-0506.google.com with SMTP id 58so656740wri
-        for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 10:39:29 -0700 (PDT)
-Message-ID: <446E02CE.7050007@gmail.com>
-Date: Sat, 20 May 2006 02:39:26 +0900
-From: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Which filesystem is the best for SELinux
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JI1UAO012665
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 14:01:30 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JI1UfP013351
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 18:01:30 GMT
+Subject: Re: Is SELinux appropriate for my use?
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
+Cc: Valdis.Kletnieks@vt.edu,
+        Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <200605192354.31161.russell@coker.com.au>
+References: <446A0CE9.6020708@gmail.com> <446CD37D.1020500@gmail.com>
+	 <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
+	 <200605192354.31161.russell@coker.com.au>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 14:03:32 -0400
+Message-Id: <1148061813.31984.76.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2006-05-19 at 23:54 +1000, Russell Coker wrote:
+> Incidentally I still don't think that we need separation of sbin_t and bin_t.  
+> The choice of which programs go in which directories is rather arbitrary and 
+> is not based on security criteria.  We have no expectation that sbin_t and 
+> bin_t will have different integrity (the system integrity entirely depends on 
+> the integrity of both those types) and we also expect that there is no secret 
+> data labeled with either of those types.  So it seems to me that making 
+> sbin_t and ls_exec_t both aliases for bin_t would be the correct thing to do.
 
-I'm now considering installing SELinux on my Gentoo (I have a little
-experience with old redhat 8 or 9 with ext3).  However, I'm wondering
-which filesystem to use.  I want journaling filesystem, and stability
-comes first, then speed.
+I agree.  The file contexts would need to be updated, and the interfaces
+that deal with sbin_t and ls_exec_t would need a m4 errprint() to warn
+that the interfaces are deprecated and say what the new interface to
+use, in addition to the alias.  Care to make a patch Russell?
 
-Now I'm considering jfs. Next xfs.  Any pros and cons?   There may be a
-controversy.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-Thanks in advance.
-
-- -Tetsuji
-- --
-Tetsuji 'Maverick' Rai
-Main http://maverick6664.bravehost.com/
-Profile:
-http://setiweb.ssl.berkeley.edu/beta/view_profile.php?userid=123
-pubkey http://mav.atspace.com/tmr_at_gmail.txt
-PGP Key ID: 82335CD9
-Key fingerprint = 41CA 94B4 2A89 3FF1 5B11  BC37 D597 E667 8233 5CD9
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEbgLM1ZfmZ4IzXNkRAnfSAKCeoOru/BwfncmYKC0TscoKlJ0s7QCgud3c
-cDUF4MQ94ZJLtXn3W3kS4So=
-=M86e
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
