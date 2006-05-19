@@ -1,44 +1,70 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4IMo1BG021114
-	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 18:50:03 -0400
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4IMo0l2011868
-	for <selinux@tycho.nsa.gov>; Thu, 18 May 2006 22:50:00 GMT
-Subject: Re: correct way to set context in perl?
-From: Erich Schubert <erich@debian.org>
-To: Maria Iano <maria@iano.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20060518171245.Y26098@iano.org>
-References: <20060518160656.V26098@iano.org>
-	 <1147985248.3617.2.camel@wintermute.xmldesign.de>
-	 <20060518171245.Y26098@iano.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Fri, 19 May 2006 00:47:55 +0200
-Message-Id: <1147992475.3617.6.camel@wintermute.xmldesign.de>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4J79ADS028584
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 03:09:10 -0400
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4J799fP028939
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 07:09:09 GMT
+Message-Id: <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
+To: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: Re: Is SELinux appropriate for my use?
+In-Reply-To: Your message of "Fri, 19 May 2006 05:05:17 +0900."
+             <446CD37D.1020500@gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <446A0CE9.6020708@gmail.com> <200605171558.43653.russell@coker.com.au>
+            <446CD37D.1020500@gmail.com>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1148022504_4259P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 19 May 2006 03:08:25 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-You should be able to setup a regexp to match the master and slave dirs
-with appropriate contexts, then run the "restorecon" app to restore the
-directory contexts after dir creation and it should work okay. You'll
-need your app to be able to transition into restorecon, but thats
-probably okay. I mean, it could be used to reset some file contexts
-in /home that you'd like to keep...
-Maybe restorecon will work on the files without domain transition, if
-the old domain has the relabel permissions... I'm not that deep into
-advanced SELinux use...
+--==_Exmh_1148022504_4259P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <13183.1148022485.1@turing-police.cc.vt.edu>
 
-best regards,
-Erich Schubert
--- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
- Nothing prevents happiness like the memory of happiness. --- A. Gide //\
-    Wo befreundete Wege zusammenlaufen, da sieht die ganze Welt für   V_/_
-          eine Stunde wie eine Heimat aus. --- Herrmann Hesse
+On Fri, 19 May 2006 05:05:17 +0900, Tetsuji Maverick Rai said:
 
+> What if apache's permission is set so that it isn't allowed to execute
+> most commands?    But actually most commands (i.e. even cat, ls) can be
+> dangerous, because it will display files containing mysql password.   So
+> does SELinux exist to prevent attackers from executing these "usual"
+> programs with http server's permissions(role)?   If so, I can understand
+> a bit....actually I understand this is secure.
 
+Remember - the design of SELinux is that *nothing* is permitted, unless
+there's something in the policy that specifically says it's allowed.
+So Apache can't even run /bin/cat unless there is a rule that says something
+in httpd_t context (apache) is allowed to run bin_t binaries (bin_t includes
+most common binaries).  However, /bin/ls *isn't* a bin_t, there's a separate
+ls_exec_t for it, so things like ftpd can be restricted to be able to
+run /bin/ls, but not other things in /bin.
+
+(Aside for the list - anybody know why ftp.te in the 2.2.40 strict policy has:
+
+corecmd_exec_bin(ftpd_t)
+corecmd_exec_sbin(ftpd_t)
+# Execute /bin/ls (can comment this out for proftpd)
+# also may need rules to allow tar etc...
+corecmd_exec_ls(ftpd_t)
+
+I know why ftpd's traditionally need /bin/ls - what are exec_bin and
+exec_sbin there for?)
+
+--==_Exmh_1148022504_4259P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEbW7ocC3lWbTT17ARArzPAJwKthbxHhrpO//JWFgsBuDfbBZcDwCghtxJ
+YUDcw8NUtfSXv/DfUvOIdwo=
+=tKDu
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1148022504_4259P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
