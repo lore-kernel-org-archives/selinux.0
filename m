@@ -1,82 +1,72 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JASRUs032359
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 06:28:27 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JASOk7014334
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 10:28:25 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id ECF5061B09
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 20:28:23 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 03071-03 for <selinux@tycho.nsa.gov>;
-	Fri, 19 May 2006 20:28:23 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 8F9A461B06
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 20:28:23 +1000 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id C5B23A7ED4
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 20:28:32 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: genhomedircon
-Date: Fri, 19 May 2006 20:28:29 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Q3ZbEesOrdeweN1"
-Message-Id: <200605192028.32354.russell@coker.com.au>
+Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
+	of inode security contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+        James Morris <jmorris@redhat.com>, Jeremy Katz <katzj@redhat.com>,
+        Paul Nasrat <pnasrat@redhat.com>, James Antill <jantill@redhat.com>
+In-Reply-To: <20060518181452.GA4935@thorium2.jmh.mhn.de>
+References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060517075435.GB7665@thorium.jmh.mhn.de>
+	 <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
+	 <20060518181452.GA4935@thorium2.jmh.mhn.de>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 08:59:53 -0400
+Message-Id: <1148043593.25168.71.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_Q3ZbEesOrdeweN1
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, 2006-05-18 at 20:14 +0200, Thomas Bleher wrote:
+> Thank you for your explanation.
+> I see that these are very difficult issues, but I must admit that I
+> still feel very uneasy about the proposed changes.
+> 
+> So let me suggest one more possibility:
+> rpm installs the package, puts the labels on disk and afterwards
+> installs the policy (like Dan proposed originally). 
+> EXCEPT: Whenever rpm finds that the label it wants to put on disk is not
+> valid in the current policy, it labels the file as unlabeled_t (or some
+> other special label). After rpm has installed the policy, it relabels
+> the guilty files. This adds no overhead - rpm already knows the paths and
+> the labels, and it would have had to visit the files anyway to verify
+> their labels -, looks exactly the same from the outside, doesn't require
+> kernel changes and makes it possible to later restrict rpm.
+> 
+> Now, you can't decline such an offer, can you? ;-)
+> 
+> Or am I missing something fundamental here?
 
-        def checkExists(self, home):
-                fd = open(self.getFileContextFile())
-                for i in  fd.read().split('\n'):
-                    if len(i) == 0:
-                            continue
-                    regex = i.split()[0]
+In the labelpriv model, rpm doesn't have to visit the individual files
+afterward in the common case; it just calls security_check_context(3) on
+each distinct context stored in the rpm header (once per context, not
+per file) after the module insertion phase, and if any of them are still
+invalid (the uncommon case), rpm then takes corrective action (whether
+that means relabeling files that had those invalid labels to truly be
+unlabeled_t, removing those files, or reverting the install altogether -
+the latter seems cleanest to me).  If we can't get a guarantee that rpm
+will perform such checking and take corrective action, then I'd agree
+that the kernel change is a no-go.
 
-
-The above code at line 282 in genhomedircon in FC5 has a bug in that it can't 
-handle a line in the file contexts file containing " ".
-
-The attached patch fixes a bug in the FC5 policy which generates such a line 
-with only a space.
+With regard to restricting rpm, under both models, rpm is being allowed
+to set down unlabeled_t files and to insert policy modules.  Restricting
+rpm meaningfully under either model requires fine-grained mediation of
+what those policy modules may contain, which requires the use of the
+policy management server as the libsemanage back end to enforce such
+mediation.  Restricting rpm meaningfully under either model also
+requires decomposition of rpm, so that not all of rpm has to run with
+the same rights and the core rpm processing can run with different
+rights depending on the package characteristics.  Given such mediation
+and decomposition, having a small rpm helper in its own domain that
+verifies that the header contexts are valid after module insertion,
+taking corrective action if necessary, would address the linkage between
+the header contexts and the module contents.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
 
---Boundary-00=_Q3ZbEesOrdeweN1
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
-diff -ru serefpolicy-2.2.38.orig/policy/support/misc_macros.spt serefpolicy-2.2.38/policy/support/misc_macros.spt
---- serefpolicy-2.2.38.orig/policy/support/misc_macros.spt	2006-05-08 23:54:02.000000000 +1000
-+++ serefpolicy-2.2.38/policy/support/misc_macros.spt	2006-05-19 20:15:07.000000000 +1000
-@@ -37,7 +37,7 @@
- #
- # gen_context(context,mls_sensitivity,[mcs_categories])
- #
--define(`gen_context',`$1`'ifdef(`enable_mls',`:$2')`'ifdef(`enable_mcs',`:s0`'ifelse(`$3',,,`:$3')')') dnl
-+define(`gen_context',`$1`'ifdef(`enable_mls',`:$2')`'ifdef(`enable_mcs',`:s0`'ifelse(`$3',,,`:$3')')')dnl
- 
- ########################################
- #
-
---Boundary-00=_Q3ZbEesOrdeweN1--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
