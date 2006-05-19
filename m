@@ -1,49 +1,83 @@
-Subject: Re: Real simple cache that removes most of the lookups in mcstrans
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@gentoo.org>
-Cc: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <446DCD4C.6000303@gentoo.org>
-References: <446AFED3.9010800@redhat.com> <446B3B51.1060703@redhat.com>
-	 <446B3E11.6040302@gentoo.org> <200605192333.01639.russell@coker.com.au>
-	 <446DCD4C.6000303@gentoo.org>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 10:07:22 -0400
-Message-Id: <1148047642.25168.107.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [RFC][PATCH] selinux:  introduce support for deferred mapping of inode security contexts
+Date: Fri, 19 May 2006 10:05:04 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015881707C7@exchange.columbia.tresys.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>,
+        "Thomas Bleher" <bleher@informatik.uni-muenchen.de>,
+        "selinux-dev" <selinux-dev@tresys.com>,
+        "James Morris" <jmorris@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-19 at 09:51 -0400, Joshua Brindle wrote:
-> Russell Coker wrote:
-> > If an application such as "ls" gets a copy of the translation data then there 
-> > is no point in writing the library code such that the data can not be 
-> > (easily) displayed a second time.  The information once available is presumed 
-> > to have already been displayed to the user or stored in a way such that it 
-> > can be obtained in another manner.
+> From: Daniel J Walsh [mailto:dwalsh@redhat.com] 
+> 
+> Stephen Smalley wrote:
+> > On Mon, 2006-05-15 at 12:35 -0400, Stephen Smalley wrote:
 > >   
-> If that were true we wouldn't revoke access to file descriptors (or 
-> files) after a policy reload.
+> >> With this patch applied, the following sequence is 
+> possible, subject 
+> >> to policy, which must allow <domain> security_t:security 
+> labelpriv; 
+> >> and allow unlabeled_t fs_t:filesystem associate; in order 
+> for this to 
+> >> work in enforcing mode.  Note that unconfined_t implicitly 
+> picks up 
+> >> all security permissions at present due to the use of a 
+> wildcard for 
+> >> the permission set in its rule.  However, you still need 
+> the second 
+> >> allow rule as well in order for this to succeed in enforcing mode.
+> >>
+> >> # touch foo
+> >> # chcon -t foo_exec_t foo
+> >> # ls -Z foo
+> >> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
+> >> # semodule -i foo.pp # defines foo_exec_t # ls -Z foo
+> >> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
+> >> # semodule -r foo
+> >> # ls -Z foo
+> >> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
+> >> # semodule -i foo.pp
+> >> # ls -Z foo
+> >> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
+> >>     
+> >
+> > Eric Paris pointed out that the above behavior violates the 
+> principle 
+> > of least surprise for users (chcon appears to succeed but 
+> leaves the 
+> > file with unlabeled_t).  So to clarify:  The intent would be to 
+> > exclude labelpriv permission from even unconfined_t and to 
+> only allow 
+> > it to specific program domains (initially only package manager 
+> > domains) where the program expects such behavior and performs some 
+> > verification separately once the file context is expected 
+> to be valid.  
+> > Of course, this requires that rpm_t not be an alias of 
+> unconfined_t, 
+> > which is true in FC5 (but not in FC4).
+> >
+> >   
+> We already have this problem in targeted with aliases.
+> 
+> Try
+> # ls -lZ /lib/libselinux.so.1
+> -rwxr-xr-x  root root system_u:object_r:lib_t          
+> /lib/libselinux.so.1
+> # chcon -t shlib_t /lib/libselinux.so.1
+> # ls -lZ /lib/libselinux.so.1
+> -rwxr-xr-x  root root system_u:object_r:lib_t          
+> /lib/libselinux.so.1
+> 
 
-Not the same thing.  Revoking data != revoking object capabilities.  The
-data has already leaked.  Revoking the object capability prevents
-reading of _new_ data from the object, and writing of data to the
-object.  But the already read data has already migrated into the state
-of the client.
-
->  And you are still ignoring the case where 
-> the translation actually changes. My worry isn't ls (which is one-shot, 
-> and executes quickly most of the time), _anything_ that uses this 
-> library code now caches the answer and if its a long running process 
-> then it has no way of knowing when translations have changed or access 
-> has been revoked.
-
-Notifications of changes to the translations make sense for correctness.
-Not so much of an access control issue.
-
--- 
-Stephen Smalley
-National Security Agency
+Another reason why canonicalizing the paths on getxattr() is non-ideal.
+Why can't we use an alternate interface for canonicalizing paths
+(optionally, if the client wants it).
 
 
 --
