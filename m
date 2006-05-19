@@ -1,53 +1,63 @@
-Message-ID: <446DCD4C.6000303@gentoo.org>
-Date: Fri, 19 May 2006 09:51:08 -0400
-From: Joshua Brindle <method@gentoo.org>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JDsP2k005167
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 09:54:25 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JDsMk7013441
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:54:23 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: Is SELinux appropriate for my use?
+Date: Fri, 19 May 2006 23:54:27 +1000
+Cc: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>,
+        selinux@tycho.nsa.gov
+References: <446A0CE9.6020708@gmail.com> <446CD37D.1020500@gmail.com> <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
+In-Reply-To: <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Real simple cache that removes most of the lookups in mcstrans
-References: <446AFED3.9010800@redhat.com> <446B3B51.1060703@redhat.com> <446B3E11.6040302@gentoo.org> <200605192333.01639.russell@coker.com.au>
-In-Reply-To: <200605192333.01639.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200605192354.31161.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Thursday 18 May 2006 01:15, Joshua Brindle <method@gentoo.org> wrote:
->   
->>> Yes, you mean translation change, I think.  Since I do not see where
->>> policy reload would effect this.  We could add some kind of timer to
->>> this, but refreshing the cache is a small problem, but this same
->>> problem existed with shared libraries.
->>>       
->> Because on an MLS system the server will be deciding whether or not you
->> have permission to see a particular translation and a policy reload
->> would affect that. The same problem did exist with the shared libraries
->> but we aren't using them anymore :) the server should be smart enough to
->> handle this. If client side caching is really desired it needs to work
->> like an avc where you can get flush notifications from the server.
->>     
+On Friday 19 May 2006 17:08, Valdis.Kletnieks@vt.edu wrote:
+> (Aside for the list - anybody know why ftp.te in the 2.2.40 strict policy
+> has:
 >
-> Client side caching is not required to work the same way as server-side.
+> corecmd_exec_bin(ftpd_t)
+> corecmd_exec_sbin(ftpd_t)
+> # Execute /bin/ls (can comment this out for proftpd)
+> # also may need rules to allow tar etc...
+> corecmd_exec_ls(ftpd_t)
 >
-> The idea behind SE Linux is that the kernel enforces access control in almost 
-> all situations, and that applications which enforce access control are the 
-> exception (this means crond, login programs, the X server for SE-X, and not 
-> much else).
->
-> If an application such as "ls" gets a copy of the translation data then there 
-> is no point in writing the library code such that the data can not be 
-> (easily) displayed a second time.  The information once available is presumed 
-> to have already been displayed to the user or stored in a way such that it 
-> can be obtained in another manner.
->   
-If that were true we wouldn't revoke access to file descriptors (or 
-files) after a policy reload. And you are still ignoring the case where 
-the translation actually changes. My worry isn't ls (which is one-shot, 
-and executes quickly most of the time), _anything_ that uses this 
-library code now caches the answer and if its a long running process 
-then it has no way of knowing when translations have changed or access 
-has been revoked.
+> I know why ftpd's traditionally need /bin/ls - what are exec_bin and
+> exec_sbin there for?)
+
+Traditionally ftp servers (IE the wuftpd) has supported "get file.gz" and
+"get directory.tar.gz" and the FTP server would have to execute programs 
+from /bin and /usr/bin accordingly.  This means that for the full ftpd 
+functionality corecmd_exec_bin is required.
+
+As for sbin, I'm not sure about that.
+
+Incidentally I still don't think that we need separation of sbin_t and bin_t.  
+The choice of which programs go in which directories is rather arbitrary and 
+is not based on security criteria.  We have no expectation that sbin_t and 
+bin_t will have different integrity (the system integrity entirely depends on 
+the integrity of both those types) and we also expect that there is no secret 
+data labeled with either of those types.  So it seems to me that making 
+sbin_t and ls_exec_t both aliases for bin_t would be the correct thing to do.
+
+
+PS  Valdis, if you want to send email to me directly then you need to send it 
+through a mail server on a fixed IP address.  My mail server will reject 
+connections from any machine that is in a dialup range.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
