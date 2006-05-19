@@ -1,50 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JDvXgn005279
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 09:57:33 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JDvUk7014325
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:57:31 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Maria Iano <maria@iano.org>
-Subject: Re: correct way to set context in perl?
-Date: Fri, 19 May 2006 23:57:35 +1000
-Cc: Erich Schubert <erich@debian.org>, selinux@tycho.nsa.gov
-References: <20060518160656.V26098@iano.org> <1147985248.3617.2.camel@wintermute.xmldesign.de> <20060518171245.Y26098@iano.org>
-In-Reply-To: <20060518171245.Y26098@iano.org>
+Message-ID: <446DCF2D.9020902@redhat.com>
+Date: Fri, 19 May 2006 09:59:09 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200605192357.39325.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+        SELinux-dev@tresys.com, James Morris <jmorris@redhat.com>
+Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
+ of inode security contexts
+References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil> <1148046296.25168.89.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1148046296.25168.89.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 19 May 2006 07:12, Maria Iano <maria@iano.org> wrote:
-> Thanks for your response. The master and slave directories are separate.
-> The zones are divided into over a hundred different groups (and growing).
-> Individual users have access to edit zones in some groups and not others.
-> Each group has its own directory. Under each group's directory are the
-> master and slave directories. As new groups are created (by the perl
-> scripts), new directories need to be created (as well as new files) and I
-> need to be able to give them the correct security contexts, and there will
-> be two different types under each group directory.
+Stephen Smalley wrote:
+> On Mon, 2006-05-15 at 12:35 -0400, Stephen Smalley wrote:
+>   
+>> With this patch applied, the following sequence is possible, subject to
+>> policy, which must allow <domain> security_t:security labelpriv; and
+>> allow unlabeled_t fs_t:filesystem associate; in order for this to work
+>> in enforcing mode.  Note that unconfined_t implicitly picks up all
+>> security permissions at present due to the use of a wildcard for the
+>> permission set in its rule.  However, you still need the second allow
+>> rule as well in order for this to succeed in enforcing mode.  
+>>
+>> # touch foo
+>> # chcon -t foo_exec_t foo
+>> # ls -Z foo
+>> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
+>> # semodule -i foo.pp # defines foo_exec_t
+>> # ls -Z foo
+>> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
+>> # semodule -r foo
+>> # ls -Z foo
+>> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
+>> # semodule -i foo.pp
+>> # ls -Z foo
+>> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
+>>     
+>
+> Eric Paris pointed out that the above behavior violates the principle of
+> least surprise for users (chcon appears to succeed but leaves the file
+> with unlabeled_t).  So to clarify:  The intent would be to exclude
+> labelpriv permission from even unconfined_t and to only allow it to
+> specific program domains (initially only package manager domains) where
+> the program expects such behavior and performs some verification
+> separately once the file context is expected to be valid.  Of course,
+> this requires that rpm_t not be an alias of unconfined_t, which is true
+> in FC5 (but not in FC4).
+>
+>   
+We already have this problem in targeted with aliases.
 
-Why would each group require a separate slave directory?
+Try
+# ls -lZ /lib/libselinux.so.1
+-rwxr-xr-x  root root system_u:object_r:lib_t          /lib/libselinux.so.1
+# chcon -t shlib_t /lib/libselinux.so.1
+# ls -lZ /lib/libselinux.so.1
+-rwxr-xr-x  root root system_u:object_r:lib_t          /lib/libselinux.so.1
 
-The only reason why a user might need direct access to the slave directory is 
-to read files (for converting a slave into a master) and to unlink files 
-(after removing them from the BIND configuration).
 
-Given that DNS data is essentially public allowing all groups to read each 
-other's data is not going to do any harm.  Also as the data is regenerated as 
-needed and always kept fresh the unlink problem can be solved by a cron job 
-that runs once per month and deletes old slave files.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
