@@ -1,39 +1,61 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JI6Z4D012816
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 14:06:35 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JI6Zk7024064
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 18:06:35 GMT
-Subject: Re: Is SELinux appropriate for my use?
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: russell@coker.com.au
-Cc: Valdis.Kletnieks@vt.edu,
-        Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1148061813.31984.76.camel@sgc.columbia.tresys.com>
-References: <446A0CE9.6020708@gmail.com> <446CD37D.1020500@gmail.com>
-	 <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
-	 <200605192354.31161.russell@coker.com.au>
-	 <1148061813.31984.76.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 14:08:38 -0400
-Message-Id: <1148062118.31984.79.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JIPPoh013368
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 14:25:25 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JIPOk7026840
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 18:25:24 GMT
+Message-ID: <446E0D9A.5040105@redhat.com>
+Date: Fri, 19 May 2006 14:25:30 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Latest diffs
+References: <446C9926.5070802@redhat.com>	 <1148047494.31984.56.camel@sgc.columbia.tresys.com>	 <446DD270.4090703@redhat.com> <1148060451.31984.67.camel@sgc.columbia.tresys.com>
+In-Reply-To: <1148060451.31984.67.camel@sgc.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-19 at 14:03 -0400, Christopher J. PeBenito wrote:
-> The file contexts would need to be updated, and the interfaces
-> that deal with sbin_t and ls_exec_t would need a m4 errprint() to warn
-> that the interfaces are deprecated and say what the new interface to
-> use, in addition to the alias.
+Christopher J. PeBenito wrote:
+> On Fri, 2006-05-19 at 10:13 -0400, Daniel J Walsh wrote:
+>   
+>> Christopher J. PeBenito wrote:
+>>     
+>>> On Thu, 2006-05-18 at 11:56 -0400, Daniel J Walsh wrote:
+>>>       
+>>>> Added unconfined_execmem_exec_t so that I can change the global 
+>>>> allow_execmem to off.  OpenOffice, valgrind and mplayer need it.  
+>>>> Probably could eliminate java, and wine domain and change to this.
+>>>>     
+>>>>         
+>>> I think this would be better if we had this transparently integrated
+>>> into the unconfined policy.  So we just add the rules to unconfined.te,
+>>> and put the domain transition into unconfined_domtrans().  The
+>>> differences between the two domains is just the execmem, so it should be
+>>> ok.  In fact this might be a simple example of hierarchy.
+>>>       
+>
+> So basically, we want unconfined_execmem_t to be the exact same as
+> unconfined_t, except have execmem too.  So the best way to do that would
+> be to have the unconfined interfaces also act on unconfined_execmem_t.
+> For example:
+>
+> interface(`unconfined_domtrans',`
+> 	domain_auto_trans($1,unconfined_exec_t,unconfined_t)
+> 	domain_auto_trans($1,unconfined_execmem_exec_t,unconfined_execmem_t)
+> ')
+>   
+No because this would allow xdm, xdm_xserver_t, firstboot ... to 
+transion.  All we want is
 
-Also the callers of the deprecated interfaces should be fixed.
+domain_auto_trans(unconfined_t,unconfined_execmem_exec_t,unconfined_execmem_t)
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+> interface(`unconfined_dbus_send',`
+> 	allow $1 { unconfined_t unconfined_execmem_t }:dbus send_msg;
+> ')
+>
+>   
 
 
 --
