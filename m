@@ -1,57 +1,44 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JDsP2k005167
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 09:54:25 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JDvXgn005279
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 09:57:33 -0400
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JDsMk7013441
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:54:23 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JDvUk7014325
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:57:31 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: Is SELinux appropriate for my use?
-Date: Fri, 19 May 2006 23:54:27 +1000
-Cc: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>,
-        selinux@tycho.nsa.gov
-References: <446A0CE9.6020708@gmail.com> <446CD37D.1020500@gmail.com> <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
-In-Reply-To: <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
+To: Maria Iano <maria@iano.org>
+Subject: Re: correct way to set context in perl?
+Date: Fri, 19 May 2006 23:57:35 +1000
+Cc: Erich Schubert <erich@debian.org>, selinux@tycho.nsa.gov
+References: <20060518160656.V26098@iano.org> <1147985248.3617.2.camel@wintermute.xmldesign.de> <20060518171245.Y26098@iano.org>
+In-Reply-To: <20060518171245.Y26098@iano.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200605192354.31161.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200605192357.39325.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 19 May 2006 17:08, Valdis.Kletnieks@vt.edu wrote:
-> (Aside for the list - anybody know why ftp.te in the 2.2.40 strict policy
-> has:
->
-> corecmd_exec_bin(ftpd_t)
-> corecmd_exec_sbin(ftpd_t)
-> # Execute /bin/ls (can comment this out for proftpd)
-> # also may need rules to allow tar etc...
-> corecmd_exec_ls(ftpd_t)
->
-> I know why ftpd's traditionally need /bin/ls - what are exec_bin and
-> exec_sbin there for?)
+On Friday 19 May 2006 07:12, Maria Iano <maria@iano.org> wrote:
+> Thanks for your response. The master and slave directories are separate.
+> The zones are divided into over a hundred different groups (and growing).
+> Individual users have access to edit zones in some groups and not others.
+> Each group has its own directory. Under each group's directory are the
+> master and slave directories. As new groups are created (by the perl
+> scripts), new directories need to be created (as well as new files) and I
+> need to be able to give them the correct security contexts, and there will
+> be two different types under each group directory.
 
-Traditionally ftp servers (IE the wuftpd) has supported "get file.gz" and
-"get directory.tar.gz" and the FTP server would have to execute programs 
-from /bin and /usr/bin accordingly.  This means that for the full ftpd 
-functionality corecmd_exec_bin is required.
+Why would each group require a separate slave directory?
 
-As for sbin, I'm not sure about that.
+The only reason why a user might need direct access to the slave directory is 
+to read files (for converting a slave into a master) and to unlink files 
+(after removing them from the BIND configuration).
 
-Incidentally I still don't think that we need separation of sbin_t and bin_t.  
-The choice of which programs go in which directories is rather arbitrary and 
-is not based on security criteria.  We have no expectation that sbin_t and 
-bin_t will have different integrity (the system integrity entirely depends on 
-the integrity of both those types) and we also expect that there is no secret 
-data labeled with either of those types.  So it seems to me that making 
-sbin_t and ls_exec_t both aliases for bin_t would be the correct thing to do.
-
-
-PS  Valdis, if you want to send email to me directly then you need to send it 
-through a mail server on a fixed IP address.  My mail server will reject 
-connections from any machine that is in a dialup range.
+Given that DNS data is essentially public allowing all groups to read each 
+other's data is not going to do any harm.  Also as the data is regenerated as 
+needed and always kept fresh the unlink problem can be solved by a cron job 
+that runs once per month and deletes old slave files.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
