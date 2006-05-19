@@ -1,93 +1,71 @@
-Date: Fri, 19 May 2006 13:04:03 -0400
-From: Maria Iano <maria@iano.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: correct way to set context in perl?
-Message-ID: <20060519130403.C26098@iano.org>
-References: <20060518160656.V26098@iano.org> <1147985248.3617.2.camel@wintermute.xmldesign.de> <20060518171245.Y26098@iano.org> <200605192357.39325.russell@coker.com.au> <20060519103127.A26098@iano.org> <20060519113334.B26098@iano.org> <1148053480.25168.150.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1148053480.25168.150.camel@moss-spartans.epoch.ncsc.mil>; from sds@tycho.nsa.gov on Fri, May 19, 2006 at 11:44:40AM -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JHYvUn011967
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:34:58 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JHYtfP009936
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 17:34:56 GMT
+Received: by wr-out-0506.google.com with SMTP id 58so655930wri
+        for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 10:34:55 -0700 (PDT)
+Message-ID: <446E01BB.4090600@gmail.com>
+Date: Sat, 20 May 2006 02:34:51 +0900
+From: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: Re: Is SELinux appropriate for my use?
+References: <446A0CE9.6020708@gmail.com> <200605171558.43653.russell@coker.com.au>            <446CD37D.1020500@gmail.com> <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
+In-Reply-To: <200605190708.k4J78PwJ013208@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You're right - I'll move the context types into the config file. I'll use the -t option as you suggest as well. Thanks very much for your help.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have a pair of .te and .fc files for my application, so next time it boots they will get labelled correctly anyway.
-
-Generating perl bindings is probably way out of my league, but I will take a look at it.
-
-Every time a zone is edited, the scripts append the diffs to a running log file of diffs for that zone. These files are kept in a directory called diffs and the name server never needs to read or write to them, so I gave it type etc_t because I don't know any better. So here is how it looks now:
-
-my $namedpath;
-if ($ARGV[0] =~ /--dir=([^)]+)/) {
-    $namedpath = $1;
-} else {
-    $namedpath = $config->{fulldirectory};
-}
-my $master_type = $config->{master_type} || 'named_zone_t';
-my $slave_type = $config->{slave_type} || 'named_cache_t';
-my $diff_type = $config->{diff_type} || 'etc_t';
-my $named_dir_type = $config->{named_dir_type} || $master_type;
-
-unless ($namedpath) {
-    die "The zone path was not found in the configuration file";
-}
-unless (-e $namedpath) {
-    die "Could not create directory $namedpath" unless mkdir($namedpath,0770);
-    system ('chcon','-t',$named_dir_type,"$namedpath");
-}
-unless (-e "$namedpath/slaves") {
-    die "Could not create directory $namedpath/slaves"
-                  unless mkdir("$namedpath/slaves",0770);
-    system ('chcon','-t',$slave_type,"$namedpath/slaves");
-}
-unless (-e "$namedpath/diffs") {
-    die "Could not create directory $namedpath/diffs"
-                  unless mkdir("$namedpath/diffs",0770);
-    system ('chcon','-t',$diff_type,"$namedpath/diffs");
-}
-my $masterpath = "$namedpath/master";
-unless (-e $masterpath) {
-    die "Could not create directory $masterpath" unless mkdir($masterpath,0770);
-    system ('chcon','-t',$master_type,"$masterpath");
-}
-
-Thanks for your help,
-Maria
-
-On Fri, May 19, at 11:44%P so wrote Stephen Smalley (sds@tycho.nsa.gov):
-
-> On Fri, 2006-05-19 at 11:33 -0400, Maria Iano wrote:
-> > Even after reorganizing the directories I still see the need for setting context from a perl script. The first time the application runs the directories may not be there. So I've added this to one of the scripts, and it does seem to do what I need. I would appreciate any comments/advice on a better approach to this:
-> > 
-> > unless ($zonepath) {
-> >     die "The zone path was not found in the configuration file";
-> > }
-> > unless (-e $zonepath) {
-> >     die "Could not create directory $zonepath" unless mkdir($zonepath,0770);
-> >     system ("chcon","system_u:object_r:named_zone_t","$zonepath");
-> >     die "Could not create directory $zonepath/slaves"
-> >                   unless mkdir("$zonepath/slaves",0770);
-> >     system ("chcon","system_u:object_r:named_cache_t","$zonepath/slaves");
-> > }
-> > my $datapath = "$zonepath/master";
-> > unless (-e $datapath) {
-> >     die "Could not create directory $datapath" unless mkdir($datapath,0770);
-> >     system ("chcon","system_u:object_r:named_zone_t","$datapath");
-> > }
+Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 19 May 2006 05:05:17 +0900, Tetsuji Maverick Rai said:
 > 
-> If using chcon, use the -t option so that you only need to specify the
-> type (named_zone_t) and let the rest of the context be inferred.
-> Ideally, you'd get even the type name from some config file.
+>> What if apache's permission is set so that it isn't allowed to execute
+>> most commands?    But actually most commands (i.e. even cat, ls) can be
+>> dangerous, because it will display files containing mysql password.   So
+>> does SELinux exist to prevent attackers from executing these "usual"
+>> programs with http server's permissions(role)?   If so, I can understand
+>> a bit....actually I understand this is secure.
 > 
-> python bindings have been added to libselinux via swig; generating perl
-> bindings might be simple, particularly for simple functions like
-> setfilecon(3).
+> Remember - the design of SELinux is that *nothing* is permitted, unless
+> there's something in the policy that specifically says it's allowed.
+> So Apache can't even run /bin/cat unless there is a rule that says something
+> in httpd_t context (apache) is allowed to run bin_t binaries (bin_t includes
+> most common binaries).  However, /bin/ls *isn't* a bin_t, there's a separate
+> ls_exec_t for it, so things like ftpd can be restricted to be able to
+> run /bin/ls, but not other things in /bin.
 > 
-> -- 
-> Stephen Smalley
-> National Security Agency
+
+Thank you for clarifying that.  I understand it's very secure in
+invoking other commands from PHP.  Then how about this situation?   PHP
+itself has several functions manipulate files and mysql databases (of
+course there are much more, but I use mainly mysql).  I guess *if* PHP
+is hacked, arbitrary mysql functions (and others) are executed freely,
+and my mydql database can be damaged.  Is it right?
+
+- -Tetsuji
+- --
+Tetsuji 'Maverick' Rai
+Main http://maverick6664.bravehost.com/
+Profile:
+http://setiweb.ssl.berkeley.edu/beta/view_profile.php?userid=123
+pubkey http://mav.atspace.com/tmr_at_gmail.txt
+PGP Key ID: 82335CD9
+Key fingerprint = 41CA 94B4 2A89 3FF1 5B11  BC37 D597 E667 8233 5CD9
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEbgG61ZfmZ4IzXNkRArJtAJ0QmZpWAAIVEquf6yHJh8YYLYdZ4QCdHWMn
+nhej+ZdMkjKDXsj+mxiiIlk=
+=niUJ
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
