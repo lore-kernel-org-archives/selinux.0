@@ -1,50 +1,56 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Joshua Brindle <method@gentoo.org>
-Subject: Re: Real simple cache that removes most of the lookups in mcstrans
-Date: Fri, 19 May 2006 23:32:56 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <446AFED3.9010800@redhat.com> <446B3B51.1060703@redhat.com> <446B3E11.6040302@gentoo.org>
-In-Reply-To: <446B3E11.6040302@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200605192333.01639.russell@coker.com.au>
+Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
+	of inode security contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+        Daniel J Walsh <dwalsh@redhat.com>, SELinux-dev@tresys.com,
+        James Morris <jmorris@redhat.com>
+In-Reply-To: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
+References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 19 May 2006 09:44:56 -0400
+Message-Id: <1148046296.25168.89.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 18 May 2006 01:15, Joshua Brindle <method@gentoo.org> wrote:
-> > Yes, you mean translation change, I think.  Since I do not see where
-> > policy reload would effect this.  We could add some kind of timer to
-> > this, but refreshing the cache is a small problem, but this same
-> > problem existed with shared libraries.
->
-> Because on an MLS system the server will be deciding whether or not you
-> have permission to see a particular translation and a policy reload
-> would affect that. The same problem did exist with the shared libraries
-> but we aren't using them anymore :) the server should be smart enough to
-> handle this. If client side caching is really desired it needs to work
-> like an avc where you can get flush notifications from the server.
+On Mon, 2006-05-15 at 12:35 -0400, Stephen Smalley wrote:
+> With this patch applied, the following sequence is possible, subject to
+> policy, which must allow <domain> security_t:security labelpriv; and
+> allow unlabeled_t fs_t:filesystem associate; in order for this to work
+> in enforcing mode.  Note that unconfined_t implicitly picks up all
+> security permissions at present due to the use of a wildcard for the
+> permission set in its rule.  However, you still need the second allow
+> rule as well in order for this to succeed in enforcing mode.  
+> 
+> # touch foo
+> # chcon -t foo_exec_t foo
+> # ls -Z foo
+> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
+> # semodule -i foo.pp # defines foo_exec_t
+> # ls -Z foo
+> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
+> # semodule -r foo
+> # ls -Z foo
+> -rw-r--r--  root root system_u:object_r:unlabeled_t    foo
+> # semodule -i foo.pp
+> # ls -Z foo
+> -rw-r--r--  root root user_u:object_r:foo_exec_t       foo
 
-Client side caching is not required to work the same way as server-side.
-
-The idea behind SE Linux is that the kernel enforces access control in almost 
-all situations, and that applications which enforce access control are the 
-exception (this means crond, login programs, the X server for SE-X, and not 
-much else).
-
-If an application such as "ls" gets a copy of the translation data then there 
-is no point in writing the library code such that the data can not be 
-(easily) displayed a second time.  The information once available is presumed 
-to have already been displayed to the user or stored in a way such that it 
-can be obtained in another manner.
+Eric Paris pointed out that the above behavior violates the principle of
+least surprise for users (chcon appears to succeed but leaves the file
+with unlabeled_t).  So to clarify:  The intent would be to exclude
+labelpriv permission from even unconfined_t and to only allow it to
+specific program domains (initially only package manager domains) where
+the program expects such behavior and performs some verification
+separately once the file context is expected to be valid.  Of course,
+this requires that rpm_t not be an alias of unconfined_t, which is true
+in FC5 (but not in FC4).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
