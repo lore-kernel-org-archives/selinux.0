@@ -1,57 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JHcn0Q012080
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:38:49 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JHcmfP010292
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 17:38:49 GMT
-Subject: Re: Latest diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <446DD270.4090703@redhat.com>
-References: <446C9926.5070802@redhat.com>
-	 <1148047494.31984.56.camel@sgc.columbia.tresys.com>
-	 <446DD270.4090703@redhat.com>
-Content-Type: text/plain
-Date: Fri, 19 May 2006 13:40:51 -0400
-Message-Id: <1148060451.31984.67.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4JHdUE4012113
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 13:39:30 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4JHdTfP010793
+	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 17:39:29 GMT
+Received: by wr-out-0506.google.com with SMTP id 58so656740wri
+        for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 10:39:29 -0700 (PDT)
+Message-ID: <446E02CE.7050007@gmail.com>
+Date: Sat, 20 May 2006 02:39:26 +0900
+From: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Which filesystem is the best for SELinux
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-19 at 10:13 -0400, Daniel J Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Thu, 2006-05-18 at 11:56 -0400, Daniel J Walsh wrote:
-> >> Added unconfined_execmem_exec_t so that I can change the global 
-> >> allow_execmem to off.  OpenOffice, valgrind and mplayer need it.  
-> >> Probably could eliminate java, and wine domain and change to this.
-> >>     
-> >
-> > I think this would be better if we had this transparently integrated
-> > into the unconfined policy.  So we just add the rules to unconfined.te,
-> > and put the domain transition into unconfined_domtrans().  The
-> > differences between the two domains is just the execmem, so it should be
-> > ok.  In fact this might be a simple example of hierarchy.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So basically, we want unconfined_execmem_t to be the exact same as
-unconfined_t, except have execmem too.  So the best way to do that would
-be to have the unconfined interfaces also act on unconfined_execmem_t.
-For example:
+I'm now considering installing SELinux on my Gentoo (I have a little
+experience with old redhat 8 or 9 with ext3).  However, I'm wondering
+which filesystem to use.  I want journaling filesystem, and stability
+comes first, then speed.
 
-interface(`unconfined_domtrans',`
-	domain_auto_trans($1,unconfined_exec_t,unconfined_t)
-	domain_auto_trans($1,unconfined_execmem_exec_t,unconfined_execmem_t)
-')
+Now I'm considering jfs. Next xfs.  Any pros and cons?   There may be a
+controversy.
 
-interface(`unconfined_dbus_send',`
-	allow $1 { unconfined_t unconfined_execmem_t }:dbus send_msg;
-')
+Thanks in advance.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+- -Tetsuji
+- --
+Tetsuji 'Maverick' Rai
+Main http://maverick6664.bravehost.com/
+Profile:
+http://setiweb.ssl.berkeley.edu/beta/view_profile.php?userid=123
+pubkey http://mav.atspace.com/tmr_at_gmail.txt
+PGP Key ID: 82335CD9
+Key fingerprint = 41CA 94B4 2A89 3FF1 5B11  BC37 D597 E667 8233 5CD9
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEbgLM1ZfmZ4IzXNkRAnfSAKCeoOru/BwfncmYKC0TscoKlJ0s7QCgud3c
+cDUF4MQ94ZJLtXn3W3kS4So=
+=M86e
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
