@@ -1,94 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4K03UP9020006
-	for <selinux@tycho.nsa.gov>; Fri, 19 May 2006 20:03:31 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4K03PfP021276
-	for <selinux@tycho.nsa.gov>; Sat, 20 May 2006 00:03:27 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4KCDqPo030343
+	for <selinux@tycho.nsa.gov>; Sat, 20 May 2006 08:13:53 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4KCDnI5019236
+	for <selinux@tycho.nsa.gov>; Sat, 20 May 2006 12:13:50 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: fc5 policy patch
-Date: Sat, 20 May 2006 10:03:06 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <200605200005.12042.russell@coker.com.au> <446DDF0E.2080803@redhat.com>
-In-Reply-To: <446DDF0E.2080803@redhat.com>
+To: Maria Iano <maria@iano.org>
+Subject: Re: correct way to set context in perl?
+Date: Sat, 20 May 2006 22:13:52 +1000
+Cc: Erich Schubert <erich@debian.org>, selinux@tycho.nsa.gov
+References: <20060518160656.V26098@iano.org> <200605192357.39325.russell@coker.com.au> <20060519103127.A26098@iano.org>
+In-Reply-To: <20060519103127.A26098@iano.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200605201003.09975.russell@coker.com.au>
+Message-Id: <200605202213.56675.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 20 May 2006 01:06, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Russell Coker wrote:
-> > Attached is a patch against policy 2.2.38-1.fc5, the most significant
-> > thing it does is to get Amavis and Clamav working.
-> >
-> > I notice that Dan has just sent a patch against the rawhide policy to the
-> > list with a slightly different set of Amavis changes.  Without reviewing
-> > them carefully it seems to me that Dan's patch won't make a default
-> > fedora-extras anti-virus system work.  Some of the things that are done
-> > with the fedora-extras packages aren't optimal in regard to SE Linux
-> > (such as the locations of some of the PID files and socket files).
-> >
-> > My patch makes the anti-virus setup basically work.  Due to the
-> > complexity of the system there is a possibility of corner cases that I've
-> > missed, but the only way we will discover that is to get this policy
-> > released and have people try it.
->
-> See questions in the patch.
->
-> > ------------------------------------------------------------------------
-> >
-> > diff -ru serefpolicy-2.2.38.orig/policy/modules/services/amavis.fc
-> > serefpolicy-2.2.38/policy/modules/services/amavis.fc ---
-> > serefpolicy-2.2.38.orig/policy/modules/services/amavis.fc	2006-05-08
-> > 23:54:01.000000000 +1000 +++
-> > serefpolicy-2.2.38/policy/modules/services/amavis.fc	2006-05-19
-> > 23:36:05.000000000 +1000 @@ -7,5 +7,7 @@
-> >  /var/amavis(/.*)?			gen_context(system_u:object_r:amavis_var_lib_t,s0)
-> > 
-> > /var/lib/amavis(/.*)?			gen_context(system_u:object_r:amavis_var_lib_t,s0
-> >)
-> > /var/log/amavisd\.log		--	gen_context(system_u:object_r:amavis_var_log_t,
-> >s0)
-> > -/var/run/amavis(/.*)?			gen_context(system_u:object_r:amavis_var_run_t,s
-> >0) +/var/run/amavis(d)?/amavisd.lock
-> > --	gen_context(system_u:object_r:amavis_var_run_t,s0)
->
-> Why would you make this change?  Why not
->
-> -/var/run/amavisi(d)?(/.*)?			gen_context(system_u:object_r:amavis_var_run_
->t,s0)
+On Saturday 20 May 2006 00:31, Maria Iano <maria@iano.org> wrote:
+> So for now I don't need to know the best approach to have a perl script set
+> the security context of a file. I would guess that I will need to do it at
+> some point in the future - if not for this application then for something
+> else. I would really appreciate if someone could help me understand the
+> best approach for this. Is it best to design and code to avoid having to do
+> it (as in this case where I redesigned the directory structure)? If so, I'd
+> like to know why.
 
-As mentioned above the Fedora Extras packages are doing some sub-optimal 
-things, one of these is having the clamd.amavisd program use 
-the /var/run/amavisd directory for it's pid file.  Allowing clamd_t to write 
-to a directory of type amavis_var_run_t seems to provide little benefit and 
-some extra pain, and we have Unix permissions to provide some protection on 
-access to that directory.
+I am not a great Perl programmer, so I probably can't give the best answer to 
+this.
 
-> > /var/run/clamav(/.*)?			gen_context(system_u:object_r:clamd_var_run_t,s0)
-> > /var/run/clamav/clamd.ctl	-s	gen_context(system_u:object_r:clamd_sock_t,s
-> >0)
-> > +/var/run/amavis(d)?/clamd.pid	--	gen_context(system_u:object_r:clamd_var
-> >_run_t,s0)
->
-> This looks like a bug?
+I believe that it is possible to call any system call from Perl, so you could 
+set the XATTR values directly, but to correctly support MCS/MLS you need a 
+Perl interface to libselinux (which is quite possible, we just need someone 
+to write it).
 
-That is of course a matter of opinion.  The Unix-only people would say that 
-two processes in the same UID should share the same directory, it's only for 
-SE Linux that we would want a different directory.
+Another possibility is to execute chcon.  If you only have a small number of 
+files to relabel (or if you are using the -R option) then the performance 
+overhead will be negligible.
 
-
-Policy evolves, and we will revisit these issues at some future time.  
-Packages change too, the Amavis and Clamav packages will hopefully change a 
-few things in this regard.  But in the mean time the policy as I provided 
-works reasonably well.
-
-I guess that one thing we might consider is merging the clamd_t and amavis_t 
-domains, the people who wrote them seem to think that they don't need to be 
-protected from each other...
+Finally if the file contexts that you desire match the file_contexts file then 
+you can execute restorecon.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
