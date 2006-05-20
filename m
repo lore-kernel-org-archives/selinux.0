@@ -1,53 +1,64 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4KCDqPo030343
-	for <selinux@tycho.nsa.gov>; Sat, 20 May 2006 08:13:53 -0400
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4KCDnI5019236
-	for <selinux@tycho.nsa.gov>; Sat, 20 May 2006 12:13:50 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Maria Iano <maria@iano.org>
-Subject: Re: correct way to set context in perl?
-Date: Sat, 20 May 2006 22:13:52 +1000
-Cc: Erich Schubert <erich@debian.org>, selinux@tycho.nsa.gov
-References: <20060518160656.V26098@iano.org> <200605192357.39325.russell@coker.com.au> <20060519103127.A26098@iano.org>
-In-Reply-To: <20060519103127.A26098@iano.org>
+Message-ID: <446F8E7C.8010503@gentoo.org>
+Date: Sat, 20 May 2006 17:47:40 -0400
+From: Joshua Brindle <method@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200605202213.56675.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Real simple cache that removes most of the lookups in mcstrans
+References: <446AFED3.9010800@redhat.com> <446B3B51.1060703@redhat.com>	 <446B3E11.6040302@gentoo.org> <200605192333.01639.russell@coker.com.au>	 <446DCD4C.6000303@gentoo.org> <1148047642.25168.107.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1148047642.25168.107.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 20 May 2006 00:31, Maria Iano <maria@iano.org> wrote:
-> So for now I don't need to know the best approach to have a perl script set
-> the security context of a file. I would guess that I will need to do it at
-> some point in the future - if not for this application then for something
-> else. I would really appreciate if someone could help me understand the
-> best approach for this. Is it best to design and code to avoid having to do
-> it (as in this case where I redesigned the directory structure)? If so, I'd
-> like to know why.
-
-I am not a great Perl programmer, so I probably can't give the best answer to 
-this.
-
-I believe that it is possible to call any system call from Perl, so you could 
-set the XATTR values directly, but to correctly support MCS/MLS you need a 
-Perl interface to libselinux (which is quite possible, we just need someone 
-to write it).
-
-Another possibility is to execute chcon.  If you only have a small number of 
-files to relabel (or if you are using the -R option) then the performance 
-overhead will be negligible.
-
-Finally if the file contexts that you desire match the file_contexts file then 
-you can execute restorecon.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley wrote:
+> On Fri, 2006-05-19 at 09:51 -0400, Joshua Brindle wrote:
+>   
+>> Russell Coker wrote:
+>>     
+>>> If an application such as "ls" gets a copy of the translation data then there 
+>>> is no point in writing the library code such that the data can not be 
+>>> (easily) displayed a second time.  The information once available is presumed 
+>>> to have already been displayed to the user or stored in a way such that it 
+>>> can be obtained in another manner.
+>>>   
+>>>       
+>> If that were true we wouldn't revoke access to file descriptors (or 
+>> files) after a policy reload.
+>>     
+>
+> Not the same thing.  Revoking data != revoking object capabilities.  The
+> data has already leaked.  Revoking the object capability prevents
+> reading of _new_ data from the object, and writing of data to the
+> object.  But the already read data has already migrated into the state
+> of the client.
+>   
+That is a tricky distinction. AFAIK the servers that do access control 
+for translations essentially treat the translation itself as the object 
+(by using the untranslated context as the target object with a specific 
+object class). I understand that you can't revoke access to the data in 
+a file that a program read, only further access to the file. And I know 
+that the client can cache the information outside of the library. My 
+point is that if the access changes the client potentially won't know 
+because the library is transparently caching the information and not 
+consulting the server.
+>   
+>>  And you are still ignoring the case where 
+>> the translation actually changes. My worry isn't ls (which is one-shot, 
+>> and executes quickly most of the time), _anything_ that uses this 
+>> library code now caches the answer and if its a long running process 
+>> then it has no way of knowing when translations have changed or access 
+>> has been revoked.
+>>     
+>
+> Notifications of changes to the translations make sense for correctness.
+> Not so much of an access control issue
+Understood, however, if the client is providing a translation service 
+for a user (or other application) it should get notification if that 
+user/app should no longer be able to see the translation, right? The 
+translations are treated like objects in this scheme, unless I'm 
+misunderstanding something.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
