@@ -1,63 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4L7xgnc014622
-	for <selinux@tycho.nsa.gov>; Sun, 21 May 2006 03:59:43 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4L7xb7l018112
-	for <selinux@tycho.nsa.gov>; Sun, 21 May 2006 07:59:38 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4LNTxGC001947
+	for <selinux@tycho.nsa.gov>; Sun, 21 May 2006 19:30:00 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4LNTvou021662
+	for <selinux@tycho.nsa.gov>; Sun, 21 May 2006 23:29:58 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: Is SELinux appropriate for my use?
-Date: Sun, 21 May 2006 17:59:40 +1000
-Cc: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>,
-        selinux@tycho.nsa.gov
-References: <446A0CE9.6020708@gmail.com> <200605192354.31161.russell@coker.com.au> <200605210347.k4L3lwl9012271@turing-police.cc.vt.edu>
-In-Reply-To: <200605210347.k4L3lwl9012271@turing-police.cc.vt.edu>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: daemons and MCS categories
+Date: Mon, 22 May 2006 09:30:02 +1000
+Cc: Shintaro Fujiwara <shin216@xf7.so-net.ne.jp>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200605211759.45312.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200605220930.05483.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 21 May 2006 13:47, Valdis.Kletnieks@vt.edu wrote:
-> > > I know why ftpd's traditionally need /bin/ls - what are exec_bin and
-> > > exec_sbin there for?)
-> >
-> > Traditionally ftp servers (IE the wuftpd) has supported "get file.gz" and
-> > "get directory.tar.gz" and the FTP server would have to execute programs
-> > from /bin and /usr/bin accordingly.  This means that for the full ftpd
-> > functionality corecmd_exec_bin is required.
->
-> OK.. so exec_bin is there because nobody has done the work to tag tar/zcat
-> similar to the existing tagging of /bin/ls.
+It seems to me that there is a benefit to giving some categories to daemons.
 
-I don't think that we want to go down that path.  Having separate rules for 
-every program that wants to call tar or gzip will be painful and cause 
-pointless increases in policy size.
+For example we may have two different categories for files that should be 
+protected from each other but which are to be shared by Apache (note that 
+categories in MCS are used for protecting integrity as well as 
+confidentiality).
 
-> > Incidentally I still don't think that we need separation of sbin_t and
-> > bin_t. The choice of which programs go in which directories is rather
-> > arbitrary and is not based on security criteria.  We have no expectation
-> > that sbin_t and bin_t will have different integrity (the system integrity
-> > entirely depends on the integrity of both those types) and we also expect
-> > that there is no secret data labeled with either of those types.  So it
-> > seems to me that making sbin_t and ls_exec_t both aliases for bin_t would
-> > be the correct thing to do.
->
-> I agree that sbin_t and bin_t should be merged - the original bin vs sbin
-> distinction was that "user stuff in bin, stuff used by admins in sbin". But
-> then stuff like 'ping' ended up in sbin and blurred things.
+One idea that occurred to me is to give Apache (and other daemons) categories 
+c128.c255.  Then there are 128 categories that can be used to restrict access 
+of files that should not be accessed by daemons and 128 categories that can 
+be used for files that can be accessed by daemons.
 
-Ping is in /bin on my system, ping would not blur things in the case of SE 
-Linux because it has it's own type for other (and better) reasons.
+Another possibility is to have the ability to configure which categories are 
+assigned to a daemon via run_init or some similar program.  It would not be 
+difficult to read a config file that maps the domain of a daemon to the range 
+that should be granted to it.
 
-> I'm not sure if ls_exec_t should go - the alternative is to also tag 'tar'
-> and 'zcat' and whatever else is needed by FTP servers that support the
-> automagic .tar.gz stuff.
 
-If bin_t and sbin_t should be merged (as I believe they should) then ls_exec_t 
-should definitely go!
+What do you think?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
