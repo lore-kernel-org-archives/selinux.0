@@ -1,64 +1,50 @@
-Message-ID: <446F8E7C.8010503@gentoo.org>
-Date: Sat, 20 May 2006 17:47:40 -0400
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joshua Brindle <method@gentoo.org>
 Subject: Re: Real simple cache that removes most of the lookups in mcstrans
-References: <446AFED3.9010800@redhat.com> <446B3B51.1060703@redhat.com>	 <446B3E11.6040302@gentoo.org> <200605192333.01639.russell@coker.com.au>	 <446DCD4C.6000303@gentoo.org> <1148047642.25168.107.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1148047642.25168.107.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Sun, 21 May 2006 13:31:03 +1000
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <446AFED3.9010800@redhat.com> <1148047642.25168.107.camel@moss-spartans.epoch.ncsc.mil> <446F8E7C.8010503@gentoo.org>
+In-Reply-To: <446F8E7C.8010503@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200605211331.09223.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2006-05-19 at 09:51 -0400, Joshua Brindle wrote:
->   
->> Russell Coker wrote:
->>     
->>> If an application such as "ls" gets a copy of the translation data then there 
->>> is no point in writing the library code such that the data can not be 
->>> (easily) displayed a second time.  The information once available is presumed 
->>> to have already been displayed to the user or stored in a way such that it 
->>> can be obtained in another manner.
->>>   
->>>       
->> If that were true we wouldn't revoke access to file descriptors (or 
->> files) after a policy reload.
->>     
->
-> Not the same thing.  Revoking data != revoking object capabilities.  The
-> data has already leaked.  Revoking the object capability prevents
-> reading of _new_ data from the object, and writing of data to the
-> object.  But the already read data has already migrated into the state
-> of the client.
->   
-That is a tricky distinction. AFAIK the servers that do access control 
-for translations essentially treat the translation itself as the object 
-(by using the untranslated context as the target object with a specific 
-object class). I understand that you can't revoke access to the data in 
-a file that a program read, only further access to the file. And I know 
-that the client can cache the information outside of the library. My 
-point is that if the access changes the client potentially won't know 
-because the library is transparently caching the information and not 
-consulting the server.
->   
->>  And you are still ignoring the case where 
->> the translation actually changes. My worry isn't ls (which is one-shot, 
->> and executes quickly most of the time), _anything_ that uses this 
->> library code now caches the answer and if its a long running process 
->> then it has no way of knowing when translations have changed or access 
->> has been revoked.
->>     
->
-> Notifications of changes to the translations make sense for correctness.
-> Not so much of an access control issue
-Understood, however, if the client is providing a translation service 
-for a user (or other application) it should get notification if that 
-user/app should no longer be able to see the translation, right? The 
-translations are treated like objects in this scheme, unless I'm 
-misunderstanding something.
+On Sunday 21 May 2006 07:47, Joshua Brindle <method@gentoo.org> wrote:
+> a file that a program read, only further access to the file. And I know
+> that the client can cache the information outside of the library. My
+> point is that if the access changes the client potentially won't know
+> because the library is transparently caching the information and not
+> consulting the server.
+
+That depends on the client.  I believe that the operation of ls will not 
+become any less correct in the face of translation caching and changes to 
+translations during the run-time of ls.  Having a listing of files in a 
+directory (or tree) that is translated in different ways is not a good 
+result, the only way for ls to have a consistent result in such situations is 
+to have more caching such that a translation will never change for the 
+duration of the process!
+
+> Understood, however, if the client is providing a translation service
+> for a user (or other application) it should get notification if that
+> user/app should no longer be able to see the translation, right? The
+> translations are treated like objects in this scheme, unless I'm
+> misunderstanding something.
+
+That might be suitable for some programs, but is not required for ls or ps.
+
+What if we have a cache that defaults to on but which can be turned off on 
+demand by programs that have special requirements in that regard?
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
