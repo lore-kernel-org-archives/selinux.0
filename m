@@ -1,85 +1,51 @@
-Message-ID: <4471BA2C.7090806@us.ibm.com>
-Date: Mon, 22 May 2006 09:18:36 -0400
-From: Janak Desai <janak@us.ibm.com>
-MIME-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4MG16Do016763
+	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 12:01:06 -0400
+Received: from wx-out-0102.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4MG15dN010891
+	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 16:01:05 GMT
+Received: by wx-out-0102.google.com with SMTP id i29so772192wxd
+        for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 09:01:05 -0700 (PDT)
+Message-ID: <4ef5fec60605220503u6ffa3b91hecb4a58d1f465b00@mail.gmail.com>
+Date: Mon, 22 May 2006 05:03:00 -0700
+From: coderman <coderman@gmail.com>
 To: russell@coker.com.au
-CC: tmraz@redhat.com, sds@tycho.nsa.gov, valdis.kletnieks@vt.edu,
-        serue@us.ibm.com, klaus@atsec.com, selinux@tycho.nsa.gov
-Subject: Re: pam_namespace improvements ..
-References: <44710A40.4060309@us.ibm.com> <200605221105.55104.russell@coker.com.au>
-In-Reply-To: <200605221105.55104.russell@coker.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Which filesystem is the best for SELinux
+Cc: "Tetsuji Maverick Rai" <tetsuji.maverick.rai@gmail.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <200605212330.23218.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <446E02CE.7050007@gmail.com>
+	 <200605212330.23218.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+On 5/21/06, Russell Coker <russell@coker.com.au> wrote:
+> On Saturday 20 May 2006 03:39, Tetsuji Maverick Rai
+> <tetsuji.maverick.rai@gmail.com> wrote:
+> > ... I'm wondering
+> > which filesystem to use.  I want journaling filesystem, and stability
+> > comes first, then speed.
+> ...
+> If you don't like ext3 then it seems that XFS is your only option for running
+> SE Linux.
 
->On Monday 22 May 2006 10:48, Janak Desai <janak@us.ibm.com> wrote:
->  
->
->>After going thorugh the pam_namespace thread again and after talking to
->>some of my peeps, I do see that a mode 000 instance parent can thwart
->>attacks by non-root daemons and non-polyinstanted users on polyinstanted
->>users.
->>    
->>
->
->OK.
->
->  
->
->>The current implementation of pam_namespace already depends on the
->>existance of the instance parent and allows the admin to configure the
->>names of different instances. I will update the namespace.conf man page,
->>and the comment text in the namespace.conf file to guide admins to
->>appropriately create a different instance parent (and not use the poly
->>dir itself, like the current example suggests). That way, an admin can
->>create an intermediate directory like .inst with 000 or create a whole
->>different directory with 000.
->>    
->>
->
->I'm glad that we have agreement on this issue.  However I would like to go 
->further.
->
->I would like to have the default configuration of major distributions (Fedora, 
->Debian, and Gentoo) have some changes to make things more secure in this 
->regard.
->
->I believe that we need a script run at boot time to create such directories if 
->they don't exist and rename a directory with the name but the wrong 
->permissions before creating it if necessary.  Having the administrator create 
->the directory with mkdir and then chmod it will work for Fedora IFF a 
->persistent file system is used for /tmp.  Due to other issues SE Linux 
->compels the use of a persistent file system for /tmp at this time (I consider 
->this a bug and have long-term plans to fix it), however we also want to 
->support non-SE users.
->
->I also believe that pam_namespace should have the optional ability (determined 
->by a command-line parameter or a config-file setting) to verify the Unix 
->permissions and SE Linux context of the mode 000 directory and reject user 
->logins if the permissions are considered to be inappropriate.
->
->Configuration tools to support enabling all this functionality in a convenient 
->manner would also be good.
->
->  
->
-Ok, thanks. I will add an option to pam_namespace to allow an admin to 
-NOT check
-the mode of the instance parent. By default, pam_namespace will require 
-the mode
-to be 000. As far as SELinux context, what is the appropriate context 
-for an instance
-parent? Isn't it ok to leave that upto the system security policy? 
-Because of different
-types of polyinstantiated directories, I cannot comprehend a definitive 
-context
-that pam_namespace could/should check for.
+i would also recommend XFS and have been using it for many years.  you
+may need to build a kernel with "XFS Security Label support" enabled
+if it is not present already.
 
-Thanks.
+the reasons i prefer XFS over ext3 are:
+- faster file system creation, especially for very large volumes
+(hundreds of GB+)
+- faster journal recovery upon failure
+- optional quota support
 
--Janak
+the reasons you might want to use ext3 instead of XFS:
+- many distributions do not support installing to or booting from XFS
+- ext3 can be mounted as an ext2 file system during recovery or for
+other reasons.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
