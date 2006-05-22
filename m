@@ -1,23 +1,35 @@
-Subject: Re: Support for MLS in SELinux
+Subject: Re: Real simple cache that removes most of the lookups in mcstrans
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Mohammad Mahmoudi <mahmoudi1379@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20060522081221.52218.qmail@web50401.mail.yahoo.com>
-References: <20060522081221.52218.qmail@web50401.mail.yahoo.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: James Antill <james.antill@redhat.com>, Steve Grubb <sgrubb@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <446B69E9.8020105@redhat.com>
+References: <446AFED3.9010800@redhat.com>
+	 <1147879972.3469.139.camel@code.and.org>  <446B69E9.8020105@redhat.com>
 Content-Type: text/plain
-Date: Mon, 22 May 2006 14:08:39 -0400
-Message-Id: <1148321319.24463.114.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 22 May 2006 16:45:24 -0400
+Message-Id: <1148330724.24463.137.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-05-22 at 01:12 -0700, Mohammad Mahmoudi wrote:
-> Does SELinux support the MLS (Multi-Level Security) completely?
+On Wed, 2006-05-17 at 14:22 -0400, Daniel J Walsh wrote:
+> Updated patch with
+> 
+> void fini_context_translations
+> 
+> memory checking on strdup
+> 
+> CACHETRANS flag in /etc/selinux/config to turn off cacheing
+> 
+> Lu -> llu change
+> 
+> I will leave a more complete caching solution for later...  This handled 
+> 99.9% of the cases.
 
-Some useful resources are linked from:
-http://fedoraproject.org/wiki/SELinux/MLS
-
-redhat-lspp is the primary list for the LSPP/MLS work.
+Hmmm..I never seemed to receive a version of this patch that actually
+checked the strdup calls and used %llu rather than %Lu, so I made those
+changes by hand.  Merged with those modifications.
 
 -- 
 Stephen Smalley
