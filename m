@@ -1,13 +1,13 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4MG8QbM017259
-	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 12:08:26 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4MGh26o019706
+	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 12:43:02 -0400
 Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4MG8PdN012277
-	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 16:08:25 GMT
-Received: by py-out-1112.google.com with SMTP id f25so1400197pyf
-        for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 09:08:25 -0700 (PDT)
-Message-ID: <4471E1F3.6030509@gmail.com>
-Date: Tue, 23 May 2006 01:08:19 +0900
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4MGh1dN021497
+	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 16:43:01 GMT
+Received: by py-out-1112.google.com with SMTP id f25so1409040pyf
+        for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 09:43:00 -0700 (PDT)
+Message-ID: <4471E88B.9020809@gmail.com>
+Date: Tue, 23 May 2006 01:36:27 +0900
 From: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>
 MIME-Version: 1.0
 To: coderman <coderman@gmail.com>
@@ -49,13 +49,13 @@ coderman wrote:
 > - ext3 can be mounted as an ext2 file system during recovery or for
 > other reasons.
 > 
-hmm...
 
-I have already installed SELinux on jfs. :)   According to SELinux
-document, jfs is also supported (of course security label support is
-enabled in the kernel config) and I compared the speeds on benchmark page.
-http://linuxgazette.net/102/piszcz.html
-but it's difficult to tell which is "best".
+PS: I installed on jfs, but if I am not satisfied with it (but
+unlikely), I will try xfs next.  Since I am using Gentoo and generic
+2.6.16.16 kernel with grub, booting filesystem isn't a factor.  Reading
+the last sentence, ext3 also sounds good, but it's slow and I have
+failed in file recovery some times with ext3....it may be personal
+preference.
 
 - -Tetsuji
 - --
@@ -71,9 +71,9 @@ Key fingerprint = 41CA 94B4 2A89 3FF1 5B11  BC37 D597 E667 8233 5CD9
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFEceHy1ZfmZ4IzXNkRAjr1AJ4ub3wRcGbglXKrPZuoUepVzdwqegCg69fv
-ennYoXik6PJt8bcgQD7FgMg=
-=ZYVQ
+iD8DBQFEceiJ1ZfmZ4IzXNkRAjgpAJ9cVszoZePZwCEFcHCStk/UThynlQCg+qY6
+bsDxRfNOMTyEIHZjeA9WnR4=
+=ABbg
 -----END PGP SIGNATURE-----
 
 --
