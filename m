@@ -1,31 +1,85 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4MFUuGe013997
-	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 11:30:56 -0400
-Received: from purple.iano.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4MFUlxb007055
-	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 15:30:48 GMT
-Received: from purple.iano.org (localhost [127.0.0.1])
-	by purple.iano.org (8.13.2/8.13.2) with ESMTP id k4MEkgIk005395
-	for <selinux@tycho.nsa.gov>; Mon, 22 May 2006 10:46:42 -0400 (EDT)
-Received: (from iano@localhost)
-	by purple.iano.org (8.13.2/8.13.2/Submit) id k4MEkgnR005394
-	for selinux@tycho.nsa.gov; Mon, 22 May 2006 10:46:42 -0400 (EDT)
-Date: Mon, 22 May 2006 10:46:42 -0400
-From: Maria Iano <maria@iano.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: correct way to set context in perl?
-Message-ID: <20060522104642.O26098@iano.org>
-References: <20060518160656.V26098@iano.org> <200605192357.39325.russell@coker.com.au> <20060519103127.A26098@iano.org> <200605202213.56675.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200605202213.56675.russell@coker.com.au>; from russell@coker.com.au on Sat, May 20, 2006 at 10:13:52PM +1000
+Message-ID: <4471BA2C.7090806@us.ibm.com>
+Date: Mon, 22 May 2006 09:18:36 -0400
+From: Janak Desai <janak@us.ibm.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: tmraz@redhat.com, sds@tycho.nsa.gov, valdis.kletnieks@vt.edu,
+        serue@us.ibm.com, klaus@atsec.com, selinux@tycho.nsa.gov
+Subject: Re: pam_namespace improvements ..
+References: <44710A40.4060309@us.ibm.com> <200605221105.55104.russell@coker.com.au>
+In-Reply-To: <200605221105.55104.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you all for your time and help with this. Using restorecon works well and I only need to store the correct context information in one place so that's the way to go. I am very impressed at how easy it was to write a couple of .te and .fc files and adapt my scripts. SELinus has been extremely well designed and implemented - thank you!
+Russell Coker wrote:
 
-Maria
+>On Monday 22 May 2006 10:48, Janak Desai <janak@us.ibm.com> wrote:
+>  
+>
+>>After going thorugh the pam_namespace thread again and after talking to
+>>some of my peeps, I do see that a mode 000 instance parent can thwart
+>>attacks by non-root daemons and non-polyinstanted users on polyinstanted
+>>users.
+>>    
+>>
+>
+>OK.
+>
+>  
+>
+>>The current implementation of pam_namespace already depends on the
+>>existance of the instance parent and allows the admin to configure the
+>>names of different instances. I will update the namespace.conf man page,
+>>and the comment text in the namespace.conf file to guide admins to
+>>appropriately create a different instance parent (and not use the poly
+>>dir itself, like the current example suggests). That way, an admin can
+>>create an intermediate directory like .inst with 000 or create a whole
+>>different directory with 000.
+>>    
+>>
+>
+>I'm glad that we have agreement on this issue.  However I would like to go 
+>further.
+>
+>I would like to have the default configuration of major distributions (Fedora, 
+>Debian, and Gentoo) have some changes to make things more secure in this 
+>regard.
+>
+>I believe that we need a script run at boot time to create such directories if 
+>they don't exist and rename a directory with the name but the wrong 
+>permissions before creating it if necessary.  Having the administrator create 
+>the directory with mkdir and then chmod it will work for Fedora IFF a 
+>persistent file system is used for /tmp.  Due to other issues SE Linux 
+>compels the use of a persistent file system for /tmp at this time (I consider 
+>this a bug and have long-term plans to fix it), however we also want to 
+>support non-SE users.
+>
+>I also believe that pam_namespace should have the optional ability (determined 
+>by a command-line parameter or a config-file setting) to verify the Unix 
+>permissions and SE Linux context of the mode 000 directory and reject user 
+>logins if the permissions are considered to be inappropriate.
+>
+>Configuration tools to support enabling all this functionality in a convenient 
+>manner would also be good.
+>
+>  
+>
+Ok, thanks. I will add an option to pam_namespace to allow an admin to 
+NOT check
+the mode of the instance parent. By default, pam_namespace will require 
+the mode
+to be 000. As far as SELinux context, what is the appropriate context 
+for an instance
+parent? Isn't it ok to leave that upto the system security policy? 
+Because of different
+types of polyinstantiated directories, I cannot comprehend a definitive 
+context
+that pam_namespace could/should check for.
 
+Thanks.
+
+-Janak
 
 --
 This message was distributed to subscribers of the selinux mailing list.
