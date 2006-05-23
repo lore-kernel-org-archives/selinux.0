@@ -1,49 +1,71 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4NLZZqR025022
-	for <selinux@tycho.nsa.gov>; Tue, 23 May 2006 17:35:35 -0400
-Received: from smtp-2.emich.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4NLZY9T016621
-	for <selinux@tycho.nsa.gov>; Tue, 23 May 2006 21:35:34 GMT
-Received: from [192.168.0.5] (c-69-140-139-57.hsd1.md.comcast.net [69.140.139.57])
-	(authenticated bits=0)
-	by smtp-2.emich.edu (8.13.1/8.13.1) with ESMTP id k4NLZTaX019858
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Tue, 23 May 2006 17:35:31 -0400
-Message-ID: <44738020.3090200@tubbs-net.com>
-Date: Tue, 23 May 2006 17:35:28 -0400
-From: Christopher L Tubbs II <chris@tubbs-net.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4NMFMwp025890
+	for <selinux@tycho.nsa.gov>; Tue, 23 May 2006 18:15:22 -0400
+Received: from mail8.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4NMFL9T020954
+	for <selinux@tycho.nsa.gov>; Tue, 23 May 2006 22:15:21 GMT
+Date: Tue, 23 May 2006 18:15:18 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Michael D Lemay <mdlemay2@cs.uiuc.edu>
+cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] keys: Kernel access key retention support for SELinux
+In-Reply-To: <9FD2C54661D3494AB6F269E0D4A74E83894570@DSBEXCLUSTER.ad.uiuc.edu>
+Message-ID: <Pine.LNX.4.64.0605231759580.4091@d.namei>
+References: <9FD2C54661D3494AB6F269E0D4A74E83894570@DSBEXCLUSTER.ad.uiuc.edu>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: HTTPD network access Policy Problem
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+You should run this by David Howells to make sure it's covering 
+everything correctly.
 
-Hi,
+There are many coding style violations and inconsistencies.
 
-I'm reasonably new to SELinux, but I noticed recently that a change I
-made in my policy (from the GUI system-config-securitylevel) a while
-back to allow the HTTPD to have network access so I can use Web-based
-mail scripts now does not seem to work. The only change I've made since
-then was period "yum update" with the occasionally policy updates
-through that. However, despite the fact that the GUI still shows the
-settings that I had changed in the past, the policy is still blocking
-access (It works in Permissive mode). Can anybody perhaps explain why
-this might be, and what specifically I should check to verify the
-settings and make this functional again?
+Please include a diffstat next time.
 
-Rainman
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> + * Produce a formatted explanation of a key permission value
+> + */
+> +void key_perm_expn (key_perm_t pm, char * buf) {
+> +  buf[0] = '\0';
+> +  if (pm & KEY_VIEW) {
+> +    strcat(buf, "view,");
 
-iD8DBQFEc4Afc/oGTmWP/osRAuMQAJ4kkjm6paSyTq6cfWn+I+DximpXXgCcDZYj
-4vYKYm2FIB462KuAeHVr+0c=
-=/P3k
------END PGP SIGNATURE-----
+You don't need to copy this data around all the time, just return pointers 
+to the strings.
+
+> +	/* no permissions requested, don't need to consult LSM */
+> +	if (perm == 0)
+> +	  return 0;
+
+You've added code to the kernel which is now unconditionally called even 
+if CONFIG_SECURITY=n.  Let the LSM do this.
+
+> -/* Check permission betweeen a pair of tasks, e.g. signal checks,
+> +/* Check permission between a pair of tasks, e.g. signal checks,
+
+Don't fix spelling mistakes (or anything cosmetic) in existing code 
+while adding new code.  
+
+> +
+> +	rc = secondary_ops->key_permission(key_ref, ctx, perm);
+
+You don't need to add a secondary ops call unless the capability LSM has a 
+hook defined for the permission.
+
+> +#define RETAINED_KEY__VIEW                        0x00000001UL
+
+> +    S_("retained_key")
+
+This naming is ugly, just call it 'key', which is what the key subsystem 
+does.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
