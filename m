@@ -1,39 +1,40 @@
-Subject: Re: Real simple cache that removes most of the lookups in mcstrans
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: James Antill <james.antill@redhat.com>, Steve Grubb <sgrubb@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <446B69E9.8020105@redhat.com>
-References: <446AFED3.9010800@redhat.com>
-	 <1147879972.3469.139.camel@code.and.org>  <446B69E9.8020105@redhat.com>
-Content-Type: text/plain
-Date: Mon, 22 May 2006 16:45:24 -0400
-Message-Id: <1148330724.24463.137.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4NF7uQG015175
+	for <selinux@tycho.nsa.gov>; Tue, 23 May 2006 11:07:56 -0400
+Received: from kakou.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4NF7s9T025856
+	for <selinux@tycho.nsa.gov>; Tue, 23 May 2006 15:07:55 GMT
+Message-ID: <447326FC.7040103@kakou.org>
+Date: Tue, 23 May 2006 17:15:08 +0200
+From: kakou <kakou@kakou.org>
+Reply-To: kakou@kakou.org
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Problem with libselinux
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-17 at 14:22 -0400, Daniel J Walsh wrote:
-> Updated patch with
-> 
-> void fini_context_translations
-> 
-> memory checking on strdup
-> 
-> CACHETRANS flag in /etc/selinux/config to turn off cacheing
-> 
-> Lu -> llu change
-> 
-> I will leave a more complete caching solution for later...  This handled 
-> 99.9% of the cases.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hmmm..I never seemed to receive a version of this patch that actually
-checked the strdup calls and used %llu rather than %Lu, so I made those
-changes by hand.  Merged with those modifications.
+It looks that libselinux is not synchronized with the kernel.
+Indeed, the av_perm_to_string.h, av_permissions.h and av_inherit.h are
+from libselinux smaller than the version in current kernel (2.6.16).
+For example my version of libselinux do not recognize "name_connect"
+permission
 
--- 
-Stephen Smalley
-National Security Agency
+It's a problem with my distrib (gentoo) ?
+
+I use libselinux-1.30 and I have tried with libselinux from cvs.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEcyb53RS+hG/PB/URAtctAKCRA+1nuN3kbYNdvAPPfNRw4ACiZwCeOhrF
+HbX6lyyZuCOH1wPusx4GbzY=
+=UCGi
+-----END PGP SIGNATURE-----
 
 
 --
