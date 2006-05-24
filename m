@@ -1,77 +1,49 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4OIF24r014394
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 14:15:02 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4OIF2bH028514
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 18:15:02 GMT
-Subject: Re: [PATCH] policy server API
-From: Christopher Ashworth <cashworth@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: selinux-dev <selinux-dev@tresys.com>
-In-Reply-To: <1148417141.20016.53.camel@popeye.columbia.tresys.com>
-References: <1148417141.20016.53.camel@popeye.columbia.tresys.com>
+Subject: Re: Gentoo SELinux problem in enforcing mode
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tetsuji Maverick Rai <tetsuji.maverick.rai@gmail.com>
+Cc: method@gentoo.org, selinux@tycho.nsa.gov
+In-Reply-To: <4474A024.5010103@gmail.com>
+References: <4474A024.5010103@gmail.com>
 Content-Type: text/plain
-Date: Wed, 24 May 2006 14:15:01 -0400
-Message-Id: <1148494501.517.76.camel@popeye.columbia.tresys.com>
+Date: Wed, 24 May 2006 14:33:09 -0400
+Message-Id: <1148495589.24463.507.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hmmm.  In this patch, I included the following "destroy" implementation:
+On Thu, 2006-05-25 at 03:04 +0900, Tetsuji Maverick Rai wrote:
+> I installed SELinux on one of my Gentoo box but it doesn't work in
+> enforcing mode at all.   It looks like almost anything is denied even
+> with the base policy as provided in Gentoo's package.  For example, if
+> enforcing mode is enabled during an X Window session, all inputs from
+> the mouse or keyboard is denied.   On commandline console,
+> "ctrl+alt+del" gives "reboot not permitted"-like error...
 
+That's a question for the Hardened Gentoo folks, assuming you are just
+using their packages for SELinux and not trying to mix them with
+upstream ones.  But last I looked, Hardened Gentoo was limited to server
+systems, not desktops, so they omit the X-related policy and are also
+strict policy-based rather than targeted policy-based.
 
-+/* Callback that allows us to do cleanup on destroy.
-+ * In our case, we will do a sanity check on the 
-+ * file descriptor, and close the connection if it
-+ * wasn't already closed (for example due to an earlier
-+ * error that caused the client to skip a call to
-+ * semanage_ps_disconnect).
-+ */
-+void semanage_ps_destroy(semanage_handle_t *sh)
-+{
-+       if (sh && (sh->u.ps_handle.socket_fd > 0)) {
-+               semanage_ps_disconnect(sh);
-+       }
-+}
+> I have tried SELinux with old Redhat some years ago, and didn't find
+> such a problem and now I feel this is very unusual.  What wrong do you
+> think I am doing?   I have tried with generic 2.6.16.16, but now I'm
+> installing 2.6.16-rc6 plus nsa's patch at
+> http://www.nsa.gov/selinux/code/download5.cfm (but other file, policy,
+> libselinux etc are from Gentoo's package).  What's the difference in
+> this patch from the generic kernel?
 
+I don't think that will help, and it isn't a good idea to mix and match.
+We only periodically make updated releases on nsa.gov, and they are
+primarily targeted at the distro package maintainers, not at end users
+(and in the case of Fedora, they actually track our bleeding edge from
+the selinux sourceforge CVS/subversion tree for the SELinux userland and
+the upstream kernel for the kernel code).  Most end users are using the
+distro packages these days.  
 
-This was spurred in general by the reasoning given in the comment, and
-specifically by the fact that the proposed error case is exactly the way
-at least one client application behaves (setsebool).
-
-However, I was just looking at libsemanage/include/semanage/handle.h,
-and saw the following comment:
-
-/* Deallocate all space associated with a semanage_handle_t, including
- * the pointer itself.  CAUTION: this function does not disconnect
- * from the backend; be sure that a semanage_disconnect() was previously
- * called if the handle was connected. */
-void semanage_handle_destroy(semanage_handle_t *);
-
-
-So my sanity check is counter to the intended design and this operation
-should be turned into a no-op, as it is in direct_api.c. 
-
-I'm a little confused by this design, however, because it is asymmetric.
-Namely, there is a callback to a custom destroy function in
-semanage_handle_destroy, but no such callback to a corresponding create
-function in semanage_handle_create.  This appears to leave the
-semanage_direct_destroy and semanage_ps_destroy functions without a
-mate.  Presumably, since the callbacks are set in the semanage_*_connect
-functions, the destroy callbacks are potentially cleaning up stuff that
-is allocated during connect.  A little odd, since it seems like it would
-be expected to be cleaned up in the corresponding disconnect function.
-
-At any rate, the following modifications need to be made
-
-- turn semanage_ps_destroy in this patch into a no-op
-- submit a separate patch to fix setsebool
-
-
-I'll resubmit the patch after awhile to give a chance for more comments
-and corrections.
-
-Christopher
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
