@@ -1,117 +1,59 @@
-Subject: Re: libsepol and libselinux patches
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: SELinux-dev@tresys.com, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20060523154424.GA13237@sergelap>
-References: <20060523154424.GA13237@sergelap>
-Content-Type: text/plain
-Date: Wed, 24 May 2006 15:43:46 -0400
-Message-Id: <1148499826.24463.533.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Wed, 24 May 2006 14:34:13 -0700
+Subject: Re: Fedora Core 5 Tomcat 4 problems
+From: "Michael K. Smith" <mksmith@adhost.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, <SELinux@tycho.nsa.gov>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <C09A1F65.25256%mksmith@adhost.com>
+In-Reply-To: <1148495910.24463.513.camel@moss-spartans.epoch.ncsc.mil>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-05-23 at 10:44 -0500, Serge E. Hallyn wrote:
-> Starting my not-as-regular-as-i'd-like static analysis run of
-> selinux-usr.  Here are a few patches to libsepol and libselinux.
-> Hope to go through the rest later this week.
+
+
+
+On 5/24/06 11:38 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+
+> On Wed, 2006-05-24 at 11:26 -0700, Michael K. Smith wrote:
+>> Hi Again:
+>> 
+>> I'm not seeing any execmod messages in any log.  Have I missed a config
+>> parameter that would enable those messages?
 > 
-> libselinux/src/matchmediacon.c:
-> 	'found' initialized to -1, not 0
-> libselinux/src/setrans_client.c:
-> 	'ret_val' is being returned, but codpath makes it pretty clear
-> 	the intent is to return ret.
-> libsepol/src/expand.c:
-> 	accessing new_level->level->cat when new_level->level could
-> 	be NULL
-> libsepol/src/hierarchy.c
-> 	freeing parent before potential dereference in
-> 	ERR.
-> libsepol/src/nodes.c:
-> 	jumping to 'omem' before addr_buf and mask_buf
-> 	are declared, but they are used after 'omem:'.
-> 	Testcase suggests these will not be initialized.
-> libsepol/src/policydb.c:
-> 	'c' is never freed in read_cons_helper?
-> 	newc and newc->u.name are not freed in genfs_read
+> In your original posting to the list, you listed your local policy
+> module, and it contained this rule (among others):
+> allow initrc_t user_home_t:file execmod;
 > 
-> thanks,
-> -serge
+> Assuming you used audit2allow to generate that policy module, that means
+> that audit2allow found an avc message in your log (messages* if not
+> running auditd, audit.log* if running auditd) that indicated an execmod
+> denial (i.e. a text relocation in a shared library).
+> 
+> Now, possibly this was not related to the actual problem in su you
+> reported and was just leftover in your log from something else.   Ditto
+> for the hald_t rule, the pam_console_t rule, and the semanage_t rule.
+> In which case only the two rules for initrc_su_t are relevant here, and
+> one of those is due to usr_t being on that symlink and home directory.
+> The other one (compute_av failure) should likely be allowed in the
+> upstream policy, as su -> pam_rootok does need to check a permission to
+> see whether the caller is allowed to skip normal password authentication
+> (yes if uid 0 and in an authorized domain, no otherwise).
 
-Thanks, everything up to the policydb.c ones look fine and I'll apply.
-Comments below on the policydb.c ones, after looking to see what the
-current state of the corresponding kernel security server code is.
+Back on list.  I have downloaded and installed the reference policy from
+Sourceforge and now have a policy.conf file that I can use.  What would the
+appropriate rule be for addressing the compute_av failure?
 
-> --- libsepol/src/policydb.c.orig	2006-05-23 07:48:58.000000000 -0500
-> +++ libsepol/src/policydb.c	2006-05-23 08:36:50.000000000 -0500
-> @@ -1435,22 +1435,28 @@ static int read_cons_helper(policydb_t *
->  		if (!c)
->  			return -1;
->  		buf = next_entry(fp, (sizeof(uint32_t) * 2));
-> -		if (!buf)
-> +		if (!buf) {
-> +			free(c);
->  			return -1;
-> +		}
+May 27 08:49:31 bmedia kernel: audit(1117208968.030:5): avc:  denied  {
+compute_av } for  pid=1815 comm="su"
+scontext=system_u:system_r:initrc_su_t:s0
+tcontext=system_u:object_r:security_t:s0 tclass=security
 
-This can be done more cleanly by linking c into the list early, and then
-just relying on policydb_destroy() by the caller to clean it up, as with
-much of the cleanup on failed policydb_read().  That appears to already
-be the case in the kernel code.
 
-> @@ -1949,23 +1963,23 @@ static int genfs_read (policydb_t *p, st
->                          }
->                          buf = next_entry(fp, sizeof(uint32_t));
->                          if (!buf)
-> -                                goto bad;
-> +                                goto bad_freenewc;
+Thanks,
 
-I'd think we could do this in the same way (link newc early, along with
-its parent), although the kernel code appears to instead jump to an
-error path that uses an ocontext_destroy() helper to handle all cases.
-
-> +bad_context:
-> +	context_destroy(&newc->context[0]);
-> +bad_freename:
-> +	free(newc->u.name);
-> +bad_freenewc:
-> +	free(newc);
-
-These could be collapsed into a single error path, right?  Initial
-calloc will put it into a valid state for all of this cleanup?
-
-> @@ -2461,14 +2481,17 @@ static int avrule_block_read(policydb_t 
->                  num_decls = le32_to_cpu(buf[0]);
->                  while (num_decls > 0) {
->                          if ((curdecl = avrule_decl_create(0)) == NULL) {
-> +				free(curblock);
->                                  return -1;
->                          }
-
-Appears to miss the prior next_entry() error path, and we need to do
-more here since we may now have linked avrule_decl's into the block.
-avrule_block_destroy(), maybe.
-
->                          if (avrule_decl_read(p, curdecl, num_scope_syms, fp) == -1) {
-> +				free(curblock);
->                                  return -1;
->                          }
-
-Need to deal with the allocated decl (avrule_decl_destroy?) and then the
-entire chain from the block.
-
->                          if (curdecl->enabled) {
->                                  if (curblock->enabled != NULL) {
->                                          /* probably a corrupt file */
-> +					free(curblock);
->                                          return -1;
->                                  }
-
-Same issue.
-
--- 
-Stephen Smalley
-National Security Agency
+Mike
 
 
 --
