@@ -1,41 +1,57 @@
-Subject: Re: Fedora Core 5 Tomcat 4 problems
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Michael K. Smith" <mksmith@adhost.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <C099E0B2.24D7E%mksmith@adhost.com>
-References: <C099E0B2.24D7E%mksmith@adhost.com>
+Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
+	of inode security contexts
+From: Jeremy Katz <katzj@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, SELinux-dev@tresys.com,
+        Paul Nasrat <pnasrat@redhat.com>
+In-Reply-To: <1148404514.24463.176.camel@moss-spartans.epoch.ncsc.mil>
+References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060517075435.GB7665@thorium.jmh.mhn.de>
+	 <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
+	 <20060518181452.GA4935@thorium2.jmh.mhn.de>
+	 <1148043593.25168.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <1148044725.8647.35.camel@jackjack.columbia.tresys.com>
+	 <1148404514.24463.176.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 24 May 2006 13:15:00 -0400
-Message-Id: <1148490901.24463.465.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 24 May 2006 13:24:49 -0400
+Message-Id: <1148491489.16558.38.camel@orodruin.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-24 at 10:06 -0700, Michael K. Smith wrote:
-> Sadly, it's necessary to confirm whether or not the rc script will fire at
-> boot.  If I run the script after the system has booted everything works just
-> fine.
+On Tue, 2006-05-23 at 13:15 -0400, Stephen Smalley wrote:
+> Below is an updated version of the kernel patch to support rpm labeling
+> of files before policy load, with a couple of bug fixes and a re-base to
+> 2.6.17-rc4-mm3.  Note that before we can upstream this, we need to
+> resolve the issues of how rpm will check file label validity after
+> policy load (e.g. calling security_check_context(3) on each label from
+> the header), what corrective action rpm will take if a file label is
+> invalid (options suggested include relabeling to unlabeled_t, relabeling
+> to the context returned by the system policy via matchpathcon, or
+> reverting the install), and the issues raised by Karl above (as they
+> also affect the ability of rpm to perform such verification and
+> correction sanely).
 
-Hmmm...it should run in the same context in both cases (i.e. initrc_t)
-so that manual execution of the rc script yields the expected behavior.
-If I create a script in /etc/init.d and restorecon it, executing it
-manually does run it in initrc_t as expected here.
+Well, given that the only labels that will end up in a header will be
+from a policy in that package, I'm still not really convinced what
+adding a verification step _really_ accomplishes.  
 
-> > Can we see the full avc message for the execmod denial?
-> 
-> Absolutely.
-> 
-> May 27 08:03:57 bmedia kernel: audit(1117206233.280:4): avc:  denied  { read
-> } for  pid=1813 comm="su" name="tomcat" dev=sda6 ino=98262
-> scontext=system_u:system_r:initrc_su_t:s0 tcontext=user_u:object_r:usr_t:s0
-> tclass=lnk_file
+Sure, it helps in the case of someone crafting a malicious package which
+has random things in the header (by hand, not from rpmbuild[1]) but if
+someone is crafting a malicious package and getting it signed by someone
+you trust, then you have far larger concerns.
 
-Not that one - the execmod denial, please.  Might help to boot with
-audit=1 as well to get the full syscall audit record for it.
+Jeremy
 
--- 
-Stephen Smalley
-National Security Agency
+[1] Maybe it's just the clarification on what ends up happening that is
+really needed.  In the case where a package contains no policy modules
+the behavior will be exactly what it is today.  If a package contains a
+policy module, at rpmbuild time, we'll map contexts into the header for
+*only* the files covered explicitly by that policy module.  So the only
+contexts that could end up in the header will be ones that will then be
+installed by the policy module.  For the other files, we'll continue to
+just set the file contexts based on the policy as today.
+
 
 
 --
