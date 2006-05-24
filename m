@@ -1,76 +1,41 @@
-Date: Wed, 24 May 2006 10:06:42 -0700
 Subject: Re: Fedora Core 5 Tomcat 4 problems
-From: "Michael K. Smith" <mksmith@adhost.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: <SELinux@tycho.nsa.gov>
-Message-ID: <C099E0B2.24D7E%mksmith@adhost.com>
-In-Reply-To: <1148490176.24463.454.camel@moss-spartans.epoch.ncsc.mil>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Michael K. Smith" <mksmith@adhost.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <C099E0B2.24D7E%mksmith@adhost.com>
+References: <C099E0B2.24D7E%mksmith@adhost.com>
+Content-Type: text/plain
+Date: Wed, 24 May 2006 13:15:00 -0400
+Message-Id: <1148490901.24463.465.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen:
+On Wed, 2006-05-24 at 10:06 -0700, Michael K. Smith wrote:
+> Sadly, it's necessary to confirm whether or not the rc script will fire at
+> boot.  If I run the script after the system has booted everything works just
+> fine.
 
+Hmmm...it should run in the same context in both cases (i.e. initrc_t)
+so that manual execution of the rc script yields the expected behavior.
+If I create a script in /etc/init.d and restorecon it, executing it
+manually does run it in initrc_t as expected here.
 
-On 5/24/06 10:02 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
-
-> On Wed, 2006-05-24 at 09:20 -0700, Michael K. Smith wrote:
->> Hello All:
->> 
->> I am attempting to start Tomcat 4 using an rc script that uses the
->> unprivileged user "tomcat" to run the application.  The relevant line is:
->> 
->> su -l tomcat -p -s /bin/bash -c /usr/local/tomcat/bin/startup.sh
->> 
->> In addition, the tomcat user has /sbin/nologin in the password file.
->> 
->> Steps to make it work:
->> 
->> 1) Set SELinux to permissive and reboot
->> 2) Take resultant AVC messages and create local policy
->> 3) Load policy, set SELinux to enforcing and reboot
+> > Can we see the full avc message for the execmod denial?
 > 
-> Rebooting shouldn't be strictly necessary in the above sequence.
+> Absolutely.
 > 
+> May 27 08:03:57 bmedia kernel: audit(1117206233.280:4): avc:  denied  { read
+> } for  pid=1813 comm="su" name="tomcat" dev=sda6 ino=98262
+> scontext=system_u:system_r:initrc_su_t:s0 tcontext=user_u:object_r:usr_t:s0
+> tclass=lnk_file
 
-Sadly, it's necessary to confirm whether or not the rc script will fire at
-boot.  If I run the script after the system has booted everything works just
-fine.
+Not that one - the execmod denial, please.  Might help to boot with
+audit=1 as well to get the full syscall audit record for it.
 
-<snip>
->> 
->> Below is a copy of the local.te file that was generated from the AVC
->> messages in /var/log/messages after setting to permissive.  The Tomcat
->> directory is /usr/local/tomcat and shows as:
->> 
->> drwxr-xr-x  tomcat   tomcat   user_u:object_r:usr_t
->> jakarta-tomcat-4.1.31
->> 
->> lrwxrwxrwx  root     root     user_u:object_r:usr_t            tomcat ->
->> /usr/local/jakarta-tomcat-4.1.31
-> 
-> This should really be in a different type than just usr_t.
-> 
-I set it to system_u:object_r:user_home_t to match the HTTP directory but
-that didn't change the initial behavior.
-
-<snip>
-> 
-> Can we see the full avc message for the execmod denial?
-
-Absolutely.
-
-May 27 08:03:57 bmedia kernel: audit(1117206233.280:4): avc:  denied  { read
-} for  pid=1813 comm="su" name="tomcat" dev=sda6 ino=98262
-scontext=system_u:system_r:initrc_su_t:s0 tcontext=user_u:object_r:usr_t:s0
-tclass=lnk_file
-
-
-Thanks again,
-
-Mike
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
