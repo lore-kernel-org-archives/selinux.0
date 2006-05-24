@@ -1,59 +1,80 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4OF5iYS009853
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 11:05:44 -0400
-Received: from e34.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4OF5hkk014139
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 15:05:44 GMT
-Received: from d03relay04.boulder.ibm.com (d03relay04.boulder.ibm.com [9.17.195.106])
-	by e34.co.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k4OF5gUI024850
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 11:05:42 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by d03relay04.boulder.ibm.com (8.12.10/NCO/VER6.8) with ESMTP id k4OF5cGa178022
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 09:05:42 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k4OF5cME031181
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 09:05:38 -0600
-Received: from sergelap.hallyn.com (sig-9-49-163-249.mts.ibm.com [9.49.163.249])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k4OF5c64031134
-	for <selinux@tycho.nsa.gov>; Wed, 24 May 2006 09:05:38 -0600
-Date: Wed, 24 May 2006 10:05:37 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: libsetrans: ___tls_get_addr
-Message-ID: <20060524150537.GB16189@sergelap.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 24 May 2006 09:20:14 -0700
+Subject: Fedora Core 5 Tomcat 4 problems
+From: "Michael K. Smith" <mksmith@adhost.com>
+To: <SELinux@tycho.nsa.gov>
+Message-ID: <C099D5CE.24D51%mksmith@adhost.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-compiling libselinux/src/libsetrans.c was failing on my gentoo laptop,
-with a few warnings about ___tls_get_addr being undefined.  The
-following patch lets it compile, though I suspect it messes something
-up :)
+Hello All:
 
-What would be the right way to fix this?  Am I just supposed to
-'emerge tls'?
+I am attempting to start Tomcat 4 using an rc script that uses the
+unprivileged user "tomcat" to run the application.  The relevant line is:
 
-thanks,
--serge
+su -l tomcat -p -s /bin/bash -c /usr/local/tomcat/bin/startup.sh
 
---- libselinux/src/setrans_client.c.orig2	2006-05-24 09:54:22.000000000 -0500
-+++ libselinux/src/setrans_client.c	2006-05-24 09:54:34.000000000 -0500
-@@ -17,10 +17,10 @@
- #include "setrans_internal.h"
- 
- // Simple cache
--static	__thread security_context_t prev_t2r_trans=NULL;
--static	__thread security_context_t prev_t2r_raw=NULL;
--static	__thread security_context_t prev_r2t_trans=NULL;
--static	__thread security_context_t prev_r2t_raw=NULL;
-+static	security_context_t prev_t2r_trans=NULL;
-+static	security_context_t prev_t2r_raw=NULL;
-+static	security_context_t prev_r2t_trans=NULL;
-+static	security_context_t prev_r2t_raw=NULL;
- 
- int cache_trans hidden = 1;
- 
+In addition, the tomcat user has /sbin/nologin in the password file.
+
+Steps to make it work:
+
+1) Set SELinux to permissive and reboot
+2) Take resultant AVC messages and create local policy
+3) Load policy, set SELinux to enforcing and reboot
+
+If I leave SELinux in permissive the tomcat script works just fine and, if I
+allow root to run tomcat that works as well.  I would like to have the
+security of SELinux and an unprivileged user running Tomcat, so any help
+would be greatly appreciated.
+
+Below is a copy of the local.te file that was generated from the AVC
+messages in /var/log/messages after setting to permissive.  The Tomcat
+directory is /usr/local/tomcat and shows as:
+
+drwxr-xr-x  tomcat   tomcat   user_u:object_r:usr_t
+jakarta-tomcat-4.1.31
+
+lrwxrwxrwx  root     root     user_u:object_r:usr_t            tomcat ->
+/usr/local/jakarta-tomcat-4.1.31
+
+Thanks in advance,
+
+Mike
+
+
+module local 1.0;
+
+require {
+        class lnk_file read;
+        class dir { getattr search };
+        class security compute_av;
+        class file { execmod getattr read };
+
+        type initrc_su_t;
+        type usr_t;
+        type file_t;
+        type hald_t;
+        type initrc_su_t;
+        type initrc_t;
+        type locale_t;
+        type mysqld_db_t;
+        type pam_console_t;
+        type security_t;
+        type semanage_t;
+        type user_home_t;
+        type initrc_t;
+        type locale_t;
+ };
+
+allow initrc_su_t usr_t:lnk_file read;
+allow hald_t mysqld_db_t:dir getattr;
+allow initrc_su_t security_t:security compute_av;
+allow pam_console_t file_t:dir search;
+allow initrc_t user_home_t:file execmod;
+allow semanage_t locale_t:file { getattr read };
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
