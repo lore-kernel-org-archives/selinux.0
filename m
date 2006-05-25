@@ -1,32 +1,36 @@
 Subject: Re: Fedora Core 5 Tomcat 4 problems
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: "Michael K. Smith" <mksmith@adhost.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <200605251323.13498.russell@coker.com.au>
-References: <C099D5CE.24D51%mksmith@adhost.com>
-	 <200605251323.13498.russell@coker.com.au>
+To: "Michael K. Smith" <mksmith@adhost.com>
+Cc: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <C09A1F65.25256%mksmith@adhost.com>
+References: <C09A1F65.25256%mksmith@adhost.com>
 Content-Type: text/plain
-Date: Thu, 25 May 2006 07:35:51 -0400
-Message-Id: <1148556951.20976.11.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 25 May 2006 07:34:53 -0400
+Message-Id: <1148556893.20976.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-05-25 at 13:23 +1000, Russell Coker wrote:
-> On Thursday 25 May 2006 02:20, "Michael K. Smith" <mksmith@adhost.com> wrote:
-> > I am attempting to start Tomcat 4 using an rc script that uses the
-> > unprivileged user "tomcat" to run the application.  The relevant line is:
-> >
-> > su -l tomcat -p -s /bin/bash -c /usr/local/tomcat/bin/startup.sh
+On Wed, 2006-05-24 at 14:34 -0700, Michael K. Smith wrote:
+> Back on list.  I have downloaded and installed the reference policy from
+> Sourceforge and now have a policy.conf file that I can use.  What would the
+> appropriate rule be for addressing the compute_av failure?
 > 
-> The tomcat start script is broken, it should be using runuser instead.  Change 
-> it to use runuser instead of su (runuser takes the same parameters so it's an 
-> easy change) and many of the problems you list will go away.
-> 
-> Also please file a bug report requesting that runuser be used.
+> May 27 08:49:31 bmedia kernel: audit(1117208968.030:5): avc:  denied  {
+> compute_av } for  pid=1815 comm="su"
+> scontext=system_u:system_r:initrc_su_t:s0
+> tcontext=system_u:object_r:security_t:s0 tclass=security
 
-Has runuser been upstreamed, or generally ported to other distros yet?
-Or is it still Fedora-specific?
+You already added this rule via your local module, i.e.
+	allow initrc_su_t security_t:security { compute_av };
+
+audit2allow converts audit messages to allow rules for you.
+
+No need to build a custom policy for that purpose.  I mentioned the
+upstream policy because while you can fix this via your local module in
+the short term, it should be fixed by the upstream policy for everyone
+going forward.   Then you can later drop the rule from your local module
+when you update to a version that includes it already.
 
 -- 
 Stephen Smalley
