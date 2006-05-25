@@ -1,59 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4P7CKoU024230
-	for <selinux@tycho.nsa.gov>; Thu, 25 May 2006 03:12:20 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4P7CH9h011019
-	for <selinux@tycho.nsa.gov>; Thu, 25 May 2006 07:12:18 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Shintaro Fujiwara <shin216@xf7.so-net.ne.jp>
-Subject: Re: daemons and MCS categories
-Date: Thu, 25 May 2006 17:12:26 +1000
-Cc: James Morris <jmorris@namei.org>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE-Linux <selinux@tycho.nsa.gov>
-References: <200605220930.05483.russell@coker.com.au> <Pine.LNX.4.64.0605250105520.15655@d.namei> <1148538208.1797.23.camel@papa.intrajp-yokosuka.co.jp>
-In-Reply-To: <1148538208.1797.23.camel@papa.intrajp-yokosuka.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="euc-jp"
-Message-Id: <200605251712.31603.russell@coker.com.au>
+Subject: Re: Fedora Core 5 Tomcat 4 problems
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: "Michael K. Smith" <mksmith@adhost.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <200605251323.13498.russell@coker.com.au>
+References: <C099D5CE.24D51%mksmith@adhost.com>
+	 <200605251323.13498.russell@coker.com.au>
+Content-Type: text/plain
+Date: Thu, 25 May 2006 07:35:51 -0400
+Message-Id: <1148556951.20976.11.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 25 May 2006 16:23, Shintaro Fujiwara <shin216@xf7.so-net.ne.jp> 
-wrote:
-> What I really want to do, is let apache run say
-> s0:c0.c2 and do Unix users do their jobs,
-> webdesigner-s0:c0,scriptwriter-s0:c1,webmaster-s0:c2
-> (whatever the word is).
-> So, I can tell scriptwriter and webmaster (not designer
-> this time) root password.
-> I understand if they can be root, they cannot do anything
-> harmful to the system.
-> It's useful when I have several men under me (sysadmin)
-> who are not so skillful.
+On Thu, 2006-05-25 at 13:23 +1000, Russell Coker wrote:
+> On Thursday 25 May 2006 02:20, "Michael K. Smith" <mksmith@adhost.com> wrote:
+> > I am attempting to start Tomcat 4 using an rc script that uses the
+> > unprivileged user "tomcat" to run the application.  The relevant line is:
+> >
+> > su -l tomcat -p -s /bin/bash -c /usr/local/tomcat/bin/startup.sh
+> 
+> The tomcat start script is broken, it should be using runuser instead.  Change 
+> it to use runuser instead of su (runuser takes the same parameters so it's an 
+> easy change) and many of the problems you list will go away.
+> 
+> Also please file a bug report requesting that runuser be used.
 
-One thing you didn't mention is whether you plan to use strict or targeted 
-policy on the machine in question.  I know that you use strict at home, but 
-targeted is the default (and the easy option) so I guess it's likely that you 
-use it at work.
-
-In targeted policy users run as unconfined_t, so therefore giving out the root 
-password allows doing every harmful thing.  sudo may be a solution to this.  
-If the daemon is to have more categories than the user who starts it then 
-run_init can be used to run it.
-
-In strict policy you can restrict the damage from the root account (although 
-it takes a little configuration work).
-
-But it seems that you are raising a new issue here, that of securely 
-restarting daemons by users other than the sys-admin.
+Has runuser been upstreamed, or generally ported to other distros yet?
+Or is it still Fedora-specific?
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
