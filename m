@@ -1,116 +1,35 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4PL1oYQ007327
-	for <selinux@tycho.nsa.gov>; Thu, 25 May 2006 17:01:50 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4PL1nb6014111
-	for <selinux@tycho.nsa.gov>; Thu, 25 May 2006 21:01:49 GMT
-Subject: [patch] Full relabel audit event
-From: James Antill <jantill@redhat.com>
-To: redhat-lspp <redhat-lspp@redhat.com>
-Cc: selinux@tycho.nsa.gov, linux-audit@redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZzB/7csJAE5vFVY8iK3u"
-Date: Thu, 25 May 2006 17:01:41 -0400
-Message-Id: <1148590901.8828.22.camel@code.and.org>
-Mime-Version: 1.0
+Message-ID: <44761E3A.9050801@hp.com>
+Date: Thu, 25 May 2006 17:14:34 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC 0/4] NetLabel
+References: <44760E29.4070407@hp.com> <20060525135846.44791440@localhost.localdomain>
+In-Reply-To: <20060525135846.44791440@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Hemminger wrote:
+> On Thu, 25 May 2006 16:06:01 -0400
+> Paul Moore <paul.moore@hp.com> wrote:
+>>This patch introduces a new kernel feature designed to support labeled
+>>networking protocols such as RIPSO and CIPSO.  These protocols are required to
+>>interoperate with existing "trusted" operating systems such as Trusted Solaris.
+>>I am posting the patch now not because I feel it is ready for inclusion into
+>>any of the main kernel trees but because it is usable and I would like to
+>>solicit comments from the community sooner rather than later.
+> 
+> Maybe this would be easier and better done via existing netfilter infrastructure?
 
---=-ZzB/7csJAE5vFVY8iK3u
-Content-Type: multipart/mixed; boundary="=-3nKvTQQkOznrJHr9KKL1"
+I think this would be rather difficult on the outbound side as protocols like CIPSO and RIPSO add IP options to the packet.  I may be wrong but I thought that adding to the size of the packet was a no-no in netfilter?  Also, doesn't netfilter get the packet after the checksum has been calculated and the packet has gone through the xfrm infrastructure?
 
-
---=-3nKvTQQkOznrJHr9KKL1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-
- The attached patch implements the full relabel audit event (Ie. an
-audit event occurs when a full relabel occurs, ie. when /.autorelabel
-exists at boot).
- Note that although the code is correct, this patch doesn't actually
-work due to kernel bugs[1].
-
- It'll be in Fedora development as part of policycoreutils-1.30.10-3
-onwards.
-
-[1] see the thread on linux-audit if you want the details.
-
---=20
-James Antill <jantill@redhat.com>
-
---=-3nKvTQQkOznrJHr9KKL1
-Content-Disposition: inline; filename=policycoreutils-1.30.10-audit-mass-relabel.patch
-Content-Type: text/x-patch; name=policycoreutils-1.30.10-audit-mass-relabel.patch;
-	charset=UTF-8
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtcnUgcG9saWN5Y29yZXV0aWxzLTEuMzAuMTAtb3JpZy9zZXRmaWxlcy9zZXRmaWxlcy5j
-IHBvbGljeWNvcmV1dGlscy0xLjMwLjEwL3NldGZpbGVzL3NldGZpbGVzLmMNCi0tLSBwb2xpY3lj
-b3JldXRpbHMtMS4zMC4xMC1vcmlnL3NldGZpbGVzL3NldGZpbGVzLmMJMjAwNi0wNS0yMyAwNjoy
-MDowMy4wMDAwMDAwMDAgLTA0MDANCisrKyBwb2xpY3ljb3JldXRpbHMtMS4zMC4xMC9zZXRmaWxl
-cy9zZXRmaWxlcy5jCTIwMDYtMDUtMjQgMTY6NDk6MDMuMDAwMDAwMDAwIC0wNDAwDQpAQCAtNzUs
-NiArNzUsMTEgQEANCiAjaW5jbHVkZSA8c2VsaW51eC9zZWxpbnV4Lmg+DQogI2luY2x1ZGUgPHN5
-c2xvZy5oPiANCiAjaW5jbHVkZSA8bGliZ2VuLmg+DQorI2luY2x1ZGUgPGxpYmF1ZGl0Lmg+DQor
-DQorI2lmbmRlZiBBVURJVF9GU19SRUxBQkVMDQorI2RlZmluZSBBVURJVF9GU19SRUxBQkVMIDIz
-MDkNCisjZW5kaWYNCiANCiBzdGF0aWMgaW50IGFkZF9hc3NvYyA9IDE7DQogc3RhdGljIEZJTEUg
-Km91dGZpbGU9TlVMTDsNCkBAIC0zOTUsNyArNDAwLDcgQEANCiANCiAJLyogdHJpbSB0cmFpbGlu
-ZyAvLCBpZiBwcmVzZW50ICovDQogCWxlbiA9IHN0cmxlbihyb290cGF0aCk7DQotCXdoaWxlICgn
-LycgPT0gcm9vdHBhdGhbbGVuIC0gMV0pDQorCXdoaWxlIChsZW4gJiYgKCcvJyA9PSByb290cGF0
-aFtsZW4gLSAxXSkpDQogCQlyb290cGF0aFstLWxlbl0gPSAwOw0KIAlyb290cGF0aGxlbiA9IGxl
-bjsNCiB9DQpAQCAtNDQzLDExICs0NDgsMzUgQEANCiAgIHJldHVybiAwOw0KIH0NCiANCitzdGF0
-aWMgdm9pZCBtYXliZV9hdWRpdF9tYXNzX3JlbGFiZWwoaW50IGRvbmVfcm9vdCwgaW50IGVycnMp
-DQorew0KKyAgaW50IGF1ZGl0X2ZkID0gLTE7DQorICBpbnQgcmMgPSAwOw0KKyAgDQorICBpZiAo
-IWRvbmVfcm9vdCkgLyogb25seSBhdWRpdCBhIGZvcmNlZCBmdWxsIHJlbGFiZWwgKi8NCisgICAg
-cmV0dXJuOw0KKyAgDQorICBhdWRpdF9mZCA9IGF1ZGl0X29wZW4oKTsNCisNCisgIGlmIChhdWRp
-dF9mZCA8IDApIHsNCisgICAgZnByaW50ZihzdGRlcnIsICJFcnJvciBjb25uZWN0aW5nIHRvIGF1
-ZGl0IHN5c3RlbS5cbiIpOw0KKyAgICByZXR1cm47DQorICB9DQorDQorICByYyA9IGF1ZGl0X2xv
-Z191c2VyX21lc3NhZ2UoYXVkaXRfZmQsIEFVRElUX0ZTX1JFTEFCRUwsDQorICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIm9wPW1hc3MgcmVsYWJlbCIsIE5VTEwsIE5VTEwsIE5VTEwsICFl
-cnJzKTsNCisgIGlmIChyYyA8PSAwKSB7DQorICAgIGZwcmludGYoc3RkZXJyLCAiRXJyb3Igc2Vu
-ZGluZyBhdWRpdCBtZXNzYWdlOiAlcy5cbiIsIHN0cmVycm9yKGVycm5vKSk7DQorICB9DQorICBh
-dWRpdF9jbG9zZShhdWRpdF9mZCk7DQorfQ0KKw0KIGludCBtYWluKGludCBhcmdjLCBjaGFyICoq
-YXJndikNCiB7DQogCXN0cnVjdCBzdGF0IHNiOw0KIAlpbnQgb3B0LCByYywgaTsNCi0NCisgICAg
-ICAgIGludCBkb25lX3Jvb3QgPSAwOyAvKiBoYXZlIHdlIHByb2Nlc3NlZCB0aGUgLyBkaXJlY3Rv
-cnkgYXMgYW4gYXJnICovDQorICAgICAgICANCiAJbWVtc2V0KGV4Y2x1ZGVBcnJheSwwLCBzaXpl
-b2YoZXhjbHVkZUFycmF5KSk7DQogDQogCS8qIFZhbGlkYXRlIGFsbCBmaWxlIGNvbnRleHRzIGR1
-cmluZyBtYXRjaHBhdGhjb25faW5pdC4gKi8NCkBAIC02MTgsNiArNjQ3LDggQEANCiAJfQ0KIAll
-bHNlIGZvciAoOyBvcHRpbmQgPCBhcmdjOyBvcHRpbmQrKykNCiAJew0KKyAgICAgICAgICAgICAg
-ICBkb25lX3Jvb3QgfD0gIXN0cmNtcChhcmd2W29wdGluZF0sICIvIik7DQorICAgICAgICAgICAg
-ICAgIA0KIAkJaWYgKE5VTEwgIT0gcm9vdHBhdGgpIHsNCiAJCQlxcHJpbnRmKCIlczogIGxhYmVs
-aW5nIGZpbGVzLCBwcmV0ZW5kaW5nICVzIGlzIC9cbiIsDQogCQkJCWFyZ3ZbMF0sIHJvb3RwYXRo
-KTsNCkBAIC02NDgsNiArNjc5LDcgQEANCiAJCQkJZnByaW50ZihzdGRlcnIsDQogCQkJCSIlczog
-IGVycm9yIHdoaWxlIGxhYmVsaW5nIGZpbGVzIHVuZGVyICVzXG4iLA0KIAkJCQlhcmd2WzBdLCBh
-cmd2W29wdGluZF0pOw0KKwkJCQltYXliZV9hdWRpdF9tYXNzX3JlbGFiZWwoZG9uZV9yb290LCAx
-KTsNCiAJCQkJZXhpdCgxKTsNCiAJCQl9DQogCQl9DQpAQCAtNjY0LDYgKzY5Niw4IEBADQogCQlt
-YXRjaHBhdGhjb25fZmlsZXNwZWNfZGVzdHJveSgpOw0KIAl9DQogDQorICAgICAgICBtYXliZV9h
-dWRpdF9tYXNzX3JlbGFiZWwoZG9uZV9yb290LCAwKTsNCisNCiAJaWYgKHdhcm5fbm9fbWF0Y2gp
-DQogCQltYXRjaHBhdGhjb25fY2hlY2ttYXRjaGVzKGFyZ3ZbMF0pOw0KIA0KLS0tIHBvbGljeWNv
-cmV1dGlscy0xLjMwLjEwLW9yaWcvc2V0ZmlsZXMvTWFrZWZpbGUJMjAwNi0wNS0yMyAwNjoyMDow
-My4wMDAwMDAwMDAgLTA0MDANCisrKyBwb2xpY3ljb3JldXRpbHMtMS4zMC4xMC9zZXRmaWxlcy9N
-YWtlZmlsZQkyMDA2LTA1LTI0IDE4OjEwOjQxLjAwMDAwMDAwMCAtMDQwMA0KQEAgLTcsNiArNyw3
-IEBADQogQ0ZMQUdTID0gLVdlcnJvciAtV2FsbCAtVyANCiBvdmVycmlkZSBDRkxBR1MgKz0gLURf
-RklMRV9PRkZTRVRfQklUUz02NCAtSSQoUFJFRklYKS9pbmNsdWRlDQogTERMSUJTID0gLWxzZWxp
-bnV4IC1sc2Vwb2wgLUwkKExJQkRJUikNCitMRExJQlMgKz0gLWxhdWRpdA0KIA0KIGFsbDogc2V0
-ZmlsZXMNCiANCg==
-
-
---=-3nKvTQQkOznrJHr9KKL1--
-
---=-ZzB/7csJAE5vFVY8iK3u
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEdhs111eXTEMrxtQRAvKdAJ9NReLqQWCjytj7XZC7YkELLSPswQCfZP5+
-O5O9BrB0bcHKrZbnKZPgo3Q=
-=TBQH
------END PGP SIGNATURE-----
-
---=-ZzB/7csJAE5vFVY8iK3u--
-
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
