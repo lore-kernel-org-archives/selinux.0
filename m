@@ -1,185 +1,60 @@
-Subject: Re: Bugs with bool_ids usage (libsepol)
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Cedric Roux <Cedric.Roux@eurecom.fr>, selinux@tycho.nsa.gov
-In-Reply-To: <1148572287.20976.141.camel@moss-spartans.epoch.ncsc.mil>
-References: <Pine.LNX.4.44.0605101702540.19909-100000@perignan.eurecom.fr>
-	 <1147283537.22880.52.camel@jackjack.columbia.tresys.com>
-	 <1148569615.20976.110.camel@moss-spartans.epoch.ncsc.mil>
-	 <1148570661.10246.27.camel@jackjack.columbia.tresys.com>
-	 <1148572287.20976.141.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed; boundary="=-aVLDaAKjRjzDWo9tzmVm"
-Date: Thu, 25 May 2006 12:51:22 -0400
-Message-Id: <1148575882.10246.39.camel@jackjack.columbia.tresys.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [RFC][PATCH] selinux:  introduce support for deferredmappingof inode security contexts
+Date: Thu, 25 May 2006 12:56:35 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588170B27@exchange.columbia.tresys.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Jeremy Katz" <katzj@redhat.com>, <selinux@tycho.nsa.gov>,
+        "selinux-dev" <selinux-dev@tresys.com>,
+        "Paul Nasrat" <pnasrat@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---=-aVLDaAKjRjzDWo9tzmVm
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Thu, 2006-05-25 at 11:51 -0400, Stephen Smalley wrote:
-> On Thu, 2006-05-25 at 11:24 -0400, Karl MacMillan wrote:
-> > What about this patch instead - it seems to make the usage of nbools and
-> > bool_ids more natural and potentially improves the comparison speed for
-> > larger conditionals.
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
 > 
-> Not clear, given that you are only using the bool_ids for the
-> precomputation and it is still limited to the same max.
-
-That's not the case - I changed the comparison code to always verify
-that the larger conditionals have the same booleans before comparing the
-full expression. Changing the precomputation max is harder.
-
-Looking at it though, the complexity of comparing the booleans is high
-for a large number of unique booleans so comparing the booleans first is
-only sometimes a win.
-
-For me, though, the larger issue is that it is very strange to have
-nbools != to the bool_ids. Preserving that behavior requires the user of
-the struct to understand the boolean code - looking at the header is not
-sufficient without more comments. This has already generated the bugs
-that both of these patches fix.
-
->   Patch was
-> malformed, btw.  
+> On Thu, 2006-05-25 at 12:03 -0400, Stephen Smalley wrote:
+> > Yes, we'd need a separate flag in the SID table to distinguish 
+> > invalidated-by-reload vs. invalid-at-creation (labelpriv).  In the 
+> > latter case, if the context doesn't become valid upon the reload, 
+> > instead of just leaving it in the unmapped (symbolic) 
+> state, we'd bail 
+> > and return an error to the caller, leaving the old policy 
+> in place in 
+> > the kernel, and causing libsemanage to revert the store and 
+> propagate an
+> > error back to semodule and thus to rpm.   That avoids 
+> requiring rpm to
+> > perform any extra checking, but does still require it to perform 
+> > corrective action after having already set down the files.  It also 
+> > helps with another problem that was bothering me - the 
+> potential for 
+> > the SID table to just keep growing without bound with an 
+> endless set 
+> > of invalid file labels.  That would still be an issue for the 
+> > invalidated-by-reload contexts, so we'd still want some way 
+> to force a 
+> > purge of those, possibly a selinuxfs interface.
+> 
+> Of course, since there is nothing to tie a given labelpriv 
+> event to a given policy load, if we ever have multiple 
+> processes setting down invalid file labels in the same window 
+> and then trying to insert different policy modules, they 
+> could both end up failing (since neither module would 
+> validate all of the file labels by itself), and you'd have to 
+> insert both policy modules in a single transaction to recover.
 > 
 
-Patch attached - it applies cleanly here. I think that my mail server
-munged the inline patch, but I will have to investigate.
+Ouch. Does RPM put down files from separate packages (within the same
+transaction) at the same time? Jeremy already said the postinstall
+scripts might not run right after the package installation so this seems
+to be the case. 
 
-Karl
+So the mutually dependant policy modules problem and now this really
+seem to indicate that RPM needs to be aware that policy was installed
+and build the new policy all at once at the end of the transaction.
 
--- 
-Karl MacMillan
-Tresys Technology
-www.tresys.com
-
---=-aVLDaAKjRjzDWo9tzmVm
-Content-Disposition: attachment; filename=cond-fixes-20060525.diff
-Content-Type: text/x-patch; name=cond-fixes-20060525.diff; charset=utf-8
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtLWV4Y2x1ZGU9LnN2biAtcHJ1TiAuLi8uLi90cnVuay9saWJzZXBvbC9pbmNsdWRlL3Nl
-cG9sL3BvbGljeWRiL2NvbmRpdGlvbmFsLmggLi9saWJzZXBvbC9pbmNsdWRlL3NlcG9sL3BvbGlj
-eWRiL2NvbmRpdGlvbmFsLmgNCi0tLSAuLi8uLi90cnVuay9saWJzZXBvbC9pbmNsdWRlL3NlcG9s
-L3BvbGljeWRiL2NvbmRpdGlvbmFsLmgJMjAwNi0wNS0wOCAxMDo0NjozOS4wMDAwMDAwMDAgLTA0
-MDANCisrKyAuL2xpYnNlcG9sL2luY2x1ZGUvc2Vwb2wvcG9saWN5ZGIvY29uZGl0aW9uYWwuaAky
-MDA2LTA1LTI1IDEwOjQ5OjQ1LjAwMDAwMDAwMCAtMDQwMA0KQEAgLTI4LDE0ICsyOCw2IEBADQog
-DQogI2RlZmluZSBDT05EX0VYUFJfTUFYREVQVEggMTANCiANCi0vKiB0aGlzIGlzIHRoZSBtYXgg
-dW5pcXVlIGJvb2xzIGluIGEgY29uZGl0aW9uYWwgZXhwcmVzc2lvbg0KLSAqIGZvciB3aGljaCB3
-ZSBwcmVjb21wdXRlIGFsbCBvdXRjb21lcyBmb3IgdGhlIGV4cHJlc3Npb24uDQotICoNCi0gKiBO
-T1RFIC0gZG8gX05PVF8gdXNlIHZhbHVlIGdyZWF0ZXIgdGhhbiA1IGJlY2F1c2UNCi0gKiBjb25k
-X25vZGVfdC0+ZXhwcl9wcmVfY29tcCBjYW4gb25seSBob2xkIGF0IG1vc3QgMzIgdmFsdWVzDQot
-ICovDQotI2RlZmluZSBDT05EX01BWF9CT09MUyA1DQotDQogLyoNCiAgKiBBIGNvbmRpdGlvbmFs
-IGV4cHJlc3Npb24gaXMgYSBsaXN0IG9mIG9wZXJhdG9ycyBhbmQgb3BlcmFuZHMNCiAgKiBpbiBy
-ZXZlcnNlIHBvbGlzaCBub3RhdGlvbi4NCkBAIC04Miw3ICs3NCw3IEBAIHR5cGVkZWYgc3RydWN0
-IGNvbmRfbm9kZSB7DQogCWF2cnVsZV90ICphdmZhbHNlX2xpc3Q7DQogCS8qIHRoZXNlIGZpZWxk
-cyBhcmUgbm90IHdyaXR0ZW4gdG8gYmluYXJ5IHBvbGljeSAqLw0KIAl1bnNpZ25lZCBpbnQgbmJv
-b2xzOw0KLQl1aW50MzJfdCBib29sX2lkc1tDT05EX01BWF9CT09MU107DQorCXVpbnQzMl90ICpi
-b29sX2lkczsNCiAJdWludDMyX3QgZXhwcl9wcmVfY29tcDsNCiAJLyogICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICovDQogCXN0cnVjdCBjb25kX25vZGUgKm5l
-eHQ7DQpkaWZmIC0tZXhjbHVkZT0uc3ZuIC1wcnVOIC4uLy4uL3RydW5rL2xpYnNlcG9sL3NyYy9j
-b25kaXRpb25hbC5jIC4vbGlic2Vwb2wvc3JjL2NvbmRpdGlvbmFsLmMNCi0tLSAuLi8uLi90cnVu
-ay9saWJzZXBvbC9zcmMvY29uZGl0aW9uYWwuYwkyMDA2LTA1LTA4IDEwOjQ2OjM5LjAwMDAwMDAw
-MCAtMDQwMA0KKysrIC4vbGlic2Vwb2wvc3JjL2NvbmRpdGlvbmFsLmMJMjAwNi0wNS0yNSAxMTox
-NDo0OC4wMDAwMDAwMDAgLTA0MDANCkBAIC0yNiw2ICsyNiwxMyBAQA0KIA0KICNpbmNsdWRlICJw
-cml2YXRlLmgiDQogDQorLyogdGhpcyBpcyB0aGUgbWF4IHVuaXF1ZSBib29scyBpbiBhIGNvbmRp
-dGlvbmFsIGV4cHJlc3Npb24NCisgKiBmb3Igd2hpY2ggd2UgcHJlY29tcHV0ZSBhbGwgb3V0Y29t
-ZXMgZm9yIHRoZSBleHByZXNzaW9uLg0KKyAqDQorICogTk9URSAtIGRvIF9OT1RfIHVzZSB2YWx1
-ZSBncmVhdGVyIHRoYW4gNSBiZWNhdXNlDQorICogY29uZF9ub2RlX3QtPmV4cHJfcHJlX2NvbXAg
-Y2FuIG9ubHkgaG9sZCBhdCBtb3N0IDMyIHZhbHVlcw0KKyAqLw0KKyNkZWZpbmUgQ09ORF9NQVhf
-Qk9PTFMgNQ0KIA0KIC8qIG1vdmUgYWxsIHR5cGUgcnVsZXMgdG8gdG9wIG9mIHQvZiBsaXN0cyB0
-byBoZWxwIGtlcm5lbCBvbiBldmFsdWF0aW9uICovDQogc3RhdGljIHZvaWQgY29uZF9vcHRpbWl6
-ZShjb25kX2F2X2xpc3RfdCAqKmwpIHsNCkBAIC01OCwyOCArNjUsMzEgQEAgdm9pZCBjb25kX29w
-dGltaXplX2xpc3RzKGNvbmRfbGlzdF90KiBjbA0KIH0NCiANCiANCi1zdGF0aWMgaW50IGJvb2xf
-cHJlc2VudCh1bnNpZ25lZCBpbnQgdGFyZ2V0LCB1bnNpZ25lZCBpbnQgYm9vbHNbXSwgdW5zaWdu
-ZWQgaW50IG51bV9ib29scykgew0KK3N0YXRpYyBpbnQgYm9vbF9wcmVzZW50KHVpbnQzMl90IHRh
-cmdldCwgdWludDMyX3QgKmJvb2xzLCB1bnNpZ25lZCBpbnQgbnVtX2Jvb2xzKSB7DQogCXVuc2ln
-bmVkIGludCBpID0gMDsNCi0JaW50IHJldCA9IDE7DQogDQotCWlmIChudW1fYm9vbHMgPiBDT05E
-X01BWF9CT09MUykgew0KKwlpZiAoYm9vbHMgPT0gTlVMTCkNCiAJCXJldHVybiAwOw0KKw0KKwlm
-b3IgKGkgPSAwOyBpIDwgbnVtX2Jvb2xzOyBpKyspIHsNCisJCWlmICh0YXJnZXQgPT0gYm9vbHNb
-aV0pDQorCQkJcmV0dXJuIDE7DQogCX0NCi0Jd2hpbGUoIGkgPCBudW1fYm9vbHMgJiYgdGFyZ2V0
-ICE9IGJvb2xzW2ldKSBpKys7DQotCWlmIChpID09IG51bV9ib29scykgcmV0ID0gMDsgLyogZ290
-IHRvIGVuZCB3L28gbWF0Y2ggKi8NCi0JcmV0dXJuIHJldDsNCisJcmV0dXJuIDA7DQogfQ0KIA0K
-IHN0YXRpYyBpbnQgc2FtZV9ib29scyhjb25kX25vZGVfdCAqYSwgY29uZF9ub2RlX3QgKmIpIHsN
-Ci0JdW5zaWduZWQgaW50IGksIHg7DQorCXVuc2lnbmVkIGludCBpOw0KIAkNCi0JeCA9IGEtPm5i
-b29sczsNCi0NCiAJLyogc2FtZSBudW1iZXIgb2YgYm9vbHM/ICovDQotCWlmICh4ICE9IGItPm5i
-b29scykgcmV0dXJuIDA7DQorCWlmIChhLT5uYm9vbHMgIT0gYi0+bmJvb2xzKQ0KKwkJcmV0dXJu
-IDA7DQogDQogCS8qIG1ha2Ugc3VyZSBhbGwgdGhlIGJvb2xzIGluIGEgYXJlIGFsc28gaW4gYiAq
-Lw0KLQlmb3IoaSA9IDA7IGkgPCB4OyBpKyspIGlmICghYm9vbF9wcmVzZW50KGEtPmJvb2xfaWRz
-W2ldLCBiLT5ib29sX2lkcywgeCkpIHJldHVybiAwOw0KKwlmb3IoaSA9IDA7IGkgPCBhLT5uYm9v
-bHM7IGkrKykgew0KKwkJaWYgKCFib29sX3ByZXNlbnQoYS0+Ym9vbF9pZHNbaV0sIGItPmJvb2xf
-aWRzLCBiLT5uYm9vbHMpKQ0KKwkJCXJldHVybiAwOw0KKwl9DQogCXJldHVybiAxOw0KIH0NCiAN
-CkBAIC05MywxOCArMTAzLDI0IEBAIGludCBjb25kX2V4cHJfZXF1YWwoY29uZF9ub2RlX3QgKmEs
-IGNvbmQNCiAJaWYgKGEgPT0gTlVMTCB8fCBiID09IE5VTEwpDQogCQlyZXR1cm4gMDsNCiANCi0J
-aWYoYS0+bmJvb2xzICE9IGItPm5ib29scykgcmV0dXJuIDA7DQorCWlmIChhLT5uYm9vbHMgIT0g
-Yi0+bmJvb2xzKQ0KKwkJcmV0dXJuIDA7DQogDQogCS8qIGlmIGV4cHJzIGhhdmUgPD0gQ09ORF9N
-QVhfQk9PTFMgd2UgY2FuIGNoZWNrIHRoZSBwcmVjb21wdXRlIHZhbHVlcw0KIAkgKiBmb3IgdGhl
-IGV4cHJlc3Npb25zLg0KIAkgKi8NCi0JaWYgKGEtPm5ib29scyA8PSBDT05EX01BWF9CT09MUyAm
-JiBiLT5uYm9vbHMgPD0gQ09ORF9NQVhfQk9PTFMpCSAgICANCi0Jew0KLQkJaWYoIXNhbWVfYm9v
-bHMoYSxiKSkgcmV0dXJuIDA7DQorCWlmIChhLT5uYm9vbHMgPD0gQ09ORF9NQVhfQk9PTFMgJiYg
-Yi0+bmJvb2xzIDw9IENPTkRfTUFYX0JPT0xTKQl7DQorCQlpZighc2FtZV9ib29scyhhLGIpKQ0K
-KwkJCXJldHVybiAwOw0KIAkJcmV0dXJuIChhLT5leHByX3ByZV9jb21wID09IGItPmV4cHJfcHJl
-X2NvbXApOw0KIAl9DQogDQotCS8qIGZvciBsb25nIGV4cHJlc3Npb25zIHdlIGNoZWNrIGZvciBl
-eGFjdGx5IHRoZSBzYW1lIGV4cHJlc3Npb24gKi8NCisJLyogRm9yIGxvbmcgZXhwcmVzc2lvbnMg
-Zmlyc3QgbWFrZSBjZXJ0YWluIHRoYXQgdGhleSBoYXZlIHRoZSBzYW1lDQorCSAqIGJvb2xlYW5z
-IGFuZCB0aGVuIGNvbXBhcmUgdGhlIGV4cHJlc3Npb25zLg0KKwkgKi8NCisJaWYgKCFzYW1lX2Jv
-b2xzKGEsYikpDQorCSAgICByZXR1cm4gMDsNCisNCiAJY3VyX2EgPSBhLT5leHByOw0KIAljdXJf
-YiA9IGItPmV4cHI7DQogCXdoaWxlICgxKSB7DQpAQCAtMTU1LDYgKzE3MSwxMiBAQCBjb25kX25v
-ZGVfdCAqY29uZF9ub2RlX2ZpbmQocG9saWN5ZGJfdCAqDQogCX0NCiAgICAgICAgIG5ld19ub2Rl
-LT5jdXJfc3RhdGUgPSBjb25kX2V2YWx1YXRlX2V4cHIocCwgbmV3X25vZGUtPmV4cHIpOw0KICAg
-ICAgICAgbmV3X25vZGUtPm5ib29scyA9IG5lZWRsZS0+bmJvb2xzOw0KKwluZXdfbm9kZS0+Ym9v
-bF9pZHMgPSAodWludDMyX3QqKW1hbGxvYyhuZXdfbm9kZS0+bmJvb2xzICogc2l6ZW9mKHVpbnQz
-Ml90KSk7DQorCWlmIChuZXdfbm9kZS0+Ym9vbF9pZHMgPT0gTlVMTCkgew0KKwkJY29uZF9leHBy
-X2Rlc3Ryb3kobmV3X25vZGUtPmV4cHIpOw0KKwkJZnJlZShuZXdfbm9kZSk7DQorCQlyZXR1cm4g
-TlVMTDsNCisJfQ0KICAgICAgICAgZm9yIChpID0gMDsgaSA8IG5lZWRsZS0+bmJvb2xzOyBpKysp
-DQogICAgICAgICAgICAgICAgIG5ld19ub2RlLT5ib29sX2lkc1tpXSA9IG5lZWRsZS0+Ym9vbF9p
-ZHNbaV07DQogICAgICAgICBuZXdfbm9kZS0+ZXhwcl9wcmVfY29tcCA9IG5lZWRsZS0+ZXhwcl9w
-cmVfY29tcDsNCkBAIC0zMjEsMTQgKzM0MywxMyBAQCBpbnQgY29uZF9ub3JtYWxpemVfZXhwcihw
-b2xpY3lkYl90ICpwLCBjDQogew0KIAljb25kX2V4cHJfdCAqbmUsKmU7DQogCWNvbmRfYXZfbGlz
-dF90ICp0bXA7DQotCXVuc2lnbmVkIGludCBpLCBqLCBvcmlnX3ZhbHVlW0NPTkRfTUFYX0JPT0xT
-XTsNCisJdWludDMyX3QgaSwgaiwgKm9yaWdfdmFsdWU7DQogCWludCBrOw0KIAl1aW50MzJfdCB0
-ZXN0ID0gMHgwOw0KIAlhdnJ1bGVfdCAqdG1wMjsNCiANCiAJY24tPm5ib29scyA9IDA7DQotDQot
-CW1lbXNldChjbi0+Ym9vbF9pZHMsIDAsc2l6ZW9mKGNuLT5ib29sX2lkcykgKTsNCisJY24tPmJv
-b2xfaWRzID0gTlVMTDsNCiAJY24tPmV4cHJfcHJlX2NvbXAgPSAweDA7DQogDQogCS8qIHRha2Ug
-Y2FyZSBvZiAhZXhwciBjYXNlICovDQpAQCAtMzY1LDExICszODYsMTMgQEAgaW50IGNvbmRfbm9y
-bWFsaXplX2V4cHIocG9saWN5ZGJfdCAqcCwgYw0KIAkJCWkgPSAwOw0KIAkJCS8qIHNlZSBpZiB3
-ZSd2ZSBhbHJlYWR5IHNlZW4gdGhpcyBib29sICovDQogCQkJaWYgKCFib29sX3ByZXNlbnQoZS0+
-Ym9vbCwgY24tPmJvb2xfaWRzLCBjbi0+bmJvb2xzKSkgew0KLQkJCQkvKiBjb3VudCBlbSBhbGwg
-YnV0IG9ubHkgcmVjb3JkIHVwIHRvIENPTkRfTUFYX0JPT0xTICovDQotCQkJCWlmIChjbi0+bmJv
-b2xzIDwgQ09ORF9NQVhfQk9PTFMpDQotCQkJCQljbi0+Ym9vbF9pZHNbY24tPm5ib29scysrXSA9
-IGUtPmJvb2w7DQotCQkJCWVsc2UNCi0JCQkJCWNuLT5uYm9vbHMrKzsNCisJCQkJY24tPmJvb2xf
-aWRzID0gKHVpbnQzMl90KilyZWFsbG9jKGNuLT5ib29sX2lkcywNCisJCQkJCQkJCSAgKGNuLT5u
-Ym9vbHMgKyAxKSAqIHNpemVvZih1aW50MzJfdCkpOw0KKwkJCQlpZiAoY24tPmJvb2xfaWRzID09
-IE5VTEwpIHsNCisJCQkJCWZwcmludGYoc3RkZXJyLCAiT3V0IG9mIG1lbW9yeVxuIik7DQorCQkJ
-CQlyZXR1cm4gLTE7DQorCQkJCX0NCisJCQkJY24tPmJvb2xfaWRzW2NuLT5uYm9vbHMrK10gPSBl
-LT5ib29sOw0KIAkJCX0NCiAJCQlicmVhazsNCiAJCWRlZmF1bHQ6DQpAQCAtMzc5LDYgKzQwMiwx
-MSBAQCBpbnQgY29uZF9ub3JtYWxpemVfZXhwcihwb2xpY3lkYl90ICpwLCBjDQogIA0KIAkvKiBv
-bmx5IHByZWNvbXB1dGUgZm9yIGV4cHJzIHdpdGggPD0gQ09ORF9BWF9CT09MUyAqLw0KIAlpZiAo
-Y24tPm5ib29scyA8PSAgQ09ORF9NQVhfQk9PTFMpIHsNCisJCW9yaWdfdmFsdWUgPSAodWludDMy
-X3QqKW1hbGxvYyhjbi0+bmJvb2xzICogc2l6ZW9mKHVpbnQzMl90KSk7DQorCQlpZiAob3JpZ192
-YWx1ZSA9PSBOVUxMKSB7DQorCQkJZnByaW50ZihzdGRlcnIsICJtZW1vcnkgZXJyb3JcbiIpOw0K
-KwkJCXJldHVybiAtMTsNCisJCX0NCiAJCS8qIHNhdmUgdGhlIGRlZmF1bHQgdmFsdWVzIGZvciB0
-aGUgYm9vbHMgc28gd2UgY2FuIHBsYXkgd2l0aCB0aGVtICovDQogCQlmb3IoaSA9IDA7IGkgPCBj
-bi0+bmJvb2xzOyBpKyspIHsNCiAJCQlvcmlnX3ZhbHVlW2ldID0gcC0+Ym9vbF92YWxfdG9fc3Ry
-dWN0W2NuLT5ib29sX2lkc1tpXSAtIDFdLT5zdGF0ZTsNCkBAIC00MDQsNyArNDMyLDkgQEAgaW50
-IGNvbmRfbm9ybWFsaXplX2V4cHIocG9saWN5ZGJfdCAqcCwgYw0KIAkJDQogCQkvKiByZXN0b3Jl
-IGJvb2wgZGVmYXVsdCB2YWx1ZXMgKi8NCiAJCWZvcihpID0gMDsgaSA8IGNuLT5uYm9vbHM7IGkr
-KykNCi0JCQlwLT5ib29sX3ZhbF90b19zdHJ1Y3RbY24tPmJvb2xfaWRzW2ldIC0gMV0tPnN0YXRl
-ID0gb3JpZ192YWx1ZVtpXSA7DQorCQkJcC0+Ym9vbF92YWxfdG9fc3RydWN0W2NuLT5ib29sX2lk
-c1tpXSAtIDFdLT5zdGF0ZSA9IG9yaWdfdmFsdWVbaV07DQorCQkNCisJCWZyZWUob3JpZ192YWx1
-ZSk7DQogCX0NCiAJcmV0dXJuIDA7DQogfQ0KQEAgLTQ2MCw2ICs0OTAsNyBAQCB2b2lkIGNvbmRf
-bm9kZV9kZXN0cm95KGNvbmRfbm9kZV90ICpub2RlDQogCQlyZXR1cm47DQogDQogCWNvbmRfZXhw
-cl9kZXN0cm95KG5vZGUtPmV4cHIpOw0KKwlmcmVlKG5vZGUtPmJvb2xfaWRzKTsNCiAgICAgICAg
-IGF2cnVsZV9saXN0X2Rlc3Ryb3kobm9kZS0+YXZ0cnVlX2xpc3QpOw0KICAgICAgICAgYXZydWxl
-X2xpc3RfZGVzdHJveShub2RlLT5hdmZhbHNlX2xpc3QpOw0KIAljb25kX2F2X2xpc3RfZGVzdHJv
-eShub2RlLT50cnVlX2xpc3QpOw0K
-
-
---=-aVLDaAKjRjzDWo9tzmVm--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
