@@ -1,32 +1,22 @@
-Subject: Re: Fedora Core 5 Tomcat 4 problems
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Michael K. Smith" <mksmith@adhost.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <1148490176.24463.454.camel@moss-spartans.epoch.ncsc.mil>
-References: <C099D5CE.24D51%mksmith@adhost.com>
-	 <1148490176.24463.454.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Fedora Core + GSX server + SELinux policies
+From: Michael Colef <mcolef@nyit.edu>
+To: SELinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 25 May 2006 09:16:35 -0400
-Message-Id: <1148562995.14262.4.camel@sgc.columbia.tresys.com>
+Date: Thu, 25 May 2006 08:16:20 -0400
+Message-Id: <1148559380.2511.7.camel@michaelc.nyit.edu>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-24 at 13:02 -0400, Stephen Smalley wrote:
-> On Wed, 2006-05-24 at 09:20 -0700, Michael K. Smith wrote:
-> > I am attempting to start Tomcat 4 using an rc script that uses the
-> > unprivileged user "tomcat" to run the application.
+I am wondering if anyone has any information about setting up SELinux
+policies or sample policy files for a Fedora Core host running VMware
+GSX server. I am presently looking at both FC4 and FC5.
 
-> > allow initrc_su_t security_t:security compute_av;
-> 
-> pam_rootok permission check from su.
+Any help is highly appreciated.
 
-I have added this to su domains in reference policy.
+Michael Colef
+NYIT
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
 
 
 --
