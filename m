@@ -1,28 +1,40 @@
-Subject: Re: Fedora Core + GSX server + SELinux policies
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Michael Colef <mcolef@nyit.edu>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1148559380.2511.7.camel@michaelc.nyit.edu>
-References: <1148559380.2511.7.camel@michaelc.nyit.edu>
-Content-Type: text/plain
-Date: Thu, 25 May 2006 09:58:16 -0400
-Message-Id: <1148565496.14262.8.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Date: Thu, 25 May 2006 08:06:54 -0700
+Subject: Re: Fedora Core 5 Tomcat 4 problems
+From: Michael Smith <mksmith@adhost.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+CC: <SELinux@tycho.nsa.gov>
+Message-ID: <C09B161E.5B85%mksmith@adhost.com>
+In-Reply-To: <1148562995.14262.4.camel@sgc.columbia.tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-05-25 at 08:16 -0400, Michael Colef wrote:
-> I am wondering if anyone has any information about setting up SELinux
-> policies or sample policy files for a Fedora Core host running VMware
-> GSX server. I am presently looking at both FC4 and FC5.
 
-The vmware support in reference policy (which is the basis of the FC5
-policy) has only been tested on VMWare workstation as far as I know.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+
+On 5/25/06 6:16 AM, "Christopher J. PeBenito" <cpebenito@tresys.com> wrote:
+
+> On Wed, 2006-05-24 at 13:02 -0400, Stephen Smalley wrote:
+>> On Wed, 2006-05-24 at 09:20 -0700, Michael K. Smith wrote:
+>>> I am attempting to start Tomcat 4 using an rc script that uses the
+>>> unprivileged user "tomcat" to run the application.
+> 
+>>> allow initrc_su_t security_t:security compute_av;
+>> 
+>> pam_rootok permission check from su.
+> 
+> I have added this to su domains in reference policy.
+
+Thank you to everyone for the help.  I did the runuser modification and that
+did indeed fix the issue.  Once I download the new reference policy I'll
+also remove the local policy per Stephen's advice.
+
+Regards,
+
+Mike
 
 
 --
