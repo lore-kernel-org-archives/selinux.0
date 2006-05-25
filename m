@@ -1,120 +1,58 @@
-Subject: Re: Bugs with bool_ids usage (libsepol)
+Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
+	of inode security contexts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Cedric Roux <Cedric.Roux@eurecom.fr>, selinux@tycho.nsa.gov
-In-Reply-To: <1147283537.22880.52.camel@jackjack.columbia.tresys.com>
-References: <Pine.LNX.4.44.0605101702540.19909-100000@perignan.eurecom.fr>
-	 <1147283537.22880.52.camel@jackjack.columbia.tresys.com>
+To: Jeremy Katz <katzj@redhat.com>
+Cc: selinux@tycho.nsa.gov, SELinux-dev@tresys.com,
+        Paul Nasrat <pnasrat@redhat.com>
+In-Reply-To: <1148491489.16558.38.camel@orodruin.boston.redhat.com>
+References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060517075435.GB7665@thorium.jmh.mhn.de>
+	 <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
+	 <20060518181452.GA4935@thorium2.jmh.mhn.de>
+	 <1148043593.25168.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <1148044725.8647.35.camel@jackjack.columbia.tresys.com>
+	 <1148404514.24463.176.camel@moss-spartans.epoch.ncsc.mil>
+	 <1148491489.16558.38.camel@orodruin.boston.redhat.com>
 Content-Type: text/plain
-Date: Thu, 25 May 2006 11:06:55 -0400
-Message-Id: <1148569615.20976.110.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 25 May 2006 11:19:46 -0400
+Message-Id: <1148570386.20976.119.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-05-10 at 13:52 -0400, Karl MacMillan wrote:
-> On Wed, 2006-05-10 at 17:17 +0200, Cedric Roux wrote:
-> > Dear SELinux people,
-> > 
-> > there is a bug with the way you handle bool_ids in libsepol.
-> > For example, we see this code:
-> >         for (i = 0; i < needle->nbools; i++)
-> >                 new_node->bool_ids[i] = needle->bool_ids[i];
-> > in libsepol-1.12/src/conditional.c:cond_node_find
-> > The only problem is that bool_ids is defined as:
-> >         uint32_t bool_ids[COND_MAX_BOOLS];
-> > with:
-> > #define COND_MAX_BOOLS 5
-> > in libsepol-1.12/include/sepol/policydb/conditional.h
-> > 
-> > But we have that nbools may be bigger than COND_MAX_BOOLS.
-> > That would result in a funny behavior if someone somewhere
-> > on this little planet decided to put more than COND_MAX_BOOLS
-> > boolean variables in an if statement, don't you think?
-> > 
-> > I tried to do some tests.
-> > 
-> > With something like (manipulating policy.conf from refpolicy):
-> >     if (ftpd_is_daemon && secure_mode && secure_mode_insmod && 
-> >         allow_cvs_read_shadow && allow_execmem && allow_kerberos && 
-> >         allow_smbd_anon_write && allow_ypbind && allow_execmod) {
-> >            DO_SOMETHING
-> >     }
-> > checkpolicy crashes on a malloc (so I need 9 boolean variables for a
-> > malloc to be very unhappy with the state of the heap).
-> > 
-> > You should do something about this I think.
-> > 
-> > I didn't get the point with the bool_ids yet, so I don't know
-> > how to fix that. Maybe do something like:
-> >         for (i = 0; i < min(needle->nbools, COND_MAX_BOOLS); i++)
-> > is the solution, maybe not. It's up to you!
-> > 
-> > Anyway you will need to check every usage of bool_ids.
-> > 
-> 
-> Thanks for the bug report. The code in question is making an incorrect
-> assumption about what COND_MAX_BOOLS is used for. That vaguely named
-> define is not intended to limit the number of unique booleans in a
-> conditional expression. The only limit in conditional expressions should
-> be the stack depth.
-> 
-> I should be able to get a patch to fix this out sometime soon.
+On Wed, 2006-05-24 at 13:24 -0400, Jeremy Katz wrote:
+> Well, given that the only labels that will end up in a header will be
+> from a policy in that package, I'm still not really convinced what
+> adding a verification step _really_ accomplishes.  
 
-Patch below has been committed to the selinux sourceforge tree.
+In addition to the security aspects, think about it just from the
+perspective of robustness and error reporting.  At present (w/o
+labelpriv support), programs get an immediate indication if they attempt
+to set a file label that is not defined by the policy, so they know when
+they have tried to use an invalid label.  With labelpriv support, some
+programs (like rpm) are going to get no indications of invalid file
+labels when they are set, nor will they get any indication when the
+policy is loaded that those file labels were never made valid.  Hence,
+if they don't perform any separate verification, they'll never know that
+an error occurred, and just leave the system in an inconsistent state.
 
-Index: libsepol/src/conditional.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/conditional.c,v
-retrieving revision 1.15
-diff -u -p -r1.15 conditional.c
---- libsepol/src/conditional.c	5 May 2006 18:54:47 -0000	1.15
-+++ libsepol/src/conditional.c	25 May 2006 13:36:41 -0000
-@@ -26,6 +26,8 @@
- 
- #include "private.h"
- 
-+#undef min
-+#define min(a,b) (((a) < (b)) ? (a) : (b))
- 
- /* move all type rules to top of t/f lists to help kernel on evaluation */
- static void cond_optimize(cond_av_list_t **l) {
-@@ -155,7 +157,7 @@ cond_node_t *cond_node_find(policydb_t *
- 	}
-         new_node->cur_state = cond_evaluate_expr(p, new_node->expr);
-         new_node->nbools = needle->nbools;
--        for (i = 0; i < needle->nbools; i++)
-+        for (i = 0; i < min(needle->nbools, COND_MAX_BOOLS); i++)
-                 new_node->bool_ids[i] = needle->bool_ids[i];
-         new_node->expr_pre_comp = needle->expr_pre_comp;
-         new_node->true_list = NULL;
-Index: libsepol/src/link.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/link.c,v
-retrieving revision 1.18
-diff -u -p -r1.18 link.c
---- libsepol/src/link.c	28 Apr 2006 18:34:46 -0000	1.18
-+++ libsepol/src/link.c	25 May 2006 13:36:23 -0000
-@@ -33,6 +33,9 @@
- 
- #include "debug.h"
- 
-+#undef min
-+#define min(a,b) (((a) < (b)) ? (a) : (b))
-+
- typedef struct policy_module {
-         policydb_t *policy;
-         uint32_t num_decls;
-@@ -1017,7 +1020,7 @@ static int copy_cond_list(cond_node_t *l
-                         cur_expr->bool = module->map[SYM_BOOLS][cur_expr->bool - 1];
-                 }
-                 new_node->nbools = cur->nbools;
--                for (i = 0; i < cur->nbools; i++) {
-+                for (i = 0; i < min(cur->nbools, COND_MAX_BOOLS); i++) {
-                         uint32_t remapped_id = module->map[SYM_BOOLS][cur->bool_ids[i] - 1];
-                         assert(remapped_id != 0);
-                         new_node->bool_ids[i] = remapped_id;
+Compare with chown/chmod with symbolic values rather than raw integers,
+and note that those programs certainly report when the symbolic value is
+invalid.  Eric Paris pointed out that if we gave user domains (i.e.
+unconfined_t in targeted policy) the new labelpriv permission, then they
+would certainly be unhappy to find that a seemingly successful chcon
+command actually left the file in an unlabeled state without any warning
+or error.  If rpm doesn't do any verification/checking, then it is in
+the same situation - it violates the principle of least surprise.
 
+The alternative model to post checking after policy load would be to
+either:
+1) Precheck the file contexts from the header against the .pp file in
+some manner at install time (in which case rpm can abort early), or
+2) Have load_policy fail if any of these labelpriv-created contexts were
+not made valid by the new policy, reverting to the old policy and
+returning an error all the way back to rpm (in which case rpm still has
+to take some corrective action).
 
 -- 
 Stephen Smalley
