@@ -6,26 +6,47 @@ Cc: jmorris@redhat.com, selinux@tycho.nsa.gov, dhowells@redhat.com
 In-Reply-To: <1148575812.3304.45.camel@moss-tarheels.epoch.ncsc.mil>
 References: <1148575812.3304.45.camel@moss-tarheels.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 26 May 2006 08:31:36 -0400
-Message-Id: <1148646696.20976.191.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 26 May 2006 08:30:35 -0400
+Message-Id: <1148646635.20976.189.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Thu, 2006-05-25 at 12:50 -0400, Michael LeMay wrote:
-> diff -uprN -X linux-2.6.17-rc4-mm3/Documentation/dontdiff linux-2.6.17-rc4-mm3.orig/security/selinux/include/avc.h linux-2.6.17-rc4-mm3/security/selinux/include/avc.h
-> --- linux-2.6.17-rc4-mm3.orig/security/selinux/include/avc.h	2006-03-20 00:53:29.000000000 -0500
-> +++ linux-2.6.17-rc4-mm3/security/selinux/include/avc.h	2006-05-24 11:13:15.000000000 -0400
-> @@ -43,6 +43,7 @@ struct avc_audit_data {
->  #define AVC_AUDIT_DATA_NET  2
->  #define AVC_AUDIT_DATA_CAP  3
->  #define AVC_AUDIT_DATA_IPC  4
-> +#define AVC_AUDIT_DATA_KEY  5
->  	struct task_struct *tsk;
->  	union 	{
->  		struct {
+> One interesting
+> result of initializing root's keyrings during kernel initialization
+> is that they are assigned the type "kernel_t", rather than "xdm_t"
+> as is the case with all ordinary users.  I hope this is an acceptable
+> labeling...
 
-This looks like a leftover from the prior version of the patch.
+xdm_t (i.e. the security context of the display manager) on the user
+keys doesn't seem right; I would think it should be the context of the
+user session itself, so that user sessions with different security
+contexts would have distinct key labels (both for role/domain separation
+and for level separation).  Anyone know how keys are created by gdm et
+al, e.g. is it done from some pam module?  gdm is already instrumented
+to call setexeccon() to set the user session security context before
+executing the session, but if it is directly creating the key within the
+main gdm process (without executing a helper) or if it executes a helper
+before performing that setup, the key creation will happen in gdm's
+context.  
+
+> One other notable change in this patch is the addition of the "lookup"
+> permission to the "key" security class.  This permission is passed to
+> SELinux whenever the key handling code performs a null permission check.
+
+Are these null permission checks done as internal tests by the kernel
+itself, or do they originate from userspace queries?  If the former,
+then failing the lookup based on the user's context could lead to
+internal confusion for the kernel (e.g. it decides that the key doesn't
+exist, so it creates a duplicate).  
+
+Compatibility question:  If you build a kernel with these checks and try
+running it on an existing system today without corresponding policy
+updates, does anything critical immediately break?  You mentioned that
+gdm is creating keys - what happens if that fails?  Just want to know
+how closely we need to coordinate the kernel update with any policy
+update.
 
 -- 
 Stephen Smalley
