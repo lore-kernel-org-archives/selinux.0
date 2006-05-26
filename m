@@ -1,51 +1,44 @@
-Subject: Re: [redhat-lspp] Re: [patch] Full relabel audit event
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Antill <jantill@redhat.com>
-Cc: redhat-lspp <redhat-lspp@redhat.com>, linux-audit@redhat.com,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1148665647.8828.36.camel@code.and.org>
-References: <1148590901.8828.22.camel@code.and.org>
-	 <1148663120.20976.235.camel@moss-spartans.epoch.ncsc.mil>
-	 <1148665647.8828.36.camel@code.and.org>
-Content-Type: text/plain
-Date: Fri, 26 May 2006 14:03:34 -0400
-Message-Id: <1148666614.20976.258.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4QIux33028735
+	for <selinux@tycho.nsa.gov>; Fri, 26 May 2006 14:56:59 -0400
+Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4QIuvGA000300
+	for <selinux@tycho.nsa.gov>; Fri, 26 May 2006 18:56:58 GMT
+Date: Fri, 26 May 2006 14:56:54 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC 0/4] NetLabel
+In-Reply-To: <44772E19.5030907@hp.com>
+Message-ID: <Pine.LNX.4.64.0605261455490.4386@d.namei>
+References: <44760E29.4070407@hp.com> <Pine.LNX.4.64.0605251938360.27473@d.namei>
+ <44771EFB.6030203@hp.com> <Pine.LNX.4.64.0605261156030.3103@d.namei>
+ <44772E19.5030907@hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-26 at 13:47 -0400, James Antill wrote:
-> On Fri, 2006-05-26 at 13:05 -0400, Stephen Smalley wrote:
-> > Hmmm...what is it that you actually want to do here?  If you only care
-> > about auditing autorelabel events, then I'd suggest generating the audit
-> > message from the autorelabel portion of rc.sysinit (via a helper, I
-> > suppose), not from setfiles itself.
+On Fri, 26 May 2006, Paul Moore wrote:
+
+> The NetLabel netlink protocol does have a "version" message which can be
+> used to get the version.  My main reason for doing this is not to signal
+> changes to existing messages, i.e. break backward compatability, but to
+> signal to user space applications that the kernel supports a newer protocol.
 > 
->  This is all that we care about, but the solution of creating a helper
-> to just be called before setfiles was considered suboptimal against just
-> putting the code inside setfiles (I know Steve is very much against
-> anything which acts like logger for the audit subsystem).
+> The printk() above is just informative, if that is your main concern I
+> can yank it.
 
-I don't see the point when a) you only want it in that one case, b) it
-doesn't prevent trivial bypass in any way (e.g. by using restorecon, by
-rolling your own program to do it, by running setfiles on /* rather than
-just /, ...), and c) you aren't capturing any information that cannot be
-determined by the caller of setfiles in the first place (just the fact
-of a mass relabel and the final exit status).
+Yes, please do.  Linux kernel subsystems don't have versions, use the main 
+kernel version if you need to.
 
-Note btw that setfiles already provides three different ways to log
-actual changes in file contexts, the original -v verbose mode, and the
--l (log via syslog) and -o <file> (log to file) modes introduced later
-by Red Hat.  That at least provides detailed information that the caller
-couldn't determine otherwise.
 
->  The thread is for the kernel problem that makes the above patch not
-> actually work, see the thread "Re: audit 1.2.2 released".
-
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
