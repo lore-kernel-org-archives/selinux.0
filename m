@@ -1,48 +1,36 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Fedora Core 5 Tomcat 4 problems
-Date: Fri, 26 May 2006 11:04:57 +1000
-Cc: "Michael K. Smith" <mksmith@adhost.com>, SELinux@tycho.nsa.gov
-References: <C099D5CE.24D51%mksmith@adhost.com> <200605251323.13498.russell@coker.com.au> <1148556951.20976.11.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1148556951.20976.11.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200605261105.01703.russell@coker.com.au>
+Subject: Re: [PATCH] selinux: Kernel access key retention support for
+	SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Michael LeMay <mdlemay@epoch.ncsc.mil>
+Cc: jmorris@redhat.com, selinux@tycho.nsa.gov, dhowells@redhat.com
+In-Reply-To: <1148575812.3304.45.camel@moss-tarheels.epoch.ncsc.mil>
+References: <1148575812.3304.45.camel@moss-tarheels.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 26 May 2006 08:31:36 -0400
+Message-Id: <1148646696.20976.191.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 25 May 2006 21:35, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2006-05-25 at 13:23 +1000, Russell Coker wrote:
-> > On Thursday 25 May 2006 02:20, "Michael K. Smith" <mksmith@adhost.com> 
-wrote:
-> > > I am attempting to start Tomcat 4 using an rc script that uses the
-> > > unprivileged user "tomcat" to run the application.  The relevant line
-> > > is:
-> > >
-> > > su -l tomcat -p -s /bin/bash -c /usr/local/tomcat/bin/startup.sh
-> >
-> > The tomcat start script is broken, it should be using runuser instead. 
-> > Change it to use runuser instead of su (runuser takes the same parameters
-> > so it's an easy change) and many of the problems you list will go away.
-> >
-> > Also please file a bug report requesting that runuser be used.
->
-> Has runuser been upstreamed, or generally ported to other distros yet?
-> Or is it still Fedora-specific?
+On Thu, 2006-05-25 at 12:50 -0400, Michael LeMay wrote:
+> diff -uprN -X linux-2.6.17-rc4-mm3/Documentation/dontdiff linux-2.6.17-rc4-mm3.orig/security/selinux/include/avc.h linux-2.6.17-rc4-mm3/security/selinux/include/avc.h
+> --- linux-2.6.17-rc4-mm3.orig/security/selinux/include/avc.h	2006-03-20 00:53:29.000000000 -0500
+> +++ linux-2.6.17-rc4-mm3/security/selinux/include/avc.h	2006-05-24 11:13:15.000000000 -0400
+> @@ -43,6 +43,7 @@ struct avc_audit_data {
+>  #define AVC_AUDIT_DATA_NET  2
+>  #define AVC_AUDIT_DATA_CAP  3
+>  #define AVC_AUDIT_DATA_IPC  4
+> +#define AVC_AUDIT_DATA_KEY  5
+>  	struct task_struct *tsk;
+>  	union 	{
+>  		struct {
 
-It is specific to Fedora.
-
-For Debian the best solution is to modify start-stop-daemon, this is on my 
-todo list.  For Gentoo the best solution is to modify the program that they 
-use to start daemons (not sure of the name but know that they have one).
+This looks like a leftover from the prior version of the patch.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
