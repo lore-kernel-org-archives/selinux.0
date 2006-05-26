@@ -1,125 +1,48 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4Q06LGW009867
-	for <selinux@tycho.nsa.gov>; Thu, 25 May 2006 20:06:21 -0400
-Received: from mail4.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4Q06JKp024865
-	for <selinux@tycho.nsa.gov>; Fri, 26 May 2006 00:06:20 GMT
-Date: Thu, 25 May 2006 20:06:15 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC 0/4] NetLabel
-In-Reply-To: <44760E29.4070407@hp.com>
-Message-ID: <Pine.LNX.4.64.0605251938360.27473@d.namei>
-References: <44760E29.4070407@hp.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Fedora Core 5 Tomcat 4 problems
+Date: Fri, 26 May 2006 11:04:57 +1000
+Cc: "Michael K. Smith" <mksmith@adhost.com>, SELinux@tycho.nsa.gov
+References: <C099D5CE.24D51%mksmith@adhost.com> <200605251323.13498.russell@coker.com.au> <1148556951.20976.11.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1148556951.20976.11.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200605261105.01703.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 25 May 2006, Paul Moore wrote:
+On Thursday 25 May 2006 21:35, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2006-05-25 at 13:23 +1000, Russell Coker wrote:
+> > On Thursday 25 May 2006 02:20, "Michael K. Smith" <mksmith@adhost.com> 
+wrote:
+> > > I am attempting to start Tomcat 4 using an rc script that uses the
+> > > unprivileged user "tomcat" to run the application.  The relevant line
+> > > is:
+> > >
+> > > su -l tomcat -p -s /bin/bash -c /usr/local/tomcat/bin/startup.sh
+> >
+> > The tomcat start script is broken, it should be using runuser instead. 
+> > Change it to use runuser instead of su (runuser takes the same parameters
+> > so it's an easy change) and many of the problems you list will go away.
+> >
+> > Also please file a bug report requesting that runuser be used.
+>
+> Has runuser been upstreamed, or generally ported to other distros yet?
+> Or is it still Fedora-specific?
 
-> This patch introduces a new kernel feature designed to support labeled
-> networking protocols such as RIPSO and CIPSO.  These protocols are required to
-> interoperate with existing "trusted" operating systems such as Trusted
-> Solaris.
+It is specific to Fedora.
 
-A few initial comments.
-
-- Did you decide that you definitely need to verify labels on fragments?  
-
-I can see the code's been added to do that, but wonder about a comment 
-made during earlier discussion that mislabeled fragments could only come 
-from a misbehaving trusted system.  What is the threat model here?
-
-
-- Can you explain how module loading and module refcounting for these 
-modules work?  (e.g. what causes netlabel_cipso_v4 to be loaded, is it 
-always safe to unload if the refcount is zero?)
-
-
-- What about user APIs for setting and retrieving labels?
-
-
-- What about labeling of kernel-generated packets?
-
-
-- Don't put #ifdef'd code into mainline code.
-
-e.g. in net/ipv4/ip_fragment.c
-
-+#ifdef CONFIG_NETLABEL_CIPSOV4
-+       if (sopt->cipso) {
-
-This needs to be a function which is compiled away as a static inline when 
-not selected.  This stuff should have zero impact on the networking code 
-if not enabled.
-
-
-- Try and add entries for security/selinux/nlmsgtab.c for the new Netlink 
-protocol.
-
-
-- This does not follow normal kernel coding practices:
-
-+       if (netlbl_netlink_init() != 0) {
-+               netlbl_domhsh_exit();
-+               return -ENOMEM;
-
-This should be:
-
-{
-	err = netlbl_netlink_init();
-	if (err)
-		goto err_domhsh;
-
-	...
-
-err_domhsh:
-	netlbl_domhsh_exit();
-	return err;
-}
-
-i.e. a single error path when you have cleanups to perform, and 
-propagation of error codes.
-
-
-- This kind of stuff should be removed before merging:
-
-+static void __exit netlbl_exit(void)
-+{
-+       printk(KERN_INFO "NetLabel: Exiting\n");
-
-
-+int netlbl_netlink_init(void)
-+{
-+       BUG_ON(netlbl_nl);
-
-
-+int netlbl_netlink_exit(void)
-+{
-+       BUG_ON(!netlbl_nl);
-
-
-Should the above two be marked __init and __exit?  And why does the last 
-one return an int when the only possible return value is zero?  (it needs 
-to return void).
-
-
-- Why does this module have a version number?
-
-+       printk(KERN_INFO "NetLabel: Initializing (v%s %s)\n",
-+              NETLBL_VER_STR, NETLBL_VER_DATE);
-
-
-
-
+For Debian the best solution is to modify start-stop-daemon, this is on my 
+todo list.  For Gentoo the best solution is to modify the program that they 
+use to start daemons (not sure of the name but know that they have one).
 
 -- 
-James Morris
-<jmorris@namei.org>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
