@@ -3,50 +3,42 @@ Subject: Re: [PATCH] selinux: Kernel access key retention support for
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Michael LeMay <mdlemay@epoch.ncsc.mil>
 Cc: jmorris@redhat.com, selinux@tycho.nsa.gov, dhowells@redhat.com
-In-Reply-To: <1148646635.20976.189.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1148575812.3304.45.camel@moss-tarheels.epoch.ncsc.mil>
 References: <1148575812.3304.45.camel@moss-tarheels.epoch.ncsc.mil>
-	 <1148646635.20976.189.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 26 May 2006 08:56:14 -0400
-Message-Id: <1148648174.20976.211.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 26 May 2006 09:00:30 -0400
+Message-Id: <1148648430.20976.216.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-26 at 08:30 -0400, Stephen Smalley wrote:
-> On Thu, 2006-05-25 at 12:50 -0400, Michael LeMay wrote:
-> > One interesting
-> > result of initializing root's keyrings during kernel initialization
-> > is that they are assigned the type "kernel_t", rather than "xdm_t"
-> > as is the case with all ordinary users.  I hope this is an acceptable
-> > labeling...
-> 
-> xdm_t (i.e. the security context of the display manager) on the user
-> keys doesn't seem right; I would think it should be the context of the
-> user session itself, so that user sessions with different security
-> contexts would have distinct key labels (both for role/domain separation
-> and for level separation).  Anyone know how keys are created by gdm et
-> al, e.g. is it done from some pam module?  gdm is already instrumented
-> to call setexeccon() to set the user session security context before
-> executing the session, but if it is directly creating the key within the
-> main gdm process (without executing a helper) or if it executes a helper
-> before performing that setup, the key creation will happen in gdm's
-> context.  
+On Thu, 2006-05-25 at 12:50 -0400, Michael LeMay wrote:
+> diff -uprN -X linux-2.6.17-rc4-mm3/Documentation/dontdiff linux-2.6.17-rc4-mm3.orig/security/selinux/include/av_permissions.h linux-2.6.17-rc4-mm3/security/selinux/include/av_permissions.h
+> --- linux-2.6.17-rc4-mm3.orig/security/selinux/include/av_permissions.h	2006-05-24 09:01:58.000000000 -0400
+> +++ linux-2.6.17-rc4-mm3/security/selinux/include/av_permissions.h	2006-05-24 11:00:08.000000000 -0400
+> @@ -959,3 +959,12 @@
+>  #define PACKET__SEND                              0x00000001UL
+>  #define PACKET__RECV                              0x00000002UL
+>  #define PACKET__RELABELTO                         0x00000004UL
+> +
+> +#define KEY__VIEW                                 0x00000001UL
+> +#define KEY__READ                                 0x00000002UL
+> +#define KEY__WRITE                                0x00000004UL
+> +#define KEY__SEARCH                               0x00000008UL
+> +#define KEY__LINK                                 0x00000010UL
+> +#define KEY__SETATTR                              0x00000020UL
+> +#define KEY__LOOKUP                               0x00000040UL
+> +
 
-Ah, wait - is this just the keyring allocated upon set*uid via
-alloc_uid_keyring()?  In that case, then those keyrings will always be
-labeled with the security label of the login-like program rather than
-the user session itself.  So keyrings created via a gdm login will have
-one label, while keyrings created by local login or by sshd will have
-another label.  But multiple user logins via the same mechanism will all
-get the same label on that keyring.
-
-Now, if we introduced a /proc/pid/attr/keycreate node for specifying a
-desired label for a new key/keyring (controlled via a separate create
-permission in the key class, and modified the login-like programs to
-call an interface to set that to match the user session security context
-(e.g. setkeycreatecon()), then we could put those keyrings into the user
-session security context.
+I know that these symbols are auto-generated and just following our
+existing convention (class__perm), but in this case, we are rather close
+to a collision with the key subsystem's own definitions of its
+permissions (only differing in the extra underscore).  Of course, they
+are supposed to match in value with the key subsystem's own definitions
+anyway so that we don't have to do any translation at permission check
+time, but it seems a little worrisome.  Possibly we need to fix the
+namespace issues here (via separate patch) by adding a SE_ prefix or
+similar to all of these symbols.
 
 -- 
 Stephen Smalley
