@@ -1,62 +1,45 @@
-Message-ID: <447729B7.4060702@hp.com>
-Date: Fri, 26 May 2006 12:15:51 -0400
-From: Paul Moore <paul.moore@hp.com>
+Message-ID: <44772AE9.1060907@argus-systems.com>
+Date: Fri, 26 May 2006 11:20:57 -0500
+From: "Mikel L. Matthews" <mikel@argus-systems.com>
 MIME-Version: 1.0
-To: "Mikel L. Matthews" <mikel@argus-systems.com>
-Cc: James Morris <jmorris@namei.org>, netdev@vger.kernel.org,
+To: Paul Moore <paul.moore@hp.com>
+CC: James Morris <jmorris@namei.org>, netdev@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         James Morris <jmorris@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: [RFC 0/4] NetLabel
-References: <44760E29.4070407@hp.com> <Pine.LNX.4.64.0605251938360.27473@d.namei> <44771EFB.6030203@hp.com> <44772824.6090505@argus-systems.com>
-In-Reply-To: <44772824.6090505@argus-systems.com>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <44760E29.4070407@hp.com> <Pine.LNX.4.64.0605251938360.27473@d.namei> <44771EFB.6030203@hp.com> <44772824.6090505@argus-systems.com> <447729B7.4060702@hp.com>
+In-Reply-To: <447729B7.4060702@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mikel L. Matthews wrote:
-> Paul Moore wrote:
->>James Morris wrote:
->>>On Thu, 25 May 2006, Paul Moore wrote:
->>>
->>>>This patch introduces a new kernel feature designed to support labeled
->>>>networking protocols such as RIPSO and CIPSO.  These protocols are required to
->>>>interoperate with existing "trusted" operating systems such as Trusted
->>>>Solaris.
->>>
->>>A few initial comments.
->>>
->>>- Did you decide that you definitely need to verify labels on fragments?  
->>>
->>>I can see the code's been added to do that, but wonder about a comment 
->>>made during earlier discussion that mislabeled fragments could only come 
->>>from a misbehaving trusted system.  What is the threat model here?
->>>
->>
->>This is one part of the patch that I really don't have a strong feeling
->>for either way.  There was some concern on the LSM list that not
->>checking the fragment options might be an issue so I added some code to
->>check the fragment options.  Personally I think we are probably okay
->>without it as the un-autenticated/un-verified nature of these labeling
->>protocols more or less requires either a trusted network/hosts.
->>
->>If the community decides that this check is not required then I can
->>simply drop all of the changes in ip_fragment.c.
-> 
-> If you state you are labeling session packets (tcp or udp), that would 
-> lead one to believe all packets are labeled (including fragments). Based 
-> on our past evaluations I don't think non-labeled fragments would make 
-> it through an evaluation if CIPSO/RIPSO  were part of the TOE/security 
-> Target.
-> 
+Same issue, I would drop them.
 
-Outgoing fragment *should* be labeled correctly assuming the Linux base
-network stack does the right thing (I haven't tested this yet).  The
-issue we are discussing here is what to do about incoming packets where
-the fragments are not consistently labeled.
+Paul Moore wrote:
+> Mikel L. Matthews wrote:
+>> Paul Moore wrote:
+>>> James Morris wrote:
+
+>>
+> 
+> Outgoing fragment *should* be labeled correctly assuming the Linux base
+> network stack does the right thing (I haven't tested this yet).  The
+> issue we are discussing here is what to do about incoming packets where
+> the fragments are not consistently labeled.
+> 
 
 -- 
-paul moore
-linux security @ hp
+Thanks,
+Mike
+
+Mikel L. Matthews
+Chief Technology Officer
+Innovative Security Systems, Inc.
+(dba Argus Systems Group)
+1809 Woodfield Dr.
+Savoy IL 61874
++1-217-355-6308
+www.argus-systems.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
