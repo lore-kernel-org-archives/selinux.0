@@ -1,10 +1,10 @@
 Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
 	of inode security contexts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeremy Katz <katzj@redhat.com>
+From: Jeremy Katz <katzj@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, SELinux-dev@tresys.com,
         Paul Nasrat <pnasrat@redhat.com>
-In-Reply-To: <1148669659.2558.26.camel@aglarond.local>
+In-Reply-To: <1148674418.20976.284.camel@moss-spartans.epoch.ncsc.mil>
 References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
 	 <20060517075435.GB7665@thorium.jmh.mhn.de>
 	 <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
@@ -16,59 +16,41 @@ References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
 	 <1148570386.20976.119.camel@moss-spartans.epoch.ncsc.mil>
 	 <1148570910.20976.126.camel@moss-spartans.epoch.ncsc.mil>
 	 <1148669659.2558.26.camel@aglarond.local>
+	 <1148674418.20976.284.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 26 May 2006 16:13:38 -0400
-Message-Id: <1148674418.20976.284.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 26 May 2006 16:16:45 -0400
+Message-Id: <1148674605.2716.2.camel@aglarond.local>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-26 at 14:54 -0400, Jeremy Katz wrote:
-> On Thu, 2006-05-25 at 11:28 -0400, Stephen Smalley wrote:
-> > On Thu, 2006-05-25 at 11:19 -0400, Stephen Smalley wrote:
-> > > The alternative model to post checking after policy load would be to
-> > > either:
-> > > 1) Precheck the file contexts from the header against the .pp file in
-> > > some manner at install time (in which case rpm can abort early), or
+On Fri, 2006-05-26 at 16:13 -0400, Stephen Smalley wrote:
+> On Fri, 2006-05-26 at 14:54 -0400, Jeremy Katz wrote:
+> > On Thu, 2006-05-25 at 11:28 -0400, Stephen Smalley wrote:
+> > > On Thu, 2006-05-25 at 11:19 -0400, Stephen Smalley wrote:
+> > > b) having rpm recheck at install time provides us with both greater
+> > > robustness (in the event of a bug in rpmbuild or a package corrupted in
+> > > some manner along the way) and security (in the event of a maliciously
+> > > constructed package).
 > > 
-> > And as I suspect that you'll say that since those contexts were
-> > generated from the .pp file in the first place, no such checking is
-> > required, let me note that:
-> > a) the contexts will have been generated from the file contexts part of
-> > the .pp, not from the policy module itself, so there could be an
-> > inconsistency between the two that leaves the context invalid under the
-> > new policy, and
+> > But I'm willing to concede that adding some form of checking here may
+> > well make sense.  But I'm not convinced it will necessarily belong in
+> > rpm itself -- it may make more sense to have it in the
+> > policy_module_loader_helper which is going to end up being needed to
+> > avoid stupid scriptlet errors.  But that's in the realm of it not really
+> > mattering who's checking in that it's being checked.  Does that seem
+> > reasonable?
 > 
-> I still think that it's somewhat important to try to ensure that this
-> doesn't happen before you get to installing the package, just because at
-> that point, you're basically putting the user in the "you're hosed, do
-> not pass go, do not collect $200" position.  So I still hope that we
-> don't end up with this being a common occurrence :-)
+> Only issue here is the error path in rpm if that helper fails (or
+> whether the helper gets enough information from rpm to take corrective
+> action itself).
 
-Agreed, we want to maximize build-time checking to catch problems in
-advance, but we can't guarantee that it will catch all problems and we
-don't want to have to fully trust it.
+We'll make sure that the helper has enough information to fallback to
+relabeling as unlabeled (it might even make sense for it to be able to
+fall back to what the loaded policy would give so that, eg, shared libs
+at least end up as lib_t)
 
-> > b) having rpm recheck at install time provides us with both greater
-> > robustness (in the event of a bug in rpmbuild or a package corrupted in
-> > some manner along the way) and security (in the event of a maliciously
-> > constructed package).
-> 
-> But I'm willing to concede that adding some form of checking here may
-> well make sense.  But I'm not convinced it will necessarily belong in
-> rpm itself -- it may make more sense to have it in the
-> policy_module_loader_helper which is going to end up being needed to
-> avoid stupid scriptlet errors.  But that's in the realm of it not really
-> mattering who's checking in that it's being checked.  Does that seem
-> reasonable?
-
-Only issue here is the error path in rpm if that helper fails (or
-whether the helper gets enough information from rpm to take corrective
-action itself).
- 
--- 
-Stephen Smalley
-National Security Agency
+Jeremy
 
 
 --
