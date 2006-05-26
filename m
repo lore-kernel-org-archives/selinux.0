@@ -1,62 +1,195 @@
-Subject: Re: [RFC][PATCH] selinux:  introduce support for deferred mapping
-	of inode security contexts
-From: Jeremy Katz <katzj@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, SELinux-dev@tresys.com,
-        Paul Nasrat <pnasrat@redhat.com>
-In-Reply-To: <1148570910.20976.126.camel@moss-spartans.epoch.ncsc.mil>
-References: <1147710951.14426.118.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060517075435.GB7665@thorium.jmh.mhn.de>
-	 <1147888337.22880.165.camel@jackjack.columbia.tresys.com>
-	 <20060518181452.GA4935@thorium2.jmh.mhn.de>
-	 <1148043593.25168.71.camel@moss-spartans.epoch.ncsc.mil>
-	 <1148044725.8647.35.camel@jackjack.columbia.tresys.com>
-	 <1148404514.24463.176.camel@moss-spartans.epoch.ncsc.mil>
-	 <1148491489.16558.38.camel@orodruin.boston.redhat.com>
-	 <1148570386.20976.119.camel@moss-spartans.epoch.ncsc.mil>
-	 <1148570910.20976.126.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: libsepol and libselinux patches
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: SELinux-dev@tresys.com, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20060526160356.GC13467@sergelap.austin.ibm.com>
+References: <20060523154424.GA13237@sergelap>
+	 <1148499826.24463.533.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060526160356.GC13467@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Date: Fri, 26 May 2006 14:54:19 -0400
-Message-Id: <1148669659.2558.26.camel@aglarond.local>
+Date: Fri, 26 May 2006 16:01:44 -0400
+Message-Id: <1148673704.20976.273.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-05-25 at 11:28 -0400, Stephen Smalley wrote:
-> On Thu, 2006-05-25 at 11:19 -0400, Stephen Smalley wrote:
-> > The alternative model to post checking after policy load would be to
-> > either:
-> > 1) Precheck the file contexts from the header against the .pp file in
-> > some manner at install time (in which case rpm can abort early), or
+On Fri, 2006-05-26 at 11:03 -0500, Serge E. Hallyn wrote:
+> Ok, I believe the following patch addresses the above.  The decl chain
+> should be handled by the avrule_block_list_destroy, so i think i'm
+> freeing everything at this point.
 > 
-> And as I suspect that you'll say that since those contexts were
-> generated from the .pp file in the first place, no such checking is
-> required, let me note that:
-> a) the contexts will have been generated from the file contexts part of
-> the .pp, not from the policy module itself, so there could be an
-> inconsistency between the two that leaves the context invalid under the
-> new policy, and
+> thanks,
+> -serge
+> 
 
-I still think that it's somewhat important to try to ensure that this
-doesn't happen before you get to installing the package, just because at
-that point, you're basically putting the user in the "you're hosed, do
-not pass go, do not collect $200" position.  So I still hope that we
-don't end up with this being a common occurrence :-)
+> @@ -1898,7 +1881,7 @@
+>          size_t nel, nel2, len, len2;
+>          genfs_t *genfs_p, *newgenfs, *genfs;
+>          unsigned int i, j;
+> -        ocontext_t *l, *c, *newc;
+> +        ocontext_t *l, *c, *newc = NULL;
+>  
+>          buf = next_entry(fp, sizeof(uint32_t));
+>          if (!buf)               
+> @@ -1992,6 +1975,11 @@
+>          return 0;
+>  
+>  bad:
+> +	if (newc) {
+> +		context_destroy(&newc->context[0]);
+> +		free(newc->u.name);
+> +		free(newc);
+> +	}
+>  	return -1;
+>  }
 
-> b) having rpm recheck at install time provides us with both greater
-> robustness (in the event of a bug in rpmbuild or a package corrupted in
-> some manner along the way) and security (in the event of a maliciously
-> constructed package).
+Hmm...we still aren't handling the potential newgenfs leak, and we can't
+easily move up the linkage for it or handle it on the bad path, so see
+interdiff below.
 
-But I'm willing to concede that adding some form of checking here may
-well make sense.  But I'm not convinced it will necessarily belong in
-rpm itself -- it may make more sense to have it in the
-policy_module_loader_helper which is going to end up being needed to
-avoid stupid scriptlet errors.  But that's in the realm of it not really
-mattering who's checking in that it's being checked.  Does that seem
-reasonable?
+>                  while (num_decls > 0) {
+>                          if ((curdecl = avrule_decl_create(0)) == NULL) {
+> +				free(curblock);
+> +				if (*block)
+> +					avrule_block_list_destroy(*block);
+>                                  return -1;
+>                          }
 
-Jeremy
+I don't think we want this.  Assuming that the caller ultimately does a
+policydb_destroy (which in the libsepol case has migrated from
+policydb_read error path to the callers due to the separation of
+create/init from policydb_read for the shared APIs), we don't have to
+destroy what is already in the block list.  And curblock may already
+have multiple decls linked into it at this point, so we need to
+avrule_block_destroy it.  See interdiff below.  avrule_decl_destroy also
+needs to be made non-static for this to compile.
+
+diff -u libsepol/src/policydb.c libsepol/src/policydb.c
+--- libsepol/src/policydb.c	26 May 2006 19:00:20 -0000
++++ libsepol/src/policydb.c	26 May 2006 19:02:10 -0000
+@@ -1439,6 +1439,7 @@
+ 			lc->next = c;
+ 		else
+ 			*nodep = c;
++
+ 		buf = next_entry(fp, (sizeof(uint32_t) * 2));
+ 		if (!buf)
+ 			return -1;
+@@ -1889,19 +1890,21 @@
+         nel = le32_to_cpu(buf[0]);
+         genfs_p = NULL;         
+         for (i = 0; i < nel; i++) {
+-                newgenfs = calloc(1, sizeof(genfs_t));
+-                if (!newgenfs) {        
+-                        goto bad;
+-                }                       
+                 buf = next_entry(fp, sizeof(uint32_t));
+                 if (!buf)       
+                         goto bad;
+                 len = le32_to_cpu(buf[0]);
++                newgenfs = calloc(1, sizeof(genfs_t));
++                if (!newgenfs)
++                        goto bad;
+                 buf = next_entry(fp, len);
+-                if (!buf)       
++                if (!buf) {
++			free(newgenfs);
+                         goto bad;
++		}
+                 newgenfs->fstype = malloc(len + 1);
+                 if (!newgenfs->fstype) {
++			free(newgenfs);
+                         goto bad;
+                 }       
+                 memcpy(newgenfs->fstype, buf, len);
+@@ -1911,6 +1914,8 @@
+                         if (strcmp(newgenfs->fstype, genfs->fstype) == 0) {
+ 				ERR(fp->handle, "dup genfs fstype %s", 
+ 					newgenfs->fstype);
++				free(newgenfs->fstype);
++				free(newgenfs);
+                                 goto bad;
+                         }       
+                         if (strcmp(newgenfs->fstype, genfs->fstype) < 0)
+@@ -1977,6 +1982,7 @@
+ bad:
+ 	if (newc) {
+ 		context_destroy(&newc->context[0]);
++		context_destroy(&newc->context[1]);
+ 		free(newc->u.name);
+ 		free(newc);
+ 	}
+@@ -2449,25 +2455,19 @@
+                 num_decls = le32_to_cpu(buf[0]);
+                 while (num_decls > 0) {
+                         if ((curdecl = avrule_decl_create(0)) == NULL) {
+-				free(curblock);
+-				if (*block)
+-					avrule_block_list_destroy(*block);
++				avrule_block_destroy(curblock);
+                                 return -1;
+                         }
+                         if (avrule_decl_read(p, curdecl, num_scope_syms, fp) == -1) {
+-				free(curblock);
+-				if (*block)
+-					avrule_block_list_destroy(*block);
+ 				avrule_decl_destroy(curdecl);
++				avrule_block_destroy(curblock);
+                                 return -1;
+                         }
+                         if (curdecl->enabled) {
+                                 if (curblock->enabled != NULL) {
+                                         /* probably a corrupt file */
+-					free(curblock);
+-					if (*block)
+-						avrule_block_list_destroy(*block);
+ 					avrule_decl_destroy(curdecl);
++					avrule_block_destroy(curblock);
+                                         return -1;
+                                 }
+                                 curblock->enabled = curdecl;
+only in patch2:
+unchanged:
+--- libsepol/include/sepol/policydb/avrule_block.h	7 Oct 2005 20:10:14 -0000	1.1
++++ libsepol/include/sepol/policydb/avrule_block.h	26 May 2006 19:02:10 -0000
+@@ -23,8 +23,9 @@
+ #include <sepol/policydb/policydb.h>
+ 
+ extern avrule_block_t *avrule_block_create(void);
+-extern avrule_decl_t *avrule_decl_create(uint32_t decl_id);
+ extern void avrule_block_destroy(avrule_block_t *x);
++extern avrule_decl_t *avrule_decl_create(uint32_t decl_id);
++extern void avrule_decl_destroy(avrule_decl_t *x);
+ extern void avrule_block_list_destroy(avrule_block_t *x);
+ extern avrule_decl_t *get_avrule_decl(policydb_t *p, uint32_t decl_id);
+ extern cond_list_t *get_decl_cond_list(policydb_t *p, 
+only in patch2:
+unchanged:
+--- libsepol/src/avrule_block.c	7 Oct 2005 20:10:15 -0000	1.5
++++ libsepol/src/avrule_block.c	26 May 2006 19:02:10 -0000
+@@ -41,8 +41,6 @@ static unsigned int symtab_sizes[SYM_NUM
+ 	2,
+ };
+ 
+-static void avrule_decl_destroy(avrule_decl_t *x);
+-
+ avrule_block_t *avrule_block_create(void)
+ {
+         avrule_block_t *block;
+@@ -91,7 +89,7 @@ static void scope_index_destroy(scope_in
+         free(scope->class_perms_map);
+ }
+ 
+-static void avrule_decl_destroy(avrule_decl_t *x)
++void avrule_decl_destroy(avrule_decl_t *x)
+ {
+         if (x == NULL) {
+                 return;
+
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
