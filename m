@@ -1,48 +1,47 @@
-Message-ID: <44772E19.5030907@hp.com>
-Date: Fri, 26 May 2006 12:34:33 -0400
-From: Paul Moore <paul.moore@hp.com>
-MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC 0/4] NetLabel
-References: <44760E29.4070407@hp.com> <Pine.LNX.4.64.0605251938360.27473@d.namei> <44771EFB.6030203@hp.com> <Pine.LNX.4.64.0605261156030.3103@d.namei>
-In-Reply-To: <Pine.LNX.4.64.0605261156030.3103@d.namei>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [patch] Full relabel audit event
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Antill <jantill@redhat.com>
+Cc: redhat-lspp <redhat-lspp@redhat.com>, linux-audit@redhat.com,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1148590901.8828.22.camel@code.and.org>
+References: <1148590901.8828.22.camel@code.and.org>
+Content-Type: text/plain
+Date: Fri, 26 May 2006 13:05:20 -0400
+Message-Id: <1148663120.20976.235.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> On Fri, 26 May 2006, Paul Moore wrote:
->>>- Why does this module have a version number?
->>>
->>>+       printk(KERN_INFO "NetLabel: Initializing (v%s %s)\n",
->>>+              NETLBL_VER_STR, NETLBL_VER_DATE);
->>>
->>
->>The version number is there primarily to help signal possible
->>differences in the NetLabel netlink protocol.
+On Thu, 2006-05-25 at 17:01 -0400, James Antill wrote:
+>  The attached patch implements the full relabel audit event (Ie. an
+> audit event occurs when a full relabel occurs, ie. when /.autorelabel
+> exists at boot).
+>  Note that although the code is correct, this patch doesn't actually
+> work due to kernel bugs[1].
 > 
-> How will this ever help anything?
+>  It'll be in Fedora development as part of policycoreutils-1.30.10-3
+> onwards.
 > 
-> If you change that protocol, userspace applications will break, which is 
-> not acceptable.  You can add versioning at the protocol level or via 
-> adding a new netlink family in the future, but existing apps cannot break 
-> and you need to maintain compatibility.
-> 
+> [1] see the thread on linux-audit if you want the details.
 
-The NetLabel netlink protocol does have a "version" message which can be
-used to get the version.  My main reason for doing this is not to signal
-changes to existing messages, i.e. break backward compatability, but to
-signal to user space applications that the kernel supports a newer protocol.
+Hmmm...what is it that you actually want to do here?  If you only care
+about auditing autorelabel events, then I'd suggest generating the audit
+message from the autorelabel portion of rc.sysinit (via a helper, I
+suppose), not from setfiles itself.  If you want to audit all full
+relabels, then you need to instrument more than setfiles (e.g.
+restorecon -R / works just as well), and of course, you potentially need
+to do something at the kernel level with audit filters or auditallow
+rules in policy if you truly want to capture all relabels.  And, of
+course, just auditing it when they happen to pass "/" as an argument
+isn't very reliable.
 
-The printk() above is just informative, if that is your main concern I
-can yank it.
+Not sure which thread you are referring to; I don't see prior discussion
+of a relabel audit event in the linux-audit archives.
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
