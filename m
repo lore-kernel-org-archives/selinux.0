@@ -1,40 +1,54 @@
-Message-ID: <447A20C4.704@gentoo.org>
-Date: Sun, 28 May 2006 18:14:28 -0400
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
-To: Mohammad Mahmoudi <mahmoudi1379@yahoo.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: Revocation Support
-References: <20060528115017.96102.qmail@web50413.mail.yahoo.com> <447A1C33.2040200@gentoo.org>
-In-Reply-To: <447A1C33.2040200@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4TDpdGK004158
+	for <selinux@tycho.nsa.gov>; Mon, 29 May 2006 09:51:39 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4TDpcOn027891
+	for <selinux@tycho.nsa.gov>; Mon, 29 May 2006 13:51:38 GMT
+Subject: Re: daemons and MCS categories
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+        Shintaro Fujiwara <shin216@xf7.so-net.ne.jp>
+In-Reply-To: <200605220930.05483.russell@coker.com.au>
+References: <200605220930.05483.russell@coker.com.au>
+Content-Type: text/plain
+Date: Mon, 29 May 2006 09:52:17 -0400
+Message-Id: <1148910738.14262.67.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Mohammad Mahmoudi wrote:
->> Does SELinux support revocation of permissions?
->>   
-> The FLASK architecture, which SELinux is based on, does indeed support 
-> revocation by allowing object managers to register callbacks with the 
-> security server. However, on SELinux, this is not currently in use. So 
-> direct revocation where the object managers actively remove access to 
-> objects after a policy change doesn't happen.
->
-> However, on some object classes permission is revalidated on every 
-> object use (like files and file descriptors). So, even though a 
-> process has a file descriptor to a file it previously had access top 
-> open, if the permissions change to that file type the next read or 
-> write operation will fail which essentially revokes access to it. This 
-> should be the case on a file types, fds, sockets, ipc (except shared 
-> memory).
->
-> Hope this helps..
-> <http://us.rd.yahoo.com/mymod/showtimes/X-Men:%20The%20Last%20Stand/SIG=13eg95e87/*https://www.movietickets.com/purchase.asp?afid=myyah&house_id=8612&movie_id=44681&perfd=05282006&perft=23:30> 
->
->
-Neat, I dont' know how that link got in my email but it was obviously an 
-accident :)
+On Mon, 2006-05-22 at 09:30 +1000, Russell Coker wrote:
+> It seems to me that there is a benefit to giving some categories to daemons.
+> 
+> For example we may have two different categories for files that should be 
+> protected from each other but which are to be shared by Apache (note that 
+> categories in MCS are used for protecting integrity as well as 
+> confidentiality).
+
+I don't understand why you say that, MCS isn't used for integrity, that
+is what type enforcement is for.
+
+> One idea that occurred to me is to give Apache (and other daemons) categories 
+> c128.c255.  Then there are 128 categories that can be used to restrict access 
+> of files that should not be accessed by daemons and 128 categories that can 
+> be used for files that can be accessed by daemons.
+
+I agree with James on this, I don't think we want to impose semantics in
+the MCS categories, and that this
+
+> Another possibility is to have the ability to configure which categories are 
+> assigned to a daemon via run_init or some similar program.  It would not be 
+> difficult to read a config file that maps the domain of a daemon to the range 
+> that should be granted to it.
+
+is useful so that if users do want to run a daemon with categories, they
+can.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
