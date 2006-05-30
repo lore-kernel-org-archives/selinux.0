@@ -1,37 +1,47 @@
-Subject: Re: trouble with execmod permission in file class
+Subject: Re: SELinux and SID
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Mario Fanelli <mario.fanelli@gmail.com>
-Cc: SeLinux Mailing List <selinux@tycho.nsa.gov>
-In-Reply-To: <447c043c.0e9fa353.26b4.ffffa66e@mx.gmail.com>
-References: <447c043c.0e9fa353.26b4.ffffa66e@mx.gmail.com>
+To: Joshua Brindle <method@gentoo.org>
+Cc: Mario Fanelli <mario.fanelli@gmail.com>,
+        SeLinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <447C383B.5040808@gentoo.org>
+References: <447c0b7f.192f5df9.1cbd.ffff9f01@mx.gmail.com>
+	 <447C383B.5040808@gentoo.org>
 Content-Type: text/plain; charset=utf-8
-Date: Tue, 30 May 2006 11:16:10 -0400
-Message-Id: <1149002170.524.44.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 30 May 2006 11:40:52 -0400
+Message-Id: <1149003652.524.64.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-05-30 at 10:37 +0200, Mario Fanelli wrote:
-> I’m trying to write a policy for apache and audit2allow suggest me a
-> rule like
+On Tue, 2006-05-30 at 08:19 -0400, Joshua Brindle wrote:
+> Mario Fanelli wrote:
+> >
+> > I read that SELinux uses extended attributes to maintain SID/file 
+> > mapping, but I have a Fedora Core 5 with an ext3 filesystem but if I 
+> > use getfattr command on any file I don’t obtain nothing that resembles 
+> > SID. Am I wrong?
+> >
+> > Where does SELinux store SID?
+> >
+> You have to tell it what attribute name you want
 > 
->  
-> 
-> allow apache_t lib_t:file execmod
-> 
->  
-> 
-> but I don’t understand..
-> 
-> I read on tresys.com that permission execmod -> “Make executable a
-> file mapping that has been modified by copy-on-write”.
-> 
-> Anyone can give me an explanation? Why, without this rule, apache
-> doesn’t load module?
+> $ getfattr -n security.selinux .
+> # file: .
+> security.selinux="system_u:object_r:root_t:s0\000"
 
-http://people.redhat.com/drepper/selinux-mem.html
-http://www.nsa.gov/selinux/papers/module/x1407.html
-http://fedora.redhat.com/docs/selinux-faq-fc5/#faq-entry-unconfined_t
+Note btw that security context strings are stored on the filesystem, not
+the (non-persistent non-global) SIDs (which are only stored in the
+in-core inodes).  Older versions of SELinux (pre-2.6) stored a separate
+persistent SID in the on-disk inodes (with a per-fs mapping from
+persistent SIDs to contexts), but that was eliminated when we migrated
+to using xattrs.
+
+getfattr only displays attributes in the user namespace by default.  To
+display all attributes on a file, you'd do something like:
+$ getfattr -m "" -d /path/to/file
+
+Or to see attribute in just the security namespace:
+$ getfattr -m "^security" -d /path/to/file
 
 -- 
 Stephen Smalley
