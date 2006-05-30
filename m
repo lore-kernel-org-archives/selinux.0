@@ -1,50 +1,53 @@
-Subject: Re: clam/amavis policy
+Subject: Re: Bugs with bool_ids usage (libsepol)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200605282225.55326.russell@coker.com.au>
-References: <200605282225.55326.russell@coker.com.au>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Cedric Roux <Cedric.Roux@eurecom.fr>, selinux@tycho.nsa.gov
+In-Reply-To: <1148575882.10246.39.camel@jackjack.columbia.tresys.com>
+References: <Pine.LNX.4.44.0605101702540.19909-100000@perignan.eurecom.fr>
+	 <1147283537.22880.52.camel@jackjack.columbia.tresys.com>
+	 <1148569615.20976.110.camel@moss-spartans.epoch.ncsc.mil>
+	 <1148570661.10246.27.camel@jackjack.columbia.tresys.com>
+	 <1148572287.20976.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <1148575882.10246.39.camel@jackjack.columbia.tresys.com>
 Content-Type: text/plain
-Date: Tue, 30 May 2006 13:31:29 -0400
-Message-Id: <1149010289.524.85.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 30 May 2006 13:57:54 -0400
+Message-Id: <1149011874.524.90.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2006-05-28 at 22:25 +1000, Russell Coker wrote:
-> I've attached a patch for the clam/amavis policy against 2.2.40-1.fc5.
+On Thu, 2006-05-25 at 12:51 -0400, Karl MacMillan wrote:
+> On Thu, 2006-05-25 at 11:51 -0400, Stephen Smalley wrote:
+> > On Thu, 2006-05-25 at 11:24 -0400, Karl MacMillan wrote:
+> > > What about this patch instead - it seems to make the usage of nbools and
+> > > bool_ids more natural and potentially improves the comparison speed for
+> > > larger conditionals.
+> > 
+> > Not clear, given that you are only using the bool_ids for the
+> > precomputation and it is still limited to the same max.
 > 
-> avc:  denied  { write } for  pid=5178 comm="amavisd" name="clamd.sock" 
-> dev=dm-0 ino=902623 scontext=root:system_r:amavis_t:s0 
-> tcontext=root:object_r:clamd_var_run_t:s0 tclass=sock_file
+> That's not the case - I changed the comparison code to always verify
+> that the larger conditionals have the same booleans before comparing the
+> full expression. Changing the precomputation max is harder.
 > 
-> I'm getting the above AVC message in spite of the following policy:
+> Looking at it though, the complexity of comparing the booleans is high
+> for a large number of unique booleans so comparing the booleans first is
+> only sometimes a win.
 > 
-> policy/modules/services/clamav.if:
-> interface(`clamav_stream_connect',`
->         gen_require(`
->                 type clamd_t, clamd_var_run_t;
->         ')
+> For me, though, the larger issue is that it is very strange to have
+> nbools != to the bool_ids. Preserving that behavior requires the user of
+> the struct to understand the boolean code - looking at the header is not
+> sufficient without more comments. This has already generated the bugs
+> that both of these patches fix.
 > 
->         allow $1 clamd_var_run_t:dir search;
->         allow $1 clamd_var_run_t:sock_file write;
->         allow $1 clamd_t:unix_stream_socket connectto;
-> ')
+> >   Patch was
+> > malformed, btw.  
+> > 
 > 
-> policy/modules/services/amavis.te:
-> optional_policy(`
->         clamav_stream_connect(amavis_t)
-> ')
-> 
-> Any advice on what I'm missing would be appreciated.
+> Patch attached - it applies cleanly here. I think that my mail server
+> munged the inline patch, but I will have to investigate.
 
-Not sure how you are building these policies (what is in base, what is
-modular), but optionals-in-base support is still not working in
-libsepol.  Patch is pending.
-
-Other than that, it would help to see the actual post-processed rules,
-and you could run dismod/dispol on the generated module or policy to
-dump the actual allow rules.
+Thanks, merged.
 
 -- 
 Stephen Smalley
