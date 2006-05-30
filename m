@@ -1,54 +1,31 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: Fedora Core + GSX server + SELinux policies
-Date: Tue, 30 May 2006 09:50:49 -0700
-Message-ID: <38174672CF96004CAB530D821079C753E3056D@nawespscez02>
-From: "Wolfe, William SPAWAR" <william.wolfe@navy.mil>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        "Michael Colef" <mcolef@nyit.edu>
-Cc: <SELinux@tycho.nsa.gov>
+Subject: Re: R: SELinux and SID
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Mario Fanelli <mario.fanelli@gmail.com>
+Cc: SeLinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <447c7567.74c94b41.609e.687a@mx.gmail.com>
+References: <447c7567.74c94b41.609e.687a@mx.gmail.com>
+Content-Type: text/plain
+Date: Tue, 30 May 2006 12:58:19 -0400
+Message-Id: <1149008299.524.78.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael,
+On Tue, 2006-05-30 at 18:40 +0200, Mario Fanelli wrote:
+> But are the SID invalidate to any reboot? If two object have the same
+> security context, SID are equals?
 
-  We have some experience writing policy for FC and Vmware GSX server.
-Contact me offline and I may be able to answer some of your questions.
-
-Will  
-
-William Wolfe
-SPAWARSYSCEN San Diego
-william.wolfe@navy.mil
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-On Behalf Of Christopher J. PeBenito
-Sent: Thursday, May 25, 2006 6:58 AM
-To: Michael Colef
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: Fedora Core + GSX server + SELinux policies
-
-
-On Thu, 2006-05-25 at 08:16 -0400, Michael Colef wrote:
-> I am wondering if anyone has any information about setting up SELinux 
-> policies or sample policy files for a Fedora Core host running VMware 
-> GSX server. I am presently looking at both FC4 and FC5.
-
-The vmware support in reference policy (which is the basis of the FC5
-policy) has only been tested on VMWare workstation as far as I know.
+A SID is an integer that refers to a security context.  SIDs are
+dynamically allocated on demand, although there are a few preallocated
+ones for initialization.  SIDs are not exported by the kernel to
+userspace; they are purely an in-kernel abstraction.  Userspace object
+managers that need to enforce policy over their own objects and
+operations can also have their own private SID tables (supported by
+libselinux, as part of the userspace AVC).
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with the words "unsubscribe selinux" without quotes as the message.
+Stephen Smalley
+National Security Agency
 
 
 --
