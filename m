@@ -1,40 +1,49 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: redhat-lspp@redhat.com
-Subject: Re: [redhat-lspp] Re: [patch] Full relabel audit event
-Date: Tue, 30 May 2006 09:22:44 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Antill <jantill@redhat.com>,
-        linux-audit@redhat.com, selinux@tycho.nsa.gov
-References: <1148590901.8828.22.camel@code.and.org> <1148663120.20976.235.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1148663120.20976.235.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200605300922.44971.sgrubb@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4UDkHp5020534
+	for <selinux@tycho.nsa.gov>; Tue, 30 May 2006 09:46:17 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4UDkFv3016711
+	for <selinux@tycho.nsa.gov>; Tue, 30 May 2006 13:46:16 GMT
+Subject: Re: Use of type_change and type_transition declarations
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Mario Fanelli <mario.fanelli@gmail.com>
+Cc: SeLinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <447b3031.200d0097.6f44.118c@mx.gmail.com>
+References: <447b3031.200d0097.6f44.118c@mx.gmail.com>
+Content-Type: text/plain; charset=iso-8859-7
+Date: Tue, 30 May 2006 09:47:03 -0400
+Message-Id: <1148996823.14262.105.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 26 May 2006 13:05, Stephen Smalley wrote:
-> Hmmm...what is it that you actually want to do here?
+On Mon, 2006-05-29 at 19:32 +0200, Mario Fanelli wrote:
+> I don¢t understand what means type_change declaration. 
+> 
+> Anyone can give me an explanation? What are the difference between
+> type_change and type_transition declarations? 
+> 
+> If I declare a type_transition like type_transition dom1_t
+> dom2_exec_t:process dom2_t, why I have to use an allow rule?
 
-We need to meet the requirements for LSPP where there is a relabel on boot, 
-but we do not want a record for each file that was touched. It was discussed 
-on the LSPP telecon a while back that just one record was sufficient.
+type_change is information that userland programs use for relabeling
+(retrieved by security_compute_relabel()), it does not do anything by
+itself.  The current use of type_change is to tell login programs what
+label the user's terminal should be relabeled to.
 
-> If you only care about auditing autorelabel events, then I'd suggest
-> generating the audit message from the autorelabel portion of rc.sysinit (via
-> a helper, I suppose), not from setfiles itself.
+type_transition changes the default type when a new object is created,
+it does not allow access.  The default type is the type of the
+container; for example, a file's default type is the type of the
+directory it is being created in.  When used on processes like your
+example above, dom1_t will exec() dom2_exec_t and the new process will
+be in dom2_t, assuming the transition is allowed.
 
-This is a shell script and cannot connect to libaudit.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-> If you want to audit all full relabels, then you need to instrument more
-> than setfiles (e.g. restorecon -R / works just as well), and of course, you
-> potentially need to do something at the kernel level with audit filters or
-> auditallow rules in policy if you truly want to capture all relabels. 
 
-We get relabels by monitoring the setxattr syscall. But during bootup before 
-going interactive, we just want 1 message.
-
--Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
