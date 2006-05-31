@@ -1,67 +1,502 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4VKgJNO020462
-	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 16:42:19 -0400
-Received: from mail3.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4VKgGLq023249
-	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 20:42:17 GMT
-Date: Wed, 31 May 2006 16:42:14 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Michael LeMay <mdlemay@epoch.ncsc.mil>
-cc: jmorris@redhat.com, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>, dhowells@redhat.com
-Subject: Re: [PATCH] selinux: Kernel access key retention support for SELinux
-In-Reply-To: <1149097853.2517.0.camel@moss-tarheels.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.64.0605311635470.7334@d.namei>
-References: <1149097853.2517.0.camel@moss-tarheels.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4VLWgOC021258
+	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 17:32:42 -0400
+Received: from e4.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4VLWfLq029526
+	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 21:32:41 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e4.ny.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k4VLWZYM002816
+	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 17:32:35 -0400
+Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
+	by d01relay04.pok.ibm.com (8.12.10/NCO/VER6.8) with ESMTP id k4VLWZ6p104252
+	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 17:32:35 -0400
+Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
+	by d01av01.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k4VLWZvY007163
+	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 17:32:35 -0400
+Message-ID: <447E0B6E.5020902@us.ibm.com>
+Date: Wed, 31 May 2006 17:32:30 -0400
+From: Janak Desai <janak@us.ibm.com>
+Reply-To: janak@us.ibm.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: russell@coker.com.au, tmraz@redhat.com, dwalsh@redhat.com,
+        valdis.kletnieks@vt.edu, sgrubb@redhat.com, klaus@atsec.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH] pam_namespace : option to check instance parent mode and
+ man page(s) updates
+References: <44710A40.4060309@us.ibm.com> <200605221105.55104.russell@coker.com.au> <4471BA2C.7090806@us.ibm.com>
+In-Reply-To: <4471BA2C.7090806@us.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------060307040109090501020407"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 31 May 2006, Michael LeMay wrote:
+This is a multi-part message in MIME format.
+--------------060307040109090501020407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-> +static void selinux_key_free (struct key *k)
+This patch, which applies on top of the latest pam_namespace in rawhide, adds a new
+command line option to allow an admin to bypass checking of the instance parent 
+mode. It also updates namespace.conf and pam_namespace man pages to add text
+relating this new option, interaction with share-subtree and possible config 
+changes that would allow the use of pam_namespace with gdm and polyinstantiation
+of /tmp.
 
-Please don't leave a space between the function name and the parentheses.  
-I know this is probably confusing, because unfortunately the LSM code 
-does, but it's not consistent with the SELinux code nor most of the rest 
-of the kernel.
+Signed-off-by: Janak Desai <janak@us.ibm.com>
 
-> +	if (perm == 0) {
-> +		return 0;
-> +	}
+---
 
-No need for the braces.
-
->  static struct security_operations selinux_ops = {
->  	.ptrace =			selinux_ptrace,
->  	.capget =			selinux_capget,
-> @@ -4404,6 +4457,12 @@ static struct security_operations selinu
->  	.xfrm_state_free_security =	selinux_xfrm_state_free,
->  	.xfrm_policy_lookup = 		selinux_xfrm_policy_lookup,
->  #endif
-> +
-> +#ifdef CONFIG_KEYS
-> +	.key_alloc = selinux_key_alloc,
-> +	.key_free = selinux_key_free,
-> +	.key_permission = selinux_key_permission,
-> +#endif
-
-Inconsistent indenting of the functions with existing code.
-
-
-> +   S_(SECCLASS_KEY, KEY__VIEW, "view")
-> +   S_(SECCLASS_KEY, KEY__READ, "read")
-
-What's the difference between reading and viewing a key?
+ README               |   95 ++++++++++++++++++++++++++++++--------------------- namespace.conf       |   22 +++++++++--
+ namespace.conf.5.xml |   42 +++++++++++++---------
+ pam_namespace.8.xml  |   79 ++++++++++++++++++++++++++++++++++++++++++
+ pam_namespace.c      |   49 +++++++++++++++++++++++++-
+ 5 files changed, 227 insertions(+), 60 deletions(-)
 
 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+--------------060307040109090501020407
+Content-Type: text/x-patch;
+ name="pns0530.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pns0530.patch"
+
+diff -Naurp pam_namespace0530/modules/pam_namespace/README pam_namespace0530+patch/modules/pam_namespace/README
+--- pam_namespace0530/modules/pam_namespace/README	2006-05-31 18:57:41.000000000 +0000
++++ pam_namespace0530+patch/modules/pam_namespace/README	2006-05-31 19:48:09.000000000 +0000
+@@ -3,17 +3,17 @@ pam_namespace module:
+ Setup a private namespace with polyinstantiated directories.
+ 
+ THEORY OF OPERATION:
+-The pam namespace module consults /etc/security/namespace.conf 
++The pam namespace module consults /etc/security/namespace.conf
+ configuration file and sets up a private namespace with polyinstantiated
+ directories for a session managed by PAM. A skeleton namespace.conf
+-installed by default provides example for polyinstantiating /tmp 
++installed by default provides example for polyinstantiating /tmp, /var/tmp
+ and users' home directory.
+ 
+ If an executable script /etc/security/namespace.init exists, it
+ is used to initialize the namespace every time a new instance directory
+ is created. The script receives the polyinstantiated directory path
+ and the instance directory path as its arguments.
+-                        
++
+ Each line in namespace.conf describes a limit for a user in the form:
+ 
+ <polydir>  <instance_prefix>  <method>  <list_of_uids>
+@@ -29,7 +29,7 @@ Where:
+         the prefix to generate the final instance directory path.
+         This directory is created if it did not exist already, and is then
+ 	bind mounted on the <polydir> to provide an instance of <polydir>
+-	based on the <method> column. The special string $HOME is replaced with 
++	based on the <method> column. The special string $HOME is replaced with
+ 	the user's home directory, and $USER with the username.
+ 	This field cannot be blank.
+ 
+@@ -54,43 +54,60 @@ EXAMPLE /etc/security/namespace.conf con
+ # /var/tmp, whereas home directories will be polyinstantiated for all
+ # users. The user name and/or context is appended to the instance prefix.
+ #
+-/tmp     /tmp-inst/       both      root,adm
+-/var/tmp /var/tmp-inst/   both      root,adm
+-$HOME    $HOME.inst-      context
+-    
+-ARGUMENTS RECOGNIZED:
+-    debug		Verbose logging by syslog
++# Note that instance directories do not have to reside inside the
++# polyinstantiated directory. In the examples below, instances of /tmp
++# will be created in /tmp-inst directory, where as instances of /var/tmp
++# and users home directories will reside within the directories that
++# are being polyinstantiated.
++#
++# Instance parent directories must exist for the polyinstantiation
++# mechanism to work. By default, they should be created with the mode
++# of 1000. pam_namespace module will enforce this mode unless it
++# is explicitly called with an argument to ignore the mode of the
++# instance parent. System administrators should use this argument with
++# caution, as it will reduce security and isolation achieved by
++# polyinstantiation.
++#
++/tmp     /tmp-inst/       	both      root,adm
++/var/tmp /var/tmp/tmp-inst/   	both      root,adm
++$HOME    $HOME/$USER.inst/inst- context
+ 
+-    unmnt_remnt		For programs such as su and newrole, the login
+-			session has already setup a polyinstantiated 
+-			namespace. For these programs, polyinstantiation
+-			is performed based on new user id or security
+-			context, however the command first needs to 
+-			undo the polyinstantiation performed by login.
+-			This argument instructs the command to 
+-			first undo previous polyinstantiation before
+-			proceeding with new polyinstantiation based on
+-			new id/context.
+-
+-    unmnt_only		For trusted programs that want to undo any
+-			existing bind mounts and process instance 
+-			directories on their own, this argument allows
+-			them to unmount currently mounted instance
+-			directories.
+-
+-    require_selinux	If selinux is not enabled, return failure.
+-
+-    gen_hash		Instead of using the security context string
+-			for the instance name, generate and use its
+-			md5 hash.
+-
+-    ignore_config_error	If a line in the configuration file corresponding
+-			to a polyinstantiated directory contains format
+-			error, skip that line process the next line.
+-			Without this option, pam will return an error
+-			to the calling program resulting in termination
+-			of the session.
++ARGUMENTS RECOGNIZED:
++    debug
++	Verbose logging by syslog
+ 
++    unmnt_remnt
++	For programs such as su and newrole, the login session has
++	already setup a polyinstantiated namespace. For these programs,
++	polyinstantiation is performed based on new user id or security
++	context, however the command first needs to undo the
++	polyinstantiation performed by login. This argument instructs
++	the command to first undo previous polyinstantiation before
++	proceeding with new polyinstantiation based on new id/context.
++
++    unmnt_only
++	For trusted programs that want to undo any existing bind mounts
++	and process instance directories on their own, this argument
++	allows them to unmount currently mounted instance directories.
++
++    require_selinux
++	If selinux is not enabled, return failure.
++
++    gen_hash
++	Instead of using the security context string for the instance
++	name, generate and use its md5 hash.
++
++    ignore_config_error
++	If a line in the configuration file corresponding to a
++	polyinstantiated directory contains format error, skip that
++	line process the next line. Without this option, pam will return
++	an error to the calling program resulting in termination
++	of the session.
++
++    ignore_instance_parent_mode
++	Instance parent directories by default are expected to have
++	the restrictive mode of 1000. Using this option, an administrator
++	can choose to ignore the mode of the instance parent.
+ 
+ MODULE SERVICES PROVIDED:
+ 	session            open_session and close_session
+diff -Naurp pam_namespace0530/modules/pam_namespace/namespace.conf pam_namespace0530+patch/modules/pam_namespace/namespace.conf
+--- pam_namespace0530/modules/pam_namespace/namespace.conf	2006-05-31 18:57:41.000000000 +0000
++++ pam_namespace0530+patch/modules/pam_namespace/namespace.conf	2006-05-31 19:19:39.000000000 +0000
+@@ -1,7 +1,7 @@
+ # /etc/security/namespace.conf
+ #
+ # See /usr/share/doc/pam-*/txts/README.pam_namespace for more information.
+-# 
++#
+ # Uncommenting the following three lines will polyinstantiate
+ # /tmp, /var/tmp and user's home directories. /tmp and /var/tmp will
+ # be polyinstantiated based on both security context as well as user
+@@ -11,6 +11,20 @@
+ # directories will be polyinstantiated for all users. The user name
+ # and/or context is appended to the instance prefix.
+ #
+-#/tmp     /tmp.inst/          both      adm
+-#/var/tmp /var/tmp.inst/      both      adm
+-#$HOME    $HOME.inst-         context
++# Note that instance directories do not have to reside inside the
++# polyinstantiated directory. In the examples below, instances of /tmp
++# will be created in /tmp-inst directory, where as instances of /var/tmp
++# and users home directories will reside within the directories that
++# are being polyinstantiated.
++#
++# Instance parent directories must exist for the polyinstantiation
++# mechanism to work. By default, they should be created with the mode
++# of 1000. pam_namespace module will enforce this mode unless it
++# is explicitly called with an argument to ignore the mode of the
++# instance parent. System administrators should use this argument with
++# caution, as it will reduce security and isolation achieved by
++# polyinstantiation.
++#
++#/tmp     /tmp-inst/       	both      root,adm
++#/var/tmp /var/tmp/tmp-inst/   	both      root,adm
++#$HOME    $HOME/$USER.inst/inst- context
+diff -Naurp pam_namespace0530/modules/pam_namespace/namespace.conf.5.xml pam_namespace0530+patch/modules/pam_namespace/namespace.conf.5.xml
+--- pam_namespace0530/modules/pam_namespace/namespace.conf.5.xml	2006-05-31 18:57:41.000000000 +0000
++++ pam_namespace0530+patch/modules/pam_namespace/namespace.conf.5.xml	2006-05-31 19:22:13.000000000 +0000
+@@ -43,7 +43,7 @@
+    </para>
+ 
+     <para>
+-      <replaceable>polydir</replaceable> <replaceable>instance_prefex</replaceable> <replaceable>method</replaceable> <replaceable>list_of_uids</replaceable>
++      <replaceable>polydir</replaceable> <replaceable> instance_prefix</replaceable> <replaceable> method</replaceable> <replaceable> list_of_uids</replaceable>
+     </para>
+ 
+     <para>
+@@ -59,11 +59,14 @@
+       of &lt;polydir&gt;. The directory security context, or optionally its
+       md5sum string (32 hex characters), is appended to the prefix to
+       generate the final instance directory path. This directory is
+-      created if it did not exist already, and is then bind mounted on
+-      the &lt;polydir&gt; to provide an instance of &lt;polydir&gt; based on the
++      created if it did not exist already, and is then bind mounted on the
++      &lt;polydir&gt; to provide an instance of &lt;polydir&gt; based on the
+       &lt;method&gt; column. The special string $HOME is replaced with the
+-      user's home directory, and $USER with the username. This field
+-      cannot be blank.
++      user's home directory, and $USER with the username. This field cannot
++      be blank. The directory where polyinstantiated instances are to be
++      created, must exist and must have, by default, the mode of 1000.  The
++      requirement that the instance parent be of mode 1000 can be overridden
++      with the command line option &lt;ignore_instance_parent_mode&gt;
+     </para>
+ 
+     <para>
+@@ -92,20 +95,27 @@
+       <filename>/etc/security/namespace.conf</filename>.
+     </para>
+ 
+-    <para>
++    <literallayout>
+       # The following three lines will polyinstantiate /tmp,
+       # /var/tmp and user's home directories. /tmp and /var/tmp
+-      # will be polyinstantiated based on both security context as well
+-      # as user name, whereas home directory will be polyinstantiated
+-      # based on security context only. Polyinstantiation will not be
+-      # performed for user root and adm for directories /tmp and
+-      # /var/tmp, whereas home directories will be polyinstantiated for
+-      # all users.
++      # will be polyinstantiated based on both security context
++      # as well as user name, whereas home directory will be
++      # polyinstantiated based on security context only.
++      # Polyinstantiation will not be performed for user root
++      # and adm for directories /tmp and /var/tmp, whereas home
++      # directories will be polyinstantiated for all users.
+       #
+-      /tmp     /tmp/tmp.inst-$USER-       both      root,adm
+-      /var/tmp /var/tmp/tmp.inst-$USER-   both      root,adm
+-      $HOME    $HOME.inst-                context
+-    </para>
++      # Note that instance directories do not have to reside inside
++      # the polyinstantiated directory. In the examples below,
++      # instances of /tmp will be created in /tmp-inst directory,
++      # where as instances of /var/tmp and users home directories
++      # will reside within the directories that are being
++      # polyinstantiated.
++      #
++      /tmp     /tmp-inst/       	both      root,adm
++      /var/tmp /var/tmp/tmp-inst/   	both      root,adm
++      $HOME    $HOME/$USER.inst/inst- context
++    </literallayout>
+ 
+     <para>
+       For the &lt;service&gt;s you need polyinstantiation (login for example)
+diff -Naurp pam_namespace0530/modules/pam_namespace/pam_namespace.8.xml pam_namespace0530+patch/modules/pam_namespace/pam_namespace.8.xml
+--- pam_namespace0530/modules/pam_namespace/pam_namespace.8.xml	2006-05-31 18:57:41.000000000 +0000
++++ pam_namespace0530+patch/modules/pam_namespace/pam_namespace.8.xml	2006-05-31 19:25:30.000000000 +0000
+@@ -40,6 +40,9 @@
+       <arg choice="opt">
+         ignore_config_error
+       </arg>
++      <arg choice="opt">
++        ignore_instance_parent_mode
++      </arg>
+     </cmdsynopsis>
+   </refsynopsisdiv>
+ 
+@@ -56,6 +59,19 @@
+       directory is created. The script receives the polyinstantiated
+       directory path and the instance directory path as its arguments.
+     </para>
++
++    <para>
++      The pam_namespace module disassociates the session namespace from
++      the parent namespace. Any mounts/unmounts performed in the parent
++      namespace, such as mounting of devices, are not reflected in the
++      session namespace. To propogate selected mount/unmount events from
++      the parent namespace into the disassociated session namespace, an
++      administrator may use the special shared-subtree feature. For
++      additional information on shared-subtree feature, please refer to
++      the mount(8) man page and the shared-subtree description at
++      http://lwn.net/Articles/159077 and http://lwn.net/Articles/159092.
++    </para>
++
+   </refsect1>
+ 
+   <refsect1 id="pam_namespace-options">
+@@ -148,6 +164,21 @@
+         </listitem>
+       </varlistentry>
+ 
++      <varlistentry>
++        <term>
++          <option>ignore_instance_parent_mode</option>
++        </term>
++        <listitem>
++          <para>
++	    Instance parent directories by default are expected to have
++	    the restrictive mode of 1000. Using this option, an administrator
++	    can choose to ignore the mode of the instance parent. This option
++            should be used with caution as it will reduce security and
++            isolation goals of the polyinstantiation mechanism.
++          </para>
++        </listitem>
++      </varlistentry>
++
+     </variablelist>
+   </refsect1>
+ 
+@@ -200,6 +231,51 @@
+     </variablelist>
+   </refsect1>
+ 
++  <refsect1 id="pam_namespace-examples">
++    <title>EXAMPLES</title>
++
++    <para>
++      For the &lt;service&gt;s you need polyinstantiation (login for example)
++      put the following line in /etc/pam.d/&lt;service&gt; as the last line for
++      session group:
++    </para>
++
++    <para>
++      session  required  pam_namespace.so [arguments]
++    </para>
++
++    <para>
++      To use polyinstantiation with graphical display manager gdm, insert the
++      following line, before exit 0, in /etc/gdm/PostSession/Default:
++    </para>
++
++    <para>
++      /usr/sbin/gdm-safe-restart
++    </para>
++
++    <para>
++      This allows gdm to restart after each session and appropriately adjust
++      namesapces of display manager and the X server. If polyinstantiation of
++      /tmp is desired along with the graphical environment, then addtional
++      configuration changes are needed to address the interaction of X server
++      and font server namespaces with their use of /tmp to create communication
++      sockets. Perform the following changes to use graphical environment
++      with polyinstantiation of /tmp:
++    </para>
++
++    <para>
++    <literallayout>
++      1. Setup default init state to 3, by modifying /etc/inittab
++      2. Disable the use of font server by commenting out "FontPath"
++         line in /etc/X11/xorg.conf.
++      3. Ensure that the login service is setup to use pam_namespace,
++         as described above, by modifying /etc/pam.d/login.
++      4. Use the "startx" command after a successful terminal login.
++    </literallayout>
++    </para>
++
++  </refsect1>
++
+   <refsect1 id="pam_namespace-see_also">
+     <title>SEE ALSO</title>
+     <para>
+@@ -210,6 +286,9 @@
+         <refentrytitle>pam.d</refentrytitle><manvolnum>8</manvolnum>
+       </citerefentry>,
+       <citerefentry>
++        <refentrytitle>mount</refentrytitle><manvolnum>8</manvolnum>
++      </citerefentry>,
++      <citerefentry>
+         <refentrytitle>pam</refentrytitle><manvolnum>8</manvolnum>
+       </citerefentry>.
+     </para>
+diff -Naurp pam_namespace0530/modules/pam_namespace/pam_namespace.c pam_namespace0530+patch/modules/pam_namespace/pam_namespace.c
+--- pam_namespace0530/modules/pam_namespace/pam_namespace.c	2006-05-31 18:57:41.000000000 +0000
++++ pam_namespace0530+patch/modules/pam_namespace/pam_namespace.c	2006-05-31 19:32:53.000000000 +0000
+@@ -85,6 +85,7 @@
+ #define PAMNS_CTXT_BASED_INST 0x00000800 /* Context based instance needed */
+ #define PAMNS_GEN_HASH        0x00002000 /* Generate md5 hash for inst names */
+ #define PAMNS_IGN_CONFIG_ERR  0x00004000 /* Ignore format error in conf file */
++#define PAMNS_IGN_INST_PARENT_MODE  0x00008000 /* Ignore instance parent mode */
+ 
+ /*
+  * Polyinstantiation method options, based on user, security context
+@@ -630,8 +631,9 @@ static int create_dirs(const struct poly
+ 	struct instance_data *idata)
+ #endif
+ {
+-    struct stat statbuf, newstatbuf;
++    struct stat statbuf, newstatbuf, instpbuf;
+     int fd, pid, status;
++    char *inst_parent, *trailing_slash;
+ 
+     /*
+      * stat the directory to polyinstantiate, so its owner-group-mode
+@@ -653,6 +655,49 @@ static int create_dirs(const struct poly
+     }
+ 
+     /*
++     * stat the instance parent path to make sure it exists
++     * and is a directory. Check that its mode is 1000 (unless the
++     * admin explicitly instructs to ignore the instance parent
++     * mode by the "ignore_instance_parent_mode" argument).
++     */
++    inst_parent = (char *) malloc(strlen(ipath)+1);
++    if (!inst_parent) {
++	pam_syslog(idata->pamh, LOG_ERR, "Error allocating pathname string");
++        return PAM_SESSION_ERR;
++    }
++
++    strcpy(inst_parent, ipath);
++    trailing_slash = strrchr(inst_parent, '/');
++    if (trailing_slash)
++        *trailing_slash = '\0';
++
++    if (stat(inst_parent, &instpbuf) < 0) {
++        pam_syslog(idata->pamh, LOG_ERR, "Error stating %s, %m", inst_parent);
++        free(inst_parent);
++        return PAM_SESSION_ERR;
++    }
++
++    /*
++     * Make sure we are dealing with a directory
++     */
++    if (!S_ISDIR(instpbuf.st_mode)) {
++	pam_syslog(idata->pamh, LOG_ERR, "Instance parent %s is not a dir",
++		inst_parent);
++        free(inst_parent);
++        return PAM_SESSION_ERR;
++    }
++
++    if ((idata->flags & PAMNS_IGN_INST_PARENT_MODE) == 0) {
++        if (instpbuf.st_mode & (S_IRWXU|S_IRWXG|S_IRWXO)) {
++	    pam_syslog(idata->pamh, LOG_ERR, "Mode of inst parent %s not 000",
++		    inst_parent);
++            free(inst_parent);
++            return PAM_SESSION_ERR;
++        }
++    }
++    free(inst_parent);
++
++    /*
+      * Create instance directory and set its security context to the context
+      * returned by the security policy. Set its mode and ownership
+      * attributes to match that of the original directory that is being
+@@ -1157,6 +1202,8 @@ PAM_EXTERN int pam_sm_open_session(pam_h
+             idata.flags |= PAMNS_GEN_HASH;
+         if (strcmp(argv[i], "ignore_config_error") == 0)
+             idata.flags |= PAMNS_IGN_CONFIG_ERR;
++        if (strcmp(argv[i], "ignore_instance_parent_mode") == 0)
++            idata.flags |= PAMNS_IGN_INST_PARENT_MODE;
+         if (strcmp(argv[i], "unmnt_remnt") == 0)
+             unmnt = UNMNT_REMNT;
+         if (strcmp(argv[i], "unmnt_only") == 0)
+
+--------------060307040109090501020407--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
