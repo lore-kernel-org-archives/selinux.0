@@ -1,24 +1,28 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k4VEMkqF011531
-	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 10:22:46 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k4VEMioA012511
-	for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 14:22:45 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so938232uge
-        for <selinux@tycho.nsa.gov>; Wed, 31 May 2006 07:22:43 -0700 (PDT)
-From: "Mario Fanelli" <mario.fanelli@gmail.com>
-To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
-Subject: Use of file /proc/pid_number/attr/prevcon
-Date: Wed, 31 May 2006 16:22:40 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Message-ID: <447da6b3.14f2d9e9.052b.ffffbf8a@mx.gmail.com>
+Subject: Re: Use of file /proc/pid_number/attr/prevcon
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Mario Fanelli <mario.fanelli@gmail.com>
+Cc: SeLinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <447da6b3.14f2d9e9.052b.ffffbf8a@mx.gmail.com>
+References: <447da6b3.14f2d9e9.052b.ffffbf8a@mx.gmail.com>
+Content-Type: text/plain
+Date: Wed, 31 May 2006 10:37:22 -0400
+Message-Id: <1149086242.524.159.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why in proc filesystem, under any process's attr directory is a prevcon
-file? What is its meaning?
+On Wed, 2006-05-31 at 16:22 +0200, Mario Fanelli wrote:
+> Why in proc filesystem, under any process's attr directory is a prevcon
+> file? What is its meaning?
+
+man getprevcon.
+
+Please read the available documentation and man pages before posting
+questions.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
