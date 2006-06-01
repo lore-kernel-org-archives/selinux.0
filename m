@@ -1,72 +1,89 @@
-Message-ID: <447EF602.5080003@trustedcs.com>
-Date: Thu, 01 Jun 2006 09:13:22 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@redhat.com>,
-        "'SELinux List'" <SELinux@tycho.nsa.gov>, redhat-lspp@redhat.com
-Subject: Re: [PATCH] fix masking of capabilities over netlink in permissive
- mode
-References: <447DD3D7.4050200@trustedcs.com> <1149098096.524.241.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1149098096.524.241.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] selinux: Kernel access key retention support for
+	SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: Michael LeMay <mdlemay@epoch.ncsc.mil>, jmorris@redhat.com,
+        selinux@tycho.nsa.gov
+In-Reply-To: <14858.1149164860@warthog.cambridge.redhat.com>
+References: <1149161971.524.283.camel@moss-spartans.epoch.ncsc.mil>
+	 <1149097853.2517.0.camel@moss-tarheels.epoch.ncsc.mil>
+	 <11225.1149156553@warthog.cambridge.redhat.com>
+	 <14858.1149164860@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 10:21:35 -0400
+Message-Id: <1149171695.524.360.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2006-05-31 at 12:35 -0500, Darrel Goeddel wrote:
+On Thu, 2006-06-01 at 13:27 +0100, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
->>I think I ran across the problem described in this thread:
->>
->>http://www.redhat.com/archives/linux-audit/2006-May/msg00059.html
->>
->>The process' effective capabilities are always being masked with the
->>allowed vector of the avc decision (for self against the capability
->>security class) in netlink's copy of the process capabilities (eff_cap).
->>The allowed vector takes on a slightly different role when SELinux
->>is not in enforcing mode - it starts to track used-but-not-normally-
->>permitted actions in the allowed vector.  That is what is causing
->>the first attempt to fail (the allowed vector has not been "inflated")
->>and the following attempts to succeed (the vector has been inflated in
->>response to its previous use).  Does my reasoning (and patch) seem to
->>be on track?
+> > > Why do you want unlinkable keys anyway?
+> > 
+> > The concern is that any process that requires write access to the
+> > keyring for any reason would otherwise be able to unlink all keys from
+> > it, irrespective of what may have created the link in the first place.
 > 
+> Yes.
 > 
-> Alternative:  Since the sending task SID is now saved in the netlink
-> control buffer, we could move the netlink checking entirely to the
-> receive side, and perform a normal avc_has_perm() check, via
-> task_has_capability, with corresponding auditing of netlink denials.
-> Similarly for audit_netlink_ok.  We couldn't do that in the past because
-> the sender SID wasn't available to us on the receive side.
+> > The individual links in a single keyring could have been created by
+> > processes in different security contexts, as a single user session can
+> > have processes running in multiple security contexts.
+> 
+> Hmmm... I think it's incorrect to have an unlink permission bit on the key as
+> it causes too many potential problems, and would apply to all the links on a
+> key, irrespective of the keyrings holding them.
+> 
+> Perhaps what's required is to have unlink permission controlled from the
+> keyring's perspective.  How about adding another security op that takes the
+> keyring, the key and the requesting process, and asks if that process may
+> detach that key from that keyring.  Clearing a keyring would then be a filter
+> operation.
+> 
+> There are still a couple of problems to deal with:
+> 
+>  (1) Key displacement.  How do you deal with a new link that's being made
+>      displacing an old link that would otherwise be refused unlink permission?
+>      It might be sufficient to do the check in advance and assume that things
+>      won't then change whilst we create a new key, except that there's a race
+>      between two processes both trying to displace the same link in the same
+>      keyring.
+> 
+>      The alternative for new key addition is to do the check at the point of
+>      link creation, and just accept that we'll not create a link if we can't
+>      displace the old key.
+> 
+>      It would also be possible to store a bit of information with each pointer
+>      in the keyring if that would be useful.  The problem with caching can
+>      you/can't you data in the keyring is that it very much depends on who's
+>      asking.
+> 
+>  (2) Permission percolation over keyrings.  What do you do about a keyring
+>      that contains a key that you're not permitted to unlink?  Does the
+>      keyring itself become unlinkable?  What about session keyrings?
+> 
+> > Having a per-key unlink check parallels the existing checking on the link
+> > side.
+> 
+> I'm not sure they are exactly parallel: having a link check doesn't cause all
+> the problems that having an unlink check does.
+> 
+> > And unlinking a key can lead to its destruction (if it is the last link),
+> > right, so it has a potentially modifying impact on the key itself?
+> 
+> Yes, but you have to be able to live with that, otherwise the kernel might
+> fill up with obsolete keys.  If a filesystem or some other kernel service is
+> using a key, it should keep its own link to that key.
 
-Good idea - I forgot about the sid being there now.  That approach would
-have the benefit of actually getting the AVC denials for capability checks
-that occur "over netlink".  However, this would involve replacing all of the
-checks using eff_cap (thankfully not very many) with new lsm hook(s).  This
-also will provide better encapsulation for the capability system.  I was
-hoping that this simple patch would have a shot at making the release
-of 2.6.17 to at least address the current problem.  I can work up patches
-that creates the new lsm hook to replace the current instances of
-cap_raised(eff_cap) and move the SELinux checking into that hook.  Would
-a single security_netlink_capable(struct netlink_skb_params) hook suffice,
-or would decomposition of the the actual actions be preferred
-(and acceptable)?
-
-Thanks for the idea.
-
-> 
->>This patch removes the masking of capabilities passed over netlink
->>socket when SELinux is in enforcing mode.
-> 
-> 
-> I assume that you meant "permissive mode" above.
->
-
-Yep, looks like I was in a hurry when I sent the mail...
+Ok, given these considerations, I think we should just drop the unlink
+check for now, and proceed with the rest of the patch (modulo
+CodingStyle issues).
 
 -- 
+Stephen Smalley
+National Security Agency
 
-Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
