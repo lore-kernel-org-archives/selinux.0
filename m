@@ -1,75 +1,30 @@
-Subject: Re: [PATCH] fix masking of capabilities over netlink in permissive
-	mode
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: James Morris <jmorris@redhat.com>,
-        "'SELinux List'" <SELinux@tycho.nsa.gov>, redhat-lspp@redhat.com
-In-Reply-To: <447EF602.5080003@trustedcs.com>
-References: <447DD3D7.4050200@trustedcs.com>
-	 <1149098096.524.241.camel@moss-spartans.epoch.ncsc.mil>
-	 <447EF602.5080003@trustedcs.com>
-Content-Type: text/plain
-Date: Thu, 01 Jun 2006 10:31:01 -0400
-Message-Id: <1149172261.524.370.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0606011025310.16136@d.namei> 
+References: <Pine.LNX.4.64.0606011025310.16136@d.namei>  <Pine.LNX.4.64.0605311635470.7334@d.namei> <1149097853.2517.0.camel@moss-tarheels.epoch.ncsc.mil> <10131.1149154368@warthog.cambridge.redhat.com> 
+To: James Morris <jmorris@namei.org>
+Cc: David Howells <dhowells@redhat.com>,
+        Michael LeMay <mdlemay@epoch.ncsc.mil>, jmorris@redhat.com,
+        selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: Kernel access key retention support for SELinux 
+Date: Thu, 01 Jun 2006 15:36:19 +0100
+Message-ID: <21896.1149172579@warthog.cambridge.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-01 at 09:13 -0500, Darrel Goeddel wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2006-05-31 at 12:35 -0500, Darrel Goeddel wrote:
+James Morris <jmorris@namei.org> wrote:
+
+> > > What's the difference between reading and viewing a key?
 > > 
-> >>I think I ran across the problem described in this thread:
-> >>
-> >>http://www.redhat.com/archives/linux-audit/2006-May/msg00059.html
-> >>
-> >>The process' effective capabilities are always being masked with the
-> >>allowed vector of the avc decision (for self against the capability
-> >>security class) in netlink's copy of the process capabilities (eff_cap).
-> >>The allowed vector takes on a slightly different role when SELinux
-> >>is not in enforcing mode - it starts to track used-but-not-normally-
-> >>permitted actions in the allowed vector.  That is what is causing
-> >>the first attempt to fail (the allowed vector has not been "inflated")
-> >>and the following attempts to succeed (the vector has been inflated in
-> >>response to its previous use).  Does my reasoning (and patch) seem to
-> >>be on track?
-> > 
-> > 
-> > Alternative:  Since the sending task SID is now saved in the netlink
-> > control buffer, we could move the netlink checking entirely to the
-> > receive side, and perform a normal avc_has_perm() check, via
-> > task_has_capability, with corresponding auditing of netlink denials.
-> > Similarly for audit_netlink_ok.  We couldn't do that in the past because
-> > the sender SID wasn't available to us on the receive side.
+> > "Viewing" is looking at the key's attributes.
 > 
-> Good idea - I forgot about the sid being there now.  That approach would
-> have the benefit of actually getting the AVC denials for capability checks
-> that occur "over netlink".  However, this would involve replacing all of the
-> checks using eff_cap (thankfully not very many) with new lsm hook(s).  This
-> also will provide better encapsulation for the capability system.  I was
-> hoping that this simple patch would have a shot at making the release
-> of 2.6.17 to at least address the current problem.
+> Why not be consistent with the rest of Linux and use something like 
+> "getattr" ?
 
-If we think it is warranted, we can push up the simple patch now and
-then proceed with the more general fix later.  But I wasn't clear that
-the current behavior is a major problem, as it only affects permissive
-mode operation.   
+That would be reasonable.  The only problem I have with that is that the
+"view" name is part of the userspace ABI and documentation, and besides
+'getattr' didn't really exist when I first did my key stuff.
 
->   I can work up patches
-> that creates the new lsm hook to replace the current instances of
-> cap_raised(eff_cap) and move the SELinux checking into that hook.  Would
-> a single security_netlink_capable(struct netlink_skb_params) hook suffice,
-> or would decomposition of the the actual actions be preferred
-> (and acceptable)?
-
-Possibly generalize the existing security_netlink_recv() hook to also
-take a capability to check as an argument, and then pass CAP_NET_ADMIN
-from the net callers and CAP_AUDIT_xxx from audit_netlink_ok.
- 
--- 
-Stephen Smalley
-National Security Agency
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
