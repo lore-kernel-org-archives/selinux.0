@@ -1,512 +1,511 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k51GqIVd005695
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jun 2006 12:52:18 -0400
-Received: from e33.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k51GqGPk015110
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jun 2006 16:52:17 GMT
-Received: from westrelay02.boulder.ibm.com (westrelay02.boulder.ibm.com [9.17.195.11])
-	by e33.co.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k51Gq9ro020048
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jun 2006 12:52:09 -0400
-Received: from d03av02.boulder.ibm.com (d03av02.boulder.ibm.com [9.17.195.168])
-	by westrelay02.boulder.ibm.com (8.13.6/NCO/VER7.0) with ESMTP id k51Gq9cH248876
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jun 2006 10:52:09 -0600
-Received: from d03av02.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av02.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k51Gq8C4017542
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jun 2006 10:52:09 -0600
-Message-ID: <447F1B33.9000700@us.ibm.com>
-Date: Thu, 01 Jun 2006 12:52:03 -0400
-From: Janak Desai <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-MIME-Version: 1.0
-To: janak@us.ibm.com
-CC: russell@coker.com.au, tmraz@redhat.com, dwalsh@redhat.com,
-        valdis.kletnieks@vt.edu, sgrubb@redhat.com, klaus@atsec.com,
-        selinux@tycho.nsa.gov
-Subject: [PATCH] pam_namespace : option to check instance parent mode and
- man page(s) updates - v2
-References: <44710A40.4060309@us.ibm.com> <200605221105.55104.russell@coker.com.au> <4471BA2C.7090806@us.ibm.com> <447E0B6E.5020902@us.ibm.com>
-In-Reply-To: <447E0B6E.5020902@us.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------040004080409000907030208"
+Subject: [PATCH] selinux: Kernel access key retention support for SELinux
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+To: jmorris@redhat.com, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        dhowells@redhat.com
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 14:26:30 -0400
+Message-Id: <1149186390.2511.2.camel@moss-tarheels.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040004080409000907030208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Maybe this will be the one...
 
+---<snip>---
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-This patch, which applies on top of the latest pam_namespace in rawhide, 
-adds a new command line option to allow an admin to bypass checking of 
-the instance parent mode. It also updates namespace.conf and pam_namespace
-man pages to add text relating this new option, interaction with 
-share-subtree and possible config changes that would allow the use of
-pam_namespace with gdm and polyinstantiation of /tmp. 
+Introduce SELinux hooks to support the access key retention subsystem
+within the kernel.  Incorporate new flask headers from a modified
+version of the SELinux reference policy, with support for the new
+security class representing retained keys.  Extend the "key_alloc"
+security hook with a task parameter representing the intended
+ownership context for the key being allocated.  Attach security
+information to root's default keyrings within the SELinux
+initialization routine.
 
-The only changes to this patch since the last time it was posted on
-the selinux mailing list yesterday, are the documentation updates to
-change the instance parent mode references to 000 from 1000. Sticky
-bits are not needed since the directory itself is not writable.
+Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-Signed-off-by: Janak Desai <janak@us.ibm.com>
+---
 
---- 
+ Documentation/keys.txt                       |   23 +++++++++
+ include/linux/key.h                          |   18 +++++--
+ include/linux/security.h                     |   10 ++--
+ kernel/user.c                                |    2
+ security/dummy.c                             |    2
+ security/keys/key.c                          |    8 +--
+ security/keys/keyring.c                      |    5 +-
+ security/keys/process_keys.c                 |   15 +++---
+ security/keys/request_key.c                  |    6 +-
+ security/keys/request_key_auth.c             |    2
+ security/selinux/hooks.c                     |   64 +++++++++++++++++++++++++++
+ security/selinux/include/av_perm_to_string.h |    6 ++
+ security/selinux/include/av_permissions.h    |    8 +++
+ security/selinux/include/class_to_string.h   |    1
+ security/selinux/include/flask.h             |    1
+ security/selinux/include/objsec.h            |    5 ++
+ 16 files changed, 149 insertions(+), 27 deletions(-)
 
-README               |   95 ++++++++++++++++++++++++++++++--------------------- namespace.conf       |   22 +++++++++--
- namespace.conf.5.xml |   42 +++++++++++++---------
- pam_namespace.8.xml  |   79 ++++++++++++++++++++++++++++++++++++++++++
- pam_namespace.c      |   49 +++++++++++++++++++++++++-
- 5 files changed, 227 insertions(+), 60 deletions(-)
-
-
-
-
-
---------------040004080409000907030208
-Content-Type: text/x-patch;
- name="pns0530a.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pns0530a.patch"
-
-diff -Naurp pam_namespace0530/modules/pam_namespace/README pam_namespace0530+patch/modules/pam_namespace/README
---- pam_namespace0530/modules/pam_namespace/README	2006-05-31 18:57:41.000000000 +0000
-+++ pam_namespace0530+patch/modules/pam_namespace/README	2006-06-01 16:31:44.000000000 +0000
-@@ -3,17 +3,17 @@ pam_namespace module:
- Setup a private namespace with polyinstantiated directories.
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/Documentation/keys.txt linux-2.6.17-rc5-mm1/Documentation/keys.txt
+--- linux-2.6.17-rc5-mm1.orig/Documentation/keys.txt	2006-05-31 09:47:43.000000000 -0400
++++ linux-2.6.17-rc5-mm1/Documentation/keys.txt	2006-06-01 11:24:53.000000000 -0400
+@@ -19,6 +19,7 @@ This document has the following sections
+ 	- Key overview
+ 	- Key service overview
+ 	- Key access permissions
++	- SELinux support
+ 	- New procfs files
+ 	- Userspace system call interface
+ 	- Kernel services
+@@ -232,6 +233,28 @@ For changing the ownership, group ID or 
+ the key or having the sysadmin capability is sufficient.
  
- THEORY OF OPERATION:
--The pam namespace module consults /etc/security/namespace.conf 
-+The pam namespace module consults /etc/security/namespace.conf
- configuration file and sets up a private namespace with polyinstantiated
- directories for a session managed by PAM. A skeleton namespace.conf
--installed by default provides example for polyinstantiating /tmp 
-+installed by default provides example for polyinstantiating /tmp, /var/tmp
- and users' home directory.
  
- If an executable script /etc/security/namespace.init exists, it
- is used to initialize the namespace every time a new instance directory
- is created. The script receives the polyinstantiated directory path
- and the instance directory path as its arguments.
--                        
++===============
++SELINUX SUPPORT
++===============
 +
- Each line in namespace.conf describes a limit for a user in the form:
++The security class "key" has been added to SELinux so that mandatory access
++controls can be applied to keys created within various contexts.  This support
++is preliminary, and is likely to change quite significantly in the near
++future.  Currently, all of the basic permissions explained above are provided
++in SELinux as well, and are simply checked after all discretionary permission
++checks have been performed.
++
++Each key is labeled with the same context as the task to which it belongs.
++Typically, this is the same task that was running when the key was created.
++The default keyrings are handled differently, but in a way that is very intuitive.
++The user and user session keyrings that are created when the user logs in are
++currently labeled with the context of the login manager, but will soon be labeled
++with the user's initial context.  The keyrings associated with new threads are
++each labeled with the context of their associated thread, and both session and
++process keyrings are handled similarly.  However, the default keyrings associated
++with the root user are labeled with the default kernel context, since they are
++created early in the boot process, before root has even logged in.
++
+ ================
+ NEW PROCFS FILES
+ ================
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/include/linux/key.h linux-2.6.17-rc5-mm1/include/linux/key.h
+--- linux-2.6.17-rc5-mm1.orig/include/linux/key.h	2006-05-31 09:48:38.000000000 -0400
++++ linux-2.6.17-rc5-mm1/include/linux/key.h	2006-05-31 10:03:00.000000000 -0400
+@@ -246,8 +246,9 @@ extern void unregister_key_type(struct k
  
- <polydir>  <instance_prefix>  <method>  <list_of_uids>
-@@ -29,7 +29,7 @@ Where:
-         the prefix to generate the final instance directory path.
-         This directory is created if it did not exist already, and is then
- 	bind mounted on the <polydir> to provide an instance of <polydir>
--	based on the <method> column. The special string $HOME is replaced with 
-+	based on the <method> column. The special string $HOME is replaced with
- 	the user's home directory, and $USER with the username.
- 	This field cannot be blank.
+ extern struct key *key_alloc(struct key_type *type,
+ 			     const char *desc,
+-			     uid_t uid, gid_t gid, key_perm_t perm,
+-			     int not_in_quota);
++			     uid_t uid, gid_t gid,
++			     struct task_struct *ctx,
++			     key_perm_t perm, int not_in_quota);
+ extern int key_payload_reserve(struct key *key, size_t datalen);
+ extern int key_instantiate_and_link(struct key *key,
+ 				    const void *data,
+@@ -297,7 +298,9 @@ extern int key_unlink(struct key *keyrin
+ 		      struct key *key);
  
-@@ -54,43 +54,60 @@ EXAMPLE /etc/security/namespace.conf con
- # /var/tmp, whereas home directories will be polyinstantiated for all
- # users. The user name and/or context is appended to the instance prefix.
- #
--/tmp     /tmp-inst/       both      root,adm
--/var/tmp /var/tmp-inst/   both      root,adm
--$HOME    $HOME.inst-      context
--    
--ARGUMENTS RECOGNIZED:
--    debug		Verbose logging by syslog
-+# Note that instance directories do not have to reside inside the
-+# polyinstantiated directory. In the examples below, instances of /tmp
-+# will be created in /tmp-inst directory, where as instances of /var/tmp
-+# and users home directories will reside within the directories that
-+# are being polyinstantiated.
-+#
-+# Instance parent directories must exist for the polyinstantiation
-+# mechanism to work. By default, they should be created with the mode
-+# of 000. pam_namespace module will enforce this mode unless it
-+# is explicitly called with an argument to ignore the mode of the
-+# instance parent. System administrators should use this argument with
-+# caution, as it will reduce security and isolation achieved by
-+# polyinstantiation.
-+#
-+/tmp     /tmp-inst/       	both      root,adm
-+/var/tmp /var/tmp/tmp-inst/   	both      root,adm
-+$HOME    $HOME/$USER.inst/inst- context
+ extern struct key *keyring_alloc(const char *description, uid_t uid, gid_t gid,
+-				 int not_in_quota, struct key *dest);
++				 struct task_struct *ctx,
++				 int not_in_quota,
++				 struct key *dest);
  
--    unmnt_remnt		For programs such as su and newrole, the login
--			session has already setup a polyinstantiated 
--			namespace. For these programs, polyinstantiation
--			is performed based on new user id or security
--			context, however the command first needs to 
--			undo the polyinstantiation performed by login.
--			This argument instructs the command to 
--			first undo previous polyinstantiation before
--			proceeding with new polyinstantiation based on
--			new id/context.
--
--    unmnt_only		For trusted programs that want to undo any
--			existing bind mounts and process instance 
--			directories on their own, this argument allows
--			them to unmount currently mounted instance
--			directories.
--
--    require_selinux	If selinux is not enabled, return failure.
--
--    gen_hash		Instead of using the security context string
--			for the instance name, generate and use its
--			md5 hash.
--
--    ignore_config_error	If a line in the configuration file corresponding
--			to a polyinstantiated directory contains format
--			error, skip that line process the next line.
--			Without this option, pam will return an error
--			to the calling program resulting in termination
--			of the session.
-+ARGUMENTS RECOGNIZED:
-+    debug
-+	Verbose logging by syslog
+ extern int keyring_clear(struct key *keyring);
  
-+    unmnt_remnt
-+	For programs such as su and newrole, the login session has
-+	already setup a polyinstantiated namespace. For these programs,
-+	polyinstantiation is performed based on new user id or security
-+	context, however the command first needs to undo the
-+	polyinstantiation performed by login. This argument instructs
-+	the command to first undo previous polyinstantiation before
-+	proceeding with new polyinstantiation based on new id/context.
-+
-+    unmnt_only
-+	For trusted programs that want to undo any existing bind mounts
-+	and process instance directories on their own, this argument
-+	allows them to unmount currently mounted instance directories.
-+
-+    require_selinux
-+	If selinux is not enabled, return failure.
-+
-+    gen_hash
-+	Instead of using the security context string for the instance
-+	name, generate and use its md5 hash.
-+
-+    ignore_config_error
-+	If a line in the configuration file corresponding to a
-+	polyinstantiated directory contains format error, skip that
-+	line process the next line. Without this option, pam will return
-+	an error to the calling program resulting in termination
-+	of the session.
-+
-+    ignore_instance_parent_mode
-+	Instance parent directories by default are expected to have
-+	the restrictive mode of 000. Using this option, an administrator
-+	can choose to ignore the mode of the instance parent.
+@@ -318,7 +321,8 @@ extern void keyring_replace_payload(stru
+  * the userspace interface
+  */
+ extern struct key root_user_keyring, root_session_keyring;
+-extern int alloc_uid_keyring(struct user_struct *user);
++extern int alloc_uid_keyring(struct user_struct *user,
++			     struct task_struct *ctx);
+ extern void switch_uid_keyring(struct user_struct *new_user);
+ extern int copy_keys(unsigned long clone_flags, struct task_struct *tsk);
+ extern int copy_thread_group_keys(struct task_struct *tsk);
+@@ -347,7 +351,7 @@ extern void key_init(void);
+ #define make_key_ref(k)			({ NULL; })
+ #define key_ref_to_ptr(k)		({ NULL; })
+ #define is_key_possessed(k)		0
+-#define alloc_uid_keyring(u)		0
++#define alloc_uid_keyring(u,c)		0
+ #define switch_uid_keyring(u)		do { } while(0)
+ #define __install_session_keyring(t, k)	({ NULL; })
+ #define copy_keys(f,t)			0
+@@ -360,6 +364,10 @@ extern void key_init(void);
+ #define key_fsgid_changed(t)		do { } while(0)
+ #define key_init()			do { } while(0)
  
- MODULE SERVICES PROVIDED:
- 	session            open_session and close_session
-diff -Naurp pam_namespace0530/modules/pam_namespace/namespace.conf pam_namespace0530+patch/modules/pam_namespace/namespace.conf
---- pam_namespace0530/modules/pam_namespace/namespace.conf	2006-05-31 18:57:41.000000000 +0000
-+++ pam_namespace0530+patch/modules/pam_namespace/namespace.conf	2006-06-01 16:31:44.000000000 +0000
-@@ -1,7 +1,7 @@
- # /etc/security/namespace.conf
- #
- # See /usr/share/doc/pam-*/txts/README.pam_namespace for more information.
--# 
-+#
- # Uncommenting the following three lines will polyinstantiate
- # /tmp, /var/tmp and user's home directories. /tmp and /var/tmp will
- # be polyinstantiated based on both security context as well as user
-@@ -11,6 +11,20 @@
- # directories will be polyinstantiated for all users. The user name
- # and/or context is appended to the instance prefix.
- #
--#/tmp     /tmp.inst/          both      adm
--#/var/tmp /var/tmp.inst/      both      adm
--#$HOME    $HOME.inst-         context
-+# Note that instance directories do not have to reside inside the
-+# polyinstantiated directory. In the examples below, instances of /tmp
-+# will be created in /tmp-inst directory, where as instances of /var/tmp
-+# and users home directories will reside within the directories that
-+# are being polyinstantiated.
-+#
-+# Instance parent directories must exist for the polyinstantiation
-+# mechanism to work. By default, they should be created with the mode
-+# of 000. pam_namespace module will enforce this mode unless it
-+# is explicitly called with an argument to ignore the mode of the
-+# instance parent. System administrators should use this argument with
-+# caution, as it will reduce security and isolation achieved by
-+# polyinstantiation.
-+#
-+#/tmp     /tmp-inst/       	both      root,adm
-+#/var/tmp /var/tmp/tmp-inst/   	both      root,adm
-+#$HOME    $HOME/$USER.inst/inst- context
-diff -Naurp pam_namespace0530/modules/pam_namespace/namespace.conf.5.xml pam_namespace0530+patch/modules/pam_namespace/namespace.conf.5.xml
---- pam_namespace0530/modules/pam_namespace/namespace.conf.5.xml	2006-05-31 18:57:41.000000000 +0000
-+++ pam_namespace0530+patch/modules/pam_namespace/namespace.conf.5.xml	2006-06-01 16:31:44.000000000 +0000
-@@ -43,7 +43,7 @@
-    </para>
++/* Initial keyrings */
++extern struct key root_user_keyring;
++extern struct key root_session_keyring;
++
+ #endif /* CONFIG_KEYS */
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_KEY_H */
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/include/linux/security.h linux-2.6.17-rc5-mm1/include/linux/security.h
+--- linux-2.6.17-rc5-mm1.orig/include/linux/security.h	2006-05-31 09:48:39.000000000 -0400
++++ linux-2.6.17-rc5-mm1/include/linux/security.h	2006-05-31 10:03:00.000000000 -0400
+@@ -1305,7 +1305,7 @@ struct security_operations {
  
-     <para>
--      <replaceable>polydir</replaceable> <replaceable>instance_prefex</replaceable> <replaceable>method</replaceable> <replaceable>list_of_uids</replaceable>
-+      <replaceable>polydir</replaceable> <replaceable> instance_prefix</replaceable> <replaceable> method</replaceable> <replaceable> list_of_uids</replaceable>
-     </para>
+ 	/* key management security hooks */
+ #ifdef CONFIG_KEYS
+-	int (*key_alloc)(struct key *key);
++	int (*key_alloc)(struct key *key, struct task_struct *tsk);
+ 	void (*key_free)(struct key *key);
+ 	int (*key_permission)(key_ref_t key_ref,
+ 			      struct task_struct *context,
+@@ -2980,9 +2980,10 @@ static inline int security_xfrm_policy_l
  
-     <para>
-@@ -59,11 +59,14 @@
-       of &lt;polydir&gt;. The directory security context, or optionally its
-       md5sum string (32 hex characters), is appended to the prefix to
-       generate the final instance directory path. This directory is
--      created if it did not exist already, and is then bind mounted on
--      the &lt;polydir&gt; to provide an instance of &lt;polydir&gt; based on the
-+      created if it did not exist already, and is then bind mounted on the
-+      &lt;polydir&gt; to provide an instance of &lt;polydir&gt; based on the
-       &lt;method&gt; column. The special string $HOME is replaced with the
--      user's home directory, and $USER with the username. This field
--      cannot be blank.
-+      user's home directory, and $USER with the username. This field cannot
-+      be blank. The directory where polyinstantiated instances are to be
-+      created, must exist and must have, by default, the mode of 000.  The
-+      requirement that the instance parent be of mode 000 can be overridden
-+      with the command line option &lt;ignore_instance_parent_mode&gt;
-     </para>
+ #ifdef CONFIG_KEYS
+ #ifdef CONFIG_SECURITY
+-static inline int security_key_alloc(struct key *key)
++static inline int security_key_alloc(struct key *key,
++				     struct task_struct *tsk)
+ {
+-	return security_ops->key_alloc(key);
++	return security_ops->key_alloc(key, tsk);
+ }
  
-     <para>
-@@ -92,20 +95,27 @@
-       <filename>/etc/security/namespace.conf</filename>.
-     </para>
+ static inline void security_key_free(struct key *key)
+@@ -2999,7 +3000,8 @@ static inline int security_key_permissio
  
--    <para>
-+    <literallayout>
-       # The following three lines will polyinstantiate /tmp,
-       # /var/tmp and user's home directories. /tmp and /var/tmp
--      # will be polyinstantiated based on both security context as well
--      # as user name, whereas home directory will be polyinstantiated
--      # based on security context only. Polyinstantiation will not be
--      # performed for user root and adm for directories /tmp and
--      # /var/tmp, whereas home directories will be polyinstantiated for
--      # all users.
-+      # will be polyinstantiated based on both security context
-+      # as well as user name, whereas home directory will be
-+      # polyinstantiated based on security context only.
-+      # Polyinstantiation will not be performed for user root
-+      # and adm for directories /tmp and /var/tmp, whereas home
-+      # directories will be polyinstantiated for all users.
-       #
--      /tmp     /tmp/tmp.inst-$USER-       both      root,adm
--      /var/tmp /var/tmp/tmp.inst-$USER-   both      root,adm
--      $HOME    $HOME.inst-                context
--    </para>
-+      # Note that instance directories do not have to reside inside
-+      # the polyinstantiated directory. In the examples below,
-+      # instances of /tmp will be created in /tmp-inst directory,
-+      # where as instances of /var/tmp and users home directories
-+      # will reside within the directories that are being
-+      # polyinstantiated.
-+      #
-+      /tmp     /tmp-inst/       	both      root,adm
-+      /var/tmp /var/tmp/tmp-inst/   	both      root,adm
-+      $HOME    $HOME/$USER.inst/inst- context
-+    </literallayout>
+ #else
  
-     <para>
-       For the &lt;service&gt;s you need polyinstantiation (login for example)
-diff -Naurp pam_namespace0530/modules/pam_namespace/pam_namespace.8.xml pam_namespace0530+patch/modules/pam_namespace/pam_namespace.8.xml
---- pam_namespace0530/modules/pam_namespace/pam_namespace.8.xml	2006-05-31 18:57:41.000000000 +0000
-+++ pam_namespace0530+patch/modules/pam_namespace/pam_namespace.8.xml	2006-06-01 16:31:44.000000000 +0000
-@@ -40,6 +40,9 @@
-       <arg choice="opt">
-         ignore_config_error
-       </arg>
-+      <arg choice="opt">
-+        ignore_instance_parent_mode
-+      </arg>
-     </cmdsynopsis>
-   </refsynopsisdiv>
+-static inline int security_key_alloc(struct key *key)
++static inline int security_key_alloc(struct key *key,
++				     struct task_struct *tsk)
+ {
+ 	return 0;
+ }
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/kernel/user.c linux-2.6.17-rc5-mm1/kernel/user.c
+--- linux-2.6.17-rc5-mm1.orig/kernel/user.c	2006-05-31 09:48:43.000000000 -0400
++++ linux-2.6.17-rc5-mm1/kernel/user.c	2006-05-31 10:03:00.000000000 -0400
+@@ -148,7 +148,7 @@ struct user_struct * alloc_uid(uid_t uid
+ 		new->mq_bytes = 0;
+ 		new->locked_shm = 0;
  
-@@ -56,6 +59,19 @@
-       directory is created. The script receives the polyinstantiated
-       directory path and the instance directory path as its arguments.
-     </para>
-+
-+    <para>
-+      The pam_namespace module disassociates the session namespace from
-+      the parent namespace. Any mounts/unmounts performed in the parent
-+      namespace, such as mounting of devices, are not reflected in the
-+      session namespace. To propogate selected mount/unmount events from
-+      the parent namespace into the disassociated session namespace, an
-+      administrator may use the special shared-subtree feature. For
-+      additional information on shared-subtree feature, please refer to
-+      the mount(8) man page and the shared-subtree description at
-+      http://lwn.net/Articles/159077 and http://lwn.net/Articles/159092.
-+    </para>
-+
-   </refsect1>
+-		if (alloc_uid_keyring(new) < 0) {
++		if (alloc_uid_keyring(new, current) < 0) {
+ 			kmem_cache_free(uid_cachep, new);
+ 			return NULL;
+ 		}
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/dummy.c linux-2.6.17-rc5-mm1/security/dummy.c
+--- linux-2.6.17-rc5-mm1.orig/security/dummy.c	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/dummy.c	2006-05-31 10:03:00.000000000 -0400
+@@ -850,7 +850,7 @@ static int dummy_setprocattr(struct task
+ }
  
-   <refsect1 id="pam_namespace-options">
-@@ -148,6 +164,21 @@
-         </listitem>
-       </varlistentry>
+ #ifdef CONFIG_KEYS
+-static inline int dummy_key_alloc(struct key *key)
++static inline int dummy_key_alloc(struct key *key, struct task_struct *ctx)
+ {
+ 	return 0;
+ }
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/keys/key.c linux-2.6.17-rc5-mm1/security/keys/key.c
+--- linux-2.6.17-rc5-mm1.orig/security/keys/key.c	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/keys/key.c	2006-05-31 10:03:00.000000000 -0400
+@@ -247,8 +247,8 @@ static inline void key_alloc_serial(stru
+  *   instantiate the key or discard it before returning
+  */
+ struct key *key_alloc(struct key_type *type, const char *desc,
+-		      uid_t uid, gid_t gid, key_perm_t perm,
+-		      int not_in_quota)
++		      uid_t uid, gid_t gid, struct task_struct *ctx,
++		      key_perm_t perm, int not_in_quota)
+ {
+ 	struct key_user *user = NULL;
+ 	struct key *key;
+@@ -318,7 +318,7 @@ struct key *key_alloc(struct key_type *t
+ #endif
  
-+      <varlistentry>
-+        <term>
-+          <option>ignore_instance_parent_mode</option>
-+        </term>
-+        <listitem>
-+          <para>
-+	    Instance parent directories by default are expected to have
-+	    the restrictive mode of 000. Using this option, an administrator
-+	    can choose to ignore the mode of the instance parent. This option
-+            should be used with caution as it will reduce security and
-+            isolation goals of the polyinstantiation mechanism.
-+          </para>
-+        </listitem>
-+      </varlistentry>
-+
-     </variablelist>
-   </refsect1>
+ 	/* let the security module know about the key */
+-	ret = security_key_alloc(key);
++	ret = security_key_alloc(key, ctx);
+ 	if (ret < 0)
+ 		goto security_error;
  
-@@ -200,6 +231,51 @@
-     </variablelist>
-   </refsect1>
+@@ -822,7 +822,7 @@ key_ref_t key_create_or_update(key_ref_t
  
-+  <refsect1 id="pam_namespace-examples">
-+    <title>EXAMPLES</title>
+ 	/* allocate a new key */
+ 	key = key_alloc(ktype, description, current->fsuid, current->fsgid,
+-			perm, not_in_quota);
++			current, perm, not_in_quota);
+ 	if (IS_ERR(key)) {
+ 		key_ref = ERR_PTR(PTR_ERR(key));
+ 		goto error_3;
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/keys/keyring.c linux-2.6.17-rc5-mm1/security/keys/keyring.c
+--- linux-2.6.17-rc5-mm1.orig/security/keys/keyring.c	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/keys/keyring.c	2006-05-31 10:03:00.000000000 -0400
+@@ -240,13 +240,14 @@ static long keyring_read(const struct ke
+  * allocate a keyring and link into the destination keyring
+  */
+ struct key *keyring_alloc(const char *description, uid_t uid, gid_t gid,
+-			  int not_in_quota, struct key *dest)
++			  struct task_struct *ctx, int not_in_quota,
++			  struct key *dest)
+ {
+ 	struct key *keyring;
+ 	int ret;
+ 
+ 	keyring = key_alloc(&key_type_keyring, description,
+-			    uid, gid,
++			    uid, gid, ctx,
+ 			    (KEY_POS_ALL & ~KEY_POS_SETATTR) | KEY_USR_ALL,
+ 			    not_in_quota);
+ 
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/keys/process_keys.c linux-2.6.17-rc5-mm1/security/keys/process_keys.c
+--- linux-2.6.17-rc5-mm1.orig/security/keys/process_keys.c	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/keys/process_keys.c	2006-05-31 10:03:00.000000000 -0400
+@@ -67,7 +67,8 @@ struct key root_session_keyring = {
+ /*
+  * allocate the keyrings to be associated with a UID
+  */
+-int alloc_uid_keyring(struct user_struct *user)
++int alloc_uid_keyring(struct user_struct *user,
++		      struct task_struct *ctx)
+ {
+ 	struct key *uid_keyring, *session_keyring;
+ 	char buf[20];
+@@ -76,7 +77,7 @@ int alloc_uid_keyring(struct user_struct
+ 	/* concoct a default session keyring */
+ 	sprintf(buf, "_uid_ses.%u", user->uid);
+ 
+-	session_keyring = keyring_alloc(buf, user->uid, (gid_t) -1, 0, NULL);
++	session_keyring = keyring_alloc(buf, user->uid, (gid_t) -1, ctx, 0, NULL);
+ 	if (IS_ERR(session_keyring)) {
+ 		ret = PTR_ERR(session_keyring);
+ 		goto error;
+@@ -86,7 +87,7 @@ int alloc_uid_keyring(struct user_struct
+ 	 * keyring */
+ 	sprintf(buf, "_uid.%u", user->uid);
+ 
+-	uid_keyring = keyring_alloc(buf, user->uid, (gid_t) -1, 0,
++	uid_keyring = keyring_alloc(buf, user->uid, (gid_t) -1, ctx, 0,
+ 				    session_keyring);
+ 	if (IS_ERR(uid_keyring)) {
+ 		key_put(session_keyring);
+@@ -143,7 +144,7 @@ int install_thread_keyring(struct task_s
+ 
+ 	sprintf(buf, "_tid.%u", tsk->pid);
+ 
+-	keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
++	keyring = keyring_alloc(buf, tsk->uid, tsk->gid, tsk, 1, NULL);
+ 	if (IS_ERR(keyring)) {
+ 		ret = PTR_ERR(keyring);
+ 		goto error;
+@@ -177,7 +178,7 @@ int install_process_keyring(struct task_
+ 	if (!tsk->signal->process_keyring) {
+ 		sprintf(buf, "_pid.%u", tsk->tgid);
+ 
+-		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
++		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, tsk, 1, NULL);
+ 		if (IS_ERR(keyring)) {
+ 			ret = PTR_ERR(keyring);
+ 			goto error;
+@@ -217,7 +218,7 @@ static int install_session_keyring(struc
+ 	if (!keyring) {
+ 		sprintf(buf, "_ses.%u", tsk->tgid);
+ 
+-		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
++		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, tsk, 1, NULL);
+ 		if (IS_ERR(keyring))
+ 			return PTR_ERR(keyring);
+ 	}
+@@ -727,7 +728,7 @@ long join_session_keyring(const char *na
+ 	keyring = find_keyring_by_name(name, 0);
+ 	if (PTR_ERR(keyring) == -ENOKEY) {
+ 		/* not found - try and create a new one */
+-		keyring = keyring_alloc(name, tsk->uid, tsk->gid, 0, NULL);
++		keyring = keyring_alloc(name, tsk->uid, tsk->gid, tsk, 0, NULL);
+ 		if (IS_ERR(keyring)) {
+ 			ret = PTR_ERR(keyring);
+ 			goto error2;
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/keys/request_key_auth.c linux-2.6.17-rc5-mm1/security/keys/request_key_auth.c
+--- linux-2.6.17-rc5-mm1.orig/security/keys/request_key_auth.c	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/keys/request_key_auth.c	2006-05-31 10:03:00.000000000 -0400
+@@ -185,7 +185,7 @@ struct key *request_key_auth_new(struct 
+ 	sprintf(desc, "%x", target->serial);
+ 
+ 	authkey = key_alloc(&key_type_request_key_auth, desc,
+-			    current->fsuid, current->fsgid,
++			    current->fsuid, current->fsgid, current,
+ 			    KEY_POS_VIEW | KEY_POS_READ | KEY_POS_SEARCH |
+ 			    KEY_USR_VIEW, 1);
+ 	if (IS_ERR(authkey)) {
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/keys/request_key.c linux-2.6.17-rc5-mm1/security/keys/request_key.c
+--- linux-2.6.17-rc5-mm1.orig/security/keys/request_key.c	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/keys/request_key.c	2006-05-31 10:03:00.000000000 -0400
+@@ -48,7 +48,8 @@ static int call_sbin_request_key(struct 
+ 	/* allocate a new session keyring */
+ 	sprintf(desc, "_req.%u", key->serial);
+ 
+-	keyring = keyring_alloc(desc, current->fsuid, current->fsgid, 1, NULL);
++	keyring = keyring_alloc(desc, current->fsuid, current->fsgid,
++				current, 1, NULL);
+ 	if (IS_ERR(keyring)) {
+ 		ret = PTR_ERR(keyring);
+ 		goto error_alloc;
+@@ -137,7 +138,8 @@ static struct key *__request_key_constru
+ 
+ 	/* create a key and add it to the queue */
+ 	key = key_alloc(type, description,
+-			current->fsuid, current->fsgid, KEY_POS_ALL, 0);
++			current->fsuid, current->fsgid,
++			current, KEY_POS_ALL, 0);
+ 	if (IS_ERR(key))
+ 		goto alloc_failed;
+ 
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/selinux/hooks.c linux-2.6.17-rc5-mm1/security/selinux/hooks.c
+--- linux-2.6.17-rc5-mm1.orig/security/selinux/hooks.c	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/selinux/hooks.c	2006-06-01 11:32:19.000000000 -0400
+@@ -4252,6 +4252,57 @@ static int selinux_setprocattr(struct ta
+ 	return size;
+ }
+ 
++#ifdef CONFIG_KEYS
 +
-+    <para>
-+      For the &lt;service&gt;s you need polyinstantiation (login for example)
-+      put the following line in /etc/pam.d/&lt;service&gt; as the last line for
-+      session group:
-+    </para>
++static int selinux_key_alloc(struct key *k, struct task_struct *tsk)
++{
++	struct task_security_struct *tsec = tsk->security;
++	struct key_security_struct *ksec;
 +
-+    <para>
-+      session  required  pam_namespace.so [arguments]
-+    </para>
++	ksec = kzalloc(sizeof(struct key_security_struct), GFP_KERNEL);
++	if (!ksec)
++		return -ENOMEM;
 +
-+    <para>
-+      To use polyinstantiation with graphical display manager gdm, insert the
-+      following line, before exit 0, in /etc/gdm/PostSession/Default:
-+    </para>
++	ksec->obj = k;
++	ksec->sid = tsec->sid;
++	k->security = ksec;
 +
-+    <para>
-+      /usr/sbin/gdm-safe-restart
-+    </para>
++	return 0;
++}
 +
-+    <para>
-+      This allows gdm to restart after each session and appropriately adjust
-+      namesapces of display manager and the X server. If polyinstantiation of
-+      /tmp is desired along with the graphical environment, then addtional
-+      configuration changes are needed to address the interaction of X server
-+      and font server namespaces with their use of /tmp to create communication
-+      sockets. Perform the following changes to use graphical environment
-+      with polyinstantiation of /tmp:
-+    </para>
++static void selinux_key_free(struct key *k)
++{
++	struct key_security_struct *ksec = k->security;
 +
-+    <para>
-+    <literallayout>
-+      1. Setup default init state to 3, by modifying /etc/inittab
-+      2. Disable the use of font server by commenting out "FontPath"
-+         line in /etc/X11/xorg.conf.
-+      3. Ensure that the login service is setup to use pam_namespace,
-+         as described above, by modifying /etc/pam.d/login.
-+      4. Use the "startx" command after a successful terminal login.
-+    </literallayout>
-+    </para>
++	k->security = NULL;
++	kfree(ksec);
++}
 +
-+  </refsect1>
++static int selinux_key_permission(key_ref_t key_ref,
++			    struct task_struct *ctx,
++			    key_perm_t perm)
++{
++	struct key *key;
++	struct task_security_struct *tsec;
++	struct key_security_struct *ksec;
 +
-   <refsect1 id="pam_namespace-see_also">
-     <title>SEE ALSO</title>
-     <para>
-@@ -210,6 +286,9 @@
-         <refentrytitle>pam.d</refentrytitle><manvolnum>8</manvolnum>
-       </citerefentry>,
-       <citerefentry>
-+        <refentrytitle>mount</refentrytitle><manvolnum>8</manvolnum>
-+      </citerefentry>,
-+      <citerefentry>
-         <refentrytitle>pam</refentrytitle><manvolnum>8</manvolnum>
-       </citerefentry>.
-     </para>
-diff -Naurp pam_namespace0530/modules/pam_namespace/pam_namespace.c pam_namespace0530+patch/modules/pam_namespace/pam_namespace.c
---- pam_namespace0530/modules/pam_namespace/pam_namespace.c	2006-05-31 18:57:41.000000000 +0000
-+++ pam_namespace0530+patch/modules/pam_namespace/pam_namespace.c	2006-06-01 16:31:44.000000000 +0000
-@@ -85,6 +85,7 @@
- #define PAMNS_CTXT_BASED_INST 0x00000800 /* Context based instance needed */
- #define PAMNS_GEN_HASH        0x00002000 /* Generate md5 hash for inst names */
- #define PAMNS_IGN_CONFIG_ERR  0x00004000 /* Ignore format error in conf file */
-+#define PAMNS_IGN_INST_PARENT_MODE  0x00008000 /* Ignore instance parent mode */
++	key = key_ref_to_ptr(key_ref);
++
++	tsec = ctx->security;
++	ksec = key->security;
++
++	/* if no specific permissions are requested, we skip the
++	   permission check. No serious, additional covert channels
++	   appear to be created. */
++	if (perm == 0)
++		return 0;
++
++	return avc_has_perm(tsec->sid, ksec->sid,
++			    SECCLASS_KEY, perm, NULL);
++}
++
++#endif
++
+ static struct security_operations selinux_ops = {
+ 	.ptrace =			selinux_ptrace,
+ 	.capget =			selinux_capget,
+@@ -4404,6 +4455,12 @@ static struct security_operations selinu
+ 	.xfrm_state_free_security =	selinux_xfrm_state_free,
+ 	.xfrm_policy_lookup = 		selinux_xfrm_policy_lookup,
+ #endif
++
++#ifdef CONFIG_KEYS
++	.key_alloc =                    selinux_key_alloc,
++	.key_free =                     selinux_key_free,
++	.key_permission =               selinux_key_permission,
++#endif
+ };
+ 
+ static __init int selinux_init(void)
+@@ -4439,6 +4496,13 @@ static __init int selinux_init(void)
+ 	} else {
+ 		printk(KERN_INFO "SELinux:  Starting in permissive mode\n");
+ 	}
++
++#ifdef CONFIG_KEYS
++	/* Add security information to initial keyrings */
++	security_key_alloc(&root_user_keyring, current);
++	security_key_alloc(&root_session_keyring, current);
++#endif
++
+ 	return 0;
+ }
+ 
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/selinux/include/av_permissions.h linux-2.6.17-rc5-mm1/security/selinux/include/av_permissions.h
+--- linux-2.6.17-rc5-mm1.orig/security/selinux/include/av_permissions.h	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/selinux/include/av_permissions.h	2006-06-01 10:42:18.000000000 -0400
+@@ -959,3 +959,11 @@
+ #define PACKET__SEND                              0x00000001UL
+ #define PACKET__RECV                              0x00000002UL
+ #define PACKET__RELABELTO                         0x00000004UL
++
++#define KEY__VIEW                                 0x00000001UL
++#define KEY__READ                                 0x00000002UL
++#define KEY__WRITE                                0x00000004UL
++#define KEY__SEARCH                               0x00000008UL
++#define KEY__LINK                                 0x00000010UL
++#define KEY__SETATTR                              0x00000020UL
++
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/selinux/include/av_perm_to_string.h linux-2.6.17-rc5-mm1/security/selinux/include/av_perm_to_string.h
+--- linux-2.6.17-rc5-mm1.orig/security/selinux/include/av_perm_to_string.h	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/selinux/include/av_perm_to_string.h	2006-06-01 10:42:18.000000000 -0400
+@@ -242,3 +242,9 @@
+    S_(SECCLASS_PACKET, PACKET__SEND, "send")
+    S_(SECCLASS_PACKET, PACKET__RECV, "recv")
+    S_(SECCLASS_PACKET, PACKET__RELABELTO, "relabelto")
++   S_(SECCLASS_KEY, KEY__VIEW, "view")
++   S_(SECCLASS_KEY, KEY__READ, "read")
++   S_(SECCLASS_KEY, KEY__WRITE, "write")
++   S_(SECCLASS_KEY, KEY__SEARCH, "search")
++   S_(SECCLASS_KEY, KEY__LINK, "link")
++   S_(SECCLASS_KEY, KEY__SETATTR, "setattr")
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/selinux/include/class_to_string.h linux-2.6.17-rc5-mm1/security/selinux/include/class_to_string.h
+--- linux-2.6.17-rc5-mm1.orig/security/selinux/include/class_to_string.h	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/selinux/include/class_to_string.h	2006-06-01 10:42:18.000000000 -0400
+@@ -60,3 +60,4 @@
+     S_("netlink_kobject_uevent_socket")
+     S_("appletalk_socket")
+     S_("packet")
++    S_("key")
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/selinux/include/flask.h linux-2.6.17-rc5-mm1/security/selinux/include/flask.h
+--- linux-2.6.17-rc5-mm1.orig/security/selinux/include/flask.h	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/selinux/include/flask.h	2006-06-01 10:42:18.000000000 -0400
+@@ -62,6 +62,7 @@
+ #define SECCLASS_NETLINK_KOBJECT_UEVENT_SOCKET           55
+ #define SECCLASS_APPLETALK_SOCKET                        56
+ #define SECCLASS_PACKET                                  57
++#define SECCLASS_KEY                                     58
  
  /*
-  * Polyinstantiation method options, based on user, security context
-@@ -630,8 +631,9 @@ static int create_dirs(const struct poly
- 	struct instance_data *idata)
- #endif
- {
--    struct stat statbuf, newstatbuf;
-+    struct stat statbuf, newstatbuf, instpbuf;
-     int fd, pid, status;
-+    char *inst_parent, *trailing_slash;
+  * Security identifier indices for initial entities
+diff -uprN -X linux-2.6.17-rc5-mm1/Documentation/dontdiff linux-2.6.17-rc5-mm1.orig/security/selinux/include/objsec.h linux-2.6.17-rc5-mm1/security/selinux/include/objsec.h
+--- linux-2.6.17-rc5-mm1.orig/security/selinux/include/objsec.h	2006-05-31 09:48:49.000000000 -0400
++++ linux-2.6.17-rc5-mm1/security/selinux/include/objsec.h	2006-05-31 10:03:00.000000000 -0400
+@@ -99,6 +99,11 @@ struct sk_security_struct {
+ 	u32 peer_sid;			/* SID of peer */
+ };
  
-     /*
-      * stat the directory to polyinstantiate, so its owner-group-mode
-@@ -653,6 +655,49 @@ static int create_dirs(const struct poly
-     }
++struct key_security_struct {
++	struct key *obj; /* back pointer */
++	u32 sid;         /* SID of key */
++};
++
+ extern unsigned int selinux_checkreqprot;
  
-     /*
-+     * stat the instance parent path to make sure it exists
-+     * and is a directory. Check that its mode is 000 (unless the
-+     * admin explicitly instructs to ignore the instance parent
-+     * mode by the "ignore_instance_parent_mode" argument).
-+     */
-+    inst_parent = (char *) malloc(strlen(ipath)+1);
-+    if (!inst_parent) {
-+	pam_syslog(idata->pamh, LOG_ERR, "Error allocating pathname string");
-+        return PAM_SESSION_ERR;
-+    }
-+
-+    strcpy(inst_parent, ipath);
-+    trailing_slash = strrchr(inst_parent, '/');
-+    if (trailing_slash)
-+        *trailing_slash = '\0';
-+
-+    if (stat(inst_parent, &instpbuf) < 0) {
-+        pam_syslog(idata->pamh, LOG_ERR, "Error stating %s, %m", inst_parent);
-+        free(inst_parent);
-+        return PAM_SESSION_ERR;
-+    }
-+
-+    /*
-+     * Make sure we are dealing with a directory
-+     */
-+    if (!S_ISDIR(instpbuf.st_mode)) {
-+	pam_syslog(idata->pamh, LOG_ERR, "Instance parent %s is not a dir",
-+		inst_parent);
-+        free(inst_parent);
-+        return PAM_SESSION_ERR;
-+    }
-+
-+    if ((idata->flags & PAMNS_IGN_INST_PARENT_MODE) == 0) {
-+        if (instpbuf.st_mode & (S_IRWXU|S_IRWXG|S_IRWXO)) {
-+	    pam_syslog(idata->pamh, LOG_ERR, "Mode of inst parent %s not 000",
-+		    inst_parent);
-+            free(inst_parent);
-+            return PAM_SESSION_ERR;
-+        }
-+    }
-+    free(inst_parent);
-+
-+    /*
-      * Create instance directory and set its security context to the context
-      * returned by the security policy. Set its mode and ownership
-      * attributes to match that of the original directory that is being
-@@ -1157,6 +1202,8 @@ PAM_EXTERN int pam_sm_open_session(pam_h
-             idata.flags |= PAMNS_GEN_HASH;
-         if (strcmp(argv[i], "ignore_config_error") == 0)
-             idata.flags |= PAMNS_IGN_CONFIG_ERR;
-+        if (strcmp(argv[i], "ignore_instance_parent_mode") == 0)
-+            idata.flags |= PAMNS_IGN_INST_PARENT_MODE;
-         if (strcmp(argv[i], "unmnt_remnt") == 0)
-             unmnt = UNMNT_REMNT;
-         if (strcmp(argv[i], "unmnt_only") == 0)
+ #endif /* _SELINUX_OBJSEC_H_ */
 
---------------040004080409000907030208--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
