@@ -1,46 +1,90 @@
-Message-Id: <200606011452.k51Eqdl5003497@turing-police.cc.vt.edu>
+Message-ID: <447F008D.2020903@trustedcs.com>
+Date: Thu, 01 Jun 2006 09:58:21 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: David Howells <dhowells@redhat.com>,
-        Michael LeMay <mdlemay@epoch.ncsc.mil>, jmorris@redhat.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: Kernel access key retention support for SELinux
-In-Reply-To: Your message of "Thu, 01 Jun 2006 10:21:35 EDT."
-             <1149171695.524.360.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <1149161971.524.283.camel@moss-spartans.epoch.ncsc.mil> <1149097853.2517.0.camel@moss-tarheels.epoch.ncsc.mil> <11225.1149156553@warthog.cambridge.redhat.com> <14858.1149164860@warthog.cambridge.redhat.com>
-            <1149171695.524.360.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1149173559_2836P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Thu, 01 Jun 2006 10:52:39 -0400
+CC: James Morris <jmorris@redhat.com>,
+        "'SELinux List'" <SELinux@tycho.nsa.gov>, redhat-lspp@redhat.com
+Subject: Re: [PATCH] fix masking of capabilities over netlink in permissive
+ mode
+References: <447DD3D7.4050200@trustedcs.com>	 <1149098096.524.241.camel@moss-spartans.epoch.ncsc.mil>	 <447EF602.5080003@trustedcs.com> <1149172261.524.370.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1149172261.524.370.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1149173559_2836P
-Content-Type: text/plain; charset=us-ascii
+Stephen Smalley wrote:
+> On Thu, 2006-06-01 at 09:13 -0500, Darrel Goeddel wrote:
+> 
+>>Stephen Smalley wrote:
+>>
+>>>On Wed, 2006-05-31 at 12:35 -0500, Darrel Goeddel wrote:
+>>>
+>>>
+>>>>I think I ran across the problem described in this thread:
+>>>>
+>>>>http://www.redhat.com/archives/linux-audit/2006-May/msg00059.html
+>>>>
+>>>>The process' effective capabilities are always being masked with the
+>>>>allowed vector of the avc decision (for self against the capability
+>>>>security class) in netlink's copy of the process capabilities (eff_cap).
+>>>>The allowed vector takes on a slightly different role when SELinux
+>>>>is not in enforcing mode - it starts to track used-but-not-normally-
+>>>>permitted actions in the allowed vector.  That is what is causing
+>>>>the first attempt to fail (the allowed vector has not been "inflated")
+>>>>and the following attempts to succeed (the vector has been inflated in
+>>>>response to its previous use).  Does my reasoning (and patch) seem to
+>>>>be on track?
+>>>
+>>>
+>>>Alternative:  Since the sending task SID is now saved in the netlink
+>>>control buffer, we could move the netlink checking entirely to the
+>>>receive side, and perform a normal avc_has_perm() check, via
+>>>task_has_capability, with corresponding auditing of netlink denials.
+>>>Similarly for audit_netlink_ok.  We couldn't do that in the past because
+>>>the sender SID wasn't available to us on the receive side.
+>>
+>>Good idea - I forgot about the sid being there now.  That approach would
+>>have the benefit of actually getting the AVC denials for capability checks
+>>that occur "over netlink".  However, this would involve replacing all of the
+>>checks using eff_cap (thankfully not very many) with new lsm hook(s).  This
+>>also will provide better encapsulation for the capability system.  I was
+>>hoping that this simple patch would have a shot at making the release
+>>of 2.6.17 to at least address the current problem.
+> 
+> 
+> If we think it is warranted, we can push up the simple patch now and
+> then proceed with the more general fix later.  But I wasn't clear that
+> the current behavior is a major problem, as it only affects permissive
+> mode operation.   
 
-On Thu, 01 Jun 2006 10:21:35 EDT, Stephen Smalley said:
+Now that we actually know what the problem is (and that it is only a
+permissive mode issue), it does not seem very urgent to me.  Others may
+view this as obstacle, but avoiding permissive mode altogether is
+an even better fix ;)  Anyone *need* this?  We could also just carry this
+as a temporary fix in the lspp kernel until a better fix is available.
 
-> Ok, given these considerations, I think we should just drop the unlink
-> check for now, and proceed with the rest of the patch (modulo
-> CodingStyle issues).
+> 
+>>  I can work up patches
+>>that creates the new lsm hook to replace the current instances of
+>>cap_raised(eff_cap) and move the SELinux checking into that hook.  Would
+>>a single security_netlink_capable(struct netlink_skb_params) hook suffice,
+>>or would decomposition of the the actual actions be preferred
+>>(and acceptable)?
+> 
+> 
+> Possibly generalize the existing security_netlink_recv() hook to also
+> take a capability to check as an argument, and then pass CAP_NET_ADMIN
+> from the net callers and CAP_AUDIT_xxx from audit_netlink_ok.
+>  
 
-Should we put a note in Documentation/keys.txt to that effect?
+I'll look into that.  A quick glance seems to indicate that the current hook
+and the usage of eff_cap are in very different places, but I'm not super
+familiar with the netlink codepath.
 
+-- 
 
---==_Exmh_1149173559_2836P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEfv83cC3lWbTT17ARAggVAKCUOZckPOR4Y1H3dTZjJXfFmZnBnACg+CwA
-t87/dQWnVn8eDgs7/fn4fEs=
-=N/U3
------END PGP SIGNATURE-----
-
---==_Exmh_1149173559_2836P--
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
