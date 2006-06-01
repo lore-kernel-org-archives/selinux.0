@@ -1,69 +1,77 @@
-Subject: Re: [PATCH] selinux: Kernel access key retention support for
-	SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Michael LeMay <mdlemay@epoch.ncsc.mil>, jmorris@redhat.com,
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1149161971.524.283.camel@moss-spartans.epoch.ncsc.mil> 
+References: <1149161971.524.283.camel@moss-spartans.epoch.ncsc.mil>  <1149097853.2517.0.camel@moss-tarheels.epoch.ncsc.mil> <11225.1149156553@warthog.cambridge.redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>,
+        Michael LeMay <mdlemay@epoch.ncsc.mil>, jmorris@redhat.com,
         selinux@tycho.nsa.gov
-In-Reply-To: <11225.1149156553@warthog.cambridge.redhat.com>
-References: <1149097853.2517.0.camel@moss-tarheels.epoch.ncsc.mil>
-	 <11225.1149156553@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Thu, 01 Jun 2006 07:39:31 -0400
-Message-Id: <1149161971.524.283.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [PATCH] selinux: Kernel access key retention support for SELinux 
+Date: Thu, 01 Jun 2006 13:27:40 +0100
+Message-ID: <14858.1149164860@warthog.cambridge.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-01 at 11:09 +0100, David Howells wrote:
-> It isn't as trivial as you think.  Unlink is implied by several operations you
-> haven't altered: link, add key, request key, clear keyring and search keyring.
-> This is because you can displace a key link from a keyring by adding a link to
-> another key of matching type and description.
-> 
-> > If any of you decide it should be split off into some other patch, I'd be
-> > glad to remove it.
-> 
-> It certainly needs be split off into its own patch as it's a fairly major
-> change.  Your changes in this area are also incomplete.
-> 
-> I also don't really want unlinkable keys for a number of reasons:
-> 
->  (1) You can't get rid of them when they're dead (unless you allow a specific
->      bypass).
-> 
->  (2) If they're your keys, they eat your quota and but you may not be able to
->      ditch them.
-> 
->  (3) If someone accidentally zeroes the mask on the key, they're left with a
->      key that they can't get rid of.
-> 
->  (4) What are the semantics of dealing with a keyring that has a link to an
->      unlinkable key within it?  Does the keyring become automatically
->      unlinkable too?
-> 
->  (5) How do we deal with an unlinkable session keyring?  Should this prevent
->      someone joining a new session?  And should this affect all their heirs
->      also?
-> 
-> I feel that unlinkability really should apply to the link to a key, not to the
-> key itself if we have it at all.
-> 
-> Why do you want unlinkable keys anyway?
 
-The concern is that any process that requires write access to the
-keyring for any reason would otherwise be able to unlink all keys from
-it, irrespective of what may have created the link in the first place.
-The individual links in a single keyring could have been created by
-processes in different security contexts, as a single user session can
-have processes running in multiple security contexts.  Having a per-key
-unlink check parallels the existing checking on the link side.  And 
-unlinking a key can lead to its destruction (if it is the last link),
-right, so it has a potentially modifying impact on the key itself?
-  
--- 
-Stephen Smalley
-National Security Agency
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
+> > Why do you want unlinkable keys anyway?
+> 
+> The concern is that any process that requires write access to the
+> keyring for any reason would otherwise be able to unlink all keys from
+> it, irrespective of what may have created the link in the first place.
+
+Yes.
+
+> The individual links in a single keyring could have been created by
+> processes in different security contexts, as a single user session can
+> have processes running in multiple security contexts.
+
+Hmmm... I think it's incorrect to have an unlink permission bit on the key as
+it causes too many potential problems, and would apply to all the links on a
+key, irrespective of the keyrings holding them.
+
+Perhaps what's required is to have unlink permission controlled from the
+keyring's perspective.  How about adding another security op that takes the
+keyring, the key and the requesting process, and asks if that process may
+detach that key from that keyring.  Clearing a keyring would then be a filter
+operation.
+
+There are still a couple of problems to deal with:
+
+ (1) Key displacement.  How do you deal with a new link that's being made
+     displacing an old link that would otherwise be refused unlink permission?
+     It might be sufficient to do the check in advance and assume that things
+     won't then change whilst we create a new key, except that there's a race
+     between two processes both trying to displace the same link in the same
+     keyring.
+
+     The alternative for new key addition is to do the check at the point of
+     link creation, and just accept that we'll not create a link if we can't
+     displace the old key.
+
+     It would also be possible to store a bit of information with each pointer
+     in the keyring if that would be useful.  The problem with caching can
+     you/can't you data in the keyring is that it very much depends on who's
+     asking.
+
+ (2) Permission percolation over keyrings.  What do you do about a keyring
+     that contains a key that you're not permitted to unlink?  Does the
+     keyring itself become unlinkable?  What about session keyrings?
+
+> Having a per-key unlink check parallels the existing checking on the link
+> side.
+
+I'm not sure they are exactly parallel: having a link check doesn't cause all
+the problems that having an unlink check does.
+
+> And unlinking a key can lead to its destruction (if it is the last link),
+> right, so it has a potentially modifying impact on the key itself?
+
+Yes, but you have to be able to live with that, otherwise the kernel might
+fill up with obsolete keys.  If a filesystem or some other kernel service is
+using a key, it should keep its own link to that key.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
