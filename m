@@ -1,58 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k52Hs5Za020088
-	for <selinux@tycho.nsa.gov>; Fri, 2 Jun 2006 13:54:05 -0400
-Received: from web36607.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k52Hs3Wn022588
-	for <selinux@tycho.nsa.gov>; Fri, 2 Jun 2006 17:54:04 GMT
-Message-ID: <20060602175358.48647.qmail@web36607.mail.mud.yahoo.com>
-Date: Fri, 2 Jun 2006 10:53:58 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: RE: [PATCH] selinux: Kernel access key retention support for SELinux
-To: "Frank L. Mayer" <mayerf@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        David Howells <dhowells@redhat.com>
-Cc: Michael LeMay <mdlemay@epoch.ncsc.mil>, jmorris@redhat.com,
-        selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588210227@exchange.columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: [PATCH] refpolicy: Kernel access key retention policy support
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 14:08:21 -0400
+Message-Id: <1149271701.3340.3.camel@moss-tarheels.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Now that the kernel patch for access key retention support has been
+finalized, the following patch should be applied to refpolicy.
+
+---<snip>---
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+
+Add a "key" security class.  Add appropriate permissions
+to match those supported in the kernel.
+
+Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
+
+---
+
+ policy/flask/access_vectors   |   13 +++++++++++++
+ policy/flask/security_classes |    3 +++
+ 2 files changed, 16 insertions(+)
+
+diff -uprN refpolicy/policy/flask/access_vectors refpolicy.new/policy/flask/access_vectors
+--- refpolicy/policy/flask/access_vectors	2006-01-06 11:00:25.000000000 -0500
++++ refpolicy.new/policy/flask/access_vectors	2006-05-22 09:05:34.000000000 -0400
+@@ -607,3 +607,16 @@ class association
+ # Updated Netlink class for KOBJECT_UEVENT family.
+ class netlink_kobject_uevent_socket
+ inherits socket
++
++class retained_key
++{
++	# These permissions are defined in include/linux/key-ui.h
++	# Their order matters!
++
++	view
++	read
++	write
++	search
++	link
++	setattr
++}
+diff -uprN refpolicy/policy/flask/security_classes refpolicy.new/policy/flask/security_classes
+--- refpolicy/policy/flask/security_classes	2005-12-12 10:49:41.000000000 -0500
++++ refpolicy.new/policy/flask/security_classes	2006-05-22 09:05:43.000000000 -0400
+@@ -86,4 +86,7 @@ class association
+ # Updated Netlink class for KOBJECT_UEVENT family.
+ class netlink_kobject_uevent_socket
+ 
++# Kernel key retention
++class retained_key
++
+ # FLASK
 
 
---- "Frank L. Mayer" <mayerf@tresys.com> wrote:
-
-> > > Discretionary access control is what the basic
-> Linux access control 
-> > > model is.  Mandatory access control is what
-> SELinux provides.
-> > 
-> > With user settable MCS labels SELinux provides a 
-> > Discretionary Access Control mechanism.
-> 
-> And with non-user settable MLS and/or Type labels
-> SELinux provides MAC.
-> Hence Steve's point.  Frank
-
-My point is that SELinux is not ONLY a MAC mechanism.
-SELinux does indeed provide MAC. It also provides DAC.
-SELinux has more than MAC now. Thus, holding SELinux
-up as an example of MAC is no longer correct, because
-SELinux includes a DAC mechanism in MCS.
-
-It's easy enough to confuse people with our
-rich set of trusted systems jargon when it is
-used correctly (my favorite is the difference
-between a Bell & LePadula label and a level)
-without improperly identifying a popular and
-visible product (SELinux) as a particular thing
-(A MAC system) when that identification is not
-correct (because SELinux also supports DAC).
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
