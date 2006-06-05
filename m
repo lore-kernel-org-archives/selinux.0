@@ -1,57 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k55Fcvvh000492
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 11:38:57 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k55Fcuhb029592
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 15:38:56 GMT
-Subject: Re: Switch between struct security_context_t and context_t
-From: James Antill <jantill@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k55IQd0D004760
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 14:26:39 -0400
+Received: from mail.nagafix.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k55IQbGm028690
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 18:26:37 GMT
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by mail.nagafix.co.uk (Postfix) with ESMTP id 05FE6B0E8A
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jun 2006 19:26:26 +0100 (BST)
+Received: from localhost (localhost [127.0.0.1])
+	by mail.nagafix.co.uk (Postfix) with SMTP id 1B2F3B0E8C
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jun 2006 19:26:19 +0100 (BST)
+Subject: Re: why I have /selinux??
+From: Antoine Martin <antoine@nagafix.co.uk>
 To: Mario Fanelli <mario.fanelli@gmail.com>
 Cc: SeLinux Mailing List <selinux@tycho.nsa.gov>
-In-Reply-To: <44844985.754de417.4f4c.ffffbae9@mx.gmail.com>
-References: <44844985.754de417.4f4c.ffffbae9@mx.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ypQhFqSq2WldaJsgBMRe"
-Date: Mon, 05 Jun 2006 11:38:51 -0400
-Message-Id: <1149521931.13928.59.camel@code.and.org>
+In-Reply-To: <44844b0e.1953fca1.1083.ffffce13@mx.gmail.com>
+References: <44844b0e.1953fca1.1083.ffffce13@mx.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PFoL47toIgrLjgpSHxEr"
+Date: Mon, 05 Jun 2006 19:32:34 +0100
+Message-Id: <1149532354.10653.3.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-ypQhFqSq2WldaJsgBMRe
+--=-PFoL47toIgrLjgpSHxEr
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2006-06-05 at 17:10 +0200, Mario Fanelli wrote:
-> I'm writing some simple program that uses SELinux Api but I don't find an=
-y
-> function that transform a security_context_t variable in context_t. It's
-> possible to force cast but if exists a function that performance this
-> operation is better...
-> Anyone can give me an help?
+On Mon, 2006-06-05 at 17:17 +0200, Mario Fanelli wrote:
+> I don't understand why I have selinuxfs mounted on /selinux, but in
+> /etc/fstab I don't find any entry that concern that...
+> Why?
+Because it is mounted automagically by your distribution very early on
+in the boot.
 
- You want to use:
-
-context_t context_new(const char *);
-
-...you can see it being used in the secon program in policycoreutils.
-
---=20
-James Antill <jantill@redhat.com>
-
---=-ypQhFqSq2WldaJsgBMRe
+--=-PFoL47toIgrLjgpSHxEr
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-iD8DBQBEhFAL11eXTEMrxtQRAhLaAKCnp9wuuyLbytHarQBBh78VW3OapACdEGMz
-BE0+HzUZG4Z9zgIVTI/R3yQ=
-=JtmO
+iD8DBQBEhHjCrTBrLRG7eDcRAv70AJ9FedG1jeThP/e88sLEABpPxJKGAQCffZMp
+x09vfJUvLv6WU39FJx7y4OI=
+=W+8Q
 -----END PGP SIGNATURE-----
 
---=-ypQhFqSq2WldaJsgBMRe--
+--=-PFoL47toIgrLjgpSHxEr--
+
 
 
 --
