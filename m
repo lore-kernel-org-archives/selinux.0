@@ -1,65 +1,27 @@
-Subject: [PATCH] refpolicy: Kernel access key retention policy support
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Content-Type: text/plain
-Date: Fri, 02 Jun 2006 14:19:16 -0400
-Message-Id: <1149272357.3340.6.camel@moss-tarheels.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k55FB47F032196
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 11:11:05 -0400
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k55FB3hb025910
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 15:11:03 GMT
+Received: by ug-out-1314.google.com with SMTP id y2so1411865uge
+        for <selinux@tycho.nsa.gov>; Mon, 05 Jun 2006 08:11:02 -0700 (PDT)
+From: "Mario Fanelli" <mario.fanelli@gmail.com>
+To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
+Subject: Switch between struct security_context_t and context_t
+Date: Mon, 5 Jun 2006 17:10:54 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Message-ID: <44844985.754de417.4f4c.ffffbae9@mx.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm very sorry, somehow I selected the wrong patch to insert in the
-last message.  Here's the proper patch.
-
-Now that the kernel patch for access key retention support has been
-finalized, the following patch should be applied to refpolicy.
-
----<snip>---
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-
-Add a "key" security class.  Add appropriate permissions
-to match those supported in the kernel.
-
-Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
-
----
-
- policy/flask/access_vectors   |   13 +++++++++++++
- policy/flask/security_classes |    3 +++
- 2 files changed, 16 insertions(+)
-
-diff -uprN refpolicy.orig/policy/flask/access_vectors refpolicy/policy/flask/access_vectors
---- refpolicy.orig/policy/flask/access_vectors	2006-05-19 13:46:37.000000000 -0400
-+++ refpolicy/policy/flask/access_vectors	2006-06-01 10:39:12.000000000 -0400
-@@ -617,3 +617,16 @@ class packet
- 	recv
- 	relabelto
- }
-+
-+class key
-+{
-+	# These permissions are defined in include/linux/key-ui.h
-+	# Their order matters!
-+
-+	view
-+	read
-+	write
-+	search
-+	link
-+	setattr
-+}
-diff -uprN refpolicy.orig/policy/flask/security_classes refpolicy/policy/flask/security_classes
---- refpolicy.orig/policy/flask/security_classes	2006-05-19 13:46:37.000000000 -0400
-+++ refpolicy/policy/flask/security_classes	2006-05-24 09:00:01.000000000 -0400
-@@ -90,4 +90,7 @@ class appletalk_socket
- 
- class packet
- 
-+# Kernel access key retention
-+class key
-+
- # FLASK
-
+I'm writing some simple program that uses SELinux Api but I don't find any
+function that transform a security_context_t variable in context_t. It's
+possible to force cast but if exists a function that performance this
+operation is better...
+Anyone can give me an help?
 
 
 --
