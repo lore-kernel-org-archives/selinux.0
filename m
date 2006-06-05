@@ -1,27 +1,25 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k55FB47F032196
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 11:11:05 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k55FHbxC032395
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 11:17:37 -0400
 Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k55FB3hb025910
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 15:11:03 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so1411865uge
-        for <selinux@tycho.nsa.gov>; Mon, 05 Jun 2006 08:11:02 -0700 (PDT)
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k55FHahb026912
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 15:17:36 GMT
+Received: by ug-out-1314.google.com with SMTP id y2so1414918uge
+        for <selinux@tycho.nsa.gov>; Mon, 05 Jun 2006 08:17:36 -0700 (PDT)
 From: "Mario Fanelli" <mario.fanelli@gmail.com>
 To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
-Subject: Switch between struct security_context_t and context_t
-Date: Mon, 5 Jun 2006 17:10:54 +0200
+Subject: why I have /selinux??
+Date: Mon, 5 Jun 2006 17:17:28 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Message-ID: <44844985.754de417.4f4c.ffffbae9@mx.gmail.com>
+Message-ID: <44844b0e.1953fca1.1083.ffffce13@mx.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm writing some simple program that uses SELinux Api but I don't find any
-function that transform a security_context_t variable in context_t. It's
-possible to force cast but if exists a function that performance this
-operation is better...
-Anyone can give me an help?
+I don't understand why I have selinuxfs mounted on /selinux, but in
+/etc/fstab I don't find any entry that concern that...
+Why?
 
 
 --
