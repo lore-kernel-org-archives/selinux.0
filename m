@@ -1,41 +1,72 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k55K2leY007005
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 16:02:47 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k55K2kjs014835
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2006 20:02:46 GMT
-Subject: Re: Latest policy diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <447745D2.5000705@redhat.com>
-References: <447745D2.5000705@redhat.com>
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 16:03:18 -0400
-Message-Id: <1149537798.13094.9.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k56Hr0ae026593
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:53:00 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k56HqxvL023444
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 17:52:59 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k56HqxR7018756
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:52:59 -0400
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k56HqwJv014396
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:52:58 -0400
+Received: from [172.16.50.200] (vpn50-200.rdu.redhat.com [172.16.50.200])
+	by pobox.corp.redhat.com (8.12.8/8.12.8) with ESMTP id k56HqwuF024865
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:52:58 -0400
+Message-ID: <4485C100.4030805@redhat.com>
+Date: Tue, 06 Jun 2006 13:53:04 -0400
+From: Chuck Mead <csm@redhat.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: permissions on /proc/self/attrib/current
+Content-Type: multipart/mixed;
+ boundary="------------030008020509060200080609"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-05-26 at 14:15 -0400, Daniel J Walsh wrote:
-> Add ftp booleans to allow use of anonymous ftp sites on NFS/CIFS file 
-> systems.
-> 
-> Allow rpm_script to transition to the execmem friendly domains.
-> 
-> Setup mplayer and valgrind as unconfined_execmem
+This is a multi-part message in MIME format.
+--------------030008020509060200080609
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-I still believe the unconfined_execmem domain should be in the
-unconfined module, and the interfaces should be overloaded.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Can you rebase this, I've been adding packet support to refpolicy, and
-this no longer applies.
+The file /proc/self/attrib/current is world read and write. Is this
+correct? Why does it need world read and write?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+iD8DBQFEhcEAZfy0juH51WsRAsXBAKCgFqHPpEfK5NSP5o/sZGqcbWBnCwCgjQZD
+4kXDs9cr3Dax9ygN5BZ/x0I=
+=cz5D
+-----END PGP SIGNATURE-----
 
+--------------030008020509060200080609
+Content-Type: text/x-vcard; charset=utf-8;
+ name="csm.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="csm.vcf"
+
+begin:vcard
+fn:Chuck Mead
+n:Mead;Chuck
+org:Red Hat, Inc.;GPS,
+adr:;;1801 Varsity Drive;Raleigh;NC;27606;USA
+email;internet:csm@redhat.com
+title:Consultant
+tel;cell:919-621-0605
+note;quoted-printable:You can have peace. Or you can have freedom. Don=E2=80=99t ever count onh=
+	aving both at once. - Lazarus Long
+x-mozilla-html:FALSE
+url:http://redhat.com
+version:2.1
+end:vcard
+
+
+--------------030008020509060200080609--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
