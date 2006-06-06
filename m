@@ -1,72 +1,55 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k56Hr0ae026593
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:53:00 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k56HqxvL023444
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 17:52:59 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k56HqxR7018756
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:52:59 -0400
-Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
-	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k56HqwJv014396
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:52:58 -0400
-Received: from [172.16.50.200] (vpn50-200.rdu.redhat.com [172.16.50.200])
-	by pobox.corp.redhat.com (8.12.8/8.12.8) with ESMTP id k56HqwuF024865
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 13:52:58 -0400
-Message-ID: <4485C100.4030805@redhat.com>
-Date: Tue, 06 Jun 2006 13:53:04 -0400
-From: Chuck Mead <csm@redhat.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: permissions on /proc/self/attrib/current
-Content-Type: multipart/mixed;
- boundary="------------030008020509060200080609"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k56MGZfU031893
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 18:16:35 -0400
+Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k56MGYvL000823
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2006 22:16:34 GMT
+Subject: Re: permissions on /proc/self/attrib/current
+From: James Antill <james.antill@redhat.com>
+To: Chuck Mead <csm@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4485C100.4030805@redhat.com>
+References: <4485C100.4030805@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-pSNFU902Ys3h2VTu0iaV"
+Date: Tue, 06 Jun 2006 18:16:33 -0400
+Message-Id: <1149632193.13928.71.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030008020509060200080609
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--=-pSNFU902Ys3h2VTu0iaV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The file /proc/self/attrib/current is world read and write. Is this
-correct? Why does it need world read and write?
+On Tue, 2006-06-06 at 13:53 -0400, Chuck Mead wrote:
+
+> The file /proc/self/attrib/current is world read and write. Is this
+> correct? Why does it need world read and write?
+
+ Just my opinion but...
+
+/proc/self/attr/* are only used as part of SELinux policy, so it makes
+sense for their access control to be limited by just SELinux policy.
+
+--=20
+James Antill <james.antill@redhat.com>
+Red Hat
+
+--=-pSNFU902Ys3h2VTu0iaV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-iD8DBQFEhcEAZfy0juH51WsRAsXBAKCgFqHPpEfK5NSP5o/sZGqcbWBnCwCgjQZD
-4kXDs9cr3Dax9ygN5BZ/x0I=
-=cz5D
+iD8DBQBEhf7A11eXTEMrxtQRAiwDAKC2M2lcDAJJwonqii5t6P8XyULsVACfb+vF
+PF8krjkeG5LdU48fu0FOEXE=
+=u0v1
 -----END PGP SIGNATURE-----
 
---------------030008020509060200080609
-Content-Type: text/x-vcard; charset=utf-8;
- name="csm.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="csm.vcf"
+--=-pSNFU902Ys3h2VTu0iaV--
 
-begin:vcard
-fn:Chuck Mead
-n:Mead;Chuck
-org:Red Hat, Inc.;GPS,
-adr:;;1801 Varsity Drive;Raleigh;NC;27606;USA
-email;internet:csm@redhat.com
-title:Consultant
-tel;cell:919-621-0605
-note;quoted-printable:You can have peace. Or you can have freedom. Don=E2=80=99t ever count onh=
-	aving both at once. - Lazarus Long
-x-mozilla-html:FALSE
-url:http://redhat.com
-version:2.1
-end:vcard
-
-
---------------030008020509060200080609--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
