@@ -1,44 +1,41 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5A26pY9003394
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jun 2006 22:06:51 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5A26iTJ009807
-	for <selinux@tycho.nsa.gov>; Sat, 10 Jun 2006 02:06:49 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: James Antill <james.antill@redhat.com>
-Subject: Re: permissions on /proc/self/attrib/current
-Date: Sat, 10 Jun 2006 12:06:36 +1000
-Cc: Chuck Mead <csm@redhat.com>, selinux@tycho.nsa.gov
-References: <4485C100.4030805@redhat.com> <1149632193.13928.71.camel@code.and.org>
-In-Reply-To: <1149632193.13928.71.camel@code.and.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5B8gBXe019698
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2006 04:42:11 -0400
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5B8gAr6016503
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2006 08:42:10 GMT
+Received: by ug-out-1314.google.com with SMTP id u2so2001839uge
+        for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2006 01:42:09 -0700 (PDT)
+From: "Mario Fanelli" <mario.fanelli@gmail.com>
+To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
+Subject: selinuxfs
+Date: Sun, 11 Jun 2006 10:42:02 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200606101206.36391.russell@coker.com.au>
+	charset="us-ascii"
+Message-ID: <448bd760.7fefe58f.4603.ffffeef3@mx.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 07 June 2006 08:16, James Antill <james.antill@redhat.com> wrote:
-> On Tue, 2006-06-06 at 13:53 -0400, Chuck Mead wrote:
-> > The file /proc/self/attrib/current is world read and write. Is this
-> > correct? Why does it need world read and write?
->
->  Just my opinion but...
->
-> /proc/self/attr/* are only used as part of SELinux policy, so it makes
-> sense for their access control to be limited by just SELinux policy.
+Under the directory /selinux, I found this file but I don't understand their
+meaning..
 
-That's not the case.  When SE Linux is in permissive mode those files are not 
-writable by other processes.  Showing the file as mode 0600 would be a closer 
-representation of the non-SE access controls on those files than the current 
-situation.
+access
+checkreqprot
+context 
+create
+disable
+enforce 
+load
+member
+mls
+null 
+policyvers
+relabel
+user
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Anyone can give me an help?
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
