@@ -1,144 +1,308 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5CFoFgR007869
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 11:50:15 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5CFoEZr010842
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 15:50:14 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k5CFoNEt010578
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 11:50:23 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6/Submit) id k5CFoN9k010577
-	for selinux@tycho.nsa.gov; Mon, 12 Jun 2006 11:50:23 -0400
-Message-ID: <36282A1733C57546BE392885C0618592012D626E@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: redhat-lspp@redhat.com, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        jmorris@redhat.com, tjaeger@cse.psu.edu, latten@austin.ibm.com
-Cc: Chad Hanson <chanson@TrustedCS.com>,
-        Darrel Goeddel
-	 <DGoeddel@TrustedCS.com>
-Subject: [RFC] [SELXFRM 1/4] Add support to core networking
-Date: Sat, 10 Jun 2006 17:37:38 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5CFmsIG007759
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 11:48:54 -0400
+Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5CFmrZr010674
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 15:48:53 GMT
+Received: by nf-out-0910.google.com with SMTP id o60so912670nfa
+        for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 08:48:52 -0700 (PDT)
+Message-ID: <8c3441240606120848t31058f4axd4b553be9f07c69f@mail.gmail.com>
+Date: Mon, 12 Jun 2006 11:48:52 -0400
+From: "Moises Mojica" <moises.mojica@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: Kernel Panic after Kernel Upgrade
+In-Reply-To: <8c3441240606070823y7ff37503ub138fe627c444e57@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/alternative;
+	boundary="----=_Part_2067_12168779.1150127332343"
+References: <8c3441240606070823y7ff37503ub138fe627c444e57@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds a security sid to the flow key itself making the flow cache
-lookps based on the sid seemless.
+------=_Part_2067_12168779.1150127332343
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This patch also adds support for handling security for sock. Security at the
-sock level is needed to enforce policy even when a sock is orphaned (such as
-in the TCP LAST_ACK state).
+Hi  Stephen,
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Thank you for your response on this issue.
 
----
+Can you point me to an official seLinux document that I can use to learn
+more about how seLinux works and how to create/modify the policy and upgrad=
+e
+the policy toolchain?
 
- include/net/flow.h |    5 +++--
- net/core/flow.c    |    7 ++-----
- net/core/sock.c    |    4 ++++
- 3 files changed, 9 insertions(+), 7 deletions(-)
+--Moises
 
-diff -purN -X linux-2.6.16.i686.lspp34/Documentation/dontdiff
-linux-2.6.16.i686.lspp34/include/net/flow.h
-linux-2.6.16.i686.ipsec/include/net/flow.h
---- linux-2.6.16.i686.lspp34/include/net/flow.h	2006-06-09
-09:01:30.000000000 -0500
-+++ linux-2.6.16.i686.ipsec/include/net/flow.h	2006-06-08
-18:16:52.000000000 -0500
-@@ -78,6 +78,7 @@ struct flowi {
- #define fl_icmp_type	uli_u.icmpt.type
- #define fl_icmp_code	uli_u.icmpt.code
- #define fl_ipsec_spi	uli_u.spi
-+	__u32           sid;
- } __attribute__((__aligned__(BITS_PER_LONG/8)));
- 
- #define FLOW_DIR_IN	0
-@@ -85,10 +86,10 @@ struct flowi {
- #define FLOW_DIR_FWD	2
- 
- struct sock;
--typedef void (*flow_resolve_t)(struct flowi *key, u32 sk_sid, u16 family,
-u8 dir,
-+typedef void (*flow_resolve_t)(struct flowi *key, u16 family, u8 dir,
- 			       void **objp, atomic_t **obj_refp);
- 
--extern void *flow_cache_lookup(struct flowi *key, u32 sk_sid, u16 family,
-u8 dir,
-+extern void *flow_cache_lookup(struct flowi *key, u16 family, u8 dir,
- 	 		       flow_resolve_t resolver);
- extern void flow_cache_flush(void);
- extern atomic_t flow_cache_genid;
-diff -purN -X linux-2.6.16.i686.lspp34/Documentation/dontdiff
-linux-2.6.16.i686.lspp34/net/core/flow.c
-linux-2.6.16.i686.ipsec/net/core/flow.c
---- linux-2.6.16.i686.lspp34/net/core/flow.c	2006-06-09
-09:01:31.000000000 -0500
-+++ linux-2.6.16.i686.ipsec/net/core/flow.c	2006-06-08
-18:16:52.000000000 -0500
-@@ -32,7 +32,6 @@ struct flow_cache_entry {
- 	u8			dir;
- 	struct flowi		key;
- 	u32			genid;
--	u32			sk_sid;
- 	void			*object;
- 	atomic_t		*object_ref;
- };
-@@ -165,7 +164,7 @@ static int flow_key_compare(struct flowi
- 	return 0;
- }
- 
--void *flow_cache_lookup(struct flowi *key, u32 sk_sid, u16 family, u8 dir,
-+void *flow_cache_lookup(struct flowi *key, u16 family, u8 dir,
- 			flow_resolve_t resolver)
- {
- 	struct flow_cache_entry *fle, **head;
-@@ -189,7 +188,6 @@ void *flow_cache_lookup(struct flowi *ke
- 	for (fle = *head; fle; fle = fle->next) {
- 		if (fle->family == family &&
- 		    fle->dir == dir &&
--		    fle->sk_sid == sk_sid &&
- 		    flow_key_compare(key, &fle->key) == 0) {
- 			if (fle->genid == atomic_read(&flow_cache_genid)) {
- 				void *ret = fle->object;
-@@ -214,7 +212,6 @@ void *flow_cache_lookup(struct flowi *ke
- 			*head = fle;
- 			fle->family = family;
- 			fle->dir = dir;
--			fle->sk_sid = sk_sid;
- 			memcpy(&fle->key, key, sizeof(*key));
- 			fle->object = NULL;
- 			flow_count(cpu)++;
-@@ -226,7 +223,7 @@ nocache:
- 		void *obj;
- 		atomic_t *obj_ref;
- 
--		resolver(key, sk_sid, family, dir, &obj, &obj_ref);
-+		resolver(key, family, dir, &obj, &obj_ref);
- 
- 		if (fle) {
- 			fle->genid = atomic_read(&flow_cache_genid);
-diff -purN -X linux-2.6.16.i686.lspp34/Documentation/dontdiff
-linux-2.6.16.i686.lspp34/net/core/sock.c
-linux-2.6.16.i686.ipsec/net/core/sock.c
---- linux-2.6.16.i686.lspp34/net/core/sock.c	2006-06-09
-09:01:38.000000000 -0500
-+++ linux-2.6.16.i686.ipsec/net/core/sock.c	2006-06-08
-18:16:52.000000000 -0500
-@@ -820,7 +820,11 @@ struct sock *sk_clone(struct sock *sk, c
- 	if (newsk != NULL) {
- 		struct sk_filter *filter;
- 
-+		/* Save/restore the LSM security pointer around the copy */
-+		void *sptr = newsk->sk_security;
- 		memcpy(newsk, sk, sk->sk_prot->obj_size);
-+		newsk->sk_security = sptr;
-+		security_sk_clone(sk, newsk);
- 
- 		/* SANITY */
- 		sk_node_init(&newsk->sk_node);
+
+
+On 6/7/06, Moises Mojica <moises.mojica@gmail.com> wrote:
+>
+>  Hi,
+>
+>
+>
+> I have a newly installed version of SELinux (2.6..9-34.EL) which works
+> fine but I also  have a need to develop an NATH323 gatekeeper solution an=
+d
+> in order to accomplish this I must upgrade the kernel to 2.6.16.20 and
+> enable the NATH323 module but after compiling and installing the new kern=
+el
+> I am unable to boot from it do to a kernel panic.
+>
+>
+>
+> I followed the steps outlined in the document at
+> http://nath323.sourceforge.net/ but still I can only boot from the
+> original kernel (2.6.9-34.EL).
+>
+>
+>
+> What am I missing? Can someone assist?
+>
+>
+>
+>
+>
+> *Kernel Panic Message:*
+>
+>
+>
+> Ext3-fs: mounted filesystem with ordered data mode.
+>
+> Switching to new root.
+>
+> Enforcing mode requested but no policy loaded. Halting now.
+>
+> Kernel panic - not syncing: Attempted to kill init!
+>
+>
+>
+> *grub.conf:*
+>
+>
+>
+> # grub.conf generated by anaconda
+>
+> #
+>
+> # Note that you do not have to rerun grub after making changes to this
+> file
+>
+> # NOTICE:  You have a /boot partition.  This means that
+>
+> #          all kernel and initrd paths are relative to /boot/, eg.
+>
+> #          root (hd0,0)
+>
+> #          kernel /vmlinuz-version ro root=3D/dev/VolGroup00/LogVol00
+>
+> #          initrd /initrd-version.img
+>
+> #boot=3D/dev/sda
+>
+> default=3D1
+>
+> timeout=3D5
+>
+> splashimage=3D(hd0,0)/grub/splash.xpm.gz
+>
+> hiddenmenu
+>
+> title Red Hat Enterprise Linux ES (2.6.16.20)
+>
+>         root (hd0,0)
+>
+>         kernel /vmlinuz-2.6.16.20 ro root=3D/dev/VolGroup00/LogVol00
+>
+>         initrd /initrd-2.6.16.20.img
+>
+> title Red Hat Enterprise Linux ES (2.6.9-34.EL)
+>
+>         root (hd0,0)
+>
+>         kernel /vmlinuz-2.6.9-34.EL ro root=3D/dev/VolGroup00/LogVol00
+>
+>         initrd /initrd-2.6.9-34.EL.img
+>
+> [root@gnugk ~]#
+>
+>
+> --
+> Mois=E9s Mojica, Jr.
+> Sr. Systems Engineer III, R&D
+>
+> GlowPoint, Inc.
+> 973-391-2041 Office
+> 201-736-6316 Mobile
+> 781-839-3085 Video
+>
+> "It's not the strongest of the species, nor the most intelligent,
+> that survive; it's the one most responsive to change."
+>
+
+------=_Part_2067_12168779.1150127332343
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<div>Hi&nbsp;&nbsp;Stephen,</div>
+<div>&nbsp;</div>
+<div>Thank you for your response on this issue. </div>
+<div>&nbsp;</div>
+<div>Can you point me to an official seLinux document that I can use to lea=
+rn more about how seLinux works and how to create/modify the policy and upg=
+rade the policy toolchain?</div>
+<div>&nbsp;</div>
+<div>--Moises</div>
+<div><br><br>&nbsp;</div>
+<div><span class=3D"gmail_quote">On 6/7/06, <b class=3D"gmail_sendername">M=
+oises Mojica</b> &lt;<a href=3D"mailto:moises.mojica@gmail.com">moises.moji=
+ca@gmail.com</a>&gt; wrote:</span>
+<blockquote class=3D"gmail_quote" style=3D"PADDING-LEFT: 1ex; MARGIN: 0px 0=
+px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
+<div>
+<div><span style=3D"FONT-SIZE: 10pt; FONT-FAMILY: Arial">Hi,</span></div>
+<div>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial"></span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial"></span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial"></span>&nbsp;</p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">I&nbsp;have a newly installed version of SELin=
+ux (2.6..9-34.EL) which&nbsp;works fine but I also</span><span style=3D"FON=
+T-SIZE: 10pt; FONT-FAMILY: Arial">
+ &nbsp;have a need to develop an NATH323 gatekeeper solution and in order t=
+o accomplish this&nbsp;I must upgrade the kernel to <a onclick=3D"return to=
+p.js.OpenExtLink(window,event,this)" href=3D"http://2.6.16.20/" target=3D"_=
+blank">2.6.16.20
+</a> and enable the NATH323 module but after compiling and installing&nbsp;=
+the new kernel I am unable to boot from it do to a kernel panic. </span></p=
+>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">&nbsp;</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">I&nbsp;followed the steps outlined in the docu=
+ment at <a onclick=3D"return top.js.OpenExtLink(window,event,this)" href=3D=
+"http://nath323.sourceforge.net/" target=3D"_blank">
+<span style=3D"COLOR: windowtext">http://nath323.sourceforge.net/</span></a=
+>&nbsp;but still&nbsp;I can only boot from the original kernel (2.6.9-34.EL=
+).</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial"></span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial"></span>&nbsp;</p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">What am I missing? Can someone assist?</span><=
+/p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">&nbsp;</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">&nbsp;</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><b><span style=3D"FONT-=
+SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">Kernel Panic Message:</span></=
+b></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">&nbsp;</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">Ext3-fs: mounted filesystem=
+ with ordered data mode.</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">Switching to new root.</spa=
+n></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">Enforcing mode requested bu=
+t no policy loaded. Halting now.</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">Kernel panic - not syncing:=
+ Attempted to kill init!</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; FONT-FAMILY: Arial">&nbsp;</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><b><span style=3D"FONT-=
+SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">grub.conf:</span></b><span sty=
+le=3D"FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial"></span> </p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt"><span style=3D"FONT-SIZ=
+E: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial"># grub.conf generated by an=
+aconda</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">#</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial"># Note that you do not have=
+ to rerun grub after making changes to this file</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial"># NOTICE:&nbsp; You have a =
+/boot partition.&nbsp; This means that</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">#&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp; all kernel and initrd paths are relative to /b=
+oot/, eg.</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">#&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp; root (hd0,0)</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">#&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp; kernel /vmlinuz-version ro root=3D/dev/VolGrou=
+p00/LogVol00</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">#&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp; initrd /initrd-version.img</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">#boot=3D/dev/sda</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">default=3D1</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">timeout=3D5</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">splashimage=3D(hd0,0)/grub/=
+splash.xpm.gz</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">hiddenmenu</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">title Red Hat Enterprise Li=
+nux ES (<a onclick=3D"return top.js.OpenExtLink(window,event,this)" href=3D=
+"http://2.6.16.20/" target=3D"_blank">
+2.6.16.20</a>)</span> </p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp; root (hd0,0)</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp; kernel /vmlinuz-<a onclick=3D"return top.js.OpenExtLink(win=
+dow,event,this)" href=3D"http://2.6.16.20/" target=3D"_blank">
+2.6.16.20</a> ro root=3D/dev/VolGroup00/LogVol00 </span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp; initrd /initrd-2.6.16.20.img</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">title Red Hat Enterprise Li=
+nux ES (2.6.9-34.EL)</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp; root (hd0,0)</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp; kernel /vmlinuz-2.6.9-34.EL ro root=3D/dev/VolGroup00/LogVo=
+l00</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp; initrd /initrd-2.6.9-34.EL.img</span></p>
+<p style=3D"BACKGROUND: white; MARGIN: 0in 0in 0pt 0.5in"><span style=3D"FO=
+NT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">[root@gnugk ~]#</span></p><=
+/div>
+<div>&nbsp;</div>
+<div><br>-- <br>Mois=E9s Mojica, Jr. <br>Sr. Systems Engineer III, R&amp;D =
+<br><br>GlowPoint, Inc.<br>973-391-2041 Office<br>201-736-6316 Mobile <br>7=
+81-839-3085 Video<br><br>&quot;It's not the strongest of the species, nor t=
+he most intelligent,=20
+<br>that survive; it's the one most responsive to change.&quot; </div></div=
+></blockquote></div><br>
+
+------=_Part_2067_12168779.1150127332343--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
