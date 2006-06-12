@@ -1,37 +1,79 @@
-Subject: Re: Kernel Panic after Kernel Upgrade
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Moises Mojica <moises.mojica@gmail.com>
-Cc: James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <8c3441240606070823y7ff37503ub138fe627c444e57@mail.gmail.com>
-References: <8c3441240606070823y7ff37503ub138fe627c444e57@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 09:43:41 -0400
-Message-Id: <1150119821.8086.25.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <448D6FF2.7060004@redhat.com>
+Date: Mon, 12 Jun 2006 09:45:22 -0400
+From: Chuck Mead <csm@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: permissions on /proc/self/attrib/current
+References: <4485C100.4030805@redhat.com> <1150119045.8086.17.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1150119045.8086.17.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------060501010003020403070502"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-06-07 at 11:23 -0400, Moises Mojica wrote:
-> Hi,
->  
+This is a multi-part message in MIME format.
+--------------060501010003020403070502
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Stephen Smalley wrote:
+> On Tue, 2006-06-06 at 13:53 -0400, Chuck Mead wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> The file /proc/self/attrib/current is world read and write. Is this
+>> correct? Why does it need world read and write?
 > 
-> I have a newly installed version of SELinux (2.6..9-34.EL) which works
-> fine but I also have a need to develop an NATH323 gatekeeper solution
-> and in order to accomplish this I must upgrade the kernel to 2.6.16.20
-> and enable the NATH323 module but after compiling and installing the
-> new kernel I am unable to boot from it do to a kernel panic.
+> To completely disable DAC restrictions, and leave it entirely to SELinux
+> to control access.  The corresponding hook functions in the SELinux
+> "module", selinux_getprocattr and selinux_setprocattr, apply permission
+> checks on reading and writing these nodes, and selinux_setprocattr
+> further prohibits a task from setting (writing) attributes other than
+> its own.
+> 
+> The DAC restrictions can be problematic when the task becomes
+> undumpable, e.g. setuid or setgid programs could otherwise lose access
+> to their own /proc/pid/attr nodes.
 
-That is because 2.6.16 expects a newer SELinux policy version than what
-is shipped in RHEL4, so /sbin/init is failing to load policy and
-aborting.  So if you want to run with SELinux enabled using that newer
-kernel, you need to upgrade your policy toolchain (libsepol/checkpolicy)
-and policy.
+If selinux is disabled is this file still present?
 
--- 
-Stephen Smalley
-National Security Agency
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
+iD8DBQFEjW/xZfy0juH51WsRAtwCAJ0bFY7+YKxe7sr9WgQCvx8VY4okcgCgkVT/
+EVDRmiSlQ48BC0s3EdkpvNo=
+=44pn
+-----END PGP SIGNATURE-----
+
+--------------060501010003020403070502
+Content-Type: text/x-vcard; charset=utf-8;
+ name="csm.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="csm.vcf"
+
+begin:vcard
+fn:Chuck Mead
+n:Mead;Chuck
+org:Red Hat, Inc.;GPS,
+adr:;;1801 Varsity Drive;Raleigh;NC;27606;USA
+email;internet:csm@redhat.com
+title:Consultant
+tel;cell:919-621-0605
+note;quoted-printable:You can have peace. Or you can have freedom. Don=E2=80=99t ever count onh=
+	aving both at once. - Lazarus Long
+x-mozilla-html:FALSE
+url:http://redhat.com
+version:2.1
+end:vcard
+
+
+--------------060501010003020403070502--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
