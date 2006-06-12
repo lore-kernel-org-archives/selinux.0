@@ -1,33 +1,32 @@
-Subject: Re: permissions on /proc/self/attrib/current
+Subject: Re: Kernel Panic after Kernel Upgrade
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chuck Mead <csm@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4485C100.4030805@redhat.com>
-References: <4485C100.4030805@redhat.com>
+To: Moises Mojica <moises.mojica@gmail.com>
+Cc: James Morris <jmorris@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <8c3441240606070823y7ff37503ub138fe627c444e57@mail.gmail.com>
+References: <8c3441240606070823y7ff37503ub138fe627c444e57@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 12 Jun 2006 09:30:45 -0400
-Message-Id: <1150119045.8086.17.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Jun 2006 09:43:41 -0400
+Message-Id: <1150119821.8086.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-06-06 at 13:53 -0400, Chuck Mead wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Wed, 2006-06-07 at 11:23 -0400, Moises Mojica wrote:
+> Hi,
+>  
 > 
-> The file /proc/self/attrib/current is world read and write. Is this
-> correct? Why does it need world read and write?
+> I have a newly installed version of SELinux (2.6..9-34.EL) which works
+> fine but I also have a need to develop an NATH323 gatekeeper solution
+> and in order to accomplish this I must upgrade the kernel to 2.6.16.20
+> and enable the NATH323 module but after compiling and installing the
+> new kernel I am unable to boot from it do to a kernel panic.
 
-To completely disable DAC restrictions, and leave it entirely to SELinux
-to control access.  The corresponding hook functions in the SELinux
-"module", selinux_getprocattr and selinux_setprocattr, apply permission
-checks on reading and writing these nodes, and selinux_setprocattr
-further prohibits a task from setting (writing) attributes other than
-its own.
-
-The DAC restrictions can be problematic when the task becomes
-undumpable, e.g. setuid or setgid programs could otherwise lose access
-to their own /proc/pid/attr nodes.
+That is because 2.6.16 expects a newer SELinux policy version than what
+is shipped in RHEL4, so /sbin/init is failing to load policy and
+aborting.  So if you want to run with SELinux enabled using that newer
+kernel, you need to upgrade your policy toolchain (libsepol/checkpolicy)
+and policy.
 
 -- 
 Stephen Smalley
