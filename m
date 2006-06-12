@@ -1,56 +1,96 @@
-Subject: Re: [PATCH] policy server API
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christopher Ashworth <cashworth@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-dev <selinux-dev@tresys.com>
-In-Reply-To: <1150144439.3003.18.camel@popeye.columbia.tresys.com>
-References: <1148417141.20016.53.camel@popeye.columbia.tresys.com>
-	 <1148494501.517.76.camel@popeye.columbia.tresys.com>
-	 <1149008008.19716.1.camel@popeye.columbia.tresys.com>
-	 <1150143204.8086.159.camel@moss-spartans.epoch.ncsc.mil>
-	 <1150144439.3003.18.camel@popeye.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5CLbla5015947
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 17:37:47 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k5CLbkZt022814
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 21:37:46 GMT
+Subject: Re: Latest diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <448DC130.4010309@redhat.com>
+References: <448DC130.4010309@redhat.com>
 Content-Type: text/plain
-Date: Mon, 12 Jun 2006 17:30:26 -0400
-Message-Id: <1150147826.13647.6.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Jun 2006 17:39:16 -0400
+Message-Id: <1150148356.18657.32.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-06-12 at 16:33 -0400, Christopher Ashworth wrote:
-> A few initial responses...
+On Mon, 2006-06-12 at 15:32 -0400, Daniel J Walsh wrote:
+> Fix prelink file context
 > 
+> Add unconfined_domain transition to rpm_script_t,
+> also moved bootloader transition out of targeted policy ifdef
 > 
-> On Mon, 2006-06-12 at 16:13 -0400, Stephen Smalley wrote:
+> webalizer wants to do udp.
 > 
-> > Do you have a simple test program/util to exercise this code?
+> One last fix for allowing mounting any file on any file.
+
+Is this supposed to be all files or non security files?  The docs and
+interface name are inconsistent with the implementation.
+
+> gfs2 supports extended attributes.
+> gfs does not, so I am calling them nfs
 > 
-> We have been using the policy server to test.  This code is currently
-> not publicly available (i.e. the code on Source Forge is out of date).
+> New version of automount wants new privs.
+> 
+> I am looking into updating prelink cron entry to do restorecon to 
+> eliminate avc messages, also trying
+> to get prelink maintainer to modify program which would make this change 
+> not as important
+> 
+> hplib is communicating with nfs somehow.
 
-I'd like something with which to exercise the new code.
+Interesting, I always thought this access (which was in can_network())
+was a leaked fd.  If possible, can you find out more?  Moved the add up
+a few lines in the file.
 
-> Our thinking here was that the public APIs that already exist are using
-> ints.  (e.g. module_list)  We opted for the internal check and
-> consistent use of int externally rather than changing the public API,
-> but we could certainly go uint32_t throughout if you prefer.
+> proftpd uses a socket to communicate with itself
+> 
+> hald needs nsswitch stuff
+> 
+> krb5kdc needs to read kernel network state.
+> 
+> mysql uses nsswitch
+> 
+> NetworkManager neets to transition to pppd to bring up dialup networking.
+> 
+> ntpd - nsswitch
+> 
+> procmail transition to clamav
+> 
+> pegasus we need to setup a chat with pegasus maintainer.  He wants 
+> transition from unconfined_t.
+> 
+> pyzor wants to read home dir.
+> 
+> xfs - nsswitch
+> 
+> Fix auditd config files specs
 
-Even if you keep the interface as is, I'm not sure why you cast to
-unsigned int for comparison (and when will this be > UINT32_MAX?) and
-then later to uint32_t.
+dropped some hunks that reverted some of my changes
 
-> Hmmm.  I thought that this is what you had asked for during our meeting.
-> Note that in order to print a warning during the actual invocation of
-> the commands, we'd have to either a) touch all the existing database
-> functions (even more yucky), or add in the framework for the remote
-> database functions (required much more time to implement and test, and
-> we wanted to get this out for comment).
+> semanage needs additional perms to work with setrans file
+> 
+> merged unconfined_execmem into unconfined.te
 
-No, we just don't want it to crash, i.e. it just needs to propagate
-errors properly to the client program, and the client program will
-hopefully generate a (admittedly uninformative) error message already.
+dropped the fc changes.  see my previous email on mplayer, and for the
+others, unconfined_execmem_exec_t only exists in the targeted policy, so
+these lines have to be wrapped with the targeted_policy ifdef.  also
+dropped hunks that reverted my changes.
+
+> remove todo stuff from userdomain.
+> 
+> useradd needs to be able to create user_home_dir_t in mls policy
+
+The remainder is merged.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
