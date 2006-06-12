@@ -1,172 +1,136 @@
-Subject: Re: [PATCH] selinux: add /proc/pid/attr/keycreate to convey key
-	creation context
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Michael LeMay <mdlemay@epoch.ncsc.mil>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
-        dhowells@redhat.com
-In-Reply-To: <1149792912.14467.24.camel@moss-tarheels.epoch.ncsc.mil>
-References: <1149792912.14467.24.camel@moss-tarheels.epoch.ncsc.mil>
+Subject: Re: [RFC] [SELXFRM 0/4] SELinux/MLS enhancements to IPSec
+From: Joy Latten <latten@austin.ibm.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: redhat-lspp@redhat.com, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        jmorris@redhat.com, tjaeger@cse.psu.edu,
+        Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592012D626D@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C0618592012D626D@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Date: Mon, 12 Jun 2006 12:18:51 -0400
-Message-Id: <1150129131.8086.98.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 Jun 2006 11:08:55 -0500
+Message-Id: <1150128536.2500.4.camel@faith.austin.ibm.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-08 at 14:55 -0400, Michael LeMay wrote:
-> David (and the rest of the list),
+Venkat,
+I was wondering if this was a preliminary review before sending 
+upstream to netdev?
 
-Please cc James and me as well.
+Joy
 
-> This patch adds the /proc/<pid>/attr/keycreate entry that Steve discussed earlier.
-> It's very simple, but please check it out and make sure it does what you think it
-> should.  Essentially, the intended usage of this entry is to have all of the
-> various login programs (util-linux/login, ssh, gdm, ...) extract a user's default
-> context and store it in this entry before invoking setuid to initiate their session.
-> Then, when setuid eventually invokes alloc_uid -> keyring_alloc -> selinux_key_alloc, 
-> the default keyrings will be assigned the default context for the user, rather than
-> the context of the login program.  The entry could potentially be used for other
-> purposes, since it is checked every time the security structure for a new key is
-> allocated, but I can't think of any interesting examples right now.
+On Sat, 2006-06-10 at 17:37 -0400, Venkat Yekkirala wrote:
+> This patch set adds/enhances support for SELinux/MLS in handling IPSec
+> xfrm's. It builds on the work by Trent Jaeger, et al, on the labeling of
+> IPSec SAs. A policy patch is also included for reference. Patch is relative
+> to the lspp.34 kernel (http://people.redhat.com/sgrubb/files/lspp).
+> ipsec-tools 0.6.5 src in FC rawhide already has the setkey changes needed to
+> work with this. A patch to ipsec-tools/racoon will follow later on the
+> ipsec-tools-devel list.
 > 
-> Of course, this change sends ripples through quite a few other systems, which is why
-> it's taken me so long to get this patch out.  First, I had to add a "setkeycreate"
-> permission to the "process" security class in serefpolicy.  Then, I had to augment
-> the SELinux library with a "setkeycreatecon" operation, which is analogous to
-> "setfscreatecon" (it seems those functions requires some refactoring, but I haven't
-> done anything yet).
+> The basic idea is to have the IPSec policy specify an MLS range and have
+> unique SAs generated/used for each of the levels that fall in the range. SAs
+> for different levels can either be manually loaded (using setkey and such)
+> or negotiated using IKE (racoon, etc.).
 > 
-> Then, I concentrated on GDM, login, and SSH, to make sure they're compatible with the
-> new entry.  Surprisingly, SSH sets its execution context early enough that this patch
-> isn't necessary.  However, the other two programs don't, so I had to add a simple invocation
-> to each of them to set the entry before performing setuid.
+> Example:
 > 
-> I'll send the other patches along after we discuss this one.
+> Let's say we have the following in the SPD (Security Policy Database):
 > 
-> ---<snip>---
-> From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+> spdadd 9.2.9.15 9.2.9.17 any -ctx 1 1
+> "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
+> -P in ipsec esp/transport//require ;
+> spdadd 9.2.9.17 9.2.9.15 any -ctx 1 1
+> "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
+> -P out ipsec esp/transport//require ;
 > 
-> Add a /proc/<pid>/attr/keycreate entry that stores the appropriate
-> context for newly-created keys.  Modify the selinux_key_alloc
-> hook to make use of the new entry.  Update the flask headers to
-> include a new "setkeycreate" permission for processes.  Update the
-> documentation to reflect these changes.
+> with nothing in the SAD (Security Association Database) initially. When the
+> kernel runs into the first packet with the label s2:c4 destined for
+> 9.2.9.17, it will see that there's no SA available to encrypt it with. So,
+> it will call upon racoon/IKE to generate an SA. Racoon will obtain the label
+> (s2:c4) from the kernel, do the negotiation with its peer, including the
+> label (s2:c4) also in the payload/proposals. The negotiation will result in
+> a dynamically generated SPI that is unique to the label (s2:c4) plus the
+> other normal parameters involved. It will then insert the SA (along with the
+> SPI) such as the following into the SAD in the kernel:
 > 
-> Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
+> add 9.2.9.15 9.2.9.17 esp 0x123456
+> -ctx 1 1 "system_u:object_r:zzyzx_t:s2:c4"
+> -E des-cbc 0x0000000000000000;
 > 
-> ---
+> If the kernel subsequently runs into a packet at a different label (say
+> s2:c5) for which there's no SA available, it will again call upon racoon
+> (which will get s2:c5 from the kernel this time) and a different SA (with a
+> different SPI) will be negotiated.
 > 
->  Documentation/keys.txt                       |    2 +-
->  fs/proc/base.c                               |   22 ++++++++++++++--------
->  security/selinux/hooks.c                     |   11 ++++++++++-
->  security/selinux/include/av_perm_to_string.h |    1 +
->  security/selinux/include/av_permissions.h    |    1 +
->  security/selinux/include/objsec.h            |    1 +
->  6 files changed, 28 insertions(+), 10 deletions(-)
+> Description of changes:
 > 
-> diff -uprN -X linux-2.6.17-rc6-mm1/Documentation/dontdiff linux-2.6.17-rc6-mm1.orig/Documentation/keys.txt linux-2.6.17-rc6-mm1/Documentation/keys.txt
-> --- linux-2.6.17-rc6-mm1.orig/Documentation/keys.txt	2006-06-08 09:41:42.000000000 -0400
-> +++ linux-2.6.17-rc6-mm1/Documentation/keys.txt	2006-06-08 14:46:07.000000000 -0400
-> @@ -250,7 +250,7 @@ The default keyrings are handled differe
->  intuitive:
->  
->   (*) The user and user session keyrings that are created when the user logs in
-> -     are currently labeled with the context of the login manager.
-> +     are labeled with the user's default context.
-
-Only if the login manager is instrumented to use the new API, so you
-likely need to note this fact.
-
->  
->   (*) The keyrings associated with new threads are each labeled with the context
->       of their associated thread, and both session and process keyrings are
-> diff -uprN -X linux-2.6.17-rc6-mm1/Documentation/dontdiff linux-2.6.17-rc6-mm1.orig/fs/proc/base.c linux-2.6.17-rc6-mm1/fs/proc/base.c
-> --- linux-2.6.17-rc6-mm1.orig/fs/proc/base.c	2006-06-08 09:41:47.000000000 -0400
-> +++ linux-2.6.17-rc6-mm1/fs/proc/base.c	2006-06-08 10:14:50.000000000 -0400
-> @@ -285,17 +287,19 @@ static struct pid_entry tid_base_stuff[]
->  
->  #ifdef CONFIG_SECURITY
->  static struct pid_entry tgid_attr_stuff[] = {
-> -	E(PROC_TGID_ATTR_CURRENT,  "current",  S_IFREG|S_IRUGO|S_IWUGO),
-> -	E(PROC_TGID_ATTR_PREV,     "prev",     S_IFREG|S_IRUGO),
-> -	E(PROC_TGID_ATTR_EXEC,     "exec",     S_IFREG|S_IRUGO|S_IWUGO),
-> -	E(PROC_TGID_ATTR_FSCREATE, "fscreate", S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TGID_ATTR_CURRENT,   "current",   S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TGID_ATTR_PREV,      "prev",      S_IFREG|S_IRUGO),
-> +	E(PROC_TGID_ATTR_EXEC,      "exec",      S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TGID_ATTR_FSCREATE,  "fscreate",  S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TGID_ATTR_KEYCREATE, "keycreate", S_IFREG|S_IRUGO|S_IWUGO),
->  	{0,0,NULL,0}
-
-Not sure why you are changing all of the other lines as well in this
-patch.
-
->  };
->  static struct pid_entry tid_attr_stuff[] = {
-> -	E(PROC_TID_ATTR_CURRENT,   "current",  S_IFREG|S_IRUGO|S_IWUGO),
-> -	E(PROC_TID_ATTR_PREV,      "prev",     S_IFREG|S_IRUGO),
-> -	E(PROC_TID_ATTR_EXEC,      "exec",     S_IFREG|S_IRUGO|S_IWUGO),
-> -	E(PROC_TID_ATTR_FSCREATE,  "fscreate", S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TID_ATTR_CURRENT,   "current",   S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TID_ATTR_PREV,      "prev",      S_IFREG|S_IRUGO),
-> +	E(PROC_TID_ATTR_EXEC,      "exec",      S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TID_ATTR_FSCREATE,  "fscreate",  S_IFREG|S_IRUGO|S_IWUGO),
-> +	E(PROC_TID_ATTR_KEYCREATE, "keycreate", S_IFREG|S_IRUGO|S_IWUGO),
->  	{0,0,NULL,0}
-
-Likewise.
-
-> diff -uprN -X linux-2.6.17-rc6-mm1/Documentation/dontdiff linux-2.6.17-rc6-mm1.orig/security/selinux/hooks.c linux-2.6.17-rc6-mm1/security/selinux/hooks.c
-> --- linux-2.6.17-rc6-mm1.orig/security/selinux/hooks.c	2006-06-08 09:41:50.000000000 -0400
-> +++ linux-2.6.17-rc6-mm1/security/selinux/hooks.c	2006-06-08 10:14:50.000000000 -0400
-> @@ -4177,6 +4179,8 @@ static int selinux_setprocattr(struct ta
->  		error = task_has_perm(current, p, PROCESS__SETEXEC);
->  	else if (!strcmp(name, "fscreate"))
->  		error = task_has_perm(current, p, PROCESS__SETFSCREATE);
-> +	else if (!strcmp(name, "keycreate"))
-> +		error = task_has_perm(current, p, PROCESS__SETKEYCREATE);
->  	else if (!strcmp(name, "current"))
->  		error = task_has_perm(current, p, PROCESS__SETCURRENT);
->  	else
-> @@ -4206,6 +4210,8 @@ static int selinux_setprocattr(struct ta
->  		tsec->exec_sid = sid;
->  	else if (!strcmp(name, "fscreate"))
->  		tsec->create_sid = sid;
-> +	else if (!strcmp(name, "keycreate"))
-> +		tsec->keycreate_sid = sid;
->  	else if (!strcmp(name, "current")) {
->  		struct av_decision avd;
->  
-> @@ -4269,7 +4275,10 @@ static int selinux_key_alloc(struct key 
->  		return -ENOMEM;
->  
->  	ksec->obj = k;
-> -	ksec->sid = tsec->sid;
-> +	if (tsec->keycreate_sid)
-> +		ksec->sid = tsec->keycreate_sid;
-> +	else
-> +		ksec->sid = tsec->sid;
->  	k->security = ksec;
->  
->  	return 0;
-
-The setkeycreate permission check only checks between the task setting
-the attribute and the target task (which ends up being a task->self
-check since we only allow a task to set its own attributes).
-At some point, you need a permission check between the allocating task
-SID and the keycreate_sid; otherwise, a task authorized for setkeycreate
-can set arbitrary SIDs on its keys.  For file creation, may_create
-applies a file create check between the creating task SID and the SID to
-be applied to the file.  For execve, selinux_bprm_set_security applies a
-process transition check between the old and new task SIDs, and for
-setcon, setprocattr directly applies a dyntransition check between the
-SID pair.  You need a similar check in selinux_key_alloc, along with a
-corresponding new key permission for creation.
-
--- 
-Stephen Smalley
-National Security Agency
-
+> While the following uses MLS examples and hence may seem MLS-oriented, the
+> controls would apply equally to SELinux/TE.
+> 
+> A "sid" member has been added to the flow cache key resulting in the sid
+> being available at all needed locations and the flow cache lookups
+> automatically using the sid. The flow sid is derived from the socket on the
+> outbound and the SAs (unlabeled where an SA was not used) on the inbound.
+> 
+> Outbound case:
+> 1. Find policy for the socket.
+> 2. OLD: Find an SA that matches the policy.
+>    NEW: Find an SA that matches BOTH the policy and the flow/socket.
+>         This is necessary since not every SA that matches the policy
+>         can be used for the flow/socket. Consider policy range Secret-TS,
+>         and SAs each for Secret and TS. We don't want a TS socket to
+>         use the Secret SA. Hence the additional check for the SA Vs.
+> flow/socket.
+> 3. NEW: When looking thru bundles for a policy, make sure the flow/socket
+> can use the bundle. If a bundle is not found, create one, calling for IKE if
+> necessary. If using IKE, include the security context in the acquire message
+> to the IKE daemon.
+> 
+> Inbound case:
+> 1. OLD: Find policy for the socket.
+>    NEW: Find policy for the incoming packet based on the sid of the SA(s) it
+> used or the unlabeled sid if no SAs were used. (Consider a case where a
+> socket is "authorized" for two policies (unclassified-confidential,
+> secret-top_secret). If the packet has come in using a secret SA, we really
+> ought to be using the latter policy (secret-top_secret).)
+> 2. OLD: BUG: No check to see if the SAs used by the packet agree with the
+> policy sec_ctx-wise. (It was indicated in selinux_xfrm_sock_rcv_skb() that
+> this was being accomplished by (x->id.spi == tmpl->id.spi || !tmpl->id.spi)
+> in xfrm_state_ok, but it turns out tmpl->id.spi would normally be zero
+> (unless xfrm policy rules specify one at the template level, which they
+> usually don't).
+>    NEW: The socket is checked for access to the SAs used (based on the sid
+> of the SAs) in selinux_xfrm_sock_rcv_skb().
+> 
+> Outstanding issues:
+> - Timewait acknowledgements and such are generated using a NULL socket
+> resulting in the any_socket sid (SYSTEM_HIGH) to be used.
+> 
+> 
+>  include/linux/security.h                     |   97 ++++++++++++--
+>  include/net/flow.h                           |    5
+>  net/core/flow.c                              |    7 -
+>  net/core/sock.c                              |    4
+>  net/key/af_key.c                             |   24 +++
+>  net/xfrm/xfrm_policy.c                       |   28 ++--
+>  net/xfrm/xfrm_state.c                        |   12 +
+>  net/xfrm/xfrm_user.c                         |    2
+>  security/dummy.c                             |   23 +++
+>  security/selinux/hooks.c                     |   27 +++
+>  security/selinux/include/av_perm_to_string.h |    1
+>  security/selinux/include/av_permissions.h    |    1
+>  security/selinux/include/objsec.h            |    1
+>  security/selinux/include/security.h          |    2
+>  security/selinux/include/xfrm.h              |    9 +
+>  security/selinux/ss/mls.c                    |   20 --
+>  security/selinux/ss/mls.h                    |   20 ++
+>  security/selinux/ss/services.c               |   48 +++++++
+>  security/selinux/xfrm.c                      |  185
+> ++++++++++++++++++++++-----
+>  19 files changed, 423 insertions(+), 93 deletions(-)
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
