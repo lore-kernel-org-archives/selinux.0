@@ -1,90 +1,32 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5CLbla5015947
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 17:37:47 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k5CLbkZt022814
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 21:37:46 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5CLjm2j016083
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 17:45:48 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k5CLjlOt019607
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2006 21:45:47 GMT
 Subject: Re: Latest diffs
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <448DC130.4010309@redhat.com>
-References: <448DC130.4010309@redhat.com>
+In-Reply-To: <1150148356.18657.32.camel@sgc>
+References: <448DC130.4010309@redhat.com>  <1150148356.18657.32.camel@sgc>
 Content-Type: text/plain
-Date: Mon, 12 Jun 2006 17:39:16 -0400
-Message-Id: <1150148356.18657.32.camel@sgc>
+Date: Mon, 12 Jun 2006 17:47:18 -0400
+Message-Id: <1150148838.18657.36.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-06-12 at 15:32 -0400, Daniel J Walsh wrote:
-> Fix prelink file context
+On Mon, 2006-06-12 at 17:39 -0400, Christopher J. PeBenito wrote:
+> On Mon, 2006-06-12 at 15:32 -0400, Daniel J Walsh wrote:
+> > hplib is communicating with nfs somehow.
 > 
-> Add unconfined_domain transition to rpm_script_t,
-> also moved bootloader transition out of targeted policy ifdef
-> 
-> webalizer wants to do udp.
-> 
-> One last fix for allowing mounting any file on any file.
+> Interesting, I always thought this access (which was in can_network())
+> was a leaked fd.  If possible, can you find out more?  Moved the add up
+> a few lines in the file.
 
-Is this supposed to be all files or non security files?  The docs and
-interface name are inconsistent with the implementation.
-
-> gfs2 supports extended attributes.
-> gfs does not, so I am calling them nfs
-> 
-> New version of automount wants new privs.
-> 
-> I am looking into updating prelink cron entry to do restorecon to 
-> eliminate avc messages, also trying
-> to get prelink maintainer to modify program which would make this change 
-> not as important
-> 
-> hplib is communicating with nfs somehow.
-
-Interesting, I always thought this access (which was in can_network())
-was a leaked fd.  If possible, can you find out more?  Moved the add up
-a few lines in the file.
-
-> proftpd uses a socket to communicate with itself
-> 
-> hald needs nsswitch stuff
-> 
-> krb5kdc needs to read kernel network state.
-> 
-> mysql uses nsswitch
-> 
-> NetworkManager neets to transition to pppd to bring up dialup networking.
-> 
-> ntpd - nsswitch
-> 
-> procmail transition to clamav
-> 
-> pegasus we need to setup a chat with pegasus maintainer.  He wants 
-> transition from unconfined_t.
-> 
-> pyzor wants to read home dir.
-> 
-> xfs - nsswitch
-> 
-> Fix auditd config files specs
-
-dropped some hunks that reverted some of my changes
-
-> semanage needs additional perms to work with setrans file
-> 
-> merged unconfined_execmem into unconfined.te
-
-dropped the fc changes.  see my previous email on mplayer, and for the
-others, unconfined_execmem_exec_t only exists in the targeted policy, so
-these lines have to be wrapped with the targeted_policy ifdef.  also
-dropped hunks that reverted my changes.
-
-> remove todo stuff from userdomain.
-> 
-> useradd needs to be able to create user_home_dir_t in mls policy
-
-The remainder is merged.
+Actually, I think you just accidentally reverted my change, considering
+there were other reversions later in the patch.
 
 -- 
 Chris PeBenito
