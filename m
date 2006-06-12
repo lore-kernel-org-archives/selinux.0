@@ -1,40 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5B8gBXe019698
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2006 04:42:11 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5B8gAr6016503
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2006 08:42:10 GMT
-Received: by ug-out-1314.google.com with SMTP id u2so2001839uge
-        for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2006 01:42:09 -0700 (PDT)
-From: "Mario Fanelli" <mario.fanelli@gmail.com>
-To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
-Subject: selinuxfs
-Date: Sun, 11 Jun 2006 10:42:02 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Message-ID: <448bd760.7fefe58f.4603.ffffeef3@mx.gmail.com>
+Subject: Re: permissions on /proc/self/attrib/current
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chuck Mead <csm@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4485C100.4030805@redhat.com>
+References: <4485C100.4030805@redhat.com>
+Content-Type: text/plain
+Date: Mon, 12 Jun 2006 09:30:45 -0400
+Message-Id: <1150119045.8086.17.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Under the directory /selinux, I found this file but I don't understand their
-meaning..
+On Tue, 2006-06-06 at 13:53 -0400, Chuck Mead wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> The file /proc/self/attrib/current is world read and write. Is this
+> correct? Why does it need world read and write?
 
-access
-checkreqprot
-context 
-create
-disable
-enforce 
-load
-member
-mls
-null 
-policyvers
-relabel
-user
+To completely disable DAC restrictions, and leave it entirely to SELinux
+to control access.  The corresponding hook functions in the SELinux
+"module", selinux_getprocattr and selinux_setprocattr, apply permission
+checks on reading and writing these nodes, and selinux_setprocattr
+further prohibits a task from setting (writing) attributes other than
+its own.
 
-Anyone can give me an help?
+The DAC restrictions can be problematic when the task becomes
+undumpable, e.g. setuid or setgid programs could otherwise lose access
+to their own /proc/pid/attr nodes.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
