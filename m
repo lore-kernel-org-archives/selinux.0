@@ -1,51 +1,57 @@
-Subject: Re: polyinstantiating /tmp and gdm
-From: Janak Desai <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-To: russell@coker.com.au
-Cc: dwalsh@redhat.com, sgrubb@redhat.com, tmraz@redhat.com, klaus@atsec.com,
-        Valdis.Kletnieks@vt.edu, sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-In-Reply-To: <200606140000.44403.russell@coker.com.au>
-References: <1150206426.18955.17.camel@localhost.localdomain>
-	 <200606140000.44403.russell@coker.com.au>
+Subject: Re: [PATCH] policy server API
+From: Christopher Ashworth <cashworth@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, selinux-dev <selinux-dev@tresys.com>
+In-Reply-To: <1150147826.13647.6.camel@moss-spartans.epoch.ncsc.mil>
+References: <1148417141.20016.53.camel@popeye.columbia.tresys.com>
+	 <1148494501.517.76.camel@popeye.columbia.tresys.com>
+	 <1149008008.19716.1.camel@popeye.columbia.tresys.com>
+	 <1150143204.8086.159.camel@moss-spartans.epoch.ncsc.mil>
+	 <1150144439.3003.18.camel@popeye.columbia.tresys.com>
+	 <1150147826.13647.6.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 13 Jun 2006 10:10:22 -0400
-Message-Id: <1150207823.18955.20.camel@localhost.localdomain>
+Date: Tue, 13 Jun 2006 10:18:57 -0400
+Message-Id: <1150208337.13179.30.camel@popeye.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-06-14 at 00:00 +1000, Russell Coker wrote:
-> On Tuesday 13 June 2006 23:47, Janak Desai <janak@us.ibm.com> wrote:
-> > I have figured out a way to get gdm/X to work with a polyinstantiated
-> > /tmp. In my previous attempts I was bind mounting original /tmp/.X11-unix
-> > on /instance/.X11-unix and then expecting the socket to be visible
-> > after bind mounting the instance on the original /tmp. Now I understand
-> > why that doesn't work. What we need is to make the original /tmp (or
-> > in our case just the /tmp/.X11-unix) available from alternative location
-> > outside of /tmp before it is mounted over. If you remember, this was
-> > in Stephen's original design but we removed it because we couldn't find
-> > any use for it. Now we have :-). This is still a very specific use, so
-> > I am going to special case it with instance.init script and NOT bring
-> > back the "original" directory code that was present in the earlier
-> > incarnation of the pam_namespace. The only change to pam_namespace module
-> > will be to always execute the instance.init script as opposed to only at
-> > the time of the instance creation.
-> 
-> We seem to be spending a lot of effort on supporting what was always a bad 
-> idea (putting such things under /tmp).
-> 
-> Maybe a better option is to have the socket created under /var/run/.X11-unix 
-> and have /tmp/.X11-unix be a sym-link to /var/run/.X11-unix.  Creating a new 
-> sym-link under each poly directory is less work than doing yet another mount.  
-> Note that this doesn't only apply to .X11-unix, there's .font-unix as well 
-> and probably some other daemons out there doing other things.
-> 
+On Mon, 2006-06-12 at 17:30 -0400, Stephen Smalley wrote:
 
-Yes, I agree. Is there an X server config option that allows us 
-to do this? I looked for it but couldn't figure out a way to
-make X not use /tmp. 
+> I'd like something with which to exercise the new code.
 
--Janak
+Understood.  Please consider this just an RFC for now, and we will
+resubmit when a test suite or an update to the policy server is
+available.
+> 
+> > Our thinking here was that the public APIs that already exist are
+> using
+> > ints.  (e.g. module_list)  We opted for the internal check and
+> > consistent use of int externally rather than changing the public
+> API,
+> > but we could certainly go uint32_t throughout if you prefer.
+> 
+> Even if you keep the interface as is, I'm not sure why you cast to
+> unsigned int for comparison (and when will this be > UINT32_MAX?) and
+> then later to uint32_t.
+
+The cast to unsigned is to eliminate the compile time warning of
+comparison between a signed and unsigned.  Granted, it will not be
+greater than UINT32_MAX currently, but nonetheless the spec only
+mandates that an unsigned int is at least 16 bits.  A happily moot point
+in the event of changing everything to a uint32.
+> 
+> No, we just don't want it to crash, i.e. it just needs to propagate
+> errors properly to the client program, and the client program will
+> hopefully generate a (admittedly uninformative) error message already.
+
+Ah, in that case, with the printout removed it behaves as desired.
+
+Thanks for the feedback; we will resubmit when your points are addressed
+and a test is available.  What do you prefer regarding the uint32
+question?
+
+Chris
 
 
 --
