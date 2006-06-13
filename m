@@ -1,113 +1,56 @@
-Subject: [PATCH] keys: restrict /proc/keys and /proc/key-users
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov, dhowells@redhat.com, sds@tycho.nsa.gov,
-        jmorris@redhat.com
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 13:10:05 -0400
-Message-Id: <1150218605.3488.25.camel@moss-tarheels.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5DHNJjq000717
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 13:23:19 -0400
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5DHNICb021411
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 17:23:19 GMT
+Received: by ug-out-1314.google.com with SMTP id y2so2870028uge
+        for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 10:23:18 -0700 (PDT)
+From: "Mario Fanelli" <mario.fanelli@gmail.com>
+To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
+Subject: I: PaX and SELinux
+Date: Tue, 13 Jun 2006 19:23:14 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Message-ID: <448ef485.50f63546.6c5f.ffff8421@mx.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David,
 
-I expect that this patch will be slightly controversial, but I'd like to
-at least discuss it.  I think that /proc/keys is actually useful to have,
-in case the user wants a quick summary of what keys the kernel is keeping
-for them.  However, they obviously should not be able to access information
-about keys that they are prohibited from viewing.  The following patch
-adds a simple permission check to ensure that this doesn't occur.
+> 
+>
+> -----Messaggio originale-----
+> Da: Joshua Brindle [mailto:method@gentoo.org] 
+> Inviato: Tuesday, June 13, 2006 5:28 PM
+> A: Mario Fanelli
+> Cc: SeLinux Mailing List
+> Oggetto: Re: PaX and SELinux
+>
+> Mario Fanelli wrote:
+> > I found a PaX security class in refpolicy but I have a little doubt..If
+I
+> > compile a kernel with SELinux, at the same time the kernel has installed
+PaX
+> > system (pax.grsecurity.net)? 
+> > So I can set pax flag using this security class?
+> >   
+> This object class was used to control pax options before other memory 
+> protections were available to SELinux. The patch hasn't been used or 
+> available for quite some time so the object class is more or less 
+> deprecated.
+>
+> However, if you have pax enabled on the system the SELinux memory 
+> permissions (execstack, execmem, etc) should be enforced by pax. Address 
+> space randomization and other pax options aren't available in policy 
+> anymore though.
+>
+> Joshua
 
-It also restricts the /proc/key-users file, so that ordinary users can only
-view information on their own keys, while allowing the super-user to view
-information about all the keys belonging to all users.  This file is still
-problematic, as it, too could be used to form a covert channel based on the
-quota used by each user, but this patch should at least be a step in the
-right direction.  On a high-security system, all access to this file should
-probably be prevented.  Actually, do you think we should expand the #ifdef
-that surrounds /proc/keys so that it also encompasses key-users?  Or perhaps
-we should add a separate kernel option?
+Where can I find anything about SELinux memory protection? Can I install PaX
+as patch without problem?
 
----<snip>---
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-
-Restrict /proc/keys, so that only those keys the current task is permitted
-to view are presented.  Restrict /proc/key-users, so that ordinary users are
-only allowed to view their own statistics.  However, still permit the
-superuser to view the statistics for all users.  Update the documentation
-to reflect these changes.
-
-Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
-
----
-
- Documentation/keys.txt |   10 ++++++----
- security/keys/proc.c   |   15 +++++++++++++++
- 2 files changed, 21 insertions(+), 4 deletions(-)
-
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.orig/Documentation/keys.txt linux-2.6.17-rc6-mm2.prockeys/Documentation/keys.txt
---- linux-2.6.17-rc6-mm2.orig/Documentation/keys.txt	2006-06-13 09:14:59.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.prockeys/Documentation/keys.txt	2006-06-13 12:56:26.000000000 -0400
-@@ -270,9 +270,9 @@ about the status of the key service:
- 
-  (*) /proc/keys
- 
--     This lists all the keys on the system, giving information about their
--     type, description and permissions. The payload of the key is not available
--     this way:
-+     This lists all the keys that are currently accessible to the task querying
-+     the file, giving information about their type, description and
-+     permissions. The payload of the key is not available this way:
- 
- 	SERIAL   FLAGS  USAGE EXPY PERM     UID   GID   TYPE      DESCRIPTION: SUMMARY
- 	00000001 I-----    39 perm 1f3f0000     0     0 keyring   _uid_ses.0: 1/4
-@@ -300,7 +300,9 @@ about the status of the key service:
-  (*) /proc/key-users
- 
-      This file lists the tracking data for each user that has at least one key
--     on the system. Such data includes quota information and statistics:
-+     on the system. The superuser will be presented with data for all users on
-+     the system, while ordinary users will only be allowed to view their own
-+     data.  Such data includes quota information and statistics:
- 
- 	[root@andromeda root]# cat /proc/key-users
- 	0:     46 45/45 1/100 13/10000
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.orig/security/keys/proc.c linux-2.6.17-rc6-mm2.prockeys/security/keys/proc.c
---- linux-2.6.17-rc6-mm2.orig/security/keys/proc.c	2006-03-20 00:53:29.000000000 -0500
-+++ linux-2.6.17-rc6-mm2.prockeys/security/keys/proc.c	2006-06-13 10:07:07.000000000 -0400
-@@ -134,9 +134,18 @@ static int proc_keys_show(struct seq_fil
- {
- 	struct rb_node *_p = v;
- 	struct key *key = rb_entry(_p, struct key, serial_node);
-+	key_ref_t key_ref;
- 	struct timespec now;
- 	unsigned long timo;
- 	char xbuf[12];
-+	int rc;
-+
-+	/* check whether the current task is allowed
-+	   to view the key */
-+	key_ref = make_key_ref(key, is_key_possessed(key));
-+	rc = key_task_permission(key_ref, current, KEY_VIEW);
-+	if (rc < 0)
-+		return 0;
- 
- 	now = current_kernel_time();
- 
-@@ -240,6 +249,12 @@ static int proc_key_users_show(struct se
- 	struct rb_node *_p = v;
- 	struct key_user *user = rb_entry(_p, struct key_user, node);
- 
-+	/* allow the superuser to view all statistics;
-+	   allow other users to only view their own statistics */
-+	if ((current->user->uid != 0) &&
-+	    (current->user->uid != user->uid))
-+		return 0;
-+
- 	seq_printf(m, "%5u: %5d %d/%d %d/%d %d/%d\n",
- 		   user->uid,
- 		   atomic_read(&user->usage),
-
+Mario
 
 
 --
