@@ -1,57 +1,60 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5DHNJjq000717
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 13:23:19 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5DHNICb021411
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 17:23:19 GMT
-Received: by ug-out-1314.google.com with SMTP id y2so2870028uge
-        for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 10:23:18 -0700 (PDT)
-From: "Mario Fanelli" <mario.fanelli@gmail.com>
-To: "SeLinux Mailing List" <selinux@tycho.nsa.gov>
-Subject: I: PaX and SELinux
-Date: Tue, 13 Jun 2006 19:23:14 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Message-ID: <448ef485.50f63546.6c5f.ffff8421@mx.gmail.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1150218605.3488.25.camel@moss-tarheels.epoch.ncsc.mil> 
+References: <1150218605.3488.25.camel@moss-tarheels.epoch.ncsc.mil> 
+To: Michael LeMay <mdlemay@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, dhowells@redhat.com, sds@tycho.nsa.gov,
+        jmorris@redhat.com
+Subject: Re: [PATCH] keys: restrict /proc/keys and /proc/key-users 
+Date: Tue, 13 Jun 2006 18:42:45 +0100
+Message-ID: <28863.1150220565@warthog.cambridge.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Michael LeMay <mdlemay@epoch.ncsc.mil> wrote:
 
-> 
->
-> -----Messaggio originale-----
-> Da: Joshua Brindle [mailto:method@gentoo.org] 
-> Inviato: Tuesday, June 13, 2006 5:28 PM
-> A: Mario Fanelli
-> Cc: SeLinux Mailing List
-> Oggetto: Re: PaX and SELinux
->
-> Mario Fanelli wrote:
-> > I found a PaX security class in refpolicy but I have a little doubt..If
-I
-> > compile a kernel with SELinux, at the same time the kernel has installed
-PaX
-> > system (pax.grsecurity.net)? 
-> > So I can set pax flag using this security class?
-> >   
-> This object class was used to control pax options before other memory 
-> protections were available to SELinux. The patch hasn't been used or 
-> available for quite some time so the object class is more or less 
-> deprecated.
->
-> However, if you have pax enabled on the system the SELinux memory 
-> permissions (execstack, execmem, etc) should be enforced by pax. Address 
-> space randomization and other pax options aren't available in policy 
-> anymore though.
->
-> Joshua
+> I expect that this patch will be slightly controversial, but I'd like to
+> at least discuss it.
 
-Where can I find anything about SELinux memory protection? Can I install PaX
-as patch without problem?
+Definitely controversial.
 
-Mario
+> I think that /proc/keys is actually useful to have, in case the user wants a
+> quick summary of what keys the kernel is keeping for them.
 
+That might be true.
+
+> However, they obviously should not be able to access information about keys
+> that they are prohibited from viewing.  The following patch adds a simple
+> permission check to ensure that this doesn't occur.
+
+Unless I'm debugging stuff - in which case I want to see the whole lot.  This
+would need a config option to disable it for debugging purposes.  You could
+move the one that enables /proc/keys to just disable the permissions check.
+
+I'm still not sure /proc/keys should be available at all, though I know people
+like looking at lists of things in /proc. 
+
+> It also restricts the /proc/key-users file, so that ordinary users can only
+> view information on their own keys, while allowing the super-user to view
+> information about all the keys belonging to all users.
+
+That sounds reasonable.
+
+> This file is still problematic, as it, too could be used to form a covert
+> channel based on the quota used by each user, but this patch should at least
+> be a step in the right direction.
+
+It must be terrible being that paranoid:-) Is this any less safe than disk
+quotas?
+
+> +	/* allow the superuser to view all statistics;
+> +	   allow other users to only view their own statistics */
+> +	if ((current->user->uid != 0) &&
+> +	    (current->user->uid != user->uid))
+> +		return 0;
+
+Use capable(CAP_SYS_ADMIN) please.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
