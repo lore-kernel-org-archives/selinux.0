@@ -1,116 +1,112 @@
-Subject: [PATCH] keys: randomize key serial numbers
+Subject: [PATCH] keys: restrict /proc/keys and /proc/key-users
 From: Michael LeMay <mdlemay@epoch.ncsc.mil>
 To: selinux@tycho.nsa.gov, dhowells@redhat.com, sds@tycho.nsa.gov,
         jmorris@redhat.com
 Content-Type: text/plain
-Date: Tue, 13 Jun 2006 12:33:23 -0400
-Message-Id: <1150216403.3488.6.camel@moss-tarheels.epoch.ncsc.mil>
+Date: Tue, 13 Jun 2006 13:10:05 -0400
+Message-Id: <1150218605.3488.25.camel@moss-tarheels.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for sprucing up the description.  I get the same error now when I visit that
-link, hopefully it'll be fixed at some point.  Fortunately, the Google cache still
-contains the full page, and it doesn't have any images.
+David,
+
+I expect that this patch will be slightly controversial, but I'd like to
+at least discuss it.  I think that /proc/keys is actually useful to have,
+in case the user wants a quick summary of what keys the kernel is keeping
+for them.  However, they obviously should not be able to access information
+about keys that they are prohibited from viewing.  The following patch
+adds a simple permission check to ensure that this doesn't occur.
+
+It also restricts the /proc/key-users file, so that ordinary users can only
+view information on their own keys, while allowing the super-user to view
+information about all the keys belonging to all users.  This file is still
+problematic, as it, too could be used to form a covert channel based on the
+quota used by each user, but this patch should at least be a step in the
+right direction.  On a high-security system, all access to this file should
+probably be prevented.  Actually, do you think we should expand the #ifdef
+that surrounds /proc/keys so that it also encompasses key-users?  Or perhaps
+we should add a separate kernel option?
 
 ---<snip>---
 From: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-The attached patch causes key_alloc_serial() to generate key serial numbers
-randomly rather than in linear sequence.
-
-Using an linear sequence permits a covert communication channel to be
-established, in which one process can communicate with another by creating or
-not creating new keys within a certain timeframe.  The second process can
-probe for the expected next key serial number and judge its existence by the
-error returned.
-
-This is a problem as the serial number namespace is globally shared between
-all tasks, regardless of their context.
-
-For more information on this topic, this old TCSEC guide is recommended:
-
-	http://www.radium.ncsc.mil/tpep/library/rainbow/NCSC-TG-030.html
+Restrict /proc/keys, so that only those keys the current task is permitted
+to view are presented.  Restrict /proc/key-users, so that ordinary users are
+only allowed to view their own statistics.  However, still permit the
+superuser to view the statistics for all users.  Update the documentation
+to reflect these changes.
 
 Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
 ---
 
- security/keys/key.c |   28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ Documentation/keys.txt |   10 ++++++----
+ security/keys/proc.c   |   15 +++++++++++++++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
---- linux-2.6.17-rc6-mm2.orig/security/keys/key.c	2006-06-13 09:15:03.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.rnd1/security/keys/key.c	2006-06-13 11:17:51.000000000 -0400
-@@ -16,11 +16,11 @@
- #include <linux/slab.h>
- #include <linux/security.h>
- #include <linux/workqueue.h>
-+#include <linux/random.h>
- #include <linux/err.h>
- #include "internal.h"
+diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.orig/Documentation/keys.txt linux-2.6.17-rc6-mm2.prockeys/Documentation/keys.txt
+--- linux-2.6.17-rc6-mm2.orig/Documentation/keys.txt	2006-06-13 09:14:59.000000000 -0400
++++ linux-2.6.17-rc6-mm2.prockeys/Documentation/keys.txt	2006-06-13 12:56:26.000000000 -0400
+@@ -270,9 +270,9 @@ about the status of the key service:
  
- static kmem_cache_t	*key_jar;
--static key_serial_t	key_serial_next = 3;
- struct rb_root		key_serial_tree; /* tree of keys indexed by serial */
- DEFINE_SPINLOCK(key_serial_lock);
+  (*) /proc/keys
  
-@@ -170,22 +170,23 @@ static void __init __key_insert_serial(s
- /*****************************************************************************/
- /*
-  * assign a key the next unique serial number
-- * - we work through all the serial numbers between 2 and 2^31-1 in turn and
-- *   then wrap
-+ * - these are assigned randomly to avoid security issues through covert
-+ *   channel problems
-  */
- static inline void key_alloc_serial(struct key *key)
+-     This lists all the keys on the system, giving information about their
+-     type, description and permissions. The payload of the key is not available
+-     this way:
++     This lists all the keys that are currently accessible to the task querying
++     the file, giving information about their type, description and
++     permissions. The payload of the key is not available this way:
+ 
+ 	SERIAL   FLAGS  USAGE EXPY PERM     UID   GID   TYPE      DESCRIPTION: SUMMARY
+ 	00000001 I-----    39 perm 1f3f0000     0     0 keyring   _uid_ses.0: 1/4
+@@ -300,7 +300,9 @@ about the status of the key service:
+  (*) /proc/key-users
+ 
+      This file lists the tracking data for each user that has at least one key
+-     on the system. Such data includes quota information and statistics:
++     on the system. The superuser will be presented with data for all users on
++     the system, while ordinary users will only be allowed to view their own
++     data.  Such data includes quota information and statistics:
+ 
+ 	[root@andromeda root]# cat /proc/key-users
+ 	0:     46 45/45 1/100 13/10000
+diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.orig/security/keys/proc.c linux-2.6.17-rc6-mm2.prockeys/security/keys/proc.c
+--- linux-2.6.17-rc6-mm2.orig/security/keys/proc.c	2006-03-20 00:53:29.000000000 -0500
++++ linux-2.6.17-rc6-mm2.prockeys/security/keys/proc.c	2006-06-13 10:07:07.000000000 -0400
+@@ -134,9 +134,18 @@ static int proc_keys_show(struct seq_fil
  {
- 	struct rb_node *parent, **p;
- 	struct key *xkey;
- 
--	spin_lock(&key_serial_lock);
--
--	/* propose a likely serial number and look for a hole for it in the
-+	/* propose a random serial number and look for a hole for it in the
- 	 * serial number tree */
--	key->serial = key_serial_next;
--	if (key->serial < 3)
--		key->serial = 3;
--	key_serial_next = key->serial + 1;
-+	do {
-+		get_random_bytes(&key->serial, sizeof(key->serial));
+ 	struct rb_node *_p = v;
+ 	struct key *key = rb_entry(_p, struct key, serial_node);
++	key_ref_t key_ref;
+ 	struct timespec now;
+ 	unsigned long timo;
+ 	char xbuf[12];
++	int rc;
 +
-+		key->serial >>= 1; /* negative numbers are not permitted */
-+	} while (key->serial < 3);
++	/* check whether the current task is allowed
++	   to view the key */
++	key_ref = make_key_ref(key, is_key_possessed(key));
++	rc = key_task_permission(key_ref, current, KEY_VIEW);
++	if (rc < 0)
++		return 0;
+ 
+ 	now = current_kernel_time();
+ 
+@@ -240,6 +249,12 @@ static int proc_key_users_show(struct se
+ 	struct rb_node *_p = v;
+ 	struct key_user *user = rb_entry(_p, struct key_user, node);
+ 
++	/* allow the superuser to view all statistics;
++	   allow other users to only view their own statistics */
++	if ((current->user->uid != 0) &&
++	    (current->user->uid != user->uid))
++		return 0;
 +
-+	spin_lock(&key_serial_lock);
- 
- 	parent = NULL;
- 	p = &key_serial_tree.rb_node;
-@@ -205,12 +206,11 @@ static inline void key_alloc_serial(stru
- 
- 	/* we found a key with the proposed serial number - walk the tree from
- 	 * that point looking for the next unused serial number */
-- serial_exists:
-+serial_exists:
- 	for (;;) {
--		key->serial = key_serial_next;
-+		key->serial++;
- 		if (key->serial < 2)
- 			key->serial = 2;
--		key_serial_next = key->serial + 1;
- 
- 		if (!rb_parent(parent))
- 			p = &key_serial_tree.rb_node;
-@@ -229,7 +229,7 @@ static inline void key_alloc_serial(stru
- 	}
- 
- 	/* we've found a suitable hole - arrange for this key to occupy it */
-- insert_here:
-+insert_here:
- 	rb_link_node(&key->serial_node, parent, p);
- 	rb_insert_color(&key->serial_node, &key_serial_tree);
- 
+ 	seq_printf(m, "%5u: %5d %d/%d %d/%d %d/%d\n",
+ 		   user->uid,
+ 		   atomic_read(&user->usage),
 
 
 
