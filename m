@@ -1,39 +1,117 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5DFReAD029954
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 11:27:40 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k5DFRdCd007175
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 15:27:40 GMT
-Message-ID: <448ED97B.7060706@gentoo.org>
-Date: Tue, 13 Jun 2006 11:27:55 -0400
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
-To: Mario Fanelli <mario.fanelli@gmail.com>
-CC: SeLinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: PaX and SELinux
-References: <448ed4f8.6359f250.6649.5416@mx.gmail.com>
-In-Reply-To: <448ed4f8.6359f250.6649.5416@mx.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH] keys: randomize key serial numbers
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov, dhowells@redhat.com, sds@tycho.nsa.gov,
+        jmorris@redhat.com
+Content-Type: text/plain
+Date: Tue, 13 Jun 2006 12:33:23 -0400
+Message-Id: <1150216403.3488.6.camel@moss-tarheels.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mario Fanelli wrote:
-> I found a PaX security class in refpolicy but I have a little doubt..If I
-> compile a kernel with SELinux, at the same time the kernel has installed PaX
-> system (pax.grsecurity.net)? 
-> So I can set pax flag using this security class?
->   
-This object class was used to control pax options before other memory 
-protections were available to SELinux. The patch hasn't been used or 
-available for quite some time so the object class is more or less 
-deprecated.
+Thanks for sprucing up the description.  I get the same error now when I visit that
+link, hopefully it'll be fixed at some point.  Fortunately, the Google cache still
+contains the full page, and it doesn't have any images.
 
-However, if you have pax enabled on the system the SELinux memory 
-permissions (execstack, execmem, etc) should be enforced by pax. Address 
-space randomization and other pax options aren't available in policy 
-anymore though.
+---<snip>---
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-Joshua
+The attached patch causes key_alloc_serial() to generate key serial numbers
+randomly rather than in linear sequence.
+
+Using an linear sequence permits a covert communication channel to be
+established, in which one process can communicate with another by creating or
+not creating new keys within a certain timeframe.  The second process can
+probe for the expected next key serial number and judge its existence by the
+error returned.
+
+This is a problem as the serial number namespace is globally shared between
+all tasks, regardless of their context.
+
+For more information on this topic, this old TCSEC guide is recommended:
+
+	http://www.radium.ncsc.mil/tpep/library/rainbow/NCSC-TG-030.html
+
+Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
+
+---
+
+ security/keys/key.c |   28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+--- linux-2.6.17-rc6-mm2.orig/security/keys/key.c	2006-06-13 09:15:03.000000000 -0400
++++ linux-2.6.17-rc6-mm2.rnd1/security/keys/key.c	2006-06-13 11:17:51.000000000 -0400
+@@ -16,11 +16,11 @@
+ #include <linux/slab.h>
+ #include <linux/security.h>
+ #include <linux/workqueue.h>
++#include <linux/random.h>
+ #include <linux/err.h>
+ #include "internal.h"
+ 
+ static kmem_cache_t	*key_jar;
+-static key_serial_t	key_serial_next = 3;
+ struct rb_root		key_serial_tree; /* tree of keys indexed by serial */
+ DEFINE_SPINLOCK(key_serial_lock);
+ 
+@@ -170,22 +170,23 @@ static void __init __key_insert_serial(s
+ /*****************************************************************************/
+ /*
+  * assign a key the next unique serial number
+- * - we work through all the serial numbers between 2 and 2^31-1 in turn and
+- *   then wrap
++ * - these are assigned randomly to avoid security issues through covert
++ *   channel problems
+  */
+ static inline void key_alloc_serial(struct key *key)
+ {
+ 	struct rb_node *parent, **p;
+ 	struct key *xkey;
+ 
+-	spin_lock(&key_serial_lock);
+-
+-	/* propose a likely serial number and look for a hole for it in the
++	/* propose a random serial number and look for a hole for it in the
+ 	 * serial number tree */
+-	key->serial = key_serial_next;
+-	if (key->serial < 3)
+-		key->serial = 3;
+-	key_serial_next = key->serial + 1;
++	do {
++		get_random_bytes(&key->serial, sizeof(key->serial));
++
++		key->serial >>= 1; /* negative numbers are not permitted */
++	} while (key->serial < 3);
++
++	spin_lock(&key_serial_lock);
+ 
+ 	parent = NULL;
+ 	p = &key_serial_tree.rb_node;
+@@ -205,12 +206,11 @@ static inline void key_alloc_serial(stru
+ 
+ 	/* we found a key with the proposed serial number - walk the tree from
+ 	 * that point looking for the next unused serial number */
+- serial_exists:
++serial_exists:
+ 	for (;;) {
+-		key->serial = key_serial_next;
++		key->serial++;
+ 		if (key->serial < 2)
+ 			key->serial = 2;
+-		key_serial_next = key->serial + 1;
+ 
+ 		if (!rb_parent(parent))
+ 			p = &key_serial_tree.rb_node;
+@@ -229,7 +229,7 @@ static inline void key_alloc_serial(stru
+ 	}
+ 
+ 	/* we've found a suitable hole - arrange for this key to occupy it */
+- insert_here:
++insert_here:
+ 	rb_link_node(&key->serial_node, parent, p);
+ 	rb_insert_color(&key->serial_node, &key_serial_tree);
+ 
+
 
 
 --
