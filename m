@@ -1,40 +1,33 @@
-Subject: RE: selinuxfs
+Subject: Re: [PATCH] fix masking of capabilities over netlink in permissive
+	mode
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Wightman, Reid K Civ AFRL/IFEB" <Reid.Wightman@rl.af.mil>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <43055FDD054D464FA7923D0FFAF2C9C7024B1316@fsjrez02.adm.rl.af.mil>
-References: 
-	 <43055FDD054D464FA7923D0FFAF2C9C7024B1316@fsjrez02.adm.rl.af.mil>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: James Morris <jmorris@redhat.com>,
+        "'SELinux List'" <SELinux@tycho.nsa.gov>, redhat-lspp@redhat.com
+In-Reply-To: <448F0B3C.20901@trustedcs.com>
+References: <447DD3D7.4050200@trustedcs.com>
+	 <1149098096.524.241.camel@moss-spartans.epoch.ncsc.mil>
+	 <447EF602.5080003@trustedcs.com>
+	 <1149172261.524.370.camel@moss-spartans.epoch.ncsc.mil>
+	 <4480500E.10906@trustedcs.com>
+	 <1149262527.524.503.camel@moss-spartans.epoch.ncsc.mil>
+	 <448F0B3C.20901@trustedcs.com>
 Content-Type: text/plain
-Date: Wed, 14 Jun 2006 08:06:05 -0400
-Message-Id: <1150286765.25236.15.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 Jun 2006 11:02:39 -0400
+Message-Id: <1150297359.25236.101.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-06-13 at 16:02 -0400, Wightman, Reid K Civ AFRL/IFEB wrote:
-> 
-> > I suppose a selinuxfs man page might be nice.  
-> > selinux-doc/README has a brief description at the end of the 
-> > original set of selinuxfs nodes, but hasn't been kept up to 
-> > date.  Note that you really aren't supposed to directly 
-> > operate on the selinuxfs nodes - you should access them 
-> > indirectly via the libselinux interfaces (using helper utilities as
-> > appropriate) for portability.
-> 
-> I'm tinkering with some of the libselinux functions right now and getting a
-> strange error from security_compute_user().  I see that it copies data out
-> of <selinuxfs>/user .  On my system, this file is 0 bytes (everything is
-> stock FC5, selinux status is enabled/targeted/permissive, and I just
-> reloaded the policy).  Is this right?  How do the files here get populated?
+On Tue, 2006-06-13 at 14:00 -0500, Darrel Goeddel wrote:
+> I am also not really concerned about it.  Shall we give this a whirl in the
+> lspp kernel (since its users are currently exercising the problematic code
+> path) and include push it through the audit git tree if it works nicely?
+> Note that this would replace the band-aid patch that is currently included
+> in the lspp kernel.  Anyone object (or have a patch using the callback
+> method)?
 
-They are populated by the kernel, just like /proc.  The {access,
-context, create, member, relabel, user} nodes are transactional - the
-program writes a query to them, and then reads back the response from
-the kernel.  The user node is used by get_ordered_context_list and
-friends to compute the set of contexts reachable for a given user from a
-given security context, which in turn is used by login-like programs for
-determining the session security context.
+No objection from me.
 
 -- 
 Stephen Smalley
