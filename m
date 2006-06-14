@@ -1,44 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5DMLtYK006693
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 18:21:55 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k5DMLs16022688
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2006 22:21:54 GMT
-Message-ID: <448F3A93.60203@gentoo.org>
-Date: Tue, 13 Jun 2006 18:22:11 -0400
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
+Subject: RE: selinuxfs
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Wightman, Reid K Civ AFRL/IFEB" <Reid.Wightman@rl.af.mil>
-CC: selinux@tycho.nsa.gov
-Subject: Re: selinuxfs
-References: <43055FDD054D464FA7923D0FFAF2C9C7024B1316@fsjrez02.adm.rl.af.mil>
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <43055FDD054D464FA7923D0FFAF2C9C7024B1316@fsjrez02.adm.rl.af.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: 
+	 <43055FDD054D464FA7923D0FFAF2C9C7024B1316@fsjrez02.adm.rl.af.mil>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 08:06:05 -0400
+Message-Id: <1150286765.25236.15.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Wightman, Reid K Civ AFRL/IFEB wrote:
->   
->> I suppose a selinuxfs man page might be nice.  
->> selinux-doc/README has a brief description at the end of the 
->> original set of selinuxfs nodes, but hasn't been kept up to 
->> date.  Note that you really aren't supposed to directly 
->> operate on the selinuxfs nodes - you should access them 
->> indirectly via the libselinux interfaces (using helper utilities as
->> appropriate) for portability.
->>     
->
+On Tue, 2006-06-13 at 16:02 -0400, Wightman, Reid K Civ AFRL/IFEB wrote:
+> 
+> > I suppose a selinuxfs man page might be nice.  
+> > selinux-doc/README has a brief description at the end of the 
+> > original set of selinuxfs nodes, but hasn't been kept up to 
+> > date.  Note that you really aren't supposed to directly 
+> > operate on the selinuxfs nodes - you should access them 
+> > indirectly via the libselinux interfaces (using helper utilities as
+> > appropriate) for portability.
+> 
 > I'm tinkering with some of the libselinux functions right now and getting a
 > strange error from security_compute_user().  I see that it copies data out
 > of <selinuxfs>/user .  On my system, this file is 0 bytes (everything is
 > stock FC5, selinux status is enabled/targeted/permissive, and I just
 > reloaded the policy).  Is this right?  How do the files here get populated?
->
->   
-see security/selinux/selinuxfs.c
 
-its a pseudo filesystem like /proc which has callbacks in the kernel 
-when the file is read or written to.
+They are populated by the kernel, just like /proc.  The {access,
+context, create, member, relabel, user} nodes are transactional - the
+program writes a query to them, and then reads back the response from
+the kernel.  The user node is used by get_ordered_context_list and
+friends to compute the set of contexts reachable for a given user from a
+given security context, which in turn is used by login-like programs for
+determining the session security context.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
