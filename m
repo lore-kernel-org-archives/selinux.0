@@ -1,37 +1,40 @@
-Subject: RE: Type transition rules in conditionals
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux-dev <selinux-dev@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588210A4F@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588210A4F@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Thu, 15 Jun 2006 16:03:59 -0400
-Message-Id: <1150401839.3574.253.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5G0Vf6s018887
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jun 2006 20:31:41 -0400
+Received: from ccerelbas01.cce.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5G0Veir015874
+	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 00:31:40 GMT
+Received: from mailrelay01.cce.cpqcorp.net (compaqcce.compaq.com [16.47.68.171])
+	by ccerelbas01.cce.hp.com (Postfix) with ESMTP id E7432341AA
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jun 2006 19:31:39 -0500 (CDT)
+Received: from kitche.zk3.dec.com (kitche4.zk3.dec.com [16.140.160.166])
+	by mailrelay01.cce.cpqcorp.net (Postfix) with ESMTP id DCBC4C9CC
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jun 2006 19:31:38 -0500 (CDT)
+Message-ID: <4491FBE5.10902@hp.com>
+Date: Thu, 15 Jun 2006 20:31:33 -0400
+From: Matt Anderson <mra@hp.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: determining security level domination
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-15 at 15:41 -0400, Joshua Brindle wrote:
-> > - Why can't it be handled in the same manner as in a monolithic build?
-> 
-> It is handled the same, the only difference is the order that the
-> type_transitions are 
+I'm working on lpq and I need to determine if a user can see a job in
+the queue.  By this time the user's context is known, and all the jobs
+in the queue have a context associated with them.
 
-Hmm..well, unwinding to a pre-modular libsepol/checkpolicy, checkpolicy
-does issue a warning about duplicate type transitions in different
-conditionals (although it incorrectly calls them conflicting) and notes
-that it is discarding them.  So the only thing that has changed is that
-checkpolicy stopped reporting them, which led to them creeping into
-policy.
+It seems like avc_has_perm_noaudit() is close to what I need, but I'm
+not sure.  The main problem I see with that is avc_has_perm may fail
+based on user, role, or type, which I don't think I'm concerned with.
+Conceivably I could get around this by mangling one of the contexts so
+that I was only comparing levels and categories, but that doesn't sound
+like a good idea at all.
 
-Bug in policy.  Factor out the type_transition rules from the
-conditionals.
+Is there some function I've missed that does something like this?
 
--- 
-Stephen Smalley
-National Security Agency
-
+thanks
+-matt
 
 --
 This message was distributed to subscribers of the selinux mailing list.
