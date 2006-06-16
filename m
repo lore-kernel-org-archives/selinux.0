@@ -1,25 +1,43 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1150303229.3408.10.camel@moss-tarheels.epoch.ncsc.mil> 
-References: <1150303229.3408.10.camel@moss-tarheels.epoch.ncsc.mil> 
-To: Michael LeMay <mdlemay@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov, dhowells@redhat.com, sds@tycho.nsa.gov,
-        jmorris@redhat.com
-Subject: Re: [PATCH] selinux: add /proc/pid/attr/keycreate 
-Date: Fri, 16 Jun 2006 11:33:41 +0100
-Message-ID: <20114.1150454021@warthog.cambridge.redhat.com>
+Subject: Re: determining security level domination
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Matt Anderson <mra@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4491FBE5.10902@hp.com>
+References: <4491FBE5.10902@hp.com>
+Content-Type: text/plain
+Date: Fri, 16 Jun 2006 08:12:44 -0400
+Message-Id: <1150459964.18071.5.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael LeMay <mdlemay@epoch.ncsc.mil> wrote:
+On Thu, 2006-06-15 at 20:31 -0400, Matt Anderson wrote:
+> I'm working on lpq and I need to determine if a user can see a job in
+> the queue.  By this time the user's context is known, and all the jobs
+> in the queue have a context associated with them.
+> 
+> It seems like avc_has_perm_noaudit() is close to what I need, but I'm
+> not sure.  The main problem I see with that is avc_has_perm may fail
+> based on user, role, or type, which I don't think I'm concerned with.
+> Conceivably I could get around this by mangling one of the contexts so
+> that I was only comparing levels and categories, but that doesn't sound
+> like a good idea at all.
+> 
+> Is there some function I've missed that does something like this?
 
-> -	security_key_alloc(&root_user_keyring, current);
-> -	security_key_alloc(&root_session_keyring, current);
-> +	selinux_key_alloc(&root_user_keyring, current, 1);
-> +	selinux_key_alloc(&root_session_keyring, current, 1);
+The goal in SELinux is to abstract away the specific security model
+behind general interfaces so that the model can change without needing
+to modify all of the enforcement code and so that we can support
+composite models like TE+MLS.  Hence, we'd prefer to abstract away a
+traditional dominance check to instead be a SELinux permission check on
+the context pair.  Then we can also apply TE controls as desired, as we
+might actually want to prevent a user in one domain from seeing jobs in
+another domain.
 
-Is that right?
+-- 
+Stephen Smalley
+National Security Agency
 
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
