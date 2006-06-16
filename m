@@ -1,136 +1,113 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH [try #2] 2/6] Keys: Discard the contents of a key on revocation
-Date: Fri, 16 Jun 2006 13:56:59 +0100
+Subject: [PATCH [try #2] 4/6] Keys: Allocate key serial numbers randomly
+Date: Fri, 16 Jun 2006 13:57:03 +0100
 To: mdlemay@epoch.ncsc.mil, sds@tycho.nsa.gov, jmorris@redhat.com
 Cc: selinux@tycho.nsa.gov, dhowells@redhat.com
-Message-Id: <20060616125659.26378.19493.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060616125703.26378.55360.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060616125654.26378.36519.stgit@warthog.cambridge.redhat.com>
 References: <20060616125654.26378.36519.stgit@warthog.cambridge.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: David Howells <dhowells@redhat.com>
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-The attached patch causes the keys linked to a keyring to be unlinked from it
-when revoked and it causes the data attached to a user-defined key to be
-discarded when revoked.
+The attached patch causes key_alloc_serial() to generate key serial numbers
+randomly rather than in linear sequence.
 
-This frees up most of the quota a key occupied at that point, rather than
-waiting for the key to actually be destroyed.
+Using an linear sequence permits a covert communication channel to be
+established, in which one process can communicate with another by creating or
+not creating new keys within a certain timeframe.  The second process can
+probe for the expected next key serial number and judge its existence by the
+error returned.
 
+This is a problem as the serial number namespace is globally shared between
+all tasks, regardless of their context.
+
+For more information on this topic, this old TCSEC guide is recommended:
+
+	http://www.radium.ncsc.mil/tpep/library/rainbow/NCSC-TG-030.html
+
+Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/keys/user-type.h     |    1 +
- security/keys/keyring.c      |   21 +++++++++++++++++++++
- security/keys/user_defined.c |   25 ++++++++++++++++++++++++-
- 3 files changed, 46 insertions(+), 1 deletions(-)
+ security/keys/key.c |   28 ++++++++++++++--------------
+ 1 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/include/keys/user-type.h b/include/keys/user-type.h
-index a3dae18..c37c342 100644
---- a/include/keys/user-type.h
-+++ b/include/keys/user-type.h
-@@ -37,6 +37,7 @@ extern struct key_type key_type_user;
- extern int user_instantiate(struct key *key, const void *data, size_t datalen);
- extern int user_update(struct key *key, const void *data, size_t datalen);
- extern int user_match(const struct key *key, const void *criterion);
-+extern void user_revoke(struct key *key);
- extern void user_destroy(struct key *key);
- extern void user_describe(const struct key *user, struct seq_file *m);
- extern long user_read(const struct key *key,
-diff --git a/security/keys/keyring.c b/security/keys/keyring.c
-index 6c282bd..e8d02ac 100644
---- a/security/keys/keyring.c
-+++ b/security/keys/keyring.c
-@@ -49,6 +49,7 @@ static inline unsigned keyring_hash(cons
- static int keyring_instantiate(struct key *keyring,
- 			       const void *data, size_t datalen);
- static int keyring_match(const struct key *keyring, const void *criterion);
-+static void keyring_revoke(struct key *keyring);
- static void keyring_destroy(struct key *keyring);
- static void keyring_describe(const struct key *keyring, struct seq_file *m);
- static long keyring_read(const struct key *keyring,
-@@ -59,6 +60,7 @@ struct key_type key_type_keyring = {
- 	.def_datalen	= sizeof(struct keyring_list),
- 	.instantiate	= keyring_instantiate,
- 	.match		= keyring_match,
-+	.revoke		= keyring_revoke,
- 	.destroy	= keyring_destroy,
- 	.describe	= keyring_describe,
- 	.read		= keyring_read,
-@@ -953,3 +955,22 @@ int keyring_clear(struct key *keyring)
- } /* end keyring_clear() */
+diff --git a/security/keys/key.c b/security/keys/key.c
+index a9b6ca7..10fea8c 100644
+--- a/security/keys/key.c
++++ b/security/keys/key.c
+@@ -15,11 +15,11 @@ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/security.h>
+ #include <linux/workqueue.h>
++#include <linux/random.h>
+ #include <linux/err.h>
+ #include "internal.h"
  
- EXPORT_SYMBOL(keyring_clear);
-+
-+/*****************************************************************************/
-+/*
-+ * dispose of the links from a revoked keyring
-+ * - called with the key sem write-locked
-+ */
-+static void keyring_revoke(struct key *keyring)
-+{
-+	struct keyring_list *klist = keyring->payload.subscriptions;
-+
-+	/* adjust the quota */
-+	key_payload_reserve(keyring, 0);
-+
-+	if (klist) {
-+		rcu_assign_pointer(keyring->payload.subscriptions, NULL);
-+		call_rcu(&klist->rcu, keyring_clear_rcu_disposal);
-+	}
-+
-+} /* end keyring_revoke() */
-diff --git a/security/keys/user_defined.c b/security/keys/user_defined.c
-index 8e71895..5bbfdeb 100644
---- a/security/keys/user_defined.c
-+++ b/security/keys/user_defined.c
-@@ -28,6 +28,7 @@ struct key_type key_type_user = {
- 	.instantiate	= user_instantiate,
- 	.update		= user_update,
- 	.match		= user_match,
-+	.revoke		= user_revoke,
- 	.destroy	= user_destroy,
- 	.describe	= user_describe,
- 	.read		= user_read,
-@@ -67,6 +68,7 @@ error:
- 	return ret;
+ static kmem_cache_t	*key_jar;
+-static key_serial_t	key_serial_next = 3;
+ struct rb_root		key_serial_tree; /* tree of keys indexed by serial */
+ DEFINE_SPINLOCK(key_serial_lock);
  
- } /* end user_instantiate() */
-+
- EXPORT_SYMBOL_GPL(user_instantiate);
- 
- /*****************************************************************************/
-@@ -141,7 +143,28 @@ EXPORT_SYMBOL_GPL(user_match);
- 
+@@ -169,22 +169,23 @@ static void __init __key_insert_serial(s
  /*****************************************************************************/
  /*
-- * dispose of the data dangling from the corpse of a user
-+ * dispose of the links from a revoked keyring
-+ * - called with the key sem write-locked
-+ */
-+void user_revoke(struct key *key)
-+{
-+	struct user_key_payload *upayload = key->payload.data;
-+
-+	/* clear the quota */
-+	key_payload_reserve(key, 0);
-+
-+	if (upayload) {
-+		rcu_assign_pointer(key->payload.data, NULL);
-+		call_rcu(&upayload->rcu, user_update_rcu_disposal);
-+	}
-+
-+} /* end user_revoke() */
-+
-+EXPORT_SYMBOL(user_revoke);
-+
-+/*****************************************************************************/
-+/*
-+ * dispose of the data dangling from the corpse of a user key
+  * assign a key the next unique serial number
+- * - we work through all the serial numbers between 2 and 2^31-1 in turn and
+- *   then wrap
++ * - these are assigned randomly to avoid security issues through covert
++ *   channel problems
   */
- void user_destroy(struct key *key)
+ static inline void key_alloc_serial(struct key *key)
  {
+ 	struct rb_node *parent, **p;
+ 	struct key *xkey;
+ 
+-	spin_lock(&key_serial_lock);
+-
+-	/* propose a likely serial number and look for a hole for it in the
++	/* propose a random serial number and look for a hole for it in the
+ 	 * serial number tree */
+-	key->serial = key_serial_next;
+-	if (key->serial < 3)
+-		key->serial = 3;
+-	key_serial_next = key->serial + 1;
++	do {
++		get_random_bytes(&key->serial, sizeof(key->serial));
++
++		key->serial >>= 1; /* negative numbers are not permitted */
++	} while (key->serial < 3);
++
++	spin_lock(&key_serial_lock);
+ 
+ 	parent = NULL;
+ 	p = &key_serial_tree.rb_node;
+@@ -204,12 +205,11 @@ static inline void key_alloc_serial(stru
+ 
+ 	/* we found a key with the proposed serial number - walk the tree from
+ 	 * that point looking for the next unused serial number */
+- serial_exists:
++serial_exists:
+ 	for (;;) {
+-		key->serial = key_serial_next;
++		key->serial++;
+ 		if (key->serial < 2)
+ 			key->serial = 2;
+-		key_serial_next = key->serial + 1;
+ 
+ 		if (!parent->rb_parent)
+ 			p = &key_serial_tree.rb_node;
+@@ -228,7 +228,7 @@ static inline void key_alloc_serial(stru
+ 	}
+ 
+ 	/* we've found a suitable hole - arrange for this key to occupy it */
+- insert_here:
++insert_here:
+ 	rb_link_node(&key->serial_node, parent, p);
+ 	rb_insert_color(&key->serial_node, &key_serial_tree);
+ 
 
 
 --
