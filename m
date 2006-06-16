@@ -1,84 +1,83 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5GIgmYO001611
-	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 14:42:48 -0400
-Received: from web36601.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k5GIgljX028384
-	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 18:42:47 GMT
-Message-ID: <20060616184232.89055.qmail@web36601.mail.mud.yahoo.com>
-Date: Fri, 16 Jun 2006 11:42:32 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: polyinstantiating /tmp and gdm
-To: russell@coker.com.au, casey@schaufler-ca.com
-Cc: janak@us.ibm.com, selinux@tycho.nsa.gov
-In-Reply-To: <200606162333.47419.russell@coker.com.au>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5GJvVn5003368
+	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 15:57:31 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5GJvUjX009418
+	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 19:57:30 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5GJvUOc007821
+	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 15:57:30 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5GJvObC021583
+	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 15:57:24 -0400
+Message-ID: <44930D28.2010103@redhat.com>
+Date: Fri, 16 Jun 2006 15:57:28 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: redhat-lspp <redhat-lspp@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Got up at 5 AM, and thought I would try to write a new role
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I wanted to try to create an auditadm_r.
+
+I was surprised how easy it was.   Had to trim down the 
+base_user_template, and add a couple of apache interfaces,
+but basically ended up with the following.  Tried it out on an MLS 
+machine and it seems to work pretty well.  I even
+have it defined as a loadable module. Comments below.  One problem is we 
+need an easier way of handling
+/etc/selinux/mls/contexts/default_type.  Had to add httpdadm_r:httpdadm_t.
+
+semanage users -m -R httpdadm_r SELINUXUSER
+
+policy_module(httpdadm,1.0.0)
+
+########################################
+#
+# Declarations
+#
+gen_require(`
+        role staff_r;
+        type staff_devpts_t, staff_tty_device_t, staff_t;
+')
 
 
---- Russell Coker <russell@coker.com.au> wrote:
+define(`role_change',`
+        allow $1_r $2_r;
+        type_change $2_t $1_devpts_t:chr_file $2_devpts_t;
+        type_change $2_t $1_tty_device_t:chr_file $2_tty_device_t;
+        # avoid annoying messages on terminal hangup
+        dontaudit $1_t { $2_devpts_t $2_tty_device_t }:chr_file ioctl;
+')
+#####  Need to figure out a way make role_change a callable function.  
+Perhaps just define staff_role_change and user_role_change
 
-> On Wednesday 14 June 2006 04:11, Casey Schaufler
-> <casey@schaufler-ca.com> 
-> wrote:
-> > --- Russell Coker <russell@coker.com.au> wrote:
-> > > Maybe a better option is to have the socket
-> created
-> > > under /var/run/.X11-unix
-> >
-> > Each of that daemons is going to have to
-> > enforce (at least) MLS if you do this. While
-> > this does make sense for the more sophisticated
-> > programs (MLS X11 has been done, but my
-> 
-> You seem to be confusing separate issues here.
+minimal_user_template(httpdadm)
+####  Needed to strip down base_user_template.  Do not want to create 
+homedirs and eliminate all of the optional policy.  Talked to Chris 
+about breaking
+####  base_user_template into a series of templates.
+role_change(staff,httpdadm)
+#### Would prefer staff_role_change (httpadm)
 
-Wouldn't be the first time.
+files_read_usr_files(httpdadm_t)
+#### Probably should be defined in one of the base_user_templates, since 
+this is pretty much required if you have a shell.
 
-> Changing the directory used as the parent of the
-> directory containing the 
-> socket makes no difference.  In either case the
-> directory needs to have a low 
-> enough level that all the X programs can read it,
-> and for both /tmp 
-> and /var/tmp there's a range of SystemLow-SystemHigh
-> so there's no issue in 
-> that regard.
-
-So long as the X server (or whatever server
-you have) is policy enforcing this is true.
-For SELinux there's a lot more to policy
-than just MLS. My point is that if a process
-in one domain can communicate with a process
-in another domain through the server that's
-Not Right.
-
-If you put one .X11-unix in /var/run that
-everyone opens the server must obtain the
-security attributes explicitly for each client.
-If you put a seperate .X11-unix in each
-instance of /tmp you have the implicit
-attributes found on the UDS.
-
-... unless I missed the discussion wherein
-/var/run was polyinstantiated, in which case
-nevermind.
-
-> As for the issue of making the X server
-> enforce MLS, isn't that part of the 
-> plan for security enhanced X?
-
-One would expect. The X server for SELinux is
-going to have to enforce the entire policy,
-not just MLS to pass a CC evaluation. Ah,
-the joy of application objects.
+apache_manage_all_content(httpdadm_t)
+apache_manage_log(httpdadm_t)
+apache_manage_config(httpdadm_t)
 
 
-Casey Schaufler
-casey@schaufler-ca.com
+##### Problems, I can't easily modify the running service.  IE I would 
+figure the auditadmin would want to be able to start/stop/signal the 
+service. 
+##### But we do not have an easy way of doing only one service, and not 
+all the rest.  Might have to add the ability to run su/sudo so if you 
+newrole
+##### first it will work.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
