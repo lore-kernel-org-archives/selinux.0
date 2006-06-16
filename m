@@ -1,62 +1,51 @@
-Subject: RE: Type transition rules in conditionals
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@tresys.com>,
-        selinux-dev <selinux-dev@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1150460534.18071.14.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B01588210A4F@exchange.columbia.tresys.com>
-	 <1150401839.3574.253.camel@moss-spartans.epoch.ncsc.mil>
-	 <1150460534.18071.14.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 16 Jun 2006 09:08:08 -0400
-Message-Id: <1150463288.18657.91.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5GDXrYC027460
+	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 09:33:53 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5GDXpjX010871
+	for <selinux@tycho.nsa.gov>; Fri, 16 Jun 2006 13:33:51 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: casey@schaufler-ca.com
+Subject: Re: polyinstantiating /tmp and gdm
+Date: Fri, 16 Jun 2006 23:33:47 +1000
+Cc: janak@us.ibm.com, selinux@tycho.nsa.gov
+References: <20060613181112.24452.qmail@web36615.mail.mud.yahoo.com>
+In-Reply-To: <20060613181112.24452.qmail@web36615.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200606162333.47419.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-06-16 at 08:22 -0400, Stephen Smalley wrote:
-> On Thu, 2006-06-15 at 16:03 -0400, Stephen Smalley wrote:
-> > Hmm..well, unwinding to a pre-modular libsepol/checkpolicy, checkpolicy
-> > does issue a warning about duplicate type transitions in different
-> > conditionals (although it incorrectly calls them conflicting) and notes
-> > that it is discarding them.  So the only thing that has changed is that
-> > checkpolicy stopped reporting them, which led to them creeping into
-> > policy.
-> > 
-> > Bug in policy.  Factor out the type_transition rules from the
-> > conditionals.
-> 
-> And we should restore error reporting for this case in the expander, and
-> turn it into a fatal error at expand time once the policy is fixed.
+On Wednesday 14 June 2006 04:11, Casey Schaufler <casey@schaufler-ca.com> 
+wrote:
+> --- Russell Coker <russell@coker.com.au> wrote:
+> > Maybe a better option is to have the socket created
+> > under /var/run/.X11-unix
+>
+> Each of that daemons is going to have to
+> enforce (at least) MLS if you do this. While
+> this does make sense for the more sophisticated
+> programs (MLS X11 has been done, but my
 
-I fixed the policy, so it should be ok to do it now.  Now that I know
-that duplicate type_transitions in different conditionals are considered
-errors, I can also keep an eye out for them (there was only one).
+You seem to be confusing separate issues here.
 
-> Makes me wonder whether we should prohibit type transition/member/change
-> rules altogether in conditional blocks, as they don't fit very well
-> there.
+Changing the directory used as the parent of the directory containing the 
+socket makes no difference.  In either case the directory needs to have a low 
+enough level that all the X programs can read it, and for both /tmp 
+and /var/tmp there's a range of SystemLow-SystemHigh so there's no issue in 
+that regard.
 
-I would be against that, it would cause more problems with refpolicy
-interfaces, as domtrans interfaces would either be unusable in
-conditionals, or we would have to break up the interface so that the
-type_transition part can go outside the conditional, which would be
-ugly.  For example, something like:
-
-if( ! secure_mode_myapp ) {
-	seutil_domtrans_semanage(myapp_t)
-}
-
-would become a problem.
+As for the issue of making the X server enforce MLS, isn't that part of the 
+plan for security enhanced X?
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
