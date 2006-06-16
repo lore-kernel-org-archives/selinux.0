@@ -1,39 +1,43 @@
-Subject: Re: determining security level domination
+Subject: RE: Type transition rules in conditionals
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Matt Anderson <mra@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4491FBE5.10902@hp.com>
-References: <4491FBE5.10902@hp.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+        selinux-dev <selinux-dev@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1150401839.3574.253.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B01588210A4F@exchange.columbia.tresys.com>
+	 <1150401839.3574.253.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 16 Jun 2006 08:12:44 -0400
-Message-Id: <1150459964.18071.5.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 16 Jun 2006 08:22:14 -0400
+Message-Id: <1150460534.18071.14.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-15 at 20:31 -0400, Matt Anderson wrote:
-> I'm working on lpq and I need to determine if a user can see a job in
-> the queue.  By this time the user's context is known, and all the jobs
-> in the queue have a context associated with them.
+On Thu, 2006-06-15 at 16:03 -0400, Stephen Smalley wrote:
+> On Thu, 2006-06-15 at 15:41 -0400, Joshua Brindle wrote:
+> > > - Why can't it be handled in the same manner as in a monolithic build?
+> > 
+> > It is handled the same, the only difference is the order that the
+> > type_transitions are 
 > 
-> It seems like avc_has_perm_noaudit() is close to what I need, but I'm
-> not sure.  The main problem I see with that is avc_has_perm may fail
-> based on user, role, or type, which I don't think I'm concerned with.
-> Conceivably I could get around this by mangling one of the contexts so
-> that I was only comparing levels and categories, but that doesn't sound
-> like a good idea at all.
+> Hmm..well, unwinding to a pre-modular libsepol/checkpolicy, checkpolicy
+> does issue a warning about duplicate type transitions in different
+> conditionals (although it incorrectly calls them conflicting) and notes
+> that it is discarding them.  So the only thing that has changed is that
+> checkpolicy stopped reporting them, which led to them creeping into
+> policy.
 > 
-> Is there some function I've missed that does something like this?
+> Bug in policy.  Factor out the type_transition rules from the
+> conditionals.
 
-The goal in SELinux is to abstract away the specific security model
-behind general interfaces so that the model can change without needing
-to modify all of the enforcement code and so that we can support
-composite models like TE+MLS.  Hence, we'd prefer to abstract away a
-traditional dominance check to instead be a SELinux permission check on
-the context pair.  Then we can also apply TE controls as desired, as we
-might actually want to prevent a user in one domain from seeing jobs in
-another domain.
+And we should restore error reporting for this case in the expander, and
+turn it into a fatal error at expand time once the policy is fixed.
 
+Makes me wonder whether we should prohibit type transition/member/change
+rules altogether in conditional blocks, as they don't fit very well
+there.
+  
 -- 
 Stephen Smalley
 National Security Agency
