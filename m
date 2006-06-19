@@ -1,113 +1,117 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 4/6] Keys: Allocate key serial numbers randomly [try #3]
-Date: Mon, 19 Jun 2006 14:45:10 +0100
+Subject: [PATCH 3/6] Keys: Let keyctl_chown() change a key's owner [try #3]
+Date: Mon, 19 Jun 2006 14:45:08 +0100
 To: mdlemay@epoch.ncsc.mil, sds@tycho.nsa.gov, jmorris@redhat.com
 Cc: selinux@tycho.nsa.gov, dhowells@redhat.com
-Message-Id: <20060619134510.17749.64838.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060619134508.17749.26919.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060619134500.17749.84021.stgit@warthog.cambridge.redhat.com>
 References: <20060619134500.17749.84021.stgit@warthog.cambridge.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+From: Fredrik Tolf <fredrik@dolda2000.com>
 
-The attached patch causes key_alloc_serial() to generate key serial numbers
-randomly rather than in linear sequence.
+The attached patch lets keyctl_chown() change a key's owner, including
+attempting to transfer the quota burden to the new user.
 
-Using an linear sequence permits a covert communication channel to be
-established, in which one process can communicate with another by creating or
-not creating new keys within a certain timeframe.  The second process can
-probe for the expected next key serial number and judge its existence by the
-error returned.
-
-This is a problem as the serial number namespace is globally shared between
-all tasks, regardless of their context.
-
-For more information on this topic, this old TCSEC guide is recommended:
-
-	http://www.radium.ncsc.mil/tpep/library/rainbow/NCSC-TG-030.html
-
-Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- security/keys/key.c |   28 ++++++++++++++--------------
- 1 files changed, 14 insertions(+), 14 deletions(-)
+ security/keys/keyctl.c |   56 +++++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 48 insertions(+), 8 deletions(-)
 
-diff --git a/security/keys/key.c b/security/keys/key.c
-index a9b6ca7..10fea8c 100644
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -15,11 +15,11 @@ #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/security.h>
- #include <linux/workqueue.h>
-+#include <linux/random.h>
- #include <linux/err.h>
- #include "internal.h"
- 
- static kmem_cache_t	*key_jar;
--static key_serial_t	key_serial_next = 3;
- struct rb_root		key_serial_tree; /* tree of keys indexed by serial */
- DEFINE_SPINLOCK(key_serial_lock);
- 
-@@ -169,22 +169,23 @@ static void __init __key_insert_serial(s
- /*****************************************************************************/
- /*
-  * assign a key the next unique serial number
-- * - we work through all the serial numbers between 2 and 2^31-1 in turn and
-- *   then wrap
-+ * - these are assigned randomly to avoid security issues through covert
-+ *   channel problems
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index d744585..329411c 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -673,6 +673,7 @@ long keyctl_read_key(key_serial_t keyid,
   */
- static inline void key_alloc_serial(struct key *key)
+ long keyctl_chown_key(key_serial_t id, uid_t uid, gid_t gid)
  {
- 	struct rb_node *parent, **p;
- 	struct key *xkey;
++	struct key_user *newowner, *zapowner = NULL;
+ 	struct key *key;
+ 	key_ref_t key_ref;
+ 	long ret;
+@@ -696,19 +697,50 @@ long keyctl_chown_key(key_serial_t id, u
+ 	if (!capable(CAP_SYS_ADMIN)) {
+ 		/* only the sysadmin can chown a key to some other UID */
+ 		if (uid != (uid_t) -1 && key->uid != uid)
+-			goto no_access;
++			goto error_put;
  
--	spin_lock(&key_serial_lock);
--
--	/* propose a likely serial number and look for a hole for it in the
-+	/* propose a random serial number and look for a hole for it in the
- 	 * serial number tree */
--	key->serial = key_serial_next;
--	if (key->serial < 3)
--		key->serial = 3;
--	key_serial_next = key->serial + 1;
-+	do {
-+		get_random_bytes(&key->serial, sizeof(key->serial));
-+
-+		key->serial >>= 1; /* negative numbers are not permitted */
-+	} while (key->serial < 3);
-+
-+	spin_lock(&key_serial_lock);
- 
- 	parent = NULL;
- 	p = &key_serial_tree.rb_node;
-@@ -204,12 +205,11 @@ static inline void key_alloc_serial(stru
- 
- 	/* we found a key with the proposed serial number - walk the tree from
- 	 * that point looking for the next unused serial number */
-- serial_exists:
-+serial_exists:
- 	for (;;) {
--		key->serial = key_serial_next;
-+		key->serial++;
- 		if (key->serial < 2)
- 			key->serial = 2;
--		key_serial_next = key->serial + 1;
- 
- 		if (!parent->rb_parent)
- 			p = &key_serial_tree.rb_node;
-@@ -228,7 +228,7 @@ static inline void key_alloc_serial(stru
+ 		/* only the sysadmin can set the key's GID to a group other
+ 		 * than one of those that the current process subscribes to */
+ 		if (gid != (gid_t) -1 && gid != key->gid && !in_group_p(gid))
+-			goto no_access;
++			goto error_put;
  	}
  
- 	/* we've found a suitable hole - arrange for this key to occupy it */
-- insert_here:
-+insert_here:
- 	rb_link_node(&key->serial_node, parent, p);
- 	rb_insert_color(&key->serial_node, &key_serial_tree);
+-	/* change the UID (have to update the quotas) */
++	/* change the UID */
+ 	if (uid != (uid_t) -1 && uid != key->uid) {
+-		/* don't support UID changing yet */
+-		ret = -EOPNOTSUPP;
+-		goto no_access;
++		ret = -ENOMEM;
++		newowner = key_user_lookup(uid);
++		if (!newowner)
++			goto error_put;
++
++		/* transfer the quota burden to the new user */
++		if (test_bit(KEY_FLAG_IN_QUOTA, &key->flags)) {
++			spin_lock(&newowner->lock);
++			if (newowner->qnkeys + 1 >= KEYQUOTA_MAX_KEYS ||
++			    newowner->qnbytes + key->quotalen >=
++			    KEYQUOTA_MAX_BYTES)
++				goto quota_overrun;
++
++			newowner->qnkeys++;
++			newowner->qnbytes += key->quotalen;
++			spin_unlock(&newowner->lock);
++
++			spin_lock(&key->user->lock);
++			key->user->qnkeys--;
++			key->user->qnbytes -= key->quotalen;
++			spin_unlock(&key->user->lock);
++		}
++
++		atomic_dec(&key->user->nkeys);
++		atomic_inc(&newowner->nkeys);
++
++		if (test_bit(KEY_FLAG_INSTANTIATED, &key->flags)) {
++			atomic_dec(&key->user->nikeys);
++			atomic_inc(&newowner->nikeys);
++		}
++
++		zapowner = key->user;
++		key->user = newowner;
++		key->uid = uid;
+ 	}
  
+ 	/* change the GID */
+@@ -717,12 +749,20 @@ long keyctl_chown_key(key_serial_t id, u
+ 
+ 	ret = 0;
+ 
+- no_access:
++error_put:
+ 	up_write(&key->sem);
+ 	key_put(key);
+- error:
++	if (zapowner)
++		key_user_put(zapowner);
++error:
+ 	return ret;
+ 
++quota_overrun:
++	spin_unlock(&newowner->lock);
++	zapowner = newowner;
++	ret = -EDQUOT;
++	goto error_put;
++
+ } /* end keyctl_chown_key() */
+ 
+ /*****************************************************************************/
 
 
 --
