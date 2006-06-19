@@ -1,116 +1,136 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 5/6] Keys: Restrict contents of /proc/keys to Viewable keys [try #3]
-Date: Mon, 19 Jun 2006 14:45:12 +0100
+Subject: [PATCH 2/6] Keys: Discard the contents of a key on revocation [try #3]
+Date: Mon, 19 Jun 2006 14:45:06 +0100
 To: mdlemay@epoch.ncsc.mil, sds@tycho.nsa.gov, jmorris@redhat.com
 Cc: selinux@tycho.nsa.gov, dhowells@redhat.com
-Message-Id: <20060619134512.17749.24778.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060619134506.17749.70546.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060619134500.17749.84021.stgit@warthog.cambridge.redhat.com>
 References: <20060619134500.17749.84021.stgit@warthog.cambridge.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+From: David Howells <dhowells@redhat.com>
 
-This patch restricts /proc/keys such that only those keys to which the current
-task is granted View permission are presented.
+The attached patch causes the keys linked to a keyring to be unlinked from it
+when revoked and it causes the data attached to a user-defined key to be
+discarded when revoked.
 
-The documentation is also updated to reflect these changes.
+This frees up most of the quota a key occupied at that point, rather than
+waiting for the key to actually be destroyed.
 
-Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- Documentation/keys.txt |   16 ++++++++++++----
- security/Kconfig       |   20 +++++++++++++-------
- security/keys/proc.c   |    7 +++++++
- 3 files changed, 32 insertions(+), 11 deletions(-)
+ include/keys/user-type.h     |    1 +
+ security/keys/keyring.c      |   21 +++++++++++++++++++++
+ security/keys/user_defined.c |   25 ++++++++++++++++++++++++-
+ 3 files changed, 46 insertions(+), 1 deletions(-)
 
-diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index 3bbe157..70e83cf 100644
---- a/Documentation/keys.txt
-+++ b/Documentation/keys.txt
-@@ -270,9 +270,17 @@ about the status of the key service:
+diff --git a/include/keys/user-type.h b/include/keys/user-type.h
+index a3dae18..c37c342 100644
+--- a/include/keys/user-type.h
++++ b/include/keys/user-type.h
+@@ -37,6 +37,7 @@ extern struct key_type key_type_user;
+ extern int user_instantiate(struct key *key, const void *data, size_t datalen);
+ extern int user_update(struct key *key, const void *data, size_t datalen);
+ extern int user_match(const struct key *key, const void *criterion);
++extern void user_revoke(struct key *key);
+ extern void user_destroy(struct key *key);
+ extern void user_describe(const struct key *user, struct seq_file *m);
+ extern long user_read(const struct key *key,
+diff --git a/security/keys/keyring.c b/security/keys/keyring.c
+index 6c282bd..e8d02ac 100644
+--- a/security/keys/keyring.c
++++ b/security/keys/keyring.c
+@@ -49,6 +49,7 @@ static inline unsigned keyring_hash(cons
+ static int keyring_instantiate(struct key *keyring,
+ 			       const void *data, size_t datalen);
+ static int keyring_match(const struct key *keyring, const void *criterion);
++static void keyring_revoke(struct key *keyring);
+ static void keyring_destroy(struct key *keyring);
+ static void keyring_describe(const struct key *keyring, struct seq_file *m);
+ static long keyring_read(const struct key *keyring,
+@@ -59,6 +60,7 @@ struct key_type key_type_keyring = {
+ 	.def_datalen	= sizeof(struct keyring_list),
+ 	.instantiate	= keyring_instantiate,
+ 	.match		= keyring_match,
++	.revoke		= keyring_revoke,
+ 	.destroy	= keyring_destroy,
+ 	.describe	= keyring_describe,
+ 	.read		= keyring_read,
+@@ -953,3 +955,22 @@ int keyring_clear(struct key *keyring)
+ } /* end keyring_clear() */
  
-  (*) /proc/keys
- 
--     This lists all the keys on the system, giving information about their
--     type, description and permissions. The payload of the key is not available
--     this way:
-+     This lists the keys that are currently viewable by the task reading the
-+     file, giving information about their type, description and permissions.
-+     It is not possible to view the payload of the key this way, though some
-+     information about it may be given.
+ EXPORT_SYMBOL(keyring_clear);
 +
-+     The only keys included in the list are those that grant View permission to
-+     the reading process whether or not it possesses them.  Note that LSM
-+     security checks are still performed, and may further filter out keys that
-+     the current process is not authorised to view.
++/*****************************************************************************/
++/*
++ * dispose of the links from a revoked keyring
++ * - called with the key sem write-locked
++ */
++static void keyring_revoke(struct key *keyring)
++{
++	struct keyring_list *klist = keyring->payload.subscriptions;
 +
-+     The contents of the file look like this:
- 
- 	SERIAL   FLAGS  USAGE EXPY PERM     UID   GID   TYPE      DESCRIPTION: SUMMARY
- 	00000001 I-----    39 perm 1f3f0000     0     0 keyring   _uid_ses.0: 1/4
-@@ -300,7 +308,7 @@ about the status of the key service:
-  (*) /proc/key-users
- 
-      This file lists the tracking data for each user that has at least one key
--     on the system. Such data includes quota information and statistics:
-+     on the system.  Such data includes quota information and statistics:
- 
- 	[root@andromeda root]# cat /proc/key-users
- 	0:     46 45/45 1/100 13/10000
-diff --git a/security/Kconfig b/security/Kconfig
-index 34f5934..67785df 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -22,16 +22,22 @@ config KEYS
- 	  If you are unsure as to whether this is required, answer N.
- 
- config KEYS_DEBUG_PROC_KEYS
--	bool "Enable the /proc/keys file by which all keys may be viewed"
-+	bool "Enable the /proc/keys file by which keys may be viewed"
- 	depends on KEYS
- 	help
--	  This option turns on support for the /proc/keys file through which
--	  all the keys on the system can be listed.
-+	  This option turns on support for the /proc/keys file - through which
-+	  can be listed all the keys on the system that are viewable by the
-+	  reading process.
- 
--	  This option is a slight security risk in that it makes it possible
--	  for anyone to see all the keys on the system. Normally the manager
--	  pretends keys that are inaccessible to a process don't exist as far
--	  as that process is concerned.
-+	  The only keys included in the list are those that grant View
-+	  permission to the reading process whether or not it possesses them.
-+	  Note that LSM security checks are still performed, and may further
-+	  filter out keys that the current process is not authorised to view.
++	/* adjust the quota */
++	key_payload_reserve(keyring, 0);
 +
-+	  Only key attributes are listed here; key payloads are not included in
-+	  the resulting table.
++	if (klist) {
++		rcu_assign_pointer(keyring->payload.subscriptions, NULL);
++		call_rcu(&klist->rcu, keyring_clear_rcu_disposal);
++	}
 +
-+	  If you are unsure as to whether this is required, answer N.
++} /* end keyring_revoke() */
+diff --git a/security/keys/user_defined.c b/security/keys/user_defined.c
+index 8e71895..5bbfdeb 100644
+--- a/security/keys/user_defined.c
++++ b/security/keys/user_defined.c
+@@ -28,6 +28,7 @@ struct key_type key_type_user = {
+ 	.instantiate	= user_instantiate,
+ 	.update		= user_update,
+ 	.match		= user_match,
++	.revoke		= user_revoke,
+ 	.destroy	= user_destroy,
+ 	.describe	= user_describe,
+ 	.read		= user_read,
+@@ -67,6 +68,7 @@ error:
+ 	return ret;
  
- config SECURITY
- 	bool "Enable different security models"
-diff --git a/security/keys/proc.c b/security/keys/proc.c
-index 12b750e..686a9ee 100644
---- a/security/keys/proc.c
-+++ b/security/keys/proc.c
-@@ -137,6 +137,13 @@ static int proc_keys_show(struct seq_fil
- 	struct timespec now;
- 	unsigned long timo;
- 	char xbuf[12];
-+	int rc;
+ } /* end user_instantiate() */
 +
-+	/* check whether the current task is allowed to view the key (assuming
-+	 * non-possession) */
-+	rc = key_task_permission(make_key_ref(key, 0), current, KEY_VIEW);
-+	if (rc < 0)
-+		return 0;
+ EXPORT_SYMBOL_GPL(user_instantiate);
  
- 	now = current_kernel_time();
+ /*****************************************************************************/
+@@ -141,7 +143,28 @@ EXPORT_SYMBOL_GPL(user_match);
  
+ /*****************************************************************************/
+ /*
+- * dispose of the data dangling from the corpse of a user
++ * dispose of the links from a revoked keyring
++ * - called with the key sem write-locked
++ */
++void user_revoke(struct key *key)
++{
++	struct user_key_payload *upayload = key->payload.data;
++
++	/* clear the quota */
++	key_payload_reserve(key, 0);
++
++	if (upayload) {
++		rcu_assign_pointer(key->payload.data, NULL);
++		call_rcu(&upayload->rcu, user_update_rcu_disposal);
++	}
++
++} /* end user_revoke() */
++
++EXPORT_SYMBOL(user_revoke);
++
++/*****************************************************************************/
++/*
++ * dispose of the data dangling from the corpse of a user key
+  */
+ void user_destroy(struct key *key)
+ {
 
 
 --
