@@ -1,76 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5KIOV7F004869
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 14:24:31 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5KIOU9b029073
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 18:24:30 GMT
-Message-ID: <44983D50.4080204@trustedcs.com>
-Date: Tue, 20 Jun 2006 13:24:16 -0500
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: [PATCH 06/06] MLSXFRM: Add security context to acquire messages using
- PF_KEY
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH 2/2] mempolicy: Insert security hook calls for setmempolicy
+From: David Quigley <dpquigl@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, dpquigl@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 14:30:26 -0400
+Message-Id: <1150828226.19385.13.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This includes the security context of a security association created for use by IKE
-in the acquire messages sent to IKE daemons using PF_KEY. This would allow
-the daemons to include the security context in the negotiation, so that the resultant
-association is unique to that security context.
+From: David Quigley <dpquigl@tycho.nsa.gov>
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+This patch inserts the security hook calls into the setmempolicy
+function to enable security modules to mediate this operation between
+tasks.
+
+Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+
 ---
 
- net/key/af_key.c |   22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ mm/mempolicy.c |    4 ++++
+ mm/migrate.c   |    6 +++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- linux-2.6.16.vanilla/net/key/af_key.c	2006-06-12 17:49:42.000000000 -0500
-+++ linux-2.6.16/net/key/af_key.c	2006-06-19 19:48:24.000000000 -0500
-@@ -2709,6 +2709,9 @@ static int pfkey_send_acquire(struct xfr
- #endif
- 	int sockaddr_size;
- 	int size;
-+	struct sadb_x_sec_ctx *sec_ctx;
-+	struct xfrm_sec_ctx *xfrm_ctx;
-+	int ctx_size = 0;
- 	
- 	sockaddr_size = pfkey_sockaddr_size(x->props.family);
- 	if (!sockaddr_size)
-@@ -2724,6 +2727,11 @@ static int pfkey_send_acquire(struct xfr
- 	else if (x->id.proto == IPPROTO_ESP)
- 		size += count_esp_combs(t);
+
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-rc6-mm2/mm/mempolicy.c linux-2.6.17-rc6-mm2-mempolicy/mm/mempolicy.c
+--- linux-2.6.17-rc6-mm2/mm/mempolicy.c	2006-06-15 09:46:28.000000000 -0400
++++ linux-2.6.17-rc6-mm2-mempolicy/mm/mempolicy.c	2006-06-20 14:22:42.000000000 -0400
+@@ -946,6 +947,10 @@ asmlinkage long sys_migrate_pages(pid_t 
+ 		goto out;
+ 	}
  
-+	if ((xfrm_ctx = x->security)) {
-+		ctx_size = PFKEY_ALIGN8(xfrm_ctx->ctx_len);
-+		size +=  sizeof(struct sadb_x_sec_ctx) + ctx_size;
-+	}
++	err = security_task_setmempolicy(task);
++	if (err)
++		goto out;
 +
- 	skb =  alloc_skb(size + 16, GFP_ATOMIC);
- 	if (skb == NULL)
- 		return -ENOMEM;
-@@ -2819,6 +2827,20 @@ static int pfkey_send_acquire(struct xfr
- 	else if (x->id.proto == IPPROTO_ESP)
- 		dump_esp_combs(skb, t);
+ 	err = do_migrate_pages(mm, &old, &new,
+ 		capable(CAP_SYS_NICE) ? MPOL_MF_MOVE_ALL : MPOL_MF_MOVE);
+ out:
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-rc6-mm2/mm/migrate.c linux-2.6.17-rc6-mm2-mempolicy/mm/migrate.c
+--- linux-2.6.17-rc6-mm2/mm/migrate.c	2006-06-15 09:46:28.000000000 -0400
++++ linux-2.6.17-rc6-mm2-mempolicy/mm/migrate.c	2006-06-20 14:21:54.000000000 -0400
+@@ -903,8 +903,12 @@ asmlinkage long sys_move_pages(pid_t pid
+ 		goto out2;
+ 	}
  
-+	/* security context */
-+	if (xfrm_ctx) {
-+		sec_ctx = (struct sadb_x_sec_ctx *) skb_put(skb,
-+				sizeof(struct sadb_x_sec_ctx) + ctx_size);
-+		sec_ctx->sadb_x_sec_len =
-+		  (sizeof(struct sadb_x_sec_ctx) + ctx_size) / sizeof(uint64_t);
-+		sec_ctx->sadb_x_sec_exttype = SADB_X_EXT_SEC_CTX;
-+		sec_ctx->sadb_x_ctx_doi = xfrm_ctx->ctx_doi;
-+		sec_ctx->sadb_x_ctx_alg = xfrm_ctx->ctx_alg;
-+		sec_ctx->sadb_x_ctx_len = xfrm_ctx->ctx_len;
-+		memcpy(sec_ctx + 1, xfrm_ctx->ctx_str,
-+		       xfrm_ctx->ctx_len);
-+	}
-+
- 	return pfkey_broadcast(skb, GFP_ATOMIC, BROADCAST_REGISTERED, NULL);
- }
- 
++	err = security_task_setmempolicy(task);
++	if (err)
++		goto out2;
++	
+ 	task_nodes = cpuset_mems_allowed(task);
+-
++	
+ 	/* Limit nr_pages so that the multiplication may not overflow */
+ 	if (nr_pages >= ULONG_MAX / sizeof(struct page_to_node) - 1) {
+ 		err = -E2BIG;
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
