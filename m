@@ -1,37 +1,53 @@
-Subject: Re: New patch for libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <44981564.9020106@redhat.com>
-References: <4497FCCF.1030805@redhat.com>
-	 <1150812243.17557.79.camel@moss-spartans.epoch.ncsc.mil>
-	 <44981564.9020106@redhat.com>
+Subject: [PATCH] sched: Add security hooks to {get,set}affinity
+From: David Quigley <dpquigl@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@redhat.com
 Content-Type: text/plain
-Date: Tue, 20 Jun 2006 12:49:40 -0400
-Message-Id: <1150822180.17557.141.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 20 Jun 2006 12:51:25 -0400
+Message-Id: <1150822285.15368.15.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-06-20 at 11:33 -0400, Daniel J Walsh wrote:
-> Patch to libselinux to fix handling of MATCHPATHCON_NOTRANS.
-> 
-> Also added two new functions to handle looking at files on disk and 
-> comparing to the default file_contexts,  These functions are
-> intended to be used by rpm -V.
+From: David Quigley <dpquigl@tycho.nsa.gov>
 
-I don't think we want to directly export
-selinux_compare_context_without_user(), or if we do, we want it
-abstracted in some manner that covers the general case.
+This patch adds LSM hooks into the setaffinity and getaffinity
+functions to enable security modules to control these operations
+between tasks with different security attributes. This implementation
+uses the existing task_setscheduler and task_getscheduler LSM hooks.
 
-Also, I think selinux_verify_file_context needs to be generalized,
-because if/when rpm begins to use contexts from the rpm headers again,
-then rpm will need to pass in the context against which to compare
-rather than having selinux_verify_file_context always use matchpathcon.
+Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+---
 
--- 
-Stephen Smalley
-National Security Agency
+kernel/sched.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-rc6-mm2/kernel/sched.c linux-2.6.17-rc6-mm2-affinity/kernel/sched.c
+--- linux-2.6.17-rc6-mm2/kernel/sched.c	2006-06-15 09:46:28.000000000 -0400
++++ linux-2.6.17-rc6-mm2-affinity/kernel/sched.c	2006-06-15 09:51:55.000000000 -0400
+@@ -4266,6 +4266,10 @@ long sched_setaffinity(pid_t pid, cpumas
+ 			!capable(CAP_SYS_NICE))
+ 		goto out_unlock;
+ 
++	retval = security_task_setscheduler(p, 0, NULL);
++	if (retval)
++		goto out_unlock;
++
+ 	cpus_allowed = cpuset_cpus_allowed(p);
+ 	cpus_and(new_mask, new_mask, cpus_allowed);
+ 	retval = set_cpus_allowed(p, new_mask);
+@@ -4334,7 +4338,10 @@ long sched_getaffinity(pid_t pid, cpumas
+ 	if (!p)
+ 		goto out_unlock;
+ 
+-	retval = 0;
++	retval = security_task_getscheduler(p);
++	if (retval)
++		goto out_unlock;
++
+ 	cpus_and(*mask, p->cpus_allowed, cpu_online_map);
+ 
+ out_unlock:
 
 
 --
