@@ -1,69 +1,59 @@
-Subject: Re: New patch for libselinux
+Subject: Re: [PATCH] sched: Add security hooks to {get,set}affinity
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1150824833.17557.180.camel@moss-spartans.epoch.ncsc.mil>
-References: <4497FCCF.1030805@redhat.com>
-	 <1150812243.17557.79.camel@moss-spartans.epoch.ncsc.mil>
-	 <44981564.9020106@redhat.com>
-	 <1150822180.17557.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <44982C2C.5050405@redhat.com>
-	 <1150824833.17557.180.camel@moss-spartans.epoch.ncsc.mil>
+To: David Quigley <dpquigl@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+In-Reply-To: <1150822285.15368.15.camel@moss-terrapins.epoch.ncsc.mil>
+References: <1150822285.15368.15.camel@moss-terrapins.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 20 Jun 2006 13:55:01 -0400
-Message-Id: <1150826101.17557.183.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 20 Jun 2006 13:56:40 -0400
+Message-Id: <1150826200.17557.185.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-06-20 at 13:33 -0400, Stephen Smalley wrote:
-> On Tue, 2006-06-20 at 13:11 -0400, Daniel J Walsh wrote:
-> > Stephen Smalley wrote:
-> > > I don't think we want to directly export
-> > > selinux_compare_context_without_user(), or if we do, we want it
-> > > abstracted in some manner that covers the general case.
-> > >
-> > >   
-> > We are using similar functions in restorecon and I think somewhere else, 
-> > so I thought
-> > it would be good to move it into libselinux.
+On Tue, 2006-06-20 at 12:51 -0400, David Quigley wrote:
+> From: David Quigley <dpquigl@tycho.nsa.gov>
 > 
-> Possibly, but _without_user is too much detail for the caller.  Caller
-> just wants some function that indicates equivalence (for some definition
-> of equivalence).  
+> This patch adds LSM hooks into the setaffinity and getaffinity
+> functions to enable security modules to control these operations
+> between tasks with different security attributes. This implementation
+> uses the existing task_setscheduler and task_getscheduler LSM hooks.
 > 
-> > Not sure what you mean, You still have the other functions to use.   The 
-> > idea with this
-> > function is to compare a files on disk context with the system 
-> > defaults.  You could also use
-> > matchpathcon_init before calling this function to change the default 
-> > file context file?
-> 
-> Actually, I suppose at the point of verification, you already have the
-> module policy installed and integrated into the system file_contexts
-> file, so matchpathcon() should work.  I was thinking that rpm would have
-> to pass in the context originally obtained from the package header (and
-> saved in the rpm database?) instead.  But that should always match the
-> result yielded from matchpathcon once the module's .fc has been merged.
+> Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
 
-This btw raises the question of whether rpm -V should check contexts at
-all, or whether that support should drop out of rpm altogether, and
-context verification handled entirely via setfiles/restorecon and
-friends.  If rpm isn't using any internal data there and we are always
-checking filesystem state vs. policy state, then why have rpm handle it?
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
+> ---
 > 
-> > I also want to define a function
-> > 
-> > selinux_setdefault_filecon(file)
-> > 
-> > Which would do matchpathcon/setfilecon under the covers, and do the 
-> > appropriate turn off translations stuff.
-> > Since this code is propulgating into a series of programs.  (install, 
-> > MAKEDEV, kadmin?, and Nautilus, restorecon and probably others.)
+> kernel/sched.c |    9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 > 
-> selinux_lsetfilecon_default(const char *path)?
-> 
+> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-rc6-mm2/kernel/sched.c linux-2.6.17-rc6-mm2-affinity/kernel/sched.c
+> --- linux-2.6.17-rc6-mm2/kernel/sched.c	2006-06-15 09:46:28.000000000 -0400
+> +++ linux-2.6.17-rc6-mm2-affinity/kernel/sched.c	2006-06-15 09:51:55.000000000 -0400
+> @@ -4266,6 +4266,10 @@ long sched_setaffinity(pid_t pid, cpumas
+>  			!capable(CAP_SYS_NICE))
+>  		goto out_unlock;
+>  
+> +	retval = security_task_setscheduler(p, 0, NULL);
+> +	if (retval)
+> +		goto out_unlock;
+> +
+>  	cpus_allowed = cpuset_cpus_allowed(p);
+>  	cpus_and(new_mask, new_mask, cpus_allowed);
+>  	retval = set_cpus_allowed(p, new_mask);
+> @@ -4334,7 +4338,10 @@ long sched_getaffinity(pid_t pid, cpumas
+>  	if (!p)
+>  		goto out_unlock;
+>  
+> -	retval = 0;
+> +	retval = security_task_getscheduler(p);
+> +	if (retval)
+> +		goto out_unlock;
+> +
+>  	cpus_and(*mask, p->cpus_allowed, cpu_online_map);
+>  
+>  out_unlock:
 -- 
 Stephen Smalley
 National Security Agency
