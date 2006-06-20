@@ -1,174 +1,71 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5KINh8h004791
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 14:23:43 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5KIOVAc004871
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 14:24:31 -0400
 Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5KINgOh006929
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 18:23:42 GMT
-Message-ID: <44983D1F.1050306@trustedcs.com>
-Date: Tue, 20 Jun 2006 13:23:27 -0500
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5KIOUOh007053
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 18:24:30 GMT
+Message-ID: <44983D57.4050704@trustedcs.com>
+Date: Tue, 20 Jun 2006 13:24:23 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: [PATCH 01/06] MLSXFRM: Granular IPSec associations for use in MLS
- environments
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Subject: FOR REFERENCE ONLY: MLSXFRM: Add support to serefpolicy
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The current approach to labeling Security Associations for SELinux purposes
-uses a one-to-one mapping between xfrm policy rules and security associations.
-This doesn’t address the needs of real world MLS (Multi-level System, traditional
-Bell-LaPadula) environments where a single xfrm policy rule (pertaining to a range,
-classified to secret for example) might need to map to multiple Security Associations
-(one each for classified, secret, top secret and all the compartments applicable to
-these security levels).
+This patch has been included here just for reference. It will be submitted
+to the serefpolicy list later.
 
-This patch set addresses the above problem by allowing for the mapping of a single
-xfrm policy rule to multiple security associations, with each association used in
-the security context it is defined for. It also includes the security context to be
-used in IKE negotiation in the acquire messages sent to the IKE daemon so that a unique
-SA can be negotiated for each unique security context. A couple of bug fixes are also
-included; checks to make sure the SAs used by a packet match policy (security context-wise)
-on the inbound and also that the bundle used for the outbound matches the security context
-of the flow. This patch set also makes the use of the SELinux sid in flow cache lookups
-seemless by including the sid in the flow key itself.
+This patch adds a polmatch avperm to arbitrate flow/state's access to
+a xfrm policy. It also defines MLS policy for association { sendto,
+recvfrom, polmatch }.
 
-Description of changes:
-
-A "sid" member has been added to the flow cache key resulting in the sid being available
-at all needed locations and the flow cache lookups automatically using the sid. The flow
-sid is derived from the socket on the outbound and the SAs (unlabeled where an SA was not
-used) on the inbound.
-
-Outbound case:
-1. Find policy for the socket.
-
-2. OLD: Find an SA that matches the policy.
-   NEW: Find an SA that matches BOTH the policy and the flow/socket.
-     This is necessary since not every SA that matches the policy
-     can be used for the flow/socket. Consider policy range Secret-TS,
-     and SAs each for Secret and TS. We don't want a TS socket to
-     use the Secret SA. Hence the additional check for the SA Vs. flow/socket.
-
-3. NEW: When looking thru bundles for a policy, make sure the flow/socket can use the
-   bundle. If a bundle is not found, create one, calling for IKE if necessary. If using IKE,
-   include the security context in the acquire message to the IKE daemon.
-
-Inbound case:
-1. OLD: Find policy for the socket.
-   NEW: Find policy for the incoming packet based on the sid of the SA(s) it used or the
-   unlabeled sid if no SAs were used. (Consider a case where a socket is "authorized" for
-   two policies (unclassified-confidential, secret-top_secret). If the packet has come in
-   using a secret SA, we really ought to be using the latter policy (secret-top_secret).)
-
-2. OLD: BUG: No check to see if the SAs used by the packet agree with the policy sec_ctx-wise.
-   (It was indicated in selinux_xfrm_sock_rcv_skb() that this was being accomplished by
-    (x->id.spi == tmpl->id.spi || !tmpl->id.spi) in xfrm_state_ok, but it turns out tmpl->id.spi
-    would normally be zero (unless xfrm policy rules specify one at the template level, which
-    they usually don't).
-   NEW: The socket is checked for access to the SAs used (based on the sid of the SAs) in
-   selinux_xfrm_sock_rcv_skb().
-
-Forward case:
-   This would be Step 1 from the Inbound case, followed by Steps 2 and 3 from the Outbound case.
-
-Outstanding items/issues:
-- Timewait acknowledgements and such are generated in the current/upstream implementation using
- a NULL socket resulting in the any_socket sid (SYSTEM_HIGH) to be used. This problem is not
- addressed by this patch set.
-
-This patch: Add new flask definitions to SELinux
-
-Adds a new avperm "polmatch" to arbitrate flow/state access to a xfrm policy rule.
-
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
-
-The patch set is relative to 2.6.17-rc6-mm2. A policy patch is also included for reference.
-A patch to ipsec-tools/racoon will follow later on the ipsectools-devel list.
-ipsec-tools 0.6.5 src in FC rawhide already has the setkey changes needed to work with this.
-
-FUNCTIONAL DESCRIPTION:
-
-The basic idea is to have the IPSec policy specify an MLS range and have unique SAs
-generated/used for each of the levels that fall in the range. SAs for different levels
-can either be manually loaded (using setkey and such) or negotiated using IKE (racoon, etc.).
-
-Example:
-
-Let's say we have the following in the SPD (Security Policy Database):
-
-spdadd 9.2.9.15 9.2.9.17 any -ctx 1 1 "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
--P in ipsec esp/transport//require ;
-spdadd 9.2.9.17 9.2.9.15 any -ctx 1 1 "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
--P out ipsec esp/transport//require ;
-
-with nothing in the SAD (Security Association Database) initially. When the kernel
-runs into the first packet with the label s2:c4 destined for 9.2.9.17, it will see
-that there's no SA available to encrypt it with. So, it will call upon racoon/IKE
-to generate an SA. Racoon will obtain the label (s2:c4) from the kernel, do the
-negotiation with its peer, including the label (s2:c4) also in the payload/proposals.
-The negotiation will result in a dynamically generated SPI that is unique to the label
-(s2:c4) plus the other normal parameters involved. It will then insert the SA (along
-with the SPI) such as the following into the SAD in the kernel:
-
-add 9.2.9.15 9.2.9.17 esp 0x123456
--ctx 1 1 "system_u:object_r:zzyzx_t:s2:c4"
--E des-cbc 0x0000000000000000;
-
-If the kernel subsequently runs into a packet at a different label (say s2:c5) for which
-there's no SA available, it will again call upon racoon (which will get s2:c5 from the
-kernel this time) and a different SA (with a different SPI) will be negotiated.
-
- include/linux/security.h                     |  116 ++++++++-
- include/net/flow.h                           |    5 
- include/net/sock.h                           |    9 
- net/core/flow.c                              |    7 
- net/core/sock.c                              |    2 
- net/key/af_key.c                             |   22 +
- net/xfrm/xfrm_policy.c                       |   28 +-
- net/xfrm/xfrm_state.c                        |   12 -
- security/dummy.c                             |   28 ++
- security/selinux/hooks.c                     |   33 ++
- security/selinux/include/av_perm_to_string.h |    1 
- security/selinux/include/av_permissions.h    |    1 
- security/selinux/include/objsec.h            |    1 
- security/selinux/include/security.h          |    2 
- security/selinux/include/xfrm.h              |   22 +
- security/selinux/ss/mls.c                    |   20 -
- security/selinux/ss/mls.h                    |   20 +
- security/selinux/ss/services.c               |   48 ++++
- security/selinux/xfrm.c                      |  200 ++++++++++++++---
- 19 files changed, 471 insertions(+), 106 deletions(-)
+NOTE: When an inbound packet is not using an IPSec SA, a check is performed
+between the socket label and the unlabeled sid (SYSTEM_HIGH MLS label). For
+MLS purposes however, the target of the check should be the MLS label taken
+from the node sid (or secmark in the new secmark world). This would present
+a severe performance overhead (to make a new sid based on the unlabeled sid
+with the MLS taken from the node sid or secmark and then using this sid as
+the target). While discussions are ongoing on fine tuning the networking
+design in the context of secmark, IPSec, netlabel, etc., I have chosen to
+currently make an exception for unlabeled_t SAs if TE policy allowed it. A
+similar problem exists for the outbound case and it has been similarly
+handled in the policy below (by making an exception for unlabeled_t).
 
 
-This patch:
 
- security/selinux/include/av_perm_to_string.h |    1 +
- security/selinux/include/av_permissions.h    |    1 +
- 2 files changed, 2 insertions(+)
+--- serefpolicy-2.2.34/policy/mls       2006-04-20 07:18:44.000000000 -0500
++++ serefpolicy-2.2.34.ipsec/policy/mls 2006-05-11 10:04:29.000000000 -0500
+@@ -671,4 +671,18 @@
+ # these access vectors have no MLS restrictions
+ # association *
 
++mlsconstrain association { recvfrom }
++        ((( l1 dom l2 ) and ( l1 domby h2 )) or
++         (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
++         ( t1 == mlsnetread ) or
++         ( t2 == unlabeled_t ));
++
++mlsconstrain association { sendto }
++        ((( l1 dom l2 ) and ( l1 domby h2 )) or
++         ( t2 == unlabeled_t ));
++
++mlsconstrain association { polmatch }
++         (( l1 dom l2 ) and ( h1 domby h2 ));
++
++
+ ') dnl end enable_mls
+--- serefpolicy-2.2.34/policy/flask/access_vectors      2006-04-20 07:18:44.000000000 -0500
++++ serefpolicy-2.2.34.ipsec/policy/flask/access_vectors        2006-04-27 10:34:44.000000000 -0500
+@@ -602,6 +602,7 @@
+        sendto
+        recvfrom
+        setcontext
++       polmatch
+ }
 
---- linux-2.6.16.vanilla/security/selinux/include/av_permissions.h	2006-06-12 17:49:44.000000000 -0500
-+++ linux-2.6.16/security/selinux/include/av_permissions.h	2006-06-19 19:48:24.000000000 -0500
-@@ -909,6 +909,7 @@
- #define ASSOCIATION__SENDTO                       0x00000001UL
- #define ASSOCIATION__RECVFROM                     0x00000002UL
- #define ASSOCIATION__SETCONTEXT                   0x00000004UL
-+#define ASSOCIATION__POLMATCH                     0x00000008UL
- 
- #define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
- #define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
---- linux-2.6.16.vanilla/security/selinux/include/av_perm_to_string.h	2006-06-12 17:49:44.000000000 -0500
-+++ linux-2.6.16/security/selinux/include/av_perm_to_string.h	2006-06-19 19:48:24.000000000 -0500
-@@ -239,6 +239,7 @@
-    S_(SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO, "sendto")
-    S_(SECCLASS_ASSOCIATION, ASSOCIATION__RECVFROM, "recvfrom")
-    S_(SECCLASS_ASSOCIATION, ASSOCIATION__SETCONTEXT, "setcontext")
-+   S_(SECCLASS_ASSOCIATION, ASSOCIATION__POLMATCH, "polmatch")
-    S_(SECCLASS_PACKET, PACKET__SEND, "send")
-    S_(SECCLASS_PACKET, PACKET__RECV, "recv")
-    S_(SECCLASS_PACKET, PACKET__RELABELTO, "relabelto")
+ # Updated Netlink class for KOBJECT_UEVENT family.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
