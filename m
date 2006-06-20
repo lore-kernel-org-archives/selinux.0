@@ -1,159 +1,174 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5KINhuD004790
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5KINh8h004791
 	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 14:23:43 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5KINg9b028769
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5KINgOh006929
 	for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2006 18:23:42 GMT
-Message-ID: <44983D2A.6040706@trustedcs.com>
-Date: Tue, 20 Jun 2006 13:23:38 -0500
+Message-ID: <44983D1F.1050306@trustedcs.com>
+Date: Tue, 20 Jun 2006 13:23:27 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: [PATCH 02/06] MLSXFRM: Define new SELinux service routine
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH 01/06] MLSXFRM: Granular IPSec associations for use in MLS
+ environments
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This defines a routine that combines the Type Enforcement portion of one sid
-with the MLS portion from the other sid to arrive at a new sid. This is currently
-used to define a sid for a security association that is to be negotiated by IKE.
+The current approach to labeling Security Associations for SELinux purposes
+uses a one-to-one mapping between xfrm policy rules and security associations.
+This doesn’t address the needs of real world MLS (Multi-level System, traditional
+Bell-LaPadula) environments where a single xfrm policy rule (pertaining to a range,
+classified to secret for example) might need to map to multiple Security Associations
+(one each for classified, secret, top secret and all the compartments applicable to
+these security levels).
+
+This patch set addresses the above problem by allowing for the mapping of a single
+xfrm policy rule to multiple security associations, with each association used in
+the security context it is defined for. It also includes the security context to be
+used in IKE negotiation in the acquire messages sent to the IKE daemon so that a unique
+SA can be negotiated for each unique security context. A couple of bug fixes are also
+included; checks to make sure the SAs used by a packet match policy (security context-wise)
+on the inbound and also that the bundle used for the outbound matches the security context
+of the flow. This patch set also makes the use of the SELinux sid in flow cache lookups
+seemless by including the sid in the flow key itself.
+
+Description of changes:
+
+A "sid" member has been added to the flow cache key resulting in the sid being available
+at all needed locations and the flow cache lookups automatically using the sid. The flow
+sid is derived from the socket on the outbound and the SAs (unlabeled where an SA was not
+used) on the inbound.
+
+Outbound case:
+1. Find policy for the socket.
+
+2. OLD: Find an SA that matches the policy.
+   NEW: Find an SA that matches BOTH the policy and the flow/socket.
+     This is necessary since not every SA that matches the policy
+     can be used for the flow/socket. Consider policy range Secret-TS,
+     and SAs each for Secret and TS. We don't want a TS socket to
+     use the Secret SA. Hence the additional check for the SA Vs. flow/socket.
+
+3. NEW: When looking thru bundles for a policy, make sure the flow/socket can use the
+   bundle. If a bundle is not found, create one, calling for IKE if necessary. If using IKE,
+   include the security context in the acquire message to the IKE daemon.
+
+Inbound case:
+1. OLD: Find policy for the socket.
+   NEW: Find policy for the incoming packet based on the sid of the SA(s) it used or the
+   unlabeled sid if no SAs were used. (Consider a case where a socket is "authorized" for
+   two policies (unclassified-confidential, secret-top_secret). If the packet has come in
+   using a secret SA, we really ought to be using the latter policy (secret-top_secret).)
+
+2. OLD: BUG: No check to see if the SAs used by the packet agree with the policy sec_ctx-wise.
+   (It was indicated in selinux_xfrm_sock_rcv_skb() that this was being accomplished by
+    (x->id.spi == tmpl->id.spi || !tmpl->id.spi) in xfrm_state_ok, but it turns out tmpl->id.spi
+    would normally be zero (unless xfrm policy rules specify one at the template level, which
+    they usually don't).
+   NEW: The socket is checked for access to the SAs used (based on the sid of the SAs) in
+   selinux_xfrm_sock_rcv_skb().
+
+Forward case:
+   This would be Step 1 from the Inbound case, followed by Steps 2 and 3 from the Outbound case.
+
+Outstanding items/issues:
+- Timewait acknowledgements and such are generated in the current/upstream implementation using
+ a NULL socket resulting in the any_socket sid (SYSTEM_HIGH) to be used. This problem is not
+ addressed by this patch set.
+
+This patch: Add new flask definitions to SELinux
+
+Adds a new avperm "polmatch" to arbitrate flow/state access to a xfrm policy rule.
 
 Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 ---
 
- security/selinux/include/security.h |    2 +
- security/selinux/ss/mls.c           |   20 ----------
- security/selinux/ss/mls.h           |   20 ++++++++++
- security/selinux/ss/services.c      |   48 ++++++++++++++++++++++++++
- 4 files changed, 70 insertions(+), 20 deletions(-)
+The patch set is relative to 2.6.17-rc6-mm2. A policy patch is also included for reference.
+A patch to ipsec-tools/racoon will follow later on the ipsectools-devel list.
+ipsec-tools 0.6.5 src in FC rawhide already has the setkey changes needed to work with this.
+
+FUNCTIONAL DESCRIPTION:
+
+The basic idea is to have the IPSec policy specify an MLS range and have unique SAs
+generated/used for each of the levels that fall in the range. SAs for different levels
+can either be manually loaded (using setkey and such) or negotiated using IKE (racoon, etc.).
+
+Example:
+
+Let's say we have the following in the SPD (Security Policy Database):
+
+spdadd 9.2.9.15 9.2.9.17 any -ctx 1 1 "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
+-P in ipsec esp/transport//require ;
+spdadd 9.2.9.17 9.2.9.15 any -ctx 1 1 "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
+-P out ipsec esp/transport//require ;
+
+with nothing in the SAD (Security Association Database) initially. When the kernel
+runs into the first packet with the label s2:c4 destined for 9.2.9.17, it will see
+that there's no SA available to encrypt it with. So, it will call upon racoon/IKE
+to generate an SA. Racoon will obtain the label (s2:c4) from the kernel, do the
+negotiation with its peer, including the label (s2:c4) also in the payload/proposals.
+The negotiation will result in a dynamically generated SPI that is unique to the label
+(s2:c4) plus the other normal parameters involved. It will then insert the SA (along
+with the SPI) such as the following into the SAD in the kernel:
+
+add 9.2.9.15 9.2.9.17 esp 0x123456
+-ctx 1 1 "system_u:object_r:zzyzx_t:s2:c4"
+-E des-cbc 0x0000000000000000;
+
+If the kernel subsequently runs into a packet at a different label (say s2:c5) for which
+there's no SA available, it will again call upon racoon (which will get s2:c5 from the
+kernel this time) and a different SA (with a different SPI) will be negotiated.
+
+ include/linux/security.h                     |  116 ++++++++-
+ include/net/flow.h                           |    5 
+ include/net/sock.h                           |    9 
+ net/core/flow.c                              |    7 
+ net/core/sock.c                              |    2 
+ net/key/af_key.c                             |   22 +
+ net/xfrm/xfrm_policy.c                       |   28 +-
+ net/xfrm/xfrm_state.c                        |   12 -
+ security/dummy.c                             |   28 ++
+ security/selinux/hooks.c                     |   33 ++
+ security/selinux/include/av_perm_to_string.h |    1 
+ security/selinux/include/av_permissions.h    |    1 
+ security/selinux/include/objsec.h            |    1 
+ security/selinux/include/security.h          |    2 
+ security/selinux/include/xfrm.h              |   22 +
+ security/selinux/ss/mls.c                    |   20 -
+ security/selinux/ss/mls.h                    |   20 +
+ security/selinux/ss/services.c               |   48 ++++
+ security/selinux/xfrm.c                      |  200 ++++++++++++++---
+ 19 files changed, 471 insertions(+), 106 deletions(-)
 
 
---- linux-2.6.16.vanilla/security/selinux/ss/mls.c	2006-06-12 17:38:25.000000000 -0500
-+++ linux-2.6.16/security/selinux/ss/mls.c	2006-06-19 19:48:24.000000000 -0500
-@@ -212,26 +212,6 @@ int mls_context_isvalid(struct policydb 
- }
+This patch:
+
+ security/selinux/include/av_perm_to_string.h |    1 +
+ security/selinux/include/av_permissions.h    |    1 +
+ 2 files changed, 2 insertions(+)
+
+
+--- linux-2.6.16.vanilla/security/selinux/include/av_permissions.h	2006-06-12 17:49:44.000000000 -0500
++++ linux-2.6.16/security/selinux/include/av_permissions.h	2006-06-19 19:48:24.000000000 -0500
+@@ -909,6 +909,7 @@
+ #define ASSOCIATION__SENDTO                       0x00000001UL
+ #define ASSOCIATION__RECVFROM                     0x00000002UL
+ #define ASSOCIATION__SETCONTEXT                   0x00000004UL
++#define ASSOCIATION__POLMATCH                     0x00000008UL
  
- /*
-- * Copies the MLS range from `src' into `dst'.
-- */
--static inline int mls_copy_context(struct context *dst,
--				   struct context *src)
--{
--	int l, rc = 0;
--
--	/* Copy the MLS range from the source context */
--	for (l = 0; l < 2; l++) {
--		dst->range.level[l].sens = src->range.level[l].sens;
--		rc = ebitmap_cpy(&dst->range.level[l].cat,
--				 &src->range.level[l].cat);
--		if (rc)
--			break;
--	}
--
--	return rc;
--}
--
--/*
-  * Set the MLS fields in the security context structure
-  * `context' based on the string representation in
-  * the string `*scontext'.  Update `*scontext' to
---- linux-2.6.16.vanilla/security/selinux/ss/mls.h	2006-06-12 17:38:25.000000000 -0500
-+++ linux-2.6.16/security/selinux/ss/mls.h	2006-06-19 19:48:24.000000000 -0500
-@@ -17,6 +17,26 @@
- #include "context.h"
- #include "policydb.h"
- 
-+/*
-+ * Copies the MLS range from `src' into `dst'.
-+ */
-+static inline int mls_copy_context(struct context *dst,
-+				   struct context *src)
-+{
-+	int l, rc = 0;
-+
-+	/* Copy the MLS range from the source context */
-+	for (l = 0; l < 2; l++) {
-+		dst->range.level[l].sens = src->range.level[l].sens;
-+		rc = ebitmap_cpy(&dst->range.level[l].cat,
-+				 &src->range.level[l].cat);
-+		if (rc)
-+			break;
-+	}
-+
-+	return rc;
-+}
-+
- int mls_compute_context_len(struct context *context);
- void mls_sid_to_context(struct context *context, char **scontext);
- int mls_context_isvalid(struct policydb *p, struct context *c);
---- linux-2.6.16.vanilla/security/selinux/ss/services.c	2006-06-12 17:49:44.000000000 -0500
-+++ linux-2.6.16/security/selinux/ss/services.c	2006-06-19 19:48:24.000000000 -0500
-@@ -1817,6 +1817,54 @@ out:
- 	return rc;
- }
- 
-+/*
-+ * security_sid_mls_copy() - computes a new sid based on the given
-+ * sid and the mls portion of mls_sid.
-+ */
-+int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
-+{
-+	struct context *context1 = NULL;
-+	struct context *context2 = NULL;
-+	struct context newcon;
-+	int rc = 0;
-+
-+	if (!ss_initialized) {
-+		*new_sid = sid;
-+		goto out;
-+	}
-+
-+	POLICY_RDLOCK;
-+	context1 = sidtab_search(&sidtab, sid);
-+	if (!context1) {
-+		printk(KERN_ERR "security_sid_mls_copy:  unrecognized SID "
-+		       "%d\n", sid);
-+		rc = -EINVAL;
-+		goto out_unlock;
-+	}
-+
-+	context2 = sidtab_search(&sidtab, mls_sid);
-+	if (!context2) {
-+		printk(KERN_ERR "security_sid_mls_copy:  unrecognized SID "
-+		       "%d\n", mls_sid);
-+		rc = -EINVAL;
-+		goto out_unlock;
-+	}
-+
-+	newcon.user = context1->user;
-+	newcon.role = context1->role;
-+	newcon.type = context1->type;
-+	rc = mls_copy_context(&newcon, context2);
-+	if (rc)
-+		goto out_unlock;
-+
-+	rc = sidtab_context_to_sid(&sidtab, &newcon, new_sid);
-+
-+out_unlock:
-+	POLICY_RDUNLOCK;
-+out:
-+	return rc;
-+}
-+
- struct selinux_audit_rule {
- 	u32 au_seqno;
- 	struct context au_ctxt;
---- linux-2.6.16.vanilla/security/selinux/include/security.h	2006-06-12 17:38:25.000000000 -0500
-+++ linux-2.6.16/security/selinux/include/security.h	2006-06-19 19:48:24.000000000 -0500
-@@ -78,6 +78,8 @@ int security_node_sid(u16 domain, void *
- int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
-                                  u16 tclass);
- 
-+int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
-+
- #define SECURITY_FS_USE_XATTR		1 /* use xattr */
- #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
- #define SECURITY_FS_USE_TASK		3 /* use task SIDs, e.g. pipefs/sockfs */
+ #define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
+ #define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
+--- linux-2.6.16.vanilla/security/selinux/include/av_perm_to_string.h	2006-06-12 17:49:44.000000000 -0500
++++ linux-2.6.16/security/selinux/include/av_perm_to_string.h	2006-06-19 19:48:24.000000000 -0500
+@@ -239,6 +239,7 @@
+    S_(SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO, "sendto")
+    S_(SECCLASS_ASSOCIATION, ASSOCIATION__RECVFROM, "recvfrom")
+    S_(SECCLASS_ASSOCIATION, ASSOCIATION__SETCONTEXT, "setcontext")
++   S_(SECCLASS_ASSOCIATION, ASSOCIATION__POLMATCH, "polmatch")
+    S_(SECCLASS_PACKET, PACKET__SEND, "send")
+    S_(SECCLASS_PACKET, PACKET__RECV, "recv")
+    S_(SECCLASS_PACKET, PACKET__RELABELTO, "relabelto")
 
 --
 This message was distributed to subscribers of the selinux mailing list.
