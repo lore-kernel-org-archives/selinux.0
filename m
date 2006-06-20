@@ -1,63 +1,56 @@
-Subject: [PATCH] cpuset: Add security hook call to mediate attach_task
-From: David Quigley <dpquigl@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org
-Content-Type: text/plain
-Date: Tue, 20 Jun 2006 12:54:10 -0400
-Message-Id: <1150822450.15368.18.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44982C2C.5050405@redhat.com>
+Date: Tue, 20 Jun 2006 13:11:08 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: New patch for libselinux
+References: <4497FCCF.1030805@redhat.com>	 <1150812243.17557.79.camel@moss-spartans.epoch.ncsc.mil>	 <44981564.9020106@redhat.com> <1150822180.17557.141.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1150822180.17557.141.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: David Quigley <dpquigl@tycho.nsa.gov>
+Stephen Smalley wrote:
+> On Tue, 2006-06-20 at 11:33 -0400, Daniel J Walsh wrote:
+>   
+>> Patch to libselinux to fix handling of MATCHPATHCON_NOTRANS.
+>>
+>> Also added two new functions to handle looking at files on disk and 
+>> comparing to the default file_contexts,  These functions are
+>> intended to be used by rpm -V.
+>>     
+>
+> I don't think we want to directly export
+> selinux_compare_context_without_user(), or if we do, we want it
+> abstracted in some manner that covers the general case.
+>
+>   
+We are using similar functions in restorecon and I think somewhere else, 
+so I thought
+it would be good to move it into libselinux.  
+> Also, I think selinux_verify_file_context needs to be generalized,
+> because if/when rpm begins to use contexts from the rpm headers again,
+> then rpm will need to pass in the context against which to compare
+> rather than having selinux_verify_file_context always use matchpathcon.
+>
+>   
+Not sure what you mean, You still have the other functions to use.   The 
+idea with this
+function is to compare a files on disk context with the system 
+defaults.  You could also use
+matchpathcon_init before calling this function to change the default 
+file context file?
 
-This patch adds a security hook call to enable security modules to
-control the ability to attach a task to a cpuset.  While limited control
-over this operation is possible via permission checks on the pseudo fs
-interface, those checks are not sufficient to control access to the
-target task, which is looked up in this function.  The existing
-task_setscheduler hook is re-used for this operation since this falls
-under the same class of operations.
 
-Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+I also want to define a function
 
----
+selinux_setdefault_filecon(file)
 
- kernel/cpuset.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-rc6-mm2/kernel/cpuset.c linux-2.6.17-rc6-mm2-attach/kernel/cpuset.c
---- linux-2.6.17-rc6-mm2/kernel/cpuset.c	2006-06-15 09:46:28.000000000 -0400
-+++ linux-2.6.17-rc6-mm2-attach/kernel/cpuset.c	2006-06-15 09:52:43.000000000 -0400
-@@ -41,6 +41,7 @@
- #include <linux/rcupdate.h>
- #include <linux/sched.h>
- #include <linux/seq_file.h>
-+#include <linux/security.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
- #include <linux/spinlock.h>
-@@ -1177,6 +1178,7 @@ static int attach_task(struct cpuset *cs
- 	cpumask_t cpus;
- 	nodemask_t from, to;
- 	struct mm_struct *mm;
-+	int retval;
- 
- 	if (sscanf(pidbuf, "%d", &pid) != 1)
- 		return -EIO;
-@@ -1205,6 +1207,12 @@ static int attach_task(struct cpuset *cs
- 		get_task_struct(tsk);
- 	}
- 
-+	retval = security_task_setscheduler(tsk, 0, NULL);
-+	if (retval) {
-+		put_task_struct(tsk);
-+		return retval;
-+	}
-+
- 	mutex_lock(&callback_mutex);
- 
- 	task_lock(tsk);
+Which would do matchpathcon/setfilecon under the covers, and do the 
+appropriate turn off translations stuff.
+Since this code is propulgating into a series of programs.  (install, 
+MAKEDEV, kadmin?, and Nautilus, restorecon and probably others.)
 
 
 
