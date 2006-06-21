@@ -1,45 +1,60 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5LLFCsP000943
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 17:15:12 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5LLFAYx006268
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 21:15:11 GMT
-From: Steve Grubb <sgrubb@redhat.com>
-To: paul.moore@hp.com
-Subject: Re: [RFC 4/7] NetLabel: core NetLabel subsystem
-Date: Wed, 21 Jun 2006 17:15:05 -0400
-Cc: redhat-lspp@redhat.com, selinux@tycho.nsa.gov, sds@epoch.ncsc.mil,
-        jmorris@redhat.com
-References: <20060621194234.979661000@flek.zko.hp.com> <20060621200032.379679000@flek.zko.hp.com>
-In-Reply-To: <20060621200032.379679000@flek.zko.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200606211715.05868.sgrubb@redhat.com>
+Subject: [PATCH] selinux: inherit /proc/self/attr/keycreate across fork
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+To: sds@tycho.nsa.gov, James Morris <jmorris@namei.org>, eparis@parisplace.org,
+        David Howells <dhowells@redhat.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 17:20:13 -0400
+Message-Id: <1150924813.3432.14.camel@moss-tarheels.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 21 June 2006 15:42, paul.moore@hp.com wrote:
-> Add a new kernel subsystem, NetLabel, to provide explicit packet labeling
-> services (CIPSO, RIPSO, etc.) to LSM developers.  NetLabel is designed to
-> work in conjunction with a LSM to intercept and decode security labels on
-> incoming network packets as well as ensure that outgoing network packets
-> are labeled according to the security mechanism employed by the LSM.  The
-> NetLabel subsystem is configured through a NETLINK interface described in
-> the header files included in this patch.
+This resubmission includes a more detailed explanation that
+I hope is suitable for upstream inclusion.
 
-This patch doesn't build. It fails like this:
+---<snip>---
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-`netlbl_netlink_exit' referenced in section `.init.text' of net/built-in.o: 
-defined in discarded section `.exit.text' of net/built-in.o
-`netlbl_domhsh_exit' referenced in section `.init.text' of net/built-in.o: 
-defined in discarded section `.exit.text' of net/built-in.o
+This patch updates SELinux to cause the keycreate process attribute held in
+/proc/self/attr/keycreate to be inherited across a fork and reset upon execve.
+This is consistent with the handling of the other process attributes provided
+by SELinux and also makes it simpler to adapt logon programs to properly
+handle the keycreate attribute.
 
-I deleted the __exit and __init  for now so that the build procedes. But this 
-needs to get fixed in next iteration.
+Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-Thanks,
--Steve
+---
+
+ security/selinux/hooks.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- linux-2.6.17-rc6-mm2.dh.keycreate.paris/security/selinux/hooks.c	2006-06-21 16:19:10.000000000 -0400
++++ linux-2.6.17-rc6-mm2.dh.keycreate.paris.inherit/security/selinux/hooks.c	2006-06-21 16:26:03.000000000 -0400
+@@ -1532,8 +1532,9 @@ static int selinux_bprm_set_security(str
+ 	/* Default to the current task SID. */
+ 	bsec->sid = tsec->sid;
+ 
+-	/* Reset create and sockcreate SID on execve. */
++	/* Reset fs, key, and sock SIDs on execve. */
+ 	tsec->create_sid = 0;
++	tsec->keycreate_sid = 0;
+ 	tsec->sockcreate_sid = 0;
+ 
+ 	if (tsec->exec_sid) {
+@@ -2586,9 +2587,10 @@ static int selinux_task_alloc_security(s
+ 	tsec2->osid = tsec1->osid;
+ 	tsec2->sid = tsec1->sid;
+ 
+-	/* Retain the exec, create, and sock SIDs across fork */
++	/* Retain the exec, fs, key, and sock SIDs across fork */
+ 	tsec2->exec_sid = tsec1->exec_sid;
+ 	tsec2->create_sid = tsec1->create_sid;
++	tsec2->keycreate_sid = tsec1->keycreate_sid;
+ 	tsec2->sockcreate_sid = tsec1->sockcreate_sid;
+ 
+ 	/* Retain ptracer SID across fork, if any.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
