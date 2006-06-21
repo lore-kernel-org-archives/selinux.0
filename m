@@ -1,111 +1,96 @@
-Subject: Re: I have redone the original patch for libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5LISigM029178
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 14:28:44 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k5LIShsk004644
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 18:28:43 GMT
+Subject: Re: Latest diffs
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <44985A88.809@redhat.com>
-References: <4497FCCF.1030805@redhat.com>
-	 <1150812243.17557.79.camel@moss-spartans.epoch.ncsc.mil>
-	 <44981564.9020106@redhat.com>
-	 <1150822180.17557.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <44982C2C.5050405@redhat.com>
-	 <1150824833.17557.180.camel@moss-spartans.epoch.ncsc.mil>
-	 <1150826101.17557.183.camel@moss-spartans.epoch.ncsc.mil>
-	 <44985A88.809@redhat.com>
+In-Reply-To: <44985841.7080703@redhat.com>
+References: <44985841.7080703@redhat.com>
 Content-Type: text/plain
-Date: Wed, 21 Jun 2006 13:50:37 -0400
-Message-Id: <1150912237.27531.73.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Jun 2006 14:31:25 -0400
+Message-Id: <1150914685.18657.155.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-06-20 at 16:28 -0400, Daniel J Walsh wrote:
-> diff --exclude-from=exclude -N -u -r nsalibselinux/include/selinux/selinux.h libselinux-1.30.15/include/selinux/selinux.h
-> --- nsalibselinux/include/selinux/selinux.h	2006-06-16 15:08:24.000000000 -0400
-> +++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-20 15:48:14.000000000 -0400
-> @@ -429,8 +429,20 @@
->     Caller must free the returned strings via free. */
->  extern int getseuserbyname(const char *linuxuser, char **seuser, char **level);
->  
-> +/* This function allows you to compare two security context, it will ignore the 
-> +user component */
-> +int selinux_context_cmp(const security_context_t a, const security_context_t b);
+On Tue, 2006-06-20 at 16:19 -0400, Daniel J Walsh wrote:
+> bootloader has gotten more powerfull, needs more privs
 
-I think I'd make this:
-/* Compare two file security contexts.  Return 0 if equivalent. */
-int selinux_file_context_cmp(const char *s1, const char *s2);
+I'm merging this bit, but out of curiosity is this a new feature for
+grub?
 
-Rationale:  User identity does matter in process security contexts, so
-we don't want people to use such a function on arbitrary contexts.  We
-also don't want the user-specific aspect in the interface at all, even
-in the comment; the caller just wants to know if the two file contexts
-should be treated as equivalent.
+> Added allow_httpd_mod_auth_pam
+>  boolean but can't use it because of limitation of policy compiler
 
-> +/* This function looks at the file context on disk and compares it to the 
-> +system defaults, it returns 1 on match non 0 on failure */
-> +int selinux_verify_file_context(const char *path, mode_t mode);
+Dropped the declaration until we can resolve this in some way.
 
-Should that be return 0 on match?  
+> logwatch needs dac override privs
+> 
+> netutils binds to arbitrary udp ports.
 
-> +int selinux_verify_file_context(const char *path, mode_t mode)
-> +{
-> + 	security_context_t con = NULL;
-> + 	security_context_t fcontext = NULL;
-> +	int rc=0;
-> +
-> +	if (myflags & MATCHPATHCON_NOTRANS) 
-> +		rc = lgetfilecon_raw(path, &con);
-> +	else 
-> +		rc = lgetfilecon(path, &con);
+This is just a node bind, what ports are used for name bind?
 
-Why not just set MATCHPATHCON_NOTRANS as you do in
-selinux_lsetfilecon_default, and then always use lgetfilecon_raw here?
-Then the caller doesn't need to set it himself, and you always avoid
-extraneous translations in this function.
+> prelink is changine location of log file.
+> 
+> Add ibmasmfs_t
+> 
+> Dontaudit restorecon walking some kernel types
+> 
+> I have made several changes to allow me to build a webadm_r.
+> Label all httpd_$1_script_exec_t as httpd_script_exec_type
+> 
+> Then add that type to httpd_manage_all_content.
+> 
+> Add httpd_manage_config and httpd_manage_log
+> 
+> Add domain for rotatelogs (httpd_rotatelogs_t)
+> 
+> automount moved to 5.0 and needs a lot of privs that mount.te has.
+> 
+> New minor changes to cups
+> 
+> cups needs to read tmp files of hal
+> 
+> ntp needs to read network state for IPV6.
+> 
+> cron runs postfix
+> 
+> clamav reads postfix lib
+> 
+> More commands want to look at ldap
 
-> +	if (matchpathcon(path,mode,&fcontext) != 0)  {
-> +		if (fcontext == NULL && errno != ENOENT) 
-> +			rc = 1;
-> +		else
-> +			rc = 0;
-> +	} 
+tftp using ldap doesn't make sense.  Maybe this is a nsswitch thing?
 
-fcontext == NULL test seems unnecessary; matchpathcon failed, so there
-should be no result.
+> spelling mistake on fglrx_drv
 
-> +int selinux_lsetfilecon_default(const char *path) {
-> +	struct stat st;
-> +	int rc = -1;
-> +	security_context_t scontext=NULL;
-> +	unsigned int localflags=myflags;
-> +	if (lstat(path, &st) != 0)
-> +		return rc;
-> +
-> +	set_matchpathcon_flags(myflags | MATCHPATHCON_NOTRANS);
-> +
-> +	/* If there's an error determining the context, or it has none, 
-> +	   return to allow default context */
-> +	if (matchpathcon(path, st.st_mode, &scontext)) {
-> +		if (scontext == NULL && errno != ENOENT) 
-> +			rc =0;
 
-scontext == NULL test seems unnecessary.  Shouldn't that be errno ==
-ENOENT (i.e. if there was no matching entry in file_contexts, return
-success).
+> Split base_user_template into two
+> 
+> base_user_template (This can be used by extended roles, some privs were 
+> moved here from unpriv_userdomain also).
+> 
+> base_login_user_template
+> 
+> Also added some gen_require to get template working
+> 
+> Added role_change_template so we can change from one role to another.
 
-> +	} else 	{
-> +		rc = lsetfilecon_raw(path, scontext);
-> +		freecon(scontext);
-> +	}
-> +	set_matchpathcon_flags(localflags);
-> +	return rc;
-> +}
+Dropped this for now because I've been working on an infrastructure for
+building up roles.
 
-Likely should make myflags per-thread for safety in case we have any
-threaded callers.
+> xen needs more privs
+
+The remainder should be merged.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
