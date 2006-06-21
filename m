@@ -1,85 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5LKae3a032661
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 16:36:40 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5LKacsi021060
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 20:36:39 GMT
-Message-ID: <36282A1733C57546BE392885C06185920132419A@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: James Morris <jmorris@namei.org>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: RE: [PATCH 01/06] MLSXFRM: Granular IPSec associations for use in
-	 MLS environments
-Date: Wed, 21 Jun 2006 16:36:12 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: [PATCH] selinux: inherit /proc/self/attr/keycreate across fork
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+To: sds@tycho.nsa.gov, James Morris <jmorris@namei.org>, eparis@parisplace.org,
+        David Howells <dhowells@redhat.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 16:34:17 -0400
+Message-Id: <1150922057.3432.6.camel@moss-tarheels.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Can you clarify whether, with this patch, Linux will then 
-> have a complete 
-> labeled network implementation in terms of both LSPP 
-> compliance and common 
-> user requirements?
+This patch should apply cleanly after Eric's patch.
 
-I can't comment on the LSPP compliance issue since the specific/proprietary
-security target being used might really decide what's needed.
+---<snip>---
+From: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-As for common user requirements, at least as I understand them, I would
-look for the following in addition to this patch:
+Inherit /proc/self/attr/keycreate across fork.
+Reset /proc/self/attr/keycreate upon execve.
 
-- Auto-labelling of child sockets for TCP (I am planning on sending a
-separate
-  patch out in the next few days).
-- Using the label from the incoming packet while sending timewait
-acknowledgements
-  and other packets sent on behalf of kernel sockets.
-- sid prioritization among the current mix of secmark, ipsec, and the
-upcoming netlabel
-- Replacing secmark on output with an access check in postrouting.
-- localhost traffic handling with regard to labelling.
+Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
 
-> 
-> > Outstanding items/issues: 
-> > - Timewait acknowledgements and such are generated in the 
-> > current/upstream implementation using a NULL socket 
-> resulting in the 
-> > any_socket sid (SYSTEM_HIGH) to be used. This problem is 
-> not addressed 
-> > by this patch set.
-> 
-> This needs to be resolved, along with labeling for all kernel owned 
-> socket/tw objects.
+---
 
-Resolved these should be, but given the fact that this patch doesn't
-introduce this problem in the first place, and given the value it adds to
-the
-xfrm stuff, my hope would be for this patch to be treated separately. I am
-hoping
-for 2.6.18 if possible.
+ security/selinux/hooks.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
->  I'm not entirely clear on why this 
-> doesn't already 
-> work, as it is using IPsec, which should certainly be able to 
-> encapsulate 
-> all of this traffic.
+--- linux-2.6.17-rc6-mm2.dh.keycreate.paris/security/selinux/hooks.c	2006-06-21 16:19:10.000000000 -0400
++++ linux-2.6.17-rc6-mm2.dh.keycreate.paris.inherit/security/selinux/hooks.c	2006-06-21 16:26:03.000000000 -0400
+@@ -1532,8 +1532,9 @@ static int selinux_bprm_set_security(str
+ 	/* Default to the current task SID. */
+ 	bsec->sid = tsec->sid;
+ 
+-	/* Reset create and sockcreate SID on execve. */
++	/* Reset fs, key, and sock SIDs on execve. */
+ 	tsec->create_sid = 0;
++	tsec->keycreate_sid = 0;
+ 	tsec->sockcreate_sid = 0;
+ 
+ 	if (tsec->exec_sid) {
+@@ -2586,9 +2587,10 @@ static int selinux_task_alloc_security(s
+ 	tsec2->osid = tsec1->osid;
+ 	tsec2->sid = tsec1->sid;
+ 
+-	/* Retain the exec, create, and sock SIDs across fork */
++	/* Retain the exec, fs, key, and sock SIDs across fork */
+ 	tsec2->exec_sid = tsec1->exec_sid;
+ 	tsec2->create_sid = tsec1->create_sid;
++	tsec2->keycreate_sid = tsec1->keycreate_sid;
+ 	tsec2->sockcreate_sid = tsec1->sockcreate_sid;
+ 
+ 	/* Retain ptracer SID across fork, if any.
 
-Sans label-based checks, no problem. But with label-enhanced checks in
-place,
-we need to have the label to use, which we don't since there's no real
-socket present which normally provided the label. One way to handle
-this would be to use the label on the incoming packet for the response
-as mentioned earlier.
 
-> 
-> It would also be interesting to know what kind of testing 
-> this code as 
-> had.
-
-Primarily functional testing. Joy Latten at IBM is planning
-on further testing this using the framework built for the original
-work I believe.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
