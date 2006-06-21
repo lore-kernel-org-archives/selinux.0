@@ -1,56 +1,39 @@
-Subject: [PATCH] selinux: inherit /proc/self/attr/keycreate across fork
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-To: sds@tycho.nsa.gov, James Morris <jmorris@namei.org>, eparis@parisplace.org,
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5LL1LEZ000669
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 17:01:21 -0400
+Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5LL1IYv004674
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 21:01:19 GMT
+Date: Wed, 21 Jun 2006 17:01:16 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Michael LeMay <mdlemay@epoch.ncsc.mil>
+cc: sds@tycho.nsa.gov, eparis@parisplace.org,
         David Howells <dhowells@redhat.com>, selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 16:34:17 -0400
-Message-Id: <1150922057.3432.6.camel@moss-tarheels.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [PATCH] selinux: inherit /proc/self/attr/keycreate across fork
+In-Reply-To: <1150922057.3432.6.camel@moss-tarheels.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0606211700420.12597@d.namei>
+References: <1150922057.3432.6.camel@moss-tarheels.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch should apply cleanly after Eric's patch.
+On Wed, 21 Jun 2006, Michael LeMay wrote:
 
----<snip>---
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+> This patch should apply cleanly after Eric's patch.
 
-Inherit /proc/self/attr/keycreate across fork.
-Reset /proc/self/attr/keycreate upon execve.
+> 
+> ---<snip>---
+> From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+> 
+> Inherit /proc/self/attr/keycreate across fork.
+> Reset /proc/self/attr/keycreate upon execve.
 
-Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
+Probably needs a more detailed explanation for upstream submission.
 
----
-
- security/selinux/hooks.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
---- linux-2.6.17-rc6-mm2.dh.keycreate.paris/security/selinux/hooks.c	2006-06-21 16:19:10.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.dh.keycreate.paris.inherit/security/selinux/hooks.c	2006-06-21 16:26:03.000000000 -0400
-@@ -1532,8 +1532,9 @@ static int selinux_bprm_set_security(str
- 	/* Default to the current task SID. */
- 	bsec->sid = tsec->sid;
- 
--	/* Reset create and sockcreate SID on execve. */
-+	/* Reset fs, key, and sock SIDs on execve. */
- 	tsec->create_sid = 0;
-+	tsec->keycreate_sid = 0;
- 	tsec->sockcreate_sid = 0;
- 
- 	if (tsec->exec_sid) {
-@@ -2586,9 +2587,10 @@ static int selinux_task_alloc_security(s
- 	tsec2->osid = tsec1->osid;
- 	tsec2->sid = tsec1->sid;
- 
--	/* Retain the exec, create, and sock SIDs across fork */
-+	/* Retain the exec, fs, key, and sock SIDs across fork */
- 	tsec2->exec_sid = tsec1->exec_sid;
- 	tsec2->create_sid = tsec1->create_sid;
-+	tsec2->keycreate_sid = tsec1->keycreate_sid;
- 	tsec2->sockcreate_sid = tsec1->sockcreate_sid;
- 
- 	/* Retain ptracer SID across fork, if any.
-
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
