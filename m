@@ -1,268 +1,212 @@
-Subject: [RFC][PATCH] selinux: add an unlink permission on keys
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov, dhowells@redhat.com, sds@tycho.nsa.gov,
-        jmorris@namei.org
+Subject: [PATCH] repost: new sockcreate interface to specify context of
+	socket when they are created
+From: Eric Paris <eparis@parisplace.org>
+To: selinux@tycho.nsa.gov
+Cc: kmacmillan@tresys.com, sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Wed, 21 Jun 2006 10:46:05 -0400
-Message-Id: <1150901165.3256.46.camel@moss-tarheels.epoch.ncsc.mil>
+Date: Wed, 21 Jun 2006 11:08:26 -0400
+Message-Id: <1150902506.27852.35.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David and the rest of the list,
+Updated to fix the style problems James pointed out.  Retested to make
+sure it was still working.
 
-This patch isn't targeted at 2.6.18, but I'd like to start discussing it.
-This patch must be applied to a kernel that has been updated using
-David's latest series of six patches, but I don't anticipate anyone
-needing to do so at this point.
+Below is a patch to add a new /proc/self/attr/sockcreate   A process may
+write a context into this interface and all subsequent sockets created
+will be labeled with that context.  This is the same idea as the
+fscreate interface where a process can specify the label of a file about
+to be created.  At this time one envisioned user of this will be xinetd.
+It will be able to better label sockets for the actual services.  At
+this time all sockets take the label of the creating process, so all
+xinitd sockets would just be labeled the same.
 
----<snip>---
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+I tested this by creating a tcp sender and listener.  The sender was
+able to write to this new proc file and then create sockets with the
+specified label.  I am able to be sure the new label was used since the
+avc denial messages kicked out by the kernel included both the new
+security permission setsockcreate and all the socket denials were for
+the new label, not the label of the running process.
 
-This patch adds an unlink permission on keys, which restricts explicit
-as well as (most) implicit unlink operations.  It regulates the
-implicit unlink operation that occurs when a key is linked into a
-keyring that already contains a key with the same description.  It also
-regulates the keyring_clear operation, causing the entire operation
-to abort without changing the keyring if any of the keys is
-non-unlinkable.  Finally, it checks the unlink permission on any existing
-session keyring that is about to be unlinked in install_session_keyring.
+I would like to propose this for 2.6.18
 
-The unlink permission is checked using a new LSM call that takes
-three arguments: the key being unlinked, the parent keyring, and
-the task context for the operation.  The parent keyring may be
-NULL, and is currently not used by SELinux.  However, it could
-conceivably be useful to future security modules.
+Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
+ fs/proc/base.c                               |    6 ++++++
+ security/selinux/hooks.c                     |   20 ++++++++++++++++----
+ security/selinux/include/av_perm_to_string.h |    1 +
+ security/selinux/include/av_permissions.h    |    1 +
+ security/selinux/include/objsec.h            |    1 +
+ 5 files changed, 25 insertions(+), 4 deletions(-)
 
----
-
- include/linux/security.h                     |   24 ++++++++++++++++++++
- security/keys/keyring.c                      |   32 +++++++++++++++++++++++++--
- security/keys/process_keys.c                 |   18 ++++++++++++++-
- security/selinux/hooks.c                     |   15 ++++++++++++
- security/selinux/include/av_perm_to_string.h |    1
- security/selinux/include/av_permissions.h    |    1
- 6 files changed, 88 insertions(+), 3 deletions(-)
-
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.dh.keycreate/include/linux/security.h linux-2.6.17-rc6-mm2.dh.unlink/include/linux/security.h
---- linux-2.6.17-rc6-mm2.dh.keycreate/include/linux/security.h	2006-06-16 08:53:18.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.dh.unlink/include/linux/security.h	2006-06-21 10:17:12.000000000 -0400
-@@ -873,6 +873,13 @@ struct swap_info_struct;
-  *	@perm describes the combination of permissions required of this key.
-  *	Return 1 if permission granted, 0 if permission denied and -ve it the
-  *      normal permissions model should be effected.
-+ * @key_unlink:
-+ *	See whether a process is permitted to unlink a key.
-+ *	@key points to the key.
-+ *	@keyring points to the parent keyring, if any.
-+ *	@context points to the process to provide the context against which to
-+ *       evaluate the security data on the key.
-+ *	Return 0 if permission is granted.
-  *
-  * Security hooks affecting all System V IPC operations.
-  *
-@@ -1325,6 +1332,9 @@ struct security_operations {
- 	int (*key_permission)(key_ref_t key_ref,
- 			      struct task_struct *context,
- 			      key_perm_t perm);
-+	int (*key_unlink)(struct key *key,
-+			  struct key *keyring,
-+			  struct task_struct *context);
- 
- #endif	/* CONFIG_KEYS */
- 
-@@ -3044,6 +3054,13 @@ static inline int security_key_permissio
- 	return security_ops->key_permission(key_ref, context, perm);
- }
- 
-+static inline int security_key_unlink(struct key *key,
-+				      struct key *keyring,
-+				      struct task_struct *context)
-+{
-+	return security_ops->key_unlink(key, keyring, context);
-+}
-+
- #else
- 
- static inline int security_key_alloc(struct key *key,
-@@ -3064,6 +3081,13 @@ static inline int security_key_permissio
- 	return 0;
- }
- 
-+static inline int security_key_unlink(struct key *key,
-+				      struct key *keyring,
-+				      struct task_struct *context)
-+{
-+	return 0;
-+}
-+
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 6cc77dc..4f9bf8f 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -121,6 +121,7 @@ #ifdef CONFIG_SECURITY
+ 	PROC_TGID_ATTR_PREV,
+ 	PROC_TGID_ATTR_EXEC,
+ 	PROC_TGID_ATTR_FSCREATE,
++	PROC_TGID_ATTR_SOCKCREATE,
  #endif
- #endif /* CONFIG_KEYS */
- 
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.dh.keycreate/security/keys/keyring.c linux-2.6.17-rc6-mm2.dh.unlink/security/keys/keyring.c
---- linux-2.6.17-rc6-mm2.dh.keycreate/security/keys/keyring.c	2006-06-16 08:53:23.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.dh.unlink/security/keys/keyring.c	2006-06-21 10:17:12.000000000 -0400
-@@ -700,7 +700,13 @@ int __key_link(struct key *keyring, stru
- 			    strcmp(klist->keys[loop]->description,
- 				   key->description) == 0
- 			    ) {
--				/* found a match - replace with new key */
-+				/* found a match - check permissions */
-+				ret = security_key_unlink(klist->keys[loop],
-+							  keyring, current);
-+				if (ret < 0)
-+					goto error2;
-+
-+				/* replace with new key */
- 				size = sizeof(struct key *) * klist->maxkeys;
- 				size += sizeof(*klist);
- 				BUG_ON(size > PAGE_SIZE);
-@@ -838,6 +844,10 @@ int key_unlink(struct key *keyring, stru
- 	if (keyring->type != &key_type_keyring)
- 		goto error;
- 
-+	ret = security_key_unlink(key, keyring, current);
-+	if (ret < 0)
-+		goto error;
-+
- 	down_write(&keyring->sem);
- 
- 	klist = keyring->payload.subscriptions;
-@@ -932,7 +942,18 @@ int keyring_clear(struct key *keyring)
- 		down_write(&keyring->sem);
- 
- 		klist = keyring->payload.subscriptions;
--		if (klist) {
-+
-+		if (klist && klist->nkeys > 0) {
-+			int loop;
-+
-+			for (loop = klist->nkeys - 1; loop >= 0; loop--) {
-+				/* check unlink permissions */
-+				ret = security_key_unlink(klist->keys[loop],
-+							  keyring, current);
-+				if (ret < 0)
-+					goto error;
-+			}
-+			
- 			/* adjust the quota */
- 			key_payload_reserve(keyring,
- 					    sizeof(struct keyring_list));
-@@ -950,7 +971,14 @@ int keyring_clear(struct key *keyring)
- 		ret = 0;
- 	}
- 
-+
-+done:
- 	return ret;
-+	
-+error:
-+	up_write(&keyring->sem);
-+
-+	goto done;
- 
- } /* end keyring_clear() */
- 
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.dh.keycreate/security/keys/process_keys.c linux-2.6.17-rc6-mm2.dh.unlink/security/keys/process_keys.c
---- linux-2.6.17-rc6-mm2.dh.keycreate/security/keys/process_keys.c	2006-06-16 09:26:11.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.dh.unlink/security/keys/process_keys.c	2006-06-21 10:17:12.000000000 -0400
-@@ -19,6 +19,7 @@
- #include <linux/mutex.h>
- #include <asm/uaccess.h>
- #include "internal.h"
-+#include <linux/security.h>
- 
- /* session keyring create vs join semaphore */
- static DEFINE_MUTEX(key_session_mutex);
-@@ -223,6 +224,7 @@ static int install_session_keyring(struc
- 	unsigned long flags;
- 	struct key *old;
- 	char buf[20];
-+	int ret;
- 
- 	might_sleep();
- 
-@@ -246,6 +248,11 @@ static int install_session_keyring(struc
- 	/* install the keyring */
- 	spin_lock_irq(&tsk->sighand->siglock);
- 	old = tsk->signal->session_keyring;
-+	if (old) {
-+		ret = security_key_unlink(old, NULL, current);
-+		if (ret < 0)
-+			goto error2;
-+	}
- 	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
- 	spin_unlock_irq(&tsk->sighand->siglock);
- 
-@@ -256,7 +263,16 @@ static int install_session_keyring(struc
- 		key_put(old);
- 	}
- 
--	return 0;
-+	ret = 0;
-+
-+error:
-+	return ret;
-+
-+error2:
-+	spin_unlock_irq(&tsk->sighand->siglock);
-+	key_put(keyring);
-+
-+	goto error;
- 
- } /* end install_session_keyring() */
- 
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.dh.keycreate/security/selinux/hooks.c linux-2.6.17-rc6-mm2.dh.unlink/security/selinux/hooks.c
---- linux-2.6.17-rc6-mm2.dh.keycreate/security/selinux/hooks.c	2006-06-16 10:38:14.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.dh.unlink/security/selinux/hooks.c	2006-06-21 10:17:12.000000000 -0400
-@@ -4330,6 +4330,20 @@ static int selinux_key_permission(key_re
- 			    SECCLASS_KEY, perm, NULL);
- }
- 
-+static int selinux_key_unlink(struct key *key,
-+			      struct key *keyring,
-+			      struct task_struct *ctx)
-+{
-+	struct task_security_struct *tsec;
-+	struct key_security_struct *ksec;
-+
-+	tsec = ctx->security;
-+	ksec = key->security;
-+
-+	return avc_has_perm(tsec->sid, ksec->sid,
-+			    SECCLASS_KEY, KEY__UNLINK, NULL);
-+}
-+
+ #ifdef CONFIG_AUDITSYSCALL
+ 	PROC_TGID_LOGINUID,
+@@ -162,6 +163,7 @@ #ifdef CONFIG_SECURITY
+ 	PROC_TID_ATTR_PREV,
+ 	PROC_TID_ATTR_EXEC,
+ 	PROC_TID_ATTR_FSCREATE,
++	PROC_TID_ATTR_SOCKCREATE,
  #endif
- 
- static struct security_operations selinux_ops = {
-@@ -4492,6 +4506,7 @@ static struct security_operations selinu
- 	.key_alloc =                    selinux_key_alloc,
- 	.key_free =                     selinux_key_free,
- 	.key_permission =               selinux_key_permission,
-+	.key_unlink =                   selinux_key_unlink,
+ #ifdef CONFIG_AUDITSYSCALL
+ 	PROC_TID_LOGINUID,
+@@ -275,6 +277,7 @@ static struct pid_entry tgid_attr_stuff[
+ 	E(PROC_TGID_ATTR_PREV,     "prev",     S_IFREG|S_IRUGO),
+ 	E(PROC_TGID_ATTR_EXEC,     "exec",     S_IFREG|S_IRUGO|S_IWUGO),
+ 	E(PROC_TGID_ATTR_FSCREATE, "fscreate", S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TGID_ATTR_SOCKCREATE, "sockcreate", S_IFREG|S_IRUGO|S_IWUGO),
+ 	{0,0,NULL,0}
+ };
+ static struct pid_entry tid_attr_stuff[] = {
+@@ -282,6 +285,7 @@ static struct pid_entry tid_attr_stuff[]
+ 	E(PROC_TID_ATTR_PREV,      "prev",     S_IFREG|S_IRUGO),
+ 	E(PROC_TID_ATTR_EXEC,      "exec",     S_IFREG|S_IRUGO|S_IWUGO),
+ 	E(PROC_TID_ATTR_FSCREATE,  "fscreate", S_IFREG|S_IRUGO|S_IWUGO),
++	E(PROC_TID_ATTR_SOCKCREATE, "sockcreate", S_IFREG|S_IRUGO|S_IWUGO),
+ 	{0,0,NULL,0}
+ };
  #endif
+@@ -1800,6 +1804,8 @@ #ifdef CONFIG_SECURITY
+ 		case PROC_TGID_ATTR_EXEC:
+ 		case PROC_TID_ATTR_FSCREATE:
+ 		case PROC_TGID_ATTR_FSCREATE:
++		case PROC_TID_ATTR_SOCKCREATE:
++		case PROC_TGID_ATTR_SOCKCREATE:
+ 			inode->i_fop = &proc_pid_attr_operations;
+ 			break;
+ #endif
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 90b4cdc..33e035c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1518,8 +1518,9 @@ static int selinux_bprm_set_security(str
+ 	/* Default to the current task SID. */
+ 	bsec->sid = tsec->sid;
+ 
+-	/* Reset create SID on execve. */
++	/* Reset create and sockcreate SID on execve. */
+ 	tsec->create_sid = 0;
++	tsec->sockcreate_sid = 0;
+ 
+ 	if (tsec->exec_sid) {
+ 		newsid = tsec->exec_sid;
+@@ -2571,9 +2572,10 @@ static int selinux_task_alloc_security(s
+ 	tsec2->osid = tsec1->osid;
+ 	tsec2->sid = tsec1->sid;
+ 
+-	/* Retain the exec and create SIDs across fork */
++	/* Retain the exec, create, and sock SIDs across fork */
+ 	tsec2->exec_sid = tsec1->exec_sid;
+ 	tsec2->create_sid = tsec1->create_sid;
++	tsec2->sockcreate_sid = tsec1->sockcreate_sid;
+ 
+ 	/* Retain ptracer SID across fork, if any.
+ 	   This will be reset by the ptrace hook upon any
+@@ -2913,12 +2915,14 @@ static int selinux_socket_create(int fam
+ {
+ 	int err = 0;
+ 	struct task_security_struct *tsec;
++	u32 newsid;
+ 
+ 	if (kern)
+ 		goto out;
+ 
+ 	tsec = current->security;
+-	err = avc_has_perm(tsec->sid, tsec->sid,
++	newsid = tsec->sockcreate_sid ? : tsec->sid;
++	err = avc_has_perm(tsec->sid, newsid,
+ 			   socket_type_to_security_class(family, type,
+ 			   protocol), SOCKET__CREATE, NULL);
+ 
+@@ -2931,12 +2935,14 @@ static void selinux_socket_post_create(s
+ {
+ 	struct inode_security_struct *isec;
+ 	struct task_security_struct *tsec;
++	u32 newsid;
+ 
+ 	isec = SOCK_INODE(sock)->i_security;
+ 
+ 	tsec = current->security;
++	newsid = tsec->sockcreate_sid ? : tsec->sid;
+ 	isec->sclass = socket_type_to_security_class(family, type, protocol);
+-	isec->sid = kern ? SECINITSID_KERNEL : tsec->sid;
++	isec->sid = kern ? SECINITSID_KERNEL : newsid;
+ 	isec->initialized = 1;
+ 
+ 	return;
+@@ -4114,6 +4120,8 @@ static int selinux_getprocattr(struct ta
+ 		sid = tsec->exec_sid;
+ 	else if (!strcmp(name, "fscreate"))
+ 		sid = tsec->create_sid;
++	else if (!strcmp(name, "sockcreate"))
++		sid = tsec->sockcreate_sid;
+ 	else
+ 		return -EINVAL;
+ 
+@@ -4146,6 +4154,8 @@ static int selinux_setprocattr(struct ta
+ 		error = task_has_perm(current, p, PROCESS__SETEXEC);
+ 	else if (!strcmp(name, "fscreate"))
+ 		error = task_has_perm(current, p, PROCESS__SETFSCREATE);
++	else if (!strcmp(name, "sockcreate"))
++		error = task_has_perm(current, p, PROCESS__SETSOCKCREATE);
+ 	else if (!strcmp(name, "current"))
+ 		error = task_has_perm(current, p, PROCESS__SETCURRENT);
+ 	else
+@@ -4175,6 +4185,8 @@ static int selinux_setprocattr(struct ta
+ 		tsec->exec_sid = sid;
+ 	else if (!strcmp(name, "fscreate"))
+ 		tsec->create_sid = sid;
++	else if (!strcmp(name, "sockcreate"))
++		tsec->sockcreate_sid = sid;
+ 	else if (!strcmp(name, "current")) {
+ 		struct av_decision avd;
+ 
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index 591e98d..ce3a55d 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -63,6 +63,7 @@
+    S_(SECCLASS_PROCESS, PROCESS__GETATTR, "getattr")
+    S_(SECCLASS_PROCESS, PROCESS__SETEXEC, "setexec")
+    S_(SECCLASS_PROCESS, PROCESS__SETFSCREATE, "setfscreate")
++   S_(SECCLASS_PROCESS, PROCESS__SETSOCKCREATE, "setsockcreate")
+    S_(SECCLASS_PROCESS, PROCESS__NOATSECURE, "noatsecure")
+    S_(SECCLASS_PROCESS, PROCESS__SIGINH, "siginh")
+    S_(SECCLASS_PROCESS, PROCESS__SETRLIMIT, "setrlimit")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index d7f02ed..2a9a9b3 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -467,6 +467,7 @@ #define PROCESS__SETCURRENT             
+ #define PROCESS__EXECMEM                          0x02000000UL
+ #define PROCESS__EXECSTACK                        0x04000000UL
+ #define PROCESS__EXECHEAP                         0x08000000UL
++#define PROCESS__SETSOCKCREATE                    0x10000000UL
+ 
+ #define IPC__CREATE                               0x00000001UL
+ #define IPC__DESTROY                              0x00000002UL
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 54c0307..1873451 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -32,6 +32,7 @@ struct task_security_struct {
+ 	u32 sid;             /* current SID */
+ 	u32 exec_sid;        /* exec SID */
+ 	u32 create_sid;      /* fscreate SID */
++	u32 sockcreate_sid;  /* fscreate SID */
+ 	u32 ptrace_sid;      /* SID of ptrace parent */
  };
  
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.dh.keycreate/security/selinux/include/av_permissions.h linux-2.6.17-rc6-mm2.dh.unlink/security/selinux/include/av_permissions.h
---- linux-2.6.17-rc6-mm2.dh.keycreate/security/selinux/include/av_permissions.h	2006-06-16 08:55:48.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.dh.unlink/security/selinux/include/av_permissions.h	2006-06-21 10:17:12.000000000 -0400
-@@ -968,4 +968,5 @@
- #define KEY__LINK                                 0x00000010UL
- #define KEY__SETATTR                              0x00000020UL
- #define KEY__CREATE                               0x00000040UL
-+#define KEY__UNLINK                               0x00000080UL
- 
-diff -uprN -X linux-2.6.17-rc6-mm2.orig/Documentation/dontdiff linux-2.6.17-rc6-mm2.dh.keycreate/security/selinux/include/av_perm_to_string.h linux-2.6.17-rc6-mm2.dh.unlink/security/selinux/include/av_perm_to_string.h
---- linux-2.6.17-rc6-mm2.dh.keycreate/security/selinux/include/av_perm_to_string.h	2006-06-16 08:54:40.000000000 -0400
-+++ linux-2.6.17-rc6-mm2.dh.unlink/security/selinux/include/av_perm_to_string.h	2006-06-21 10:17:12.000000000 -0400
-@@ -250,3 +250,4 @@
-    S_(SECCLASS_KEY, KEY__LINK, "link")
-    S_(SECCLASS_KEY, KEY__SETATTR, "setattr")
-    S_(SECCLASS_KEY, KEY__CREATE, "create")
-+   S_(SECCLASS_KEY, KEY__UNLINK, "unlink")
 
 
 
