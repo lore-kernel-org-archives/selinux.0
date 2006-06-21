@@ -1,71 +1,38 @@
-Subject: Re: [RFC][PATCH] selinux: add an unlink permission on keys
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-To: David Howells <dhowells@redhat.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <29242.1150904799@warthog.cambridge.redhat.com>
-References: <1150901165.3256.46.camel@moss-tarheels.epoch.ncsc.mil>
-	 <29242.1150904799@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 12:11:58 -0400
-Message-Id: <1150906318.3256.61.camel@moss-tarheels.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5LGMdjU026475
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 12:22:39 -0400
+Received: from mail4.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5LGMcsi018426
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 16:22:38 GMT
+Date: Wed, 21 Jun 2006 12:22:35 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+        kmacmillan@tresys.com
+Subject: Re: [PATCH] repost: new sockcreate interface to specify context of
+ socket when they are created
+In-Reply-To: <1150905799.27531.33.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0606211221590.10410@d.namei>
+References: <1150902506.27852.35.camel@localhost.localdomain>
+ <1150905799.27531.33.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-06-21 at 16:46 +0100, David Howells wrote:
-> Michael LeMay <mdlemay@epoch.ncsc.mil> wrote:
+On Wed, 21 Jun 2006, Stephen Smalley wrote:
 > 
-> > @@ -932,7 +942,18 @@ int keyring_clear(struct key *keyring)
-> > -		if (klist) {
-> > +
-> > +		if (klist && klist->nkeys > 0) {
-> 
-> I'd rather you didn't do that.  The for-loop will just do nothing if nkeys is
-> zero.
-> 
-> > +			int loop;
-> > +
-> > +			for (loop = klist->nkeys - 1; loop >= 0; loop--) {
-> > +				/* check unlink permissions */
-> > +				ret = security_key_unlink(klist->keys[loop],
-> > +							  keyring, current);
-> 
-> I think clearing a keyring should filter out the unlinkable keys rather than
-> returning an error if one of them is unlinkable.
+> /proc/self/attr/keycreate is in -mm, so this patch won't apply relative
+> to it.  Permission definition also has to be regenerated relative to the
+> keycreate refpolicy patch, as that took the same permission slot.
 
-I had attempted to do that initially, but it gets really messy.  You
-have to keep a list of the keys that need to be deleted, separate from
-both the old and new keylists that keyring_clear produces.  That
-involves changing the keylist structure to point to a list of keys to be
-deleted instead of a single key, which ripples through a number of other
-routines.  If you'd still like those semantics in light of the overhead
-that's required, I'd be glad to adapt the patch to them...
-
-> 
-> > @@ -246,6 +248,11 @@ static int install_session_keyring(struc
-> >  	/* install the keyring */
-> >  	spin_lock_irq(&tsk->sighand->siglock);
-> >  	old = tsk->signal->session_keyring;
-> > +	if (old) {
-> > +		ret = security_key_unlink(old, NULL, current);
-> > +		if (ret < 0)
-> > +			goto error2;
-> > +	}
-> 
-> I'm tempted to say that should be a separate security op since it's really a
-> different operation.
-
-You're right, there's never any parent keyring involved in this
-operation.  However, I personally think this permission check has
-similar semantics to the previous checks.  In all of these cases, we
-don't want a keyring owner to arbitrarily unlink some key or keyring
-provided by a different context, perhaps replacing it with one of their
-own design.  It doesn't really matter if the key/ring in question has a
-true parent keyring, or if it's linked to some predefined location.  I'm
-also a little concerned about "hook bloat", perhaps Steve should suggest
-what to do with this.
+I'm manually merging with -mm now.
 
 
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
