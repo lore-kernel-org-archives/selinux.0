@@ -1,60 +1,31 @@
-Subject: Re: [PATCH] repost: new sockcreate interface to specify context of
-	socket when they are created
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov, kmacmillan@tresys.com, jmorris@namei.org
-In-Reply-To: <1150924055.18657.174.camel@sgc>
-References: <1150902506.27852.35.camel@localhost.localdomain>
-	 <1150905799.27531.33.camel@moss-spartans.epoch.ncsc.mil>
-	 <1150919192.18657.164.camel@sgc>
-	 <1150919411.27531.89.camel@moss-spartans.epoch.ncsc.mil>
-	 <1150921381.18657.170.camel@sgc>
-	 <1150921519.3432.0.camel@moss-tarheels.epoch.ncsc.mil>
-	 <1150924055.18657.174.camel@sgc>
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 17:24:16 -0400
-Message-Id: <1150925056.3432.18.camel@moss-tarheels.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5LLR6HN001288
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 17:27:06 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5LLR4sk026387
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 21:27:06 GMT
+From: Steve Grubb <sgrubb@redhat.com>
+To: Paul Moore <paul.moore@hp.com>
+Subject: Re: [redhat-lspp] Re: [RFC 4/7] NetLabel: core NetLabel subsystem
+Date: Wed, 21 Jun 2006 17:26:59 -0400
+Cc: redhat-lspp@redhat.com, sds@epoch.ncsc.mil, selinux@tycho.nsa.gov,
+        jmorris@redhat.com
+References: <20060621194234.979661000@flek.zko.hp.com> <200606211715.05868.sgrubb@redhat.com> <4499B8FF.3020505@hp.com>
+In-Reply-To: <4499B8FF.3020505@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200606211727.00207.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-That looks great, thanks for creating the interfaces.
+On Wednesday 21 June 2006 17:24, Paul Moore wrote:
+> I'm still very confused as to why I never see these build errors, yet
+> you do - can you tell me what compiler version you are using?
 
-On Wed, 2006-06-21 at 17:07 -0400, Christopher J. PeBenito wrote:
-> On Wed, 2006-06-21 at 16:25 -0400, Michael LeMay wrote:
-> > Yes, but make sure you use the one from June 2nd that has the class
-> > "key", not "retained_key".  Thanks!
-> 
-> I have committed the attached patch for keys to refpolicy, please
-> doublecheck that this is correct.  I changed the raw rules to interfaces
-> too.
-> 
-> > On Wed, 2006-06-21 at 16:23 -0400, Christopher J. PeBenito wrote:
-> > > On Wed, 2006-06-21 at 15:50 -0400, Stephen Smalley wrote:
-> > > > On Wed, 2006-06-21 at 15:46 -0400, Christopher J. PeBenito wrote:
-> > > > > On Wed, 2006-06-21 at 12:03 -0400, Stephen Smalley wrote:
-> > > > > > On Wed, 2006-06-21 at 11:08 -0400, Eric Paris wrote:
-> > > > > > > Below is a patch to add a new /proc/self/attr/sockcreate
-> > > > > [cut]
-> > > > > > /proc/self/attr/keycreate is in -mm, so this patch won't apply relative
-> > > > > > to it.  Permission definition also has to be regenerated relative to the
-> > > > > > keycreate refpolicy patch, as that took the same permission slot.
-> > > > > 
-> > > > > I'm going to need a patch for refpolicy that has the the final ordering
-> > > > > of permissions with key and sockcreate patches.  I haven't added the key
-> > > > > class at all yet since I have been waiting for the perm set to finalize.
-> > > > 
-> > > > Apply the key+keycreate patch first.  sockcreate refpolicy patch has to
-> > > > be re-based and re-submitted, but the kernel patch has already been
-> > > > re-based and submitted.
-> > > 
-> > > Is the one from June 2nd the right one ([PATCH] refpolicy: Kernel access
-> > > key retention policy support) to start, and then the one from yesterday
-> > > that has setkeycreate?
-> > > 
-> > 
+gcc-4.1.1-5. I'm also building via rpmbuild fwiw.
 
+-Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
