@@ -1,49 +1,85 @@
-Subject: Re: [PATCH] repost: new sockcreate interface to specify context of
-	socket when they are created
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        selinux@tycho.nsa.gov, kmacmillan@tresys.com, jmorris@namei.org
-In-Reply-To: <1150921381.18657.170.camel@sgc>
-References: <1150902506.27852.35.camel@localhost.localdomain>
-	 <1150905799.27531.33.camel@moss-spartans.epoch.ncsc.mil>
-	 <1150919192.18657.164.camel@sgc>
-	 <1150919411.27531.89.camel@moss-spartans.epoch.ncsc.mil>
-	 <1150921381.18657.170.camel@sgc>
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 16:25:19 -0400
-Message-Id: <1150921519.3432.0.camel@moss-tarheels.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5LKae3a032661
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 16:36:40 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5LKacsi021060
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 20:36:39 GMT
+Message-ID: <36282A1733C57546BE392885C06185920132419A@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: James Morris <jmorris@namei.org>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: RE: [PATCH 01/06] MLSXFRM: Granular IPSec associations for use in
+	 MLS environments
+Date: Wed, 21 Jun 2006 16:36:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yes, but make sure you use the one from June 2nd that has the class
-"key", not "retained_key".  Thanks!
+> Can you clarify whether, with this patch, Linux will then 
+> have a complete 
+> labeled network implementation in terms of both LSPP 
+> compliance and common 
+> user requirements?
 
-On Wed, 2006-06-21 at 16:23 -0400, Christopher J. PeBenito wrote:
-> On Wed, 2006-06-21 at 15:50 -0400, Stephen Smalley wrote:
-> > On Wed, 2006-06-21 at 15:46 -0400, Christopher J. PeBenito wrote:
-> > > On Wed, 2006-06-21 at 12:03 -0400, Stephen Smalley wrote:
-> > > > On Wed, 2006-06-21 at 11:08 -0400, Eric Paris wrote:
-> > > > > Below is a patch to add a new /proc/self/attr/sockcreate
-> > > [cut]
-> > > > /proc/self/attr/keycreate is in -mm, so this patch won't apply relative
-> > > > to it.  Permission definition also has to be regenerated relative to the
-> > > > keycreate refpolicy patch, as that took the same permission slot.
-> > > 
-> > > I'm going to need a patch for refpolicy that has the the final ordering
-> > > of permissions with key and sockcreate patches.  I haven't added the key
-> > > class at all yet since I have been waiting for the perm set to finalize.
-> > 
-> > Apply the key+keycreate patch first.  sockcreate refpolicy patch has to
-> > be re-based and re-submitted, but the kernel patch has already been
-> > re-based and submitted.
-> 
-> Is the one from June 2nd the right one ([PATCH] refpolicy: Kernel access
-> key retention policy support) to start, and then the one from yesterday
-> that has setkeycreate?
-> 
+I can't comment on the LSPP compliance issue since the specific/proprietary
+security target being used might really decide what's needed.
 
+As for common user requirements, at least as I understand them, I would
+look for the following in addition to this patch:
+
+- Auto-labelling of child sockets for TCP (I am planning on sending a
+separate
+  patch out in the next few days).
+- Using the label from the incoming packet while sending timewait
+acknowledgements
+  and other packets sent on behalf of kernel sockets.
+- sid prioritization among the current mix of secmark, ipsec, and the
+upcoming netlabel
+- Replacing secmark on output with an access check in postrouting.
+- localhost traffic handling with regard to labelling.
+
+> 
+> > Outstanding items/issues: 
+> > - Timewait acknowledgements and such are generated in the 
+> > current/upstream implementation using a NULL socket 
+> resulting in the 
+> > any_socket sid (SYSTEM_HIGH) to be used. This problem is 
+> not addressed 
+> > by this patch set.
+> 
+> This needs to be resolved, along with labeling for all kernel owned 
+> socket/tw objects.
+
+Resolved these should be, but given the fact that this patch doesn't
+introduce this problem in the first place, and given the value it adds to
+the
+xfrm stuff, my hope would be for this patch to be treated separately. I am
+hoping
+for 2.6.18 if possible.
+
+>  I'm not entirely clear on why this 
+> doesn't already 
+> work, as it is using IPsec, which should certainly be able to 
+> encapsulate 
+> all of this traffic.
+
+Sans label-based checks, no problem. But with label-enhanced checks in
+place,
+we need to have the label to use, which we don't since there's no real
+socket present which normally provided the label. One way to handle
+this would be to use the label on the incoming packet for the response
+as mentioned earlier.
+
+> 
+> It would also be interesting to know what kind of testing 
+> this code as 
+> had.
+
+Primarily functional testing. Joy Latten at IBM is planning
+on further testing this using the framework built for the original
+work I believe.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
