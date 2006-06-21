@@ -1,37 +1,51 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5L5Clk0015310
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 01:12:47 -0400
-Received: from mail3.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5L5Cksi007147
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 05:12:46 GMT
-Date: Wed, 21 Jun 2006 01:12:43 -0400 (EDT)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5L5OiTD015445
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 01:24:44 -0400
+Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5L5OhYv026618
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jun 2006 05:24:43 GMT
+Date: Wed, 21 Jun 2006 01:24:39 -0400 (EDT)
 From: James Morris <jmorris@namei.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-cc: Venkat Yekkirala <vyekkirala@TrustedCS.com>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH 03/06] MLSXFRM: Add security sid to sock
-In-Reply-To: <20060621043502.GA899@gondor.apana.org.au>
-Message-ID: <Pine.LNX.4.64.0606210111570.5693@d.namei>
-References: <36282A1733C57546BE392885C06185920132401F@chaos.tcs.tcs-sec.com>
- <20060621043502.GA899@gondor.apana.org.au>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 01/06] MLSXFRM: Granular IPSec associations for use in
+ MLS environments
+In-Reply-To: <44983D1F.1050306@trustedcs.com>
+Message-ID: <Pine.LNX.4.64.0606210113090.5693@d.namei>
+References: <44983D1F.1050306@trustedcs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 21 Jun 2006, Herbert Xu wrote:
+On Tue, 20 Jun 2006, Venkat Yekkirala wrote:
 
-> On Tue, Jun 20, 2006 at 08:50:55PM -0400, Venkat Yekkirala wrote:
-> >
-> > Nope. It would actually overwrite the pointer, so we put it away before
-> > memcpy
-> > and set it back after memcpy.
-> 
-> Right, I misread it as sptr = osk->sk_security.  Still, it'd be nice to
-> optimise it away for the !SECURITY case.
+> The current approach to labeling Security Associations for SELinux 
+> purposes uses a one-to-one mapping between xfrm policy rules and 
+> security associations. This doesn?t address the needs of real world MLS 
+> (Multi-level System, traditional Bell-LaPadula) environments where a 
+> single xfrm policy rule (pertaining to a range, classified to secret for 
+> example) might need to map to multiple Security Associations (one each 
+> for classified, secret, top secret and all the compartments applicable 
+> to these security levels).
 
-Indeed, there should be zero overhead for core networking code when LSM is 
-not configured.
+Can you clarify whether, with this patch, Linux will then have a complete 
+labeled network implementation in terms of both LSPP compliance and common 
+user requirements?
+
+> Outstanding items/issues: 
+> - Timewait acknowledgements and such are generated in the 
+> current/upstream implementation using a NULL socket resulting in the 
+> any_socket sid (SYSTEM_HIGH) to be used. This problem is not addressed 
+> by this patch set.
+
+This needs to be resolved, along with labeling for all kernel owned 
+socket/tw objects.  I'm not entirely clear on why this doesn't already 
+work, as it is using IPsec, which should certainly be able to encapsulate 
+all of this traffic.
+
+It would also be interesting to know what kind of testing this code as 
+had.
 
 
 - James
