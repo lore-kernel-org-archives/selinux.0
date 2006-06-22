@@ -1,68 +1,40 @@
 Subject: Re: [PATCH] pam_namespace : allow use of X while polyinstantiating
 	/tmp - v3
-From: Janak Desai <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-To: Valdis.Kletnieks@vt.edu
-Cc: Tomas Mraz <tmraz@redhat.com>, dwalsh@redhat.com, sgrubb@redhat.com,
-        klaus@atsec.com, sds@tycho.nsa.gov, russell@coker.com.au,
-        selinux@tycho.nsa.gov
-In-Reply-To: <200606221539.k5MFdDSV004441@turing-police.cc.vt.edu>
+From: Tomas Mraz <tmraz@redhat.com>
+To: janak@us.ibm.com
+Cc: selinux@tycho.nsa.gov, russell@coker.com.au, sds@tycho.nsa.gov,
+        klaus@atsec.com, sgrubb@redhat.com, dwalsh@redhat.com,
+        Valdis.Kletnieks@vt.edu
+In-Reply-To: <1150998899.30134.8.camel@localhost.localdomain>
 References: <1150820592.31280.2.camel@localhost.localdomain>
 	 <200606220735.k5M7ZOUI016994@turing-police.cc.vt.edu>
 	 <1150965442.3351.7.camel@perun.kabelta.loc>
-	 <200606221539.k5MFdDSV004441@turing-police.cc.vt.edu>
+	 <1150998899.30134.8.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 22 Jun 2006 14:05:48 -0400
-Message-Id: <1150999548.30134.12.camel@localhost.localdomain>
+Date: Thu, 22 Jun 2006 20:16:47 +0200
+Message-Id: <1151000207.3351.35.camel@perun.kabelta.loc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-22 at 11:39 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 22 Jun 2006 10:37:22 +0200, Tomas Mraz said:
-> 
-> > > 	if (osighand == SIG_ERR) {
-> > Of course it should be compared to SIG_ERR and not NULL. Thanks for
-> > finding this.
-> 
-> OK, getting farther now. GDM comes up and I can login with a polyinstantiated
-> copy of /tmp. :)
-> 
-> A few issues I ran into after I fixed that one:
-> 
-> 1) The current namespace.init:
-> 
-> if [ $1 = /tmp ]; then
->         if [ ! -f /.tmp/.X11-unix ]; then
-> 
-> Probably needs to be 'if [ ! -d /.tmp/.X11-unix'?
-> 
+On Thu, 2006-06-22 at 13:54 -0400, Janak Desai wrote:
+> On Thu, 2006-06-22 at 10:37 +0200, Tomas Mraz wrote:
 
-ok. Will fix it in the next incarnation.
-
-> 2) After a few login/logouts, I have in /etc/mtab:
+> Yes, thanks for find this and other problems. I was using pam_unix
+> sources to see how signal handlers are managed by pam modules. It too
+> takes non-NULL return values as good previous signal handler value. I
+> should have looked at the man page as well.
 > 
-> none /proc/sys/fs/binfmt_misc binfmt_misc rw 0 0
-> /tmp/.X11-unix /.tmp/.X11-unix none rw,bind 0 0
-> /tmp/.X11-unix /.tmp/.X11-unix none rw,bind 0 0
-> /tmp/.X11-unix /.tmp/.X11-unix none rw,bind 0 0
+> Tomas, should I send a patch with just this change or the create a
+> v4 version of the patch? I am going to be unavailable in about an hour
+> so I can do this on Monday.
 
-> /proc/mounts looks sane.  Probaby we need 'mount -n --bind' for this one.
-> Otherwise, the "unmount everything at shutdown" spews messages for each
-> attempted unmount.
-> 
+You don't have to send the patch. I've already submitted pam_namespace
+patch with the above fixed for upstream review to pam-patches mailing
+list.
 
-ok. Will fix it in the next incarnation.
-
-> 3) I'm running in strict/permissive policy, and that whole script tosses
-> zillions of AVC's because we're running in local_login_t which isn't
-> allowed to play with xdm_tmp_t files and similar. Not sure what's supposed
-> to happen here.
-
-I have been testing using targeted policy in enforcing mode. I am not
-sure about what needs to be done with strict policy as well. 
-
--Janak
+-- 
+Tomas Mraz <tmraz@redhat.com>
 
 
 --
