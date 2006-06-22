@@ -1,70 +1,60 @@
-Message-Id: <200606221539.k5MFdDSV004441@turing-police.cc.vt.edu>
-To: Tomas Mraz <tmraz@redhat.com>
-Cc: janak@us.ibm.com, dwalsh@redhat.com, sgrubb@redhat.com, klaus@atsec.com,
-        sds@tycho.nsa.gov, russell@coker.com.au, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] pam_namespace : allow use of X while polyinstantiating /tmp - v3
-In-Reply-To: Your message of "Thu, 22 Jun 2006 10:37:22 +0200."
-             <1150965442.3351.7.camel@perun.kabelta.loc>
-From: Valdis.Kletnieks@vt.edu
-References: <1150820592.31280.2.camel@localhost.localdomain> <200606220735.k5M7ZOUI016994@turing-police.cc.vt.edu>
-            <1150965442.3351.7.camel@perun.kabelta.loc>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1150990753_3517P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Thu, 22 Jun 2006 11:39:13 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5MHQqcu019726
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jun 2006 13:26:52 -0400
+Received: from web51512.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k5MHQpuc014520
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jun 2006 17:26:51 GMT
+Message-ID: <20060622172536.41778.qmail@web51512.mail.yahoo.com>
+Date: Thu, 22 Jun 2006 10:25:36 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: [PATCH] libselinux: add support for keycreate attribute
+To: Michael LeMay <mdlemay@epoch.ncsc.mil>, sds@tycho.nsa.gov,
+        eparis@parisplace.org, David Howells <dhowells@redhat.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1150987778.3400.9.camel@moss-tarheels.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1150990753_3517P
-Content-Type: text/plain; charset=us-ascii
+Hi,
 
-On Thu, 22 Jun 2006 10:37:22 +0200, Tomas Mraz said:
+Just a couple of comments...
 
-> > 	if (osighand == SIG_ERR) {
-> Of course it should be compared to SIG_ERR and not NULL. Thanks for
-> finding this.
+diff -X dontdiff -uprN libselinux.orig/src/getkeycreatecon.c 
+libselinux/src/getkeycreatecon.c
+--- libselinux.orig/src/getkeycreatecon.c	1969-12-31 19:00:00.000000000 -0500
++++ libselinux/src/getkeycreatecon.c	2006-06-02 09:38:23.000000000 -0400
++int getkeycreatecon_raw(security_context_t *context)
++{
 
-OK, getting farther now. GDM comes up and I can login with a polyinstantiated
-copy of /tmp. :)
+<snip>
++	ret = read(fd, buf, size-1);
++	if (ret < 0)
++		goto out2;
 
-A few issues I ran into after I fixed that one:
+Shouldn't this be wrapped in a do...while loop to avoid early exit due to EINTR?
 
-1) The current namespace.init:
+do {
+  ret = read(fd, buf, size-1);
+} while (ret < 0 && errno == EINTR);
+if (ret < 0)
+  goto out2;
 
-if [ $1 = /tmp ]; then
-        if [ ! -f /.tmp/.X11-unix ]; then
++	*context = strdup(buf);
++	if (!(*context)) {
++		ret = -1;
++		goto out2;
++	}
 
-Probably needs to be 'if [ ! -d /.tmp/.X11-unix'?
+buf was malloc'ed above...why strdup it? To me its just another chance for error.
 
-2) After a few login/logouts, I have in /etc/mtab:
+-Steve
 
-none /proc/sys/fs/binfmt_misc binfmt_misc rw 0 0
-/tmp/.X11-unix /.tmp/.X11-unix none rw,bind 0 0
-/tmp/.X11-unix /.tmp/.X11-unix none rw,bind 0 0
-/tmp/.X11-unix /.tmp/.X11-unix none rw,bind 0 0
-
-/proc/mounts looks sane.  Probaby we need 'mount -n --bind' for this one.
-Otherwise, the "unmount everything at shutdown" spews messages for each
-attempted unmount.
-
-3) I'm running in strict/permissive policy, and that whole script tosses
-zillions of AVC's because we're running in local_login_t which isn't
-allowed to play with xdm_tmp_t files and similar. Not sure what's supposed
-to happen here.
-
---==_Exmh_1150990753_3517P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEmrmhcC3lWbTT17ARAibYAJ4qwz7lLrnf+zdxRN1WKB69QngCRwCg2gsj
-+GIrP+nefohbYCCOSvAKJNg=
-=Qj9h
------END PGP SIGNATURE-----
-
---==_Exmh_1150990753_3517P--
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
