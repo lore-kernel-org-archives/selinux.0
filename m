@@ -1,63 +1,123 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5NGJCpP008105
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 12:19:12 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5NGJCoN007572
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 16:19:12 GMT
-Subject: Re: Selinux Sources
-From: Thorsten Scherf <tscherf@redhat.com>
-Reply-To: tscherf@redhat.com
-To: Miguel Fernandes <esmiguelfc@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <7b5ba3cd0606230759t3fa8317frcd7c88fcef3830b5@mail.gmail.com>
-References: <7b5ba3cd0606230706p7775ab9cx4dcc4ba1d70798c1@mail.gmail.com>
-	 <1151073136.16104.3.camel@tiffy.tuxgeek.de>
-	 <7b5ba3cd0606230759t3fa8317frcd7c88fcef3830b5@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-h2hEmbn6Z5QqNk8Uz29m"
-Date: Fri, 23 Jun 2006 18:19:04 +0200
-Message-Id: <1151079545.16104.11.camel@tiffy.tuxgeek.de>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5NHaiNG009532
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 13:36:44 -0400
+Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5NHagZW022421
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 17:36:42 GMT
+Subject: [PATCH 11/10] fix decl val index, other leaks
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 13:36:38 -0400
+Message-Id: <1151084198.4719.0.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This makes the decl_val_to_struct index have a -1 offset to be
+consistent with all the other indexes. It also fixes some memory leaks
+in checkmodule and a fd leak in semodule_link.
 
---=-h2hEmbn6Z5QqNk8Uz29m
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+diff -purN -x.svn trunk/checkpolicy/checkmodule.c optionals-in-base-take2/checkpolicy/checkmodule.c
+--- trunk/checkpolicy/checkmodule.c	2006-05-08 14:42:37.000000000 -0400
++++ optionals-in-base-take2/checkpolicy/checkmodule.c	2006-06-23 12:26:49.000000000 -0400
+@@ -27,6 +27,7 @@
+ #include <sepol/policydb/hierarchy.h>
+ #include <sepol/policydb/expand.h>
+ #include <sepol/policydb/link.h>
++#include <sepol/policydb/sidtab.h>
+ 
+ #include "queue.h"
+ #include "checkpolicy.h"
+@@ -244,12 +245,16 @@ int main(int argc, char **argv)
+ 	if (policydb_load_isids(&modpolicydb, &sidtab))
+ 		exit(1);
+ 
++	sepol_sidtab_destroy(&sidtab);
++
+ 	printf("%s:  policy configuration loaded\n", argv[0]);
+ 
+ 	if (outfile &&
+             write_binary_policy(&modpolicydb, outfile, argv[0]) == -1) {
+                 exit(1);
+         }
++	policydb_destroy(&modpolicydb);
++
+ 	return 0;
+ }
+ 
+diff -purN -x.svn trunk/libsepol/src/avrule_block.c optionals-in-base-take2/libsepol/src/avrule_block.c
+--- trunk/libsepol/src/avrule_block.c	2006-06-23 11:57:50.000000000 -0400
++++ optionals-in-base-take2/libsepol/src/avrule_block.c	2006-06-23 12:26:49.000000000 -0400
+@@ -155,7 +155,7 @@ int is_id_enabled(char *id, policydb_t *
+                 return 0;
+         }
+         for (i = 0; i < scope->decl_ids_len; i++) {
+-                avrule_decl_t *decl = p->decl_val_to_struct[scope->decl_ids[i]];
++                avrule_decl_t *decl = p->decl_val_to_struct[scope->decl_ids[i] - 1];
+                 if (decl != NULL && decl->enabled) {
+                         return 1;
+                 }
+diff -purN -x.svn trunk/libsepol/src/link.c optionals-in-base-take2/libsepol/src/link.c
+--- trunk/libsepol/src/link.c	2006-06-23 11:58:05.000000000 -0400
++++ optionals-in-base-take2/libsepol/src/link.c	2006-06-23 12:26:49.000000000 -0400
+@@ -1239,7 +1239,7 @@ static int copy_avrule_block(link_state_
+                         last_decl->next = new_decl;
+                 }
+                 last_decl = new_decl;
+-                state->base->decl_val_to_struct[state->next_decl_id] = new_decl;
++                state->base->decl_val_to_struct[state->next_decl_id - 1] = new_decl;
+ 		state->decl_to_mod[state->next_decl_id] = module->policy;
+                 module->avdecl_map[decl->decl_id] = new_decl->decl_id;
+ 
+@@ -1788,7 +1788,7 @@ static int prepare_base(link_state_t *st
+         while (cur != NULL) {
+                 avrule_decl_t *decl = cur->branch_list;
+                 while (decl != NULL) {
+-                        state->base->decl_val_to_struct[decl->decl_id] = decl;
++                        state->base->decl_val_to_struct[decl->decl_id - 1] = decl;
+ 			state->decl_to_mod[decl->decl_id] = state->base;
+                         decl = decl->next;
+                 }
+diff -purN -x.svn trunk/libsepol/src/policydb.c optionals-in-base-take2/libsepol/src/policydb.c
+--- trunk/libsepol/src/policydb.c	2006-06-23 11:58:03.000000000 -0400
++++ optionals-in-base-take2/libsepol/src/policydb.c	2006-06-23 12:26:49.000000000 -0400
+@@ -655,7 +655,7 @@ int policydb_index_decls(policydb_t *p)
+ {
+ 	avrule_block_t *curblock;
+ 	avrule_decl_t *decl;
+-	int num_decls = 1;
++	int num_decls = 0;
+ 
+ 	free(p->decl_val_to_struct);
+ 
+@@ -672,7 +672,7 @@ int policydb_index_decls(policydb_t *p)
+ 	
+ 	for (curblock = p->global; curblock != NULL; curblock = curblock->next) {
+ 		for (decl = curblock->branch_list; decl != NULL; decl = decl->next) {
+-			p->decl_val_to_struct[decl->decl_id] = decl;
++			p->decl_val_to_struct[decl->decl_id - 1] = decl;
+ 		}
+ 	}
+ 
+diff -purN -x.svn trunk/policycoreutils/semodule_link/semodule_link.c optionals-in-base-take2/policycoreutils/semodule_link/semodule_link.c
+--- trunk/policycoreutils/semodule_link/semodule_link.c	2006-06-23 11:57:47.000000000 -0400
++++ optionals-in-base-take2/policycoreutils/semodule_link/semodule_link.c	2006-06-23 12:26:49.000000000 -0400
+@@ -153,11 +153,13 @@ int main(int argc, char **argv)
+         		exit(1);	
+         	}
+ 		sepol_policy_file_free(pf);
++		fclose(outfile);
+         }
+ 
+ 	sepol_module_package_free(base);
+         for (i = 0; i < num_mods; i++)
+         	sepol_module_package_free(mods[i]);
++	free(mods);
+ 	exit(0);
+ }
+ 
 
-On Fri, 2006-06-23 at 10:59 -0400, Miguel Fernandes wrote:
-> Hi Thorsten, thanks for your quick reply,
->=20
-> I'm trying to make the modification mention here:=20
-> http://article.gmane.org/gmane.network.nagios.user/33586/match=3Dselinux
->=20
-> But I don't know where to make the moditications recommended there
-> because there are not such files on my distro. Any advice on this?
-> Thanks!
-
-The description is based on a monolithic, non-modular, policy. FC5 is
-using a modular policy, which is based on the refpolicy.
-
-Happy Day.
-Thorsten
-
---=20
-Thorsten Scherf <tscherf@redhat.com>
-Red Hat GmbH
-
---=-h2hEmbn6Z5QqNk8Uz29m
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEnBR4wfkoLTuSgLsRAqqGAKDvQfm58b1LUjImh0YrPQJjYk4ndwCgk9v9
-YOi55UUg6aavzHaxkSQ3UUc=
-=fwIo
------END PGP SIGNATURE-----
-
---=-h2hEmbn6Z5QqNk8Uz29m--
 
 
 --
