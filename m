@@ -1,159 +1,182 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5NKXA5B012431
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 16:33:10 -0400
-Subject: Re: [PATCH] libselinux: add support for keycreate attribute
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5NKVmVR012382
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 16:31:48 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5NKVlpj013275
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 20:31:48 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5NKVlHR017035
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 16:31:47 -0400
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5NKVldl015144
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 16:31:47 -0400
+Received: from vpn50-149.rdu.redhat.com (vpn50-149.rdu.redhat.com [172.16.50.149])
+	by pobox.corp.redhat.com (8.12.8/8.12.8) with ESMTP id k5NKVls3003486
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 16:31:47 -0400
+Subject: [PATCH] libselinux: 1/2 Introduce {get,set}procattrcon
 From: Eric Paris <eparis@parisplace.org>
-To: Michael LeMay <mdlemay@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1150987778.3400.9.camel@moss-tarheels.epoch.ncsc.mil>
-References: <1150987778.3400.9.camel@moss-tarheels.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Fri, 23 Jun 2006 16:34:03 -0400
-Message-Id: <1151094843.21012.96.camel@localhost.localdomain>
+Date: Fri, 23 Jun 2006 16:32:46 -0400
+Message-Id: <1151094766.21012.93.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-22 at 10:49 -0400, Michael LeMay wrote:
-> This is a patch to libselinux that adds support for the keycreate attribute
-> that is visible in /proc/self/attr/keycreate.  Specifically, it adds routines
-> getkeycreatecon and setkeycreatecon, and their corresponding wrappers.
-> 
+The below attached patch implements two new function, get and set
+procattrcon.  These are generic functions that take a context and a path
+and attempt to write that context to that path.  These are used by of
+exported libselinux interfaces, like getfscreatecon, as a generic
+backend to reduce duplication of code.
 
-After just submitting my refactoring to eliminate all of the duplicated
-code I realized that your patch and mine will conflict in
-src/selinux_internal.h since your patch is going to look for line I
-deleted (and mine confused by a line you added).  Here is a totally new
-copy of your patch using the new interface I just submitted.  The only
-changes should be to src/selinux_internal.h (since I eliminated the _raw
-functions we don't need to hidden_proto them) and obviously changed
-{get,set}keycreatecon.c to use the generic interface.  This patch should
-be implemented in place of the last keycreate patch
+ include/selinux/selinux.h |    8 +++++
+ src/getprocattrcon.c      |   67 ++++++++++++++++++++++++++++++++++++++++++++++
+ src/selinux_internal.h    |    4 ++
+ src/setprocattrcon.c      |   40 +++++++++++++++++++++++++++
 
--Eric
-
---- libselinux-1.30.15/src/getkeycreatecon.c.keycreate	2006-06-23 16:09:27.000000000 -0400
-+++ libselinux-1.30.15/src/getkeycreatecon.c	2006-06-23 16:11:51.000000000 -0400
-@@ -0,0 +1,7 @@
+--- libselinux-1.30.15/src/setprocattrcon.c.p1	2006-06-23 15:05:25.000000000 -0400
++++ libselinux-1.30.15/src/setprocattrcon.c	2006-06-23 15:10:05.000000000 -0400
+@@ -0,0 +1,40 @@
++#include <unistd.h>
++#include <string.h>
++#include <fcntl.h>
 +#include "selinux_internal.h"
 +
-+int getkeycreatecon(security_context_t *context)
++int setprocattrcon_raw(char *context, char *proc_entry)
 +{
-+	char * keycreate_proc_entry = "/proc/self/attr/keycreate";
-+ 	return getprocattrcon(context, keycreate_proc_entry);
++	int fd;
++	ssize_t ret;
++
++	fd = open(proc_entry, O_RDWR);
++	if (fd < 0)
++		return -1;
++	if (context) 
++		ret = write(fd, context, strlen(context)+1);
++	else
++		ret = write(fd, NULL, 0); /* clear */
++	close(fd);
++	if (ret < 0)
++		return -1;
++	else
++		return 0;
 +}
---- libselinux-1.30.15/src/setkeycreatecon.c.keycreate	2006-06-23 16:09:27.000000000 -0400
-+++ libselinux-1.30.15/src/setkeycreatecon.c	2006-06-23 16:13:12.000000000 -0400
-@@ -0,0 +1,7 @@
++hidden_def(setprocattrcon_raw)
++
++int setprocattrcon(char *context, char *proc_entry)
++{
++	int ret;
++	security_context_t rcontext = context;
++
++	if (selinux_trans_to_raw_context(context, &rcontext))
++		return -1;
++
++ 	ret = setprocattrcon_raw(rcontext, proc_entry);
++
++	freecon(rcontext);
++
++	return ret;
++}
++hidden_def(setprocattrcon)
+--- libselinux-1.30.15/src/selinux_internal.h.p1	2006-06-23 15:05:25.000000000 -0400
++++ libselinux-1.30.15/src/selinux_internal.h	2006-06-23 15:20:06.000000000 -0400
+@@ -26,6 +26,10 @@ hidden_proto(is_selinux_enabled)
+ hidden_proto(is_selinux_mls_enabled)
+ hidden_proto(freecon)
+ hidden_proto(freeconary)
++hidden_proto(getprocattrcon)
++hidden_proto(getprocattrcon_raw)
++hidden_proto(setprocattrcon)
++hidden_proto(setprocattrcon_raw)
+ hidden_proto(getprevcon)
+ hidden_proto(getprevcon_raw)
+ hidden_proto(getcon)
+--- libselinux-1.30.15/src/getprocattrcon.c.p1	2006-06-23 15:05:25.000000000 -0400
++++ libselinux-1.30.15/src/getprocattrcon.c	2006-06-23 15:10:05.000000000 -0400
+@@ -0,0 +1,67 @@
++#include <unistd.h>
++#include <fcntl.h>
++#include <string.h>
++#include <stdlib.h>
++#include <errno.h>
 +#include "selinux_internal.h"
++#include "policy.h"
 +
-+int setkeycreatecon(char *context)
++int getprocattrcon_raw(security_context_t *context, char *proc_entry)
 +{
-+	char *keycreate_proc_entry = "/proc/self/attr/keycreate";
-+ 	return setprocattrcon(context, keycreate_proc_entry);
++	char *buf;
++	size_t size;
++	int fd;
++	ssize_t ret;
++
++	fd = open(proc_entry, O_RDONLY);
++	if (fd < 0)
++		return -1;
++
++	size = selinux_page_size;
++	buf = malloc(size);
++	if (!buf) {
++		ret = -1;
++		goto out;
++	}
++	memset(buf, 0, size);
++
++	do {
++		ret = read(fd, buf, size-1);
++	} while (ret < 0 && errno == EINTR);
++	if (ret < 0)
++		goto out2;
++
++	if (ret == 0) {
++		*context = NULL;
++		goto out2;
++	}
++
++	*context = strdup(buf);
++	if (!(*context)) {
++		ret = -1;
++		goto out2;
++	}
++	ret = 0;
++out2:			
++	free(buf);
++out:
++	close(fd);
++	return ret;
 +}
---- libselinux-1.30.15/src/selinuxswig_wrap.c.keycreate	2006-06-16 15:08:51.000000000 -0400
-+++ libselinux-1.30.15/src/selinuxswig_wrap.c	2006-06-23 16:09:27.000000000 -0400
-@@ -3020,6 +3020,50 @@ fail:
- }
- 
- 
-+SWIGINTERN PyObject *_wrap_getkeycreatecon(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-+  PyObject *resultobj = 0;
-+  security_context_t *arg1 = (security_context_t *) 0 ;
-+  int result;
-+  security_context_t temp1 ;
-+  char *temp10 ;
-+  
-+  {
-+    arg1 = &temp1;
-+  }
-+  if (!PyArg_ParseTuple(args,(char *)":getkeycreatecon")) SWIG_fail;
-+  result = (int)getkeycreatecon(arg1);
-+  resultobj = SWIG_From_int((int)(result));
-+  {
-+    if (*arg1)
-+    temp10 = *arg1;
-+    else
-+    temp10 = "";
-+    resultobj = SWIG_Python_AppendOutput(resultobj, PyString_FromString(temp10));
-+  }
-+  return resultobj;
-+fail:
-+  return NULL;
++hidden_def(getprocattrcon_raw)
++
++int getprocattrcon(security_context_t *context, char *proc_entry)
++{
++	int ret;
++	security_context_t rcontext;
++
++ 	ret = getprocattrcon_raw(&rcontext, proc_entry);
++
++	if (!ret) {
++		ret = selinux_raw_to_trans_context(rcontext, context);
++		freecon(rcontext);
++	} 
++
++	return ret;
 +}
-+
-+
-+SWIGINTERN PyObject *_wrap_setkeycreatecon(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-+  PyObject *resultobj = 0;
-+  security_context_t arg1 ;
-+  int result;
-+  PyObject * obj0 = 0 ;
-+  
-+  if (!PyArg_ParseTuple(args,(char *)"O:setkeycreatecon",&obj0)) SWIG_fail;
-+  {
-+    arg1 = (security_context_t)PyString_AsString(obj0);
-+  }
-+  result = (int)setkeycreatecon(arg1);
-+  resultobj = SWIG_From_int((int)(result));
-+  return resultobj;
-+fail:
-+  return NULL;
-+}
-+
-+
- SWIGINTERN PyObject *_wrap_getfilecon(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *resultobj = 0;
-   char *arg1 = (char *) 0 ;
-@@ -4226,6 +4270,8 @@ static PyMethodDef SwigMethods[] = {
- 	 { (char *)"setexeccon", _wrap_setexeccon, METH_VARARGS, NULL},
- 	 { (char *)"getfscreatecon", _wrap_getfscreatecon, METH_VARARGS, NULL},
- 	 { (char *)"setfscreatecon", _wrap_setfscreatecon, METH_VARARGS, NULL},
-+	 { (char *)"getkeycreatecon", _wrap_getkeycreatecon, METH_VARARGS, NULL},
-+	 { (char *)"setkeycreatecon", _wrap_setkeycreatecon, METH_VARARGS, NULL},
- 	 { (char *)"getfilecon", _wrap_getfilecon, METH_VARARGS, NULL},
- 	 { (char *)"lgetfilecon", _wrap_lgetfilecon, METH_VARARGS, NULL},
- 	 { (char *)"fgetfilecon", _wrap_fgetfilecon, METH_VARARGS, NULL},
---- libselinux-1.30.15/src/selinuxswig.i.keycreate	2006-06-16 15:08:51.000000000 -0400
-+++ libselinux-1.30.15/src/selinuxswig.i	2006-06-23 16:09:27.000000000 -0400
-@@ -52,6 +52,8 @@ extern int getexeccon(security_context_t
- extern int setexeccon(security_context_t con);
- extern int getfscreatecon(security_context_t *con);
- extern int setfscreatecon(security_context_t context);
-+extern int getkeycreatecon(security_context_t *con);
-+extern int setkeycreatecon(security_context_t context);
- extern int getfilecon(const char *path, security_context_t *con);
- extern int lgetfilecon(const char *path, security_context_t *con);
- extern int fgetfilecon(int fd, security_context_t *con);
---- libselinux-1.30.15/src/selinux.py.keycreate	2006-06-16 15:08:51.000000000 -0400
-+++ libselinux-1.30.15/src/selinux.py	2006-06-23 16:09:27.000000000 -0400
-@@ -52,6 +52,8 @@ getexeccon = _selinux.getexeccon
- setexeccon = _selinux.setexeccon
- getfscreatecon = _selinux.getfscreatecon
- setfscreatecon = _selinux.setfscreatecon
-+getkeycreatecon = _selinux.getkeycreatecon
-+setkeycreatecon = _selinux.setkeycreatecon
- getfilecon = _selinux.getfilecon
- lgetfilecon = _selinux.lgetfilecon
- fgetfilecon = _selinux.fgetfilecon
---- libselinux-1.30.15/include/selinux/selinux.h.keycreate	2006-06-23 16:08:33.000000000 -0400
-+++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-23 16:14:21.000000000 -0400
-@@ -74,6 +74,15 @@ extern int getfscreatecon(security_conte
-    Call with NULL if you want to reset to the default. */
- extern int setfscreatecon(security_context_t context);
++hidden_def(getprocattrcon)
+--- libselinux-1.30.15/include/selinux/selinux.h.p1	2006-06-23 15:05:25.000000000 -0400
++++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-23 15:20:06.000000000 -0400
+@@ -24,6 +24,14 @@ extern void freeconary(security_context_
  
-+/* Get keycreate context, and set *con to refer to it.
-+   Sets *con to NULL if no key create context has been set, i.e. using default.
-+   If non-NULL, caller must free via freecon. */
-+extern int getkeycreatecon(security_context_t *con);
-+
-+/* Set the keycreate security context for subsequent key creations.
-+   Call with NULL if you want to reset to the default. */
-+extern int setkeycreatecon(security_context_t context);
-+
+ /* Wrappers for the /proc/pid/attr API. */
  
- /* Wrappers for the xattr API. */
- 
++/* Generic /proc pid attr handlers.  These will either get or set the context
++   from or into the proc location passed to them.  Should only be called from 
++   inside libselinux */
++extern int getprocattrcon(security_context_t *con, char *path);
++extern int getprocattrcon_raw(security_context_t *con, char *path);
++extern int setprocattrcon(security_context_t con, char *path);
++extern int setprocattrcon_raw(security_context_t con, char *path);
++
+ /* Get current context, and set *con to refer to it.
+    Caller must free via freecon. */
+ extern int getcon(security_context_t *con);
 
 
 
