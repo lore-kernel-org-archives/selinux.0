@@ -1,121 +1,158 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5NHaiNG009532
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 13:36:44 -0400
-Received: from twoface.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5NHagZW022421
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 17:36:42 GMT
-Subject: [PATCH 11/10] fix decl val index, other leaks
-From: Joshua Brindle <jbrindle@tresys.com>
-To: selinux <selinux@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5NKXA5B012431
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 16:33:10 -0400
+Subject: Re: [PATCH] libselinux: add support for keycreate attribute
+From: Eric Paris <eparis@parisplace.org>
+To: Michael LeMay <mdlemay@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1150987778.3400.9.camel@moss-tarheels.epoch.ncsc.mil>
+References: <1150987778.3400.9.camel@moss-tarheels.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 23 Jun 2006 13:36:38 -0400
-Message-Id: <1151084198.4719.0.camel@twoface.columbia.tresys.com>
+Date: Fri, 23 Jun 2006 16:34:03 -0400
+Message-Id: <1151094843.21012.96.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This makes the decl_val_to_struct index have a -1 offset to be
-consistent with all the other indexes. It also fixes some memory leaks
-in checkmodule and a fd leak in semodule_link.
+On Thu, 2006-06-22 at 10:49 -0400, Michael LeMay wrote:
+> This is a patch to libselinux that adds support for the keycreate attribute
+> that is visible in /proc/self/attr/keycreate.  Specifically, it adds routines
+> getkeycreatecon and setkeycreatecon, and their corresponding wrappers.
+> 
 
-diff -purN -x.svn trunk/checkpolicy/checkmodule.c optionals-in-base-take2/checkpolicy/checkmodule.c
---- trunk/checkpolicy/checkmodule.c	2006-05-08 14:42:37.000000000 -0400
-+++ optionals-in-base-take2/checkpolicy/checkmodule.c	2006-06-23 12:26:49.000000000 -0400
-@@ -27,6 +27,7 @@
- #include <sepol/policydb/hierarchy.h>
- #include <sepol/policydb/expand.h>
- #include <sepol/policydb/link.h>
-+#include <sepol/policydb/sidtab.h>
- 
- #include "queue.h"
- #include "checkpolicy.h"
-@@ -244,12 +245,16 @@ int main(int argc, char **argv)
- 	if (policydb_load_isids(&modpolicydb, &sidtab))
- 		exit(1);
- 
-+	sepol_sidtab_destroy(&sidtab);
+After just submitting my refactoring to eliminate all of the duplicated
+code I realized that your patch and mine will conflict in
+src/selinux_internal.h since your patch is going to look for line I
+deleted (and mine confused by a line you added).  Here is a totally new
+copy of your patch using the new interface I just submitted.  The only
+changes should be to src/selinux_internal.h (since I eliminated the _raw
+functions we don't need to hidden_proto them) and obviously changed
+{get,set}keycreatecon.c to use the generic interface.  This patch should
+be implemented in place of the last keycreate patch
+
+-Eric
+
+--- libselinux-1.30.15/src/getkeycreatecon.c.keycreate	2006-06-23 16:09:27.000000000 -0400
++++ libselinux-1.30.15/src/getkeycreatecon.c	2006-06-23 16:11:51.000000000 -0400
+@@ -0,0 +1,7 @@
++#include "selinux_internal.h"
 +
- 	printf("%s:  policy configuration loaded\n", argv[0]);
- 
- 	if (outfile &&
-             write_binary_policy(&modpolicydb, outfile, argv[0]) == -1) {
-                 exit(1);
-         }
-+	policydb_destroy(&modpolicydb);
++int getkeycreatecon(security_context_t *context)
++{
++	char * keycreate_proc_entry = "/proc/self/attr/keycreate";
++ 	return getprocattrcon(context, keycreate_proc_entry);
++}
+--- libselinux-1.30.15/src/setkeycreatecon.c.keycreate	2006-06-23 16:09:27.000000000 -0400
++++ libselinux-1.30.15/src/setkeycreatecon.c	2006-06-23 16:13:12.000000000 -0400
+@@ -0,0 +1,7 @@
++#include "selinux_internal.h"
 +
- 	return 0;
++int setkeycreatecon(char *context)
++{
++	char *keycreate_proc_entry = "/proc/self/attr/keycreate";
++ 	return setprocattrcon(context, keycreate_proc_entry);
++}
+--- libselinux-1.30.15/src/selinuxswig_wrap.c.keycreate	2006-06-16 15:08:51.000000000 -0400
++++ libselinux-1.30.15/src/selinuxswig_wrap.c	2006-06-23 16:09:27.000000000 -0400
+@@ -3020,6 +3020,50 @@ fail:
  }
  
-diff -purN -x.svn trunk/libsepol/src/avrule_block.c optionals-in-base-take2/libsepol/src/avrule_block.c
---- trunk/libsepol/src/avrule_block.c	2006-06-23 11:57:50.000000000 -0400
-+++ optionals-in-base-take2/libsepol/src/avrule_block.c	2006-06-23 12:26:49.000000000 -0400
-@@ -155,7 +155,7 @@ int is_id_enabled(char *id, policydb_t *
-                 return 0;
-         }
-         for (i = 0; i < scope->decl_ids_len; i++) {
--                avrule_decl_t *decl = p->decl_val_to_struct[scope->decl_ids[i]];
-+                avrule_decl_t *decl = p->decl_val_to_struct[scope->decl_ids[i] - 1];
-                 if (decl != NULL && decl->enabled) {
-                         return 1;
-                 }
-diff -purN -x.svn trunk/libsepol/src/link.c optionals-in-base-take2/libsepol/src/link.c
---- trunk/libsepol/src/link.c	2006-06-23 11:58:05.000000000 -0400
-+++ optionals-in-base-take2/libsepol/src/link.c	2006-06-23 12:26:49.000000000 -0400
-@@ -1239,7 +1239,7 @@ static int copy_avrule_block(link_state_
-                         last_decl->next = new_decl;
-                 }
-                 last_decl = new_decl;
--                state->base->decl_val_to_struct[state->next_decl_id] = new_decl;
-+                state->base->decl_val_to_struct[state->next_decl_id - 1] = new_decl;
- 		state->decl_to_mod[state->next_decl_id] = module->policy;
-                 module->avdecl_map[decl->decl_id] = new_decl->decl_id;
  
-@@ -1788,7 +1788,7 @@ static int prepare_base(link_state_t *st
-         while (cur != NULL) {
-                 avrule_decl_t *decl = cur->branch_list;
-                 while (decl != NULL) {
--                        state->base->decl_val_to_struct[decl->decl_id] = decl;
-+                        state->base->decl_val_to_struct[decl->decl_id - 1] = decl;
- 			state->decl_to_mod[decl->decl_id] = state->base;
-                         decl = decl->next;
-                 }
-diff -purN -x.svn trunk/libsepol/src/policydb.c optionals-in-base-take2/libsepol/src/policydb.c
---- trunk/libsepol/src/policydb.c	2006-06-23 11:58:03.000000000 -0400
-+++ optionals-in-base-take2/libsepol/src/policydb.c	2006-06-23 12:26:49.000000000 -0400
-@@ -655,7 +655,7 @@ int policydb_index_decls(policydb_t *p)
- {
- 	avrule_block_t *curblock;
- 	avrule_decl_t *decl;
--	int num_decls = 1;
-+	int num_decls = 0;
++SWIGINTERN PyObject *_wrap_getkeycreatecon(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
++  PyObject *resultobj = 0;
++  security_context_t *arg1 = (security_context_t *) 0 ;
++  int result;
++  security_context_t temp1 ;
++  char *temp10 ;
++  
++  {
++    arg1 = &temp1;
++  }
++  if (!PyArg_ParseTuple(args,(char *)":getkeycreatecon")) SWIG_fail;
++  result = (int)getkeycreatecon(arg1);
++  resultobj = SWIG_From_int((int)(result));
++  {
++    if (*arg1)
++    temp10 = *arg1;
++    else
++    temp10 = "";
++    resultobj = SWIG_Python_AppendOutput(resultobj, PyString_FromString(temp10));
++  }
++  return resultobj;
++fail:
++  return NULL;
++}
++
++
++SWIGINTERN PyObject *_wrap_setkeycreatecon(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
++  PyObject *resultobj = 0;
++  security_context_t arg1 ;
++  int result;
++  PyObject * obj0 = 0 ;
++  
++  if (!PyArg_ParseTuple(args,(char *)"O:setkeycreatecon",&obj0)) SWIG_fail;
++  {
++    arg1 = (security_context_t)PyString_AsString(obj0);
++  }
++  result = (int)setkeycreatecon(arg1);
++  resultobj = SWIG_From_int((int)(result));
++  return resultobj;
++fail:
++  return NULL;
++}
++
++
+ SWIGINTERN PyObject *_wrap_getfilecon(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+   PyObject *resultobj = 0;
+   char *arg1 = (char *) 0 ;
+@@ -4226,6 +4270,8 @@ static PyMethodDef SwigMethods[] = {
+ 	 { (char *)"setexeccon", _wrap_setexeccon, METH_VARARGS, NULL},
+ 	 { (char *)"getfscreatecon", _wrap_getfscreatecon, METH_VARARGS, NULL},
+ 	 { (char *)"setfscreatecon", _wrap_setfscreatecon, METH_VARARGS, NULL},
++	 { (char *)"getkeycreatecon", _wrap_getkeycreatecon, METH_VARARGS, NULL},
++	 { (char *)"setkeycreatecon", _wrap_setkeycreatecon, METH_VARARGS, NULL},
+ 	 { (char *)"getfilecon", _wrap_getfilecon, METH_VARARGS, NULL},
+ 	 { (char *)"lgetfilecon", _wrap_lgetfilecon, METH_VARARGS, NULL},
+ 	 { (char *)"fgetfilecon", _wrap_fgetfilecon, METH_VARARGS, NULL},
+--- libselinux-1.30.15/src/selinuxswig.i.keycreate	2006-06-16 15:08:51.000000000 -0400
++++ libselinux-1.30.15/src/selinuxswig.i	2006-06-23 16:09:27.000000000 -0400
+@@ -52,6 +52,8 @@ extern int getexeccon(security_context_t
+ extern int setexeccon(security_context_t con);
+ extern int getfscreatecon(security_context_t *con);
+ extern int setfscreatecon(security_context_t context);
++extern int getkeycreatecon(security_context_t *con);
++extern int setkeycreatecon(security_context_t context);
+ extern int getfilecon(const char *path, security_context_t *con);
+ extern int lgetfilecon(const char *path, security_context_t *con);
+ extern int fgetfilecon(int fd, security_context_t *con);
+--- libselinux-1.30.15/src/selinux.py.keycreate	2006-06-16 15:08:51.000000000 -0400
++++ libselinux-1.30.15/src/selinux.py	2006-06-23 16:09:27.000000000 -0400
+@@ -52,6 +52,8 @@ getexeccon = _selinux.getexeccon
+ setexeccon = _selinux.setexeccon
+ getfscreatecon = _selinux.getfscreatecon
+ setfscreatecon = _selinux.setfscreatecon
++getkeycreatecon = _selinux.getkeycreatecon
++setkeycreatecon = _selinux.setkeycreatecon
+ getfilecon = _selinux.getfilecon
+ lgetfilecon = _selinux.lgetfilecon
+ fgetfilecon = _selinux.fgetfilecon
+--- libselinux-1.30.15/include/selinux/selinux.h.keycreate	2006-06-23 16:08:33.000000000 -0400
++++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-23 16:14:21.000000000 -0400
+@@ -74,6 +74,15 @@ extern int getfscreatecon(security_conte
+    Call with NULL if you want to reset to the default. */
+ extern int setfscreatecon(security_context_t context);
  
- 	free(p->decl_val_to_struct);
++/* Get keycreate context, and set *con to refer to it.
++   Sets *con to NULL if no key create context has been set, i.e. using default.
++   If non-NULL, caller must free via freecon. */
++extern int getkeycreatecon(security_context_t *con);
++
++/* Set the keycreate security context for subsequent key creations.
++   Call with NULL if you want to reset to the default. */
++extern int setkeycreatecon(security_context_t context);
++
  
-@@ -672,7 +672,7 @@ int policydb_index_decls(policydb_t *p)
- 	
- 	for (curblock = p->global; curblock != NULL; curblock = curblock->next) {
- 		for (decl = curblock->branch_list; decl != NULL; decl = decl->next) {
--			p->decl_val_to_struct[decl->decl_id] = decl;
-+			p->decl_val_to_struct[decl->decl_id - 1] = decl;
- 		}
- 	}
- 
-diff -purN -x.svn trunk/policycoreutils/semodule_link/semodule_link.c optionals-in-base-take2/policycoreutils/semodule_link/semodule_link.c
---- trunk/policycoreutils/semodule_link/semodule_link.c	2006-06-23 11:57:47.000000000 -0400
-+++ optionals-in-base-take2/policycoreutils/semodule_link/semodule_link.c	2006-06-23 12:26:49.000000000 -0400
-@@ -153,11 +153,13 @@ int main(int argc, char **argv)
-         		exit(1);	
-         	}
- 		sepol_policy_file_free(pf);
-+		fclose(outfile);
-         }
- 
- 	sepol_module_package_free(base);
-         for (i = 0; i < num_mods; i++)
-         	sepol_module_package_free(mods[i]);
-+	free(mods);
- 	exit(0);
- }
+ /* Wrappers for the xattr API. */
  
 
 
