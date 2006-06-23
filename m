@@ -1,86 +1,145 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5NExVfr006208
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 10:59:31 -0400
-Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5NExUZW001404
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 14:59:30 GMT
-Received: by nf-out-0910.google.com with SMTP id b2so486895nfe
-        for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 07:59:30 -0700 (PDT)
-Message-ID: <7b5ba3cd0606230759t3fa8317frcd7c88fcef3830b5@mail.gmail.com>
-Date: Fri, 23 Jun 2006 10:59:29 -0400
-From: "Miguel Fernandes" <esmiguelfc@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Selinux Sources
-In-Reply-To: <1151073136.16104.3.camel@tiffy.tuxgeek.de>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_21073_5868836.1151074769885"
-References: <7b5ba3cd0606230706p7775ab9cx4dcc4ba1d70798c1@mail.gmail.com>
-	 <1151073136.16104.3.camel@tiffy.tuxgeek.de>
+Subject: Re: [PATCH 2/10] fix parser bugs
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+In-Reply-To: <1151074323.4011.70.camel@twoface.columbia.tresys.com>
+References: <1151074323.4011.70.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 10:22:26 -0500
+Message-Id: <1151076146.6431.10.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_21073_5868836.1151074769885
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Joshua,
 
-Hi Thorsten, thanks for your quick reply,
+I'm not really familiar with the parser itself, but I'm enjoying a cup
+of coffee and thought I'd have a peak...
 
-I'm trying to make the modification mention here:
-http://article.gmane.org/gmane.network.nagios.user/33586/match=selinux
+-tim
 
-But I don't know where to make the moditications recommended there because
-there are not such files on my distro. Any advice on this? Thanks!
+On Fri, 2006-06-23 at 10:52 -0400, Joshua Brindle wrote:
+> This patch fixes several bugs in the parser: The role->dominates was
+> being set on the main symtab role datum instead of the local decl one,
+> types do not need to be in the local decl symtabs, role requires should
+> be parsed on pass 1, attributes now have typeset set in local decl so
+> that disabled optionals won't add types to an attribute. There is also a
+> FIXME noted for a future format change to make range_trans use a
+> type_set instead of a bitmap.
+> 
+> diff -pruN -x .svn selinux.old/checkpolicy/module_compiler.c optionals-in-base-take2/checkpolicy/module_compiler.c
+> --- selinux.old/checkpolicy/module_compiler.c	2006-06-22 20:54:51.000000000 -0400
+> +++ optionals-in-base-take2/checkpolicy/module_compiler.c	2006-06-22 20:55:01.000000000 -0400
+<snip>
+> -type_datum_t *get_local_type(char *id, uint32_t value) {
+> +type_datum_t *get_local_type(char *id, uint32_t value, unsigned char isattr) {
+>          type_datum_t *dest_typdatum;
+>          hashtab_t types_tab;
+>          assert(stack_top->type == 1);
+>          if (stack_top->parent == NULL) {
+> -                /* in parent, so use global symbol table */
+> +                /* in global, so use global symbol table */
+>                  types_tab = policydbp->p_types.table;
+>          }
+>          else {
+>                  types_tab = stack_top->decl->p_types.table;
+>          }
+> -        if ((dest_typdatum = hashtab_search(types_tab, id)) == NULL) {
+> +        dest_typdatum = hashtab_search(types_tab, id);
+> +	if (!dest_typdatum) {
 
-On 6/23/06, Thorsten Scherf <tscherf@redhat.com> wrote:
->
-> On Fri, 2006-06-23 at 10:06 -0400, Miguel Fernandes wrote:
-> > Hi, I'm using FC5 with SELinux enable, but I'm unable to find the
-> > ploicy sources that should be located in /etc/selinux/targeted/src.
-> > The src folder doesn't exist on /etc/selinux/targeted. In
-> > /etc/security doesn't exist a selinux directory either. I dont know
-> > which package I have to install to obtain this files. Thanks in
-> > advance!
->
-> There is no longer a selinux-policy-<targeted/strict/mls>-sources RPM
-> available in FC5. All Policies are build from a selinux-policy.srpm
-> package, which contains all of the policy source files.
->
-> Happy Day.
-> Thorsten
->
-> --
-> Thorsten Scherf <tscherf@redhat.com>
-> Red Hat GmbH
->
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.3 (GNU/Linux)
->
-> iD8DBQBEm/tvwfkoLTuSgLsRAkVUAJ9b/8Yos4t6PvYrUh8oAW3JhU948QCeMCZd
-> yyLGAareaiwGXzzrlhsN31w=
-> =yXOo
-> -----END PGP SIGNATURE-----
->
->
->
+Formatting issues?
 
-------=_Part_21073_5868836.1151074769885
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+[..]
+>                  dest_typdatum = (type_datum_t *) malloc(sizeof(type_datum_t));
+>                  if (dest_typdatum == NULL) {
+>                          free(id);
+> @@ -444,6 +437,8 @@ type_datum_t *get_local_type(char *id, u
+>                  }
+>                  type_datum_init(dest_typdatum);
+>                  dest_typdatum->value = value;
+> +        	dest_typdatum->isattr = isattr;
+> +		dest_typdatum->primary = 1;
 
-Hi Thorsten, thanks for your quick reply,<br><br>I'm trying to make the modification mention here: <br><a href="http://article.gmane.org/gmane.network.nagios.user/33586/match=selinux">http://article.gmane.org/gmane.network.nagios.user/33586/match=selinux
-</a><br><br>But I don't know where to make the moditications recommended there because there are not such files on my distro. Any advice on this? Thanks!<br><br><div><span class="gmail_quote">On 6/23/06, <b class="gmail_sendername">
-Thorsten Scherf</b> &lt;<a href="mailto:tscherf@redhat.com">tscherf@redhat.com</a>&gt; wrote:</span><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-On Fri, 2006-06-23 at 10:06 -0400, Miguel Fernandes wrote:<br>&gt; Hi, I'm using FC5 with SELinux enable, but I'm unable to find the<br>&gt; ploicy sources that should be located in /etc/selinux/targeted/src.<br>&gt; The src folder doesn't exist on /etc/selinux/targeted. In
-<br>&gt; /etc/security doesn't exist a selinux directory either. I dont know<br>&gt; which package I have to install to obtain this files. Thanks in<br>&gt; advance!<br><br>There is no longer a selinux-policy-&lt;targeted/strict/mls&gt;-sources RPM
-<br>available in FC5. All Policies are build from a selinux-policy.srpm<br>package, which contains all of the policy source files.<br><br>Happy Day.<br>Thorsten<br><br>--<br>Thorsten Scherf &lt;<a href="mailto:tscherf@redhat.com">
-tscherf@redhat.com</a>&gt;<br>Red Hat GmbH<br><br><br>-----BEGIN PGP SIGNATURE-----<br>Version: GnuPG v1.4.3 (GNU/Linux)<br><br>iD8DBQBEm/tvwfkoLTuSgLsRAkVUAJ9b/8Yos4t6PvYrUh8oAW3JhU948QCeMCZd<br>yyLGAareaiwGXzzrlhsN31w=<br>
-=yXOo<br>-----END PGP SIGNATURE-----<br><br><br></blockquote></div><br>
+Formatting looks screwy here as well.
 
-------=_Part_21073_5868836.1151074769885--
+[..]
+>                  if (hashtab_insert(types_tab, id, dest_typdatum)) {
+>  			free(id);
+>                          type_datum_destroy(dest_typdatum);
+> @@ -453,6 +448,9 @@ type_datum_t *get_local_type(char *id, u
+>    
+>          } else {
+>  		free(id);
+> +		if (dest_typdatum->isattr != isattr) {
+> +			return NULL;
+> +		}
+>  	}
+>          return dest_typdatum;
+>  }
+> @@ -709,7 +707,7 @@ int require_role(int pass)
+>          char *id = queue_remove(id_queue);
+>          role_datum_t *role = NULL;
+>          int retval;
+> -        if (pass == 1) {
+> +        if (pass == 2) {
+>                  free(id);
+>                  return 0;
+>          }
+<snip>
+> diff -pruN -x .svn selinux.old/checkpolicy/policy_parse.y optionals-in-base-take2/checkpolicy/policy_parse.y
+> --- selinux.old/checkpolicy/policy_parse.y	2006-06-22 20:54:51.000000000 -0400
+> +++ optionals-in-base-take2/checkpolicy/policy_parse.y	2006-06-22 20:57:21.000000000 -0400
+> @@ -1810,10 +1810,6 @@ static int define_typeattribute(void)
+>  		free(id);
+>  		return -1;
+>  	}
+> -        if ((t = get_local_type(id, t->value)) == NULL) {
+> -                yyerror("Out of memory!");
+> -                return -1;
+> -        }
+>  
+>  	while ((id = queue_remove(id_queue))) {
+>                  if (!is_id_in_scope(SYM_TYPES, id)) {
+> @@ -1837,7 +1833,10 @@ static int define_typeattribute(void)
+>  			return -1;
+>  		}
+>  
+> -		free(id);
+> +	        if ((attr = get_local_type(id, attr->value, 1)) == NULL) {
+> +	                yyerror("Out of memory!");
+
+Just a nit, but this error message doesn't look consistent with the one
+just right below.  Looks like they're intermixed... I'd think you'd want
+some uniformity?  
+
+> +	                return -1;
+> +	        }
+>  
+>  		if (ebitmap_set_bit(&attr->types, (t->value - 1), TRUE)) {
+>  			yyerror("out of memory");
+> @@ -1897,7 +1896,7 @@ static int define_type(int alias)
+>  			return -1;
+>  		}
+>  
+> -                if ((attr = get_local_type(id, attr->value)) == NULL) {
+> +                if ((attr = get_local_type(id, attr->value, 1)) == NULL) {
+>                          yyerror("Out of memory!");
+>                          return -1;
+>                  }
+> @@ -4582,6 +4581,8 @@ static int define_range_trans(void)
+>  		return -1;
+>  	}
+>  
+> +	/* FIXME: this expands type_sets at compile time which is inappropriate, the type_sets
+> +	 * should be stored which is a format change */
+>  	ebitmap_for_each_bit(&doms.types, snode, i) {
+>  		if (!ebitmap_node_get_bit(snode, i))
+>  			continue;
+> 
+> 
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
