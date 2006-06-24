@@ -1,68 +1,63 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5O19852016453
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2006 21:09:08 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5O197pj010478
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 01:09:07 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5O6Q5Ui019788
+	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 02:26:05 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5O6Q49p016952
+	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 06:26:04 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5O6Q4fH025518
+	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 02:26:04 -0400
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5O6Q4N8004840
+	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 02:26:04 -0400
 Subject: Re: [PATCH] libselinux: 2/2 Convert functions to use new get,set
 	procattrcon
-From: James Antill <jantill@redhat.com>
-To: Eric Paris <eparis@parisplace.org>
+From: Eric Paris <eparis@parisplace.org>
+To: James Antill <jantill@redhat.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1151094771.21012.94.camel@localhost.localdomain>
+In-Reply-To: <1151111346.21635.131.camel@code.and.org>
 References: <1151094771.21012.94.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-m5blmWIlRBkQt79qfDI/"
-Date: Fri, 23 Jun 2006 21:09:05 -0400
-Message-Id: <1151111346.21635.131.camel@code.and.org>
+	 <1151111346.21635.131.camel@code.and.org>
+Content-Type: text/plain
+Date: Sat, 24 Jun 2006 02:27:03 -0400
+Message-Id: <1151130423.21012.107.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2006-06-23 at 21:09 -0400, James Antill wrote:
+> On Fri, 2006-06-23 at 16:32 -0400, Eric Paris wrote:
+> > The below patch will convert
+> > 
+> > -{get,set}fscreatecon()
+> > -{get,set}execcon()
+> > -{get,set}con()
+> > -getpidcon()
+> > -getprevcon()
+> > 
+> > to use the new {get,set}procattrcon() generic functions.  The only two
+> > caveats are
+> > 
+> > both getprevcon_raw() and getcon_raw() had callers elsewhere in
+> > libselinux.  So the raw version of these functions were left and now
+> > call directly into the raw version of the generic functions.
+> 
+>  I see you removed a bunch of *_raw() functions, you've changed the ABI
+> of the library and broken at least secon (in policycoreutils) and
+> gnome-vfs2. Is that intentional?
+> 
+>  The hidden_def() doesn't make them library local functions, just
+> creates the hidden version as an alias ... so ignore that part of my
+> previous email.
 
---=-m5blmWIlRBkQt79qfDI/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Obviously I wasn't intending to break other things.   I thought the
+hidden portion was actually making them library local and so I just
+checked to make sure there were no other users in the library, that and
+my machine didn't die a horrible death when I started using it.  They
+are very simple to add back and I will post a patch that returns the
+_raw functions and so doesn't change the abi at all on Monday.
 
-On Fri, 2006-06-23 at 16:32 -0400, Eric Paris wrote:
-> The below patch will convert
->=20
-> -{get,set}fscreatecon()
-> -{get,set}execcon()
-> -{get,set}con()
-> -getpidcon()
-> -getprevcon()
->=20
-> to use the new {get,set}procattrcon() generic functions.  The only two
-> caveats are
->=20
-> both getprevcon_raw() and getcon_raw() had callers elsewhere in
-> libselinux.  So the raw version of these functions were left and now
-> call directly into the raw version of the generic functions.
-
- I see you removed a bunch of *_raw() functions, you've changed the ABI
-of the library and broken at least secon (in policycoreutils) and
-gnome-vfs2. Is that intentional?
-
- The hidden_def() doesn't make them library local functions, just
-creates the hidden version as an alias ... so ignore that part of my
-previous email.
-
---=20
-James Antill <jantill@redhat.com>
-
---=-m5blmWIlRBkQt79qfDI/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEnJCx11eXTEMrxtQRAp1pAKDE5EJxkISVcNxiH/REQJ8yfhNgrwCeLese
-4yfY1Clrfpq8zqjVbkIYwgA=
-=aLg6
------END PGP SIGNATURE-----
-
---=-m5blmWIlRBkQt79qfDI/--
+-Eric
 
 
 --
