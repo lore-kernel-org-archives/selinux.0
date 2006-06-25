@@ -1,64 +1,103 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5O6Q5Ui019788
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 02:26:05 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5O6Q49p016952
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 06:26:04 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5O6Q4fH025518
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 02:26:04 -0400
-Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
-	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5O6Q4N8004840
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jun 2006 02:26:04 -0400
-Subject: Re: [PATCH] libselinux: 2/2 Convert functions to use new get,set
-	procattrcon
-From: Eric Paris <eparis@parisplace.org>
-To: James Antill <jantill@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1151111346.21635.131.camel@code.and.org>
-References: <1151094771.21012.94.camel@localhost.localdomain>
-	 <1151111346.21635.131.camel@code.and.org>
-Content-Type: text/plain
-Date: Sat, 24 Jun 2006 02:27:03 -0400
-Message-Id: <1151130423.21012.107.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5PCcpvn006837
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jun 2006 08:38:53 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5PCckCU006299
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jun 2006 12:38:48 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: moving modules into base
+Date: Sun, 25 Jun 2006 22:37:07 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200606181333.36369.russell@coker.com.au> <1150728321.18657.104.camel@sgc>
+In-Reply-To: <1150728321.18657.104.camel@sgc>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_zNonErU8bzklX+5"
+Message-Id: <200606252237.07080.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-06-23 at 21:09 -0400, James Antill wrote:
-> On Fri, 2006-06-23 at 16:32 -0400, Eric Paris wrote:
-> > The below patch will convert
-> > 
-> > -{get,set}fscreatecon()
-> > -{get,set}execcon()
-> > -{get,set}con()
-> > -getpidcon()
-> > -getprevcon()
-> > 
-> > to use the new {get,set}procattrcon() generic functions.  The only two
-> > caveats are
-> > 
-> > both getprevcon_raw() and getcon_raw() had callers elsewhere in
-> > libselinux.  So the raw version of these functions were left and now
-> > call directly into the raw version of the generic functions.
-> 
->  I see you removed a bunch of *_raw() functions, you've changed the ABI
-> of the library and broken at least secon (in policycoreutils) and
-> gnome-vfs2. Is that intentional?
-> 
->  The hidden_def() doesn't make them library local functions, just
-> creates the hidden version as an alias ... so ignore that part of my
-> previous email.
+--Boundary-00=_zNonErU8bzklX+5
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Obviously I wasn't intending to break other things.   I thought the
-hidden portion was actually making them library local and so I just
-checked to make sure there were no other users in the library, that and
-my machine didn't die a horrible death when I started using it.  They
-are very simple to add back and I will post a patch that returns the
-_raw functions and so doesn't change the abi at all on Monday.
+On Tuesday 20 June 2006 00:45, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> On Sun, 2006-06-18 at 13:33 +1000, Russell Coker wrote:
+> > Due to problems with modules I want to compile a policy with amavis and
+> > clamav in base.pp.
+> >
+> > I built the rpms but get the following when trying to install them:
+> >
+> > libsepol.scope_copy_callback: amavis: Duplicate declaration in module:
+> > type/attribute amavis_var_log_t
+> > libsemanage.semanage_link_sandbox: Link packages failed
+> > semodule:  Failed!
+> >
+> > I then built a module with just clamav in base.pp and got the following:
+> >
+> > libsepol.scope_copy_callback: clamav: Duplicate declaration in module:
+> > type/attribute clamd_var_lib_t
+> > libsemanage.semanage_link_sandbox: Link packages failed
+> > semodule:  Failed!
+>
+> Can you send a copy of the modules.conf?
 
--Eric
+I've attached the patch against the default Red Hat package.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_zNonErU8bzklX+5
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="modules-targeted.conf.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="modules-targeted.conf.diff"
+
+--- modules-targeted.conf.orig	2006-06-18 12:41:13.000000000 +1000
++++ modules-targeted.conf	2006-06-18 13:19:02.000000000 +1000
+@@ -1053,16 +1053,16 @@
+ # Layer: services
+ # Module: amavis
+ #
+-# Anti-virus
++# Amavis anti-virus framework for Email virus scanning
+ # 
+-amavis = module
++amavis = base
+ 
+ # Layer: services
+ # Module: clamav
+ #
+ # ClamAV Virus Scanner
+ # 
+-clamav = module
++clamav = base
+ 
+ # Layer: system
+ # Module: setrans
+@@ -1078,3 +1078,10 @@
+ # Policy for OPENVPN full-featured SSL VPN solution
+ # 
+ openvpn = base
++
++# Layer: services
++# Module: postgrey
++#
++# Policy for Postfix Gray-listing daemon
++# 
++postgrey = base
+
+--Boundary-00=_zNonErU8bzklX+5--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
