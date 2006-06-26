@@ -1,64 +1,45 @@
-Subject: Re: [PATCH] libselinux: 1/2 Introduce {get,set}procattrcon
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1151350693.21012.170.camel@localhost.localdomain>
-References: <1151340535.21012.150.camel@localhost.localdomain>
-	 <1151346680.5264.50.camel@moss-spartans.epoch.ncsc.mil>
-	 <1151350693.21012.170.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 26 Jun 2006 16:15:40 -0400
-Message-Id: <1151352940.5264.86.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <36282A1733C57546BE392885C0618592013246F8@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: James Morris <jmorris@namei.org>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        "David S. Miller"
+	 <davem@davemloft.net>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: RE: [PATCH 01/06] MLSXFRM: Granular IPSec associations for use in
+	  MLS environments
+Date: Mon, 26 Jun 2006 18:24:28 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-06-26 at 15:38 -0400, Eric Paris wrote:
-> On Mon, 2006-06-26 at 14:31 -0400, Stephen Smalley wrote:
-> > > --- libselinux-1.30.15/include/selinux/selinux.h.p1	2006-06-26 12:00:54.000000000 -0400
-> > > +++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-26 12:00:54.000000000 -0400
-> > > @@ -24,6 +24,14 @@ extern void freeconary(security_context_
-> > >  
-> > >  /* Wrappers for the /proc/pid/attr API. */
-> > >  
-> > > +/* Generic /proc pid attr handlers.  These will either get or set the context
-> > > +   from or into the proc location passed to them.  Should only be called from 
-> > > +   inside libselinux */
-> > > +extern int getprocattrcon(security_context_t *con, char *path);
-> > > +extern int getprocattrcon_raw(security_context_t *con, char *path);
-> > > +extern int setprocattrcon(security_context_t con, char *path);
-> > > +extern int setprocattrcon_raw(security_context_t con, char *path);
-> > > +
-> > >  /* Get current context, and set *con to refer to it.
-> > >     Caller must free via freecon. */
-> > >  extern int getcon(security_context_t *con);
-> > 
-> > If they should only be called from inside libselinux, why are they
-> > defined in selinux/selinux.h, and exported to users of the library?
-> 
-> When I originally typed that comment I was still under the misguided
-> impression they were being hidden (which should have stood out as
-> strange for the same reason it did to james).  I could see value if you
-> had done something custom to your kernel or your libselinux didn't have
-> interfaces for all of the /proc/pid/attr/* (as is now the case since
-> there are kernels with keycreate and sockcreate but no libselinux
-> interface, even if that will get fixed shortly.)  I don't think it's
-> unreasonable to remove that comment and just leave them as visable
-> functions.  Do you want another patch to remove the comment?  Anyone
-> have feelings that we shouldn't export such a general interface?
+ 
+> There's also the question of ongoing maintenance in the
+> mainline kernel.  Unfortunately, there's been an increasing
+> trend recently for companies to drop code over the wall.  For 
+> example, once they get it to some basic level of completeness,
+> and the initial patches are merged, their developers are 
+> reassigned to other projects and the upstream maintainers 
+> are left with code that's not yet up to Linux kernel quality
+> and also something they may not understand very well.  So, we
+> need to know whether TCS or anyone else with expert knowledge
+> of MLS will be helping months or years down the track, once this
+> code has been merged.
 
-I'm not sure what we gain from such an interface for users of the
-library, as it requires the caller to know the full path of the proc
-file, so they have to already know about /proc/pid/attr and about the
-specific node they want.  At which point they might as well just open
-and read it directly (no added abstraction).  So I'd hide these
-functions within the library (i.e. hidden qualifier), not make them part
-of the public interface.
+We are prepared to help with ongoing support for maintenance and 
+improvement of the code accepted into the kernel. We like having
+the benefit of providing guidance for the OS security development,
+which is needed for our solutions, even though there is some added
+cost. This is one the reasons we are porting our solutions to Linux.
+The bottom line is the security functionality is a necessary 
+component for our applications, and we don't want to be dependent
+on others to make sure the functionality is being maintained
+correctly. 
 
--- 
-Stephen Smalley
-National Security Agency
-
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
