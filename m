@@ -1,42 +1,56 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5QDRoN4024842
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 09:27:51 -0400
-Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5QDRmgW005525
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 13:27:49 GMT
-Date: Mon, 26 Jun 2006 09:27:46 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: David Howells <dhowells@redhat.com>
-cc: Michael LeMay <mdlemay@epoch.ncsc.mil>, sds@tycho.nsa.gov,
-        eparis@parisplace.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: inherit /proc/self/attr/keycreate across fork
-In-Reply-To: <14355.1151316226@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0606260927290.20117@d.namei>
-References: <1150924813.3432.14.camel@moss-tarheels.epoch.ncsc.mil>
- <14355.1151316226@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5QGll2X029238
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 12:47:47 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5QGlkgW000676
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 16:47:46 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5QGlkQZ016468
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 12:47:46 -0400
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k5QGlkmW012399
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 12:47:46 -0400
+Received: from vpn50-132.rdu.redhat.com (vpn50-132.rdu.redhat.com [172.16.50.132])
+	by pobox.corp.redhat.com (8.12.8/8.12.8) with ESMTP id k5QGljLp031522
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 12:47:45 -0400
+Subject: [PATCH] libselinux: 0/2 Refactor Handling of /proc/pid/attr/*
+From: Eric Paris <eparis@parisplace.org>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Mon, 26 Jun 2006 12:48:52 -0400
+Message-Id: <1151340532.21012.148.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 26 Jun 2006, David Howells wrote:
+The follow patch set will rework libselinux to now include generic get
+and set functions for reading and writing contexts to the interfaces
+found in /proc/pid/attr/  The individual libselinux calls will tell the
+generic function the path to the attr along with the context
+information.
 
-> Michael LeMay <mdlemay@epoch.ncsc.mil> wrote:
-> 
-> > This patch updates SELinux to cause the keycreate process attribute held in
-> > /proc/self/attr/keycreate to be inherited across a fork and reset upon execve.
-> > This is consistent with the handling of the other process attributes provided
-> > by SELinux and also makes it simpler to adapt logon programs to properly
-> > handle the keycreate attribute.
-> 
-> Please post it to Andrew Morton directly as soon as possible.
+Patch 1/2: Introduce {get,set}procattrcon - These are the 2 functions
+that will actually do the work of reading and writing.  reads and writes
+are now wrapped in do{}while (ret < 1 && errno == EINTR) to stop early
+unneeded failure (suggested by steve g)  errno is now saved across
+close(fd) in both get and set to make sure that read/write errors are
+propagated back up the stack rather than close errno which we don't
+check anyway (suggested by james antill). get still uses strdup since
+the malloc is a whole page and leaving that much space unused is just
+wasteful (mentioned by steve g).
 
-I was waiting for an ack from Stephen Smalley, but it looks ok I guess.
+Patch 2/2: Convert old users to new generic function
+-{get,set}fscreatecon()
+-{get,set}execcon()
+-{get,set}con() the old setcon() had a special check for attempting to
+write null and would fail with -1;  From my testing this is the same
+thing that happens if you actually try to write null to
+the /proc/self/attr/current file so special casing this was not needed.
+-getpidcon()
+-getprevcon()
 
+Eric
 
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
