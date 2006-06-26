@@ -1,47 +1,51 @@
 Subject: Re: [PATCH] libselinux: 1/2 Introduce {get,set}procattrcon
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1151340535.21012.150.camel@localhost.localdomain>
+In-Reply-To: <1151346680.5264.50.camel@moss-spartans.epoch.ncsc.mil>
 References: <1151340535.21012.150.camel@localhost.localdomain>
+	 <1151346680.5264.50.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 26 Jun 2006 14:31:20 -0400
-Message-Id: <1151346680.5264.50.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 26 Jun 2006 15:38:13 -0400
+Message-Id: <1151350693.21012.170.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-06-26 at 12:48 -0400, Eric Paris wrote:
-> The below attached patch implements two new function, get and set
-> procattrcon.  These are generic functions that take a context and a path
-> and attempt to write that context to that path.  These are used by of
-> exported libselinux interfaces, like getfscreatecon, as a generic
-> backend to reduce duplication of code.
+On Mon, 2006-06-26 at 14:31 -0400, Stephen Smalley wrote:
+> > --- libselinux-1.30.15/include/selinux/selinux.h.p1	2006-06-26 12:00:54.000000000 -0400
+> > +++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-26 12:00:54.000000000 -0400
+> > @@ -24,6 +24,14 @@ extern void freeconary(security_context_
+> >  
+> >  /* Wrappers for the /proc/pid/attr API. */
+> >  
+> > +/* Generic /proc pid attr handlers.  These will either get or set the context
+> > +   from or into the proc location passed to them.  Should only be called from 
+> > +   inside libselinux */
+> > +extern int getprocattrcon(security_context_t *con, char *path);
+> > +extern int getprocattrcon_raw(security_context_t *con, char *path);
+> > +extern int setprocattrcon(security_context_t con, char *path);
+> > +extern int setprocattrcon_raw(security_context_t con, char *path);
+> > +
+> >  /* Get current context, and set *con to refer to it.
+> >     Caller must free via freecon. */
+> >  extern int getcon(security_context_t *con);
+> 
+> If they should only be called from inside libselinux, why are they
+> defined in selinux/selinux.h, and exported to users of the library?
 
-> --- libselinux-1.30.15/include/selinux/selinux.h.p1	2006-06-26 12:00:54.000000000 -0400
-> +++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-26 12:00:54.000000000 -0400
-> @@ -24,6 +24,14 @@ extern void freeconary(security_context_
->  
->  /* Wrappers for the /proc/pid/attr API. */
->  
-> +/* Generic /proc pid attr handlers.  These will either get or set the context
-> +   from or into the proc location passed to them.  Should only be called from 
-> +   inside libselinux */
-> +extern int getprocattrcon(security_context_t *con, char *path);
-> +extern int getprocattrcon_raw(security_context_t *con, char *path);
-> +extern int setprocattrcon(security_context_t con, char *path);
-> +extern int setprocattrcon_raw(security_context_t con, char *path);
-> +
->  /* Get current context, and set *con to refer to it.
->     Caller must free via freecon. */
->  extern int getcon(security_context_t *con);
+When I originally typed that comment I was still under the misguided
+impression they were being hidden (which should have stood out as
+strange for the same reason it did to james).  I could see value if you
+had done something custom to your kernel or your libselinux didn't have
+interfaces for all of the /proc/pid/attr/* (as is now the case since
+there are kernels with keycreate and sockcreate but no libselinux
+interface, even if that will get fixed shortly.)  I don't think it's
+unreasonable to remove that comment and just leave them as visable
+functions.  Do you want another patch to remove the comment?  Anyone
+have feelings that we shouldn't export such a general interface?
 
-If they should only be called from inside libselinux, why are they
-defined in selinux/selinux.h, and exported to users of the library?
-
--- 
-Stephen Smalley
-National Security Agency
+-Eric
 
 
 --
