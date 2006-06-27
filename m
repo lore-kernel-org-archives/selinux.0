@@ -1,78 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5RKa7gS025127
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jun 2006 16:36:07 -0400
-Received: from mail8.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5RKa5ZV002032
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jun 2006 20:36:06 GMT
-Date: Tue, 27 Jun 2006 16:36:02 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
+Subject: Re: [PATCH 1/3] security:  Extend task_kill hook to handle signals
+	sent by AIO completion
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
 To: David Quigley <dpquigl@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@iname.org
-Subject: Re: [PATCH] sched: Add security hooks to mips {get,set}affinity
-In-Reply-To: <1151438854.1294.14.camel@moss-terrapins.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.64.0606271635400.3759@d.namei>
-References: <1151438854.1294.14.camel@moss-terrapins.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <1151438496.1294.7.camel@moss-terrapins.epoch.ncsc.mil>
+References: <1151438496.1294.7.camel@moss-terrapins.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 15:43:04 -0500
+Message-Id: <1151440985.6863.7.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 27 Jun 2006, David Quigley wrote:
-
+On Tue, 2006-06-27 at 16:01 -0400, David Quigley wrote:
 > From: David Quigley <dpquigl@tycho.nsa.gov>
 > 
-> This patch adds LSM hooks into the setaffinity and getaffinity
-> functions for the mips architecture to enable security modules to
-> control these operations between tasks with different security
-> attributes. This implementation uses the existing task_setscheduler
-> and task_getscheduler LSM hooks.
-> 
-> Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-
-Looks good to me.  I'll submit it upstream once Stephen acks it.
-
-
-> ---
-> 
->  arch/mips/kernel/mips-mt.c |    9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/arch/mips/kernel/mips-mt.c linux-2.6.17-mm3-affiniy/arch/mips/kernel/mips-mt.c
-> --- linux-2.6.17-mm3/arch/mips/kernel/mips-mt.c	2006-06-17 21:49:35.000000000 -0400
-> +++ linux-2.6.17-mm3-affiniy/arch/mips/kernel/mips-mt.c	2006-06-27 15:47:46.000000000 -0400
-> @@ -95,6 +95,10 @@ asmlinkage long mipsmt_sys_sched_setaffi
->  		goto out_unlock;
->  	}
->  
-> +	retval = security_task_setscheduler(p, 0, NULL);
-> +	if (retval)
-> +		goto out_unlock;
-> +
->  	/* Record new user-specified CPU set for future reference */
->  	p->thread.user_cpus_allowed = new_mask;
->  
-> @@ -140,8 +144,9 @@ asmlinkage long mipsmt_sys_sched_getaffi
->  	p = find_process_by_pid(pid);
->  	if (!p)
->  		goto out_unlock;
-> -
-> -	retval = 0;
-> +	retval = security_task_getscheduler(p);
-> +	if (retval)
-> +		goto out_unlock;
->  
->  	cpus_and(mask, p->thread.user_cpus_allowed, cpu_possible_map);
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> This patch extends the security_task_kill hook to handle signals sent
+> by AIO completion.  In this case, the SID of the task responsible for
+> the signal needs to be obtained and saved earlier, so a
+> security_task_getsecurityid() hook is added, and then this saved value
+> is passed subsequently to the extended task_kill hook for use in
+> checking.
 > 
 
--- 
-James Morris
-<jmorris@namei.org>
+I could be missing something here, but why not simply use the public API
+call directly, rather than creating another LSM hook?  The one that is
+declared in include/linux/selinux.h and defined in
+security/selinux/exports.c,
+
+void selinux_get_task_sid(struct task_struct *tsk, u32 *sid);
+
+-tim
+<snip>
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
