@@ -1,53 +1,68 @@
-Subject: [PATCH] sched: Add security hooks to mips {get,set}affinity
-From: David Quigley <dpquigl@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@iname.org
+Subject: Re: [PATCH] libselinux: 1/2 Introduce {get,set}procattrcon
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1151352940.5264.86.camel@moss-spartans.epoch.ncsc.mil>
+References: <1151340535.21012.150.camel@localhost.localdomain>
+	 <1151346680.5264.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <1151350693.21012.170.camel@localhost.localdomain>
+	 <1151352940.5264.86.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 27 Jun 2006 16:07:34 -0400
-Message-Id: <1151438854.1294.14.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Tue, 27 Jun 2006 16:30:42 -0400
+Message-Id: <1151440242.20419.142.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: David Quigley <dpquigl@tycho.nsa.gov>
+On Mon, 2006-06-26 at 16:15 -0400, Stephen Smalley wrote:
+> On Mon, 2006-06-26 at 15:38 -0400, Eric Paris wrote:
+> > On Mon, 2006-06-26 at 14:31 -0400, Stephen Smalley wrote:
+> > > > --- libselinux-1.30.15/include/selinux/selinux.h.p1	2006-06-26 12:00:54.000000000 -0400
+> > > > +++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-26 12:00:54.000000000 -0400
+> > > > @@ -24,6 +24,14 @@ extern void freeconary(security_context_
+> > > >  
+> > > >  /* Wrappers for the /proc/pid/attr API. */
+> > > >  
+> > > > +/* Generic /proc pid attr handlers.  These will either get or set the context
+> > > > +   from or into the proc location passed to them.  Should only be called from 
+> > > > +   inside libselinux */
+> > > > +extern int getprocattrcon(security_context_t *con, char *path);
+> > > > +extern int getprocattrcon_raw(security_context_t *con, char *path);
+> > > > +extern int setprocattrcon(security_context_t con, char *path);
+> > > > +extern int setprocattrcon_raw(security_context_t con, char *path);
+> > > > +
+> > > >  /* Get current context, and set *con to refer to it.
+> > > >     Caller must free via freecon. */
+> > > >  extern int getcon(security_context_t *con);
+> > > 
+> > > If they should only be called from inside libselinux, why are they
+> > > defined in selinux/selinux.h, and exported to users of the library?
+> > 
+> > When I originally typed that comment I was still under the misguided
+> > impression they were being hidden (which should have stood out as
+> > strange for the same reason it did to james).  I could see value if you
+> > had done something custom to your kernel or your libselinux didn't have
+> > interfaces for all of the /proc/pid/attr/* (as is now the case since
+> > there are kernels with keycreate and sockcreate but no libselinux
+> > interface, even if that will get fixed shortly.)  I don't think it's
+> > unreasonable to remove that comment and just leave them as visable
+> > functions.  Do you want another patch to remove the comment?  Anyone
+> > have feelings that we shouldn't export such a general interface?
+> 
+> I'm not sure what we gain from such an interface for users of the
+> library, as it requires the caller to know the full path of the proc
+> file, so they have to already know about /proc/pid/attr and about the
+> specific node they want.  At which point they might as well just open
+> and read it directly (no added abstraction).  So I'd hide these
+> functions within the library (i.e. hidden qualifier), not make them part
+> of the public interface.
 
-This patch adds LSM hooks into the setaffinity and getaffinity
-functions for the mips architecture to enable security modules to
-control these operations between tasks with different security
-attributes. This implementation uses the existing task_setscheduler
-and task_getscheduler LSM hooks.
+I merged the patches, with the above change ([gs]etprocattrcon are now
+truly hidden functions within the shared library).
 
-Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
----
-
- arch/mips/kernel/mips-mt.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/arch/mips/kernel/mips-mt.c linux-2.6.17-mm3-affiniy/arch/mips/kernel/mips-mt.c
---- linux-2.6.17-mm3/arch/mips/kernel/mips-mt.c	2006-06-17 21:49:35.000000000 -0400
-+++ linux-2.6.17-mm3-affiniy/arch/mips/kernel/mips-mt.c	2006-06-27 15:47:46.000000000 -0400
-@@ -95,6 +95,10 @@ asmlinkage long mipsmt_sys_sched_setaffi
- 		goto out_unlock;
- 	}
- 
-+	retval = security_task_setscheduler(p, 0, NULL);
-+	if (retval)
-+		goto out_unlock;
-+
- 	/* Record new user-specified CPU set for future reference */
- 	p->thread.user_cpus_allowed = new_mask;
- 
-@@ -140,8 +144,9 @@ asmlinkage long mipsmt_sys_sched_getaffi
- 	p = find_process_by_pid(pid);
- 	if (!p)
- 		goto out_unlock;
--
--	retval = 0;
-+	retval = security_task_getscheduler(p);
-+	if (retval)
-+		goto out_unlock;
- 
- 	cpus_and(mask, p->thread.user_cpus_allowed, cpu_possible_map);
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
