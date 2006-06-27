@@ -1,39 +1,56 @@
-Message-ID: <44A1530F.1020400@trustedcs.com>
-Date: Tue, 27 Jun 2006 10:47:27 -0500
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5RJgBLf023892
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jun 2006 15:42:11 -0400
+Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5RJg9C8003402
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jun 2006 19:42:10 GMT
+Date: Tue, 27 Jun 2006 14:41:42 -0500
+From: Klaus Weidner <klaus@atsec.com>
+To: James Morris <jmorris@namei.org>
+Cc: Joe Nall <joe@nall.com>, David Miller <davem@davemloft.net>,
+        Paul Moore <paul.moore@hp.com>, jmorris@redhat.com,
+        Stephen Smalley <sds@epoch.ncsc.mil>,
+        RedHat LSPP <redhat-lspp@redhat.com>,
+        linux-security-module@vger.kernel.org,
+        SELinux List <selinux@tycho.nsa.gov>, netdev@vger.kernel.org,
+        Steve Grubb <sgrubb@redhat.com>
+Subject: Re: [redhat-lspp] Re: [RFC 3/7] NetLabel: CIPSOv4 engine
+Message-ID: <20060627194142.GC5181@w-m-p.com>
+References: <20060621194234.979661000@flek.zko.hp.com> <20060621200031.589235000@flek.zko.hp.com> <20060622.021223.125894633.davem@davemloft.net> <F5329247-1566-4989-954B-A199240DC89F@nall.com> <Pine.LNX.4.64.0606262031010.26545@d.namei>
 MIME-Version: 1.0
-To: paul.moore@hp.com
-CC: jmorris@namei.org, netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        davem@davemloft.net, sds@tycho.nsa.gov, eparis@redhat.com
-Subject: Re: Labeled Networking Requirements and Design (formerly RE: [PATCH
- 01/06] MLSXFRM: Granular IPSec associations for use in  MLS environments)
-References: <44A0684D.9080904@trustedcs.com> <44A152A6.3060809@trustedcs.com>
-In-Reply-To: <44A152A6.3060809@trustedcs.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.LNX.4.64.0606262031010.26545@d.namei>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Venkat Yekkirala wrote:
->> Keeping in mind (R1a), I wonder if it makes more sense for (OTBND1a) 
->> to take the label of the process/domain which sends the data to the 
->> socket? After all, the process/domain is the "origin" of the data.
+On Mon, Jun 26, 2006 at 08:33:57PM -0400, James Morris wrote:
+> On Mon, 26 Jun 2006, Joe Nall wrote:
+> > For all of the EAL4 LSPP Linux evaluation work is being done by Red
+> > Hat/IBM/HP/atsec and others to be useful to integrators, there has to be basic
+> > (e.g. CIPSO) multilevel network interoperability with existing multilevel
+> > systems and good (e.g IPSec) multilevel networking between SELinux systems.
 > 
-> Right. This is what "ends up" happening in the non-privileged case. In the
-> privileged multi-level process case, the label of the data has in fact been
-> established at the socket creation time itself, and here we are trusting 
-> the
-> privileged multi-level process with sending data out on the right socket 
-> with
-> the knowledge that the data would be labeled with the label of the socket.
-> 
->>  This seems to be particularly important in the case of 
->> fork()-then-exec() where you could have a socket created at a 
->> different context from the domain currently writing to it.
-> 
-> It would also help to remember that there are additional process-to-socket
-> controls (sendmsg, recvmsg) already in place in SELinux.
-> 
-In summary it's a matter of architecture.
+> Just to be clear, my understanding is that the native xfrm labeling is 
+> suitable for LSPP evaluation, as distinct from CIPSO being desired by 
+> system integrators from an interoperability point of view.
+
+It's not quite that distinct, the two solutions overlap in some areas but
+neither can replace the other.
+
+CIPSO would also be suitable for LSPP evaluation since it is capable of
+exporting and importing labeled data. It requires a trusted network since
+it doesn't encrypt or authenticate, so the evaluation would need to
+restrict the environment accordingly.
+
+The native IPSEC/xfrm approach is useful for more hostile environments
+where you can't fully trust the network, but it's not interoperable with
+existing deployed systems so it's not a replacement for CIPSO.
+
+>From an evaluation point of view, either CIPSO or IPSEC/xfrm would be
+able to meet LSPP requirements but with different restrictions on the
+environment.
+
+-Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
