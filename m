@@ -1,52 +1,35 @@
-Message-ID: <36282A1733C57546BE392885C061859201324767@chaos.tcs.tcs-sec.com>
+Message-ID: <44A152A6.3060809@trustedcs.com>
+Date: Tue, 27 Jun 2006 10:45:42 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: James Morris <jmorris@namei.org>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, davem@davemloft.net,
-        sds@tycho.nsa.gov, paul.moore@hp.com, eparis@redhat.com
-Subject: RE: Labeled Networking Requirements and Design (formerly RE: [PAT
-	CH 01/06] MLSXFRM: Granular IPSec associations for use in  MLS environmen
-	ts)
-Date: Tue, 27 Jun 2006 11:29:12 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: paul.moore@hp.com
+CC: jmorris@namei.org, netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+        davem@davemloft.net, sds@tycho.nsa.gov, eparis@redhat.com
+Subject: Re: Labeled Networking Requirements and Design (formerly RE: [PATCH
+ 01/06] MLSXFRM: Granular IPSec associations for use in  MLS environments)
+References: <44A0684D.9080904@trustedcs.com>
+In-Reply-To: <44A0684D.9080904@trustedcs.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > 5. Patch for ITEM7: TCS currently have no plans to design 
-> and implement this.
-> > 
-> 
-> (Datagram labeling)
-> 
-> I guess we'd probably use SCM_SECURITY for this (similar to 
-> IP_CMSG_PASSEC for receiving the label).
+> Keeping in mind (R1a), I wonder if it makes more sense for (OTBND1a) to take 
+> the label of the process/domain which sends the data to the socket? After 
+> all, the process/domain is the "origin" of the data.
 
-Seems like a logical way to do it.
-> 
-> Is this enough support for user API support at the kernel 
-> level in terms 
-> of setting and getting labels?
+Right. This is what "ends up" happening in the non-privileged case. In the
+privileged multi-level process case, the label of the data has in fact been
+established at the socket creation time itself, and here we are trusting the
+privileged multi-level process with sending data out on the right socket with
+the knowledge that the data would be labeled with the label of the socket.
 
-Actually I missed mentioning the following under User API:
+>  This seems to be 
+> particularly important in the case of fork()-then-exec() where you could have 
+> a socket created at a different context from the domain currently writing to 
+> it.
 
-4. iptables contexts
-   a. Specify labels with iptables rules.
-
-Can't think of anything else being needed at this point in time.
-
-Also, for the sake of the discussion, one "requirement" that some
-may have is "Label-based routing", which would basically be a
-polyinstantiated routing table. This is something TCS is currently
-not interested in pursuing.
-
-So, under USER REQUIREMENTS:
-
-4. Routing support
-
-	a. provision for a label-based routing mechanism (aka
-polyinstantiated
-	   routing table).
+It would also help to remember that there are additional process-to-socket
+controls (sendmsg, recvmsg) already in place in SELinux.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
