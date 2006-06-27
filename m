@@ -1,78 +1,58 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5QNEfdK005026
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 19:14:41 -0400
-Received: from smtp112.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k5QNEedE009492
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 23:14:40 GMT
-In-Reply-To: <20060622.021223.125894633.davem@davemloft.net>
-References: <20060621194234.979661000@flek.zko.hp.com> <20060621200031.589235000@flek.zko.hp.com> <20060622.021223.125894633.davem@davemloft.net>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <F5329247-1566-4989-954B-A199240DC89F@nall.com>
-Cc: Paul Moore <paul.moore@hp.com>, jmorris@redhat.com,
-        Stephen Smalley <sds@epoch.ncsc.mil>,
-        RedHat LSPP <redhat-lspp@redhat.com>,
-        linux-security-module@vger.kernel.org,
-        SELinux List <selinux@tycho.nsa.gov>, netdev@vger.kernel.org,
-        Steve Grubb <sgrubb@redhat.com>
-From: Joe Nall <joe@nall.com>
-Subject: Re: [redhat-lspp] Re: [RFC 3/7] NetLabel: CIPSOv4 engine
-Date: Mon, 26 Jun 2006 18:14:12 -0500
-To: David Miller <davem@davemloft.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5R0TnB8006366
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2006 20:29:49 -0400
+Received: from mail6.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5R0TlgW024576
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jun 2006 00:29:47 GMT
+Date: Mon, 26 Jun 2006 20:29:45 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, davem@davemloft.net,
+        sds@tycho.nsa.gov, paul.moore@hp.com, eparis@redhat.com
+Subject: Re: Labeled Networking Requirements and Design (formerly RE: [PATCH
+ 01/06] MLSXFRM: Granular IPSec associations for use in  MLS environments)
+In-Reply-To: <44A0684D.9080904@trustedcs.com>
+Message-ID: <Pine.LNX.4.64.0606262004530.26545@d.namei>
+References: <44A0684D.9080904@trustedcs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 26 Jun 2006, Venkat Yekkirala wrote:
 
-On Jun 22, 2006, at 4:12 AM, David Miller wrote:
+> > What we need is a design rationale, some kind of detailed discussion of what
+> > the user requirements are and what the plan is for implementing features to
+> > meet these requirements.
+> 
+> The following is not extensive in a formal/theoretical sense, but hopefully
+> addresses the need here.
 
-> From: paul.moore@hp.com
-> Date: Wed, 21 Jun 2006 15:42:38 -0400
->
->> Add support for the Commercial IP Security Option (CIPSO) to the
->> IPv4 network stack.  CIPSO has become a de-facto standard for
->> trusted/labeled networking amongst existing Trusted Operating
->> Systems such as Trusted Solaris, HP-UX CMW, etc.  This
->> implementation is designed to be used with the NetLabel subsystem to
->> provide explicit packet labeling to LSM developers.
->
-> The thing that concerns me most about CIPSO is that even once users
-> migrate to a more SELINUX native approach from this CIPSO stuff, the
-> CIPSO code, it's bloat, and it's maintainence burdon will remain.
->
-> It's easy to put stuff it, it's impossible to take stuff out even
-> once it's largely unused by even it's original target audience.
->
-> And that's what I see happening here.
->
-> This is why, to be perfectly honest with you, I'd much rather
-> something like this stay out-of-tree and people are strongly
-> encouraged to use the more native stuff under Linux.
+This is great, thanks.  Exactly what was needed and much appreciated.
 
-We are looking to replace a number of 20-60 node CMW networks with  
-lots of applications with an SELinux based network. Since mainstream  
-support for multilevel X Windows appears a ways off,  we are looking  
-to replace the servers first and use the current CMWs as fat clients.  
-To make this work we need multilevel networking interoperability  
-between the SELinux and CMW systems.
+I think the interaction with secmark as you describe sounds good.
 
-We have been testing Paul's CIPSO patch against our existing systems  
-with good results.
+> 3. Patch for ITEM5 has already been done by Eric Paris and is being considered
+>   for upstreaming.
 
-For all of the EAL4 LSPP Linux evaluation work is being done by Red  
-Hat/IBM/HP/atsec and others to be useful to integrators, there has to  
-be basic (e.g. CIPSO) multilevel network interoperability with  
-existing multilevel systems and good (e.g IPSec) multilevel  
-networking between SELinux systems. Without that support, it will be  
-like some early Microsoft evaluations (1,2) that were reported to  
-have been done 'without a network card', a piece of paper describing  
-the test of a brick.
+This is in Linus' tree now.
 
-joe
+> 5. Patch for ITEM7: TCS currently have no plans to design and implement this.
+> 
 
-(1) http://support.novell.com/techcenter/articles/ana19970705.html  
-(search for 'without')
-(2) http://www.aaxnet.com/design/msanti.html (search for 'did not  
-have a network card')
+(Datagram labeling)
+
+I guess we'd probably use SCM_SECURITY for this (similar to 
+IP_CMSG_PASSEC for receiving the label).
+
+Is this enough support for user API support at the kernel level in terms 
+of setting and getting labels?
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
