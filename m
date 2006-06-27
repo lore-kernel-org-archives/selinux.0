@@ -1,69 +1,43 @@
-Subject: Re: [PATCH] libselinux: 1/2 Introduce {get,set}procattrcon
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1151352940.5264.86.camel@moss-spartans.epoch.ncsc.mil>
-References: <1151340535.21012.150.camel@localhost.localdomain>
-	 <1151346680.5264.50.camel@moss-spartans.epoch.ncsc.mil>
-	 <1151350693.21012.170.camel@localhost.localdomain>
-	 <1151352940.5264.86.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 27 Jun 2006 16:30:42 -0400
-Message-Id: <1151440242.20419.142.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5RKYlPh025093
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jun 2006 16:34:48 -0400
+Received: from mail1.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5RKYjC8010799
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jun 2006 20:34:46 GMT
+Date: Tue, 27 Jun 2006 16:34:44 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: David Quigley <dpquigl@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH 1/3] security:  Extend task_kill hook to handle signals
+ sent by AIO completion
+In-Reply-To: <1151438496.1294.7.camel@moss-terrapins.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0606271625540.3759@d.namei>
+References: <1151438496.1294.7.camel@moss-terrapins.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-06-26 at 16:15 -0400, Stephen Smalley wrote:
-> On Mon, 2006-06-26 at 15:38 -0400, Eric Paris wrote:
-> > On Mon, 2006-06-26 at 14:31 -0400, Stephen Smalley wrote:
-> > > > --- libselinux-1.30.15/include/selinux/selinux.h.p1	2006-06-26 12:00:54.000000000 -0400
-> > > > +++ libselinux-1.30.15/include/selinux/selinux.h	2006-06-26 12:00:54.000000000 -0400
-> > > > @@ -24,6 +24,14 @@ extern void freeconary(security_context_
-> > > >  
-> > > >  /* Wrappers for the /proc/pid/attr API. */
-> > > >  
-> > > > +/* Generic /proc pid attr handlers.  These will either get or set the context
-> > > > +   from or into the proc location passed to them.  Should only be called from 
-> > > > +   inside libselinux */
-> > > > +extern int getprocattrcon(security_context_t *con, char *path);
-> > > > +extern int getprocattrcon_raw(security_context_t *con, char *path);
-> > > > +extern int setprocattrcon(security_context_t con, char *path);
-> > > > +extern int setprocattrcon_raw(security_context_t con, char *path);
-> > > > +
-> > > >  /* Get current context, and set *con to refer to it.
-> > > >     Caller must free via freecon. */
-> > > >  extern int getcon(security_context_t *con);
-> > > 
-> > > If they should only be called from inside libselinux, why are they
-> > > defined in selinux/selinux.h, and exported to users of the library?
-> > 
-> > When I originally typed that comment I was still under the misguided
-> > impression they were being hidden (which should have stood out as
-> > strange for the same reason it did to james).  I could see value if you
-> > had done something custom to your kernel or your libselinux didn't have
-> > interfaces for all of the /proc/pid/attr/* (as is now the case since
-> > there are kernels with keycreate and sockcreate but no libselinux
-> > interface, even if that will get fixed shortly.)  I don't think it's
-> > unreasonable to remove that comment and just leave them as visable
-> > functions.  Do you want another patch to remove the comment?  Anyone
-> > have feelings that we shouldn't export such a general interface?
-> 
-> I'm not sure what we gain from such an interface for users of the
-> library, as it requires the caller to know the full path of the proc
-> file, so they have to already know about /proc/pid/attr and about the
-> specific node they want.  At which point they might as well just open
-> and read it directly (no added abstraction).  So I'd hide these
-> functions within the library (i.e. hidden qualifier), not make them part
-> of the public interface.
+On Tue, 27 Jun 2006, David Quigley wrote:
 
-I merged the patches, with the above change ([gs]etprocattrcon are now
-truly hidden functions within the shared library).
+> + * @task_getsecurityid:
+> + *	Retrieve the security identifier of the process @p.
+> + *	@p contains the task_struct for the process and place is into @sid.
 
+As long as still LSM exists, we need to avoid SELinux-specific code in the 
+core kernel security framework.  This needs to be reworked to use some 
+kind of abstract security field.
+
+
+(Unfortunately, some has crept into Netlink and xfrm hooks, too, and these 
+need to be fixed soon.  The audit code also looks like it's been 
+accumulating SELinux-specific code as well).
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
