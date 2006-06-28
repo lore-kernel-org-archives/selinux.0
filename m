@@ -1,96 +1,72 @@
-Subject: [PATCH 3/3] usb core:  Save and pass the sending task SID when
-	sending
+Subject: [PATCH 2/3] signal:  Add security hook call to
+	kill_proc_info_as_uid
 From: David Quigley <dpquigl@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Wed, 28 Jun 2006 16:34:47 -0400
-Message-Id: <1151526887.13601.13.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Wed, 28 Jun 2006 16:34:43 -0400
+Message-Id: <1151526884.13601.12.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: David Quigley <dpquigl@tycho.nsa.gov>
 
-This patch updates the USB core to save and pass the sending task secid
-when sending signals upon AIO completion so that proper security
-checking can be applied by security modules.
+This patch adds a call to the extended security_task_kill hook
+introduced by the prior patch to the kill_proc_info_as_uid function so
+that these signals can be properly mediated by security modules. It
+also updates the existing hook call in check_kill_permission.
 
 Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
 ---
 
- drivers/usb/core/devio.c |    6 +++++-
- drivers/usb/core/inode.c |    2 +-
- drivers/usb/core/usb.h   |    1 +
- 3 files changed, 7 insertions(+), 2 deletions(-)
+include/linux/sched.h |    2 +-
+kernel/signal.c       |    7 +++++--
+2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/devio.c linux-2.6.17-mm3-kill/drivers/usb/core/devio.c
---- linux-2.6.17-mm3/drivers/usb/core/devio.c	2006-06-28 13:58:55.000000000 -0400
-+++ linux-2.6.17-mm3-kill/drivers/usb/core/devio.c	2006-06-28 14:32:30.000000000 -0400
-@@ -47,6 +47,7 @@
- #include <linux/usbdevice_fs.h>
- #include <linux/cdev.h>
- #include <linux/notifier.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- #include <asm/byteorder.h>
- #include <linux/moduleparam.h>
-@@ -68,6 +69,7 @@ struct async {
- 	void __user *userbuffer;
- 	void __user *userurb;
- 	struct urb *urb;
-+	u32 secid;
- };
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/include/linux/sched.h linux-2.6.17-mm3-kill/include/linux/sched.h
+--- linux-2.6.17-mm3/include/linux/sched.h	2006-06-28 13:58:59.000000000 -0400
++++ linux-2.6.17-mm3-kill/include/linux/sched.h	2006-06-27 14:46:36.000000000 -0400
+@@ -1249,7 +1249,7 @@ extern int force_sig_info(int, struct si
+ extern int __kill_pg_info(int sig, struct siginfo *info, pid_t pgrp);
+ extern int kill_pg_info(int, struct siginfo *, pid_t);
+ extern int kill_proc_info(int, struct siginfo *, pid_t);
+-extern int kill_proc_info_as_uid(int, struct siginfo *, pid_t, uid_t, uid_t);
++extern int kill_proc_info_as_uid(int, struct siginfo *, pid_t, uid_t, uid_t, u32);
+ extern void do_notify_parent(struct task_struct *, int);
+ extern void force_sig(int, struct task_struct *);
+ extern void force_sig_specific(int, struct task_struct *);
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/kernel/signal.c linux-2.6.17-mm3-kill/kernel/signal.c
+--- linux-2.6.17-mm3/kernel/signal.c	2006-06-28 13:58:59.000000000 -0400
++++ linux-2.6.17-mm3-kill/kernel/signal.c	2006-06-28 14:34:26.000000000 -0400
+@@ -584,7 +584,7 @@ static int check_kill_permission(int sig
+ 	    && !capable(CAP_KILL))
+ 		return error;
  
- static int usbfs_snoop = 0;
-@@ -312,7 +314,7 @@ static void async_completed(struct urb *
- 		sinfo.si_code = SI_ASYNCIO;
- 		sinfo.si_addr = as->userurb;
- 		kill_proc_info_as_uid(as->signr, &sinfo, as->pid, as->uid, 
--				      as->euid);
-+				      as->euid, as->secid);
- 	}
- 	snoop(&urb->dev->dev, "urb complete\n");
- 	snoop_urb(urb, as->userurb);
-@@ -572,6 +574,7 @@ static int usbdev_open(struct inode *ino
- 	ps->disc_euid = current->euid;
- 	ps->disccontext = NULL;
- 	ps->ifclaimed = 0;
-+	security_task_getsecid(current, &ps->secid);
- 	wmb();
- 	list_add_tail(&ps->list, &dev->filelist);
- 	file->private_data = ps;
-@@ -1053,6 +1056,7 @@ static int proc_do_submiturb(struct dev_
- 	as->pid = current->pid;
- 	as->uid = current->uid;
- 	as->euid = current->euid;
-+	security_task_getsecid(current, &as->secid);
- 	if (!(uurb->endpoint & USB_DIR_IN)) {
- 		if (copy_from_user(as->urb->transfer_buffer, uurb->buffer, as->urb->transfer_buffer_length)) {
- 			free_async(as);
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/inode.c linux-2.6.17-mm3-kill/drivers/usb/core/inode.c
---- linux-2.6.17-mm3/drivers/usb/core/inode.c	2006-06-28 13:58:55.000000000 -0400
-+++ linux-2.6.17-mm3-kill/drivers/usb/core/inode.c	2006-06-28 14:33:00.000000000 -0400
-@@ -700,7 +700,7 @@ static void usbfs_remove_device(struct u
- 			sinfo.si_errno = EPIPE;
- 			sinfo.si_code = SI_ASYNCIO;
- 			sinfo.si_addr = ds->disccontext;
--			kill_proc_info_as_uid(ds->discsignr, &sinfo, ds->disc_pid, ds->disc_uid, ds->disc_euid);
-+			kill_proc_info_as_uid(ds->discsignr, &sinfo, ds->disc_pid, ds->disc_uid, ds->disc_euid, ds->secid);
- 		}
- 	}
- }
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/usb.h linux-2.6.17-mm3-kill/drivers/usb/core/usb.h
---- linux-2.6.17-mm3/drivers/usb/core/usb.h	2006-06-28 13:58:55.000000000 -0400
-+++ linux-2.6.17-mm3-kill/drivers/usb/core/usb.h	2006-06-28 14:33:46.000000000 -0400
-@@ -80,6 +80,7 @@ struct dev_state {
- 	uid_t disc_uid, disc_euid;
- 	void __user *disccontext;
- 	unsigned long ifclaimed;
-+	u32 secid;
- };
+-	error = security_task_kill(t, info, sig);
++	error = security_task_kill(t, info, sig, 0);
+ 	if (!error)
+ 		audit_signal_info(sig, t); /* Let audit system see the signal */
+ 	return error;
+@@ -1107,7 +1107,7 @@ kill_proc_info(int sig, struct siginfo *
  
- /* internal notify stuff */
+ /* like kill_proc_info(), but doesn't use uid/euid of "current" */
+ int kill_proc_info_as_uid(int sig, struct siginfo *info, pid_t pid,
+-		      uid_t uid, uid_t euid)
++		      uid_t uid, uid_t euid, u32 secid)
+ {
+ 	int ret = -EINVAL;
+ 	struct task_struct *p;
+@@ -1127,6 +1127,9 @@ int kill_proc_info_as_uid(int sig, struc
+ 		ret = -EPERM;
+ 		goto out_unlock;
+ 	}
++	ret = security_task_kill(p, info, sig, secid);
++	if (ret)
++		goto out_unlock;
+ 	if (sig && p->sighand) {
+ 		unsigned long flags;
+ 		spin_lock_irqsave(&p->sighand->siglock, flags);
 
 
 --
