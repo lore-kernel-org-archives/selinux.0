@@ -1,52 +1,97 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k5SKMOFF015063
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jun 2006 16:22:24 -0400
-Received: from fsjrez04.rome.afmc.ds.af.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k5SKMNUU018419
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jun 2006 20:22:23 GMT
-Message-ID: <43055FDD054D464FA7923D0FFAF2C9C70291F7C2@fsjrez02.adm.rl.af.mil>
-From: "Wightman, Reid K Civ AFRL/IFEB" <Reid.Wightman@rl.af.mil>
-To: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
-Subject: libselinux get_default_context not working?
-Date: Wed, 28 Jun 2006 16:07:06 -0400
-MIME-Version: 1.0
+Subject: [PATCH 3/3] usb core:  Save and pass the sending task SID when
+	sending
+From: David Quigley <dpquigl@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
+Date: Wed, 28 Jun 2006 16:34:47 -0400
+Message-Id: <1151526887.13601.13.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+From: David Quigley <dpquigl@tycho.nsa.gov>
 
+This patch updates the USB core to save and pass the sending task secid
+when sending signals upon AIO completion so that proper security
+checking can be applied by security modules.
 
-Infinite apologies if this posts twice.  *grumbles something about
-MS-Exchange not being the best MTA*
+Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+---
 
-I'm playing with the refpolicy (20060307 from sourceforge...is there a
-redhat-blessed version of refpolicy w/source available?) and am noticing
-some odd things in libselinux.  When calling get_default_context('user_u',
-NULL, &conref), the function eventually gets to get_context_list.c line 444
-where it tries to open /etc/selinux/refpolicy/contexts/users/user_u .  That
-file doesn't exist.  
+ drivers/usb/core/devio.c |    6 +++++-
+ drivers/usb/core/inode.c |    2 +-
+ drivers/usb/core/usb.h   |    1 +
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
-I'm curious what the format of the file should be.  I don't see anything by
-the same name in the targeted or strict policies that come with FC5.  As it
-is, it eventually fails to order the reachable list it builds, so user_u is
-shown as having a default context of user_u:user_r:user_xserver_t, which
-probably isn't right, (it just happens to be the first entry on the
-reachable contexts list).  I'd think the default context for user_u in the
-default refpolicy would be user_u:user_r:user_t...
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/devio.c linux-2.6.17-mm3-kill/drivers/usb/core/devio.c
+--- linux-2.6.17-mm3/drivers/usb/core/devio.c	2006-06-28 13:58:55.000000000 -0400
++++ linux-2.6.17-mm3-kill/drivers/usb/core/devio.c	2006-06-28 14:32:30.000000000 -0400
+@@ -47,6 +47,7 @@
+ #include <linux/usbdevice_fs.h>
+ #include <linux/cdev.h>
+ #include <linux/notifier.h>
++#include <linux/security.h>
+ #include <asm/uaccess.h>
+ #include <asm/byteorder.h>
+ #include <linux/moduleparam.h>
+@@ -68,6 +69,7 @@ struct async {
+ 	void __user *userbuffer;
+ 	void __user *userurb;
+ 	struct urb *urb;
++	u32 secid;
+ };
+ 
+ static int usbfs_snoop = 0;
+@@ -312,7 +314,7 @@ static void async_completed(struct urb *
+ 		sinfo.si_code = SI_ASYNCIO;
+ 		sinfo.si_addr = as->userurb;
+ 		kill_proc_info_as_uid(as->signr, &sinfo, as->pid, as->uid, 
+-				      as->euid);
++				      as->euid, as->secid);
+ 	}
+ 	snoop(&urb->dev->dev, "urb complete\n");
+ 	snoop_urb(urb, as->userurb);
+@@ -572,6 +574,7 @@ static int usbdev_open(struct inode *ino
+ 	ps->disc_euid = current->euid;
+ 	ps->disccontext = NULL;
+ 	ps->ifclaimed = 0;
++	security_task_getsecid(current, &ps->secid);
+ 	wmb();
+ 	list_add_tail(&ps->list, &dev->filelist);
+ 	file->private_data = ps;
+@@ -1053,6 +1056,7 @@ static int proc_do_submiturb(struct dev_
+ 	as->pid = current->pid;
+ 	as->uid = current->uid;
+ 	as->euid = current->euid;
++	security_task_getsecid(current, &as->secid);
+ 	if (!(uurb->endpoint & USB_DIR_IN)) {
+ 		if (copy_from_user(as->urb->transfer_buffer, uurb->buffer, as->urb->transfer_buffer_length)) {
+ 			free_async(as);
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/inode.c linux-2.6.17-mm3-kill/drivers/usb/core/inode.c
+--- linux-2.6.17-mm3/drivers/usb/core/inode.c	2006-06-28 13:58:55.000000000 -0400
++++ linux-2.6.17-mm3-kill/drivers/usb/core/inode.c	2006-06-28 14:33:00.000000000 -0400
+@@ -700,7 +700,7 @@ static void usbfs_remove_device(struct u
+ 			sinfo.si_errno = EPIPE;
+ 			sinfo.si_code = SI_ASYNCIO;
+ 			sinfo.si_addr = ds->disccontext;
+-			kill_proc_info_as_uid(ds->discsignr, &sinfo, ds->disc_pid, ds->disc_uid, ds->disc_euid);
++			kill_proc_info_as_uid(ds->discsignr, &sinfo, ds->disc_pid, ds->disc_uid, ds->disc_euid, ds->secid);
+ 		}
+ 	}
+ }
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/usb.h linux-2.6.17-mm3-kill/drivers/usb/core/usb.h
+--- linux-2.6.17-mm3/drivers/usb/core/usb.h	2006-06-28 13:58:55.000000000 -0400
++++ linux-2.6.17-mm3-kill/drivers/usb/core/usb.h	2006-06-28 14:33:46.000000000 -0400
+@@ -80,6 +80,7 @@ struct dev_state {
+ 	uid_t disc_uid, disc_euid;
+ 	void __user *disccontext;
+ 	unsigned long ifclaimed;
++	u32 secid;
+ };
+ 
+ /* internal notify stuff */
 
-Would it be worthwhile for me to play with the Makefile to automatically
-generate some of these files?  What stuff should the <user>_u files have in
-them?  Or shouldn't I be playing with refpolicy for policy analysis at this
-point (or, as above, is there a redhat version somewhere)?  I don't see a
-'user_u' file in targeted o
-r strict policies, either, so I'd guess that this same sort of thing would
-happen in them?
-
-Thanks,
-Reid
---
-()  ascii ribbon campaign - against html mail 
-/\                        - against proprietary attachments
 
 --
 This message was distributed to subscribers of the selinux mailing list.
