@@ -1,163 +1,57 @@
-Subject: [PATCH] remove te rule conflict checking from parser
-From: Joshua Brindle <jbrindle@tresys.com>
-To: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+Subject: [RFC PATCH] 0/2 decouple fscontext/context add new rootcontext
+From: Eric Paris <eparis@parisplace.org>
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov
 Content-Type: text/plain
-Date: Wed, 28 Jun 2006 16:40:38 -0400
-Message-Id: <1151527238.9361.9.camel@twoface>
+Date: Wed, 28 Jun 2006 18:10:51 -0400
+Message-Id: <1151532651.26384.43.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch removes the te rule conflict checking from the parser.
-Duplicate te rules in different scopes (eg., conditional and
-unconditional) are now fatal and the parser doesn't have enough
-information to know if the te rules have the same conditional expression
-if they are in different optional blocks. The expander correctly checks
-for te rule duplicates and conflicts; unfortunately this means the
-errors can't be caught until link/expand time (the base gets linked and
-expanded during compilation for validation) and can't be caught at all
-in modules until they are linked in.
+This patch set allows the user mounting new filesystems greater control
+over the superblock context, the root inode context.  
 
+**CURRENTLY**
+(I exclude defcontext= as it's use is not directly related)
 
-diff -purN -x tests trunk/checkpolicy/policy_parse.y optionals-in-base-take2/checkpolicy/policy_parse.y
---- trunk/checkpolicy/policy_parse.y	2006-06-28 14:51:13.000000000 -0400
-+++ optionals-in-base-take2/checkpolicy/policy_parse.y	2006-06-28 16:31:09.000000000 -0400
-@@ -923,22 +923,6 @@ static int insert_id(char *id, int push)
- 	return 0;
- }
- 
--/* Add a rule onto an avtab hash table only if it does not already
-- * exist.  (Note that the avtab is discarded afterwards; it will be
-- * regenerated during expansion.)  Return 1 if rule was added (or
-- * otherwise handled successfully), 0 if it conflicted with something,
-- * or -1 on error. */
--static int insert_check_type_rule(avrule_t *rule, avtab_t *avtab, cond_av_list_t **list, cond_av_list_t **other)
--{
--	int ret;
--
--	ret = expand_rule(NULL, policydbp, rule, avtab, list, other, 0);
--	if (ret < 0) {
--		yyerror("Failed on expanding rule");
--        }
--	return ret;
--}
--
- /* If the identifier has a dot within it and that its first character
-    is not a dot then return 1, else return 0. */
- static int id_has_dot(char *id)
-@@ -2082,7 +2066,6 @@ static int define_compute_type(int which
- {
- 	char *id;
- 	avrule_t *avrule;
--        int retval;
- 
- 	if (pass == 1) {
- 		while ((id = queue_remove(id_queue))) 
-@@ -2099,28 +2082,8 @@ static int define_compute_type(int which
- 	if (define_compute_type_helper(which, &avrule))
- 		return -1;
- 	
--	retval = insert_check_type_rule(avrule, &policydbp->te_avtab, NULL, NULL);
--	switch (retval) {
--        case 1: {
--                /* append this avrule to the end of the current rules list */
--                append_avrule(avrule);
--                return 0;
--        }
--        case 0: {
--                /* rule conflicted, so don't actually add this rule */
--                avrule_destroy(avrule);
--                free(avrule);
--                return 0;
--        }
--        case -1: {
--                avrule_destroy(avrule);
--                free(avrule);
--                return -1;
--        }
--        default: {
--                assert(0); /* should never get here */
--        }
--        }
-+	append_avrule(avrule);
-+	return 0;
- }
- 
- static avrule_t *define_cond_compute_type(int which)
-@@ -3263,9 +3226,8 @@ static uintptr_t
- static int define_conditional(cond_expr_t *expr, avrule_t *t, avrule_t *f )
- {
- 	cond_expr_t *e;
--	int depth, retval;
-+	int depth;
-         cond_node_t cn, *cn_old;
--        avrule_t *tmp, *last_tmp;
- 
- 	/* expression cannot be NULL */
- 	if ( !expr) {
-@@ -3344,61 +3306,6 @@ static int define_conditional(cond_expr_
-                 return -1;
-         }
- 
--        /* verify te rules -- both true and false branches of conditional */
--	tmp = cn.avtrue_list;
--        last_tmp = NULL;
--	while (tmp) {
--		if (!tmp->specified & AVRULE_TRANSITION)
--			continue;
--		retval = insert_check_type_rule(tmp,
--                                                &policydbp->te_cond_avtab,
--                                                &cn_old->true_list, &cn_old->false_list);
--                switch (retval) {
--                case 1: {
--                        last_tmp = tmp;
--                        tmp = tmp->next;
--                        break;
--                }
--                case 0: {
--                        /* rule conflicted or dupe, so bail */
--                       return -1;
--                }
--                case -1: {
--                        return -1;
--                }
--                default: {
--                        assert(0);  /* should never get here */
--                }
--                }
--	}
--	
--	tmp = cn.avfalse_list;
--        last_tmp = NULL;
--	while (tmp) {
--		if (!tmp->specified & AVRULE_TRANSITION)
--			continue;
--		retval = insert_check_type_rule(tmp,
--                                                &policydbp->te_cond_avtab,
--                                                &cn_old->false_list, &cn_old->true_list);
--                switch (retval) {
--                case 1: {
--                        last_tmp = tmp;
--                        tmp = tmp->next;
--                        break;
--                }
--                case 0: {
--                        /* rule conflicted or dupe, so bail */
--                       return -1;
--                }
--                case -1: {
--                        return -1;
--                }
--                default: {
--                        assert(0);  /* should never get here */
--                }
--                }
--	}
--
-         append_cond_list(&cn);
-         
-         /* note that there is no check here for duplicate rules, nor
+Currently there exist 2 knobs to turn context= and fscontext=.  Context=
+will set the context of the superblock and will change the filesystem to
+use SECURITY_FS_USE_MOUNTPOINT so all file on that filesystem will
+inherit their label from the superblock label.
 
+The fscontext= option will set only the superblock context.  This can be
+useful on filesystems even with XATTRs as this is what the fs associate
+permission is checking again.
+
+these knobs cannot be used together as they both operate by setting the
+context of the superblock
+
+**WITH PATCH SET**
+
+First fscontext and context are decoupled.  It is possible to use them
+both.  If context= is specified without fscontext it will operate just
+as before, if both are specified we will use mount point labeling and
+all inodes will get the label specified by context=.   The superblock
+will be labeled with the label of fscontext=, thus affecting associate
+permissions.
+
+The second patch will introduce a new rootcontext= option to mounting.
+This option will allow you to explicitly label the root inode of a FS
+being mounted.  This was found to be useful for things like stateless
+linux, see https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=190001
+I'd like some close eyes on this patch, specifically because I had to
+move the avc_has_perm() checks farther up the stack.  I'm also not sure
+even if we want perms on this operation.  Right now you need the same
+perms to use rootcontext= that you need to use chcon /mnt/point after
+you mount.  I'm also not sure if this might be a good mechanism to
+usefully mount a fs (with XATTR support) from a different machine that
+had contexts that may not even exist on the mounting machine.
+
+Thoughts, questions, comments, nits about style, and all other input
+greatly encouraged.
+
+-Eric
 
 
 --
