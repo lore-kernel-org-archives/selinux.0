@@ -1,204 +1,137 @@
-Subject: Re: [PATCH] ioprio: Add security hook definition for getioprio and
-	insert hooks (Attempt #3)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Quigley <dpquigl@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
-In-Reply-To: <1151612256.20909.6.camel@moss-terrapins.epoch.ncsc.mil>
-References: <1151600677.19332.1.camel@moss-terrapins.epoch.ncsc.mil>
-	 <1151602066.19332.7.camel@moss-terrapins.epoch.ncsc.mil>
-	 <1151612256.20909.6.camel@moss-terrapins.epoch.ncsc.mil>
+Subject: Re: [RFC PATCH] 1/2 decouple fscontext/context
+From: Eric Paris <eparis@parisplace.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <1151596403.6999.83.camel@moss-spartans.epoch.ncsc.mil>
+References: <1151536165.26384.48.camel@localhost.localdomain>
+	 <1151596403.6999.83.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 29 Jun 2006 16:56:53 -0400
-Message-Id: <1151614613.21450.77.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 29 Jun 2006 18:11:32 -0400
+Message-Id: <1151619092.26384.90.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-29 at 16:17 -0400, David Quigley wrote:
-> This patch adds a new security hook definition for the sys_ioprio_get
-> operation. At present, the SELinux hook function implementation for
-> this hook is identical to the getscheduler implementation but a
-> separate hook is introduced to allow this check to be specialized in
-> the future if necessary. This patch also creates a helper function
-> get_task_ioprio which handles the access check in addition to
-> retrieving the ioprio value for the task.
+On Thu, 2006-06-29 at 11:53 -0400, Stephen Smalley wrote:
+> On Wed, 2006-06-28 at 19:09 -0400, Eric Paris wrote:
+> > This patch will remove the conflict between fscontext and context mount
+> > options.  It is now possible to use them both.  If context= is specified
+> > without fscontext it will operate just as before, if both are specified
+> > we will use mount point labeling and all inodes will get the label
+> > specified by context=.   The superblock will be labeled with the label
+> > of fscontext=, thus affecting associate permissions.
 > 
-> Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+> >  hooks.c          |   62 ++++++++++++++++++++++++++++++++++++++++++++++++-------
+> >  include/objsec.h |    3 +-
+> >  2 files changed, 57 insertions(+), 8 deletions(-)
+> 
+> diffstat -p1
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Will do
+> 
+> > --- linux-2.6.17-rootcontext/security/selinux/hooks.c.rootcontext	2006-06-23 16:42:30.000000000 -0400
+> > +++ linux-2.6.17-rootcontext/security/selinux/hooks.c	2006-06-28 17:47:18.000000000 -0400
+> > @@ -441,6 +443,42 @@ static int try_context_mount(struct supe
+> >  	if (!seen)
+> >  		goto out;
+> >  
+> > +	/* 
+> > +	 * sets the context of the superblock, sbsec->sid for the fs being mounted
+> > +	 * is done before context= because context= will also set the superblock
+> > +	 * if it is not already set by fscontext=
+> 
+> Needs a bit of a rewrite.  Watch for trailing whitespace.
+> Describe what the code does, not how it does it, as per CodingStyle.
+
+Coding Style re-read and paid particular attention to comments section.
+> 
+> > +	 */
+> > +	if (fscontext) {
+> > +		rc = security_context_to_sid(fscontext, strlen(fscontext), &sid);
+> > +		if (rc) {
+> > +			printk(KERN_WARNING "SELinux: security_context_to_sid"
+> > +			       "(%s) failed for (dev %s, type %s) errno=%d\n",
+> > +			       fscontext, sb->s_id, name, rc);
+> > +			goto out_free;
+> > +		}
+> > +
+> > +		rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+> > +		                  FILESYSTEM__RELABELFROM, NULL);
+> > +		if (rc)
+> > +			goto out_free;
+> > +
+> > +		rc = avc_has_perm(tsec->sid, sid, SECCLASS_FILESYSTEM,
+> > +		                  FILESYSTEM__RELABELTO, NULL);
+> > +		if (rc)
+> > +			goto out_free;
+> 
+> I'd split out the permission checks and do them once, or move them into
+> a helper function and call it twice.
+
+suggestion for a meaningful name?  context_mount_set_perm()?
+
+[snip]
+
+> > @@ -450,7 +488,7 @@ static int try_context_mount(struct supe
+> >  			goto out_free;
+> >  		}
+> >  
+> > -		rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+> > +		rc = avc_has_perm(tsec->sid, sbsec->mntpoint_sid, SECCLASS_FILESYSTEM,
+> >  		                  FILESYSTEM__RELABELFROM, NULL);
+> 
+> This will always end up checking against unlabeled_t, right?  I don't
+> think it is what you want, and it changes the existing behavior for
+> people using context= mounts.
+
+So you are saying that both should check against the superblock.  The
+question is if this second check should be the 'new' superblock context
+(since may have been just set by fscontext=) or should I be checking the
+'old' sb sid here?  
 
 > 
-> ---
+> >  		if (rc)
+> >  			goto out_free;
+> > @@ -460,7 +498,9 @@ static int try_context_mount(struct supe
+> >  		if (rc)
+> >  			goto out_free;
+> >  
+> > -		sbsec->sid = sid;
+> > +		if (sbsec->sid == SECINITSID_UNLABELED)
+> > +			sbsec->sid = sid;
+> > +		sbsec->mntpoint_sid = sid;
 > 
->  fs/ioprio.c              |   29 ++++++++++++++++++++++++-----
->  include/linux/security.h |   15 +++++++++++++++
->  security/dummy.c         |    6 ++++++
->  security/selinux/hooks.c |    6 ++++++
->  4 files changed, 51 insertions(+), 5 deletions(-)
+> sbsec->sid is initialized by the security_fs_use() call (based on the
+> policy configuration for the fs, either fs_use* or genfs) prior to
+> try_context_mount(), so testing for unlabeled isn't sufficient, right?
+> I think you want to explicitly check whether fscontext was set here.
+
+now, if (!fscontext)
+
 > 
-> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/fs/ioprio.c linux-2.6.17-mm3-ioprio/fs/ioprio.c
-> --- linux-2.6.17-mm3/fs/ioprio.c	2006-06-28 13:58:56.000000000 -0400
-> +++ linux-2.6.17-mm3-ioprio/fs/ioprio.c	2006-06-29 15:58:29.000000000 -0400
-> @@ -125,11 +125,24 @@ asmlinkage long sys_ioprio_set(int which
->  	return ret;
->  }
->  
-> +static int get_task_ioprio(struct task_struct *p)
-> +{
-> +	int ret;
-> +
-> +	ret = security_task_getioprio(p);
-> +	if (ret)
-> +		goto out;
-> +	ret = p->ioprio;
-> +out:
-> +	return ret;
-> +}
-> +
->  asmlinkage long sys_ioprio_get(int which, int who)
->  {
->  	struct task_struct *g, *p;
->  	struct user_struct *user;
->  	int ret = -ESRCH;
-> +	int tmpio;
->  
->  	read_lock_irq(&tasklist_lock);
->  	switch (which) {
-> @@ -139,16 +152,19 @@ asmlinkage long sys_ioprio_get(int which
->  			else
->  				p = find_task_by_pid(who);
->  			if (p)
-> -				ret = p->ioprio;
-> +				ret = get_task_ioprio(p);
->  			break;
->  		case IOPRIO_WHO_PGRP:
->  			if (!who)
->  				who = process_group(current);
->  			do_each_task_pid(who, PIDTYPE_PGID, p) {
-> +				tmpio = get_task_ioprio(p);
-> +				if (tmpio < 0)
-> +					continue;
->  				if (ret == -ESRCH)
-> -					ret = p->ioprio;
-> +					ret = tmpio;
->  				else
-> -					ret = ioprio_best(ret, p->ioprio);
-> +					ret = ioprio_best(ret, tmpio);
->  			} while_each_task_pid(who, PIDTYPE_PGID, p);
->  			break;
->  		case IOPRIO_WHO_USER:
-> @@ -163,10 +179,13 @@ asmlinkage long sys_ioprio_get(int which
->  			do_each_thread(g, p) {
->  				if (p->uid != user->uid)
->  					continue;
-> +				tmpio = get_task_ioprio(p);
-> +				if (tmpio < 0)
-> +					continue;
->  				if (ret == -ESRCH)
-> -					ret = p->ioprio;
-> +					ret = tmpio;
->  				else
-> -					ret = ioprio_best(ret, p->ioprio);
-> +					ret = ioprio_best(ret, tmpio);
->  			} while_each_thread(g, p);
->  
->  			if (who)
-> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/include/linux/security.h linux-2.6.17-mm3-ioprio/include/linux/security.h
-> --- linux-2.6.17-mm3/include/linux/security.h	2006-06-28 13:58:59.000000000 -0400
-> +++ linux-2.6.17-mm3-ioprio/include/linux/security.h	2006-06-28 11:21:37.000000000 -0400
-> @@ -582,6 +582,10 @@ struct swap_info_struct;
->   *	@p contains the task_struct of process.
->   *	@ioprio contains the new ioprio value
->   *	Return 0 if permission is granted.
-> + * @task_getioprio
-> + *	Check permission before getting the ioprio value of @p.
-> + *	@p contains the task_struct of process.
-> + *	Return 0 if permission is granted.
->   * @task_setrlimit:
->   *	Check permission before setting the resource limits of the current
->   *	process for @resource to @new_rlim.  The old resource limit values can
-> @@ -1221,6 +1225,7 @@ struct security_operations {
->  	int (*task_setgroups) (struct group_info *group_info);
->  	int (*task_setnice) (struct task_struct * p, int nice);
->  	int (*task_setioprio) (struct task_struct * p, int ioprio);
-> +	int (*task_getioprio) (struct task_struct * p);
->  	int (*task_setrlimit) (unsigned int resource, struct rlimit * new_rlim);
->  	int (*task_setscheduler) (struct task_struct * p, int policy,
->  				  struct sched_param * lp);
-> @@ -1853,6 +1858,11 @@ static inline int security_task_setiopri
->  	return security_ops->task_setioprio (p, ioprio);
->  }
->  
-> +static inline int security_task_getioprio (struct task_struct *p)
-> +{
-> +	return security_ops->task_getioprio (p);
-> +}
-> +
->  static inline int security_task_setrlimit (unsigned int resource,
->  					   struct rlimit *new_rlim)
->  {
-> @@ -2505,6 +2515,11 @@ static inline int security_task_setiopri
->  	return 0;
->  }
->  
-> +static inline int security_task_getioprio (struct task_struct *p)
-> +{
-> +	return 0;
-> +}
-> +
->  static inline int security_task_setrlimit (unsigned int resource,
->  					   struct rlimit *new_rlim)
->  {
-> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/security/dummy.c linux-2.6.17-mm3-ioprio/security/dummy.c
-> --- linux-2.6.17-mm3/security/dummy.c	2006-06-28 13:58:59.000000000 -0400
-> +++ linux-2.6.17-mm3-ioprio/security/dummy.c	2006-06-28 11:23:00.000000000 -0400
-> @@ -521,6 +521,11 @@ static int dummy_task_setioprio (struct 
->  	return 0;
->  }
->  
-> +static int dummy_task_getioprio (struct task_struct *p)
-> +{
-> +	return 0;
-> +}
-> +
->  static int dummy_task_setrlimit (unsigned int resource, struct rlimit *new_rlim)
->  {
->  	return 0;
-> @@ -984,6 +989,7 @@ void security_fixup_ops (struct security
->  	set_to_dummy_if_null(ops, task_setgroups);
->  	set_to_dummy_if_null(ops, task_setnice);
->  	set_to_dummy_if_null(ops, task_setioprio);
-> +	set_to_dummy_if_null(ops, task_getioprio);
->  	set_to_dummy_if_null(ops, task_setrlimit);
->  	set_to_dummy_if_null(ops, task_setscheduler);
->  	set_to_dummy_if_null(ops, task_getscheduler);
-> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/security/selinux/hooks.c linux-2.6.17-mm3-ioprio/security/selinux/hooks.c
-> --- linux-2.6.17-mm3/security/selinux/hooks.c	2006-06-28 13:58:59.000000000 -0400
-> +++ linux-2.6.17-mm3-ioprio/security/selinux/hooks.c	2006-06-28 11:49:13.000000000 -0400
-> @@ -2665,6 +2665,11 @@ static int selinux_task_setioprio(struct
->  	return task_has_perm(current, p, PROCESS__SETSCHED);
->  }
->  
-> +static int selinux_task_getioprio(struct task_struct *p)
-> +{
-> +	return task_has_perm(current, p, PROCESS__GETSCHED);
-> +}
-> +
->  static int selinux_task_setrlimit(unsigned int resource, struct rlimit *new_rlim)
->  {
->  	struct rlimit *old_rlim = current->signal->rlim + resource;
-> @@ -4432,6 +4437,7 @@ static struct security_operations selinu
->  	.task_setgroups =		selinux_task_setgroups,
->  	.task_setnice =			selinux_task_setnice,
->  	.task_setioprio =		selinux_task_setioprio,
-> +	.task_getioprio =		selinux_task_getioprio,
->  	.task_setrlimit =		selinux_task_setrlimit,
->  	.task_setscheduler =		selinux_task_setscheduler,
->  	.task_getscheduler =		selinux_task_getscheduler,
+> >  		if (seen & Opt_context)
+> >  			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
 > 
--- 
-Stephen Smalley
-National Security Agency
+> No longer needs to be conditional here, right?  Since this branch is now
+> specific to the context= option?
+
+Yup
+
+> 
+> > +	case SECURITY_FS_USE_MNTPOINT:
+> > +		/* use the mntpoint_sid */
+> > +		if (sbsec->mntpoint_sid != SECINITSID_UNLABELED)
+> > +			isec->sid = sbsec->mntpoint_sid;
+> > +		else
+> > +			isec->sid = sbsec->sid;
+> > +		break;
+> 
+> Why wouldn't this always be using mntpoint_sid?  
+
+Originally when I put this in I didn't know if there was any way to get
+mount point labeling behavior without a context= option.  During testing
+I looked around and realized there was no other way (that I saw) but
+never pulled this back out.
 
 
 --
