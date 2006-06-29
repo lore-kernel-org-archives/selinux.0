@@ -1,123 +1,131 @@
-Subject: Re: [RFC PATCH] 1/2 decouple fscontext/context
+Subject: Re: [RFC PATCH] 2/2 rootcontext=
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eric Paris <eparis@parisplace.org>
 Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1151536165.26384.48.camel@localhost.localdomain>
-References: <1151536165.26384.48.camel@localhost.localdomain>
+In-Reply-To: <1151536181.26384.50.camel@localhost.localdomain>
+References: <1151536181.26384.50.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 29 Jun 2006 11:53:23 -0400
-Message-Id: <1151596403.6999.83.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 29 Jun 2006 12:16:05 -0400
+Message-Id: <1151597765.6999.107.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Wed, 2006-06-28 at 19:09 -0400, Eric Paris wrote:
-> This patch will remove the conflict between fscontext and context mount
-> options.  It is now possible to use them both.  If context= is specified
-> without fscontext it will operate just as before, if both are specified
-> we will use mount point labeling and all inodes will get the label
-> specified by context=.   The superblock will be labeled with the label
-> of fscontext=, thus affecting associate permissions.
+> The second patch will introduce a new rootcontext= option to mounting.
+> This option will allow you to explicitly label the root inode of a FS
+> being mounted.  This was found to be useful for things like stateless
+> linux, see https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=190001
+> I'd like some close eyes on this patch, specifically because I had to
+> move the avc_has_perm() checks farther up the stack.  I'm also not sure
+> even if we want perms on this operation.  Right now you need the same
+> perms to use rootcontext= that you need to use chcon /mnt/point after
+> you mount.  I'm also not sure if this might be a good mechanism to
+> usefully mount a fs (with XATTR support) from a different machine that
+> had contexts that may not even exist on the mounting machine.
 
->  hooks.c          |   62 ++++++++++++++++++++++++++++++++++++++++++++++++-------
->  include/objsec.h |    3 +-
->  2 files changed, 57 insertions(+), 8 deletions(-)
+Usually one would use context= aka mountpoint labeling for that purpose,
+not just rootcontext=.
 
-diffstat -p1
+> 
+>  hooks.c          |   56 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+>  include/objsec.h |    1
+>  2 files changed, 56 insertions(+), 1 deletion(-)
 
-> --- linux-2.6.17-rootcontext/security/selinux/hooks.c.rootcontext	2006-06-23 16:42:30.000000000 -0400
-> +++ linux-2.6.17-rootcontext/security/selinux/hooks.c	2006-06-28 17:47:18.000000000 -0400
-> @@ -441,6 +443,42 @@ static int try_context_mount(struct supe
->  	if (!seen)
->  		goto out;
+diffstat -p1 
+
+> --- linux-2.6.17-rootcontext/security/selinux/hooks.c.decouple	2006-06-28 17:59:31.000000000 -0400
+> +++ linux-2.6.17-rootcontext/security/selinux/hooks.c	2006-06-28 17:51:22.000000000 -0400
+> @@ -407,6 +410,22 @@ static int try_context_mount(struct supe
+>  				seen |= Opt_fscontext;
+>  				break;
 >  
-> +	/* 
-> +	 * sets the context of the superblock, sbsec->sid for the fs being mounted
-> +	 * is done before context= because context= will also set the superblock
-> +	 * if it is not already set by fscontext=
+> +			case Opt_rootcontext:
+> +				if (seen & Opt_rootcontext) {
+> +					rc = -EINVAL;
+> +					printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+> +					goto out_free;
+> +				}
+> +				rootcontext = match_strdup(&args[0]);
+> +				if (!rootcontext) {
+> +					rc = -ENOMEM;
+> +					goto out_free;
+> +				}
+> +				if (!alloc)
+> +					alloc = 1;
+> +				seen |= Opt_fscontext;
 
-Needs a bit of a rewrite.  Watch for trailing whitespace.
-Describe what the code does, not how it does it, as per CodingStyle.
+Wrong flag set above.  Which also happens to be the value of token.
 
-> +	 */
-> +	if (fscontext) {
-> +		rc = security_context_to_sid(fscontext, strlen(fscontext), &sid);
+> @@ -506,6 +525,23 @@ static int try_context_mount(struct supe
+>  			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
+>  	}
+>  
+> +	if (rootcontext) {
+> +		rc = security_context_to_sid(rootcontext, strlen(rootcontext), &sid);
 > +		if (rc) {
 > +			printk(KERN_WARNING "SELinux: security_context_to_sid"
 > +			       "(%s) failed for (dev %s, type %s) errno=%d\n",
-> +			       fscontext, sb->s_id, name, rc);
+> +			       rootcontext, sb->s_id, name, rc);
 > +			goto out_free;
 > +		}
 > +
-> +		rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
-> +		                  FILESYSTEM__RELABELFROM, NULL);
-> +		if (rc)
-> +			goto out_free;
+> +		/* 
+> +		 * Security checking on this transition is done later in superblock_doinit()
+> +		 * since we don't actually know the root inode context we are relabeling from
+> +		 * until after inode_doinit_with_dentry() has been called on the root inode.
+> +		 */
+> +		sbsec->root_sid = sid;
+
+I'd favor doing checking here, and paralleling the defcontext checks,
+i.e. you still check relabelfrom to the superblock (which abstractly
+represents setting any of these context options at mount time), and then
+check associate between the root SID and the superblock to ensure that
+they form a legal pair.  I doubt we'd care to distinguish the ability to
+set rootcontext= from the ability to set defcontext= in the policy,
+whereas I think we might care to distinguish between setting the root
+inode security context to a particular value at mount time (before it is
+user-accessible) versus relabeling it later.
+
+> @@ -536,11 +572,14 @@ out_free:
+>  		kfree(context);
+>  		kfree(defcontext);
+>  		kfree(fscontext);
+> +		kfree(rootcontext);
+>  	}
+>  out:
+>  	return rc;
+>  }
+>  
+> +static int inode_security_set_sid(struct inode *inode, u32 sid);
 > +
-> +		rc = avc_has_perm(tsec->sid, sid, SECCLASS_FILESYSTEM,
-> +		                  FILESYSTEM__RELABELTO, NULL);
-> +		if (rc)
-> +			goto out_free;
-
-I'd split out the permission checks and do them once, or move them into
-a helper function and call it twice.
-
+>  static int superblock_doinit(struct super_block *sb, void *data)
+>  {
+>  	struct superblock_security_struct *sbsec = sb->s_security;
+> @@ -619,6 +658,20 @@ static int superblock_doinit(struct supe
+>  	/* Initialize the root inode. */
+>  	rc = inode_doinit_with_dentry(sb->s_root->d_inode, sb->s_root);
+>  
+> +	/* Set the context on the root inode if mounted with rootcontext= */
+> +	if ((sbsec->root_sid != SECINITSID_UNLABELED) && !rc) {
+> +		struct inode_security_struct *isec = sb->s_root->d_inode->i_security;
+> +		struct task_security_struct *tsec = current->security;
+> +
+> +		rc = avc_has_perm(tsec->sid, isec->sid, SECCLASS_FILESYSTEM, 
+> +			FILESYSTEM__RELABELFROM, NULL);
+> +		if (!rc)
+> +			rc = avc_has_perm(tsec->sid, sbsec->root_sid, SECCLASS_FILESYSTEM,
+> +				FILESYSTEM__RELABELTO, NULL);
+> +		if (!rc)
+> +			inode_security_set_sid(sb->s_root->d_inode, sbsec->root_sid);
 > +	}
-> +
-> +	/* 
-> +	 * will set both the superblock sid, sbsec->sid and the sid
-> +	 * for all file on that fs, sbsec->mntpoint_sid, the superblock
-> +	 * sid may have already been set by fscontext, in which case 
-> +	 * leave it alone.
-> +	 * 
-> +	 * later having Opt_context set will switch the fs to using 
-> +	 * SECURITY_FS_USE_MNTPOINT labeling
 
-Likewise, needs a bit of a rewrite.
-
-> @@ -450,7 +488,7 @@ static int try_context_mount(struct supe
->  			goto out_free;
->  		}
->  
-> -		rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
-> +		rc = avc_has_perm(tsec->sid, sbsec->mntpoint_sid, SECCLASS_FILESYSTEM,
->  		                  FILESYSTEM__RELABELFROM, NULL);
-
-This will always end up checking against unlabeled_t, right?  I don't
-think it is what you want, and it changes the existing behavior for
-people using context= mounts.
-
->  		if (rc)
->  			goto out_free;
-> @@ -460,7 +498,9 @@ static int try_context_mount(struct supe
->  		if (rc)
->  			goto out_free;
->  
-> -		sbsec->sid = sid;
-> +		if (sbsec->sid == SECINITSID_UNLABELED)
-> +			sbsec->sid = sid;
-> +		sbsec->mntpoint_sid = sid;
-
-sbsec->sid is initialized by the security_fs_use() call (based on the
-policy configuration for the fs, either fs_use* or genfs) prior to
-try_context_mount(), so testing for unlabeled isn't sufficient, right?
-I think you want to explicitly check whether fscontext was set here.
-
->  		if (seen & Opt_context)
->  			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
-
-No longer needs to be conditional here, right?  Since this branch is now
-specific to the context= option?
-
-> +	case SECURITY_FS_USE_MNTPOINT:
-> +		/* use the mntpoint_sid */
-> +		if (sbsec->mntpoint_sid != SECINITSID_UNLABELED)
-> +			isec->sid = sbsec->mntpoint_sid;
-> +		else
-> +			isec->sid = sbsec->sid;
-> +		break;
-
-Why wouldn't this always be using mntpoint_sid?  
+I think that the mixing of inode SIDs with filesystem classes here will
+cause confusion in the policy, so I wouldn't do this.  Note that the
+actual file relabeling checks by setxattr are different - those are
+against the isec->sclass.  If you set the root inode SID and its
+initialized flag in try_context_mount, then inode_doinit should do
+nothing here.
 
 -- 
 Stephen Smalley
