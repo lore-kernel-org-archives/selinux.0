@@ -1,14 +1,22 @@
-Subject: [PATCH] ioprio: Add security hook definition for getioprio and
+Subject: Re: [PATCH] ioprio: Add security hook definition for getioprio and
 	insert hooks
 From: David Quigley <dpquigl@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
+In-Reply-To: <1151600677.19332.1.camel@moss-terrapins.epoch.ncsc.mil>
+References: <1151600677.19332.1.camel@moss-terrapins.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 29 Jun 2006 13:04:37 -0400
-Message-Id: <1151600677.19332.1.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Thu, 29 Jun 2006 13:27:46 -0400
+Message-Id: <1151602066.19332.7.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Hello,
+        I forgot to run this patch through patch-tester.pl so I missed the 
+white space poisoning and a couple of coding style violations. Here is the 
+patch resubmitted with those changes.
+
 
 This patch adds a new security hook definition for the sys_ioprio_get
 operation. At present, the SELinux hook function implementation for
@@ -29,7 +37,6 @@ Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
  security/selinux/hooks.c |    6 ++++++
  4 files changed, 49 insertions(+), 9 deletions(-)
 
-
 diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/fs/ioprio.c linux-2.6.17-mm3-ioprio/fs/ioprio.c
 --- linux-2.6.17-mm3/fs/ioprio.c	2006-06-28 13:58:56.000000000 -0400
 +++ linux-2.6.17-mm3-ioprio/fs/ioprio.c	2006-06-29 10:32:43.000000000 -0400
@@ -42,13 +49,13 @@ diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/fs/ioprio.c linux-2.6.17-m
 +	int ret = 0;
 +
 +	ret = security_task_getioprio(p);
-+	if(ret)
++	if (ret)
 +		goto out;
-+	if(!ioprio_valid(prev)) {
++	if (!ioprio_valid(prev)) {
 +		ret = p->ioprio;
 +		goto out;
 +	}
-+	if(prev == -ESRCH)
++	if (prev == -ESRCH)
 +		ret = p->ioprio;
 +	else
 +		ret = ioprio_best(prev, p->ioprio);
@@ -74,7 +81,7 @@ diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/fs/ioprio.c linux-2.6.17-m
 -					ret = p->ioprio;
 -				else
 -					ret = ioprio_best(ret, p->ioprio);
-+				ret = get_task_ioprio(p, ret);				
++				ret = get_task_ioprio(p, ret);
  			} while_each_task_pid(who, PIDTYPE_PGID, p);
  			break;
  		case IOPRIO_WHO_USER:
@@ -182,6 +189,7 @@ diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/security/selinux/hooks.c l
  	.task_setrlimit =		selinux_task_setrlimit,
  	.task_setscheduler =		selinux_task_setscheduler,
  	.task_getscheduler =		selinux_task_getscheduler,
+
 
 
 --
