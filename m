@@ -1,171 +1,72 @@
-Subject: [RFC PATCH] 1/2 decouple fscontext/context
-From: Eric Paris <eparis@parisplace.org>
-To: selinux@tycho.nsa.gov
-Cc: jmorris@namei.org, sds@tycho.nsa.gov
+Subject: Re: [redhat-lspp] libselinux get_default_context not working?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Wightman, Reid K Civ AFRL/IFEB" <Reid.Wightman@rl.af.mil>
+Cc: selinux@tycho.nsa.gov, redhat-lspp@redhat.com
+In-Reply-To: <43055FDD054D464FA7923D0FFAF2C9C70291F7C2@fsjrez02.adm.rl.af.mil>
+References: 
+	 <43055FDD054D464FA7923D0FFAF2C9C70291F7C2@fsjrez02.adm.rl.af.mil>
 Content-Type: text/plain
-Date: Wed, 28 Jun 2006 19:09:25 -0400
-Message-Id: <1151536165.26384.48.camel@localhost.localdomain>
+Date: Thu, 29 Jun 2006 10:22:26 -0400
+Message-Id: <1151590946.6999.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch will remove the conflict between fscontext and context mount
-options.  It is now possible to use them both.  If context= is specified
-without fscontext it will operate just as before, if both are specified
-we will use mount point labeling and all inodes will get the label
-specified by context=.   The superblock will be labeled with the label
-of fscontext=, thus affecting associate permissions.
+On Wed, 2006-06-28 at 16:07 -0400, Wightman, Reid K Civ AFRL/IFEB wrote:
+> I'm playing with the refpolicy (20060307 from sourceforge...is there a
+> redhat-blessed version of refpolicy w/source available?)
 
- hooks.c          |   62 ++++++++++++++++++++++++++++++++++++++++++++++++-------
- include/objsec.h |    3 +-
- 2 files changed, 57 insertions(+), 8 deletions(-)
+You can always grab the selinux-policy*.src.rpm from the Fedora download
+server or mirrors, or check out selinux-policy from the public Fedora
+CVS tree and generate a src rpm from it.
 
---- linux-2.6.17-rootcontext/security/selinux/hooks.c.rootcontext	2006-06-23 16:42:30.000000000 -0400
-+++ linux-2.6.17-rootcontext/security/selinux/hooks.c	2006-06-28 17:47:18.000000000 -0400
-@@ -246,6 +246,7 @@ static int superblock_alloc_security(str
- 	sbsec->sb = sb;
- 	sbsec->sid = SECINITSID_UNLABELED;
- 	sbsec->def_sid = SECINITSID_FILE;
-+	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
- 	sb->s_security = sbsec;
- 
- 	return 0;
-@@ -332,6 +333,7 @@ static match_table_t tokens = {
- static int try_context_mount(struct super_block *sb, void *data)
- {
- 	char *context = NULL, *defcontext = NULL;
-+	char *fscontext = NULL;
- 	const char *name;
- 	u32 sid;
- 	int alloc = 0, rc = 0, seen = 0;
-@@ -374,7 +376,7 @@ static int try_context_mount(struct supe
- 
- 			switch (token) {
- 			case Opt_context:
--				if (seen) {
-+				if (seen & (Opt_context|Opt_defcontext)) {
- 					rc = -EINVAL;
- 					printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
- 					goto out_free;
-@@ -390,13 +392,13 @@ static int try_context_mount(struct supe
- 				break;
- 
- 			case Opt_fscontext:
--				if (seen & (Opt_context|Opt_fscontext)) {
-+				if (seen & Opt_fscontext) {
- 					rc = -EINVAL;
- 					printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
- 					goto out_free;
- 				}
--				context = match_strdup(&args[0]);
--				if (!context) {
-+				fscontext = match_strdup(&args[0]);
-+				if (!fscontext) {
- 					rc = -ENOMEM;
- 					goto out_free;
- 				}
-@@ -441,6 +443,42 @@ static int try_context_mount(struct supe
- 	if (!seen)
- 		goto out;
- 
-+	/* 
-+	 * sets the context of the superblock, sbsec->sid for the fs being mounted
-+	 * is done before context= because context= will also set the superblock
-+	 * if it is not already set by fscontext=
-+	 */
-+	if (fscontext) {
-+		rc = security_context_to_sid(fscontext, strlen(fscontext), &sid);
-+		if (rc) {
-+			printk(KERN_WARNING "SELinux: security_context_to_sid"
-+			       "(%s) failed for (dev %s, type %s) errno=%d\n",
-+			       fscontext, sb->s_id, name, rc);
-+			goto out_free;
-+		}
-+
-+		rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
-+		                  FILESYSTEM__RELABELFROM, NULL);
-+		if (rc)
-+			goto out_free;
-+
-+		rc = avc_has_perm(tsec->sid, sid, SECCLASS_FILESYSTEM,
-+		                  FILESYSTEM__RELABELTO, NULL);
-+		if (rc)
-+			goto out_free;
-+
-+		sbsec->sid = sid;
-+	}
-+
-+	/* 
-+	 * will set both the superblock sid, sbsec->sid and the sid
-+	 * for all file on that fs, sbsec->mntpoint_sid, the superblock
-+	 * sid may have already been set by fscontext, in which case 
-+	 * leave it alone.
-+	 * 
-+	 * later having Opt_context set will switch the fs to using 
-+	 * SECURITY_FS_USE_MNTPOINT labeling
-+	 */
- 	if (context) {
- 		rc = security_context_to_sid(context, strlen(context), &sid);
- 		if (rc) {
-@@ -450,7 +488,7 @@ static int try_context_mount(struct supe
- 			goto out_free;
- 		}
- 
--		rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
-+		rc = avc_has_perm(tsec->sid, sbsec->mntpoint_sid, SECCLASS_FILESYSTEM,
- 		                  FILESYSTEM__RELABELFROM, NULL);
- 		if (rc)
- 			goto out_free;
-@@ -460,7 +498,9 @@ static int try_context_mount(struct supe
- 		if (rc)
- 			goto out_free;
- 
--		sbsec->sid = sid;
-+		if (sbsec->sid == SECINITSID_UNLABELED)
-+			sbsec->sid = sid;
-+		sbsec->mntpoint_sid = sid;
- 
- 		if (seen & Opt_context)
- 			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
-@@ -495,6 +535,7 @@ out_free:
- 	if (alloc) {
- 		kfree(context);
- 		kfree(defcontext);
-+		kfree(fscontext);
- 	}
- out:
- 	return rc;
-@@ -876,8 +917,15 @@ static int inode_doinit_with_dentry(stru
- 			goto out;
- 		isec->sid = sid;
- 		break;
-+	case SECURITY_FS_USE_MNTPOINT:
-+		/* use the mntpoint_sid */
-+		if (sbsec->mntpoint_sid != SECINITSID_UNLABELED)
-+			isec->sid = sbsec->mntpoint_sid;
-+		else
-+			isec->sid = sbsec->sid;
-+		break;
- 	default:
--		/* Default to the fs SID. */
-+		/* Default to the fs superblock SID. */
- 		isec->sid = sbsec->sid;
- 
- 		if (sbsec->proc) {
---- linux-2.6.17-rootcontext/security/selinux/include/objsec.h.rootcontext	2006-06-26 16:21:19.000000000 -0400
-+++ linux-2.6.17-rootcontext/security/selinux/include/objsec.h	2006-06-28 17:25:46.000000000 -0400
-@@ -56,8 +56,9 @@ struct file_security_struct {
- struct superblock_security_struct {
- 	struct super_block *sb;         /* back pointer to sb object */
- 	struct list_head list;          /* list of superblock_security_struct */
--	u32 sid;              /* SID of file system */
-+	u32 sid;			/* SID of file system superblock */
- 	u32 def_sid;			/* default SID for labeling */
-+	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
- 	unsigned int behavior;          /* labeling behavior */
- 	unsigned char initialized;      /* initialization flag */
- 	unsigned char proc;             /* proc fs */
+>  and am noticing
+> some odd things in libselinux.  When calling get_default_context('user_u',
+> NULL, &conref), the function eventually gets to get_context_list.c line 444
+> where it tries to open /etc/selinux/refpolicy/contexts/users/user_u .  That
+> file doesn't exist.  
 
+That is ok - the per-user files are optional, and only necessary if you
+want to use alternative defaults for a particular SELinux user than the
+generic ones in default_contexts.  That support was used for the root
+user at one time, to give him different defaults e.g. for console login.
+Might be moot given the seusers mechanism these days for mapping Linux
+users to SELinux users.
+
+> I'm curious what the format of the file should be.
+
+Same as default_contexts.
+
+>   I don't see anything by
+> the same name in the targeted or strict policies that come with FC5.  As it
+> is, it eventually fails to order the reachable list it builds, so user_u is
+> shown as having a default context of user_u:user_r:user_xserver_t, which
+> probably isn't right, (it just happens to be the first entry on the
+> reachable contexts list).  I'd think the default context for user_u in the
+> default refpolicy would be user_u:user_r:user_t...
+
+Under strict policy, yes, it would be user_u:user_r:user_t.  But
+default_contexts is sufficient for that, and that appears to be working
+on a strict policy system here.  Not sure what precisely you are
+encountering - you didn't say why it fails.
+
+> Would it be worthwhile for me to play with the Makefile to automatically
+> generate some of these files?
+
+No, they are only for local customization of particular SELinux users
+defaults; they don't need to exist for operation, and it wouldn't make
+sense to auto-generate them.
+
+>   What stuff should the <user>_u files have in
+> them?  Or shouldn't I be playing with refpolicy for policy analysis at this
+> point (or, as above, is there a redhat version somewhere)?  I don't see a
+> 'user_u' file in targeted o
+> r strict policies, either, so I'd guess that this same sort of thing would
+> happen in them?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
