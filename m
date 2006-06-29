@@ -1,27 +1,187 @@
-Subject: RE: [PATCH] remove te rule conflict checking from parser
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015882980C6@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B015882980C6@exchange.columbia.tresys.com>
+Subject: [PATCH] ioprio: Add security hook definition for getioprio and
+	insert hooks
+From: David Quigley <dpquigl@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org
 Content-Type: text/plain
-Date: Thu, 29 Jun 2006 12:54:47 -0400
-Message-Id: <1151600087.6999.135.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 29 Jun 2006 13:04:37 -0400
+Message-Id: <1151600677.19332.1.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-06-29 at 12:37 -0400, Joshua Brindle wrote:
-> Are those duplicates in the same scope? If so they are correctly being
-> dropped silently (they are just redundant), if they are in different
-> scopes a dupe is fatal. 
+This patch adds a new security hook definition for the sys_ioprio_get
+operation. At present, the SELinux hook function implementation for
+this hook is identical to the setscheduler implementation but a
+separate hook is introduced to allow this check to be specialized in
+the future if necessary. This patch also creates a helper function
+get_task_ioprio which handles the access check in addition to
+performing the get task.
 
-Yes, that was it.
+Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
 
--- 
-Stephen Smalley
-National Security Agency
+---
+
+
+ fs/ioprio.c              |   31 ++++++++++++++++++++++---------
+ include/linux/security.h |   15 +++++++++++++++
+ security/dummy.c         |    6 ++++++
+ security/selinux/hooks.c |    6 ++++++
+ 4 files changed, 49 insertions(+), 9 deletions(-)
+
+
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/fs/ioprio.c linux-2.6.17-mm3-ioprio/fs/ioprio.c
+--- linux-2.6.17-mm3/fs/ioprio.c	2006-06-28 13:58:56.000000000 -0400
++++ linux-2.6.17-mm3-ioprio/fs/ioprio.c	2006-06-29 10:32:43.000000000 -0400
+@@ -125,6 +125,25 @@ asmlinkage long sys_ioprio_set(int which
+ 	return ret;
+ }
+ 
++static int get_task_ioprio(struct task_struct *p, int prev)
++{
++	int ret = 0;
++
++	ret = security_task_getioprio(p);
++	if(ret)
++		goto out;
++	if(!ioprio_valid(prev)) {
++		ret = p->ioprio;
++		goto out;
++	}
++	if(prev == -ESRCH)
++		ret = p->ioprio;
++	else
++		ret = ioprio_best(prev, p->ioprio);
++out:
++	return ret;
++}
++
+ asmlinkage long sys_ioprio_get(int which, int who)
+ {
+ 	struct task_struct *g, *p;
+@@ -139,16 +158,13 @@ asmlinkage long sys_ioprio_get(int which
+ 			else
+ 				p = find_task_by_pid(who);
+ 			if (p)
+-				ret = p->ioprio;
++				ret = get_task_ioprio(p, IOPRIO_CLASS_NONE);
+ 			break;
+ 		case IOPRIO_WHO_PGRP:
+ 			if (!who)
+ 				who = process_group(current);
+ 			do_each_task_pid(who, PIDTYPE_PGID, p) {
+-				if (ret == -ESRCH)
+-					ret = p->ioprio;
+-				else
+-					ret = ioprio_best(ret, p->ioprio);
++				ret = get_task_ioprio(p, ret);				
+ 			} while_each_task_pid(who, PIDTYPE_PGID, p);
+ 			break;
+ 		case IOPRIO_WHO_USER:
+@@ -163,10 +179,7 @@ asmlinkage long sys_ioprio_get(int which
+ 			do_each_thread(g, p) {
+ 				if (p->uid != user->uid)
+ 					continue;
+-				if (ret == -ESRCH)
+-					ret = p->ioprio;
+-				else
+-					ret = ioprio_best(ret, p->ioprio);
++				ret = get_task_ioprio(p, ret);
+ 			} while_each_thread(g, p);
+ 
+ 			if (who)
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/include/linux/security.h linux-2.6.17-mm3-ioprio/include/linux/security.h
+--- linux-2.6.17-mm3/include/linux/security.h	2006-06-28 13:58:59.000000000 -0400
++++ linux-2.6.17-mm3-ioprio/include/linux/security.h	2006-06-28 11:21:37.000000000 -0400
+@@ -582,6 +582,10 @@ struct swap_info_struct;
+  *	@p contains the task_struct of process.
+  *	@ioprio contains the new ioprio value
+  *	Return 0 if permission is granted.
++ * @task_getioprio
++ *	Check permission before getting the ioprio value of @p.
++ *	@p contains the task_struct of process.
++ *	Return 0 if permission is granted.
+  * @task_setrlimit:
+  *	Check permission before setting the resource limits of the current
+  *	process for @resource to @new_rlim.  The old resource limit values can
+@@ -1221,6 +1225,7 @@ struct security_operations {
+ 	int (*task_setgroups) (struct group_info *group_info);
+ 	int (*task_setnice) (struct task_struct * p, int nice);
+ 	int (*task_setioprio) (struct task_struct * p, int ioprio);
++	int (*task_getioprio) (struct task_struct * p);
+ 	int (*task_setrlimit) (unsigned int resource, struct rlimit * new_rlim);
+ 	int (*task_setscheduler) (struct task_struct * p, int policy,
+ 				  struct sched_param * lp);
+@@ -1853,6 +1858,11 @@ static inline int security_task_setiopri
+ 	return security_ops->task_setioprio (p, ioprio);
+ }
+ 
++static inline int security_task_getioprio (struct task_struct *p)
++{
++	return security_ops->task_getioprio (p);
++}
++
+ static inline int security_task_setrlimit (unsigned int resource,
+ 					   struct rlimit *new_rlim)
+ {
+@@ -2505,6 +2515,11 @@ static inline int security_task_setiopri
+ 	return 0;
+ }
+ 
++static inline int security_task_getioprio (struct task_struct *p)
++{
++	return 0;
++}
++
+ static inline int security_task_setrlimit (unsigned int resource,
+ 					   struct rlimit *new_rlim)
+ {
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/security/dummy.c linux-2.6.17-mm3-ioprio/security/dummy.c
+--- linux-2.6.17-mm3/security/dummy.c	2006-06-28 13:58:59.000000000 -0400
++++ linux-2.6.17-mm3-ioprio/security/dummy.c	2006-06-28 11:23:00.000000000 -0400
+@@ -521,6 +521,11 @@ static int dummy_task_setioprio (struct 
+ 	return 0;
+ }
+ 
++static int dummy_task_getioprio (struct task_struct *p)
++{
++	return 0;
++}
++
+ static int dummy_task_setrlimit (unsigned int resource, struct rlimit *new_rlim)
+ {
+ 	return 0;
+@@ -984,6 +989,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, task_setgroups);
+ 	set_to_dummy_if_null(ops, task_setnice);
+ 	set_to_dummy_if_null(ops, task_setioprio);
++	set_to_dummy_if_null(ops, task_getioprio);
+ 	set_to_dummy_if_null(ops, task_setrlimit);
+ 	set_to_dummy_if_null(ops, task_setscheduler);
+ 	set_to_dummy_if_null(ops, task_getscheduler);
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/security/selinux/hooks.c linux-2.6.17-mm3-ioprio/security/selinux/hooks.c
+--- linux-2.6.17-mm3/security/selinux/hooks.c	2006-06-28 13:58:59.000000000 -0400
++++ linux-2.6.17-mm3-ioprio/security/selinux/hooks.c	2006-06-28 11:49:13.000000000 -0400
+@@ -2665,6 +2665,11 @@ static int selinux_task_setioprio(struct
+ 	return task_has_perm(current, p, PROCESS__SETSCHED);
+ }
+ 
++static int selinux_task_getioprio(struct task_struct *p)
++{
++	return task_has_perm(current, p, PROCESS__GETSCHED);
++}
++
+ static int selinux_task_setrlimit(unsigned int resource, struct rlimit *new_rlim)
+ {
+ 	struct rlimit *old_rlim = current->signal->rlim + resource;
+@@ -4432,6 +4437,7 @@ static struct security_operations selinu
+ 	.task_setgroups =		selinux_task_setgroups,
+ 	.task_setnice =			selinux_task_setnice,
+ 	.task_setioprio =		selinux_task_setioprio,
++	.task_getioprio =		selinux_task_getioprio,
+ 	.task_setrlimit =		selinux_task_setrlimit,
+ 	.task_setscheduler =		selinux_task_setscheduler,
+ 	.task_getscheduler =		selinux_task_getscheduler,
 
 
 --
