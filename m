@@ -1,152 +1,181 @@
-Subject: [PATCH] 2/2 rootcontext= option to label root inode when mounting
+Subject: [PATCH] 1/2 decouple fscontext/context mount options
 From: Eric Paris <eparis@parisplace.org>
 To: selinux@tycho.nsa.gov
 Cc: jmorris@namei.org, sds@tycho.nsa.gov
 Content-Type: text/plain
-Date: Wed, 05 Jul 2006 11:59:08 -0400
-Message-Id: <1152115148.26384.153.camel@localhost.localdomain>
+Date: Wed, 05 Jul 2006 11:59:06 -0400
+Message-Id: <1152115146.26384.152.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The second patch will introduce a new rootcontext= option to FS
-mounting. This option will allow you to explicitly label the root inode
-of a FS being mounted before that FS or inode because visable to
-userspace.  This was found to be useful for things like stateless linux,
-see https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=190001
+This patch will remove the conflict between fscontext and context mount
+options.  If context= is specified without fscontext it will operate
+just as before, if both are specified we will use mount point labeling
+and all inodes will get the label specified by context=.   The
+superblock will be labeled with the label of fscontext=, thus affecting
+operations which check the superblock security context, such as
+associate permissions.
 
-This should address all of the concerns with the original patch.
+Hopefully this addresses all of the concerns.
 
- security/selinux/hooks.c |   67 ++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 58 insertions(+), 9 deletions(-)
+ security/selinux/hooks.c          |   68 +++++++++++++++++++++++++++++---------
+ security/selinux/include/objsec.h |    3 +
+ 2 files changed, 55 insertions(+), 16 deletions(-)
 
---- linux-2.6.17/security/selinux/hooks.c.withdecouple	2006-07-05 11:40:03.000000000 -0400
-+++ linux-2.6.17/security/selinux/hooks.c	2006-07-05 11:41:09.000000000 -0400
-@@ -320,12 +320,14 @@ enum {
- 	Opt_context = 1,
- 	Opt_fscontext = 2,
- 	Opt_defcontext = 4,
-+	Opt_rootcontext = 8,
- };
+--- linux-2.6.17/security/selinux/hooks.c.orig	2006-07-05 11:39:48.000000000 -0400
++++ linux-2.6.17/security/selinux/hooks.c	2006-07-05 11:40:03.000000000 -0400
+@@ -246,6 +246,7 @@ static int superblock_alloc_security(str
+ 	sbsec->sb = sb;
+ 	sbsec->sid = SECINITSID_UNLABELED;
+ 	sbsec->def_sid = SECINITSID_FILE;
++	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+ 	sb->s_security = sbsec;
  
- static match_table_t tokens = {
- 	{Opt_context, "context=%s"},
- 	{Opt_fscontext, "fscontext=%s"},
- 	{Opt_defcontext, "defcontext=%s"},
-+	{Opt_rootcontext, "rootcontext=%s"},
- };
+ 	return 0;
+@@ -329,9 +330,25 @@ static match_table_t tokens = {
  
  #define SEL_MOUNT_FAIL_MSG "SELinux:  duplicate or incompatible mount options\n"
-@@ -345,10 +347,24 @@ static int may_context_mount_sb_relabel(
- 	return rc;
- }
  
-+static int may_context_mount_inode_relabel(u32 sid, struct superblock_security_struct *sbsec,
++static int may_context_mount_sb_relabel(u32 sid, struct superblock_security_struct *sbsec,
 +			struct task_security_struct *tsec)
 +{
 +	int rc;
++
 +	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
 +			  FILESYSTEM__RELABELFROM, NULL);
 +	if (rc)
 +		return rc;
 +
-+	rc = avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM,
-+			  FILESYSTEM__ASSOCIATE, NULL);
++	rc = avc_has_perm(tsec->sid, sid, SECCLASS_FILESYSTEM,
++			  FILESYSTEM__RELABELTO, NULL);
 +	return rc;
 +}
 +
  static int try_context_mount(struct super_block *sb, void *data)
  {
  	char *context = NULL, *defcontext = NULL;
--	char *fscontext = NULL;
-+	char *fscontext = NULL, *rootcontext = NULL;
++	char *fscontext = NULL;
  	const char *name;
  	u32 sid;
  	int alloc = 0, rc = 0, seen = 0;
-@@ -422,6 +438,22 @@ static int try_context_mount(struct supe
- 				seen |= Opt_fscontext;
+@@ -374,7 +391,7 @@ static int try_context_mount(struct supe
+ 
+ 			switch (token) {
+ 			case Opt_context:
+-				if (seen) {
++				if (seen & (Opt_context|Opt_defcontext)) {
+ 					rc = -EINVAL;
+ 					printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+ 					goto out_free;
+@@ -390,13 +407,13 @@ static int try_context_mount(struct supe
  				break;
  
-+			case Opt_rootcontext:
-+				if (seen & Opt_rootcontext) {
-+					rc = -EINVAL;
-+					printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
-+					goto out_free;
-+				}
-+				rootcontext = match_strdup(&args[0]);
-+				if (!rootcontext) {
-+					rc = -ENOMEM;
-+					goto out_free;
-+				}
-+				if (!alloc)
-+					alloc = 1;
-+				seen |= Opt_rootcontext;
-+				break;
-+
- 			case Opt_defcontext:
- 				if (sbsec->behavior != SECURITY_FS_USE_XATTR) {
+ 			case Opt_fscontext:
+-				if (seen & (Opt_context|Opt_fscontext)) {
++				if (seen & Opt_fscontext) {
  					rc = -EINVAL;
-@@ -500,6 +532,27 @@ static int try_context_mount(struct supe
- 		sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
- 	}
+ 					printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+ 					goto out_free;
+ 				}
+-				context = match_strdup(&args[0]);
+-				if (!context) {
++				fscontext = match_strdup(&args[0]);
++				if (!fscontext) {
+ 					rc = -ENOMEM;
+ 					goto out_free;
+ 				}
+@@ -441,29 +458,46 @@ static int try_context_mount(struct supe
+ 	if (!seen)
+ 		goto out;
  
-+	if (rootcontext) {
-+		struct inode *inode = sb->s_root->d_inode;
-+		struct inode_security_struct *isec = inode->i_security;
-+		rc = security_context_to_sid(rootcontext, strlen(rootcontext), &sid);
-+		if (rc) {
-+			printk(KERN_WARNING "SELinux: security_context_to_sid"
-+			       "(%s) failed for (dev %s, type %s) errno=%d\n",
-+			       rootcontext, sb->s_id, name, rc);
-+			goto out_free;
-+		}
-+
-+		rc = may_context_mount_inode_relabel(sid, sbsec, tsec);
-+		if (rc)
-+			goto out_free;
-+
-+		down(&isec->sem);
-+		isec->sid = sid;
-+		isec->initialized = 1;
-+		up(&isec->sem);
-+	}
-+
- 	if (defcontext) {
- 		rc = security_context_to_sid(defcontext, strlen(defcontext), &sid);
+-	if (context) {
+-		rc = security_context_to_sid(context, strlen(context), &sid);
++	/* sets the context of the superblock for the fs being mounted. */
++	if (fscontext) {
++		rc = security_context_to_sid(fscontext, strlen(fscontext), &sid);
  		if (rc) {
-@@ -512,13 +565,7 @@ static int try_context_mount(struct supe
- 		if (sid == sbsec->def_sid)
+ 			printk(KERN_WARNING "SELinux: security_context_to_sid"
+ 			       "(%s) failed for (dev %s, type %s) errno=%d\n",
+-			       context, sb->s_id, name, rc);
++			       fscontext, sb->s_id, name, rc);
  			goto out_free;
+ 		}
  
 -		rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
--				  FILESYSTEM__RELABELFROM, NULL);
--		if (rc)
--			goto out_free;
--
--		rc = avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM,
--				  FILESYSTEM__ASSOCIATE, NULL);
-+		rc = may_context_mount_inode_relabel(sid, sbsec, tsec);
+-		                  FILESYSTEM__RELABELFROM, NULL);
++		rc = may_context_mount_sb_relabel(sid, sbsec, tsec);
  		if (rc)
  			goto out_free;
  
-@@ -530,6 +577,7 @@ out_free:
+-		rc = avc_has_perm(tsec->sid, sid, SECCLASS_FILESYSTEM,
+-		                  FILESYSTEM__RELABELTO, NULL);
++		sbsec->sid = sid;
++	}
++
++	/* 
++	 * Switch to using mount point labeling behavior.
++	 * sets the label used on all files below the mountpoint, and will set
++	 * the superblock context if not already set.
++	 */
++	if (context) {
++		rc = security_context_to_sid(context, strlen(context), &sid);
++		if (rc) {
++			printk(KERN_WARNING "SELinux: security_context_to_sid"
++			       "(%s) failed for (dev %s, type %s) errno=%d\n",
++			       context, sb->s_id, name, rc);
++			goto out_free;
++		}
++
++		rc = may_context_mount_sb_relabel(sid, sbsec, tsec);
+ 		if (rc)
+ 			goto out_free;
+ 
+-		sbsec->sid = sid;
++		if (!fscontext)
++			sbsec->sid = sid;
++		sbsec->mntpoint_sid = sid;
+ 
+-		if (seen & Opt_context)
+-			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
++		sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
+ 	}
+ 
+ 	if (defcontext) {
+@@ -495,6 +529,7 @@ out_free:
+ 	if (alloc) {
  		kfree(context);
  		kfree(defcontext);
- 		kfree(fscontext);
-+		kfree(rootcontext);
++		kfree(fscontext);
  	}
  out:
  	return rc;
-@@ -1881,7 +1929,8 @@ static inline int selinux_option(char *o
- {
- 	return (match_prefix("context=", sizeof("context=")-1, option, len) ||
- 	        match_prefix("fscontext=", sizeof("fscontext=")-1, option, len) ||
--	        match_prefix("defcontext=", sizeof("defcontext=")-1, option, len));
-+	        match_prefix("defcontext=", sizeof("defcontext=")-1, option, len) ||
-+		match_prefix("rootcontext=", sizeof("rootcontext=")-1, option, len));
- }
+@@ -876,8 +911,11 @@ static int inode_doinit_with_dentry(stru
+ 			goto out;
+ 		isec->sid = sid;
+ 		break;
++	case SECURITY_FS_USE_MNTPOINT:
++		isec->sid = sbsec->mntpoint_sid;
++		break;
+ 	default:
+-		/* Default to the fs SID. */
++		/* Default to the fs superblock SID. */
+ 		isec->sid = sbsec->sid;
  
- static inline void take_option(char **to, char *from, int *first, int len)
+ 		if (sbsec->proc) {
+--- linux-2.6.17/security/selinux/include/objsec.h.orig	2006-07-05 11:39:48.000000000 -0400
++++ linux-2.6.17/security/selinux/include/objsec.h	2006-07-05 11:40:03.000000000 -0400
+@@ -57,8 +57,9 @@ struct file_security_struct {
+ struct superblock_security_struct {
+ 	struct super_block *sb;         /* back pointer to sb object */
+ 	struct list_head list;          /* list of superblock_security_struct */
+-	u32 sid;              /* SID of file system */
++	u32 sid;			/* SID of file system superblock */
+ 	u32 def_sid;			/* default SID for labeling */
++	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
+ 	unsigned int behavior;          /* labeling behavior */
+ 	unsigned char initialized;      /* initialization flag */
+ 	unsigned char proc;             /* proc fs */
 
 
 
