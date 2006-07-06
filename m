@@ -1,88 +1,115 @@
-Subject: Re: [PATCH] 2/2 rootcontext=, are RELABELFROM and ASSOCIATE enough
-	in may_context_mount_inode_relabel?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1152128604.26384.198.camel@localhost.localdomain>
-References: <1152121645.26384.171.camel@localhost.localdomain>
-	 <1152123400.12435.97.camel@moss-spartans.epoch.ncsc.mil>
-	 <1152128604.26384.198.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 05 Jul 2006 16:36:44 -0400
-Message-Id: <1152131804.13773.116.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k66JTeSJ025195
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jul 2006 15:29:40 -0400
+Received: from iron1-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k66JTeec014243
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jul 2006 19:29:40 GMT
+Date: Thu, 6 Jul 2006 15:29:29 -0400
+From: Yuichi Nakamura <ynakam@gwu.edu>
+To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
+Cc: ynakam@gwu.edu
+Subject: [ANN] SELinux Policy Editor 2.0(seedit 2.0)
+Message-Id: <20060706152929.dcab61db.ynakam@gwu.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-07-05 at 15:43 -0400, Eric Paris wrote:
-> > > +static int may_context_mount_inode_relabel(u32 sid, 
-> > > +			struct superblock_security_struct *sbsec,
-> > > +			struct task_security_struct *tsec)
-> > > +{
-> > > +	int rc;
-> > > +	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
-> > > +			  FILESYSTEM__RELABELFROM, NULL);
-> > > +	if (rc)
-> > > +		return rc;
-> > > +
-> > > +	rc = avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM,
-> > > +			  FILESYSTEM__ASSOCIATE, NULL);
-> > > +	return rc;
-> > > +}
-> 
-> Not trying to bomb my own ack'd patch, but I do question why we don't
-> check RELABEL_TO for the new context we set either from rootcontext or
-> defcontext.  Wouldn't there be cases where we pass associate but
-> wouldn't want to allow relabel_to?  Does associate inherently mean that
-> we are allowed to relabel to that type?  I've been trying to think of a
-> way to exploit this for some usable purpose and admittedly I can't think
-> of one, but that doesn't mean that it isn't there...
+Hi.
 
-First, you need to distinguish between the file relabeling checks (of
-selinux_inode_setxattr) and the context mount checks.  Don't confuse
-file relabelfrom/relabelto with filesystem relabelfrom/relabelto.
+I am glad to announce that SELinux Policy Editor 2.0(seedit 2.0) has been released.
+seedit is a tool to make SELinux easy.
+We have renewed the tool. Almost everything have been changed. 
+Policy generator, new GUI are developed, and many others.
+You can download and try it from 
+http://seedit.sourceforge.net 
+Manuals are also provided.
+It supports Fedora Core 5 and Cent OS 4.
 
-Second, keep in mind that there is some overloading going on here, as we
-didn't originally have context mount options and when they were
-introduced, they leveraged the old permissions for relabeling of
-superblock security contexts that used to be supported when SELinux had
-its own persistent label mapping on the filesystem (prior to migration
-to using xattrs).
+If you have question, please feel free to contact me.
 
-The filesystem relabelto check is expected to occur against a
-filesystem/superblock SID, not an inode SID, and represents the
-relabeling of the superblock to a new value.  That is why we don't
-presently apply it to defcontext= (which doesn't actually relabel any
-object with an existing label - it just defines the default label for
-inodes without an xattr).  Given the relabelfrom check against the
-superblock SID and the associate check, we can at least establish a
-transitive relationship between the process and the defcontext SID (or
-the rootcontext SID in your case).  If we needed something
-finer-grained, we could introduce a further check there, but that should
-really be a separate permission check against the inode's security
-class, not the filesystem relabelto check.  But we don't yet have an
-example needing that granularity.
 
-> on another note in may_context_mount_sb_relabel, when I set both
-> fscontext and context shouldn't we be checking the associate permission
-> between the context= (all files on the fs) and the context set to the sb
-> from fscontext?
+Here is a brief introduction of seedit 2.0:
 
-Hmmm...I suppose in that case, the context= value is not being used as a
-superblock security context, and thus you should be applying the
-associate check instead of the relabelto check for it.
+1.  About SELinux Policy Editor
+SELinux Policy Editor(seedit) is a tool to make SELinux easy.
+It was originally developed by Hitachi Software, 
+now is developed in SELinux Policy Editor Project(http://seedit.sourceforge.net).
 
-> should we check all 3 perms for all 4 context mount options?  My patch
-> doesn't change what we have today, but I'm not convinced they are
-> complete....
+seedit is composed of Simplified Policy and 
+tools such as GUI and policy generator. 
+The most important is Simplified Policy.
+Simplified Policy is a policy described by 
+Simplified Policy Description Language(SPDL). 
+SPDL hides detail of SELinux configuration by name-based configuration 
+and reducing number of permissions.
+Following is example policy for Apache by SPDL.
 
-Ideally, we'd only check filesystem class permissions against superblock
-SIDs (as the target SID).
+domain httpd_t;
+include daemon.sp;
+program /usr/sbin/httpd;
+allow /var/www/** r,s;
+allownet -protocol tcp -port 80 server.
+...
 
--- 
-Stephen Smalley
-National Security Agency
+As you see, type is not used. 
+You can use file name, port number in configuration.
+SPDL is converted into SELinux policy by SPDL compiler.
 
+2. New features in 2.0
+In this release, we have renewed our tool.
+We improved usability and security.
+
+2.1 Improvement in usability
+ About usability, we learned a lot from AppArmor.
+ We investigated AppArmor and taken good points of it.
+ We have to thank to them :-)
+
+* New GUI
+ We have developed new GUI "seedit Control Panel".
+ It works on X Window System, implemented by python and pygtk.
+ You can see screenshots at 
+ http://sourceforge.net/project/screenshots.php?group_id=135756 .
+
+ You can do almost everything about SELinux from control panel.
+ Features of control panel are following:
+ - Policy Generator
+  Read audit log and generate Simplified Policy.
+ - Policy Template tool
+  User can generate policy template for applications by answering some questions.
+ - Editor
+  Editor for SPDL, you can insert configuration by GUI.
+ - Status checker
+  It is like AppArmor's unconfined command.
+  You can check network process's domain. 
+  You can see which domains are assigned unconfined domain.
+
+* Syntax of SPDL: 
+ We have taken some AppArmor's profile syntax into SPDL.
+ 
+* RBAC(Role-Based Access Control) Support
+ You can switch on/off RBAC support easily by one command.
+ See RBAC guide.  
+
+2.2 Improvement of security
+ SPDL reduces number of permissions by integrating SELinux's permissions,
+ but it affects security.
+ We have re-designed permission integration of SPDL, 
+ as a research project at The George Washington University.
+ For detail of SPDL, see document 
+ "Specification of Simplified Policy Description Language(SPDL)".
+ More documents about security is in progress.
+
+3. Feedback
+ If you have question or want to say something to us,
+ please e-mail to me(himainu-ynakam@miomio.jp), 
+ or subscribe seedit-devel-list at 
+ http://sourceforge.net/mail/?group_id=135756
+ 
+---
+Yuichi Nakamura
+The George Washington University, Hitachi Software
+SELinux Policy Editor:  http://seedit.sourceforge.net/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
