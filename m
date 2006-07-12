@@ -1,36 +1,194 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6CK0N7R025327
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jul 2006 16:00:23 -0400
-Received: from ppsw-9.csi.cam.ac.uk (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6CK0L4K005638
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jul 2006 20:00:22 GMT
-Received: from cpc5-cmbg1-0-0-cust453.cmbg.cable.ntl.com ([86.6.1.198]:27842 helo=localhost)
-	by ppsw-9.csi.cam.ac.uk (smtp.hermes.cam.ac.uk [131.111.8.159]:25)
-	with esmtpsa (LOGIN:spb42) (TLSv1:DHE-RSA-AES256-SHA:256)
-	id 1G0ksa-0004rc-VD (Exim 4.54) for selinux@tycho.nsa.gov
-	(return-path <spb42@hermes.cam.ac.uk>); Wed, 12 Jul 2006 21:00:16 +0100
-Date: Wed, 12 Jul 2006 21:09:09 +0100
-From: Stephen Bennett <spb@gentoo.org>
-To: selinux@tycho.nsa.gov
-Subject: semanage and RHPL
-Message-ID: <20060712210909.575163ad@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <44B565D1.4040104@trustedcs.com>
+Date: Wed, 12 Jul 2006 16:12:49 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+CC: jmorris@namei.org, sds@tycho.nsa.gov, tjaeger@cse.psu.edu,
+        selinux@tycho.nsa.gov
+Subject: [PATCH 01/10] MLSXFRM: Granular IPSec associations for use in MLS
+ environments
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+The current approach to labeling Security Associations for SELinux purposes
+uses a one-to-one mapping between xfrm policy rules and security associations.
+This doesn’t address the needs of real world MLS (Multi-level System, traditional
+Bell-LaPadula) environments where a single xfrm policy rule (pertaining to a range,
+classified to secret for example) might need to map to multiple Security Associations
+(one each for classified, secret, top secret and all the compartments applicable to
+these security levels).
 
-After encountering some problems with modular policy in the released
-toolchain packages, it was suggested to me that I try the svn
-toolchain. I did this, and found that semanage and genhomedircon both
-traceback when run, failing to import functions from rhpl.translate.
-This package doesn't appear to be available in Gentoo's repository, and
-a quick bit of searching suggests that it's a Red Hat-specific library.
-Is this dependency intentional or desirable? If yes, where can we get
-the sources to package it for other distros?
+This patch set addresses the above problem by allowing for the mapping of a single
+xfrm policy rule to multiple security associations, with each association used in
+the security context it is defined for. It also includes the security context to be
+used in IKE negotiation in the acquire messages sent to the IKE daemon so that a unique
+SA can be negotiated for each unique security context. A couple of bug fixes are also
+included; checks to make sure the SAs used by a packet match policy (security context-wise)
+on the inbound and also that the bundle used for the outbound matches the security context
+of the flow. This patch set also makes the use of the SELinux sid in flow cache lookups
+seemless by including the sid in the flow key itself.
 
-Thanks in advance for any input.
+Description of changes:
+
+A "sid" member has been added to the flow cache key resulting in the sid being available
+at all needed locations and the flow cache lookups automatically using the sid. The flow
+sid is derived from the socket on the outbound and the SAs (unlabeled where an SA was not
+used) on the inbound.
+
+Outbound case:
+1. Find policy for the socket.
+
+2. OLD: Find an SA that matches the policy.
+  NEW: Find an SA that matches BOTH the policy and the flow/socket.
+    This is necessary since not every SA that matches the policy
+    can be used for the flow/socket. Consider policy range Secret-TS,
+    and SAs each for Secret and TS. We don't want a TS socket to
+    use the Secret SA. Hence the additional check for the SA Vs. flow/socket.
+
+3. NEW: When looking thru bundles for a policy, make sure the flow/socket can use the
+  bundle. If a bundle is not found, create one, calling for IKE if necessary. If using IKE,
+  include the security context in the acquire message to the IKE daemon.
+
+Inbound case:
+1. OLD: Find policy for the socket.
+  NEW: Find policy for the incoming packet based on the sid of the SA(s) it used or the
+  unlabeled sid if no SAs were used. (Consider a case where a socket is "authorized" for
+  two policies (unclassified-confidential, secret-top_secret). If the packet has come in
+  using a secret SA, we really ought to be using the latter policy (secret-top_secret).)
+
+2. OLD: BUG: No check to see if the SAs used by the packet agree with the policy sec_ctx-wise.
+  (It was indicated in selinux_xfrm_sock_rcv_skb() that this was being accomplished by
+   (x->id.spi == tmpl->id.spi || !tmpl->id.spi) in xfrm_state_ok, but it turns out tmpl->id.spi
+   would normally be zero (unless xfrm policy rules specify one at the template level, which
+   they usually don't).
+  NEW: The socket is checked for access to the SAs used (based on the sid of the SAs) in
+  selinux_xfrm_sock_rcv_skb().
+
+Forward case:
+  This would be Step 1 from the Inbound case, followed by Steps 2 and 3 from the Outbound case.
+
+Outstanding items/issues:
+- Timewait acknowledgements and such are generated in the current/upstream implementation using
+a NULL socket resulting in the any_socket sid (SYSTEM_HIGH) to be used. This problem is not
+addressed by this patch set.
+
+This patch: Add new flask definitions to SELinux
+
+Adds a new avperm "polmatch" to arbitrate flow/state access to a xfrm policy rule.
+
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+
+The patch set is relative to 2.6.18-rc1-mm1. A policy patch is also included for reference.
+A patch to ipsec-tools/racoon will follow later on the ipsectools-devel list.
+ipsec-tools 0.6.5 src in FC rawhide already has the setkey changes needed to work with this.
+
+FUNCTIONAL DESCRIPTION:
+
+The basic idea is to have the IPSec policy specify an MLS range and have unique SAs
+generated/used for each of the levels that fall in the range. SAs for different levels
+can either be manually loaded (using setkey and such) or negotiated using IKE (racoon, etc.).
+
+Example:
+
+Let's say we have the following in the SPD (Security Policy Database):
+
+spdadd 9.2.9.15 9.2.9.17 any -ctx 1 1 "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
+-P in ipsec esp/transport//require ;
+spdadd 9.2.9.17 9.2.9.15 any -ctx 1 1 "system_u:object_r:zzyzx_t:s0-s9:c0-c127"
+-P out ipsec esp/transport//require ;
+
+with nothing in the SAD (Security Association Database) initially. When the kernel
+runs into the first packet with the label s2:c4 destined for 9.2.9.17, it will see
+that there's no SA available to encrypt it with. So, it will call upon racoon/IKE
+to generate an SA. Racoon will obtain the label (s2:c4) from the kernel, do the
+negotiation with its peer, including the label (s2:c4) also in the payload/proposals.
+The negotiation will result in a dynamically generated SPI that is unique to the label
+(s2:c4) plus the other normal parameters involved. It will then insert the SA (along
+with the SPI) such as the following into the SAD in the kernel:
+
+add 9.2.9.15 9.2.9.17 esp 0x123456
+-ctx 1 1 "system_u:object_r:zzyzx_t:s2:c4"
+-E des-cbc 0x0000000000000000;
+
+If the kernel subsequently runs into a packet at a different label (say s2:c5) for which
+there's no SA available, it will again call upon racoon (which will get s2:c5 from the
+kernel this time) and a different SA (with a different SPI) will be negotiated.
+
+ Documentation/networking/secid.txt           |   14 
+ include/linux/security.h                     |  213 ++++++++++++--
+ include/net/flow.h                           |    5 
+ include/net/request_sock.h                   |    1 
+ include/net/route.h                          |    3 
+ include/net/sock.h                           |   14 
+ include/net/xfrm.h                           |    2 
+ net/core/flow.c                              |    7 
+ net/core/sock.c                              |    2 
+ net/dccp/ipv4.c                              |    4 
+ net/dccp/ipv6.c                              |   13 
+ net/ipv4/af_inet.c                           |    1 
+ net/ipv4/icmp.c                              |    2 
+ net/ipv4/inet_connection_sock.c              |    5 
+ net/ipv4/ip_output.c                         |    2 
+ net/ipv4/netfilter/ipt_REJECT.c              |    1 
+ net/ipv4/raw.c                               |    1 
+ net/ipv4/syncookies.c                        |    7 
+ net/ipv4/tcp_ipv4.c                          |    3 
+ net/ipv4/udp.c                               |    1 
+ net/ipv6/af_inet6.c                          |    1 
+ net/ipv6/datagram.c                          |    2 
+ net/ipv6/icmp.c                              |    2 
+ net/ipv6/inet6_connection_sock.c             |    1 
+ net/ipv6/ndisc.c                             |    1 
+ net/ipv6/netfilter/ip6t_REJECT.c             |    1 
+ net/ipv6/raw.c                               |    1 
+ net/ipv6/tcp_ipv6.c                          |   13 
+ net/ipv6/udp.c                               |    2 
+ net/key/af_key.c                             |   37 ++
+ net/xfrm/xfrm_policy.c                       |   31 +-
+ net/xfrm/xfrm_state.c                        |   14 
+ net/xfrm/xfrm_user.c                         |   58 ++--
+ security/dummy.c                             |   56 +++
+ security/selinux/hooks.c                     |   94 +++++-
+ security/selinux/include/av_perm_to_string.h |    1 
+ security/selinux/include/av_permissions.h    |    1 
+ security/selinux/include/objsec.h            |    1 
+ security/selinux/include/security.h          |    2 
+ security/selinux/include/xfrm.h              |   28 +
+ security/selinux/ss/mls.c                    |   20 -
+ security/selinux/ss/mls.h                    |   20 +
+ security/selinux/ss/services.c               |   48 +++
+ security/selinux/xfrm.c                      |  244 +++++++++++++----
+ 44 files changed, 798 insertions(+), 182 deletions(-)
+
+
+This patch:
+
+ security/selinux/include/av_perm_to_string.h |    1 +
+ security/selinux/include/av_permissions.h    |    1 +
+ 2 files changed, 2 insertions(+)
+
+--- linux-2.6.17.vanilla/security/selinux/include/av_permissions.h	2006-07-11 16:04:22.000000000 -0500
++++ linux-2.6.17/security/selinux/include/av_permissions.h	2006-07-11 18:40:47.000000000 -0500
+@@ -911,6 +911,7 @@
+ #define ASSOCIATION__SENDTO                       0x00000001UL
+ #define ASSOCIATION__RECVFROM                     0x00000002UL
+ #define ASSOCIATION__SETCONTEXT                   0x00000004UL
++#define ASSOCIATION__POLMATCH                     0x00000008UL
+ 
+ #define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
+ #define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
+--- linux-2.6.17.vanilla/security/selinux/include/av_perm_to_string.h	2006-07-11 16:04:22.000000000 -0500
++++ linux-2.6.17/security/selinux/include/av_perm_to_string.h	2006-07-11 18:42:28.000000000 -0500
+@@ -241,6 +241,7 @@
+    S_(SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO, "sendto")
+    S_(SECCLASS_ASSOCIATION, ASSOCIATION__RECVFROM, "recvfrom")
+    S_(SECCLASS_ASSOCIATION, ASSOCIATION__SETCONTEXT, "setcontext")
++   S_(SECCLASS_ASSOCIATION, ASSOCIATION__POLMATCH, "polmatch")
+    S_(SECCLASS_PACKET, PACKET__SEND, "send")
+    S_(SECCLASS_PACKET, PACKET__RECV, "recv")
+    S_(SECCLASS_PACKET, PACKET__RELABELTO, "relabelto")
 
 --
 This message was distributed to subscribers of the selinux mailing list.
