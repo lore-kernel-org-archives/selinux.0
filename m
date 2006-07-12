@@ -1,51 +1,66 @@
-Message-ID: <44B56621.3080802@trustedcs.com>
-Date: Wed, 12 Jul 2006 16:14:09 -0500
+Message-ID: <44B5665F.5010400@trustedcs.com>
+Date: Wed, 12 Jul 2006 16:15:11 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
 To: netdev@vger.kernel.org
 CC: jmorris@namei.org, sds@tycho.nsa.gov, tjaeger@cse.psu.edu,
         selinux@tycho.nsa.gov
-Subject: [PATCH 04/10] MLSXFRM: Add security sid to flowi
+Subject: FOR REFERENCE ONLY: MLSXFRM: Add support to serefpolicy
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This adds security to flow key for labeling of flows as also to allow for
-making flow cache lookups based on the security label seemless.
+This patch has been included here just for reference. It will be submitted
+to the serefpolicy list later.
 
-Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
----
- Documentation/networking/secid.txt |   14 ++++++++++++++
- include/net/flow.h                 |    1 +
- 2 files changed, 15 insertions(+)
+This patch adds a polmatch avperm to arbitrate flow/state's access to
+a xfrm policy. It also defines MLS policy for association { sendto,
+recvfrom, polmatch }.
 
---- linux-2.6.17.sock/Documentation/networking/secid.txt	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.17/Documentation/networking/secid.txt	2006-07-11 19:51:26.000000000 -0500
-@@ -0,0 +1,14 @@
-+flowi structure:
+NOTE: When an inbound packet is not using an IPSec SA, a check is performed
+between the socket label and the unlabeled sid (SYSTEM_HIGH MLS label). For
+MLS purposes however, the target of the check should be the MLS label taken
+from the node sid (or secmark in the new secmark world). This would present
+a severe performance overhead (to make a new sid based on the unlabeled sid
+with the MLS taken from the node sid or secmark and then using this sid as
+the target). Pending reconciliation of the netlabel, ipsec and iptables contexts,
+I have chosen to currently make an exception for unlabeled_t SAs if TE policy
+allowed it. A similar problem exists for the outbound case and it has been similarly
+handled in the policy below (by making an exception for unlabeled_t).
+
+
+--- serefpolicy-2.2.34/policy/mls       2006-04-20 07:18:44.000000000 -0500
++++ serefpolicy-2.2.34.ipsec/policy/mls 2006-05-11 10:04:29.000000000 -0500
+@@ -671,4 +671,19 @@
+ # these access vectors have no MLS restrictions
+ # association *
+
++mlsconstrain association { recvfrom }
++        ((( l1 dom l2 ) and ( l1 domby h2 )) or
++         (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
++         ( t1 == mlsnetread ) or
++         ( t2 == unlabeled_t ));
 +
-+The secid member in the flow structure is used in LSMs (e.g. SELinux) to indicate
-+the label of the flow. This label of the flow is currently used in selecting
-+matching labeled xfrm(s).
++mlsconstrain association { sendto }
++        ((( l1 dom l2 ) and ( l1 domby h2 )) or
++         ( t2 == unlabeled_t ));
 +
-+If this is an outbound flow, the label is derived from the socket, if any, or
-+the incoming packet this flow is being generated as a response to (e.g. tcp
-+resets, timewait ack, etc.). It is also conceivable that the label could be
-+derived from other sources such as process context, device, etc., in special
-+cases, as may be appropriate.
++mlsconstrain association { polmatch }
++         ((( l1 dom l2 ) and ( h1 domby h2 )) or
++          ( t2 == unlabeled_t ));
 +
-+If this is an inbound flow, the label is derived from the IPSec security
-+associations, if any, used by the packet.
---- linux-2.6.17.sock/include/net/flow.h	2006-06-17 20:49:35.000000000 -0500
-+++ linux-2.6.17/include/net/flow.h	2006-07-11 19:51:26.000000000 -0500
-@@ -78,6 +78,7 @@ struct flowi {
- #define fl_icmp_type	uli_u.icmpt.type
- #define fl_icmp_code	uli_u.icmpt.code
- #define fl_ipsec_spi	uli_u.spi
-+	__u32           secid;	/* used by xfrm; see secid.txt */
- } __attribute__((__aligned__(BITS_PER_LONG/8)));
- 
- #define FLOW_DIR_IN	0
++
+ ') dnl end enable_mls
+--- serefpolicy-2.2.34/policy/flask/access_vectors      2006-04-20 07:18:44.000000000 -0500
++++ serefpolicy-2.2.34.ipsec/policy/flask/access_vectors        2006-04-27 10:34:44.000000000 -0500
+@@ -602,6 +602,7 @@
+        sendto
+        recvfrom
+        setcontext
++       polmatch
+ }
+
+ # Updated Netlink class for KOBJECT_UEVENT family.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
