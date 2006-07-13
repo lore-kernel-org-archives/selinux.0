@@ -1,48 +1,42 @@
-Subject: Re: setsebool
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Michael C Thompson <thompsmc@us.ibm.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200607130734.35344.sgrubb@redhat.com>
-References: <44AD708E.10205@us.ibm.com> <44B5623C.8060600@us.ibm.com>
-	 <44B6265C.3010005@redhat.com>  <200607130734.35344.sgrubb@redhat.com>
+Subject: Re: semanage and RHPL
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Stephen Bennett <spb@gentoo.org>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <20060712210909.575163ad@localhost>
+References: <20060712210909.575163ad@localhost>
 Content-Type: text/plain
-Date: Thu, 13 Jul 2006 08:06:32 -0400
-Message-Id: <1152792392.2561.4.camel@localhost.localdomain>
+Date: Thu, 13 Jul 2006 08:22:59 -0400
+Message-Id: <1152793379.10075.191.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-07-13 at 07:34 -0400, Steve Grubb wrote:
-> On Thursday 13 July 2006 06:54, Daniel J Walsh wrote:
-> > Is this a problem in the Kernel or libraries?  Or just the way it is?
+On Wed, 2006-07-12 at 21:09 +0100, Stephen Bennett wrote:
+> Hi,
 > 
-> I think the granted statement comes from policy. I was thinking that audit of 
-> granting when changing booleans would be dropped from policy when the 2.6.17 
-> kernel was out.
+> After encountering some problems with modular policy in the released
+> toolchain packages, it was suggested to me that I try the svn
+> toolchain. I did this, and found that semanage and genhomedircon both
+> traceback when run, failing to import functions from rhpl.translate.
+> This package doesn't appear to be available in Gentoo's repository, and
+> a quick bit of searching suggests that it's a Red Hat-specific library.
+> Is this dependency intentional or desirable? If yes, where can we get
+> the sources to package it for other distros?
 > 
+> Thanks in advance for any input.
 
-The kernel also generates a message with all of the boolean states in
-addition to the auditallow. When wrote that my thought was that there
-would not be that many booleans and printing them all would make it
-easier to see the state of the system in the logs. Obviously I was wrong
-about the number of booleans.
+rhpl.translate is described as a "persistent global gettext service for
+python programs".  Not sure why that is RH specific.
 
-The message is printed from security_set_bools in services.c. Should
-this just go in favor of an audit message or be changed to just print
-the state of the changed booleans?
+The source is available from the Fedora CVS tree
+(http://cvs.fedora.redhat.com) as well as in the SRPMS.  You can grab it
+via:
+curl -O -R -S --fail --show-error http://cvs.fedora.redhat.com/repo/dist/rhpl/rhpl-0.187.tar.gz/7979e7677a5cb32c06d176052403c707/rhpl-0.187.tar.gz
 
-Karl
+-- 
+Stephen Smalley
+National Security Agency
 
-> -Steve
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
