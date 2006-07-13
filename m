@@ -1,52 +1,31 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6DEo15l008629
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 10:50:01 -0400
-Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6DEnxuS012204
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 14:49:59 GMT
-Date: Thu, 13 Jul 2006 10:49:57 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] Fix security check for joint context= and fscontext=
- mount options
-In-Reply-To: <1152793426.10075.193.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.64.0607131048500.5956@d.namei>
-References: <1152729678.2823.72.camel@localhost.localdomain>
- <1152793426.10075.193.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <36282A1733C57546BE392885C06185920138E0F0@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: James Morris <jmorris@namei.org>
+Cc: netdev@vger.kernel.org, sds@tycho.nsa.gov, tjaeger@cse.psu.edu,
+        selinux@tycho.nsa.gov
+Subject: RE: [PATCH 08/10] MLSXFRM: Add security context to acquire messag
+	es using PF_KEY
+Date: Thu, 13 Jul 2006 10:54:14 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 13 Jul 2006, Stephen Smalley wrote:
-
-> On Wed, 2006-07-12 at 14:41 -0400, Eric Paris wrote:
-> > After some discussion on the actual meaning of the filesystem class
-> > security check in try context mount it was determined that the checks
-> > for the context= mount options were not correct if fscontext mount
-> > option had already been used.  When labeling the superblock we should be
-> > checking relabel_from and relabel_to.  But if the superblock has already
-> > been labeled (with fscontext) then context= is actually labeling the
-> > inodes, and so we should be checking relabel_from and associate.  This
-> > patch fixes which checks are called depending on the mount options.
+> > +static inline void security_xfrm_skb_secid(struct sk_buff 
+> *skb, u32 *secid)
+> > {
+> > -	return security_ops->xfrm_decode_session(skb, fl);
+> > +	BUG_ON(security_ops->xfrm_decode_session(skb, secid, 0));
 > > 
-> > This is issue is in 2.6.8-rc1-git4 and should probably be fixed before
-> > 2.6.18 releases.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
 > 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> BUG_ON looks wrong here, in that you don't know why the LSM 
+> returned an 
+> error, and why should the box panic at this point at all?
 
-Acked-by: James Morris <jmorris@namei.org>
-
-Eric, you might as well post it to akpm & lkml, as there's nothing else to 
-coordinate at this stage.
-
-
--- 
-James Morris
-<jmorris@namei.org>
+This hook must not fail when the ckall parameter is set to zero,
+which is what the BUG_ON is asserting. I see I didn't comment
+the hook def in security.h to this effect; will correct this. Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
