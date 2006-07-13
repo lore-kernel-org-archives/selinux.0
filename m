@@ -1,39 +1,21 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6D1r2bA030536
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jul 2006 21:53:02 -0400
-Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6D1r04K019621
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 01:53:01 GMT
-Date: Wed, 12 Jul 2006 21:52:57 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-cc: netdev@vger.kernel.org, sds@tycho.nsa.gov, tjaeger@cse.psu.edu,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH 08/10] MLSXFRM: Add security context to acquire messages
- using PF_KEY
-In-Reply-To: <44B56642.6060500@trustedcs.com>
-Message-ID: <Pine.LNX.4.64.0607122149070.573@d.namei>
-References: <44B56642.6060500@trustedcs.com>
+Message-ID: <44B6265C.3010005@redhat.com>
+Date: Thu, 13 Jul 2006 06:54:20 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Michael C Thompson <thompsmc@us.ibm.com>, Steve Grubb <sgrubb@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: setsebool
+References: <44AD708E.10205@us.ibm.com> <200607061639.55819.sgrubb@redhat.com> <44AD7553.3050605@us.ibm.com> <200607061712.05688.sgrubb@redhat.com> <44AE7C4E.2070500@us.ibm.com> <44AFC876.8050501@redhat.com> <44B54FDC.7040505@us.ibm.com> <44B55404.6090702@redhat.com> <44B55CB2.8010409@us.ibm.com> <44B560CD.7080202@redhat.com> <44B5623C.8060600@us.ibm.com>
+In-Reply-To: <44B5623C.8060600@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 12 Jul 2006, Venkat Yekkirala wrote:
+How come when I set one boolean via setsebool I get an AVC granted 
+message for all the booleans? 
 
-> +static inline void security_xfrm_skb_secid(struct sk_buff *skb, u32 *secid)
-> {
-> -	return security_ops->xfrm_decode_session(skb, fl);
-> +	BUG_ON(security_ops->xfrm_decode_session(skb, secid, 0));
-> 
-
-BUG_ON looks wrong here, in that you don't know why the LSM returned an 
-error, and why should the box panic at this point at all?
-
-
--- 
-James Morris
-<jmorris@namei.org>
+Is this a problem in the Kernel or libraries?  Or just the way it is?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
