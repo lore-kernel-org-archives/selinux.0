@@ -1,46 +1,52 @@
-Message-ID: <36282A1733C57546BE392885C06185920138E0D5@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        Venkat Yekkirala
-	 <vyekkirala@TrustedCS.com>
-Cc: netdev@vger.kernel.org, jmorris@namei.org, tjaeger@cse.psu.edu,
-        selinux@tycho.nsa.gov
-Subject: RE: [PATCH 03/10] MLSXFRM: Add security sid to sock
-Date: Thu, 13 Jul 2006 09:59:06 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6DEo15l008629
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 10:50:01 -0400
+Received: from mail7.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6DEnxuS012204
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 14:49:59 GMT
+Date: Thu, 13 Jul 2006 10:49:57 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] Fix security check for joint context= and fscontext=
+ mount options
+In-Reply-To: <1152793426.10075.193.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0607131048500.5956@d.namei>
+References: <1152729678.2823.72.camel@localhost.localdomain>
+ <1152793426.10075.193.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Is it ever possible for the isec->sid and the sksec->sid to be
-> inconsistent with one another?
+On Thu, 13 Jul 2006, Stephen Smalley wrote:
 
-I can't think of any possibility of this happening.
-
->  Could you just always return the
-> sksec->sid here and avoid the need to grab the isec 
-> altogether (dropping
-> the requirement for sk_callback_lock at the same time, since you no
-> longer need sk_socket)?
-
-Will do.
+> On Wed, 2006-07-12 at 14:41 -0400, Eric Paris wrote:
+> > After some discussion on the actual meaning of the filesystem class
+> > security check in try context mount it was determined that the checks
+> > for the context= mount options were not correct if fscontext mount
+> > option had already been used.  When labeling the superblock we should be
+> > checking relabel_from and relabel_to.  But if the superblock has already
+> > been labeled (with fscontext) then context= is actually labeling the
+> > inodes, and so we should be checking relabel_from and associate.  This
+> > patch fixes which checks are called depending on the mount options.
+> > 
+> > This is issue is in 2.6.8-rc1-git4 and should probably be fixed before
+> > 2.6.18 releases.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
 > 
-> Likewise, given sksec->sid, why don't you change sock_rcv_skb 
-> to always
-> use it, and eliminate the need for the isec and the sk_callback_lock
-> there?
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-This is actually on my list of things to do already :) more for
-the reason that this would help enforce controls on any data that
-arrive for the socket between the time it's created and the time it's
-accepted. Was planning to do this as part of the next patch reconciling
-the various secids (IPSec, secmark, netlabel) per the design doc.
+Acked-by: James Morris <jmorris@namei.org>
 
->   Similarly for postroute_last's use of isec->sid.  With direct
-> labeling of the sock, it is no longer necessary to extract the isec.
+Eric, you might as well post it to akpm & lkml, as there's nothing else to 
+coordinate at this stage.
 
-Sure. Thanks.
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
