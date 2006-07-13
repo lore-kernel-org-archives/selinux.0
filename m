@@ -1,44 +1,31 @@
-Message-ID: <44B667C6.20905@trustedcs.com>
-Date: Thu, 13 Jul 2006 10:33:26 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6DKAMH2016524
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 16:10:22 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6DKALHW025251
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 20:10:21 GMT
 MIME-Version: 1.0
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>
-Subject: [PATCH] selinux: fix memory leak
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: SELinux opensource server online
+Date: Thu, 13 Jul 2006 16:10:19 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015882986F5@exchange.columbia.tresys.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes a possible memory leak when a policydb structure
-is destroyed.
 
-Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+During the SELinux Symposium developer summit we discussed moving
+Tresys' SELinux related projects to a new server with anonymous
+subversion access. The server is now up and the reference policy pages
+and subversion repository have been moved. The server's address is
+http://oss.tresys.com. Instructions for checking out reference policy
+subversion tree are on the reference policy page. Additionally, our
+other projects will be moving to the server soon. 
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 0111990..f03960e 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -644,10 +644,18 @@ void policydb_destroy(struct policydb *p
- 	kfree(lra);
- 
- 	for (rt = p->range_tr; rt; rt = rt -> next) {
--		kfree(lrt);
-+		if (lrt) {
-+			ebitmap_destroy(&lrt->range.level[0].cat);
-+			ebitmap_destroy(&lrt->range.level[1].cat);
-+			kfree(lrt);
-+		}
- 		lrt = rt;
- 	}
--	kfree(lrt);
-+	if (lrt) {
-+		ebitmap_destroy(&lrt->range.level[0].cat);
-+		ebitmap_destroy(&lrt->range.level[1].cat);
-+		kfree(lrt);
-+	}
- 
- 	if (p->type_attr_map) {
- 		for (i = 0; i < p->p_types.nprim; i++)
+The press release is available at http://www.tresys.com/news/press32
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
