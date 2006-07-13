@@ -1,66 +1,39 @@
-Message-ID: <44B5665F.5010400@trustedcs.com>
-Date: Wed, 12 Jul 2006 16:15:11 -0500
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: jmorris@namei.org, sds@tycho.nsa.gov, tjaeger@cse.psu.edu,
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6D1r2bA030536
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jul 2006 21:53:02 -0400
+Received: from mail2.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6D1r04K019621
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 01:53:01 GMT
+Date: Wed, 12 Jul 2006 21:52:57 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+cc: netdev@vger.kernel.org, sds@tycho.nsa.gov, tjaeger@cse.psu.edu,
         selinux@tycho.nsa.gov
-Subject: FOR REFERENCE ONLY: MLSXFRM: Add support to serefpolicy
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH 08/10] MLSXFRM: Add security context to acquire messages
+ using PF_KEY
+In-Reply-To: <44B56642.6060500@trustedcs.com>
+Message-ID: <Pine.LNX.4.64.0607122149070.573@d.namei>
+References: <44B56642.6060500@trustedcs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch has been included here just for reference. It will be submitted
-to the serefpolicy list later.
+On Wed, 12 Jul 2006, Venkat Yekkirala wrote:
 
-This patch adds a polmatch avperm to arbitrate flow/state's access to
-a xfrm policy. It also defines MLS policy for association { sendto,
-recvfrom, polmatch }.
+> +static inline void security_xfrm_skb_secid(struct sk_buff *skb, u32 *secid)
+> {
+> -	return security_ops->xfrm_decode_session(skb, fl);
+> +	BUG_ON(security_ops->xfrm_decode_session(skb, secid, 0));
+> 
 
-NOTE: When an inbound packet is not using an IPSec SA, a check is performed
-between the socket label and the unlabeled sid (SYSTEM_HIGH MLS label). For
-MLS purposes however, the target of the check should be the MLS label taken
-from the node sid (or secmark in the new secmark world). This would present
-a severe performance overhead (to make a new sid based on the unlabeled sid
-with the MLS taken from the node sid or secmark and then using this sid as
-the target). Pending reconciliation of the netlabel, ipsec and iptables contexts,
-I have chosen to currently make an exception for unlabeled_t SAs if TE policy
-allowed it. A similar problem exists for the outbound case and it has been similarly
-handled in the policy below (by making an exception for unlabeled_t).
+BUG_ON looks wrong here, in that you don't know why the LSM returned an 
+error, and why should the box panic at this point at all?
 
 
---- serefpolicy-2.2.34/policy/mls       2006-04-20 07:18:44.000000000 -0500
-+++ serefpolicy-2.2.34.ipsec/policy/mls 2006-05-11 10:04:29.000000000 -0500
-@@ -671,4 +671,19 @@
- # these access vectors have no MLS restrictions
- # association *
-
-+mlsconstrain association { recvfrom }
-+        ((( l1 dom l2 ) and ( l1 domby h2 )) or
-+         (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-+         ( t1 == mlsnetread ) or
-+         ( t2 == unlabeled_t ));
-+
-+mlsconstrain association { sendto }
-+        ((( l1 dom l2 ) and ( l1 domby h2 )) or
-+         ( t2 == unlabeled_t ));
-+
-+mlsconstrain association { polmatch }
-+         ((( l1 dom l2 ) and ( h1 domby h2 )) or
-+          ( t2 == unlabeled_t ));
-+
-+
- ') dnl end enable_mls
---- serefpolicy-2.2.34/policy/flask/access_vectors      2006-04-20 07:18:44.000000000 -0500
-+++ serefpolicy-2.2.34.ipsec/policy/flask/access_vectors        2006-04-27 10:34:44.000000000 -0500
-@@ -602,6 +602,7 @@
-        sendto
-        recvfrom
-        setcontext
-+       polmatch
- }
-
- # Updated Netlink class for KOBJECT_UEVENT family.
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
