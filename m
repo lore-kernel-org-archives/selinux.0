@@ -1,44 +1,75 @@
-Subject: Re: setsebool
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Michael C Thompson <thompsmc@us.ibm.com>,
-        Steve Grubb <sgrubb@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1152792460.10075.179.camel@moss-spartans.epoch.ncsc.mil>
-References: <44AD708E.10205@us.ibm.com>
-	 <200607061639.55819.sgrubb@redhat.com> <44AD7553.3050605@us.ibm.com>
-	 <200607061712.05688.sgrubb@redhat.com> <44AE7C4E.2070500@us.ibm.com>
-	 <44AFC876.8050501@redhat.com> <44B54FDC.7040505@us.ibm.com>
-	 <44B55404.6090702@redhat.com> <44B55CB2.8010409@us.ibm.com>
-	 <44B560CD.7080202@redhat.com> <44B5623C.8060600@us.ibm.com>
-	 <44B6265C.3010005@redhat.com>
-	 <1152792460.10075.179.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [PATCH 10/10] MLSXFRM: Auto-labeling of child sockets
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, jmorris@namei.org, tjaeger@cse.psu.edu,
+        selinux@tycho.nsa.gov
+In-Reply-To: <44B56655.9080303@trustedcs.com>
+References: <44B56655.9080303@trustedcs.com>
 Content-Type: text/plain
-Date: Thu, 13 Jul 2006 09:37:57 -0400
-Message-Id: <1152797877.3299.19.camel@sgc.columbia.tresys.com>
+Date: Thu, 13 Jul 2006 09:48:38 -0400
+Message-Id: <1152798518.10075.273.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-07-13 at 08:07 -0400, Stephen Smalley wrote:
-> On Thu, 2006-07-13 at 06:54 -0400, Daniel J Walsh wrote:
-> > How come when I set one boolean via setsebool I get an AVC granted 
-> > message for all the booleans? 
-> > 
-> > Is this a problem in the Kernel or libraries?  Or just the way it is?
+On Wed, 2006-07-12 at 16:15 -0500, Venkat Yekkirala wrote:
+> This automatically labels the TCP, Unix stream, and dccp child sockets
+> as well as openreqs to be at the same MLS level as the peer.
 > 
-> libsemanage sets them all upon commit.
-> We could likely drop the auditallow statement on setbool as it isn't
-> particularly useful and we now have the explicit audit messages for
-> MAC_CONFIG_CHANGE.
+> Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+> ---
+>  include/linux/security.h        |   43 ++++++++++++++++++++++++++
+>  include/net/request_sock.h      |    1 
+>  include/net/sock.h              |    1 
+>  net/dccp/ipv4.c                 |    3 +
+>  net/dccp/ipv6.c                 |    7 +++-
+>  net/ipv4/inet_connection_sock.c |    4 +-
+>  net/ipv4/syncookies.c           |    6 +++
+>  net/ipv4/tcp_ipv4.c             |    3 +
+>  net/ipv6/tcp_ipv6.c             |    6 ++-
+>  security/dummy.c                |   18 +++++++++++
+>  security/selinux/hooks.c        |   49 +++++++++++++++++++++++++++++-
+>  security/selinux/xfrm.c         |    1 
+>  12 files changed, 134 insertions(+), 8 deletions(-)
+> 
 
-I'll remove the auditallow except for distro_rhel4 since those systems
-don't have libsemanage and auditing.
+> --- linux-2.6.17.sk_policy/security/selinux/hooks.c	2006-07-12 09:18:59.000000000 -0500
+> +++ linux-2.6.17/security/selinux/hooks.c	2006-07-12 14:55:16.000000000 -0500
+> @@ -3324,7 +3324,12 @@ static int selinux_socket_unix_stream_co
+>  	/* server child socket */
+>  	ssec = newsk->sk_security;
+>  	ssec->peer_sid = isec->sid;
+> -	
+> +	err = security_sid_mls_copy(other_isec->sid, ssec->peer_sid, &ssec->sid);
+> +	if (err) {
+> +		printk(KERN_ERR "ERROR: security_sid_mls_copy failed.");
+
+Drop the printk please.  It isn't precisely a useful error message
+anyway.  If you need to audit such failures, then do it within the
+function and use audit_log, and make the message useful.
+
+> +int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb, 
+> +					   struct request_sock *req)
+> +{
+> +	struct sk_security_struct *sksec = sk->sk_security;
+> +	int err;
+> +	u32 newsid = 0;
+> +	u32 peersid;
+> +
+> +	BUG_ON(selinux_xfrm_decode_session(skb, &peersid, 0));
+
+Doesn't seem suitable for a BUG_ON.
+
+> +
+> +	err = security_sid_mls_copy(sksec->sid, peersid, &newsid);
+> +	if (err) {
+> +		printk(KERN_ERR "ERROR: security_sid_mls_copy failed.");
+
+Drop the printk.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
