@@ -1,38 +1,64 @@
-Subject: Re: semanage and RHPL
+Subject: Re: [PATCH] Fix security check for joint context= and fscontext=
+	mount options
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Stephen Bennett <spb@gentoo.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <20060712210909.575163ad@localhost>
-References: <20060712210909.575163ad@localhost>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <1152729678.2823.72.camel@localhost.localdomain>
+References: <1152729678.2823.72.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 13 Jul 2006 08:22:59 -0400
-Message-Id: <1152793379.10075.191.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 13 Jul 2006 08:23:46 -0400
+Message-Id: <1152793426.10075.193.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-07-12 at 21:09 +0100, Stephen Bennett wrote:
-> Hi,
+On Wed, 2006-07-12 at 14:41 -0400, Eric Paris wrote:
+> After some discussion on the actual meaning of the filesystem class
+> security check in try context mount it was determined that the checks
+> for the context= mount options were not correct if fscontext mount
+> option had already been used.  When labeling the superblock we should be
+> checking relabel_from and relabel_to.  But if the superblock has already
+> been labeled (with fscontext) then context= is actually labeling the
+> inodes, and so we should be checking relabel_from and associate.  This
+> patch fixes which checks are called depending on the mount options.
 > 
-> After encountering some problems with modular policy in the released
-> toolchain packages, it was suggested to me that I try the svn
-> toolchain. I did this, and found that semanage and genhomedircon both
-> traceback when run, failing to import functions from rhpl.translate.
-> This package doesn't appear to be available in Gentoo's repository, and
-> a quick bit of searching suggests that it's a Red Hat-specific library.
-> Is this dependency intentional or desirable? If yes, where can we get
-> the sources to package it for other distros?
+> This is issue is in 2.6.8-rc1-git4 and should probably be fixed before
+> 2.6.18 releases.
 > 
-> Thanks in advance for any input.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-rhpl.translate is described as a "persistent global gettext service for
-python programs".  Not sure why that is RH specific.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-The source is available from the Fedora CVS tree
-(http://cvs.fedora.redhat.com) as well as in the SRPMS.  You can grab it
-via:
-curl -O -R -S --fail --show-error http://cvs.fedora.redhat.com/repo/dist/rhpl/rhpl-0.187.tar.gz/7979e7677a5cb32c06d176052403c707/rhpl-0.187.tar.gz
-
+> 
+>  security/selinux/hooks.c |   14 +++++++++-----
+>  1 file changed, 9 insertions(+), 5 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -523,12 +523,16 @@ static int try_context_mount(struct supe
+>  			goto out_free;
+>  		}
+>  
+> -		rc = may_context_mount_sb_relabel(sid, sbsec, tsec);
+> -		if (rc)
+> -			goto out_free;
+> -
+> -		if (!fscontext)
+> +		if (!fscontext) {
+> +			rc = may_context_mount_sb_relabel(sid, sbsec, tsec);
+> +			if (rc)
+> +				goto out_free;
+>  			sbsec->sid = sid;
+> +		} else {
+> +			rc = may_context_mount_inode_relabel(sid, sbsec, tsec);
+> +			if (rc)
+> +				goto out_free;
+> +		}
+>  		sbsec->mntpoint_sid = sid;
+>  
+>  		sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
+> 
 -- 
 Stephen Smalley
 National Security Agency
