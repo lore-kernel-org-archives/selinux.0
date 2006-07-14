@@ -1,68 +1,69 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6E6Vtvi024000
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 02:31:55 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6E6Vs2D028226
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 06:31:54 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k6E6VsHr029155
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 02:31:54 -0400
-Received: from pobox.brisbane.redhat.com (pobox.brisbane.redhat.com [172.16.44.10])
-	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k6E6Vl1i021704
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 02:31:48 -0400
-From: "David O'Brien" <daobrien@redhat.com>
-To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com,
-        rhselinux-project@redhat.com
-Subject: RHEL5 Security Documentation Scope Statement
-Date: Fri, 14 Jul 2006 16:31:42 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200607141631.42793.daobrien@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EDFs5r029204
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 09:15:54 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6EDFr5n022614
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 13:15:53 GMT
+Subject: Re: role infrastructure
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <44B3A993.2070906@redhat.com>
+References: <1152106918.8907.28.camel@sgc>  <44B3A993.2070906@redhat.com>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 09:17:04 -0400
+Message-Id: <1152883024.3299.79.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've prepared the following Scope Statement to help those involved in the 
-project to update the RHEL5 Security Documentation. Please feel free to offer 
-any suggestions, ask questions or get clarification. As we move forward there 
-may be minor changes, but this should be pretty close.
+On Tue, 2006-07-11 at 09:37 -0400, Daniel J Walsh wrote:
+> Bringing this out for full discussion.
+> 
+> Christopher J. PeBenito wrote:
+> > Dan, can you give me a run down of:
+> >
+> > 1. how you want to be able to configure user roles
+> > 2. things that fc/rhel users request for user role customization
+> >   
+> Good question I think this is more a brain storming exercise, which I 
+> don't necessarily have the knowledge or
+> experience to answer.
+> 
+> What I have heard is for Sarbanes Oxley, groups want to be allowed to 
+> have administrators that can get root privs in order to
+> configure certain facets of the system, but not full control.
+> 
+> So you could imagine a webadmin, nameserveradmin, dhcpadmin as 
+> examples.  Then I believe they would like to use
+> dominance in some way to group them.  netadmin = { nameserveradmin 
+> dhcpadmin }.
+> 
+> My idea is that we give these administrators full control over the types 
+> defined for these domains, and allow them to use all of the
+> standard tools for configuring (vi, emacs, basically anything labeled 
+> bin_t.)
+> 
+> To make this useful in a Targeted policy system, we might do something 
+> to sudo to get a transition to happen.
+> 
+> So dwalsh can run a root shell but only in the webadm_r  unconfined_t 
+> would transition to webadm_r.
 
-Apologies for the cross-post and to those who receive multiple copies. Please 
-forward this to interested parties who may not be on any of these lists.
+So this looks like the main goal of these examples is finer-grained
+admin users, which makes sense.  What I'd like to do is go one step
+farther and make it possible to compose the roles more easily, making it
+possible to have unprivileged users that have less access than the
+current user_t.  If you look at the userdomain.if in the role-infra
+branch, you can see that I started to break down the user domains into
+logical blocks so they can be more easily composed.  Note, the names on
+these templates are just temporary, and will be changed in the future.
 
-----
-The RHEL5 Security Guide integrates two previously separate guides: The Red 
-Hat Enterprise Linux 4 Security Guide and the Red Hat Enterprise Linux 4 
-SELinux Guide. These guides are being integrated and updated to provide a 
-single source of information for all security-related topics for Red Hat 
-Enterprise Linux.
- 
-The RHEL5 Security Guide provides a general introduction to security, and from 
-the perspective of Red Hat Linux in particular. It provides conceptual 
-information in the areas of security assessment, common exploits, and 
-intrusion and incident response. It also provides conceptual and specific 
-configuration information for hardening Workstation, Server, VPN, firewall 
-and other implementations using SELinux. A Troubleshooting section provides 
-information on common problems and how to resolve them.
- 
-The RHEL5 Security Guide assumes a basic knowledge of IT security, and 
-consequently provides only minimal coverage of common security practices such 
-as controlling physical access, sound account-keeping policies and 
-procedures, auditing, etc. Neither does it cover the intricacies of SELinux 
-in detail, such as writing policies for certain 3rd party applications. Where 
-appropriate, reference is made to external resources for this and related 
-information.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-----
-regards, 
-David O'Brien
-Red Hat Asia Pacific Pty Ltd
-
-Tel:  +61-7-3514-8189
-Fax: +61-7-3514-8199
-
-email: daobrien@redhat.com
-web: http://apac.redhat.com/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
