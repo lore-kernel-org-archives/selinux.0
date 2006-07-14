@@ -1,97 +1,370 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6HCZamQ018354
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 08:35:36 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6HCWR4v018312
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 08:32:27 -0400
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6HCZVuq021042
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 12:35:31 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6HCWQuq020644
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 12:32:26 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k6HCWMLi004046
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 08:32:22 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k6HCWN7d004050
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 08:32:23 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6/Submit) id k6HCWMsu004045
-	for selinux@tycho.nsa.gov; Mon, 17 Jul 2006 08:32:22 -0400
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EIxKhv003811
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 14:59:20 -0400
-Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6EIxHe9019133
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 18:59:17 GMT
-Message-Id: <20060714185915.270209000@flek.zko.hp.com>
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6/Submit) id k6HCWNAM004049
+	for selinux@tycho.nsa.gov; Mon, 17 Jul 2006 08:32:23 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EIxLrX003818
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 14:59:21 -0400
+Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6EIxJ48023447
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 18:59:19 GMT
+Message-Id: <20060714185917.411374000@flek.zko.hp.com>
 References: <20060714185739.780700000@flek.zko.hp.com>
-Date: Fri, 14 Jul 2006 14:57:42 -0400
+Date: Fri, 14 Jul 2006 14:57:45 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: davem@davemloft.net, sds@epoch.ncsc.mil, jmorris@redhat.com,
         pratt@argus-systems.com, Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 3/7] NetLabel: CIPSOv4 engine
+Subject: [PATCH 6/7] NetLabel: SELinux support
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add support for the Commercial IP Security Option (CIPSO) to the IPv4 network
-stack.  CIPSO has become a de-facto standard for trusted/labeled networking
-amongst existing Trusted Operating Systems such as Trusted Solaris, HP-UX CMW,
-etc.  This implementation is designed to be used with the NetLabel subsystem
-to provide explicit packet labeling to LSM developers.
+Add NetLabel support to the SELinux LSM and modify the socket_post_create() LSM
+hook to return an error code.  The most significant part of this patch is the
+addition of NetLabel hooks into the following SELinux LSM hooks:
 
-The CIPSO/IPv4 packet labeling works by the LSM calling a NetLabel API function
-which attaches a CIPSO label (IPv4 option) to a given socket; this in turn
-attaches the CIPSO label to every packet leaving the socket without any extra
-processing on the outbound side.  On the inbound side the individual packet's
-sk_buff is examined through a call to a NetLabel API function to determine if a
-CIPSO/IPv4 label is present and if so the security attributes of the CIPSO
-label are returned to the caller of the NetLabel API function.
+ * selinux_file_permission()
+ * selinux_socket_sendmsg()
+ * selinux_socket_post_create()
+ * selinux_socket_accept()
+ * selinux_socket_post_accept() [NEW]
+ * selinux_socket_sock_rcv_skb()
+ * selinux_socket_getpeersec_stream()
+ * selinux_socket_getpeersec_dgram()
+
+The basic reasoning behind this patch is that outgoing packets are "NetLabel'd"
+by labeling their socket and the NetLabel security attributes are checked via
+the additional hook in selinux_socket_sock_rcv_skb().  NetLabel itself is only
+a labeling mechanism, similar to filesystem extended attributes, it is up to
+the SELinux enforcement mechanism to perform the actual access checks.
+
+In addition to the changes outlined above this patch also includes some changes
+to the extended bitmap (ebitmap) and multi-level security (mls) code to import
+and export SELinux TE/MLS attributes into and out of NetLabel.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- include/linux/sysctl.h     |    4 
- net/ipv4/Makefile          |    1 
- net/ipv4/cipso_ipv4.c      | 1708 +++++++++++++++++++++++++++++++++++++++++++++
- net/ipv4/sysctl_net_ipv4.c |   35 
- 4 files changed, 1748 insertions(+)
+ include/linux/security.h                    |   25 -
+ net/socket.c                                |   17 
+ security/dummy.c                            |    6 
+ security/selinux/hooks.c                    |   53 ++
+ security/selinux/include/objsec.h           |   13 
+ security/selinux/include/selinux_netlabel.h |  100 +++++
+ security/selinux/ss/ebitmap.c               |  152 +++++++
+ security/selinux/ss/ebitmap.h               |    6 
+ security/selinux/ss/mls.c                   |  152 +++++++
+ security/selinux/ss/mls.h                   |   21 +
+ security/selinux/ss/services.c              |  555 ++++++++++++++++++++++++++++
+ 11 files changed, 1070 insertions(+), 30 deletions(-)
 
-Index: linux-2.6.18-rc1/include/linux/sysctl.h
+Index: linux-2.6.18-rc1/include/linux/security.h
 ===================================================================
---- linux-2.6.18-rc1.orig/include/linux/sysctl.h
-+++ linux-2.6.18-rc1/include/linux/sysctl.h
-@@ -411,6 +411,10 @@ enum
- 	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS=115,
- 	NET_TCP_DMA_COPYBREAK=116,
- 	NET_TCP_SLOW_START_AFTER_IDLE=117,
-+	NET_CIPSOV4_CACHE_ENABLE=118,
-+	NET_CIPSOV4_CACHE_BUCKET_SIZE=119,
-+	NET_CIPSOV4_RBM_OPTFMT=120,
-+	NET_CIPSOV4_RBM_STRICTVALID=121,
+--- linux-2.6.18-rc1.orig/include/linux/security.h
++++ linux-2.6.18-rc1/include/linux/security.h
+@@ -1296,8 +1296,8 @@ struct security_operations {
+ 	int (*unix_may_send) (struct socket * sock, struct socket * other);
+ 
+ 	int (*socket_create) (int family, int type, int protocol, int kern);
+-	void (*socket_post_create) (struct socket * sock, int family,
+-				    int type, int protocol, int kern);
++	int (*socket_post_create) (struct socket * sock, int family,
++				   int type, int protocol, int kern);
+ 	int (*socket_bind) (struct socket * sock,
+ 			    struct sockaddr * address, int addrlen);
+ 	int (*socket_connect) (struct socket * sock,
+@@ -2748,13 +2748,13 @@ static inline int security_socket_create
+ 	return security_ops->socket_create(family, type, protocol, kern);
+ }
+ 
+-static inline void security_socket_post_create(struct socket * sock, 
+-					       int family,
+-					       int type, 
+-					       int protocol, int kern)
++static inline int security_socket_post_create(struct socket * sock,
++					      int family,
++					      int type,
++					      int protocol, int kern)
+ {
+-	security_ops->socket_post_create(sock, family, type,
+-					 protocol, kern);
++	return security_ops->socket_post_create(sock, family, type,
++						protocol, kern);
+ }
+ 
+ static inline int security_socket_bind(struct socket * sock, 
+@@ -2880,11 +2880,12 @@ static inline int security_socket_create
+ 	return 0;
+ }
+ 
+-static inline void security_socket_post_create(struct socket * sock, 
+-					       int family,
+-					       int type, 
+-					       int protocol, int kern)
++static inline int security_socket_post_create(struct socket * sock,
++					      int family,
++					      int type,
++					      int protocol, int kern)
+ {
++	return 0;
+ }
+ 
+ static inline int security_socket_bind(struct socket * sock, 
+Index: linux-2.6.18-rc1/net/socket.c
+===================================================================
+--- linux-2.6.18-rc1.orig/net/socket.c
++++ linux-2.6.18-rc1/net/socket.c
+@@ -973,11 +973,18 @@ int sock_create_lite(int family, int typ
+ 		goto out;
+ 	}
+ 
+-	security_socket_post_create(sock, family, type, protocol, 1);
+ 	sock->type = type;
++	err = security_socket_post_create(sock, family, type, protocol, 1);
++	if (err)
++		goto out_release;
++
+ out:
+ 	*res = sock;
+ 	return err;
++out_release:
++	sock_release(sock);
++	sock = NULL;
++	goto out;
+ }
+ 
+ /* No kernel lock held - perfect */
+@@ -1213,7 +1220,9 @@ static int __sock_create(int family, int
+ 	 */
+ 	module_put(net_families[family]->owner);
+ 	*res = sock;
+-	security_socket_post_create(sock, family, type, protocol, kern);
++	err = security_socket_post_create(sock, family, type, protocol, kern);
++	if (err)
++		goto out_release;
+ 
+ out:
+ 	net_family_read_unlock();
+@@ -1443,13 +1452,13 @@ asmlinkage long sys_accept(int fd, struc
+ 			goto out_fd;
+ 	}
+ 
++	security_socket_post_accept(sock, newsock);
++
+ 	/* File flags are not inherited via accept() unlike another OSes. */
+ 
+ 	fd_install(newfd, newfile);
+ 	err = newfd;
+ 
+-	security_socket_post_accept(sock, newsock);
+-
+ out_put:
+ 	fput_light(sock->file, fput_needed);
+ out:
+Index: linux-2.6.18-rc1/security/dummy.c
+===================================================================
+--- linux-2.6.18-rc1.orig/security/dummy.c
++++ linux-2.6.18-rc1/security/dummy.c
+@@ -709,10 +709,10 @@ static int dummy_socket_create (int fami
+ 	return 0;
+ }
+ 
+-static void dummy_socket_post_create (struct socket *sock, int family, int type,
+-				      int protocol, int kern)
++static int dummy_socket_post_create (struct socket *sock, int family, int type,
++				     int protocol, int kern)
+ {
+-	return;
++	return 0;
+ }
+ 
+ static int dummy_socket_bind (struct socket *sock, struct sockaddr *address,
+Index: linux-2.6.18-rc1/security/selinux/hooks.c
+===================================================================
+--- linux-2.6.18-rc1.orig/security/selinux/hooks.c
++++ linux-2.6.18-rc1/security/selinux/hooks.c
+@@ -12,6 +12,8 @@
+  *  Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+  *  Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  *                          <dgoeddel@trustedcs.com>
++ *  Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
++ *                     Paul Moore, <paul.moore@hp.com>
+  *
+  *	This program is free software; you can redistribute it and/or modify
+  *	it under the terms of the GNU General Public License version 2,
+@@ -74,6 +76,7 @@
+ #include "objsec.h"
+ #include "netif.h"
+ #include "xfrm.h"
++#include "selinux_netlabel.h"
+ 
+ #define XATTR_SELINUX_SUFFIX "selinux"
+ #define XATTR_NAME_SELINUX XATTR_SECURITY_PREFIX XATTR_SELINUX_SUFFIX
+@@ -2309,6 +2312,7 @@ static int selinux_inode_listsecurity(st
+ 
+ static int selinux_file_permission(struct file *file, int mask)
+ {
++	int rc;
+ 	struct inode *inode = file->f_dentry->d_inode;
+ 
+ 	if (!mask) {
+@@ -2320,8 +2324,12 @@ static int selinux_file_permission(struc
+ 	if ((file->f_flags & O_APPEND) && (mask & MAY_WRITE))
+ 		mask |= MAY_APPEND;
+ 
+-	return file_has_perm(current, file,
+-			     file_mask_to_av(inode->i_mode, mask));
++	rc = file_has_perm(current, file,
++			   file_mask_to_av(inode->i_mode, mask));
++	if (rc)
++		return rc;
++
++	return selinux_netlbl_inode_permission(inode, mask);
+ }
+ 
+ static int selinux_file_alloc_security(struct file *file)
+@@ -2972,8 +2980,8 @@ out:
+ 	return err;
+ }
+ 
+-static void selinux_socket_post_create(struct socket *sock, int family,
+-				       int type, int protocol, int kern)
++static int selinux_socket_post_create(struct socket *sock, int family,
++				      int type, int protocol, int kern)
+ {
+ 	struct inode_security_struct *isec;
+ 	struct task_security_struct *tsec;
+@@ -2987,7 +2995,7 @@ static void selinux_socket_post_create(s
+ 	isec->sid = kern ? SECINITSID_KERNEL : newsid;
+ 	isec->initialized = 1;
+ 
+-	return;
++	return selinux_netlbl_socket_create(sock, family, isec->sid);
+ }
+ 
+ /* Range of port numbers used to automatically bind.
+@@ -3162,13 +3170,25 @@ static int selinux_socket_accept(struct 
+ 	newisec->sid = isec->sid;
+ 	newisec->initialized = 1;
+ 
+-	return 0;
++	return selinux_netlbl_socket_accept(sock, newsock);
++}
++
++static void selinux_socket_post_accept(struct socket *sock,
++				       struct socket *newsock)
++{
++	selinux_netlbl_socket_post_accept(sock, newsock);
+ }
+ 
+ static int selinux_socket_sendmsg(struct socket *sock, struct msghdr *msg,
+  				  int size)
+ {
+-	return socket_has_perm(current, sock, SOCKET__WRITE);
++	int rc;
++
++	rc = socket_has_perm(current, sock, SOCKET__WRITE);
++	if (rc)
++		return rc;
++
++	return selinux_netlbl_inode_permission(SOCK_INODE(sock), MAY_WRITE);
+ }
+ 
+ static int selinux_socket_recvmsg(struct socket *sock, struct msghdr *msg,
+@@ -3376,6 +3396,10 @@ static int selinux_socket_sock_rcv_skb(s
+ 	if (err)
+ 		goto out;
+ 
++	err = selinux_netlbl_sock_rcv_skb(sk, skb, sock_class, sock_sid, &ad);
++	if (err)
++		goto out;
++
+ 	err = selinux_xfrm_sock_rcv_skb(sock_sid, skb);
+ out:	
+ 	return err;
+@@ -3399,8 +3423,10 @@ static int selinux_socket_getpeersec_str
+ 		peer_sid = ssec->peer_sid;
+ 	}
+ 	else if (isec->sclass == SECCLASS_TCP_SOCKET) {
+-		peer_sid = selinux_socket_getpeer_stream(sock->sk);
+-
++		peer_sid = selinux_netlbl_socket_getpeersec_stream(sock);
++		if (peer_sid == SECSID_NULL ||
++		    peer_sid == SECINITSID_UNLABELED)
++			peer_sid = selinux_socket_getpeer_stream(sock->sk);
+ 		if (peer_sid == SECSID_NULL) {
+ 			err = -ENOPROTOOPT;
+ 			goto out;
+@@ -3441,8 +3467,12 @@ static int selinux_socket_getpeersec_dgr
+ 	if (skb->sk->sk_family == PF_UNIX)
+ 		selinux_get_inode_sid(SOCK_INODE(skb->sk->sk_socket),
+ 				      &peer_sid);
+-	else
+-		peer_sid = selinux_socket_getpeer_dgram(skb);
++	else {
++		peer_sid = selinux_netlbl_socket_getpeersec_dgram(skb);
++		if (peer_sid == SECSID_NULL ||
++		    peer_sid == SECINITSID_UNLABELED)
++			peer_sid = selinux_socket_getpeer_dgram(skb);
++	}
+ 
+ 	if (peer_sid == SECSID_NULL)
+ 		return -EINVAL;
+@@ -4505,6 +4535,7 @@ static struct security_operations selinu
+ 	.socket_connect =		selinux_socket_connect,
+ 	.socket_listen =		selinux_socket_listen,
+ 	.socket_accept =		selinux_socket_accept,
++	.socket_post_accept =		selinux_socket_post_accept,
+ 	.socket_sendmsg =		selinux_socket_sendmsg,
+ 	.socket_recvmsg =		selinux_socket_recvmsg,
+ 	.socket_getsockname =		selinux_socket_getsockname,
+Index: linux-2.6.18-rc1/security/selinux/include/objsec.h
+===================================================================
+--- linux-2.6.18-rc1.orig/security/selinux/include/objsec.h
++++ linux-2.6.18-rc1/security/selinux/include/objsec.h
+@@ -37,6 +37,16 @@ struct task_security_struct {
+ 	u32 ptrace_sid;      /* SID of ptrace parent */
  };
  
- enum {
-Index: linux-2.6.18-rc1/net/ipv4/Makefile
-===================================================================
---- linux-2.6.18-rc1.orig/net/ipv4/Makefile
-+++ linux-2.6.18-rc1/net/ipv4/Makefile
-@@ -48,6 +48,7 @@ obj-$(CONFIG_TCP_CONG_VENO) += tcp_veno.
- obj-$(CONFIG_TCP_CONG_SCALABLE) += tcp_scalable.o
- obj-$(CONFIG_TCP_CONG_LP) += tcp_lp.o
- obj-$(CONFIG_TCP_CONG_COMPOUND) += tcp_compound.o
-+obj-$(CONFIG_NETLABEL) += cipso_ipv4.o
++struct netlbl_security_struct {
++	u32 peer_sid;             /* SID of the connected peer */
++	enum {                    /* NetLabel state */
++		NLBL_UNSET = 0,
++		NLBL_ACCEPT,
++		NLBL_REQUIRE,
++		NLBL_LABELED,
++	} state;
++};
++
+ struct inode_security_struct {
+         struct inode *inode;           /* back pointer to inode object */
+ 	struct list_head list;         /* list of inode_security_struct */
+@@ -46,6 +56,9 @@ struct inode_security_struct {
+ 	unsigned char initialized;     /* initialization flag */
+ 	struct semaphore sem;
+ 	unsigned char inherit;         /* inherit SID from parent entry */
++#ifdef CONFIG_NETLABEL
++	struct netlbl_security_struct netlbl;
++#endif
+ };
  
- obj-$(CONFIG_XFRM) += xfrm4_policy.o xfrm4_state.o xfrm4_input.o \
- 		      xfrm4_output.o
-Index: linux-2.6.18-rc1/net/ipv4/cipso_ipv4.c
+ struct file_security_struct {
+Index: linux-2.6.18-rc1/security/selinux/include/selinux_netlabel.h
 ===================================================================
 --- /dev/null
-+++ linux-2.6.18-rc1/net/ipv4/cipso_ipv4.c
-@@ -0,0 +1,1708 @@
++++ linux-2.6.18-rc1/security/selinux/include/selinux_netlabel.h
+@@ -0,0 +1,100 @@
 +/*
-+ * CIPSO - Commercial IP Security Option
++ * SELinux interface to the NetLabel subsystem
 + *
-+ * This is an implementation of the CIPSO 2.2 protocol as specified in
-+ * draft-ietf-cipso-ipsecurity-01.txt with additional tag types as found in
-+ * FIPS-188, copies of both documents can be found in the Documentation
-+ * directory.  While CIPSO never became a full IETF RFC standard many vendors
-+ * have chosen to adopt the protocol and over the years it has become a
-+ * de-facto standard for labeled networking.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
++ * Author : Paul Moore <paul.moore@hp.com>
 + *
 + */
 +
@@ -114,1734 +387,1070 @@ Index: linux-2.6.18-rc1/net/ipv4/cipso_ipv4.c
 + *
 + */
 +
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/rcupdate.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <linux/string.h>
-+#include <linux/module.h>
-+#include <linux/jhash.h>
-+#include <net/ip.h>
-+#include <net/icmp.h>
-+#include <net/tcp.h>
-+#include <net/netlabel.h>
-+#include <net/cipso_ipv4.h>
-+#include <asm/bug.h>
++#ifndef _SELINUX_NETLABEL_H_
++#define _SELINUX_NETLABEL_H_
 +
-+struct cipso_v4_domhsh_entry {
-+	char *domain;
-+	u32 valid;
-+	struct list_head list;
-+	struct rcu_head rcu;
-+};
++#ifdef CONFIG_NETLABEL
++void selinux_netlbl_cache_invalidate(void);
++int selinux_netlbl_inode_permission(struct inode *inode,
++				    int mask);
 +
-+/* List of available DOI definitions */
-+/* XXX - Updates should be minimal so having a single lock for the
-+   cipso_v4_doi_list and the cipso_v4_doi_list->dom_list should be
-+   okay. */
-+/* XXX - This currently assumes a minimal number of different DOIs in use,
-+   if in practice there are a lot of different DOIs this list should
-+   probably be turned into a hash table or something similar so we
-+   can do quick lookups. */
-+DEFINE_SPINLOCK(cipso_v4_doi_list_lock);
-+static struct list_head cipso_v4_doi_list = LIST_HEAD_INIT(cipso_v4_doi_list);
-+
-+/* Label mapping cache */
-+int cipso_v4_cache_enabled = 1;
-+int cipso_v4_cache_bucketsize = 10;
-+#define CIPSO_V4_CACHE_BUCKETBITS     7
-+#define CIPSO_V4_CACHE_BUCKETS        (1 << CIPSO_V4_CACHE_BUCKETBITS)
-+#define CIPSO_V4_CACHE_REORDERLIMIT   10
-+struct cipso_v4_map_cache_bkt {
-+	spinlock_t lock;
-+	u32 size;
-+	struct list_head list;
-+};
-+struct cipso_v4_map_cache_entry {
-+	u32 hash;
-+	unsigned char *key;
-+	u32 key_len;
-+
-+	struct netlbl_lsm_cache lsm_data;
-+
-+	u32 activity;
-+	struct list_head list;
-+};
-+static u32 cipso_v4_cache_size = 0;
-+static struct cipso_v4_map_cache_bkt *cipso_v4_cache = NULL;
-+#define CIPSO_V4_CACHE_ENABLED (cipso_v4_cache_enabled &&		\
-+				cipso_v4_cache_bucketsize > 0 &&	\
-+				cipso_v4_cache_size > 0)
-+
-+/* Restricted bitmap (tag #1) flags */
-+int cipso_v4_rbm_optfmt = 0;
-+int cipso_v4_rbm_strictvalid = 1;
-+
-+/*
-+ * Helper Functions
-+ */
-+
-+/**
-+ * cipso_v4_bitmap_walk - Walk a bitmap looking for a bit
-+ * @bitmap: the bitmap
-+ * @bitmap_len: length in bits
-+ * @offset: starting offset
-+ * @state: if non-zero, look for a set (1) bit else look for a cleared (0) bit
-+ *
-+ * Description:
-+ * Starting at @offset, walk the bitmap from left to right until either the
-+ * desired bit is found or we reach the end.  Return the bit offset, -1 if
-+ * not found, or -2 if error.
-+ */
-+static int cipso_v4_bitmap_walk(const unsigned char *bitmap,
-+				const u32 bitmap_len,
-+				const u32 offset,
-+				const u8 state)
++int selinux_netlbl_socket_create(struct socket *sock,
++				 const int sock_family,
++				 u32 sid);
++int selinux_netlbl_socket_accept(struct socket *sock,
++				 struct socket *newsock);
++void selinux_netlbl_socket_post_accept(struct socket *sock,
++				       struct socket *newsock);
++int selinux_netlbl_sock_rcv_skb(struct sock *sk,
++				struct sk_buff *skb,
++				const u16 sock_class,
++				const u32 sock_sid,
++				struct avc_audit_data *ad);
++u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock);
++u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb);
++#else
++static inline void selinux_netlbl_cache_invalidate(void)
 +{
-+	u32 bit_spot;
-+	u32 byte_offset;
-+	unsigned char bitmask;
-+	unsigned char byte;
-+
-+	/* gcc always rounds to zero when doing integer division */
-+	byte_offset = offset / 8;
-+	byte = bitmap[byte_offset];
-+	bit_spot = offset;
-+	bitmask = 0x80 >> (offset % 8);
-+
-+	/* XXX - probably should use include/asm/bitops.h if we can */
-+	while (bit_spot < bitmap_len) {
-+		if ((state && (byte & bitmask) == bitmask) ||
-+		    (state == 0 && (byte & bitmask) == 0))
-+			return bit_spot;
-+
-+		bit_spot++;
-+		bitmask >>= 1;
-+		if (bitmask == 0) {
-+			byte = bitmap[++byte_offset];
-+			bitmask = 0x80;
-+		}
-+	}
-+
-+	return -1;
-+}
-+
-+/**
-+ * cipso_v4_bitmap_setbit - Sets a single bit in a bitmap
-+ * @bitmap: the bitmap
-+ * @bit: the bit
-+ * @state: if non-zero, set the bit (1) else clear the bit (0)
-+ *
-+ * Description:
-+ * Set a single bit in the bitmask.  Returns zero on success, negative values
-+ * on error.
-+ */
-+static void cipso_v4_bitmap_setbit(unsigned char *bitmap,
-+				   const u32 bit,
-+				   const u8 state)
-+{
-+	u32 byte_spot;
-+	u8 bitmask;
-+
-+	/* gcc always rounds to zero when doing integer division */
-+	byte_spot = bit / 8;
-+	bitmask = 0x80 >> (bit % 8);
-+	if (state)
-+		bitmap[byte_spot] |= bitmask;
-+	else
-+		bitmap[byte_spot] &= ~bitmask;
-+}
-+
-+/**
-+ * cipso_v4_doi_domhsh_free - Frees a domain list entry
-+ * @entry: the entry's RCU field
-+ *
-+ * Description:
-+ * This function is designed to be used as a callback to the call_rcu()
-+ * function so that the memory allocated to a domain list entry can be released
-+ * safely.
-+ *
-+ */
-+static void cipso_v4_doi_domhsh_free(struct rcu_head *entry)
-+{
-+	struct cipso_v4_domhsh_entry *ptr;
-+
-+	ptr = container_of(entry, struct cipso_v4_domhsh_entry, rcu);
-+	kfree(ptr->domain);
-+	kfree(ptr);
-+}
-+
-+/**
-+ * cipso_v4_cache_entry_free - Frees a cache entry
-+ * @entry: the entry to free
-+ *
-+ * Description:
-+ * This function frees the memory associated with a cache entry.
-+ *
-+ */
-+static void cipso_v4_cache_entry_free(struct cipso_v4_map_cache_entry *entry)
-+{
-+	if (entry->lsm_data.free)
-+		entry->lsm_data.free(entry->lsm_data.data);
-+	kfree(entry->key);
-+	kfree(entry);
-+}
-+
-+/**
-+ * cipso_v4_map_cache_hash - Hashing function for the CIPSO cache
-+ * @key: the hash key
-+ * @key_len: the length of the key in bytes
-+ *
-+ * Description:
-+ * The CIPSO tag hashing function.  Returns a 32-bit hash value.
-+ *
-+ */
-+static u32 cipso_v4_map_cache_hash(const unsigned char *key, const u32 key_len)
-+{
-+	return jhash(key, key_len, 0);
-+}
-+
-+/*
-+ * Label Mapping Cache Functions
-+ */
-+
-+/**
-+ * cipso_v4_cache_init - Initialize the CIPSO cache
-+ * @bkt_size: the number of cache buckets
-+ *
-+ * Description:
-+ * Initializes the CIPSO label mapping cache, this function should be called
-+ * before any of the other functions defined in this file.  Returns zero on
-+ * success, negative values on error.
-+ *
-+ */
-+static int cipso_v4_cache_init(const u32 bkt_size)
-+{
-+	struct cipso_v4_map_cache_bkt *cache;
-+	u32 iter;
-+
-+	if (bkt_size == 0)
-+		return -EINVAL;
-+
-+	cache = kcalloc(bkt_size,
-+			sizeof(struct cipso_v4_map_cache_bkt), GFP_KERNEL);
-+	if (cache == NULL)
-+		return -ENOMEM;
-+
-+	for (iter = 0; iter < bkt_size; iter++) {
-+		cache[iter].lock = SPIN_LOCK_UNLOCKED;
-+		cache[iter].size = 0;
-+		INIT_LIST_HEAD(&cache[iter].list);
-+	}
-+	cipso_v4_cache = cache;
-+	cipso_v4_cache_size = bkt_size;
-+
-+	return 0;
-+}
-+
-+/**
-+ * cipso_v4_cache_destroy - Destroy the CIPSO cache
-+ *
-+ * Description:
-+ * Clears the CIPSO cache and frees all the memory.  This function does not
-+ * hold any locks and should only be called when the module is being unloaded.
-+ *
-+ */
-+static int cipso_v4_cache_destroy(void)
-+{
-+	struct cipso_v4_map_cache_bkt *cache;
-+	struct cipso_v4_map_cache_entry *entry;
-+	u32 cache_size;
-+	u32 iter;
-+
-+	cache = cipso_v4_cache;
-+	cache_size = cipso_v4_cache_size;
-+	cipso_v4_cache_size = 0;
-+	cipso_v4_cache = NULL;
-+
-+	for (iter = 0; iter < cache_size; iter++)
-+		list_for_each_entry(entry, &cache[iter].list, list) {
-+			list_del(&entry->list);
-+			cipso_v4_cache_entry_free(entry);
-+		}
-+
-+	return 0;
-+}
-+
-+/**
-+ * cipso_v4_cache_invalidate - Invalidates the current CIPSO cache
-+ *
-+ * Description:
-+ * Invalidates and frees any entries in the CIPSO cache.  Returns zero on
-+ * success and negative values on failure.
-+ *
-+ */
-+void cipso_v4_cache_invalidate(void)
-+{
-+	struct cipso_v4_map_cache_entry *entry, *tmp_entry;
-+	u32 iter;
-+
-+	if (cipso_v4_cache_size == 0)
-+		return;
-+
-+	for (iter = 0; iter < cipso_v4_cache_size; iter++) {
-+		spin_lock(&cipso_v4_cache[iter].lock);
-+		list_for_each_entry_safe(entry,
-+					 tmp_entry,
-+					 &cipso_v4_cache[iter].list, list) {
-+			list_del(&entry->list);
-+			cipso_v4_cache_entry_free(entry);
-+		}
-+		cipso_v4_cache[iter].size = 0;
-+		spin_unlock(&cipso_v4_cache[iter].lock);
-+	}
-+
 +	return;
 +}
 +
-+/**
-+ * cipso_v4_cache_check - Check the CIPSO cache for a label mapping
-+ * @key: the buffer to check
-+ * @key_len: buffer length in bytes
-+ * @secattr: the security attribute struct to use
-+ *
-+ * Description:
-+ * This function checks the cache to see if a label mapping already exists for
-+ * the given key.  If there is a match then the cache is adjusted and the
-+ * @secattr struct is populated with the correct LSM security attributes.  The
-+ * cache is adjusted in the following manner if the entry is not already the
-+ * first in the cache bucket:
-+ *
-+ *  1. The cache entry's activity counter is incremented
-+ *  2. The previous (higher ranking) entry's activity counter is decremented
-+ *  3. If the difference between the two activity counters is geater than
-+ *     CIPSO_V4_CACHE_REORDERLIMIT the two entries are swapped
-+ *
-+ * Returns zero on success, -ENOENT for a cache miss, and other negative values
-+ * on error.
-+ *
-+ */
-+static int cipso_v4_cache_check(const unsigned char *key,
-+				const u32 key_len,
-+				struct netlbl_lsm_secattr *secattr)
++static inline int selinux_netlbl_inode_permission(struct inode *inode,
++						  int mask)
 +{
-+	u32 bkt;
-+	struct cipso_v4_map_cache_entry *entry;
-+	struct cipso_v4_map_cache_entry *prev_entry = NULL;
-+	u32 hash;
-+
-+	if (!CIPSO_V4_CACHE_ENABLED)
-+		return -ENOENT;
-+
-+	hash = cipso_v4_map_cache_hash(key, key_len);
-+	bkt = hash & (CIPSO_V4_CACHE_BUCKETBITS - 1);
-+	spin_lock(&cipso_v4_cache[bkt].lock);
-+	list_for_each_entry(entry, &cipso_v4_cache[bkt].list, list) {
-+		if (entry->hash == hash &&
-+		    entry->key_len == key_len &&
-+		    memcmp(entry->key, key, key_len) == 0) {
-+			entry->activity += 1;
-+
-+			if (prev_entry != NULL) {
-+				if (prev_entry->activity > 0)
-+					prev_entry->activity -= 1;
-+
-+				if (entry->activity > prev_entry->activity &&
-+				    entry->activity - prev_entry->activity >
-+				    CIPSO_V4_CACHE_REORDERLIMIT) {
-+					__list_del(entry->list.prev,
-+						   entry->list.next);
-+					__list_add(&entry->list,
-+						   prev_entry->list.prev,
-+						   &prev_entry->list);
-+				}
-+			}
-+
-+			secattr->cache.free = entry->lsm_data.free;
-+			secattr->cache.data = entry->lsm_data.data;
-+			spin_unlock(&cipso_v4_cache[bkt].lock);
-+			return 0;
-+		}
-+		prev_entry = entry;
-+	}
-+	spin_unlock(&cipso_v4_cache[bkt].lock);
-+
-+	return -ENOENT;
++	return 0;
 +}
 +
++static inline int selinux_netlbl_socket_create(struct socket *sock,
++					       const int sock_family,
++					       u32 sid)
++{
++	return 0;
++}
++
++static inline int selinux_netlbl_socket_accept(struct socket *sock,
++					       struct socket *newsock)
++{
++	return 0;
++}
++
++static inline void selinux_netlbl_socket_post_accept(struct socket *sock,
++						     struct socket *newsock)
++{
++	return;
++}
++
++static inline int selinux_netlbl_sock_rcv_skb(struct sock *sk,
++					      struct sk_buff *skb,
++					      const u16 sock_class,
++					      const u32 sock_sid,
++					      struct avc_audit_data *ad)
++{
++	return 0;
++}
++
++static inline u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock)
++{
++	return SECSID_NULL;
++}
++
++static inline u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb)
++{
++	return SECSID_NULL;
++}
++#endif /* CONFIG_NETLABEL */
++
++#endif
+Index: linux-2.6.18-rc1/security/selinux/ss/ebitmap.c
+===================================================================
+--- linux-2.6.18-rc1.orig/security/selinux/ss/ebitmap.c
++++ linux-2.6.18-rc1/security/selinux/ss/ebitmap.c
+@@ -3,6 +3,14 @@
+  *
+  * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
+  */
++/*
++ * Updated: Hewlett-Packard <paul.moore@hp.com>
++ *
++ *      Added ebitmap_export() and ebitmap_import()
++ *
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ */
++
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+@@ -59,6 +67,150 @@ int ebitmap_cpy(struct ebitmap *dst, str
+ 	return 0;
+ }
+ 
 +/**
-+ * cipso_v4_cache_add - Add an entry to the CIPSO cache
-+ * @skb: the packet
-+ * @secattr: the packet's security attributes
++ * ebitmap_export - Export an ebitmap to a unsigned char bitmap string
++ * @src: the ebitmap to export
++ * @dst: the resulting bitmap string
++ * @dst_len: length of dst in bytes
 + *
 + * Description:
-+ * Add a new entry into the CIPSO label mapping cache.  Add the new entry to
-+ * head of the cache bucket's list, if the cache bucket is out of room remove
-+ * the last entry in the list first.  It is important to note that there is
-+ * currently no checking for duplicate keys.  Returns zero on success,
++ * Allocate a buffer at least src->highbit bits long and export the extensible
++ * bitmap into the buffer.  The bitmap string will be in little endian format,
++ * i.e. LSB first.  The value returned in dst_len may not the true size of the
++ * buffer as the length of the buffer is rounded up to a multiple of MAPTYPE.
++ * The caller must free the buffer when finished. Returns zero on success,
 + * negative values on failure.
 + *
 + */
-+int cipso_v4_cache_add(const struct sk_buff *skb,
-+		       const struct netlbl_lsm_secattr *secattr)
++int ebitmap_export(const struct ebitmap *src,
++		   unsigned char **dst,
++		   size_t *dst_len)
 +{
-+	int ret_val = -EPERM;
-+	u32 bkt;
-+	struct cipso_v4_map_cache_entry *entry = NULL;
-+	struct cipso_v4_map_cache_entry *old_entry = NULL;
-+	unsigned char *cipso_ptr;
-+	u32 cipso_ptr_len;
++	size_t bitmap_len;
++	unsigned char *bitmap;
++	struct ebitmap_node *iter_node;
++	MAPTYPE node_val;
++	size_t bitmap_byte;
++	unsigned char bitmask;
 +
-+	if (!CIPSO_V4_CACHE_ENABLED)
-+		return 0;
-+
-+	cipso_ptr = CIPSO_V4_OPTPTR(skb);
-+	cipso_ptr_len = cipso_ptr[1];
-+
-+	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
-+	if (entry == NULL)
-+		return -ENOMEM;
-+	entry->key = kmalloc(cipso_ptr_len, GFP_ATOMIC);
-+	if (entry->key == NULL) {
-+		ret_val = -ENOMEM;
-+		goto cache_add_failure;
-+	}
-+	memcpy(entry->key, cipso_ptr, cipso_ptr_len);
-+	entry->key_len = cipso_ptr_len;
-+	entry->hash = cipso_v4_map_cache_hash(cipso_ptr, cipso_ptr_len);
-+	entry->lsm_data.free = secattr->cache.free;
-+	entry->lsm_data.data = secattr->cache.data;
-+
-+	bkt = entry->hash & (CIPSO_V4_CACHE_BUCKETBITS - 1);
-+	spin_lock(&cipso_v4_cache[bkt].lock);
-+	if (cipso_v4_cache[bkt].size < cipso_v4_cache_bucketsize) {
-+		list_add(&entry->list, &cipso_v4_cache[bkt].list);
-+		cipso_v4_cache[bkt].size += 1;
-+	} else {
-+		old_entry = list_entry(cipso_v4_cache[bkt].list.prev,
-+				       struct cipso_v4_map_cache_entry, list);
-+		list_del(&old_entry->list);
-+		list_add(&entry->list, &cipso_v4_cache[bkt].list);
-+		cipso_v4_cache_entry_free(old_entry);
-+	}
-+	spin_unlock(&cipso_v4_cache[bkt].lock);
-+
-+	return 0;
-+
-+cache_add_failure:
-+	if (entry)
-+		cipso_v4_cache_entry_free(entry);
-+	return ret_val;
-+}
-+
-+/*
-+ * DOI List Functions
-+ */
-+
-+/**
-+ * cipso_v4_doi_search - Searches for a DOI definition
-+ * @doi: the DOI to search for
-+ *
-+ * Description:
-+ * Search the DOI definition list for a DOI definition with a DOI value that
-+ * matches @doi.  The caller is responsibile for calling rcu_read_[un]lock().
-+ * Returns a pointer to the DOI definition on success and NULL on failure.
-+ */
-+static struct cipso_v4_doi *cipso_v4_doi_search(const u32 doi)
-+{
-+	struct cipso_v4_doi *iter;
-+
-+	list_for_each_entry_rcu(iter, &cipso_v4_doi_list, list)
-+		if (iter->doi == doi && iter->valid)
-+			return iter;
-+	return NULL;
-+}
-+
-+/**
-+ * cipso_v4_doi_add - Add a new DOI to the CIPSO protocol engine
-+ * @doi_def: the DOI structure
-+ *
-+ * Description:
-+ * The caller defines a new DOI for use by the CIPSO engine and calls this
-+ * function to add it to the list of acceptable domains.  The caller must
-+ * ensure that the mapping table specified in @doi_def->map meets all of the
-+ * requirements of the mapping type (see cipso_ipv4.h for details).  Returns
-+ * zero on success and non-zero on failure.
-+ *
-+ */
-+int cipso_v4_doi_add(struct cipso_v4_doi *doi_def)
-+{
-+	if (doi_def == NULL || doi_def->doi == CIPSO_V4_DOI_UNKNOWN)
++	if (src == NULL || dst == NULL || dst_len == NULL)
 +		return -EINVAL;
 +
-+	doi_def->valid = 1;
-+	INIT_RCU_HEAD(&doi_def->rcu);
-+	INIT_LIST_HEAD(&doi_def->dom_list);
++	*dst = NULL;
++	*dst_len = 0;
 +
-+	rcu_read_lock();
-+	if (cipso_v4_doi_search(doi_def->doi) != NULL) {
-+		rcu_read_unlock();
-+		return -EEXIST;
-+	}
-+	spin_lock(&cipso_v4_doi_list_lock);
-+	list_add_tail_rcu(&doi_def->list, &cipso_v4_doi_list);
-+	spin_unlock(&cipso_v4_doi_list_lock);
-+	rcu_read_unlock();
++	bitmap_len = src->highbit / 8;
++	if (src->highbit % 8 > 0)
++		bitmap_len += 1;
++	if (bitmap_len == 0)
++		return -EINVAL;
 +
++	bitmap = kzalloc(bitmap_len + sizeof(MAPTYPE) -
++			 (bitmap_len % sizeof(MAPTYPE)),
++			 GFP_ATOMIC);
++	if (bitmap == NULL)
++		return -ENOMEM;
++
++	iter_node = src->node;
++	do {
++		bitmap_byte = iter_node->startbit / 8;
++		bitmask = 0x80;
++		node_val = iter_node->map;
++		do {
++			if (bitmask == 0) {
++				bitmap_byte++;
++				bitmask = 0x80;
++			}
++			if (node_val & (MAPTYPE)0x01)
++				bitmap[bitmap_byte] |= bitmask;
++			node_val >>= 1;
++			bitmask >>= 1;
++		} while (node_val > 0);
++		iter_node = iter_node->next;
++	} while (iter_node);
++
++	*dst = bitmap;
++	*dst_len = bitmap_len;
 +	return 0;
 +}
 +
 +/**
-+ * cipso_v4_doi_remove - Remove an existing DOI from the CIPSO protocol engine
-+ * @doi: the DOI value
-+ * @callback: the DOI cleanup/free callback
++ * ebitmap_import - Import an unsigned char bitmap string into an ebitmap
++ * @src: the bitmap string
++ * @src_len: the bitmap length in bytes
++ * @dst: the empty ebitmap
 + *
 + * Description:
-+ * Removes a DOI definition from the CIPSO engine, @callback is called to
-+ * free any memory.  The NetLabel routines will be called to release their own
-+ * LSM domain mappings as well as our own domain list.  Returns zero on
-+ * success and negative values on failure.
++ * This function takes a little endian bitmap string in src and imports it into
++ * the ebitmap pointed to by dst.  Returns zero on success, negative values on
++ * failure.
 + *
 + */
-+int cipso_v4_doi_remove(const u32 doi,
-+			void (*callback) (struct rcu_head * head))
++int ebitmap_import(const unsigned char *src,
++		   const size_t src_len,
++		   struct ebitmap *dst)
 +{
-+	struct cipso_v4_doi *doi_def;
-+	struct cipso_v4_domhsh_entry *dom_iter;
++	size_t src_off = 0;
++	struct ebitmap_node *node_new;
++	struct ebitmap_node *node_last = NULL;
++	size_t src_rem = src_len;
++	MAPTYPE tmp_val;
++	size_t iter;
++	size_t iter_bit;
++	unsigned char src_byte;
 +
-+	rcu_read_lock();
-+	doi_def = cipso_v4_doi_search(doi);
-+	if (doi_def != NULL) {
-+		spin_lock(&cipso_v4_doi_list_lock);
-+		doi_def->valid = 0;
-+		list_del_rcu(&doi_def->list);
-+		spin_unlock(&cipso_v4_doi_list_lock);
-+		list_for_each_entry_rcu(dom_iter, &doi_def->dom_list, list)
-+			if (dom_iter->valid)
-+				netlbl_domhsh_remove(dom_iter->domain);
-+		cipso_v4_cache_invalidate();
-+		rcu_read_unlock();
++	if (src == NULL || dst == NULL || src_len == 0)
++		return -EINVAL;
 +
-+		call_rcu(&doi_def->rcu, callback);
-+		return 0;
-+	}
-+	rcu_read_unlock();
-+
-+	return -ENOENT;
-+}
-+
-+/**
-+ * cipso_v4_doi_getdef - Returns a pointer to a valid DOI definition
-+ * @doi: the DOI value
-+ *
-+ * Description:
-+ * Searches for a valid DOI definition and if one is found it is returned to
-+ * the caller.  Otherwise NULL is returned.  The caller must ensure that
-+ * rcu_read_lock() is held while accessing the returned definition.
-+ *
-+ */
-+struct cipso_v4_doi *cipso_v4_doi_getdef(const u32 doi)
-+{
-+	return cipso_v4_doi_search(doi);
-+}
-+
-+/**
-+ * cipso_v4_doi_dump_all - Dump all the CIPSO DOI definitions into a sk_buff
-+ * @headroom: the amount of headroom to allocate for the sk_buff
-+ *
-+ * Description:
-+ * Dump a list of all the configured DOI values into a sk_buff.  The returned
-+ * sk_buff has room at the front of the sk_buff for @headroom bytes.  See
-+ * net/netlabel/netlabel_cipso_v4.h for the LISTALL message format.  This
-+ * function may fail if another process is changing the DOI list at the same
-+ * time.  Returns a pointer to a sk_buff on success, NULL on error.
-+ *
-+ */
-+struct sk_buff *cipso_v4_doi_dump_all(const size_t headroom)
-+{
-+	struct sk_buff *skb;
-+	unsigned char *buf;
-+	struct cipso_v4_doi *iter;
-+	u32 doi_cnt = 0;
-+	ssize_t buf_len;
-+
-+	/* XXX - In both cases, this is kinda ugly as we have to go through
-+	   the list once to determine how large of a buffer we need,
-+	   drop the locks, allocate the buffer, grab the locks, and
-+	   finally fill the buffer.  The problem is that there is that
-+	   open window where the table could grow and we will end up
-+	   short on space. */
-+
-+	buf_len = NETLBL_LEN_U32;
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(iter, &cipso_v4_doi_list, list)
-+		if (iter->valid) {
-+			doi_cnt += 1;
-+			buf_len += 2 * NETLBL_LEN_U32;
-+		}
-+	rcu_read_unlock();
-+
-+	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_KERNEL);
-+	if (skb == NULL)
-+		return NULL;
-+	buf = skb_put(skb, buf_len);
-+	netlbl_putinc_u32(&buf, doi_cnt, &buf_len);
-+
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(iter, &cipso_v4_doi_list, list)
-+		if (iter->valid) {
-+			if (buf_len < 2 * NETLBL_LEN_U32) {
-+				rcu_read_unlock();
-+				kfree(skb);
-+				return NULL;
-+			}
-+			netlbl_putinc_u32(&buf, iter->doi, &buf_len);
-+			netlbl_putinc_u32(&buf, iter->type, &buf_len);
-+		}
-+	rcu_read_unlock();
-+
-+	return skb;
-+}
-+
-+/**
-+ * cipso_v4_doi_dump - Dump a CIPSO DOI definition into a sk_buff
-+ * @doi: the DOI value
-+ * @headroom: the amount of headroom to allocate for the sk_buff
-+ *
-+ * Description:
-+ * Lookup the DOI definition matching @doi and dump it's contents into a
-+ * sk_buff.  The returned sk_buff has room at the front of the sk_buff for
-+ * @headroom bytes.  See net/netlabel/netlabel_cipso_v4.h for the LIST message
-+ * format.  This function may fail if another process is changing the DOI list
-+ * at the same time.  Returns a pointer to a sk_buff on success, NULL on error.
-+ *
-+ */
-+struct sk_buff *cipso_v4_doi_dump(const u32 doi, const size_t headroom)
-+{
-+	struct sk_buff *skb;
-+	unsigned char *buf;
-+	struct cipso_v4_doi *iter;
-+	u32 tag_cnt = 0;
-+	u32 lvl_cnt = 0;
-+	u32 cat_cnt = 0;
-+	ssize_t buf_len;
-+	ssize_t tmp;
-+
-+	/* XXX - In both cases, this is kinda ugly as we have to go through
-+	   the list once to determine how large of a buffer we need,
-+	   drop the locks, allocate the buffer, grab the locks, and
-+	   finally fill the buffer.  The problem is that there is that
-+	   open window where the table could grow and we will end up
-+	   short on space. */
-+
-+	rcu_read_lock();
-+	iter = cipso_v4_doi_getdef(doi);
-+	if (iter == NULL) {
-+		rcu_read_unlock();
-+		return NULL;
-+	}
-+	buf_len = NETLBL_LEN_U32;
-+	switch (iter->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		buf_len += NETLBL_LEN_U32;
-+		while(tag_cnt < CIPSO_V4_TAG_MAXCNT &&
-+		      iter->tags[tag_cnt] != CIPSO_V4_TAG_INVALID) {
-+			tag_cnt += 1;
-+			buf_len += NETLBL_LEN_U8;
-+		}
-+		break;
-+	case CIPSO_V4_MAP_STD:
-+		buf_len += 3 * NETLBL_LEN_U32;
-+		while (tag_cnt < CIPSO_V4_TAG_MAXCNT &&
-+		       iter->tags[tag_cnt] != CIPSO_V4_TAG_INVALID) {
-+			tag_cnt += 1;
-+			buf_len += NETLBL_LEN_U8;
-+		}
-+		for (tmp = 0; tmp < iter->map.std->lvl.local_size; tmp++)
-+			if (iter->map.std->lvl.local[tmp] !=
-+			    CIPSO_V4_INV_LVL) {
-+				lvl_cnt += 1;
-+				buf_len += NETLBL_LEN_U32 + NETLBL_LEN_U8;
-+			}
-+		for (tmp = 0; tmp < iter->map.std->cat.local_size; tmp++)
-+			if (iter->map.std->cat.local[tmp] !=
-+			    CIPSO_V4_INV_CAT) {
-+				cat_cnt += 1;
-+				buf_len += NETLBL_LEN_U32 + NETLBL_LEN_U16;
-+			}
-+		break;
-+	}
-+	rcu_read_unlock();
-+
-+	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_KERNEL);
-+	if (skb == NULL)
-+		return NULL;
-+	buf = skb_put(skb, buf_len);
-+	netlbl_putinc_u32(&buf, iter->type, &buf_len);
-+
-+	rcu_read_lock();
-+	if (iter != cipso_v4_doi_getdef(doi))
-+		goto doi_dump_failure;
-+	switch (iter->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		netlbl_putinc_u32(&buf, tag_cnt, &buf_len);
-+		for (tmp = 0;
-+		     tmp < CIPSO_V4_TAG_MAXCNT &&
-+			     iter->tags[tmp] != CIPSO_V4_TAG_INVALID;
-+		     tmp++) {
-+			if (buf_len < NETLBL_LEN_U8)
-+				goto doi_dump_failure;
-+			netlbl_putinc_u8(&buf, iter->tags[tmp], &buf_len);
-+		}
-+		break;
-+	case CIPSO_V4_MAP_STD:
-+		netlbl_putinc_u32(&buf, tag_cnt, &buf_len);
-+		netlbl_putinc_u32(&buf, lvl_cnt, &buf_len);
-+		netlbl_putinc_u32(&buf, cat_cnt, &buf_len);
-+		for (tmp = 0;
-+		     tmp < CIPSO_V4_TAG_MAXCNT &&
-+			     iter->tags[tmp] != CIPSO_V4_TAG_INVALID;
-+		     tmp++) {
-+			if (buf_len < NETLBL_LEN_U8)
-+				goto doi_dump_failure;
-+			netlbl_putinc_u8(&buf, iter->tags[tmp], &buf_len);
-+		}
-+		for (tmp = 0; tmp < iter->map.std->lvl.local_size; tmp++)
-+			if (iter->map.std->lvl.local[tmp] !=
-+			    CIPSO_V4_INV_LVL) {
-+				if (buf_len < 2 * NETLBL_LEN_U32)
-+					goto doi_dump_failure;
-+				netlbl_putinc_u32(&buf, tmp, &buf_len);
-+				netlbl_putinc_u8(&buf,
-+						 iter->map.std->lvl.local[tmp],
-+						 &buf_len);
-+			}
-+		for (tmp = 0; tmp < iter->map.std->cat.local_size; tmp++)
-+			if (iter->map.std->cat.local[tmp] !=
-+			    CIPSO_V4_INV_CAT) {
-+				if (buf_len < 2 * NETLBL_LEN_U32)
-+					goto doi_dump_failure;
-+				netlbl_putinc_u32(&buf, tmp, &buf_len);
-+				netlbl_putinc_u16(&buf,
-+						  iter->map.std->cat.local[tmp],
-+						  &buf_len);
-+			}
-+		break;
-+	}
-+	rcu_read_unlock();
-+
-+	return skb;
-+
-+doi_dump_failure:
-+	rcu_read_unlock();
-+	kfree(skb);
-+	return NULL;
-+}
-+
-+/**
-+ * cipso_v4_doi_domhsh_add - Adds a domain entry to a DOI definition
-+ * @doi_def: the DOI definition
-+ * @domain: the domain to add
-+ *
-+ * Description:
-+ * Adds the @domain to the the DOI specified by @doi_def, this function
-+ * should only be called by external functions (i.e. NetLabel).  This function
-+ * does allocate memory.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+int cipso_v4_doi_domhsh_add(struct cipso_v4_doi *doi_def, const char *domain)
-+{
-+	struct cipso_v4_domhsh_entry *iter;
-+	struct cipso_v4_domhsh_entry *new_dom;
-+
-+	new_dom = kzalloc(sizeof(*new_dom), GFP_KERNEL);
-+	if (new_dom == NULL)
-+		return -ENOMEM;
-+	if (domain) {
-+		new_dom->domain = kstrdup(domain, GFP_KERNEL);
-+		if (new_dom->domain == NULL) {
-+			kfree(new_dom);
++	do {
++		node_new = kzalloc(sizeof(*node_new), GFP_ATOMIC);
++		if (node_new == NULL) {
++			ebitmap_destroy(dst);
 +			return -ENOMEM;
 +		}
-+	}
-+	new_dom->valid = 1;
-+	INIT_RCU_HEAD(&new_dom->rcu);
 +
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(iter, &doi_def->dom_list, list)
-+		if (iter->valid &&
-+		    ((domain != NULL && iter->domain != NULL &&
-+		      strcmp(iter->domain, domain) == 0) ||
-+		     (domain == NULL && iter->domain == NULL))) {
-+			rcu_read_unlock();
-+			kfree(new_dom->domain);
-+			kfree(new_dom);
-+			return -EEXIST;
++		if (src_rem >= sizeof(MAPTYPE))
++			iter = sizeof(MAPTYPE);
++		else
++			iter = src_rem;
++		tmp_val = 0;
++		while (iter > 0) {
++			src_byte = src[src_off + --iter];
++			if (src_byte > 0)
++				for (iter_bit = 0; iter_bit < 8; iter_bit++) {
++					tmp_val <<= 1;
++					tmp_val |= src_byte & 0x01;
++					src_byte >>= 1;
++				}
++			else
++				tmp_val <<= 8;
 +		}
-+	spin_lock(&cipso_v4_doi_list_lock);
-+	list_add_tail_rcu(&new_dom->list, &doi_def->dom_list);
-+	spin_unlock(&cipso_v4_doi_list_lock);
-+	rcu_read_unlock();
++		node_new->map = tmp_val;
++		node_new->startbit = src_off * 8;
++
++		if (node_last != NULL)
++			node_last->next = node_new;
++		else
++			dst->node = node_new;
++		node_last = node_new;
++
++		if (src_rem >= sizeof(MAPTYPE)) {
++			src_off += sizeof(MAPTYPE);
++			src_rem -= sizeof(MAPTYPE);
++		} else
++			src_off += src_rem;
++	} while (src_off < src_len);
++
++	tmp_val = node_last->map;
++	dst->highbit = node_last->startbit;
++	while (tmp_val >= 1) {
++		dst->highbit += 1;
++		tmp_val >>= 1;
++	}
 +
 +	return 0;
 +}
 +
-+/**
-+ * cipso_v4_doi_domhsh_remove - Removes a domain entry from a DOI definition
-+ * @doi_def: the DOI definition
-+ * @domain: the domain to remove
-+ *
-+ * Description:
-+ * Removes the @domain from the DOI specified by @doi_def, this function
-+ * should only be called by external functions (i.e. NetLabel).   Returns zero
-+ * on success and negative values on error.
-+ *
-+ */
-+int cipso_v4_doi_domhsh_remove(struct cipso_v4_doi *doi_def,
-+			       const char *domain)
-+{
-+	struct cipso_v4_domhsh_entry *iter;
-+
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(iter, &doi_def->dom_list, list)
-+		if (iter->valid &&
-+		    ((domain != NULL && iter->domain != NULL &&
-+		      strcmp(iter->domain, domain) == 0) ||
-+		     (domain == NULL && iter->domain == NULL))) {
-+			spin_lock(&cipso_v4_doi_list_lock);
-+			iter->valid = 0;
-+			list_del_rcu(&iter->list);
-+			spin_unlock(&cipso_v4_doi_list_lock);
-+			rcu_read_unlock();
-+			call_rcu(&iter->rcu, cipso_v4_doi_domhsh_free);
-+
-+			return 0;
-+		}
-+	rcu_read_unlock();
-+
-+	return -ENOENT;
-+}
-+
+ int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2)
+ {
+ 	struct ebitmap_node *n1, *n2;
+Index: linux-2.6.18-rc1/security/selinux/ss/ebitmap.h
+===================================================================
+--- linux-2.6.18-rc1.orig/security/selinux/ss/ebitmap.h
++++ linux-2.6.18-rc1/security/selinux/ss/ebitmap.h
+@@ -69,6 +69,12 @@ static inline int ebitmap_node_get_bit(s
+ 
+ int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
+ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
++int ebitmap_export(const struct ebitmap *src,
++		   unsigned char **dst,
++		   size_t *dst_len);
++int ebitmap_import(const unsigned char *src,
++		   const size_t src_len,
++		   struct ebitmap *dst);
+ int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2);
+ int ebitmap_get_bit(struct ebitmap *e, unsigned long bit);
+ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value);
+Index: linux-2.6.18-rc1/security/selinux/ss/mls.c
+===================================================================
+--- linux-2.6.18-rc1.orig/security/selinux/ss/mls.c
++++ linux-2.6.18-rc1/security/selinux/ss/mls.c
+@@ -10,6 +10,13 @@
+  *
+  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
+  */
 +/*
-+ * Label Mapping Functions
++ * Updated: Hewlett-Packard <paul.moore@hp.com>
++ *
++ *      Added support to import/export the MLS label
++ *
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
 + */
-+
+ 
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+@@ -585,3 +592,148 @@ int mls_compute_sid(struct context *scon
+ 	return -EINVAL;
+ }
+ 
 +/**
-+ * cipso_v4_map_lvl_valid - Checks to see if the given level is understood
-+ * @doi_def: the DOI definition
-+ * @level: the level to check
++ * mls_export_lvl - Export the MLS sensitivity levels
++ * @context: the security context
++ * @low: the low sensitivity level
++ * @high: the high sensitivity level
 + *
 + * Description:
-+ * Checks the given level against the given DOI definition and returns a
-+ * negative value if the level does not have a valid mapping and a zero value
-+ * if the level is defined by the DOI.
++ * Given the security context copy the low MLS sensitivity level into lvl_low
++ * and the high sensitivity level in lvl_high.  The MLS levels are only
++ * exported if the pointers are not NULL, if they are NULL then that level is
++ * not exported.
 + *
 + */
-+static int cipso_v4_map_lvl_valid(const struct cipso_v4_doi *doi_def,
-+				  const u8 level)
++void mls_export_lvl(const struct context *context, u32 *low, u32 *high)
 +{
-+	switch (doi_def->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		return 0;
-+	case CIPSO_V4_MAP_STD:
-+		if (doi_def->map.std->lvl.cipso[level] < CIPSO_V4_INV_LVL)
-+			return 0;
-+		break;
-+	}
++	if (!selinux_mls_enabled)
++		return;
 +
-+	return -EFAULT;
++	if (low != NULL)
++		*low = context->range.level[0].sens - 1;
++	if (high != NULL)
++		*high = context->range.level[1].sens - 1;
 +}
 +
 +/**
-+ * cipso_v4_map_lvl_hton - Perform a level mapping from the host to the network
-+ * @doi_def: the DOI definition
-+ * @host_lvl: the host MLS level
-+ * @net_lvl: the network/CIPSO MLS level
++ * mls_import_lvl - Import the MLS sensitivity levels
++ * @context: the security context
++ * @low: the low sensitivity level
++ * @high: the high sensitivity level
 + *
 + * Description:
-+ * Perform a label mapping to translate a local MLS level to the correct
-+ * CIPSO level using the given DOI definition.  Returns zero on success,
-+ * negative values otherwise.
-+ *
-+ */
-+static int cipso_v4_map_lvl_hton(const struct cipso_v4_doi *doi_def,
-+				 const u32 host_lvl,
-+				 u32 *net_lvl)
-+{
-+	switch (doi_def->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		*net_lvl = host_lvl;
-+		return 0;
-+	case CIPSO_V4_MAP_STD:
-+		if (host_lvl < doi_def->map.std->lvl.local_size) {
-+			*net_lvl = doi_def->map.std->lvl.local[host_lvl];
-+			return 0;
-+		}
-+		break;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+/**
-+ * cipso_v4_map_lvl_ntoh - Perform a level mapping from the network to the host
-+ * @doi_def: the DOI definition
-+ * @net_lvl: the network/CIPSO MLS level
-+ * @host_lvl: the host MLS level
-+ *
-+ * Description:
-+ * Perform a label mapping to translate a CIPSO level to the correct local MLS
-+ * level using the given DOI definition.  Returns zero on success, negative
-+ * values otherwise.
-+ *
-+ */
-+static int cipso_v4_map_lvl_ntoh(const struct cipso_v4_doi *doi_def,
-+				 const u32 net_lvl,
-+				 u32 *host_lvl)
-+{
-+	struct cipso_v4_std_map_tbl *map_tbl;
-+
-+	switch (doi_def->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		*host_lvl = net_lvl;
-+		return 0;
-+	case CIPSO_V4_MAP_STD:
-+		map_tbl = doi_def->map.std;
-+		if (net_lvl < map_tbl->lvl.cipso_size &&
-+		    map_tbl->lvl.cipso[net_lvl] < CIPSO_V4_INV_LVL) {
-+			*host_lvl = doi_def->map.std->lvl.cipso[net_lvl];
-+			return 0;
-+		}
-+		break;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+/**
-+ * cipso_v4_map_cat_rbm_valid - Checks to see if the category bitmap is valid
-+ * @doi_def: the DOI definition
-+ * @bitmap: category bitmap
-+ * @bitmap_len: bitmap length in bytes
-+ *
-+ * Description:
-+ * Checks the given category bitmap against the given DOI definition and
-+ * returns a negative value if any of the categories in the bitmap do not have
-+ * a valid mapping and a zero value if all of the categories are valid.
-+ *
-+ */
-+static int cipso_v4_map_cat_rbm_valid(const struct cipso_v4_doi *doi_def,
-+				      const unsigned char *bitmap,
-+				      const u32 bitmap_len)
-+{
-+	int cat = -1;
-+	u32 bitmap_len_bits = bitmap_len * 8;
-+	u32 cipso_cat_size = doi_def->map.std->cat.cipso_size;
-+	u32 *cipso_array = doi_def->map.std->cat.cipso;
-+
-+	switch (doi_def->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		return 0;
-+	case CIPSO_V4_MAP_STD:
-+		for (;;) {
-+			cat = cipso_v4_bitmap_walk(bitmap,
-+						   bitmap_len_bits,
-+						   cat + 1,
-+						   1);
-+			if (cat < 0)
-+				break;
-+			if (cat >= cipso_cat_size ||
-+			    cipso_array[cat] >= CIPSO_V4_INV_CAT)
-+				return -EFAULT;
-+		}
-+
-+		if (cat == -1)
-+			return 0;
-+		break;
-+	}
-+
-+	return -EFAULT;
-+}
-+
-+/**
-+ * cipso_v4_map_cat_rbm_hton - Perform a category mapping from host to network
-+ * @doi_def: the DOI definition
-+ * @host_cat: the category bitmap in host format
-+ * @host_cat_len: the length of the host's category bitmap in bytes
-+ * @net_cat: the zero'd out category bitmap in network/CIPSO format
-+ * @net_cat_len: the length of the CIPSO bitmap in bytes
-+ *
-+ * Description:
-+ * Perform a label mapping to translate a local MLS category bitmap to the
-+ * correct CIPSO bitmap using the given DOI definition.  Returns the minimum
-+ * size in bytes of the network bitmap on success, negative values otherwise.
-+ *
-+ */
-+static int cipso_v4_map_cat_rbm_hton(const struct cipso_v4_doi *doi_def,
-+				     const unsigned char *host_cat,
-+				     const u32 host_cat_len,
-+				     unsigned char *net_cat,
-+				     const u32 net_cat_len)
-+{
-+	int host_spot = -1;
-+	u32 net_spot;
-+	u32 net_spot_max = 0;
-+	u32 host_clen_bits = host_cat_len * 8;
-+	u32 net_clen_bits = net_cat_len * 8;
-+	u32 host_cat_size = doi_def->map.std->cat.local_size;
-+	u32 *host_cat_array = doi_def->map.std->cat.local;
-+
-+	switch (doi_def->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		net_spot_max = host_cat_len - 1;
-+		while (net_spot_max > 0 && host_cat[net_spot_max] == 0)
-+			net_spot_max--;
-+		if (net_spot_max > net_cat_len)
-+			return -EINVAL;
-+		memcpy(net_cat, host_cat, net_spot_max);
-+		return net_spot_max;
-+	case CIPSO_V4_MAP_STD:
-+		for (;;) {
-+			host_spot = cipso_v4_bitmap_walk(host_cat,
-+							 host_clen_bits,
-+							 host_spot + 1,
-+							 1);
-+			if (host_spot < 0)
-+				break;
-+			if (host_spot >= host_cat_size)
-+				return -EPERM;
-+
-+			net_spot = host_cat_array[host_spot];
-+			if (net_spot >= net_clen_bits)
-+				return -ENOSPC;
-+			cipso_v4_bitmap_setbit(net_cat, net_spot, 1);
-+
-+			if (net_spot > net_spot_max)
-+				net_spot_max = net_spot;
-+		}
-+
-+		if (host_spot == -2)
-+			return -EFAULT;
-+
-+		if (++net_spot_max % 8)
-+			return net_spot_max / 8 + 1;
-+		return net_spot_max / 8;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+/**
-+ * cipso_v4_map_cat_rbm_ntoh - Perform a category mapping from network to host
-+ * @doi_def: the DOI definition
-+ * @net_cat: the category bitmap in network/CIPSO format
-+ * @net_cat_len: the length of the CIPSO bitmap in bytes
-+ * @host_cat: the zero'd out category bitmap in host format
-+ * @host_cat_len: the length of the host's category bitmap in bytes
-+ *
-+ * Description:
-+ * Perform a label mapping to translate a CIPSO bitmap to the correct local
-+ * MLS category bitmap using the given DOI definition.  Returns the minimum
-+ * size in bytes of the host bitmap on success, negative values otherwise.
-+ *
-+ */
-+static int cipso_v4_map_cat_rbm_ntoh(const struct cipso_v4_doi *doi_def,
-+				     const unsigned char *net_cat,
-+				     const u32 net_cat_len,
-+				     unsigned char *host_cat,
-+				     const u32 host_cat_len)
-+{
-+	u32 host_spot;
-+	u32 host_spot_max = 0;
-+	int net_spot = -1;
-+	u32 net_clen_bits = net_cat_len * 8;
-+	u32 host_clen_bits = host_cat_len * 8;
-+	u32 net_cat_size = doi_def->map.std->cat.cipso_size;
-+	u32 *net_cat_array = doi_def->map.std->cat.cipso;
-+
-+	switch (doi_def->type) {
-+	case CIPSO_V4_MAP_PASS:
-+		if (net_cat_len > host_cat_len)
-+			return -EINVAL;
-+		memcpy(host_cat, net_cat, net_cat_len);
-+		return net_cat_len;
-+	case CIPSO_V4_MAP_STD:
-+		for (;;) {
-+			net_spot = cipso_v4_bitmap_walk(net_cat,
-+							net_clen_bits,
-+							net_spot + 1,
-+							1);
-+			if (net_spot < 0)
-+				break;
-+			if (net_spot >= net_cat_size ||
-+			    net_cat_array[net_spot] >= CIPSO_V4_INV_CAT)
-+				return -EPERM;
-+
-+			host_spot = net_cat_array[net_spot];
-+			if (host_spot >= host_clen_bits)
-+				return -ENOSPC;
-+			cipso_v4_bitmap_setbit(host_cat, host_spot, 1);
-+
-+			if (host_spot > host_spot_max)
-+				host_spot_max = host_spot;
-+		}
-+
-+		if (net_spot == -2)
-+			return -EFAULT;
-+
-+		if (++host_spot_max % 8)
-+			return host_spot_max / 8 + 1;
-+		return host_spot_max / 8;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+/*
-+ * Protocol Handling Functions
-+ */
-+
-+#define CIPSO_V4_HDR_LEN              6
-+
-+/**
-+ * cipso_v4_gentag_hdr - Generate a CIPSO option header
-+ * @doi_def: the DOI definition
-+ * @len: the total tag length in bytes
-+ * @buf: the CIPSO option buffer
-+ *
-+ * Description:
-+ * Write a CIPSO header into the beginning of @buffer.  Return zero on success,
-+ * negative values on failure.
-+ *
-+ */
-+static int cipso_v4_gentag_hdr(const struct cipso_v4_doi *doi_def,
-+			       const u32 len,
-+			       unsigned char *buf)
-+{
-+	if (CIPSO_V4_HDR_LEN + len > 40)
-+		return -ENOSPC;
-+
-+	buf[0] = IPOPT_CIPSO;
-+	buf[1] = CIPSO_V4_HDR_LEN + len;
-+	*(u32 *)&buf[2] = htonl(doi_def->doi);
-+
-+	return 0;
-+}
-+
-+#define CIPSO_V4_TAG1_CAT_LEN         30
-+
-+/**
-+ * cipso_v4_gentag_rbm - Generate a CIPSO restricted bitmap tag (type #1)
-+ * @doi_def: the DOI definition
-+ * @secattr: the security attributes
-+ * @buffer: the option buffer
-+ * @buffer_len: length of buffer in bytes
-+ *
-+ * Description:
-+ * Generate a CIPSO option using the restricted bitmap tag, tag type #1.  The
-+ * actual buffer length may be larger than the indicated size due to
-+ * translation between host and network category bitmaps.  Returns zero on
++ * Given the security context and the two sensitivty levels, set the MLS levels
++ * in the context according the two given as parameters.  Returns zero on
 + * success, negative values on failure.
 + *
 + */
-+static int cipso_v4_gentag_rbm(const struct cipso_v4_doi *doi_def,
-+			       const struct netlbl_lsm_secattr *secattr,
-+			       unsigned char **buffer,
-+			       u32 *buffer_len)
++void mls_import_lvl(struct context *context, const u32 low, const u32 high)
 +{
-+	int ret_val = -EPERM;
-+	unsigned char *buf = NULL;
-+	u32 buf_len;
-+	u32 level;
-+
-+	if (secattr->mls_cat) {
-+		buf = kzalloc(CIPSO_V4_HDR_LEN + 4 + CIPSO_V4_TAG1_CAT_LEN,
-+			      GFP_ATOMIC);
-+		if (buf == NULL)
-+			return -ENOMEM;
-+
-+		ret_val = cipso_v4_map_cat_rbm_hton(doi_def,
-+						    secattr->mls_cat,
-+						    secattr->mls_cat_len,
-+						    &buf[CIPSO_V4_HDR_LEN + 4],
-+						    CIPSO_V4_TAG1_CAT_LEN);
-+		if (ret_val < 0)
-+			goto gentag_failure;
-+
-+		/* XXX - this will send packets using the "optimized" format
-+		   when possibile as specified in  section 3.4.2.6 of the
-+		   CIPSO draft */
-+		if (cipso_v4_rbm_optfmt && (ret_val > 0 && ret_val < 10))
-+			ret_val = 10;
-+
-+		buf_len = 4 + ret_val;
-+	} else {
-+		buf = kzalloc(CIPSO_V4_HDR_LEN + 4, GFP_ATOMIC);
-+		if (buf == NULL)
-+			return -ENOMEM;
-+		buf_len = 4;
-+	}
-+
-+	ret_val = cipso_v4_map_lvl_hton(doi_def, secattr->mls_lvl, &level);
-+	if (ret_val != 0)
-+		goto gentag_failure;
-+
-+	ret_val = cipso_v4_gentag_hdr(doi_def, buf_len, buf);
-+	if (ret_val != 0)
-+		goto gentag_failure;
-+
-+	buf[CIPSO_V4_HDR_LEN] = 0x01;
-+	buf[CIPSO_V4_HDR_LEN + 1] = buf_len;
-+	buf[CIPSO_V4_HDR_LEN + 3] = level;
-+
-+	*buffer = buf;
-+	*buffer_len = CIPSO_V4_HDR_LEN + buf_len;
-+
-+	return 0;
-+
-+gentag_failure:
-+	kfree(buf);
-+	return ret_val;
-+}
-+
-+/**
-+ * cipso_v4_parsetag_rbm - Parse a CIPSO restricted bitmap tag
-+ * @doi_def: the DOI definition
-+ * @tag: the CIPSO tag
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Parse a CIPSO restricted bitmap tag (tag type #1) and return the security
-+ * attributes in @secattr.  Return zero on success, negatives values on
-+ * failure.
-+ *
-+ */
-+static int cipso_v4_parsetag_rbm(const struct cipso_v4_doi *doi_def,
-+				 const unsigned char *tag,
-+				 struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val;
-+	u8 tag_len = tag[1];
-+	u32 level;
-+
-+	ret_val = cipso_v4_map_lvl_ntoh(doi_def, tag[3], &level);
-+	if (ret_val != 0)
-+		return ret_val;
-+	secattr->mls_lvl = level;
-+	secattr->mls_lvl_vld = 1;
-+
-+	if (tag_len > 4) {
-+		switch (doi_def->type) {
-+		case CIPSO_V4_MAP_PASS:
-+			secattr->mls_cat_len = tag_len - 4;
-+			break;
-+		case CIPSO_V4_MAP_STD:
-+			secattr->mls_cat_len =
-+				doi_def->map.std->cat.local_size;
-+			break;
-+		}
-+		secattr->mls_cat = kzalloc(secattr->mls_cat_len, GFP_ATOMIC);
-+		if (secattr->mls_cat == NULL)
-+			return -ENOMEM;
-+
-+		ret_val = cipso_v4_map_cat_rbm_ntoh(doi_def,
-+						    &tag[4],
-+						    tag_len - 4,
-+						    secattr->mls_cat,
-+						    secattr->mls_cat_len);
-+		if (ret_val < 0) {
-+			kfree(secattr->mls_cat);
-+			return ret_val;
-+		}
-+		secattr->mls_cat_len = ret_val;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * cipso_v4_validate - Validate a CIPSO option
-+ * @option: the start of the option, on error it is set to point to the error
-+ *
-+ * Description:
-+ * This routine is called to validate a CIPSO option, it checks all of the
-+ * fields to ensure that they are at least valid, see the draft snippet below
-+ * for details.  If the option is valid then a zero value is returned and
-+ * the value of @option is unchanged.  If the option is invalid then a
-+ * non-zero value is returned and @option is adjusted to point to the
-+ * offending portion of the option.  From the IETF draft ...
-+ *
-+ *  "If any field within the CIPSO options, such as the DOI identifier, is not
-+ *   recognized the IP datagram is discarded and an ICMP 'parameter problem'
-+ *   (type 12) is generated and returned.  The ICMP code field is set to 'bad
-+ *   parameter' (code 0) and the pointer is set to the start of the CIPSO field
-+ *   that is unrecognized."
-+ *
-+ */
-+int cipso_v4_validate(unsigned char **option)
-+{
-+	unsigned char *opt = *option;
-+	unsigned char *tag;
-+	unsigned char opt_iter;
-+	unsigned char err_offset = 0;
-+	unsigned char locked = 0;
-+	u8 opt_len;
-+	u8 tag_len;
-+	struct cipso_v4_doi *doi_def = NULL;
-+	u32 tag_iter;
-+
-+	/* XXX - caller already checks for length values that are too large */
-+	opt_len = opt[1];
-+	if (opt_len < 8) {
-+		err_offset = 1;
-+		goto validate_return;
-+	}
-+
-+	rcu_read_lock();
-+	locked = 1;
-+	doi_def = cipso_v4_doi_getdef(ntohl(*((u32 *)&opt[2])));
-+	if (doi_def == NULL) {
-+		err_offset = 2;
-+		goto validate_return;
-+	}
-+
-+	opt_iter = 6;
-+	tag = opt + opt_iter;
-+	while (opt_iter < opt_len) {
-+		for (tag_iter = 0; doi_def->tags[tag_iter] != tag[0];)
-+			if (doi_def->tags[tag_iter] == CIPSO_V4_TAG_INVALID ||
-+			    ++tag_iter == CIPSO_V4_TAG_MAXCNT) {
-+				err_offset = opt_iter;
-+				goto validate_return;
-+			}
-+
-+		tag_len = tag[1];
-+		if (tag_len > (opt_len - opt_iter)) {
-+			err_offset = opt_iter + 1;
-+			goto validate_return;
-+		}
-+
-+		switch (tag[0]) {
-+		case CIPSO_V4_TAG_RBITMAP:
-+			if (tag_len < 4) {
-+				err_offset = opt_iter + 1;
-+				goto validate_return;
-+			}
-+
-+			/* XXX - we are already going to do all the
-+			   verification necessary at the socket layer so from
-+			   our point of view it is safe to turn these checks
-+			   off (and less work), however, the CIPSO draft says
-+			   we should do all the CIPSO validations here but it
-+			   doesn't really specify _exactly_ what we need to
-+			   validate ... so, just make it a sysctl tunable */
-+			if (cipso_v4_rbm_strictvalid) {
-+				if (cipso_v4_map_lvl_valid(doi_def,
-+							   tag[3]) < 0) {
-+					err_offset = opt_iter + 3;
-+					goto validate_return;
-+				}
-+				if (tag_len > 4 &&
-+				    cipso_v4_map_cat_rbm_valid(doi_def,
-+							    &tag[4],
-+							    tag_len - 4) < 0) {
-+					err_offset = opt_iter + 4;
-+					goto validate_return;
-+				}
-+			}
-+			break;
-+		default:
-+			err_offset = opt_iter;
-+			goto validate_return;
-+		}
-+
-+		tag += tag_len;
-+		opt_iter += tag_len;
-+	}
-+
-+validate_return:
-+	if (locked)
-+		rcu_read_unlock();
-+	*option = opt + err_offset;
-+	return err_offset;
-+}
-+
-+/**
-+ * cipso_v4_error - Send the correct reponse for a bad packet
-+ * @skb: the packet
-+ * @error: the error code
-+ * @gateway: CIPSO gateway flag
-+ *
-+ * Description:
-+ * Based on the error code given in @error, send an ICMP error message back to
-+ * the originating host.  From the IETF draft ...
-+ *
-+ *  "If the contents of the CIPSO [option] are valid but the security label is
-+ *   outside of the configured host or port label range, the datagram is
-+ *   discarded and an ICMP 'destination unreachable' (type 3) is generated and
-+ *   returned.  The code field of the ICMP is set to 'communication with
-+ *   destination network administratively prohibited' (code 9) or to
-+ *   'communication with destination host administratively prohibited'
-+ *   (code 10).  The value of the code is dependent on whether the originator
-+ *   of the ICMP message is acting as a CIPSO host or a CIPSO gateway.  The
-+ *   recipient of the ICMP message MUST be able to handle either value.  The
-+ *   same procedure is performed if a CIPSO [option] can not be added to an
-+ *   IP packet because it is too large to fit in the IP options area."
-+ *
-+ *  "If the error is triggered by receipt of an ICMP message, the message is
-+ *   discarded and no response is permitted (consistent with general ICMP
-+ *   processing rules)."
-+ *
-+ */
-+void cipso_v4_error(struct sk_buff *skb, const int error, const u32 gateway)
-+{
-+	if (skb->nh.iph->protocol == IPPROTO_ICMP || error != -EACCES)
++	if (!selinux_mls_enabled)
 +		return;
 +
-+	if (gateway)
-+		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0);
-+	else
-+		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0);
++	context->range.level[0].sens = low + 1;
++	context->range.level[1].sens = high + 1;
 +}
 +
 +/**
-+ * cipso_v4_socket_setopt - Set the CIPSO option string on a socket
-+ * @sock: the socket
-+ * @opt: the option string
-+ * @opt_len: the option string length
++ * mls_export_cat - Export the MLS categories
++ * @context: the security context
++ * @low: the low category
++ * @low_len: length of the cat_low bitmap in bytes
++ * @high: the high category
++ * @high_len: length of the cat_high bitmap in bytes
 + *
 + * Description:
-+ * Attempt to add the given CIPSO option string to the socket.  The caller is
-+ * responsibile for locking and releasing the socket.  Returns zero on success,
-+ * negative values on failure.
++ * Given the security context export the low MLS category bitmap into cat_low
++ * and the high category bitmap into cat_high.  The MLS categories are only
++ * exported if the pointers are not NULL, if they are NULL then that level is
++ * not exported.  The caller is responsibile for freeing the memory when
++ * finished.  Returns zero on success, negative values on failure.
 + *
 + */
-+int cipso_v4_socket_setopt(struct socket *sock,
-+			   unsigned char *opt,
-+			   u32 opt_len)
++int mls_export_cat(const struct context *context,
++		   unsigned char **low,
++		   size_t *low_len,
++		   unsigned char **high,
++		   size_t *high_len)
 +{
-+	int ret_val;
-+	struct ip_options *ip_opt = NULL;
-+	struct sock *sk = sock->sk;
-+	struct inet_sock *sk_inet;
-+	struct inet_connection_sock *sk_conn;
++	int rc = -EPERM;
 +
-+	ret_val = ip_options_get(&ip_opt, opt, opt_len);
-+	if (ret_val != 0)
-+		goto socket_setopt_return;
-+	ip_opt->is_setbyuser = 0;
-+	sk_inet = inet_sk(sk);
-+	if (sk_inet->is_icsk) {
-+		sk_conn = inet_csk(sk);
-+		if (sk_inet->opt)
-+			sk_conn->icsk_ext_hdr_len -= sk_inet->opt->optlen;
-+		sk_conn->icsk_ext_hdr_len += ip_opt->optlen;
-+		sk_conn->icsk_sync_mss(sk, sk_conn->icsk_pmtu_cookie);
-+	}
-+	ip_opt = xchg(&sk_inet->opt, ip_opt);
-+
-+	ret_val = 0;
-+
-+socket_setopt_return:
-+	kfree(opt);
-+	return ret_val;
-+}
-+
-+/**
-+ * cipso_v4_socket_setattr - Add a CIPSO option to a socket
-+ * @sock: the socket
-+ * @doi_def: the CIPSO DOI to use
-+ * @secattr: the specific security attributes of the socket
-+ *
-+ * Description:
-+ * Set the CIPSO option on the given socket using the DOI definition and
-+ * security attributes passed to the function.  Returns zero on success and
-+ * negative values on failure.
-+ *
-+ */
-+int cipso_v4_socket_setattr(const struct socket *sock,
-+			    const struct cipso_v4_doi *doi_def,
-+			    const struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val = -EPERM;
-+	u32 iter;
-+	unsigned char *buf = NULL;
-+	u32 buf_len = 0;
-+	struct ip_options *opt = NULL;
-+	struct sock *sk;
-+	struct inet_sock *sk_inet;
-+	struct inet_connection_sock *sk_conn;
-+
-+	/* In the case of sock_create_lite(), the sock->sk field is not
-+	   defined yet but it is not a problem as the only users of these
-+	   "lite" PF_INET sockets are functions which do an accept() call
-+	   afterwards so we will label the socket as part of the accept(). */
-+	sk = sock->sk;
-+	if (sk == NULL)
++	if (!selinux_mls_enabled)
 +		return 0;
 +
-+	/* XXX - this code assumes only one tag per CIPSO option which isnt
-+	   really a good assumption to make but since we only support the MAC
-+	   tags right now it is a safe assumption */
-+	iter = 0;
-+	do {
-+		switch (doi_def->tags[iter]) {
-+		case CIPSO_V4_TAG_RBITMAP:
-+			ret_val = cipso_v4_gentag_rbm(doi_def,
-+						      secattr,
-+						      &buf,
-+						      &buf_len);
++	if (low != NULL) {
++		rc = ebitmap_export(&context->range.level[0].cat,
++				    low,
++				    low_len);
++		if (rc != 0)
++			goto export_cat_failure;
++	}
++	if (high != NULL) {
++		rc = ebitmap_export(&context->range.level[1].cat,
++				    high,
++				    high_len);
++		if (rc != 0)
++			goto export_cat_failure;
++	}
++
++	return 0;
++
++export_cat_failure:
++	if (low != NULL)
++		kfree(*low);
++	if (high != NULL)
++		kfree(*high);
++	return rc;
++}
++
++/**
++ * mls_import_cat - Import the MLS categories
++ * @context: the security context
++ * @low: the low category
++ * @low_len: length of the cat_low bitmap in bytes
++ * @high: the high category
++ * @high_len: length of the cat_high bitmap in bytes
++ *
++ * Description:
++ * Given the security context and the two category bitmap strings import the
++ * categories into the security context.  The MLS categories are only imported
++ * if the pointers are not NULL, if they are NULL they are skipped.  Returns
++ * zero on success, negative values on failure.
++ *
++ */
++int mls_import_cat(struct context *context,
++		   const unsigned char *low,
++		   const size_t low_len,
++		   const unsigned char *high,
++		   const size_t high_len)
++{
++	int rc = -EPERM;
++
++	if (!selinux_mls_enabled)
++		return 0;
++
++	if (low != NULL) {
++		rc = ebitmap_import(low,
++				    low_len,
++				    &context->range.level[0].cat);
++		if (rc != 0)
++			goto import_cat_failure;
++	}
++	if (high != NULL) {
++		rc = ebitmap_import(high,
++				    high_len,
++				    &context->range.level[1].cat);
++		if (rc != 0)
++			goto import_cat_failure;
++	}
++
++	return 0;
++
++import_cat_failure:
++	ebitmap_destroy(&context->range.level[0].cat);
++	ebitmap_destroy(&context->range.level[1].cat);
++	return rc;
++}
+Index: linux-2.6.18-rc1/security/selinux/ss/mls.h
+===================================================================
+--- linux-2.6.18-rc1.orig/security/selinux/ss/mls.h
++++ linux-2.6.18-rc1/security/selinux/ss/mls.h
+@@ -10,6 +10,13 @@
+  *
+  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
+  */
++/*
++ * Updated: Hewlett-Packard <paul.moore@hp.com>
++ *
++ *      Added support to import/export the MLS label
++ *
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ */
+ 
+ #ifndef _SS_MLS_H_
+ #define _SS_MLS_H_
+@@ -42,5 +49,19 @@ int mls_compute_sid(struct context *scon
+ int mls_setup_user_range(struct context *fromcon, struct user_datum *user,
+                          struct context *usercon);
+ 
++void mls_export_lvl(const struct context *context, u32 *low, u32 *high);
++void mls_import_lvl(struct context *context, const u32 low, const u32 high);
++
++int mls_export_cat(const struct context *context,
++		   unsigned char **low,
++		   size_t *low_len,
++		   unsigned char **high,
++		   size_t *high_len);
++int mls_import_cat(struct context *context,
++		   const unsigned char *low,
++		   const size_t low_len,
++		   const unsigned char *high,
++		   const size_t high_len);
++
+ #endif	/* _SS_MLS_H */
+ 
+Index: linux-2.6.18-rc1/security/selinux/ss/services.c
+===================================================================
+--- linux-2.6.18-rc1.orig/security/selinux/ss/services.c
++++ linux-2.6.18-rc1/security/selinux/ss/services.c
+@@ -13,6 +13,11 @@
+  *
+  * 	Added conditional policy language extensions
+  *
++ * Updated: Hewlett-Packard <paul.moore@hp.com>
++ *
++ *      Added support for NetLabel
++ *
++ * Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
+  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+@@ -29,6 +34,8 @@
+ #include <linux/sched.h>
+ #include <linux/audit.h>
+ #include <linux/mutex.h>
++#include <net/sock.h>
++#include <net/netlabel.h>
+ 
+ #include "flask.h"
+ #include "avc.h"
+@@ -40,6 +47,8 @@
+ #include "services.h"
+ #include "conditional.h"
+ #include "mls.h"
++#include "objsec.h"
++#include "selinux_netlabel.h"
+ 
+ extern void selnl_notify_policyload(u32 seqno);
+ unsigned int policydb_loaded_version;
+@@ -1241,6 +1250,7 @@ int security_load_policy(void *data, siz
+ 		selinux_complete_init();
+ 		avc_ss_reset(seqno);
+ 		selnl_notify_policyload(seqno);
++		selinux_netlbl_cache_invalidate();
+ 		return 0;
+ 	}
+ 
+@@ -1295,6 +1305,7 @@ int security_load_policy(void *data, siz
+ 
+ 	avc_ss_reset(seqno);
+ 	selnl_notify_policyload(seqno);
++	selinux_netlbl_cache_invalidate();
+ 
+ 	return 0;
+ 
+@@ -2064,3 +2075,547 @@ void selinux_audit_set_callback(int (*ca
+ {
+ 	aurule_callback = callback;
+ }
++
++#ifdef CONFIG_NETLABEL
++/*
++ * This is the structure we store inside the NetLabel cache block.
++ */
++#define NETLBL_CACHE(x)           ((struct netlbl_cache *)(x))
++#define NETLBL_CACHE_T_NONE       0
++#define NETLBL_CACHE_T_SID        1
++#define NETLBL_CACHE_T_MLSLBL     2
++struct netlbl_cache {
++	u32 type;
++	union {
++		u32 sid;
++		struct mls_level mls_label;
++	} data;
++};
++
++/**
++ * selinux_netlbl_cache_free - Free the NetLabel cached data
++ * @data: the data to free
++ *
++ * Description:
++ * This function is intended to be used as the free() callback inside the
++ * netlbl_lsm_cache structure.
++ *
++ */
++static void selinux_netlbl_cache_free(const void *data)
++{
++	struct netlbl_cache *cache = NETLBL_CACHE(data);
++	switch (cache->type) {
++	case NETLBL_CACHE_T_MLSLBL:
++		ebitmap_destroy(&cache->data.mls_label.cat);
++		break;
++	}
++	kfree(data);
++}
++
++/**
++ * selinux_netlbl_cache_add - Add an entry to the NetLabel cache
++ * @skb: the packet
++ * @ctx: the SELinux context
++ *
++ * Description:
++ * Attempt to cache the context in @ctx, which was derived from the packet in
++ * @skb, in the NetLabel subsystem cache.
++ *
++ */
++static void selinux_netlbl_cache_add(struct sk_buff *skb, struct context *ctx)
++{
++	struct netlbl_cache *cache = NULL;
++	struct netlbl_lsm_secattr secattr;
++	u32 cache_clear = 1;
++
++	netlbl_secattr_init(&secattr);
++
++	cache = kzalloc(sizeof(*cache),	GFP_ATOMIC);
++	if (cache == NULL)
++		goto netlbl_cache_add_return;
++	secattr.cache.free = selinux_netlbl_cache_free;
++	secattr.cache.data = (void *)cache;
++
++	cache->type = NETLBL_CACHE_T_MLSLBL;
++	if (ebitmap_cpy(&cache->data.mls_label.cat,
++			&ctx->range.level[0].cat) != 0)
++		goto netlbl_cache_add_return;
++	cache->data.mls_label.sens = ctx->range.level[0].sens;
++
++	if (netlbl_cache_add(skb, &secattr) != 0)
++		goto netlbl_cache_add_return;
++	cache_clear = 0;
++
++netlbl_cache_add_return:
++	netlbl_secattr_destroy(&secattr, cache_clear);
++}
++
++/**
++ * selinux_netlbl_cache_invalidate - Invalidate the NetLabel cache
++ *
++ * Description:
++ * Invalidate the NetLabel security attribute mapping cache.
++ *
++ */
++void selinux_netlbl_cache_invalidate(void)
++{
++	netlbl_cache_invalidate();
++}
++
++/**
++ * selinux_netlbl_secattr_to_sid - Convert a NetLabel secattr to a SELinux SID
++ * @skb: the network packet
++ * @secattr: the NetLabel packet security attributes
++ * @base_sid: the SELinux SID to use as a context for MLS only attributes
++ * @sid: the SELinux SID
++ *
++ * Description:
++ * Convert the given NetLabel packet security attributes in @secattr into a
++ * SELinux SID.  If the @secattr field does not contain a full SELinux
++ * SID/context then use the context in @base_sid as the foundation.  If @skb
++ * is not NULL attempt to cache as much data as possibile.  Returns zero on
++ * success, negative values on failure.
++ *
++ */
++static int selinux_netlbl_secattr_to_sid(struct sk_buff *skb,
++					 struct netlbl_lsm_secattr *secattr,
++					 const u32 base_sid,
++					 u32 *sid)
++{
++	int rc = -EIDRM;
++	struct context *ctx;
++	struct context ctx_new;
++	struct netlbl_cache *cache;
++	u32 ctx_new_destroy = 0;
++
++	POLICY_RDLOCK;
++
++	if (secattr->cache.data) {
++		cache = NETLBL_CACHE(secattr->cache.data);
++		switch (cache->type) {
++		case NETLBL_CACHE_T_SID:
++			*sid = cache->data.sid;
++			break;
++		case NETLBL_CACHE_T_MLSLBL:
++			ctx = sidtab_search(&sidtab, base_sid);
++			if (ctx == NULL)
++				goto netlbl_secattr_to_sid_return;
++			rc = context_cpy(&ctx_new, ctx);
++			if (rc != 0)
++				goto netlbl_secattr_to_sid_return;
++			ctx_new_destroy = 1;
++			mls_context_destroy(&ctx_new);
++
++			ctx_new.range.level[0].sens =
++				cache->data.mls_label.sens;
++			rc = ebitmap_cpy(&ctx_new.range.level[0].cat,
++					 &cache->data.mls_label.cat);
++			if (rc != 0)
++				goto netlbl_secattr_to_sid_return;
++			ctx_new.range.level[1].sens =
++				cache->data.mls_label.sens;
++			rc = ebitmap_cpy(&ctx_new.range.level[1].cat,
++					 &cache->data.mls_label.cat);
++			if (rc != 0)
++				goto netlbl_secattr_to_sid_return;
++
++			rc = sidtab_context_to_sid(&sidtab, &ctx_new, sid);
 +			break;
 +		default:
-+			ret_val = -EPERM;
-+			goto socket_setattr_failure;
++			goto netlbl_secattr_to_sid_return;
++		}
++	} else if (secattr->mls_lvl_vld) {
++		ctx = sidtab_search(&sidtab, base_sid);
++		if (ctx == NULL)
++			goto netlbl_secattr_to_sid_return;
++		rc = context_cpy(&ctx_new, ctx);
++		if (rc != 0)
++			goto netlbl_secattr_to_sid_return;
++		ctx_new_destroy = 1;
++		mls_context_destroy(&ctx_new);
++
++		mls_import_lvl(&ctx_new, secattr->mls_lvl, secattr->mls_lvl);
++		if (secattr->mls_cat) {
++			if (mls_import_cat(&ctx_new,
++					   secattr->mls_cat,
++					   secattr->mls_cat_len,
++					   secattr->mls_cat,
++					   secattr->mls_cat_len) != 0)
++				goto netlbl_secattr_to_sid_return;
 +		}
 +
-+		iter++;
-+	} while (ret_val != 0 &&
-+		 iter < CIPSO_V4_TAG_MAXCNT &&
-+		 doi_def->tags[iter] != CIPSO_V4_TAG_INVALID);
-+	if (ret_val != 0)
-+		goto socket_setattr_failure;
++		rc = mls_context_isvalid(&policydb, &ctx_new);
++		if (rc != 1)
++			goto netlbl_secattr_to_sid_return;
 +
-+	ret_val = ip_options_get(&opt, buf, buf_len);
-+	if (ret_val != 0)
-+		goto socket_setattr_failure;
-+	opt->is_setbyuser = 0;
++		if (skb != NULL)
++			selinux_netlbl_cache_add(skb, &ctx_new);
 +
-+	kfree(buf);
-+	buf = NULL;
++		rc = sidtab_context_to_sid(&sidtab, &ctx_new, sid);
++	} else
++		*sid = SECINITSID_UNLABELED;
 +
-+	lock_sock(sk);
-+	sk_inet = inet_sk(sk);
-+	if (sk_inet->is_icsk) {
-+		sk_conn = inet_csk(sk);
-+		if (sk_inet->opt)
-+			sk_conn->icsk_ext_hdr_len -= sk_inet->opt->optlen;
-+		sk_conn->icsk_ext_hdr_len += opt->optlen;
-+		sk_conn->icsk_sync_mss(sk, sk_conn->icsk_pmtu_cookie);
-+	}
-+	opt = xchg(&sk_inet->opt, opt);
-+	release_sock(sk);
-+	kfree(opt);
++	rc = 0;
 +
-+	return 0;
-+
-+socket_setattr_failure:
-+	kfree(buf);
-+	kfree(opt);
-+	return ret_val;
++netlbl_secattr_to_sid_return:
++	POLICY_RDUNLOCK;
++	if (ctx_new_destroy)
++		context_destroy(&ctx_new);
++	return rc;
 +}
 +
 +/**
-+ * cipso_v4_socket_getopt - Get the CIPSO IP option string from the socket
-+ * @sock: the socket
-+ * @opt: the option string
-+ * @opt_len: the option string length in bytes
-+ *
-+ * Description:
-+ * If a CIPSO option is present in the socket's IP options then return a
-+ * a pointer to the option string.  The caller is responsibile for locking
-+ * and releasing the socket.  Returns zero on success, negative values on
-+ * failure.
-+ *
-+ */
-+int cipso_v4_socket_getopt(const struct socket *sock,
-+			   unsigned char **opt,
-+			   u32 *opt_len)
-+{
-+	struct ip_options *ip_opt = inet_sk(sock->sk)->opt;
-+	unsigned char *cipso_ptr;
-+
-+	if (ip_opt == NULL || ip_opt->cipso == 0)
-+		return -ENOMSG;
-+	cipso_ptr = ip_opt->__data + ip_opt->cipso - sizeof(struct iphdr);
-+
-+	*opt = cipso_ptr;
-+	*opt_len = cipso_ptr[1];
-+
-+	return 0;
-+}
-+
-+/**
-+ * cipso_v4_socket_getattr - Get the security attributes from a socket
-+ * @sock: the socket
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Query @sock to see if there is a CIPSO option attached to the socket and if
-+ * there is return the CIPSO security attributes in @secattr.  Returns zero on
-+ * success and negative values on failure.
-+ *
-+ */
-+int cipso_v4_socket_getattr(const struct socket *sock,
-+			    struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val = -ENOMSG;
-+	struct sock *sk;
-+	struct inet_sock *sk_inet;
-+	unsigned char *cipso_ptr;
-+	u32 doi;
-+	struct cipso_v4_doi *doi_def;
-+
-+	sk = sock->sk;
-+	lock_sock(sk);
-+	sk_inet = inet_sk(sk);
-+	if (sk_inet->opt == NULL || sk_inet->opt->cipso == 0)
-+		goto socket_getattr_return;
-+	cipso_ptr = sk_inet->opt->__data + sk_inet->opt->cipso -
-+		sizeof(struct iphdr);
-+	ret_val = cipso_v4_cache_check(cipso_ptr, cipso_ptr[1], secattr);
-+	if (ret_val == 0)
-+		goto socket_getattr_return;
-+
-+	doi = ntohl(*(u32 *)&cipso_ptr[2]);
-+	rcu_read_lock();
-+	doi_def = cipso_v4_doi_getdef(doi);
-+	if (doi_def == NULL) {
-+		rcu_read_unlock();
-+		goto socket_getattr_return;
-+	}
-+	switch (cipso_ptr[6]) {
-+	case CIPSO_V4_TAG_RBITMAP:
-+		ret_val = cipso_v4_parsetag_rbm(doi_def,
-+						&cipso_ptr[6],
-+						secattr);
-+		break;
-+	}
-+	rcu_read_unlock();
-+
-+socket_getattr_return:
-+	release_sock(sk);
-+	return ret_val;
-+}
-+
-+/**
-+ * cipso_v4_skbuff_getattr - Get the security attributes from the CIPSO option
++ * selinux_netlbl_skbuff_getsid - Get the sid of a packet using NetLabel
 + * @skb: the packet
-+ * @secattr: the security attributes
++ * @base_sid: the SELinux SID to use as a context for MLS only attributes
++ * @sid: the SID
 + *
 + * Description:
-+ * Parse the given packet's CIPSO option and return the security attributes.
-+ * Returns zero on success and negative values on failure.
++ * Call the NetLabel mechanism to get the security attributes of the given
++ * packet and use those attributes to determine the correct context/SID to
++ * assign to the packet.  Returns zero on success, negative values on failure.
 + *
 + */
-+int cipso_v4_skbuff_getattr(const struct sk_buff *skb,
-+			    struct netlbl_lsm_secattr *secattr)
++static int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++					const u32 base_sid,
++					u32 *sid)
 +{
-+	int ret_val = -ENOMSG;
-+	unsigned char *cipso_ptr;
-+	u32 doi;
-+	struct cipso_v4_doi *doi_def;
++	int rc;
++	struct netlbl_lsm_secattr secattr;
 +
-+	if (!CIPSO_V4_OPTEXIST(skb))
-+		return -ENOMSG;
-+	cipso_ptr = CIPSO_V4_OPTPTR(skb);
-+	if (cipso_v4_cache_check(cipso_ptr, cipso_ptr[1], secattr) == 0)
++	netlbl_secattr_init(&secattr);
++	rc = netlbl_skbuff_getattr(skb, &secattr);
++	if (rc == 0)
++		rc = selinux_netlbl_secattr_to_sid(skb,
++						   &secattr,
++						   base_sid,
++						   sid);
++	netlbl_secattr_destroy(&secattr, 0);
++	return rc;
++}
++
++/**
++ * selinux_netlbl_socket_setsid - Label a socket using the NetLabel mechanism
++ * @sock: the socket to label
++ * @sock_family: the socket family
++ * @sid: the SID to use
++ *
++ * Description:
++ * Attempt to label a socket using the NetLabel mechanism using the given
++ * SID.  Returns zero values on success, negative values on failure.
++ *
++ */
++static int selinux_netlbl_socket_setsid(struct socket *sock,
++					const int sock_family,
++					u32 sid)
++{
++	int rc;
++	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
++	struct netlbl_lsm_secattr secattr;
++	struct context *ctx;
++
++	if (!ss_initialized)
 +		return 0;
 +
-+	doi = ntohl(*(u32 *)&cipso_ptr[2]);
-+	rcu_read_lock();
-+	doi_def = cipso_v4_doi_getdef(doi);
-+	if (doi_def == NULL)
-+		goto skbuff_getattr_return;
-+	switch (cipso_ptr[6]) {
-+	case CIPSO_V4_TAG_RBITMAP:
-+		ret_val = cipso_v4_parsetag_rbm(doi_def,
-+						&cipso_ptr[6],
-+						secattr);
-+		break;
++	POLICY_RDLOCK;
++
++	ctx = sidtab_search(&sidtab, sid);
++	if (ctx != NULL) {
++		netlbl_secattr_init(&secattr);
++		secattr.domain = kstrdup(
++			policydb.p_type_val_to_name[ctx->type - 1],
++			GFP_ATOMIC);
++		mls_export_lvl(ctx, &secattr.mls_lvl, NULL);
++		secattr.mls_lvl_vld = 1;
++		mls_export_cat(ctx,
++			       &secattr.mls_cat,
++			       &secattr.mls_cat_len,
++			       NULL,
++			       NULL);
++
++		rc = netlbl_socket_setattr(sock, &secattr);
++		if (rc == 0)
++			isec->netlbl.state = NLBL_LABELED;
++
++		netlbl_secattr_destroy(&secattr, 0);
++	} else
++		rc = -ENOENT;
++
++	POLICY_RDUNLOCK;
++
++	return rc;
++}
++
++/**
++ * selinux_netlbl_socket_peeksid - Get the SID of the first queued packet
++ * @sock: the socket to query
++ * @sid: the packet's SID
++ *
++ * Description:
++ * Examine the first incoming packet in the socket's queue and determine the
++ * packet's SELinux SID.  Return zero on success, negative values on failure.
++ *
++ */
++static int selinux_netlbl_socket_peeksid(struct socket *sock,
++					 u32 *sid)
++{
++        int rc;
++	struct netlbl_lsm_secattr secattr;
++        struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
++
++        netlbl_secattr_init(&secattr);
++        rc = netlbl_socket_peekattr(sock, &secattr);
++        if (rc == 0)
++                rc = selinux_netlbl_secattr_to_sid(NULL,
++						   &secattr,
++						   isec->sid,
++						   sid);
++        netlbl_secattr_destroy(&secattr, 0);
++        return rc;
++}
++
++/**
++ * selinux_netlbl_socket_create - Label a socket using the NetLabel mechanism
++ * @sock: the socket to label
++ * @sock_family: the socket family
++ * @sid: the SID to use
++ *
++ * Description:
++ * Attempt to label a socket using the NetLabel mechanism using the given
++ * SID.  Returns zero values on success, negative values on failure.
++ *
++ */
++int selinux_netlbl_socket_create(struct socket *sock,
++				 const int sock_family,
++				 u32 sid)
++{
++	struct inode_security_struct *isec;
++
++	if (sock_family != PF_INET)
++		return 0;
++
++	isec = SOCK_INODE(sock)->i_security;
++	isec->netlbl.state = NLBL_REQUIRE;
++	return selinux_netlbl_socket_setsid(sock, sock_family, sid);
++}
++
++/**
++ * selinux_netlbl_socket_accept - NetLabel accept hook
++ * @sock: the original socket
++ * @newsock: the new accept()ed socket
++ *
++ * Description:
++ * Mark @newsock as requiring a NetLabel label and do setup required for
++ * further processing by the post_accept and sock_rcv_skb hooks.  Returns zero
++ * on success, negative values on failure.
++ *
++ */
++int selinux_netlbl_socket_accept(struct socket *sock, struct socket *newsock)
++{
++	struct inode_security_struct *isec;
++	struct inode_security_struct *newisec;
++
++	isec = SOCK_INODE(sock)->i_security;
++	if (isec->netlbl.state == NLBL_UNSET)
++		return 0;
++
++	newisec = SOCK_INODE(newsock)->i_security;
++	newisec->netlbl.state = NLBL_ACCEPT;
++
++	return 0;
++}
++
++/**
++ * selinux_netlbl_socket_post_accept - NetLabel post_accept hook
++ * @sock: the original socket
++ * @newsock: the new accept()ed socket
++ *
++ * Description:
++ * Attempt to label a socket using the NetLabel mechanism based on the
++ * connection and the original/parent socket's SID.
++ *
++ */
++void selinux_netlbl_socket_post_accept(struct socket *sock,
++				       struct socket *newsock)
++{
++	struct inode_security_struct *newisec;
++	struct netlbl_lsm_secattr secattr;
++
++	newisec = SOCK_INODE(newsock)->i_security;
++	if (newisec->netlbl.state != NLBL_ACCEPT)
++		return;
++	netlbl_secattr_init(&secattr);
++	if (netlbl_socket_getattr(newsock, &secattr) != 0)
++		goto netlbl_socket_post_accept_return;
++	newisec = SOCK_INODE(newsock)->i_security;
++	if (selinux_netlbl_secattr_to_sid(NULL,
++					  &secattr,
++					  newisec->sid,
++					  &newisec->netlbl.peer_sid) != 0)
++		goto netlbl_socket_post_accept_return;
++	newisec->sid = newisec->netlbl.peer_sid;
++
++	/* XXX - try to set the NetLabel here to try and save some time in
++	   selinux_netlbl_inode_permission() later */
++	selinux_netlbl_socket_setsid(newsock,
++				     newsock->sk->sk_family,
++				     newisec->sid);
++
++netlbl_socket_post_accept_return:
++	if (newisec->netlbl.state != NLBL_LABELED)
++		newisec->netlbl.state = NLBL_REQUIRE;
++	netlbl_secattr_destroy(&secattr, 0);
++}
++
++/**
++ * selinux_netlbl_inode_permission - Verify the file/socket is NetLabel labeled
++ * @inode: the file descriptor's inode
++ * @mask: the permission mask
++ *
++ * Description:
++ * Looks at a file's inode and if it is marked as a socket protected by
++ * NetLabel then verify that the socket has been labeled, if not try to label
++ * the socket now with the task's SID.  Returns zero on success, negative
++ * values on failure.
++ *
++ */
++int selinux_netlbl_inode_permission(struct inode *inode, int mask)
++{
++	int rc = 0;
++	struct inode_security_struct *isec = inode->i_security;
++	struct netlbl_security_struct *nlblsec = &isec->netlbl;
++	struct socket *sock;
++
++	down(&isec->sem);
++	if (nlblsec->state == NLBL_REQUIRE &&
++	    (mask & (MAY_WRITE | MAY_APPEND))) {
++		sock = SOCKET_I(inode);
++		rc = selinux_netlbl_socket_setsid(sock,
++						  sock->sk->sk_family,
++						  isec->sid);
++	}
++	up(&isec->sem);
++
++	return rc;
++}
++
++/**
++ * selinux_netlbl_sock_rcv_skb - Do an inbound access check using NetLabel
++ * @sk: the packet's sock
++ * @skb: the packet
++ * @sock_class: the socket class
++ * @sock_sid: the socket's SID
++ * @ad: the audit data
++ *
++ * Description:
++ * Fetch the NetLabel security attributes from @skb and perform an access check
++ * against the receiving socket.  Returns zero on success, negative values on
++ * error.
++ *
++ */
++int selinux_netlbl_sock_rcv_skb(struct sock *sk,
++				struct sk_buff *skb,
++				const u16 sock_class,
++				const u32 sock_sid,
++				struct avc_audit_data *ad)
++{
++	int rc;
++	u32 netlbl_sid;
++	u32 recv_perm;
++
++	rc = selinux_netlbl_skbuff_getsid(skb, sock_sid, &netlbl_sid);
++	if (rc != 0)
++		return rc;
++
++	if (netlbl_sid != SECINITSID_UNLABELED) {
++		switch (sock_class) {
++		case SECCLASS_UDP_SOCKET:
++			recv_perm = UDP_SOCKET__RECV_MSG;
++			break;
++		case SECCLASS_TCP_SOCKET:
++			recv_perm = TCP_SOCKET__RECV_MSG;
++			break;
++		default:
++			recv_perm = RAWIP_SOCKET__RECV_MSG;
++			break;
++		}
++
++		rc = avc_has_perm(sock_sid,
++				  netlbl_sid,
++				  sock_class,
++				  recv_perm,
++				  ad);
++		if (rc != 0) {
++			struct inode_security_struct *isec;
++			u32 netlbl_send_err = 1;
++
++			read_lock_bh(&sk->sk_callback_lock);
++			isec = SOCK_INODE(sk->sk_socket)->i_security;
++			if (isec->netlbl.state == NLBL_ACCEPT)
++				netlbl_send_err = 0;
++			read_unlock_bh(&sk->sk_callback_lock);
++
++			if (netlbl_send_err)
++				netlbl_skbuff_err(skb, rc);
++		}
 +	}
 +
-+skbuff_getattr_return:
-+	rcu_read_unlock();
-+	return ret_val;
-+}
-+
-+/*
-+ * Setup Functions
-+ */
-+
-+/**
-+ * cipso_v4_init - Initialize the CIPSO module
-+ *
-+ * Description:
-+ * Initialize the CIPSO module and prepare it for use.  Returns zero on success
-+ * and negative values on failure.
-+ *
-+ */
-+static int __init cipso_v4_init(void)
-+{
-+	return cipso_v4_cache_init(CIPSO_V4_CACHE_BUCKETS);
++	return rc;
 +}
 +
 +/**
-+ * cipso_v4_exit - Cleanup after the CIPSO module
++ * selinux_netlbl_socket_peersid - Return the peer SID of a connected socket
++ * @sock: the socket
 + *
 + * Description:
-+ * Perform any necessary cleanup tasks before the CIPSO module goes away.
++ * Examine @sock to find the connected peer's SID, if that is not possibile
++ * check the socket's receive queue and take the SID from the incoming
++ * packets.  Returns the SID on success or SECSID_NULL on error.
 + *
 + */
-+static void __exit cipso_v4_exit(void)
++u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock)
 +{
-+	cipso_v4_cache_destroy();
++	u32 peer_sid;
++	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
++
++	if (isec->netlbl.peer_sid != 0)
++		peer_sid = isec->netlbl.peer_sid;
++	else {
++		if (selinux_netlbl_socket_peeksid(sock, &peer_sid) != 0)
++			peer_sid = SECSID_NULL;
++	}
++
++	return peer_sid;
 +}
 +
-+subsys_initcall(cipso_v4_init);
-Index: linux-2.6.18-rc1/net/ipv4/sysctl_net_ipv4.c
-===================================================================
---- linux-2.6.18-rc1.orig/net/ipv4/sysctl_net_ipv4.c
-+++ linux-2.6.18-rc1/net/ipv4/sysctl_net_ipv4.c
-@@ -17,6 +17,7 @@
- #include <net/ip.h>
- #include <net/route.h>
- #include <net/tcp.h>
-+#include <net/cipso_ipv4.h>
- 
- /* From af_inet.c */
- extern int sysctl_ip_nonlocal_bind;
-@@ -697,6 +698,40 @@ ctl_table ipv4_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec
- 	},
-+#ifdef CONFIG_NETLABEL
-+	{
-+		.ctl_name	= NET_CIPSOV4_CACHE_ENABLE,
-+		.procname	= "cipso_cache_enable",
-+		.data		= &cipso_v4_cache_enabled,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= NET_CIPSOV4_CACHE_BUCKET_SIZE,
-+		.procname	= "cipso_cache_bucket_size",
-+		.data		= &cipso_v4_cache_bucketsize,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= NET_CIPSOV4_RBM_OPTFMT,
-+		.procname	= "cipso_rbm_optfmt",
-+		.data		= &cipso_v4_rbm_optfmt,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= NET_CIPSOV4_RBM_STRICTVALID,
-+		.procname	= "cipso_rbm_strictvalid",
-+		.data		= &cipso_v4_rbm_strictvalid,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
++/**
++ * selinux_netlbl_socket_getpeersec_dgram - Return the SID of a NetLabel packet
++ * @skb: the packet
++ *
++ * Description:
++ * Examine @skb to find the SID assigned to it by NetLabel.  Returns the SID on
++ * success, SECSID_NULL on error.
++ *
++ */
++u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb)
++{
++	int peer_sid;
++	struct sock *sk = skb->sk;
++	struct inode_security_struct *isec;
++
++	if (sk == NULL)
++		return SECSID_NULL;
++
++	read_lock_bh(&skb->sk->sk_callback_lock);
++	if (skb->sk->sk_socket == NULL) {
++		read_unlock_bh(&skb->sk->sk_callback_lock);
++		return SECSID_NULL;
++	}
++	isec = SOCK_INODE(skb->sk->sk_socket)->i_security;
++	if (selinux_netlbl_skbuff_getsid(skb, isec->sid, &peer_sid) != 0)
++		peer_sid = SECSID_NULL;
++	read_unlock_bh(&sk->sk_callback_lock);
++
++	return peer_sid;
++}
 +#endif /* CONFIG_NETLABEL */
- 	{ .ctl_name = 0 }
- };
- 
 
 --
 paul moore
