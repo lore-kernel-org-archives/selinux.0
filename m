@@ -1,31 +1,77 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6DKAMH2016524
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 16:10:22 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6DKALHW025251
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jul 2006 20:10:21 GMT
+Message-ID: <36282A1733C57546BE392885C06185920138E224@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: James Morris <jmorris@namei.org>,
+        Venkat Yekkirala
+	 <vyekkirala@TrustedCS.com>
+Cc: netdev@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        tjaeger@cse.psu.edu, selinux@tycho.nsa.gov,
+        "David S. Miller"
+	 <davem@davemloft.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: RE: [PATCH 08/10] MLSXFRM: Add security context to acquire messag
+	es using PF_KEY
+Date: Thu, 13 Jul 2006 20:05:09 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: SELinux opensource server online
-Date: Thu, 13 Jul 2006 16:10:19 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015882986F5@exchange.columbia.tresys.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+> > This seems problematic in that it's not a general solution 
+> and depends 
+> > always on hooking in at all of the right places in every protocol.  
+> > Adding a bunch of hooks to protocol-specific code is what 
+> got us in trouble 
+> > with the initial LSM submission.
+> >
+> > What about using secmark and connection tracking for this, instead?
+> 
+> 
+> I did get a reply from Venkat but can't find it in the 
+> archives, so it may 
+> have been off-list?
+> 
+> IIRC, the outgoing netfilter hook is in the wrong location.
+> 
+> Venkat, please clarify.
 
-During the SELinux Symposium developer summit we discussed moving
-Tresys' SELinux related projects to a new server with anonymous
-subversion access. The server is now up and the reference policy pages
-and subversion repository have been moved. The server's address is
-http://oss.tresys.com. Instructions for checking out reference policy
-subversion tree are on the reference policy page. Additionally, our
-other projects will be moving to the server soon. 
+(added item 3 below since last time; rest slightly modified)
 
-The press release is available at http://www.tresys.com/news/press32
+1. By the time we are in secmark (outbound), the xfrm(s) will already
+   been chosen and the ip packet labeled (NetLabel).
 
+2. Secmark can't be used for the multi-level process case since data at
+   different levels can be written onto the same socket by a
+trusted/privileged
+   process.
+
+3. As for secmark and connection tracking, we would indeed end up using
+   this label (the one assigned by secmark on the inbound) when I do the
+   sid-reconciliation patch (which I am planning to work on next); the
+   hooks in the protocol-specific code, proposed in this patch will end up
+   doing the job of carrying over the secmark label from the incoming packet
+   onto the response (in cases such as timewait acks and such where we don't
+   have any other source of a label for the outbound packet).
+
+Secmark serves primarily as a flow control point in our new design (both
+inbound
+and outbound) and secondarily as a labeling mechanism for the inbound
+packets in
+the absence of an explicit label coming in with the packet.
+
+As for the "right places" in the protocol code, there's only one
+"standard and intuitive" place, which is where a flow is defined.
+We are just asking that they "label" the flow, that too, only if
+they desire to use multi-labeled communication using that protocol.
+Hopefully the secid.txt doc will aid in this.
+
+Typically, I suspect the developers will just ignore the sid (which
+should be OK; it should then be just a matter of having the right policy
+for the single-labeled communication). It would then fall to one of us
+to label the flows as and when we desire to use those protos for
+multi-labeled communication. I have sought help from Joy Latten and others
+at IBM in testing to verify that this assertion is true in relation to
+the above protos.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
