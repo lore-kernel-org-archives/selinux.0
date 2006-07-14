@@ -1,63 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6E53cSJ023123
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 01:03:38 -0400
-Received: from mail5.sea5.speakeasy.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6E53aTB026142
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 05:03:37 GMT
-Date: Fri, 14 Jul 2006 01:03:34 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: fix memory leak
-In-Reply-To: <44B667C6.20905@trustedcs.com>
-Message-ID: <Pine.LNX.4.64.0607140103210.11747@d.namei>
-References: <44B667C6.20905@trustedcs.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6E6Vtvi024000
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 02:31:55 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6E6Vs2D028226
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 06:31:54 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k6E6VsHr029155
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 02:31:54 -0400
+Received: from pobox.brisbane.redhat.com (pobox.brisbane.redhat.com [172.16.44.10])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k6E6Vl1i021704
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 02:31:48 -0400
+From: "David O'Brien" <daobrien@redhat.com>
+To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com,
+        rhselinux-project@redhat.com
+Subject: RHEL5 Security Documentation Scope Statement
+Date: Fri, 14 Jul 2006 16:31:42 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200607141631.42793.daobrien@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 13 Jul 2006, Darrel Goeddel wrote:
+I've prepared the following Scope Statement to help those involved in the 
+project to update the RHEL5 Security Documentation. Please feel free to offer 
+any suggestions, ask questions or get clarification. As we move forward there 
+may be minor changes, but this should be pretty close.
 
-> This patch fixes a possible memory leak when a policydb structure
-> is destroyed.
-> 
-> Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+Apologies for the cross-post and to those who receive multiple copies. Please 
+forward this to interested parties who may not be on any of these lists.
 
-Acked-by: James Morris <jmorris@namei.org>
+----
+The RHEL5 Security Guide integrates two previously separate guides: The Red 
+Hat Enterprise Linux 4 Security Guide and the Red Hat Enterprise Linux 4 
+SELinux Guide. These guides are being integrated and updated to provide a 
+single source of information for all security-related topics for Red Hat 
+Enterprise Linux.
+ 
+The RHEL5 Security Guide provides a general introduction to security, and from 
+the perspective of Red Hat Linux in particular. It provides conceptual 
+information in the areas of security assessment, common exploits, and 
+intrusion and incident response. It also provides conceptual and specific 
+configuration information for hardening Workstation, Server, VPN, firewall 
+and other implementations using SELinux. A Troubleshooting section provides 
+information on common problems and how to resolve them.
+ 
+The RHEL5 Security Guide assumes a basic knowledge of IT security, and 
+consequently provides only minimal coverage of common security practices such 
+as controlling physical access, sound account-keeping policies and 
+procedures, auditing, etc. Neither does it cover the intricacies of SELinux 
+in detail, such as writing policies for certain 3rd party applications. Where 
+appropriate, reference is made to external resources for this and related 
+information.
 
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 0111990..f03960e 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -644,10 +644,18 @@ void policydb_destroy(struct policydb *p
-> 	kfree(lra);
-> 
-> 	for (rt = p->range_tr; rt; rt = rt -> next) {
-> -		kfree(lrt);
-> +		if (lrt) {
-> +			ebitmap_destroy(&lrt->range.level[0].cat);
-> +			ebitmap_destroy(&lrt->range.level[1].cat);
-> +			kfree(lrt);
-> +		}
-> 		lrt = rt;
-> 	}
-> -	kfree(lrt);
-> +	if (lrt) {
-> +		ebitmap_destroy(&lrt->range.level[0].cat);
-> +		ebitmap_destroy(&lrt->range.level[1].cat);
-> +		kfree(lrt);
-> +	}
-> 
-> 	if (p->type_attr_map) {
-> 		for (i = 0; i < p->p_types.nprim; i++)
-> 
+----
+regards, 
+David O'Brien
+Red Hat Asia Pacific Pty Ltd
 
--- 
-James Morris
-<jmorris@namei.org>
+Tel:  +61-7-3514-8189
+Fax: +61-7-3514-8199
+
+email: daobrien@redhat.com
+web: http://apac.redhat.com/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
