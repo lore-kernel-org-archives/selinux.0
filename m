@@ -1,370 +1,121 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6HCWR4v018312
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 08:32:27 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6HCZchf018382
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 08:35:38 -0400
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6HCWQuq020644
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 12:32:26 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6HCZVuq021041
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 12:35:31 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k6HCWN7d004050
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k6HCWNuM004054
 	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 08:32:23 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6/Submit) id k6HCWNAM004049
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6/Submit) id k6HCWNID004053
 	for selinux@tycho.nsa.gov; Mon, 17 Jul 2006 08:32:23 -0400
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EIxLrX003818
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EIxLJ3003853
 	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 14:59:21 -0400
-Received: from atlrel9.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6EIxJ48023447
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 18:59:19 GMT
-Message-Id: <20060714185917.411374000@flek.zko.hp.com>
+Received: from atlrel6.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6EIxHe9019136
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 18:59:17 GMT
+Message-Id: <20060714185915.919886000@flek.zko.hp.com>
 References: <20060714185739.780700000@flek.zko.hp.com>
-Date: Fri, 14 Jul 2006 14:57:45 -0400
+Date: Fri, 14 Jul 2006 14:57:43 -0400
 From: paul.moore@hp.com
 To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: davem@davemloft.net, sds@epoch.ncsc.mil, jmorris@redhat.com,
         pratt@argus-systems.com, Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 6/7] NetLabel: SELinux support
+Subject: [PATCH 4/7] NetLabel: core NetLabel subsystem
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add NetLabel support to the SELinux LSM and modify the socket_post_create() LSM
-hook to return an error code.  The most significant part of this patch is the
-addition of NetLabel hooks into the following SELinux LSM hooks:
-
- * selinux_file_permission()
- * selinux_socket_sendmsg()
- * selinux_socket_post_create()
- * selinux_socket_accept()
- * selinux_socket_post_accept() [NEW]
- * selinux_socket_sock_rcv_skb()
- * selinux_socket_getpeersec_stream()
- * selinux_socket_getpeersec_dgram()
-
-The basic reasoning behind this patch is that outgoing packets are "NetLabel'd"
-by labeling their socket and the NetLabel security attributes are checked via
-the additional hook in selinux_socket_sock_rcv_skb().  NetLabel itself is only
-a labeling mechanism, similar to filesystem extended attributes, it is up to
-the SELinux enforcement mechanism to perform the actual access checks.
-
-In addition to the changes outlined above this patch also includes some changes
-to the extended bitmap (ebitmap) and multi-level security (mls) code to import
-and export SELinux TE/MLS attributes into and out of NetLabel.
+Add a new kernel subsystem, NetLabel, to provide explicit packet labeling 
+services (CIPSO, RIPSO, etc.) to LSM developers.  NetLabel is designed to work
+in conjunction with a LSM to intercept and decode security labels on incoming
+network packets as well as ensure that outgoing network packets are labeled
+according to the security mechanism employed by the LSM.  The NetLabel
+subsystem is configured through a Generic NETLINK interface described in the
+header files included in this patch.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
- include/linux/security.h                    |   25 -
- net/socket.c                                |   17 
- security/dummy.c                            |    6 
- security/selinux/hooks.c                    |   53 ++
- security/selinux/include/objsec.h           |   13 
- security/selinux/include/selinux_netlabel.h |  100 +++++
- security/selinux/ss/ebitmap.c               |  152 +++++++
- security/selinux/ss/ebitmap.h               |    6 
- security/selinux/ss/mls.c                   |  152 +++++++
- security/selinux/ss/mls.h                   |   21 +
- security/selinux/ss/services.c              |  555 ++++++++++++++++++++++++++++
- 11 files changed, 1070 insertions(+), 30 deletions(-)
+ net/Makefile                       |    1 
+ net/netlabel/Kconfig               |   14 
+ net/netlabel/Makefile              |   16 
+ net/netlabel/netlabel_cipso_v4.h   |  218 ++++++++++++
+ net/netlabel/netlabel_domainhash.c |  560 +++++++++++++++++++++++++++++++
+ net/netlabel/netlabel_domainhash.h |   64 +++
+ net/netlabel/netlabel_kapi.c       |  299 ++++++++++++++++
+ net/netlabel/netlabel_mgmt.c       |  661 +++++++++++++++++++++++++++++++++++++
+ net/netlabel/netlabel_mgmt.h       |  250 +++++++++++++
+ net/netlabel/netlabel_unlabeled.h  |   99 +++++
+ net/netlabel/netlabel_user.c       |  181 ++++++++++
+ net/netlabel/netlabel_user.h       |  210 +++++++++++
+ 12 files changed, 2573 insertions(+)
 
-Index: linux-2.6.18-rc1/include/linux/security.h
+Index: linux-2.6.18-rc1/net/Makefile
 ===================================================================
---- linux-2.6.18-rc1.orig/include/linux/security.h
-+++ linux-2.6.18-rc1/include/linux/security.h
-@@ -1296,8 +1296,8 @@ struct security_operations {
- 	int (*unix_may_send) (struct socket * sock, struct socket * other);
+--- linux-2.6.18-rc1.orig/net/Makefile
++++ linux-2.6.18-rc1/net/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_IP_DCCP)		+= dccp/
+ obj-$(CONFIG_IP_SCTP)		+= sctp/
+ obj-$(CONFIG_IEEE80211)		+= ieee80211/
+ obj-$(CONFIG_TIPC)		+= tipc/
++obj-$(CONFIG_NETLABEL)		+= netlabel/
  
- 	int (*socket_create) (int family, int type, int protocol, int kern);
--	void (*socket_post_create) (struct socket * sock, int family,
--				    int type, int protocol, int kern);
-+	int (*socket_post_create) (struct socket * sock, int family,
-+				   int type, int protocol, int kern);
- 	int (*socket_bind) (struct socket * sock,
- 			    struct sockaddr * address, int addrlen);
- 	int (*socket_connect) (struct socket * sock,
-@@ -2748,13 +2748,13 @@ static inline int security_socket_create
- 	return security_ops->socket_create(family, type, protocol, kern);
- }
- 
--static inline void security_socket_post_create(struct socket * sock, 
--					       int family,
--					       int type, 
--					       int protocol, int kern)
-+static inline int security_socket_post_create(struct socket * sock,
-+					      int family,
-+					      int type,
-+					      int protocol, int kern)
- {
--	security_ops->socket_post_create(sock, family, type,
--					 protocol, kern);
-+	return security_ops->socket_post_create(sock, family, type,
-+						protocol, kern);
- }
- 
- static inline int security_socket_bind(struct socket * sock, 
-@@ -2880,11 +2880,12 @@ static inline int security_socket_create
- 	return 0;
- }
- 
--static inline void security_socket_post_create(struct socket * sock, 
--					       int family,
--					       int type, 
--					       int protocol, int kern)
-+static inline int security_socket_post_create(struct socket * sock,
-+					      int family,
-+					      int type,
-+					      int protocol, int kern)
- {
-+	return 0;
- }
- 
- static inline int security_socket_bind(struct socket * sock, 
-Index: linux-2.6.18-rc1/net/socket.c
-===================================================================
---- linux-2.6.18-rc1.orig/net/socket.c
-+++ linux-2.6.18-rc1/net/socket.c
-@@ -973,11 +973,18 @@ int sock_create_lite(int family, int typ
- 		goto out;
- 	}
- 
--	security_socket_post_create(sock, family, type, protocol, 1);
- 	sock->type = type;
-+	err = security_socket_post_create(sock, family, type, protocol, 1);
-+	if (err)
-+		goto out_release;
-+
- out:
- 	*res = sock;
- 	return err;
-+out_release:
-+	sock_release(sock);
-+	sock = NULL;
-+	goto out;
- }
- 
- /* No kernel lock held - perfect */
-@@ -1213,7 +1220,9 @@ static int __sock_create(int family, int
- 	 */
- 	module_put(net_families[family]->owner);
- 	*res = sock;
--	security_socket_post_create(sock, family, type, protocol, kern);
-+	err = security_socket_post_create(sock, family, type, protocol, kern);
-+	if (err)
-+		goto out_release;
- 
- out:
- 	net_family_read_unlock();
-@@ -1443,13 +1452,13 @@ asmlinkage long sys_accept(int fd, struc
- 			goto out_fd;
- 	}
- 
-+	security_socket_post_accept(sock, newsock);
-+
- 	/* File flags are not inherited via accept() unlike another OSes. */
- 
- 	fd_install(newfd, newfile);
- 	err = newfd;
- 
--	security_socket_post_accept(sock, newsock);
--
- out_put:
- 	fput_light(sock->file, fput_needed);
- out:
-Index: linux-2.6.18-rc1/security/dummy.c
-===================================================================
---- linux-2.6.18-rc1.orig/security/dummy.c
-+++ linux-2.6.18-rc1/security/dummy.c
-@@ -709,10 +709,10 @@ static int dummy_socket_create (int fami
- 	return 0;
- }
- 
--static void dummy_socket_post_create (struct socket *sock, int family, int type,
--				      int protocol, int kern)
-+static int dummy_socket_post_create (struct socket *sock, int family, int type,
-+				     int protocol, int kern)
- {
--	return;
-+	return 0;
- }
- 
- static int dummy_socket_bind (struct socket *sock, struct sockaddr *address,
-Index: linux-2.6.18-rc1/security/selinux/hooks.c
-===================================================================
---- linux-2.6.18-rc1.orig/security/selinux/hooks.c
-+++ linux-2.6.18-rc1/security/selinux/hooks.c
-@@ -12,6 +12,8 @@
-  *  Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-  *  Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-  *                          <dgoeddel@trustedcs.com>
-+ *  Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
-+ *                     Paul Moore, <paul.moore@hp.com>
-  *
-  *	This program is free software; you can redistribute it and/or modify
-  *	it under the terms of the GNU General Public License version 2,
-@@ -74,6 +76,7 @@
- #include "objsec.h"
- #include "netif.h"
- #include "xfrm.h"
-+#include "selinux_netlabel.h"
- 
- #define XATTR_SELINUX_SUFFIX "selinux"
- #define XATTR_NAME_SELINUX XATTR_SECURITY_PREFIX XATTR_SELINUX_SUFFIX
-@@ -2309,6 +2312,7 @@ static int selinux_inode_listsecurity(st
- 
- static int selinux_file_permission(struct file *file, int mask)
- {
-+	int rc;
- 	struct inode *inode = file->f_dentry->d_inode;
- 
- 	if (!mask) {
-@@ -2320,8 +2324,12 @@ static int selinux_file_permission(struc
- 	if ((file->f_flags & O_APPEND) && (mask & MAY_WRITE))
- 		mask |= MAY_APPEND;
- 
--	return file_has_perm(current, file,
--			     file_mask_to_av(inode->i_mode, mask));
-+	rc = file_has_perm(current, file,
-+			   file_mask_to_av(inode->i_mode, mask));
-+	if (rc)
-+		return rc;
-+
-+	return selinux_netlbl_inode_permission(inode, mask);
- }
- 
- static int selinux_file_alloc_security(struct file *file)
-@@ -2972,8 +2980,8 @@ out:
- 	return err;
- }
- 
--static void selinux_socket_post_create(struct socket *sock, int family,
--				       int type, int protocol, int kern)
-+static int selinux_socket_post_create(struct socket *sock, int family,
-+				      int type, int protocol, int kern)
- {
- 	struct inode_security_struct *isec;
- 	struct task_security_struct *tsec;
-@@ -2987,7 +2995,7 @@ static void selinux_socket_post_create(s
- 	isec->sid = kern ? SECINITSID_KERNEL : newsid;
- 	isec->initialized = 1;
- 
--	return;
-+	return selinux_netlbl_socket_create(sock, family, isec->sid);
- }
- 
- /* Range of port numbers used to automatically bind.
-@@ -3162,13 +3170,25 @@ static int selinux_socket_accept(struct 
- 	newisec->sid = isec->sid;
- 	newisec->initialized = 1;
- 
--	return 0;
-+	return selinux_netlbl_socket_accept(sock, newsock);
-+}
-+
-+static void selinux_socket_post_accept(struct socket *sock,
-+				       struct socket *newsock)
-+{
-+	selinux_netlbl_socket_post_accept(sock, newsock);
- }
- 
- static int selinux_socket_sendmsg(struct socket *sock, struct msghdr *msg,
-  				  int size)
- {
--	return socket_has_perm(current, sock, SOCKET__WRITE);
-+	int rc;
-+
-+	rc = socket_has_perm(current, sock, SOCKET__WRITE);
-+	if (rc)
-+		return rc;
-+
-+	return selinux_netlbl_inode_permission(SOCK_INODE(sock), MAY_WRITE);
- }
- 
- static int selinux_socket_recvmsg(struct socket *sock, struct msghdr *msg,
-@@ -3376,6 +3396,10 @@ static int selinux_socket_sock_rcv_skb(s
- 	if (err)
- 		goto out;
- 
-+	err = selinux_netlbl_sock_rcv_skb(sk, skb, sock_class, sock_sid, &ad);
-+	if (err)
-+		goto out;
-+
- 	err = selinux_xfrm_sock_rcv_skb(sock_sid, skb);
- out:	
- 	return err;
-@@ -3399,8 +3423,10 @@ static int selinux_socket_getpeersec_str
- 		peer_sid = ssec->peer_sid;
- 	}
- 	else if (isec->sclass == SECCLASS_TCP_SOCKET) {
--		peer_sid = selinux_socket_getpeer_stream(sock->sk);
--
-+		peer_sid = selinux_netlbl_socket_getpeersec_stream(sock);
-+		if (peer_sid == SECSID_NULL ||
-+		    peer_sid == SECINITSID_UNLABELED)
-+			peer_sid = selinux_socket_getpeer_stream(sock->sk);
- 		if (peer_sid == SECSID_NULL) {
- 			err = -ENOPROTOOPT;
- 			goto out;
-@@ -3441,8 +3467,12 @@ static int selinux_socket_getpeersec_dgr
- 	if (skb->sk->sk_family == PF_UNIX)
- 		selinux_get_inode_sid(SOCK_INODE(skb->sk->sk_socket),
- 				      &peer_sid);
--	else
--		peer_sid = selinux_socket_getpeer_dgram(skb);
-+	else {
-+		peer_sid = selinux_netlbl_socket_getpeersec_dgram(skb);
-+		if (peer_sid == SECSID_NULL ||
-+		    peer_sid == SECINITSID_UNLABELED)
-+			peer_sid = selinux_socket_getpeer_dgram(skb);
-+	}
- 
- 	if (peer_sid == SECSID_NULL)
- 		return -EINVAL;
-@@ -4505,6 +4535,7 @@ static struct security_operations selinu
- 	.socket_connect =		selinux_socket_connect,
- 	.socket_listen =		selinux_socket_listen,
- 	.socket_accept =		selinux_socket_accept,
-+	.socket_post_accept =		selinux_socket_post_accept,
- 	.socket_sendmsg =		selinux_socket_sendmsg,
- 	.socket_recvmsg =		selinux_socket_recvmsg,
- 	.socket_getsockname =		selinux_socket_getsockname,
-Index: linux-2.6.18-rc1/security/selinux/include/objsec.h
-===================================================================
---- linux-2.6.18-rc1.orig/security/selinux/include/objsec.h
-+++ linux-2.6.18-rc1/security/selinux/include/objsec.h
-@@ -37,6 +37,16 @@ struct task_security_struct {
- 	u32 ptrace_sid;      /* SID of ptrace parent */
- };
- 
-+struct netlbl_security_struct {
-+	u32 peer_sid;             /* SID of the connected peer */
-+	enum {                    /* NetLabel state */
-+		NLBL_UNSET = 0,
-+		NLBL_ACCEPT,
-+		NLBL_REQUIRE,
-+		NLBL_LABELED,
-+	} state;
-+};
-+
- struct inode_security_struct {
-         struct inode *inode;           /* back pointer to inode object */
- 	struct list_head list;         /* list of inode_security_struct */
-@@ -46,6 +56,9 @@ struct inode_security_struct {
- 	unsigned char initialized;     /* initialization flag */
- 	struct semaphore sem;
- 	unsigned char inherit;         /* inherit SID from parent entry */
-+#ifdef CONFIG_NETLABEL
-+	struct netlbl_security_struct netlbl;
-+#endif
- };
- 
- struct file_security_struct {
-Index: linux-2.6.18-rc1/security/selinux/include/selinux_netlabel.h
+ ifeq ($(CONFIG_NET),y)
+ obj-$(CONFIG_SYSCTL)		+= sysctl_net.o
+Index: linux-2.6.18-rc1/net/netlabel/Kconfig
 ===================================================================
 --- /dev/null
-+++ linux-2.6.18-rc1/security/selinux/include/selinux_netlabel.h
-@@ -0,0 +1,100 @@
++++ linux-2.6.18-rc1/net/netlabel/Kconfig
+@@ -0,0 +1,14 @@
++#
++# NetLabel configuration
++#
++
++config NETLABEL
++	bool "NetLabel subsystem support"
++	depends on NET && SECURITY
++	default n
++	---help---
++	  NetLabel provides support for explicit network packet labeling
++	  protocols such as CIPSO and RIPSO.  For more information see
++	  Documentation/netlabel.
++
++	  If you are unsure, say N.
+Index: linux-2.6.18-rc1/net/netlabel/Makefile
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/Makefile
+@@ -0,0 +1,16 @@
++#
++# Makefile for the NetLabel subsystem.
++#
++# Feb 9, 2006, Paul Moore <paul.moore@hp.com>
++#
++
++# base objects
++obj-y	:= netlabel_user.o netlabel_kapi.o netlabel_domainhash.o
++
++# management objects
++obj-y	+= netlabel_mgmt.o
++
++# protocol modules
++obj-y	+= netlabel_unlabeled.o
++obj-y	+= netlabel_cipso_v4.o
++
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_cipso_v4.h
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_cipso_v4.h
+@@ -0,0 +1,218 @@
 +/*
-+ * SELinux interface to the NetLabel subsystem
++ * NetLabel CIPSO/IPv4 Support
 + *
-+ * Author : Paul Moore <paul.moore@hp.com>
++ * This file defines the CIPSO/IPv4 functions for the NetLabel system.  The
++ * NetLabel system manages static and dynamic label mappings for network
++ * protocols such as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
 + *
 + */
 +
@@ -387,1070 +138,2558 @@ Index: linux-2.6.18-rc1/security/selinux/include/selinux_netlabel.h
 + *
 + */
 +
-+#ifndef _SELINUX_NETLABEL_H_
-+#define _SELINUX_NETLABEL_H_
++#ifndef _NETLABEL_CIPSO_V4
++#define _NETLABEL_CIPSO_V4
 +
-+#ifdef CONFIG_NETLABEL
-+void selinux_netlbl_cache_invalidate(void);
-+int selinux_netlbl_inode_permission(struct inode *inode,
-+				    int mask);
++#include <net/netlabel.h>
 +
-+int selinux_netlbl_socket_create(struct socket *sock,
-+				 const int sock_family,
-+				 u32 sid);
-+int selinux_netlbl_socket_accept(struct socket *sock,
-+				 struct socket *newsock);
-+void selinux_netlbl_socket_post_accept(struct socket *sock,
-+				       struct socket *newsock);
-+int selinux_netlbl_sock_rcv_skb(struct sock *sk,
-+				struct sk_buff *skb,
-+				const u16 sock_class,
-+				const u32 sock_sid,
-+				struct avc_audit_data *ad);
-+u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock);
-+u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb);
-+#else
-+static inline void selinux_netlbl_cache_invalidate(void)
-+{
-+	return;
-+}
++/*
++ * The following NetLabel payloads are supported by the CIPSO subsystem, all
++ * of which are preceeded by the nlmsghdr struct.
++ *
++ * o ACK:
++ *   Sent by the kernel in response to an applications message, applications
++ *   should never send this message.
++ *
++ *   +----------------------+-----------------------+
++ *   | seq number (32 bits) | return code (32 bits) |
++ *   +----------------------+-----------------------+
++ *
++ *     seq number:  the sequence number of the original message, taken from the
++ *                  nlmsghdr structure
++ *     return code: return value, based on errno values
++ *
++ * o ADD:
++ *   Sent by an application to add a new DOI mapping table, after completion
++ *   of the task the kernel should ACK this message.
++ *
++ *   +---------------+--------------------+---------------------+
++ *   | DOI (32 bits) | map type (32 bits) | tag count (32 bits) | ...
++ *   +---------------+--------------------+---------------------+
++ *
++ *   +-----------------+
++ *   | tag #X (8 bits) | ... repeated
++ *   +-----------------+
++ *
++ *   +-------------- ---- --- -- -
++ *   | mapping data
++ *   +-------------- ---- --- -- -
++ *
++ *     DOI:          the DOI value
++ *     map type:     the mapping table type (defined in the cipso_ipv4.h header
++ *                   as CIPSO_V4_MAP_*)
++ *     tag count:    the number of tags, must be greater than zero
++ *     tag:          the CIPSO tag for the DOI, tags listed first are given
++ *                   higher priorirty when sending packets
++ *     mapping data: specific to the map type (see below)
++ *
++ *   CIPSO_V4_MAP_STD
++ *
++ *   +------------------+-----------------------+----------------------+
++ *   | levels (32 bits) | max l level (32 bits) | max r level (8 bits) | ...
++ *   +------------------+-----------------------+----------------------+
++ *
++ *   +----------------------+---------------------+---------------------+
++ *   | categories (32 bits) | max l cat (32 bits) | max r cat (16 bits) | ...
++ *   +----------------------+---------------------+---------------------+
++ *
++ *   +--------------------------+-------------------------+
++ *   | local level #X (32 bits) | CIPSO level #X (8 bits) | ... repeated
++ *   +--------------------------+-------------------------+
++ *
++ *   +-----------------------------+-----------------------------+
++ *   | local category #X (32 bits) | CIPSO category #X (16 bits) | ... repeated
++ *   +-----------------------------+-----------------------------+
++ *
++ *     levels:         the number of level mappings
++ *     max l level:    the highest local level
++ *     max r level:    the highest remote/CIPSO level
++ *     categories:     the number of category mappings
++ *     max l cat:      the highest local category
++ *     max r cat:      the highest remote/CIPSO category
++ *     local level:    the local part of a level mapping
++ *     CIPSO level:    the remote/CIPSO part of a level mapping
++ *     local category: the local part of a category mapping
++ *     CIPSO category: the remote/CIPSO part of a category mapping
++ *
++ *   CIPSO_V4_MAP_PASS
++ *
++ *   No mapping data is needed for this map type.
++ *
++ * o REMOVE:
++ *   Sent by an application to remove a specific DOI mapping table from the
++ *   CIPSO V4 system.  The kernel should ACK this message.
++ *
++ *   +---------------+
++ *   | DOI (32 bits) |
++ *   +---------------+
++ *
++ *     DOI:          the DOI value
++ *
++ * o LIST:
++ *   Sent by an application to list the details of a DOI definition.  The
++ *   kernel should send an ACK on error or a response as indicated below.  The
++ *   application generated message format is shown below.
++ *
++ *   +---------------+
++ *   | DOI (32 bits) |
++ *   +---------------+
++ *
++ *     DOI:          the DOI value
++ *
++ *   The valid response message format depends on the type of the DOI mapping,
++ *   the known formats are shown below.
++ *
++ *   +--------------------+
++ *   | map type (32 bits) | ...
++ *   +--------------------+
++ *
++ *     map type:       the DOI mapping table type (defined in the cipso_ipv4.h
++ *                     header as CIPSO_V4_MAP_*)
++ *
++ *   (map type == CIPSO_V4_MAP_STD)
++ *
++ *   +----------------+------------------+----------------------+
++ *   | tags (32 bits) | levels (32 bits) | categories (32 bits) | ...
++ *   +----------------+------------------+----------------------+
++ *
++ *   +-----------------+
++ *   | tag #X (8 bits) | ... repeated
++ *   +-----------------+
++ *
++ *   +--------------------------+-------------------------+
++ *   | local level #X (32 bits) | CIPSO level #X (8 bits) | ... repeated
++ *   +--------------------------+-------------------------+
++ *
++ *   +-----------------------------+-----------------------------+
++ *   | local category #X (32 bits) | CIPSO category #X (16 bits) | ... repeated
++ *   +-----------------------------+-----------------------------+
++ *
++ *     tags:           the number of CIPSO tag types
++ *     levels:         the number of level mappings
++ *     categories:     the number of category mappings
++ *     tag:            the tag number, tags listed first are given higher
++ *                     priority when sending packets
++ *     local level:    the local part of a level mapping
++ *     CIPSO level:    the remote/CIPSO part of a level mapping
++ *     local category: the local part of a category mapping
++ *     CIPSO category: the remote/CIPSO part of a category mapping
++ *
++ *   (map type == CIPSO_V4_MAP_PASS)
++ *
++ *   +----------------+
++ *   | tags (32 bits) | ...
++ *   +----------------+
++ *
++ *   +-----------------+
++ *   | tag #X (8 bits) | ... repeated
++ *   +-----------------+
++ *
++ *     tags:           the number of CIPSO tag types
++ *     tag:            the tag number, tags listed first are given higher
++ *                     priority when sending packets
++ *
++ * o LISTALL:
++ *   This message is sent by an application to list the valid DOIs on the
++ *   system.  There is no payload and the kernel should respond with an ACK
++ *   or the following message.
++ *
++ *   +---------------------+------------------+-----------------------+
++ *   | DOI count (32 bits) | DOI #X (32 bits) | map type #X (32 bits) |
++ *   +---------------------+------------------+-----------------------+
++ *
++ *   +-----------------------+
++ *   | map type #X (32 bits) | ...
++ *   +-----------------------+
++ *
++ *     DOI count:      the number of DOIs
++ *     DOI:            the DOI value
++ *     map type:       the DOI mapping table type (defined in the cipso_ipv4.h
++ *                     header as CIPSO_V4_MAP_*)
++ *
++ */
 +
-+static inline int selinux_netlbl_inode_permission(struct inode *inode,
-+						  int mask)
-+{
-+	return 0;
-+}
++/* NetLabel CIPSOv4 commands */
++enum {
++	NLBL_CIPSOV4_C_UNSPEC,
++	NLBL_CIPSOV4_C_ACK,
++	NLBL_CIPSOV4_C_ADD,
++	NLBL_CIPSOV4_C_REMOVE,
++	NLBL_CIPSOV4_C_LIST,
++	NLBL_CIPSOV4_C_LISTALL,
++	__NLBL_CIPSOV4_C_MAX,
++};
++#define NLBL_CIPSOV4_C_MAX (__NLBL_CIPSOV4_C_MAX - 1)
 +
-+static inline int selinux_netlbl_socket_create(struct socket *sock,
-+					       const int sock_family,
-+					       u32 sid)
-+{
-+	return 0;
-+}
-+
-+static inline int selinux_netlbl_socket_accept(struct socket *sock,
-+					       struct socket *newsock)
-+{
-+	return 0;
-+}
-+
-+static inline void selinux_netlbl_socket_post_accept(struct socket *sock,
-+						     struct socket *newsock)
-+{
-+	return;
-+}
-+
-+static inline int selinux_netlbl_sock_rcv_skb(struct sock *sk,
-+					      struct sk_buff *skb,
-+					      const u16 sock_class,
-+					      const u32 sock_sid,
-+					      struct avc_audit_data *ad)
-+{
-+	return 0;
-+}
-+
-+static inline u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock)
-+{
-+	return SECSID_NULL;
-+}
-+
-+static inline u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb)
-+{
-+	return SECSID_NULL;
-+}
-+#endif /* CONFIG_NETLABEL */
++/* NetLabel protocol functions */
++int netlbl_cipsov4_genl_init(void);
++void netlbl_cipsov4_genl_exit(void);
 +
 +#endif
-Index: linux-2.6.18-rc1/security/selinux/ss/ebitmap.c
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_domainhash.c
 ===================================================================
---- linux-2.6.18-rc1.orig/security/selinux/ss/ebitmap.c
-+++ linux-2.6.18-rc1/security/selinux/ss/ebitmap.c
-@@ -3,6 +3,14 @@
-  *
-  * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-  */
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_domainhash.c
+@@ -0,0 +1,560 @@
 +/*
-+ * Updated: Hewlett-Packard <paul.moore@hp.com>
++ * NetLabel Domain Hash Table
 + *
-+ *      Added ebitmap_export() and ebitmap_import()
++ * This file manages the domain hash table that NetLabel uses to determine
++ * which network labeling protocol to use for a given domain.  The NetLabel
++ * system manages static and dynamic label mappings for network protocols such
++ * as CIPSO and RIPSO.
 + *
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
 + */
 +
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-@@ -59,6 +67,150 @@ int ebitmap_cpy(struct ebitmap *dst, str
- 	return 0;
- }
- 
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/types.h>
++#include <linux/rcupdate.h>
++#include <linux/list.h>
++#include <linux/skbuff.h>
++#include <linux/spinlock.h>
++#include <linux/string.h>
++#include <net/netlabel.h>
++#include <net/cipso_ipv4.h>
++#include <asm/bug.h>
++
++#include "netlabel_mgmt.h"
++#include "netlabel_domainhash.h"
++
++struct netlbl_domhsh_tbl {
++	struct list_head *tbl;
++	u32 size;
++};
++
++/* Domain hash table */
++/* XXX - updates should be so rare that having one spinlock for the entire
++   hash table should be okay */
++DEFINE_SPINLOCK(netlbl_domhsh_lock);
++static struct netlbl_domhsh_tbl *netlbl_domhsh = NULL;
++
++/* Default domain mapping */
++DEFINE_SPINLOCK(netlbl_domhsh_def_lock);
++static struct netlbl_dom_map *netlbl_domhsh_def = NULL;
++
++/*
++ * Domain Hash Table Helper Functions
++ */
++
 +/**
-+ * ebitmap_export - Export an ebitmap to a unsigned char bitmap string
-+ * @src: the ebitmap to export
-+ * @dst: the resulting bitmap string
-+ * @dst_len: length of dst in bytes
++ * netlbl_domhsh_free_entry - Frees a domain hash table entry
++ * @entry: the entry's RCU field
 + *
 + * Description:
-+ * Allocate a buffer at least src->highbit bits long and export the extensible
-+ * bitmap into the buffer.  The bitmap string will be in little endian format,
-+ * i.e. LSB first.  The value returned in dst_len may not the true size of the
-+ * buffer as the length of the buffer is rounded up to a multiple of MAPTYPE.
-+ * The caller must free the buffer when finished. Returns zero on success,
-+ * negative values on failure.
++ * This function is designed to be used as a callback to the call_rcu()
++ * function so that the memory allocated to a hash table entry can be released
++ * safely.
 + *
 + */
-+int ebitmap_export(const struct ebitmap *src,
-+		   unsigned char **dst,
-+		   size_t *dst_len)
++static void netlbl_domhsh_free_entry(struct rcu_head *entry)
 +{
-+	size_t bitmap_len;
-+	unsigned char *bitmap;
-+	struct ebitmap_node *iter_node;
-+	MAPTYPE node_val;
-+	size_t bitmap_byte;
-+	unsigned char bitmask;
++	struct netlbl_dom_map *ptr;
 +
-+	if (src == NULL || dst == NULL || dst_len == NULL)
++	ptr = container_of(entry, struct netlbl_dom_map, rcu);
++	kfree(ptr->domain);
++	kfree(ptr);
++}
++
++/**
++ * netlbl_domhsh_hash - Hashing function for the domain hash table
++ * @domain: the domain name to hash
++ *
++ * Description:
++ * This is the hashing function for the domain hash table, it returns the
++ * correct bucket number for the domain.  The caller is responsibile for
++ * calling the rcu_read_[un]lock() functions.
++ *
++ */
++static u32 netlbl_domhsh_hash(const char *key)
++{
++	u32 iter;
++	u32 val;
++	u32 len;
++
++	/* This is taken (with slight modification) from
++	   security/selinux/ss/symtab.c:symhash() */
++
++	for (iter = 0, val = 0, len = strlen(key); iter < len; iter++)
++		val = (val << 4 | (val >> (8 * sizeof(u32) - 4))) ^ key[iter];
++	return val & (rcu_dereference(netlbl_domhsh)->size - 1);
++}
++
++/**
++ * netlbl_domhsh_search - Search for a domain entry
++ * @domain: the domain
++ * @def: return default if no match is found
++ *
++ * Description:
++ * Searches the domain hash table and returns a pointer to the hash table
++ * entry if found, otherwise NULL is returned.  If @def is non-zero and a
++ * match is not found in the domain hash table the default mapping is returned
++ * if it exists.  The caller is responsibile for the rcu hash table locks
++ * (i.e. the caller much call rcu_read_[un]lock()).
++ *
++ */
++static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain,
++						   const u32 def)
++{
++	u32 bkt;
++	struct netlbl_dom_map *iter;
++
++	if (domain != NULL) {
++		bkt = netlbl_domhsh_hash(domain);
++		list_for_each_entry_rcu(iter, &netlbl_domhsh->tbl[bkt], list)
++			if (iter->valid && strcmp(iter->domain, domain) == 0)
++				return iter;
++	}
++
++	if (def != 0) {
++		iter = rcu_dereference(netlbl_domhsh_def);
++		if (iter != NULL && iter->valid)
++			return iter;
++	}
++
++	return NULL;
++}
++
++/*
++ * Domain Hash Table Functions
++ */
++
++/**
++ * netlbl_domhsh_init - Init for the domain hash
++ * @size: the number of bits to use for the hash buckets
++ *
++ * Description:
++ * Initializes the domain hash table, should be called only by
++ * netlbl_user_init() during module load.  Returns zero on success, non-zero
++ * values on error.
++ *
++ */
++int netlbl_domhsh_init(const u32 size)
++{
++	u32 iter;
++	struct netlbl_domhsh_tbl *hsh_tbl;
++
++	if (size == 0)
 +		return -EINVAL;
 +
-+	*dst = NULL;
-+	*dst_len = 0;
-+
-+	bitmap_len = src->highbit / 8;
-+	if (src->highbit % 8 > 0)
-+		bitmap_len += 1;
-+	if (bitmap_len == 0)
-+		return -EINVAL;
-+
-+	bitmap = kzalloc(bitmap_len + sizeof(MAPTYPE) -
-+			 (bitmap_len % sizeof(MAPTYPE)),
-+			 GFP_ATOMIC);
-+	if (bitmap == NULL)
++	hsh_tbl = kmalloc(sizeof(*hsh_tbl), GFP_KERNEL);
++	if (hsh_tbl == NULL)
 +		return -ENOMEM;
++	hsh_tbl->size = 1 << size;
++	hsh_tbl->tbl = kcalloc(hsh_tbl->size,
++			       sizeof(struct list_head),
++			       GFP_KERNEL);
++	if (hsh_tbl->tbl == NULL) {
++		kfree(hsh_tbl);
++		return -ENOMEM;
++	}
++	for (iter = 0; iter < hsh_tbl->size; iter++)
++		INIT_LIST_HEAD(&hsh_tbl->tbl[iter]);
 +
-+	iter_node = src->node;
-+	do {
-+		bitmap_byte = iter_node->startbit / 8;
-+		bitmask = 0x80;
-+		node_val = iter_node->map;
-+		do {
-+			if (bitmask == 0) {
-+				bitmap_byte++;
-+				bitmask = 0x80;
-+			}
-+			if (node_val & (MAPTYPE)0x01)
-+				bitmap[bitmap_byte] |= bitmask;
-+			node_val >>= 1;
-+			bitmask >>= 1;
-+		} while (node_val > 0);
-+		iter_node = iter_node->next;
-+	} while (iter_node);
++	rcu_read_lock();
++	spin_lock(&netlbl_domhsh_lock);
++	rcu_assign_pointer(netlbl_domhsh, hsh_tbl);
++	spin_unlock(&netlbl_domhsh_lock);
++	rcu_read_unlock();
 +
-+	*dst = bitmap;
-+	*dst_len = bitmap_len;
 +	return 0;
 +}
 +
 +/**
-+ * ebitmap_import - Import an unsigned char bitmap string into an ebitmap
-+ * @src: the bitmap string
-+ * @src_len: the bitmap length in bytes
-+ * @dst: the empty ebitmap
++ * netlbl_domhsh_exit - Cleanup for the domain hash
 + *
 + * Description:
-+ * This function takes a little endian bitmap string in src and imports it into
-+ * the ebitmap pointed to by dst.  Returns zero on success, negative values on
++ * Clears and frees the domain hash table.  No real serious effort is made
++ * towards locking but that shouldn't be an issue since we should only be
++ * called when the module is being unloaded.  Returns zero on success, non-zero
++ * values on error.
++ *
++ */
++void netlbl_domhsh_exit(void)
++{
++	u32 iter_bkt;
++	struct netlbl_domhsh_tbl *hsh_tbl;
++	struct netlbl_dom_map *iter_list;
++
++	rcu_read_lock();
++	if (rcu_dereference(netlbl_domhsh) == NULL) {
++		rcu_read_unlock();
++		return;
++	}
++	iter_list = rcu_dereference(netlbl_domhsh_def);
++	spin_lock(&netlbl_domhsh_def_lock);
++	rcu_assign_pointer(netlbl_domhsh_def, NULL);
++	spin_unlock(&netlbl_domhsh_def_lock);
++	rcu_read_unlock();
++
++	if (iter_list) {
++		synchronize_rcu();
++		netlbl_domhsh_free_entry(&iter_list->rcu);
++	}
++
++	rcu_read_lock();
++	hsh_tbl = rcu_dereference(netlbl_domhsh);
++	spin_lock(&netlbl_domhsh_lock);
++	rcu_assign_pointer(netlbl_domhsh, NULL);
++	spin_unlock(&netlbl_domhsh_lock);
++	rcu_read_unlock();
++
++	synchronize_rcu();
++
++	/* don't use the rcu functions here since the table is no longer in use
++	   outside this function's scope */
++	for (iter_bkt = 0; iter_bkt < hsh_tbl->size; iter_bkt++)
++		list_for_each_entry(iter_list, &hsh_tbl->tbl[iter_bkt], list) {
++			iter_list->valid = 0;
++			list_del(&iter_list->list);
++			netlbl_domhsh_free_entry(&iter_list->rcu);
++		}
++	kfree(hsh_tbl->tbl);
++	kfree(hsh_tbl);
++}
++
++/**
++ * netlbl_domhsh_add - Adds a entry to the domain hash table
++ * @entry: the entry to add
++ *
++ * Description:
++ * Adds a new entry to the domain hash table and handles any updates to the
++ * lower level protocol handler (i.e. CIPSO).  Returns zero on success,
++ * negative on failure.
++ *
++ */
++int netlbl_domhsh_add(struct netlbl_dom_map *entry)
++{
++	int ret_val = -EPERM;
++	u32 bkt;
++
++	switch (entry->type) {
++	case NETLBL_NLTYPE_UNLABELED:
++		ret_val = 0;
++		break;
++	case NETLBL_NLTYPE_CIPSOV4:
++		ret_val = cipso_v4_doi_domhsh_add(entry->type_def.cipsov4,
++						  entry->domain);
++		break;
++	}
++	if (ret_val != 0)
++		return ret_val;
++
++	entry->valid = 1;
++	INIT_RCU_HEAD(&entry->rcu);
++
++	rcu_read_lock();
++	if (entry->domain != NULL &&
++	    netlbl_domhsh_search(entry->domain, 0) == NULL) {
++		bkt = netlbl_domhsh_hash(entry->domain);
++		spin_lock(&netlbl_domhsh_lock);
++		list_add_tail_rcu(&entry->list, &netlbl_domhsh->tbl[bkt]);
++		spin_unlock(&netlbl_domhsh_lock);
++	} else if (entry->domain == NULL &&
++		   rcu_dereference(netlbl_domhsh_def) == NULL) {
++		INIT_LIST_HEAD(&entry->list);
++		spin_lock(&netlbl_domhsh_def_lock);
++		rcu_assign_pointer(netlbl_domhsh_def, entry);
++		spin_unlock(&netlbl_domhsh_def_lock);
++	} else {
++		rcu_read_unlock();
++		switch (entry->type) {
++		case NETLBL_NLTYPE_UNLABELED:
++			break;
++		case NETLBL_NLTYPE_CIPSOV4:
++			BUG_ON(cipso_v4_doi_domhsh_remove(
++				       entry->type_def.cipsov4,
++				       entry->domain));
++			break;
++		}
++		return -EPERM;
++	}
++	rcu_read_unlock();
++
++	return 0;
++}
++
++/**
++ * netlbl_domhsh_add_default - Adds the default entry to the domain hash table
++ * @entry: the entry to add
++ *
++ * Description:
++ * Adds a new default entry to the domain hash table and handles any updates
++ * to the lower level protocol handler (i.e. CIPSO).  Returns zero on success,
++ * negative on failure.
++ *
++ */
++int netlbl_domhsh_add_default(struct netlbl_dom_map *entry)
++{
++	return netlbl_domhsh_add(entry);
++}
++
++/**
++ * netlbl_domhsh_remove - Removes an entry from the domain hash table
++ * @domain: the domain to remove
++ *
++ * Description:
++ * Removes an entry from the domain hash table and handles any updates to the
++ * lower level protocol handler (i.e. CIPSO).  Returns zero on success,
++ * negative on failure.
++ *
++ */
++int netlbl_domhsh_remove(const char *domain)
++{
++	int ret_val = -EPERM;
++	struct netlbl_dom_map *entry;
++
++	rcu_read_lock();
++	if (domain != NULL)
++		entry = netlbl_domhsh_search(domain, 0);
++	else
++		entry = netlbl_domhsh_search(domain, 1);
++	if (entry == NULL)
++		goto remove_return;
++	switch (entry->type) {
++	case NETLBL_NLTYPE_UNLABELED:
++		break;
++	case NETLBL_NLTYPE_CIPSOV4:
++		if (cipso_v4_doi_domhsh_remove(entry->type_def.cipsov4,
++					       entry->domain) != 0)
++			goto remove_return;
++		break;
++	}
++	if (entry != rcu_dereference(netlbl_domhsh_def)) {
++		spin_lock(&netlbl_domhsh_lock);
++		entry->valid = 0;
++		list_del_rcu(&entry->list);
++		spin_unlock(&netlbl_domhsh_lock);
++	} else {
++		spin_lock(&netlbl_domhsh_def_lock);
++		entry->valid = 0;
++		rcu_assign_pointer(netlbl_domhsh_def, NULL);
++		spin_unlock(&netlbl_domhsh_def_lock);
++	}
++	call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
++
++	ret_val = 0;
++
++remove_return:
++	rcu_read_unlock();
++	return ret_val;
++}
++
++/**
++ * netlbl_domhsh_remove_default - Removes the default entry from the table
++ *
++ * Description:
++ * Removes/resets the default entry for the domain hash table and handles any
++ * updates to the lower level protocol handler (i.e. CIPSO).  Returns zero on
++ * success, non-zero on failure.
++ *
++ */
++int netlbl_domhsh_remove_default(void)
++{
++	return netlbl_domhsh_remove(NULL);
++}
++
++/**
++ * netlbl_domhsh_getentry - Get an entry from the domain hash table
++ * @domain: the domain name to search for
++ *
++ * Description:
++ * Look through the domain hash table searching for an entry to match @domain,
++ * return a pointer to a copy of the entry or NULL.  The caller is responsibile
++ * for ensuring that rcu_read_[un]lock() is called.
++ *
++ */
++struct netlbl_dom_map *netlbl_domhsh_getentry(const char *domain)
++{
++	return netlbl_domhsh_search(domain, 1);
++}
++
++/**
++ * netlbl_domhsh_dump - Dump the domain hash table into a sk_buff
++ *
++ * Description:
++ * Dump the domain hash table into a buffer suitable for returning to an
++ * application in response to a NetLabel management DOMAIN message.  This
++ * function may fail if another process is growing the hash table at the same
++ * time.  The returned sk_buff has room at the front of the sk_buff for
++ * @headroom bytes.  See netlabel.h for the DOMAIN message format.  Returns a
++ * pointer to a sk_buff on success, NULL on error.
++ *
++ */
++struct sk_buff *netlbl_domhsh_dump(const size_t headroom)
++{
++	struct sk_buff *skb;
++	unsigned char *buf;
++	ssize_t buf_len;
++	u32 bkt_iter;
++	u32 dom_cnt = 0;
++	struct netlbl_domhsh_tbl *hsh_tbl;
++	struct netlbl_dom_map *list_iter;
++	ssize_t tmp_len;
++
++	/* XXX - This is kinda ugly as we have to go through the table once to
++	   determine how large of a buffer we need, drop the locks, allocate
++	   the buffer, grab the locks, and finally fill the buffer.  The
++	   problem is that there is that open window where the table could
++	   grow and we will end up short on space. */
++
++	buf_len = NETLBL_LEN_U32;
++	rcu_read_lock();
++	hsh_tbl = rcu_dereference(netlbl_domhsh);
++	for (bkt_iter = 0; bkt_iter < hsh_tbl->size; bkt_iter++)
++		list_for_each_entry_rcu(list_iter,
++					&hsh_tbl->tbl[bkt_iter], list) {
++			buf_len += 2 * NETLBL_LEN_U32 +
++				netlbl_align(strlen(list_iter->domain) + 1);
++			switch (list_iter->type) {
++			case NETLBL_NLTYPE_UNLABELED:
++				break;
++			case NETLBL_NLTYPE_CIPSOV4:
++				buf_len += 2 * NETLBL_LEN_U32;
++				break;
++			}
++			dom_cnt++;
++		}
++	rcu_read_unlock();
++
++	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_KERNEL);
++	if (skb == NULL)
++		return NULL;
++	buf = skb_put(skb, buf_len);
++	netlbl_putinc_u32(&buf, dom_cnt, &buf_len);
++
++	rcu_read_lock();
++	hsh_tbl = rcu_dereference(netlbl_domhsh);
++	for (bkt_iter = 0; bkt_iter < hsh_tbl->size; bkt_iter++)
++		list_for_each_entry_rcu(list_iter,
++					&hsh_tbl->tbl[bkt_iter], list) {
++			tmp_len = netlbl_align(strlen(list_iter->domain) + 1);
++			if (buf_len < 2 * NETLBL_LEN_U32 + tmp_len)
++				goto dump_failure;
++			netlbl_putinc_u32(&buf, tmp_len, &buf_len);
++			netlbl_putinc_str(&buf, list_iter->domain, &buf_len);
++			netlbl_putinc_u32(&buf, list_iter->type, &buf_len);
++			switch (list_iter->type) {
++			case NETLBL_NLTYPE_UNLABELED:
++				break;
++			case NETLBL_NLTYPE_CIPSOV4:
++				if (buf_len < 2 * NETLBL_LEN_U32)
++					goto dump_failure;
++				netlbl_putinc_u32(
++					&buf,
++					list_iter->type_def.cipsov4->type,
++					&buf_len);
++				netlbl_putinc_u32(
++					&buf,
++					list_iter->type_def.cipsov4->doi,
++					&buf_len);
++				break;
++			}
++		}
++	rcu_read_unlock();
++
++	return skb;
++
++dump_failure:
++	rcu_read_unlock();
++	kfree_skb(skb);
++	return NULL;
++}
++
++/**
++ * netlbl_domhsh_dump_default - Dump the default domain mapping into a sk_buff
++ *
++ * Description:
++ * Dump the default domain mapping into a buffer suitable for returning to an
++ * application in response to a NetLabel management DEFDOMAIN message.  This
++ * function may fail if another process is changing the default domain mapping
++ * at the same time.  The returned sk_buff has room at the front of the
++ * skb_buff for @headroom bytes.  See netlabel.h for the DEFDOMAIN message
++ * format.  Returns a pointer to a sk_buff on success, NULL on error.
++ *
++ */
++struct sk_buff *netlbl_domhsh_dump_default(const size_t headroom)
++{
++	struct sk_buff *skb;
++	unsigned char *buf;
++	ssize_t buf_len;
++	struct netlbl_dom_map *entry;
++
++	/* XXX - This is kinda ugly as we have to go look at the default
++	   mapping once to determine how large of a buffer we need, drop the
++	   locks, allocate the buffer, grab the locks, and finally fill the
++	   buffer.  The problem is that there is that open window where the
++	   default mapping could change on us, if that is the case we fail. */
++
++	buf_len = NETLBL_LEN_U32;
++	rcu_read_lock();
++	entry = rcu_dereference(netlbl_domhsh_def);
++	if (entry != NULL)
++		switch (entry->type) {
++		case NETLBL_NLTYPE_UNLABELED:
++			break;
++		case NETLBL_NLTYPE_CIPSOV4:
++			buf_len += 2 * NETLBL_LEN_U32;
++			break;
++		}
++	rcu_read_unlock();
++
++	skb = netlbl_netlink_alloc_skb(headroom, buf_len, GFP_KERNEL);
++	if (skb == NULL)
++		return NULL;
++	buf = skb_put(skb, buf_len);
++
++	rcu_read_lock();
++	if (entry != rcu_dereference(netlbl_domhsh_def))
++		goto dump_default_failure;
++	if (entry != NULL) {
++		netlbl_putinc_u32(&buf, entry->type, &buf_len);
++		switch (entry->type) {
++		case NETLBL_NLTYPE_UNLABELED:
++			break;
++		case NETLBL_NLTYPE_CIPSOV4:
++			if (buf_len < 2 * NETLBL_LEN_U32)
++				goto dump_default_failure;
++			netlbl_putinc_u32(&buf,
++					  entry->type_def.cipsov4->type,
++					  &buf_len);
++			netlbl_putinc_u32(&buf,
++					  entry->type_def.cipsov4->doi,
++					  &buf_len);
++			break;
++		}
++	} else
++		netlbl_putinc_u32(&buf, NETLBL_NLTYPE_NONE, &buf_len);
++	rcu_read_unlock();
++
++	return skb;
++
++dump_default_failure:
++	rcu_read_unlock();
++	kfree_skb(skb);
++	return NULL;
++}
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_domainhash.h
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_domainhash.h
+@@ -0,0 +1,64 @@
++/*
++ * NetLabel Domain Hash Table
++ *
++ * This file manages the domain hash table that NetLabel uses to determine
++ * which network labeling protocol to use for a given domain.  The NetLabel
++ * system manages static and dynamic label mappings for network protocols such
++ * as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#ifndef _NETLABEL_DOMAINHASH_H
++#define _NETLABEL_DOMAINHASH_H
++
++/* Domain hash table size */
++/* XXX - currently this number is an uneducated guess */
++#define NETLBL_DOMHSH_BITSIZE       7
++
++/* Domain mapping definition struct */
++struct netlbl_dom_map {
++	char *domain;
++	u32 type;
++	union {
++		struct cipso_v4_doi *cipsov4;
++	} type_def;
++
++	u32 valid;
++	struct list_head list;
++	struct rcu_head rcu;
++};
++
++/* init/exit functions */
++int netlbl_domhsh_init(const u32 size);
++void netlbl_domhsh_exit(void);
++
++/* Manipulate the domain hash table */
++int netlbl_domhsh_add(struct netlbl_dom_map *entry);
++int netlbl_domhsh_add_default(struct netlbl_dom_map *entry);
++int netlbl_domhsh_remove_default(void);
++struct netlbl_dom_map *netlbl_domhsh_getentry(const char *domain);
++struct sk_buff *netlbl_domhsh_dump(const size_t headroom);
++struct sk_buff *netlbl_domhsh_dump_default(const size_t headroom);
++
++#endif
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_kapi.c
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_kapi.c
+@@ -0,0 +1,299 @@
++/*
++ * NetLabel Kernel API
++ *
++ * This file defines the kernel API for the NetLabel system.  The NetLabel
++ * system manages static and dynamic label mappings for network protocols such
++ * as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/types.h>
++#include <net/ip.h>
++#include <net/netlabel.h>
++#include <net/cipso_ipv4.h>
++#include <asm/bug.h>
++
++#include "netlabel_domainhash.h"
++#include "netlabel_unlabeled.h"
++#include "netlabel_user.h"
++
++/*
++ * LSM Functions
++ */
++
++/**
++ * netlbl_socket_setattr - Label a socket using the correct protocol
++ * @sock: the socket to label
++ * @secattr: the security attributes
++ *
++ * Description:
++ * Attach the correct label to the given socket using the security attributes
++ * specified in @secattr.  Returns zero on success, negative values on failure.
++ *
++ */
++int netlbl_socket_setattr(const struct socket *sock,
++			  const struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val = -ENOENT;
++	struct netlbl_dom_map *dom_entry;
++
++	rcu_read_lock();
++	dom_entry = netlbl_domhsh_getentry(secattr->domain);
++	if (dom_entry == NULL)
++		goto socket_setattr_return;
++	switch (dom_entry->type) {
++	case NETLBL_NLTYPE_CIPSOV4:
++		ret_val = cipso_v4_socket_setattr(sock,
++						  dom_entry->type_def.cipsov4,
++						  secattr);
++		break;
++	case NETLBL_NLTYPE_UNLABELED:
++		ret_val = 0;
++		break;
++	default:
++		ret_val = -ENOENT;
++	}
++
++socket_setattr_return:
++	rcu_read_unlock();
++	return ret_val;
++}
++
++/**
++ * netlbl_socket_peekattr - Get the security attributes on a queued packet
++ * @sock: the socket
++ * @secattr: the security attributes
++ *
++ * Description:
++ * Peek at the incoming packet queue of @sock and return the security
++ * attributes of the first packet in the queue.  If there are no packets in
++ * the queue or no packets with security attributes return -ENOMSG.  Otherwise
++ * return zero on success, negative values on failure.
++ *
++ */
++int netlbl_socket_peekattr(const struct socket *sock,
++			   struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val;
++	struct sk_buff_head *sock_queue;
++	struct sk_buff *skb;
++	struct sk_buff *skb_tmp = NULL;
++
++	sock_queue = &sock->sk->sk_receive_queue;
++	/* XXX - We could just take the lock here and do a skb_peek() but we
++	         might end up holding the lock for a long time so grab the
++		 lock, do a peek, and clone the result */
++	spin_lock(&sock_queue->lock);
++	skb = skb_peek(sock_queue);
++	if (skb != NULL)
++		skb_tmp = skb_clone(skb, GFP_ATOMIC);
++	spin_unlock(&sock_queue->lock);
++	if (skb_tmp != NULL) {
++		ret_val = netlbl_skbuff_getattr(skb_tmp, secattr);
++		kfree_skb(skb_tmp);
++	} else
++		ret_val = -ENOMEM;
++
++	return ret_val;
++}
++
++/**
++ * netlbl_socket_getattr - Determine the security attributes of a socket
++ * @sock: the socket
++ * @secattr: the security attributes
++ *
++ * Description:
++ * Examines the given socket to see any NetLabel style labeling has been
++ * applied to the socket, if so it parses the socket label and returns the
++ * security attributes in @secattr.  Returns zero on success, negative values
++ * on failure.
++ *
++ */
++int netlbl_socket_getattr(const struct socket *sock,
++			  struct netlbl_lsm_secattr *secattr)
++{
++	int ret_val;
++
++	ret_val = cipso_v4_socket_getattr(sock, secattr);
++	if (ret_val == 0)
++		return 0;
++
++	return netlbl_unlabel_getattr(secattr);
++}
++
++/**
++ * netlbl_skbuff_getattr - Determine the security attributes of a packet
++ * @skb: the packet
++ * @secattr: the security attributes
++ *
++ * Description:
++ * Examines the given packet to see if a recognized form of packet labeling
++ * is present, if so it parses the packet label and returns the security
++ * attributes in @secattr.  Returns zero on success, negative values on
 + * failure.
 + *
 + */
-+int ebitmap_import(const unsigned char *src,
-+		   const size_t src_len,
-+		   struct ebitmap *dst)
++int netlbl_skbuff_getattr(const struct sk_buff *skb,
++			  struct netlbl_lsm_secattr *secattr)
 +{
-+	size_t src_off = 0;
-+	struct ebitmap_node *node_new;
-+	struct ebitmap_node *node_last = NULL;
-+	size_t src_rem = src_len;
-+	MAPTYPE tmp_val;
-+	size_t iter;
-+	size_t iter_bit;
-+	unsigned char src_byte;
++	int ret_val;
 +
-+	if (src == NULL || dst == NULL || src_len == 0)
-+		return -EINVAL;
-+
-+	do {
-+		node_new = kzalloc(sizeof(*node_new), GFP_ATOMIC);
-+		if (node_new == NULL) {
-+			ebitmap_destroy(dst);
-+			return -ENOMEM;
-+		}
-+
-+		if (src_rem >= sizeof(MAPTYPE))
-+			iter = sizeof(MAPTYPE);
-+		else
-+			iter = src_rem;
-+		tmp_val = 0;
-+		while (iter > 0) {
-+			src_byte = src[src_off + --iter];
-+			if (src_byte > 0)
-+				for (iter_bit = 0; iter_bit < 8; iter_bit++) {
-+					tmp_val <<= 1;
-+					tmp_val |= src_byte & 0x01;
-+					src_byte >>= 1;
-+				}
-+			else
-+				tmp_val <<= 8;
-+		}
-+		node_new->map = tmp_val;
-+		node_new->startbit = src_off * 8;
-+
-+		if (node_last != NULL)
-+			node_last->next = node_new;
-+		else
-+			dst->node = node_new;
-+		node_last = node_new;
-+
-+		if (src_rem >= sizeof(MAPTYPE)) {
-+			src_off += sizeof(MAPTYPE);
-+			src_rem -= sizeof(MAPTYPE);
-+		} else
-+			src_off += src_rem;
-+	} while (src_off < src_len);
-+
-+	tmp_val = node_last->map;
-+	dst->highbit = node_last->startbit;
-+	while (tmp_val >= 1) {
-+		dst->highbit += 1;
-+		tmp_val >>= 1;
-+	}
-+
-+	return 0;
-+}
-+
- int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2)
- {
- 	struct ebitmap_node *n1, *n2;
-Index: linux-2.6.18-rc1/security/selinux/ss/ebitmap.h
-===================================================================
---- linux-2.6.18-rc1.orig/security/selinux/ss/ebitmap.h
-+++ linux-2.6.18-rc1/security/selinux/ss/ebitmap.h
-@@ -69,6 +69,12 @@ static inline int ebitmap_node_get_bit(s
- 
- int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
- int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
-+int ebitmap_export(const struct ebitmap *src,
-+		   unsigned char **dst,
-+		   size_t *dst_len);
-+int ebitmap_import(const unsigned char *src,
-+		   const size_t src_len,
-+		   struct ebitmap *dst);
- int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2);
- int ebitmap_get_bit(struct ebitmap *e, unsigned long bit);
- int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value);
-Index: linux-2.6.18-rc1/security/selinux/ss/mls.c
-===================================================================
---- linux-2.6.18-rc1.orig/security/selinux/ss/mls.c
-+++ linux-2.6.18-rc1/security/selinux/ss/mls.c
-@@ -10,6 +10,13 @@
-  *
-  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
-+/*
-+ * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *
-+ *      Added support to import/export the MLS label
-+ *
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ */
- 
- #include <linux/kernel.h>
- #include <linux/slab.h>
-@@ -585,3 +592,148 @@ int mls_compute_sid(struct context *scon
- 	return -EINVAL;
- }
- 
-+/**
-+ * mls_export_lvl - Export the MLS sensitivity levels
-+ * @context: the security context
-+ * @low: the low sensitivity level
-+ * @high: the high sensitivity level
-+ *
-+ * Description:
-+ * Given the security context copy the low MLS sensitivity level into lvl_low
-+ * and the high sensitivity level in lvl_high.  The MLS levels are only
-+ * exported if the pointers are not NULL, if they are NULL then that level is
-+ * not exported.
-+ *
-+ */
-+void mls_export_lvl(const struct context *context, u32 *low, u32 *high)
-+{
-+	if (!selinux_mls_enabled)
-+		return;
-+
-+	if (low != NULL)
-+		*low = context->range.level[0].sens - 1;
-+	if (high != NULL)
-+		*high = context->range.level[1].sens - 1;
-+}
-+
-+/**
-+ * mls_import_lvl - Import the MLS sensitivity levels
-+ * @context: the security context
-+ * @low: the low sensitivity level
-+ * @high: the high sensitivity level
-+ *
-+ * Description:
-+ * Given the security context and the two sensitivty levels, set the MLS levels
-+ * in the context according the two given as parameters.  Returns zero on
-+ * success, negative values on failure.
-+ *
-+ */
-+void mls_import_lvl(struct context *context, const u32 low, const u32 high)
-+{
-+	if (!selinux_mls_enabled)
-+		return;
-+
-+	context->range.level[0].sens = low + 1;
-+	context->range.level[1].sens = high + 1;
-+}
-+
-+/**
-+ * mls_export_cat - Export the MLS categories
-+ * @context: the security context
-+ * @low: the low category
-+ * @low_len: length of the cat_low bitmap in bytes
-+ * @high: the high category
-+ * @high_len: length of the cat_high bitmap in bytes
-+ *
-+ * Description:
-+ * Given the security context export the low MLS category bitmap into cat_low
-+ * and the high category bitmap into cat_high.  The MLS categories are only
-+ * exported if the pointers are not NULL, if they are NULL then that level is
-+ * not exported.  The caller is responsibile for freeing the memory when
-+ * finished.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+int mls_export_cat(const struct context *context,
-+		   unsigned char **low,
-+		   size_t *low_len,
-+		   unsigned char **high,
-+		   size_t *high_len)
-+{
-+	int rc = -EPERM;
-+
-+	if (!selinux_mls_enabled)
++	ret_val = cipso_v4_skbuff_getattr(skb, secattr);
++	if (ret_val == 0)
 +		return 0;
 +
-+	if (low != NULL) {
-+		rc = ebitmap_export(&context->range.level[0].cat,
-+				    low,
-+				    low_len);
-+		if (rc != 0)
-+			goto export_cat_failure;
-+	}
-+	if (high != NULL) {
-+		rc = ebitmap_export(&context->range.level[1].cat,
-+				    high,
-+				    high_len);
-+		if (rc != 0)
-+			goto export_cat_failure;
-+	}
-+
-+	return 0;
-+
-+export_cat_failure:
-+	if (low != NULL)
-+		kfree(*low);
-+	if (high != NULL)
-+		kfree(*high);
-+	return rc;
++	return netlbl_unlabel_getattr(secattr);
 +}
 +
 +/**
-+ * mls_import_cat - Import the MLS categories
-+ * @context: the security context
-+ * @low: the low category
-+ * @low_len: length of the cat_low bitmap in bytes
-+ * @high: the high category
-+ * @high_len: length of the cat_high bitmap in bytes
-+ *
-+ * Description:
-+ * Given the security context and the two category bitmap strings import the
-+ * categories into the security context.  The MLS categories are only imported
-+ * if the pointers are not NULL, if they are NULL they are skipped.  Returns
-+ * zero on success, negative values on failure.
-+ *
-+ */
-+int mls_import_cat(struct context *context,
-+		   const unsigned char *low,
-+		   const size_t low_len,
-+		   const unsigned char *high,
-+		   const size_t high_len)
-+{
-+	int rc = -EPERM;
-+
-+	if (!selinux_mls_enabled)
-+		return 0;
-+
-+	if (low != NULL) {
-+		rc = ebitmap_import(low,
-+				    low_len,
-+				    &context->range.level[0].cat);
-+		if (rc != 0)
-+			goto import_cat_failure;
-+	}
-+	if (high != NULL) {
-+		rc = ebitmap_import(high,
-+				    high_len,
-+				    &context->range.level[1].cat);
-+		if (rc != 0)
-+			goto import_cat_failure;
-+	}
-+
-+	return 0;
-+
-+import_cat_failure:
-+	ebitmap_destroy(&context->range.level[0].cat);
-+	ebitmap_destroy(&context->range.level[1].cat);
-+	return rc;
-+}
-Index: linux-2.6.18-rc1/security/selinux/ss/mls.h
-===================================================================
---- linux-2.6.18-rc1.orig/security/selinux/ss/mls.h
-+++ linux-2.6.18-rc1/security/selinux/ss/mls.h
-@@ -10,6 +10,13 @@
-  *
-  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  */
-+/*
-+ * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *
-+ *      Added support to import/export the MLS label
-+ *
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ */
- 
- #ifndef _SS_MLS_H_
- #define _SS_MLS_H_
-@@ -42,5 +49,19 @@ int mls_compute_sid(struct context *scon
- int mls_setup_user_range(struct context *fromcon, struct user_datum *user,
-                          struct context *usercon);
- 
-+void mls_export_lvl(const struct context *context, u32 *low, u32 *high);
-+void mls_import_lvl(struct context *context, const u32 low, const u32 high);
-+
-+int mls_export_cat(const struct context *context,
-+		   unsigned char **low,
-+		   size_t *low_len,
-+		   unsigned char **high,
-+		   size_t *high_len);
-+int mls_import_cat(struct context *context,
-+		   const unsigned char *low,
-+		   const size_t low_len,
-+		   const unsigned char *high,
-+		   const size_t high_len);
-+
- #endif	/* _SS_MLS_H */
- 
-Index: linux-2.6.18-rc1/security/selinux/ss/services.c
-===================================================================
---- linux-2.6.18-rc1.orig/security/selinux/ss/services.c
-+++ linux-2.6.18-rc1/security/selinux/ss/services.c
-@@ -13,6 +13,11 @@
-  *
-  * 	Added conditional policy language extensions
-  *
-+ * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *
-+ *      Added support for NetLabel
-+ *
-+ * Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-@@ -29,6 +34,8 @@
- #include <linux/sched.h>
- #include <linux/audit.h>
- #include <linux/mutex.h>
-+#include <net/sock.h>
-+#include <net/netlabel.h>
- 
- #include "flask.h"
- #include "avc.h"
-@@ -40,6 +47,8 @@
- #include "services.h"
- #include "conditional.h"
- #include "mls.h"
-+#include "objsec.h"
-+#include "selinux_netlabel.h"
- 
- extern void selnl_notify_policyload(u32 seqno);
- unsigned int policydb_loaded_version;
-@@ -1241,6 +1250,7 @@ int security_load_policy(void *data, siz
- 		selinux_complete_init();
- 		avc_ss_reset(seqno);
- 		selnl_notify_policyload(seqno);
-+		selinux_netlbl_cache_invalidate();
- 		return 0;
- 	}
- 
-@@ -1295,6 +1305,7 @@ int security_load_policy(void *data, siz
- 
- 	avc_ss_reset(seqno);
- 	selnl_notify_policyload(seqno);
-+	selinux_netlbl_cache_invalidate();
- 
- 	return 0;
- 
-@@ -2064,3 +2075,547 @@ void selinux_audit_set_callback(int (*ca
- {
- 	aurule_callback = callback;
- }
-+
-+#ifdef CONFIG_NETLABEL
-+/*
-+ * This is the structure we store inside the NetLabel cache block.
-+ */
-+#define NETLBL_CACHE(x)           ((struct netlbl_cache *)(x))
-+#define NETLBL_CACHE_T_NONE       0
-+#define NETLBL_CACHE_T_SID        1
-+#define NETLBL_CACHE_T_MLSLBL     2
-+struct netlbl_cache {
-+	u32 type;
-+	union {
-+		u32 sid;
-+		struct mls_level mls_label;
-+	} data;
-+};
-+
-+/**
-+ * selinux_netlbl_cache_free - Free the NetLabel cached data
-+ * @data: the data to free
-+ *
-+ * Description:
-+ * This function is intended to be used as the free() callback inside the
-+ * netlbl_lsm_cache structure.
-+ *
-+ */
-+static void selinux_netlbl_cache_free(const void *data)
-+{
-+	struct netlbl_cache *cache = NETLBL_CACHE(data);
-+	switch (cache->type) {
-+	case NETLBL_CACHE_T_MLSLBL:
-+		ebitmap_destroy(&cache->data.mls_label.cat);
-+		break;
-+	}
-+	kfree(data);
-+}
-+
-+/**
-+ * selinux_netlbl_cache_add - Add an entry to the NetLabel cache
++ * netlbl_skbuff_err - Handle a LSM error on a sk_buff
 + * @skb: the packet
-+ * @ctx: the SELinux context
++ * @error: the error code
 + *
 + * Description:
-+ * Attempt to cache the context in @ctx, which was derived from the packet in
-+ * @skb, in the NetLabel subsystem cache.
++ * Deal with a LSM problem when handling the packet in @skb, typically this is
++ * a permission denied problem (-EACCES).  The correct action is determined
++ * according to the packet's labeling protocol.
 + *
 + */
-+static void selinux_netlbl_cache_add(struct sk_buff *skb, struct context *ctx)
++void netlbl_skbuff_err(struct sk_buff *skb, int error)
 +{
-+	struct netlbl_cache *cache = NULL;
-+	struct netlbl_lsm_secattr secattr;
-+	u32 cache_clear = 1;
-+
-+	netlbl_secattr_init(&secattr);
-+
-+	cache = kzalloc(sizeof(*cache),	GFP_ATOMIC);
-+	if (cache == NULL)
-+		goto netlbl_cache_add_return;
-+	secattr.cache.free = selinux_netlbl_cache_free;
-+	secattr.cache.data = (void *)cache;
-+
-+	cache->type = NETLBL_CACHE_T_MLSLBL;
-+	if (ebitmap_cpy(&cache->data.mls_label.cat,
-+			&ctx->range.level[0].cat) != 0)
-+		goto netlbl_cache_add_return;
-+	cache->data.mls_label.sens = ctx->range.level[0].sens;
-+
-+	if (netlbl_cache_add(skb, &secattr) != 0)
-+		goto netlbl_cache_add_return;
-+	cache_clear = 0;
-+
-+netlbl_cache_add_return:
-+	netlbl_secattr_destroy(&secattr, cache_clear);
++	if (CIPSO_V4_OPTEXIST(skb))
++		cipso_v4_error(skb, error, 0);
 +}
 +
 +/**
-+ * selinux_netlbl_cache_invalidate - Invalidate the NetLabel cache
++ * netlbl_cache_invalidate - Invalidate all of the NetLabel protocol caches
 + *
 + * Description:
-+ * Invalidate the NetLabel security attribute mapping cache.
-+ *
-+ */
-+void selinux_netlbl_cache_invalidate(void)
-+{
-+	netlbl_cache_invalidate();
-+}
-+
-+/**
-+ * selinux_netlbl_secattr_to_sid - Convert a NetLabel secattr to a SELinux SID
-+ * @skb: the network packet
-+ * @secattr: the NetLabel packet security attributes
-+ * @base_sid: the SELinux SID to use as a context for MLS only attributes
-+ * @sid: the SELinux SID
-+ *
-+ * Description:
-+ * Convert the given NetLabel packet security attributes in @secattr into a
-+ * SELinux SID.  If the @secattr field does not contain a full SELinux
-+ * SID/context then use the context in @base_sid as the foundation.  If @skb
-+ * is not NULL attempt to cache as much data as possibile.  Returns zero on
-+ * success, negative values on failure.
-+ *
-+ */
-+static int selinux_netlbl_secattr_to_sid(struct sk_buff *skb,
-+					 struct netlbl_lsm_secattr *secattr,
-+					 const u32 base_sid,
-+					 u32 *sid)
-+{
-+	int rc = -EIDRM;
-+	struct context *ctx;
-+	struct context ctx_new;
-+	struct netlbl_cache *cache;
-+	u32 ctx_new_destroy = 0;
-+
-+	POLICY_RDLOCK;
-+
-+	if (secattr->cache.data) {
-+		cache = NETLBL_CACHE(secattr->cache.data);
-+		switch (cache->type) {
-+		case NETLBL_CACHE_T_SID:
-+			*sid = cache->data.sid;
-+			break;
-+		case NETLBL_CACHE_T_MLSLBL:
-+			ctx = sidtab_search(&sidtab, base_sid);
-+			if (ctx == NULL)
-+				goto netlbl_secattr_to_sid_return;
-+			rc = context_cpy(&ctx_new, ctx);
-+			if (rc != 0)
-+				goto netlbl_secattr_to_sid_return;
-+			ctx_new_destroy = 1;
-+			mls_context_destroy(&ctx_new);
-+
-+			ctx_new.range.level[0].sens =
-+				cache->data.mls_label.sens;
-+			rc = ebitmap_cpy(&ctx_new.range.level[0].cat,
-+					 &cache->data.mls_label.cat);
-+			if (rc != 0)
-+				goto netlbl_secattr_to_sid_return;
-+			ctx_new.range.level[1].sens =
-+				cache->data.mls_label.sens;
-+			rc = ebitmap_cpy(&ctx_new.range.level[1].cat,
-+					 &cache->data.mls_label.cat);
-+			if (rc != 0)
-+				goto netlbl_secattr_to_sid_return;
-+
-+			rc = sidtab_context_to_sid(&sidtab, &ctx_new, sid);
-+			break;
-+		default:
-+			goto netlbl_secattr_to_sid_return;
-+		}
-+	} else if (secattr->mls_lvl_vld) {
-+		ctx = sidtab_search(&sidtab, base_sid);
-+		if (ctx == NULL)
-+			goto netlbl_secattr_to_sid_return;
-+		rc = context_cpy(&ctx_new, ctx);
-+		if (rc != 0)
-+			goto netlbl_secattr_to_sid_return;
-+		ctx_new_destroy = 1;
-+		mls_context_destroy(&ctx_new);
-+
-+		mls_import_lvl(&ctx_new, secattr->mls_lvl, secattr->mls_lvl);
-+		if (secattr->mls_cat) {
-+			if (mls_import_cat(&ctx_new,
-+					   secattr->mls_cat,
-+					   secattr->mls_cat_len,
-+					   secattr->mls_cat,
-+					   secattr->mls_cat_len) != 0)
-+				goto netlbl_secattr_to_sid_return;
-+		}
-+
-+		rc = mls_context_isvalid(&policydb, &ctx_new);
-+		if (rc != 1)
-+			goto netlbl_secattr_to_sid_return;
-+
-+		if (skb != NULL)
-+			selinux_netlbl_cache_add(skb, &ctx_new);
-+
-+		rc = sidtab_context_to_sid(&sidtab, &ctx_new, sid);
-+	} else
-+		*sid = SECINITSID_UNLABELED;
-+
-+	rc = 0;
-+
-+netlbl_secattr_to_sid_return:
-+	POLICY_RDUNLOCK;
-+	if (ctx_new_destroy)
-+		context_destroy(&ctx_new);
-+	return rc;
-+}
-+
-+/**
-+ * selinux_netlbl_skbuff_getsid - Get the sid of a packet using NetLabel
-+ * @skb: the packet
-+ * @base_sid: the SELinux SID to use as a context for MLS only attributes
-+ * @sid: the SID
-+ *
-+ * Description:
-+ * Call the NetLabel mechanism to get the security attributes of the given
-+ * packet and use those attributes to determine the correct context/SID to
-+ * assign to the packet.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
-+					const u32 base_sid,
-+					u32 *sid)
-+{
-+	int rc;
-+	struct netlbl_lsm_secattr secattr;
-+
-+	netlbl_secattr_init(&secattr);
-+	rc = netlbl_skbuff_getattr(skb, &secattr);
-+	if (rc == 0)
-+		rc = selinux_netlbl_secattr_to_sid(skb,
-+						   &secattr,
-+						   base_sid,
-+						   sid);
-+	netlbl_secattr_destroy(&secattr, 0);
-+	return rc;
-+}
-+
-+/**
-+ * selinux_netlbl_socket_setsid - Label a socket using the NetLabel mechanism
-+ * @sock: the socket to label
-+ * @sock_family: the socket family
-+ * @sid: the SID to use
-+ *
-+ * Description:
-+ * Attempt to label a socket using the NetLabel mechanism using the given
-+ * SID.  Returns zero values on success, negative values on failure.
-+ *
-+ */
-+static int selinux_netlbl_socket_setsid(struct socket *sock,
-+					const int sock_family,
-+					u32 sid)
-+{
-+	int rc;
-+	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
-+	struct netlbl_lsm_secattr secattr;
-+	struct context *ctx;
-+
-+	if (!ss_initialized)
-+		return 0;
-+
-+	POLICY_RDLOCK;
-+
-+	ctx = sidtab_search(&sidtab, sid);
-+	if (ctx != NULL) {
-+		netlbl_secattr_init(&secattr);
-+		secattr.domain = kstrdup(
-+			policydb.p_type_val_to_name[ctx->type - 1],
-+			GFP_ATOMIC);
-+		mls_export_lvl(ctx, &secattr.mls_lvl, NULL);
-+		secattr.mls_lvl_vld = 1;
-+		mls_export_cat(ctx,
-+			       &secattr.mls_cat,
-+			       &secattr.mls_cat_len,
-+			       NULL,
-+			       NULL);
-+
-+		rc = netlbl_socket_setattr(sock, &secattr);
-+		if (rc == 0)
-+			isec->netlbl.state = NLBL_LABELED;
-+
-+		netlbl_secattr_destroy(&secattr, 0);
-+	} else
-+		rc = -ENOENT;
-+
-+	POLICY_RDUNLOCK;
-+
-+	return rc;
-+}
-+
-+/**
-+ * selinux_netlbl_socket_peeksid - Get the SID of the first queued packet
-+ * @sock: the socket to query
-+ * @sid: the packet's SID
-+ *
-+ * Description:
-+ * Examine the first incoming packet in the socket's queue and determine the
-+ * packet's SELinux SID.  Return zero on success, negative values on failure.
-+ *
-+ */
-+static int selinux_netlbl_socket_peeksid(struct socket *sock,
-+					 u32 *sid)
-+{
-+        int rc;
-+	struct netlbl_lsm_secattr secattr;
-+        struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
-+
-+        netlbl_secattr_init(&secattr);
-+        rc = netlbl_socket_peekattr(sock, &secattr);
-+        if (rc == 0)
-+                rc = selinux_netlbl_secattr_to_sid(NULL,
-+						   &secattr,
-+						   isec->sid,
-+						   sid);
-+        netlbl_secattr_destroy(&secattr, 0);
-+        return rc;
-+}
-+
-+/**
-+ * selinux_netlbl_socket_create - Label a socket using the NetLabel mechanism
-+ * @sock: the socket to label
-+ * @sock_family: the socket family
-+ * @sid: the SID to use
-+ *
-+ * Description:
-+ * Attempt to label a socket using the NetLabel mechanism using the given
-+ * SID.  Returns zero values on success, negative values on failure.
-+ *
-+ */
-+int selinux_netlbl_socket_create(struct socket *sock,
-+				 const int sock_family,
-+				 u32 sid)
-+{
-+	struct inode_security_struct *isec;
-+
-+	if (sock_family != PF_INET)
-+		return 0;
-+
-+	isec = SOCK_INODE(sock)->i_security;
-+	isec->netlbl.state = NLBL_REQUIRE;
-+	return selinux_netlbl_socket_setsid(sock, sock_family, sid);
-+}
-+
-+/**
-+ * selinux_netlbl_socket_accept - NetLabel accept hook
-+ * @sock: the original socket
-+ * @newsock: the new accept()ed socket
-+ *
-+ * Description:
-+ * Mark @newsock as requiring a NetLabel label and do setup required for
-+ * further processing by the post_accept and sock_rcv_skb hooks.  Returns zero
-+ * on success, negative values on failure.
-+ *
-+ */
-+int selinux_netlbl_socket_accept(struct socket *sock, struct socket *newsock)
-+{
-+	struct inode_security_struct *isec;
-+	struct inode_security_struct *newisec;
-+
-+	isec = SOCK_INODE(sock)->i_security;
-+	if (isec->netlbl.state == NLBL_UNSET)
-+		return 0;
-+
-+	newisec = SOCK_INODE(newsock)->i_security;
-+	newisec->netlbl.state = NLBL_ACCEPT;
-+
-+	return 0;
-+}
-+
-+/**
-+ * selinux_netlbl_socket_post_accept - NetLabel post_accept hook
-+ * @sock: the original socket
-+ * @newsock: the new accept()ed socket
-+ *
-+ * Description:
-+ * Attempt to label a socket using the NetLabel mechanism based on the
-+ * connection and the original/parent socket's SID.
-+ *
-+ */
-+void selinux_netlbl_socket_post_accept(struct socket *sock,
-+				       struct socket *newsock)
-+{
-+	struct inode_security_struct *newisec;
-+	struct netlbl_lsm_secattr secattr;
-+
-+	newisec = SOCK_INODE(newsock)->i_security;
-+	if (newisec->netlbl.state != NLBL_ACCEPT)
-+		return;
-+	netlbl_secattr_init(&secattr);
-+	if (netlbl_socket_getattr(newsock, &secattr) != 0)
-+		goto netlbl_socket_post_accept_return;
-+	newisec = SOCK_INODE(newsock)->i_security;
-+	if (selinux_netlbl_secattr_to_sid(NULL,
-+					  &secattr,
-+					  newisec->sid,
-+					  &newisec->netlbl.peer_sid) != 0)
-+		goto netlbl_socket_post_accept_return;
-+	newisec->sid = newisec->netlbl.peer_sid;
-+
-+	/* XXX - try to set the NetLabel here to try and save some time in
-+	   selinux_netlbl_inode_permission() later */
-+	selinux_netlbl_socket_setsid(newsock,
-+				     newsock->sk->sk_family,
-+				     newisec->sid);
-+
-+netlbl_socket_post_accept_return:
-+	if (newisec->netlbl.state != NLBL_LABELED)
-+		newisec->netlbl.state = NLBL_REQUIRE;
-+	netlbl_secattr_destroy(&secattr, 0);
-+}
-+
-+/**
-+ * selinux_netlbl_inode_permission - Verify the file/socket is NetLabel labeled
-+ * @inode: the file descriptor's inode
-+ * @mask: the permission mask
-+ *
-+ * Description:
-+ * Looks at a file's inode and if it is marked as a socket protected by
-+ * NetLabel then verify that the socket has been labeled, if not try to label
-+ * the socket now with the task's SID.  Returns zero on success, negative
-+ * values on failure.
-+ *
-+ */
-+int selinux_netlbl_inode_permission(struct inode *inode, int mask)
-+{
-+	int rc = 0;
-+	struct inode_security_struct *isec = inode->i_security;
-+	struct netlbl_security_struct *nlblsec = &isec->netlbl;
-+	struct socket *sock;
-+
-+	down(&isec->sem);
-+	if (nlblsec->state == NLBL_REQUIRE &&
-+	    (mask & (MAY_WRITE | MAY_APPEND))) {
-+		sock = SOCKET_I(inode);
-+		rc = selinux_netlbl_socket_setsid(sock,
-+						  sock->sk->sk_family,
-+						  isec->sid);
-+	}
-+	up(&isec->sem);
-+
-+	return rc;
-+}
-+
-+/**
-+ * selinux_netlbl_sock_rcv_skb - Do an inbound access check using NetLabel
-+ * @sk: the packet's sock
-+ * @skb: the packet
-+ * @sock_class: the socket class
-+ * @sock_sid: the socket's SID
-+ * @ad: the audit data
-+ *
-+ * Description:
-+ * Fetch the NetLabel security attributes from @skb and perform an access check
-+ * against the receiving socket.  Returns zero on success, negative values on
++ * For all of the NetLabel protocols that support some form of label mapping
++ * cache, invalidate the cache.  Returns zero on success, negative values on
 + * error.
 + *
 + */
-+int selinux_netlbl_sock_rcv_skb(struct sock *sk,
-+				struct sk_buff *skb,
-+				const u16 sock_class,
-+				const u32 sock_sid,
-+				struct avc_audit_data *ad)
++void netlbl_cache_invalidate(void)
 +{
-+	int rc;
-+	u32 netlbl_sid;
-+	u32 recv_perm;
++	cipso_v4_cache_invalidate();
++}
 +
-+	rc = selinux_netlbl_skbuff_getsid(skb, sock_sid, &netlbl_sid);
-+	if (rc != 0)
-+		return rc;
++/**
++ * netlbl_cache_add - Add an entry to a NetLabel protocol cache
++ * @skb: the packet
++ * @secattr: the packet's security attributes
++ *
++ * Description:
++ * Add the LSM security attributes for the given packet to the underlying
++ * NetLabel protocol's label mapping cache.  Returns zero on success, negative
++ * values on error.
++ *
++ */
++int netlbl_cache_add(const struct sk_buff *skb,
++		     const struct netlbl_lsm_secattr *secattr)
++{
++	if (secattr->cache.data == NULL)
++		return -ENOMSG;
 +
-+	if (netlbl_sid != SECINITSID_UNLABELED) {
-+		switch (sock_class) {
-+		case SECCLASS_UDP_SOCKET:
-+			recv_perm = UDP_SOCKET__RECV_MSG;
++	if (CIPSO_V4_OPTEXIST(skb))
++		return cipso_v4_cache_add(skb, secattr);
++
++	return -ENOMSG;
++}
++
++/*
++ * Network Stack Functions
++ */
++
++/**
++ * netlbl_socket_inet_accept - Preserve the NetLabel across an accept()
++ * @sock: the old socket
++ * @newsock: the new socket
++ *
++ * Description:
++ * For kernel threads only, clear the NetLabel from @newsock and copy the
++ * NetLabel from @sock.  The caller is responsibile for locking and releasing
++ * the sockets.
++ *
++ */
++void netlbl_socket_inet_accept(struct socket *sock, struct socket *newsock)
++{
++	unsigned char *opt;
++	u32 opt_len;
++
++	/* We are only interested in preserving the NetLabel on kernel
++	   threads across an accept, the LSM should handle user level
++	   accept calls. */
++	if (current->mm)
++		return;
++
++	if (cipso_v4_socket_getopt(sock, &opt, &opt_len) == 0 &&
++	    cipso_v4_socket_setopt(newsock, opt, opt_len) != 0)
++		printk(KERN_ERR
++		       "NetLabel: failed to set the CIPSOv4 option on a kernel"
++		       " socket\n");
++}
++
++/*
++ * Setup Functions
++ */
++
++/**
++ * netlbl_init - Init for the NetLabel module
++ *
++ * Description:
++ * Perform the initialization of the NetLabel module before first use.
++ *
++ */
++static int __init netlbl_init(void)
++{
++	int ret_val;
++
++	printk(KERN_INFO "NetLabel: Initializing\n");
++	printk(KERN_INFO "NetLabel:  domain hash size = %u\n",
++	       (1 << NETLBL_DOMHSH_BITSIZE));
++	printk(KERN_INFO "NetLabel:  protocols ="
++	       " UNLABELED"
++	       " CIPSOv4"
++	       "\n");
++
++	ret_val = netlbl_domhsh_init(NETLBL_DOMHSH_BITSIZE);
++	if (ret_val != 0)
++		goto init_failure;
++
++	ret_val = netlbl_netlink_init();
++	if (ret_val != 0)
++		goto init_failure;
++
++	ret_val = netlbl_unlabel_defconf();
++	if (ret_val != 0)
++		goto init_failure;
++	printk(KERN_INFO "NetLabel:  unlabeled traffic allowed by default\n");
++
++	return 0;
++
++init_failure:
++	panic("NetLabel: failed to initialize properly (%d)\n", ret_val);
++}
++
++subsys_initcall(netlbl_init);
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_mgmt.c
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_mgmt.c
+@@ -0,0 +1,661 @@
++/*
++ * NetLabel Management Support
++ *
++ * This file defines the management functions for the NetLabel system.  The
++ * NetLabel system manages static and dynamic label mappings for network
++ * protocols such as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/types.h>
++#include <linux/socket.h>
++#include <linux/string.h>
++#include <linux/skbuff.h>
++#include <net/sock.h>
++#include <net/netlink.h>
++#include <net/genetlink.h>
++#include <net/netlabel.h>
++#include <net/cipso_ipv4.h>
++
++#include "netlabel_domainhash.h"
++#include "netlabel_user.h"
++#include "netlabel_mgmt.h"
++
++/* NetLabel Generic NETLINK CIPSOv4 family */
++static struct genl_family netlbl_mgmt_gnl_family = {
++	.id = GENL_ID_GENERATE,
++	.hdrsize = 0,
++	.name = NETLBL_NLTYPE_MGMT_NAME,
++	.version = NETLBL_PROTO_VERSION,
++	.maxattr = 0,
++};
++
++
++/*
++ * NetLabel Command Handlers
++ */
++
++/**
++ * netlbl_mgmt_add - Handle an ADD message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
++ *
++ * Description:
++ * Process a user generated ADD message and add the domains from the message
++ * to the hash table.  See netlabel.h for a description of the message format.
++ * Returns zero on success, negative values on failure.
++ *
++ */
++static int netlbl_mgmt_add(struct sk_buff *skb, struct genl_info *info)
++{
++	int ret_val;
++	unsigned char *msg_ptr = netlbl_netlink_payload_data(skb);
++	ssize_t msg_len = netlbl_netlink_payload_len(skb);
++	u32 count;
++	struct netlbl_dom_map *entry = NULL;
++	u32 iter;
++	u32 tmp_val;
++	u32 rcu_locked = 0;
++
++	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
++	if (ret_val != 0)
++		goto add_failure;
++
++	if (msg_len < NETLBL_LEN_U32)
++		goto add_failure;
++	count = netlbl_getinc_u32(&msg_ptr, &msg_len);
++
++	for (iter = 0; iter < count && msg_len > 0; iter++, entry = NULL) {
++		if (msg_len < NETLBL_LEN_U32)
++			goto add_failure;
++		tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
++		if (tmp_val == 0)
++			goto add_failure;
++		entry = kzalloc(sizeof(*entry), GFP_KERNEL);
++		if (entry == NULL) {
++			ret_val = -ENOMEM;
++			goto add_failure;
++		}
++
++		if (msg_len < netlbl_align(tmp_val))
++			goto add_failure;
++		entry->domain = kmalloc(tmp_val, GFP_KERNEL);
++		if (entry->domain == NULL) {
++			ret_val = -ENOMEM;
++			goto add_failure;
++		}
++		strncpy(entry->domain, msg_ptr, tmp_val);
++		entry->domain[tmp_val - 1] = '\0';
++		msg_ptr += netlbl_align(tmp_val);
++		msg_len -= netlbl_align(tmp_val);
++
++		if (msg_len < NETLBL_LEN_U32)
++			goto add_failure;
++		tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
++		entry->type = tmp_val;
++		switch (tmp_val) {
++		case NETLBL_NLTYPE_UNLABELED:
 +			break;
-+		case SECCLASS_TCP_SOCKET:
-+			recv_perm = TCP_SOCKET__RECV_MSG;
++		case NETLBL_NLTYPE_CIPSOV4:
++			if (msg_len < NETLBL_LEN_U32)
++				goto add_failure;
++			tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
++			/* XXX - we should be holding a rcu_read_lock() here
++			   while we hold the result but since the entry
++			   will always be deleted when the CIPSO DOI
++			   is deleted we aren't going to keep the lock */
++			rcu_read_lock();
++			entry->type_def.cipsov4 = cipso_v4_doi_getdef(tmp_val);
++			if (entry->type_def.cipsov4 == NULL) {
++				rcu_read_unlock();
++				goto add_failure;
++			}
++			rcu_locked = 1;
 +			break;
 +		default:
-+			recv_perm = RAWIP_SOCKET__RECV_MSG;
-+			break;
++			goto add_failure;
 +		}
 +
-+		rc = avc_has_perm(sock_sid,
-+				  netlbl_sid,
-+				  sock_class,
-+				  recv_perm,
-+				  ad);
-+		if (rc != 0) {
-+			struct inode_security_struct *isec;
-+			u32 netlbl_send_err = 1;
-+
-+			read_lock_bh(&sk->sk_callback_lock);
-+			isec = SOCK_INODE(sk->sk_socket)->i_security;
-+			if (isec->netlbl.state == NLBL_ACCEPT)
-+				netlbl_send_err = 0;
-+			read_unlock_bh(&sk->sk_callback_lock);
-+
-+			if (netlbl_send_err)
-+				netlbl_skbuff_err(skb, rc);
++		ret_val = netlbl_domhsh_add(entry);
++		if (rcu_locked) {
++			rcu_read_unlock();
++			rcu_locked = 0;
 +		}
++		if (ret_val != 0)
++			goto add_failure;
 +	}
 +
-+	return rc;
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				NETLBL_E_OK);
++	return 0;
++
++add_failure:
++	if (entry)
++		kfree(entry->domain);
++	kfree(entry);
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
 +}
 +
 +/**
-+ * selinux_netlbl_socket_peersid - Return the peer SID of a connected socket
-+ * @sock: the socket
++ * netlbl_mgmt_remove - Handle a REMOVE message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
 + *
 + * Description:
-+ * Examine @sock to find the connected peer's SID, if that is not possibile
-+ * check the socket's receive queue and take the SID from the incoming
-+ * packets.  Returns the SID on success or SECSID_NULL on error.
++ * Process a user generated REMOVE message and remove the specified domain
++ * mappings.  Returns zero on success, negative values on failure.
 + *
 + */
-+u32 selinux_netlbl_socket_getpeersec_stream(struct socket *sock)
++static int netlbl_mgmt_remove(struct sk_buff *skb, struct genl_info *info)
 +{
-+	u32 peer_sid;
-+	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
++	int ret_val;
++	unsigned char *msg_ptr = netlbl_netlink_payload_data(skb);
++	ssize_t msg_len = netlbl_netlink_payload_len(skb);
++	u32 count;
++	u32 iter;
++	u32 tmp_val;
 +
-+	if (isec->netlbl.peer_sid != 0)
-+		peer_sid = isec->netlbl.peer_sid;
-+	else {
-+		if (selinux_netlbl_socket_peeksid(sock, &peer_sid) != 0)
-+			peer_sid = SECSID_NULL;
++	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
++	if (ret_val != 0)
++		goto remove_return;
++
++	if (msg_len < NETLBL_LEN_U32)
++		goto remove_return;
++	count = netlbl_getinc_u32(&msg_ptr, &msg_len);
++
++	for (iter = 0; iter < count && msg_len > 0; iter++) {
++		if (msg_len < NETLBL_LEN_U32)
++			goto remove_return;
++		tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
++		if (tmp_val == 0 ||
++		    msg_len < tmp_val || msg_ptr[tmp_val - 1] != '\0')
++			goto remove_return;
++		ret_val = netlbl_domhsh_remove(msg_ptr);
++		msg_ptr += netlbl_align(tmp_val);
++		msg_len -= netlbl_align(tmp_val);
++		if (ret_val != 0)
++			goto remove_return;
 +	}
 +
-+	return peer_sid;
++	ret_val = 0;
++
++remove_return:
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
 +}
 +
 +/**
-+ * selinux_netlbl_socket_getpeersec_dgram - Return the SID of a NetLabel packet
++ * netlbl_mgmt_list - Handle a LIST message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
++ *
++ * Description:
++ * Process a user generated LIST message and dumps the domain hash table in a
++ * form suitable for use in a kernel generated LIST message.  Returns zero on
++ * success, negative values on failure.
++ *
++ */
++static int netlbl_mgmt_list(struct sk_buff *skb, struct genl_info *info)
++{
++	int ret_val = -ENOMEM;
++	struct sk_buff *ans_skb;
++
++	ans_skb = netlbl_domhsh_dump(NLMSG_SPACE(GENL_HDRLEN));
++	if (ans_skb == NULL)
++		goto list_failure;
++	netlbl_netlink_hdr_push(ans_skb,
++				info->snd_pid,
++				0,
++				0,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_LIST,
++				ans_skb->len);
++
++	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
++	if (ret_val != 0)
++		goto list_failure;
++
++	return 0;
++
++list_failure:
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
++}
++
++/**
++ * netlbl_mgmt_adddef - Handle an ADDDEF message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
++ *
++ * Description:
++ * Process a user generated ADDDEF message and respond accordingly.  Returns
++ * zero on success, negative values on failure.
++ *
++ */
++static int netlbl_mgmt_adddef(struct sk_buff *skb, struct genl_info *info)
++{
++	int ret_val;
++	unsigned char *msg_ptr = netlbl_netlink_payload_data(skb);
++	ssize_t msg_len = netlbl_netlink_payload_len(skb);
++	struct netlbl_dom_map *entry = NULL;
++	u32 tmp_val;
++	u32 rcu_locked = 0;
++
++	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
++	if (ret_val != 0)
++		goto adddef_failure;
++
++	if (msg_len < NETLBL_LEN_U32)
++		goto adddef_failure;
++	tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
++
++	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
++	if (entry == NULL) {
++		ret_val = -ENOMEM;
++		goto adddef_failure;
++	}
++
++	entry->type = tmp_val;
++	switch (entry->type) {
++	case NETLBL_NLTYPE_UNLABELED:
++		break;
++	case NETLBL_NLTYPE_CIPSOV4:
++		if (msg_len < NETLBL_LEN_U32)
++			goto adddef_failure;
++		tmp_val = netlbl_getinc_u32(&msg_ptr, &msg_len);
++		/* XXX - we should be holding a rcu_read_lock here while we
++		   hold the result but since the entry will always be
++		   deleted when the CIPSO DOI is deleted we are going
++		   to skip the lock */
++		rcu_read_lock();
++		entry->type_def.cipsov4 = cipso_v4_doi_getdef(tmp_val);
++		if (entry->type_def.cipsov4 == NULL) {
++			rcu_read_unlock();
++			goto adddef_failure;
++		}
++		rcu_locked = 1;
++		break;
++	default:
++		ret_val = -EINVAL;
++		goto adddef_failure;
++	}
++
++	ret_val = netlbl_domhsh_add_default(entry);
++	if (rcu_locked) {
++		rcu_read_unlock();
++		rcu_locked = 0;
++	}
++	if (ret_val != 0)
++		goto adddef_failure;
++
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				NETLBL_E_OK);
++	return 0;
++
++adddef_failure:
++	kfree(entry);
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
++}
++
++/**
++ * netlbl_mgmt_removedef - Handle a REMOVEDEF message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
++ *
++ * Description:
++ * Process a user generated REMOVEDEF message and remove the default domain
++ * mapping.  Returns zero on success, negative values on failure.
++ *
++ */
++static int netlbl_mgmt_removedef(struct sk_buff *skb, struct genl_info *info)
++{
++	int ret_val;
++
++	ret_val = netlbl_netlink_cap_check(skb, CAP_NET_ADMIN);
++	if (ret_val != 0)
++		goto removedef_return;
++
++	ret_val = netlbl_domhsh_remove_default();
++
++removedef_return:
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
++}
++
++/**
++ * netlbl_mgmt_listdef - Handle a LISTDEF message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
++ *
++ * Description:
++ * Process a user generated LISTDEF message and dumps the default domain
++ * mapping in a form suitable for use in a kernel generated LISTDEF message.
++ * Returns zero on success, negative values on failure.
++ *
++ */
++static int netlbl_mgmt_listdef(struct sk_buff *skb, struct genl_info *info)
++{
++	int ret_val = -ENOMEM;
++	struct sk_buff *ans_skb;
++
++	ans_skb = netlbl_domhsh_dump_default(NLMSG_SPACE(GENL_HDRLEN));
++	if (ans_skb == NULL)
++		goto listdef_failure;
++	netlbl_netlink_hdr_push(ans_skb,
++				info->snd_pid,
++				0,
++				0,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_LISTDEF,
++				ans_skb->len);
++
++	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
++	if (ret_val != 0)
++		goto listdef_failure;
++
++	return 0;
++
++listdef_failure:
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
++}
++
++/**
++ * netlbl_mgmt_modules - Handle a MODULES message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
++ *
++ * Description:
++ * Process a user generated MODULES message and respond accordingly.
++ *
++ */
++static int netlbl_mgmt_modules(struct sk_buff *skb, struct genl_info *info)
++{
++	int ret_val = -ENOMEM;
++	u32 mod_count;
++	size_t data_size;
++	struct sk_buff *ans_skb = NULL;
++	unsigned char *data;
++
++	/* unlabeled + cipsov4 */
++	mod_count = 2;
++
++	data_size = GENL_HDRLEN + NETLBL_LEN_U32 + mod_count * NETLBL_LEN_U32;
++	ans_skb = netlbl_netlink_alloc_skb(0, data_size, GFP_KERNEL);
++	if (ans_skb == NULL)
++		goto modules_failure;
++
++	data = netlbl_netlink_hdr_put(ans_skb,
++				      info->snd_pid,
++				      0,
++				      0,
++				      netlbl_mgmt_gnl_family.id,
++				      NLBL_MGMT_C_MODULES,
++				      data_size);
++	if (data == NULL)
++		goto modules_failure;
++
++	netlbl_putinc_u32(&data, mod_count, NULL);
++	netlbl_putinc_u32(&data, NETLBL_NLTYPE_UNLABELED, NULL);
++	netlbl_putinc_u32(&data, NETLBL_NLTYPE_CIPSOV4, NULL);
++
++	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
++	if (ret_val != 0)
++		goto modules_failure;
++
++	return 0;
++
++modules_failure:
++	kfree_skb(ans_skb);
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
++}
++
++/**
++ * netlbl_mgmt_version - Handle a VERSION message
++ * @skb: the NETLINK buffer
++ * @info: the Generic NETLINK info block
++ *
++ * Description:
++ * Process a user generated VERSION message and respond accordingly.  Returns
++ * zero on success, negative values on failure.
++ *
++ */
++static int netlbl_mgmt_version(struct sk_buff *skb, struct genl_info *info)
++{
++	int ret_val = -ENOMEM;
++	size_t data_size;
++	struct sk_buff *ans_skb = NULL;
++	unsigned char *data;
++
++	data_size = GENL_HDRLEN + NETLBL_LEN_U32;
++	ans_skb = netlbl_netlink_alloc_skb(0, data_size, GFP_KERNEL);
++	if (ans_skb == NULL)
++		goto version_failure;
++	data = netlbl_netlink_hdr_put(ans_skb,
++				      info->snd_pid,
++				      0,
++				      0,
++				      netlbl_mgmt_gnl_family.id,
++				      NLBL_MGMT_C_VERSION,
++				      data_size);
++	if (data == NULL)
++		goto version_failure;
++
++	netlbl_put_u32(data, NETLBL_PROTO_VERSION);
++
++	ret_val = netlbl_netlink_snd(ans_skb, info->snd_pid);
++	if (ret_val != 0)
++		goto version_failure;
++
++	return 0;
++
++version_failure:
++	kfree_skb(ans_skb);
++	netlbl_netlink_send_ack(info,
++				netlbl_mgmt_gnl_family.id,
++				NLBL_MGMT_C_ACK,
++				-ret_val);
++	return ret_val;
++}
++
++
++/*
++ * NetLabel Generic NETLINK Command Definitions
++ */
++
++static struct genl_ops netlbl_mgmt_genl_c_add = {
++	.cmd = NLBL_MGMT_C_ADD,
++	.flags = 0,
++	.doit = netlbl_mgmt_add,
++	.dumpit = NULL,
++};
++
++static struct genl_ops netlbl_mgmt_genl_c_remove = {
++	.cmd = NLBL_MGMT_C_REMOVE,
++	.flags = 0,
++	.doit = netlbl_mgmt_remove,
++	.dumpit = NULL,
++};
++
++static struct genl_ops netlbl_mgmt_genl_c_list = {
++	.cmd = NLBL_MGMT_C_LIST,
++	.flags = 0,
++	.doit = netlbl_mgmt_list,
++	.dumpit = NULL,
++};
++
++static struct genl_ops netlbl_mgmt_genl_c_adddef = {
++	.cmd = NLBL_MGMT_C_ADDDEF,
++	.flags = 0,
++	.doit = netlbl_mgmt_adddef,
++	.dumpit = NULL,
++};
++
++static struct genl_ops netlbl_mgmt_genl_c_removedef = {
++	.cmd = NLBL_MGMT_C_REMOVEDEF,
++	.flags = 0,
++	.doit = netlbl_mgmt_removedef,
++	.dumpit = NULL,
++};
++
++static struct genl_ops netlbl_mgmt_genl_c_listdef = {
++	.cmd = NLBL_MGMT_C_LISTDEF,
++	.flags = 0,
++	.doit = netlbl_mgmt_listdef,
++	.dumpit = NULL,
++};
++
++static struct genl_ops netlbl_mgmt_genl_c_modules = {
++	.cmd = NLBL_MGMT_C_MODULES,
++	.flags = 0,
++	.doit = netlbl_mgmt_modules,
++	.dumpit = NULL,
++};
++
++static struct genl_ops netlbl_mgmt_genl_c_version = {
++	.cmd = NLBL_MGMT_C_VERSION,
++	.flags = 0,
++	.doit = netlbl_mgmt_version,
++	.dumpit = NULL,
++};
++
++/*
++ * NetLabel Generic NETLINK Protocol Functions
++ */
++
++/**
++ * netlbl_mgmt_genl_init - Register the NetLabel management component
++ *
++ * Description:
++ * Register the NetLabel management component with the Generic NETLINK
++ * mechanism.  Returns zero on success, negative values on failure.
++ *
++ */
++int netlbl_mgmt_genl_init(void)
++{
++	int ret_val;
++
++	ret_val = genl_register_family(&netlbl_mgmt_gnl_family);
++	if (ret_val != 0)
++		return ret_val;
++
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_add);
++	if (ret_val != 0)
++		goto genl_init_failure;
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_remove);
++	if (ret_val != 0)
++		goto genl_init_failure;
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_list);
++	if (ret_val != 0)
++		goto genl_init_failure;
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_adddef);
++	if (ret_val != 0)
++		goto genl_init_failure;
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_removedef);
++	if (ret_val != 0)
++		goto genl_init_failure;
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_listdef);
++	if (ret_val != 0)
++		goto genl_init_failure;
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_modules);
++	if (ret_val != 0)
++		goto genl_init_failure;
++	ret_val = genl_register_ops(&netlbl_mgmt_gnl_family,
++				    &netlbl_mgmt_genl_c_version);
++	if (ret_val != 0)
++		goto genl_init_failure;
++
++	return 0;
++
++genl_init_failure:
++	netlbl_mgmt_genl_exit();
++	return ret_val;
++}
++
++/**
++ * netlbl_mgmt_genl_exit - Unregister the NetLabel management component
++ *
++ * Description:
++ * Unregister the NetLabel management component with the Generic NETLINK
++ * mechanism.  Returns zero on success, negative values on failure.
++ *
++ */
++void netlbl_mgmt_genl_exit(void)
++{
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_version);
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_modules);
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_listdef);
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_removedef);
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_adddef);
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_list);
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_remove);
++	genl_unregister_ops(&netlbl_mgmt_gnl_family,
++			    &netlbl_mgmt_genl_c_add);
++
++	genl_unregister_family(&netlbl_mgmt_gnl_family);
++	netlbl_mgmt_gnl_family.id = GENL_ID_GENERATE;
++}
++
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_mgmt.h
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_mgmt.h
+@@ -0,0 +1,250 @@
++/*
++ * NetLabel Management Support
++ *
++ * This file defines the management functions for the NetLabel system.  The
++ * NetLabel system manages static and dynamic label mappings for network
++ * protocols such as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#ifndef _NETLABEL_MGMT_H
++#define _NETLABEL_MGMT_H
++
++#include <net/netlabel.h>
++
++/*
++ * The following NetLabel payloads are supported by the management interface,
++ * all of which are preceeded by the nlmsghdr struct.
++ *
++ * o ACK:
++ *   Sent by the kernel in response to an applications message, applications
++ *   should never send this message.
++ *
++ *   +----------------------+-----------------------+
++ *   | seq number (32 bits) | return code (32 bits) |
++ *   +----------------------+-----------------------+
++ *
++ *     seq number:  the sequence number of the original message, taken from the
++ *                  nlmsghdr structure
++ *     return code: return value, based on errno values
++ *
++ * o ADD:
++ *   Sent by an application to add a domain mapping to the NetLabel system.
++ *   The kernel should respond with an ACK.
++ *
++ *   +-------------------+
++ *   | domains (32 bits) | ...
++ *   +-------------------+
++ *
++ *     domains: the number of domains in the message
++ *
++ *   +-------------------------+--------------------------+
++ *   | domain length (32 bits) | domain string (variable) | ...
++ *   +-------------------------+--------------------------+
++ *
++ *   +-------------------------+-------------- ---- --- -- -
++ *   | protocol type (32 bits) | mapping data                ... repeated
++ *   +-------------------------+-------------- ---- --- -- -
++ *
++ *     domain length: the length of the "domain string" in bytes
++ *     domain string: the domain string, NULL terminated
++ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
++ *     mapping data:  specific to the map type (see below)
++ *
++ *   NETLBL_NLTYPE_UNLABELED
++ *
++ *     No mapping data for this protocol type.
++ *
++ *   NETLBL_NLTYPE_CIPSOV4
++ *
++ *   +---------------+
++ *   | doi (32 bits) |
++ *   +---------------+
++ *
++ *     doi:  the CIPSO DOI value
++ *
++ * o REMOVE:
++ *   Sent by an application to remove a domain mapping from the NetLabel
++ *   system.  The kernel should ACK this message.
++ *
++ *   +-------------------+
++ *   | domains (32 bits) | ...
++ *   +-------------------+
++ *
++ *     domains: the number of domains in the message
++ *
++ *   +-------------------------+--------------------------+
++ *   | domain length (32 bits) | domain string (variable) | ...
++ *   +-------------------------+--------------------------+
++ *
++ *     domain length: the length of the "domain string" in bytes
++ *     domain string: the domain string, NULL terminated
++ *
++ * o LIST:
++ *   This message can be sent either from an application or by the kernel in
++ *   response to an application generated LIST message.  When sent by an
++ *   application there is no payload.  The kernel should respond to a LIST
++ *   message either with a LIST message on success or an ACK message on
++ *   failure.
++ *
++ *   +-------------------+
++ *   | domains (32 bits) | ...
++ *   +-------------------+
++ *
++ *     domains: the number of domains in the message
++ *
++ *   +-------------------------+--------------------------+
++ *   | domain length (32 bits) | domain string (variable) | ...
++ *   +-------------------------+--------------------------+
++ *
++ *   +-------------------------+-------------- ---- --- -- -
++ *   | protocol type (32 bits) | mapping data                ... repeated
++ *   +-------------------------+-------------- ---- --- -- -
++ *
++ *     domain length: the length of the "domain string" in bytes
++ *     domain string: the domain string, NULL terminated
++ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
++ *     mapping data:  specific to the map type (see below)
++ *
++ *   NETLBL_NLTYPE_UNLABELED
++ *
++ *     No mapping data for this protocol type.
++ *
++ *   NETLBL_NLTYPE_CIPSOV4
++ *
++ *   +----------------+---------------+
++ *   | type (32 bits) | doi (32 bits) |
++ *   +----------------+---------------+
++ *
++ *     type: the CIPSO mapping table type (defined in the cipso_ipv4.h header
++ *           as CIPSO_V4_MAP_*)
++ *     doi:  the CIPSO DOI value
++ *
++ * o ADDDEF:
++ *   Sent by an application to set the default domain mapping for the NetLabel
++ *   system.  The kernel should respond with an ACK.
++ *
++ *   +-------------------------+-------------- ---- --- -- -
++ *   | protocol type (32 bits) | mapping data                ... repeated
++ *   +-------------------------+-------------- ---- --- -- -
++ *
++ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
++ *     mapping data:  specific to the map type (see below)
++ *
++ *   NETLBL_NLTYPE_UNLABELED
++ *
++ *     No mapping data for this protocol type.
++ *
++ *   NETLBL_NLTYPE_CIPSOV4
++ *
++ *   +---------------+
++ *   | doi (32 bits) |
++ *   +---------------+
++ *
++ *     doi:  the CIPSO DOI value
++ *
++ * o REMOVEDEF:
++ *   Sent by an application to remove the default domain mapping from the
++ *   NetLabel system, there is no payload.  The kernel should ACK this message.
++ *
++ * o LISTDEF:
++ *   This message can be sent either from an application or by the kernel in
++ *   response to an application generated LISTDEF message.  When sent by an
++ *   application there is no payload.  The kernel should respond to a
++ *   LISTDEF message either with a LISTDEF message on success or an ACK message
++ *   on failure.
++ *
++ *   +-------------------------+-------------- ---- --- -- -
++ *   | protocol type (32 bits) | mapping data                ... repeated
++ *   +-------------------------+-------------- ---- --- -- -
++ *
++ *     protocol type: the protocol type (defined by NETLBL_NLTYPE_*)
++ *     mapping data:  specific to the map type (see below)
++ *
++ *   NETLBL_NLTYPE_UNLABELED
++ *
++ *     No mapping data for this protocol type.
++ *
++ *   NETLBL_NLTYPE_CIPSOV4
++ *
++ *   +----------------+---------------+
++ *   | type (32 bits) | doi (32 bits) |
++ *   +----------------+---------------+
++ *
++ *     type: the CIPSO mapping table type (defined in the cipso_ipv4.h header
++ *           as CIPSO_V4_MAP_*)
++ *     doi:  the CIPSO DOI value
++ *
++ * o MODULES:
++ *   Sent by an application to request a list of configured NetLabel modules
++ *   in the kernel.  When sent by an application there is no payload.
++ *
++ *   +-------------------+
++ *   | modules (32 bits) | ...
++ *   +-------------------+
++ *
++ *     modules: the number of modules in the message, if this is an application
++ *              generated message and the value is zero then return a list of
++ *              the configured modules
++ *
++ *   +------------------+
++ *   | module (32 bits) | ... repeated
++ *   +------------------+
++ *
++ *     module: the module number as defined by NETLBL_NLTYPE_*
++ *
++ * o VERSION:
++ *   Sent by an application to request the NetLabel version string.  When sent
++ *   by an application there is no payload.  This message type is also used by
++ *   the kernel to respond to an VERSION request.
++ *
++ *   +-------------------+
++ *   | version (32 bits) |
++ *   +-------------------+
++ *
++ *     version: the protocol version number
++ *
++ */
++
++/* NetLabel Management commands */
++enum {
++	NLBL_MGMT_C_UNSPEC,
++	NLBL_MGMT_C_ACK,
++	NLBL_MGMT_C_ADD,
++	NLBL_MGMT_C_REMOVE,
++	NLBL_MGMT_C_LIST,
++	NLBL_MGMT_C_ADDDEF,
++	NLBL_MGMT_C_REMOVEDEF,
++	NLBL_MGMT_C_LISTDEF,
++	NLBL_MGMT_C_MODULES,
++	NLBL_MGMT_C_VERSION,
++	__NLBL_MGMT_C_MAX,
++};
++#define NLBL_MGMT_C_MAX (__NLBL_MGMT_C_MAX - 1)
++
++/* NetLabel protocol functions */
++int netlbl_mgmt_genl_init(void);
++void netlbl_mgmt_genl_exit(void);
++
++#endif
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_unlabeled.h
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_unlabeled.h
+@@ -0,0 +1,99 @@
++/*
++ * NetLabel Unlabeled Support
++ *
++ * This file defines functions for dealing with unlabeled packets for the
++ * NetLabel system.  The NetLabel system manages static and dynamic label
++ * mappings for network protocols such as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#ifndef _NETLABEL_UNLABELED_H
++#define _NETLABEL_UNLABELED_H
++
++#include <net/netlabel.h>
++
++/*
++ * The following NetLabel payloads are supported by the Unlabeled subsystem.
++ *
++ * o ACK:
++ *   Sent by the kernel in response to an applications message, applications
++ *   should never send this message.
++ *
++ *   +----------------------+-----------------------+
++ *   | seq number (32 bits) | return code (32 bits) |
++ *   +----------------------+-----------------------+
++ *
++ *     seq number:  the sequence number of the original message, taken from the
++ *                  nlmsghdr structure
++ *     return code: return value, based on errno values
++ *
++ * o ACCEPT
++ *   This message is sent from an application to specify if the kernel should
++ *   allow unlabled packets to pass if they do not match any of the static
++ *   mappings defined in the unlabeled module.
++ *
++ *   +-----------------+
++ *   | allow (32 bits) |
++ *   +-----------------+
++ *
++ *     allow: if true (1) then allow the packets to pass, if false (0) then
++ *            reject the packets
++ *
++ * o LIST
++ *   This message can be sent either from an application or by the kernel in
++ *   response to an application generated LIST message.  When sent by an
++ *   application there is no payload.  The kernel should respond to a LIST
++ *   message either with a LIST message on success or an ACK message on
++ *   failure.
++ *
++ *   +-----------------------+
++ *   | accept flag (32 bits) |
++ *   +-----------------------+
++ *
++ *     accept flag: if true (1) then unlabeled packets are allowed to pass,
++ *                  if false (0) then unlabeled packets are rejected
++ *
++ */
++
++/* NetLabel Unlabeled commands */
++enum {
++	NLBL_UNLABEL_C_UNSPEC,
++	NLBL_UNLABEL_C_ACK,
++	NLBL_UNLABEL_C_ACCEPT,
++	NLBL_UNLABEL_C_LIST,
++	__NLBL_UNLABEL_C_MAX,
++};
++#define NLBL_UNLABEL_C_MAX (__NLBL_UNLABEL_C_MAX - 1)
++
++/* NetLabel protocol functions */
++int netlbl_unlabel_genl_init(void);
++void netlbl_unlabel_genl_exit(void);
++
++/* Process Unlabeled incoming network packets */
++int netlbl_unlabel_getattr(struct netlbl_lsm_secattr *secattr);
++
++/* Set the default configuration to allow Unlabeled packets */
++int netlbl_unlabel_defconf(void);
++
++#endif
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_user.c
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_user.c
+@@ -0,0 +1,181 @@
++/*
++ * NetLabel NETLINK Interface
++ *
++ * This file defines the NETLINK interface for the NetLabel system.  The
++ * NetLabel system manages static and dynamic label mappings for network
++ * protocols such as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/socket.h>
++#include <net/sock.h>
++#include <net/netlink.h>
++#include <net/genetlink.h>
++#include <net/netlabel.h>
++#include <asm/bug.h>
++
++#include "netlabel_mgmt.h"
++#include "netlabel_unlabeled.h"
++#include "netlabel_cipso_v4.h"
++#include "netlabel_user.h"
++
++/*
++ * NetLabel NETLINK Setup Functions
++ */
++
++/**
++ * netlbl_netlink_init - Initialize the NETLINK communication channel
++ *
++ * Description:
++ * Call out to the NetLabel components so they can register their families and
++ * commands with the Generic NETLINK mechanism.  Returns zero on success and
++ * non-zero on failure.
++ *
++ */
++int netlbl_netlink_init(void)
++{
++	int ret_val;
++
++	ret_val = netlbl_mgmt_genl_init();
++	if (ret_val != 0)
++		goto init_failure;
++
++	ret_val = netlbl_cipsov4_genl_init();
++	if (ret_val != 0)
++		goto init_failure;
++
++	ret_val = netlbl_unlabel_genl_init();
++	if (ret_val != 0)
++		goto init_failure;
++
++	return 0;
++
++init_failure:
++	netlbl_unlabel_genl_exit();
++	return ret_val;
++}
++
++/**
++ * netlbl_exit - Shutdown the NETLINK communication channel
++ *
++ * Description:
++ * Call out to the NetLabel components so they can deregister themselves from
++ * the Generic NETLINK mechanism.
++ *
++ */
++void netlbl_netlink_exit(void)
++{
++	netlbl_unlabel_genl_exit();
++	netlbl_cipsov4_genl_exit();
++	netlbl_mgmt_genl_exit();
++}
++
++/*
++ * NetLabel Common Protocol Functions
++ */
++
++/**
++ * netlbl_netlink_send_ack - Send an ACK message
++ * @info: the generic NETLINK information
++ * @genl_family: the generic NETLINK family ID value
++ * @ack_cmd: the generic NETLINK family ACK command value
++ * @ret_code: return code to use
++ *
++ * Description:
++ * This function sends an ACK message to the sender of the NETLINK message
++ * specified by @info.
++ *
++ */
++void netlbl_netlink_send_ack(const struct genl_info *info,
++			     const u32 genl_family,
++			     const u8 ack_cmd,
++			     const u32 ret_code)
++{
++	size_t data_size;
++	struct sk_buff *skb;
++	unsigned char *data;
++
++	data_size = GENL_HDRLEN + 2 * NETLBL_LEN_U32;
++	skb = netlbl_netlink_alloc_skb(0, data_size, GFP_KERNEL);
++	if (skb == NULL)
++		return;
++
++	data = netlbl_netlink_hdr_put(skb,
++				      info->snd_pid,
++				      0,
++				      0,
++				      genl_family,
++				      ack_cmd,
++				      data_size);
++	if (data == NULL)
++		goto send_ack_failure;
++
++	netlbl_putinc_u32(&data, info->snd_seq, NULL);
++	netlbl_putinc_u32(&data, ret_code, NULL);
++
++	netlbl_netlink_snd(skb, info->snd_pid);
++	return;
++
++send_ack_failure:
++	kfree_skb(skb);
++}
++
++/*
++ * NETLINK I/O Functions
++ */
++
++/**
++ * netlbl_netlink_snd - Send a NetLabel message
++ * @skb: NetLabel message
++ * @pid: destination PID
++ *
++ * Description:
++ * Sends a unicast NetLabel message over the NETLINK socket.
++ *
++ */
++int netlbl_netlink_snd(struct sk_buff *skb, const u32 pid)
++{
++	return genlmsg_unicast(skb, pid);
++}
++
++/**
++ * netlbl_netlink_snd - Send a NetLabel message
++ * @skb: NetLabel message
++ * @pid: sending PID
++ * @group: multicast group id
++ *
++ * Description:
++ * Sends a multicast NetLabel message over the NETLINK socket to all members
++ * of @group except @pid.
++ *
++ */
++int netlbl_netlink_snd_multicast(struct sk_buff *skb,
++				 const u32 pid,
++				 const u32 group)
++{
++	return genlmsg_multicast(skb, pid, group);
++}
+Index: linux-2.6.18-rc1/net/netlabel/netlabel_user.h
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc1/net/netlabel/netlabel_user.h
+@@ -0,0 +1,210 @@
++/*
++ * NetLabel NETLINK Interface
++ *
++ * This file defines the NETLINK interface for the NetLabel system.  The
++ * NetLabel system manages static and dynamic label mappings for network
++ * protocols such as CIPSO and RIPSO.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
++ *
++ * This program is free software;  you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ * the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program;  if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#ifndef _NETLABEL_USER_H
++#define _NETLABEL_USER_H
++
++#include <linux/skbuff.h>
++#include <linux/capability.h>
++#include <linux/genetlink.h>
++#include <net/netlabel.h>
++#include <net/genetlink.h>
++
++/* NetLabel NETLINK helper functions */
++
++/**
++ * netlbl_netlink_cap_check - Check the NETLINK msg capabilities
++ * @skb: the NETLINK buffer
++ * @req_cap: the required capability
++ *
++ * Description:
++ * Check the NETLINK buffer's capabilities against the required capabilities.
++ * Returns zero on success, negative values on failure.
++ *
++ */
++static inline int netlbl_netlink_cap_check(const struct sk_buff *skb,
++					   const kernel_cap_t req_cap)
++{
++	if (cap_raised(NETLINK_CB(skb).eff_cap, req_cap))
++		return 0;
++	return -EPERM;
++}
++
++/**
++ * netlbl_netlink_hdr_put - Write the NETLINK buffers into a buffer
++ * @skb: the buffer
++ * @pid: the PID of the receipient
++ * @seq: the sequence number
++ * @flags: NETLINK message flags
++ * @type: the generic NETLINK message family type
++ * @cmd: command
++ * @len: length
++ *
++ * Description:
++ * Write both a NETLINK nlmsghdr structure and a Generic NETLINK genlmsghdr
++ * struct to a buffer.  Returns a pointer to the start of the payload buffer
++ * on success or NULL on failure.
++ *
++ */
++static inline void __netlbl_netlink_hdr(unsigned char *buffer,
++					const u32 pid,
++					const u32 seq,
++					const int flags,
++					const int type,
++					const u8 cmd,
++					const int len)
++{
++	struct nlmsghdr *nlh;
++	struct genlmsghdr *hdr;
++
++	nlh = (struct nlmsghdr *)buffer;
++	nlh->nlmsg_type = type;
++	nlh->nlmsg_len = len;
++	nlh->nlmsg_flags = flags;
++	nlh->nlmsg_pid = pid;
++	nlh->nlmsg_seq = seq;
++
++	hdr = nlmsg_data(nlh);
++	hdr->cmd = cmd;
++	hdr->version = NETLBL_PROTO_VERSION;
++	hdr->reserved = 0;
++}
++
++/**
++ * netlbl_netlink_hdr_put - Write the NETLINK buffers into a sk_buff
 + * @skb: the packet
++ * @pid: the PID of the receipient
++ * @seq: the sequence number
++ * @flags: NETLINK message flags
++ * @type: the generic NETLINK message family type
++ * @cmd: command
++ * @len: length
 + *
 + * Description:
-+ * Examine @skb to find the SID assigned to it by NetLabel.  Returns the SID on
-+ * success, SECSID_NULL on error.
++ * Write both a NETLINK nlmsghdr structure and a Generic NETLINK genlmsghdr
++ * struct to the packet.  Returns a pointer to the start of the payload buffer
++ * on success or NULL on failure.
 + *
 + */
-+u32 selinux_netlbl_socket_getpeersec_dgram(struct sk_buff *skb)
++static inline unsigned char *netlbl_netlink_hdr_put(struct sk_buff *skb,
++						    const u32 pid,
++						    const u32 seq,
++						    const int flags,
++						    const int type,
++						    const u8 cmd,
++						    const int len)
 +{
-+	int peer_sid;
-+	struct sock *sk = skb->sk;
-+	struct inode_security_struct *isec;
++	struct nlmsghdr *nlh;
++	struct genlmsghdr *hdr;
 +
-+	if (sk == NULL)
-+		return SECSID_NULL;
++	nlh = nlmsg_put(skb, pid, seq, type, len, flags);
++	if (nlh == NULL)
++		return NULL;
 +
-+	read_lock_bh(&skb->sk->sk_callback_lock);
-+	if (skb->sk->sk_socket == NULL) {
-+		read_unlock_bh(&skb->sk->sk_callback_lock);
-+		return SECSID_NULL;
-+	}
-+	isec = SOCK_INODE(skb->sk->sk_socket)->i_security;
-+	if (selinux_netlbl_skbuff_getsid(skb, isec->sid, &peer_sid) != 0)
-+		peer_sid = SECSID_NULL;
-+	read_unlock_bh(&sk->sk_callback_lock);
++	hdr = nlmsg_data(nlh);
++	hdr->cmd = cmd;
++	hdr->version = NETLBL_PROTO_VERSION;
++	hdr->reserved = 0;
 +
-+	return peer_sid;
++	return (unsigned char *)hdr + GENL_HDRLEN;
 +}
-+#endif /* CONFIG_NETLABEL */
++
++/**
++ * netlbl_netlink_hdr_push - Write the NETLINK buffers into a sk_buff
++ * @skb: the packet
++ * @pid: the PID of the receipient
++ * @seq: the sequence number
++ * @flags: NETLINK message flags
++ * @type: the generic NETLINK message family type
++ * @cmd: command
++ * @len: length
++ *
++ * Description:
++ * Write both a NETLINK nlmsghdr structure and a Generic NETLINK genlmsghdr
++ * struct to the packet.
++ *
++ */
++static inline void netlbl_netlink_hdr_push(struct sk_buff *skb,
++					   const u32 pid,
++					   const u32 seq,
++					   const int flags,
++					   const int type,
++					   const u8 cmd,
++					   const int len)
++
++{
++	unsigned char *buf = skb_push(skb, NLMSG_SPACE(GENL_HDRLEN));
++	__netlbl_netlink_hdr(buf, pid, seq, flags, type, cmd, len);
++}
++
++/**
++ * netlbl_netlink_payload_len - Return the length of the payload
++ * @skb: the NETLINK buffer
++ *
++ * Description:
++ * This function returns the length of the NetLabel payload.
++ *
++ */
++static inline u32 netlbl_netlink_payload_len(const struct sk_buff *skb)
++{
++	return nlmsg_len((struct nlmsghdr *)skb->data) - GENL_HDRLEN;
++}
++
++/**
++ * netlbl_netlink_payload_data - Returns a pointer to the start of the payload
++ * @skb: the NETLINK buffer
++ *
++ * Description:
++ * This function returns a pointer to the start of the NetLabel payload.
++ *
++ */
++static inline unsigned char *netlbl_netlink_payload_data(
++	                                            const struct sk_buff *skb)
++{
++	return nlmsg_data((struct nlmsghdr *)skb->data) + GENL_HDRLEN;
++}
++
++/* NetLabel common protocol functions */
++
++void netlbl_netlink_send_ack(const struct genl_info *info,
++			     const u32 genl_family,
++			     const u8 ack_cmd,
++			     const u32 ret_code);
++
++/* NetLabel NETLINK I/O functions */
++
++int netlbl_netlink_init(void);
++void netlbl_netlink_exit(void);
++int netlbl_netlink_snd(struct sk_buff *skb, const u32 pid);
++int netlbl_netlink_snd_multicast(struct sk_buff *skb,
++				 const u32 pid,
++				 const u32 group);
++
++#endif
 
 --
 paul moore
