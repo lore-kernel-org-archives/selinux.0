@@ -1,69 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EDFs5r029204
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 09:15:54 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6EDFr5n022614
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 13:15:53 GMT
-Subject: Re: role infrastructure
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <44B3A993.2070906@redhat.com>
-References: <1152106918.8907.28.camel@sgc>  <44B3A993.2070906@redhat.com>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 09:17:04 -0400
-Message-Id: <1152883024.3299.79.camel@sgc.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EDt48r029945
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 09:55:04 -0400
+Received: from mail8.sea5.speakeasy.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6EDt348014496
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 13:55:03 GMT
+Date: Fri, 14 Jul 2006 09:54:59 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: David Miller <davem@davemloft.net>
+cc: vyekkirala@TrustedCS.com, netdev@vger.kernel.org,
+        Stephen Smalley <sds@tycho.nsa.gov>, tjaeger@cse.psu.edu,
+        selinux@tycho.nsa.gov, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 08/10] MLSXFRM: Add security context to acquire messages
+ using PF_KEY
+In-Reply-To: <20060713.230445.106436593.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0607140952220.15305@d.namei>
+References: <44B56642.6060500@trustedcs.com> <20060713.230445.106436593.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-07-11 at 09:37 -0400, Daniel J Walsh wrote:
-> Bringing this out for full discussion.
-> 
-> Christopher J. PeBenito wrote:
-> > Dan, can you give me a run down of:
-> >
-> > 1. how you want to be able to configure user roles
-> > 2. things that fc/rhel users request for user role customization
-> >   
-> Good question I think this is more a brain storming exercise, which I 
-> don't necessarily have the knowledge or
-> experience to answer.
-> 
-> What I have heard is for Sarbanes Oxley, groups want to be allowed to 
-> have administrators that can get root privs in order to
-> configure certain facets of the system, but not full control.
-> 
-> So you could imagine a webadmin, nameserveradmin, dhcpadmin as 
-> examples.  Then I believe they would like to use
-> dominance in some way to group them.  netadmin = { nameserveradmin 
-> dhcpadmin }.
-> 
-> My idea is that we give these administrators full control over the types 
-> defined for these domains, and allow them to use all of the
-> standard tools for configuring (vi, emacs, basically anything labeled 
-> bin_t.)
-> 
-> To make this useful in a Targeted policy system, we might do something 
-> to sudo to get a transition to happen.
-> 
-> So dwalsh can run a root shell but only in the webadm_r  unconfined_t 
-> would transition to webadm_r.
+On Thu, 13 Jul 2006, David Miller wrote:
 
-So this looks like the main goal of these examples is finer-grained
-admin users, which makes sense.  What I'd like to do is go one step
-farther and make it possible to compose the roles more easily, making it
-possible to have unprivileged users that have less access than the
-current user_t.  If you look at the userdomain.if in the role-infra
-branch, you can see that I started to break down the user domains into
-logical blocks so they can be more easily composed.  Note, the names on
-these templates are just temporary, and will be changed in the future.
+> The other changes I'm either OK with, or they are outside my scope of
+> knowledge (the stuff that lives inside of SELINUX).
 
+The security side of things looks ok to me.
+
+Herbert, any review from you on this would be greatly appreciated.
+
+
+- James
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
