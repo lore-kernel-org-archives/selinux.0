@@ -1,82 +1,79 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EHCXfB001429
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 13:12:33 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6EHCW48009715
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 17:12:32 GMT
-Message-ID: <44B7D0C5.7070304@redhat.com>
-Date: Fri, 14 Jul 2006 13:13:41 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: role infrastructure
-References: <1152106918.8907.28.camel@sgc>  <44B3A993.2070906@redhat.com> <1152883024.3299.79.camel@sgc.columbia.tresys.com>
-In-Reply-To: <1152883024.3299.79.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6EIxKoh003808
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 14:59:20 -0400
+Received: from atlrel8.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6EIxIe9019141
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2006 18:59:19 GMT
+Message-Id: <20060714185739.780700000@flek.zko.hp.com>
+Date: Fri, 14 Jul 2006 14:57:39 -0400
+From: paul.moore@hp.com
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: davem@davemloft.net, sds@epoch.ncsc.mil, jmorris@redhat.com,
+        pratt@argus-systems.com
+Subject: [PATCH 0/7] Latest NetLabel patch for 2.6.19
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Tue, 2006-07-11 at 09:37 -0400, Daniel J Walsh wrote:
->   
->> Bringing this out for full discussion.
->>
->> Christopher J. PeBenito wrote:
->>     
->>> Dan, can you give me a run down of:
->>>
->>> 1. how you want to be able to configure user roles
->>> 2. things that fc/rhel users request for user role customization
->>>   
->>>       
->> Good question I think this is more a brain storming exercise, which I 
->> don't necessarily have the knowledge or
->> experience to answer.
->>
->> What I have heard is for Sarbanes Oxley, groups want to be allowed to 
->> have administrators that can get root privs in order to
->> configure certain facets of the system, but not full control.
->>
->> So you could imagine a webadmin, nameserveradmin, dhcpadmin as 
->> examples.  Then I believe they would like to use
->> dominance in some way to group them.  netadmin = { nameserveradmin 
->> dhcpadmin }.
->>
->> My idea is that we give these administrators full control over the types 
->> defined for these domains, and allow them to use all of the
->> standard tools for configuring (vi, emacs, basically anything labeled 
->> bin_t.)
->>
->> To make this useful in a Targeted policy system, we might do something 
->> to sudo to get a transition to happen.
->>
->> So dwalsh can run a root shell but only in the webadm_r  unconfined_t 
->> would transition to webadm_r.
->>     
->
-> So this looks like the main goal of these examples is finer-grained
-> admin users, which makes sense. 
-exactly
->  What I'd like to do is go one step
-> farther and make it possible to compose the roles more easily, making it
-> possible to have unprivileged users that have less access than the
-> current user_t.  
-I agree. 
+I am posting this patchset for consideration and inclusion into the 2.6.19
+kernel, it is against 2.6.18-rc1.
 
-I would like to get to the point where in targeted policy we could allow 
-people to turn on mozilla/thunderbird
-policy via a boolean.  So someone building a kiosk could run a locked 
-down version of thunderbird without requiring
-the pain of strict policy.  But I digress.
-> If you look at the userdomain.if in the role-infra
-> branch, you can see that I started to break down the user domains into
-> logical blocks so they can be more easily composed.  Note, the names on
-> these templates are just temporary, and will be changed in the future.
->
->   
+This patchset introduces NetLabel, a implementation of explicit packet
+labeling (i.e. CIPSO), to the Linux kernel.  NetLabel has been designed to
+have as minimal an impact on the base networking stack as possible; this
+includes both code changes as well as performance.  I, as well as many others
+who have posted to various lists on earlier NetLabel patches, believe that an
+interoperable form of labeled networking is important for Linux's success in
+the Trusted OS arena currently being dominated by commercial UNIX systems.
+DaveM, I know you have previously posted that you feel CIPSO does not belong
+in the Linux kernel on principle, however, I'm hoping the arguments posted
+in response have softened your position ...
 
-Yes that is a step in the right direction.
+Earlier versions of this patchset have been posted to the netdev, SELinux,
+LSM and RH-LSPP mailing lists over the past couple of months.  It now contains
+several rounds of comments and has been tested on a variety of architectures
+by people on the RH-LSPP mailing list over the course of the last several
+weeks.
+
+If accepted into the mainline kernel, both HP and myself pledge to maintain
+this code.
+
+ - Notes on Performance
+
+This past week there was a thread on the RH-LSPP list where the performance of
+the NetLabel patch was measured and discussed using the 2.6.17 kernel.  A copy
+of the discussion can be found here:
+
+ * http://www.redhat.com/archives/redhat-lspp/2006-July/msg00063.html
+
+With the conclusion being that performance should not be an issue.
+
+Unfortunately the vanilla 2.6.18-rc1 kernel has problems on the two machines
+I use for performance testing so I am not currently able to update the
+NetLabel performance numbers for 2.6.18-rc1.
+
+ - Notes on Interoperability Testing
+
+The NetLabel CIPSO implementation has been tested against Trusted Solaris and
+HP-UX CMW without problems.
+
+ - Instructions for Testing
+
+For those of you wishing to test this patchset you will need the latest
+release of the netlabel_tools tarball found here:
+
+ * http://free.linux.hp.com/~pmoore/projects/linux_cipso
+
+You also may want to make use of the "toy policy module" for SELinux which has
+been posted to the RH-LSPP mailing list, the archived message can be found
+here:
+
+ * http://www.redhat.com/archives/redhat-lspp/2006-June/msg00243.html
+
+Thanks.
+
+--
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
