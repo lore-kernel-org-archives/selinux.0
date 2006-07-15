@@ -1,30 +1,73 @@
-Date: Sat, 15 Jul 2006 12:20:13 +1000
-To: James Morris <jmorris@namei.org>
-Cc: David Miller <davem@davemloft.net>, vyekkirala@TrustedCS.com,
-        netdev@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        tjaeger@cse.psu.edu, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 08/10] MLSXFRM: Add security context to acquire messages using PF_KEY
-Message-ID: <20060715022013.GA13987@gondor.apana.org.au>
-References: <44B56642.6060500@trustedcs.com> <20060713.230445.106436593.davem@davemloft.net> <Pine.LNX.4.64.0607140952220.15305@d.namei>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.LNX.4.64.0607140952220.15305@d.namei>
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6F87NZT014303
+	for <selinux@tycho.nsa.gov>; Sat, 15 Jul 2006 04:07:23 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k6F87NX0011014
+	for <selinux@tycho.nsa.gov>; Sat, 15 Jul 2006 08:07:23 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: CVS-2006-3626 local privilege escalation stopped by targeted policy
+Date: Sat, 15 Jul 2006 04:07:21 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015882987B8@exchange.columbia.tresys.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jul 14, 2006 at 09:54:59AM -0400, James Morris wrote:
-> 
-> Herbert, any review from you on this would be greatly appreciated.
+The local privilege escalation from
+http://lists.grok.org.uk/pipermail/full-disclosure/2006-July/047907.html
+is stopped by selinux targeted policy (both old and reference policy). I
+used a rhel4 test vm to demonstrate below. This was released yesterday
+so there is no updated kernel rpm yet.
 
-OK, I'll try to have a look tomorrow (I'm GMT-4 at the moment).
+This requires a.out support to exploit, you'll have to grab
+binfmt_aout.c from the appropriate kernel sources (it isn't shipped with
+RHEL or Fedora) and use a module makefile to build it, then insert it.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Setenforce 0
+
+[jbrindle@rhel4-dev ~]$ id
+uid=501(jbrindle) gid=502(jbrindle) groups=502(jbrindle)
+context=user_u:system_r:unconfined_t
+[jbrindle@rhel4-dev ~]$ ./h00lyshit /bin/ash.static 
+
+preparing
+trying to exploit /bin/ash.static
+
+sh-3.00# id
+uid=0(root) gid=502(jbrindle) groups=502(jbrindle)
+context=user_u:system_r:unconfined_t
+
+(may take a few times to get since it's a race, clear your cache between
+tries)
+
+Setenforce 1
+
+[jbrindle@rhel4-dev ~]$ ./h00lyshit /bin/ash.static
+
+preparing
+trying to exploit /bin/ash.static
+
+failed: Permission denied
+
+
+All related denials:
+
+audit(1152957171.464:5): avc:  denied  { setattr } for  pid=6291
+comm="h00lyshit" name="environ" dev=proc ino=412286986
+scontext=user_u:system_r:unconfined_t
+tcontext=user_u:system_r:unconfined_t tclass=file
+audit(1152957171.465:6): avc:  denied  { execute } for  pid=6292
+comm="h00lyshit" name="environ" dev=proc ino=412286986
+scontext=user_u:system_r:unconfined_t
+tcontext=user_u:system_r:unconfined_t tclass=file
+audit(1152957171.467:7): avc:  denied  { execute_no_trans } for
+pid=6292 comm="h00lyshit" name="environ" dev=proc ino=412286986
+scontext=user_u:system_r:unconfined_t
+tcontext=user_u:system_r:unconfined_t tclass=file
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
