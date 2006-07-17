@@ -1,30 +1,38 @@
-Message-ID: <36282A1733C57546BE392885C06185920138E387@chaos.tcs.tcs-sec.com>
+Message-ID: <44BBAC2A.8060104@trustedcs.com>
+Date: Mon, 17 Jul 2006 10:26:34 -0500
 From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>,
-        James Morris
-	 <jmorris@namei.org>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-        Stephen Smalley <sds@tycho.nsa.gov>, tjaeger@cse.psu.edu,
-        selinux@tycho.nsa.gov
-Subject: RE: [PATCH 08/10] MLSXFRM: Add security context to acquire messag
-	es using PF_KEY
-Date: Mon, 17 Jul 2006 09:24:01 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: [PATCH] security_compute_sid: minor bug fix
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> On Fri, Jul 14, 2006 at 09:54:59AM -0400, James Morris wrote:
-> > 
-> > Herbert, any review from you on this would be greatly appreciated.
-> 
-> Looks good to me.
-> 
+Initializes newcontext sooner to allow for its destruction in all cases.
 
-Thanks to all that have reviewed the patchset and for your
-comments/suggestions.
-Will try to get an updated patchset out before the end of the day today.
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+
+--- linux-2.6.17.vanilla/security/selinux/ss/services.c	2006-07-14 09:28:40.000000000 -0500
++++ linux-2.6.17/security/selinux/ss/services.c	2006-07-17 10:12:29.000000000 -0500
+@@ -833,6 +833,8 @@ static int security_compute_sid(u32 ssid
+ 		goto out;
+ 	}
+ 
++	context_init(&newcontext);
++
+ 	POLICY_RDLOCK;
+ 
+ 	scontext = sidtab_search(&sidtab, ssid);
+@@ -850,8 +852,6 @@ static int security_compute_sid(u32 ssid
+ 		goto out_unlock;
+ 	}
+ 
+-	context_init(&newcontext);
+-
+ 	/* Set the user identity. */
+ 	switch (specified) {
+ 	case AVTAB_TRANSITION:
 
 --
 This message was distributed to subscribers of the selinux mailing list.
