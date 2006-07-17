@@ -1,272 +1,153 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6HKV3B3029310
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6HKV3Ja029322
 	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 16:31:03 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6HKV2XA013817
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 20:31:02 GMT
-Subject: [PATCH 2/6] netfilter integration: add netfilter contexts package
-	section
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k6HKV353023721
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 20:31:03 GMT
+Subject: [PATCH 3/6] netfilter integration: module store support
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 17 Jul 2006 16:32:32 -0400
-Message-Id: <1153168353.10090.47.camel@sgc>
+Date: Mon, 17 Jul 2006 16:32:34 -0400
+Message-Id: <1153168354.10090.48.camel@sgc>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a section to the package for netfilter contexts.
+Adds support for committing the netfilter_contexts file, and copying it
+out to the running system.
 
- libsepol/include/sepol/module.h          |   10 ++
- libsepol/include/sepol/policydb/module.h |    2
- libsepol/src/module.c                    |  119 +++++++++++++++++++++++++++++++
- 3 files changed, 131 insertions(+)
+ libsemanage/src/direct_api.c     |   25 ++++++++++++++++++-------
+ libsemanage/src/semanage_store.c |   11 +++++++++++
+ libsemanage/src/semanage_store.h |    1 +
+ 3 files changed, 30 insertions(+), 7 deletions(-)
 
-diff --exclude .svn -purN trunk/libsepol/include/sepol/module.h netfilter-integration/libsepol/include/sepol/module.h
---- trunk/libsepol/include/sepol/module.h	2006-07-03 10:42:01.031370000 -0400
-+++ netfilter-integration/libsepol/include/sepol/module.h	2006-07-14 11:15:32.923435000 -0400
-@@ -40,6 +40,16 @@ extern size_t sepol_module_package_get_u
- extern int sepol_module_package_set_user_extra(sepol_module_package_t * p,
- 					       char *data, size_t len);
+diff -purN trunk/libsemanage/src/direct_api.c newtrunk/libsemanage/src/direct_api.c
+--- trunk/libsemanage/src/direct_api.c	2006-07-03 10:42:01.031370000 -0400
++++ newtrunk/libsemanage/src/direct_api.c	2006-07-14 11:39:21.272701250 -0400
+@@ -438,8 +438,8 @@ static int semanage_write_module(semanag
+ static int semanage_direct_commit(semanage_handle_t * sh)
+ {
+ 	char **mod_filenames = NULL;
+-	char *sorted_buffer = NULL;
+-	size_t sorted_buffer_len = 0;
++	char *sorted_fc_buffer = NULL, *sorted_nc_buffer = NULL;
++	size_t sorted_fc_buffer_len = 0, sorted_nc_buffer_len = 0;
+ 	const char *linked_filename = NULL, *ofilename = NULL;
+ 	sepol_module_package_t *base = NULL;
+ 	int retval = -1, num_modfiles = 0, i;
+@@ -521,17 +521,17 @@ static int semanage_direct_commit(semana
+ 		if (semanage_fc_sort
+ 		    (sh, sepol_module_package_get_file_contexts(base),
+ 		     sepol_module_package_get_file_contexts_len(base),
+-		     &sorted_buffer, &sorted_buffer_len) == -1) {
++		     &sorted_fc_buffer, &sorted_fc_buffer_len) == -1) {
+ 			goto cleanup;
+ 		}
  
-+extern char *sepol_module_package_get_netfilter_contexts(sepol_module_package_t
-+							 * p);
-+
-+extern size_t
-+sepol_module_package_get_netfilter_contexts_len(sepol_module_package_t * p);
-+
-+extern int sepol_module_package_set_netfilter_contexts(sepol_module_package_t *
-+						       p, char *data,
-+						       size_t len);
-+
- extern sepol_policydb_t *sepol_module_package_get_policy(sepol_module_package_t
- 							 * p);
+ 		/* Write the contexts (including template contexts) to a single file.  
+ 		 * The buffer returned by the sort function has a trailing \0 character,
+-		 * which we do NOT want to write out to disk, so we pass sorted_buffer_len-1. */
++		 * which we do NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
+ 		if ((ofilename =
+ 		     semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL)) == NULL
+-		    || write_file(sh, ofilename, sorted_buffer,
+-				  sorted_buffer_len - 1) == -1) {
++		    || write_file(sh, ofilename, sorted_fc_buffer,
++				  sorted_fc_buffer_len - 1) == -1) {
+ 			goto cleanup;
+ 		}
  
-diff --exclude .svn -purN trunk/libsepol/include/sepol/policydb/module.h netfilter-integration/libsepol/include/sepol/policydb/module.h
---- trunk/libsepol/include/sepol/policydb/module.h	2006-07-03 10:42:01.031370000 -0400
-+++ netfilter-integration/libsepol/include/sepol/policydb/module.h	2006-07-14 11:15:32.871431750 -0400
-@@ -39,6 +39,8 @@ struct sepol_module_package {
- 	size_t seusers_len;
- 	char *user_extra;
- 	size_t user_extra_len;
-+	char *netfilter_contexts;
-+	size_t netfilter_contexts_len;
+@@ -580,6 +580,16 @@ static int semanage_direct_commit(semana
+ 				goto cleanup;
+ 		}
+ 
++		/* Write the contexts to a single file.  The buffer returned by
++		 * the sort function has a trailing \0 character, which we do
++		 * NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
++		if ((ofilename =
++		     semanage_path(SEMANAGE_TMP, SEMANAGE_NC)) == NULL
++		    || write_file(sh, ofilename, sorted_nc_buffer,
++				  sorted_nc_buffer_len - 1) == -1) {
++			goto cleanup;
++		}
++
+ 		/* ==================== Policydb-backed ================ */
+ 
+ 		/* Create new policy object, then attach to policy databases
+@@ -657,7 +667,8 @@ static int semanage_direct_commit(semana
+ 	sepol_policydb_free(out);
+ 	semanage_release_trans_lock(sh);
+ 
+-	free(sorted_buffer);
++	free(sorted_fc_buffer);
++	free(sorted_nc_buffer);
+ 
+ 	/* regardless if the commit was successful or not, remove the
+ 	   sandbox if it is still there */
+diff -purN trunk/libsemanage/src/semanage_store.c newtrunk/libsemanage/src/semanage_store.c
+--- trunk/libsemanage/src/semanage_store.c	2006-07-11 11:53:29.388406000 -0400
++++ newtrunk/libsemanage/src/semanage_store.c	2006-07-14 11:40:48.898177500 -0400
+@@ -108,6 +108,7 @@ static const char *semanage_sandbox_path
+ 	"/users_extra.local",
+ 	"/seusers.final",
+ 	"/users_extra",
++	"/netfilter_contexts",
  };
  
- extern int sepol_module_package_init(sepol_module_package_t * p);
-diff --exclude .svn -purN trunk/libsepol/src/module.c netfilter-integration/libsepol/src/module.c
---- trunk/libsepol/src/module.c	2006-07-03 10:42:01.031370000 -0400
-+++ netfilter-integration/libsepol/src/module.c	2006-07-14 11:15:36.375650750 -0400
-@@ -1,5 +1,6 @@
- /* Author: Karl MacMillan <kmacmillan@tresys.com>
-  *         Jason Tang     <jtang@tresys.com>
-+ *         Chris PeBenito <cpebenito@tresys.com>
-  *
-  * Copyright (C) 2004-2005 Tresys Technology, LLC
-  *
-@@ -33,6 +34,7 @@
- #define SEPOL_PACKAGE_SECTION_FC 0xf97cff90
- #define SEPOL_PACKAGE_SECTION_SEUSER 0x97cff91
- #define SEPOL_PACKAGE_SECTION_USER_EXTRA 0x97cff92
-+#define SEPOL_PACKAGE_SECTION_NETFILTER 0x97cff93
+ /* A node used in a linked list of file contexts; used for sorting.
+@@ -1000,11 +1001,13 @@ static int semanage_install_active(seman
+ 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_HOMEDIR_TMPL);
+ 	const char *active_seusers =
+ 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS);
++	const char *active_nc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_NC);
  
- static int policy_file_seek(struct policy_file *fp, size_t offset)
- {
-@@ -121,6 +123,7 @@ void sepol_module_package_free(sepol_mod
- 	free(p->file_contexts);
- 	free(p->seusers);
- 	free(p->user_extra);
-+	free(p->netfilter_contexts);
- 	free(p);
- }
+ 	const char *running_fc = selinux_file_context_path();
+ 	const char *running_hd = selinux_homedir_context_path();
+ 	const char *running_policy = selinux_binary_policy_path();
+ 	const char *running_seusers = selinux_usersconf_path();
++	const char *running_nc = selinux_netfilter_context_path();
+ 	const char *really_active_store = selinux_policy_root();
  
-@@ -156,6 +159,17 @@ size_t sepol_module_package_get_user_ext
- 	return p->user_extra_len;
- }
+ 	/* This is very unelegant, the right thing to do is export the path 
+@@ -1014,12 +1017,14 @@ static int semanage_install_active(seman
+ 	char store_hd[PATH_MAX];
+ 	char store_pol[PATH_MAX];
+ 	char store_seusers[PATH_MAX];
++	char store_nc[PATH_MAX];
  
-+char *sepol_module_package_get_netfilter_contexts(sepol_module_package_t * p)
-+{
-+	return p->netfilter_contexts;
-+}
-+
-+size_t sepol_module_package_get_netfilter_contexts_len(sepol_module_package_t *
-+						       p)
-+{
-+	return p->netfilter_contexts_len;
-+}
-+
- int sepol_module_package_set_file_contexts(sepol_module_package_t * p,
- 					   char *data, size_t len)
- {
-@@ -186,6 +200,16 @@ int sepol_module_package_set_user_extra(
- 	return 0;
- }
+ 	len = strlen(really_active_store);
+ 	running_fc += len;
+ 	running_hd += len;
+ 	running_policy += len;
+ 	running_seusers += len;
++	running_nc += len;
  
-+int sepol_module_package_set_netfilter_contexts(sepol_module_package_t * p,
-+						char *data, size_t len)
-+{
-+	if (set_char(&p->netfilter_contexts, data, len))
-+		return -1;
-+
-+	p->netfilter_contexts_len = len;
-+	return 0;
-+}
-+
- sepol_policydb_t *sepol_module_package_get_policy(sepol_module_package_t * p)
- {
- 	return p->policy;
-@@ -223,6 +247,40 @@ static int link_file_contexts(sepol_modu
- 	return 0;
- }
- 
-+/* Append each of the netfilter contexts from each module to the base
-+ * policy's netfilter context.  'base_context' will be reallocated to a
-+ * larger size (and thus it is an in/out reference
-+ * variable). 'base_nc_len' is the length of base's netfilter contexts; it
-+ * too is a reference variable.  Return 0 on success, -1 if out of
-+ * memory. */
-+static int link_netfilter_contexts(sepol_module_package_t * base,
-+				   sepol_module_package_t ** modules,
-+				   int num_modules)
-+{
-+	size_t base_nc_len;
-+	int i;
-+	char *base_context;
-+
-+	base_nc_len = base->netfilter_contexts_len;
-+	for (i = 0; i < num_modules; i++) {
-+		base_nc_len += modules[i]->netfilter_contexts_len;
-+	}
-+
-+	if ((base_context =
-+	     (char *)realloc(base->netfilter_contexts, base_nc_len)) == NULL) {
-+		return -1;
-+	}
-+	base->netfilter_contexts = base_context;
-+	for (i = 0; i < num_modules; i++) {
-+		memcpy(base->netfilter_contexts + base->netfilter_contexts_len,
-+		       modules[i]->netfilter_contexts,
-+		       modules[i]->netfilter_contexts_len);
-+		base->netfilter_contexts_len +=
-+		    modules[i]->netfilter_contexts_len;
-+	}
-+	return 0;
-+}
-+
- /* Links the module packages into the base.  Returns 0 on success, -1
-  * if a requirement was not met, or -2 for all other errors. */
- int sepol_link_packages(sepol_handle_t * handle,
-@@ -254,6 +312,12 @@ int sepol_link_packages(sepol_handle_t *
- 		ERR(handle, "Out of memory!");
- 		return -2;
+ 	len = strlen(selinux_path()) + strlen(sh->conf->store_path) + 1;
+ 	storepath = (char *)malloc(len);
+@@ -1056,6 +1061,12 @@ static int semanage_install_active(seman
+ 		/* Non-fatal; fall through */
  	}
-+
-+	if (link_netfilter_contexts(base, modules, num_modules) == -1) {
-+		ERR(handle, "Out of memory!");
-+		return -2;
+ 
++	snprintf(store_nc, PATH_MAX, "%s%s", storepath, running_nc);
++	if (semanage_copy_file(active_nc, store_nc, sh->conf->file_mode) == -1) {
++		ERR(sh, "Could not copy %s to %s.", active_nc, store_nc);
++		goto cleanup;
 +	}
 +
- 	return 0;
- }
+ 	if (!sh->do_reload)
+ 		goto skip_reload;
  
-@@ -345,6 +409,7 @@ static int module_package_read_offsets(s
- #define SEEN_FC  2
- #define SEEN_SEUSER 4
- #define SEEN_USER_EXTRA 8
-+#define SEEN_NETFILTER 16
- 
- int sepol_module_package_read(sepol_module_package_t * mod,
- 			      struct sepol_policy_file *spf, int verbose)
-@@ -461,6 +526,33 @@ int sepol_module_package_read(sepol_modu
- 			}
- 			seen |= SEEN_USER_EXTRA;
- 			break;
-+		case SEPOL_PACKAGE_SECTION_NETFILTER:
-+			if (seen & SEEN_NETFILTER) {
-+				ERR(file->handle,
-+				    "found multiple netfilter contexts sections in module package (at section %u)",
-+				    i);
-+				goto cleanup;
-+			}
-+
-+			mod->netfilter_contexts_len = len - sizeof(uint32_t);
-+			mod->netfilter_contexts =
-+			    (char *)malloc(mod->netfilter_contexts_len);
-+			if (!mod->netfilter_contexts) {
-+				ERR(file->handle, "out of memory");
-+				goto cleanup;
-+			}
-+			if (read_helper
-+			    (mod->netfilter_contexts, file,
-+			     mod->netfilter_contexts_len)) {
-+				ERR(file->handle,
-+				    "invalid netfilter contexts section at section %u",
-+				    i);
-+				free(mod->netfilter_contexts);
-+				mod->netfilter_contexts = NULL;
-+				goto cleanup;
-+			}
-+			seen |= SEEN_NETFILTER;
-+			break;
- 		case POLICYDB_MOD_MAGIC:
- 			if (seen & SEEN_MOD) {
- 				ERR(file->handle,
-@@ -577,6 +669,16 @@ int sepol_module_package_info(struct sep
- 			}
- 			seen |= SEEN_USER_EXTRA;
- 			break;
-+		case SEPOL_PACKAGE_SECTION_NETFILTER:
-+			/* skip netfilter contexts */
-+			if (seen & SEEN_NETFILTER) {
-+				ERR(file->handle,
-+				    "found multiple netfilter contexts sections in module package (at section %u)",
-+				    i);
-+				goto cleanup;
-+			}
-+			seen |= SEEN_NETFILTER;
-+			break;
- 		case POLICYDB_MOD_MAGIC:
- 			if (seen & SEEN_MOD) {
- 				ERR(file->handle,
-@@ -754,6 +856,9 @@ int sepol_module_package_write(sepol_mod
- 	if (p->user_extra)
- 		nsec++;
- 
-+	if (p->netfilter_contexts)
-+		nsec++;
-+
- 	buf[0] = cpu_to_le32(SEPOL_MODULE_PACKAGE_MAGIC);
- 	buf[1] = cpu_to_le32(p->version);
- 	buf[2] = cpu_to_le32(nsec);
-@@ -784,6 +889,12 @@ int sepol_module_package_write(sepol_mod
- 		len = p->user_extra_len + sizeof(uint32_t);
- 		i++;
- 	}
-+	if (p->netfilter_contexts) {
-+		offsets[i] = offsets[i - 1] + len;
-+		buf[i] = cpu_to_le32(offsets[i]);
-+		len = p->netfilter_contexts_len + sizeof(uint32_t);
-+		i++;
-+	}
- 	if (put_entry(buf, sizeof(uint32_t), nsec, file) != nsec)
- 		return -1;
- 
-@@ -814,6 +925,14 @@ int sepol_module_package_write(sepol_mod
- 		if (write_helper(p->user_extra, p->user_extra_len, file))
- 			return -1;
- 	}
-+	if (p->netfilter_contexts) {
-+		buf[0] = cpu_to_le32(SEPOL_PACKAGE_SECTION_NETFILTER);
-+		if (put_entry(buf, sizeof(uint32_t), 1, file) != 1)
-+			return -1;
-+		if (write_helper
-+		    (p->netfilter_contexts, p->netfilter_contexts_len, file))
-+			return -1;
-+	}
- 	return 0;
- }
- 
-
+diff -purN trunk/libsemanage/src/semanage_store.h newtrunk/libsemanage/src/semanage_store.h
+--- trunk/libsemanage/src/semanage_store.h	2006-07-03 10:42:01.031370000 -0400
++++ newtrunk/libsemanage/src/semanage_store.h	2006-07-14 11:39:34.561531750 -0400
+@@ -56,6 +56,7 @@ enum semanage_sandbox_defs {
+ 	SEMANAGE_USERS_EXTRA_LOCAL,
+ 	SEMANAGE_SEUSERS,
+ 	SEMANAGE_USERS_EXTRA,
++	SEMANAGE_NC,
+ 	SEMANAGE_STORE_NUM_PATHS
+ };
 
 -- 
 Chris PeBenito
