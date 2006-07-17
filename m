@@ -1,64 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6H2gPQZ011408
-	for <selinux@tycho.nsa.gov>; Sun, 16 Jul 2006 22:42:25 -0400
-Received: from ccerelrim01.cce.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6H2gOS9017422
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 02:42:24 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 3/7] NetLabel: CIPSOv4 engine
-Date: Sun, 16 Jul 2006 22:42:07 -0400
-Cc: jmorris@namei.org, netdev@vger.kernel.org, selinux@tycho.nsa.gov,
-        sds@epoch.ncsc.mil, pratt@argus-systems.com
-References: <20060714185915.270209000@flek.zko.hp.com> <200607161210.44873.paul.moore@hp.com> <20060716.181230.59471240.davem@davemloft.net>
-In-Reply-To: <20060716.181230.59471240.davem@davemloft.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6H4uMJn012707
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 00:56:22 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6H4uLAa024289
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 04:56:21 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k6H4uLZd027686
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 00:56:21 -0400
+Received: from pobox.brisbane.redhat.com (pobox.brisbane.redhat.com [172.16.44.10])
+	by int-mx1.corp.redhat.com (8.12.11.20060308/8.12.11) with ESMTP id k6H4uK5T030589
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jul 2006 00:56:20 -0400
+From: "David O'Brien" <daobrien@redhat.com>
+To: SELinux internal list <rhselinux-project@redhat.com>,
+        SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Request for info: development status of SELinux and Security in general
+Date: Mon, 17 Jul 2006 14:56:13 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200607162242.08622.paul.moore@hp.com>
+  charset="us-ascii"
+Message-Id: <200607171456.13378.daobrien@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 16 July 2006 9:12 pm, David Miller wrote:
-> From: Paul Moore <paul.moore@hp.com>
-> Date: Sun, 16 Jul 2006 12:10:44 -0400
->
-> > On Friday 14 July 2006 10:03 pm, James Morris wrote:
-> > > On Fri, 14 Jul 2006, paul.moore@hp.com wrote:
-> > > > +/**
-> > > > + * cipso_v4_bitmap_walk - Walk a bitmap looking for a bit
-> > > >
-> > > > + * cipso_v4_bitmap_setbit - Sets a single bit in a bitmap
-> > >
-> > > Can you use lib/bitmap.c instead?
-> >
-> > Looking again at include/asm/bitops.h I think I now remember why I
-> > decided not to use them in the first place.
->
-> lib/bitmap.c and the asm/bitops.h operations are two entirely
-> different animals.
+As some of you know, I'm currently involved in updating the Security 
+Guide/SELinux Guide for RHEL5. We're putting together a TOC from which we'll 
+determine exactly which topics we can effectively document for this release.
 
-I probably should have been more clear - I didn't see anything in lib/bitmap.c 
-(or include/linux/bitmap.h) that I think would have been useful.  However, 
-include/linux/bitmap.h makes reference to asm/bitops.h which does have some 
-function which may have been useful if they didn't have the length 
-restrictions.
+What would really help is information on SELinux development and kernel 
+development directly related to security that is ongoing and still has some 
+way to go before completion, and areas that are unlikely to change (or change 
+any more) for RHEL5.
 
-> Wrt. your asm/bitops.h concerns, is there any reason you cannot pad
-> out your bitmaps to be a modulo of "long" which is required for
-> those routines?
+I've been watching the "Summary of current SELinux work" thread (among many 
+others) on rhselinux-project@redhat.com but what would be good is to know 
+what work is actually completed or near completion. Is there somewhere I can 
+look this up or otherwise track progress?
 
-Right now I use both the bitmap_walk() and bitmap_setbit() routines to deal 
-with both CIPSO tags straight from the sk_buff as well as the internal bitmap 
-representation.  Padding out the internal bitmaps would require some code 
-changes but there isn't much I can do about the packet I don't believe.  True 
-it would probably be okay for most packets to assume you could access an 
-entire "long"s worth of memory but then again it would only take one evil 
-packet to start causing problems ...
+I know this is a big ask but any pointers, etc., would be greatly appreciated.
 
+thanks
 -- 
-paul moore
-linux security @ hp
+David O'Brien
+Red Hat Asia Pacific Pty Ltd
+
+Tel:  +61-7-3514-8189
+Fax: +61-7-3514-8199
+
+email: daobrien@redhat.com
+web: http://apac.redhat.com/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
