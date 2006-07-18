@@ -1,48 +1,114 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6IHDh3e015740
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jul 2006 13:13:43 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k6IHDg1F011692
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jul 2006 17:13:42 GMT
-Message-ID: <44BD16C1.1080802@tresys.com>
-Date: Tue, 18 Jul 2006 13:13:37 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Message-ID: <44BD1970.7010207@trustedcs.com>
+Date: Tue, 18 Jul 2006 12:25:04 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 4/6] netfilter integration: add netfilter contexts	sorting
-References: <1153168355.10090.49.camel@sgc> <1153235498.10744.26.camel@localhost.localdomain>
-In-Reply-To: <1153235498.10744.26.camel@localhost.localdomain>
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+CC: jmorris@namei.org, latten@austin.ibm.com, sds@tycho.nsa.gov,
+        tjaeger@cse.psu.edu
+Subject: [PATCH FOR REFERENCE ONLY] MLSXFRM-v02: Add support to serefpolicy
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> On Mon, 2006-07-17 at 16:32 -0400, Christopher J. PeBenito wrote:
->> Add sorting function for netfilter contexts.
->>
->>  libsemanage/src/direct_api.c     |    9 +
->>  libsemanage/src/semanage_store.c |  189 +++++++++++++++++++++++++++++++++++++--
->>  libsemanage/src/semanage_store.h |    6 +
->>  3 files changed, 198 insertions(+), 6 deletions(-)
->>
-> 
-> Is this correct location for the netfilter sorting (file and library)?
-> The file context sorting is a mess now and, again, just continuing that
-> seems like a bad idea.
-> 
+This patch has been included here just for reference for anyone wanting to
+try the patchset in enforcing mode. It will be submitted to the serefpolicy
+list later.
 
-libsemanage owns and manages these files, it is indeed the correct place 
-to do sorting.
+This patch adds a polmatch avperm to arbitrate flow/state's access to
+a xfrm policy. It also defines MLS policy for association { sendto,
+recvfrom, polmatch }.
 
-> Again, netfilter contexts seems like an ambiguous name. Secmark rules
-> seems more accurate to me.
-> 
+NOTE: When an inbound packet is not using an IPSec SA, a check is performed
+between the socket label and the unlabeled sid (SYSTEM_HIGH MLS label). For
+MLS purposes however, the target of the check should be the MLS label taken
+from the node sid (or secmark in the new secmark world). This would present
+a severe performance overhead (to make a new sid based on the unlabeled sid
+with the MLS taken from the node sid or secmark and then using this sid as
+the target). Pending reconciliation of the netlabel, ipsec and iptables contexts,
+I have chosen to currently make an exception for unlabeled_t SAs if TE policy
+allowed it. A similar problem exists for the outbound case and it has been similarly
+handled in the policy below (by making an exception for unlabeled_t).
 
-you can put any netfilter rule in, if in the future there is something 
-other than secmark that affects selinux those rules can also go into 
-this section.
+The mlsconstrains are from myself and the rest (sample/basic pieces to get
+communication going without or with unlabeled IPSec) are from Joy Latten at IBM
+(latten@austin.ibm.com).
+
+diff -urpN serefpolicy-2.2.47.orig/policy/flask/access_vectors serefpolicy-2.2.47.diff/policy/flask/access_vectors
+--- serefpolicy-2.2.47.orig/policy/flask/access_vectors	2006-07-11 05:15:39.000000000 -0500
++++ serefpolicy-2.2.47.diff/policy/flask/access_vectors	2006-07-11 07:43:37.000000000 -0500
+@@ -602,6 +602,7 @@ class association
+ 	sendto
+ 	recvfrom
+ 	setcontext
++	polmatch
+ }
+ 
+ # Updated Netlink class for KOBJECT_UEVENT family.
+diff -urpN serefpolicy-2.2.47.orig/policy/mls serefpolicy-2.2.47.diff/policy/mls
+--- serefpolicy-2.2.47.orig/policy/mls	2006-07-11 05:15:39.000000000 -0500
++++ serefpolicy-2.2.47.diff/policy/mls	2006-07-11 07:44:23.000000000 -0500
+@@ -671,4 +671,18 @@ mlsconstrain xinput { setattr relabelinp
+ # these access vectors have no MLS restrictions
+ # association *
+ 
++mlsconstrain association { recvfrom }
++        ((( l1 dom l2 ) and ( l1 domby h2 )) or
++         (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
++         ( t1 == mlsnetread ) or
++         ( t2 == unlabeled_t ));
++
++mlsconstrain association { sendto }
++        ((( l1 dom l2 ) and ( l1 domby h2 )) or
++         ( t2 == unlabeled_t ));
++
++mlsconstrain association { polmatch }
++         ((( l1 dom l2 ) and ( h1 domby h2 )) or
++          ( t2 == unlabeled_t));
++
+ ') dnl end enable_mls
+diff -urpN serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.if serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.if
+--- serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.if	2006-07-11 05:15:39.000000000 -0500
++++ serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.if	2006-07-14 04:29:32.000000000 -0500
+@@ -2134,3 +2134,11 @@ interface(`kernel_dontaudit_list_all_pro
+ 	dontaudit $1 proc_type:dir list_dir_perms;
+ 	dontaudit $1 proc_type:file getattr;
+ ')
++
++interface(`kernel_read_unlabeled_tcpsocket',`
++	gen_require(`
++		type unlabeled_t;
++	')
++
++	allow $1 unlabeled_t:tcp_socket { read write shutdown };
++')
+diff -urpN serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.te serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.te
+--- serefpolicy-2.2.47.orig/policy/modules/kernel/kernel.te	2006-07-11 05:15:39.000000000 -0500
++++ serefpolicy-2.2.47.diff/policy/modules/kernel/kernel.te	2006-07-14 04:28:18.000000000 -0500
+@@ -332,6 +332,11 @@ optional_policy(`
+ ifdef(`targeted_policy',`
+ 	allow unlabeled_t self:filesystem associate;
+ ')
++# Joy
++allow unlabeled_t self:association *;
++corenet_tcp_sendrecv_generic_if(unlabeled_t)
++corenet_tcp_sendrecv_generic_node(unlabeled_t)
++corenet_tcp_sendrecv_generic_port(unlabeled_t)
+ 
+ optional_policy(`
+ 	# If you load a new policy that removes active domains, processes can
+diff -urpN serefpolicy-2.2.47.orig/policy/modules/system/unconfined.te serefpolicy-2.2.47.diff/policy/modules/system/unconfined.te
+--- serefpolicy-2.2.47.orig/policy/modules/system/unconfined.te	2006-07-11 05:15:39.000000000 -0500
++++ serefpolicy-2.2.47.diff/policy/modules/system/unconfined.te	2006-07-14 04:32:33.000000000 -0500
+@@ -29,6 +29,8 @@ unconfined_domain(unconfined_t)
+ 
+ logging_send_syslog_msg(unconfined_t)
+ 
++kernel_read_unlabeled_tcpsocket(unconfined_t)
++
+ ifdef(`targeted_policy',`
+ 	allow unconfined_t self:system syslog_read;
+ 	dontaudit unconfined_t self:capability sys_module;
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
