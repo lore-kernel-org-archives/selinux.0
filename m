@@ -1,76 +1,185 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6IF10Lh012673
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jul 2006 11:01:00 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6IF8YCi012864
+	for <selinux@tycho.nsa.gov>; Tue, 18 Jul 2006 11:08:34 -0400
 Received: from localhost.localdomain (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6IF0tt3003158
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jul 2006 15:00:58 GMT
-Subject: Re: [PATCH 0/6] netfilter integration
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6IF8Xt3004210
+	for <selinux@tycho.nsa.gov>; Tue, 18 Jul 2006 15:08:33 GMT
+Subject: Re: [PATCH 3/6] netfilter integration: module store support
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: casey@schaufler-ca.com, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <44BC28BB.1080701@tresys.com>
-References: <20060717223444.4837.qmail@web36612.mail.mud.yahoo.com>
-	 <44BC28BB.1080701@tresys.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1153168354.10090.48.camel@sgc>
+References: <1153168354.10090.48.camel@sgc>
 Content-Type: text/plain
-Date: Tue, 18 Jul 2006 11:00:00 -0400
-Message-Id: <1153234800.10744.13.camel@localhost.localdomain>
+Date: Tue, 18 Jul 2006 11:08:31 -0400
+Message-Id: <1153235311.10744.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-07-17 at 20:18 -0400, Joshua Brindle wrote:
-> Casey Schaufler wrote:
-> > 
-> > --- "Christopher J. PeBenito" <cpebenito@tresys.com>
-> > wrote:
-> > 
-> >> This patchset adds support for netfilter secmark
-> >> rules in all policy
-> >> packages.  Each line of the file has a priority
-> >> (1-9) at the beginning
-> >> of the line, and the remainder is treated as the
-> >> rule.  Sorting is by
-> >> priority (1-9), and is stable within a module.  The
-> >> current design is
-> >> for the resultant netfilter_contexts file be
-> >> suitable for use with
-> >> iptables-restore.
-> > 
-> > How confident are you that 9 priorities
-> > will be sufficient? I can easily imaging
-> > dependency scenarios that would exceed
-> > this limitation. I would also expect that
-> > explict ordering within a priority is 
-> > going to be requested as soon as this
-> > goes into production.
-> > 
-> in reality probably 3 priorities would be sufficient. Specific port, 
-> port range and fallback. Its very doubtful that anything else would be 
-> necessary, especially in modules where the priority is much more 
-> important than in base. A module will very rarely have something more 
-> specific than ports, and since ports are non-overlapping it doesn't 
-> matter what order they are in (within a single priority)
+On Mon, 2006-07-17 at 16:32 -0400, Christopher J. PeBenito wrote:
+> Adds support for committing the netfilter_contexts file, and copying it
+> out to the running system.
 > 
-
-Then the 9 nine numbered port ranges are implying generality where there
-isn't actually any. Why not just create those 3 priorities with _names_
-to make the intent clear?
-
-Karl
-
-> > Speaking of dependencies, wouldn't a
-> > mechanism to declare dependencies a'la
-> > make be more precise? Just a thought.
-> > 
-> > 
-> eh? Policy modules already declare symbol dependencies explicitly (eg., 
-> which types, roles, etc this module uses)
+>  libsemanage/src/direct_api.c     |   25 ++++++++++++++++++-------
+>  libsemanage/src/semanage_store.c |   11 +++++++++++
+>  libsemanage/src/semanage_store.h |    1 +
+>  3 files changed, 30 insertions(+), 7 deletions(-)
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> diff -purN trunk/libsemanage/src/direct_api.c newtrunk/libsemanage/src/direct_api.c
+> --- trunk/libsemanage/src/direct_api.c	2006-07-03 10:42:01.031370000 -0400
+> +++ newtrunk/libsemanage/src/direct_api.c	2006-07-14 11:39:21.272701250 -0400
+> @@ -438,8 +438,8 @@ static int semanage_write_module(semanag
+>  static int semanage_direct_commit(semanage_handle_t * sh)
+>  {
+>  	char **mod_filenames = NULL;
+> -	char *sorted_buffer = NULL;
+> -	size_t sorted_buffer_len = 0;
+> +	char *sorted_fc_buffer = NULL, *sorted_nc_buffer = NULL;
+> +	size_t sorted_fc_buffer_len = 0, sorted_nc_buffer_len = 0;
+>  	const char *linked_filename = NULL, *ofilename = NULL;
+>  	sepol_module_package_t *base = NULL;
+>  	int retval = -1, num_modfiles = 0, i;
+> @@ -521,17 +521,17 @@ static int semanage_direct_commit(semana
+>  		if (semanage_fc_sort
+>  		    (sh, sepol_module_package_get_file_contexts(base),
+>  		     sepol_module_package_get_file_contexts_len(base),
+> -		     &sorted_buffer, &sorted_buffer_len) == -1) {
+> +		     &sorted_fc_buffer, &sorted_fc_buffer_len) == -1) {
+>  			goto cleanup;
+>  		}
+>  
+>  		/* Write the contexts (including template contexts) to a single file.  
+>  		 * The buffer returned by the sort function has a trailing \0 character,
+> -		 * which we do NOT want to write out to disk, so we pass sorted_buffer_len-1. */
+> +		 * which we do NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
+>  		if ((ofilename =
+>  		     semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL)) == NULL
+> -		    || write_file(sh, ofilename, sorted_buffer,
+> -				  sorted_buffer_len - 1) == -1) {
+> +		    || write_file(sh, ofilename, sorted_fc_buffer,
+> +				  sorted_fc_buffer_len - 1) == -1) {
+>  			goto cleanup;
+>  		}
+>  
+
+Both of those if blocks are very difficult to parse and adding even more
+expressions to them just makes it worse. I don't know what Steve thinks,
+but blindly continuing poor coding practices will just make the code
+base worse over time (which I think has happened). I would prefer to see
+cleanups happen when the code is being changed.
+
+> @@ -580,6 +580,16 @@ static int semanage_direct_commit(semana
+>  				goto cleanup;
+>  		}
+>  
+> +		/* Write the contexts to a single file.  The buffer returned by
+> +		 * the sort function has a trailing \0 character, which we do
+> +		 * NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
+> +		if ((ofilename =
+> +		     semanage_path(SEMANAGE_TMP, SEMANAGE_NC)) == NULL
+> +		    || write_file(sh, ofilename, sorted_nc_buffer,
+> +				  sorted_nc_buffer_len - 1) == -1) {
+> +			goto cleanup;
+> +		}
+> +
+
+Same here. This could be made much clearer - for example:
+
+ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_NC);
+
+if (ofilename == NULL) {
+	goto cleanup;
+}
+
+ret = write_file(sh, ofilename, sorted_nc_buffer,
+                 sorted_nc_buffer_len -  1);
+if (ret < 0) {
+	goto cleanup.
+}
+
+To me that makes the intent much clearer. It may be longer, but it is
+faster to read and understand.
+
+Also, you are continuing to only check for -1 as error and provide no
+opportunity for other error codes to propagate.
+
+>  		/* ==================== Policydb-backed ================ */
+>  
+>  		/* Create new policy object, then attach to policy databases
+> @@ -657,7 +667,8 @@ static int semanage_direct_commit(semana
+>  	sepol_policydb_free(out);
+>  	semanage_release_trans_lock(sh);
+>  
+> -	free(sorted_buffer);
+> +	free(sorted_fc_buffer);
+> +	free(sorted_nc_buffer);
+>  
+>  	/* regardless if the commit was successful or not, remove the
+>  	   sandbox if it is still there */
+> diff -purN trunk/libsemanage/src/semanage_store.c newtrunk/libsemanage/src/semanage_store.c
+> --- trunk/libsemanage/src/semanage_store.c	2006-07-11 11:53:29.388406000 -0400
+> +++ newtrunk/libsemanage/src/semanage_store.c	2006-07-14 11:40:48.898177500 -0400
+> @@ -108,6 +108,7 @@ static const char *semanage_sandbox_path
+>  	"/users_extra.local",
+>  	"/seusers.final",
+>  	"/users_extra",
+> +	"/netfilter_contexts",
+>  };
+>  
+>  /* A node used in a linked list of file contexts; used for sorting.
+> @@ -1000,11 +1001,13 @@ static int semanage_install_active(seman
+>  	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_HOMEDIR_TMPL);
+>  	const char *active_seusers =
+>  	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS);
+> +	const char *active_nc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_NC);
+>  
+>  	const char *running_fc = selinux_file_context_path();
+>  	const char *running_hd = selinux_homedir_context_path();
+>  	const char *running_policy = selinux_binary_policy_path();
+>  	const char *running_seusers = selinux_usersconf_path();
+> +	const char *running_nc = selinux_netfilter_context_path();
+>  	const char *really_active_store = selinux_policy_root();
+>  
+>  	/* This is very unelegant, the right thing to do is export the path 
+> @@ -1014,12 +1017,14 @@ static int semanage_install_active(seman
+>  	char store_hd[PATH_MAX];
+>  	char store_pol[PATH_MAX];
+>  	char store_seusers[PATH_MAX];
+> +	char store_nc[PATH_MAX];
+>  
+>  	len = strlen(really_active_store);
+>  	running_fc += len;
+>  	running_hd += len;
+>  	running_policy += len;
+>  	running_seusers += len;
+> +	running_nc += len;
+>  
+>  	len = strlen(selinux_path()) + strlen(sh->conf->store_path) + 1;
+>  	storepath = (char *)malloc(len);
+> @@ -1056,6 +1061,12 @@ static int semanage_install_active(seman
+>  		/* Non-fatal; fall through */
+>  	}
+>  
+> +	snprintf(store_nc, PATH_MAX, "%s%s", storepath, running_nc);
+> +	if (semanage_copy_file(active_nc, store_nc, sh->conf->file_mode) == -1) {
+> +		ERR(sh, "Could not copy %s to %s.", active_nc, store_nc);
+> +		goto cleanup;
+> +	}
+> +
+>  	if (!sh->do_reload)
+>  		goto skip_reload;
+>  
+> diff -purN trunk/libsemanage/src/semanage_store.h newtrunk/libsemanage/src/semanage_store.h
+> --- trunk/libsemanage/src/semanage_store.h	2006-07-03 10:42:01.031370000 -0400
+> +++ newtrunk/libsemanage/src/semanage_store.h	2006-07-14 11:39:34.561531750 -0400
+> @@ -56,6 +56,7 @@ enum semanage_sandbox_defs {
+>  	SEMANAGE_USERS_EXTRA_LOCAL,
+>  	SEMANAGE_SEUSERS,
+>  	SEMANAGE_USERS_EXTRA,
+> +	SEMANAGE_NC,
+>  	SEMANAGE_STORE_NUM_PATHS
+>  };
 > 
 
 --
