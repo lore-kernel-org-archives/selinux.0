@@ -1,57 +1,43 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6JFqbKu008103
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jul 2006 11:52:38 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6JFqaRt015617
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jul 2006 15:52:36 GMT
-Message-ID: <36282A1733C57546BE392885C0618592013E7627@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle
-	 <jbrindle@tresys.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux Mail List
-	 <selinux@tycho.nsa.gov>
-Subject: RE: [PATCH 4/6] netfilter integration: add netfilter contexts	sor
-	ting
-Date: Wed, 19 Jul 2006 11:52:19 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6KKq2iP003305
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:52:02 -0400
+Received: from e5.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6KKq14T012271
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 20:52:01 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e5.ny.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k6KKq1gJ004010
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL)
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:52:01 -0400
+Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
+	by d01relay04.pok.ibm.com (8.13.6/NCO/VER7.0) with ESMTP id k6KKpvVx287252
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:52:01 -0400
+Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
+	by d01av01.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k6KKpvV7002271
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:51:57 -0400
+Received: from [127.0.0.1] (pendarric.austin.ibm.com [9.41.46.139])
+	by d01av01.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k6KKptrL002151
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:51:57 -0400
+Message-ID: <44BFECE8.80501@us.ibm.com>
+Date: Thu, 20 Jul 2006 15:51:52 -0500
+From: Michael C Thompson <thompsmc@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: selinux@tycho.nsa.gov
+Subject: Existence of "helper" functions (specifcally MLS)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > > Again, netfilter contexts seems like an ambiguous name. 
-> Secmark rules
-> > > seems more accurate to me.
-> > > 
-> > 
-> > you can put any netfilter rule in, if in the future there 
-> is something 
-> > other than secmark that affects selinux those rules can 
-> also go into 
-> > this section.
-> > 
-> 
-> And when those rules arrive integration work will be required 
-> and code /
-> format changes will likely result, nullifying any potential win from
-> calling it netfilter now. So, it seems like false generality to me.
-> Secmark more correctly describes the current and, as of now, only use
-> for this section.
-> 
-> Karl
+Hey all,
 
-One other thing that may need to be kept in mind here is that in the
-new design (see
-http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2)
-"secmark" serves primarily as a flow control point (both inbound
-and outbound) and secondarily as a labeling mechanism for inbound packets in
-the absence of an explicit label coming in with the packets. So, we are
-dealing
-with contexts on these "gates" or "flow control points". We could either
-look at
-"secmark" as marking these "gates" or come up with a more intuitive name.
+I haven't looked extensively, but I was wondering if there exist any 
+funcitons (probably in libselinux?) which would do comparisons on MLS 
+labels and would return back whether or not one dominates another, or if 
+the categories are equal (or a subset), etc.
+
+Thanks much,
+Mike
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
