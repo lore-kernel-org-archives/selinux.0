@@ -1,42 +1,45 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6KKq2iP003305
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:52:02 -0400
-Received: from e5.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6KKq14T012271
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 20:52:01 GMT
-Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
-	by e5.ny.us.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k6KKq1gJ004010
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=FAIL)
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:52:01 -0400
-Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
-	by d01relay04.pok.ibm.com (8.13.6/NCO/VER7.0) with ESMTP id k6KKpvVx287252
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:52:01 -0400
-Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
-	by d01av01.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id k6KKpvV7002271
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:51:57 -0400
-Received: from [127.0.0.1] (pendarric.austin.ibm.com [9.41.46.139])
-	by d01av01.pok.ibm.com (8.12.11.20060308/8.12.11) with ESMTP id k6KKptrL002151
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jul 2006 16:51:57 -0400
-Message-ID: <44BFECE8.80501@us.ibm.com>
-Date: Thu, 20 Jul 2006 15:51:52 -0500
-From: Michael C Thompson <thompsmc@us.ibm.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Existence of "helper" functions (specifcally MLS)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6ODlS6M029369
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jul 2006 09:47:28 -0400
+Subject: Re: Existence of "helper" functions (specifcally MLS)
+From: David Quigley <dpquigl@tycho.nsa.gov>
+To: Michael C Thompson <thompsmc@us.ibm.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <44BFECE8.80501@us.ibm.com>
+References: <44BFECE8.80501@us.ibm.com>
+Content-Type: text/plain
+Date: Mon, 24 Jul 2006 09:45:47 -0400
+Message-Id: <1153748747.1641.18.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hey all,
+On Thu, 2006-07-20 at 15:51 -0500, Michael C Thompson wrote:
+> Hey all,
+> 
+> I haven't looked extensively, but I was wondering if there exist any 
+> funcitons (probably in libselinux?) which would do comparisons on MLS 
+> labels and would return back whether or not one dominates another, or if 
+> the categories are equal (or a subset), etc.
+> 
+> Thanks much,
+> Mike
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
-I haven't looked extensively, but I was wondering if there exist any 
-funcitons (probably in libselinux?) which would do comparisons on MLS 
-labels and would return back whether or not one dominates another, or if 
-the categories are equal (or a subset), etc.
+Hello,
+	Sorry for the late reply but I was at OLS all of last week. I currently
+have this implemented but it is not upstreamed yet. It required changes
+in both libselinux and in the kernel. I can generate a set of patches
+for you if you need it before I can get it upstream however they are
+currently against 2.6.18-rc1.
 
-Thanks much,
-Mike
+-- 
+David Quigley <dpquigl@tycho.nsa.gov>
 
 
 --
