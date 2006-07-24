@@ -1,71 +1,49 @@
 Subject: Re: Existence of "helper" functions (specifcally MLS)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: Joe Nall <joe@nall.com>, selinux@tycho.nsa.gov
-In-Reply-To: <20060724162559.84696.qmail@web36607.mail.mud.yahoo.com>
-References: <20060724162559.84696.qmail@web36607.mail.mud.yahoo.com>
+To: Joe Nall <joe@nall.com>
+Cc: Chad Hanson <chanson@TrustedCS.com>,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        David Quigley <dpquigl@tycho.nsa.gov>,
+        Michael C Thompson <thompsmc@us.ibm.com>, selinux@tycho.nsa.gov
+In-Reply-To: <FA715F0C-F9E5-4F23-807A-A3F97F1402A3@nall.com>
+References: <44BFECE8.80501@us.ibm.com>
+	 <1153748747.1641.18.camel@moss-terrapins.epoch.ncsc.mil>
+	 <A5B53838-B8A8-47B0-9E4A-72A794702EBD@nall.com>
+	 <1153751437.6122.74.camel@moss-spartans.epoch.ncsc.mil>
+	 <3CA9DB29-D76C-41BE-ABE7-2F710F6658D2@nall.com>
+	 <1153755260.6122.85.camel@moss-spartans.epoch.ncsc.mil>
+	 <FA715F0C-F9E5-4F23-807A-A3F97F1402A3@nall.com>
 Content-Type: text/plain
-Date: Mon, 24 Jul 2006 14:15:49 -0400
-Message-Id: <1153764949.6122.102.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 24 Jul 2006 14:19:26 -0400
+Message-Id: <1153765166.6122.107.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-07-24 at 09:25 -0700, Casey Schaufler wrote:
+On Mon, 2006-07-24 at 11:48 -0500, Joe Nall wrote:
+> > The relationship between s0 and s1 is not implicit in the names; s0
+> > could dominate s1; that is entirely defined by the policy itself.
 > 
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > Also, in general, we try to avoid MLS-specific logic
-> > outside of the
-> > policy engine; in many cases, applications that
-> > might historically have
-> > done a specific MLS dominance check on a traditional
-> > trusted OS should
-> > instead be performing a SELinux permission check via
-> > avc_has_perm or
-> > security_compute_av, and then you can internally map
-> > that permission to
-> > a MLS relationship via the mlsconstrain statements
-> > in the policy.  So
-> > the first question is whether this application
-> > should be performing a
-> > MLS label comparison at all, or whether we can
-> > abstract that to a
-> > service permission check.
-> 
-> Are you making the assumption that the
-> objects involved are among those protected
-> by the kernel?
+> I had totally missed that. I mapped the s[n] to the integers we
+> use on the CMW without any thought that they were arbitrary.
 
-No, this applies to userspace object managers aka policy-enforcing
-applications as well.
+There is an explicit dominance definition in the policy that establishes
+the relationship.
 
->  Application objects (e.g.
-> print jobs, mail messages, X11 windows, cron
-> jobs) may be maintained strictly by an
-> application that enforces policy. In such
-> cases the application requires access to
-> mechanism to determine on its own if an
-> access should be permitted.
+> We have an application that combines data of multiple levels and has to
+> compute the aggregate classification before saving it to a file or  
+> sharing
+> it with another process. Will there be a function to compute an  
+> aggregate
+> context from a list of contexts?
 
-Yes; that is what security_compute_av(3) or avc_has_perm(3) provides;
-both functions are provided by libselinux for this purpose.  Already in
-use by several applications (e.g. dbusd, crond) and the
-not-yet-upstreamed XACE/XSELinux work.
-
->  In the context
-> of an evaluation it will be very important
-> for the MLS policy enforcement on application
-> objects to be concise and clearly defined.
-> I expect that, as you mention above,
-> security_compute_av(3) is the "right" choice
-> for doing this. It does put the burden
-> of proof on the lower level function. I'd
-> be concerned regarding performance, but
-> I'm sure that issue will recieve all the
-> attention it needs.
-
-The userspace AVC deals with the performance overhead.
+For that kind of specialized application, I suspect we'd create an
+interface to libsepol for that purpose rather than extending the kernel
+interface.  The other issue for that kind of function is whether the
+label encoding library needs to be brought into play to deal with
+complex relationships among the compartments that only it presently
+knows about (which ideally the kernel would understand too, but that
+isn't presently the case).
 
 -- 
 Stephen Smalley
