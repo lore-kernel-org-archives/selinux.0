@@ -1,69 +1,86 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PFrn87024760
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 11:53:49 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6PFrnJ2017840
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:53:49 GMT
-Subject: Re: [PATCH 4/6] netfilter integration: add netfilter
-	contexts	sorting
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1153244161.10744.78.camel@localhost.localdomain>
-References: <1153168355.10090.49.camel@sgc>
-	 <1153235498.10744.26.camel@localhost.localdomain>
-	 <44BD16C1.1080802@tresys.com>
-	 <1153244161.10744.78.camel@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PFsc5u024779
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 11:54:38 -0400
+Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6PFsaPS006311
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:54:38 GMT
+Subject: Re: [PATCH] Export sepol handle
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, sds@epoch.ncsc.mil
+In-Reply-To: <1153839254.19259.13.camel@twoface>
+References: <1153839254.19259.13.camel@twoface>
 Content-Type: text/plain
-Date: Tue, 25 Jul 2006 11:53:49 -0400
-Message-Id: <1153842829.8634.23.camel@sgc.columbia.tresys.com>
+Date: Tue, 25 Jul 2006 11:54:33 -0400
+Message-Id: <1153842873.12141.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-07-18 at 13:36 -0400, Karl MacMillan wrote:
-> On Tue, 2006-07-18 at 13:13 -0400, Joshua Brindle wrote:
-> > Karl MacMillan wrote:
-> > > On Mon, 2006-07-17 at 16:32 -0400, Christopher J. PeBenito wrote:
-> > >> Add sorting function for netfilter contexts.
-> > >>
-> > >>  libsemanage/src/direct_api.c     |    9 +
-> > >>  libsemanage/src/semanage_store.c |  189 +++++++++++++++++++++++++++++++++++++--
-> > >>  libsemanage/src/semanage_store.h |    6 +
-> > >>  3 files changed, 198 insertions(+), 6 deletions(-)
-> > >>
-> > > 
-> > > Is this correct location for the netfilter sorting (file and library)?
-> > > The file context sorting is a mess now and, again, just continuing that
-> > > seems like a bad idea.
-> > > 
-> > 
-> > libsemanage owns and manages these files, it is indeed the correct place 
-> > to do sorting.
-> > 
-> 
-> There are times you want to sort these files other than via semanage -
-> for example it would be nice to create a tool to let the developer test
-> sorting. Putting the sorting infrastructure in libsepol or libselinux
-> would seem more appropriate to allow that.
-> 
-> Seems to me that libsemanage is too large as it is - keeping it focused
-> away from the details of policy representation (whether it be .te, .if,
-> or secmark) would help.
-> 
-> Even if it stays in libsemanage, semanage_store.c seems to be the wrong
-> location.
+On Tue, 2006-07-25 at 10:54 -0400, Joshua Brindle wrote:
 
-These additions are right after the file context sorting functions.  It
-wouldn't make sense for file and netfilter sorting to be in different
-places.  Moving functions would be outside the scope of this patchset.
+<snip>
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+>  struct sepol_handle;
+>  typedef struct sepol_handle sepol_handle_t;
+> +typedef void (*sepol_handle_callback_fn_t) (void* varg, sepol_handle_t* handle, const char* fmt, ...);
+>  
 
+I'm confused about the first argument - it is just a blob of data passed
+to the callback, correct? Why is it called varg (which implies variable
+argument list to me)? And why is it passed when it is stored in the
+handle which is also passed? Why not just export a function to grab it
+from the handle?
+
+>  /* Create and return a sepol handle. */
+> -sepol_handle_t *sepol_handle_create(void);
+> +extern sepol_handle_t *sepol_handle_create(void);
+> +
+> +/* Set the callback for a sepol handle */
+> +extern void sepol_handle_set_callback(sepol_handle_t *h, sepol_handle_callback_fn_t fn, void *varg);
+> +
+
+See a above.
+
+> +/* Call the callback for a sepol handle */
+> +extern void sepol_handle_do_callback(sepol_handle_t* handle, const char* fmt, ...);
+> +
+
+This is meant to replace ERR, INFO, etc. for external users of the
+library? Calling it do_callback is odd - it is forcing the user to think
+about and know about how the error system works.
+
+Why not:
+
+sepol_report_err(sepol_handle_t *handle, const char* fmt, ...);
+
+With one for info and warn, or a single function that takes a level and
+some defines.
+
+Also, the pointer goes with the variable name and not the type (this is
+C not C++) - e.g., sepol_handle_t *handle not sepol_handle_t* handle.
+
+> +/* Get the severity level of the last message */
+> +extern int sepol_handle_get_level(sepol_handle_t *h);
+>  
+
+The severity should be passed with the message to the callback - this
+interface cannot be used reliably with a threaded app. Even if the error
+reporting system is not re-entrant (which it probably isn't) this
+interface is harder to use and prevents future threading changes.
+
+This means that the level should probably be removed from the handle as
+well.
+
+>  /* Destroy a sepol handle. */
+> -void sepol_handle_destroy(sepol_handle_t *);
+> +extern void sepol_handle_destroy(sepol_handle_t *);
+> +
+>  
+
+Variable names?
+
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
