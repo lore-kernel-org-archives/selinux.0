@@ -1,84 +1,113 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PFsc5u024779
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 11:54:38 -0400
-Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6PFsaPS006311
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:54:38 GMT
-Subject: Re: [PATCH] Export sepol handle
+Subject: Re: [PATCH 1/2] Conditionally expand neverallows
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, sds@epoch.ncsc.mil
-In-Reply-To: <1153839254.19259.13.camel@twoface>
-References: <1153839254.19259.13.camel@twoface>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+In-Reply-To: <1153839328.19259.16.camel@twoface>
+References: <1153839328.19259.16.camel@twoface>
 Content-Type: text/plain
-Date: Tue, 25 Jul 2006 11:54:33 -0400
-Message-Id: <1153842873.12141.15.camel@localhost.localdomain>
+Date: Tue, 25 Jul 2006 12:09:27 -0400
+Message-Id: <1153843767.12141.27.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-07-25 at 10:54 -0400, Joshua Brindle wrote:
+On Tue, 2006-07-25 at 10:55 -0400, Joshua Brindle wrote:
+> The setools team would like to be able to optionally expand neverallow
+> rules for analysis purposes.  This patch leaves the current behavior
+> unchanged, but allows a new state variable for the expander to indicate
+> whether neverallow rules should get expanded, and creates an init
+> function for the expand_state struct.
+
+How much memory does it take to expand the neverallow rules for a
+typical reference policy? Can you post some hashtable stats - this might
+make the chains very long and hurt performance for looking up
+non-neverallow rules. These tradeoffs may be fine for analysis, but it
+would be nice to have some comments explaining the effects for other
+users of the library.
 
 <snip>
 
->  struct sepol_handle;
->  typedef struct sepol_handle sepol_handle_t;
-> +typedef void (*sepol_handle_callback_fn_t) (void* varg, sepol_handle_t* handle, const char* fmt, ...);
+> +static void expand_state_init(expand_state_t *state)
+> +{
+> +	memset(state, 0, sizeof(expand_state_t));
+> +}
+> +
+
+I assume you've audited everywhere expand is currently called to use
+this function?
+
+<snip>
+
+> @@ -1200,7 +1210,7 @@ static int expand_rule_helper(sepol_hand
+>  		if (!ebitmap_node_get_bit(snode, i))
+>  			continue;
+>  		if (source_rule->flags & RULE_SELF) {
+> -			if (source_rule->specified & AVRULE_AV) {
+> +			if (source_rule->specified & (AVRULE_AV|AVRULE_NEVERALLOW)) {
+>  				if ((retval =
+>  				     expand_avrule_helper(handle,
+>  							  source_rule->
+> @@ -1227,7 +1237,7 @@ static int expand_rule_helper(sepol_hand
+>  		ebitmap_for_each_bit(ttypes, tnode, j) {
+>  			if (!ebitmap_node_get_bit(tnode, j))
+>  				continue;
+> -			if (source_rule->specified & AVRULE_AV) {
+> +			if (source_rule->specified & (AVRULE_AV|AVRULE_NEVERALLOW)) {
+>  				if ((retval =
+>  				     expand_avrule_helper(handle,
+>  							  source_rule->
+
+It might be cleaner to have a new define with AVRULE_AV and
+AVRULE_NEVERALLOW already or'd. I don't feel strongly about it though.
+
+> @@ -1264,13 +1274,14 @@ static int convert_and_expand_rule(sepol
+>  				   policydb_t * dest_pol, uint32_t * typemap,
+>  				   avrule_t * source_rule, avtab_t * dest_avtab,
+>  				   cond_av_list_t ** cond,
+> -				   cond_av_list_t ** other, int enabled)
+> +				   cond_av_list_t ** other, int enabled,
+> +				   int do_neverallow)
+>  {
+>  	int retval;
+>  	ebitmap_t stypes, ttypes;
+>  	unsigned char alwaysexpand;
+>  
+> -	if (source_rule->specified & AVRULE_NEVERALLOW)
+> +	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
+>  		return 1;
 >  
 
-I'm confused about the first argument - it is just a blob of data passed
-to the callback, correct? Why is it called varg (which implies variable
-argument list to me)? And why is it passed when it is stored in the
-handle which is also passed? Why not just export a function to grab it
-from the handle?
+Magic return code.
 
->  /* Create and return a sepol handle. */
-> -sepol_handle_t *sepol_handle_create(void);
-> +extern sepol_handle_t *sepol_handle_create(void);
-> +
-> +/* Set the callback for a sepol handle */
-> +extern void sepol_handle_set_callback(sepol_handle_t *h, sepol_handle_callback_fn_t fn, void *varg);
-> +
-
-See a above.
-
-> +/* Call the callback for a sepol handle */
-> +extern void sepol_handle_do_callback(sepol_handle_t* handle, const char* fmt, ...);
-> +
-
-This is meant to replace ERR, INFO, etc. for external users of the
-library? Calling it do_callback is odd - it is forcing the user to think
-about and know about how the error system works.
-
-Why not:
-
-sepol_report_err(sepol_handle_t *handle, const char* fmt, ...);
-
-With one for info and warn, or a single function that takes a level and
-some defines.
-
-Also, the pointer goes with the variable name and not the type (this is
-C not C++) - e.g., sepol_handle_t *handle not sepol_handle_t* handle.
-
-> +/* Get the severity level of the last message */
-> +extern int sepol_handle_get_level(sepol_handle_t *h);
+>  	ebitmap_init(&stypes);
+> @@ -1306,7 +1317,7 @@ static int cond_avrule_list_copy(policyd
+>  	while (cur) {
+>  		if (convert_and_expand_rule(state->handle, dest_pol,
+>  					    typemap, cur, dest_avtab,
+> -					    list, other, enabled) != 1) {
+> +					    list, other, enabled, 0) != 1) {
+>  			return -1;
+>  		}
 >  
-
-The severity should be passed with the message to the callback - this
-interface cannot be used reliably with a threaded app. Even if the error
-reporting system is not re-entrant (which it probably isn't) this
-interface is harder to use and prevents future threading changes.
-
-This means that the level should probably be removed from the handle as
-well.
-
->  /* Destroy a sepol handle. */
-> -void sepol_handle_destroy(sepol_handle_t *);
-> +extern void sepol_handle_destroy(sepol_handle_t *);
-> +
+> @@ -1897,6 +1908,8 @@ int expand_module(sepol_handle_t * handl
+>  	expand_state_t state;
+>  	avrule_block_t *curblock;
 >  
+> +	expand_state_init(&state);
+> +
+>  	state.verbose = verbose;
+>  	state.typemap = NULL;
+>  	state.base = base;
+> @@ -2033,7 +2046,7 @@ int expand_module(sepol_handle_t * handl
+>  		/* copy rules */
+>  		cur_avrule = decl->avrules;
+>  		while (cur_avrule != NULL) {
+> -			if (cur_avrule->specified & AVRULE_NEVERALLOW) {
+> +			if (!(state->expand_neverallow) && cur_avrule->specified & AVRULE_NEVERALLOW) {
 
-Variable names?
+I think that the copying of the neverallows needs to be factored out
+completely - it is a strange side effect of expansion. The expansion
+functions should just, well, expand rules.
 
 Karl
 
