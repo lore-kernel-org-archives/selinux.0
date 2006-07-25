@@ -1,139 +1,47 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PGkZtM026068
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 12:46:36 -0400
+Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6PGkYPQ013883
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 16:46:35 GMT
+Received: by nf-out-0910.google.com with SMTP id l24so2336nfc
+        for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 09:46:34 -0700 (PDT)
+Message-ID: <46ffa45f0607250932n2d7d211ck547227cb06af040@mail.gmail.com>
+Date: Tue, 25 Jul 2006 11:32:55 -0500
+From: "Aleks Kissinger" <aleks0@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: Bare bones SELinux Policy
+Cc: "=?ISO-8859-1?Q?T=F6r=F6k_Edvin?=" <edwintorok@gmail.com>
+In-Reply-To: <4354d3270607250852m23058dddn7135e9bd349ab5b6@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH 1/2] Conditionally expand neverallows
-Date: Tue, 25 Jul 2006 12:47:34 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588298D4D@exchange.columbia.tresys.com>
-In-Reply-To: <1153843767.12141.27.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <46ffa45f0607250834n4f7eec8dwcee09d808ffb2a6d@mail.gmail.com>
+	 <4354d3270607250852m23058dddn7135e9bd349ab5b6@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-<snip>
-> 
-> How much memory does it take to expand the neverallow rules 
-> for a typical reference policy? Can you post some hashtable 
-> stats - this might make the chains very long and hurt 
-> performance for looking up non-neverallow rules. These 
-> tradeoffs may be fine for analysis, but it would be nice to 
-> have some comments explaining the effects for other users of 
-> the library.
-> 
+Sorry, I left out the attachment.  It's now posted here:
+http://www.esg.utulsa.edu/downloads.html
 
-Other users won't expand neverallows, it is disabled by default and can
-only be enabled by static users.
-
-> <snip>
-> 
-> > +static void expand_state_init(expand_state_t *state) {
-> > +	memset(state, 0, sizeof(expand_state_t)); }
-> > +
-> 
-> I assume you've audited everywhere expand is currently called 
-> to use this function?
-> 
-
-The single place, yes.
-
-> <snip>
-> 
-> > @@ -1200,7 +1210,7 @@ static int expand_rule_helper(sepol_hand
-> >  		if (!ebitmap_node_get_bit(snode, i))
-> >  			continue;
-> >  		if (source_rule->flags & RULE_SELF) {
-> > -			if (source_rule->specified & AVRULE_AV) {
-> > +			if (source_rule->specified & 
-> (AVRULE_AV|AVRULE_NEVERALLOW)) {
-> >  				if ((retval =
-> >  				     expand_avrule_helper(handle,
-> >  							  source_rule->
-> > @@ -1227,7 +1237,7 @@ static int expand_rule_helper(sepol_hand
-> >  		ebitmap_for_each_bit(ttypes, tnode, j) {
-> >  			if (!ebitmap_node_get_bit(tnode, j))
-> >  				continue;
-> > -			if (source_rule->specified & AVRULE_AV) {
-> > +			if (source_rule->specified & 
-> (AVRULE_AV|AVRULE_NEVERALLOW)) {
-> >  				if ((retval =
-> >  				     expand_avrule_helper(handle,
-> >  							  source_rule->
-> 
-> It might be cleaner to have a new define with AVRULE_AV and 
-> AVRULE_NEVERALLOW already or'd. I don't feel strongly about it though.
-> 
-
-This makes it obvious what is happening, another define would be
-unneeded indirection
-
-
-> > @@ -1264,13 +1274,14 @@ static int convert_and_expand_rule(sepol
-> >  				   policydb_t * dest_pol, 
-> uint32_t * typemap,
-> >  				   avrule_t * source_rule, 
-> avtab_t * dest_avtab,
-> >  				   cond_av_list_t ** cond,
-> > -				   cond_av_list_t ** other, int enabled)
-> > +				   cond_av_list_t ** other, int enabled,
-> > +				   int do_neverallow)
-> >  {
-> >  	int retval;
-> >  	ebitmap_t stypes, ttypes;
-> >  	unsigned char alwaysexpand;
-> >  
-> > -	if (source_rule->specified & AVRULE_NEVERALLOW)
-> > +	if (!do_neverallow && source_rule->specified & 
-> AVRULE_NEVERALLOW)
-> >  		return 1;
-> >  
-> 
-> Magic return code.
-> 
-
-Indeed, that is an unchanged line.
-
-> >  	ebitmap_init(&stypes);
-> > @@ -1306,7 +1317,7 @@ static int cond_avrule_list_copy(policyd
-> >  	while (cur) {
-> >  		if (convert_and_expand_rule(state->handle, dest_pol,
-> >  					    typemap, cur, dest_avtab,
-> > -					    list, other, 
-> enabled) != 1) {
-> > +					    list, other, 
-> enabled, 0) != 1) {
-> >  			return -1;
-> >  		}
-> >  
-> > @@ -1897,6 +1908,8 @@ int expand_module(sepol_handle_t * handl
-> >  	expand_state_t state;
-> >  	avrule_block_t *curblock;
-> >  
-> > +	expand_state_init(&state);
-> > +
-> >  	state.verbose = verbose;
-> >  	state.typemap = NULL;
-> >  	state.base = base;
-> > @@ -2033,7 +2046,7 @@ int expand_module(sepol_handle_t * handl
-> >  		/* copy rules */
-> >  		cur_avrule = decl->avrules;
-> >  		while (cur_avrule != NULL) {
-> > -			if (cur_avrule->specified & AVRULE_NEVERALLOW) {
-> > +			if (!(state->expand_neverallow) && 
-> cur_avrule->specified & 
-> > +AVRULE_NEVERALLOW) {
-> 
-> I think that the copying of the neverallows needs to be 
-> factored out completely - it is a strange side effect of 
-> expansion. The expansion functions should just, well, expand rules.
-> 
-
-For static users maybe but the shared API will still be expand for all
-this stuff, making the internal and external interfaces for expand would
-be more confusing than having an expand function that does too much
-(particularly when the common case is that it does all this)
+On 7/25/06, Török Edvin <edwintorok@gmail.com> wrote:
+> On 7/25/06, Aleks Kissinger <aleks0@gmail.com> wrote:
+> > I've been doing a little bit of SELinux policy hacking, and as a
+> > starting point, I wrote a tiny (600-line) allow-everything policy.  As
+> > I had to jump through some hoops to get this working, I thought maybe
+> > some of you out there could benefit from it.
+> >
+> > On Fedora 5 (and probably older), unzip the attchment in
+> > '/etc/selinux', set SELINUXTYPE=simple in '/etc/selinux/config', and
+> > run make load in '/etc/selinux/simple/src'.  Reboot.
+> >
+> > If you have any comments, suggestions, or improvements, I'd love to hear them.
+> >
+> The attachment didn't make it to the mailing list. Could you make it
+> available for download somewhere?
+>
+> Regards,
+> Edwin
+>
 
 
 --
