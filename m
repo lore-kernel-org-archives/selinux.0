@@ -1,61 +1,63 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PFn1Z1024617
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 11:49:01 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k6PFn0PQ005689
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:49:00 GMT
-Subject: Re: [PATCH 2/6] netfilter integration: add netfilter contexts
-	package section
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PFrn87024760
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 11:53:49 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6PFrnJ2017840
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:53:49 GMT
+Subject: Re: [PATCH 4/6] netfilter integration: add netfilter
+	contexts	sorting
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1153234686.10744.10.camel@localhost.localdomain>
-References: <1153168353.10090.47.camel@sgc>
-	 <1153234686.10744.10.camel@localhost.localdomain>
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1153244161.10744.78.camel@localhost.localdomain>
+References: <1153168355.10090.49.camel@sgc>
+	 <1153235498.10744.26.camel@localhost.localdomain>
+	 <44BD16C1.1080802@tresys.com>
+	 <1153244161.10744.78.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 25 Jul 2006 11:49:00 -0400
-Message-Id: <1153842540.8634.17.camel@sgc.columbia.tresys.com>
+Date: Tue, 25 Jul 2006 11:53:49 -0400
+Message-Id: <1153842829.8634.23.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-07-18 at 10:58 -0400, Karl MacMillan wrote:
-> On Mon, 2006-07-17 at 16:32 -0400, Christopher J. PeBenito wrote:
-> > Add a section to the package for netfilter contexts.
-
-> > @@ -254,6 +312,12 @@ int sepol_link_packages(sepol_handle_t *
-> >  		ERR(handle, "Out of memory!");
-> >  		return -2;
-> >  	}
-> > +
-> > +	if (link_netfilter_contexts(base, modules, num_modules) == -1) {
-> > +		ERR(handle, "Out of memory!");
-> > +		return -2;
-> > +	}
-> > +
+On Tue, 2006-07-18 at 13:36 -0400, Karl MacMillan wrote:
+> On Tue, 2006-07-18 at 13:13 -0400, Joshua Brindle wrote:
+> > Karl MacMillan wrote:
+> > > On Mon, 2006-07-17 at 16:32 -0400, Christopher J. PeBenito wrote:
+> > >> Add sorting function for netfilter contexts.
+> > >>
+> > >>  libsemanage/src/direct_api.c     |    9 +
+> > >>  libsemanage/src/semanage_store.c |  189 +++++++++++++++++++++++++++++++++++++--
+> > >>  libsemanage/src/semanage_store.h |    6 +
+> > >>  3 files changed, 198 insertions(+), 6 deletions(-)
+> > >>
+> > > 
+> > > Is this correct location for the netfilter sorting (file and library)?
+> > > The file context sorting is a mess now and, again, just continuing that
+> > > seems like a bad idea.
+> > > 
+> > 
+> > libsemanage owns and manages these files, it is indeed the correct place 
+> > to do sorting.
+> > 
 > 
-> Is this really the correct place for the secmark linking code? In
-> general the code in module.c deals with the policy package, but not the
-> details of the sections. Seems better to put this in a separate file or
-> with the rest of the linking code.
+> There are times you want to sort these files other than via semanage -
+> for example it would be nice to create a tool to let the developer test
+> sorting. Putting the sorting infrastructure in libsepol or libselinux
+> would seem more appropriate to allow that.
+> 
+> Seems to me that libsemanage is too large as it is - keeping it focused
+> away from the details of policy representation (whether it be .te, .if,
+> or secmark) would help.
+> 
+> Even if it stays in libsemanage, semanage_store.c seems to be the wrong
+> location.
 
-This addition is right under the link_file_contexts() call.
-Link_netfilter_contexts() does the same thing as link_file_contexts().
-
-> Also, seems that secmark would be a better name than netfilter. This
-> code is not intended to handle generic netfilter rules (though I guess
-> it could).
-
-It provides labeling rules for packets going through netfilter, hence
-netfilter_contexts.  SECMARK is an implementation detail of netfilter.
-
-> Finally, the error handling above prevents the propagation of errors
-> from lower-level functions. I understand that you are following what the
-> existing code does, but it would be nice to not add any additional code
-> that follows this broken model. Cleaning up the magic return codes would
-> also be nice.
-
-Cleaning up return code handling is outside the scope of this patchset.
+These additions are right after the file context sorting functions.  It
+wouldn't make sense for file and netfilter sorting to be in different
+places.  Moving functions would be outside the scope of this patchset.
 
 -- 
 Chris PeBenito
