@@ -1,109 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PGq5fM026213
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 12:52:05 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k6PGq4PQ014350
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 16:52:04 GMT
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Subject: RE: [PATCH] Export sepol handle
-Date: Tue, 25 Jul 2006 12:52:05 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588298D4E@exchange.columbia.tresys.com>
-In-Reply-To: <1153842873.12141.15.camel@localhost.localdomain>
+Subject: RE: [PATCH 2/2] Refactor expansion of avtab
+Date: Tue, 25 Jul 2006 12:55:30 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588298D4F@exchange.columbia.tresys.com>
+In-Reply-To: <1153844186.12141.34.camel@localhost.localdomain>
 From: "Joshua Brindle" <jbrindle@tresys.com>
 To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, <sds@epoch.ncsc.mil>
+Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Sent: Tuesday, July 25, 2006 11:55 AM
+> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 > 
-> On Tue, 2006-07-25 at 10:54 -0400, Joshua Brindle wrote:
+> On Tue, 2006-07-25 at 10:56 -0400, Joshua Brindle wrote:
 > 
-> <snip>
-> 
-> >  struct sepol_handle;
-> >  typedef struct sepol_handle sepol_handle_t;
-> > +typedef void (*sepol_handle_callback_fn_t) (void* varg, 
-> > +sepol_handle_t* handle, const char* fmt, ...);
+> > diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' 
+> -x '*.svn*' -x '*.swp' -x '*.o' -x '*.lo' 
+> ../../../trunk/libsepol/include/sepol/policydb/expand.h 
+> ./include/sepol/policydb/expand.h
+> > --- trunk/libsepol/include/sepol/policydb/expand.h	
+> 2006-07-13 10:19:14.000000000 -0400
+> > +++ trunk/libsepol/include/sepol/policydb/expand.h	
+> 2006-07-19 13:04:03.000000000 -0400
+> > @@ -29,6 +29,9 @@
+> >  #include <sepol/handle.h>
+> >  #include <sepol/policydb/conditional.h>
 > >  
+> > +extern int expand_module_avrules(sepol_handle_t *handle, 
+> policydb_t *base,
+> > +				policydb_t *out, uint32_t *typemap, 
+> > +				int verbose, int expand_neverallow);
 > 
-> I'm confused about the first argument - it is just a blob of 
-> data passed to the callback, correct? Why is it called varg 
-> (which implies variable argument list to me)? And why is it 
-> passed when it is stored in the handle which is also passed? 
-> Why not just export a function to grab it from the handle?
-> 
-
-This was the previous callback in the handle moved to a typedef, no
-changes made. The default callback also uses a varg.
-
-> >  /* Create and return a sepol handle. */ -sepol_handle_t 
-> > *sepol_handle_create(void);
-> > +extern sepol_handle_t *sepol_handle_create(void);
-> > +
-> > +/* Set the callback for a sepol handle */ extern void 
-> > +sepol_handle_set_callback(sepol_handle_t *h, 
-> > +sepol_handle_callback_fn_t fn, void *varg);
-> > +
-> 
-> See a above.
-> 
-> > +/* Call the callback for a sepol handle */ extern void 
-> > +sepol_handle_do_callback(sepol_handle_t* handle, const char* fmt, 
-> > +...);
-> > +
-> 
-> This is meant to replace ERR, INFO, etc. for external users 
-> of the library? Calling it do_callback is odd - it is forcing 
-> the user to think about and know about how the error system works.
-> 
-> Why not:
-> 
-> sepol_report_err(sepol_handle_t *handle, const char* fmt, ...);
+> Poorly named function - are neverallows av rules or not? If 
+> they are not the function needs a more generic name. This is 
+> continuing the confusing practice of sometimes calling just 
+> allow and audit rules av rules and sometimes using it to mean 
+> more rule types.
 > 
 
-Eh? How does this get the error from the library into the app calling
-it. The purpose of this patch is to let errors in libsepol propagate out
-to setools.
+Have any suggestions? We couldn't think of a really good name either.
 
-> With one for info and warn, or a single function that takes a 
-> level and some defines.
+> This can be in place or out of place (i.e., out can be the 
+> same as base)? A comment describing how this function can be 
+> used is needed, including the fact that the typemap must be 
+> "special" for an in-place expand, correct?
 > 
-> Also, the pointer goes with the variable name and not the 
-> type (this is C not C++) - e.g., sepol_handle_t *handle not 
-> sepol_handle_t* handle.
+
+Either, it is out of place for the current usage and in place for
+setools. Talking about a special typemap is out of context here. Maybe
+more comments are needed. No need to ditch this patch though, we can
+apply some comments on top of it.
+
+> Object classes and permissions will never need to be mapped 
+> for an out of place expansion?
 > 
-> > +/* Get the severity level of the last message */ extern int 
-> > +sepol_handle_get_level(sepol_handle_t *h);
+> > -		/* copy conditional rules */
+> > -		if (cond_node_copy(&state, decl->cond_list))
+> > -			goto cleanup;
+> > +	if (expand_avrule_decls(&state) < 0) {
+> > +		ERR(handle, "Error during expand");
+> > +		goto cleanup;
+> >  	}
 > >  
+> >  	/* copy constraints */
+> > 
 > 
-> The severity should be passed with the message to the 
-> callback - this interface cannot be used reliably with a 
-> threaded app. Even if the error reporting system is not 
-> re-entrant (which it probably isn't) this interface is harder 
-> to use and prevents future threading changes.
-> 
-> This means that the level should probably be removed from the 
-> handle as well.
-
-This is the previous implementation, AFAIK there are other thread unsafe
-parts of the handle. This, however, is only being exported to static
-users which must have knowledge of the library and can implement locking
-on the handle if they are threaded.
-
-> 
-> >  /* Destroy a sepol handle. */
-> > -void sepol_handle_destroy(sepol_handle_t *);
-> > +extern void sepol_handle_destroy(sepol_handle_t *);
-> > +
-> >  
-> 
-> Variable names?
+> The refactoring is nice even without the exported function.
 > 
 
-Matched format.
+?
 
 
 --
