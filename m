@@ -1,57 +1,62 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6P9rXVD017094
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 05:53:33 -0400
-Received: from nf-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6P9rWCh012846
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 09:53:32 GMT
-Received: by nf-out-0910.google.com with SMTP id l24so180816nfc
-        for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 02:53:32 -0700 (PDT)
-Message-ID: <de6d2b4f0607250253g46e392d1lfa7ba0c3aadcabd@mail.gmail.com>
-Date: Tue, 25 Jul 2006 10:53:31 +0100
-From: "M Macnair" <mmacnair@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: security_context_to_sid failed - mounting from /etc/rc.d
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: security_context_to_sid failed - mounting from /etc/rc.d
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: M Macnair <mmacnair@gmail.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <de6d2b4f0607250253g46e392d1lfa7ba0c3aadcabd@mail.gmail.com>
+References: <de6d2b4f0607250253g46e392d1lfa7ba0c3aadcabd@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 25 Jul 2006 08:44:34 -0400
+Message-Id: <1153831474.7104.5.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I discovered this whilst trying to mount removable devices on boot.
-There is the following line in /etc/rc.d/rc.local (FC5):
-mount -a -t nonfs,nfs4,smbfs,ncpfs,cifs,gfs -O
-no_netdev,context=system_u:object_r:removable_t
+On Tue, 2006-07-25 at 10:53 +0100, M Macnair wrote:
+> I discovered this whilst trying to mount removable devices on boot.
+> There is the following line in /etc/rc.d/rc.local (FC5):
+> mount -a -t nonfs,nfs4,smbfs,ncpfs,cifs,gfs -O
+> no_netdev,context=system_u:object_r:removable_t
 
-When executed, this fails with the error:
-mount: wrong fs type, bad option, bad superblock on /dev/store/music,
-       missing codepage or other error
-       In some cases useful info is found in syslog - try
-       dmesg | tail  or so
+Add :s0 to the end of that context.  IIRC, the problem is that mount
+just directly passes the context to the kernel without going through
+libselinux, so it never undergoes "label translation".
 
-/var/log/messages says:
- kernel: SELinux:
-security_context_to_sid(system_u:object_r:removable_t) failed for (dev
-dm-3, type ext2) errno=-22
+> When executed, this fails with the error:
+> mount: wrong fs type, bad option, bad superblock on /dev/store/music,
+>        missing codepage or other error
+>        In some cases useful info is found in syslog - try
+>        dmesg | tail  or so
+> 
+> /var/log/messages says:
+>  kernel: SELinux:
+> security_context_to_sid(system_u:object_r:removable_t) failed for (dev
+> dm-3, type ext2) errno=-22
+> 
+> /dev/store/music is an unmounted lvm ext2 formatted logical volume,
+> with fstab entry:
+> /dev/store/music  /mnt/music  ext2
+> defaults,user,context=system_u:object_r:removable_t
+> 
+> 
+> This error is dependent on the context of the script that is executing
+> it - cp rc.local into /etc/ (from /etc/rc.d) and execute it there, and
+> it works perfectly.  Executing the mount command from a terminal also
+> works.
+> 
+> # ls -Z /etc/rc.d/rc.local /etc/rc.local.cp
+> -rwxr-xr-x  root root system_u:object_r:initrc_exec_t  /etc/rc.d/rc.local
+> -rwxr-xr-x  root root user_u:object_r:etc_t            /etc/rc.local.cp
+> 
+> 
+> Any ideas on what's going on / how to work around it?
 
-/dev/store/music is an unmounted lvm ext2 formatted logical volume,
-with fstab entry:
-/dev/store/music  /mnt/music  ext2
-defaults,user,context=system_u:object_r:removable_t
+I don't understand why that would make a difference; the error has to do
+with validity of the context, not a permission denial.  
 
+-- 
+Stephen Smalley
+National Security Agency
 
-This error is dependent on the context of the script that is executing
-it - cp rc.local into /etc/ (from /etc/rc.d) and execute it there, and
-it works perfectly.  Executing the mount command from a terminal also
-works.
-
-# ls -Z /etc/rc.d/rc.local /etc/rc.local.cp
--rwxr-xr-x  root root system_u:object_r:initrc_exec_t  /etc/rc.d/rc.local
--rwxr-xr-x  root root user_u:object_r:etc_t            /etc/rc.local.cp
-
-
-Any ideas on what's going on / how to work around it?
-
-Thanks,
-Mike
 
 --
 This message was distributed to subscribers of the selinux mailing list.
