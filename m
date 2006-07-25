@@ -1,76 +1,64 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PJ2K2d029486
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:02:20 -0400
+Received: from web36604.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6PJ2IJ2010626
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 19:02:19 GMT
+Message-ID: <20060725190203.72780.qmail@web36604.mail.mud.yahoo.com>
+Date: Tue, 25 Jul 2006 12:02:03 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 0/6] netfilter integration
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1153841813.8634.9.camel@sgc.columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH 2/2] Refactor expansion of avtab
-Date: Tue, 25 Jul 2006 12:55:30 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588298D4F@exchange.columbia.tresys.com>
-In-Reply-To: <1153844186.12141.34.camel@localhost.localdomain>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> On Tue, 2006-07-25 at 10:56 -0400, Joshua Brindle wrote:
-> 
-> > diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' 
-> -x '*.svn*' -x '*.swp' -x '*.o' -x '*.lo' 
-> ../../../trunk/libsepol/include/sepol/policydb/expand.h 
-> ./include/sepol/policydb/expand.h
-> > --- trunk/libsepol/include/sepol/policydb/expand.h	
-> 2006-07-13 10:19:14.000000000 -0400
-> > +++ trunk/libsepol/include/sepol/policydb/expand.h	
-> 2006-07-19 13:04:03.000000000 -0400
-> > @@ -29,6 +29,9 @@
-> >  #include <sepol/handle.h>
-> >  #include <sepol/policydb/conditional.h>
-> >  
-> > +extern int expand_module_avrules(sepol_handle_t *handle, 
-> policydb_t *base,
-> > +				policydb_t *out, uint32_t *typemap, 
-> > +				int verbose, int expand_neverallow);
-> 
-> Poorly named function - are neverallows av rules or not? If 
-> they are not the function needs a more generic name. This is 
-> continuing the confusing practice of sometimes calling just 
-> allow and audit rules av rules and sometimes using it to mean 
-> more rule types.
-> 
 
-Have any suggestions? We couldn't think of a really good name either.
 
-> This can be in place or out of place (i.e., out can be the 
-> same as base)? A comment describing how this function can be 
-> used is needed, including the fact that the typemap must be 
-> "special" for an in-place expand, correct?
-> 
+--- "Christopher J. PeBenito" <cpebenito@tresys.com>
+wrote:
 
-Either, it is out of place for the current usage and in place for
-setools. Talking about a special typemap is out of context here. Maybe
-more comments are needed. No need to ditch this patch though, we can
-apply some comments on top of it.
 
-> Object classes and permissions will never need to be mapped 
-> for an out of place expansion?
-> 
-> > -		/* copy conditional rules */
-> > -		if (cond_node_copy(&state, decl->cond_list))
-> > -			goto cleanup;
-> > +	if (expand_avrule_decls(&state) < 0) {
-> > +		ERR(handle, "Error during expand");
-> > +		goto cleanup;
-> >  	}
-> >  
-> >  	/* copy constraints */
-> > 
-> 
-> The refactoring is nice even without the exported function.
-> 
+> I don't feel this is sufficient since you may want
+> your module's rule to
+> override a rules in the other modules, so you want a
+> higher priority
+> than what those have.  If, for example, you throw
+> specific port ranges
+> into a big bucket, then there's no way to do this. 
+> In addition, you can
+> create netfilter rules far more complicated than
+> just a specific port or
+> ranges.
 
-?
+That's the argument for generality and I
+suggest that 9 ain't general. How many rules
+are there in the policy now? You can go
+with a small fixed number of priorities to
+address the problem you have today, in
+which case names make more sense, or you
+can provide a general scheme in which case
+9 is way too small.
 
+Now, as far as inter-module priorities go,
+numbers just don't make sense. What you
+want is symbolic names and a way to say that
+"HIGH" in module foo has a higher priority
+than "HIGH" in module bar. You will never
+get a rational numeric priority ranking
+with multiple free thinking developers of
+otherwise independent policy modules,
+regardless of the granularity.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
