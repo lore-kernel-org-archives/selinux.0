@@ -1,40 +1,61 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PFnurs024647
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 11:49:56 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6PFnuJ2017381
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:49:56 GMT
-Subject: Re: [PATCH 3/6] netfilter integration: module store support
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6PFn1Z1024617
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 11:49:01 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k6PFn0PQ005689
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jul 2006 15:49:00 GMT
+Subject: Re: [PATCH 2/6] netfilter integration: add netfilter contexts
+	package section
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Karl MacMillan <kmacmillan@mentalrootkit.com>
 Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1153235311.10744.24.camel@localhost.localdomain>
-References: <1153168354.10090.48.camel@sgc>
-	 <1153235311.10744.24.camel@localhost.localdomain>
+In-Reply-To: <1153234686.10744.10.camel@localhost.localdomain>
+References: <1153168353.10090.47.camel@sgc>
+	 <1153234686.10744.10.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 25 Jul 2006 11:49:56 -0400
-Message-Id: <1153842596.8634.18.camel@sgc.columbia.tresys.com>
+Date: Tue, 25 Jul 2006 11:49:00 -0400
+Message-Id: <1153842540.8634.17.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-07-18 at 11:08 -0400, Karl MacMillan wrote:
+On Tue, 2006-07-18 at 10:58 -0400, Karl MacMillan wrote:
 > On Mon, 2006-07-17 at 16:32 -0400, Christopher J. PeBenito wrote:
-> > Adds support for committing the netfilter_contexts file, and copying it
-> > out to the running system.
-> > 
-> >  libsemanage/src/direct_api.c     |   25 ++++++++++++++++++-------
-> >  libsemanage/src/semanage_store.c |   11 +++++++++++
-> >  libsemanage/src/semanage_store.h |    1 +
-> >  3 files changed, 30 insertions(+), 7 deletions(-)
+> > Add a section to the package for netfilter contexts.
 
-> Both of those if blocks are very difficult to parse and adding even more
-> expressions to them just makes it worse. I don't know what Steve thinks,
-> but blindly continuing poor coding practices will just make the code
-> base worse over time (which I think has happened). I would prefer to see
-> cleanups happen when the code is being changed.
+> > @@ -254,6 +312,12 @@ int sepol_link_packages(sepol_handle_t *
+> >  		ERR(handle, "Out of memory!");
+> >  		return -2;
+> >  	}
+> > +
+> > +	if (link_netfilter_contexts(base, modules, num_modules) == -1) {
+> > +		ERR(handle, "Out of memory!");
+> > +		return -2;
+> > +	}
+> > +
+> 
+> Is this really the correct place for the secmark linking code? In
+> general the code in module.c deals with the policy package, but not the
+> details of the sections. Seems better to put this in a separate file or
+> with the rest of the linking code.
 
-Blame lindent.
+This addition is right under the link_file_contexts() call.
+Link_netfilter_contexts() does the same thing as link_file_contexts().
+
+> Also, seems that secmark would be a better name than netfilter. This
+> code is not intended to handle generic netfilter rules (though I guess
+> it could).
+
+It provides labeling rules for packets going through netfilter, hence
+netfilter_contexts.  SECMARK is an implementation detail of netfilter.
+
+> Finally, the error handling above prevents the propagation of errors
+> from lower-level functions. I understand that you are following what the
+> existing code does, but it would be nice to not add any additional code
+> that follows this broken model. Cleaning up the magic return codes would
+> also be nice.
+
+Cleaning up return code handling is outside the scope of this patchset.
 
 -- 
 Chris PeBenito
