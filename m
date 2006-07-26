@@ -1,201 +1,195 @@
-Subject: [PATCH] helpful heirarchy check errors
+Subject: [PATCH] clean up datum cast to uint32
 From: Joshua Brindle <jbrindle@tresys.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov
 Content-Type: text/plain
-Date: Wed, 26 Jul 2006 07:35:03 -0400
-Message-Id: <1153913703.19259.21.camel@twoface>
+Date: Wed, 26 Jul 2006 07:48:46 -0400
+Message-Id: <1153914526.19259.25.camel@twoface>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch makes the hierarchy violations errors more helpful by adding
-object class and permissions that were violated instead of just the
-types. Additionally it makes assertion violations not fatal
-so that all the violations can been seen before the checking fails.
+This patch adds a function to get the symbol value from any datum passed
+in given the symbol type (SYM_TYPE, SYM_ROLE, etc) and removes the
+places where a datum was cast to uint32_t* to get the value.
 
 
-diff -purN -x.svn trunk/libsepol/src/hierarchy.c branch/helpful-hierarchy-check-errors/libsepol/src/hierarchy.c
---- trunk/libsepol/src/hierarchy.c	2006-06-29 14:54:12.000000000 -0400
-+++ branch/helpful-hierarchy-check-errors/libsepol/src/hierarchy.c	2006-07-03 10:58:00.000000000 -0400
-@@ -28,6 +28,7 @@
+diff -pruN -x.svn trunk/checkpolicy/module_compiler.c branch/sym_val/checkpolicy/module_compiler.c
+--- trunk/checkpolicy/module_compiler.c	2006-06-29 14:54:15.000000000 -0400
++++ branch/sym_val/checkpolicy/module_compiler.c	2006-07-26 07:38:04.000000000 -0400
+@@ -17,6 +17,7 @@
+ #include <sepol/policydb/policydb.h>
+ #include <sepol/policydb/avrule_block.h>
  #include <sepol/policydb/conditional.h>
- #include <sepol/policydb/hierarchy.h>
- #include <sepol/policydb/expand.h>
-+#include <sepol/policydb/util.h>
++#include <sepol/policydb/sym_val.h>
  
- #include "debug.h"
+ #include "queue.h"
+ #include "module_compiler.h"
+@@ -129,6 +130,7 @@ int declare_symbol(uint32_t symbol_type,
+ {
+ 	avrule_decl_t *decl = stack_top->decl;
+ 	int retval;
++	uint32_t val;
  
-@@ -37,6 +38,7 @@ typedef struct hierarchy_args {
- 	/* This tells check_avtab_hierarchy to check this list in addition to the unconditional avtab */
- 	cond_av_list_t *opt_cond_list;
- 	sepol_handle_t *handle;
-+	int numerr;
- } hierarchy_args_t;
+ 	/* first check that symbols may be declared here */
+ 	if (!is_declaration_allowed()) {
+@@ -137,15 +139,10 @@ int declare_symbol(uint32_t symbol_type,
+ 	retval = symtab_insert(policydbp, symbol_type, key, datum,
+ 			       SCOPE_DECL, decl->decl_id, dest_value);
+ 	if (retval == 1) {
+-		/* because C has no polymorphism, make the
+-		 * [outrageous] assumption that the first field of all
+-		 * symbol table data is a uint32_t representing its
+-		 * value */
+-		uint32_t *v =
+-		    (uint32_t *) hashtab_search(policydbp->symtab[symbol_type].
+-						table, key);
+-		assert(v != NULL);
+-		*dest_value = *v;
++		val = get_sym_val(hashtab_search(policydbp->symtab[symbol_type].
++						table, key), symbol_type);
++		assert(val != 0);
++		*dest_value = val;
+ 	} else if (retval == -2) {
+ 		return -2;
+ 	} else if (retval < 0) {
+@@ -486,6 +483,7 @@ int require_symbol(uint32_t symbol_type,
+ {
+ 	avrule_decl_t *decl = stack_top->decl;
+ 	int retval;
++	uint32_t val;
  
- /* This merely returns the string part before the last '.'
-@@ -81,7 +83,6 @@ static int check_type_hierarchy_callback
- 	hierarchy_args_t *a;
- 	type_datum_t *t, *t2;
- 	char *key;
--	int rc;
- 
- 	a = (hierarchy_args_t *) args;
- 	t = (type_datum_t *) d;
-@@ -100,21 +101,20 @@ static int check_type_hierarchy_callback
- 		return 0;
- 	}
- 
--	rc = 0;
- 	t2 = hashtab_search(a->p->p_types.table, parent);
- 	if (!t2) {
- 		/* If the parent does not exist this type is an orphan, not legal */
- 		ERR(a->handle, "type %s does not exist, %s is an orphan",
- 		    parent, a->p->p_type_val_to_name[t->value - 1]);
--		rc = 1;
-+		a->numerr++;
- 	} else if (t2->flavor == TYPE_ATTRIB) {
- 		/* The parent is an attribute but the child isn't, not legal */
- 		ERR(a->handle, "type %s is a child of an attribute",
- 		    a->p->p_type_val_to_name[t->value - 1]);
--		rc = 1;
-+		a->numerr++;
- 	}
- 	free(parent);
--	return rc;
-+	return 0;
- }
- 
- /* This function only verifies that the avtab node passed in does not violate any
-@@ -146,12 +146,9 @@ static int check_avtab_hierarchy_callbac
- 	if (parent) {
- 		t = hashtab_search(a->p->p_types.table, parent);
- 		if (!t) {
--			/* If the parent does not exist this type is an orphan, not legal */
--			ERR(a->handle, "type %s doesn't exist, %s is an orphan",
--			    parent,
--			    a->p->p_type_val_to_name[k->source_type - 1]);
-+			/* This error was already covered by type_check_hierarchy */
- 			free(parent);
--			return 1;
-+			return 0;
- 		}
- 		free(parent);
- 
-@@ -188,11 +185,9 @@ static int check_avtab_hierarchy_callbac
- 	if (parent) {
- 		t2 = hashtab_search(a->p->p_types.table, parent);
- 		if (!t2) {
--			ERR(a->handle, "type %s doesn't exist, %s is an orphan",
--			    parent,
--			    a->p->p_type_val_to_name[k->target_type - 1]);
-+			/* This error was already covered by type_check_hierarchy */
- 			free(parent);
--			return 1;
-+			return 0;
- 		}
- 		free(parent);
- 
-@@ -254,10 +249,13 @@ static int check_avtab_hierarchy_callbac
- 	}
- 
- 	/* At this point there is a violation of the hierarchal constraint, send error condition back */
--	ERR(a->handle, "hierarchy violation between types %s and %s",
--	    a->p->p_type_val_to_name[k->source_type - 1],
--	    a->p->p_type_val_to_name[k->target_type - 1]);
--	return 1;
-+	ERR(a->handle,"hierarchy violation between types %s and %s : %s { %s }",
-+			a->p->p_type_val_to_name[k->source_type - 1],
-+			a->p->p_type_val_to_name[k->target_type - 1],
-+			a->p->p_class_val_to_name[k->target_class - 1],
-+			sepol_av_to_string(a->p, k->target_class, d->data & ~av));
-+	a->numerr++;
-+	return 0;
- }
- 
- static int check_cond_avtab_hierarchy(cond_list_t * cond_list,
-@@ -267,6 +265,7 @@ static int check_cond_avtab_hierarchy(co
- 	cond_list_t *cur_node;
- 	cond_av_list_t *cur_av, *expl = NULL;
- 	avtab_t expa;
-+	hierarchy_args_t *a = (hierarchy_args_t *)args;
- 
- 	for (cur_node = cond_list; cur_node != NULL; cur_node = cur_node->next) {
- 		if (avtab_init(&expa))
-@@ -281,12 +280,8 @@ static int check_cond_avtab_hierarchy(co
- 			rc = check_avtab_hierarchy_callback(&cur_av->node->key,
- 							    &cur_av->node->
- 							    datum, args);
--			if (rc == 0)
--				continue;
--			/* error condition */
--			cond_av_list_destroy(expl);
--			avtab_destroy(&expa);
--			return rc;
-+			if (rc)
-+				a->numerr++;
- 		}
- 		cond_av_list_destroy(expl);
- 		avtab_destroy(&expa);
-@@ -302,12 +297,8 @@ static int check_cond_avtab_hierarchy(co
- 			rc = check_avtab_hierarchy_callback(&cur_av->node->key,
- 							    &cur_av->node->
- 							    datum, args);
--			if (rc == 0)
--				continue;
--			/* error condition */
--			cond_av_list_destroy(expl);
--			avtab_destroy(&expa);
--			return rc;
-+			if (rc)
-+				a->numerr++;
- 		}
- 		cond_av_list_destroy(expl);
- 		avtab_destroy(&expa);
-@@ -350,7 +341,8 @@ static int check_role_hierarchy_callback
- 		ERR(a->handle, "role %s doesn't exist, %s is an orphan",
- 		    parent, a->p->p_role_val_to_name[r->value - 1]);
- 		free(parent);
--		return 1;
-+		a->numerr++;
-+		return 0;
- 	}
- 
- 	if (ebitmap_or(&eb, &r->types.types, &rp->types.types)) {
-@@ -360,12 +352,10 @@ static int check_role_hierarchy_callback
- 	}
- 
- 	if (!ebitmap_cmp(&eb, &rp->types.types)) {
--		ebitmap_destroy(&eb);
- 		/* This is a violation of the hiearchal constraint, return error condition */
- 		ERR(a->handle, "Role hierarchy violation, %s exceeds %s",
- 		    a->p->p_role_val_to_name[r->value - 1], parent);
--		free(parent);
--		return 1;
-+		a->numerr++;
- 	}
- 
- 	ebitmap_destroy(&eb);
-@@ -390,6 +380,7 @@ int hierarchy_check_constraints(sepol_ha
- 	args.expa = &expa;
- 	args.opt_cond_list = NULL;
- 	args.handle = handle;
-+	args.numerr = 0;
- 
- 	if (hashtab_map(p->p_types.table, check_type_hierarchy_callback, &args))
- 		goto bad;
-@@ -403,6 +394,11 @@ int hierarchy_check_constraints(sepol_ha
- 	if (hashtab_map(p->p_roles.table, check_role_hierarchy_callback, &args))
- 		goto bad;
- 
-+	if (args.numerr) {
-+		ERR(handle, "%d total errors found during hierarchy check", args.numerr);
-+		goto bad;
-+	}
+ 	/* first check that symbols may be required here */
+ 	if (!is_require_allowed()) {
+@@ -494,15 +492,10 @@ int require_symbol(uint32_t symbol_type,
+ 	retval = symtab_insert(policydbp, symbol_type, key, datum,
+ 			       SCOPE_REQ, decl->decl_id, dest_value);
+ 	if (retval == 1) {
+-		/* because C has no polymorphism, make the
+-		 * [outrageous] assumption that the first field of all
+-		 * symbol table data is a uint32_t representing its
+-		 * value */
+-		uint32_t *v =
+-		    (uint32_t *) hashtab_search(policydbp->symtab[symbol_type].
+-						table, key);
+-		assert(v != NULL);
+-		*dest_value = *v;
++		val = get_sym_val(hashtab_search(policydbp->symtab[symbol_type].
++						table, key), symbol_type);
++		assert(val != 0);
++		*dest_value = val;
+ 	} else if (retval == -2) {
+ 		/* ignore require statements if that symbol was
+ 		 * previously declared and is in current scope */
+diff -pruN -x.svn trunk/libsepol/include/sepol/policydb/sym_val.h branch/sym_val/libsepol/include/sepol/policydb/sym_val.h
+--- trunk/libsepol/include/sepol/policydb/sym_val.h	1969-12-31 19:00:00.000000000 -0500
++++ branch/sym_val/libsepol/include/sepol/policydb/sym_val.h	2006-07-26 07:39:05.000000000 -0400
+@@ -0,0 +1,25 @@
++/* Authors: Joshua Brindle <jbrindle@tresys.com>  
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
 +
- 	avtab_destroy(&expa);
- 	return 0;
- 
++#ifndef __SEPOL_SYM_VAL_H__
++#define __SEPOL_SYM_VAL_H__
++
++extern uint32_t get_sym_val(void *datum, int sym_type);
++
++#endif
+diff -pruN -x.svn trunk/libsepol/src/sym_val.c branch/sym_val/libsepol/src/sym_val.c
+--- trunk/libsepol/src/sym_val.c	1969-12-31 19:00:00.000000000 -0500
++++ branch/sym_val/libsepol/src/sym_val.c	2006-07-26 07:36:59.000000000 -0400
+@@ -0,0 +1,76 @@
++/* Authors: Joshua Brindle <jbrindle@tresys.com>
++ *
++ * Copyright (C) 2005 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include <assert.h>
++#include <sepol/policydb/policydb.h>
++
++static uint32_t common_datum_val(void *datum)
++{
++	return ((common_datum_t *)datum)->value;
++}
++
++static uint32_t class_datum_val(void *datum)
++{
++	return ((class_datum_t *)datum)->value;
++}
++
++static uint32_t role_datum_val(void *datum)
++{
++	return ((role_datum_t *)datum)->value;
++}
++
++static uint32_t type_datum_val(void *datum)
++{
++	return ((type_datum_t *)datum)->value;
++}
++
++static uint32_t user_datum_val(void *datum)
++{
++	return ((user_datum_t *)datum)->value;
++}
++
++static uint32_t bool_datum_val(void *datum)
++{
++	return ((cond_bool_datum_t *)datum)->value;
++}
++
++static uint32_t cat_datum_val(void *datum)
++{
++	return ((cat_datum_t *)datum)->value;
++}
++
++static uint32_t (*datum_val_f[SYM_NUM]) (void *datum) =
++{
++	common_datum_val,
++	class_datum_val,
++	role_datum_val,
++	type_datum_val,
++	user_datum_val,
++	bool_datum_val,
++	NULL,
++	cat_datum_val,
++};
++
++uint32_t get_sym_val(void *datum, int sym_type)
++{
++	if (datum == NULL || datum_val_f[sym_type] == NULL)
++		return 0;
++
++	return datum_val_f[sym_type](datum);
++}
 
 
 
