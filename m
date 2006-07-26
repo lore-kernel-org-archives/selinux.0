@@ -1,76 +1,58 @@
-Subject: Re: [PATCH RETRY 1/3] export sepol handle
+Subject: Re: [PATCH RETRY 2/3] Optionally expand neverallows
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Joshua Brindle <jbrindle@tresys.com>
 Cc: selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-In-Reply-To: <1153937500.5393.5.camel@twoface>
-References: <1153937500.5393.5.camel@twoface>
+In-Reply-To: <1153937503.5393.6.camel@twoface>
+References: <1153937503.5393.6.camel@twoface>
 Content-Type: text/plain
-Date: Wed, 26 Jul 2006 15:29:12 -0400
-Message-Id: <1153942152.11769.181.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 26 Jul 2006 16:15:45 -0400
+Message-Id: <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Wed, 2006-07-26 at 14:11 -0400, Joshua Brindle wrote:
-> Attached is a patch to export the error reporting handle in libsepol.
-> The setools team needs this so that we can create, destroy, set the
-> callback, and invoke the error reporting from outside libsepol.  This
-> will allow us to better propagate the errors into our analysis
-> libraries. This has the earlier suggestions incorporated and should be
-> applied to trunk.
+> The setools team would like to be able to optionally expand neverallow
+> rules for analysis purposes.  This patch leaves the current behavior
+> unchanged, but allows a new state variable for the expander to indicate
+> whether neverallow rules should get expanded, and creates an init
+> function for the expand_state struct. This has the earlier suggestions
+> incorporated.
 
-> diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/handle.c branch/setools_public-policydb-components/libsepol/src/handle.c
-> --- trunk/libsepol/src/handle.c	2006-07-13 10:19:21.000000000 -0400
-> +++ branch/setools_public-policydb-components/libsepol/src/handle.c	2006-07-26 12:08:30.000000000 -0400
-> @@ -16,7 +18,42 @@ sepol_handle_t *sepol_handle_create(void
->  	return sh;
->  }
->  
-> -void sepol_handle_destroy(sepol_handle_t * sh)
-> +void sepol_handle_set_callback(sepol_handle_t *h, sepol_handle_callback_fn_t fn, void *varg)
+> @@ -1200,7 +1205,8 @@ static int expand_rule_helper(sepol_hand
+>  		if (!ebitmap_node_get_bit(snode, i))
+>  			continue;
+>  		if (source_rule->flags & RULE_SELF) {
+> -			if (source_rule->specified & AVRULE_AV) {
+> +			if (source_rule->
+> +			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
+>  				if ((retval =
+>  				     expand_avrule_helper(handle,
+>  							  source_rule->
+
+I don't see any occurrences of AVRULE_AV by itself after this patch, so
+why wouldn't you just fold AVRULE_NEVERALLOW into it?  We don't need to
+preserve interface for static users of the library.
+
+> @@ -1264,13 +1271,14 @@ static int convert_and_expand_rule(sepol
+>  				   policydb_t * dest_pol, uint32_t * typemap,
+>  				   avrule_t * source_rule, avtab_t * dest_avtab,
+>  				   cond_av_list_t ** cond,
+> -				   cond_av_list_t ** other, int enabled)
+> +				   cond_av_list_t ** other, int enabled,
+> +				   int do_neverallow)
 >  {
-> +	if (h == NULL)
-> +		return;
-> +
-> +	h->msg_callback = fn;
-> +	h->msg_callback_arg = varg;
-> +}
+>  	int retval;
+>  	ebitmap_t stypes, ttypes;
+>  	unsigned char alwaysexpand;
+>  
+> -	if (source_rule->specified & AVRULE_NEVERALLOW)
+> +	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
+>  		return 1;
 
-This looks like sepol_msg_set_callback, which is what libsemanage
-already uses.  Am I missing something?
-
-> +void sepol_handle_do_callback(sepol_handle_t* handle, const char* fmt, ...)
-> +{
-> +	char *tmp = NULL;
-> +	va_list ap;
-> +
-> +	if (handle == NULL)
-> +		return;
-> +
-> +	va_start(ap, fmt);
-> +	vasprintf(&tmp, fmt, ap);
-> +	va_end(ap);
-> +
-> +	ERR(handle, "%s", tmp);
-> +	free(tmp);
-> +}
-
-I don't quite understand the intended usage.  If I am generating an
-error message from outside the library, why would I call into the
-library and then have it call into the callback I provided in the first
-place?  What's the point?
-
-> +int sepol_handle_get_level(sepol_handle_t *h)
-> +{
-> +	if (h == NULL) {
-> +		errno = EINVAL;
-> +		return -1;
-> +	}
-> +
-> +	return h->msg_level;
-> +}
-
-This looks like sepol_msg_get_level().
+Hmm...do you want alwaysexpand = 1 for the do_neverallow case?
+Otherwise, type attributes might not get expanded.  Does
+expand_avtab_insert need to know about AVTAB_NEVERALLOW?
 
 -- 
 Stephen Smalley
