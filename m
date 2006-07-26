@@ -1,196 +1,80 @@
-Subject: [PATCH] clean up datum cast to uint32
-From: Joshua Brindle <jbrindle@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6QENbon001401
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jul 2006 10:23:37 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k6QENZmc020227
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jul 2006 14:23:35 GMT
+Subject: Re: [PATCH 0/6] netfilter integration
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: casey@schaufler-ca.com
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <20060725190203.72780.qmail@web36604.mail.mud.yahoo.com>
+References: <20060725190203.72780.qmail@web36604.mail.mud.yahoo.com>
 Content-Type: text/plain
-Date: Wed, 26 Jul 2006 07:48:46 -0400
-Message-Id: <1153914526.19259.25.camel@twoface>
+Date: Wed, 26 Jul 2006 10:23:43 -0400
+Message-Id: <1153923824.31522.19.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds a function to get the symbol value from any datum passed
-in given the symbol type (SYM_TYPE, SYM_ROLE, etc) and removes the
-places where a datum was cast to uint32_t* to get the value.
+On Tue, 2006-07-25 at 12:02 -0700, Casey Schaufler wrote:
+> 
+> --- "Christopher J. PeBenito" <cpebenito@tresys.com>
+> wrote:
+> 
+> 
+> > I don't feel this is sufficient since you may want
+> > your module's rule to
+> > override a rules in the other modules, so you want a
+> > higher priority
+> > than what those have.  If, for example, you throw
+> > specific port ranges
+> > into a big bucket, then there's no way to do this. 
+> > In addition, you can
+> > create netfilter rules far more complicated than
+> > just a specific port or
+> > ranges.
+> 
+> That's the argument for generality and I
+> suggest that 9 ain't general. How many rules
+> are there in the policy now?
 
+432
 
-diff -pruN -x.svn trunk/checkpolicy/module_compiler.c branch/sym_val/checkpolicy/module_compiler.c
---- trunk/checkpolicy/module_compiler.c	2006-06-29 14:54:15.000000000 -0400
-+++ branch/sym_val/checkpolicy/module_compiler.c	2006-07-26 07:38:04.000000000 -0400
-@@ -17,6 +17,7 @@
- #include <sepol/policydb/policydb.h>
- #include <sepol/policydb/avrule_block.h>
- #include <sepol/policydb/conditional.h>
-+#include <sepol/policydb/sym_val.h>
- 
- #include "queue.h"
- #include "module_compiler.h"
-@@ -129,6 +130,7 @@ int declare_symbol(uint32_t symbol_type,
- {
- 	avrule_decl_t *decl = stack_top->decl;
- 	int retval;
-+	uint32_t val;
- 
- 	/* first check that symbols may be declared here */
- 	if (!is_declaration_allowed()) {
-@@ -137,15 +139,10 @@ int declare_symbol(uint32_t symbol_type,
- 	retval = symtab_insert(policydbp, symbol_type, key, datum,
- 			       SCOPE_DECL, decl->decl_id, dest_value);
- 	if (retval == 1) {
--		/* because C has no polymorphism, make the
--		 * [outrageous] assumption that the first field of all
--		 * symbol table data is a uint32_t representing its
--		 * value */
--		uint32_t *v =
--		    (uint32_t *) hashtab_search(policydbp->symtab[symbol_type].
--						table, key);
--		assert(v != NULL);
--		*dest_value = *v;
-+		val = get_sym_val(hashtab_search(policydbp->symtab[symbol_type].
-+						table, key), symbol_type);
-+		assert(val != 0);
-+		*dest_value = val;
- 	} else if (retval == -2) {
- 		return -2;
- 	} else if (retval < 0) {
-@@ -486,6 +483,7 @@ int require_symbol(uint32_t symbol_type,
- {
- 	avrule_decl_t *decl = stack_top->decl;
- 	int retval;
-+	uint32_t val;
- 
- 	/* first check that symbols may be required here */
- 	if (!is_require_allowed()) {
-@@ -494,15 +492,10 @@ int require_symbol(uint32_t symbol_type,
- 	retval = symtab_insert(policydbp, symbol_type, key, datum,
- 			       SCOPE_REQ, decl->decl_id, dest_value);
- 	if (retval == 1) {
--		/* because C has no polymorphism, make the
--		 * [outrageous] assumption that the first field of all
--		 * symbol table data is a uint32_t representing its
--		 * value */
--		uint32_t *v =
--		    (uint32_t *) hashtab_search(policydbp->symtab[symbol_type].
--						table, key);
--		assert(v != NULL);
--		*dest_value = *v;
-+		val = get_sym_val(hashtab_search(policydbp->symtab[symbol_type].
-+						table, key), symbol_type);
-+		assert(val != 0);
-+		*dest_value = val;
- 	} else if (retval == -2) {
- 		/* ignore require statements if that symbol was
- 		 * previously declared and is in current scope */
-diff -pruN -x.svn trunk/libsepol/include/sepol/policydb/sym_val.h branch/sym_val/libsepol/include/sepol/policydb/sym_val.h
---- trunk/libsepol/include/sepol/policydb/sym_val.h	1969-12-31 19:00:00.000000000 -0500
-+++ branch/sym_val/libsepol/include/sepol/policydb/sym_val.h	2006-07-26 07:39:05.000000000 -0400
-@@ -0,0 +1,25 @@
-+/* Authors: Joshua Brindle <jbrindle@tresys.com>  
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __SEPOL_SYM_VAL_H__
-+#define __SEPOL_SYM_VAL_H__
-+
-+extern uint32_t get_sym_val(void *datum, int sym_type);
-+
-+#endif
-diff -pruN -x.svn trunk/libsepol/src/sym_val.c branch/sym_val/libsepol/src/sym_val.c
---- trunk/libsepol/src/sym_val.c	1969-12-31 19:00:00.000000000 -0500
-+++ branch/sym_val/libsepol/src/sym_val.c	2006-07-26 07:36:59.000000000 -0400
-@@ -0,0 +1,76 @@
-+/* Authors: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2005 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include <assert.h>
-+#include <sepol/policydb/policydb.h>
-+
-+static uint32_t common_datum_val(void *datum)
-+{
-+	return ((common_datum_t *)datum)->value;
-+}
-+
-+static uint32_t class_datum_val(void *datum)
-+{
-+	return ((class_datum_t *)datum)->value;
-+}
-+
-+static uint32_t role_datum_val(void *datum)
-+{
-+	return ((role_datum_t *)datum)->value;
-+}
-+
-+static uint32_t type_datum_val(void *datum)
-+{
-+	return ((type_datum_t *)datum)->value;
-+}
-+
-+static uint32_t user_datum_val(void *datum)
-+{
-+	return ((user_datum_t *)datum)->value;
-+}
-+
-+static uint32_t bool_datum_val(void *datum)
-+{
-+	return ((cond_bool_datum_t *)datum)->value;
-+}
-+
-+static uint32_t cat_datum_val(void *datum)
-+{
-+	return ((cat_datum_t *)datum)->value;
-+}
-+
-+static uint32_t (*datum_val_f[SYM_NUM]) (void *datum) =
-+{
-+	common_datum_val,
-+	class_datum_val,
-+	role_datum_val,
-+	type_datum_val,
-+	user_datum_val,
-+	bool_datum_val,
-+	NULL,
-+	cat_datum_val,
-+};
-+
-+uint32_t get_sym_val(void *datum, int sym_type)
-+{
-+	if (datum == NULL || datum_val_f[sym_type] == NULL)
-+		return 0;
-+
-+	return datum_val_f[sym_type](datum);
-+}
+> You can go
+> with a small fixed number of priorities to
+> address the problem you have today, in
+> which case names make more sense, or you
+> can provide a general scheme in which case
+> 9 is way too small.
+> 
+> Now, as far as inter-module priorities go,
+> numbers just don't make sense.
 
+So after further discussion internally, we were thinking that there
+likely not going to be intermodule dependencies.  Oracle netfilter
+contexts aren't going to conflict with apache's.  Modules are going to
+want to override the contexts in the base module.  
+
+So we were thinking that we should do something similar to how other
+parts of the policy are manged, with having base rules, module rules,
+local rules, pre, and post rules.  The pre and post rules would be
+special rules that have to come at the beginning or end of the
+netfilter_contexts file (see the 1's and 9's in my original 0/6 email).
+Then base would be low priority, module would be middle priority, and
+local would be high priority.  Modules that are packaged with an app
+should have the module priority.  The local priority would allow users
+to use the infrastructure to create packages for their own use, for
+example, for applying the rules to a network of machines (manually or
+policy server in the future), which would be more convenient then
+applying rules to iptables by hand on all the machines.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
