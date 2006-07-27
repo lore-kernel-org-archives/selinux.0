@@ -1,51 +1,34 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
 Subject: RE: [PATCH] clean up datum cast to uint32
-Date: Thu, 27 Jul 2006 11:11:12 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832A8E7@exchange.columbia.tresys.com>
-In-Reply-To: <44C8D444.5050305@mentalrootkit.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832A8D1@exchange.columbia.tresys.com>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B0158832A8D1@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 27 Jul 2006 11:13:21 -0400
+Message-Id: <1154013201.27604.121.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> Joshua Brindle wrote:
-> >> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
-> >>     
-> >
-> > This has the same fragility that the uint32_t cast had since this 
-> > struct has to be first,
-> 
-> Neither are fragile if the requirement is clearly documented. 
-> Adding the struct just reinforces the requirement. The struct 
-> layout on which both of these methods depend is clearly 
-> guaranteed by the various C standards. The cast is completely 
-> legal and safe.
+On Thu, 2006-07-27 at 10:38 -0400, Joshua Brindle wrote:
+> This has the same fragility that the uint32_t cast had since this struct
+> has to be first, also the way I did it is pretty standard in the
+> library, for example destroy_f[SYM_NUM]. And is intuitive, a simple
+> function call returns the value.
 
-Right, so was the uint32_t one, that doesn't mean it wasn't ugly.
+Embedding the struct makes the common header explicit, which reduces the
+likelihood of accidental divergence.  The method invocation makes sense
+when the implementations of those methods are divergent for the
+different objects, but in this case, we already have a common header and
+don't intend to change that - we just want to make it explicit, and the
+implementation is always the same.  And it is heavyweight to require
+indirect function call overhead just to access the common header.
 
-> 
-> >  also the way I did it is pretty standard in the library, 
-> for example 
-> > destroy_f[SYM_NUM]. And is intuitive, a simple function 
-> call returns 
-> > the value.
-> >
-> >
-> >   
-> 
-> Indirection through function pointer tables is never 
-> intuitive in my opinion. The struct more directly represents 
-> the fact that all symtab datums have shared fields.
-> 
-
-Except the ones that don't, like level_datum_t. It sounds like you want
-to go toward OO anyway, why not put all the function pointers inside the
-structs val = foo_type->get_val()
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
