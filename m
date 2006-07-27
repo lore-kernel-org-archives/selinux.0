@@ -1,42 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6RAOAPM015094
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jul 2006 06:24:10 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6RAO8m9004576
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jul 2006 10:24:09 GMT
-Received: by ug-out-1314.google.com with SMTP id u2so173380uge
-        for <selinux@tycho.nsa.gov>; Thu, 27 Jul 2006 03:24:09 -0700 (PDT)
-Subject: Securing backup-shell-script
-From: Thomas Reuss <thomas.reuss@gmail.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH RETRY 2/3] Optionally expand neverallows
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
+In-Reply-To: <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil>
+References: <1153937503.5393.6.camel@twoface>
+	 <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 27 Jul 2006 12:24:05 +0200
-Message-Id: <1153995846.5726.11.camel@angmar>
+Date: Thu, 27 Jul 2006 09:09:23 -0400
+Message-Id: <1154005763.27604.58.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Wed, 2006-07-26 at 16:15 -0400, Stephen Smalley wrote:
+> On Wed, 2006-07-26 at 14:11 -0400, Joshua Brindle wrote:
+> > The setools team would like to be able to optionally expand neverallow
+> > rules for analysis purposes.  This patch leaves the current behavior
+> > unchanged, but allows a new state variable for the expander to indicate
+> > whether neverallow rules should get expanded, and creates an init
+> > function for the expand_state struct. This has the earlier suggestions
+> > incorporated.
+> 
+> > @@ -1200,7 +1205,8 @@ static int expand_rule_helper(sepol_hand
+> >  		if (!ebitmap_node_get_bit(snode, i))
+> >  			continue;
+> >  		if (source_rule->flags & RULE_SELF) {
+> > -			if (source_rule->specified & AVRULE_AV) {
+> > +			if (source_rule->
+> > +			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
+> >  				if ((retval =
+> >  				     expand_avrule_helper(handle,
+> >  							  source_rule->
+> 
+> I don't see any occurrences of AVRULE_AV by itself after this patch, so
+> why wouldn't you just fold AVRULE_NEVERALLOW into it?  We don't need to
+> preserve interface for static users of the library.
+> 
+> > @@ -1264,13 +1271,14 @@ static int convert_and_expand_rule(sepol
+> >  				   policydb_t * dest_pol, uint32_t * typemap,
+> >  				   avrule_t * source_rule, avtab_t * dest_avtab,
+> >  				   cond_av_list_t ** cond,
+> > -				   cond_av_list_t ** other, int enabled)
+> > +				   cond_av_list_t ** other, int enabled,
+> > +				   int do_neverallow)
+> >  {
+> >  	int retval;
+> >  	ebitmap_t stypes, ttypes;
+> >  	unsigned char alwaysexpand;
+> >  
+> > -	if (source_rule->specified & AVRULE_NEVERALLOW)
+> > +	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
+> >  		return 1;
+> 
+> Hmm...do you want alwaysexpand = 1 for the do_neverallow case?
+> Otherwise, type attributes might not get expanded.  Does
+> expand_avtab_insert need to know about AVTAB_NEVERALLOW?
 
-we are trying to protect a backup-shell-script, using the targeted
-policy under Fedora Core 5.
-The script tars several directories
-(/etc, /var/www, /var/lib/majordomo, /var/spool/mail), it dumps all
-mysql-databases via mysqldump and stores the ldap-data via slapcat.
-Finally, it computes md5 checksums over all /etc-Files. In case of any
-error, the script notifies root via sendmail.
+Also, suppose hypothetically that one of these policydbs with expanded
+neverallow rules is passed along to one of the other libsepol functions.
+What behavior do you want?  Seems like avtab_write_item() would happily
+write it out, but avtab_read_item() would choke on it (no match in
+spec_order, so set == 0).  Do you want to be able to save these as
+binary policy images and use them later for analysis?
 
-The script is started by cron. The executed programs run under
-"unconfined_t". (I.e. tar for example runs in the domain "unconfined_t")
-
-Which steps do we have to take, to secure the script, e.g. in an own
-domain "backup_t" ?
-
-
-Thank you very much,
-
-Thomas
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
