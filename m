@@ -1,70 +1,172 @@
+Message-ID: <44C8D22D.40807@mentalrootkit.com>
+Date: Thu, 27 Jul 2006 10:48:13 -0400
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH] clean up datum cast to uint32
-Date: Thu, 27 Jul 2006 10:38:28 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832A8D1@exchange.columbia.tresys.com>
-In-Reply-To: <44C8CCC7.7030703@mentalrootkit.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
-Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH RETRY 3/3] Refactor expansion of avtab
+References: <1153937506.5393.7.camel@twoface>
+In-Reply-To: <1153937506.5393.7.camel@twoface>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> 
-> Joshua Brindle wrote:
-> > This patch adds a function to get the symbol value from any datum 
-> > passed in given the symbol type (SYM_TYPE, SYM_ROLE, etc) 
-> and removes 
-> > the places where a datum was cast to uint32_t* to get the value.
-> >
-> >   
-> 
-> I like cleaning this up as that cast was not great. My 
-> concern with this patch is that it forces information / 
-> functions about many types to be forced into a single place. 
-> An alternative is to define a struct that must be included 
-> first for all symtab datums, i.e.:
-> 
+Joshua Brindle wrote:
+> <snip>
+>  
+> +static int expand_avrule_decls(expand_state_t * state)
+> +{
+> +	avrule_block_t *curblock;
+> +	int retval = -1;
+> +
+> +	for (curblock = state->base->global; curblock != NULL;
+> +	     curblock = curblock->next) {
+> +		avrule_decl_t *decl = curblock->enabled;
+> +		avrule_t *cur_avrule;
+> +
+> +		if (decl == NULL) {
+> +			/* nothing was enabled within this block */
+> +			continue;
+> +		}
+> +
+> +		/* copy role allows and role trans */
+> +		if (copy_role_allows(state, decl->role_allow_rules) != 0 ||
+> +		    copy_role_trans(state, decl->role_tr_rules) != 0) {
+> +			goto cleanup;
+> +		}
+> +
+> +		/* copy rules */
+> +		cur_avrule = decl->avrules;
+> +		while (cur_avrule != NULL) {
+> +			if (!(state->expand_neverallow)
+> +			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
+> +				/* copy this over directly so that assertions are checked later */
+> +				if (copy_neverallow
+> +				    (state->out, state->typemap, cur_avrule))
+> +					ERR(state->handle,
+> +					    "Error while copying neverallow.");
+> +			} else {
+>   
 
-I don't understand the objection. Personally I don't like the style
-where every type has its own management file for example, when dealing
-with policy reading or writing you all of a sudden have to leave that
-file and go to conditional.c anytime you need to deal with conditionals.
-Speaking of this, in a patch I haven't sent up yet I've had to factor
-out all the destroy functions so that they can be shared with the
-expander which I put into a file that looks an aweful lot like the one
-submitted here.
+My objection to this copying is really based on the function name - it 
+is called expand_avrule_decls, but it is really copying or expanding all 
+TE rules. Change the name (copy_and_expand_avrule_block?) would make my 
+objection go away. I won't even bring up what misleading names 
+avrule_decl and avrule_block are and how long this function is.
 
-> typedef struct symtab_datum {
->     uint32_t val;
-> } symtab_datum_t
-> 
-> This would be included first in all datums for the symtabs:
-> 
-> typedef struct comman_datum {
->     symtab_datum_t s;
->     symtab_t permissions;
-> }
-> 
-> This would allow all of the datums to be cast to 
-> symtab_datum_t and avoid all of the stub functions for type 
-> safety (not to mention the 2 function calls required to get 
-> the value). That would also allow moving some shared code for 
-> managing values into symtab.c/h.
-> 
-> I can work this patch up, I just wanted to get comments first 
-> because it will be a large (but easy) change because of 
-> adding references to 
-> datum->s.value instead of datum->value.
-> 
+Karl
 
-This has the same fragility that the uint32_t cast had since this struct
-has to be first, also the way I did it is pretty standard in the
-library, for example destroy_f[SYM_NUM]. And is intuitive, a simple
-function call returns the value.
+> +				if (convert_and_expand_rule
+> +				    (state->handle, state->out, state->typemap,
+> +				     cur_avrule, &state->out->te_avtab, NULL,
+> +				     NULL, 0,
+> +				     state->expand_neverallow) !=
+> +				    EXPAND_RULE_SUCCESS) {
+> +					goto cleanup;
+> +				}
+> +			}
+> +			cur_avrule = cur_avrule->next;
+> +		}
+> +
+> +		/* copy conditional rules */
+> +		if (cond_node_copy(state, decl->cond_list))
+> +			goto cleanup;
+> +	}
+> +
+> +	retval = 0;
+> +
+> +      cleanup:
+> +	return retval;
+> +}
+> +
+> +int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
+> +			  policydb_t * out, uint32_t * typemap, int verbose,
+> +			  int expand_neverallow)
+> +{
+> +	expand_state_t state;
+> +
+> +	expand_state_init(&state);
+> +
+> +	state.base = base;
+> +	state.out = out;
+> +	state.typemap = typemap;
+> +	state.handle = handle;
+> +	state.verbose = verbose;
+> +	state.expand_neverallow = expand_neverallow;
+> +
+> +	return expand_avrule_decls(&state);
+> +}
+> +
+>  /* Linking should always be done before calling expand, even if
+>   * there is only a base since all optionals are dealt with at link time
+>   * the base passed in should be indexed and avrule blocks should be 
+> @@ -1905,6 +1990,8 @@ int expand_module(sepol_handle_t * handl
+>  	expand_state_t state;
+>  	avrule_block_t *curblock;
+>  
+> +	expand_state_init(&state);
+> +
+>  	state.verbose = verbose;
+>  	state.typemap = NULL;
+>  	state.base = base;
+> @@ -2021,47 +2108,9 @@ int expand_module(sepol_handle_t * handl
+>  
+>  	}
+>  
+> -	/* then loop through delcs to copy and expand rules */
+> -	for (curblock = state.base->global; curblock != NULL;
+> -	     curblock = curblock->next) {
+> -		avrule_decl_t *decl = curblock->enabled;
+> -		avrule_t *cur_avrule;
+> -
+> -		if (decl == NULL) {
+> -			/* nothing was enabled within this block */
+> -			continue;
+> -		}
+> -
+> -		/* copy role allows and role trans */
+> -		if (copy_role_allows(&state, decl->role_allow_rules) != 0 ||
+> -		    copy_role_trans(&state, decl->role_tr_rules) != 0) {
+> -			goto cleanup;
+> -		}
+> -
+> -		/* copy rules */
+> -		cur_avrule = decl->avrules;
+> -		while (cur_avrule != NULL) {
+> -			if (!(state->expand_neverallow)
+> -			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
+> -				/* copy this over directly so that assertions are checked later */
+> -				if (copy_neverallow
+> -				    (out, state.typemap, cur_avrule))
+> -					ERR(handle,
+> -					    "Error while copying neverallow.");
+>   
 
+> -			} else {
+> -				if (convert_and_expand_rule
+> -				    (state.handle, out, state.typemap,
+> -				     cur_avrule, &out->te_avtab, NULL, NULL,
+> -				     0) != 1) {
+> -					goto cleanup;
+> -				}
+> -			}
+> -			cur_avrule = cur_avrule->next;
+> -		}
+> -
+> -		/* copy conditional rules */
+> -		if (cond_node_copy(&state, decl->cond_list))
+> -			goto cleanup;
+> +	if (expand_avrule_decls(&state) < 0) {
+> +		ERR(handle, "Error during expand");
+> +		goto cleanup;
+>  	}
+>  
+>  	/* copy constraints */
+>
+>
+>
+>
+>   
 
 
 --
