@@ -1,84 +1,49 @@
-Subject: [PATCH] SELinux: 3/3 eliminate sbsec->sem altogether
-From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: 0/3 clean up locking and semaphore usage
+From: Eric Paris <eparis@parisplace.org>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>
 Content-Type: text/plain
-Date: Thu, 27 Jul 2006 13:29:29 -0400
-Message-Id: <1154021369.5028.50.camel@localhost.localdomain>
+Date: Thu, 27 Jul 2006 13:29:23 -0400
+Message-Id: <1154021363.5028.44.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch completely eliminates the sbsec->sem.  This was held around
-the updating of the superblock security struct inside superblock_doinit.
-superblock_doinit is only called from vfs_kern_mount and from
-selinux_complete_init.  The operation with vfs_kern_mount is protected
-from races because the &mnt->mnt_sb->s_umount write lock will always be
-held in the call to security_sb_kern_mount (which works down to
-superblock_doinit) so the only thing I was really concerned about was
-selinux_complete_init.  It seems to me though that the ss_initialized
-variable will stop infinite recursion between the two even without
-locking and that we need not worry about races between vfs_kern_mount
-and selinux_complete_init since nothing should be able to mount while we
-are still processing the initial policy load in init.  Please though,
-let me know if I am misunderstanding the race potentials of
-selinux_complete_init.
+The following patch set attempts to do a little cleanup in SELinux code
+concerning the usage of semaphores which we init to 1.  First off there
+is nothing wrong with semaphores but with the introduction of simple
+mutexes a slightly faster interface is available (see
+Documentation/mutex-design.txt)  Since mutexes save time and space I'm
+going to try to deal with both of the semaphore I see in the selinux
+code.
 
-Likely if we ever in the future had a way to update the superblock
-security information after mounting this lock would need to be
-reintroduced, but as of today I don't see it's need.
+The first patch completely eliminates the inode_security_set_security
+function which was only being called from superblock_doinit.  Since
+there was only 1 caller I rolled it back into superblock_doinit.  Also
+since superblock_doinit is called while mounting, and before the root
+inode is available to anything else we don't need to worry about locking
+the isec->sem.  So the locking was completely dropped.
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+The second patch converts the remaining isec->sem into a mutex.  The
+same locking is provided only in the faster smaller mutex rather than
+slower sem.
 
- security/selinux/hooks.c          |    4 ----
- security/selinux/include/objsec.h |    1 -
- 2 files changed, 5 deletions(-)
+The third patch is the most controversial I'm sure.  I just completely
+eliminate the sbsec->sem.  This was used to lock the updating of the
+superblock security struct inside superblock_doinit.  superblock_doinit
+is only called from vfs_kern_mount and from selinux_complete_init.  The
+operation with vfs_kern_mount is protected from races because the
+&mnt->mnt_sb->s_umount write lock will always be held in the call to
+security_sb_kern_mount (which works down to superblock_doinit) so the
+only thing I was really concerned about was selinux_complete_init.  It
+seems to me though that the ss_initialized variable will stop infinite
+recursion between the two even without locking and that we need not
+worry about races between vfs_kern_mount and selinux_complete_init since
+nothing should be able to mount while we are still processing the
+initial policy load in init.  Please though, let me know if I am
+misunderstanding the race potentials of selinux_complete_init.
 
---- linux-2.6-sem-changes/security/selinux/include/objsec.h.drop.sbsec.sem	2006-07-24 17:09:34.000000000 -0400
-+++ linux-2.6-sem-changes/security/selinux/include/objsec.h	2006-07-24 17:09:54.000000000 -0400
-@@ -63,7 +63,6 @@ struct superblock_security_struct {
- 	unsigned int behavior;          /* labeling behavior */
- 	unsigned char initialized;      /* initialization flag */
- 	unsigned char proc;             /* proc fs */
--	struct semaphore sem;
- 	struct list_head isec_head;
- 	spinlock_t isec_lock;
- };
---- linux-2.6-sem-changes/security/selinux/hooks.c.drop.sbsec.sem	2006-07-24 17:09:34.000000000 -0400
-+++ linux-2.6-sem-changes/security/selinux/hooks.c	2006-07-24 17:09:54.000000000 -0400
-@@ -49,7 +49,6 @@
- #include <net/ip.h>		/* for sysctl_local_port_range[] */
- #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
- #include <asm/uaccess.h>
--#include <asm/semaphore.h>
- #include <asm/ioctls.h>
- #include <linux/bitops.h>
- #include <linux/interrupt.h>
-@@ -240,7 +239,6 @@ static int superblock_alloc_security(str
- 	if (!sbsec)
- 		return -ENOMEM;
- 
--	init_MUTEX(&sbsec->sem);
- 	INIT_LIST_HEAD(&sbsec->list);
- 	INIT_LIST_HEAD(&sbsec->isec_head);
- 	spin_lock_init(&sbsec->isec_lock);
-@@ -595,7 +593,6 @@ static int superblock_doinit(struct supe
- 	struct inode *inode = root->d_inode;
- 	int rc = 0;
- 
--	down(&sbsec->sem);
- 	if (sbsec->initialized)
- 		goto out;
- 
-@@ -690,7 +687,6 @@ next_inode:
- 	}
- 	spin_unlock(&sbsec->isec_lock);
- out:
--	up(&sbsec->sem);
- 	return rc;
- }
- 
-
+-Eric
 
 
 --
