@@ -1,71 +1,86 @@
-Subject: [PATCH] SELinux: 1/3 eliminate inode_security_set_security
+Subject: [PATCH] SELinux: 2/3 change isec->sem to a mutex
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, James Morris <jmorris@redhat.com>
 Content-Type: text/plain
-Date: Thu, 27 Jul 2006 13:29:25 -0400
-Message-Id: <1154021365.5028.46.camel@localhost.localdomain>
+Date: Thu, 27 Jul 2006 13:29:27 -0400
+Message-Id: <1154021367.5028.48.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch completely eliminates the inode_security_set_security. It was
-only being called from superblock_doinit.  Since there was only 1 caller
-I rolled it back into superblock_doinit.  Also since superblock_doinit
-is called while mounting, and before the root inode is available to
-anything else we don't need to worry about locking the isec->sem.  So
-the locking was completely dropped.
+This patch converts the remaining isec->sem into a mutex.  The same
+locking is provided as before only in the faster smaller mutex rather
+than slower sem.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 
- security/selinux/hooks.c |   28 ++++++++--------------------
- 1 files changed, 8 insertions(+), 20 deletions(-)
+ security/selinux/hooks.c          |   13 +++++++------
+ security/selinux/include/objsec.h |    2 +-
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a91c961..a8ff26c 100644
+index a91c961..e03bada 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -1364,25 +1364,6 @@ static inline u32 file_to_av(struct file
- 	return av;
+@@ -69,6 +69,7 @@ #include <linux/sysctl.h>
+ #include <linux/audit.h>
+ #include <linux/string.h>
+ #include <linux/selinux.h>
++#include <linux/mutex.h>
+ 
+ #include "avc.h"
+ #include "objsec.h"
+@@ -182,7 +183,7 @@ static int inode_alloc_security(struct i
+ 		return -ENOMEM;
+ 
+ 	memset(isec, 0, sizeof(*isec));
+-	init_MUTEX(&isec->sem);
++	mutex_init(&isec->lock);
+ 	INIT_LIST_HEAD(&isec->list);
+ 	isec->inode = inode;
+ 	isec->sid = SECINITSID_UNLABELED;
+@@ -843,13 +844,13 @@ #define INITCONTEXTLEN 255
+ 	char *context = NULL;
+ 	unsigned len = 0;
+ 	int rc = 0;
+-	int hold_sem = 0;
++	int hold_lock = 0;
+ 
+ 	if (isec->initialized)
+ 		goto out;
+ 
+-	down(&isec->sem);
+-	hold_sem = 1;
++	mutex_lock(&isec->lock);
++	hold_lock = 1;
+ 	if (isec->initialized)
+ 		goto out;
+ 
+@@ -991,8 +992,8 @@ out:
+ 	if (isec->sclass == SECCLASS_FILE)
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 
+-	if (hold_sem)
+-		up(&isec->sem);
++	if (hold_lock)
++		mutex_unlock(&isec->lock);
+ 	return rc;
  }
  
--/* Set an inode's SID to a specified value. */
--static int inode_security_set_sid(struct inode *inode, u32 sid)
--{
--	struct inode_security_struct *isec = inode->i_security;
--	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
--
--	if (!sbsec->initialized) {
--		/* Defer initialization to selinux_complete_init. */
--		return 0;
--	}
--
--	down(&isec->sem);
--	isec->sclass = inode_mode_to_security_class(inode->i_mode);
--	isec->sid = sid;
--	isec->initialized = 1;
--	up(&isec->sem);
--	return 0;
--}
--
- /* Hook functions begin here. */
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 9401788..7841ff2 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -44,7 +44,7 @@ struct inode_security_struct {
+ 	u32 sid;             /* SID of this object */
+ 	u16 sclass;       /* security class of this object */
+ 	unsigned char initialized;     /* initialization flag */
+-	struct semaphore sem;
++	struct mutex lock;
+ 	unsigned char inherit;         /* inherit SID from parent entry */
+ };
  
- static int selinux_ptrace(struct task_struct *parent, struct task_struct *child)
-@@ -2091,7 +2073,13 @@ static int selinux_inode_init_security(s
- 		}
- 	}
- 
--	inode_security_set_sid(inode, newsid);
-+	/* Possibly defer initialization to selinux_complete_init. */
-+	if (sbsec->initialized) {
-+		struct inode_security_struct *isec = inode->i_security;
-+		isec->sclass = inode_mode_to_security_class(inode->i_mode);
-+		isec->sid = newsid;
-+		isec->initialized = 1;
-+	}
- 
- 	if (!ss_initialized || sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
- 		return -EOPNOTSUPP;
 
 
 
