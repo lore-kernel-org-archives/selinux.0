@@ -1,61 +1,33 @@
-Message-ID: <44C8DAFB.4060405@mentalrootkit.com>
-Date: Thu, 27 Jul 2006 11:25:47 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6RFcq3F024476
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jul 2006 11:38:52 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6RFcnCo023379
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jul 2006 15:38:50 GMT
+Message-ID: <44C8DE0A.1080400@mentalrootkit.com>
+Date: Thu, 27 Jul 2006 11:38:50 -0400
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH] clean up datum cast to uint32
-References: <6FE441CD9F0C0C479F2D88F959B0158832A8E7@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832A8E7@exchange.columbia.tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Converting ebitmaps to copy-on-write?
+References: <44C788CA.8040907@hp.com>
+In-Reply-To: <44C788CA.8040907@hp.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
->> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
->>
->>     
->> Neither are fragile if the requirement is clearly documented. 
->> Adding the struct just reinforces the requirement. The struct 
->> layout on which both of these methods depend is clearly 
->> guaranteed by the various C standards. The cast is completely 
->> legal and safe.
->>     
->
-> Right, so was the uint32_t one, that doesn't mean it wasn't ugly.
+Paul Moore wrote:
+> Can anyone think of reason why converting the ebitmap code to a copy on
+> write scheme would be a bad idea?  Yes, there would be some overhead in
+> maintaining reference counts but I suspect the added overhead would be
+> more than offset by the reduction in kmalloc() calls ... thoughts?
 >
 >   
-
-Matter of opinion - obviously ours are different.
-
->>
->> Indirection through function pointer tables is never 
->> intuitive in my opinion. The struct more directly represents 
->> the fact that all symtab datums have shared fields.
->>     
->
-> Except the ones that don't, like level_datum_t. 
-
-Except the _one_ that doesn't.
-
-Haven't looked at the code enough to know if a value might be useful. 
-I'd prefer not to have an exception. BTW, your solution has the same 
-problem with levels - it appears that you can pass any datum type but in 
-fact you can't. Would adding the header struct take up too much storage 
-space for levels?
-
-> It sounds like you want
-> to go toward OO anyway, why not put all the function pointers inside the
-> structs val = foo_type->get_val()
->
->   
-Adds 32 to 64 bits to each struct for each function pointer, which is 
-not an acceptable size overhead in this case. You also incur the 
-overhead of a function call through a function pointer.
+Which ebitmaps are shared enough for this to help? I don't think I have 
+enough context to know whether this would be a good idea or not.
 
 Karl
-
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
