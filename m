@@ -1,12 +1,12 @@
-Message-ID: <44C8CF53.6040009@mentalrootkit.com>
-Date: Thu, 27 Jul 2006 10:36:03 -0400
+Message-ID: <44C8CF43.5050801@mentalrootkit.com>
+Date: Thu, 27 Jul 2006 10:35:47 -0400
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
 MIME-Version: 1.0
 To: Joshua Brindle <jbrindle@tresys.com>
 CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH 2/2] Refactor expansion of avtab
-References: <6FE441CD9F0C0C479F2D88F959B01588298D4F@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588298D4F@exchange.columbia.tresys.com>
+Subject: Re: [PATCH 1/2] Conditionally expand neverallows
+References: <6FE441CD9F0C0C479F2D88F959B01588298D4D@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588298D4D@exchange.columbia.tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -15,48 +15,63 @@ Joshua Brindle wrote:
 >> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
 >>
 >>     
->> Poorly named function - are neverallows av rules or not? If 
->> they are not the function needs a more generic name. This is 
->> continuing the confusing practice of sometimes calling just 
->> allow and audit rules av rules and sometimes using it to mean 
->> more rule types.
+>   
+>>>  	ebitmap_init(&stypes);
+>>> @@ -1306,7 +1317,7 @@ static int cond_avrule_list_copy(policyd
+>>>  	while (cur) {
+>>>  		if (convert_and_expand_rule(state->handle, dest_pol,
+>>>  					    typemap, cur, dest_avtab,
+>>> -					    list, other, 
+>>>       
+>> enabled) != 1) {
+>>     
+>>> +					    list, other, 
+>>>       
+>> enabled, 0) != 1) {
+>>     
+>>>  			return -1;
+>>>  		}
+>>>  
+>>> @@ -1897,6 +1908,8 @@ int expand_module(sepol_handle_t * handl
+>>>  	expand_state_t state;
+>>>  	avrule_block_t *curblock;
+>>>  
+>>> +	expand_state_init(&state);
+>>> +
+>>>  	state.verbose = verbose;
+>>>  	state.typemap = NULL;
+>>>  	state.base = base;
+>>> @@ -2033,7 +2046,7 @@ int expand_module(sepol_handle_t * handl
+>>>  		/* copy rules */
+>>>  		cur_avrule = decl->avrules;
+>>>  		while (cur_avrule != NULL) {
+>>> -			if (cur_avrule->specified & AVRULE_NEVERALLOW) {
+>>> +			if (!(state->expand_neverallow) && 
+>>>       
+>> cur_avrule->specified & 
+>>     
+>>> +AVRULE_NEVERALLOW) {
+>>>       
+>> I think that the copying of the neverallows needs to be 
+>> factored out completely - it is a strange side effect of 
+>> expansion. The expansion functions should just, well, expand rules.
 >>
 >>     
 >
-> Have any suggestions? We couldn't think of a really good name either.
+> For static users maybe but the shared API will still be expand for all
+> this stuff, making the internal and external interfaces for expand would
+> be more confusing than having an expand function that does too much
+> (particularly when the common case is that it does all this)
 >
 >   
 
-I vote we start using avrules to mean allow, audit, and neverallow - 
-i.e., based on their common syntax. That would argue for the define 
-changing in the other patch.
-
->> This can be in place or out of place (i.e., out can be the 
->> same as base)? A comment describing how this function can be 
->> used is needed, including the fact that the typemap must be 
->> "special" for an in-place expand, correct?
->>
->>     
->
-> Either, it is out of place for the current usage and in place for
-> setools. Talking about a special typemap is out of context here. Maybe
-> more comments are needed. No need to ditch this patch though, we can
-> apply some comments on top of it.
->
->   
-
-Why is talking about a specific typemap out of place? Just give the user 
-a hint that if they want to do in-place expansion what the typemap will 
-be. Where is the real documentation for typemap going to go?
-
->> Object classes and permissions will never need to be mapped 
->> for an out of place expansion?
->>
->>     
-
-What about this question?
+I can't quite parse this comment. Copying the neverallows when they are 
+not expanded is just strange. A separate function to copy the 
+neverallows should be provided.
 
 Karl
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
