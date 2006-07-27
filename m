@@ -1,105 +1,108 @@
-Subject: Re: [PATCH] SELinux: 3/3 eliminate sbsec->sem altogether
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <1154021369.5028.50.camel@localhost.localdomain>
-References: <1154021369.5028.50.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 27 Jul 2006 14:41:36 -0400
-Message-Id: <1154025696.27604.235.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44C908FD.3090208@tresys.com>
+Date: Thu, 27 Jul 2006 14:42:05 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
+Subject: Re: [PATCH RETRY 2/3] Optionally expand neverallows
+References: <1153937503.5393.6.camel@twoface> <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil> <1154005763.27604.58.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1154005763.27604.58.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-07-27 at 13:29 -0400, Eric Paris wrote:
-> This patch completely eliminates the sbsec->sem.  This was held around
-> the updating of the superblock security struct inside superblock_doinit.
-> superblock_doinit is only called from vfs_kern_mount and from
-> selinux_complete_init.  The operation with vfs_kern_mount is protected
-> from races because the &mnt->mnt_sb->s_umount write lock will always be
-> held in the call to security_sb_kern_mount (which works down to
-> superblock_doinit) so the only thing I was really concerned about was
-> selinux_complete_init.  It seems to me though that the ss_initialized
-> variable will stop infinite recursion between the two even without
-> locking and that we need not worry about races between vfs_kern_mount
-> and selinux_complete_init since nothing should be able to mount while we
-> are still processing the initial policy load in init.  Please though,
-> let me know if I am misunderstanding the race potentials of
-> selinux_complete_init.
-> 
-> Likely if we ever in the future had a way to update the superblock
-> security information after mounting this lock would need to be
-> reintroduced, but as of today I don't see it's need.
+Stephen Smalley wrote:
+>
+>
+> Also, suppose hypothetically that one of these policydbs with expanded
+> neverallow rules is passed along to one of the other libsepol functions.
+> What behavior do you want?  Seems like avtab_write_item() would happily
+> write it out, but avtab_read_item() would choke on it (no match in
+> spec_order, so set == 0).  Do you want to be able to save these as
+> binary policy images and use them later for analysis?
+>
+Right, there is no intention to store out these policydbs. This patch is 
+similar to one I already added for access control hooks in libsepol. It 
+marks policies as invalid when you do unsupported things to them, and 
+also skips assertion and hierarchy checking.
 
-I'm hesitant about this one, as I don't like relying on a lock in the
-core kernel to protect our own security structures, especially as that
-could change in the future.
+Index: trunk/libsepol/include/sepol/policydb/policydb.h
+===================================================================
+--- trunk/libsepol/include/sepol/policydb/policydb.h	(revision 951)
++++ trunk/libsepol/include/sepol/policydb/policydb.h	(working copy)
+@@ -366,6 +366,7 @@
+ 	uint32_t policy_type;
+ 	char *name;
+ 	char *version;
++	int invalid;
+ 
+ 	/* Whether this policydb is mls, should always be set */
+ 	int mls;
+Index: trunk/libsepol/src/expand.c
+===================================================================
+--- trunk/libsepol/src/expand.c	(revision 997)
++++ trunk/libsepol/src/expand.c	(working copy)
+@@ -1904,7 +1904,7 @@
+ 	return -1;
+ }
+ 
+-static int expand_avrule_decls(expand_state_t * state)
++static int copy_and_expand_avrule_block(expand_state_t * state)
+ {
+ 	avrule_block_t *curblock;
+ 	int retval = -1;
+@@ -1936,6 +1936,9 @@
+ 					ERR(state->handle,
+ 					    "Error while copying neverallow.");
+ 			} else {
++				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
++					state->out->invalid = 1;
++				}
+ 				if (convert_and_expand_rule
+ 				    (state->handle, state->out, state->typemap,
+ 				     cur_avrule, &state->out->te_avtab, NULL,
+@@ -1974,7 +1977,7 @@
+ 	state.verbose = verbose;
+ 	state.expand_neverallow = expand_neverallow;
+ 
+-	return expand_avrule_decls(&state);
++	return copy_and_expand_avrule_block(&state);
+ }
+ 
+ /* Linking should always be done before calling expand, even if
+@@ -2108,7 +2111,7 @@
+ 
+ 	}
+ 
+-	if (expand_avrule_decls(&state) < 0) {
++	if (copy_and_expand_avrule_block(&state) < 0) {
+ 		ERR(handle, "Error during expand");
+ 		goto cleanup;
+ 	}
+@@ -2156,7 +2159,7 @@
+ 		goto cleanup;
+ 	hashtab_map_remove_on_error(state.out->p_types.table,
+ 				    type_attr_remove, type_destroy, state.out);
+-	if (check) {
++	if (check && !(out->invalid)) {
+ 		if (hierarchy_check_constraints(handle, state.out))
+ 			goto cleanup;
+ 
+Index: trunk/libsepol/src/write.c
+===================================================================
+--- trunk/libsepol/src/write.c	(revision 951)
++++ trunk/libsepol/src/write.c	(working copy)
+@@ -1411,6 +1411,9 @@
+ 	struct policy_data pd;
+ 	char *policydb_str;
+ 
++	if (p->invalid)
++		return -1;
++
+ 	pd.fp = fp;
+ 	pd.p = p;
+ 
 
-Strictly speaking, anything could happen in userspace during
-selinux_complete_init; that is why it goes to such great pains to take
-refcounts and locks appropriately during that processing.  We actually
-have seen issues where we get interleavings of hotplug invocation with
-the initial policy load and selinux_complete_init setup, which yields
-hotplug suddenly encountering denials as the system moves into an
-enforcing state without completely labeled inodes (or even with hotplug
-still left running in kernel_t since transitions weren't set up at the
-time it fired).
-
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
->  security/selinux/hooks.c          |    4 ----
->  security/selinux/include/objsec.h |    1 -
->  2 files changed, 5 deletions(-)
-> 
-> --- linux-2.6-sem-changes/security/selinux/include/objsec.h.drop.sbsec.sem	2006-07-24 17:09:34.000000000 -0400
-> +++ linux-2.6-sem-changes/security/selinux/include/objsec.h	2006-07-24 17:09:54.000000000 -0400
-> @@ -63,7 +63,6 @@ struct superblock_security_struct {
->  	unsigned int behavior;          /* labeling behavior */
->  	unsigned char initialized;      /* initialization flag */
->  	unsigned char proc;             /* proc fs */
-> -	struct semaphore sem;
->  	struct list_head isec_head;
->  	spinlock_t isec_lock;
->  };
-> --- linux-2.6-sem-changes/security/selinux/hooks.c.drop.sbsec.sem	2006-07-24 17:09:34.000000000 -0400
-> +++ linux-2.6-sem-changes/security/selinux/hooks.c	2006-07-24 17:09:54.000000000 -0400
-> @@ -49,7 +49,6 @@
->  #include <net/ip.h>		/* for sysctl_local_port_range[] */
->  #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
->  #include <asm/uaccess.h>
-> -#include <asm/semaphore.h>
->  #include <asm/ioctls.h>
->  #include <linux/bitops.h>
->  #include <linux/interrupt.h>
-> @@ -240,7 +239,6 @@ static int superblock_alloc_security(str
->  	if (!sbsec)
->  		return -ENOMEM;
->  
-> -	init_MUTEX(&sbsec->sem);
->  	INIT_LIST_HEAD(&sbsec->list);
->  	INIT_LIST_HEAD(&sbsec->isec_head);
->  	spin_lock_init(&sbsec->isec_lock);
-> @@ -595,7 +593,6 @@ static int superblock_doinit(struct supe
->  	struct inode *inode = root->d_inode;
->  	int rc = 0;
->  
-> -	down(&sbsec->sem);
->  	if (sbsec->initialized)
->  		goto out;
->  
-> @@ -690,7 +687,6 @@ next_inode:
->  	}
->  	spin_unlock(&sbsec->isec_lock);
->  out:
-> -	up(&sbsec->sem);
->  	return rc;
->  }
->  
-> 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
