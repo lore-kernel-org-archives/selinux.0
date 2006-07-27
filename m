@@ -1,110 +1,52 @@
-Message-ID: <44C91F31.1070103@mentalrootkit.com>
-Date: Thu, 27 Jul 2006 16:16:49 -0400
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH RETRY 2/3] Optionally expand neverallows
-References: <6FE441CD9F0C0C479F2D88F959B0158832A937@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832A937@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <200607272116.k6RLGrFC026797@turing-police.cc.vt.edu>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org,
+        jbrindle@tresys.com
+Subject: Re: [PATCH] SELinux: new /proc/self/attr/ipccreate for expliciteipc object labeling
+In-Reply-To: Your message of "Thu, 27 Jul 2006 12:58:49 EDT."
+             <1154019529.5028.19.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <6FE441CD9F0C0C479F2D88F959B015882989A9@exchange.columbia.tresys.com>
+            <1154019529.5028.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1154035012_3017P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 27 Jul 2006 17:16:53 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
->> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
->>
->> Joshua Brindle wrote:
->>     
->>> @@ -366,6 +366,7 @@
->>>     uint32_t policy_type;
->>>     char *name;
->>>     char *version;
->>> +    int invalid;
->>>
->>>       
->> Expanding the avrules doesn't really make the policydb 
->> invalid, right? 
->> It just makes it non-standard (tainted :) )
->>
->>     
->
-> Putting neverallows in the avtab is invalid (the reader will bail if it
-> tries to read one)
->
->   
+--==_Exmh_1154035012_3017P
+Content-Type: text/plain; charset=us-ascii
 
-I disagree - the policydb is still valid, otherwise there would be no 
-point doing analysis on it. I think the more correct semantic is that 
-this policydb cannot be represented by the on disc format. So the 
-variable would be better called something like policydb->unsupported_format.
+On Thu, 27 Jul 2006 12:58:49 EDT, Eric Paris said:
 
-Wait, just because the neverallows are expanded doesn't mean that the 
-unexpanded aren't also there, meaning that the policydb could be written 
-to disc with no loss of information. This reinforces my notion that the 
-policy is valid. Why not just skip saving the neverallows in the format 
-and document the behavior?
+> I also decided to leave the name ipccreate even though this does not
+> clearly express that the patch does not cover posix message queues.  The
+> only name that seemed descriptive enough was sysvipccreate which just
+> seemed incredibly long for little to no gain.  I will address the issue
+> of controlling posix message queue explicit labeling in a future patch.
 
->>>     }
->>> @@ -2156,7 +2159,7 @@
->>>         goto cleanup;
->>>     hashtab_map_remove_on_error(state.out->p_types.table,
->>>                     type_attr_remove, type_destroy, state.out);
->>> -    if (check) {
->>> +    if (check && !(out->invalid)) {
->>>         if (hierarchy_check_constraints(handle, state.out))
->>>             goto cleanup;
->>>
->>>       
->> Why disallow hierarchy checking?
->>     
->
-> It disables all checking for invalid policies, there is no reason to do
-> checking if you've marked a policy invalid since it can't be written
-> anyway 
+Will that require another bit?
 
-1) The policy is still valid.
-2) If this is for analysis I would imagine you would want the 
-neverallows and _also_ know if the policy violates hierarchy constraints.
-3) It is surprising since the caller explicitly requests both the 
-checking and the expansion. If these parameters really are exclusive an 
-error should be raised rather than silently not performing the action.
+> A note of interest, this only leaves 1 bit in the process security
+> class.  I don't currently have any plans to use any more, but it is
+> something to remember.
 
-> (invalid will probably mean other things in the future, such as a
-> policy with disabled rules expanded out and conflicting type transitions
-> in the avtab for access control checking).
->
->   
->>> Index: trunk/libsepol/src/write.c
->>> ===================================================================
->>> --- trunk/libsepol/src/write.c    (revision 951)
->>> +++ trunk/libsepol/src/write.c    (working copy)
->>> @@ -1411,6 +1411,9 @@
->>>     struct policy_data pd;
->>>     char *policydb_str;
->>>
->>> +    if (p->invalid)
->>> +        return -1;
->>> +
->>>       
->> A separate return code is needed so that the caller can 
->> distinguish between general, likely fatal errors and a 
->> policydb that can't be written because the format doesn't support it.
->>
->>     
->
-> -2? ;)
->
-> -1 is currently used if, for example, policy->policyvers is invalid,
-> same deal.. These are programming errors not user errors. I'd be fine
-> with it being an assert() personally.
->   
+Does anybody have a good plan for what to do when we run out?
 
-See above - I think that the write should just work and ignore the 
-expanded neverallows.
+--==_Exmh_1154035012_3017P
+Content-Type: application/pgp-signature
 
-Karl
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFEyS1EcC3lWbTT17ARAqNzAKCkAGyxXAGGILByR/SiNKwdHghKGgCgoEUU
+vCJIuOHgkv67jJ0O2JAoLGE=
+=gd0M
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1154035012_3017P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
