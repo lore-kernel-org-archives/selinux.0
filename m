@@ -1,84 +1,92 @@
-Subject: Re: [PATCH] SELinux: 2/3 change isec->sem to a mutex
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <1154021367.5028.48.camel@localhost.localdomain>
-References: <1154021367.5028.48.camel@localhost.localdomain>
+Subject: Re: [PATCH RETRY 2/3] Optionally expand neverallows
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com, jmowery@tresys.com
+In-Reply-To: <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil>
+References: <1153937503.5393.6.camel@twoface>
+	 <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 27 Jul 2006 14:36:24 -0400
-Message-Id: <1154025384.27604.229.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 27 Jul 2006 14:34:01 -0400
+Message-Id: <1154025241.10023.3.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-07-27 at 13:29 -0400, Eric Paris wrote:
-> This patch converts the remaining isec->sem into a mutex.  The same
-> locking is provided as before only in the faster smaller mutex rather
-> than slower sem.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
->  security/selinux/hooks.c          |   13 +++++++------
->  security/selinux/include/objsec.h |    2 +-
->  2 files changed, 8 insertions(+), 7 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index a91c961..e03bada 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -69,6 +69,7 @@ #include <linux/sysctl.h>
->  #include <linux/audit.h>
->  #include <linux/string.h>
->  #include <linux/selinux.h>
-> +#include <linux/mutex.h>
->  
->  #include "avc.h"
->  #include "objsec.h"
-> @@ -182,7 +183,7 @@ static int inode_alloc_security(struct i
->  		return -ENOMEM;
->  
->  	memset(isec, 0, sizeof(*isec));
-> -	init_MUTEX(&isec->sem);
-> +	mutex_init(&isec->lock);
->  	INIT_LIST_HEAD(&isec->list);
->  	isec->inode = inode;
->  	isec->sid = SECINITSID_UNLABELED;
-> @@ -843,13 +844,13 @@ #define INITCONTEXTLEN 255
->  	char *context = NULL;
->  	unsigned len = 0;
->  	int rc = 0;
-> -	int hold_sem = 0;
-> +	int hold_lock = 0;
->  
->  	if (isec->initialized)
->  		goto out;
->  
-> -	down(&isec->sem);
-> -	hold_sem = 1;
-> +	mutex_lock(&isec->lock);
-> +	hold_lock = 1;
->  	if (isec->initialized)
->  		goto out;
->  
-> @@ -991,8 +992,8 @@ out:
->  	if (isec->sclass == SECCLASS_FILE)
->  		isec->sclass = inode_mode_to_security_class(inode->i_mode);
->  
-> -	if (hold_sem)
-> -		up(&isec->sem);
-> +	if (hold_lock)
-> +		mutex_unlock(&isec->lock);
->  	return rc;
->  }
+On Wed, 2006-07-26 at 16:15 -0400, Stephen Smalley wrote:
 
-You didn't introduce it, but it would be nice to clean this up so that
-instead of using the hold_sem/hold_lock flag, we just use an alternate
-exit path for the unlocked case.  Conditional release of a lock is ugly
-(my fault).
+> I don't see any occurrences of AVRULE_AV by itself after this patch,
+> so
+> why wouldn't you just fold AVRULE_NEVERALLOW into it?  We don't need
+> to
+> preserve interface for static users of the library.
 
--- 
-Stephen Smalley
-National Security Agency
+ok, applies on top of the prior patch
+
+Index: trunk/libsepol/include/sepol/policydb/policydb.h
+===================================================================
+--- trunk/libsepol/include/sepol/policydb/policydb.h	(revision 1000)
++++ trunk/libsepol/include/sepol/policydb/policydb.h	(working copy)
+@@ -194,12 +194,12 @@
+ #define AVRULE_AUDITALLOW  2
+ #define AVRULE_AUDITDENY   4
+ #define AVRULE_DONTAUDIT   8
+-#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT)
++#define AVRULE_NEVERALLOW 128
++#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
+ #define AVRULE_TRANSITION 16
+ #define AVRULE_MEMBER     32
+ #define AVRULE_CHANGE     64
+ #define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
+-#define AVRULE_NEVERALLOW 128
+ 	uint32_t specified;
+ #define RULE_SELF 1
+ 	uint32_t flags;
+Index: trunk/libsepol/src/expand.c
+===================================================================
+--- trunk/libsepol/src/expand.c	(revision 1000)
++++ trunk/libsepol/src/expand.c	(working copy)
+@@ -1214,8 +1214,7 @@
+ 		if (!ebitmap_node_get_bit(snode, i))
+ 			continue;
+ 		if (source_rule->flags & RULE_SELF) {
+-			if (source_rule->
+-			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
++			if (source_rule->specified & (AVRULE_AV)) {
+ 				if ((retval =
+ 				     expand_avrule_helper(handle,
+ 							  source_rule->
+@@ -1242,8 +1241,7 @@
+ 		ebitmap_for_each_bit(ttypes, tnode, j) {
+ 			if (!ebitmap_node_get_bit(tnode, j))
+ 				continue;
+-			if (source_rule->
+-			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
++			if (source_rule->specified & (AVRULE_AV)) {
+ 				if ((retval =
+ 				     expand_avrule_helper(handle,
+ 							  source_rule->
+Index: trunk/libsepol/src/link.c
+===================================================================
+--- trunk/libsepol/src/link.c	(revision 951)
++++ trunk/libsepol/src/link.c	(working copy)
+@@ -965,8 +965,7 @@
+ 			    module->map[SYM_CLASSES][cur_perm->class - 1];
+ 			assert(new_perm->class);
+ 
+-			if (new_rule->
+-			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
++			if (new_rule->specified & (AVRULE_AV)) {
+ 				for (i = 0;
+ 				     i <
+ 				     module->perm_map_len[cur_perm->class - 1];
+
+
+> Hmm...do you want alwaysexpand = 1 for the do_neverallow case?
+> Otherwise, type attributes might not get expanded.  Does
+> expand_avtab_insert need to know about AVTAB_NEVERALLOW?
+
+No, apol doesn't always want the attributes expanded out, it knows how
+to deal with attributes.
 
 
 --
