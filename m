@@ -1,71 +1,62 @@
-Subject: Re: [PATCH RETRY 2/3] Optionally expand neverallows
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-In-Reply-To: <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil>
-References: <1153937503.5393.6.camel@twoface>
-	 <1153944945.11769.194.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 27 Jul 2006 09:09:23 -0400
-Message-Id: <1154005763.27604.58.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [PATCH RETRY 1/3] export sepol handle
+Date: Thu, 27 Jul 2006 09:32:56 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832A8AA@exchange.columbia.tresys.com>
+In-Reply-To: <1153942152.11769.181.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, <kmacmillan@mentalrootkit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-07-26 at 16:15 -0400, Stephen Smalley wrote:
-> On Wed, 2006-07-26 at 14:11 -0400, Joshua Brindle wrote:
-> > The setools team would like to be able to optionally expand neverallow
-> > rules for analysis purposes.  This patch leaves the current behavior
-> > unchanged, but allows a new state variable for the expander to indicate
-> > whether neverallow rules should get expanded, and creates an init
-> > function for the expand_state struct. This has the earlier suggestions
-> > incorporated.
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
 > 
-> > @@ -1200,7 +1205,8 @@ static int expand_rule_helper(sepol_hand
-> >  		if (!ebitmap_node_get_bit(snode, i))
-> >  			continue;
-> >  		if (source_rule->flags & RULE_SELF) {
-> > -			if (source_rule->specified & AVRULE_AV) {
-> > +			if (source_rule->
-> > +			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
-> >  				if ((retval =
-> >  				     expand_avrule_helper(handle,
-> >  							  source_rule->
-> 
-> I don't see any occurrences of AVRULE_AV by itself after this patch, so
-> why wouldn't you just fold AVRULE_NEVERALLOW into it?  We don't need to
-> preserve interface for static users of the library.
-> 
-> > @@ -1264,13 +1271,14 @@ static int convert_and_expand_rule(sepol
-> >  				   policydb_t * dest_pol, uint32_t * typemap,
-> >  				   avrule_t * source_rule, avtab_t * dest_avtab,
-> >  				   cond_av_list_t ** cond,
-> > -				   cond_av_list_t ** other, int enabled)
-> > +				   cond_av_list_t ** other, int enabled,
-> > +				   int do_neverallow)
-> >  {
-> >  	int retval;
-> >  	ebitmap_t stypes, ttypes;
-> >  	unsigned char alwaysexpand;
 > >  
-> > -	if (source_rule->specified & AVRULE_NEVERALLOW)
-> > +	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
-> >  		return 1;
+> > -void sepol_handle_destroy(sepol_handle_t * sh)
+> > +void sepol_handle_set_callback(sepol_handle_t *h, 
+> > +sepol_handle_callback_fn_t fn, void *varg)
+> >  {
+> > +	if (h == NULL)
+> > +		return;
+> > +
+> > +	h->msg_callback = fn;
+> > +	h->msg_callback_arg = varg;
+> > +}
 > 
-> Hmm...do you want alwaysexpand = 1 for the do_neverallow case?
-> Otherwise, type attributes might not get expanded.  Does
-> expand_avtab_insert need to know about AVTAB_NEVERALLOW?
+> This looks like sepol_msg_set_callback, which is what 
+> libsemanage already uses.  Am I missing something?
+> 
 
-Also, suppose hypothetically that one of these policydbs with expanded
-neverallow rules is passed along to one of the other libsepol functions.
-What behavior do you want?  Seems like avtab_write_item() would happily
-write it out, but avtab_read_item() would choke on it (no match in
-spec_order, so set == 0).  Do you want to be able to save these as
-binary policy images and use them later for analysis?
+Yes, drop this patch, looks like someone didn't do their homework :\
 
--- 
-Stephen Smalley
-National Security Agency
+> > +void sepol_handle_do_callback(sepol_handle_t* handle, const char* 
+> > +fmt, ...) {
+> > +	char *tmp = NULL;
+> > +	va_list ap;
+> > +
+> > +	if (handle == NULL)
+> > +		return;
+> > +
+> > +	va_start(ap, fmt);
+> > +	vasprintf(&tmp, fmt, ap);
+> > +	va_end(ap);
+> > +
+> > +	ERR(handle, "%s", tmp);
+> > +	free(tmp);
+> > +}
+> 
+> I don't quite understand the intended usage.  If I am 
+> generating an error message from outside the library, why 
+> would I call into the library and then have it call into the 
+> callback I provided in the first place?  What's the point?
+> 
+
+The intention was for a library using libsepol (libqpol) to generate an
+sepol error that will call the callback in the application, granted its
+awkward. The setools guys will rethink this. For now just drop this
+patch.
 
 
 --
