@@ -1,34 +1,60 @@
-Subject: RE: [PATCH] clean up datum cast to uint32
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <44C8DAFB.4060405@mentalrootkit.com>
+Date: Thu, 27 Jul 2006 11:25:47 -0400
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+MIME-Version: 1.0
 To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832A8D1@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158832A8D1@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Thu, 27 Jul 2006 11:13:21 -0400
-Message-Id: <1154013201.27604.121.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] clean up datum cast to uint32
+References: <6FE441CD9F0C0C479F2D88F959B0158832A8E7@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832A8E7@exchange.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-07-27 at 10:38 -0400, Joshua Brindle wrote:
-> This has the same fragility that the uint32_t cast had since this struct
-> has to be first, also the way I did it is pretty standard in the
-> library, for example destroy_f[SYM_NUM]. And is intuitive, a simple
-> function call returns the value.
+Joshua Brindle wrote:
+>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
+>>
+>>     
+>> Neither are fragile if the requirement is clearly documented. 
+>> Adding the struct just reinforces the requirement. The struct 
+>> layout on which both of these methods depend is clearly 
+>> guaranteed by the various C standards. The cast is completely 
+>> legal and safe.
+>>     
+>
+> Right, so was the uint32_t one, that doesn't mean it wasn't ugly.
+>
+>   
 
-Embedding the struct makes the common header explicit, which reduces the
-likelihood of accidental divergence.  The method invocation makes sense
-when the implementations of those methods are divergent for the
-different objects, but in this case, we already have a common header and
-don't intend to change that - we just want to make it explicit, and the
-implementation is always the same.  And it is heavyweight to require
-indirect function call overhead just to access the common header.
+Matter of opinion - obviously ours are different.
 
--- 
-Stephen Smalley
-National Security Agency
+>>
+>> Indirection through function pointer tables is never 
+>> intuitive in my opinion. The struct more directly represents 
+>> the fact that all symtab datums have shared fields.
+>>     
+>
+> Except the ones that don't, like level_datum_t. 
+
+Except the _one_ that doesn't.
+
+Haven't looked at the code enough to know if a value might be useful. 
+I'd prefer not to have an exception. BTW, your solution has the same 
+problem with levels - it appears that you can pass any datum type but in 
+fact you can't. Would adding the header struct take up too much storage 
+space for levels?
+
+> It sounds like you want
+> to go toward OO anyway, why not put all the function pointers inside the
+> structs val = foo_type->get_val()
+>
+>   
+Adds 32 to 64 bits to each struct for each function pointer, which is 
+not an acceptable size overhead in this case. You also incur the 
+overhead of a function call through a function pointer.
+
+Karl
+
 
 
 --
