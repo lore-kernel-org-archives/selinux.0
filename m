@@ -1,75 +1,62 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6SIjtqO002275
-	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 14:45:55 -0400
-Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6SIjrlq001041
-	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 18:45:53 GMT
-Message-ID: <44CA5B61.3010704@hp.com>
-Date: Fri, 28 Jul 2006 14:45:53 -0400
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6SIr2I9002567
+	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 14:53:02 -0400
+Received: from atlrel9.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6SIqwPi017704
+	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 18:52:58 GMT
+Message-ID: <44CA5D00.4010405@hp.com>
+Date: Fri, 28 Jul 2006 14:52:48 -0400
 From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
 To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@epoch.ncsc.mil,
         jmorris@redhat.com, pratt@argus-systems.com
-Subject: Re: [PATCH 2/7] NetLabel: core network changes
-References: <20060717155224.060020000@hp.com>	<20060717155822.315389000@hp.com> <20060728.005542.21593420.davem@davemloft.net>
-In-Reply-To: <20060728.005542.21593420.davem@davemloft.net>
+Subject: Re: [PATCH 1/7] NetLabel: documentation
+References: <20060717155224.060020000@hp.com>	<20060717155821.600856000@hp.com> <20060728.005104.78711481.davem@davemloft.net>
+In-Reply-To: <20060728.005104.78711481.davem@davemloft.net>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 David Miller wrote:
 > From: paul.moore@hp.com
-> Date: Mon, 17 Jul 2006 11:52:26 -0400
->>@@ -617,6 +618,8 @@ int inet_accept(struct socket *sock, str
->> 
->> 	sock_graft(sk2, newsock);
->> 
->>+	netlbl_socket_inet_accept(sock, newsock);
+> Date: Mon, 17 Jul 2006 11:52:25 -0400
+> 
+> 
+>>+CIPSOv4 Variables:
 >>+
->> 	newsock->state = SS_CONNECTED;
->> 	err = 0;
->> 	release_sock(sk2);
+>>+cipso_cache_enable - BOOLEAN
 > 
-> This is only true wart I see in the patch set from my
-> perspective.
+>  ...
 > 
-> You have security_post_accept_hook(), which gets the parent and
-> the child socket which is all the information you need, and it
-> seems to be invoked at the correct location.
+>>+cipso_cache_bucket_size - INTEGER
 > 
-> So can you please hook into this location using the security
-> level hook we already have?  Just check sock->sk->sk_family is
-> PF_INET at the top of that hook if you only want to handle
-> ipv4 sockets, or something like that.
+>  ...
 > 
-> Could this work?
+>>+cipso_rbm_optfmt - BOOLEAN
 > 
-> When preparing and argument stating why this won't work, please
-> suggest a nicer name for this af_inet.c hook or some way to make
-> it more generic and palatable to us.
+>  ...
+> 
+>>+cipso_rbm_structvalid - BOOLEAN
+> 
+>  ...
+> 
+> We need some more information for these entries.
+> 
+> First, list the default value these sysctls will have.
+> This is consistent with other entries in this file.  If
+> there is a compelling argument to support the default
+> value, please mention it.
+> 
+> Second, cipso_cache_bucket_size is still opaque, there is
+> nothing in the description with describes the units this
+> value is specified in, nor in fact what it really controls.
+> Does it say how deep the hash chains of the hash table are
+> allowed to grow to?  Otherwise, what does it control and what
+> are the consequences of using different values?
+> 
 
-The only reason for having this new hook in inet_accept() is to catch
-all the in-kernel "daemons" who do not go through the LSM hooked
-accept() code path.  I debated putting this hook into the patchset and
-in the end figured it was at least worth a shot.
-
-I'm happy to drop this hook as it *looks* like the MLSXFRM patchset is
-going to make it which has some of the accept hooks I was hoping to get,
-but figured I stood a "snowballs chance in hell" trying to get it in
-solely for use with CIPSO :)  I'll drop this on the next release of the
-NetLabel patchset and assuming both the NetLabel and the MLSXFRM
-patchset make it into the 2.6.19 release I'll issue another small
-patchset then to integrate into the new LSM hooks for accept.  I'd do it
-now but I think it would cause too much of a mess with patch
-dependencies/collisions/etc.
-
->>-		case 0x86:	/* Another "Commercial Security" crap. */
->>+		case IPOPT_CIPSO:
-> 
-> I am sad to see this comment disappear :-)
-
-... and I was surprised you didn't comment about that change sooner ;)
+Okay, I'll work on the doc so to try and take care of these issues.
 
 -- 
 paul moore
