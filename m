@@ -1,64 +1,35 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH RETRY 2/3] Optionally expand neverallows
-Date: Fri, 28 Jul 2006 09:33:00 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832A96D@exchange.columbia.tresys.com>
-In-Reply-To: <1154089017.31881.22.camel@moss-spartans.epoch.ncsc.mil>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>, <kmacmillan@mentalrootkit.com>,
-        "Jeremy Mowery" <jmowery@tresys.com>
+Subject: Re: [PATCH] SELinux: new /proc/self/attr/ipccreate for
+	expliciteipc object labeling
+From: Eric Paris <eparis@parisplace.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org,
+        jbrindle@tresys.com
+In-Reply-To: <200607272116.k6RLGrFC026797@turing-police.cc.vt.edu>
+References: 
+	 <6FE441CD9F0C0C479F2D88F959B015882989A9@exchange.columbia.tresys.com>
+	 <1154019529.5028.19.camel@localhost.localdomain>
+	 <200607272116.k6RLGrFC026797@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 10:12:37 -0400
+Message-Id: <1154095957.5028.79.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+On Thu, 2006-07-27 at 17:16 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 27 Jul 2006 12:58:49 EDT, Eric Paris said:
 > 
-> On Thu, 2006-07-27 at 14:34 -0400, Joshua Brindle wrote:
-> > Index: trunk/libsepol/src/link.c
-> > ===================================================================
-> > --- trunk/libsepol/src/link.c	(revision 951)
-> > +++ trunk/libsepol/src/link.c	(working copy)
-> > @@ -965,8 +965,7 @@
-> >  			    
-> module->map[SYM_CLASSES][cur_perm->class - 1];
-> >  			assert(new_perm->class);
-> >  
-> > -			if (new_rule->
-> > -			    specified & (AVRULE_AV | 
-> AVRULE_NEVERALLOW)) {
-> > +			if (new_rule->specified & (AVRULE_AV)) {
-> >  				for (i = 0;
-> >  				     i <
-> >  				     
-> module->perm_map_len[cur_perm->class - 1];
-> > 
-> > 
-> > > Hmm...do you want alwaysexpand = 1 for the do_neverallow case?
-> > > Otherwise, type attributes might not get expanded.  Does 
-> > > expand_avtab_insert need to know about AVTAB_NEVERALLOW?
-> > 
-> > No, apol doesn't always want the attributes expanded out, 
-> it knows how 
-> > to deal with attributes.
+> > I also decided to leave the name ipccreate even though this does not
+> > clearly express that the patch does not cover posix message queues.  The
+> > only name that seemed descriptive enough was sysvipccreate which just
+> > seemed incredibly long for little to no gain.  I will address the issue
+> > of controlling posix message queue explicit labeling in a future patch.
 > 
-> Hmm...but is apol ok with the fact that attributes will be 
-> expanded in some cases here, since we always expand attributes for:
-> - type rules
-> - self rules
-> - type sets that have negative sets (-) or flags (~)
-> 
-> I'm not sure I understand what apol wants as output; at 
-> present, it will get a mixture of expanded and unexpanded attributes.
-> 
+> Will that require another bit?
 
-Not a problem, apol is using the avtab to quickly find rules
-(semantically) and resolve them to syntactic source lines if possible.
-If the syntactic match doesn't match what the user requested (eg., it is
-an indirect match but the user didn't request that) it can filter it out
-at that time. The avtab is just a way of quickly looking up the rules
-(which is also why they wanted neverallows in the avtab).
+The thought at the moment does not require another bit.
 
+-Eric
 
 
 --
