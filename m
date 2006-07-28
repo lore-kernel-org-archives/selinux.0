@@ -1,60 +1,75 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6SIdNLT002032
-	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 14:39:23 -0400
-Received: from atlrel6.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6SIdLJM029927
-	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 18:39:21 GMT
-Message-ID: <44CA59D8.4090702@hp.com>
-Date: Fri, 28 Jul 2006 14:39:20 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6SIjtqO002275
+	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 14:45:55 -0400
+Received: from atlrel8.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6SIjrlq001041
+	for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2006 18:45:53 GMT
+Message-ID: <44CA5B61.3010704@hp.com>
+Date: Fri, 28 Jul 2006 14:45:53 -0400
 From: Paul Moore <paul.moore@hp.com>
 MIME-Version: 1.0
-To: Thomas Graf <tgraf@suug.ch>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, davem@davemloft.net,
-        sds@epoch.ncsc.mil, jmorris@redhat.com, pratt@argus-systems.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@epoch.ncsc.mil,
+        jmorris@redhat.com, pratt@argus-systems.com
 Subject: Re: [PATCH 2/7] NetLabel: core network changes
-References: <20060717155224.060020000@hp.com> <20060717155822.315389000@hp.com> <20060728112426.GE14627@postel.suug.ch> <44CA504C.6030207@hp.com> <20060728181225.GF14627@postel.suug.ch>
-In-Reply-To: <20060728181225.GF14627@postel.suug.ch>
+References: <20060717155224.060020000@hp.com>	<20060717155822.315389000@hp.com> <20060728.005542.21593420.davem@davemloft.net>
+In-Reply-To: <20060728.005542.21593420.davem@davemloft.net>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thomas Graf wrote:
-> * Paul Moore <paul.moore@hp.com> 2006-07-28 13:58
+David Miller wrote:
+> From: paul.moore@hp.com
+> Date: Mon, 17 Jul 2006 11:52:26 -0400
+>>@@ -617,6 +618,8 @@ int inet_accept(struct socket *sock, str
+>> 
+>> 	sock_graft(sk2, newsock);
+>> 
+>>+	netlbl_socket_inet_accept(sock, newsock);
+>>+
+>> 	newsock->state = SS_CONNECTED;
+>> 	err = 0;
+>> 	release_sock(sk2);
 > 
->>I'm  a little confused by your comment, could you be a bit more
->>specific?  Are you basing your comment strictly on the text above?  If
->>so, the problem may be my poor excuse for documentation rather then my
->>poor excuse for implementation :)
->>
->>I am using the generic netlink interface, in what I believe to be a
->>"correct" fashion - please correct me if I'm wrong.
+> This is only true wart I see in the patch set from my
+> perspective.
 > 
-> The netlink bits are spread around all patches so I just quoted
-> on this comment. By adding functions like netlbl_align(),
-> netlbl_put_u8(), netlbl_put_hdr() writing a netlink header
-> etc. you are just duplicating the already existing interfaces
-> found in net/netlink.h and net/genetlink.h.
+> You have security_post_accept_hook(), which gets the parent and
+> the child socket which is all the information you need, and it
+> seems to be invoked at the correct location.
+> 
+> So can you please hook into this location using the security
+> level hook we already have?  Just check sock->sk->sk_family is
+> PF_INET at the top of that hook if you only want to handle
+> ipv4 sockets, or something like that.
+> 
+> Could this work?
+> 
+> When preparing and argument stating why this won't work, please
+> suggest a nicer name for this af_inet.c hook or some way to make
+> it more generic and palatable to us.
 
-Thanks for the clarification, I think I understand your point a bit
-better now.
+The only reason for having this new hook in inet_accept() is to catch
+all the in-kernel "daemons" who do not go through the LSM hooked
+accept() code path.  I debated putting this hook into the patchset and
+in the end figured it was at least worth a shot.
 
-It sounds like you main concern is that I'm not using the netlink
-attribute interfaces, yes?  I looked at using those originally but
-decided not to use them for the following reasons:
+I'm happy to drop this hook as it *looks* like the MLSXFRM patchset is
+going to make it which has some of the accept hooks I was hoping to get,
+but figured I stood a "snowballs chance in hell" trying to get it in
+solely for use with CIPSO :)  I'll drop this on the next release of the
+NetLabel patchset and assuming both the NetLabel and the MLSXFRM
+patchset make it into the 2.6.19 release I'll issue another small
+patchset then to integrate into the new LSM hooks for accept.  I'd do it
+now but I think it would cause too much of a mess with patch
+dependencies/collisions/etc.
 
- 1. They are listed as "optional" in the documents I read
- 2. They add at least an extra 32 bits to each attribute
- 3. There seems to be plenty of users in net/ipv4 who do not make
-    use of attributes (a *quick* look again reveals none)
- 4. Since I'm reading messages from userspace I can't trust the
-    message contents regardless of it's use of attributes
- 5. Harder to work with in userspace without using a netlink
-    library, which would create an extra dependency for tools which
-    talk to the NetLabel subsystem
+>>-		case 0x86:	/* Another "Commercial Security" crap. */
+>>+		case IPOPT_CIPSO:
+> 
+> I am sad to see this comment disappear :-)
 
-Basically, I saw no requirement to use the netlink attributes and no
-advantage so I didn't.  Is this reasonable, or do you feel the use of
-attributes is a requirement?
+... and I was surprised you didn't comment about that change sooner ;)
 
 -- 
 paul moore
