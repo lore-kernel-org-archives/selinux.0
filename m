@@ -1,130 +1,51 @@
-Message-ID: <44CB7CB0.7000201@tresys.com>
-Date: Sat, 29 Jul 2006 11:20:16 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6TGZt2U029801
+	for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2006 12:35:55 -0400
+Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6TGZp9n021000
+	for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2006 16:35:51 GMT
+Message-ID: <36282A1733C57546BE392885C0618592013E80BD@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Paul Moore <paul.moore@hp.com>, David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@epoch.ncsc.mil,
+        jmorris@redhat.com, pratt@argus-systems.com
+Subject: RE: [PATCH 2/7] NetLabel: core network changes
+Date: Sat, 29 Jul 2006 12:34:33 -0400
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        "Jeremy A. Mowery" <jmowery@tresys.com>
-Subject: Re: [PATCH RETRY 2/3] Optionally expand neverallows
-References: <6FE441CD9F0C0C479F2D88F959B0158832A937@exchange.columbia.tresys.com> <44C91F31.1070103@mentalrootkit.com>
-In-Reply-To: <44C91F31.1070103@mentalrootkit.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan wrote:
-> Joshua Brindle wrote:
->>> From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com]
->>> Joshua Brindle wrote:
->>>    
->>>> @@ -366,6 +366,7 @@
->>>>     uint32_t policy_type;
->>>>     char *name;
->>>>     char *version;
->>>> +    int invalid;
->>>>
->>>>       
->>> Expanding the avrules doesn't really make the policydb invalid, 
->>> right? It jubt makes it non-standard (tainted :) )
->>>
->>>     
->>
->> Putting neverallows in the avtab is invalid (the reader will bail if it
->> tries to read one)
->>
->>   
+> > This is only true wart I see in the patch set from my
+> > perspective.
+> > 
+> > You have security_post_accept_hook(), which gets the parent and
+> > the child socket which is all the information you need, and it
+> > seems to be invoked at the correct location.
+> > 
+> > So can you please hook into this location using the security
+> > level hook we already have?  Just check sock->sk->sk_family is
+> > PF_INET at the top of that hook if you only want to handle
+> > ipv4 sockets, or something like that.
+> > 
+> > Could this work?
+> > 
+> > When preparing and argument stating why this won't work, please
+> > suggest a nicer name for this af_inet.c hook or some way to make
+> > it more generic and palatable to us.
 > 
-> I disagree - the policydb is still valid, otherwise there would be no 
-> point doing analysis on it. I think the more correct semantic is that 
-> this policydb cannot be represented by the on disc format. So the 
-> variable would be better called something like 
-> policydb->unsupported_format.
-> 
-> Wait, just because the neverallows are expanded doesn't mean that the 
-> unexpanded aren't also there, meaning that the policydb could be written 
-> to disc with no loss of information. This reinforces my notion that the 
-> policy is valid. Why not just skip saving the neverallows in the format 
-> and document the behavior?
-> 
+> The only reason for having this new hook in inet_accept() is to catch
+> all the in-kernel "daemons" who do not go through the LSM hooked
+> accept() code path.  I debated putting this hook into the patchset and
+> in the end figured it was at least worth a shot.
 
+If I understand the patch correctly, the openreq inherits cipso from
+the incoming syn and the syn-ack is then sent with this option. I further
+see that the child sock inherits options from the openreq already.
 
-Ok, after talking to karl about this offline the basic sentiment is that 
-extra work would have to be done to support writing a policy with 
-expanded neverallows (namely recalulating the avtab number of elements) 
-which is extra work for something that really shouldn't be happening 
-anyway. He believes that "invalid" is too strong and suggests that the 
-policydb is totally bogus. While this is a matter for interpretation 
-what he suggested above (p->unsupported_format) might be better.
-
->>>>     }
->>>> @@ -2156,7 +2159,7 @@
->>>>         goto cleanup;
->>>>     hashtab_map_remove_on_error(state.out->p_types.table,
->>>>                     type_attr_remove, type_destroy, state.out);
->>>> -    if (check) {
->>>> +    if (check && !(out->invalid)) {
->>>>         if (hierarchy_check_constraints(handle, state.out))
->>>>             goto cleanup;
->>>>
->>>>       
->>> Why disallow hierarchy checking?
->>>     
->>
->> It disables all checking for invalid policies, there is no reason to do
->> checking if you've marked a policy invalid since it can't be written
->> anyway 
-> 
-> 1) The policy is still valid.
-> 2) If this is for analysis I would imagine you would want the 
-> neverallows and _also_ know if the policy violates hierarchy constraints.
-> 3) It is surprising since the caller explicitly requests both the 
-> checking and the expansion. If these parameters really are exclusive an 
-> error should be raised rather than silently not performing the action.
-
-I guess I can see this, I doubt that someone who requests an 
-unsupported_format would also request checking so the explicit check is 
-not necessary.
-
-> 
->> (invalid will probably mean other things in the future, such as a
->> policy with disabled rules expanded out and conflicting type transitions
->> in the avtab for access control checking).
->>
->>  
->>>> Index: trunk/libsepol/src/write.c
->>>> ===================================================================
->>>> --- trunk/libsepol/src/write.c    (revision 951)
->>>> +++ trunk/libsepol/src/write.c    (working copy)
->>>> @@ -1411,6 +1411,9 @@
->>>>     struct policy_data pd;
->>>>     char *policydb_str;
->>>>
->>>> +    if (p->invalid)
->>>> +        return -1;
->>>> +
->>>>       
->>> A separate return code is needed so that the caller can distinguish 
->>> between general, likely fatal errors and a policydb that can't be 
->>> written because the format doesn't support it.
->>>
-
-Ok, can add.
-
->>>     
->>
->> -2? ;)
->>
->> -1 is currently used if, for example, policy->policyvers is invalid,
->> same deal.. These are programming errors not user errors. I'd be fine
->> with it being an assert() personally.
->>   
-> 
-> See above - I think that the write should just work and ignore the 
-> expanded neverallows.
-> 
-
-more work for no benefit, we can make this unsupported since it probably 
-won't be written anyway
+Could you then please elaborate on the need for explicitly copying options
+from parent to child?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
