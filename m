@@ -1,51 +1,79 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6TGZt2U029801
-	for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2006 12:35:55 -0400
-Received: from tcsfw4.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6TGZp9n021000
-	for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2006 16:35:51 GMT
-Message-ID: <36282A1733C57546BE392885C0618592013E80BD@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>, David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, sds@epoch.ncsc.mil,
-        jmorris@redhat.com, pratt@argus-systems.com
-Subject: RE: [PATCH 2/7] NetLabel: core network changes
-Date: Sat, 29 Jul 2006 12:34:33 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6TL3iYO002766
+	for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2006 17:03:44 -0400
+Received: from mailhub.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6TL3g9n017606
+	for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2006 21:03:42 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Subject: Re: [PATCH 2/7] NetLabel: core network changes
+Date: Sat, 29 Jul 2006 17:03:33 -0400
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, sds@epoch.ncsc.mil, jmorris@redhat.com,
+        pratt@argus-systems.com
+References: <36282A1733C57546BE392885C0618592013E80BD@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C0618592013E80BD@chaos.tcs.tcs-sec.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+Message-Id: <200607291703.34579.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > This is only true wart I see in the patch set from my
-> > perspective.
-> > 
-> > You have security_post_accept_hook(), which gets the parent and
-> > the child socket which is all the information you need, and it
-> > seems to be invoked at the correct location.
-> > 
-> > So can you please hook into this location using the security
-> > level hook we already have?  Just check sock->sk->sk_family is
-> > PF_INET at the top of that hook if you only want to handle
-> > ipv4 sockets, or something like that.
-> > 
-> > Could this work?
-> > 
-> > When preparing and argument stating why this won't work, please
-> > suggest a nicer name for this af_inet.c hook or some way to make
-> > it more generic and palatable to us.
-> 
-> The only reason for having this new hook in inet_accept() is to catch
-> all the in-kernel "daemons" who do not go through the LSM hooked
-> accept() code path.  I debated putting this hook into the patchset and
-> in the end figured it was at least worth a shot.
+On Saturday 29 July 2006 12:34 pm, Venkat Yekkirala wrote:
+> > > This is only true wart I see in the patch set from my
+> > > perspective.
+> > >
+> > > You have security_post_accept_hook(), which gets the parent and
+> > > the child socket which is all the information you need, and it
+> > > seems to be invoked at the correct location.
+> > >
+> > > So can you please hook into this location using the security
+> > > level hook we already have?  Just check sock->sk->sk_family is
+> > > PF_INET at the top of that hook if you only want to handle
+> > > ipv4 sockets, or something like that.
+> > >
+> > > Could this work?
+> > >
+> > > When preparing and argument stating why this won't work, please
+> > > suggest a nicer name for this af_inet.c hook or some way to make
+> > > it more generic and palatable to us.
+> >
+> > The only reason for having this new hook in inet_accept() is to catch
+> > all the in-kernel "daemons" who do not go through the LSM hooked
+> > accept() code path.  I debated putting this hook into the patchset and
+> > in the end figured it was at least worth a shot.
+>
+> If I understand the patch correctly, the openreq inherits cipso from
+> the incoming syn and the syn-ack is then sent with this option. I further
+> see that the child sock inherits options from the openreq already.
+>
+> Could you then please elaborate on the need for explicitly copying options
+> from parent to child?
 
-If I understand the patch correctly, the openreq inherits cipso from
-the incoming syn and the syn-ack is then sent with this option. I further
-see that the child sock inherits options from the openreq already.
+The NetLabel patch allows administrators to assign specific a CIPSO 
+DOI/configuration to each LSM "domain".  Blindly using the CIPSO tag that the 
+remote host sends could violate the administrator's NetLabel configuration.  
 
-Could you then please elaborate on the need for explicitly copying options
-from parent to child?
+The current patch reads the CIPSO tag off the child socket, translating the 
+tag according to the CIPSO DOI configuration to arrive at the correct/desired 
+LSM  security attributes.  These LSM security attributes and the "domain" are 
+then used to set the NetLabel on the socket.  In the case where everyone is 
+well behaved this should have no effect on the socket IP options and the 
+packets sent across the wire.  However, in the case of a not-nice remote host 
+the outgoing CIPSO tag may change to match the administrators desired 
+settings.
+
+It is important to note that the next patchset will be based against David's 
+net-2.6.19 git tree which has the additional LSM hooks in the accept code 
+path - which I plan to use - so expect the implementation to change as a 
+result.  Like I said earlier, these new LSM hooks are probably the proper way 
+to do it, but I wanted to stick with the hooks that were present at the time 
+I started working on NetLabel to minimize the impact on the kernel.
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
