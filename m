@@ -1,112 +1,126 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6UDE8gR020884
-	for <selinux@tycho.nsa.gov>; Sun, 30 Jul 2006 09:14:08 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6UDE09f016810
-	for <selinux@tycho.nsa.gov>; Sun, 30 Jul 2006 13:14:01 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6UEC60e022010
+	for <selinux@tycho.nsa.gov>; Sun, 30 Jul 2006 10:12:06 -0400
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6UEBuPx002721
+	for <selinux@tycho.nsa.gov>; Sun, 30 Jul 2006 14:11:56 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 8EB6261B0F
-	for <selinux@tycho.nsa.gov>; Sun, 30 Jul 2006 23:13:58 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id DEB3661B0E
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 00:12:00 +1000 (EST)
 Received: from smtp.sws.net.au ([127.0.0.1])
 	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 00960-02 for <selinux@tycho.nsa.gov>;
-	Sun, 30 Jul 2006 23:13:57 +1000 (EST)
+	id 02795-01 for <selinux@tycho.nsa.gov>;
+	Mon, 31 Jul 2006 00:11:59 +1000 (EST)
 Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 2E9F361B0D
-	for <selinux@tycho.nsa.gov>; Sun, 30 Jul 2006 23:13:57 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id 8308661B0D
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 00:11:59 +1000 (EST)
 Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id DD8C2A7F8D
-	for <selinux@tycho.nsa.gov>; Sun, 30 Jul 2006 23:14:00 +1000 (EST)
+	by aeon.coker.com.au (Postfix) with ESMTP id 23392A7F8E
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 00:12:03 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: "SE-Linux" <selinux@tycho.nsa.gov>
 Subject: Re: SMP enabled restorecon
-Date: Sun, 30 Jul 2006 23:13:59 +1000
-References: <200607300117.23329.russell@coker.com.au>
-In-Reply-To: <200607300117.23329.russell@coker.com.au>
+Date: Mon, 31 Jul 2006 00:12:01 +1000
+References: <200607300117.23329.russell@coker.com.au> <200607302314.00725.russell@coker.com.au>
+In-Reply-To: <200607302314.00725.russell@coker.com.au>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_YCLzEho+v9jD2DG"
-Message-Id: <200607302314.00725.russell@coker.com.au>
+  boundary="Boundary-00=_y4LzEVvE8Uu/09z"
+Message-Id: <200607310012.02943.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_YCLzEho+v9jD2DG
+--Boundary-00=_y4LzEVvE8Uu/09z
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Sunday 30 July 2006 01:17, Russell Coker <russell@coker.com.au> wrote:
-> Below are the results of running the FC5+updates version of restorecon vs
-> my patched version with SMP support on a PentiumD-2.8GHz model 920. =C2=
+On Sunday 30 July 2006 23:13, Russell Coker <russell@coker.com.au> wrote:
+> On Sunday 30 July 2006 01:17, Russell Coker <russell@coker.com.au> wrote:
+> > Below are the results of running the FC5+updates version of restorecon =
+vs
+> > my patched version with SMP support on a PentiumD-2.8GHz model 920. =C2=
 =A0The
-> elapsed time is cut by 40%! =C2=A0The user time reported appears to be a =
-bug in
-> the time command, when I observe the run via the "top" command I see two
-> restorecon processes each taking about 26 seconds of CPU time before they
-> complete.
+> > elapsed time is cut by 40%! =C2=A0The user time reported appears to be =
+a bug
+> > in the time command, when I observe the run via the "top" command I see
+> > two restorecon processes each taking about 26 seconds of CPU time before
+> > they complete.
+>
+> I've attached a similar patch for setfiles, this patch adds a "-a" option
+> to setfiles to skip the association check because it's really difficult to
+> preserve that check while supporting SMP and giving good performance, and
+> also because checking for associations isn't as useful when the results go
+> to /dev/null anyway.
 
-I've attached a similar patch for setfiles, this patch adds a "-a" option t=
-o=20
-setfiles to skip the association check because it's really difficult to=20
-preserve that check while supporting SMP and giving good performance, and=20
-also because checking for associations isn't as useful when the results go=
+Sorry for replying to my own mail so much, I've been involved in discussion=
+ on=20
+IRC and other lists.
+
+I've attached a new patch which calls wait() for each child process.  This=
 =20
-to /dev/null anyway.
+causes CPU time use to be correctly billed to parent processes, the results=
+=20
+are as follows:
 
-On my Pentium-D system with a 160G S-ATA disk the regular setfiles causes a=
-n=20
-autorelabel to take the following amount of time:
+Modified setfiles:
+real    1m22.689s
+user    1m13.181s
+sys     0m12.641s
+
+Orig setfiles:
 real    1m23.697s
 user    0m59.916s
 sys     0m4.892s
 
-While my modified version takes the following:
-real    1m19.236s
-user    0m37.498s
-sys     0m4.352s
+Modified restorecon on /usr/share:
+real    0m31.142s
+user    0m52.671s
+sys     0m7.728s
 
-Surprisingly it only saves 4.4s (5.5% performance increase).  This isn't=20
-great, but we have to keep in mind the fact that my test machine has a very=
-=20
-fast CPU and only a single disk so having IO being the bottleneck is expect=
-ed=20
-(in fact it's desired but I didn't expect to hit it so soon).
+Orig restorecon:
+real    0m51.429s
+user    0m45.467s
+sys     0m5.568s
 
-I have a suspicion that if I was to perform the same test on a machine with=
- a=20
-root filesystem on an EMC SAN (I currently run a couple of dozen such=20
-machines at the moment) then I would find that IO isn't the bottleneck and=
+It seems that in both cases the amount of CPU time used is significantly=20
+increased, and that the variance between test runs of setfiles is great=20
+enough that there can be little performance difference between my version a=
+nd=20
+the stock one.
+
+I think that I need to find a more CPU efficient method of IPC for the file=
 =20
-that my modified version of setfiles would probably double the performance.=
+names.  One possibility might be to use shared memory regions for the data.=
  =20
-I don't plan to perform such tests as the EMC connected machines in questio=
-n=20
-only run RHEL3 and RHEL4 and I am not going to back-port the code (no-one=20
-would be prepared to run such modified code on RHEL4 in a production machin=
-e=20
-so it's a bit pointless).
+Another one might be to make the programs threaded.
 
-I also suspect that if I installed the four S-ATA disks and three ATA-133=20
-disks that my Pentium-D machine supports and ran Linux software RAID-5 then=
+A final possibility is that the current design of setfiles and restorecon m=
+ay=20
+be a dead-end as far as SMP is concerned.  Having one process to stat the=20
+files and another to check the contexts when the cache is hot is efficient=
 =20
-again I could get significantly better than a 5.5% performance boost from t=
+for UP systems.  For SMP systems it might be better to have one process fin=
+d=20
+the files and then pass the names to worker processes that do the regex=20
+stuff.  Currently processing a file involves two processes calling nftw()=20
+(doing readdir() and stat()), the seeker writes a byte to a pipe and then t=
 he=20
-SMP aware version of setfiles.
+master will either pipe the file name to a child or process it directly=20
+before reading the byte from the seek process.  As I have the worker=20
+acknowledging each file the average number of pipe writes to process a file=
+=20
+on a 2P system is two.
 
-I hope that no-one will reject my patch because I don't have suitable test=
+If the parent process was to be the only process calling nftw() and it then=
 =20
-hardware to demonstrate it's benefits.  It seems quite obvious to me that=20
-there is a need to get the best possible performance from SMP machines that=
+passed the file names via shared memory with specified minimum and maximum=
 =20
-have CPUs that are slower than a new Pentium-D and which also have better I=
-O=20
-performance than a single S-ATA disk - I expect that most SMP machines that=
-=20
-are in production satisfy at least one of these criteria and a large portio=
-n=20
-of them satisfy both.
+sizes for the shared memory we could probably get an average of considerabl=
+y=20
+less than one IPC operation per file that is processes.
 
 =2D-=20
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -114,7 +128,7 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_YCLzEho+v9jD2DG
+--Boundary-00=_y4LzEVvE8Uu/09z
 Content-Type: text/x-diff;
   charset="utf-8";
   name="diff"
@@ -122,11 +136,18 @@ Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
 	filename="diff"
 
-Only in policycoreutils-1.30.10/restorecon: restorecon
 diff -ru policycoreutils-1.30.10.orig/restorecon/restorecon.c policycoreutils-1.30.10/restorecon/restorecon.c
 --- policycoreutils-1.30.10.orig/restorecon/restorecon.c	2006-05-23 20:20:02.000000000 +1000
-+++ policycoreutils-1.30.10/restorecon/restorecon.c	2006-07-30 01:05:36.000000000 +1000
-@@ -50,6 +50,15 @@
++++ policycoreutils-1.30.10/restorecon/restorecon.c	2006-07-30 23:26:21.000000000 +1000
+@@ -34,6 +34,7 @@
+ #include <selinux/selinux.h>
+ #include <getopt.h>
+ #include <sys/types.h>
++#include <sys/wait.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <stdio.h>
+@@ -50,6 +51,15 @@
  #define STAT_BLOCK_SIZE 1
  static int pipe_fds[2] = { -1, -1 };
  
@@ -142,7 +163,7 @@ diff -ru policycoreutils-1.30.10.orig/restorecon/restorecon.c policycoreutils-1.
  #define MAX_EXCLUDES 100
  static int excludeCtr=0;
  struct edir {
-@@ -241,32 +250,244 @@
+@@ -241,32 +251,244 @@
    return 0;
  }
  
@@ -403,7 +424,7 @@ diff -ru policycoreutils-1.30.10.orig/restorecon/restorecon.c policycoreutils-1.
  	if(rc == 0)
  	{
  	  close(pipe_fds[0]);
-@@ -276,10 +497,22 @@
+@@ -276,10 +498,25 @@
  	if(rc > 0)
  	  close(pipe_fds[1]);
  	if(rc == -1 || rc > 0) {
@@ -412,26 +433,35 @@ diff -ru policycoreutils-1.30.10.orig/restorecon/restorecon.c policycoreutils-1.
  	    fprintf(stderr, "%s:  error while labeling files under %s\n",
  		  progname, buf);
  	    errors++;
-+            if(num_workers)
++          }
++          if(rc > 0)
++            wait(&rc);
++          if(num_workers)
++          {
++            int i;
++            for(i = 0; i < num_workers; i++)
 +            {
-+              int i;
-+              for(i = 0; i < num_workers; i++)
-+              {
-+                while(worker_use_count[i])
-+                  get_worker_data(1);
-+                close(worker_send_fds[i]);
-+                close(worker_recv_fds[i]);
-+              }
++              while(worker_use_count[i])
++                get_worker_data(1);
++              close(worker_send_fds[i]);
++              close(worker_recv_fds[i]);
++              wait(&rc);
 +            }
  	  }
  	}
        }
-Only in policycoreutils-1.30.10/restorecon: restorecon.o
-Only in policycoreutils-1.30.10/setfiles: setfiles
 diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.10/setfiles/setfiles.c
 --- policycoreutils-1.30.10.orig/setfiles/setfiles.c	2006-05-23 20:20:03.000000000 +1000
-+++ policycoreutils-1.30.10/setfiles/setfiles.c	2006-07-30 22:19:35.000000000 +1000
-@@ -82,6 +82,15 @@
++++ policycoreutils-1.30.10/setfiles/setfiles.c	2006-07-30 23:29:07.000000000 +1000
+@@ -75,6 +75,7 @@
+ #include <selinux/selinux.h>
+ #include <syslog.h> 
+ #include <libgen.h>
++#include <sys/wait.h>
+ 
+ static int add_assoc = 1;
+ static FILE *outfile=NULL;
+@@ -82,6 +83,15 @@
  #define STAT_BLOCK_SIZE 1
  static int pipe_fds[2] = { -1, -1 };
  
@@ -447,7 +477,7 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
  #define MAX_EXCLUDES 100
  static int excludeCtr=0;
  struct edir {
-@@ -232,27 +241,57 @@
+@@ -232,27 +242,57 @@
  	return  (strcmp(rest_a, rest_b) == 0);
  }
  
@@ -520,7 +550,7 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
  
  	/* Skip the extra slash at the beginning, if present. */
  	if (file[0] == '/' && file[1] == '/')
-@@ -260,12 +299,6 @@
+@@ -260,12 +300,6 @@
  	else
  		my_file = file;
  
@@ -533,7 +563,7 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
  	i = match(my_file, &my_sb, &newcon);
  	if (i < 0)
  		/* No matching specification. */
-@@ -382,6 +415,198 @@
+@@ -382,6 +416,198 @@
  	return -1;
  }
  
@@ -732,7 +762,7 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
  void set_rootpath(const char *arg)
  {
  	int len;
-@@ -454,7 +679,7 @@
+@@ -454,7 +680,7 @@
  	set_matchpathcon_flags(MATCHPATHCON_VALIDATE);
  
  	/* Process any options. */
@@ -741,7 +771,7 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
  		switch (opt) {
  		case 'c':
  		{
-@@ -529,6 +754,7 @@
+@@ -529,6 +755,7 @@
  			break;
  		case 's':
  			use_stdin = 1;
@@ -749,7 +779,7 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
  			add_assoc = 0;
  			break;
  		case 'v':
-@@ -641,6 +867,7 @@
+@@ -641,6 +868,7 @@
  			close(pipe_fds[1]);
  		if(rc == -1 || rc > 0) {
  
@@ -757,10 +787,12 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
  		/* Walk the file tree, calling apply_spec on each file. */
  			if (nftw
  			    (argv[optind], apply_spec, 1024,
-@@ -650,6 +877,17 @@
+@@ -650,6 +878,20 @@
  				argv[0], argv[optind]);
  				exit(1);
  			}
++			if(rc > 0)
++				wait(&rc);
 +			if(num_workers)
 +			{
 +				int i;
@@ -770,14 +802,14 @@ diff -ru policycoreutils-1.30.10.orig/setfiles/setfiles.c policycoreutils-1.30.1
 +						get_worker_data(1);
 +					close(worker_send_fds[i]);
 +					close(worker_recv_fds[i]);
++					wait(&rc);
 +				}
 +			}
  		}
  
  		/*
-Only in policycoreutils-1.30.10/setfiles: setfiles.o
 
---Boundary-00=_YCLzEho+v9jD2DG--
+--Boundary-00=_y4LzEVvE8Uu/09z--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
