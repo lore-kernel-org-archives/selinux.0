@@ -1,88 +1,84 @@
-From: Jim Meyering <jim@meyering.net>
-To: russell@coker.com.au
-Cc: Valdis.Kletnieks@vt.edu, SELinux@tycho.nsa.gov
-Subject: Re: infelicity in context_user_set; new syscalls: setfileconat, etc.?
-In-Reply-To: <200607312235.24871.russell@coker.com.au> (Russell Coker's
-	message of "Mon, 31 Jul 2006 22:35:20 +1000")
+Subject: Re: infelicity in context_user_set; new syscalls: setfileconat,
+	etc.?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jim Meyering <jim@meyering.net>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
+        SELinux@tycho.nsa.gov
+In-Reply-To: <87zmeslb2v.fsf@rho.meyering.net>
 References: <87zmeslb2v.fsf@rho.meyering.net>
-	<200607310458.k6V4wScX009997@turing-police.cc.vt.edu>
-	<87odv6kw1v.fsf@rho.meyering.net>
-	<200607312235.24871.russell@coker.com.au>
-Date: Mon, 31 Jul 2006 15:27:08 +0200
-Message-ID: <871ws1lxar.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 09:44:20 -0400
+Message-Id: <1154353460.1447.17.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker <russell@coker.com.au> wrote:
+On Sat, 2006-07-29 at 16:50 +0200, Jim Meyering wrote:
+> Hello,
+> 
+> I've just discovered what may be a documentation error
+> for context_user_set, context_role_set, etc.
+> 
+> Those functions are documented as setting errno upon failure,
+> yet the following program prints "failed with errno=0":
+> 
+>   #include <stdio.h>
+>   #include <errno.h>
+>   #include <selinux/context.h>
+> 
+>   int
+>   main ()
+>   {
+>     context_t c = context_new ("a:b:c");
+>     if (!c)
+>       return 1;
+>     errno = 0;
+>     if (context_user_set (c, ":") != 0)
+>       printf ("failed with errno=%d\n", errno);
+>     return 0;
+>   }
 
-> On Monday 31 July 2006 18:39, Jim Meyering <jim@meyering.net> wrote:
->> > And I suspect that nobody's running an SELinux system with no /proc
->> > mounted (except on some *really* Martian-logic design for a Really Secure
->> > embedded system or something...)
->>
->> Let's assume that all properly-configured environments do mount /proc.
->
-> Let's not, think of chroot environments.
+Yes, that is a documentation error.
 
-These days, chroot environments seem more and more likely to require /proc.
-That said, allowing openat et al to work even in a chroot without /proc
-was one of the arguments for adding those functions to the kernel.
+> FYI, as part of merging the coreutils SE Linux changes "upstream",
+> I've just rewritten chcon to use fts (and new openat-style functions,
+> getfileconat, lgetfileconat, setfileconat, lsetfileconat[*]).  Now,
+> chcon -R can operate on an arbitrarily deep hierarchy.
+> One test was to process a 100K-level hierarchy -- finished in just 19sec.
+> The old version chokes on PATH_MAX at a depth of 2k.
+> 
+> Can any of you point me to a test suite for chcon.
+> That might save me the trouble of writing my own.
 
->> Are the required features[*] of /proc usable even in the most restrictive
->> environments?
->
-> I doubt it at the moment.  But it wouldn't be difficult to enable these things
-> for the rare cases where they are needed.
+I don't think that there is one; the selinux kernel testsuite (included
+in LTP) does make use of chcon as part of its tests of the kernel access
+checks, but there isn't a separate testsuite that fully exercises chcon
+at present.
 
-Is needing /proc so unusual, these days?  Even with glibc-2.4?
-Quite a few glibc primitives are implemented to rely on those same
-/proc features.
+> Jim
+> 
+> [*] With linux and /proc, I can emulate functions like openat and
+> setfileconat, but not everyone has linux, and some linux environments
+> lack access to /proc, so...
+> 
+> Has anyone considered adding these system calls?
+>   getfileconat
+>   lgetfileconat
+>   setfileconat
+>   lsetfileconat
+> 
+> They'd be useful for the same reasons openat, lstatat, etc.
+> are useful (and are now in the Linux kernel).
 
->> If so, then the only remaining argument for adding syscalls
->> is one of efficiency -- not very compelling.
->>
->> [*] The ability to access any FILE via /proc/self/fd/N/FILE,
->> where the directory containing FILE is open on file descriptor N.
->
-> I believe that the real question is whether processes in restrictive
-> environments such as chroot's need to do chcon -R operations anyway, and if
-> they do whether they need to go to great depth.
+Looks like we would only need fgetxattrat() and fsetxattrat() system
+calls in the kernel, analogous to the fstatat() and fchmodat() calls,
+and then libselinux could implement the *fileconat() functions on top of
+them.  cc'd Ulrich since he introduced the *at functions into Linux.
+  
+-- 
+Stephen Smalley
+National Security Agency
 
-In general, operating on deep hierarchies is only one benefit of using
-the *at functions.  That paradigm also permits efficient (no O(N^2)
-perf. hit) file system traversal (a la fts(1)) that is also thread safe.
-Though of course, chcon doesn't care about thread safety.
-
-> I have set up many chroot environments, many of which were so restrictive that
-> they would not permit what you desire.  But I can't think of any of them
-> having a need for deep chcon -R operations.
->
-> Would it be possible to use the current functionality and only skip to the
-> other type when the path depth is exceeded?
-
-My working implementation degrades gracefully in all but some unusually
-pathological cases.  I.e., when emulating a FOO*at function via /proc
-fails, the implementation resorts to simulating it via
-save_cwd/fchdir/FOO/restore_cwd, where save_cwd and restore_cwd are
-in gnulib/coreutils' lib/save-cwd.c.  That emulation fails only when
-save_cwd or restore_cwd fails, neither of which is likely in practice.
-The classic failure case is when "." cannot be opened and getcwd fails.
-As I said, unlikely.
-
-If you want to see actual code before I check things in,
-there are very similar bits in upstream CVS coreutils/lib/openat.c.
-E.g., the fstatat function in that file:
-
-  http://cvs.savannah.gnu.org/viewcvs/coreutils/lib/openat.c?root=coreutils&view=markup
-
-In the upcoming coreutils-6.0, so far, the following tools already
-use this sort of infrastructure: rm, du, chown, chmod, chgrp.
-It makes them robust and bulletproof on systems with /proc or syscall
-support for openat-style functions.  On deficient systems, the only
-penalty is failure in unusual cases, as mentioned above.
-So if you see a problem, please let me know.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
