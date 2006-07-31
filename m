@@ -1,84 +1,52 @@
-Subject: Re: infelicity in context_user_set; new syscalls: setfileconat,
-	etc.?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jim Meyering <jim@meyering.net>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
-        SELinux@tycho.nsa.gov
-In-Reply-To: <87zmeslb2v.fsf@rho.meyering.net>
+From: Jim Meyering <jim@meyering.net>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: infelicity in context_user_set; new syscalls: setfileconat, etc.?
+In-Reply-To: <1154352403.26550.24.camel@localhost.localdomain> (Karl
+	MacMillan's message of "Mon, 31 Jul 2006 09:26:43 -0400")
 References: <87zmeslb2v.fsf@rho.meyering.net>
-Content-Type: text/plain
-Date: Mon, 31 Jul 2006 09:44:20 -0400
-Message-Id: <1154353460.1447.17.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+	<1154352403.26550.24.camel@localhost.localdomain>
+Date: Mon, 31 Jul 2006 15:48:26 +0200
+Message-ID: <87vepdkhqt.fsf@rho.meyering.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2006-07-29 at 16:50 +0200, Jim Meyering wrote:
-> Hello,
-> 
-> I've just discovered what may be a documentation error
-> for context_user_set, context_role_set, etc.
-> 
-> Those functions are documented as setting errno upon failure,
-> yet the following program prints "failed with errno=0":
-> 
->   #include <stdio.h>
->   #include <errno.h>
->   #include <selinux/context.h>
-> 
->   int
->   main ()
->   {
->     context_t c = context_new ("a:b:c");
->     if (!c)
->       return 1;
->     errno = 0;
->     if (context_user_set (c, ":") != 0)
->       printf ("failed with errno=%d\n", errno);
->     return 0;
->   }
+Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
+> Looks like a documentation error to me - there is no attempt to set
+> errno in the code. In fact, most of libselinux looks like errno will
+> only get set as a result of a call to a lower level library function
+> (e.g., open or getxattr).
+>
+> Can you create a patch to correct the documentation?
 
-Yes, that is a documentation error.
+I'm new to selinux, but will be happy to take a shot.
+What's the recipe for checking out the preferred libselinux sources?
+Are there any patch submission guidelines?
 
-> FYI, as part of merging the coreutils SE Linux changes "upstream",
-> I've just rewritten chcon to use fts (and new openat-style functions,
-> getfileconat, lgetfileconat, setfileconat, lsetfileconat[*]).  Now,
-> chcon -R can operate on an arbitrarily deep hierarchy.
-> One test was to process a 100K-level hierarchy -- finished in just 19sec.
-> The old version chokes on PATH_MAX at a depth of 2k.
-> 
-> Can any of you point me to a test suite for chcon.
-> That might save me the trouble of writing my own.
+>> Has anyone considered adding these system calls?
+>>   getfileconat
+>>   lgetfileconat
+>>   setfileconat
+>>   lsetfileconat
+>>
+>> They'd be useful for the same reasons openat, lstatat, etc.
+>> are useful (and are now in the Linux kernel).
+>
+> Seems much simpler to use fgetfilecon, etc. that take a fd instead of a
+> path. They can be used in conjunction with openat and do not require a
+> new system call.
 
-I don't think that there is one; the selinux kernel testsuite (included
-in LTP) does make use of chcon as part of its tests of the kernel access
-checks, but there isn't a separate testsuite that fully exercises chcon
-at present.
+It would be simpler, indeed.
+Unfortunately, that approach fails for any file that cannot be opened,
+while the *fileconat approach imposes no extra restrictions.
 
-> Jim
-> 
-> [*] With linux and /proc, I can emulate functions like openat and
-> setfileconat, but not everyone has linux, and some linux environments
-> lack access to /proc, so...
-> 
-> Has anyone considered adding these system calls?
->   getfileconat
->   lgetfileconat
->   setfileconat
->   lsetfileconat
-> 
-> They'd be useful for the same reasons openat, lstatat, etc.
-> are useful (and are now in the Linux kernel).
+> Currently there are no system calls for SELinux and I doubt that there
+> would be much enthusiasm for them upstream.
 
-Looks like we would only need fgetxattrat() and fsetxattrat() system
-calls in the kernel, analogous to the fstatat() and fchmodat() calls,
-and then libselinux could implement the *fileconat() functions on top of
-them.  cc'd Ulrich since he introduced the *at functions into Linux.
-  
--- 
-Stephen Smalley
-National Security Agency
-
+I'm not holding my breath.
+Besides, I was never really convinced it was worthwhile.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
