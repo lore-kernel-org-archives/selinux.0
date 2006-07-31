@@ -1,47 +1,80 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6VCkBP2016481
-	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 08:46:11 -0400
-Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6VCk0kX001696
-	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 12:46:01 GMT
-Message-ID: <36282A1733C57546BE392885C0618592013E80CA@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
-        selinux@tycho.nsa.gov, sds@epoch.ncsc.mil, jmorris@redhat.com,
-        pratt@argus-systems.com
-Subject: RE: [PATCH 2/7] NetLabel: core network changes
-Date: Mon, 31 Jul 2006 08:43:50 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: [PATCH 0/2] new and improved range_transition statements
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <44CA2919.4010708@trustedcs.com>
+References: <44CA2919.4010708@trustedcs.com>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 09:07:16 -0400
+Message-Id: <1154351236.26550.14.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> The NetLabel patch allows administrators to assign specific a CIPSO 
-> DOI/configuration to each LSM "domain".  Blindly using the 
-> CIPSO tag that the 
-> remote host sends could violate the administrator's NetLabel 
-> configuration.  
+On Fri, 2006-07-28 at 10:11 -0500, Darrel Goeddel wrote:
+> This following patches allow for specification of security classes for
+> range_transition statements in the policy.  This is intended to address
+> a solution for RedHat Bugzilla #185436.
 > 
-> The current patch reads the CIPSO tag off the child socket, 
-> translating the 
-> tag according to the CIPSO DOI configuration to arrive at the 
-> correct/desired 
-> LSM  security attributes.  These LSM security attributes and 
-> the "domain" are 
-> then used to set the NetLabel on the socket.  In the case 
-> where everyone is 
-> well behaved this should have no effect on the socket IP 
-> options and the 
-> packets sent across the wire.  However, in the case of a 
-> not-nice remote host 
-> the outgoing CIPSO tag may change to match the administrators desired 
-> settings.
+> http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=185436
+> 
+> While working on this format change to allow class specification, it was
+> noted that the current range_transition handling in the policy toolchain was
+> not ideal.  It expanded things at compile time and there was no way to get
+> these statements into policy modules.  So, in addition to changing the kernel
+> policy format and base policy format in a trivial manner to support the
+> desired functionality, I also tried to make the base and module formats more
+> robust when handling range_transition rules.
 
-I wonder if waiting till accept isn't too late though. Perhaps this
-should be done when the openreq is created so the syn-ack and such
-will go out with the right tag?
+Thanks for taking the time to make this more complete.
+
+>   Hopefully, this format will
+> allow for range_transition statements in modules with additional work for
+> libsepol in the (near?) future.  I will defer the toolchain gurus on the
+> completeness of my approach ;)  This patch set has been tested in the
+> following configurations:
+> 
+> old kernel / all old policy - sure glad that worked
+> old kernel / old format modules generating a new format kernel policy that
+>   is automatically downgraded at load time
+> old kernel / new format modules generating a new format kernel policy that
+>   is automatically downgraded at load time
+> new kernel / old format modules generating a new format kernel policy
+> old kernel / new format modules generating a new format kernel policy
+> 
+
+My biggest question is how to handle the format change. There are some
+other bug fixes awaiting a module format change (not certain about
+kernel format change) and it would be nice to include those in this
+format bump. Unfortunately there are not patches for those fixes at the
+moment.
+
+Could we branch the code for a month or so for the other changes can be
+introduced or is the fix more critical? Do you think that this must go
+into RHEL 5 / FC6? Is it possible for the kernel changes to make it in
+time for 2.6.18 and if they don't will this be included in RHEL 5 / FC6?
+
+<snip>
+
+> The kernel change is fairly simple.  Sure would be nice to get that into 2.6.18
+> since it is for a bug fix...
+> 
+
+This makes me think that you time is critical.
+
+> The toolchain changes are a bit more complex, although it sure seems a lot easier
+> than it did when I started looking at the code.  I'd appreciate some scrutiny of
+> this, especially in the area of future support for range_transition statements in
+> policy modules.  I feel that will be very necessary and I hope to ease that path
+> with the format change.
+> 
+
+I'll try to do a review of this today. Josh - could you take a look as
+well?
+
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
