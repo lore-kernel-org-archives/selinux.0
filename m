@@ -1,28 +1,71 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: 2007 SELinux Symposium dates and call for papers
-Date: Mon, 31 Jul 2006 15:53:22 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158832AA99@exchange.columbia.tresys.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "SELinux List" <SELinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
+Subject: Re: [PATCH] newrole: use pam session management services
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: janak@us.ibm.com
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+In-Reply-To: <1154108936.7907.4.camel@localhost.localdomain>
+References: <1154108936.7907.4.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 16:19:58 -0400
+Message-Id: <1154377198.26550.171.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The Security Enhanced Linux (SELinux) Symposium announces that its third
-annual Symposium is scheduled for March 12-16, 2007, at the Wyndham
-Hotel, Baltimore, Maryland, USA. The Symposium also announces the
-opening of its call for papers. The event is the only of its kind to
-examine SELinux and the power of the flexible mandatory access control
-security it brings to Linux. The first two years of this annual event
-were a tremendous success providing the SELinux development and user
-community the opportunity to discuss related research results,
-development plans, and applications.
+On Fri, 2006-07-28 at 13:48 -0400, Janak Desai wrote:
+<snip>
 
-The call for papers is open until October 9, 2006. Paper requirements
-and topics of interest are available on the Symposium web site at
-www.selinux-symposium.org.
+> +int namespace_via_pam(const struct passwd *pw)
+> +{
+> +
+> +	int result = 0;	/* set result to 0 (namespace not set) by default */
+> +	int rc;		/* pam return code */
+> +	pam_handle_t *pam_handle; /* opaque handle used by all PAM functions */
+> +
+> +	/* This is a jump table of functions for PAM to use when it wants to *
+> +	 * communicate with the user.  We'll be using misc_conv(), which is  *
+> +	 * provided for us via pam_misc.h.                                   */
+> +	struct pam_conv pam_conversation = {
+> +		misc_conv,
+> +		NULL
+> +	};
+> +
+> +	/* Make `p_pam_handle' a valid PAM handle so we can use it when *
+> +	 * calling PAM functions.                                       */
+> +	rc = pam_start(SERVICE_NAME, pw->pw_name, &pam_conversation,
+> +		&pam_handle);
+> +	if(rc != PAM_SUCCESS) {
+> +		fprintf(stderr, _("failed to initialize PAM\n"));
+> +		exit(-1);
 
+Why not return an error code instead? 0 seems to be the error code for
+most of the code (strange as that is) - seems appropriate to return
+that.
+
+> +	}
+> +
+> +	/* Ask PAM to setup session for user running this program */
+> +	rc = pam_open_session(pam_handle,0);
+> +		if(rc == PAM_SUCCESS) {
+> +		result = 1;  /* Namespace setup OK! */
+> +	}
+> +
+
+Looks like there is some code in policycoreutils that wants to use 1 for
+success and 0 for error - so you are following the convention. It is
+unfortunate as it doesn't match the bulk of the selinux code. Auditing
+and fixing it would be nice, but I don't think it is necessary.
+
+> +	/* We're done with PAM.  Free `pam_handle'. */
+> +	pam_end(pam_handle, rc);
+> +
+> +	return(result);
+
+Most SELinux code thinks return is a keyword and not a function, though
+several of the policycoreutils programs think otherwise. Oh well -
+again, it would be nice to clean this up but it is probably low
+priority.
+
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
