@@ -1,71 +1,42 @@
-Subject: Re: [PATCH] newrole: use pam session management services
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: janak@us.ibm.com
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-In-Reply-To: <1154108936.7907.4.camel@localhost.localdomain>
-References: <1154108936.7907.4.camel@localhost.localdomain>
+Subject: Re: [PATCH 2/2] userland support for new
+	range_transition	statements
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <44CE51C8.6080805@trustedcs.com>
+References: <44CA298B.7080706@trustedcs.com>
+	 <1154370592.26550.144.camel@localhost.localdomain>
+	 <44CE51C8.6080805@trustedcs.com>
 Content-Type: text/plain
-Date: Mon, 31 Jul 2006 16:19:58 -0400
-Message-Id: <1154377198.26550.171.camel@localhost.localdomain>
+Date: Mon, 31 Jul 2006 16:52:40 -0400
+Message-Id: <1154379160.3582.48.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2006-07-28 at 13:48 -0400, Janak Desai wrote:
-<snip>
+On Mon, 2006-07-31 at 13:54 -0500, Darrel Goeddel wrote:
+> Correct.  I think you inadvertently pointed out some tests I forgot to run -
+> I have not compiled/tested monolithic policies with this patchset.  I am
+> assuming that you can still specify an older output format when compiling
+> monolithically unlike the modular case where it always writes the newest
+> formats.  There we would be able to print out a warning about unsupported
+> bits being discarded.  The case I have tested with this code path is
+> libselinux downgrading a version 21 policy to version 20 for use in an older
+> kernel.  In that case, I really don't see an appropriate feedback mechanism.
+> Any thoughts on that case?  Warn about policy downgrades in some manner?
 
-> +int namespace_via_pam(const struct passwd *pw)
-> +{
-> +
-> +	int result = 0;	/* set result to 0 (namespace not set) by default */
-> +	int rc;		/* pam return code */
-> +	pam_handle_t *pam_handle; /* opaque handle used by all PAM functions */
-> +
-> +	/* This is a jump table of functions for PAM to use when it wants to *
-> +	 * communicate with the user.  We'll be using misc_conv(), which is  *
-> +	 * provided for us via pam_misc.h.                                   */
-> +	struct pam_conv pam_conversation = {
-> +		misc_conv,
-> +		NULL
-> +	};
-> +
-> +	/* Make `p_pam_handle' a valid PAM handle so we can use it when *
-> +	 * calling PAM functions.                                       */
-> +	rc = pam_start(SERVICE_NAME, pw->pw_name, &pam_conversation,
-> +		&pam_handle);
-> +	if(rc != PAM_SUCCESS) {
-> +		fprintf(stderr, _("failed to initialize PAM\n"));
-> +		exit(-1);
+policydb_write() calls WARN() in the case where it has to discard
+booleans and conditional rules upon downgrading to a policy version that
+doesn't support them.  Likewise, a single warning message would be
+suitable if you encounter any range transitions with non-process class
+and are writing a policy with a lower version.
 
-Why not return an error code instead? 0 seems to be the error code for
-most of the code (strange as that is) - seems appropriate to return
-that.
+-- 
+Stephen Smalley
+National Security Agency
 
-> +	}
-> +
-> +	/* Ask PAM to setup session for user running this program */
-> +	rc = pam_open_session(pam_handle,0);
-> +		if(rc == PAM_SUCCESS) {
-> +		result = 1;  /* Namespace setup OK! */
-> +	}
-> +
-
-Looks like there is some code in policycoreutils that wants to use 1 for
-success and 0 for error - so you are following the convention. It is
-unfortunate as it doesn't match the bulk of the selinux code. Auditing
-and fixing it would be nice, but I don't think it is necessary.
-
-> +	/* We're done with PAM.  Free `pam_handle'. */
-> +	pam_end(pam_handle, rc);
-> +
-> +	return(result);
-
-Most SELinux code thinks return is a keyword and not a function, though
-several of the policycoreutils programs think otherwise. Oh well -
-again, it would be nice to clean this up but it is probably low
-priority.
-
-Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
