@@ -1,52 +1,39 @@
-From: Jim Meyering <jim@meyering.net>
+Subject: Re: [PATCH 0/2] new and improved range_transition statements
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: infelicity in context_user_set; new syscalls: setfileconat, etc.?
-In-Reply-To: <1154352403.26550.24.camel@localhost.localdomain> (Karl
-	MacMillan's message of "Mon, 31 Jul 2006 09:26:43 -0400")
-References: <87zmeslb2v.fsf@rho.meyering.net>
-	<1154352403.26550.24.camel@localhost.localdomain>
-Date: Mon, 31 Jul 2006 15:48:26 +0200
-Message-ID: <87vepdkhqt.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1154351236.26550.14.camel@localhost.localdomain>
+References: <44CA2919.4010708@trustedcs.com>
+	 <1154351236.26550.14.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 09:56:24 -0400
+Message-Id: <1154354184.1447.23.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
-> Looks like a documentation error to me - there is no attempt to set
-> errno in the code. In fact, most of libselinux looks like errno will
-> only get set as a result of a call to a lower level library function
-> (e.g., open or getxattr).
->
-> Can you create a patch to correct the documentation?
+On Mon, 2006-07-31 at 09:07 -0400, Karl MacMillan wrote:
+> My biggest question is how to handle the format change. There are some
+> other bug fixes awaiting a module format change (not certain about
+> kernel format change) and it would be nice to include those in this
+> format bump. Unfortunately there are not patches for those fixes at the
+> moment.
+> 
+> Could we branch the code for a month or so for the other changes can be
+> introduced or is the fix more critical? Do you think that this must go
+> into RHEL 5 / FC6? Is it possible for the kernel changes to make it in
+> time for 2.6.18 and if they don't will this be included in RHEL 5 / FC6?
 
-I'm new to selinux, but will be happy to take a shot.
-What's the recipe for checking out the preferred libselinux sources?
-Are there any patch submission guidelines?
+It doesn't necessarily have to be in 2.6.18 to make RHEL5; consider the
+MLSXFRM and NetLabel patches, which are being queued for 2.6.19 but IIUC
+will be back ported and included in RHEL5.
 
->> Has anyone considered adding these system calls?
->>   getfileconat
->>   lgetfileconat
->>   setfileconat
->>   lsetfileconat
->>
->> They'd be useful for the same reasons openat, lstatat, etc.
->> are useful (and are now in the Linux kernel).
->
-> Seems much simpler to use fgetfilecon, etc. that take a fd instead of a
-> path. They can be used in conjunction with openat and do not require a
-> new system call.
+-- 
+Stephen Smalley
+National Security Agency
 
-It would be simpler, indeed.
-Unfortunately, that approach fails for any file that cannot be opened,
-while the *fileconat approach imposes no extra restrictions.
-
-> Currently there are no system calls for SELinux and I doubt that there
-> would be much enthusiasm for them upstream.
-
-I'm not holding my breath.
-Besides, I was never really convinced it was worthwhile.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
