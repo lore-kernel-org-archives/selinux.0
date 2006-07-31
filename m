@@ -1,79 +1,57 @@
-Subject: RE: [PATCH 0/2] new and improved range_transition statements
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+Message-Id: <200607311510.k6VFAhrw006155@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        SELinux List <SELinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158832AA32@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158832AA32@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Mon, 31 Jul 2006 10:55:42 -0400
-Message-Id: <1154357742.26550.86.camel@localhost.localdomain>
+        "'SELinux List'" <SELinux@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>, Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [PATCH 0/2] new and improved range_transition statements
+In-Reply-To: Your message of "Mon, 31 Jul 2006 10:43:15 EDT."
+             <1154356995.1447.64.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <44CA2919.4010708@trustedcs.com> <1154351236.26550.14.camel@localhost.localdomain> <1154354184.1447.23.camel@moss-spartans.epoch.ncsc.mil> <200607311428.k6VESR6m004599@turing-police.cc.vt.edu>
+            <1154356995.1447.64.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1154358643_3409P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Mon, 31 Jul 2006 11:10:43 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-07-31 at 10:23 -0400, Joshua Brindle wrote:
-> > From: Karl MacMillan [mailto:kmacmillan@mentalrootkit.com] 
-> > 
+--==_Exmh_1154358643_3409P
+Content-Type: text/plain; charset=us-ascii
 
-<snip>
+On Mon, 31 Jul 2006 10:43:15 EDT, Stephen Smalley said:
 
-> > - scoping fixes to allow permissions to be scoped. Ideally 
-> > this would add enough scoping information to allow the 
-> > relaxation of some of the ordering constraints.
-> > 
+> I agree that it is too late for 2.6.18, but just to clarify - the kernel
+> patch preserves backward compatibility for older binary policy
+> formats.  
 > 
-> Right, I don't know who/when this will get done
-> 
+> As far as compatibility is concerned, FC4 will need some kind of
+> userland update when it updates to a kernel with the new policy format;
+> otherwise, init will give up when it cannot find policy.21 or policy.20
+> (older sysvinit selinux patch only tried n and (n-1)), and the policy in
+> FC4 was version 19.
 
-I've made some good progress cleaning up the scoping storage and
-management on top of the symtab_datum_t patches. I'll likely be able to
-send a version without a format change soon that will have all of the
-needed infrastructure for when the format change happens.
+Given that Andrew Morton is currently having a cow over the fact that
+2.6.18-rc3 includes a change that breaks the udev that shipped with FC3,
+we might want to make sure we have all our ducks lined up....
 
-> > - fixing avrule_block to correctly represent what is possible 
-> > (removing arbitrary branches)
-> > 
-> 
-> That's a style change more than anything, no functional difference, very
-> low priority
-> 
+(To be fair, the udev change is one that breaks any udev more than 10 months
+or so old...)
 
-Yep
+--==_Exmh_1154358643_3409P
+Content-Type: application/pgp-signature
 
-> > - better handling of type->flavor (if needed)
-> > 
-> 
-> ??
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-I remembered some discussion about how this would be done when it was
-added - doesn't look like anything needs to change so never mind.
+iD8DBQFEzh1zcC3lWbTT17ARAvD3AJ0c/t2HbNF/TI2uEgYoGCAK3RH4kACeMeTM
+bX0oMFy5aA6AB/vp1BVVsxY=
+=XzIv
+-----END PGP SIGNATURE-----
 
-> > - whatever is needed to support incremental linking
-> > 
-> 
-> I'd like to get this in but that seems unlikely, it would be very nice
-> to speed up linking and memory usage (which is currently very high). I
-> don't think this will necessitate a format change but can't be sure.
-> 
-
-Right - I'm betting that there will be something needed.
-
-> > Do you have anything else?
-> >
-> 
-> That's all I know of, I'm not sure if any of these are going to go in
-> anytime soon unless other people have time/ability. The most important
-> thing is obviously permission scoping.
-> 
-
-Like I said I'm working on the scoping, but it is a low priority task
-for me.
-
-Karl
+--==_Exmh_1154358643_3409P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
