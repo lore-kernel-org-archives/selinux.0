@@ -1,55 +1,47 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Jim Meyering <jim@meyering.net>
-Subject: Re: infelicity in context_user_set; new syscalls: setfileconat, etc.?
-Date: Mon, 31 Jul 2006 22:35:20 +1000
-Cc: Valdis.Kletnieks@vt.edu, SELinux@tycho.nsa.gov
-References: <87zmeslb2v.fsf@rho.meyering.net> <200607310458.k6V4wScX009997@turing-police.cc.vt.edu> <87odv6kw1v.fsf@rho.meyering.net>
-In-Reply-To: <87odv6kw1v.fsf@rho.meyering.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6VCkBP2016481
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 08:46:11 -0400
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6VCk0kX001696
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 12:46:01 GMT
+Message-ID: <36282A1733C57546BE392885C0618592013E80CA@chaos.tcs.tcs-sec.com>
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, sds@epoch.ncsc.mil, jmorris@redhat.com,
+        pratt@argus-systems.com
+Subject: RE: [PATCH 2/7] NetLabel: core network changes
+Date: Mon, 31 Jul 2006 08:43:50 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200607312235.24871.russell@coker.com.au>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 31 July 2006 18:39, Jim Meyering <jim@meyering.net> wrote:
-> > And I suspect that nobody's running an SELinux system with no /proc
-> > mounted (except on some *really* Martian-logic design for a Really Secure
-> > embedded system or something...)
->
-> Let's assume that all properly-configured environments do mount /proc.
+> The NetLabel patch allows administrators to assign specific a CIPSO 
+> DOI/configuration to each LSM "domain".  Blindly using the 
+> CIPSO tag that the 
+> remote host sends could violate the administrator's NetLabel 
+> configuration.  
+> 
+> The current patch reads the CIPSO tag off the child socket, 
+> translating the 
+> tag according to the CIPSO DOI configuration to arrive at the 
+> correct/desired 
+> LSM  security attributes.  These LSM security attributes and 
+> the "domain" are 
+> then used to set the NetLabel on the socket.  In the case 
+> where everyone is 
+> well behaved this should have no effect on the socket IP 
+> options and the 
+> packets sent across the wire.  However, in the case of a 
+> not-nice remote host 
+> the outgoing CIPSO tag may change to match the administrators desired 
+> settings.
 
-Let's not, think of chroot environments.
-
-> Are the required features[*] of /proc usable even in the most restrictive
-> environments?
-
-I doubt it at the moment.  But it wouldn't be difficult to enable these things 
-for the rare cases where they are needed.
-
-> If so, then the only remaining argument for adding syscalls 
-> is one of efficiency -- not very compelling.
->
-> [*] The ability to access any FILE via /proc/self/fd/N/FILE,
-> where the directory containing FILE is open on file descriptor N.
-
-I believe that the real question is whether processes in restrictive 
-environments such as chroot's need to do chcon -R operations anyway, and if 
-they do whether they need to go to great depth.
-
-I have set up many chroot environments, many of which were so restrictive that 
-they would not permit what you desire.  But I can't think of any of them 
-having a need for deep chcon -R operations.
-
-Would it be possible to use the current functionality and only skip to the 
-other type when the path depth is exceeded?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I wonder if waiting till accept isn't too late though. Perhaps this
+should be done when the openreq is created so the syn-ack and such
+will go out with the right tag?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
