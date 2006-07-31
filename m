@@ -1,42 +1,33 @@
-Subject: Re: [PATCH 2/2] userland support for new
-	range_transition	statements
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
+Date: Mon, 31 Jul 2006 16:59:54 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
         "'SELinux List'" <SELinux@tycho.nsa.gov>,
         Eric Paris <eparis@redhat.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <44CE51C8.6080805@trustedcs.com>
-References: <44CA298B.7080706@trustedcs.com>
-	 <1154370592.26550.144.camel@localhost.localdomain>
-	 <44CE51C8.6080805@trustedcs.com>
-Content-Type: text/plain
-Date: Mon, 31 Jul 2006 16:52:40 -0400
-Message-Id: <1154379160.3582.48.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [PATCH 1/2] kernel support for new range_transition statements
+In-Reply-To: <1154361018.1447.106.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.64.0607311659360.3463@d.namei>
+References: <44CA2956.8050609@trustedcs.com> <1154361018.1447.106.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-07-31 at 13:54 -0500, Darrel Goeddel wrote:
-> Correct.  I think you inadvertently pointed out some tests I forgot to run -
-> I have not compiled/tested monolithic policies with this patchset.  I am
-> assuming that you can still specify an older output format when compiling
-> monolithically unlike the modular case where it always writes the newest
-> formats.  There we would be able to print out a warning about unsupported
-> bits being discarded.  The case I have tested with this code path is
-> libselinux downgrading a version 21 policy to version 20 for use in an older
-> kernel.  In that case, I really don't see an appropriate feedback mechanism.
-> Any thoughts on that case?  Warn about policy downgrades in some manner?
+On Mon, 31 Jul 2006, Stephen Smalley wrote:
 
-policydb_write() calls WARN() in the case where it has to discard
-booleans and conditional rules upon downgrading to a policy version that
-doesn't support them.  Likewise, a single warning message would be
-suitable if you encounter any range transitions with non-process class
-and are writing a policy with a lower version.
+> On Fri, 2006-07-28 at 10:12 -0500, Darrel Goeddel wrote:
+> > This patch introduces support for policy version 21.  This version of the
+> > binary kernel policy allows for defining range transitions on security
+> > classes other than the process security class.  As always, backwards
+> > compatibility for older formats is retained.  The security class is read in as
+> > specified when using the new format, while the "process" security class is
+> > assumed when using an older policy format.
+> > 
+> > Signed-off-by: Darrel Goeddel <dgoeddel@trustedcs.com>
+> 
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
--- 
-Stephen Smalley
-National Security Agency
-
+Acked-by: James Morris <jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
