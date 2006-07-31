@@ -1,59 +1,39 @@
-Subject: Re: [PATCH 0/2] new and improved range_transition statements
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Valdis.Kletnieks@vt.edu
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>,
-        "'SELinux List'" <SELinux@tycho.nsa.gov>,
-        Eric Paris <eparis@redhat.com>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <200607311428.k6VESR6m004599@turing-police.cc.vt.edu>
-References: <44CA2919.4010708@trustedcs.com>
-	 <1154351236.26550.14.camel@localhost.localdomain>
-	 <1154354184.1447.23.camel@moss-spartans.epoch.ncsc.mil>
-	 <200607311428.k6VESR6m004599@turing-police.cc.vt.edu>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k6VEnq0T021114
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 10:49:52 -0400
+Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k6VEnlI8024599
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 14:49:48 GMT
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by localhost.localdomain (8.13.7/8.13.7) with ESMTP id k6VEnngd003823
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jul 2006 10:49:50 -0400
+Received: (from kmacmill@localhost)
+	by localhost.localdomain (8.13.7/8.13.7/Submit) id k6VEnnx6003822
+	for selinux@tycho.nsa.gov; Mon, 31 Jul 2006 10:49:49 -0400
+Subject: [PATCH 0/2] Introduce symtab_datum_t
+From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: SELinux List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 31 Jul 2006 10:43:15 -0400
-Message-Id: <1154356995.1447.64.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 31 Jul 2006 10:49:49 -0400
+Message-Id: <1154357389.26550.76.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-07-31 at 10:28 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 31 Jul 2006 09:56:24 EDT, Stephen Smalley said:
-> > On Mon, 2006-07-31 at 09:07 -0400, Karl MacMillan wrote:
-> > > My biggest question is how to handle the format change. There are some
-> > > other bug fixes awaiting a module format change (not certain about
-> > > kernel format change) and it would be nice to include those in this
-> > > format bump. Unfortunately there are not patches for those fixes at the
-> > > moment.
-> > > 
-> > > Could we branch the code for a month or so for the other changes can be
-> > > introduced or is the fix more critical? Do you think that this must go
-> > > into RHEL 5 / FC6? Is it possible for the kernel changes to make it in
-> > > time for 2.6.18 and if they don't will this be included in RHEL 5 / FC6?
-> > 
-> > It doesn't necessarily have to be in 2.6.18 to make RHEL5; consider the
-> > MLSXFRM and NetLabel patches, which are being queued for 2.6.19 but IIUC
-> > will be back ported and included in RHEL5.
-> 
-> 2.6.18-rc3 just came out - I suspect that a patch that modifies an
-> external module format won't be looked upon kindly for inclusion in .18.
-> Looks like "submit for the .19 merge window and backport for RHEL5" will
-> be the way to go. (Looks like FC6 will be in the same category, AFAICT).
+This patch set adds a new structure - symtab_datum_t - and converts all
+of the datum types to place this struct as their first member. This
+unifies the storage of data common to all symtab datums and allows free
+casting between specific datum types (e.g., role_datum_t) and
+symtab_datum_t. A minor cleanup using this new struct is also included.
 
-I agree that it is too late for 2.6.18, but just to clarify - the kernel
-patch preserves backward compatibility for older binary policy
-formats.  
+A later patch set will build on this to also store scope information in
+the symtab_datum_t.
 
-As far as compatibility is concerned, FC4 will need some kind of
-userland update when it updates to a kernel with the new policy format;
-otherwise, init will give up when it cannot find policy.21 or policy.20
-(older sysvinit selinux patch only tried n and (n-1)), and the policy in
-FC4 was version 19.
+This patch set likely conflicts with all of the other ones floating
+around - if it is easier to apply those first I can easily rebase this
+one once those go in.
 
--- 
-Stephen Smalley
-National Security Agency
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
