@@ -1,82 +1,151 @@
-From: Jim Meyering <jim@meyering.net>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: infelicity in context_user_set; new syscalls: setfileconat, etc.?
-In-Reply-To: <1154352403.26550.24.camel@localhost.localdomain> (Karl
-	MacMillan's message of "Mon, 31 Jul 2006 09:26:43 -0400")
-References: <87zmeslb2v.fsf@rho.meyering.net>
-	<1154352403.26550.24.camel@localhost.localdomain>
-Date: Mon, 31 Jul 2006 18:37:43 +0200
-Message-ID: <87ejw1k9wo.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH 2/2] userland support for new range_transition
+	statements
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <44CA298B.7080706@trustedcs.com>
+References: <44CA298B.7080706@trustedcs.com>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 12:40:31 -0400
+Message-Id: <1154364031.1447.127.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
+On Fri, 2006-07-28 at 10:13 -0500, Darrel Goeddel wrote:
+> Index: libsepol/src/policydb.c
+> ===================================================================
+> --- libsepol/src/policydb.c	(revision 38)
+> +++ libsepol/src/policydb.c	(working copy)
+<snip>
+> +static int range_trans_rule_read(range_trans_rule_t **r, struct policy_file *fp)
+> +{
+> +	uint32_t *buf, nel, nclass;
+> +	unsigned int i, j;
+> +	range_trans_rule_t *rt, *lrt = NULL;
+> +	class_perm_node_t *cp, *lcp = NULL;
+> +
+> +	buf = next_entry(fp, sizeof(uint32_t));
+> +	if (!buf)
+> +		return -1;
+> +	nel = le32_to_cpu(buf[0]);
+> +	for (i = 0; i < nel; i++) {
+> +		rt = malloc(sizeof(range_trans_rule_t));
+> +		if (!rt) {
+> +			return -1;
+> +		}
+> +		range_trans_rule_init(rt);
+> +
+> +		if (type_set_read(&rt->stypes, fp))
+> +			return -1;
 
-> On Sat, 2006-07-29 at 16:50 +0200, Jim Meyering wrote:
->> Hello,
->>
->> I've just discovered what may be a documentation error
->> for context_user_set, context_role_set, etc.
->>
->> Those functions are documented as setting errno upon failure,
->> yet the following program prints "failed with errno=0":
->>
->>   #include <stdio.h>
->>   #include <errno.h>
->>   #include <selinux/context.h>
->>
->>   int
->>   main ()
->>   {
->>     context_t c = context_new ("a:b:c");
->>     if (!c)
->>       return 1;
->>     errno = 0;
->>     if (context_user_set (c, ":") != 0)
->>       printf ("failed with errno=%d\n", errno);
->>     return 0;
->>   }
->>
->
-> Looks like a documentation error to me - there is no attempt to set
-> errno in the code. In fact, most of libselinux looks like errno will
-> only get set as a result of a call to a lower level library function
-> (e.g., open or getxattr).
->
-> Can you create a patch to correct the documentation?
+Leaks rt.  I'd suggest linking rt into the list earlier as we do
+elsewhere, so that it can be freed upon policydb_destroy.
 
-I've looked at the code and now feel that the documentation
-should continue to say those functions set errno on failure.
-There are many ways in which context_user_set can fail and
-set errno to a useful value.  Callers should be able to use
-errno in all cases.
+> +		nclass = le32_to_cpu(buf[0]);
+> +		rt->classes = NULL;
+> +		lcp = NULL;
+> +		for (j = 0; j < nclass; j++) {
+> +			cp = (class_perm_node_t *)malloc(
+> +			                             sizeof(class_perm_node_t));
+> +			if (!cp)
+> +				return -1;
+> +			class_perm_node_init(cp);
+> +
+> +			buf = next_entry(fp, sizeof(uint32_t));
+> +			if (!buf) {
+> +				free(cp);
 
-The solution is to ensure that whenever those functions
-fail they set errno to *something*.  In the case above,
-a tiny change to src/context.c would accomplish this,
-using EINVAL to tell the caller that ":" is invalid:
+Or just move the code to link it into the list prior to this, so that it
+can be freed on the policydb_destroy path.
 
---- src/context.c.~1~	2006-07-31 18:29:01.000000000 +0200
-+++ src/context.c	2006-07-31 18:30:57.000000000 +0200
-@@ -2,6 +2,7 @@
- #include <string.h>
- #include <stdio.h>
- #include <stdlib.h>
-+#include <errno.h>
- 
- #define COMP_USER  0
- #define COMP_ROLE  1
-@@ -157,6 +158,7 @@ static int set_comp(context_private_t *
- 			if (*p == '\t' || *p == '\n' || *p == '\r' ||
- 			    ((*p == ':' || *p == ' ') && idx != COMP_RANGE)) {
- 				free(t);
-+				errno = EINVAL;
- 				return 1;
- 			}
- 		}
+> Index: libsepol/src/expand.c
+> ===================================================================
+> --- libsepol/src/expand.c	(revision 38)
+> +++ libsepol/src/expand.c	(working copy)
+> @@ -958,6 +958,99 @@
+>  	return 0;
+>  }
+>  
+> +static int expand_range_trans(expand_state_t *state, range_trans_rule_t *rules)
+> +{
+> +	unsigned int i, j;
+> +	range_trans_t *rt, *lrt, *cur_rt;
+> +	range_trans_rule_t *rule;
+> +	class_perm_node_t *cp;
+> +
+> +	ebitmap_t stypes, ttypes;
+> +	ebitmap_node_t *snode, *tnode;
+> +
+> +	/* start appending at the end of the current list */
+> +	for (lrt = state->out->range_tr; lrt && lrt->next; lrt = lrt->next)
+> +		;
+> +
+> +	for (rule = rules; rule; rule = rule->next) {
+> +		ebitmap_init(&stypes);
+> +		ebitmap_init(&ttypes);
+> +
+> +		/* expand the type sets */
+> +		if (expand_convert_type_set(state->out, state->typemap,
+> +		                            &rule->stypes, &stypes, 1)) {
+> +			ERR(state->handle, "Out of memory!");
+> +			return -1;
+> +		}
+> +		if (expand_convert_type_set(state->out, state->typemap,
+> +		                            &rule->ttypes, &ttypes, 1)) {
+> +			ERR(state->handle, "Out of memory!");
+
+Leaks stypes.  Need an error exit path that does clean up.
+
+> +			return -1;
+> +		}
+> +
+> +		/* loop on source type */
+> +		ebitmap_for_each_bit(&stypes, snode, i) {
+> +			if (!ebitmap_node_get_bit(snode, i))
+> +				continue;
+> +			/* loop on target type */
+> +			ebitmap_for_each_bit(&ttypes, tnode, j) {
+> +				if (!ebitmap_node_get_bit(tnode, j))
+> +					continue;
+> +				/* loop on target class */
+> +				for (cp = rule->classes; cp; cp = cp->next) {
+> +
+> +					/* check for duplicates/conflicts */
+> +					for (cur_rt = state->out->range_tr; cur_rt; cur_rt = cur_rt->next) {
+> +						if ((cur_rt->source_type == i + 1) &&
+> +						    (cur_rt->target_type == j + 1) &&
+> +						    (cur_rt->target_class == cp->class)) {
+> +							if (mls_range_eq(&cur_rt->target_range, &rule->trange)) {
+> +								/* duplicate */
+> +								break;
+> +							} else {
+> +								/* conflict */
+> +								ERR(state->handle,
+> +								    "Conflicting range trans rule %s %s : %s",
+> +								    state->out->p_type_val_to_name[i],
+> +								    state->out->p_type_val_to_name[j],
+> +								    state->out->p_class_val_to_name[cp->class]);
+> +								return -1;
+
+Leaks stypes and ttypes.
+
+> +						return -1;
+> +					}
+> +					memset(rt, 0, sizeof(range_trans_t));
+> +					rt->source_type = i + 1;
+> +					rt->target_type = j + 1;
+> +					rt->target_class = cp->class;
+> +					if (mls_range_cpy(&rt->target_range, &rule->trange)) {
+> +						ERR(state->handle, "Out of memory!");
+
+Leaks stypes, ttypes, and rt.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
