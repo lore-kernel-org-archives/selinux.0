@@ -1,71 +1,90 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71JJGpT002573
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 15:19:17 -0400
-Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k71JJBvL020367
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 19:19:11 GMT
-Subject: Re: gnuTAR support for SELinux context (beta)
-From: James Antill <jantill@redhat.com>
-To: Stephen John Smoogen <smooge@gmail.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <80d7e4090608011150u48b0e124m1046145a1450b8a3@mail.gmail.com>
-References: <1154453240.2103.27.camel@code.and.org>
-	 <1154456909.3582.139.camel@moss-spartans.epoch.ncsc.mil>
-	 <80d7e4090608011150u48b0e124m1046145a1450b8a3@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Rgttu3UOwlKTLpF1/mJJ"
-Date: Tue, 01 Aug 2006 15:19:14 -0400
-Message-Id: <1154459954.2103.82.camel@code.and.org>
+Subject: Re: infelicity in context_user_set; new syscalls: setfileconat,
+	etc.?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jim Meyering <jim@meyering.net>
+Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <87ejw1k9wo.fsf@rho.meyering.net>
+References: <87zmeslb2v.fsf@rho.meyering.net>
+	 <1154352403.26550.24.camel@localhost.localdomain>
+	 <87ejw1k9wo.fsf@rho.meyering.net>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 16:17:36 -0400
+Message-Id: <1154463456.3582.165.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2006-07-31 at 18:37 +0200, Jim Meyering wrote:
+> Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
+> 
+> > On Sat, 2006-07-29 at 16:50 +0200, Jim Meyering wrote:
+> >> Hello,
+> >>
+> >> I've just discovered what may be a documentation error
+> >> for context_user_set, context_role_set, etc.
+> >>
+> >> Those functions are documented as setting errno upon failure,
+> >> yet the following program prints "failed with errno=0":
+> >>
+> >>   #include <stdio.h>
+> >>   #include <errno.h>
+> >>   #include <selinux/context.h>
+> >>
+> >>   int
+> >>   main ()
+> >>   {
+> >>     context_t c = context_new ("a:b:c");
+> >>     if (!c)
+> >>       return 1;
+> >>     errno = 0;
+> >>     if (context_user_set (c, ":") != 0)
+> >>       printf ("failed with errno=%d\n", errno);
+> >>     return 0;
+> >>   }
+> >>
+> >
+> > Looks like a documentation error to me - there is no attempt to set
+> > errno in the code. In fact, most of libselinux looks like errno will
+> > only get set as a result of a call to a lower level library function
+> > (e.g., open or getxattr).
+> >
+> > Can you create a patch to correct the documentation?
+> 
+> I've looked at the code and now feel that the documentation
+> should continue to say those functions set errno on failure.
+> There are many ways in which context_user_set can fail and
+> set errno to a useful value.  Callers should be able to use
+> errno in all cases.
+> 
+> The solution is to ensure that whenever those functions
+> fail they set errno to *something*.  In the case above,
+> a tiny change to src/context.c would accomplish this,
+> using EINVAL to tell the caller that ":" is invalid:
+> 
+> --- src/context.c.~1~	2006-07-31 18:29:01.000000000 +0200
+> +++ src/context.c	2006-07-31 18:30:57.000000000 +0200
+> @@ -2,6 +2,7 @@
+>  #include <string.h>
+>  #include <stdio.h>
+>  #include <stdlib.h>
+> +#include <errno.h>
+>  
+>  #define COMP_USER  0
+>  #define COMP_ROLE  1
+> @@ -157,6 +158,7 @@ static int set_comp(context_private_t *
+>  			if (*p == '\t' || *p == '\n' || *p == '\r' ||
+>  			    ((*p == ':' || *p == ' ') && idx != COMP_RANGE)) {
+>  				free(t);
+> +				errno = EINVAL;
+>  				return 1;
+>  			}
+>  		}
 
---=-Rgttu3UOwlKTLpF1/mJJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Thanks, merged.
 
-On Tue, 2006-08-01 at 12:50 -0600, Stephen John Smoogen wrote:
-
-> Doesn't the xattr support use an internally different tar format than
-> the normal one? [From my reading of the star pages.] Would this stop
-> it being readable from say Debian, Solaris etc that didn't know about
-> this format
-
- No, star requires you set the archive format to exustar ... my patches
-for GNUtar only require the --xattr/--selinux option(s) and to not be
-using v7 format.
- Note that GNUtar can read exustar format archives, with xattr info. in
-them, although I'm guessing all the details in the documentation is
-still valid wrt. length limits ... and:
-
- tar -cvf foo.tar foo --xattr --format=3Dustar
-
-...does produce archives that can be extracted from star (including
-xattr info.).
-
-
- Saying that, debian/upstream/etc. GNUtar does issue warnings and a
-delayed error exit code when it sees the xattr info. in an archive (but
-it works just as though none of that info. were present). Which _could_
-break scripts that expect a happy exit code, and might well confuse
-users with the warnings.
-
---=20
-James Antill <jantill@redhat.com>
-
---=-Rgttu3UOwlKTLpF1/mJJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-
-iD8DBQBEz6ky11eXTEMrxtQRAr/GAJ9GQuA/JP6cl3D3Pdccm7kCjUhYpACfVc9b
-6MV7vtqp410v5/EeepFylFQ=
-=wdKR
------END PGP SIGNATURE-----
-
---=-Rgttu3UOwlKTLpF1/mJJ--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
