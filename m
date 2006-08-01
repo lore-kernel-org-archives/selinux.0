@@ -1,49 +1,205 @@
-Subject: Re: Context mounts and unsupported context strings
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Cory Olmo <colmo@TrustedCS.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-In-Reply-To: <20060725142513.9ee1efc3.colmo@TrustedCS.com>
-References: <20060725142513.9ee1efc3.colmo@TrustedCS.com>
+Subject: [PATCH 2/2] refactor expander
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com
 Content-Type: text/plain
-Date: Tue, 01 Aug 2006 10:07:15 -0400
-Message-Id: <1154441235.3582.107.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 01 Aug 2006 13:15:56 -0400
+Message-Id: <1154452556.25566.6.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-07-25 at 14:25 -0500, Cory Olmo wrote:
-> I recently ran into a problem with mounting file systems for particular
-> context strings.  At this point we are still in the analysis phase so any
-> information or ideas would be appreciated.
-> 
-> The problem:
-> 
-> Attempt to mount a cdrom with the context option of
-> context=system_u:object_r:iso9660_t:s1:c0,c2,c4
-> 
-> The context will get interpreted as only
-> system_u:object_r:iso9660_t:s1:c0.  The reason is that the field separator
-> for the option field is ',', which is the same as that for categories. As a
-> result the rest of the context ends up being interpreted as additional
-> mount options that get passed on to the file system.
-> 
-> We've considered translation, escape characters, and quoting the entire
-> context string.  So far the most feasible appear to be either escaping or
-> quoting the entire context string.
+This is a rebase of the patch previously sent to refactor the
+avrule_decl expander code. 
 
-Hi,
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/expand.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/expand.h
+--- trunk/libsepol/include/sepol/policydb/expand.h	2006-07-13 10:19:14.000000000 -0400
++++ trunk/libsepol/include/sepol/policydb/expand.h	2006-07-26 11:51:39.000000000 -0400
+@@ -29,6 +29,22 @@
+ #include <sepol/handle.h>
+ #include <sepol/policydb/conditional.h>
+ 
++/*
++ * Expand only the avrules for a module (optionally including
++ * neverallow rules). It is valid for this function to expand
++ * base into itself (i.e. base == out); the typemap for this
++ * special case should map type[i] to i+1. No assertion or 
++ * hierarchy checking is performed.
++ */
++extern int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
++				 policydb_t * out, uint32_t * typemap,
++				 int verbose, int expand_neverallow);
++/*
++ * Expand all parts of a module. Neverallow rules are not
++ * expanded (only copied). It is not valid to expand base
++ * into itself. If check is non-zero, performs hierarchy
++ * and assertion checking.
++ */
+ extern int expand_module(sepol_handle_t * handle,
+ 			 policydb_t * base, policydb_t * out,
+ 			 int verbose, int check);
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/expand.c branch/setools_public-policydb-components/libsepol/src/expand.c
+--- trunk/libsepol/src/expand.c	2006-08-01 11:05:06.000000000 -0400
++++ trunk/libsepol/src/expand.c	2006-08-01 09:54:12.000000000 -0400
+@@ -44,6 +44,11 @@ typedef struct expand_state {
+ 	int expand_neverallow;
+ } expand_state_t;
+ 
++static void expand_state_init(expand_state_t * state)
++{
++	memset(state, 0, sizeof(expand_state_t));
++}
++
+ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 			      void *data)
+ {
+@@ -1897,6 +1902,82 @@ static int copy_neverallow(policydb_t * 
+ 	return -1;
+ }
+ 
++static int copy_and_expand_avrule_block(expand_state_t * state)
++{
++	avrule_block_t *curblock;
++	int retval = -1;
++
++	for (curblock = state->base->global; curblock != NULL;
++	     curblock = curblock->next) {
++		avrule_decl_t *decl = curblock->enabled;
++		avrule_t *cur_avrule;
++
++		if (decl == NULL) {
++			/* nothing was enabled within this block */
++			continue;
++		}
++
++		/* copy role allows and role trans */
++		if (copy_role_allows(state, decl->role_allow_rules) != 0 ||
++		    copy_role_trans(state, decl->role_tr_rules) != 0) {
++			goto cleanup;
++		}
++
++		/* copy rules */
++		cur_avrule = decl->avrules;
++		while (cur_avrule != NULL) {
++			if (!(state->expand_neverallow)
++			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
++				/* copy this over directly so that assertions are checked later */
++				if (copy_neverallow
++				    (state->out, state->typemap, cur_avrule))
++					ERR(state->handle,
++					    "Error while copying neverallow.");
++			} else {
++				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
++					state->out->unsupported_format = 1;
++				}
++				if (convert_and_expand_rule
++				    (state->handle, state->out, state->typemap,
++				     cur_avrule, &state->out->te_avtab, NULL,
++				     NULL, 0,
++				     state->expand_neverallow) !=
++				    EXPAND_RULE_SUCCESS) {
++					goto cleanup;
++				}
++			}
++			cur_avrule = cur_avrule->next;
++		}
++
++		/* copy conditional rules */
++		if (cond_node_copy(state, decl->cond_list))
++			goto cleanup;
++	}
++
++	retval = 0;
++
++      cleanup:
++	return retval;
++}
++
++int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
++			  policydb_t * out, uint32_t * typemap, int verbose,
++			  int expand_neverallow)
++{
++	expand_state_t state;
++
++	expand_state_init(&state);
++
++	state.base = base;
++	state.out = out;
++	state.typemap = typemap;
++	state.handle = handle;
++	state.verbose = verbose;
++	state.expand_neverallow = expand_neverallow;
++
++	return copy_and_expand_avrule_block(&state);
++}
++
+ /* Linking should always be done before calling expand, even if
+  * there is only a base since all optionals are dealt with at link time
+  * the base passed in should be indexed and avrule blocks should be 
+@@ -1910,6 +1991,8 @@ int expand_module(sepol_handle_t * handl
+ 	expand_state_t state;
+ 	avrule_block_t *curblock;
+ 
++	expand_state_init(&state);
++
+ 	state.verbose = verbose;
+ 	state.typemap = NULL;
+ 	state.base = base;
+@@ -2026,50 +2109,9 @@ int expand_module(sepol_handle_t * handl
+ 
+ 	}
+ 
+-	/* then loop through delcs to copy and expand rules */
+-	for (curblock = state.base->global; curblock != NULL;
+-	     curblock = curblock->next) {
+-		avrule_decl_t *decl = curblock->enabled;
+-		avrule_t *cur_avrule;
+-
+-		if (decl == NULL) {
+-			/* nothing was enabled within this block */
+-			continue;
+-		}
+-
+-		/* copy role allows and role trans */
+-		if (copy_role_allows(&state, decl->role_allow_rules) != 0 ||
+-		    copy_role_trans(&state, decl->role_tr_rules) != 0) {
+-			goto cleanup;
+-		}
+-
+-		/* copy rules */
+-		cur_avrule = decl->avrules;
+-		while (cur_avrule != NULL) {
+-			if (!(state->expand_neverallow)
+-			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
+-				/* copy this over directly so that assertions are checked later */
+-				if (copy_neverallow
+-				    (out, state.typemap, cur_avrule))
+-					ERR(handle,
+-					    "Error while copying neverallow.");
+-			} else {
+-				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
+-					state->out->unsupported_format = 1;
+-				}
+-				if (convert_and_expand_rule
+-				    (state.handle, out, state.typemap,
+-				     cur_avrule, &out->te_avtab, NULL, NULL,
+-				     0) != 1) {
+-					goto cleanup;
+-				}
+-			}
+-			cur_avrule = cur_avrule->next;
+-		}
+-
+-		/* copy conditional rules */
+-		if (cond_node_copy(&state, decl->cond_list))
+-			goto cleanup;
++	if (copy_and_expand_avrule_block(&state) < 0) {
++		ERR(handle, "Error during expand");
++		goto cleanup;
+ 	}
+ 
+ 	/* copy constraints */
 
-Any progress on this?  I assume it requires a patch for both mount and
-the kernel.  In the kernel, try_context_mount() and
-selinux_sb_copy_data() would need to understand the escaping or quoting.
-mount and nfsmount also perform parsing of the options and handling of
-the context options (context translation, converting to the nfs mount
-binary structure in the nfs case).
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
