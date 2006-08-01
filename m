@@ -1,157 +1,183 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71IgCRF000880
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 14:42:12 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k71Ig7vL014565
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 18:42:07 GMT
-Subject: [PATCH 3/6] netfilter integration take 2: module store support
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71Ig9ZO000841
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 14:42:09 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k71IfxXQ011202
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 18:41:59 GMT
+Subject: [PATCH 0/6] netfilter integration take 2
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 01 Aug 2006 14:43:09 -0400
-Message-Id: <1154457789.31522.149.camel@sgc.columbia.tresys.com>
+Date: Tue, 01 Aug 2006 14:43:04 -0400
+Message-Id: <1154457784.31522.146.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Adds support for committing the netfilter_contexts file, and copying it
-out to the running system.
+This patchset adds support for netfilter secmark rules in all policy
+packages.  Each line of the file has a priority at the beginning of the
+line, and the remainder is treated as the rule.  Sorting is by priority,
+and is stable within a module.  The current design is for the resultant
+netfilter_contexts file be suitable for use with iptables-restore.
 
- libsemanage/src/direct_api.c     |   28 +++++++++++++++++++++-------
- libsemanage/src/semanage_store.c |   11 +++++++++++
- libsemanage/src/semanage_store.h |    1 +
- 3 files changed, 33 insertions(+), 7 deletions(-)
+The priorities in order are:
+pre - special lines that must be at the beginning
+base - lines in the base module
+module - lines in loadable modules
+local - local overrides
+post - special lines that must be at the end
 
-diff --exclude .svn -purN trunk/libsemanage/src/direct_api.c trunk2/libsemanage/src/direct_api.c
---- trunk/libsemanage/src/direct_api.c	2006-07-03 10:42:01.031370000 -0400
-+++ trunk2/libsemanage/src/direct_api.c	2006-07-31 11:32:40.511801250 -0400
-@@ -438,8 +438,8 @@ static int semanage_write_module(semanag
- static int semanage_direct_commit(semanage_handle_t * sh)
- {
- 	char **mod_filenames = NULL;
--	char *sorted_buffer = NULL;
--	size_t sorted_buffer_len = 0;
-+	char *sorted_fc_buffer = NULL, *sorted_nc_buffer = NULL;
-+	size_t sorted_fc_buffer_len = 0, sorted_nc_buffer_len = 0;
- 	const char *linked_filename = NULL, *ofilename = NULL;
- 	sepol_module_package_t *base = NULL;
- 	int retval = -1, num_modfiles = 0, i;
-@@ -521,17 +521,17 @@ static int semanage_direct_commit(semana
- 		if (semanage_fc_sort
- 		    (sh, sepol_module_package_get_file_contexts(base),
- 		     sepol_module_package_get_file_contexts_len(base),
--		     &sorted_buffer, &sorted_buffer_len) == -1) {
-+		     &sorted_fc_buffer, &sorted_fc_buffer_len) == -1) {
- 			goto cleanup;
- 		}
+This example would be the netfilter_contexts of the base module since it
+has the extra portions required for iptables-restore use:
+
+pre *mangle
+pre :PREROUTING ACCEPT [0:0]
+pre :INPUT ACCEPT [0:0]
+pre :FORWARD ACCEPT [0:0]
+pre :OUTPUT ACCEPT [0:0]
+pre :POSTROUTING ACCEPT [0:0]
+pre :selinux_input - [0:0]
+pre :selinux_output - [0:0]
+pre :selinux_new_input - [0:0]
+pre :selinux_new_output - [0:0]
+pre -A INPUT -j selinux_input
+pre -A OUTPUT -j selinux_output
+pre -A selinux_input -m state --state NEW -j selinux_new_input
+pre -A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
+pre -A selinux_output -m state --state NEW -j selinux_new_output
+pre -A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
+base -A selinux_new_input -j SECMARK --selctx system_u:object_r:server_packet_t
+post -A selinux_new_input -j CONNSECMARK --save
+post -A selinux_new_input -j RETURN
+base -A selinux_new_output -j SECMARK --selctx system_u:object_r:client_packet_t
+post -A selinux_new_output -j CONNSECMARK --save
+post -A selinux_new_output -j RETURN
+post COMMIT
+
+While individual loadable modules' netfilter_contexts would look like:
+
+module -A selinux_new_input -p tcp --dport 443 -j SECMARK --selctx system_u:object_r:http_server_packet_t
+module -A selinux_new_output -p tcp --dport 443 -j SECMARK --selctx system_u:object_r:http_client_packet_t
+
+The below patch to refpolicy will create a file appropriate for testing.
+The resultant linked and sorted file will be written out
+to /etc/selinux/NAME/contexts/netfilter_contexts.
+
+Index: Rules.modular
+===================================================================
+--- Rules.modular	(revision 1933)
++++ Rules.modular	(working copy)
+@@ -89,10 +89,10 @@
+ #
+ # Create a base module package
+ #
+-$(BASE_PKG): $(BASE_MOD) $(BASE_FC) $(USERS_EXTRA) $(SEUSERS)
++$(BASE_PKG): $(BASE_MOD) $(BASE_FC) $(USERS_EXTRA) $(SEUSERS) $(net_contexts)
+ 	@echo "Creating $(NAME) base module package"
+ 	@test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
+-	$(verbose) $(SEMOD_PKG) -o $@ -m $(BASE_MOD) -f $(BASE_FC) -u $(USERS_EXTRA) -s $(SEUSERS)
++	$(verbose) $(SEMOD_PKG) -o $@ -m $(BASE_MOD) -f $(BASE_FC) -u $(USERS_EXTRA) -s $(SEUSERS) -n $(net_contexts)
  
- 		/* Write the contexts (including template contexts) to a single file.  
- 		 * The buffer returned by the sort function has a trailing \0 character,
--		 * which we do NOT want to write out to disk, so we pass sorted_buffer_len-1. */
-+		 * which we do NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
- 		if ((ofilename =
- 		     semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL)) == NULL
--		    || write_file(sh, ofilename, sorted_buffer,
--				  sorted_buffer_len - 1) == -1) {
-+		    || write_file(sh, ofilename, sorted_fc_buffer,
-+				  sorted_fc_buffer_len - 1) == -1) {
- 			goto cleanup;
- 		}
+ $(BASE_MOD): $(BASE_CONF)
+ 	@echo "Compiling $(NAME) base module"
+Index: support/gennetfilter.py
+===================================================================
+--- support/gennetfilter.py	(revision 1933)
++++ support/gennetfilter.py	(working copy)
+@@ -43,7 +43,7 @@
+ 		self.ports = ports
  
-@@ -580,6 +580,19 @@ static int semanage_direct_commit(semana
- 				goto cleanup;
- 		}
+ def print_input_rules(packets,mls,mcs):
+-	line = "-A selinux_new_input -j SECMARK --selctx system_u:object_r:"+DEFAULT_INPUT_PACKET
++	line = "base -A selinux_new_input -j SECMARK --selctx system_u:object_r:"+DEFAULT_INPUT_PACKET
+ 	if mls:
+ 		line += ":"+DEFAULT_MLS
+ 	elif mcs:
+@@ -53,18 +53,18 @@
  
-+		/* Netfilter Contexts */
-+		/* Write the contexts to a single file.  The buffer returned by
-+		 * the sort function has a trailing \0 character, which we do
-+		 * NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
-+		ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_NC);
-+		if (ofilename == NULL)
-+			goto cleanup;
-+
-+		if (write_file
-+		    (sh, ofilename, sorted_nc_buffer,
-+		     sorted_nc_buffer_len - 1) < 0)
-+			goto cleanup;
-+
- 		/* ==================== Policydb-backed ================ */
+ 	for i in packets:
+ 		for j in i.ports:
+-			line="-A selinux_new_input -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_INPUT
++			line="base -A selinux_new_input -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_INPUT
+ 			if mls:
+ 				line += ":"+j.mls_sens
+ 			elif mcs:
+ 				line += ":"+j.mcs_cats
+ 			print line
  
- 		/* Create new policy object, then attach to policy databases
-@@ -657,7 +670,8 @@ static int semanage_direct_commit(semana
- 	sepol_policydb_free(out);
- 	semanage_release_trans_lock(sh);
+-	print "-A selinux_new_input -j CONNSECMARK --save"
+-	print "-A selinux_new_input -j RETURN"
++	print "post -A selinux_new_input -j CONNSECMARK --save"
++	print "post -A selinux_new_input -j RETURN"
  
--	free(sorted_buffer);
-+	free(sorted_fc_buffer);
-+	free(sorted_nc_buffer);
+ def print_output_rules(packets,mls,mcs):
+-	line = "-A selinux_new_output -j SECMARK --selctx system_u:object_r:"+DEFAULT_OUTPUT_PACKET
++	line = "base -A selinux_new_output -j SECMARK --selctx system_u:object_r:"+DEFAULT_OUTPUT_PACKET
+ 	if mls:
+ 		line += ":"+DEFAULT_MLS
+ 	elif mcs:
+@@ -73,15 +73,15 @@
  
- 	/* regardless if the commit was successful or not, remove the
- 	   sandbox if it is still there */
-diff --exclude .svn -purN trunk/libsemanage/src/semanage_store.c trunk2/libsemanage/src/semanage_store.c
---- trunk/libsemanage/src/semanage_store.c	2006-07-11 11:53:29.388406000 -0400
-+++ trunk2/libsemanage/src/semanage_store.c	2006-07-31 11:33:57.444609250 -0400
-@@ -108,6 +108,7 @@ static const char *semanage_sandbox_path
- 	"/users_extra.local",
- 	"/seusers.final",
- 	"/users_extra",
-+	"/netfilter_contexts",
- };
+ 	for i in packets:
+ 		for j in i.ports:
+-			line = "-A selinux_new_output -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_OUTPUT
++			line = "base -A selinux_new_output -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_OUTPUT
+ 			if mls:
+ 				line += ":"+j.mls_sens
+ 			elif mcs:
+ 				line += ":"+j.mcs_cats
+ 			print line
  
- /* A node used in a linked list of file contexts; used for sorting.
-@@ -1000,11 +1001,13 @@ static int semanage_install_active(seman
- 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_HOMEDIR_TMPL);
- 	const char *active_seusers =
- 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS);
-+	const char *active_nc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_NC);
+-	print "-A selinux_new_output -j CONNSECMARK --save"
+-	print "-A selinux_new_output -j RETURN"
++	print "post -A selinux_new_output -j CONNSECMARK --save"
++	print "post -A selinux_new_output -j RETURN"
  
- 	const char *running_fc = selinux_file_context_path();
- 	const char *running_hd = selinux_homedir_context_path();
- 	const char *running_policy = selinux_binary_policy_path();
- 	const char *running_seusers = selinux_usersconf_path();
-+	const char *running_nc = selinux_netfilter_context_path();
- 	const char *really_active_store = selinux_policy_root();
+ def parse_corenet(file_name):
+ 	packets = []
+@@ -118,25 +118,25 @@
+ 	return packets
  
- 	/* This is very unelegant, the right thing to do is export the path 
-@@ -1014,12 +1017,14 @@ static int semanage_install_active(seman
- 	char store_hd[PATH_MAX];
- 	char store_pol[PATH_MAX];
- 	char store_seusers[PATH_MAX];
-+	char store_nc[PATH_MAX];
+ def print_netfilter_config(packets,mls,mcs):
+-	print "*mangle"
+-	print ":PREROUTING ACCEPT [0:0]"
+-	print ":INPUT ACCEPT [0:0]"
+-	print ":FORWARD ACCEPT [0:0]"
+-	print ":OUTPUT ACCEPT [0:0]"
+-	print ":POSTROUTING ACCEPT [0:0]"
+-	print ":selinux_input - [0:0]"
+-	print ":selinux_output - [0:0]"
+-	print ":selinux_new_input - [0:0]"
+-	print ":selinux_new_output - [0:0]"
+-	print "-A INPUT -j selinux_input"
+-	print "-A OUTPUT -j selinux_output"
+-	print "-A selinux_input -m state --state NEW -j selinux_new_input"
+-	print "-A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
+-	print "-A selinux_output -m state --state NEW -j selinux_new_output"
+-	print "-A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
++	print "pre *mangle"
++	print "pre :PREROUTING ACCEPT [0:0]"
++	print "pre :INPUT ACCEPT [0:0]"
++	print "pre :FORWARD ACCEPT [0:0]"
++	print "pre :OUTPUT ACCEPT [0:0]"
++	print "pre :POSTROUTING ACCEPT [0:0]"
++	print "pre :selinux_input - [0:0]"
++	print "pre :selinux_output - [0:0]"
++	print "pre :selinux_new_input - [0:0]"
++	print "pre :selinux_new_output - [0:0]"
++	print "pre -A INPUT -j selinux_input"
++	print "pre -A OUTPUT -j selinux_output"
++	print "pre -A selinux_input -m state --state NEW -j selinux_new_input"
++	print "pre -A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
++	print "pre -A selinux_output -m state --state NEW -j selinux_new_output"
++	print "pre -A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
+ 	print_input_rules(packets,mls,mcs)
+ 	print_output_rules(packets,mls,mcs)
+-	print "COMMIT"
++	print "post COMMIT"
  
- 	len = strlen(really_active_store);
- 	running_fc += len;
- 	running_hd += len;
- 	running_policy += len;
- 	running_seusers += len;
-+	running_nc += len;
- 
- 	len = strlen(selinux_path()) + strlen(sh->conf->store_path) + 1;
- 	storepath = (char *)malloc(len);
-@@ -1056,6 +1061,12 @@ static int semanage_install_active(seman
- 		/* Non-fatal; fall through */
- 	}
- 
-+	snprintf(store_nc, PATH_MAX, "%s%s", storepath, running_nc);
-+	if (semanage_copy_file(active_nc, store_nc, sh->conf->file_mode) == -1) {
-+		ERR(sh, "Could not copy %s to %s.", active_nc, store_nc);
-+		goto cleanup;
-+	}
-+
- 	if (!sh->do_reload)
- 		goto skip_reload;
- 
-diff --exclude .svn -purN trunk/libsemanage/src/semanage_store.h trunk2/libsemanage/src/semanage_store.h
---- trunk/libsemanage/src/semanage_store.h	2006-07-03 10:42:01.031370000 -0400
-+++ trunk2/libsemanage/src/semanage_store.h	2006-07-31 11:34:21.370104500 -0400
-@@ -56,6 +56,7 @@ enum semanage_sandbox_defs {
- 	SEMANAGE_USERS_EXTRA_LOCAL,
- 	SEMANAGE_SEUSERS,
- 	SEMANAGE_USERS_EXTRA,
-+	SEMANAGE_NC,
- 	SEMANAGE_STORE_NUM_PATHS
- };
- 
+ mls = False
+ mcs = False
 
 
 -- 
