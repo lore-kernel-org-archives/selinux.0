@@ -1,205 +1,60 @@
-Subject: [PATCH 2/2] refactor expander
-From: Joshua Brindle <jbrindle@tresys.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-Content-Type: text/plain
-Date: Tue, 01 Aug 2006 13:15:56 -0400
-Message-Id: <1154452556.25566.6.camel@twoface.columbia.tresys.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71HRP5H030569
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 13:27:25 -0400
+Received: from mail.and.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k71HRJvL001866
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 17:27:20 GMT
+Received: from localhost ([127.0.0.1] helo=localhost.localdomain)
+	by mail.and.org with esmtp (Exim 4.62)
+	(envelope-from <jantill@redhat.com>)
+	id 1G7y1Z-0003n9-GA
+	for selinux@tycho.nsa.gov; Tue, 01 Aug 2006 13:27:21 -0400
+Subject: gnuTAR support for SELinux context (beta)
+From: James Antill <jantill@redhat.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-owwodnQ/m1Bj7bpGiLGm"
+Date: Tue, 01 Aug 2006 13:27:20 -0400
+Message-Id: <1154453240.2103.27.camel@code.and.org>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a rebase of the patch previously sent to refactor the
-avrule_decl expander code. 
 
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/expand.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/expand.h
---- trunk/libsepol/include/sepol/policydb/expand.h	2006-07-13 10:19:14.000000000 -0400
-+++ trunk/libsepol/include/sepol/policydb/expand.h	2006-07-26 11:51:39.000000000 -0400
-@@ -29,6 +29,22 @@
- #include <sepol/handle.h>
- #include <sepol/policydb/conditional.h>
- 
-+/*
-+ * Expand only the avrules for a module (optionally including
-+ * neverallow rules). It is valid for this function to expand
-+ * base into itself (i.e. base == out); the typemap for this
-+ * special case should map type[i] to i+1. No assertion or 
-+ * hierarchy checking is performed.
-+ */
-+extern int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
-+				 policydb_t * out, uint32_t * typemap,
-+				 int verbose, int expand_neverallow);
-+/*
-+ * Expand all parts of a module. Neverallow rules are not
-+ * expanded (only copied). It is not valid to expand base
-+ * into itself. If check is non-zero, performs hierarchy
-+ * and assertion checking.
-+ */
- extern int expand_module(sepol_handle_t * handle,
- 			 policydb_t * base, policydb_t * out,
- 			 int verbose, int check);
-diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/expand.c branch/setools_public-policydb-components/libsepol/src/expand.c
---- trunk/libsepol/src/expand.c	2006-08-01 11:05:06.000000000 -0400
-+++ trunk/libsepol/src/expand.c	2006-08-01 09:54:12.000000000 -0400
-@@ -44,6 +44,11 @@ typedef struct expand_state {
- 	int expand_neverallow;
- } expand_state_t;
- 
-+static void expand_state_init(expand_state_t * state)
-+{
-+	memset(state, 0, sizeof(expand_state_t));
-+}
-+
- static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 			      void *data)
- {
-@@ -1897,6 +1902,82 @@ static int copy_neverallow(policydb_t * 
- 	return -1;
- }
- 
-+static int copy_and_expand_avrule_block(expand_state_t * state)
-+{
-+	avrule_block_t *curblock;
-+	int retval = -1;
-+
-+	for (curblock = state->base->global; curblock != NULL;
-+	     curblock = curblock->next) {
-+		avrule_decl_t *decl = curblock->enabled;
-+		avrule_t *cur_avrule;
-+
-+		if (decl == NULL) {
-+			/* nothing was enabled within this block */
-+			continue;
-+		}
-+
-+		/* copy role allows and role trans */
-+		if (copy_role_allows(state, decl->role_allow_rules) != 0 ||
-+		    copy_role_trans(state, decl->role_tr_rules) != 0) {
-+			goto cleanup;
-+		}
-+
-+		/* copy rules */
-+		cur_avrule = decl->avrules;
-+		while (cur_avrule != NULL) {
-+			if (!(state->expand_neverallow)
-+			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
-+				/* copy this over directly so that assertions are checked later */
-+				if (copy_neverallow
-+				    (state->out, state->typemap, cur_avrule))
-+					ERR(state->handle,
-+					    "Error while copying neverallow.");
-+			} else {
-+				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
-+					state->out->unsupported_format = 1;
-+				}
-+				if (convert_and_expand_rule
-+				    (state->handle, state->out, state->typemap,
-+				     cur_avrule, &state->out->te_avtab, NULL,
-+				     NULL, 0,
-+				     state->expand_neverallow) !=
-+				    EXPAND_RULE_SUCCESS) {
-+					goto cleanup;
-+				}
-+			}
-+			cur_avrule = cur_avrule->next;
-+		}
-+
-+		/* copy conditional rules */
-+		if (cond_node_copy(state, decl->cond_list))
-+			goto cleanup;
-+	}
-+
-+	retval = 0;
-+
-+      cleanup:
-+	return retval;
-+}
-+
-+int expand_module_avrules(sepol_handle_t * handle, policydb_t * base,
-+			  policydb_t * out, uint32_t * typemap, int verbose,
-+			  int expand_neverallow)
-+{
-+	expand_state_t state;
-+
-+	expand_state_init(&state);
-+
-+	state.base = base;
-+	state.out = out;
-+	state.typemap = typemap;
-+	state.handle = handle;
-+	state.verbose = verbose;
-+	state.expand_neverallow = expand_neverallow;
-+
-+	return copy_and_expand_avrule_block(&state);
-+}
-+
- /* Linking should always be done before calling expand, even if
-  * there is only a base since all optionals are dealt with at link time
-  * the base passed in should be indexed and avrule blocks should be 
-@@ -1910,6 +1991,8 @@ int expand_module(sepol_handle_t * handl
- 	expand_state_t state;
- 	avrule_block_t *curblock;
- 
-+	expand_state_init(&state);
-+
- 	state.verbose = verbose;
- 	state.typemap = NULL;
- 	state.base = base;
-@@ -2026,50 +2109,9 @@ int expand_module(sepol_handle_t * handl
- 
- 	}
- 
--	/* then loop through delcs to copy and expand rules */
--	for (curblock = state.base->global; curblock != NULL;
--	     curblock = curblock->next) {
--		avrule_decl_t *decl = curblock->enabled;
--		avrule_t *cur_avrule;
--
--		if (decl == NULL) {
--			/* nothing was enabled within this block */
--			continue;
--		}
--
--		/* copy role allows and role trans */
--		if (copy_role_allows(&state, decl->role_allow_rules) != 0 ||
--		    copy_role_trans(&state, decl->role_tr_rules) != 0) {
--			goto cleanup;
--		}
--
--		/* copy rules */
--		cur_avrule = decl->avrules;
--		while (cur_avrule != NULL) {
--			if (!(state->expand_neverallow)
--			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
--				/* copy this over directly so that assertions are checked later */
--				if (copy_neverallow
--				    (out, state.typemap, cur_avrule))
--					ERR(handle,
--					    "Error while copying neverallow.");
--			} else {
--				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
--					state->out->unsupported_format = 1;
--				}
--				if (convert_and_expand_rule
--				    (state.handle, out, state.typemap,
--				     cur_avrule, &out->te_avtab, NULL, NULL,
--				     0) != 1) {
--					goto cleanup;
--				}
--			}
--			cur_avrule = cur_avrule->next;
--		}
--
--		/* copy conditional rules */
--		if (cond_node_copy(&state, decl->cond_list))
--			goto cleanup;
-+	if (copy_and_expand_avrule_block(&state) < 0) {
-+		ERR(handle, "Error during expand");
-+		goto cleanup;
- 	}
- 
- 	/* copy constraints */
+--=-owwodnQ/m1Bj7bpGiLGm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+
+ This is just a quick note to let you know that we've got beta
+packages[1] for creating/extracting tar archives with SELinux context in
+them (note that these packages are also based on rawhide, so will have
+other changes).
+ This should be able to extract any archives you've previously made with
+star.
+
+ You can create archives with just selinux context information by using
+--selinux, or with full xattr support using --xattrs. In a similar vein
+you can ignore any selinux context information by using --no-selinux
+when you extract, or --no-xattrs to ignore all xattr information.
+
+[1] http://people.redhat.com/jantill/
+
+--=20
+James Antill <jantill@redhat.com>
+
+--=-owwodnQ/m1Bj7bpGiLGm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+
+iD8DBQBEz47411eXTEMrxtQRAnFpAJ9TE3jm/WCrG2LxqtTVCRZ50YcuTwCff46q
+FalsF6kM0MkAU2RmWiHC3Jg=
+=mQUy
+-----END PGP SIGNATURE-----
+
+--=-owwodnQ/m1Bj7bpGiLGm--
 
 
 --
