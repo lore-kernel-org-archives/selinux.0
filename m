@@ -1,41 +1,49 @@
-Subject: Re: Any idea why /proc/mtrr is marked as mtrr_device_t?
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1154440486.3582.98.camel@moss-spartans.epoch.ncsc.mil>
-References: <44CF54EE.7040202@redhat.com>
-	 <1154438882.3582.79.camel@moss-spartans.epoch.ncsc.mil>
-	 <44CF5A49.2020703@redhat.com>
-	 <1154440486.3582.98.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Context mounts and unsupported context strings
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Cory Olmo <colmo@TrustedCS.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Eric Paris <eparis@redhat.com>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+In-Reply-To: <20060725142513.9ee1efc3.colmo@TrustedCS.com>
+References: <20060725142513.9ee1efc3.colmo@TrustedCS.com>
 Content-Type: text/plain
-Date: Tue, 01 Aug 2006 10:01:46 -0400
-Message-Id: <1154440906.31522.100.camel@sgc>
+Date: Tue, 01 Aug 2006 10:07:15 -0400
+Message-Id: <1154441235.3582.107.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-01 at 09:54 -0400, Stephen Smalley wrote:
-> On Tue, 2006-08-01 at 09:42 -0400, Daniel J Walsh wrote:
-> > Stephen Smalley wrote:
-> > > See Documentation/mtrr.txt in the kernel tree.
-> > >
-> > >   
-> > So labeling a file as a device_t is ok?
-> > 
-> > In strict policy xserver wants to write to it
+On Tue, 2006-07-25 at 14:25 -0500, Cory Olmo wrote:
+> I recently ran into a problem with mounting file systems for particular
+> context strings.  At this point we are still in the analysis phase so any
+> information or ideas would be appreciated.
 > 
-> Yes, X needs access to it, and that rule existed in the old example
-> policy.  Does refpolicy lack it?
+> The problem:
+> 
+> Attempt to mount a cdrom with the context option of
+> context=system_u:object_r:iso9660_t:s1:c0,c2,c4
+> 
+> The context will get interpreted as only
+> system_u:object_r:iso9660_t:s1:c0.  The reason is that the field separator
+> for the option field is ',', which is the same as that for categories. As a
+> result the rest of the context ends up being interpreted as additional
+> mount options that get passed on to the file system.
+> 
+> We've considered translation, escape characters, and quoting the entire
+> context string.  So far the most feasible appear to be either escaping or
+> quoting the entire context string.
 
-Looks like a bug in the interface.  Xserver has dev_rw_mtrr(), but the
-interface had mtrr_device_t:chr_file perms but was missing access for
-the file class.
+Hi,
+
+Any progress on this?  I assume it requires a patch for both mount and
+the kernel.  In the kernel, try_context_mount() and
+selinux_sb_copy_data() would need to understand the escaping or quoting.
+mount and nfsmount also perform parsing of the options and handling of
+the context options (context translation, converting to the nfs mount
+binary structure in the nfs case).
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
