@@ -1,91 +1,98 @@
-Subject: Re: infelicity in context_user_set; new syscalls: setfileconat,
-	etc.?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jim Meyering <jim@meyering.net>
-Cc: Karl MacMillan <kmacmillan@mentalrootkit.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <87ejw1k9wo.fsf@rho.meyering.net>
-References: <87zmeslb2v.fsf@rho.meyering.net>
-	 <1154352403.26550.24.camel@localhost.localdomain>
-	 <87ejw1k9wo.fsf@rho.meyering.net>
-Content-Type: text/plain
-Date: Tue, 01 Aug 2006 16:17:36 -0400
-Message-Id: <1154463456.3582.165.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44CFD0E6.6010408@trustedcs.com>
+Date: Tue, 01 Aug 2006 17:08:38 -0500
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+MIME-Version: 1.0
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+CC: jmorris@namei.org, sds@tycho.nsa.gov, chanson@TrustedCS.com
+Subject: [RFC 3/3] secid reconciliation on inbound: core networking changes
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2006-07-31 at 18:37 +0200, Jim Meyering wrote:
-> Karl MacMillan <kmacmillan@mentalrootkit.com> wrote:
-> 
-> > On Sat, 2006-07-29 at 16:50 +0200, Jim Meyering wrote:
-> >> Hello,
-> >>
-> >> I've just discovered what may be a documentation error
-> >> for context_user_set, context_role_set, etc.
-> >>
-> >> Those functions are documented as setting errno upon failure,
-> >> yet the following program prints "failed with errno=0":
-> >>
-> >>   #include <stdio.h>
-> >>   #include <errno.h>
-> >>   #include <selinux/context.h>
-> >>
-> >>   int
-> >>   main ()
-> >>   {
-> >>     context_t c = context_new ("a:b:c");
-> >>     if (!c)
-> >>       return 1;
-> >>     errno = 0;
-> >>     if (context_user_set (c, ":") != 0)
-> >>       printf ("failed with errno=%d\n", errno);
-> >>     return 0;
-> >>   }
-> >>
-> >
-> > Looks like a documentation error to me - there is no attempt to set
-> > errno in the code. In fact, most of libselinux looks like errno will
-> > only get set as a result of a call to a lower level library function
-> > (e.g., open or getxattr).
-> >
-> > Can you create a patch to correct the documentation?
-> 
-> I've looked at the code and now feel that the documentation
-> should continue to say those functions set errno on failure.
-> There are many ways in which context_user_set can fail and
-> set errno to a useful value.  Callers should be able to use
-> errno in all cases.
-> 
-> The solution is to ensure that whenever those functions
-> fail they set errno to *something*.  In the case above,
-> a tiny change to src/context.c would accomplish this,
-> using EINVAL to tell the caller that ":" is invalid:
-> 
-> --- src/context.c.~1~	2006-07-31 18:29:01.000000000 +0200
-> +++ src/context.c	2006-07-31 18:30:57.000000000 +0200
-> @@ -2,6 +2,7 @@
->  #include <string.h>
->  #include <stdio.h>
->  #include <stdlib.h>
-> +#include <errno.h>
->  
->  #define COMP_USER  0
->  #define COMP_ROLE  1
-> @@ -157,6 +158,7 @@ static int set_comp(context_private_t *
->  			if (*p == '\t' || *p == '\n' || *p == '\r' ||
->  			    ((*p == ':' || *p == ' ') && idx != COMP_RANGE)) {
->  				free(t);
-> +				errno = EINVAL;
->  				return 1;
->  			}
->  		}
+Invoke the skb_policy_check LSM hook from within networking code.
 
-Thanks, merged.
+This is being done at the same time and as a part of checking
+xfrm policy. This is hopefully adequate (not anticipating
+IP protos that don't use xfrm).
 
--- 
-Stephen Smalley
-National Security Agency
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+---
+ xfrm.h |   50 +++++-----
+ 1 file changed, 27 insertions(+), 23 deletions(-)
 
+--- linux-2.6.17.child_sock/include/net/xfrm.h	2006-07-31 09:55:23.000000000 -0500
++++ linux-2.6.17/include/net/xfrm.h	2006-08-01 15:08:20.000000000 -0500
+@@ -690,22 +690,20 @@ extern int __xfrm_policy_check(struct so
+ 
+ static inline int xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb, unsigned short family)
+ {
+-	if (sk && sk->sk_policy[XFRM_POLICY_IN])
+-		return __xfrm_policy_check(sk, dir, skb, family);
+-		
+-	return	(!xfrm_policy_list[dir] && !skb->sp) ||
+-		(skb->dst->flags & DST_NOPOLICY) ||
+-		__xfrm_policy_check(sk, dir, skb, family);
+-}
+-
+-static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{
+-	return xfrm_policy_check(sk, dir, skb, AF_INET);
+-}
++	int ret;
+ 
+-static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{
+-	return xfrm_policy_check(sk, dir, skb, AF_INET6);
++	if (sk && sk->sk_policy[XFRM_POLICY_IN])
++		ret =  __xfrm_policy_check(sk, dir, skb, family);
++	else
++		ret = (!xfrm_policy_list[dir] && !skb->sp) ||
++			(skb->dst->flags & DST_NOPOLICY) ||
++			__xfrm_policy_check(sk, dir, skb, family);
++
++#ifdef CONFIG_SECURITY_NETWORK
++	if (ret)
++		ret = security_skb_policy_check(skb, family);
++#endif /* CONFIG_SECURITY_NETWORK */
++	return ret;
+ }
+ 
+ extern int xfrm_decode_session(struct sk_buff *skb, struct flowi *fl, unsigned short family);
+@@ -757,20 +755,26 @@ static inline void xfrm_sk_free_policy(s
+ static inline int xfrm_sk_clone_policy(struct sock *sk) { return 0; }
+ static inline int xfrm6_route_forward(struct sk_buff *skb) { return 1; }  
+ static inline int xfrm4_route_forward(struct sk_buff *skb) { return 1; } 
+-static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{ 
+-	return 1; 
+-} 
+-static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
+-{
+-	return 1;
+-}
+ static inline int xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb, unsigned short family)
+ {
++#ifdef CONFIG_SECURITY_NETWORK
++	return security_skb_policy_check(skb, family);
++#else
+ 	return 1;
++#endif /* CONFIG_SECURITY_NETWORK */
+ }
+ #endif
+ 
++static inline int xfrm4_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
++{
++	return xfrm_policy_check(sk, dir, skb, AF_INET);
++}
++
++static inline int xfrm6_policy_check(struct sock *sk, int dir, struct sk_buff *skb)
++{
++	return xfrm_policy_check(sk, dir, skb, AF_INET6);
++}
++
+ static __inline__
+ xfrm_address_t *xfrm_flowi_daddr(struct flowi *fl, unsigned short family)
+ {
 
 --
 This message was distributed to subscribers of the selinux mailing list.
