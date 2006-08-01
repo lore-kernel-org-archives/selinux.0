@@ -1,183 +1,263 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71Ig9ZO000841
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 14:42:09 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71IgGm9000917
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 14:42:16 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k71IfxXQ011202
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 18:41:59 GMT
-Subject: [PATCH 0/6] netfilter integration take 2
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k71Ig7XQ011231
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 18:42:07 GMT
+Subject: [PATCH 6/6] netfilter integration take 2: add netfilter contexts
+	sorting test case
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 01 Aug 2006 14:43:04 -0400
-Message-Id: <1154457784.31522.146.camel@sgc.columbia.tresys.com>
+Date: Tue, 01 Aug 2006 14:43:13 -0400
+Message-Id: <1154457793.31522.152.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patchset adds support for netfilter secmark rules in all policy
-packages.  Each line of the file has a priority at the beginning of the
-line, and the remainder is treated as the rule.  Sorting is by priority,
-and is stable within a module.  The current design is for the resultant
-netfilter_contexts file be suitable for use with iptables-restore.
+Add unit test for netfilter contexts sorting.
 
-The priorities in order are:
-pre - special lines that must be at the beginning
-base - lines in the base module
-module - lines in loadable modules
-local - local overrides
-post - special lines that must be at the end
+ libsemanage/tests/Makefile              |    6 +-
+ libsemanage/tests/nc_sort_malformed     |   25 ++++++++++
+ libsemanage/tests/nc_sort_sorted        |   25 ++++++++++
+ libsemanage/tests/nc_sort_unsorted      |   27 +++++++++++
+ libsemanage/tests/test_semanage_store.c |   73 ++++++++++++++++++++++++++++++++
+ libsemanage/tests/test_semanage_store.h |    2
+ 6 files changed, 155 insertions(+), 3 deletions(-)
 
-This example would be the netfilter_contexts of the base module since it
-has the extra portions required for iptables-restore use:
-
-pre *mangle
-pre :PREROUTING ACCEPT [0:0]
-pre :INPUT ACCEPT [0:0]
-pre :FORWARD ACCEPT [0:0]
-pre :OUTPUT ACCEPT [0:0]
-pre :POSTROUTING ACCEPT [0:0]
-pre :selinux_input - [0:0]
-pre :selinux_output - [0:0]
-pre :selinux_new_input - [0:0]
-pre :selinux_new_output - [0:0]
-pre -A INPUT -j selinux_input
-pre -A OUTPUT -j selinux_output
-pre -A selinux_input -m state --state NEW -j selinux_new_input
-pre -A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
-pre -A selinux_output -m state --state NEW -j selinux_new_output
-pre -A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
-base -A selinux_new_input -j SECMARK --selctx system_u:object_r:server_packet_t
-post -A selinux_new_input -j CONNSECMARK --save
-post -A selinux_new_input -j RETURN
-base -A selinux_new_output -j SECMARK --selctx system_u:object_r:client_packet_t
-post -A selinux_new_output -j CONNSECMARK --save
-post -A selinux_new_output -j RETURN
-post COMMIT
-
-While individual loadable modules' netfilter_contexts would look like:
-
-module -A selinux_new_input -p tcp --dport 443 -j SECMARK --selctx system_u:object_r:http_server_packet_t
-module -A selinux_new_output -p tcp --dport 443 -j SECMARK --selctx system_u:object_r:http_client_packet_t
-
-The below patch to refpolicy will create a file appropriate for testing.
-The resultant linked and sorted file will be written out
-to /etc/selinux/NAME/contexts/netfilter_contexts.
-
-Index: Rules.modular
-===================================================================
---- Rules.modular	(revision 1933)
-+++ Rules.modular	(working copy)
-@@ -89,10 +89,10 @@
- #
- # Create a base module package
- #
--$(BASE_PKG): $(BASE_MOD) $(BASE_FC) $(USERS_EXTRA) $(SEUSERS)
-+$(BASE_PKG): $(BASE_MOD) $(BASE_FC) $(USERS_EXTRA) $(SEUSERS) $(net_contexts)
- 	@echo "Creating $(NAME) base module package"
- 	@test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
--	$(verbose) $(SEMOD_PKG) -o $@ -m $(BASE_MOD) -f $(BASE_FC) -u $(USERS_EXTRA) -s $(SEUSERS)
-+	$(verbose) $(SEMOD_PKG) -o $@ -m $(BASE_MOD) -f $(BASE_FC) -u $(USERS_EXTRA) -s $(SEUSERS) -n $(net_contexts)
+diff --exclude .svn -purN trunk/libsemanage/tests/Makefile netfilter-integration/libsemanage/tests/Makefile
+--- trunk/libsemanage/tests/Makefile	2006-07-11 11:53:29.388406000 -0400
++++ netfilter-integration/libsemanage/tests/Makefile	2006-07-11 16:13:43.470536750 -0400
+@@ -5,7 +5,7 @@ SOURCES = $(wildcard *.c)
+ TESTSRC=../src
  
- $(BASE_MOD): $(BASE_CONF)
- 	@echo "Compiling $(NAME) base module"
-Index: support/gennetfilter.py
-===================================================================
---- support/gennetfilter.py	(revision 1933)
-+++ support/gennetfilter.py	(working copy)
-@@ -43,7 +43,7 @@
- 		self.ports = ports
+ # Add the required external object files here:
+-LIBSEMANAGE = ../src/libsemanage.a
++LIBS = ../src/libsemanage.a ../../libselinux/src/libselinux.a ../../libsepol/src/libsepol.a
  
- def print_input_rules(packets,mls,mcs):
--	line = "-A selinux_new_input -j SECMARK --selctx system_u:object_r:"+DEFAULT_INPUT_PACKET
-+	line = "base -A selinux_new_input -j SECMARK --selctx system_u:object_r:"+DEFAULT_INPUT_PACKET
- 	if mls:
- 		line += ":"+DEFAULT_MLS
- 	elif mcs:
-@@ -53,18 +53,18 @@
+ ###########################################################################
  
- 	for i in packets:
- 		for j in i.ports:
--			line="-A selinux_new_input -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_INPUT
-+			line="base -A selinux_new_input -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_INPUT
- 			if mls:
- 				line += ":"+j.mls_sens
- 			elif mcs:
- 				line += ":"+j.mcs_cats
- 			print line
+@@ -13,13 +13,13 @@ EXECUTABLE = libsemanage-tests
+ CC = gcc
+ CFLAGS = -c -g -o0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
+ INCLUDE = -I$(TESTSRC) -I$(TESTSRC)/../include/semanage
+-LDFLAGS = -lcunit -lsemanage
++LDFLAGS = -lcunit
+ OBJECTS = $(SOURCES:.c=.o) 
  
--	print "-A selinux_new_input -j CONNSECMARK --save"
--	print "-A selinux_new_input -j RETURN"
-+	print "post -A selinux_new_input -j CONNSECMARK --save"
-+	print "post -A selinux_new_input -j RETURN"
+ all: $(EXECUTABLE) 
  
- def print_output_rules(packets,mls,mcs):
--	line = "-A selinux_new_output -j SECMARK --selctx system_u:object_r:"+DEFAULT_OUTPUT_PACKET
-+	line = "base -A selinux_new_output -j SECMARK --selctx system_u:object_r:"+DEFAULT_OUTPUT_PACKET
- 	if mls:
- 		line += ":"+DEFAULT_MLS
- 	elif mcs:
-@@ -73,15 +73,15 @@
+ $(EXECUTABLE): $(OBJECTS) 
+-	$(CC) $(OBJECTS) $(LIBSEMANAGE) $(LDFLAGS) -o $@
++	$(CC) $(OBJECTS) $(LIBS) $(LDFLAGS) -o $@
  
- 	for i in packets:
- 		for j in i.ports:
--			line = "-A selinux_new_output -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_OUTPUT
-+			line = "base -A selinux_new_output -p "+j.proto+" --dport "+j.num+" -j SECMARK --selctx system_u:object_r:"+i.prefix+PACKET_OUTPUT
- 			if mls:
- 				line += ":"+j.mls_sens
- 			elif mcs:
- 				line += ":"+j.mcs_cats
- 			print line
+ %.o: %.c
+ 	$(CC) $(CFLAGS) $(INCLUDE) $*.c -o $*.o
+diff --exclude .svn -purN trunk/libsemanage/tests/nc_sort_malformed netfilter-integration/libsemanage/tests/nc_sort_malformed
+--- trunk/libsemanage/tests/nc_sort_malformed	1969-12-31 19:00:00.000000000 -0500
++++ netfilter-integration/libsemanage/tests/nc_sort_malformed	2006-07-31 10:44:13.438120500 -0400
+@@ -0,0 +1,25 @@
++pre *mangle
++pre :PREROUTING ACCEPT [0:0]
++pre :INPUT ACCEPT [0:0]
++pre :FORWARD ACCEPT [0:0]
++pre :OUTPUT ACCEPT [0:0]
++pre :POSTROUTING ACCEPT [0:0]
++pre :selinux_input - [0:0]
++pre :selinux_output - [0:0]
++pre :selinux_new_input - [0:0]
++pre :selinux_new_output - [0:0]
++pre -A INPUT -j selinux_input
++pre -A OUTPUT -j selinux_output
++pre -A selinux_input -m state --state NEW -j selinux_new_input
++pre -A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
++pre -A selinux_output -m state --state NEW -j selinux_new_output
++pre -A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
++pre -A selinux_new_input -j SECMARK --selctx system_u:object_r:server_packet_t
++base -A selinux_new_input -p tcp --dport 80 -j SECMARK --selctx system_u:object_r:http_server_packet_t
++-A selinux_new_input -j CONNSECMARK --save
++post -A selinux_new_input -j RETURN
++pre -A selinux_new_output -j SECMARK --selctx system_u:object_r:client_packet_t
++module -A selinux_new_output -p tcp --dport 80 -j SECMARK --selctx system_u:object_r:http_client_packet_t
++post -A selinux_new_output -j CONNSECMARK --save
++post -A selinux_new_output -j RETURN
++post COMMIT
+diff --exclude .svn -purN trunk/libsemanage/tests/nc_sort_sorted netfilter-integration/libsemanage/tests/nc_sort_sorted
+--- trunk/libsemanage/tests/nc_sort_sorted	1969-12-31 19:00:00.000000000 -0500
++++ netfilter-integration/libsemanage/tests/nc_sort_sorted	2006-07-17 15:34:15.080496750 -0400
+@@ -0,0 +1,25 @@
++*mangle
++:PREROUTING ACCEPT [0:0]
++:INPUT ACCEPT [0:0]
++:FORWARD ACCEPT [0:0]
++:OUTPUT ACCEPT [0:0]
++:POSTROUTING ACCEPT [0:0]
++:selinux_input - [0:0]
++:selinux_output - [0:0]
++:selinux_new_input - [0:0]
++:selinux_new_output - [0:0]
++-A INPUT -j selinux_input
++-A OUTPUT -j selinux_output
++-A selinux_input -m state --state NEW -j selinux_new_input
++-A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
++-A selinux_output -m state --state NEW -j selinux_new_output
++-A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
++-A selinux_new_input -j SECMARK --selctx system_u:object_r:server_packet_t
++-A selinux_new_output -j SECMARK --selctx system_u:object_r:client_packet_t
++-A selinux_new_input -p tcp --dport 80 -j SECMARK --selctx system_u:object_r:http_server_packet_t
++-A selinux_new_output -p tcp --dport 80 -j SECMARK --selctx system_u:object_r:http_client_packet_t
++-A selinux_new_input -j CONNSECMARK --save
++-A selinux_new_input -j RETURN
++-A selinux_new_output -j CONNSECMARK --save
++-A selinux_new_output -j RETURN
++COMMIT
+diff --exclude .svn -purN trunk/libsemanage/tests/nc_sort_unsorted netfilter-integration/libsemanage/tests/nc_sort_unsorted
+--- trunk/libsemanage/tests/nc_sort_unsorted	1969-12-31 19:00:00.000000000 -0500
++++ netfilter-integration/libsemanage/tests/nc_sort_unsorted	2006-07-31 10:44:37.655634000 -0400
+@@ -0,0 +1,27 @@
++pre *mangle
++pre :PREROUTING ACCEPT [0:0]
++pre :INPUT ACCEPT [0:0]
++pre :FORWARD ACCEPT [0:0]
++pre :OUTPUT ACCEPT [0:0]
++pre :POSTROUTING ACCEPT [0:0]
++pre :selinux_input - [0:0]
++pre :selinux_output - [0:0]
++pre :selinux_new_input - [0:0]
++pre :selinux_new_output - [0:0]
++# a comment
++pre -A INPUT -j selinux_input
++pre -A OUTPUT -j selinux_output
++pre -A selinux_input -m state --state NEW -j selinux_new_input
++pre -A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
++pre -A selinux_output -m state --state NEW -j selinux_new_output
++	# another comment
++pre -A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore
++base-A selinux_new_input -j SECMARK --selctx system_u:object_r:server_packet_t
++module -A selinux_new_input -p tcp --dport 80 -j SECMARK --selctx system_u:object_r:http_server_packet_t
++post -A selinux_new_input -j CONNSECMARK --save
++post -A selinux_new_input -j RETURN
++base -A selinux_new_output -j SECMARK --selctx system_u:object_r:client_packet_t
++module -A selinux_new_output -p tcp --dport 80 -j SECMARK --selctx system_u:object_r:http_client_packet_t
++post -A selinux_new_output -j CONNSECMARK --save
++post -A selinux_new_output -j RETURN
++post COMMIT
+diff --exclude .svn -purN trunk/libsemanage/tests/test_semanage_store.c netfilter-integration/libsemanage/tests/test_semanage_store.c
+--- trunk/libsemanage/tests/test_semanage_store.c	2006-07-11 11:53:29.388406000 -0400
++++ netfilter-integration/libsemanage/tests/test_semanage_store.c	2006-07-14 11:17:57.552473750 -0400
+@@ -1,5 +1,6 @@
+ /* Authors: Christopher Ashworth <cashworth@tresys.com>
+  *          Caleb Case <ccase@tresys.com>
++ *          Chris PeBenito <cpebenito@tresys.com>
+  *
+  * Copyright (C) 2006 Tresys Technology, LLC
+  *
+@@ -35,6 +36,10 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <sys/mman.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
+ #include <unistd.h>
+ #include <CUnit/Basic.h>
  
--	print "-A selinux_new_output -j CONNSECMARK --save"
--	print "-A selinux_new_output -j RETURN"
-+	print "post -A selinux_new_output -j CONNSECMARK --save"
-+	print "post -A selinux_new_output -j RETURN"
+@@ -118,6 +123,11 @@ int semanage_store_add_tests(CU_pSuite s
+ 		CU_cleanup_registry();
+ 		return CU_get_error();
+ 	}
++
++	if (NULL == CU_add_test(suite, "semanage_nc_sort", test_semanage_nc_sort)) {
++		CU_cleanup_registry();
++		return CU_get_error();
++	}
+ 	
+ 	return 0;
+ }
+@@ -278,3 +288,66 @@ void test_semanage_get_lock(void)
+ 	CU_ASSERT( err == 0 );
+ }
  
- def parse_corenet(file_name):
- 	packets = []
-@@ -118,25 +118,25 @@
- 	return packets
++/* Tests the semanage_nc_sort function in semanage_store.c
++ */
++void test_semanage_nc_sort(void)
++{
++	char *source_buf, *sorted_buf = NULL, *good_buf, *bad_buf;
++	size_t source_buf_len, sorted_buf_len, good_buf_len, bad_buf_len;
++	int sourcefd, goodfd, badfd, err;
++	struct stat sb;
++
++	/* open source file */
++	sourcefd = open("nc_sort_unsorted",O_RDONLY);
++	if( sourcefd < 0 ) {
++		CU_FAIL("Missing nc_sort_unsorted test file.");
++		return;
++	}
++	fstat(sourcefd, &sb);
++	source_buf_len = sb.st_size;
++	source_buf =(char*) mmap(NULL, source_buf_len, PROT_READ, MAP_PRIVATE, sourcefd, 0);
++
++	/* open good result file */
++	goodfd = open("nc_sort_sorted",O_RDONLY);
++	if( goodfd < 0 ) {
++		CU_FAIL("Missing nc_sort_sorted test file.");
++		goto out2;
++	}
++	fstat(goodfd, &sb);
++	good_buf_len = sb.st_size;
++	good_buf =(char*) mmap(NULL, good_buf_len, PROT_READ, MAP_PRIVATE, goodfd, 0);
++
++	/* open malformed source file (missing priorities) */
++	badfd = open("nc_sort_malformed",O_RDONLY);
++	if( badfd < 0 ) {
++		CU_FAIL("Missing nc_sort_malformed test file.");
++		goto out1;
++	}
++	fstat(badfd, &sb);
++	bad_buf_len = sb.st_size;
++	bad_buf =(char*) mmap(NULL, bad_buf_len, PROT_READ, MAP_PRIVATE, badfd, 0);
++
++	/* sort test file */
++	err = semanage_nc_sort(sh,source_buf,source_buf_len,&sorted_buf,&sorted_buf_len);
++	CU_ASSERT_FALSE(err);
++	CU_ASSERT_STRING_EQUAL(sorted_buf,good_buf);
++
++	/* reset for reuse in next test */
++	free(sorted_buf);
++	sorted_buf = NULL;
++
++	/* sort malformed source file */
++	err = semanage_nc_sort(sh,bad_buf,bad_buf_len,&sorted_buf,&sorted_buf_len);
++	CU_ASSERT_EQUAL(err,-1);
++
++	free(sorted_buf);
++
++	munmap(bad_buf,bad_buf_len);
++	close(badfd);
++out1:
++	munmap(good_buf,good_buf_len);
++	close(goodfd);
++out2:
++	munmap(source_buf,source_buf_len);
++	close(sourcefd);
++}
+diff --exclude .svn -purN trunk/libsemanage/tests/test_semanage_store.h netfilter-integration/libsemanage/tests/test_semanage_store.h
+--- trunk/libsemanage/tests/test_semanage_store.h	2006-07-11 11:53:29.388406000 -0400
++++ netfilter-integration/libsemanage/tests/test_semanage_store.h	2006-07-14 11:15:32.859431000 -0400
+@@ -1,4 +1,5 @@
+ /* Authors: Christopher Ashworth <cashworth@tresys.com>
++ *          Chris PeBenito <cpebenito@tresys.com>
+  *
+  * Copyright (C) 2006 Tresys Technology, LLC
+  *
+@@ -28,5 +29,6 @@ int semanage_store_add_tests(CU_pSuite s
  
- def print_netfilter_config(packets,mls,mcs):
--	print "*mangle"
--	print ":PREROUTING ACCEPT [0:0]"
--	print ":INPUT ACCEPT [0:0]"
--	print ":FORWARD ACCEPT [0:0]"
--	print ":OUTPUT ACCEPT [0:0]"
--	print ":POSTROUTING ACCEPT [0:0]"
--	print ":selinux_input - [0:0]"
--	print ":selinux_output - [0:0]"
--	print ":selinux_new_input - [0:0]"
--	print ":selinux_new_output - [0:0]"
--	print "-A INPUT -j selinux_input"
--	print "-A OUTPUT -j selinux_output"
--	print "-A selinux_input -m state --state NEW -j selinux_new_input"
--	print "-A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
--	print "-A selinux_output -m state --state NEW -j selinux_new_output"
--	print "-A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
-+	print "pre *mangle"
-+	print "pre :PREROUTING ACCEPT [0:0]"
-+	print "pre :INPUT ACCEPT [0:0]"
-+	print "pre :FORWARD ACCEPT [0:0]"
-+	print "pre :OUTPUT ACCEPT [0:0]"
-+	print "pre :POSTROUTING ACCEPT [0:0]"
-+	print "pre :selinux_input - [0:0]"
-+	print "pre :selinux_output - [0:0]"
-+	print "pre :selinux_new_input - [0:0]"
-+	print "pre :selinux_new_output - [0:0]"
-+	print "pre -A INPUT -j selinux_input"
-+	print "pre -A OUTPUT -j selinux_output"
-+	print "pre -A selinux_input -m state --state NEW -j selinux_new_input"
-+	print "pre -A selinux_input -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
-+	print "pre -A selinux_output -m state --state NEW -j selinux_new_output"
-+	print "pre -A selinux_output -m state --state RELATED,ESTABLISHED -j CONNSECMARK --restore"
- 	print_input_rules(packets,mls,mcs)
- 	print_output_rules(packets,mls,mcs)
--	print "COMMIT"
-+	print "post COMMIT"
+ void test_semanage_store_access_check(void);
+ void test_semanage_get_lock(void);
++void test_semanage_nc_sort(void);
  
- mls = False
- mcs = False
+ #endif
 
 
 -- 
