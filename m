@@ -1,1092 +1,1511 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDgRr001583
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDfj2001527
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:41 -0400
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDPME023951
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:25 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDOME023945
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:24 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDVxv019487
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:31 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDTL7019463
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:29 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDV4Q019486
-	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:31 -0400
-Message-Id: <20060803201554.666682000@flek.zko.hp.com>
-References: <20060803200928.721027000@flek.zko.hp.com>
-Date: Thu, 03 Aug 2006 16:09:29 -0400
-From: paul.moore@hp.com
-To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: linda.knippers@hp.com, sds@tycho.nsa.gov, jmorris@namei.org,
-        davem@davemloft.net, Paul Moore <paul.moore@hp.com>
-Subject: [PATCH-v01 1/7] NetLabel: documentation
+	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDTRD019462
+	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:29 -0400
+Subject: [PATCH 1/2] put neverallows in avtab, propagate errors in policydb
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 13:14:12 -0400
+Message-Id: <1154452452.25566.3.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Documentation for the NetLabel system, this includes a basic overview of how
-NetLabel works, how LSM developers can integrate it into their favorite
-LSM, as well as documentation on the CIPSO related sysctl variables.  Also,
-due to the difficulty of finding expired IETF drafts, I am including the IETF
-CIPSO draft that is the basis of the NetLabel CIPSO implementation.
+This is a rebase of the patch sent recently to allow neverallow rules to
+be put in the avtab. The suggestions including using
+policydb->unsupported_format and adding defined error codes to policydb
+read and write have been added.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- CREDITS                                                   |    7 
- Documentation/00-INDEX                                    |    2 
- Documentation/netlabel/00-INDEX                           |   10 
- Documentation/netlabel/cipso_ipv4.txt                     |   48 
- Documentation/netlabel/draft-ietf-cipso-ipsecurity-01.txt |  791 ++++++++++++++
- Documentation/netlabel/introduction.txt                   |   46 
- Documentation/netlabel/lsm_interface.txt                  |   47 
- Documentation/networking/ip-sysctl.txt                    |   35 
- 8 files changed, 986 insertions(+)
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/avtab.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/avtab.h
+--- trunk/libsepol/include/sepol/policydb/avtab.h	2006-07-13 10:19:14.000000000 -0400
++++ trunk/libsepol/include/sepol/policydb/avtab.h	2006-07-13 10:46:33.000000000 -0400
+@@ -45,6 +45,7 @@ typedef struct avtab_key {
+ #define AVTAB_ALLOWED     1
+ #define AVTAB_AUDITALLOW  2
+ #define AVTAB_AUDITDENY   4
++#define AVTAB_NEVERALLOW 128
+ #define AVTAB_AV         (AVTAB_ALLOWED | AVTAB_AUDITALLOW | AVTAB_AUDITDENY)
+ #define AVTAB_TRANSITION 16
+ #define AVTAB_MEMBER     32
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/policydb.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/policydb.h
+--- trunk/libsepol/include/sepol/policydb/policydb.h	2006-08-01 09:22:41.000000000 -0400
++++ trunk/libsepol/include/sepol/policydb/policydb.h	2006-08-01 09:56:18.000000000 -0400
+@@ -65,6 +65,10 @@
+ 
+ #define ERRMSG_LEN 1024
+ 
++#define POLICYDB_SUCCESS      0
++#define POLICYDB_ERROR       -1;
++#define POLICYDB_UNSUPPORTED -2;
++
+ /*
+  * A datum type is defined for each kind of symbol 
+  * in the configuration data:  individual permissions, 
+@@ -194,12 +198,12 @@ typedef struct avrule {
+ #define AVRULE_AUDITALLOW  2
+ #define AVRULE_AUDITDENY   4
+ #define AVRULE_DONTAUDIT   8
+-#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT)
++#define AVRULE_NEVERALLOW 128
++#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
+ #define AVRULE_TRANSITION 16
+ #define AVRULE_MEMBER     32
+ #define AVRULE_CHANGE     64
+ #define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
+-#define AVRULE_NEVERALLOW 128
+ 	uint32_t specified;
+ #define RULE_SELF 1
+ 	uint32_t flags;
+@@ -371,6 +375,9 @@ typedef struct policydb {
+ 	char *name;
+ 	char *version;
+ 
++	/* Set when the policydb is modified such that writing is unsupported */
++	int unsupported_format;
++
+ 	/* Whether this policydb is mls, should always be set */
+ 	int mls;
+ 
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/link.c branch/setools_public-policydb-components/libsepol/src/link.c
+--- trunk/libsepol/src/link.c	2006-08-01 09:22:41.000000000 -0400
++++ trunk/libsepol/src/link.c	2006-08-01 09:50:25.000000000 -0400
+@@ -964,8 +964,7 @@ static int copy_avrule_list(avrule_t * l
+ 			    module->map[SYM_CLASSES][cur_perm->class - 1];
+ 			assert(new_perm->class);
+ 
+-			if (new_rule->
+-			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
++			if (new_rule->specified & (AVRULE_AV)) {
+ 				for (i = 0;
+ 				     i <
+ 				     module->perm_map_len[cur_perm->class - 1];
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/policydb.c branch/setools_public-policydb-components/libsepol/src/policydb.c
+--- trunk/libsepol/src/policydb.c	2006-07-13 10:19:21.000000000 -0400
++++ trunk/libsepol/src/policydb.c	2006-07-31 10:39:49.000000000 -0400
+@@ -2618,7 +2618,7 @@ int policydb_read(policydb_t * p, struct
+ 	/* Read the magic number and string length. */
+ 	buf = next_entry(fp, sizeof(uint32_t) * 2);
+ 	if (!buf)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (i = 0; i < 2; i++)
+ 		buf[i] = le32_to_cpu(buf[i]);
+ 
+@@ -2632,26 +2632,26 @@ int policydb_read(policydb_t * p, struct
+ 		ERR(fp->handle, "policydb magic number %#08x does not "
+ 		    "match expected magic number %#08x or %#08x",
+ 		    buf[0], POLICYDB_MAGIC, POLICYDB_MOD_MAGIC);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	len = buf[1];
+ 	if (len != strlen(target_str)) {
+ 		ERR(fp->handle, "policydb string length %zu does not match "
+ 		    "expected length %zu", len, strlen(target_str));
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	buf = next_entry(fp, len);
+ 	if (!buf) {
+ 		ERR(fp->handle, "truncated policydb string identifier");
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	policydb_str = malloc(len + 1);
+ 	if (!policydb_str) {
+ 		ERR(fp->handle, "unable to allocate memory for policydb "
+ 		    "string of length %zu", len);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	memcpy(policydb_str, buf, len);
+ 	policydb_str[len] = 0;
+@@ -2659,7 +2659,7 @@ int policydb_read(policydb_t * p, struct
+ 		ERR(fp->handle, "policydb string %s does not match "
+ 		    "my string %s", policydb_str, target_str);
+ 		free(policydb_str);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	/* Done with policydb_str. */
+ 	free(policydb_str);
+@@ -2673,7 +2673,7 @@ int policydb_read(policydb_t * p, struct
+ 
+ 	buf = next_entry(fp, sizeof(uint32_t) * nel);
+ 	if (!buf)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (i = 0; i < nel; i++)
+ 		buf[i] = le32_to_cpu(buf[i]);
+ 
+@@ -2687,7 +2687,7 @@ int policydb_read(policydb_t * p, struct
+ 		if (policy_type != POLICY_MOD && policy_type != POLICY_BASE) {
+ 			ERR(fp->handle, "unknown module type: %#08x",
+ 			    policy_type);
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		bufindex++;
+ 	}
+@@ -2699,7 +2699,7 @@ int policydb_read(policydb_t * p, struct
+ 			ERR(fp->handle, "policydb version %d does not match "
+ 			    "my version range %d-%d", buf[bufindex],
+ 			    POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	} else if (policy_type == POLICY_BASE || policy_type == POLICY_MOD) {
+ 		if (r_policyvers < MOD_POLICYDB_VERSION_MIN ||
+@@ -2708,7 +2708,7 @@ int policydb_read(policydb_t * p, struct
+ 			    "not match my version range %d-%d",
+ 			    buf[bufindex], MOD_POLICYDB_VERSION_MIN,
+ 			    MOD_POLICYDB_VERSION_MAX);
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	} else {
+ 		assert(0);
+@@ -2870,9 +2870,9 @@ int policydb_read(policydb_t * p, struct
+ 		}
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+       bad:
+-	return -1;
++	return POLICYDB_ERROR;
+ }
+ 
+ int policydb_reindex_users(policydb_t * p)
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/write.c branch/setools_public-policydb-components/libsepol/src/write.c
+--- trunk/libsepol/src/write.c	2006-07-13 10:19:21.000000000 -0400
++++ trunk/libsepol/src/write.c	2006-07-31 10:39:51.000000000 -0400
+@@ -68,21 +68,21 @@ static int ebitmap_write(ebitmap_t * e, 
+ 
+ 	items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 	if (items != 3)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	for (n = e->node; n; n = n->next) {
+ 		bit = cpu_to_le32(n->startbit);
+ 		items = put_entry(&bit, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		map = cpu_to_le64(n->map);
+ 		items = put_entry(&map, sizeof(uint64_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /* Ordering of datums in the original avtab format in the policy file. */
+@@ -113,7 +113,7 @@ static int avtab_write_item(policydb_t *
+ 		   Requires merging similar entries if uncond avtab. */
+ 		if (merge) {
+ 			if (cur->merged)
+-				return 0;	/* already merged by prior merge */
++				return POLICYDB_SUCCESS;	/* already merged by prior merge */
+ 		}
+ 
+ 		items = 1;	/* item 0 is used for the item count */
+@@ -137,7 +137,7 @@ static int avtab_write_item(policydb_t *
+ 			else if (val & AVTAB_TYPE)
+ 				lookup = AVTAB_TYPE;
+ 			else
+-				return -1;
++				return POLICYDB_ERROR;
+ 			for (node = avtab_search_node_next(cur, lookup);
+ 			     node;
+ 			     node = avtab_search_node_next(node, lookup)) {
+@@ -150,12 +150,12 @@ static int avtab_write_item(policydb_t *
+ 
+ 		if (!(val & (AVTAB_AV | AVTAB_TYPE))) {
+ 			ERR(fp->handle, "null entry");
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		if ((val & AVTAB_AV) && (val & AVTAB_TYPE)) {
+ 			ERR(fp->handle, "entry has both access "
+ 			    "vectors and types");
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 
+ 		buf32[items++] = cpu_to_le32(val);
+@@ -180,7 +180,7 @@ static int avtab_write_item(policydb_t *
+ 
+ 					if (!node) {
+ 						ERR(fp->handle, "missing node");
+-						return -1;
++						return POLICYDB_ERROR;
+ 					}
+ 					buf32[items++] =
+ 					    cpu_to_le32(node->datum.data);
+@@ -196,7 +196,7 @@ static int avtab_write_item(policydb_t *
+ 
+ 		if (set) {
+ 			ERR(fp->handle, "data count wrong");
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 
+ 		buf32[0] = cpu_to_le32(items - 1);
+@@ -205,10 +205,10 @@ static int avtab_write_item(policydb_t *
+ 			/* Commit this item to the policy file. */
+ 			items2 = put_entry(buf32, sizeof(uint32_t), items, fp);
+ 			if (items != items2)
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 
+-		return 0;
++		return POLICYDB_SUCCESS;
+ 	}
+ 
+ 	/* Generate the new avtab format. */
+@@ -218,12 +218,12 @@ static int avtab_write_item(policydb_t *
+ 	buf16[3] = cpu_to_le16(cur->key.specified);
+ 	items = put_entry(buf16, sizeof(uint16_t), 4, fp);
+ 	if (items != 4)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	buf32[0] = cpu_to_le32(cur->datum.data);
+ 	items = put_entry(buf32, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
+-	return 0;
++		return POLICYDB_ERROR;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static inline void avtab_reset_merged(avtab_t * a)
+@@ -252,7 +252,7 @@ static int avtab_write(struct policydb *
+ 		   merge similar entries, so we need to track merged nodes 
+ 		   and compute the final nel. */
+ 		if (avtab_init(&expa))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (expand_avtab(p, a, &expa)) {
+ 			rc = -1;
+ 			goto out;
+@@ -265,7 +265,7 @@ static int avtab_write(struct policydb *
+ 		nel = cpu_to_le32(a->nel);
+ 		items = put_entry(&nel, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	for (i = 0; i < AVTAB_SIZE; i++) {
+@@ -318,12 +318,12 @@ static int mls_write_level(mls_level_t *
+ 	sens = cpu_to_le32(l->sens);
+ 	items = put_entry(&sens, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (ebitmap_write(&l->cat, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -346,15 +346,15 @@ static int mls_write_range_helper(mls_ra
+ 
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (ebitmap_write(&r->level[0].cat, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if (!eq)
+ 		if (ebitmap_write(&r->level[1].cat, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int sens_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -373,16 +373,16 @@ static int sens_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(levdatum->isalias);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (mls_write_level(levdatum->level, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -402,13 +402,13 @@ static int cat_write(hashtab_key_t key, 
+ 	buf[items++] = cpu_to_le32(catdatum->isalias);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_trans_write(role_trans_t * r, struct policy_file *fp)
+@@ -423,17 +423,17 @@ static int role_trans_write(role_trans_t
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (tr = r; tr; tr = tr->next) {
+ 		buf[0] = cpu_to_le32(tr->role);
+ 		buf[1] = cpu_to_le32(tr->type);
+ 		buf[2] = cpu_to_le32(tr->new_role);
+ 		items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 		if (items != 3)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_allow_write(role_allow_t * r, struct policy_file *fp)
+@@ -448,15 +448,15 @@ static int role_allow_write(role_allow_t
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (ra = r; ra; ra = ra->next) {
+ 		buf[0] = cpu_to_le32(ra->role);
+ 		buf[1] = cpu_to_le32(ra->new_role);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_set_write(role_set_t * x, struct policy_file *fp)
+@@ -465,14 +465,14 @@ static int role_set_write(role_set_t * x
+ 	uint32_t buf[1];
+ 
+ 	if (ebitmap_write(&x->roles, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	buf[0] = cpu_to_le32(x->flags);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int type_set_write(type_set_t * x, struct policy_file *fp)
+@@ -481,16 +481,16 @@ static int type_set_write(type_set_t * x
+ 	uint32_t buf[1];
+ 
+ 	if (ebitmap_write(&x->types, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if (ebitmap_write(&x->negset, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	buf[0] = cpu_to_le32(x->flags);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -510,11 +510,11 @@ static int cond_write_bool(hashtab_key_t
+ 	buf[items++] = cpu_to_le32(len);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
+-	return 0;
++		return POLICYDB_ERROR;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -539,7 +539,7 @@ static int cond_write_av_list(policydb_t
+ 
+ 	if (oldvers) {
+ 		if (avtab_init(&expa))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (expand_cond_av_list(p, list, &new_list, &expa))
+ 			goto out;
+ 		list = new_list;
+@@ -587,7 +587,7 @@ static int cond_write_node(policydb_t * 
+ 	buf[0] = cpu_to_le32(node->cur_state);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	/* expr */
+ 	len = 0;
+@@ -597,7 +597,7 @@ static int cond_write_node(policydb_t * 
+ 	buf[0] = cpu_to_le32(len);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	for (cur_expr = node->expr; cur_expr != NULL; cur_expr = cur_expr->next) {
+ 		items = 0;
+@@ -605,22 +605,22 @@ static int cond_write_node(policydb_t * 
+ 		buf[items++] = cpu_to_le32(cur_expr->bool);
+ 		items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 		if (items2 != items)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (cond_write_av_list(p, node->true_list, fp) != 0)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (cond_write_av_list(p, node->false_list, fp) != 0)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (avrule_write_list(node->avtrue_list, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (avrule_write_list(node->avfalse_list, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int cond_write_list(policydb_t * p, cond_list_t * list,
+@@ -636,13 +636,13 @@ static int cond_write_list(policydb_t * 
+ 	buf[0] = cpu_to_le32(len);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	for (cur = list; cur != NULL; cur = cur->next) {
+ 		if (cond_write_node(p, cur, fp) != 0)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -661,15 +661,15 @@ static int context_write(struct policydb
+ 	buf[items++] = cpu_to_le32(c->type);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if ((p->policyvers >= POLICYDB_VERSION_MLS
+ 	     && p->policy_type == POLICY_KERN)
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
+ 		&& p->policy_type == POLICY_BASE))
+ 		if (mls_write_range_helper(&c->range, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -694,13 +694,13 @@ static int perm_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(perdatum->value);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int common_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -721,16 +721,16 @@ static int common_write(hashtab_key_t ke
+ 	buf[items++] = cpu_to_le32(comdatum->permissions.table->nel);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (hashtab_map(comdatum->permissions.table, perm_write, pd))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int write_cons_helper(policydb_t * p,
+@@ -751,7 +751,7 @@ static int write_cons_helper(policydb_t 
+ 		buf[1] = cpu_to_le32(nexpr);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		for (e = c->expr; e; e = e->next) {
+ 			items = 0;
+ 			buf[0] = cpu_to_le32(e->expr_type);
+@@ -759,18 +759,18 @@ static int write_cons_helper(policydb_t 
+ 			buf[2] = cpu_to_le32(e->op);
+ 			items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 			if (items != 3)
+-				return -1;
++				return POLICYDB_ERROR;
+ 
+ 			switch (e->expr_type) {
+ 			case CEXPR_NAMES:
+ 				if (!allowxtarget && (e->attr & CEXPR_XTARGET))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (ebitmap_write(&e->names, fp)) {
+-					return -1;
++					return POLICYDB_ERROR;
+ 				}
+ 				if (p->policy_type != POLICY_KERN &&
+ 				    type_set_write(e->type_names, fp)) {
+-					return -1;
++					return POLICYDB_ERROR;
+ 				}
+ 				break;
+ 			default:
+@@ -779,7 +779,7 @@ static int write_cons_helper(policydb_t 
+ 		}
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int class_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -817,22 +817,22 @@ static int class_write(hashtab_key_t key
+ 	buf[items++] = cpu_to_le32(ncons);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (cladatum->comkey) {
+ 		items = put_entry(cladatum->comkey, 1, len2, fp);
+ 		if (items != len2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 	if (hashtab_map(cladatum->permissions.table, perm_write, pd))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (write_cons_helper(p, cladatum->constraints, 0, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if ((p->policy_type == POLICY_KERN
+ 	     && p->policyvers >= POLICYDB_VERSION_VALIDATETRANS)
+@@ -846,12 +846,12 @@ static int class_write(hashtab_key_t key
+ 		buf[0] = cpu_to_le32(ncons);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (write_cons_helper(p, cladatum->validatetrans, 1, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -871,23 +871,23 @@ static int role_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(role->value);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (ebitmap_write(&role->dominates, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (ebitmap_write(&role->types.types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (type_set_write(&role->types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -911,18 +911,18 @@ static int type_write(hashtab_key_t key,
+ 	}
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (p->policy_type != POLICY_KERN) {
+ 		if (ebitmap_write(&typdatum->types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int user_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -942,18 +942,18 @@ static int user_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(usrdatum->value);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (ebitmap_write(&usrdatum->roles.roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (role_set_write(&usrdatum->roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 	/* Users are allowed in non-mls modules, so the empty field will be present
+ 	   in modules with users >= MOD_POLICYDB_VERSION_MLS */
+@@ -964,12 +964,12 @@ static int user_write(hashtab_key_t key,
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
+ 		&& p->policy_type == POLICY_BASE)) {
+ 		if (mls_write_range_helper(&usrdatum->range, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (mls_write_level(&usrdatum->dfltlevel, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int (*write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
+@@ -991,16 +991,16 @@ static int ocontext_write(struct policyd
+ 		buf[0] = cpu_to_le32(nel);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		for (c = p->ocontexts[i]; c; c = c->next) {
+ 			switch (i) {
+ 			case OCON_ISID:
+ 				buf[0] = cpu_to_le32(c->sid[0]);
+ 				items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 				if (items != 1)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_FS:
+ 			case OCON_NETIF:
+@@ -1008,14 +1008,14 @@ static int ocontext_write(struct policyd
+ 				buf[0] = cpu_to_le32(len);
+ 				items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 				if (items != 1)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				items = put_entry(c->u.name, 1, len, fp);
+ 				if (items != len)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[1], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_PORT:
+ 				buf[0] = c->u.port.protocol;
+@@ -1026,18 +1026,18 @@ static int ocontext_write(struct policyd
+ 				}
+ 				items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 				if (items != 3)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_NODE:
+ 				buf[0] = cpu_to_le32(c->u.node.addr);
+ 				buf[1] = cpu_to_le32(c->u.node.mask);
+ 				items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 				if (items != 2)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_FSUSE:
+ 				buf[0] = cpu_to_le32(c->v.behavior);
+@@ -1045,12 +1045,12 @@ static int ocontext_write(struct policyd
+ 				buf[1] = cpu_to_le32(len);
+ 				items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 				if (items != 2)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				items = put_entry(c->u.name, 1, len, fp);
+ 				if (items != len)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_NODE6:
+ 				for (j = 0; j < 4; j++)
+@@ -1061,14 +1061,14 @@ static int ocontext_write(struct policyd
+ 					    cpu_to_le32(c->u.node6.mask[j]);
+ 				items = put_entry(buf, sizeof(uint32_t), 8, fp);
+ 				if (items != 8)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			}
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int genfs_write(policydb_t * p, struct policy_file *fp)
+@@ -1083,41 +1083,41 @@ static int genfs_write(policydb_t * p, s
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (genfs = p->genfs; genfs; genfs = genfs->next) {
+ 		len = strlen(genfs->fstype);
+ 		buf[0] = cpu_to_le32(len);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		items = put_entry(genfs->fstype, 1, len, fp);
+ 		if (items != len)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		nel = 0;
+ 		for (c = genfs->head; c; c = c->next)
+ 			nel++;
+ 		buf[0] = cpu_to_le32(nel);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		for (c = genfs->head; c; c = c->next) {
+ 			len = strlen(c->u.name);
+ 			buf[0] = cpu_to_le32(len);
+ 			items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 			if (items != 1)
+-				return -1;
++				return POLICYDB_ERROR;
+ 			items = put_entry(c->u.name, 1, len, fp);
+ 			if (items != len)
+-				return -1;
++				return POLICYDB_ERROR;
+ 			buf[0] = cpu_to_le32(c->v.sclass);
+ 			items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 			if (items != 1)
+-				return -1;
++				return POLICYDB_ERROR;
+ 			if (context_write(p, &c->context[0], fp))
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int range_write(policydb_t * p, struct policy_file *fp)
+@@ -1131,17 +1131,17 @@ static int range_write(policydb_t * p, s
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (rt = p->range_tr; rt; rt = rt->next) {
+ 		buf[0] = cpu_to_le32(rt->dom);
+ 		buf[1] = cpu_to_le32(rt->type);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (mls_write_range_helper(&rt->range, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /************** module writing functions below **************/
+@@ -1157,13 +1157,13 @@ static int avrule_write(avrule_t * avrul
+ 	buf[items++] = cpu_to_le32(avrule->flags);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (type_set_write(&avrule->stypes, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (type_set_write(&avrule->ttypes, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	cur = avrule->perms;
+ 	len = 0;
+@@ -1175,7 +1175,7 @@ static int avrule_write(avrule_t * avrul
+ 	buf[items++] = cpu_to_le32(len);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	cur = avrule->perms;
+ 	while (cur) {
+ 		items = 0;
+@@ -1183,12 +1183,12 @@ static int avrule_write(avrule_t * avrul
+ 		buf[items++] = cpu_to_le32(cur->data);
+ 		items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 		if (items2 != items)
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+ 		cur = cur->next;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int avrule_write_list(avrule_t * avrules, struct policy_file *fp)
+@@ -1205,7 +1205,7 @@ static int avrule_write_list(avrule_t * 
+ 
+ 	buf[0] = cpu_to_le32(len);
+ 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	avrule = avrules;
+ 	while (avrule) {
+@@ -1213,7 +1213,7 @@ static int avrule_write_list(avrule_t * 
+ 		avrule = avrule->next;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
+@@ -1228,18 +1228,18 @@ static int role_trans_rule_write(role_tr
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (tr = t; tr; tr = tr->next) {
+ 		if (role_set_write(&tr->roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (type_set_write(&tr->types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		buf[0] = cpu_to_le32(tr->new_role);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
+@@ -1254,14 +1254,14 @@ static int role_allow_rule_write(role_al
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (ra = r; ra; ra = ra->next) {
+ 		if (role_set_write(&ra->roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (role_set_write(&ra->new_roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int scope_index_write(scope_index_t * scope_index,
+@@ -1272,19 +1272,19 @@ static int scope_index_write(scope_index
+ 	uint32_t buf[1];
+ 	for (i = 0; i < num_scope_syms; i++) {
+ 		if (ebitmap_write(scope_index->scope + i, fp) == -1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+ 	buf[0] = cpu_to_le32(scope_index->class_perms_len);
+ 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	for (i = 0; i < scope_index->class_perms_len; i++) {
+ 		if (ebitmap_write(scope_index->class_perms_map + i, fp) == -1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
+@@ -1296,17 +1296,17 @@ static int avrule_decl_write(avrule_decl
+ 	buf[0] = cpu_to_le32(decl->decl_id);
+ 	buf[1] = cpu_to_le32(decl->enabled);
+ 	if (put_entry(buf, sizeof(uint32_t), 2, fp) != 2) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	if (cond_write_list(p, decl->cond_list, fp) == -1 ||
+ 	    avrule_write_list(decl->avrules, fp) == -1 ||
+ 	    role_trans_rule_write(decl->role_tr_rules, fp) == -1 ||
+ 	    role_allow_rule_write(decl->role_allow_rules, fp) == -1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	if (scope_index_write(&decl->required, num_scope_syms, fp) == -1 ||
+ 	    scope_index_write(&decl->declared, num_scope_syms, fp) == -1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	pd.fp = fp;
+ 	pd.p = p;
+@@ -1314,13 +1314,13 @@ static int avrule_decl_write(avrule_decl
+ 		buf[0] = cpu_to_le32(decl->symtab[i].nprim);
+ 		buf[1] = cpu_to_le32(decl->symtab[i].table->nel);
+ 		if (put_entry(buf, sizeof(uint32_t), 2, fp) != 2) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		if (hashtab_map(decl->symtab[i].table, write_f[i], &pd)) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int avrule_block_write(avrule_block_t * block, int num_scope_syms,
+@@ -1334,7 +1334,7 @@ static int avrule_block_write(avrule_blo
+ 	}
+ 	buf[0] = cpu_to_le32(num_blocks);
+ 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	/* now write each block */
+@@ -1347,16 +1347,16 @@ static int avrule_block_write(avrule_blo
+ 		}
+ 		buf[0] = cpu_to_le32(num_decls);
+ 		if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		for (decl = cur->branch_list; decl != NULL; decl = decl->next) {
+ 			if (avrule_decl_write(decl, num_scope_syms, p, fp) ==
+ 			    -1) {
+-				return -1;
++				return POLICYDB_ERROR;
+ 			}
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int scope_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -1373,7 +1373,7 @@ static int scope_write(hashtab_key_t key
+ 		 * buffer.  this would have been easier with C99's
+ 		 * dynamic arrays... */
+ 		if ((dyn_buf = malloc(items * sizeof(*dyn_buf))) == NULL) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		buf = dyn_buf;
+ 	} else {
+@@ -1382,7 +1382,7 @@ static int scope_write(hashtab_key_t key
+ 	buf[0] = cpu_to_le32(key_len);
+ 	if (put_entry(buf, sizeof(*buf), 1, fp) != 1 ||
+ 	    put_entry(key, 1, key_len, fp) != key_len) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	buf[0] = cpu_to_le32(scope->scope);
+ 	buf[1] = cpu_to_le32(scope->decl_ids_len);
+@@ -1391,10 +1391,10 @@ static int scope_write(hashtab_key_t key
+ 	}
+ 	if (put_entry(buf, sizeof(*buf), items, fp) != items) {
+ 		free(dyn_buf);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	free(dyn_buf);
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -1411,6 +1411,9 @@ int policydb_write(policydb_t * p, struc
+ 	struct policy_data pd;
+ 	char *policydb_str;
+ 
++	if (p->unsupported_format)
++		return POLICYDB_UNSUPPORTED;
++
+ 	pd.fp = fp;
+ 	pd.p = p;
+ 
+@@ -1432,10 +1435,10 @@ int policydb_write(policydb_t * p, struc
+ 	buf[items++] = cpu_to_le32(len);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	items = put_entry(policydb_str, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	/* Write the version, config, and table sizes. */
+ 	items = 0;
+@@ -1443,7 +1446,7 @@ int policydb_write(policydb_t * p, struc
+ 	if (!info) {
+ 		ERR(fp->handle, "compatibility lookup failed for policy "
+ 		    "version %d", p->policyvers);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	if (p->policy_type != POLICY_KERN) {
+@@ -1456,7 +1459,7 @@ int policydb_write(policydb_t * p, struc
+ 
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (p->policy_type == POLICY_MOD) {
+ 		/* Write module name and version */
+@@ -1464,18 +1467,18 @@ int policydb_write(policydb_t * p, struc
+ 		buf[0] = cpu_to_le32(len);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		items = put_entry(p->name, 1, len, fp);
+ 		if (items != len)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		len = strlen(p->version);
+ 		buf[0] = cpu_to_le32(len);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		items = put_entry(p->version, 1, len, fp);
+ 		if (items != len)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 	num_syms = info->sym_num;
+ 	for (i = 0; i < num_syms; i++) {
+@@ -1483,43 +1486,43 @@ int policydb_write(policydb_t * p, struc
+ 		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (hashtab_map(p->symtab[i].table, write_f[i], &pd))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (avtab_write(p, &p->te_avtab, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (p->policyvers < POLICYDB_VERSION_BOOL) {
+ 			if (p->p_bools.nprim)
+ 				WARN(fp->handle, "Discarding "
+ 				     "booleans and conditional rules");
+ 		} else {
+ 			if (cond_write_list(p, p->cond_list, fp))
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 		if (role_trans_write(p->role_tr, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (role_allow_write(p->role_allow, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (avrule_block_write(p->global, num_syms, p, fp) == -1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 
+ 		for (i = 0; i < num_syms; i++) {
+ 			buf[0] = cpu_to_le32(p->scope[i].table->nel);
+ 			if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-				return -1;
++				return POLICYDB_ERROR;
+ 			}
+ 			if (hashtab_map(p->scope[i].table, scope_write, &pd))
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 	}
+ 
+ 	if (ocontext_write(info, p, fp) == -1 || genfs_write(p, fp) == -1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	if ((p->policyvers >= POLICYDB_VERSION_MLS
+@@ -1527,7 +1530,7 @@ int policydb_write(policydb_t * p, struc
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
+ 		&& p->policy_type == POLICY_BASE)) {
+ 		if (range_write(p, fp)) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+ 
+@@ -1535,9 +1538,9 @@ int policydb_write(policydb_t * p, struc
+ 	    && p->policyvers >= POLICYDB_VERSION_AVTAB) {
+ 		for (i = 0; i < p->p_types.nprim; i++) {
+ 			if (ebitmap_write(&p->type_attr_map[i], fp) == -1)
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/expand.c branch/setools_public-policydb-components/libsepol/src/expand.c
+--- trunk/libsepol/src/expand.c	2006-07-13 13:57:39.000000000 -0400
++++ trunk/libsepol/src/expand.c	2006-08-01 11:05:06.000000000 -0400
+@@ -41,6 +41,7 @@ typedef struct expand_state {
+ 	policydb_t *base;
+ 	policydb_t *out;
+ 	sepol_handle_t *handle;
++	int expand_neverallow;
+ } expand_state_t;
+ 
+ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+@@ -1007,6 +1008,10 @@ static avtab_ptr_t find_avtab_node(sepol
+ 	return node;
+ }
+ 
++#define EXPAND_RULE_SUCCESS   0
++#define EXPAND_RULE_CONFLICT  1
++#define EXPAND_RULE_ERROR    -1
++
+ static int expand_terule_helper(sepol_handle_t * handle,
+ 				policydb_t * p, uint32_t * typemap,
+ 				uint32_t specified, cond_av_list_t ** cond,
+@@ -1069,7 +1074,7 @@ static int expand_terule_helper(sepol_ha
+ 				 * or in same conditional then ignore it */
+ 				if ((conflict == 1 && cond == NULL)
+ 				    || node->parse_context == cond)
+-					return 1;
++					return EXPAND_RULE_SUCCESS;
+ 				ERR(handle, "duplicate TE rule for %s %s:%s %s",
+ 				    p->p_type_val_to_name[avkey.source_type -
+ 							  1],
+@@ -1078,7 +1083,7 @@ static int expand_terule_helper(sepol_ha
+ 				    p->p_class_val_to_name[avkey.target_class -
+ 							   1],
+ 				    p->p_type_val_to_name[oldtype - 1]);
+-				return 0;
++				return EXPAND_RULE_CONFLICT;
+ 			}
+ 			ERR(handle,
+ 			    "conflicting TE rule for (%s, %s:%s):  old was %s, new is %s",
+@@ -1087,7 +1092,7 @@ static int expand_terule_helper(sepol_ha
+ 			    p->p_class_val_to_name[avkey.target_class - 1],
+ 			    p->p_type_val_to_name[oldtype - 1],
+ 			    p->p_type_val_to_name[remapped_data - 1]);
+-			return 0;
++			return EXPAND_RULE_CONFLICT;
+ 		}
+ 
+ 		node = find_avtab_node(handle, avtab, &avkey, cond);
+@@ -1113,7 +1118,7 @@ static int expand_terule_helper(sepol_ha
+ 		cur = cur->next;
+ 	}
+ 
+-	return 1;
++	return EXPAND_RULE_SUCCESS;
+ }
+ 
+ static int expand_avrule_helper(sepol_handle_t * handle,
+@@ -1137,6 +1142,8 @@ static int expand_avrule_helper(sepol_ha
+ 		spec = AVTAB_AUDITDENY;
+ 	} else if (specified & AVRULE_DONTAUDIT) {
+ 		spec = AVTAB_AUDITDENY;
++	} else if (specified & AVRULE_NEVERALLOW) {
++		spec = AVTAB_NEVERALLOW;
+ 	} else {
+ 		assert(0);	/* unreachable */
+ 	}
+@@ -1150,7 +1157,7 @@ static int expand_avrule_helper(sepol_ha
+ 
+ 		node = find_avtab_node(handle, avtab, &avkey, cond);
+ 		if (!node)
+-			return -1;
++			return EXPAND_RULE_ERROR;
+ 		if (enabled) {
+ 			node->key.specified |= AVTAB_ENABLED;
+ 		} else {
+@@ -1162,6 +1169,8 @@ static int expand_avrule_helper(sepol_ha
+ 			avdatump->data |= cur->data;
+ 		} else if (specified & AVRULE_AUDITALLOW) {
+ 			avdatump->data |= cur->data;
++		} else if (specified & AVRULE_NEVERALLOW) {
++			avdatump->data |= cur->data;
+ 		} else if (specified & AVRULE_AUDITDENY) {
+ 			/* Since a '0' in an auditdeny mask represents
+ 			 * a permission we do NOT want to audit
+@@ -1182,7 +1191,7 @@ static int expand_avrule_helper(sepol_ha
+ 
+ 		cur = cur->next;
+ 	}
+-	return 1;
++	return EXPAND_RULE_SUCCESS;
+ }
+ 
+ static int expand_rule_helper(sepol_handle_t * handle,
+@@ -1253,25 +1262,28 @@ static int expand_rule_helper(sepol_hand
+ 		}
+ 	}
+ 
+-	return 1;
++	return EXPAND_RULE_SUCCESS;
+ }
+ 
+-/* Expand a rule into a given avtab - checking for conflicting type
+- * rules in the destination policy.  Return 1 on success, 0 if the
+- * rule conflicts with something (and hence was not added), or -1 on
+- * error. */
++/*
++ * Expand a rule into a given avtab - checking for conflicting type
++ * rules in the destination policy.  Return EXPAND_RULE_SUCCESS on 
++ * success, EXPAND_RULE_CONFLICT if the rule conflicts with something
++ * (and hence was not added), or EXPAND_RULE_ERROR on error.
++ */
+ static int convert_and_expand_rule(sepol_handle_t * handle,
+ 				   policydb_t * dest_pol, uint32_t * typemap,
+ 				   avrule_t * source_rule, avtab_t * dest_avtab,
+ 				   cond_av_list_t ** cond,
+-				   cond_av_list_t ** other, int enabled)
++				   cond_av_list_t ** other, int enabled,
++				   int do_neverallow)
+ {
+ 	int retval;
+ 	ebitmap_t stypes, ttypes;
+ 	unsigned char alwaysexpand;
+ 
+-	if (source_rule->specified & AVRULE_NEVERALLOW)
+-		return 1;
++	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
++		return EXPAND_RULE_SUCCESS;
+ 
+ 	ebitmap_init(&stypes);
+ 	ebitmap_init(&ttypes);
+@@ -1282,10 +1294,10 @@ static int convert_and_expand_rule(sepol
+ 
+ 	if (expand_convert_type_set
+ 	    (dest_pol, typemap, &source_rule->stypes, &stypes, alwaysexpand))
+-		return -1;
++		return EXPAND_RULE_ERROR;
+ 	if (expand_convert_type_set
+ 	    (dest_pol, typemap, &source_rule->ttypes, &ttypes, alwaysexpand))
+-		return -1;
++		return EXPAND_RULE_ERROR;
+ 
+ 	retval = expand_rule_helper(handle, dest_pol, typemap,
+ 				    source_rule, dest_avtab,
+@@ -1306,7 +1318,8 @@ static int cond_avrule_list_copy(policyd
+ 	while (cur) {
+ 		if (convert_and_expand_rule(state->handle, dest_pol,
+ 					    typemap, cur, dest_avtab,
+-					    list, other, enabled) != 1) {
++					    list, other, enabled,
++					    0) != EXPAND_RULE_SUCCESS) {
+ 			return -1;
+ 		}
+ 
+@@ -2033,13 +2046,17 @@ int expand_module(sepol_handle_t * handl
+ 		/* copy rules */
+ 		cur_avrule = decl->avrules;
+ 		while (cur_avrule != NULL) {
+-			if (cur_avrule->specified & AVRULE_NEVERALLOW) {
++			if (!(state->expand_neverallow)
++			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
+ 				/* copy this over directly so that assertions are checked later */
+ 				if (copy_neverallow
+ 				    (out, state.typemap, cur_avrule))
+ 					ERR(handle,
+ 					    "Error while copying neverallow.");
+ 			} else {
++				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
++					state->out->unsupported_format = 1;
++				}
+ 				if (convert_and_expand_rule
+ 				    (state.handle, out, state.typemap,
+ 				     cur_avrule, &out->te_avtab, NULL, NULL,
+@@ -2098,7 +2115,7 @@ int expand_module(sepol_handle_t * handl
+ 		goto cleanup;
+ 	hashtab_map_remove_on_error(state.out->p_types.table,
+ 				    type_attr_remove, type_destroy, state.out);
+-	if (check) {
++	if (check && !(out->unsupported_format)) {
+ 		if (hierarchy_check_constraints(handle, state.out))
+ 			goto cleanup;
+ 
 
-Index: net-2.6.19/CREDITS
-===================================================================
---- net-2.6.19.orig/CREDITS
-+++ net-2.6.19/CREDITS
-@@ -2384,6 +2384,13 @@ N: Thomas Molina
- E: tmolina@cablespeed.com
- D: bug fixes, documentation, minor hackery
- 
-+N: Paul Moore
-+E: paul.moore@hp.com
-+D: NetLabel author
-+S: Hewlett-Packard
-+S: 110 Spit Brook Road
-+S: Nashua, NH 03062
-+
- N: James Morris
- E: jmorris@namei.org
- W: http://namei.org/
-Index: net-2.6.19/Documentation/00-INDEX
-===================================================================
---- net-2.6.19.orig/Documentation/00-INDEX
-+++ net-2.6.19/Documentation/00-INDEX
-@@ -184,6 +184,8 @@ mtrr.txt
- 	- how to use PPro Memory Type Range Registers to increase performance.
- nbd.txt
- 	- info on a TCP implementation of a network block device.
-+netlabel/
-+	- directory with information on the NetLabel subsystem.
- networking/
- 	- directory with info on various aspects of networking with Linux.
- nfsroot.txt
-Index: net-2.6.19/Documentation/netlabel/00-INDEX
-===================================================================
---- /dev/null
-+++ net-2.6.19/Documentation/netlabel/00-INDEX
-@@ -0,0 +1,10 @@
-+00-INDEX
-+	- this file.
-+cipso_ipv4.txt
-+	- documentation on the IPv4 CIPSO protocol engine.
-+draft-ietf-cipso-ipsecurity-01.txt
-+	- IETF draft of the CIPSO protocol, dated 16 July 1992.
-+introduction.txt
-+	- NetLabel introduction, READ THIS FIRST.
-+lsm_interface.txt
-+	- documentation on the NetLabel kernel security module API.
-Index: net-2.6.19/Documentation/netlabel/cipso_ipv4.txt
-===================================================================
---- /dev/null
-+++ net-2.6.19/Documentation/netlabel/cipso_ipv4.txt
-@@ -0,0 +1,48 @@
-+NetLabel CIPSO/IPv4 Protocol Engine
-+==============================================================================
-+Paul Moore, paul.moore@hp.com
-+
-+May 17, 2006
-+
-+ * Overview
-+
-+The NetLabel CIPSO/IPv4 protocol engine is based on the IETF Commercial IP
-+Security Option (CIPSO) draft from July 16, 1992.  A copy of this draft can be
-+found in this directory, consult '00-INDEX' for the filename.  While the IETF
-+draft never made it to an RFC standard it has become a de-facto standard for
-+labeled networking and is used in many trusted operating systems.
-+
-+ * Outbound Packet Processing
-+
-+The CIPSO/IPv4 protocol engine applies the CIPSO IP option to packets by
-+adding the CIPSO label to the socket.  This causes all packets leaving the
-+system through the socket to have the CIPSO IP option applied.  The socket's
-+CIPSO label can be changed at any point in time, however, it is recommended
-+that it is set upon the socket's creation.  The LSM can set the socket's CIPSO
-+label by using the NetLabel security module API; if the NetLabel "domain" is
-+configured to use CIPSO for packet labeling then a CIPSO IP option will be
-+generated and attached to the socket.
-+
-+ * Inbound Packet Processing
-+
-+The CIPSO/IPv4 protocol engine validates every CIPSO IP option it finds at the
-+IP layer without any special handling required by the LSM.  However, in order
-+to decode and translate the CIPSO label on the packet the LSM must use the
-+NetLabel security module API to extract the security attributes of the packet.
-+This is typically done at the socket layer using the 'socket_sock_rcv_skb()'
-+LSM hook.
-+
-+ * Label Translation
-+
-+The CIPSO/IPv4 protocol engine contains a mechanism to translate CIPSO security
-+attributes such as sensitivity level and category to values which are
-+appropriate for the host.  These mappings are defined as part of a CIPSO
-+Domain Of Interpretation (DOI) definition and are configured through the
-+NetLabel user space communication layer.  Each DOI definition can have a
-+different security attribute mapping table.
-+
-+ * Label Translation Cache
-+
-+The NetLabel system provides a framework for caching security attribute
-+mappings from the network labels to the corresponding LSM identifiers.  The
-+CIPSO/IPv4 protocol engine supports this caching mechanism.
-Index: net-2.6.19/Documentation/netlabel/draft-ietf-cipso-ipsecurity-01.txt
-===================================================================
---- /dev/null
-+++ net-2.6.19/Documentation/netlabel/draft-ietf-cipso-ipsecurity-01.txt
-@@ -0,0 +1,791 @@
-+IETF CIPSO Working Group
-+16 July, 1992
-+
-+
-+
-+                 COMMERCIAL IP SECURITY OPTION (CIPSO 2.2)
-+
-+
-+
-+1.    Status
-+
-+This Internet Draft provides the high level specification for a Commercial
-+IP Security Option (CIPSO).  This draft reflects the version as approved by
-+the CIPSO IETF Working Group.  Distribution of this memo is unlimited.
-+
-+This document is an Internet Draft.  Internet Drafts are working documents
-+of the Internet Engineering Task Force (IETF), its Areas, and its Working
-+Groups. Note that other groups may also distribute working documents as
-+Internet Drafts.
-+
-+Internet Drafts are draft documents valid for a maximum of six months.
-+Internet Drafts may be updated, replaced, or obsoleted by other documents
-+at any time.  It is not appropriate to use Internet Drafts as reference
-+material or to cite them other than as a "working draft" or "work in
-+progress."
-+
-+Please check the I-D abstract listing contained in each Internet Draft
-+directory to learn the current status of this or any other Internet Draft.
-+
-+
-+
-+
-+2.    Background
-+
-+Currently the Internet Protocol includes two security options.  One of
-+these options is the DoD Basic Security Option (BSO) (Type 130) which allows
-+IP datagrams to be labeled with security classifications.  This option
-+provides sixteen security classifications and a variable number of handling
-+restrictions.  To handle additional security information, such as security
-+categories or compartments, another security option (Type 133) exists and
-+is referred to as the DoD Extended Security Option (ESO).  The values for
-+the fixed fields within these two options are administered by the Defense
-+Information Systems Agency (DISA).
-+
-+Computer vendors are now building commercial operating systems with
-+mandatory access controls and multi-level security.  These systems are
-+no longer built specifically for a particular group in the defense or
-+intelligence communities.  They are generally available commercial systems
-+for use in a variety of government and civil sector environments.
-+
-+The small number of ESO format codes can not support all the possible
-+applications of a commercial security option.  The BSO and ESO were
-+designed to only support the United States DoD.  CIPSO has been designed
-+to support multiple security policies.  This Internet Draft provides the
-+format and procedures required to support a Mandatory Access Control
-+security policy.  Support for additional security policies shall be
-+defined in future RFCs.
-+
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 1]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+
-+3.    CIPSO Format
-+
-+Option type: 134 (Class 0, Number 6, Copy on Fragmentation)
-+Option length: Variable
-+
-+This option permits security related information to be passed between
-+systems within a single Domain of Interpretation (DOI).  A DOI is a
-+collection of systems which agree on the meaning of particular values
-+in the security option.  An authority that has been assigned a DOI
-+identifier will define a mapping between appropriate CIPSO field values
-+and their human readable equivalent.  This authority will distribute that
-+mapping to hosts within the authority's domain.  These mappings may be
-+sensitive, therefore a DOI authority is not required to make these
-+mappings available to anyone other than the systems that are included in
-+the DOI.
-+
-+This option MUST be copied on fragmentation.  This option appears at most
-+once in a datagram.  All multi-octet fields in the option are defined to be
-+transmitted in network byte order.  The format of this option is as follows:
-+
-++----------+----------+------//------+-----------//---------+
-+| 10000110 | LLLLLLLL | DDDDDDDDDDDD | TTTTTTTTTTTTTTTTTTTT |
-++----------+----------+------//------+-----------//---------+
-+
-+  TYPE=134    OPTION    DOMAIN OF               TAGS
-+              LENGTH    INTERPRETATION
-+
-+
-+                Figure 1. CIPSO Format
-+
-+
-+3.1    Type
-+
-+This field is 1 octet in length.  Its value is 134.
-+
-+
-+3.2    Length
-+
-+This field is 1 octet in length.  It is the total length of the option
-+including the type and length fields.  With the current IP header length
-+restriction of 40 octets the value of this field MUST not exceed 40.
-+
-+
-+3.3    Domain of Interpretation Identifier
-+
-+This field is an unsigned 32 bit integer.  The value 0 is reserved and MUST
-+not appear as the DOI identifier in any CIPSO option.  Implementations
-+should assume that the DOI identifier field is not aligned on any particular
-+byte boundary.
-+
-+To conserve space in the protocol, security levels and categories are
-+represented by numbers rather than their ASCII equivalent.  This requires
-+a mapping table within CIPSO hosts to map these numbers to their
-+corresponding ASCII representations.  Non-related groups of systems may
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 2]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+have their own unique mappings.  For example, one group of systems may
-+use the number 5 to represent Unclassified while another group may use the
-+number 1 to represent that same security level.  The DOI identifier is used
-+to identify which mapping was used for the values within the option.
-+
-+
-+3.4    Tag Types
-+
-+A common format for passing security related information is necessary
-+for interoperability.  CIPSO uses sets of "tags" to contain the security
-+information relevant to the data in the IP packet.  Each tag begins with
-+a tag type identifier followed by the length of the tag and ends with the
-+actual security information to be passed.  All multi-octet fields in a tag
-+are defined to be transmitted in network byte order.  Like the DOI
-+identifier field in the CIPSO header, implementations should assume that
-+all tags, as well as fields within a tag, are not aligned on any particular
-+octet boundary.   The tag types defined in this document contain alignment
-+bytes to assist alignment of some information, however alignment can not
-+be guaranteed if CIPSO is not the first IP option.
-+
-+CIPSO tag types 0 through 127 are reserved for defining standard tag
-+formats.  Their definitions will be published in RFCs.  Tag types whose
-+identifiers are greater than 127 are defined by the DOI authority and may
-+only be meaningful in certain Domains of Interpretation.  For these tag
-+types, implementations will require the DOI identifier as well as the tag
-+number to determine the security policy and the format associated with the
-+tag.  Use of tag types above 127 are restricted to closed networks where
-+interoperability with other networks will not be an issue.  Implementations
-+that support a tag type greater than 127 MUST support at least one DOI that
-+requires only tag types 1 to 127.
-+
-+Tag type 0 is reserved. Tag types 1, 2, and 5 are defined in this
-+Internet Draft.  Types 3 and 4 are reserved for work in progress.
-+The standard format for all current and future CIPSO tags is shown below:
-+
-++----------+----------+--------//--------+
-+| TTTTTTTT | LLLLLLLL | IIIIIIIIIIIIIIII |
-++----------+----------+--------//--------+
-+    TAG       TAG         TAG
-+    TYPE      LENGTH      INFORMATION
-+
-+    Figure 2:  Standard Tag Format
-+
-+In the three tag types described in this document, the length and count
-+restrictions are based on the current IP limitation of 40 octets for all
-+IP options.  If the IP header is later expanded, then the length and count
-+restrictions specified in this document may increase to use the full area
-+provided for IP options.
-+
-+
-+3.4.1    Tag Type Classes
-+
-+Tag classes consist of tag types that have common processing requirements
-+and support the same security policy.  The three tags defined in this
-+Internet Draft belong to the Mandatory Access Control (MAC) Sensitivity
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 3]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+class and support the MAC Sensitivity security policy.
-+
-+
-+3.4.2    Tag Type 1
-+
-+This is referred to as the "bit-mapped" tag type.  Tag type 1 is included
-+in the MAC Sensitivity tag type class.  The format of this tag type is as
-+follows:
-+
-++----------+----------+----------+----------+--------//---------+
-+| 00000001 | LLLLLLLL | 00000000 | LLLLLLLL | CCCCCCCCCCCCCCCCC |
-++----------+----------+----------+----------+--------//---------+
-+
-+    TAG       TAG      ALIGNMENT  SENSITIVITY    BIT MAP OF
-+    TYPE      LENGTH   OCTET      LEVEL          CATEGORIES
-+
-+            Figure 3. Tag Type 1 Format
-+
-+
-+3.4.2.1    Tag Type
-+
-+This field is 1 octet in length and has a value of 1.
-+
-+
-+3.4.2.2    Tag Length
-+
-+This field is 1 octet in length.  It is the total length of the tag type
-+including the type and length fields.  With the current IP header length
-+restriction of 40 bytes the value within this field is between 4 and 34.
-+
-+
-+3.4.2.3    Alignment Octet
-+
-+This field is 1 octet in length and always has the value of 0.  Its purpose
-+is to align the category bitmap field on an even octet boundary.  This will
-+speed many implementations including router implementations.
-+
-+
-+3.4.2.4    Sensitivity Level
-+
-+This field is 1 octet in length.  Its value is from 0 to 255.  The values
-+are ordered with 0 being the minimum value and 255 representing the maximum
-+value.
-+
-+
-+3.4.2.5    Bit Map of Categories
-+
-+The length of this field is variable and ranges from 0 to 30 octets.  This
-+provides representation of categories 0 to 239.  The ordering of the bits
-+is left to right or MSB to LSB.  For example category 0 is represented by
-+the most significant bit of the first byte and category 15 is represented
-+by the least significant bit of the second byte.  Figure 4 graphically
-+shows this ordering.  Bit N is binary 1 if category N is part of the label
-+for the datagram, and bit N is binary 0 if category N is not part of the
-+label.  Except for the optimized tag 1 format described in the next section,
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 4]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+minimal encoding SHOULD be used resulting in no trailing zero octets in the
-+category bitmap.
-+
-+        octet 0  octet 1  octet 2  octet 3  octet 4  octet 5
-+        XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX . . .
-+bit     01234567 89111111 11112222 22222233 33333333 44444444
-+number             012345 67890123 45678901 23456789 01234567
-+
-+            Figure 4. Ordering of Bits in Tag 1 Bit Map
-+
-+
-+3.4.2.6    Optimized Tag 1 Format
-+
-+Routers work most efficiently when processing fixed length fields.  To
-+support these routers there is an optimized form of tag type 1.  The format
-+does not change.  The only change is to the category bitmap which is set to
-+a constant length of 10 octets.  Trailing octets required to fill out the 10
-+octets are zero filled.  Ten octets, allowing for 80 categories, was chosen
-+because it makes the total length of the CIPSO option 20 octets.  If CIPSO
-+is the only option then the option will be full word aligned and additional
-+filler octets will not be required.
-+
-+
-+3.4.3    Tag Type 2
-+
-+This is referred to as the "enumerated" tag type.  It is used to describe
-+large but sparsely populated sets of categories.  Tag type 2 is in the MAC
-+Sensitivity tag type class.  The format of this tag type is as follows:
-+
-++----------+----------+----------+----------+-------------//-------------+
-+| 00000010 | LLLLLLLL | 00000000 | LLLLLLLL | CCCCCCCCCCCCCCCCCCCCCCCCCC |
-++----------+----------+----------+----------+-------------//-------------+
-+
-+    TAG       TAG      ALIGNMENT  SENSITIVITY         ENUMERATED
-+    TYPE      LENGTH   OCTET      LEVEL               CATEGORIES
-+
-+                Figure 5. Tag Type 2 Format
-+
-+
-+3.4.3.1     Tag Type
-+
-+This field is one octet in length and has a value of 2.
-+
-+
-+3.4.3.2    Tag Length
-+
-+This field is 1 octet in length. It is the total length of the tag type
-+including the type and length fields.  With the current IP header length
-+restriction of 40 bytes the value within this field is between 4 and 34.
-+
-+
-+3.4.3.3    Alignment Octet
-+
-+This field is 1 octet in length and always has the value of 0.  Its purpose
-+is to align the category field on an even octet boundary.  This will
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 5]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+speed many implementations including router implementations.
-+
-+
-+3.4.3.4    Sensitivity Level
-+
-+This field is 1 octet in length. Its value is from 0 to 255.  The values
-+are ordered with 0 being the minimum value and 255 representing the
-+maximum value.
-+
-+
-+3.4.3.5    Enumerated Categories
-+
-+In this tag, categories are represented by their actual value rather than
-+by their position within a bit field.  The length of each category is 2
-+octets.  Up to 15 categories may be represented by this tag.  Valid values
-+for categories are 0 to 65534.  Category 65535 is not a valid category
-+value.  The categories MUST be listed in ascending order within the tag.
-+
-+
-+3.4.4    Tag Type 5
-+
-+This is referred to as the "range" tag type.  It is used to represent
-+labels where all categories in a range, or set of ranges, are included
-+in the sensitivity label.  Tag type 5 is in the MAC Sensitivity tag type
-+class.  The format of this tag type is as follows:
-+
-++----------+----------+----------+----------+------------//-------------+
-+| 00000101 | LLLLLLLL | 00000000 | LLLLLLLL |  Top/Bottom | Top/Bottom  |
-++----------+----------+----------+----------+------------//-------------+
-+
-+    TAG       TAG      ALIGNMENT  SENSITIVITY        CATEGORY RANGES
-+    TYPE      LENGTH   OCTET      LEVEL
-+
-+                     Figure 6. Tag Type 5 Format
-+
-+
-+3.4.4.1     Tag Type
-+
-+This field is one octet in length and has a value of 5.
-+
-+
-+3.4.4.2    Tag Length
-+
-+This field is 1 octet in length. It is the total length of the tag type
-+including the type and length fields.  With the current IP header length
-+restriction of 40 bytes the value within this field is between 4 and 34.
-+
-+
-+3.4.4.3    Alignment Octet
-+
-+This field is 1 octet in length and always has the value of 0.  Its purpose
-+is to align the category range field on an even octet boundary.  This will
-+speed many implementations including router implementations.
-+
-+
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 6]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+3.4.4.4    Sensitivity Level
-+
-+This field is 1 octet in length. Its value is from 0 to 255.  The values
-+are ordered with 0 being the minimum value and 255 representing the maximum
-+value.
-+
-+
-+3.4.4.5    Category Ranges
-+
-+A category range is a 4 octet field comprised of the 2 octet index of the
-+highest numbered category followed by the 2 octet index of the lowest
-+numbered category.  These range endpoints are inclusive within the range of
-+categories.  All categories within a range are included in the sensitivity
-+label.  This tag may contain a maximum of 7 category pairs.  The bottom
-+category endpoint for the last pair in the tag MAY be omitted and SHOULD be
-+assumed to be 0.  The ranges MUST be non-overlapping and be listed in
-+descending order.  Valid values for categories are 0 to 65534.  Category
-+65535 is not a valid category value.
-+
-+
-+3.4.5     Minimum Requirements
-+
-+A CIPSO implementation MUST be capable of generating at least tag type 1 in
-+the non-optimized form.  In addition, a CIPSO implementation MUST be able
-+to receive any valid tag type 1 even those using the optimized tag type 1
-+format.
-+
-+
-+4.    Configuration Parameters
-+
-+The configuration parameters defined below are required for all CIPSO hosts,
-+gateways, and routers that support multiple sensitivity labels.  A CIPSO
-+host is defined to be the origination or destination system for an IP
-+datagram.  A CIPSO gateway provides IP routing services between two or more
-+IP networks and may be required to perform label translations between
-+networks.  A CIPSO gateway may be an enhanced CIPSO host or it may just
-+provide gateway services with no end system CIPSO capabilities.  A CIPSO
-+router is a dedicated IP router that routes IP datagrams between two or more
-+IP networks.
-+
-+An implementation of CIPSO on a host MUST have the capability to reject a
-+datagram for reasons that the information contained can not be adequately
-+protected by the receiving host or if acceptance may result in violation of
-+the host or network security policy.  In addition, a CIPSO gateway or router
-+MUST be able to reject datagrams going to networks that can not provide
-+adequate protection or may violate the network's security policy.  To
-+provide this capability the following minimal set of configuration
-+parameters are required for CIPSO implementations:
-+
-+HOST_LABEL_MAX - This parameter contains the maximum sensitivity label that
-+a CIPSO host is authorized to handle.  All datagrams that have a label
-+greater than this maximum MUST be rejected by the CIPSO host.  This
-+parameter does not apply to CIPSO gateways or routers.  This parameter need
-+not be defined explicitly as it can be implicitly derived from the
-+PORT_LABEL_MAX parameters for the associated interfaces.
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 7]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+
-+HOST_LABEL_MIN - This parameter contains the minimum sensitivity label that
-+a CIPSO host is authorized to handle.  All datagrams that have a label less
-+than this minimum MUST be rejected by the CIPSO host.  This parameter does
-+not apply to CIPSO gateways or routers.  This parameter need not be defined
-+explicitly as it can be implicitly derived from the PORT_LABEL_MIN
-+parameters for the associated interfaces.
-+
-+PORT_LABEL_MAX - This parameter contains the maximum sensitivity label for
-+all datagrams that may exit a particular network interface port.  All
-+outgoing datagrams that have a label greater than this maximum MUST be
-+rejected by the CIPSO system.  The label within this parameter MUST be
-+less than or equal to the label within the HOST_LABEL_MAX parameter.  This
-+parameter does not apply to CIPSO hosts that support only one network port.
-+
-+PORT_LABEL_MIN - This parameter contains the minimum sensitivity label for
-+all datagrams that may exit a particular network interface port.  All
-+outgoing datagrams that have a label less than this minimum MUST be
-+rejected by the CIPSO system.  The label within this parameter MUST be
-+greater than or equal to the label within the HOST_LABEL_MIN parameter.
-+This parameter does not apply to CIPSO hosts that support only one network
-+port.
-+
-+PORT_DOI - This parameter is used to assign a DOI identifier value to a
-+particular network interface port.  All CIPSO labels within datagrams
-+going out this port MUST use the specified DOI identifier.  All CIPSO
-+hosts and gateways MUST support either this parameter, the NET_DOI
-+parameter, or the HOST_DOI parameter.
-+
-+NET_DOI - This parameter is used to assign a DOI identifier value to a
-+particular IP network address.  All CIPSO labels within datagrams destined
-+for the particular IP network MUST use the specified DOI identifier.  All
-+CIPSO hosts and gateways MUST support either this parameter, the PORT_DOI
-+parameter, or the HOST_DOI parameter.
-+
-+HOST_DOI - This parameter is used to assign a DOI identifier value to a
-+particular IP host address.  All CIPSO labels within datagrams destined for
-+the particular IP host will use the specified DOI identifier.  All CIPSO
-+hosts and gateways MUST support either this parameter, the PORT_DOI
-+parameter, or the NET_DOI parameter.
-+
-+This list represents the minimal set of configuration parameters required
-+to be compliant.  Implementors are encouraged to add to this list to
-+provide enhanced functionality and control.  For example, many security
-+policies may require both incoming and outgoing datagrams be checked against
-+the port and host label ranges.
-+
-+
-+4.1    Port Range Parameters
-+
-+The labels represented by the PORT_LABEL_MAX and PORT_LABEL_MIN parameters
-+MAY be in CIPSO or local format.  Some CIPSO systems, such as routers, may
-+want to have the range parameters expressed in CIPSO format so that incoming
-+labels do not have to be converted to a local format before being compared
-+against the range.  If multiple DOIs are supported by one of these CIPSO
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 8]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+systems then multiple port range parameters would be needed, one set for
-+each DOI supported on a particular port.
-+
-+The port range will usually represent the total set of labels that may
-+exist on the logical network accessed through the corresponding network
-+interface.  It may, however, represent a subset of these labels that are
-+allowed to enter the CIPSO system.
-+
-+
-+4.2    Single Label CIPSO Hosts
-+
-+CIPSO implementations that support only one label are not required to
-+support the parameters described above.  These limited implementations are
-+only required to support a NET_LABEL parameter.  This parameter contains
-+the CIPSO label that may be inserted in datagrams that exit the host.  In
-+addition, the host MUST reject any incoming datagram that has a label which
-+is not equivalent to the NET_LABEL parameter.
-+
-+
-+5.    Handling Procedures
-+
-+This section describes the processing requirements for incoming and
-+outgoing IP datagrams.  Just providing the correct CIPSO label format
-+is not enough.  Assumptions will be made by one system on how a
-+receiving system will handle the CIPSO label.  Wrong assumptions may
-+lead to non-interoperability or even a security incident.  The
-+requirements described below represent the minimal set needed for
-+interoperability and that provide users some level of confidence.
-+Many other requirements could be added to increase user confidence,
-+however at the risk of restricting creativity and limiting vendor
-+participation.
-+
-+
-+5.1    Input Procedures
-+
-+All datagrams received through a network port MUST have a security label
-+associated with them, either contained in the datagram or assigned to the
-+receiving port.  Without this label the host, gateway, or router will not
-+have the information it needs to make security decisions.  This security
-+label will be obtained from the CIPSO if the option is present in the
-+datagram.  See section 4.1.2 for handling procedures for unlabeled
-+datagrams.  This label will be compared against the PORT (if appropriate)
-+and HOST configuration parameters defined in section 3.
-+
-+If any field within the CIPSO option, such as the DOI identifier, is not
-+recognized the IP datagram is discarded and an ICMP "parameter problem"
-+(type 12) is generated and returned.  The ICMP code field is set to "bad
-+parameter" (code 0) and the pointer is set to the start of the CIPSO field
-+that is unrecognized.
-+
-+If the contents of the CIPSO are valid but the security label is
-+outside of the configured host or port label range, the datagram is
-+discarded and an ICMP "destination unreachable" (type 3) is generated
-+and returned.  The code field of the ICMP is set to "communication with
-+destination network administratively prohibited" (code 9) or to
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 9]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+"communication with destination host administratively prohibited"
-+(code 10).  The value of the code field used is dependent upon whether
-+the originator of the ICMP message is acting as a CIPSO host or a CIPSO
-+gateway.  The recipient of the ICMP message MUST be able to handle either
-+value.  The same procedure is performed if a CIPSO can not be added to an
-+IP packet because it is too large to fit in the IP options area.
-+
-+If the error is triggered by receipt of an ICMP message, the message
-+is discarded and no response is permitted (consistent with general ICMP
-+processing rules).
-+
-+
-+5.1.1    Unrecognized tag types
-+
-+The default condition for any CIPSO implementation is that an
-+unrecognized tag type MUST be treated as a "parameter problem" and
-+handled as described in section 4.1.  A CIPSO implementation MAY allow
-+the system administrator to identify tag types that may safely be
-+ignored.  This capability is an allowable enhancement, not a
-+requirement.
-+
-+
-+5.1.2    Unlabeled Packets
-+
-+A network port may be configured to not require a CIPSO label for all
-+incoming  datagrams.  For this configuration a CIPSO label must be
-+assigned to that network port and associated with all unlabeled IP
-+datagrams.  This capability might be used for single level networks or
-+networks that have CIPSO and non-CIPSO hosts and the non-CIPSO hosts
-+all operate at the same label.
-+
-+If a CIPSO option is required and none is found, the datagram is
-+discarded and an ICMP "parameter problem" (type 12) is generated and
-+returned to the originator of the datagram.  The code field of the ICMP
-+is set to "option missing" (code 1) and the ICMP pointer is set to 134
-+(the value of the option type for the missing CIPSO option).
-+
-+
-+5.2    Output Procedures
-+
-+A CIPSO option MUST appear only once in a datagram.  Only one tag type
-+from the MAC Sensitivity class MAY be included in a CIPSO option.  Given
-+the current set of defined tag types, this means that CIPSO labels at
-+first will contain only one tag.
-+
-+All datagrams leaving a CIPSO system MUST meet the following condition:
-+
-+        PORT_LABEL_MIN <= CIPSO label <= PORT_LABEL_MAX
-+
-+If this condition is not satisfied the datagram MUST be discarded.
-+If the CIPSO system only supports one port, the HOST_LABEL_MIN and the
-+HOST_LABEL_MAX parameters MAY be substituted for the PORT parameters in
-+the above condition.
-+
-+The DOI identifier to be used for all outgoing datagrams is configured by
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 10]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+the administrator.  If port level DOI identifier assignment is used, then
-+the PORT_DOI configuration parameter MUST contain the DOI identifier to
-+use.  If network level DOI assignment is used, then the NET_DOI parameter
-+MUST contain the DOI identifier to use.  And if host level DOI assignment
-+is employed, then the HOST_DOI parameter MUST contain the DOI identifier
-+to use.  A CIPSO implementation need only support one level of DOI
-+assignment.
-+
-+
-+5.3    DOI Processing Requirements
-+
-+A CIPSO implementation MUST support at least one DOI and SHOULD support
-+multiple DOIs.  System and network administrators are cautioned to
-+ensure that at least one DOI is common within an IP network to allow for
-+broadcasting of IP datagrams.
-+
-+CIPSO gateways MUST be capable of translating a CIPSO option from one
-+DOI to another when forwarding datagrams between networks.  For
-+efficiency purposes this capability is only a desired feature for CIPSO
-+routers.
-+
-+
-+5.4    Label of ICMP Messages
-+
-+The CIPSO label to be used on all outgoing ICMP messages MUST be equivalent
-+to the label of the datagram that caused the ICMP message.  If the ICMP was
-+generated due to a problem associated with the original CIPSO label then the
-+following responses are allowed:
-+
-+  a.  Use the CIPSO label of the original IP datagram
-+  b.  Drop the original datagram with no return message generated
-+
-+In most cases these options will have the same effect.  If you can not
-+interpret the label or if it is outside the label range of your host or
-+interface then an ICMP message with the same label will probably not be
-+able to exit the system.
-+
-+
-+6.    Assignment of DOI Identifier Numbers                                   =
-+
-+Requests for assignment of a DOI identifier number should be addressed to
-+the Internet Assigned Numbers Authority (IANA).
-+
-+
-+7.    Acknowledgements
-+
-+Much of the material in this RFC is based on (and copied from) work
-+done by Gary Winiger of Sun Microsystems and published as Commercial
-+IP Security Option at the INTEROP 89, Commercial IPSO Workshop.
-+
-+
-+8.    Author's Address
-+
-+To submit mail for distribution to members of the IETF CIPSO Working
-+Group, send mail to: cipso@wdl1.wdl.loral.com.
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 11]
-+
-+
-+
-+CIPSO INTERNET DRAFT                                         16 July, 1992
-+
-+
-+
-+
-+To be added to or deleted from this distribution, send mail to:
-+cipso-request@wdl1.wdl.loral.com.
-+
-+
-+9.    References
-+
-+RFC 1038, "Draft Revised IP Security Option", M. St. Johns, IETF, January
-+1988.
-+
-+RFC 1108, "U.S. Department of Defense Security Options
-+for the Internet Protocol", Stephen Kent, IAB, 1 March, 1991.
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+
-+Internet Draft, Expires 15 Jan 93                                 [PAGE 12]
-+
-+
-+
-Index: net-2.6.19/Documentation/netlabel/introduction.txt
-===================================================================
---- /dev/null
-+++ net-2.6.19/Documentation/netlabel/introduction.txt
-@@ -0,0 +1,46 @@
-+NetLabel Introduction
-+==============================================================================
-+Paul Moore, paul.moore@hp.com
-+
-+August 2, 2006
-+
-+ * Overview
-+
-+NetLabel is a mechanism which can be used by kernel security modules to attach
-+security attributes to outgoing network packets generated from user space
-+applications and read security attributes from incoming network packets.  It
-+is composed of three main components, the protocol engines, the communication
-+layer, and the kernel security module API.
-+
-+ * Protocol Engines
-+
-+The protocol engines are responsible for both applying and retrieving the
-+network packet's security attributes.  If any translation between the network
-+security attributes and those on the host are required then the protocol
-+engine will handle those tasks as well.  Other kernel subsystems should
-+refrain from calling the protocol engines directly, instead they should use
-+the NetLabel kernel security module API described below.
-+
-+Detailed information about each NetLabel protocol engine can be found in this
-+directory, consult '00-INDEX' for filenames.
-+
-+ * Communication Layer
-+
-+The communication layer exists to allow NetLabel configuration and monitoring
-+from user space.  The NetLabel communication layer uses a message based
-+protocol built on top of the Generic NETLINK transport mechanism.  The exact
-+formatting of these NetLabel messages as well as the Generic NETLINK family
-+names can be found in the the 'net/netlabel/' directory as comments in the
-+header files as well as in 'include/net/netlabel.h'.
-+
-+ * Security Module API
-+
-+The purpose of the NetLabel security module API is to provide a protocol
-+independent interface to the underlying NetLabel protocol engines.  In addition
-+to protocol independence, the security module API is designed to be completely
-+LSM independent which should allow multiple LSMs to leverage the same code
-+base.
-+
-+Detailed information about the NetLabel security module API can be found in the
-+'include/net/netlabel.h' header file as well as the 'lsm_interface.txt' file
-+found in this directory.
-Index: net-2.6.19/Documentation/netlabel/lsm_interface.txt
-===================================================================
---- /dev/null
-+++ net-2.6.19/Documentation/netlabel/lsm_interface.txt
-@@ -0,0 +1,47 @@
-+NetLabel Linux Security Module Interface
-+==============================================================================
-+Paul Moore, paul.moore@hp.com
-+
-+May 17, 2006
-+
-+ * Overview
-+
-+NetLabel is a mechanism which can set and retrieve security attributes from
-+network packets.  It is intended to be used by LSM developers who want to make
-+use of a common code base for several different packet labeling protocols.
-+The NetLabel security module API is defined in 'include/net/netlabel.h' but a
-+brief overview is given below.
-+
-+ * NetLabel Security Attributes
-+
-+Since NetLabel supports multiple different packet labeling protocols and LSMs
-+it uses the concept of security attributes to refer to the packet's security
-+labels.  The NetLabel security attributes are defined by the
-+'netlbl_lsm_secattr' structure in the NetLabel header file.  Internally the
-+NetLabel subsystem converts the security attributes to and from the correct
-+low-level packet label depending on the NetLabel build time and run time
-+configuration.  It is up to the LSM developer to translate the NetLabel
-+security attributes into whatever security identifiers are in use for their
-+particular LSM.
-+
-+ * NetLabel LSM Protocol Operations
-+
-+These are the functions which allow the LSM developer to manipulate the labels
-+on outgoing packets as well as read the labels on incoming packets.  Functions
-+exist to operate both on sockets as well as the sk_buffs directly.  These high
-+level functions are translated into low level protocol operations based on how
-+the administrator has configured the NetLabel subsystem.
-+
-+ * NetLabel Label Mapping Cache Operations
-+
-+Depending on the exact configuration, translation between the network packet
-+label and the internal LSM security identifier can be time consuming.  The
-+NetLabel label mapping cache is a caching mechanism which can be used to
-+sidestep much of this overhead once a mapping has been established.  Once the
-+LSM has received a packet, used NetLabel to decode it's security attributes,
-+and translated the security attributes into a LSM internal identifier the LSM
-+can use the NetLabel caching functions to associate the LSM internal
-+identifier with the network packet's label.  This means that in the future
-+when a incoming packet matches a cached value not only are the internal
-+NetLabel translation mechanisms bypassed but the LSM translation mechanisms are
-+bypassed as well which should result in a significant reduction in overhead.
-Index: net-2.6.19/Documentation/networking/ip-sysctl.txt
-===================================================================
---- net-2.6.19.orig/Documentation/networking/ip-sysctl.txt
-+++ net-2.6.19/Documentation/networking/ip-sysctl.txt
-@@ -369,6 +369,41 @@ tcp_slow_start_after_idle - BOOLEAN
- 	be timed out after an idle period.
- 	Default: 1
- 
-+CIPSOv4 Variables:
-+
-+cipso_cache_enable - BOOLEAN
-+	If set, enable additions to and lookups from the CIPSO label mapping
-+	cache.  If unset, additions are ignored and lookups always result in a
-+	miss.  However, regardless of the setting the cache is still
-+	invalidated when required when means you can safely toggle this on and
-+	off and the cache will always be "safe".
-+	Default: 1
-+
-+cipso_cache_bucket_size - INTEGER
-+	The CIPSO label cache consists of a fixed size hash table with each
-+	hash bucket containing a number of cache entries.  This variable limits
-+	the number of entries in each hash bucket; the larger the value the
-+	more CIPSO label mappings that can be cached.  When the number of
-+	entries in a given hash bucket reaches this limit adding new entries
-+	causes the oldest entry in the bucket to be removed to make room.
-+	Default: 10
-+
-+cipso_rbm_optfmt - BOOLEAN
-+	Enable the "Optimized Tag 1 Format" as defined in section 3.4.2.6 of
-+	the CIPSO draft specification (see Documentation/netlabel for details).
-+	This means that when set the CIPSO tag will be padded with empty
-+	categories in order to make the packet data 32-bit aligned.
-+	Default: 0
-+
-+cipso_rbm_structvalid - BOOLEAN
-+	If set, do a very strict check of the CIPSO option when
-+	ip_options_compile() is called.  If unset, relax the checks done during
-+	ip_options_compile().  Either way is "safe" as errors are caught else
-+	where in the CIPSO processing code but setting this to 0 (False) should
-+	result in less work (i.e. it should be faster) but could cause problems
-+	with other implementations that require strict checking.
-+	Default: 0
-+
- IP Variables:
- 
- ip_local_port_range - 2 INTEGERS
-
---
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
