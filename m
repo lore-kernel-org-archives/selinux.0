@@ -1,302 +1,157 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71IgEpG000892
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 14:42:14 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71IgCRF000880
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 14:42:12 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k71Ig9vL014569
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 18:42:09 GMT
-Subject: [PATCH 4/6] netfilter integration take 2: add netfilter contexts
-	sorting
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k71Ig7vL014565
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 18:42:07 GMT
+Subject: [PATCH 3/6] netfilter integration take 2: module store support
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 01 Aug 2006 14:43:10 -0400
-Message-Id: <1154457791.31522.150.camel@sgc.columbia.tresys.com>
+Date: Tue, 01 Aug 2006 14:43:09 -0400
+Message-Id: <1154457789.31522.149.camel@sgc.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add sorting function for netfilter contexts.
+Adds support for committing the netfilter_contexts file, and copying it
+out to the running system.
 
- libsemanage/src/direct_api.c     |    8 +
- libsemanage/src/semanage_store.c |  192 +++++++++++++++++++++++++++++++++++++--
- libsemanage/src/semanage_store.h |    6 +
- 3 files changed, 200 insertions(+), 6 deletions(-)
+ libsemanage/src/direct_api.c     |   28 +++++++++++++++++++++-------
+ libsemanage/src/semanage_store.c |   11 +++++++++++
+ libsemanage/src/semanage_store.h |    1 +
+ 3 files changed, 33 insertions(+), 7 deletions(-)
 
 diff --exclude .svn -purN trunk/libsemanage/src/direct_api.c trunk2/libsemanage/src/direct_api.c
---- trunk/libsemanage/src/direct_api.c	2006-07-31 13:28:30.102123500 -0400
-+++ trunk2/libsemanage/src/direct_api.c	2006-07-31 13:32:27.324949000 -0400
-@@ -581,6 +581,14 @@ static int semanage_direct_commit(semana
+--- trunk/libsemanage/src/direct_api.c	2006-07-03 10:42:01.031370000 -0400
++++ trunk2/libsemanage/src/direct_api.c	2006-07-31 11:32:40.511801250 -0400
+@@ -438,8 +438,8 @@ static int semanage_write_module(semanag
+ static int semanage_direct_commit(semanage_handle_t * sh)
+ {
+ 	char **mod_filenames = NULL;
+-	char *sorted_buffer = NULL;
+-	size_t sorted_buffer_len = 0;
++	char *sorted_fc_buffer = NULL, *sorted_nc_buffer = NULL;
++	size_t sorted_fc_buffer_len = 0, sorted_nc_buffer_len = 0;
+ 	const char *linked_filename = NULL, *ofilename = NULL;
+ 	sepol_module_package_t *base = NULL;
+ 	int retval = -1, num_modfiles = 0, i;
+@@ -521,17 +521,17 @@ static int semanage_direct_commit(semana
+ 		if (semanage_fc_sort
+ 		    (sh, sepol_module_package_get_file_contexts(base),
+ 		     sepol_module_package_get_file_contexts_len(base),
+-		     &sorted_buffer, &sorted_buffer_len) == -1) {
++		     &sorted_fc_buffer, &sorted_fc_buffer_len) == -1) {
+ 			goto cleanup;
  		}
  
- 		/* Netfilter Contexts */
-+		/* Sort the netfilter contexts. */
-+		if (semanage_nc_sort
-+		    (sh, sepol_module_package_get_netfilter_contexts(base),
-+		     sepol_module_package_get_netfilter_contexts_len(base),
-+		     &sorted_nc_buffer, &sorted_nc_buffer_len) < 0) {
+ 		/* Write the contexts (including template contexts) to a single file.  
+ 		 * The buffer returned by the sort function has a trailing \0 character,
+-		 * which we do NOT want to write out to disk, so we pass sorted_buffer_len-1. */
++		 * which we do NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
+ 		if ((ofilename =
+ 		     semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL)) == NULL
+-		    || write_file(sh, ofilename, sorted_buffer,
+-				  sorted_buffer_len - 1) == -1) {
++		    || write_file(sh, ofilename, sorted_fc_buffer,
++				  sorted_fc_buffer_len - 1) == -1) {
+ 			goto cleanup;
+ 		}
+ 
+@@ -580,6 +580,19 @@ static int semanage_direct_commit(semana
+ 				goto cleanup;
+ 		}
+ 
++		/* Netfilter Contexts */
++		/* Write the contexts to a single file.  The buffer returned by
++		 * the sort function has a trailing \0 character, which we do
++		 * NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
++		ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_NC);
++		if (ofilename == NULL)
 +			goto cleanup;
-+		}
 +
- 		/* Write the contexts to a single file.  The buffer returned by
- 		 * the sort function has a trailing \0 character, which we do
- 		 * NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
++		if (write_file
++		    (sh, ofilename, sorted_nc_buffer,
++		     sorted_nc_buffer_len - 1) < 0)
++			goto cleanup;
++
+ 		/* ==================== Policydb-backed ================ */
+ 
+ 		/* Create new policy object, then attach to policy databases
+@@ -657,7 +670,8 @@ static int semanage_direct_commit(semana
+ 	sepol_policydb_free(out);
+ 	semanage_release_trans_lock(sh);
+ 
+-	free(sorted_buffer);
++	free(sorted_fc_buffer);
++	free(sorted_nc_buffer);
+ 
+ 	/* regardless if the commit was successful or not, remove the
+ 	   sandbox if it is still there */
 diff --exclude .svn -purN trunk/libsemanage/src/semanage_store.c trunk2/libsemanage/src/semanage_store.c
---- trunk/libsemanage/src/semanage_store.c	2006-07-31 13:28:30.106123750 -0400
-+++ trunk2/libsemanage/src/semanage_store.c	2006-07-31 13:27:08.000000000 -0400
-@@ -2,6 +2,7 @@
-  *	    Joshua Brindle <jbrindle@tresys.com>
-  *	    Jason Tang <jtang@tresys.com>
-  *          Christopher Ashworth <cashworth@tresys.com>
-+ *          Chris PeBenito <cpebenito@tresys.com>
-  *
-  * Copyright (C) 2004-2006 Tresys Technology, LLC
-  * Copyright (C) 2005 Red Hat, Inc.
-@@ -133,6 +134,14 @@ typedef struct semanage_file_context_buc
- 	struct semanage_file_context_bucket *next;
- } semanage_file_context_bucket_t;
+--- trunk/libsemanage/src/semanage_store.c	2006-07-11 11:53:29.388406000 -0400
++++ trunk2/libsemanage/src/semanage_store.c	2006-07-31 11:33:57.444609250 -0400
+@@ -108,6 +108,7 @@ static const char *semanage_sandbox_path
+ 	"/users_extra.local",
+ 	"/seusers.final",
+ 	"/users_extra",
++	"/netfilter_contexts",
+ };
  
-+/* A node used in a linked list of netfilter rules.
-+ */
-+typedef struct semanage_netfilter_context_node {
-+	char *rule;
-+	size_t rule_len;
-+	struct semanage_netfilter_context_node *next;
-+} semanage_netfilter_context_node_t;
-+
- /* Initialize the paths to config file, lock files and store root.
-  */
- static int semanage_init_paths(const char *root)
-@@ -1917,7 +1926,7 @@ static void semanage_fc_find_meta(semana
- }
+ /* A node used in a linked list of file contexts; used for sorting.
+@@ -1000,11 +1001,13 @@ static int semanage_install_active(seman
+ 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_HOMEDIR_TMPL);
+ 	const char *active_seusers =
+ 	    semanage_path(SEMANAGE_ACTIVE, SEMANAGE_SEUSERS);
++	const char *active_nc = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_NC);
  
- /* Replicates strchr, but limits search to buf_len characters. */
--static char *semanage_fc_strnchr(const char *buf, size_t buf_len, char c)
-+static char *semanage_strnchr(const char *buf, size_t buf_len, char c)
- {
- 	size_t idx = 0;
+ 	const char *running_fc = selinux_file_context_path();
+ 	const char *running_hd = selinux_homedir_context_path();
+ 	const char *running_policy = selinux_binary_policy_path();
+ 	const char *running_seusers = selinux_usersconf_path();
++	const char *running_nc = selinux_netfilter_context_path();
+ 	const char *really_active_store = selinux_policy_root();
  
-@@ -1939,7 +1948,7 @@ static char *semanage_fc_strnchr(const c
-  * Used in the context of a file context char buffer that we will be 
-  * parsing and sorting.
-  */
--static char *semanage_fc_get_line_end(const char *buf, size_t buf_len)
-+static char *semanage_get_line_end(const char *buf, size_t buf_len)
- {
- 	char *line_end = NULL;
+ 	/* This is very unelegant, the right thing to do is export the path 
+@@ -1014,12 +1017,14 @@ static int semanage_install_active(seman
+ 	char store_hd[PATH_MAX];
+ 	char store_pol[PATH_MAX];
+ 	char store_seusers[PATH_MAX];
++	char store_nc[PATH_MAX];
  
-@@ -1948,11 +1957,11 @@ static char *semanage_fc_get_line_end(co
- 	if (buf_len <= 0)
- 		return NULL;
+ 	len = strlen(really_active_store);
+ 	running_fc += len;
+ 	running_hd += len;
+ 	running_policy += len;
+ 	running_seusers += len;
++	running_nc += len;
  
--	line_end = semanage_fc_strnchr(buf, buf_len, '\n');
-+	line_end = semanage_strnchr(buf, buf_len, '\n');
- 	if (!line_end)
--		line_end = semanage_fc_strnchr(buf, buf_len, '\r');
-+		line_end = semanage_strnchr(buf, buf_len, '\r');
- 	if (!line_end)
--		line_end = semanage_fc_strnchr(buf, buf_len, EOF);
-+		line_end = semanage_strnchr(buf, buf_len, EOF);
+ 	len = strlen(selinux_path()) + strlen(sh->conf->store_path) + 1;
+ 	storepath = (char *)malloc(len);
+@@ -1056,6 +1061,12 @@ static int semanage_install_active(seman
+ 		/* Non-fatal; fall through */
+ 	}
  
- 	return line_end;
- }
-@@ -2008,7 +2017,7 @@ int semanage_fc_sort(semanage_handle_t *
- 	/* Parse the char buffer into a semanage_file_context_node_t linked list. */
- 	line_buf = buf;
- 	buf_remainder = buf_len;
--	while ((line_end = semanage_fc_get_line_end(line_buf, buf_remainder))) {
-+	while ((line_end = semanage_get_line_end(line_buf, buf_remainder))) {
- 		line_len = line_end - line_buf + 1;
- 		sanity_check = buf_remainder - line_len;
- 		buf_remainder = buf_remainder - line_len;
-@@ -2277,3 +2286,174 @@ int semanage_fc_sort(semanage_handle_t *
- 
- 	return 0;
- }
-+
-+/********************* functions that sort netfilter contexts *********************/
-+#define NC_SORT_NAMES { "pre", "base", "module", "local", "post" }
-+#define NC_SORT_NAMES_LEN { 3, 4, 6, 5, 4 }
-+#define NC_SORT_NEL 5
-+static void semanage_nc_destroy_ruletab(semanage_netfilter_context_node_t *
-+					ruletab[NC_SORT_NEL][2])
-+{
-+	semanage_netfilter_context_node_t *curr, *next;
-+	int i;
-+
-+	for (i = 0; i < NC_SORT_NEL; i++) {
-+		for (curr = ruletab[i][0]; curr != NULL; curr = next) {
-+			next = curr->next;
-+			free(curr->rule);
-+			free(curr);
-+		}
-+	}
-+}
-+
-+/*  Entry function for sorting a set of netfilter context lines.
-+ *  Returns 0 on success, -1 on failure.
-+ *  Allocates a buffer pointed to by sorted_buf that contains the sorted lines.
-+ *  sorted_buf_len is set to the size of this buffer.
-+ *  This buffer is guaranteed to have a final \0 character. 
-+ *  This buffer must be released by the caller.
-+ */
-+int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
-+		     char **sorted_buf, size_t * sorted_buf_len)
-+{
-+
-+	/* parsing bits */
-+	const char *priority_names[] = NC_SORT_NAMES;
-+	const int priority_names_len[] = NC_SORT_NAMES_LEN;
-+	size_t line_len, buf_remainder, i, offset;
-+	const char *line_buf, *line_end;
-+
-+	/* ruletab bits */
-+	/* keep track of the head (index 0) and tail (index 1) with this array */
-+	semanage_netfilter_context_node_t *ruletab[NC_SORT_NEL][2];
-+	semanage_netfilter_context_node_t *curr, *node;
-+	int priority;
-+
-+	/* sorted buffer bits */
-+	char *sorted_buf_pos;
-+	size_t count;
-+
-+	/* initialize ruletab */
-+	memset(ruletab, 0,
-+	       NC_SORT_NEL * 2 * sizeof(semanage_netfilter_context_node_t *));
-+
-+	/* while lines to be read */
-+	line_buf = buf;
-+	buf_remainder = buf_len;
-+	while ((line_end = semanage_get_line_end(line_buf, buf_remainder))) {
-+		line_len = line_end - line_buf + 1;
-+		buf_remainder = buf_remainder - line_len;
-+
-+		if (line_len == 0 || line_len == 1) {
-+			line_buf = line_end + 1;
-+			continue;
-+		}
-+
-+		/* Skip the whitespace at the front of the line. */
-+		for (i = 0; i < line_len; i++) {
-+			if (!isspace(line_buf[i]))
-+				break;
-+		}
-+
-+		/* Check for a blank line. */
-+		if (i >= line_len) {
-+			line_buf = line_end + 1;
-+			continue;
-+		}
-+
-+		/* Check if the line is a comment. */
-+		if (line_buf[i] == '#') {
-+			line_buf = line_end + 1;
-+			continue;
-+		}
-+
-+		/* extract priority */
-+		priority = -1;
-+		offset = 0;
-+		for (i = 0; i < NC_SORT_NEL; i++) {
-+			if (strncmp
-+			    (line_buf, priority_names[i],
-+			     priority_names_len[i]) == 0) {
-+				priority = i;
-+				offset = priority_names_len[i];
-+				break;
-+			}
-+		}
-+
-+		if (priority < 0) {
-+			ERR(sh, "Netfilter context line missing priority.");
-+			semanage_nc_destroy_ruletab(ruletab);
-+			return -1;
-+		}
-+
-+		/* skip over whitespace */
-+		for (; offset < line_len && isspace(line_buf[offset]);
-+		     offset++) ;
-+
-+		/* load rule into node */
-+		node = (semanage_netfilter_context_node_t *)
-+		    malloc(sizeof(semanage_netfilter_context_node_t));
-+		if (!node) {
-+			ERR(sh, "Failure allocating memory.");
-+			semanage_nc_destroy_ruletab(ruletab);
-+			return -1;
-+		}
-+
-+		node->rule =
-+		    (char *)strndup(line_buf + offset, line_len - offset);
-+		node->rule_len = line_len - offset;
-+		node->next = NULL;
-+
-+		if (!node->rule) {
-+			ERR(sh, "Failure allocating memory.");
-+			free(node);
-+			semanage_nc_destroy_ruletab(ruletab);
-+			return -1;
-+		}
-+
-+		/* add node to rule table */
-+		if (ruletab[priority][0] && ruletab[priority][1]) {
-+			/* add to end of list, update tail pointer */
-+			ruletab[priority][1]->next = node;
-+			ruletab[priority][1] = node;
-+		} else {
-+			/* this list is empty, make head and tail point to the node */
-+			ruletab[priority][0] = ruletab[priority][1] = node;
-+		}
-+
-+		line_buf = line_end + 1;
++	snprintf(store_nc, PATH_MAX, "%s%s", storepath, running_nc);
++	if (semanage_copy_file(active_nc, store_nc, sh->conf->file_mode) == -1) {
++		ERR(sh, "Could not copy %s to %s.", active_nc, store_nc);
++		goto cleanup;
 +	}
 +
-+	/* First, calculate how much space we'll need for 
-+	 * the newly sorted block of data.  (We don't just
-+	 * use buf_len for this because we have extracted
-+	 * comments and whitespace.)  Start at 1 for trailing \0 */
-+	count = 1;
-+	for (i = 0; i < NC_SORT_NEL; i++)
-+		for (curr = ruletab[i][0]; curr != NULL; curr = curr->next)
-+			count += curr->rule_len;
-+
-+	/* Allocate the buffer for the sorted list. */
-+	*sorted_buf = calloc(count, sizeof(char));
-+	if (!*sorted_buf) {
-+		ERR(sh, "Failure allocating memory.");
-+		semanage_nc_destroy_ruletab(ruletab);
-+		return -1;
-+	}
-+	*sorted_buf_len = count;
-+
-+	/* write out rule buffer */
-+	sorted_buf_pos = *sorted_buf;
-+	for (i = 0; i < NC_SORT_NEL; i++) {
-+		for (curr = ruletab[i][0]; curr != NULL; curr = curr->next) {
-+			/* put rule into buffer */
-+			snprintf(sorted_buf_pos, curr->rule_len + 1, "%s\n", curr->rule);	/* +1 for newline */
-+			sorted_buf_pos = sorted_buf_pos + curr->rule_len;
-+		}
-+	}
-+
-+	/* free ruletab */
-+	semanage_nc_destroy_ruletab(ruletab);
-+
-+	return 0;
-+}
+ 	if (!sh->do_reload)
+ 		goto skip_reload;
+ 
 diff --exclude .svn -purN trunk/libsemanage/src/semanage_store.h trunk2/libsemanage/src/semanage_store.h
---- trunk/libsemanage/src/semanage_store.h	2006-07-31 13:28:30.106123750 -0400
-+++ trunk2/libsemanage/src/semanage_store.h	2006-07-14 11:15:32.000000000 -0400
-@@ -116,4 +116,10 @@ int semanage_fc_sort(semanage_handle_t *
- 		     size_t buf_len,
- 		     char **sorted_buf, size_t * sorted_buf_len);
+--- trunk/libsemanage/src/semanage_store.h	2006-07-03 10:42:01.031370000 -0400
++++ trunk2/libsemanage/src/semanage_store.h	2006-07-31 11:34:21.370104500 -0400
+@@ -56,6 +56,7 @@ enum semanage_sandbox_defs {
+ 	SEMANAGE_USERS_EXTRA_LOCAL,
+ 	SEMANAGE_SEUSERS,
+ 	SEMANAGE_USERS_EXTRA,
++	SEMANAGE_NC,
+ 	SEMANAGE_STORE_NUM_PATHS
+ };
  
-+/* sort netfilter context routines */
-+int semanage_nc_sort(semanage_handle_t * sh,
-+		     const char *buf,
-+		     size_t buf_len,
-+		     char **sorted_buf, size_t * sorted_buf_len);
-+
- #endif
 
 
 -- 
