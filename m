@@ -1,57 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71CHxcd020904
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 08:17:59 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k71CHnXQ026024
-	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 12:17:49 GMT
-Message-ID: <44CF467A.5080003@tresys.com>
-Date: Tue, 01 Aug 2006 08:18:02 -0400
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k71CTnNn021251
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 08:29:49 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id k71CTivL017504
+	for <selinux@tycho.nsa.gov>; Tue, 1 Aug 2006 12:29:44 GMT
+Message-ID: <44CF4941.9000400@tresys.com>
+Date: Tue, 01 Aug 2006 08:29:53 -0400
 From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
 To: Karl MacMillan <kmacmillan@mentalrootkit.com>
 CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] Introduce symtab_datum_t
-References: <1154357404.26550.79.camel@localhost.localdomain>
-In-Reply-To: <1154357404.26550.79.camel@localhost.localdomain>
+Subject: Re: [PATCH 1/2] Introduce symtab_datum_t
+References: <1154357400.26550.77.camel@localhost.localdomain>
+In-Reply-To: <1154357400.26550.77.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Karl MacMillan wrote:
-> This patch cleans up a cast in module_compiler.c to use the new
-> symtab_datum_t.
+> This patch adds a new structure - symtab_datum_t - and converts all of
+> the datum types to place this struct as their first member. This unifies
+> the storage of data common to all symtab datums and allows free casting
+> between specific datum types (e.g., role_datum_t) and symtab_datum_t.
+> This patch is large, but almost all of the changes are trivial.
 >
 > Karl
 >
->  module_compiler.c |   12 ++++--------
->  1 file changed, 4 insertions(+), 8 deletions(-)
->
-> diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-> index ec5fc89..3252bb7 100644
-> --- a/checkpolicy/module_compiler.c
-> +++ b/checkpolicy/module_compiler.c
-> @@ -137,15 +137,11 @@ int declare_symbol(uint32_t symbol_type,
->  	retval = symtab_insert(policydbp, symbol_type, key, datum,
->  			       SCOPE_DECL, decl->decl_id, dest_value);
->  	if (retval == 1) {
-> -		/* because C has no polymorphism, make the
-> -		 * [outrageous] assumption that the first field of all
-> -		 * symbol table data is a uint32_t representing its
-> -		 * value */
-> -		uint32_t *v =
-> -		    (uint32_t *) hashtab_search(policydbp->symtab[symbol_type].
-> +		symtab_datum_t *s =
-> +		    (symtab_datum_t *)hashtab_search(policydbp->symtab[symbol_type].
->  						table, key);
-> -		assert(v != NULL);
-> -		*dest_value = *v;
-> +		assert(s != NULL);
-> +		*dest_value = s->value;
->  	} else if (retval == -2) {
->  		return -2;
->  	} else if (retval < 0) {
+>  checkpolicy/checkpolicy.c                  |    8 +-
+>  checkpolicy/module_compiler.c              |   34 ++++-----
+>  checkpolicy/policy_parse.y                 |  102 ++++++++++++++---------------
+>  checkpolicy/test/dismod.c                  |   10 +-
+>  libsepol/include/sepol/policydb/policydb.h |   16 ++--
+>  libsepol/include/sepol/policydb/symtab.h   |   11 +++
+>  libsepol/src/booleans.c                    |    2 
+>  libsepol/src/conditional.c                 |    8 +-
+>  libsepol/src/context.c                     |    6 -
+>  libsepol/src/expand.c                      |   34 ++++-----
+>  libsepol/src/genusers.c                    |    2 
+>  libsepol/src/hierarchy.c                   |   18 ++---
+>  libsepol/src/link.c                        |   54 +++++++--------
+>  libsepol/src/mls.c                         |   10 +-
+>  libsepol/src/policydb.c                    |   54 +++++++--------
+>  libsepol/src/services.c                    |   12 +--
+>  libsepol/src/users.c                       |   12 +--
+>  libsepol/src/util.c                        |    2 
+>  libsepol/src/write.c                       |   16 ++--
+>  19 files changed, 211 insertions(+), 200 deletions(-)
 >   
-I think you missed one around line 498.
+Looks good to me (other than my comment in the other patch).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
