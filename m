@@ -1,50 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k72ECWZP029256
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 10:12:32 -0400
-Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k72ECPeA001156
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 14:12:26 GMT
-Subject: Re: [PATCH 3/6] netfilter integration take 2: module store support
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1154457789.31522.149.camel@sgc.columbia.tresys.com>
-References: <1154457789.31522.149.camel@sgc.columbia.tresys.com>
-Content-Type: text/plain
-Date: Wed, 02 Aug 2006 10:12:27 -0400
-Message-Id: <1154527947.27457.52.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <44D0B3F3.9010007@hp.com>
+Date: Wed, 02 Aug 2006 10:17:23 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
+        tjaeger@cse.psu.edu
+Subject: Re: [PATCH 10/10] MLSXFRM-v02: Auto-labeling of child sockets
+References: <36282A1733C57546BE392885C061859201466C5E@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C061859201466C5E@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-01 at 14:43 -0400, Christopher J. PeBenito wrote:
+Venkat Yekkirala wrote:
+>>Hmmm.  I think we are having a bit of a disconnect here, 
+>>perhaps I'm not
+>>explaining myself very clearly so let me give it another shot.
+>>
+>>Please look at net/socket.c:sys_accept() and pay attention to what
+>>happens to the child socket 'newsock' ...
+>>
+>> 1. The child 'newsock', 'struct socket' type, is allocated 
+>>by a call to
+>>    sock_alloc()
+>> 2. 'newsock' inherits it's 'type' and 'ops' fields from it's parent,
+>>    'struct socket' socket, 'sock'
+>> 3. A new file descriptior is allocated for 'newsock', the file
+>>    descriptior is called 'newfd'
+>> 4. 'newfd' is associated with 'newsock'
+>> 5. 'security_socket_accept()' is called
+>> 6. ...
+>>
+>>Unless I'm mistaken, nowhere in the first four steps does the
+>>'newsock->sk' field get populated by a 'struct sock *' from the accept
+>>queue of 'sock'.  The result is that when
+>>'{security,selinux}_socket_accept()' is called the child's 
+>>'sk' field is
+>>not yet valid meaning the inode associated with the child's 
+>>socket will
+>>be labeled with the parent socket's SID.
+> 
+> The sequence you mention is 100% correct. But you need to look past the
+> above.
+> Like I mentioned yesterday, this sid is replaced with the one from the
+> child "sock" in selinux_sock_graft().
 
-<snip>
+Thanks, that is what I was missing.  I misunderstood your comment
+yesterday about sock_graft().  Sorry for the confusion on my part.
 
->  
-> +		/* Netfilter Contexts */
-> +		/* Write the contexts to a single file.  The buffer returned by
-> +		 * the sort function has a trailing \0 character, which we do
-> +		 * NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
-> +		ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_NC);
-> +		if (ofilename == NULL)
-> +			goto cleanup;
-> +
-> +		if (write_file
-> +		    (sh, ofilename, sorted_nc_buffer,
-> +		     sorted_nc_buffer_len - 1) < 0)
-> +			goto cleanup;
-> +
-
-I know that this is lindent, but if you would use a variable for the
-return code and check the variable it wouldn't mangle the formatting
-like this. This is very difficult to parse.
-
-<snip>
-
-Otherwise fine.
-
-Karl
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
