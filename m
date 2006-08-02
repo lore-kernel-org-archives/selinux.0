@@ -1,47 +1,59 @@
-Message-ID: <36282A1733C57546BE392885C061859201466C5E@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
-        tjaeger@cse.psu.edu
-Subject: RE: [PATCH 10/10] MLSXFRM-v02: Auto-labeling of child sockets
-Date: Wed, 2 Aug 2006 10:07:49 -0400 
+Message-ID: <44D0B287.1040500@redhat.com>
+Date: Wed, 02 Aug 2006 10:11:19 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Patch to fix segfault in libselinux
+Content-Type: multipart/mixed;
+ boundary="------------080101030601000807030705"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> Hmmm.  I think we are having a bit of a disconnect here, 
-> perhaps I'm not
-> explaining myself very clearly so let me give it another shot.
-> 
-> Please look at net/socket.c:sys_accept() and pay attention to what
-> happens to the child socket 'newsock' ...
-> 
->  1. The child 'newsock', 'struct socket' type, is allocated 
-> by a call to
->     sock_alloc()
->  2. 'newsock' inherits it's 'type' and 'ops' fields from it's parent,
->     'struct socket' socket, 'sock'
->  3. A new file descriptior is allocated for 'newsock', the file
->     descriptior is called 'newfd'
->  4. 'newfd' is associated with 'newsock'
->  5. 'security_socket_accept()' is called
->  6. ...
-> 
-> Unless I'm mistaken, nowhere in the first four steps does the
-> 'newsock->sk' field get populated by a 'struct sock *' from the accept
-> queue of 'sock'.  The result is that when
-> '{security,selinux}_socket_accept()' is called the child's 
-> 'sk' field is
-> not yet valid meaning the inode associated with the child's 
-> socket will
-> be labeled with the parent socket's SID.
+This is a multi-part message in MIME format.
+--------------080101030601000807030705
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The sequence you mention is 100% correct. But you need to look past the
-above.
-Like I mentioned yesterday, this sid is replaced with the one from the
-child "sock" in selinux_sock_graft().
+* Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-5
+- only build non-fpic objects with -mno-tls-direct-seg-refs
+
+* Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-4
+- build with -mno-tls-direct-seg-refs on x86 to avoid triggering
+  segfaults with xen (#200783)  
+
+
+--------------080101030601000807030705
+Content-Type: text/x-patch;
+ name="libselinux-tlssegneg.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libselinux-tlssegneg.patch"
+
+--- libselinux-1.30.19/src/Makefile.notls	2006-08-01 14:16:38.000000000 -0400
++++ libselinux-1.30.19/src/Makefile	2006-08-01 14:37:15.000000000 -0400
+@@ -24,6 +24,11 @@
+ override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
+ RANLIB=ranlib
+ 
++ARCH := $(patsubst i%86,i386,$(shell uname -m))
++ifneq (,$(filter i386,$(ARCH)))
++TLSFLAGS += -mno-tls-direct-seg-refs
++endif
++
+ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
+ 
+ all: $(LIBA) $(LIBSO) 
+@@ -45,7 +50,7 @@
+ 	ln -sf $@ $(TARGET) 
+ 
+ %.o:  %.c policy.h
+-	$(CC) $(CFLAGS) -c -o $@ $<
++	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
+ 
+ %.lo:  %.c policy.h
+ 	$(CC) $(CFLAGS) -fpic -DSHARED -c -o $@ $<
+
+--------------080101030601000807030705--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
