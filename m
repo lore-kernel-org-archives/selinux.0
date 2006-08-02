@@ -1,53 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k72EWAKT029982
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 10:32:10 -0400
-Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k72EW2eA004036
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 14:32:03 GMT
-Subject: Re: [PATCH 4/6] netfilter integration take 2: add netfilter
-	contexts sorting
+Subject: Re: [PATCH 2/6] netfilter integration take 2: add netfilter
+	contexts package section
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1154457791.31522.150.camel@sgc.columbia.tresys.com>
-References: <1154457791.31522.150.camel@sgc.columbia.tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1154527344.27457.43.camel@localhost.localdomain>
+References: <1154457788.31522.148.camel@sgc.columbia.tresys.com>
+	 <1154525176.27457.40.camel@localhost.localdomain>
+	 <1154525790.16917.49.camel@moss-spartans.epoch.ncsc.mil>
+	 <1154527344.27457.43.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 02 Aug 2006 10:32:02 -0400
-Message-Id: <1154529122.27457.56.camel@localhost.localdomain>
+Date: Wed, 02 Aug 2006 10:35:10 -0400
+Message-Id: <1154529310.27457.59.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-01 at 14:43 -0400, Christopher J. PeBenito wrote:
-> Add sorting function for netfilter contexts.
+On Wed, 2006-08-02 at 10:02 -0400, Karl MacMillan wrote:
+> On Wed, 2006-08-02 at 09:36 -0400, Stephen Smalley wrote:
+> > On Wed, 2006-08-02 at 09:26 -0400, Karl MacMillan wrote:
+> > > On Tue, 2006-08-01 at 14:43 -0400, Christopher J. PeBenito wrote:
+> > > > Add a section to the package for netfilter contexts.
+> > > > 
+> > > >  libsepol/include/sepol/module.h          |   10 ++
+> > > >  libsepol/include/sepol/policydb/module.h |    2
+> > > >  libsepol/src/module.c                    |  119 +++++++++++++++++++++++++++++++
+> > > >  3 files changed, 131 insertions(+)
+> > > > 
+> > > > diff --exclude .svn -purN trunk/libsepol/include/sepol/module.h netfilter-integration/libsepol/include/sepol/module.h
+> > > > --- trunk/libsepol/include/sepol/module.h	2006-07-03 10:42:01.031370000 -0400
+> > > > +++ netfilter-integration/libsepol/include/sepol/module.h	2006-07-14 11:15:32.923435000 -0400
+> > > > @@ -40,6 +40,16 @@ extern size_t sepol_module_package_get_u
+> > > >  extern int sepol_module_package_set_user_extra(sepol_module_package_t * p,
+> > > >  					       char *data, size_t len);
+> > > >  
+> > > > +extern char *sepol_module_package_get_netfilter_contexts(sepol_module_package_t
+> > > > +							 * p);
+> > > > +
+> > > 
+> > > No space in front of p -> *p.
+> > > 
+> > > > +extern size_t
+> > > > +sepol_module_package_get_netfilter_contexts_len(sepol_module_package_t * p);
+> > > > +
+> > > 
+> > > Same - this is all throughout. Otherwise fine.
+> > 
+> > That's an artifact of Lindent.  OTOH, if we stopped used typedef'd types
+> > and just used struct foo *p, I think it does the right thing.
+> > 
 > 
->  libsemanage/src/direct_api.c     |    8 +
->  libsemanage/src/semanage_store.c |  192 +++++++++++++++++++++++++++++++++++++--
->  libsemanage/src/semanage_store.h |    6 +
->  3 files changed, 200 insertions(+), 6 deletions(-)
+> I thought that you were kidding when you suggested that before. It's
+> fine with me, but it will take a while to make the change.
 > 
-> diff --exclude .svn -purN trunk/libsemanage/src/direct_api.c trunk2/libsemanage/src/direct_api.c
-> --- trunk/libsemanage/src/direct_api.c	2006-07-31 13:28:30.102123500 -0400
-> +++ trunk2/libsemanage/src/direct_api.c	2006-07-31 13:32:27.324949000 -0400
-> @@ -581,6 +581,14 @@ static int semanage_direct_commit(semana
->  		}
->  
->  		/* Netfilter Contexts */
-> +		/* Sort the netfilter contexts. */
-> +		if (semanage_nc_sort
-> +		    (sh, sepol_module_package_get_netfilter_contexts(base),
-> +		     sepol_module_package_get_netfilter_contexts_len(base),
-> +		     &sorted_nc_buffer, &sorted_nc_buffer_len) < 0) {
-> +			goto cleanup;
-> +		}
-> +
 
-This is very difficult to read. Please split into multiple lines so that
-lindent doesn't do this.
-
-Otherwise looks fine to me.
+And until we remove the typedefs I guess that we should stick with what
+lindent does - so forget my comments about the pointer spacing.
 
 Karl
+
+> Karl
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
