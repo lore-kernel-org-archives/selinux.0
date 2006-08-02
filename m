@@ -1,49 +1,71 @@
-Subject: Re: [PATCH 2/6] netfilter integration take 2: add netfilter
-	contexts package section
+Subject: Re: [RFC 1/3] secid reconciliation on inbound
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1154525176.27457.40.camel@localhost.localdomain>
-References: <1154457788.31522.148.camel@sgc.columbia.tresys.com>
-	 <1154525176.27457.40.camel@localhost.localdomain>
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
+        jmorris@namei.org, chanson@TrustedCS.com
+In-Reply-To: <44CFD0DA.9060205@trustedcs.com>
+References: <44CFD0DA.9060205@trustedcs.com>
 Content-Type: text/plain
-Date: Wed, 02 Aug 2006 09:36:30 -0400
-Message-Id: <1154525790.16917.49.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 02 Aug 2006 09:49:24 -0400
+Message-Id: <1154526564.16917.63.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-02 at 09:26 -0400, Karl MacMillan wrote:
-> On Tue, 2006-08-01 at 14:43 -0400, Christopher J. PeBenito wrote:
-> > Add a section to the package for netfilter contexts.
-> > 
-> >  libsepol/include/sepol/module.h          |   10 ++
-> >  libsepol/include/sepol/policydb/module.h |    2
-> >  libsepol/src/module.c                    |  119 +++++++++++++++++++++++++++++++
-> >  3 files changed, 131 insertions(+)
-> > 
-> > diff --exclude .svn -purN trunk/libsepol/include/sepol/module.h netfilter-integration/libsepol/include/sepol/module.h
-> > --- trunk/libsepol/include/sepol/module.h	2006-07-03 10:42:01.031370000 -0400
-> > +++ netfilter-integration/libsepol/include/sepol/module.h	2006-07-14 11:15:32.923435000 -0400
-> > @@ -40,6 +40,16 @@ extern size_t sepol_module_package_get_u
-> >  extern int sepol_module_package_set_user_extra(sepol_module_package_t * p,
-> >  					       char *data, size_t len);
-> >  
-> > +extern char *sepol_module_package_get_netfilter_contexts(sepol_module_package_t
-> > +							 * p);
-> > +
+On Tue, 2006-08-01 at 17:08 -0500, Venkat Yekkirala wrote:
+> Currently a packet accumulates multiple security identifiers, each of a
+> different class, as it enters the system. This patch set reconciles these
+> identifiers into a single identifier while also allowing LSM (SELinux is
+> addressed in this patch set) to impose flow control checks based on the
+> identifiers.
 > 
-> No space in front of p -> *p.
+> The reconciliation steps for SELinux are explained in the Labeled Networking
+> document at:
+> http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2
 > 
-> > +extern size_t
-> > +sepol_module_package_get_netfilter_contexts_len(sepol_module_package_t * p);
-> > +
+> The following are the identifiers handled here:
 > 
-> Same - this is all throughout. Otherwise fine.
+> 1. secmark on the skb
+> 2. xfrm security identifier associated with the skb if it used any xfrms,
+>    a zero secid otherwise.
+> 
+> This patch: Add new flask definitions to SELinux
+> 
+> Adds a new avperm "come_thru" to arbitrate among the identifiers on the
+> inbound (input/forward). Also adds a new avperm "go_thru" to enable flow
+> control checks on the outbound (output/forward), addressed in a later
+> patch.
 
-That's an artifact of Lindent.  OTOH, if we stopped used typedef'd types
-and just used struct foo *p, I think it does the right thing.
+(altered cc line for discussion of implications for selinux and its use
+of secmark)
+
+The recent netfilter integration work is generating secmark labeling
+rules to label packets based on their destination port and direction
+(client/server), and refpolicy already includes packet types for this
+purpose and rules to allow domains to send and recv packets appropriate
+for their domain using the existing packet send/recv permissions.
+
+More generally, secmark is intended to serve as a more expressive
+replacement for all of the old netif/node/port checks, so one should be
+able to use it to enforce policies like "Only processes with label A can
+send/recv on netif N1 and only processes with label B can send/recv on
+netif N2" or policies like "Processes with label A can only receive
+packets from source ports with label P".
+
+With your "secid reconciliation", you replace the secmark label with the
+xfrm label (even in the unlabeled case?) after the come_thru/go_thru
+checking, and end up using the xfrm label for the packet send/recv
+check.  This seems to lose the relationship between the original secmark
+label and the sending/receiving socket label.
+
+More generally, the xfrm label tells us something about the peer, while
+the secmark label is based on the packet properties, often based on its
+destination properties (like receiving netif and destination port)
+rather than source properties.
+
+Am I missing something?  Or is such reconciliation not really feasible
+without losing the original intended functionality of secmark?
 
 -- 
 Stephen Smalley
