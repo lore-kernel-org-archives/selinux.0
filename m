@@ -1,76 +1,77 @@
-Subject: Re: [RFC 1/3] secid reconciliation on inbound
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <44D0AEA6.6040107@hp.com>
+Date: Wed, 02 Aug 2006 09:54:46 -0400
+From: Paul Moore <paul.moore@hp.com>
+MIME-Version: 1.0
 To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, chanson@TrustedCS.com
-In-Reply-To: <44CFD0DA.9060205@trustedcs.com>
-References: <44CFD0DA.9060205@trustedcs.com>
-Content-Type: text/plain
-Date: Wed, 02 Aug 2006 09:49:24 -0400
-Message-Id: <1154526564.16917.63.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, sds@tycho.nsa.gov,
+        tjaeger@cse.psu.edu
+Subject: Re: [PATCH 10/10] MLSXFRM-v02: Auto-labeling of child sockets
+References: <36282A1733C57546BE392885C061859201466C35@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C061859201466C35@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2006-08-01 at 17:08 -0500, Venkat Yekkirala wrote:
-> Currently a packet accumulates multiple security identifiers, each of a
-> different class, as it enters the system. This patch set reconciles these
-> identifiers into a single identifier while also allowing LSM (SELinux is
-> addressed in this patch set) to impose flow control checks based on the
-> identifiers.
+Venkat Yekkirala wrote:
+>>>>Am I missing something here?  Am I thinking about this wrong?
+>>>
+>>>While selinux_socket_accept() does set/initialize the child 
+>>
+>>"socket's" sid
+>>
+>>>with the parent's sid, this sid is replaced with the one from the
+>>>child "sock" in selinux_sock_graft().
+>>>
+>>>Again, are you noticing descrepancies at execution time or 
+>>
+>>just browsing
+>>
+>>>the patch? If the former, could you point to the code path?
+>>
+>>I understand how the sk_security_struct->sid, if present, is 
+>>used to set
+>>the inode_security_struct->sid in selinux_socket_accept().  
+>>However, if
+>>I understand the code correctly in the normal accept() case the
+>>selinux_socket_accept() hook is called before a connection if taken of
+>>the accept queue, meaning that socket->sk (and hence 
+>>sk_security_struct)
+>>do not yet exist.
 > 
-> The reconciliation steps for SELinux are explained in the Labeled Networking
-> document at:
-> http://marc.theaimsgroup.com/?l=linux-netdev&m=115136637800361&w=2
 > 
-> The following are the identifiers handled here:
+> Not true. The child "sock" will already have been created and tied to
+> the request_sock before the request_sock gets onto the accept queue. Look
+> at:
+> tcp_v4_syn_recv_sock, inet_csk_reqsk_queue_add, reqsk_queue_add and
+> finally at inet_accept.
 > 
-> 1. secmark on the skb
-> 2. xfrm security identifier associated with the skb if it used any xfrms,
->    a zero secid otherwise.
-> 
-> This patch: Add new flask definitions to SELinux
-> 
-> Adds a new avperm "come_thru" to arbitrate among the identifiers on the
-> inbound (input/forward). Also adds a new avperm "go_thru" to enable flow
-> control checks on the outbound (output/forward), addressed in a later
-> patch.
 
-(altered cc line for discussion of implications for selinux and its use
-of secmark)
+Hmmm.  I think we are having a bit of a disconnect here, perhaps I'm not
+explaining myself very clearly so let me give it another shot.
 
-The recent netfilter integration work is generating secmark labeling
-rules to label packets based on their destination port and direction
-(client/server), and refpolicy already includes packet types for this
-purpose and rules to allow domains to send and recv packets appropriate
-for their domain using the existing packet send/recv permissions.
+Please look at net/socket.c:sys_accept() and pay attention to what
+happens to the child socket 'newsock' ...
 
-More generally, secmark is intended to serve as a more expressive
-replacement for all of the old netif/node/port checks, so one should be
-able to use it to enforce policies like "Only processes with label A can
-send/recv on netif N1 and only processes with label B can send/recv on
-netif N2" or policies like "Processes with label A can only receive
-packets from source ports with label P".
+ 1. The child 'newsock', 'struct socket' type, is allocated by a call to
+    sock_alloc()
+ 2. 'newsock' inherits it's 'type' and 'ops' fields from it's parent,
+    'struct socket' socket, 'sock'
+ 3. A new file descriptior is allocated for 'newsock', the file
+    descriptior is called 'newfd'
+ 4. 'newfd' is associated with 'newsock'
+ 5. 'security_socket_accept()' is called
+ 6. ...
 
-With your "secid reconciliation", you replace the secmark label with the
-xfrm label (even in the unlabeled case?) after the come_thru/go_thru
-checking, and end up using the xfrm label for the packet send/recv
-check.  This seems to lose the relationship between the original secmark
-label and the sending/receiving socket label.
-
-More generally, the xfrm label tells us something about the peer, while
-the secmark label is based on the packet properties, often based on its
-destination properties (like receiving netif and destination port)
-rather than source properties.
-
-Am I missing something?  Or is such reconciliation not really feasible
-without losing the original intended functionality of secmark?
+Unless I'm mistaken, nowhere in the first four steps does the
+'newsock->sk' field get populated by a 'struct sock *' from the accept
+queue of 'sock'.  The result is that when
+'{security,selinux}_socket_accept()' is called the child's 'sk' field is
+not yet valid meaning the inode associated with the child's socket will
+be labeled with the parent socket's SID.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
