@@ -1,28 +1,52 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k72Jnatp008075
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 15:49:36 -0400
-Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k72JnTeA021251
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 19:49:30 GMT
-Subject: Re: [PATCH 7/6] netfilter integration take 2: style fixes
+Subject: Re: [PATCH 2/2] userland support for new range_transition
+	statements
 From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1154538846.31522.177.camel@sgc.columbia.tresys.com>
-References: <1154538846.31522.177.camel@sgc.columbia.tresys.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+In-Reply-To: <44D0D516.5010906@trustedcs.com>
+References: <44CA298B.7080706@trustedcs.com>
+	 <1154438074.23513.30.camel@twoface.columbia.tresys.com>
+	 <44D0D516.5010906@trustedcs.com>
 Content-Type: text/plain
-Date: Wed, 02 Aug 2006 15:49:30 -0400
-Message-Id: <1154548170.27457.93.camel@localhost.localdomain>
+Date: Wed, 02 Aug 2006 15:51:29 -0400
+Message-Id: <1154548289.27457.96.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-02 at 13:14 -0400, Christopher J. PeBenito wrote:
-> This applies on top of the previous patches, to fix style.  Also removed
-> a NULL check since semanage_path() can't return NULL.
+On Wed, 2006-08-02 at 11:38 -0500, Darrel Goeddel wrote:
+> Joshua Brindle wrote:
+> > On Fri, 2006-07-28 at 11:13 -0400, Darrel Goeddel wrote:
+> > 
+> >>Index: libsepol/include/sepol/policydb/policydb.h
+> >>===================================================================
+> >>--- libsepol/include/sepol/policydb/policydb.h  (revision 38)
+> >>+++ libsepol/include/sepol/policydb/policydb.h  (working copy)
+> > 
+> > 
+> >>+typedef struct range_trans_rule {
+> >>+       type_set_t stypes;
+> >>+       type_set_t ttypes;
+> >>+       class_perm_node_t *classes;     /* only class is used */
+> >>+       mls_range_t trange;
+> >>+       struct range_trans_rule *next;
+> >>+} range_trans_rule_t;
+> >>+
+> > 
+> > 
+> > Are we sure that mls_range_t is semantic enough to store the rule, even
+> > in a module situation where all the symbols are not present?
+> 
+> Hmmm...  I assume that you have MLS requirements in mind when you say that,
+> especially the '.' notation.  The problem is that if we specify "s4:c0.c12" as
+> the range, how do we know what will be between c0 and c12 (they are arbitrary
+> names).  Are you suggesting possibly storing the string and figuring the whole
+> thing out at expand time?
 > 
 
-This looks good to me.
+Or storing the start and end of the range. This seems analogous to
+attributes to me and we defer interpreting them until expand time.
 
 Karl
 
