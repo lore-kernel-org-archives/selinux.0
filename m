@@ -1,54 +1,37 @@
-Subject: Re: [PATCH 2/2] userland support for new range_transition
-	statements
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
-In-Reply-To: <44D0D516.5010906@trustedcs.com>
-References: <44CA298B.7080706@trustedcs.com>
-	 <1154438074.23513.30.camel@twoface.columbia.tresys.com>
-	 <44D0D516.5010906@trustedcs.com>
-Content-Type: text/plain
-Date: Wed, 02 Aug 2006 15:51:29 -0400
-Message-Id: <1154548289.27457.96.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k72KQ6C3009257
+	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 16:26:06 -0400
+Received: from mail.atsec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k72KPxeA026542
+	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 20:25:59 GMT
+Date: Wed, 2 Aug 2006 15:25:57 -0500
+From: Klaus Weidner <klaus@atsec.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: russell@coker.com.au, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: SMP enabled restorecon
+Message-ID: <20060802202557.GC5967@w-m-p.com>
+References: <200607300117.23329.russell@coker.com.au> <200607302314.00725.russell@coker.com.au> <200607310012.02943.russell@coker.com.au> <44D10261.4020005@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <44D10261.4020005@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-02 at 11:38 -0500, Darrel Goeddel wrote:
-> Joshua Brindle wrote:
-> > On Fri, 2006-07-28 at 11:13 -0400, Darrel Goeddel wrote:
-> > 
-> >>Index: libsepol/include/sepol/policydb/policydb.h
-> >>===================================================================
-> >>--- libsepol/include/sepol/policydb/policydb.h  (revision 38)
-> >>+++ libsepol/include/sepol/policydb/policydb.h  (working copy)
-> > 
-> > 
-> >>+typedef struct range_trans_rule {
-> >>+       type_set_t stypes;
-> >>+       type_set_t ttypes;
-> >>+       class_perm_node_t *classes;     /* only class is used */
-> >>+       mls_range_t trange;
-> >>+       struct range_trans_rule *next;
-> >>+} range_trans_rule_t;
-> >>+
-> > 
-> > 
-> > Are we sure that mls_range_t is semantic enough to store the rule, even
-> > in a module situation where all the symbols are not present?
+On Wed, Aug 02, 2006 at 03:52:01PM -0400, Daniel J Walsh wrote:
+> You might want to look at what find is doing also, since it seems more 
+> efficient that restorecon
 > 
-> Hmmm...  I assume that you have MLS requirements in mind when you say that,
-> especially the '.' notation.  The problem is that if we specify "s4:c0.c12" as
-> the range, how do we know what will be between c0 and c12 (they are arbitrary
-> names).  Are you suggesting possibly storing the string and figuring the whole
-> thing out at expand time?
+> time restorecon -R /etc
+> real    0m5.729s
 > 
+> time find /etc/ | restorecon -f -
+> real    0m5.153s
 
-Or storing the start and end of the range. This seems analogous to
-attributes to me and we defer interpreting them until expand time.
+This might be the leaf optimization (see find(1), -noleaf), "find" uses
+the directory hard link count to avoid stat()ing files when it knows that
+they cannot be directories.
 
-Karl
+-Klaus
 
 --
 This message was distributed to subscribers of the selinux mailing list.
