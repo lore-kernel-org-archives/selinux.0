@@ -1,87 +1,140 @@
-Message-ID: <36282A1733C57546BE392885C061859201466CC5@chaos.tcs.tcs-sec.com>
-From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan
-	 <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov,
-        jmorris@namei.org, Chad Hanson <chanson@TrustedCS.com>
-Subject: RE: [RFC 1/3] secid reconciliation on inbound
-Date: Wed, 2 Aug 2006 11:55:31 -0400 
+Message-ID: <44D0D516.5010906@trustedcs.com>
+Date: Wed, 02 Aug 2006 11:38:46 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>
+Subject: Re: [PATCH 2/2] userland support for new range_transition statements
+References: <44CA298B.7080706@trustedcs.com> <1154438074.23513.30.camel@twoface.columbia.tresys.com>
+In-Reply-To: <1154438074.23513.30.camel@twoface.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> More generally, secmark is intended to serve as a more expressive
-> replacement for all of the old netif/node/port checks, so one 
-> should be
-> able to use it to enforce policies like "Only processes with 
-> label A can
-> send/recv on netif N1 and only processes with label B can send/recv on
-> netif N2" or policies like "Processes with label A can only receive
-> packets from source ports with label P".
-
-Let me try to reconcile :) the above with the reconciliation proposed here.
-
-In the new paradigm, the netfilter rules are merely flow control points
-with externally unlabeled data coming thru (if flow-allowed by policy)
-and acquiring the label of the flow control point by virtue of the data
-coming in thru the flow control point.
-
-So in the non-xfrm case, the above example can be re-expressed as:
-"Only processes with label A can recv data with label N1 and only processes
-with label B can recv data with label N2" or policies like "Processes with
-label A can only receive packets from data with label P".
-
-In the xfrm case, the following is how this could be approached:
-"Only processes with label A can recv data with label T1 (T1 being a xfrm
-type allowed in thru flow control point type N1)...
-
+Joshua Brindle wrote:
+> On Fri, 2006-07-28 at 11:13 -0400, Darrel Goeddel wrote:
 > 
-> With your "secid reconciliation", you replace the secmark 
-> label with the
-> xfrm label (even in the unlabeled case?)
-
-Will fix this so that the flow control check will still happen
-in the unlabeled/no xfrm case, but it (unlabeled) won't override
-secmark (as opposed to the labeled xfrm case where it will override
-secmark).
-
-> after the come_thru/go_thru
-> checking, and end up using the xfrm label for the packet send/recv
-> check.  This seems to lose the relationship between the 
-> original secmark
-> label and the sending/receiving socket label.
-
-The direct relationship is being lost, yes, but the indirect relatioship
-is still there. This is where I wonder what examples we can think of that
-the indirect relationship won't satisfy.
-
+>>Index: libsepol/include/sepol/policydb/policydb.h
+>>===================================================================
+>>--- libsepol/include/sepol/policydb/policydb.h  (revision 38)
+>>+++ libsepol/include/sepol/policydb/policydb.h  (working copy)
 > 
-> More generally, the xfrm label tells us something about the 
-> peer, while
-> the secmark label is based on the packet properties, often 
-> based on its
-> destination properties (like receiving netif and destination port)
-> rather than source properties.
+> 
+>>+typedef struct range_trans_rule {
+>>+       type_set_t stypes;
+>>+       type_set_t ttypes;
+>>+       class_perm_node_t *classes;     /* only class is used */
+>>+       mls_range_t trange;
+>>+       struct range_trans_rule *next;
+>>+} range_trans_rule_t;
+>>+
+> 
+> 
+> Are we sure that mls_range_t is semantic enough to store the rule, even
+> in a module situation where all the symbols are not present?
 
-In theory, I don't see why data couldn't have labels of different
-classes (and related controls), but we are still having to answer
-the question of what the label of the data is for:
+Hmmm...  I assume that you have MLS requirements in mind when you say that,
+especially the '.' notation.  The problem is that if we specify "s4:c0.c12" as
+the range, how do we know what will be between c0 and c12 (they are arbitrary
+names).  Are you suggesting possibly storing the string and figuring the whole
+thing out at expand time?
 
-a. servicing the data at the right label
-b. outbound flow control
-c. xfrm-selection for forwarded traffic.
+We could also make sensitivity and category names non-arbitrary and force the 
+naming convention of s# and c# ;)  Translations take care of human-readable for
+us now...
 
-The answer can again be 2 (or more labels) with a "priority" rather
-than reconciliation for item (a), and perhaps ALL labels for item (b).
-But then there's added effort involved with retaining these multiple
-labels (secmark, sp on the skb and cipso) across all the different
-code paths.
+>>+static int expand_range_trans(expand_state_t *state,
+>>range_trans_rule_t *rules)
+>>+{
+>>+       unsigned int i, j;
+>>+       range_trans_t *rt, *lrt, *cur_rt;
+>>+       range_trans_rule_t *rule;
+>>+       class_perm_node_t *cp;
+>>+
+>>+       ebitmap_t stypes, ttypes;
+>>+       ebitmap_node_t *snode, *tnode;
+>>+
+>>+       /* start appending at the end of the current list */
+>>+       for (lrt = state->out->range_tr; lrt && lrt->next; lrt =
+>>lrt->next)
+>>+               ;
+> 
+> 
+> I know the current code is like this, it was probably done that way to
+> match the pre-module compiler behavior but we could probably change
+> these to prepend, for simpler code.
 
-So the question boils down to whether there are realistic examples of
-policy expression that can't be handled in the new paradigm.
+I'll look at that.
+
+>>+                                       rt = (range_trans_t
+>>*)malloc(sizeof(range_trans_t));
+>>+                                       if (!rt) {
+>>+                                               ERR(state->handle,
+>>"Out of memory!");
+>>+                                               return -1;
+>>+                                       }
+>>+                                       memset(rt, 0,
+>>sizeof(range_trans_t));
+> 
+> 
+> It is my preference to have initializers for structs but even if not the
+> current trend in this library is to turn malloc/memset into calloc.
+> (Though I'd really prefer an initializer just so that these sites don't
+> have to be audited when the struct changes)
+
+I'll check on this as well - I'll at least change to calloc.
+
+>>+               new_range->target_class = range->target_class;
+>>+               if (mls_level_clone(&new_range->target_range.level[0],
+>>+                                   &range->target_range.level[0]) ||
+>>+                   mls_level_clone(&new_range->target_range.level[1],
+>>+                                   &range->target_range.level[1])) {
+> 
+> 
+> can we break these into separate calls? It is easier to read IMO
+
+Yep.
+
+>>        items = put_entry(buf, sizeof(uint32_t), 1, fp);
+>>        if (items != 1)
+>>                return -1;
+>>        for (rt = p->range_tr; rt; rt = rt->next) {
+>>-               buf[0] = cpu_to_le32(rt->dom);
+>>-               buf[1] = cpu_to_le32(rt->type);
+>>+               if (!new_rangetr && rt->target_class !=
+>>SECCLASS_PROCESS)
+>>+                       continue;
+> 
+> 
+> I think this was mentioned in another email but a WARN() should probably
+> be put here
+
+Will do.
+
+>>+       rule = malloc(sizeof(struct range_trans_rule));
+>>+       if (!rule) {
+>>+               yyerror("out of memory");
+>>+               return -1;
+>>+       }
+>>+       memset(rule, 0, sizeof(struct range_trans_rule));
+> 
+> 
+> init?
+
+Sounds like a plan.
+
+> In addition to the other comments this looks pretty good. I hope that
+> we'll be able to use this format change to allow range_trans in modules.
+
+Cool.  I hope to have a revision of the patch that includes your all of the
+feedback received so far (except the mls_range_t in the range_trans_rule_t - I
+think there will be more discussion there) by tomorrow afternoon.
+
+
+-- 
+
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
