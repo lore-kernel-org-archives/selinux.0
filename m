@@ -1,47 +1,67 @@
-Subject: Re: SMP enabled restorecon
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Klaus Weidner <klaus@atsec.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, russell@coker.com.au,
-        SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20060802202557.GC5967@w-m-p.com>
-References: <200607300117.23329.russell@coker.com.au>
-	 <200607302314.00725.russell@coker.com.au>
-	 <200607310012.02943.russell@coker.com.au> <44D10261.4020005@redhat.com>
-	 <20060802202557.GC5967@w-m-p.com>
-Content-Type: text/plain
-Date: Wed, 02 Aug 2006 16:38:38 -0400
-Message-Id: <1154551118.16917.216.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44D12036.7030601@trustedcs.com>
+Date: Wed, 02 Aug 2006 16:59:18 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+CC: Joshua Brindle <jbrindle@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+Subject: Re: [PATCH 2/2] userland support for new range_transition statements
+References: <44CA298B.7080706@trustedcs.com>	 <1154438074.23513.30.camel@twoface.columbia.tresys.com>	 <44D0D516.5010906@trustedcs.com> <1154548289.27457.96.camel@localhost.localdomain>
+In-Reply-To: <1154548289.27457.96.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-02 at 15:25 -0500, Klaus Weidner wrote:
-> On Wed, Aug 02, 2006 at 03:52:01PM -0400, Daniel J Walsh wrote:
-> > You might want to look at what find is doing also, since it seems more 
-> > efficient that restorecon
-> > 
-> > time restorecon -R /etc
-> > real    0m5.729s
-> > 
-> > time find /etc/ | restorecon -f -
-> > real    0m5.153s
+Karl MacMillan wrote:
+> On Wed, 2006-08-02 at 11:38 -0500, Darrel Goeddel wrote:
 > 
-> This might be the leaf optimization (see find(1), -noleaf), "find" uses
-> the directory hard link count to avoid stat()ing files when it knows that
-> they cannot be directories.
+>>Joshua Brindle wrote:
+>>
+>>>On Fri, 2006-07-28 at 11:13 -0400, Darrel Goeddel wrote:
+>>>
+>>>
+>>>>Index: libsepol/include/sepol/policydb/policydb.h
+>>>>===================================================================
+>>>>--- libsepol/include/sepol/policydb/policydb.h  (revision 38)
+>>>>+++ libsepol/include/sepol/policydb/policydb.h  (working copy)
+>>>
+>>>
+>>>>+typedef struct range_trans_rule {
+>>>>+       type_set_t stypes;
+>>>>+       type_set_t ttypes;
+>>>>+       class_perm_node_t *classes;     /* only class is used */
+>>>>+       mls_range_t trange;
+>>>>+       struct range_trans_rule *next;
+>>>>+} range_trans_rule_t;
+>>>>+
+>>>
+>>>
+>>>Are we sure that mls_range_t is semantic enough to store the rule, even
+>>>in a module situation where all the symbols are not present?
+>>
+>>Hmmm...  I assume that you have MLS requirements in mind when you say that,
+>>especially the '.' notation.  The problem is that if we specify "s4:c0.c12" as
+>>the range, how do we know what will be between c0 and c12 (they are arbitrary
+>>names).  Are you suggesting possibly storing the string and figuring the whole
+>>thing out at expand time?
+>>
+> 
+> 
+> Or storing the start and end of the range. This seems analogous to
+> attributes to me and we defer interpreting them until expand time.
 
-Given that coreutils selinux support is being upstreamed and Jim
-Meyering has rewritten chcon to use fts and openat-style functions, I
-have to wonder whether we shouldn't just seek to merge
-restorecon/setfiles-like functionality into chcon as an option and drop
-them as separate entities.  IOW, have an option to chcon that says to
-use matchpathcon to get the context instead of having the user specify
-it as an argument.
+A level can contain any combination of category ranges and single categories
+such as "s3:c0,c4,c10.c20,c24,c30.c38".  It seems like we would need a list of
+structs to represent each piece semantically (single cat c0, single cat c4,
+range of cats from c10 to c20, ...) - the string seems to do that nicely.  To
+use the above level, we would require the sensitivity s3 and the categories
+c0, c4, c10, c20, c24, c30, and c38.  At expansion time, the string would tell
+us that we really wanted the categories in between c10 and c20, as well as the
+categories in between c30 and c38, to be included as well.
 
 -- 
-Stephen Smalley
-National Security Agency
 
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
