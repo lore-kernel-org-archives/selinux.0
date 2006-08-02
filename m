@@ -1,140 +1,66 @@
-Message-ID: <44D0D516.5010906@trustedcs.com>
-Date: Wed, 02 Aug 2006 11:38:46 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: SELinux List <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH 2/2] userland support for new range_transition statements
-References: <44CA298B.7080706@trustedcs.com> <1154438074.23513.30.camel@twoface.columbia.tresys.com>
-In-Reply-To: <1154438074.23513.30.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k72HD236002864
+	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 13:13:02 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id k72HCpa2021214
+	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 17:12:51 GMT
+Subject: [PATCH 7/6] netfilter integration take 2: style fixes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 02 Aug 2006 13:14:06 -0400
+Message-Id: <1154538846.31522.177.camel@sgc.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> On Fri, 2006-07-28 at 11:13 -0400, Darrel Goeddel wrote:
-> 
->>Index: libsepol/include/sepol/policydb/policydb.h
->>===================================================================
->>--- libsepol/include/sepol/policydb/policydb.h  (revision 38)
->>+++ libsepol/include/sepol/policydb/policydb.h  (working copy)
-> 
-> 
->>+typedef struct range_trans_rule {
->>+       type_set_t stypes;
->>+       type_set_t ttypes;
->>+       class_perm_node_t *classes;     /* only class is used */
->>+       mls_range_t trange;
->>+       struct range_trans_rule *next;
->>+} range_trans_rule_t;
->>+
-> 
-> 
-> Are we sure that mls_range_t is semantic enough to store the rule, even
-> in a module situation where all the symbols are not present?
+This applies on top of the previous patches, to fix style.  Also removed
+a NULL check since semanage_path() can't return NULL.
 
-Hmmm...  I assume that you have MLS requirements in mind when you say that,
-especially the '.' notation.  The problem is that if we specify "s4:c0.c12" as
-the range, how do we know what will be between c0 and c12 (they are arbitrary
-names).  Are you suggesting possibly storing the string and figuring the whole
-thing out at expand time?
+ direct_api.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-We could also make sensitivity and category names non-arbitrary and force the 
-naming convention of s# and c# ;)  Translations take care of human-readable for
-us now...
-
->>+static int expand_range_trans(expand_state_t *state,
->>range_trans_rule_t *rules)
->>+{
->>+       unsigned int i, j;
->>+       range_trans_t *rt, *lrt, *cur_rt;
->>+       range_trans_rule_t *rule;
->>+       class_perm_node_t *cp;
->>+
->>+       ebitmap_t stypes, ttypes;
->>+       ebitmap_node_t *snode, *tnode;
->>+
->>+       /* start appending at the end of the current list */
->>+       for (lrt = state->out->range_tr; lrt && lrt->next; lrt =
->>lrt->next)
->>+               ;
-> 
-> 
-> I know the current code is like this, it was probably done that way to
-> match the pre-module compiler behavior but we could probably change
-> these to prepend, for simpler code.
-
-I'll look at that.
-
->>+                                       rt = (range_trans_t
->>*)malloc(sizeof(range_trans_t));
->>+                                       if (!rt) {
->>+                                               ERR(state->handle,
->>"Out of memory!");
->>+                                               return -1;
->>+                                       }
->>+                                       memset(rt, 0,
->>sizeof(range_trans_t));
-> 
-> 
-> It is my preference to have initializers for structs but even if not the
-> current trend in this library is to turn malloc/memset into calloc.
-> (Though I'd really prefer an initializer just so that these sites don't
-> have to be audited when the struct changes)
-
-I'll check on this as well - I'll at least change to calloc.
-
->>+               new_range->target_class = range->target_class;
->>+               if (mls_level_clone(&new_range->target_range.level[0],
->>+                                   &range->target_range.level[0]) ||
->>+                   mls_level_clone(&new_range->target_range.level[1],
->>+                                   &range->target_range.level[1])) {
-> 
-> 
-> can we break these into separate calls? It is easier to read IMO
-
-Yep.
-
->>        items = put_entry(buf, sizeof(uint32_t), 1, fp);
->>        if (items != 1)
->>                return -1;
->>        for (rt = p->range_tr; rt; rt = rt->next) {
->>-               buf[0] = cpu_to_le32(rt->dom);
->>-               buf[1] = cpu_to_le32(rt->type);
->>+               if (!new_rangetr && rt->target_class !=
->>SECCLASS_PROCESS)
->>+                       continue;
-> 
-> 
-> I think this was mentioned in another email but a WARN() should probably
-> be put here
-
-Will do.
-
->>+       rule = malloc(sizeof(struct range_trans_rule));
->>+       if (!rule) {
->>+               yyerror("out of memory");
->>+               return -1;
->>+       }
->>+       memset(rule, 0, sizeof(struct range_trans_rule));
-> 
-> 
-> init?
-
-Sounds like a plan.
-
-> In addition to the other comments this looks pretty good. I hope that
-> we'll be able to use this format change to allow range_trans in modules.
-
-Cool.  I hope to have a revision of the patch that includes your all of the
-feedback received so far (except the mls_range_t in the range_trans_rule_t - I
-think there will be more discussion there) by tomorrow afternoon.
+diff --exclude .svn -purN trunk/libsemanage/src/direct_api.c netfilter-integration/libsemanage/src/direct_api.c
+--- trunk/libsemanage/src/direct_api.c	2006-08-02 13:05:25.058888750 -0400
++++ netfilter-integration/libsemanage/src/direct_api.c	2006-08-02 12:49:32.179337500 -0400
+@@ -582,23 +582,22 @@ static int semanage_direct_commit(semana
+ 
+ 		/* Netfilter Contexts */
+ 		/* Sort the netfilter contexts. */
+-		if (semanage_nc_sort
++		retval = semanage_nc_sort
+ 		    (sh, sepol_module_package_get_netfilter_contexts(base),
+ 		     sepol_module_package_get_netfilter_contexts_len(base),
+-		     &sorted_nc_buffer, &sorted_nc_buffer_len) < 0) {
++		     &sorted_nc_buffer, &sorted_nc_buffer_len);
++
++		if (retval < 0)
+ 			goto cleanup;
+-		}
+ 
+ 		/* Write the contexts to a single file.  The buffer returned by
+ 		 * the sort function has a trailing \0 character, which we do
+ 		 * NOT want to write out to disk, so we pass sorted_fc_buffer_len-1. */
+ 		ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_NC);
+-		if (ofilename == NULL)
+-			goto cleanup;
++		retval = write_file
++		    (sh, ofilename, sorted_nc_buffer, sorted_nc_buffer_len - 1);
+ 
+-		if (write_file
+-		    (sh, ofilename, sorted_nc_buffer,
+-		     sorted_nc_buffer_len - 1) < 0)
++		if (retval < 0)
+ 			goto cleanup;
+ 
+ 		/* ==================== Policydb-backed ================ */
 
 
 -- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
