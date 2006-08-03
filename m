@@ -1,47 +1,28 @@
-Subject: Re: [PATCH 1/2] Optionally expand neverallows, propagate errors in
-	policydb
+Subject: Re: [PATCH 3/5] libsepol tests for the linker
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Jeremy A. Mowery" <jmowery@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-dev@tresys.com
-In-Reply-To: <1154612344.12897.43.camel@Bishop.columbia.tresys.com>
-References: <1154612344.12897.43.camel@Bishop.columbia.tresys.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
+In-Reply-To: <1154618848.9569.3.camel@twoface.columbia.tresys.com>
+References: <1154614654.4909.19.camel@twoface.columbia.tresys.com>
+	 <1154618848.9569.3.camel@twoface.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 03 Aug 2006 12:19:28 -0400
-Message-Id: <1154621968.32479.65.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 03 Aug 2006 12:36:55 -0400
+Message-Id: <1154623015.32479.67.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-08-03 at 09:39 -0400, Jeremy A. Mowery wrote:
-> This patch allows neverallow rules to be expanded into the avtab for
-> analysis purposes. This option is added to the expand state structure
-> (and set to off by default).  When neverallows are expanded, the
-> unsupported_format flag is set for the policydb disallowing hierarchy
-> and assertion checking, and disabling writing the binary file. The read
-> and write functions now recognize this state and appropriate defines
-> were added for the return values.
+On Thu, 2006-08-03 at 11:27 -0400, Joshua Brindle wrote:
+> On Thu, 2006-08-03 at 10:17 -0400, Joshua Brindle wrote:
+> > This tests the linker in a macro fashion. It basically runs policies
+> > through the linker and tests for the expected result on the other
+> > side.
+> > The coverage is listed at the top of each test file
+> > (test-linker-types.c).
 > 
-> (This is a resend of the previous patch set with corrections made as per
-> suggestions on the list.)
-> 
-> Jeremy A. Mowery
-> Tresys Technology
-> 410-290-1411 x148
+> updated for symtab_datum_t change
 
-> diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/expand.c branch/setools_public-policydb-components/libsepol/src/expand.c
-> --- trunk/libsepol/src/expand.c	2006-07-13 13:57:39.000000000 -0400
-> +++ trunk/libsepol/src/expand.c	2006-08-01 11:05:06.000000000 -0400
-> @@ -1007,6 +1008,10 @@ static avtab_ptr_t find_avtab_node(sepol
->  	return node;
->  }
->  
-> +#define EXPAND_RULE_SUCCESS   1
-> +#define EXPAND_RULE_CONFLICT  0
-> +#define EXPAND_RULE_ERROR    -1
-
-Ok, so now you are preserving the original return values.
-But you still don't update all callers to check for the #define'd symbol
-rather than the hardcoded value of 1 for success (look for != 1).
+Thanks, all 5 patches merged.
 
 -- 
 Stephen Smalley
