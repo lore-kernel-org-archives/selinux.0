@@ -1,31 +1,31 @@
-Subject: Re: [PATCH 0/5] libsepol unit tests
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, kmacmillan@mentalrootkit.com
-In-Reply-To: <1154614649.4909.17.camel@twoface.columbia.tresys.com>
-References: <1154614649.4909.17.camel@twoface.columbia.tresys.com>
-Content-Type: text/plain
-Date: Thu, 03 Aug 2006 10:52:42 -0400
-Message-Id: <1154616762.32479.51.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <44D21454.2080507@redhat.com>
+Date: Thu, 03 Aug 2006 11:20:52 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to fix segfault in libselinux
+References: <44D0B287.1040500@redhat.com> <1154615738.32479.38.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1154615738.32479.38.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2006-08-03 at 10:17 -0400, Joshua Brindle wrote:
-> This patchset adds unit tests to libsepol for the linker, the expander
-> and the dependency algorithm as well as more infrastructure to make
-> adding tests much easier. The linker and dep tests are fairly exhaustive
-> but the expander ones will need to be added to over time. I lindented
-> the patches but removed the line length limit, since almost all the
-> calls were over 80 columns the link limit mutilated the tests and made
-> them very difficult to read.
-
-Needs to be updated for the symtab_datum_t change.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Stephen Smalley wrote:
+> On Wed, 2006-08-02 at 10:11 -0400, Daniel J Walsh wrote:
+>   
+>> * Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-5
+>> - only build non-fpic objects with -mno-tls-direct-seg-refs
+>>
+>> * Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-4
+>> - build with -mno-tls-direct-seg-refs on x86 to avoid triggering
+>>   segfaults with xen (#200783)  
+>>     
+>
+> What's really at fault here, libselinux or xen?
+>
+>   
+libselinux in a threaded environment.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
