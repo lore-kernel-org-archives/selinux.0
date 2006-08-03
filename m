@@ -1,25 +1,21 @@
-Subject: Re: Patch to fix segfault in libselinux
+Subject: Re: [PATCH] secon makefile
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <44D0B287.1040500@redhat.com>
-References: <44D0B287.1040500@redhat.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, kvance@tresys.com
+In-Reply-To: <1154528354.9510.2.camel@twoface.columbia.tresys.com>
+References: <1154528354.9510.2.camel@twoface.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 03 Aug 2006 10:35:38 -0400
-Message-Id: <1154615738.32479.38.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 03 Aug 2006 10:35:49 -0400
+Message-Id: <1154615749.32479.40.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-02 at 10:11 -0400, Daniel J Walsh wrote:
-> * Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-5
-> - only build non-fpic objects with -mno-tls-direct-seg-refs
-> 
-> * Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-4
-> - build with -mno-tls-direct-seg-refs on x86 to avoid triggering
->   segfaults with xen (#200783)  
+On Wed, 2006-08-02 at 10:19 -0400, Joshua Brindle wrote:
+> The secon makefile did not correctly respect DESTDIR so building the
+> repo in a sandbox was not possible. 
 
-What's really at fault here, libselinux or xen?
+Thanks, merged.
 
 -- 
 Stephen Smalley
