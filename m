@@ -1,21 +1,25 @@
-Subject: Re: [PATCH 2/2] Ver 2 Introduce symtab_datum_t
+Subject: Re: Patch to fix segfault in libselinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1154542197.27457.88.camel@localhost.localdomain>
-References: <1154542197.27457.88.camel@localhost.localdomain>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <44D0B287.1040500@redhat.com>
+References: <44D0B287.1040500@redhat.com>
 Content-Type: text/plain
-Date: Thu, 03 Aug 2006 10:36:12 -0400
-Message-Id: <1154615772.32479.42.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 03 Aug 2006 10:35:38 -0400
+Message-Id: <1154615738.32479.38.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2006-08-02 at 14:09 -0400, Karl MacMillan wrote:
-> This patch cleans up two casts in module_compiler.c to use the new
-> symtab_datum_t.
+On Wed, 2006-08-02 at 10:11 -0400, Daniel J Walsh wrote:
+> * Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-5
+> - only build non-fpic objects with -mno-tls-direct-seg-refs
+> 
+> * Tue Aug  1 2006 Jeremy Katz <katzj@redhat.com> - 1.30.19-4
+> - build with -mno-tls-direct-seg-refs on x86 to avoid triggering
+>   segfaults with xen (#200783)  
 
-Thanks, merged.
+What's really at fault here, libselinux or xen?
 
 -- 
 Stephen Smalley
