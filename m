@@ -1,1032 +1,1526 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDfSl001542
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDfrQ001536
 	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:41 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDXCS012279
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:33 GMT
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDNME023944
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:23 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDUXQ019467
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:30 -0400
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDTvo019458
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:29 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDUeo019466
-	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:30 -0400
-Subject: [PATCH 3/5] libsepol tests for the linker
-From: Joshua Brindle <jbrindle@tresys.com>
+	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDTKo019457
+	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:29 -0400
+Subject: [PATCH 1/2] Optionally expand neverallows, propagate errors in
+	policydb
+From: "Jeremy A. Mowery" <jmowery@tresys.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com
+Cc: selinux-dev@tresys.com, sds@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 03 Aug 2006 10:17:33 -0400
-Message-Id: <1154614654.4909.19.camel@twoface.columbia.tresys.com>
+Date: Thu, 03 Aug 2006 09:39:03 -0400
+Message-Id: <1154612344.12897.43.camel@Bishop.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This tests the linker in a macro fashion. It basically runs policies
-through the linker and tests for the expected result on the other side.
-The coverage is listed at the top of each test file
-(test-linker-types.c). 
+This patch allows neverallow rules to be expanded into the avtab for
+analysis purposes. This option is added to the expand state structure
+(and set to off by default).  When neverallows are expanded, the
+unsupported_format flag is set for the policydb disallowing hierarchy
+and assertion checking, and disabling writing the binary file. The read
+and write functions now recognize this state and appropriate defines
+were added for the return values.
 
-diff -pruN -x policies trunk.old/libsepol/tests/libsepol-tests.c trunk/libsepol/tests/libsepol-tests.c
---- trunk.old/libsepol/tests/libsepol-tests.c	2006-08-03 09:47:55.000000000 -0400
-+++ trunk/libsepol/tests/libsepol-tests.c	2006-08-03 09:50:58.000000000 -0400
-@@ -19,6 +19,7 @@
-  */
- 
- #include "test-cond.h"
-+#include "test-linker.h"
- 
- #include <CUnit/Basic.h>
- #include <CUnit/Console.h>
-@@ -55,6 +56,7 @@ static int do_tests(int interactive, int
- 		return CU_get_error();
- 
- 	DECLARE_SUITE(cond);
-+	DECLARE_SUITE(linker);
- 
- 	if (verbose)
- 		CU_basic_set_mode(CU_BRM_VERBOSE);
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker.c trunk/libsepol/tests/test-linker.c
---- trunk.old/libsepol/tests/test-linker.c	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker.c	2006-08-01 11:12:40.000000000 -0400
-@@ -0,0 +1,154 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+/* This is where the linker tests should go, including:
-+ * - check role, type, bool, user, attr mapping
-+ * - check for properly enabled optional
-+ * - check for properly disabled optional
-+ * - check for non-optional disabled blocks
-+ * - properly add symbols declared in optionals
-+ */
-+
-+#include "test-linker.h"
-+#include "parse_util.h"
-+#include "helpers.h"
-+#include "test-common.h"
-+#include "test-linker-roles.h"
-+#include "test-linker-types.h"
-+#include "test-linker-cond-map.h"
-+
-+#include <sepol/policydb/policydb.h>
-+#include <sepol/policydb/link.h>
-+#include <sepol/policydb/conditional.h>
-+#include <sepol/policydb/expand.h>
-+#include <limits.h>
-+#include <stdlib.h>
-+
-+#define NUM_MODS 2
-+#define NUM_POLICIES NUM_MODS+1
-+
-+#define BASEMOD NUM_MODS
-+const char *policies[NUM_POLICIES] = {
-+	"module1.conf",
-+	"module2.conf",
-+	"small-base.conf",
-+};
-+
-+static policydb_t basenomods;
-+static policydb_t linkedbase;
-+static policydb_t *modules[NUM_MODS];
-+extern int mls;
-+
-+int linker_test_init(void)
-+{
-+	int i;
-+
-+	if (test_load_policy(&linkedbase, POLICY_BASE, mls, "test-linker", policies[BASEMOD]))
-+		return -1;
-+
-+	if (test_load_policy(&basenomods, POLICY_BASE, mls, "test-linker", policies[BASEMOD]))
-+		return -1;
-+
-+	for (i = 0; i < NUM_MODS; i++) {
-+
-+		modules[i] = calloc(1, sizeof(*modules[i]));
-+		if (!modules[i]) {
-+			fprintf(stderr, "out of memory!\n");
-+			return -1;
-+		}
-+
-+		if (test_load_policy(modules[i], POLICY_MOD, mls, "test-linker", policies[i]))
-+			return -1;
-+
-+	}
-+
-+	if (link_modules(NULL, &linkedbase, modules, NUM_MODS, 0)) {
-+		fprintf(stderr, "link modules failed\n");
-+		return -1;
-+	}
-+
-+	if (link_modules(NULL, &basenomods, NULL, 0, 0)) {
-+		fprintf(stderr, "link modules failed\n");
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+int linker_test_cleanup(void)
-+{
-+	int i;
-+
-+	policydb_destroy(&basenomods);
-+	policydb_destroy(&linkedbase);
-+
-+	for (i = 0; i < NUM_MODS; i++) {
-+		policydb_destroy(modules[i]);
-+		free(modules[i]);
-+	}
-+	return 0;
-+}
-+
-+static void test_linker_indexes(void)
-+{
-+	test_policydb_indexes(&linkedbase);
-+}
-+
-+static void test_linker_roles(void)
-+{
-+	base_role_tests(&basenomods);
-+	base_role_tests(&linkedbase);
-+	module_role_tests(&linkedbase);
-+}
-+
-+static void test_linker_types(void)
-+{
-+	base_type_tests(&basenomods);
-+	base_type_tests(&linkedbase);
-+	module_type_tests(&linkedbase);
-+}
-+
-+static void test_linker_cond(void)
-+{
-+	base_cond_tests(&basenomods);
-+	base_cond_tests(&linkedbase);
-+	module_cond_tests(&linkedbase);
-+}
-+
-+int linker_add_tests(CU_pSuite suite)
-+{
-+	if (NULL == CU_add_test(suite, "linker_indexes", test_linker_indexes)) {
-+		CU_cleanup_registry();
-+		return CU_get_error();
-+	}
-+	if (NULL == CU_add_test(suite, "linker_types", test_linker_types)) {
-+		CU_cleanup_registry();
-+		return CU_get_error();
-+	}
-+	if (NULL == CU_add_test(suite, "linker_roles", test_linker_roles)) {
-+		CU_cleanup_registry();
-+		return CU_get_error();
-+	}
-+	if (NULL == CU_add_test(suite, "linker_cond", test_linker_cond)) {
-+		CU_cleanup_registry();
-+		return CU_get_error();
-+	}
-+	return 0;
-+}
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker-cond-map.c trunk/libsepol/tests/test-linker-cond-map.c
---- trunk.old/libsepol/tests/test-linker-cond-map.c	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker-cond-map.c	2006-08-02 13:27:49.000000000 -0400
-@@ -0,0 +1,159 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include "parse_util.h"
-+#include "helpers.h"
-+#include "test-common.h"
-+
-+#include <sepol/policydb/policydb.h>
-+#include <sepol/policydb/link.h>
-+#include <sepol/policydb/conditional.h>
-+
-+#include <CUnit/Basic.h>
-+#include <stdlib.h>
-+
-+/* Tests for conditionals
-+ * Test each cond/bool for these
-+ * - boolean copied correctly (state is correct)
-+ * - conditional expression is correct
-+ * Tests: 
-+ * - single boolean in base
-+ * - single boolean in module
-+ * - single boolean in base optional
-+ * - single boolean in module optional
-+ * - 2 booleans in base
-+ * - 2 booleans in module
-+ * - 2 booleans in base optional
-+ * - 2 booleans in module optional
-+ * - 2 booleans, base and module
-+ * - 2 booleans, base optional and module
-+ * - 2 booleans, base optional and module optional
-+ * - 3 booleans, base, base optional, module
-+ * - 4 boolean, base, base optional, module, module optional
-+ */
-+
-+typedef struct test_cond_expr {
-+	char *bool;
-+	uint32_t expr_type;
-+} test_cond_expr_t;
-+
-+void test_cond_expr_mapping(policydb_t * p, avrule_decl_t * d, test_cond_expr_t * bools, int len)
-+{
-+	int i;
-+	cond_expr_t *expr;
-+
-+	CU_ASSERT_FATAL(d->cond_list != NULL);
-+	CU_ASSERT_FATAL(d->cond_list->expr != NULL);
-+
-+	expr = d->cond_list->expr;
-+
-+	for (i = 0; i < len; i++) {
-+		CU_ASSERT_FATAL(expr != NULL);
-+
-+		CU_ASSERT(expr->expr_type == bools[i].expr_type);
-+		if (bools[i].bool) {
-+			CU_ASSERT(strcmp(p->sym_val_to_name[SYM_BOOLS][expr->bool - 1], bools[i].bool) == 0);
-+		}
-+		expr = expr->next;
-+	}
-+}
-+
-+void test_bool_state(policydb_t * p, char *bool, int state)
-+{
-+	cond_bool_datum_t *b;
-+
-+	b = hashtab_search(p->p_bools.table, bool);
-+	CU_ASSERT_FATAL(b != NULL);
-+	CU_ASSERT(b->state == state);
-+}
-+
-+void base_cond_tests(policydb_t * base)
-+{
-+	avrule_decl_t *d;
-+	unsigned int decls[1];
-+	test_cond_expr_t bools[2];
-+
-+	/* these tests look at booleans and conditionals in the base only
-+	 * to ensure that they aren't altered or removed during the link process */
-+
-+	/* bool existance and state, global scope */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b");
-+	decls[0] = d->decl_id;
-+	test_sym_presence(base, "g_b_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
-+	test_bool_state(base, "g_b_bool_1", 0);
-+	/* conditional expression mapped correctly */
-+	bools[0].bool = "g_b_bool_1";
-+	bools[0].expr_type = COND_BOOL;
-+	test_cond_expr_mapping(base, d, bools, 1);
-+
-+	/* bool existance and state, optional scope */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b");
-+	decls[0] = d->decl_id;
-+	test_sym_presence(base, "o1_b_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
-+	test_bool_state(base, "o1_b_bool_1", 1);
-+	/* conditional expression mapped correctly */
-+	bools[0].bool = "o1_b_bool_1";
-+	bools[0].expr_type = COND_BOOL;
-+	test_cond_expr_mapping(base, d, bools, 1);
-+
-+}
-+
-+void module_cond_tests(policydb_t * base)
-+{
-+	avrule_decl_t *d;
-+	unsigned int decls[1];
-+	test_cond_expr_t bools[3];
-+
-+	/* bool existance and state, module 1 global scope */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1");
-+	decls[0] = d->decl_id;
-+	test_sym_presence(base, "g_m1_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
-+	test_bool_state(base, "g_m1_bool_1", 1);
-+	/* conditional expression mapped correctly */
-+	bools[0].bool = "g_m1_bool_1";
-+	bools[0].expr_type = COND_BOOL;
-+	test_cond_expr_mapping(base, d, bools, 1);
-+
-+	/* bool existance and state, module 1 optional scope */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1");
-+	decls[0] = d->decl_id;
-+	test_sym_presence(base, "o1_m1_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
-+	test_bool_state(base, "o1_m1_bool_1", 0);
-+	/* conditional expression mapped correctly */
-+	bools[0].bool = "o1_m1_bool_1";
-+	bools[0].expr_type = COND_BOOL;
-+	test_cond_expr_mapping(base, d, bools, 1);
-+
-+	/* bool existance and state, module 2 global scope */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m2");
-+	decls[0] = d->decl_id;
-+	test_sym_presence(base, "g_m2_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
-+	test_sym_presence(base, "g_m2_bool_2", SYM_BOOLS, SCOPE_DECL, decls, 1);
-+	test_bool_state(base, "g_m2_bool_1", 1);
-+	test_bool_state(base, "g_m2_bool_2", 0);
-+	/* conditional expression mapped correctly */
-+	bools[0].bool = "g_m2_bool_1";
-+	bools[0].expr_type = COND_BOOL;
-+	bools[1].bool = "g_m2_bool_2";
-+	bools[1].expr_type = COND_BOOL;
-+	bools[2].bool = NULL;
-+	bools[2].expr_type = COND_AND;
-+	test_cond_expr_mapping(base, d, bools, 3);
-+}
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker-cond-map.h trunk/libsepol/tests/test-linker-cond-map.h
---- trunk.old/libsepol/tests/test-linker-cond-map.h	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker-cond-map.h	2006-07-26 14:19:16.000000000 -0400
-@@ -0,0 +1,27 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_LINKER_COND_MAP_H__
-+#define __TEST_LINKER_COND_MAP_H__
-+
-+extern void base_cond_tests(policydb_t * base);
-+extern void module_cond_tests(policydb_t * base);
-+
-+#endif
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker.h trunk/libsepol/tests/test-linker.h
---- trunk.old/libsepol/tests/test-linker.h	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker.h	2006-07-26 11:01:56.000000000 -0400
-@@ -0,0 +1,30 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_LINKER_H__
-+#define __TEST_LINKER_H__
-+
-+#include <CUnit/Basic.h>
-+
-+int linker_test_init(void);
-+int linker_test_cleanup(void);
-+int linker_add_tests(CU_pSuite suite);
-+
-+#endif
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker-roles.c trunk/libsepol/tests/test-linker-roles.c
---- trunk.old/libsepol/tests/test-linker-roles.c	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker-roles.c	2006-08-02 13:27:49.000000000 -0400
-@@ -0,0 +1,206 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include "parse_util.h"
-+#include "helpers.h"
-+#include "test-common.h"
-+
-+#include <sepol/policydb/policydb.h>
-+#include <sepol/policydb/link.h>
-+
-+#include <CUnit/Basic.h>
-+#include <stdlib.h>
-+
-+/* Tests for roles:
-+ * Test for each of these for 
-+ * - role in appropriate symtab (global and decl)
-+ * - datum in the decl symtab has correct type_set
-+ * - scope datum has correct decl ids
-+ * - dominates bitmap is correct
-+ * Tests:
-+ * - role in base, no modules
-+ * - role in base optional, no modules
-+ * - role a in base, b in module
-+ * - role a in base and module (additive)
-+ * - role a in base and 2 module
-+ * - role a in base optional, b in module
-+ * - role a in base, b in module optional
-+ * - role a in base optional, b in module optional
-+ * - role a in base optional and module
-+ * - role a in base and module optional
-+ * - role a in base optional and module optional
-+ * - role a in base optional and 2 modules
-+ * - role a and b in base, b dom a, are types correct (TODO)
-+ */
-+
-+/* this simply tests whether the passed in role only has its own 
-+ * value in its dominates ebitmap */
-+static void only_dominates_self(policydb_t * p, role_datum_t * role)
-+{
-+	ebitmap_node_t *tnode;
-+	unsigned int i;
-+	int found = 0;
-+
-+	ebitmap_for_each_bit(&role->dominates, tnode, i) {
-+		if (ebitmap_node_get_bit(tnode, i)) {
-+			found++;
-+			CU_ASSERT(i == role->value - 1);
-+		}
-+	}
-+	CU_ASSERT(found == 1);
-+}
-+
-+void base_role_tests(policydb_t * base)
-+{
-+	avrule_decl_t *decl;
-+	role_datum_t *role;
-+	unsigned int decls[2];
-+	char *types[2];
-+
-+	/* These tests look at roles in the base only, the desire is to ensure that
-+	 * roles are not destroyed or otherwise removed during the link process */
-+
-+	/**** test for g_b_role_1 in base and decl 1 (global) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	test_sym_presence(base, "g_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
-+	/* make sure it has the correct type set (g_b_type_1, no negset, no flags) */
-+	types[0] = "g_b_type_1";
-+	role = test_role_type_set(base, "g_b_role_1", NULL, types, 1, 0);
-+	/* This role should only dominate itself */
-+	only_dominates_self(base, role);
-+
-+	/**** test for o1_b_role_1 in optional (decl 2) ****/
-+	decl = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b");
-+	decls[0] = decl->decl_id;
-+	test_sym_presence(base, "o1_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
-+	/* make sure it has the correct type set (o1_b_type_1, no negset, no flags) */
-+	types[0] = "o1_b_type_1";
-+	role = test_role_type_set(base, "o1_b_role_1", decl, types, 1, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+}
-+
-+void module_role_tests(policydb_t * base)
-+{
-+	role_datum_t *role;
-+	avrule_decl_t *decl;
-+	unsigned int decls[2];
-+	char *types[3];
-+
-+	/* These tests are run when the base is linked with 2 modules,
-+	 * They should test whether the roles get copied correctly from the 
-+	 * modules into the base */
-+
-+	/**** test for role in module 1 (global) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "g_m1_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
-+	/* make sure it has the correct type set (g_m1_type_1, no negset, no flags) */
-+	types[0] = "g_m1_type_1";
-+	role = test_role_type_set(base, "g_m1_role_1", NULL, types, 1, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+
-+	/**** test for role in module 1 (optional) ****/
-+	decl = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1");
-+	decls[0] = decl->decl_id;
-+	test_sym_presence(base, "o1_m1_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
-+	/* make sure it has the correct type set (o1_m1_type_1, no negset, no flags) */
-+	types[0] = "o1_m1_type_1";
-+	role = test_role_type_set(base, "o1_m1_role_1", decl, types, 1, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+
-+	/* These test whether the type sets are copied to the right place and
-+	 * correctly unioned when they should be */
-+
-+	/**** test for type added to base role in module 1 (global) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "g_b_role_2", SYM_ROLES, SCOPE_DECL, decls, 2);
-+	/* make sure it has the correct type set (g_m1_type_1, no negset, no flags) */
-+	types[0] = "g_b_type_2";	/* added in base when declared */
-+	types[1] = "g_m1_type_1";	/* added in module */
-+	role = test_role_type_set(base, "g_b_role_2", NULL, types, 2, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+
-+	/**** test for type added to base role in module 1 & 2 (global) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	decls[2] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m2"))->decl_id;
-+	test_sym_presence(base, "g_b_role_3", SYM_ROLES, SCOPE_DECL, decls, 3);
-+	/* make sure it has the correct type set (g_b_type_2, g_m1_type_2, g_m2_type_2, no negset, no flags) */
-+	types[0] = "g_b_type_2";	/* added in base when declared */
-+	types[1] = "g_m1_type_2";	/* added in module 1 */
-+	types[2] = "g_m2_type_2";	/* added in module 2 */
-+	role = test_role_type_set(base, "g_b_role_3", NULL, types, 3, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+
-+	/**** test for role in base optional and module 1 (additive) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"))->decl_id;
-+	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "o1_b_role_2", SYM_ROLES, SCOPE_DECL, decls, 2);
-+	/* this one will have 2 type sets, one in the global symtab and one in the base optional 1 */
-+	types[0] = "g_m1_type_1";
-+	role = test_role_type_set(base, "o1_b_role_2", NULL, types, 1, 0);
-+	types[0] = "o1_b_type_1";
-+	role = test_role_type_set(base, "o1_b_role_2", test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"), types, 1, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+
-+	/**** test for role in base and module 1 optional (additive) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m1"))->decl_id;
-+	test_sym_presence(base, "g_b_role_4", SYM_ROLES, SCOPE_DECL, decls, 2);
-+	/* this one will have 2 type sets, one in the global symtab and one in the base optional 1 */
-+	types[0] = "g_b_type_2";
-+	role = test_role_type_set(base, "g_b_role_4", NULL, types, 1, 0);
-+	types[0] = "g_m1_type_2";
-+	role = test_role_type_set(base, "g_b_role_4", test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m1"), types, 1, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+
-+	/**** test for role in base and module 1 optional (additive) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_b"))->decl_id;
-+	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"))->decl_id;
-+	test_sym_presence(base, "o3_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 2);
-+	/* this one will have 2 type sets, one in the 3rd base optional and one in the 3rd module optional */
-+	types[0] = "o3_b_type_1";
-+	role = test_role_type_set(base, "o3_b_role_1", test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_b"), types, 1, 0);
-+	types[0] = "o3_m1_type_1";
-+	role = test_role_type_set(base, "o3_b_role_1", test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"), types, 1, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+
-+	/**** test for role in base and module 1 optional (additive) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b"))->decl_id;
-+	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	decls[2] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m2"))->decl_id;
-+	test_sym_presence(base, "o4_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 3);
-+	/* this one will have 2 type sets, one in the global symtab (with both module types) and one in the 4th optional of base */
-+	types[0] = "g_m1_type_1";
-+	role = test_role_type_set(base, "o4_b_role_1", test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b"), types, 1, 0);
-+	types[0] = "g_m2_type_1";
-+	types[1] = "g_m1_type_2";
-+	role = test_role_type_set(base, "o4_b_role_1", NULL, types, 2, 0);
-+	/* and only dominates itself */
-+	only_dominates_self(base, role);
-+}
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker-roles.h trunk/libsepol/tests/test-linker-roles.h
---- trunk.old/libsepol/tests/test-linker-roles.h	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker-roles.h	2006-08-02 10:37:36.000000000 -0400
-@@ -0,0 +1,29 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_LINKER_ROLES_H__
-+#define __TEST_LINKER_ROLES_H__
-+
-+#include <sepol/policydb/policydb.h>
-+
-+extern void base_role_tests(policydb_t * base);
-+extern void module_role_tests(policydb_t * base);
-+
-+#endif
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker-types.c trunk/libsepol/tests/test-linker-types.c
---- trunk.old/libsepol/tests/test-linker-types.c	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker-types.c	2006-08-02 13:27:49.000000000 -0400
-@@ -0,0 +1,317 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *         Chad Sellers <csellers@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include "parse_util.h"
-+#include "helpers.h"
-+#include "test-common.h"
-+
-+#include <sepol/policydb/policydb.h>
-+#include <sepol/policydb/link.h>
-+
-+#include <CUnit/Basic.h>
-+#include <stdlib.h>
-+
-+/* Tests for types:
-+ * Test for each of these for 
-+ * - type in appropriate symtab (global and decl)
-+ * - datum in the decl symtab has correct type bitmap (if attr)
-+ * - primary is set correctly
-+ * - scope datum has correct decl ids
-+ * Tests:
-+ * - type in base, no modules
-+ * - type in base optional, no modules
-+ * - type a in base, b in module
-+ * - type a in base optional, b in module
-+ * - type a in base, b in module optional
-+ * - type a in base optional, b in module optional
-+ * - attr in base, no modules
-+ * - attr in base optional, no modules
-+ * - attr a in base, b in module
-+ * - attr a in base optional, b in module
-+ * - attr a in base, b in module optional
-+ * - attr a in base optional, b in module optional
-+ * - attr a declared in base, added to in module
-+ * - attr a declared in base, added to in module optional
-+ * - attr a declared in base, added to in 2 modules 
-+ * - attr a declared in base, added to in 2 modules (optional and global)
-+ * - attr a declared in base optional, added to in module
-+ * - attr a declared in base optional, added to in module optional
-+ * - attr a added to in base optional, declared in module
-+ * - attr a added to in base optional, declared in module optional
-+ * - attr a added to in base optional, declared in module, added to in other module
-+ * - attr a added to in base optional, declared in module optional, added to in other module
-+ * - attr a added to in base optional, declared in module , added to in other module optional
-+ * - attr a added to in base optional, declared in module optional, added to in other module optional
-+ * - alias in base of primary type in base, no modules
-+ * - alias in base optional of primary type in base, no modules
-+ * - alias in base optional of primary type in base optional
-+ * - alias in module of primary type in base
-+ * - alias in module optional of primary type in base
-+ * - alias in module optional of primary type in base optional
-+ * - alias in module of primary type in module
-+ * - alias in module optional of primary type in module
-+ * - alias in module optional of primary type in module optional
-+ * - alias a in base, b in module, primary type in base
-+ * - alias a in base, b in module, primary type in module
-+ * - alias a in base optional, b in module, primary type in base
-+ * - alias a in base optional, b in module, primary type in module
-+ * - alias a in base, b in module optional, primary type in base
-+ * - alias a in base, b in module optional, primary type in module
-+ * - alias a in base optional, b in module optional, primary type in base
-+ * - alias a in base optional, b in module optional, primary type in module
-+ * - alias a in base, required in module, primary type in base
-+ * - alias a in base, required in base optional, primary type in base
-+ * - alias a in base, required in module optional, primary type in base
-+ * - alias a in module, required in base optional, primary type in base
-+ * - alias a in module, required in module optional, primary type in base
-+ * - alias a in base optional, required in module, primary type in base
-+ * - alias a in base optional, required in different base optional, primary type in base
-+ * - alias a in base optional, required in module optional, primary type in base
-+ * - alias a in module optional, required in base optional, primary type in base
-+ * - alias a in module optional, required in module optional, primary type in base
-+ * - alias a in module, required in base optional, primary type in module
-+ * - alias a in module, required in module optional, primary type in module
-+ * - alias a in base optional, required in module, primary type in module
-+ * - alias a in base optional, required in different base optional, primary type in module
-+ * - alias a in base optional, required in module optional, primary type in module
-+ * - alias a in module optional, required in base optional, primary type in module
-+ * - alias a in module optional, required in module optional, primary type in module
-+ */
-+
-+/* Don't pass in decls from global blocks since symbols aren't stored in their symtab */
-+static void test_type_datum(policydb_t * p, char *id, unsigned int *decls, int len, unsigned int primary)
-+{
-+	int i;
-+	unsigned int value;
-+	type_datum_t *type;
-+
-+	/* just test the type datums for each decl to see if it is what we expect */
-+	type = hashtab_search(p->p_types.table, id);
-+
-+	CU_ASSERT_FATAL(type != NULL);
-+	CU_ASSERT(type->primary == primary);
-+	CU_ASSERT(type->flavor == TYPE_TYPE);
-+
-+	value = type->value;
-+
-+	for (i = 0; i < len; i++) {
-+		type = hashtab_search(p->decl_val_to_struct[decls[i] - 1]->p_types.table, id);
-+		CU_ASSERT_FATAL(type != NULL);
-+		CU_ASSERT(type->primary == primary);
-+		CU_ASSERT(type->flavor == TYPE_TYPE);
-+		CU_ASSERT(type->value == value);
-+	}
-+
-+}
-+
-+void base_type_tests(policydb_t * base)
-+{
-+	unsigned int decls[2];
-+	char *types[2];
-+
-+	/* These tests look at types in the base only, the desire is to ensure that
-+	 * types are not destroyed or otherwise removed during the link process.
-+	 * if this happens these tests won't work anyway since we are using types to 
-+	 * mark blocks */
-+
-+	/**** test for g_b_type_1 in base and decl 1 (global) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	test_sym_presence(base, "g_b_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	test_type_datum(base, "g_b_type_1", NULL, 0, 1);
-+	/* this attr is in the same decl as the type */
-+	test_sym_presence(base, "g_b_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "g_b_type_1";
-+	test_attr_types(base, "g_b_attr_1", NULL, types, 1);
-+
-+	/**** test for o1_b_type_1 in optional (decl 2) ****/
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"))->decl_id;
-+	test_sym_presence(base, "o1_b_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	test_type_datum(base, "o1_b_type_1", NULL, 0, 1);
-+	/* this attr is in the same decl as the type */
-+	test_sym_presence(base, "o1_b_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "o1_b_type_1";
-+	test_attr_types(base, "o1_b_attr_1", base->decl_val_to_struct[decls[0] - 1], types, 1);
-+
-+	/* tests for aliases */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	test_sym_presence(base, "g_b_alias_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	test_alias_datum(base, "g_b_alias_1", "g_b_type_3", 1, 0);
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o6_b"))->decl_id;
-+	test_sym_presence(base, "g_b_alias_2", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	test_alias_datum(base, "g_b_alias_2", "g_b_type_3", 1, 0);
-+
-+}
-+
-+void module_type_tests(policydb_t * base)
-+{
-+	unsigned int decls[2];
-+	char *types[2];
-+	avrule_decl_t *d;
-+
-+	/* These tests look at types that were copied from modules or attributes
-+	 * that were modified and declared in modules and base. These apply to 
-+	 * declarations and modifications in and out of optionals. These tests
-+	 * should ensure that types and attributes are correctly copied from modules
-+	 * and that attribute type sets are correctly copied and mapped. */
-+
-+	/* note: scope for attributes is currently smashed if the attribute is declared 
-+	 * somewhere so the scope test only looks at global, the type bitmap test looks
-+	 * at the appropriate decl symtab */
-+
-+	/* test for type in module 1 (global) */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "g_m1_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	test_type_datum(base, "g_m1_type_1", NULL, 0, 1);
-+	/* attr has is in the same decl as the above type */
-+	test_sym_presence(base, "g_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "g_m1_type_1";
-+	types[1] = "g_m1_type_2";
-+	test_attr_types(base, "g_m1_attr_1", NULL, types, 2);
-+
-+	/* test for type in module 1 (optional) */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1"))->decl_id;
-+	test_sym_presence(base, "o1_m1_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	test_type_datum(base, "o1_m1_type_1", NULL, 0, 1);
-+	/* attr has is in the same decl as the above type */
-+	test_sym_presence(base, "o1_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "o1_m1_type_2";
-+	test_attr_types(base, "o1_m1_attr_1", base->decl_val_to_struct[decls[0] - 1], types, 1);
-+
-+	/* test for attr declared in base, added to in module (global). 
-+	 * Since these are both global it'll be merged in the main symtab */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	test_sym_presence(base, "g_b_attr_3", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "g_m1_type_3";
-+	test_attr_types(base, "g_b_attr_3", NULL, types, 1);
-+
-+	/* test for attr declared in base, added to in module (optional). */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	test_sym_presence(base, "g_b_attr_4", SYM_TYPES, SCOPE_DECL, decls, 1);
-+
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1"))->decl_id;
-+	types[0] = "o1_m1_type_3";
-+	test_attr_types(base, "g_b_attr_4", base->decl_val_to_struct[decls[0] - 1], types, 1);
-+
-+	/* test for attr declared in base, added to in 2 modules (global). (merged in main symtab) */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	test_sym_presence(base, "g_b_attr_5", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "g_m1_type_4";
-+	types[1] = "g_m2_type_4";
-+	test_attr_types(base, "g_b_attr_5", NULL, types, 2);
-+
-+	/* test for attr declared in base, added to in 2 modules (optional/global). */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
-+	test_sym_presence(base, "g_b_attr_6", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	/* module 2 was global to its type is in main symtab */
-+	types[0] = "g_m2_type_5";
-+	test_attr_types(base, "g_b_attr_6", NULL, types, 1);
-+	d = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"));
-+	types[0] = "o3_m1_type_2";
-+	test_attr_types(base, "g_b_attr_6", d, types, 1);
-+
-+	/* test for attr declared in base optional, added to in module (global). */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b"))->decl_id;
-+	test_sym_presence(base, "o4_b_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "g_m1_type_5";
-+	test_attr_types(base, "o4_b_attr_1", NULL, types, 1);
-+
-+	/* test for attr declared in base optional, added to in module (optional). */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"))->decl_id;
-+	test_sym_presence(base, "o1_b_attr_2", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1");
-+	types[0] = "o1_m1_type_5";
-+	test_attr_types(base, "o1_b_attr_2", d, types, 1);
-+
-+	/* test for attr declared in module, added to in base optional */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "g_m1_attr_2", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b");
-+	types[0] = "o1_b_type_2";
-+	test_attr_types(base, "g_m1_attr_2", d, types, 1);
-+
-+	/* test for attr declared in module optional, added to in base optional */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"))->decl_id;
-+	test_sym_presence(base, "o3_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b");
-+	types[0] = "o4_b_type_1";
-+	test_attr_types(base, "o3_m1_attr_1", d, types, 1);
-+
-+	/* attr a added to in base optional, declared/added to in module, added to in other module */
-+	/* first the module declare/add and module 2 add (since its global it'll be in the main symtab */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "g_m1_attr_3", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "g_m1_type_6";
-+	types[1] = "g_m2_type_3";
-+	test_attr_types(base, "g_m1_attr_3", NULL, types, 2);
-+	/* base add */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b");
-+	types[0] = "o4_b_type_2";
-+	test_attr_types(base, "g_m1_attr_3", d, types, 1);
-+
-+	/* attr a added to in base optional, declared/added in module optional, added to in other module */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1");
-+	decls[0] = d->decl_id;
-+	test_sym_presence(base, "o3_m1_attr_2", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "o3_m1_type_3";
-+	test_attr_types(base, "o3_m1_attr_2", d, types, 1);
-+	/* module 2's type will be in the main symtab */
-+	types[0] = "g_m2_type_6";
-+	test_attr_types(base, "o3_m1_attr_2", NULL, types, 1);
-+	/* base add */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_b");
-+	types[0] = "o2_b_type_1";
-+	test_attr_types(base, "o3_m1_attr_2", d, types, 1);
-+
-+	/* attr a added to in base optional, declared/added in module , added to in other module optional */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "g_m1_attr_4", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "g_m1_type_7";
-+	test_attr_types(base, "g_m1_attr_4", NULL, types, 1);
-+	/* module 2 */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m2");
-+	types[0] = "o2_m2_type_1";
-+	test_attr_types(base, "g_m1_attr_4", d, types, 1);
-+	/* base add */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o5_b");
-+	types[0] = "o5_b_type_1";
-+	test_attr_types(base, "g_m1_attr_4", d, types, 1);
-+
-+	/* attr a added to in base optional, declared/added in module optional, added to in other module optional */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_m1");
-+	decls[0] = d->decl_id;
-+	test_sym_presence(base, "o4_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	types[0] = "o4_m1_type_1";
-+	test_attr_types(base, "o4_m1_attr_1", d, types, 1);
-+	/* module 2 */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m2");
-+	types[0] = "o2_m2_type_2";
-+	test_attr_types(base, "o4_m1_attr_1", d, types, 1);
-+	/* base add */
-+	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o5_b");
-+	types[0] = "o5_b_type_2";
-+	test_attr_types(base, "o4_m1_attr_1", d, types, 1);
-+
-+	/* tests for aliases */
-+	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
-+	test_sym_presence(base, "g_m_alias_1", SYM_TYPES, SCOPE_DECL, decls, 1);
-+	test_alias_datum(base, "g_m_alias_1", "g_b_type_3", 1, 0);
-+
-+}
-diff -pruN -x policies trunk.old/libsepol/tests/test-linker-types.h trunk/libsepol/tests/test-linker-types.h
---- trunk.old/libsepol/tests/test-linker-types.h	1969-12-31 19:00:00.000000000 -0500
-+++ trunk/libsepol/tests/test-linker-types.h	2006-07-26 14:19:16.000000000 -0400
-@@ -0,0 +1,27 @@
-+/*
-+ * Author: Joshua Brindle <jbrindle@tresys.com>
-+ *
-+ * Copyright (C) 2006 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_LINKER_TYPES_H__
-+#define __TEST_LINKER_TYPES_H__
-+
-+extern void base_type_tests(policydb_t * base);
-+extern void module_type_tests(policydb_t * base);
-+
-+#endif
+(This is a resend of the previous patch set with corrections made as per
+suggestions on the list.)
 
+Jeremy A. Mowery
+Tresys Technology
+410-290-1411 x148
+
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/avtab.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/avtab.h
+--- trunk/libsepol/include/sepol/policydb/avtab.h	2006-07-13 10:19:14.000000000 -0400
++++ trunk/libsepol/include/sepol/policydb/avtab.h	2006-07-13 10:46:33.000000000 -0400
+@@ -45,6 +45,7 @@ typedef struct avtab_key {
+ #define AVTAB_ALLOWED     1
+ #define AVTAB_AUDITALLOW  2
+ #define AVTAB_AUDITDENY   4
++#define AVTAB_NEVERALLOW 128
+ #define AVTAB_AV         (AVTAB_ALLOWED | AVTAB_AUDITALLOW | AVTAB_AUDITDENY)
+ #define AVTAB_TRANSITION 16
+ #define AVTAB_MEMBER     32
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/include/sepol/policydb/policydb.h branch/setools_public-policydb-components/libsepol/include/sepol/policydb/policydb.h
+--- trunk/libsepol/include/sepol/policydb/policydb.h	2006-08-01 09:22:41.000000000 -0400
++++ trunk/libsepol/include/sepol/policydb/policydb.h	2006-08-01 09:56:18.000000000 -0400
+@@ -65,6 +65,10 @@
+ 
+ #define ERRMSG_LEN 1024
+ 
++#define POLICYDB_SUCCESS      0
++#define POLICYDB_ERROR       -1
++#define POLICYDB_UNSUPPORTED -2
++
+ /*
+  * A datum type is defined for each kind of symbol 
+  * in the configuration data:  individual permissions, 
+@@ -194,12 +198,12 @@ typedef struct avrule {
+ #define AVRULE_AUDITALLOW  2
+ #define AVRULE_AUDITDENY   4
+ #define AVRULE_DONTAUDIT   8
+-#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT)
++#define AVRULE_NEVERALLOW 128
++#define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
+ #define AVRULE_TRANSITION 16
+ #define AVRULE_MEMBER     32
+ #define AVRULE_CHANGE     64
+ #define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
+-#define AVRULE_NEVERALLOW 128
+ 	uint32_t specified;
+ #define RULE_SELF 1
+ 	uint32_t flags;
+@@ -371,6 +375,9 @@ typedef struct policydb {
+ 	char *name;
+ 	char *version;
+ 
++	/* Set when the policydb is modified such that writing is unsupported */
++	int unsupported_format;
++
+ 	/* Whether this policydb is mls, should always be set */
+ 	int mls;
+ 
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/link.c branch/setools_public-policydb-components/libsepol/src/link.c
+--- trunk/libsepol/src/link.c	2006-08-01 09:22:41.000000000 -0400
++++ trunk/libsepol/src/link.c	2006-08-01 09:50:25.000000000 -0400
+@@ -964,8 +964,7 @@ static int copy_avrule_list(avrule_t * l
+ 			    module->map[SYM_CLASSES][cur_perm->class - 1];
+ 			assert(new_perm->class);
+ 
+-			if (new_rule->
+-			    specified & (AVRULE_AV | AVRULE_NEVERALLOW)) {
++			if (new_rule->specified & AVRULE_AV) {
+ 				for (i = 0;
+ 				     i <
+ 				     module->perm_map_len[cur_perm->class - 1];
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/policydb.c branch/setools_public-policydb-components/libsepol/src/policydb.c
+--- trunk/libsepol/src/policydb.c	2006-07-13 10:19:21.000000000 -0400
++++ trunk/libsepol/src/policydb.c	2006-07-31 10:39:49.000000000 -0400
+@@ -2618,7 +2618,7 @@ int policydb_read(policydb_t * p, struct
+ 	/* Read the magic number and string length. */
+ 	buf = next_entry(fp, sizeof(uint32_t) * 2);
+ 	if (!buf)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (i = 0; i < 2; i++)
+ 		buf[i] = le32_to_cpu(buf[i]);
+ 
+@@ -2632,26 +2632,26 @@ int policydb_read(policydb_t * p, struct
+ 		ERR(fp->handle, "policydb magic number %#08x does not "
+ 		    "match expected magic number %#08x or %#08x",
+ 		    buf[0], POLICYDB_MAGIC, POLICYDB_MOD_MAGIC);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	len = buf[1];
+ 	if (len != strlen(target_str)) {
+ 		ERR(fp->handle, "policydb string length %zu does not match "
+ 		    "expected length %zu", len, strlen(target_str));
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	buf = next_entry(fp, len);
+ 	if (!buf) {
+ 		ERR(fp->handle, "truncated policydb string identifier");
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	policydb_str = malloc(len + 1);
+ 	if (!policydb_str) {
+ 		ERR(fp->handle, "unable to allocate memory for policydb "
+ 		    "string of length %zu", len);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	memcpy(policydb_str, buf, len);
+ 	policydb_str[len] = 0;
+@@ -2659,7 +2659,7 @@ int policydb_read(policydb_t * p, struct
+ 		ERR(fp->handle, "policydb string %s does not match "
+ 		    "my string %s", policydb_str, target_str);
+ 		free(policydb_str);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	/* Done with policydb_str. */
+ 	free(policydb_str);
+@@ -2673,7 +2673,7 @@ int policydb_read(policydb_t * p, struct
+ 
+ 	buf = next_entry(fp, sizeof(uint32_t) * nel);
+ 	if (!buf)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (i = 0; i < nel; i++)
+ 		buf[i] = le32_to_cpu(buf[i]);
+ 
+@@ -2687,7 +2687,7 @@ int policydb_read(policydb_t * p, struct
+ 		if (policy_type != POLICY_MOD && policy_type != POLICY_BASE) {
+ 			ERR(fp->handle, "unknown module type: %#08x",
+ 			    policy_type);
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		bufindex++;
+ 	}
+@@ -2699,7 +2699,7 @@ int policydb_read(policydb_t * p, struct
+ 			ERR(fp->handle, "policydb version %d does not match "
+ 			    "my version range %d-%d", buf[bufindex],
+ 			    POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	} else if (policy_type == POLICY_BASE || policy_type == POLICY_MOD) {
+ 		if (r_policyvers < MOD_POLICYDB_VERSION_MIN ||
+@@ -2708,7 +2708,7 @@ int policydb_read(policydb_t * p, struct
+ 			    "not match my version range %d-%d",
+ 			    buf[bufindex], MOD_POLICYDB_VERSION_MIN,
+ 			    MOD_POLICYDB_VERSION_MAX);
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	} else {
+ 		assert(0);
+@@ -2870,9 +2870,9 @@ int policydb_read(policydb_t * p, struct
+ 		}
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+       bad:
+-	return -1;
++	return POLICYDB_ERROR;
+ }
+ 
+ int policydb_reindex_users(policydb_t * p)
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/write.c branch/setools_public-policydb-components/libsepol/src/write.c
+--- trunk/libsepol/src/write.c	2006-07-13 10:19:21.000000000 -0400
++++ trunk/libsepol/src/write.c	2006-07-31 10:39:51.000000000 -0400
+@@ -68,21 +68,21 @@ static int ebitmap_write(ebitmap_t * e, 
+ 
+ 	items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 	if (items != 3)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	for (n = e->node; n; n = n->next) {
+ 		bit = cpu_to_le32(n->startbit);
+ 		items = put_entry(&bit, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		map = cpu_to_le64(n->map);
+ 		items = put_entry(&map, sizeof(uint64_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /* Ordering of datums in the original avtab format in the policy file. */
+@@ -113,7 +113,7 @@ static int avtab_write_item(policydb_t *
+ 		   Requires merging similar entries if uncond avtab. */
+ 		if (merge) {
+ 			if (cur->merged)
+-				return 0;	/* already merged by prior merge */
++				return POLICYDB_SUCCESS;	/* already merged by prior merge */
+ 		}
+ 
+ 		items = 1;	/* item 0 is used for the item count */
+@@ -137,7 +137,7 @@ static int avtab_write_item(policydb_t *
+ 			else if (val & AVTAB_TYPE)
+ 				lookup = AVTAB_TYPE;
+ 			else
+-				return -1;
++				return POLICYDB_ERROR;
+ 			for (node = avtab_search_node_next(cur, lookup);
+ 			     node;
+ 			     node = avtab_search_node_next(node, lookup)) {
+@@ -150,12 +150,12 @@ static int avtab_write_item(policydb_t *
+ 
+ 		if (!(val & (AVTAB_AV | AVTAB_TYPE))) {
+ 			ERR(fp->handle, "null entry");
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		if ((val & AVTAB_AV) && (val & AVTAB_TYPE)) {
+ 			ERR(fp->handle, "entry has both access "
+ 			    "vectors and types");
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 
+ 		buf32[items++] = cpu_to_le32(val);
+@@ -180,7 +180,7 @@ static int avtab_write_item(policydb_t *
+ 
+ 					if (!node) {
+ 						ERR(fp->handle, "missing node");
+-						return -1;
++						return POLICYDB_ERROR;
+ 					}
+ 					buf32[items++] =
+ 					    cpu_to_le32(node->datum.data);
+@@ -196,7 +196,7 @@ static int avtab_write_item(policydb_t *
+ 
+ 		if (set) {
+ 			ERR(fp->handle, "data count wrong");
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 
+ 		buf32[0] = cpu_to_le32(items - 1);
+@@ -205,10 +205,10 @@ static int avtab_write_item(policydb_t *
+ 			/* Commit this item to the policy file. */
+ 			items2 = put_entry(buf32, sizeof(uint32_t), items, fp);
+ 			if (items != items2)
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 
+-		return 0;
++		return POLICYDB_SUCCESS;
+ 	}
+ 
+ 	/* Generate the new avtab format. */
+@@ -218,12 +218,12 @@ static int avtab_write_item(policydb_t *
+ 	buf16[3] = cpu_to_le16(cur->key.specified);
+ 	items = put_entry(buf16, sizeof(uint16_t), 4, fp);
+ 	if (items != 4)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	buf32[0] = cpu_to_le32(cur->datum.data);
+ 	items = put_entry(buf32, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
+-	return 0;
++		return POLICYDB_ERROR;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static inline void avtab_reset_merged(avtab_t * a)
+@@ -252,7 +252,7 @@ static int avtab_write(struct policydb *
+ 		   merge similar entries, so we need to track merged nodes 
+ 		   and compute the final nel. */
+ 		if (avtab_init(&expa))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (expand_avtab(p, a, &expa)) {
+ 			rc = -1;
+ 			goto out;
+@@ -265,7 +265,7 @@ static int avtab_write(struct policydb *
+ 		nel = cpu_to_le32(a->nel);
+ 		items = put_entry(&nel, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	for (i = 0; i < AVTAB_SIZE; i++) {
+@@ -318,12 +318,12 @@ static int mls_write_level(mls_level_t *
+ 	sens = cpu_to_le32(l->sens);
+ 	items = put_entry(&sens, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (ebitmap_write(&l->cat, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -346,15 +346,15 @@ static int mls_write_range_helper(mls_ra
+ 
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (ebitmap_write(&r->level[0].cat, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if (!eq)
+ 		if (ebitmap_write(&r->level[1].cat, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int sens_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -373,16 +373,16 @@ static int sens_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(levdatum->isalias);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (mls_write_level(levdatum->level, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int cat_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -402,13 +402,13 @@ static int cat_write(hashtab_key_t key, 
+ 	buf[items++] = cpu_to_le32(catdatum->isalias);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_trans_write(role_trans_t * r, struct policy_file *fp)
+@@ -423,17 +423,17 @@ static int role_trans_write(role_trans_t
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (tr = r; tr; tr = tr->next) {
+ 		buf[0] = cpu_to_le32(tr->role);
+ 		buf[1] = cpu_to_le32(tr->type);
+ 		buf[2] = cpu_to_le32(tr->new_role);
+ 		items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 		if (items != 3)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_allow_write(role_allow_t * r, struct policy_file *fp)
+@@ -448,15 +448,15 @@ static int role_allow_write(role_allow_t
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (ra = r; ra; ra = ra->next) {
+ 		buf[0] = cpu_to_le32(ra->role);
+ 		buf[1] = cpu_to_le32(ra->new_role);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_set_write(role_set_t * x, struct policy_file *fp)
+@@ -465,14 +465,14 @@ static int role_set_write(role_set_t * x
+ 	uint32_t buf[1];
+ 
+ 	if (ebitmap_write(&x->roles, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	buf[0] = cpu_to_le32(x->flags);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int type_set_write(type_set_t * x, struct policy_file *fp)
+@@ -481,16 +481,16 @@ static int type_set_write(type_set_t * x
+ 	uint32_t buf[1];
+ 
+ 	if (ebitmap_write(&x->types, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if (ebitmap_write(&x->negset, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	buf[0] = cpu_to_le32(x->flags);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int cond_write_bool(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -510,11 +510,11 @@ static int cond_write_bool(hashtab_key_t
+ 	buf[items++] = cpu_to_le32(len);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
+-	return 0;
++		return POLICYDB_ERROR;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -539,7 +539,7 @@ static int cond_write_av_list(policydb_t
+ 
+ 	if (oldvers) {
+ 		if (avtab_init(&expa))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (expand_cond_av_list(p, list, &new_list, &expa))
+ 			goto out;
+ 		list = new_list;
+@@ -587,7 +587,7 @@ static int cond_write_node(policydb_t * 
+ 	buf[0] = cpu_to_le32(node->cur_state);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	/* expr */
+ 	len = 0;
+@@ -597,7 +597,7 @@ static int cond_write_node(policydb_t * 
+ 	buf[0] = cpu_to_le32(len);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	for (cur_expr = node->expr; cur_expr != NULL; cur_expr = cur_expr->next) {
+ 		items = 0;
+@@ -605,22 +605,22 @@ static int cond_write_node(policydb_t * 
+ 		buf[items++] = cpu_to_le32(cur_expr->bool);
+ 		items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 		if (items2 != items)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (cond_write_av_list(p, node->true_list, fp) != 0)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (cond_write_av_list(p, node->false_list, fp) != 0)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (avrule_write_list(node->avtrue_list, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (avrule_write_list(node->avfalse_list, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int cond_write_list(policydb_t * p, cond_list_t * list,
+@@ -636,13 +636,13 @@ static int cond_write_list(policydb_t * 
+ 	buf[0] = cpu_to_le32(len);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	for (cur = list; cur != NULL; cur = cur->next) {
+ 		if (cond_write_node(p, cur, fp) != 0)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -661,15 +661,15 @@ static int context_write(struct policydb
+ 	buf[items++] = cpu_to_le32(c->type);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if ((p->policyvers >= POLICYDB_VERSION_MLS
+ 	     && p->policy_type == POLICY_KERN)
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
+ 		&& p->policy_type == POLICY_BASE))
+ 		if (mls_write_range_helper(&c->range, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -694,13 +694,13 @@ static int perm_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(perdatum->value);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int common_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -721,16 +721,16 @@ static int common_write(hashtab_key_t ke
+ 	buf[items++] = cpu_to_le32(comdatum->permissions.table->nel);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (hashtab_map(comdatum->permissions.table, perm_write, pd))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int write_cons_helper(policydb_t * p,
+@@ -751,7 +751,7 @@ static int write_cons_helper(policydb_t 
+ 		buf[1] = cpu_to_le32(nexpr);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		for (e = c->expr; e; e = e->next) {
+ 			items = 0;
+ 			buf[0] = cpu_to_le32(e->expr_type);
+@@ -759,18 +759,18 @@ static int write_cons_helper(policydb_t 
+ 			buf[2] = cpu_to_le32(e->op);
+ 			items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 			if (items != 3)
+-				return -1;
++				return POLICYDB_ERROR;
+ 
+ 			switch (e->expr_type) {
+ 			case CEXPR_NAMES:
+ 				if (!allowxtarget && (e->attr & CEXPR_XTARGET))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (ebitmap_write(&e->names, fp)) {
+-					return -1;
++					return POLICYDB_ERROR;
+ 				}
+ 				if (p->policy_type != POLICY_KERN &&
+ 				    type_set_write(e->type_names, fp)) {
+-					return -1;
++					return POLICYDB_ERROR;
+ 				}
+ 				break;
+ 			default:
+@@ -779,7 +779,7 @@ static int write_cons_helper(policydb_t 
+ 		}
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int class_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -817,22 +817,22 @@ static int class_write(hashtab_key_t key
+ 	buf[items++] = cpu_to_le32(ncons);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (cladatum->comkey) {
+ 		items = put_entry(cladatum->comkey, 1, len2, fp);
+ 		if (items != len2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 	if (hashtab_map(cladatum->permissions.table, perm_write, pd))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (write_cons_helper(p, cladatum->constraints, 0, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if ((p->policy_type == POLICY_KERN
+ 	     && p->policyvers >= POLICYDB_VERSION_VALIDATETRANS)
+@@ -846,12 +846,12 @@ static int class_write(hashtab_key_t key
+ 		buf[0] = cpu_to_le32(ncons);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (write_cons_helper(p, cladatum->validatetrans, 1, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -871,23 +871,23 @@ static int role_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(role->value);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (ebitmap_write(&role->dominates, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (ebitmap_write(&role->types.types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (type_set_write(&role->types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -911,18 +911,18 @@ static int type_write(hashtab_key_t key,
+ 	}
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (p->policy_type != POLICY_KERN) {
+ 		if (ebitmap_write(&typdatum->types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int user_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -942,18 +942,18 @@ static int user_write(hashtab_key_t key,
+ 	buf[items++] = cpu_to_le32(usrdatum->value);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	items = put_entry(key, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (ebitmap_write(&usrdatum->roles.roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (role_set_write(&usrdatum->roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 	/* Users are allowed in non-mls modules, so the empty field will be present
+ 	   in modules with users >= MOD_POLICYDB_VERSION_MLS */
+@@ -964,12 +964,12 @@ static int user_write(hashtab_key_t key,
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
+ 		&& p->policy_type == POLICY_BASE)) {
+ 		if (mls_write_range_helper(&usrdatum->range, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (mls_write_level(&usrdatum->dfltlevel, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int (*write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
+@@ -991,16 +991,16 @@ static int ocontext_write(struct policyd
+ 		buf[0] = cpu_to_le32(nel);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		for (c = p->ocontexts[i]; c; c = c->next) {
+ 			switch (i) {
+ 			case OCON_ISID:
+ 				buf[0] = cpu_to_le32(c->sid[0]);
+ 				items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 				if (items != 1)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_FS:
+ 			case OCON_NETIF:
+@@ -1008,14 +1008,14 @@ static int ocontext_write(struct policyd
+ 				buf[0] = cpu_to_le32(len);
+ 				items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 				if (items != 1)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				items = put_entry(c->u.name, 1, len, fp);
+ 				if (items != len)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[1], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_PORT:
+ 				buf[0] = c->u.port.protocol;
+@@ -1026,18 +1026,18 @@ static int ocontext_write(struct policyd
+ 				}
+ 				items = put_entry(buf, sizeof(uint32_t), 3, fp);
+ 				if (items != 3)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_NODE:
+ 				buf[0] = cpu_to_le32(c->u.node.addr);
+ 				buf[1] = cpu_to_le32(c->u.node.mask);
+ 				items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 				if (items != 2)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_FSUSE:
+ 				buf[0] = cpu_to_le32(c->v.behavior);
+@@ -1045,12 +1045,12 @@ static int ocontext_write(struct policyd
+ 				buf[1] = cpu_to_le32(len);
+ 				items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 				if (items != 2)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				items = put_entry(c->u.name, 1, len, fp);
+ 				if (items != len)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_NODE6:
+ 				for (j = 0; j < 4; j++)
+@@ -1061,14 +1061,14 @@ static int ocontext_write(struct policyd
+ 					    cpu_to_le32(c->u.node6.mask[j]);
+ 				items = put_entry(buf, sizeof(uint32_t), 8, fp);
+ 				if (items != 8)
+-					return -1;
++					return POLICYDB_ERROR;
+ 				if (context_write(p, &c->context[0], fp))
+-					return -1;
++					return POLICYDB_ERROR;
+ 				break;
+ 			}
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int genfs_write(policydb_t * p, struct policy_file *fp)
+@@ -1083,41 +1083,41 @@ static int genfs_write(policydb_t * p, s
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (genfs = p->genfs; genfs; genfs = genfs->next) {
+ 		len = strlen(genfs->fstype);
+ 		buf[0] = cpu_to_le32(len);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		items = put_entry(genfs->fstype, 1, len, fp);
+ 		if (items != len)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		nel = 0;
+ 		for (c = genfs->head; c; c = c->next)
+ 			nel++;
+ 		buf[0] = cpu_to_le32(nel);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		for (c = genfs->head; c; c = c->next) {
+ 			len = strlen(c->u.name);
+ 			buf[0] = cpu_to_le32(len);
+ 			items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 			if (items != 1)
+-				return -1;
++				return POLICYDB_ERROR;
+ 			items = put_entry(c->u.name, 1, len, fp);
+ 			if (items != len)
+-				return -1;
++				return POLICYDB_ERROR;
+ 			buf[0] = cpu_to_le32(c->v.sclass);
+ 			items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 			if (items != 1)
+-				return -1;
++				return POLICYDB_ERROR;
+ 			if (context_write(p, &c->context[0], fp))
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int range_write(policydb_t * p, struct policy_file *fp)
+@@ -1131,17 +1131,17 @@ static int range_write(policydb_t * p, s
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (rt = p->range_tr; rt; rt = rt->next) {
+ 		buf[0] = cpu_to_le32(rt->dom);
+ 		buf[1] = cpu_to_le32(rt->type);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (mls_write_range_helper(&rt->range, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /************** module writing functions below **************/
+@@ -1157,13 +1157,13 @@ static int avrule_write(avrule_t * avrul
+ 	buf[items++] = cpu_to_le32(avrule->flags);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (type_set_write(&avrule->stypes, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (type_set_write(&avrule->ttypes, fp))
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	cur = avrule->perms;
+ 	len = 0;
+@@ -1175,7 +1175,7 @@ static int avrule_write(avrule_t * avrul
+ 	buf[items++] = cpu_to_le32(len);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items2 != items)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	cur = avrule->perms;
+ 	while (cur) {
+ 		items = 0;
+@@ -1183,12 +1183,12 @@ static int avrule_write(avrule_t * avrul
+ 		buf[items++] = cpu_to_le32(cur->data);
+ 		items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 		if (items2 != items)
+-			return -1;
++			return POLICYDB_ERROR;
+ 
+ 		cur = cur->next;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int avrule_write_list(avrule_t * avrules, struct policy_file *fp)
+@@ -1205,7 +1205,7 @@ static int avrule_write_list(avrule_t * 
+ 
+ 	buf[0] = cpu_to_le32(len);
+ 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	avrule = avrules;
+ 	while (avrule) {
+@@ -1213,7 +1213,7 @@ static int avrule_write_list(avrule_t * 
+ 		avrule = avrule->next;
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_trans_rule_write(role_trans_rule_t * t, struct policy_file *fp)
+@@ -1228,18 +1228,18 @@ static int role_trans_rule_write(role_tr
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (tr = t; tr; tr = tr->next) {
+ 		if (role_set_write(&tr->roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (type_set_write(&tr->types, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		buf[0] = cpu_to_le32(tr->new_role);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
+@@ -1254,14 +1254,14 @@ static int role_allow_rule_write(role_al
+ 	buf[0] = cpu_to_le32(nel);
+ 	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 	if (items != 1)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	for (ra = r; ra; ra = ra->next) {
+ 		if (role_set_write(&ra->roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (role_set_write(&ra->new_roles, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int scope_index_write(scope_index_t * scope_index,
+@@ -1272,19 +1272,19 @@ static int scope_index_write(scope_index
+ 	uint32_t buf[1];
+ 	for (i = 0; i < num_scope_syms; i++) {
+ 		if (ebitmap_write(scope_index->scope + i, fp) == -1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+ 	buf[0] = cpu_to_le32(scope_index->class_perms_len);
+ 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	for (i = 0; i < scope_index->class_perms_len; i++) {
+ 		if (ebitmap_write(scope_index->class_perms_map + i, fp) == -1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
+@@ -1296,17 +1296,17 @@ static int avrule_decl_write(avrule_decl
+ 	buf[0] = cpu_to_le32(decl->decl_id);
+ 	buf[1] = cpu_to_le32(decl->enabled);
+ 	if (put_entry(buf, sizeof(uint32_t), 2, fp) != 2) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	if (cond_write_list(p, decl->cond_list, fp) == -1 ||
+ 	    avrule_write_list(decl->avrules, fp) == -1 ||
+ 	    role_trans_rule_write(decl->role_tr_rules, fp) == -1 ||
+ 	    role_allow_rule_write(decl->role_allow_rules, fp) == -1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	if (scope_index_write(&decl->required, num_scope_syms, fp) == -1 ||
+ 	    scope_index_write(&decl->declared, num_scope_syms, fp) == -1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	pd.fp = fp;
+ 	pd.p = p;
+@@ -1314,13 +1314,13 @@ static int avrule_decl_write(avrule_decl
+ 		buf[0] = cpu_to_le32(decl->symtab[i].nprim);
+ 		buf[1] = cpu_to_le32(decl->symtab[i].table->nel);
+ 		if (put_entry(buf, sizeof(uint32_t), 2, fp) != 2) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		if (hashtab_map(decl->symtab[i].table, write_f[i], &pd)) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int avrule_block_write(avrule_block_t * block, int num_scope_syms,
+@@ -1334,7 +1334,7 @@ static int avrule_block_write(avrule_blo
+ 	}
+ 	buf[0] = cpu_to_le32(num_blocks);
+ 	if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	/* now write each block */
+@@ -1347,16 +1347,16 @@ static int avrule_block_write(avrule_blo
+ 		}
+ 		buf[0] = cpu_to_le32(num_decls);
+ 		if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		for (decl = cur->branch_list; decl != NULL; decl = decl->next) {
+ 			if (avrule_decl_write(decl, num_scope_syms, p, fp) ==
+ 			    -1) {
+-				return -1;
++				return POLICYDB_ERROR;
+ 			}
+ 		}
+ 	}
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ static int scope_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+@@ -1373,7 +1373,7 @@ static int scope_write(hashtab_key_t key
+ 		 * buffer.  this would have been easier with C99's
+ 		 * dynamic arrays... */
+ 		if ((dyn_buf = malloc(items * sizeof(*dyn_buf))) == NULL) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 		buf = dyn_buf;
+ 	} else {
+@@ -1382,7 +1382,7 @@ static int scope_write(hashtab_key_t key
+ 	buf[0] = cpu_to_le32(key_len);
+ 	if (put_entry(buf, sizeof(*buf), 1, fp) != 1 ||
+ 	    put_entry(key, 1, key_len, fp) != key_len) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	buf[0] = cpu_to_le32(scope->scope);
+ 	buf[1] = cpu_to_le32(scope->decl_ids_len);
+@@ -1391,10 +1391,10 @@ static int scope_write(hashtab_key_t key
+ 	}
+ 	if (put_entry(buf, sizeof(*buf), items, fp) != items) {
+ 		free(dyn_buf);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 	free(dyn_buf);
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+ 
+ /*
+@@ -1411,6 +1411,9 @@ int policydb_write(policydb_t * p, struc
+ 	struct policy_data pd;
+ 	char *policydb_str;
+ 
++	if (p->unsupported_format)
++		return POLICYDB_UNSUPPORTED;
++
+ 	pd.fp = fp;
+ 	pd.p = p;
+ 
+@@ -1432,10 +1435,10 @@ int policydb_write(policydb_t * p, struc
+ 	buf[items++] = cpu_to_le32(len);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 	items = put_entry(policydb_str, 1, len, fp);
+ 	if (items != len)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	/* Write the version, config, and table sizes. */
+ 	items = 0;
+@@ -1443,7 +1446,7 @@ int policydb_write(policydb_t * p, struc
+ 	if (!info) {
+ 		ERR(fp->handle, "compatibility lookup failed for policy "
+ 		    "version %d", p->policyvers);
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	if (p->policy_type != POLICY_KERN) {
+@@ -1456,7 +1459,7 @@ int policydb_write(policydb_t * p, struc
+ 
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+-		return -1;
++		return POLICYDB_ERROR;
+ 
+ 	if (p->policy_type == POLICY_MOD) {
+ 		/* Write module name and version */
+@@ -1464,18 +1467,18 @@ int policydb_write(policydb_t * p, struc
+ 		buf[0] = cpu_to_le32(len);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		items = put_entry(p->name, 1, len, fp);
+ 		if (items != len)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		len = strlen(p->version);
+ 		buf[0] = cpu_to_le32(len);
+ 		items = put_entry(buf, sizeof(uint32_t), 1, fp);
+ 		if (items != 1)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		items = put_entry(p->version, 1, len, fp);
+ 		if (items != len)
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 	num_syms = info->sym_num;
+ 	for (i = 0; i < num_syms; i++) {
+@@ -1483,43 +1486,43 @@ int policydb_write(policydb_t * p, struc
+ 		buf[1] = cpu_to_le32(p->symtab[i].table->nel);
+ 		items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 		if (items != 2)
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (hashtab_map(p->symtab[i].table, write_f[i], &pd))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	}
+ 
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (avtab_write(p, &p->te_avtab, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (p->policyvers < POLICYDB_VERSION_BOOL) {
+ 			if (p->p_bools.nprim)
+ 				WARN(fp->handle, "Discarding "
+ 				     "booleans and conditional rules");
+ 		} else {
+ 			if (cond_write_list(p, p->cond_list, fp))
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 		if (role_trans_write(p->role_tr, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 		if (role_allow_write(p->role_allow, fp))
+-			return -1;
++			return POLICYDB_ERROR;
+ 	} else {
+ 		if (avrule_block_write(p->global, num_syms, p, fp) == -1) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 
+ 		for (i = 0; i < num_syms; i++) {
+ 			buf[0] = cpu_to_le32(p->scope[i].table->nel);
+ 			if (put_entry(buf, sizeof(uint32_t), 1, fp) != 1) {
+-				return -1;
++				return POLICYDB_ERROR;
+ 			}
+ 			if (hashtab_map(p->scope[i].table, scope_write, &pd))
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 	}
+ 
+ 	if (ocontext_write(info, p, fp) == -1 || genfs_write(p, fp) == -1) {
+-		return -1;
++		return POLICYDB_ERROR;
+ 	}
+ 
+ 	if ((p->policyvers >= POLICYDB_VERSION_MLS
+@@ -1527,7 +1530,7 @@ int policydb_write(policydb_t * p, struc
+ 	    || (p->policyvers >= MOD_POLICYDB_VERSION_MLS
+ 		&& p->policy_type == POLICY_BASE)) {
+ 		if (range_write(p, fp)) {
+-			return -1;
++			return POLICYDB_ERROR;
+ 		}
+ 	}
+ 
+@@ -1535,9 +1538,9 @@ int policydb_write(policydb_t * p, struc
+ 	    && p->policyvers >= POLICYDB_VERSION_AVTAB) {
+ 		for (i = 0; i < p->p_types.nprim; i++) {
+ 			if (ebitmap_write(&p->type_attr_map[i], fp) == -1)
+-				return -1;
++				return POLICYDB_ERROR;
+ 		}
+ 	}
+ 
+-	return 0;
++	return POLICYDB_SUCCESS;
+ }
+diff -urpN -x 'Change*' -x entries -x '*.orig' -x '*.rej' -x '*.svn*' -x '*.swp' trunk/libsepol/src/expand.c branch/setools_public-policydb-components/libsepol/src/expand.c
+--- trunk/libsepol/src/expand.c	2006-07-13 13:57:39.000000000 -0400
++++ trunk/libsepol/src/expand.c	2006-08-01 11:05:06.000000000 -0400
+@@ -41,6 +41,7 @@ typedef struct expand_state {
+ 	policydb_t *base;
+ 	policydb_t *out;
+ 	sepol_handle_t *handle;
++	int expand_neverallow;
+ } expand_state_t;
+ 
+ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+@@ -1007,6 +1008,10 @@ static avtab_ptr_t find_avtab_node(sepol
+ 	return node;
+ }
+ 
++#define EXPAND_RULE_SUCCESS   1
++#define EXPAND_RULE_CONFLICT  0
++#define EXPAND_RULE_ERROR    -1
++
+ static int expand_terule_helper(sepol_handle_t * handle,
+ 				policydb_t * p, uint32_t * typemap,
+ 				uint32_t specified, cond_av_list_t ** cond,
+@@ -1069,7 +1074,7 @@ static int expand_terule_helper(sepol_ha
+ 				 * or in same conditional then ignore it */
+ 				if ((conflict == 1 && cond == NULL)
+ 				    || node->parse_context == cond)
+-					return 1;
++					return EXPAND_RULE_SUCCESS;
+ 				ERR(handle, "duplicate TE rule for %s %s:%s %s",
+ 				    p->p_type_val_to_name[avkey.source_type -
+ 							  1],
+@@ -1078,7 +1083,7 @@ static int expand_terule_helper(sepol_ha
+ 				    p->p_class_val_to_name[avkey.target_class -
+ 							   1],
+ 				    p->p_type_val_to_name[oldtype - 1]);
+-				return 0;
++				return EXPAND_RULE_CONFLICT;
+ 			}
+ 			ERR(handle,
+ 			    "conflicting TE rule for (%s, %s:%s):  old was %s, new is %s",
+@@ -1087,7 +1092,7 @@ static int expand_terule_helper(sepol_ha
+ 			    p->p_class_val_to_name[avkey.target_class - 1],
+ 			    p->p_type_val_to_name[oldtype - 1],
+ 			    p->p_type_val_to_name[remapped_data - 1]);
+-			return 0;
++			return EXPAND_RULE_CONFLICT;
+ 		}
+ 
+ 		node = find_avtab_node(handle, avtab, &avkey, cond);
+@@ -1113,7 +1118,7 @@ static int expand_terule_helper(sepol_ha
+ 		cur = cur->next;
+ 	}
+ 
+-	return 1;
++	return EXPAND_RULE_SUCCESS;
+ }
+ 
+ static int expand_avrule_helper(sepol_handle_t * handle,
+@@ -1137,6 +1142,8 @@ static int expand_avrule_helper(sepol_ha
+ 		spec = AVTAB_AUDITDENY;
+ 	} else if (specified & AVRULE_DONTAUDIT) {
+ 		spec = AVTAB_AUDITDENY;
++	} else if (specified & AVRULE_NEVERALLOW) {
++		spec = AVTAB_NEVERALLOW;
+ 	} else {
+ 		assert(0);	/* unreachable */
+ 	}
+@@ -1150,7 +1157,7 @@ static int expand_avrule_helper(sepol_ha
+ 
+ 		node = find_avtab_node(handle, avtab, &avkey, cond);
+ 		if (!node)
+-			return -1;
++			return EXPAND_RULE_ERROR;
+ 		if (enabled) {
+ 			node->key.specified |= AVTAB_ENABLED;
+ 		} else {
+@@ -1162,6 +1169,8 @@ static int expand_avrule_helper(sepol_ha
+ 			avdatump->data |= cur->data;
+ 		} else if (specified & AVRULE_AUDITALLOW) {
+ 			avdatump->data |= cur->data;
++		} else if (specified & AVRULE_NEVERALLOW) {
++			avdatump->data |= cur->data;
+ 		} else if (specified & AVRULE_AUDITDENY) {
+ 			/* Since a '0' in an auditdeny mask represents
+ 			 * a permission we do NOT want to audit
+@@ -1182,7 +1191,7 @@ static int expand_avrule_helper(sepol_ha
+ 
+ 		cur = cur->next;
+ 	}
+-	return 1;
++	return EXPAND_RULE_SUCCESS;
+ }
+ 
+ static int expand_rule_helper(sepol_handle_t * handle,
+@@ -1253,25 +1262,28 @@ static int expand_rule_helper(sepol_hand
+ 		}
+ 	}
+ 
+-	return 1;
++	return EXPAND_RULE_SUCCESS;
+ }
+ 
+-/* Expand a rule into a given avtab - checking for conflicting type
+- * rules in the destination policy.  Return 1 on success, 0 if the
+- * rule conflicts with something (and hence was not added), or -1 on
+- * error. */
++/*
++ * Expand a rule into a given avtab - checking for conflicting type
++ * rules in the destination policy.  Return EXPAND_RULE_SUCCESS on 
++ * success, EXPAND_RULE_CONFLICT if the rule conflicts with something
++ * (and hence was not added), or EXPAND_RULE_ERROR on error.
++ */
+ static int convert_and_expand_rule(sepol_handle_t * handle,
+ 				   policydb_t * dest_pol, uint32_t * typemap,
+ 				   avrule_t * source_rule, avtab_t * dest_avtab,
+ 				   cond_av_list_t ** cond,
+-				   cond_av_list_t ** other, int enabled)
++				   cond_av_list_t ** other, int enabled,
++				   int do_neverallow)
+ {
+ 	int retval;
+ 	ebitmap_t stypes, ttypes;
+ 	unsigned char alwaysexpand;
+ 
+-	if (source_rule->specified & AVRULE_NEVERALLOW)
+-		return 1;
++	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
++		return EXPAND_RULE_SUCCESS;
+ 
+ 	ebitmap_init(&stypes);
+ 	ebitmap_init(&ttypes);
+@@ -1282,10 +1294,10 @@ static int convert_and_expand_rule(sepol
+ 
+ 	if (expand_convert_type_set
+ 	    (dest_pol, typemap, &source_rule->stypes, &stypes, alwaysexpand))
+-		return -1;
++		return EXPAND_RULE_ERROR;
+ 	if (expand_convert_type_set
+ 	    (dest_pol, typemap, &source_rule->ttypes, &ttypes, alwaysexpand))
+-		return -1;
++		return EXPAND_RULE_ERROR;
+ 
+ 	retval = expand_rule_helper(handle, dest_pol, typemap,
+ 				    source_rule, dest_avtab,
+@@ -1306,7 +1318,8 @@ static int cond_avrule_list_copy(policyd
+ 	while (cur) {
+ 		if (convert_and_expand_rule(state->handle, dest_pol,
+ 					    typemap, cur, dest_avtab,
+-					    list, other, enabled) != 1) {
++					    list, other, enabled,
++					    0) != EXPAND_RULE_SUCCESS) {
+ 			return -1;
+ 		}
+ 
+@@ -2033,17 +2046,21 @@ int expand_module(sepol_handle_t * handl
+ 		/* copy rules */
+ 		cur_avrule = decl->avrules;
+ 		while (cur_avrule != NULL) {
+-			if (cur_avrule->specified & AVRULE_NEVERALLOW) {
++			if (!(state.expand_neverallow)
++			    && cur_avrule->specified & AVRULE_NEVERALLOW) {
+ 				/* copy this over directly so that assertions are checked later */
+ 				if (copy_neverallow
+ 				    (out, state.typemap, cur_avrule))
+ 					ERR(handle,
+ 					    "Error while copying neverallow.");
+ 			} else {
++				if (cur_avrule->specified & AVRULE_NEVERALLOW) {
++					state.out->unsupported_format = 1;
++				}
+ 				if (convert_and_expand_rule
+ 				    (state.handle, out, state.typemap,
+ 				     cur_avrule, &out->te_avtab, NULL, NULL,
+-				     0) != 1) {
++				     0, 0) != 1) {
+					goto cleanup;
+				}
+			}
+@@ -2098,7 +2115,7 @@ int expand_module(sepol_handle_t * handl
+ 		goto cleanup;
+ 	hashtab_map_remove_on_error(state.out->p_types.table,
+ 				    type_attr_remove, type_destroy, state.out);
+-	if (check) {
++	if (check && !(out->unsupported_format)) {
+ 		if (hierarchy_check_constraints(handle, state.out))
+ 			goto cleanup;
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
