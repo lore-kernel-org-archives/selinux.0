@@ -1,1716 +1,1031 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDggX001571
-	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k77FDfSl001542
+	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:41 -0400
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDXCS012297
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k77FDXCS012279
 	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 15:13:33 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDUUT019479
+	by moss-lions.epoch.ncsc.mil (8.13.6/8.13.6) with ESMTP id k77FDUXQ019467
 	for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2006 11:13:30 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDU32019478
+	by moss-lions.epoch.ncsc.mil (8.13.7/8.13.7/Submit) id k77FDUeo019466
 	for selinux@tycho.nsa.gov; Mon, 7 Aug 2006 11:13:30 -0400
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id k72IA2qq004708
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 14:10:02 -0400
-Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id k72I9qeA006387
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 18:09:54 GMT
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by localhost.localdomain (8.13.7/8.13.7) with ESMTP id k72I9uEq021414
-	for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2006 14:09:57 -0400
-Received: (from kmacmill@localhost)
-	by localhost.localdomain (8.13.7/8.13.7/Submit) id k72I9tdl021413
-	for selinux@tycho.nsa.gov; Wed, 2 Aug 2006 14:09:55 -0400
-Subject: [PATCH 1/2] Ver 2 Introduce symtab_datum_t
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH 3/5] libsepol tests for the linker
+From: Joshua Brindle <jbrindle@tresys.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, kmacmillan@mentalrootkit.com
 Content-Type: text/plain
-Date: Wed, 02 Aug 2006 14:09:54 -0400
-Message-Id: <1154542194.27457.86.camel@localhost.localdomain>
+Date: Thu, 03 Aug 2006 10:17:33 -0400
+Message-Id: <1154614654.4909.19.camel@twoface.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds a new structure - symtab_datum_t - and converts all of
-the datum types to place this struct as their first member. This unifies
-the storage of data common to all symtab datums and allows free casting
-between specific datum types (e.g., role_datum_t) and symtab_datum_t.
-This patch is large, but almost all of the changes are trivial.
+This tests the linker in a macro fashion. It basically runs policies
+through the linker and tests for the expected result on the other side.
+The coverage is listed at the top of each test file
+(test-linker-types.c). 
 
-Karl
----
- checkpolicy/checkpolicy.c                  |    8 +-
- checkpolicy/module_compiler.c              |   34 +++++----
- checkpolicy/policy_parse.y                 |  102 ++++++++++++++--------------
- checkpolicy/test/dismod.c                  |   10 +--
- libsepol/include/sepol/policydb/policydb.h |   16 ++--
- libsepol/include/sepol/policydb/symtab.h   |   11 +++
- libsepol/src/booleans.c                    |    2 -
- libsepol/src/conditional.c                 |    8 +-
- libsepol/src/context.c                     |    6 +-
- libsepol/src/expand.c                      |   34 +++++----
- libsepol/src/genusers.c                    |    2 -
- libsepol/src/hierarchy.c                   |   18 ++---
- libsepol/src/link.c                        |   54 +++++++--------
- libsepol/src/mls.c                         |   10 +--
- libsepol/src/policydb.c                    |   54 +++++++--------
- libsepol/src/services.c                    |   12 ++-
- libsepol/src/users.c                       |   12 ++-
- libsepol/src/util.c                        |    2 -
- libsepol/src/write.c                       |   16 ++--
- 19 files changed, 211 insertions(+), 200 deletions(-)
-
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index fb88fa3..8d766cf 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -141,7 +141,7 @@ static int find_perm(hashtab_key_t key, 
+diff -pruN -x policies trunk.old/libsepol/tests/libsepol-tests.c trunk/libsepol/tests/libsepol-tests.c
+--- trunk.old/libsepol/tests/libsepol-tests.c	2006-08-03 09:47:55.000000000 -0400
++++ trunk/libsepol/tests/libsepol-tests.c	2006-08-03 09:50:58.000000000 -0400
+@@ -19,6 +19,7 @@
+  */
  
- 	perdatum = (perm_datum_t *) datum;
+ #include "test-cond.h"
++#include "test-linker.h"
  
--	if (v->val == perdatum->value) {
-+	if (v->val == perdatum->s.value) {
- 		v->name = key;
- 		return 1;
- 	}
-@@ -636,7 +636,7 @@ #endif
- 					printf("\nNo such class\n");
- 					break;
- 				}
--				tclass = cladatum->value;
-+				tclass = cladatum->s.value;
- 			}
+ #include <CUnit/Basic.h>
+ #include <CUnit/Console.h>
+@@ -55,6 +56,7 @@ static int do_tests(int interactive, int
+ 		return CU_get_error();
  
- 			if (!cladatum->comdatum && !cladatum->permissions.nprim) {
-@@ -750,7 +750,7 @@ #endif
- 					printf("\nNo such class\n");
- 					break;
- 				}
--				tclass = cladatum->value;
-+				tclass = cladatum->s.value;
- 			}
+ 	DECLARE_SUITE(cond);
++	DECLARE_SUITE(linker);
  
- 			if (ch == '3')
-@@ -945,7 +945,7 @@ #endif
- 					printf("\nNo such class\n");
- 					break;
- 				}
--				tclass = cladatum->value;
-+				tclass = cladatum->s.value;
- 			}
- 			sepol_genfs_sid(fstype, path, tclass, &ssid);
- 			printf("sid %d\n", ssid);
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index cb0d2c7..ec5fc89 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -183,7 +183,7 @@ role_datum_t *declare_role(void)
- 	    declare_symbol(SYM_ROLES, id, (hashtab_datum_t *) role, &value,
- 			   &value);
- 	if (retval == 0) {
--		role->value = value;
-+		role->s.value = value;
- 		if ((dest_id = strdup(id)) == NULL) {
- 			yyerror("Out of memory!");
- 			return NULL;
-@@ -214,7 +214,7 @@ role_datum_t *declare_role(void)
- 				return NULL;
- 			}
- 			role_datum_init(dest_role);
--			dest_role->value = value;
-+			dest_role->s.value = value;
- 			if (hashtab_insert(roles_tab, dest_id, dest_role)) {
- 				yyerror("Out of memory!");
- 				free(dest_id);
-@@ -243,7 +243,7 @@ role_datum_t *declare_role(void)
- 		}
- 	case 0:{
- 			if (ebitmap_set_bit
--			    (&dest_role->dominates, role->value - 1, 1)) {
-+			    (&dest_role->dominates, role->s.value - 1, 1)) {
- 				yyerror("out of memory");
- 				return NULL;
- 			}
-@@ -290,7 +290,7 @@ type_datum_t *declare_type(unsigned char
- 	retval = declare_symbol(SYM_TYPES, id, typdatum, &value, &value);
- 	if (retval == 0 || retval == 1) {
- 		if (typdatum->primary) {
--			typdatum->value = value;
-+			typdatum->s.value = value;
- 		}
- 	} else {
- 		/* error occurred (can't have duplicate type declarations) */
-@@ -344,7 +344,7 @@ user_datum_t *declare_user(void)
- 			   &value);
- 
- 	if (retval == 0) {
--		user->value = value;
-+		user->s.value = value;
- 		if ((dest_id = strdup(id)) == NULL) {
- 			yyerror("Out of memory!");
- 			return NULL;
-@@ -375,7 +375,7 @@ user_datum_t *declare_user(void)
- 				return NULL;
- 			}
- 			user_datum_init(dest_user);
--			dest_user->value = value;
-+			dest_user->s.value = value;
- 			if (hashtab_insert(users_tab, dest_id, dest_user)) {
- 				yyerror("Out of memory!");
- 				free(dest_id);
-@@ -441,7 +441,7 @@ type_datum_t *get_local_type(char *id, u
- 			return NULL;
- 		}
- 		type_datum_init(dest_typdatum);
--		dest_typdatum->value = value;
-+		dest_typdatum->s.value = value;
- 		dest_typdatum->flavor = isattr ? TYPE_ATTRIB : TYPE_TYPE;
- 		dest_typdatum->primary = 1;
- 		if (hashtab_insert(types_tab, id, dest_typdatum)) {
-@@ -624,8 +624,8 @@ int require_class(int pass)
- 		goto cleanup;
- 	}
- 	ret =
--	    require_symbol(SYM_CLASSES, class_id, datum, &datum->value,
--			   &datum->value);
-+	    require_symbol(SYM_CLASSES, class_id, datum, &datum->s.value,
-+			   &datum->s.value);
- 	switch (ret) {
- 	case -3:{
- 			yyerror("Out of memory!");
-@@ -705,10 +705,10 @@ int require_class(int pass)
- 				free(perm);
- 				goto cleanup;
- 			}
--			perm->value = datum->permissions.nprim + 1;
-+			perm->s.value = datum->permissions.nprim + 1;
- 		}
- 
--		if (add_perm_to_class(perm->value, datum->value) == -1) {
-+		if (add_perm_to_class(perm->s.value, datum->s.value) == -1) {
- 			yyerror("Out of memory!");
- 			goto cleanup;
- 		}
-@@ -743,7 +743,7 @@ int require_role(int pass)
- 	role_datum_init(role);
- 	retval =
- 	    require_symbol(SYM_ROLES, id, (hashtab_datum_t *) role,
--			   &role->value, &role->value);
-+			   &role->s.value, &role->s.value);
- 	if (retval != 0) {
- 		free(id);
- 		role_datum_destroy(role);
-@@ -765,7 +765,7 @@ int require_role(int pass)
- 	case 0:{
- 			/* all roles dominate themselves */
- 			if (ebitmap_set_bit
--			    (&role->dominates, role->value - 1, 1)) {
-+			    (&role->dominates, role->s.value - 1, 1)) {
- 				yyerror("Out of memory");
- 				return -1;
- 			}
-@@ -803,7 +803,7 @@ static int require_type_or_attribute(int
- 	type->flavor = isattr ? TYPE_ATTRIB : TYPE_TYPE;
- 	retval =
- 	    require_symbol(SYM_TYPES, id, (hashtab_datum_t *) type,
--			   &type->value, &type->value);
-+			   &type->s.value, &type->s.value);
- 	if (retval != 0) {
- 		free(id);
- 		free(type);
-@@ -864,7 +864,7 @@ int require_user(int pass)
- 	user_datum_init(user);
- 	retval =
- 	    require_symbol(SYM_USERS, id, (hashtab_datum_t *) user,
--			   &user->value, &user->value);
-+			   &user->s.value, &user->s.value);
- 	if (retval != 0) {
- 		free(id);
- 		user_datum_destroy(user);
-@@ -914,7 +914,7 @@ int require_bool(int pass)
- 	}
- 	retval =
- 	    require_symbol(SYM_BOOLS, id, (hashtab_datum_t *) booldatum,
--			   &booldatum->value, &booldatum->value);
-+			   &booldatum->s.value, &booldatum->s.value);
- 	if (retval != 0) {
- 		cond_destroy_bool(id, booldatum, NULL);
- 	}
-@@ -1026,7 +1026,7 @@ int is_perm_in_scope(hashtab_key_t perm_
- 	if (perdatum == NULL) {
- 		return 1;
- 	}
--	return is_perm_in_stack(perdatum->value, cladatum->value, stack_top);
-+	return is_perm_in_stack(perdatum->s.value, cladatum->s.value, stack_top);
- }
- 
- cond_list_t *get_current_cond_list(cond_list_t * cond)
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index c262534..f514c1c 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -983,7 +983,7 @@ static int define_class(void)
- 			assert(0);	/* should never get here */
- 		}
- 	}
--	datum->value = value;
-+	datum->s.value = value;
- 	return 0;
- 
-       bad:
-@@ -1088,7 +1088,7 @@ static int define_common_perms(void)
- 		yyerror("hash table overflow");
- 		goto bad;
- 	}
--	comdatum->value = policydbp->p_commons.nprim + 1;
-+	comdatum->s.value = policydbp->p_commons.nprim + 1;
- 	if (symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE)) {
- 		yyerror("out of memory");
- 		goto bad;
-@@ -1101,9 +1101,9 @@ static int define_common_perms(void)
- 			goto bad_perm;
- 		}
- 		memset(perdatum, 0, sizeof(perm_datum_t));
--		perdatum->value = comdatum->permissions.nprim + 1;
-+		perdatum->s.value = comdatum->permissions.nprim + 1;
- 
--		if (perdatum->value > (sizeof(sepol_access_vector_t) * 8)) {
-+		if (perdatum->s.value > (sizeof(sepol_access_vector_t) * 8)) {
- 			yyerror
- 			    ("too many permissions to fit in an access vector");
- 			goto bad_perm;
-@@ -1212,9 +1212,9 @@ static int define_av_perms(int inherits)
- 			goto bad;
- 		}
- 		memset(perdatum, 0, sizeof(perm_datum_t));
--		perdatum->value = ++cladatum->permissions.nprim;
-+		perdatum->s.value = ++cladatum->permissions.nprim;
- 
--		if (perdatum->value > (sizeof(sepol_access_vector_t) * 8)) {
-+		if (perdatum->s.value > (sizeof(sepol_access_vector_t) * 8)) {
- 			yyerror
- 			    ("too many permissions to fit in an access vector");
- 			goto bad;
-@@ -1250,7 +1250,7 @@ static int define_av_perms(int inherits)
- 			yyerror("hash table overflow");
- 			goto bad;
- 		}
--		if (add_perm_to_class(perdatum->value, cladatum->value)) {
-+		if (add_perm_to_class(perdatum->s.value, cladatum->s.value)) {
- 			yyerror("out of memory");
- 			goto bad;
- 		}
-@@ -1503,7 +1503,7 @@ static int define_category(void)
- 			assert(0);	/* should never get here */
- 		}
- 	}
--	datum->value = value;
-+	datum->s.value = value;
- 
- 	while ((id = queue_remove(id_queue))) {
- 		if (id_has_dot(id)) {
-@@ -1517,11 +1517,11 @@ static int define_category(void)
- 		}
- 		memset(aliasdatum, 0, sizeof(cat_datum_t));
- 		aliasdatum->isalias = TRUE;
--		aliasdatum->value = datum->value;
-+		aliasdatum->s.value = datum->s.value;
- 
- 		ret =
- 		    declare_symbol(SYM_CATS, id, aliasdatum, NULL,
--				   &datum->value);
-+				   &datum->s.value);
- 		switch (ret) {
- 		case -3:{
- 				yyerror("Out of memory!");
-@@ -1649,7 +1649,7 @@ static int define_level(void)
- 				free(id);
- 				return -1;
- 			}
--			range_start = cdatum->value - 1;
-+			range_start = cdatum->s.value - 1;
- 			cdatum =
- 			    (cat_datum_t *) hashtab_search(policydbp->p_cats.
- 							   table,
-@@ -1662,7 +1662,7 @@ static int define_level(void)
- 				free(id);
- 				return -1;
- 			}
--			range_end = cdatum->value - 1;
-+			range_end = cdatum->s.value - 1;
- 
- 			if (range_end < range_start) {
- 				sprintf(errormsg, "category range is invalid");
-@@ -1675,7 +1675,7 @@ static int define_level(void)
- 			    (cat_datum_t *) hashtab_search(policydbp->p_cats.
- 							   table,
- 							   (hashtab_key_t) id);
--			range_start = range_end = cdatum->value - 1;
-+			range_start = range_end = cdatum->s.value - 1;
- 		}
- 
- 		for (i = range_start; i <= range_end; i++) {
-@@ -1730,10 +1730,10 @@ static int add_aliases_to_type(type_datu
- 			return -1;
- 		}
- 		memset(aliasdatum, 0, sizeof(type_datum_t));
--		aliasdatum->value = type->value;
-+		aliasdatum->s.value = type->s.value;
- 
- 		ret = declare_symbol(SYM_TYPES, id, aliasdatum,
--				     NULL, &aliasdatum->value);
-+				     NULL, &aliasdatum->s.value);
- 		switch (ret) {
- 		case -3:{
- 				yyerror("Out of memory!");
-@@ -1851,12 +1851,12 @@ static int define_typeattribute(void)
- 			return -1;
- 		}
- 
--		if ((attr = get_local_type(id, attr->value, 1)) == NULL) {
-+		if ((attr = get_local_type(id, attr->s.value, 1)) == NULL) {
- 			yyerror("Out of memory!");
- 			return -1;
- 		}
- 
--		if (ebitmap_set_bit(&attr->types, (t->value - 1), TRUE)) {
-+		if (ebitmap_set_bit(&attr->types, (t->s.value - 1), TRUE)) {
- 			yyerror("out of memory");
- 			return -1;
- 		}
-@@ -1914,12 +1914,12 @@ static int define_type(int alias)
- 			return -1;
- 		}
- 
--		if ((attr = get_local_type(id, attr->value, 1)) == NULL) {
-+		if ((attr = get_local_type(id, attr->s.value, 1)) == NULL) {
- 			yyerror("Out of memory!");
- 			return -1;
- 		}
- 
--		if (ebitmap_set_bit(&attr->types, datum->value - 1, TRUE)) {
-+		if (ebitmap_set_bit(&attr->types, datum->s.value - 1, TRUE)) {
- 			yyerror("Out of memory");
- 			return -1;
- 		}
-@@ -1984,10 +1984,10 @@ static int set_types(type_set_t * set, c
- 	}
- 
- 	if (*add == 0) {
--		if (ebitmap_set_bit(&set->negset, t->value - 1, TRUE))
-+		if (ebitmap_set_bit(&set->negset, t->s.value - 1, TRUE))
- 			goto oom;
- 	} else {
--		if (ebitmap_set_bit(&set->types, t->value - 1, TRUE))
-+		if (ebitmap_set_bit(&set->types, t->s.value - 1, TRUE))
- 			goto oom;
- 	}
- 	free(id);
-@@ -2042,7 +2042,7 @@ static int define_compute_type_helper(in
- 			yyerror(errormsg);
- 			goto bad;
- 		}
--		if (ebitmap_set_bit(&tclasses, cladatum->value - 1, TRUE)) {
-+		if (ebitmap_set_bit(&tclasses, cladatum->s.value - 1, TRUE)) {
- 			yyerror("Out of memory");
- 			goto bad;
- 		}
-@@ -2076,7 +2076,7 @@ static int define_compute_type_helper(in
- 			}
- 			class_perm_node_init(perm);
- 			perm->class = i + 1;
--			perm->data = datum->value;
-+			perm->data = datum->s.value;
- 			perm->next = avrule->perms;
- 			avrule->perms = perm;
- 		}
-@@ -2191,7 +2191,7 @@ static int define_bool(void)
- 			assert(0);	/* should never get here */
- 		}
- 	}
--	datum->value = value;
-+	datum->s.value = value;
- 
- 	bool_value = (char *)queue_remove(id_queue);
- 	if (!bool_value) {
-@@ -2284,7 +2284,7 @@ static int define_te_avtab_helper(int wh
- 			ret = -1;
- 			goto out;
- 		}
--		if (ebitmap_set_bit(&tclasses, cladatum->value - 1, TRUE)) {
-+		if (ebitmap_set_bit(&tclasses, cladatum->s.value - 1, TRUE)) {
- 			yyerror("Out of memory");
- 			ret = -1;
- 			goto out;
-@@ -2361,7 +2361,7 @@ static int define_te_avtab_helper(int wh
- 				}
- 				continue;
- 			} else {
--				cur_perms->data |= 1U << (perdatum->value - 1);
-+				cur_perms->data |= 1U << (perdatum->s.value - 1);
- 			}
- 		      next:
- 			cur_perms = cur_perms->next;
-@@ -2459,7 +2459,7 @@ static role_datum_t *merge_roles_dom(rol
- 		return NULL;
- 	}
- 	memset(new, 0, sizeof(role_datum_t));
--	new->value = 0;		/* temporary role */
-+	new->s.value = 0;		/* temporary role */
- 	if (ebitmap_or(&new->dominates, &r1->dominates, &r2->dominates)) {
- 		yyerror("out of memory");
- 		return NULL;
-@@ -2468,13 +2468,13 @@ static role_datum_t *merge_roles_dom(rol
- 		yyerror("out of memory");
- 		return NULL;
- 	}
--	if (!r1->value) {
-+	if (!r1->s.value) {
- 		/* free intermediate result */
- 		type_set_destroy(&r1->types);
- 		ebitmap_destroy(&r1->dominates);
- 		free(r1);
- 	}
--	if (!r2->value) {
-+	if (!r2->s.value) {
- 		/* free intermediate result */
- 		yyerror("right hand role is temporary?");
- 		type_set_destroy(&r2->types);
-@@ -2494,11 +2494,11 @@ static int dominate_role_recheck(hashtab
- 	int i;
- 
- 	/* Don't bother to process against self role */
--	if (rdatum->value == rdp->value)
-+	if (rdatum->s.value == rdp->s.value)
- 		return 0;
- 
- 	/* If a dominating role found */
--	if (ebitmap_get_bit(&(rdatum->dominates), rdp->value - 1)) {
-+	if (ebitmap_get_bit(&(rdatum->dominates), rdp->s.value - 1)) {
- 		ebitmap_t types;
- 		ebitmap_init(&types);
- 		if (type_set_expand(&rdp->types, &types, policydbp, 1)) {
-@@ -2560,8 +2560,8 @@ static role_datum_t *define_role_dom(rol
- 		memset(role, 0, sizeof(role_datum_t));
- 		ret =
- 		    declare_symbol(SYM_ROLES, (hashtab_key_t) role_id,
--				   (hashtab_datum_t) role, &role->value,
--				   &role->value);
-+				   (hashtab_datum_t) role, &role->s.value,
-+				   &role->s.value);
- 		switch (ret) {
- 		case -3:{
- 				yyerror("Out of memory!");
-@@ -2584,7 +2584,7 @@ static role_datum_t *define_role_dom(rol
- 				assert(0);	/* should never get here */
- 			}
- 		}
--		if (ebitmap_set_bit(&role->dominates, role->value - 1, TRUE)) {
-+		if (ebitmap_set_bit(&role->dominates, role->s.value - 1, TRUE)) {
- 			yyerror("Out of memory!");
- 			goto cleanup;
- 		}
-@@ -2608,7 +2608,7 @@ static role_datum_t *define_role_dom(rol
- 					goto oom;
- 		}
- 		ebitmap_destroy(&types);
--		if (!r->value) {
-+		if (!r->s.value) {
- 			/* free intermediate result */
- 			type_set_destroy(&r->types);
- 			ebitmap_destroy(&r->dominates);
-@@ -2640,7 +2640,7 @@ static int role_val_to_name_helper(hasht
- 
- 	roldatum = (role_datum_t *) datum;
- 
--	if (v->val == roldatum->value) {
-+	if (v->val == roldatum->s.value) {
- 		v->name = key;
- 		return 1;
- 	}
-@@ -2687,7 +2687,7 @@ static int set_roles(role_set_t * set, c
- 		return -1;
- 	}
- 
--	if (ebitmap_set_bit(&set->roles, r->value - 1, TRUE)) {
-+	if (ebitmap_set_bit(&set->roles, r->s.value - 1, TRUE)) {
- 		yyerror("out of memory");
- 		free(id);
- 		return -1;
-@@ -2786,7 +2786,7 @@ static int define_role_trans(void)
- 			memset(tr, 0, sizeof(struct role_trans));
- 			tr->role = i + 1;
- 			tr->type = j + 1;
--			tr->new_role = role->value;
-+			tr->new_role = role->s.value;
- 			tr->next = policydbp->role_tr;
- 			policydbp->role_tr = tr;
- 		}
-@@ -2800,7 +2800,7 @@ static int define_role_trans(void)
- 	memset(rule, 0, sizeof(struct role_trans_rule));
- 	rule->roles = roles;
- 	rule->types = types;
--	rule->new_role = role->value;
-+	rule->new_role = role->s.value;
- 
- 	append_role_trans(rule);
- 
-@@ -2966,7 +2966,7 @@ static int define_constraint(constraint_
- 			free(id);
- 			return -1;
- 		}
--		if (ebitmap_set_bit(&classmap, cladatum->value - 1, TRUE)) {
-+		if (ebitmap_set_bit(&classmap, cladatum->s.value - 1, TRUE)) {
- 			yyerror("out of memory");
- 			ebitmap_destroy(&classmap);
- 			free(id);
-@@ -3030,7 +3030,7 @@ static int define_constraint(constraint_
- 					}
- 				}
- 				node->permissions |=
--				    (1 << (perdatum->value - 1));
-+				    (1 << (perdatum->s.value - 1));
- 			}
- 		}
- 		free(id);
-@@ -3109,7 +3109,7 @@ static int define_validatetrans(constrai
- 			free(id);
- 			return -1;
- 		}
--		if (ebitmap_set_bit(&classmap, (cladatum->value - 1), TRUE)) {
-+		if (ebitmap_set_bit(&classmap, (cladatum->s.value - 1), TRUE)) {
- 			yyerror("out of memory");
- 			ebitmap_destroy(&classmap);
- 			free(id);
-@@ -3241,7 +3241,7 @@ define_cexpr(uint32_t expr_type, uintptr
- 					constraint_expr_destroy(expr);
- 					return 0;
- 				}
--				val = user->value;
-+				val = user->s.value;
- 			} else if (expr->attr & CEXPR_ROLE) {
- 				if (!is_id_in_scope(SYM_ROLES, id)) {
- 					yyerror2("role %s is not within scope",
-@@ -3262,7 +3262,7 @@ define_cexpr(uint32_t expr_type, uintptr
- 					constraint_expr_destroy(expr);
- 					return 0;
- 				}
--				val = role->value;
-+				val = role->s.value;
- 			} else if (expr->attr & CEXPR_TYPE) {
- 				if (set_types(expr->type_names, id, &add, 0)) {
- 					constraint_expr_destroy(expr);
-@@ -3495,7 +3495,7 @@ static cond_expr_t *define_cond_expr(uin
- 			free(id);
- 			return NULL;
- 		}
--		expr->bool = bool_var->value;
-+		expr->bool = bool_var->s.value;
- 		free(id);
- 		return expr;
- 	default:
-@@ -3568,7 +3568,7 @@ parse_categories(char *id, level_datum_t
- 			yyerror(errormsg);
- 			return -1;
- 		}
--		range_start = cdatum->value - 1;
-+		range_start = cdatum->s.value - 1;
- 		cdatum = (cat_datum_t *) hashtab_search(policydbp->p_cats.table,
- 							(hashtab_key_t) id_end);
- 		if (!cdatum) {
-@@ -3576,7 +3576,7 @@ parse_categories(char *id, level_datum_t
- 			yyerror(errormsg);
- 			return -1;
- 		}
--		range_end = cdatum->value - 1;
-+		range_end = cdatum->s.value - 1;
- 
- 		if (range_end < range_start) {
- 			sprintf(errormsg, "category range is invalid");
-@@ -3591,7 +3591,7 @@ parse_categories(char *id, level_datum_t
- 			yyerror(errormsg);
- 			return -1;
- 		}
--		range_start = range_end = cdatum->value - 1;
-+		range_start = range_end = cdatum->s.value - 1;
- 	}
- 
- 	for (i = range_start; i <= range_end; i++) {
-@@ -3803,7 +3803,7 @@ static int parse_security_context(contex
- 		free(id);
- 		goto bad;
- 	}
--	c->user = usrdatum->value;
-+	c->user = usrdatum->s.value;
- 
- 	/* no need to keep the user name */
- 	free(id);
-@@ -3827,7 +3827,7 @@ static int parse_security_context(contex
- 		free(id);
- 		return -1;
- 	}
--	c->role = role->value;
-+	c->role = role->s.value;
- 
- 	/* no need to keep the role name */
- 	free(id);
-@@ -3852,7 +3852,7 @@ static int parse_security_context(contex
- 		free(id);
- 		return -1;
- 	}
--	c->type = typdatum->value;
-+	c->type = typdatum->s.value;
- 
- 	/* no need to keep the type name */
- 	free(id);
-diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-index 98ddd31..e4ed7c3 100644
---- a/checkpolicy/test/dismod.c
-+++ b/checkpolicy/test/dismod.c
-@@ -295,13 +295,13 @@ int display_type_callback(hashtab_key_t 
- 	fp = (FILE *) data;
- 
- 	if (type->primary) {
--		display_id(&policydb, fp, SYM_TYPES, type->value - 1, "");
--		fprintf(fp, " [%d]: ", type->value);
-+		display_id(&policydb, fp, SYM_TYPES, type->s.value - 1, "");
-+		fprintf(fp, " [%d]: ", type->s.value);
- 	} else {
- 		/* as that aliases have no value of their own and that
- 		 * they can never be required by a module, use this
- 		 * alternative way of displaying a name */
--		fprintf(fp, " %s [%d]: ", (char *)key, type->value);
-+		fprintf(fp, " %s [%d]: ", (char *)key, type->s.value);
- 	}
- 	if (type->flavor == TYPE_ATTRIB) {
- 		fprintf(fp, "attribute for types");
-@@ -320,7 +320,7 @@ int display_type_callback(hashtab_key_t 
- 		fprintf(fp, "type");
- 	} else {
- 		fprintf(fp, "alias for type");
--		display_id(&policydb, fp, SYM_TYPES, type->value - 1, "");
-+		display_id(&policydb, fp, SYM_TYPES, type->s.value - 1, "");
- 	}
- 	fprintf(fp, "\n");
- 
-@@ -482,7 +482,7 @@ int role_display_callback(hashtab_key_t 
- 	fp = (FILE *) data;
- 
- 	fprintf(fp, "role:");
--	display_id(&policydb, fp, SYM_ROLES, role->value - 1, "");
-+	display_id(&policydb, fp, SYM_ROLES, role->s.value - 1, "");
- 	fprintf(fp, " types: ");
- 	display_type_set(&role->types, 0, &policydb, fp);
- 	fprintf(fp, "\n");
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 77688bd..45736a0 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -90,18 +90,18 @@ #define ROLE_COMP 2
- 
- /* Permission attributes */
- typedef struct perm_datum {
--	uint32_t value;		/* permission bit + 1 */
-+	symtab_datum_t s;
- } perm_datum_t;
- 
- /* Attributes of a common prefix for access vectors */
- typedef struct common_datum {
--	uint32_t value;		/* internal common value */
-+	symtab_datum_t s;
- 	symtab_t permissions;	/* common permissions */
- } common_datum_t;
- 
- /* Class attributes */
- typedef struct class_datum {
--	uint32_t value;		/* class value */
-+	symtab_datum_t s;
- 	char *comkey;		/* common name */
- 	common_datum_t *comdatum;	/* common datum */
- 	symtab_t permissions;	/* class-specific permission symbol table */
-@@ -111,7 +111,7 @@ typedef struct class_datum {
- 
- /* Role attributes */
- typedef struct role_datum {
--	uint32_t value;		/* internal role value */
-+	symtab_datum_t s;
- 	ebitmap_t dominates;	/* set of roles dominated by this role */
- 	type_set_t types;	/* set of authorized types for role */
- 	ebitmap_t cache;	/* This is an expanded set used for context validation during parsing */
-@@ -132,7 +132,7 @@ typedef struct role_allow {
- 
- /* Type attributes */
- typedef struct type_datum {
--	uint32_t value;		/* internal type value */
-+	symtab_datum_t s;
- 	uint32_t primary;	/* primary name? can be set to primary value if below is TYPE_ */
- #define TYPE_TYPE 0		/* regular type or alias in kernel policies */
- #define TYPE_ATTRIB 1		/* attribute */
-@@ -143,7 +143,7 @@ #define TYPE_ALIAS 2		/* alias in modula
- 
- /* User attributes */
- typedef struct user_datum {
--	uint32_t value;		/* internal user value */
-+	symtab_datum_t s;
- 	role_set_t roles;	/* set of authorized roles for user */
- 	mls_range_t range;	/* MLS range (min. - max.) for user */
- 	mls_level_t dfltlevel;	/* default login MLS level for user */
-@@ -159,7 +159,7 @@ typedef struct level_datum {
- 
- /* Category attributes */
- typedef struct cat_datum {
--	uint32_t value;		/* internal category bit + 1 */
-+	symtab_datum_t s;
- 	unsigned char isalias;	/* is this category an alias for another? */
- } cat_datum_t;
- 
-@@ -172,7 +172,7 @@ typedef struct range_trans {
- 
- /* Boolean data type */
- typedef struct cond_bool_datum {
--	uint32_t value;		/* internal type value */
-+	symtab_datum_t s;
- 	int state;
- } cond_bool_datum_t;
- 
-diff --git a/libsepol/include/sepol/policydb/symtab.h b/libsepol/include/sepol/policydb/symtab.h
-index 678f709..c8ad664 100644
---- a/libsepol/include/sepol/policydb/symtab.h
-+++ b/libsepol/include/sepol/policydb/symtab.h
-@@ -15,6 +15,17 @@ #define _SEPOL_POLICYDB_SYMTAB_H_
- 
- #include <sepol/policydb/hashtab.h>
- 
-+/* The symtab_datum struct stores the common information for
-+ * all symtab datums. It should the first element in every
-+ * struct that will be used in a symtab to allow the specific
-+ * datum types to be freely cast to this type.
+ 	if (verbose)
+ 		CU_basic_set_mode(CU_BRM_VERBOSE);
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker.c trunk/libsepol/tests/test-linker.c
+--- trunk.old/libsepol/tests/test-linker.c	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker.c	2006-08-01 11:12:40.000000000 -0400
+@@ -0,0 +1,154 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
 + *
-+ * The values start at 1 - 0 is never a valid value.
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
-+typedef struct symtab_datum {
-+	uint32_t value;
-+} symtab_datum_t;
 +
- typedef struct {
- 	hashtab_t table;	/* hash table (keyed on a string) */
- 	uint32_t nprim;		/* number of primary names in table */
-diff --git a/libsepol/src/booleans.c b/libsepol/src/booleans.c
-index 3f3570a..7f37c8b 100644
---- a/libsepol/src/booleans.c
-+++ b/libsepol/src/booleans.c
-@@ -160,7 +160,7 @@ int sepol_bool_query(sepol_handle_t * ha
- 	}
- 
- 	if (bool_to_record(handle, policydb,
--			   booldatum->value - 1, response) < 0)
-+			   booldatum->s.value - 1, response) < 0)
- 		goto err;
- 
- 	free(name);
-diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
-index dd3c226..f7ec015 100644
---- a/libsepol/src/conditional.c
-+++ b/libsepol/src/conditional.c
-@@ -539,11 +539,11 @@ int cond_index_bool(hashtab_key_t key, h
- 	booldatum = datum;
- 	p = datap;
- 
--	if (!booldatum->value || booldatum->value > p->p_bools.nprim)
-+	if (!booldatum->s.value || booldatum->s.value > p->p_bools.nprim)
- 		return -EINVAL;
- 
--	p->p_bool_val_to_name[booldatum->value - 1] = key;
--	p->bool_val_to_struct[booldatum->value - 1] = booldatum;
-+	p->p_bool_val_to_name[booldatum->s.value - 1] = key;
-+	p->bool_val_to_struct[booldatum->s.value - 1] = booldatum;
- 
- 	return 0;
- }
-@@ -572,7 +572,7 @@ int cond_read_bool(policydb_t * p
- 	if (!buf)
- 		goto err;
- 
--	booldatum->value = le32_to_cpu(buf[0]);
-+	booldatum->s.value = le32_to_cpu(buf[0]);
- 	booldatum->state = le32_to_cpu(buf[1]);
- 
- 	if (!bool_isvalid(booldatum))
-diff --git a/libsepol/src/context.c b/libsepol/src/context.c
-index dfb89bb..0d5ffd0 100644
---- a/libsepol/src/context.c
-+++ b/libsepol/src/context.c
-@@ -171,7 +171,7 @@ int context_from_record(sepol_handle_t *
- 		ERR(handle, "user %s is not defined", user);
- 		goto err_destroy;
- 	}
--	scontext->user = usrdatum->value;
-+	scontext->user = usrdatum->s.value;
- 
- 	/* Role */
- 	roldatum = (role_datum_t *) hashtab_search(policydb->p_roles.table,
-@@ -180,7 +180,7 @@ int context_from_record(sepol_handle_t *
- 		ERR(handle, "role %s is not defined", role);
- 		goto err_destroy;
- 	}
--	scontext->role = roldatum->value;
-+	scontext->role = roldatum->s.value;
- 
- 	/* Type */
- 	typdatum = (type_datum_t *) hashtab_search(policydb->p_types.table,
-@@ -189,7 +189,7 @@ int context_from_record(sepol_handle_t *
- 		ERR(handle, "type %s is not defined", type);
- 		goto err_destroy;
- 	}
--	scontext->type = typdatum->value;
-+	scontext->type = typdatum->s.value;
- 
- 	/* MLS */
- 	if (mls && !policydb->mls) {
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 72f57fe..aafd8d6 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -83,15 +83,15 @@ static int type_copy_callback(hashtab_ke
- 	memset(new_type, 0, sizeof(type_datum_t));
- 
- 	new_type->flavor = type->flavor;
--	new_type->value = ++state->out->p_types.nprim;
--	if (new_type->value > UINT16_MAX) {
-+	new_type->s.value = ++state->out->p_types.nprim;
-+	if (new_type->s.value > UINT16_MAX) {
- 		free(new_id);
- 		free(new_type);
- 		ERR(state->handle, "type space overflow");
- 		return -1;
- 	}
- 	new_type->primary = 1;
--	state->typemap[type->value - 1] = new_type->value;
-+	state->typemap[type->s.value - 1] = new_type->s.value;
- 
- 	ret = hashtab_insert(state->out->p_types.table,
- 			     (hashtab_key_t) new_id,
-@@ -173,7 +173,7 @@ static int perm_copy_callback(hashtab_ke
- 		return -1;
- 	}
- 
--	new_perm->value = perm->value;
-+	new_perm->s.value = perm->s.value;
- 	s->nprim++;
- 
- 	ret = hashtab_insert(s->table, new_id, (hashtab_datum_t *) new_perm);
-@@ -220,7 +220,7 @@ static int common_copy_callback(hashtab_
- 		return -1;
- 	}
- 
--	new_common->value = common->value;
-+	new_common->s.value = common->s.value;
- 	state->out->p_commons.nprim++;
- 
- 	ret =
-@@ -347,7 +347,7 @@ static int class_copy_callback(hashtab_k
- 		return -1;
- 	}
- 
--	new_class->value = class->value;
-+	new_class->s.value = class->s.value;
- 	state->out->p_classes.nprim++;
- 
- 	new_id = strdup(id);
-@@ -465,9 +465,9 @@ static int alias_copy_callback(hashtab_k
- 	}
- 	memset(new_alias, 0, sizeof(type_datum_t));
- 	if (alias->flavor == TYPE_TYPE)
--		new_alias->value = state->typemap[alias->value - 1];
-+		new_alias->s.value = state->typemap[alias->s.value - 1];
- 	else if (alias->flavor == TYPE_ALIAS)
--		new_alias->value = state->typemap[alias->primary - 1];
-+		new_alias->s.value = state->typemap[alias->primary - 1];
- 	else
- 		assert(0);	/* unreachable */
- 
-@@ -482,7 +482,7 @@ static int alias_copy_callback(hashtab_k
- 		return -1;
- 	}
- 
--	state->typemap[alias->value - 1] = new_alias->value;
-+	state->typemap[alias->s.value - 1] = new_alias->s.value;
- 	return 0;
- }
- 
-@@ -527,7 +527,7 @@ static int role_copy_callback(hashtab_ke
- 			return -1;
- 		}
- 
--		new_role->value = role->value;
-+		new_role->s.value = role->s.value;
- 		state->out->p_roles.nprim++;
- 		ret = hashtab_insert(state->out->p_roles.table,
- 				     (hashtab_key_t) new_id,
-@@ -615,7 +615,7 @@ static int user_copy_callback(hashtab_ke
- 		}
- 		memset(new_user, 0, sizeof(user_datum_t));
- 
--		new_user->value = user->value;
-+		new_user->s.value = user->s.value;
- 		state->out->p_users.nprim++;
- 
- 		new_id = strdup(id);
-@@ -702,7 +702,7 @@ static int bool_copy_callback(hashtab_ke
- 		return -1;
- 	}
- 
--	new_bool->value = bool->value;
-+	new_bool->s.value = bool->s.value;
- 	state->out->p_bools.nprim++;
- 
- 	ret = hashtab_insert(state->out->p_bools.table,
-@@ -787,7 +787,7 @@ static int cats_copy_callback(hashtab_ke
- 		goto out_of_mem;
- 	}
- 
--	new_cat->value = cat->value;
-+	new_cat->s.value = cat->s.value;
- 	new_cat->isalias = cat->isalias;
- 	state->out->p_cats.nprim++;
- 	if (hashtab_insert(state->out->p_cats.table,
-@@ -1541,7 +1541,7 @@ static int type_attr_map(hashtab_key_t k
- 
- 	type = (type_datum_t *) datum;
- 	if (type->flavor == TYPE_ATTRIB) {
--		if (ebitmap_cpy(&p->attr_type_map[type->value - 1],
-+		if (ebitmap_cpy(&p->attr_type_map[type->s.value - 1],
- 				&type->types)) {
- 			ERR(state->handle, "Out of memory!");
- 			return -1;
-@@ -1550,7 +1550,7 @@ static int type_attr_map(hashtab_key_t k
- 			if (!ebitmap_node_get_bit(tnode, i))
- 				continue;
- 			if (ebitmap_set_bit(&p->type_attr_map[i],
--					    type->value - 1, 1)) {
-+					    type->s.value - 1, 1)) {
- 				ERR(state->handle, "Out of memory!");
- 				return -1;
- 			}
-@@ -1577,8 +1577,8 @@ static int type_attr_remove(hashtab_key_
- 	typdatum = (type_datum_t *) datum;
- 	p = (policydb_t *) args;
- 	if (typdatum->flavor == TYPE_ATTRIB) {
--		p->type_val_to_struct[typdatum->value - 1] = NULL;
--		p->p_type_val_to_name[typdatum->value - 1] = NULL;
-+		p->type_val_to_struct[typdatum->s.value - 1] = NULL;
-+		p->p_type_val_to_name[typdatum->s.value - 1] = NULL;
- 		return 1;
- 	}
- 	return 0;
-diff --git a/libsepol/src/genusers.c b/libsepol/src/genusers.c
-index 98fe53b..27355a7 100644
---- a/libsepol/src/genusers.c
-+++ b/libsepol/src/genusers.c
-@@ -87,7 +87,7 @@ static int load_users(struct policydb *p
- 				return -1;
- 			}
- 			memset(usrdatum, 0, sizeof(user_datum_t));
--			usrdatum->value = ++policydb->p_users.nprim;
-+			usrdatum->s.value = ++policydb->p_users.nprim;
- 			ebitmap_init(&usrdatum->roles.roles);
- 			if (hashtab_insert(policydb->p_users.table,
- 					   id, (hashtab_datum_t) usrdatum)) {
-diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
-index 43a2d53..4633ff7 100644
---- a/libsepol/src/hierarchy.c
-+++ b/libsepol/src/hierarchy.c
-@@ -105,12 +105,12 @@ static int check_type_hierarchy_callback
- 	if (!t2) {
- 		/* If the parent does not exist this type is an orphan, not legal */
- 		ERR(a->handle, "type %s does not exist, %s is an orphan",
--		    parent, a->p->p_type_val_to_name[t->value - 1]);
-+		    parent, a->p->p_type_val_to_name[t->s.value - 1]);
- 		a->numerr++;
- 	} else if (t2->flavor == TYPE_ATTRIB) {
- 		/* The parent is an attribute but the child isn't, not legal */
- 		ERR(a->handle, "type %s is a child of an attribute",
--		    a->p->p_type_val_to_name[t->value - 1]);
-+		    a->p->p_type_val_to_name[t->s.value - 1]);
- 		a->numerr++;
- 	}
- 	free(parent);
-@@ -152,7 +152,7 @@ static int check_avtab_hierarchy_callbac
- 		}
- 		free(parent);
- 
--		key.source_type = t->value;
-+		key.source_type = t->s.value;
- 		key.target_type = k->target_type;
- 		key.target_class = k->target_class;
- 		key.specified = AVTAB_ALLOWED;
-@@ -192,7 +192,7 @@ static int check_avtab_hierarchy_callbac
- 		free(parent);
- 
- 		key.source_type = k->source_type;
--		key.target_type = t2->value;
-+		key.target_type = t2->s.value;
- 		key.target_class = k->target_class;
- 		key.specified = AVTAB_ALLOWED;
- 
-@@ -217,8 +217,8 @@ static int check_avtab_hierarchy_callbac
- 	}
- 
- 	if (t && t2) {
--		key.source_type = t->value;
--		key.target_type = t2->value;
-+		key.source_type = t->s.value;
-+		key.target_type = t2->s.value;
- 		key.target_class = k->target_class;
- 		key.specified = AVTAB_ALLOWED;
- 
-@@ -327,7 +327,7 @@ static int check_role_hierarchy_callback
- 	a = (hierarchy_args_t *) args;
- 	r = (role_datum_t *) d;
- 
--	if (find_parent(a->p->p_role_val_to_name[r->value - 1], &parent))
-+	if (find_parent(a->p->p_role_val_to_name[r->s.value - 1], &parent))
- 		return -1;
- 
- 	if (!parent) {
-@@ -339,7 +339,7 @@ static int check_role_hierarchy_callback
- 	if (!rp) {
- 		/* Orphan role */
- 		ERR(a->handle, "role %s doesn't exist, %s is an orphan",
--		    parent, a->p->p_role_val_to_name[r->value - 1]);
-+		    parent, a->p->p_role_val_to_name[r->s.value - 1]);
- 		free(parent);
- 		a->numerr++;
- 		return 0;
-@@ -354,7 +354,7 @@ static int check_role_hierarchy_callback
- 	if (!ebitmap_cmp(&eb, &rp->types.types)) {
- 		/* This is a violation of the hiearchal constraint, return error condition */
- 		ERR(a->handle, "Role hierarchy violation, %s exceeds %s",
--		    a->p->p_role_val_to_name[r->value - 1], parent);
-+		    a->p->p_role_val_to_name[r->s.value - 1], parent);
- 		a->numerr++;
- 	}
- 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index b94044a..4e74b14 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -129,7 +129,7 @@ static int permission_copy_callback(hash
- 	class_datum_t *src_class = state->src_class;
- 	class_datum_t *dest_class = state->dest_class;
- 	policy_module_t *mod = state->cur;
--	uint32_t sclassi = src_class->value - 1;
-+	uint32_t sclassi = src_class->s.value - 1;
- 	int ret;
- 
- 	perm = (perm_datum_t *) datum;
-@@ -166,7 +166,7 @@ static int permission_copy_callback(hash
- 				    "could not insert permission into class\n");
- 				goto err;
- 			}
--			new_perm->value = dest_class->permissions.nprim + 1;
-+			new_perm->s.value = dest_class->permissions.nprim + 1;
- 			dest_perm = new_perm;
- 		} else {
- 			/* this is case c from above */
-@@ -183,8 +183,8 @@ static int permission_copy_callback(hash
- 	 * module permission bit to target permission bit.  that bit
- 	 * may have originated from the class -or- it could be from
- 	 * the class's common parent.*/
--	if (perm->value > mod->perm_map_len[sclassi]) {
--		uint32_t *newmap = calloc(perm->value, sizeof(*newmap));
-+	if (perm->s.value > mod->perm_map_len[sclassi]) {
-+		uint32_t *newmap = calloc(perm->s.value, sizeof(*newmap));
- 		if (newmap == NULL) {
- 			ERR(state->handle, "Out of memory!");
- 			return -1;
-@@ -193,9 +193,9 @@ static int permission_copy_callback(hash
- 		       mod->perm_map_len[sclassi] * sizeof(*newmap));
- 		free(mod->perm_map[sclassi]);
- 		mod->perm_map[sclassi] = newmap;
--		mod->perm_map_len[sclassi] = perm->value;
-+		mod->perm_map_len[sclassi] = perm->s.value;
- 	}
--	mod->perm_map[sclassi][perm->value - 1] = dest_perm->value;
-+	mod->perm_map[sclassi][perm->s.value - 1] = dest_perm->s.value;
- 
- 	return 0;
-       err:
-@@ -274,11 +274,11 @@ static int class_copy_callback(hashtab_k
- 				    "could not insert new class into symtab");
- 				goto err;
- 			}
--			new_class->value = ++(state->base->p_classes.nprim);
-+			new_class->s.value = ++(state->base->p_classes.nprim);
- 		}
- 	}
- 
--	state->cur->map[SYM_CLASSES][cladatum->value - 1] = new_class->value;
-+	state->cur->map[SYM_CLASSES][cladatum->s.value - 1] = new_class->s.value;
- 
- 	/* copy permissions */
- 	state->src_class = cladatum;
-@@ -326,7 +326,7 @@ static int role_copy_callback(hashtab_ke
- 
- 		/* new_role's dominates and types field will be copied
- 		 * during role_fix_callback() */
--		new_role->value = state->base->p_roles.nprim + 1;
-+		new_role->s.value = state->base->p_roles.nprim + 1;
- 
- 		ret = hashtab_insert(state->base->p_roles.table,
- 				     (hashtab_key_t) new_id,
-@@ -344,7 +344,7 @@ static int role_copy_callback(hashtab_ke
- 			goto cleanup;
- 		}
- 		role_datum_init(new_role);
--		new_role->value = base_role->value;
-+		new_role->s.value = base_role->s.value;
- 		if ((new_id = strdup(id)) == NULL) {
- 			goto cleanup;
- 		}
-@@ -355,7 +355,7 @@ static int role_copy_callback(hashtab_ke
- 		state->dest_decl->p_roles.nprim++;
- 	}
- 
--	state->cur->map[SYM_ROLES][role->value - 1] = base_role->value;
-+	state->cur->map[SYM_ROLES][role->s.value - 1] = base_role->s.value;
- 	return 0;
- 
-       cleanup:
-@@ -420,7 +420,7 @@ static int type_copy_callback(hashtab_ke
- 		/* for attributes, the writing of new_type->types is
- 		   done in type_fix_callback() */
- 
--		new_type->value = state->base->p_types.nprim + 1;
-+		new_type->s.value = state->base->p_types.nprim + 1;
- 
- 		ret = hashtab_insert(state->base->p_types.table,
- 				     (hashtab_key_t) new_id,
-@@ -439,7 +439,7 @@ static int type_copy_callback(hashtab_ke
- 		}
- 		new_type->primary = type->primary;
- 		new_type->flavor = type->flavor;
--		new_type->value = base_type->value;
-+		new_type->s.value = base_type->s.value;
- 		if ((new_id = strdup(id)) == NULL) {
- 			goto cleanup;
- 		}
-@@ -450,7 +450,7 @@ static int type_copy_callback(hashtab_ke
- 		state->dest_decl->p_types.nprim++;
- 	}
- 
--	state->cur->map[SYM_TYPES][type->value - 1] = base_type->value;
-+	state->cur->map[SYM_TYPES][type->s.value - 1] = base_type->s.value;
- 	return 0;
- 
-       cleanup:
-@@ -505,7 +505,7 @@ static int user_copy_callback(hashtab_ke
- 		   fix_user_callback().  the MLS fields are currently
- 		   unimplemented */
- 
--		new_user->value = state->base->p_users.nprim + 1;
-+		new_user->s.value = state->base->p_users.nprim + 1;
- 
- 		ret = hashtab_insert(state->base->p_users.table,
- 				     (hashtab_key_t) new_id,
-@@ -523,7 +523,7 @@ static int user_copy_callback(hashtab_ke
- 			goto cleanup;
- 		}
- 		user_datum_init(new_user);
--		new_user->value = base_user->value;
-+		new_user->s.value = base_user->s.value;
- 		if ((new_id = strdup(id)) == NULL) {
- 			goto cleanup;
- 		}
-@@ -534,7 +534,7 @@ static int user_copy_callback(hashtab_ke
- 		state->dest_decl->p_users.nprim++;
- 	}
- 
--	state->cur->map[SYM_USERS][user->value - 1] = base_user->value;
-+	state->cur->map[SYM_USERS][user->s.value - 1] = base_user->s.value;
- 	return 0;
- 
-       cleanup:
-@@ -569,7 +569,7 @@ static int bool_copy_callback(hashtab_ke
- 			goto cleanup;
- 		}
- 		new_bool->state = booldatum->state;
--		new_bool->value = state->base->p_bools.nprim + 1;
-+		new_bool->s.value = state->base->p_bools.nprim + 1;
- 
- 		ret = hashtab_insert(state->base->p_bools.table,
- 				     (hashtab_key_t) new_id,
-@@ -582,7 +582,7 @@ static int bool_copy_callback(hashtab_ke
- 
- 	}
- 
--	state->cur->map[SYM_BOOLS][booldatum->value - 1] = base_bool->value;
-+	state->cur->map[SYM_BOOLS][booldatum->s.value - 1] = base_bool->s.value;
- 	return 0;
- 
-       cleanup:
-@@ -626,7 +626,7 @@ static int alias_copy_callback(hashtab_k
- 	if (type->flavor == TYPE_ALIAS)
- 		primval = type->primary;
- 	else
--		primval = type->value;
-+		primval = type->s.value;
- 
- 	target_id = mod->policy->p_type_val_to_name[primval - 1];
- 	target_type = hashtab_search(state->base->p_types.table, target_id);
-@@ -646,9 +646,9 @@ static int alias_copy_callback(hashtab_k
- 			goto cleanup;
- 		}
- 		/* the linked copy always has TYPE_ALIAS style aliases */
--		new_type->primary = target_type->value;
-+		new_type->primary = target_type->s.value;
- 		new_type->flavor = TYPE_ALIAS;
--		new_type->value = state->base->p_types.nprim + 1;
-+		new_type->s.value = state->base->p_types.nprim + 1;
- 		if ((new_id = strdup(id)) == NULL) {
- 			goto cleanup;
- 		}
-@@ -665,10 +665,10 @@ static int alias_copy_callback(hashtab_k
- 
- 		if (base_type->flavor == TYPE_ALIAS) {
- 			/* error checking */
--			assert(base_type->primary == target_type->value);
-+			assert(base_type->primary == target_type->s.value);
- 			assert(base_type->primary ==
- 			       mod->map[SYM_TYPES][primval - 1]);
--			assert(mod->map[SYM_TYPES][type->value - 1] ==
-+			assert(mod->map[SYM_TYPES][type->s.value - 1] ==
- 			       base_type->primary);
- 			return 0;
- 		}
-@@ -680,12 +680,12 @@ static int alias_copy_callback(hashtab_k
- 		}
- 
- 		base_type->flavor = TYPE_ALIAS;
--		base_type->primary = target_type->value;
-+		base_type->primary = target_type->s.value;
- 
- 	}
- 	/* the aliases map points from its value to its primary so when this module 
- 	 * references this type the value it gets back from the map is the primary */
--	mod->map[SYM_TYPES][type->value - 1] = base_type->primary;
-+	mod->map[SYM_TYPES][type->s.value - 1] = base_type->primary;
- 
- 	return 0;
- 
-@@ -1497,7 +1497,7 @@ static int find_perm(hashtab_key_t key, 
- 	struct find_perm_arg *arg = varg;
- 
- 	perm_datum_t *perdatum = (perm_datum_t *) datum;
--	if (arg->valuep == perdatum->value) {
-+	if (arg->valuep == perdatum->s.value) {
- 		arg->key = key;
- 		return 1;
- 	}
-diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
-index 509057a..2ab28a7 100644
---- a/libsepol/src/mls.c
-+++ b/libsepol/src/mls.c
-@@ -388,7 +388,7 @@ int mls_context_to_sid(const policydb_t 
- 
- 				if (ebitmap_set_bit
- 				    (&context->range.level[l].cat,
--				     catdatum->value - 1, 1))
-+				     catdatum->s.value - 1, 1))
- 					goto err;
- 
- 				/* If range, set all categories in range */
-@@ -403,11 +403,11 @@ int mls_context_to_sid(const policydb_t 
- 					if (!rngdatum)
- 						goto err;
- 
--					if (catdatum->value >= rngdatum->value)
-+					if (catdatum->s.value >= rngdatum->s.value)
- 						goto err;
- 
--					for (i = catdatum->value;
--					     i < rngdatum->value; i++) {
-+					for (i = catdatum->s.value;
-+					     i < rngdatum->s.value; i++) {
- 						if (ebitmap_set_bit
- 						    (&context->range.level[l].
- 						     cat, i, 1))
-@@ -589,7 +589,7 @@ int mls_convert_context(policydb_t * old
- 				if (!catdatum)
- 					return -EINVAL;
- 				rc = ebitmap_set_bit(&bitmap,
--						     catdatum->value - 1, 1);
-+						     catdatum->s.value - 1, 1);
- 				if (rc)
- 					return rc;
- 			}
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index aa79293..1c5d56c 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -348,10 +348,10 @@ static int roles_init(policydb_t * p)
- 	rc = symtab_insert(p, SYM_ROLES, key, role,
- 			   (p->policy_type ==
- 			    POLICY_MOD ? SCOPE_REQ : SCOPE_DECL), 1,
--			   &role->value);
-+			   &role->s.value);
- 	if (rc)
- 		goto out_free_key;
--	if (role->value != OBJECT_R_VAL) {
-+	if (role->s.value != OBJECT_R_VAL) {
- 		rc = -EINVAL;
- 		goto out_free_role;
- 	}
-@@ -472,9 +472,9 @@ static int common_index(hashtab_key_t ke
- 
- 	comdatum = (common_datum_t *) datum;
- 	p = (policydb_t *) datap;
--	if (!comdatum->value || comdatum->value > p->p_commons.nprim)
-+	if (!comdatum->s.value || comdatum->s.value > p->p_commons.nprim)
- 		return -EINVAL;
--	p->p_common_val_to_name[comdatum->value - 1] = (char *)key;
-+	p->p_common_val_to_name[comdatum->s.value - 1] = (char *)key;
- 
- 	return 0;
- }
-@@ -486,10 +486,10 @@ static int class_index(hashtab_key_t key
- 
- 	cladatum = (class_datum_t *) datum;
- 	p = (policydb_t *) datap;
--	if (!cladatum->value || cladatum->value > p->p_classes.nprim)
-+	if (!cladatum->s.value || cladatum->s.value > p->p_classes.nprim)
- 		return -EINVAL;
--	p->p_class_val_to_name[cladatum->value - 1] = (char *)key;
--	p->class_val_to_struct[cladatum->value - 1] = cladatum;
-+	p->p_class_val_to_name[cladatum->s.value - 1] = (char *)key;
-+	p->class_val_to_struct[cladatum->s.value - 1] = cladatum;
- 
- 	return 0;
- }
-@@ -501,10 +501,10 @@ static int role_index(hashtab_key_t key,
- 
- 	role = (role_datum_t *) datum;
- 	p = (policydb_t *) datap;
--	if (!role->value || role->value > p->p_roles.nprim)
-+	if (!role->s.value || role->s.value > p->p_roles.nprim)
- 		return -EINVAL;
--	p->p_role_val_to_name[role->value - 1] = (char *)key;
--	p->role_val_to_struct[role->value - 1] = role;
-+	p->p_role_val_to_name[role->s.value - 1] = (char *)key;
-+	p->role_val_to_struct[role->s.value - 1] = role;
- 
- 	return 0;
- }
-@@ -518,10 +518,10 @@ static int type_index(hashtab_key_t key,
- 	p = (policydb_t *) datap;
- 
- 	if (typdatum->primary) {
--		if (!typdatum->value || typdatum->value > p->p_types.nprim)
-+		if (!typdatum->s.value || typdatum->s.value > p->p_types.nprim)
- 			return -EINVAL;
--		p->p_type_val_to_name[typdatum->value - 1] = (char *)key;
--		p->type_val_to_struct[typdatum->value - 1] = typdatum;
-+		p->p_type_val_to_name[typdatum->s.value - 1] = (char *)key;
-+		p->type_val_to_struct[typdatum->s.value - 1] = typdatum;
- 	}
- 
- 	return 0;
-@@ -535,11 +535,11 @@ static int user_index(hashtab_key_t key,
- 	usrdatum = (user_datum_t *) datum;
- 	p = (policydb_t *) datap;
- 
--	if (!usrdatum->value || usrdatum->value > p->p_users.nprim)
-+	if (!usrdatum->s.value || usrdatum->s.value > p->p_users.nprim)
- 		return -EINVAL;
- 
--	p->p_user_val_to_name[usrdatum->value - 1] = (char *)key;
--	p->user_val_to_struct[usrdatum->value - 1] = usrdatum;
-+	p->p_user_val_to_name[usrdatum->s.value - 1] = (char *)key;
-+	p->user_val_to_struct[usrdatum->s.value - 1] = usrdatum;
- 
- 	return 0;
- }
-@@ -571,9 +571,9 @@ static int cat_index(hashtab_key_t key, 
- 	p = (policydb_t *) datap;
- 
- 	if (!catdatum->isalias) {
--		if (!catdatum->value || catdatum->value > p->p_cats.nprim)
-+		if (!catdatum->s.value || catdatum->s.value > p->p_cats.nprim)
- 			return -EINVAL;
--		p->p_cat_val_to_name[catdatum->value - 1] = (char *)key;
-+		p->p_cat_val_to_name[catdatum->s.value - 1] = (char *)key;
- 	}
- 
- 	return 0;
-@@ -1363,7 +1363,7 @@ static int perm_read(policydb_t * p
- 		goto bad;
- 
- 	len = le32_to_cpu(buf[0]);
--	perdatum->value = le32_to_cpu(buf[1]);
-+	perdatum->s.value = le32_to_cpu(buf[1]);
- 
- 	buf = next_entry(fp, len);
- 	if (!buf)
-@@ -1401,7 +1401,7 @@ static int common_read(policydb_t * p, h
- 		goto bad;
- 
- 	len = le32_to_cpu(buf[0]);
--	comdatum->value = le32_to_cpu(buf[1]);
-+	comdatum->s.value = le32_to_cpu(buf[1]);
- 
- 	if (symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE))
- 		goto bad;
-@@ -1541,7 +1541,7 @@ static int class_read(policydb_t * p, ha
- 
- 	len = le32_to_cpu(buf[0]);
- 	len2 = le32_to_cpu(buf[1]);
--	cladatum->value = le32_to_cpu(buf[2]);
-+	cladatum->s.value = le32_to_cpu(buf[2]);
- 
- 	if (symtab_init(&cladatum->permissions, PERM_SYMTAB_SIZE))
- 		goto bad;
-@@ -1625,7 +1625,7 @@ static int role_read(policydb_t * p
- 		goto bad;
- 
- 	len = le32_to_cpu(buf[0]);
--	role->value = le32_to_cpu(buf[1]);
-+	role->s.value = le32_to_cpu(buf[1]);
- 
- 	buf = next_entry(fp, len);
- 	if (!buf)
-@@ -1648,9 +1648,9 @@ static int role_read(policydb_t * p
- 	}
- 
- 	if (strcmp(key, OBJECT_R) == 0) {
--		if (role->value != OBJECT_R_VAL) {
-+		if (role->s.value != OBJECT_R_VAL) {
- 			ERR(fp->handle, "role %s has wrong value %d",
--			    OBJECT_R, role->value);
-+			    OBJECT_R, role->s.value);
- 			role_destroy(key, role, NULL);
- 			return -1;
- 		}
-@@ -1690,7 +1690,7 @@ static int type_read(policydb_t * p
- 		goto bad;
- 
- 	len = le32_to_cpu(buf[0]);
--	typdatum->value = le32_to_cpu(buf[1]);
-+	typdatum->s.value = le32_to_cpu(buf[1]);
- 	typdatum->primary = le32_to_cpu(buf[2]);
- 	if (p->policy_type != POLICY_KERN) {
- 		typdatum->flavor = le32_to_cpu(buf[3]);
-@@ -2060,7 +2060,7 @@ static int user_read(policydb_t * p, has
- 		goto bad;
- 
- 	len = le32_to_cpu(buf[0]);
--	usrdatum->value = le32_to_cpu(buf[1]);
-+	usrdatum->s.value = le32_to_cpu(buf[1]);
- 
- 	buf = next_entry(fp, len);
- 	if (!buf)
-@@ -2162,7 +2162,7 @@ static int cat_read(policydb_t * p
- 		goto bad;
- 
- 	len = le32_to_cpu(buf[0]);
--	catdatum->value = le32_to_cpu(buf[1]);
-+	catdatum->s.value = le32_to_cpu(buf[1]);
- 	catdatum->isalias = le32_to_cpu(buf[2]);
- 
- 	buf = next_entry(fp, len);
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index 3f3f719..5c5fe98 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -768,7 +768,7 @@ static int validate_perm(hashtab_key_t k
- 		ERR(NULL, "permission %s disappeared", key);
- 		return -1;
- 	}
--	if (perdatum->value != perdatum2->value) {
-+	if (perdatum->s.value != perdatum2->s.value) {
- 		ERR(NULL, "the value of permissions %s changed", key);
- 		return -1;
- 	}
-@@ -794,7 +794,7 @@ static int validate_class(hashtab_key_t 
- 		ERR(NULL, "class %s disappeared", key);
- 		return -1;
- 	}
--	if (cladatum->value != cladatum2->value) {
-+	if (cladatum->s.value != cladatum2->s.value) {
- 		ERR(NULL, "the value of class %s changed", key);
- 		return -1;
- 	}
-@@ -885,7 +885,7 @@ static int convert_context(sepol_securit
- 	if (!usrdatum) {
- 		goto bad;
- 	}
--	c->user = usrdatum->value;
-+	c->user = usrdatum->s.value;
- 
- 	/* Convert the role. */
- 	role = (role_datum_t *) hashtab_search(args->newp->p_roles.table,
-@@ -894,7 +894,7 @@ static int convert_context(sepol_securit
- 	if (!role) {
- 		goto bad;
- 	}
--	c->role = role->value;
-+	c->role = role->s.value;
- 
- 	/* Convert the type. */
- 	typdatum = (type_datum_t *)
-@@ -903,7 +903,7 @@ static int convert_context(sepol_securit
- 	if (!typdatum) {
- 		goto bad;
- 	}
--	c->type = typdatum->value;
-+	c->type = typdatum->s.value;
- 
- 	rc = mls_convert_context(args->oldp, args->newp, c);
- 	if (rc)
-@@ -1256,7 +1256,7 @@ int hidden sepol_get_user_sids(sepol_sec
- 		rc = -EINVAL;
- 		goto out;
- 	}
--	usercon.user = user->value;
-+	usercon.user = user->s.value;
- 
- 	mysids = malloc(maxnel * sizeof(sepol_security_id_t));
- 	if (!mysids) {
-diff --git a/libsepol/src/users.c b/libsepol/src/users.c
-index 5a4cf72..539d7fc 100644
---- a/libsepol/src/users.c
-+++ b/libsepol/src/users.c
-@@ -140,10 +140,10 @@ int sepol_user_modify(sepol_handle_t * h
- 	/* If it does, we will modify it */
- 	if (usrdatum) {
- 
--		int value_cp = usrdatum->value;
-+		int value_cp = usrdatum->s.value;
- 		user_datum_destroy(usrdatum);
- 		user_datum_init(usrdatum);
--		usrdatum->value = value_cp;
-+		usrdatum->s.value = value_cp;
- 
- 		/* Otherwise, create a new one */
- 	} else {
-@@ -249,14 +249,14 @@ int sepol_user_modify(sepol_handle_t * h
- 			goto omem;
- 
- 		/* Store user */
--		usrdatum->value = ++policydb->p_users.nprim;
-+		usrdatum->s.value = ++policydb->p_users.nprim;
- 		if (hashtab_insert(policydb->p_users.table, name,
- 				   (hashtab_datum_t) usrdatum) < 0)
- 			goto omem;
- 
- 		/* Set up reverse entry */
--		policydb->p_user_val_to_name[usrdatum->value - 1] = name;
--		policydb->user_val_to_struct[usrdatum->value - 1] = usrdatum;
-+		policydb->p_user_val_to_name[usrdatum->s.value - 1] = name;
-+		policydb->user_val_to_struct[usrdatum->s.value - 1] = usrdatum;
- 		name = NULL;
- 
- 		/* Expand roles */
-@@ -332,7 +332,7 @@ int sepol_user_query(sepol_handle_t * ha
- 		return STATUS_SUCCESS;
- 	}
- 
--	if (user_to_record(handle, policydb, usrdatum->value - 1, response) < 0)
-+	if (user_to_record(handle, policydb, usrdatum->s.value - 1, response) < 0)
- 		goto err;
- 
- 	return STATUS_SUCCESS;
-diff --git a/libsepol/src/util.c b/libsepol/src/util.c
-index e389a2e..a824e61 100644
---- a/libsepol/src/util.c
-+++ b/libsepol/src/util.c
-@@ -66,7 +66,7 @@ static int perm_name(hashtab_key_t key, 
- 
- 	perdatum = (perm_datum_t *) datum;
- 
--	if (v->val == perdatum->value) {
-+	if (v->val == perdatum->s.value) {
- 		v->name = key;
- 		return 1;
- 	}
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 8134fb7..991e10a 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -398,7 +398,7 @@ static int cat_write(hashtab_key_t key, 
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
--	buf[items++] = cpu_to_le32(catdatum->value);
-+	buf[items++] = cpu_to_le32(catdatum->s.value);
- 	buf[items++] = cpu_to_le32(catdatum->isalias);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
-@@ -505,7 +505,7 @@ static int cond_write_bool(hashtab_key_t
- 
- 	len = strlen(key);
- 	items = 0;
--	buf[items++] = cpu_to_le32(booldatum->value);
-+	buf[items++] = cpu_to_le32(booldatum->s.value);
- 	buf[items++] = cpu_to_le32(booldatum->state);
- 	buf[items++] = cpu_to_le32(len);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
-@@ -691,7 +691,7 @@ static int perm_write(hashtab_key_t key,
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
--	buf[items++] = cpu_to_le32(perdatum->value);
-+	buf[items++] = cpu_to_le32(perdatum->s.value);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
- 		return -1;
-@@ -716,7 +716,7 @@ static int common_write(hashtab_key_t ke
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
--	buf[items++] = cpu_to_le32(comdatum->value);
-+	buf[items++] = cpu_to_le32(comdatum->s.value);
- 	buf[items++] = cpu_to_le32(comdatum->permissions.nprim);
- 	buf[items++] = cpu_to_le32(comdatum->permissions.table->nel);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
-@@ -808,7 +808,7 @@ static int class_write(hashtab_key_t key
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
- 	buf[items++] = cpu_to_le32(len2);
--	buf[items++] = cpu_to_le32(cladatum->value);
-+	buf[items++] = cpu_to_le32(cladatum->s.value);
- 	buf[items++] = cpu_to_le32(cladatum->permissions.nprim);
- 	if (cladatum->permissions.table)
- 		buf[items++] = cpu_to_le32(cladatum->permissions.table->nel);
-@@ -868,7 +868,7 @@ static int role_write(hashtab_key_t key,
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
--	buf[items++] = cpu_to_le32(role->value);
-+	buf[items++] = cpu_to_le32(role->s.value);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
- 		return -1;
-@@ -904,7 +904,7 @@ static int type_write(hashtab_key_t key,
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
--	buf[items++] = cpu_to_le32(typdatum->value);
-+	buf[items++] = cpu_to_le32(typdatum->s.value);
- 	buf[items++] = cpu_to_le32(typdatum->primary);
- 	if (p->policy_type != POLICY_KERN) {
- 		buf[items++] = cpu_to_le32(typdatum->flavor);
-@@ -939,7 +939,7 @@ static int user_write(hashtab_key_t key,
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
--	buf[items++] = cpu_to_le32(usrdatum->value);
-+	buf[items++] = cpu_to_le32(usrdatum->s.value);
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
- 		return -1;
--- 
-1.4.1
++/* This is where the linker tests should go, including:
++ * - check role, type, bool, user, attr mapping
++ * - check for properly enabled optional
++ * - check for properly disabled optional
++ * - check for non-optional disabled blocks
++ * - properly add symbols declared in optionals
++ */
++
++#include "test-linker.h"
++#include "parse_util.h"
++#include "helpers.h"
++#include "test-common.h"
++#include "test-linker-roles.h"
++#include "test-linker-types.h"
++#include "test-linker-cond-map.h"
++
++#include <sepol/policydb/policydb.h>
++#include <sepol/policydb/link.h>
++#include <sepol/policydb/conditional.h>
++#include <sepol/policydb/expand.h>
++#include <limits.h>
++#include <stdlib.h>
++
++#define NUM_MODS 2
++#define NUM_POLICIES NUM_MODS+1
++
++#define BASEMOD NUM_MODS
++const char *policies[NUM_POLICIES] = {
++	"module1.conf",
++	"module2.conf",
++	"small-base.conf",
++};
++
++static policydb_t basenomods;
++static policydb_t linkedbase;
++static policydb_t *modules[NUM_MODS];
++extern int mls;
++
++int linker_test_init(void)
++{
++	int i;
++
++	if (test_load_policy(&linkedbase, POLICY_BASE, mls, "test-linker", policies[BASEMOD]))
++		return -1;
++
++	if (test_load_policy(&basenomods, POLICY_BASE, mls, "test-linker", policies[BASEMOD]))
++		return -1;
++
++	for (i = 0; i < NUM_MODS; i++) {
++
++		modules[i] = calloc(1, sizeof(*modules[i]));
++		if (!modules[i]) {
++			fprintf(stderr, "out of memory!\n");
++			return -1;
++		}
++
++		if (test_load_policy(modules[i], POLICY_MOD, mls, "test-linker", policies[i]))
++			return -1;
++
++	}
++
++	if (link_modules(NULL, &linkedbase, modules, NUM_MODS, 0)) {
++		fprintf(stderr, "link modules failed\n");
++		return -1;
++	}
++
++	if (link_modules(NULL, &basenomods, NULL, 0, 0)) {
++		fprintf(stderr, "link modules failed\n");
++		return -1;
++	}
++
++	return 0;
++}
++
++int linker_test_cleanup(void)
++{
++	int i;
++
++	policydb_destroy(&basenomods);
++	policydb_destroy(&linkedbase);
++
++	for (i = 0; i < NUM_MODS; i++) {
++		policydb_destroy(modules[i]);
++		free(modules[i]);
++	}
++	return 0;
++}
++
++static void test_linker_indexes(void)
++{
++	test_policydb_indexes(&linkedbase);
++}
++
++static void test_linker_roles(void)
++{
++	base_role_tests(&basenomods);
++	base_role_tests(&linkedbase);
++	module_role_tests(&linkedbase);
++}
++
++static void test_linker_types(void)
++{
++	base_type_tests(&basenomods);
++	base_type_tests(&linkedbase);
++	module_type_tests(&linkedbase);
++}
++
++static void test_linker_cond(void)
++{
++	base_cond_tests(&basenomods);
++	base_cond_tests(&linkedbase);
++	module_cond_tests(&linkedbase);
++}
++
++int linker_add_tests(CU_pSuite suite)
++{
++	if (NULL == CU_add_test(suite, "linker_indexes", test_linker_indexes)) {
++		CU_cleanup_registry();
++		return CU_get_error();
++	}
++	if (NULL == CU_add_test(suite, "linker_types", test_linker_types)) {
++		CU_cleanup_registry();
++		return CU_get_error();
++	}
++	if (NULL == CU_add_test(suite, "linker_roles", test_linker_roles)) {
++		CU_cleanup_registry();
++		return CU_get_error();
++	}
++	if (NULL == CU_add_test(suite, "linker_cond", test_linker_cond)) {
++		CU_cleanup_registry();
++		return CU_get_error();
++	}
++	return 0;
++}
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker-cond-map.c trunk/libsepol/tests/test-linker-cond-map.c
+--- trunk.old/libsepol/tests/test-linker-cond-map.c	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker-cond-map.c	2006-08-02 13:27:49.000000000 -0400
+@@ -0,0 +1,159 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include "parse_util.h"
++#include "helpers.h"
++#include "test-common.h"
++
++#include <sepol/policydb/policydb.h>
++#include <sepol/policydb/link.h>
++#include <sepol/policydb/conditional.h>
++
++#include <CUnit/Basic.h>
++#include <stdlib.h>
++
++/* Tests for conditionals
++ * Test each cond/bool for these
++ * - boolean copied correctly (state is correct)
++ * - conditional expression is correct
++ * Tests: 
++ * - single boolean in base
++ * - single boolean in module
++ * - single boolean in base optional
++ * - single boolean in module optional
++ * - 2 booleans in base
++ * - 2 booleans in module
++ * - 2 booleans in base optional
++ * - 2 booleans in module optional
++ * - 2 booleans, base and module
++ * - 2 booleans, base optional and module
++ * - 2 booleans, base optional and module optional
++ * - 3 booleans, base, base optional, module
++ * - 4 boolean, base, base optional, module, module optional
++ */
++
++typedef struct test_cond_expr {
++	char *bool;
++	uint32_t expr_type;
++} test_cond_expr_t;
++
++void test_cond_expr_mapping(policydb_t * p, avrule_decl_t * d, test_cond_expr_t * bools, int len)
++{
++	int i;
++	cond_expr_t *expr;
++
++	CU_ASSERT_FATAL(d->cond_list != NULL);
++	CU_ASSERT_FATAL(d->cond_list->expr != NULL);
++
++	expr = d->cond_list->expr;
++
++	for (i = 0; i < len; i++) {
++		CU_ASSERT_FATAL(expr != NULL);
++
++		CU_ASSERT(expr->expr_type == bools[i].expr_type);
++		if (bools[i].bool) {
++			CU_ASSERT(strcmp(p->sym_val_to_name[SYM_BOOLS][expr->bool - 1], bools[i].bool) == 0);
++		}
++		expr = expr->next;
++	}
++}
++
++void test_bool_state(policydb_t * p, char *bool, int state)
++{
++	cond_bool_datum_t *b;
++
++	b = hashtab_search(p->p_bools.table, bool);
++	CU_ASSERT_FATAL(b != NULL);
++	CU_ASSERT(b->state == state);
++}
++
++void base_cond_tests(policydb_t * base)
++{
++	avrule_decl_t *d;
++	unsigned int decls[1];
++	test_cond_expr_t bools[2];
++
++	/* these tests look at booleans and conditionals in the base only
++	 * to ensure that they aren't altered or removed during the link process */
++
++	/* bool existance and state, global scope */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b");
++	decls[0] = d->decl_id;
++	test_sym_presence(base, "g_b_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
++	test_bool_state(base, "g_b_bool_1", 0);
++	/* conditional expression mapped correctly */
++	bools[0].bool = "g_b_bool_1";
++	bools[0].expr_type = COND_BOOL;
++	test_cond_expr_mapping(base, d, bools, 1);
++
++	/* bool existance and state, optional scope */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b");
++	decls[0] = d->decl_id;
++	test_sym_presence(base, "o1_b_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
++	test_bool_state(base, "o1_b_bool_1", 1);
++	/* conditional expression mapped correctly */
++	bools[0].bool = "o1_b_bool_1";
++	bools[0].expr_type = COND_BOOL;
++	test_cond_expr_mapping(base, d, bools, 1);
++
++}
++
++void module_cond_tests(policydb_t * base)
++{
++	avrule_decl_t *d;
++	unsigned int decls[1];
++	test_cond_expr_t bools[3];
++
++	/* bool existance and state, module 1 global scope */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1");
++	decls[0] = d->decl_id;
++	test_sym_presence(base, "g_m1_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
++	test_bool_state(base, "g_m1_bool_1", 1);
++	/* conditional expression mapped correctly */
++	bools[0].bool = "g_m1_bool_1";
++	bools[0].expr_type = COND_BOOL;
++	test_cond_expr_mapping(base, d, bools, 1);
++
++	/* bool existance and state, module 1 optional scope */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1");
++	decls[0] = d->decl_id;
++	test_sym_presence(base, "o1_m1_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
++	test_bool_state(base, "o1_m1_bool_1", 0);
++	/* conditional expression mapped correctly */
++	bools[0].bool = "o1_m1_bool_1";
++	bools[0].expr_type = COND_BOOL;
++	test_cond_expr_mapping(base, d, bools, 1);
++
++	/* bool existance and state, module 2 global scope */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m2");
++	decls[0] = d->decl_id;
++	test_sym_presence(base, "g_m2_bool_1", SYM_BOOLS, SCOPE_DECL, decls, 1);
++	test_sym_presence(base, "g_m2_bool_2", SYM_BOOLS, SCOPE_DECL, decls, 1);
++	test_bool_state(base, "g_m2_bool_1", 1);
++	test_bool_state(base, "g_m2_bool_2", 0);
++	/* conditional expression mapped correctly */
++	bools[0].bool = "g_m2_bool_1";
++	bools[0].expr_type = COND_BOOL;
++	bools[1].bool = "g_m2_bool_2";
++	bools[1].expr_type = COND_BOOL;
++	bools[2].bool = NULL;
++	bools[2].expr_type = COND_AND;
++	test_cond_expr_mapping(base, d, bools, 3);
++}
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker-cond-map.h trunk/libsepol/tests/test-linker-cond-map.h
+--- trunk.old/libsepol/tests/test-linker-cond-map.h	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker-cond-map.h	2006-07-26 14:19:16.000000000 -0400
+@@ -0,0 +1,27 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef __TEST_LINKER_COND_MAP_H__
++#define __TEST_LINKER_COND_MAP_H__
++
++extern void base_cond_tests(policydb_t * base);
++extern void module_cond_tests(policydb_t * base);
++
++#endif
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker.h trunk/libsepol/tests/test-linker.h
+--- trunk.old/libsepol/tests/test-linker.h	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker.h	2006-07-26 11:01:56.000000000 -0400
+@@ -0,0 +1,30 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef __TEST_LINKER_H__
++#define __TEST_LINKER_H__
++
++#include <CUnit/Basic.h>
++
++int linker_test_init(void);
++int linker_test_cleanup(void);
++int linker_add_tests(CU_pSuite suite);
++
++#endif
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker-roles.c trunk/libsepol/tests/test-linker-roles.c
+--- trunk.old/libsepol/tests/test-linker-roles.c	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker-roles.c	2006-08-02 13:27:49.000000000 -0400
+@@ -0,0 +1,206 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include "parse_util.h"
++#include "helpers.h"
++#include "test-common.h"
++
++#include <sepol/policydb/policydb.h>
++#include <sepol/policydb/link.h>
++
++#include <CUnit/Basic.h>
++#include <stdlib.h>
++
++/* Tests for roles:
++ * Test for each of these for 
++ * - role in appropriate symtab (global and decl)
++ * - datum in the decl symtab has correct type_set
++ * - scope datum has correct decl ids
++ * - dominates bitmap is correct
++ * Tests:
++ * - role in base, no modules
++ * - role in base optional, no modules
++ * - role a in base, b in module
++ * - role a in base and module (additive)
++ * - role a in base and 2 module
++ * - role a in base optional, b in module
++ * - role a in base, b in module optional
++ * - role a in base optional, b in module optional
++ * - role a in base optional and module
++ * - role a in base and module optional
++ * - role a in base optional and module optional
++ * - role a in base optional and 2 modules
++ * - role a and b in base, b dom a, are types correct (TODO)
++ */
++
++/* this simply tests whether the passed in role only has its own 
++ * value in its dominates ebitmap */
++static void only_dominates_self(policydb_t * p, role_datum_t * role)
++{
++	ebitmap_node_t *tnode;
++	unsigned int i;
++	int found = 0;
++
++	ebitmap_for_each_bit(&role->dominates, tnode, i) {
++		if (ebitmap_node_get_bit(tnode, i)) {
++			found++;
++			CU_ASSERT(i == role->value - 1);
++		}
++	}
++	CU_ASSERT(found == 1);
++}
++
++void base_role_tests(policydb_t * base)
++{
++	avrule_decl_t *decl;
++	role_datum_t *role;
++	unsigned int decls[2];
++	char *types[2];
++
++	/* These tests look at roles in the base only, the desire is to ensure that
++	 * roles are not destroyed or otherwise removed during the link process */
++
++	/**** test for g_b_role_1 in base and decl 1 (global) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	test_sym_presence(base, "g_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
++	/* make sure it has the correct type set (g_b_type_1, no negset, no flags) */
++	types[0] = "g_b_type_1";
++	role = test_role_type_set(base, "g_b_role_1", NULL, types, 1, 0);
++	/* This role should only dominate itself */
++	only_dominates_self(base, role);
++
++	/**** test for o1_b_role_1 in optional (decl 2) ****/
++	decl = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b");
++	decls[0] = decl->decl_id;
++	test_sym_presence(base, "o1_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
++	/* make sure it has the correct type set (o1_b_type_1, no negset, no flags) */
++	types[0] = "o1_b_type_1";
++	role = test_role_type_set(base, "o1_b_role_1", decl, types, 1, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++}
++
++void module_role_tests(policydb_t * base)
++{
++	role_datum_t *role;
++	avrule_decl_t *decl;
++	unsigned int decls[2];
++	char *types[3];
++
++	/* These tests are run when the base is linked with 2 modules,
++	 * They should test whether the roles get copied correctly from the 
++	 * modules into the base */
++
++	/**** test for role in module 1 (global) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "g_m1_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
++	/* make sure it has the correct type set (g_m1_type_1, no negset, no flags) */
++	types[0] = "g_m1_type_1";
++	role = test_role_type_set(base, "g_m1_role_1", NULL, types, 1, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++
++	/**** test for role in module 1 (optional) ****/
++	decl = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1");
++	decls[0] = decl->decl_id;
++	test_sym_presence(base, "o1_m1_role_1", SYM_ROLES, SCOPE_DECL, decls, 1);
++	/* make sure it has the correct type set (o1_m1_type_1, no negset, no flags) */
++	types[0] = "o1_m1_type_1";
++	role = test_role_type_set(base, "o1_m1_role_1", decl, types, 1, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++
++	/* These test whether the type sets are copied to the right place and
++	 * correctly unioned when they should be */
++
++	/**** test for type added to base role in module 1 (global) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "g_b_role_2", SYM_ROLES, SCOPE_DECL, decls, 2);
++	/* make sure it has the correct type set (g_m1_type_1, no negset, no flags) */
++	types[0] = "g_b_type_2";	/* added in base when declared */
++	types[1] = "g_m1_type_1";	/* added in module */
++	role = test_role_type_set(base, "g_b_role_2", NULL, types, 2, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++
++	/**** test for type added to base role in module 1 & 2 (global) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	decls[2] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m2"))->decl_id;
++	test_sym_presence(base, "g_b_role_3", SYM_ROLES, SCOPE_DECL, decls, 3);
++	/* make sure it has the correct type set (g_b_type_2, g_m1_type_2, g_m2_type_2, no negset, no flags) */
++	types[0] = "g_b_type_2";	/* added in base when declared */
++	types[1] = "g_m1_type_2";	/* added in module 1 */
++	types[2] = "g_m2_type_2";	/* added in module 2 */
++	role = test_role_type_set(base, "g_b_role_3", NULL, types, 3, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++
++	/**** test for role in base optional and module 1 (additive) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"))->decl_id;
++	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "o1_b_role_2", SYM_ROLES, SCOPE_DECL, decls, 2);
++	/* this one will have 2 type sets, one in the global symtab and one in the base optional 1 */
++	types[0] = "g_m1_type_1";
++	role = test_role_type_set(base, "o1_b_role_2", NULL, types, 1, 0);
++	types[0] = "o1_b_type_1";
++	role = test_role_type_set(base, "o1_b_role_2", test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"), types, 1, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++
++	/**** test for role in base and module 1 optional (additive) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m1"))->decl_id;
++	test_sym_presence(base, "g_b_role_4", SYM_ROLES, SCOPE_DECL, decls, 2);
++	/* this one will have 2 type sets, one in the global symtab and one in the base optional 1 */
++	types[0] = "g_b_type_2";
++	role = test_role_type_set(base, "g_b_role_4", NULL, types, 1, 0);
++	types[0] = "g_m1_type_2";
++	role = test_role_type_set(base, "g_b_role_4", test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m1"), types, 1, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++
++	/**** test for role in base and module 1 optional (additive) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_b"))->decl_id;
++	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"))->decl_id;
++	test_sym_presence(base, "o3_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 2);
++	/* this one will have 2 type sets, one in the 3rd base optional and one in the 3rd module optional */
++	types[0] = "o3_b_type_1";
++	role = test_role_type_set(base, "o3_b_role_1", test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_b"), types, 1, 0);
++	types[0] = "o3_m1_type_1";
++	role = test_role_type_set(base, "o3_b_role_1", test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"), types, 1, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++
++	/**** test for role in base and module 1 optional (additive) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b"))->decl_id;
++	decls[1] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	decls[2] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m2"))->decl_id;
++	test_sym_presence(base, "o4_b_role_1", SYM_ROLES, SCOPE_DECL, decls, 3);
++	/* this one will have 2 type sets, one in the global symtab (with both module types) and one in the 4th optional of base */
++	types[0] = "g_m1_type_1";
++	role = test_role_type_set(base, "o4_b_role_1", test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b"), types, 1, 0);
++	types[0] = "g_m2_type_1";
++	types[1] = "g_m1_type_2";
++	role = test_role_type_set(base, "o4_b_role_1", NULL, types, 2, 0);
++	/* and only dominates itself */
++	only_dominates_self(base, role);
++}
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker-roles.h trunk/libsepol/tests/test-linker-roles.h
+--- trunk.old/libsepol/tests/test-linker-roles.h	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker-roles.h	2006-08-02 10:37:36.000000000 -0400
+@@ -0,0 +1,29 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef __TEST_LINKER_ROLES_H__
++#define __TEST_LINKER_ROLES_H__
++
++#include <sepol/policydb/policydb.h>
++
++extern void base_role_tests(policydb_t * base);
++extern void module_role_tests(policydb_t * base);
++
++#endif
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker-types.c trunk/libsepol/tests/test-linker-types.c
+--- trunk.old/libsepol/tests/test-linker-types.c	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker-types.c	2006-08-02 13:27:49.000000000 -0400
+@@ -0,0 +1,317 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
++ *         Chad Sellers <csellers@tresys.com>
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include "parse_util.h"
++#include "helpers.h"
++#include "test-common.h"
++
++#include <sepol/policydb/policydb.h>
++#include <sepol/policydb/link.h>
++
++#include <CUnit/Basic.h>
++#include <stdlib.h>
++
++/* Tests for types:
++ * Test for each of these for 
++ * - type in appropriate symtab (global and decl)
++ * - datum in the decl symtab has correct type bitmap (if attr)
++ * - primary is set correctly
++ * - scope datum has correct decl ids
++ * Tests:
++ * - type in base, no modules
++ * - type in base optional, no modules
++ * - type a in base, b in module
++ * - type a in base optional, b in module
++ * - type a in base, b in module optional
++ * - type a in base optional, b in module optional
++ * - attr in base, no modules
++ * - attr in base optional, no modules
++ * - attr a in base, b in module
++ * - attr a in base optional, b in module
++ * - attr a in base, b in module optional
++ * - attr a in base optional, b in module optional
++ * - attr a declared in base, added to in module
++ * - attr a declared in base, added to in module optional
++ * - attr a declared in base, added to in 2 modules 
++ * - attr a declared in base, added to in 2 modules (optional and global)
++ * - attr a declared in base optional, added to in module
++ * - attr a declared in base optional, added to in module optional
++ * - attr a added to in base optional, declared in module
++ * - attr a added to in base optional, declared in module optional
++ * - attr a added to in base optional, declared in module, added to in other module
++ * - attr a added to in base optional, declared in module optional, added to in other module
++ * - attr a added to in base optional, declared in module , added to in other module optional
++ * - attr a added to in base optional, declared in module optional, added to in other module optional
++ * - alias in base of primary type in base, no modules
++ * - alias in base optional of primary type in base, no modules
++ * - alias in base optional of primary type in base optional
++ * - alias in module of primary type in base
++ * - alias in module optional of primary type in base
++ * - alias in module optional of primary type in base optional
++ * - alias in module of primary type in module
++ * - alias in module optional of primary type in module
++ * - alias in module optional of primary type in module optional
++ * - alias a in base, b in module, primary type in base
++ * - alias a in base, b in module, primary type in module
++ * - alias a in base optional, b in module, primary type in base
++ * - alias a in base optional, b in module, primary type in module
++ * - alias a in base, b in module optional, primary type in base
++ * - alias a in base, b in module optional, primary type in module
++ * - alias a in base optional, b in module optional, primary type in base
++ * - alias a in base optional, b in module optional, primary type in module
++ * - alias a in base, required in module, primary type in base
++ * - alias a in base, required in base optional, primary type in base
++ * - alias a in base, required in module optional, primary type in base
++ * - alias a in module, required in base optional, primary type in base
++ * - alias a in module, required in module optional, primary type in base
++ * - alias a in base optional, required in module, primary type in base
++ * - alias a in base optional, required in different base optional, primary type in base
++ * - alias a in base optional, required in module optional, primary type in base
++ * - alias a in module optional, required in base optional, primary type in base
++ * - alias a in module optional, required in module optional, primary type in base
++ * - alias a in module, required in base optional, primary type in module
++ * - alias a in module, required in module optional, primary type in module
++ * - alias a in base optional, required in module, primary type in module
++ * - alias a in base optional, required in different base optional, primary type in module
++ * - alias a in base optional, required in module optional, primary type in module
++ * - alias a in module optional, required in base optional, primary type in module
++ * - alias a in module optional, required in module optional, primary type in module
++ */
++
++/* Don't pass in decls from global blocks since symbols aren't stored in their symtab */
++static void test_type_datum(policydb_t * p, char *id, unsigned int *decls, int len, unsigned int primary)
++{
++	int i;
++	unsigned int value;
++	type_datum_t *type;
++
++	/* just test the type datums for each decl to see if it is what we expect */
++	type = hashtab_search(p->p_types.table, id);
++
++	CU_ASSERT_FATAL(type != NULL);
++	CU_ASSERT(type->primary == primary);
++	CU_ASSERT(type->flavor == TYPE_TYPE);
++
++	value = type->value;
++
++	for (i = 0; i < len; i++) {
++		type = hashtab_search(p->decl_val_to_struct[decls[i] - 1]->p_types.table, id);
++		CU_ASSERT_FATAL(type != NULL);
++		CU_ASSERT(type->primary == primary);
++		CU_ASSERT(type->flavor == TYPE_TYPE);
++		CU_ASSERT(type->value == value);
++	}
++
++}
++
++void base_type_tests(policydb_t * base)
++{
++	unsigned int decls[2];
++	char *types[2];
++
++	/* These tests look at types in the base only, the desire is to ensure that
++	 * types are not destroyed or otherwise removed during the link process.
++	 * if this happens these tests won't work anyway since we are using types to 
++	 * mark blocks */
++
++	/**** test for g_b_type_1 in base and decl 1 (global) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	test_sym_presence(base, "g_b_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	test_type_datum(base, "g_b_type_1", NULL, 0, 1);
++	/* this attr is in the same decl as the type */
++	test_sym_presence(base, "g_b_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "g_b_type_1";
++	test_attr_types(base, "g_b_attr_1", NULL, types, 1);
++
++	/**** test for o1_b_type_1 in optional (decl 2) ****/
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"))->decl_id;
++	test_sym_presence(base, "o1_b_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	test_type_datum(base, "o1_b_type_1", NULL, 0, 1);
++	/* this attr is in the same decl as the type */
++	test_sym_presence(base, "o1_b_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "o1_b_type_1";
++	test_attr_types(base, "o1_b_attr_1", base->decl_val_to_struct[decls[0] - 1], types, 1);
++
++	/* tests for aliases */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	test_sym_presence(base, "g_b_alias_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	test_alias_datum(base, "g_b_alias_1", "g_b_type_3", 1, 0);
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o6_b"))->decl_id;
++	test_sym_presence(base, "g_b_alias_2", SYM_TYPES, SCOPE_DECL, decls, 1);
++	test_alias_datum(base, "g_b_alias_2", "g_b_type_3", 1, 0);
++
++}
++
++void module_type_tests(policydb_t * base)
++{
++	unsigned int decls[2];
++	char *types[2];
++	avrule_decl_t *d;
++
++	/* These tests look at types that were copied from modules or attributes
++	 * that were modified and declared in modules and base. These apply to 
++	 * declarations and modifications in and out of optionals. These tests
++	 * should ensure that types and attributes are correctly copied from modules
++	 * and that attribute type sets are correctly copied and mapped. */
++
++	/* note: scope for attributes is currently smashed if the attribute is declared 
++	 * somewhere so the scope test only looks at global, the type bitmap test looks
++	 * at the appropriate decl symtab */
++
++	/* test for type in module 1 (global) */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "g_m1_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	test_type_datum(base, "g_m1_type_1", NULL, 0, 1);
++	/* attr has is in the same decl as the above type */
++	test_sym_presence(base, "g_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "g_m1_type_1";
++	types[1] = "g_m1_type_2";
++	test_attr_types(base, "g_m1_attr_1", NULL, types, 2);
++
++	/* test for type in module 1 (optional) */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1"))->decl_id;
++	test_sym_presence(base, "o1_m1_type_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	test_type_datum(base, "o1_m1_type_1", NULL, 0, 1);
++	/* attr has is in the same decl as the above type */
++	test_sym_presence(base, "o1_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "o1_m1_type_2";
++	test_attr_types(base, "o1_m1_attr_1", base->decl_val_to_struct[decls[0] - 1], types, 1);
++
++	/* test for attr declared in base, added to in module (global). 
++	 * Since these are both global it'll be merged in the main symtab */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	test_sym_presence(base, "g_b_attr_3", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "g_m1_type_3";
++	test_attr_types(base, "g_b_attr_3", NULL, types, 1);
++
++	/* test for attr declared in base, added to in module (optional). */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	test_sym_presence(base, "g_b_attr_4", SYM_TYPES, SCOPE_DECL, decls, 1);
++
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1"))->decl_id;
++	types[0] = "o1_m1_type_3";
++	test_attr_types(base, "g_b_attr_4", base->decl_val_to_struct[decls[0] - 1], types, 1);
++
++	/* test for attr declared in base, added to in 2 modules (global). (merged in main symtab) */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	test_sym_presence(base, "g_b_attr_5", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "g_m1_type_4";
++	types[1] = "g_m2_type_4";
++	test_attr_types(base, "g_b_attr_5", NULL, types, 2);
++
++	/* test for attr declared in base, added to in 2 modules (optional/global). */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_b"))->decl_id;
++	test_sym_presence(base, "g_b_attr_6", SYM_TYPES, SCOPE_DECL, decls, 1);
++	/* module 2 was global to its type is in main symtab */
++	types[0] = "g_m2_type_5";
++	test_attr_types(base, "g_b_attr_6", NULL, types, 1);
++	d = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"));
++	types[0] = "o3_m1_type_2";
++	test_attr_types(base, "g_b_attr_6", d, types, 1);
++
++	/* test for attr declared in base optional, added to in module (global). */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b"))->decl_id;
++	test_sym_presence(base, "o4_b_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "g_m1_type_5";
++	test_attr_types(base, "o4_b_attr_1", NULL, types, 1);
++
++	/* test for attr declared in base optional, added to in module (optional). */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b"))->decl_id;
++	test_sym_presence(base, "o1_b_attr_2", SYM_TYPES, SCOPE_DECL, decls, 1);
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_m1");
++	types[0] = "o1_m1_type_5";
++	test_attr_types(base, "o1_b_attr_2", d, types, 1);
++
++	/* test for attr declared in module, added to in base optional */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "g_m1_attr_2", SYM_TYPES, SCOPE_DECL, decls, 1);
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o1_b");
++	types[0] = "o1_b_type_2";
++	test_attr_types(base, "g_m1_attr_2", d, types, 1);
++
++	/* test for attr declared in module optional, added to in base optional */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1"))->decl_id;
++	test_sym_presence(base, "o3_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b");
++	types[0] = "o4_b_type_1";
++	test_attr_types(base, "o3_m1_attr_1", d, types, 1);
++
++	/* attr a added to in base optional, declared/added to in module, added to in other module */
++	/* first the module declare/add and module 2 add (since its global it'll be in the main symtab */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "g_m1_attr_3", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "g_m1_type_6";
++	types[1] = "g_m2_type_3";
++	test_attr_types(base, "g_m1_attr_3", NULL, types, 2);
++	/* base add */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_b");
++	types[0] = "o4_b_type_2";
++	test_attr_types(base, "g_m1_attr_3", d, types, 1);
++
++	/* attr a added to in base optional, declared/added in module optional, added to in other module */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o3_m1");
++	decls[0] = d->decl_id;
++	test_sym_presence(base, "o3_m1_attr_2", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "o3_m1_type_3";
++	test_attr_types(base, "o3_m1_attr_2", d, types, 1);
++	/* module 2's type will be in the main symtab */
++	types[0] = "g_m2_type_6";
++	test_attr_types(base, "o3_m1_attr_2", NULL, types, 1);
++	/* base add */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_b");
++	types[0] = "o2_b_type_1";
++	test_attr_types(base, "o3_m1_attr_2", d, types, 1);
++
++	/* attr a added to in base optional, declared/added in module , added to in other module optional */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "g_m1_attr_4", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "g_m1_type_7";
++	test_attr_types(base, "g_m1_attr_4", NULL, types, 1);
++	/* module 2 */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m2");
++	types[0] = "o2_m2_type_1";
++	test_attr_types(base, "g_m1_attr_4", d, types, 1);
++	/* base add */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o5_b");
++	types[0] = "o5_b_type_1";
++	test_attr_types(base, "g_m1_attr_4", d, types, 1);
++
++	/* attr a added to in base optional, declared/added in module optional, added to in other module optional */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o4_m1");
++	decls[0] = d->decl_id;
++	test_sym_presence(base, "o4_m1_attr_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	types[0] = "o4_m1_type_1";
++	test_attr_types(base, "o4_m1_attr_1", d, types, 1);
++	/* module 2 */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o2_m2");
++	types[0] = "o2_m2_type_2";
++	test_attr_types(base, "o4_m1_attr_1", d, types, 1);
++	/* base add */
++	d = test_find_decl_by_sym(base, SYM_TYPES, "tag_o5_b");
++	types[0] = "o5_b_type_2";
++	test_attr_types(base, "o4_m1_attr_1", d, types, 1);
++
++	/* tests for aliases */
++	decls[0] = (test_find_decl_by_sym(base, SYM_TYPES, "tag_g_m1"))->decl_id;
++	test_sym_presence(base, "g_m_alias_1", SYM_TYPES, SCOPE_DECL, decls, 1);
++	test_alias_datum(base, "g_m_alias_1", "g_b_type_3", 1, 0);
++
++}
+diff -pruN -x policies trunk.old/libsepol/tests/test-linker-types.h trunk/libsepol/tests/test-linker-types.h
+--- trunk.old/libsepol/tests/test-linker-types.h	1969-12-31 19:00:00.000000000 -0500
++++ trunk/libsepol/tests/test-linker-types.h	2006-07-26 14:19:16.000000000 -0400
+@@ -0,0 +1,27 @@
++/*
++ * Author: Joshua Brindle <jbrindle@tresys.com>
++ *
++ * Copyright (C) 2006 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef __TEST_LINKER_TYPES_H__
++#define __TEST_LINKER_TYPES_H__
++
++extern void base_type_tests(policydb_t * base);
++extern void module_type_tests(policydb_t * base);
++
++#endif
 
 
 --
